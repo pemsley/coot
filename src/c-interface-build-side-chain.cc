@@ -53,8 +53,9 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
+// just delete this header?
 #include "globjects.h" //includes gtk/gtk.h
 
 #include "coords/mmdb-crystal.h"
@@ -242,37 +243,38 @@ auto_fit_best_rotamer(int imol_coords,
       graphics_info_t g;
       int mode = graphics_info_t::rotamer_search_mode;
       if (! is_valid_map_molecule(imol_map)) {
-	 std::cout << "INFO:: fitting rotamers by clash score only " << std::endl;
+         std::cout << "INFO:: fitting rotamers by clash score only " << std::endl;
          imol_map = -1;
-	 f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(mode,
-									   resno, altloc, ins,
-									   chain, imol_map,
-									   1,
-									   lowest_probability,
-									   *g.Geom_p());
+         f = graphics_info_t::molecules[imol_coords].auto_fit_best_rotamer(mode,
+                                                                           resno, altloc, ins,
+                                                                           chain, imol_map,
+                                                                           1,
+                                                                           lowest_probability,
+                                                                           *g.Geom_p());
       } else {
-	 f = g.molecules[imol_coords].auto_fit_best_rotamer(mode,
-							    resno, altloc, ins,
-							    chain, imol_map,
-							    clash_flag,
-							    lowest_probability,
-							    *g.Geom_p());
+         f = g.molecules[imol_coords].auto_fit_best_rotamer(mode,
+                                                            resno, altloc, ins,
+                                                            chain, imol_map,
+                                                            clash_flag,
+                                                            lowest_probability,
+                                                            *g.Geom_p());
 
-	 // first do real space refine if requested
-	 if (g.rotamer_auto_fit_do_post_refine_flag) {
-	    // Run refine zone with autoaccept, autorange on
-	    // the "clicked" atom:
-	    // BL says:: dont think we do autoaccept!?
-	    short int auto_range = 1;
-	    refine_auto_range(imol_coords, chain_id, resno, altloc);
-	 }
+         // first do real space refine if requested
+         if (g.rotamer_auto_fit_do_post_refine_flag) {
+            // Run refine zone with autoaccept, autorange on
+            // the "clicked" atom:
+            // BL says:: dont think we do autoaccept!?
+            //
+            // 20230115-PE Yes. This needs an auto-accept wrapper.
+            //
+            refine_auto_range(imol_coords, chain_id, resno, altloc);
+         }
 
-	 // get the residue so that it can update the geometry graph
-	 mmdb::Residue *residue_p = g.molecules[imol_coords].get_residue(chain, resno, ins);
-	 if (residue_p) {
-	    g.update_geometry_graphs(&residue_p, 1, imol_coords, imol_map);
-	 }
-	 std::cout << "Fitting score for best rotamer: " << f << std::endl;
+         // get the residue so that it can update the geometry graph
+         mmdb::Residue *residue_p = g.molecules[imol_coords].get_residue(chain, resno, ins);
+         if (residue_p)
+            g.update_geometry_graphs(&residue_p, 1, imol_coords, imol_map); // in auto_fit_best_rotamer
+         std::cout << "Fitting score for best rotamer: " << f << std::endl;
       }
       g.run_post_manipulation_hook(imol_coords, 0);
       graphics_draw();
@@ -292,6 +294,29 @@ auto_fit_best_rotamer(int imol_coords,
 }
 
 
+/*! auto-fit the rotamer for the active residue */
+float auto_fit_rotamer_active_residue() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      const auto &atom_spec = pp.second.second;
+      const std::string &chain_id = atom_spec.chain_id;
+      int res_no = atom_spec.res_no;
+      const std::string &ins_code = atom_spec.ins_code;
+      const std::string &alt_loc = atom_spec.alt_conf;
+      int imol_map = imol_refinement_map();
+      bool clash_flag = 1; // true
+      float lowest_probability = 2.0;
+      return auto_fit_best_rotamer(imol, chain_id.c_str(), res_no, ins_code.c_str(), alt_loc.c_str(), imol_map, clash_flag, lowest_probability);
+   } else {
+      return -1;
+   }
+}
+
+
+
+
 void
 set_auto_fit_best_rotamer_clash_flag(int i) { /* 0 off, 1 on */
    graphics_info_t::rotamer_fit_clash_flag = i;
@@ -299,7 +324,7 @@ set_auto_fit_best_rotamer_clash_flag(int i) { /* 0 off, 1 on */
    std::vector<coot::command_arg_t> args;
    args.push_back(i);
    add_to_history_typed(cmd, args);
-} 
+}
 
 void
 setup_auto_fit_rotamer(short int state) {
@@ -635,6 +660,7 @@ void mutate_active_residue() {
       g.residue_type_chooser_auto_fit_flag = 1;
       g.pick_pending_flag = 0;
    }
+
 }
 
 void
@@ -653,7 +679,7 @@ mutate_active_residue_to_single_letter_code(const std::string &slc) {
          std::string ins_code = atom_spec.ins_code;
          std::string chain_id = atom_spec.chain_id;
          g.molecules[imol].mutate(ires, ins_code, std::string(chain_id), res_type);
-         g.update_geometry_graphs(imol);
+         g.update_validation(imol);
          graphics_draw();
       }
    }
@@ -696,7 +722,7 @@ mutate(int imol, const char *chain_id, int ires, const char *inscode,  const cha
    if (is_valid_model_molecule(imol)) { 
       istate = graphics_info_t::molecules[imol].mutate(ires, inscode, std::string(chain_id), std::string(target_res_type));
       graphics_info_t g;
-      g.update_geometry_graphs(imol);
+      g.update_validation(imol);
       graphics_draw();
    }
    std::string cmd = "mutate";
@@ -1245,12 +1271,10 @@ void apply_fasta_multi_to_fragment(int imol, const std::string &chain_id, int re
 
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
-         std::cout << "here 1" << std::endl;
          mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
          const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
          coot::side_chain_densities scd;
          unsigned int n_sequences = fam.size();
-         std::cout << "here 2 with n_sequences " << n_sequences << std::endl;
          if (n_sequences > 0) {
             for (unsigned int idx=0; idx<n_sequences; idx++) {
                std::string sequence = fam[idx].sequence;

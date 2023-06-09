@@ -51,7 +51,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 
 // #include "interface.h"
@@ -735,7 +735,8 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
       if (residue_tree == NULL) {
          std::cout << "ERROR:: residue_tree (go_to_atom_residue_tree) is null!\n";
       } else {
-         graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, residue_tree, atom_list);
+         // graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, residue_tree, atom_list);
+         fill_go_to_atom_window_residue_and_atom_lists_gtk4();
       }
    }
 }
@@ -949,10 +950,11 @@ graphics_info_t::go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer d
       if (imol != old_go_to_molecule) {
 	 // GtkWidget *residue_tree = lookup_widget(GTK_WIDGET(combobox), "go_to_atom_residue_tree");
 	 // GtkWidget *atom_list = lookup_widget(GTK_WIDGET(combobox), "go_to_atom_atom_list");
-	 GtkWidget *residue_tree = widget_from_builder("go_to_atom_residue_tree");
-	 GtkWidget *atom_list = widget_from_builder("go_to_atom_atom_list");
-	 std::cout << "Debug:: fill_go_to_atom_residue_tree_gtk2 " << imol << std::endl;
-	 fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, residue_tree, atom_list);
+	 // GtkWidget *residue_tree = widget_from_builder("go_to_atom_residue_tree");
+	 // GtkWidget *atom_list = widget_from_builder("go_to_atom_atom_list");
+	 // std::cout << "Debug:: fill_go_to_atom_residue_tree_gtk2 " << imol << std::endl;
+	 // fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, residue_tree, atom_list);
+         fill_go_to_atom_window_residue_and_atom_lists_gtk4();
 
       }
    } else {

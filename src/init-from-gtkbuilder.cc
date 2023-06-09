@@ -1,6 +1,5 @@
 
 #include "graphics-info.h"
-#include "dynamic-menus.hh"
 #include "startup-utils.hh"
 #include "draw-2.hh" // for gl area widget
 #include "init-from-gtkbuilder.hh"

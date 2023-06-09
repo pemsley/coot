@@ -36,7 +36,7 @@
 
 #include "c-interface-ligands.hh"
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
 #include "graphics-info.h"
 #include "c-interface.h"
@@ -441,6 +441,8 @@ void fle_view_with_rdkit_to_svg(int imol, const char *chain_id, int res_no, cons
 
 void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *file_format, const char *output_image_file_name) {
 
+#if COMPILE_WITH_LBG // don't configure this test when the time comes, just delete this line
+
 #ifndef MAKE_ENHANCED_LIGAND_TOOLS
 
    std::cout << "WARNING:: fle_view_with_rdkit_internal() not enhanced ligand " << std::endl;
@@ -650,6 +652,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
       }
    }
 #endif // MAKE_ENHANCED_LIGAND_TOOLS   
+#endif // COMPILE_WITH_LBG
 }
 
 void fle_view_set_water_dist_max(float dist_max) { 

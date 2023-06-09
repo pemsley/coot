@@ -21,6 +21,8 @@
  * 02110-1301, USA
  */
 
+#include "validation-graphs.hh"
+#include "widget-from-builder.hh"
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -46,7 +48,7 @@
 #include <mmdb2/mmdb_manager.h>
 
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
@@ -80,6 +82,571 @@
 
 #include "coot-utils/coot-map-utils.hh"
 #include "geometry-graphs.hh"
+
+
+void graphics_info_t::refresh_validation_graph_model_list() {
+
+   g_debug("refresh_validation_graph_model_list() called.");
+
+   std::cout << "----------------------- refresh_validation_graph_model_list --------- " << std::endl;
+
+   gtk_tree_model_foreach(
+                          GTK_TREE_MODEL(validation_graph_model_list),
+                          +[](GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) -> gboolean {
+                             GtkListStore* list = GTK_LIST_STORE(model);
+                             return ! gtk_list_store_remove(list,iter);
+                          },
+                          NULL
+                          );
+   int idx_active = -1; // use this to set active_validation_graph_model_idx
+   for(int i=0; i<graphics_info_t::n_molecules(); i++) {
+      if (graphics_info_t::molecules[i].has_model()) {
+         std::string label = graphics_info_t::molecules[i].dotted_chopped_name();
+         GtkTreeIter iter;
+         std::cout << "----- refresh_validation_graph_model_list adding label " << label << std::endl;
+         gtk_list_store_append(validation_graph_model_list, &iter);
+         gtk_list_store_set(validation_graph_model_list, &iter, 0, label.c_str(), 1, i, -1);
+         if (idx_active  == -1)
+            idx_active = i;
+      }
+   }
+   if (idx_active != -1)
+      active_validation_graph_model_idx = idx_active;
+
+   // g_warning("refresh_validation_graph_model_list(): todo: Check if the active model ID is still on the list and react appropriately");
+   // if (model is no longer on the list) {
+   // 	// destroy all opened validation graphs (via calls to destroy_validation_graph())
+   // }
+   if (!is_valid_model_molecule(active_validation_graph_model_idx)) {
+      std::cout << "TODO:: in refresh_validation_graph_model_list() Destroy graphs for model "
+                << active_validation_graph_model_idx << " here..." << std::endl;
+      // destroy_validation_graph(coot::validation_graph_type type);
+   }
+}
+
+void graphics_info_t::update_active_validation_graph_model(int model_idx) {
+
+   // this happens when the user changes the active model in the model combobox in the validation graph dialog
+
+   // 1. Update the model active model variable
+   active_validation_graph_model_idx = model_idx;
+   std::cout << "update_active_validation_graph_model() active_validation graph model idx"
+             << active_validation_graph_model_idx << std::endl;
+   // 2. Handle chains
+   g_warning("todo: update_active_validation_graph_model(): handle chains");
+   // 3. Recompute all validation data of active validation graphs (by looking up widgets, not the data) and trigger a redraw
+   for (const std::pair<const coot::validation_graph_type,GtkWidget*>& i : validation_graph_widgets) {
+      g_warning("Todo: Display/rebuild validation graph data for: %s [model index changed to %i]",
+                coot::validation_graph_type_to_human_name(i.first).c_str(), model_idx);
+      coot::validation_graph_type graph_type = i.first;
+      GtkWidget *graph = i.second;
+      if (graph_type == coot::validation_graph_type::density_fit) { }
+      if (graph_type == coot::validation_graph_type::omega) { }
+      if (graph_type == coot::validation_graph_type::rama) { }
+      if (graph_type == coot::validation_graph_type::rota) { }
+
+   }
+}
+
+void graphics_info_t::change_validation_graph_chain(const std::string& chain_id) {
+
+   // 20230527-PE It will be a while before this gets filled I think!
+   g_debug("Todo: change_validation_graph_chain");
+}
+
+
+void graphics_info_t::refresh_ramachandran_plot_model_list() {
+
+   // what is this - I mean, who calls it/when does it run? Is this an old method now that we have rama_plot_boxes?
+
+   std::cout << "----------------------- refresh_ramachandran_plot_model_list --------- " << std::endl;
+
+   auto fn = +[] (GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) {
+      GtkListStore* list = GTK_LIST_STORE(model);
+      return gboolean(!gtk_list_store_remove(list,iter));
+   };
+
+   gtk_tree_model_foreach(GTK_TREE_MODEL(ramachandran_plot_model_list), fn, NULL);
+
+   for(int i=0; i<graphics_info_t::n_molecules(); i++) {
+      if (graphics_info_t::molecules[i].has_model()) {
+         std::string label = graphics_info_t::molecules[i].dotted_chopped_name();
+         GtkTreeIter iter;
+         std::cout << "----- refresh_ramachandran_plot_model_list adding label " << label << std::endl;
+         gtk_list_store_append(ramachandran_plot_model_list, &iter);
+         gtk_list_store_set(ramachandran_plot_model_list, &iter, 0, label.c_str(), 1, i, -1);
+      }
+   }
+
+   std::cout << "----------------------- done refresh_ramachandran_plot_model_list --------- " << std::endl;
+}
+
+
+// void create_tab_for_validation_graph(coot::validation_graph_type type, GtkWidget* the_graph) {
+// 	GtkWidget* notebook = widget_from_builder("validation_graph_notebook");
+// 	// we assume that when this function is called, there is no tab for the graph type
+// 	GtkWidget* sw = gtk_scrolled_window_new();
+// 	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(sw), the_graph);
+// 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), sw, gtk_label_new(coot::validation_graph_type_to_human_name(type).c_str()));
+// }
+
+// void destroy_tab_for_validation_graph(coot::validation_graph_type type) {
+// 	GtkWidget* notebook = widget_from_builder("validation_graph_notebook");
+// 	auto find_tab_idx = [notebook](coot::validation_graph_type graph_type) -> int {
+// 		std::string target_label = coot::validation_graph_type_to_human_name(graph_type);
+// 		for(int i = 0; i < gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook));i++) {
+// 			const char* page_label = gtk_notebook_get_tab_label_text(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),i));
+// 			if (!page_label) {
+// 				g_error("NULL page label");
+// 			}
+// 			if (page_label == target_label) {
+// 				return i;
+// 			}
+// 		}
+// 		return -1;
+// 	};
+// 	auto idx = find_tab_idx(type);
+// 	if (idx == -1) {
+// 		g_warning("Failed to find tab for graph type: %s",coot::validation_graph_type_to_human_name(type).c_str());
+// 	} else {
+// 		gtk_notebook_remove_page(GTK_NOTEBOOK(notebook),idx);
+// 	}
+// }
+
+void insert_validation_graph(GtkWidget* graph) {
+
+   GtkWidget* target_box = widget_from_builder("main_window_validation_graph_box");
+   if(! gtk_widget_get_first_child(target_box)) {
+      // Empty validation_graph_box means that we need to make the validation_graph_frame visible first
+      GtkWidget* frame = widget_from_builder("main_window_validation_graph_frame");
+      gtk_widget_set_visible(frame, TRUE);
+   }
+   //g_debug("Inserting %p to the validation graph box.",graph);
+   gtk_box_append(GTK_BOX(target_box), graph);
+
+}
+
+void remove_validation_graph(GtkWidget* graph) {
+
+   // 20230424-PE we move this to the box in the paned in the main window
+   GtkWidget* target_box = widget_from_builder("main_window_validation_graph_box");
+   //g_debug("Removing %p from the validation graph box.",graph);
+   gtk_box_remove(GTK_BOX(target_box), graph);
+   if (! gtk_widget_get_first_child(target_box)) {
+      // If the validation_graph_box is empty now, we need to make the validation_graph_frame invisible
+      GtkWidget* frame = widget_from_builder("main_window_validation_graph_frame");
+      gtk_widget_set_visible(frame, FALSE);
+   }
+}
+
+#include "validation-graphs/validation-information.hh"
+#include "validation-graphs/validation-graph-widget.hh"
+
+coot::validation_information_t
+get_validation_data_for_density_fit_analysis(int imol) {
+
+   graphics_info_t g;  // remove this when added to the class
+
+   coot::validation_information_t r;
+   r.name = "Density fit analysis";
+   r.type = coot::graph_data_type::Score;
+
+   int imol_map = g.Imol_Refinement_Map();
+   if (! g.is_valid_model_molecule(imol))   return r;
+   if (! g.is_valid_map_molecule(imol_map)) return r;
+
+   const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+
+   mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol; // this can be removed when in place
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               coot::residue_spec_t res_spec(residue_p);
+               res_spec.int_user_data = imol; // this is used in the residue block click callback
+               mmdb::PAtom *residue_atoms=0;
+               int n_residue_atoms = 0;
+               residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+               if (n_residue_atoms > 0) {
+                  double residue_density_score = coot::util::map_score(residue_atoms, n_residue_atoms, xmap, 1);
+                  std::string l = "Chain ID: "+ res_spec.chain_id + "     Residue number: "+ std::to_string(res_spec.res_no);
+                  std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
+                  const std::string &chain_id = res_spec.chain_id;
+                  int this_resno = res_spec.res_no;
+                  coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
+                  double score_per_residue = residue_density_score / static_cast<double>(n_residue_atoms);
+                  coot::residue_validation_information_t rvi(res_spec, atom_spec, score_per_residue, l);
+                  r.add_residue_validation_information(rvi, chain_id);
+               }
+            }
+         }
+      }
+   }
+   r.set_min_max();
+   return r;
+}
+
+coot::validation_information_t
+get_validation_data_for_density_correlation_analysis(int imol) {
+
+   graphics_info_t g;  // remove this when added to the class
+
+   coot::validation_information_t vi;
+   vi.name = "Density correlation analysis";
+   vi.type = coot::graph_data_type::Correlation;
+
+   int imol_map = g.Imol_Refinement_Map();
+   if (! g.is_valid_model_molecule(imol))   return vi;
+   if (! g.is_valid_map_molecule(imol_map)) return vi;
+
+   const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+
+   mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol; // this can be removed when in place
+   unsigned short int atom_mask_mode = 0;
+   float atom_radius = 2.0;
+
+   std::vector<coot::residue_spec_t> residue_specs;
+   std::vector<mmdb::Residue *> residues = coot::util::residues_in_molecule(mol);
+   for (unsigned int i=0; i<residues.size(); i++)
+      residue_specs.push_back(coot::residue_spec_t(residues[i]));
+
+   std::vector<std::pair<coot::residue_spec_t, float> > correlations =
+      coot::util::map_to_model_correlation_per_residue(mol,
+                                                       residue_specs,
+                                                       atom_mask_mode,
+                                                       atom_radius, // for masking
+                                                       xmap);
+
+   std::vector<std::pair<coot::residue_spec_t, float> >::const_iterator it;
+   for (it=correlations.begin(); it!=correlations.end(); ++it) {
+      const auto &r_spec(it->first);
+      const auto &correl(it->second);
+
+      auto res_spec = r_spec;
+      res_spec.int_user_data = imol;
+      std::string atom_name = " CA ";
+      coot::atom_spec_t atom_spec(r_spec.chain_id, r_spec.res_no, r_spec.ins_code, atom_name, "");
+      std::string label = "Correl: ";
+      coot::residue_validation_information_t rvi(res_spec, atom_spec, correl, label);
+      vi.add_residue_validation_information(rvi, r_spec.chain_id);
+
+   }
+   vi.set_min_max();
+   return vi;
+}
+
+
+#include "coords/ramachandran-validation.hh"
+
+coot::validation_information_t
+get_validation_data_for_ramachandran_analysis(int imol) {
+
+   coot::validation_information_t vi;
+   vi.name = "Ramachandran analysis";
+   vi.type = coot::graph_data_type::Probability;
+
+   graphics_info_t g;
+   if (! g.is_valid_model_molecule(imol)) return vi;
+
+   mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+
+   const ramachandrans_container_t rc;
+   std::vector<coot::phi_psi_prob_t> rv = coot::ramachandran_validation(mol, rc);
+   for (unsigned int i=0; i<rv.size(); i++) {
+      std::string chain_id = rv[i].phi_psi.chain_id;
+      coot::residue_spec_t residue_spec(rv[i].phi_psi.chain_id, rv[i].phi_psi.residue_number, rv[i].phi_psi.ins_code);
+      residue_spec.int_user_data = imol;
+      double pr = rv[i].probability;
+      std::string label = rv[i].phi_psi.chain_id + std::string(" ") + std::to_string(rv[i].phi_psi.residue_number);
+      if (! rv[i].phi_psi.ins_code.empty())
+         label += std::string(" ") + rv[i].phi_psi.ins_code;
+      coot::atom_spec_t atom_spec(residue_spec.chain_id, residue_spec.res_no, residue_spec.ins_code, " CA ", "");
+      coot::residue_validation_information_t rvi(residue_spec, atom_spec, pr, label);
+      vi.add_residue_validation_information(rvi, chain_id);
+   }
+   vi.set_min_max();
+   return vi;
+}
+
+coot::validation_information_t
+get_validation_data_for_rotamer_analysis(int imol) {
+
+   coot::validation_information_t vi;
+   vi.name = "Rotamer analysis";
+   vi.type = coot::graph_data_type::Probability;
+
+   graphics_info_t g;
+   if (! g.is_valid_model_molecule(imol)) return vi;
+
+   mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+
+   // fill these
+   mmdb::PResidue *SelResidues = 0;
+   int nSelResidues = 0;
+
+   int selHnd = mol->NewSelection(); // yes, it's deleted.
+   int imod = 1; // multiple models don't work on validation graphs
+
+   mol->Select(selHnd, mmdb::STYPE_RESIDUE, imod,
+                        "*", // chain_id
+                        mmdb::ANY_RES, "*",
+                        mmdb::ANY_RES, "*",
+                        "*",  // residue name
+                        "*",  // Residue must contain this atom name?
+                        "*",  // Residue must contain this Element?
+                        "*",  // altLocs
+                        mmdb::SKEY_NEW // selection key
+                        );
+   mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+
+   if (nSelResidues > 2) {
+
+      for (int ir=0; ir<nSelResidues; ir++) {
+         mmdb::Residue *residue_p = SelResidues[ir];
+         coot::residue_spec_t res_spec(residue_p);
+         res_spec.int_user_data = imol;
+         mmdb::PAtom *residue_atoms=0;
+         int n_residue_atoms;
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+
+         // double residue_density_score = coot::util::map_score(residue_atoms, n_residue_atoms, xmap, 1);
+
+         if (n_residue_atoms > 5) {
+
+            std::string res_name = residue_p->GetResName();
+            if (true) {
+
+               coot::rotamer rot(residue_p);
+               coot::rotamer_probability_info_t rpi = rot.probability_of_this_rotamer();
+               double prob = rpi.probability * 0.01; // to range 0->1
+
+               std::string l = "Chain ID: " + res_spec.chain_id+"     Residue number: " + std::to_string(res_spec.res_no);
+               std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
+               const std::string &chain_id = res_spec.chain_id;
+               int this_resno = res_spec.res_no;
+               coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
+               coot::residue_validation_information_t rvi(res_spec, atom_spec, prob, l);
+               vi.add_residue_validation_information(rvi, chain_id);
+            }
+         }
+      }
+      mol->DeleteSelection(selHnd);
+   }
+   vi.set_min_max();
+   return vi;
+}
+
+#include "ideal/simple-restraint.hh"
+
+coot::validation_information_t
+get_validation_data_for_peptide_omega_analysis(int imol) {
+
+   coot::validation_information_t vi;
+   vi.name = "Peptide Omega analysis";
+   vi.type = coot::graph_data_type::UNSET; // should it have a type?
+
+   graphics_info_t g;
+   const coot::protein_geometry &geom = *g.Geom_p();
+   if (! g.is_valid_model_molecule(imol)) return vi;
+
+   mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+   int imodel = 1;
+   mmdb::Model *model_p = mol->GetModel(imodel);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         std::cout << "ichain: " << ichain << std::endl;
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::cout << "ichain: " << ichain << " " << chain_p << std::endl;
+         std::string chain_id(chain_p->GetChainID());
+         coot::restraints_container_t rc(g.molecules[imol].atom_sel, chain_id, nullptr);
+         coot::omega_distortion_info_container_t odi = rc.omega_trans_distortions(geom, true);
+         std::cout << "odi: chain_id "  << odi.chain_id << std::endl;
+         std::cout << "odi: min_resno " << odi.min_resno << std::endl;
+         std::cout << "odi: max_resno " << odi.max_resno << std::endl;
+         std::cout << "odi: n omega_distortions " << odi.omega_distortions.size() << std::endl;
+
+         coot::chain_validation_information_t cvi(chain_id);
+         for (const auto &od : odi.omega_distortions) {
+            coot::residue_spec_t res_spec(chain_id, od.resno, "");
+            res_spec.int_user_data = imol;
+            coot::atom_spec_t atom_spec(chain_id, od.resno, "", " CA ", "");
+            std::string label = od.info_string;
+            coot::residue_validation_information_t rvi(res_spec, atom_spec, od.distortion, label);
+            cvi.add_residue_validation_information(rvi);
+         }
+         vi.cviv.push_back(cvi);
+      }
+   }
+   vi.set_min_max();
+   return vi;
+}
+
+
+coot::validation_information_t
+get_validation_data_for_temperature_factor_analysis(int imol) {
+
+   coot::validation_information_t vi;
+   vi.name = "Temperature Factor analysis";
+   vi.type = coot::graph_data_type::UNSET; // should it have a type?
+
+
+   graphics_info_t g;
+   if (! g.is_valid_model_molecule(imol)) return vi;
+
+   mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+   bool is_shelx_mol = g.molecules[imol].is_from_shelx_ins();
+   coot_extras::b_factor_analysis bfa(mol, is_shelx_mol);
+   std::vector<coot_extras::my_chain_of_stats_t> bfa_chain_info = bfa.chain_details(); // bfkurt.hh
+
+   for (const auto &chain : bfa_chain_info) {
+      coot::chain_validation_information_t cvi(chain.chain_id);
+      for (const auto &res_prop : chain.residue_properties) {
+         coot::residue_spec_t res_spec(chain.chain_id, res_prop.resno, res_prop.inscode);
+         coot::atom_spec_t   atom_spec(chain.chain_id, res_prop.resno, res_prop.inscode, res_prop.atom_name, "");
+         res_spec.int_user_data = imol;
+         std::string label = "Label";
+         coot::residue_validation_information_t rvi(res_spec, atom_spec, res_prop.mean, label);
+         cvi.add_residue_validation_information(rvi);
+      }
+      vi.cviv.push_back(cvi);
+   }
+
+   vi.set_min_max();
+   return vi;
+}
+
+coot::validation_information_t
+graphics_info_t::get_validation_data_for_geometry_analysis(int imol) {
+
+   coot::validation_information_t vi;
+   vi.name = "Geometry Distortion analysis";
+   vi.type = coot::graph_data_type::Distortion;
+
+   if (! is_valid_model_molecule(imol)) return vi;
+
+   bool with_nbcs = false; // 20230417-PE for now
+   std::vector<coot::geometry_distortion_info_container_t> gd =
+      geometric_distortions_from_mol(imol, molecules[imol].atom_sel, with_nbcs);
+
+   for (const auto &chain : gd) {
+      coot::chain_validation_information_t cvi(chain.chain_id);
+      std::map<coot::residue_spec_t, double> residue_distortion_sum_map;
+      // we have a vector of restraints - what restraints are they, I wonder.
+      for (const auto &rest : chain.geometry_distortion) {
+         std::map<coot::residue_spec_t, double>::iterator it = residue_distortion_sum_map.find(rest.residue_spec);
+         if (it == residue_distortion_sum_map.end()) {
+            residue_distortion_sum_map[rest.residue_spec] = rest.distortion_score;
+         } else {
+            it->second += rest.distortion_score;
+         }
+      }
+
+      std::map<coot::residue_spec_t, double>::iterator it;
+      for (it=residue_distortion_sum_map.begin(); it != residue_distortion_sum_map.end(); ++it) {
+         coot::atom_spec_t atom_spec; // not set (yet) - what is it used for?
+         auto res_spec = it->first;
+         res_spec.int_user_data = imol;
+         std::string label = "Label";
+         double distortion_sum = it->second;
+         coot::residue_validation_information_t rvi(res_spec, atom_spec, distortion_sum, label);
+         cvi.add_residue_validation_information(rvi);
+      }
+      vi.cviv.push_back(cvi);
+   }
+   // vi.set_min_max(); // this is auto-scaling, we don't want that.
+   vi.min_max = coot::validation_information_min_max_t(0.0, 200.0);
+   return vi;
+}
+
+coot::validation_information_t
+get_validation_data(int imol, coot::validation_graph_type type) {
+
+   graphics_info_t g;
+
+   // types in validation-graphs.hh
+
+   coot::validation_information_t vi;
+   if (type == coot::validation_graph_type::density_fit)
+      vi = get_validation_data_for_density_fit_analysis(imol);
+   if (type == coot::validation_graph_type::density_correlation)
+      vi = get_validation_data_for_density_correlation_analysis(imol);
+   if (type == coot::validation_graph_type::rama)
+      vi = get_validation_data_for_ramachandran_analysis(imol);
+   if (type == coot::validation_graph_type::rota)
+      vi = get_validation_data_for_rotamer_analysis(imol);
+   if (type == coot::validation_graph_type::temp_factor)
+      vi = get_validation_data_for_temperature_factor_analysis(imol);
+   if (type == coot::validation_graph_type::omega)
+      vi = get_validation_data_for_peptide_omega_analysis(imol);
+   if (type == coot::validation_graph_type::geometry)
+      vi = g.get_validation_data_for_geometry_analysis(imol);
+
+   return vi;
+
+}
+
+
+// pass active_validation_graph_model_idx as imol
+// static
+void
+graphics_info_t::create_validation_graph(int imol, coot::validation_graph_type type) {
+
+   std::cout << "Yes! create_validation_graph() for " << imol << " type: "
+             << coot::validation_graph_type_to_human_name(type) << std::endl;
+
+   if (imol != -1) {
+      // 1. instantiate the validation graph
+      CootValidationGraph *cvg = coot_validation_graph_new();
+      GtkWidget *this_is_the_graph = GTK_WIDGET(cvg);
+      // 3. Compute data
+      coot::validation_information_t vi = get_validation_data(imol, type);
+      validation_graph_widgets[type] = this_is_the_graph;
+      // 4. Store the data in std::maps
+      std::shared_ptr<coot::validation_information_t> vip = std::make_shared<coot::validation_information_t>(vi);
+      validation_graph_data[type] = vip;
+      // 5. Set the data for the graph
+      coot_validation_graph_set_validation_information(cvg, vip);
+      // 6. Show the graph
+      insert_validation_graph(this_is_the_graph);
+
+      auto callback = +[] (G_GNUC_UNUSED CootValidationGraph* self,
+                           const coot::residue_validation_information_t* residue_vip,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+         std::cout << "residue-clicked handler " << residue_vip->label << " " << residue_vip->residue_spec << std::endl;
+         int imol = residue_vip->residue_spec.int_user_data; // set by constructor of the validation information
+         graphics_info_t g;
+         g.go_to_residue(imol, residue_vip->residue_spec);
+      };
+
+      g_signal_connect(cvg, "residue-clicked", G_CALLBACK(callback), nullptr);
+
+   } else {
+      g_warning("graphics_info_t::create_validation_graph(): There is no valid active validation graph model.");
+   }
+}
+
+// see update_validation_graphs(imol) below
+
+
+void
+graphics_info_t::destroy_validation_graph(coot::validation_graph_type type) {
+
+   // 1. Remove the graph and its data from std::maps
+   auto* widget = validation_graph_widgets[type];
+   validation_graph_widgets.erase(type);
+   validation_graph_data.erase(type);
+   // 2. Destroy the graph widget
+   remove_validation_graph(widget);
+
+}
 
 // Validation stuff	    //
 
@@ -215,6 +782,8 @@ graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelRes
       }
    }
 #endif
+
+   update_validation(imol);
 }
 
 #include "nsv.hh"
@@ -224,6 +793,7 @@ void
 graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving_atoms_asc_local,  // searching for update_validation_graphs?
 					int imol_moving_atoms) {
 
+   update_validation(imol_moving_atoms);
 
 #ifdef HAVE_GOOCANVAS
    GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_GEOMETRY);
@@ -370,14 +940,51 @@ graphics_info_t::update_ramachandran_plot(int imol) {
 }
 
 void
-graphics_info_t::update_validation_graphs(int imol) {
+graphics_info_t::update_validation(int imol_changed_model) {
 
-#ifdef HAVE_GOOCANVAS
-   update_ramachandran_plot(imol);
-   // now update the geometry graphs, so get the asc
-   atom_selection_container_t u_asc = molecules[imol].atom_sel;
-   update_geometry_graphs(u_asc, imol);
-#endif
+   update_validation_graphs(imol_changed_model);
+   update_ramachandran_plot(imol_changed_model);
+
+   if (coot_all_atom_contact_dots_are_begin_displayed_for(imol_changed_model)) {
+      mmdb::Manager *mol = molecules[imol_changed_model].atom_sel.mol;
+      coot_all_atom_contact_dots_instanced(mol, imol_changed_model);
+   }
+
+}
+
+void
+graphics_info_t::update_validation_graphs(int imol_changed_model) {
+
+   // imol has change (e.g. a rotamer or RSR) and now I want to update the graphs
+   // for that molecule if they are displayed.
+
+   g_debug("update_validation() called");
+   g_warning("Reimplement update_validation(). "
+             "The function should iterate over the std::map holding validation data for each active graph "
+             "and recompute it, then trigger a redraw.");
+
+   // 20230527-PE maybe this is the right wasy to do it. But I think that I have done it a different way for now.
+   //
+   // update_ramachandran_plot(imol);
+
+   if (active_validation_graph_model_idx == imol_changed_model) {
+      for (const std::pair<const coot::validation_graph_type,GtkWidget*>& i : validation_graph_widgets) {
+         coot::validation_graph_type graph_type = i.first;
+         GtkWidget *graph = i.second;
+         coot::validation_information_t vi = get_validation_data(imol_changed_model, graph_type);
+         std::shared_ptr<coot::validation_information_t> vip = std::make_shared<coot::validation_information_t>(vi);
+         CootValidationGraph *cvg = (CootValidationGraph *)(graph);
+         coot_validation_graph_set_validation_information(cvg, vip);
+      }
+   }
+
+// #ifdef HAVE_GOOCANVAS
+//    update_ramachandran_plot(imol);
+//    // now update the geometry graphs, so get the asc
+//    atom_selection_container_t u_asc = molecules[imol].atom_sel;
+//    update_geometry_graphs(u_asc, imol);
+// #endif
+
 }
 
 
@@ -385,42 +992,13 @@ graphics_info_t::update_validation_graphs(int imol) {
 void
 graphics_info_t::delete_residue_from_geometry_graphs(int imol, coot::residue_spec_t res_spec) {
 
-#ifdef HAVE_GOOCANVAS
-   std::vector<coot::geometry_graph_type> graph_types;
-   graph_types.push_back(coot::GEOMETRY_GRAPH_DENSITY_FIT);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_GEOMETRY);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_B_FACTOR);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_DENSITY_FIT);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_OMEGA_DISTORTION);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_ROTAMER);
-   graph_types.push_back(coot::GEOMETRY_GRAPH_NCS_DIFFS);
-
-   for (unsigned int igt=0; igt<graph_types.size(); igt++) {
-      GtkWidget *graph =
-	 coot::get_validation_graph(imol_moving_atoms, graph_types[igt]);
-      if (graph) {
-	 coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
-	 if (gr) {
-	    gr->delete_block(res_spec.chain_id, res_spec.res_no);
-	 }
-      }
-   }
-
-   // and the sequence view!
-   //
-   GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::SEQUENCE_VIEW);
-   if (graph) {
-      exptl::nsv *sequence_view = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(graph), "nsv"));
-      if (sequence_view) {
-	 mmdb::Manager *mol = molecules[imol_moving_atoms].atom_sel.mol;
-	 sequence_view->regenerate(mol);
-      }
-   }
-#endif
+   update_validation(imol); // 20230528-PE we are not so clever (to be specific about what gets updated) now
 }
 
 void
 graphics_info_t::delete_residues_from_geometry_graphs(int imol, const std::vector<coot::residue_spec_t> &res_specs) {
+
+   update_validation(imol); // 20230528-PE again we are not so clever (to be specific about what gets updated) now
 
 #ifdef HAVE_GOOCANVAS
 

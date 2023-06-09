@@ -53,8 +53,9 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
+// 20220723-PE perhaps delete (the use of) this include file completely?
 #include "globjects.h" //includes gtk/gtk.h
 
 #include "coords/mmdb-crystal.h"
@@ -63,6 +64,7 @@
 #include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
+
 #include "widget-headers.hh"
 
 #include "coot-utils/coot-coord-utils.hh"
@@ -735,7 +737,7 @@ void delete_residue(int imol, const char *chain_id, int resno, const char *insco
       std::string ic(inscode);
       short int istat = g.molecules[imol].delete_residue(model_number_ANY, chain_id, resno, ic);
 
-      g.update_geometry_graphs(imol);
+      g.update_validation(imol);
 
       if (istat) {
 	 // now if the go to atom widget was being displayed, we need to
@@ -745,8 +747,10 @@ void delete_residue(int imol, const char *chain_id, int resno, const char *insco
 
 	 g.update_go_to_atom_window_on_changed_mol(imol);
 
-	 if (! is_valid_model_molecule(imol))
-	    g.delete_molecule_from_from_display_manager(imol, false);
+	 if (! is_valid_model_molecule(imol)) {
+
+	    g.delete_molecule_from_display_manager(imol, false);
+         }
 
 	 graphics_draw();
       } else {
@@ -891,7 +895,7 @@ int delete_waters(int imol) {
    return n_deleted;
 }
 
-void delete_chain(int imol, const char *chain_id_in) {
+void delete_chain(int imol, const std::string &chain_id_in) {
 
    std::string chain_id(chain_id_in);
    graphics_info_t g;
@@ -913,7 +917,7 @@ void delete_chain(int imol, const char *chain_id_in) {
       }
 #endif
       if (! is_valid_model_molecule(imol))
-	 g.delete_molecule_from_from_display_manager(imol, false);
+	 g.delete_molecule_from_display_manager(imol, false);
 
       std::string cmd = "delete-chain";
       std::vector<coot::command_arg_t> args;
@@ -926,7 +930,7 @@ void delete_chain(int imol, const char *chain_id_in) {
 }
 
 /*! \brief delete the chain  */
-void delete_sidechains_for_chain(int imol, const char *chain_id_in) {
+void delete_sidechains_for_chain(int imol, const std::string &chain_id_in) {
 
    std::string chain_id(chain_id_in);
    if (is_valid_model_molecule(imol)) {
@@ -1190,8 +1194,9 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
                                                           attribute_name, att_val);
 			v[imol].push_back(as);
 
-                        std::cout << "DEBUG:: Added attribute: "
-                                  << myPyString_AsString(display_python(attribute_expression));
+                        if (false)
+                           std::cout << "DEBUG:: Added attribute: "
+                                     << myPyString_AsString(display_python(attribute_expression));
 		     }
 		  }
 	       }
@@ -2046,7 +2051,7 @@ void delete_residue_range(int imol, const char *chain_id, int resno_start, int r
 	 update_go_to_atom_window_on_changed_mol(imol);
       }
       if (! is_valid_model_molecule(imol))
-	 g.delete_molecule_from_from_display_manager(imol, false);
+	 g.delete_molecule_from_display_manager(imol, false);
    }
    graphics_draw();
    std::string cmd = "delete-residue-range";
@@ -2153,6 +2158,26 @@ place_typed_atom_at_pointer(const char *type) {
    args.push_back(single_quote(type));
    add_to_history_typed(cmd, args);
 }
+
+void add_an_atom(const std::string &element) {
+   // same as above? but modern?
+   graphics_info_t g;
+   g.place_typed_atom_at_pointer(element);
+   std::string cmd = "add-an-atom";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote(element));
+   add_to_history_typed(cmd, args);
+}
+
+#ifdef USE_PYTHON
+void nudge_the_temperature_factors_py(int imol, PyObject *residue_spec_py, float amount) {
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
+      graphics_info_t::molecules[imol].change_b_factors_of_residue_by(residue_spec, amount);
+   }
+}
+#endif
+
 
 void set_pointer_atom_is_dummy(int i) {
    graphics_info_t::pointer_atom_is_dummy = i;
@@ -2530,7 +2555,7 @@ void sort_residues(int imol) {
       if (graphics_info_t::use_graphics_interface_flag) {
         graphics_info_t g;
         if (g.go_to_atom_window) {
-          g.update_go_to_atom_window_on_changed_mol(imol);
+           g.update_go_to_atom_window_on_changed_mol(imol);
         }
       }
    }
@@ -2606,7 +2631,7 @@ int renumber_residue_range(int imol, const char *chain_id,
 	       graphics_info_t g;
 	       graphics_draw();
 	       g.update_go_to_atom_window_on_changed_mol(imol);
-	       g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+	       g.update_validation(imol);
 	    }
 	 }
       }
@@ -2634,7 +2659,7 @@ int change_residue_number(int imol, const char *chain_id, int current_resno, con
       idone = 1;
       graphics_info_t g;
       g.update_go_to_atom_window_on_changed_mol(imol);
-      g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+      g.update_validation(imol);
    }
    std::string cmd = "change-residue-number";
    std::vector<coot::command_arg_t> args;
@@ -3747,15 +3772,13 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression) {
    int state = 0;
    if (is_valid_model_molecule(molecule_number)) {
 
-      mmdb::Manager *mol =
-	 mmdb_manager_from_scheme_expression(molecule_expression);
-
+      mmdb::Manager *mol = mmdb_manager_from_scheme_expression(molecule_expression);
       if (mol) {
 	 state = 1;
 	 graphics_info_t::molecules[molecule_number].replace_molecule(mol);
 	 graphics_draw();
 	 graphics_info_t g;
-	 g.update_geometry_graphs(g.molecules[molecule_number].atom_sel, molecule_number);
+	 g.update_validation(molecule_number);
       }
    } else {
       std::cout << "WARNING:: " << molecule_number << " is not a valid model molecule"
@@ -3771,12 +3794,12 @@ int clear_and_update_molecule_py(int molecule_number, PyObject *molecule_express
    int state = 0;
    if (is_valid_model_molecule(molecule_number)) {
 
-      std::deque<mmdb::Model *> model_list =
-         mmdb_models_from_python_expression(molecule_expression);
-
+      std::deque<mmdb::Model *> model_list = mmdb_models_from_python_expression(molecule_expression);
       if (!model_list.empty()) {
          state = 1;
          graphics_info_t::molecules[molecule_number].replace_models(model_list);
+         graphics_info_t g;
+	 g.update_validation(molecule_number);
          graphics_draw();
       }
    }
@@ -3843,7 +3866,7 @@ void change_chain_id(int imol, const char *from_chain_id, const char *to_chain_i
 							  to_resno);
       graphics_draw();
       g.update_go_to_atom_window_on_changed_mol(imol);
-      g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+      g.update_validation(imol);
    }
 }
 
@@ -3862,7 +3885,7 @@ SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const c
 					   to_resno);
       graphics_draw();
       g.update_go_to_atom_window_on_changed_mol(imol);
-      g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+      g.update_valiadtion_graphs(imol);
       r = SCM_EOL;
       r = scm_cons(scm_from_locale_string(p.second.c_str()), r);
       r = scm_cons(scm_from_int(p.first), r);
@@ -3888,7 +3911,7 @@ PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, co
 
       graphics_draw();
       g.update_go_to_atom_window_on_changed_mol(imol);
-      g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+      g.update_validation(imol);
       v = PyList_New(2);
       PyList_SetItem(v, 0, PyLong_FromLong(r.first));
       PyList_SetItem(v, 1, myPyString_FromString(r.second.c_str()));
@@ -3930,8 +3953,7 @@ int fix_nomenclature_errors(int imol) {
       std::vector<mmdb::Residue *> vr =
 	 graphics_info_t::molecules[imol].fix_nomenclature_errors(g.Geom_p());
       ifixed = vr.size();
-      g.update_geometry_graphs(graphics_info_t::molecules[imol].atom_sel,
-			       imol);
+      g.update_validation(imol);
       graphics_draw();
    }
    // update geometry graphs (not least rotamer graph).
@@ -4149,6 +4171,7 @@ int place_helix_here() {
 	  } else {
 	     g.set_go_to_atom_molecule(imol);
 	  }
+
 	  g.add_status_bar_text("Helix added");
        } else {
 	  std::cout << "Helix addition failure: message: " << n.failure_message << "\n";
@@ -4360,8 +4383,8 @@ int find_secondary_structure_local(
 /*  ----------------------------------------------------------------------- */
 /* Find secondary structure local to current view in the current map.
    Add to a molecule called "NuclAcid", create it if needed. */
-int find_nucleic_acids_local( float radius )
-{
+int find_nucleic_acids_local(float radius) {
+
    // check for data file
    std::string nafile;
    const char *cp = getenv("COOT_PREFIX");
@@ -4413,7 +4436,7 @@ int find_nucleic_acids_local( float radius )
    	 } else {
    	    g.set_go_to_atom_molecule(imol);
    	 }
-   	 std::cout << "Nucleic acids found\n";
+   	 std::cout << "Nucleic acids found" << std::endl;;
    	 g.add_status_bar_text("Nucleic acids added");
    } else {
    	 std::cout << "No nucleic acids found\n";
@@ -4543,7 +4566,8 @@ rigid_body_refine_by_atom_selection(int imol, const char *atom_selection_string)
 	 mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 
 	 if (false)
-	    std::cout << "debug in rigid_body_refine_by_atom_selection() start: here UDDAtomIndexHandle is "
+	    std::cout << "debug in rigid_body_refine_by_atom_selection() start: here "
+                      << "UDDAtomIndexHandle is "
 		      << g.molecules[imol].atom_sel.UDDAtomIndexHandle << std::endl;
 
 	 std::string atom_selection_str(atom_selection_string);
@@ -4796,12 +4820,15 @@ PyObject *accept_moving_atoms_py() {
 
    graphics_info_t g;
    while (g.continue_threaded_refinement_loop) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      // std::cout << "wait ..." << std::endl;
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
    }
+
    coot::refinement_results_t rr = g.accept_moving_atoms(); // does a g.clear_up_moving_atoms();
    rr.show();
    g.clear_moving_atoms_object();
-   return g.refinement_results_to_py(rr);
+   PyObject *o = g.refinement_results_to_py(rr);
+   return o;
 }
 #endif
 
@@ -5222,7 +5249,8 @@ int write_shelx_ins_file(int imol, const char *filename) {
 	 g.add_status_bar_text(stat.second);
 	 std::cout << stat.second << std::endl;
 	 if (istat != 1) {
-	    wrapped_nothing_bad_dialog(stat.second);
+	    // wrapped_nothing_bad_dialog(stat.second);
+            info_dialog(stat.second.c_str());
 	 }
       } else {
 	 std::cout << "WARNING:: invalid molecule (" << imol
@@ -5282,6 +5310,7 @@ PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno) {
 /*  ----------------------------------------------------------------------- */
 /*                  SMILES                                                  */
 /*  ----------------------------------------------------------------------- */
+// 20230605-PE Old hideous scripting thing. Delete.
 void do_smiles_gui() {
 
 #if defined USE_GUILE
@@ -5957,4 +5986,128 @@ void set_auto_h_bond_restraints(int state) {
 
 void set_refine_hydrogen_bonds(int state) {
    set_auto_h_bond_restraints(state);
+}
+
+
+void get_mol_edit_lock(std::atomic<bool> &mol_edit_lock) {
+   // std::cout << "debug:: test_function_scm() trying to get the lock with mol_edit_lock " << mol_edit_lock << std::endl;
+   bool unlocked = false;
+   while (! mol_edit_lock.compare_exchange_weak(unlocked, true)) {
+      // std::cout << "test_function_scm() failed to get the mol_edit_lock" << std::endl;
+      std::this_thread::sleep_for(std::chrono::microseconds(100));
+      unlocked = false;
+   }
+   // std::cout << "debug:: test_function_scm() got the lock" << std::endl;
+}
+
+void release_mol_edit_lock(std::atomic<bool> &mol_edit_lock) {
+   mol_edit_lock = false;
+   // std::cout << "debug:: test_function_scm() released the lock" << std::endl;
+};
+
+#include "ligand/libres-tracer.hh"
+
+void res_tracer(int imol_map, const std::string &pir_file_name) {
+
+   if (! is_valid_map_molecule(imol_map)) {
+      std::cout << "not a valid map: " << imol_map << std::endl;
+      return;
+   }
+
+   // std::string hklin_file_name = "coot-download/1gwd_map.mtz";
+   // std::string f_col_label   = "FWT";
+   // std::string phi_col_label = "PHWT";
+   // std::cout << "Read mtz file " << hklin_file_name << " " << f_col_label << " " << phi_col_label << std::endl;
+   // bool use_weights = false;
+   // bool is_diff_map = false;
+
+   // std::string pir_file_name = "1gwd.pir";
+
+   coot::fasta_multi fam;
+   fam.read(pir_file_name);
+   double variation = 0.4; // speed
+   unsigned int n_top_spin_pairs = 1000; // Use for tracing at most this many spin score pairs (which have been sorted).
+   // This and variation affect the run-time (and results?)
+   // n_top_spin_pairs = 1000; // was 1000
+
+   unsigned int n_top_fragments = 2000; // was 4000 // The top 1000 fragments at least are all the same trace for no-side-chain lyso test
+   float flood_atom_mask_radius = 1.0; // was 0.6 for emdb
+   unsigned int n_phi_psi_trials = 100000; // was 5000
+   float weight = 20.0f; // calculate this (using rmsd)
+   bool with_ncs = false;
+   float rmsd_cuffoff = 2.3;
+
+   mmdb::Manager *working_mol = new mmdb::Manager;
+
+   int imol_new = graphics_info_t::create_molecule();
+   atom_selection_container_t asc = make_asc(working_mol);
+   std::string label = "Building Molecule";
+   const std::vector<coot::ghost_molecule_display_t> ghosts;
+   bool shelx_flag = false;
+   graphics_info_t g;
+   g.molecules[imol_new].install_model_with_ghosts(imol_new, asc, g.Geom_p(), label, 1, ghosts,
+                                                   shelx_flag, false, false);
+   update_go_to_atom_window_on_new_mol();
+
+   const clipper::Xmap<float> xmap = g.molecules[imol_map].xmap;
+   // coot::util::map_fill_from_mtz(&xmap, hklin_file_name, f_col_label, phi_col_label, "", use_weights, is_diff_map);
+
+   if (true) { // 20221216-PE what's going wrong with xmap?
+      clipper::Cell c = xmap.cell();
+      std::cout << "debug:: in res_tracer() xmap cell " << c.format() << std::endl;
+   }
+
+   int imol_new_map = g.create_molecule();
+   label = "Map";
+   bool is_em_map_flag = false;
+   g.molecules[imol_new_map].install_new_map(xmap, label, is_em_map_flag);
+   g.graphics_draw();
+
+   watch_res_tracer_data_t *watch_data_p = new watch_res_tracer_data_t(working_mol, imol_new);
+   std::cout << "post-constructor with mol_edit_lock: " << watch_data_p->mol_edit_lock << std::endl;
+
+   // pass geom to this too.
+   std::thread t(res_tracer_proc, xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius,
+                 weight, n_phi_psi_trials, with_ncs, watch_data_p);
+
+   auto watching_timeout_func = [] (gpointer data) {
+      watch_res_tracer_data_t *watch_data_p = static_cast<watch_res_tracer_data_t *>(data);
+      if (false)
+         std::cout << "debug:: watching_timeout_func runs... finished: " << watch_data_p->finished
+                   << " lock: " << watch_data_p->mol_edit_lock
+                   << " update_flag: " << watch_data_p->update_flag << std::endl;
+      if (watch_data_p->update_flag) {
+         watch_data_p->update_flag = false;
+         graphics_info_t g;
+         get_mol_edit_lock(watch_data_p->mol_edit_lock);
+         atom_selection_container_t asc_new = make_asc(watch_data_p->working_mol);
+         g.molecules[watch_data_p->imol_new].atom_sel = asc_new;
+         g.molecules[watch_data_p->imol_new].make_bonds_type_checked();
+         release_mol_edit_lock(watch_data_p->mol_edit_lock);
+         if (watch_data_p->update_count == 1) {
+            auto rc = g.molecules[watch_data_p->imol_new].centre_of_molecule();
+            g.setRotationCentreSimple(rc);
+            update_maps();
+         }
+         g.graphics_draw();
+      }
+      if (watch_data_p->finished) {
+         std::cout << "Final update of working_mol..." << std::endl;
+         get_mol_edit_lock(watch_data_p->mol_edit_lock);
+         atom_selection_container_t asc_new = make_asc(watch_data_p->working_mol);
+         graphics_info_t g;
+         g.molecules[watch_data_p->imol_new].atom_sel = asc_new;
+         g.molecules[watch_data_p->imol_new].make_bonds_type_checked();
+         release_mol_edit_lock(watch_data_p->mol_edit_lock);
+         g.graphics_draw();
+      }
+      int return_status = TRUE;
+      if (watch_data_p->finished)
+         return_status = FALSE; // don't continue
+      return return_status;
+   };
+
+   g_timeout_add(500, watching_timeout_func, watch_data_p);
+
+   t.detach();
 }

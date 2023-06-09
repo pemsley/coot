@@ -49,14 +49,13 @@
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
 class scored_atom_t {
 public:
    std::string atom_name;
    float d;
-   scored_atom_t(const std::string &a, float d_in) {
-      atom_name = a;
+   scored_atom_t(const std::string &a, float d_in) : atom_name(a) {
       d = d_in;
    }
 };
@@ -68,16 +67,13 @@ public:
    int resno;
    float d;
    scored_residue_t(int resno_in, const std::string &ins_code_in, float d_in,
-		    const std::vector<scored_atom_t> &scored_atoms_in) {
+		    const std::vector<scored_atom_t> &scored_atoms_in) : scored_atoms(scored_atoms_in), ins_code(ins_code_in) {
       resno = resno_in;
-      ins_code = ins_code_in;
-      scored_atoms = scored_atoms_in;
       d = d_in;
    }
    // no scored atoms:
-   scored_residue_t(int resno_in, const std::string &ins_code_in, float d_in) { 
+   scored_residue_t(int resno_in, const std::string &ins_code_in, float d_in) : ins_code(ins_code_in) { 
       resno = resno_in;
-      ins_code = ins_code_in;
       d = d_in;
    }
 };
@@ -86,10 +82,8 @@ class scored_chain_t {
 public:
    std::string chain_id;
    std::vector<scored_residue_t> scores;
-   scored_chain_t(std::string chain_id_in, const std::vector<scored_residue_t> &scores_in) {
-      chain_id = chain_id_in;
-      scores = scores_in;
-
+   scored_chain_t(const std::string &chain_id_in, const std::vector<scored_residue_t> &scores_in) :
+      chain_id(chain_id_in), scores(scores_in) {
    }
 };
 

@@ -81,7 +81,7 @@ AX_CXX_HAVE_THREAD
 
 # AX_CXX_COMPILE_STDCXX_11 sets HAVE_CXX11=1 (hopefully)
 if test $HAVE_CXX11 = 1 ; then
-   CXXFLAGS="$CXXFLAGS -std=c++11"
+   CXXFLAGS="$CXXFLAGS -std=c++17"
 else
    echo we can\'t compile coot then
 fi
@@ -170,7 +170,9 @@ dnl Check for MMDB.
 AM_PATH_MMDB2(, [echo Error locating necessary mmdb; exit 1],,)
 
 AM_WITH_SSM
-AM_WITH_CCP4SRS
+
+# Let's not think about CCP4SRS. I could never get the beast to work.
+# AM_WITH_CCP4SRS
 
 AM_SINGLE_FFTW2
 
@@ -203,38 +205,30 @@ dnl test for GSL
 AX_PATH_GSL([1.3],[COOT_GSL_FLAGS=-DHAVE_GSL],[COOT_GSL_FLAGS=""])
 AC_SUBST(COOT_GSL_FLAGS)
 
-#GLM
-AC_LANG_PUSH(C++)
-AC_CHECK_HEADER([glm/glm.hpp],, AC_MSG_ERROR(GLM headers are required.))
-AC_LANG_POP
+dnl =========================== GLM ================================
 
+PKG_CHECK_MODULES(GLM, glm >= 0.9.9)
 
-dnl =========================== GTK, GOOCANVAS ===========================
+dnl =========================== GTK ===========================
 
-AC_ARG_WITH(gtk4, [  --gtk4 build coot with gtk4 ], with_gtk4="yes", with_gtk4="no")
+PKG_CHECK_MODULES(GTK, gtk4 >= 4.4)
 
-if test $with_gtk4 = yes ; then
-   PKG_CHECK_MODULES(GTK, gtk4 >= 4.1)
-else
-   PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.18)
-fi
+PKG_CHECK_MODULES(EPOXY, epoxy >= 1.5)
 
-# goocanvas for GTK4?
-# PKG_CHECK_MODULES([GOOCANVAS], [goocanvas-2.0]) # not for the moment - while trying to compile vs GTK4
-
-PKG_CHECK_MODULES(PyGObject, pygobject-3.0 >= 3.36)
-
+dnl =========================== GLFWw =========================
 
 PKG_CHECK_MODULES(GLFW3, glfw3 >= 3.0)
 
-# this needs a rethink
-MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
-AC_SUBST(MAKE_COOTRC_CMD)
-
-
+dnl =========================== Python =========================
 
 AM_PATH_PYTHON([3.7])
 AX_PYTHON_DEVEL
+
+dnl =========================== PyGObject =========================
+
+PKG_CHECK_MODULES(PyGObject, pygobject-3.0 >= 3.36)
+
+dnl =========================== Boost =========================
 
 AX_BOOST_BASE(,,[AC_MSG_ERROR([No boost found])])
 
@@ -271,28 +265,7 @@ fi
 AC_SUBST(L_BOOST_PYTHON)
 
 
-# Goocanvas is no longer optional
-# AM_PATH_GOOCANVAS
-# if test "$GOOCANVAS_CFLAGS" != "" ; then
-#   GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
-# fi
-
-# this can go away in 2020 - no one will try to use that old RDKit.
-#
-# was RDKIT used and if it was does it have Cairo support (if it does
-# have cairo support, we can use it to generate molecular (chemical)
-# depictions.
-#
-if test -n "$RDKIT_LIBS" ; then
-
-   case "$RDKIT_LIBS" in
-
-     *MolDraw2D*)
-          RDKIT_CXXFLAGS="$RDKIT_CXXFLAGS -DRDKIT_HAS_CAIRO_SUPPORT"
-          ;;
-   esac
-fi
-
+dnl =========================== RDKit =========================
 
 AC_ARG_WITH(enhanced-ligand-tools, [  --with-enhanced-ligand-tools with optional ligand-related dependencies ],
  coot_enhanced_ligand_additions="true",
@@ -325,10 +298,22 @@ fi
 
 echo ENHANCED_LIGAND_TOOLS_CPPFLAGS $ENHANCED_LIGAND_TOOLS_CPPFLAGS
 
-AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
+AC_ARG_ENABLE(lidia-only, [  --enable-lidia-only build lidia only (not coot) ],
  lidia_only="yes",
  lidia_only="no")
 AM_CONDITIONAL([COND_LIDIA_ONLY], [test "$lidia_only" = yes])
+
+AC_ARG_ENABLE(libcootapi-only, [  --enable-libcootapi-only build libcootapi only (not coot) ],
+[case "${enableval}" in
+  yes) libcootapi_only=true ;;
+  no)  libcootapi_only=false ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+esac],[libcootapi_only=false])
+AM_CONDITIONAL([COND_LIBCOOTAPI_ONLY], [test "$libcootapi_only" = true])
+
+echo testingA libcootapi_only is $libcootapi_only
+echo testingA COND_LIBCOOTAPI_ONLY is $COOT_LIBCOOTAPI_ONLY
+echo testingB lidia_only is $lidia_only
 
 AM_CONDITIONAL(MAKE_ENHANCED_LIGAND_TOOLS, test x$coot_enhanced_ligand_additions = xtrue)
 AC_SUBST(ENHANCED_LIGAND_TOOLS_CPPFLAGS)
@@ -348,7 +333,8 @@ AC_SUBST(COOT_BUILD_INFO_STRING)
 # COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
 # correct callbacks in both GTK1 and GTK2 regimes.
 #
-SWIG_FLAGS="-DCOOT_USE_GTK2_INTERFACE"
+# Use swig flags properly. Remove COOT_USE_GTK2_INTERFACE
+SWIG_FLAGS="-DSWIG -DCOOT_USE_GTK2_INTERFACE"
 AC_SUBST(SWIG_FLAGS)
 
 
@@ -433,10 +419,8 @@ cootilus/Makefile
 greg-tests/Makefile
 python-tests/Makefile
 lidia-core/Makefile
-lbg/Makefile
 doc/Makefile
-src/Makefile
-src/coot
+validation-graphs/Makefile
 python/coot_load_modules.py
 data/Makefile
 data/rama-coeffs/Makefile
@@ -449,6 +433,7 @@ pixmaps/icons/Makefile
 textures/Makefile
 rama-data/Makefile
 man/Makefile
+api/Makefile
 pli/Makefile
 fonts/Makefile
 pyrogen/Makefile
@@ -464,12 +449,20 @@ auxil/rama/Makefile
 auxil/sec-str/Makefile
 auxil/strand-analysis/Makefile
 auxil/vectors/Makefile
-rcrane/Makefile
+lbg/Makefile
+src/Makefile
+src/coot
 ])
 AC_OUTPUT
+
 # removed setup/Makefile
 # po/Makefile.in
+
+# 2022-10-28
 # lbg/Makefile
+# rcrane/Makefile
+# src/Makefile
+# src/coot
 
 # GETTEXT related things: When AM_GNU_GETTEXT get enabled, these get enabled.
 # po/Makefile

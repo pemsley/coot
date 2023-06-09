@@ -18,16 +18,16 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-AM_CPPFLAGS = -I$(top_srcdir) $(CLIPPER_CXXFLAGS) 
+AM_CPPFLAGS = -I.. -I$(top_srcdir) $(CLIPPER_CXXFLAGS) 
 
 lib_LTLIBRARIES = libcoot-isosurface.la
 
 pkginclude_HEADERS = Vectors.h CIsoSurface.h density-contour-triangles.hh occlusion.hh transfer-occlusions.hh
 pkgincludedir = $(includedir)/coot/density-contour
 
-check_PROGRAMS = test-occlusion
+check_PROGRAMS = test-occlusion test-gaussian-surface
 
-libcoot_isosurface_la_SOURCES = Vectors.cpp CIsoSurface.cpp density-contour-triangles.cc occlusion.cc
+libcoot_isosurface_la_SOURCES = Vectors.cpp CIsoSurface.cpp density-contour-triangles.cc occlusion.cc gaussian-surface.cc
 
 #libcoot_isosurface_la_LIBADD = \
 #	$(top_builddir)/coords/libcoot-coords.la \
@@ -42,5 +42,10 @@ test_occlusion_SOURCES = test-occlusion.cc
 # I need to add $(CLIPPER_LIBS) here, even though libcoot-coord-utils is correctly linked because
 # I use clipper functions in the test-occlusion program
 test_occlusion_LDADD =  libcoot-isosurface.la $(top_builddir)/coot-utils/libcoot-coord-utils.la $(CLIPPER_LIBS)
+
+test_gaussian_surface_SOURCES = test-gaussian-surface.cc
+# I need to add $(CLIPPER_LIBS) here, even though libcoot-coord-utils is correctly linked because
+# I use clipper functions in the test-occlusion program
+test_gaussian_surface_LDADD =  libcoot-isosurface.la $(top_builddir)/coot-utils/libcoot-coord-utils.la $(CLIPPER_LIBS)
 
 

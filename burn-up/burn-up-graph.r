@@ -1,12 +1,14 @@
 
-ylim=105
-xlim=105
+ylim=120 # was 105
+xlim=480 # was 105
 
-prediction_text_x_placement = 68
-prediction_text_y_placement = 18
+# prediction_text_x_placement = 68
+# prediction_text_y_placement = 18
+prediction_text_x_placement = 140
+prediction_text_y_placement = 0
 
-legend_x = 70
-legend_y = 15
+legend_x = 340
+legend_y = 10
 
 
 source('arrow.r')
@@ -45,10 +47,10 @@ predict = function(x_pos, y_pos) {
                                         # print(paste("m2" + m2))
                                         # print(paste("m_diff" + m_diff))
 
-    print("m1")
-    print(m1)
-    print("m2")
-    print(m2)
+    # print("m1")
+    # print(m1)
+    # print("m2")
+    # print(m2)
     print("m_diff")
     print(m_diff)
 
@@ -63,7 +65,7 @@ predict = function(x_pos, y_pos) {
       today_t = Sys.Date()
       predict_t = today_t + days_delta
       date_s = format(predict_t, format="%d %B %Y")
-      t = paste('Projected Menu Items Completion Day:\n', date_s)
+      t = paste('Projected Completion Day:\n', date_s)
       text(x_pos, y_pos, t, pos=3, cex=0.8)
       s = 3 # should depend on xlim, 3 is good when xlim is 200
       # the ratio between s_x and s_y is the ratio of
@@ -83,12 +85,12 @@ predict = function(x_pos, y_pos) {
 
         nct = paste('Non-converging:', round(m_diff, digits=3))
         print(nct)
-        legend(34, 3.2, nct, cex=0.8, box.lwd=0)
+        legend(34, 3.6, nct, cex=0.8, box.lwd=0)
 
         ## (x-values), (y-values)
 
-        ## lines(c(0, now_day), c(0, done_end*0.5),  col='#202020', lty=2)
-        ## lines(c(0, now_day), c(scope_start*0.5, scope_end*.5), col='#202020', lty=2)
+        lines(c(0, now_day), c(0, menu_item_done_end*0.5),  col='#202020', lty=2)
+        lines(c(0, now_day), c(menu_item_scope_start*0.5, menu_item_scope_end*.5), col='#202020', lty=2)
 
    }
 }
@@ -105,8 +107,8 @@ do_plot = function() {
 
     ## the columns are time(days) n-items-todo n-items-done
 
-    plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n',
-               main="GTK4 Coot-1.0 Development Progress",
+    plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n', cex.main=1.0,
+               main="GTK4 Coot-1.0 Development Progress\n(ignoring Validation Graphs & Ligand Builder and SeqView)",
                xlab="Real Days since records began (6 Aug 2022)",
                ylab="Scope & Work Done (Days)")
 
@@ -135,9 +137,17 @@ do_plot()
 
 predict(prediction_text_x_placement, prediction_text_y_placement)
 
-betterArrow(13, 36, 21, 30, 0.2, col='grey30', code=2)
-text(8, 38., labels="Python Menu\nDump", col='grey30', cex=1.0)
+betterArrow(48, 36, 21, 30, 0.2, col='grey30', code=2)
+text(78, 38., labels="Python Menu\nDump", col='grey30', cex=1.0)
 
+betterArrow(55, 25, 45, 16, 0.2, col='grey30', code=2)
+text(89, 25., labels="Moorhen", col='grey30', cex=1.0)
+
+betterArrow(280, 10, 260, 15, 0.2, col='grey30', code=2)
+text(290, 5, labels="Validation\nGraphs", col='grey30', cex=1.0)
+
+betterArrow(280, 110, 303, 102, 0.2, col='grey30', code=2)
+text(236, 112, labels="Ligand Menu", col='grey30', cex=1.0)
 
 # text(43, 9., labels="Illness", col='grey', cex=1.0)
 

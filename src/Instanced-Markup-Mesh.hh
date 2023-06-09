@@ -3,7 +3,7 @@
 #define INSTANCED_MARKUP_MESH_HH
 
 #include "generic-vertex.hh"
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
 
 #include "lights-info.hh"
 #include "Shader.hh"
@@ -58,8 +58,8 @@ class Instanced_Markup_Mesh {
    enum { VAO_NOT_SET = 99999999 };
 
 public:
-   Instanced_Markup_Mesh() { name = "Unset-Instanced-Mesh"; init(); }
-   Instanced_Markup_Mesh(const std::string &n) : name(n) { init(); }
+   Instanced_Markup_Mesh() : name("Unset-Instanced-Mesh") { init(); }
+   explicit Instanced_Markup_Mesh(const std::string &n) : name(n) { init(); }
    bool is_closed() const {return this_mesh_is_closed; }  // once closed, it's gone.
    std::string get_name() const { return name; }
    void setup_octasphere(unsigned int num_subdivisions);

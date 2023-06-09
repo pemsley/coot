@@ -43,7 +43,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 
 #include "coot-utils/read-sm-cif.hh"
@@ -767,7 +767,7 @@ void execute_ligand_search() {
       // is run in install_simple_wiggly_ligand_idle_fn()
 
       if (lwld.immediate_execute_ligand_search)
-	 execute_ligand_search_internal(lwld.wlig);
+	      execute_ligand_search_internal(lwld.wlig);
 
    } else {
       ligand_wiggly_ligand_data_t lwld = ligand_search_install_wiggly_ligands();
@@ -824,13 +824,13 @@ ligand_search_install_wiggly_ligands() {
    for(unsigned int i=0; i<ligands.size(); i++) {
 
       std::cout << "INFO:: ligand number " << i << " is molecule number "
-		<< g.find_ligand_ligand_mols()[i].first << "  "
-		<< " with wiggly flag: "
-		<< g.find_ligand_ligand_mols()[i].second << std::endl;
+		          << g.find_ligand_ligand_mols()[i].first << "  "
+		          << " with wiggly flag: "
+		          << g.find_ligand_ligand_mols()[i].second << std::endl;
 
       if (ligands[i].second) {
-	 // argh (i).
-	 coot::minimol::molecule mmol(g.molecules[ligands[i].first].atom_sel.mol);
+	      // argh (i).
+	      coot::minimol::molecule mmol(g.molecules[ligands[i].first].atom_sel.mol);
 
 //	 for(unsigned int ifrag=0; ifrag<mmol.fragments.size(); ifrag++) {
 // 	    for (int ires=mmol[ifrag].min_res_no(); ires<=mmol[ifrag].max_residue_number();
@@ -843,49 +843,49 @@ ligand_search_install_wiggly_ligands() {
 //	    }
 //	 }
 
-	 // std::pair<short int, std::string> istat_pair =
-	 try {
-	    bool optim_geom = true;
-	    bool fill_vec = false;
+	      // std::pair<short int, std::string> istat_pair =
+	      try {
+	         bool optim_geom = true;
+	         bool fill_vec = false;
 
-	    if (graphics_info_t::use_graphics_interface_flag) {
-	       ligand_wiggly_ligand_data_t lfwd_local = setup_ligands_progress_bar();
-	       lfwd.imol_ligand = ligands[i].first;
-	       lfwd.progress_bar        = lfwd_local.progress_bar;
-	       lfwd.progress_bar_window = lfwd_local.progress_bar_window;
-	       lfwd.progress_bar_label  = lfwd_local.progress_bar_label;
-	       lfwd.immediate_execute_ligand_search = false;
+	         if (graphics_info_t::use_graphics_interface_flag) {
+	            ligand_wiggly_ligand_data_t lfwd_local = setup_ligands_progress_bar();
+               lfwd.imol_ligand = ligands[i].first;
+               lfwd.progress_bar        = lfwd_local.progress_bar;
+               lfwd.progress_bar_window = lfwd_local.progress_bar_window;
+               lfwd.progress_bar_label  = lfwd_local.progress_bar_label;
+               lfwd.immediate_execute_ligand_search = false;
 
-	       setup_ligands_progress_bar_idle(wlig_p, ligands[i].first, lfwd);
+               setup_ligands_progress_bar_idle(wlig_p, ligands[i].first, lfwd);
 
-	       // this GtkFunction returns a gint and takes a widget
-	       // gint idle = gtk_idle_add((GtkFunction) install_simple_wiggly_ligand_idle_fn,
-	       // progress_bar);
+               // this GtkFunction returns a gint and takes a widget
+               // gint idle = gtk_idle_add((GtkFunction) install_simple_wiggly_ligand_idle_fn,
+               // progress_bar);
 
-	       // wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
-	       // g.ligand_wiggly_ligand_n_samples,
-	       // optim_geom, fill_vec);
+               // wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
+               // g.ligand_wiggly_ligand_n_samples,
+               // optim_geom, fill_vec);
 
-	    } else {
+	         } else {
                unsigned int n_threads = coot::get_max_number_of_threads();
                ctpl::thread_pool thread_pool(n_threads);
-	       wlig_p->install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
+	            wlig_p->install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
 						     g.ligand_wiggly_ligand_n_samples,
 						     optim_geom, fill_vec, &thread_pool, n_threads);
-	    }
-	 }
-	 catch (const std::runtime_error &mess) {
-	    std::cout << "ERROR:: failure in flexible ligand definition.\n";
-	    std::cout << mess.what() << std::endl;
-	    if (graphics_info_t::use_graphics_interface_flag) {
-	       GtkWidget *w = wrapped_nothing_bad_dialog(mess.what());
-	       gtk_widget_show(w);
-	    }
-	    // return solutions;
-	 }
+	         }
+	      }
+	      catch (const std::runtime_error &mess) {
+	         std::cout << "ERROR:: failure in flexible ligand definition.\n";
+	         std::cout << mess.what() << std::endl;
+	         if (graphics_info_t::use_graphics_interface_flag) {
+	            GtkWidget *w = wrapped_nothing_bad_dialog(mess.what());
+	            gtk_widget_show(w);
+	         }
+	         // return solutions;
+	      }
       } else {
-	 // argh (ii).
-	 wlig_p->install_ligand(g.molecules[ligands[i].first].atom_sel.mol);
+	      // argh (ii).
+	      wlig_p->install_ligand(g.molecules[ligands[i].first].atom_sel.mol);
       }
    }
    return lfwd;
@@ -897,6 +897,9 @@ std::vector<int>
 execute_ligand_search_internal(coot::wligand *wlig_p) {
 
    std::vector<int> solutions;
+
+   std::cout << "in execute_ligand_search_internal() find_ligand_here_cluster_flag "
+             << graphics_info_t::find_ligand_here_cluster_flag << std::endl;
 
    graphics_info_t g;
 
@@ -916,6 +919,12 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
       return solutions;
    }
 
+   std::cout << "::::::: Debug in execute_ligand_search" << g.find_ligand_ligand_mols().size() << std::endl;
+   for (size_t i=0; i < g.find_ligand_ligand_mols().size(); i++) {
+      std::cout << i << " " << g.find_ligand_ligand_mols()[i].first << " " << g.find_ligand_ligand_mols()[i].second << std::endl;
+   }
+
+
    mmdb::Manager *protein_mol =
       g.molecules[g.find_ligand_protein_mol()].atom_sel.mol;
 
@@ -926,21 +935,20 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
       wlig_p->set_debug_wiggly_ligands();
    }
 
-   std::cout << "in execute_ligand_search_internal() import maps from mol "
-	     << g.find_ligand_map_mol() << std::endl;
+   std::cout << ":::::::::::: in execute_ligand_search_internal() import maps from mol "
+	          << g.find_ligand_map_mol() << std::endl;
    wlig_p->import_map_from(g.molecules[g.find_ligand_map_mol()].xmap);
    std::vector<std::pair<int, bool> > ligands = g.find_ligand_ligand_mols();
-
 
    short int mask_waters_flag; // treat waters like other atoms?
    mask_waters_flag = g.find_ligand_mask_waters_flag;
    if (! g.find_ligand_here_cluster_flag) {
       int imol = graphics_info_t::create_molecule();
       if (graphics_info_t::map_mask_atom_radius > 0) {
-	 // only do this if it was set by the user.
-	 wlig_p->set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
+	      // only do this if it was set by the user.
+	      wlig_p->set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
       } else {
-	 wlig_p->set_map_atom_mask_radius(2.0);  // Angstroms
+	      wlig_p->set_map_atom_mask_radius(2.0);  // Angstroms
       }
 
       std::string name("ligand masked map");
@@ -994,8 +1002,8 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
 
       // false is the default case
       if (g.find_ligand_multiple_solutions_per_cluster_flag == false) {
-	 nlc = 1;
-	 correl_frac_lim = 0.975;
+	      nlc = 1;
+	      correl_frac_lim = 0.975;
       }
 
       if (nlc > 12) nlc = 12; // arbitrary limit of max 12 solutions per cluster
@@ -1381,13 +1389,6 @@ void do_find_ligands_dialog() {
       // std::cout << "do_find_ligands_dialog()  showing dialog " << dialog << std::endl;
       set_transient_for_main_window(dialog);
 
-      // add expansions for the scrolled windows
-      GtkWidget    *map_scrolled_window = widget_from_builder("find_ligands_map_scrolledwindow");
-      GtkWidget *coords_scrolled_window = widget_from_builder("find_ligands_coords_scrolledwindow");
-
-      gtk_widget_set_size_request(   map_scrolled_window, -1, 70);
-      gtk_widget_set_size_request(coords_scrolled_window, -1, 70);
-
       gtk_widget_show(dialog);
    }
 
@@ -1728,8 +1729,7 @@ PyObject *non_standard_residue_names_py(int imol) {
   PyObject *r = PyList_New(0);
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      std::vector<std::string> resnames =
-	 coot::util::non_standard_residue_types_in_molecule(mol);
+      std::vector<std::string> resnames =  coot::util::non_standard_residue_types_in_molecule(mol);
 
       // remove water if it is there
       std::vector<std::string>::iterator it =
@@ -3161,15 +3161,31 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 		     clipper::Coord_orth bl_3 = 0.6 * pc + 0.4 * p3;
 		     double distortion = sqrt(fabs(gdc.geometry_distortion[i].distortion_score));
 		     coot::colour_holder ch(distortion, 0.1, 5, true, "");
-		     to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						bl_1.x(), bl_1.y(), bl_1.z(),
-						bl_2.x(), bl_2.y(), bl_2.z());
-		     to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						bl_1.x(), bl_1.y(), bl_1.z(),
-						bl_3.x(), bl_3.y(), bl_3.z());
-		     to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						bl_2.x(), bl_2.y(), bl_2.z(),
-						bl_3.x(), bl_3.y(), bl_3.z());
+                     ch.scale_intensity(0.5);
+		     // to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+		     //    			bl_1.x(), bl_1.y(), bl_1.z(),
+		     //    			bl_2.x(), bl_2.y(), bl_2.z());
+		     // to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+		     //    			bl_1.x(), bl_1.y(), bl_1.z(),
+		     //    			bl_3.x(), bl_3.y(), bl_3.z());
+		     // to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+		     //    			bl_2.x(), bl_2.y(), bl_2.z(),
+		     //    			bl_3.x(), bl_3.y(), bl_3.z());
+                     float line_radius = 0.11f;
+                     const unsigned int n_slices = 16;
+
+                     std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(coord_orth_to_glm(bl_1)),
+                                                              glm::vec3(coord_orth_to_glm(bl_2)));
+
+                     std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > v =
+                        { std::make_pair(bl_1, bl_2), std::make_pair(bl_1, bl_2), std::make_pair(bl_2, bl_3) };
+
+                     std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >::const_iterator it;
+                     for (it=v.begin(); it!=v.end(); ++it)
+                        obj.add_cylinder(pos_pair, ch, line_radius, n_slices, true, true,
+                                         meshed_generic_display_object::ROUNDED_CAP,
+                                         meshed_generic_display_object::ROUNDED_CAP);
+
 		     // return (if possible) the atom attached to
 		     // at_c that is not at_1, at_2 or at_3.
 		     mmdb::Atom *at_4th = coot::chiral_4th_atom(residue_p, at_c, at_1, at_2, at_3);
@@ -3177,15 +3193,24 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 			std::cout << "    " << coot::atom_spec_t(at_4th) << std::endl;
 			clipper::Coord_orth p4(at_4th->x, at_4th->y, at_4th->z);
 			clipper::Coord_orth bl_4 = 0.6 * pc + 0.4 * p4;
-			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						   bl_1.x(), bl_1.y(), bl_1.z(),
-						   bl_4.x(), bl_4.y(), bl_4.z());
-			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						   bl_2.x(), bl_2.y(), bl_2.z(),
-						   bl_4.x(), bl_4.y(), bl_4.z());
-			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						   bl_3.x(), bl_3.y(), bl_3.z(),
-						   bl_4.x(), bl_4.y(), bl_4.z());
+			// to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+			// 			   bl_1.x(), bl_1.y(), bl_1.z(),
+			// 			   bl_4.x(), bl_4.y(), bl_4.z());
+			// to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+			// 			   bl_2.x(), bl_2.y(), bl_2.z(),
+			// 			   bl_4.x(), bl_4.y(), bl_4.z());
+			// to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+			// 			   bl_3.x(), bl_3.y(), bl_3.z(),
+			// 			   bl_4.x(), bl_4.y(), bl_4.z());
+
+                        std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > v4 =
+                           { std::make_pair(bl_1, bl_4), std::make_pair(bl_2, bl_4), std::make_pair(bl_3, bl_4) };
+
+                        for (it=v4.begin(); it!=v4.end(); ++it)
+                           obj.add_cylinder(pos_pair, ch, line_radius, n_slices, true, true,
+                                            meshed_generic_display_object::ROUNDED_CAP,
+                                            meshed_generic_display_object::ROUNDED_CAP);
+
 		     } else {
 			// make 4th tetrahedron point from the others
 			clipper::Coord_orth neighb_sum = p1 + p2 + p3;
@@ -3193,21 +3218,31 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 			clipper::Coord_orth dir_unit(clipper::Coord_orth(pc - neighb_average).unit());
 			clipper::Coord_orth p4(pc + 1.2 * dir_unit);
 			clipper::Coord_orth bl_4 = 0.6 * pc + 0.4 * p4;
-			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						   bl_1.x(), bl_1.y(), bl_1.z(),
-						   bl_4.x(), bl_4.y(), bl_4.z());
-			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						   bl_2.x(), bl_2.y(), bl_2.z(),
-						   bl_4.x(), bl_4.y(), bl_4.z());
-			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						   bl_3.x(), bl_3.y(), bl_3.z(),
-						   bl_4.x(), bl_4.y(), bl_4.z());
+			// to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+			// 			   bl_1.x(), bl_1.y(), bl_1.z(),
+			// 			   bl_4.x(), bl_4.y(), bl_4.z());
+			// to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+			// 			   bl_2.x(), bl_2.y(), bl_2.z(),
+			// 			   bl_4.x(), bl_4.y(), bl_4.z());
+			// to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+			// 			   bl_3.x(), bl_3.y(), bl_3.z(),
+			// 			   bl_4.x(), bl_4.y(), bl_4.z());
+
+                        std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > v4 =
+                           { std::make_pair(bl_1, bl_4), std::make_pair(bl_2, bl_4), std::make_pair(bl_3, bl_4) };
+
+                        for (it=v4.begin(); it!=v4.end(); ++it)
+                           obj.add_cylinder(pos_pair, ch, line_radius, n_slices, true, true,
+                                            meshed_generic_display_object::ROUNDED_CAP,
+                                            meshed_generic_display_object::ROUNDED_CAP);
 		     }
 		  }
 	       }
 	    }
             Material material;
             // obj.mesh.setup(&g.shader_for_moleculestotriangles, material); //date
+            material.do_specularity = true;
+            material.specular_strength = 0.9;
             obj.mesh.setup(material);
 	    set_display_generic_object(new_obj, 1);
 	    graphics_draw();
@@ -3865,10 +3900,19 @@ void coot_all_atom_contact_dots_instanced(int imol) {
 
 void coot_all_atom_contact_dots(int imol) {
 
-   std::cout << "coot_all_atom_contact_dots() for imol " << imol << std::endl;
-
    coot_all_atom_contact_dots_instanced(imol);
 }
+
+//! \brief as above, but use the active molecule
+void coot_all_atom_contact_dots_active_molecule() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot_all_atom_contact_dots_instanced(imol);
+   }
+}
+
 
 #ifdef USE_GUILE
 SCM linked_residues_scm(SCM residue_centre_scm, int imol, float close_dist_max) {
@@ -3965,4 +4009,20 @@ int make_masked_maps_split_by_chain(int imol, int imol_map) {
                 << std::endl;
    }
    return 0;
+}
+
+void smiles_to_simple_3d(const std::string &smiles) {
+
+   // 20230605-PE this was done via scripting previously. Hmm
+
+   graphics_info_t g;
+   short int lang = coot::STATE_PYTHON;
+   std::string tlc = "LIG";
+   std::vector<coot::command_arg_t> args = { coot::command_arg_t(tlc), smiles };
+   std::string sc = g.state_command("generator_3d_import", "new_molecule_by_smiles_string", args, lang);
+   PyObject *r1 = safe_python_command_with_return("import generator_3d_import");
+   std::cout << "smiles_to_simple_3d(): r1: " << r1 << std::endl;
+   std::cout << "smiles_to_simple_3d(): calling this: " << sc << std::endl;
+   PyObject *r2 = safe_python_command_with_return(sc);
+
 }

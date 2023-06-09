@@ -18,6 +18,7 @@
 
 import os
 import coot
+import coot_utils
 
 global probe_command
 global reduce_command
@@ -172,7 +173,8 @@ def reduce_on_pdb_file(imol, pdb_in, pdb_out):
 # return status
 #
 def reduce_on_pdb_file_no_flip(imol, pdb_in, pdb_out):
-    return reduce_on_pdb_file_generic(imol, "no-flip", pdb_in, pdb_out)
+    r = reduce_on_pdb_file_generic(imol, "no-flip", pdb_in, pdb_out)
+    return r
 
 # return status
 #
@@ -188,11 +190,12 @@ def reduce_on_pdb_file_generic(imol, no_flip_or_build, pdb_in, pdb_out):
     # need full path to find het dict
     full_reduce_command = coot_utils.find_exe(reduce_command, "PATH")
 
-    nshl = non_standard_residue_names(imol)
+    nshl = coot.non_standard_residue_names_py(imol)
+    print("DEBUG:: in reduce_on_pdb_file_generic(), nshl is ", nshl)
     ext = "-".join(nshl)
     reduce_het_dict_file_name = "coot-molprobity/reduce-het-dict-" + ext + ".txt"
     write_reduce_het_dict(imol, reduce_het_dict_file_name)
-    
+
     dict_args = []
     if not set_reduce_het_dict():
       # now should use the and build the het dic!?
@@ -203,9 +206,7 @@ def reduce_on_pdb_file_generic(imol, no_flip_or_build, pdb_in, pdb_out):
         mode = "-NOFLIP"
 
     print("======= reduce_on_pdb_file: command %s args %s with pdb_out: %s" \
-          %(reduce_command,
-            [mode, pdb_in] + dict_args,
-            pdb_out))
+          %(reduce_command, [mode, pdb_in] + dict_args, pdb_out))
     status = coot_utils.popen_command(reduce_command,
                            [mode, pdb_in] + dict_args,
                            [],
@@ -624,7 +625,7 @@ def set_reduce_het_dict():
         # this is where the windows installer shall put it
         prefix_dir = os.getenv("COOT_PREFIX")
         if not prefix_dir:
-          pkg_data_dir = pkgdatadir()
+          pkg_data_dir = coot.get_pkgdatadir_py()
         else:
           pkg_data_dir = os.path.join(prefix_dir, "share", "coot")
         red_het_file = os.path.join(pkg_data_dir, red_het_file)

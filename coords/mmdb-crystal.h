@@ -73,24 +73,29 @@ namespace coot {
 
 std::ostream & operator<<(std::ostream &s, const coot::coot_mat44 &m);
 
-atom_selection_container_t read_standard_residues();
-
+//! A class for symmetry operators
 class symm_trans_t { 
 
    int symm_no, x_shift_, y_shift_, z_shift_;
 
  public:
+   //! symmetry as symm
    std::string symm_as_string;
-   symm_trans_t(int n, int x, int y, int z) 
-      { symm_no = n; x_shift_ = x; y_shift_ = y; z_shift_ = z;};
+   symm_trans_t(int n, int x, int y, int z) {
+      symm_no = n; x_shift_ = x; y_shift_ = y; z_shift_ = z; mmdb::Mat4Init(mat); };
    explicit symm_trans_t(int idx) { symm_no = idx; x_shift_ = 0; y_shift_ = 0; z_shift_ = 0; }
    symm_trans_t() {};
+   mmdb::mat44 mat;
 
    friend std::ostream & operator<<(std::ostream &s, const symm_trans_t &st);
 
+   //! the operator index (from SYMINFO)
    int isym() const { return symm_no;};
+   //! the x-shift
    int x()    const { return x_shift_;};
+   //! the y-shift
    int y()    const { return y_shift_;};
+   //! the z-shift
    int z()    const { return z_shift_;};
    void add_shift(int xs, int ys, int zs) {
       x_shift_ += xs;
@@ -98,24 +103,37 @@ class symm_trans_t {
       z_shift_ += zs;
    } 
 
+   //! @return true if this symmetry operator is the identity matrix
    bool is_identity();
 
-   //
-   std::string str(short int expanded_flag) const;
+   //! symmetry as string
+   std::string str(bool expanded_flag) const;
+
+   //! fill mat using mol
+   void as_mat44(mmdb::mat44 *mat, mmdb::Manager *mol);
+
+   //! fill m
+   void fill_mat(mmdb::Manager *mol) {
+      as_mat44(&mat, mol);
+   }
 
 };
 
-
+//! class for the cell translation for generation/application of symmery-related molecules
+//!
 class Cell_Translation { 
 
  public: 
 
+   //! unit cell steps
    int us, vs, ws; 
    
-   //Cell_Translation(clipper::Coord_frac);
+   //! constructor
    Cell_Translation() {us=0; vs=0; ws=0;}
+   //! constructor
    Cell_Translation(int a, int b, int c);
    friend std::ostream& operator<<(std::ostream &s, Cell_Translation ct);
+   //! inversion
    Cell_Translation inv() const { return Cell_Translation(-us, -vs, -ws); }
 };
 
@@ -192,7 +210,7 @@ class molecule_extents_t {
 
    bool point_is_in_box(const coot::Cartesian &point, mmdb::PPAtom TransSel) const;
 
-   friend std::ostream& operator<<(std::ostream &s, molecule_extents_t);
+   friend std::ostream& operator<<(std::ostream &s, const molecule_extents_t &e);
 };
 
 

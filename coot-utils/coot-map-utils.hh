@@ -77,7 +77,7 @@ namespace coot {
 			     std::string phi_col,
 			     std::string weight_col,
 			     short int use_weights,
-			     short int is_diff_map);
+                             float sampling_rate=1.5);
 
       bool map_fill_from_mtz(clipper::Xmap<float> *xmap,
 			     std::string mtz_file_name,
@@ -85,9 +85,9 @@ namespace coot {
 			     std::string phi_col,
 			     std::string weight_col,
 			     short int use_weights,
-			     short int is_diff_map,
 			     float reso_limit_high,
-			     short int use_reso_limit_high);
+			     short int use_reso_limit_high,
+                             float sampling_rate=1.5);
 
       // needed by above:
       void filter_by_resolution(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata,
@@ -142,11 +142,16 @@ namespace coot {
       clipper::Xmap<float> sharpen_map(const clipper::Xmap<float> &xmap_in,
                                        float sharpen_factor);
 
+      //! map molecule centre
       class map_molecule_centre_info_t {
       public:
+         //! success flag
          bool success;
+         //! new centre
          clipper::Coord_orth updated_centre;
+         //! suggested contour level
          float suggested_contour_level;
+         //! sum of densities - for whatever use that may be.
          double sum_of_densities; // for scoring origins
          map_molecule_centre_info_t() {
             success = false;

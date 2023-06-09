@@ -82,5 +82,8 @@ void coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_s
 
 void coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &res_spec);
 
+// 20230605-PE this was done via scripting previously. Not today though
+void smiles_to_simple_3d(const std::string &smiles);
+
 
 #endif // C_INTERFACE_LIGANDS_HH

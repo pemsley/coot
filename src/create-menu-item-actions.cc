@@ -11,6 +11,8 @@
 #include "cc-interface-scripting.hh"  // move this up
 #include "cc-interface.hh"
 
+#include "support.h" // for internationalizations.
+
 extern "C" { void load_tutorial_model_and_data(); }
 
 extern "C" G_MODULE_EXPORT
@@ -35,22 +37,22 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       }
 #endif
 
-      GtkWidget *recentre_combobox = widget_from_builder("coords_filechooserdialog_recentre_combobox");
-      int active_item_index = gtk_combo_box_get_active(GTK_COMBO_BOX(recentre_combobox));
       bool move_molecule_here_flag = false;
-      bool recentre_on_read_pdb_flag = false;
-      if (active_item_index == 0)
-         recentre_on_read_pdb_flag = true;
-      if (active_item_index == 1)
-         recentre_on_read_pdb_flag = false;
-      if (active_item_index == 2)
-         move_molecule_here_flag = true;
+      bool recentre_on_read_pdb_flag = true; // was false;
 
-      // open_file (file);
+      const char *r = gtk_file_chooser_get_choice(GTK_FILE_CHOOSER(dialog), "recentering");
+      if (r) {
+         std::string sr(r);
+         std::cout << "................... sr: " << sr << std::endl;
+         if (sr == "No Recentre")
+            recentre_on_read_pdb_flag = false;
+         if (sr == "Move Molecule Here")
+            move_molecule_here_flag = true;
+      }
+
       if (file_name) {
-         std::cout << "info: " << file_name << " " << move_molecule_here_flag << " " << recentre_on_read_pdb_flag
-                   << std::endl;
-
+         std::cout << "INFO: " << file_name << " move_molecule_here_flag: " << move_molecule_here_flag
+                   << " recentre_on_read_pdb_flag " << recentre_on_read_pdb_flag << std::endl;
          if (move_molecule_here_flag) {
             handle_read_draw_molecule_and_move_molecule_here(file_name);
          } else {
@@ -123,7 +125,7 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                                    parent_window,
                                                    action,
                                                    _("_Cancel"),
-                                                   GTK_RESPONSE_CANCEL,
+                                                  GTK_RESPONSE_CANCEL,
                                                    _("_Open"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
@@ -135,9 +137,16 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    //                                   const char** option_labels)
 
 
-   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentre",      "Centre on New Molecule", NULL, NULL);
-   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "no-recentre",   "No Recentre",            NULL, NULL);
-   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "move-mol-here", "Move Molecule Here",     NULL, NULL);
+   // gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentre",      "Centre on New Molecule", NULL, NULL);
+   // gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "no-recentre",   "No Recentre",            NULL, NULL);
+   // gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "move-mol-here", "Move Molecule Here",     NULL, NULL);
+
+   const gchar *labels[]  = {"Centre on New Molecule", "No Recentre",      "Move Molecule Here", NULL};
+   const gchar *options[] = {"recentre-view",          "no-recentre-view", "move-mol-here",      NULL};
+
+   // I don't follow the options and labels, but this works strangely.
+   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentering", "Recentre", options, labels);
+
    add_filename_filter_button(dialog, COOT_COORDS_FILE_SELECTION);
 
    g_signal_connect(dialog, "response", G_CALLBACK(on_coords_filechooser_dialog_response_gtk4), NULL);
@@ -253,32 +262,46 @@ void exit_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    coot_checked_exit(0);
 }
 
-#include "curlew.h" // 20220628-PE why does this exist? why is curlew() not in the .hh file?
+void calculate_hydrogen_bonds_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      calculate_hydrogen_bonds(imol);
+   }
+}
+
+#include "curlew-gtk4.hh"
 
 void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                    G_GNUC_UNUSED GVariant *parameter,
                    G_GNUC_UNUSED gpointer user_data) {
-   curlew();
+   GtkWidget *dialog = curlew_dialog();
+   set_transient_for_main_window(dialog);
+   gtk_widget_show(dialog);
+
 }
 
 void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
+
    GtkWidget *frame    = widget_from_builder("get_monomer_frame");
    GtkWidget *no_entry_frame = widget_from_builder("get_monomer_no_entry_frame");
    if (no_entry_frame)
       gtk_widget_set_visible(no_entry_frame, FALSE); // each time "get_monomer" is shown
 
    GtkWidget *entry = widget_from_builder("get_monomer_entry");
-   
    gtk_widget_grab_focus(entry);
-
    gtk_widget_show(frame);
 }
 
 
 void on_cif_dictionary_filechooser_dialog_response_gtk4(GtkDialog *dialog,
-                                                 int        response) {
+                                                        int        response) {
 
    if (response == GTK_RESPONSE_ACCEPT) {
       GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
@@ -425,9 +448,10 @@ fetch_pdbe_ligand_description_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 void
 save_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-G_GNUC_UNUSED GVariant *parameter,
-G_GNUC_UNUSED gpointer user_data) {
-      GCallback callback_func = G_CALLBACK(save_molecule_coords_combobox_changed);
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   GCallback callback_func = G_CALLBACK(save_molecule_coords_combobox_changed);
    int imol = first_coords_imol();
    int imol_unsaved = first_unsaved_coords_imol();
    if (imol_unsaved != -1)
@@ -453,11 +477,30 @@ G_GNUC_UNUSED gpointer user_data) {
 
 void
 save_symmetry_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-G_GNUC_UNUSED GVariant *parameter,
-G_GNUC_UNUSED gpointer user_data) {
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
 
    setup_save_symmetry_coords();
 
+}
+
+void
+on_save_state_dialog_response(GtkDialog *dialog,
+                              int response) {
+
+   if (response == GTK_RESPONSE_ACCEPT) {
+      GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
+      char *file_name = g_file_get_path(file);
+      std::cout << "Now save state script to file " << file_name << std::endl;
+      short int il = coot::PYTHON_SCRIPT;
+      graphics_info_t g;
+      g.save_state_file(file_name, il);
+   }
+
+   // maybe save the dialog in graphics_info_t, and just hide it?
+   // gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+
+   gtk_window_destroy(GTK_WINDOW(dialog));
 }
 
 void
@@ -465,11 +508,23 @@ save_state_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                   G_GNUC_UNUSED GVariant *parameter,
                   G_GNUC_UNUSED gpointer user_data) {
 
-   GtkWidget *file_chooser = coot_save_state_chooser();
-   gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(file_chooser), save_state_file_name_raw());
-   add_filename_filter_button(file_chooser, COOT_SCRIPTS_FILE_SELECTION);
-   set_file_selection_dialog_size(file_chooser);
-   gtk_widget_show(file_chooser);
+   GtkWindow *parent_window = GTK_WINDOW(graphics_info_t::get_main_window());
+   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_SAVE;
+   GtkWidget *dialog = gtk_file_chooser_dialog_new("Save State",
+                                                   parent_window,
+                                                   action,
+                                                   _("Cancel"),
+                                                   GTK_RESPONSE_CANCEL,
+                                                   _("Save"),
+                                                   GTK_RESPONSE_ACCEPT,
+                                                   NULL);
+   GtkFileFilter *filterselect = gtk_file_filter_new();
+   gtk_file_filter_add_pattern(filterselect, "*.py");
+   gtk_file_filter_add_pattern(filterselect, "*.scm");
+   gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
+   gtk_widget_set_size_request(dialog, 800, 700);
+   g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(on_save_state_dialog_response), NULL);
+   gtk_widget_show(dialog);
 }
 
 void
@@ -501,7 +556,9 @@ void
 close_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                       G_GNUC_UNUSED GVariant *parameter,
                       G_GNUC_UNUSED gpointer user_data) {
+
    GtkWidget *widget = wrapped_create_new_close_molecules_dialog(); // uses builder
+   set_transient_for_main_window(widget);
    gtk_widget_show(widget);
 }
 
@@ -624,6 +681,24 @@ renumber_residues_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void
+renumber_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      renumber_waters(imol);
+   }
+}
+
+void
+undo_molecule_chooser_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+   show_set_undo_molecule_chooser();
+}
+
+void
 residue_info_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                     G_GNUC_UNUSED GVariant *parameter,
                     G_GNUC_UNUSED gpointer user_data) {
@@ -641,9 +716,24 @@ void
 edit_restraints_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                        G_GNUC_UNUSED GVariant *parameter,
                        G_GNUC_UNUSED gpointer user_data) {
+
+   // fills residue types in the combobox
    GtkWidget *w =  wrapped_create_residue_editor_select_monomer_type_dialog();
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
+
+void
+exchange_chain_ids_for_seg_ids_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                      G_GNUC_UNUSED GVariant *parameter,
+                                      G_GNUC_UNUSED gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      exchange_chain_ids_for_seg_ids(imol);
+   }
+}
+
 
 #include "c-interface-preferences.h"
 void
@@ -791,24 +881,80 @@ mask_map_by_atom_selection_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                   G_GNUC_UNUSED GVariant *parameter,
                                   G_GNUC_UNUSED gpointer user_data) {
 
+   // 20230427-PE surprisingly similar to wrapped_create_unmodelled_blobs_dialog()
+
+   graphics_info_t g;
+   GtkWidget *dialog = widget_from_builder("mask_map_by_atom_selection_dialog");
+   GtkWidget *model_combobox = widget_from_builder("mask_map_by_atom_selection_model_combobox");
+   GtkWidget *map_combobox   = widget_from_builder("mask_map_by_atom_selection_map_combobox");
+   
+   int imol_mol_active = -1;
+   int imol_map_active = -1;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   auto get_map_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_map_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+
+   auto model_list = get_model_molecule_vector();
+   auto   map_list = get_map_molecule_vector();
+   if (! model_list.empty()) imol_mol_active = model_list[0];
+   if (!   map_list.empty()) imol_map_active =   map_list[0];
+
+   g.fill_combobox_with_molecule_options(model_combobox, func, imol_mol_active, model_list);
+   g.fill_combobox_with_molecule_options(  map_combobox, func, imol_map_active,   map_list);
+
+   set_transient_for_main_window(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
+
 }
 
 void
 copy_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                 G_GNUC_UNUSED GVariant *parameter,
                 G_GNUC_UNUSED gpointer user_data) {
+
+   // not modern but works
+   std::string cmd = "import coot; import coot_gui; coot_gui.map_molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
+   safe_python_command(cmd);
+
 }
 
 void
 make_a_smoother_copy_of_a_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                      G_GNUC_UNUSED GVariant *parameter,
                                      G_GNUC_UNUSED gpointer user_data) {
+
+   safe_python_command("import coot_gui");
+   std::string sc = "coot_gui.map_molecule_chooser_gui(\"Map Molecule to Smoothenize...\", lambda imol: coot.smooth_map(imol, 1.25))";
+   safe_python_command(sc);
+
 }
 
 void
 make_a_very_smooth_copy_of_a_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
+
+   safe_python_command("import coot_gui");
+   std::string sc = "coot_gui.map_molecule_chooser_gui(\"Map Molecule to Smoothenize...\", lambda imol: coot.smooth_map(imol, 2.0))";
+   safe_python_command(sc);
 }
 
 void
@@ -877,6 +1023,25 @@ ncs_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                    G_GNUC_UNUSED gpointer user_data) {
 }
 
+void add_HOLE_module_action(GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "............................................... add_HOLE_module_action ............." << std::endl;
+
+   graphics_info_t g;
+   short int lang = coot::STATE_PYTHON;
+   std::vector<coot::command_arg_t> args = {};
+   std::string sc = g.state_command("coot_hole", "hole_ify", args, lang);
+   safe_python_command("import coot_gui");
+   safe_python_command("import coot_hole");
+   std::cout << "calling this: " << sc << std::endl;
+   safe_python_command(sc);
+
+   // needed?
+   // g_simple_action_set_enabled(simple_action,FALSE);
+}
+
 void add_ccp4_module_action(GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
@@ -899,6 +1064,15 @@ void add_cryo_em_module_action(GSimpleAction *simple_action,
 
    safe_python_command("import coot_gui");
    safe_python_command("coot_gui.add_module_cryo_em()");
+   g_simple_action_set_enabled(simple_action,FALSE);
+}
+
+void add_ligand_module_action(GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   safe_python_command("import coot_gui");
+   safe_python_command("coot_gui.add_module_ligand()");
    g_simple_action_set_enabled(simple_action,FALSE);
 }
 
@@ -970,6 +1144,25 @@ other_modelling_tools_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_show(w);
 }
 
+void
+whats_this_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                  G_GNUC_UNUSED GVariant *parameter,
+                  G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      graphics_info_t g;
+      auto &m = g.molecules[imol];
+      coot::residue_spec_t rs(pp.second.second);
+      std::string rn = m.get_residue_name(rs);
+      std::string s = rs.format() + std::string(" ") + rn;
+      add_status_bar_text(s);
+   }
+}
+
+
+
 
 
 void
@@ -988,30 +1181,155 @@ ssm_superposition_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 
 void
+sharpen_blur_for_xray_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "sharpen/blur for x-ray" << std::endl;
+
+#if 0
+   GtkWidget *dialog   = widget_from_builder("map_sharpening_dialog");
+   GtkWidget *combobox = widget_from_builder("map_sharpening_molecule_combobox");
+   GtkWidget *scale    = widget_from_builder("map_sharpening_hscale");
+
+   auto get_map_molecule_vector = [] () {
+      graphics_info_t g;
+      std::vector<int> vec;
+      int n_mol = g.n_molecules();
+      for (int i=0; i<n_mol; i++)
+         if (g.is_valid_map_molecule(i))
+            vec.push_back(i);
+      return vec;
+   };
+
+   graphics_info_t g;
+   int imol_active = -1;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   auto model_list = get_map_molecule_vector();
+   g.fill_combobox_with_molecule_options(combobox, func, imol_active, model_list);
+
+   set_transient_for_main_window(dialog);
+   gtk_widget_show(dialog);
+
+#endif
+
+   GtkWidget *dialog = wrapped_create_map_sharpening_dialog();
+   set_transient_for_main_window(dialog);
+   gtk_widget_show(dialog);
+
+}
+
+void
 calculate_updating_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                G_GNUC_UNUSED GVariant *parameter,
                                G_GNUC_UNUSED gpointer user_data) {
-   show_calculate_updating_maps_gui();
+
+   // show_calculate_updating_maps_pythonic_gui();
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   auto get_map_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_map_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+
+   auto get_diff_map_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_map_molecule(i))
+                                           if (g.is_difference_map(i))
+                                              vec.push_back(i);
+                                     return vec;
+                                  };
+
+   graphics_info_t g;
+   GtkWidget *dialog            = widget_from_builder("updating_maps_dialog");
+   GtkWidget *model_combobox    = widget_from_builder("updating_maps_model_combobox");
+   GtkWidget *map_combobox      = widget_from_builder("updating_maps_map_combobox");
+   GtkWidget *diff_map_combobox = widget_from_builder("updating_maps_diff_map_combobox");
+
+   int imol_mol_active = -1;
+   int imol_map_active = -1;
+
+   auto    model_list =    get_model_molecule_vector();
+   auto      map_list =      get_map_molecule_vector();
+   auto diff_map_list = get_diff_map_molecule_vector();
+
+   std::cout << "::::::::::::::::::::::: diff_map_list size " << diff_map_list.size() << std::endl;
+
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+
+   g.fill_combobox_with_molecule_options(   model_combobox, func, imol_mol_active,    model_list);
+   g.fill_combobox_with_molecule_options(     map_combobox, func, imol_map_active,      map_list);
+   g.fill_combobox_with_molecule_options(diff_map_combobox, func, imol_map_active, diff_map_list);
+
+   set_transient_for_main_window(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 }
 
 
 
 void
-background_colour_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                         G_GNUC_UNUSED GVariant *parameter,
-                         G_GNUC_UNUSED gpointer user_data) {
-   // black or white options
-   std::cout << "black or white options here" << std::endl;
+background_black_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(0,0,0);
+   graphics_info_t::graphics_draw();
+   
 }
 
+void
+background_dark_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(0.07f,0.07f,0.07f);
+   graphics_info_t::graphics_draw();
+}
+
+void
+background_light_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(0.83f, 0.83f, 0.83f);
+   graphics_info_t::graphics_draw();
+}
+
+void
+background_white_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(1,1,1);
+   graphics_info_t::graphics_draw();
+}
 
 void
 bond_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                     G_GNUC_UNUSED GVariant *parameter,
                     G_GNUC_UNUSED gpointer user_data) {
+
    GtkWidget *w = widget_from_builder("coords_colour_control_dialog");
    graphics_info_t g;
    g.fill_bond_colours_dialog_internal(w);
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 
 }
@@ -1023,6 +1341,7 @@ bond_parameters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                        G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *w = wrapped_create_bond_parameters_dialog(); // uses builder
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 
@@ -1053,6 +1372,19 @@ void add_hydrogen_atoms_using_refmac_action(G_GNUC_UNUSED GSimpleAction *simple_
    }
 }
 
+void add_an_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   // GtkWidget *dialog = widget_from_builder("add_an_atom_dialog");
+   // set_transient_for_main_window(dialog);
+   // gtk_widget_show(dialog);
+
+   GtkWidget *box = widget_from_builder("add_an_atom_box");
+   gtk_widget_set_visible(box, TRUE);
+
+}
+
 void add_other_solvent_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
@@ -1076,11 +1408,69 @@ void find_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
+void dna_rna_models_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = widget_from_builder("nucleotide_builder_dialog");
+   set_transient_for_main_window(w);
+   gtk_widget_show(w);
+}
+
+
+void place_helix_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   place_helix_here();
+}
+
+
+
 void find_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                          G_GNUC_UNUSED GVariant *parameter,
                          G_GNUC_UNUSED gpointer user_data) {
 
    do_find_ligands_dialog();
+
+}
+
+void cis_trans_convert_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+   int imol = aa.first;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Atom *at =  aa.second;
+      std::string atom_name = at->name;
+      cis_trans_convert(imol, at->GetChainID(), at->GetSeqNum(), at->GetInsCode());
+   }
+}
+
+void add_OXT_to_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = wrapped_create_add_OXT_dialog(); // uses builder
+   set_transient_for_main_window(w);
+   gtk_widget_show(w);
+
+}
+
+void reverse_chain_direction_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         // 20230520-PE pass a std::string here.
+	 reverse_direction_of_fragment(imol, pp.second.second.chain_id.c_str(), pp.second.second.res_no);
+      }
+   }
 
 }
 
@@ -1178,18 +1568,26 @@ void rigid_body_fit_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                     G_GNUC_UNUSED GVariant *parameter,
                                     G_GNUC_UNUSED gpointer user_data) {
 
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      rigid_body_refine_by_atom_selection(imol, "/");
+      graphics_draw();
+   }
 }
 
 void superpose_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED GVariant *parameter,
                               G_GNUC_UNUSED gpointer user_data) {
 
+   safe_python_command("import coot_gui");
+   safe_python_command("coot_gui.superpose_ligand_gui()");
 }
 
 void symm_shift_reference_chain_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                             G_GNUC_UNUSED GVariant *parameter,
                                             G_GNUC_UNUSED gpointer user_data) {
-
+   move_reference_chain_to_symm_chain_position();
 }
 
 
@@ -1200,7 +1598,10 @@ draw_cell_and_symmetry_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *show_symm_window = wrapped_create_show_symmetry_window();
-   gtk_widget_show(show_symm_window);
+   if (show_symm_window) {
+      set_transient_for_main_window(show_symm_window);
+      gtk_widget_show(show_symm_window);
+   }
 }
 
 
@@ -1387,10 +1788,7 @@ sequence_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                      G_GNUC_UNUSED GVariant *parameter,
                      G_GNUC_UNUSED gpointer user_data) {
 
-   // 20220628-PE this is different now?
-
-   // add_on_sequence_view_choices()
-   std::cout << "add on sequence_view options here " << std::endl;
+   g_warning("todo: after the removal of dynamic menus, this has to be reworked");
 }
 
 void
@@ -1436,6 +1834,7 @@ pointer_distances_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *w = widget_from_builder("pointer_distances_dialog");
    fill_pointer_distances_widget(w);
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 
@@ -1464,111 +1863,63 @@ check_delete_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
-
 void
-density_fit_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                 G_GNUC_UNUSED GVariant *parameter,
-                                 G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for density fit" << std::endl;
-}
-
-
-void
-difference_map_peaks_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                 G_GNUC_UNUSED GVariant *parameter,
-                                 G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for difference map peaks fit" << std::endl;
-}
-
-void
-geometry_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                 G_GNUC_UNUSED GVariant *parameter,
-                                 G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for geometry analysis" << std::endl;
-}
-
-void
-gln_and_asn_b_factor_outlier_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                         G_GNUC_UNUSED GVariant *parameter,
-                                         G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for GLN ASN" << std::endl;
-}
-
-void
-chiral_volumes_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                 G_GNUC_UNUSED GVariant *parameter,
-                                 G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for chiral volumes" << std::endl;
-}
-
-void
-ncs_differences_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+difference_map_peaks_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "dynamic menus for ncs differences" << std::endl;
+   GtkWidget *dialog = wrapped_create_generate_diff_map_peaks_dialog();
+   set_transient_for_main_window(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
+
 }
 
 
-void
-peptide_flips_from_diff_map_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                        G_GNUC_UNUSED GVariant *parameter,
-                                        G_GNUC_UNUSED gpointer user_data) {
+void show_validation_graphs_dialog(G_GNUC_UNUSED GSimpleAction *simple_action, G_GNUC_UNUSED GVariant *parameter, G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "dynamic menus for peptide flips from difference map" << std::endl;
+   // 20230415-PE a common motif
+   GtkWidget *di = widget_from_builder("validation_graph_dialog");
+   GtkWidget *main_window = graphics_info_t::get_main_window();
+   gtk_window_set_transient_for(GTK_WINDOW(di), GTK_WINDOW(main_window));
+
+   auto get_first_model_molecule = [] () {
+      graphics_info_t g;
+      int imol = -1;
+      int n_mol = g.molecules.size();
+      for (int ii=0; ii<n_mol; ii++) {
+         if (is_valid_model_molecule(ii))
+            return ii;
+      }
+      return imol;
+   };
+
+   graphics_info_t g;
+   GtkWidget *model_combobox = widget_from_builder("validation_graph_model_combobox");
+
+   int imol = g.active_validation_graph_model_idx;
+   if (! g.is_valid_model_molecule(imol))
+      imol = get_first_model_molecule();
+
+   // I don't think that it's imol that I want to use for the index.
+   std::cout << "--------- in show_validation_graphs_dialog() " << model_combobox << " " << imol << std::endl;
+   gtk_combo_box_set_active(GTK_COMBO_BOX(model_combobox), imol);
+
+   gtk_widget_show(di);
 }
 
-void
-peptide_omega_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                   G_GNUC_UNUSED GVariant *parameter,
-                                   G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for omega analysis " << std::endl;
-}
-
-void
-pukka_puckers_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                          G_GNUC_UNUSED GVariant *parameter,
-                          G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for Pukka Puckers" << std::endl;
-}
-
-void
-ramachandran_plot_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+void ramachandran_plot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED GVariant *parameter,
                               G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "dynamic menus for ramachandran plot" << std::endl;
-}
+   GtkWidget *di = widget_from_builder("ramachandran_plot_molecule_chooser_dialog");
+   GtkWidget *main_window = graphics_info_t::get_main_window();
+   gtk_window_set_transient_for(GTK_WINDOW(di), GTK_WINDOW(main_window));
 
-void
-rotamer_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                             G_GNUC_UNUSED GVariant *parameter,
-                             G_GNUC_UNUSED gpointer user_data) {
+   GtkWidget *model_combobox = widget_from_builder("ramachandran_plot_molecule_chooser_model_combobox");
+   int imol_idx = 0; // not imol.
+   gtk_combo_box_set_active(GTK_COMBO_BOX(model_combobox), imol_idx);
+   gtk_widget_set_visible(di, TRUE);
 
-   std::cout << "dynamic menus for rotamer analysis" << std::endl;
-}
-
-void
-temp_factor_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                 G_GNUC_UNUSED GVariant *parameter,
-                                 G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for temperature factor analysis" << std::endl;
-}
-
-void
-temp_factor_variance_analysis_item_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                          G_GNUC_UNUSED GVariant *parameter,
-                                          G_GNUC_UNUSED gpointer user_data) {
-
-   std::cout << "dynamic menus for temperature factor variance analysis" << std::endl;
 }
 
 
@@ -1582,11 +1933,22 @@ void atoms_with_zero_occupancies_action(G_GNUC_UNUSED GSimpleAction *simple_acti
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+   }
 }
 
 void atoms_overlaps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                            G_GNUC_UNUSED GVariant *parameter,
                            G_GNUC_UNUSED gpointer user_data) {
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot_all_atom_contact_dots(imol);
+   }
 
 }
 
@@ -1594,11 +1956,34 @@ void all_atom_contact_dots_molprobity_action(G_GNUC_UNUSED GSimpleAction *simple
                                              G_GNUC_UNUSED GVariant *parameter,
                                              G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+     int imol = pp.second.first;
+
+      short int lang = coot::STATE_PYTHON;
+      std::string module = "generic_objects";
+      std::string function = "probe";
+      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol)};
+      std::string sc = g.state_command(module, function, args, lang);
+      safe_python_command("import generic_objects");
+      safe_python_command(sc);
+   }
 }
 
 void highly_coordinates_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                           G_GNUC_UNUSED GVariant *parameter,
                                           G_GNUC_UNUSED gpointer user_data) {
+
+   
+   graphics_info_t g;
+   short int lang = coot::STATE_PYTHON;
+   std::string module = "coot_gui";
+   std::string function = "water_coordination_gui";
+   std::vector<coot::command_arg_t> args;
+   std::string sc = g.state_command(module, function, args, lang);
+   safe_python_command("import coot_gui");
+   safe_python_command(sc);
 
 }
 
@@ -1647,12 +2032,13 @@ void validation_outliers_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
- void
+void
 unmodelled_blobs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *w = wrapped_create_unmodelled_blobs_dialog();
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 
@@ -1663,6 +2049,7 @@ remarks_browser_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                        G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *w = wrapped_create_remarks_browser_molecule_chooser_dialog();
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 
@@ -1676,7 +2063,8 @@ about_coot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *dialog = widget_from_builder("about_dialog");
    if (dialog) {
-      gtk_widget_show(dialog);
+      set_transient_for_main_window(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
    }
 }
 
@@ -1999,10 +2387,12 @@ delete_item(GSimpleAction *simple_action,
             m.delete_chain(atom_spec.chain_id);
             g.graphics_draw();
          }
-         if (par == "hydrogen-atoms") {
+         if (par == "hydrogen-atoms-in-residue") {
             auto &m = g.molecules[imol];
             // change this signature to use an residue spec.
+            std::cout << "callign delete_residue_hydrogens()!!!! " << res_spec << std::endl;
             m.delete_residue_hydrogens(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, atom_spec.alt_conf);
+            graphics_draw();
          }
          if (par == "residue-range") {
             // use old-style "setup"
@@ -2024,9 +2414,15 @@ delete_item(GSimpleAction *simple_action,
             // use old-style "setup"
             std::cout << "delete side-chain-residue-range needs fixing" << std::endl;
          }
+         if (par == "side-chains-in-chain") {
+            delete_sidechains_for_chain(imol, atom_spec.chain_id);
+         }
          if (par == "water") {
+
+            std::cout << "....................... delete water! " << atom_spec << std::endl;
             auto &m = g.molecules[imol];
             m.delete_water(atom_spec);
+            graphics_draw();
          }
       }
    }
@@ -2080,23 +2476,26 @@ create_actions(GtkApplication *application) {
 
    // Edit
 
-   add_action(              "make_link_action",               make_link_action); // add header link
-   add_action(       "change_chain_ids_action",        change_chain_ids_action);
-   add_action(          "copy_molecule_action",           copy_molecule_action);
-   add_action( "copy_molecule_fragment_action",  copy_molecule_fragment_action);
-   add_action(        "merge_molecules_action",         merge_molecules_action);
-   add_action(     "move_molecule_here_action",      move_molecule_here_action);
-   add_action(        "mutate_molecule_action",         mutate_molecule_action);
-   add_action(  "edit_replace_fragment_action",   edit_replace_fragment_action);
-   add_action(   "edit_replace_residue_action",    edit_replace_residue_action);
-   add_action(      "renumber_residues_action",       renumber_residues_action);
-   add_action(           "residue_info_action",            residue_info_action);
-   add_action(        "edit_restraints_action",         edit_restraints_action);
-   add_action(       "show_preferences_action",        show_preferences_action);
-   add_action(   "merge_solvent_chains_action",    merge_solvent_chains_action);
-   add_action("show_shader_preferences_action", show_shader_preferences_action);
-   add_action("fix_nomenclature_errors_action", fix_nomenclature_errors_action);
-   add_action("invert_this_chiral_centre_action", invert_this_chiral_centre_action);
+   add_action(                  "make_link_action",                   make_link_action); // add header link
+   add_action(           "change_chain_ids_action",            change_chain_ids_action);
+   add_action(              "copy_molecule_action",               copy_molecule_action);
+   add_action(     "copy_molecule_fragment_action",      copy_molecule_fragment_action);
+   add_action(            "merge_molecules_action",             merge_molecules_action);
+   add_action(         "move_molecule_here_action",          move_molecule_here_action);
+   add_action(            "mutate_molecule_action",             mutate_molecule_action);
+   add_action(      "edit_replace_fragment_action",       edit_replace_fragment_action);
+   add_action(       "edit_replace_residue_action",        edit_replace_residue_action);
+   add_action(          "renumber_residues_action",           renumber_residues_action);
+   add_action(            "renumber_waters_action",             renumber_waters_action);
+   add_action(               "residue_info_action",                residue_info_action);
+   add_action(            "edit_restraints_action",             edit_restraints_action);
+   add_action(           "show_preferences_action",            show_preferences_action);
+   add_action(       "merge_solvent_chains_action",        merge_solvent_chains_action);
+   add_action(      "undo_molecule_chooser_action",       undo_molecule_chooser_action);
+   add_action(    "show_shader_preferences_action",     show_shader_preferences_action);
+   add_action(    "fix_nomenclature_errors_action",     fix_nomenclature_errors_action);
+   add_action(  "invert_this_chiral_centre_action",    invert_this_chiral_centre_action);
+   add_action("exchange_chain_ids_for_seg_ids_action", exchange_chain_ids_for_seg_ids_action);
 
    // Calculate
 
@@ -2108,9 +2507,11 @@ create_actions(GtkApplication *application) {
    add_action(             "run_script_action",              run_script_action);
    add_action(      "ssm_superposition_action",       ssm_superposition_action);
    add_action("calculate_updating_maps_action", calculate_updating_maps_action);
+   add_action(  "sharpen_blur_for_xray_action",   sharpen_blur_for_xray_action);
    add_action(       "scripting_python_action",        scripting_python_action);
    add_action(       "scripting_scheme_action",        scripting_scheme_action);
 
+   add_action("calculate_hydrogen_bonds_action", calculate_hydrogen_bonds_action);
    add_action(          "load_tutorial_model_and_data_action",           load_tutorial_model_and_data_action);
    add_action("use_clustalw_for_alignment_then_mutate_action", use_clustalw_for_alignment_then_mutate_action);
 
@@ -2130,10 +2531,12 @@ create_actions(GtkApplication *application) {
 
    // Calculate -> Modules
 
+   add_action(        "add_HOLE_module_action",         add_HOLE_module_action);
    add_action(        "add_ccp4_module_action",         add_ccp4_module_action);
    add_action("add_carbohydrate_module_action", add_carbohydrate_module_action);
    add_action(     "add_cryo_em_module_action",      add_cryo_em_module_action);
    add_action(    "add_prosmart_module_action",     add_prosmart_module_action);
+   add_action(      "add_ligand_module_action",       add_ligand_module_action);
    add_action(      "add_rcrane_module_action",       add_rcrane_module_action);
    add_action(  "add_restraints_module_action",   add_restraints_module_action);
    add_action(      "add_refine_module_action",       add_refine_module_action);
@@ -2153,11 +2556,17 @@ create_actions(GtkApplication *application) {
 
    // Modelling
 
+   add_action(                    "add_an_atom_action",                     add_an_atom_action);
    add_action(             "add_hydrogen_atoms_action",              add_hydrogen_atoms_action);
    add_action("add_hydrogen_atoms_using_refmac_action", add_hydrogen_atoms_using_refmac_action);
    add_action(    "add_other_solvent_molecules_action",     add_other_solvent_molecules_action);
    add_action(                   "find_ligands_action",                    find_ligands_action);
    add_action(                    "find_waters_action",                     find_waters_action);
+   add_action(                 "dna_rna_models_action",                  dna_rna_models_action);
+   add_action(               "place_helix_here_action",                place_helix_here_action);
+   add_action(              "cis_trans_convert_action",               cis_trans_convert_action);
+   add_action(             "add_OXT_to_residue_action",              add_OXT_to_residue_action);
+   add_action(        "reverse_chain_direction_action",         reverse_chain_direction_action);
    add_action(  "arrange_waters_around_protein_action",   arrange_waters_around_protein_action);
    add_action("assign_hetatms_for_this_residue_action", assign_hetatms_for_this_residue_action);
    add_action(    "assign_hetatoms_to_molecule_action",     assign_hetatoms_to_molecule_action);
@@ -2172,13 +2581,17 @@ create_actions(GtkApplication *application) {
    add_action(              "superpose_ligands_action",               superpose_ligands_action);
    add_action("symm_shift_reference_chain_here_action", symm_shift_reference_chain_here_action);
    add_action(          "other_modelling_tools_action",           other_modelling_tools_action);
+   add_action(                     "whats_this_action",                      whats_this_action);
 
    add_action_with_param("rebuild_fragment_using_dbloop_action", rebuild_fragment_using_dbloop_action);
 
    // Draw
 
+   add_action(       "background_black_action",        background_black_action);
+   add_action(  "background_light_grey_action",   background_light_grey_action);
+   add_action(   "background_dark_grey_action",    background_dark_grey_action);
+   add_action(       "background_white_action",        background_white_action);
    add_action(    "display_only_active_action",     display_only_active_action);
-   add_action(      "background_colour_action",       background_colour_action);
    add_action(        "bond_parameters_action",         bond_parameters_action);
    add_action(           "bond_colours_action",            bond_colours_action);
    add_action(             "fullscreen_action",              fullscreen_action);
@@ -2220,23 +2633,11 @@ create_actions(GtkApplication *application) {
 
    // Validate
 
-   add_action(                  "unmodelled_blobs_action",                   unmodelled_blobs_action);
-   add_action(               "check_delete_waters_action",                check_delete_waters_action);
-   add_action(         "density_fit_analysis_item_action",          density_fit_analysis_item_action);
-   add_action(         "difference_map_peaks_item_action",          difference_map_peaks_item_action);
-   add_action(            "geometry_analysis_item_action",             geometry_analysis_item_action);
-   add_action(               "chiral_volumes_item_action",                chiral_volumes_item_action);
-   add_action(              "ncs_differences_item_action",               ncs_differences_item_action);
-   add_action(                "pukka_puckers_item_action",                 pukka_puckers_item_action);
-   add_action(            "ramachandran_plot_item_action",             ramachandran_plot_item_action);
-   add_action(             "rotamer_analysis_item_action",              rotamer_analysis_item_action);
-   add_action(         "temp_factor_analysis_item_action",          temp_factor_analysis_item_action);
-   add_action(       "peptide_omega_analysis_item_action",        peptide_omega_analysis_item_action);
-   add_action(  "peptide_flips_from_diff_map_item_action",   peptide_flips_from_diff_map_item_action);
-   add_action( "gln_and_asn_b_factor_outlier_item_action",  gln_and_asn_b_factor_outlier_item_action);
-   add_action("temp_factor_variance_analysis_item_action", temp_factor_variance_analysis_item_action);
-
-
+   add_action(                "unmodelled_blobs_action",                 unmodelled_blobs_action);
+   add_action(             "check_delete_waters_action",              check_delete_waters_action);
+   add_action(            "difference_map_peaks_action",             difference_map_peaks_action);
+   add_action(          "show_validation_graphs_dialog",           show_validation_graphs_dialog);
+   add_action(               "ramachandran_plot_action",                ramachandran_plot_action);
    add_action(                "alignment_vs_pir_action",                 alignment_vs_pir_action);
    add_action(                  "atoms_overlaps_action",                   atoms_overlaps_action);
    add_action(             "validation_outliers_action",              validation_outliers_action);

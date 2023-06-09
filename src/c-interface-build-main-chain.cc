@@ -50,8 +50,9 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
+// 20220723-PE maybe just delete this header altogether.
 #include "globjects.h" //includes gtk/gtk.h
 
 #include "coords/mmdb-crystal.h"
@@ -292,11 +293,13 @@ void set_add_terminal_residue_default_residue_type(const char *type) {
 int try_set_draw_baton(short int i) {
 
    graphics_info_t g;
+
    g.try_set_draw_baton(i);
    std::string cmd = "set-draw-baton";
    std::vector<coot::command_arg_t> args;
    args.push_back(i);
    add_to_history_typed(cmd, args);
+
    return g.draw_baton_flag;
 }
 
@@ -483,7 +486,7 @@ void pepflip(int imol, const char *chain_id, int resno,
    if (is_valid_model_molecule(imol)) { 
       graphics_info_t g;
       g.molecules[imol].pepflip_residue(chain_id, resno, inscode, alt_conf);
-      g.update_validation_graphs(imol);
+      g.update_validation(imol);
       graphics_draw();
    } 
 } 

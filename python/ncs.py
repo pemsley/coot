@@ -171,9 +171,9 @@ def single_manual_ncs_ghosts(imol, resno_start, resno_end, ref_chain, peer_chain
 #
 def manual_ncs_ghosts(imol, resno_start, resno_end, chain_id_list):
 
-    from types import ListType
+    # from types import ListType
 
-    if (type(chain_id_list) is ListType):
+    if True:
         if (len(chain_id_list) > 1):
             # OK, OK, to the standard SSM-based NCS matrices are bad for this
             # molecule, lets use LSQ.
@@ -220,9 +220,7 @@ def update_ncs_ghosts_by_local_sphere():
                     coot.set_mol_active(imol_copy, 0)
                     coot.clear_lsq_matches()
                     active_residue_spec = [aa_chain_id, aa_res_no, aa_ins_code]
-                    near_residues = residues_near_residue(aa_imol,
-                                                          active_residue_spec,
-                                                          6)
+                    near_residues = coot.residues_near_residue_py(aa_imol, active_residue_spec, 6)
                     sphere_residues = [active_residue_spec, near_residues]
                     for residue_spec in sphere_residues:
                         res_no = res_spec_utils.residue_spec_to_res_no(residue_spec)

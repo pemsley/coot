@@ -79,8 +79,7 @@ def handle_smiles_go(tlc_entry, smiles_entry):
     use_libcheck = False
     if coot_utils.is_windows():
         use_libcheck = True
-    coot.generator_3d_import.new_molecule_by_smiles_string(
-        tlc_text, smiles_text, force_libcheck=use_libcheck)
+    generator_3d_import.new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=use_libcheck)
 
 # smiles GUI
 #
@@ -161,10 +160,9 @@ def generic_single_entry(function_label, entry_1_default_text, go_button_label, 
         handle_go_function(smiles_entry.get_text())
         delete_event()
 
-    def key_press_event(widget, event, smiles_entry, *args):
-        if (event.keyval == 65293):
-            handle_go_function(smiles_entry.get_text())
-            delete_event()
+    def smiles_entry_activate(entry):
+        txt = entry.get_text()
+        handle_go_function(txt)
 
     window = Gtk.Window()
     window.set_title('Coot')
@@ -176,12 +174,32 @@ def generic_single_entry(function_label, entry_1_default_text, go_button_label, 
     smiles_entry = Gtk.Entry()
     cancel_button = Gtk.Button(label="  Cancel  ")
     go_button = Gtk.Button(label=go_button_label)
+    h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
+
+    function_label.set_margin_start(10)
+    function_label.set_margin_end(10)
+    function_label.set_margin_top(6)
+    function_label.set_margin_bottom(6)
+
+    smiles_entry.set_margin_start(6)
+    smiles_entry.set_margin_end(6)
+    smiles_entry.set_margin_top(2)
+    smiles_entry.set_margin_bottom(2)
+
+    cancel_button.set_margin_start(6)
+    cancel_button.set_margin_end(6)
+    cancel_button.set_margin_top(2)
+    cancel_button.set_margin_bottom(2)
+
+    h_sep.set_margin_top(4)
+    h_sep.set_margin_bottom(4)
 
     vbox.append(hbox1)
     vbox.append(hbox2)
+    vbox.append(h_sep)
     vbox.append(hbox3)
-    hbox3.append(go_button)
     hbox3.append(cancel_button)
+    hbox3.append(go_button)
     hbox1.append(function_label)
     hbox2.append(smiles_entry)
     window.set_child(vbox)
@@ -196,7 +214,8 @@ def generic_single_entry(function_label, entry_1_default_text, go_button_label, 
 
     go_button.connect("clicked", go_function_event, smiles_entry)
 
-    smiles_entry.connect("key_press_event", key_press_event, smiles_entry)
+    # old: smiles_entry.connect("key_press_event", key_press_event, smiles_entry)
+    smiles_entry.connect("activate", smiles_entry_activate, smiles_entry)
 
     window.show()
 
@@ -856,7 +875,7 @@ def make_store_for_diff_map_molecule_combobox():
 
 def make_store_for_model_molecule_combobox():
     mol_store = Gtk.ListStore(int, str)
-    for imol in coot_utils.molecule_number_list():
+    for imol in coot_utils.model_molecule_number_list():
         if coot.is_valid_model_molecule(imol) == 1:
             label_str = coot.molecule_name(imol)
             m_label_str = str(imol) + ' ' + label_str
@@ -1460,29 +1479,35 @@ def interesting_residues_gui(imol, title, interesting_residues):
 #
 def coot_toolbar_button(button_label, cb_function,
                         icon_name=False, tooltip=False,
-                        toggle_button=False, use_button=False):
+                        toggle_button_flag=False, use_button_flag=False):
 
     coot_main_toolbar = coot_gui_api.main_toolbar()
 
     # main body
     #
     found_button = False
+    tll = toolbar_label_list()
+    print("debug:: in coot_toolbar_button: toolbar_label_list() returned", tll)
     for f in toolbar_label_list():
         print("#### debug coot_toolbar_button", f)
     for f in toolbar_label_list():
-        if button_label in f:
-            found_button = f[1]
+        if f: # it might be None (i.e. currently all the icons don't have labels!)
+            if button_label in f:
+                found_button = f[1]
     if found_button:
         # here we only try to add a new icon, we cannot overwrite the callback function!
         toolbutton = found_button
     else:
-        if toggle_button:
-            toolbutton = Gtk.ToggleToolButton()
+        if toggle_button_flag:
+            toolbutton = Gtk.ToggleButton()
             toolbutton.set_label(button_label)
         else:
-            toolbutton = Gtk.ToolButton(icon_widget=None, label=button_label)
-        coot_main_toolbar.insert(toolbutton, -1)       # insert at the end
-        toolbutton.set_is_important(True)              # to display the text,
+            toolbutton = Gtk.Button(label=button_label) # how do we set the icon?
+        print("This is the coot_main_toolbar:")
+        print(coot_main_toolbar)
+        print(dir(coot_main_toolbar))
+        coot_main_toolbar.append(toolbutton)       # insert at the end
+        # toolbutton.set_is_important(True)          # to display the text. 20230427-PE Not in gtk4
         # otherwise only icon
 
         def cb_wrapper(widget, callback_function):
@@ -1496,7 +1521,7 @@ def coot_toolbar_button(button_label, cb_function,
                     args = callback_function[1:]
                 # pass the widget/button as well? Maybe the cb function can
                 # make use of it
-                if use_button:
+                if use_button_flag:
                     args.append(widget)
                 if callable(function):
                     print("DEBUG:: in cb_wrapper() was callable", function, "with args", *args)
@@ -1588,16 +1613,39 @@ def coot_toolbar_combobox(label, entry_list, cb_function, tooltip=""):
 
     return toolitem
 
+def toolbar_label_list():
+
+    button_label_ls = []
+    coot_main_toolbar = coot_gui_api.main_toolbar()
+    print("coot_main_toolbar", coot_main_toolbar)
+    child = coot_main_toolbar.get_first_child()
+    print("coot_main_toolbar first child ", child)
+
+    while child is not None:
+        print("child:", child)
+        label = child.get_label()
+        print("child label:", label)
+        button_label_ls.append(label)
+        child = child.get_next_sibling()
+
+    print("returning", button_label_ls)
+    return button_label_ls
 
 # returns a list of existing toolbar buttons
 # [[label, toolbutton],[]...]
 # or False if coot_python is not available
 #
-def toolbar_label_list():
+def toolbar_label_list_old():
 
     coot_main_toolbar = coot_gui_api.main_toolbar()
     button_label_ls = []
-    for toolbar_child in coot_main_toolbar.get_children():
+    # for toolbar_child in coot_main_toolbar.get_children():
+    n = coot_main_toolbar.get_n_items()
+    print("debug:: coot_main_toolbar has",n,"items")
+    box = coot_main_toolbar.get_nth_item(0)
+    n = box.get_n_items()
+    for idx in range(n):
+        toolbar_child = coot_main_toolbar.get_nth_item(idx)
         ls = []
         try:
             label = toolbar_child.get_label()
@@ -4365,9 +4413,9 @@ def solvent_ligands_gui():
         def add_button_func(txt):
             additional_solvent_ligands.append(txt)
             add_solvent_button(txt, comp_id_to_button_label(txt), inside_vbox, combobox)
+
         generic_single_entry("Add new 3-letter-code/comp-id", "", "  Add  ",
-                             lambda txt:
-                             add_button_func(txt))
+                             lambda txt: add_button_func(txt))
 
     def comp_id_to_button_label(comp_id):
         coot.auto_load_dictionary(comp_id)
@@ -4775,6 +4823,13 @@ def water_coordination_gui():
             if d:
                 update_water_results(imol, n, d)
 
+    def entry_activate_event(entry, user_data):
+        n = get_number()
+        imol = get_molecule()
+        d = get_distance()
+        if d:
+            update_water_results(imol, n, d)
+
     def atom_spec_to_text(atom_spec):
         # remove the leading element (user_int, I think)
         # return " ".join(map(str, atom_spec))
@@ -4820,7 +4875,7 @@ def water_coordination_gui():
         return name_store
 
     window = Gtk.Window()
-    window.set_title("Coot Highly-Coordinated Waters")
+    window.set_title("Coot: Highly-Coordinated Waters")
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     results_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     water_results_label = Gtk.Label(label="Other Coordinated Waters")
@@ -4847,6 +4902,10 @@ def water_coordination_gui():
                                       # should use to get strings from to be text_column
     combobox_molecule.pack_start(renderer_text, True)
     combobox_molecule.add_attribute(renderer_text, "text", 1)
+    combobox_molecule.set_margin_start(6)
+    combobox_molecule.set_margin_end(6)
+    combobox_molecule.set_margin_top(4)
+    combobox_molecule.set_margin_bottom(4)
 
     print("debug:: water_coordination_gui(): combobox_mol_items:", combobox_mol_items)
     print("debug:: water_coordination_gui(): combobox_molecule:",  combobox_molecule)
@@ -4866,12 +4925,28 @@ def water_coordination_gui():
         combobox_coordination.append_text(str(i))
 
     combobox_coordination.set_active(2)
+    combobox_coordination.set_margin_start(6)
+    combobox_coordination.set_margin_end(6)
+    combobox_coordination.set_margin_top(4)
+    combobox_coordination.set_margin_bottom(4)
 
     dist_label = Gtk.Label(label="Max Dist: ")
     dist_entry = Gtk.Entry()
     close_button = Gtk.Button(label="  Close  ")
     apply_button = Gtk.Button(label="  Apply  ")
     hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    apply_button.set_margin_start(6)
+    apply_button.set_margin_end(6)
+    apply_button.set_margin_top(4)
+    apply_button.set_margin_bottom(4)
+    close_button.set_margin_start(6)
+    close_button.set_margin_end(6)
+    close_button.set_margin_top(4)
+    close_button.set_margin_bottom(4)
+    hbox_buttons.set_margin_start(6)
+    hbox_buttons.set_margin_end(6)
+    hbox_buttons.set_margin_top(4)
+    hbox_buttons.set_margin_bottom(4)
 
     def get_molecule():
         tree_iter = combobox_molecule.get_active_iter()
@@ -4897,13 +4972,12 @@ def water_coordination_gui():
 
     def clear_previous_results():
         for this_vbox in [results_vbox, metal_results_vbox]:
-            children = this_vbox.get_children()
-            res = [widget.destroy() for widget in children]
-            # for child in children:
-            #   print "BL DEBUG:: now destroy child", child
-            #   child.destroy()
-            # this_vbox.hide()
-            # this_vbox.show()
+            child = this_vbox.get_first_child()
+            while child is not None:
+                next_child = child.get_next_sibling()
+                this_vbox.remove(child)
+                child = next_child
+
 
     def update_water_results(imol, n, d):
         results = coot.highly_coordinated_waters_py(imol, n, d)
@@ -4956,12 +5030,13 @@ def water_coordination_gui():
 
     # fill_option_menu_with_number_options(number_menu, coot_utils.number_list, 5)
 
-    scrolled_win.add_with_viewport(results_vbox)
+    # 20230520-PE old scrolled_win.add_with_viewport(results_vbox)
+    scrolled_win.set_child(results_vbox)
 
-    metal_results_scrolled_win.add_with_viewport(metal_results_frame)
-    metal_results_frame.add(metal_results_vbox)
+    metal_results_scrolled_win.set_child(metal_results_frame)
+    # metal_results_frame.add(metal_results_vbox)
+    metal_results_frame.set_child(metal_results_vbox)
     # metal_results_scrolled_win.add_with_viewport(metal_results_vbox)
-    
 
     vbox.append(combobox_molecule)
 
@@ -4986,8 +5061,8 @@ def water_coordination_gui():
     vbox.append(water_results_label)
     vbox.append(scrolled_win)
     vbox.append(h_sep)
-    hbox_buttons.append(apply_button)
     hbox_buttons.append(close_button)
+    hbox_buttons.append(apply_button)
     vbox.append(hbox_buttons)
 
     # From the Nayal and Di Cera (1996) paper, it seems that 2.7
@@ -4999,7 +5074,9 @@ def water_coordination_gui():
 
     close_button.connect("clicked", delete_event)
 
-    dist_entry.connect("key_press_event", key_press_event)
+    # dist_entry.connect("key_press_event", key_press_event)
+
+    dist_entry.connect("activate", entry_activate_event)
 
     apply_button.connect("clicked", apply_cb)
 
@@ -5293,7 +5370,7 @@ def auto_assign_sequence_from_map():
     coot.set_rotamer_search_mode(coot.ROTAMERSEARCHLOWRES)
     coot.mutate_residue_range(imol, ch_id, resno_start, resno_end, new_sequence)
     fitting.backrub_rotamers_for_chain(imol, ch_id)
-    coot.refine_residues(imol, fragment_residues)
+    coot.refine_residues(imol, fragment_residues)  # 20230501-PE should this be refine_residues_py()?
 
 
 # ;; Associate the contents of a PIR file with a molecule.  Select file from a GUI.
@@ -5353,6 +5430,9 @@ def add_module_ccp4():
     if coot_gui_api.main_menumodel():
         add_module_ccp4_gui()
 
+def add_module_ligand():
+    if coot_gui_api.main_menumodel():
+        add_module_ligand_gui()
 
 def add_module_pdbe():
    if coot_gui_api.main_menumodel():
@@ -5509,6 +5589,75 @@ def add_module_ccp4_gui():
 
         add_simple_action_to_menu(menu,"Make LINK via Acedrg","make_link_acedrg",lambda _one, _two: acedrg_link.acedrg_link_generation_control_window())
 
+def show_chem_func():
+    with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
+        coot.show_feats(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
+
+# for quick-ligand-validate:
+import ligand_check
+
+def add_module_ligand_gui():
+
+    def jiggle_fit_active_residue():
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                              aa_ins_code, aa_atom_name, aa_alt_conf]:
+            coot.fit_to_map_by_random_jiggle(aa_imol, aa_chain_id, aa_res_no, aa_ins_code, 100, 1.0)
+    # from contact_score_isolated_ligand.py (hmm)
+    def coot_contact_dots_ligand_func():
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                               aa_ins_code, aa_atom_name, aa_alt_conf]:
+            coot.coot_contact_dots_for_ligand_py(aa_imol, [aa_chain_id, aa_res_no, aa_ins_code])
+
+    # from enhanced_ligand.py (hmm)
+    def display_ligand_distortions_func():
+         with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
+             coot.display_residue_distortions(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
+
+    # from enhanced_ligand.py
+    def probe_ligand_func():
+        global probe_command
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                            aa_ins_code, aa_atom_name, aa_alt_conf]:
+            ss = "//" + aa_chain_id + "/" + str(aa_res_no)
+            imol_selection = coot.new_molecule_by_atom_selection(aa_imol, ss)
+            work_dir = coot_utils.get_directory("coot-molprobity")
+            tmp_selected_ligand_for_probe_pdb = os.path.join(work_dir,
+                                                "tmp-selected-ligand-for-probe.pdb")
+            tmp_protein_for_probe_pdb = os.path.join(work_dir,
+                                                 "tmp-protein-for-probe.pdb")
+            generic_objects.probe_dots_file_name = os.path.join(work_dir, "probe.dots")
+
+            coot.set_mol_displayed(imol_selection, 0)
+            coot.set_mol_active(imol_selection, 0)
+            # BL comment: we assume H and view is correct.
+            #set_go_to_atom_molecule(imol)
+            #rc = residue_centre(imol, chain_id, res_no, ins_code)
+            #set_rotation_centre(*rc)
+            #hydrogenate_region(6)
+            coot.write_pdb_file(imol_selection, tmp_selected_ligand_for_probe_pdb)
+            coot.write_pdb_file(imol, tmp_protein_for_probe_pdb)
+            coot_utils.popen_command(probe_command, ["-u", "-once", str(aa_res_no), # -once or -both
+                                             "not " + str(aa_res_no),
+                                             "-density60",
+                                             tmp_selected_ligand_for_probe_pdb,
+                                             tmp_protein_for_probe_pdb],
+                                             [], generic_objects.probe_dots_file_name, False)
+            coot.handle_read_draw_probe_dots_unformatted(dots_file_name, aa_imol, 0)
+            coot.graphics_draw()
+
+    if coot_gui_api.main_menumodel():
+        menu = attach_module_menu_button("Ligand")
+        add_simple_action_to_menu(menu, "Find Ligands", "find_ligands", lambda _one, _two: coot.do_find_ligands_dialog())
+        add_simple_action_to_menu(menu, "Jiggle-fit Ligands", "jiggle_fit_ligands", lambda _one, _two: jiggle_fit_active_residue())
+        add_simple_action_to_menu(menu, "Hydrogenate Region", "hydrogenate_region", lambda _one, _two: coot.hydrogenate_region(6))
+        add_simple_action_to_menu(menu, "Contact Dots for Ligand", "contact_dots_for_ligand", lambda _one, _two: coot_contact_dots_ligand_func())
+        add_simple_action_to_menu(menu, "SMILES -> Simple 3D", "smiles_to_simple_3d", lambda _one, _two: coot.do_smiles_to_simple_3d_overlay_frame())
+        add_simple_action_to_menu(menu, "Show Chemical Features", "show_chemical_features", lambda _one, _two: show_chem_func())
+        add_simple_action_to_menu(menu, "Display Ligand Distortions", "display_ligand_distortions", lambda _one, _two: display_ligand_distortions_func())
+        add_simple_action_to_menu(menu, "Quick Ligand Validate", "quick_ligand_validate", lambda _one, _two: ligand_check.gui_ligand_check_dialog_active_residue())
+        add_simple_action_to_menu(menu, "Isolated Molprobity Dots for ligand", "isolated_molprobity_dots_for_ligand", lambda _one, _two: probe_ligand_func())
+
 def add_module_pdbe_gui():
    if coot_gui_api.main_menumodel():
       menu = coot_menubar_menu("PDBe")
@@ -5588,11 +5737,11 @@ def add_module_refine():
 
         add_simple_action_to_menu(menu, "Chain Refine","chain_refine_active_atom", chain_refine_active_atom)
 
-        # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
-        add_simple_action_to_menu(menu, "Contact Dots On","contact_dots_on",  lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(1))
-        add_simple_action_to_menu(menu, "Contact Dots Off","contact_dots_off", lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(0))
+        add_simple_action_to_menu(menu, "Intermediate Atom Contact Dots On","contact_dots_on",   lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(1))
+        add_simple_action_to_menu(menu, "Intermediate Atom Contact Dots Off","contact_dots_off", lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(0))
 
-        add_simple_action_to_menu(menu, "Intermediate Atom Restraints On","intermediate_atom_restraints_on",  lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(1))
+        # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
+        add_simple_action_to_menu(menu, "Intermediate Atom Restraints On","intermediate_atom_restraints_on",   lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(1))
         add_simple_action_to_menu(menu, "Intermediate Atom Restraints Off","intermediate_atom_restraints_off", lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(0))
 
         add_simple_action_to_menu(menu, "Refine Fragment","refine_fragment_active_atom", refine_fragment_active_atom)
@@ -6119,7 +6268,17 @@ def model_map_diff_map_molecule_chooser_gui(callback_function):
     label_for_diff_map = Gtk.Label(label=diff_map_chooser_label)
     label_for_model    = Gtk.Label(label=model_chooser_label)
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    vbox.set_margin_top(6)
+    vbox.set_margin_bottom(6)
+    vbox.set_margin_start(12)
+    vbox.set_margin_end(12)
+    label_for_model.set_margin_top(4)
+    label_for_map.set_margin_top(4)
+    label_for_diff_map.set_margin_top(4)
+
     hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    hbox_buttons.set_homogeneous(True)
+    hbox_buttons.set_hexpand(False)
 
     # 20220326-PE
     # combobox_model    = Gtk.combo_box_new_text()
@@ -6166,7 +6325,9 @@ def model_map_diff_map_molecule_chooser_gui(callback_function):
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
 
     # "auto" button
-    auto_update_checkbutton = Gtk.CheckButton("Auto Update")
+    auto_update_checkbutton = Gtk.CheckButton(label="Auto Update")
+    auto_update_checkbutton.set_margin_top(4)
+    auto_update_checkbutton.set_margin_bottom(4)
 
     window.set_default_size(370,100)
     window.set_child(vbox)
@@ -6181,6 +6342,12 @@ def model_map_diff_map_molecule_chooser_gui(callback_function):
     vbox.append(hbox_buttons)
     hbox_buttons.append(cancel_button)
     hbox_buttons.append(    ok_button)
+
+    for b in [cancel_button, ok_button]:
+        b.set_margin_top(4)
+        b.set_margin_bottom(4)
+        b.set_margin_start(6)
+        b.set_margin_end(6)
 
     # button callbacks:
     ok_button.connect("clicked", on_ok_clicked)
@@ -6214,7 +6381,7 @@ def show_updating_maps_chooser():
                 print("================================= calculate_maps_and_stats_py()", imol, imol_map, imol_diff_map)
                 coot.calculate_maps_and_stats_py(imol, imol_map, imol_map, imol_diff_map)
             menu_bar_callback_func = generator_update_maps_func_wrap_for_capture(imol, imol_map, imol_diff_map)
-            coot_toolbar_button("Update Maps", menu_bar_callback_func, use_button=True)
+            coot_toolbar_button("Update Maps", menu_bar_callback_func, use_button_flag=True)
             coot_toolbar_button("Shiftfield B", shiftfield_func)
 
     model_map_diff_map_molecule_chooser_gui(ok_button_function)

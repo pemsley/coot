@@ -23,17 +23,15 @@
 #ifndef CC_INTERFACE_HH
 #define CC_INTERFACE_HH
 
-#include <Python.h>
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
 
 #include <gtk/gtk.h>
 
 #ifdef USE_GUILE
 #include <libguile.h>
 #endif // USE_GUILE
-
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -105,6 +103,8 @@ std::string pre_directory_file_selection(GtkWidget *sort_button);
 void filelist_into_fileselection_clist(GtkWidget *fileselection, const std::vector<std::string> &v);
 */
 
+// 20220723-PE these functions should not be in this header! - Move them to a widget header
+// MOVE-ME!
 GtkWidget *wrapped_nothing_bad_dialog(const std::string &label);
 
 std::pair<short int, float> float_from_entry(GtkWidget *entry);
@@ -238,8 +238,8 @@ and DELFWT/PHDELFWT) can be changed using ...[something]
 */
 std::vector<int> auto_read_make_and_draw_maps(const char *filename);
 /*! \brief set the flag to do a difference map (too) on auto-read MTZ */
-std::vector<int> auto_read_make_and_draw_maps_from_mtz(const char *filename);
-std::vector<int> auto_read_make_and_draw_maps_from_cns(const char *filename);
+std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &file_name);
+std::vector<int> auto_read_make_and_draw_maps_from_cns(const std::string &file_name);
 
 /* ----- remove wiget functions from this header GTK-FIXME
 void add_map_colour_mol_menu_item(int imol, const std::string &name,
@@ -320,6 +320,7 @@ void go_to_map_molecule_centre(int imol_map);
 //! @return -1 when given a bad map or there were no data beyond 4.5A
 //!
 float b_factor_from_map(int imol_map);
+
 
 //! \brief return the colour triple of the imolth map
 //!
@@ -405,6 +406,26 @@ PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py, in
 // Where should this go?
 void import_bild(const std::string &file_name);
 
+/*  ------------------------------------------------------------------------ */
+/*                             Add an Atom                                   */
+/*  ------------------------------------------------------------------------ */
+//! \name Add an Atom
+//! \{
+//! \brief add an atom. element can be "Water", "Na", "K", "I" etc.
+void add_an_atom(const std::string &element);
+//! \}
+
+/*  ------------------------------------------------------------------------ */
+/*                             Nudge the B-factors                           */
+/*  ------------------------------------------------------------------------ */
+//! \name Nudge the B-factors
+//! \{
+//! \brief change the b-factors of the specified by a (small) amount
+#ifdef USE_PYTHON
+void nudge_the_temperature_factors_py(int imol, PyObject *residue_spec_py, float amount);
+#endif
+//! \}
+
 
 /*  ------------------------------------------------------------------------ */
 /*                         merge fragments                                   */
@@ -416,6 +437,21 @@ void import_bild(const std::string &file_name);
 //! each fragment is presumed to be in its own chain.
 //
 int merge_fragments(int imol);
+//! \}
+
+/*  ------------------------------------------------------------------------ */
+/*                         delete items                                      */
+/*  ------------------------------------------------------------------------ */
+//! \name Delete Items
+//! \{
+//! \brief Delete Items
+
+/*! \brief delete the chain  */
+void delete_chain(int imol, const std::string  &chain_id);
+
+/*! \brief delete the side chains in the chain  */
+void delete_sidechains_for_chain(int imol, const std::string &chain_id);
+
 //! \}
 
 
@@ -1139,6 +1175,21 @@ PyObject *water_chain_py(int imol);
 
 
 /*  ----------------------------------------------------------------------- */
+/*                  intrface utils                                          */
+/*  ----------------------------------------------------------------------- */
+//! \name Interface Utils
+//! \{
+
+/*! \brief Put text s into the status bar.
+
+  use this to put info for the user in the statusbar (less intrusive
+  than popup). */
+void add_status_bar_text(const std::string &s);
+
+//! \}
+
+
+/*  ----------------------------------------------------------------------- */
 /*                  glyco tools                                             */
 /*  ----------------------------------------------------------------------- */
 //! \name Glyco Tools
@@ -1224,6 +1275,8 @@ PyObject *CG_spin_search_py(int imol_model, int imol_map);
 /*  ----------------------------------------------------------------------- */
 std::vector<std::pair<std::string, std::string> > monomer_lib_3_letter_codes_matching(const std::string &search_string, short int allow_minimal_descriptions_flag);
 
+// 20220723-PE These functions should not be here. Move this functions to a widget header.
+//             MOVE-ME!
 void on_monomer_lib_search_results_button_press (GtkButton *button, gpointer user_data);
 void on_monomer_lib_sbase_molecule_button_press (GtkButton *button, gpointer user_data);
 
@@ -1238,10 +1291,10 @@ int mutate_internal(int ires, const char *chain_id,
 /* a function for multimutate to make a backup and set
    have_unsaved_changes_flag themselves */
 
-// \brief mutate active residue to single letter code slc
+//! \brief mutate active residue to single letter code slc
 void mutate_active_residue_to_single_letter_code(const std::string &slc);
 
-// \brief show keyboard mutate dialog
+//! \brief show keyboard mutate dialog
 void show_keyboard_mutate_dialog();
 
 /*  ----------------------------------------------------------------------- */
@@ -1250,6 +1303,10 @@ void show_keyboard_mutate_dialog();
 coot::graph_match_info_t
 overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref,
                          int resno_ref, bool apply_rtop_flag);
+
+//! \brief display the SMILES entry. This is the simple version - no dictionary
+//! is generated.
+void do_smiles_to_simple_3d_overlay_frame();
 
 
 /*  ----------------------------------------------------------------------- */
@@ -1391,8 +1448,8 @@ mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(mmdb::Manager *mol,
 
 #ifdef USE_LIBCURL
 // return 0 on success.
-int coot_get_url(const char *url, const char *file_name);
-int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name, short int do_hook_flag);
+int coot_get_url(const std::string &url, const std::string &file_name);
+int coot_get_url_and_activate_curl_hook(const std::string &url, const std::string &file_name, short int do_hook_flag);
 #ifdef USE_GUILE
 // this handles URLs that are strings, not binaries.
 SCM coot_get_url_as_string(const char *url);
@@ -1445,7 +1502,7 @@ topological_equivalence_chiral_centres(const std::string &residue_type);
 
 
 /*  ----------------------------------------------------------------------- */
-/*                  Mew Screendump                                          */
+/*                  New Screendump                                          */
 /*  ----------------------------------------------------------------------- */
 void screendump_tga(const std::string &file_name);
 void set_framebuffer_scale_factor(unsigned int sf);
@@ -1511,6 +1568,10 @@ void set_model_material_ambient(int imol, float r, float g, float b, float alpha
 
 //! \brief
 void set_model_material_diffuse(int imol, float r, float g, float b, float alpha);
+
+//! \brief set the goodselliness (pastelization_factor) 0.3 is about right, but "the right value"
+//!        depends on the renderer, may be some personal choice.
+void set_model_goodselliness(float pastelization_factor);
 
 //! \brief
 void set_map_fresnel_settings(int imol, short int state, float bias, float scale, float power);
@@ -1589,6 +1650,9 @@ void set_draw_gl_ramachandran_plot_during_refinement(short int state);
 
 //! \brief set the FPS timing scale factor - default 0.0025
 void set_fps_timing_scale_factor(float f);
+
+//! \brief draw background image
+void set_draw_background_image(bool state);
 
 // testing function
 void read_test_gltf_models();
@@ -1716,11 +1780,11 @@ PyObject *protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imo
 /* ------------------------------------------------------------------------- */
 /*! \name Coot's Hole implementation */
 
-/*! \brief starting piont and end point, colour map multiplier and
+/*! \brief starting point and end point, colour map multiplier and
   shall the probe radius graph be shown (dummy value currently).
 
-if export_dots_file_name string length is zero, then don't try to
-export the surface dots.
+ if export_dots_file_name string length is zero, then don't try to
+ export the surface dots.
 
 */
 void hole(int imol,
@@ -1731,13 +1795,25 @@ void hole(int imol,
           std::string export_surface_dots_file_name);
 
 
-// GUI stuff
-void probe_radius_graph_close_callback( GtkWidget *button,
-                                         GtkWidget *dialog);
-void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
-void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
-void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
+// GUI stuff - Move these functions to a widget header
+// 20220723-PE MOVE-ME!
+void probe_radius_graph_close_callback( GtkWidget *button, GtkWidget *dialog);
 
+// 20230521-PE restore these when I understand how to make a graph in GTK4.
+// void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
+// void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
+// void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
+
+/* ------------------------------------------------------------------------- */
+/*                      Gaussian Surface                                     */
+/* ------------------------------------------------------------------------- */
+/*! \name Coot's Gaussian Surface */
+
+//! \brief The surface is separated into chains to make Generid Display Objects
+//!        There is no colour, contour, grid or sigma or material control yet for Gaussian surfaces.
+//!
+//!        there should be one day...
+int gaussian_surface(int imol);
 
 /* ------------------------------------------------------------------------- */
 /*                      LINKs                                                */
@@ -2030,6 +2106,11 @@ std::string get_sequence_as_fasta_for_chain(int imol, const std::string &chain_i
 
 //! \brief write the sequence for imol as fasta
 void write_sequence(int imol, const std::string &file_name);
+
+//! \brief trace the given map and try to apply the sequence in
+//! the given pir file
+void res_tracer(int imol_map, const std::string &pir_file_name);
+
 
 /* \} */
 

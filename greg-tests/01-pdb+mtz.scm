@@ -1911,7 +1911,7 @@
 
        (if (not (valid-model-molecule? imol))
            (throw 'failed-to-find-pdb2qc1-sans-cho))
-       
+
        (let ((status (add-linked-residue imol "B" 141 "" "NAG" "NAG-ASN" 3000)))
 
          (with-auto-accept (refine-residues imol (list (list "B" 141 "") (list "B" 464 ""))))
@@ -1979,7 +1979,7 @@
         ;;     (= (length ls)  63)    ;; 6.1.3 dictionary
         ;;     (= (length ls)  61))   ;; 6.0.2 dictionary
 
-        (> (length ls) 60)
+        (> (length ls) 40) ;; 47 in new dictionary 20230102-PE
 
            #t ;; good
 
@@ -3206,3 +3206,20 @@
                      #t ; OK, it didn't move much
                      ))))))))
 ;;
+
+
+;; Lucrezia Catapano bug
+;;
+(greg-testcase "Delete Deuterium Atoms Also" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "pdb7a0l.ent"))) ;; 20221028-PE new model in greg data.
+       (if (valid-model-molecule? imol)
+           (begin
+             (delete-hydrogen-atoms imol)
+             (let ((imol-new (new-molecule-by-atom-selection imol "//A/*/*[D]")))
+               (let ((v (valid-model-molecule? imol-new)))
+                 ;; Coot should not allow the creation of imol-new - because it should
+                 ;; have no atoms in it.
+                 (print-var v)
+                 (not v))))))))

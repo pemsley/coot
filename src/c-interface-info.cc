@@ -61,7 +61,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 
 #include "coot-utils/coot-map-utils.hh" // for make_rtop_orth_from()
@@ -175,7 +175,10 @@ int is_shelx_molecule(int imol) {
 /* Similar to above, we need only one click though. */
 void do_residue_info_dialog() {
 
-   if (graphics_info_t::residue_info_edits->size() > 0) {
+   // 20230515-PE It doesn't work like this now.
+   // Delete this function FIXME
+
+   if (graphics_info_t::residue_info_edits.size() > 0) {
 
       std::string s =  "WARNING:: You have pending (un-Applied) residue edits\n";
       s += "Deal with them first.";
@@ -1024,8 +1027,7 @@ void hydrogenate_region(float radius) {
    if (pp.first) {
       int imol = pp.second.first;
       coot::residue_spec_t central_residue(pp.second.second);
-      std::cout << "----------- hydrogenating " << central_residue
-                << " in " << imol << std::endl;
+      std::cout << "----------- hydrogenating " << central_residue << " in " << imol << std::endl;
       coot::residue_spec_t res_spec(pp.second.second);
       std::vector<coot::residue_spec_t> v =
          graphics_info_t::molecules[imol].residues_near_residue(res_spec, radius);
@@ -1035,7 +1037,6 @@ void hydrogenate_region(float radius) {
       if (new_mol) {
 
          coot::util::create_directory("coot-molprobity"); // exists already maybe? Handled.
-
          std::string name_part = graphics_info_t::molecules[imol].Refmac_name_stub() + ".pdb";
 
          std::string pdb_in_file_name  = "hydrogenate-region-in-"  + name_part;
@@ -1049,22 +1050,30 @@ void hydrogenate_region(float radius) {
          if (graphics_info_t::prefer_python) {
 #ifdef USE_PYTHON
 
-            std::string python_command = "reduce_on_pdb_file_no_flip(";
-            python_command += coot::util::int_to_string(imol);
-            python_command += ", ";
-            python_command += single_quote(pdb_in);
-            python_command += ", ";
-            python_command += single_quote(pdb_out);
-            python_command += ")";
-
-            PyObject *r = safe_python_command_with_return(python_command);
-            std::cout << "::: safe_python_command_with_return() returned " << r << std::endl;
-            std::cout << "::: safe_python_command_with_return() returned "
-                      << PyBytes_AS_STRING(PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(r)))) << std::endl;
-            if (r == Py_True) {
-               std::cout << "........ calling add_hydrogens_from_file() with pdb_out "
-                         << pdb_out << std::endl;
-               graphics_info_t::molecules[imol].add_hydrogens_from_file(pdb_out);
+            graphics_info_t g;
+            short int lang = coot::STATE_PYTHON;
+            std::string module = "generic_objects";
+            std::string function = "reduce_on_pdb_file_no_flip";
+            std::vector<coot::command_arg_t> args = {
+               coot::command_arg_t(imol), pdb_in, pdb_out };
+            std::string sc = g.state_command(module, function, args, lang);
+            safe_python_command("import generic_objects");
+            PyObject *r = safe_python_command_with_return(sc);
+            std::cout << "::: A safe_python_command_with_return() returned " << r << std::endl;
+            if (r)
+               std::cout << "::: B safe_python_command_with_return() returned "
+                         << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(r))) << std::endl;
+            // 20230605-PE frustratingly the return value is None, even though I expect it to
+            // be true. So just ignore this test for now.
+            // if (r == Py_True) {
+            if (true) {
+               if (coot::file_exists(pdb_out)) {
+                  std::cout << "DEBUG:: calling add_hydrogens_from_file() with pdb_out "
+                            << pdb_out << std::endl;
+                  graphics_info_t::molecules[imol].add_hydrogens_from_file(pdb_out);
+               } else {
+                  std::cout << "WARNING:: file does not exist " << pdb_out << std::endl;
+               }
             }
             Py_XDECREF(r);
 
@@ -2358,9 +2367,9 @@ void residue_info_apply_all_checkbutton_toggled() {
 }
 
 
-void apply_residue_info_changes(GtkWidget *widget) {
+void apply_residue_info_changes() {
    graphics_info_t g;
-   g.apply_residue_info_changes(widget);
+   g.apply_residue_info_changes();
    graphics_draw();
 }
 
@@ -2416,7 +2425,8 @@ void clear_last_measure_distance() {
 
 void clear_residue_info_edit_list() {
 
-   graphics_info_t::residue_info_edits->resize(0);
+   graphics_info_t g;
+   g.reset_residue_info_edits();
    std::string cmd = "clear-residue-info-edit-list";
    std::vector<coot::command_arg_t> args;
    add_to_history_typed(cmd, args);
@@ -2441,8 +2451,7 @@ void fill_environment_widget(GtkWidget *widget) {
    gtk_editable_set_text(GTK_EDITABLE(entry), text);
    free(text);
 
-   GtkWidget *toggle_button;
-   toggle_button = widget_from_builder("environment_distance_checkbutton");
+   GtkWidget *check_button = widget_from_builder("environment_distance_checkbutton");
 
    if (g.environment_show_distances == 1) {
       // we have to (temporarily) set the flag to 0 because the
@@ -2451,18 +2460,18 @@ void fill_environment_widget(GtkWidget *widget) {
       // distances if they were allowed to remain here at 1 (on).
       // Strange but true.
       g.environment_show_distances = 0;
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), 1);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button), 1);
       // std::cout << "filling: button is active" << std::endl;
    } else {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), 0);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(check_button), 0);
       // std::cout << "filling: button is inactive" << std::endl;
    }
    // set the label button
-   toggle_button = widget_from_builder("environment_distance_label_atom_checkbutton");
+   check_button = widget_from_builder("environment_distance_label_atom_checkbutton");
    if (g.environment_distance_label_atom) {
-     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), 1);
+     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button), 1);
    } else {
-     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), 0);
+     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button), 0);
    }
 }
 
@@ -2693,7 +2702,8 @@ void set_show_pointer_distances(int istate) {
       // std::cout << "in set_show_pointer_distances: done making distances.." << std::endl;
    }
    graphics_draw();
-   graphics_info_t::residue_info_edits->resize(0);
+   graphics_info_t g;
+   g.reset_residue_info_edits(); // 20230515-PE why?
    std::string cmd = "set-show-pointer-distances";
    std::vector<coot::command_arg_t> args;
    args.push_back(istate);

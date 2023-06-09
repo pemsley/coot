@@ -48,7 +48,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 
 #include "graphics-info.h"
@@ -96,6 +96,8 @@ GtkWidget *wrapped_create_get_monomer_dialog() {
 //
 int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
 
+   // 20230506-PE put this in graphics_info_t
+
    int ifound_map, ifound_coords, ifound_ligand;
    short int diff_maps_only_flag = 0;
    graphics_info_t g;
@@ -104,30 +106,27 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
    GtkWidget *find_ligand_protein_vbox = widget_from_builder("find_ligand_protein_vbox");
    GtkWidget *find_ligand_map_vbox     = widget_from_builder("find_ligand_map_vbox");
 
-   clear_out_container(find_ligand_map_vbox);
-   clear_out_container(find_ligand_protein_vbox);
-   clear_out_container(find_ligand_ligands_vbox);
+   // clear_out_container(find_ligand_map_vbox);
+   // clear_out_container(find_ligand_protein_vbox);
+   // clear_out_container(find_ligand_ligands_vbox);
 
    ifound_map = fill_ligands_dialog_map_bits(find_ligand_dialog, diff_maps_only_flag);
    if (ifound_map == 0) {
-      std::cout << "WARNING:: you must have a map to search for ligands!"
-		<< std::endl;
+      std::cout << "WARNING:: you must have a map to search for ligands!" << std::endl;
       std::string s("WARNING:: you must have a map to\n search for ligands!");
       GtkWidget *w = wrapped_nothing_bad_dialog(s);
       gtk_widget_show(w);
    }
    ifound_coords = fill_ligands_dialog_protein_bits(find_ligand_dialog);
    if (ifound_coords == 0) {
-      std::cout << "Error: you must have a protein to mask the map!"
-		<< std::endl;
+      std::cout << "Error: you must have a protein to mask the map!" << std::endl;
       std::string s("WARNING:: you must have a protein\n to mask the map");
       GtkWidget *w = wrapped_nothing_bad_dialog(s);
       gtk_widget_show(w);
    }
    ifound_ligand = fill_ligands_dialog_ligands_bits(find_ligand_dialog);
    if (ifound_ligand == 0) {
-      std::cout << "Error: you must have at least one  ligand to search for!"
-		<< std::endl;
+      std::cout << "Error: you must have at least one  ligand to search for!" << std::endl;
       std::string s("WARNING:: you must have at least one\n          ligand to search for!\n");
       s += "         Ligands have less than ";
       s += coot::util::int_to_string(graphics_info_t::find_ligand_ligand_atom_limit);
@@ -136,22 +135,28 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
       gtk_widget_show(w);
    }
 
-   // The mask waters toggle buttons:
+   // The mask waters radio buttons:
+   //
+   GtkWidget *checkbutton_yes = widget_from_builder("find_ligand_mask_waters_yes_radiobutton");
+   GtkWidget *checkbutton_no  = widget_from_builder("find_ligand_mask_waters_no_radiobutton");
+   if (g.find_ligand_mask_waters_flag) {
+       gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton_yes), TRUE);
+   } else {
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton_no), TRUE);
+   }
 
-   GtkWidget *togglebutton = widget_from_builder("find_ligand_mask_waters_yes_radiobutton");
-   if (g.find_ligand_mask_waters_flag)
-      gtk_check_button_set_active(GTK_CHECK_BUTTON(togglebutton), TRUE);
-   else
-      gtk_check_button_set_active(GTK_CHECK_BUTTON(togglebutton), FALSE);
 
-
-   // The Search/Here toggle buttons:
+   // The Search/Here radio buttons:
    //
    GtkWidget *search_here_check_button;
+   GtkWidget *search_all_check_button;
    search_here_check_button = widget_from_builder("find_ligands_search_here_radiobutton");
+   search_all_check_button  = widget_from_builder("find_ligands_search_all_radiobutton");
    if (search_here_check_button) {
       if (graphics_info_t::find_ligand_here_cluster_flag)
-	 gtk_check_button_set_active(GTK_CHECK_BUTTON(search_here_check_button), TRUE);
+	      gtk_check_button_set_active(GTK_CHECK_BUTTON(search_here_check_button), TRUE);
+      else
+	      gtk_check_button_set_active(GTK_CHECK_BUTTON(search_all_check_button), TRUE);
    } else {
       std::cout << "ERROR no search here check button" << std::endl;
    }
@@ -160,44 +165,36 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
 
    // multi-solution check button
    //
+
    GtkWidget *multi_solution_check_button = widget_from_builder("find_ligand_multi_solution_checkbutton");
    if (multi_solution_check_button) {
 
       if (g.find_ligand_multiple_solutions_per_cluster_flag) {
 
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(multi_solution_check_button), TRUE);
+	 gtk_check_button_set_active(GTK_CHECK_BUTTON(multi_solution_check_button), TRUE);
+      } else {
+	 gtk_check_button_set_active(GTK_CHECK_BUTTON(multi_solution_check_button), FALSE);
+      }
 
-	 // g.find_ligand_score_by_correl_frac_limit
-	 // g.find_ligand_score_correl_frac_interesting_limit
-	 //
-	 GtkWidget *entry_1 = widget_from_builder("find_ligand_multi_solution_entry_1");
-	 GtkWidget *entry_2 = widget_from_builder("find_ligand_multi_solution_entry_2");
-	 if (entry_1) {
-	    gtk_editable_set_text(GTK_EDITABLE(entry_1),
-                                  coot::util::float_to_string(g.find_ligand_score_by_correl_frac_limit).c_str());
-	 }
-	 if (entry_2) {
-	    gtk_editable_set_text(GTK_EDITABLE(entry_2),
-                                  coot::util::float_to_string(g.find_ligand_score_correl_frac_interesting_limit).c_str());
-	 }
+      // g.find_ligand_score_by_correl_frac_limit
+      // g.find_ligand_score_correl_frac_interesting_limit
+      //
+      GtkWidget *entry_1 = widget_from_builder("find_ligand_multi_solution_entry_1");
+      GtkWidget *entry_2 = widget_from_builder("find_ligand_multi_solution_entry_2");
+      if (entry_1) {
+         gtk_editable_set_text(GTK_EDITABLE(entry_1),
+                                 coot::util::float_to_string(g.find_ligand_score_by_correl_frac_limit).c_str());
+      }
+      if (entry_2) {
+         gtk_editable_set_text(GTK_EDITABLE(entry_2),
+                                 coot::util::float_to_string(g.find_ligand_score_correl_frac_interesting_limit).c_str());
       }
    }
 
    // expert options
    fill_ligands_expert_options();
-   // shall we see the expert option frame?
-
-   // 20140907 Yes. We always see the ligand expert frame now.
-   //          never hide it.
-   // if (graphics_info_t::ligand_expert_flag == 0) {
-   if (false) {
-      GtkWidget *frame = widget_from_builder("ligand_expert_frame");
-      gtk_widget_hide(frame);
-   }
 
    return ifound_ligand * ifound_map * ifound_coords;
-
-   // 050924 New "Expert Options" entries:
 
 }
 
@@ -213,10 +210,12 @@ void fill_ligands_sigma_level_entry() {
 
 void fill_ligands_expert_options() {
 
+   // Conformer Options
    GtkWidget *entry = widget_from_builder("ligand_n_samples_entry");
    graphics_info_t g;
    gtk_editable_set_text(GTK_EDITABLE(entry), g.int_to_string(g.ligand_wiggly_ligand_n_samples).c_str());
 
+   // Expert Options
    entry = widget_from_builder("ligand_n_top_ligands_entry");
    gtk_editable_set_text(GTK_EDITABLE(entry), g.int_to_string(g.find_ligand_n_top_ligands).c_str());
 
@@ -232,91 +231,54 @@ int fill_ligands_dialog_map_bits(GtkWidget *find_ligand_dialog,
 
 }
 
-// dialog_name is typically find_ligand_map
 //
+int fill_ligands_dialog_map_combobox(short int diff_maps_only_flag) {
+
+   auto get_map_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_map_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+
+   GtkWidget *map_combobox = widget_from_builder("find_ligands_map_comboboxtext");
+   gtk_widget_set_visible(map_combobox, TRUE);
+   auto map_list = get_map_molecule_vector();
+   int imol_map_active = -1;
+   if (!map_list.empty()) imol_map_active = map_list[0];
+   graphics_info_t g;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   g.fill_combobox_with_molecule_options(  map_combobox, func, imol_map_active, map_list);
+   return map_list.size(); // checked to see that we have a map to search in
+
+}
+
 int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
 						const char *dialog_name,
 						short int diff_maps_only_flag) {
 
-   // this funny passing of the dialog name is used beause I want to use the function
-   // for difference map peaks as well as ligands
-
-   int ifound = 0;
-   graphics_info_t g;
-   // Add map elements:
-   GSList *find_ligand_map_group = NULL;
-   //
-
-   // e.g. can be "generate_diff_map_peaks_map", + _"vbox"
-   std::string vbox_name = dialog_name;
-   vbox_name += "_vbox";
-
-   GtkWidget *find_ligand_map_vbox = widget_from_builder(vbox_name.c_str());
-
-   clear_out_container(find_ligand_map_vbox);
-
-   std::cout << "DEBUG:: in fill_ligands_dialog_map_bits_by_dialog_name() found find_ligand_map_vbox "
-             << find_ligand_map_vbox << std::endl;
-
-   if (find_ligand_map_vbox == NULL) {
-      std::cout << "ERROR:: disaster! find_ligand map vbox not found " << std::endl;
-   } else {
-      for (int imol=0; imol<g.n_molecules(); imol++) {
-	 if (g.molecules[imol].has_xmap()) {
-
-	    if ((!diff_maps_only_flag) ||
-		g.molecules[imol].is_difference_map_p()) {
-
-	       ifound++; // there was a map
-	       std::string map_str(dialog_name);
-	       map_str += "_radiobutton_";
-	       map_str += g.int_to_string(imol);
-	       std::string map_button_label = g.int_to_string(imol);
-	       map_button_label += " ";
-	       map_button_label += g.molecules[imol].name_;
-
-#if (GTK_MAJOR_VERSION >= 4)
-               // 20220602-PE FIXME radio buttons
-               std::cout << "in fill_ligands_dialog_map_bits_by_dialog_name() FIXME new radiobuttons - needs group" << std::endl;
-	       GtkWidget *find_ligand_map_radiobutton_imol = gtk_check_button_new_with_label(map_button_label.c_str());
-#else
-	       GtkWidget *find_ligand_map_radiobutton_imol = gtk_radio_button_new_with_label(find_ligand_map_group, map_button_label.c_str());
-	       find_ligand_map_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(find_ligand_map_radiobutton_imol));
-               g_object_set_data(G_OBJECT(find_ligand_map_radiobutton_imol), "imol", GINT_TO_POINTER(imol));
-	       g_signal_connect(G_OBJECT(find_ligand_map_radiobutton_imol), "toggled",
-				G_CALLBACK(on_find_ligand_map_radiobutton_imol_toggled),
-				GINT_TO_POINTER(imol));
-	       gtk_widget_show(find_ligand_map_radiobutton_imol);
-#endif
-
-
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
- 	       gtk_box_append(GTK_BOX(find_ligand_map_vbox), find_ligand_map_radiobutton_imol);
-#else
-	       gtk_box_pack_start (GTK_BOX (find_ligand_map_vbox),
-				   find_ligand_map_radiobutton_imol, FALSE, FALSE, 0);
-#endif
-	    }
-	 }
-      }
-   }
-   return ifound;
+   return fill_ligands_dialog_map_combobox(diff_maps_only_flag);
 }
 
 void
-on_find_ligand_map_radiobutton_imol_toggled(GtkToggleButton *togglebutton,
-					    gpointer         user_data) {
+on_find_ligand_map_radiobutton_imol_toggled(GtkCheckButton *checkbutton,
+                                            gpointer         user_data) {
+
+   // Not used now?
 
    int imol = GPOINTER_TO_INT(user_data);
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       std::cout << "imol " << imol << " active "<< std::endl;
       GtkWidget *w = widget_from_builder("find_ligand_sigma_level_entry");
       if (w) {
-	 if (map_is_difference_map(imol)) {
-	    gtk_editable_set_text(GTK_EDITABLE(w), "3.0");
-	 } else {
-	    gtk_editable_set_text(GTK_EDITABLE(w), "1.0");
-	 }
+         if (map_is_difference_map(imol)) {
+            gtk_editable_set_text(GTK_EDITABLE(w), "3.0");
+         } else {
+            gtk_editable_set_text(GTK_EDITABLE(w), "1.0");
+         }
       }
    }
 }
@@ -324,15 +286,36 @@ on_find_ligand_map_radiobutton_imol_toggled(GtkToggleButton *togglebutton,
 
 int fill_ligands_dialog_protein_bits(GtkWidget *find_ligand_dialog) {
 
-   return fill_ligands_dialog_protein_bits_by_dialog_name(find_ligand_dialog,
-							  "find_ligand_protein");
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             if (g.molecules[i].atom_sel.n_selected_atoms > 100)
+                                                vec.push_back(i);
+                                       return vec;
+                                    };
+
+   GtkWidget *coords_combobox = widget_from_builder("find_ligands_coords_comboboxtext");
+   gtk_widget_set_visible(coords_combobox, TRUE);
+   auto model_list = get_model_molecule_vector();
+   int imol_map_active = -1;
+   if (!model_list.empty()) imol_map_active = model_list[0];
+   graphics_info_t g;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   g.fill_combobox_with_molecule_options(coords_combobox, func, imol_map_active, model_list);
+   std::cout << "debug:: fill_ligands_dialog_protein_bits() returns " << model_list.size()
+             << std::endl;
+   return model_list.size(); // checked to see that we have a map to search in
 
 }
 
 
 int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
-						    const char *dialog_name) {
+                                                    const char *dialog_name) {
 
+   // who calls this function now?
 
    int ifound = 0;
    graphics_info_t g;
@@ -388,6 +371,7 @@ int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
 						 const char *dialog_name,
 						 short int have_ncs_flag) {
 
+   // who calls this function now?
 
    int ifound = 0;
    graphics_info_t g;
@@ -450,139 +434,59 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
    //
    GtkWidget *hbox;
 
-   GtkWidget *find_ligand_ligands_vbox = widget_from_builder("find_ligand_ligands_vbox");
-   if (find_ligand_ligands_vbox == NULL) {
-      std::cout << "disaster! find_ligand protein vbox not found " << std::endl;
+   GtkWidget *find_ligands_select_ligands_grid = widget_from_builder("find_ligands_select_ligands_grid");
+   if (find_ligands_select_ligands_grid == NULL) {
+      std::cout << "disaster! find_ligand ligands grid not found " << std::endl;
    } else {
       for (int imol=0; imol<g.n_molecules(); imol++) {
-	 if ((g.molecules[imol].atom_sel.n_selected_atoms < graphics_info_t::find_ligand_ligand_atom_limit) &&
-	     g.molecules[imol].has_model()) {
-	    ifound = 1; // there was a ligand
+         // std::cout << "molecule " << imol << " comparing " << g.molecules[imol].atom_sel.n_selected_atoms
+         //           << " " << graphics_info_t::find_ligand_ligand_atom_limit << std::endl;
+	      if ((g.molecules[imol].atom_sel.n_selected_atoms < graphics_info_t::find_ligand_ligand_atom_limit) &&
+	            g.molecules[imol].has_model()) {
 
-	    // create an hbox:
-	    // hbox = gtk_hbox_new (FALSE, 0);
-	    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+	         ifound = 1; // there was a ligand
 
-	    std::string ligands_str("find_ligand_ligand_checkbutton_");
-	    ligands_str += g.int_to_string(imol);
-	    std::string ligands_button_label = g.int_to_string(imol);
-	    ligands_button_label += " ";
-	    ligands_button_label += g.molecules[imol].name_;
+            // create an hbox:
+            // hbox = gtk_hbox_new (FALSE, 0);
+            // hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 
-	    // flexible/conformer-generation on/off check button
-	    //
-	    std::string wligands_str("find_ligand_wligand_checkbutton_");
-	    wligands_str += g.int_to_string(imol);
-	    GtkWidget *find_ligand_wligands_checkbutton_imol = gtk_check_button_new_with_label("Flexible?");
+            std::string ligands_str("find_ligand_ligand_checkbutton_");
+            ligands_str += g.int_to_string(imol);
+            std::string ligands_button_label = g.int_to_string(imol);
+            ligands_button_label += " ";
+            ligands_button_label += g.molecules[imol].name_;
 
-	    // gtk_widget_ref (find_ligand_wligands_checkbutton_imol);
-	    // g_object_set_data_full (G_OBJECT (find_ligand_dialog),
-            // wligands_str.c_str(),
-            // find_ligand_wligands_checkbutton_imol,
-            // (GDestroyNotify) NULL);
-            // g_object_set_data(G_OBJECT(find_ligand_wligands_checkbutton_imol), "wiggly", 0);
+            // flexible/conformer-generation on/off check button
+            //
+            std::string wligands_str("find_ligand_wligand_checkbutton_");
+            wligands_str += g.int_to_string(imol);
+            GtkWidget *find_ligand_wligands_checkbutton_imol = gtk_check_button_new_with_label("Flexible?");
 
-	    // ligand molecule on/off check button
-	    //
-	    GtkWidget *find_ligand_ligands_checkbutton_imol = gtk_check_button_new_with_label (ligands_button_label.c_str());
-
-	    // gtk_widget_ref (find_ligand_ligands_checkbutton_imol);
-	    // g_object_set_data_full(G_OBJECT (find_ligand_dialog),
-            // ligands_str.c_str(),
-            // find_ligand_ligands_checkbutton_imol,
-            // (GDestroyNotify) NULL);
+            // ligand molecule on/off check button
+            //
+            GtkWidget *find_ligand_ligands_checkbutton_imol = gtk_check_button_new_with_label(ligands_button_label.c_str());
 
             g_object_set_data(G_OBJECT(find_ligand_ligands_checkbutton_imol), "imol", GINT_TO_POINTER(imol));
 
-	    gtk_widget_show (find_ligand_wligands_checkbutton_imol);
-	    gtk_widget_show (find_ligand_ligands_checkbutton_imol);
+            gtk_widget_show (find_ligand_wligands_checkbutton_imol);
+            gtk_widget_show (find_ligand_ligands_checkbutton_imol);
 
-#if (GTK_MAJOR_VERSION == 4)
-	    gtk_box_append(GTK_BOX(hbox), find_ligand_wligands_checkbutton_imol);
-	    gtk_box_append(GTK_BOX(hbox), find_ligand_ligands_checkbutton_imol);
-	    // pack the hbox into the ligands vbox
-	    gtk_box_append(GTK_BOX(find_ligand_ligands_vbox), hbox);
+         // gtk_box_append(GTK_BOX(hbox), find_ligand_wligands_checkbutton_imol);
+         // gtk_box_append(GTK_BOX(hbox), find_ligand_ligands_checkbutton_imol);
+         // pack the hbox into the ligands vbox
+         // gtk_box_append(GTK_BOX(find_ligand_ligands_vbox), hbox);
+         // gtk_widget_show(hbox);
 
-#else
-	    gtk_box_pack_start (GTK_BOX(hbox), find_ligand_wligands_checkbutton_imol, FALSE, FALSE, 0);
-	    gtk_box_pack_start (GTK_BOX(hbox), find_ligand_ligands_checkbutton_imol, FALSE, FALSE, 0);
-	    // pack the hbox into the ligands vbox
-	    gtk_box_pack_start (GTK_BOX(find_ligand_ligands_vbox), hbox, FALSE, FALSE, 0);
-#endif
-	    gtk_widget_show(hbox);
+            gtk_grid_attach(GTK_GRID(find_ligands_select_ligands_grid), find_ligand_ligands_checkbutton_imol,  0, imol, 1, 1);
+            gtk_grid_attach(GTK_GRID(find_ligands_select_ligands_grid), find_ligand_wligands_checkbutton_imol, 1, imol, 1, 1);
 
-	 }
+	      }
       }
    }
+   std::cout << "debug:: fill_ligands_dialog_ligands_bits returns " << ifound << std::endl;
    return ifound;
 }
 
-
-// this can't be caputured for a gtk lambda function (capturing is not allowed)
-//
-// for items in the ligands vbox (which are hboxes) fill data.
-//
-std::pair<int, bool>
-execute_get_mols_ligand_search_get_item_pair(GtkWidget *ligand_item_hbox) {
-
-   std::pair<int, bool> ligand_mol_info(-1, false);
-
-#if (GTK_MAJOR_VERSION >= 4)
-
-   // 20220602-PE FIXME container children
-   std::cout << "in execute_get_mols_ligand_search_get_item_pair() FIXME container children" << std::endl;
-
-#else
-   
-   if (GTK_IS_CONTAINER(ligand_item_hbox)) {
-
-      GList *dlist = gtk_container_get_children(GTK_CONTAINER(ligand_item_hbox));
-      GList *free_list = dlist;
-
-      int count = 0;
-      while (dlist) {
-         count += 1;
-         dlist = dlist->next;
-      }
-
-      count = 0;
-      dlist = gtk_container_get_children(GTK_CONTAINER(ligand_item_hbox));
-      while (dlist) {
-         GtkWidget *list_item = GTK_WIDGET(dlist->data);
-
-         if (count == 0) {
-            // the wiggly checkbutton
-            if (GTK_IS_TOGGLE_BUTTON(list_item)) {
-               if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(list_item))) {
-                  ligand_mol_info.second = true;
-               }
-            }
-         }
-         if (count == 1) {
-            // the ligand molecule checkbutton
-            if (GTK_IS_TOGGLE_BUTTON(list_item)) {
-               if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(list_item))) {
-                  int imol = -1;
-                  int i = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(list_item), "imol"));
-                  imol = i;
-                  ligand_mol_info.first = imol;
-               }
-            }
-         }
-
-         count += 1;
-         dlist = dlist->next;
-      }
-      g_list_free(free_list);
-      
-   } else {
-      std::cout << "ERROR:: in execute_get_mols_ligand_search_get_item_pair() hbox_item is NOT a container " << ligand_item_hbox << std::endl;
-   }
-
-#endif
-
-   return ligand_mol_info;
-}
 
 
 int execute_get_mols_ligand_search(GtkWidget *button) {
@@ -601,347 +505,127 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
    //
    set_ligand_cluster_sigma_level_from_widget(button);
    set_ligand_expert_options_from_widget(button); // ligand_n_top_sites
-						  // and wiggly ligand
-						  // n (conformer)
-						  // samples
-   GtkWidget *map_vbox     = widget_from_builder("find_ligand_map_vbox");
-   GtkWidget *protein_vbox = widget_from_builder("find_ligand_protein_vbox");
-   GtkWidget *ligands_vbox = widget_from_builder("find_ligand_ligands_vbox");
 
-   // void *data is actually a pointer to imol_map (also works for protein molecule too)
-   //
-   auto get_mol_for_find_ligands = [] (GtkWidget *item, void *data) {
-                                      if (GTK_IS_TOGGLE_BUTTON(item)) {
-                                         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(item))) {
-                                            int *imol_ptr = static_cast<int *>(data);
-                                            int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
-                                            *imol_ptr = imol;
-                                         }
-                                      }
-                                   };
+   auto get_ligands_for_find_ligands = [] () {
+      std::vector<std::pair<int, bool> > wiggly_ligand_info;
+      GtkWidget *grid = widget_from_builder("find_ligands_select_ligands_grid");
+      if (grid) {
+         graphics_info_t g;
+         int n_mol = g.n_molecules();
+         for (int i = 0; i < n_mol; i++) { // i is imol
+            if (g.is_valid_model_molecule(i)) {
+               if (g.molecules[i].atom_sel.n_selected_atoms < 100) { // check this
+                  GtkWidget *molecule_name_check_button = gtk_grid_get_child_at(GTK_GRID(grid), 0, i);
+                  if (gtk_check_button_get_active(GTK_CHECK_BUTTON(molecule_name_check_button))) {
+                     GtkWidget *wiggle_checkbutton = gtk_grid_get_child_at(GTK_GRID(grid), 1, i);
+                     if (wiggle_checkbutton) {
+                        bool on_state = false;
+                        if (gtk_check_button_get_active(GTK_CHECK_BUTTON(wiggle_checkbutton)))
+                           on_state = true;
+                        std::cout << "get_ligands...() addddddding ligand imol " << i << " w-state "
+                                  << on_state << std::endl;
+                        wiggly_ligand_info.push_back(std::make_pair(i, on_state));
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return wiggly_ligand_info;
+   };
 
-   auto get_ligands_for_find_ligands = [] (GtkWidget *ligand_item_hbox, void *data) {
-                                          // the items in the ligands vbox is a hbox with
-                                          // a button for the ligand and another button for the wiggly flag (first)
-                                                if (GTK_IS_BOX(ligand_item_hbox)) {
-                                                std::cout << "item_cont is a box " << ligand_item_hbox << std::endl;
-                                                std::pair<int, bool> item_pair = execute_get_mols_ligand_search_get_item_pair(ligand_item_hbox);
-                                                if (item_pair.first != -1) {
-                                                   std::vector<std::pair<int, bool> > *ligs_ptr = static_cast<std::vector<std::pair<int, bool> > *>(data);
-                                                   ligs_ptr->push_back(item_pair); // phew!
-                                                }
-                                             }
-                                         };
-
-   int imol_map = -1;
-   int imol_protein = -1;
-
-#if (GTK_MAJOR_VERSION >= 4)
 
    std::cout << "in execute_get_mols_ligand_search() FIXME container foreach " << std::endl;
-#else
-   if (GTK_IS_CONTAINER(map_vbox)) {
-      void *imol_ptr = &imol_map;
-      gtk_container_foreach(GTK_CONTAINER(map_vbox), get_mol_for_find_ligands, imol_ptr);
-   }
-   if (GTK_IS_CONTAINER(protein_vbox)) {
-      void *imol_ptr = &imol_protein;
-      gtk_container_foreach(GTK_CONTAINER(protein_vbox), get_mol_for_find_ligands, imol_ptr);
-   }
-   if (GTK_IS_CONTAINER(ligands_vbox)) {
-      void *data = static_cast<void *>(&wiggly_ligand_info);
-      gtk_container_foreach(GTK_CONTAINER(ligands_vbox), get_ligands_for_find_ligands, data);
-      n_ligands = wiggly_ligand_info.size();
-      if (false)
-         for (unsigned int i=0; i<wiggly_ligand_info.size(); i++)
-            std::cout << "    " << wiggly_ligand_info[i].first << " wiggly: " << wiggly_ligand_info[i].second << std::endl;
-   }
-#endif
+   GtkWidget *coords_combobox = widget_from_builder("find_ligands_coords_comboboxtext");
+   GtkWidget *map_combobox    = widget_from_builder("find_ligands_map_comboboxtext");
+   int imol_coords = my_combobox_get_imol(GTK_COMBO_BOX(coords_combobox));
+   int imol_map    = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox));
 
    graphics_info_t g;
+
+   wiggly_ligand_info = get_ligands_for_find_ligands();
+
+   // search here or everywhere
+   GtkWidget *search_here_check_button = widget_from_builder("find_ligands_search_here_radiobutton");
+   if (search_here_check_button) {
+      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(search_here_check_button))) {
+         std::cout << " Activating SEARCH HERE in ligand fitting" << std::endl;
+         graphics_info_t::find_ligand_here_cluster_flag = 1;
+      } else {
+         std::cout << " DEActivating SEARCH HERE in ligand fitting" << std::endl;
+         graphics_info_t::find_ligand_here_cluster_flag = 0;
+      }
+   }
+
 
    // multi-solution check button
    //
    GtkWidget *multi_solution_check_button = widget_from_builder("find_ligand_multi_solution_checkbutton");
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(multi_solution_check_button))) {
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(multi_solution_check_button)))
       g.find_ligand_multiple_solutions_per_cluster_flag = true;
-   }
+   else
+      g.find_ligand_multiple_solutions_per_cluster_flag = false;
 
    GtkWidget *entry_1 = widget_from_builder("find_ligand_multi_solution_entry_1");
    GtkWidget *entry_2 = widget_from_builder("find_ligand_multi_solution_entry_2");
    if (entry_1) {
       const gchar *e1t = gtk_editable_get_text(GTK_EDITABLE(entry_1));
       if (e1t) {
-	 try {
-	    float f1 = coot::util::string_to_float(e1t);
-	    g.find_ligand_score_by_correl_frac_limit = f1;
-	 }
-	 catch (const std::exception &e) {
-	    std::cout << "WARNING:: failed to convert to number: " << e.what() << std::endl;
-	 }
+	      try {
+	         float f1 = coot::util::string_to_float(e1t);
+	         g.find_ligand_score_by_correl_frac_limit = f1;
+	      }
+	      catch (const std::exception &e) {
+	         std::cout << "WARNING:: failed to convert to number: " << e.what() << std::endl;
+	      }
       }
    }
    if (entry_2) {
       const gchar *e2t = gtk_editable_get_text(GTK_EDITABLE(entry_2));
       if (e2t) {
-	 try {
-	    float f2 = coot::util::string_to_float(e2t);
-	    g.find_ligand_score_correl_frac_interesting_limit = f2;
-	 }
-	 catch (const std::exception &e) {
-	    std::cout << "WARNING:: failed to convert to number: " << e.what() << std::endl;
-	 }
+	      try {
+	         float f2 = coot::util::string_to_float(e2t);
+	         g.find_ligand_score_correl_frac_interesting_limit = f2;
+	      }
+	      catch (const std::exception &e) {
+	         std::cout << "WARNING:: failed to convert to number: " << e.what() << std::endl;
+	      }
       }
    }
 
-   if (is_valid_model_molecule(imol_protein) && is_valid_map_molecule(imol_map) && !wiggly_ligand_info.empty()) {
+   if (is_valid_model_molecule(imol_coords) && is_valid_map_molecule(imol_map) && !wiggly_ligand_info.empty()) {
 
       // So store the clicked info in a graphics_info_t static:
       // because we need this info when we click the OK button of the
       // create_find_ligand_many_atoms_dialog() widget.  We don't want
       // to mess with set_user_data for many data.
       //
-      g.set_find_ligands_mols(imol_map, imol_protein, wiggly_ligand_info);
+      g.set_find_ligands_mols(imol_map, imol_coords, wiggly_ligand_info);
 
-      if (chief_ligand_many_atoms.size() == 0 ) {
+      if (chief_ligand_many_atoms.empty()) {
 
          // OK, let's go
 
-	 execute_ligand_search();
+	      execute_ligand_search();
 
       } else {
 
-	 // we need to delete this widget when OK and cancel of the
-	 // many atoms widget is pressed, so let's attach it as user
-	 // data.
-	 // GtkWidget *widget = lookup_widget(button, "find_ligand_dialog");
-	 GtkWidget *widget = widget_from_builder("find_ligand_dialog");
+         // we need to delete this widget when OK and cancel of the
+         // many atoms widget is pressed, so let's attach it as user
+         // data.
+         // GtkWidget *widget = lookup_widget(button, "find_ligand_dialog");
+         GtkWidget *widget = widget_from_builder("find_ligand_dialog");
          do_find_ligand_many_atoms_in_ligands(widget);
 
       }
    } else {
-	 std::cout << "Something wrong in the selection of map/molecules"
-		   << std::endl;
+	   std::cout << "Something wrong in the selection of map/molecules"
+		          << std::endl;
    }
    return n_ligands;
 
 }
 
-
-/* get which map to search, protein mask and ligands from button and
-   then do it*/
-// Recall that the map and the protein are radio buttons (i.e. we want
-// exactly one of each).  Hoewever, the ligands are check buttons, we
-// can have as many of those on that we like.
-//
-// We should add a check to the install_ligand that checks the number
-// of atoms in the ligand and gives a warning... hmmm... that invovles
-// another popup-sigh...  Oh well, plan for it, even if you don't
-// implement it now - i.e. invoke a post-check function that creates
-// the coot::ligand object.
-//
-int execute_get_mols_ligand_search_old(GtkWidget *button) {
-
-   graphics_info_t g;
-   GtkWidget *ligand_button;
-   std::vector<int> chief_ligand_many_atoms; // caches imols with lots
-					     // of atoms.
-   std::vector<std::pair<int, bool> > wiggly_ligand_info;
-   int n_ligands = 0;
-
-   // extract the sigma level and stick it in
-   // graphics_info_t::ligand_cluster_sigma_level
-   //
-   set_ligand_cluster_sigma_level_from_widget(button);
-   set_ligand_expert_options_from_widget(button); // ligand_n_top_sites
-						  // and wiggly ligand
-						  // n (conformer)
-						  // samples
-
-   // flags to say if we have found things:
-   short int found_active_button_for_map = 0;
-   short int found_active_button_for_protein = 0;
-   short int found_active_button_for_ligands = 0;
-   // This is where we store the mols:
-   int find_ligand_map_mol = -1; // gets set?
-   int find_ligand_protein_mol = -1; // gets set.
-   // std::vector<int> find_ligand_ligand_mols;  old.
-
-   // Find the first active map radiobutton
-   found_active_button_for_map = 0;
-   for (int imol=0; imol<g.n_molecules(); imol++) {
-      if (g.molecules[imol].has_xmap()) {
-	 std::string map_str = "find_ligand_map_radiobutton_";
-	 map_str += g.int_to_string(imol);
-         // ligand_button = lookup_widget(button, map_str.c_str());
-         ligand_button = 0; // 20220309-PE FIXME set tne name in the caller
-	 if (ligand_button) {
-	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ligand_button))) {
-	       find_ligand_map_mol = imol;
-	       found_active_button_for_map = 1;
-	       break;
-	    }
-	 } else {
-	    std::cout << map_str << " widget not found in "
-		      << "execute_get_mols_ligand_search" << std::endl;
-	 }
-      }
-   }
-
-   // Find the first active protein radiobutton
-   found_active_button_for_protein = 0;
-   for (int imol=0; imol<g.n_molecules(); imol++) {
-      if (g.molecules[imol].atom_sel.n_selected_atoms > 0) {
-	 std::string protein_str = "find_ligand_protein_radiobutton_";
-	 protein_str += g.int_to_string(imol);
-	 // ligand_button = lookup_widget(button, protein_str.c_str());
-	 ligand_button = 0;  // 20220309-PE FIXME set tne name in the caller
-	 if (ligand_button) {
-	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ligand_button))) {
-	       find_ligand_protein_mol = imol;
-	       found_active_button_for_protein = 1;
-	       break;
-	    }
-	 } else {
-	    std::cout << protein_str << " widget not found in "
-		      << "execute_get_mols_ligand_search" << std::endl;
-	 }
-      }
-   }
-
-   // Now, do we mask waters for the protein mask?
-
-   GtkWidget *togglebutton = widget_from_builder("find_ligand_mask_waters_yes_radiobutton");
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
-      graphics_info_t::find_ligand_mask_waters_flag = 1;
-   else
-      graphics_info_t::find_ligand_mask_waters_flag = 0;
-
-
-   // The Search/Here toggle buttons:
-
-   GtkWidget *search_here_toggle_button = widget_from_builder("find_ligands_search_here_radiobutton");
-   if (search_here_toggle_button) {
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(search_here_toggle_button))) {
-	 std::cout << " Activating SEARCH HERE in ligand fitting" << std::endl;
-	 graphics_info_t::find_ligand_here_cluster_flag = 1;
-      } else {
-	 graphics_info_t::find_ligand_here_cluster_flag = 0;
-      }
-   }
-
-
-   // For each imol in molecules, if we have selected coordinates,
-   // construct a string begining "find_ligand_ligands_imol_" then the
-   // molecule number
-
-   found_active_button_for_ligands = 0;
-   for (int imol=0; imol<g.n_molecules(); imol++) {
-      if (g.molecules[imol].has_model() &&
-	  g.molecules[imol].atom_sel.n_selected_atoms < graphics_info_t::find_ligand_ligand_atom_limit) {
-	 std::string ligand_str = "find_ligand_ligand_checkbutton_";
-	 ligand_str += g.int_to_string(imol);
-	 // ligand_button = lookup_widget(button, ligand_str.c_str());
-	 ligand_button = 0;
-
-	 std::string wiggly_str = "find_ligand_wligand_checkbutton_";
-	 wiggly_str += g.int_to_string(imol);
-	 // GtkWidget *wiggly_button = lookup_widget(button, wiggly_str.c_str());
-	 GtkWidget *wiggly_button = 0;
-
-	 if (ligand_button && wiggly_button) {
-	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ligand_button))) {
-
-	       bool wiggly_state = 0;
-	       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(wiggly_button)))
-		  wiggly_state = 1;
-	       wiggly_ligand_info.push_back(std::pair<int, bool> (imol, wiggly_state));
-	       found_active_button_for_ligands = 1;
-	       int n_atoms = g.molecules[imol].atom_sel.n_selected_atoms;
-	       if (n_atoms > 200) {
-		  std::cout << "WARNING:: molecule " << imol
-			    << " has unexpectedly many atoms ("
-			    << n_atoms << ")" << std::endl;
-		  chief_ligand_many_atoms.push_back(imol);
-	       }
-	    }
-	 } else {
-	    std::cout << ligand_str << " widget not found in "
-		      << "execute_get_mols_ligand_search" << std::endl;
-	 }
-      }
-   }
-
-   // multi-solution check button
-   //
-   GtkWidget *multi_solution_check_button = widget_from_builder("find_ligand_multi_solution_checkbutton");
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(multi_solution_check_button))) {
-      g.find_ligand_multiple_solutions_per_cluster_flag = true;
-   }
-
-   GtkWidget *entry_1 = widget_from_builder("find_ligand_multi_solution_entry_1");
-   GtkWidget *entry_2 = widget_from_builder("find_ligand_multi_solution_entry_2");
-   if (entry_1) {
-      const gchar *e1t = gtk_editable_get_text(GTK_EDITABLE(entry_1));
-      if (e1t) {
-	 try {
-	    float f1 = coot::util::string_to_float(e1t);
-	    g.find_ligand_score_by_correl_frac_limit = f1;
-	 }
-	 catch (const std::exception &e) {
-	    std::cout << "WARNING:: failed to convert to number: " << e.what() << std::endl;
-	 }
-      }
-   }
-   if (entry_2) {
-      const gchar *e2t = gtk_editable_get_text(GTK_EDITABLE(entry_2));
-      if (e2t) {
-	 try {
-	    float f2 = coot::util::string_to_float(e2t);
-	    g.find_ligand_score_correl_frac_interesting_limit = f2;
-	 }
-	 catch (const std::exception &e) {
-	    std::cout << "WARNING:: failed to convert to number: " << e.what() << std::endl;
-	 }
-      }
-   }
-
-   if ( found_active_button_for_map &&
-	found_active_button_for_protein &&
-	found_active_button_for_ligands) {
-
-      // So store the clicked info in a graphics_info_t static:
-      // because we need this info when we click the OK button of the
-      // create_find_ligand_many_atoms_dialog() widget.  We don't want
-      // to mess with set_user_data for many data.
-      //
-      g.set_find_ligands_mols(find_ligand_map_mol,
-			      find_ligand_protein_mol,
-			      wiggly_ligand_info);
-
-      if (chief_ligand_many_atoms.size() == 0 ) {
-#if defined USE_GUILE && !defined WINDOWS_MINGW
-	 execute_ligand_search();
-#else
-#ifdef USE_PYTHON
-	 execute_ligand_search_py();
-#endif // USE_PYTHON
-#endif // USE_GUILE
-      } else {
-	 // we need to delete this widget when OK and cancel of the
-	 // many atoms widget is pressed, so let's attach it as user
-	 // data.
-	 // GtkWidget *widget = lookup_widget(button, "find_ligand_dialog");
-	 GtkWidget *widget = widget_from_builder("find_ligand_dialog");
-         do_find_ligand_many_atoms_in_ligands(widget);
-      }
-   } else {
-	 std::cout << "Something wrong in the selection of map/molecules"
-		   << std::endl;
-   }
-
-   return n_ligands;
-}
 
 // q_ligands is questionable ligands (i.e. very large)
 //
@@ -959,9 +643,9 @@ void set_ligand_expert_options_from_widget(GtkWidget *button) {
    GtkWidget *entry = widget_from_builder("ligand_n_samples_entry");
    const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
    if (text) {
-      int isample = atoi(text);
+      int isample = coot::util::string_to_int(text);
       if ((isample > 0) && (isample < 1000000))
-	 graphics_info_t::ligand_wiggly_ligand_n_samples = isample;
+         graphics_info_t::ligand_wiggly_ligand_n_samples = isample;
    }
    // entry = lookup_widget(button, "ligand_n_top_ligands_entry");
    entry = widget_from_builder("ligand_n_top_ligands_entry");
@@ -969,22 +653,10 @@ void set_ligand_expert_options_from_widget(GtkWidget *button) {
    if (text) {
       int itop = atoi(text);
       if ((itop > 0) && (itop < 1000000))
-	 graphics_info_t::find_ligand_n_top_ligands = itop;
+         graphics_info_t::find_ligand_n_top_ligands = itop;
    }
 }
 
-void set_ligand_dialog_number_of_sites_sensitivity(GtkWidget *toggle_button) {
-
-   // GtkWidget *hbox = lookup_widget(toggle_button, "find_ligands_dialog_number_of_sites_hbox");
-   GtkWidget *hbox = widget_from_builder("find_ligands_dialog_number_of_sites_hbox");
-   if (hbox) {
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button))) {
-	 gtk_widget_set_sensitive(hbox, FALSE);
-      } else {
-	 gtk_widget_set_sensitive(hbox, TRUE);
-      }
-   }
-}
 
 void set_ligand_dialog_real_space_refine_sites_checkbutton_state(GtkWidget *toggle_button) {
 

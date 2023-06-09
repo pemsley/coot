@@ -675,13 +675,13 @@ coot::protein_geometry::link_add_plane(const std::string &link_id,
 
 // throw an error on no such chem_link
 // 
-std::vector<std::pair<coot::chem_link, bool> >
-coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
-					   const std::string &group_1,
-					   const std::string &comp_id_2,
-					   const std::string &group_2) const {
+std::vector<coot::chem_link>
+coot::protein_geometry::matching_chem_links(const std::string &comp_id_1,
+                                            const std::string &group_1,
+                                            const std::string &comp_id_2,
+                                            const std::string &group_2) const {
    bool allow_peptide_link_flag = true;
-   return matching_chem_link(comp_id_1, group_1, comp_id_2, group_2, allow_peptide_link_flag);
+   return matching_chem_links(comp_id_1, group_1, comp_id_2, group_2, allow_peptide_link_flag);
 }
 
 // throw an error on no chem links at all. (20100420, not sure why an
@@ -691,16 +691,18 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 // function returned a pair, not a vector of chem_link (and
 // assocciated order_switch_flags).
 // 
-std::vector<std::pair<coot::chem_link, bool> > 
-coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
-					   const std::string &group_1,
-					   const std::string &comp_id_2,
-					   const std::string &group_2,
-					   bool allow_peptide_link_flag) const {
+std::vector<coot::chem_link>
+coot::protein_geometry::matching_chem_links(const std::string &comp_id_1,
+                                            const std::string &group_1,
+                                            const std::string &comp_id_2,
+                                            const std::string &group_2,
+                                            bool allow_peptide_link_flag) const {
 
-   bool switch_order_flag = false;
-   bool found = false;
    bool debug = false;
+
+   // "gap" and "symmetry" have hash code 0 (blank strings)
+   //
+   std::vector<coot::chem_link> matching_chem_links; // returned value
 
    if (debug) {
       std::cout << "---------------------- Here are the chem_links: -----------------"
@@ -724,14 +726,9 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
    // (keep the order switch flag too).
    //
 
-   // "gap" and "symmetry" have hash code 0 (blank strings)
-
-   std::vector<std::pair<coot::chem_link, bool> > matching_chem_links;
    std::map<unsigned int, std::vector<chem_link> >::const_iterator it = chem_link_map.find(search_hash_code_f);
    if (it == chem_link_map.end()) {
       it = chem_link_map.find(search_hash_code_b);
-      if (it != chem_link_map.end())
-	 switch_order_flag = true; // not used
    }
 
    if (debug) {
@@ -770,38 +767,38 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       it = chem_link_map.find(search_bl_1_f);
       if (it != chem_link_map.end()) {
 	 const std::vector<chem_link> &v = it->second;
-	 for (itv=v.begin(); itv!=v.end(); itv++)
+	 for (itv=v.begin(); itv!=v.end(); ++itv)
 	    candidate_chem_links.insert(*itv);
       }
 
       it = chem_link_map.find(search_bl_1_b);
       if (it != chem_link_map.end()) {
 	 const std::vector<chem_link> &v = it->second;
-	 for (itv=v.begin(); itv!=v.end(); itv++)
+	 for (itv=v.begin(); itv!=v.end(); ++itv)
 	    candidate_chem_links.insert(*itv);
       }
       it = chem_link_map.find(search_bl_2_f);
       if (it != chem_link_map.end()) {
 	 const std::vector<chem_link> &v = it->second;
-	 for (itv=v.begin(); itv!=v.end(); itv++)
+	 for (itv=v.begin(); itv!=v.end(); ++itv)
 	    candidate_chem_links.insert(*itv);
       }
       it = chem_link_map.find(search_bl_2_b);
       if (it != chem_link_map.end()) {
 	 const std::vector<chem_link> &v = it->second;
-	 for (itv=v.begin(); itv!=v.end(); itv++)
+	 for (itv=v.begin(); itv!=v.end(); ++itv)
 	    candidate_chem_links.insert(*itv);
       }
       it = chem_link_map.find(search_bl_bl_f);
       if (it != chem_link_map.end()) {
 	 const std::vector<chem_link> &v = it->second;
-	 for (itv=v.begin(); itv!=v.end(); itv++)
+	 for (itv=v.begin(); itv!=v.end(); ++itv)
 	    candidate_chem_links.insert(*itv);
       }
       it = chem_link_map.find(search_bl_bl_b);
       if (it != chem_link_map.end()) {
 	 const std::vector<chem_link> &v = it->second;
-	 for (itv=v.begin(); itv!=v.end(); itv++)
+	 for (itv=v.begin(); itv!=v.end(); ++itv)
 	    candidate_chem_links.insert(*itv);
       }
 
@@ -809,7 +806,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 	 std::cout << "DEBUG:: matching_chem_link() -------- here with candidate_chem_links size ------- "
 		   << candidate_chem_links.size() << std::endl;
 	 std::set<chem_link>::const_iterator it;
-	 for(it=candidate_chem_links.begin(); it!=candidate_chem_links.end(); it++)
+	 for(it=candidate_chem_links.begin(); it!=candidate_chem_links.end(); ++it)
 	    std::cout << "   " << *it << std::endl;
       }
 
@@ -817,30 +814,24 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 	 const std::set<chem_link> &v = candidate_chem_links;
 
 	 std::set<chem_link>::const_iterator itv;
-	 for (itv=v.begin(); itv!=v.end(); itv++) {
+	 for (itv=v.begin(); itv!=v.end(); ++itv) {
 	    const chem_link &cl = *itv;
 
-	    std::pair<bool, bool> match_res =
-	       cl.matches_comp_ids_and_groups(comp_id_1, group_1, comp_id_2, group_2);
+	    bool match_res = cl.matches_comp_ids_and_groups(comp_id_1, group_1, comp_id_2, group_2);
 
-	    if (match_res.first) {
+	    if (match_res) {
 	       if (cl.Id() != "gap" && cl.Id() != "symmetry") {
-		  switch_order_flag = match_res.second;
-		  found = true;
-		  std::pair<coot::chem_link, bool> p(cl, switch_order_flag);
-
                   if (debug)
                      std::cout << "DEBUG:: matching_chem_link() ::::::::: pushing back matching chem link " << cl << std::endl;
-		  matching_chem_links.push_back(p);
+		  matching_chem_links.push_back(cl);
 	       }
-	    } else {
-               if (debug)
-                  std::cout << "DEBUG:: matching_chem_links() test for matches_comp_ids_and_groups failed " << std::endl;
             }
 	 }
       }
 
    } else {
+
+      // std::cout << "^^^^^^^^^^^^^^^^^^^^^^ the other route (hash code *was* found) " << std::endl;
 
       // normal (say, peptide link) hit
 
@@ -848,59 +839,32 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       //
       const std::vector<chem_link> &v = it->second;
 
-      // on a match, set found and add the std::pair<coot::chem_link, bool> to matching_chem_links
-
       std::vector<chem_link>::const_iterator itv;
       for (itv=v.begin(); itv!=v.end(); ++itv) {
 	 const chem_link &cl = *itv;
 
          // std::cout << ":::::::::::::::::::::::::: testing comp_id and group match for " << cl << std::endl;
-
-	 std::pair<bool, bool> match_res =
-	    cl.matches_comp_ids_and_groups(comp_id_1, group_1, comp_id_2, group_2);
+	 bool match_res = cl.matches_comp_ids_and_groups(comp_id_1, group_1, comp_id_2, group_2);
+         // std::cout << ":::::::::::::::::::::::::: testing comp_id and group match for " << cl << " done" << std::endl;
 
 	 if (debug)
 	    std::cout << "DEBUG:: @@@@@@@@@@@@@@@@@@@@@@@@@@ matching_chem_links() ... matching_chem_link: testing link "
 		      << comp_id_1 << " " << comp_id_2  << " " << group_1 << " " << group_2
                       << "    in link " << cl << " @@@@@@@@@@@@ result "
-                      << match_res.first << " " << match_res.second << std::endl;
+                      << match_res << std::endl;
 
-	 if (false) // was debug but TMI ATM - we are looking for a bug in above code
-	    std::cout << "    checking chem link:                             " << cl << " -> matched: "
-		      << match_res.first << " need order-switch: " << match_res.second << std::endl;
+         if (match_res)
+            matching_chem_links.push_back(cl);
 
-	 if (match_res.first) {
-	    if (cl.Id() != "gap" && cl.Id() != "symmetry") {
-	       if (!cl.is_peptide_link_p() || allow_peptide_link_flag) {
-		  switch_order_flag = match_res.second;
-		  found = true;
-		  std::pair<coot::chem_link, bool> p(cl, switch_order_flag);
-                  if (debug)
-                     std::cout << "DEBUG:: matching_chem_link(): pushing back chem link " << cl << " " << switch_order_flag
-                               << std::endl;
-		  matching_chem_links.push_back(p);
-
-	       } else {
-		  if (debug)
-		     std::cout << "    reject link " << cl.Id() << " on peptide/allow-peptide test " << std::endl;
-	       }
-	    } else {
-	       if (debug) {
-		  std::cout << "    reject link \"" << cl.Id() << "\"" << std::endl;
-	       }
-	    }
-	 } else {
-            if (debug)
-               std::cout << "    reject link " << cl.Id() << " matches_comp_ids_and_groups() found no match" << std::endl;
-         }
       }
    }
 
+#if 0 // 20221120-PE we no longer want to throw, I think.
    // When allow_peptide_link_flag is FALSE, we don't want to hear
    // about not making a link between ASP and VAL etc (otherwise we
    // do).
    // 
-   if ( (!found) && (allow_peptide_link_flag)) {
+   if ((matching_chem_links.empty()) && (allow_peptide_link_flag)) {
       std::string rte = "INFO:: matching_chem_links() No chem link for groups \"";
       rte += group_1;
       rte += "\" \"";
@@ -912,31 +876,37 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       rte += "\"";
       throw std::runtime_error(rte);
    }
-   if (debug)
+#endif
+
+   if (false) {
       std::cout << "DEBUG:: matching_chem_link() returns " << matching_chem_links.size()
 		<< " matching chem links" << std::endl;
+      for (unsigned int il=0; il<matching_chem_links.size(); il++)
+         std::cout << "   ===== DEBUG:: matching_chem_link() link_info["
+                   << il << "]: " << matching_chem_links[il] << std::endl;
+   }
    return matching_chem_links;
 }
 
 // throw an error on no such chem_link
 // 
-std::vector<std::pair<coot::chem_link, bool> >
-coot::protein_geometry::matching_chem_link_non_peptide(const std::string &comp_id_1,
-						       const std::string &group_1,
-						       const std::string &comp_id_2,
-						       const std::string &group_2) const {
-   return matching_chem_link(comp_id_1, group_1, comp_id_2, group_2, 0);
+std::vector<coot::chem_link>
+coot::protein_geometry::matching_chem_links_non_peptide(const std::string &comp_id_1,
+                                                        const std::string &group_1,
+                                                        const std::string &comp_id_2,
+                                                        const std::string &group_2) const {
+   return matching_chem_links(comp_id_1, group_1, comp_id_2, group_2, 0);
 }
 
 // throw an error on no such chem_link
 // 
-std::vector<std::pair<coot::chem_link, bool> >
-coot::protein_geometry::matching_chem_link_non_peptide(const std::string &comp_id_1,
-						       const std::string &group_1,
-						       const std::string &comp_id_2,
-						       const std::string &group_2,
-						       mmdb::Manager *mol) const {
+std::vector<coot::chem_link>
+coot::protein_geometry::matching_chem_links_non_peptide(const std::string &comp_id_1,
+                                                        const std::string &group_1,
+                                                        const std::string &comp_id_2,
+                                                        const std::string &group_2,
+                                                        mmdb::Manager *mol) const {
    // HACK FIXME 20150714
-   return matching_chem_link(comp_id_1, group_1, comp_id_2, group_2, 0);
+   return matching_chem_links(comp_id_1, group_1, comp_id_2, group_2, 0);
 }
 

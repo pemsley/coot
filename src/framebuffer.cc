@@ -105,7 +105,7 @@ framebuffer::reset_test(int width, int height) {
 
 framebuffer::~framebuffer() {
 
-   std::cout << "--- framebuffer destructor - deleting framebuffer and textures \"" << name << "\"" << std::endl;
+   // std::cout << "--- framebuffer destructor - deleting framebuffer and textures \"" << name << "\"" << std::endl;
    tear_down();
 }
 

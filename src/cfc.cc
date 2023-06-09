@@ -420,10 +420,14 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 
    // GtkWidget *waters_vbox = lookup_widget(cfc_dialog, "cfc_waters_vbox");
    GtkWidget *waters_vbox = widget_from_builder("cfc_waters_vbox");
-   GtkWidget *waters_table = gtk_table_new(cluster_vec.size(), 2, FALSE);
+   // GtkWidget *waters_table = gtk_table_new(cluster_vec.size(), 2, FALSE);
+   GtkWidget *waters_grid = gtk_grid_new();
 
-   std::string waters_table_name = "cfc_waters_table_site_";
-   waters_table_name += coot::util::int_to_string(site_number);
+   // std::string waters_table_name = "cfc_waters_table_site_";
+   // waters_table_name += coot::util::int_to_string(site_number);
+   //
+   std::string waters_grid_name = "cfc_waters_grid_site_";
+   waters_grid_name += coot::util::int_to_string(site_number);
 
    // we want to be able to look up the widget and undisplay it.
    // 
@@ -431,21 +435,22 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
    // gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), waters_table_name.c_str(),
    //                           waters_table,
    // 			        (GtkDestroyNotify) gtk_widget_unref);
-   g_object_set_data(G_OBJECT(cfc_dialog), waters_table_name.c_str(), waters_table);
+   g_object_set_data(G_OBJECT(cfc_dialog), waters_grid_name.c_str(), waters_grid);
 
    // perhaps we want to do this actually?
-   std::string *wtn_p = new std::string(waters_table_name);
+   std::string *wtn_p = new std::string(waters_grid_name);
    gpointer gp = (gpointer) wtn_p;
-   g_object_set_data(G_OBJECT(waters_table), "widget_name", gp);
+   g_object_set_data(G_OBJECT(waters_grid), "widget_name", gp);
    
-   gtk_box_pack_start(GTK_BOX(waters_vbox), waters_table, FALSE, FALSE, 0);
+   // gtk_box_pack_start(GTK_BOX(waters_vbox), waters_grid, FALSE, FALSE, 0);
+   gtk_box_append(GTK_BOX(waters_vbox), waters_grid);
    if (site_number == 0)
-      gtk_widget_show(waters_table);
+      gtk_widget_show(waters_grid);
 
 
-   std::cout << ":::::::::::::::::: cfc_waters_table: " << waters_table << std::endl;
+   std::cout << ":::::::::::::::::: cfc_waters_table: " << waters_grid << std::endl;
 
-   if (! waters_table) {
+   if (! waters_grid) {
       std::cout << "no waters_table" << std::endl;
    } else {
 
@@ -493,10 +498,7 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
                           G_CALLBACK(on_cfc_water_cluster_button_clicked),
                           (gpointer) wat_clust_p);
 	 
-	 gtk_table_attach(GTK_TABLE(waters_table), left_button,
-			  0, 1, i, i+1,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	 gtk_grid_attach(GTK_GRID(waters_grid), left_button, 0, 1, i, i+1);
 	 gtk_widget_show(left_button);
 
 
@@ -505,7 +507,7 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 	 //
 	 // we need an hbox to put them in
 	 //
-	 GtkWidget *hbox = gtk_hbox_new(FALSE, 0);
+	 GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 
 	 for (unsigned int j=0; j<n_structures; j++) {
 
@@ -526,7 +528,8 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 	       std::string struct_button_label = " ";
 
 	       GtkWidget *button = gtk_button_new_with_label(struct_button_label.c_str());
-	       gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+	       // gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+	       gtk_box_append(GTK_BOX(hbox), button);
 	       g_signal_connect(G_OBJECT(button), "clicked",
                                 G_CALLBACK(on_cfc_water_cluster_structure_button_clicked),
                                 GINT_TO_POINTER(imol_local));
@@ -538,10 +541,12 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 		  // wasn't there (that's OK)
 	       } else {
 		  // happy path
-		  GdkColor color;
-		  gdk_color_parse("#AACCAA", &color);
-		  gtk_widget_modify_bg(GTK_WIDGET(button), GTK_STATE_NORMAL, &color);
-                  gtk_widget_set_name(GTK_WIDGET(button), "cfc-green-button");
+		  // GdkColor color;
+		  // gdk_color_parse("#AACCAA", &color);
+		  // gtk_widget_modify_bg(GTK_WIDGET(button), GTK_STATE_NORMAL, &color);
+                  // gtk_widget_set_name(GTK_WIDGET(button), "cfc-green-button");
+
+                  std::cout << "set the button colour here" << std::endl;
 	       }
 	       gtk_widget_show(button);
 
@@ -551,10 +556,7 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 	    }
 	 }
 
-	 gtk_table_attach(GTK_TABLE(waters_table), hbox,
-			  1,2,i,i+1,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	 gtk_grid_attach(GTK_GRID(waters_grid), hbox, 1,2,i,i+1);
 	 gtk_widget_show(hbox);
       }
    }
@@ -630,25 +632,26 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 
    // GtkWidget *cfc_ligands_vbox = lookup_widget(cfc_dialog, "cfc_ligands_vbox");
    GtkWidget *cfc_ligands_vbox = widget_from_builder("cfc_ligands_vbox");
-   GtkWidget *ligands_table = gtk_table_new(n_pharacophores+1, 2, FALSE);
+   GtkWidget *ligands_grid = gtk_grid_new(); // n_pharacophores+1, 2, FALSE
 
    std::string ligands_table_name = "cfc_ligands_table_site_";
    ligands_table_name += coot::util::int_to_string(site_number);
-   
+
    // we want to be able to look up the widget and undisplay it.
    // 
    // gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), ligands_table_name.c_str(),
    //   ligands_table, (GtkDestroyNotify) gtk_widget_unref);
-   g_object_set_data(G_OBJECT(cfc_dialog), ligands_table_name.c_str(), ligands_table);
+   g_object_set_data(G_OBJECT(cfc_dialog), ligands_table_name.c_str(), ligands_grid);
 
    // perhaps we want to do this actually?
    std::string *ltn_p = new std::string(ligands_table_name);
    gpointer gp = (gpointer) ltn_p;
-   g_object_set_data(G_OBJECT(ligands_table), "widget_name", gp);
+   g_object_set_data(G_OBJECT(ligands_grid), "widget_name", gp);
 
-   gtk_box_pack_start(GTK_BOX(cfc_ligands_vbox), ligands_table, FALSE, FALSE, 0);
+   // gtk_box_pack_start(GTK_BOX(cfc_ligands_vbox), ligands_table, FALSE, FALSE, 0);
+   gtk_box_append(GTK_BOX(cfc_ligands_vbox), ligands_grid);
    if (site_number == 0)
-      gtk_widget_show(ligands_table);
+      gtk_widget_show(ligands_grid);
 
    // this table has a header, so indexing is +1 vertical
    // gtk_table_resize(GTK_TABLE(ligands_table), n_pharacophores+1, 2);
@@ -711,7 +714,8 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 	    // 
 	    // We need cluster mean, and the contributors to this cluster.
 
-	    GtkWidget *hbox = gtk_hbox_new(FALSE, 0);
+	    // GtkWidget *hbox = gtk_hbox_new(FALSE, 0);
+	    GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 	    pbs.add_structure_buttons_hbox(hbox);
 	    std::vector<std::pair<int, coot::residue_spec_t> > contributing_specs;
 
@@ -767,13 +771,15 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 		  
 		  } else {
 		     // happy path, let's change the button colour and add it to contributing specs
-		     GdkColor color;
-		     gdk_color_parse("#AACCAA", &color);
 
-                     if (false) // we know now that this is working right - it's the window manager that
+		     GdkRGBA color;
+		     gdk_rgba_parse(&color, "#AACCAA");
+
+                     if (true) // we know now that this is working right - it's the window manager that
                                 // obscures the colour of the background
                         std::cout << "debug:: cfc_dialog_add_pharmacophores() setting the button bg to #AACCAA " << std::endl;
-		     gtk_widget_modify_bg(GTK_WIDGET(button), GTK_STATE_NORMAL, &color);
+                     // not in gtk4
+		     // gtk_widget_modify_bg(GTK_WIDGET(button), GTK_STATE_NORMAL, &color);
                      gtk_widget_set_name(GTK_WIDGET(button), "cfc-green-button");
                      gtk_button_set_label(GTK_BUTTON(button), "I");
 
@@ -783,7 +789,8 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 			contributing_specs.push_back(imol_res_spec_this_structure);
 		     }
 		  }
-		  gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+		  // gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+		  gtk_box_append(GTK_BOX(hbox), button);
 		  gtk_widget_show(button);
 	       }
 	    }
@@ -807,14 +814,8 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
    
       for (unsigned int i=0; i<pharm_button_set_collection.size(); i++) {
 	 const pharm_button_set &p = pharm_button_set_collection[i];
-	 gtk_table_attach(GTK_TABLE(ligands_table), p.left_hand_button,
-			  0,1, i_row+i,i_row+i+1,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
-	 gtk_table_attach(GTK_TABLE(ligands_table), p.structure_buttons_hbox,
-			  1,2, i_row+i,i_row+i+1,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	 gtk_grid_attach(GTK_GRID(ligands_grid), p.left_hand_button, 0,1, i_row+i,i_row+i+1);
+	 gtk_grid_attach(GTK_GRID(ligands_grid), p.structure_buttons_hbox, 1,2, i_row+i,i_row+i+1);
 	 gtk_widget_show(p.left_hand_button);
 	 gtk_widget_show(p.structure_buttons_hbox);
       }
@@ -869,25 +870,27 @@ cfc::on_cfc_site_button_clicked(GtkButton *button,
 
 void
 cfc::cfc_table_show_hide(std::string show_this_one_name, GtkWidget *vbox) {
+
+   // GList *dlist = gtk_container_get_children(GTK_CONTAINER(vbox));
+   // GList *free_list = dlist;
    
-   GList *dlist = gtk_container_get_children(GTK_CONTAINER(vbox));
-   GList *free_list = dlist;
-   
-   while (dlist) {
-      GtkWidget *list_item = (GtkWidget *) (dlist->data);
-      // get and test the name
-      gpointer gp = g_object_get_data(G_OBJECT(list_item), "widget_name");
-      if (gp) {
-	 std::string *name = static_cast<std::string *> (gp);
-	 if (*name == show_this_one_name) {
-	    gtk_widget_show(GTK_WIDGET(list_item));
-	 } else {
-	    gtk_widget_hide(GTK_WIDGET(list_item));
-	 }
-      }
-      dlist = dlist->next;
-   }
-   g_list_free(free_list);
+   // while (dlist) {
+   //    GtkWidget *list_item = (GtkWidget *) (dlist->data);
+   //    // get and test the name
+   //    gpointer gp = g_object_get_data(G_OBJECT(list_item), "widget_name");
+   //    if (gp) {
+   //       std::string *name = static_cast<std::string *> (gp);
+   //       if (*name == show_this_one_name) {
+   //          gtk_widget_show(GTK_WIDGET(list_item));
+   //       } else {
+   //          gtk_widget_hide(GTK_WIDGET(list_item));
+   //       }
+   //    }
+   //    dlist = dlist->next;
+   // }
+   // g_list_free(free_list);
+
+   std::cout << "cfc_table_show_hide() needs reworking " << std::endl;
 }
 
 
@@ -1521,10 +1524,13 @@ cfc::cfc_dialog_add_site_info(unsigned int site_number,
 			      const extracted_cluster_info_from_python &eci) {
 
    // GtkWidget *sites_table = lookup_widget(graphics_info_t::cfc_dialog, "cfc_sites_table");
-   GtkWidget *sites_table = widget_from_builder("cfc_sites_table");
+   GtkWidget *sites_grid = widget_from_builder("cfc_sites_grid");
 
-   if (sites_table) {
-      gtk_table_resize(GTK_TABLE(sites_table), site_number+1, 4);
+   if (sites_grid) {
+
+      // gtk_table_resize(GTK_TABLE(sites_table), site_number+1, 4);
+      // gtk_grid_resize(GTK_GRID(sites_grid), site_number+1, 4); // resize using another function
+
       unsigned int n_structures = eci.n_pharmacophore_structures();
       std::string structures_word = " structures";
       if (n_structures == 1)
@@ -1544,26 +1550,16 @@ cfc::cfc_dialog_add_site_info(unsigned int site_number,
       g_signal_connect(G_OBJECT(site_button), "clicked",
                        G_CALLBACK(on_cfc_site_button_clicked),
                        (gpointer) site_no_pos_p);
-      gtk_table_attach(GTK_TABLE(sites_table), site_button,
-		       0, 1, site_number, site_number+1,
-		       (GtkAttachOptions) (GTK_FILL),
-		       (GtkAttachOptions) (0), 0, 0);
-      gtk_table_attach(GTK_TABLE(sites_table), label_1,
-		       1, 2, site_number, site_number+1,
-		       (GtkAttachOptions) (GTK_FILL),
-		       (GtkAttachOptions) (0), 0, 0);
-      gtk_table_attach(GTK_TABLE(sites_table), label_2,
-		       2, 3, site_number, site_number+1,
-		       (GtkAttachOptions) (GTK_FILL),
-		       (GtkAttachOptions) (0), 0, 0);
-      gtk_table_attach(GTK_TABLE(sites_table), label_3,
-		       3, 4, site_number, site_number+1,
-		       (GtkAttachOptions) (GTK_FILL),
-		       (GtkAttachOptions) (0), 0, 0);
+      gtk_grid_attach(GTK_GRID(sites_grid), site_button, 0, 1, site_number, site_number+1);
+      gtk_grid_attach(GTK_GRID(sites_grid), label_1, 1, 2, site_number, site_number+1);
+      gtk_grid_attach(GTK_GRID(sites_grid), label_2, 2, 3, site_number, site_number+1);
+      gtk_grid_attach(GTK_GRID(sites_grid), label_3, 3, 4, site_number, site_number+1);
       gtk_widget_show(site_button);
       gtk_widget_show(label_1);
       gtk_widget_show(label_2);
       gtk_widget_show(label_3);
+   } else {
+      std::cout << "widget from builder failed for cfc sites grid" << std::endl;
    }
 }
 

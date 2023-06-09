@@ -46,9 +46,9 @@ namespace coot {
       std::vector<std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > > points;
       Instanced_Markup_Mesh imm;
       // 20111123 modern usage
-      dots_representation_info_t(const std::string &name_in) {
-	 name_ = name_in;
+      dots_representation_info_t(const std::string &name_in) : name_(name_in) {
          imm.setup_octasphere(2);
+         is_closed = false;
       }
       dots_representation_info_t(const std::vector<clipper::Coord_orth> &points_in) {
 	 points.push_back(std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > (coot::colour_t(0.3, 0.4, 0.5), points_in));

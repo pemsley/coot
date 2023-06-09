@@ -1,4 +1,44 @@
 
+  Pre-release 0.9.8.8
+
+  o FEATURE: Better atom colours in colour-by-chain-and-dictionary mode.
+
+  o CHANGE:  Monomer search now uses the new dictionary
+
+  o BUG-FIX: the zoom state is not correctly set in the saved state file
+
+----
+
+  Release 0.9.8.7
+
+  o FEATURE: res_tracer() added to the API
+
+  o FEATURE: read_mtz() added to the API [ChatGPT guessed at this function name, and there is
+             no reason for it not to be there]
+
+  o BUG-FIX: PDBe URLs fixed for downloading dictionaries with pyrogen
+
+  o BUG-FIX: Carbohydrate Linking fixed again [Keitaro Yamashita and others]
+
+  o BUG-FIX: RNA linking fixed [Keitaro Yamashita and Andrey Lebadev]
+
+  o NOTE: Coot is now tested against the new monomer library.
+
+----
+
+  Release 0.9.8.6
+
+  o CHANGE:  More auto-read column pairs added [Clemens Vonrhein]
+
+  o BUG-FIX: Adding a K to a molecule put the atom name in the correct column
+             [John Smith, Steven Sheriff]
+
+  o BUG-FIX: Carbohydrate Linking fixed [Keitaro Yamashita and others]
+
+  o BUG-FIX: delete_hydrogen_atoms() deletes deuterium atoms also [Lucrezia Catapano]
+
+----
+
    Release 1.0.06
 
   o FEATURE: Add user-define colours to molecular ribbons representation.
@@ -10,10 +50,11 @@
 ----
 
   Release 0.9.8.4
+  Release 0.9.8.5
 
   o FEATURE: AlphaFold pLDDT colour scheme.
 
-  o CHANGE:  Load files from ~/.coot if it is a directory.
+  o CHANGE:  Don't load files from ~/.coot if it is a directory.
 
   o CHANGE:  Don't consider carbonyl oxygens in merge fragments.
 
@@ -225,6 +266,10 @@ major version every year or so.
 [8] the little testing I have done on a recent intel MacBook Pro shows unimpressive
     performance (Iris graphics, retina display)
 [9] Thanks to my Mac-using colleagues for their feedback.
+
+----
+
+  Release 0.9.8.4 [Fumbled release]
 
 ----
 

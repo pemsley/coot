@@ -38,6 +38,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_rama_balls,
                                                            shader_for_particles,
                                                            shader_for_instanced_objects,
+                                                           shader_for_extra_distance_restraints,
                                                            shader_for_happy_face_residue_markers,
                                                            shader_for_happy_face_residue_markers_for_ssao,
                                                            shader_for_rama_plot_phi_phis_markers,
@@ -48,6 +49,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_dof_blur_by_texture_combination,
                                                            shader_for_texture_meshes,
                                                            shader_for_meshes,
+                                                           shader_for_background_image,
                                                            // camera_facing_quad_shader,
 
                                                            // from crows
@@ -107,6 +109,7 @@ graphics_info_t::init_shaders() {
    shader_for_rama_balls.init("rama-balls.shader", Shader::Entity_t::MODEL);
    shader_for_particles.init("particles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_instanced_objects.init("instanced-objects.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
+   shader_for_extra_distance_restraints.init("extra-distance-restraints.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
    shader_for_hud_geometry_tooltip_text.init("hud-geometry-tooltip-text.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_happy_face_residue_markers.init("residue-markers.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_happy_face_residue_markers_for_ssao.init("residue-markers-for-ssao.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
@@ -117,6 +120,7 @@ graphics_info_t::init_shaders() {
    shader_for_rama_plot_axes_and_ticks.init("rama-plot-axes-and-ticks.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_rama_plot_phi_phis_markers.init("rama-plot-phi-psi-markers.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_hud_lines.init("hud-lines.shader", Shader::Entity_t::MODEL);
+   shader_for_background_image.init("background-image.shader", Shader::Entity_t::NONE);
    shader_for_meshes.init("meshes.shader", Shader::Entity_t::MAP); // 20220208-PE temporay while crow code is merged.
    shader_for_texture_meshes.init("texture-meshes.shader", Shader::Entity_t::MAP);
    shader_for_effects.init("effects.shader", Shader::Entity_t::NONE);
@@ -602,20 +606,44 @@ void
 graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container_t &c,
                                         int imol, float tube_radius, bool extra_annotation) {
 
+   auto get_clashes_object_name = [] (int imol) {
+      std::string clashes_name = "  Molecule " + coot::util::int_to_string(imol) + ":";
+      clashes_name += " clashes insta-mesh";
+      return clashes_name;
+   };
+
    // clashes - 20211008-PE this should be in a lambda for clarity
    //
    //             We can't do cylinders with this shader! So make a ball instead.
    // 20210910-PE Let's try to make another separate instancing mesh for clashes.
    //
-   if (c.clashes.size() > 0) {
-      graphics_info_t g;
-      std::string clashes_name = "  Molecule " + coot::util::int_to_string(imol) + ":";
-      clashes_name += " clashes insta-mesh";
+   graphics_info_t g;
+   if (c.clashes.size() == 0) {
+      std::cout << "zero clashes" << std::endl;
+      std::string clashes_name = get_clashes_object_name(imol);
       int clashes_obj_index = generic_object_index(clashes_name);
-      if (clashes_obj_index == -1)
+      if (clashes_obj_index == -1) {
          clashes_obj_index = g.new_generic_object_number_for_molecule(clashes_name, imol); // make static?
-      else
+         if (imol == -1)
+            g.generic_display_objects[clashes_obj_index].attach_to_intermediate_atoms();
+      } else {
          g.generic_display_objects[clashes_obj_index].clear();
+         if (imol == -1)
+            g.generic_display_objects[clashes_obj_index].attach_to_intermediate_atoms();
+      }
+
+   } else {
+      std::string clashes_name = get_clashes_object_name(imol);
+      int clashes_obj_index = generic_object_index(clashes_name);
+      if (clashes_obj_index == -1) {
+         clashes_obj_index = g.new_generic_object_number_for_molecule(clashes_name, imol); // make static?
+         if (imol == -1)
+            g.generic_display_objects[clashes_obj_index].attach_to_intermediate_atoms();
+      } else {
+         g.generic_display_objects[clashes_obj_index].clear();
+         if (imol == -1)
+            g.generic_display_objects[clashes_obj_index].attach_to_intermediate_atoms();
+      }
 
       float dimmer = 0.66;
       float z_scale = 0.37;
@@ -648,6 +676,7 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
       //
       // now accumulate the instancing matrices (the colours will stay the same)
       std::vector<glm::mat4> mats;
+      mats.reserve(c.clashes.size());
       for (unsigned int i=0; i<c.clashes.size(); i++) {
          std::pair<glm::vec3, glm::vec3> pos_pair_clash(glm::vec3(coord_orth_to_glm(c.clashes[i].first)),
                                                         glm::vec3(coord_orth_to_glm(c.clashes[i].second)));
@@ -673,7 +702,6 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
                                                   }
                                                };
 
-      // mats.resize(1);
       std::vector<glm::vec4> cols(c.clashes.size(), clash_col_glm);
       unsigned int n_instances = mats.size();
       obj.mesh.setup_rtsc_instancing(nullptr, mats, cols, n_instances, material); // also does setup_buffers()
@@ -710,115 +738,189 @@ graphics_info_t::get_exta_annotation_state() {
 }
 
 
+#include "coot-utils/oct.hh"
+
+glm::vec4 colour_holder_to_glm(const coot::colour_holder &ch); // in meshed-generic-display-objects.cc
+
+
+bool
+graphics_info_t::coot_all_atom_contact_dots_are_begin_displayed_for(int imol) const {
+
+   bool status = false;
+   for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+      const std::string &mesh_name = generic_display_objects[i].mesh.name;
+      unsigned int n_instances = generic_display_objects[i].mesh.get_n_instances();
+      std::cout << "debug mesh " << i << " has name " << mesh_name
+                << " and " << n_instances << " instances" << std::endl;
+      if (mesh_name.find("Contact Dots for Molecule") != std::string::npos) {
+         status = true;
+         break;
+      }
+      if (mesh_name.find("insta-mesh") != std::string::npos) {
+         status = true;
+         break;
+      }
+   }
+   return status;
+}
+
 
 // probably not the right place for this function
 //
+// This sould be called with imol = -1 for intermediate atoms.
 void
 graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol) {
 
+   // 20230521-PE why are the dots part of a real molecule, but the clashes
+   // are graphics_info_t generic display objects?
+
+   auto get_generic_object_index = [this] (const std::string &name) {
+      int idx_new = -1;
+      int size = generic_display_objects.size();
+      for (int i=0; i<size; i++) {
+         if (generic_display_objects[i].mesh.name == name)
+            return i;
+      }
+      idx_new = this->new_generic_object_number(name);
+      return idx_new;
+   };
+
+   auto convert_vertices = [] (const std::vector<coot::api::vnc_vertex> &v_in) {
+      std::vector<s_generic_vertex> v_out(v_in.size());
+      for (unsigned int i=0; i<v_in.size(); i++) {
+         v_out[i].pos    = v_in[i].pos;
+         v_out[i].normal = v_in[i].normal;
+         v_out[i].color  = glm::vec4(0.5f, 0.5f, 0.95f, 1.0f);
+      }
+      return v_out;
+   };
+
    unsigned int octasphere_subdivisions = 1; // make a member of graphics_info_t with an API
    octasphere_subdivisions = contact_dot_sphere_subdivisions; // 20211129-PE done
+   // octasphere_subdivisions = 2;
 
-   if (true) {
-      bool ignore_waters = true;
-      // I don't like this part
-      std::map<std::string, coot::colour_holder> colour_map;
-      colour_map["blue"      ] = colour_values_from_colour_name("blue");
-      colour_map["sky"       ] = colour_values_from_colour_name("sky");
-      colour_map["sea"       ] = colour_values_from_colour_name("sea");
-      colour_map["greentint" ] = colour_values_from_colour_name("greentint");
-      colour_map["darkpurple"] = colour_values_from_colour_name("darkpurple");
-      colour_map["green"     ] = colour_values_from_colour_name("green");
-      colour_map["orange"    ] = colour_values_from_colour_name("orange");
-      colour_map["orangered" ] = colour_values_from_colour_name("orangered");
-      colour_map["yellow"    ] = colour_values_from_colour_name("yellow");
-      colour_map["yellowtint"] = colour_values_from_colour_name("yellowtint");
-      colour_map["red"       ] = colour_values_from_colour_name("red");
-      colour_map["#55dd55"   ] = colour_values_from_colour_name("#55dd55");
-      colour_map["hotpink"   ] = colour_values_from_colour_name("hotpink");
-      colour_map["grey"      ] = colour_values_from_colour_name("grey");
-      colour_map["magenta"   ] = colour_values_from_colour_name("magenta");
-      colour_map["royalblue" ] = colour_values_from_colour_name("royalblue");
+   bool ignore_waters = true;
+   // I don't like this part
+   std::map<std::string, coot::colour_holder> colour_map;
+   colour_map["blue"      ] = colour_values_from_colour_name("blue");
+   colour_map["sky"       ] = colour_values_from_colour_name("sky");
+   colour_map["sea"       ] = colour_values_from_colour_name("sea");
+   colour_map["greentint" ] = colour_values_from_colour_name("greentint");
+   colour_map["darkpurple"] = colour_values_from_colour_name("darkpurple");
+   colour_map["green"     ] = colour_values_from_colour_name("green");
+   colour_map["orange"    ] = colour_values_from_colour_name("orange");
+   colour_map["orangered" ] = colour_values_from_colour_name("orangered");
+   colour_map["yellow"    ] = colour_values_from_colour_name("yellow");
+   colour_map["yellowtint"] = colour_values_from_colour_name("yellowtint");
+   colour_map["red"       ] = colour_values_from_colour_name("red");
+   colour_map["#55dd55"   ] = colour_values_from_colour_name("#55dd55");
+   colour_map["hotpink"   ] = colour_values_from_colour_name("hotpink");
+   colour_map["grey"      ] = colour_values_from_colour_name("grey");
+   colour_map["magenta"   ] = colour_values_from_colour_name("magenta");
+   colour_map["royalblue" ] = colour_values_from_colour_name("royalblue");
 
-      auto colour_string_to_colour_holder = [colour_map] (const std::string &c) {
-                                               return colour_map.find(c)->second;
-                                            };
+   auto colour_string_to_colour_holder = [colour_map] (const std::string &c) {
+      return colour_map.find(c)->second;
+   };
 
-      coot::atom_overlaps_dots_container_t c;
+   coot::atom_overlaps_dots_container_t c;
 
 #if 0 // why did I want to add contact dots for a (static) molecule when moving atoms were being displayed?
       // Weird.
 
       // get_moving_atoms_lock(__FUNCTION__);
-      if (moving_atoms_asc) {
-         if (moving_atoms_asc->mol) {
-            if (moving_atoms_asc->n_selected_atoms > 0) {
-               coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
-               c = overlaps.all_atom_contact_dots(contact_dots_density, true);
-            }
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->mol) {
+         if (moving_atoms_asc->n_selected_atoms > 0) {
+            coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
+            c = overlaps.all_atom_contact_dots(contact_dots_density, true);
          }
       }
-      // release_moving_atoms_lock(__FUNCTION__);
+   }
+   // release_moving_atoms_lock(__FUNCTION__);
 #endif
 
-      // more sensible
-      coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
-      bool do_vdw_surface = all_atom_contact_dots_do_vdw_surface; // static class variable
-      c = overlaps.all_atom_contact_dots(contact_dots_density, do_vdw_surface);
+   auto colour_string_to_col4 = [colour_map] (const std::string &colour_string) {
+      std::map<std::string, coot::colour_holder>::const_iterator it;
+      it = colour_map.find(colour_string);
+      if (it == colour_map.end()) {
+         return glm::vec4(0.95f, 0.15f, 0.95f, 1.0f);
+      } else {
+         return colour_holder_to_glm(it->second);
+      }
+   };
 
-      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
-      std::string molecule_name_stub = "Contact Dots for Molecule ";
-      molecule_name_stub += coot::util::int_to_string(imol);
-      molecule_name_stub += ": ";
+   // more sensible
+   coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
+   bool do_vdw_surface = all_atom_contact_dots_do_vdw_surface; // static class variable
+   c = overlaps.all_atom_contact_dots(contact_dots_density, do_vdw_surface);
 
-      float point_size = 0.05f;
-      std::unordered_map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
-      for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
-         float point_size_inner = point_size;
-	 const std::string &type = it->first;
-	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
-         // std::cout << "dots type " << type << " count " << v.size() << std::endl;
-         float specular_strength = 0.5; // default
-         if (type == "vdw-surface") specular_strength= 0.1; // dull, reduces zoomed out speckles
-         if (type == "vdw-surface") point_size_inner = 0.03;
-         std::string mesh_name = molecule_name_stub + type;
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+   std::string molecule_name_stub = "Contact Dots for Molecule ";
+   molecule_name_stub += coot::util::int_to_string(imol);
+   molecule_name_stub += ": ";
 
-         Instanced_Markup_Mesh &im = graphics_info_t::molecules[imol].find_or_make_new(mesh_name);
-         im.clear();
-         im.setup_octasphere(octasphere_subdivisions);
-         im.setup_instancing_buffers(v.size());
-         std::vector<Instanced_Markup_Mesh_attrib_t> balls;
-         balls.resize(v.size());
-         // I now do simple-minded colour caching here
-         std::string previous_colour_string;
-         glm::vec4 previous_colour(0,0,0,1);
-         for (unsigned int i=0; i<v.size(); i++) {
-            glm::vec3 position(v[i].pos.x(), v[i].pos.y(), v[i].pos.z());
-            const std::string &colour_string = v[i].col;
-            if (false) // debugging
-               if (type != "vdw-surface")
-                  std::cout << " type " << type << " " << i << " colour_string: " << colour_string << std::endl;
-            if (colour_string == previous_colour_string) {
-               Instanced_Markup_Mesh_attrib_t attribs(previous_colour, position, point_size_inner);
-               attribs.specular_strength = specular_strength;
-               balls[i] = attribs;
-            } else {
-               coot::colour_holder ch = colour_string_to_colour_holder(colour_string);
-               glm::vec4 colour(ch.red, ch.green, ch.blue, 1.0);
-               Instanced_Markup_Mesh_attrib_t attribs(colour, position, point_size_inner);
-               attribs.specular_strength = specular_strength;
-               balls[i] = attribs;
-               previous_colour_string = colour_string;
-               previous_colour = colour;
-            }
-         }
-         im.update_instancing_buffers(balls);
+   glm::vec4 colour_4(0.5f, 0.5f, 0.5f, 1.0f); // tmp
+   std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > oct =
+      make_octasphere(octasphere_subdivisions, glm::vec3(0,0,0),
+                      1.0f, colour_4, true);
+
+   const std::vector<coot::api::vnc_vertex> &vertices = oct.first;
+   const std::vector<g_triangle>           &triangles = oct.second;
+
+   float point_size = 0.08f;
+   std::unordered_map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+   for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
+      float point_size_inner = point_size;
+      const std::string &type = it->first;
+      const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
+      // std::cout << "dots type " << type << " count " << v.size() << std::endl;
+      Material material;
+      material.specular_strength = 0.5; // default
+      if (type == "vdw-surface") {
+         material.specular_strength = 0.1; // dull, reduces zoomed out speckles
+         point_size_inner = 0.03;
+      }
+      std::string mesh_name = molecule_name_stub + type;
+      int object_index = get_generic_object_index(mesh_name);
+      meshed_generic_display_object &obj = generic_display_objects[object_index];
+      obj.imol = imol;
+      if (imol == -1)
+         obj.attach_to_intermediate_atoms();
+
+      obj.mesh.import(convert_vertices(vertices), triangles);
+      obj.mesh.setup(material); // calls setup_buffers()
+      std::vector<glm::mat4> mats(v.size());
+      glm::vec4 col_glm(0.95f, 0.6f, 0.97f, 1.0f);
+      std::vector<glm::vec4> cols(v.size(), col_glm);
+
+      for (unsigned int i=0; i<v.size(); i++) {
+         // 20230522-PE this seems a bit wierd, but it puts the balls int the right place and the right size.
+         glm::vec3 position(v[i].pos.x()/point_size_inner, v[i].pos.y()/point_size_inner, v[i].pos.z()/point_size_inner);
+         glm::mat4 ori(1.0f);
+         glm::vec3 sc3(point_size_inner, point_size_inner, point_size_inner);
+         // mats[i] = glm::scale(ori, sc3) + glm::translate(position);
+         mats[i] = glm::translate(glm::scale(ori, sc3), position);
+
+         // colour
+         const std::string &colour_string = v[i].col;
+         glm::vec4 col4 = colour_string_to_col4(colour_string);
+         cols[i] = col4;
       }
 
-      float tube_size = point_size * 1.1f;
-      setup_cylinder_clashes(c, imol, tube_size, get_exta_annotation_state());
+      unsigned int n_instances = mats.size();
+      obj.mesh.setup_rtsc_instancing(nullptr, mats, cols, n_instances, material); // also does setup_buffers()
+      // these vectors need not be of the same size
+      obj.mesh.update_instancing_buffer_data(mats, cols);
+      obj.mesh.set_draw_this_mesh(1);
 
    }
+
+
+   // and now the spikes (which are not spherical)
+   //
+   float tube_size = point_size * 1.1f;
+   setup_cylinder_clashes(c, imol, tube_size, get_exta_annotation_state());
 
 }
 

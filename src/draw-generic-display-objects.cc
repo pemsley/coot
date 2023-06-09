@@ -98,10 +98,10 @@ coot::old_generic_display_object_t::add_pentakis_dodecahedron(const colour_holde
 
 // static
 void
-graphics_info_t::draw_generic_objects() {
+graphics_info_t::draw_generic_objects(unsigned int pass_type) {
 
    // This is the function that draws clash spike capped cylinders
-   
+
    if (! generic_display_objects.empty()) {
 
       glm::vec3 eye_position = get_world_space_eye_position();
@@ -109,6 +109,7 @@ graphics_info_t::draw_generic_objects() {
       glm::mat4 model_rotation = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
       Shader &shader = shader_for_moleculestotriangles;
+      shader = shader_for_meshes_with_shadows;
 
       glDisable(GL_BLEND);
 
@@ -117,31 +118,76 @@ graphics_info_t::draw_generic_objects() {
          meshed_generic_display_object &obj = generic_display_objects.at(i);
 	 if (obj.mesh.get_draw_this_mesh()) {
             bool draw_it = true;
-            if (! obj.is_intermediate_atoms_object()) {
+
+            if (obj.is_intermediate_atoms_object()) {
+               // don't draw objects for intermediate atom if there are no intermediate atoms
+               if (!moving_atoms_asc)
+                  draw_it = false;
+
+            } else {
                int imol_for_mesh = obj.get_imol();
                if (is_valid_model_molecule(imol_for_mesh))
                   if (! molecules[imol_for_mesh].draw_it)
                      draw_it = false;
+
                if (is_valid_map_molecule(imol_for_mesh))
                   if (! molecules[imol_for_mesh].draw_it_for_map)
                      draw_it = false;
-            }
-            if (draw_it) {
-               if (obj.mesh.is_instanced) {
-                  // std::cout << "   draw_generic_objects() draw_instanced() " << obj.mesh.name << std::endl;
-                  obj.mesh.draw_instanced(&shader_for_instanced_objects, mvp, model_rotation,
-                                          lights, eye_position, bg_col, do_depth_fog,
-                                          true, false, 0.25f, 3.0f, 0.2f, 0.0f);
+
+               if (is_valid_map_molecule(imol_for_mesh) || is_valid_model_molecule(imol_for_mesh)) {
                } else {
-                  // std::cout << "   draw_generic_objects() draw() " << obj.mesh.name << std::endl;
-                  bool show_just_shadows = false;
-                  float opacity = 1.0f;
-                  if (obj.wireframe_mode) {
-                     obj.mesh.draw(&shader_for_lines, mvp, model_rotation, lights, eye_position, opacity,
-                                   bg_col, obj.wireframe_mode, do_depth_fog, show_just_shadows);
+                  // Don't draw the mesh if the molecule it came from has been deleted.
+                  // 20230130-PE Note to self: make sure the imol is set when making filling
+                  // the meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
+                  //
+                  draw_it = false;
+               }
+            }
+
+            if (pass_type == PASS_TYPE_STANDARD) {
+               if (draw_it) {
+                  if (false)
+                     std::cout << "draw_generic_objects() " << obj.mesh.name << " is_instanced: " << obj.mesh.is_instanced
+                               << std::endl;
+                  if (obj.mesh.is_instanced) {
+                     if (false)
+                        std::cout << "   draw_generic_objects() draw_instanced() " << obj.mesh.name
+                                  << " with shader " << shader_for_instanced_objects.name
+                                  << " and pulsing should be on" << std::endl;
+                     obj.mesh.draw_instanced(&shader_for_instanced_objects, mvp, model_rotation,
+                                             lights, eye_position, bg_col,
+                                             do_depth_fog, true, true, false, 0.25f, 3.0f, 0.2f, 0.0f);
                   } else {
-                     obj.mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity,
-                                   bg_col, obj.wireframe_mode, do_depth_fog, show_just_shadows);
+                     // std::cout << "   draw_generic_objects() draw() " << obj.mesh.name << std::endl;
+                     bool show_just_shadows = false;
+                     float opacity = 1.0f;
+                     if (obj.wireframe_mode) {
+                        obj.mesh.draw(&shader_for_lines, mvp, model_rotation, lights, eye_position, opacity,
+                                      bg_col, obj.wireframe_mode, do_depth_fog, show_just_shadows);
+                     } else {
+                        obj.mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity,
+                                      bg_col, obj.wireframe_mode, do_depth_fog, show_just_shadows);
+                     }
+                  }
+               }
+            }
+
+            if (pass_type == PASS_TYPE_SSAO) {
+               if (draw_it) {
+                  if (obj.mesh.is_instanced) {
+                  } else {
+                     bool do_orthographic_projection = ! perspective_projection_flag;
+                     GtkAllocation allocation;
+                     gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+                     int w = allocation.width;
+                     int h = allocation.height;
+                     auto model_matrix = get_model_matrix();
+                     auto view_matrix = get_view_matrix();
+                     auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+                     obj.mesh.draw_for_ssao(&shader_for_meshes_for_ssao,
+                                                model_matrix,
+                                                view_matrix,
+                                                projection_matrix);
                   }
                }
             }

@@ -623,9 +623,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // view things: rotation centre and zoom. Sanity check the zoom first.
    //
    //
-   float zoom_f = zoom/100.0;
-   if (zoom_f < 0.1) zoom_f = 0.1;
-   commands.push_back(state_command("scale-zoom", zoom_f, il));
+   commands.push_back(state_command("set-zoom", zoom, il));
    commands.push_back(state_command("set-rotation-centre", X(), Y(), Z(), il));
 
    // the orientation

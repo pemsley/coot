@@ -146,10 +146,12 @@ coot::ligand::move_atom_to_peak(const clipper::Coord_orth &a,
       n_cycle++;
    }
 
-   if (n_cycle == n_cycle_max) {
-      std::cout << "WARNING:: refinement failure" <<  std::endl;
-      std::cout << "          start pos: " << a.format()   << std::endl;
-      std::cout << "          final pos: " << pos.format() << std::endl << std::endl;
+   if (false) { // who looks at this?
+      if (n_cycle == n_cycle_max) {
+         std::cout << "WARNING:: refinement failure" <<  std::endl;
+         std::cout << "          start pos: " << a.format()   << std::endl;
+         std::cout << "          final pos: " << pos.format() << std::endl << std::endl;
+      }
    }
    return pos;
 
@@ -313,7 +315,7 @@ coot::ligand::spherical_density_score(const clipper::Coord_orth &a,
 
 short int
 coot::ligand::has_sphericalish_density(const clipper::Coord_orth &a,
-				       const clipper::Xmap<float> &search_map) const {
+                                       const clipper::Xmap<float> &search_map) const {
 
    // var_limit = 0.07;
 
@@ -351,7 +353,7 @@ coot::ligand::has_sphericalish_density(const clipper::Coord_orth &a,
 
    double total_var = var[0] + var[1] + var[2];
 //    std::cout << "variance test vars: " << var[0] << " " << var[1]
-// 	     << " " << var[2] << std::endl;
+//              << " " << var[2] << std::endl;
 //    std::cout << "variance test : (peak height " << peak_height << ") "
 // 	     << total_var/(peak_height*peak_height)
 // 	      << " vs. " << var_limit << std::endl;
@@ -361,6 +363,7 @@ coot::ligand::has_sphericalish_density(const clipper::Coord_orth &a,
       iret = 0;
    }
 
+   // std::cout << "has_sphericalish_density returns " << iret << std::endl;
    return iret;
 }
 
@@ -557,52 +560,57 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
       }
 
       for(int iround = 0; iround < n_cycle; iround++) {
-// 	 // useful debugging
-// 	 std::string mapfilename = "xmap_cluster_start_water_fit-";
-// 	 mapfilename += coot::util::int_to_string(iround);
-// 	 mapfilename += ".map";
-// 	 output_map(xmap_cluster, mapfilename);
-	 
-	 std::list<coot::map_point_cluster>::iterator it;
-// 	 std::vector<std::list<coot::map_point_cluster>::const_iterator> iterator_remove_list;
-	 std::vector<std::list<coot::map_point_cluster>::iterator> iterator_remove_list;
-	 //	 std::cout << "DEBUG:: round " << iround << " cluster list size: "
-	 // << cluster_list.size() << "\n";
-	 for (it=cluster_list.begin(); it!=cluster_list.end(); ++it) {
-	    
-	    clipper::Coord_orth cl_centre(it->eigenvectors_and_centre.trn());
-	    if ((do_cluster_size_check_flag && cluster_is_possible_water(*it))
-		|| do_cluster_size_check_flag == 0) {
-	       
-	       clipper::Coord_orth new_centre = move_atom_to_peak(cl_centre, xmap_cluster);
-	       short int chem_sensible = water_pos_is_chemically_sensible(new_centre, water_list);
-	       if ((do_chemically_sensible_test_flag &&
-		    (chem_sensible == coot::ligand::OK_GOLDILOCKS))
-		   || (do_chemically_sensible_test_flag == 0)) {
-                  float water_b_estimate = get_b_estimate(new_centre, xmap_cluster, map_rms);
-                  auto new_centre_with_b_est = std::make_pair(new_centre, water_b_estimate);
-		  water_list.push_back(new_centre_with_b_est);
-		  iterator_remove_list.push_back(it);
-// 	       } else {
-// 		  std::cout << "INFO:: site at " << new_centre.format()
-// 			    << " is not chemically sensible\n";
-		  // but it may be next round.
-	       } 
-	       
-	    } else { 
-	       if (iround == 0) {
-		  std::cout << "INFO:: cluster at " << cl_centre.format()
-			    << " is too big to be water\n";
-		  double cl_vol = it->volume(xmap_pristine);
-		  std::pair<clipper::Coord_orth, double> p(cl_centre, cl_vol);
-		  blobs.push_back(p);
-		  iterator_remove_list.push_back(it);
-	       }
-	    }
-	 }
-	 for (unsigned int irl=0; irl<iterator_remove_list.size(); irl++)
-	    // cluster_list.remove(*(iterator_remove_list[irl]));
-	    cluster_list.erase(iterator_remove_list[irl]);
+//          // useful debugging
+//          std::string mapfilename = "xmap_cluster_start_water_fit-";
+//          mapfilename += coot::util::int_to_string(iround);
+//          mapfilename += ".map";
+//          output_map(xmap_cluster, mapfilename);
+
+         std::list<coot::map_point_cluster>::iterator it;
+//          std::vector<std::list<coot::map_point_cluster>::const_iterator> iterator_remove_list;
+         std::vector<std::list<coot::map_point_cluster>::iterator> iterator_remove_list;
+         //         std::cout << "DEBUG:: round " << iround << " cluster list size: "
+         // << cluster_list.size() << "\n";
+         for (it=cluster_list.begin(); it!=cluster_list.end(); ++it) {
+
+            clipper::Coord_orth cl_centre(it->eigenvectors_and_centre.trn());
+            if ((do_cluster_size_check_flag && cluster_is_possible_water(*it))
+                || do_cluster_size_check_flag == 0) {
+
+               clipper::Coord_orth new_centre = move_atom_to_peak(cl_centre, xmap_cluster);
+               short int chem_sensible = water_pos_is_chemically_sensible(new_centre, water_list);
+               if ((do_chemically_sensible_test_flag &&
+                    (chem_sensible == coot::ligand::OK_GOLDILOCKS))
+                   || (do_chemically_sensible_test_flag == 0)) {
+                  if (has_sphericalish_density(new_centre, xmap_cluster)) {
+                     float water_b_estimate = get_b_estimate(new_centre, xmap_cluster, map_rms);
+                     auto new_centre_with_b_est = std::make_pair(new_centre, water_b_estimate);
+                     water_list.push_back(new_centre_with_b_est);
+                     iterator_remove_list.push_back(it);
+                  } else {
+                     // std::cout << "INFO:: water_fit: is not spherical " << new_centre.format() << std::endl;
+                  }
+
+//                } else {
+//                   std::cout << "INFO:: site at " << new_centre.format()
+//                             << " is not chemically sensible\n";
+                  // but it may be next round.
+               }
+
+            } else {
+               if (iround == 0) {
+                  std::cout << "INFO:: cluster at " << cl_centre.format()
+                            << " is too big to be water\n";
+                  double cl_vol = it->volume(xmap_pristine);
+                  std::pair<clipper::Coord_orth, double> p(cl_centre, cl_vol);
+                  blobs.push_back(p);
+                  iterator_remove_list.push_back(it);
+               }
+            }
+         }
+         for (unsigned int irl=0; irl<iterator_remove_list.size(); irl++)
+            // cluster_list.remove(*(iterator_remove_list[irl]));
+            cluster_list.erase(iterator_remove_list[irl]);
       }
    }
    if (write_raw_waters)
@@ -610,9 +618,9 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
 
    // user can get to these via big_blobs() member function
    keep_blobs = blobs;
-   return water_list; 
+   return water_list;
 }
-		
+
 void
 coot::ligand::flood() {
 
@@ -961,10 +969,13 @@ coot::ligand::get_solution(unsigned int isolution, unsigned int iclust) const {
    coot::minimol::molecule empty;
    unsigned int n_final_ligands = final_ligand.size();
    if (iclust < n_final_ligands) {
-      if (isolution < final_ligand[iclust].size())
+      if (isolution < final_ligand[iclust].size()) {
 	 return final_ligand[iclust][isolution].first;
+      } else {
+         std::cout << "ERROR:: in ligand::get_solution() bad isolution " << isolution << std::endl;
+      }
    } else {
-      std::cout << "Error in get_solution: iclust is " << iclust
+      std::cout << "ERROR:: in ligand::get_solution(): iclust is " << iclust
 		<< " but final_size is " << final_ligand.size()
 		<< " with inital ligand size "
 		<< int(initial_ligand.size()) << std::endl;

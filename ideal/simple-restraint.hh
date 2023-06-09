@@ -771,11 +771,15 @@ namespace coot {
       explicit target_position_for_atom_eraser(const atom_spec_t &spec_in) : spec(spec_in) {}
       atom_spec_t spec;
       bool operator() (const simple_restraint &r) const {
+#ifdef SWIG
+         // 20221028-PE it feels like a trap
+#else
          if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
             if (r.atom_spec == spec) {
                return true;
             }
          }
+#endif
          return false;
       }
    };
@@ -799,8 +803,12 @@ namespace coot {
             double d = sqrt((p_1-r.atom_pull_target_pos).lengthsq());
             if (d < close_dist) {
                atom_spec_t t(atoms[r.atom_index_1]);
+#ifdef SWIG
+               // 20221028-PE more trap?
+#else
                if (t != exclude_spec)
                   v = true;
+#endif
             }
          }
          return v;
@@ -920,10 +928,9 @@ namespace coot {
       int resno;
       double distortion;
       std::string info_string;
-      omega_distortion_info_t(int resno_in, double distortion_in, const std::string &s) {
+      omega_distortion_info_t(int resno_in, double distortion_in, const std::string &s) : info_string(s) {
          resno = resno_in;
          distortion = distortion_in;
-         info_string = s;
       }
    };
 
@@ -933,8 +940,7 @@ namespace coot {
       std::vector<omega_distortion_info_t> omega_distortions; // in degrees away from 180
       int min_resno;
       int max_resno;
-      omega_distortion_info_container_t(const std::string &chain_id_in, int min_resno_in, int max_resno_in) {
-         chain_id = chain_id_in;
+      omega_distortion_info_container_t(const std::string &chain_id_in, int min_resno_in, int max_resno_in) : chain_id(chain_id_in) {
          min_resno = min_resno_in;
          max_resno = max_resno_in;
       }
@@ -1218,7 +1224,9 @@ namespace coot {
 
 #ifndef __NVCC__
          restraints_lock = false; // not locked
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
          thread_pool_p = 0; // null pointer
+#endif
 #endif // __NVCC__
       }
 
@@ -1339,6 +1347,8 @@ namespace coot {
 
       void init_shared_post(const std::vector<atom_spec_t> &fixed_atom_specs);
       void set_fixed_during_refinement_udd(); // uses fixed_atom_indices
+      // the unset function is public - there is no destructor of simple_restraint (hmm)
+      // void unset_fixed_during_refinement_udd(); // unsets atoms that were maked as fixed using FixedDuringRefinement
       // neighbour residues already are fixed.
       void add_fixed_atoms_from_flanking_residues(const bonded_pair_container_t &bpc);
       void add_fixed_atoms_from_non_bonded_neighbours(); // use non_bonded_neighbour_residues
@@ -1803,12 +1813,12 @@ namespace coot {
       //
       // return "" as first if no close link found.
       //
-      std::pair<std::string, bool> general_link_find_close_link(const std::vector<std::pair<chem_link, bool> > &li,
+      std::pair<std::string, bool> general_link_find_close_link(const std::vector<chem_link> &li,
                                                                 mmdb::Residue *r1, mmdb::Residue *r2,
                                                                 bool order_switch_flag,
                                                                 const protein_geometry &geom) const;
 
-      std::string general_link_find_close_link_inner(const std::vector<std::pair<chem_link, bool> > &li,
+      std::string general_link_find_close_link_inner(const std::vector<chem_link> &li,
                                                      mmdb::Residue *r1, mmdb::Residue *r2,
                                                      bool order_switch_flag,
                                                      const protein_geometry &geom) const;
@@ -1826,7 +1836,7 @@ namespace coot {
       void make_helix_pseudo_bond_restraints_from_res_vec_auto();
       void make_h_bond_restraints_from_res_vec_auto(const protein_geometry &geom);
 
-      bool link_infos_are_glycosidic_p(const std::vector<std::pair<chem_link, bool> > &link_infos) const;
+      bool link_infos_are_glycosidic_by_name_p(const std::vector<chem_link> &link_infos) const;
 
       // return "" on failure to find link
       std::string find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second,
@@ -2319,6 +2329,9 @@ namespace coot {
 
       ~restraints_container_t();
 
+      void unset_fixed_during_refinement_udd(); // unsets atoms that were maked as fixed using FixedDuringRefinement
+                                                // now called in the destructor
+
       mmdb::Atom *get_atom(int i) const {
          if (atom)
             return atom[i];
@@ -2602,6 +2615,12 @@ namespace coot {
       std::pair<std::string, bool> find_link_type_complicado(mmdb::Residue *first,
                                                              mmdb::Residue *second,
                                                              const protein_geometry &geom) const;
+
+      // 20221120-PE find_link_type_complicado is to complicated for me to understand.
+      // Let's try again
+      std::pair<std::string, bool> find_link_type_2022(mmdb::Residue *first,
+                                                       mmdb::Residue *second,
+                                                       const protein_geometry &geom) const;
 
       // which calls
       bool have_intermediate_residue_by_seqnum(mmdb::Residue *first,

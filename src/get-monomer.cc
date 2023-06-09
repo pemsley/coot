@@ -75,6 +75,8 @@ int get_monomer(const std::string &comp_id_in) {
    // fast
    imol = get_monomer_from_dictionary(comp_id, 1); // idealized
 
+   std::cout << "DEBUG:: in get_monomer() get_monomer_from_dictionary() returned imol " << imol << std::endl;
+
    if (is_valid_model_molecule(imol)) { 
       return imol;
    } else {
@@ -142,11 +144,42 @@ int get_monomer_for_molecule(const std::string &comp_id, int imol) {
 int get_monomer_from_dictionary(const std::string &comp_id,
 				int idealised_flag) {
 
+   auto debug_mol = [] (mmdb::Manager *mol) {
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at->isTer()) {
+                           std::cout << "get_monomer_from_dictionary(): atom " << iat << " " << at->name
+                                     << " at " << at->x << " "  << at->y << " " << at->z
+                                     << std::endl;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   };
+
    int istat = -1; // unfound molecule
    graphics_info_t g;
 
    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
    mmdb::Manager *mol = g.Geom_p()->mol_from_dictionary(comp_id, imol_enc, idealised_flag);
+
+   // std::cout << "debug:: in get_monomer_from_dictionary() " << mol << mol << std::endl;
+   // debug_mol(mol);
+
    if (mol) {
       int imol = graphics_info_t::create_molecule();
       atom_selection_container_t asc = make_asc(mol);

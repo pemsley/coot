@@ -23,8 +23,7 @@
 # 
 SUBDIRS = icons
 
-# cootpixmapdir = $(pkgdatadir)/glade/pixmaps
-cootpixmapdir = $(pkgdatadir)/icons/hicolor/16x16/actions
+cootpixmapdir = $(pkgdatadir)/pixmaps
 cootsplashscreendir = $(pkgdatadir)/images
 
 dist_cootsplashscreen_DATA = coot-1.png
@@ -77,7 +76,7 @@ koppi-green-tick-64.png rygle-red-cross-64.png forest51690-dwcheckno-incomplete-
   mutate-auto-fit.png edit-backbone.png torsion-general.png anchor.png regularize-1.png \
   refine-1.png stock-zoom-follow-window-12.svg stock-zoom-follow-window-12.png \
   rama_all.png rama_gly.png rama_pro.png rama_non_gly_pro.png \
-  curlew-long.png curlew-128-filled.svg refmac.svg broom.png broom.svg
+  curlew-long.png curlew-128-filled.svg refmac.svg broom.png broom.svg jed-flip-reverse.svg
 
 if CLIPPER_TOP8000
 dist_cootpixmap_DATA += \

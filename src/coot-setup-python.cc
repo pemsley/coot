@@ -47,6 +47,8 @@
 #include <sys/stat.h>
 #include <glob.h>
 
+#include "c-interface-python.hh" // for display_python().
+
 
 void setup_python_basic(int argc, char **argv) {
 
@@ -67,6 +69,13 @@ void setup_python_basic(int argc, char **argv) {
    }
    Py_InitializeEx(0);
    PySys_SetArgv(argc, _argv);
+
+   // We expect these to be null because we are outside a python script.
+   PyObject *globals = PyEval_GetGlobals();
+   // std::cout << "in setup_python_basic() globals " << globals << std::endl;
+   PyObject *locals  = PyEval_GetLocals();
+   // std::cout << "in setup_python_basic() locals " << locals << std::endl;
+   
 
 #endif // USE_PYMAC_INIT
 
@@ -119,7 +128,10 @@ void setup_python_coot_module() {
 }
 
 void setup_python_with_coot_modules(int argc, char **argv) {
+
 #ifdef USE_PYTHON
+
+   std::cout << "------------------------  starting setup_python_with_coot_modules() " << std::endl;
 
    auto get_pythondir = [] () {
                            std::string p = coot::prefix_dir();
@@ -144,12 +156,13 @@ void setup_python_with_coot_modules(int argc, char **argv) {
    // use ${pythondir}/coot' for PKGPYTHONDIR (i.e. PYTHONDIR + "/coot")
 
    std::string pkgpydirectory = get_pkgpythondir();
-   std::string pydirectory = get_pythondir();
+   std::string    pydirectory = get_pythondir();
 
-   if (false) {
-      std::cout << "debug:: in setup_python()    pydirectory is " << pydirectory << std::endl;
-      std::cout << "debug:: in setup_python() pkgpydirectory is " << pkgpydirectory << std::endl;
-   }
+   g_debug("in setup_python()    pydirectory is %s ",pydirectory.c_str());
+   g_debug("in setup_python() pkgpydirectory is %s ",pkgpydirectory.c_str());
+
+   // std::cout << "in setup_python_with_coot_modules() pkgpydirectory: " << pkgpydirectory << std::endl;
+   // std::cout << "in setup_python_with_coot_modules()    pydirectory: " <<    pydirectory << std::endl;
 
    PyObject *sys_path = PySys_GetObject("path");
    PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
@@ -162,30 +175,33 @@ void setup_python_with_coot_modules(int argc, char **argv) {
    } else {
       // std::cout << "sys imported" << std::endl;
    }
+
    PyObject *coot = PyImport_ImportModule("coot");
+   // std::cout << "DEBUG:: setup_python_with_coot_modules() PyImport_ImportModule() coot: " << coot << std::endl;
 
    if (! coot) {
       std::cout << "ERROR:: setup_python() Null coot" << std::endl;
    } else {
 
-      if (true) {
-         initcoot_python_gobject(); // this is not a good name for this function. We need to say
-                                    // this this is the module that wraps the glue to get
-                                    // the status-bar, menu-bar etc. i.e. coot_python_api
-         PyObject *io = PyImport_ImportModule("coot_utils"); // this imports coot_gui (which seems wrong)
+      PyObject *coot_utils = PyImport_ImportModule("coot_utils");
 
-         // std::cout << "@@@@@@@@@@@@@@ coot_utils was imported " << io << std::endl;
+      // std::cout << "DEBUG:: setup_python_with_coot_modules() PyImport_ImportModule() coot_utils: " << coot_utils << std::endl;
          
-         // date  This has do be done carefully - bit by bit. extension.py has many Python2/Python3
-         // idioms.
-         // PyImport_ImportModule("extensions");
+      // This has do be done carefully - bit by bit. extension.py has many Python2/Python3
+      // idioms.
+      // PyImport_ImportModule("extensions");
 
-         // this should not be called if we are not starting the graphics. But for now, add
-         // it without that test
-         //
-         PyObject *gui_module = PyImport_ImportModule("coot_gui");
-         // std::cout << "PyImport_ImportModule() for coot_gui returns " << gui_module << std::endl;
-      }
+      // this should not be called if we are not starting the graphics. But for now, add
+      // it without that test
+      //
+      PyObject *gui_module = PyImport_ImportModule("coot_gui");
+
+      // std::cout << "DEBUG:: setup_python_with_coot_modules() PyImport_ImportModule() for gui_module: " << gui_module << std::endl;
+
+      initcoot_python_gobject(); // this is not a good name for this function. We need to say
+                                 // this this is the module that wraps the glue to get
+                                 // the status-bar, menu-bar etc. i.e. coot_python_api
+
    }
 
    PyErr_PrintEx(0);
@@ -195,6 +211,8 @@ void setup_python_with_coot_modules(int argc, char **argv) {
 
    // std::string home_directory = coot::get_home_dir();
    // try_load_dot_coot_py_and_python_scripts(home_directory);
+
+   std::cout << "------------------------  done setup_python_with_coot_modules() " << std::endl;
 
 #endif // USE_PYTHON
 

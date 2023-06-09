@@ -99,14 +99,13 @@ namespace coot {
 	      mmdb::Residue *next_r,
 	      const std::string &alt_conf_in,
 	      mmdb::Manager *mol_in,
-	      const clipper::Xmap<float> *xmap_in_p) {
+	      const clipper::Xmap<float> *xmap_in_p) : alt_conf(alt_conf_in) {
             orig_this_residue = this_r;
             orig_prev_residue = prev_r;
             orig_next_residue = next_r;
             setup_this_and_prev_next_ca_positions();
             chain_id = chain_id_in;
             xmap_p = xmap_in_p;
-            alt_conf = alt_conf_in;
             stored_mol = mol_in;
          }
 

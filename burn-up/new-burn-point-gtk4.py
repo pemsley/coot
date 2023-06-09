@@ -44,4 +44,4 @@ delta_s = int(now.strftime("%s")) - int(start.strftime("%s"))
 delta_d = delta_s/(60*60*24)
 # print(delta_d, n_above, n_below, n_total)
 # date/time n-items-not-yet done n-items-done
-print("{:.3f} {} {}".format(delta_d, n_other_items, n_done_other_items))
+print("{:.3f} {:.3f} {:.3f}".format(delta_d, n_other_items, n_done_other_items))

@@ -35,7 +35,7 @@
 #include <windows.h>
 #define snprintf _snprintf
 #endif
- 
+
 #include "globjects.h" //includes gtk/gtk.h
 
 #include <vector>
@@ -43,7 +43,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 
 
@@ -74,7 +74,7 @@
 GtkWidget *wrapped_create_unmodelled_blobs_dialog() { 
 
    graphics_info_t g;
-   GtkWidget *dialog        = widget_from_builder("unmodelled_blobs_dialog");
+   GtkWidget *dialog         = widget_from_builder("unmodelled_blobs_dialog");
    GtkWidget *model_combobox = widget_from_builder("unmodelled_blobs_model_combobox");
    GtkWidget *map_combobox   = widget_from_builder("unmodelled_blobs_map_combobox");
 
@@ -188,7 +188,8 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 	       gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
 	       // GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
 	       GtkWidget *vbox = widget_from_builder("ligand_big_blob_vbox");
-	       if (vbox) { 
+	       if (vbox) {
+                  graphics_info_t::clear_out_container(vbox);
 		  std::string label;
 		  for(int i=0; i< n_big_blobs; i++) {
 		     label = "Blob ";
@@ -200,6 +201,10 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 		     g_signal_connect (G_OBJECT(button), "clicked", 
 				       G_CALLBACK(on_big_blob_button_clicked),
 				       c);
+                     gtk_widget_set_margin_start (button, 6);
+                     gtk_widget_set_margin_end   (button, 6);
+                     gtk_widget_set_margin_top   (button, 2);
+                     gtk_widget_set_margin_bottom(button, 2);
 		     gtk_widget_show(button);
 		     gtk_box_append(GTK_BOX(vbox), button);
 		  }
@@ -224,7 +229,6 @@ wrapped_create_find_waters_dialog() {
 
    GtkWidget *widget = widget_from_builder("find_waters_dialog");
    fill_find_waters_dialog(widget);
-   set_transient_for_main_window(widget);
    return widget;
 }
 
@@ -243,26 +247,54 @@ void fill_find_waters_dialog(GtkWidget *find_ligand_dialog) {
 
    int ifound; 
    short int diff_maps_only_flag = 0;
-   ifound = fill_ligands_dialog_map_bits_by_dialog_name(find_ligand_dialog,
-                                                        "find_waters_map",
-                                                        diff_maps_only_flag);
-   if (ifound == 0) {
-      std::cout << "Error: you must have a map to search for ligands!"
-		<< std::endl;
-   } 
-   ifound = fill_ligands_dialog_protein_bits_by_dialog_name(find_ligand_dialog,
-							    "find_waters_protein");
-   if (ifound == 0) {
-      std::cout << "Error: you must have a protein to mask the map!"
-		<< std::endl;
-   }
+   // ifound = fill_ligands_dialog_map_bits_by_dialog_name(find_ligand_dialog, "find_waters_map", diff_maps_only_flag);
 
-   // GtkWidget *entry = lookup_widget(find_ligand_dialog, "find_waters_peak_level_entry");
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   auto get_map_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_map_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+   };
+
+   int imol_mol_active = -1;
+   int imol_map_active = -1;
+   auto model_list = get_model_molecule_vector();
+   auto   map_list =   get_map_molecule_vector();
+   if (! model_list.empty()) imol_mol_active = model_list[0];
+   if (!   map_list.empty()) imol_map_active =   map_list[0];
+
+   if (map_list.empty())
+      std::cout << "Error: you must have a map to search for ligands!" << std::endl;
+
+   //ifound = fill_ligands_dialog_protein_bits_by_dialog_name(find_ligand_dialog, "find_waters_protein");
+   if (model_list.empty())
+      std::cout << "Error: you must have a protein to mask the map!" << std::endl;
+
+   GtkWidget *model_combobox = widget_from_builder("find_waters_molecule_combobox");
+   GtkWidget   *map_combobox = widget_from_builder("find_waters_map_combobox");
+
+   graphics_info_t g;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   g.fill_combobox_with_molecule_options(model_combobox, func, imol_mol_active, model_list);
+   g.fill_combobox_with_molecule_options(  map_combobox, func, imol_map_active,   map_list);
+
    GtkWidget *entry = widget_from_builder("find_waters_peak_level_entry");
-
    char *txt = get_text_for_find_waters_sigma_cut_off();
    gtk_editable_set_text(GTK_EDITABLE(entry), txt);
-   free(txt);
+   free(txt); // wow - ancient!
 
    // Now deal with the (new) entries for the distances to the protein
    // (if they exist (not (yet?) in gtk1 version)).
@@ -284,134 +316,69 @@ void fill_find_waters_dialog(GtkWidget *find_ligand_dialog) {
 void
 execute_find_waters() {
 
-   // GtkWidget *widget = lookup_widget(dialog_ok_button, "find_waters_dialog");
-
-   int find_waters_map_mol = -1; // gets assigned
-   int find_waters_protein_mol = -1; // gets assigned? Check me.
-   graphics_info_t g;
-
-   GtkWidget *map_vbox     = widget_from_builder("find_waters_map_vbox");
-   GtkWidget *protein_vbox = widget_from_builder("find_waters_protein_vbox");
-
-   auto get_mol_for_find_waters = [] (GtkWidget *item, void *data) {
-                                      if (GTK_IS_TOGGLE_BUTTON(item)) {
-                                         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(item))) {
-                                            int *imol_ptr = static_cast<int *>(data);
-                                            int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
-                                            *imol_ptr = imol;
-                                         }
-                                      }
-                                  };
-
-   if (GTK_IS_BOX(map_vbox)) {
-      int imol_map = -1;
-      void *imol_ptr = &imol_map;
-#if (GTK_MAJOR_VERSION >= 4)
-      std::cout << "in execute_find_waters() FIXME container foreach A" << std::endl;
-#else
-      gtk_container_foreach(GTK_CONTAINER(map_vbox), get_mol_for_find_waters, imol_ptr);
-      if (is_valid_map_molecule(imol_map)) {
-         find_waters_map_mol = imol_map;
-      }
-#endif
-   }
-
-   if (GTK_IS_BOX(protein_vbox)) {
-      int imol_protein = -1;
-      void *imol_ptr = &imol_protein;
-#if (GTK_MAJOR_VERSION >= 4)
-      std::cout << "in execute_find_waters() FIXME container foreach B" << std::endl;
-#else
-      gtk_container_foreach(GTK_CONTAINER(protein_vbox), get_mol_for_find_waters, imol_ptr);
-      if (is_valid_model_molecule(imol_protein)) {
-         find_waters_protein_mol = imol_protein;
-      }
-#endif
-   }
-
-   // now read the entry containing the cut-off
-   // GtkWidget *entry = lookup_widget(dialog_ok_button, "find_waters_peak_level_entry");
    GtkWidget *entry = widget_from_builder("find_waters_peak_level_entry");
    const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
-   float f = atof(text);
-   if (f > 0.0 && f < 100.0) {
-      std::cout << "finding peaks above " << f << " sigma " << std::endl;
-   } else {
-      f= 2.2;
-      std::cout << "WARNING:: nonsense value for cut-off: using " << f << " instead." << std::endl;
+   try {
+      float f = coot::util::string_to_float(std::string(text));
+      set_value_for_find_waters_sigma_cut_off(f);
+
+      GtkWidget *wd1 = widget_from_builder("find_waters_max_dist_to_protein_entry");
+      GtkWidget *wd2 = widget_from_builder("find_waters_min_dist_to_protein_entry");
+      if (wd1 && wd2) {
+         try {
+            graphics_info_t g;
+            const gchar *t1 = gtk_editable_get_text(GTK_EDITABLE(wd1));
+            const gchar *t2 = gtk_editable_get_text(GTK_EDITABLE(wd2));
+            float f1 = atof(t1);
+            float f2 = atof(t2);
+            // slam in the distances to the static vars directly (not as
+            // arguments to find_waters_real()).
+            g.ligand_water_to_protein_distance_lim_max = f1;
+            g.ligand_water_to_protein_distance_lim_min = f2;
+         }
+         catch (const std::runtime_error &e) {
+            std::cout << "WARNING::" << e.what() << std::endl;
+         }
+      }
+
+      GtkWidget *model_combobox = widget_from_builder("find_waters_molecule_combobox");
+      GtkWidget   *map_combobox = widget_from_builder("find_waters_map_combobox");
+
+      int imol_coords = my_combobox_get_imol(GTK_COMBO_BOX(model_combobox));
+      int imol_map    = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox));
+
+      if (imol_coords != -1 && imol_map != -1) {
+         bool new_waters_mol_flag = false;
+         execute_find_waters_real(imol_map, imol_coords, new_waters_mol_flag, f);
+         graphics_draw();
+      }
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
    }
 
-   set_value_for_find_waters_sigma_cut_off(f); // save it for later
-					       // display of the
-					       // dialog
-
-
-   // 20090201
-   //
-   // Now deal with the (new) entries for the distances to the protein
-   // (if they exist (not (yet?) in gtk1 version)).
-   //
-   // GtkWidget *wd1 = lookup_widget(GTK_WIDGET(dialog_ok_button), "find_waters_max_dist_to_protein_entry");
-   // GtkWidget *wd2 = lookup_widget(GTK_WIDGET(dialog_ok_button), "find_waters_min_dist_to_protein_entry");
-   GtkWidget *wd1 = widget_from_builder("find_waters_max_dist_to_protein_entry");
-   GtkWidget *wd2 = widget_from_builder("find_waters_min_dist_to_protein_entry");
-
-   if (wd1 && wd2) {
-      const gchar *t1 = gtk_editable_get_text(GTK_EDITABLE(wd1));
-      const gchar *t2 = gtk_editable_get_text(GTK_EDITABLE(wd2));
-      float f1 = atof(t1);
-      float f2 = atof(t2);
-      // slam in the distances to the static vars directly (not as
-      // arguments to find_waters_real()).
-      g.ligand_water_to_protein_distance_lim_max = f1;      
-      g.ligand_water_to_protein_distance_lim_min = f2;
-   }
-
-   // Should the waters be added to a new molecule or the masking molecule?
-   //
-   bool new_waters_mol_flag = true; // 1 mean a new molecule,
-				    // 0 means the masking molecule.
-   
-   // GtkWidget *waters_toggle_button = lookup_widget(dialog_ok_button, "water_mol_protein_mask_radiobutton");
-   GtkWidget *waters_toggle_button = widget_from_builder("water_mol_protein_mask_radiobutton");
-
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(waters_toggle_button)))
-      new_waters_mol_flag = false;
-   // waters_toggle_button = lookup_widget(dialog_ok_button, "water_mol_new_mol_radiobutton");
-   waters_toggle_button = widget_from_builder("water_mol_new_mol_radiobutton");
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(waters_toggle_button)))
-      new_waters_mol_flag = true;
-   
-   if (find_waters_map_mol != -1 && find_waters_protein_mol != -1) {
-      execute_find_waters_real(find_waters_map_mol,
-			       find_waters_protein_mol,
-			       new_waters_mol_flag,
-			       f);
-
-      graphics_draw();
-   } else {
-      std::cout << "ERROR:: Something wrong in the selection of map/molecule" << std::endl;
-   } 
 }
 
 
-// fire up a waters dialog.  
-// 
+
+
+// fire up a waters dialog.
+//
 void find_waters(int imol_for_map,
 		 int imol_for_protein,
-		 short int new_waters_mol_flag, 
+		 short int new_waters_mol_flag,
 		 float sigma_cut_off,
 		 short int show_blobs_dialog) {
 
    if (!is_valid_model_molecule(imol_for_protein)) {
       std::cout << "WARNING:: in find_waters " << imol_for_protein
-		<< " is not a valid model" << std::endl;
-   } else { 
+		          << " is not a valid model" << std::endl;
+   } else {
       if (!is_valid_map_molecule(imol_for_map)) {
-	 std::cout << "WARNING:: in find_waters " << imol_for_map
-		   << " is not a valid map" << std::endl;
-      } else { 
-	 coot::ligand lig;
+	      std::cout << "WARNING:: in find_waters " << imol_for_map
+		             << " is not a valid map" << std::endl;
+      } else {
+	      coot::ligand lig;
 	 graphics_info_t g;
 	 int n_cycles = g.ligand_water_n_cycles; // 3 by default
 
@@ -459,7 +426,6 @@ void find_waters(int imol_for_map,
 		  gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
 		  // GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
 		  GtkWidget *vbox = widget_from_builder("ligand_big_blob_vbox");
-                  std::cout << "####################### ligand_big_blob_vbox " << vbox << std::endl;
                   gtk_widget_set_size_request(vbox, -1, 300);
 		  if (vbox) { 
 		     std::string label;
@@ -473,13 +439,12 @@ void find_waters(int imol_for_map,
 			g_signal_connect(G_OBJECT(button), "clicked", 
 					 G_CALLBACK(on_big_blob_button_clicked),
 					 c);
+                        gtk_widget_set_margin_start (button, 6);
+                        gtk_widget_set_margin_end   (button, 6);
+                        gtk_widget_set_margin_top   (button, 4);
+                        gtk_widget_set_margin_bottom(button, 4);
 			gtk_widget_show(button);
-#if (GTK_MAJOR_VERSION == 4)
 			gtk_box_append(GTK_BOX(vbox), button);
-#else
-			gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-			gtk_container_set_border_width(GTK_CONTAINER(button), 2);
-#endif
 		     }
 		  }
 		  gtk_widget_show(dialog);
@@ -506,7 +471,7 @@ void find_waters(int imol_for_map,
 	    // waters added to masking molecule
 	    g.molecules[imol_for_protein].insert_waters_into_molecule(water_mol);
 	    g.update_go_to_atom_window_on_changed_mol(imol_for_protein);
-            g.update_geometry_graphs(imol_for_protein);
+            g.update_validation(imol_for_protein);
 	 }
       }
    }

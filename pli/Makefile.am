@@ -13,7 +13,10 @@ AM_CPPFLAGS = \
 
 lib_LTLIBRARIES=libcoot-pli.la
 
-libcoot_pli_la_SOURCES = protein-ligand-interactions.cc flev-annotations.cc pi-stacking.cc specs.cc
+libcoot_pli_la_SOURCES = protein-ligand-interactions.cc flev-annotations.cc pi-stacking.cc specs.cc \
+	sdf-interface.hh         \
+	sdf-internal.hh          \
+	sdf-interface.cc
 
 libcoot_pli_la_LIBADD = $(top_builddir)/coot-utils/libcoot-coord-utils.la \
                         $(top_builddir)/geometry/libcoot-geometry.la      \
@@ -25,6 +28,7 @@ libcoot_pli_la_LIBADD = $(top_builddir)/coot-utils/libcoot-coord-utils.la \
 
 libcoot_pli_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-pkginclude_HEADERS = flev-annotations.hh protein-ligand-interactions.hh pi-stacking.hh specs.hh
+pkginclude_HEADERS = flev-annotations.hh protein-ligand-interactions.hh pi-stacking.hh specs.hh \
+	sdf-interface.hh sdf-internal.hh sdf-interface-for-export.hh
 
 pkgincludedir = $(includedir)/coot/pli

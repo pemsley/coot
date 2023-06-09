@@ -1,7 +1,7 @@
 
 #include <vector>
 #include "generic-vertex.hh"
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
 
 
 // construct these around the origin - the instanced matrices will put them

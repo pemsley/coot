@@ -52,7 +52,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
 #include "globjects.h" //includes gtk/gtk.h
 
@@ -582,7 +582,6 @@ void do_cis_trans_conversion_setup(int istate) {
 void
 cis_trans_convert(int imol, const char *chain_id, int resno, const char *inscode) {
 
-   
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *standard_residues_mol = g.standard_residues_asc.mol;

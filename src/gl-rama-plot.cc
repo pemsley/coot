@@ -4,18 +4,27 @@
 #include "gl-rama-plot.hh"
 #include "coot-utils/coot-coord-utils.hh"
 
+
+
 void
-gl_rama_plot_t::setup_from(int imol, mmdb::Manager *mol) {
+gl_rama_plot_t::setup_from(int imol, mmdb::Manager *mol, const std::string &residue_selection_in) {
 
    // auto tp_0 = std::chrono::high_resolution_clock::now();
    if (mol) {
+      bool do_the_update = false;
       float position_hash_now = coot::get_position_hash(mol);
-      // std::cout << "comparing hashes " << position_hash_now << " " << position_hash << std::endl;
-      if (position_hash_now != position_hash) {
-         phi_psi_map = generate_phi_psis(imol, mol);
+
+      if (position_hash_now != position_hash)
+         do_the_update = true;
+      if (residue_selection_in != residue_selection)
+         do_the_update = true;
+
+      if (do_the_update) {
+         phi_psi_map = generate_phi_psis(imol, residue_selection_in, mol);
          update_hud_tmeshes(phi_psi_map); // no need for attach_buffers() as this is instanced data.
          position_hash = position_hash_now;
       }
+      residue_selection = residue_selection_in;
    }
    // auto tp_1 = std::chrono::high_resolution_clock::now();
    // auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
@@ -210,7 +219,29 @@ gl_rama_plot_t::generate_pseudo_phi_psis() {
 
 
 std::map<coot::residue_spec_t, rama_plot::phi_psi_t>
-gl_rama_plot_t::generate_phi_psis(int imol, mmdb::Manager *mol) {
+gl_rama_plot_t::generate_phi_psis(int imol, const std::string &residue_selection, mmdb::Manager *mol) {
+
+   auto residues_are_in_selection = [] (mmdb::Residue *residue_prev,
+                                        mmdb::Residue *residue_this,
+                                        mmdb::Residue *residue_next,
+                                        mmdb::PResidue *SelResidues,
+                                        int nSelResidues) {
+
+      unsigned int found_count = 0;
+      for (int i=0; i<nSelResidues; i++) {
+         if (SelResidues[i] == residue_prev) found_count++;
+         if (SelResidues[i] == residue_this) found_count++;
+         if (SelResidues[i] == residue_next) found_count++;
+      }
+      return (found_count > 2);
+   };
+
+   // 20230428-PE residue selection will be "//" or "//A" typically.
+   int nSelResidues = 0;
+   mmdb::PResidue *SelResidues = nullptr;
+   int SelHnd = mol->NewSelection(); // d
+   mol->Select(SelHnd, mmdb::STYPE_RESIDUE, residue_selection.c_str(), mmdb::SKEY_NEW);
+   mol->GetSelIndex(SelHnd, SelResidues, nSelResidues);
 
    std::map<coot::residue_spec_t, rama_plot::phi_psi_t> r;
    int n_models = mol->GetNumberOfModels();
@@ -219,23 +250,26 @@ gl_rama_plot_t::generate_phi_psis(int imol, mmdb::Manager *mol) {
    for (int imod=1; imod<=n_models; imod++) {
       mmdb::Model *model_p = mol->GetModel(imod);
       if (model_p) {
-	 int nchains = model_p->GetNumberOfChains();
-	 for (int ichain=0; ichain<nchains; ichain++) {
+         int nchains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<nchains; ichain++) {
             mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	    int nres = chain_p->GetNumberOfResidues();
-	    if (nres > 2) { 
-	       for (int ires=1; ires<(nres-1); ires++) { 
+            int nres = chain_p->GetNumberOfResidues();
+            if (nres > 2) {
+               for (int ires=1; ires<(nres-1); ires++) {
                   mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 		  mmdb::Residue *res_prev = coot::util::previous_residue(residue_p);
 		  mmdb::Residue *res_next = coot::util::next_residue(residue_p);
 		  if (res_prev && residue_p && res_next) {
 		     try {
-			// rama_plot::phi_psi_t constructor can throw an error
-			// (e.g. bonding atoms too far apart).
-			coot::residue_spec_t spec(residue_p);
-			rama_plot::phi_psi_t pp(res_prev, residue_p, res_next);
-                        pp.imol = imol;
-                        r[spec] = pp;
+
+                        if (residues_are_in_selection(res_prev, residue_p, res_next, SelResidues, nSelResidues)) {
+                           // rama_plot::phi_psi_t constructor can throw an error
+                           // (e.g. bonding atoms too far apart).
+                           coot::residue_spec_t spec(residue_p);
+                           rama_plot::phi_psi_t pp(res_prev, residue_p, res_next);
+                           pp.imol = imol;
+                           r[spec] = pp;
+                        }
 		     }
 		     catch (const std::runtime_error &rte) {
 			// nothing too bad, just don't add that residue
@@ -247,6 +281,8 @@ gl_rama_plot_t::generate_phi_psis(int imol, mmdb::Manager *mol) {
 	 }
       }
    }
+
+   mol->DeleteSelection(SelHnd);
 
    if (false) {
       // add in some fake points for testing
@@ -389,6 +425,8 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
                      int glarea_heigth_at_hud_start,
                      int glarea_width, int glarea_height) {
 
+   // std::cout << "------------------- gl_rama_plot_t::draw() -- start ---" << std::endl;
+
    // draw() needs to:
    //
    //  1: draw the box outline
@@ -435,6 +473,21 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
    // glDisable(GL_DEPTH_TEST); // interesting.
    // glDisable(GL_BLEND);
 
+   GLenum err;
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() --start-- error " << err << std::endl;
+
+   // first check that there is something to draw before drawing anything.
+   //
+   if (hud_tmesh_for_other_normal.have_no_instances()  &&
+       hud_tmesh_for_other_outlier.have_no_instances() &&
+       hud_tmesh_for_pro_normal.have_no_instances()    &&
+       hud_tmesh_for_pro_outlier.have_no_instances()   &&
+       hud_tmesh_for_gly_normal.have_no_instances()    &&
+       hud_tmesh_for_gly_outlier.have_no_instances()) {
+      return;
+   }
+
    glDisable(GL_BLEND);
 
    glm::vec2 offset_position_natural(0.1, 0.1);
@@ -443,7 +496,9 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
    glm::vec2 munged_scales = p_s.second;
 
    if (true) {
+      err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() A error " << err << std::endl;
       texture_for_global_distribution_non_gly_pro.Bind(0);
+      err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() B error " << err << std::endl;
       // munged_position_offset = glm::vec2(0,0);
       // munged_scales = glm::vec2(1,1);
 
@@ -458,7 +513,10 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
       hud_tmesh_for_global_distribution_non_gly_pro.set_position(glm::vec2(-ff, -ff));
       hud_tmesh_for_global_distribution_non_gly_pro.set_window_resize_position_correction(munged_position_offset * glm::vec2(10.0,10.0));
       hud_tmesh_for_global_distribution_non_gly_pro.set_window_resize_scales_correction(munged_scales);
-      hud_tmesh_for_global_distribution_non_gly_pro.draw(shader_for_hud_image_textures_p);
+
+      hud_tmesh_for_global_distribution_non_gly_pro.draw(shader_for_hud_image_textures_p); // is this a special texture? Seems not.
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() D error " << err << std::endl;
    }
 
    glEnable(GL_BLEND);
@@ -473,12 +531,14 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
 
    // std::cout << "munged_scales " << glm::to_string(munged_scales) << " munged_offsets "
    // << glm::to_string(munged_position_offset) << std::endl;
-   GLenum err;
 
-   err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() A error " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() A error " << err << std::endl;
    hud_tmesh_for_other_normal.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
+
    err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() B error " << err << std::endl;
    hud_tmesh_for_other_normal.set_window_resize_scales_correction(munged_scales);
+
    err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() C error " << err << std::endl;
    texture_for_other_normal.Bind(0);
    err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() D error " << err << std::endl;
@@ -487,6 +547,7 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
 
    texture_for_pro_normal.Bind(0);
    hud_tmesh_for_pro_normal.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
+
    hud_tmesh_for_pro_normal.set_window_resize_scales_correction(munged_scales);
    hud_tmesh_for_pro_normal.draw_instances(shader_for_rama_plot_phi_psis_markers_p);
    err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() F error " << err << std::endl;

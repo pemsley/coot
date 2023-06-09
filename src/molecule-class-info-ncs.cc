@@ -42,7 +42,7 @@
 #include <mmdb2/mmdb_manager.h>
 #include "coords/Cartesian.h"
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 #include "molecule-class-info.h"
 
@@ -165,8 +165,11 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
    float min_dist = 0.1;
    float max_dist = 1.85;
 
-//    std::cout << "ghost molecule bonds molecule has " << asc.n_selected_atoms
-//              << " selected atoms" << std::endl;
+   //    std::cout << "ghost molecule bonds molecule has " << asc.n_selected_atoms
+   //              << " selected atoms" << std::endl;
+
+   if (! graphics_info_t::use_graphics_interface_flag)
+      return;
 
    Bond_lines_container bonds(asc, min_dist, max_dist);
    bonds_box = bonds.make_graphical_bonds();
@@ -231,7 +234,7 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
    std::vector<glm::vec4> colour_table;
    for (unsigned int i=0; i<15; i++) { colour_table.push_back(glm::vec4(0.4, 0.8, 0.2, 1.0)); }
    graphics_info_t::attach_buffers();
-   mesh.make_graphical_bonds(bonds_box, bbt, Mesh::BALL_AND_STICK, -1, false, 0.1, 0.08, 1, 8, 2, colour_table);
+   mesh.make_graphical_bonds(bonds_box, bbt, Mesh::BALL_AND_STICK, -1, false, 0.1, 0.08, 1, 8, 2, colour_table, *graphics_info_t::Geom_p());
    if (false)
       std::cout << "########################## ghost mesh v and ts: " << mesh.vertices.size() << " " << mesh.triangles.size()
                 << " with representation_type " << Mesh::BALL_AND_STICK << std::endl;
@@ -295,7 +298,8 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
       allow_offset_flag = 1;
    
    // start from a blank slate:
-   ncs_ghosts.resize(0); // potential memory leak.
+   ncs_ghosts.clear();
+
    // OK, so after we have run through this function, there will be
    // rtops if we asked for them.
    if (do_rtops_flag)

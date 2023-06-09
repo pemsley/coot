@@ -18,6 +18,7 @@ def hole_ify():
         coot.add_status_bar_text(s)
 
     window = Gtk.Window()
+    window.set_title("Coot: HOLE")
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     hbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     hbox_pos_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
@@ -28,6 +29,10 @@ def hole_ify():
     cancel_button = Gtk.Button(label="Cancel")
     # something_holder = coot_gui.generic_molecule_chooser(hbox, "HOLE-ify molecule: ")
     combobox = Gtk.ComboBox()
+    combobox.set_margin_start(6)
+    combobox.set_margin_end(6)
+    combobox.set_margin_top(4)
+    combobox.set_margin_bottom(4)
     # Gtk.widget_show(combobox)
     combobox_mol_items = coot_gui.make_store_for_model_molecule_combobox()
     combobox.set_model(combobox_mol_items)
@@ -36,15 +41,34 @@ def hole_ify():
     combobox.add_attribute(renderer_text, "text", 1)
     combobox.set_active(0)
 
-    window.add(vbox)
+    window.set_child(vbox)
+
+    for b in [start_button, end_button, calculate_button, cancel_button]:
+        b.set_margin_start(6)
+        b.set_margin_end(6)
+        b.set_margin_top(4)
+        b.set_margin_bottom(4)
+
+    h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
+    h_sep.set_margin_top(4)
+    h_sep.set_margin_bottom(4)
     hbox_pos_buttons.append(start_button)
     hbox_pos_buttons.append(end_button)
-    hbox_calc_cancel_buttons.append(calculate_button)
     hbox_calc_cancel_buttons.append(cancel_button)
+    hbox_calc_cancel_buttons.append(calculate_button)
     vbox.append(combobox)
     vbox.append(hbox)
     vbox.append(hbox_pos_buttons)
+    vbox.append(h_sep)
     vbox.append(hbox_calc_cancel_buttons)
+    vbox.set_margin_start(6)
+    vbox.set_margin_end(6)
+    vbox.set_margin_top(4)
+    vbox.set_margin_bottom(4)
+    hbox_pos_buttons.set_margin_start(6)
+    hbox_pos_buttons.set_margin_end(6)
+    hbox_pos_buttons.set_margin_top(4)
+    hbox_pos_buttons.set_margin_bottom(4)
 
     def get_molecule():
         tree_iter = combobox.get_active_iter()
@@ -108,7 +132,7 @@ def hole_ify():
 
     cancel_button.connect("clicked", delete_event)
 
-    window.show_all()
+    window.set_visible(True)
 
 # if coot_python.main_menubar():
 #     menu = coot_gui.coot_menubar_menu("Test Hole")

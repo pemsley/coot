@@ -13,6 +13,18 @@
 2022-04-01  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
 
 	* Release 1
+2023-01-02  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 0.9.8.7
+
+2022-12-05  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 0.9.8.6
+
+2022-10-01  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 0.9.8.5
+
 2022-09-17  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
 
 	* Release 0.9.8.4
@@ -3103,11 +3115,11 @@
 	* src/c-interface.cc: (wrapped_create_bond_parameters_dialog):
 	created.  Along with
 	graphics_info_t::fill_bond_parameters_internals() add Bond
-	Parameters dialog functionality. 
+	Parameters dialog functionality.
 
 	Note: when adding menu items, the active item can be set only
 	after all the items are added - not during the process.
-	
+
 	* src/molecule-class-info.cc: (handle_read_ccp4_map): added
 	save_state_command_string codes [the reading of ccp4 maps is now
 	saved in the state file].
@@ -3131,9 +3143,9 @@
 	* ligand/chi-angles.cc: moved coot::operator<< for simple_rotamer
 	here [from dunbrack.cc].
 
-	* setup/coot.csh: make COOT_REFMAC_LIB_DIR be in share/coot/lib 
+	* setup/coot.csh: make COOT_REFMAC_LIB_DIR be in share/coot/lib
 
-	* setup/coot.sh: make COOT_REFMAC_LIB_DIR be in share/coot/lib 
+	* setup/coot.sh: make COOT_REFMAC_LIB_DIR be in share/coot/lib
 
 	* src/graphics-info-pick.cc:
 	(move_moving_atoms_by_shear_internal): use const int d_array_size

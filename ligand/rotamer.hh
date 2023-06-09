@@ -129,8 +129,8 @@ namespace coot {
       unsigned int n_tables() const { return tables.size(); }
       //
       void set_tables_dir(const std::string &tables_dir_in) { tables_dir = tables_dir_in; }
-      void fill_tables() { fill_tables(tables_dir); } // for on the fly construction
-      void fill_tables(const std::string &tables_dir); // set is_well_formatted.
+      void fill_tables(bool ignore_lys_and_arg_flag=false) { fill_tables(tables_dir, ignore_lys_and_arg_flag); } // for on the fly construction
+      void fill_tables(const std::string &tables_dir, bool ignore_lys_and_arg_flag=false); // set is_well_formatted.
 
       // the chi angles here (first) numbered 1, 2, 3...
       // throws an exception

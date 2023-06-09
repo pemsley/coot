@@ -105,6 +105,9 @@ coot::restraints_container_t::release_print_lock() {
 
 
 coot::restraints_container_t::~restraints_container_t() {
+
+   unset_fixed_during_refinement_udd();
+
    if (from_residue_vector) {
       if (atom) {
 	 // this is constructed manually.
@@ -480,9 +483,6 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 		<< " " << have_flanking_residue_at_end << std::endl;
    }
 
-   std::cout << "##################################### calling init_shared_post() A  "
-             << fixed_atom_specs.size() << std::endl;
-
    init_shared_post(fixed_atom_specs); // clears fixed_atom_indices
 
    add_fixed_atoms_from_flanking_residues(have_flanking_residue_at_start,
@@ -701,7 +701,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
    // blank out those atoms from seeing electron density map gradients
 
    std::set<int>::const_iterator it;
-   for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+   for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); ++it)
       use_map_gradient_for_atom[*it] = false;
 
    if (verbose_geometry_reporting == VERBOSE)
@@ -731,6 +731,20 @@ coot::restraints_container_t::set_fixed_during_refinement_udd() {
 	 at->PutUDData(uddHnd, 0);
       else
 	 at->PutUDData(uddHnd, 1);
+   }
+}
+
+void
+coot::restraints_container_t::unset_fixed_during_refinement_udd() {
+
+   if (! mol) {
+      std::cout << "ERROR:: in unset_fixed_during_refinement_udd() mol is null" << std::endl;
+      return;
+   }
+   int uddHnd = mol->GetUDDHandle(mmdb::UDR_ATOM , "FixedDuringRefinement");
+   for (int i=0; i<n_atoms; i++) {
+      mmdb::Atom *at = atom[i];
+      at->PutUDData(uddHnd, 0);
    }
 }
 
@@ -1759,8 +1773,12 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
             n_non_bonded_restraints++;
             double dist = distortion_score_non_bonded_contact(restraint, lennard_jones_epsilon, v);
             // std::cout << "nbc " << dist << std::endl;  Vast majority < -0.05
-            if (dist > 0.25) { // 20220503-PE was 0.05 - we want to see angy diego only when the
-                               // atom are really too close
+            const double &dist_crit = 10.0; // 20230521-PE was 5.0, too many
+                                            // 20230215-PE was 1.95;
+                                            // 20221127-PE was 0.55
+                                            // 20220924-PE was 0.25 - but that made too many
+            if (dist > dist_crit) { // 20220503-PE was 0.05 - we want to see angry diego only when the
+                                    // atom are really too close
 
                // if this is slow, add the result of this test as a boolean as the restraint
                // is being created, is_close_main_chain_nbc_flag is part of a simple_restraint;

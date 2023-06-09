@@ -177,8 +177,8 @@ coot::chem_link::matches_comp_ids_and_groups_hashed(unsigned int hash_test_forwa
 
 
 
-
-std::pair<bool, bool>
+//  return (match,order_switch) pair
+bool
 coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 					     const std::string &group_1,
 					     const std::string &comp_id_2,
@@ -188,22 +188,22 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 
    if (debug) {
 
-#if 0
+#if 1
       std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups() "
-		<< id << " chem_link_name " << chem_link_name << ": input comp_ids "
+		<< id << " chem_link_name: " << chem_link_name << ": input comp_ids "
 		<< comp_id_1 << " and " << comp_id_2 << "          vs ref link-comp_id-1 :"
 		<< chem_link_comp_id_1 << ": ref link-comp_id-2 :"
 		<< chem_link_comp_id_2 << ":" << std::endl; 
-      std::cout << "         for chem_link_comp_name " << chem_link_name << ": input groups "
+      std::cout << "           for chem_link_comp_name " << chem_link_name << ": input groups "
 		<< group_1 << " and " << group_2 << "             vs ref link-group-1 :"
 		<< chem_link_group_comp_1 << ": ref link-group-2 :"
 		<< chem_link_group_comp_2 << ":" << std::endl;
 #endif
 
-      std::cout << "     self group    1: " << chem_link_group_comp_1 << " self group 2   " << chem_link_comp_id_2 << std::endl;
-      std::cout << "     input group   1: " << group_1                << " input group 2  " << group_2 << std::endl;
-      std::cout << "     self comp_id  1: " << chem_link_comp_id_1    << " self comp_id 2 " << chem_link_comp_id_2 << std::endl;
-      std::cout << "     input comp_id 1: " << comp_id_1              << " input group 2  " << comp_id_2 << std::endl;
+      std::cout << "   chem-link self group    1: \"" << chem_link_group_comp_1 << "\" self group 2   \"" << chem_link_group_comp_2 << "\"" << std::endl;
+      std::cout << "   chem-link input group   1: \"" << group_1                << "\" input group 2  \"" << group_2                << "\"" << std::endl;
+      std::cout << "   chem-link self comp_id  1: \"" << chem_link_comp_id_1    << "\" self comp_id 2 \"" << chem_link_comp_id_2    << "\"" << std::endl;
+      std::cout << "   chem-link input comp_id 1: \"" << comp_id_1              << "\" input group 2  \"" << comp_id_2              << "\"" << std::endl;
 
    }
 
@@ -223,31 +223,31 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    // So allow them to match.
    // 201201013 (Friday) allow M-peptides to match too.
    // If you are thinkg of adding/changing this, change the one in make_hash_code() too.
-   if (local_group_1 == "L-peptide")  local_group_1 = "peptide";
-   if (local_group_2 == "L-peptide")  local_group_2 = "peptide";
-   if (local_group_1 == "P-peptide")  local_group_1 = "peptide";
-   if (local_group_2 == "P-peptide")  local_group_2 = "peptide";
-   if (local_group_1 == "M-peptide")  local_group_1 = "peptide";
-   if (local_group_2 == "M-peptide")  local_group_2 = "peptide";
-   if (local_group_1 == "D-pyranose") local_group_1 = "pyranose";
-   if (local_group_2 == "D-pyranose") local_group_2 = "pyranose";
+   if (local_group_1 == "L-peptide")    local_group_1 = "peptide";
+   if (local_group_2 == "L-peptide")    local_group_2 = "peptide";
+   if (local_group_1 == "P-peptide")    local_group_1 = "peptide";
+   if (local_group_2 == "P-peptide")    local_group_2 = "peptide";
+   if (local_group_1 == "M-peptide")    local_group_1 = "peptide";
+   if (local_group_2 == "M-peptide")    local_group_2 = "peptide";
+   if (local_group_1 == "D-pyranose")   local_group_1 = "pyranose";
+   if (local_group_2 == "D-pyranose")   local_group_2 = "pyranose";
    if (local_group_1 == "D-SACCHARIDE") local_group_1 = "pyranose";  // CCD annotation for MAN, etc
    if (local_group_2 == "D-SACCHARIDE") local_group_2 = "pyranose";
-   if (local_group_1 == "SACCHARIDE")   local_group_1 = "pyranose";    // CCD annotation for FUC
-   if (local_group_2 == "SACCHARIDE")   local_group_2 = "pyranose";
+   if (local_group_1 ==   "SACCHARIDE") local_group_1 = "pyranose";  // CCD annotation for FUC
+   if (local_group_2 ==   "SACCHARIDE") local_group_2 = "pyranose";
 
    // if (local_group_1 == "RNA") local_group_1 = "DNA/RNA";
    // if (local_group_2 == "RNA") local_group_2 = "DNA/RNA";
 
-   std::string self_group_1 = comp_id_1;
-   std::string self_group_2 = comp_id_2;
+   std::string self_group_1 = chem_link_group_comp_1;
+   std::string self_group_2 = chem_link_group_comp_2;
 
    if (self_group_1 == "RNA") self_group_1 = "RNA/DNA"; // to match the input type ! (which was converted to make the hash)
    if (self_group_2 == "RNA") self_group_2 = "RNA/DNA";
 
    if (debug)
-      std::cout << "     sigh... check match: dict \""
-		<< self_group_1 << "\" vs model \"" << local_group_1 << "\" -and- dict \""
+      std::cout << "     sighx... check match: group_1: dict \""
+		<< self_group_1 << "\" vs model \"" << local_group_1 << "\" -and- dict group_2: \""
 		<< self_group_2 << "\" vs model \"" << local_group_2 << "\"\n";
 
    if (local_group_2 == "SACCHARIDE") local_group_2 = "pyranose";
@@ -283,69 +283,23 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
       match = true;
 #endif
 
-   if (match) {
-      
-      // OK, nothing more to do
-      
-   } else { 
-      
-      // And what about if the residues come here backward? We should
-      // report a match and that they should be reversed to the calling
-      // function?  
-
-      // reverse index
-
-      if (false) {
-         std::cout << "............. reverse test! " << std::endl;
-         std::cout << "           " << chem_link_group_comp_1 << " " << local_group_2 << std::endl;
-         std::cout << "           " << chem_link_group_comp_2 << " " << local_group_1 << std::endl;
-      }
-
-      if (chem_link_group_comp_2 == "RNA" && local_group_1 == "DNA/RNA") {
-         if (chem_link_comp_id_2 == comp_id_1) {
-            order_switch = true;
-            match = true;
-         }
-      }
-
-      if (chem_link_group_comp_1 == "RNA" && local_group_2 == "DNA/RNA") {
-         if (chem_link_comp_id_1 == comp_id_2) {
-            order_switch = true;
-            match = true;
-         }
-      }
-
-      if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_2)) &&
-	  ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_1))) {
-
-         // std::cout << "......................... reverse groups match ! " << std::endl;
-	 if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_2)) &&
-	     ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_1))) {
-	    // std::cout << "debug:: matched with order switch " << std::endl;
-	    match = true;
-	    order_switch = true;
-	 }
-      }
-   }
-   
-   if (debug)
-      if (match)
-	 std::cout << "!!! matches_comp_ids_and_groups() passed comp_id_1: \""
-		   << comp_id_1 << "\" and group_1: \"" << group_1
-		   << "\" and comp_id_2: \"" 
-		   << comp_id_2 << "\" and group_2: \"" << group_2
-		   << "\" and this: " << *this
-		   << "\" returns " << match << std::endl;
-   
-   return std::pair<bool, bool>(match, order_switch);
+   return match;
 }
 
 std::ostream& coot::operator<<(std::ostream &s, coot::chem_link lnk) {
 
-   s << "[chem_link: id: " << lnk.id
-     << " [comp_id1: \"" << lnk.chem_link_comp_id_1 << "\" group_1: \"" << lnk.chem_link_group_comp_1
+   std::string p1 = lnk.chem_link_comp_id_1;
+   std::string p2 = lnk.chem_link_comp_id_2;
+   std::string id = lnk.id;
+   int l1 = id.length();
+   if (l1 < 5) {
+      int d = 5 -l1;
+      id.append(d, ' ');
+   }
+   s << "[chem_link: id: " << id
+     << " [comp_id1: \"" << p1 << "\" group_1: \"" << lnk.chem_link_group_comp_1
      << "\" mod_1: \"" << lnk.chem_link_mod_id_1 << "\"] to "
-     << " [comp_id2: \"" << lnk.chem_link_comp_id_2 << "\" group_2: \"" << lnk.chem_link_group_comp_2
+     << " [comp_id2: \"" << p2 << "\" group_2: \"" << lnk.chem_link_group_comp_2
      << "\" mod_2: \"" << lnk.chem_link_mod_id_2 << "\"] " << lnk.chem_link_name << "]";
    return s; 
 }
@@ -520,7 +474,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 
    // Fixup needed for PDBv3
 
-   bool debug = false;
+   bool debug = true;
    double critical_dist = 2.4; // A, less than that and Coot should
 			       // try to make the bond.
                                // 20170505: changed to 2.4, was 3.0.
@@ -596,7 +550,8 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 	    if (name_2 == " ND2")
 	       if (close[i].distance < smallest_link_dist) {
 		  smallest_link_dist = close[i].distance;
-		  link_type = "NAG-ASN";
+		  // link_type = "NAG-ASN";
+		  link_type = "pyr-ASN"; // 20221211-PE new dictionary
 	       }
       
 	 if (name_1 == " O4 " )
@@ -651,8 +606,8 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 	       }
 
 	 // 20180111 Add ALPHA2-6 links for SIA
-	 if (name_1 == " C2 " )
-	    if (name_2 == " O6 ")
+	 if (name_1 == " C2 " ) {
+	    if (name_2 == " O6 ") {
 	       if (std::string(close[i].at1->GetResName()) == "SIA") {
 		  if (close[i].distance < smallest_link_dist) {
 		     coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-6");
@@ -660,12 +615,16 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 			       << close[i].at1->GetResName() << " "
 			       << close[i].at2->GetResName() << " "
 			       << glyco_chiral_quad.chiral_volume() << std::endl;
-		     if (glyco_chiral_quad.chiral_volume() > 0.0) {
+                     // 20221212-PE I changed this test to be negative - it was positive
+                     // But for the 4byh test, it needs to be negative.
+		     if (glyco_chiral_quad.chiral_volume() < 0.0) {
 			smallest_link_dist = close[i].distance;
 			link_type = "ALPHA2-6";
 		     }
 		  }
 	       }
+            }
+         }
 
 	 if (name_1 == " O6 " )
 	    if (name_2 == " C1 ")
@@ -732,13 +691,40 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 		     link_type = "ALPHA1-6";
 		  }
 	       }
+
+	 // pyr-SER
+	 //
+	 if (name_1 == " C1 ") {
+	    if (name_2 == " OG ") {
+	       if (close[i].distance < smallest_link_dist) {
+		  smallest_link_dist = close[i].distance;
+                  std::string rn_2(second->GetResName());
+                  if (rn_2 == "SER")
+                     link_type = "pyr-SER"; // 20221211-PE new dictionary
+	       }
+            }
+         }
+
+	 // pyr-THR
+	 //
+	 if (name_1 == " C1 ") {
+	    if (name_2 == " OG1") {
+	       if (close[i].distance < smallest_link_dist) {
+		  smallest_link_dist = close[i].distance;
+                  std::string rn_2(second->GetResName());
+                  if (rn_2 == "THR")
+                     link_type = "pyr-THR"; // 20221211-PE new dictionary
+	       }
+            }
+         }
+
       }
    }
    catch (const std::runtime_error &rte) {
       std::cout << "WARNING::" << rte.what() << std::endl;
    }
 
-   if (false) 
+   if (debug)
       std::cout << "   debug:: find_glycosidic_linkage_type() for "
 		<< first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetInsCode()
 		<< first->GetResName() << ","

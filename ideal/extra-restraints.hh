@@ -19,7 +19,12 @@
  * 02110-1301, USA
  */
 
+#ifndef EXTRA_RESTRAINTS_HH
+#define EXTRA_RESTRAINTS_HH
+
+
 #include "coot-utils/coot-coord-utils.hh"
+#include "parallel-planes.hh"
 
 namespace coot {
    
@@ -38,12 +43,12 @@ namespace coot {
 	 double bond_dist;
 	 double esd;
 	 extra_bond_restraint_t() {}
-	 extra_bond_restraint_t(const atom_spec_t &a1, const atom_spec_t &a2, double d, double e) {
-	    atom_1 = a1;
-	    atom_2 = a2;
+	 extra_bond_restraint_t(const atom_spec_t &a1, const atom_spec_t &a2, double d, double e) : atom_1(a1), atom_2(a2) {
 	    bond_dist = d;
 	    esd = e;
 	 }
+#ifdef SWIG
+#else
 	 bool operator==(const residue_spec_t &rs) const {
 	    if (residue_spec_t(atom_1) == rs)
 	       return true;
@@ -51,6 +56,7 @@ namespace coot {
 	       return true;
 	    return false;
 	 }
+#endif
 	 bool is_deviant(const double &real_dist, const double &n_sigma) const {
 	    return (fabs(real_dist-bond_dist)/esd > n_sigma);
 	 }
@@ -67,10 +73,8 @@ namespace coot {
 	 
  	 bond_eraser(const std::map<std::pair<atom_spec_t, atom_spec_t>, double,
  		     bool(*)(const std::pair<atom_spec_t, atom_spec_t> &,
- 		             const std::pair<atom_spec_t, atom_spec_t> &)
-		     > &dist_map_in, double nsi) {
+ 		             const std::pair<atom_spec_t, atom_spec_t> &) > &dist_map_in, double nsi) : dist_map(dist_map_in) {
  	    n_sigma_lim = nsi;
- 	    dist_map = dist_map_in;
  	 } 
 	 bool operator()(const extra_bond_restraint_t &br) {
 	    std::pair<atom_spec_t, atom_spec_t> p(br.atom_1, br.atom_2);
@@ -213,20 +217,7 @@ namespace coot {
 
       void delete_restraints_for_residue(const residue_spec_t &rs);
       // updates restraint on atom if it can, else adds
-      void add_start_pos_restraint(const atom_spec_t &atom_1_in, double esd_in) {
-	 bool already_exists = false;
-	 for (unsigned int i=0; i<start_pos_restraints.size(); i++) {
-	    if (start_pos_restraints[i].atom_1 == atom_1_in) {
-	       start_pos_restraints[i].esd = esd_in;
-	       already_exists = true;
-	       break;
-	    } 
-	 }
-	 if (! already_exists) {
-	    extra_start_pos_restraint_t e(atom_1_in, esd_in);
-	    start_pos_restraints.push_back(e);
-	 }
-      }
+      void add_start_pos_restraint(const atom_spec_t &atom_1_in, double esd_in);
 
       // We want to interpolate proSMART restraints from start to final model.
       // We have proSMART restraints for both models.
@@ -272,3 +263,7 @@ namespace coot {
    };
 
 }
+
+
+#endif // EXTRA_RESTRAINTS_HH
+

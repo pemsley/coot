@@ -122,6 +122,8 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 	    //
 	    if (abs(SelResidue[i]->index - SelResidue[i+1]->index) <= 1) {
 	       // link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
+               std::cout << "####################### find_link_type_compli() called from bonded_residues_by_linear()"
+                         << std::endl;
 	       std::pair<std::string, bool> link_info =
 		  find_link_type_complicado(SelResidue[i], SelResidue[i+1], geom);
 	       if (false)
@@ -155,7 +157,8 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 coot::bonded_pair_container_t
 coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_geometry &geom) const {
 
-   bool debug = false; // Are your residues in the same chain?  If not filter() will not bond them.
+   bool debug = false; // Are your residues in the same chain?  If not, filter() will not bond them.
+                       // 20221120-PE Hmm... that may not be true any more.
 
    coot::bonded_pair_container_t bpc;
 
@@ -194,19 +197,24 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 
 	 if (res_f == res_s) continue;
 
+         // std::cout << "####################### find_link_type_compli() called from bonded_resdues_from_res_vec()"
+         // << std::endl;
 	 // 20180911 I now no longer want to evaluate closest approach here.
 	 //
 	 // std::pair<bool, float> d = closest_approach(res_f, res_s);
 	 // Linking should be resolved by find_link_type_complicado(), not
 	 // here by distance between residues.
 
+         // Return the link type and a residue order switch flag.
+         // Return link_type as "" if not found.
 	 std::pair<std::string, bool> l = find_link_type_complicado(res_f, res_s, geom);
 
 	 // too verbose?
 	 if (false)
 	    std::cout << "   INFO:: find_link_type_complicado() for: "
 		      << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
-		      << " returns link_type -> \"" << l.first << "\"" << std::endl;
+		      << " returns link_type -> \"" << l.first << "\""
+                      << " order-switch-flag: " << l.second << std::endl;
 
 	 std::string link_type = l.first;
 	 if (!link_type.empty()) {
@@ -343,6 +351,9 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 			std::string alt_conf_1 =  first_sel[ifat]->altLoc;
 			std::string alt_conf_2 = second_sel[isat]->altLoc;
 			if ((alt_conf_1 == alt_conf_2) || (alt_conf_1 == "") || (alt_conf_2 == "")) {
+
+                           // 20230110-PE are you here again? Check that udd_atom_index_handle
+                           // is set (by calling init_shared_post()).
 
 			   first_sel [ifat]->GetUDData(udd_atom_index_handle, index1);
 			   second_sel[isat]->GetUDData(udd_atom_index_handle, index2);
@@ -1286,7 +1297,7 @@ coot::restraints_container_t::find_link_type(mmdb::Residue *first,
       } 
    }
 
-   return link_type; 
+   return link_type;
 }
 
 // Return "" on failure to find link.  
@@ -1302,17 +1313,17 @@ coot::restraints_container_t::find_glycosidic_linkage_type(mmdb::Residue *first,
    std::string r;
    if (use_links_in_molecule)
       r = geom.find_glycosidic_linkage_type(first, second); // 20150714 FIXME
-   else 
+   else
       r = geom.find_glycosidic_linkage_type(first, second, mol);
    return r;
 }
 
 bool
-coot::restraints_container_t::link_infos_are_glycosidic_p(const std::vector<std::pair<coot::chem_link, bool> > &link_infos) const {
+coot::restraints_container_t::link_infos_are_glycosidic_by_name_p(const std::vector<coot::chem_link> &link_infos) const {
 
-   bool is_sweet = 0;
+   bool is_sweet = false;
    for (unsigned int i=0; i<link_infos.size(); i++) {
-      std::string id = link_infos[i].first.Id();
+      std::string id = link_infos[i].Id();
       if (id.length() > 4) {
 	 if ((id.substr(0,5) == "ALPHA") ||
 	     (id.substr(0,4) == "BETA")) {
@@ -1337,335 +1348,100 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 							mmdb::Residue *second,
 							const coot::protein_geometry &geom) const {
 
-   bool by_distance = false; // 20150714 new style looks for LINKs and
-			     // SSBONDs in the molecule before
-			     // assigning pyranose or disulphides etc.
+   // std::cout << "####################### find_link_type_compli() called with first_residue "
+   // << coot::residue_spec_t(first)  << " " <<  first->GetResName() << " and second residue "
+   // << coot::residue_spec_t(second) << " " << second->GetResName() << std::endl;
 
-   bool debug = false; // TMI.
+   return find_link_type_2022(first, second, geom);
+}
 
-   std::string link_type = "";
-   bool order_switch_flag = false;
-   std::string comp_id_1 = first->GetResName();
-   std::string comp_id_2 = second->GetResName();
+
+std::pair<std::string, bool>
+coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
+                                                  mmdb::Residue *second_residue,
+                                                  const coot::protein_geometry &geom) const {
+
+  bool debug_links = false;
+
+  if (debug_links) {
+    std::cout << "####################### find_link_type_2022()   called with first_residue "
+	      << coot::residue_spec_t(first_residue)  << " " <<  first_residue->GetResName() << " and second residue "
+	      << coot::residue_spec_t(second_residue) << " " << second_residue->GetResName() << std::endl;
+  }
+
+   std::string link_type; // set this
+   bool order_switch_was_needed = false; // and this
 
    try {
-      std::string group_1 = geom.get_group(first);
-      std::string group_2 = geom.get_group(second);
+      std::string comp_id_1 =  first_residue->GetResName();
+      std::string comp_id_2 = second_residue->GetResName();
+      std::string group_1 = geom.get_group( first_residue);
+      std::string group_2 = geom.get_group(second_residue);
       if (group_1 == "DNA") group_1 = "DNA/RNA";
       if (group_1 == "RNA") group_1 = "DNA/RNA";
       if (group_2 == "DNA") group_2 = "DNA/RNA";
       if (group_2 == "RNA") group_2 = "DNA/RNA";
-      if (debug)
-	 std::cout << "====== DEBUG:: find_link_type_complicado() from "
-		   << first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetResName()
-		   << " <--> "
-		   << second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetResName()
-		   << "  comp-id-1 \"" << comp_id_1 << "\" group-1 \"" << group_1 << "\" comp-id-2 \""
-                   << comp_id_2 << "\" group-2 \"" << group_2 << "\"" << std::endl;
-
-      try {
-         // this can throw an exception
-	 std::vector<std::pair<coot::chem_link, bool> > link_infos =
-	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
-
-	 if (false) { // what are the possible matching chem links?
-                     // This is useful when trying to find why a cif file doesn't link the
-                     // atoms that you want it to link.
-
-	    std::cout << "  ====== DEBUG:: find_link_type_complicado() found " << link_infos.size()
-                      << " link infos for residue compids/groups "
-		      << comp_id_1 << " " << group_1 << " and "
-		      << comp_id_2 << " " << group_2 << std::endl;
-	    std::cout << "   ===== DEBUG:: find_link_type_complicado() first  " << coot::residue_spec_t(first)
-		      << std::endl;
-	    std::cout << "   ===== DEBUG:: find_link_type_complicado() second " << coot::residue_spec_t(second)
-		      << std::endl;
-	    std::cout << "   ===== DEBUG:: find_link_type_complicado() " << link_infos.size()
-		      << " possible links: (link_infos):\n";
-	    for (unsigned int il=0; il<link_infos.size(); il++)
-	       std::cout << "   ===== DEBUG:: find_link_type_complicado() link_info["
-			 << il << "]: " << link_infos[il].first << "    order swap: "
-			 << link_infos[il].second << " "
-			 << std::endl;
-	 }
-
-	 // Now, if link is a TRANS (default-peptide-link), then
-	 // make sure that the C and N (or N and C) atoms of the
-	 // first and second residue are within dist_crit (2.0A (is this right?)) of
-	 // each other.  If not, then we should fail to find a link
-	 // between these 2 residues.
-	 // 
-	 for (unsigned int ilink=0; ilink<link_infos.size(); ilink++) {
-
-	    if (debug)
-	       std::cout << "   ===== DEBUG:: find_link_type_complicado() LINKS:: for-loop testing ilink " << ilink << " "
-			 << link_infos[ilink].first << " bool: " << link_infos[ilink].second
-			 << std::endl;
-
-	    if (link_infos[ilink].first.is_peptide_link_p()) {
-
-	       // ===================== is a peptide ========================================
-	       
-	       // note to self: use an enum for the first, don't use magic numbers
-	       std::pair<int, bool> peptide_info = peptide_C_and_N_are_in_order_p(first, second);
-
-	       if (false)
-		  std::cout << "   peptide_C_and_N_are_in_order_p returns " <<  peptide_info.first
-			    << " and order-switch: " << peptide_info.second << std::endl;
 
 
-	       //
-	       if (peptide_info.first == IS_PEPTIDE) {
-		  order_switch_flag = peptide_info.second;
+      if (group_1 == "pyranose" || group_2 == "pyranose") { // does this link O-linked carbohydrates?
+         std::string link_type_glyco;
+         bool use_links_in_molecule = true;
+         link_type_glyco = find_glycosidic_linkage_type(first_residue, second_residue, geom, use_links_in_molecule);
+         if (link_type_glyco.empty()) {
+            link_type_glyco = find_glycosidic_linkage_type(second_residue, first_residue, geom, use_links_in_molecule);
+            if (! link_type_glyco.empty()) {
+               link_type = link_type_glyco;
+               order_switch_was_needed =  true;
+            }
+         } else {
+            link_type = link_type_glyco;
+         }
 
-		  mmdb::Residue *r_1 = first;
-		  mmdb::Residue *r_2 = second;
+      } else {
 
-		  if (order_switch_flag)
-		     std::swap(r_1, r_2);
+         std::vector<coot::chem_link> link_infos_f = geom.matching_chem_links(comp_id_1, group_1, comp_id_2, group_2);
+         std::vector<coot::chem_link> link_infos_b = geom.matching_chem_links(comp_id_2, group_2, comp_id_1, group_1);
 
-		  if (! have_intermediate_residue_by_seqnum(r_1, r_2)) {
+         // std::cout << "#################### found n-forward  links: " << link_infos_f.size() << std::endl;
+         // std::cout << "#################### found n-backward links: " << link_infos_b.size() << std::endl;
 
-		     std::string rn2 = r_2->name;
-		     if (rn2 == "PRO") {
-			link_type = "PTRANS";
-		     } else {
-
-			link_type = "TRANS"; // 200100415 for now, we force all peptide links to be
-			                     // TRANS.  (We don't yet (as of today) know if this link
-				             // was CIS or TRANS). TRANS has 5-atom (plane3) plane
-				             // restraints, CIS does not.
-		     }
-		  }
-	       } else {
-
-		  if (peptide_info.first == UNKNOWN) {
-
-		     // maybe it was a link between residues in different molecules
-		     // i.e. a moving residue and a non moving one (things are in a mess)
-		     // or there was an insertion code.
-		     // so let's try by distance and residue details.
-
-		     peptide_info = peptide_C_and_N_are_close_p(first, second);
-
-                     if (false) {
-		        std::cout << "   ===== DEBUG:: find_link_type_complicado() unknown, so moving-to-fixed? for "
-				  << residue_spec_t(first) << " " << residue_spec_t(second) << " "
-                                  << peptide_info.first << " " << peptide_info.second
-                                  << std::endl;
-		     }
-		  }
-	       }
-
-	       if (peptide_info.first != IS_PEPTIDE) {
-
-		  // is not a peptide link
-
-		  std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide =
-		     geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2);
-
-		  if (debug)
-		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
-			std::cout << "  ===== DEBUG:: find_link_type_complicado() non-peptide link: "
-				  << link_infos_non_peptide[il].first.Id() << std::endl;
-
-		  // 20100330 eh?  is something missing here?  What
-		  // shall we do with link_infos_non_peptide?  did I
-		  // mean that, now the peptide test has failed,
-		  // perhaps we should distance check potential other
-		  // (non-peptide) links?
-		  // 
-		  // Yes, I think I did.
-		  // 
-		  // returns "" if no link found
-		  // second is the order switch flag;
-		  // 
-		  std::pair<std::string, bool> non_peptide_close_link_info =
-		     general_link_find_close_link(link_infos_non_peptide, first, second, order_switch_flag, geom);
-                  if (debug)
-		     std::cout << "---- DEBUG:: find_link_type_complicado() general_link_find_close_link() "
-			       << non_peptide_close_link_info.first << " "
-			       << non_peptide_close_link_info.second << std::endl;
-
-		  if (!non_peptide_close_link_info.first.empty()) {
-
-                     bool is_linked = false;
-                     mmdb::Model *model_p = first->GetModel();
-                     if (model_p) {
-                        int n_links = model_p->GetNumberOfLinks();
-                        // std::cout << "-------------------------------------- n_links " << n_links << std::endl;
-                        if (n_links > 0) {
-                           mmdb::Residue *r_1 = first;
-                           mmdb::Residue *r_2 = second;
-                           residue_spec_t SS_residue_1_spec(r_1);
-                           residue_spec_t SS_residue_2_spec(r_2);
-                           for (int i_link=1; i_link<=n_links; i_link++) {
-                              mmdb::PLink link = model_p->GetLink(i_link);
-                              std::pair<coot::atom_spec_t, coot::atom_spec_t> link_atom_specs = coot::link_atoms(link, model_p);
-                              residue_spec_t link_residue_spec_1(link_atom_specs.first);
-                              residue_spec_t link_residue_spec_2(link_atom_specs.second);
-                              if (link_residue_spec_1  == SS_residue_1_spec) is_linked = true;
-                              if (link_residue_spec_2  == SS_residue_1_spec) is_linked = true;
-                              if (link_residue_spec_1  == SS_residue_2_spec) is_linked = true;
-                              if (link_residue_spec_2  == SS_residue_2_spec) is_linked = true;
-                              if (is_linked) break;
-                           }
-                        }
-                     }
-
-                     if (! is_linked) {
-                        link_type = non_peptide_close_link_info.first;
-                        order_switch_flag = non_peptide_close_link_info.second;
-                     }
-		  }
-	       }
-	       
-	    } else {
-
-	       // ===================== is not a peptide ========================================
-
-	       if (debug)
-		  std::cout << "   ====== DEBUG:: find_link_type_complicado() this "
-			    << link_infos[ilink].first
-			    << " is not a peptide link... "
-			    << std::endl;
-	       //
-	       order_switch_flag = link_infos[ilink].second;
-	       bool use_links_in_molecule = true; // 20150714
-
-	       // we should not be testing link_infos inside a loop that
-	       // selects a particular link info. Hmmmm.
-	       // The test should be link_info.is_glycosidic(link_infos[ilink])
-	       //
-	       if (debug)
-		  std::cout << "   ===== DEBUG:: find_link_type_complicado() link_infos are glycosidic: "
-			    << link_infos_are_glycosidic_p(link_infos) << std::endl;
-	    
-	       if (link_infos_are_glycosidic_p(link_infos)) {
-
-		  // ===================== is  glycosidic ========================================
-
-		  link_type = find_glycosidic_linkage_type(first, second, geom, use_links_in_molecule);
-		  if (debug)
-		     std::cout << " ===== DEBUG:: find_link_type_complicado() find_glycosidic_linkage_type() returns \""
-			       << link_type << "\"" << std::endl;
-		  if (link_type == "") {
-		     link_type = find_glycosidic_linkage_type(second, first, geom, use_links_in_molecule);
-		     if (link_type != "")
-			order_switch_flag = 1;
-		  }
-
-		  // 20150714 This bit of code here is indicative of sloppy thinking previously.
-		  // We have a list of matching link_infos.  We should know before we run the
-		  // for(ilink) loop to run find_glycosidic_linkage_type().  That loops over
-		  // links independently of link_infos - it should be done outside the for(ilink)
-		  // loop.
-		  // 
-		  // For now, we will break out of the for(ilink) loop - we don't need to
-		  // rerun find_glycosidic_linkage_type() for every link in link_infos.
-		  //
-		  if (! link_type.empty())
-		      break;
-
-	       } else {
-
-		  // ===================== is not glycosidic ========================================
-
-		  if (debug)
-		     std::cout << "    ===== DEBUG::find_link_type_complicado() not a glycosidic_linkage"
-			       << std::endl;
-
-		  std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide;
-
-		  if (! use_links_in_molecule) { 
-		     link_infos_non_peptide = 
-			geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2);
-		  } else {
-		     link_infos_non_peptide = 
-			geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2, mol);
-		  }
-
-		  if (false)
-		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
-			std::cout << "   ===== DEBUG:: find_link_type_complicado() pre-calling general_link_find_close_link() "
-				  << il << " of " << link_infos_non_peptide.size()
-				  << " possible non-peptide link: " << link_infos_non_peptide[il].first.Id()
-				  << std::endl;
-
-		  // returns "" if no link found
-		  // second is the order switch flag;
-		  //
-		  // std::cout << "debug:: calling general_link_find_close_link() here" << std::endl;
-		  std::pair<std::string, bool> non_peptide_close_link_info = 
-		     general_link_find_close_link(link_infos_non_peptide, first, second, order_switch_flag, geom);
-		  if (non_peptide_close_link_info.first != "") {
-
-                     // Filter out SS bonds that are to SGs that have links - The Joosten Filter
-                     if (non_peptide_close_link_info.first != "SS") {
-                        link_type = non_peptide_close_link_info.first;
-                        order_switch_flag = non_peptide_close_link_info.second;
-                     } else {
-                        // SS Bond. Do we have a link in the header?
-
-                        bool is_linked = false;
-                        mmdb::Model *model_p = first->GetModel();
-                        if (model_p) {
-                           int n_links = model_p->GetNumberOfLinks();
-                           // std::cout << "-------------------------------------- n_links "
-                           //           << n_links << std::endl;
-                           if (n_links > 0) {
-                              mmdb::Residue *r_1 = first;
-                              mmdb::Residue *r_2 = second;
-                              residue_spec_t SS_residue_1_spec(r_1);
-                              residue_spec_t SS_residue_2_spec(r_2);
-                              for (int i_link=1; i_link<=n_links; i_link++) {
-                                 mmdb::PLink link = model_p->GetLink(i_link);
-                                 std::pair<atom_spec_t, atom_spec_t> link_atom_specs = link_atoms(link, model_p);
-                                 residue_spec_t link_residue_spec_1(link_atom_specs.first);
-                                 residue_spec_t link_residue_spec_2(link_atom_specs.second);
-                                 if (link_residue_spec_1 == SS_residue_1_spec) is_linked = true;
-                                 if (link_residue_spec_2 == SS_residue_1_spec) is_linked = true;
-                                 if (link_residue_spec_1 == SS_residue_2_spec) is_linked = true;
-                                 if (link_residue_spec_2 == SS_residue_2_spec) is_linked = true;
-                                 if (is_linked) break;
-                              }
-                           }
-                        }
-                        // std::cout << "debug:: here with is_linked " << is_linked << " link_type \"" << link_type << "\"" << std::endl;
-
-                        if (! is_linked) {
-                           link_type = non_peptide_close_link_info.first;
-                           order_switch_flag = non_peptide_close_link_info.second;
-                        }
-                     }
-		  }
-	       }
-	    }
-	 }
+      if (debug_links) {
+	std::cout << "#################### found n-forward  links: " << link_infos_f.size() << std::endl;
+	std::cout << "#################### found n-backward links: " << link_infos_b.size() << std::endl;
       }
-      catch (const std::runtime_error &mess_in) {
-	 if (debug) {
-	    // didn't find a chem_link for this pair, that's OK sometimes.
-	    std::cout << "CAUGHT exception in find_link_type_complicado(): "
-		      << mess_in.what() << std::endl;
-	    geom.print_chem_links();
-	 }
+
+      std::vector<std::pair<coot::chem_link, bool> > chem_links;
+      for (const auto &link : link_infos_f) chem_links.push_back(std::make_pair(link, false));
+      for (const auto &link : link_infos_b) chem_links.push_back(std::make_pair(link,  true));
+
+#if 0 // maybe I need this later - for other links?
+         for (unsigned int ilink=0; ilink<chem_links.size(); ilink++) {
+            const coot::chem_link &link = chem_links[ilink].first;
+            bool order_switch_is_needed = chem_links[ilink].second;
+         }
+#endif
+
+         // 20221120-PE just choose the top one. I can be more clever if/when needed.
+         if (! chem_links.empty()) {
+            link_type = chem_links[0].first.Id();
+            order_switch_was_needed = chem_links[0].second;
+         }
       }
-   }
-   catch (const std::runtime_error &mess) {
-      // Failed to get group.  We don't want to hear about not getting
-      // the group of thousands of HOHs.
-      // std::cout << mess.what() << std::endl;
+
+      if (debug_links)
+         std::cout << "#################### find_link_type_2022() returns: " << link_type << " " << order_switch_was_needed << std::endl;
+
    }
 
-   if (debug)
-      std::cout << "   ===== DEBUG:: find_link_type_complicado() given "
-		<< coot::residue_spec_t(first) << " and "
-		<< coot::residue_spec_t(second)
-		<< " find_link_type_complicado returns link type :"
-		<< link_type << ": and order-switch flag " << order_switch_flag << std::endl;
-   return std::pair<std::string, bool> (link_type, order_switch_flag);
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING:: no group found in find_link_type_2022() " << std::endl;
+      std::cout << e.what() << std::endl;
+      return std::pair<std::string, bool> ("", order_switch_was_needed);
+   }
+
+   return std::pair<std::string, bool> (link_type, order_switch_was_needed);
 }
+
 
 
 // this test might not be in the right place.
@@ -1725,7 +1501,7 @@ coot::restraints_container_t::have_intermediate_residue_by_seqnum(mmdb::Residue 
 // not have them).
 // 
 std::pair<std::string, bool>
-coot::restraints_container_t::general_link_find_close_link(const std::vector<std::pair<coot::chem_link, bool> > &li,
+coot::restraints_container_t::general_link_find_close_link(const std::vector<coot::chem_link> &li,
 							   mmdb::Residue *r1, mmdb::Residue *r2,
 							   bool order_switch_flag,
 							   const coot::protein_geometry &geom) const {
@@ -1746,7 +1522,7 @@ coot::restraints_container_t::general_link_find_close_link(const std::vector<std
 }
 
 std::string
-coot::restraints_container_t::general_link_find_close_link_inner(const std::vector<std::pair<coot::chem_link, bool> > &li,
+coot::restraints_container_t::general_link_find_close_link_inner(const std::vector<coot::chem_link> &li,
 								 mmdb::Residue *r1, mmdb::Residue *r2,
 								 bool order_switch_flag,
 								 const coot::protein_geometry &geom) const {
@@ -1767,7 +1543,7 @@ coot::restraints_container_t::general_link_find_close_link_inner(const std::vect
    if (close.first) {
       if (close.second < dist_crit) {
 	 for (unsigned int ilink=0; ilink<li.size(); ilink++) {
-	    coot::chem_link link = li[ilink].first;
+	    coot::chem_link link = li[ilink];
 	    // now find link with id in dict_link_res_restraints;
 	    dictionary_residue_link_restraints_t lr = geom.link(link.Id());
 	    if (lr.link_id != "") { // found link with lind_id link.Id() { 

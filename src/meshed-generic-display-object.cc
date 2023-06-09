@@ -9,10 +9,10 @@
 #include <glm/gtx/string_cast.hpp>  // to_string()
 #include <glm/gtx/rotate_vector.hpp>
 
-#include "meshed-generic-display-object.hh"
-#include "oct.hh"
 #include "graphics-info.h"
-#include "cylinder.hh"
+#include "meshed-generic-display-object.hh"
+#include "coot-utils/oct.hh"
+#include "coot-utils/cylinder.hh"
 
 glm::vec3 coord_orth_to_glm(const clipper::Coord_orth &co) {
    return glm::vec3(co.x(), co.y(), co.z());
@@ -29,6 +29,17 @@ meshed_generic_display_object::add_line(const coot::colour_holder &colour,
                                         const std::string &colour_name, int line_width,
                                         const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords) {
 
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
    glm::vec3 start = coord_orth_to_glm(coords.first);
    glm::vec3 end   = coord_orth_to_glm(coords.second);
    auto cart_pair = std::make_pair(start, end);
@@ -37,7 +48,8 @@ meshed_generic_display_object::add_line(const coot::colour_holder &colour,
    cylinder c(cart_pair, line_width, line_width, bl, col);
    c.add_flat_start_cap();
    c.add_flat_end_cap();
-   mesh.import(c.vertices, c.triangles);
+   std::vector<s_generic_vertex> converted_vertices = vnc_vertex_vector_to_generic_vertex_vector(c.vertices);
+   mesh.import(converted_vertices, c.triangles);
 }
 
 
@@ -75,6 +87,17 @@ meshed_generic_display_object::wrapped_make_octasphere(unsigned int num_subdivis
                                                        float radius,
                                                        const glm::vec4 &col) {
 
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
    std::map<unsigned int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > >::iterator it;
 
    unsigned int map_index = num_subdivisions + static_cast<int> (radius * 100.0f);
@@ -89,15 +112,17 @@ meshed_generic_display_object::wrapped_make_octasphere(unsigned int num_subdivis
       return oct;
    } else {
       glm::vec3 origin(0,0,0);
-      std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > oct =
-         make_octasphere(num_subdivisions, origin, radius, col);
-      origin_octasphere_map[map_index] = oct;
+      std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > oct = make_octasphere(num_subdivisions, origin, radius, col);
+      std::vector<s_generic_vertex> converted_vertices = vnc_vertex_vector_to_generic_vertex_vector(oct.first);
+      std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > oct_c(converted_vertices, oct.second);
+
+      origin_octasphere_map[map_index] = oct_c;
       for (unsigned int i=0; i<oct.first.size(); i++) {
-         s_generic_vertex &v(oct.first[i]);
+         s_generic_vertex &v(oct_c.first[i]);
          v.pos += position;
          v.color = col;
       }
-      return oct;
+      return oct_c;
    }
 }
 
@@ -143,6 +168,17 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
                                             bool do_faces,
                                             float unstubby_cap_factor) {
 
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
    if (false) {
       std::cout << "add_cylinder(): cap_start: " << cap_start  << std::endl;
       std::cout << "add_cylinder(): cap_end: "   << cap_end  << std::endl;
@@ -181,7 +217,8 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
    // for (unsigned int i=0; i<c.vertices.size(); i++)
    // c.vertices[i].color = colour;
 
-   mesh.import(c.vertices, c.triangles);
+   std::vector<s_generic_vertex> converted_vertices = vnc_vertex_vector_to_generic_vertex_vector(c.vertices);
+   mesh.import(converted_vertices, c.triangles);
 
    // caches eyelashes!
 
@@ -213,6 +250,17 @@ meshed_generic_display_object::add_cone(const std::pair<glm::vec3, glm::vec3> &s
                                         bool cap_start, bool cap_end,
                                         cap_type start_cap_type, cap_type end_cap_type) {
 
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
    float h = glm::distance(start_end.first, start_end.second);
    cylinder c(start_end, base_radius, top_radius, h, n_slices, 2);
    glm::vec4 colour(col.red, col.green, col.blue, 1.0f);
@@ -242,7 +290,8 @@ meshed_generic_display_object::add_cone(const std::pair<glm::vec3, glm::vec3> &s
    for (unsigned int i=0; i<c.vertices.size(); i++)
       c.vertices[i].color = colour;
 
-   mesh.import(c.vertices, c.triangles);
+   std::vector<s_generic_vertex> converted_vertices = vnc_vertex_vector_to_generic_vertex_vector(c.vertices);
+   mesh.import(converted_vertices, c.triangles);
 
 }
 
@@ -308,7 +357,7 @@ meshed_generic_display_object::add_arc(const arc_t &arc) {
    glm::vec3 start_point = coord_orth_to_glm(arc.start_point); // this is the central atom position
    glm::vec4 col = colour_holder_to_glm(arc.col);
    glm::mat4 rot_mat = glm::orientation(coord_orth_to_glm(arc.normal), glm::vec3(0.0, 0.0, 1.0));
-   std::cout << "rot_mat: " << glm::to_string(rot_mat)<< std::endl;
+   // std::cout << "add_arc: rot_mat: " << glm::to_string(rot_mat)<< std::endl;
 
    const clipper::Mat33<double> &m = arc.orientation_matrix;
    glm::mat3 ori_mat(m(0,0), m(0,1), m(0,2),
@@ -418,7 +467,7 @@ void meshed_generic_display_object::add_torus(const meshed_generic_display_objec
       }
    }
 
-   // carefullly, carefully :-)
+   // carefully, carefully :-)
    for (unsigned int ip=0; ip<n_phi_steps; ip++) {
       unsigned int ip_this = ip;
       unsigned int ip_next = ip + 1;

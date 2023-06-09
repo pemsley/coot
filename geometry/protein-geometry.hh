@@ -938,6 +938,7 @@ namespace coot {
       void remove_sulphate_hydrogens();
       void remove_PO4_SO4_hydrogens(const std::string &P_or_S);
       void remove_carboxylate_hydrogens();
+      void move_3GP_atoms();
 
       friend std::ostream& operator<<(std::ostream &s, const dictionary_residue_restraints_t &rest);
 
@@ -1205,10 +1206,11 @@ namespace coot {
                                                         const std::string &group_1,
                                                         const std::string &comp_id_2,
                                                         const std::string &group_2) const;
-      std::pair<bool, bool> matches_comp_ids_and_groups(const std::string &comp_id_1,
-                                                        const std::string &group_1,
-                                                        const std::string &comp_id_2,
-                                                        const std::string &group_2) const;
+      // caller should handle the reversing or the order - because they may match be *both* ways round
+      bool matches_comp_ids_and_groups(const std::string &comp_id_1,
+                                       const std::string &group_1,
+                                       const std::string &comp_id_2,
+                                       const std::string &group_2) const;
       std::pair<bool, bool> matches_comp_ids_and_groups_hashed(unsigned int hash_code_forward,
                                                                unsigned int hash_code_backwards) const;
       std::string Id() const { return id; }
@@ -1630,12 +1632,11 @@ namespace coot {
       filter_torsion_restraints(const std::vector <dict_torsion_restraint_t> &restraints_in) const;
       static bool torsion_restraints_comparer(const dict_torsion_restraint_t &a, const dict_torsion_restraint_t &b);
 
-      // bool is the need-order-switch-flag
-      std::vector<std::pair<chem_link, bool> > matching_chem_link(const std::string &comp_id_1,
-                                                                  const std::string &group_1,
-                                                                  const std::string &comp_id_2,
-                                                                  const std::string &group_2,
-                                                                  bool allow_peptide_link_flag) const;
+      std::vector<chem_link> matching_chem_links(const std::string &comp_id_1,
+                                                 const std::string &group_1,
+                                                 const std::string &comp_id_2,
+                                                 const std::string &group_2,
+                                                 bool allow_peptide_link_flag) const;
 
       energy_lib_t energy_lib;
 
@@ -1964,11 +1965,11 @@ namespace coot {
       std::string get_group(const std::string &res_name) const;
 
       // bool is the need-order-switch-flag
-      std::vector<std::pair<chem_link, bool> >
-      matching_chem_link(const std::string &comp_id_1,
-                         const std::string &group_1,
-                         const std::string &comp_id_2,
-                         const std::string &group_2) const;
+      std::vector<chem_link>
+      matching_chem_links(const std::string &comp_id_1,
+                          const std::string &group_1,
+                          const std::string &comp_id_2,
+                          const std::string &group_2) const;
       
       // Try to find a link that is not a peptide link (because that
       // fails on a distance check).  This is the method to find
@@ -1976,19 +1977,19 @@ namespace coot {
       // find_link_type_rigourous()).
       // 
       // bool the need-order-switch-flag
-      std::vector<std::pair<chem_link, bool> >
-      matching_chem_link_non_peptide(const std::string &comp_id_1,
-                                     const std::string &group_1,
-                                     const std::string &comp_id_2,
-                                     const std::string &group_2) const;
+      std::vector<chem_link>
+      matching_chem_links_non_peptide(const std::string &comp_id_1,
+                                      const std::string &group_1,
+                                      const std::string &comp_id_2,
+                                      const std::string &group_2) const;
       // In this version the mol is passed so that we can find links
       // that match header LINKs or SSBonds
-      std::vector<std::pair<chem_link, bool> >
-      matching_chem_link_non_peptide(const std::string &comp_id_1,
-                                     const std::string &group_1,
-                                     const std::string &comp_id_2,
-                                     const std::string &group_2,
-                                     mmdb::Manager *mol) const;
+      std::vector<chem_link>
+      matching_chem_links_non_peptide(const std::string &comp_id_1,
+                                      const std::string &group_1,
+                                      const std::string &comp_id_2,
+                                      const std::string &group_2,
+                                      mmdb::Manager *mol) const;
 
       // return "" on failure.
       // no order switch is considered.

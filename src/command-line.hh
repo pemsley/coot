@@ -51,6 +51,7 @@ public:
      use_gtkbuilder = true;
    }
    void handle_immediate_settings();
+   void add(const std::string &file); // determine where it goes based on extension and contents
    void roberto_pdbs(int argc, char **argv); // add any pdb files not alread added with --pdb/coords/xyzin
 };
 

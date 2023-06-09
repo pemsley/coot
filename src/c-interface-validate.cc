@@ -46,7 +46,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 
 #include "graphics-info.h"
@@ -126,15 +126,16 @@ GtkWidget *wrapped_create_check_waters_dialog() {
    // Opps - this (logical OR) should be on by default:
    GtkWidget *check_waters_OR_radiobutton  = widget_from_builder("check_waters_OR_radiobutton");
 
-   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_waters_OR_radiobutton), TRUE);
+   gtk_check_button_set_active(GTK_CHECK_BUTTON(check_waters_OR_radiobutton), TRUE);
 
-   GtkWidget *check_waters_action_combobox = widget_from_builder("check_waters_action_combobox");
+   GtkWidget *check_waters_action_combobox = widget_from_builder("check_waters_action_comboboxtext");
 
-   gtk_combo_box_set_active(GTK_COMBO_BOX(check_waters_action_combobox), 0); // "Check"
+   if (check_waters_action_combobox)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(check_waters_action_combobox), 0); // "Check"
 
-   GCallback callback_func = G_CALLBACK(check_waters_molecule_combobox_changed);
+   GCallback callback_func = G_CALLBACK(nullptr);
 
-   GtkWidget *combobox = widget_from_builder("check_waters_molecule_combobox");
+   GtkWidget *combobox = widget_from_builder("check_waters_molecule_comboboxtext");
 
    // now fill that dialog's optionmenu with coordinate options.
    for (int imol=0; imol<graphics_n_molecules(); imol++) {
@@ -144,9 +145,8 @@ GtkWidget *wrapped_create_check_waters_dialog() {
       }
    }
    graphics_info_t g;
-   g.fill_combobox_with_coordinates_options(combobox, callback_func, g.check_waters_molecule);
-
-   // GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
+   if (combobox)
+      g.fill_combobox_with_coordinates_options(combobox, callback_func, g.check_waters_molecule);
 
    GtkWidget *entry;
    // char text[100];
@@ -250,27 +250,19 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
    GtkWidget *hbox3 = widget_from_builder("check_waters_min_dist_hbox");
    GtkWidget *hbox4 = widget_from_builder("check_waters_max_dist_hbox");
 
-   GtkToggleButton *checkbutton1 =
-      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_b_factor_entry_active_checkbutton"));
-   GtkToggleButton *checkbutton2 =
-      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_map_sigma_entry_active_checkbutton"));
-   GtkToggleButton *checkbutton3 =
-      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_min_dist_entry_active_checkbutton"));
-   GtkToggleButton *checkbutton4 =
-      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_max_dist_entry_active_checkbutton"));
-   GtkToggleButton *checkbutton5 =
-      GTK_TOGGLE_BUTTON(widget_from_builder("check_waters_by_difference_map_active_checkbutton"));
+   GtkCheckButton *checkbutton1 = GTK_CHECK_BUTTON(widget_from_builder("check_waters_b_factor_entry_active_checkbutton"));
+   GtkCheckButton *checkbutton2 = GTK_CHECK_BUTTON(widget_from_builder("check_waters_map_sigma_entry_active_checkbutton"));
+   GtkCheckButton *checkbutton3 = GTK_CHECK_BUTTON(widget_from_builder("check_waters_min_dist_entry_active_checkbutton"));
+   GtkCheckButton *checkbutton4 = GTK_CHECK_BUTTON(widget_from_builder("check_waters_max_dist_entry_active_checkbutton"));
+   GtkCheckButton *checkbutton5 = GTK_CHECK_BUTTON(widget_from_builder("check_waters_by_difference_map_active_checkbutton"));
 
-   if (! gtk_toggle_button_get_active(checkbutton1))
-      use_b_factor_limit_test = 0;
-   if (! gtk_toggle_button_get_active(checkbutton2))
-      use_map_sigma_limit_test = 0;
-   if (! gtk_toggle_button_get_active(checkbutton3))
-      use_min_dist_test = 0;
-   if (! gtk_toggle_button_get_active(checkbutton4))
-      use_max_dist_test = 0;
+   if (! gtk_check_button_get_active(checkbutton1)) use_b_factor_limit_test  = 0;
+   if (! gtk_check_button_get_active(checkbutton2)) use_map_sigma_limit_test = 0;
+   if (! gtk_check_button_get_active(checkbutton3)) use_min_dist_test        = 0;
+   if (! gtk_check_button_get_active(checkbutton4)) use_max_dist_test        = 0;
+
    if (checkbutton5)
-      if (! gtk_toggle_button_get_active(checkbutton5))
+      if (! gtk_check_button_get_active(checkbutton5))
 	 use_difference_map_test = 0;
 
    GtkWidget *zero_occ_checkbutton = widget_from_builder("check_waters_zero_occ_checkbutton");
@@ -279,19 +271,19 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
 
    short int zero_occ_flag = 0;
    short int part_occ_dist_flag = 0;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(zero_occ_checkbutton)))
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(zero_occ_checkbutton)))
       zero_occ_flag = 1;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(partial_occ_close_contact_checkbutton)))
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(partial_occ_close_contact_checkbutton)))
       part_occ_dist_flag = 1;
 
    //
    short int logical_operator_and_or_flag = 0; // logical AND
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checklogic_OR_radiobutton))) {
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checklogic_OR_radiobutton))) {
       logical_operator_and_or_flag = 1;
    }
 
    // Check or Delete?
-   GtkWidget *action_combobox = widget_from_builder("check_waters_action_combobox");
+   GtkWidget *action_combobox = widget_from_builder("check_waters_action_comboboxtext");
    std::string action_string;
    gchar *at = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(action_combobox));
    if (at) action_string = at;
@@ -304,6 +296,9 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
       check_waters_by_difference_map(graphics_info_t::check_waters_molecule, imol_diff_map, 1);
    }
 
+   GtkWidget *model_combobox = widget_from_builder("check_waters_molecule_comboboxtext");
+   int imol_check_waters = my_combobox_get_imol(GTK_COMBO_BOX(model_combobox));
+
    if (use_b_factor_limit_test == 0)
       b_factor_lim = -100.0;
    if (use_map_sigma_limit_test == 0)
@@ -313,7 +308,7 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
    if (use_max_dist_test == 0)
       max_dist = -100.0;  // sets a flag in find_water_baddies_OR
    if (action_string == "Check") {
-      GtkWidget *w = wrapped_checked_waters_baddies_dialog(graphics_info_t::check_waters_molecule,
+      GtkWidget *w = wrapped_checked_waters_baddies_dialog(imol_check_waters,
 							   b_factor_lim,
 							   map_sigma_lim,
 							   min_dist,
@@ -321,6 +316,7 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
 							   part_occ_dist_flag,
 							   zero_occ_flag,
 							   logical_operator_and_or_flag);
+      set_transient_for_main_window(w);
       gtk_widget_show(w);
    }
 
@@ -328,7 +324,7 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
    if (action_string == "Delete") {
 
       // delete those baddies:
-      delete_checked_waters_baddies(graphics_info_t::check_waters_molecule,
+      delete_checked_waters_baddies(imol_check_waters,
 				    b_factor_lim,
 				    map_sigma_lim,
 				    min_dist,
@@ -380,7 +376,10 @@ check_waters_baddies(int imol, float b_factor_lim, float map_sigma_lim, float mi
 
 // On check OK, we fire up this widget which is a vbox of baddy radio buttons.
 //
-GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, float map_sigma_lim, float min_dist, float max_dist, short int part_occ_contact_flag, short int zero_occ_flag, short int logical_operator_and_or_flag) {
+GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, float map_sigma_lim,
+                                                 float min_dist, float max_dist,
+                                                 short int part_occ_contact_flag, short int zero_occ_flag,
+                                                 short int logical_operator_and_or_flag) {
 
    GtkWidget *w = NULL;
    if (graphics_info_t::use_graphics_interface_flag) {
@@ -392,6 +391,7 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
       graphics_info_t g;
       int imol_for_map = g.Imol_Refinement_Map();
 
+      GtkWidget *button_group = nullptr;
       if (is_valid_model_molecule(imol)) {
 	 if (!is_valid_map_molecule(imol_for_map)) {
 	    std::cout << "WARNING:: Not a valid map for density testing "
@@ -405,9 +405,7 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 	    // list (in graphics_info_t::checked_waters_next_baddie).
 	    g_object_set_data(G_OBJECT(w), "baddies_size", GINT_TO_POINTER(baddies.size()));
 
-	    GtkWidget *button;
 	    GtkWidget *vbox = widget_from_builder("checked_waters_baddies_vbox");
-	    GSList *gr_group = NULL;
 
 	    if (baddies.size() > 0 ) {
 	       for (int i=0; i<int(baddies.size()); i++) {
@@ -433,38 +431,28 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 		  button_label += baddies[i].string_user_data;
 		  button_label += " " ;
 
-#if (GTK_MAJOR_VERSION >= 4)
-		  button = gtk_check_button_new_with_label(button_label.c_str());
-		  // gr_group = gtk_check_button_get_group(GTK_RADIO_BUTTON(button)); // or something
-#else
-		  button = gtk_radio_button_new_with_label(gr_group, button_label.c_str());
-		  gr_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(button));
-#endif
+		  GtkWidget *toggle_button = gtk_toggle_button_new_with_label(button_label.c_str());
+                  gtk_widget_set_margin_top(toggle_button, 2);
+                  gtk_widget_set_margin_bottom(toggle_button, 2);
+                  gtk_widget_set_margin_start(toggle_button, 6);
+                  gtk_widget_set_margin_end(toggle_button, 6);
+
+                  // set the group here.
+                  if (button_group)
+                     gtk_toggle_button_set_group(GTK_TOGGLE_BUTTON(toggle_button), GTK_TOGGLE_BUTTON(button_group));
+                  else
+                     button_group = toggle_button;
+
 		  coot::atom_spec_t *atom_spec = new coot::atom_spec_t(baddies[i]);
 		  atom_spec->int_user_data = imol;
 
 		  std::string button_name = "checked_waters_baddie_button_";
 		  button_name += coot::util::int_to_string(i);
 
- 		  g_object_set_data_full(G_OBJECT(w),
-					 button_name.c_str(), button,
-					 NULL);
-
-		  g_signal_connect(G_OBJECT(button), "clicked",
-				   G_CALLBACK(graphics_info_t::on_generic_atom_spec_button_clicked),
+		  g_signal_connect(G_OBJECT(toggle_button), "toggled",
+				   G_CALLBACK(graphics_info_t::on_generic_atom_spec_toggle_button_toggled),
 				   atom_spec);
-
-		  GtkWidget *frame = gtk_frame_new(NULL);
-		  gtk_frame_set_child(GTK_FRAME(frame), button);
-
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-		  gtk_box_append(GTK_BOX(vbox), frame);
-#else
-		  gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 0);
-		  gtk_container_set_border_width(GTK_CONTAINER(frame), 2);
-#endif
-		  gtk_widget_show(button);
-		  gtk_widget_show(frame);
+		  gtk_box_append(GTK_BOX(vbox), toggle_button);
 	       }
 	    } else {
 
@@ -681,8 +669,9 @@ void unset_geometry_graph(GtkWidget *dialog) {  /* set the graphics info
 	    imol = graphs->Imol();
 
 	    if (is_valid_model_molecule(imol)) {
-
+#ifdef DO_GEOMETRY_GRAPHS
 	       coot::set_validation_graph(imol, graphs->Graph_Type(), NULL);
+#endif
 
 // Old style array of molecules code
 // 	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_GEOMETRY) {
@@ -803,16 +792,15 @@ my_delete_validaton_graph_mol_option(GtkWidget *widget, void *data) {
 //
 void
 difference_map_peaks(int imol, int imol_coords,
-		     float n_sigma,
-		     float max_closeness,
-		     int do_positive_level_flag,
-		     int do_negative_levels_flag,
-                     int around_model_only_flag) {
+		               float n_sigma,
+		               float max_closeness,
+		               int do_positive_level_flag,
+		               int do_negative_levels_flag,
+                               int around_model_only_flag) {
 
    // Notice that we make wrapped_create_check_waters_dialog be part
    // of graphics_info_t, because it uses clipper data in the
    // interface - and c-interface.h does not know about clipper.
-
 
    // I don't think we want ligand/cluster search.  We just want peak
    // searching.
@@ -820,61 +808,60 @@ difference_map_peaks(int imol, int imol_coords,
    if (is_valid_map_molecule(imol)) {
       if (graphics_info_t::molecules[imol].is_difference_map_p()) {
 
-	 // c.f. trace-high-res.cc
-	 coot::peak_search ps(graphics_info_t::molecules[imol].xmap);
-	 ps.set_max_closeness(max_closeness);
-	 std::vector<std::pair<clipper::Coord_orth, float> > centres;
+         // c.f. trace-high-res.cc
+         coot::peak_search ps(graphics_info_t::molecules[imol].xmap);
+         ps.set_max_closeness(max_closeness);
+         std::vector<std::pair<clipper::Coord_orth, float> > centres;
 
-	 if (is_valid_model_molecule(imol_coords)) {
-	    centres =
-	       ps.get_peaks(graphics_info_t::molecules[imol].xmap,
-			    graphics_info_t::molecules[imol_coords].atom_sel.mol,
-			    n_sigma, do_positive_level_flag, do_negative_levels_flag,
-                            around_model_only_flag);
-	    for (unsigned int ii=0; ii<centres.size(); ii++)
-	       std::cout << centres[ii].second << " " << centres[ii].first.format()
-			 << std::endl;
-	 } else {
-	    centres =
-	       ps.get_peaks(graphics_info_t::molecules[imol].xmap,
-			    n_sigma, do_positive_level_flag, do_negative_levels_flag);
-	 }
+         if (is_valid_model_molecule(imol_coords)) {
+            centres =
+               ps.get_peaks(graphics_info_t::molecules[imol].xmap,
+                  graphics_info_t::molecules[imol_coords].atom_sel.mol,
+                  n_sigma, do_positive_level_flag, do_negative_levels_flag,
+                                 around_model_only_flag);
+            for (unsigned int ii=0; ii<centres.size(); ii++)
+               std::cout << centres[ii].second << " " << centres[ii].first.format()
+                         << std::endl;
+         } else {
+            centres =
+               ps.get_peaks(graphics_info_t::molecules[imol].xmap,
+                  n_sigma, do_positive_level_flag, do_negative_levels_flag);
+         }
 
-	 if (centres.size() == 0) {
-	    if (graphics_info_t::use_graphics_interface_flag) {
-	       std::string info_string("No difference map peaks\nat ");
-	       info_string += graphics_info_t::float_to_string(n_sigma);
-	       info_string += " sigma";
-	       GtkWidget *w = wrapped_nothing_bad_dialog(info_string);
-	       gtk_widget_show(w);
-	    }
-	 } else {
-	    float map_sigma = graphics_info_t::molecules[imol].map_sigma();
-	    if (graphics_info_t::use_graphics_interface_flag) {
-	       std::string title = "Difference Map Peaks Dialog From Map No. ";
-	       title += coot::util::int_to_string(imol);
-	       GtkWidget *w = graphics_info_t::wrapped_create_diff_map_peaks_dialog(imol, imol_coords, centres,
-                                                                                    n_sigma,
-                                                                                    do_positive_level_flag,
-                                                                                    do_negative_levels_flag,
-                                                                                    around_model_only_flag,
-                                                                                    title);
-	       gtk_widget_show(w);
-	    }
+         if (centres.size() == 0) {
+            if (graphics_info_t::use_graphics_interface_flag) {
+               std::string info_string("No difference map peaks\nat ");
+               info_string += graphics_info_t::float_to_string(n_sigma);
+               info_string += " sigma";
+               GtkWidget *w = wrapped_nothing_bad_dialog(info_string);
+               gtk_widget_show(w);
+            }
+         } else {
+            float map_sigma = graphics_info_t::molecules[imol].map_sigma();
+            if (graphics_info_t::use_graphics_interface_flag) {
+               std::string title = "Difference Map Peaks Dialog From Map No. ";
+               title += coot::util::int_to_string(imol);
+               GtkWidget *w = graphics_info_t::wrapped_create_diff_map_peaks_dialog(imol, imol_coords, centres,
+                                                                                          n_sigma,
+                                                                                          do_positive_level_flag,
+                                                                                          do_negative_levels_flag,
+                                                                                          around_model_only_flag,
+                                                                                          title);
+               gtk_widget_show(w);
+            }
 
-	    std::cout << "\n   Found these peak positions:\n";
-	    for (unsigned int i=0; i<centres.size(); i++) {
-	       std::cout << "   " << i << " dv: "
-			 << centres[i].second << " n-rmsd: "
-			 << centres[i].second/map_sigma << " "
-			 << centres[i].first.format() << std::endl;
-	    }
-	    std::cout << "\n   Found " << centres.size() << " peak positions:\n";
-	 }
+            std::cout << "\n   Found these peak positions:\n";
+            for (unsigned int i=0; i<centres.size(); i++) {
+               std::cout << "   " << i << " dv: "
+               << centres[i].second << " n-rmsd: "
+               << centres[i].second/map_sigma << " "
+               << centres[i].first.format() << std::endl;
+            }
+            std::cout << "\n   Found " << centres.size() << " peak positions:\n";
+         }
       }
    } else {
-      std::cout << "Molecule number " << imol
-		<< " is not a valid map molecule" << std::endl;
+      std::cout << "Molecule number " << imol << " is not a valid map molecule" << std::endl;
    }
 }
 
@@ -905,37 +892,126 @@ clear_diff_map_peaks() {
 GtkWidget *wrapped_create_generate_diff_map_peaks_dialog() {
 
    // c.f. wrapped_create_check_waters_diff_map_dialog()
+   // GtkWidget *dialog = widget_from_builder("generate_diff_map_peaks_dialog");
+   // short int diff_maps_only_flag = 1;
+   // int ifound = fill_ligands_dialog_map_bits_by_dialog_name(dialog, "generate_diff_map_peaks_map",
+   //                                                         diff_maps_only_flag);
+   // if (ifound == 0) {
+   //    std::cout << "Error: you must have a difference map to analyse!" << std::endl;
+   //    GtkWidget *none_frame = widget_from_builder("no_difference_maps_frame");
+   //    gtk_widget_show(none_frame);
+   // }
+   // the name of the vbox which is looked up is "generate_diff_map_peaks_model_vbox".
+   // ifound = fill_ligands_dialog_protein_bits_by_dialog_name(dialog, "generate_diff_map_peaks_model");
+   // if (ifound == 0) {
+   //    std::cout << "Difference map checker is better having specified coordinates...\n";
+   // }
 
+
+   graphics_info_t g;
    GtkWidget *dialog = widget_from_builder("generate_diff_map_peaks_dialog");
 
-   int ifound;
-   short int diff_maps_only_flag = 1;
+   GtkWidget *model_combobox = widget_from_builder("generate_diff_map_peaks_molecule_combobox");
+   GtkWidget   *map_combobox = widget_from_builder("generate_diff_map_peaks_map_combobox");
+   GtkWidget *frame_1 = widget_from_builder("no_difference_maps_frame1");
+   GtkWidget *frame_2 = widget_from_builder("generate_diff_maps_peaks_no_models_frame");
 
-   ifound = fill_ligands_dialog_map_bits_by_dialog_name(dialog, "generate_diff_map_peaks_map",
-							diff_maps_only_flag);
-   if (ifound == 0) {
-      std::cout << "Error: you must have a difference map to analyse!" << std::endl;
-      GtkWidget *none_frame = widget_from_builder("no_difference_maps_frame");
-      gtk_widget_show(none_frame);
+   auto get_model_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_model_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+
+   auto get_map_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_map_molecule(i))
+                                           if (g.molecules[i].xmap_is_diff_map)
+                                             vec.push_back(i);
+                                     return vec;
+                                  };
+   int imol_active = -1;
+   int imol_active_map = -1;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   auto model_list = get_model_molecule_vector();
+   auto map_list   =   get_map_molecule_vector();
+   g.fill_combobox_with_molecule_options(model_combobox, func, imol_active,  model_list);
+   g.fill_combobox_with_molecule_options(  map_combobox, func, imol_active_map, map_list);
+
+   // std::cout << "::::::::   map_list size " <<   map_list.size() << std::endl;
+   // std::cout << ":::::::: model_list size " << model_list.size() << std::endl;
+
+   if (model_list.empty()) {
+      gtk_widget_set_visible(model_combobox, FALSE);
+      gtk_widget_set_visible(frame_2, TRUE);
+   } else {
+      gtk_widget_set_visible(model_combobox, TRUE);
+      gtk_widget_set_visible(frame_2, FALSE);
    }
 
-   // the name of the vbox which is looked up is "generate_diff_map_peaks_model_vbox".
-   ifound = fill_ligands_dialog_protein_bits_by_dialog_name(dialog, "generate_diff_map_peaks_model");
-   if (ifound == 0) {
-      std::cout << "Difference map checker is better having specified coordinates...\n";
+   if (map_list.empty()) {
+      gtk_widget_set_visible(map_combobox, FALSE);
+      gtk_widget_set_visible(frame_1, TRUE);
+   } else {
+      gtk_widget_set_visible(map_combobox, TRUE);
+      gtk_widget_set_visible(frame_1, FALSE);
    }
 
    // the sigma entry:
    GtkWidget *entry = widget_from_builder("generate_diff_map_peaks_sigma_level_entry");
-   graphics_info_t g;
    std::string s = g.float_to_string(g.difference_map_peaks_sigma_level);
    gtk_editable_set_text(GTK_EDITABLE(entry), s.c_str());
 
    return dialog;
-
 }
 
 void difference_map_peaks_by_widget(GtkWidget *dialog) {
+
+   // Check the level:
+
+   GtkWidget *sigma_entry = widget_from_builder("generate_diff_map_peaks_sigma_level_entry");
+   const gchar *txt = gtk_editable_get_text(GTK_EDITABLE(sigma_entry));
+   float v = coot::util::string_to_float(txt);
+   bool good_sigma = false;
+   if (v > -1000 && v < 1000) {
+      good_sigma = true;
+   } else {
+      std::cout << "WARNING:: Invalid sigma level: " << v << " can't do peak search." << std::endl;
+   }
+
+
+   bool do_negative_level = false;
+   bool do_positive_level = false;
+   GtkWidget *checkbutton_negative = widget_from_builder("generate_diff_map_peaks_negative_level_checkbutton");
+   GtkWidget *checkbutton_positive = widget_from_builder("generate_diff_map_peaks_positive_level_checkbutton");
+   //
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton_negative)))
+      do_negative_level = true;
+
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton_positive)))
+      do_positive_level = true;
+
+   GtkWidget *model_combobox = widget_from_builder("generate_diff_map_peaks_molecule_combobox");
+   GtkWidget   *map_combobox = widget_from_builder("generate_diff_map_peaks_map_combobox");
+
+   int imol_coords   = my_combobox_get_imol(GTK_COMBO_BOX(model_combobox));
+   int imol_diff_map = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox));
+   bool around_model_only = true;
+
+   if (good_sigma)
+	   difference_map_peaks(imol_diff_map, imol_coords, v,
+		      	      graphics_info_t::difference_map_peaks_max_closeness,
+			            do_positive_level, do_negative_level, around_model_only);
+}
+
+// delete this
+void difference_map_peaks_by_widget_old(GtkWidget *dialog) {
 
    // c.f. check_waters_by_difference_map_by_widget(GtkWidget *dialog)
 
@@ -1622,12 +1698,14 @@ GtkWidget *dynarama_is_displayed_state(int imol) {
 GtkWidget *dynarama_widget(int imol) {
 
    GtkWidget *w = NULL;
+#ifdef DO_GEOMETRY_GRAPHS
    if (imol < graphics_info_t::n_molecules()) {
       // w = graphics_info_t::dynarama_is_displayed[imol];
 #ifdef HAVE_GOOCANVAS
       w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
 #endif
    }
+#endif
    return w;
 }
 
@@ -1705,25 +1783,11 @@ void toggle_dynarama_outliers(GtkWidget *window, int state) {
 }
 
 void set_ramachandran_psi_axis_mode(int mode) {
-
-#if HAVE_GOOCANVAS
-   graphics_info_t g;
-   if (mode == 1)
-      g.rama_psi_axis_mode = coot::rama_plot::PSI_MINUS_120;
-   else
-      g.rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
-#endif
 }
 
 int
 ramachandran_psi_axis_mode() {
-
-   graphics_info_t g;
-#ifdef HAVE_GOOCANVAS
-   return g.rama_psi_axis_mode;
-#else
    return 0;
-#endif
 }
 
 // ----------------------------------------------------------------------------------
@@ -2713,19 +2777,19 @@ add_cablam_markup(int imol, const std::string &cablam_log_file_name) {
 
       std::cout << "INFO:: Made " << v.size() << " cablam markups " << std::endl;
       std::vector<coot::cablam_markup_t>::const_iterator it;
-      int idx_cablam = generic_object_index("CaBLAM");
+      int idx_cablam = generic_object_index("xxCaBLAM");
       if (idx_cablam == -1)
-         idx_cablam = new_generic_object_number("CaBLAM");
+         idx_cablam = new_generic_object_number("xxCaBLAM");
       else
          generic_object_clear(idx_cablam);
       set_display_generic_object(idx_cablam, 0); // don't display while we are adding
       if (v.size() > 0) {
-         for (it=v.begin(); it!=v.end(); it++) {
+         for (it=v.begin(); it!=v.end(); ++it) {
             std::pair<coot::residue_spec_t, double> p(coot::residue_spec_t(it->residue), it->score);
             residues_vec.push_back(p);
          }
       }
-      for (it=v.begin(); it!=v.end(); it++) {
+      for (it=v.begin(); it!=v.end(); ++it) {
          const coot::cablam_markup_t &cm(*it);
          to_generic_object_add_point(idx_cablam, "pink", 14, cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z());
          to_generic_object_add_point(idx_cablam, "pink", 14, cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z());
@@ -2737,25 +2801,25 @@ add_cablam_markup(int imol, const std::string &cablam_log_file_name) {
             std::cout << "line 3: " << cm.O_next_pos.format() << " to " << cm.CA_proj_point_next.format() << std::endl;
          }
 
-         to_generic_object_add_line(idx_cablam, "hotpink", 4,
-         cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z(),
-         cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z());
+         to_generic_object_add_line(idx_cablam, "hotpink", 2,
+                                    cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z(),
+                                    cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z());
 
-         to_generic_object_add_line(idx_cablam, "hotpink", 4,
-         cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z(),
-         cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
+         to_generic_object_add_line(idx_cablam, "hotpink", 2,
+                                    cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z(),
+                                    cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
 
-         to_generic_object_add_line(idx_cablam, "hotpink", 4,
-         cm.O_next_pos.x(), cm.O_next_pos.y(), cm.O_next_pos.z(),
-         cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
+         to_generic_object_add_line(idx_cablam, "hotpink", 2,
+                                    cm.O_next_pos.x(), cm.O_next_pos.y(), cm.O_next_pos.z(),
+                                    cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
 
-         to_generic_object_add_line(idx_cablam, "hotpink", 4,
-         cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
-         cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
+         to_generic_object_add_line(idx_cablam, "hotpink", 2,
+                                    cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
+                                    cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
 
-         to_generic_object_add_line(idx_cablam, "hotpink", 4,
-         cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
-         cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
+         to_generic_object_add_line(idx_cablam, "hotpink", 2,
+                                    cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
+                                    cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
 
       }
       set_display_generic_object(idx_cablam, 1); // now we can see it

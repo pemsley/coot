@@ -30,8 +30,8 @@
 extern "C" G_MODULE_EXPORT
 void
 on_shader_settings_dialog_response(GtkDialog       *dialog,
-                                                       gint             response_id,
-                                                       gpointer         user_data) {
+                                   gint             response_id,
+                                   gpointer         user_data) {
 
    if (response_id == GTK_RESPONSE_CLOSE) {
       gtk_widget_hide(GTK_WIDGET(dialog));
@@ -40,9 +40,10 @@ on_shader_settings_dialog_response(GtkDialog       *dialog,
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_do_depth_fog_checkbutton_toggled(GtkToggleButton *togglebutton,
-                                                                        gpointer         user_data) {
-   if (gtk_toggle_button_get_active(togglebutton)) {
+on_shader_settings_do_depth_fog_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                    gpointer        user_data) {
+
+   if (gtk_check_button_get_active(checkbutton)) {
       set_use_fog(1);
    } else {
       set_use_fog(0);
@@ -51,10 +52,10 @@ on_shader_settings_do_depth_fog_checkbutton_toggled(GtkToggleButton *togglebutto
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_do_depth_blur_checkbutton_toggled(GtkToggleButton *togglebutton,
-                                                                         gpointer         user_data) {
-
-   if (gtk_toggle_button_get_active(togglebutton)) {
+on_shader_settings_do_depth_blur_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                     gpointer        user_data) {
+   
+   if (gtk_check_button_get_active(checkbutton)) {
       set_use_depth_blur(1);
    } else {
       set_use_depth_blur(0);
@@ -64,10 +65,10 @@ on_shader_settings_do_depth_blur_checkbutton_toggled(GtkToggleButton *togglebutt
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_depth_blur_outline_off_radiobutton_toggled(GtkToggleButton *togglebutton,
-                                                                                  gpointer         user_data) {
+on_shader_settings_depth_blur_outline_off_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                              gpointer        user_data) {
 
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       std::cout << "off activated " << std::endl;
       set_use_outline(0);
       set_use_depth_blur(0);
@@ -77,10 +78,10 @@ on_shader_settings_depth_blur_outline_off_radiobutton_toggled(GtkToggleButton *t
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_depth_blur_outline_depth_blur_radiobutton_toggled(GtkToggleButton *togglebutton,
-                                                                                         gpointer         user_data) {
+on_shader_settings_depth_blur_outline_depth_blur_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                                     gpointer        user_data) {
 
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       std::cout << "blur activated " << std::endl;
       set_use_outline(0);
       set_use_depth_blur(1);
@@ -90,11 +91,11 @@ on_shader_settings_depth_blur_outline_depth_blur_radiobutton_toggled(GtkToggleBu
 
 extern "C" G_MODULE_EXPORT
 void
-on_shader_settings_depth_blur_outline_outline_radiobutton_toggled(GtkToggleButton *togglebutton,
-                                                                                      gpointer         user_data) {
+on_shader_settings_depth_blur_outline_outline_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                                  gpointer        user_data) {
 
-   if (gtk_toggle_button_get_active(togglebutton)) {
-      std::cout << "outline activated " << std::endl;
+   if (gtk_check_button_get_active(checkbutton)) {
+      std::cout << "on_shader_settings_depth_blur_outline_outline_radiobutton_toggled() outline toggled " << std::endl;
       set_use_outline(1);
       set_use_depth_blur(0);
    }
@@ -305,7 +306,7 @@ on_shader_settings_fancy_mode_togglebutton_toggled(GtkToggleButton *togglebutton
       gtk_widget_set_sensitive(fancy_vbox1, TRUE);
       gtk_widget_set_sensitive(fancy_vbox2, TRUE);
    } else {
-      std::cout << "in on_shader_settings_fancy_mode_radiobutton_toggled() button was not a togglebutton" << std::endl;
+      std::cout << "in on_shader_settings_fancy_mode_radiobutton_toggled() button was not active" << std::endl;
    }
 }
 
@@ -369,11 +370,11 @@ on_shader_settings_basic_mode_togglebutton_toggled(GtkToggleButton *togglebutton
       gtk_widget_set_sensitive(fancy_vbox1, FALSE);
       gtk_widget_set_sensitive(fancy_vbox2, FALSE);
    } else {
-      GtkWidget *standard_mode_checkbutton = widget_from_builder("shader_settings_standard_mode_checkbutton");
+      GtkWidget *standard_mode_togglebutton = widget_from_builder("shader_settings_standard_mode_togglebutton");
       GtkWidget *fancy_vbox1 = widget_from_builder("shader_settings_fancy_vbox1");
       GtkWidget *fancy_vbox2 = widget_from_builder("shader_settings_fancy_vbox2");
       bool is_fancy_mode = true;
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(standard_mode_checkbutton))) is_fancy_mode = false;
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(standard_mode_togglebutton))) is_fancy_mode = false;
       if (! is_fancy_mode) {
          gtk_widget_set_sensitive(fancy_vbox1, FALSE);
          gtk_widget_set_sensitive(fancy_vbox2, FALSE);

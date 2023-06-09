@@ -34,7 +34,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h" //need for Bond_lines now
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
@@ -83,7 +83,6 @@ graphics_info_t::symmetry_atom_pick() const {
 coot::Symm_Atom_Pick_Info_t
 graphics_info_t::symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const {
 
-   
    coot::Cartesian screen_centre = RotationCentre();
 
    // Cartesian centre_unproj = unproject(0.5); // not needed, use midpoint of front and back.
@@ -441,25 +440,25 @@ graphics_info_t::moving_atoms_atom_pick(short int pick_mode) const {
 }
 
 // examines the imol_moving_atoms molecule for correspondence
-// 
+//
 // static
 bool
 graphics_info_t::fixed_atom_for_refinement_p(mmdb::Atom *at) {
 
-   bool r = 0; 
+   bool r = 0;
    if (is_valid_model_molecule(imol_moving_atoms)) {
       std::vector<coot::atom_spec_t> fixed = molecules[imol_moving_atoms].get_fixed_atoms();
       for (unsigned int ifixed=0; ifixed<fixed.size(); ifixed++) {
-	 if (fixed[ifixed].matches_spec(at)) {
-// 	    std::cout << " fixed_atom_for_refinement_p found a matcher "
-// 		      << fixed[ifixed] << std::endl;
-	    r = 1;
-	    break;
-	 } 
+	      if (fixed[ifixed].matches_spec(at)) {
+            // 	    std::cout << " fixed_atom_for_refinement_p found a matcher "
+            // 		           << fixed[ifixed] << std::endl;
+	         r = 1;
+	         break;
+	      }
       }
    }
    return r;
-} 
+}
 
 
 // Setup moving atom-drag if we are.
@@ -588,7 +587,7 @@ graphics_info_t::set_fixed_points_for_sheared_drag() {
 }
 
 
-// 
+//
 void
 graphics_info_t::move_moving_atoms_by_shear(int screenx, int screeny,
 					    short int squared_flag) {
@@ -598,7 +597,7 @@ graphics_info_t::move_moving_atoms_by_shear(int screenx, int screeny,
 
 
 // For rotate/translate moving atoms dragged movement
-// 
+//
 void
 graphics_info_t::move_moving_atoms_by_simple_translation(int screenx, int screeny) {
 
@@ -626,7 +625,7 @@ graphics_info_t::move_moving_atoms_by_simple_translation(int screenx, int screen
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
-      
+
       Bond_lines_container bonds;
       bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol_moving_atoms, Geom_p(), 1.0, 4.7,
                                      draw_missing_loops_flag, false);
@@ -638,7 +637,7 @@ graphics_info_t::move_moving_atoms_by_simple_translation(int screenx, int screen
       regularize_object_bonds_box = bonds.make_graphical_bonds();
    }
    graphics_draw();
-#endif   
+#endif
 }
 
 // uses moving_atoms_dragged_atom_index
@@ -704,7 +703,8 @@ graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y
          ok_indexing = true;
 
    if (ok_indexing == false) {
-      std::cout << "bad indexing for dragged moving atom" << std::endl;
+      std::cout << "bad indexing for dragged moving atom " << moving_atoms_currently_dragged_atom_index
+                << std::endl;
       return;
    }
    mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
@@ -821,9 +821,9 @@ graphics_info_t::add_target_position_restraints_for_intermediate_atoms(const std
 // different amounts...
 //
 // This function currently seems to be called with linear_movement_scaling_flag as false.
-// 
+//
 void
-graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff_std, 
+graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff_std,
                                                      short int linear_movement_scaling_flag) {
 
    coot::Cartesian diff = diff_std;
@@ -834,7 +834,7 @@ graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff
    float *d_to_moving_at = new float[d_array_size];
    float frac;
    mmdb::Atom *at;
-   
+
    for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
 
       at = moving_atoms_asc->atom_selection[i];
@@ -859,9 +859,9 @@ graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff
 	 // frac = (1.0 - dr)*(1.0 - dr);
 	 frac = (1.0 - dr);
       }
-	    
-      if (! fixed_atom_for_refinement_p(at)) { 
-	       
+
+      if (! fixed_atom_for_refinement_p(at)) {
+
 	 at->x += frac*diff.x();
 	 at->y += frac*diff.y();
 	 at->z += frac*diff.z();
@@ -884,7 +884,7 @@ graphics_info_t::do_post_drag_refinement_maybe() {
        std::cout << "DEBUG:: not doing refinement - no restraints." << std::endl;
     }
 
-#endif // HAVE_GSL   
+#endif // HAVE_GSL
 }
 
 
@@ -918,25 +918,25 @@ graphics_info_t::moving_atoms_centre() const {
       moving_middle = clipper::Coord_orth(sum_x/float(n), sum_y/float(n), sum_z/float(n));
    }
    return moving_middle;
-} 
+}
 
-								       
+
 // Presumes that rotation centre can be got from mmdb::Atom *rot_trans_rotation_origin_atom;
-// 
+//
 void
 graphics_info_t::rotate_intermediate_atoms_round_screen_z(double angle) {
 
-   if (rot_trans_rotation_origin_atom) { 
+   if (rot_trans_rotation_origin_atom) {
       if (moving_atoms_asc->mol) {
 	 if (moving_atoms_asc->n_selected_atoms > 0) {
 
             coot::ScreenVectors sv;
-	    clipper::Coord_orth screen_vector =  clipper::Coord_orth(sv.screen_z.x(), 
-								     sv.screen_z.y(), 
+	    clipper::Coord_orth screen_vector =  clipper::Coord_orth(sv.screen_z.x(),
+								     sv.screen_z.y(),
 								     sv.screen_z.z());
 	    mmdb::Atom *rot_centre = rot_trans_rotation_origin_atom;
-	    clipper::Coord_orth rotation_centre(rot_centre->x, 
-						rot_centre->y, 
+	    clipper::Coord_orth rotation_centre(rot_centre->x,
+						rot_centre->y,
 						rot_centre->z);
 	    // But! maybe we have a different rotation centre
 	    if (rot_trans_zone_rotates_about_zone_centre) {
@@ -944,12 +944,12 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_z(double angle) {
 		  rotation_centre = moving_atoms_centre();
 	       }
 	    }
-	 
+
 	    for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
 	       clipper::Coord_orth co(moving_atoms_asc->atom_selection[i]->x,
 				      moving_atoms_asc->atom_selection[i]->y,
 				      moving_atoms_asc->atom_selection[i]->z);
-	       clipper::Coord_orth new_pos = 
+	       clipper::Coord_orth new_pos =
 		  coot::util::rotate_around_vector(screen_vector, co, rotation_centre, angle);
 	       moving_atoms_asc->atom_selection[i]->x = new_pos.x();
 	       moving_atoms_asc->atom_selection[i]->y = new_pos.y();
@@ -962,7 +962,7 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_z(double angle) {
 		molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS ||
 		molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR ||
 		molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
-	       
+
 	       Bond_lines_container bonds;
 	       bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol_moving_atoms, Geom_p(), 1.0, 4.7,
                                               draw_missing_loops_flag, false);

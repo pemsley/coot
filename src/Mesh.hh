@@ -7,7 +7,8 @@
 #include <chrono>
 
 #include "generic-vertex.hh"
-#include "g_triangle.hh"
+#include "coot-utils/g_triangle.hh"
+#include "coot-utils/simple-mesh.hh"
 #include "map_triangle.hh"
 
 #include "lights-info.hh"
@@ -16,6 +17,7 @@
 #include "Particle.hh"
 #include "molecular-triangles-mesh.hh"
 #include "simple-distance-object.hh"
+#include "extra-distance-restraint-markup.hh"
 
 #ifdef USE_ASSIMP
 #include <assimp/scene.h>
@@ -54,7 +56,7 @@ class Mesh {
 #endif
 
 public:
-   enum { BALL_AND_STICK, BALLS_NOT_BONDS };
+   enum { BALL_AND_STICK, BALLS_NOT_BONDS, VDW_BALLS };
    GLuint vao;
    GLuint buffer_id;
    GLuint index_buffer_id;
@@ -80,6 +82,7 @@ public:
    bool is_headless; // i.e. don't try to use OpenGL calls because we've been imported into python, blender or jupyter.
 
    Mesh() { init(); }
+   Mesh(const coot::simple_mesh_t& mesh);
    // import from somewhere else
    explicit Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices);
    explicit Mesh(const std::string &name_in) : name(name_in) { init(); }
@@ -122,7 +125,9 @@ public:
    // void setup(Shader *shader_p, const Material &material_in);  I don't need the shader, do I?
    void setup(const Material &material_in);
    void set_material(const Material &material_in) { material = material_in; }
+   //! by using set_material_specularity(), specularity is turned on for this mesh material
    void set_material_specularity(float ss, float shininess) {
+      material.do_specularity = true;
       material.specular_strength = ss;
       material.shininess = shininess;
    }
@@ -190,12 +195,32 @@ public:
                        const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                        const glm::vec4 &background_colour,
                        bool do_depth_fog,
+                       bool transferred_colour_is_instanced,
                        bool do_pulse = false,
                        bool do_rotate_z = false,
                        float pulsing_amplitude = 0.0f,
                        float pulsing_frequency = 0.f,
                        float pulsing_phase_distribution = 0.0f,
                        float z_rotation_angle = 0.0f);
+
+   // // keep these because they are s_generic_vertex, made in setup_buffers()
+   // layout(location = 0) in vec3 position;
+   // layout(location = 1) in vec3 normal;
+   // layout(location = 2) in vec4 colour;
+
+   // // c.f. extra-distance-restraints-markup.hh
+   // layout(location = 3) in float width;  // these are all instanced.
+   // layout(location = 4) in float length;
+   // layout(location = 5) in vec3 position; 
+   // layout(location = 6) in mat3 orientation;
+   // layout(location = 7) in vec4 colour_instanced;
+   void draw_extra_distance_restraint_instances(Shader *shader,
+                                                const glm::mat4 &mvp,
+                                                const glm::mat4 &view_rotation_matrix,
+                                                const std::map<unsigned int, lights_info_t> &lights,
+                                                const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                                const glm::vec4 &background_colour,
+                                                bool do_depth_fog);
 
    // testing/example functions
    void setup_rama_balls(Shader *shader_p, const Material &material_in); // call fill_rama_balls() and setup_buffers()
@@ -222,6 +247,7 @@ public:
    void setup_camera_facing_hex();
    void setup_camera_facing_polygon(unsigned int n_sides = 8, float scale=1.0);
    void setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_in);
+   void setup_extra_distance_restraint_cylinder(const Material &material_in); // make a cylinder for instancing
 
    void setup_rtsc_instancing(Shader *shader_p,
                               const std::vector<glm::mat4> &mats,
@@ -241,7 +267,8 @@ public:
                              unsigned int num_subdivisions,
                              unsigned int n_slices,
                              unsigned int n_stacks,
-                             const std::vector<glm::vec4> &colour_table);
+                             const std::vector<glm::vec4> &colour_table,
+                             const coot::protein_geometry &geom);
    void make_graphical_bonds_spherical_atoms(const graphical_bonds_container &gbc,
                                              int bonds_box_type,
                                              int udd_handle_bonded_type,
@@ -256,6 +283,13 @@ public:
                                                  float bond_radius,
                                                  unsigned int num_subdivisions,
                                                  const std::vector<glm::vec4> &colour_table);
+
+   // this makes Mesh depend on protein_geometry
+   void make_graphical_bonds_spherical_atoms_with_vdw_radii(const graphical_bonds_container &gbc,
+                                                            unsigned int num_subdivisions,
+                                                            const std::vector<glm::vec4> &colour_table,
+                                                            const coot::protein_geometry &geom);
+
    void make_graphical_bonds_bonds(const graphical_bonds_container &gbc,
                                    float bond_radius,
                                    unsigned int n_slices,
@@ -299,7 +333,8 @@ public:
                                                      unsigned int n_stacks,
                                                      glm::vec4 (*get_glm_colour_for_bonds) (int, int));
 
-   void make_symmetry_atoms_bond_lines(const std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > &symmetry_bonds_boxes);
+   void make_symmetry_atoms_bond_lines(const std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > &symmetry_bonds_boxes,
+                                       const glm::vec4 &symmetry_colour, double symmetry_colour_weight);
 #endif
 
    // update vertices
@@ -313,12 +348,21 @@ public:
    void pastelize(float degree);
    void brighten(float degree); // multiply colours by this amound
 
-   // when the position, orientation and colour change:
-   // transfer to the graphics_card with glBufferSubData
+   //! when the position, orientation and colour change:
+   //! transfer to the graphics_card with glBufferSubData
    void update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
                                       const std::vector<glm::vec4> &colours);
-   // when the positions change: 20210826-PE Hmm. Thisis not clear
+   //! when the positions change: 20210826-PE Hmm. This is not clear
    void update_instancing_buffer_data_standard(const std::vector<glm::mat4> &mats);
+
+   //! allocate the instancing buffer
+   void setup_instancing_buffer_data_for_extra_distance_restraints(unsigned int n_matrices);
+
+   //! assign the instancing buffer data
+   //!
+   //! GM restraints are not just orienation an colour there is a size and length too
+   //! (hmm)
+   void update_instancing_buffer_data_for_extra_distance_restraints(const std::vector<extra_distance_restraint_markup_instancing_data_t> &edrmid);
 
    // make the ball fall in world z - maybe bounce a bit? Search "bouncing ball physics" - either I need to know the
    // ball velocity or it's original position (I think I like storing the velocity)
@@ -335,6 +379,12 @@ public:
                       const glm::mat4 &model,
                       const glm::mat4 &view,
                       const glm::mat4 &projection);  // draw into the gbuffer framebuffer.
+
+
+   void draw_instances_for_ssao(Shader *shader_p,
+                                const glm::mat4 &model,
+                                const glm::mat4 &view,
+                                const glm::mat4 &projection);
 
    // make space
    void setup_instancing_buffer_data(Shader *shader_p,
@@ -354,6 +404,7 @@ public:
    void smooth_triangles();  // needs implementation.
    bool is_closed() const { return this_mesh_is_closed; }
    bool have_instances() const { return (n_instances > 0); }
+   unsigned int get_n_instances() const { return n_instances; }
    void translate_by(const glm::vec3 &t);
    bool export_as_obj_via_assimp(const std::string &file_name) const;
    bool export_as_obj_internal(const std::string &file_name) const;

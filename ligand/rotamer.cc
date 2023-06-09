@@ -332,7 +332,7 @@ coot::rotamer::probability_of_this_rotamer(const std::vector<double> &chi_angle_
 	    break;
       }
    }
-   if (0)
+   if (false)
       std::cout << "   returning from probability_of_this_rotamer() with "
 		<< state << " " << d << " :" << name << ":" << std::endl;
    return coot::rotamer_probability_info_t(state, d, name);
@@ -1116,10 +1116,8 @@ coot::rotamer::get_rotamers(const std::string &res_type, float prob_cut) const {
 
    std::vector<coot::simple_rotamer> rots;
 
-   short int found_res = 0;
    for(unsigned int i=0; i< typed_rotamers.size(); i++) {
       if (typed_rotamers[i].Type() == res_type) {
-	 found_res = 1;
 	 rots = typed_rotamers[i].get_sorted_rotamers(prob_cut);
 	 break;
       }

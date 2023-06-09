@@ -52,17 +52,21 @@
 #include "mini-mol/atom-quads.hh"
 
 //
-//
+//! atomm selection container
 class atom_selection_container_t {
 
    void fill_links(mmdb::Manager *mol_other);
    void fill_links() { fill_links(mol); }
 
 public:
+   //! the molecule
    mmdb::Manager *mol;
+   //! the number of atom in SelectionHandle
    int n_selected_atoms;
+   //! the atom selection of SelectionHandle
    mmdb::PPAtom atom_selection;
    std::string read_error_message;
+   //! read success status
    int read_success;
    int SelectionHandle;
    int UDDAtomIndexHandle; // no negative is OK.
@@ -81,6 +85,7 @@ public:
      fill_links();
    }
 
+   //! constructor
    atom_selection_container_t(mmdb::PPAtom residue_atoms, int n_residue_atoms) : atom_selection(residue_atoms) {
       mol = NULL;;
       n_selected_atoms = n_residue_atoms;
@@ -90,6 +95,7 @@ public:
       read_success = 1;
    }
 
+   //! constructor
    atom_selection_container_t() : mol(0), n_selected_atoms(0), atom_selection(0) {
       mol = NULL;
       SelectionHandle = -1;
@@ -98,14 +104,17 @@ public:
       read_success = 0;
    }
 
+   //! is this atom selection empty? (a null mol?)
    bool empty() const {
       return (mol == NULL);
    }
 
+   //! fill links
    void fill_links_using_mol(mmdb::Manager *mol_other) {
       fill_links(mol_other);
    }
 
+   //! clear the atom selection of all pointers
    void clear_up() {
       if (read_success)
          if (SelectionHandle)
@@ -115,6 +124,7 @@ public:
       mol = 0;
    }
 
+   //! Delete atom selection - do this before modifying the internal mol
    void delete_atom_selection() {
       mol->DeleteSelection(SelectionHandle);
       n_selected_atoms = 0;
@@ -145,6 +155,7 @@ public:
       }
    }
 
+   //! apply shift
    void apply_shift(float x_shift, float y_shift, float z_shift) {
       for (int i=0; i<n_selected_atoms; i++) {
          atom_selection[i]->x += x_shift;
@@ -153,6 +164,7 @@ public:
       }
    }
 
+   //! apply shift
    void apply_shift(const clipper::Coord_orth &shift) {
       for (int i=0; i<n_selected_atoms; i++) {
          atom_selection[i]->x += shift.x();
@@ -197,6 +209,8 @@ namespace coot {
 }
 
 void debug_atom_selection_container(atom_selection_container_t asc);
+
+atom_selection_container_t read_standard_residues();
 
 
 #endif // ATOM_SELECTION_CONTAINER_HH

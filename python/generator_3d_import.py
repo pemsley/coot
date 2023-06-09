@@ -1,4 +1,10 @@
+
+import os
 import numbers
+import coot
+import coot_utils
+
+# note to self, debug this file using  python3, not coot
 
 # Dont prejudice (well we do later anyway)
 # this could be e.g. "acedrg" or "cprodrg" or "pyrogen" at the moment
@@ -342,18 +348,22 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
         stub = comp_id + "-" + generator
         log_file_name = os.path.join(working_dir, stub + ".log")
         print("::::::::: args", args)
-        if (generator == "acedrg"):
+        if generator == "acedrg":
             status = coot_utils.popen_command(generator, args, [], log_file_name, True,
                                    local_env=acedrg_env())
+            print("popen_command status:", status)
         else:
             status = coot_utils.popen_command(generator, args, [], log_file_name, True)
+
         if not status == 0:
             return -1 # bad mol
         else:
             pdb_name = os.path.join(working_dir, stub + ".pdb")
             cif_name = os.path.join(working_dir, stub + ".cif")
 
+            print("************ calling coot.read_pdb()", pdb_name)
             imol = coot.read_pdb(pdb_name)
+            print("************ done call coot.read_pdb()", pdb_name)
             coot.read_cif_dictionary(cif_name)
             return imol
 
@@ -416,7 +426,14 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
 
     def use_pyrogen(three_letter_code):
 
-        global use_mogul
+        print("use_pyrogen() -- start ---", three_letter_code)
+
+        # 20230606-PE Hacketty-hack because
+        #    NameError: name 'use_mogul' is not defined
+        # global use_mogul
+        use_mogul = False
+
+        print("use_pyrogen()", three_letter_code, "use_mogul:", use_mogul)
 
         working_dir = coot_utils.get_directory("coot-pyrogen")
         log_file_name = "pyrogen.log"  # in working_dir
@@ -429,6 +446,8 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
         os.chdir(working_dir)
         comp_id = tlc_text if tlc_text else "LIG"
 
+        print("use_pyrogen() comp_id:", comp_id)
+
         if use_mogul:
             args = ["--residue-type", comp_id, smiles_text]
         else:
@@ -437,11 +456,12 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
             else:
                 args = ["--no-mogul", "-M", "--residue-type", comp_id, smiles_text]
 
-        print("---------- args:", args)
+        print("use_pyrogen(): args:", args)
+
         # BL says:: may have to find pyrogen first?! FIXME
         status = coot_utils.popen_command("pyrogen", args, [], log_file_name, True)
 
-        if (coot_utils.ok_popen_status_qm(status)):
+        if coot_utils.ok_popen_status_qm(status):
             pdb_file_name = comp_id + "-pyrogen.pdb"
             cif_file_name = comp_id + "-pyrogen.cif"
             sc = coot_utils.rotation_centre()
@@ -454,6 +474,13 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
         os.chdir(current_dir)
 
     # main line
+
+    print("********************************************************************************************")
+    print("********************************************************************************************")
+    print("****************************** new_molecule_by_smiles_string *******************************")
+    print("********************************************************************************************")
+    print("********************************************************************************************")
+    print("****** Path 0 :", smiles_text, ":")
     #
     if len(smiles_text) > 0:
 
@@ -464,16 +491,28 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
         else:
             three_letter_code = "XXX"
 
-        if (force_libcheck):
-            use_libcheck(three_letter_code)
+        print("****** Path Bv")
+        rr = False
+        print("****** Path Bw")
+        try:
+            print("****** Path Bx")
+            rr = coot.enhanced_ligand_coot_p()
+        except KeyError as e:
+            print("****** Path By")
+            print (e)
+        print("****** Path Bz")
+        rr = False # use acedrg
+        if rr:
+            print("****** Path C")
+            use_pyrogen(three_letter_code)
         else:
-            if not coot.enhanced_ligand_coot_p():
-                use_acedrg(three_letter_code)
-            else:
-                use_pyrogen(three_letter_code)
+            print("****** Path D")
+            use_acedrg(three_letter_code)
+        print("****** Path E")
+
     else:
         # invalid smiles length
-        print("BL WARNING:: no smiles text found. Bailing out.")
+        print("WARNING:: no SMILES text found. Bailing out.")
         return False
 
 

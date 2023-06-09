@@ -113,7 +113,7 @@ graphics_info_t::init() {
 
       find_ligand_ligand_mols_ = new std::vector<std::pair<int, bool> >;
       geom_p = new coot::protein_geometry;
-      geom_p->set_verbose(false); // was true
+      geom_p->set_verbose(true); // was false
 
       cif_dictionary_read_number = geom_p->init_standard();
 
@@ -138,7 +138,7 @@ graphics_info_t::init() {
 
       char *data_dir = getenv("COOT_DATA_DIR");
       if (data_dir) {
-	tables_dir = data_dir;
+	      tables_dir = data_dir;
       }
 
       tables_dir += "/rama-data";
@@ -154,11 +154,6 @@ graphics_info_t::init() {
       read_standard_residues(); // updates read_success
 
       symmetry_colour_merge_weight = 0.5; // 0.0 -> 1.0
-
-      symmetry_colour = std::vector<double> (4, 0.5);
-      symmetry_colour[0] = 0.1;
-      symmetry_colour[1] = 0.2;
-      symmetry_colour[2] = 0.8;
 
       // use_graphics_interface_flag = 1;  don't (re)set this here,
       // it is set as a static and possibly modified by immediate
@@ -203,8 +198,9 @@ graphics_info_t::init() {
 /*       for (int i=0; i<n_molecules_max; i++) */
 /* 	 sequence_view_is_displayed[i] = NULL; */
 
+      // 20230515-PE this is no longer a pointer
       // residue edits
-      residue_info_edits = new std::vector<coot::select_atom_info>;
+      // residue_info_edits = new std::vector<coot::select_atom_info>;
 
       // display distances
       // distance_object_vec = new std::vector<coot::simple_distance_object_t>;
@@ -458,6 +454,11 @@ graphics_info_t::init() {
       preset_number_refmac_cycles->push_back(15);
       preset_number_refmac_cycles->push_back(20);
       preset_number_refmac_cycles->push_back(50);
+
+      validation_graph_model_list = gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_INT);
+      active_validation_graph_model_idx = -1;
+
+      ramachandran_plot_model_list = gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_INT);
 
    }
 

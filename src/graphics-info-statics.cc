@@ -294,7 +294,7 @@ float graphics_info_t::place_helix_here_fudge_factor = 1.0; // (it's multiplicat
 
 double graphics_info_t::symmetry_colour_merge_weight = 0.5; // 0.0 -> 1.0
 
-std::vector<double> graphics_info_t::symmetry_colour = std::vector<double> (4, 0.5);
+glm::vec4 graphics_info_t::symmetry_colour = glm::vec4(0.4, 0.4, 0.4, 1.0);
 
 double*  graphics_info_t::skeleton_colour = new double[4];
 int      graphics_info_t::map_for_skeletonize = -1;
@@ -546,6 +546,13 @@ std::string graphics_info_t::phs_filename = "";
 float graphics_info_t::pointer_min_dist = 0.1;
 float graphics_info_t::pointer_max_dist = 3.6;
 bool graphics_info_t::show_pointer_distances_flag = false;
+
+// restraints that have less penalty/energy than
+// this are not worth drawing.
+float graphics_info_t::extra_distance_restraint_penalty_cutoff = 0.01; // draw them all to start with
+bool graphics_info_t::show_extra_distance_restraints_flag = true;
+std::vector<extra_distance_restraint_markup_instancing_data_t> graphics_info_t::extra_distance_restraints_markup_data;
+Mesh graphics_info_t::mesh_for_extra_distance_restraints; // draw this with instancing
 
 
 // Go to Atom widget:
@@ -1024,15 +1031,13 @@ short int graphics_info_t::in_edit_phi_psi_define = 0;
 int graphics_info_t::edit_phi_psi_atom_index = -1;
 int graphics_info_t::edit_phi_psi_imol = -1;
 short int graphics_info_t::in_backbone_torsion_define = 0;
-#ifdef DO_RAMA_PLOT // is this the right test?
+#ifdef DO_RAMA_PLOT
 coot::rama_plot  *graphics_info_t::edit_phi_psi_plot = NULL;
+int graphics_info_t::rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
 #endif
 float graphics_info_t::rama_level_prefered = 0.02;
 float graphics_info_t::rama_level_allowed = 0.002;
 float graphics_info_t::rama_plot_background_block_size = 2; // divisible into 360 preferably.
-#ifdef DO_RAMA_PLOT // is this the right test?
-int graphics_info_t::rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
-#endif
 coot::ramachandran_points_container_t graphics_info_t::rama_points = coot::ramachandran_points_container_t();
 
 ramachandrans_container_t graphics_info_t::ramachandrans_container = ramachandrans_container_t();
@@ -1078,7 +1083,7 @@ std::string graphics_info_t::directory_for_saving_for_filechooser = "";
 short int graphics_info_t::residue_info_pending_edit_b_factor = 0;
 short int graphics_info_t::residue_info_pending_edit_occ = 0;
 int       graphics_info_t::residue_info_n_atoms = -1;
-std::vector<coot::select_atom_info> *graphics_info_t::residue_info_edits = NULL;
+std::vector<coot::select_atom_info> graphics_info_t::residue_info_edits; // used to be static (written in the very olden days)
 
 //  Backbone torsions:
 clipper::Coord_orth graphics_info_t::backbone_torsion_end_ca_1;
@@ -1454,6 +1459,7 @@ Shader graphics_info_t::shader_for_lines_pulse;
 Shader graphics_info_t::shader_for_particles;
 Shader graphics_info_t::shader_for_ligand_view;
 Shader graphics_info_t::shader_for_instanced_objects; // used for boids - also HOLE
+Shader graphics_info_t::shader_for_extra_distance_restraints;
 Shader graphics_info_t::shader_for_hud_geometry_tooltip_text;
 Shader graphics_info_t::shader_for_happy_face_residue_markers;
 Shader graphics_info_t::shader_for_happy_face_residue_markers_for_ssao;
@@ -1478,6 +1484,8 @@ unsigned int graphics_info_t::draw_count_for_happy_face_residue_markers = 0;
 glm::vec3 graphics_info_t::eye_position = glm::vec3(0,0,95);
 float graphics_info_t::screen_z_near_perspective =  76.0; // was 83
 float graphics_info_t::screen_z_far_perspective  = 125.0;
+
+float graphics_info_t::goodselliness = 0.3; // the pastelization factor
 
 std::map<unsigned int, lights_info_t> graphics_info_t::lights;
 
@@ -1615,6 +1623,11 @@ Texture graphics_info_t::texture_for_hud_refinement_dialog_arrow;
 Texture graphics_info_t::texture_for_hud_refinement_dialog_arrow_highlighted;
 bool graphics_info_t::hud_refinement_dialog_arrow_is_moused_over = false;
 
+Texture        graphics_info_t::texture_for_background_image;
+HUDTextureMesh graphics_info_t::tmesh_for_background_image = HUDTextureMesh("tmesh-for-background-image");
+Shader         graphics_info_t::shader_for_background_image;
+bool           graphics_info_t::draw_background_image_flag = false; // uses "background-image.png"
+
 float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;
 
 coot::command_history_t graphics_info_t::command_history;
@@ -1683,7 +1696,7 @@ Shader graphics_info_t::shader_for_texture_meshes_shadow_map;
 Shader graphics_info_t::shader_for_shadow_map_image_texture_mesh;
 float graphics_info_t::shadow_box_size = 66.0;
 
-float graphics_info_t::SSAO_bias = 0.1;
+float graphics_info_t::SSAO_bias = 0.02;
 float graphics_info_t::SSAO_radius = 30.0;
 float graphics_info_t::ssao_strength = 0.4;
 bool graphics_info_t::use_ssao  = true;  // in the effects filter, adds (or not) the SSAO effects
@@ -1737,3 +1750,19 @@ bool graphics_info_t::ignore_pseudo_zeros_for_map_stats = true;
 
 HUDTextureMesh graphics_info_t::tmesh_for_hud_colour_bar = HUDTextureMesh("tmesh for HUD colour bar");
 Texture graphics_info_t::texture_for_hud_colour_bar;
+GtkListStore* graphics_info_t::validation_graph_model_list = nullptr;
+int graphics_info_t::active_validation_graph_model_idx = -1;
+graphics_info_t::validation_graph_map_t graphics_info_t::validation_graph_widgets = graphics_info_t::validation_graph_map_t();
+graphics_info_t::validation_data_map_t graphics_info_t::validation_graph_data = graphics_info_t::validation_data_map_t();
+std::string graphics_info_t::active_validation_graph_chain_id = std::string();
+
+GtkListStore* graphics_info_t::ramachandran_plot_model_list = nullptr;
+std::vector<graphics_info_t::widgeted_rama_plot_t> graphics_info_t::rama_plot_boxes;
+
+// 20230430-PE updating maps
+int graphics_info_t::updating_maps_imol_map      = -1;
+int graphics_info_t::updating_maps_imol_diff_map = -1;
+std::vector<api::rail_points_t> graphics_info_t::rail_point_history;
+coot::util::sfcalc_genmap_stats_t graphics_info_t::latest_sfcalc_stats;
+
+

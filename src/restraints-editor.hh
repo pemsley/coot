@@ -23,6 +23,9 @@
 #ifndef RESTRAINTS_EDITOR_HH
 #define RESTRAINTS_EDITOR_HH
 
+#include <gtk/gtk.h>
+#include "geometry/protein-geometry.hh"
+
 namespace coot { 
    class restraints_editor {
       class view_and_store {
@@ -39,17 +42,22 @@ namespace coot {
 	    store = NULL;
 	 }
       };
+      GtkBuilder *builder; // set in setup_builder();
+      void setup_builder();
+      GtkWidget *widget_from_builder(const std::string &widget_name);
    public:
       enum {TREE_TYPE_INFO, TREE_TYPE_CHIRALS, TREE_TYPE_TORSIONS, TREE_TYPE_ANGLES,
 	    TREE_TYPE_BONDS, TREE_TYPE_PLANES, TREE_TYPE_ATOMS};
       enum { UNKNOWN_TYPE= -456723 };
       restraints_editor() {
+         builder = nullptr;
 	 dialog = NULL;
-	 is_valid_flag = 0;
+	 is_valid_flag = false;
 	 max_number_of_atoms_in_plane = -1;
+         setup_builder(); // assigns builder
       }
-      void fill_dialog(const coot::dictionary_residue_restraints_t &restraints); // set is_valid_flag
-      coot::dictionary_residue_restraints_t make_restraint() const;
+      void fill_dialog(const dictionary_residue_restraints_t &restraints); // set is_valid_flag
+      dictionary_residue_restraints_t make_restraint() const;
       bool is_valid() const { return is_valid_flag; }
       bool matches_dialog(GtkWidget *w) const {
 	 // std::cout << " comparing " << dialog << " vs " << w << std::endl;

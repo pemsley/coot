@@ -83,7 +83,7 @@ lidia_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 # res spec output operator means we include libcoot-coord-utils
 # (if that is annoying, then remove it and expand it by hand)
 #
-lidia_bin_LDADD = ./libcoot-lidia.la \
+lidia_bin_LDADD = libcoot-lidia.la \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
@@ -103,7 +103,7 @@ subpkgdata_DATA = lbg.glade lbg-callbacks.cc
 check_PROGRAMS = test_lbg_functions test-srs-standalone
 test_lbg_functions_SOURCES = test_lbg_functions.cc  graphics-c-interface-functions-blanks.cc
 test_lbg_functions_LDADD = \
-       ./libcoot-lidia.la \
+        libcoot-lidia.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \

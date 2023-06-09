@@ -111,12 +111,7 @@ namespace coot {
       // tested against a residue not in a hierarchy.
       bool matches_spec(mmdb::Atom *atom) const;
 
-      std::string format() const {
-	 std::ostringstream s;
-	 if (!(s << *this))
-	    return "";
-	 return s.str();
-      }
+      std::string format() const;
 
       std::string label() const;
 
@@ -226,14 +221,18 @@ namespace coot {
       int res_no;
       std::string ins_code;
       int int_user_data;
+      float float_user_data;
+      std::string string_user_data;
       explicit residue_spec_t(int r) : res_no(r) {
          model_number = -1;
 	 int_user_data = -1;
+         float_user_data = -1;
       }
       residue_spec_t(const std::string &chain_in, int r) : chain_id(chain_in) {
 	 model_number = mmdb::MinInt4;
 	 res_no = r;
 	 int_user_data = -1;
+         float_user_data = -1;
       }
       residue_spec_t(int model_number_in,
 		     const std::string &chain_in, int r,
@@ -241,12 +240,14 @@ namespace coot {
 	 model_number = model_number_in;
 	 res_no = r;
 	 int_user_data = -1;
+         float_user_data = -1;
       }
       residue_spec_t(const std::string &chain_in, int r,
 		     const std::string &ins_code_in) : chain_id(chain_in), ins_code(ins_code_in) {
 	 model_number = mmdb::MinInt4;
 	 res_no = r;
 	 int_user_data = -1;
+         float_user_data = -1;
       }
       explicit residue_spec_t(mmdb::Residue *res) {
 	 if (! res) {
@@ -266,12 +267,14 @@ namespace coot {
 	 model_number = atom_spec.model_number;
          res_no = atom_spec.res_no;
 	 int_user_data = -1;
+         float_user_data = -1;
       }
       // This one for coot_wrap_guile
       residue_spec_t() {
 	 model_number = mmdb::MinInt4;
 	 res_no = mmdb::MinInt4;
 	 int_user_data = -1;
+         float_user_data = -1;
       }
       bool unset_p() const {
 	 bool u = true;
@@ -307,8 +310,8 @@ namespace coot {
       }
 #endif // SWIG
       
-#ifndef SWIG
-      bool operator<(const residue_spec_t &matcher) const{
+#ifndef SWIGxx
+      bool operator<(const residue_spec_t &matcher) const {
 	 if (matcher.chain_id == chain_id) {
 	    if (matcher.res_no == res_no) {
 	       if (matcher.ins_code == ins_code) {
@@ -335,12 +338,7 @@ namespace coot {
       }
 #endif // SWIG
 
-      std::string format() const {
-	 std::ostringstream s;
-	 if (!(s << *this))
-	    return "";
-	 return s.str();
-      }
+      std::string format() const;
 
       std::string label() const;
 

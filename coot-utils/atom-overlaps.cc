@@ -1629,7 +1629,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
                                                                              mmdb::realtype max_dist,
                                                                              bool make_vdw_surface) {
 
-   std::cout << "------------------------ all_atom_contact_dots_internal_multi_thread() " << std::endl;
+   // std::cout << "------------------------ all_atom_contact_dots_internal_multi_thread() " << std::endl;
 
    coot::atom_overlaps_dots_container_t ao;
 

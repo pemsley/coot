@@ -96,7 +96,12 @@ HUDTextureMesh::setup_buffers() {
    if (first_time)
       glGenVertexArrays(1, &vao);
 
+   // 20230520-PE for text, that the VAO keeps changing is OK for now.
+   // std::cout << "::::::::::: HUDTextureMesh::setup_buffers() " << name << " vao " << vao << std::endl;
+
    glBindVertexArray(vao);
+   GLenum err = glGetError();
+   if (err) std::cout << "GL error HUDTextureMesh setup_buffers() A\n";
 
    unsigned int n_vertices = vertices.size(); // 4
 
@@ -123,20 +128,21 @@ HUDTextureMesh::setup_buffers() {
 
    if (first_time) {
       glGenBuffers(1, &index_buffer_id);
-      GLenum err = glGetError(); if (err) std::cout << "GL error HUDTextureMesh setup_buffers()\n";
+      err = glGetError(); if (err) std::cout << "ERROR:: GL error HUDTextureMesh setup_buffers()\n";
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_buffers()\n";
+      err = glGetError(); if (err) std::cout << "ERROR:: GL error HUDTextureMesh::setup_buffers()\n";
    } else {
       glDeleteBuffers(1, &index_buffer_id);
       glGenBuffers(1, &index_buffer_id);
-      GLenum err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_buffers()\n";
+      err = glGetError(); if (err) std::cout << "GL error HUDTextureMesh::setup_buffers()\n";
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_buffers()\n";
+      err = glGetError(); if (err) std::cout << "ERROR:: GL error HUDMesh setup_buffers()\n";
    }
 
    // std::cout << "HUDMesh::setup_buffers() indices " << n_bytes << " bytes" << std::endl;
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_DYNAMIC_DRAW);
-   GLenum err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_simple_triangles()\n";
+   err = glGetError();
+   if (err) std::cout << "GL error HUDTextureMesh setup_buffers B()\n";
 
    glDisableVertexAttribArray(0);
    glDisableVertexAttribArray(1);
@@ -180,7 +186,7 @@ HUDTextureMesh::update_instancing_buffer_data(const std::vector<glm::vec2> &new_
 
 }
 
-
+// screen_position_origin is an optiona arg, default BOTTOM_LEFT
 void
 HUDTextureMesh::draw(Shader *shader_p, screen_position_origins_t screen_position_origin) {
 
@@ -197,18 +203,40 @@ HUDTextureMesh::draw(Shader *shader_p, screen_position_origins_t screen_position
       return;
    }
 
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERORR:: in HUDTextureMesh::draw() A err " << err << std::endl;
    shader_p->Use();
+
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERORR:: in HUDTextureMesh::draw() B err " << err << std::endl;
 
    if (vao == VAO_NOT_SET)
       std::cout << "error:: You forgot to setup this mesh " << name << " "
                 << shader_p->name << std::endl;
 
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERORR:: in HUDTextureMesh::draw() C err " << err << std::endl;
+
    glBindVertexArray(vao);
+
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERORR:: in HUDTextureMesh::draw() D err " << err << " failed to bind vertexarray vao " << vao << std::endl;
 
    glEnableVertexAttribArray(0);   // vec2 vertices
    glEnableVertexAttribArray(1);   // vec2 texCoords;
 
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERORR:: in HUDTextureMesh::draw() E err " << err << std::endl;
+
    glDisable(GL_DEPTH_TEST);
+
+   if (err)
+      std::cout << "GL ERORR:: in HUDTextureMesh::draw() F err " << err << std::endl;
 
    bool rel_top   = false;
    bool rel_right = false;
@@ -250,10 +278,10 @@ HUDTextureMesh::draw(Shader *shader_p, screen_position_origins_t screen_position
 
    // std::cout << "debug:: HUDTextureMesh::draw() glDrawElements()" << std::endl;
    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-   GLenum err = glGetError();
-   if (err) std::cout << "GL ERROR:: HUDMesh::draw() glDrawElementsInstanced()"
-                      << " of HUDMesh \"" << name << "\""
-                      << " with shader" << shader_p->name
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: HUDTextureMesh::draw() glDrawElementsInstanced()"
+                      << " of HUDTextureMesh \"" << name << "\""
+                      << " with shader " << shader_p->name
                       << std::endl;
 
    glDisableVertexAttribArray(0);
@@ -309,9 +337,9 @@ HUDTextureMesh::draw_instances(Shader *shader_p) {
    glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
 
    err = glGetError();
-   if (err) std::cout << "error HUDMesh::draw() glDrawElementsInstanced()"
-                      << " of HUDMesh \"" << name << "\""
-                      << " with shader" << shader_p->name
+   if (err) std::cout << "error HUDTextureMesh::draw_instances() glDrawElementsInstanced()"
+                      << " of HUDTextureMesh \"" << name << "\""
+                      << " with shader " << shader_p->name
                       << std::endl;
 
    glDisableVertexAttribArray(0);

@@ -7,8 +7,8 @@
 
 #include "Mesh.hh"
 #include "bond-colour-mode.hh"
-#include "oct.hh"
-#include "cylinder.hh"
+#include "coot-utils/oct.hh"
+#include "coot-utils/cylinder.hh"
 
 // a wrapper for the following functions
 void
@@ -22,7 +22,8 @@ Mesh::make_graphical_bonds(const graphical_bonds_container &gbc,
                            unsigned int num_subdivisions,
                            unsigned int n_slices,
                            unsigned int n_stacks,
-                           const std::vector<glm::vec4> &colour_table) {
+                           const std::vector<glm::vec4> &colour_table,
+                           const coot::protein_geometry &geom) {
 
    // need to add:
    // cis peptides,
@@ -45,10 +46,15 @@ Mesh::make_graphical_bonds(const graphical_bonds_container &gbc,
    vertices.reserve(allocation_for_vertices);
    triangles.reserve(allocation_for_triangles);
 
-   make_graphical_bonds_spherical_atoms(gbc, bonds_box_type, udd_handle_bonded_type, atom_radius, bond_radius, num_subdivisions, colour_table);
-   make_graphical_bonds_hemispherical_atoms(gbc, bonds_box_type, udd_handle_bonded_type, atom_radius, bond_radius, num_subdivisions, colour_table);
+   if (representation_type == BALL_AND_STICK || representation_type == BALLS_NOT_BONDS) {
+      make_graphical_bonds_spherical_atoms(gbc, bonds_box_type, udd_handle_bonded_type, atom_radius, bond_radius, num_subdivisions, colour_table);
+      make_graphical_bonds_hemispherical_atoms(gbc, bonds_box_type, udd_handle_bonded_type, atom_radius, bond_radius, num_subdivisions, colour_table);
+   }
    if (representation_type == BALL_AND_STICK)
-      make_graphical_bonds_bonds(gbc, bond_radius, n_slices, n_stacks, colour_table);
+         make_graphical_bonds_bonds(gbc, bond_radius, n_slices, n_stacks, colour_table);
+   if (representation_type == VDW_BALLS) {
+      make_graphical_bonds_spherical_atoms_with_vdw_radii(gbc, num_subdivisions, colour_table, geom);
+   }
 
    if (draw_cis_peptides)
       make_graphical_bonds_cis_peptides(gbc);
@@ -99,6 +105,9 @@ Mesh::make_graphical_bonds_spherical_atoms(const graphical_bonds_container &gbc,
       glm::vec4 col = colour_table[icol];
       for (unsigned int i=0; i<gbc.consolidated_atom_centres[icol].num_points; i++) {
          const graphical_bonds_atom_info_t &at_info = gbc.consolidated_atom_centres[icol].points[i];
+
+#if 0    // 20230530-PE just draw eveything with spheres. If you try to fix this, try to get the
+         // instanced version working first before fixing this (in the bond generation part, not here).
          bool do_it = atoms_have_bigger_radius_than_bonds;
          mmdb::Atom *at = at_info.atom_p;
 
@@ -111,15 +120,29 @@ Mesh::make_graphical_bonds_spherical_atoms(const graphical_bonds_container &gbc,
                }
             }
          }
+#endif
+
+         bool do_it = true;
 
          if (do_it) {
             unsigned int idx_base = vertices.size();
             unsigned int idx_tri_base = triangles.size();
             float scale = 1.0;
-            if (at_info.is_hydrogen_atom) scale *= 0.5;
+            if (at_info.is_hydrogen_atom) {
+               if (atoms_have_bigger_radius_than_bonds) {
+                  scale *= 0.66;
+               } else {
+                  scale *= 0.5; // bonds go to half-width, so should atoms.
+               }
+            }
             glm::vec3 t = cartesian_to_glm(at_info.position);  // (at->x, at->y, at->z);
             float sar = scale * atom_radius * at_info.radius_scale;
-            if (at_info.is_water) sar *= 1.33;
+            if (at_info.is_water) {
+               if (atoms_have_bigger_radius_than_bonds) {
+                  float f = 1.33; // with a radius_scale of 2.0 waters are too chonky
+                  sar = scale * atom_radius * f;
+               }
+            }
             glm::vec3 sc(sar, sar, sar);
             glm::mat4 mm = glm::scale(unit, sc);
             mm = glm::translate(mm, t);
@@ -154,6 +177,12 @@ Mesh::make_graphical_bonds_hemispherical_atoms(const graphical_bonds_container &
                                                unsigned int num_subdivisions,
                                                const std::vector<glm::vec4> &colour_table) {
 
+   // 20230530-PE this is such a kludge.
+   // Mainchain C atoms are missing in colour-by-chain/dictionary mode.
+   // Let's fix that...
+   // Draw everything with spheres.
+
+#if 0
 
    // BONDED_WITH_HETATM_BOND.
 
@@ -322,7 +351,78 @@ Mesh::make_graphical_bonds_hemispherical_atoms(const graphical_bonds_container &
          }
       }
    }
+
+   // std::cout << " End of hemispheres" << std::endl;
+   // for (unsigned int i = 0; i < vertices.size(); i++) {
+   //    std::cout << i << " " << glm::to_string(vertices[i].pos) << std::endl;
+   // }
+
+#endif
 }
+
+void
+Mesh::make_graphical_bonds_spherical_atoms_with_vdw_radii(const graphical_bonds_container &gbc,
+                                                          unsigned int num_subdivisions,
+                                                          const std::vector<glm::vec4> &colour_table,
+                                                          const coot::protein_geometry &geom) {
+
+   auto cartesian_to_glm = [] (const coot::Cartesian &co) {
+                            return glm::vec3(co.x(), co.y(), co.z());
+                         };
+
+   // man, this really should be instanced.
+   is_instanced = false;
+
+   std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octasphere_geom =
+      tessellate_octasphere(num_subdivisions);
+
+   std::map<std::string, float> ele_to_radius_map;
+
+   glm::mat4 unit(1.0);
+   for (int icol=0; icol<gbc.n_consolidated_atom_centres; icol++) {
+      glm::vec4 col = colour_table[icol];
+      for (unsigned int i=0; i<gbc.consolidated_atom_centres[icol].num_points; i++) {
+         const graphical_bonds_atom_info_t &at_info = gbc.consolidated_atom_centres[icol].points[i];
+         mmdb::Atom *at = at_info.atom_p;
+         std::string ele(at->element);
+         std::map<std::string, float>::const_iterator it = ele_to_radius_map.find(ele);
+         float atom_radius = 1.0;
+         if (it != ele_to_radius_map.end()) {
+            atom_radius = it->second;
+         } else {
+            std::string atom_name(at->GetAtomName());
+            std::string residue_name(at->GetResName());
+            atom_radius = geom.get_vdw_radius(atom_name, residue_name, coot::protein_geometry::IMOL_ENC_ANY, false);
+            ele_to_radius_map[ele] = atom_radius;
+         }
+
+         if (true) {
+            unsigned int idx_base = vertices.size();
+            unsigned int idx_tri_base = triangles.size();
+            float scale = 1.0;
+            glm::vec3 t = cartesian_to_glm(at_info.position);  // (at->x, at->y, at->z);
+            float sar = scale * atom_radius;
+            glm::vec3 sc(sar, sar, sar);
+            glm::mat4 mm = glm::scale(unit, sc);
+            mm = glm::translate(mm, t);
+
+            std::vector<s_generic_vertex> local_vertices(octasphere_geom.first.size());
+
+            for (unsigned int ii=0; ii<local_vertices.size(); ii++) {
+               auto &vert = local_vertices[ii];
+               glm::vec3 p = octasphere_geom.first[ii] * sc + t;
+               vert = s_generic_vertex(p, octasphere_geom.first[ii], col);
+            }
+            vertices.insert(vertices.end(), local_vertices.begin(), local_vertices.end());
+            triangles.insert(triangles.end(), octasphere_geom.second.begin(), octasphere_geom.second.end());
+            for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
+               triangles[k].rebase(idx_base);
+         }
+      }
+   }
+}
+
+
 
 void
 Mesh::make_graphical_bonds_bonds(const graphical_bonds_container &gbc,
@@ -350,6 +450,17 @@ Mesh::make_graphical_bonds_bonds(const graphical_bonds_container &gbc,
                              return m;
                           };
 
+   auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
+      return s_generic_vertex(v.pos, v.normal, v.color);
+   };
+
+   auto vnc_vertex_vector_to_generic_vertex_vector = [vnc_vertex_to_generic_vertex] (const std::vector<coot::api::vnc_vertex> &vv) {
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vnc_vertex_to_generic_vertex(vv[i]);
+      return vo;
+   };
+
    std::pair<glm::vec3, glm::vec3> pp(glm::vec3(0,0,0), glm::vec3(0,0,1));
    is_instanced = false;
 
@@ -367,10 +478,12 @@ Mesh::make_graphical_bonds_bonds(const graphical_bonds_container &gbc,
          float bond_radius_this = bond_radius;
          if (thin)
             bond_radius_this *= 0.5;
+         if (ll.pair_list[j].cylinder_class == graphics_line_t::KEK_DOUBLE_BOND_INNER_BOND)
+            bond_radius_this *= 0.7;
          float bl = ll.pair_list[j].positions.amplitude();
          glm::vec3 pos_1(start.x(),   start.y(),  start.z());
          glm::vec3 pos_2(finish.x(), finish.y(), finish.z());
-         glm::mat4 mm = get_bond_matrix(pos_1, pos_2, bond_radius);
+         // glm::mat4 mm = get_bond_matrix(pos_1, pos_2, bond_radius);
          if (false)
             std::cout << "making bond between " << glm::to_string(pos_1) << " " << glm::to_string(pos_2) << " width " << bond_radius_this
                       << std::endl;
@@ -393,13 +506,18 @@ Mesh::make_graphical_bonds_bonds(const graphical_bonds_container &gbc,
          }
          unsigned int idx_base = vertices.size();
          unsigned int idx_tri_base = triangles.size();
-         vertices.insert(vertices.end(), cc.vertices.begin(), cc.vertices.end());
+         std::vector<s_generic_vertex> converted_vertices = vnc_vertex_vector_to_generic_vertex_vector(cc.vertices);
+         vertices.insert(vertices.end(), converted_vertices.begin(), converted_vertices.end());
          triangles.insert(triangles.end(), cc.triangles.begin(), cc.triangles.end());
          for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
             triangles[k].rebase(idx_base);
       }
    }
 
+   // std::cout << " End of bonds" << std::endl;
+   // for (unsigned int i = 0; i < vertices.size(); i++) {
+   //    std::cout << i << " " << glm::to_string(vertices[i].pos) << std::endl;
+   // }
 }
 
 
@@ -554,10 +672,7 @@ Mesh::make_graphical_bonds_rotamer_dodecs(const graphical_bonds_container &gbc,
          for (unsigned int jj=idx_tri_base; jj<triangles.size(); jj++)
             triangles[jj].rebase(idx_base);
       }
-
-
    }
-
 }
 
 #include "molecular-mesh-generator.hh"

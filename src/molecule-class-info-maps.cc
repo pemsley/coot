@@ -323,9 +323,10 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
 	 }
       }
 
-      std::cout << "DEBUG:: sharpen() init fphis with " << original_fphis_p->spacegroup().symbol_xhm() << " "
-                << original_fphis_p->cell().format() << " "
-                << std::endl;
+      if (false)
+         std::cout << "DEBUG:: sharpen() init fphis with " << original_fphis_p->spacegroup().symbol_xhm() << " "
+                   << original_fphis_p->cell().format() << " "
+                   << std::endl;
 
       clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(original_fphis_p->spacegroup(),
 								  original_fphis_p->cell(),
@@ -435,6 +436,17 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       update_map(graphics_info_t::auto_recontour_map_flag);
    }
 }
+
+
+// regen stats and update map_sigma_
+float
+molecule_class_info_t::get_map_sigma_current() {
+
+   mean_and_variance<float> mv = map_density_distribution(xmap, 40, false, false); // sharpen()
+   map_sigma_ = sqrt(mv.variance);
+   return map_sigma_;
+};
+
 
 void
 molecule_class_info_t::clear_draw_vecs() {
@@ -1990,17 +2002,10 @@ molecule_class_info_t::draw_skeleton(bool is_dark_background) {
 void
 molecule_class_info_t::set_skeleton_bond_colour(float f) {
 
+#if 0 // 20230218-PE webassembly merge: comment out this function for now
    float rotation_size = float(imol_no) * 2.0*graphics_info_t::rotate_colour_map_on_read_pdb/360.0;
    while (rotation_size > 1.0) {
       rotation_size -= 1.0;
-   }
-
-   if (0) {
-      std::vector<float> c(3);
-      c[0] = 0.1+0.6*f*graphics_info_t::skeleton_colour[0];
-      c[1] = 0.1+0.9*f*graphics_info_t::skeleton_colour[1];
-      c[2] = 0.1+0.2*f*graphics_info_t::skeleton_colour[2];
-      std::vector<float> rgb_new = rotate_rgb(c, rotation_size);
    }
 
    std::vector<float> rgb_new(3);
@@ -2008,6 +2013,7 @@ molecule_class_info_t::set_skeleton_bond_colour(float f) {
       rgb_new[i] = graphics_info_t::skeleton_colour[i];
 
    glColor3f(rgb_new[0], rgb_new[1], rgb_new[2]);
+#endif
 }
 
 
@@ -3654,13 +3660,13 @@ molecule_class_info_t::set_map_is_difference_map(bool flag) {
    }
 }
 
-short int
+bool
 molecule_class_info_t::is_difference_map_p() const {
 
-   short int istat = 0;
+   bool istat = false;
    if (has_xmap() || has_nxmap())
       if (xmap_is_diff_map)
-	 istat = 1;
+	 istat = true;
    return istat;
 }
 
@@ -4684,26 +4690,39 @@ molecule_class_info_t::sfcalc_genmaps_using_bulk_solvent(const clipper::HKL_data
    if (sane) {
 
       clipper::Cell cell = xmap_2fofc_p->cell();
-      if (true) {
-         // sanity check data
-         const clipper::HKL_info &hkls_check = fobs.base_hkl_info();
-         const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
+      float cv = cell.volume();
 
-         std::cout << "DEBUG:: Sanity check A in mcit:sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
-                   << "cell: " << hkls_check.cell().format() << " "
-                   << "spacegroup: " << spgr_check.symbol_xhm() << " "
-                   << "resolution: " << hkls_check.resolution().limit() << " "
-                   << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
-                   << std::endl;
+      if (cv > 3.0) {
+
+         if (true) {
+            // sanity check data
+            const clipper::HKL_info &hkls_check = fobs.base_hkl_info();
+            const clipper::Spacegroup &spgr_check = hkls_check.spacegroup();
+
+            std::cout << "DEBUG:: Sanity check A in mcit:sfcalc_genmaps_using_bulk_solvent(): HKL_info: "
+                      << "cell: " << hkls_check.cell().format() << " "
+                      << "cell-volume: " << cv << " "
+                      << "spacegroup: " << spgr_check.symbol_xhm() << " "
+                      << "resolution: " << hkls_check.resolution().limit() << " "
+                      << "invsqreslim: " << hkls_check.resolution().invresolsq_limit() << " "
+                      << std::endl;
+         }
+
+         try {
+            stats = coot::util::sfcalc_genmaps_using_bulk_solvent(atom_sel.mol, fobs, free, cell, xmap_2fofc_p, xmap_fofc_p);
+
+            // maybe format() should be inside coot::util::sfcalc_genmap_stats_t
+            std::cout << "\n R-factor      : " << stats.r_factor << "\n Free R-factor : " << stats.free_r_factor << "\n";
+            std::cout << "\n Bulk Correction Volume: " << stats.bulk_solvent_volume;
+            std::cout << "\n Bulk Correction Factor: " << stats.bulk_correction << "\n";
+            std::cout << "\nNumber of spline params: " << stats.n_splines << "\n";
+         }
+         catch (const std::length_error &le) {
+            std::cout << "ERROR:: mcit::sfcalc_genmaps_using_bulk_solvent(): " << le.what() << std::endl;
+         }
+      } else {
+         std::cout << "ERROR:: in mcit:sfcalc_genmaps_using_bulk_solvent() Bad cell. Cell is " << cell.format() << std::endl;
       }
-
-      stats = coot::util::sfcalc_genmaps_using_bulk_solvent(atom_sel.mol, fobs, free, cell, xmap_2fofc_p, xmap_fofc_p);
-
-      // maybe format() should be inside coot::util::sfcalc_genmap_stats_t
-      std::cout << "\n R-factor      : " << stats.r_factor << "\n Free R-factor : " << stats.free_r_factor << "\n";
-      std::cout << "\n Bulk Correction Volume: " << stats.bulk_solvent_volume;
-      std::cout << "\n Bulk Correction Factor: " << stats.bulk_correction << "\n";
-      std::cout << "\nNumber of spline params: " << stats.n_splines << "\n";
 
    } else {
       std::cout << "ERROR:: coordinates were not sane" << std::endl;
@@ -4781,7 +4800,7 @@ molecule_class_info_t::export_molecule_as_gltf(const std::string &file_name) con
 }
 
 bool
-molecule_class_info_t::export_vertices_and_triangles_func(const std::vector<vertex_with_rotation_translation> &vertices_in,
+molecule_class_info_t::export_vertices_and_triangles_func(const std::vector<coot::api::vertex_with_rotation_translation> &vertices_in,
                                                           const std::vector<g_triangle> &triangles) {
 
    // write to export_vertices_and_triangles_file_name_for_func, which is set below

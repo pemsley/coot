@@ -125,10 +125,10 @@ molecule_class_info_t::remove_molecular_representation(int idx) {
       // this will shuffle the indices of the other molecule representations, hmm...
       // molrepinsts.erase();
       if (molrepinsts.size() > 0) {
-    std::vector<std::shared_ptr<MolecularRepresentationInstance> >::const_iterator it = molrepinsts.end();
-    it --;
-    molrepinsts.erase(it);
-    std::cout << "erased - now molrepinsts size " << molrepinsts.size() << std::endl;
+         std::vector<std::shared_ptr<MolecularRepresentationInstance> >::iterator it = molrepinsts.end();
+         it --;
+         molrepinsts.erase(it);
+         std::cout << "erased - now molrepinsts size " << molrepinsts.size() << std::endl;
       }
    }
 

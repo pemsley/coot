@@ -62,14 +62,14 @@ coot_util_single_letter_to_3_letter_code(char code) {
 
 
 
-float sm_wat::s(char a, const std::map<std::string, double> &b) {
+float sm_wat::s(char a, const std::map<std::string, std::pair<std::string, double> > &b) {
 
    float ss = 0.0;   // think about how bad this needs to be when accumulating log likelihoods.
    std::string tlc = coot_util_single_letter_to_3_letter_code(a);
-   std::map<std::string, double>::const_iterator it = b.find(tlc);
+   std::map<std::string, std::pair<std::string, double> >::const_iterator it = b.find(tlc);
 
    if (it != b.end())
-      ss = it->second;
+      ss = it->second.second;
 
    return ss;
 }
@@ -93,10 +93,10 @@ float sm_wat::score_with_method_1(int seq_idx,
                                   int types_idx,
                                   const std::vector<std::vector<std::pair<bool, float> > > &H,
                                   const std::string &target_sequence,
-                                  const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues) {
+                                  const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues) {
 
    char a = target_sequence[seq_idx-1];
-   const std::map<std::string, double> &b = scored_residues[types_idx-1].second;
+   const std::map<std::string, std::pair<std::string, double> > &b = scored_residues[types_idx-1].second;
    float s_a_b = s(a,b);
 
    if (false) {
@@ -117,7 +117,7 @@ float sm_wat::score_with_method_2(int seq_idx,
                                   int types_idx,
                                   const std::vector<std::vector<std::pair<bool, float> > > &H,
                                   const std::string &target_sequence,
-                                  const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues) {
+                                  const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues) {
 
    const int max_gap_size = 13;
    std::vector<float> scores(max_gap_size+1, -1000.0);
@@ -149,7 +149,7 @@ float sm_wat::score_with_method_2(int seq_idx,
 float sm_wat::score_with_method_3(int seq_idx, int types_idx,
                                   const std::vector<std::vector<std::pair<bool, float> > > &H,
                                   const std::string &target_sequence,
-                                  const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues) {
+                                  const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues) {
 
    int max_gap_size = 13; // one of these need only be 2
    std::vector<float> scores(max_gap_size+1, -1000.0);
@@ -349,7 +349,7 @@ sm_wat::backtrack_others(const std::vector<std::vector<std::pair<bool, float> > 
 
 std::vector<std::vector<std::pair<bool, float> > >
 sm_wat::construct_H(const std::string &target_sequence,
-                    const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues) {
+                    const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues) {
 
    // an array of [target_sequence.size() + 1] x [n_residues + 1]
 
@@ -373,7 +373,7 @@ sm_wat::construct_H(const std::string &target_sequence,
 void
 sm_wat::fill_scoring_matrix(std::vector<std::vector<std::pair<bool, float> > > &H,
                             const std::string &target_sequence,
-                            const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues) {
+                            const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues) {
 
    int n = target_sequence.length();
    int m = scored_residues.size();
@@ -396,7 +396,7 @@ float
 sm_wat::H_i_j(int seq_idx, int residue_idx,
               const std::vector<std::vector<std::pair<bool, float> > > &H,
               const std::string &target_sequence,
-              const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues) {
+              const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues) {
 
    // std::cout << "H_i_j called with " << seq_idx << " " << types_idx << std::endl;
 
@@ -452,7 +452,7 @@ void sm_wat::print_H(const std::vector<std::vector<std::pair<bool, float> > > &H
 void
 sm_wat::print_alignment(const std::vector<cell_t> &indexed_sequences_in, // currently reverse order
                         const std::string &sequence,
-                        const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues) {
+                        const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues) {
 
    // std::cout << "in print_alignment() sequence length      " << sequence.length() << std::endl;
    // std::cout << "in print_alignment() scored residues size " << scored_residues.size() << std::endl;
@@ -496,10 +496,10 @@ sm_wat::print_alignment(const std::vector<cell_t> &indexed_sequences_in, // curr
 
 std::vector<sm_wat::cell_t> // return the alignment
 sm_wat::smith_waterman(const std::string &sequence,
-                       const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues_in) {
+                       const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues_in) {
 
    // because I want to fiddle with them for debugging
-   std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > scored_residues = scored_residues_in;
+   std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > scored_residues = scored_residues_in;
 
    coot::stats::single data_pre;
    coot::stats::single data_post;
@@ -508,7 +508,7 @@ sm_wat::smith_waterman(const std::string &sequence,
       mmdb::Residue *residue_p = scored_residue.first;
       std::string actual_residue_name(residue_p->GetResName());
       for (const auto &scored_type : scored_residue.second) {
-         data_pre.add(scored_type.second);
+         data_pre.add(scored_type.second.second);
       }
    }
 
@@ -521,11 +521,11 @@ sm_wat::smith_waterman(const std::string &sequence,
       // std::cout << "Residue " << residue_p->GetChainID() << " " << residue_p->GetSeqNum() << " "
       // << residue_p->GetResName() << std::endl;
       for (auto &scored_type : scored_residue.second) {
-         scored_type.second += squidge_offset;
-         scored_type.second *= squidge_scale;
-         data_post.add(scored_type.second);
+         scored_type.second.second += squidge_offset;
+         scored_type.second.second *= squidge_scale;
+         data_post.add(scored_type.second.second);
          if (scored_type.first == actual_residue_name)
-            scored_type.second += 0.0;
+            scored_type.second.second += 0.0;
       }
    }
 
@@ -541,7 +541,7 @@ sm_wat::smith_waterman(const std::string &sequence,
          std::cout << "Residue " << residue_p->GetChainID() << " " << residue_p->GetSeqNum()
                    << " " << residue_p->GetResName() << std::endl;
          for (const auto &scored_type : scored_residue.second) {
-            std::cout << "   " << scored_type.first << " " << std::setw(7) << std::setprecision(4) << std::fixed << std::right << scored_type.second
+            std::cout << "   " << scored_type.first << " " << std::setw(7) << std::setprecision(4) << std::fixed << std::right << scored_type.second.second
                       << std::endl;
          }
       }
@@ -600,11 +600,11 @@ sm_wat::smith_waterman(const std::string &sequence,
 #include <ligand/side-chain-densities.hh>
 
 
-std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > >
+std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > >
 sm_wat::get_side_chain_density_scores_for_residues(const std::vector<mmdb::Residue *> &a_run_of_residues,
                                            const clipper::Xmap<float> &xmap) {
    
-   std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > v;
+   std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > v;
 
    std::cout << "------------------- a_run_of_residues has " << a_run_of_residues.size() << " residues" << std::endl;
 
@@ -616,9 +616,9 @@ sm_wat::get_side_chain_density_scores_for_residues(const std::vector<mmdb::Resid
       int n_residues = a_run_of_residues.size();
       for (int i=0; i<n_residues; i++) {
          mmdb::Residue *residue_p = a_run_of_residues[i];
-         std::map<std::string, double> likelihood_map =
+         std::map<std::string, std::pair<std::string, double> > likelihood_map =
             scd.likelihood_of_each_rotamer_at_this_residue(residue_p, xmap);
-         std::pair<mmdb::Residue *, std::map<std::string, double> > p(residue_p, likelihood_map);
+         std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > p(residue_p, likelihood_map);
          v.push_back(p);
       }
    }
@@ -628,11 +628,11 @@ sm_wat::get_side_chain_density_scores_for_residues(const std::vector<mmdb::Resid
 void
 sm_wat::apply_alignment_to_model(const std::vector<sm_wat::cell_t> &alignment,
                                  const std::string &target_sequence,
-                                 const std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > &scored_residues) {
+                                 const std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > &scored_residues) {
 
    // mutate away!
    for (unsigned int i=0; i<scored_residues.size(); i++) {
-      std::pair<mmdb::Residue *, std::map<std::string, double> > scored_residue = scored_residues[i];
+      std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > scored_residue = scored_residues[i];
       mmdb::Residue *residue_p = scored_residue.first;
       std::string current_res_type(residue_p->GetResName());
       bool mutated_this = false;
@@ -675,7 +675,7 @@ sm_wat::align_and_mutate_and_backrub(mmdb::Manager *mol, const std::string &seq,
 
       std::cout << "----------------- fragment has " << fragment.residues.size() << " residues " << std::endl;
       std::cout << "----------------- fragment: " << std::endl;
-      std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > scored_residues =
+      std::vector<std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > > > scored_residues =
          get_side_chain_density_scores_for_residues(fragment.residues, xmap);
 
       std::cout << "-------------------- we got scored_residues of size " << scored_residues.size() << std::endl;

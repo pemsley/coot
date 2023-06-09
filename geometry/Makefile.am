@@ -41,11 +41,12 @@ libcoot_geometry_la_SOURCES = cif-parse.cc protein-geometry.cc protein-geometry-
     read-sbase.cc energy-lib.cc mol-utils.cc dictionary-residue.cc link.cc glyco-tools.cc dict-utils.cc \
     chem_mods.cc srs-interface.cc protein-donor-acceptors.cc protein-donor-acceptors.hh \
     lbg-graph.cc  dreiding.cc main-chain.cc residue-and-atom-specs.cc \
-    mol-utils-2.cc hydrophobic.cc cif-parse-link.cc cif-parse-mon-lib.cc
+    mol-utils-2.cc hydrophobic.cc cif-parse-link.cc cif-parse-mon-lib.cc intercept-3GP.cc
 
 libcoot_geometry_la_LIBADD = \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
         $(top_builddir)/utils/libcoot-utils.la       \
+        $(top_builddir)/compat/libcoot-compat.la     \
         $(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
 
 libcoot_geometry_la_LDFLAGS = $(SHARED_LDFLAGS)

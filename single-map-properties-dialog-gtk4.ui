@@ -7,19 +7,23 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
+
   <object class="GtkDialog" id="single_map_properties_dialog">
     <property name="title" translatable="yes">Test Multiple Use Dialog</property>
-    <signal name="close" handler="on_single_map_properties_dialog_close_gtkbuilder_callback" swapped="no"/>
-    <signal name="response" handler="on_single_map_properties_dialog_response_gtkbuilder_callback" swapped="no"/>
+    <property name="default-width">200</property>
+    <!-- <property name="default-height">200</property> -->
+    <signal name="close" handler="on_single_map_properties_dialog_close" swapped="no"/>
+    <signal name="response" handler="on_single_map_properties_dialog_response" swapped="no"/>
     <child internal-child="content_area">
       <object class="GtkBox">
         <property name="visible">1</property>
         <property name="orientation">vertical</property>
-        <property name="spacing">8</property>
-        <property name="margin_start">12</property>
-        <property name="margin_end">12</property>
+        <property name="spacing">2</property>
+        <property name="margin_start">8</property>
+        <property name="margin_end">8</property>
         <child>
           <object class="GtkFrame">
+            <property name="margin_start">4</property>
             <property name="child">
               <object class="GtkBox" id="single_map_properties_cell_and_symmetry_vbox">
                 <property name="orientation">vertical</property>
@@ -54,6 +58,8 @@
         </child>
         <child>
           <object class="GtkFrame">
+            <property name="margin_start">4</property>
+            <property name="margin_top">4</property>
             <property name="child">
               <object class="GtkBox">
                 <property name="orientation">vertical</property>
@@ -61,6 +67,7 @@
                   <object class="GtkCheckButton" id="display_map_style_as_lines_radiobutton">
                     <property name="label" translatable="yes">Standard lines</property>
                     <property name="active">1</property>
+                    <signal name="toggled" handler="on_display_map_style_as_lines_radiobutton_toggled" swapped="no"/>
                   </object>
                 </child>
                 <child>
@@ -73,8 +80,6 @@
                   <object class="GtkBox">
                     <property name="margin-start">4</property>
                     <property name="margin-end">4</property>
-                    <property name="margin_start">4</property>
-                    <property name="margin_end">4</property>
                     <child>
                       <object class="GtkLabel">
                         <property name="label" translatable="yes">Opacity (%):  </property>
@@ -90,6 +95,7 @@
                         <property name="show_fill_level">1</property>
                         <property name="fill_level">100</property>
                         <property name="round_digits">1</property>
+                        <signal name="value-changed" handler="on_map_opacity_hscale_value_changed" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -106,11 +112,15 @@
         </child>
         <child>
           <object class="GtkFrame">
+            <property name="margin_top">4</property>
+            <property name="margin_start">4</property>
             <property name="child">
               <object class="GtkBox">
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkFrame">
+                    <property name="margin_start">2</property>
+                    <property name="margin_top">2</property>
                     <property name="child">
                       <object class="GtkBox">
                         <property name="orientation">vertical</property>
@@ -119,13 +129,16 @@
                             <child>
                               <object class="GtkLabel">
                                 <property name="label" translatable="yes">Set level: </property>
+                                <property name="margin_top">4</property>
+                                <property name="margin_start">4</property>
                               </object>
                             </child>
                             <child>
                               <object class="GtkEntry" id="single_map_properties_contour_level_entry">
-                                <property name="width_request">70</property>
+                                <property name="width_request">20</property>
                                 <property name="focusable">1</property>
-                                <property name="width_chars">6</property>
+                                <property name="width_chars">2</property>
+                                <signal name="activate" handler="on_single_map_properties_contour_level_entry_activate" swapped="no"/>
                               </object>
                             </child>
                             <child>
@@ -138,6 +151,7 @@
                                 <property name="label" translatable="yes">Apply</property>
                                 <property name="focusable">1</property>
                                 <property name="receives_default">1</property>
+                                <signal name="clicked" handler="on_single_map_properties_contour_level_apply_button_clicked" swapped="no"/>
                               </object>
                             </child>
                           </object>
@@ -147,13 +161,15 @@
                             <child>
                               <object class="GtkCheckButton" id="single_map_properties_absolute_radiobutton">
                                 <property name="label" translatable="yes">Absolute</property>
-                                <property name="active">1</property>
+                                <property name="active">True</property>
+                                <signal name="toggled" handler="on_single_map_properties_absolute_radiobutton_toggled" swapped="no"/>
                               </object>
                             </child>
                             <child>
-                              <object class="GtkCheckButton" id="single_map_properties_sigma_radiobutton">
+                              <object class="GtkCheckButton" id="single_map_properties_rmsd_radiobutton">
                                 <property name="label" translatable="yes">r.m.s.d.</property>
                                 <property name="group">single_map_properties_absolute_radiobutton</property>
+                                <property name="active">False</property>
                               </object>
                             </child>
                           </object>
@@ -167,57 +183,62 @@
                     </child>
                   </object>
                 </child>
-                <child>
-                  <object class="GtkFrame" id="single_map_properties_map_histogram_frame">
-                    <property name="visible">1</property>
-                    <property name="child">
-                      <object class="GtkScale">
-                        <property name="draw-value">1</property>
-                        <property name="focusable">1</property>
-                        <property name="show_fill_level">1</property>
-                        <property name="fill_level">100</property>
-                        <property name="round_digits">1</property>
-                      </object>
-                    </property>
-                    <child type="label">
-                      <object class="GtkLabel">
-                        <property name="label" translatable="yes"> Map Histogram </property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkFrame">
-                    <property name="child">
-                      <object class="GtkBox">
-                        <child>
-                          <object class="GtkCheckButton" id="single_map_properties_step_in_rmsd_checkbutton">
-                            <property name="label" translatable="yes">Use r.m.s.d.</property>
-                            <property name="focusable">1</property>
-                            <property name="active">1</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="label" translatable="yes">   Step Size </property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="single_map_properties_step_size_entry">
-                            <property name="width_request">40</property>
-                            <property name="focusable">1</property>
-                            <property name="max_width_chars">12</property>
-                          </object>
-                        </child>
-                      </object>
-                    </property>
-                    <child type="label">
-                      <object class="GtkLabel">
-                        <property name="label" translatable="yes">Step Size</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
+                <!-- <child> -->
+                <!--   <object class="GtkFrame" id="single_map_properties_map_histogram_frame"> -->
+                <!--     <property name="margin_start">4</property> -->
+                <!--     <property name="visible">1</property> -->
+                <!--     <property name="child"> -->
+                <!--       <object class="GtkScale"> -->
+                <!--         <property name="draw-value">1</property> -->
+                <!--         <property name="focusable">1</property> -->
+                <!--         <property name="show_fill_level">1</property> -->
+                <!--         <property name="fill_level">100</property> -->
+                <!--         <property name="round_digits">1</property> -->
+                <!--       </object> -->
+                <!--     </property> -->
+                <!--     <child type="label"> -->
+                <!--       <object class="GtkLabel"> -->
+                <!--         <property name="label" translatable="yes"> Map Histogram </property> -->
+                <!--       </object> -->
+                <!--     </child> -->
+                <!--   </object> -->
+                <!-- </child> -->
+
+                <!-- <child> -->
+                <!--   <object class="GtkFrame"> -->
+                <!--     <property name="margin_top">4</property> -->
+                <!--     <property name="margin_start">4</property> -->
+                <!--     <property name="child"> -->
+                <!--       <object class="GtkBox"> -->
+                <!--         <child> -->
+                <!--           <object class="GtkCheckButton" id="single_map_properties_step_in_rmsd_checkbutton"> -->
+                <!--             <property name="label" translatable="yes">Use r.m.s.d.</property> -->
+                <!--             <property name="focusable">1</property> -->
+                <!--             <property name="active">1</property> -->
+                <!--           </object> -->
+                <!--         </child> -->
+                <!--         <child> -->
+                <!--           <object class="GtkLabel"> -->
+                <!--             <property name="label" translatable="yes">   Scroll-wheel level-change step size </property> -->
+                <!--           </object> -->
+                <!--         </child> -->
+                <!--         <child> -->
+                <!--           <object class="GtkEntry" id="single_map_properties_step_size_entry"> -->
+                <!--             <property name="width_request">40</property> -->
+                <!--             <property name="focusable">1</property> -->
+                <!--             <property name="max_width_chars">12</property> -->
+                <!--           </object> -->
+                <!--         </child> -->
+                <!--       </object> -->
+                <!--     </property> -->
+                <!--     <child type="label"> -->
+                <!--       <object class="GtkLabel"> -->
+                <!--         <property name="label" translatable="yes">Step Size</property> -->
+                <!--       </object> -->
+                <!--     </child> -->
+                <!--   </object> -->
+                <!-- </child> -->
+
               </object>
             </property>
             <child type="label">
@@ -230,6 +251,8 @@
         </child>
         <child>
           <object class="GtkFrame">
+            <property name="margin_start">4</property>
+            <property name="margin_top">4</property>
             <property name="child">
               <object class="GtkBox">
                 <property name="spacing">8</property>
@@ -245,6 +268,7 @@
                     <property name="margin-bottom">4</property>
                     <property name="focusable">1</property>
                     <property name="receives_default">1</property>
+                    <signal name="clicked" handler="on_single_map_properties_colour_button_clicked" swapped="no"/>
                   </object>
                 </child>
               </object>
@@ -259,12 +283,15 @@
         </child>
         <child>
           <object class="GtkFrame">
+            <property name="margin_start">4</property>
+            <property name="margin_top">4</property>
             <property name="child">
               <object class="GtkBox">
                 <child>
                   <object class="GtkCheckButton" id="map_properties_dialog_specularity_state_checkbutton">
                     <property name="label" translatable="yes">On   </property>
                     <property name="focusable">1</property>
+                    <signal name="toggled" handler="on_map_properties_dialog_specularity_state_checkbutton_toggled" swapped="no"/>
                   </object>
                 </child>
                 <child>
@@ -279,6 +306,7 @@
                     <property name="focusable">1</property>
                     <property name="max_length">8</property>
                     <property name="width_chars">5</property>
+                    <signal name="activate" handler="on_map_properties_dialog_specularity_strength_entry_activate" swapped="no"/>
                   </object>
                 </child>
                 <child>
@@ -293,6 +321,7 @@
                     <property name="focusable">1</property>
                     <property name="max_length">8</property>
                     <property name="width_chars">6</property>
+                    <signal name="activate" handler="on_map_properties_dialog_specularity_shininess_entry_activate" swapped="no"/>
                   </object>
                 </child>
               </object>
@@ -307,6 +336,8 @@
         </child>
         <child>
           <object class="GtkFrame">
+            <property name="margin_start">4</property>
+            <property name="margin_top">4</property>
             <property name="child">
               <object class="GtkBox">
                 <child>
@@ -314,6 +345,7 @@
                     <property name="label" translatable="yes">On   </property>
                     <property name="name">map_properties_dialog_fresnel_state_checkbutton</property>
                     <property name="focusable">1</property>
+                    <signal name="toggled" handler="on_map_properties_dialog_fresnel_state_checkbutton_toggled" swapped="no"/>
                   </object>
                 </child>
                 <child>
@@ -328,6 +360,7 @@
                     <property name="focusable">1</property>
                     <property name="max_length">8</property>
                     <property name="width_chars">5</property>
+                    <signal name="activate" handler="on_map_properties_dialog_fresnel_bias_entry_activate" swapped="no"/>
                   </object>
                 </child>
                 <child>
@@ -342,6 +375,7 @@
                     <property name="focusable">1</property>
                     <property name="max_length">8</property>
                     <property name="width_chars">5</property>
+                    <signal name="activate" handler="on_map_properties_dialog_fresnel_scale_entry_activate" swapped="no"/>
                   </object>
                 </child>
                 <child>
@@ -356,6 +390,7 @@
                     <property name="focusable">1</property>
                     <property name="max_length">4</property>
                     <property name="width_chars">5</property>
+                    <signal name="activate" handler="on_map_properties_dialog_fresnel_power_entry_activate" swapped="no"/>
                   </object>
                 </child>
               </object>
@@ -368,33 +403,36 @@
             </child>
           </object>
         </child>
-        <child>
-          <object class="GtkFrame" id="single_map_properties_skeleton_frame">
-            <property name="visible">1</property>
-            <property name="child">
-              <object class="GtkBox">
-                <child>
-                  <object class="GtkCheckButton" id="single_map_skeleton_on_radiobutton">
-                    <property name="label" translatable="yes">On</property>
-                    <property name="group">single_map_properties_absolute_radiobutton</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="single_map_skeleton_off_radiobutton">
-                    <property name="label" translatable="yes">Off</property>
-                    <property name="active">1</property>
-                  </object>
-                </child>
-              </object>
-            </property>
-            <child type="label">
-              <object class="GtkLabel">
-                <property name="label" translatable="yes">&lt;b&gt; Skeleton &lt;/b&gt;</property>
-                <property name="use_markup">1</property>
-              </object>
-            </child>
-          </object>
-        </child>
+        <!--  I don't want to fix the skeleton callbacks now -->
+        <!-- <child> -->
+        <!--   <object class="GtkFrame" id="single_map_properties_skeleton_frame"> -->
+        <!--     <property name="visible">1</property> -->
+        <!--     <property name="margin_start">4</property> -->
+        <!--     <property name="margin_top">4</property> -->
+        <!--     <property name="child"> -->
+        <!--       <object class="GtkBox"> -->
+        <!--         <child> -->
+        <!--           <object class="GtkCheckButton" id="single_map_skeleton_on_radiobutton"> -->
+        <!--             <property name="label" translatable="yes">On</property> -->
+        <!--           </object> -->
+        <!--         </child> -->
+        <!--         <child> -->
+        <!--           <object class="GtkCheckButton" id="single_map_skeleton_off_radiobutton"> -->
+        <!--             <property name="label" translatable="yes">Off</property> -->
+        <!--             <property name="active">1</property> -->
+        <!--             <property name="group">single_map_skeleton_on_radiobutton</property> -->
+        <!--           </object> -->
+        <!--         </child> -->
+        <!--       </object> -->
+        <!--     </property> -->
+        <!--     <child type="label"> -->
+        <!--       <object class="GtkLabel"> -->
+        <!--         <property name="label" translatable="yes">&lt;b&gt; Skeleton &lt;/b&gt;</property> -->
+        <!--         <property name="use_markup">1</property> -->
+        <!--       </object> -->
+        <!--     </child> -->
+        <!--   </object> -->
+        <!-- </child> -->
         <child>
           <object class="GtkSeparator"/>
         </child>
@@ -403,21 +441,11 @@
     <action-widgets>
       <action-widget response="-5">test_multiple_use_dialog_ok_button</action-widget>
     </action-widgets>
-    <child type="titlebar">
-      <placeholder/>
-    </child>
     <child internal-child="action_area">
       <object class="GtkBox">
-        <property name="valign">center</property>
-        <property name="can_focus">False</property>
-        <child>
-          <placeholder/>
-        </child>
         <child>
           <object class="GtkButton" id="test_multiple_use_dialog_ok_button">
             <property name="label" translatable="yes">OK</property>
-            <property name="focusable">1</property>
-            <property name="receives_default">1</property>
           </object>
         </child>
       </object>

@@ -119,18 +119,15 @@ void refine_zone(int imol, const char *chain_id,
    if (is_valid_model_molecule(imol)) {
       mmdb::Residue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, "");
       mmdb::Residue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, "");
-      if (res_1 && res_2) { 
-	 std::string resname_1(res_1->GetResName());
-	 std::string resname_2(res_2->GetResName());
-	 bool is_water_like_flag = g.check_for_no_restraints_object(resname_1, resname_2);
-	 // g.refine_residue_range(imol, chain_id, chain_id, resno1, "", resno2, "", altconf,
-         //                        is_water_like_flag);
+      if (res_1 && res_2) {
          mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
          std::vector<mmdb::Residue *> residues = coot::util::get_residues_in_range(mol, chain_id, resno1, resno2);
-
          std::string alt_conf(altconf);
-         if (! residues.empty())
+         if (! residues.empty()) {
+
             coot::refinement_results_t rr = g.refine_residues_vec(imol, residues, alt_conf, mol);
+
+         }
       }
    }
    g.conditionally_wait_for_refinement_to_finish();
@@ -149,11 +146,11 @@ void repeat_refine_zone() {
 void refine_auto_range(int imol, const char *chain_id, int resno1, const char *altconf) {
 
 
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int index1 = atom_index_full(imol, chain_id, resno1, "", " CA ", altconf);
       short int auto_range = 1;
-      if (index1 >= 0) { 
+      if (index1 >= 0) {
 	 g.refine(imol, auto_range, index1, index1);
       } else {
 	 std::cout << "WARNING:: refine_auto_range: Can't get index for resno1: "
@@ -174,7 +171,7 @@ int regularize_zone(int imol, const char *chain_id, int resno1, int resno2, cons
       int index2 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno2, "");
       short int auto_range = 0;
       if (index1 >= 0) {
-	 if (index2 >= 0) { 
+	 if (index2 >= 0) {
 	    coot::refinement_results_t rr = g.regularize(imol, auto_range, index1, index2);
 	    std::cout << "debug:: restraints results " << rr.found_restraints_flag << " "
 		      << rr.lights.size() << " " << rr.info_text << std::endl;
@@ -648,8 +645,10 @@ int  get_auto_clear_atom_pull_restraint_state() {
    return g.auto_clear_atom_pull_restraint_flag;
 }
 
-
-
+void set_show_extra_distance_restraints(short int state) {
+   graphics_info_t::show_extra_distance_restraints_flag = state;
+   graphics_info_t::graphics_draw();
+}
 
 void set_show_extra_restraints(int imol, int state) {
    if (is_valid_model_molecule(imol)) {
@@ -800,6 +799,7 @@ int add_extra_geman_mcclure_restraint(int imol, const char *chain_id_1, int res_
    }
    return r;
 }
+
 
 
 #ifdef USE_GUILE
@@ -1419,7 +1419,7 @@ void crankshaft_peptide_rotation_optimization_scm(int imol, SCM residue_spec_scm
 
 	 g.molecules[imol].crankshaft_peptide_rotation_optimization(rs, n_peptides, xmap, w, n_samples,
 								    &g.static_thread_pool, n_threads);
-	 g.update_validation_graphs(imol);
+	 g.update_validation(imol);
 	 graphics_draw();
       }
    }
@@ -1444,7 +1444,7 @@ void crankshaft_peptide_rotation_optimization_py(int imol, PyObject *residue_spe
 	 if (n_threads < 1) n_threads = 1;
 	 g.molecules[imol].crankshaft_peptide_rotation_optimization(rs, n_peptides, xmap, w, n_samples,
 								    &g.static_thread_pool, n_threads);
-	 g.update_validation_graphs(imol);
+	 g.update_validation(imol);
 	 graphics_draw();
       }
    }

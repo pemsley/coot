@@ -780,7 +780,7 @@ void save_preferences() {
     directory = tmp_directory;
   }
 
-  directory += "/.coot-preferences/";
+  directory += "/.coot/";
 
   int status = make_directory_maybe(directory.c_str());
   if (status != 0) {
@@ -876,7 +876,7 @@ GtkWidget *popup_window(const char *str) {
    return w;
 }
 
-void add_status_bar_text(const char *s) {
+void add_status_bar_text(const std::string &s) {
 
    graphics_info_t g;
    g.add_status_bar_text(std::string(s));

@@ -570,7 +570,7 @@ void fill_move_molecule_here_dialog(GtkWidget *w);
 
 /* } */
 
-void apply_residue_info_changes(GtkWidget *widget);
+void apply_residue_info_changes();
 GtkWidget *wrapped_create_residue_info_dialog();
 void residue_info_release_memory(GtkWidget *widget);
 GtkWidget *wrapped_create_geometry_dialog();
@@ -578,11 +578,11 @@ void store_geometry_dialog(GtkWidget *w);
 
 void fill_environment_widget(GtkWidget *widget);
 void execute_environment_settings(GtkWidget *widget);
-void toggle_environment_show_distances(GtkToggleButton *button);
+void toggle_environment_show_distances(GtkCheckButton *button);
 
 void fill_pointer_distances_widget(GtkWidget *widget);
 void execute_pointer_distances_settings(GtkWidget *widget);
-void toggle_pointer_distances_show_distances(GtkToggleButton *button);
+void toggle_pointer_distances_show_distances(GtkCheckButton *button);
 
 void set_zoom_adjustment(GtkWidget *w);
 
@@ -594,30 +594,6 @@ void unset_geometry_graph(GtkWidget *dialog); /* set the graphics info
 						 widget*/
 
 void my_delete_validaton_graph_mol_option(GtkWidget *widget, void *);
-#if (GTK_MAJOR_VERSION >= 4)
-#else
-void validation_graph_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
-						      gpointer         user_data);
-////B
-void validation_graph_calc_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
-						      gpointer         user_data);
-////E
-void validation_graph_geometry_mol_selector_activate (GtkMenuItem     *menuitem,
-						      gpointer         user_data);
-void validation_graph_omega_mol_selector_activate (GtkMenuItem     *menuitem,
-						   gpointer         user_data);
-void validation_graph_rotamer_mol_selector_activate (GtkMenuItem     *menuitem,
-						   gpointer         user_data);
-void validation_graph_density_fit_mol_selector_activate (GtkMenuItem     *menuitem,
-						   gpointer         user_data);
-void gln_and_asn_b_factor_outlier_mol_selector_activate (GtkMenuItem     *menuitem,
-							 gpointer         user_data);
-//void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem,
-//						       gpointer         user_data);
-
-void probe_mol_selector_activate (GtkMenuItem     *menuitem,
-				  gpointer         user_data);
-#endif
 
 /* These are called right at the beginning (main) */
 /* old style not-generic menu initialization */
@@ -761,8 +737,8 @@ void fill_close_option_menu_with_all_molecule_options(GtkWidget *optionmenu);
 /* The callback for the above menuitems */
 void close_molecule_item_select(GtkWidget *item, GtkPositionType pos);
 
-/* New version of close molecule */
-void new_close_molecules(GtkWidget *window);
+/* New new version of close molecule 20230515-PE */
+void close_molecules_gtk4(GtkWidget *window);
 GtkWidget *wrapped_create_new_close_molecules_dialog();
 
 /* Used for unsetting the rotamer dialog when it gets destroyed. */

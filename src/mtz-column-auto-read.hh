@@ -1,4 +1,6 @@
 
+#include <string>
+
 namespace coot { 
    class mtz_column_trials_info_t {
    public:

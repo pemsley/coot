@@ -40,6 +40,8 @@
 #include "gtk-manual.h"
 #include "gtk-manual.hh"
 
+#include "support.h" 
+
 #include "interface.h"  /* for create_single_map_properties_dialog() */
 #include "utils/coot-utils.hh"
 
@@ -511,7 +513,7 @@ void display_control_molecule_combo_box(const std::string &name, int imol,
    gtk_box_append(GTK_BOX(hbox), active_checkbutton);
    gtk_check_button_set_active(GTK_CHECK_BUTTON(active_checkbutton), mol_is_active(imol));
    // when Display is untoggled we need to untoggle this active_checkbutton too
-   g_object_set_data(G_OBJECT(display_checkbutton), "active_toggle_button", active_checkbutton);
+   g_object_set_data(G_OBJECT(display_checkbutton), "active_check_button", active_checkbutton);
 
    // 5: Drawing mode
    GtkWidget *sel_and_col_combobox = selections_and_colours_combobox(imol);
@@ -519,11 +521,11 @@ void display_control_molecule_combo_box(const std::string &name, int imol,
 
    // when Display is untoggled via the API, we need to get to the buttons to change
    // the state in the gui (give the hbox) (see set_display_control_button_state()).
-   g_object_set_data(G_OBJECT(hbox), "display_toggle_button", display_checkbutton);
-   g_object_set_data(G_OBJECT(hbox),  "active_toggle_button",  active_checkbutton);
+   g_object_set_data(G_OBJECT(hbox), "display_check_button", display_checkbutton);
+   g_object_set_data(G_OBJECT(hbox),  "active_check_button",  active_checkbutton);
 
    // 6: "Delete" map button
-   display_control_add_delete_molecule_button(imol, hbox, false);
+   display_control_add_delete_molecule_button(imol, hbox, display_control_molecule_vbox, false);
 
    // connect signals to display and active
    g_signal_connect(G_OBJECT(display_checkbutton), "toggled",
@@ -535,23 +537,30 @@ void display_control_molecule_combo_box(const std::string &name, int imol,
 
 }
 
-void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32,
-						short int is_map_molecule) {
+void display_control_add_delete_molecule_button(int imol,
+                                                GtkWidget *hbox32,
+                                                GtkWidget *vbox_for_molecules,
+						bool is_map_molecule) {
 
    if (! hbox32) {
       std::cout << "ERROR:: in display_control_add_delete_molecule_button() null hbox32" << std::endl;
       return;
    }
-      
 
-   std::string delete_button_name = "delete_molecule_";
-   delete_button_name += coot::util::int_to_string(imol);
    std::string button_string = "Delete Model";
    if (is_map_molecule)
       button_string = "Delete Map";
    GtkWidget *delete_button = gtk_button_new_with_label(_(button_string.c_str()));
    gtk_widget_show(delete_button);
-   gtk_box_append (GTK_BOX (hbox32), delete_button);
+
+   // used in callback on_display_control_mol_active_button_toggled()
+   // GtkWidget *vbox_for_molecules     = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_molecules"));
+   // GtkWidget *vbox_for_this_molecule = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_this_molecule"));
+
+   g_object_set_data(G_OBJECT(delete_button), "hbox_for_this_molecule", hbox32); // bad name
+   g_object_set_data(G_OBJECT(delete_button), "vbox_for_molecules",     vbox_for_molecules);
+
+   gtk_box_append(GTK_BOX (hbox32), delete_button);
    gtk_widget_set_margin_start (delete_button, 2);
    gtk_widget_set_margin_end   (delete_button, 2);
    gtk_widget_set_margin_top   (delete_button, 1);
@@ -783,7 +792,7 @@ display_control_map_combo_box(const std::string &name, int imol) {
    gtk_widget_show(display_checkbutton);
    gtk_box_append(GTK_BOX(hbox), display_checkbutton);
    gtk_check_button_set_active(GTK_CHECK_BUTTON(display_checkbutton), map_is_displayed(imol));
-   g_object_set_data(G_OBJECT(hbox), "display_toggle_button", display_checkbutton); // for set_display_control_button_state()
+   g_object_set_data(G_OBJECT(hbox), "display_check_button", display_checkbutton); // for set_display_control_button_state()
 
    // 4: "Scroll" checkbutton
    GtkWidget *scroll_button = gtk_check_button_new_with_label("Scroll");
@@ -809,7 +818,7 @@ display_control_map_combo_box(const std::string &name, int imol) {
    gtk_box_append(GTK_BOX(hbox), properties_button);
 
    // 6: "Delete" map button
-   display_control_add_delete_molecule_button(imol, hbox, true);
+   display_control_add_delete_molecule_button(imol, hbox, display_map_vbox, true);
 
    // connect signals to display, scroll and properties
    g_signal_connect(G_OBJECT(display_checkbutton), "toggled",
@@ -936,25 +945,36 @@ on_display_control_delete_molecule_button_clicked(GtkButton       *button,
 
    int imol = GPOINTER_TO_INT(user_data);
 
-   if (false)
+   if (true)
       std::cout << "DEBUG:: calling close_molecule() for " << imol << " from "
 		<< "on_display_control_delete_molecule_button_clicked"
 		<< std::endl;
+
+   // these are set in ...
+   GtkWidget *vbox_for_molecules     = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_molecules"));
+   GtkWidget *hbox_for_this_molecule = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "hbox_for_this_molecule"));
+
+   // std::cout << "here are the widgets! " << vbox_for_molecules << " " << hbox_for_this_molecule << std::endl;
+   if (vbox_for_molecules) {
+      gtk_box_remove(GTK_BOX(vbox_for_molecules), GTK_WIDGET(hbox_for_this_molecule));
+   }
+
    close_molecule(imol);
 }
 
 #include "single-map-properties-dialog.hh"
 
+void set_transient_for_main_window(GtkWidget *dialog);
+
 void
-on_display_control_map_properties_button_clicked   (GtkButton       *button,
-						   gpointer         user_data) {
+on_display_control_map_properties_button_clicked(GtkButton       *button,
+                                                 gpointer         user_data) {
 
-/* Remove (comment out) archaic use of casting int * for user data. */
-  int imol = GPOINTER_TO_INT(user_data);
-  // GtkWidget *window = create_single_map_properties_dialog();
-//   GtkWidget *patch_frame = lookup_widget(window,
-// 					 "single_map_colour_button_frame");
+   int imol = GPOINTER_TO_INT(user_data);
 
+   // GtkWidget *window = create_single_mmdb:: Atom *atp_properties_dialog();
+   //   GtkWidget *patch_frame = lookup_widget(window,
+   // 					 "single_map_colour_button_frame");
 
   // GtkWidget *single_map_properties_colour_button = lookup_widget(window, "single_map_properties_colour_button");
   // GtkWidget *label = lookup_widget(window, "label114");
@@ -971,8 +991,11 @@ on_display_control_map_properties_button_clicked   (GtkButton       *button,
 //   gtk_rc_style_unref (rc_style);
 
 
-  GtkWidget *dialog = wrapped_create_single_map_properties_dialog_gtk3(imol);
-  gtk_widget_show(dialog);
+   GtkWidget *dialog = wrapped_create_single_map_properties_dialog_gtk3(imol);
+   if (dialog) {
+      set_transient_for_main_window(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
+   }
 
 }
 
@@ -1062,15 +1085,15 @@ on_display_control_mol_displayed_button_toggled(GtkCheckButton *check_button,
    int imol = GPOINTER_TO_INT(user_data);
 
    // 20220807-PE what does this do!?
-   // GtkWidget *active_toggle_button = GTK_WIDGET(g_object_get_data(G_OBJECT(check_button), "active_toggle_button"));
+   GtkWidget *active_check_button = GTK_WIDGET(g_object_get_data(G_OBJECT(check_button), "active_check_button"));
 
    if (gtk_check_button_get_active(check_button)) {
-      // gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(active_toggle_button), 1);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(active_check_button), TRUE);
       set_mol_displayed(imol, 1);
       // set_mol_active(imol, 1);
    } else {
       set_mol_displayed(imol, 0);
-      // gtk_check_button_set_active(GTK_CHECK_BUTTON(active_toggle_button), 0);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(active_check_button), FALSE);
       // set_mol_active(imol, 0);
    }
 

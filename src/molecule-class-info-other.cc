@@ -61,7 +61,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
 
 #include "graphics-info.h"
@@ -1846,8 +1846,8 @@ molecule_class_info_t::delete_water(const coot::atom_spec_t &atom_spec) {
    mmdb::Residue *residue_p = get_residue(res_spec);
    if (residue_p) {
       std::string type = residue_p->GetResName();
-      if (type != "HOH")
-         status = delete_atom(atom_spec);
+      if (type == "HOH")
+         status = delete_residue(res_spec);
    }
    return status;
 }
@@ -2055,9 +2055,10 @@ molecule_class_info_t::delete_hydrogens(){  // return status of atoms deleted (0
                for (int iat=0; iat<n_residue_atoms; iat++) {
                   at = residue_atoms[iat];
                   std::string ele(at->element);
-                  if (ele == " H") {
+                  if (ele == " H")
                      atoms_to_be_deleted.push_back(at);
-                  }
+                  if (ele == " D")
+                     atoms_to_be_deleted.push_back(at);
                }
             }
          }
@@ -3322,21 +3323,28 @@ molecule_class_info_t::apply_atom_edit(const coot::select_atom_info &sai) {
 void
 molecule_class_info_t::apply_atom_edits(const std::vector<coot::select_atom_info> &saiv) {
 
-   short int made_edit = 0;
+   std::cout << "in mci::apply_atom_edits() " << saiv.size() << std::endl;
+
+   bool made_edit = false;
    make_backup();
 
    for (unsigned int i=0; i<saiv.size(); i++) {
+      std::cout << "mci::apply_atom_edits() " << i << std::endl;
       mmdb::Atom *at = saiv[i].get_atom(atom_sel.mol);
       if (at) {
+         std::cout << "mci::apply_atom_edits() B " << i << std::endl;
          if (saiv[i].has_b_factor_edit()) {
+            std::cout << "mci::apply_atom_edits() c " << i << std::endl;
             at->tempFactor = saiv[i].b_factor;
             made_edit = 1;
          }
          if (saiv[i].has_occ_edit()) {
+            std::cout << "mci::apply_atom_edits() d " << i << std::endl;
             at->occupancy = saiv[i].occ;
             made_edit = 1;
          }
          if (saiv[i].has_altloc_edit()) {
+            std::cout << "mci::apply_atom_edits() e " << i << std::endl;
             strncpy(at->altLoc, saiv[i].altloc_new.c_str(), 2);
             made_edit = 1;
          }
@@ -5852,9 +5860,9 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 
    fill_ghost_info(true, 0.7);
 
-   std::cout << "------- resulting_merge_info has size " << resulting_merge_info.size() << std::endl;
+   // std::cout << "------- resulting_merge_info has size " << resulting_merge_info.size() << std::endl;
    if (!resulting_merge_info.empty())
-      std::cout << "-------- resulting_merge_info[0] " << resulting_merge_info[0].spec << std::endl;
+      std::cout << "INFO:: in merge_molecules(): resulting_merge_info[0] " << resulting_merge_info[0].spec << std::endl;
 
    return std::pair<int, std::vector<merge_molecule_results_info_t> > (istat, resulting_merge_info);
 }
@@ -7916,6 +7924,7 @@ molecule_class_info_t::set_b_factor_atom_selection(const atom_selection_containe
 void
 molecule_class_info_t::set_b_factor_residues(const std::vector<std::pair<coot::residue_spec_t, double> > &rbs) {
 
+   make_backup();
    for (unsigned int i=0; i<rbs.size(); i++) {
       const coot::residue_spec_t &spec = rbs[i].first;
       double b = rbs[i].second;
@@ -7939,7 +7948,8 @@ molecule_class_info_t::set_b_factor_residues(const std::vector<std::pair<coot::r
 void
 molecule_class_info_t::set_b_factor_residue(coot::residue_spec_t spec, float bf) {
 
-   mmdb::Residue *residue_p = get_residue(spec);
+   make_backup();
+    mmdb::Residue *residue_p = get_residue(spec);
    if (residue_p) {
       mmdb::Atom **residue_atoms = 0;
       int n_residue_atoms;
@@ -7952,6 +7962,27 @@ molecule_class_info_t::set_b_factor_residue(coot::residue_spec_t spec, float bf)
    atom_sel.mol->FinishStructEdit();
    make_bonds_type_checked(__FUNCTION__);
 }
+
+void
+molecule_class_info_t::change_b_factors_of_residue_by(coot::residue_spec_t spec, float bf) {
+
+   make_backup();
+    mmdb::Residue *residue_p = get_residue(spec);
+   if (residue_p) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int j=0; j<n_residue_atoms; j++) {
+         residue_atoms[j]->tempFactor += bf;
+         if (residue_atoms[j]->tempFactor < 2.0)
+            residue_atoms[j]->tempFactor = 2.0;
+      }
+   }
+   have_unsaved_changes_flag = 1;
+   atom_sel.mol->FinishStructEdit();
+   make_bonds_type_checked(__FUNCTION__);
+}
+
 
 
 
@@ -8017,7 +8048,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 
          if (!target_chain_id_exists) {
 
-            int n_models = atom_sel.mol->GetNumberOfModels();
+            n_models = atom_sel.mol->GetNumberOfModels();
             for (int imod=1; imod<=n_models; imod++) {
 
                mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
@@ -9016,34 +9047,6 @@ molecule_class_info_t::fill_partial_residue(const coot::residue_spec_t &residue_
 // ------------------------------------------------------------------------
 //                       dots
 // ------------------------------------------------------------------------
-void
-molecule_class_info_t::draw_dots() {
-
-   // delete this now there is a new function draw_dots()
-
-   if (draw_it) {
-      for (unsigned int iset=0; iset<dots.size(); iset++) {
-         if (dots[iset].is_open_p() == 1) {
-            glPointSize(2);
-            unsigned int n_atoms = dots[iset].points.size();
-            for (unsigned int iat=0; iat<n_atoms; iat++) {
-               glColor3f(dots[iset].points[iat].first.col[0],
-                         dots[iset].points[iat].first.col[1],
-                         dots[iset].points[iat].first.col[2]);
-               glBegin(GL_POINTS);
-               for (unsigned int i=0; i<dots[iset].points[iat].second.size(); i++) {
-                  glVertex3f(dots[iset].points[iat].second[i].x(),
-                             dots[iset].points[iat].second[i].y(),
-                             dots[iset].points[iat].second[i].z());
-               }
-               glEnd();
-            }
-         }
-      }
-   }
-}
-
-
 
 void
 molecule_class_info_t::draw_dots(Shader *shader_p,
