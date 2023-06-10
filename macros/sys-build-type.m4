@@ -129,8 +129,8 @@ else
 fi
 
 
-gtk_major_version=gtk3
-COOT_SYS_BUILD_TYPE=${OS}-${systype}${python_tag}${gtk_major_version}
+gtk_major_version=gtk4
+COOT_SYS_BUILD_TYPE=${OS}-${systype}${python_tag}-${gtk_major_version}
 
 AC_MSG_RESULT([$COOT_SYS_BUILD_TYPE])
 AC_SUBST(COOT_SYS_BUILD_TYPE)
