@@ -311,9 +311,9 @@ AC_ARG_ENABLE(libcootapi-only, [  --enable-libcootapi-only build libcootapi only
 esac],[libcootapi_only=false])
 AM_CONDITIONAL([COND_LIBCOOTAPI_ONLY], [test "$libcootapi_only" = true])
 
-echo testingA libcootapi_only is $libcootapi_only
-echo testingA COND_LIBCOOTAPI_ONLY is $COOT_LIBCOOTAPI_ONLY
-echo testingB lidia_only is $lidia_only
+# echo testingA libcootapi_only is $libcootapi_only
+# echo testingA COND_LIBCOOTAPI_ONLY is $COOT_LIBCOOTAPI_ONLY
+# echo testingB lidia_only is $lidia_only
 
 AM_CONDITIONAL(MAKE_ENHANCED_LIGAND_TOOLS, test x$coot_enhanced_ligand_additions = xtrue)
 AC_SUBST(ENHANCED_LIGAND_TOOLS_CPPFLAGS)
