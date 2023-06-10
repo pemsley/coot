@@ -59,6 +59,19 @@ Sat  3 Jun 19:33:43 BST 2023
      atom has been marked fixed or not!
 
 
+Thu  8 Jun 05:49:47 BST 2023
+
+    From molecule_class_info_residues.cc
+
+   // Lovell et al. 2003, 50, 437 Protein Structure, Function and Genetics values:
+   // BL says:: should these be the one set?!
+   //ftype level_prefered = 0.02;
+   //ftype level_allowed = 0.002;
+
+   ftype level_prefered = graphics_info_t::rama_level_prefered;
+   ftype level_allowed = graphics_info_t::rama_level_allowed;
+
+
 --- Done Items ---
 
    o add a status flag to simple_mesh_t - used for "did we run out of memory/bad alloc"? (say) ::: 1
