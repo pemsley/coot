@@ -41,7 +41,7 @@ import os
 import sys
 import numbers
 import gi
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import GLib
 import coot
 import coot_utils
