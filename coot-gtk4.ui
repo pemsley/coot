@@ -6462,9 +6462,16 @@ Do you want to continue?
                               </object>
                             </child>
 
+
                             <child>
-                              <object class="GtkBox" id="dynamic_validation_outliers_vbox">
-                                <property name="orientation">vertical</property>
+                              <object class="GtkScrolledWindow">
+                                <property name="hexpand">True</property>
+                                <property name="vexpand">True</property>
+                                <child>
+                                  <object class="GtkBox" id="dynamic_validation_outliers_vbox">
+                                    <property name="orientation">vertical</property>
+                                  </object>
+                                </child>
                               </object>
                             </child>
 

@@ -1,10 +1,16 @@
 
 #include "graphics-info.h"
 #include "widget-from-builder.hh"
+#include "dynamic-validation.hh"
 
 void dynamic_validation_internal(int imol, int imol_map) {
 
+   overlaps_peptides_cbeta_ramas_and_rotas_internal(imol); // for now
+
+   // map tools here.
 }
+
+#include "coot-utils/c-beta-deviations.hh"
 
 
 void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
@@ -335,8 +341,60 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   auto make_cbeta_devi_buttons = [] (mmdb::Manager *mol) {
+   auto c_beta_devi_button_clicked_callback = *[] (GtkButton *button, gpointer user_data) {
+      coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
+      int imol = atom_spec_p->int_user_data;
+      const auto &atom_spec(*atom_spec_p);
+      graphics_info_t g;
+      graphics_info_t::set_go_to_atom(imol, atom_spec);
+      g.try_centre_from_new_go_to_atom(); // oh dear!
+   };
+
+   auto make_cbeta_devi_buttons = [c_beta_devi_button_clicked_callback] (int imol, mmdb::Manager *mol) {
+      double dist_crit = 0.25;
       std::vector<std::pair<coot::residue_spec_t, GtkWidget *> > buttons;
+      // the key of the map is the alt conf.
+      std::map<mmdb::Residue *, std::map<std::string, coot::c_beta_deviation_t> >
+         residue_c_beta_map = coot::get_c_beta_deviations(mol);
+      std::map<mmdb::Residue *, std::map<std::string, coot::c_beta_deviation_t> >::const_iterator it;
+      for (it=residue_c_beta_map.begin(); it!=residue_c_beta_map.end(); ++it) {
+         // multiple alt confs
+         mmdb::Residue *res_key = it->first;
+         const std::map<std::string, coot::c_beta_deviation_t> &value_map = it->second;
+         std::map<std::string, coot::c_beta_deviation_t>::const_iterator it_inner;
+         for (it_inner=value_map.begin(); it_inner!=value_map.end(); ++it_inner) {
+            const std::string alt_conf_key = it_inner->first;
+            const coot::c_beta_deviation_t &cbd = it_inner->second;
+            if (cbd.dist > dist_crit) {
+               coot::residue_spec_t res_spec(res_key);
+               std::string lab = "CBeta Deviation ";
+               lab += " ";
+               lab += cbd.at->GetChainID();
+               lab += " ";
+               lab += std::to_string(cbd.at->GetSeqNum());
+               lab += " ";
+               lab += std::string(cbd.at->residue->GetResName());
+               lab += " d: ";
+               lab += coot::util::float_to_string_using_dec_pl(cbd.dist, 2);
+               if (! alt_conf_key.empty())
+                  lab += std::string(" ") + alt_conf_key;
+               GtkWidget *button = gtk_button_new();
+               GtkWidget *label = gtk_label_new(lab.c_str());
+               gtk_widget_set_halign(label, GTK_ALIGN_START);
+               gtk_button_set_child(GTK_BUTTON(button), label);
+               gtk_widget_set_margin_start (button, 4);
+               gtk_widget_set_margin_end   (button, 4);
+               gtk_widget_set_margin_top   (button, 2);
+               gtk_widget_set_margin_bottom(button, 2);
+               coot::atom_spec_t spec(cbd.at);
+               coot::atom_spec_t *spec_p = new coot::atom_spec_t(spec);
+               spec_p->int_user_data = imol;
+               g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(c_beta_devi_button_clicked_callback), spec_p);
+               auto p = std::make_pair(res_spec, button);
+               buttons.push_back(p);
+            }
+         }
+      }
       return buttons;
    };
 
@@ -348,7 +406,10 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
          mmdb::Residue *residue_p = nullptr;
          std::string lab = "xx";
          lab += " ";
-         GtkWidget *button = gtk_button_new_with_label(lab.c_str());
+         GtkWidget *button = gtk_button_new();
+         GtkWidget *label = gtk_label_new(lab.c_str());
+         gtk_widget_set_halign(label, GTK_ALIGN_START);
+         gtk_button_set_child(GTK_BUTTON(button), label);
          gtk_widget_set_margin_start (button, 4);
          gtk_widget_set_margin_end   (button, 4);
          gtk_widget_set_margin_top   (button, 2);
@@ -398,8 +459,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       buttons.insert(buttons.end(), npcp_buttons.begin(), npcp_buttons.end());
       auto twisted_trans_buttons = make_twisted_trans_buttons(imol, mol);
       buttons.insert(buttons.end(), twisted_trans_buttons.begin(), twisted_trans_buttons.end());
-      auto cbeta_devi_buttons = make_cbeta_devi_buttons(mol);
-      buttons.insert(buttons.end(), twisted_trans_buttons.begin(), twisted_trans_buttons.end());
+      auto cbeta_devi_buttons = make_cbeta_devi_buttons(imol, mol);
+      buttons.insert(buttons.end(), cbeta_devi_buttons.begin(), cbeta_devi_buttons.end());
 
       std::cout << "sizes buttons " << buttons.size() << " overlaps " << overlap_buttons.size()
                 << " rota " << rota_buttons.size() << std::endl;
