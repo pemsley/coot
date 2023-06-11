@@ -1734,6 +1734,8 @@ public:
 					       int it2, const char *t3);
    void set_go_to_atom_chain_residue_atom_name(const char *chain_id,
 					       int resno, const char *atom_name, const char *altLoc);
+   // 20230611-PE this is indeed a gui callback
+   static void set_go_to_atom(int imol, const coot::atom_spec_t &spec);
 
    // 20230520-PE why isn't this here?
    // void set_go_to_atom(const coot::atom_spec_t &atom_spec);

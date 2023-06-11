@@ -1678,6 +1678,31 @@ molecule_class_info_t::all_residues() const {
    return r;
 }
 
+std::vector<mmdb::Residue *>
+molecule_class_info_t::get_all_protein_residues() const {
+
+   std::vector<mmdb::Residue *> v;
+
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               v.push_back(residue_p);
+            }
+         }
+      }
+   }
+
+   return v;
+}
+
+
 
 std::vector<coot::residue_spec_t>
 molecule_class_info_t::het_groups() const {

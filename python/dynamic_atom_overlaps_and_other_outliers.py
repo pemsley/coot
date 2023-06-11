@@ -321,7 +321,7 @@ def quick_test_validation_outliers_dialog(imol):
                 f           = button_info[1]
                 label       = button_info[2]
                 cb_fun      = button_info[3]
-                button = Gtk.Button(label)
+                button = Gtk.Button(label=label)
                 button.connect("clicked", cb_func, cb_fun)
                 dialog_vbox.append(button)
                 button.show()
@@ -362,11 +362,12 @@ def quick_test_validation_outliers_dialog(imol):
     dialog_vbox, window = coot_gui.dialog_box_of_buttons(make_window_title(len(buttons)),
                                                          [360, 400], buttons, " Close ")
 
-    window_bits = window.get_children()
-    vbox_outer = window_bits[0]
+    # window_bits = window.get_children()
+    #  vbox_outer = window_bits[0]
+    vbox_outer = window.get_child()
     control_button_vbox_1 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-    missing_sidechains_checkbutton_local = Gtk.CheckButton("Missing Sidechains")
-    regenerate_button_local = Gtk.Button("Update")
+    missing_sidechains_checkbutton_local = Gtk.CheckButton(label="Missing Sidechains")
+    regenerate_button_local = Gtk.Button(label="Update")
 
     missing_sidechains_checkbutton = missing_sidechains_checkbutton_local
 
@@ -381,6 +382,12 @@ def quick_test_validation_outliers_dialog(imol):
     control_button_vbox_1.show()
     missing_sidechains_checkbutton.show()
     regenerate_button_local.show()
+
+    global post_manipulation_script
+    def emit_update_button_clicked_script(*args):
+        update_button.emit("clicked")
+    post_manipulation_script = emit_update_button_clicked_script
+
     return regenerate_button_local
 
 def make_quick_test_validation_buttons(imol):

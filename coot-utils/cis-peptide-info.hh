@@ -21,7 +21,7 @@ namespace coot {
 	 int resno_2;
 	 std::string ins_code_2;
 	 int model_number;
-	 float omega_torsion_angle;
+	 float omega_torsion_angle; // in degrees.
 
 	 // normal constructor used by count_cis_peptides():
 	 cis_peptide_info_t(const std::string &chain_id,

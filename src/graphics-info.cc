@@ -6357,7 +6357,9 @@ void graphics_info_t::run_user_defined_click_func() {
                std::cout << "WARNING:: Ignoring it." << std::endl;
                return;
             }
-            PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
+            // PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
+            PyObject *kwargs = nullptr;
+            PyObject *result = PyObject_Call(user_defined_click_py_func, arg_list_py, kwargs);
             PyObject *error_thing = PyErr_Occurred();
             if (! error_thing) {
                std::cout << "No Python error" << std::endl;

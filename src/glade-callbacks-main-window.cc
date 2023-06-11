@@ -1385,3 +1385,22 @@ on_smiles_to_simple_3d_ok_button_clicked(GtkButton       *button,
    GtkWidget *frame = widget_from_builder("smiles_to_simple_3d_frame");
    gtk_widget_set_visible(frame, FALSE);
 }
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_dynamic_validation_update_button_clicked(GtkButton *button,
+                                            gpointer  user_data) {
+
+   std::cout << "on_dynamic_validation_update_button_clicked(): Update validation dialog here!" << std::endl;
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_dynamic_validation_include_missing_sidechains_checkbutton_toggled(GtkCheckButton *button,
+                                                                     gpointer  user_data) {
+
+   std::cout << "on_dynamic_validation_include_missing_sidechains_button_toggled() " << std::endl;
+
+}

@@ -287,7 +287,7 @@ else
    rdkit_install_dir="$withval"
    # better RDKit linking I hope
    RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
-   RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitcoordgen -lRDKitMolChemicalFeatures -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -l$BOOST_PYTHON_LIB $PYTHON_LIBS"
+   RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitcoordgen -lRDKitMolChemicalFeatures -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams -l$BOOST_PYTHON_LIB $PYTHON_LIBS"
 fi
 
 if test x$coot_enhanced_ligand_additions = xtrue ; then
@@ -311,9 +311,9 @@ AC_ARG_ENABLE(libcootapi-only, [  --enable-libcootapi-only build libcootapi only
 esac],[libcootapi_only=false])
 AM_CONDITIONAL([COND_LIBCOOTAPI_ONLY], [test "$libcootapi_only" = true])
 
-echo testingA libcootapi_only is $libcootapi_only
-echo testingA COND_LIBCOOTAPI_ONLY is $COOT_LIBCOOTAPI_ONLY
-echo testingB lidia_only is $lidia_only
+# echo testingA libcootapi_only is $libcootapi_only
+# echo testingA COND_LIBCOOTAPI_ONLY is $COOT_LIBCOOTAPI_ONLY
+# echo testingB lidia_only is $lidia_only
 
 AM_CONDITIONAL(MAKE_ENHANCED_LIGAND_TOOLS, test x$coot_enhanced_ligand_additions = xtrue)
 AC_SUBST(ENHANCED_LIGAND_TOOLS_CPPFLAGS)
