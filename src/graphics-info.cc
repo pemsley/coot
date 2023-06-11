@@ -1922,7 +1922,7 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
    //           << std::endl;
    // return;
 
-   std::string pms = "coot_utils.post_manipulation_script";
+   std::string pms = "post_manipulation_script";
    // pms = "print";
    std::string check_pms = "callable(" + pms + ")";
 
@@ -1938,6 +1938,23 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
    // the above function can set an error  - that's bad news for the python wrapping
    // of accept_moving_atoms(). So instead of properly handling the error, or investigating
    // why it is happening, let's just clear it.
+
+   PyObject *error_thing = PyErr_Occurred();
+   if (! error_thing) {
+      std::cout << "INFO:: run_post_manipulation_hook_py() No Python error on callable check" << std::endl;
+   } else {
+      std::cout << "ERROR:: while executing run_post_manipulation_hook_py() a python error occured " << std::endl;
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_NormalizeException(&type, &value, &traceback);
+      PyObject *exception_string = PyObject_Repr(value);
+      const char *em = myPyString_AsString(exception_string);
+      std::cout << "ERROR:: " << em << std::endl;
+      Py_XDECREF(value);
+      Py_XDECREF(traceback);
+      Py_XDECREF(type);
+   }
+
    PyErr_Clear();
 
    if (false) {
