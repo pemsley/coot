@@ -1932,7 +1932,6 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
    pModule = PyImport_AddModule("__main__");
    pModule = PyImport_AddModule("coot");
    pModule = PyImport_AddModule("coot_utils");
-   pModule = PyImport_AddModule("dynamic_atom_overlaps_and_other_outliers");
    PyObject *globals = PyModule_GetDict(pModule);
 
    PyObject *result = PyRun_String(check_pms.c_str(), Py_eval_input, globals, globals);
