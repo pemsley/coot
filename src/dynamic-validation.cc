@@ -10,6 +10,29 @@ void dynamic_validation_internal(int imol, int imol_map) {
    // map tools here.
 }
 
+void update_dynamic_validation() {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      update_dynamic_validation_for_molecule(imol);
+   }
+}
+
+void update_dynamic_validation_for_molecule(int imol) {
+
+   GtkWidget *frame = widget_from_builder("main_window_vertical_validation_frame");
+   GtkWidget *vbox  = widget_from_builder("dynamic_validation_outliers_vbox");
+
+   if (gtk_widget_get_visible(frame)) {
+      if (gtk_widget_get_visible(vbox)) {
+         overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
+      }
+   }
+}
+
+
 #include "coot-utils/c-beta-deviations.hh"
 
 
@@ -117,6 +140,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
    auto make_overlap_buttons = [to_label, get_target_position, set_target_position_data,
                                 overlap_button_callback] (mmdb::Manager *mol) {
 
+      double vol_crit = 1.2;
       std::vector<std::pair<coot::residue_spec_t, GtkWidget *> > buttons;
       bool ignore_waters = false;
       coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
@@ -125,8 +149,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
 
       for (unsigned int ii=0; ii<olv.size(); ii++) {
          const auto &o = olv[ii];
-         if (o.overlap_volume < 1.0) continue;
-	 if (true) // debug
+         if (o.overlap_volume < vol_crit) continue;
+	 if (false) // debug
 	    std::cout << "Overlap " << ii << " "
 		      << coot::atom_spec_t(o.atom_1) << " "
 		      << coot::atom_spec_t(o.atom_2) << " overlap-vol "
@@ -134,6 +158,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
 		      << o.r_1 << " r_2 " << o.r_2 << std::endl;
          std::string lab = "Atom Overlap " + to_label(o.atom_1) + " - " + to_label(o.atom_2);
          lab += " OV: " + coot::util::float_to_string_using_dec_pl(o.overlap_volume, 2);
+         lab += "Å³";
          // GtkWidget *button = gtk_button_new_with_label(lab.c_str());
          GtkWidget *button = gtk_button_new();
          GtkWidget *label = gtk_label_new(lab.c_str());
