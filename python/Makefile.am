@@ -39,7 +39,6 @@ dist_pkgpython_PYTHON = \
    pdbe_validation_data.py  pathology_plots.py ligand_validation_sliders.py \
    enhanced_ligand.py	gui_ligand_sliders.py sharpen_blur.py    \
    acedrg_link.py coot_toolbuttons.py rcrane_loader.py add_linked_cho.py find_baddies.py \
-   dynamic_atom_overlaps_and_other_outliers.py \
    chemical_feature_clusters.py res_spec_utils.py coot_output_to_window.py \
    populate_python_menus.py coot_hole.py refine.py what_check.py \
    coot_testing_utils.py \

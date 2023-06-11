@@ -60,7 +60,7 @@
 #include "utils/coot-utils.hh"
 #include "coot-hydrogens.hh"
 
-#include "rama_plot.hh"
+#include "rama_plot_with_canvas.hh"
 
 
 // 1: success
