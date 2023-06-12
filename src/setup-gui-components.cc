@@ -3,6 +3,7 @@
 #include "graphics-info.h"
 #include "c-interface-gtk-widgets.h"
 #include "setup-gui-components.hh"
+#include "utils/coot-utils.hh"
 #include "widget-from-builder.hh"
 
 // this function is both defined and implemented here.
@@ -60,6 +61,19 @@ void setup_menubuttons() {
 
 
    add_typed_menu_to_mutate_menubutton("PROTEIN");
+}
+
+void setup_mutate_residue_range_dialog() {
+    GtkWidget* mutate_molecule_sequence_text = widget_from_builder("mutate_molecule_sequence_text");
+    GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(mutate_molecule_sequence_text));
+    g_signal_connect(buffer, "changed", G_CALLBACK(+[](GtkTextBuffer* buf, gpointer user_data){
+        std::cout << "on_mutate_molecule_sequence_text:buffer:changed --- start --- " << std::endl;
+        GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
+        GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
+        GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");
+        GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
+        mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+    }), nullptr);
 }
 
 gboolean generic_hide_on_escape_controller_cb(GtkEventControllerKey  *controller,
@@ -344,8 +358,7 @@ void set_vertical_toolbar_internal_alignment() {
          GtkWidget* target = nullptr;
          if(GTK_IS_MENU_BUTTON(child)) {
 #if GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 6
-            // I don't know how to do this in 4.4
-            //target = gtk_menu_button_get_child(GTK_MENU_BUTTON(child));
+            target = gtk_menu_button_get_child(GTK_MENU_BUTTON(child));
 #endif
          } else {
             target = gtk_button_get_child(GTK_BUTTON(child));
@@ -380,15 +393,25 @@ void set_vertical_toolbar_internal_alignment() {
    }
 }
 
+void setup_curlew_banner() {
+    GtkWidget* curlew_banner = widget_from_builder("curlew_banner");
+    std::string dir = coot::package_data_dir();
+    std::string pixmaps_dir = coot::util::append_dir_dir(dir, "pixmaps");
+    std::string banner_filepath = coot::util::append_dir_file(pixmaps_dir, "curlew-long.png");
+    gtk_picture_set_filename(GTK_PICTURE(curlew_banner), banner_filepath.c_str());
+}
+
 void setup_gui_components() {
 
    g_info("Initializing UI components...");
    setup_menubuttons();
    setup_validation_graph_dialog();
+   setup_mutate_residue_range_dialog();
    setup_ramachandran_plot_chooser_dialog();
    setup_get_monomer();
    setup_accession_code_frame();
    setup_python_scripting_entry();
+   setup_curlew_banner();
    attach_css_style_class_to_overlays();
    set_vertical_toolbar_internal_alignment();
    g_info("Done initializing UI components.");

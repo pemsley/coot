@@ -478,7 +478,7 @@ install_icons_into_theme(GtkWidget *w) {
 
    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(w));
    std::string pkg_data_dir = coot::package_data_dir();
-   std::string icon_dir = coot::util::append_dir_dir(pkg_data_dir, "icons/hicolor/16x16/actions");
+   std::string icon_dir = coot::util::append_dir_dir(pkg_data_dir, "pixmaps");
    gtk_icon_theme_add_search_path(icon_theme, icon_dir.c_str());
 }
 
@@ -653,6 +653,8 @@ new_startup_application_activate(GtkApplication *application,
          exit(0);
       }
 
+      install_icons_into_theme(GTK_WIDGET(app_window));
+
       // the main application builder
 
       // change "glade" to "ui" one day.
@@ -671,23 +673,21 @@ new_startup_application_activate(GtkApplication *application,
          exit(0);
       }
 
-      // 'Preferences' .ui file needs to be ported to Gtk4. It's broken now so it's commented out for now
-
       // the preferences builder:
-      // std::string preferences_ui_file_name = "preferences-gtk4.ui";
-      // std::string preferences_ui_file_name_full = coot::util::append_dir_file(dir_glade, preferences_ui_file_name);
-      // if (coot::file_exists(preferences_ui_file_name))
-      //    preferences_ui_file_name_full = preferences_ui_file_name;
-      // GtkBuilder *preferences_builder = gtk_builder_new();
-      // std::cout << "::::::::::::::::::::::::::::::::::::::::::::: reading " << preferences_ui_file_name_full << std::endl;
-      // status = gtk_builder_add_from_file(preferences_builder, preferences_ui_file_name_full.c_str(), &error);
-      // std::cout << ":::::::::::::::::::::::::::::::::::::::: done reading " << preferences_ui_file_name_full << std::endl;
-      // if (status == FALSE) {
-      //    std::cout << "ERROR:: Failure to read or parse " << preferences_ui_file_name_full << std::endl;
-      //    std::cout << error->message << std::endl;
-      //    exit(0);
-      // }
-      // graphics_info_t::set_preferences_gtkbuilder(preferences_builder);
+      std::string preferences_ui_file_name = "preferences-gtk4.ui";
+      std::string preferences_ui_file_name_full = coot::util::append_dir_file(dir_glade, preferences_ui_file_name);
+      if (coot::file_exists(preferences_ui_file_name))
+         preferences_ui_file_name_full = preferences_ui_file_name;
+      GtkBuilder *preferences_builder = gtk_builder_new();
+      std::cout << "::::::::::::::::::::::::::::::::::::::::::::: reading " << preferences_ui_file_name_full << std::endl;
+      status = gtk_builder_add_from_file(preferences_builder, preferences_ui_file_name_full.c_str(), &error);
+      std::cout << ":::::::::::::::::::::::::::::::::::::::: done reading " << preferences_ui_file_name_full << std::endl;
+      if (status == FALSE) {
+         std::cout << "ERROR:: Failure to read or parse " << preferences_ui_file_name_full << std::endl;
+         std::cout << error->message << std::endl;
+         exit(0);
+      }
+      graphics_info_t::set_preferences_gtkbuilder(preferences_builder);
 
       python_init();
 
@@ -695,11 +695,8 @@ new_startup_application_activate(GtkApplication *application,
       graphics_info.use_graphics_interface_flag = true;
 
 
-      GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
-      graphics_info_t::statusbar = sb;
-      // std::cout << "debug:: statusbar: " << sb << std::endl;
 
-      install_icons_into_theme(GTK_WIDGET(sb));
+      
 
 
       guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
