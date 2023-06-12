@@ -14667,6 +14667,14 @@ Move a copy?</property>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <child>
+          <object class="GtkPicture" id="curlew_banner">
+            <property name="margin-bottom">8</property>
+            <property name="margin-end">8</property>
+            <property name="margin-start">8</property>
+            <property name="margin-top">8</property>
+          </object>
+        </child>
+        <child>
           <object class="GtkGrid" id="curlew_grid">
             <property name="margin-bottom">8</property>
             <property name="margin-end">8</property>
