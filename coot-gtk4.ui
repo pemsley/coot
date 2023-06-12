@@ -9418,8 +9418,6 @@ density (too big to be waters):
                         <property name="can-focus">1</property>
                         <property name="wrap-mode">word</property>
                         <property name="monospace">True</property>
-                        <signal name="insert-at-cursor" handler="on_mutate_molecule_sequence_text_insert_at_cursor" swapped="no"/>
-                        <signal name="move-cursor" handler="on_mutate_molecule_sequence_text_move_cursor" swapped="no"/>
                       </object>
                     </child>
                   </object>
