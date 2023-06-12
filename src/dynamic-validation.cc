@@ -262,14 +262,61 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   auto make_rama_buttons = [] (mmdb::Manager *mol) {
+   // these are mostly the same and can be consolidated.
+   auto rama_button_clicked_callback = +[] (GtkButton *button, gpointer user_data) {
+      coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
+      int imol = atom_spec_p->int_user_data;
+      const auto &atom_spec(*atom_spec_p);
+      graphics_info_t g;
+      graphics_info_t::set_go_to_atom(imol, atom_spec);
+      g.try_centre_from_new_go_to_atom(); // oh dear!
+   };
+
+   auto make_rama_buttons = [rama_button_clicked_callback] (int imol) {
+
+      double prob_crit = 0.003; // rama_level_allowed is 0.002
       std::vector<std::pair<coot::residue_spec_t, GtkWidget *> > buttons;
 
-      // rama buttons to be added after re-enabling their exaction after goocanvas loss.
+      const auto &m = graphics_info_t::molecules[imol];
+      coot::rama_score_t rama_score = m.get_all_molecule_rama_score();
+
+      std::vector<coot::rama_score_t::scored_phi_psi_t>::const_iterator it;
+      for (it=rama_score.scores.begin(); it!=rama_score.scores.end(); ++it) {
+         const auto &spp = *it;
+         if (spp.score < prob_crit) {
+            std::cout << "debug::   " << spp.res_spec << "  " << spp.score << "  "
+                      << spp.residue_prev << " " << spp.residue_this << " " << spp.residue_next << std::endl;
+            if (! spp.residue_this) continue;
+
+            std::string lab = "Ramachandran ";
+            lab += spp.res_spec.chain_id;
+            lab += " ";
+            lab += std::to_string(spp.res_spec.res_no);
+            lab += " ";
+            lab += std::string(spp.residue_this->GetResName());
+            lab += " pr: ";
+            lab += coot::util::float_to_string_using_dec_pl(spp.score, 3);
+            GtkWidget *button = gtk_button_new();
+            GtkWidget *label = gtk_label_new(lab.c_str());
+            gtk_widget_set_halign(label, GTK_ALIGN_START);
+            gtk_button_set_child(GTK_BUTTON(button), label);
+            gtk_widget_set_margin_start (button, 4);
+            gtk_widget_set_margin_end   (button, 4);
+            gtk_widget_set_margin_top   (button, 2);
+            gtk_widget_set_margin_bottom(button, 2);
+
+            coot::atom_spec_t atom_spec(spp.res_spec.chain_id, spp.res_spec.res_no, spp.res_spec.ins_code, " CA ", "");
+            coot::atom_spec_t *spec_p = new coot::atom_spec_t(atom_spec);
+            spec_p->int_user_data = imol;
+            g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(rama_button_clicked_callback), spec_p);
+            auto p = std::make_pair(spp.res_spec, button);
+            buttons.push_back(p);
+         }
+      }
       return buttons;
    };
 
-   auto non_pro_cis_button_clicked_callback = *[] (GtkButton *button, gpointer user_data) {
+   auto non_pro_cis_button_clicked_callback = +[] (GtkButton *button, gpointer user_data) {
       coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
       int imol = atom_spec_p->int_user_data;
       const auto &atom_spec(*atom_spec_p);
@@ -316,7 +363,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   auto twisted_trans_button_clicked_callback = *[] (GtkButton *button, gpointer user_data) {
+   auto twisted_trans_button_clicked_callback = +[] (GtkButton *button, gpointer user_data) {
       coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
       int imol = atom_spec_p->int_user_data;
       const auto &atom_spec(*atom_spec_p);
@@ -366,7 +413,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   auto c_beta_devi_button_clicked_callback = *[] (GtkButton *button, gpointer user_data) {
+   auto c_beta_devi_button_clicked_callback = +[] (GtkButton *button, gpointer user_data) {
       coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
       int imol = atom_spec_p->int_user_data;
       const auto &atom_spec(*atom_spec_p);
@@ -473,12 +520,12 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
 
       std::vector<std::pair<coot::residue_spec_t, GtkWidget *> > buttons;
       auto overlap_buttons = make_overlap_buttons(mol);
-      buttons.insert(buttons.end(), overlap_buttons.begin(), overlap_buttons.end());
+      // buttons.insert(buttons.end(), overlap_buttons.begin(), overlap_buttons.end());
       auto rota_buttons = make_rota_buttons(mol);
       buttons.insert(buttons.end(), rota_buttons.begin(), rota_buttons.end());
       auto chiral_buttons = make_chiral_volume_buttons(imol);
       buttons.insert(buttons.end(), chiral_buttons.begin(), chiral_buttons.end());
-      auto rama_buttons = make_rama_buttons(mol);
+      auto rama_buttons = make_rama_buttons(imol);
       buttons.insert(buttons.end(), rama_buttons.begin(), rama_buttons.end());
       auto npcp_buttons = make_non_pro_cis_peptide_buttons(imol, mol);
       buttons.insert(buttons.end(), npcp_buttons.begin(), npcp_buttons.end());

@@ -3299,6 +3299,7 @@ void draw_map_molecule(bool draw_transparent_maps,
 
    // --------- molecule probability scoring ------------
    coot::rama_score_t get_all_molecule_rama_score() const;
+   coot::rama_score_t get_all_molecule_rama_score_old() const; // 20230611-PE delete this one day
    coot::rotamer_score_t get_all_molecule_rotamer_score(const coot::rotamer_probability_tables &rpt) const;
 
    // --------- lsq-improve ------------

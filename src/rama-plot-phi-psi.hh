@@ -65,6 +65,7 @@ namespace rama_plot {
    public:
       int model_number;
       std::map<coot::residue_spec_t, phi_psi_t> phi_psi;
+      phi_psis_for_model_t() : model_number(-1) {}
       explicit phi_psis_for_model_t(int model_number_in) : model_number(model_number_in)  {}
       void add_phi_psi(const coot::residue_spec_t &spec, const phi_psi_t &phi_psi_in) {
 	 phi_psi[spec] = phi_psi_in;
@@ -75,7 +76,11 @@ namespace rama_plot {
       unsigned int size() { return phi_psi.size(); } 
    };
 
-   
+   phi_psis_for_model_t get_phi_psis_for_model(int model_number, mmdb::Manager *mol);
+
+   // more useful?
+   std::map<int, phi_psis_for_model_t> get_phi_psis(mmdb::Manager *mol);
+
 }
 
 
