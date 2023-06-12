@@ -43,11 +43,11 @@ void main() {
 
 #version 330 core
 
-uniform sampler2D face;
 in vec2 texCoord_transfer;
+uniform sampler2D face;
 uniform float opacity;
-vec4 background_colour;
-bool is_perspective_projection;
+uniform vec4 background_colour;
+uniform bool is_perspective_projection;
 
 out vec4 outputColor;
 
@@ -76,8 +76,6 @@ void main() {
    outputColor = sampled;
 
    outputColor = mix(outputColor, background_colour, fog_amount);
-
-   // outputColor = vec4(1,0,1,1);
 
 }
 
