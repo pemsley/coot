@@ -653,6 +653,8 @@ new_startup_application_activate(GtkApplication *application,
          exit(0);
       }
 
+      install_icons_into_theme(GTK_WIDGET(app_window));
+
       // the main application builder
 
       // change "glade" to "ui" one day.
@@ -693,11 +695,8 @@ new_startup_application_activate(GtkApplication *application,
       graphics_info.use_graphics_interface_flag = true;
 
 
-      GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
-      graphics_info_t::statusbar = sb;
-      // std::cout << "debug:: statusbar: " << sb << std::endl;
 
-      install_icons_into_theme(GTK_WIDGET(sb));
+      
 
 
       guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
