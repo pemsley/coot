@@ -478,7 +478,7 @@ install_icons_into_theme(GtkWidget *w) {
 
    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(w));
    std::string pkg_data_dir = coot::package_data_dir();
-   std::string icon_dir = coot::util::append_dir_dir(pkg_data_dir, "icons/hicolor/16x16/actions");
+   std::string icon_dir = coot::util::append_dir_dir(pkg_data_dir, "pixmaps");
    gtk_icon_theme_add_search_path(icon_theme, icon_dir.c_str());
 }
 
