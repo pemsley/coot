@@ -357,8 +357,7 @@ void set_vertical_toolbar_internal_alignment() {
          GtkWidget* target = nullptr;
          if(GTK_IS_MENU_BUTTON(child)) {
 #if GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 6
-            // I don't know how to do this in 4.4
-            //target = gtk_menu_button_get_child(GTK_MENU_BUTTON(child));
+            target = gtk_menu_button_get_child(GTK_MENU_BUTTON(child));
 #endif
          } else {
             target = gtk_button_get_child(GTK_BUTTON(child));
