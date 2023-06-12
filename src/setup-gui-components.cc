@@ -3,6 +3,7 @@
 #include "graphics-info.h"
 #include "c-interface-gtk-widgets.h"
 #include "setup-gui-components.hh"
+#include "utils/coot-utils.hh"
 #include "widget-from-builder.hh"
 
 // this function is both defined and implemented here.
@@ -392,6 +393,14 @@ void set_vertical_toolbar_internal_alignment() {
    }
 }
 
+void setup_curlew_banner() {
+    GtkWidget* curlew_banner = widget_from_builder("curlew_banner");
+    std::string dir = coot::package_data_dir();
+    std::string pixmaps_dir = coot::util::append_dir_dir(dir, "pixmaps");
+    std::string banner_filepath = coot::util::append_dir_file(pixmaps_dir, "curlew-long.png");
+    gtk_picture_set_filename(GTK_PICTURE(curlew_banner), banner_filepath.c_str());
+}
+
 void setup_gui_components() {
 
    g_info("Initializing UI components...");
@@ -402,6 +411,7 @@ void setup_gui_components() {
    setup_get_monomer();
    setup_accession_code_frame();
    setup_python_scripting_entry();
+   setup_curlew_banner();
    attach_css_style_class_to_overlays();
    set_vertical_toolbar_internal_alignment();
    g_info("Done initializing UI components.");
