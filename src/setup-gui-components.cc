@@ -62,6 +62,19 @@ void setup_menubuttons() {
    add_typed_menu_to_mutate_menubutton("PROTEIN");
 }
 
+void setup_mutate_residue_range_dialog() {
+    GtkWidget* mutate_molecule_sequence_text = widget_from_builder("mutate_molecule_sequence_text");
+    GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(mutate_molecule_sequence_text));
+    g_signal_connect(buffer, "changed", G_CALLBACK(+[](GtkTextBuffer* buf, gpointer user_data){
+        std::cout << "on_mutate_molecule_sequence_text:buffer:changed --- start --- " << std::endl;
+        GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
+        GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
+        GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");
+        GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
+        mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+    }), nullptr);
+}
+
 gboolean generic_hide_on_escape_controller_cb(GtkEventControllerKey  *controller,
                                               guint                  keyval,
                                               guint                  keycode,
@@ -385,6 +398,7 @@ void setup_gui_components() {
    g_info("Initializing UI components...");
    setup_menubuttons();
    setup_validation_graph_dialog();
+   setup_mutate_residue_range_dialog();
    setup_ramachandran_plot_chooser_dialog();
    setup_get_monomer();
    setup_accession_code_frame();
