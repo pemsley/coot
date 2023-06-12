@@ -495,6 +495,8 @@ libcootsumo_la_SOURCES = \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
+	dynamic-validation.cc    \
+	dynamic-validation.hh    \
 	eyes.cc eyes.hh		 \
 	event-controller-callbacks.hh \
 	event-controller-callbacks.cc \
@@ -662,8 +664,8 @@ libcootsumo_la_SOURCES = \
 	read-cif.c		 \
 	rama_mousey.cc		 \
 	rama_mousey.hh		 \
-	rama_plot.cc		 \
-	rama_plot.hh		 \
+	rama_plot_with_canvas.cc \
+	rama_plot_with_canvas.hh \
 	text-rendering-utils.cc  \
 	text-rendering-utils.hh  \
 	restraints-editor.cc     \

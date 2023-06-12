@@ -939,16 +939,20 @@ graphics_info_t::update_ramachandran_plot(int imol) {
 
 }
 
+#include "dynamic-validation.hh"
+
 void
 graphics_info_t::update_validation(int imol_changed_model) {
 
    update_validation_graphs(imol_changed_model);
    update_ramachandran_plot(imol_changed_model);
+   update_dynamic_validation_for_molecule(imol_changed_model); // maybe.
 
    if (coot_all_atom_contact_dots_are_begin_displayed_for(imol_changed_model)) {
       mmdb::Manager *mol = molecules[imol_changed_model].atom_sel.mol;
       coot_all_atom_contact_dots_instanced(mol, imol_changed_model);
    }
+
 
 }
 

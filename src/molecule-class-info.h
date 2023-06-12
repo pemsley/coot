@@ -3441,6 +3441,8 @@ void draw_map_molecule(bool draw_transparent_maps,
 
    std::vector<coot::residue_spec_t> het_groups() const;
 
+   std::vector<mmdb::Residue *> get_all_protein_residues() const;
+
    // return null on failure.  seq_trip is something like "ACE".
    mmdb::Atom *get_centre_atom_from_sequence_triplet(const std::string &seq_trip) const;
    // which uses (like align's make_model_string).  Ignores waters.

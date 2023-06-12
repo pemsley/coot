@@ -1385,3 +1385,31 @@ on_smiles_to_simple_3d_ok_button_clicked(GtkButton       *button,
    GtkWidget *frame = widget_from_builder("smiles_to_simple_3d_frame");
    gtk_widget_set_visible(frame, FALSE);
 }
+
+#include "dynamic-validation.hh"
+
+extern "C" G_MODULE_EXPORT
+void
+on_dynamic_validation_update_button_clicked(GtkButton *button,
+                                            gpointer  user_data) {
+
+   update_dynamic_validation();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_dynamic_validation_close_button_clicked(GtkButton *button,
+                                           gpointer  user_data) {
+
+   GtkWidget *validation_frame = widget_from_builder("main_window_vertical_validation_frame");
+   gtk_widget_set_visible(validation_frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_dynamic_validation_include_missing_sidechains_checkbutton_toggled(GtkCheckButton *button,
+                                                                     gpointer  user_data) {
+
+   std::cout << "on_dynamic_validation_include_missing_sidechains_button_toggled() " << std::endl;
+
+}

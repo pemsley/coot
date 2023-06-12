@@ -1987,22 +1987,33 @@ void highly_coordinates_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action
 
 }
 
+#include "dynamic-validation.hh"
+
 void overlaps_peptides_cbeta_ramas_and_rotas_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                                     G_GNUC_UNUSED GVariant *parameter,
                                                     G_GNUC_UNUSED gpointer user_data) {
 
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   std::cout << "in overlaps_peptides_cbeta_ramas_and_rotas_action() with pp " << pp.first << " " << pp.second.first << std::endl;
    if (pp.first) {
+
       int imol = pp.second.first;
-      short int lang = coot::STATE_PYTHON;
-      std::string module = "dynamic_atom_overlaps_and_other_outliers";
-      std::string function = "quick_test_validation_outliers_dialog";
-      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol)};
-      std::string sc = g.state_command(module, function, args, lang);
-      safe_python_command("import dynamic_atom_overlaps_and_other_outliers");
-      safe_python_command(sc);
+      overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
    }
+   
+   // graphics_info_t g;
+   // std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   // if (pp.first) {
+   //    int imol = pp.second.first;
+   //    short int lang = coot::STATE_PYTHON;
+   //    std::string module = "dynamic_atom_overlaps_and_other_outliers";
+   //    std::string function = "quick_test_validation_outliers_dialog";
+   //    std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol)};
+   //    std::string sc = g.state_command(module, function, args, lang);
+   //    safe_python_command("import dynamic_atom_overlaps_and_other_outliers");
+   //    safe_python_command(sc);
+   // }
 
 }
 
@@ -2019,15 +2030,20 @@ void validation_outliers_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
+
       int imol = pp.second.first;
-      short int lang = coot::STATE_PYTHON;
-      std::string module = "find_baddies";
-      std::string function = "validation_outliers_dialog";
       int imol_map = imol_refinement_map();
-      std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol), coot::command_arg_t(imol_map)};
-      std::string sc = g.state_command(module, function, args, lang);
-      safe_python_command("import find_baddies");
-      safe_python_command(sc);
+      dynamic_validation_internal(imol, imol_map);
+
+      // Goodbye wretched python
+      //
+      // short int lang = coot::STATE_PYTHON;
+      // std::string module = "find_baddies";
+      // std::string function = "validation_outliers_dialog";
+      // std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol), coot::command_arg_t(imol_map)};
+      // std::string sc = g.state_command(module, function, args, lang);
+      // safe_python_command("import find_baddies");
+      // safe_python_command(sc);
    }
 
 }

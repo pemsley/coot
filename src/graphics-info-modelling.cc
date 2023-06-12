@@ -5912,6 +5912,7 @@ graphics_info_t::auto_fit_rotamer_ng(int imol, const coot::residue_spec_t &res_s
       update_geometry_graphs(&residue_p, 1, imol, imol_map); // yikes!
       std::cout << "Fitting score for best rotamer: " << f << std::endl;
       graphics_draw();
+      run_post_manipulation_hook(imol, 0);
    } else {
       show_select_map_dialog();
    }

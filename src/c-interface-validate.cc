@@ -1667,7 +1667,7 @@ void fill_ramachandran_plot_differences_combobox_with_chain_options(GtkWidget *c
 
 
 
-#include "rama_plot.hh"
+#include "rama_plot_with_canvas.hh"
 // More dynarama stuff:
 // call with value non-zero for on, 0 for off/not.
 //

@@ -10984,3 +10984,9 @@ Here is how you read the imol:
 
 
 ---
+Sun 11 Jun 01:10:48 BST 2023
+
+   use cpulimit for gdb interrupting slow parts of the program
+
+   https://www.cyberciti.biz/faq/cpu-usage-limiter-for-linux/
+
