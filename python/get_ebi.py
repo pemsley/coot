@@ -179,8 +179,8 @@ def get_ebi_pdb(id):
     else:
         cif_url_status = get_url_str(id, cif_url_str, "cif", None)
         if coot_utils.valid_model_molecule_qm(cif_url_status):
-            # print "BL DEBUG:: get-ebi-pdb ======= cif_url_status", cif_url_status
-            pdbe_validation_data.pdb_validate(down_id, cif_url_status)
+            # 2023-06-12-PE remove this for now - it doesn't work with GTK4.
+            # pdbe_validation_data.pdb_validate(down_id, cif_url_status)
             return cif_url_status
 
     return False
