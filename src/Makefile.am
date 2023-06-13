@@ -676,6 +676,7 @@ libcootsumo_la_SOURCES = \
 	rsr-functions.cc         \
 	rsr-functions.hh         \
 	screen-utils.cc	 \
+	screen-utils.hh	 \
 	screendump-tga.hh        \
 	screendump-tga.cc        \
 	sound.cc                 \
