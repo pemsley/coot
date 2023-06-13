@@ -7,7 +7,7 @@
 #include "utils/coot-utils.hh"
 
 void setup_application_icon(GtkWindow *window) {
-
+    gtk_window_set_icon_name (GTK_WINDOW (window), "coot-icon.png");
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       // 20220528-PE FIXME icons
 #else
