@@ -178,7 +178,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
    };
 
    auto make_rota_buttons = [imol, set_target_position_from_residue, rota_button_callback] (mmdb::Manager *mol) {
-      float prob_critical = 2.0; // from 0 to 1.0;
+      float prob_critical = 1.0; // from 0 to 1.0;
       std::vector<std::pair<coot::residue_spec_t, GtkWidget *> > buttons;
       std::vector<mmdb::Residue *> residues =  graphics_info_t::molecules[imol].get_all_protein_residues();
       graphics_info_t g;
@@ -533,9 +533,6 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       buttons.insert(buttons.end(), twisted_trans_buttons.begin(), twisted_trans_buttons.end());
       auto cbeta_devi_buttons = make_cbeta_devi_buttons(imol, mol);
       buttons.insert(buttons.end(), cbeta_devi_buttons.begin(), cbeta_devi_buttons.end());
-
-      std::cout << "sizes buttons " << buttons.size() << " overlaps " << overlap_buttons.size()
-                << " rota " << rota_buttons.size() << std::endl;
 
       if (label) {
          unsigned int n_baddies = buttons.size();

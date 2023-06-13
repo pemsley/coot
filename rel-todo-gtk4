@@ -51,8 +51,6 @@ set_framebuffer_scale_factor().
 Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
 shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
 
-Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
-
 "About Coot" is empty (was fixed in GTK3 version). Remake it in Cambalache?  ::: 0.5
 * Nearly done - I need to be able to install the icon.
 
@@ -60,8 +58,6 @@ Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 * Preferences, surely.
 
 What's up with the Preferences? ::: 4
-
-Put the curlew banner in the curlew dialog ::: 0.4
 
 Views ::: 2
 
@@ -98,9 +94,13 @@ Rework the namespace of the python modules to be more cannonical ::: 4
 
 Clicking on Green left arrow doesn't open the refinement overlay ::: 1
 
+"Ligands" selection in Go To Atom ::: 0.5
+
 Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
 
 Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
+
+NCS Jumping should use the correct matrix ::: 0.5
 
 Do the tutorial from time to time - what's missing? ::: 1
 
@@ -651,3 +651,7 @@ Clear the box of results in Unmodelled Blobs ::: 0.4
 
 Put GLM into configure, get rid of --with-gtk4 ::: 0.5
 
+
+Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
+
+Put the curlew banner in the curlew dialog ::: 1

@@ -552,7 +552,7 @@ molecule_class_info_t::match_ligand_atom_names(const std::string &chain_id, int 
 coot::rama_score_t
 molecule_class_info_t::get_all_molecule_rama_score() const {
 
-   auto debug_the_probabilities = [] () {
+   G_GNUC_UNUSED auto debug_the_probabilities = [] () {
       clipper::Ramachandran rama;
       ftype level_prefered = graphics_info_t::rama_level_prefered;
       ftype level_allowed  = graphics_info_t::rama_level_allowed;
@@ -572,8 +572,7 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
       f_out.close();
    };
    
-
-   debug_the_probabilities();
+   // debug_the_probabilities();
 
    coot::rama_score_t rs;
 
@@ -617,22 +616,23 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
          mmdb::Residue *residue_p = get_residue(residue_spec);
          if (residue_p) {
             // there seems to be a problem here of using the correct rama...
-            clipper::Ramachandran &rama = r_non_gly_pro;
-            if (ppr.residue_name() == "GLY") rama = r_gly;
-            if (ppr.residue_name() == "PRO") rama = r_pro;
-            if (ppr.residue_name() == "ILE") rama = r_ileval;
-            if (ppr.residue_name() == "VAL") rama = r_ileval;
-            if (ppr.is_pre_pro()) rama = r_pre_pro;
+            clipper::Ramachandran *rama_p = &r_non_gly_pro;
+            if (ppr.is_pre_pro()) rama_p = &r_pre_pro;
+            if (ppr.residue_name() == "GLY") rama_p = &r_gly;
+            if (ppr.residue_name() == "PRO") rama_p = &r_pro;
+            if (ppr.residue_name() == "ILE") rama_p = &r_ileval;
+            if (ppr.residue_name() == "VAL") rama_p = &r_ileval;
 
             double phi = ppr.phi();
             double psi = ppr.psi();
-            ftype p = rama.probability(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
+            ftype p = rama_p->probability(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
             coot::rama_score_t::scored_phi_psi_t scored_phi_psi(residue_spec, p, ppr);
             scored_phi_psi.set_residues(it->second);
             rs.scores.push_back(scored_phi_psi);
-            std::cout << "debug:: get_all_molecule_rama_score() added " << residue_spec
-                      << " phi " << phi << " psi " << psi << " "
-                      << ppr.residue_name() << " " << ppr.is_pre_pro() << " pr: " << p << std::endl;
+            if (false)
+               std::cout << "debug:: get_all_molecule_rama_score() added " << residue_spec
+                         << " phi " << phi << " psi " << psi << " "
+                         << ppr.residue_name() << " " << ppr.is_pre_pro() << " pr: " << p << std::endl;
          }
       }
    }
