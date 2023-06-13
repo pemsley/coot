@@ -335,7 +335,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
          mmdb::Residue *residue_p = coot::util::get_residue(res_spec, mol);
          if (residue_p) {
             if (cpi.residue_name_2 != "PRO") {
-               std::string lab = "Non-PRO cis Peptide ";
+               std::string lab = "Non-PRO <i>cis</i> Peptide ";
                lab += cpi.chain_id_1;
                lab += " ";
                lab += std::to_string(cpi.resno_1);
@@ -345,6 +345,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
                // GtkWidget *button = gtk_button_new_with_label(lab.c_str());
                GtkWidget *button = gtk_button_new();
                GtkWidget *label = gtk_label_new(lab.c_str());
+               gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
                gtk_widget_set_halign(label, GTK_ALIGN_START);
                gtk_button_set_child(GTK_BUTTON(button), label);
                gtk_widget_set_margin_start (button, 4);
@@ -382,7 +383,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
 	       coot::residue_spec_t r1(v[i].quad.atom_1->GetResidue());
                coot::residue_spec_t r2(v[i].quad.atom_4->GetResidue());
                float omega = v[i].quad.torsion();
-               std::string lab = "Twisted trans ";
+               std::string lab = "Twisted <i>trans</i> ";
                lab += std::string(v[i].quad.atom_2->GetChainID());
                lab += " ";
                lab += std::to_string(v[i].quad.atom_2->GetSeqNum());
@@ -392,6 +393,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
                // GtkWidget *button = gtk_button_new_with_label(lab.c_str());
                GtkWidget *button = gtk_button_new();
                GtkWidget *label = gtk_label_new(lab.c_str());
+               gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
                gtk_widget_set_halign(label, GTK_ALIGN_START);
                gtk_button_set_child(GTK_BUTTON(button), label);
                gtk_widget_set_margin_start (button, 4);
@@ -439,7 +441,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
             const coot::c_beta_deviation_t &cbd = it_inner->second;
             if (cbd.dist > dist_crit) {
                coot::residue_spec_t res_spec(res_key);
-               std::string lab = "CBeta Deviation ";
+               std::string lab = "Cβ Deviation ";
                lab += " ";
                lab += cbd.at->GetChainID();
                lab += " ";
