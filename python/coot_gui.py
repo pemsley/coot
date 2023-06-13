@@ -66,6 +66,8 @@ global history
 histpos = 0
 history = ['']
 
+global probe_command
+probe_command = "molprobity.probe"
 
 # The callback from pressing the Go button in the smiles widget, an
 # interface to run libcheck.
@@ -5622,11 +5624,9 @@ def add_module_ligand_gui():
             ss = "//" + aa_chain_id + "/" + str(aa_res_no)
             imol_selection = coot.new_molecule_by_atom_selection(aa_imol, ss)
             work_dir = coot_utils.get_directory("coot-molprobity")
-            tmp_selected_ligand_for_probe_pdb = os.path.join(work_dir,
-                                                "tmp-selected-ligand-for-probe.pdb")
-            tmp_protein_for_probe_pdb = os.path.join(work_dir,
-                                                 "tmp-protein-for-probe.pdb")
-            generic_objects.probe_dots_file_name = os.path.join(work_dir, "probe.dots")
+            tmp_selected_ligand_for_probe_pdb = os.path.join(work_dir, "tmp-selected-ligand-for-probe.pdb")
+            tmp_protein_for_probe_pdb         = os.path.join(work_dir, "tmp-protein-for-probe.pdb")
+            probe_dots_file_name              = os.path.join(work_dir, "probe.dots")
 
             coot.set_mol_displayed(imol_selection, 0)
             coot.set_mol_active(imol_selection, 0)
@@ -5636,14 +5636,14 @@ def add_module_ligand_gui():
             #set_rotation_centre(*rc)
             #hydrogenate_region(6)
             coot.write_pdb_file(imol_selection, tmp_selected_ligand_for_probe_pdb)
-            coot.write_pdb_file(imol, tmp_protein_for_probe_pdb)
+            coot.write_pdb_file(aa_imol, tmp_protein_for_probe_pdb)
             coot_utils.popen_command(probe_command, ["-u", "-once", str(aa_res_no), # -once or -both
                                              "not " + str(aa_res_no),
-                                             "-density60",
+                                             "-density40",
                                              tmp_selected_ligand_for_probe_pdb,
                                              tmp_protein_for_probe_pdb],
-                                             [], generic_objects.probe_dots_file_name, False)
-            coot.handle_read_draw_probe_dots_unformatted(dots_file_name, aa_imol, 0)
+                                             [], probe_dots_file_name, False)
+            coot.handle_read_draw_probe_dots_unformatted(probe_dots_file_name, aa_imol, 0)
             coot.graphics_draw()
 
     if coot_gui_api.main_menumodel():

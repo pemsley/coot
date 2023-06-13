@@ -790,7 +790,6 @@ application_open_callback(GtkApplication *app,
                           gchar          *hint,
                           gpointer        user_data) {
 
-   
    command_line_data cld;
 
    for (gint i=0; i<n_files; i++) {
@@ -801,13 +800,13 @@ application_open_callback(GtkApplication *app,
       if (file_info) {
          const char *file_name = g_file_info_get_name(file_info);
          if (file_name) {
-            std::cout << "Handle " << file_name << std::endl;
+            std::cout << "application_open_callback(): handle " << file_name << std::endl;
             cld.add(std::string(file_name));
          } else {
-            std::cout << "file_name was null " << std::endl;
+            std::cout << "ERROR:: application_open_callback(): file_name was null " << std::endl;
          }
       } else {
-         std::cout << "application_open_callback() error " << i << " " << error->message << std::endl;
+         std::cout << "ERROR:: application_open_callback() error " << i << " " << error->message << std::endl;
       }
    }
 

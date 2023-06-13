@@ -3500,9 +3500,9 @@ void
 coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &res_spec) {
 
 
+#if 0 // 20210911-PE - goodbye ball clashes.
    auto setup_ball_clashes = [] () {
 
-#if 0 // 20210911-PE - goodbye ball clashes.
                                       std::vector<Instanced_Markup_Mesh_attrib_t> balls;
                                       balls.resize(c.clashes.size());
                                       std::string mesh_name = molecule_name_stub;
@@ -3521,8 +3521,8 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
                                                                                   glm::vec3(coord_orth_to_glm(c.clashes[i].second)));
                                       }
                                       clash_im.update_instancing_buffers(balls);
-#endif
                                    };
+#endif
 
 
    graphics_info_t g;

@@ -1,5 +1,12 @@
+
+import os
 import coot
 import coot_utils
+import coot_gui  # does this load probe_command
+import generic_objects
+
+global probe_command
+probe_command = "molprobity.probe"
 
 # this function is not at startup?
 
@@ -14,9 +21,7 @@ def deactivate_molecules_except(imol):
 #
 def contact_score_ligand(imol, res_spec):
 
-    global probe_command
-
-    if not command_in_path_qm(probe_command):
+    if not coot_utils.command_in_path_qm(probe_command):
         print("WARNING:: no probe command find, so no contact score")
         return False
 
@@ -28,16 +33,13 @@ def contact_score_ligand(imol, res_spec):
     ss = "//" + chain_id + "/" + str(res_no)
     imol_selection = coot.new_molecule_by_atom_selection(imol, ss)
     coot_molprobity_dir = coot_utils.get_directory("coot-molprobity")
-    ligand_selection_pdb = os.path.join(coot_molprobity_dir,
-                                        "tmp-selected-ligand-for-probe-" + str(imol) + ".pdb")
-    protein_selection_pdb = os.path.join(coot_molprobity_dir,
-                                         "tmp-protein-for-probe-" + str(imol) + ".pdb")
-    dots_file_name = os.path.join(coot_molprobity_dir,
-                                  "probe-" + chain_id + "-" + str(res_no) + ".dots")
+    ligand_selection_pdb = os.path.join(coot_molprobity_dir, "tmp-selected-ligand-for-probe-" + str(imol) + ".pdb")
+    protein_selection_pdb = os.path.join(coot_molprobity_dir, "tmp-protein-for-probe-" + str(imol) + ".pdb")
+    dots_file_name = os.path.join(coot_molprobity_dir, "probe-" + chain_id + "-" + str(res_no) + ".dots")
     coot.set_mol_active(imol_selection, 0)
     coot.set_mol_displayed(imol_selection, 0)
-    coot_utils.set_go_to_atom_molecule(imol)
-    rc = residue_centre(imol, chain_id, res_no, ins_code)
+    coot.set_go_to_atom_molecule(imol)
+    rc = coot.residue_centre_py(imol, chain_id, res_no, ins_code)
     coot.set_rotation_centre(*rc)
     coot.hydrogenate_region(6)
 
@@ -58,7 +60,7 @@ def contact_score_ligand(imol, res_spec):
     # coot_utils.debugging!?
     coot.handle_read_draw_probe_dots_unformatted(dots_file_name, imol, 0)
 
-    cs = generic_objects.probe_clash_score(dots_file_name)
+    cs = coot.probe_clash_score_py(dots_file_name)
     coot.graphics_draw()
     return cs
 

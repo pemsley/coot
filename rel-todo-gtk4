@@ -102,7 +102,15 @@ Nice to have: Unmodelled blobs are labelled with the residue to which they are c
 
 NCS Jumping should use the correct matrix ::: 0.5
 
+Go To (next) Ligand should use the correct matrix ::: 0.5
+
 Do the tutorial from time to time - what's missing? ::: 1
+
+Make info_dialog() take a string.
+
+Looks at 1x8b with ligands and contact dots - is 2.0 too close for H-O hydrogen bond distance?
+No, it's fine: see https://proteopedia.org/wiki/index.php/Hydrogen_bonds. Contact dots has it as
+a clash though. "The dotted hydrogen bond is non-covalent and variable in length, ~1.5-2.5 Å." ::: 1
 
 Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
 It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
