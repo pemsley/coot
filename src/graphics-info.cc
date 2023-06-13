@@ -346,8 +346,8 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label,
       if (ch) {
          // already added - so do nothing
       } else {
-         std::string pdd = coot::package_data_dir();
-         std::string dir = coot::util::append_dir_dir(pdd, "icons/hicolor/scalable/actions");
+         std::string prefix = coot::prefix_dir();
+         std::string dir = coot::util::append_dir_dir(prefix, "share/icons/hicolor/scalable/actions");
          std::string fn_1 = coot::util::append_dir_file(dir, "Stock-dialog-information.svg");
          std::string fn_2 = coot::util::append_dir_file(dir, "Stock-dialog-warning.svg");
          GtkWidget *image_1 = gtk_image_new_from_file(fn_1.c_str());
