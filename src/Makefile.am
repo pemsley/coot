@@ -675,8 +675,6 @@ libcootsumo_la_SOURCES = \
 	rotamer-search-modes.hh  \
 	rsr-functions.cc         \
 	rsr-functions.hh         \
-	screen-utils.cc	 \
-	screen-utils.hh	 \
 	screendump-tga.hh        \
 	screendump-tga.cc        \
 	sound.cc                 \

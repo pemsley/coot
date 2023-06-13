@@ -9,7 +9,6 @@
 #include "setup-gui-components.hh"
 #include "coot-setup-python.hh"
 #include "utils/coot-utils.hh"
-#include "screen-utils.hh"
 
 void print_opengl_info();
 
@@ -661,7 +660,7 @@ new_startup_application_activate(GtkApplication *application,
       }
 
       install_icons_into_theme(GTK_WIDGET(app_window));
-      setup_application_icon(GTK_WINDOW(app_window)); // 20220807-PE not sure what this does in gtk4 or if it works.
+      gtk_window_set_icon_name(GTK_WINDOW(app_window), "coot");
 
       // the main application builder
 
