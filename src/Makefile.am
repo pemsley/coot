@@ -516,8 +516,6 @@ libcootsumo_la_SOURCES = \
 	generic-display-objects-c.h \
 	generic-vertex.hh	 \
 	gensurf.hh               \
-	geometry-graphs.cc	 \
-	geometry-graphs.hh	 \
 	get-residue.hh           \
 	get-residue.cc           \
 	get-monomer.hh           \
