@@ -17,6 +17,7 @@
   * _should it do anything for bonds? Insert an atom in between?_
   * Handle the 'X'/other element mode
 * Rendering of exports
+* Rotating by angle + flipping by axes
 * How should "remove hydrogens" work?
 * Implement charge tool
 * Fetch
