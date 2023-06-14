@@ -81,7 +81,6 @@
 #include "ligand/ligand.hh"
 
 #include "coot-utils/coot-map-utils.hh"
-#include "geometry-graphs.hh"
 
 
 void graphics_info_t::refresh_validation_graph_model_list() {
@@ -181,6 +180,7 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
    std::cout << "----------------------- done refresh_ramachandran_plot_model_list --------- " << std::endl;
 }
 
+// TODO: we're not using tabs right now. Do we ever intend to do so?
 
 // void create_tab_for_validation_graph(coot::validation_graph_type type, GtkWidget* the_graph) {
 // 	GtkWidget* notebook = widget_from_builder("validation_graph_notebook");
