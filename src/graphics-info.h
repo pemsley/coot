@@ -5156,10 +5156,6 @@ string   static std::string sessionid;
    // like the above, this should be called when a model gets added or deleted.
    static void refresh_ramachandran_plot_model_list();
 
-   // 20230415-PE This should not be needed - because we should always be able to read the active imol
-   // from the widget in any callback. But for now it is needed in on_validation_graph_checkbutton_toggled()
-   // in the glade-callbacks.cc - so let's make it public.
-   //
    /// -1 if none
    static int active_validation_graph_model_idx;
 
