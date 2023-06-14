@@ -11036,91 +11036,6 @@ on_mutate_molecule_resno_2_entry_changed(GtkEditable     *editable,
 
 extern "C" G_MODULE_EXPORT
 void
-on_mutate_molecule_sequence_text_insert_at_cursor
-                                        (GtkTextView     *textview,
-                                        gchar           *string,
-                                        gpointer         user_data) {
-   std::cout << "on_mutate_molecule_sequence_text_insert_at_cursor()... --- start --- " << std::endl;
-   GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
-   GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
-   GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");
-   GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
-   mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_mutate_molecule_sequence_text_move_cursor(GtkTextView* self,
-                                             GtkMovementStep* step,
-                                             gint count,
-                                             gboolean extend_selection,
-                                             gpointer user_data) {
-
-   std::cout << "-------------------------- move cursor! " << std::endl;
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_other_text_insert_at_cursor(GtkTextView     *textview,
-                               gchar           *string,
-                               gpointer         user_data) {
-
-   std::cout << "on_other_text_insert_at_cursor" << std::endl;
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_other_text_move_cursor(GtkTextView* self,
-                          GtkMovementStep* step,
-                          gint count,
-                          gboolean extend_selection,
-                          gpointer user_data) {
-
-   std::cout << "-------------------------- other text move cursor! " << std::endl;
-
-}
-
-
-
-#ifdef FIX_THE_KEY_PRESS_EVENTS
-extern "C" G_MODULE_EXPORT
-gboolean
-on_mutate_molecule_sequence_text_key_release_event(GtkWidget       *widget,
-                                                   GdkEventKey     *event,
-                                                   gpointer         user_data) {
-
-   GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
-   GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
-   GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");
-   GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
-   mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
-   return FALSE;
-}
-#endif
-
-
-#ifdef FIX_THE_KEY_PRESS_EVENTS
-extern "C" G_MODULE_EXPORT
-gboolean
-on_mutate_molecule_sequence_text_button_release_event
-                                        (GtkWidget       *widget,
-                                        GdkEventButton  *event,
-                                        gpointer         user_data) {
-
-  GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
-  GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
-  GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");
-  GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
-  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
-  return FALSE;
-}
-#endif
-
-
-extern "C" G_MODULE_EXPORT
-void
 on_display_control_last_model_only_button_clicked (GtkButton       *button,
                                                    gpointer         user_data) {
   set_only_last_model_molecule_displayed();
@@ -12096,17 +12011,12 @@ on_updating_maps_ok_button_clicked(GtkButton       *button,
    int imol_map      = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox));
    int imol_diff_map = my_combobox_get_imol(GTK_COMBO_BOX(diff_map_combobox));
 
-   std::cout << "55555555555555555 in on_updating_maps_ok_button_clicked() here are the molecules indices "
-             << imol << " " << imol_map << " " << imol_diff_map << std::endl;
-
    bool auto_update_flag = false;
    if (gtk_check_button_get_active(GTK_CHECK_BUTTON(check_button))) auto_update_flag = true;
 
    if (auto_update_flag) {
-      std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHere 1 " << imol << " " << imol_map << " " << imol_diff_map << std::endl;
       set_auto_updating_sfcalc_genmap(imol, imol_map, imol_diff_map);
    } else {
-      std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHere 2 " << std::endl;
       calculate_maps_and_stats_py(imol, imol_map, imol_map, imol_diff_map);
    }
 
@@ -12114,3 +12024,13 @@ on_updating_maps_ok_button_clicked(GtkButton       *button,
    gtk_widget_set_visible(dialog, FALSE);
 }
 
+
+extern "C" G_MODULE_EXPORT
+void
+on_ligand_check_dialog_close_button_clicked(GtkButton       *button,
+                                            gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("ligand_check_dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+
+}

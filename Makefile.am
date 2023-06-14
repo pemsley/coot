@@ -53,14 +53,10 @@ endif
 
 # po, no po today.
 
-cootrc: $(top_srcdir)/cootrc.template
-	$(MAKE_COOTRC_CMD) $(top_srcdir)/cootrc.template > $@
-
 
 EXTRA_DIST = 		\
 	autogen.sh 	\
 	make-scheme-tar \
-	cootrc.template	\
 	py-compile      \
 	standard-residues.pdb \
 	BUGS		\
@@ -119,7 +115,7 @@ EXTRA_DIST = 		\
 
 # packdatadir is xxx/share/coot
 subpkgdatadir = $(pkgdatadir)
-subpkgdata_DATA = cootrc standard-residues.pdb colours.def \
+subpkgdata_DATA = standard-residues.pdb colours.def \
 	mtrix-to-ncs-matrix.awk syminfo.lib
 
 cootgladedir = $(pkgdatadir)/glade

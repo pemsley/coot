@@ -1677,7 +1677,7 @@ coot::util::get_residue_centre(mmdb::Residue *residue_p) {
 
    bool status = 0;
    clipper::Coord_orth centre(0,0,0);
-   
+
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -1707,6 +1707,28 @@ coot::util::get_CA_position_in_residue(mmdb::Residue *residue_p) {
    for (int i=0; i<n_residue_atoms; i++) {
       std::string atom_name(residue_atoms[i]->GetAtomName());
       if (atom_name == " CA ") { // PDBv3 FIXME
+         clipper::Coord_orth pt(residue_atoms[i]->x,
+                                residue_atoms[i]->y,
+                                residue_atoms[i]->z);
+         pos = pt;
+         status = true;
+         break;
+      }
+   }
+   return std::pair<bool, clipper::Coord_orth> (status, pos);
+}
+
+std::pair<bool, clipper::Coord_orth>
+coot::util::get_CB_position_in_residue(mmdb::Residue *residue_p) {
+
+   bool status = 0;
+   clipper::Coord_orth pos(0,0,0);
+   mmdb::PPAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int i=0; i<n_residue_atoms; i++) {
+      std::string atom_name(residue_atoms[i]->GetAtomName());
+      if (atom_name == " CB ") { // PDBv3 FIXME
          clipper::Coord_orth pt(residue_atoms[i]->x,
                                 residue_atoms[i]->y,
                                 residue_atoms[i]->z);
@@ -6788,15 +6810,17 @@ coot::util::cis_peptides_info_from_coords(mmdb::Manager *mol) {
          mmdb::Atom *at_2 = 0;
          for (int ires=0; ires<(nres-1); ires++) { 
    
+            int n_atoms_1 = 0;
+            int n_atoms_2 = 0;
             mmdb::Atom *ca_first = NULL, *c_first = NULL, *n_next = NULL, *ca_next = NULL;
             residue_p_1 = chain_p->GetResidue(ires);
-            int n_atoms_1 = residue_p_1->GetNumberOfAtoms();
             residue_p_2 = chain_p->GetResidue(ires+1);
-            int n_atoms_2 = residue_p_2->GetNumberOfAtoms();
 
-            // if (residue_p_2->GetSeqNum() == (residue_p_1->GetSeqNum() + 1)) { 
             if (residue_p_1 && residue_p_2) { 
-         
+
+               n_atoms_1 = residue_p_1->GetNumberOfAtoms();
+               n_atoms_2 = residue_p_2->GetNumberOfAtoms();
+
                for (int iat=0; iat<n_atoms_1; iat++) {
                   at_1 = residue_p_1->GetAtom(iat);
                   if (std::string(at_1->GetAtomName()) == " CA ")
@@ -6840,9 +6864,11 @@ coot::util::cis_peptides_info_from_coords(mmdb::Manager *mol) {
                   if (d<3.0) { // the residues were close in space, not just close in sequence
                      if (distortion > 90.0) {
                         coot::residue_spec_t rs1(residue_p_1);
-                        coot::residue_spec_t rs2(residue_p_2); 
-                        v.push_back(coot::util::cis_peptide_info_t(chain_p->GetChainID(),
-                                                                   rs1, rs2, imod, torsion));
+                        coot::residue_spec_t rs2(residue_p_2);
+                        coot::util::cis_peptide_info_t cpi(chain_p->GetChainID(), rs1, rs2, imod, torsion);
+                        cpi.residue_name_1 = residue_p_1->GetResName();
+                        cpi.residue_name_2 = residue_p_2->GetResName();
+                        v.push_back(cpi);
                      }
                   }
                }

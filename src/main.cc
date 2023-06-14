@@ -129,21 +129,6 @@
 #include "change-dir.hh"
 #include "curlew.hh"
 
-void show_citation_request();
-void load_gtk_resources();
-void setup_splash_screen();
-void desensitive_scripting_menu_item_maybe(GtkWidget *window);
-int setup_screen_size_settings();
-void setup_application_icon(GtkWindow *window);
-void setup_symm_lib();
-void check_reference_structures_dir();
-#include "boot-python.hh"
-
-#ifdef USE_MYSQL_DATABASE
-#include "mysql/mysql.h"
-int setup_database();
-#endif
-
 #include "testing.hh" // for test_internal();
 
 #include "scm-boot-guile.hh"

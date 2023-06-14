@@ -3299,6 +3299,7 @@ void draw_map_molecule(bool draw_transparent_maps,
 
    // --------- molecule probability scoring ------------
    coot::rama_score_t get_all_molecule_rama_score() const;
+   coot::rama_score_t get_all_molecule_rama_score_old() const; // 20230611-PE delete this one day
    coot::rotamer_score_t get_all_molecule_rotamer_score(const coot::rotamer_probability_tables &rpt) const;
 
    // --------- lsq-improve ------------
@@ -3440,6 +3441,8 @@ void draw_map_molecule(bool draw_transparent_maps,
    std::vector<coot::residue_spec_t> all_residues() const;
 
    std::vector<coot::residue_spec_t> het_groups() const;
+
+   std::vector<mmdb::Residue *> get_all_protein_residues() const;
 
    // return null on failure.  seq_trip is something like "ACE".
    mmdb::Atom *get_centre_atom_from_sequence_triplet(const std::string &seq_trip) const;

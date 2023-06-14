@@ -475,6 +475,8 @@ libcootsumo_la_SOURCES = \
 	coot-hydrogens.hh        \
 	coot-hydrogens.cc        \
 	coot-render.hh           \
+	coot-phi-psi.cc          \
+	coot-phi-psi.hh          \
 	coot_pythonmodule.cc     \
 	coot-preferences.h       \
 	coot-references.h        \
@@ -495,6 +497,8 @@ libcootsumo_la_SOURCES = \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
+	dynamic-validation.cc    \
+	dynamic-validation.hh    \
 	eyes.cc eyes.hh		 \
 	event-controller-callbacks.hh \
 	event-controller-callbacks.cc \
@@ -662,8 +666,8 @@ libcootsumo_la_SOURCES = \
 	read-cif.c		 \
 	rama_mousey.cc		 \
 	rama_mousey.hh		 \
-	rama_plot.cc		 \
-	rama_plot.hh		 \
+	rama_plot_with_canvas.cc \
+	rama_plot_with_canvas.hh \
 	text-rendering-utils.cc  \
 	text-rendering-utils.hh  \
 	restraints-editor.cc     \
@@ -673,7 +677,6 @@ libcootsumo_la_SOURCES = \
 	rotamer-search-modes.hh  \
 	rsr-functions.cc         \
 	rsr-functions.hh         \
-	screen-utils.cc	 \
 	screendump-tga.hh        \
 	screendump-tga.cc        \
 	sound.cc                 \

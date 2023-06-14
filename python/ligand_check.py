@@ -1,5 +1,6 @@
 import coot
 import coot_utils
+import contact_score_isolated_ligand
 
 def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
                            refmac_input_mtz_file_name,
@@ -282,8 +283,8 @@ def filter_out_waters(imol, env_residues):
 def gui_ligand_check_dialog_wrapper(imol, imol_map, ligand_spec):
 
     neighbs = []
-    correl = coot.map_to_model_correlation(imol, [ligand_spec], neighbs, 0, imol_map)
-    cs = contact_score_ligand (imol, ligand_spec)
+    correl = coot.map_to_model_correlation_py(imol, [ligand_spec], neighbs, 0, imol_map)
+    cs = contact_score_isolated_ligand.contact_score_ligand(imol, ligand_spec)
     n_bumps = -1
     if cs:
         n_bumps = cs[0]

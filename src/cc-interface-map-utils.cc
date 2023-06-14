@@ -2,7 +2,6 @@
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif
-#include "rama_plot.hh"
 #include "graphics-info.h"
 #include "cc-interface.hh"
 

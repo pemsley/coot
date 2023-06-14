@@ -6425,12 +6425,92 @@ Do you want to continue?
                 <property name="orientation">horizontal</property>
 
                 <child>
-                  <object class="GtkScrolledWindow" id="ramachandran_plots_scrolled_window">
+                  <object class="GtkBox" id="main_window_ramchandran_and_validation_vbox">
+                    <property name="orientation">vertical</property>
+
                     <child>
-                      <object class="GtkBox" id="ramachandran_plots_vbox">
-                        <property name="orientation">vertical</property>
+                      <object class="GtkScrolledWindow" id="ramachandran_plots_scrolled_window">
+                        <child>
+                          <object class="GtkBox" id="ramachandran_plots_vbox">
+                            <property name="orientation">vertical</property>
+                          </object>
+                        </child>
                       </object>
                     </child>
+
+                    <child>
+                      <object class="GtkFrame" id="main_window_vertical_validation_frame">
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
+                        <property name="visible">False</property>
+                        <property name="margin-bottom">2</property>
+                        <property name="margin-end">2</property>
+                        <property name="margin-start">2</property>
+                        <property name="margin-top">2</property>
+
+                        <child>
+                          <object class="GtkBox" id="dynamic_validation_vbox">
+                            <property name="orientation">vertical</property>
+                            <property name="margin-bottom">2</property>
+                            <property name="margin-end">2</property>
+                            <property name="margin-start">2</property>
+                            <property name="margin-top">2</property>
+
+                            <child>
+                              <object class="GtkLabel" id="dynamic_validation_outliers_label">
+                                <property name="label" translatable="yes">Outlier Count: -</property>
+                                <property name="justify">left</property>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkScrolledWindow">
+                                <property name="vexpand">True</property>
+                                <child>
+                                  <object class="GtkBox" id="dynamic_validation_outliers_vbox">
+                                    <property name="orientation">vertical</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkCheckButton" id="dynamic_validation_include_missing_sidechains_checkbutton">
+                                <property name="label" translatable="yes">Include Missing Sidechains</property>
+                                <property name="active">0</property>
+                                <property name="visible">False</property>
+                                <signal name="toggled" handler="on_dynamic_validation_include_missing_sidechains_checkbutton_toggled" swapped="no"/>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkButton" id="dynamic_validation_update_button">
+                                <property name="label">Update</property>
+                                <property name="margin-bottom">6</property>
+                                <property name="margin-end">6</property>
+                                <property name="margin-start">4</property>
+                                <property name="margin-top">4</property>
+                                <signal name="clicked" handler="on_dynamic_validation_update_button_clicked" swapped="no"/>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkButton" id="dynamic_validation_close_button">
+                                <property name="label">Close</property>
+                                <property name="margin-bottom">6</property>
+                                <property name="margin-end">6</property>
+                                <property name="margin-start">4</property>
+                                <property name="margin-top">4</property>
+                                <signal name="clicked" handler="on_dynamic_validation_close_button_clicked" swapped="no"/>
+                              </object>
+                            </child>
+
+                          </object>
+                        </child>
+
+                      </object>
+                    </child>
+
                   </object>
                 </child>
 
@@ -9312,19 +9392,6 @@ density (too big to be waters):
                             <property name="justify">center</property>
                           </object>
                         </child>
-
-                        <!-- this widget is for testing - do the insert-at-cursor and move-cursor callbacks work? -->
-                        <!-- No, they don't -->
-                        <child>
-                          <object class="GtkTextView" id="other_text">
-                            <property name="can-focus">1</property>
-                            <property name="wrap-mode">word</property>
-                            <property name="monospace">True</property>
-                            <signal name="insert-at-cursor" handler="on_other_text_insert_at_cursor" swapped="no"/>
-                            <signal name="move-cursor" handler="on_other_text_move_cursor" swapped="no"/>
-                          </object>
-                        </child>
-
                       </object>
                     </child>
                     <child type="label">
@@ -9350,8 +9417,6 @@ density (too big to be waters):
                         <property name="can-focus">1</property>
                         <property name="wrap-mode">word</property>
                         <property name="monospace">True</property>
-                        <signal name="insert-at-cursor" handler="on_mutate_molecule_sequence_text_insert_at_cursor" swapped="no"/>
-                        <signal name="move-cursor" handler="on_mutate_molecule_sequence_text_move_cursor" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -14601,6 +14666,14 @@ Move a copy?</property>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <child>
+          <object class="GtkPicture" id="curlew_banner">
+            <property name="margin-bottom">8</property>
+            <property name="margin-end">8</property>
+            <property name="margin-start">8</property>
+            <property name="margin-top">8</property>
+          </object>
+        </child>
+        <child>
           <object class="GtkGrid" id="curlew_grid">
             <property name="margin-bottom">8</property>
             <property name="margin-end">8</property>
@@ -14625,6 +14698,165 @@ Move a copy?</property>
                 <property name="margin-start">6</property>
                 <property name="margin-top">4</property>
                 <signal name="clicked" handler="on_curlew_close_button_clicked"/>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+
+  <object class="GtkDialog" id="ligand_check_dialog">
+    <property name="title">Coot: Ligand Validation Report</property>
+    <child>
+      <object class="GtkFrame" id="ligand-validation-frame">
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="ligand_check_ligand_spec_label">
+                    <property name="label">Ligand Validation Report</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-top">6</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkGrid">
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label"> Density Correlation </property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="column-span">1</property>
+                          <property name="row">0</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label"> Geometry Distortion </property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="column-span">1</property>
+                          <property name="row">1</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label"> Ligand-Protein Bumps </property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="column-span">1</property>
+                          <property name="row">2</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="accessible-role">progress-bar</property>
+                        <child>
+                          <object class="GtkImage" id="image_tick_density">
+                            <property name="file">koppi-green-tick-64.png</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="image_cross_density">
+                            <property name="file">rygle-red-cross-64.png</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="image_incomplete_density">
+                            <property name="file">forest51690-dwcheckno-incomplete-64.png</property>
+                          </object>
+                        </child>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="column-span">1</property>
+                          <property name="row">0</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="accessible-role">progress-bar</property>
+                        <child>
+                          <object class="GtkImage" id="image_tick_geometry_distortion">
+                            <property name="file">koppi-green-tick-64.png</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="image_cross_geometry_distortion">
+                            <property name="file">rygle-red-cross-64.png</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="image_incomplete_geometry_distortion">
+                            <property name="file">forest51690-dwcheckno-incomplete-64.png</property>
+                          </object>
+                        </child>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="accessible-role">progress-bar</property>
+                        <child>
+                          <object class="GtkImage" id="image_tick_bumps">
+                            <property name="file">koppi-green-tick-64.png</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="image_cross_bumps">
+                            <property name="file">rygle-red-cross-64.png</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="image_incomplete_bumps">
+                            <property name="file">forest51690-dwcheckno-incomplete-64.png</property>
+                          </object>
+                        </child>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparator"/>
+            </child>
+            <child>
+              <object class="GtkFrame">
+                <child>
+                  <object class="GtkBox">
+                    <child>
+                      <object class="GtkButton" id="ligand_check_dialog_close_button">
+                        <property name="label">Close</property>
+                        <signal name="clicked" handler="on_ligand_check_dialog_close_button_clicked"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
           </object>

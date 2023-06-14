@@ -241,13 +241,14 @@ coot::inverted_chiral_volumes(int imol,
 				 coot::is_inverted_chiral_atom_p(chiral_restraint, residue_p);
 			      for (unsigned int ibad=0; ibad<c.size(); ibad++) { 
 				 if (c[ibad].first) {
-				    std::cout << "INFO:: found bad chiral atom: " 
-					      << chain_p->GetChainID() << " " 
-					      << residue_p->GetSeqNum() << " "
-					      << residue_p->GetInsCode() << " "
-					      << chiral_restraint.atom_id_c_4c() << " "
-					      << c[ibad].second.alt_conf << std::endl;
-				    
+                                    if (false) // I don't need to see this.
+                                       std::cout << "INFO:: found bad chiral atom: "
+                                                 << chain_p->GetChainID() << " "
+                                                 << residue_p->GetSeqNum() << " "
+                                                 << residue_p->GetInsCode() << " "
+                                                 << chiral_restraint.atom_id_c_4c() << " "
+                                                 << c[ibad].second.alt_conf << std::endl;
+
 				    v.push_back(coot::atom_spec_t(chain_p->GetChainID(),
 								  residue_p->GetSeqNum(),
 								  residue_p->GetInsCode(),

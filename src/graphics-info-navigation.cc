@@ -81,6 +81,23 @@ void graphics_info_t::set_go_to_atom_chain_residue_atom_name(const gchar *t1,
 
 }
 
+// 20230611-PE this is indeed a gui callback
+// static
+void
+graphics_info_t::set_go_to_atom(int imol, const coot::atom_spec_t &spec) {
+
+   graphics_info_t g; // crazy
+   g.set_go_to_atom_molecule(imol);;
+   go_to_atom_chain_      = spec.chain_id;
+   go_to_atom_atom_name_  = spec.atom_name;
+   go_to_atom_residue_    = spec.res_no;
+   go_to_atom_atom_altLoc_= spec.alt_conf;
+
+   // now user should call try_centre_from_new_go_to_atom()
+
+}
+
+
 // After this function, we call try_centre_from_new_go_to_atom();
 void
 graphics_info_t::set_go_to_atom_chain_residue_atom_name(const char *t1,
