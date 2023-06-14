@@ -573,6 +573,8 @@ void fill_move_molecule_here_dialog(GtkWidget *w);
 void apply_residue_info_changes();
 GtkWidget *wrapped_create_residue_info_dialog();
 void residue_info_release_memory(GtkWidget *widget);
+GtkWidget *wrapped_create_geometry_dialog();
+void store_geometry_dialog(GtkWidget *w);
 
 void fill_environment_widget(GtkWidget *widget);
 void execute_environment_settings(GtkWidget *widget);
@@ -583,6 +585,15 @@ void execute_pointer_distances_settings(GtkWidget *widget);
 void toggle_pointer_distances_show_distances(GtkCheckButton *button);
 
 void set_zoom_adjustment(GtkWidget *w);
+
+void free_geometry_graph(GtkWidget *dialog); /* free the lines in the widget  */
+void unset_geometry_graph(GtkWidget *dialog); /* set the graphics info
+						 static to NULL, so
+						 that we on longer try
+						 to update the
+						 widget*/
+
+void my_delete_validaton_graph_mol_option(GtkWidget *widget, void *);
 
 /* These are called right at the beginning (main) */
 /* old style not-generic menu initialization */

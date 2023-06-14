@@ -4713,6 +4713,28 @@ on_geometry_clear_atom_labels_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
+on_geometry_dialog_close_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+#if 0 // 20211006-PE save for reference
+  GtkWidget *dialog = widget_from_builder("geometry_dialog");
+  /* should we clear geometry on close dialog?  Currently, I think not. */
+  /* it is the COOT_DISTANCES_ANGLES_WINDOW, hmm. */
+  store_window_position(COOT_DISTANCES_ANGLES_WINDOW, dialog);
+  store_geometry_dialog(NULL);
+  gtk_widget_hide(dialog);
+#endif
+
+  GtkWidget *frame = widget_from_builder("geometry_frame");
+  store_geometry_dialog(NULL);
+  gtk_widget_hide(frame);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
 on_geometry_angle_togglebutton_toggled (GtkToggleButton *togglebutton,
                                         gpointer         user_data) {
 
@@ -5824,6 +5846,45 @@ on_antialiasing_dialog_ok_button_clicked
   gtk_widget_hide(w);
 
 }
+
+// ##########################################################################################
+
+//                 is this a good place for geometry_graphs callbacks?
+
+extern "C" G_MODULE_EXPORT
+void
+on_geometry_graphs_close_button_clicked(GtkButton       *button,
+                                                            gpointer         user_data) {
+
+   // this usage of user_data was set using glade.
+   GtkWidget *dialog = GTK_WIDGET(user_data);
+   if (dialog)
+      gtk_widget_hide(dialog);
+   else
+      std::cout << "ERROR getting dialog in on_geometry_graphs_ok_button_clicked\n";
+
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_geometry_graphs_dialog_destroy      (GtkWidget       *object,
+                                                            gpointer         user_data) {
+
+  /* This is not causing the GTK_IS_WIDGET (widget) unref failure */
+
+   GtkWidget *w = widget_from_builder("geometry_graphs_dialog");
+   if (! w) {
+     printf("ERROR:: in on_geometry_graphs_dialog_destroy() failure getting dialog \n");
+   } else {
+      unset_geometry_graph(w);
+      free_geometry_graph(w);
+   }
+
+}
+
+// ##########################################################################################
+
 
 extern "C" G_MODULE_EXPORT
 void
@@ -10482,6 +10543,18 @@ on_keyboard_go_to_residue_window_delete_event(GtkWidget       *widget,
    return TRUE;
 }
 #endif
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_mogul_geometry_dialog_close_button_clicked (GtkButton       *button,
+                                               gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("mogul_geometry_results_table_dialog");
+   /* And the histogram?  How do I look that up? */
+   gtk_widget_hide(dialog);
+}
+
 
 extern "C" G_MODULE_EXPORT
 void
