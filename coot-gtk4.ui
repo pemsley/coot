@@ -6505,7 +6505,6 @@ Do you want to continue?
                               </object>
                             </child>
 
-
                           </object>
                         </child>
 
@@ -14699,6 +14698,165 @@ Move a copy?</property>
                 <property name="margin-start">6</property>
                 <property name="margin-top">4</property>
                 <signal name="clicked" handler="on_curlew_close_button_clicked"/>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+
+  <object class="GtkDialog" id="ligand_check_dialog">
+    <property name="title">Coot: Ligand Validation Report</property>
+    <child>
+      <object class="GtkFrame" id="ligand-validation-frame">
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="ligand_check_ligand_spec_label">
+                    <property name="label">Ligand Validation Report</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-top">6</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkGrid">
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label"> Density Correlation </property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="column-span">1</property>
+                          <property name="row">0</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label"> Geometry Distortion </property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="column-span">1</property>
+                          <property name="row">1</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label"> Ligand-Protein Bumps </property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="column-span">1</property>
+                          <property name="row">2</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="accessible-role">progress-bar</property>
+                        <child>
+                          <object class="GtkImage" id="image_tick_density">
+                            <property name="file">koppi-green-tick-64.png</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="image_cross_density">
+                            <property name="file">rygle-red-cross-64.png</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="image_incomplete_density">
+                            <property name="file">forest51690-dwcheckno-incomplete-64.png</property>
+                          </object>
+                        </child>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="column-span">1</property>
+                          <property name="row">0</property>
+                          <property name="row-span">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="accessible-role">progress-bar</property>
+                        <child>
+                          <object class="GtkImage" id="image_tick_geometry_distortion">
+                            <property name="file">koppi-green-tick-64.png</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="image_cross_geometry_distortion">
+                            <property name="file">rygle-red-cross-64.png</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="image_incomplete_geometry_distortion">
+                            <property name="file">forest51690-dwcheckno-incomplete-64.png</property>
+                          </object>
+                        </child>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="accessible-role">progress-bar</property>
+                        <child>
+                          <object class="GtkImage" id="image_tick_bumps">
+                            <property name="file">koppi-green-tick-64.png</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="image_cross_bumps">
+                            <property name="file">rygle-red-cross-64.png</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="image_incomplete_bumps">
+                            <property name="file">forest51690-dwcheckno-incomplete-64.png</property>
+                          </object>
+                        </child>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparator"/>
+            </child>
+            <child>
+              <object class="GtkFrame">
+                <child>
+                  <object class="GtkBox">
+                    <child>
+                      <object class="GtkButton" id="ligand_check_dialog_close_button">
+                        <property name="label">Close</property>
+                        <signal name="clicked" handler="on_ligand_check_dialog_close_button_clicked"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
           </object>

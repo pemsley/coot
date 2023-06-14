@@ -475,6 +475,8 @@ libcootsumo_la_SOURCES = \
 	coot-hydrogens.hh        \
 	coot-hydrogens.cc        \
 	coot-render.hh           \
+	coot-phi-psi.cc          \
+	coot-phi-psi.hh          \
 	coot_pythonmodule.cc     \
 	coot-preferences.h       \
 	coot-references.h        \

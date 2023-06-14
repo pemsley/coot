@@ -12011,17 +12011,12 @@ on_updating_maps_ok_button_clicked(GtkButton       *button,
    int imol_map      = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox));
    int imol_diff_map = my_combobox_get_imol(GTK_COMBO_BOX(diff_map_combobox));
 
-   std::cout << "55555555555555555 in on_updating_maps_ok_button_clicked() here are the molecules indices "
-             << imol << " " << imol_map << " " << imol_diff_map << std::endl;
-
    bool auto_update_flag = false;
    if (gtk_check_button_get_active(GTK_CHECK_BUTTON(check_button))) auto_update_flag = true;
 
    if (auto_update_flag) {
-      std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHere 1 " << imol << " " << imol_map << " " << imol_diff_map << std::endl;
       set_auto_updating_sfcalc_genmap(imol, imol_map, imol_diff_map);
    } else {
-      std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHere 2 " << std::endl;
       calculate_maps_and_stats_py(imol, imol_map, imol_map, imol_diff_map);
    }
 
@@ -12029,3 +12024,13 @@ on_updating_maps_ok_button_clicked(GtkButton       *button,
    gtk_widget_set_visible(dialog, FALSE);
 }
 
+
+extern "C" G_MODULE_EXPORT
+void
+on_ligand_check_dialog_close_button_clicked(GtkButton       *button,
+                                            gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("ligand_check_dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+
+}

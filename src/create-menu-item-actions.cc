@@ -1071,6 +1071,7 @@ void add_ligand_module_action(GSimpleAction *simple_action,
                               G_GNUC_UNUSED GVariant *parameter,
                               G_GNUC_UNUSED gpointer user_data) {
 
+   safe_python_command("import coot_utils");
    safe_python_command("import coot_gui");
    safe_python_command("coot_gui.add_module_ligand()");
    g_simple_action_set_enabled(simple_action,FALSE);
