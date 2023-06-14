@@ -317,6 +317,32 @@ void coot::my_df_target_pos(const gsl_vector *v,
 
 }
 
+// return true when turned off.
+// Turn them all off.
+bool
+coot::restraints_container_t::turn_off_when_close_target_position_restraint() {
+
+   bool actioned = false;
+   bool unlocked = false;
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+      std::this_thread::sleep_for(std::chrono::nanoseconds(100));
+      unlocked = false;
+   }
+
+   std::vector<simple_restraint>::iterator it;
+   for(it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
+      if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
+         if (it->is_closed) {
+            it->close();
+            actioned = true;
+         }
+      }
+   }
+   needs_reset = true; // may not be needed.
+   restraints_lock = false;
+   return actioned;
+}
+
 
 std::vector<coot::atom_spec_t>
 coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target_position(const atom_spec_t &dragged_atom_spec) {
