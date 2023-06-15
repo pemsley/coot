@@ -522,7 +522,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
 
       std::vector<std::pair<coot::residue_spec_t, GtkWidget *> > buttons;
       auto overlap_buttons = make_overlap_buttons(mol);
-      // buttons.insert(buttons.end(), overlap_buttons.begin(), overlap_buttons.end());
+      buttons.insert(buttons.end(), overlap_buttons.begin(), overlap_buttons.end());
       auto rota_buttons = make_rota_buttons(mol);
       buttons.insert(buttons.end(), rota_buttons.begin(), rota_buttons.end());
       auto chiral_buttons = make_chiral_volume_buttons(imol);
