@@ -47,8 +47,8 @@ endif
 
 # This is set in configure.
 if BACKWARD_HAS_DW
-libcoot_utils_la_LIBADD += -ldw
-AM_CPPFLAGS += -DBACKWARD_HAS_DW=1
+libcoot_utils_la_LIBADD += $(LIBDW_LIBS)
+AM_CPPFLAGS += $(LIBDW_CFLAGS) -DBACKWARD_HAS_DW=1
 endif
 
 libcoot_utils_la_LDFLAGS = $(SHARED_LDFLAGS)

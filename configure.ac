@@ -141,6 +141,11 @@ AM_CONDITIONAL(USE_BACKWARD, [test x$USE_BACKWARD = xuse_backward])    # tested 
 AC_ARG_WITH([libdw], AS_HELP_STRING([--with-libdw build backward with libdw support]), with_libdw=true, with_libdw=false)
 if test x$with_libdw == xtrue ; then
    BACKWARD_HAS_DW=true
+   if test "$OS" = "Darwin" ; then
+      PKG_CHECK_MODULES(LIBDW, libdwarf >= 0.70)
+   else
+      PKG_CHECK_MODULES(LIBDW, libdw >= 0.20)
+   fi
 fi
 AM_CONDITIONAL(BACKWARD_HAS_DW, [test x$with_libdw = xtrue])    # tested in utils/Makefile.am
 
