@@ -1,11 +1,20 @@
+----
 
-  Pre-release 0.9.8.8
+  Release 0.9.8.8
 
   o FEATURE: Better atom colours in colour-by-chain-and-dictionary mode.
 
   o CHANGE:  Monomer search now uses the new dictionary
 
-  o BUG-FIX: the zoom state is not correctly set in the saved state file
+  o CHANGE:  Molecules read in as mmCIF (.cif) are now by default saved as .cif
+
+  o CHANGE:  Atoms with element "Cl" are now drawn as CL.
+
+  o BUG-FIX: the zoom state is now correctly set in the saved state file
+
+  o BUG-FIX: additional symmetry check for peaks from flood filling (Paul Bond)
+
+  o BUG-FIX: Link-generation improvements.
 
 ----
 

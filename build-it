@@ -3851,7 +3851,7 @@ export GUILE_ERROR_ON_WARNING=no
 # arg to guile's configure
 ./configure $generic_prefix \
      $extra_flags_for_darwin \
-     CFLAGS="-I$install_top_dir/include $additional_unused_arg -O -Wno-deprecated-declarations" \
+     CFLAGS="-I$install_top_dir/include $additional_unused_arg -O -Wno-deprecated-declarations -Wno-unused-but-set-variable" \
      LDFLAGS=-L$install_top_dir/lib \
      CPPFLAGS=-P \
      $extra_flags_for_debian
