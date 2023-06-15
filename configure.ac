@@ -144,7 +144,7 @@ if test x$with_libdw == xtrue ; then
 
    case "${host_os}" in
     *darwin* )
-      PKG_CHECK_MODULES(LIBDW, libdwarf >= 0.70)
+      PKG_CHECK_MODULES(LIBDW, libdwarf >= 0.7)
       ;;
     *linux* )
       PKG_CHECK_MODULES(LIBDW, libdw >= 0.20)
