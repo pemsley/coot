@@ -141,13 +141,17 @@ AM_CONDITIONAL(USE_BACKWARD, [test x$USE_BACKWARD = xuse_backward])    # tested 
 AC_ARG_WITH([libdw], AS_HELP_STRING([--with-libdw build backward with libdw support]), with_libdw=true, with_libdw=false)
 if test x$with_libdw == xtrue ; then
    BACKWARD_HAS_DW=true
-   echo =============== debug:: OS is $OS
-   if test "$OS" = "Darwin" ; then
+
+   case "${host_os}" in
+    *darwin* )
       PKG_CHECK_MODULES(LIBDW, libdwarf >= 0.70)
-   else
+      ;;
+    *linux* )
       PKG_CHECK_MODULES(LIBDW, libdw >= 0.20)
-   fi
+      ;;
+   esac
 fi
+
 AM_CONDITIONAL(BACKWARD_HAS_DW, [test x$with_libdw = xtrue])    # tested in utils/Makefile.am
 
 dnl Set platform-specific compilation flags - derived from clipper's configure
