@@ -3239,8 +3239,8 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 		  }
 	       }
 	    }
+            // attach_buffers() here or upstairs
             Material material;
-            // obj.mesh.setup(&g.shader_for_moleculestotriangles, material); //date
             material.do_specularity = true;
             material.specular_strength = 0.9;
             obj.mesh.setup(material);
@@ -3370,7 +3370,7 @@ void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::s
 		      hb_type == coot::HB_ACCEPTOR ||
 		      hb_type == coot::HB_BOTH     ||
 		      hb_type == coot::HB_HYDROGEN) {
-		     features_obj.add(sphere);
+		     features_obj.add_sphere(sphere);
 		  }
 	       }
 	    }
@@ -3645,7 +3645,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       Material material;
       material.specular_strength *= 0.5;
       std::unordered_map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
-      for (it=c.dots.begin(); it!=c.dots.end(); it++) {
+      for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
 	 std::string obj_name = "Molecule ";

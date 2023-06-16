@@ -102,6 +102,9 @@ Nice to have: Unmodelled blobs are labelled with the residue to which they are c
 
 NCS Jumping should use the correct matrix ::: 0.5
 
+Quick save should say something in the status-bar - maybe briefly flash and fade the background. Or some
+other brief visual effect.
+
 Go To (next) Ligand should use the correct matrix ::: 0.5
 
 Do the tutorial from time to time - what's missing? ::: 1
