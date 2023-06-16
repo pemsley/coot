@@ -903,18 +903,13 @@ coot::prefix_dir() {
          if (dds.back() == '/')
             dds.erase(dds.size() - 1);    // or pop_back
 
-      // This is most likely invalid:
-      // std::string ds = util::file_name_directory(dds);
-      std::string ds = util::append_dir_dir(dds,"..");
-      if (! ds.empty())
-         if (ds.back() == '/')
-            ds.erase(ds.size() - 1);
-      s = util::file_name_directory(ds);
-      if (! s.empty())
-         if (s.back() == '/')
-            s.erase(s.size() - 1);
-
-      s = util::append_dir_dir(ds,"..");
+      // 20230607-PE Merge conflict
+      //
+      // maybe I should have kept Jakub's version:
+      // 20230616-PE OK, let's just replace it then
+      std::string jds = util::append_dir_dir(dds,"..");
+      std::string js  = util::append_dir_dir(jds,"..");
+      s = js;
    }
    return s;
 }
