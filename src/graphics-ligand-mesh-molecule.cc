@@ -42,56 +42,56 @@ graphics_ligand_mesh_molecule_t::setup_from(int imol_in, mmdb::Residue *residue_
    imol = imol_in;
    if (residue_p) {
       try {
-	 std::string res_name = residue_p->GetResName();
-	 std::pair<bool, coot::dictionary_residue_restraints_t> p =
-	    geom_p->get_monomer_restraints_at_least_minimal(res_name, imol);
-	 if (! p.first) {
-	    std::cout << "DEBUG:: graphics_ligand_molecule: No restraints for \""
-		      << res_name << "\"" << std::endl;
-	 } else {
-	    const coot::dictionary_residue_restraints_t &restraints = p.second;
-	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints, alt_conf);
+         std::string res_name = residue_p->GetResName();
+         std::pair<bool, coot::dictionary_residue_restraints_t> p =
+            geom_p->get_monomer_restraints_at_least_minimal(res_name, imol);
+         if (! p.first) {
+            std::cout << "DEBUG:: graphics_ligand_molecule: No restraints for \""
+                      << res_name << "\"" << std::endl;
+         } else {
+            const coot::dictionary_residue_restraints_t &restraints = p.second;
+            RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints, alt_conf);
 
-	    // std::cout << "--------------------- graphics-ligand-view setup_from() 1 " << std::endl;
-	    // coot::debug_rdkit_molecule(&rdkm);
+            // std::cout << "--------------------- graphics-ligand-view setup_from() 1 " << std::endl;
+            // coot::debug_rdkit_molecule(&rdkm);
 
-	    unsigned int n_atoms = rdkm.getNumAtoms();
-	    if (n_atoms > 1) {
-	       // return a kekulize mol
-	       RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
+            unsigned int n_atoms = rdkm.getNumAtoms();
+            if (n_atoms > 1) {
+               // return a kekulize mol
+               RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
 
-	       double weight_for_3d_distances = 0.005;
-	       int mol_2d_depict_conformer = coot::add_2d_conformer(&rdk_mol_with_no_Hs,
+               double weight_for_3d_distances = 0.005;
+               int mol_2d_depict_conformer = coot::add_2d_conformer(&rdk_mol_with_no_Hs,
                                                                     weight_for_3d_distances);
 
-	       // why is there no connection between a lig_build molecule_t
-	       // and a rdkit molecule conformer?
+               // why is there no connection between a lig_build molecule_t
+               // and a rdkit molecule conformer?
 
-	       // For now hack around using a molfile molecule...
-	       //
-	       // I think I should have a rdkit_mol->lig_build::molecule_t converter
-	       // (for later).
+               // For now hack around using a molfile molecule...
+               //
+               // I think I should have a rdkit_mol->lig_build::molecule_t converter
+               // (for later).
 
-	       lig_build::molfile_molecule_t m =
-		  coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
+               lig_build::molfile_molecule_t m =
+                  coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
 
-	       if (false) {
-		  std::cout << "make_molfile_molecule() makes molecule: " << std::endl;
-		  m.debug();
-	       }
+               if (false) {
+                  std::cout << "make_molfile_molecule() makes molecule: " << std::endl;
+                  m.debug();
+               }
 
-	       init_from_molfile_molecule(m);
+               init_from_molfile_molecule(m);
 
-	       status = true; // OK, if we got to here...
+               status = true; // OK, if we got to here...
 
             }
          }
       }
       catch (const std::runtime_error &coot_error) {
-	 std::cout << coot_error.what() << std::endl;
+         std::cout << coot_error.what() << std::endl;
       }
       catch (const std::exception &rdkit_error) {
-	 std::cout << rdkit_error.what() << std::endl;
+         std::cout << rdkit_error.what() << std::endl;
       }
    }
 
@@ -483,7 +483,7 @@ graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_
       graphics_ligand_mesh_atom &atom = atoms[iat];
       const std::string &ele = atom.element;
       if (ele != "C") {
-	 std::vector<unsigned int> local_bonds = bonds_having_atom_with_atom_index(iat);
+         std::vector<unsigned int> local_bonds = bonds_having_atom_with_atom_index(iat);
          lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
          for (unsigned int i=0; i<atom_id_info.n_offsets(); i++) {
             const lig_build::offset_text_t &offset = atom_id_info.offsets[i];
