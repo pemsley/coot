@@ -36,6 +36,13 @@ Here are other styles:
 
 ----
 
+Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
+It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
+Delete Hydrogen atoms (gets rid of mainchain hydrogen atoms too) and sprout_hydrogens() should work?
+
+"Add atom" should boink if the new atom is over/close to an already existing atom ::: 1
+(Maybe it does already)
+
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Draw the ligand chemical diagram in OpenGL. ::: 3
@@ -54,12 +61,6 @@ Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 * Preferences, surely.
 
 What's up with the Preferences? ::: 4
-
-Bug: make Contact Dots, open Generic Objects dialog , Close, Add new contact dot and then open generic objects dialog
-again. Mess as some box entries are double written. ::: 1
-
-"Add atom" should boink if the new atom is over/close to an already existing atom ::: 1
-(Maybe it does already)
 
 In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
 Why? Because it's looked up and not new? ::: 2
@@ -85,12 +86,10 @@ Looks at 1x8b with ligands and contact dots - is 2.0 too close for H-O hydrogen 
 No, it's fine: see https://proteopedia.org/wiki/index.php/Hydrogen_bonds. Contact dots has it as
 a clash though. "The dotted hydrogen bond is non-covalent and variable in length, ~1.5-2.5 Å." ::: 1
 
-Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
-It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
-Delete Hydrogen atoms (gets rid of mainchain hydrogen atoms too) and sprout_hydrogens() should work?
-
 Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
    contact_score_ligand_func(). Hmm. See ~/Desktop/ligand-notes
+
+Go to (Next) Ligand doesn't get the ligand orientation correct. Is a transform() needed?
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
@@ -670,4 +669,8 @@ Edit -> Mutate Residue Range ::: 2
 
 Map Parameters dialog needs a refresh ::: 0.5
 * Done. Nice
+
+Bug: make Contact Dots, open Generic Objects dialog , Close, Add new contact dot and then open generic objects dialog
+again. Mess as some box entries are double written. ::: 1
+* Done, I think. Use clear_the_grid()
 
