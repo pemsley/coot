@@ -40,9 +40,6 @@ Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydr
 It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
 Delete Hydrogen atoms (gets rid of mainchain hydrogen atoms too) and sprout_hydrogens() should work?
 
-"Add atom" should boink if the new atom is over/close to an already existing atom ::: 1
-(Maybe it does already)
-
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Draw the ligand chemical diagram in OpenGL. ::: 3
@@ -674,3 +671,7 @@ Bug: make Contact Dots, open Generic Objects dialog , Close, Add new contact dot
 again. Mess as some box entries are double written. ::: 1
 * Done, I think. Use clear_the_grid()
 
+
+"Add atom" should boink if the new atom is over/close to an already existing atom ::: 0.5
+(Maybe it does already)
+* Now I get a warning dialog - good enough

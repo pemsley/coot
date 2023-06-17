@@ -1989,7 +1989,9 @@ public:        //                      public
 
    // pointer atoms:
    void add_pointer_atom(coot::Cartesian pos);
-   void add_typed_pointer_atom(coot::Cartesian pos, const std::string &type);
+   // if there is another atom very close, then don't allow the addition of a new atom
+   // return status false denotes failure.
+   std::pair<bool,std::string> add_typed_pointer_atom(coot::Cartesian pos, const std::string &type);
 
    // dummy atoms (not bonded)
    void add_dummy_atom(coot::Cartesian pos);

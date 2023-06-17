@@ -7194,14 +7194,20 @@ molecule_class_info_t::add_pointer_atom(coot::Cartesian pos) {
 // This is a bit messy, I'm afraid - we test single atom twice. If you use this for
 // a multiatom other than SO4 and P04, you will need to add it to the type test
 //
-void
+std::pair<bool,std::string>
 molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::string &type) {
 
+   bool status = false; // return this
+   std::string message;
 
    bool single_atom = true;
 
    // std::cout << "INFO:: adding atom of type " << type << " at " << pos << std::endl;
    make_backup();
+
+   if (have_atom_close_to_position(pos)) {
+      return std::make_pair(false, std::string("Too close to an existing atom"));
+   }
 
    // we get a chain pointer or NULL, if there is not yet a chain only
    // of the given type:
@@ -7298,6 +7304,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
                atom_sel = make_asc(atom_sel.mol);
                have_unsaved_changes_flag = 1;
                make_bonds_type_checked(__FUNCTION__);
+               status = true;
             }
          }
       } else {
@@ -7356,6 +7363,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
             atom_sel = make_asc(atom_sel.mol);
             have_unsaved_changes_flag = 1;
             make_bonds_type_checked(__FUNCTION__);
+            status = true;
          } else {
             std::cout << "WARNING:: Can't find new chain for new atom\n";
          }
@@ -7384,11 +7392,13 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
          atom_sel = make_asc(atom_sel.mol);
          have_unsaved_changes_flag = 1;
          make_bonds_type_checked(__FUNCTION__);
+         status = true;
       } else {
          std::cout << "WARNING:: Can't find new chain for new atom\n";
       }
    }
    // or we could just use update_molecule_after_additions() there.
+   return std::make_pair(status, message);
 }
 
 
