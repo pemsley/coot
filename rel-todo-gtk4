@@ -36,8 +36,6 @@ Here are other styles:
 
 ----
 
-Map Parameters dialog needs a refresh ::: 1
-
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
 Draw the ligand chemical diagram in OpenGL. ::: 3
@@ -670,4 +668,6 @@ Isolated Molprobity dots for this ligand - what is this? How is it different to 
 Edit -> Mutate Residue Range ::: 2
 * Done. Thanks Jakub.
 
+Map Parameters dialog needs a refresh ::: 0.5
+* Done. Nice
 

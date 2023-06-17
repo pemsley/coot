@@ -5762,168 +5762,202 @@ Do you want to continue?
         <property name="margin-end">6</property>
         <property name="margin-top">6</property>
         <property name="margin-bottom">6</property>
+
+        
         <child>
-          <object class="GtkLabel" id="label5">
-            <property name="label" translatable="yes"> </property>
-            <property name="justify">center</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkFrame" id="frame4">
+          <object class="GtkGrid" id="edit_map_parameters_grid">
+
             <child>
-              <object class="GtkBox" id="hbox5">
-                <property name="orientation">horizontal</property>
-                <property name="margin-start">4</property>
-                <property name="margin-end">4</property>
-                <property name="margin-top">2</property>
-                <property name="margin-bottom">2</property>
-                <child>
-                  <object class="GtkLabel" id="label6">
-                    <property name="label" translatable="yes">Map Radius x-ray: </property>
-                    <property name="justify">center</property>
-                    <property name="margin-start">2</property>
-                    <property name="margin-end">2</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="map_parameters_x_ray_radius_entry">
-                    <property name="can-focus">1</property>
-                    <property name="primary-icon-activatable">0</property>
-                    <property name="margin-start">2</property>
-                    <property name="margin-end">2</property>
-                    <property name="secondary-icon-activatable">0</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label7">
-                    <property name="label" translatable="yes">Ångströms</property>
-                    <property name="justify">center</property>
-                    <property name="margin-start">2</property>
-                    <property name="margin-end">2</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="map_radius_x_ray_apply_button">
-                    <property name="label" translatable="yes">  Apply  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <property name="margin-start">2</property>
-                    <property name="margin-end">2</property>
-                    <signal name="clicked" handler="on_map_radius_x_ray_apply_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label275">
-                    <property name="label" translatable="yes">  </property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
+              <object class="GtkLabel" id="label6">
+                <property name="label" translatable="yes">Map Radius x-ray: </property>
+                <property name="justify">center</property>
+                <property name="margin-start">2</property>
+                <property name="margin-end">2</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                </layout>
               </object>
             </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkBox" id="map_parameters_em_radius_hbox">
+
+            <child>
+              <object class="GtkEntry" id="map_parameters_x_ray_radius_entry">
+                <property name="can-focus">1</property>
+                <property name="primary-icon-activatable">0</property>
+                <property name="margin-start">2</property>
+                <property name="margin-end">2</property>
+                <property name="secondary-icon-activatable">0</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkLabel" id="label7">
+                <property name="label" translatable="yes">Ångströms</property>
+                <property name="justify">center</property>
+                <property name="margin-start">2</property>
+                <property name="margin-end">2</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="map_radius_x_ray_apply_button">
+                <property name="label" translatable="yes">  Apply  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <property name="margin-start">2</property>
+                <property name="margin-end">2</property>
+                <property name="margin-top">2</property>
+                <property name="margin-bottom">2</property>
+                <layout>
+                  <property name="column">3</property>
+                  <property name="row">0</property>
+                </layout>
+                <signal name="clicked" handler="on_map_radius_x_ray_apply_button_clicked" swapped="no"/>
+              </object>
+            </child>
+
             <child>
               <object class="GtkLabel">
                 <property name="label" translatable="yes">Map Radius EM: </property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">1</property>
+                </layout>
               </object>
             </child>
+            
             <child>
               <object class="GtkEntry" id="map_parameters_em_radius_entry">
                 <property name="can-focus">1</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">1</property>
+                </layout>
               </object>
             </child>
+
             <child>
               <object class="GtkLabel">
                 <property name="label" translatable="yes">Ångströms</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">1</property>
+                </layout>
               </object>
             </child>
+
             <child>
               <object class="GtkButton" id="map_radius_em_apply_button">
                 <property name="label" translatable="yes">Apply</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
+                <property name="margin-start">2</property>
+                <property name="margin-end">2</property>
+                <property name="margin-top">2</property>
+                <property name="margin-bottom">2</property>
+                <layout>
+                  <property name="column">3</property>
+                  <property name="row">1</property>
+                </layout>
                 <signal name="clicked" handler="on_map_radius_em_apply_button_clicked" swapped="no"/>
               </object>
             </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkFrame" id="frame24">
+
             <child>
-              <object class="GtkBox" id="hbox17">
-                <child>
-                  <object class="GtkLabel" id="label32">
-                    <property name="label" translatable="yes">Increment Size</property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="iso_level_increment_entry">
-                    <property name="can-focus">1</property>
-                    <property name="primary-icon-activatable">0</property>
-                    <property name="secondary-icon-activatable">0</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label33">
-                    <property name="label" translatable="yes">e/Å^3</property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
+              <object class="GtkLabel" id="label32">
+                <property name="label" translatable="yes">Increment Size</property>
+                <property name="justify">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">2</property>
+                </layout>
               </object>
             </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkFrame" id="frame25">
             <child>
-              <object class="GtkBox" id="hbox18">
-                <child>
-                  <object class="GtkLabel" id="label34">
-                    <property name="label" translatable="yes">Diff Map Increment</property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="diff_map_iso_level_increment_entry">
-                    <property name="can-focus">1</property>
-                    <property name="primary-icon-activatable">0</property>
-                    <property name="secondary-icon-activatable">0</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label35">
-                    <property name="label" translatable="yes">e/Å^3</property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
+              <object class="GtkEntry" id="iso_level_increment_entry">
+                <property name="can-focus">1</property>
+                <property name="primary-icon-activatable">0</property>
+                <property name="secondary-icon-activatable">0</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">2</property>
+                </layout>
               </object>
             </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkFrame" id="frame43">
             <child>
-              <object class="GtkBox" id="hbox42">
-                <child>
-                  <object class="GtkLabel" id="label84">
-                    <property name="label" translatable="yes">Sampling Rate: </property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="map_sampling_rate_entry">
-                    <property name="can-focus">1</property>
-                    <property name="primary-icon-activatable">0</property>
-                    <property name="secondary-icon-activatable">0</property>
-                  </object>
-                </child>
+              <object class="GtkLabel" id="label33">
+                <property name="label" translatable="yes">e/Å³</property>
+                <property name="justify">center</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">2</property>
+                </layout>
               </object>
             </child>
+
+            <child>
+              <object class="GtkLabel" id="label34">
+                <property name="label" translatable="yes">Diff Map Increment </property>
+                <property name="justify">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkEntry" id="diff_map_iso_level_increment_entry">
+                <property name="can-focus">1</property>
+                <property name="primary-icon-activatable">0</property>
+                <property name="secondary-icon-activatable">0</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label35">
+                <property name="label" translatable="yes">e/Å³</property>
+                <property name="justify">center</property>
+                <layout>
+                  <property name="column">2</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkLabel" id="label84">
+                <property name="label" translatable="yes">Sampling Rate: </property>
+                <property name="justify">center</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">4</property>
+                </layout>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkEntry" id="map_sampling_rate_entry">
+                <property name="can-focus">1</property>
+                <property name="primary-icon-activatable">0</property>
+                <property name="secondary-icon-activatable">0</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">4</property>
+                </layout>
+              </object>
+            </child>
+            
           </object>
-        </child>
+        </child> <!-- end the grid -->
+
         <child>
           <object class="GtkFrame" id="frame49">
             <child>
