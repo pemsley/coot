@@ -36,6 +36,8 @@ Here are other styles:
 
 ----
 
+"Ligands" selection in Go To Atom ::: 0.5
+
 Map Parameters dialog needs a refresh ::: 1
 
 "Overlaps" needs an update button - and preferably updates automatically.
@@ -64,23 +66,8 @@ Views ::: 2
 Open dictionary should provide a widget to specify the molecule for dictionary.
 Also a "Generate Molecule" button.
 
-Make contact dots, Open generic Objects dialog , Close, Add new contact dot and then open generic objects dialog
+Bug: make Contact Dots, open Generic Objects dialog , Close, Add new contact dot and then open generic objects dialog
 again. Mess as some box entries are double written. ::: 1
-
-Make the Ligand Menu be a module ::: 0.5
-Not much to do until we turn on RDKit.
-# Some of these are vital, some are nice to have
-Find Ligands ::: 0.1
-Jiggle-fit ligand ::: 0.2
-Hydrogenate region ::: 1
-Contact dots for ligand ::: 0.2
-SMILES -> simple 3D ::: 1
-Show Chemical Features ::: 1
-Display Ligand distorsions ::: 1
-Quick Ligand Validate ::: 2
-Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
-   contact_score_ligand_func(). Hmm.
-[Ligand Metric Sliders]
 
 Draw the ligand chemical diagram in OpenGL. ::: 3
 
@@ -93,8 +80,6 @@ Why? Because it's looked up and not new? ::: 2
 Rework the namespace of the python modules to be more cannonical ::: 4
 
 Clicking on Green left arrow doesn't open the refinement overlay ::: 1
-
-"Ligands" selection in Go To Atom ::: 0.5
 
 Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
 
@@ -109,8 +94,6 @@ Go To (next) Ligand should use the correct matrix ::: 0.5
 
 Do the tutorial from time to time - what's missing? ::: 1
 
-Make info_dialog() take a string.
-
 Looks at 1x8b with ligands and contact dots - is 2.0 too close for H-O hydrogen bond distance?
 No, it's fine: see https://proteopedia.org/wiki/index.php/Hydrogen_bonds. Contact dots has it as
 a clash though. "The dotted hydrogen bond is non-covalent and variable in length, ~1.5-2.5 Å." ::: 1
@@ -119,11 +102,16 @@ Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydr
 It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
 Delete Hydrogen atoms (gets rid of mainchain hydrogen atoms too) and sprout_hydrogens() should work?
 
+Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
+   contact_score_ligand_func(). Hmm. See ~/Desktop/ligand-notes
+
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
 Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
 
 Alt-B to close the Rama bar.
+
+Make info_dialog() take a string.
 
 Contact dots should be oriented so that when they pulse, they move along the line between the atoms. :::- 1
 Also, elongate them? Not vdw dots though.
@@ -666,3 +654,19 @@ Put GLM into configure, get rid of --with-gtk4 ::: 0.5
 Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
 
 Put the curlew banner in the curlew dialog ::: 1
+
+Make the Ligand Menu be a module ::: 0.5
+Not much to do until we turn on RDKit.
+# Some of these are vital, some are nice to have
+Find Ligands ::: 0.1
+Jiggle-fit ligand ::: 0.2
+Hydrogenate region ::: 1
+Contact dots for ligand ::: 0.2
+SMILES -> simple 3D ::: 1
+Show Chemical Features ::: 2
+Display Ligand distorsions ::: 1
+Quick Ligand Validate ::: 3
+Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
+   contact_score_ligand_func(). Hmm.
+[Ligand Metric Sliders]
+
