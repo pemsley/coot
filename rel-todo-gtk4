@@ -53,9 +53,6 @@ set_framebuffer_scale_factor().
 Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
 shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
 
-"About Coot" is empty (was fixed in GTK3 version). Remake it in Cambalache?  ::: 0.5
-* Nearly done - I need to be able to install the icon.
-
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 * Preferences, surely.
 
@@ -669,4 +666,7 @@ Quick Ligand Validate ::: 3
 Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
    contact_score_ligand_func(). Hmm.
 [Ligand Metric Sliders]
+
+"About Coot" is empty (was fixed in GTK3 version). Remake it in Cambalache?  ::: 0.5
+* Nearly done - I need to be able to install the icon.
 

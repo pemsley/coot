@@ -236,10 +236,18 @@ graphics_info_t::fill_go_to_atom_window_residue_and_atom_lists_gtk4() {
    }
 
    bool show_waters_flag = false;
-   GtkWidget *show_waters_check_button = widget_from_builder("go_to_atom_show_waters_togglebutton");
+   bool show_ligands_only_flag = false;
+   GtkWidget *show_waters_check_button       = widget_from_builder("go_to_atom_show_waters_checkbutton");
+   GtkWidget *show_ligands_only_check_button = widget_from_builder("go_to_atom_show_ligands_only_checkbutton");
+
    if (gtk_check_button_get_active(GTK_CHECK_BUTTON(show_waters_check_button)))
       show_waters_flag = true;
-   std::vector<coot::model_view_atom_tree_chain_t> residue_chains = molecules[imol].model_view_residue_tree_labels(show_waters_flag);
+
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(show_ligands_only_check_button)))
+      show_ligands_only_flag = true;
+
+   std::vector<coot::model_view_atom_tree_chain_t> residue_chains = molecules[imol].model_view_residue_tree_labels(show_waters_flag,
+                                                                                                                   show_ligands_only_flag);
 
    // 20230402-PE actually, I won't use visibility. I will get a new list of residues
    // GtkTreeStore *tree_store = gtk_tree_store_new (3, G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_BOOLEAN);

@@ -6118,14 +6118,31 @@ Do you want to continue?
           </object>
         </child>
         <child>
-            <object class="GtkCheckButton" id="go_to_atom_show_waters_togglebutton">
-               <signal name="toggled" handler="on_go_to_atom_show_waters_togglebutton_toggled" swapped="no"/>
-               <property name="label" translatable="yes">Show Waters</property>
-               <property name="margin-top">6</property>
-               <property name="margin-bottom">6</property>
-               <property name="margin-start">6</property>
-            </object>
+          <object class="GtkBox" id="go_to_atom_checkbuttons_vbox">
+            <property name="orientation">horizontal</property>
+            <child>
+              <object class="GtkCheckButton" id="go_to_atom_show_waters_checkbutton">
+                <signal name="toggled" handler="on_go_to_atom_show_waters_checkbutton_toggled" swapped="no"/>
+                <property name="label" translatable="yes">Show Waters</property>
+                <property name="active">0</property>
+                <property name="margin-top">6</property>
+                <property name="margin-bottom">6</property>
+                <property name="margin-start">6</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="go_to_atom_show_ligands_only_checkbutton">
+                <signal name="toggled" handler="on_go_to_atom_show_ligands_only_checkbutton_toggled" swapped="no"/>
+                <property name="label" translatable="yes">Ligands Only</property>
+                <property name="active">0</property>
+                <property name="margin-top">6</property>
+                <property name="margin-bottom">6</property>
+                <property name="margin-start">6</property>
+              </object>
+            </child>
+          </object>
         </child>
+
         <child>
           <object class="GtkButton" id="go_to_atom_next_residue_button">
             <property name="label" translatable="yes">Next Residue</property>
