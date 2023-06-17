@@ -4,7 +4,7 @@
 
 #include <gtk/gtk.h>
 
-GtkWidget *create_fit_loop_rama_search_dialog_gtkbuilder_version();
+GtkWidget *create_fit_loop_rama_search_dialog();
 void fit_loop_using_dialog();
 
 

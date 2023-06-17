@@ -58,6 +58,8 @@
 // GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
 #include "support.h"
 
+#include "fit-loop-gui.hh"
+
 // this from callbacks.h (which I don't want to include here)
 typedef const char entry_char_type;
 
@@ -6701,15 +6703,12 @@ on_fit_loop1_activate                  (GMenuItem     *menuitem,
 /*    gtk_widget_show(w); */
 }
 
-#include "fit-loop-gui.hh"
-
 extern "C" G_MODULE_EXPORT
 void
 on_fit_loop_by_rama_search1_activate (GMenuItem     *menuitem,
-                                                          gpointer         user_data)
-{
+                                      gpointer         user_data) {
 
-   GtkWidget *w = create_fit_loop_rama_search_dialog_gtkbuilder_version(); // fixed
+   GtkWidget *w = create_fit_loop_rama_search_dialog(); // fixed
    gtk_widget_show(w);
 }
 

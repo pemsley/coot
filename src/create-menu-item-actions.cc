@@ -10,6 +10,7 @@
 #include "c-interface-gui.hh" // set transient for main window
 #include "cc-interface-scripting.hh"  // move this up
 #include "cc-interface.hh"
+#include "fit-loop-gui.hh"
 
 #include "support.h" // for internationalizations.
 
@@ -771,14 +772,12 @@ fit_loop_by_database_search(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
-#include "fit-loop.hh" // move up
-
 void
 fit_loop_by_ramachandran_search(G_GNUC_UNUSED GSimpleAction *simple_action,
                                 G_GNUC_UNUSED GVariant *parameter,
                                 G_GNUC_UNUSED gpointer user_data) {
 
-   GtkWidget *w = create_fit_loop_rama_search_dialog_gtkbuilder_version();
+   GtkWidget *w = create_fit_loop_rama_search_dialog();
    gtk_widget_show(w);
 
 }

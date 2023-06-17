@@ -36,17 +36,16 @@ Here are other styles:
 
 ----
 
-"Ligands" selection in Go To Atom ::: 0.5
-
 Map Parameters dialog needs a refresh ::: 1
-
-"Overlaps" needs an update button - and preferably updates automatically.
-
-Edit -> Mutate Residue Range ::: 2
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
-Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
+Draw the ligand chemical diagram in OpenGL. ::: 3
+
+Views ::: 2
+
+Open dictionary should provide a widget to specify the molecule for dictionary.
+Also a "Generate Molecule" button. ::: 1
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 set_framebuffer_scale_factor().
@@ -58,15 +57,8 @@ Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 
 What's up with the Preferences? ::: 4
 
-Views ::: 2
-
-Open dictionary should provide a widget to specify the molecule for dictionary.
-Also a "Generate Molecule" button.
-
 Bug: make Contact Dots, open Generic Objects dialog , Close, Add new contact dot and then open generic objects dialog
 again. Mess as some box entries are double written. ::: 1
-
-Draw the ligand chemical diagram in OpenGL. ::: 3
 
 "Add atom" should boink if the new atom is over/close to an already existing atom ::: 1
 (Maybe it does already)
@@ -669,4 +661,13 @@ Isolated Molprobity dots for this ligand - what is this? How is it different to 
 
 "About Coot" is empty (was fixed in GTK3 version). Remake it in Cambalache?  ::: 0.5
 * Nearly done - I need to be able to install the icon.
+
+
+"Ligands" selection in Go To Atom ::: 0.5
+
+"Overlaps" needs an update button - and preferably updates automatically. ::: 3
+
+Edit -> Mutate Residue Range ::: 2
+* Done. Thanks Jakub.
+
 

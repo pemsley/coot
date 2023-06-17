@@ -63,7 +63,7 @@ fill_mutate_sequence_dialog_gtkbuilder_version() {
 }
 
 GtkWidget *
-create_fit_loop_rama_search_dialog_gtkbuilder_version() {
+create_fit_loop_rama_search_dialog() {
 
    GtkWidget *dialog              = widget_from_builder("mutate_sequence_dialog");
    GtkWidget *label               = widget_from_builder("function_for_molecule_label");
@@ -72,16 +72,19 @@ create_fit_loop_rama_search_dialog_gtkbuilder_version() {
    GtkWidget *fit_loop_ok_button  = widget_from_builder("fit_loop_ok_button");
    GtkWidget *autofit_checkbutton = widget_from_builder("mutate_sequence_do_autofit_checkbutton");
    GtkWidget *rama_checkbutton    = widget_from_builder("mutate_sequence_use_ramachandran_restraints_checkbutton");
+   GtkWidget *mutate_sequence_green_light_image = widget_from_builder("mutate_sequence_green_light_image");
 
    set_transient_and_position(COOT_MUTATE_RESIDUE_RANGE_WINDOW, dialog);
    fill_mutate_sequence_dialog_gtkbuilder_version();
 
+   gtk_window_set_title(GTK_WINDOW(dialog), "Coot: Fit Loop");
    gtk_label_set_text(GTK_LABEL(label), "\nFit loop in Molecule:\n");
    gtk_widget_hide(mutate_ok_button);
    gtk_widget_hide(autofit_checkbutton);
    gtk_widget_show(fit_loop_ok_button);
    gtk_widget_show(rama_checkbutton);
    gtk_check_button_set_active(GTK_CHECK_BUTTON(rama_checkbutton), TRUE);
+   gtk_widget_set_visible(mutate_sequence_green_light_image, FALSE); // initially no match.
 
    gtk_widget_show(method_frame);
 
