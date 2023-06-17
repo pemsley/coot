@@ -34,7 +34,6 @@ LigandViewMesh::clear() {
 void
 LigandViewMesh::setup_buffers() {
 
-   unsigned int n_lines_vertices     =     lines_vertices.size();
    unsigned int n_triangles_vertices = triangles_vertices.size();
 
    // -------------------------------------------- lines -------------------------------------
@@ -42,26 +41,10 @@ LigandViewMesh::setup_buffers() {
    if (first_time)
       glGenVertexArrays(1, &vao_lines);
 
-   if (n_lines_vertices == 0) return;
    if (n_triangles_vertices == 0) return;
 
-   if (lines_vertices.size() > 5) {
-      glBindVertexArray(vao_lines);
-      for (unsigned int i=0; i<5; i++) {
-         std::cout << i << " " << glm::to_string(lines_vertices[i]) << std::endl;
-      }
-   }
-
-   if (first_time) {
-      glGenBuffers(1, &lines_buffer_id);
-      glBindBuffer(GL_ARRAY_BUFFER, lines_buffer_id);
-      glBufferData(GL_ARRAY_BUFFER, n_lines_vertices * sizeof(glm::vec2), &(lines_vertices[0]), GL_STATIC_DRAW);
-   } else {
-      glDeleteBuffers(1, &lines_buffer_id);
-      glGenBuffers(1, &lines_buffer_id);
-      glBindBuffer(GL_ARRAY_BUFFER, lines_buffer_id);
-      glBufferData(GL_ARRAY_BUFFER, n_lines_vertices * sizeof(glm::vec2), &(lines_vertices[0]), GL_STATIC_DRAW);
-   }
+   std::cout << "debug:: LigandViewMesh::setup_buffers vao_triangles:  " << vao_triangles << std::endl;
+   std::cout << "debug:: LigandViewMesh::setup_buffers first_time: " << first_time << std::endl;
 
    // Whatever buffer is bound using glBindBuffer() affects this vertexattrib call
    glEnableVertexAttribArray(0); // position
@@ -94,9 +77,8 @@ LigandViewMesh::setup_buffers() {
 }
 
 void
-LigandViewMesh::import(const std::vector<glm::vec2> &lines_vertices_in, const std::vector<glm::vec2> &triangle_vertices_in)  {
+LigandViewMesh::import(const std::vector<glm::vec2> &triangle_vertices_in)  {
 
-   lines_vertices = lines_vertices_in;
    triangles_vertices = triangle_vertices_in;
 
    setup_buffers();
@@ -105,6 +87,8 @@ LigandViewMesh::import(const std::vector<glm::vec2> &lines_vertices_in, const st
 
 void
 LigandViewMesh::draw(Shader *shader_p, float widget_height, float widget_width) {
+
+   // std::cout << "---------- LigandViewMesh::draw() start " << std::endl;
 
    if (vao_lines == VAO_NOT_SET) {
       // not an error necessarily
@@ -117,55 +101,45 @@ LigandViewMesh::draw(Shader *shader_p, float widget_height, float widget_width) 
    if (aspect_ratio < 1.0) aspect_ratio = 1.0;
    shader_p->set_float_for_uniform("aspect_ratio", aspect_ratio);
 
-   // ----------------------------- lines --------------------------------------
-
-   glBindVertexArray(vao_lines);
-   GLenum err = glGetError();
-   if (err) std::cout << "error:: LigandViewMesh::draw() " << shader_p->name << " " << name
-                      << " glBindVertexArray() vao_lines " << vao_lines << " with GL err " << err << std::endl;
-
-   unsigned int n_vertices = lines_vertices.size();
-
-   glBindBuffer(GL_ARRAY_BUFFER, lines_buffer_id);
-   glEnableVertexAttribArray(0);
-
-   // std::cout << "debug:: LigandViewMesh::draw() glDrawArrays() n_vertices " << n_vertices << std::endl;
-   glDrawArrays(GL_LINES, 0, n_vertices);
-   err = glGetError();
-   if (err) std::cout << "error:: LigandViewMesh::draw() " << shader_p->name << " " << name
-                      << " glDrawArrays" << " with GL err " << err << std::endl;
-
-   glDisableVertexAttribArray(0);
-
    // ----------------------------- triangles --------------------------------------
 
-   glBindVertexArray(vao_triangles);
-   err = glGetError();
-   if (err) std::cout << "error:: LigandViewMesh::draw() " << shader_p->name << " " << name
-                      << " glBindVertexArray() vao_triangles " << vao_triangles
-                      << " with GL err " << err << std::endl;
+   if (vao_triangles == VAO_NOT_SET) {
+      std::cout << "LigandViewMesh::draw() vao_triangles not set yet" << std::endl;
+      return;
+   }
 
-   n_vertices = triangles_vertices.size();
+   {
+      glBindVertexArray(vao_triangles);
+      GLenum err = glGetError();
+      if (err) std::cout << "error:: LigandViewMesh::draw() " << shader_p->name << " " << name
+                         << " glBindVertexArray() vao_triangles " << vao_triangles
+                         << " with GL err " << err << std::endl;
 
-   glBindBuffer(GL_ARRAY_BUFFER, triangles_buffer_id);
-   glEnableVertexAttribArray(0);
+      unsigned int n_vertices = triangles_vertices.size();
 
-   // std::cout << "debug:: LigandViewMesh::draw() glDrawArrays() n_vertices " << n_vertices << std::endl;
-   glDrawArrays(GL_TRIANGLES, 0, n_vertices);
-   err = glGetError();
-   if (err) std::cout << "error:: LigandViewMesh::draw() " << shader_p->name << " " << name
-                      << " glDrawArrays" << " with GL err " << err << std::endl;
+      glBindBuffer(GL_ARRAY_BUFFER, triangles_buffer_id); // remove this when fixed.
+      glEnableVertexAttribArray(0);
 
-   glDisableVertexAttribArray(0);
+      // std::cout << "debug:: LigandViewMesh::draw() triangles glDrawArrays() n_vertices " << n_vertices << std::endl;
+      glDrawArrays(GL_TRIANGLES, 0, n_vertices);
+      err = glGetError();
+      if (err) std::cout << "error:: LigandViewMesh::draw() " << shader_p->name << " " << name
+                         << " glDrawArrays" << " with GL err " << err << std::endl;
+
+      glDisableVertexAttribArray(0);
+   }
 
 
-   // ----------------------------- text --------------------------------------
+   // text not done here?
+   // // ----------------------------- text --------------------------------------
 
-   glBindVertexArray(vao_text);
+   // glBindVertexArray(vao_text);
 
-   // ----------------------------- done --------------------------------------
+   // // ----------------------------- done --------------------------------------
 
-   glDisableVertexAttribArray(0);
+   // glDisableVertexAttribArray(0);
+
+
    glUseProgram(0);
 
 }

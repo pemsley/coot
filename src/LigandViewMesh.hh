@@ -29,7 +29,7 @@ public:
    LigandViewMesh() { init(); }
    explicit LigandViewMesh(const std::string &n) : name(n) { init(); }
    std::string get_name() const { return name; }
-   void import(const std::vector<glm::vec2> &lines_vertices, const std::vector<glm::vec2> &triangle_vertices);
+   void import(const std::vector<glm::vec2> &triangle_vertices);
    bool get_draw_status() const { return draw_this_mesh; }
    void draw(Shader *shader_p, float widget_height, float widget_width);
    void close();

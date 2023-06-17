@@ -88,6 +88,8 @@ Isolated Molprobity dots for this ligand - what is this? How is it different to 
 
 Go to (Next) Ligand doesn't get the ligand orientation correct. Is a transform() needed?
 
+
+
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
 Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
