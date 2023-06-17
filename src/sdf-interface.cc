@@ -324,7 +324,7 @@ void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string nam
       if (family != "Aromatic")
          features_obj.add_sphere(sphere);
 
-      if (family == "Donor" || family == "Acceptor") {
+      if (family == "Donor") {
 	 std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), rdkm, conf);
 	 if (normal.first) {
 	    clipper::Coord_orth p1(centre + 1.3 * normal.second);
@@ -333,7 +333,26 @@ void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string nam
  	    features_obj.add_arrow(arrow);
 	 }
       }
-      
+
+      // "pawn" shape
+      if (family == "Acceptor") {
+	 std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), rdkm, conf);
+
+         if (normal.first) {
+            float base_radius = 0.9f;
+            float  top_radius = 0.2f;
+            unsigned int n_slices = 24;
+            col = coot::colour_holder(0.6, 0.1, 0.7);
+
+            clipper::Coord_orth p1(centre + 1.3 * normal.second);
+            std::pair<glm::vec3, glm::vec3> start_end(coord_orth_to_glm(centre),
+                                                      coord_orth_to_glm(p1));
+            features_obj.add_cone(start_end, col, base_radius, top_radius, n_slices, false, true,
+                                  meshed_generic_display_object::FLAT_CAP,
+                                  meshed_generic_display_object::FLAT_CAP);
+         }
+      }
+
       if (family == "Aromatic") {
 	 std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), rdkm, conf);
 	 if (normal.first) {
