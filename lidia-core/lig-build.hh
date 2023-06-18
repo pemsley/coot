@@ -223,7 +223,8 @@ namespace lig_build {
 	 if (formal_charge != 0) { 
 	    offset_text_t superscript("");
 	    // if (formal_charge == -1) superscript=offset_text_t("-"); // try U+2012 or U+2013
-	    if (formal_charge == -1) superscript=offset_text_t("−");
+	    // if (formal_charge == -1) superscript=offset_text_t("−");
+	    if (formal_charge == -1) superscript=offset_text_t("-"); // back to minus
 	    if (formal_charge == -2) superscript=offset_text_t("2-");
 	    if (formal_charge == +1) superscript=offset_text_t("+");
 	    if (formal_charge == +2) superscript=offset_text_t("2+");
