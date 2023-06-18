@@ -10,12 +10,9 @@ class LigandViewMesh {
    // contains vectors for both lines and triangles. Don't use indexing to draw.   
 
    enum { VAO_NOT_SET = 99999999 };
-   GLuint vao_lines;
    GLuint vao_triangles;
    GLuint vao_text;
-   GLuint lines_buffer_id;
    GLuint triangles_buffer_id;
-   std::vector<glm::vec2> lines_vertices;
    std::vector<glm::vec2> triangles_vertices;
    // I need a container for text too.
    std::string name;

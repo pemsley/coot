@@ -10,7 +10,6 @@ LigandViewMesh::init() {
    first_time = true;
    draw_this_mesh = true;
    this_mesh_is_closed = false;
-   vao_lines = VAO_NOT_SET;
    vao_triangles = VAO_NOT_SET;
    vao_text = VAO_NOT_SET;
 }
@@ -26,7 +25,6 @@ LigandViewMesh::close() {
 void
 LigandViewMesh::clear() {
 
-   lines_vertices.clear();
    triangles_vertices.clear();
 
 }
@@ -38,17 +36,10 @@ LigandViewMesh::setup_buffers() {
 
    // -------------------------------------------- lines -------------------------------------
 
-   if (first_time)
-      glGenVertexArrays(1, &vao_lines);
-
    if (n_triangles_vertices == 0) return;
 
    std::cout << "debug:: LigandViewMesh::setup_buffers vao_triangles:  " << vao_triangles << std::endl;
    std::cout << "debug:: LigandViewMesh::setup_buffers first_time: " << first_time << std::endl;
-
-   // Whatever buffer is bound using glBindBuffer() affects this vertexattrib call
-   glEnableVertexAttribArray(0); // position
-   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), 0);
 
    // -------------------------------------------- triangles -------------------------------------
 
@@ -89,12 +80,6 @@ void
 LigandViewMesh::draw(Shader *shader_p, float widget_height, float widget_width) {
 
    // std::cout << "---------- LigandViewMesh::draw() start " << std::endl;
-
-   if (vao_lines == VAO_NOT_SET) {
-      // not an error necessarily
-      // std::cout << "LigandViewMesh::draw() vao not set yet" << std::endl;
-      return;
-   }
 
    shader_p->Use();
    float aspect_ratio = widget_width/widget_height;
