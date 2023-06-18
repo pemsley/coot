@@ -4483,7 +4483,7 @@ def get_windows_drives():
         from ctypes import windll
         drives = []
         bitmask = windll.kernel32.GetLogicalDrives()
-        upper = string.uppercase
+        upper = string.ascii_uppercase
         for letter in upper:
             if bitmask & 1:
                 drives.append(letter + ":\\")
@@ -4493,7 +4493,7 @@ def get_windows_drives():
         # poor man's version but simple
         # print "BL INFO:: couldnt import ctypes, using simple version to get drives."
         drives = []
-        lower = string.lowercase
+        lower = string.ascii_lowercase
         for letter in lower:
             if os.path.isdir(letter + ":"):
                 drives.append(letter + ":\\")
