@@ -788,6 +788,7 @@ short int graphics_info_t::ligand_water_write_peaksearched_atoms = 0;
 std::vector<clipper::Coord_orth> *graphics_info_t::ligand_big_blobs = NULL;
 
 bool graphics_info_t::graphics_ligand_view_flag = false;
+int  graphics_info_t::graphics_ligand_view_imol = -1;
 
 
 short int graphics_info_t::do_probe_dots_on_rotamers_and_chis_flag = 0;

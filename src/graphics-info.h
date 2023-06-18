@@ -945,6 +945,8 @@ class graphics_info_t {
    // bottom left flat ligand view:
    //
    static bool graphics_ligand_view_flag;
+   static int  graphics_ligand_view_imol; // the molecle of the ligand. We don't want to show the HUG ligand
+                                          // if the molecule of which it is part is not displayed.
 
    // ----------------------------------------------------------------
    //             public:

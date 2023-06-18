@@ -166,6 +166,8 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
 
                   std::cout << "========== setup_from() " << imol << " " << residue_p << std::endl;
 
+                  graphics_ligand_view_imol = imol;
+
 		  graphics_ligand_view_flag =
 		     graphics_ligand_mesh_molecule.setup_from(imol, residue_p, alt_conf, Geom_p());
 
@@ -186,7 +188,9 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
 			add_status_bar_text(restraints.residue_info.name);
 		     }
 		  }
-	       }
+	       } else {
+                  graphics_ligand_view_flag = false; // because no atoms
+               }
 	    }
 	 }
       }
