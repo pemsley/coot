@@ -19,12 +19,12 @@
  * 02110-1301, USA
  */
 
+#include "compat/coot-sysdep.h"
 
 #include "simple-restraint.hh"
 #include "geometry/protein-geometry.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-compare-residues.hh"
-#include "compat/coot-sysdep.h"
 #include "torsion-bonds.hh"
 
 bool

@@ -2,6 +2,8 @@
 #define RAMACHANDRAN_VALIDATION_HH
 
 #include <vector>
+
+#include "compat/coot-sysdep.h"
 #include "geometry/residue-and-atom-specs.hh"
 #include "rama-plot-phi-psi.hh"
 #include "phi-psi-prob.hh"

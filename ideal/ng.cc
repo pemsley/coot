@@ -1,6 +1,8 @@
 //
 #include <iomanip>
 
+#include "compat/coot-sysdep.h"
+
 #include "simple-restraint.hh"
 #include "coot-utils/contacts-by-bricks.hh"
 #include "coot-utils/stack-and-pair.hh"

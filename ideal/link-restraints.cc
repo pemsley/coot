@@ -25,6 +25,8 @@
 // we don't want to compile anything if we don't have gsl
 #ifdef HAVE_GSL
 
+#include "compat/coot-sysdep.h"
+
 #include "simple-restraint.hh"
 
 #include "coot-utils/coot-coord-extras.hh"  // is_nucleotide_by_dict

@@ -9,6 +9,10 @@
 #ifndef RendererGLSL_hpp
 #define RendererGLSL_hpp
 
+#ifdef WINDOWS_MINGW
+typedef unsigned int uint;
+#endif
+
 #include <stdio.h>
 #include "RendererGL.h"
 

@@ -31,6 +31,8 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include "compat/coot-sysdep.h"
+
 #include "coot-utils/prideout-octasphere.hh"  // needed?
 #include "coot-utils/oct.hh"
 #include "coot-utils/cylinder.hh"

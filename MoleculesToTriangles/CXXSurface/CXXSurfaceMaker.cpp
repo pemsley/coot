@@ -6,6 +6,11 @@
 //  Copyright © 2016 MartinNobleSoftware. All rights reserved.
 //
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 #include "CXXSurfaceVertex.h"
 #include "CXXSurfaceMaker.h"
 #include "CXXVCN.h"
@@ -15,11 +20,6 @@
 #include "CXXNewHood.h"
 #include "CXXSurface.h"
 #include <sstream>
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 
 // can return -1 if name is invalid
 //

@@ -39,6 +39,7 @@
 #undef small
 #undef near
 #undef far
+#undef ERROR
 #ifdef PLANE
 #undef PLANE
 #endif

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <utility>
+#include "compat/coot-sysdep.h"
 #include <mmdb2/mmdb_manager.h>
 #include <clipper/core/xmap.h>
 #include "coot-utils/atom-selection-container.hh"

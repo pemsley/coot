@@ -11,5 +11,7 @@ libMoleculesToTrianglesCXXSurface_la_SOURCES=CXXCircle.cpp CXXCircleNode.cpp \
 
 libMoleculesToTrianglesCXXSurface_la_LIBADD = $(CLIPPER_LIBS) $(MMDB_LIBS)
 
-AM_CXXFLAGS=$(OPENMP_CFLAGS)
+libMoleculesToTrianglesCXXSurface_la_LDFLAGS=$(SHARED_LDFLAGS)
+
+AM_CXXFLAGS=$(OPENMP_CFLAGS) $(COOT_WINDOWS_CFLAGS)
 
