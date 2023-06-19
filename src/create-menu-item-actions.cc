@@ -44,7 +44,6 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       const char *r = gtk_file_chooser_get_choice(GTK_FILE_CHOOSER(dialog), "recentering");
       if (r) {
          std::string sr(r);
-         std::cout << "................... sr: " << sr << std::endl;
          if (sr == "No Recentre")
             recentre_on_read_pdb_flag = false;
          if (sr == "Move Molecule Here")
@@ -117,8 +116,6 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    // Ancient GTK3
    // open_coords_dialog();
-
-   std::cout << "---------------------- open_coordinates_action()! " << std::endl;
 
    GtkWindow *parent_window = GTK_WINDOW(user_data);
    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
@@ -309,8 +306,19 @@ void on_cif_dictionary_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       GFile *file = gtk_file_chooser_get_file(chooser);
       char *file_name = g_file_get_path(file);
       int imol_enc = -999997;
-      short int new_molecule_checkbutton_state = 0;
-      handle_cif_dictionary_for_molecule(file_name, imol_enc, new_molecule_checkbutton_state);
+
+      bool create_ligand = false;
+      const char *r = gtk_file_chooser_get_choice(GTK_FILE_CHOOSER(dialog), "create-molecule");
+      if (r) {
+         std::string sr(r);
+         if (sr == "Create New Instance")
+            create_ligand = true;
+      }
+
+      if (create_ligand) {
+         std::cout << "create ligand! " << std::endl;
+      }
+      int monomer_index = handle_cif_dictionary_for_molecule(file_name, imol_enc, create_ligand);
    }
    gtk_widget_hide(GTK_WIDGET(dialog));
 }
@@ -319,24 +327,22 @@ void import_cif_dictionary_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                   G_GNUC_UNUSED GVariant *parameter,
                                   G_GNUC_UNUSED gpointer user_data) {
 
-#if 0
-   GtkWidget *chooser = widget_from_builder("cif_dictionary_filechooser_dialog");
-   set_directory_for_filechooser(chooser);
-   set_transient_and_position(COOT_UNDEFINED_WINDOW, chooser);
-   gtk_widget_show(chooser);
-#endif
-
    GtkWindow *parent_window = GTK_WINDOW(user_data);
    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File", parent_window, action,
                                                    _("_Cancel"), GTK_RESPONSE_CANCEL,
                                                    _("_Open"), GTK_RESPONSE_ACCEPT,
                                                    NULL);
+
+   const gchar *labels[]  = {"No Instance", "Create New Instance", NULL};
+   const gchar *options[] = {"no-instance", "create-new-instance", NULL};
+   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "create-molecule", "Create Molecule", options, labels);
    g_signal_connect(dialog, "response", G_CALLBACK(on_cif_dictionary_filechooser_dialog_response_gtk4), NULL);
    g_object_set_data(G_OBJECT(dialog), "auto_read_flag", GINT_TO_POINTER(FALSE));
    GtkFileFilter *filterselect = gtk_file_filter_new();
    gtk_file_filter_add_pattern(filterselect, "*.cif");
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
+   set_transient_for_main_window(dialog);
    gtk_widget_show(dialog);
 
 }
