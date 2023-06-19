@@ -1890,8 +1890,13 @@ coot::protein_geometry::init_standard() {
 
    // struct stat buf;
    char *cmld = NULL;
-   
+
    char *s = getenv("COOT_REFMAC_LIB_DIR");
+   // it is not refmac, it's CCP4
+   if (! s)
+      s = getenv("COOT_MONOMER_LIB_DIR");
+   if (! s)
+      s = getenv("COOT_CCP4_LIB_DIR");
    if (s) {
       if (! is_dir_or_link(s)) { 
 	 env_dir_fails = 1;

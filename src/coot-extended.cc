@@ -213,7 +213,8 @@ coot::get_ligand_interactions(const std::string &file_name,
 			   reduce r(mol, imol);
 			   r.set_verbose_output(false); // don't tell me about missing atoms
 			   r.add_geometry(&geom);
-			   r.add_hydrogen_atoms();
+			   bool go_nuclear = false;
+			   r.add_hydrogen_atoms(go_nuclear);
 
 			   // protein-ligand interactions (various sorts of bonds) are calculated without
 			   // needing rdkit.

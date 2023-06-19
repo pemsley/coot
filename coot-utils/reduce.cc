@@ -189,7 +189,50 @@ coot::reduce::position_by_tetrahedron(mmdb::Atom *at_central,
 }
 
 void
-coot::reduce::add_hydrogen_atoms() {
+coot::reduce::setup_default_bond_lengths(double *bl_aliph_p,
+					 double *bl_arom_p,
+					 double *bl_amino_p,
+					 double *bl_oh_p,
+					 double *bl_sh_p,
+					 bool go_nuclear) {
+   // electron cloud
+   *bl_aliph_p = 0.97;
+   *bl_arom_p  = 0.93;
+   *bl_amino_p = 0.86;
+   *bl_oh_p    = 0.84;
+   *bl_sh_p    = 1.2;
+
+   if (go_nuclear) {
+      *bl_aliph_p = 1.089;
+      *bl_arom_p  = 1.082;
+      *bl_amino_p = 1.016;
+      *bl_oh_p    = 0.970;
+      *bl_sh_p    = 1.338;
+   }
+
+}
+
+void
+coot::reduce::add_hydrogen_atoms(bool go_nuclear) {
+
+   double bl_aliph = 0.97;
+   double bl_arom  = 0.93;
+   double bl_amino = 0.86;
+   double bl_oh    = 0.84;
+   double bl_sh    = 1.2;
+
+   setup_default_bond_lengths(&bl_aliph, &bl_arom, &bl_amino, &bl_oh, &bl_sh, go_nuclear);
+
+   if (mol) {
+      add_riding_hydrogens(bl_aliph, bl_arom, bl_amino, bl_oh, bl_sh);
+      mol->FinishStructEdit();
+   }
+}
+
+void
+coot::reduce::add_hydrogens_to_residue(mmdb::Residue *residue_p,
+				       mmdb::Residue *residue_prev_p, // possibly undefined
+				       bool go_nuclear_flag) {
 
    // electron cloud
    double bl_aliph = 0.97;
@@ -197,18 +240,34 @@ coot::reduce::add_hydrogen_atoms() {
    double bl_amino = 0.86;
    double bl_oh    = 0.84;
    double bl_sh    = 1.2;
+   setup_default_bond_lengths(&bl_aliph, &bl_arom, &bl_amino, &bl_oh, &bl_sh, go_nuclear_flag);
 
-   if (true) { // go nuclear
-      bl_aliph = 1.089;
-      bl_arom  = 1.082;
-      bl_amino = 1.016;
-      bl_oh    = 0.970;
-      bl_sh    = 1.338;
-   }
+   add_riding_hydrogens_to_residue(residue_p, residue_prev_p, bl_aliph, bl_arom, bl_amino, bl_oh, bl_sh);
 
-   if (mol) {
-      add_riding_hydrogens(bl_aliph, bl_arom, bl_amino, bl_oh, bl_sh);
-      mol->FinishStructEdit();
+}
+
+
+void
+coot::reduce::add_riding_hydrogens_to_residue(mmdb::Residue *residue_p,
+					      mmdb::Residue *residue_prev_p,
+					      double bl_aliph,
+					      double bl_arom,
+					      double bl_amino,
+					      double bl_oh,
+					      double bl_sh) {
+
+   bool done = add_riding_hydrogens(residue_p, residue_prev_p, bl_aliph, bl_arom, bl_amino, bl_oh, bl_sh);
+
+   if (! done) {
+      hydrogen_placement_by_dictionary(residue_p, bl_aliph, bl_arom, bl_amino, bl_oh, bl_sh);
+   } else {
+      // if this was a conventional residue, then if this was the N-terminus, we
+      // want to ad NH3+ hydrogens too.
+      if (! residue_prev_p) {
+	 double bl_amino = 0.86; // add 0.03 (0.89) to match richardson reduce length. Curious
+	 torsion_info_t ti(" C  ", " CA ", " N  ", bl_amino, 109, 180);
+	 add_methyl_Hs(" H1 ", " H2 ", " H3 ", ti, residue_p); // not methyl
+      }
    }
 }
 
@@ -503,6 +562,7 @@ coot::reduce::add_main_chain_H(mmdb::Residue *residue_p, mmdb::Residue *residue_
       if (residue_p->isNTerminus()) {
          // NH3+ - needs spin search - these are not riding
       } else {
+
          std::vector<std::string> alt_confs = util::get_residue_alt_confs(residue_p);
          for (unsigned int i=0; i<alt_confs.size(); i++) {
             mmdb::Atom *at_ca     = residue_p->GetAtom(" CA ", 0, alt_confs[i].c_str());

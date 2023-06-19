@@ -354,6 +354,13 @@ namespace coot {
 
       void switch_his_protonation(mmdb::Residue *residue_p, mmdb::Atom *current_H_atom, double bl_arom);
 
+     void setup_default_bond_lengths(double *bl_aliph_p,
+				     double *bl_arom_p,
+				     double *bl_amino_p,
+				     double *bl_oh_p,
+				     double *bl_sh_p,
+				     bool go_nuclear);
+
    public:
       reduce(mmdb::Manager *mol_in, int imol_in) {
 	 mol = mol_in;
@@ -361,7 +368,18 @@ namespace coot {
          verbose_output = true;
          geom_p = 0;
       }
-      void add_hydrogen_atoms(); // changes mol
+      void add_hydrogen_atoms(bool go_nuclear); // changes mol
+
+     void add_riding_hydrogens_to_residue(mmdb::Residue *residue_p,
+					  mmdb::Residue *residue_prev_p, // possibly undefined
+					  double bl_aliph,
+					  double bl_arom,
+					  double bl_amino,
+					  double bl_oh,
+					  double bl_sh);
+     void add_hydrogens_to_residue(mmdb::Residue *residue_p,
+				   mmdb::Residue *residue_prev_p, // possibly undefined
+				   bool go_nuclear_flag);
       void delete_hydrogen_atoms();
       void add_geometry(protein_geometry *geom_p_in) { geom_p = geom_p_in; }
       // change HE2 to HD1 and vice versa
