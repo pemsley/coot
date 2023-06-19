@@ -1321,7 +1321,7 @@ def coot_menubar_menu(menu_label):
 
     try:
         coot_main_menumodel = coot_gui_api.main_menumodel()
-        print("%%%%%% in coot_menubar_menu, coot_main_menumodel is", coot_main_menumodel)
+        # print("%%%%%% in coot_menubar_menu, coot_main_menumodel is", coot_main_menumodel)
         # print("%%%%%% in coot_menubar_menu, dir coot_main_menumodel is", dir(coot_main_menumodel))
 
         def menu_bar_label_list_old():
