@@ -38,8 +38,10 @@ LigandViewMesh::setup_buffers() {
 
    if (n_triangles_vertices == 0) return;
 
-   std::cout << "debug:: LigandViewMesh::setup_buffers vao_triangles:  " << vao_triangles << std::endl;
-   std::cout << "debug:: LigandViewMesh::setup_buffers first_time: " << first_time << std::endl;
+   if (false) {
+      std::cout << "debug:: LigandViewMesh::setup_buffers vao_triangles:  " << vao_triangles << std::endl;
+      std::cout << "debug:: LigandViewMesh::setup_buffers first_time: " << first_time << std::endl;
+   }
 
    // -------------------------------------------- triangles -------------------------------------
 

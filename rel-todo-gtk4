@@ -16,8 +16,6 @@ Delete Hydrogen atoms (gets rid of mainchain hydrogen atoms too) and sprout_hydr
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
-Views ::: 2
-
 Open dictionary should provide a widget to specify the molecule for dictionary.
 Also a "Generate Molecule" button. ::: 1
 
@@ -657,3 +655,5 @@ Draw the ligand chemical diagram in OpenGL. ::: 3
 Nasty "-" rendering in OpenGL for charged atoms in HUD Ligand ::: 0.5
 * Done 375716e7198e9df624449790378d383daa4f6370
 
+Views ::: 2
+* Simple implementation

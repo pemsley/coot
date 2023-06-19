@@ -143,8 +143,6 @@ graphics_info_t::setup_graphics_ligand_view_using_active_atom(int only_in_imol) 
 void
 graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, const std::string &alt_conf) {
 
-   std::cout << "=========================================== setup_graphics_ligand_view() " << std::endl;
-
    if (show_graphics_ligand_view_flag) { // user control
       if (!use_graphics_interface_flag) {
 	 graphics_ligand_view_flag = false;
@@ -156,23 +154,16 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
 	       graphics_ligand_view_flag = false;
 	    } else {
 	       if (residue_p->GetNumberOfAtoms() > 1) {
-		  if (true)
+		  if (false)
 		     std::cout << "debug:: setup_graphics_ligand() on residue "
 			       << coot::residue_spec_t(residue_p) << std::endl;
 
-                  std::cout << "============== attaching buffers" << std::endl;
-
                   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
-
-                  std::cout << "========== setup_from() " << imol << " " << residue_p << std::endl;
 
                   graphics_ligand_view_imol = imol;
 
 		  graphics_ligand_view_flag =
 		     graphics_ligand_mesh_molecule.setup_from(imol, residue_p, alt_conf, Geom_p());
-
-                  std::cout << "========== setup_from() " << imol << " " << residue_p
-                            << " returned " << graphics_ligand_view_flag << std::endl;
 
 		  // This overwrites the atom info in the status bar - I don't like that.
 		  // There needs to be a different mechanism to report the residue type.
@@ -195,7 +186,6 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
 	 }
       }
    }
-   std::cout << "=========================================== done setup_graphics_ligand_view() " << std::endl;
 }
 
 

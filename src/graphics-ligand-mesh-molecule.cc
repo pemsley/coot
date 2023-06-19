@@ -29,15 +29,11 @@ graphics_ligand_mesh_molecule_t::setup_from(int imol_in, mmdb::Residue *residue_
                                             const std::string &alt_conf,
                                             coot::protein_geometry *geom_p) {
 
-   std::cout << "graphics_ligand_mesh_molecule_t::setup_from() !!!!!!!!! " << std::endl;
-
    bool status = false;
 
    imol = imol_in;
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-
-   std::cout << "graphics_ligand_mesh_molecule_t::setup_from() with ELT " << std::endl;
 
    imol = imol_in;
    if (residue_p) {
@@ -411,7 +407,7 @@ graphics_ligand_mesh_molecule_t::fill_mesh_atoms() {
          lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
          coot::colour_t col = atoms[iat].get_colour(background_black_flag); // using ele
          atoms[iat].colour = col;
-         if (true)
+         if (false)
             std::cout << "in fill_mesh_atoms() atom_index " << iat << " with charge " << atoms[iat].charge
                       << " made atom_id_info:\n" << atom_id_info << " assign colour " << col << std::endl;
       }
