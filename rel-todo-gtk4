@@ -6,37 +6,9 @@
  - Validation Plots
  - Ramachandran Plot
 
- - coot_gui.smiles_gui() - is this a thing now?
-Not without --enhanced-ligand-gui it isn't.
-Check QED is now part of RDKit.
-
-## --- Widgets that have changed in GTK ---
-
- - Padding is gone, margins and layout are in.
- - Tables are out, Grids are in.
- - Radio buttons are gone, use check buttons instead.
- - HBoxes and VBoxes are gone, use generic Box
- - Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
- - Canvas is gone, use widget lists instead (how?)
-
-Have a look at adding thing this:
-<style>
-   <class name="suggested-action"/>
-</style>
-after a buttons's properties
-Here are other styles:
-
-    .image-button: used when the button contains only an image
-    .text-button: used when the button contains only a label
-    .flat: used for buttons with no border or background
-    .keyboard-activating: used when the button is activated by keyboard input
-    .suggested-action: used for buttons that are recommended or suggested actions
-    .destructive-action: used for buttons that perform a destructive action, such as deleting data
-    .circular: used for circular buttons
+ - Check QED is now part of RDKit.
 
 ----
-
-Nasty - rendering in OpenGL for charged atoms in HUD Ligand ::: 0.5
 
 Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
 It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
@@ -681,4 +653,7 @@ again. Mess as some box entries are double written. ::: 1
 
 Draw the ligand chemical diagram in OpenGL. ::: 3
 * Done. Good. But still some scaling issues.
+
+Nasty "-" rendering in OpenGL for charged atoms in HUD Ligand ::: 0.5
+* Done 375716e7198e9df624449790378d383daa4f6370
 
