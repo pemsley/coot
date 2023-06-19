@@ -118,7 +118,7 @@ static void on_hover (
     }
     auto maybe_something_clicked = self->resolve_click(x, y);
     if(maybe_something_clicked.has_value()) {
-        auto [bond_or_atom,molecule_idx] = self->resolve_click(x, y).value();
+        auto [bond_or_atom,molecule_idx] = maybe_something_clicked.value();
         auto& target = (*self->molecules)[molecule_idx];
         if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
             auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
