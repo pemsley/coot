@@ -10,14 +10,16 @@
 
 ----
 
+Open dictionary should provide a widget to specify the molecule for dictionary.
+Also a "Generate Molecule" button. ::: 1
+
+Clicking on Green left arrow doesn't open the refinement overlay ::: 1
+
 Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
 It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
 Delete Hydrogen atoms (gets rid of mainchain hydrogen atoms too) and sprout_hydrogens() should work?
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
-
-Open dictionary should provide a widget to specify the molecule for dictionary.
-Also a "Generate Molecule" button. ::: 1
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 set_framebuffer_scale_factor().
@@ -33,8 +35,6 @@ In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_s
 Why? Because it's looked up and not new? ::: 2
 
 Rework the namespace of the python modules to be more cannonical ::: 4
-
-Clicking on Green left arrow doesn't open the refinement overlay ::: 1
 
 Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
 

@@ -68,41 +68,11 @@
 #include "c-interface-preferences.h"
 #include "c-interface-widgets.hh"
 #include "cc-interface.hh"
+#include "c-interface-gui.hh" // for set_transient_for_main_window()
 #include "coot-preferences.h"
 
 #include "widget-from-builder.hh"
 
-// c.f. create_single_map_properties_dialog_gtk3() {
-// return null on failure - called from main().
-//
-GtkBuilder *get_builder_for_preferences_dialog() {
-
-   GtkBuilder *builder = gtk_builder_new();
-
-   std::string dir = coot::package_data_dir();
-   std::string glade_file_name = "preferences-gtk3.glade";
-   std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
-   std::string glade_file_full = coot::util::append_dir_file(dir_glade, glade_file_name);
-   if (coot::file_exists(glade_file_name))
-      glade_file_full = glade_file_name;
-
-   GError *error = NULL;
-   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
-
-   std::cout << "debug in get_builder_for_preferences_dialog() glade_file_full is " << glade_file_full << std::endl;
-
-   if (add_from_file_status == 1) {
-      GtkWidget *dialog = GTK_WIDGET(gtk_builder_get_object(builder, "preferences_dialog"));
-      // gtk_builder_connect_signals(builder, dialog); // happens automatically now.
-      graphics_info_t::set_preferences_gtkbuilder(builder);
-      return builder;
-   } else {
-      std::cout << "ERROR:: get_builder_for_preferences_dialog() failed to find or parse builder file for preferences dialog" << std::endl;
-      std::cout << "ERROR::" << error->message << std::endl;
-      return nullptr;
-   }
-
-}
 
 void preferences() {
 
@@ -122,9 +92,8 @@ void show_preferences() {
    GtkWidget *scrolled_win_main_toolbar = widget_from_preferences_builder("preferences_main_toolbar_icons_scrolledwindow");
    fill_preferences_main_toolbar_icons(w, scrolled_win_main_toolbar);
 
-   GtkComboBoxText *combobox;
    // fill the bond combobox
-   combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_bond_width_combobox"));
+   GtkComboBoxText *combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_bond_width_combobox"));
    for (int j=1; j<21; j++) {
       std::string s = graphics_info_t::int_to_string(j);
       gtk_combo_box_text_append_text(combobox, s.c_str());
@@ -140,6 +109,7 @@ void show_preferences() {
       gtk_combo_box_text_append_text(combobox, fonts[j].c_str());
    }
 
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 
 }
