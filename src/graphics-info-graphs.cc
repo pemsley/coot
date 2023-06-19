@@ -21,7 +21,7 @@
  * 02110-1301, USA
  */
 
-#include "validation-graphs.hh"
+#include "validation-graphs/validation-graphs.hh"
 #include "widget-from-builder.hh"
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems

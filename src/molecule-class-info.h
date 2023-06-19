@@ -109,7 +109,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 
 
 #ifndef EMSCRIPTEN
-#include "validation-graphs.hh"  // GTK things, now part of
+#include "validation-graphs/validation-graphs.hh"  // GTK things, now part of
 				 // molecule_class_info_t, they used
 				 // to be part of graphics_info_t before the
                                  // array->vector change-over.
