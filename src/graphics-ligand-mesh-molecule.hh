@@ -50,7 +50,7 @@ class graphics_ligand_mesh_molecule_t : public lig_build::molecule_t<graphics_li
 
    void init_from_molfile_molecule(const lig_build::molfile_molecule_t &mol);
    void fill_mesh();
-   std::pair<std::vector<glm::vec2>, std::vector<position_triple_t> > fill_mesh_bonds();
+   std::vector<position_triple_t> fill_mesh_bonds();
    void fill_mesh_atoms();
 
 public:

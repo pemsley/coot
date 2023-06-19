@@ -1469,7 +1469,7 @@ Mesh::draw_instanced(Shader *shader_p,
                       << " with GL err " << err << std::endl;
 
    if (vao == VAO_NOT_SET)
-      std::cout << "GL ERROR:: You forgot to setup this Mesh " << name << " " << shader_p->name << std::endl;
+      std::cout << "GL ERROR:: You forgot to setup this Mesh: \"" << name << "\" " << shader_p->name << std::endl;
 
    // std::cout << "Mesh::draw_instanced() using vao " << vao << std::endl;
    glBindVertexArray(vao);
@@ -1833,7 +1833,7 @@ Mesh::draw(Shader *shader_p,
                       << " with GL err " << err << std::endl;
 
    if (vao == VAO_NOT_SET)
-      std::cout << "ERROR:: You forgot to setup this Mesh \"" << name << "\" "
+      std::cout << "GL ERROR:: You forgot to setup this Mesh: \"" << name << "\" "
                 << shader_p->name << std::endl; // Or was not set because no vertices or no triangles.. so crash then
 
    // if (vao == VAO_NOT_SET) return; // maybe?

@@ -686,9 +686,9 @@ new_startup_application_activate(GtkApplication *application,
       if (coot::file_exists(preferences_ui_file_name))
          preferences_ui_file_name_full = preferences_ui_file_name;
       GtkBuilder *preferences_builder = gtk_builder_new();
-      std::cout << "::::::::::::::::::::::::::::::::::::::::::::: reading " << preferences_ui_file_name_full << std::endl;
+      std::cout << "::::::::::::::::::::::: reading " << preferences_ui_file_name_full << std::endl;
       status = gtk_builder_add_from_file(preferences_builder, preferences_ui_file_name_full.c_str(), &error);
-      std::cout << ":::::::::::::::::::::::::::::::::::::::: done reading " << preferences_ui_file_name_full << std::endl;
+      std::cout << "::::::::::::::::::::::: done reading " << preferences_ui_file_name_full << std::endl;
       if (status == FALSE) {
          std::cout << "ERROR:: Failure to read or parse " << preferences_ui_file_name_full << std::endl;
          std::cout << error->message << std::endl;

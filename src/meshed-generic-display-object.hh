@@ -43,6 +43,18 @@ public:
       coot::colour_holder col; // use this type of colour because we use cylinder
       float radius;
    };
+   class cone_t {
+   public:
+      cone_t() { radius = 0.15; }
+      cone_t(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2, float r = 0.15f) :
+         start_point(pt1), end_point(pt2) {
+         radius = r;
+      }
+      clipper::Coord_orth start_point;
+      clipper::Coord_orth end_point;
+      coot::colour_holder col;
+      float radius;
+   };
    class sphere_t {
    public:
       sphere_t() {}
@@ -148,9 +160,8 @@ public:
    void close_yourself() { clear();
       mesh.close();
    }
-   void add(const sphere_t &sphere) {
-      std::cout << "FIXME:: meshed-generic-display-object add a sphere here " << sphere.centre.format() << std::endl;
-   }
+   void add_sphere(const sphere_t &sphere);
+
    void add_line(const coot::colour_holder &colour, const std::string &colour_name, int line_width,
                  const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords);
    void add_dashed_line(const coot::colour_holder &colour, const std::string &colour_name,

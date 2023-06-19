@@ -10998,3 +10998,33 @@ Tue 13 Jun 08:31:31 BST 2023
 https://www.youtube.com/watch?v=w9KBxifGYiU&lc=Ugxa4aNqAg4qQmk84HF4AaABAg.9jUk4yP3ACt9qt6p-8ILY7
  Create Mesh with Code: ArrayMesh Basics
 
+----
+Sun 18 Jun 11:18:37 BST 2023
+
+I don't need this in rel-todo-gtk4:
+
+## --- Widgets that have changed in GTK ---
+
+ - Padding is gone, margins and layout are in.
+ - Tables are out, Grids are in.
+ - Radio buttons are gone, use check buttons instead.
+ - HBoxes and VBoxes are gone, use generic Box
+ - Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
+ - Canvas is gone, use widget lists instead (how?)
+
+Have a look at adding thing this:
+<style>
+   <class name="suggested-action"/>
+</style>
+after a buttons's properties
+Here are other styles:
+
+    .image-button: used when the button contains only an image
+    .text-button: used when the button contains only a label
+    .flat: used for buttons with no border or background
+    .keyboard-activating: used when the button is activated by keyboard input
+    .suggested-action: used for buttons that are recommended or suggested actions
+    .destructive-action: used for buttons that perform a destructive action, such as deleting data
+    .circular: used for circular buttons
+
+

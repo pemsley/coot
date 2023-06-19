@@ -3,7 +3,6 @@
 #include "graphics-info.h"
 #include "coot-application.hh"
 #include "init-from-gtkbuilder.hh"
-void setup_application_icon(GtkWindow *window);
 #include "startup-utils.hh" // nothing yet
 
 void
@@ -54,7 +53,6 @@ application_activate(GtkApplication *application,
          gtk_application_set_menubar(application, G_MENU_MODEL(menu));
          gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
 
-         setup_application_icon(GTK_WINDOW(app_window)); // put this in init_from_gtkbuilder()
 
          std::cout << "-------------------- calling do_window_resizing_widgets() " << main_window_vbox << std::endl;
          do_window_resizing_widgets();

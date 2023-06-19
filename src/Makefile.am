@@ -453,8 +453,9 @@ libcootsumo_la_SOURCES = \
 	cmtz-interface.cc	 \
 	clipper-to-glm.hh        \
 	colour-functions.hh      \
+	colour-holder-to-glm.hh  \
 	command-arg.hh           \
-	command-line.cc	 \
+	command-line.cc	         \
 	command-line-extern.cc   \
 	command-line-extern.hh   \
 	command-line.hh		 \
@@ -680,6 +681,9 @@ libcootsumo_la_SOURCES = \
 	screendump-tga.hh        \
 	screendump-tga.cc        \
 	sound.cc                 \
+	sdf-interface.cc         \
+	sdf-interface.hh         \
+	sdf-internal.hh          \
 	select-atom-info.hh      \
 	sequence-view.hh         \
 	sequence-view.cc         \
