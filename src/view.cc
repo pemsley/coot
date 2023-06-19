@@ -40,11 +40,12 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
    view_info_t view2(view2_in);
 
    if (false) {
+      std::cout << "@@@@@@@@@@@@@@@@" << std::endl;
       std::cout << "start quat interpolation: zooms: " << view1.zoom << " " << view2.zoom
                 << " and centres: "
                 << view1.rotation_centre << " to " << view2.rotation_centre << std::endl;
-      std::cout << "quaternion interpolation using " << n_steps << " steps"
-                << std::endl;
+      std::cout << "quaternion interpolation using " << n_steps << " steps" << std::endl;
+      std::cout << "@@@@@@@@@@@@@@@@" << std::endl;
    }
 
    float total_zoom_by = view2.zoom/view1.zoom;
@@ -112,7 +113,15 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
                                      frac = 1.0/static_cast<float>(n_steps);
                                   coot::Cartesian this_step_delta = graphics_info_t::smooth_scroll_delta * frac;
                                   graphics_info_t::smooth_scroll_current_step += 1; // update now
+                                  float delta_zoom = view2.zoom - view1.zoom;
                                   if (i_current_step < n_steps) {
+
+                                     float z_frac = static_cast<float>(i_current_step) * frac;
+                                     graphics_info_t::zoom = view1.zoom + z_frac * delta_zoom;
+                                     if (false)
+                                        std::cout << "animation func! zoom " << view1.zoom << " to "
+                                                  << view2.zoom << " zfrac " << z_frac
+                                                  << " zoom " << graphics_info_t::zoom << std::endl;
 
                                      graphics_info_t::add_vector_to_rotation_centre(this_step_delta);
 
@@ -139,7 +148,6 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
                                   } else {
                                      graphics_info_t::smooth_scroll_on_going = false;
                                      do_continue = G_SOURCE_REMOVE;
-                                     graphics_info_t g;
                                      g.update_things_on_move_and_redraw();
                                      g.update_environment_distances_by_rotation_centre_maybe(g.go_to_atom_molecule());
                                   }

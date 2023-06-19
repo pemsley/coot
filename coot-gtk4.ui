@@ -914,6 +914,10 @@
         <attribute name="label">SHELX</attribute>
         <attribute name="action">app.add_shelx_module_action</attribute>
       </item>
+      <item>
+        <attribute name="label">Views</attribute>
+        <attribute name="action">app.add_views_module_action</attribute>
+      </item>
     </section>
   </menu>
 
