@@ -3273,7 +3273,8 @@ coot::molecule_t::add_hydrogen_atoms(protein_geometry *geom_p) {
    atom_sel.delete_atom_selection();
    coot::reduce r(atom_sel.mol, imol_no);
    r.add_geometry(geom_p);
-   r.add_hydrogen_atoms();
+   bool go_nuclear = false;
+   r.add_hydrogen_atoms(go_nuclear);
    coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
    atom_sel = make_asc(atom_sel.mol); // it would be better if there was a member function to do this.
 
