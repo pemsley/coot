@@ -253,8 +253,16 @@ molecule_class_info_t::mutate_internal(mmdb::Residue *residue, mmdb::Residue *st
    atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
    delete_ghost_selections();
 
+   bool residue_had_hydrogen_atoms = coot::util::residue_has_hydrogens_p(residue);
+   coot::residue_spec_t rs(residue);
+
    coot::util::mutate_internal(residue, std_residue, alt_conf, is_from_shelx_ins_flag,
                                graphics_info_t::default_new_atoms_b_factor);
+
+   atom_sel.mol->FinishStructEdit(); // not sure if this is needed here.
+
+   if (residue_had_hydrogen_atoms)
+     add_hydrogen_atoms_to_residue(rs);
 
    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();
