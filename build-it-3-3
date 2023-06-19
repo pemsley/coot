@@ -2745,7 +2745,7 @@ if $build_meson = true ; then
    meson --version
    ) > $HOSTLOGDIR/07b-meson.txt 2>&1
 else
-   echo not building meson
+   echo not building meson:
 fi
 
 
@@ -2898,7 +2898,12 @@ if test "$build_gobject_introspection" = true ; then
    export CC=gcc
    # $install_top_dir/bin/meson is important, otherwise the wrong meson
    # is used.
-   if $install_top_dir/bin/meson -Dprefix=$install_top_dir build ; then
+   #
+   # if $install_top_dir/bin/meson -Dprefix=$install_top_dir build ; then
+   #
+   # BUT... if we don't build meson because we have a new enough meson
+   # in the path then $install_top_dir/bin/meson does not exist!
+   if meson -Dprefix=$install_top_dir build ; then
       echo meson passed
       cd build
       ninja
@@ -2981,7 +2986,7 @@ if [ $skip_build = false ] ; then
          x=$LD_LIBRARY_PATH
          unset LD_LIBRARY_PATH
          echo :::: in directory $(pwd)
-         echo :::: building meson with -Dprefix=$install_top_dir build
+         echo :::: building using meson -Dprefix=$install_top_dir build
          if meson -Dprefix=$install_top_dir build ; then
             echo :::: meson passed
             cd build
