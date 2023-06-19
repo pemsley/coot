@@ -3354,6 +3354,8 @@ void draw_map_molecule(bool draw_transparent_maps,
    bool draw_animated_ligand_interactions_flag; // tweaked by outside function
    void add_hydrogens_from_file(const std::string &reduce_pdb_out);
 
+   void add_hydrogen_atoms_to_residue(const coot::residue_spec_t &rs);
+
    std::pair<bool, clipper::Coord_orth>
    residue_centre(const coot::residue_spec_t &spec) const;
    std::pair<bool, clipper::Coord_orth>

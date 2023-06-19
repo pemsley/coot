@@ -82,7 +82,8 @@ coot::restraints_container_t::add_target_position_restraint(int idx, const atom_
    for (it=restraints_vec.begin(); it!=restraints_vec.end(); ++it) {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
 	 if (it->atom_spec == spec) {
-            std::cout << "already there! no double add!" << std::endl;
+            std::cout << "rc: add_target_position_restraint(): already there! no double add!"
+                      << spec.format() << std::endl;
             add_it = false;
             break;
          }
@@ -314,6 +315,41 @@ void coot::my_df_target_pos(const gsl_vector *v,
    }
 
 
+}
+
+// return true when turned off.
+// Turn them all off.
+bool
+coot::restraints_container_t::turn_off_when_close_target_position_restraint() {
+
+   bool actioned = false;
+
+   double close_dist = 0.6;  // was 0.5; // was 0.4 [when there was just 1 pull atom restraint]
+                             // sync with above function, or make a data member
+
+   bool unlocked = false;
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+      std::this_thread::sleep_for(std::chrono::nanoseconds(100));
+      unlocked = false;
+   }
+
+   std::vector<simple_restraint>::iterator it;
+   for(it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
+      if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
+         if (it->is_closed) {
+            mmdb::Atom *at = atom[it->atom_index_1];
+               clipper::Coord_orth pos(at->x, at->y, at->z);
+            double d = sqrt((pos - it->atom_pull_target_pos).lengthsq());
+            if (d < close_dist) {
+               it->close();
+               actioned = true;
+            }
+         }
+      }
+   }
+   needs_reset = true; // may not be needed.
+   restraints_lock = false;
+   return actioned;
 }
 
 

@@ -2180,7 +2180,7 @@ coot::molecule_t::get_fixed_atoms() const {
 
 int
 coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
-                                float map_weight, const coot::protein_geometry &geom, bool refinement_is_quiet) {
+                                float map_weight, int n_cycles, const coot::protein_geometry &geom, bool refinement_is_quiet) {
 
    bool make_trans_peptide_restraints = true;
    bool do_rama_plot_restraints = false;
@@ -2205,9 +2205,9 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
 
    // std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
    restraints.add_map(map_weight);
-   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
    flags = coot::TYPICAL_RESTRAINTS;
-   coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+   pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 
    int n_threads = 4; // coot::get_max_number_of_threads();
    ctpl::thread_pool thread_pool(n_threads);
@@ -2216,10 +2216,10 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    int imol = 0; // dummy
    restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
                               1.0, do_rama_plot_restraints, true, true, false, pseudos);
-   int nsteps_max = 4000;
+   int nsteps_max = n_cycles;
    short int print_chi_sq_flag = 1;
    restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
-   coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
+   geometry_distortion_info_container_t gd = restraints.geometric_distortions();
    if (! refinement_is_quiet)
       gd.print();
    restraints.unset_fixed_during_refinement_udd();
@@ -2227,6 +2227,20 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    // save_info.new_modification("refine_direct");
 
    return status;
+}
+
+int
+coot::molecule_t::refine_using_last_restraints(int n_steps) {
+
+   if (! last_restraints) return 0; // "success" (hmm)
+
+   restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   flags = coot::TYPICAL_RESTRAINTS; // Add GM here?
+
+   // check here that the refinement hasn't already finished.
+   //
+   coot::refinement_results_t rr = last_restraints->minimize(flags, n_steps, 0);
+   return rr.progress;
 }
 
 
@@ -2240,7 +2254,7 @@ coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, cons
    std::pair<int, std::string> r;
    mmdb::Residue *residue_p = util::get_residue(spec, atom_sel.mol);
    if (residue_p) {
-      std::string terminus_type = coot::get_term_type(residue_p, atom_sel.mol);
+      std::string terminus_type = get_term_type(residue_p, atom_sel.mol);
       float bf_new = default_temperature_factor_for_new_atoms;
       make_backup("add_terminal_residue_directly");
       r = add_terminal_residue(imol_no, terminus_type, residue_p,
@@ -2249,7 +2263,7 @@ coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, cons
                                bf_new, xmap, geom);
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
-      coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+      util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
       atom_sel = make_asc(atom_sel.mol);
       // save_info.new_modification("add-terminal-residue");
    } else {
@@ -3261,7 +3275,8 @@ coot::molecule_t::add_hydrogen_atoms(protein_geometry *geom_p) {
    atom_sel.delete_atom_selection();
    coot::reduce r(atom_sel.mol, imol_no);
    r.add_geometry(geom_p);
-   r.add_hydrogen_atoms();
+   bool go_nuclear_flag = false;
+   r.add_hydrogen_atoms(go_nuclear_flag);
    coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
    atom_sel = make_asc(atom_sel.mol); // it would be better if there was a member function to do this.
 
@@ -3564,7 +3579,7 @@ coot::molecule_t::rigid_body_fit(const std::string &multi_cids, const clipper::X
          }
       }
 
-      make_backup("rigid_body_fit");
+      make_backup("rigid_body_fit " + multi_cids);
       // update the atoms of atom-sel.mol
       coot::api::rigid_body_fit(atom_sel.mol, udd_atom_selection, xmap);
       status = 1;
@@ -3729,4 +3744,280 @@ coot::molecule_t::set_residue_to_rotamer_move_atoms(mmdb::Residue *res, mmdb::Re
    }
    return i_done;
 }
+
+
+// add or update.
+void
+coot::molecule_t::add_target_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z) {
+
+   // make this a class member - and clear it when refinement starts.
+
+
+   mmdb::Atom *at = cid_to_atom(atom_cid);
+   if (at) {
+      // try to find it...
+      bool done = false;
+      for (unsigned int i=0; i<atoms_with_position_restraints.size(); i++) {
+         if (atoms_with_position_restraints[i].first == at) {
+            clipper::Coord_orth p(pos_x, pos_y, pos_z);
+            atoms_with_position_restraints[i].second = p;
+            done = true;
+         }
+      }
+      if (!done) {
+         clipper::Coord_orth p(pos_x, pos_y, pos_z);
+         auto pp = std::make_pair(at, p);
+         atoms_with_position_restraints.push_back(pp);
+      }
+   }
+}
+
+
+// add or update.
+coot::instanced_mesh_t
+coot::molecule_t::add_target_position_restraint_and_refine(const std::string &atom_cid, float pos_x, float pos_y, float pos_z,
+                                                           int n_cycles, coot::protein_geometry *geom_p) {
+
+   coot::instanced_mesh_t m;
+   add_target_position_restraint(atom_cid, pos_x, pos_y, pos_z);
+
+   for (unsigned int i=0; i<atoms_with_position_restraints.size(); i++) {
+      const auto &pp = atoms_with_position_restraints[i];
+      clipper::Coord_orth p = pp.second;
+      mmdb::Atom *at = pp.first;
+      at->x = p.x(); at->y = p.y(); at->z = p.z();
+   }
+
+   if (n_cycles < 0) {
+      // simple communication test.
+   } else {
+      // acutally do some refinement then
+      if (last_restraints) {
+         clipper::Coord_orth pos(pos_x, pos_y, pos_z);
+         mmdb::Atom *at = cid_to_atom(atom_cid);
+         if (at) {
+            coot::atom_spec_t spec(at);
+            last_restraints->add_atom_pull_restraint(spec, pos);
+            std::cout << "debug:: in wrapped_add_target_position_restraint() calling refine_using_last_restraints() "
+                      << n_cycles << " cycles " << std::endl;
+            refine_using_last_restraints(n_cycles);
+         } else {
+            std::cout << "wrapped_add_target_position_restraint() failed to find atom given " << atom_cid << std::endl;
+         }
+      } else {
+         std::cout << "DEBUG:: in wrapped_add_target_position_restraint() last_restraints was empty! " << std::endl;
+      }
+   }
+
+   std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
+   m = get_bonds_mesh_instanced(mode, geom_p, true, 0.1, 1.4, 1, true, true);
+   return m;
+
+}
+
+//! clear any and all drag-atom target position restraints
+void
+coot::molecule_t::clear_target_position_restraints() {
+   atoms_with_position_restraints.clear();
+   // now actually remove them from the refinement...
+   if (last_restraints)
+      last_restraints->clear_all_atom_pull_restraints();
+}
+
+//! clear
+void
+coot::molecule_t::clear_target_position_restraint(const std::string &atom_cid) {
+
+   mmdb:: Atom *at = cid_to_atom(atom_cid);
+   if (at) {
+      coot::atom_spec_t spec(at);
+      if (last_restraints) {
+         last_restraints->clear_atom_pull_restraint(spec);
+      }
+   }
+}
+
+//
+void
+coot::molecule_t::turn_off_when_close_target_position_restraint() {
+
+   if (last_restraints) {
+      last_restraints->turn_off_when_close_target_position_restraint();
+   }
+}
+
+
+
+//! call this after molecule refinement has finished (say when the molecule molecule is accepted into the
+//! original molecule
+void
+coot::molecule_t::clear_refinement() {
+
+   if (last_restraints) {
+      std::cout << "debug:: ---------- clear_refinement() ---------- " << std::endl;
+      delete last_restraints;
+      last_restraints = nullptr; // clear_refinement();
+   }
+}
+
+
+
+void
+coot::molecule_t::fix_atom_selection_during_refinement(const std::string &atom_selection_cid) {
+
+   // get atoms in atom selection.
+   // match those with thatom in the refinement and mark them as fixed. c.f. fixed (anchored) atom
+   int selHnd = atom_sel.mol->NewSelection();
+   atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
+   int nSelAtoms = 0;
+   mmdb::Atom **SelAtom = nullptr;
+   atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
+   for (int i=0; i<nSelAtoms; i++) {
+      mmdb::Atom *at = SelAtom[i];
+   }
+   atom_sel.mol->DeleteSelection(selHnd);
+}
+
+// refine all of this molecule - the links and non-bonded contacts will be determined from mol_ref;
+void
+coot::molecule_t::init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::protein_geometry &geom,
+                                               const clipper::Xmap<float> &xmap_in, float map_weight,
+                                               ctpl::thread_pool *thread_pool) {
+
+   // maybe we can use mol_ref as the molecule to call in add_neighbor_residues_for_refinement_help(mmdb::Manager *mol)
+   // then we don't need a special version of copy_fragment(). Or so it currently seems to me.
+
+   bool make_trans_peptide_restraints = true;
+   bool do_rama_plot_restraints = false;
+   bool refinement_is_quiet = false; // for debugging
+
+   auto get_all_residues_in_molecule = [] (mmdb::Manager *mol) {
+      std::vector<mmdb::Residue *> rv;
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  rv.push_back(residue_p);
+               }
+            }
+         }
+      }
+      return rv;
+   };
+
+   std::vector<mmdb::Residue *> rv = get_all_residues_in_molecule(atom_sel.mol);
+   std::vector<coot::atom_spec_t> fixed_atom_specs;
+   std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
+   for (const auto &r : rv)
+      local_residues.push_back(std::make_pair(false, r));
+
+   // neighb_residues are from a different mmdb::Manager - will that work in refinement?
+   if (! neighbouring_residues.empty())
+      local_residues.insert(local_residues.end(), neighbouring_residues.begin(), neighbouring_residues.end());
+
+   make_backup("init_all_molecule_refinement");
+   mmdb::Manager *mol = atom_sel.mol;
+   std::vector<mmdb::Link> links;
+   last_restraints = new coot::restraints_container_t(local_residues, links, geom, mol, fixed_atom_specs, &xmap_in);
+
+   if (refinement_is_quiet)
+      last_restraints->set_quiet_reporting();
+
+   // std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
+   last_restraints->add_map(map_weight);
+   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   flags = coot::TYPICAL_RESTRAINTS;
+   coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+
+   unsigned int n_threads = 8;
+   last_restraints->thread_pool(thread_pool, n_threads);
+
+   int imol = 0; // dummy
+   last_restraints->make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
+                                    1.0, do_rama_plot_restraints, true, true, false, pseudos);
+
+   if (last_restraints->size() == 0) {
+      // Failure.
+      // clear up
+      delete last_restraints;
+      last_restraints = nullptr; // failure to setup
+   }
+}
+
+// ------------------------------- rsr utils - add in the environment of this fragment molecule
+// from the reidue from which this fragment was copied
+void
+coot::molecule_t::add_neighbor_residues_for_refinement_help(mmdb::Manager *mol) {
+
+   // cid may not be needed because we want the neighbour of all the residues of this new (fragment) molecule
+
+   auto get_residues_in_selection = [] (mmdb::Manager *mol, int selHnd) {
+      std::vector<std::pair<bool,mmdb::Residue *> > residues_vec;
+      int nSelResidues = 0;
+      mmdb::Residue **SelResidues = 0;
+      mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+      if (nSelResidues > 0) {
+         residues_vec.resize(nSelResidues);
+         for (int i=0; i<nSelResidues; i++) {
+            residues_vec.push_back(std::make_pair(true, SelResidues[i]));
+         }
+      }
+      return residues_vec;
+   };
+
+   auto map_of_sets_to_residue_vec = [] (const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &rnr) {
+
+      std::vector<std::pair<bool, mmdb::Residue *> > neighb_residues;
+      std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
+
+      std::set<mmdb::Residue *> keys; // the residues in the molten zone
+      for (it=rnr.begin(); it!=rnr.end(); ++it) {
+         const auto &key = it->first;
+         keys.insert(key);
+      }
+
+      for (it=rnr.begin(); it!=rnr.end(); ++it) {
+         std::set<mmdb::Residue *>::const_iterator it_s;
+         const auto &s = it->second;
+         for (it_s=s.begin(); it_s!=s.end(); ++it_s) {
+            mmdb::Residue *r(*it_s);
+            // because this is a pair, I can't use find()
+            bool found = false;
+            for (unsigned int i=0; i<neighb_residues.size(); i++) {
+               if (neighb_residues[i].second == r) {
+                  found = true;
+                  break;
+               }
+            }
+            if (! found) {
+               // we don't want environment residue to be any of the residues that are in the molten zone
+               if (keys.find(r) == keys.end()) {
+                  auto rp = std::pair<bool, mmdb::Residue *> (false, *it_s);
+                  neighb_residues.push_back(rp);
+               }
+            }
+         }
+      }
+      return neighb_residues;
+   };
+      
+   // now code to save the environment of the residues in the new fragment
+   int selHnd_residues = mol->NewSelection(); // d
+   mol->Select(selHnd_residues, mmdb::STYPE_RESIDUE, "//", mmdb::SKEY_NEW); // all residues. Maybe "/1/"?
+   float dist_crit = 5.0;
+   std::vector<std::pair<bool,mmdb::Residue *> > residues_vec = get_residues_in_selection(mol, selHnd_residues);
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > rnr =
+      coot::residues_near_residues(residues_vec, mol, dist_crit);
+
+   neighbouring_residues = map_of_sets_to_residue_vec(rnr);
+}
+
+
+// ------------------------------ put these functions in coot_molecule_refine.cc --------------
 
