@@ -499,7 +499,8 @@ int test_reduce() {
    // to the same residues :-)
    int imol = 0; // dummy
    coot::reduce r(mol, imol);
-   r.add_hydrogen_atoms();
+   bool go_nuclear = false;
+   r.add_hydrogen_atoms(go_nuclear);
    mol->WritePDBASCII("reduced.pdb");
    delete mol;
    return 1;

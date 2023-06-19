@@ -5450,6 +5450,29 @@ void add_hydrogens_from_file(int imol, std::string pdb_with_Hs_file_name) {
    }
 }
 
+//! \brief add hydrogen atoms to the specified residue
+void add_hydrogen_atoms_to_residue(int imol, std::string chain_id, int res_no, std::string ins_code) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t rs(chain_id, res_no, ins_code);
+      graphics_info_t::molecules[imol].add_hydrogen_atoms_to_residue(rs);
+      graphics_draw();
+   }
+}
+
+#ifdef USE_PYTHON
+//! \brief add hydrogen atoms to the specified residue
+void add_hydrogen_atoms_to_residue_py(int imol, PyObject *residue_spec_py) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t rs = residue_spec_from_py(residue_spec_py);
+      graphics_info_t::molecules[imol].add_hydrogen_atoms_to_residue(rs);
+      graphics_draw();
+   }
+}
+#endif
+
+
 
 
 /*  ----------------------------------------------------------------------- */
