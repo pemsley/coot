@@ -13,6 +13,8 @@
 #include "ideal/pepflip.hh"
 #include "rama-plot-phi-psi.hh"
 
+#include "pli/sdf-interface-for-export.hh"
+
 bool
 coot::molecule_t::is_valid_model_molecule() const {
 
@@ -3376,8 +3378,6 @@ coot::molecule_t::get_gaussian_surface(float sigma, float contour_level,
    return mesh;
 }
 
-
-#include "pli/sdf-interface-for-export.hh"
 
 coot::simple_mesh_t
 coot::molecule_t::get_chemical_features_mesh(const std::string &cid,

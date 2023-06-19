@@ -6,113 +6,68 @@
  - Validation Plots
  - Ramachandran Plot
 
- - coot_gui.smiles_gui() - is this a thing now?
-Not without --enhanced-ligand-gui it isn't.
-Check QED is now part of RDKit.
-
-## --- Widgets that have changed in GTK ---
-
- - Padding is gone, margins and layout are in.
- - Tables are out, Grids are in.
- - Radio buttons are gone, use check buttons instead.
- - HBoxes and VBoxes are gone, use generic Box
- - Toolbuttons, Toolcheckbutton, tooltogglebuttons are gone, use the non-tool version
- - Canvas is gone, use widget lists instead (how?)
-
-Have a look at adding thing this:
-<style>
-   <class name="suggested-action"/>
-</style>
-after a buttons's properties
-Here are other styles:
-
-    .image-button: used when the button contains only an image
-    .text-button: used when the button contains only a label
-    .flat: used for buttons with no border or background
-    .keyboard-activating: used when the button is activated by keyboard input
-    .suggested-action: used for buttons that are recommended or suggested actions
-    .destructive-action: used for buttons that perform a destructive action, such as deleting data
-    .circular: used for circular buttons
+ - Check QED is now part of RDKit.
 
 ----
 
-Map Parameters dialog needs a refresh ::: 1
+Open dictionary should provide a widget to specify the molecule for dictionary.
+Also a "Generate Molecule" button. ::: 1
 
-"Overlaps" needs an update button - and preferably updates automatically.
+Clicking on Green left arrow doesn't open the refinement overlay ::: 1
 
-Edit -> Mutate Residue Range ::: 2
+Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
+It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
+Delete Hydrogen atoms (gets rid of mainchain hydrogen atoms too) and sprout_hydrogens() should work?
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
-
-Up-arrow and down-arrow don't scroll through the history in the python entry ::: 0.5
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
 set_framebuffer_scale_factor().
 Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
 shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
 
-Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
-
-"About Coot" is empty (was fixed in GTK3 version). Remake it in Cambalache?  ::: 0.5
-* Nearly done - I need to be able to install the icon.
-
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 * Preferences, surely.
 
 What's up with the Preferences? ::: 4
-
-Put the curlew banner in the curlew dialog ::: 0.4
-
-Views ::: 2
-
-Open dictionary should provide a widget to specify the molecule for dictionary.
-Also a "Generate Molecule" button.
-
-Make contact dots, Open generic Objects dialog , Close, Add new contact dot and then open generic objects dialog
-again. Mess as some box entries are double written. ::: 1
-
-Make the Ligand Menu be a module ::: 0.5
-Not much to do until we turn on RDKit.
-# Some of these are vital, some are nice to have
-Find Ligands ::: 0.1
-Jiggle-fit ligand ::: 0.2
-Hydrogenate region ::: 1
-Contact dots for ligand ::: 0.2
-SMILES -> simple 3D ::: 1
-Show Chemical Features ::: 1
-Display Ligand distorsions ::: 1
-Quick Ligand Validate ::: 2
-Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
-   contact_score_ligand_func(). Hmm.
-[Ligand Metric Sliders]
-
-Draw the ligand chemical diagram in OpenGL. ::: 3
-
-"Add atom" should boink if the new atom is over/close to an already existing atom ::: 1
-(Maybe it does already)
 
 In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
 Why? Because it's looked up and not new? ::: 2
 
 Rework the namespace of the python modules to be more cannonical ::: 4
 
-Clicking on Green left arrow doesn't open the refinement overlay ::: 1
-
 Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
 
 Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
 
+NCS Jumping should use the correct matrix ::: 0.5
+
+Quick save should say something in the status-bar - maybe briefly flash and fade the background. Or some
+other brief visual effect.
+
+Go To (next) Ligand should use the correct matrix ::: 0.5
+perpendicular_ligand_view() is the function. Does it work in gtk3?
+
 Do the tutorial from time to time - what's missing? ::: 1
 
-Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
-It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
-Delete Hydrogen atoms (gets rid of mainchain hydrogen atoms too) and sprout_hydrogens() should work?
+Looks at 1x8b with ligands and contact dots - is 2.0 too close for H-O hydrogen bond distance?
+No, it's fine: see https://proteopedia.org/wiki/index.php/Hydrogen_bonds. Contact dots has it as
+a clash though. "The dotted hydrogen bond is non-covalent and variable in length, ~1.5-2.5 Å." ::: 1
+
+Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
+   contact_score_ligand_func(). Hmm. See ~/Desktop/ligand-notes
+
+Go to (Next) Ligand doesn't get the ligand orientation correct. Is a transform() needed?
+
+
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
 Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
 
 Alt-B to close the Rama bar.
+
+Make info_dialog() take a string.
 
 Contact dots should be oriented so that when they pulse, they move along the line between the atoms. :::- 1
 Also, elongate them? Not vdw dots though.
@@ -239,6 +194,8 @@ See "fat atom" commits.
 
 How should the "model representation change" work? Ctrl Shift 2-finger scroll? :::- 0.5
 * This is too complicated and estoeric to fix now. I don't even know how to fix it.
+
+AWC chirality in the ring - wedge bond is pointing in the wrong direction? Nice example of sp2 Se-ring (not aromatic)
 
 --- Done Items ---
 
@@ -651,3 +608,54 @@ Clear the box of results in Unmodelled Blobs ::: 0.4
 
 Put GLM into configure, get rid of --with-gtk4 ::: 0.5
 
+
+Fix icon on startup: (coot-bin:15976): Gtk-WARNING **: 14:16:15.373: Could not load image 'pixmaps/coot-icon.png': Error opening file /usr/local/Cellar/cootgtk4/HEAD-b70d63f/share/coot/glade/pixmaps/coot-icon.png: No such file or directory ::: 0.5
+
+Put the curlew banner in the curlew dialog ::: 1
+
+Make the Ligand Menu be a module ::: 0.5
+Not much to do until we turn on RDKit.
+# Some of these are vital, some are nice to have
+Find Ligands ::: 0.1
+Jiggle-fit ligand ::: 0.2
+Hydrogenate region ::: 1
+Contact dots for ligand ::: 0.2
+SMILES -> simple 3D ::: 1
+Show Chemical Features ::: 2
+Display Ligand distorsions ::: 1
+Quick Ligand Validate ::: 3
+Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
+   contact_score_ligand_func(). Hmm.
+[Ligand Metric Sliders]
+
+"About Coot" is empty (was fixed in GTK3 version). Remake it in Cambalache?  ::: 0.5
+* Nearly done - I need to be able to install the icon.
+
+
+"Ligands" selection in Go To Atom ::: 0.5
+
+"Overlaps" needs an update button - and preferably updates automatically. ::: 3
+
+Edit -> Mutate Residue Range ::: 2
+* Done. Thanks Jakub.
+
+Map Parameters dialog needs a refresh ::: 0.5
+* Done. Nice
+
+Bug: make Contact Dots, open Generic Objects dialog , Close, Add new contact dot and then open generic objects dialog
+again. Mess as some box entries are double written. ::: 1
+* Done, I think. Use clear_the_grid()
+
+
+"Add atom" should boink if the new atom is over/close to an already existing atom ::: 0.5
+(Maybe it does already)
+* Now I get a warning dialog - good enough
+
+Draw the ligand chemical diagram in OpenGL. ::: 3
+* Done. Good. But still some scaling issues.
+
+Nasty "-" rendering in OpenGL for charged atoms in HUD Ligand ::: 0.5
+* Done 375716e7198e9df624449790378d383daa4f6370
+
+Views ::: 2
+* Simple implementation

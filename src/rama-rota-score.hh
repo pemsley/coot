@@ -20,6 +20,7 @@
  * 02110-1301, USA
  */
 
+#include <vector>
 #include "geometry/residue-and-atom-specs.hh"
 #include "coot-utils/coot-rama.hh"
 

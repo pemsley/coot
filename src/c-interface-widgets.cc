@@ -673,7 +673,7 @@ void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *
 					 GtkWidget *text_widget, GtkWidget *label_widget) {
 
    if (true) {
-      std::cout << "debug:: mutate_molecule_dialog_check_counts()" << std::endl;
+      std::cout << "debug:: ===== mutate_molecule_dialog_check_counts()" << std::endl;
       std::cout << "   res_no_1_widget " << res_no_1_widget << std::endl;
       std::cout << "   res_no_2_widget " << res_no_2_widget << std::endl;
       std::cout << "   text_widget " << text_widget << std::endl;
@@ -691,8 +691,8 @@ void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *
 	 gtk_text_buffer_get_iter_at_offset(tb, &enditer, -1);
 	 txt = gtk_text_buffer_get_text(tb, &startiter, &enditer, 0);
 
-	 // if (txt) {
-	 if (true) {
+	 if (txt) {
+
 	    std::string sequence_str(txt);
 
 	    try {
@@ -734,7 +734,6 @@ void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *
 		     }
 		  }
 	       }
-
 	       if (show_green_light) {
 		  gtk_widget_hide(red_light_widget);
 		  gtk_widget_show(green_light_widget);

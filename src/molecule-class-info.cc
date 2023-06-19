@@ -7194,14 +7194,20 @@ molecule_class_info_t::add_pointer_atom(coot::Cartesian pos) {
 // This is a bit messy, I'm afraid - we test single atom twice. If you use this for
 // a multiatom other than SO4 and P04, you will need to add it to the type test
 //
-void
+std::pair<bool,std::string>
 molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::string &type) {
 
+   bool status = false; // return this
+   std::string message;
 
    bool single_atom = true;
 
    // std::cout << "INFO:: adding atom of type " << type << " at " << pos << std::endl;
    make_backup();
+
+   if (have_atom_close_to_position(pos)) {
+      return std::make_pair(false, std::string("Too close to an existing atom"));
+   }
 
    // we get a chain pointer or NULL, if there is not yet a chain only
    // of the given type:
@@ -7298,6 +7304,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
                atom_sel = make_asc(atom_sel.mol);
                have_unsaved_changes_flag = 1;
                make_bonds_type_checked(__FUNCTION__);
+               status = true;
             }
          }
       } else {
@@ -7356,6 +7363,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
             atom_sel = make_asc(atom_sel.mol);
             have_unsaved_changes_flag = 1;
             make_bonds_type_checked(__FUNCTION__);
+            status = true;
          } else {
             std::cout << "WARNING:: Can't find new chain for new atom\n";
          }
@@ -7384,11 +7392,13 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
          atom_sel = make_asc(atom_sel.mol);
          have_unsaved_changes_flag = 1;
          make_bonds_type_checked(__FUNCTION__);
+         status = true;
       } else {
          std::cout << "WARNING:: Can't find new chain for new atom\n";
       }
    }
    // or we could just use update_molecule_after_additions() there.
+   return std::make_pair(status, message);
 }
 
 
@@ -8329,7 +8339,8 @@ molecule_class_info_t::model_view_atom_button_labels(const std::string &chain_id
 
 
 std::vector<coot::model_view_atom_tree_chain_t>
-molecule_class_info_t::model_view_residue_tree_labels(bool include_water_residue_flag) const {
+molecule_class_info_t::model_view_residue_tree_labels(bool include_water_residue_flag,
+                                                      bool show_ligands_only_flag) const {
 
    std::vector<coot::model_view_atom_tree_chain_t> v;
 
@@ -8345,31 +8356,38 @@ molecule_class_info_t::model_view_residue_tree_labels(bool include_water_residue
                chain_label += chain_p->GetChainID();
                v.push_back(coot::model_view_atom_tree_chain_t(chain_label));
 
-               if (! chain_p) {
-                  std::cout << "ERROR:: in getting chain in model_view_residue_tree_labels\n";
-               } else {
-                  int nres = chain_p->GetNumberOfResidues();
-                  mmdb::PResidue residue_p;
-                  for (int ires=0; ires<nres; ires++) {
-                     residue_p = chain_p->GetResidue(ires);
-                     std::string label = residue_p->GetChainID();
-                     std::string res_name(residue_p->GetResName());
-                     label += " ";
-                     label += coot::util::int_to_string(residue_p->GetSeqNum());
-                     label += residue_p->GetInsCode();
-                     label += " ";
-                     label += residue_p->name;
-                     bool is_water_flag = false; // gets reset in this loop
-                     if (coot::util::is_standard_residue_name(res_name)) { // amino acid and rna and dna polymer
-                     } else {
-                        if (res_name == "HOH" || res_name == "DOD") {
+               int nres = chain_p->GetNumberOfResidues();
+               mmdb::PResidue residue_p;
+               for (int ires=0; ires<nres; ires++) {
+                  residue_p = chain_p->GetResidue(ires);
+                  std::string label = residue_p->GetChainID();
+                  std::string res_name(residue_p->GetResName());
+                  label += " ";
+                  label += coot::util::int_to_string(residue_p->GetSeqNum());
+                  label += residue_p->GetInsCode();
+                  label += " ";
+                  label += residue_p->name;
+                  bool is_water_flag = false; // gets reset in this loop
+                  bool is_standard_residue_type = false;
+                  if (coot::util::is_standard_residue_name(res_name)) { // amino acid and rna and dna polymer
+                     is_standard_residue_type = true;
+                  } else {
+                     if (res_name == "HOH" || res_name == "DOD") {
                         label = std::string("<i>") + label + std::string("</i>");
                         is_water_flag = true;
-                        } else {
-                           label = std::string("<b>") + label + std::string("</b>");
-                        }
+                     } else {
+                        label = std::string("<b>") + label + std::string("</b>");
                      }
-                     if (! is_water_flag || include_water_residue_flag) {
+                  }
+                  if (! is_water_flag || include_water_residue_flag) {
+                     if (show_ligands_only_flag) {
+                        if (is_standard_residue_type) {
+                           // do nothing, Clemens mode
+                        } else {
+                           coot::model_view_atom_tree_item_info_t res(label, residue_p);
+                           v.back().add_residue(res);
+                        }
+                     } else {
                         coot::model_view_atom_tree_item_info_t res(label, residue_p);
                         v.back().add_residue(res);
                      }

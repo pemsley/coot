@@ -5943,6 +5943,19 @@ generic_objects_dialog_grid_add_object_for_molecule_internal(int imol,
 
 GtkWidget *wrapped_create_generic_objects_dialog() {
 
+   auto clear_the_grid = [] (GtkWidget *grid) {
+      GtkWidget *child = gtk_widget_get_first_child(GTK_WIDGET(grid));
+      unsigned int child_count = 0;
+      while (child) {
+         child_count += 1;
+         GtkWidget *next = gtk_widget_get_next_sibling(child);
+         // gtk_grid_remove_row(GTK_GRID(grid), 0);
+         gtk_grid_remove(GTK_GRID(grid), child);
+         child = next; // for next round
+      };
+      // std::cout << "There were " << child_count << " children in the grid" << std::endl;
+   };
+
    graphics_info_t g;
 
    GtkWidget *dialog = widget_from_builder("generic_objects_dialog");
@@ -5950,6 +5963,8 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
 
    GtkWidget *grid = widget_from_builder("generic_objects_dialog_grid");
    if (grid) {
+
+      clear_the_grid(grid);
       unsigned int io_count = 0;
       unsigned int n_objs = g.generic_display_objects.size();
       for (unsigned int io=0; io<n_objs; io++) {

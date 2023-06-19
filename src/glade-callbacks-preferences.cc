@@ -631,25 +631,23 @@ on_preferences_smooth_scroll_limit_entry_changed
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_drag_on_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_MAP_DRAG, 1);
-    set_active_map_drag_flag(1);
-  }
+on_preferences_map_drag_on_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                               gpointer         user_data) {
+
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_MAP_DRAG, 1);
+      set_active_map_drag_flag(1);
+   }
 
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_drag_off_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
+on_preferences_map_drag_off_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                gpointer         user_data) {
+
+   if (gtk_check_button_get_active(checkbutton)) {
     preferences_internal_change_value_int(PREFERENCES_MAP_DRAG, 0);
     set_active_map_drag_flag(0);
   }
@@ -687,28 +685,26 @@ on_preferences_antialias_off_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_hid_spherical_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_VT_SURFACE, 2);
-    vt_surface(2);
-  }
+on_preferences_hid_spherical_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                 gpointer         user_data) {
+
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_VT_SURFACE, 2);
+      vt_surface(2);
+   }
 
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_hid_flat_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_VT_SURFACE, 1);
-    vt_surface(1);
-  }
+on_preferences_hid_flat_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                            gpointer         user_data) {
+
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_VT_SURFACE, 1);
+      vt_surface(1);
+   }
 
 }
 
@@ -729,13 +725,12 @@ on_preferences_filechooser_off_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_filechooser_on_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_FILE_CHOOSER, 1);
-    set_file_chooser_selector(1);
+on_preferences_filechooser_on_radiobutton_toggled(GtkToggleButton *togglebutton,
+                                                  gpointer         user_data) {
+
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      preferences_internal_change_value_int(PREFERENCES_FILE_CHOOSER, 1);
+      set_file_chooser_selector(1);
   }
 
 }
@@ -929,55 +924,53 @@ on_preferences_dialog_accept_off_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_recentre_pdb_on_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_RECENTRE_PDB, 1);
-    set_recentre_on_read_pdb(1);
-  }
+on_preferences_recentre_pdb_on_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                   gpointer         user_data) {
+
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_RECENTRE_PDB, 1);
+      set_recentre_on_read_pdb(1);
+   }
 
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_recentre_pdb_off_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_RECENTRE_PDB, 0);
-    set_recentre_on_read_pdb(0);
-  }
+on_preferences_recentre_pdb_off_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                    gpointer         user_data) {
+
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_RECENTRE_PDB, 0);
+      set_recentre_on_read_pdb(0);
+   }
 
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_console_info_on_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_CONSOLE_COMMANDS, 1);
-    set_console_display_commands_state(1);
-  }
+on_preferences_console_info_on_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                   gpointer         user_data) {
+
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_CONSOLE_COMMANDS, 1);
+      set_console_display_commands_state(1);
+   }
 
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_console_info_off_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_CONSOLE_COMMANDS, 0);
-    set_console_display_commands_state(0);
+on_preferences_console_info_off_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                    gpointer         user_data) {
+
+   // just do this in the above radio button callback - it's 2-state
+
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_CONSOLE_COMMANDS, 0);
+      set_console_display_commands_state(0);
   }
 
 }

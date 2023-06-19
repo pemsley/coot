@@ -1989,7 +1989,9 @@ public:        //                      public
 
    // pointer atoms:
    void add_pointer_atom(coot::Cartesian pos);
-   void add_typed_pointer_atom(coot::Cartesian pos, const std::string &type);
+   // if there is another atom very close, then don't allow the addition of a new atom
+   // return status false denotes failure.
+   std::pair<bool,std::string> add_typed_pointer_atom(coot::Cartesian pos, const std::string &type);
 
    // dummy atoms (not bonded)
    void add_dummy_atom(coot::Cartesian pos);
@@ -2098,7 +2100,7 @@ public:        //                      public
    model_view_residue_button_labels() const;
 
    std::vector<coot::model_view_atom_tree_chain_t>
-   model_view_residue_tree_labels(bool include_water_residue_flag) const;
+   model_view_residue_tree_labels(bool include_water_residue_flag, bool ligands_ony_flag) const;
 
    std::vector<coot::model_view_atom_button_info_t>
    model_view_atom_button_labels(const std::string &chain_id,
@@ -3299,6 +3301,7 @@ void draw_map_molecule(bool draw_transparent_maps,
 
    // --------- molecule probability scoring ------------
    coot::rama_score_t get_all_molecule_rama_score() const;
+   coot::rama_score_t get_all_molecule_rama_score_old() const; // 20230611-PE delete this one day
    coot::rotamer_score_t get_all_molecule_rotamer_score(const coot::rotamer_probability_tables &rpt) const;
 
    // --------- lsq-improve ------------

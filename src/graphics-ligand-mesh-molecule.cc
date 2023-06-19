@@ -29,69 +29,65 @@ graphics_ligand_mesh_molecule_t::setup_from(int imol_in, mmdb::Residue *residue_
                                             const std::string &alt_conf,
                                             coot::protein_geometry *geom_p) {
 
-   // std::cout << "graphics_ligand_mesh_molecule_t::setup_from() !!!!!!!!! " << std::endl;
-
    bool status = false;
 
    imol = imol_in;
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
-   std::cout << "graphics_ligand_mesh_molecule_t::setup_from() with ELT " << std::endl;
-
    imol = imol_in;
    if (residue_p) {
       try {
-	 std::string res_name = residue_p->GetResName();
-	 std::pair<bool, coot::dictionary_residue_restraints_t> p =
-	    geom_p->get_monomer_restraints_at_least_minimal(res_name, imol);
-	 if (! p.first) {
-	    std::cout << "DEBUG:: graphics_ligand_molecule: No restraints for \""
-		      << res_name << "\"" << std::endl;
-	 } else {
-	    const coot::dictionary_residue_restraints_t &restraints = p.second;
-	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints, alt_conf);
+         std::string res_name = residue_p->GetResName();
+         std::pair<bool, coot::dictionary_residue_restraints_t> p =
+            geom_p->get_monomer_restraints_at_least_minimal(res_name, imol);
+         if (! p.first) {
+            std::cout << "DEBUG:: graphics_ligand_molecule: No restraints for \""
+                      << res_name << "\"" << std::endl;
+         } else {
+            const coot::dictionary_residue_restraints_t &restraints = p.second;
+            RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints, alt_conf);
 
-	    // std::cout << "--------------------- graphics-ligand-view setup_from() 1 " << std::endl;
-	    // coot::debug_rdkit_molecule(&rdkm);
+            // std::cout << "--------------------- graphics-ligand-view setup_from() 1 " << std::endl;
+            // coot::debug_rdkit_molecule(&rdkm);
 
-	    unsigned int n_atoms = rdkm.getNumAtoms();
-	    if (n_atoms > 1) {
-	       // return a kekulize mol
-	       RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
+            unsigned int n_atoms = rdkm.getNumAtoms();
+            if (n_atoms > 1) {
+               // return a kekulize mol
+               RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
 
-	       double weight_for_3d_distances = 0.005;
-	       int mol_2d_depict_conformer = coot::add_2d_conformer(&rdk_mol_with_no_Hs,
+               double weight_for_3d_distances = 0.005;
+               int mol_2d_depict_conformer = coot::add_2d_conformer(&rdk_mol_with_no_Hs,
                                                                     weight_for_3d_distances);
 
-	       // why is there no connection between a lig_build molecule_t
-	       // and a rdkit molecule conformer?
+               // why is there no connection between a lig_build molecule_t
+               // and a rdkit molecule conformer?
 
-	       // For now hack around using a molfile molecule...
-	       //
-	       // I think I should have a rdkit_mol->lig_build::molecule_t converter
-	       // (for later).
+               // For now hack around using a molfile molecule...
+               //
+               // I think I should have a rdkit_mol->lig_build::molecule_t converter
+               // (for later).
 
-	       lig_build::molfile_molecule_t m =
-		  coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
+               lig_build::molfile_molecule_t m =
+                  coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
 
-	       if (false) {
-		  std::cout << "make_molfile_molecule() makes molecule: " << std::endl;
-		  m.debug();
-	       }
+               if (false) {
+                  std::cout << "make_molfile_molecule() makes molecule: " << std::endl;
+                  m.debug();
+               }
 
-	       init_from_molfile_molecule(m);
+               init_from_molfile_molecule(m);
 
-	       status = true; // OK, if we got to here...
+               status = true; // OK, if we got to here...
 
             }
          }
       }
       catch (const std::runtime_error &coot_error) {
-	 std::cout << coot_error.what() << std::endl;
+         std::cout << coot_error.what() << std::endl;
       }
       catch (const std::exception &rdkit_error) {
-	 std::cout << rdkit_error.what() << std::endl;
+         std::cout << rdkit_error.what() << std::endl;
       }
    }
 
@@ -135,34 +131,29 @@ graphics_ligand_mesh_molecule_t::fill_mesh() {
 
    gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0])); // needed?
 
-   std::pair<std::vector<glm::vec2>, std::vector<position_triple_t> > p = fill_mesh_bonds();
+   std::vector<position_triple_t> pt = fill_mesh_bonds();
 
-   std::vector<glm::vec2> triangle_vertices(3*p.second.size());
-   for (unsigned int i=0; i<p.second.size(); i++) {
-      triangle_vertices[3*i  ] = p.second[i].positions[0];
-      triangle_vertices[3*i+1] = p.second[i].positions[1];
-      triangle_vertices[3*i+2] = p.second[i].positions[2];
+   std::vector<glm::vec2> triangle_vertices(3*pt.size());
+   for (unsigned int i=0; i<pt.size(); i++) {
+      triangle_vertices[3*i  ] = pt[i].positions[0];
+      triangle_vertices[3*i+1] = pt[i].positions[1];
+      triangle_vertices[3*i+2] = pt[i].positions[2];
    }
 
-   mesh.import(p.first, triangle_vertices);
+   mesh.import(triangle_vertices);
 
    fill_mesh_atoms();
 }
 
-std::pair<std::vector<glm::vec2>, std::vector<graphics_ligand_mesh_molecule_t::position_triple_t> >
+std::vector<graphics_ligand_mesh_molecule_t::position_triple_t>
 graphics_ligand_mesh_molecule_t::fill_mesh_bonds() {
 
-   auto pos_t_to_glm = [] (const lig_build::pos_t &p) {
-                          return glm::vec2(p.x, p.y);
-                       };
-
-   // add to line_vertices and polygon_vertices
-   auto gl_bond = [pos_t_to_glm] (const graphics_ligand_mesh_bond &bond,
-                                  const lig_build::pos_t &pos_1_raw,
-                                  const lig_build::pos_t &pos_2_raw,
-                                  bool shorten_first, bool shorten_second,
-                                  std::vector<glm::vec2> &line_vertices,
-                                  std::vector<position_triple_t> &polygon_vertices) {
+   // add to polygon_vertices - no longer do we make lines 20230617-PE
+   auto gl_bond = [] (const graphics_ligand_mesh_bond &bond,
+                      const lig_build::pos_t &pos_1_raw,
+                      const lig_build::pos_t &pos_2_raw,
+                      bool shorten_first, bool shorten_second,
+                      std::vector<position_triple_t> &polygon_vertices) {
 
                      lig_build::bond_t::bond_type_t bt = bond.get_bond_type();
                      double shorten_fraction = 0.8;
@@ -187,8 +178,22 @@ graphics_ligand_mesh_molecule_t::fill_mesh_bonds() {
                      case lig_build::bond_t::DELOC_ONE_AND_A_HALF:
                      case lig_build::bond_t::BOND_ANY:
                         {
-                           line_vertices.push_back(pos_t_to_glm(pos_1));
-                           line_vertices.push_back(pos_t_to_glm(pos_2));
+                           // line_vertices.push_back(pos_t_to_glm(pos_1));
+                           // line_vertices.push_back(pos_t_to_glm(pos_2));
+
+                           // in the new system, a line is 2 triangles
+                           lig_build::pos_t buv = (pos_1-pos_2).unit_vector();
+                           lig_build::pos_t buv_90 = buv.rotate(90);
+                           float thickness = 0.065;
+
+                           lig_build::pos_t p_1 = pos_1 + buv_90 * thickness;
+                           lig_build::pos_t p_2 = pos_1 - buv_90 * thickness;
+                           lig_build::pos_t p_3 = pos_2 + buv_90 * thickness;
+                           lig_build::pos_t p_4 = pos_2 - buv_90 * thickness;
+
+                           polygon_vertices.push_back(position_triple_t(p_1, p_2, p_3));
+                           polygon_vertices.push_back(position_triple_t(p_2, p_4, p_3));
+
                         }
                         break;
 
@@ -207,18 +212,65 @@ graphics_ligand_mesh_molecule_t::fill_mesh_bonds() {
                               std::pair<lig_build::pos_t, lig_build::pos_t> p =
                                  bond.make_double_aromatic_short_stick(pos_1_local, pos_2_local, shorten_first, shorten_second);
 
-                              line_vertices.push_back(pos_t_to_glm(pos_1));
-                              line_vertices.push_back(pos_t_to_glm(pos_2));
-                              line_vertices.push_back(pos_t_to_glm(p.first));
-                              line_vertices.push_back(pos_t_to_glm(p.second));
+                              // line_vertices.push_back(pos_t_to_glm(pos_1));
+                              // line_vertices.push_back(pos_t_to_glm(pos_2));
+                              // line_vertices.push_back(pos_t_to_glm(p.first));
+                              // line_vertices.push_back(pos_t_to_glm(p.second));
+
+                              lig_build::pos_t buv = (pos_1-pos_2).unit_vector();
+                              lig_build::pos_t buv_90 = buv.rotate(90);
+                              float thickness = 0.065;
+
+                              lig_build::pos_t p_1 = pos_1 + buv_90 * thickness;
+                              lig_build::pos_t p_2 = pos_1 - buv_90 * thickness;
+                              lig_build::pos_t p_3 = pos_2 + buv_90 * thickness;
+                              lig_build::pos_t p_4 = pos_2 - buv_90 * thickness;
+
+                              polygon_vertices.push_back(position_triple_t(p_1, p_2, p_3));
+                              polygon_vertices.push_back(position_triple_t(p_2, p_4, p_3));
+
+                              buv = (p.first-p.second).unit_vector();
+                              buv_90 = buv.rotate(90);
+
+                              p_1 = p.first  + buv_90 * thickness;
+                              p_2 = p.first  - buv_90 * thickness;
+                              p_3 = p.second + buv_90 * thickness;
+                              p_4 = p.second - buv_90 * thickness;
+
+                              polygon_vertices.push_back(position_triple_t(p_1, p_2, p_3));
+                              polygon_vertices.push_back(position_triple_t(p_2, p_4, p_3));
 
                            } else {
                               std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> > p =
                                  bond.make_double_bond(pos_1, pos_2, shorten_first, shorten_second);
-                              line_vertices.push_back(pos_t_to_glm(p.first.first));
-                              line_vertices.push_back(pos_t_to_glm(p.first.second));
-                              line_vertices.push_back(pos_t_to_glm(p.second.first));
-                              line_vertices.push_back(pos_t_to_glm(p.second.second));
+
+                              // line_vertices.push_back(pos_t_to_glm(p.first.first));
+                              // line_vertices.push_back(pos_t_to_glm(p.first.second));
+                              // line_vertices.push_back(pos_t_to_glm(p.second.first));
+                              // line_vertices.push_back(pos_t_to_glm(p.second.second));
+
+                              lig_build::pos_t buv = (p.first.first-p.first.second).unit_vector();
+                              lig_build::pos_t buv_90 = buv.rotate(90);
+                              float thickness = 0.065;
+
+                              lig_build::pos_t p_1 = p.first.first  + buv_90 * thickness;
+                              lig_build::pos_t p_2 = p.first.first  - buv_90 * thickness;
+                              lig_build::pos_t p_3 = p.first.second + buv_90 * thickness;
+                              lig_build::pos_t p_4 = p.first.second - buv_90 * thickness;
+
+                              polygon_vertices.push_back(position_triple_t(p_1, p_2, p_3));
+                              polygon_vertices.push_back(position_triple_t(p_2, p_4, p_3));
+
+                              buv = (p.first.first-p.first.second).unit_vector();
+                              buv_90 = buv.rotate(90);
+
+                              p_1 = p.second.first  + buv_90 * thickness;
+                              p_2 = p.second.first  - buv_90 * thickness;
+                              p_3 = p.second.second + buv_90 * thickness;
+                              p_4 = p.second.second - buv_90 * thickness;
+
+                              polygon_vertices.push_back(position_triple_t(p_1, p_2, p_3));
+                              polygon_vertices.push_back(position_triple_t(p_2, p_4, p_3));
                            }
                         }
                         break;
@@ -235,12 +287,31 @@ graphics_ligand_mesh_molecule_t::fill_mesh_bonds() {
                            lig_build::pos_t p5 = pos_1 - buv_90 * small;
                            lig_build::pos_t p6 = pos_2 - buv_90 * small;
 
-                           line_vertices.push_back(pos_t_to_glm(p1));
-                           line_vertices.push_back(pos_t_to_glm(p2));
-                           line_vertices.push_back(pos_t_to_glm(p3));
-                           line_vertices.push_back(pos_t_to_glm(p4));
-                           line_vertices.push_back(pos_t_to_glm(p5));
-                           line_vertices.push_back(pos_t_to_glm(p6));
+                           // line_vertices.push_back(pos_t_to_glm(p1));
+                           // line_vertices.push_back(pos_t_to_glm(p2));
+                           // line_vertices.push_back(pos_t_to_glm(p3));
+                           // line_vertices.push_back(pos_t_to_glm(p4));
+                           // line_vertices.push_back(pos_t_to_glm(p5));
+                           // line_vertices.push_back(pos_t_to_glm(p6));
+
+                           auto pairs = {std::make_pair(p1,p2), std::make_pair(p3,p4), std::make_pair(p5,p6)};
+
+                           for (const auto &pair : pairs) {
+
+                              const auto &p1 = pair.first;
+                              const auto &p2 = pair.second;
+                              lig_build::pos_t buv2 = (p1-p2).unit_vector();
+                              lig_build::pos_t buv2_90 = buv2.rotate(90);
+                              float thickness = 0.045;
+
+                              lig_build::pos_t p_1 = p1 + buv2_90 * thickness;
+                              lig_build::pos_t p_2 = p1 - buv2_90 * thickness;
+                              lig_build::pos_t p_3 = p2 + buv2_90 * thickness;
+                              lig_build::pos_t p_4 = p2 - buv2_90 * thickness;
+
+                              polygon_vertices.push_back(position_triple_t(p_1, p_2, p_3));
+                              polygon_vertices.push_back(position_triple_t(p_2, p_4, p_3));
+                           }
                         }
                         break;
 
@@ -251,8 +322,22 @@ graphics_ligand_mesh_molecule_t::fill_mesh_bonds() {
                               lig_build::pos_t::make_wedge_in_bond(pos_1, pos_2);
                            if (vp.size()) {
                               for (unsigned int i=0; i<vp.size(); i++) {
-                                 line_vertices.push_back(pos_t_to_glm(vp[i].first));
-                                 line_vertices.push_back(pos_t_to_glm(vp[i].second));
+                                 // line_vertices.push_back(pos_t_to_glm(vp[i].first));
+                                 // line_vertices.push_back(pos_t_to_glm(vp[i].second));
+
+                                // in the new system, a line is 2 triangles
+                                 lig_build::pos_t buv = (vp[i].first-vp[i].second).unit_vector();
+                                 lig_build::pos_t buv_90 = buv.rotate(90);
+                                 float thickness = 0.05;
+
+                                 lig_build::pos_t p_1 = vp[i].first  + buv_90 * thickness;
+                                 lig_build::pos_t p_2 = vp[i].first  - buv_90 * thickness;
+                                 lig_build::pos_t p_3 = vp[i].second + buv_90 * thickness;
+                                 lig_build::pos_t p_4 = vp[i].second - buv_90 * thickness;
+
+                                 polygon_vertices.push_back(position_triple_t(p_1, p_2, p_3));
+                                 polygon_vertices.push_back(position_triple_t(p_2, p_4, p_3));
+
                               }
                            }
                         }
@@ -261,8 +346,7 @@ graphics_ligand_mesh_molecule_t::fill_mesh_bonds() {
                      case lig_build::bond_t::OUT_BOND:
                         {
                            // filled shape
-                           std::vector<lig_build::pos_t> v =
-                              lig_build::pos_t::make_wedge_out_bond(pos_1, pos_2);
+                           std::vector<lig_build::pos_t> v = lig_build::pos_t::make_wedge_out_bond(pos_1, pos_2);
                            if (v.size() == 4) {
                               // make 2 triangle from this
                               polygon_vertices.push_back(position_triple_t(v[0], v[1], v[2]));
@@ -284,26 +368,27 @@ graphics_ligand_mesh_molecule_t::fill_mesh_bonds() {
       if ((idx_1 != UNASSIGNED_INDEX) && (idx_2 != UNASSIGNED_INDEX)) {
          const graphics_ligand_mesh_bond &bond = bonds[ib];
 
-	 // c.f. widgeted_bond_t::construct_internal()
-	 bool shorten_first = false;
-	 bool shorten_second = false;
-	 if (atoms[idx_1].atom_id != "C") {
-	    shorten_first = true;
-	 }
-	 if (atoms[idx_2].atom_id != "C") {
-	    shorten_second = true;
-	 }
-	 lig_build::pos_t pos_1 =  atoms[idx_1].atom_position;
-	 lig_build::pos_t pos_2 =  atoms[idx_2].atom_position;
+         // c.f. widgeted_bond_t::construct_internal()
+         bool shorten_first = false;
+         bool shorten_second = false;
+         if (atoms[idx_1].atom_id != "C") {
+            shorten_first = true;
+         }
+         if (atoms[idx_2].atom_id != "C") {
+            shorten_second = true;
+         }
+         lig_build::pos_t pos_1 =  atoms[idx_1].atom_position;
+         lig_build::pos_t pos_2 =  atoms[idx_2].atom_position;
 
          // now the modern OpenGL equivalent of gl_bond()
 
-         gl_bond(bond, pos_1, pos_2, shorten_first, shorten_second, line_vertices, polygon_vertices);
+         // fill polygon_vertices
+         gl_bond(bond, pos_1, pos_2, shorten_first, shorten_second, polygon_vertices);
 
       }
    }
 
-   return std::pair<std::vector<glm::vec2>, std::vector<graphics_ligand_mesh_molecule_t::position_triple_t> > (line_vertices, polygon_vertices);
+   return std::vector<graphics_ligand_mesh_molecule_t::position_triple_t> (polygon_vertices);
 
 }
 
@@ -317,21 +402,21 @@ graphics_ligand_mesh_molecule_t::fill_mesh_atoms() {
    for (unsigned int iat=0; iat<atoms.size(); iat++) {
       const std::string &ele = atoms[iat].element;
       if (ele != "C") {
-	 std::vector<unsigned int> local_bonds = bonds_having_atom_with_atom_index(iat);
-	 bool gl_flag = true;
-	 lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
-	 coot::colour_t col = atoms[iat].get_colour(background_black_flag); // using ele
+         std::vector<unsigned int> local_bonds = bonds_having_atom_with_atom_index(iat);
+         bool gl_flag = true;
+         lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
+         coot::colour_t col = atoms[iat].get_colour(background_black_flag); // using ele
          atoms[iat].colour = col;
-	 if (true)
-	    std::cout << "in fill_mesh_atoms() atom_index " << iat << " with charge " << atoms[iat].charge
-		      << " made atom_id_info:\n" << atom_id_info << " assign colour " << col << std::endl;
+         if (false)
+            std::cout << "in fill_mesh_atoms() atom_index " << iat << " with charge " << atoms[iat].charge
+                      << " made atom_id_info:\n" << atom_id_info << " assign colour " << col << std::endl;
       }
    }
 
 
 }
 
-coot::colour_t 
+coot::colour_t
 graphics_ligand_mesh_atom::get_colour(bool dark_bg) const {
 
    coot::colour_t col;
@@ -394,7 +479,7 @@ graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_
       graphics_ligand_mesh_atom &atom = atoms[iat];
       const std::string &ele = atom.element;
       if (ele != "C") {
-	 std::vector<unsigned int> local_bonds = bonds_having_atom_with_atom_index(iat);
+         std::vector<unsigned int> local_bonds = bonds_having_atom_with_atom_index(iat);
          lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
          for (unsigned int i=0; i<atom_id_info.n_offsets(); i++) {
             const lig_build::offset_text_t &offset = atom_id_info.offsets[i];
@@ -405,22 +490,20 @@ graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_
                pos.y += 0.03;
             if (offset.text_pos_offset == lig_build::offset_text_t::DOWN)
                pos.y -= 0.03;
-            if (offset.subscript)
-               pos.y -= 0.012;
-            if (offset.superscript)
-               pos.y -= 0.012;
+            if (offset.subscript)   pos.y -= 0.012;
+            if (offset.superscript) pos.y += 0.012;
             pos.x += 0.03 * 0.08 * offset.tweak.x;
             pos.y += 0.03 * 0.08 * offset.tweak.y;
             float sc = 0.000184;
             sc *= 0.5; // 20211016-PE
-            if (offset.subscript)   sc *= 0.8;
-            if (offset.superscript) sc *= 0.8;
+            if (offset.subscript)   sc *= 0.9;
+            if (offset.superscript) sc *= 1.5; // "-" is too small! so scale it up
             glm::vec2 scales(sc, sc);
             hud_texture_tmesh.set_position_and_scales(pos, scales);
             if (false)
                std::cout << "debug;: graphics_ligand_mesh_molecule_t::draw() calling draw_label(): iat " << iat << " ioff " << i
-                         << " " << " \"" << offset.text << "\" "
-                         << offset.text.length() << " colour " << atom.colour << std::endl;
+                         << " " << " \"" << offset.text << "\" subscript " << offset.subscript << " superscript " << offset.superscript
+                         << " length: " << offset.text.length() << " colour " << atom.colour << std::endl;
             glm::vec4 colour = atom.colour.to_glm();
             hud_texture_tmesh.draw_label(label, colour, hud_text_shader_p, ft_characters);
          }

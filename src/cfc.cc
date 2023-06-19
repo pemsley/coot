@@ -1503,7 +1503,7 @@ cfc::extracted_cluster_info_from_python::show_water_balls(unsigned int site_numb
 	    double radius = f * 1.1;
 	    meshed_generic_display_object::sphere_t sphere(wc[i].pos, radius);
 	    sphere.col = glm::vec4(0.9, 0.2, 0.2, 1.0);
-	    obj.add(sphere);
+	    obj.add_sphere(sphere);
 	 }
       }
    }

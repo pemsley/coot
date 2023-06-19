@@ -178,7 +178,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
    };
 
    auto make_rota_buttons = [imol, set_target_position_from_residue, rota_button_callback] (mmdb::Manager *mol) {
-      float prob_critical = 2.0; // from 0 to 1.0;
+      float prob_critical = 1.0; // from 0 to 1.0;
       std::vector<std::pair<coot::residue_spec_t, GtkWidget *> > buttons;
       std::vector<mmdb::Residue *> residues =  graphics_info_t::molecules[imol].get_all_protein_residues();
       graphics_info_t g;
@@ -262,14 +262,61 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   auto make_rama_buttons = [] (mmdb::Manager *mol) {
+   // these are mostly the same and can be consolidated.
+   auto rama_button_clicked_callback = +[] (GtkButton *button, gpointer user_data) {
+      coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
+      int imol = atom_spec_p->int_user_data;
+      const auto &atom_spec(*atom_spec_p);
+      graphics_info_t g;
+      graphics_info_t::set_go_to_atom(imol, atom_spec);
+      g.try_centre_from_new_go_to_atom(); // oh dear!
+   };
+
+   auto make_rama_buttons = [rama_button_clicked_callback] (int imol) {
+
+      double prob_crit = 0.003; // rama_level_allowed is 0.002
       std::vector<std::pair<coot::residue_spec_t, GtkWidget *> > buttons;
 
-      // rama buttons to be added after re-enabling their exaction after goocanvas loss.
+      const auto &m = graphics_info_t::molecules[imol];
+      coot::rama_score_t rama_score = m.get_all_molecule_rama_score();
+
+      std::vector<coot::rama_score_t::scored_phi_psi_t>::const_iterator it;
+      for (it=rama_score.scores.begin(); it!=rama_score.scores.end(); ++it) {
+         const auto &spp = *it;
+         if (spp.score < prob_crit) {
+            std::cout << "debug::   " << spp.res_spec << "  " << spp.score << "  "
+                      << spp.residue_prev << " " << spp.residue_this << " " << spp.residue_next << std::endl;
+            if (! spp.residue_this) continue;
+
+            std::string lab = "Ramachandran ";
+            lab += spp.res_spec.chain_id;
+            lab += " ";
+            lab += std::to_string(spp.res_spec.res_no);
+            lab += " ";
+            lab += std::string(spp.residue_this->GetResName());
+            lab += " pr: ";
+            lab += coot::util::float_to_string_using_dec_pl(spp.score, 3);
+            GtkWidget *button = gtk_button_new();
+            GtkWidget *label = gtk_label_new(lab.c_str());
+            gtk_widget_set_halign(label, GTK_ALIGN_START);
+            gtk_button_set_child(GTK_BUTTON(button), label);
+            gtk_widget_set_margin_start (button, 4);
+            gtk_widget_set_margin_end   (button, 4);
+            gtk_widget_set_margin_top   (button, 2);
+            gtk_widget_set_margin_bottom(button, 2);
+
+            coot::atom_spec_t atom_spec(spp.res_spec.chain_id, spp.res_spec.res_no, spp.res_spec.ins_code, " CA ", "");
+            coot::atom_spec_t *spec_p = new coot::atom_spec_t(atom_spec);
+            spec_p->int_user_data = imol;
+            g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(rama_button_clicked_callback), spec_p);
+            auto p = std::make_pair(spp.res_spec, button);
+            buttons.push_back(p);
+         }
+      }
       return buttons;
    };
 
-   auto non_pro_cis_button_clicked_callback = *[] (GtkButton *button, gpointer user_data) {
+   auto non_pro_cis_button_clicked_callback = +[] (GtkButton *button, gpointer user_data) {
       coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
       int imol = atom_spec_p->int_user_data;
       const auto &atom_spec(*atom_spec_p);
@@ -288,7 +335,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
          mmdb::Residue *residue_p = coot::util::get_residue(res_spec, mol);
          if (residue_p) {
             if (cpi.residue_name_2 != "PRO") {
-               std::string lab = "Non-PRO cis Peptide ";
+               std::string lab = "Non-PRO <i>cis</i> Peptide ";
                lab += cpi.chain_id_1;
                lab += " ";
                lab += std::to_string(cpi.resno_1);
@@ -298,6 +345,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
                // GtkWidget *button = gtk_button_new_with_label(lab.c_str());
                GtkWidget *button = gtk_button_new();
                GtkWidget *label = gtk_label_new(lab.c_str());
+               gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
                gtk_widget_set_halign(label, GTK_ALIGN_START);
                gtk_button_set_child(GTK_BUTTON(button), label);
                gtk_widget_set_margin_start (button, 4);
@@ -316,7 +364,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   auto twisted_trans_button_clicked_callback = *[] (GtkButton *button, gpointer user_data) {
+   auto twisted_trans_button_clicked_callback = +[] (GtkButton *button, gpointer user_data) {
       coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
       int imol = atom_spec_p->int_user_data;
       const auto &atom_spec(*atom_spec_p);
@@ -335,7 +383,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
 	       coot::residue_spec_t r1(v[i].quad.atom_1->GetResidue());
                coot::residue_spec_t r2(v[i].quad.atom_4->GetResidue());
                float omega = v[i].quad.torsion();
-               std::string lab = "Twisted trans ";
+               std::string lab = "Twisted <i>trans</i> ";
                lab += std::string(v[i].quad.atom_2->GetChainID());
                lab += " ";
                lab += std::to_string(v[i].quad.atom_2->GetSeqNum());
@@ -345,6 +393,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
                // GtkWidget *button = gtk_button_new_with_label(lab.c_str());
                GtkWidget *button = gtk_button_new();
                GtkWidget *label = gtk_label_new(lab.c_str());
+               gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
                gtk_widget_set_halign(label, GTK_ALIGN_START);
                gtk_button_set_child(GTK_BUTTON(button), label);
                gtk_widget_set_margin_start (button, 4);
@@ -366,7 +415,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   auto c_beta_devi_button_clicked_callback = *[] (GtkButton *button, gpointer user_data) {
+   auto c_beta_devi_button_clicked_callback = +[] (GtkButton *button, gpointer user_data) {
       coot::atom_spec_t *atom_spec_p = static_cast<coot::atom_spec_t *>(user_data);
       int imol = atom_spec_p->int_user_data;
       const auto &atom_spec(*atom_spec_p);
@@ -392,7 +441,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
             const coot::c_beta_deviation_t &cbd = it_inner->second;
             if (cbd.dist > dist_crit) {
                coot::residue_spec_t res_spec(res_key);
-               std::string lab = "CBeta Deviation ";
+               std::string lab = "Cβ Deviation ";
                lab += " ";
                lab += cbd.at->GetChainID();
                lab += " ";
@@ -478,7 +527,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       buttons.insert(buttons.end(), rota_buttons.begin(), rota_buttons.end());
       auto chiral_buttons = make_chiral_volume_buttons(imol);
       buttons.insert(buttons.end(), chiral_buttons.begin(), chiral_buttons.end());
-      auto rama_buttons = make_rama_buttons(mol);
+      auto rama_buttons = make_rama_buttons(imol);
       buttons.insert(buttons.end(), rama_buttons.begin(), rama_buttons.end());
       auto npcp_buttons = make_non_pro_cis_peptide_buttons(imol, mol);
       buttons.insert(buttons.end(), npcp_buttons.begin(), npcp_buttons.end());
@@ -486,9 +535,6 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       buttons.insert(buttons.end(), twisted_trans_buttons.begin(), twisted_trans_buttons.end());
       auto cbeta_devi_buttons = make_cbeta_devi_buttons(imol, mol);
       buttons.insert(buttons.end(), cbeta_devi_buttons.begin(), cbeta_devi_buttons.end());
-
-      std::cout << "sizes buttons " << buttons.size() << " overlaps " << overlap_buttons.size()
-                << " rota " << rota_buttons.size() << std::endl;
 
       if (label) {
          unsigned int n_baddies = buttons.size();

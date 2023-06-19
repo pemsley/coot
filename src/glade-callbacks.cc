@@ -58,6 +58,8 @@
 // GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
 #include "support.h"
 
+#include "fit-loop-gui.hh"
+
 // this from callbacks.h (which I don't want to include here)
 typedef const char entry_char_type;
 
@@ -1222,15 +1224,21 @@ on_go_to_atom_previous_residue_button_clicked (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_go_to_atom_show_waters_togglebutton_toggled(GtkToggleButton *check_button,
-                                               gpointer user_data) {
-
-   std::cout << "on_go_to_atom_show_waters check button toggled" << std::endl;
+on_go_to_atom_show_waters_checkbutton_toggled(GtkCheckButton *check_button,
+                                              gpointer user_data) {
 
    graphics_info_t g;
    g.fill_go_to_atom_window_residue_and_atom_lists_gtk4();
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_go_to_atom_show_ligands_only_checkbutton_toggled(GtkCheckButton *check_button,
+                                                    gpointer user_data) {
+
+   graphics_info_t g;
+   g.fill_go_to_atom_window_residue_and_atom_lists_gtk4();
+}
 
 // -----------------Toolbar buttons - Go to Atom and Go to ligand
 
@@ -6695,15 +6703,12 @@ on_fit_loop1_activate                  (GMenuItem     *menuitem,
 /*    gtk_widget_show(w); */
 }
 
-#include "fit-loop-gui.hh"
-
 extern "C" G_MODULE_EXPORT
 void
 on_fit_loop_by_rama_search1_activate (GMenuItem     *menuitem,
-                                                          gpointer         user_data)
-{
+                                      gpointer         user_data) {
 
-   GtkWidget *w = create_fit_loop_rama_search_dialog_gtkbuilder_version(); // fixed
+   GtkWidget *w = create_fit_loop_rama_search_dialog(); // fixed
    gtk_widget_show(w);
 }
 
@@ -12011,17 +12016,12 @@ on_updating_maps_ok_button_clicked(GtkButton       *button,
    int imol_map      = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox));
    int imol_diff_map = my_combobox_get_imol(GTK_COMBO_BOX(diff_map_combobox));
 
-   std::cout << "55555555555555555 in on_updating_maps_ok_button_clicked() here are the molecules indices "
-             << imol << " " << imol_map << " " << imol_diff_map << std::endl;
-
    bool auto_update_flag = false;
    if (gtk_check_button_get_active(GTK_CHECK_BUTTON(check_button))) auto_update_flag = true;
 
    if (auto_update_flag) {
-      std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHere 1 " << imol << " " << imol_map << " " << imol_diff_map << std::endl;
       set_auto_updating_sfcalc_genmap(imol, imol_map, imol_diff_map);
    } else {
-      std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHere 2 " << std::endl;
       calculate_maps_and_stats_py(imol, imol_map, imol_map, imol_diff_map);
    }
 
@@ -12029,3 +12029,13 @@ on_updating_maps_ok_button_clicked(GtkButton       *button,
    gtk_widget_set_visible(dialog, FALSE);
 }
 
+
+extern "C" G_MODULE_EXPORT
+void
+on_ligand_check_dialog_close_button_clicked(GtkButton       *button,
+                                            gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("ligand_check_dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+
+}

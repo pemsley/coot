@@ -159,6 +159,9 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
 			       << coot::residue_spec_t(residue_p) << std::endl;
 
                   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+                  graphics_ligand_view_imol = imol;
+
 		  graphics_ligand_view_flag =
 		     graphics_ligand_mesh_molecule.setup_from(imol, residue_p, alt_conf, Geom_p());
 
@@ -176,7 +179,9 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
 			add_status_bar_text(restraints.residue_info.name);
 		     }
 		  }
-	       }
+	       } else {
+                  graphics_ligand_view_flag = false; // because no atoms
+               }
 	    }
 	 }
       }
@@ -277,27 +282,6 @@ graphics_info_t::graphics_ligand_view() {
 	    glVertex3d(x_pos+3, y_pos+3, 0);
 	    glVertex3d(x_pos+3, y_pos-3, 0);
 	    glEnd();
-	 }
-
-	 // debug box, ligand space
-	 if (0) {
-	    // the lines ------------------
-	    glBegin(GL_LINES);
-
-	    glVertex3f( 0.0,  0.0, 0.0);
-	    glVertex3f( 1.0,  0.0, 0.0);
-
-	    glVertex3f( 1.0,  0.0, 0.0);
-	    glVertex3f( 1.0,  1.0, 0.0);
-
-	    glVertex3f( 1.0,  1.0, 0.0);
-	    glVertex3f( 0.0,  1.0, 0.0);
-
-	    glVertex3f( 0.0,  1.0, 0.0);
-	    glVertex3f( 0.0,  0.0, 0.0);
-
-	    glEnd();
-	    // end of the lines ------------
 	 }
 
 	 glDisable(GL_LINE_SMOOTH);
