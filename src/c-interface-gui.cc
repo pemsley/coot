@@ -2425,45 +2425,31 @@ void fill_chiral_volume_molecule_combobox(GtkWidget *dialog) {
 void
 pepflips_by_difference_map_dialog() {
 
+   graphics_info_t g;
    GtkWidget *dialog = widget_from_builder("pepflips_by_difference_map_dialog");
-   GtkWidget *vbox = widget_from_builder("pepflips_by_difference_map_dialog_vbox");
+   GtkWidget *model_combobox = widget_from_builder("pepflips_by_difference_map_dialog_model_comboboxtext");
+   GtkWidget *map_combobox   = widget_from_builder("pepflips_by_difference_map_dialog_map_comboboxtext");
+
+   std::cout << "debug model_combobox " << model_combobox << std::endl;
+   std::cout << "debug   map_combobox " <<   map_combobox << std::endl;
 
    // clear combox boxes from that vbox:
    //
-#if (GTK_MAJOR_VERSION >= 4)
-   std::cout << "fix delete items in pepflips_by_difference_map_dialog_vbox() " << std::endl;
-#else
-   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
-                                 if (GTK_IS_COMBO_BOX(widget))
-                                    gtk_container_remove(GTK_CONTAINER(data), widget);
-   };
-   gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
-#endif
+   gtk_cell_layout_clear(GTK_CELL_LAYOUT(model_combobox));
+   gtk_cell_layout_clear(GTK_CELL_LAYOUT(map_combobox));
 
    GtkWidget *entry = widget_from_builder("pepflips_by_difference_map_dialog_entry");
    gtk_editable_set_text(GTK_EDITABLE(entry), "3.6");
    // create new comboboxes
-   GtkWidget *model_combobox = gtk_combo_box_new();
-   GtkWidget *map_combobox   = gtk_combo_box_new();
 
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-   gtk_box_append(GTK_BOX(vbox),   map_combobox);
-   gtk_box_append(GTK_BOX(vbox), model_combobox);
-#else
-   gtk_box_pack_start(GTK_BOX(vbox),   map_combobox, FALSE, FALSE, 6);
-   gtk_box_pack_start(GTK_BOX(vbox), model_combobox, FALSE, FALSE, 6);
-#endif
-   gtk_widget_show(model_combobox);
-   gtk_widget_show(map_combobox);
-   graphics_info_t g;
    int imol_active = 0; // doesn't matter
    int imol_map = imol_refinement_map();
    GCallback callback = G_CALLBACK(NULL); // combox box is only read on Apply button press
    g.new_fill_combobox_with_coordinates_options(model_combobox, callback, imol_active);
    g.fill_combobox_with_difference_map_options(map_combobox, callback, imol_map);
-   // gtk_box_reorder_child(GTK_BOX(vbox),   map_combobox, 1);
-   std::cout << "pepflips_by_difference_map_dialog_entry() reorder child" << std::endl;
-   // gtk_box_reorder_child(GTK_BOX(vbox), model_combobox, 3);
+
+
+   set_transient_for_main_window(dialog);
    gtk_widget_show(dialog);
 
    g_object_set_data(G_OBJECT(dialog), "model_combobox", model_combobox);

@@ -5930,7 +5930,7 @@ on_peptide_flips_from_difference_map1_activate_gtkbuilder_glade(GMenuItem     *m
 extern "C" G_MODULE_EXPORT
 void
 on_pepflips_by_difference_map_dialog_close (GtkDialog *dialog,
-                                                                gpointer   user_data) {
+                                            gpointer   user_data) {
    gtk_widget_hide(GTK_WIDGET(dialog));
 }
 
@@ -5940,9 +5940,10 @@ void pepflips_by_difference_map_results_dialog(int imol_coords, int imol_map, fl
 extern "C" G_MODULE_EXPORT
 void
 on_pepflips_by_difference_map_dialog_response(GtkDialog       *dialog,
-                                                                  gint             response_id,
-                                                                  gpointer         user_data) {
-   if (response_id == GTK_RESPONSE_APPLY) {
+                                              gint             response_id,
+                                              gpointer         user_data) {
+   if (response_id == GTK_RESPONSE_OK) {
+      std::cout << "............... repsonse OK " << std::endl;
       GtkWidget *model_combobox = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), "model_combobox"));
       GtkWidget   *map_combobox = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog),   "map_combobox"));
       GtkWidget *entry = widget_from_builder("pepflips_by_difference_map_dialog_entry");
@@ -5957,6 +5958,8 @@ on_pepflips_by_difference_map_dialog_response(GtkDialog       *dialog,
          // log this
          std::cout << "Failed to convert " << s << " to a number" << std::endl;
       }
+   } else {
+      std::cout << "response was not OK" << std::endl;
    }
    gtk_widget_hide(GTK_WIDGET(dialog));
 }
@@ -10834,7 +10837,7 @@ on_find_ligand_real_space_refine_solutions_checkbutton_toggled
 extern "C" G_MODULE_EXPORT
 void
 on_edit_copy_molecule_activate(GMenuItem     *menuitem,
-                               gpointer         user_data) {
+                               gpointer       user_data) {
 
    do_edit_copy_molecule();
 }
@@ -10862,7 +10865,7 @@ on_copy_fragment_dialog_response(GtkDialog *dialog,
       int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
       int imol_new = new_molecule_by_atom_selection(imol, text.c_str());
       GtkWidget *checkbutton = widget_from_builder("copy_fragment_move_molecule_here_checkbutton");
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton)))
          move_molecule_to_screen_centre_internal(imol_new);
       if (is_valid_model_molecule(imol_new))
          gtk_widget_hide(GTK_WIDGET(dialog));

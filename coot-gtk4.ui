@@ -789,6 +789,10 @@
           <attribute name="action">app.overlaps_peptides_cbeta_ramas_and_rotas_action</attribute>
         </item>
         <item>
+          <attribute name="label">Pepflips from Difference Map...</attribute>
+          <attribute name="action">app.pepflips_from_difference_map_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Refmac Log Validation</attribute>
           <attribute name="action">app.refmac_log_validation_action</attribute>
         </item>
@@ -10599,20 +10603,20 @@ If you need symmetry, setup ccp4 before starting coot
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="pepflips_by_difference_map_dialog">
+    <property name="title">Coot: Pepflips by Difference Map</property>
     <signal name="close" handler="on_pepflips_by_difference_map_dialog_close" swapped="no"/>
     <signal name="response" handler="on_pepflips_by_difference_map_dialog_response" swapped="no"/>
     <child>
       <object class="GtkBox" id="pepflips_by_difference_map_dialog_internal_vbox">
         <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="pepflips_by_difference_map_dialog_cancel_button">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-        </child>
+        <property name="margin-start">4</property>
+        <property name="margin-end">4</property>
+        <property name="margin-top">4</property>
+        <property name="margin-bottom">4</property>
+        <property name="spacing">6</property>
+
         <child>
           <object class="GtkBox" id="pepflips_by_difference_map_dialog_vbox">
             <property name="orientation">vertical</property>
@@ -10622,8 +10626,24 @@ If you need symmetry, setup ccp4 before starting coot
               </object>
             </child>
             <child>
+              <object class="GtkComboBoxText" id="pepflips_by_difference_map_dialog_map_comboboxtext">
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+              </object>
+            </child>
+            <child>
               <object class="GtkLabel">
                 <property name="label" translatable="yes">Model:</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkComboBoxText" id="pepflips_by_difference_map_dialog_model_comboboxtext">
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
               </object>
             </child>
             <child>
@@ -10642,11 +10662,37 @@ If you need symmetry, setup ccp4 before starting coot
             </child>
           </object>
         </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">6</property>
+            <child type="action">
+              <object class="GtkButton" id="pepflips_by_difference_map_dialog_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="can-focus">1</property>
+                <property name="receives-default">1</property>
+              </object>
+            </child>
+            <child type="action">
+              <object class="GtkButton" id="pepflips_by_difference_map_dialog_ok_button">
+                <property name="label" translatable="yes">OK</property>
+                <property name="can-focus">1</property>
+                <property name="receives-default">1</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
-    <child type="titlebar">
-    </child>
+    <action-widgets>
+      <action-widget response="-5">pepflips_by_difference_map_dialog_ok_button</action-widget>
+      <action-widget response="-6">pepflips_by_difference_map_dialog_cancel_button</action-widget>
+    </action-widgets>
   </object>
+
   <object class="GtkWindow" id="phs_cell_choice_window">
     <property name="title" translatable="yes">Choose Cell for PHS file:</property>
     <child>
@@ -11353,31 +11399,15 @@ just the cell and symmetry)
   </object>
 
   <object class="GtkDialog" id="renumber_residue_range_dialog">
-    <property name="title" translatable="yes">Renumber Residue Range</property>
+    <property name="title" translatable="yes">Coot: Renumber Residue Range</property>
     <child>
       <object class="GtkBox" id="dialog-vbox60">
+        <property name="margin-start">4</property>
+        <property name="margin-end">4</property>
+        <property name="margin-top">4</property>
+        <property name="margin-bottom">4</property>
+        <property name="spacing">10</property>
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox98">
-                <property name="homogeneous">1</property>
-                <child>
-                  <object class="GtkButton" id="renumber_residue_range_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_renumber_residue_range_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="renumber_residue_range_ok_button">
-                    <property name="label" translatable="yes">  Renumber  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_renumber_residue_range_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
         <child>
           <object class="GtkFrame" id="frame113">
             <child>
@@ -11387,11 +11417,15 @@ just the cell and symmetry)
                   <object class="GtkLabel" id="label192">
                     <property name="label" translatable="yes">Renumber Residue Range of Molecule:</property>
                     <property name="justify">center</property>
-                    <property name="xalign">0.03999999910593033</property>
+                    <property name="xalign">0.04</property>
                   </object>
                 </child>
                 <child>
                   <object class="GtkComboBoxText" id="renumber_residue_range_molecule_combobox">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <signal name="changed" handler="on_renumber_residues_molecule_combobox_changed" swapped="no"/>
                   </object>
                 </child>
@@ -11508,6 +11542,30 @@ just the cell and symmetry)
                     </child>
                   </object>
                 </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="action">
+          <object class="GtkBox" id="hbox98">
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <property name="spacing">10</property>
+            <child>
+              <object class="GtkButton" id="renumber_residue_range_cancel_button">
+                <property name="label" translatable="yes"> Cancel </property>
+                <signal name="clicked" handler="on_renumber_residue_range_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="renumber_residue_range_ok_button">
+                <property name="label" translatable="yes"> Renumber </property>
+                <signal name="clicked" handler="on_renumber_residue_range_ok_button_clicked" swapped="no"/>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
             </child>
           </object>

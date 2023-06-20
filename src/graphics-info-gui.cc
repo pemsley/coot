@@ -923,12 +923,12 @@ graphics_info_t::show_select_map_dialog_gtkbuilder() {
    }
 }
 
-void on_dialog_box_of_buttons_close_button(GtkWidget *button,
-                                           gpointer   user_data) {
-   GtkWidget *dialog = GTK_WIDGET(user_data);
-   gtk_widget_hide(GTK_WIDGET(dialog));
+void
+on_dialog_box_of_buttons_response(GtkDialog *dialog,
+                                  gint       response_id,
+                                  gpointer   user_data) {
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
-
 
 GtkWidget *
 graphics_info_t::dialog_box_of_buttons_internal(const std::string &window_title,
@@ -936,45 +936,44 @@ graphics_info_t::dialog_box_of_buttons_internal(const std::string &window_title,
                                                 const std::string &close_button_label) {
 
 
+   std::string full_title = std::string("Coot: ") + window_title;
    GtkWidget *dialog = gtk_dialog_new();
    GtkWidget *scrolled_window = gtk_scrolled_window_new();
-   gtk_window_set_default_size(GTK_WINDOW(dialog), 160, 500);
-   gtk_window_set_title(GTK_WINDOW(dialog), window_title.c_str());
+   gtk_window_set_default_size(GTK_WINDOW(dialog), 180, 300);
+   gtk_window_set_title(GTK_WINDOW(dialog), full_title.c_str());
    GtkWidget *vbox_outer = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
    GtkWidget *vbox       = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
    GtkWidget *close_button = gtk_button_new_with_label(close_button_label.c_str());
    for (unsigned int i=0; i<buttons.size(); i++) {
       GtkWidget *button  = gtk_button_new_with_label(std::get<0>(buttons[i]).c_str());
       GCallback callback = std::get<1>(buttons[i]);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       gtk_box_append(GTK_BOX(vbox), button);
-#else
-      gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 1);
-#endif
-      // should we do this here?
+      gtk_widget_set_margin_start (button, 4);
+      gtk_widget_set_margin_end   (button, 4);
+      gtk_widget_set_margin_top   (button, 4);
+      gtk_widget_set_margin_bottom(button, 4);
       g_signal_connect(G_OBJECT(button), "clicked", callback, std::get<2>(buttons[i]));
       gtk_widget_show(button);
    }
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
    gtk_box_append(GTK_BOX(vbox_outer), scrolled_window);
-#else
-   gtk_box_pack_start(GTK_BOX(vbox_outer), scrolled_window, TRUE, TRUE, 2);
-#endif
    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), vbox);
-   GtkWidget *aa = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-#if  (GTK_MAJOR_VERSION == 4)
-   gtk_box_append(GTK_BOX(aa), close_button);
-#else
-   gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
-#endif
-   // gtk_dialog_add_button(dialog, close_button, GTK_RESPONSE_CLOSE); // 20211014-PE for the future
-   // GCallback cbc = G_CALLBACK(on_dialog_box_of_buttons_close_button_response);
-   // g_signal_connect(dialog, "response", cbc, NULL);
-   g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(on_dialog_box_of_buttons_close_button), dialog);
+   gtk_widget_set_vexpand(vbox, TRUE);               // not sure that all of these are needed.
+   gtk_widget_set_hexpand(scrolled_window, TRUE);    //
+   gtk_widget_set_vexpand(scrolled_window, TRUE);    //
+
+   gtk_widget_set_margin_start (vbox_outer, 4);
+   gtk_widget_set_margin_end   (vbox_outer, 4);
+   gtk_widget_set_margin_top   (vbox_outer, 4);
+   gtk_widget_set_margin_bottom(vbox_outer, 4);
+
+   g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(on_dialog_box_of_buttons_response), dialog);
+   gtk_dialog_add_button(GTK_DIALOG(dialog), close_button_label.c_str(), GTK_RESPONSE_CLOSE);
+
    gtk_widget_show(scrolled_window);
    gtk_widget_show(vbox);
    gtk_widget_show(vbox_outer);
    gtk_widget_show(close_button);
+   set_transient_for_main_window(dialog);
    return dialog;
 }
 

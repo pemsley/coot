@@ -720,6 +720,7 @@ renumber_residues_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                          G_GNUC_UNUSED GVariant *parameter,
                          G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = wrapped_create_renumber_residue_range_dialog();
+   set_transient_for_main_window(w);
    gtk_widget_show(w);
 }
 
@@ -2149,6 +2150,14 @@ void refmac_log_validation_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    info_dialog("Oops! No Refmac Log Validation yet");
 }
 
+void pepflips_from_difference_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer user_data) {
+   pepflips_by_difference_map_dialog();
+}
+
+
+
 void validation_outliers_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                 G_GNUC_UNUSED GVariant *parameter,
                                 G_GNUC_UNUSED gpointer user_data) {
@@ -2787,6 +2796,7 @@ create_actions(GtkApplication *application) {
    add_action(           "refmac_log_validation_action",            refmac_log_validation_action);
    add_action(       "highly_coordinates_waters_action",        highly_coordinates_waters_action);
    add_action(     "atoms_with_zero_occupancies_action",      atoms_with_zero_occupancies_action);
+   add_action(    "pepflips_from_difference_map_action",     pepflips_from_difference_map_action);
    add_action("all_atom_contact_dots_molprobity_action", all_atom_contact_dots_molprobity_action);
    add_action("overlaps_peptides_cbeta_ramas_and_rotas_action", overlaps_peptides_cbeta_ramas_and_rotas_action);
 

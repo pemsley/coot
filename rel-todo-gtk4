@@ -10,13 +10,14 @@
 
 ----
 
-16 items
+15 items
+
+In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
+Why? Because it's looked up and not new? ::: 2
 
 Looks at 1x8b with ligands and contact dots - is 2.0 too close for H-O hydrogen bond distance?
 No, it's fine: see https://proteopedia.org/wiki/index.php/Hydrogen_bonds. Contact dots has it as
 a clash though. "The dotted hydrogen bond is non-covalent and variable in length, ~1.5-2.5 Å." ::: 1
-
-Shift the HUD ligand 10 pixels to the right, i.e. add 0.02 to x in the shaders. ::: 0.5
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
@@ -29,9 +30,6 @@ Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 * Preferences, surely.
 
 What's up with the Preferences? ::: 4
-
-In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
-Why? Because it's looked up and not new? ::: 2
 
 Rework the namespace of the python modules to be more cannonical ::: 4
 
@@ -663,5 +661,8 @@ Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydr
 It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
 
 Clicking on Green left arrow doesn't open the refinement overlay ::: 1
+* Done.
+
+Shift the HUD ligand 10 pixels to the right, i.e. add 0.02 to x in the shaders. ::: 0.5
 * Done.
 
