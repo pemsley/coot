@@ -205,7 +205,7 @@ static void on_left_click (
             break;
         }
         case ActiveTool::Variant::Format:{
-            
+            self->active_tool->format_at((int)x, (int) y);
             break;
         }
         case ActiveTool::Variant::ChargeModifier:{

@@ -115,6 +115,10 @@ class GeometryModifier {
 
 };
 
+class FormatTool {
+
+};
+
 class ActiveTool {
     public:
     enum class Variant: unsigned char {
@@ -147,6 +151,8 @@ class ActiveTool {
         MoveTool move_tool;
         /// Valid for Variant::GeometryModifier
         GeometryModifier geometry_modifier;
+        /// Valid for Variant::Format
+        FormatTool format_tool;
     };
     Variant variant;
     /// Non-owning pointer
@@ -165,6 +171,7 @@ class ActiveTool {
     ActiveTool(MoveTool) noexcept;
     ActiveTool(StructureInsertion insertion) noexcept;
     ActiveTool(GeometryModifier modifier) noexcept;
+    ActiveTool(FormatTool) noexcept;
 
     Variant get_variant() const noexcept;
     /// Valid for Variant::ElementInsertion.
@@ -201,6 +208,9 @@ class ActiveTool {
     /// Valid for Variant::GeometryModifier.
     /// Changes geometry of the bond found at the given coordinates.
     void alter_geometry(int x, int y);
+    /// Valid for Variant::Format.
+    /// Forces re-computation of molecule geometry from scratch using RDKit.
+    void format_at(int x, int y);
 
     /// Only meant to be invoked from within CootLigandEditorCanvas implementation
     ///

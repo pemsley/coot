@@ -122,6 +122,11 @@ ActiveTool::ActiveTool(GeometryModifier modifier) noexcept {
     this->geometry_modifier = modifier;
 }
 
+ActiveTool::ActiveTool(FormatTool fmt) noexcept {
+    this->variant = ActiveTool::Variant::Format;
+    this->format_tool = fmt;
+}
+
 ActiveTool::Variant ActiveTool::get_variant() const noexcept {
     return this->variant;
 }
@@ -482,6 +487,30 @@ void ActiveTool::insert_structure(int x, int y) {
             this->widget_data->undo_edition();
         }
         this->widget_data->update_status(status_msg.c_str());
+    }
+}
+
+void ActiveTool::format_at(int x, int y) {
+    check_variant(Variant::Format);
+    auto click_result = this->widget_data->resolve_click(x, y);
+    if(click_result.has_value()) {
+        try{
+            this->widget_data->begin_edition();
+            auto [bond_or_atom,molecule_idx] = click_result.value();
+            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
+            canvas_mol.clear_last_atom_coordinate_map();
+            canvas_mol.lower_from_rdkit();
+            this->widget_data->finalize_edition();
+            this->widget_data->update_status("Molecule has been formatted.");
+        } catch(std::exception& e) {
+            g_warning("An error occured: %s",e.what());
+            std::string status_msg = "Coud not format molecule: "; status_msg += e.what();
+            this->widget_data->update_status(status_msg.c_str());
+            this->widget_data->rollback_current_edition();
+        }
+    } else {
+        // Nothing has been clicked on.
+        g_debug("The click could not be resolved to any atom or bond.");
     }
 }
 

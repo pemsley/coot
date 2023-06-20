@@ -105,7 +105,7 @@ class CanvasMolecule {
     float canvas_scale;
 
     /// Coordinate map built in the previous call
-    /// to compute_molecule_geometry()
+    /// to `compute_molecule_geometry()`
     /// stored for reference to maintain alignment 
     /// when recomputing molecule geometry
     std::optional<RDGeom::INT_POINT2D_MAP> last_atom_coordinate_map;
@@ -144,6 +144,13 @@ class CanvasMolecule {
     /// Clears the drawing-friendly 2D representation data
     /// and re-creates it from the internal RDKit::RWMol
     void lower_from_rdkit();
+
+    /// Clears `last_atom_coordinate_map`, 
+    /// forcing the subsequent call to `compute_molecule_geometry()`
+    /// to determine the shape of the molecule from scratch.
+    ///
+    /// This is what makes the "Format" tool work.
+    void clear_last_atom_coordinate_map();
 
     /// Changes the relative placement of the molecule on the screen
     void set_canvas_size_adjustment_from_bounds(const graphene_rect_t *bounds) noexcept;

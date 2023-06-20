@@ -620,3 +620,7 @@ void CanvasMolecule::clear_highlights() {
         atom.highlighted = false;
     }
 }
+
+void CanvasMolecule::clear_last_atom_coordinate_map() {
+    this->last_atom_coordinate_map = std::nullopt;
+}

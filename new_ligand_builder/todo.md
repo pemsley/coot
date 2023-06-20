@@ -17,5 +17,4 @@
 * How should "remove hydrogens" work?
 * Implement charge tool
 * Fetch
-* What should the formatter do? Is it still needed?
 * About dialog
