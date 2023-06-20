@@ -1,5 +1,7 @@
 #include "model.hpp"
 #include "cairo.h"
+#include <exception>
+#include <memory>
 #include <numeric>
 #include <optional>
 #include <stdexcept>
@@ -356,26 +358,54 @@ RDKit::Bond::BondType CanvasMolecule::bond_type_to_rdkit(CanvasMolecule::BondTyp
 
 RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
     // The following code is heavily based on RDKit documentation.
-    
-    // Maps atom indices to 2D points
-    RDGeom::INT_POINT2D_MAP coordinate_map;
 
     const RDGeom::INT_POINT2D_MAP* previous_coordinate_map = nullptr;
+    
+    // Pruned coordinate map will only be instantiated if the last coordinate map
+    // contains atoms which are no longer in the molecule (and thus need to be removed).
+    std::unique_ptr<RDGeom::INT_POINT2D_MAP> pruned_previous_coordinate_map = nullptr;
 
     if (this->last_atom_coordinate_map.has_value()) {
         // g_debug("Computing 2D coords using a reference");
         const RDGeom::INT_POINT2D_MAP& prev_coord_map_ref = this->last_atom_coordinate_map.value();
         previous_coordinate_map = &prev_coord_map_ref;
+        // We need to make sure that each atom in the last_atom_coordinate_map still exists in the molecule.
+        // If it doesn't, RDDepict::compute2DCoords() throws an exception. We cannot let this happen.
+        for(const auto [atom_idx,_point]: prev_coord_map_ref) {
+            try {
+                auto* _atom_ptr = this->rdkit_molecule->getAtomWithIdx(atom_idx);
+                // All good.
+            } catch(...) { // Atom does not exist
+                g_info("Atom with id=%u missing in the molecule, but found in 2D coordinate reference. It will be omitted.",atom_idx);
+                // If there's any atom which is no longer there, we need to copy the whole coordinate map
+                // into pruned_previous_coordinate_map and then remove the atom there.
+                if(! pruned_previous_coordinate_map) {
+                    // Copy the original coordinate map
+                    pruned_previous_coordinate_map = std::make_unique<RDGeom::INT_POINT2D_MAP>(this->last_atom_coordinate_map.value());
+                    // Also we need to update the previous_coordinate_map pointer to refer to our pruned map.
+                    previous_coordinate_map = pruned_previous_coordinate_map.get();
+                }
+                pruned_previous_coordinate_map->erase(pruned_previous_coordinate_map->find(atom_idx));
+            }
+        }
     } else {
         g_info("Computing fresh 2D coords (without previous reference).");
     }
-    RDDepict::compute2DCoords(*this->rdkit_molecule,previous_coordinate_map,true,true);
+
+    try {
+        RDDepict::compute2DCoords(*this->rdkit_molecule,previous_coordinate_map,true,true);
+    } catch(std::exception& e) {
+        throw std::runtime_error(std::string("Failed to compute 2D coords with RDKit! ")+e.what());
+    }
 
 
     RDKit::MatchVectType matchVect;
-    if(! RDKit::SubstructMatch(*this->rdkit_molecule, *this->rdkit_molecule, matchVect ) ) {
+    if(!RDKit::SubstructMatch(*this->rdkit_molecule, *this->rdkit_molecule, matchVect)) {
         throw std::runtime_error("SubstractMatch failed.");
     }
+
+    // Maps atom indices to 2D points
+    RDGeom::INT_POINT2D_MAP coordinate_map;
 
     RDKit::Conformer& conf = this->rdkit_molecule->getConformer();
     for(auto mv: matchVect) {
