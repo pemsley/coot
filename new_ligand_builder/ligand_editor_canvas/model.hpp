@@ -109,6 +109,22 @@ class CanvasMolecule {
     /// And interfacing with screen coordinates
     float get_scale() const noexcept;
 
+    /// Uses RDDepict to get molecule depiction & geometry info
+    /// 
+    /// Part of the lowering process.
+    RDGeom::INT_POINT2D_MAP compute_molecule_geometry();
+
+    /// Builds the drawing-friendly 2D molecule representation
+    /// based on geometry computed by RDKit.
+    ///
+    /// Part of the lowering process.
+    void build_internal_molecule_representation(const RDGeom::INT_POINT2D_MAP& coordinate_map);
+
+    /// Iterates over rings and sets the right alignment for double bonds inside of rings
+    ///
+    /// Part of the lowering process.
+    void process_bond_alignment_in_rings();
+
     public:
 
     CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol);

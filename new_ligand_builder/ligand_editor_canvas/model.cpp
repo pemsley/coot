@@ -352,15 +352,9 @@ RDKit::Bond::BondType CanvasMolecule::bond_type_to_rdkit(CanvasMolecule::BondTyp
     }
 }
 
-void CanvasMolecule::lower_from_rdkit() {
-    // 1. Clear what we have
-    this->atoms.clear();
-    this->bonds.clear();
 
-    // 2. Do the lowering
-
-    // 2.0 Kekulize
-    RDKit::MolOps::Kekulize( *this->rdkit_molecule );
+RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() {
+    
     // 2.1 Get geometry info
 
     // Maps atom indices to 2D points
@@ -388,83 +382,15 @@ void CanvasMolecule::lower_from_rdkit() {
     // That doesn't seem to change much
     // RDDepict::compute2DCoords( *this->rdkit_molecule, &coordinate_map, true, true);
 
-
-    /// Used to avoid duplicating bonds
-    std::set<unsigned int> processed_atoms_indices;
-
     if(coordinate_map.empty()) {
         throw std::runtime_error("RDKit coordinate mapping is empty");
     }
-    // 2.2 Process atoms and compute bonds
-    for(const auto& [atom_idx,plane_point]: coordinate_map) {
-        const auto* rdkit_atom = this->rdkit_molecule->getAtomWithIdx(atom_idx);
-        auto canvas_atom = CanvasMolecule::Atom();
-        canvas_atom.color = atom_color_from_rdkit(rdkit_atom);
-        canvas_atom.highlighted = false;
-        canvas_atom.idx = atom_idx;
-        canvas_atom.symbol = rdkit_atom->getSymbol();
-        canvas_atom.x = plane_point.x;
-        canvas_atom.y = plane_point.y;
 
-        auto surrounding_hydrogen_count = rdkit_atom->getTotalNumHs(false);
-        auto surrounding_non_hydrogen_count = 0;
+    return coordinate_map;
+}
 
-        for(const auto& bond: boost::make_iterator_range(this->rdkit_molecule->getAtomBonds(rdkit_atom))) {
-            // Based on `getAtomBonds` documentation.
-            // Seems weird but we have to do it that way.
-            const auto* bond_ptr = (*this->rdkit_molecule)[bond];
-            auto first_atom_idx = bond_ptr->getBeginAtomIdx();
-            auto second_atom_idx = bond_ptr->getEndAtomIdx();
-            auto the_other_atom_idx = first_atom_idx == atom_idx ? second_atom_idx : first_atom_idx;
-            const auto* the_other_atom =  this->rdkit_molecule->getAtomWithIdx(the_other_atom_idx);
-            if(the_other_atom->getSymbol() != "H") {
-                surrounding_non_hydrogen_count++;
-            }
-
-            // We don't want to have duplicate bonds of atoms that we have already processed
-            // so we skip them.
-            if(processed_atoms_indices.find(first_atom_idx) != processed_atoms_indices.end() 
-            || processed_atoms_indices.find(second_atom_idx) != processed_atoms_indices.end()) {
-                continue;
-            }
-
-            auto canvas_bond = CanvasMolecule::Bond();
-
-            canvas_bond.first_atom_idx = first_atom_idx;
-            canvas_bond.first_atom_x = coordinate_map[first_atom_idx].x;
-            canvas_bond.first_atom_y = coordinate_map[first_atom_idx].y;
-            
-            canvas_bond.second_atom_idx = second_atom_idx;
-            canvas_bond.second_atom_x = coordinate_map[second_atom_idx].x;
-            canvas_bond.second_atom_y = coordinate_map[second_atom_idx].y;
-
-            canvas_bond.highlighted = false;
-            canvas_bond.type = bond_type_from_rdkit(bond_ptr->getBondType());
-            // todo: add support for geometry
-            canvas_bond.geometry = BondGeometry::Flat;
-
-            this->bonds.push_back(std::move(canvas_bond));
-        }
-
-        bool terminus = surrounding_non_hydrogen_count < 2;
-        if(canvas_atom.symbol != "H" && (canvas_atom.symbol != "C" || terminus)) {
-            //todo: oxygens I guess?
-            if(surrounding_hydrogen_count > 0) {
-                canvas_atom.appendix = "H";
-                if(surrounding_hydrogen_count > 1) {
-                    canvas_atom.appendix.value() += std::to_string(surrounding_hydrogen_count);
-                }
-            }
-        }
-
-        this->atoms.push_back(std::move(canvas_atom));
-        // Mark the atom as processed
-        processed_atoms_indices.insert(atom_idx);
-    }
-    std::sort(this->atoms.begin(),this->atoms.end(),[](const auto& lhs, const auto& rhs){
-        return lhs.idx < rhs.idx;
-    });
-    // Make sure that double bonds are aligned properly
+void CanvasMolecule::process_bond_alignment_in_rings() {
+    
     const auto& rings = this->rdkit_molecule->getRingInfo();
     for(const auto& ring: rings->atomRings()) {
         float ring_center_x = 0.f;
@@ -531,7 +457,105 @@ void CanvasMolecule::lower_from_rdkit() {
         }
 
     }
-    // Reverse kekulization on the original molecule after lowering.
+}
+
+void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_POINT2D_MAP &coordinate_map) {
+    // First, clear what we have
+
+    this->atoms.clear();
+    this->bonds.clear();
+
+    /// Used to avoid duplicating bonds
+    std::set<unsigned int> processed_atoms_indices;
+    
+    // 1. Process atoms and compute bonds
+    for(const auto& [atom_idx,plane_point]: coordinate_map) {
+        const auto* rdkit_atom = this->rdkit_molecule->getAtomWithIdx(atom_idx);
+        auto canvas_atom = CanvasMolecule::Atom();
+        canvas_atom.color = atom_color_from_rdkit(rdkit_atom);
+        canvas_atom.highlighted = false;
+        canvas_atom.idx = atom_idx;
+        canvas_atom.symbol = rdkit_atom->getSymbol();
+        canvas_atom.x = plane_point.x;
+        canvas_atom.y = plane_point.y;
+
+        auto surrounding_hydrogen_count = rdkit_atom->getTotalNumHs(false);
+        auto surrounding_non_hydrogen_count = 0;
+
+        for(const auto& bond: boost::make_iterator_range(this->rdkit_molecule->getAtomBonds(rdkit_atom))) {
+            // Based on `getAtomBonds` documentation.
+            // Seems weird but we have to do it that way.
+            const auto* bond_ptr = (*this->rdkit_molecule)[bond];
+            auto first_atom_idx = bond_ptr->getBeginAtomIdx();
+            auto second_atom_idx = bond_ptr->getEndAtomIdx();
+            auto the_other_atom_idx = first_atom_idx == atom_idx ? second_atom_idx : first_atom_idx;
+            const auto* the_other_atom =  this->rdkit_molecule->getAtomWithIdx(the_other_atom_idx);
+            if(the_other_atom->getSymbol() != "H") {
+                surrounding_non_hydrogen_count++;
+            }
+
+            // We don't want to have duplicate bonds of atoms that we have already processed
+            // so we skip them.
+            if(processed_atoms_indices.find(first_atom_idx) != processed_atoms_indices.end() 
+            || processed_atoms_indices.find(second_atom_idx) != processed_atoms_indices.end()) {
+                continue;
+            }
+
+            auto canvas_bond = CanvasMolecule::Bond();
+
+            canvas_bond.first_atom_idx = first_atom_idx;
+            canvas_bond.first_atom_x = coordinate_map.at(first_atom_idx).x;
+            canvas_bond.first_atom_y = coordinate_map.at(first_atom_idx).y;
+            
+            canvas_bond.second_atom_idx = second_atom_idx;
+            canvas_bond.second_atom_x = coordinate_map.at(second_atom_idx).x;
+            canvas_bond.second_atom_y = coordinate_map.at(second_atom_idx).y;
+
+            canvas_bond.highlighted = false;
+            canvas_bond.type = bond_type_from_rdkit(bond_ptr->getBondType());
+            // todo: add support for geometry
+            canvas_bond.geometry = BondGeometry::Flat;
+
+            this->bonds.push_back(std::move(canvas_bond));
+        }
+
+        bool terminus = surrounding_non_hydrogen_count < 2;
+        if(canvas_atom.symbol != "H" && (canvas_atom.symbol != "C" || terminus)) {
+            //todo: oxygens I guess?
+            if(surrounding_hydrogen_count > 0) {
+                canvas_atom.appendix = "H";
+                if(surrounding_hydrogen_count > 1) {
+                    canvas_atom.appendix.value() += std::to_string(surrounding_hydrogen_count);
+                }
+            }
+        }
+
+        this->atoms.push_back(std::move(canvas_atom));
+        // Mark the atom as processed
+        processed_atoms_indices.insert(atom_idx);
+    }
+    std::sort(this->atoms.begin(),this->atoms.end(),[](const auto& lhs, const auto& rhs){
+        return lhs.idx < rhs.idx;
+    });
+    // Make sure that double bonds are aligned properly
+    this->process_bond_alignment_in_rings();
+}
+
+void CanvasMolecule::lower_from_rdkit() {
+
+    // 2. Do the lowering
+
+    // 2.0 Kekulize
+    RDKit::MolOps::Kekulize(*this->rdkit_molecule);
+
+    /// 2.1 Compute geometry
+    auto geometry = this->compute_molecule_geometry();
+
+    // 2.2 Build internal repr
+    this->build_internal_molecule_representation(geometry);    
+
+    // todo: make this optional
+    // 2.3 Reverse kekulization on the original molecule after lowering.
     RDKit::MolOps::sanitizeMol(*this->rdkit_molecule);
     
 }
