@@ -10,14 +10,15 @@
 
 ----
 
-Open dictionary should provide a widget to specify the molecule for dictionary.
-Also a "Generate Molecule" button. ::: 1
+16 items
+
+Looks at 1x8b with ligands and contact dots - is 2.0 too close for H-O hydrogen bond distance?
+No, it's fine: see https://proteopedia.org/wiki/index.php/Hydrogen_bonds. Contact dots has it as
+a clash though. "The dotted hydrogen bond is non-covalent and variable in length, ~1.5-2.5 Å." ::: 1
 
 Clicking on Green left arrow doesn't open the refinement overlay ::: 1
 
-Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
-It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
-Delete Hydrogen atoms (gets rid of mainchain hydrogen atoms too) and sprout_hydrogens() should work?
+Shift the HUD ligand 10 pixels to the right, i.e. add 0.02 to x in the shaders.
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
@@ -25,6 +26,7 @@ Full-fat render path - i.e. framebuffer need to be set up correctly (at the righ
 set_framebuffer_scale_factor().
 Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
 shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
+
 
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 * Preferences, surely.
@@ -43,16 +45,12 @@ Nice to have: Unmodelled blobs are labelled with the residue to which they are c
 NCS Jumping should use the correct matrix ::: 0.5
 
 Quick save should say something in the status-bar - maybe briefly flash and fade the background. Or some
-other brief visual effect.
+other brief visual effect. ::: 0.5
 
 Go To (next) Ligand should use the correct matrix ::: 0.5
 perpendicular_ligand_view() is the function. Does it work in gtk3?
 
 Do the tutorial from time to time - what's missing? ::: 1
-
-Looks at 1x8b with ligands and contact dots - is 2.0 too close for H-O hydrogen bond distance?
-No, it's fine: see https://proteopedia.org/wiki/index.php/Hydrogen_bonds. Contact dots has it as
-a clash though. "The dotted hydrogen bond is non-covalent and variable in length, ~1.5-2.5 Å." ::: 1
 
 Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
    contact_score_ligand_func(). Hmm. See ~/Desktop/ligand-notes
@@ -196,6 +194,8 @@ How should the "model representation change" work? Ctrl Shift 2-finger scroll? :
 * This is too complicated and estoeric to fix now. I don't even know how to fix it.
 
 AWC chirality in the ring - wedge bond is pointing in the wrong direction? Nice example of sp2 Se-ring (not aromatic)
+
+Open dictionary should provide a widget to specify the molecule for dictionary.
 
 --- Done Items ---
 
@@ -659,3 +659,11 @@ Nasty "-" rendering in OpenGL for charged atoms in HUD Ligand ::: 0.5
 
 Views ::: 2
 * Simple implementation
+
+Open dictionary should provide a widget to specify the molecule for dictionary.
+Also a "Generate Molecule" button. ::: 0.4
+
+Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
+It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
+
+

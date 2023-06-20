@@ -1468,6 +1468,8 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
       // show a (clickable/highlighting) HUD texture - indicating that refinement parameters dialog
       // can be shown (as an overlay)
 
+      std::cout << "here in draw_hud_refinement_dialog_arrow_tab() B " << std::endl;
+
       auto get_munged_offset_and_scale =  [] (HUDTextureMesh::screen_position_origins_t spo,
                                               const glm::vec2 &offset_natural,
                                               float scale_x_natural, float scale_y_natural,
@@ -1502,8 +1504,10 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
 
       glDisable(GL_DEPTH_TEST);
       if (hud_refinement_dialog_arrow_is_moused_over) {
+         std::cout << "hud_refinement_dialog_arrow_is_moused_over " << std::endl;
          texture_for_hud_refinement_dialog_arrow_highlighted.Bind(0);
       } else {
+         std::cout << "hud_refinement_dialog_arrow_is_moused_over not " << std::endl;
          texture_for_hud_refinement_dialog_arrow.Bind(0);
       }
 
@@ -4093,7 +4097,6 @@ graphics_info_t::draw_hud_geometry_tooltip() {
 
 void
 graphics_info_t::draw_hud_elements() {
-
 
    draw_hud_ligand_view();
 
