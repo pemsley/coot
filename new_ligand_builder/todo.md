@@ -6,11 +6,6 @@
   * Rework "appendix": draw _"NH2+"_ and so on
   * Bond Geometry
   * Different display options?
-* Find a way to prevent molecules from flying around as they are being edited
-  * Perhaps RDKit lowering should be split into two separate operations that are carried out when appropriate
-    * Computing structure (atoms and bonds)
-    * Managing coordinates
-  * Maybe there's a way to preserve the spatial orientation of RDKit conformers
 * Display SMILES
 * Implement geometry tool
 * File->New 
