@@ -363,7 +363,7 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
     const RDGeom::INT_POINT2D_MAP* previous_coordinate_map = nullptr;
 
     if (this->last_atom_coordinate_map.has_value()) {
-        g_debug("Computing 2D coords using a reference");
+        // g_debug("Computing 2D coords using a reference");
         const RDGeom::INT_POINT2D_MAP& prev_coord_map_ref = this->last_atom_coordinate_map.value();
         previous_coordinate_map = &prev_coord_map_ref;
     } else {
