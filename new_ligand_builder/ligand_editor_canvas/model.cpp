@@ -283,6 +283,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
 
 CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
     this->rdkit_molecule = std::move(rdkit_mol);
+    this->last_atom_coordinate_map = std::nullopt;
     this->lower_from_rdkit();
     this->x_canvas_size_adjustment = 0;
     this->y_canvas_size_adjustment = 0;
@@ -353,18 +354,22 @@ RDKit::Bond::BondType CanvasMolecule::bond_type_to_rdkit(CanvasMolecule::BondTyp
 }
 
 
-RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() {
+RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
+    // The following code is heavily based on RDKit documentation.
     
-    // 2.1 Get geometry info
-
     // Maps atom indices to 2D points
     RDGeom::INT_POINT2D_MAP coordinate_map;
 
-    // The following code is based on RDKit documentation.
-    // In fact, it's almost a copy-paste.
-    // I'm not exactly sure if what I did here is the most optimal solution
-    // but it seems to work.
-    RDDepict::compute2DCoords(*this->rdkit_molecule,nullptr,true,true);
+    const RDGeom::INT_POINT2D_MAP* previous_coordinate_map = nullptr;
+
+    if (this->last_atom_coordinate_map.has_value()) {
+        g_debug("Computing 2D coords using a reference");
+        const RDGeom::INT_POINT2D_MAP& prev_coord_map_ref = this->last_atom_coordinate_map.value();
+        previous_coordinate_map = &prev_coord_map_ref;
+    } else {
+        g_info("Computing fresh 2D coords (without previous reference).");
+    }
+    RDDepict::compute2DCoords(*this->rdkit_molecule,previous_coordinate_map,true,true);
 
 
     RDKit::MatchVectType matchVect;
@@ -390,7 +395,7 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() {
 }
 
 void CanvasMolecule::process_bond_alignment_in_rings() {
-    
+
     const auto& rings = this->rdkit_molecule->getRingInfo();
     for(const auto& ring: rings->atomRings()) {
         float ring_center_x = 0.f;
@@ -553,6 +558,7 @@ void CanvasMolecule::lower_from_rdkit() {
 
     // 2.2 Build internal repr
     this->build_internal_molecule_representation(geometry);    
+    this->last_atom_coordinate_map = std::move(geometry);
 
     // todo: make this optional
     // 2.3 Reverse kekulization on the original molecule after lowering.

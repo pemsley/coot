@@ -104,6 +104,12 @@ class CanvasMolecule {
     /// Scale used by the widget
     float canvas_scale;
 
+    /// Coordinate map built in the previous call
+    /// to compute_molecule_geometry()
+    /// stored for reference to maintain alignment 
+    /// when recomputing molecule geometry
+    std::optional<RDGeom::INT_POINT2D_MAP> last_atom_coordinate_map;
+
 
     /// Computes the scale used for drawing
     /// And interfacing with screen coordinates
@@ -112,7 +118,7 @@ class CanvasMolecule {
     /// Uses RDDepict to get molecule depiction & geometry info
     /// 
     /// Part of the lowering process.
-    RDGeom::INT_POINT2D_MAP compute_molecule_geometry();
+    RDGeom::INT_POINT2D_MAP compute_molecule_geometry() const;
 
     /// Builds the drawing-friendly 2D molecule representation
     /// based on geometry computed by RDKit.
