@@ -1,5 +1,6 @@
 # TODO
 
+* Diagnoze and fix the benzene issue
 * Allow nonsensical molecules (preferably with a toggle)
 * Drawing functionality
   * Rework "appendix": draw _"NH2+"_ and so on
