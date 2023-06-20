@@ -339,6 +339,7 @@ CanvasMolecule::BondGeometry CanvasMolecule::bond_geometry_from_rdkit(RDKit::Bon
 
 RDKit::Bond::BondType CanvasMolecule::bond_type_to_rdkit(CanvasMolecule::BondType ty) noexcept {
     switch (ty) {
+        default:
         case BondType::Single:{
             return RDKit::Bond::SINGLE;
         }
@@ -376,7 +377,8 @@ void CanvasMolecule::lower_from_rdkit() {
     if(! RDKit::SubstructMatch(*this->rdkit_molecule, *this->rdkit_molecule, matchVect ) ) {
         throw std::runtime_error("SubstractMatch failed.");
     }
-    RDKit::Conformer &conf = this->rdkit_molecule->getConformer();
+
+    RDKit::Conformer& conf = this->rdkit_molecule->getConformer();
     for(auto mv: matchVect) {
         RDGeom::Point3D pt3 = conf.getAtomPos( mv.first );
         RDGeom::Point2D pt2( pt3.x , pt3.y );
