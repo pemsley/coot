@@ -232,14 +232,14 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             cairo_fill(cr);
         };
 
-        auto process_appendix = [&](const std::string& symbol, const std::optional<std::string>& appendix) -> std::string {
+        auto process_appendix = [&](const std::string& symbol, const std::optional<Atom::Appendix>& appendix) -> std::string {
             std::string ret = symbol;
             if(appendix.has_value()) {
-                for(auto i = appendix.value().begin(); i != appendix.value().end(); i++) {
+                for(auto i = appendix.value().remainder.begin(); i != appendix.value().remainder.end(); i++) {
                     if(std::isdigit(*i)) {
-                        ret += "<span size=\"large\">";
+                        ret += "<sub>";
                         ret.push_back(*i);
-                        ret += "</span>";
+                        ret += "</sub>";
                     } else {
                         ret.push_back(*i);
                     }
@@ -558,10 +558,12 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
         if(canvas_atom.symbol != "H" && (canvas_atom.symbol != "C" || terminus)) {
             //todo: oxygens I guess?
             if(surrounding_hydrogen_count > 0) {
-                canvas_atom.appendix = "H";
+                Atom::Appendix ap;
+                ap.remainder = "H";
                 if(surrounding_hydrogen_count > 1) {
-                    canvas_atom.appendix.value() += std::to_string(surrounding_hydrogen_count);
+                    ap.remainder += std::to_string(surrounding_hydrogen_count);
                 }
+                canvas_atom.appendix = ap;
             }
         }
 

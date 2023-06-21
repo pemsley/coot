@@ -29,9 +29,17 @@ class CanvasMolecule {
     
     struct Atom {
         std::string symbol;
+        
+        /// Appendix represents optional elements that appear after atom's symbol,
+        /// e.g. charge, hydrogens
+        struct Appendix {
+            int charge;
+            /// For CH4, remainder would be "H4"
+            std::string remainder;
+        };
         /// Appendix is set when we draw groups.
-        /// For CH4, the appendix would be "H4"
-        std::optional<std::string> appendix;
+        /// For SO2-, the appendix would be "O2-"
+        std::optional<Appendix> appendix;
         AtomColor color;
         /// Position on canvas (x axis)
         float x;
