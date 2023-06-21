@@ -644,7 +644,7 @@ void CanvasMolecule::update_cached_atom_coordinate_map_after_atom_removal(unsign
         auto highest_id = coordinate_map.crbegin()->first;
 
         std::vector<std::pair<int,RDGeom::Point2D>> altered_elements;
-        altered_elements.reserve(highest_id - removed_atom_idx);
+        altered_elements.reserve(highest_id - removed_atom_idx + 1);
 
         for(auto i = coordinate_map.upper_bound(removed_atom_idx);i != coordinate_map.end(); i++) {
             altered_elements.push_back(std::make_pair(i->first - 1,i->second));
