@@ -628,30 +628,45 @@ void CanvasMolecule::clear_cached_atom_coordinate_map() {
 void CanvasMolecule::update_cached_atom_coordinate_map_after_atom_removal(unsigned int removed_atom_idx) {
     if (this->cached_atom_coordinate_map.has_value()) {
         auto& coordinate_map = this->cached_atom_coordinate_map.value();
-
+        // There's no point in working with an empty cache.
+        // Might as well delete it.
         if (coordinate_map.empty()) {
+            this->cached_atom_coordinate_map = std::nullopt;
             return;
         }
         auto to_be_removed = coordinate_map.find(removed_atom_idx);
         if (to_be_removed == coordinate_map.end()) {
+            g_warning("Atom to be removed (idx=%u) does not exist in the cached coordinate map!",removed_atom_idx);
             return;
         }
+        // We can now remove the atom from the cache.
         coordinate_map.erase(to_be_removed);
-
+        // If that was the only atom in the cache, let's get rid of the cache.
         if (coordinate_map.empty()) {
+            this->cached_atom_coordinate_map = std::nullopt;
             return;
         }
-        auto highest_id = coordinate_map.crbegin()->first;
-
+        // After the atom has been removed, all of the indices which are
+        // greater than its' index have to be decremented.
+        //
+        // Now, I don't want to mess around with iterator invalidation.
+        // So the easiest course of action is to just copy away all 
+        // of the affected elements, change them, remove them from the original map
+        // and put them back there again.
         std::vector<std::pair<int,RDGeom::Point2D>> altered_elements;
-        altered_elements.reserve(highest_id - removed_atom_idx + 1);
 
+        // This is the highest index AFTER the atom has been removed from the cache.
+        // The only reason we get it is that we can make a smart allocation for our vector.
+        auto highest_idx = coordinate_map.crbegin()->first;
+        // Allocate all the space that we might need
+        altered_elements.reserve(highest_idx - removed_atom_idx + 1);
+        // Get the affected elements, copy them over to the vector, with decreased indices
         for(auto i = coordinate_map.upper_bound(removed_atom_idx);i != coordinate_map.end(); i++) {
             altered_elements.push_back(std::make_pair(i->first - 1,i->second));
         }
-
+        // Now, remove the original elements from the map
         coordinate_map.erase(coordinate_map.upper_bound(removed_atom_idx),coordinate_map.end());
-
+        // Then put them back again after they've been modified
         for(auto x: std::move(altered_elements)) {
             coordinate_map.emplace(x.first,x.second);
         }
