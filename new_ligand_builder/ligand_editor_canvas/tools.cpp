@@ -301,10 +301,12 @@ void ActiveTool::delete_at(int x, int y) {
             this->widget_data->begin_edition();
             auto [bond_or_atom,molecule_idx] = click_result.value();
             auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
+            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
             RDKit::MolOps::Kekulize(*rdkit_mol.get());
             if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
                 auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
                 rdkit_mol->removeAtom(atom.idx);
+                canvas_mol.update_cached_atom_coordinate_map_after_atom_removal(atom.idx);
                 this->widget_data->update_status("Atom has been deleted.");
             } else { // a bond
                 auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
@@ -312,7 +314,6 @@ void ActiveTool::delete_at(int x, int y) {
                 this->widget_data->update_status("Bond has been deleted.");
             }
             this->sanitize_molecule(*rdkit_mol.get());
-            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
             canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
             this->widget_data->finalize_edition();
         } catch(std::exception& e) {
@@ -497,7 +498,7 @@ void ActiveTool::format_at(int x, int y) {
             this->widget_data->begin_edition();
             auto [bond_or_atom,molecule_idx] = click_result.value();
             auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-            canvas_mol.clear_last_atom_coordinate_map();
+            canvas_mol.clear_cached_atom_coordinate_map();
             canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
             this->widget_data->finalize_edition();
             this->widget_data->update_status("Molecule has been formatted.");

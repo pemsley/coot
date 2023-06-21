@@ -108,7 +108,7 @@ class CanvasMolecule {
     /// to `compute_molecule_geometry()`
     /// stored for reference to maintain alignment 
     /// when recomputing molecule geometry
-    std::optional<RDGeom::INT_POINT2D_MAP> last_atom_coordinate_map;
+    std::optional<RDGeom::INT_POINT2D_MAP> cached_atom_coordinate_map;
 
 
     /// Computes the scale used for drawing
@@ -148,12 +148,16 @@ class CanvasMolecule {
     /// after lowering
     void lower_from_rdkit(bool sanitize_after);
 
-    /// Clears `last_atom_coordinate_map`, 
+    /// Clears `cached_atom_coordinate_map`, 
     /// forcing the subsequent call to `compute_molecule_geometry()`
     /// to determine the shape of the molecule from scratch.
     ///
     /// This is what makes the "Format" tool work.
-    void clear_last_atom_coordinate_map();
+    void clear_cached_atom_coordinate_map();
+
+    /// Updates the `cached_atom_coordinate_map` after an atom has been removed
+    /// in such a way as to prevent the cached molecule geometry from being broken
+    void update_cached_atom_coordinate_map_after_atom_removal(unsigned int removed_atom_idx);
 
     /// Changes the relative placement of the molecule on the screen
     void set_canvas_size_adjustment_from_bounds(const graphene_rect_t *bounds) noexcept;

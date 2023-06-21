@@ -285,7 +285,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
 
 CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
     this->rdkit_molecule = std::move(rdkit_mol);
-    this->last_atom_coordinate_map = std::nullopt;
+    this->cached_atom_coordinate_map = std::nullopt;
     this->lower_from_rdkit(true);
     this->x_canvas_size_adjustment = 0;
     this->y_canvas_size_adjustment = 0;
@@ -365,9 +365,9 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
     // contains atoms which are no longer in the molecule (and thus need to be removed).
     std::unique_ptr<RDGeom::INT_POINT2D_MAP> pruned_previous_coordinate_map = nullptr;
 
-    if (this->last_atom_coordinate_map.has_value()) {
+    if (this->cached_atom_coordinate_map.has_value()) {
         // g_debug("Computing 2D coords using a reference");
-        const RDGeom::INT_POINT2D_MAP& prev_coord_map_ref = this->last_atom_coordinate_map.value();
+        const RDGeom::INT_POINT2D_MAP& prev_coord_map_ref = this->cached_atom_coordinate_map.value();
         previous_coordinate_map = &prev_coord_map_ref;
         // We need to make sure that each atom in the last_atom_coordinate_map still exists in the molecule.
         // If it doesn't, RDDepict::compute2DCoords() throws an exception. We cannot let this happen.
@@ -381,7 +381,7 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
                 // into pruned_previous_coordinate_map and then remove the atom there.
                 if(! pruned_previous_coordinate_map) {
                     // Copy the original coordinate map
-                    pruned_previous_coordinate_map = std::make_unique<RDGeom::INT_POINT2D_MAP>(this->last_atom_coordinate_map.value());
+                    pruned_previous_coordinate_map = std::make_unique<RDGeom::INT_POINT2D_MAP>(this->cached_atom_coordinate_map.value());
                     // Also we need to update the previous_coordinate_map pointer to refer to our pruned map.
                     previous_coordinate_map = pruned_previous_coordinate_map.get();
                 }
@@ -588,7 +588,7 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after) {
 
     // 2.2 Build internal repr
     this->build_internal_molecule_representation(geometry);    
-    this->last_atom_coordinate_map = std::move(geometry);
+    this->cached_atom_coordinate_map = std::move(geometry);
 
     // 2.3 Reverse kekulization on the original molecule after lowering.
     if (sanitize_after) {
@@ -621,6 +621,39 @@ void CanvasMolecule::clear_highlights() {
     }
 }
 
-void CanvasMolecule::clear_last_atom_coordinate_map() {
-    this->last_atom_coordinate_map = std::nullopt;
+void CanvasMolecule::clear_cached_atom_coordinate_map() {
+    this->cached_atom_coordinate_map = std::nullopt;
+}
+
+void CanvasMolecule::update_cached_atom_coordinate_map_after_atom_removal(unsigned int removed_atom_idx) {
+    if (this->cached_atom_coordinate_map.has_value()) {
+        auto& coordinate_map = this->cached_atom_coordinate_map.value();
+
+        if (coordinate_map.empty()) {
+            return;
+        }
+        auto to_be_removed = coordinate_map.find(removed_atom_idx);
+        if (to_be_removed == coordinate_map.end()) {
+            return;
+        }
+        coordinate_map.erase(to_be_removed);
+
+        if (coordinate_map.empty()) {
+            return;
+        }
+        auto highest_id = coordinate_map.crbegin()->first;
+
+        std::vector<std::pair<int,RDGeom::Point2D>> altered_elements;
+        altered_elements.reserve(highest_id - removed_atom_idx);
+
+        for(auto i = coordinate_map.upper_bound(removed_atom_idx);i != coordinate_map.end(); i++) {
+            altered_elements.push_back(std::make_pair(i->first - 1,i->second));
+        }
+
+        coordinate_map.erase(coordinate_map.upper_bound(removed_atom_idx),coordinate_map.end());
+
+        for(auto x: std::move(altered_elements)) {
+            coordinate_map.emplace(x.first,x.second);
+        }
+    }
 }
