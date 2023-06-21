@@ -592,7 +592,7 @@ get_idle_function_rock_target_angle() {
 // Return the molecule number of the molecule that we just filled.
 // Return -1 if there was a failure.
 //
-int handle_read_draw_molecule(std::string &filename) {
+int handle_read_draw_molecule(const std::string &filename) {
 
    int r = graphics_info_t::recentre_on_read_pdb;
    return handle_read_draw_molecule_with_recentre(filename, r);

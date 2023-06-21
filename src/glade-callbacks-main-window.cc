@@ -795,9 +795,8 @@ on_coords_filechooser_dialog_response(GtkDialog       *dialog,
       GError *error = NULL;
       GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
                                                G_FILE_QUERY_INFO_NONE, NULL, &error);
-      const char *fnl = g_file_info_get_name(file_info);
       const char *path = g_file_get_path(file);
-      std::string file_name = coot::util::append_dir_file(path, fnl);
+      std::string file_name(path);
       save_directory_from_filechooser(GTK_WIDGET(dialog));
 
       bool recentre_on_read_pdb_flag = false;
