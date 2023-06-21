@@ -253,7 +253,9 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 if(ap.charge != 0) {
                     ret += "<sup>";
                     unsigned int charge_no_sign = std::abs(ap.charge);
-                    ret += std::to_string(charge_no_sign);
+                    if(charge_no_sign > 1) {
+                        ret += std::to_string(charge_no_sign);
+                    }
                     ret.push_back(ap.charge > 0 ? '+' : '-');
                     ret += "</sup>";
                 }
