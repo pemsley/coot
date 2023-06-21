@@ -295,7 +295,6 @@ void ActiveTool::alter_charge(int x, int y) {
 
 void ActiveTool::delete_at(int x, int y) {
     check_variant(Variant::Delete);
-    g_warning("TODO: Implement ActiveTool::delete_at");
     auto click_result = this->widget_data->resolve_click(x, y);
     if(click_result.has_value()) {
         try{
