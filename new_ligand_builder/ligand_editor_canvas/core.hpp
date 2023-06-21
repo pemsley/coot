@@ -71,6 +71,8 @@ struct WidgetCoreData {
 
     float scale;
 
+    bool allow_invalid_molecules;
+
     /// Does Edit->Undo
     void undo_edition();
 

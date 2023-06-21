@@ -29,6 +29,7 @@ void coot_ligand_editor_canvas_init_impl(CootLigandEditorCanvas* self) {
     self->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>();
     self->state_stack = std::make_unique<impl::WidgetCoreData::StateStack>();
     self->scale = 1.0;
+    self->allow_invalid_molecules = false;
     self->state_stack_pos = -1;
 }
 
@@ -358,3 +359,12 @@ const RDKit::ROMol* coot_ligand_editor_get_rdkit_molecule(CootLigandEditorCanvas
 unsigned int coot_ligand_editor_get_molecule_count(CootLigandEditorCanvas* self) noexcept {
     return self->rdkit_molecules->size();
 }
+
+void coot_ligand_editor_set_allow_invalid_molecules(CootLigandEditorCanvas* self, bool value) noexcept {
+    self->allow_invalid_molecules = value;
+}
+
+bool coot_ligand_editor_get_allow_invalid_molecules(CootLigandEditorCanvas* self) noexcept {
+    return self->allow_invalid_molecules;
+}
+

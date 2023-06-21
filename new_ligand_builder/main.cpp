@@ -258,11 +258,18 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel*
 
 
     GtkWidget* show_alerts_checkbutton = gtk_check_button_new_with_label("Show Alerts");
-    gtk_widget_set_halign(show_alerts_checkbutton,GTK_ALIGN_START);
+    g_signal_connect(show_alerts_checkbutton,"toggled",G_CALLBACK(+[](GtkCheckButton* check_button, gpointer user_data){
+        g_warning("TODO: Implement 'Show Alerts'");
+    }), nullptr);
+    gtk_widget_set_halign(show_alerts_checkbutton, GTK_ALIGN_START);
     gtk_box_append(GTK_BOX(mainbox), show_alerts_checkbutton);
     gtk_widget_set_margin_end(show_alerts_checkbutton, 10);
 
     GtkWidget* invalid_molecule_checkbutton = gtk_check_button_new_with_label("Allow invalid molecules");
+    g_signal_connect(invalid_molecule_checkbutton,"toggled",G_CALLBACK(+[](GtkCheckButton* check_button, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_allow_invalid_molecules(canvas, gtk_check_button_get_active(check_button));
+    }), canvas);
     gtk_widget_set_halign(invalid_molecule_checkbutton, GTK_ALIGN_START);
     gtk_box_append(GTK_BOX(mainbox), invalid_molecule_checkbutton);
     gtk_widget_set_margin_end(invalid_molecule_checkbutton, 10);

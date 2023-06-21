@@ -29,4 +29,7 @@ void coot_ligand_editor_redo_edition(CootLigandEditorCanvas* self) noexcept;
 const RDKit::ROMol* coot_ligand_editor_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept;
 unsigned int coot_ligand_editor_get_molecule_count(CootLigandEditorCanvas* self) noexcept;
 
+void coot_ligand_editor_set_allow_invalid_molecules(CootLigandEditorCanvas* self, bool value) noexcept;
+bool coot_ligand_editor_get_allow_invalid_molecules(CootLigandEditorCanvas* self) noexcept;
+
 #endif // COOT_LIGAND_EDITOR_CANVAS_HPP
