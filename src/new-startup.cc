@@ -8,6 +8,7 @@
 #include "create-menu-item-actions.hh"
 #include "setup-gui-components.hh"
 #include "coot-setup-python.hh"
+#include "utils/coot-utils.hh"
 
 void print_opengl_info();
 
@@ -478,8 +479,16 @@ install_icons_into_theme(GtkWidget *w) {
 
    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(w));
    std::string pkg_data_dir = coot::package_data_dir();
-   std::string icon_dir = coot::util::append_dir_dir(pkg_data_dir, "icons/hicolor/16x16/actions");
-   gtk_icon_theme_add_search_path(icon_theme, icon_dir.c_str());
+   std::string pixmap_dir = coot::util::append_dir_dir(pkg_data_dir, "pixmaps");
+   gtk_icon_theme_add_search_path(icon_theme, pixmap_dir.c_str());
+
+   // This is only necessary when coot is installed in a non-standard location
+   // i.e. other than /usr or ~/.local (or /usr/local perhaps?)
+   // which makes it convenient for testing without system-wide coot installation
+   std::string prefix_dir = coot::prefix_dir();
+   std::string icons_dir = coot::util::append_dir_dir(prefix_dir, "share/icons");
+   gtk_icon_theme_add_search_path(icon_theme, icons_dir.c_str());
+
 }
 
 
@@ -507,9 +516,6 @@ on_go_to_residue_keyboarding_mode_entry_key_controller_key_released(GtkEventCont
       gtk_editable_set_text(GTK_EDITABLE(entry), "");
    }
 }
-
-// in screen-utils.cc
-void setup_application_icon(GtkWindow *window);
 
 void setup_go_to_residue_keyboarding_mode_entry_signals() {
    GtkWidget *entry = widget_from_builder("keyboard_go_to_residue_entry");
@@ -610,7 +616,7 @@ new_startup_application_activate(GtkApplication *application,
    GtkWidget *app_window = gtk_application_window_new(application);
    gtk_window_set_application(GTK_WINDOW(app_window), application);
    gtk_window_set_title(GTK_WINDOW(app_window), window_name.c_str());
-   setup_application_icon(GTK_WINDOW(app_window)); // 20220807-PE not sure what this does in gtk4 or if it works.
+  
    graphics_info_t::set_main_window(app_window);
 
    activate_data->app_window = app_window;
@@ -653,6 +659,9 @@ new_startup_application_activate(GtkApplication *application,
          exit(0);
       }
 
+      install_icons_into_theme(GTK_WIDGET(app_window));
+      gtk_window_set_icon_name(GTK_WINDOW(app_window), "coot");
+
       // the main application builder
 
       // change "glade" to "ui" one day.
@@ -677,9 +686,9 @@ new_startup_application_activate(GtkApplication *application,
       if (coot::file_exists(preferences_ui_file_name))
          preferences_ui_file_name_full = preferences_ui_file_name;
       GtkBuilder *preferences_builder = gtk_builder_new();
-      std::cout << "::::::::::::::::::::::::::::::::::::::::::::: reading " << preferences_ui_file_name_full << std::endl;
+      std::cout << "::::::::::::::::::::::: reading " << preferences_ui_file_name_full << std::endl;
       status = gtk_builder_add_from_file(preferences_builder, preferences_ui_file_name_full.c_str(), &error);
-      std::cout << ":::::::::::::::::::::::::::::::::::::::: done reading " << preferences_ui_file_name_full << std::endl;
+      std::cout << "::::::::::::::::::::::: done reading " << preferences_ui_file_name_full << std::endl;
       if (status == FALSE) {
          std::cout << "ERROR:: Failure to read or parse " << preferences_ui_file_name_full << std::endl;
          std::cout << error->message << std::endl;
@@ -693,11 +702,8 @@ new_startup_application_activate(GtkApplication *application,
       graphics_info.use_graphics_interface_flag = true;
 
 
-      GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
-      graphics_info_t::statusbar = sb;
-      // std::cout << "debug:: statusbar: " << sb << std::endl;
 
-      install_icons_into_theme(GTK_WIDGET(sb));
+      
 
 
       guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
@@ -791,7 +797,6 @@ application_open_callback(GtkApplication *app,
                           gchar          *hint,
                           gpointer        user_data) {
 
-   
    command_line_data cld;
 
    for (gint i=0; i<n_files; i++) {
@@ -802,13 +807,13 @@ application_open_callback(GtkApplication *app,
       if (file_info) {
          const char *file_name = g_file_info_get_name(file_info);
          if (file_name) {
-            std::cout << "Handle " << file_name << std::endl;
+            std::cout << "application_open_callback(): handle " << file_name << std::endl;
             cld.add(std::string(file_name));
          } else {
-            std::cout << "file_name was null " << std::endl;
+            std::cout << "ERROR:: application_open_callback(): file_name was null " << std::endl;
          }
       } else {
-         std::cout << "application_open_callback() error " << i << " " << error->message << std::endl;
+         std::cout << "ERROR:: application_open_callback() error " << i << " " << error->message << std::endl;
       }
    }
 

@@ -1005,12 +1005,13 @@ coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
 				      double percentile_limit) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
+
       // GtkWidget *w = create_ligand_check_dialog();
       GtkWidget *w = widget_from_builder("ligand_check_dialog");
 
-      GtkWidget *mogul_tick_w  = widget_from_builder("image_tick_mogul");
-      GtkWidget *mogul_cross_w = widget_from_builder("image_cross_mogul");
-      GtkWidget *mogul_incom_w = widget_from_builder("image_incomplete_mogul");
+      GtkWidget *mogul_tick_w  = widget_from_builder("image_tick_geometry_distortion");
+      GtkWidget *mogul_cross_w = widget_from_builder("image_cross_geometry_distortion");
+      GtkWidget *mogul_incom_w = widget_from_builder("image_incomplete_geometry_distortion");
 
       GtkWidget *density_tick_w  = widget_from_builder("image_tick_density");
       GtkWidget *density_cross_w = widget_from_builder("image_cross_density");

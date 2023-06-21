@@ -421,7 +421,7 @@ bool renumber_residues_from_widget(GtkWidget *window) {
       mmdb::Chain *chain_p = graphics_info_t::molecules[imol].get_chain(chain_id);
 
       if (chain_p) {
-	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rb1))) {
+	 if (gtk_check_button_get_active(GTK_CHECK_BUTTON(rb1))) {
 	    // use N-terminus of chain
 	    std::pair<bool, int> nt_resno = coot::util::min_resno_in_chain(chain_p);
 	    if (nt_resno.first) {
@@ -430,7 +430,7 @@ bool renumber_residues_from_widget(GtkWidget *window) {
 	    }
 	 }
 
-	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rb4))) {
+	 if (gtk_check_button_get_active(GTK_CHECK_BUTTON(rb4))) {
 	    // use C-terminus of chain
 	    std::pair<bool, int> ct_resno = coot::util::max_resno_in_chain(chain_p);
 	    if (ct_resno.first) {

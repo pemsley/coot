@@ -104,7 +104,7 @@ void setup_python_basic(int argc, char **argv) {
    std::string pkgpydirectory = get_pkgpythondir();
    std::string    pydirectory = get_pythondir();
 
-   if (false) {
+   if (true) {
       std::cout << "debug:: in setup_python()    pydirectory is " << pydirectory << std::endl;
       std::cout << "debug:: in setup_python() pkgpydirectory is " << pkgpydirectory << std::endl;
    }

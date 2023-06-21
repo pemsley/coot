@@ -187,9 +187,16 @@ class molecules_container_t {
    static void atom_pull_off(const coot::atom_spec_t &spec);
    static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
    std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::Residue *> > &local_residues) const;
-   //! this is like mini-rsr:
-   //! @return success status
-   int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc);
+
+   //! Real space refinement.
+   //!
+   //! the `n_cycles` parameter allows partial refinement - so for an animated representation one would call this
+   //! with a small number (10, 20, 100?) and call it again if the refine status is still yet to reach completion
+   //! GSL_CONTINUE (-2). And then make a call to get the bonds mesh (or other molecular representation).
+   //! If n_cycles is negative, this means "refine to completion."
+   //!
+   //! @return success/progress status
+   int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc, int n_cycles);
 
    double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
 
@@ -727,6 +734,10 @@ public:
    //! @return the index of the new map - or -1 on failure
    int mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &cid, bool invert_flag);
 
+   //! generate a new map which is the hand-flipped version of the input map.
+   //! @return the molecule index of the new map, or -1 on failure.
+   int flip_hand(int imol_map);
+
    //! Make a vector of maps that are split by chain-id of the input imol
    //! @return a vector of the map molecule indices.
    std::vector<int> make_masked_maps_split_by_chain(int imol, int imol_map);
@@ -894,6 +905,15 @@ public:
    //! copy a fragment
    //! @return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_using_cid(int imol, const std::string &cid);
+
+   //! copy a fragment - use this in preference to `copy_fragment_using_cid()` when copying
+   //! a molecule fragment to make a molten zone for refinement.
+   //! That is because this version quietly also copies the residues near the residues of the selection.
+   //! so that those residues can be used for links and non-bonded contact restraints.
+   //! `multi_cids" is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
+   //! @return the new molecule number (or -1 on no atoms selected)
+   int copy_fragment_for_refinement_using_cid(int imol, const std::string &multi_cid);
+
    //! copy a residue-range fragment
    //! @return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_using_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end);
@@ -950,14 +970,52 @@ public:
    //
    //! ``mode`` is one of {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
-   int refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode);
+   int refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode, int n_cycles);
    //! refine the residues
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
-                       const std::string &alt_conf, const std::string &mode);
+                       const std::string &alt_conf, const std::string &mode, int n_cycles);
    //! refine residue range
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
-   int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end);
+   int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end, int n_cycles);
+
+   //! fix atoms during refinement. Does nothing at the moment.
+   void fix_atom_selection_during_refinement(int imol, const std::string &atom_selection_cid);
+
+   //! add or update (if it has a pull restraint already)
+   void add_target_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
+
+   //! clear target_position restraint
+   void clear_target_position_restraint(int imol, const std::string &atom_cid);
+
+   //! clear target_position restraint if it is (or they are) close to their target position
+   void turn_off_when_close_target_position_restraint(int imol);
+
+   //! initialise the refinement of (all of) molecule `imol_frag`
+   void init_refinement_of_molecule_as_fragment_based_on_reference(int imol_frag, int imol_ref, int imol_map);
+
+   //! Run some cycles of refinement and return a mesh.
+   //! That way we can see the molecule animate as it refines
+   //! @return a pair: the first of which is the status of the refinement: GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress).
+   //! i.e. don't call thus function again unless the status is GSL_CONTINUE (-2);
+   //! The second is a `coot::instanced_mesh_t`
+   std::pair<int, coot::instanced_mesh_t> refine(int imol, int n_cycles);
+
+   //! Create a new position for the given atom and create a new bonds mesh based on that.
+   //! This is currently "heavyweight" as the bonds mesh is calculated from scratch (it is not (yet) merely a distortion
+   //! of an internally-stored mesh).
+   //! `n_cycles` specifies the number of refinement cyles to run after the target position of the atom has been applied.
+   //! If n_cycles is -1 then, no cycles are done and the mesh is bonds merely calculated.
+   //! @return a `coot::instanced_mesh_t`
+   coot::instanced_mesh_t add_target_position_restraint_and_refine(int imol, const std::string &atom_cid,
+                                                                   float pos_x, float pos_y, float pos_z,
+                                                                   int n_cycles);
+   //! clear any and all drag-atom target position restraints
+   void clear_target_position_restraints(int imol);
+
+   //! call this after molecule refinement has finished (say when the molecule molecule is accepted into the
+   //! original molecule)
+   void clear_refinement(int imol);
 
    //! for debugging the refinement - write out some diagnositics - some might be useful
    void set_refinement_is_verbose() { refinement_is_quiet = false; }
@@ -1276,7 +1334,7 @@ public:
                                                         const std::string &style);
    PyObject *get_pythonic_gaussian_surface_mesh(int imol, float sigma, float contour_level,
                                                 float box_radius, float grid_scale);
-   
+
    //! @return a pair - the first of which (index 0) is the list of atoms, the second (index 1) is the list of bonds.
    //! An atom is a list:
    //!

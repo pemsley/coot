@@ -21,7 +21,11 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)
 
+# now dodec.cc uses clipper, so we need to include the headers for
+# that and link with clipper libs
+
 AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS) \
+	$(CLIPPER_CXXFLAGS)	     \
 	$(GLOB_CFLAGS)		     \
 	-DPKGDATADIR='"$(pkgdatadir)"'
 
@@ -38,6 +42,7 @@ libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc \
 	pir-alignment.cc split-indices.cc radix.cc logging.cc insertion-sort.cc colour-holder.cc
 
 libcoot_utils_la_LIBADD = \
+	$(CLIPPER_LIBS) \
 	$(GLOB_LIBS)
 
 
@@ -47,7 +52,8 @@ endif
 
 # This is set in configure.
 if BACKWARD_HAS_DW
-libcoot_utils_la_LIBADD += -ldw
+libcoot_utils_la_LIBADD += $(LIBDW_LIBS)
+AM_CPPFLAGS += $(LIBDW_CFLAGS) -DBACKWARD_HAS_DW=1
 endif
 
 libcoot_utils_la_LDFLAGS = $(SHARED_LDFLAGS)

@@ -60,7 +60,7 @@
 #include "utils/coot-utils.hh"
 #include "coot-hydrogens.hh"
 
-#include "rama_plot.hh"
+#include "rama_plot_with_canvas.hh"
 
 
 // 1: success
@@ -528,6 +528,8 @@ molecule_class_info_t::get_vector(const coot::residue_spec_t &central_residue_sp
    return r;
 }
 
+#include "coot-phi-psi.hh" // 20230611-PE new header
+
 void
 molecule_class_info_t::match_ligand_atom_names(const std::string &chain_id, int res_no, const std::string &ins_code,
 					       mmdb::Residue *res_ref) {
@@ -547,9 +549,100 @@ molecule_class_info_t::match_ligand_atom_names(const std::string &chain_id, int 
    }
 }
 
-
 coot::rama_score_t
 molecule_class_info_t::get_all_molecule_rama_score() const {
+
+   G_GNUC_UNUSED auto debug_the_probabilities = [] () {
+      clipper::Ramachandran rama;
+      ftype level_prefered = graphics_info_t::rama_level_prefered;
+      ftype level_allowed  = graphics_info_t::rama_level_allowed;
+      rama.init(clipper::Ramachandran::All2); // needs adjustment
+      rama.set_thresholds(level_prefered, level_allowed);
+
+      std::ofstream f_out("debug-rama.table");
+
+      for (int i_phi= -180; i_phi<=180; i_phi++) {
+         for (int i_psi= -180; i_psi<=180; i_psi++) {
+            double phi = i_phi;
+            double psi = i_psi;
+            ftype p = rama.probability(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
+            f_out << "phi " << phi << " psi " << psi << " pr " << p << "\n";
+         }
+      }
+      f_out.close();
+   };
+   
+   // debug_the_probabilities();
+
+   coot::rama_score_t rs;
+
+   ftype level_prefered = graphics_info_t::rama_level_prefered;
+   ftype level_allowed  = graphics_info_t::rama_level_allowed;
+
+   // 20230608-PE Clipper does have TOP8000 by now - I am not going to test for it.
+   //
+   clipper::Ramachandran r_gly, r_pro, r_non_gly_pro, r_all;
+   clipper::Ramachandran r_ileval, r_pre_pro, r_non_gly_pro_pre_pro_ileval;
+   r_gly.init(clipper::Ramachandran::Gly2);
+   r_gly.set_thresholds(level_prefered, level_allowed);
+   //
+   r_pro.init(clipper::Ramachandran::Pro2);
+   r_pro.set_thresholds(level_prefered, level_allowed);
+   //
+   // as usual we make a first approximation and add some new ones...
+   r_non_gly_pro.init(clipper::Ramachandran::NoGPIVpreP2);
+   r_non_gly_pro.set_thresholds(level_prefered, level_allowed);
+   //
+   r_ileval.init(clipper::Ramachandran::IleVal2);
+   r_ileval.set_thresholds(level_prefered, level_allowed);
+   //
+   r_pre_pro.init(clipper::Ramachandran::PrePro2);
+   r_pre_pro.set_thresholds(level_prefered, level_allowed);
+   //
+   r_non_gly_pro_pre_pro_ileval.init(clipper::Ramachandran::NoGPIVpreP2);
+   r_non_gly_pro_pre_pro_ileval.set_thresholds(level_prefered, level_allowed);
+   //
+   r_all.init(clipper::Ramachandran::All2);
+   r_all.set_thresholds(level_prefered, level_allowed);
+
+   int n_models = atom_sel.mol->GetNumberOfModels();
+   for (int imod=1; imod<=n_models; imod++) {
+
+      coot::phi_psis_for_model_t pp(atom_sel.mol, imod);
+      std::map<coot::residue_spec_t, coot::util::phi_psi_with_residues_t>::const_iterator it;
+      for (it=pp.phi_psi.begin(); it!=pp.phi_psi.end(); ++it) {
+         const auto &residue_spec = it->first;
+         const auto &ppr = it->second;
+         mmdb::Residue *residue_p = get_residue(residue_spec);
+         if (residue_p) {
+            // there seems to be a problem here of using the correct rama...
+            clipper::Ramachandran *rama_p = &r_non_gly_pro;
+            if (ppr.is_pre_pro()) rama_p = &r_pre_pro;
+            if (ppr.residue_name() == "GLY") rama_p = &r_gly;
+            if (ppr.residue_name() == "PRO") rama_p = &r_pro;
+            if (ppr.residue_name() == "ILE") rama_p = &r_ileval;
+            if (ppr.residue_name() == "VAL") rama_p = &r_ileval;
+
+            double phi = ppr.phi();
+            double psi = ppr.psi();
+            ftype p = rama_p->probability(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi));
+            coot::rama_score_t::scored_phi_psi_t scored_phi_psi(residue_spec, p, ppr);
+            scored_phi_psi.set_residues(it->second);
+            rs.scores.push_back(scored_phi_psi);
+            if (false)
+               std::cout << "debug:: get_all_molecule_rama_score() added " << residue_spec
+                         << " phi " << phi << " psi " << psi << " "
+                         << ppr.residue_name() << " " << ppr.is_pre_pro() << " pr: " << p << std::endl;
+         }
+      }
+   }
+
+   return rs;
+}
+
+
+coot::rama_score_t
+molecule_class_info_t::get_all_molecule_rama_score_old() const {
 
    coot::rama_score_t rs;
 
@@ -1677,6 +1770,31 @@ molecule_class_info_t::all_residues() const {
    }
    return r;
 }
+
+std::vector<mmdb::Residue *>
+molecule_class_info_t::get_all_protein_residues() const {
+
+   std::vector<mmdb::Residue *> v;
+
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               v.push_back(residue_p);
+            }
+         }
+      }
+   }
+
+   return v;
+}
+
 
 
 std::vector<coot::residue_spec_t>

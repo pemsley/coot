@@ -20,13 +20,13 @@ PyObject *c_beta_deviations_py(int imol) {
 	 // PyObject *dict_py = PyDict_New();
 	 PyObject *outer_list_py = PyList_New(residue_c_beta_map.size());
 	 unsigned int counter = 0;
-	 for (it=residue_c_beta_map.begin(); it!=residue_c_beta_map.end(); it++) {
+	 for (it=residue_c_beta_map.begin(); it!=residue_c_beta_map.end(); ++it) {
 	    // multiple alt confs
 	    mmdb::Residue *res_key = it->first;
 	    const std::map<std::string, coot::c_beta_deviation_t> &value_map = it->second;
 	    std::map<std::string, coot::c_beta_deviation_t>::const_iterator it_inner;
 	    PyObject *map_dict_py = PyDict_New();
-	    for (it_inner=value_map.begin(); it_inner!=value_map.end(); it_inner++) {
+	    for (it_inner=value_map.begin(); it_inner!=value_map.end(); ++it_inner) {
 	       const std::string alt_conf_key = it_inner->first;
 	       const coot::c_beta_deviation_t &cbd = it_inner->second;
 	       PyDict_SetItemString(map_dict_py,

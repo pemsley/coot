@@ -1027,8 +1027,7 @@ void hydrogenate_region(float radius) {
    if (pp.first) {
       int imol = pp.second.first;
       coot::residue_spec_t central_residue(pp.second.second);
-      std::cout << "----------- hydrogenating " << central_residue
-                << " in " << imol << std::endl;
+      std::cout << "----------- hydrogenating " << central_residue << " in " << imol << std::endl;
       coot::residue_spec_t res_spec(pp.second.second);
       std::vector<coot::residue_spec_t> v =
          graphics_info_t::molecules[imol].residues_near_residue(res_spec, radius);
@@ -1038,7 +1037,6 @@ void hydrogenate_region(float radius) {
       if (new_mol) {
 
          coot::util::create_directory("coot-molprobity"); // exists already maybe? Handled.
-
          std::string name_part = graphics_info_t::molecules[imol].Refmac_name_stub() + ".pdb";
 
          std::string pdb_in_file_name  = "hydrogenate-region-in-"  + name_part;
@@ -1052,22 +1050,30 @@ void hydrogenate_region(float radius) {
          if (graphics_info_t::prefer_python) {
 #ifdef USE_PYTHON
 
-            std::string python_command = "reduce_on_pdb_file_no_flip(";
-            python_command += coot::util::int_to_string(imol);
-            python_command += ", ";
-            python_command += single_quote(pdb_in);
-            python_command += ", ";
-            python_command += single_quote(pdb_out);
-            python_command += ")";
-
-            PyObject *r = safe_python_command_with_return(python_command);
-            std::cout << "::: safe_python_command_with_return() returned " << r << std::endl;
-            std::cout << "::: safe_python_command_with_return() returned "
-                      << PyBytes_AS_STRING(PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(r)))) << std::endl;
-            if (r == Py_True) {
-               std::cout << "........ calling add_hydrogens_from_file() with pdb_out "
-                         << pdb_out << std::endl;
-               graphics_info_t::molecules[imol].add_hydrogens_from_file(pdb_out);
+            graphics_info_t g;
+            short int lang = coot::STATE_PYTHON;
+            std::string module = "generic_objects";
+            std::string function = "reduce_on_pdb_file_no_flip";
+            std::vector<coot::command_arg_t> args = {
+               coot::command_arg_t(imol), pdb_in, pdb_out };
+            std::string sc = g.state_command(module, function, args, lang);
+            safe_python_command("import generic_objects");
+            PyObject *r = safe_python_command_with_return(sc);
+            std::cout << "::: A safe_python_command_with_return() returned " << r << std::endl;
+            if (r)
+               std::cout << "::: B safe_python_command_with_return() returned "
+                         << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(r))) << std::endl;
+            // 20230605-PE frustratingly the return value is None, even though I expect it to
+            // be true. So just ignore this test for now.
+            // if (r == Py_True) {
+            if (true) {
+               if (coot::file_exists(pdb_out)) {
+                  std::cout << "DEBUG:: calling add_hydrogens_from_file() with pdb_out "
+                            << pdb_out << std::endl;
+                  graphics_info_t::molecules[imol].add_hydrogens_from_file(pdb_out);
+               } else {
+                  std::cout << "WARNING:: file does not exist " << pdb_out << std::endl;
+               }
             }
             Py_XDECREF(r);
 

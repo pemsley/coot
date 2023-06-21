@@ -397,6 +397,8 @@ void
 HUDTextureMesh::draw_label(const std::string &label, glm::vec4 &text_colour, Shader *shader_p,
                            const std::map<GLchar, FT_character> &ft_characters) {
 
+   // std::cout << "debug:: draw_label() \"" << label << "\"" << std::endl;
+
    if (! draw_this_mesh) return;
    unsigned int n_triangles = triangles.size();
    unsigned int n_vertices = vertices.size();
@@ -421,7 +423,7 @@ HUDTextureMesh::draw_label(const std::string &label, glm::vec4 &text_colour, Sha
                       << err << std::endl;
 
    if (false) {
-      std::cout << "sending scales " << glm::to_string(scales) << std::endl;
+      std::cout << "sending scales "   << glm::to_string(scales)   << std::endl;
       std::cout << "sending position " << glm::to_string(position) << std::endl;
    }
    shader_p->set_vec2_for_uniform("position", position);
@@ -433,12 +435,12 @@ HUDTextureMesh::draw_label(const std::string &label, glm::vec4 &text_colour, Sha
    if (err) std::cout << "error:: HUDTextureMesh::draw_atom_label() A3 " << err << std::endl;
 
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id); // needed?
-   err = glGetError(); if (err) std::cout << "error HUDTextureMesh::draw_label() glBindBuffer() v "
-                                          << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "error HUDTextureMesh::draw_label() glBindBuffer() v " << err << std::endl;
 
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id); // needed?
-   err = glGetError(); if (err) std::cout << "error HUDTextureMesh::draw_label() glBindBuffer() i "
-                                          << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "error HUDTextureMesh::draw_label() glBindBuffer() i " << err << std::endl;
 
    glEnableVertexAttribArray(0);  // vertex
    glEnableVertexAttribArray(1);  // texCoord

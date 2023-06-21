@@ -43,7 +43,7 @@
 #include "utils/coot-utils.hh" // int to string
 #include "utils/win-compat.hh"  // for fix_font
 
-#include "rama_plot.hh" // has gtk/gtk.h which interface.h needs
+#include "rama_plot_with_canvas.hh" // has gtk/gtk.h which interface.h needs
 
 #include <goocanvas.h>
 

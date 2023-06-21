@@ -5019,9 +5019,15 @@ graphics_info_t::place_typed_atom_at_pointer(const std::string &type) {
 
    if (is_valid_model_molecule(imol)) {
       if (molecules[imol].is_displayed_p()) {
-         molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
+         std::pair<bool, std::string > status_mess =
+            molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
          update_environment_distances_by_rotation_centre_maybe(imol);
          graphics_draw();
+         if (status_mess.first == false) {
+            std::string m = "WARNING:: disallowed ";
+            m += status_mess.second;
+            info_dialog(m);
+         }
       } else {
          std::string message = "WARNING:: disallowed addition of ";
          message += type;
@@ -5912,6 +5918,7 @@ graphics_info_t::auto_fit_rotamer_ng(int imol, const coot::residue_spec_t &res_s
       update_geometry_graphs(&residue_p, 1, imol, imol_map); // yikes!
       std::cout << "Fitting score for best rotamer: " << f << std::endl;
       graphics_draw();
+      run_post_manipulation_hook(imol, 0);
    } else {
       show_select_map_dialog();
    }

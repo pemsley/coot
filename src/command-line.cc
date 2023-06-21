@@ -517,7 +517,7 @@ command_line_data::add(const std::string &file_name) {
    if (extension == ".scm")
       script.push_back(file_name);
 
-   if (false)
+   if (extension == ".cif")
       std::cout << ":::::::::::::::::::::::::: is_dictionary " << file_name
                 << " " << is_dictionary(file_name) << std::endl;
 

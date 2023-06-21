@@ -146,6 +146,8 @@ text(89, 25., labels="Moorhen", col='grey30', cex=1.0)
 betterArrow(280, 10, 260, 15, 0.2, col='grey30', code=2)
 text(290, 5, labels="Validation\nGraphs", col='grey30', cex=1.0)
 
+betterArrow(280, 110, 303, 102, 0.2, col='grey30', code=2)
+text(236, 112, labels="Ligand Menu", col='grey30', cex=1.0)
 
 # text(43, 9., labels="Illness", col='grey', cex=1.0)
 

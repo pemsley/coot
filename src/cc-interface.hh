@@ -862,6 +862,12 @@ void hydrogenate_region(float radius);
 //! \brief Add hydrogens to imol from the given pdb file
 void add_hydrogens_from_file(int imol, std::string pdb_with_Hs_file_name);
 
+//! \brief add hydrogen atoms to the specified residue
+void add_hydrogen_atoms_to_residue(int imol, std::string chain_id, int res_no, std::string ins_code);
+
+//! \brief add hydrogen atoms to the specified residue
+void add_hydrogen_atoms_to_residue_py(int imol, PyObject *residue_spec_py);
+
 /* Here the Python code for ATOM INFO */
 
 //! \brief output atom info in a python list for use in scripting:
@@ -1291,10 +1297,10 @@ int mutate_internal(int ires, const char *chain_id,
 /* a function for multimutate to make a backup and set
    have_unsaved_changes_flag themselves */
 
-// \brief mutate active residue to single letter code slc
+//! \brief mutate active residue to single letter code slc
 void mutate_active_residue_to_single_letter_code(const std::string &slc);
 
-// \brief show keyboard mutate dialog
+//! \brief show keyboard mutate dialog
 void show_keyboard_mutate_dialog();
 
 /*  ----------------------------------------------------------------------- */
@@ -1303,6 +1309,10 @@ void show_keyboard_mutate_dialog();
 coot::graph_match_info_t
 overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref,
                          int resno_ref, bool apply_rtop_flag);
+
+//! \brief display the SMILES entry. This is the simple version - no dictionary
+//! is generated.
+void do_smiles_to_simple_3d_overlay_frame();
 
 
 /*  ----------------------------------------------------------------------- */

@@ -3,6 +3,7 @@
 #include "graphics-info.h"
 #include "c-interface-gtk-widgets.h"
 #include "setup-gui-components.hh"
+#include "utils/coot-utils.hh"
 #include "widget-from-builder.hh"
 
 // this function is both defined and implemented here.
@@ -23,7 +24,7 @@ void setup_menubuttons() {
    GtkWidget* add_module_menubutton = widget_from_builder("add_module_menubutton");
    GMenuModel *modules_menu = menu_model_from_builder("modules-menu");
    gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(add_module_menubutton), modules_menu);
-   
+
    // toolbar button - connect the refine menu to the GtkMenuButton
    GtkWidget *refine_menubutton = widget_from_builder("refine_menubutton");
    GMenuModel *refine_menu = menu_model_from_builder("refine-menu");
@@ -62,12 +63,27 @@ void setup_menubuttons() {
    add_typed_menu_to_mutate_menubutton("PROTEIN");
 }
 
-gboolean generic_hide_on_escape_controller_cb(
-      GtkEventControllerKey  *controller,
-      guint                  keyval,
-      guint                  keycode,
-      GdkModifierType        modifiers,
-      GtkWidget              *to_be_hidden) {
+void setup_mutate_residue_range_dialog() {
+
+   auto callback_func = +[] (GtkTextBuffer* buf, gpointer user_data) {
+        std::cout << "on_mutate_molecule_sequence_text:buffer:changed --- start --- " << std::endl;
+        GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
+        GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
+        GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");
+        GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
+        mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+   };
+
+   GtkWidget* mutate_molecule_sequence_text = widget_from_builder("mutate_molecule_sequence_text");
+   GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(mutate_molecule_sequence_text));
+   g_signal_connect(buffer, "changed", G_CALLBACK(callback_func), nullptr);
+}
+
+gboolean generic_hide_on_escape_controller_cb(GtkEventControllerKey  *controller,
+                                              guint                  keyval,
+                                              guint                  keycode,
+                                              GdkModifierType        modifiers,
+                                              GtkWidget              *to_be_hidden) {
    gboolean handled = TRUE;
    switch (keyval) {
       case GDK_KEY_Escape: {
@@ -135,7 +151,7 @@ void attach_css_style_class_to_overlays() {
       GtkStyleContext *context = gtk_widget_get_style_context(widget);
       gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
       gtk_style_context_add_class (context, "mainWindowOverlayChild");
-      g_debug("'mainWindowOverlayChild' CSS class set for: %p",widget);
+      g_debug("'mainWindowOverlayChild' CSS class set for: %p %s",widget,G_OBJECT_CLASS_NAME(widget));
    };
 
    GtkWidget* overlay = widget_from_builder("main_window_graphics_overlay");
@@ -332,15 +348,74 @@ void setup_python_scripting_entry() {
    add_python_scripting_entry_completion(entry);
 }
 
+void set_vertical_toolbar_internal_alignment() {
+   GtkWidget *toolbar = widget_from_builder("main_window_vbox_inner");
+   for(GtkWidget* child = gtk_widget_get_first_child(toolbar); 
+       child != nullptr; 
+       child = gtk_widget_get_next_sibling(child)) {
+         // No need to do this for plain buttons.
+         if(!(GTK_IS_MENU_BUTTON(child)||GTK_IS_TOGGLE_BUTTON(child))) {
+            g_debug("set_vertical_toolbar_internal_alignment: Skippping toolbar item %p of type %s.",child,G_OBJECT_TYPE_NAME(child));
+            continue;
+         }
+         GtkWidget* target = nullptr;
+         if(GTK_IS_MENU_BUTTON(child)) {
+#if GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 6
+            target = gtk_menu_button_get_child(GTK_MENU_BUTTON(child));
+#endif
+         } else {
+            target = gtk_button_get_child(GTK_BUTTON(child));
+         }
+         if(!target) {
+            g_debug("set_vertical_toolbar_internal_alignment: Skippping toolbar item %p of type %s because its' \"child\" property is not set.",
+            child,G_OBJECT_TYPE_NAME(child));
+            continue;
+         }
+         // This is a hack. The parent that we get isn't our button but an internal GtkBox 
+         // which is designated for storing GtkButton's 'child' widget.
+         //
+         // Unfortunately, currently there seems to be no other way to set this.
+         // Gtk4 removed the necessary APIs.
+         GtkWidget* parent_widget = gtk_widget_get_parent(target);
+         if(!GTK_IS_BOX(parent_widget)) {
+            if(GTK_IS_BOX(target)) {
+               g_warning("set_vertical_toolbar_internal_alignment: Toolbar item %p of type %s: "
+               "The parent widget that wraps %s::child is not a GtkBox but a %s. "
+               "%s::child however is a GtkBox. Attempt will be made to align it. It might not work.",
+               child,G_OBJECT_TYPE_NAME(child),G_OBJECT_TYPE_NAME(child),G_OBJECT_TYPE_NAME(parent_widget),G_OBJECT_TYPE_NAME(child));
+               parent_widget = target;
+            } else {
+               g_warning("set_vertical_toolbar_internal_alignment: Skippping toolbar item %p of type %s: "
+               "The parent widget that wraps %s::child is not a GtkBox but a %s",
+               child,G_OBJECT_TYPE_NAME(child),G_OBJECT_TYPE_NAME(child),G_OBJECT_TYPE_NAME(parent_widget));
+               continue;
+            }
+         }
+         g_info("set_vertical_toolbar_internal_alignment: Aligning toolbar item %p of type %s.",child,G_OBJECT_TYPE_NAME(child));
+         gtk_widget_set_halign(parent_widget, GTK_ALIGN_START);
+   }
+}
+
+void setup_curlew_banner() {
+    GtkWidget* curlew_banner = widget_from_builder("curlew_banner");
+    std::string dir = coot::package_data_dir();
+    std::string pixmaps_dir = coot::util::append_dir_dir(dir, "pixmaps");
+    std::string banner_filepath = coot::util::append_dir_file(pixmaps_dir, "curlew-long.png");
+    gtk_picture_set_filename(GTK_PICTURE(curlew_banner), banner_filepath.c_str());
+}
+
 void setup_gui_components() {
 
    g_info("Initializing UI components...");
    setup_menubuttons();
    setup_validation_graph_dialog();
+   setup_mutate_residue_range_dialog();
    setup_ramachandran_plot_chooser_dialog();
    setup_get_monomer();
    setup_accession_code_frame();
    setup_python_scripting_entry();
+   setup_curlew_banner();
    attach_css_style_class_to_overlays();
+   set_vertical_toolbar_internal_alignment();
    g_info("Done initializing UI components.");
 }

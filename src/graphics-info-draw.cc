@@ -1468,6 +1468,8 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
       // show a (clickable/highlighting) HUD texture - indicating that refinement parameters dialog
       // can be shown (as an overlay)
 
+      std::cout << "here in draw_hud_refinement_dialog_arrow_tab() B " << std::endl;
+
       auto get_munged_offset_and_scale =  [] (HUDTextureMesh::screen_position_origins_t spo,
                                               const glm::vec2 &offset_natural,
                                               float scale_x_natural, float scale_y_natural,
@@ -1502,8 +1504,10 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
 
       glDisable(GL_DEPTH_TEST);
       if (hud_refinement_dialog_arrow_is_moused_over) {
+         std::cout << "hud_refinement_dialog_arrow_is_moused_over " << std::endl;
          texture_for_hud_refinement_dialog_arrow_highlighted.Bind(0);
       } else {
+         std::cout << "hud_refinement_dialog_arrow_is_moused_over not " << std::endl;
          texture_for_hud_refinement_dialog_arrow.Bind(0);
       }
 
@@ -4094,7 +4098,6 @@ graphics_info_t::draw_hud_geometry_tooltip() {
 void
 graphics_info_t::draw_hud_elements() {
 
-
    draw_hud_ligand_view();
 
    draw_hud_geometry_bars();
@@ -5147,24 +5150,30 @@ graphics_info_t::setup_draw_for_boids() {
 void
 graphics_info_t::draw_hud_ligand_view() {
 
-   return; // Don't draw the ligand for now           FIXME
+   // 20230618-PE we don't want to do anything here if graphics_ligand_view_flag is false.
+   // graphics_ligand_view_flag is false when we are not centred on a ligand.
 
-   GtkAllocation allocation;
-   gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
-   float w = allocation.width;
-   float h = allocation.height;
-   GLenum err = glGetError();
-   if (err)
-      std::cout << "draw_ligand_view() --- start --- " << err << std::endl;
+   if (graphics_ligand_view_flag) {
+      if  (is_valid_model_molecule(graphics_ligand_view_imol)) {
+         if (molecules[graphics_ligand_view_imol].is_displayed_p()) {
 
-   myglLineWidth(2.0);
-   graphics_ligand_mesh_molecule.draw(&shader_for_ligand_view,
-                                      &shader_for_hud_geometry_tooltip_text,
-                                      w, h, ft_characters);
-   err = glGetError();
+            GtkAllocation allocation;
+            gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
+            float w = allocation.width;
+            float h = allocation.height;
+            GLenum err = glGetError();
+            if (err)
+               std::cout << "draw_ligand_view() --- start --- " << err << std::endl;
 
-   if (err)
-      std::cout << "GL ERROR:: draw_ligand_view() --- end --- " << err << std::endl;
+            graphics_ligand_mesh_molecule.draw(&shader_for_ligand_view,
+                                               &shader_for_hud_geometry_tooltip_text,
+                                               w, h, ft_characters);
+            err = glGetError();
+            if (err)
+               std::cout << "GL ERROR:: draw_ligand_view() --- end --- " << err << std::endl;
+         }
+      }
+   }
 }
 
 
