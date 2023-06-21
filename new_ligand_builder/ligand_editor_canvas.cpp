@@ -123,9 +123,11 @@ static void on_hover (
         auto& target = (*self->molecules)[molecule_idx];
         if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
             auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+            g_debug("Hovering on atom %u (%s)",atom.idx,atom.symbol.c_str());
             target.highlight_atom(atom.idx);
         } else { // a bond
             auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+            g_debug("Hovering on bond between atoms %u and %u", bond.first_atom_idx, bond.second_atom_idx);
             target.highlight_bond(bond.first_atom_idx, bond.second_atom_idx);
         }
     }
