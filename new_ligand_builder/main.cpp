@@ -258,9 +258,14 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel*
 
 
     GtkWidget* show_alerts_checkbutton = gtk_check_button_new_with_label("Show Alerts");
-    gtk_widget_set_halign(show_alerts_checkbutton,GTK_ALIGN_END);
+    gtk_widget_set_halign(show_alerts_checkbutton,GTK_ALIGN_START);
     gtk_box_append(GTK_BOX(mainbox), show_alerts_checkbutton);
     gtk_widget_set_margin_end(show_alerts_checkbutton, 10);
+
+    GtkWidget* invalid_molecule_checkbutton = gtk_check_button_new_with_label("Allow invalid molecules");
+    gtk_widget_set_halign(invalid_molecule_checkbutton, GTK_ALIGN_START);
+    gtk_box_append(GTK_BOX(mainbox), invalid_molecule_checkbutton);
+    gtk_widget_set_margin_end(invalid_molecule_checkbutton, 10);
 
     gtk_widget_set_margin_start(GTK_WIDGET(status_label), 10);
     gtk_widget_set_margin_end(GTK_WIDGET(status_label), 10);
