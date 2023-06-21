@@ -527,6 +527,12 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
 
         auto surrounding_hydrogen_count = rdkit_atom->getTotalNumHs(false);
         auto surrounding_non_hydrogen_count = 0;
+        auto charge = rdkit_atom->getFormalCharge();
+        if (charge != 0) {
+            Atom::Appendix ap;
+            ap.charge = charge;
+            canvas_atom.appendix = ap;
+        }
 
         for(const auto& bond: boost::make_iterator_range(this->rdkit_molecule->getAtomBonds(rdkit_atom))) {
             // Based on `getAtomBonds` documentation.
@@ -569,7 +575,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
         if(canvas_atom.symbol != "H" && (canvas_atom.symbol != "C" || terminus)) {
             //todo: oxygens I guess?
             if(surrounding_hydrogen_count > 0) {
-                Atom::Appendix ap;
+                Atom::Appendix ap = canvas_atom.appendix.value_or(Atom::Appendix());
                 ap.remainder = "H";
                 if(surrounding_hydrogen_count > 1) {
                     ap.remainder += std::to_string(surrounding_hydrogen_count);
