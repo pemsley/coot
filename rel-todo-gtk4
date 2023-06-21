@@ -32,9 +32,6 @@ Rework the namespace of the python modules to be more cannonical ::: 4
 
 NCS Jumping should use the correct matrix ::: 0.5
 
-Quick save should say something in the status-bar - maybe briefly flash and fade the background. Or some
-other brief visual effect. ::: 0.5
-
 Go To (next) Ligand should use the correct matrix ::: 0.5
 perpendicular_ligand_view() is the function. Does it work in gtk3? Yes, it does.
 
@@ -42,8 +39,6 @@ Do the tutorial from time to time - what's missing? ::: 1
 
 Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
    contact_score_ligand_func(). Hmm. See ~/Desktop/ligand-notes
-
-Nice to have: Go to (Next) Ligand doesn't get the ligand orientation correct. Is a transform() needed?
 
 Nice to have: Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
 
@@ -668,4 +663,6 @@ In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_s
 Why? Because it's looked up and not new? ::: 2
 * Done. 215d1cf6eb4c55a3a2fe66c6437df17983f19da5. Maybe more like this.
 
-
+Quick save should say something in the status-bar - maybe briefly flash and fade the background. Or some
+other brief visual effect. ::: 0.5
+* Done.
