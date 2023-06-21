@@ -151,6 +151,11 @@ CanvasMolecule::AtomColor CanvasMolecule::atom_color_from_rdkit(const RDKit::Ato
     }
 }
 
+CanvasMolecule::Atom::Appendix::Appendix() noexcept 
+    :charge(0) {
+    
+}
+
 std::pair<float,float> CanvasMolecule::Bond::get_perpendicular_versor() const noexcept {
     float bond_vector_x = second_atom_x - first_atom_x;
     float bond_vector_y = second_atom_y - first_atom_y;
@@ -235,7 +240,8 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         auto process_appendix = [&](const std::string& symbol, const std::optional<Atom::Appendix>& appendix) -> std::string {
             std::string ret = symbol;
             if(appendix.has_value()) {
-                for(auto i = appendix.value().remainder.begin(); i != appendix.value().remainder.end(); i++) {
+                const auto& ap = appendix.value();
+                for(auto i = ap.remainder.begin(); i != ap.remainder.end(); i++) {
                     if(std::isdigit(*i)) {
                         ret += "<sub>";
                         ret.push_back(*i);
@@ -243,6 +249,13 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     } else {
                         ret.push_back(*i);
                     }
+                }
+                if(ap.charge != 0) {
+                    ret += "<sup>";
+                    unsigned int charge_no_sign = std::abs(ap.charge);
+                    ret += std::to_string(charge_no_sign);
+                    ret.push_back(ap.charge > 0 ? '+' : '-');
+                    ret += "</sup>";
                 }
             }
             return ret;
@@ -273,8 +286,6 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 process_highlight();
             }
         } else {
-            // Todo: handle NH4+, SO2 and such...
-            g_warning_once("TODO: Implement handling NH4+, SO2 and such.");
             render_white_background();
             process_highlight();
             render_text(process_appendix(atom.symbol,atom.appendix),atom.color,atom.highlighted);

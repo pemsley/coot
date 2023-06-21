@@ -36,6 +36,8 @@ class CanvasMolecule {
             int charge;
             /// For CH4, remainder would be "H4"
             std::string remainder;
+
+            Appendix() noexcept;
         };
         /// Appendix is set when we draw groups.
         /// For SO2-, the appendix would be "O2-"
