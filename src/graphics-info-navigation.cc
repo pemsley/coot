@@ -115,9 +115,9 @@ graphics_info_t::set_go_to_atom_chain_residue_atom_name(const char *t1,
 
 // After this function, we call try_centre_from_new_go_to_atom();
 void
-graphics_info_t::set_go_to_atom_chain_residue_atom_name(const char *chain_id,
-							int resno, const char *ins_code,
-							const char *atom_name, const char *altLoc) {
+graphics_info_t::set_go_to_atom_chain_residue_atom_name(const std::string &chain_id,
+							int resno, const std::string &ins_code,
+							const std::string &atom_name, const std::string &altLoc) {
    // these are strings, don't forget.
    go_to_atom_chain_     = chain_id;
    go_to_atom_residue_   = resno;
@@ -1328,3 +1328,5 @@ graphics_info_t::sequence_view_highlight_residue_maybe(mmdb::Atom *atom, GtkWidg
    }
 #endif // HAVE_GOOCANVAS
 }
+
+

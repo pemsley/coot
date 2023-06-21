@@ -10,10 +10,7 @@
 
 ----
 
-15 items
-
-In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
-Why? Because it's looked up and not new? ::: 2
+14 items
 
 Looks at 1x8b with ligands and contact dots - is 2.0 too close for H-O hydrogen bond distance?
 No, it's fine: see https://proteopedia.org/wiki/index.php/Hydrogen_bonds. Contact dots has it as
@@ -51,6 +48,7 @@ Nice to have: Go to (Next) Ligand doesn't get the ligand orientation correct. Is
 Nice to have: Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
 
 Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
+
 
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
@@ -665,4 +663,9 @@ Clicking on Green left arrow doesn't open the refinement overlay ::: 1
 
 Shift the HUD ligand 10 pixels to the right, i.e. add 0.02 to x in the shaders. ::: 0.5
 * Done.
+
+In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
+Why? Because it's looked up and not new? ::: 2
+* Done. 215d1cf6eb4c55a3a2fe66c6437df17983f19da5. Maybe more like this.
+
 

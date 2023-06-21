@@ -1728,9 +1728,9 @@ public:
                                                   // button and function to see it.
    static std::vector<std::string> go_to_ligand_non_interesting_comp_ids;
 
-   void set_go_to_atom_chain_residue_atom_name(const char *chain_id,
-					      int resno, const char *ins_code,
-					      const char *atom_name, const char *altLoc);
+   void set_go_to_atom_chain_residue_atom_name(const std::string &chain_id,
+					      int resno, const std::string &ins_code,
+					      const std::string &atom_name, const std::string &altLoc);
    // 20220723-PE these look like GUI callbacks
    void set_go_to_atom_chain_residue_atom_name(const char *t1,
 					       int it2, const char *t3);
@@ -3827,6 +3827,10 @@ public:
       for NCS calculation? (default 0.8) */
    static float ncs_homology_level;
    static short int ncs_matrix_flag;
+
+   // 20230621-PE not yet implemented, although see l28 lambda (which doesn't work)
+   static void ncs_jump_forward();  // A -> B -> C -> A
+   static void ncs_jump_backward(); // B -> A
 
    // ------------- validation: -------------------
 
