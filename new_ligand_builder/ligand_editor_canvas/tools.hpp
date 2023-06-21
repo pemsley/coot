@@ -162,6 +162,11 @@ class ActiveTool {
     /// Throws an exception in case of a mismatch.
     void check_variant(Variant) const;
 
+    /// Wraps `RDKit::MolOps::sanitizeMol()`.
+    /// Used for checking validity and reversing kekulization.
+    /// Does nothing when nonsensical molecules are allowed.
+    void sanitize_molecule(RDKit::RWMol&) const;
+
     public:
     ActiveTool() noexcept;
     ActiveTool(ElementInsertion insertion) noexcept;

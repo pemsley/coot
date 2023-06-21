@@ -162,7 +162,7 @@ void ActiveTool::insert_atom(int x, int y) {
                 rdkit_mol->replaceAtom(atom.idx, new_atom);
                 this->widget_data->update_status("Atom has been replaced.");
                 auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-                canvas_mol.lower_from_rdkit();
+                canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
             } else { // a bond
                 auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
                 g_warning("TODO: Implement handling insertion at bonds (if any should happen)");
@@ -199,9 +199,9 @@ void ActiveTool::alter_bond(int x, int y) {
                 rdkit_mol->addBond(new_atom_idx,atom.idx,CanvasMolecule::bond_type_to_rdkit(mod.get_target_bond_type()));
                 g_info("New atom added: idx=%i",new_atom_idx);
                 this->widget_data->update_status("New carbon atom added.");
-                RDKit::MolOps::sanitizeMol(*rdkit_mol.get());
+                this->sanitize_molecule(*rdkit_mol.get());
                 auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-                canvas_mol.lower_from_rdkit();
+                canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
             } else {
                 auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
                 auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
@@ -210,18 +210,18 @@ void ActiveTool::alter_bond(int x, int y) {
                 auto old_type = rdkit_bond->getBondType();
                 rdkit_bond->setBondType(CanvasMolecule::bond_type_to_rdkit(mod.get_target_bond_type()));
                 try {
-                    RDKit::MolOps::sanitizeMol(*rdkit_mol.get());
+                    this->sanitize_molecule(*rdkit_mol.get());
                 }catch(std::exception& e) {
                     // rollback
                     g_warning("Rolling back invalid molecule change that makes it unable to sanitize with the following error: %s",e.what());
                     rdkit_bond->setBondType(old_type);
-                    RDKit::MolOps::sanitizeMol(*rdkit_mol.get());
+                    this->sanitize_molecule(*rdkit_mol.get());
                     // rethrow
                     throw std::runtime_error(std::string("Invalid bond modification: ") + e.what());
                 }
                 this->widget_data->update_status("Bond has been altered.");
                 auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-                canvas_mol.lower_from_rdkit();
+                canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
             }
             this->widget_data->finalize_edition();
         } catch(std::exception& e) {
@@ -257,7 +257,7 @@ void ActiveTool::alter_geometry(int x, int y) {
                 
                 this->widget_data->update_status("Geometry of bond has been altered.");
                 auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-                canvas_mol.lower_from_rdkit();
+                canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
                 this->widget_data->finalize_edition();
             }
         } catch(std::exception& e) {
@@ -312,9 +312,9 @@ void ActiveTool::delete_at(int x, int y) {
                 rdkit_mol->removeBond(bond.first_atom_idx, bond.second_atom_idx);
                 this->widget_data->update_status("Bond has been deleted.");
             }
-            RDKit::MolOps::sanitizeMol(*rdkit_mol.get());
+            this->sanitize_molecule(*rdkit_mol.get());
             auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-            canvas_mol.lower_from_rdkit();
+            canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
             this->widget_data->finalize_edition();
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
@@ -456,9 +456,9 @@ void ActiveTool::insert_structure(int x, int y) {
 
                 this->widget_data->update_status("Carbon ring has been added, adjacent to the bond.");
             }
-            RDKit::MolOps::sanitizeMol(*rdkit_mol.get());
+            this->sanitize_molecule(*rdkit_mol.get());
             auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-            canvas_mol.lower_from_rdkit();
+            canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
             this->widget_data->finalize_edition();
             
         } else {
@@ -499,7 +499,7 @@ void ActiveTool::format_at(int x, int y) {
             auto [bond_or_atom,molecule_idx] = click_result.value();
             auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
             canvas_mol.clear_last_atom_coordinate_map();
-            canvas_mol.lower_from_rdkit();
+            canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
             this->widget_data->finalize_edition();
             this->widget_data->update_status("Molecule has been formatted.");
         } catch(std::exception& e) {
@@ -552,6 +552,12 @@ bool ActiveTool::is_in_move() const {
     check_variant(Variant::MoveTool);
     auto& move_tool = this->move_tool;
     return move_tool.is_in_move();
+}
+
+void ActiveTool::sanitize_molecule(RDKit::RWMol& mol) const {
+    if (!this->widget_data->allow_invalid_molecules) {
+        RDKit::MolOps::sanitizeMol(mol);
+    }
 }
 
 ElementInsertion::ElementInsertion(ElementInsertion::Element el) noexcept {

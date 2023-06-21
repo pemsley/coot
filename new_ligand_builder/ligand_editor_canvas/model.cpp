@@ -286,7 +286,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
 CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
     this->rdkit_molecule = std::move(rdkit_mol);
     this->last_atom_coordinate_map = std::nullopt;
-    this->lower_from_rdkit();
+    this->lower_from_rdkit(true);
     this->x_canvas_size_adjustment = 0;
     this->y_canvas_size_adjustment = 0;
     this->x_canvas_translation = 0;
@@ -576,7 +576,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
     this->process_bond_alignment_in_rings();
 }
 
-void CanvasMolecule::lower_from_rdkit() {
+void CanvasMolecule::lower_from_rdkit(bool sanitize_after) {
 
     // 2. Do the lowering
 
@@ -590,10 +590,10 @@ void CanvasMolecule::lower_from_rdkit() {
     this->build_internal_molecule_representation(geometry);    
     this->last_atom_coordinate_map = std::move(geometry);
 
-    // todo: make this optional
     // 2.3 Reverse kekulization on the original molecule after lowering.
-    RDKit::MolOps::sanitizeMol(*this->rdkit_molecule);
-    
+    if (sanitize_after) {
+        RDKit::MolOps::sanitizeMol(*this->rdkit_molecule);
+    }
 }
 
 void CanvasMolecule::highlight_atom(int atom_idx) {

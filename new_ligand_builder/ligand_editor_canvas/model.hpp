@@ -143,7 +143,10 @@ class CanvasMolecule {
 
     /// Clears the drawing-friendly 2D representation data
     /// and re-creates it from the internal RDKit::RWMol
-    void lower_from_rdkit();
+    /// 
+    /// If `sanitize_after` is true, the molecule will get sanitized
+    /// after lowering
+    void lower_from_rdkit(bool sanitize_after);
 
     /// Clears `last_atom_coordinate_map`, 
     /// forcing the subsequent call to `compute_molecule_geometry()`
