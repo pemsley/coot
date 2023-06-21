@@ -805,6 +805,7 @@ application_open_callback(GtkApplication *app,
       GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_NAME,
                                                G_FILE_QUERY_INFO_NONE, NULL, &error);
       if (file_info) {
+         // const char *file_name = g_file_info_get_name(file_info);
          const char *file_name = g_file_info_get_name(file_info);
          if (file_name) {
             std::cout << "application_open_callback(): handle " << file_name << std::endl;

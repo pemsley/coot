@@ -11,6 +11,7 @@
 #include "cc-interface-scripting.hh"  // move this up
 #include "cc-interface.hh"
 #include "fit-loop-gui.hh"
+#include "read-molecule.hh" // 20230621-PE now with std::string args
 
 #include "support.h" // for internationalizations.
 

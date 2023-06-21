@@ -664,7 +664,7 @@ libcootsumo_la_SOURCES = \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
-	read-cif.c		 \
+	read-cif.cc		 \
 	rama_mousey.cc		 \
 	rama_mousey.hh		 \
 	rama_plot_with_canvas.cc \

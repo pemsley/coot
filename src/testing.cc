@@ -76,10 +76,7 @@
 
 #include "coot-utils/coot-h-bonds.hh"
 
-#ifdef HAVE_CCP4SRS
-#include <ccp4srs/ccp4srs_defs.h>
-#endif
-
+#include "read-molecule.hh" // now with std::string args
 #include "pli/pi-stacking.hh"
 
 

@@ -155,6 +155,8 @@
 #include <assimp/postprocess.h>     // Post processing flags
 #endif
 
+#include "read-molecule.hh" // now with std::string args
+
 #include "draw-2.hh" // for glarea_tick_func
 
 int test_function(int i, int j) {
@@ -502,7 +504,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
          if (needs_downloading) {
             coot_get_url(url.c_str(), fn.c_str());
          }
-         int imol = read_pdb(fn.c_str());
+         int imol = read_pdb(fn);
          return imol;
       };
 
