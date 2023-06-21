@@ -241,6 +241,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             std::string ret = symbol;
             if(appendix.has_value()) {
                 const auto& ap = appendix.value();
+                //ret += "<span>";
                 for(auto i = ap.remainder.begin(); i != ap.remainder.end(); i++) {
                     if(std::isdigit(*i)) {
                         ret += "<sub>";
@@ -250,8 +251,16 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                         ret.push_back(*i);
                     }
                 }
+                //ret += "</span>";
                 if(ap.charge != 0) {
-                    ret += "<sup>";
+                    // The string below begins with 
+                    // the invisible U+200B unicode character.
+                    // This is a workaround for what's likely 
+                    // a bug in pango font rendering engine.
+                    // Without it, the superscript is relative 
+                    // to the subscript (atom count)
+                    // instead of the atom's symbol
+                    ret += "​<sup>";
                     unsigned int charge_no_sign = std::abs(ap.charge);
                     if(charge_no_sign > 1) {
                         ret += std::to_string(charge_no_sign);
