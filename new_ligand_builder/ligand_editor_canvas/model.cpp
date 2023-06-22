@@ -243,14 +243,20 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             if(appendix.has_value()) {
                 const auto& ap = appendix.value();
                 //ret += "<span>";
+                std::string ap_root;
                 for(auto i = ap.remainder.begin(); i != ap.remainder.end(); i++) {
                     if(std::isdigit(*i)) {
-                        ret += "<sub>";
-                        ret.push_back(*i);
-                        ret += "</sub>";
+                        ap_root += "<sub>";
+                        ap_root.push_back(*i);
+                        ap_root += "</sub>";
                     } else {
-                        ret.push_back(*i);
+                        ap_root.push_back(*i);
                     }
+                }
+                if (ap.reversed) {
+                    ret = ap_root + ret;
+                } else {
+                    ret += ap_root;
                 }
                 //ret += "</span>";
                 if(ap.charge != 0) {
