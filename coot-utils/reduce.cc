@@ -1642,6 +1642,7 @@ coot::reduce::place_hydrogen_by_connected_atom_energy_type(unsigned int iat,
 
    std::vector<std::string> v;
    const std::string &energy_type = rest.atom_info[iat_neighb].type_energy;
+   const std::string &H_at_name = rest.atom_info[iat].atom_id_4c;
    return place_hydrogen_by_connected_atom_energy_type(energy_type, iat, iat_neighb, rest, residue_p,
                                                        bl_aliph, bl_arom, bl_amino, bl_oh, bl_sh);
 
@@ -1684,6 +1685,11 @@ coot::reduce::place_hydrogen_by_connected_atom_energy_type(const std::string &en
    }
 
    if (energy_type == "NR15" || energy_type == "NR16") {
+      add_his_ring_H(H_at_name, first_neighb, second_neighb_vec, bl_amino, residue_p);
+      v.push_back(H_at_name);
+   }
+
+   if (energy_type == "NR5") { // I think these atom energy types should be NR15, but, for 824, they are not.
       add_his_ring_H(H_at_name, first_neighb, second_neighb_vec, bl_amino, residue_p);
       v.push_back(H_at_name);
    }
