@@ -552,6 +552,9 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             canvas_atom.appendix = ap;
         }
 
+        // Used to determine if the 'appendix' should be 'reversed'
+        std::vector<float> x_coordinates_of_bonded_atoms;
+
         for(const auto& bond: boost::make_iterator_range(this->rdkit_molecule->getAtomBonds(rdkit_atom))) {
             // Based on `getAtomBonds` documentation.
             // Seems weird but we have to do it that way.
@@ -563,6 +566,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             if(the_other_atom->getSymbol() != "H") {
                 surrounding_non_hydrogen_count++;
             }
+            x_coordinates_of_bonded_atoms.push_back(coordinate_map.at(the_other_atom_idx).x);
 
             // We don't want to have duplicate bonds of atoms that we have already processed
             // so we skip them.
@@ -597,6 +601,15 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
                 ap.remainder = "H";
                 if(surrounding_hydrogen_count > 1) {
                     ap.remainder += std::to_string(surrounding_hydrogen_count);
+                }
+                if(terminus) {
+                    if(!x_coordinates_of_bonded_atoms.empty() 
+                    && std::all_of(x_coordinates_of_bonded_atoms.cbegin(),x_coordinates_of_bonded_atoms.cend(),[&](float o_x){
+                        float diff = o_x - canvas_atom.x;
+                        return diff > 0.2;
+                    })) {
+                        ap.reversed = true;
+                    }
                 }
                 canvas_atom.appendix = ap;
             }
