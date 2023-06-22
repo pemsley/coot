@@ -152,7 +152,8 @@ CanvasMolecule::AtomColor CanvasMolecule::atom_color_from_rdkit(const RDKit::Ato
 }
 
 CanvasMolecule::Atom::Appendix::Appendix() noexcept 
-    :charge(0) {
+    :charge(0),
+    reversed(false) {
     
 }
 
