@@ -230,8 +230,10 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             }
         };
 
-        auto process_appendix = [&](const std::string& symbol, const std::optional<Atom::Appendix>& appendix) -> std::string {
+        /// Returns the markup string + info if the appendix is reversed
+        auto process_appendix = [&](const std::string& symbol, const std::optional<Atom::Appendix>& appendix) -> std::tuple<std::string,bool> {
             std::string ret = symbol;
+            bool reversed = false;
             if(appendix.has_value()) {
                 const auto& ap = appendix.value();
                 //ret += "<span>";
@@ -247,6 +249,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 }
                 if (ap.reversed) {
                     ret = ap_root + ret;
+                    reversed = true;
                 } else {
                     ret += ap_root;
                 }
@@ -268,10 +271,10 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     ret += "</sup>";
                 }
             }
-            return ret;
+            return std::make_tuple(ret,reversed);
         };
 
-        auto render_symbol_on_background = [&](const std::string& t, AtomColor color,bool highlighted){
+        auto render_symbol_on_background = [&](const std::string& t, AtomColor color, bool highlighted, bool reversed_alignment){
             // pre-process text
             auto [r,g,b] = atom_color_to_rgb(color);
             std::string color_str = atom_color_to_html(color);
@@ -281,32 +284,33 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
             // background
             cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
-            // cairo_move_to(cr, atom.x * scale_factor + x_offset - layout_width/2.f, atom.y * scale_factor + y_offset - layout_height/2.f);
+            double origin_x = atom.x * scale_factor + x_offset - layout_width/2.f;
+            double origin_y = atom.y * scale_factor + y_offset - layout_height/2.f;
             // an alternative to rendering white-rectangle background is to shorten the bonds
-            cairo_rectangle(cr, atom.x * scale_factor + x_offset - layout_width/2.f, atom.y * scale_factor + y_offset - layout_height/2.f, layout_width, layout_height);
+            cairo_rectangle(cr, origin_x, origin_y, layout_width, layout_height);
             cairo_fill(cr);
             // highlight
             process_highlight();
             // text
-            cairo_move_to(cr, atom.x * scale_factor + x_offset - layout_width/2.f, atom.y * scale_factor + y_offset - layout_height/2.f);
+            cairo_move_to(cr, origin_x, origin_y);
             pango_cairo_show_layout(cr, pango_layout);
         };
 
         
-        if (atom.symbol == "H") {
+        if(atom.symbol == "H") {
             process_highlight();
             // Ignore Hydrogen.
 
         } else if(atom.symbol == "C") {
             if(atom.appendix.has_value()) {
-                auto markup = process_appendix(atom.symbol,atom.appendix);
-                render_symbol_on_background(markup,atom.color,atom.highlighted);
+                auto [markup,reversed] = process_appendix(atom.symbol,atom.appendix);
+                render_symbol_on_background(markup,atom.color,atom.highlighted,reversed);
             } else {
                 process_highlight();
             }
         } else {
-            auto markup = process_appendix(atom.symbol,atom.appendix);
-            render_symbol_on_background(markup,atom.color,atom.highlighted);
+            auto [markup,reversed] = process_appendix(atom.symbol,atom.appendix);
+            render_symbol_on_background(markup,atom.color,atom.highlighted,reversed);
         }
     }
     cairo_destroy(cr);
