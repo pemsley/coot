@@ -229,14 +229,6 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 cairo_fill(cr);
             }
         };
-        
-        // an alternative to doing this is to shorten the bonds at the time of lowering
-        auto render_white_background = [&,cr,x_offset,y_offset,scale_factor]{
-            cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
-            cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
-            cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS,0,M_PI * 2.0);
-            cairo_fill(cr);
-        };
 
         auto process_appendix = [&](const std::string& symbol, const std::optional<Atom::Appendix>& appendix) -> std::string {
             std::string ret = symbol;
@@ -279,13 +271,23 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             return ret;
         };
 
-        auto render_text = [&](const std::string& t, AtomColor color,bool bold = false){
+        auto render_symbol_on_background = [&](const std::string& t, AtomColor color,bool highlighted){
+            // pre-process text
             auto [r,g,b] = atom_color_to_rgb(color);
             std::string color_str = atom_color_to_html(color);
-            std::string weight_str = bold ? "bold" : "normal";
+            std::string weight_str = highlighted ? "bold" : "normal";
             std::string markup = "<span color=\"" + color_str + "\" weight=\"" + weight_str + "\" size=\"x-large\">" + t + "</span>";
             pango_layout_set_markup(pango_layout,markup.c_str(),-1);
             pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
+            // background
+            cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
+            // cairo_move_to(cr, atom.x * scale_factor + x_offset - layout_width/2.f, atom.y * scale_factor + y_offset - layout_height/2.f);
+            // an alternative to rendering white-rectangle background is to shorten the bonds
+            cairo_rectangle(cr, atom.x * scale_factor + x_offset - layout_width/2.f, atom.y * scale_factor + y_offset - layout_height/2.f, layout_width, layout_height);
+            cairo_fill(cr);
+            // highlight
+            process_highlight();
+            // text
             cairo_move_to(cr, atom.x * scale_factor + x_offset - layout_width/2.f, atom.y * scale_factor + y_offset - layout_height/2.f);
             pango_cairo_show_layout(cr, pango_layout);
         };
@@ -297,16 +299,14 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
 
         } else if(atom.symbol == "C") {
             if(atom.appendix.has_value()) {
-                render_white_background();
-                process_highlight();
-                render_text(process_appendix(atom.symbol,atom.appendix),atom.color,atom.highlighted);
+                auto markup = process_appendix(atom.symbol,atom.appendix);
+                render_symbol_on_background(markup,atom.color,atom.highlighted);
             } else {
                 process_highlight();
             }
         } else {
-            render_white_background();
-            process_highlight();
-            render_text(process_appendix(atom.symbol,atom.appendix),atom.color,atom.highlighted);
+            auto markup = process_appendix(atom.symbol,atom.appendix);
+            render_symbol_on_background(markup,atom.color,atom.highlighted);
         }
     }
     cairo_destroy(cr);
