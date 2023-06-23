@@ -133,7 +133,6 @@ int show_mark_cis_peptides_as_bad_state() {
 
 void show_hide_preferences_tabs(GtkToggleButton *toggletoolbutton, int preference_type) {
 
-
    std::vector<std::string> preferences_tabs;
   
    if (preference_type == COOT_GENERAL_PREFERENCES) {
@@ -159,10 +158,14 @@ void show_hide_preferences_tabs(GtkToggleButton *toggletoolbutton, int preferenc
       GtkWidget *frame = widget_from_preferences_builder(preferences_tabs[i].c_str());
       if (frame) {
          if (gtk_toggle_button_get_active(toggletoolbutton)){
+            std::cout << "in show_hide_preferences_tabs() show " << preferences_tabs[i] << std::endl;
             gtk_widget_show(frame);
          } else {
+            std::cout << "in show_hide_preferences_tabs() hide " << preferences_tabs[i] << std::endl;
             gtk_widget_hide(frame);
          }
+      } else {
+            std::cout << "in show_hide_preferences_tabs() no frame for " << preferences_tabs[i] << std::endl;
       }
    }
 
