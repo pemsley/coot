@@ -10,7 +10,11 @@
 
 ----
 
-8 items
+5 items
+
+Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
+* Preferences, surely.
+What's up with the Preferences? ::: 4
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
@@ -19,26 +23,7 @@ set_framebuffer_scale_factor().
 Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
 shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
 
-Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
-* Preferences, surely.
-
-What's up with the Preferences? ::: 4
-
-Search monomer library results should be left-hand justified ::: 0.5
-
-Search monomer library results should have rdkit images? ::: 0.5
-
 Do the tutorial from time to time - what's missing? ::: 1
-
-Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
-   contact_score_ligand_func(). Hmm. See ~/Desktop/ligand-notes
-
-Nice to have: Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
-
-Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
-
-1E9 is not correctly horizontally adjusted.
-
 
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
@@ -51,6 +36,13 @@ import coot.utils?
 
 NCS Jumping should use the correct matrix :::- 0.5
 l28. Tried and failed. Test the conversion of glm quaternion to coot quaternion and back again.
+
+Nice to have: Write a script that finds functions in glade-callbacks that are no longer used
+(i.e. not in coot-gtk4.ui)
+
+Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
+
+Nice to have: 1E9 is not correctly horizontally adjusted.
 
 Go To (next) Ligand should use the correct matrix ::: 0.5
 perpendicular_ligand_view() is the function. Does it work in gtk3? No.
@@ -685,3 +677,13 @@ Something to do with the dictionary? No. With new dictionary it still fails. The
 This is wrong. It should be NR15. So, when the atom type is NR5, then check the bonds to the atom, to see
 if there is an N-H bond.
 * Done.
+
+Search monomer library results should be left-hand justified ::: 0.5
+* Done
+
+Search monomer library results should have rdkit images? ::: 0.5
+* Done
+
+Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
+   contact_score_ligand_func(). Hmm. See ~/Desktop/ligand-notes
+* Contact dots for ligand is my function - it has vdw dots
