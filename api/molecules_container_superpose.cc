@@ -555,6 +555,12 @@ molecules_container_t::get_pairs(ssm::Align *SSMAlign,
                coot::residue_spec_t mov_res_spec(atom_selection2[t_index]->residue);
                ref.residue_spec = ref_res_spec;
                mov.residue_spec = mov_res_spec;
+               clipper::Coord_orth pt_1 = coot::co(atom_selection1[i1]);
+               clipper::Coord_orth pt_2 = coot::co(atom_selection2[t_index]);
+               double dd = (pt_2-pt_1).lengthsq();
+               double d = std::sqrt(dd);
+               ref.function_value = d;
+               mov.function_value = d;
                auto p = std::make_pair(ref, mov);
                vprvi.push_back(p);
             }
