@@ -666,7 +666,7 @@ namespace coot {
             return false;
          }
       };
-   
+
       class atom_pair_t {
       public:
          mmdb::Atom *at_1;
