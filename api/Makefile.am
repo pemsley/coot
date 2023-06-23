@@ -4,6 +4,7 @@ AM_CPPFLAGS = \
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS)   \
 	$(COOT_GSL_FLAGS)		    \
 	$(GSL_CFLAGS)			    \
+	$(LIBSSM_CXXFLAGS)                  \
 	$(CLIPPER_CXXFLAGS)                 \
 	$(MMDB_CXXFLAGS)                    \
 	$(PYTHON_CPPFLAGS)                  \
@@ -56,7 +57,7 @@ libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la       \
    $(top_builddir)/coords/libcoot-coords.la	      \
    $(top_builddir)/utils/libcoot-utils.la             \
-   $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) -lpthread
+   $(CLIPPER_LIBS) $(LIBSSM_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) -lpthread
 
 check_PROGRAMS = test-molecules-container
 
