@@ -1770,7 +1770,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
          if (false) { // debugging
             std::cout << "consolidated" << std::endl;
             std::unordered_map<std::string, std::vector<atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
-            for (it=ao.dots.begin(); it!=ao.dots.end(); it++)
+            for (it=ao.dots.begin(); it!=ao.dots.end(); ++it)
                std::cout << " consolidated size "
                          << it->first << " " << it->second.size() << std::endl;
          }
@@ -1875,7 +1875,7 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
                                                                   atom_selection,
                                                                   neighb_atom_radius);
 
-      if (draw_it) {
+      if (draw_it) { // it's on the vdw surface at least...
 
          double biggest_overlap = -1; // should be positive if we get a hit
          mmdb::Atom *atom_with_biggest_overlap = 0;
