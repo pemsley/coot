@@ -37,6 +37,8 @@ Nice to have: Write a script that finds functions in glade-callbacks that are no
 
 Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
 
+1E9 is not correctly horizontally adjusted.
+
 
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
