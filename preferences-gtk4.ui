@@ -103,6 +103,13 @@
                 <child>
                   <object class="GtkNotebookPage">
                     <property name="position">4</property>
+                    <property name="tab">
+                      <object class="GtkLabel" id="label225">
+                        <property name="visible">1</property>
+                        <property name="label" translatable="yes">Coordinates Recentering</property>
+                        <property name="justify">center</property>
+                      </object>
+                    </property>
                     <property name="child">
                       <object class="GtkFrame" id="preferences_recentre_pdb">
                         <property name="visible">1</property>
@@ -150,18 +157,17 @@
                         </property>
                       </object>
                     </property>
-                    <property name="tab">
-                      <object class="GtkLabel" id="label225">
-                        <property name="visible">1</property>
-                        <property name="label" translatable="yes">Coordinates Recentering</property>
-                        <property name="justify">center</property>
-                      </object>
-                    </property>
                   </object>
                 </child>
                 <child>
                   <object class="GtkNotebookPage">
                     <property name="position">5</property>
+                    <property name="tab">
+                      <object class="GtkLabel" id="label511">
+                        <property name="visible">1</property>
+                        <property name="label" translatable="yes">Smooth Recentering</property>
+                      </object>
+                    </property>
                     <property name="child">
                       <object class="GtkFrame" id="preferences_smooth_scroll">
                         <property name="visible">1</property>
@@ -218,6 +224,7 @@
                                 <property name="visible">1</property>
                                 <property name="child">
                                   <object class="GtkBox" id="hbox327">
+                                    <property name="spacing">4</property>
                                     <child>
                                       <object class="GtkLabel" id="label595">
                                         <property name="halign">center</property>
@@ -229,10 +236,6 @@
                                     <child>
                                       <object class="GtkEntry" id="preferences_smooth_scroll_steps_entry">
                                         <property name="halign">center</property>
-                                        <property name="visible">1</property>
-                                        <property name="focusable">1</property>
-                                        <property name="primary-icon-activatable">0</property>
-                                        <property name="secondary-icon-activatable">0</property>
                                         <signal name="activate" handler="on_preferences_smooth_scroll_steps_entry_activate" swapped="no"/>
                                         <signal name="changed" handler="on_preferences_smooth_scroll_steps_entry_changed" swapped="no"/>
                                       </object>
@@ -265,10 +268,6 @@ distances more than:</property>
                                     </child>
                                     <child>
                                       <object class="GtkEntry" id="preferences_smooth_scroll_limit_entry">
-                                        <property name="visible">1</property>
-                                        <property name="focusable">1</property>
-                                        <property name="primary-icon-activatable">0</property>
-                                        <property name="secondary-icon-activatable">0</property>
                                         <signal name="activate" handler="on_preferences_smooth_scroll_limit_entry_activate" swapped="no"/>
                                         <signal name="changed" handler="on_preferences_smooth_scroll_limit_entry_changed" swapped="no"/>
                                       </object>
@@ -287,12 +286,6 @@ distances more than:</property>
                             </child>
                           </object>
                         </property>
-                      </object>
-                    </property>
-                    <property name="tab">
-                      <object class="GtkLabel" id="label511">
-                        <property name="visible">1</property>
-                        <property name="label" translatable="yes">Smooth Recentering</property>
                       </object>
                     </property>
                   </object>

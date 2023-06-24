@@ -520,12 +520,12 @@ bool      graphics_info_t::run_startup_scripts_flag = true;
 GtkWidget *graphics_info_t::preferences_widget = NULL;
 int        graphics_info_t::mark_cis_peptides_as_bad_flag = 1;
 
-std::vector<std::string> *graphics_info_t::preferences_general_tabs;
-std::vector<std::string> *graphics_info_t::preferences_bond_tabs;
-std::vector<std::string> *graphics_info_t::preferences_geometry_tabs;
-std::vector<std::string> *graphics_info_t::preferences_colour_tabs;
-std::vector<std::string> *graphics_info_t::preferences_map_tabs;
-std::vector<std::string> *graphics_info_t::preferences_other_tabs;
+std::vector<std::string> graphics_info_t::preferences_general_tabs;
+std::vector<std::string> graphics_info_t::preferences_bond_tabs;
+std::vector<std::string> graphics_info_t::preferences_geometry_tabs;
+std::vector<std::string> graphics_info_t::preferences_colour_tabs;
+std::vector<std::string> graphics_info_t::preferences_map_tabs;
+std::vector<std::string> graphics_info_t::preferences_other_tabs;
 std::vector<coot::preferences_icon_info_t> *graphics_info_t::model_toolbar_icons;
 std::vector<coot::preferences_icon_info_t> *graphics_info_t::main_toolbar_icons;
 
