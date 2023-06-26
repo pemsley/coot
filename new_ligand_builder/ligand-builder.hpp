@@ -1,4 +1,3 @@
-
 #ifndef LIGAND_BUILDER_HPP
 #define LIGAND_BUILDER_HPP
 #include "ligand_editor_canvas.hpp"

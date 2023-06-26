@@ -101,10 +101,6 @@ void LigandBuilderState::load_from_smiles() {
 void LigandBuilderState::file_import_molecule() {
    // g_warning("TODO: Implement void LigandBuilderState::file_import_molecule()");
 
-   auto submit_callback = +[] (GtkButton *button, gpointer user_data) {
-      gtk_dialog_response(GTK_DIALOG(user_data), GTK_RESPONSE_ACCEPT);
-   };
-
    GtkWidget *load_dialog = gtk_dialog_new();
    gtk_window_set_transient_for(GTK_WINDOW(load_dialog), this->main_window);
    g_object_set_data(G_OBJECT(load_dialog), "ligand_builder_instance", this);
@@ -126,9 +122,13 @@ void LigandBuilderState::file_import_molecule() {
    GtkWidget *submit_button = gtk_button_new_with_label("Submit");
    gtk_box_append(GTK_BOX(dialog_body), submit_button);
 
+   auto submit_callback = +[] (GtkButton *button, gpointer user_data) {
+      gtk_dialog_response(GTK_DIALOG(user_data), GTK_RESPONSE_ACCEPT);
+   };
+   g_signal_connect(submit_button, "clicked", G_CALLBACK(submit_callback), load_dialog);
+
    gtk_window_set_child(GTK_WINDOW(load_dialog), dialog_body);
    gtk_window_present(GTK_WINDOW(load_dialog));
-   g_signal_connect(submit_button, "clicked", G_CALLBACK(submit_callback), load_dialog);
 
    auto dialog_response = +[](GtkDialog* dialog, gint response_id, gpointer user_data) {
       if(response_id != GTK_RESPONSE_ACCEPT) {
