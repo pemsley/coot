@@ -33,6 +33,7 @@ class CanvasMolecule {
         /// Appendix represents optional elements that appear after atom's symbol,
         /// e.g. charge, hydrogens
         struct Appendix {
+            /// Ionization
             int charge;
             /// For CH4, remainder would be "H4".
             ///
