@@ -34,7 +34,10 @@ class CanvasMolecule {
         /// e.g. charge, hydrogens
         struct Appendix {
             int charge;
-            /// For CH4, remainder would be "H4"
+            /// For CH4, remainder would be "H4".
+            ///
+            /// todo: Should I just change it to an int
+            /// representing the number of hydrogens?
             std::string remainder;
             /// NH2 VS H2N, CH3 VS H3C, etc.
             bool reversed;
