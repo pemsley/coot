@@ -1,10 +1,13 @@
+
 #ifndef LIGAND_BUILDER_HPP
 #define LIGAND_BUILDER_HPP
 #include "ligand_editor_canvas.hpp"
 #include <rdkit/GraphMol/RWMol.h>
 
-namespace coot::ligand_editor {
+#include "geometry/protein-geometry.hh"
 
+namespace coot {
+   namespace ligand_editor {
 
 
 /// Structure holding the state of the editor
@@ -54,17 +57,19 @@ class LigandBuilderState {
     void edit_undo();
     void edit_redo();
     // Display
+    protein_geometry geom;
     // todo
 
 };
 
-/// Let this be the singleton used by the editor executable.
-/// Could by used by Coot as well.
-inline LigandBuilderState* global_instance;
+      /// Let this be the singleton used by the editor executable.
+      /// Could by used by Coot as well.
+      inline LigandBuilderState* global_instance;
 
-void initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label = nullptr);
+      void initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label = nullptr);
 
-} // namespace coot::ligand_editor
+   } // namespace ligand_editor
+} // namespace coot
 
 
 #endif
