@@ -238,7 +238,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 const auto& ap = appendix.value();
                 //ret += "<span>";
                 std::string ap_root;
-                for(auto i = ap.remainder.begin(); i != ap.remainder.end(); i++) {
+                for(auto i = ap.superatoms.begin(); i != ap.superatoms.end(); i++) {
                     if(std::isdigit(*i)) {
                         ap_root += "<sub>";
                         ap_root.push_back(*i);
@@ -602,9 +602,9 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             //todo: oxygens I guess?
             if(surrounding_hydrogen_count > 0) {
                 Atom::Appendix ap = canvas_atom.appendix.value_or(Atom::Appendix());
-                ap.remainder = "H";
+                ap.superatoms = "H";
                 if(surrounding_hydrogen_count > 1) {
-                    ap.remainder += std::to_string(surrounding_hydrogen_count);
+                    ap.superatoms += std::to_string(surrounding_hydrogen_count);
                 }
                 if(terminus) {
                     if(!x_coordinates_of_bonded_atoms.empty() 

@@ -39,7 +39,7 @@ class CanvasMolecule {
             ///
             /// todo: Should I just change it to an int
             /// representing the number of hydrogens?
-            std::string remainder;
+            std::string superatoms;
             /// NH2 VS H2N, CH3 VS H3C, etc.
             bool reversed;
             Appendix() noexcept;
