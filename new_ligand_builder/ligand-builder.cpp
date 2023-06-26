@@ -98,62 +98,73 @@ void LigandBuilderState::load_from_smiles() {
 }
 
 void LigandBuilderState::file_import_molecule() {
-   // g_warning("TODO: Implement void LigandBuilderState::file_import_molecule()");
+    // g_warning("TODO: Implement void LigandBuilderState::file_import_molecule()");
 
-   GtkWidget *load_dialog = gtk_dialog_new();
-   gtk_window_set_transient_for(GTK_WINDOW(load_dialog), this->main_window);
-   g_object_set_data(G_OBJECT(load_dialog), "ligand_builder_instance", this);
-   gtk_window_set_title(GTK_WINDOW(load_dialog), "New Ligand Editor: Monomer Import");
-   GtkWidget *dialog_body = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
-   gtk_widget_set_margin_bottom(dialog_body, 10);
-   gtk_widget_set_margin_end(dialog_body, 10);
-   gtk_widget_set_margin_start(dialog_body, 10);
-   gtk_widget_set_margin_top(dialog_body, 10);
+    GtkWidget *load_dialog = gtk_dialog_new();
+    gtk_window_set_transient_for(GTK_WINDOW(load_dialog), this->main_window);
+    g_object_set_data(G_OBJECT(load_dialog), "ligand_builder_instance", this);
+    gtk_window_set_title(GTK_WINDOW(load_dialog), "Monomer Import");
+    GtkWidget *dialog_body = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
+    gtk_widget_set_margin_bottom(dialog_body, 10);
+    gtk_widget_set_margin_end(dialog_body, 10);
+    gtk_widget_set_margin_start(dialog_body, 10);
+    gtk_widget_set_margin_top(dialog_body, 10);
 
-   GtkWidget *label = gtk_label_new("Insert Monomer Code");
-   gtk_box_append(GTK_BOX(dialog_body),label);
+    GtkWidget *label = gtk_label_new("Insert Monomer Code");
+    gtk_box_append(GTK_BOX(dialog_body),label);
 
-   GtkEntryBuffer *entry_buf = gtk_entry_buffer_new("", 0);
-   GtkWidget *entry = gtk_entry_new_with_buffer(entry_buf);
+    GtkEntryBuffer *entry_buf = gtk_entry_buffer_new("", 0);
+    GtkWidget *entry = gtk_entry_new_with_buffer(entry_buf);
 
-   gtk_box_append(GTK_BOX(dialog_body),entry);
+    gtk_box_append(GTK_BOX(dialog_body),entry);
 
-   GtkWidget *submit_button = gtk_button_new_with_label("Submit");
-   gtk_box_append(GTK_BOX(dialog_body), submit_button);
+    GtkWidget *submit_button = gtk_button_new_with_label("Submit");
+    gtk_box_append(GTK_BOX(dialog_body), submit_button);
 
-   auto submit_callback = +[] (GtkButton *button, gpointer user_data) {
-      gtk_dialog_response(GTK_DIALOG(user_data), GTK_RESPONSE_ACCEPT);
-   };
-   g_signal_connect(submit_button, "clicked", G_CALLBACK(submit_callback), load_dialog);
+    auto submit_callback = +[] (GtkButton *button, gpointer user_data) {
+        gtk_dialog_response(GTK_DIALOG(user_data), GTK_RESPONSE_ACCEPT);
+    };
+    g_signal_connect(submit_button, "clicked", G_CALLBACK(submit_callback), load_dialog);
 
-   gtk_window_set_child(GTK_WINDOW(load_dialog), dialog_body);
-   gtk_window_present(GTK_WINDOW(load_dialog));
+    gtk_window_set_child(GTK_WINDOW(load_dialog), dialog_body);
+    gtk_window_present(GTK_WINDOW(load_dialog));
 
-   auto dialog_response = +[](GtkDialog* dialog, gint response_id, gpointer user_data) {
-      if(response_id != GTK_RESPONSE_ACCEPT) {
-         g_debug("Ignoring unhandled response type: %s", g_enum_to_string(gtk_response_type_get_type(), response_id));
-         return;
-      } else {
-         const char *text_buf = gtk_entry_buffer_get_text(GTK_ENTRY_BUFFER(user_data));
-         std::string monomer_type(text_buf);
-         int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
-         LigandBuilderState* self = static_cast<LigandBuilderState*>(g_object_get_data(G_OBJECT(dialog),
-                                                                                       "ligand_builder_instance"));
-         self->monomer_library_info_store.try_dynamic_add(monomer_type, 42);
-         std::pair<bool, dictionary_residue_restraints_t> p =
-            self->monomer_library_info_store.get_monomer_restraints(monomer_type, imol_enc);
-         if (p.first) {
-            bool show_hydrogens_status = false;
-            RDKit::RWMol mol = coot::rdkit_mol(p.second);
-            if (! show_hydrogens_status)
-               coot::remove_non_polar_Hs(&mol);
-            self->append_molecule(&mol);
-            self->current_filesave_molecule = coot_ligand_editor_get_molecule_count(self->canvas) - 1;
-         } else {
-            g_warning("Failed to find monomer \"%s\"", monomer_type);
-            std::string message("Failed to find monomer " + monomer_type);
-         }
-      }
+    auto dialog_response = +[](GtkDialog* dialog, gint response_id, gpointer user_data) {
+        if(response_id != GTK_RESPONSE_ACCEPT) {
+            g_debug("Ignoring unhandled response type: %s", g_enum_to_string(gtk_response_type_get_type(), response_id));
+            return;
+        } else {
+            const char *text_buf = gtk_entry_buffer_get_text(GTK_ENTRY_BUFFER(user_data));
+            std::string monomer_type(text_buf);
+            int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+            LigandBuilderState* self = static_cast<LigandBuilderState*>(g_object_get_data(G_OBJECT(dialog),
+                                                                                        "ligand_builder_instance"));
+            self->monomer_library_info_store.try_dynamic_add(monomer_type, 42);
+            std::pair<bool, dictionary_residue_restraints_t> p =
+                self->monomer_library_info_store.get_monomer_restraints(monomer_type, imol_enc);
+            if (p.first) {
+                bool show_hydrogens_status = false;
+                RDKit::RWMol mol = coot::rdkit_mol(p.second);
+                if (! show_hydrogens_status)
+                coot::remove_non_polar_Hs(&mol);
+                self->append_molecule(&mol);
+                self->current_filesave_molecule = coot_ligand_editor_get_molecule_count(self->canvas) - 1;
+            } else {
+                g_warning("Failed to find monomer \"%s\"", monomer_type);
+                auto* message = gtk_message_dialog_new(
+                    GTK_WINDOW(dialog), 
+                    GTK_DIALOG_DESTROY_WITH_PARENT, 
+                    GTK_MESSAGE_ERROR, 
+                    GTK_BUTTONS_CLOSE, 
+                    "Error: Monomer \"%s\" could not be found.\n", 
+                    monomer_type
+                );
+                g_signal_connect(message,"response",G_CALLBACK(+[](GtkDialog* message_dialog, gint response_id, gpointer user_data){
+                    gtk_window_close(GTK_WINDOW(message_dialog));
+                }),nullptr);
+                gtk_widget_show(message);
+            }
+        }
    };
 
    g_signal_connect(load_dialog, "response", G_CALLBACK(dialog_response), entry_buf);
