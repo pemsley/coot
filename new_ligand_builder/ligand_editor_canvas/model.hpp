@@ -23,7 +23,11 @@ class CanvasMolecule {
         /// For Nitrogen
         Blue,
         /// For Oxygen
-        Red
+        Red,
+        /// For Sulphur
+        Brown,
+        /// For Phosphorus
+        DarkRed
         // are there more colors?
     };
     

@@ -95,13 +95,19 @@ void CanvasMolecule::apply_canvas_translation(int delta_x, int delta_y) noexcept
 std::tuple<float,float,float> CanvasMolecule::atom_color_to_rgb(CanvasMolecule::AtomColor color) noexcept {
     switch (color) {
         case AtomColor::Green:{
-            return std::make_tuple(0.0,1.0,0.0);
+            return std::make_tuple(0.0,0.75,0.0);
         }
         case AtomColor::Blue:{
             return std::make_tuple(0.0,0.0,1.0);
         }
         case AtomColor::Red:{
             return std::make_tuple(1.0,0.0,0.0);
+        }
+        case AtomColor::Brown:{
+            return std::make_tuple(0.5,0.5,0.0);
+        }
+        case AtomColor::DarkRed:{
+            return std::make_tuple(0.5,0.0,0.0);
         }
         case AtomColor::Black:
         default: {
@@ -113,13 +119,19 @@ std::tuple<float,float,float> CanvasMolecule::atom_color_to_rgb(CanvasMolecule::
 std::string CanvasMolecule::atom_color_to_html(CanvasMolecule::AtomColor color) noexcept {
     switch (color) {
         case AtomColor::Green:{
-            return "#00FF00";
+            return "#00C000";
         }
         case AtomColor::Blue:{
             return "#0000FF";
         }
         case AtomColor::Red:{
             return "#FF0000";
+        }
+        case AtomColor::Brown:{
+            return "#808000";
+        }
+        case AtomColor::DarkRed:{
+            return "#800000";
         }
         case AtomColor::Black:
         default: {
@@ -138,6 +150,14 @@ CanvasMolecule::AtomColor CanvasMolecule::atom_color_from_rdkit(const RDKit::Ato
         // Oxygen
         case 8: {
             return AtomColor::Red;
+        }
+        // Phosphorus
+        case 15: {
+            return AtomColor::DarkRed;
+        }
+        // Sulphur
+        case 16: {
+            return AtomColor::Brown;
         }
         // Chlorine
         case 17: {
