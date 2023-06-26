@@ -5,8 +5,7 @@
 
 #include "geometry/protein-geometry.hh"
 
-namespace coot {
-   namespace ligand_editor {
+namespace coot::ligand_editor {
 
 
 /// Structure holding the state of the editor
@@ -29,6 +28,9 @@ class LigandBuilderState {
 
     std::optional<unsigned int> current_filesave_molecule;
     std::optional<std::string> current_filesave_filename;
+
+    /// Store of monomer library information
+    protein_geometry monomer_library_info_store;
 
     /// Adds the molecule to the canvas.
     /// This function takes ownership of the molecule pointer.
@@ -56,19 +58,17 @@ class LigandBuilderState {
     void edit_undo();
     void edit_redo();
     // Display
-    protein_geometry geom;
     // todo
 
 };
 
-      /// Let this be the singleton used by the editor executable.
-      /// Could by used by Coot as well.
-      inline LigandBuilderState* global_instance;
+/// Let this be the singleton used by the editor executable.
+/// Could by used by Coot as well.
+inline LigandBuilderState* global_instance;
 
-      void initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label = nullptr);
+void initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label = nullptr);
 
-   } // namespace ligand_editor
-} // namespace coot
+} // namespace coot::ligand_editor
 
 
 #endif

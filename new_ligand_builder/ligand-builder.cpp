@@ -13,7 +13,6 @@
 #include <string>
 
 using namespace coot::ligand_editor;
-/// Structure holding the state of the editor
 
 LigandBuilderState::LigandBuilderState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, GtkLabel* status_label) noexcept {
     this->canvas = canvas_widget;
@@ -140,9 +139,9 @@ void LigandBuilderState::file_import_molecule() {
          int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
          LigandBuilderState* self = static_cast<LigandBuilderState*>(g_object_get_data(G_OBJECT(dialog),
                                                                                        "ligand_builder_instance"));
-         self->geom.try_dynamic_add(monomer_type, 42);
+         self->monomer_library_info_store.try_dynamic_add(monomer_type, 42);
          std::pair<bool, dictionary_residue_restraints_t> p =
-            self->geom.get_monomer_restraints(monomer_type, imol_enc);
+            self->monomer_library_info_store.get_monomer_restraints(monomer_type, imol_enc);
          if (p.first) {
             bool show_hydrogens_status = false;
             RDKit::RWMol mol = coot::rdkit_mol(p.second);
@@ -151,8 +150,8 @@ void LigandBuilderState::file_import_molecule() {
             self->append_molecule(&mol);
             self->current_filesave_molecule = coot_ligand_editor_get_molecule_count(self->canvas) - 1;
          } else {
+            g_warning("Failed to find monomer \"%s\"", monomer_type);
             std::string message("Failed to find monomer " + monomer_type);
-            g_warning("Failed");
          }
       }
    };
