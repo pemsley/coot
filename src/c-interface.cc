@@ -1006,7 +1006,6 @@ int handle_read_draw_molecule_and_move_molecule_here(const std::string &filename
 
 int read_pdb(const std::string &filename) {
    // history is done in the handle function
-   ;alskdjfa;ldkfaj;ldfkajd;fadddd;
    return handle_read_draw_molecule(filename);
 }
 
