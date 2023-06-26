@@ -478,7 +478,8 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
 }
 
 void CanvasMolecule::process_bond_alignment_in_rings() {
-
+    g_warning("todo: Align appendices relative to ring center.");
+    
     const auto& rings = this->rdkit_molecule->getRingInfo();
     for(const auto& ring: rings->atomRings()) {
         float ring_center_x = 0.f;
