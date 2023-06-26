@@ -2,7 +2,7 @@
 # to find clipper.pc, you will need to do something like
 # export PKG_CONFIG_PATH=$COOT_DIR/lib/pkgconfig
 
-COOT_DIR=$(HOME)/freshcoot/experimental_systemlibsbuild/prefix
+COOT_DIR=$(HOME)/freshcoot/experimental_systemlibsbuild/prefix2
 
 CXXFLAGS= \
    -I$(COOT_DIR)/include \
@@ -18,7 +18,9 @@ LDLIBS=-fuse-ld=mold \
        `pkg-config --libs gtk4`  \
         -g \
         -Wl,--rpath=$(COOT_DIR)/lib \
-        -lfreetype -lm -ldl -lRDKitDepictor -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol -lRDKitRDGeneral -lRDKitFileParsers -lRDKitSubstructMatch
+        -lfreetype -lm -ldl \
+        -lRDKitDepictor -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol -lRDKitRDGeneral -lRDKitFileParsers -lRDKitSubstructMatch \
+        -lcoot-geometry -lcoot-lidia-core
 
 	   # -lcoot-ligand -lcoot-ideal -lcoot-coords -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 
        #`pkg-config --libs epoxy` 
