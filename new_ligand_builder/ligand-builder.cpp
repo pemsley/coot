@@ -150,14 +150,14 @@ void LigandBuilderState::file_import_molecule() {
                 self->append_molecule(&mol);
                 self->current_filesave_molecule = coot_ligand_editor_get_molecule_count(self->canvas) - 1;
             } else {
-                g_warning("Failed to find monomer \"%s\"", monomer_type);
+                g_warning("Failed to find monomer \"%s\"", monomer_type.c_str());
                 auto* message = gtk_message_dialog_new(
                     GTK_WINDOW(dialog), 
                     GTK_DIALOG_DESTROY_WITH_PARENT, 
                     GTK_MESSAGE_ERROR, 
                     GTK_BUTTONS_CLOSE, 
                     "Error: Monomer \"%s\" could not be found.\n", 
-                    monomer_type
+                    monomer_type.c_str()
                 );
                 g_signal_connect(message,"response",G_CALLBACK(+[](GtkDialog* message_dialog, gint response_id, gpointer user_data){
                     gtk_window_close(GTK_WINDOW(message_dialog));
