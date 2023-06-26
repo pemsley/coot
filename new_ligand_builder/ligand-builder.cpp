@@ -139,15 +139,17 @@ void LigandBuilderState::file_import_molecule() {
             int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
             LigandBuilderState* self = static_cast<LigandBuilderState*>(g_object_get_data(G_OBJECT(dialog),
                                                                                         "ligand_builder_instance"));
+            // what is 42???
             self->monomer_library_info_store.try_dynamic_add(monomer_type, 42);
             std::pair<bool, dictionary_residue_restraints_t> p =
                 self->monomer_library_info_store.get_monomer_restraints(monomer_type, imol_enc);
             if (p.first) {
                 bool show_hydrogens_status = false;
-                RDKit::RWMol mol = coot::rdkit_mol(p.second);
-                if (! show_hydrogens_status)
-                coot::remove_non_polar_Hs(&mol);
-                self->append_molecule(&mol);
+                auto mol = std::make_unique<RDKit::RWMol>(coot::rdkit_mol(p.second));
+                if (! show_hydrogens_status) {
+                    coot::remove_non_polar_Hs(mol.get());
+                }
+                self->append_molecule(mol.release());
                 self->current_filesave_molecule = coot_ligand_editor_get_molecule_count(self->canvas) - 1;
             } else {
                 g_warning("Failed to find monomer \"%s\"", monomer_type.c_str());
