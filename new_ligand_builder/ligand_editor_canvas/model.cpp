@@ -109,6 +109,9 @@ std::tuple<float,float,float> CanvasMolecule::atom_color_to_rgb(CanvasMolecule::
         case AtomColor::DarkRed:{
             return std::make_tuple(0.5,0.0,0.0);
         }
+        case AtomColor::Orange:{
+            return std::make_tuple(1.0,0.5,0.0);
+        }
         case AtomColor::Black:
         default: {
             return std::make_tuple(0.0,0.0,0.0);
@@ -133,6 +136,9 @@ std::string CanvasMolecule::atom_color_to_html(CanvasMolecule::AtomColor color) 
         case AtomColor::DarkRed:{
             return "#800000";
         }
+        case AtomColor::Orange:{
+            return "#FF8000";
+        }
         case AtomColor::Black:
         default: {
             return "#000000";
@@ -153,7 +159,7 @@ CanvasMolecule::AtomColor CanvasMolecule::atom_color_from_rdkit(const RDKit::Ato
         }
         // Phosphorus
         case 15: {
-            return AtomColor::DarkRed;
+            return AtomColor::Orange;
         }
         // Sulphur
         case 16: {
@@ -479,7 +485,7 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
 
 void CanvasMolecule::process_bond_alignment_in_rings() {
     g_warning("todo: Align appendices relative to ring center.");
-    
+
     const auto& rings = this->rdkit_molecule->getRingInfo();
     for(const auto& ring: rings->atomRings()) {
         float ring_center_x = 0.f;

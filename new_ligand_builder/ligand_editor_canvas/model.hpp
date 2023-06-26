@@ -26,8 +26,10 @@ class CanvasMolecule {
         Red,
         /// For Sulphur
         Brown,
+        /// Unused
+        DarkRed,
         /// For Phosphorus
-        DarkRed
+        Orange
         // are there more colors?
     };
     
