@@ -6512,7 +6512,8 @@ Do you want to continue?
                 <property name="orientation">horizontal</property>
 
                 <child>
-                  <object class="GtkBox" id="main_window_ramchandran_and_validation_vbox">
+                  <object class="GtkPaned" id="main_window_ramchandran_and_validation_pane">
+                    <property name="position">111</property>
                     <property name="orientation">vertical</property>
 
                     <child>
