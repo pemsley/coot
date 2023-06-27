@@ -48,6 +48,7 @@
 #include "gtk-manual.h"
 #include "c-interface-refine.h"
 #include "cc-interface.hh"
+#include "cfc-widgets-c-interface.h"
 
 #include "graphics-info.h"
 #include "validation-graphs.hh"
@@ -10791,7 +10792,6 @@ on_export_map_file_chooser_dialog_response (GtkDialog       *dialog,
    gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
-#include "cfc-widgets-c-interface.h"
 
 extern "C" G_MODULE_EXPORT
 void
