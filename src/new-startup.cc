@@ -9,6 +9,7 @@
 #include "setup-gui-components.hh"
 #include "coot-setup-python.hh"
 #include "utils/coot-utils.hh"
+#include "command-line.hh"
 
 void print_opengl_info();
 
@@ -508,11 +509,11 @@ on_go_to_residue_keyboarding_mode_entry_key_controller_key_released(GtkEventCont
       graphics_info_t g;
       g.apply_go_to_residue_keyboading_string(s);
       gtk_editable_set_text(GTK_EDITABLE(entry), "");
-      gtk_widget_hide(GTK_WIDGET(window));
+      gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
    }
 
    if (keycode == 53) {
-      gtk_widget_hide(GTK_WIDGET(window));
+      gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
       gtk_editable_set_text(GTK_EDITABLE(entry), "");
    }
 }
@@ -523,7 +524,6 @@ void setup_go_to_residue_keyboarding_mode_entry_signals() {
       GtkEventController *key_controller = gtk_event_controller_key_new();
       g_signal_connect(key_controller, "key-released", G_CALLBACK(on_go_to_residue_keyboarding_mode_entry_key_controller_key_released), entry);
       gtk_widget_add_controller(GTK_WIDGET(entry), key_controller);
-
    }
 }
 
@@ -579,7 +579,7 @@ new_startup_create_splash_screen_window() {
 
    gtk_widget_set_size_request(picture, 660, 371);
    // std::cout << "@@@@@@@@@@@@@@ create_pixmap_gtk4_version() returned image " << image << std::endl;
-   gtk_widget_show(picture);
+   gtk_widget_set_visible(picture, TRUE);
 
    gtk_window_set_child(GTK_WINDOW(splash_screen_window), picture);
    return splash_screen_window;
@@ -602,7 +602,6 @@ struct application_activate_data {
    }
 };
 
-#include "command-line.hh"
 
 void
 new_startup_application_activate(GtkApplication *application,
