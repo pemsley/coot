@@ -116,7 +116,6 @@
                         <property name="child">
                           <object class="GtkBox" id="vbox263">
                             <property name="orientation">vertical</property>
-                            <property name="can-focus">0</property>
                             <child>
                               <object class="GtkLabel" id="label604">
                                 <property name="valign">center</property>
@@ -131,7 +130,6 @@
                                 <property name="child">
                                   <object class="GtkBox" id="vbox264">
                                     <property name="orientation">vertical</property>
-                                    <property name="can-focus">0</property>
                                     <child>
                                       <object class="GtkCheckButton" id="preferences_recentre_pdb_on_radiobutton">
                                         <property name="valign">center</property>
@@ -174,7 +172,6 @@
                         <property name="child">
                           <object class="GtkBox" id="vbox259">
                             <property name="orientation">vertical</property>
-                            <property name="can-focus">0</property>
                             <child>
                               <object class="GtkLabel" id="label594">
                                 <property name="valign">center</property>
@@ -190,7 +187,6 @@
                                 <property name="child">
                                   <object class="GtkBox" id="vbox260">
                                     <property name="orientation">vertical</property>
-                                    <property name="can-focus">0</property>
                                     <child>
                                       <object class="GtkCheckButton" id="preferences_smooth_scroll_on_radiobutton">
                                         <property name="valign">center</property>
@@ -299,7 +295,6 @@ distances more than:</property>
                         <property name="child">
                           <object class="GtkBox" id="vbox238">
                             <property name="orientation">vertical</property>
-                            <property name="can-focus">0</property>
                             <child>
                               <object class="GtkLabel" id="label563">
                                 <property name="valign">center</property>
@@ -314,7 +309,6 @@ distances more than:</property>
                                 <property name="child">
                                   <object class="GtkBox" id="vbox239">
                                     <property name="orientation">vertical</property>
-                                    <property name="can-focus">0</property>
                                     <child>
                                       <object class="GtkCheckButton" id="preferences_hid_spherical_radiobutton">
                                         <property name="valign">center</property>
@@ -357,19 +351,16 @@ distances more than:</property>
                         <property name="child">
                           <object class="GtkBox" id="vbox222">
                             <property name="orientation">vertical</property>
-                            <property name="can-focus">0</property>
                             <child>
                               <object class="GtkBox" id="vbox223">
                                 <property name="vexpand">1</property>
                                 <property name="orientation">vertical</property>
-                                <property name="can-focus">0</property>
                                 <child>
                                   <object class="GtkFrame" id="frame212">
                                     <property name="visible">1</property>
                                     <property name="child">
                                       <object class="GtkBox" id="vbox224">
                                         <property name="orientation">vertical</property>
-                                        <property name="can-focus">0</property>
                                         <child>
                                           <object class="GtkBox" id="hbox304">
                                             <property name="vexpand">1</property>
@@ -423,7 +414,6 @@ distances more than:</property>
                         <property name="child">
                           <object class="GtkBox" id="vbox212">
                             <property name="orientation">vertical</property>
-                            <property name="can-focus">0</property>
                             <property name="spacing">9</property>
                             <child>
                               <object class="GtkFrame" id="frame200">
@@ -431,7 +421,6 @@ distances more than:</property>
                                 <property name="child">
                                   <object class="GtkBox" id="vbox213">
                                     <property name="orientation">vertical</property>
-                                    <property name="can-focus">0</property>
                                     <child>
                                       <object class="GtkLabel" id="label495">
                                         <property name="valign">center</property>
@@ -457,7 +446,6 @@ distances more than:</property>
                                             <property name="orientation">horizontal</property>
                                             <property name="hexpand">1</property>
                                             <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
                                             <property name="adjustment">adjustment1</property>
                                             <signal name="value-changed" handler="on_preferences_bond_colours_hscale_value_changed" swapped="no"/>
                                           </object>
@@ -519,7 +507,6 @@ distances more than:</property>
                         <property name="child">
                           <object class="GtkBox" id="vbox232">
                             <property name="orientation">vertical</property>
-                            <property name="can-focus">0</property>
                             <child>
                               <object class="GtkLabel" id="label550">
                                 <property name="valign">center</property>
@@ -546,8 +533,6 @@ distances more than:</property>
                                       <object class="GtkEntry" id="preferences_map_radius_entry">
                                         <property name="visible">1</property>
                                         <property name="focusable">1</property>
-                                        <property name="primary-icon-activatable">0</property>
-                                        <property name="secondary-icon-activatable">0</property>
                                         <signal name="activate" handler="on_preferences_map_radius_entry_activate" swapped="no"/>
                                         <signal name="changed" handler="on_preferences_map_radius_entry_changed" swapped="no"/>
                                       </object>
@@ -590,8 +575,6 @@ distances more than:</property>
                                       <object class="GtkEntry" id="preferences_map_increment_size_entry">
                                         <property name="visible">1</property>
                                         <property name="focusable">1</property>
-                                        <property name="primary-icon-activatable">0</property>
-                                        <property name="secondary-icon-activatable">0</property>
                                         <signal name="activate" handler="on_preferences_map_increment_size_entry_activate" swapped="no"/>
                                         <signal name="changed" handler="on_preferences_map_increment_size_entry_changed" swapped="no"/>
                                       </object>
@@ -626,8 +609,6 @@ distances more than:</property>
                                       <object class="GtkEntry" id="preferences_map_diff_increment_entry">
                                         <property name="visible">1</property>
                                         <property name="focusable">1</property>
-                                        <property name="primary-icon-activatable">0</property>
-                                        <property name="secondary-icon-activatable">0</property>
                                         <signal name="activate" handler="on_preferences_map_diff_increment_entry_activate" swapped="no"/>
                                         <signal name="changed" handler="on_preferences_map_diff_increment_entry_changed" swapped="no"/>
                                       </object>
@@ -663,8 +644,6 @@ distances more than:</property>
                                         <property name="visible">1</property>
                                         <property name="focusable">1</property>
                                         <property name="tooltip-text" translatable="yes">Shannon Sampling multiplier. 1.5 is the standard value. Use larger numbers for smoother maps</property>
-                                        <property name="primary-icon-activatable">0</property>
-                                        <property name="secondary-icon-activatable">0</property>
                                         <signal name="activate" handler="on_preferences_map_sampling_entry_activate" swapped="no"/>
                                         <signal name="changed" handler="on_preferences_map_sampling_entry_changed" swapped="no"/>
                                       </object>
@@ -680,7 +659,6 @@ distances more than:</property>
                                 <property name="child">
                                   <object class="GtkBox" id="vbox233">
                                     <property name="orientation">vertical</property>
-                                    <property name="can-focus">0</property>
                                     <child>
                                       <object class="GtkCheckButton" id="preferences_map_dynamic_sampling_checkbutton">
                                         <property name="valign">center</property>
@@ -726,14 +704,12 @@ distances more than:</property>
                         <property name="child">
                           <object class="GtkBox" id="vbox236">
                             <property name="orientation">vertical</property>
-                            <property name="can-focus">0</property>
                             <child>
                               <object class="GtkFrame" id="frame231">
                                 <property name="visible">1</property>
                                 <property name="child">
                                   <object class="GtkBox" id="vbox237">
                                     <property name="orientation">vertical</property>
-                                    <property name="can-focus">0</property>
                                     <child>
                                       <object class="GtkCheckButton" id="preferences_diff_map_colours_coot_radiobutton">
                                         <property name="valign">center</property>
@@ -770,7 +746,6 @@ distances more than:</property>
                                 <property name="child">
                                   <object class="GtkBox" id="vbox310">
                                     <property name="orientation">vertical</property>
-                                    <property name="can-focus">0</property>
                                     <child>
                                       <object class="GtkBox" id="hbox416">
                                         <property name="vexpand">1</property>
@@ -788,7 +763,6 @@ distances more than:</property>
                                             <property name="orientation">horizontal</property>
                                             <property name="hexpand">1</property>
                                             <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
                                             <property name="adjustment">adjustment2</property>
                                             <signal name="value-changed" handler="on_preferences_map_colours_hscale_value_changed" swapped="no"/>
                                           </object>
@@ -835,7 +809,6 @@ distances more than:</property>
                         <property name="child">
                           <object class="GtkBox" id="vbox261">
                             <property name="orientation">vertical</property>
-                            <property name="can-focus">0</property>
                             <child>
                               <object class="GtkLabel" id="label603">
                                 <property name="valign">center</property>
@@ -850,7 +823,6 @@ distances more than:</property>
                                 <property name="child">
                                   <object class="GtkBox" id="vbox262">
                                     <property name="orientation">vertical</property>
-                                    <property name="can-focus">0</property>
                                     <child>
                                       <object class="GtkCheckButton" id="preferences_map_drag_on_radiobutton">
                                         <property name="valign">center</property>
@@ -893,7 +865,6 @@ distances more than:</property>
                         <property name="child">
                           <object class="GtkBox" id="vbox139">
                             <property name="orientation">vertical</property>
-                            <property name="can-focus">0</property>
                             <child>
                               <object class="GtkLabel" id="label226">
                                 <property name="valign">center</property>
@@ -908,7 +879,6 @@ distances more than:</property>
                                 <property name="child">
                                   <object class="GtkBox" id="vbox140">
                                     <property name="orientation">vertical</property>
-                                    <property name="can-focus">0</property>
                                     <child>
                                       <object class="GtkCheckButton" id="preferences_geometry_cis_peptide_bad_yes_radiobutton">
                                         <property name="valign">center</property>
@@ -951,7 +921,6 @@ distances more than:</property>
                         <property name="child">
                           <object class="GtkBox" id="vbox234">
                             <property name="orientation">vertical</property>
-                            <property name="can-focus">0</property>
                             <child>
                               <object class="GtkLabel" id="label561">
                                 <property name="valign">center</property>
@@ -966,7 +935,6 @@ distances more than:</property>
                                 <property name="child">
                                   <object class="GtkBox" id="vbox235">
                                     <property name="orientation">vertical</property>
-                                    <property name="can-focus">0</property>
                                     <child>
                                       <object class="GtkCheckButton" id="preferences_bg_colour_black_radiobutton">
                                         <property name="valign">center</property>
@@ -1034,7 +1002,6 @@ distances more than:</property>
                         <property name="child">
                           <object class="GtkBox" id="vbox255">
                             <property name="orientation">vertical</property>
-                            <property name="can-focus">0</property>
                             <child>
                               <object class="GtkFrame" id="frame248">
                                 <property name="valign">center</property>
@@ -1042,7 +1009,6 @@ distances more than:</property>
                                 <property name="child">
                                   <object class="GtkBox" id="vbox256">
                                     <property name="orientation">vertical</property>
-                                    <property name="can-focus">0</property>
                                     <child>
                                       <object class="GtkCheckButton" id="preferences_font_size_small_radiobutton">
                                         <property name="valign">center</property>
@@ -1106,7 +1072,6 @@ distances more than:</property>
                                 <property name="child">
                                   <object class="GtkBox" id="vbox298">
                                     <property name="orientation">vertical</property>
-                                    <property name="can-focus">0</property>
                                     <child>
                                       <object class="GtkCheckButton" id="preferences_font_colour_default_radiobutton">
                                         <property name="valign">center</property>
@@ -1171,14 +1136,12 @@ distances more than:</property>
                         <property name="child">
                           <object class="GtkBox" id="vbox265">
                             <property name="orientation">vertical</property>
-                            <property name="can-focus">0</property>
                             <child>
                               <object class="GtkFrame" id="frame264">
                                 <property name="visible">1</property>
                                 <property name="child">
                                   <object class="GtkBox" id="vbox266">
                                     <property name="orientation">vertical</property>
-                                    <property name="can-focus">0</property>
                                     <child>
                                       <object class="GtkCheckButton" id="preferences_tips_on_radiobutton">
                                         <property name="valign">center</property>
@@ -1228,14 +1191,12 @@ distances more than:</property>
                         <property name="child">
                           <object class="GtkBox" id="vbox246">
                             <property name="orientation">vertical</property>
-                            <property name="can-focus">0</property>
                             <child>
                               <object class="GtkFrame" id="frame240">
                                 <property name="visible">1</property>
                                 <property name="child">
                                   <object class="GtkBox" id="vbox247">
                                     <property name="orientation">vertical</property>
-                                    <property name="can-focus">0</property>
                                     <child>
                                       <object class="GtkCheckButton" id="preferences_console_info_on_radiobutton">
                                         <property name="valign">center</property>
@@ -1285,7 +1246,6 @@ distances more than:</property>
                         <property name="child">
                           <object class="GtkBox" id="vbox257">
                             <property name="orientation">vertical</property>
-                            <property name="can-focus">0</property>
                             <child>
                               <object class="GtkLabel" id="label585">
                                 <property name="valign">center</property>
@@ -1313,8 +1273,6 @@ distances more than:</property>
                                         <property name="halign">center</property>
                                         <property name="visible">1</property>
                                         <property name="focusable">1</property>
-                                        <property name="primary-icon-activatable">0</property>
-                                        <property name="secondary-icon-activatable">0</property>
                                         <signal name="activate" handler="on_preferences_pink_pointer_entry_activate" swapped="no"/>
                                         <signal name="changed" handler="on_preferences_pink_pointer_entry_changed" swapped="no"/>
                                       </object>
