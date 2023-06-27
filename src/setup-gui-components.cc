@@ -87,7 +87,7 @@ gboolean generic_hide_on_escape_controller_cb(GtkEventControllerKey  *controller
    gboolean handled = TRUE;
    switch (keyval) {
       case GDK_KEY_Escape: {
-         gtk_widget_hide(to_be_hidden);
+         gtk_widget_set_visible(to_be_hidden, FALSE);
          break;
       }
       default: {

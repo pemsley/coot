@@ -371,7 +371,7 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label,
 
       GtkWidget *label_widget = widget_from_builder("nothing_bad_label");
 
-      gtk_widget_show(label_widget);
+      gtk_widget_set_visible(label_widget, TRUE);
       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
 
       // are these correct?
@@ -398,11 +398,11 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label,
       GtkWidget *info_image = GTK_WIDGET(g_object_get_data(G_OBJECT(box), "information"));
       GtkWidget *warn_image = GTK_WIDGET(g_object_get_data(G_OBJECT(box), "warning"));
       if (warning) {
-         gtk_widget_hide(GTK_WIDGET(info_image));
-         gtk_widget_show(GTK_WIDGET(warn_image));
+         gtk_widget_set_visible(GTK_WIDGET(info_image), FALSE);
+         gtk_widget_set_visible(GTK_WIDGET(warn_image), TRUE);
       } else {
-         gtk_widget_show(GTK_WIDGET(info_image));
-         gtk_widget_hide(GTK_WIDGET(warn_image));
+         gtk_widget_set_visible(GTK_WIDGET(info_image), TRUE);
+         gtk_widget_set_visible(GTK_WIDGET(warn_image), FALSE);
       }
    }
    return dialog;
@@ -514,7 +514,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
             // GtkWidget *widget = create_no_cif_dictionary_bonds_dialog();
 #ifndef EMSCRIPTEN
             GtkWidget *widget = widget_from_builder("no_cif_dictionary_bonds_dialog");
-            gtk_widget_show(widget);
+            gtk_widget_set_visible(widget, TRUE);
 #endif
          }
       }
@@ -4005,7 +4005,7 @@ graphics_info_t::start_baton_here() {
       if (map_molecules.size() > 0) {
 #ifndef EMSCRIPTEN
          GtkWidget *w = wrapped_create_skeleton_dialog(1);
-         gtk_widget_show(w);
+         gtk_widget_set_visible(w, TRUE);
 #endif
          return 0;
          
@@ -4018,7 +4018,7 @@ graphics_info_t::start_baton_here() {
 #ifndef EMSCRIPTEN
          GtkWidget *w = widget_from_builder("baton_mode_make_skeleton_dialog");
          g_object_set_data(G_OBJECT(w), "imol", GINT_TO_POINTER(imol_for_skel));
-         gtk_widget_show(w);
+         gtk_widget_set_visible(w, TRUE);
 #endif
          return 0;
       }
@@ -4614,7 +4614,7 @@ graphics_info_t::apply_undo() {
          GtkWidget *dialog = widget_from_builder("undo_molecule_chooser_dialog");
          GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
          fill_combobox_with_undo_options(combobox);
-         gtk_widget_show(dialog);
+         gtk_widget_set_visible(dialog, TRUE);
 
       }
    } else {
@@ -4682,7 +4682,7 @@ graphics_info_t::apply_redo() {
       GtkWidget *dialog = widget_from_builder("undo_molecule_chooser_dialog");
       GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
       fill_combobox_with_undo_options(combobox);
-      gtk_widget_show(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
    } else {
       if (umol == -1) { // unset
          std::cout << "There are no molecules with modifications "
@@ -6019,10 +6019,10 @@ graphics_info_t::check_chiral_volumes(int imol) {
          molecules[imol].bad_chiral_volumes();
          GtkWidget *w = wrapped_check_chiral_volumes_dialog(v.second, imol);
          if (w)
-         gtk_widget_show(w);
+         gtk_widget_set_visible(w, TRUE);
          if (v.first.size() != 0) { // bad, there was at least one residue not found in dic.
             GtkWidget *wcc = wrapped_create_chiral_restraints_problem_dialog(v.first);
-            gtk_widget_show(wcc);
+            gtk_widget_set_visible(wcc, TRUE);
          }
       }
    }

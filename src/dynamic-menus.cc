@@ -187,7 +187,7 @@ add_validation_mol_menu_item(int imol,
     GtkWidget *menu_item = gtk_menu_item_new_with_label(name.c_str());
     gtk_container_add(GTK_CONTAINER(menu), menu_item);
     g_signal_connect(G_OBJECT(menu_item), "activate", callback, GINT_TO_POINTER(imol));
-    gtk_widget_show(menu_item);
+    gtk_widget_set_visible(menu_item, TRUE);
     return menu_item;
 #endif
 }

@@ -1059,7 +1059,7 @@ graphics_info_t::check_for_unsaved_changes() const {
 	 GtkWidget *dialog = widget_from_builder("unsaved_changes_dialog");
 	 fill_unsaved_changes_dialog(dialog);
          set_transient_and_position(COOT_UNDEFINED_WINDOW, dialog);
-	 gtk_widget_show(dialog);
+	 gtk_widget_set_visible(dialog, TRUE);
 	 iv = 1;
 	 break;
       }
@@ -1080,7 +1080,7 @@ graphics_info_t::fill_unsaved_changes_dialog(GtkWidget *dialog) const {
          labelstr += "  ";
          labelstr += molecules[imol].name_;
          GtkWidget *label = gtk_label_new(labelstr.c_str());
-         gtk_widget_show(label);
+         gtk_widget_set_visible(label, TRUE);
          // gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f); gtk3 fix alignment
          gtk_box_append(GTK_BOX (vbox), label);
       }

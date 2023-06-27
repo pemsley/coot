@@ -722,17 +722,17 @@ new_startup_application_activate(GtkApplication *application,
       gtk_window_set_child(GTK_WINDOW(app_window), graphics_vbox);
 
       gtk_window_present(GTK_WINDOW(app_window));
-      // gtk_widget_show(window);
+      // gtk_widget_set_visible(window, TRUE);
 
       GtkWidget *gl_area = new_startup_create_glarea_widget();
       graphics_info_t::glareas.push_back(gl_area);
-      gtk_widget_show(gl_area);
+      gtk_widget_set_visible(gl_area, TRUE);
       gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
       gtk_window_set_application(GTK_WINDOW(app_window), application);
       gtk_window_set_default_size(GTK_WINDOW(app_window), 1000, 900);
       gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
       gtk_widget_set_size_request(gl_area, 900, 900); // Hmm
-      gtk_widget_show(app_window);
+      gtk_widget_set_visible(app_window, TRUE);
       gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
 
       gtk_widget_grab_focus(gl_area); // at the start, fixes focus problem
@@ -934,7 +934,7 @@ int new_startup(int argc, char **argv) {
    load_css();
 
    GtkWidget *splash_screen = new_startup_create_splash_screen_window();
-   gtk_widget_show(splash_screen);
+   gtk_widget_set_visible(splash_screen, TRUE);
 
    g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
 

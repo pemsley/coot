@@ -110,7 +110,7 @@ void show_preferences() {
    }
 
    set_transient_for_main_window(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -161,10 +161,10 @@ void show_hide_preferences_tabs(GtkToggleButton *toggletoolbutton, int preferenc
       if (frame) {
          if (gtk_toggle_button_get_active(toggletoolbutton)){
             std::cout << "in show_hide_preferences_tabs() show " << preferences_tabs[i] << std::endl;
-            gtk_widget_show(frame);
+            gtk_widget_set_visible(frame, TRUE);
          } else {
             std::cout << "in show_hide_preferences_tabs() hide " << preferences_tabs[i] << std::endl;
-            gtk_widget_hide(frame);
+            gtk_widget_set_visible(frame, FALSE);
          }
       } else {
             std::cout << "in show_hide_preferences_tabs() no frame for " << preferences_tabs[i] << std::endl;

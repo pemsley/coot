@@ -129,7 +129,7 @@ on_preferences_ok_button_clicked       (GtkButton       *button,
    // GtkWidget *w = lookup_widget(GTK_WIDGET(button), "preferences");
   GtkWidget *w = widget_from_preferences_builder("preferences_dialog");
   save_preferences();
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
   clear_preferences();
 }
 
@@ -838,7 +838,7 @@ on_preferences_dialog_accept_docked_radiobutton_toggled
       } else {
          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hide_checkbutton), TRUE);
       }
-      gtk_widget_show(hbox);
+      gtk_widget_set_visible(hbox, TRUE);
    }
 
 }
@@ -859,7 +859,7 @@ on_preferences_dialog_accept_detouched_radiobutton_toggled
       if (accept_reject_dialog_docked_show_state() == 1) {
          set_accept_reject_dialog_docked_show(0);
       }
-      gtk_widget_hide(hbox);
+      gtk_widget_set_visible(hbox, FALSE);
    }
 
 }

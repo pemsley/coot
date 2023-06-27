@@ -317,7 +317,7 @@ void do_check_waters_by_widget(GtkWidget *dialog) {
 							   zero_occ_flag,
 							   logical_operator_and_or_flag);
       set_transient_for_main_window(w);
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
    }
 
 
@@ -367,7 +367,7 @@ check_waters_baddies(int imol, float b_factor_lim, float map_sigma_lim, float mi
 							      part_occ_contact_flag,
 							      zero_occ_flag,
 							      logical_operator_and_or_flag);
-	 gtk_widget_show(w);
+	 gtk_widget_set_visible(w, TRUE);
       }
    }
    return v;
@@ -501,7 +501,7 @@ void delete_checked_waters_baddies(int imol, float b_factor_lim, float map_sigma
 	 s += " waters";
 	 if (graphics_info_t::use_graphics_interface_flag) {
 	    GtkWidget *w = wrapped_nothing_bad_dialog(s);
-	    gtk_widget_show(w);
+	    gtk_widget_set_visible(w, TRUE);
 	    graphics_draw();
 	 }
       }
@@ -834,7 +834,7 @@ difference_map_peaks(int imol, int imol_coords,
                info_string += graphics_info_t::float_to_string(n_sigma);
                info_string += " sigma";
                GtkWidget *w = wrapped_nothing_bad_dialog(info_string);
-               gtk_widget_show(w);
+               gtk_widget_set_visible(w, TRUE);
             }
          } else {
             float map_sigma = graphics_info_t::molecules[imol].map_sigma();
@@ -847,7 +847,7 @@ difference_map_peaks(int imol, int imol_coords,
                                                                                           do_negative_levels_flag,
                                                                                           around_model_only_flag,
                                                                                           title);
-               gtk_widget_show(w);
+               gtk_widget_set_visible(w, TRUE);
             }
 
             std::cout << "\n   Found these peak positions:\n";
@@ -899,7 +899,7 @@ GtkWidget *wrapped_create_generate_diff_map_peaks_dialog() {
    // if (ifound == 0) {
    //    std::cout << "Error: you must have a difference map to analyse!" << std::endl;
    //    GtkWidget *none_frame = widget_from_builder("no_difference_maps_frame");
-   //    gtk_widget_show(none_frame);
+   //    gtk_widget_set_visible(none_frame, TRUE);
    // }
    // the name of the vbox which is looked up is "generate_diff_map_peaks_model_vbox".
    // ifound = fill_ligands_dialog_protein_bits_by_dialog_name(dialog, "generate_diff_map_peaks_model");
@@ -1103,7 +1103,7 @@ void difference_map_peaks_by_widget_old(GtkWidget *dialog) {
       std::cout << "WARNING:: failed to find a difference map "
 		<< "Can't do peak search" << std::endl;
       GtkWidget *w = wrapped_nothing_bad_dialog("WARNING:: failed to find difference map\nCan't do peak search");
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
    }
 }
 
@@ -1400,7 +1400,7 @@ int do_ramachandran_plot_differences_by_widget(GtkWidget *w) {
 	 std::cout << "INFO:: incomprehensible molecule/chain selection" << std::endl;
 	 std::string s = "Can't make sense of chain selection.  Try again?";
 	 GtkWidget *nbd = wrapped_nothing_bad_dialog(s);
-	 gtk_widget_show(nbd);
+	 gtk_widget_set_visible(nbd, TRUE);
       }
    }
    return istat;
@@ -1517,7 +1517,7 @@ ramachandran_plot_differences(int imol1, int imol2) {
       if (w && (imol1 == imol2)) {
          coot::rama_plot *plot =
                (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
-         gtk_widget_show(w);
+         gtk_widget_set_visible(w, TRUE);
          plot->make_kleywegt_plot(1);
       } else {
          // dont have the widget, make a new one?! info for now
@@ -1573,7 +1573,7 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
       if (w) {
          coot::rama_plot *plot =
                (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
-         gtk_widget_show(w);
+         gtk_widget_set_visible(w, TRUE);
          plot->make_kleywegt_plot(1);
       } else {
          // dont have the widget, make a new one?! info for now
@@ -2122,7 +2122,7 @@ void gln_asn_b_factor_outliers(int imol) {
 	 } else {
 	    std::string label = "Coot detected no GLN or ASN B-factor Outliers";
 	    GtkWidget *w = wrapped_nothing_bad_dialog(label);
-	    gtk_widget_show(w);
+	    gtk_widget_set_visible(w, TRUE);
 	 }
       }
    }
@@ -2176,7 +2176,7 @@ void gln_asn_b_factor_outliers_py(int imol) {
 	 } else {
 	    std::string label = "Coot detected no GLN or ASN B-factor Outliers";
 	    GtkWidget *w = wrapped_nothing_bad_dialog(label);
-	    gtk_widget_show(w);
+	    gtk_widget_set_visible(w, TRUE);
 	 }
       }
    }

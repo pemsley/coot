@@ -183,7 +183,7 @@ void do_residue_info_dialog() {
       std::string s =  "WARNING:: You have pending (un-Applied) residue edits\n";
       s += "Deal with them first.";
       GtkWidget *w = wrapped_nothing_bad_dialog(s);
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
    } else {
       std::cout << "INFO:: Click on an atom..." << std::endl;
       add_status_bar_text("Click on an atom");
@@ -2833,7 +2833,7 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
                            gtk_widget_set_size_request(canvas, graph_x_n_pixels, graph_y_n_pixels+10);
                            g->draw_graph();
 
-                           gtk_widget_show(canvas);
+                           gtk_widget_set_visible(canvas, TRUE);
                            gtk_container_add(GTK_CONTAINER(map_contour_frame), canvas);
                         }
 #endif
@@ -2845,7 +2845,7 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
       }
    }
 #else
-   gtk_widget_hide(map_contour_frame);
+   gtk_widget_set_visible(map_contour_frame, FALSE);
 #endif
 }
 

@@ -348,7 +348,7 @@ int test_function(int i, int j) {
 
    if (0) {
       GtkWidget *w = wrapped_create_add_additional_representation_gui();
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
    }
 
    if (0) {
@@ -406,7 +406,7 @@ int test_function(int i, int j) {
 
    if (0) {
       GtkWidget *w = wrapped_create_least_squares_dialog();
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
    }
 
 
@@ -745,7 +745,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
          int imol = pp.second.first;
          bool show_stub_flag = true;
          GtkWidget *widget = g.wrapped_create_residue_type_chooser_window(show_stub_flag);
-         gtk_widget_show(widget);
+         gtk_widget_set_visible(widget, TRUE);
          g.in_mutate_auto_fit_define = 0;
          g.residue_type_chooser_auto_fit_flag = 1;
          g.pick_pending_flag = 0;
@@ -977,7 +977,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       }
 
       GtkWidget *w = wrapped_create_generic_objects_dialog();
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
    }
 
    if (0) {
@@ -997,7 +997,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       }
 
       GtkWidget *w = wrapped_create_generic_objects_dialog();
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
    }
 
    if (0) {
@@ -1549,7 +1549,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
       GtkWidget *overlay = widget_from_builder("main_window_graphics_overlay");
       GtkWidget *label = gtk_label_new("Ramachandran Restraints Enabled ");
-      gtk_widget_show(label);
+      gtk_widget_set_visible(label, TRUE);
       gtk_overlay_add_overlay(GTK_OVERLAY(overlay), label);
 
       // 20220807-PE not declared in this scope - hmm

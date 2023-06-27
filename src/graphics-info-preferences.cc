@@ -904,7 +904,7 @@ graphics_info_t::fill_preferences_toolbar_icons(GtkWidget *preferences,
    // update the tree
    update_toolbar_icons(model, toolbar_index);
 
-   gtk_widget_show(icons_tree);
+   gtk_widget_set_visible(icons_tree, TRUE);
 }
 
 
@@ -937,11 +937,11 @@ graphics_info_t::show_hide_toolbar_icon_pos(int pos, int show_hide_flag, int too
 	 if (show_hide_flag == 1) {
 	    preferences_internal_change_value_int2(preferences_index, pos, 1);
 	    (*pall_items)[pos].show();
-	    gtk_widget_show(icon_button);
+	    gtk_widget_set_visible(icon_button, TRUE);
 	 } else {
 	    preferences_internal_change_value_int2(preferences_index, pos, 0);
 	    (*pall_items)[pos].hide();
-	    gtk_widget_hide(icon_button);
+	    gtk_widget_set_visible(icon_button, FALSE);
 	 }
          coot::preferences_icon_info_t item = (*pall_items)[pos];
          

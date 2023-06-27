@@ -296,7 +296,7 @@ on_single_map_properties_ok_button_clicked(GtkButton       *button,
     set_contour_by_sigma_step_maybe(window, imol);
     skeletonize_map_single_map_maybe(window, imol);
   }
-  gtk_widget_hide(window);
+  gtk_widget_set_visible(window, FALSE);
 
 }
 
@@ -365,7 +365,7 @@ void show_map_colour_selector_with_parent(int imol, GtkWidget *parent_window) {
       GdkRGBA *map_colour_p = new GdkRGBA(map_colour);
       gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(colour_chooser_dialog), map_colour_p);
 
-      gtk_widget_show(colour_chooser_dialog);
+      gtk_widget_set_visible(colour_chooser_dialog, TRUE);
       GCallback callback = G_CALLBACK(on_colour_chooser_dialog_response);
       g_signal_connect(G_OBJECT(colour_chooser_dialog), "response", callback, GINT_TO_POINTER(imol));
    }

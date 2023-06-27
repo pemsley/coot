@@ -34,7 +34,7 @@ on_shader_settings_dialog_response(GtkDialog       *dialog,
                                    gpointer         user_data) {
 
    if (response_id == GTK_RESPONSE_CLOSE) {
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 }
 

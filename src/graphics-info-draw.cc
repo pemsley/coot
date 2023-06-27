@@ -3196,11 +3196,11 @@ graphics_info_t::show_atom_pull_toolbar_buttons() {
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
 
       if (button_1)
-         gtk_widget_show(button_1);
+         gtk_widget_set_visible(button_1, TRUE);
       else
          std::cout << "in show_atom_pull_toolbar_buttons() missing button1" << std::endl;
       if (button_2)
-         gtk_widget_show(button_2);
+         gtk_widget_set_visible(button_2, TRUE);
       else
          std::cout << "in show_atom_pull_toolbar_buttons() missing button2" << std::endl;
    }
@@ -3215,9 +3215,9 @@ graphics_info_t::hide_atom_pull_toolbar_buttons() {
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
       
       if (button_1)
-         gtk_widget_hide(button_1);
+         gtk_widget_set_visible(button_1, FALSE);
       if (button_2)
-         gtk_widget_hide(button_2);
+         gtk_widget_set_visible(button_2, FALSE);
    }
 }
 
@@ -6308,9 +6308,9 @@ graphics_info_t::fullscreen() {
       // // GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
       GtkWidget* sidebar = widget_from_builder("main_window_vbox_inner");
 
-      gtk_widget_hide(tool_bar);
-      gtk_widget_hide(sidebar);
-      gtk_widget_hide(status_bar);
+      gtk_widget_set_visible(tool_bar, FALSE);
+      gtk_widget_set_visible(sidebar, FALSE);
+      gtk_widget_set_visible(status_bar, FALSE);
 
 
       std::cout << "calling gtk_window_fullscreen() " << window << std::endl;
@@ -6386,10 +6386,10 @@ graphics_info_t::unfullscreen() {
       }
 
       
-      //gtk_widget_show(tool_bar_frame);
-      gtk_widget_show(tool_bar);
-      gtk_widget_show(sidebar);
-      gtk_widget_show(status_bar);
+      //gtk_widget_set_visible(tool_bar_frame, TRUE);
+      gtk_widget_set_visible(tool_bar, TRUE);
+      gtk_widget_set_visible(sidebar, TRUE);
+      gtk_widget_set_visible(status_bar, TRUE);
 } else {
       g_error("%p is not a Gtk.Window !", window);
    }

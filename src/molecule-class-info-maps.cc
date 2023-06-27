@@ -2132,7 +2132,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       ws += "currently end in .map or .ext - sorry.\n\n";
       ws += "The map must be a CCP4 map or Badness Will Happen! :-)\n";
       GtkWidget *w = graphics_info_t::wrapped_nothing_bad_dialog(ws);
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
    }
 
    // KDC: check map type

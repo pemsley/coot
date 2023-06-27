@@ -1335,7 +1335,7 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 			if (use_graphics_interface_flag) {
 			   // GtkWidget *widget = create_no_restraints_info_dialog();
 			   GtkWidget *widget = widget_from_builder("no_restraints_info_dialog");
-			   gtk_widget_show(widget);
+			   gtk_widget_set_visible(widget, TRUE);
 			} else {
 			   std::cout << "WARNING:: No dictionary for some residue types " << std::endl;
 			}
