@@ -183,15 +183,30 @@ CanvasMolecule::Atom::Appendix::Appendix() noexcept
     
 }
 
-std::pair<float,float> CanvasMolecule::Bond::get_perpendicular_versor() const noexcept {
+std::pair<float,float> CanvasMolecule::Bond::get_vector() const noexcept {
     float bond_vector_x = second_atom_x - first_atom_x;
     float bond_vector_y = second_atom_y - first_atom_y;
+    return std::make_pair(bond_vector_x,bond_vector_y);
+}
+
+std::pair<float,float> CanvasMolecule::Bond::get_versor() const noexcept {
+    auto [bond_vector_x, bond_vector_y] = this->get_vector();
     float bond_vector_len = std::sqrt(std::pow(bond_vector_x,2.f) + std::pow(bond_vector_y,2.f));
     if (bond_vector_len == 0) {
         return std::make_pair(0.f, 0.f);
     } else {
-        return std::make_pair(-bond_vector_y/bond_vector_len,bond_vector_x/bond_vector_len);
+        return std::make_pair(bond_vector_x/bond_vector_len,bond_vector_y/bond_vector_len);
     }
+}
+
+std::pair<float,float> CanvasMolecule::Bond::get_perpendicular_versor() const noexcept {
+    auto [x, y] = this->get_versor();
+    return std::make_pair(-y,x);
+}
+
+float CanvasMolecule::Bond::get_length() const noexcept {
+    auto [bond_vector_x, bond_vector_y] = this->get_vector();
+    return std::sqrt(std::pow(bond_vector_x,2.f) + std::pow(bond_vector_y,2.f));
 }
 
 void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, const graphene_rect_t *bounds) const noexcept {
@@ -214,7 +229,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         cairo_line_to(cr, bond.second_atom_x * scale_factor + x_offset, bond.second_atom_y * scale_factor + y_offset);
         cairo_stroke(cr);
 
-        auto draw_side_bond_line = [&](bool addOrSub, float first_shortening_proportionhortening, float second_shortening_proportion){
+        auto draw_side_bond_line = [&](bool addOrSub, float first_shortening_proportion, float second_shortening_proportion){
             auto [pv_x,pv_y] = bond.get_perpendicular_versor();
             if (!addOrSub) { // change sign of the versor
                 pv_x *= -1.f;
@@ -223,8 +238,15 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             // Convert the versor to a vector of the desired length
             pv_x *= BOND_LINE_SEPARATION;
             pv_y *= BOND_LINE_SEPARATION;
-            cairo_move_to(cr, (bond.first_atom_x + pv_x) * scale_factor + x_offset, (bond.first_atom_y + pv_y) * scale_factor + y_offset);
-            cairo_line_to(cr, (bond.second_atom_x + pv_x) * scale_factor + x_offset, (bond.second_atom_y + pv_y) * scale_factor + y_offset);
+
+            auto [bond_vec_x, bond_vec_y] = bond.get_vector();
+            auto first_x = bond.first_atom_x + first_shortening_proportion * bond_vec_x;
+            auto second_x = bond.second_atom_x - second_shortening_proportion * bond_vec_x;
+            auto first_y = bond.first_atom_y + first_shortening_proportion * bond_vec_y;
+            auto second_y = bond.second_atom_y - second_shortening_proportion * bond_vec_y;
+
+            cairo_move_to(cr, (first_x + pv_x) * scale_factor + x_offset, (first_y + pv_y) * scale_factor + y_offset);
+            cairo_line_to(cr, (second_x + pv_x) * scale_factor + x_offset, (second_y + pv_y) * scale_factor + y_offset);
             cairo_stroke(cr);
         };
 

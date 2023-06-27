@@ -100,6 +100,12 @@ class CanvasMolecule {
 
         /// Returns an [x,y] pair of numbers
         std::pair<float,float> get_perpendicular_versor() const noexcept;
+        /// Returns an [x,y] pair of numbers
+        std::pair<float,float> get_versor() const noexcept;
+        /// Returns an [x,y] pair of numbers
+        std::pair<float,float> get_vector() const noexcept;
+
+        float get_length() const noexcept;
     };
     typedef std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond> AtomOrBond;
     typedef std::optional<AtomOrBond> MaybeAtomOrBond;
@@ -160,7 +166,9 @@ class CanvasMolecule {
     /// Part of the lowering process.
     void process_bond_alignment_in_rings();
 
-    /// Computes length proportions by which double bonds have to be shortened
+    /// Computes length proportions by which 
+    /// the parallel segments of double bonds have to be shortened
+    /// to main aesthetic proportions.
     ///
     /// Part of the lowering process.
     void shorten_double_bonds();
