@@ -46,6 +46,7 @@
 #include "read-phs.h"
 #include "gtk-manual.h"
 #include "c-interface-refine.h"
+#include "utils/coot-utils.hh"
 
 // from support.h
 // GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
@@ -175,58 +176,53 @@ on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_bond_colours_hscale_value_changed
-                                        (GtkRange        *range,
-                                        gpointer         user_data)
-{
-  GtkAdjustment *adjustment;
-  float fvalue;
-  adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
-  fvalue = gtk_adjustment_get_value(adjustment);
-  preferences_internal_change_value_float(PREFERENCES_BOND_COLOURS_MAP_ROTATION, fvalue);
-  set_colour_map_rotation_on_read_pdb(fvalue);
+on_preferences_bond_colours_hscale_value_changed(GtkRange        *range,
+                                                 gpointer         user_data) {
+
+   GtkAdjustment *adjustment;
+   float fvalue;
+   adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
+   fvalue = gtk_adjustment_get_value(adjustment);
+   preferences_internal_change_value_float(PREFERENCES_BOND_COLOURS_MAP_ROTATION, fvalue);
+   set_colour_map_rotation_on_read_pdb(fvalue);
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_bond_colours_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_BOND_COLOUR_ROTATION_C_ONLY, 1);
-    set_colour_map_rotation_on_read_pdb_c_only_flag(1);
-  } else {
-    preferences_internal_change_value_int(PREFERENCES_BOND_COLOUR_ROTATION_C_ONLY, 0);
-    set_colour_map_rotation_on_read_pdb_c_only_flag(0);
-  }
+on_preferences_bond_colours_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                gpointer         user_data) {
 
-}
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_BOND_COLOUR_ROTATION_C_ONLY, 1);
+      set_colour_map_rotation_on_read_pdb_c_only_flag(1);
+   } else {
+      preferences_internal_change_value_int(PREFERENCES_BOND_COLOUR_ROTATION_C_ONLY, 0);
+      set_colour_map_rotation_on_read_pdb_c_only_flag(0);
+   }
 
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_bg_colour_black_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, 0, 0, 0);
-    set_background_colour(0, 0, 0);
-  }
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_bg_colour_white_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, 1, 1, 1);
-    set_background_colour(1, 1, 1);
-  }
+on_preferences_bg_colour_black_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                   gpointer         user_data) {
+
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, 0, 0, 0);
+      set_background_colour(0, 0, 0);
+   }
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_preferences_bg_colour_white_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                   gpointer         user_data) {
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, 1, 1, 1);
+      set_background_colour(1, 1, 1);
+   }
 
 }
 
@@ -262,9 +258,8 @@ on_preferences_bg_colour_own_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_bg_colour_colorbutton_color_set
-                                        (GtkColorButton  *colorbutton,
-                                        gpointer         user_data) {
+on_preferences_bg_colour_colorbutton_color_set(GtkColorButton  *colorbutton,
+                                               gpointer         user_data) {
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
 #else
@@ -290,13 +285,12 @@ on_preferences_bg_colour_colorbutton_color_set
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_bg_colour_colorbutton_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_preferences_bg_colour_colorbutton_clicked(GtkButton       *button,
+                                             gpointer         user_data) {
+
    // GtkWidget *w = lookup_widget(GTK_WIDGET(button), "preferences_bg_colour_own_radiobutton");
-  GtkWidget *w = widget_from_preferences_builder("preferences_bg_colour_own_radiobutton");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+   GtkWidget *w = widget_from_preferences_builder("preferences_bg_colour_own_radiobutton");
+   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
 
 }
 
@@ -304,10 +298,9 @@ on_preferences_bg_colour_colorbutton_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_radius_entry_activate
-                                        (GtkEntry        *entry,
-					 gpointer         user_data)
-{
+on_preferences_map_radius_entry_activate(GtkEntry        *entry,
+					 gpointer         user_data) {
+
    const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
    float fval = 0;
    fval = atof(text);
@@ -321,10 +314,9 @@ on_preferences_map_radius_entry_activate
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_radius_entry_changed
-                                        (GtkEditable     *editable,
-					 gpointer         user_data)
-{
+on_preferences_map_radius_entry_changed(GtkEditable     *editable,
+                                        gpointer         user_data) {
+
    //GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_radius_entry"));
    GtkEntry *entry = GTK_ENTRY(widget_from_preferences_builder("preferences_map_radius_entry"));
    std::cout << "debug:: on_preferences_map_radius_entry_changed() entry " << entry << std::endl;
@@ -346,10 +338,8 @@ on_preferences_map_radius_entry_changed
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_increment_size_entry_activate
-                                        (GtkEntry        *entry,
-					 gpointer         user_data)
-{
+on_preferences_map_increment_size_entry_activate(GtkEntry        *entry,
+                                                 gpointer         user_data) {
    const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
    float fval = 0;
    fval = atof(text);
@@ -357,42 +347,41 @@ on_preferences_map_increment_size_entry_activate
       preferences_internal_change_value_float(PREFERENCES_MAP_ISOLEVEL_INCREMENT, fval);
       set_iso_level_increment(fval);
    }
-
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_increment_size_entry_changed
-                                        (GtkEditable     *editable,
-                                        gpointer         user_data)
-{
-   // GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_map_increment_size_entry"));
-  GtkEntry *entry = GTK_ENTRY(widget_from_preferences_builder("preferences_map_increment_size_entry"));
-  const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
-  float fval = 0;
-  fval = atof(text);
-  if (fval > 0) {
-    preferences_internal_change_value_float(PREFERENCES_MAP_ISOLEVEL_INCREMENT, fval);
-    set_iso_level_increment(fval);
-  }
+on_preferences_map_increment_size_entry_changed(GtkEditable     *editable,
+                                                gpointer         user_data) {
 
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_map_diff_increment_entry_activate
-                                        (GtkEntry        *entry,
-                                        gpointer         user_data)
-{
+   GtkEntry *entry = GTK_ENTRY(widget_from_preferences_builder("preferences_map_increment_size_entry"));
    const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
-  float fval = 0;
-  fval = atof(text);
-  if (fval > 0) {
-    preferences_internal_change_value_float(PREFERENCES_DIFF_MAP_ISOLEVEL_INCREMENT, fval);
-    set_diff_map_iso_level_increment(fval);
-  }
+   try {
+      float fval = coot::util::string_to_float(text);
+      if (fval > 0) {
+         preferences_internal_change_value_float(PREFERENCES_MAP_ISOLEVEL_INCREMENT, fval);
+         set_iso_level_increment(fval);
+      }
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_preferences_map_diff_increment_entry_activate(GtkEntry        *entry,
+                                                 gpointer         user_data) {
+
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
+   float fval = 0;
+   fval = atof(text);
+   if (fval > 0) {
+      preferences_internal_change_value_float(PREFERENCES_DIFF_MAP_ISOLEVEL_INCREMENT, fval);
+      set_diff_map_iso_level_increment(fval);
+   }
 
 }
 
@@ -531,14 +520,14 @@ on_preferences_map_colours_hscale_value_changed
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_smooth_scroll_on_radiobutton_toggled
-                                        (GtkCheckButton *checkbutton,
-					 gpointer        user_data) {
-  if (gtk_check_button_get_active(checkbutton)) {
-    preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL, 1);
-    set_smooth_scroll_flag(1);
-  }
+on_preferences_smooth_scroll_on_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                    gpointer        user_data) {
 
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL, 1);
+      std::cout << "EPH smooth scroll 1 " << std::endl;
+      set_smooth_scroll_flag(1);
+   }
 }
 
 
@@ -549,6 +538,7 @@ on_preferences_smooth_scroll_off_radiobutton_toggled(GtkCheckButton *checkbutton
 
    if (gtk_check_button_get_active(checkbutton)) {
       preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL, 0);
+      std::cout << "EPH smooth scroll 0 " << std::endl;
       set_smooth_scroll_flag(0);
   }
 
@@ -557,35 +547,19 @@ on_preferences_smooth_scroll_off_radiobutton_toggled(GtkCheckButton *checkbutton
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_smooth_scroll_steps_entry_activate
-                                        (GtkEntry        *entry,
-                                        gpointer         user_data)
-{
+on_preferences_smooth_scroll_steps_entry_activate(GtkEntry        *entry,
+                                                  gpointer         user_data) {
    const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
-  int ival = 0;
-  ival = atoi(text);
-  if ((ival < 10000000) && (ival > 0)) {
-    preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL_STEPS, ival);
-    set_smooth_scroll_steps(ival);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_smooth_scroll_steps_entry_changed
-                                        (GtkEditable     *editable,
-                                        gpointer         user_data)
-{
-   // GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(editable), "preferences_smooth_scroll_steps_entry"));
-   GtkEntry *entry = GTK_ENTRY(widget_from_preferences_builder("preferences_smooth_scroll_steps_entry"));
-   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
-   int ival = 0;
-   ival = atoi(text);
-   if ((ival < 10000000) && (ival > 0)) {
-      preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL_STEPS, ival);
-      set_smooth_scroll_steps(ival);
+   try {
+      int ival = coot::util::string_to_int(text);
+      if ((ival < 100000) && (ival > 0)) {
+         preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL_STEPS, ival);
+         std::cout << "EPH set_smooth_scroll " << ival << std::endl;
+         set_smooth_scroll_steps(ival);
+      }
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
    }
 
 }
@@ -593,17 +567,43 @@ on_preferences_smooth_scroll_steps_entry_changed
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_smooth_scroll_limit_entry_activate
-                                        (GtkEntry        *entry,
-                                        gpointer         user_data)
-{
+on_preferences_smooth_scroll_steps_entry_changed(GtkEditable     *editable,
+                                                 gpointer         user_data) {
+
+   const gchar *text = gtk_editable_get_text(editable);
+   try {
+      int ival = coot::util::string_to_int(text);
+      if ((ival < 100000) && (ival > 0)) {
+         preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL_STEPS, ival);
+         std::cout << "EPH set_smooth_scroll " << ival << std::endl;
+         set_smooth_scroll_steps(ival);
+      }
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_preferences_smooth_scroll_limit_entry_activate(GtkEntry        *entry,
+                                                  gpointer         user_data) {
+
    const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
-  float fval = 0;
-  fval = atof(text);
-  if ((fval < 1000) && (fval > 0)) {
-    preferences_internal_change_value_float(PREFERENCES_SMOOTH_SCROLL_LIMIT, fval);
-    set_smooth_scroll_limit(fval);
-  }
+
+   try {
+      float fval = coot::util::string_to_float(std::string(text));
+      if ((fval < 1000) && (fval > 0)) {
+         preferences_internal_change_value_float(PREFERENCES_SMOOTH_SCROLL_LIMIT, fval);
+         std::cout << "EPH set smooth scroll imit " << fval << std::endl;
+         set_smooth_scroll_limit(fval);
+      }
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
 
 }
 
@@ -1229,11 +1229,10 @@ on_preferences_font_size_combobox_changed
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_colour_default_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
+on_preferences_font_colour_default_radiobutton_toggled(GtkToggleButton *togglebutton,
+                                                       gpointer         user_data) {
+
+   if (gtk_toggle_button_get_active(togglebutton)) {
       preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, 1.0, 0.8, 0.8);
       set_font_colour(1.0, 0.8, 0.8);
    }
@@ -1242,19 +1241,16 @@ on_preferences_font_colour_default_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_colour_own_radiobutton_toggled(GtkToggleButton *togglebutton,
-                                                                       gpointer         user_data) {
+on_preferences_font_colour_own_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                   gpointer         user_data) {
 
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-
-#else
-   GdkColor font_colour;
+   GdkRGBA font_colour;
    float fval1;
    float fval2;
    float fval3;
    int previous_state;
 
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
 
       previous_state = preferences_internal_font_own_colour_flag();
 
@@ -1271,7 +1267,7 @@ on_preferences_font_colour_own_radiobutton_toggled(GtkToggleButton *togglebutton
          preferences_internal_change_value_int(PREFERENCES_FONT_OWN_COLOUR_FLAG, 1);
       }
    }
-#endif
+
 }
 
 

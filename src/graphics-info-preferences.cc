@@ -357,7 +357,7 @@ void
 graphics_info_t::make_preferences_internal() {
 
   coot::preference_info_t p;
-  std::vector<coot::preference_info_t> ret;
+  std::vector<coot::preference_info_t> ret; // not returned. preferences_internal() is set to this value.
   
   int on;
   float fvalue;

@@ -92,26 +92,27 @@ void show_preferences() {
    GtkWidget *scrolled_win_main_toolbar = widget_from_preferences_builder("preferences_main_toolbar_icons_scrolledwindow");
    fill_preferences_main_toolbar_icons(w, scrolled_win_main_toolbar);
 
-   // fill the bond combobox
-   GtkComboBoxText *combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_bond_width_combobox"));
-   for (int j=1; j<21; j++) {
-      std::string s = graphics_info_t::int_to_string(j);
-      gtk_combo_box_text_append_text(combobox, s.c_str());
-   }
-   // fill the font combobox
-   combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_font_size_combobox"));
-   std::vector<std::string> fonts;  
-   // fonts.push_back("Times Roman 10");
-   // fonts.push_back("Times Roman 24");
-   fonts.push_back("Fixed 8/13");
-   fonts.push_back("Fixed 9/15");
-   for (unsigned int j=0; j<fonts.size(); j++) {
-      gtk_combo_box_text_append_text(combobox, fonts[j].c_str());
+   // 20230627-PE put this in setup-gui-components - it should only happen once.
+   {
+     // fill the bond combobox
+     GtkComboBoxText *combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_bond_width_combobox"));
+     for (int j = 1; j < 21; j++) {
+       std::string s = graphics_info_t::int_to_string(j);
+       gtk_combo_box_text_append_text(combobox, s.c_str());
+     }
+     // fill the font combobox
+     combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_font_size_combobox"));
+     std::vector<std::string> fonts;
+     // fonts.push_back("Times Roman 10");
+     // fonts.push_back("Times Roman 24");
+     fonts.push_back("Fixed 8/13");
+     fonts.push_back("Fixed 9/15");
+     for (unsigned int j = 0; j < fonts.size(); j++)
+       gtk_combo_box_text_append_text(combobox, fonts[j].c_str());
    }
 
    set_transient_for_main_window(w);
    gtk_widget_set_visible(w, TRUE);
-
 }
 
 void clear_preferences() {
@@ -217,13 +218,26 @@ void update_preference_gui() {
   unsigned short int v = 4;
   graphics_info_t g;
 
-  std::cout << "----------------------------------------- update_preference_gui() " << std::endl;
+  std::cout << "--------------------------- update_preference_gui() " << std::endl;
 
   dialog = widget_from_preferences_builder("preferences");
 
+  std::cout << "--------------------------- update_preference_gui() preferences internal size "
+            << g.preferences_internal.size() << std::endl;
+
+  for (unsigned int i=0; i<g.preferences_internal.size(); i++) {
+     auto preference_type = g.preferences_internal[i].preference_type;
+     std::cout << " -------------- update_preference_gui() "
+               << preference_type << " " << g.preferences_internal[i].ivalue1 << " "
+               << g.preferences_internal[i].fvalue1 << std::endl;
+  }
+
   for (unsigned int i=0; i<g.preferences_internal.size(); i++) {
     preference_type = g.preferences_internal[i].preference_type;
-    //std::cout <<"BL DEBUG:: type "<< preference_type<<" int " <<g.preferences_internal[i].ivalue << " int default " << g.preferences_internal[i].ivalue<<std::endl;
+
+    std::cout << "----------------------------------------- update_preference_gui() "
+              << preference_type << " " << g.preferences_internal[i].ivalue1 << " "
+              << g.preferences_internal[i].fvalue1 << std::endl;
 
     switch (preference_type) {
       
@@ -301,22 +315,22 @@ void update_preference_gui() {
       w = widget_from_preferences_builder("preferences_hid_spherical_radiobutton");
       ivalue = g.preferences_internal[i].ivalue1;
       if (ivalue == 2) {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+	gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
       } else {
 	w = widget_from_preferences_builder("preferences_hid_flat_radiobutton");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+	gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
       }
       break;
 
     case PREFERENCES_RECENTRE_PDB:
-      w = widget_from_preferences_builder("preferences_recentre_pdb_on_radiobutton");
-      if (g.preferences_internal[i].ivalue1) {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-      } else {
-	w = widget_from_preferences_builder("preferences_recentre_pdb_off_radiobutton");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-      }
-      break;      
+       w = widget_from_preferences_builder("preferences_recentre_pdb_on_radiobutton");
+       if (g.preferences_internal[i].ivalue1) {
+          gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
+       } else {
+          w = widget_from_preferences_builder("preferences_recentre_pdb_off_radiobutton");
+          gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
+       }
+       break;
 
     case PREFERENCES_BONDS_THICKNESS:
       w = widget_from_preferences_builder("preferences_bond_width_combobox");
@@ -333,19 +347,19 @@ void update_preference_gui() {
       break;
 
     case PREFERENCES_BOND_COLOUR_ROTATION_C_ONLY:
-      w = widget_from_preferences_builder("preferences_bond_colours_checkbutton");
-      if (g.preferences_internal[i].ivalue1 == 1) {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-      } else {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), FALSE);
-      }
-      break;
+       w = widget_from_preferences_builder("preferences_bond_colours_checkbutton");
+       if (g.preferences_internal[i].ivalue1 == 1) {
+          gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
+       } else {
+          gtk_check_button_set_active(GTK_CHECK_BUTTON(w), FALSE);
+       }
+       break;
 
     case PREFERENCES_MAP_RADIUS:
-      w = widget_from_preferences_builder("preferences_map_radius_entry");
-      text = graphics_info_t::float_to_string(g.preferences_internal[i].fvalue1);
-      gtk_editable_set_text(GTK_EDITABLE(w), text.c_str());
-      break;
+       w = widget_from_preferences_builder("preferences_map_radius_entry");
+       text = graphics_info_t::float_to_string(g.preferences_internal[i].fvalue1);
+       gtk_editable_set_text(GTK_EDITABLE(w), text.c_str());
+       break;
 
     case PREFERENCES_MAP_ISOLEVEL_INCREMENT:
       w = widget_from_preferences_builder("preferences_map_increment_size_entry");
@@ -426,20 +440,20 @@ void update_preference_gui() {
     case PREFERENCES_MAP_DRAG:
       w = widget_from_preferences_builder("preferences_map_drag_on_radiobutton");
       if (g.preferences_internal[i].ivalue1) {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+	gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
       } else {
 	w = widget_from_preferences_builder("preferences_map_drag_off_radiobutton");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+	gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
       }
       break;
 
     case PREFERENCES_MARK_CIS_BAD:
       w = widget_from_preferences_builder("preferences_geometry_cis_peptide_bad_yes_radiobutton");
       if (g.preferences_internal[i].ivalue1) {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+	gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
       } else {
 	w = widget_from_preferences_builder("preferences_geometry_cis_peptide_bad_no_radiobutton");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+	gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
       }
       break;
 
@@ -449,22 +463,20 @@ void update_preference_gui() {
        fval2 = g.preferences_internal[i].fvalue2;  // green
        fval3 = g.preferences_internal[i].fvalue3;  // blue
        colour_button = widget_from_preferences_builder("preferences_bg_colour_colorbutton");
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+
        GdkRGBA bg_colour;
-#else
-       GdkColor bg_colour;
-#endif
+
        if (fval1 < 0.01 && fval2 < 0.01 && fval3 < 0.01) {
           // black
           w = widget_from_preferences_builder("preferences_bg_colour_black_radiobutton");
-          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+          gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
           bg_colour.red = 0;
           bg_colour.green = 0;
           bg_colour.blue = 0;
        } else if (fval1 > 0.99 && fval2 > 0.99 && fval3 > 0.99) {
           // white
           w = widget_from_preferences_builder("preferences_bg_colour_white_radiobutton");
-          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+          gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
           bg_colour.red = 65535;
           bg_colour.green = 65535;
           bg_colour.blue = 65535;
@@ -482,6 +494,7 @@ void update_preference_gui() {
        else
           std::cout << "about to gtk_color_button_set_color() null colour_button: "
                     << " bg_colour " << bg_colour.red << " " << bg_colour.green << " " << bg_colour.blue << std::endl;
+
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
           // 20220528-PE FIXME color
 #else
@@ -492,35 +505,35 @@ void update_preference_gui() {
 #endif
        break;
 
-    case PREFERENCES_ANTIALIAS:
-       w = widget_from_preferences_builder("preferences_antialias_on_radiobutton");
-       if (g.preferences_internal[i].ivalue1) {
-          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-       } else {
-          w = widget_from_preferences_builder("preferences_antialias_off_radiobutton");
-          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-       }
-       break;
+    // case PREFERENCES_ANTIALIAS:
+    //    w = widget_from_preferences_builder("preferences_antialias_on_radiobutton");
+    //    if (g.preferences_internal[i].ivalue1) {
+    //       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+    //    } else {
+    //       w = widget_from_preferences_builder("preferences_antialias_off_radiobutton");
+    //       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+    //    }
+    //    break;
 
     case PREFERENCES_CONSOLE_COMMANDS:
        w = widget_from_preferences_builder("preferences_console_info_on_radiobutton");
        if (g.preferences_internal[i].ivalue1) {
-          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+          gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
        } else {
           w = widget_from_preferences_builder("preferences_console_info_off_radiobutton");
-          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+          gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
        }
        break;
 
-    case PREFERENCES_TIPS:
-       w = widget_from_preferences_builder("preferences_tips_on_radiobutton");
-       if (g.preferences_internal[i].ivalue1) {
-          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-       } else {
-          w = widget_from_preferences_builder("preferences_tips_off_radiobutton");
-          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-       }
-       break;
+    // case PREFERENCES_TIPS:
+    //    w = widget_from_preferences_builder("preferences_tips_on_radiobutton");
+    //    if (g.preferences_internal[i].ivalue1) {
+    //       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+    //    } else {
+    //       w = widget_from_preferences_builder("preferences_tips_off_radiobutton");
+    //       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+    //    }
+    //    break;
 
     case PREFERENCES_REFINEMENT_SPEED:
       ivalue = g.preferences_internal[i].ivalue1;
@@ -577,11 +590,9 @@ void update_preference_gui() {
       fval2 = g.preferences_internal[i].fvalue2;  // green
       fval3 = g.preferences_internal[i].fvalue3;  // blue
       colour_button = widget_from_preferences_builder("preferences_font_colorbutton");
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
+
       GdkRGBA font_colour;
-#else
-      GdkColor font_colour;
-#endif
+
       if (fval1 >= 0.999 && 
 	  fval2 >= 0.799 && fval2 <= 0.801 &&
 	  fval3 >= 0.799 && fval3 <= 0.801) {
@@ -680,16 +691,16 @@ void update_preference_gui() {
       }
       break;
 
-    case PREFERENCES_MAIN_TOOLBAR_SHOW:
-      ivalue = g.preferences_internal[i].ivalue1;
-      if (ivalue == 0) {
-	w = widget_from_preferences_builder("preferences_main_toolbar_hide_radiobutton");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-      } else {
-	w = widget_from_preferences_builder("preferences_main_toolbar_show_radiobutton");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-      }
-      break;
+    // case PREFERENCES_MAIN_TOOLBAR_SHOW:
+    //   ivalue = g.preferences_internal[i].ivalue1;
+    //   if (ivalue == 0) {
+    //     w = widget_from_preferences_builder("preferences_main_toolbar_hide_radiobutton");
+    //     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+    //   } else {
+    //     w = widget_from_preferences_builder("preferences_main_toolbar_show_radiobutton");
+    //     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+    //   }
+    //   break;
 
     //case PREFERENCES_MAIN_TOOLBAR_POSITION:
     //  ivalue = g.preferences_internal[i].ivalue1;
@@ -708,31 +719,32 @@ void update_preference_gui() {
  //     }
   //    break;
 
-    case PREFERENCES_MAIN_TOOLBAR_STYLE:
-      ivalue = g.preferences_internal[i].ivalue1;
-      if (ivalue <= 1) {
-	w = widget_from_preferences_builder("preferences_main_toolbar_style_icons_radiobutton");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-      } else if (ivalue == 2) {
-	w = widget_from_preferences_builder("preferences_main_toolbar_style_both_radiobutton");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-      } else {
-	w = widget_from_preferences_builder("preferences_main_toolbar_style_text_radiobutton");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-      }
-      break;
+    // case PREFERENCES_MAIN_TOOLBAR_STYLE:
+    //   ivalue = g.preferences_internal[i].ivalue1;
+    //   if (ivalue <= 1) {
+    //     w = widget_from_preferences_builder("preferences_main_toolbar_style_icons_radiobutton");
+    //     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+    //   } else if (ivalue == 2) {
+    //     w = widget_from_preferences_builder("preferences_main_toolbar_style_both_radiobutton");
+    //     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+    //   } else {
+    //     w = widget_from_preferences_builder("preferences_main_toolbar_style_text_radiobutton");
+    //     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+    //   }
+    //   break;
 
-    case PREFERENCES_MAIN_TOOLBAR_ICONS:
-      ivalue  = g.preferences_internal[i].ivalue1;
-      ivalue2 = g.preferences_internal[i].ivalue2;
-      if (ivalue2 == 1) {
-	// show
-	show_main_toolbar_icon(ivalue);
-      } else {
-	// hide
-	hide_main_toolbar_icon(ivalue);
-      }
-      break;
+    // case PREFERENCES_MAIN_TOOLBAR_ICONS:
+    //   ivalue  = g.preferences_internal[i].ivalue1;
+    //   ivalue2 = g.preferences_internal[i].ivalue2;
+    //   if (ivalue2 == 1) {
+    //     // show
+    //     show_main_toolbar_icon(ivalue);
+    //   } else {
+    //     // hide
+    //     hide_main_toolbar_icon(ivalue);
+    //   }
+    //   break;
+
     }
   }
 }
@@ -796,7 +808,7 @@ void preferences_internal_change_value_float(int preference_type, float fvalue) 
 }
 
 void preferences_internal_change_value_float3(int preference_type,
-				       float fvalue1, float fvalue2, float fvalue3) {
+                                              float fvalue1, float fvalue2, float fvalue3) {
   graphics_info_t g;
   g.preferences_internal_change_value(preference_type, fvalue1, fvalue2, fvalue3);
 }

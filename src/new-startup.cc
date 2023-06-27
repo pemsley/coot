@@ -10,6 +10,7 @@
 #include "coot-setup-python.hh"
 #include "utils/coot-utils.hh"
 #include "command-line.hh"
+#include "c-interface-preferences.h"
 
 void print_opengl_info();
 
@@ -700,10 +701,8 @@ new_startup_application_activate(GtkApplication *application,
       // set this by parsing the command line arguments
       graphics_info.use_graphics_interface_flag = true;
 
-
-
-      
-
+      // create the preference defaults
+      make_preferences_internal();
 
       guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
       // std::cout << "debug:: new_startup_application_activate(): Window id: " << id << std::endl;

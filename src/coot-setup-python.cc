@@ -309,9 +309,6 @@ void try_load_dot_coot_py_and_python_scripts(const std::string &home_directory) 
          }
       }
 
-      // update the preferences
-      make_preferences_internal();
-
 #if 0
       // load personal coot file .coot.py
       std::string filename = ".coot.py";
