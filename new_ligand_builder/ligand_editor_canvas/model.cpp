@@ -590,10 +590,10 @@ void CanvasMolecule::shorten_double_bonds() {
     for(auto& bond: this->bonds) {
         if(bond.type == BondType::Double) {
             // 1. Find the adjacent bond(s)
-            auto find_adjacent_bonds = [this,&bond]() -> std::pair<std::optional<const Bond*>,std::optional<const Bond*>> {
+            auto find_adjacent_bonds = [this,&bond]() -> std::pair<std::optional<std::pair<const Bond*,bool>>,std::optional<std::pair<const Bond*,bool>>> {
                 // todo: this should be vectors!
-                std::optional<const Bond*> first_bond;
-                std::optional<const Bond*> second_bond;
+                std::optional<std::pair<const Bond*,bool>> first_bond;
+                std::optional<std::pair<const Bond*,bool>> second_bond;
                 // This isn't pretty but can we even do better?
                 for(const auto& i: this->bonds) {
                     if(i.first_atom_idx == bond.first_atom_idx) {
@@ -602,24 +602,24 @@ void CanvasMolecule::shorten_double_bonds() {
                             continue;
                         }
                         // This bond makes contact with our first atom
-                        first_bond = &i;
+                        first_bond = std::make_pair(&i,false);
                     }
                     if(i.second_atom_idx == bond.first_atom_idx) {
                         // This bond makes contact with our first atom
-                        first_bond = &i;
+                        first_bond = std::make_pair(&i,true);
                     }
                     if(i.first_atom_idx == bond.second_atom_idx) {
                         // This bond makes contact with our second atom
-                        second_bond = &i;
+                        second_bond = std::make_pair(&i,true);
                     }
                     if(i.second_atom_idx == bond.second_atom_idx) {
                         // This bond makes contact with our second atom
-                        second_bond = &i;
+                        second_bond = std::make_pair(&i,false);
                     }
                 }
                 return std::make_pair(first_bond,second_bond);
             };
-            auto compute_shortening_proportion = [&](const Bond* other_bond){
+            auto compute_shortening_proportion = [&](const Bond* other_bond, bool flip){
                 // 2. Find the angle between the bonds (alpha)
                 auto find_angle_between_bonds = [&](){
                     // We can find the angle between two bonds
@@ -627,6 +627,10 @@ void CanvasMolecule::shorten_double_bonds() {
                     // of ( dot product / (length a) * (length b) )
                     auto [bond_vec_x,bond_vec_y] = bond.get_vector();
                     auto [other_bond_vec_x,other_bond_vec_y] = other_bond->get_vector();
+                    if(flip) {
+                        other_bond_vec_x *= -1.f;
+                        other_bond_vec_y *= -1.f;
+                    }
                     auto dot_product = (bond_vec_x*other_bond_vec_x) + (bond_vec_y*other_bond_vec_y);
                     auto bond_length = bond.get_length();
                     auto other_bond_length = other_bond->get_length();
@@ -644,10 +648,12 @@ void CanvasMolecule::shorten_double_bonds() {
             // There may be more than one bond sticking to each side!
             auto [first_bond, second_bond] = find_adjacent_bonds();
             if(first_bond.has_value()) {
-                bond.first_shortening_proportion = compute_shortening_proportion(first_bond.value());
+                auto [adjbond, flip] = first_bond.value();
+                bond.first_shortening_proportion = compute_shortening_proportion(adjbond,flip);
             }
             if(second_bond.has_value()) {
-                bond.second_shortening_proportion = compute_shortening_proportion(second_bond.value());
+                auto [adjbond, flip] = second_bond.value();
+                bond.second_shortening_proportion = compute_shortening_proportion(adjbond,flip);
             }
         }
     }
