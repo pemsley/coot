@@ -287,8 +287,9 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             double origin_x = atom.x * scale_factor + x_offset - layout_width/2.f;
             double origin_y = atom.y * scale_factor + y_offset - layout_height/2.f;
             // an alternative to rendering white-rectangle background is to shorten the bonds
-            cairo_rectangle(cr, origin_x, origin_y, layout_width, layout_height);
-            cairo_fill(cr);
+            // temporary: let's keep the circles only for now
+            //cairo_rectangle(cr, origin_x, origin_y, layout_width, layout_height);
+            //cairo_fill(cr);
             cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
             // temporary: additional white circle in the background
             cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS, 0, M_PI * 2.0);
