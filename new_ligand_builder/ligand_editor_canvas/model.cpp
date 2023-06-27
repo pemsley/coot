@@ -560,6 +560,10 @@ void CanvasMolecule::process_bond_alignment_in_rings() {
     }
 }
 
+void CanvasMolecule::shorten_double_bonds() {
+
+}
+
 void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_POINT2D_MAP &coordinate_map) {
     // First, clear what we have
 
@@ -661,6 +665,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
     });
     // Make sure that double bonds are aligned properly
     this->process_bond_alignment_in_rings();
+    this->shorten_double_bonds();
 }
 
 void CanvasMolecule::lower_from_rdkit(bool sanitize_after) {

@@ -160,6 +160,11 @@ class CanvasMolecule {
     /// Part of the lowering process.
     void process_bond_alignment_in_rings();
 
+    /// Computes length proportions by which double bonds have to be shortened
+    ///
+    /// Part of the lowering process.
+    void shorten_double_bonds();
+
     public:
 
     CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol);
