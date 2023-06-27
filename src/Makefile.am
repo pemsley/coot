@@ -296,6 +296,9 @@ _coot_extended_la_LIBADD = \
 
 pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la _coot.la
 
+# does this stop the race condition?
+_coot.la: libcootsumo.la
+
 _coot_la_SOURCES = coot.cc coot_wrap_python.cc
 
 _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
@@ -810,7 +813,7 @@ coot_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 # fixed in configure.
 #
 libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
-      $(COOT_EXTRA_LIBS) \
+                $(COOT_EXTRA_LIBS)      \
 		$(VORBISFILE_LIBS)      \
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\
