@@ -25,8 +25,6 @@ shows a quadrant in "Plane" mode. The output tga file is full-resolution though,
 
 Do the tutorial from time to time - what's missing? ::: 1
 
-Shader Preferences can submarine ::: 0.2
-
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
@@ -689,3 +687,9 @@ Search monomer library results should have rdkit images? ::: 0.5
 Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
    contact_score_ligand_func(). Hmm. See ~/Desktop/ligand-notes
 * Contact dots for ligand is my function - it has vdw dots
+
+Shader Preferences can submarine ::: 0.2
+* Done.
+
+
+

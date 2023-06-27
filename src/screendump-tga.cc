@@ -71,6 +71,12 @@ void screendump_tga_internal(std::string tga_file,
 
    std::cout << "debug:: Using framebuffer fbo " << framebuffer_obj << std::endl;
 
+#ifdef __APPLE__
+
+   std::cout << "WARNING:: No glNamedFramebufferReadBuffer() available" << std::endl;
+
+#else
+
    // This is part of OpenGL 4.4+ - not OpenGL 3.3!
    //
    glNamedFramebufferReadBuffer(framebuffer_obj, GL_BACK); // this often errors
@@ -88,6 +94,8 @@ void screendump_tga_internal(std::string tga_file,
 
    std::cout << "INFO:: screendump_tga sf " << sf << " " << w << "x" << h
              << " wrote " << 3 * sf * sf * w * h << " bytes" << std::endl;
+
+#endif // __APPLE__
 
 }
 
