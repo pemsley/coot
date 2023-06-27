@@ -587,13 +587,14 @@ void CanvasMolecule::process_bond_alignment_in_rings() {
 }
 
 void CanvasMolecule::shorten_double_bonds() {
+    typedef std::pair<const Bond*,bool> bond_ptr_and_orientation_t;
     for(auto& bond: this->bonds) {
         if(bond.type == BondType::Double) {
             // 1. Find the adjacent bond(s)
-            auto find_adjacent_bonds = [this,&bond]() -> std::pair<std::optional<std::pair<const Bond*,bool>>,std::optional<std::pair<const Bond*,bool>>> {
+            auto find_adjacent_bonds = [this,&bond]() -> std::pair<std::optional<bond_ptr_and_orientation_t>,std::optional<bond_ptr_and_orientation_t>> {
                 // todo: this should be vectors!
-                std::optional<std::pair<const Bond*,bool>> first_bond;
-                std::optional<std::pair<const Bond*,bool>> second_bond;
+                std::optional<bond_ptr_and_orientation_t> first_bond;
+                std::optional<bond_ptr_and_orientation_t> second_bond;
                 // This isn't pretty but can we even do better?
                 for(const auto& i: this->bonds) {
                     if(i.first_atom_idx == bond.first_atom_idx) {
