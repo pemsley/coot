@@ -41,7 +41,7 @@ Activate the Cryo-EM Module:
     - https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/32143-partial-model.pdb
     - https://ftp.ebi.ac.uk/pub/databases/emdb/structures/EMD-32143/map/emd_32143.map.gz
 
-  Now that we have read in the map, lets expand the map radius to cover the molecule:
+  Now that we have read in the map, let's expand the map radius to cover the molecule:
   - **Edit** &rarr; **Map Parameters** &rarr; **Map Radius** &rarr; `77` &rarr; **Apply**
 
   It is frequently the case that to make the map more interpretable we need to unsharpen (_i.e._ blur) and resample it:
