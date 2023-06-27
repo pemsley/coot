@@ -83,12 +83,12 @@ class CanvasMolecule {
         /// Set for double bonds. 
         /// It's the proportion of the bond's original length
         /// by which the parallel segment of the bond 
-        //// has to be shortend from the "first" side.
+        /// has to be shortend from the "first" side.
         std::optional<float> first_shortening_proportion;
         /// Set for double bonds. 
         /// It's the proportion of the bond's original length
         /// by which the parallel segment of the bond 
-        //// has to be shortend from the "second" side.
+        /// has to be shortend from the "second" side.
         std::optional<float> second_shortening_proportion;
         /// For aromatic bonds
         std::optional<bool> bond_drawing_direction;
