@@ -590,23 +590,58 @@ void CanvasMolecule::shorten_double_bonds() {
     for(auto& bond: this->bonds) {
         if(bond.type == BondType::Double) {
             // 1. Find the adjacent bond(s)
-            auto find_adjacent_bonds = []() -> std::pair<std::optional<const Bond*>,std::optional<const Bond*>> {
+            auto find_adjacent_bonds = [this,&bond]() -> std::pair<std::optional<const Bond*>,std::optional<const Bond*>> {
+                // todo: this should be vectors!
                 std::optional<const Bond*> first_bond;
                 std::optional<const Bond*> second_bond;
-
+                // This isn't pretty but can we even do better?
+                for(const auto& i: this->bonds) {
+                    if(i.first_atom_idx == bond.first_atom_idx) {
+                        if(i.second_atom_idx == bond.second_atom_idx) {
+                            // We're looking at the 'bond' itself. We must skip it.
+                            continue;
+                        }
+                        // This bond makes contact with our first atom
+                        first_bond = &i;
+                    }
+                    if(i.second_atom_idx == bond.first_atom_idx) {
+                        // This bond makes contact with our first atom
+                        first_bond = &i;
+                    }
+                    if(i.first_atom_idx == bond.second_atom_idx) {
+                        // This bond makes contact with our second atom
+                        second_bond = &i;
+                    }
+                    if(i.second_atom_idx == bond.second_atom_idx) {
+                        // This bond makes contact with our second atom
+                        second_bond = &i;
+                    }
+                }
                 return std::make_pair(first_bond,second_bond);
             };
-            auto compute_shortening_proportion = [](const Bond* other_bond){
+            auto compute_shortening_proportion = [&](const Bond* other_bond){
                 // 2. Find the angle between the bonds (alpha)
                 auto find_angle_between_bonds = [&](){
-                    return 0.f;
+                    // We can find the angle between two bonds
+                    // by computing cosinus arcus (reverse cosine)
+                    // of ( dot product / (length a) * (length b) )
+                    auto [bond_vec_x,bond_vec_y] = bond.get_vector();
+                    auto [other_bond_vec_x,other_bond_vec_y] = other_bond->get_vector();
+                    auto dot_product = (bond_vec_x*other_bond_vec_x) + (bond_vec_y*other_bond_vec_y);
+                    auto bond_length = bond.get_length();
+                    auto other_bond_length = other_bond->get_length();
+                    auto result = std::acos(dot_product/(bond_length*other_bond_length));
+                    return result;
                 };
                 // 3. Do a little trigonometry to find the length to be shortened
-                auto alpha = 1.f;
+                auto alpha = find_angle_between_bonds();
                 auto absolute_shortened_length = BOND_LINE_SEPARATION / std::tan(alpha/2.f);
-                // 4. Use vectors to find the proportion of the shortening
-                return 0.f;
+                // 4. Find the proportion of the shortening
+                auto bond_length = bond.get_length();
+                return absolute_shortened_length / bond_length;
             };
+            // todo: this has to operate on vectors! 
+            // There may be more than one bond sticking to each side!
             auto [first_bond, second_bond] = find_adjacent_bonds();
             if(first_bond.has_value()) {
                 bond.first_shortening_proportion = compute_shortening_proportion(first_bond.value());
