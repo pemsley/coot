@@ -14,6 +14,12 @@
 #include "read-molecule.hh" // 20230621-PE now with std::string args
 
 #include "support.h" // for internationalizations.
+#include "c-interface-preferences.h"
+#include "c-interface-ligands-swig.hh"
+#include "curlew-gtk4.hh"
+
+void fill_and_show_shader_preferences(); // should this be in a header?
+                                         // it's in glade-callbacks.cc (that doesn't seem right today)
 
 extern "C" { void load_tutorial_model_and_data(); }
 
@@ -273,7 +279,6 @@ void calculate_hydrogen_bonds_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    }
 }
 
-#include "curlew-gtk4.hh"
 
 void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                    G_GNUC_UNUSED GVariant *parameter,
@@ -637,7 +642,6 @@ fix_nomenclature_errors_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    }
 }
 
-#include "c-interface-ligands-swig.hh"
 
 void
 invert_this_chiral_centre_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -780,7 +784,6 @@ exchange_chain_ids_for_seg_ids_action(G_GNUC_UNUSED GSimpleAction *simple_action
 }
 
 
-#include "c-interface-preferences.h"
 void
 show_preferences_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
@@ -789,7 +792,6 @@ show_preferences_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    update_preference_gui();
 }
 
-void fill_and_show_shader_preferences(); // should this be in a header?
 
 void
 show_shader_preferences_action(G_GNUC_UNUSED GSimpleAction *simple_action,

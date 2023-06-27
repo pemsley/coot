@@ -6174,7 +6174,8 @@ void fill_and_show_shader_preferences() {
    gtk_range_set_range(GTK_RANGE(r9), 0.0, 2.0);
    gtk_range_set_value(GTK_RANGE(r9), v9);
 
-   gtk_widget_show(w);
+   set_transient_for_main_window(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
