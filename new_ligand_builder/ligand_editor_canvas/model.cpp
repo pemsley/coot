@@ -587,7 +587,35 @@ void CanvasMolecule::process_bond_alignment_in_rings() {
 }
 
 void CanvasMolecule::shorten_double_bonds() {
+    for(auto& bond: this->bonds) {
+        if(bond.type == BondType::Double) {
+            // 1. Find the adjacent bond(s)
+            auto find_adjacent_bonds = []() -> std::pair<std::optional<const Bond*>,std::optional<const Bond*>> {
+                std::optional<const Bond*> first_bond;
+                std::optional<const Bond*> second_bond;
 
+                return std::make_pair(first_bond,second_bond);
+            };
+            auto compute_shortening_proportion = [](const Bond* other_bond){
+                // 2. Find the angle between the bonds (alpha)
+                auto find_angle_between_bonds = [&](){
+                    return 0.f;
+                };
+                // 3. Do a little trigonometry to find the length to be shortened
+                auto alpha = 1.f;
+                auto absolute_shortened_length = BOND_LINE_SEPARATION / std::tan(alpha/2.f);
+                // 4. Use vectors to find the proportion of the shortening
+                return 0.f;
+            };
+            auto [first_bond, second_bond] = find_adjacent_bonds();
+            if(first_bond.has_value()) {
+                bond.first_shortening_proportion = compute_shortening_proportion(first_bond.value());
+            }
+            if(second_bond.has_value()) {
+                bond.second_shortening_proportion = compute_shortening_proportion(second_bond.value());
+            }
+        }
+    }
 }
 
 void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_POINT2D_MAP &coordinate_map) {
