@@ -3,8 +3,9 @@
 #include "ligand_editor_canvas.hpp"
 #include <rdkit/GraphMol/RWMol.h>
 
-namespace coot::ligand_editor {
+#include "geometry/protein-geometry.hh"
 
+namespace coot::ligand_editor {
 
 
 /// Structure holding the state of the editor
@@ -27,6 +28,9 @@ class LigandBuilderState {
 
     std::optional<unsigned int> current_filesave_molecule;
     std::optional<std::string> current_filesave_filename;
+
+    /// Store of monomer library information
+    protein_geometry monomer_library_info_store;
 
     /// Adds the molecule to the canvas.
     /// This function takes ownership of the molecule pointer.
