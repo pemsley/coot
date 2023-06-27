@@ -19,7 +19,8 @@ This tutorial is designed for 0.9.8.4 or any later version in the 0.9.x series. 
   - `mkdir coot_tutorial_2`
   - `cd coot_tutorial_2`
   - if you have an NVIDIA graphics card:
-  - `export __GL_FSAA_MODE=5`
+    * `export __GL_FSAA_MODE=5`
+    * (this will make your graphics more smooth on some PCs, nice to have, not important)
   - Start _Coot_:
   - `coot`
   - Keep the terminal window where _Coot_ is running always visible. You will
@@ -35,28 +36,42 @@ Activate the Cryo-EM Module:
   - **File** &rarr; **Open Coordinates** &rarr; ``32143-partial-model.pdb`` &rarr; **Open**
   - **File** &rarr; **Open Map** &rarr; ``EMD-32143.map`` &rarr; **Open**
 
-  Expand the map radius to cover the molecule:
+  Here are the links if you don't have the files:
+
+    - https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/32143-partial-model.pdb
+    - https://ftp.ebi.ac.uk/pub/databases/emdb/structures/EMD-32143/map/emd_32143.map.gz
+
+  Now that we have read in the map, lets expand the map radius to cover the molecule:
   - **Edit** &rarr; **Map Parameters** &rarr; **Map Radius** &rarr; `77` &rarr; **Apply**
 
   It is frequently the case that to make the map more interpretable we need to unsharpen (_i.e._ blur) and resample it:
   - **Cryo-EM** &rarr; **Sharpen/Blur...** &rarr; [check **Resample Factor**] &rarr; **OK**
+
+If you like, compare and contrast these two maps, you should see that the second map is more easy to interpret.
 
 Now use the Display Manager to Delete the original `EMD-32143.map` map.
 
 If you have a slow computer, dragging the view while displaying EM maps can be annoying. If that is the case for you,
 turn off dynamic recontouring:
 
-   - **Edit** &rarr; **Preferences** &rarr; **Maps** &rarr; **Dragged Map** &rarr; **OK**
+   - **Edit** &rarr; **Preferences** &rarr; **Maps** &rarr; **Dragged Map** &rarr; No &rarr; **OK**
 
 Make a copy of the partial model to which we will add various components:
 
-   - **Edit** &rarr; **Copy Molecule** &rarr; **OK**
+   - **Edit** &rarr; **Copy Molecule** &rarr; **OK** (no need to change the selection)
 
 Let's change the name of the copy:
 
    - **Calculate** &rarr; **Scripting** &rarr; **Python**
+
+ in the "Command:" entry:
    - `set_molecule_name(2, 'working.pdb')`
    - Press "Enter" to execute.
+
+_Coot_ will echo your command in the green box below.
+
+To see that that worked, look at the molecule name for the model in the Display Manager.
+The model number is 2 if you have followed the instructions exactly.
 
 3: Rigid-Body Fitting
 ----------
@@ -82,12 +97,13 @@ everything else is just following the script, and thus is scriptable.]
 If you do not have AlphaFold2 utilities in your copy of _Coot_ then use the UniProt web site
 to download the AlphaFold2 model for ``P54311``
 
-https://www.uniprot.org/
+  - https://www.uniprot.org/
 
-   - **Calculate** &rarr; **Move Molecule Here** &rarr; `3: AF-P54311-F1-model_v3.pdb` &rarr; **OK**
-   - **Cryo-EM** &rarr; **Jiggle Fit with Fourier Filtering**
+ - **Calculate** &rarr; **Move Molecule Here** &rarr; `3: AF-P54311-F1-model_v3.pdb` &rarr; **OK**
+ - **Cryo-EM** &rarr; **Jiggle Fit with Fourier Filtering**
 
-[wait a couple of seconds - you can think of this step as local molecular placement. We could have used MOLREP to achieve the same result with no human intervention, but considerably more palaver]
+[wait a couple of seconds - you can think of this step as local molecular placement. We could have used MOLREP or PHASER
+to achieve the same result with no human intervention, but with considerably more palaver]
 
    - _{The AlphaFold2 model should jump into the density}_
 
@@ -143,9 +159,9 @@ call them)
 
   - First determine the model number of the domain we are refining - for me it's `3` -
   - and now add hydrogen atoms to that model:
-  - **Calculate** &rarr; **Scripting** &rarr; **Python** &rarr; `coot_reduce(3)`
+  - **Calculate** &rarr; **Modelling** &rarr; **Add Hydrogen Atoms**
 
-The Extra Distance Restraints ar now out of date, we should delete them:
+The Extra Distance Restraints are now out of date, we should delete them:
 
   - **Restraints** &rarr; **Delete Extra Distance Restraints**
 
@@ -160,7 +176,7 @@ _{should we wish to delete the hydrogen atoms (we don't right now), we would use
 
 ### 6.2 Ramachandran Plot Outliers
 
-It can be convenient to use Ramachandran Restraints to improve the Ramachandran Plot of the model:
+It can be convenient to use Ramachandran Restraints to improve the Ramachandran Plot of the model (not everyone approves of this):
 
    - Click the **R/RC** button
    - Tick **Use Torsion Restraints**
@@ -185,7 +201,7 @@ It can be convenient to use Ramachandran Restraints to improve the Ramachandran 
 7: Merge
 --------
 
-Merge this into the `working.pdb` molecule:
+Merge this molecule into the `working.pdb` molecule:
 
    - **Edit** &rarr; **Merge Molecules**
    - Check the check-button for `AF-P54311-F1-model_v3.pdb`

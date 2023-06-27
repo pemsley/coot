@@ -57,7 +57,7 @@ _Moorhen expands the tab to display additional information_.
 
 Initially the background of the drawer is semi-transparent,
 
-  - Put your cursor over the drawer to make it opaque.
+  - Put your cursor over the drawer (and the draw will become opaque).
 
 You will see a sequence viewer - let's use that to move around the structure. Click on a few letters (that represent the residues in the protein). Notice that the map density mesh is redrawn around the new centre.
 
@@ -79,9 +79,11 @@ For higher-end computers we can use a smoother representation of the bonds and a
 Below the card for the protein, you will see the cards for the maps (the 2Fo-Fc-style map has a blue icon and the difference map has an icon with red and green). You can use the sliders there to adjust the contour level. It's a bit high at the moment, so click or slide the slider for the 2Fo-Fc map so that the level is about 0.443 or thereabouts. Set the difference map to a level of around 0.534.
 (I find that clicking (click and release) on the slider to be monre convenient than trying to "slide" the slider using click and drag).
 
-  - You can also use Ctrl scroll-wheel scroll to change the contour level
+  - Shut the draw and then you can also use Ctrl scroll-wheel scroll to change the contour level
 
 ## Validation Tools
+
+  - Open the drawer
 
   - Click on the **Validation tools** tab
 
