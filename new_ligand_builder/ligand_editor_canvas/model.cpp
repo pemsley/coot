@@ -242,16 +242,16 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     auto [full_vec_x, full_vec_y] = bond.get_vector();
                     float base_angle = std::atan(full_vec_y / full_vec_x);
                     unsigned int full_size_arcs = std::floor(std::sqrt(std::pow(full_vec_x,2.f) + std::pow(full_vec_y,2.f)) / wave_arc_length_base);
-                    float current_x = bond.first_atom_x * scale_factor + x_offset;
-                    float current_y = bond.first_atom_y * scale_factor + y_offset;
                     float step_x = full_vec_x / (float) full_size_arcs * scale_factor;
                     float step_y = full_vec_y / (float) full_size_arcs * scale_factor;
+                    float current_x = bond.first_atom_x * scale_factor + x_offset + step_x / 2.f;
+                    float current_y = bond.first_atom_y * scale_factor + y_offset + step_y / 2.f;
                     for (unsigned int i = 0; i < full_size_arcs; i++) {
                         float next_x = current_x + step_x;
                         float next_y = current_y + step_y;
-                        bool arc_direction = i % 2 == 0;
-                        float angle_one = M_PI * ((1 - arc_direction) * (-1.f)) + base_angle;
-                        float angle_two = M_PI * (arc_direction * (-1.f)) + base_angle;
+                        int arc_direction = i % 2 == 0;
+                        float angle_one = M_PI * ((1 - arc_direction) * -1) + base_angle;
+                        float angle_two = M_PI * (arc_direction * -1) + base_angle;
                         cairo_move_to(cr, current_x + next_x, current_y);
                         cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
                         cairo_stroke_preserve(cr);
