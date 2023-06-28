@@ -75,6 +75,7 @@ StructureInsertion::Structure StructureInsertion::get_structure() const noexcept
 
 CanvasMolecule::BondType BondModifier::get_target_bond_type() const noexcept {
     switch (this->mode) {
+        default:
         case BondModifierMode::Single:{
             return CanvasMolecule::BondType::Single;
         }
