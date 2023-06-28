@@ -355,7 +355,8 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
 
         auto process_highlight = [&,cr,x_offset,y_offset,scale_factor](){
             if(atom.highlighted) {
-                cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
+                //cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
+                cairo_new_sub_path(cr);
                 cairo_set_source_rgb(cr, 0.0, 1.0, 0.5);
                 cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS,0,M_PI * 2.0);
                 cairo_stroke_preserve(cr);
@@ -424,8 +425,9 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             // temporary: let's keep the circles only for now
             //cairo_rectangle(cr, origin_x, origin_y, layout_width, layout_height);
             //cairo_fill(cr);
-            cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
+            //cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
             // temporary: additional white circle in the background
+            cairo_new_sub_path(cr);
             cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS, 0, M_PI * 2.0);
             cairo_stroke_preserve(cr);
             cairo_fill(cr);
