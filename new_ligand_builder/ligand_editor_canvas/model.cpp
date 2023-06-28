@@ -247,16 +247,16 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     float step_y = full_vec_y / arcs_count * scale_factor;
                     float current_x = bond.first_atom_x * scale_factor + x_offset + step_x / 2.f;
                     float current_y = bond.first_atom_y * scale_factor + y_offset + step_y / 2.f;
+                    bool arc_direction = true;
                     for (unsigned int i = 0; i < rounded_arcs_count; i++) {
                         float next_x = current_x + step_x;
                         float next_y = current_y + step_y;
-                        int arc_direction = i % 2 == 0;
-                        float angle_one =  base_angle;
+                        float angle_one = base_angle;
                         float angle_two = base_angle;
                         if(arc_direction) {
-                            angle_two += M_PI * (-1);
+                            angle_two -= M_PI;
                         } else {
-                            angle_one += M_PI * (-1);
+                            angle_one -= M_PI;
                         }
                         //cairo_move_to(cr, current_x + next_x, current_y + next_y);
                         cairo_new_sub_path(cr);
@@ -264,7 +264,24 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                         cairo_stroke(cr);
                         current_x = next_x;
                         current_y = next_y;
+                        arc_direction = !arc_direction;
                     }
+                    // Final part of the path. Truncated arc.
+                    float angle_one = base_angle;
+                    float angle_two = base_angle;
+                    float partial_arc_proportion = arcs_count - (float) rounded_arcs_count;
+                    float el = 1.f - (partial_arc_proportion / wave_arc_length_base / 2.f);
+                    //g_debug("el: %f",el);
+                    float complement_angle = std::acos(el);
+                    if(arc_direction) {
+                        angle_two -= complement_angle;
+                    } else {
+                        angle_one -= complement_angle;
+                    }
+                    cairo_new_sub_path(cr);
+                    cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
+                    g_debug("angle: %f",complement_angle);
+                    //cairo_stroke(cr);
                     break;
                 }
                 case BondGeometry::WedgeTowardsFirst:{
