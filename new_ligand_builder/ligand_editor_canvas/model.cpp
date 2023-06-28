@@ -834,8 +834,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
 
             canvas_bond.highlighted = false;
             canvas_bond.type = bond_type_from_rdkit(bond_ptr->getBondType());
-            // todo: add support for geometry
-            canvas_bond.geometry = BondGeometry::Flat;
+            canvas_bond.geometry = bond_geometry_from_rdkit(bond_ptr->getBondDir());
 
             this->bonds.push_back(std::move(canvas_bond));
         }
