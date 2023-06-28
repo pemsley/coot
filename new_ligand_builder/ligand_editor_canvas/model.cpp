@@ -459,8 +459,33 @@ CanvasMolecule::BondType CanvasMolecule::bond_type_from_rdkit(RDKit::Bond::BondT
     }
 }
 
-CanvasMolecule::BondGeometry CanvasMolecule::bond_geometry_from_rdkit(RDKit::Bond::BondDir) {
-    throw std::runtime_error("todo: bond_geometry_from_rdkit");
+CanvasMolecule::BondGeometry CanvasMolecule::bond_geometry_from_rdkit(RDKit::Bond::BondDir dir) noexcept {
+    //Not handled here: EITHERDOUBLE
+    switch (dir) {
+        default:{
+            g_warning("Unhandled RDKit bond geometry: %i! Falling back to flat.", dir);
+        }
+        case RDKit::Bond::NONE:{
+            return BondGeometry::Flat;
+        }
+        case RDKit::Bond::UNKNOWN:{
+            return BondGeometry::Unspecified;
+        }
+        case RDKit::Bond::BEGINWEDGE:{
+            return BondGeometry::WedgeTowardsSecond;
+        }
+        case RDKit::Bond::BEGINDASH:{
+            return BondGeometry::DashedTowardsSecond;
+        }
+        case RDKit::Bond::ENDDOWNRIGHT:{
+            // todo: make sure that this makes sense
+            return BondGeometry::WedgeTowardsFirst;
+        }
+        case RDKit::Bond::ENDUPRIGHT:{
+            // todo: make sure that this makes sense
+            return BondGeometry::DashedTowardsFirst;
+        }
+    }
 }
 
 RDKit::Bond::BondType CanvasMolecule::bond_type_to_rdkit(CanvasMolecule::BondType ty) noexcept {
