@@ -234,7 +234,12 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         if(bond.geometry != BondGeometry::Flat && bond.type == BondType::Single) {
             g_warning("todo: rendering bond geometry");
         } else {
-            auto draw_side_bond_line = [&](bool addOrSub, float first_shortening_proportion, float second_shortening_proportion){
+            auto draw_side_bond_line = [&](
+                bool addOrSub, 
+                std::optional<float> first_shortening_proportion, 
+                std::optional<float> second_shortening_proportion
+                ) {
+
                 auto [pv_x,pv_y] = bond.get_perpendicular_versor();
                 if (!addOrSub) { // change sign of the versor
                     pv_x *= -1.f;
@@ -245,10 +250,19 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 pv_y *= BOND_LINE_SEPARATION;
 
                 auto [bond_vec_x, bond_vec_y] = bond.get_vector();
-                auto first_x = bond.first_atom_x + first_shortening_proportion * bond_vec_x;
-                auto second_x = bond.second_atom_x - second_shortening_proportion * bond_vec_x;
-                auto first_y = bond.first_atom_y + first_shortening_proportion * bond_vec_y;
-                auto second_y = bond.second_atom_y - second_shortening_proportion * bond_vec_y;
+                auto first_x = bond.first_atom_x;
+                auto second_x = bond.second_atom_x;
+                auto first_y = bond.first_atom_y;
+                auto second_y = bond.second_atom_y;
+                
+                if(first_shortening_proportion.has_value()) {
+                    first_x += first_shortening_proportion.value() * bond_vec_x;
+                    first_y += first_shortening_proportion.value() * bond_vec_y;
+                }
+                if(second_shortening_proportion.has_value()) {
+                    second_x -= second_shortening_proportion.value() * bond_vec_x;
+                    second_y -= second_shortening_proportion.value() * bond_vec_y;
+                }
 
                 cairo_move_to(cr, (first_x + pv_x) * scale_factor + x_offset, (first_y + pv_y) * scale_factor + y_offset);
                 cairo_line_to(cr, (second_x + pv_x) * scale_factor + x_offset, (second_y + pv_y) * scale_factor + y_offset);
@@ -262,8 +276,8 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     bool direction = bond.bond_drawing_direction.has_value() ? bond.bond_drawing_direction.value() : false;
                     draw_side_bond_line(
                         direction,
-                        bond.first_shortening_proportion.value_or(0.f),
-                        bond.second_shortening_proportion.value_or(0.f)
+                        bond.first_shortening_proportion,
+                        bond.second_shortening_proportion
                     );
                     break;
                 }
