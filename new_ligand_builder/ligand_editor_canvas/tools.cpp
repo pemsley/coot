@@ -256,11 +256,13 @@ void ActiveTool::alter_geometry(int x, int y) {
 
                 auto bond_geometry = CanvasMolecule::bond_geometry_from_rdkit(rdkit_bond->getBondDir());
                 auto new_bond_geometry = CanvasMolecule::cycle_bond_geometry(bond_geometry);
+                g_debug("Target bond geometry: %u",static_cast<unsigned int>(new_bond_geometry));
                 rdkit_bond->setBondDir(CanvasMolecule::bond_geometry_to_rdkit(new_bond_geometry));
 
                 this->widget_data->update_status("Geometry of bond has been altered.");
                 auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
                 canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
+                g_debug("Final bond geometry: %u",static_cast<unsigned int>(CanvasMolecule::bond_geometry_from_rdkit(rdkit_bond->getBondDir())));
                 this->widget_data->finalize_edition();
             }
         } catch(std::exception& e) {
