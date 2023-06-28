@@ -250,8 +250,13 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                         float next_x = current_x + step_x;
                         float next_y = current_y + step_y;
                         int arc_direction = i % 2 == 0;
-                        float angle_one = M_PI * ((1 - arc_direction) * -1) + base_angle;
-                        float angle_two = M_PI * (arc_direction * -1) + base_angle;
+                        float angle_one =  base_angle;
+                        float angle_two = base_angle;
+                        if(arc_direction) {
+                            angle_two += M_PI * (-1);
+                        } else {
+                            angle_one += M_PI * (-1);
+                        }
                         cairo_move_to(cr, current_x + next_x, current_y);
                         cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
                         cairo_stroke_preserve(cr);
