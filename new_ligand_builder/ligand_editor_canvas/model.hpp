@@ -76,7 +76,7 @@ class CanvasMolecule {
         /// Wavy
         Unspecified
     };
-    // todo: geometry support
+
     struct Bond {
         BondType type;
         BondGeometry geometry;
@@ -119,7 +119,6 @@ class CanvasMolecule {
     static const float BOND_LINE_SEPARATION;
 
     static BondType bond_type_from_rdkit(RDKit::Bond::BondType);
-    static BondGeometry bond_geometry_from_rdkit(RDKit::Bond::BondDir) noexcept;
     static AtomColor atom_color_from_rdkit(const RDKit::Atom *) noexcept;
     static std::tuple<float,float,float> atom_color_to_rgb(AtomColor) noexcept;
     static std::string atom_color_to_html(AtomColor) noexcept;
@@ -224,6 +223,9 @@ class CanvasMolecule {
     void clear_highlights();
 
     static RDKit::Bond::BondType bond_type_to_rdkit(BondType) noexcept;
+    static BondGeometry bond_geometry_from_rdkit(RDKit::Bond::BondDir) noexcept;
+    static BondGeometry cycle_bond_geometry(BondGeometry) noexcept;
+    static RDKit::Bond::BondDir bond_geometry_to_rdkit(BondGeometry) noexcept;
 
 };
 

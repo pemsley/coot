@@ -239,7 +239,6 @@ void ActiveTool::alter_bond(int x, int y) {
 void ActiveTool::alter_geometry(int x, int y) {
     check_variant(Variant::GeometryModifier);
     GeometryModifier& mod = this->geometry_modifier;
-    g_warning("TODO: Implement ActiveTool::alter_geometry");
     
     auto click_result = this->widget_data->resolve_click(x, y);
     if(click_result.has_value()) {
@@ -253,8 +252,11 @@ void ActiveTool::alter_geometry(int x, int y) {
                 auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
                 auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
                 auto* rdkit_bond = rdkit_mol->getBondBetweenAtoms(bond.first_atom_idx,bond.second_atom_idx);
-                // todo: implement
-                
+
+                auto bond_geometry = CanvasMolecule::bond_geometry_from_rdkit(rdkit_bond->getBondDir());
+                auto new_bond_geometry = CanvasMolecule::cycle_bond_geometry(bond_geometry);
+                rdkit_bond->setBondDir(CanvasMolecule::bond_geometry_to_rdkit(new_bond_geometry));
+
                 this->widget_data->update_status("Geometry of bond has been altered.");
                 auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
                 canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);

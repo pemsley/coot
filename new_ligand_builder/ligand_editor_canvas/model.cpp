@@ -488,6 +488,55 @@ CanvasMolecule::BondGeometry CanvasMolecule::bond_geometry_from_rdkit(RDKit::Bon
     }
 }
 
+CanvasMolecule::BondGeometry CanvasMolecule::cycle_bond_geometry(BondGeometry geom) noexcept {
+    switch (geom) {
+        default: 
+        case BondGeometry::Flat: {
+            return BondGeometry::WedgeTowardsFirst;
+        }
+        case BondGeometry::Unspecified: {
+            return BondGeometry::Flat;
+        }
+        case BondGeometry::WedgeTowardsFirst: {
+            return BondGeometry::WedgeTowardsSecond;
+        }
+        case BondGeometry::WedgeTowardsSecond: {
+            return BondGeometry::DashedTowardsFirst;
+        }
+        case BondGeometry::DashedTowardsFirst: {
+            return BondGeometry::DashedTowardsSecond;
+        }
+        case BondGeometry::DashedTowardsSecond: {
+            return BondGeometry::Unspecified;
+        }
+    }
+}
+
+RDKit::Bond::BondDir CanvasMolecule::bond_geometry_to_rdkit(BondGeometry geom) noexcept {
+    switch (geom) {
+        default: 
+        case BondGeometry::Flat: {
+            return RDKit::Bond::BondDir::NONE;
+        }
+        case BondGeometry::Unspecified: {
+            return RDKit::Bond::BondDir::UNKNOWN;
+        }
+        case BondGeometry::WedgeTowardsFirst: {
+            return RDKit::Bond::BondDir::ENDDOWNRIGHT;
+        }
+        case BondGeometry::WedgeTowardsSecond: {
+            return RDKit::Bond::BondDir::BEGINWEDGE;
+        }
+        case BondGeometry::DashedTowardsFirst: {
+            return RDKit::Bond::BondDir::ENDUPRIGHT;
+        }
+        case BondGeometry::DashedTowardsSecond: {
+            return RDKit::Bond::BondDir::BEGINDASH;
+        }
+    }
+}
+
+
 RDKit::Bond::BondType CanvasMolecule::bond_type_to_rdkit(CanvasMolecule::BondType ty) noexcept {
     switch (ty) {
         default:
