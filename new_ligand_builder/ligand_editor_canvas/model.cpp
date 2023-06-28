@@ -280,8 +280,8 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     }
                     cairo_new_sub_path(cr);
                     cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
-                    g_debug("angle: %f",complement_angle);
-                    //cairo_stroke(cr);
+                    //g_debug("angle: %f",complement_angle);
+                    cairo_stroke(cr);
                     break;
                 }
                 case BondGeometry::WedgeTowardsFirst:{
