@@ -236,7 +236,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             switch (bond.geometry) {
                 default:
                 case BondGeometry::Unspecified:{
-                    const float wave_arc_length_base = 0.18f;
+                    const float wave_arc_length_base = 0.25f;
                     const float wave_arc_radius = wave_arc_length_base * scale_factor / 2.f;
                     auto [full_vec_x, full_vec_y] = bond.get_vector();
                     float base_angle = std::atan(full_vec_y / full_vec_x);
