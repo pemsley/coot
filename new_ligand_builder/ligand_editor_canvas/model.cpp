@@ -241,12 +241,13 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     const float wave_arc_radius = wave_arc_length_base * scale_factor / 2.f;
                     auto [full_vec_x, full_vec_y] = bond.get_vector();
                     float base_angle = std::atan(full_vec_y / full_vec_x);
-                    unsigned int full_size_arcs = std::floor(std::sqrt(std::pow(full_vec_x,2.f) + std::pow(full_vec_y,2.f)) / wave_arc_length_base);
-                    float step_x = full_vec_x / (float) full_size_arcs * scale_factor;
-                    float step_y = full_vec_y / (float) full_size_arcs * scale_factor;
+                    float arcs_count = std::sqrt(std::pow(full_vec_x,2.f) + std::pow(full_vec_y,2.f)) / wave_arc_length_base;
+                    unsigned int rounded_arcs_count = std::floor(arcs_count);
+                    float step_x = full_vec_x / arcs_count * scale_factor;
+                    float step_y = full_vec_y / arcs_count * scale_factor;
                     float current_x = bond.first_atom_x * scale_factor + x_offset + step_x / 2.f;
                     float current_y = bond.first_atom_y * scale_factor + y_offset + step_y / 2.f;
-                    for (unsigned int i = 0; i < full_size_arcs; i++) {
+                    for (unsigned int i = 0; i < rounded_arcs_count; i++) {
                         float next_x = current_x + step_x;
                         float next_y = current_y + step_y;
                         int arc_direction = i % 2 == 0;
