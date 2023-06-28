@@ -273,9 +273,9 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     //g_debug("el: %f",el);
                     float complement_angle = std::acos(el);
                     if(arc_direction) {
-                        angle_two -= complement_angle;
+                        angle_two += complement_angle;
                     } else {
-                        angle_one -= complement_angle;
+                        angle_one += complement_angle;
                     }
                     cairo_new_sub_path(cr);
                     cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
