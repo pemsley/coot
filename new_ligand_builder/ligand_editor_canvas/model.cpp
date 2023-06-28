@@ -232,7 +232,30 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         };
 
         if(bond.geometry != BondGeometry::Flat && bond.type == BondType::Single) {
-            g_warning("todo: rendering bond geometry");
+            g_warning("todo: rendering bond geometry in rings");
+            switch (bond.geometry) {
+                default:
+                case BondGeometry::Unspecified:{
+                    g_warning("todo: rendering bond geometry: Unspecified");
+                    break;
+                }
+                case BondGeometry::WedgeTowardsFirst:{
+                    g_warning("todo: rendering bond geometry: WedgeTowardsFirst");
+                    break;
+                }
+                case BondGeometry::WedgeTowardsSecond:{
+                    g_warning("todo: rendering bond geometry: WedgeTowardsSecond");
+                    break;
+                }
+                case BondGeometry::DashedTowardsFirst:{
+                    g_warning("todo: rendering bond geometry: DashedTowardsFirst");
+                    break;
+                }
+                case BondGeometry::DashedTowardsSecond:{
+                    g_warning("todo: rendering bond geometry: DashedTowardsSecond");
+                    break;
+                }
+            }
         } else {
             auto draw_side_bond_line = [&](
                 bool addOrSub, 
