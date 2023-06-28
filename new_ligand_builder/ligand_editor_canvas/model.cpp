@@ -260,7 +260,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                         //cairo_move_to(cr, current_x + next_x, current_y + next_y);
                         cairo_new_sub_path(cr);
                         cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
-                        cairo_stroke_preserve(cr);
+                        cairo_stroke(cr);
                         current_x = next_x;
                         current_y = next_y;
                     }
