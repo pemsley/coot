@@ -219,10 +219,10 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
 
     for(const auto& bond: bonds) {
         if(bond.highlighted) {
-            cairo_set_line_width(cr, 5.0);
+            cairo_set_line_width(cr, 4.0);
             cairo_set_source_rgb(cr, 0.0, 1.0, 0.5);
         } else {
-            cairo_set_line_width(cr, 3.0);
+            cairo_set_line_width(cr, 2.0);
             cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
         }
         auto draw_central_bond_line = [&](){
@@ -254,7 +254,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 auto second_x = bond.second_atom_x;
                 auto first_y = bond.first_atom_y;
                 auto second_y = bond.second_atom_y;
-                
+
                 if(first_shortening_proportion.has_value()) {
                     first_x += first_shortening_proportion.value() * bond_vec_x;
                     first_y += first_shortening_proportion.value() * bond_vec_y;
