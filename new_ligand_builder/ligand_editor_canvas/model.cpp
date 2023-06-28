@@ -225,44 +225,47 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             cairo_set_line_width(cr, 3.0);
             cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
         }
-        cairo_move_to(cr, bond.first_atom_x * scale_factor + x_offset, bond.first_atom_y * scale_factor + y_offset);
-        cairo_line_to(cr, bond.second_atom_x * scale_factor + x_offset, bond.second_atom_y * scale_factor + y_offset);
-        cairo_stroke(cr);
-
-        auto draw_side_bond_line = [&](bool addOrSub, float first_shortening_proportion, float second_shortening_proportion){
-            auto [pv_x,pv_y] = bond.get_perpendicular_versor();
-            if (!addOrSub) { // change sign of the versor
-                pv_x *= -1.f;
-                pv_y *= -1.f;
-            }
-            // Convert the versor to a vector of the desired length
-            pv_x *= BOND_LINE_SEPARATION;
-            pv_y *= BOND_LINE_SEPARATION;
-
-            auto [bond_vec_x, bond_vec_y] = bond.get_vector();
-            auto first_x = bond.first_atom_x + first_shortening_proportion * bond_vec_x;
-            auto second_x = bond.second_atom_x - second_shortening_proportion * bond_vec_x;
-            auto first_y = bond.first_atom_y + first_shortening_proportion * bond_vec_y;
-            auto second_y = bond.second_atom_y - second_shortening_proportion * bond_vec_y;
-
-            cairo_move_to(cr, (first_x + pv_x) * scale_factor + x_offset, (first_y + pv_y) * scale_factor + y_offset);
-            cairo_line_to(cr, (second_x + pv_x) * scale_factor + x_offset, (second_y + pv_y) * scale_factor + y_offset);
+        if(bond.geometry != BondGeometry::Flat && bond.type == BondType::Single) {
+            g_warning("todo: rendering bond geometry");
+        } else {
+            cairo_move_to(cr, bond.first_atom_x * scale_factor + x_offset, bond.first_atom_y * scale_factor + y_offset);
+            cairo_line_to(cr, bond.second_atom_x * scale_factor + x_offset, bond.second_atom_y * scale_factor + y_offset);
             cairo_stroke(cr);
-        };
 
-        g_warning_once("TODO: Implement drawing different bond types correctly.");
-        if(bond.type == BondType::Double) {
-            bool direction = bond.bond_drawing_direction.has_value() ? bond.bond_drawing_direction.value() : false;
-            draw_side_bond_line(
-                direction,
-                bond.first_shortening_proportion.value_or(0.f),
-                bond.second_shortening_proportion.value_or(0.f)
-            );
-        } else if(bond.type == BondType::Triple) {
-            // "to the left"
-            draw_side_bond_line(false,0.f,0.f);
-            // "to the right"
-            draw_side_bond_line(true,0.f,0.f);
+            auto draw_side_bond_line = [&](bool addOrSub, float first_shortening_proportion, float second_shortening_proportion){
+                auto [pv_x,pv_y] = bond.get_perpendicular_versor();
+                if (!addOrSub) { // change sign of the versor
+                    pv_x *= -1.f;
+                    pv_y *= -1.f;
+                }
+                // Convert the versor to a vector of the desired length
+                pv_x *= BOND_LINE_SEPARATION;
+                pv_y *= BOND_LINE_SEPARATION;
+
+                auto [bond_vec_x, bond_vec_y] = bond.get_vector();
+                auto first_x = bond.first_atom_x + first_shortening_proportion * bond_vec_x;
+                auto second_x = bond.second_atom_x - second_shortening_proportion * bond_vec_x;
+                auto first_y = bond.first_atom_y + first_shortening_proportion * bond_vec_y;
+                auto second_y = bond.second_atom_y - second_shortening_proportion * bond_vec_y;
+
+                cairo_move_to(cr, (first_x + pv_x) * scale_factor + x_offset, (first_y + pv_y) * scale_factor + y_offset);
+                cairo_line_to(cr, (second_x + pv_x) * scale_factor + x_offset, (second_y + pv_y) * scale_factor + y_offset);
+                cairo_stroke(cr);
+            };
+
+            if(bond.type == BondType::Double) {
+                bool direction = bond.bond_drawing_direction.has_value() ? bond.bond_drawing_direction.value() : false;
+                draw_side_bond_line(
+                    direction,
+                    bond.first_shortening_proportion.value_or(0.f),
+                    bond.second_shortening_proportion.value_or(0.f)
+                );
+            } else if(bond.type == BondType::Triple) {
+                // "to the left"
+                draw_side_bond_line(false,0.f,0.f);
+                // "to the right"
+                draw_side_bond_line(true,0.f,0.f);
+            }
         }
     }
 
