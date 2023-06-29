@@ -30,6 +30,7 @@ const float CanvasMolecule::BASE_SCALE_FACTOR = 30.f;
 const float CanvasMolecule::BOND_LINE_SEPARATION = 0.3f;
 // 20 degrees
 const float CanvasMolecule::GEOMETRY_BOND_SPREAD_ANGLE = M_PI/9.f;
+const float CanvasMolecule::WAVY_BOND_ARC_LENGTH = 0.25f;
 
 float CanvasMolecule::get_scale() const noexcept {
     return BASE_SCALE_FACTOR * this->canvas_scale;
@@ -238,11 +239,10 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             switch (bond.geometry) {
                 default:
                 case BondGeometry::Unspecified:{
-                    const float wave_arc_length_base = 0.25f;
-                    const float wave_arc_radius = wave_arc_length_base * scale_factor / 2.f;
+                    const float wave_arc_radius = WAVY_BOND_ARC_LENGTH * scale_factor / 2.f;
                     auto [full_vec_x, full_vec_y] = bond.get_vector();
                     float base_angle = std::atan(full_vec_y / full_vec_x);
-                    float arcs_count = std::sqrt(std::pow(full_vec_x,2.f) + std::pow(full_vec_y,2.f)) / wave_arc_length_base;
+                    float arcs_count = std::sqrt(std::pow(full_vec_x,2.f) + std::pow(full_vec_y,2.f)) / WAVY_BOND_ARC_LENGTH;
                     unsigned int rounded_arcs_count = std::floor(arcs_count);
                     float step_x = full_vec_x / arcs_count * scale_factor;
                     float step_y = full_vec_y / arcs_count * scale_factor;
@@ -271,7 +271,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     float angle_one = base_angle;
                     float angle_two = base_angle;
                     float partial_arc_proportion = arcs_count - (float) rounded_arcs_count;
-                    float el = 1.f - (partial_arc_proportion / wave_arc_length_base / 2.f);
+                    float el = 1.f - (partial_arc_proportion / WAVY_BOND_ARC_LENGTH / 2.f);
                     //g_debug("el: %f",el);
                     float complement_angle = std::acos(el);
                     if(arc_direction) {
