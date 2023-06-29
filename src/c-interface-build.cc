@@ -5194,11 +5194,11 @@ void set_temperature_factors_for_atoms_in_residue_scm(int imol, SCM residue_spec
 
 /* section SHELXL Functions */
 // return
-int read_shelx_ins_file(const char *filename, short int recentre_flag) {
+int read_shelx_ins_file(const std::string &filename, short int recentre_flag) {
 
    int istat = -1;
    graphics_info_t g;
-   if (filename) {
+   if (true) {
       int imol = graphics_info_t::create_molecule();
 
       // ugly method to recente the molecule on read

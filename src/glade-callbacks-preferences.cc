@@ -152,25 +152,25 @@ on_preferences_destroy                 (GtkWidget       *object,
 extern "C" G_MODULE_EXPORT
 void
 on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_MARK_CIS_BAD, 1);
-    set_mark_cis_peptides_as_bad(1);
-  }
+                                        (GtkCheckButton *checkbutton,
+                                         gpointer         user_data) {
+
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_MARK_CIS_BAD, 1);
+      set_mark_cis_peptides_as_bad(1);
+   }
 }
 
 extern "C" G_MODULE_EXPORT
 void
 on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_MARK_CIS_BAD, 0);
-    set_mark_cis_peptides_as_bad(0);
-  }
+                                        (GtkCheckButton *checkbutton,
+                                        gpointer         user_data) {
+
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_MARK_CIS_BAD, 0);
+      set_mark_cis_peptides_as_bad(0);
+   }
 }
 
 extern "C" G_MODULE_EXPORT
@@ -532,10 +532,9 @@ on_preferences_map_colours_hscale_value_changed
 extern "C" G_MODULE_EXPORT
 void
 on_preferences_smooth_scroll_on_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-					 gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
+                                        (GtkCheckButton *checkbutton,
+					 gpointer        user_data) {
+  if (gtk_check_button_get_active(checkbutton)) {
     preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL, 1);
     set_smooth_scroll_flag(1);
   }
@@ -545,13 +544,12 @@ on_preferences_smooth_scroll_on_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_smooth_scroll_off_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL, 0);
-    set_smooth_scroll_flag(0);
+on_preferences_smooth_scroll_off_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                     gpointer        user_data) {
+
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL, 0);
+      set_smooth_scroll_flag(0);
   }
 
 }

@@ -188,11 +188,15 @@ add_python_scripting_entry_completion(GtkWidget *entry) {
    PyObject *key;
    PyObject *value;
 
+   // note to future self... if you get a crash here then
+   // it's because you've messed up the Python startup.
+   // Perhaps by calling a function that no longer exists.
+
    // Get the module object for the `sys` module.
    PyObject *module = PyImport_ImportModule("coot");
    // Get the dictionary object for the `sys` module.
    PyObject *dict = PyModule_GetDict(module);
-  // Iterate over the keys and values in the dictionary.
+   // Iterate over the keys and values in the dictionary.
    while (PyDict_Next(dict, &pos, &key, &value)) {
       // Do something interesting with the key and value.
       // printf("Key: %s, Value: %s\n", PyUnicode_AsUTF8AndSize(key, NULL), PyUnicode_AsUTF8AndSize(value, NULL));

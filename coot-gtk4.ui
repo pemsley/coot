@@ -6031,7 +6031,7 @@ Do you want to continue?
   </object>
 
   <object class="GtkWindow" id="goto_atom_window">
-    <property name="title" translatable="yes">Go To Atom...</property>
+    <property name="title" translatable="yes">Coot: Go To Atom...</property>
     <signal name="destroy" handler="on_goto_atom_window_destroy" swapped="no"/>
     <child>
       <object class="GtkBox" id="vbox33">
@@ -6075,6 +6075,10 @@ Do you want to continue?
                     </child>
                     <child>
                       <object class="GtkGrid" id="go_to_atom_attributes_grid">
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
                         <child>
                           <object class="GtkEntry" id="go_to_atom_chain_entry">
                             <property name="width-request">10</property>
@@ -6512,7 +6516,8 @@ Do you want to continue?
                 <property name="orientation">horizontal</property>
 
                 <child>
-                  <object class="GtkBox" id="main_window_ramchandran_and_validation_vbox">
+                  <object class="GtkPaned" id="main_window_ramchandran_and_validation_pane">
+                    <property name="position">111</property>
                     <property name="orientation">vertical</property>
 
                     <child>

@@ -1728,9 +1728,9 @@ public:
                                                   // button and function to see it.
    static std::vector<std::string> go_to_ligand_non_interesting_comp_ids;
 
-   void set_go_to_atom_chain_residue_atom_name(const char *chain_id,
-					      int resno, const char *ins_code,
-					      const char *atom_name, const char *altLoc);
+   void set_go_to_atom_chain_residue_atom_name(const std::string &chain_id,
+					      int resno, const std::string &ins_code,
+					      const std::string &atom_name, const std::string &altLoc);
    // 20220723-PE these look like GUI callbacks
    void set_go_to_atom_chain_residue_atom_name(const char *t1,
 					       int it2, const char *t3);
@@ -3828,6 +3828,10 @@ public:
    static float ncs_homology_level;
    static short int ncs_matrix_flag;
 
+   // 20230621-PE not yet implemented, although see l28 lambda (which doesn't work)
+   static void ncs_jump_forward();  // A -> B -> C -> A
+   static void ncs_jump_backward(); // B -> A
+
    // ------------- validation: -------------------
 
    // pretty graphs on a canvas: (not const because geom_p may be added to)
@@ -3869,12 +3873,12 @@ public:
    static GtkWidget *preferences_widget;
    static int mark_cis_peptides_as_bad_flag;
 
-   static std::vector<std::string> *preferences_general_tabs;
-   static std::vector<std::string> *preferences_bond_tabs;
-   static std::vector<std::string> *preferences_geometry_tabs;
-   static std::vector<std::string> *preferences_colour_tabs;
-   static std::vector<std::string> *preferences_map_tabs;
-   static std::vector<std::string> *preferences_other_tabs;
+   static std::vector<std::string> preferences_general_tabs;
+   static std::vector<std::string> preferences_bond_tabs;
+   static std::vector<std::string> preferences_geometry_tabs;
+   static std::vector<std::string> preferences_colour_tabs;
+   static std::vector<std::string> preferences_map_tabs;
+   static std::vector<std::string> preferences_other_tabs;
 
    static std::vector<coot::preferences_icon_info_t> *model_toolbar_icons;
    static std::vector<coot::preferences_icon_info_t> *main_toolbar_icons;

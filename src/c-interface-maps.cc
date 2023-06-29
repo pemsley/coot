@@ -53,6 +53,8 @@
 #include "analysis/kolmogorov.hh"
 #include "analysis/stats.hh"
 
+#include "read-molecule.hh" // 20230621-PE now with std::string args
+
 
 /*  ------------------------------------------------------------------------ */
 /*                   Maps -                                                  */
@@ -1482,7 +1484,7 @@ int handle_read_emdb_data(const std::string &dir_name) {
    for (auto map_file : map_files)
       handle_read_ccp4_map(map_file, 0);
    for (auto pdb_file : pdb_files)
-      read_pdb(pdb_file.c_str());
+      read_pdb(pdb_file);
 
    return status;
 }

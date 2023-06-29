@@ -133,36 +133,41 @@ int show_mark_cis_peptides_as_bad_state() {
 
 void show_hide_preferences_tabs(GtkToggleButton *toggletoolbutton, int preference_type) {
 
-
    std::vector<std::string> preferences_tabs;
   
    if (preference_type == COOT_GENERAL_PREFERENCES) {
-      preferences_tabs = *graphics_info_t::preferences_general_tabs;
+      preferences_tabs = graphics_info_t::preferences_general_tabs;
    }
    if (preference_type == COOT_BOND_PREFERENCES) {
-      preferences_tabs = *graphics_info_t::preferences_bond_tabs;
+      preferences_tabs = graphics_info_t::preferences_bond_tabs;
    }
    if (preference_type == COOT_GEOMETRY_PREFERENCES) {
-      preferences_tabs = *graphics_info_t::preferences_geometry_tabs;
+      preferences_tabs = graphics_info_t::preferences_geometry_tabs;
    }
    if (preference_type == COOT_COLOUR_PREFERENCES) {
-      preferences_tabs = *graphics_info_t::preferences_colour_tabs;
+      preferences_tabs = graphics_info_t::preferences_colour_tabs;
    }
    if (preference_type == COOT_MAP_PREFERENCES) {
-      preferences_tabs = *graphics_info_t::preferences_map_tabs;
+      preferences_tabs = graphics_info_t::preferences_map_tabs;
    }
    if (preference_type == COOT_OTHER_PREFERENCES) {
-      preferences_tabs = *graphics_info_t::preferences_other_tabs;
+      preferences_tabs = graphics_info_t::preferences_other_tabs;
    }
 
    for (unsigned int i=0; i<preferences_tabs.size(); i++) {
       GtkWidget *frame = widget_from_preferences_builder(preferences_tabs[i].c_str());
+      std::cout << "in show_hide_preferences_tabs() looking up frame " << preferences_tabs[i]
+                << " " << frame << std::endl;
       if (frame) {
          if (gtk_toggle_button_get_active(toggletoolbutton)){
+            std::cout << "in show_hide_preferences_tabs() show " << preferences_tabs[i] << std::endl;
             gtk_widget_show(frame);
          } else {
+            std::cout << "in show_hide_preferences_tabs() hide " << preferences_tabs[i] << std::endl;
             gtk_widget_hide(frame);
          }
+      } else {
+            std::cout << "in show_hide_preferences_tabs() no frame for " << preferences_tabs[i] << std::endl;
       }
    }
 
@@ -202,7 +207,6 @@ void update_preference_gui() {
   GtkWidget *colour_button;
   GtkAdjustment *adjustment;
   GtkWidget *entry;
-  const gchar *gtext;
   std::string text;
   int preference_type;
   int ivalue;
@@ -210,9 +214,10 @@ void update_preference_gui() {
   float fval1;
   float fval2;
   float fval3;
-  std::vector<int> ivector;
   unsigned short int v = 4;
   graphics_info_t g;
+
+  std::cout << "----------------------------------------- update_preference_gui() " << std::endl;
 
   dialog = widget_from_preferences_builder("preferences");
 
@@ -381,10 +386,10 @@ void update_preference_gui() {
     case PREFERENCES_SWAP_DIFF_MAP_COLOURS:
       w = widget_from_preferences_builder("preferences_diff_map_colours_o_radiobutton");
       if (g.preferences_internal[i].ivalue1) {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+	gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
       } else {
 	w = widget_from_preferences_builder("preferences_diff_map_colours_coot_radiobutton");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+	gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
       }
       break;
 
@@ -397,11 +402,12 @@ void update_preference_gui() {
 
     case PREFERENCES_SMOOTH_SCROLL:
       w = widget_from_preferences_builder("preferences_smooth_scroll_on_radiobutton");
+      std::cout << "... checking " << i << " g.preferences_internal[i].ivalue1" << g.preferences_internal[i].ivalue1 << std::endl;
       if (g.preferences_internal[i].ivalue1) {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
       } else {
-	w = widget_from_preferences_builder("preferences_smooth_scroll_off_radiobutton");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+         w = widget_from_preferences_builder("preferences_smooth_scroll_off_radiobutton");
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
       }
       break;
 

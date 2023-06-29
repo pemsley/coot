@@ -2,6 +2,7 @@
 #include "graphics-info.h"
 #include "widget-from-builder.hh"
 #include "dynamic-validation.hh"
+#include "coot-utils/c-beta-deviations.hh"
 
 void dynamic_validation_internal(int imol, int imol_map) {
 
@@ -31,9 +32,6 @@ void update_dynamic_validation_for_molecule(int imol) {
       }
    }
 }
-
-
-#include "coot-utils/c-beta-deviations.hh"
 
 
 void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {

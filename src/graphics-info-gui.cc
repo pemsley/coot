@@ -600,40 +600,15 @@ graphics_info_t::add_status_bar_text(const std::string &text) {
 
    if (use_graphics_interface_flag) {
 
+      GtkWidget *statusbar = widget_from_builder("main_window_statusbar");
       if (statusbar) {
 	 std::string sbt = text;
-	 // If it is "too long" chop it down.
-	 unsigned int max_width = 130;
-	 GtkWidget *main_window = get_main_window();
-	 // some conversion between the window width and the max text length
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE FIXME
 
-         gtk_statusbar_push(GTK_STATUSBAR(statusbar),
-                            statusbar_context_id,
-                            sbt.c_str());
+         std::cout << "pushing statusbar text: " << sbt << std::endl;
+         gtk_statusbar_push(GTK_STATUSBAR(statusbar), statusbar_context_id, sbt.c_str());
 
-#else
-	 GdkWindow *window = 0;
-         window = gtk_widget_get_window(main_window);
-         if (window) {
-            GtkAllocation allocation;
-            gtk_widget_get_allocation(main_window, &allocation);
-            max_width = allocation.width/4 -38;
-            if (sbt.length() > max_width) { // some number
-               // -------------------------
-               //        |                |
-               //     200-130            200
-               int l = sbt.length();
-               std::string short_text = text.substr(l-max_width, max_width);
-               // std::cout << "short_text length: " << short_text.length() << std::endl;
-               sbt = "..." + short_text;
-            }
-            gtk_statusbar_push(GTK_STATUSBAR(statusbar),
-                               statusbar_context_id,
-                               sbt.c_str());
-         }
-#endif
+      } else {
+         std::cout << "no statusbar" << std::endl;
       }
    }
 }

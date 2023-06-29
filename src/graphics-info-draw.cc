@@ -5773,9 +5773,11 @@ graphics_info_t::setup_key_bindings() {
    auto l13l = []() { graphics_info_t g; g.step_screen_left();   return gboolean(TRUE); };
    auto l13r = []() { graphics_info_t g; g.step_screen_right(); return gboolean(TRUE); };
 
-   auto l14 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('forward')"); return gboolean(TRUE); };
+   //    auto l14 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('forward')"); return gboolean(TRUE); };
 
-   auto l15 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('backward')"); return gboolean(TRUE); };
+   // auto l14 = []() { /* use l28 */ return gboolean(TRUE); };
+
+   // auto l15 = []() { /* use l28 */ return gboolean(TRUE); };
 
    auto l16 = []() { graphics_info_t g; g.undo_last_move(); return gboolean(TRUE); };
 
@@ -5899,6 +5901,8 @@ graphics_info_t::setup_key_bindings() {
 
    auto l28 = [] () {
 
+                 std::cout << "@@@@@@@@@@@@@@@@@@@@@@@ l28" << std::endl;
+
                  std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
                  if (aa_spec_pair.first) {
                     int imol = aa_spec_pair.second.first;
@@ -5936,9 +5940,22 @@ graphics_info_t::setup_key_bindings() {
                                                                               this_chain_id, chain_id_next,
                                                                               forward_flag);
                              if (new_ori.first) {
+
                                 coot::util::quaternion q(new_ori.second.rot());
                                 glm::quat q_ncs = coot_quaternion_to_glm(q);
-                                view_quaternion = glm::normalize(view_quaternion * q_ncs); // wrong
+
+                                // glm::quat qq = view_quaternion * q_ncs;
+                                // glm::quat qq = view_quaternion * glm::inverse(q_ncs);
+                                // glm::quat qq = view_quaternion * glm::conjugate(q_ncs);
+                                // glm::quat qq = q_ncs * view_quaternion;
+                                // glm::quat qq = glm::inverse(q_ncs) * view_quaternion;
+                                // glm::quat qq = glm::conjugate(q_ncs) * view_quaternion;
+
+                                glm::quat qq = glm::conjugate(q_ncs) * view_quaternion;
+
+                                view_quaternion = qq;
+                                // view_quaternion = glm::normalize(view_quaternion * q_ncs); // wrong
+
                                 clipper::Coord_orth t(new_ori.second.trn());
                                 set_rotation_centre(t);
 
@@ -6068,8 +6085,8 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_m,      key_bindings_t(l11, "Zoom out")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_w,      key_bindings_t(l12, "Move forward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_s,      key_bindings_t(l13, "Move backward")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
+   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
+   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_u,      key_bindings_t(l16, "Undo Move")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Return, key_bindings_t(l18, "Accept Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));

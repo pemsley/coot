@@ -132,6 +132,8 @@
 #include "cmtz-interface.hh"
 // #include "mtz-bits.h" stuff from here moved to cmtz-interface
 
+#include "read-molecule.hh" // now with std::string args
+
 #include "widget-from-builder.hh"
 #include "glarea_tick_function.hh"
 #include "dynamic-menus.hh"
@@ -590,7 +592,7 @@ get_idle_function_rock_target_angle() {
 // Return the molecule number of the molecule that we just filled.
 // Return -1 if there was a failure.
 //
-int handle_read_draw_molecule(const char *filename) {
+int handle_read_draw_molecule(const std::string &filename) {
 
    int r = graphics_info_t::recentre_on_read_pdb;
    return handle_read_draw_molecule_with_recentre(filename, r);
@@ -834,15 +836,13 @@ void set_convert_to_v2_atom_names(short int state) {
 }
 
 
-int handle_read_draw_molecule_with_recentre(const char *filename,
+int handle_read_draw_molecule_with_recentre(const std::string &filename,
 					    int recentre_on_read_pdb_flag) {
 
    int r = -1;
    //
 
    graphics_info_t g;
-   if (! filename)
-      return -1;
 
    std::string cmd = "handle-read-draw-molecule-with-recentre";
    std::vector<coot::command_arg_t> args;
@@ -997,13 +997,14 @@ int move_molecule_to_screen_centre_internal(int imol);
 
 /*! \brief read coordinates from filename and recentre the new
   molecule at the scren rotation centre. */
-int handle_read_draw_molecule_and_move_molecule_here(const char *filename) {
+int handle_read_draw_molecule_and_move_molecule_here(const std::string &filename) {
+
    int imol = handle_read_draw_molecule_with_recentre(filename, 0);
    move_molecule_to_screen_centre_internal(imol);
    return imol;
 }
 
-int read_pdb(const char *filename) {
+int read_pdb(const std::string &filename) {
    // history is done in the handle function
    return handle_read_draw_molecule(filename);
 }

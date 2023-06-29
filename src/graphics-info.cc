@@ -6835,6 +6835,8 @@ graphics_info_t::quick_save() {
    save_state_file("0-coot.state.py", il);
 #endif
 
+   add_status_bar_text("Quick Saved");
+
 }
 
 

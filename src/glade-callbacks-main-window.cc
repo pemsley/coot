@@ -47,6 +47,7 @@
 #include "gtk-manual.h"
 #include "c-interface-refine.h"
 #include "widget-from-builder.hh"
+#include "read-molecule.hh" // 20230621-PE now with std::string args
 
 // from support.h
 // GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
@@ -789,12 +790,13 @@ on_coords_filechooser_dialog_response(GtkDialog       *dialog,
       }
 #endif
 
-      // const char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      // const char *fn = gtk_nfile_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
       GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
       GError *error = NULL;
       GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
                                                G_FILE_QUERY_INFO_NONE, NULL, &error);
-      const char *fn = g_file_info_get_name(file_info);
+      const char *path = g_file_get_path(file);
+      std::string file_name(path);
       save_directory_from_filechooser(GTK_WIDGET(dialog));
 
       bool recentre_on_read_pdb_flag = false;
@@ -807,12 +809,12 @@ on_coords_filechooser_dialog_response(GtkDialog       *dialog,
          move_molecule_here_flag = true;
 
       if (move_molecule_here_flag) {
-         handle_read_draw_molecule_and_move_molecule_here(fn);
+         handle_read_draw_molecule_and_move_molecule_here(file_name);
       } else {
          if (recentre_on_read_pdb_flag)
-            handle_read_draw_molecule_with_recentre(fn, 1);
+            handle_read_draw_molecule_with_recentre(file_name, 1);
          else
-            handle_read_draw_molecule_with_recentre(fn, 0); // no recentre
+            handle_read_draw_molecule_with_recentre(file_name, 0); // no recentre
       }
 
       gtk_widget_hide(GTK_WIDGET(dialog));

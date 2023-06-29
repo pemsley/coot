@@ -51,6 +51,9 @@
 
 #include "graphics-info.h" // because that is where the curl handlers and filenames vector is stored
 
+#include "read-molecule.hh" // now with std::string args
+
+
 // return 0 on success
 #ifdef USE_LIBCURL
 int coot_get_url(const std::string &url, const std::string  &file_name) {
@@ -478,14 +481,14 @@ fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id) {
    if (needs_downloading) {
       coot_get_url(url.c_str(), fn.c_str());
       if (coot::file_exists_and_non_tiny(fn, 500)) {
-         imol = handle_read_draw_molecule_and_move_molecule_here(fn.c_str());
+         imol = handle_read_draw_molecule_and_move_molecule_here(fn);
       } else {
          std::string m = "WARNING:: UniProt ID " + uniprot_id + std::string(" not found");
          info_dialog(m.c_str());
       }
    } else {
       graphics_info_t g;
-      imol = handle_read_draw_molecule_and_move_molecule_here(fn.c_str());
+      imol = handle_read_draw_molecule_and_move_molecule_here(fn);
       graphics_draw();
    }
    return imol;
