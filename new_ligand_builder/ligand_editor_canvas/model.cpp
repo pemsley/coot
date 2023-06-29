@@ -31,7 +31,7 @@ const float CanvasMolecule::BOND_LINE_SEPARATION = 0.3f;
 // 10 degrees
 const float CanvasMolecule::GEOMETRY_BOND_SPREAD_ANGLE = M_PI/18.f;
 const float CanvasMolecule::WAVY_BOND_ARC_LENGTH = 0.25f;
-const float CanvasMolecule::GEOMETRY_BOND_DASH_SEPARATION = 0.15f;
+const float CanvasMolecule::GEOMETRY_BOND_DASH_SEPARATION = 0.2f;
 
 float CanvasMolecule::get_scale() const noexcept {
     return BASE_SCALE_FACTOR * this->canvas_scale;
@@ -362,13 +362,11 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     break;
                 }
                 case BondGeometry::DashedTowardsFirst:{
-                    g_warning("todo: rendering bond geometry: DashedTowardsFirst");
                     draw_straight_dashed_bond(true);
                     g_warning("todo: rendering bond geometry in rings");
                     break;
                 }
                 case BondGeometry::DashedTowardsSecond:{
-                    g_warning("todo: rendering bond geometry: DashedTowardsSecond");
                     draw_straight_dashed_bond(false);
                     g_warning("todo: rendering bond geometry in rings");
                     break;
