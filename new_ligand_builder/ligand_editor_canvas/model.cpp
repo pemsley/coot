@@ -293,7 +293,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
                 auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
                 
-                for(unsigned int i = 0; i < full_dashes; i++) {
+                for(unsigned int i = 0; i <= full_dashes; i++) {
                     float spread_multiplier = (float) i / dashes;
                     cairo_move_to(cr, current_x - v_x * spread_multiplier, current_y - v_y * spread_multiplier);
                     cairo_line_to(cr, current_x + v_x * spread_multiplier, current_y + v_y * spread_multiplier);
