@@ -253,11 +253,11 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 cairo_line_to(cr, (target_x + v_x) * scale_factor + x_offset, (target_y + v_y) * scale_factor + y_offset);
                 cairo_stroke_preserve(cr);
 
-                cairo_move_to(cr, (target_x + v_x) * scale_factor + x_offset, (target_y + v_y) * scale_factor + y_offset);
+                //cairo_move_to(cr, (target_x + v_x) * scale_factor + x_offset, (target_y + v_y) * scale_factor + y_offset);
                 cairo_line_to(cr, (target_x - v_x) * scale_factor + x_offset , (target_y - v_y) * scale_factor + y_offset);
                 cairo_stroke_preserve(cr);
 
-                cairo_move_to(cr, (target_x - v_x) * scale_factor + x_offset , (target_y - v_y) * scale_factor + y_offset);
+                //cairo_move_to(cr, (target_x - v_x) * scale_factor + x_offset , (target_y - v_y) * scale_factor + y_offset);
                 cairo_line_to(cr, origin_x * scale_factor + x_offset, origin_y * scale_factor + y_offset);
                 cairo_stroke_preserve(cr);
 
