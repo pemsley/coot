@@ -31,6 +31,7 @@ const float CanvasMolecule::BOND_LINE_SEPARATION = 0.3f;
 // 10 degrees
 const float CanvasMolecule::GEOMETRY_BOND_SPREAD_ANGLE = M_PI/18.f;
 const float CanvasMolecule::WAVY_BOND_ARC_LENGTH = 0.25f;
+const float CanvasMolecule::GEOMETRY_BOND_DASH_SEPARATION = 0.3f;
 
 float CanvasMolecule::get_scale() const noexcept {
     return BASE_SCALE_FACTOR * this->canvas_scale;
@@ -263,10 +264,43 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 cairo_fill(cr);
             };
             auto draw_straight_dashed_bond = [&](bool reversed){
-                // for now
-                cairo_move_to(cr, bond.first_atom_x * scale_factor + x_offset, bond.first_atom_y * scale_factor + y_offset);
-                cairo_line_to(cr, bond.second_atom_x * scale_factor + x_offset, bond.second_atom_y * scale_factor + y_offset);
-                cairo_stroke(cr);
+                auto current_x = reversed ? bond.first_atom_x : bond.second_atom_x;
+                auto current_y = reversed ? bond.first_atom_y : bond.second_atom_y;
+
+                auto target_x = reversed ? bond.second_atom_x : bond.first_atom_x;
+                auto target_y = reversed ? bond.second_atom_y : bond.first_atom_y;
+
+                current_x *= scale_factor;
+                current_y *= scale_factor;
+                target_x *= scale_factor;
+                target_y *= scale_factor;
+
+                current_x += x_offset;
+                current_y += y_offset;
+                target_x += x_offset;
+                target_y += y_offset;
+                
+                auto [pv_x,pv_y] = bond.get_perpendicular_versor();
+                auto bond_len = bond.get_length();
+
+                float dashes = GEOMETRY_BOND_DASH_SEPARATION / bond_len;
+                unsigned int full_dashes = std::floor(dashes);
+
+                float step_x = (target_x - current_x) / dashes;
+                float step_y = (target_y - current_y) / dashes;
+
+                bond_len *= scale_factor;
+                auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
+                auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
+
+                for(unsigned int i = 0; i < full_dashes; i++) {
+                    float spread_multiplier = (float) i / dashes;
+                    cairo_move_to(cr, current_x - v_x * spread_multiplier, current_y - v_y * spread_multiplier);
+                    cairo_line_to(cr, current_x + v_x * spread_multiplier, current_y + v_y * spread_multiplier);
+                    cairo_stroke(cr);
+                    current_x += step_x;
+                    current_y += step_y;
+                }
             };
             switch (bond.geometry) {
                 default:

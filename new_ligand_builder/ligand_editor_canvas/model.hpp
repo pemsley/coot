@@ -125,6 +125,7 @@ class CanvasMolecule {
     static const float BOND_LINE_SEPARATION;
     static const float GEOMETRY_BOND_SPREAD_ANGLE;
     static const float WAVY_BOND_ARC_LENGTH;
+    static const float GEOMETRY_BOND_DASH_SEPARATION;
 
     static BondType bond_type_from_rdkit(RDKit::Bond::BondType);
     static AtomColor atom_color_from_rdkit(const RDKit::Atom *) noexcept;
