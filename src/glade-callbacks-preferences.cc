@@ -1256,6 +1256,7 @@ on_preferences_font_colour_own_radiobutton_toggled(GtkCheckButton *checkbutton,
 
       if (previous_state != -1) { 	/* not unset */
          GtkWidget *w = widget_from_preferences_builder("preferences_font_colorbutton");
+#if 0
          gtk_color_button_get_color(GTK_COLOR_BUTTON(w), &font_colour);
          fval1 = (float) font_colour.red   / (float) 65535;
          fval2 = (float) font_colour.green / (float) 65535;
@@ -1265,6 +1266,7 @@ on_preferences_font_colour_own_radiobutton_toggled(GtkCheckButton *checkbutton,
          printf("     set_font_colour() - path B\n");
          set_font_colour(fval1, fval2, fval3);
          preferences_internal_change_value_int(PREFERENCES_FONT_OWN_COLOUR_FLAG, 1);
+#endif
       }
    }
 

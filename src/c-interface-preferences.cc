@@ -155,23 +155,31 @@ void show_hide_preferences_tabs(GtkToggleButton *toggletoolbutton, int preferenc
       preferences_tabs = graphics_info_t::preferences_other_tabs;
    }
 
-   for (unsigned int i=0; i<preferences_tabs.size(); i++) {
-      GtkWidget *frame = widget_from_preferences_builder(preferences_tabs[i].c_str());
-      std::cout << "in show_hide_preferences_tabs() looking up frame " << preferences_tabs[i]
-                << " " << frame << std::endl;
+   auto append_tabs = [] (std::vector<std::string> &all_tabs,
+                          const std::vector<std::string> &other_tabs) {
+      all_tabs.insert(all_tabs.end(), other_tabs.begin(), other_tabs.end());
+   };
+
+   std::vector<std::string> all_tabs;
+   append_tabs(all_tabs, graphics_info_t::preferences_general_tabs);
+   append_tabs(all_tabs, graphics_info_t::preferences_bond_tabs);
+   append_tabs(all_tabs, graphics_info_t::preferences_geometry_tabs);
+   append_tabs(all_tabs, graphics_info_t::preferences_colour_tabs);
+   append_tabs(all_tabs, graphics_info_t::preferences_map_tabs);
+   append_tabs(all_tabs, graphics_info_t::preferences_other_tabs);
+
+   for (const auto &tab : all_tabs) {
+      GtkWidget *frame = widget_from_preferences_builder(tab);
       if (frame) {
-         if (gtk_toggle_button_get_active(toggletoolbutton)){
-            std::cout << "in show_hide_preferences_tabs() show " << preferences_tabs[i] << std::endl;
+         if (std::find(preferences_tabs.begin(), preferences_tabs.end(), tab) != preferences_tabs.end()) {
             gtk_widget_set_visible(frame, TRUE);
          } else {
-            std::cout << "in show_hide_preferences_tabs() hide " << preferences_tabs[i] << std::endl;
             gtk_widget_set_visible(frame, FALSE);
          }
       } else {
-            std::cout << "in show_hide_preferences_tabs() no frame for " << preferences_tabs[i] << std::endl;
+         std::cout << "No frame " << preference_type << " " << tab << std::endl;  
       }
    }
-
 }
 
 #include "c-interface-preferences.h"
@@ -462,7 +470,6 @@ void update_preference_gui() {
        fval1 = g.preferences_internal[i].fvalue1;  // red
        fval2 = g.preferences_internal[i].fvalue2;  // green
        fval3 = g.preferences_internal[i].fvalue3;  // blue
-       colour_button = widget_from_preferences_builder("preferences_bg_colour_colorbutton");
 
        GdkRGBA bg_colour;
 
@@ -483,26 +490,54 @@ void update_preference_gui() {
        } else {
           // other colour
           w = widget_from_preferences_builder("preferences_bg_colour_own_radiobutton");
-          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+          gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
           bg_colour.red = (guint)(fval1 * 65535);
           bg_colour.green = (guint)(fval2 * 65535);
           bg_colour.blue = (guint)(fval3 * 65535);
        }
-       if (colour_button)
-          std::cout << "about to gtk_color_button_set_color() colour_button: " << colour_button
-                    << " bg_colour " << bg_colour.red << " " << bg_colour.green << " " << bg_colour.blue << std::endl;
-       else
-          std::cout << "about to gtk_color_button_set_color() null colour_button: "
-                    << " bg_colour " << bg_colour.red << " " << bg_colour.green << " " << bg_colour.blue << std::endl;
+       {
+          GtkWidget *colour_button_box = widget_from_preferences_builder("preferences_bg_colour_vbox");
+          if (colour_button_box) {
+             std::cout << "about to gtk_color_button_set_color() colour_button: " << colour_button
+                       << " bg_colour " << bg_colour.red << " " << bg_colour.green << " " << bg_colour.blue << std::endl;
 
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-          // 20220528-PE FIXME color
+             if (colour_button_box) {
+                GtkWidget *child_item = gtk_widget_get_first_child(colour_button_box);
+                if (child_item) {
+                   // the colour button has already been added
+                } else {
+
+                   // c.f. colour button in wrapped_create_show_symmetry_window()
+
+                   // 20230513-PE color dialog is not in GTK 4.4.0 (it is in 4.10+)
+#if GTK_MAJOR_VERSION == 5 && GTK_MINOR_VERSION >= 10
+                   GtkWidget *col_dialog = gtk_color_dialog_new();
+                   // this will need a callback
+                   GtkWidget *colour_button_dialog = gtk_color_dialog_button_new(col_dialog);
+                   gtk_box_append(GTK_BOX(box_for_colour_button), colour_button_dialog);
 #else
-       if (colour_button)
-          gtk_color_button_set_color(GTK_COLOR_BUTTON(colour_button), &bg_colour);
-       else
-          std::cout << "ERROR:: update_preference_gui() null colour_button bg_colour" << std::endl;
+
+                   auto on_color_set_func = +[] (GtkColorButton *self, gpointer user_data) {
+                      GdkRGBA rgba;
+                      gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(self), &rgba);
+                      // std::cout << "Selected color: " << gdk_rgba_to_string(&rgba) << std::endl;
+                      float fval1 = static_cast<float>(rgba.red);
+                      float fval2 = static_cast<float>(rgba.green);
+                      float fval3 = static_cast<float>(rgba.blue);
+                      preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, fval1, fval2, fval3);
+                      // std::cout << "........  " << fval1 << " " << fval2 << " " << fval3 << std::endl;
+                      set_background_colour(fval1, fval2, fval3);
+                      graphics_info_t::graphics_draw();
+                   };
+
+                   GtkWidget *colour_button = gtk_color_button_new_with_rgba(&bg_colour);
+                   gtk_box_append(GTK_BOX(colour_button_box), colour_button);
+                   g_signal_connect(G_OBJECT(colour_button), "color-set", G_CALLBACK(on_color_set_func), nullptr);
 #endif
+                }
+             }
+          }
+       }
        break;
 
     // case PREFERENCES_ANTIALIAS:

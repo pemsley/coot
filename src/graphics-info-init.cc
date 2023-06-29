@@ -282,13 +282,13 @@ graphics_info_t::init() {
       /* things for preferences */
       //preferences_internal = new std::vector<coot::preference_info_t>;
 
-      preferences_general_tabs.push_back("preferences_file_selection");
-      preferences_general_tabs.push_back("preferences_dock_accept_dialog");
+      // preferences_general_tabs.push_back("preferences_file_selection");
+      // preferences_general_tabs.push_back("preferences_dock_accept_dialog");
       preferences_general_tabs.push_back("preferences_hid");
       preferences_general_tabs.push_back("preferences_recentre_pdb");
-      preferences_general_tabs.push_back("preferences_model_toolbar_style");
       preferences_general_tabs.push_back("preferences_smooth_scroll");
-      preferences_general_tabs.push_back("preferences_main_toolbar_style");
+      // preferences_general_tabs.push_back("preferences_model_toolbar_style");
+      // preferences_general_tabs.push_back("preferences_main_toolbar_style");
 
       preferences_bond_tabs.push_back("preferences_bond_parameters");
       preferences_bond_tabs.push_back("preferences_bond_colours");

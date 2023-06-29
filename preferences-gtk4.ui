@@ -850,7 +850,7 @@ distances more than:</property>
                               <object class="GtkLabel" id="label226">
                                 <property name="valign">center</property>
                                 <property name="visible">1</property>
-                                <property name="label" translatable="yes">Mark Cis-Peptides as Bad in Geometry Graph?</property>
+                                <property name="label" translatable="yes">Mark cis-Peptides as Bad in Geometry Graph?</property>
                                 <property name="justify">center</property>
                               </object>
                             </child>
@@ -888,7 +888,7 @@ distances more than:</property>
                     <property name="tab">
                       <object class="GtkLabel" id="label568">
                         <property name="visible">1</property>
-                        <property name="label" translatable="yes">Cis-Peptides</property>
+                        <property name="label" translatable="yes">cis-Peptides</property>
                       </object>
                     </property>
                   </object>
@@ -946,16 +946,16 @@ distances more than:</property>
                                             <signal name="toggled" handler="on_preferences_bg_colour_own_radiobutton_toggled" swapped="no"/>
                                           </object>
                                         </child>
+
+                                        <!-- dynamcially put the color button in a box so that we can delete the contents of the box.
+                                              This code will soon -->
+                                        <!-- be deprecated (once we switch to compulsary 4.12+ for the builds). -->
                                         <child>
-                                          <object class="GtkColorButton" id="preferences_bg_colour_colorbutton">
-                                            <property name="halign">center</property>
-                                            <property name="visible">1</property>
-                                            <property name="focusable">1</property>
-                                            <property name="tooltip-text" translatable="yes">Press here to choose your own colour</property>
-                                            <property name="title" translatable="yes">Pick a Background Colour</property>
-                                            <signal name="color-set" handler="on_preferences_bg_colour_colorbutton_color_set" swapped="no"/>
+                                          <object class="GtkBox" id="preferences_bg_colour_vbox">
+                                            <property name="orientation">vertical</property>
                                           </object>
                                         </child>
+
                                       </object>
                                     </child>
                                   </object>
