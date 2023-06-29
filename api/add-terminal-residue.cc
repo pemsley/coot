@@ -614,6 +614,13 @@ coot::add_terminal_residue(int imol_no, const std::string &terminus_type, mmdb::
    int state = 0;
    std::string message;
 
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+   // fine
+#else
+   message = "No Boost-based thread-pool! add-terminal-residue won't work - stopping now";
+   return std::make_pair(state, message);
+#endif
+
    bool add_terminal_residue_debug_trials = false;
    int add_terminal_residue_n_phi_psi_trials = 3000;
    bool add_terminal_residue_add_other_residue_flag = false;
