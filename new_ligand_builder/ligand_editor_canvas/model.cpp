@@ -235,6 +235,13 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         };
 
         if(bond.geometry != BondGeometry::Flat && bond.type == BondType::Single) {
+
+            auto draw_straight_wedge = [&](bool reversed){
+
+            };
+            auto draw_straight_dashed_bond = [&](bool reversed){
+                
+            };
             switch (bond.geometry) {
                 default:
                 case BondGeometry::Unspecified:{
