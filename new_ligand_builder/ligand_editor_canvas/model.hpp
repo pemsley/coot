@@ -77,6 +77,12 @@ class CanvasMolecule {
         Unspecified
     };
 
+    enum class DoubleBondDrawingDirection: unsigned char {
+        Primary,
+        Secondary,
+        Centered
+    };
+
     struct Bond {
         BondType type;
         BondGeometry geometry;
@@ -90,8 +96,8 @@ class CanvasMolecule {
         /// by which the parallel segment of the bond 
         /// has to be shortend from the "second" side.
         std::optional<float> second_shortening_proportion;
-        /// For aromatic bonds
-        std::optional<bool> bond_drawing_direction;
+        /// For double bonds
+        std::optional<DoubleBondDrawingDirection> bond_drawing_direction;
         float first_atom_x;
         float first_atom_y;
         unsigned int first_atom_idx;

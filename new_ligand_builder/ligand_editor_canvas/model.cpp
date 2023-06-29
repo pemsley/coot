@@ -378,14 +378,28 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
 
             switch(bond.type) {
                 case BondType::Double:{
-                    // todo: add support for centered double bonds
-                    draw_central_bond_line();
-                    bool direction = bond.bond_drawing_direction.has_value() ? bond.bond_drawing_direction.value() : false;
-                    draw_side_bond_line(
-                        direction,
-                        bond.first_shortening_proportion,
-                        bond.second_shortening_proportion
-                    );
+                    DoubleBondDrawingDirection direction = bond.bond_drawing_direction.has_value() ? bond.bond_drawing_direction.value() : DoubleBondDrawingDirection::Primary;
+                    bool direction_as_bool = true;
+
+                    switch (direction) { 
+                        case DoubleBondDrawingDirection::Secondary:{
+                            direction_as_bool = false;
+                            // no break here.
+                        }
+                        case DoubleBondDrawingDirection::Primary:{
+                            draw_central_bond_line();
+                            draw_side_bond_line(
+                                direction_as_bool,
+                                bond.first_shortening_proportion,
+                                bond.second_shortening_proportion
+                            );
+                            break;
+                        }
+                        case DoubleBondDrawingDirection::Centered:{
+                            // todo: add support for centered double bonds
+                            break;
+                        }
+                    }
                     break;
                 }
                 case BondType::Triple:{
@@ -788,7 +802,7 @@ void CanvasMolecule::process_bond_alignment_in_rings() {
                 //     x_requirement,
                 //     y_requirement,bond_direction
                 // );
-                bond->bond_drawing_direction = bond_direction;
+                bond->bond_drawing_direction = bond_direction ? DoubleBondDrawingDirection::Primary : DoubleBondDrawingDirection::Secondary;
             }
             i++;
             j++;
