@@ -283,7 +283,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 auto [pv_x,pv_y] = bond.get_perpendicular_versor();
                 auto bond_len = bond.get_length();
 
-                float dashes = GEOMETRY_BOND_DASH_SEPARATION / bond_len;
+                float dashes = bond_len / GEOMETRY_BOND_DASH_SEPARATION;
                 unsigned int full_dashes = std::floor(dashes);
 
                 float step_x = (target_x - current_x) / dashes;
@@ -292,7 +292,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 bond_len *= scale_factor;
                 auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
                 auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
-
+                
                 for(unsigned int i = 0; i < full_dashes; i++) {
                     float spread_multiplier = (float) i / dashes;
                     cairo_move_to(cr, current_x - v_x * spread_multiplier, current_y - v_y * spread_multiplier);
