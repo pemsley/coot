@@ -396,7 +396,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                             break;
                         }
                         case DoubleBondDrawingDirection::Centered:{
-                            // todo: add support for centered double bonds
+                            g_warning("todo: add support for centered double bonds");
                             break;
                         }
                     }
