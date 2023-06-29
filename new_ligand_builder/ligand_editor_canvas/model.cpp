@@ -237,10 +237,30 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         if(bond.geometry != BondGeometry::Flat && bond.type == BondType::Single) {
 
             auto draw_straight_wedge = [&](bool reversed){
+                auto origin_x = reversed ? bond.first_atom_x : bond.second_atom_x;
+                auto origin_y = reversed ? bond.first_atom_y : bond.second_atom_y;
 
+                auto target_x = reversed ? bond.second_atom_x : bond.first_atom_x;
+                auto target_y = reversed ? bond.second_atom_y : bond.first_atom_y;
+                
+                auto [pv_x,pv_y] = bond.get_perpendicular_versor();
+                auto bond_len = bond.get_length();
+                auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
+                auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
+
+                cairo_move_to(cr, origin_x * scale_factor + x_offset, origin_y * scale_factor + y_offset);
+                cairo_line_to(cr, (target_x + v_x) * scale_factor + x_offset, (target_y + v_y) * scale_factor + y_offset);
+                cairo_stroke_preserve(cr);
+                cairo_move_to(cr, origin_x * scale_factor + x_offset, origin_y * scale_factor + y_offset);
+                cairo_line_to(cr, (target_x - v_x) * scale_factor + x_offset , (target_y - v_y) * scale_factor + y_offset);
+                cairo_stroke_preserve(cr);
+                cairo_fill(cr);
             };
             auto draw_straight_dashed_bond = [&](bool reversed){
-                
+                // for now
+                cairo_move_to(cr, bond.first_atom_x * scale_factor + x_offset, bond.first_atom_y * scale_factor + y_offset);
+                cairo_line_to(cr, bond.second_atom_x * scale_factor + x_offset, bond.second_atom_y * scale_factor + y_offset);
+                cairo_stroke(cr);
             };
             switch (bond.geometry) {
                 default:
