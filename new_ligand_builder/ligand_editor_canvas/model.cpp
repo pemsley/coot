@@ -293,21 +293,25 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 }
                 case BondGeometry::WedgeTowardsFirst:{
                     g_warning("todo: rendering bond geometry: WedgeTowardsFirst");
+                    draw_straight_wedge(true);
                     g_warning("todo: rendering bond geometry in rings");
                     break;
                 }
                 case BondGeometry::WedgeTowardsSecond:{
                     g_warning("todo: rendering bond geometry: WedgeTowardsSecond");
+                    draw_straight_wedge(false);
                     g_warning("todo: rendering bond geometry in rings");
                     break;
                 }
                 case BondGeometry::DashedTowardsFirst:{
                     g_warning("todo: rendering bond geometry: DashedTowardsFirst");
+                    draw_straight_dashed_bond(true);
                     g_warning("todo: rendering bond geometry in rings");
                     break;
                 }
                 case BondGeometry::DashedTowardsSecond:{
                     g_warning("todo: rendering bond geometry: DashedTowardsSecond");
+                    draw_straight_dashed_bond(false);
                     g_warning("todo: rendering bond geometry in rings");
                     break;
                 }
