@@ -65,8 +65,8 @@ Let's change the name of the copy:
    - **Calculate** &rarr; **Scripting** &rarr; **Python**
 
  in the "Command:" entry:
-   - `set_molecule_name(2, 'working.pdb')`
-   - Press "Enter" to execute.
+   - `set_molecule_name(3, 'working.pdb')`
+   - Press "Enter" to execute (you want to be setting the name of the newly created copy of the model (not a map!))
 
 _Coot_ will echo your command in the green box below.
 
@@ -82,32 +82,43 @@ to mask the map by the current model:
    - **Calculate** &rarr; **Map Tools** &rarr; **Mask Map by Atom Selection** &rarr; **Atom Selection** &rarr; `//` &rarr; **OK**
    - Using the Display Manager, undisplay the starting map (for me, that's map number 1).
 
-In the residual map you should now you should see a WD40 domain, an immunoglobulin domain next to it, and a helix
-somewwhat separate.
+Sometimes, Coot will set the contour level of the new (residual) map to zero! So let's scroll the contour level of the new map
+to about 8.0 r.m.s.d.
+
+In the residual map you should now you should see a WD40 domain (beta propeller), an immunoglobulin domain next to it, and a helix
+somewhat separate.
 The domain with the best density is the WD40 domain. Let's start by modelling that with an AlphaFold2 model:
 
    - Using middle-mouse click and drag, bring the centre of the WD40 domain to the centre of the screen
 
 [Note: it is only this part of the tutorial (_i.e._ "where is the middle of the domain?") that needs any skill,
-everything else is just following the script, and thus is scriptable.]
+everything else is just following the script (and thus is scriptable).]
 
-   - **File** &rarr; **Fetch AlphaFold2 Model using UniProt ID...** &rarr; `P54311` &rarr; **OK**
-   - Press "U" on the keyboard to bring the view back to the map for the WD40 domain
+   - **File** &rarr; **Fetch AlphaFold2 Model using UniProt ID...** &rarr; `P54311` &rarr; **Get it**
 
 If you do not have AlphaFold2 utilities in your copy of _Coot_ then use the UniProt web site
 to download the AlphaFold2 model for ``P54311``
 
   - https://www.uniprot.org/
 
- - **Calculate** &rarr; **Move Molecule Here** &rarr; `3: AF-P54311-F1-model_v3.pdb` &rarr; **OK**
- - **Cryo-EM** &rarr; **Jiggle Fit with Fourier Filtering**
+Check that you have the "Morph" menu item in the main menu bar. If you do not, then you will need to get the "Morph" tools from Curlew
+
+  - **File** &rarr; **Curlew**
+  - Look for the **Morph** tool and click its "Install" button
+
+  - Use the combobox in the Display Manager to change the representation style of the AlphaFold2 ("AF-P54311-F1-model_v3.pdb") model
+    to "CA + Ligands".
+    Doing so makes the overall fit of the model to the map more clear.
+
+ - **Morph** &rarr; **Jiggle Fit with Fourier Filtering**
+   - _{Coot adds the "Morph" menu to the main menu bar}_
 
 [wait a couple of seconds - you can think of this step as local molecular placement. We could have used MOLREP or PHASER
 to achieve the same result with no human intervention, but with considerably more palaver]
 
    - _{The AlphaFold2 model should jump into the density}_
 
-You can check that this is the correct solution because it finds some density for the helical extension.
+You can check that this is the correct solution because it finds some density for the N-terminal helical extension.
 
 4: Real Space Refinement Morph Fitting
 --------------------------------------
@@ -157,7 +168,7 @@ Part of the work on the refinement has been to change the way non-bonded contact
 are minimized. To reduce/remove atom overlaps (or "Clashes" as Molprobity would
 call them)
 
-  - First determine the model number of the domain we are refining - for me it's `3` -
+  - First determine the model number of the domain we are refining - for me it's `4` -
   - and now add hydrogen atoms to that model:
   - **Calculate** &rarr; **Modelling** &rarr; **Add Hydrogen Atoms**
 
