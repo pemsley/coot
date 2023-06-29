@@ -353,9 +353,9 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 case BondType::Triple:{
                     draw_central_bond_line();
                     // "to the left"
-                    draw_side_bond_line(false,0.f,0.f);
+                    draw_side_bond_line(false,std::nullopt,std::nullopt);
                     // "to the right"
-                    draw_side_bond_line(true,0.f,0.f);
+                    draw_side_bond_line(true,std::nullopt,std::nullopt);
                     break;
                 }
                 default:
