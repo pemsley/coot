@@ -235,7 +235,6 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         };
 
         if(bond.geometry != BondGeometry::Flat && bond.type == BondType::Single) {
-            g_warning("todo: rendering bond geometry in rings");
             switch (bond.geometry) {
                 default:
                 case BondGeometry::Unspecified:{
@@ -287,18 +286,22 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 }
                 case BondGeometry::WedgeTowardsFirst:{
                     g_warning("todo: rendering bond geometry: WedgeTowardsFirst");
+                    g_warning("todo: rendering bond geometry in rings");
                     break;
                 }
                 case BondGeometry::WedgeTowardsSecond:{
                     g_warning("todo: rendering bond geometry: WedgeTowardsSecond");
+                    g_warning("todo: rendering bond geometry in rings");
                     break;
                 }
                 case BondGeometry::DashedTowardsFirst:{
                     g_warning("todo: rendering bond geometry: DashedTowardsFirst");
+                    g_warning("todo: rendering bond geometry in rings");
                     break;
                 }
                 case BondGeometry::DashedTowardsSecond:{
                     g_warning("todo: rendering bond geometry: DashedTowardsSecond");
+                    g_warning("todo: rendering bond geometry in rings");
                     break;
                 }
             }
@@ -352,6 +355,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 }
                 case BondType::Triple:{
                     draw_central_bond_line();
+                    g_warning("todo: Triple bonds might need truncating too.");
                     // "to the left"
                     draw_side_bond_line(false,std::nullopt,std::nullopt);
                     // "to the right"
