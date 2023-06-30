@@ -296,10 +296,12 @@ _coot_extended_la_LIBADD = \
 
 pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la _coot.la
 
-# does this stop the race condition?
-_coot.la: libcootsumo.la
+# Does this stop the race condition?
+# Well, it might do, but if I add it then _coot.so is not updated.
+# So, how about I added libcootsumo.la to the SOURCES, will that work?
+# _coot.la: libcootsumo.la
 
-_coot_la_SOURCES = coot.cc coot_wrap_python.cc
+_coot_la_SOURCES = coot.cc coot_wrap_python.cc libcootsumo.la
 
 _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
 	   libcootsumo.la                                    \
