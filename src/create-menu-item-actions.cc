@@ -438,6 +438,17 @@ fetch_and_superpose_alphafold_models_action(G_GNUC_UNUSED GSimpleAction *simple_
 }
 
 void
+fetch_map_from_emdb_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *frame = widget_from_builder("emdb_map_code_frame");
+   gtk_widget_set_visible(frame, TRUE);
+   
+}
+
+
+void
 fetch_pdbe_ligand_description_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                      G_GNUC_UNUSED GVariant *parameter,
                                      G_GNUC_UNUSED gpointer user_data) {
@@ -2620,6 +2631,7 @@ create_actions(GtkApplication *application) {
    add_action_with_param("show_accession_code_fetch_frame",         show_accession_code_fetch_frame);
    add_action(    "fetch_pdbe_ligand_description_action",    fetch_pdbe_ligand_description_action);
    add_action( "fetch_and_superpose_alphafold_models_action", fetch_and_superpose_alphafold_models_action);
+   add_action(              "fetch_map_from_emdb_action",              fetch_map_from_emdb_action);
    add_action(                 "save_coordinates_action",                 save_coordinates_action);
    add_action(        "save_symmetry_coordinates_action",        save_symmetry_coordinates_action);
    add_action(                       "save_state_action",                       save_state_action);

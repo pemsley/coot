@@ -505,6 +505,103 @@ void stop_curl_download(const char *file_name) {  // stop curling the to file_na
 } 
 #endif // USE_LIBCURL
 
+#include <zlib.h>                                              
+#ifdef USE_LIBCURL
+int fetch_emdb_map(const std::string &emd_accession_code) {
+
+   int imol = -1;
+   std::string map_gz_url = "https://ftp.ebi.ac.uk/pub/databases/emdb/structures/EMD-" +
+      emd_accession_code + "/map/emd_" + emd_accession_code + ".map.gz";
+   std::string download_dir = "coot-download";
+   download_dir = coot::get_directory(download_dir.c_str());
+   std::string gz_fnl = "emd_" + emd_accession_code + ".map.gz";
+   std::string fnl    = "emd_" + emd_accession_code + ".map";
+   std::string gz_fn = coot::util::append_dir_file(download_dir, gz_fnl);
+   std::string fn    = coot::util::append_dir_file(download_dir,    fnl);
+
+   // a progress bar here woudl be nice
+   int status = coot_get_url(map_gz_url, gz_fn);
+
+   if (status == 0) { // that's good
+
+      std::string gzipedBytes;
+      gzipedBytes.clear();
+
+      std::ifstream file(gz_fn);
+      std::stringstream sss;
+      std::stringstream &ss = sss;
+      ss.flush();
+
+      while (!file.eof())
+         gzipedBytes += (char) file.get();
+      file.close();
+      if (gzipedBytes.size() == 0) {
+         ss << gzipedBytes;
+         return -1;
+      }
+
+      unsigned int full_length   = gzipedBytes.size();
+      unsigned int half_length   = gzipedBytes.size()/2;
+      unsigned int uncomp_length = full_length;
+      Bytef* uncomp = new Bytef[uncomp_length];
+      z_stream strm;
+      strm.next_in   = (Bytef *) gzipedBytes.c_str();
+      strm.avail_in  = full_length;
+      strm.total_out = 0;
+      strm.zalloc    = Z_NULL;
+      strm.zfree     = Z_NULL;
+      bool done = false;
+
+      if (inflateInit2(&strm, (16 + MAX_WBITS)) != Z_OK) {
+         delete [] uncomp;
+         return -1;
+      }
+
+      while (!done) {
+         // If the output buffer is too small
+         if (strm.total_out >= uncomp_length) {
+            // Increase size of output buffer
+            // Bytef* uncomp2 = static_cast<Bytef *>(calloc(sizeof(Bytef), uncomp_length + half_length));
+            Bytef* uncomp2 = new Bytef[uncomp_length + half_length];
+            memset(uncomp2, 0, uncomp_length + half_length);
+            memcpy(uncomp2, uncomp, uncomp_length);
+            uncomp_length += half_length;
+            delete [] uncomp;
+            uncomp = uncomp2;
+         }
+
+         strm.next_out  = static_cast<Bytef *>(uncomp + strm.total_out);
+         strm.avail_out = uncomp_length - strm.total_out;
+
+         // keep inflating...
+         int err = inflate (&strm, Z_SYNC_FLUSH);
+         if (err == Z_STREAM_END) {
+            done = true;
+         } else if (err != Z_OK) {
+            break;
+         }
+      }
+
+      if (inflateEnd (&strm) != Z_OK) {
+         delete [] uncomp;
+         return -1;
+      }
+
+      for (size_t i = 0; i < strm.total_out; ++i) {
+         ss << uncomp[i];
+      }
+      free(uncomp);
+
+      std::ofstream out(fn);
+      out << sss.str();
+      out.close();
+      remove(gz_fn.c_str());
+      imol = read_ccp4_map(fn, false);
+   }
+
+   return imol;
+}
+#endif // USE_LIBCURL
 
 
 #ifdef USE_LIBCURL

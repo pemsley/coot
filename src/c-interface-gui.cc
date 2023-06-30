@@ -2221,7 +2221,11 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
       std::cout << "frame: " << frame << std::endl;
       int n = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(frame), "mode"));
       std::cout << "DEBUG:: extracted accession code handle mode n " << n << std::endl;
-      python_network_get(text_c, n);
+      if (n == COOT_EMDB_CODE) {
+         fetch_emdb_map(text);
+      } else {
+         python_network_get(text_c, n);
+      }
    }
 
    // and hide the accession code window

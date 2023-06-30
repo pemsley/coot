@@ -1667,9 +1667,21 @@ on_accession_code_get_it_button_clicked(GtkButton *button, gpointer user_data) {
 
    GtkWidget *entry = widget_from_builder("accession_code_entry");
    GtkWidget *frame = widget_from_builder("accession_code_frame");
+   int n = COOT_ACCESSION_CODE_WINDOW_OCA;
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(n));
    handle_get_accession_code(frame, entry);
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_emdb_map_code_get_it_button_clicked(GtkButton *button, gpointer user_data) {
+
+   GtkWidget *entry = widget_from_builder("emdb_map_code_entry");
+   GtkWidget *frame = widget_from_builder("emdb_map_code_frame");
+   int n = COOT_EMDB_CODE;
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(n));
+   handle_get_accession_code(frame, entry);
+}
 
 extern "C" G_MODULE_EXPORT
 void
