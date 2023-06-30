@@ -1078,6 +1078,7 @@ on_map_and_mol_control1_activate       (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
    GtkWidget *widget = wrapped_create_display_control_window();
+   set_transient_for_main_window(widget);
    gtk_widget_set_visible(widget, TRUE);
 }
 
