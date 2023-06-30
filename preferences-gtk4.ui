@@ -415,7 +415,7 @@ distances more than:</property>
                 </child>
                 <child>
                   <object class="GtkNotebookPage">
-                    <property name="position">8</property>
+                    <property name="position">8</property>ba
                     <property name="child">
                       <object class="GtkFrame" id="preferences_bond_colours">
                         <property name="visible">1</property>
@@ -837,6 +837,7 @@ distances more than:</property>
                     </property>
                   </object>
                 </child>
+
                 <child>
                   <object class="GtkNotebookPage">
                     <property name="position">12</property>
@@ -893,6 +894,51 @@ distances more than:</property>
                     </property>
                   </object>
                 </child>
+
+                <child>
+                  <object class="GtkNotebookPage">
+                    <property name="tab">
+                      <object class="GtkLabel">
+                        <property name="visible">1</property>
+                        <property name="label" translatable="yes">Default B-factor</property>
+                      </object>
+                    </property>
+                    <property name="position">17</property>
+                    <property name="child">
+                      <object class="GtkFrame" id="preferences_default_b_factor_frame">
+                        <property name="vexpand">0</property>
+                        <child>
+                          <object class="GtkBox" id="preferences_default_b_factor_vbox">
+                            <property name="vexpand">0</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkBox" id="prefences_default_b_factor_hbox">
+                                <property name="vexpand">0</property>
+                                <property name="orientation">horizontal</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">Default Temperature Factor: </property>
+                                    <property name="vexpand">0</property>
+                                    <property name="justify">center</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="preferences_default_b_factor_entry">
+                                    <property name="vexpand">0</property>
+                                    <property name="width-request">5</property>
+                                    <property name="can-focus">1</property>
+                                    <signal name="activate" handler="on_preferences_default_b_factor_entry_activate" swapped="no"/>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+
                 <child>
                   <object class="GtkNotebookPage">
                     <property name="position">13</property>

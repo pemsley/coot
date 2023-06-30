@@ -3800,6 +3800,8 @@ graphics_info_t::update_maps_for_mols(const std::vector<int> &mol_idxs) {
 void
 graphics_info_t::update_maps() {
 
+   std::cout << "in update_maps() flag is " << active_map_drag_flag << std::endl;
+
    if (GetActiveMapDrag() == 1) {
 
       // now map updates are internally threaded - we don't need
@@ -3979,7 +3981,8 @@ void
 graphics_info_t::update_things_on_move() {
 
    for (int ii=0; ii<n_molecules(); ii++) {
-      molecules[ii].update_map(auto_recontour_map_flag);
+      if (GetActiveMapDrag())
+         molecules[ii].update_map(auto_recontour_map_flag);
       molecules[ii].update_clipper_skeleton();
       molecules[ii].update_symmetry();
    }
@@ -4003,10 +4006,8 @@ graphics_info_t::start_baton_here() {
       std::vector<int> map_molecules = valid_map_molecules();
 
       if (map_molecules.size() > 0) {
-#ifndef EMSCRIPTEN
          GtkWidget *w = wrapped_create_skeleton_dialog(1);
          gtk_widget_set_visible(w, TRUE);
-#endif
          return 0;
          
 
@@ -4015,11 +4016,11 @@ graphics_info_t::start_baton_here() {
          // 20091218 It is as it was - No map.
          //
          // GtkWidget *w = create_baton_mode_make_skeleton_dialog();
-#ifndef EMSCRIPTEN
+
          GtkWidget *w = widget_from_builder("baton_mode_make_skeleton_dialog");
          g_object_set_data(G_OBJECT(w), "imol", GINT_TO_POINTER(imol_for_skel));
          gtk_widget_set_visible(w, TRUE);
-#endif
+
          return 0;
       }
 
@@ -5698,17 +5699,15 @@ graphics_info_t::clear_last_measure_distance() {
          labels_for_measure_distances_and_angles.pop_back();
 
       // rebuild the mesh for measure_distance_object_vec
-#ifndef EMSCRIPTEN
+
       mesh_for_measure_distance_object_vec.clear();
-#endif
+
       Material material;
       glm::vec4 col(0.72, 0.79, 0.72, 1.0); // same as add_measure_distance()
 
       for (unsigned int i=0; i<measure_distance_object_vec.size(); i++) {
          const auto &sdo = measure_distance_object_vec[i];
-#ifndef EMSCRIPTEN
          mesh_for_measure_distance_object_vec.add_dashed_line(sdo, material, col);
-#endif
       }
       graphics_draw();
    }

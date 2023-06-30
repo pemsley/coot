@@ -570,6 +570,10 @@ graphics_info_t::make_preferences_internal() {
   p.preference_type = PREFERENCES_MARK_CIS_BAD;
   p.ivalue1 = on;
   ret.push_back(p);
+
+  p.preference_type = PREFERENCES_DEFAULT_B_FACTOR;
+  p.fvalue1 = default_new_atoms_b_factor;
+  ret.push_back(p);
   
   // Colour preference settings
   // Background colour

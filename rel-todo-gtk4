@@ -14,7 +14,6 @@
 
 Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
 * Preferences, surely.
-What's up with the Preferences? ::: 4
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
@@ -25,7 +24,15 @@ shows a quadrant in "Plane" mode. The output tga file is full-resolution though,
 
 Do the tutorial from time to time - what's missing? ::: 1
 
+Anti-submarine the Display Manager ::: 0.2
+
 Fix the dynamice validationn pane resize on Update of the buttons ::: 0.2
+
+Add Jiggle-Fit functions to Cryo-EM tools ::: 0.6
+
+Fetch EMD map ::: 1
+
+Eleanor: maybe not for here: How do I find the peaks of this map?
 
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
@@ -693,5 +700,6 @@ Isolated Molprobity dots for this ligand - what is this? How is it different to 
 Shader Preferences can submarine ::: 0.2
 * Done.
 
-
+What's up with the Preferences? ::: 6
+* Done - well lots of it done. What a grind.
 

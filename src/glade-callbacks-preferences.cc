@@ -176,6 +176,22 @@ on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
+on_preferences_default_b_factor_entry_activate(GtkEntry        *entry,
+                                               gpointer         user_data) {
+
+   const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
+   try {
+      float f = coot::util::string_to_float(std::string(text));
+      set_default_temperature_factor_for_new_atoms(f);
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING:: in on_preferences_default_b_factor_entry_activate(): " << e.what() << std::endl;
+   }
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
 on_preferences_bond_colours_hscale_value_changed(GtkRange        *range,
                                                  gpointer         user_data) {
 
@@ -634,6 +650,7 @@ on_preferences_map_drag_on_radiobutton_toggled(GtkCheckButton *checkbutton,
 
    if (gtk_check_button_get_active(checkbutton)) {
       preferences_internal_change_value_int(PREFERENCES_MAP_DRAG, 1);
+      std::cout << "set_active_map_drag_flag 1 " << std::endl;
       set_active_map_drag_flag(1);
    }
 
@@ -648,6 +665,7 @@ on_preferences_map_drag_off_radiobutton_toggled(GtkCheckButton *checkbutton,
    if (gtk_check_button_get_active(checkbutton)) {
     preferences_internal_change_value_int(PREFERENCES_MAP_DRAG, 0);
     set_active_map_drag_flag(0);
+      std::cout << "set_active_map_drag_flag 0 " << std::endl;
   }
 
 }
@@ -1001,119 +1019,6 @@ on_preferences_tips_off_radiobutton_toggled
 
 }
 
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_refinement_speed_molasses_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, 4);
-    set_dragged_refinement_steps_per_frame(4);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_refinement_speed_crock_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, 120);
-    set_dragged_refinement_steps_per_frame(120);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_refinement_speed_default_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, 80);
-    set_dragged_refinement_steps_per_frame(80);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_refinement_speed_own_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-   GtkWidget *w = widget_from_preferences_builder("preferences_refinement_speed_entry");
-   if (gtk_toggle_button_get_active(togglebutton)) {
-      const gchar* entry_text = gtk_editable_get_text(GTK_EDITABLE(w));
-      int val;
-      val = atoi(entry_text);
-      if ((val > 10000) || (val < 1)) {
-         printf("Cannot interpret: %s Assuming default 80 \n", entry_text);
-         val  = 80;
-         gtk_editable_set_text(GTK_EDITABLE(w), "80");
-      }
-      preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, val);
-      set_dragged_refinement_steps_per_frame(val);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_refinement_speed_entry_activate
-                                        (GtkEntry        *entry,
-                                        gpointer         user_data) {
-
-   const gchar* entry_text;
-   int val;
-   GtkWidget *w = widget_from_preferences_builder("preferences_refinement_speed_own_radiobutton");
-   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-   entry_text = gtk_editable_get_text(GTK_EDITABLE(w));
-   val = atoi(entry_text);
-   if ((val > 10000) || (val < 1)) {
-      printf("Cannot interpret: %s Assuming default 80 \n", entry_text);
-      val  = 80;
-      gtk_editable_set_text(GTK_EDITABLE(entry), "80");
-   }
-   preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, val);
-   set_dragged_refinement_steps_per_frame(val);
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_refinement_speed_entry_changed
-                                        (GtkEditable     *editable,
-					 gpointer         user_data)
-{
-  const gchar* entry_text;
-  int val;
-
-  GtkWidget *w = widget_from_preferences_builder("preferences_refinement_speed_entry");
-  GtkWidget *togglebutton = widget_from_preferences_builder("preferences_refinement_speed_own_radiobutton");
-
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), TRUE);
-
-  entry_text = gtk_editable_get_text(GTK_EDITABLE(w));
-  val = atoi(entry_text);
-  if ((val > 10000) || (val < 1)) {
-    printf("Cannot interpret: %s Assuming default 80 \n", entry_text);
-    val  = 80;
-    gtk_editable_set_text(GTK_EDITABLE(w), "80");
-  }
-  preferences_internal_change_value_int(PREFERENCES_REFINEMENT_SPEED, val);
-  set_dragged_refinement_steps_per_frame(val);
-
-}
 
 
 extern "C" G_MODULE_EXPORT

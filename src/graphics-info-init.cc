@@ -280,6 +280,9 @@ graphics_info_t::init() {
       dictionary_glob_extensions->push_back(".lib");
 
       /* things for preferences */
+
+      // -------------these are all frame ------------------------------
+
       //preferences_internal = new std::vector<coot::preference_info_t>;
 
       // preferences_general_tabs.push_back("preferences_file_selection");
@@ -298,6 +301,7 @@ graphics_info_t::init() {
       preferences_map_tabs.push_back("preferences_map_drag");
 
       preferences_geometry_tabs.push_back("preferences_cis_peptides");
+      preferences_geometry_tabs.push_back("preferences_default_b_factor_frame");
 
       preferences_colour_tabs.push_back("preferences_background_colour");
       preferences_colour_tabs.push_back("preferences_bond_colours");

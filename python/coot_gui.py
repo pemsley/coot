@@ -5535,7 +5535,7 @@ def add_module_cryo_em_gui():
         def add_action(displayed_name,action_name,on_activate_callback):
             add_simple_action_to_menu(menu,displayed_name,action_name,on_activate_callback)
 
-        add_action("Sharpen/Blur...",
+        add_action("Sharpen/Blur/Resample...",
             "sharpen_blur_map_gui",
             sharpen_blur_map_gui_wrapper)
         add_action("Multi-sharpen",

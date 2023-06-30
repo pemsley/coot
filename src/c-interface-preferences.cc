@@ -465,6 +465,14 @@ void update_preference_gui() {
       }
       break;
 
+    case PREFERENCES_DEFAULT_B_FACTOR:
+       w = widget_from_preferences_builder("preferences_default_b_factor_entry");
+       {
+          std::string s = coot::util::float_to_string(graphics_info_t::default_new_atoms_b_factor);
+          gtk_editable_set_text(GTK_EDITABLE(w), s.c_str());
+       }
+       break;
+
     case PREFERENCES_BG_COLOUR:
 
        fval1 = g.preferences_internal[i].fvalue1;  // red

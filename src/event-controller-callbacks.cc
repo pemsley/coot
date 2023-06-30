@@ -365,6 +365,8 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 void
 graphics_info_t::do_drag_pan_gtk3(GtkWidget *widget, double drag_delta_x, double drag_delta_y) {
 
+   std::cout << "do_drag_pan_gtk3() " << std::endl;
+
    // This should be a graphics_info_t function
 
    GtkAllocation allocation;
