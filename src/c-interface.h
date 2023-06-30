@@ -127,6 +127,7 @@ when guile-gtk functions have alread done so.  We should clean up this
 
 return 1 for python is prefered, 0 for not. */
 int prefer_python();
+
 /* \} */
 
 /*  ------------------------------------------------------------------------ */
@@ -7010,7 +7011,7 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
  *
  * Use a map that is blurred by the give factor for fitting.
  * @return < -100 if not possible, else return the new best fit for this chain.  */
-// float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);  temporary comment                                   
+float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);
 
 /*! \} */
 
