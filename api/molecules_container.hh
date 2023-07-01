@@ -260,6 +260,13 @@ class molecules_container_t {
 					   atom_selection_container_t asc_mov,
 					   mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
 					   int n_selected_atoms_1, int n_selected_atoms_2) const;
+   // for gesmpt this will be vector of vector
+   std::vector<std::pair<coot::residue_validation_information_t, coot::residue_validation_information_t> >
+   get_pairs(ssm::Align *SSMAlign,
+             atom_selection_container_t asc_ref,
+             atom_selection_container_t asc_mov,
+             mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
+             int n_selected_atoms_1, int n_selected_atoms_2) const;
 
 #endif  // HAVE_SSMLIB
 
@@ -664,7 +671,7 @@ public:
 
    //! superposition (using SSM)
    //!
-   //! The specified chaing of the moving molecule is superposed onto the chain in the reference molecule (if possible).
+   //! The specified chain of the moving molecule is superposed onto the chain in the reference molecule (if possible).
    //! There is some alignment screen output that would be better added to the return value.
    // std::pair<std::string, std::string>
    superpose_results_t SSM_superpose(int imol_ref, const std::string &chain_id_ref,

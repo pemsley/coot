@@ -2419,13 +2419,13 @@ int test_superpose(molecules_container_t &mc) {
 
    int status = 0;
 
-   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_2 = mc.read_pdb(reference_data("3pzt.pdb"));
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1-with-gap.pdb"));
+   int imol_2 = mc.read_pdb(reference_data("1phk-with-gap.pdb"));
 
    unsigned int n_pre = mc.get_number_of_molecules();
 
    coot::atom_spec_t atom_spec_1("A", 227, "", " CA ","");
-   coot::atom_spec_t atom_spec_2("B", 256, "", " CA ","");
+   coot::atom_spec_t atom_spec_2("A", 256, "", " CA ","");
    mmdb::Atom *at_1 = mc.get_atom(imol_1, atom_spec_1);
    mmdb::Atom *at_2 = mc.get_atom(imol_2, atom_spec_2);
 
@@ -2437,17 +2437,28 @@ int test_superpose(molecules_container_t &mc) {
    std::cout << "test d1 " << d1 << std::endl;
 
    // std::pair<std::string, std::string> ss_result_pair = mc.SSM_superpose(imol_1, "A", imol_2, "B");
-   superpose_results_t ss_results = mc.SSM_superpose(imol_1, "A", imol_2, "B");
+   superpose_results_t ss_results = mc.SSM_superpose(imol_1, "A", imol_2, "A");
 
-   std::cout << "ss_result:\n" << ss_results.suppose_info << std::endl;
-   std::cout << "ss_result:\n" << ss_results.alignment.first  << std::endl;
-   std::cout << "ss_result:\n" << ss_results.alignment.second << std::endl;
+   std::cout << "ss_result: info:\n" << ss_results.superpose_info << std::endl;
+   std::cout << "ss_result: alnR\n" << ss_results.alignment.first  << std::endl;
+   std::cout << "ss_result: alnM\n" << ss_results.alignment.second << std::endl;
+
+   if (false) {
+      for (unsigned int i=0; i<ss_results.alignment_info_vec.size(); i++) {
+         for (const auto &chain : ss_results.alignment_info_vec[i].cviv) {
+            for (const auto &res : chain.rviv) {
+               std::cout << res.residue_spec << " " << res.function_value << std::endl;
+            }
+         }
+      }
+   }
 
    if (true) {
-      for (const auto &chain : ss_results.alignment_info.cviv) {
-         for (const auto &res : chain.rviv) {
-            std::cout << res.residue_spec << " " << res.function_value << std::endl;
-         }
+      const auto &pairs = ss_results.aligned_pairs;
+      for (unsigned int i=0; i<pairs.size(); i++) {
+         const auto &r1 = pairs[i].first;
+         const auto &r2 = pairs[i].second;
+         std::cout << "   " << r1.residue_spec << " " << r2.residue_spec << std::endl;
       }
    }
 
@@ -3158,7 +3169,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_svg, "svg string", mc);
 
-   // status = run_test(test_superpose, "SSM superpose ", mc);
+   status = run_test(test_superpose, "SSM superpose ", mc);
 
    // status = run_test(test_multi_colour_rules, "multi colour rules ", mc);
 
@@ -3184,7 +3195,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_map_centre, "map centre", mc);
 
-   status += run_test(test_dragged_atom_refinement, "dragged atom refinement", mc);
+   // status += run_test(test_dragged_atom_refinement, "dragged atom refinement", mc);
 
    // status = run_test(test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
 
