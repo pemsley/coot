@@ -282,8 +282,9 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       for (it=rama_score.scores.begin(); it!=rama_score.scores.end(); ++it) {
          const auto &spp = *it;
          if (spp.score < prob_crit) {
-            std::cout << "debug::   " << spp.res_spec << "  " << spp.score << "  "
-                      << spp.residue_prev << " " << spp.residue_this << " " << spp.residue_next << std::endl;
+            if (false)
+               std::cout << "debug:: rama  " << spp.res_spec << "  " << spp.score << "  "
+                         << spp.residue_prev << " " << spp.residue_this << " " << spp.residue_next << std::endl;
             if (! spp.residue_this) continue;
 
             std::string lab = "Ramachandran ";
@@ -512,7 +513,10 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       gtk_widget_set_visible(vbox,  TRUE);
       gtk_widget_set_visible(pane,  TRUE);
 
-      gtk_paned_set_position(GTK_PANED(pane), 300);
+      int pos = gtk_paned_get_position(GTK_PANED(pane));
+      // std::cout << "here in overlaps_peptides_cbeta_ramas_and_rotas_internal(): with pos " << pos << std::endl;
+      if (pos < 300)
+         gtk_paned_set_position(GTK_PANED(pane), 300);
 
       graphics_info_t::clear_out_container(vbox);
 

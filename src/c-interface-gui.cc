@@ -1924,48 +1924,9 @@ void
 setup_guile_window_entry(GtkWidget *entry) {
 
 #ifdef USE_GUILE
-   g_signal_connect(G_OBJECT(entry), "activate",
-                    G_CALLBACK(guile_window_enter_callback),
-                    (gpointer) entry);
 #endif //  USE_GUILE
 
 }
-
-
-#ifdef USE_GUILE
-void guile_window_enter_callback(GtkWidget *widget,
-                                 GtkWidget *entry ) {
-  const gchar *entry_text;
-  entry_text = gtk_editable_get_text(GTK_EDITABLE(entry));
-  printf("Entry contents: %s\n", entry_text);
-
-  // scm_c_eval_string(entry_text);
-
-  // extern SCM scm_catch (SCM tag, SCM thunk, SCM handler);
-  //
-
-  //SCM handler = scm_c_eval_string("'(lambda (key . args))");
-
-   SCM handler = scm_c_eval_string ("(lambda (key . args) "
-     "(display (list \"Error in proc:\" key \" args: \" args)) (newline))");
-                           // "(newline))");
-
-  // scm_catch(SCM_BOOL_T, scm_c_eval_string(entry_text), handler);
-
-  std::string thunk("(lambda() ");
-  thunk += entry_text;
-  thunk += " )";
-
-
-  SCM scm_thunk = scm_c_eval_string(thunk.c_str());
-  scm_catch(SCM_BOOL_T, scm_thunk, handler);
-
-
-  // clear the entry
-  // strcpy(entry_text, "");  surely not needed.
-  gtk_editable_set_text(GTK_ENTRY(entry),"");
-}
-#endif //  USE_GUILE
 
 // Similar to fill_option_menu_with_coordinates_options, but I moved
 // it to graphics_info_t because it is also used when there is an

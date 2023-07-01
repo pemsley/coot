@@ -3885,7 +3885,7 @@ SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const c
 					   to_resno);
       graphics_draw();
       g.update_go_to_atom_window_on_changed_mol(imol);
-      g.update_valiadtion_graphs(imol);
+      g.update_validation_graphs(imol);
       r = SCM_EOL;
       r = scm_cons(scm_from_locale_string(p.second.c_str()), r);
       r = scm_cons(scm_from_int(p.first), r);

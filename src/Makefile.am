@@ -42,7 +42,7 @@ WITH_GUILE_CFLAGS=$(COOT_STDTYPES) $(COOT_USE_GUILE)
 
 # GUILE_VERSION=$(GUILE_CONFIG)
 
-MAKE_COOT_WRAP_GUILE=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-guile.sh "$(GUILE_CONFIG)"
+MAKE_COOT_WRAP_GUILE=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-guile.sh
 
 MAKE_COOT_WRAP_PYTHON_XXX=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-python.sh
 
@@ -154,7 +154,7 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
 # -proxy  exports the GOOPS wrapper definitions into module.scm
 
 coot_wrap_guile.cc: coot_wrap_guile_pre.cc
-	$(MAKE_COOT_WRAP_GUILE) gtk2 $^ $@
+	$(MAKE_COOT_WRAP_GUILE) $^ $@
 
 # python
 

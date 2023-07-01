@@ -10,10 +10,7 @@
 
 ----
 
-5 items
-
-Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
-* Preferences, surely.
+4 items
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
@@ -24,13 +21,6 @@ shows a quadrant in "Plane" mode. The output tga file is full-resolution though,
 
 Do the tutorial from time to time - what's missing? ::: 1
 
-Fix the dynamic validation pane resize on Update of the buttons ::: 0.2
-
-Fetch EMD map ::: 1
-
-Something is wrong with the generation of the guile code.
-
-Eleanor: maybe not for here: How do I find the peaks of this map?
 
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
@@ -50,6 +40,8 @@ Nice to have: Write a script that finds functions in glade-callbacks that are no
 Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
 
 Nice to have: 1E9 is not correctly horizontally adjusted.
+
+Nice to have: Eleanor: (maybe not for here): How do I find the peaks of this map?
 
 Go To (next) Ligand should use the correct matrix ::: 0.5
 perpendicular_ligand_view() is the function. Does it work in gtk3? No.
@@ -706,3 +698,16 @@ Add Jiggle-Fit functions to Cryo-EM tools ::: 0.6
 
 Anti-submarine the Display Manager ::: 0.2
 * Done.
+
+Fetch EMD map ::: 1
+* Done.
+
+Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
+* Preferences, surely.
+
+Something is wrong with the generation of the guile code. ::: 0.2
+* No... it was just not compillled wth guile. Still startup issues need
+  to be resolved, I think.
+
+Fix the dynamic validation pane resize on Update of the buttons ::: 0.2
+* Done. gtk_paned_get_position().
