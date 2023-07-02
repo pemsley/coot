@@ -5,9 +5,10 @@ AM_CPPFLAGS = \
 	$(MMDB_CXXFLAGS)    \
 	$(COOT_WINDOWS_CFLAGS)
 
-lib_LTLIBRARIES=libcoot-buccaneer-ml.la
+# what should the library be called? libcoot-buccaneer-ml-growing.la perhaps?
+lib_LTLIBRARIES=libcoot-ml-growing.la
 
-libcoot_buccaneer_ml_la_SOURCES = \
+libcoot_ml_growing_la_SOURCES = \
    buccaneer-build.cpp    buccaneer-merge.cpp	      buccaneer-prot.cpp	   k2c_convolution_layers.cpp	 ml-grow-next.cpp \
    buccaneer-correct.cpp  buccaneer-ncsbuild.cpp      buccaneer-prune.cpp	   k2c_core_layers.cpp		 ml-grow-prev.cpp \
    buccaneer-filter.cpp   buccaneer-NN-build.cpp      buccaneer-sequence.cpp       k2c_embedding_layers.cpp	 protein_db.cpp   \
@@ -18,9 +19,9 @@ libcoot_buccaneer_ml_la_SOURCES = \
    buccaneer-lib.cpp      buccaneer-NN-Select.cpp                		   k2c_recurrent_layers.cpp     \
    buccaneer-link.cpp     buccaneer-prep.cpp	      k2c_activations.cpp	   ml-grow.cpp
 
-libcoot_buccaneer_ml_la_LIBADD = $(CLIPPER_LIBS)
+libcoot_ml_growing_la_LIBADD = $(CLIPPER_LIBS)
 
-libcoot_buccaneer_ml_la_LDFLAGS = $(SHARED_LDFLAGS)
+libcoot_ml_growing_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 pkginclude_HEADERS = \
  buccaneer-build.h    buccaneer-known.h	        buccaneer-NN-build.h	buccaneer-prune.h     ml-grow.h              \
@@ -38,8 +39,8 @@ libexec_PROGRAMS = cbuccaneerNN csequins
 
 cbuccaneerNN_SOURCES = cbuccaneerNN.cpp
 
-cbuccaneerNN_LDADD = ./libcoot-buccaneer-ml.la $(CLIPPER_LIBS)
+cbuccaneerNN_LDADD = ./libcoot-ml-growing.la $(CLIPPER_LIBS)
 
 csequins_SOURCES = csequins.cpp
 
-csequins_LDADD = ./libcoot-buccaneer-ml.la $(CLIPPER_LIBS)
+csequins_LDADD = ./libcoot-ml-growing.la $(CLIPPER_LIBS)

@@ -38,7 +38,7 @@
 #include "coot-simple-molecule.hh"
 
 #include "coot-utils/coot-map-utils.hh" // for map_molecule_centre_info_t
-#include "api-cell.hh"
+#include "api-cell.hh" // 20230702-PE not needed in this file - remove it from here
 
 namespace coot {
 

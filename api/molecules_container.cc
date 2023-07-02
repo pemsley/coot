@@ -2093,6 +2093,20 @@ molecules_container_t::add_terminal_residue_directly_using_cid(int imol, const s
    return status;
 }
 
+//! buccaneer building, called by the above
+int
+molecules_container_t::add_terminal_residue_directly_using_bucca_ml_growing_using_cid(int imol, const std::string &cid) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, cid);
+      coot::residue_spec_t res_spec(atom_spec);
+      status = add_terminal_residue_directly_using_bucca_ml_growing(imol, res_spec);
+   }
+   return status;
+}
+
+
 
 // reset the rail_points (calls reset_the_rail_points()), updates the maps (using internal/clipper SFC)
 // so, update your contour lines meshes after calling this function.

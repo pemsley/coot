@@ -598,7 +598,7 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
    coot::Cartesian atom_pos_N_2_1 = atom_to_cartesian(at_N_2);
    coot::Cartesian atom_pos_N_3_1 = atom_to_cartesian(at_N_3);
    float w = mc.get_map_weight();
-   mc.set_map_weight(w * 100.0);
+   // mc.set_map_weight(w * 100.0);
    int n_cycles = 500;
    mc.refine_residue_range(imol, "A", 131, 136, n_cycles);
    mc.set_map_weight(w); // restore sanity.
@@ -616,6 +616,7 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
       if (d_N_3 < 0.0001) // no move
          if (d_N_2 > 0.08) // move a bit
             status = 1;
+   mc.write_coordinates(imol, "post-refine-using-residue-range.pdb");
    return status;
 }
 
@@ -3013,6 +3014,63 @@ int test_dragged_atom_refinement(molecules_container_t &mc_in) {
    return status;
 }
 
+int test_bucca_ml_growing(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // int imol     = mc.read_pdb(reference_data("1gwd-large-C-terminal-fragment-missing.pdb"));
+   std::string fn = "1gwd-large-C-terminal-fragment-missing.pdb";
+   fn = "1gwd-118-chop.pdb";
+   fn = "1gwd-2-chop.pdb";
+   int imol     = mc.read_pdb(reference_data(fn));
+   int imol_map = mc.read_mtz(reference_data("1gwd_map.mtz"), "FWT", "PHWT", "FOM", false, false);
+
+   mc.set_refinement_is_verbose();
+   mc.geometry_init_standard();
+   mc.get_monomer("CL");
+   mc.get_monomer("IOD");
+   mc.get_monomer("CMO");
+
+   std::string chain_id = "A";
+   int res_no = 2; // was 118
+   if (mc.is_valid_model_molecule(imol)) {
+      if (mc.is_valid_map_molecule(imol_map)) {
+         mc.set_imol_refinement_map(imol_map);
+         ::api::cell_t c = mc.get_cell(imol_map);
+         std::cout << "debug cell: "
+                   << c.a << " " << c.b << " " << c.c << " " << c.alpha << " " << c.beta << " " << c.gamma << std::endl;
+         int add_status = 1; // get started.
+         while (add_status == 1) {
+            std::string atom_cid = "//A/" + std::to_string(res_no);
+            std::cout << "-------- building based on " << atom_cid << std::endl;
+            add_status = mc.add_terminal_residue_directly_using_bucca_ml_growing_using_cid(imol, atom_cid);
+
+            if (add_status == 1) {
+
+               std::string fnp = "test-pre-ref-" + std::to_string(res_no) + std::string(".pdb");
+               mc.write_coordinates(imol, fnp);
+               bool do_refine = true;
+               if (do_refine) {
+                  mc.refine_residue_range(imol, chain_id, res_no, res_no+1, 500);
+               }
+
+               std::string fn = "test-" + std::to_string(res_no) + std::string(".pdb");
+               mc.write_coordinates(imol, fn);
+            }
+            res_no += 1; // for next residue
+            if (res_no > 129)
+               add_status = 0; // force stop.
+         }
+      } else {
+         std::cout << "Not a valid map " << imol_map << std::endl;
+      }
+   } else {
+      std::cout << "Not a valid model " << imol << std::endl;
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3143,7 +3201,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
 
-   // status += run_test(test_rigid_body_fit, "rigid-body fit", mc);
+   status += run_test(test_rigid_body_fit, "rigid-body fit", mc);
 
    // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
 
@@ -3168,8 +3226,6 @@ int main(int argc, char **argv) {
    // status = run_test(test_instanced_bonds_mesh, "instanced_bonds", mc);
 
    // status = run_test(test_svg, "svg string", mc);
-
-   status = run_test(test_superpose, "SSM superpose ", mc);
 
    // status = run_test(test_multi_colour_rules, "multi colour rules ", mc);
 
@@ -3211,6 +3267,11 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_residue_name_group, "residue name group", mc);
 
+   // status = run_test(test_superpose, "SSM superpose ", mc);
+
+   // status = run_test(test_rsr_using_residue_range, "test_rsr using residue range", mc);
+
+   status = run_test(test_bucca_ml_growing, "Bucca ML growing", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

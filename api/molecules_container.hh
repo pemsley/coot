@@ -844,10 +844,20 @@ public:
    //! add a residue onto the end of the chain by fitting to density
    //! @return a first of 1 on success. Return a useful message in second if the addition did not work
    std::pair<int, std::string> add_terminal_residue_directly(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
-   //! @return a useful message if the addition did not work
+
    // std::pair<int, std::string> add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
-   //! This used to return a pair, but I removed it so that I could compile the binding
+   //
+   //! the cid is for an atom.
+   //! This used to return a pair, but I removed it so that I could compile the binding.
+   //! @return an status.
    int add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
+
+   //! the cid is for an atom.
+   //! buccaneer building
+   int add_terminal_residue_directly_using_bucca_ml_growing_using_cid(int imol, const std::string &cid);
+
+   //! buccaneer building, called by the above
+   int add_terminal_residue_directly_using_bucca_ml_growing(int imol, const coot::residue_spec_t &spec);
 
    //! add waters, updating imol_model (of course)
    //! @return the number of waters added on a success, -1 on failure.
