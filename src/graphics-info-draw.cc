@@ -1468,7 +1468,7 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
       // show a (clickable/highlighting) HUD texture - indicating that refinement parameters dialog
       // can be shown (as an overlay)
 
-      std::cout << "here in draw_hud_refinement_dialog_arrow_tab() B " << std::endl;
+      // std::cout << "here in draw_hud_refinement_dialog_arrow_tab() B " << std::endl;
 
       auto get_munged_offset_and_scale =  [] (HUDTextureMesh::screen_position_origins_t spo,
                                               const glm::vec2 &offset_natural,
@@ -1504,10 +1504,10 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
 
       glDisable(GL_DEPTH_TEST);
       if (hud_refinement_dialog_arrow_is_moused_over) {
-         std::cout << "hud_refinement_dialog_arrow_is_moused_over " << std::endl;
+         // std::cout << "hud_refinement_dialog_arrow_is_moused_over " << std::endl;
          texture_for_hud_refinement_dialog_arrow_highlighted.Bind(0);
       } else {
-         std::cout << "hud_refinement_dialog_arrow_is_moused_over not " << std::endl;
+         // std::cout << "hud_refinement_dialog_arrow_is_moused_over not " << std::endl;
          texture_for_hud_refinement_dialog_arrow.Bind(0);
       }
 
@@ -5471,7 +5471,7 @@ graphics_info_t::make_extra_distance_restraints_objects() {
 
    // c.f. update_hydrogen_bond_mesh().
 
-   std::cout << "here in make_extra_distance_restraints_objects() " << std::endl;
+   // std::cout << "here in make_extra_distance_restraints_objects() " << std::endl;
 
    double penalty_min = 0.1; // only restraints that have more than this "distortion" are considered for drawing.
                              // Make this user-setable.
@@ -5481,6 +5481,9 @@ graphics_info_t::make_extra_distance_restraints_objects() {
    auto clipper_to_glm = [] (const clipper::Coord_orth &co) {
                             return glm::vec3(co.x(), co.y(), co.z());
                          };
+
+   // How frequently should this function be called? Every frame? Hmm..
+   if (moving_atoms_extra_restraints_representation.bonds.empty()) return;
 
    unsigned int maerrb_size = moving_atoms_extra_restraints_representation.bonds.size();
    attach_buffers();

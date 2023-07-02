@@ -512,38 +512,38 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
       moving_atoms_currently_dragged_atom_index = pi.atom_index;
 
       if (! was_a_double_click) {
-	 //
-	 moving_atoms_dragged_atom_indices.insert(pi.atom_index);
+	      //
+	      moving_atoms_dragged_atom_indices.insert(pi.atom_index);
 
-	 if (true)
-	    std::cout << "moving_atoms_currently_dragged_atom_index "
+	      if (true)
+	         std::cout << "moving_atoms_currently_dragged_atom_index "
                       << moving_atoms_currently_dragged_atom_index << std::endl;
 
-	 in_moving_atoms_drag_atom_mode_flag = 1;
+	      in_moving_atoms_drag_atom_mode_flag = 1;
 
       } else {
 
-	 // a double click on a dragged intermediate atom means "remove this pull restraint"
+	      // a double click on a dragged intermediate atom means "remove this pull restraint"
 
          // but this block in a function remove/clear_atom_pull_restraint() or something
 
-	 std::set<int>::const_iterator it = moving_atoms_dragged_atom_indices.find(pi.atom_index);
-	 if (it != moving_atoms_dragged_atom_indices.end()) {
-	    std::cout << "DEBUG:: erasing moving atoms dragged atom with index: " << *it << std::endl;
+	      std::set<int>::const_iterator it = moving_atoms_dragged_atom_indices.find(pi.atom_index);
+	      if (it != moving_atoms_dragged_atom_indices.end()) {
+            std::cout << "DEBUG:: erasing moving atoms dragged atom with index: " << *it << std::endl;
             int atom_index = *it;
-	    moving_atoms_dragged_atom_indices.erase(it);
-	    if (atom_index < moving_atoms_asc->n_selected_atoms) {
-	       mmdb::Atom *at = moving_atoms_asc->atom_selection[atom_index];
-	       if (at) {
-		  coot::atom_spec_t spec(at);
-		  atom_pull_off(spec);
-		  clear_atom_pull_restraint(spec, true); // refine again
-	       }
-	    } else {
-	       std::cout << "ERROR:: dragged atom out of range " << *it << " "
-			 << moving_atoms_asc->n_selected_atoms << std::endl;
-	    }
-	 }
+            moving_atoms_dragged_atom_indices.erase(it);
+            if (atom_index < moving_atoms_asc->n_selected_atoms) {
+               mmdb::Atom *at = moving_atoms_asc->atom_selection[atom_index];
+               if (at) {
+                  coot::atom_spec_t spec(at);
+                  atom_pull_off(spec);
+                  clear_atom_pull_restraint(spec, true); // refine again
+               }
+            } else {
+               std::cout << "ERROR:: dragged atom out of range " << *it << " "
+                        << moving_atoms_asc->n_selected_atoms << std::endl;
+            }
+	      }
       }
 
    } else {
@@ -677,12 +677,12 @@ graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y
                                         return 2.0 * f - 1.0;
                                      };
 
-             if (true)
-                std::cout << "in move_atom_pull_target_postion() "
-                          << " screen_x " << screen_x << " screen_y " << screen_y
-                          << " delta " << screen_x - mouse_begin.first  << " "
-                          << " delta " << screen_y - mouse_begin.second << " "
-                          << std::endl;
+   if (false)
+      std::cout << "in move_atom_pull_target_postion() "
+               << " screen_x " << screen_x << " screen_y " << screen_y
+               << " delta " << screen_x - mouse_begin.first  << " "
+               << " delta " << screen_y - mouse_begin.second << " "
+               << std::endl;
 
    double delta_x = screen_x - mouse_begin.first;
    double delta_y = screen_y - mouse_begin.second;
@@ -709,6 +709,10 @@ graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y
    }
    mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
    glm::vec3 atom_position(at->x, at->y, at->z);
+
+   if (false)
+      std::cout << "in move_atom_pull_target_postion() " << moving_atoms_currently_dragged_atom_index
+                << " " << at << " " << glm::to_string(atom_position) << std::endl;
 
    // I *do* need know where the pointer is in 3d space - not just where the delta
 
