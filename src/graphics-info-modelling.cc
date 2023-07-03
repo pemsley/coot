@@ -5156,6 +5156,8 @@ graphics_info_t::rotate_chi(double x, double y) {
    // it's fun. Maybe tricky and conter-intuitive.
 
    // real values start at 1:
+   if (edit_chi_current_chi <= 0) return;
+
    int chi = edit_chi_current_chi;
 
    mouse_current_x = x;
