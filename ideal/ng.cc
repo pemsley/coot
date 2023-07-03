@@ -2191,10 +2191,8 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                                << "considering residues " << residue_spec_t(res_1) << " to " << residue_spec_t(res_2)
                                << std::endl;
 
-                  // not sure that this is what I want now, really
-                  std::pair<std::string, bool> lt = find_link_type_2022(res_1, res_2, geom);
-
                   // Returns first (link_type) as "" if not found, second is order switch flag
+                  std::pair<std::string, bool> lt = find_link_type_2022(res_1, res_2, geom);
 
                   if (! lt.first.empty())
                      std::cout << "DEBUG:: make_other_types_of_link() \"" << lt.first << "\""
