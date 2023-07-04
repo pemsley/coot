@@ -274,13 +274,14 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
          } else {
 
+            std::cout << "calling render_to_shadow_map() " << std::endl;
             render_to_shadow_map(); // needed?
 
             {
 
-
-               // std::cout << "   framebuffer_scale: " << framebuffer_scale << std::endl;
-               glViewport(0,0, width * framebuffer_scale, height * framebuffer_scale);
+               std::cout << "   framebuffer_scale: " << framebuffer_scale << std::endl;
+               // glViewport(0,0, width * framebuffer_scale, height * framebuffer_scale);
+               glViewport(0,0, width, height);
                di.framebuffer_for_effects.bind();
 
                // are these needed if the background image is drawn?
@@ -329,8 +330,10 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
             // if I enable di.attach_buffers() above and comment out below, then it renders
 
             di.attach_buffers();
-            GLint local_fbo;
-            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &local_fbo);
+            glViewport(0, 0, graphics_x_size, graphics_y_size);
+            // useful for debugging:
+            // GLint local_fbo;
+            // glGetIntegerv(GL_FRAMEBUFFER_BINDING, &local_fbo);
 
             {
 
@@ -351,11 +354,10 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                shader_for_effects.set_int_for_uniform("screenTexture", 0);
                shader_for_effects.set_int_for_uniform("screenDepth",   1);
                shader_for_effects.set_int_for_uniform("ssao",          2); // sampler2D
-               shader_for_effects.set_bool_for_uniform("use_ssao", di.use_ssao);
-               shader_for_effects.set_float_for_uniform("ssao_strength", di.ssao_strength);
-               shader_for_effects.set_bool_for_uniform("show_ssao", di.show_just_ssao);
-               shader_for_effects.set_vec4_for_uniform("background_colour", bg_col);
                shader_for_effects.set_int_for_uniform("effects_output_type", effects_shader_output_type);
+               shader_for_effects.set_bool_for_uniform("use_ssao", di.use_ssao);
+               shader_for_effects.set_bool_for_uniform("show_ssao", di.show_just_ssao);
+               shader_for_effects.set_float_for_uniform("ssao_strength", di.ssao_strength);
                shader_for_effects.set_float_for_uniform("brightness", effects_brightness);
                shader_for_effects.set_float_for_uniform("gamma",      effects_gamma);
 
@@ -726,15 +728,12 @@ graphics_info_t::render_scene() {
       // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
       // std::cout << "Timings for window allocation " << d10 << " microseconds" << std::endl;  // 0
       int sf = 1;
-
-      sf = framebuffer_scale;
-
 #ifdef __APPLE__
       sf = 2;
 #endif
-
-      // std::cout << "glViewport " << sf * width << " " << sf * height << std::endl;
-      glViewport(0, 0, sf * width, sf * height);
+      // we always want this viewport to be the size of the widget (in the case of APPLE, theree
+      // is the double resolution issue to handle)
+      glViewport(0, 0, width * sf, height * sf);
       attach_buffers(); // just GTK things
       glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
