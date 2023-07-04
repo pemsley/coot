@@ -851,77 +851,84 @@ void CanvasMolecule::process_bond_alignment_in_rings() {
 void CanvasMolecule::shorten_double_bonds() {
     typedef std::pair<const Bond*,float> bond_ptr_and_angle;
     for(auto& bond: this->bonds) {
-        if(bond.type == BondType::Double) {
-            auto find_angle_between_bonds = [&](const Bond* other_bond, bool flip){
-                // We can find the angle between two bonds
-                // by computing cosinus arcus (reverse cosine)
-                // of ( dot product / (length a) * (length b) )
-                auto [bond_vec_x,bond_vec_y] = bond.get_vector();
-                auto [other_bond_vec_x,other_bond_vec_y] = other_bond->get_vector();
-                if(flip) {
-                    other_bond_vec_x *= -1.f;
-                    other_bond_vec_y *= -1.f;
-                }
-                auto dot_product = (bond_vec_x*other_bond_vec_x) + (bond_vec_y*other_bond_vec_y);
-                auto bond_length = bond.get_length();
-                auto other_bond_length = other_bond->get_length();
-                auto result = std::acos(dot_product/(bond_length*other_bond_length));
-                return result;
-            };
-            // 1. Find the adjacent bond(s)
-            auto find_adjacent_bonds = [this,&bond,&find_angle_between_bonds]() -> std::pair<std::vector<bond_ptr_and_angle>,std::vector<bond_ptr_and_angle>> {
-                std::vector<bond_ptr_and_angle> first_bonds;
-                std::vector<bond_ptr_and_angle> second_bonds;
-                // This isn't pretty but can we even do better?
-                for(const auto& i: this->bonds) {
-                    if(i.first_atom_idx == bond.first_atom_idx) {
-                        if(i.second_atom_idx == bond.second_atom_idx) {
-                            // We're looking at the 'bond' itself. We must skip it.
-                            continue;
-                        }
-                        // This bond makes contact with our first atom
-                        first_bonds.push_back(std::make_pair(&i, find_angle_between_bonds(&i, false)));
-                    }
-                    if(i.second_atom_idx == bond.first_atom_idx) {
-                        // This bond makes contact with our first atom
-                        first_bonds.push_back(std::make_pair(&i, find_angle_between_bonds(&i, true)));
-                    }
-                    if(i.first_atom_idx == bond.second_atom_idx) {
-                        // This bond makes contact with our second atom
-                        second_bonds.push_back(std::make_pair(&i, find_angle_between_bonds(&i, true)));
-                    }
+        if(bond.type != BondType::Double) {
+            continue;
+        }
+        if(!bond.bond_drawing_direction.has_value()) {
+            continue;
+        }
+        if(bond.bond_drawing_direction == DoubleBondDrawingDirection::Centered) {
+            continue;
+        }
+        auto find_angle_between_bonds = [&](const Bond* other_bond, bool flip){
+            // We can find the angle between two bonds
+            // by computing cosinus arcus (reverse cosine)
+            // of ( dot product / (length a) * (length b) )
+            auto [bond_vec_x,bond_vec_y] = bond.get_vector();
+            auto [other_bond_vec_x,other_bond_vec_y] = other_bond->get_vector();
+            if(flip) {
+                other_bond_vec_x *= -1.f;
+                other_bond_vec_y *= -1.f;
+            }
+            auto dot_product = (bond_vec_x*other_bond_vec_x) + (bond_vec_y*other_bond_vec_y);
+            auto bond_length = bond.get_length();
+            auto other_bond_length = other_bond->get_length();
+            auto result = std::acos(dot_product/(bond_length*other_bond_length));
+            return result;
+        };
+        // 1. Find the adjacent bond(s)
+        auto find_adjacent_bonds = [this,&bond,&find_angle_between_bonds]() -> std::pair<std::vector<bond_ptr_and_angle>,std::vector<bond_ptr_and_angle>> {
+            std::vector<bond_ptr_and_angle> first_bonds;
+            std::vector<bond_ptr_and_angle> second_bonds;
+            // This isn't pretty but can we even do better?
+            for(const auto& i: this->bonds) {
+                if(i.first_atom_idx == bond.first_atom_idx) {
                     if(i.second_atom_idx == bond.second_atom_idx) {
-                        // This bond makes contact with our second atom
-                        second_bonds.push_back(std::make_pair(&i, find_angle_between_bonds(&i, false)));
+                        // We're looking at the 'bond' itself. We must skip it.
+                        continue;
                     }
+                    // This bond makes contact with our first atom
+                    first_bonds.push_back(std::make_pair(&i, find_angle_between_bonds(&i, false)));
                 }
-                return std::make_pair(first_bonds,second_bonds);
-            };
-            auto compute_shortening_proportion = [&](const Bond* other_bond, float angle_between_bonds){
-                // 3. Do a little trigonometry to find the length to be shortened
-                auto absolute_shortened_length = BOND_LINE_SEPARATION / std::tan(angle_between_bonds/2.f);
-                // 4. Find the proportion of the shortening
-                auto bond_length = bond.get_length();
-                return absolute_shortened_length / bond_length;
-            };
-            auto [first_bonds, second_bonds] = find_adjacent_bonds();
+                if(i.second_atom_idx == bond.first_atom_idx) {
+                    // This bond makes contact with our first atom
+                    first_bonds.push_back(std::make_pair(&i, find_angle_between_bonds(&i, true)));
+                }
+                if(i.first_atom_idx == bond.second_atom_idx) {
+                    // This bond makes contact with our second atom
+                    second_bonds.push_back(std::make_pair(&i, find_angle_between_bonds(&i, true)));
+                }
+                if(i.second_atom_idx == bond.second_atom_idx) {
+                    // This bond makes contact with our second atom
+                    second_bonds.push_back(std::make_pair(&i, find_angle_between_bonds(&i, false)));
+                }
+            }
+            return std::make_pair(first_bonds,second_bonds);
+        };
+        auto compute_shortening_proportion = [&](const Bond* other_bond, float angle_between_bonds){
+            // 3. Do a little trigonometry to find the length to be shortened
+            auto absolute_shortened_length = BOND_LINE_SEPARATION / std::tan(angle_between_bonds/2.f);
+            // 4. Find the proportion of the shortening
+            auto bond_length = bond.get_length();
+            return absolute_shortened_length / bond_length;
+        };
+        auto [first_bonds, second_bonds] = find_adjacent_bonds();
 
-            auto element_with_smallest_angle_between_bonds = [&](const std::vector<bond_ptr_and_angle>& adjacent_bonds) -> bond_ptr_and_angle {
-                auto min = std::min_element(adjacent_bonds.cbegin(),adjacent_bonds.cend(),[&](const auto& lhs, const auto& rhs){
-                    auto [lbond, langle] = lhs;
-                    auto [rbond, rangle] = rhs;
-                    return langle < rangle;
-                });
-                return std::make_pair(min->first,min->second);
-            };
-            if(!first_bonds.empty()) {
-                auto [adjbond, angle] = element_with_smallest_angle_between_bonds(first_bonds);
-                bond.first_shortening_proportion = compute_shortening_proportion(adjbond, angle);
-            }
-            if(!second_bonds.empty()) {
-                auto [adjbond, angle] = element_with_smallest_angle_between_bonds(second_bonds);
-                bond.second_shortening_proportion = compute_shortening_proportion(adjbond, angle);
-            }
+        auto element_with_smallest_angle_between_bonds = [&](const std::vector<bond_ptr_and_angle>& adjacent_bonds) -> bond_ptr_and_angle {
+            auto min = std::min_element(adjacent_bonds.cbegin(),adjacent_bonds.cend(),[&](const auto& lhs, const auto& rhs){
+                auto [lbond, langle] = lhs;
+                auto [rbond, rangle] = rhs;
+                return langle < rangle;
+            });
+            return std::make_pair(min->first,min->second);
+        };
+        if(!first_bonds.empty()) {
+            auto [adjbond, angle] = element_with_smallest_angle_between_bonds(first_bonds);
+            bond.first_shortening_proportion = compute_shortening_proportion(adjbond, angle);
+        }
+        if(!second_bonds.empty()) {
+            auto [adjbond, angle] = element_with_smallest_angle_between_bonds(second_bonds);
+            bond.second_shortening_proportion = compute_shortening_proportion(adjbond, angle);
         }
     }
 }
