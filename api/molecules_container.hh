@@ -278,6 +278,7 @@ class molecules_container_t {
    // --------------------- init --------------------------
 
    void init() {
+
       imol_refinement_map = -1;
       imol_difference_map = -1;
       geometry_init_standard(); // do this by default now

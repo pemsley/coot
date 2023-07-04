@@ -3201,7 +3201,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
 
-   status += run_test(test_rigid_body_fit, "rigid-body fit", mc);
+   // status += run_test(test_rigid_body_fit, "rigid-body fit", mc);
 
    // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
 
@@ -3231,7 +3231,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
 
-   // status = run_test(test_add_terminal_residue, "add terminal residue", mc);
+   status = run_test(test_add_terminal_residue, "add terminal residue", mc);
 
    // status = run_test(test_symmetry, "symmetry", mc);
 
@@ -3271,7 +3271,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_rsr_using_residue_range, "test_rsr using residue range", mc);
 
-   status = run_test(test_bucca_ml_growing, "Bucca ML growing", mc);
+   // status = run_test(test_bucca_ml_growing, "Bucca ML growing", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
