@@ -607,7 +607,7 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
    coot::Cartesian atom_pos_N_3_2 = atom_to_cartesian(at_N_3);
    double dd_N_1 = coot::Cartesian::lengthsq(atom_pos_N_1_1, atom_pos_N_1_2);
    double dd_N_2 = coot::Cartesian::lengthsq(atom_pos_N_2_1, atom_pos_N_2_2);
-   double dd_N_3 = coot::Cartesian::lengthsq(atom_poones_N_3_1, atom_pos_N_3_2);
+   double dd_N_3 = coot::Cartesian::lengthsq(atom_pos_N_3_1, atom_pos_N_3_2);
    double d_N_1 =  std::sqrt(dd_N_1);
    double d_N_2 =  std::sqrt(dd_N_2);
    double d_N_3 =  std::sqrt(dd_N_3);
@@ -631,19 +631,22 @@ int test_add_terminal_residue(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
    mc.set_imol_refinement_map(imol_map);
 
    // test adding to the N-terminus
    bool part_one_done = false;
    coot::atom_spec_t atom_spec_in_new_residue("A", 284, "", " O  ","");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec_in_new_residue);
+   std::cout << "Here 1 A" << std::endl;
    if (! at_1) { // it's not there to begin with
+      std::cout << "Here 1 B" << std::endl;
       mc.add_terminal_residue_directly(imol, "A", 285, "");
       mc.write_coordinates(imol, "test-add-terminal-residue-with-added-terminal-residue.pdb");
       mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec_in_new_residue);
       if (at_2) {
+         std::cout << "Here 1 C" << std::endl;
          // now test that it is there
          coot::Cartesian reference_pos(76.3, 59, 23);
          coot::Cartesian atom_pos = atom_to_cartesian(at_2);
