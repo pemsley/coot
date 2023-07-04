@@ -319,7 +319,9 @@ void ActiveTool::alter_charge(int x, int y) {
                 );
 
                 g_warning("todo: Fix-up computing plausible charges for atoms in the charge tool.");
-                valence_list.push_back(0);
+                // We won't have to clear the list when it'll have the right contents (something to be fixed)
+                valence_list.clear();
+                // valence_list.push_back(0);
                 for(int i = -4; i != 5; i++) {
                     valence_list.push_back(i);
                 }
