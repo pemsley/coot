@@ -49,6 +49,12 @@ struct WidgetCoreData {
     typedef std::pair<CanvasMolecule::AtomOrBond,unsigned int> AtomOrBondWithMolIdx;
     typedef std::optional<AtomOrBondWithMolIdx> MaybeAtomOrBondWithMolIdx;
 
+    /// Max length of edition history
+    const static unsigned int MAX_STATE_STACK_LENGTH;
+    /// Numbers of elements to be removed from the `state_stack`
+    /// when its' maximum length gets exceeded
+    const static unsigned int STATE_STACK_TRIM_BATCH_SIZE;
+
     protected:
 
     /// Current position in the state_stack, counting from the back.

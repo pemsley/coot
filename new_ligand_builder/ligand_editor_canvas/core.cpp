@@ -19,6 +19,9 @@ StateSnapshot::StateSnapshot(const WidgetCoreData& core_data) {
     this->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>(std::move(copied_rdkit_molecules));
 }
 
+const unsigned int WidgetCoreData::MAX_STATE_STACK_LENGTH = 60;
+const unsigned int WidgetCoreData::STATE_STACK_TRIM_BATCH_SIZE = 15;
+
 WidgetCoreData::MaybeAtomOrBondWithMolIdx WidgetCoreData::resolve_click(int x, int y) const noexcept {
     const auto* molecules_vec = this->molecules.get();
     unsigned int idx = 0;
@@ -128,6 +131,12 @@ void WidgetCoreData::finalize_edition() {
             //g_debug("Stack size after trim: %zu",this->state_stack->size());
         }
         this->state_stack->push_back(std::move(this->state_before_edition));
+
+        if(this->state_stack->size() > MAX_STATE_STACK_LENGTH) {
+            auto last_iter = state_stack->begin();
+            std::advance(last_iter, STATE_STACK_TRIM_BATCH_SIZE);
+            this->state_stack->erase(this->state_stack->begin(), last_iter);
+        }
 
         auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
         gtk_widget_queue_draw(GTK_WIDGET(widget_ptr));
