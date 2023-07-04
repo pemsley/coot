@@ -854,11 +854,10 @@ void CanvasMolecule::shorten_double_bonds() {
         if(bond.type != BondType::Double) {
             continue;
         }
-        if(!bond.bond_drawing_direction.has_value()) {
-            continue;
-        }
-        if(bond.bond_drawing_direction == DoubleBondDrawingDirection::Centered) {
-            continue;
+        if(bond.bond_drawing_direction.has_value()) {
+            if(bond.bond_drawing_direction == DoubleBondDrawingDirection::Centered) {
+                continue;
+            }
         }
         auto find_angle_between_bonds = [&](const Bond* other_bond, bool flip){
             // We can find the angle between two bonds
