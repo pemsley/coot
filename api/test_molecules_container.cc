@@ -607,7 +607,7 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
    coot::Cartesian atom_pos_N_3_2 = atom_to_cartesian(at_N_3);
    double dd_N_1 = coot::Cartesian::lengthsq(atom_pos_N_1_1, atom_pos_N_1_2);
    double dd_N_2 = coot::Cartesian::lengthsq(atom_pos_N_2_1, atom_pos_N_2_2);
-   double dd_N_3 = coot::Cartesian::lengthsq(atom_pos_N_3_1, atom_pos_N_3_2);
+   double dd_N_3 = coot::Cartesian::lengthsq(atom_poones_N_3_1, atom_pos_N_3_2);
    double d_N_1 =  std::sqrt(dd_N_1);
    double d_N_2 =  std::sqrt(dd_N_2);
    double d_N_3 =  std::sqrt(dd_N_3);
@@ -726,6 +726,11 @@ int test_add_terminal_residue(molecules_container_t &mc) {
       if (oxt_2 == nullptr) // not there
          part_four_done = true;
    }
+
+   std::cout << "part_one_done "   << part_one_done   << std::endl;
+   std::cout << "part_two_done "   << part_two_done   << std::endl;
+   std::cout << "part_three_done " << part_three_done << std::endl;
+   std::cout << "part_four_done "  << part_four_done  << std::endl;
 
    if (part_one_done && part_two_done && part_three_done && part_four_done)
       status = 1;
@@ -3159,7 +3164,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_mmrrcc, "MMRRCC", mc);
 
-   //status += run_test(test_auto_read_mtz, "auto-read MTZ", mc);
+   // status += run_test(test_auto_read_mtz, "auto-read MTZ", mc);
 
    // status += run_test(test_instanced_bonds_mesh, "insta bonds mesh", mc);
 
@@ -3169,13 +3174,13 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_svg, "svg string", mc);
 
-   status = run_test(test_superpose, "SSM superpose ", mc);
+   // status = run_test(test_superpose, "SSM superpose ", mc);
 
    // status = run_test(test_multi_colour_rules, "multi colour rules ", mc);
 
    // status = run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
 
-   // status = run_test(test_add_terminal_residue, "add terminal residue", mc);
+   status = run_test(test_add_terminal_residue, "add terminal residue", mc);
 
    // status = run_test(test_symmetry, "symmetry", mc);
 

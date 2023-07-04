@@ -6,6 +6,7 @@
 #include <array>
 
 #include <clipper/core/xmap.h>
+#include "utils/ctpl.h"
 #include "coot-utils/atom-selection-container.hh"
 #include "coot-utils/coot-rama.hh"
 #include "coot-utils/sfcalc-genmap.hh"
@@ -671,7 +672,8 @@ namespace coot {
       std::pair<int, std::string> add_terminal_residue_directly(const residue_spec_t &spec,
                                                                 const std::string &new_res_type,
                                                                 const protein_geometry &geom,
-                                                                const clipper::Xmap<float> &xmap);
+                                                                const clipper::Xmap<float> &xmap,
+                                                                ctpl::thread_pool &tp);
 
       int add_compound(const dictionary_residue_restraints_t &monomer_restraints, const Cartesian &position,
                        const clipper::Xmap<float> &xmap, float map_rmsd);

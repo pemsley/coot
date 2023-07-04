@@ -229,7 +229,7 @@ molecules_container_t::read_standard_residues() {
       std::string dir = coot::package_data_dir();
       std::string standard_file_name = coot::util::append_dir_file(dir, "standard-residues.pdb");
 
-      // std::cout << "------------------ read_standard_residues() B " << std::endl;
+      std::cout << "------------------ read_standard_residues() B " << standard_file_name << std::endl;
       struct stat buf;
       int status = stat(standard_file_name.c_str(), &buf);
       if (status != 0) { // standard-residues file was not found in
@@ -284,7 +284,7 @@ molecules_container_t::read_standard_residues() {
          // std::cout << "------------------ read_standard_residues() E " << std::endl;
       }
    } else {
-      std::cout << "------------------ read_standard_residues() F " << std::endl;
+      std::cout << "------------------ read_standard_residues() F " << env_var_filename << std::endl;
       standard_residues_asc = get_atom_selection(env_var_filename, true, false, false);
    }
    // std::cout << "------------------ read_standard_residues() done " << std::endl;
@@ -2062,7 +2062,7 @@ molecules_container_t::add_terminal_residue_directly(int imol, const std::string
          clipper::Xmap<float> &xmap = molecules[imol_refinement_map].xmap;
          coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
          std::pair<int, std::string> m = molecules[imol].add_terminal_residue_directly(residue_spec, new_res_type,
-                                                                                       geom, xmap);
+                                                                                       geom, xmap, static_thread_pool);
          status  = m.first;
          message = m.second;
          if (! message.empty())
