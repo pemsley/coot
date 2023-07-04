@@ -279,18 +279,43 @@ void ActiveTool::alter_geometry(int x, int y) {
 
 void ActiveTool::alter_charge(int x, int y) {
     check_variant(Variant::ChargeModifier);
-    g_warning("TODO: Implement ActiveTool::alter_charge");
     auto click_result = this->widget_data->resolve_click(x, y);
     if(click_result.has_value()) {
         try{
             auto [bond_or_atom,molecule_idx] = click_result.value();
             if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
                 auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+                this->widget_data->begin_edition();
+                
+                auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
+                // Do we need this here?
+                RDKit::MolOps::Kekulize(*rdkit_mol.get());
+                auto* rdkit_atom = rdkit_mol->getAtomWithIdx(atom.idx);
+                int old_charge = rdkit_atom->getFormalCharge();
+                g_warning("TODO: Finish implementing ActiveTool::alter_charge");
+                int new_charge = old_charge + 1;
+                if(new_charge > 4) {
+                    new_charge = -4;
+                }
+                g_info("Old formal charge: %i New formal charge: %i",old_charge,new_charge);
+                rdkit_atom->setFormalCharge(new_charge);
+
+                this->widget_data->update_status("Charge of atom has been altered.");
+
+                this->sanitize_molecule(*rdkit_mol.get());
+                auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
+                canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
+
+                this->widget_data->finalize_edition();
             } else { // a bond
-                auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+                // auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+                g_warning("The ChargeModifier tool does not operate on bonds. Nothing to do.");
             }
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
+            std::string msg = std::string("Could not alter charge: ") + e.what();
+            this->widget_data->update_status(msg.c_str());
+            this->widget_data->rollback_current_edition();
         }
     } else {
         // Nothing has been clicked on.
