@@ -3,9 +3,11 @@
 #include "model.hpp"
 #include <exception>
 #include <stdexcept>
+#include <string>
 #include <utility>
 #include <variant>
 #include <rdkit/GraphMol/MolOps.h>
+#include <rdkit/GraphMol/PeriodicTable.h>
 #include "../ligand_editor_canvas.hpp"
 
 using namespace coot::ligand_editor_canvas;
@@ -292,12 +294,48 @@ void ActiveTool::alter_charge(int x, int y) {
                 RDKit::MolOps::Kekulize(*rdkit_mol.get());
                 auto* rdkit_atom = rdkit_mol->getAtomWithIdx(atom.idx);
                 int old_charge = rdkit_atom->getFormalCharge();
-                g_warning("TODO: Finish implementing ActiveTool::alter_charge");
-                int new_charge = old_charge + 1;
-                if(new_charge > 4) {
-                    new_charge = -4;
+
+                const RDKit::PeriodicTable *table = RDKit::PeriodicTable::getTable();
+                auto valence_list = table->getValenceList(rdkit_atom->getAtomicNum());
+                auto valence_list_to_string = [&](){
+                    std::string valence_list_string = "[";
+                    auto vl_it = valence_list.begin();
+                    while(vl_it != valence_list.end()) {
+                        valence_list_string += std::to_string(*vl_it);
+                        vl_it++;
+                        if(vl_it != valence_list.end()) {
+                            valence_list_string += ", ";
+                        }
+                    }
+                    valence_list_string += "]";
+                    return valence_list_string;
+                };
+
+                auto valence_list_string = valence_list_to_string();
+                g_debug(
+                    "Valence list from RDKit: %s Num of outer shell electrons: %i", 
+                    valence_list_string.c_str(),
+                    table->getNouterElecs(rdkit_atom->getAtomicNum())
+                );
+
+                g_warning("todo: Fix-up computing plausible charges for atoms in the charge tool.");
+                valence_list.push_back(0);
+                for(int i = -4; i != 5; i++) {
+                    valence_list.push_back(i);
                 }
-                g_info("Old formal charge: %i New formal charge: %i",old_charge,new_charge);
+
+                auto it = std::find(valence_list.begin(),valence_list.end(),old_charge);
+                if(it != valence_list.end()) {
+                    it++;
+                }
+                if(it == valence_list.end()) {
+                    it = valence_list.begin();
+                }
+
+                int new_charge = *it;
+
+                valence_list_string = valence_list_to_string();
+                g_info("Old formal charge: %i New formal charge: %i List: %s",old_charge,new_charge,valence_list_string.c_str());
                 rdkit_atom->setFormalCharge(new_charge);
 
                 this->widget_data->update_status("Charge of atom has been altered.");
