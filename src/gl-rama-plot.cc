@@ -489,6 +489,8 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
    }
 
    glDisable(GL_BLEND);
+   glClearColor(0,0,0,1);
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
    glm::vec2 offset_position_natural(0.1, 0.1);
    auto p_s = get_munged_offset_and_scale(BOTTOM_LEFT, offset_position_natural, 1.0, 1.0, glarea_width, glarea_height);
