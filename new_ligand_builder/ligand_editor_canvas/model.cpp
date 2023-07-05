@@ -1046,6 +1046,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
         }
         if(terminus && !bonds_to_be_cached.empty()) {
             // This means that we only have one bond
+            g_warning_once("todo: Make sure that this does not skip atoms.");
             Bond* bond = bonds_to_be_cached.front();
             if(bond->type == BondType::Double) {
                 bond->bond_drawing_direction = DoubleBondDrawingDirection::Centered;
@@ -1053,7 +1054,9 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
         }
 
         this->atoms.push_back(std::move(canvas_atom));
-        this->bond_map.emplace(atom_idx,std::move(bonds_to_be_cached));
+        g_warning_once("todo: Fix and uncomment this.");
+        // this->bond_map.emplace(std::pair(atom_idx,std::move(bonds_to_be_cached)));
+        
         // Mark the atom as processed
         processed_atoms_indices.insert(atom_idx);
     }
