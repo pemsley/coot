@@ -1,6 +1,7 @@
 #include "model.hpp"
 #include "cairo.h"
 #include <exception>
+#include <iterator>
 #include <memory>
 #include <numeric>
 #include <optional>
@@ -1018,9 +1019,28 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             canvas_bond.geometry = bond_geometry_from_rdkit(bond_ptr->getBondDir());
 
             this->bonds.push_back(std::move(canvas_bond));
-            bonds_to_be_cached.push_back(this->bonds.data() + this->bonds.size() - 1);
-            g_warning_once("Make sure that the bond_map is complete / generate it separately.");
-            //this->bond_map.emplace(the_other_atom_idx,)
+
+            Bond* canvas_bond_ptr = this->bonds.data() + this->bonds.size() - 1;
+            bonds_to_be_cached.push_back(canvas_bond_ptr);
+            auto cached_bonds_for_other_atom = this->bond_map.find(the_other_atom_idx);
+            if(cached_bonds_for_other_atom == this->bond_map.end()) {
+                std::vector<Bond *> vec;
+                vec.push_back(canvas_bond_ptr);
+                this->bond_map.emplace(std::pair(the_other_atom_idx,std::move(vec)));
+            } else {
+                cached_bonds_for_other_atom->second.push_back(canvas_bond_ptr);
+            }
+        }
+
+        auto cached_bonds_for_this_atom = this->bond_map.find(atom_idx);
+        if(cached_bonds_for_this_atom == this->bond_map.end()) {
+            this->bond_map.emplace(std::pair(atom_idx,std::move(bonds_to_be_cached)));
+        } else {
+            // In the for-loop above,
+            // We skip bonds with atoms that have already been processed.
+            // Therefore just appending the whole vector 
+            // should never result in a duplicate.
+            std::move(bonds_to_be_cached.begin(),bonds_to_be_cached.end(),std::back_inserter(cached_bonds_for_this_atom->second));
         }
 
         bool terminus = surrounding_non_hydrogen_count < 2;
@@ -1044,18 +1064,18 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
                 canvas_atom.appendix = ap;
             }
         }
-        if(terminus && !bonds_to_be_cached.empty()) {
-            // This means that we only have one bond
-            g_warning_once("todo: Make sure that this does not skip atoms.");
-            Bond* bond = bonds_to_be_cached.front();
-            if(bond->type == BondType::Double) {
-                bond->bond_drawing_direction = DoubleBondDrawingDirection::Centered;
+        auto bonds_of_this_atom = this->bond_map.find(atom_idx);
+        if(bonds_of_this_atom != this->bond_map.end()) {
+            if(terminus && !bonds_of_this_atom->second.empty()) {
+                // This means that we only have one bond
+                Bond* bond = bonds_of_this_atom->second.front();
+                if(bond->type == BondType::Double) {
+                    bond->bond_drawing_direction = DoubleBondDrawingDirection::Centered;
+                }
             }
         }
 
         this->atoms.push_back(std::move(canvas_atom));
-        g_warning_once("todo: Fix and uncomment this.");
-        // this->bond_map.emplace(std::pair(atom_idx,std::move(bonds_to_be_cached)));
         
         // Mark the atom as processed
         processed_atoms_indices.insert(atom_idx);

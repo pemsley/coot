@@ -160,7 +160,7 @@ class CanvasMolecule {
     /// Cached bond map, computed while lowering from RDKit.
     /// Meant to be used for various lookups: while drawing, in the lowering process itself, etc.
     /// Not yet implemented properly.
-    std::map<unsigned int,std::vector<const Bond*>> bond_map;
+    std::map<unsigned int,std::vector<Bond*>> bond_map;
 
 
     /// Computes the scale used for drawing
