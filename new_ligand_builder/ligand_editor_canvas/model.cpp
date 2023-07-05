@@ -116,6 +116,9 @@ std::tuple<float,float,float> CanvasMolecule::atom_color_to_rgb(CanvasMolecule::
         case AtomColor::Orange:{
             return std::make_tuple(1.0,0.5,0.0);
         }
+        case AtomColor::DarkBlue:{
+            return std::make_tuple(0.0,0.0,0.5);
+        }
         case AtomColor::Black:
         default: {
             return std::make_tuple(0.0,0.0,0.0);
@@ -143,6 +146,9 @@ std::string CanvasMolecule::atom_color_to_html(CanvasMolecule::AtomColor color) 
         case AtomColor::Orange:{
             return "#FF8000";
         }
+        case AtomColor::DarkBlue:{
+            return "#000080";
+        }
         case AtomColor::Black:
         default: {
             return "#000000";
@@ -169,9 +175,19 @@ CanvasMolecule::AtomColor CanvasMolecule::atom_color_from_rdkit(const RDKit::Ato
         case 16: {
             return AtomColor::Brown;
         }
+        // Flourine
+        case 9:
         // Chlorine
         case 17: {
             return AtomColor::Green;
+        }
+        // Bromine
+        case 35: {
+            return AtomColor::DarkRed;
+        }
+        // Iodine
+        case 53: {
+            return AtomColor::DarkBlue;
         }
         // Carbon
         case 6:

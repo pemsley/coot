@@ -18,7 +18,7 @@ class CanvasMolecule {
     enum class AtomColor: unsigned char {
         /// Carbon and hydrogens
         Black,
-        /// For Chlorine
+        /// For Chlorine and Flourine
         Green,
         /// For Nitrogen
         Blue,
@@ -26,10 +26,12 @@ class CanvasMolecule {
         Red,
         /// For Sulphur
         Brown,
-        /// Unused
+        /// For Bromine
         DarkRed,
         /// For Phosphorus
-        Orange
+        Orange,
+        /// For Iodine
+        DarkBlue
         // are there more colors?
     };
     
