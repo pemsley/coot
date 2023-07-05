@@ -157,6 +157,10 @@ class CanvasMolecule {
     /// when recomputing molecule geometry
     std::optional<RDGeom::INT_POINT2D_MAP> cached_atom_coordinate_map;
 
+    /// Cached bond map, computed while lowering from RDKit.
+    /// Used for various lookups: while drawing, in the lowering process itself, etc.
+    std::map<unsigned int,std::vector<const Bond*>> bond_map;
+
 
     /// Computes the scale used for drawing
     /// And interfacing with screen coordinates

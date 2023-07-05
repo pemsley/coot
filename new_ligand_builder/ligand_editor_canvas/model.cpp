@@ -953,6 +953,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
 
     this->atoms.clear();
     this->bonds.clear();
+    this->bond_map.clear();
 
     /// Used to avoid duplicating bonds
     std::set<unsigned int> processed_atoms_indices;
@@ -977,6 +978,8 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             canvas_atom.appendix = ap;
         }
 
+        // Bond pointers to be stored in the `bond_map`
+        std::vector<Bond *> bonds_to_be_cached;
         // Used to determine if the 'appendix' should be 'reversed'
         std::vector<float> x_coordinates_of_bonded_atoms;
 
@@ -1015,6 +1018,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             canvas_bond.geometry = bond_geometry_from_rdkit(bond_ptr->getBondDir());
 
             this->bonds.push_back(std::move(canvas_bond));
+            bonds_to_be_cached.push_back(this->bonds.data() + this->bonds.size() - 1);
         }
 
         bool terminus = surrounding_non_hydrogen_count < 2;
@@ -1038,8 +1042,16 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
                 canvas_atom.appendix = ap;
             }
         }
+        if(terminus && !bonds_to_be_cached.empty()) {
+            // This means that we only have one bond
+            Bond* bond = bonds_to_be_cached.front();
+            if(bond->type == BondType::Double) {
+                bond->bond_drawing_direction = DoubleBondDrawingDirection::Centered;
+            }
+        }
 
         this->atoms.push_back(std::move(canvas_atom));
+        this->bond_map.emplace(atom_idx,std::move(bonds_to_be_cached));
         // Mark the atom as processed
         processed_atoms_indices.insert(atom_idx);
     }
