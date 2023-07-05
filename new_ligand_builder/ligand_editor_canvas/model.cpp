@@ -814,28 +814,28 @@ void CanvasMolecule::process_bond_alignment_in_rings() {
         while(i!=ring.size()) {
             int atom_one_idx = ring[i];
             int atom_two_idx = ring[j];
-            // Find iterator pointing to the bond
-            auto bond = std::find_if(this->bonds.begin(),this->bonds.end(),[=](const auto& bond){
-                return bond.first_atom_idx == atom_one_idx && bond.second_atom_idx == atom_two_idx;
-            });
-            if(bond == this->bonds.end()) {
-                // Search with first and second atom swapped places
-                bond = std::find_if(this->bonds.begin(),this->bonds.end(),[=](const auto& bond){
-                    return bond.first_atom_idx == atom_two_idx && bond.second_atom_idx == atom_one_idx;
-                });
-                if(bond == this->bonds.end()) {
-                    throw std::runtime_error("Critical internal error: Could not find a bond while processing rings.");
-                }
+            auto bonds_of_atom_one = this->bond_map.find(atom_one_idx);
+            if(bonds_of_atom_one == this->bond_map.end()) {
+                throw std::runtime_error("Critical internal error: Could not find a bond while processing rings.");
             }
-            if(bond->type == BondType::Double) {
-                float x_offset_from_center = (bond->first_atom_x + bond->second_atom_x) / 2.f - ring_center_x;
+            // Find iterator pointing to the bond
+            auto bond = std::find_if(bonds_of_atom_one->second.begin(),bonds_of_atom_one->second.end(),[=](const auto* bond){
+                return (bond->first_atom_idx == atom_one_idx && bond->second_atom_idx == atom_two_idx) 
+                    || (bond->first_atom_idx == atom_two_idx && bond->second_atom_idx == atom_one_idx);
+            });
+            if(bond == bonds_of_atom_one->second.end()) {
+                throw std::runtime_error("Critical internal error: Could not find a bond while processing rings.");
+            }
+            auto* bond_ptr = *bond;
+            if(bond_ptr->type == BondType::Double) {
+                float x_offset_from_center = (bond_ptr->first_atom_x + bond_ptr->second_atom_x) / 2.f - ring_center_x;
                 // negative y on screen is actually "higher" so we need to flip the sign
-                float y_offset_from_center = ring_center_y - (bond->first_atom_y + bond->second_atom_y) / 2.f;
+                float y_offset_from_center = ring_center_y - (bond_ptr->first_atom_y + bond_ptr->second_atom_y) / 2.f;
                 bool sign_of_x_offset_from_center = x_offset_from_center > 0.f;
                 bool sign_of_y_offset_from_center = y_offset_from_center > 0.f;
-                bool x_requirement = bond->second_atom_x > bond->first_atom_x == sign_of_y_offset_from_center;
+                bool x_requirement = bond_ptr->second_atom_x > bond_ptr->first_atom_x == sign_of_y_offset_from_center;
                 // negative y on screen is actually "higher" so we need to flip the sign
-                bool y_requirement = bond->second_atom_y <= bond->first_atom_y != sign_of_x_offset_from_center;
+                bool y_requirement = bond_ptr->second_atom_y <= bond_ptr->first_atom_y != sign_of_x_offset_from_center;
                 bool bond_direction = x_requirement && y_requirement;
                 // g_debug(
                 //     "Bond: %i->%i DeltaX: %f DeltaY: %f CX: %f CY: %f XO: %f SignXO: %i YO: %f SignYO: %i ReqX: %i ReqY: %i DIR: %i",
@@ -851,7 +851,7 @@ void CanvasMolecule::process_bond_alignment_in_rings() {
                 //     x_requirement,
                 //     y_requirement,bond_direction
                 // );
-                bond->bond_drawing_direction = bond_direction ? DoubleBondDrawingDirection::Primary : DoubleBondDrawingDirection::Secondary;
+                bond_ptr->bond_drawing_direction = bond_direction ? DoubleBondDrawingDirection::Primary : DoubleBondDrawingDirection::Secondary;
             }
             i++;
             j++;
