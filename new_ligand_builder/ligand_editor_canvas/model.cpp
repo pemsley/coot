@@ -896,27 +896,41 @@ void CanvasMolecule::shorten_double_bonds() {
         auto find_adjacent_bonds = [this,&bond,&find_angle_between_bonds]() -> std::pair<std::vector<bond_ptr_and_angle>,std::vector<bond_ptr_and_angle>> {
             std::vector<bond_ptr_and_angle> first_bonds;
             std::vector<bond_ptr_and_angle> second_bonds;
-            // This isn't pretty but can we even do better?
-            for(const auto& i: this->bonds) {
-                if(i.first_atom_idx == bond.first_atom_idx) {
-                    if(i.second_atom_idx == bond.second_atom_idx) {
-                        // We're looking at the 'bond' itself. We must skip it.
-                        continue;
+
+            auto first_bonds_iter = this->bond_map.find(bond.first_atom_idx);
+            if(first_bonds_iter != this->bond_map.end()) {
+                for(const auto* i: first_bonds_iter->second) {
+                    if(i->first_atom_idx == bond.first_atom_idx) {
+                        if(i->second_atom_idx == bond.second_atom_idx) {
+                            // We're looking at the 'bond' itself. We must skip it.
+                            continue;
+                        }
+                        // This bond makes contact with our first atom
+                        first_bonds.push_back(std::make_pair(i, find_angle_between_bonds(i, false)));
+                    } else if(i->second_atom_idx == bond.first_atom_idx) {
+                        // This bond makes contact with our first atom
+                        first_bonds.push_back(std::make_pair(i, find_angle_between_bonds(i, true)));
+                    } else {
+                        throw std::runtime_error("Internal error: bond_map is inconsistent!");
                     }
-                    // This bond makes contact with our first atom
-                    first_bonds.push_back(std::make_pair(&i, find_angle_between_bonds(&i, false)));
                 }
-                if(i.second_atom_idx == bond.first_atom_idx) {
-                    // This bond makes contact with our first atom
-                    first_bonds.push_back(std::make_pair(&i, find_angle_between_bonds(&i, true)));
-                }
-                if(i.first_atom_idx == bond.second_atom_idx) {
-                    // This bond makes contact with our second atom
-                    second_bonds.push_back(std::make_pair(&i, find_angle_between_bonds(&i, true)));
-                }
-                if(i.second_atom_idx == bond.second_atom_idx) {
-                    // This bond makes contact with our second atom
-                    second_bonds.push_back(std::make_pair(&i, find_angle_between_bonds(&i, false)));
+            }
+            auto second_bonds_iter = this->bond_map.find(bond.second_atom_idx);
+            if(second_bonds_iter != this->bond_map.end()) {
+                for(const auto* i: second_bonds_iter->second) {
+                    if(i->first_atom_idx == bond.second_atom_idx) {
+                        // This bond makes contact with our second atom
+                        second_bonds.push_back(std::make_pair(i, find_angle_between_bonds(i, true)));
+                    } else if(i->second_atom_idx == bond.second_atom_idx) {
+                        if(i->first_atom_idx == bond.first_atom_idx) {
+                            // We're looking at the 'bond' itself. We must skip it.
+                            continue;
+                        }
+                        // This bond makes contact with our second atom
+                        second_bonds.push_back(std::make_pair(i, find_angle_between_bonds(i, false)));
+                    } else {
+                        throw std::runtime_error("Internal error: bond_map is inconsistent!");
+                    }
                 }
             }
             return std::make_pair(first_bonds,second_bonds);
