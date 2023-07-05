@@ -1019,6 +1019,8 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
 
             this->bonds.push_back(std::move(canvas_bond));
             bonds_to_be_cached.push_back(this->bonds.data() + this->bonds.size() - 1);
+            g_warning_once("Make sure that the bond_map is complete / generate it separately.");
+            //this->bond_map.emplace(the_other_atom_idx,)
         }
 
         bool terminus = surrounding_non_hydrogen_count < 2;
