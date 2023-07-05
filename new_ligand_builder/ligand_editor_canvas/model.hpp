@@ -158,8 +158,8 @@ class CanvasMolecule {
     std::optional<RDGeom::INT_POINT2D_MAP> cached_atom_coordinate_map;
 
     /// Cached bond map, computed while lowering from RDKit.
-    /// Meant to be used for various lookups: while drawing, in the lowering process itself, etc.
-    /// Not yet implemented properly.
+    /// Associates atom indices with lists of bonds (the pointers point to the contents of the `bonds` vector).
+    /// Used for various lookups: while drawing, in the lowering process itself, etc.
     std::map<unsigned int,std::vector<Bond*>> bond_map;
 
 
