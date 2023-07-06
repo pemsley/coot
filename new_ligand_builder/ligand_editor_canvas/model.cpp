@@ -1016,7 +1016,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
         // Bond pointers to be stored in the `bond_map`
         std::vector<std::shared_ptr<Bond>> bonds_to_be_cached;
         // Used to determine if the 'appendix' should be 'reversed'
-        std::vector<float> x_coordinates_of_bonded_atoms;
+        std::optional<float> x_coordinate_of_bonded_atom;
 
         for(const auto& bond: boost::make_iterator_range(this->rdkit_molecule->getAtomBonds(rdkit_atom))) {
             // Based on `getAtomBonds` documentation.
@@ -1028,7 +1028,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             const auto* the_other_atom =  this->rdkit_molecule->getAtomWithIdx(the_other_atom_idx);
             if(the_other_atom->getSymbol() != "H") {
                 surrounding_non_hydrogen_count++;
-                x_coordinates_of_bonded_atoms.push_back(coordinate_map.at(the_other_atom_idx).x);
+                x_coordinate_of_bonded_atom = coordinate_map.at(the_other_atom_idx).x;
             } 
             // else {
             //     g_warning("Skipping explicit hydrogen bound to atom with idx=%u!",canvas_atom.idx);
@@ -1090,14 +1090,9 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
                 if(surrounding_hydrogen_count > 1) {
                     ap.superatoms += std::to_string(surrounding_hydrogen_count);
                 }
-                if(terminus) {
-                    if(!x_coordinates_of_bonded_atoms.empty() 
-                    && std::all_of(x_coordinates_of_bonded_atoms.cbegin(),x_coordinates_of_bonded_atoms.cend(),[&](float o_x){
-                        float diff = o_x - canvas_atom.x;
-                        return diff > 0.2;
-                    })) {
-                        ap.reversed = true;
-                    }
+                if(terminus && x_coordinate_of_bonded_atom.has_value()) {
+                    float diff = x_coordinate_of_bonded_atom.value() - canvas_atom.x;
+                    ap.reversed = diff > 0.2;
                 }
                 canvas_atom.appendix = ap;
             }
