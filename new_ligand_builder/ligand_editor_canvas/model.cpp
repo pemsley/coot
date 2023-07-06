@@ -808,9 +808,8 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
 
 void CanvasMolecule::process_alignment_in_rings() {
     const auto& rings = this->rdkit_molecule->getRingInfo();
-    g_debug("Number of rings: %lu", rings->atomRings().size());
+    // g_debug("Number of rings: %lu", rings->atomRings().size());
 
-    //int ring_number = 0;
     for(const auto& ring: rings->atomRings()) {
 
         float ring_center_x = 0.f;
@@ -824,9 +823,6 @@ void CanvasMolecule::process_alignment_in_rings() {
         
         int i = 0;
         int j = 1;
-
-        // ring_number++;
-        // g_debug("Processing ring number %i", ring_number);
 
         // Go over every bond
         while(i!=ring.size()) {
@@ -876,8 +872,6 @@ void CanvasMolecule::process_alignment_in_rings() {
             if(atom.appendix.has_value()) {
                 bool should_reverse = atom.x < ring_center_x;
                 atom.appendix->reversed = should_reverse;
-            } else {
-                // g_debug("atom has no appendix, idx=%u, symbol=%s",atom.idx,atom.symbol.c_str());
             }
             i++;
             j++;
