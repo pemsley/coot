@@ -51,7 +51,7 @@
 #include "cfc-widgets-c-interface.h"
 
 #include "graphics-info.h"
-#include "validation-graphs.hh"
+#include "validation-graphs/validation-graphs.hh"
 
 #include "widget-from-builder.hh"
 
