@@ -810,7 +810,9 @@ void CanvasMolecule::process_alignment_in_rings() {
     const auto& rings = this->rdkit_molecule->getRingInfo();
     g_debug("Number of rings: %lu", rings->atomRings().size());
 
+    //int ring_number = 0;
     for(const auto& ring: rings->atomRings()) {
+
         float ring_center_x = 0.f;
         float ring_center_y = 0.f;
         for(int atom_idx: ring) {
@@ -822,6 +824,10 @@ void CanvasMolecule::process_alignment_in_rings() {
         
         int i = 0;
         int j = 1;
+
+        // ring_number++;
+        // g_debug("Processing ring number %i", ring_number);
+
         // Go over every bond
         while(i!=ring.size()) {
             int atom_one_idx = ring[i];
