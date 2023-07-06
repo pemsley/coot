@@ -572,11 +572,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         };
 
         
-        if(atom.symbol == "H") {
-            process_highlight();
-            // Ignore Hydrogen.
-            g_warning_once("Explicit hydrogen present in drawing representation!");
-        } else if(atom.symbol == "C") {
+        if(atom.symbol == "C") {
             if(atom.appendix.has_value()) {
                 auto [markup,reversed] = process_appendix(atom.symbol,atom.appendix);
                 render_symbol_on_background(markup,atom.color,atom.highlighted,reversed);
