@@ -872,7 +872,7 @@ void CanvasMolecule::process_alignment_in_rings() {
                 bond_ptr->bond_drawing_direction = bond_direction ? DoubleBondDrawingDirection::Primary : DoubleBondDrawingDirection::Secondary;
             }
             // Lastly, process appendices' alignment relative to ring center
-            auto& atom = this->atoms.at(i);
+            auto& atom = this->atoms.at(atom_one_idx);
             if(atom.appendix.has_value()) {
                 bool should_reverse = atom.x < ring_center_x;
                 atom.appendix->reversed = should_reverse;
