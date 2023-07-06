@@ -2917,9 +2917,6 @@ public:        //                      public
    // c.f. progressive_residues_in_chain_check_by_chain()
    // bool residues_in_order_p(std::string &chain_id) const;
 
-#ifndef EMSCRIPTEN
-   coot::validation_graphs_t validation_graphs;
-#endif
 
    // Only apply charges if the molecule contains lots of hydrogens or
    // there were few (< 100) atoms in the molecule.
