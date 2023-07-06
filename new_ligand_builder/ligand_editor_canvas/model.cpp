@@ -542,12 +542,13 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             return std::make_tuple(ret,reversed);
         };
 
-        auto render_symbol_on_background = [&](const std::string& t, AtomColor color, bool highlighted, bool reversed_alignment){
+        auto render_atom_on_background = [&](const Atom& atom){
+            auto [raw_markup,reversed] = process_appendix(atom.symbol,atom.appendix);
             // pre-process text
-            auto [r,g,b] = atom_color_to_rgb(color);
-            std::string color_str = atom_color_to_html(color);
-            std::string weight_str = highlighted ? "bold" : "normal";
-            std::string markup = "<span color=\"" + color_str + "\" weight=\"" + weight_str + "\" size=\"x-large\">" + t + "</span>";
+            auto [r,g,b] = atom_color_to_rgb(atom.color);
+            std::string color_str = atom_color_to_html(atom.color);
+            std::string weight_str = atom.highlighted ? "bold" : "normal";
+            std::string markup = "<span color=\"" + color_str + "\" weight=\"" + weight_str + "\" size=\"x-large\">" + raw_markup + "</span>";
             pango_layout_set_markup(pango_layout,markup.c_str(),-1);
             pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
             // background
@@ -574,14 +575,12 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         
         if(atom.symbol == "C") {
             if(atom.appendix.has_value()) {
-                auto [markup,reversed] = process_appendix(atom.symbol,atom.appendix);
-                render_symbol_on_background(markup,atom.color,atom.highlighted,reversed);
+                render_atom_on_background(atom);
             } else {
                 process_highlight();
             }
         } else {
-            auto [markup,reversed] = process_appendix(atom.symbol,atom.appendix);
-            render_symbol_on_background(markup,atom.color,atom.highlighted,reversed);
+            render_atom_on_background(atom);
         }
     }
     cairo_destroy(cr);
