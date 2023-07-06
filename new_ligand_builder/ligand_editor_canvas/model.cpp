@@ -548,13 +548,23 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             auto [r,g,b] = atom_color_to_rgb(atom.color);
             std::string color_str = atom_color_to_html(atom.color);
             std::string weight_str = atom.highlighted ? "bold" : "normal";
-            std::string markup = "<span color=\"" + color_str + "\" weight=\"" + weight_str + "\" size=\"x-large\">" + raw_markup + "</span>";
+            const std::string markup_beginning = "<span color=\"" + color_str + "\" weight=\"" + weight_str + "\" size=\"x-large\">";
+            const std::string markup_ending = "</span>";
+
+            std::string markup_no_appendix = markup_beginning + atom.symbol + markup_ending;
+            int layout_height_no_ap, layout_width_no_ap;
+            pango_layout_set_markup(pango_layout,markup_no_appendix.c_str(),-1);
+            pango_layout_get_pixel_size(pango_layout,&layout_width_no_ap,&layout_height_no_ap);
+
+            std::string markup = markup_beginning + raw_markup + markup_ending;
             pango_layout_set_markup(pango_layout,markup.c_str(),-1);
             pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
             // background
             cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
-            double origin_x = atom.x * scale_factor + x_offset - layout_width/2.f;
-            double origin_y = atom.y * scale_factor + y_offset - layout_height/2.f;
+
+            int layout_x_offset = reversed ? layout_width - layout_height_no_ap / 2.f : layout_width_no_ap/2.f;
+            double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
+            double origin_y = atom.y * scale_factor + y_offset - layout_height_no_ap/2.f;
             // an alternative to rendering white-rectangle background is to shorten the bonds
             // temporary: let's keep the circles only for now
             //cairo_rectangle(cr, origin_x, origin_y, layout_width, layout_height);
