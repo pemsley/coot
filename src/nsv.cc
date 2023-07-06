@@ -92,8 +92,8 @@ exptl::nsv::on_canvas_button_press(GtkWidget      *canvas,
       g_signal_connect (G_OBJECT (item), "activate",
                         G_CALLBACK(close_docked_sequence_view), NULL);
       gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-      gtk_widget_show(menu);
-      gtk_widget_show(item);
+      gtk_widget_set_visible(menu, TRUE);
+      gtk_widget_set_visible(item, TRUE);
 
 #if 0      // was old 20211013-PE 
       // const GdkEvent *trigger_event = NULL;
@@ -164,7 +164,7 @@ exptl::nsv::nsv(mmdb::Manager *mol,
       label_string += ": ";
       label_string += molecule_name;
       GtkWidget *name_label = gtk_label_new(label_string.c_str());
-      gtk_widget_show(GTK_WIDGET(name_label));
+      gtk_widget_set_visible(GTK_WIDGET(name_label), TRUE);
       gtk_box_pack_start(GTK_BOX(vbox), name_label, FALSE, FALSE, 1);
    }
 
@@ -192,9 +192,9 @@ exptl::nsv::nsv(mmdb::Manager *mol,
       gtk_box_pack_start(GTK_BOX(ca), close_button, FALSE, FALSE, 2);
       g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(on_nsv_close_button_clicked), top_lev);
       g_signal_connect(G_OBJECT(top_lev), "destroy", G_CALLBACK(on_nsv_dialog_destroy), top_lev);
-      gtk_widget_show(close_button);
-      gtk_widget_show(ca); // needed?
-      gtk_widget_show(top_lev);
+      gtk_widget_set_visible(close_button, TRUE);
+      gtk_widget_set_visible(ca, TRUE);
+      gtk_widget_set_visible(top_lev, TRUE);
       // used on destroy
       g_object_set_data(G_OBJECT(top_lev), "molecule_number", GINT_TO_POINTER(molecule_number));
    } else {
@@ -218,8 +218,8 @@ exptl::nsv::nsv(mmdb::Manager *mol,
       gtk_widget_set_size_request(top_lev, 799, y_size_initial + 100);
 
    if (use_graphics_interface_flag) { 
-      gtk_widget_show(GTK_WIDGET(canvas));
-      gtk_widget_show(scrolled_window);
+      gtk_widget_set_visible(GTK_WIDGET(canvas), TRUE);
+      gtk_widget_set_visible(scrolled_window, TRUE);
    }
 
    // set_sequence_view_is_displayed(canvas, molecule_number) is run

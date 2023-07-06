@@ -205,16 +205,16 @@ void execute_find_blobs(int imol_model, int imol_for_map,
                      gtk_widget_set_margin_end   (button, 6);
                      gtk_widget_set_margin_top   (button, 2);
                      gtk_widget_set_margin_bottom(button, 2);
-		     gtk_widget_show(button);
+		     gtk_widget_set_visible(button, TRUE);
 		     gtk_box_append(GTK_BOX(vbox), button);
 		  }
 	       }
-	       gtk_widget_show(dialog);
+	       gtk_widget_set_visible(dialog, TRUE);
 	    } else { 
 	       std::cout << "Coot found no blobs" << std::endl;
 	       // GtkWidget *dialog = create_ligand_no_blobs_dialog();
 	       GtkWidget *dialog = widget_from_builder("ligand_no_blobs_dialog");
-	       gtk_widget_show(dialog);
+	       gtk_widget_set_visible(dialog, TRUE);
 	    } 
 	 }
       }
@@ -236,7 +236,7 @@ void
 show_create_find_waters_dialog() {
 
    GtkWidget *widget = wrapped_create_find_waters_dialog();
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 
@@ -443,11 +443,11 @@ void find_waters(int imol_for_map,
                         gtk_widget_set_margin_end   (button, 6);
                         gtk_widget_set_margin_top   (button, 4);
                         gtk_widget_set_margin_bottom(button, 4);
-			gtk_widget_show(button);
+			gtk_widget_set_visible(button, TRUE);
 			gtk_box_append(GTK_BOX(vbox), button);
 		     }
 		  }
-		  gtk_widget_show(dialog);
+		  gtk_widget_set_visible(dialog, TRUE);
 	       }
 	    }
 	 }
@@ -509,13 +509,13 @@ void free_ligand_search_user_data(GtkWidget *button) {
 // 	 gtk_signal_connect (GTK_OBJECT(button), "clicked", 
 // 			     GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
 // 			     GPOINTER_TO_INT(i));
-// 	 gtk_widget_show(button);
+// 	 gtk_widget_set_visible(button, TRUE);
 // 	 gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
 // 	 gtk_container_set_border_width(GTK_CONTAINER(button), 2);
 //       }
 //    }
 
-//    gtk_widget_show(dialog);
+//    gtk_widget_set_visible(dialog, TRUE);
 // }
 
 void

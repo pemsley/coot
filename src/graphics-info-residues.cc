@@ -87,7 +87,7 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
 	       coot::torsionable_bonds(imol, mol, atom_selection, n_selected_atoms, Geom_p());
 
 	    GtkWidget *w = wrapped_create_multi_residue_torsion_dialog(pairs);
-	    gtk_widget_show(w);
+	    gtk_widget_set_visible(w, TRUE);
 
 	    moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
 	    make_moving_atoms_graphics_object(imol, make_asc(moving_mol));
@@ -371,7 +371,7 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
 
             std::vector<double> eigens = mat.eigen(false);
 
-            if (false) { // debug matrices
+            if (true) { // debug matrices
                std::cout << "eigens:\n     " << sqrt(eigens[0]) << " " << sqrt(eigens[1]) << " "
                          << sqrt(eigens[2]) << std::endl;
                std::cout << "post mat" << std::endl;
@@ -408,7 +408,22 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
             coot::util::quaternion vq(md);
             glm::quat target_quat(0,0,0,1);
             // target_quat *= glm::rotate(target_quat, 1.57f, glm::vec3(0,1,0));
-            target_quat *= glm::conjugate(glm::quat(vq.q1, vq.q2, vq.q3, vq.q0));
+
+            // wrong
+            // target_quat *= glm::conjugate(glm::quat(vq.q1, vq.q2, vq.q3, vq.q0));
+            // target_quat *=   glm::inverse(glm::quat(vq.q1, vq.q2, vq.q3, vq.q0));
+            // target_quat *= glm::quat(vq.q1, vq.q2, vq.q3, vq.q0);
+            // target_quat *= glm::quat(vq.q0, vq.q1, vq.q2, vq.q3);
+            // target_quat *= glm::inverse(glm::quat(vq.q0, vq.q1, vq.q2, vq.q3));
+            // target_quat *= glm::conjugate(glm::quat(vq.q0, vq.q1, vq.q2, vq.q3));
+            // target_quat = glm::conjugate(glm::quat(vq.q1, vq.q2, vq.q3, vq.q0)) * target_quat;
+            // target_quat = glm::quat(vq.q1, vq.q2, vq.q3, vq.q0) * target_quat;
+            // target_quat = glm::inverse(glm::quat(vq.q1, vq.q2, vq.q3, vq.q0)) * target_quat;
+            // target_quat = glm::conjugate(glm::quat(vq.q0, vq.q1, vq.q2, vq.q3)) * target_quat;
+
+            target_quat = glm::conjugate(glm::quat(vq.q1, vq.q2, vq.q3, vq.q0)) * target_quat;
+
+            std::cout << "target_quat: " << glm::to_string(target_quat) << std::endl;
 
             // interpolate between current view and new view
             //

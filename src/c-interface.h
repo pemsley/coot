@@ -127,6 +127,7 @@ when guile-gtk functions have alread done so.  We should clean up this
 
 return 1 for python is prefered, 0 for not. */
 int prefer_python();
+
 /* \} */
 
 /*  ------------------------------------------------------------------------ */
@@ -653,11 +654,6 @@ void set_idle_function_rotate_angle(float f);  /* degrees */
 /*! \brief what is the idle function rotation angle? */
 float idle_function_rotate_angle();
 
-/* pass back the newly created molecule number */
-/*! \brief a synonym for read-pdb.  Read the coordinates from
-  filename (can be pdb, cif or shelx format)  */
-int handle_read_draw_molecule(const char *filename);
-
 /*! \brief make a model molecule from the give file name.
 
 * If the file updates, then the model will be updated. */
@@ -691,19 +687,6 @@ default off (0).
  */
 void set_convert_to_v2_atom_names(short int state);
 
-/*! \brief read coordinates from filename with option to not recentre.
-
-   set recentre_on_read_pdb_flag to 0 if you don't want the view to
-   recentre on the new coordinates. */
-int handle_read_draw_molecule_with_recentre(const char *filename,
-					    int recentre_on_read_pdb_flag);
-
-/*! \brief read coordinates from filename and recentre the new
-  molecule at the screen rotation centre. */
-int handle_read_draw_molecule_and_move_molecule_here(const char *filename);
-
-/*! \brief read coordinates from filename */
-int read_pdb(const char *filename);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
@@ -4091,39 +4074,6 @@ int read_small_molecule_data_cif_and_make_map_using_coords(const char *file_name
 							   int imol_coords);
 
 /* \} */
-
-/*  ----------------------------------------------------------------------- */
-/*                  SHELX stuff                                             */
-/*  ----------------------------------------------------------------------- */
-/* section SHELXL Functions */
-/*! \name SHELXL Functions */
-/* \{ */
-/*! \brief read a SHELXL .ins file */
-int read_shelx_ins_file(const char *filename, short int recentre_flag);
-/*! \brief write a SHELXL .ins file for molecule number imol */
-int write_shelx_ins_file(int imol, const char *filename);
-/* for shelx fcf file that needs to be filtered: */
-int handle_shelx_fcf_file_internal(const char *filename);
-#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
-#ifdef USE_GUILE
-/*! \brief @return the chain id for the given residue.
-
-@return false if can't do it/fail. */
-SCM chain_id_for_shelxl_residue_number(int imol, int resno);
-#endif /* USE_GUILE */
-/* return 1 for yes, 0 for invalid imol or no. */
-int is_shelx_molecule(int imol);
-
-#ifdef USE_PYTHON
-/*! \brief @return the chain id for the given residue.  Return Py_False if
-  can't do it/fail. */
-PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno);
-#endif /* USE_PYTHON */
-
-void add_shelx_string_to_molecule(int imol, const char *string);
-#endif /* c++ */
-
-/* \} */
 /*  ------------------------------------------------------------------------ */
 /*                         Validation:                                       */
 /*  ------------------------------------------------------------------------ */
@@ -7061,7 +7011,7 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
  *
  * Use a map that is blurred by the give factor for fitting.
  * @return < -100 if not possible, else return the new best fit for this chain.  */
-// float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);  temporary comment                                   
+float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);
 
 /*! \} */
 

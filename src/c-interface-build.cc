@@ -3885,7 +3885,7 @@ SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const c
 					   to_resno);
       graphics_draw();
       g.update_go_to_atom_window_on_changed_mol(imol);
-      g.update_valiadtion_graphs(imol);
+      g.update_validation_graphs(imol);
       r = SCM_EOL;
       r = scm_cons(scm_from_locale_string(p.second.c_str()), r);
       r = scm_cons(scm_from_int(p.first), r);
@@ -5194,11 +5194,11 @@ void set_temperature_factors_for_atoms_in_residue_scm(int imol, SCM residue_spec
 
 /* section SHELXL Functions */
 // return
-int read_shelx_ins_file(const char *filename, short int recentre_flag) {
+int read_shelx_ins_file(const std::string &filename, short int recentre_flag) {
 
    int istat = -1;
    graphics_info_t g;
-   if (filename) {
+   if (true) {
       int imol = graphics_info_t::create_molecule();
 
       // ugly method to recente the molecule on read
@@ -5460,6 +5460,29 @@ void add_hydrogens_from_file(int imol, std::string pdb_with_Hs_file_name) {
       graphics_draw();
    }
 }
+
+//! \brief add hydrogen atoms to the specified residue
+void add_hydrogen_atoms_to_residue(int imol, std::string chain_id, int res_no, std::string ins_code) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t rs(chain_id, res_no, ins_code);
+      graphics_info_t::molecules[imol].add_hydrogen_atoms_to_residue(rs);
+      graphics_draw();
+   }
+}
+
+#ifdef USE_PYTHON
+//! \brief add hydrogen atoms to the specified residue
+void add_hydrogen_atoms_to_residue_py(int imol, PyObject *residue_spec_py) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t rs = residue_spec_from_py(residue_spec_py);
+      graphics_info_t::molecules[imol].add_hydrogen_atoms_to_residue(rs);
+      graphics_draw();
+   }
+}
+#endif
+
 
 
 

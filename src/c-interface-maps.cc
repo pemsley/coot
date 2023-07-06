@@ -53,6 +53,8 @@
 #include "analysis/kolmogorov.hh"
 #include "analysis/stats.hh"
 
+#include "read-molecule.hh" // 20230621-PE now with std::string args
+
 
 /*  ------------------------------------------------------------------------ */
 /*                   Maps -                                                  */
@@ -888,7 +890,7 @@ int auto_read_make_and_draw_maps_old(const char *mtz_file_name) {
     g.activate_scroll_radio_button_in_display_manager(imol1);
       } else {
     GtkWidget *w = wrapped_nothing_bad_dialog("Failed to find any suitable F/phi columns in the MTZ file");
-    gtk_widget_show(w);
+    gtk_widget_set_visible(w, TRUE);
       }
 
    } else {
@@ -1482,7 +1484,7 @@ int handle_read_emdb_data(const std::string &dir_name) {
    for (auto map_file : map_files)
       handle_read_ccp4_map(map_file, 0);
    for (auto pdb_file : pdb_files)
-      read_pdb(pdb_file.c_str());
+      read_pdb(pdb_file);
 
    return status;
 }

@@ -1468,6 +1468,8 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
       // show a (clickable/highlighting) HUD texture - indicating that refinement parameters dialog
       // can be shown (as an overlay)
 
+      // std::cout << "here in draw_hud_refinement_dialog_arrow_tab() B " << std::endl;
+
       auto get_munged_offset_and_scale =  [] (HUDTextureMesh::screen_position_origins_t spo,
                                               const glm::vec2 &offset_natural,
                                               float scale_x_natural, float scale_y_natural,
@@ -1502,8 +1504,10 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
 
       glDisable(GL_DEPTH_TEST);
       if (hud_refinement_dialog_arrow_is_moused_over) {
+         // std::cout << "hud_refinement_dialog_arrow_is_moused_over " << std::endl;
          texture_for_hud_refinement_dialog_arrow_highlighted.Bind(0);
       } else {
+         // std::cout << "hud_refinement_dialog_arrow_is_moused_over not " << std::endl;
          texture_for_hud_refinement_dialog_arrow.Bind(0);
       }
 
@@ -3192,11 +3196,11 @@ graphics_info_t::show_atom_pull_toolbar_buttons() {
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
 
       if (button_1)
-         gtk_widget_show(button_1);
+         gtk_widget_set_visible(button_1, TRUE);
       else
          std::cout << "in show_atom_pull_toolbar_buttons() missing button1" << std::endl;
       if (button_2)
-         gtk_widget_show(button_2);
+         gtk_widget_set_visible(button_2, TRUE);
       else
          std::cout << "in show_atom_pull_toolbar_buttons() missing button2" << std::endl;
    }
@@ -3211,9 +3215,9 @@ graphics_info_t::hide_atom_pull_toolbar_buttons() {
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
       
       if (button_1)
-         gtk_widget_hide(button_1);
+         gtk_widget_set_visible(button_1, FALSE);
       if (button_2)
-         gtk_widget_hide(button_2);
+         gtk_widget_set_visible(button_2, FALSE);
    }
 }
 
@@ -4093,7 +4097,6 @@ graphics_info_t::draw_hud_geometry_tooltip() {
 
 void
 graphics_info_t::draw_hud_elements() {
-
 
    draw_hud_ligand_view();
 
@@ -5468,7 +5471,7 @@ graphics_info_t::make_extra_distance_restraints_objects() {
 
    // c.f. update_hydrogen_bond_mesh().
 
-   std::cout << "here in make_extra_distance_restraints_objects() " << std::endl;
+   // std::cout << "here in make_extra_distance_restraints_objects() " << std::endl;
 
    double penalty_min = 0.1; // only restraints that have more than this "distortion" are considered for drawing.
                              // Make this user-setable.
@@ -5478,6 +5481,9 @@ graphics_info_t::make_extra_distance_restraints_objects() {
    auto clipper_to_glm = [] (const clipper::Coord_orth &co) {
                             return glm::vec3(co.x(), co.y(), co.z());
                          };
+
+   // How frequently should this function be called? Every frame? Hmm..
+   if (moving_atoms_extra_restraints_representation.bonds.empty()) return;
 
    unsigned int maerrb_size = moving_atoms_extra_restraints_representation.bonds.size();
    attach_buffers();
@@ -5770,9 +5776,11 @@ graphics_info_t::setup_key_bindings() {
    auto l13l = []() { graphics_info_t g; g.step_screen_left();   return gboolean(TRUE); };
    auto l13r = []() { graphics_info_t g; g.step_screen_right(); return gboolean(TRUE); };
 
-   auto l14 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('forward')"); return gboolean(TRUE); };
+   //    auto l14 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('forward')"); return gboolean(TRUE); };
 
-   auto l15 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('backward')"); return gboolean(TRUE); };
+   // auto l14 = []() { /* use l28 */ return gboolean(TRUE); };
+
+   // auto l15 = []() { /* use l28 */ return gboolean(TRUE); };
 
    auto l16 = []() { graphics_info_t g; g.undo_last_move(); return gboolean(TRUE); };
 
@@ -5896,6 +5904,8 @@ graphics_info_t::setup_key_bindings() {
 
    auto l28 = [] () {
 
+                 std::cout << "@@@@@@@@@@@@@@@@@@@@@@@ l28" << std::endl;
+
                  std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
                  if (aa_spec_pair.first) {
                     int imol = aa_spec_pair.second.first;
@@ -5933,9 +5943,22 @@ graphics_info_t::setup_key_bindings() {
                                                                               this_chain_id, chain_id_next,
                                                                               forward_flag);
                              if (new_ori.first) {
+
                                 coot::util::quaternion q(new_ori.second.rot());
                                 glm::quat q_ncs = coot_quaternion_to_glm(q);
-                                view_quaternion = glm::normalize(view_quaternion * q_ncs); // wrong
+
+                                // glm::quat qq = view_quaternion * q_ncs;
+                                // glm::quat qq = view_quaternion * glm::inverse(q_ncs);
+                                // glm::quat qq = view_quaternion * glm::conjugate(q_ncs);
+                                // glm::quat qq = q_ncs * view_quaternion;
+                                // glm::quat qq = glm::inverse(q_ncs) * view_quaternion;
+                                // glm::quat qq = glm::conjugate(q_ncs) * view_quaternion;
+
+                                glm::quat qq = glm::conjugate(q_ncs) * view_quaternion;
+
+                                view_quaternion = qq;
+                                // view_quaternion = glm::normalize(view_quaternion * q_ncs); // wrong
+
                                 clipper::Coord_orth t(new_ori.second.trn());
                                 set_rotation_centre(t);
 
@@ -6065,8 +6088,8 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_m,      key_bindings_t(l11, "Zoom out")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_w,      key_bindings_t(l12, "Move forward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_s,      key_bindings_t(l13, "Move backward")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
+   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
+   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_u,      key_bindings_t(l16, "Undo Move")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Return, key_bindings_t(l18, "Accept Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
@@ -6288,9 +6311,9 @@ graphics_info_t::fullscreen() {
       // // GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
       GtkWidget* sidebar = widget_from_builder("main_window_vbox_inner");
 
-      gtk_widget_hide(tool_bar);
-      gtk_widget_hide(sidebar);
-      gtk_widget_hide(status_bar);
+      gtk_widget_set_visible(tool_bar, FALSE);
+      gtk_widget_set_visible(sidebar, FALSE);
+      gtk_widget_set_visible(status_bar, FALSE);
 
 
       std::cout << "calling gtk_window_fullscreen() " << window << std::endl;
@@ -6366,10 +6389,10 @@ graphics_info_t::unfullscreen() {
       }
 
       
-      //gtk_widget_show(tool_bar_frame);
-      gtk_widget_show(tool_bar);
-      gtk_widget_show(sidebar);
-      gtk_widget_show(status_bar);
+      //gtk_widget_set_visible(tool_bar_frame, TRUE);
+      gtk_widget_set_visible(tool_bar, TRUE);
+      gtk_widget_set_visible(sidebar, TRUE);
+      gtk_widget_set_visible(status_bar, TRUE);
 } else {
       g_error("%p is not a Gtk.Window !", window);
    }

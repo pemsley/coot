@@ -151,12 +151,23 @@ test_quick_hbs() {
 
 }
 
+void
+test_metal_distances() {
+
+   coot::protein_geometry geom;
+   std::string fn = "metals.json";
+   geom.read_metal_distances(fn);
+
+}
+
 
 int main(int argc, char **argv) {
 
    // test_quick_hbs();
 
-   test_improper_dihdedrals(argc, argv);
+   // test_improper_dihdedrals(argc, argv);
+
+   test_metal_distances();
 
 
    return 0;

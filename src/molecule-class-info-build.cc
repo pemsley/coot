@@ -31,7 +31,11 @@
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb-crystal.h"
 
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/reduce.hh"
 #include "molecule-class-info.h"
+#include "coot-utils/reduce.hh"
+
 
 std::vector<ProteinDB::Chain>
 molecule_class_info_t::protein_db_loops(const std::vector<coot::residue_spec_t> &residue_specs,
@@ -203,7 +207,24 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions();
    }
-} 
+}
+
+void
+molecule_class_info_t::add_hydrogen_atoms_to_residue(const coot::residue_spec_t &rs) {
+
+   make_backup();
+   mmdb::Residue *residue_this_p = get_residue(rs);
+   mmdb::Residue *residue_prev_p = coot::util::get_previous_residue(rs, atom_sel.mol);
+
+   bool go_nuclear = false;
+   coot::reduce r(atom_sel.mol, imol_no);
+   r.add_hydrogens_to_residue(residue_this_p, residue_prev_p, go_nuclear);
+
+   have_unsaved_changes_flag = 1; // because we do a backup whatever...
+   atom_sel.mol->FinishStructEdit();
+   update_molecule_after_additions();
+}
+
 
 // --------- LINKs ---------------
 void
@@ -510,7 +531,7 @@ molecule_class_info_t::move_reference_chain_to_symm_chain_position(coot::Symm_At
 	    update_symmetry();
 	 }
       }
-   } 
+   }
 }
 
 #include "cootaneer/buccaneer-prot.h"
@@ -560,17 +581,17 @@ molecule_class_info_t::globularize() {
 
 } 
 
-#include "coot-utils/reduce.hh"
-
 
 void
 molecule_class_info_t::reduce(coot::protein_geometry *geom_p) {
+
+   bool go_nuclear = false; // pass this, I think
 
    make_backup();
    mmdb::Manager *mol = atom_sel.mol;
    coot::reduce r(mol, imol_no);
    r.add_geometry(geom_p);
-   r.add_hydrogen_atoms();
+   r.add_hydrogen_atoms(go_nuclear);
    update_molecule_after_additions();
 
    if (false) { // debug
@@ -624,6 +645,8 @@ molecule_class_info_t::switch_HIS_protonation(coot::residue_spec_t res_spec) {
       }
    }
 }
+
+
 
 #include "ideal/crankshaft.hh"
 

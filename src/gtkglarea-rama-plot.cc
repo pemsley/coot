@@ -189,7 +189,9 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
       gtk_box_append(GTK_BOX(box_for_this_plot), close_button);
       gtk_box_append(GTK_BOX(box_for_all_plots), box_for_this_plot);
 
-      gtk_widget_show(gl_area);
+      gtk_widget_set_vexpand(GTK_WIDGET(box_for_this_plot), TRUE);
+
+      gtk_widget_set_visible(gl_area, TRUE);
 
    }
 }

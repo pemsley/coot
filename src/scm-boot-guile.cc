@@ -79,7 +79,7 @@ void inner_main(void *closure, int argc, char **argv) {
 
 
   if (run_startup_scripts_state()) {
-     try_load_scheme_extras_dir();
+     try_load_scheme_extras_dir();              // 20230630-PE does this look in old places?
      try_load_dot_coot_and_preferences();
   }
 
@@ -87,10 +87,12 @@ void inner_main(void *closure, int argc, char **argv) {
    run_state_file_maybe();
    // pre_load_rotamer_tables(); what's this?
 
+#if 0 // 20230630-PE this is not how to start the GUI these days - this needs more thought.
    if (use_graphics_flag)
       gtk_main();
    else
       scm_shell(argc, argv);
+#endif
 
 }
 

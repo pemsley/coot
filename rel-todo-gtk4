@@ -10,14 +10,7 @@
 
 ----
 
-Open dictionary should provide a widget to specify the molecule for dictionary.
-Also a "Generate Molecule" button. ::: 1
-
-Clicking on Green left arrow doesn't open the refinement overlay ::: 1
-
-Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
-It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
-Delete Hydrogen atoms (gets rid of mainchain hydrogen atoms too) and sprout_hydrogens() should work?
+4 items
 
 Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
 
@@ -26,42 +19,33 @@ set_framebuffer_scale_factor().
 Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
 shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
 
-Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
-* Preferences, surely.
-
-What's up with the Preferences? ::: 4
-
-In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
-Why? Because it's looked up and not new? ::: 2
-
-Rework the namespace of the python modules to be more cannonical ::: 4
-
-Write a script that finds functions in glade-callbacks that are no longer used (i.e. not in coot-gtk4.ui)
-
-Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
-
-NCS Jumping should use the correct matrix ::: 0.5
-
-Quick save should say something in the status-bar - maybe briefly flash and fade the background. Or some
-other brief visual effect.
-
-Go To (next) Ligand should use the correct matrix ::: 0.5
-perpendicular_ligand_view() is the function. Does it work in gtk3?
-
 Do the tutorial from time to time - what's missing? ::: 1
-
-Looks at 1x8b with ligands and contact dots - is 2.0 too close for H-O hydrogen bond distance?
-No, it's fine: see https://proteopedia.org/wiki/index.php/Hydrogen_bonds. Contact dots has it as
-a clash though. "The dotted hydrogen bond is non-covalent and variable in length, ~1.5-2.5 Å." ::: 1
-
-Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
-   contact_score_ligand_func(). Hmm. See ~/Desktop/ligand-notes
-
-Go to (Next) Ligand doesn't get the ligand orientation correct. Is a transform() needed?
 
 
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
+
+Rework the namespace of the python modules to be more cannonical ::: 4
+* I don't even know if this is possible
+What does it mean to
+import coot
+import coot.utils?
+
+NCS Jumping should use the correct matrix :::- 0.5
+l28. Tried and failed. Test the conversion of glm quaternion to coot quaternion and back again.
+
+Nice to have: Write a script that finds functions in glade-callbacks that are no longer used
+(i.e. not in coot-gtk4.ui)
+
+Nice to have: Unmodelled blobs are labelled with the residue to which they are closest.
+
+Nice to have: 1E9 is not correctly horizontally adjusted.
+
+Nice to have: Eleanor: (maybe not for here): How do I find the peaks of this map?
+
+Go To (next) Ligand should use the correct matrix ::: 0.5
+perpendicular_ligand_view() is the function. Does it work in gtk3? No.
+* Tried and failed. Need to check conversion of quaterions between coot::quaterion and glm::quaternion.
 
 Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
 
@@ -196,6 +180,8 @@ How should the "model representation change" work? Ctrl Shift 2-finger scroll? :
 * This is too complicated and estoeric to fix now. I don't even know how to fix it.
 
 AWC chirality in the ring - wedge bond is pointing in the wrong direction? Nice example of sp2 Se-ring (not aromatic)
+
+Open dictionary should provide a widget to specify the molecule for dictionary.
 
 --- Done Items ---
 
@@ -659,3 +645,69 @@ Nasty "-" rendering in OpenGL for charged atoms in HUD Ligand ::: 0.5
 
 Views ::: 2
 * Simple implementation
+
+Open dictionary should provide a widget to specify the molecule for dictionary.
+Also a "Generate Molecule" button. ::: 0.4
+
+Clemens: If I mutate a residue with hydrogen atoms, make the new atoms have hydrogen atoms too.
+It would be good if you could make them nucleus hydrogens if that's what was deleted. ::: 1
+
+Clicking on Green left arrow doesn't open the refinement overlay ::: 1
+* Done.
+
+Shift the HUD ligand 10 pixels to the right, i.e. add 0.02 to x in the shaders. ::: 0.5
+* Done.
+
+In graphics_info_t::new_fill_combobox_with_coordinates_options() gtk_combo_box_set_active() doesn't work.
+Why? Because it's looked up and not new? ::: 2
+* Done. 215d1cf6eb4c55a3a2fe66c6437df17983f19da5. Maybe more like this.
+
+Quick save should say something in the status-bar - maybe briefly flash and fade the background. Or some
+other brief visual effect. ::: 0.5
+* Done.
+
+Looks at 1x8b with ligands and contact dots - is 2.0 too close for H-O hydrogen bond distance?
+No, it's fine: see https://proteopedia.org/wiki/index.php/Hydrogen_bonds. Contact dots has it as
+a clash though. "The dotted hydrogen bond is non-covalent and variable in length, ~1.5-2.5 Å." ::: 1
+* Done in refinement.
+
+Bug: Add Hydrogen atoms fails for 1x8b/824 - missing on N :: 4
+Something to do with the dictionary? No. With new dictionary it still fails. The type for N is NR5.
+This is wrong. It should be NR15. So, when the atom type is NR5, then check the bonds to the atom, to see
+if there is an N-H bond.
+* Done.
+
+Search monomer library results should be left-hand justified ::: 0.5
+* Done
+
+Search monomer library results should have rdkit images? ::: 0.5
+* Done
+
+Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
+   contact_score_ligand_func(). Hmm. See ~/Desktop/ligand-notes
+* Contact dots for ligand is my function - it has vdw dots
+
+Shader Preferences can submarine ::: 0.2
+* Done.
+
+What's up with the Preferences? ::: 6
+* Done - well lots of it done. What a grind.
+
+Add Jiggle-Fit functions to Cryo-EM tools ::: 0.6
+* Done.
+
+Anti-submarine the Display Manager ::: 0.2
+* Done.
+
+Fetch EMD map ::: 1
+* Done.
+
+Find somewhere for coot.set_b_factor_bonds_scale_factor ::: 1
+* Preferences, surely.
+
+Something is wrong with the generation of the guile code. ::: 0.2
+* No... it was just not compillled wth guile. Still startup issues need
+  to be resolved, I think.
+
+Fix the dynamic validation pane resize on Update of the buttons ::: 0.2
+* Done. gtk_paned_get_position().

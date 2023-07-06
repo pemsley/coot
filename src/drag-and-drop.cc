@@ -35,6 +35,7 @@
 
 #include "cc-interface.hh"
 #include "c-interface.h"
+#include "read-molecule.hh" // now with std::string args
 
 #if 0 // 20220602-PE FIXME
 gboolean
@@ -245,7 +246,7 @@ int handle_drag_and_drop_single_item(const std::string &file_name) {
    if (handled == FALSE) { 
       std::string ext_tmp = coot::util::file_name_extension(file_name);
       if (file_type_coords(file_name.c_str())) {
-	 int imol = read_pdb(file_name.c_str());
+	 int imol = read_pdb(file_name);
 	 if (is_valid_model_molecule(imol))
 	    handled = TRUE;
 	 else

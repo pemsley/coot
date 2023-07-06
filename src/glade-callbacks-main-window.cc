@@ -47,6 +47,7 @@
 #include "gtk-manual.h"
 #include "c-interface-refine.h"
 #include "widget-from-builder.hh"
+#include "read-molecule.hh" // 20230621-PE now with std::string args
 
 // from support.h
 // GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
@@ -175,7 +176,7 @@ void
 on_model_toolbar_fixed_atoms_menubutton_activated(GtkMenuButton *button,
                                                   gpointer       user_data) {
    GtkWidget *w = wrapped_create_fixed_atom_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -449,7 +450,7 @@ void
 on_model_toolbar_delete_button_clicked(GtkButton       *button,
                                                            gpointer         user_data) {
   GtkWidget *widget = wrapped_create_delete_item_dialog();
-  gtk_widget_show(widget);
+  gtk_widget_set_visible(widget, TRUE);
 }
 
 
@@ -513,7 +514,7 @@ on_ssm_superposition1_activate         (GMenuItem     *menuitem,
       this way because we don't have to introduce HAVE_MMDBSSM into the
       *c* compiler arguments (this is simpler)).  */
   if (w)
-     gtk_widget_show(w);
+     gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -569,7 +570,7 @@ on_open_dataset1_activate (GMenuItem     *menuitem,
    set_directory_for_filechooser(dataset_chooser);
    set_file_selection_dialog_size(dataset_chooser);
    add_filechooser_filter_button(dataset_chooser, COOT_DATASET_FILE_SELECTION);
-   gtk_widget_show(dataset_chooser);
+   gtk_widget_set_visible(dataset_chooser, TRUE);
    set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
 
 }
@@ -602,7 +603,7 @@ on_auto_open_mtz_activate              (GMenuItem     *menuitem,
    g_object_set_data(G_OBJECT(dataset_chooser), "is_auto", GINT_TO_POINTER(is_auto_read_fileselection));
 
    set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
-   gtk_widget_show(dataset_chooser);
+   gtk_widget_set_visible(dataset_chooser, TRUE);
 
    // what does this do?
    // push_the_buttons_on_fileselection(file_filter_button, sort_button, dataset_chooser);
@@ -631,7 +632,7 @@ on_save_coordinates1_activate          (GMenuItem     *menuitem,
    if (combobox) {
       fill_combobox_with_coordinates_options(combobox, callback_func, imol);
       set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
-      gtk_widget_show(widget);
+      gtk_widget_set_visible(widget, TRUE);
       gtk_window_present(GTK_WINDOW(widget));
    } else {
       std::cout << "ERROR:: in on_save_coordinates1_activate() bad combobox!\n";
@@ -660,11 +661,11 @@ on_save_coordinates_filechooser_dialog_response(GtkDialog       *dialog,
          int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol"));
          save_coordinates(imol, fnc);
       }
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 
    if (response_id == GTK_RESPONSE_CANCEL) {
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 }
 
@@ -691,11 +692,11 @@ on_dataset_filechooser_dialog_response(GtkDialog       *dialog,
          }
       }
       save_directory_from_filechooser(GTK_WIDGET(dialog));
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 
    if (response_id == GTK_RESPONSE_CANCEL) {
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 }
 
@@ -724,14 +725,14 @@ on_map_name_filechooser_dialog_response(GtkDialog       *dialog,
          read_ccp4_map(fn, is_diff_map);
          std::cout << "----------------- done read_ccp4_map() " << std::endl;
       }
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 
    if (response_id == GTK_RESPONSE_CANCEL) {
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    
 }
 
@@ -756,7 +757,7 @@ on_map_name_filechooser_dialog_file_activated(GtkFileChooser* dialog,
       is_diff_map = true;
    read_ccp4_map(fnc, is_diff_map);
 
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 #endif
 
 }
@@ -789,12 +790,13 @@ on_coords_filechooser_dialog_response(GtkDialog       *dialog,
       }
 #endif
 
-      // const char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      // const char *fn = gtk_nfile_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
       GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
       GError *error = NULL;
       GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
                                                G_FILE_QUERY_INFO_NONE, NULL, &error);
-      const char *fn = g_file_info_get_name(file_info);
+      const char *path = g_file_get_path(file);
+      std::string file_name(path);
       save_directory_from_filechooser(GTK_WIDGET(dialog));
 
       bool recentre_on_read_pdb_flag = false;
@@ -807,19 +809,19 @@ on_coords_filechooser_dialog_response(GtkDialog       *dialog,
          move_molecule_here_flag = true;
 
       if (move_molecule_here_flag) {
-         handle_read_draw_molecule_and_move_molecule_here(fn);
+         handle_read_draw_molecule_and_move_molecule_here(file_name);
       } else {
          if (recentre_on_read_pdb_flag)
-            handle_read_draw_molecule_with_recentre(fn, 1);
+            handle_read_draw_molecule_with_recentre(file_name, 1);
          else
-            handle_read_draw_molecule_with_recentre(fn, 0); // no recentre
+            handle_read_draw_molecule_with_recentre(file_name, 0); // no recentre
       }
 
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 
    if (response_id == GTK_RESPONSE_CANCEL) {
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 }
 
@@ -835,7 +837,7 @@ on_coords_filechooser_dialog_file_activated(GtkFileChooser* dialog,
    // const char *fn = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
    //  handle_read_draw_molecule_with_recentre(fn, 1);
    save_directory_from_filechooser(GTK_WIDGET(dialog));
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 
 }
 
@@ -1105,7 +1107,7 @@ on_about1_activate(GMenuItem     *menuitem,
    // GtkWidget *about_window = create_aboutdialog();
    GtkWidget *about_window = widget_from_builder("aboutdialog");
    add_coot_references_button(about_window);
-   gtk_widget_show(about_window);
+   gtk_widget_set_visible(about_window, TRUE);
 }
 
 
@@ -1355,7 +1357,7 @@ on_get_monomer_ok_button_clicked(GtkButton       *button,
       handle_get_monomer_code(entry);
    }
    GtkWidget *frame = widget_from_builder("get_monomer_frame");
-   gtk_widget_hide(frame);
+   gtk_widget_set_visible(frame, FALSE);
 }
 
 

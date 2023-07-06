@@ -151,7 +151,7 @@ on_symm_col_sel_ok_button_clicked (GtkButton       *button,
 				   gpointer         user_data)
 {
    GtkWidget *w = GTK_WIDGET(user_data);
-   gtk_widget_hide(w); // 20220602-PE was destroy
+   gtk_widget_set_visible(w, FALSE);
 }
 
 /*  The colour selection dialog has had its cancel button pressed */
@@ -160,7 +160,7 @@ on_symm_col_sel_cancel_button_clicked (GtkButton       *button,
 				      gpointer         user_data)
 {
    GtkWidget *w = GTK_WIDGET(user_data);
-   gtk_widget_hide(w); // 20220602-PE was destroy
+   gtk_widget_set_visible(w, FALSE);
 				/* we should put the colour back to
 				   how it used to be then. */
 }
@@ -199,7 +199,7 @@ rama_plot_mol_selector_activate (GMenuItem     *menuitem,
    if (rama_widget == NULL) {
       do_ramachandran_plot(imol);
    } else {
-      gtk_widget_show(rama_widget);
+      gtk_widget_set_visible(rama_widget, TRUE);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       // 20220528-PE FIXME window raise
 #else
@@ -244,7 +244,7 @@ void update_sequence_view_menu_manual(int imol, const char *name) {
    // 			   menu_item,
    // NULL);
 
-   gtk_widget_show(menu_item);
+   gtk_widget_set_visible(menu_item, TRUE);
    gtk_container_add(GTK_CONTAINER(seq_view_menu), menu_item);
    g_signal_connect (G_OBJECT(menu_item), "activate",
 		     G_CALLBACK(sequence_view_mol_selector_activate),
@@ -293,7 +293,7 @@ on_skeleton_col_sel_ok_button_clicked (GtkButton       *button,
 {
    GtkWidget *w = GTK_WIDGET(user_data);
    // gtk_widget_destroy(w);
-   gtk_widget_hide(w); // 20220602-PE Hmm.
+   gtk_widget_set_visible(w, FALSE);
 }
 
 /*  The colour selection dialog has had its cancel button pressed */
@@ -303,7 +303,7 @@ on_skeleton_col_sel_cancel_button_clicked (GtkButton       *button,
 {
    GtkWidget *w = GTK_WIDGET(user_data);
    // gtk_widget_destroy(w);
-   gtk_widget_hide(w); // 20220602-PE Hmm.
+   gtk_widget_set_visible(w, FALSE);
 				/* we should put the colour back to
 				   how it used to be then. */
 }
@@ -448,7 +448,7 @@ GtkWidget *selections_and_colours_combobox(int imol) {
    // std::cout << "Here with bbt " << bbt << " index " << index << std::endl;
 
    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), index);
-   gtk_widget_show(combobox);
+   gtk_widget_set_visible(combobox, TRUE);
    return combobox;
 
 }
@@ -475,7 +475,7 @@ void display_control_molecule_combo_box(const std::string &name, int imol,
    gtk_widget_set_margin_end(hbox, 8);
    g_object_set_data(G_OBJECT(hbox), "imol", GINT_TO_POINTER(imol)); // so that we can delete this box on delete molecule
    gtk_box_append(GTK_BOX(display_control_molecule_vbox), hbox);
-   gtk_widget_show(hbox);
+   gtk_widget_set_visible(hbox, TRUE);
 
    // We need to add thesee items:
    // 1: molecule number label
@@ -489,26 +489,26 @@ void display_control_molecule_combo_box(const std::string &name, int imol,
    std::string imol_str = std::to_string(imol);
    GtkWidget *molecule_number_label = gtk_label_new(imol_str.c_str());
    gtk_widget_set_size_request(molecule_number_label, 20, -1); // not using margins
-   gtk_widget_show(molecule_number_label);
+   gtk_widget_set_visible(molecule_number_label, TRUE);
    gtk_box_append(GTK_BOX(hbox), molecule_number_label);
 
    // 2: entry with molecule name
    GtkWidget *entry = gtk_entry_new();
    gtk_widget_set_hexpand(entry, TRUE);
    gtk_editable_set_text(GTK_EDITABLE(entry), name.c_str());
-   gtk_widget_show(entry);
+   gtk_widget_set_visible(entry, TRUE);
    gtk_box_append(GTK_BOX(hbox), entry);
 
    // 3: "Display" checkbutton
    GtkWidget *display_checkbutton = gtk_check_button_new_with_label("Display");
-   gtk_widget_show(display_checkbutton);
+   gtk_widget_set_visible(display_checkbutton, TRUE);
    g_object_set_data(G_OBJECT(display_checkbutton), "imol", GINT_TO_POINTER(imol));
    gtk_box_append(GTK_BOX(hbox), display_checkbutton);
    gtk_check_button_set_active(GTK_CHECK_BUTTON(display_checkbutton), mol_is_displayed(imol));
 
    // 4: "Active" checkbutton
    GtkWidget *active_checkbutton = gtk_check_button_new_with_label("Active");
-   gtk_widget_show(active_checkbutton);
+   gtk_widget_set_visible(active_checkbutton, TRUE);
    g_object_set_data(G_OBJECT(active_checkbutton), "imol", GINT_TO_POINTER(imol));
    gtk_box_append(GTK_BOX(hbox), active_checkbutton);
    gtk_check_button_set_active(GTK_CHECK_BUTTON(active_checkbutton), mol_is_active(imol));
@@ -551,7 +551,7 @@ void display_control_add_delete_molecule_button(int imol,
    if (is_map_molecule)
       button_string = "Delete Map";
    GtkWidget *delete_button = gtk_button_new_with_label(_(button_string.c_str()));
-   gtk_widget_show(delete_button);
+   gtk_widget_set_visible(delete_button, TRUE);
 
    // used in callback on_display_control_mol_active_button_toggled()
    // GtkWidget *vbox_for_molecules     = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "vbox_for_molecules"));
@@ -582,14 +582,14 @@ void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
    // show the frame if there were additional representations
    if (show_add_reps_frame_flag)
-      gtk_widget_show(frame);
+      gtk_widget_set_visible(frame, TRUE);
    // gtk_widget_ref (v);
    // gtk_widget_ref (frame);
 
    std::string arl = "   Show Additional Representations  ";
    GtkWidget *all_on_check_button = gtk_check_button_new_with_label(arl.c_str());
    if (show_add_reps_frame_flag)
-      gtk_widget_show(all_on_check_button);
+      gtk_widget_set_visible(all_on_check_button, TRUE);
    gtk_box_append(GTK_BOX(hbox_for_single_molecule), all_on_check_button);
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(all_on_check_button), TRUE);
    std::string widget_name = "add_rep_all_on_check_button_";
@@ -755,7 +755,7 @@ display_control_map_combo_box(const std::string &name, int imol) {
    gtk_widget_set_margin_end(hbox, 8);
    g_object_set_data(G_OBJECT(hbox), "imol", GINT_TO_POINTER(imol)); // so that we can delete this box on delete molecule
    gtk_box_append(GTK_BOX(display_map_vbox), hbox);
-   gtk_widget_show(hbox);
+   gtk_widget_set_visible(hbox, TRUE);
 
    // Do I need to clear_out_container(display_map_vbox) here?
 
@@ -770,7 +770,7 @@ display_control_map_combo_box(const std::string &name, int imol) {
    // 1: molecule number label
    std::string imol_str = std::to_string(imol);
    GtkWidget *molecule_number_label = gtk_label_new(imol_str.c_str());
-   gtk_widget_show(molecule_number_label);
+   gtk_widget_set_visible(molecule_number_label, TRUE);
    gtk_widget_set_size_request(molecule_number_label, 20, -1); // not using margins (testing)
    gtk_box_append(GTK_BOX(hbox), molecule_number_label);
 
@@ -778,7 +778,7 @@ display_control_map_combo_box(const std::string &name, int imol) {
    GtkWidget *entry = gtk_entry_new();
    gtk_widget_set_hexpand(entry, TRUE);
    gtk_editable_set_text(GTK_EDITABLE(entry), name.c_str());
-   gtk_widget_show(entry);
+   gtk_widget_set_visible(entry, TRUE);
    gtk_box_append(GTK_BOX(hbox), entry);
 
    // 3: "Display" checkbutton
@@ -787,7 +787,7 @@ display_control_map_combo_box(const std::string &name, int imol) {
    gtk_widget_set_margin_end   (display_checkbutton, 2);
    gtk_widget_set_margin_top   (display_checkbutton, 1);
    gtk_widget_set_margin_bottom(display_checkbutton, 1);
-   gtk_widget_show(display_checkbutton);
+   gtk_widget_set_visible(display_checkbutton, TRUE);
    gtk_box_append(GTK_BOX(hbox), display_checkbutton);
    gtk_check_button_set_active(GTK_CHECK_BUTTON(display_checkbutton), map_is_displayed(imol));
    g_object_set_data(G_OBJECT(hbox), "display_check_button", display_checkbutton); // for set_display_control_button_state()
@@ -812,7 +812,7 @@ display_control_map_combo_box(const std::string &name, int imol) {
    gtk_widget_set_margin_end   (properties_button, 2);
    gtk_widget_set_margin_top   (properties_button, 1);
    gtk_widget_set_margin_bottom(properties_button, 1);
-   gtk_widget_show(properties_button);
+   gtk_widget_set_visible(properties_button, TRUE);
    gtk_box_append(GTK_BOX(hbox), properties_button);
 
    // 6: "Delete" map button
@@ -1157,7 +1157,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   // gtk_widget_ref (hbox33);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "hbox33", hbox33,
 			  NULL);
-  gtk_widget_show (hbox33);
+  gtk_widget_set_visible (hbox33, TRUE);
 #if (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX(phs_cell_chooser_vbox), hbox33);
 #else
@@ -1182,7 +1182,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 			  NULL);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (phs_cell_radiobutton_1), FALSE);
 
-  gtk_widget_show (phs_cell_radiobutton_1);
+  gtk_widget_set_visible (phs_cell_radiobutton_1, TRUE);
 #if (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX(hbox33), phs_cell_radiobutton_1);
 #else
@@ -1192,7 +1192,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   label53 = gtk_label_new (_("Symm"));
   // gtk_widget_ref (label53);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label53", label53, NULL);
-  gtk_widget_show (label53);
+  gtk_widget_set_visible (label53, TRUE);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX(hbox33), label53);
 #else
@@ -1210,7 +1210,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_symm_entry_1,
 			  NULL);
-  gtk_widget_show (phs_cell_symm_entry_1);
+  gtk_widget_set_visible (phs_cell_symm_entry_1, TRUE);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX (hbox33), phs_cell_symm_entry_1);
 #else
@@ -1222,7 +1222,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   label54 = gtk_label_new (_("a"));
   // gtk_widget_ref (label54);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label54", label54, NULL);
-  gtk_widget_show (label54);
+  gtk_widget_set_visible (label54, TRUE);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX (hbox33), label54);
 #else
@@ -1240,7 +1240,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_a_entry_1, NULL);
 
-  gtk_widget_show (phs_cell_a_entry_1);
+  gtk_widget_set_visible (phs_cell_a_entry_1, TRUE);
 #if (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX (hbox33), phs_cell_a_entry_1);
 #else
@@ -1252,7 +1252,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   // gtk_widget_ref (label55);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label55", label55,
 			  NULL);
-  gtk_widget_show (label55);
+  gtk_widget_set_visible (label55, TRUE);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX (hbox33), label55);
 #else
@@ -1269,7 +1269,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   // gtk_widget_ref (phs_cell_b_entry_1);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_b_entry_1, NULL);
-  gtk_widget_show (phs_cell_b_entry_1);
+  gtk_widget_set_visible (phs_cell_b_entry_1, TRUE);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX(hbox33), phs_cell_b_entry_1);
 #else
@@ -1280,7 +1280,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   label56 = gtk_label_new (_("c"));
   // gtk_widget_ref (label56);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label56", label56, NULL);
-  gtk_widget_show (label56);
+  gtk_widget_set_visible (label56, TRUE);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX (hbox33), label56);
 #else
@@ -1297,7 +1297,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   // gtk_widget_ref (phs_cell_c_entry_1);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_c_entry_1, NULL);
-  gtk_widget_show (phs_cell_c_entry_1);
+  gtk_widget_set_visible (phs_cell_c_entry_1, TRUE);
 #if (GTK_MAJOR_VERSION == 4)
   gtk_box_append (GTK_BOX (hbox33), phs_cell_c_entry_1);
 #else
@@ -1309,7 +1309,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   // gtk_widget_ref (label57);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label57", label57,
 			  NULL);
-  gtk_widget_show (label57);
+  gtk_widget_set_visible (label57, TRUE);
 #if (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX (hbox33), label57);
 #else
@@ -1327,7 +1327,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_alpha_entry_1,
 			  NULL);
-  gtk_widget_show (phs_cell_alpha_entry_1);
+  gtk_widget_set_visible (phs_cell_alpha_entry_1, TRUE);
 #if (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX (hbox33), phs_cell_alpha_entry_1);
 #else
@@ -1339,7 +1339,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   // gtk_widget_ref (label58);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label58", label58,
 			  NULL);
-  gtk_widget_show (label58);
+  gtk_widget_set_visible (label58, TRUE);
 #if (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX (hbox33), label58);
 #else
@@ -1356,7 +1356,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   // gtk_widget_ref (phs_cell_beta_entry_1);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_beta_entry_1, NULL);
-  gtk_widget_show (phs_cell_beta_entry_1);
+  gtk_widget_set_visible (phs_cell_beta_entry_1, TRUE);
 #if  (GTK_MAJOR_VERSION == 4)
   gtk_box_append (GTK_BOX (hbox33), phs_cell_beta_entry_1);
 #else
@@ -1368,7 +1368,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   // gtk_widget_ref (label59);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label59", label59,
 			  NULL);
-  gtk_widget_show (label59);
+  gtk_widget_set_visible (label59, TRUE);
 #if (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX (hbox33), label59);
 #else
@@ -1385,7 +1385,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   // gtk_widget_ref (phs_cell_gamma_entry_1);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_gamma_entry_1, NULL);
-  gtk_widget_show (phs_cell_gamma_entry_1);
+  gtk_widget_set_visible (phs_cell_gamma_entry_1, TRUE);
 #if (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX (hbox33), phs_cell_gamma_entry_1);
 #else
@@ -1414,7 +1414,7 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   hbox34 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   // gtk_widget_ref (hbox34);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "hbox34", hbox34, NULL);
-  gtk_widget_show (hbox34);
+  gtk_widget_set_visible (hbox34, TRUE);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX(phs_cell_chooser_vbox), hbox34);
 #else
@@ -1435,7 +1435,7 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (phs_cell_none_radiobutton), TRUE);
 
-  gtk_widget_show (phs_cell_none_radiobutton);
+  gtk_widget_set_visible (phs_cell_none_radiobutton, TRUE);
 
 #if  (GTK_MAJOR_VERSION == 4)
   gtk_box_append(GTK_BOX (hbox34), phs_cell_none_radiobutton);
@@ -1550,9 +1550,9 @@ void display_control_add_reps(GtkWidget *display_control_window_glade,
       // gtk_widget_ref (toggle_button_show_it);
       if (show_it) {
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button_show_it), TRUE);
-	 gtk_widget_show(add_rep_all_on_checkbutton);
+	 gtk_widget_set_visible(add_rep_all_on_checkbutton, TRUE);
       } else {
-	 gtk_widget_hide(add_rep_all_on_checkbutton);
+	 gtk_widget_set_visible(add_rep_all_on_checkbutton, FALSE);
       }
       int cc = encode_ints(imol_no, add_rep_no);
       g_signal_connect(G_OBJECT(toggle_button_show_it), "toggled",
@@ -1563,10 +1563,10 @@ void display_control_add_reps(GtkWidget *display_control_window_glade,
 #else
       gtk_box_pack_start(GTK_BOX(hbox), toggle_button_show_it, FALSE, FALSE, 0);
 #endif
-      gtk_widget_show(toggle_button_show_it);
-      gtk_widget_show(hbox);
-      gtk_widget_show(add_rep_vbox);
-      gtk_widget_show(add_rep_frame);
+      gtk_widget_set_visible(toggle_button_show_it, TRUE);
+      gtk_widget_set_visible(hbox, TRUE);
+      gtk_widget_set_visible(add_rep_vbox, TRUE);
+      gtk_widget_set_visible(add_rep_frame, TRUE);
    }
 }
 
@@ -1604,7 +1604,7 @@ create_splash_screen_window_for_file(const char *file_name) {
 #endif
 
    GtkWidget *image6807 = create_pixmap(splash_screen_window, file_name); // create_pixmap() I can keep/copy over
-   gtk_widget_show (image6807);
+   gtk_widget_set_visible (image6807, TRUE);
 
    gtk_window_set_child(GTK_WINDOW(splash_screen_window), image6807);
 

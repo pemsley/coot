@@ -39,7 +39,7 @@ wrapped_create_simple_refmac_dialog() {
                                      g.mtz_file_for_refmac.c_str());
       gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_file), 0);
    }
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 }
 
 #include "cc-interface-scripting.hh"

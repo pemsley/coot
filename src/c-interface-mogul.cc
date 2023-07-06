@@ -201,7 +201,7 @@ show_mogul_geometry_dialog(const coot::mogul &m, mmdb::Residue *residue) {
 #ifdef HAVE_GOOCANVAS
       GtkWidget *w = wrapped_create_mogul_geometry_dialog(m, residue); // results table
       if (w) { 
-	 gtk_widget_show(w);
+	 gtk_widget_set_visible(w, TRUE);
       } 
 #endif // HAVE_GOOCANVAS
    }

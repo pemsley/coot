@@ -862,6 +862,12 @@ void hydrogenate_region(float radius);
 //! \brief Add hydrogens to imol from the given pdb file
 void add_hydrogens_from_file(int imol, std::string pdb_with_Hs_file_name);
 
+//! \brief add hydrogen atoms to the specified residue
+void add_hydrogen_atoms_to_residue(int imol, std::string chain_id, int res_no, std::string ins_code);
+
+//! \brief add hydrogen atoms to the specified residue
+void add_hydrogen_atoms_to_residue_py(int imol, PyObject *residue_spec_py);
+
 /* Here the Python code for ATOM INFO */
 
 //! \brief output atom info in a python list for use in scripting:
@@ -1482,6 +1488,8 @@ void fetch_and_superpose_alphafold_models(int imol);
 
 //! \brief return the model number
 int fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id);
+
+int fetch_emdb_map(const std::string &emd_accession_code);
 
 #endif /* USE_LIBCURL */
 

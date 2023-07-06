@@ -371,7 +371,7 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label,
 
       GtkWidget *label_widget = widget_from_builder("nothing_bad_label");
 
-      gtk_widget_show(label_widget);
+      gtk_widget_set_visible(label_widget, TRUE);
       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
 
       // are these correct?
@@ -398,11 +398,11 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label,
       GtkWidget *info_image = GTK_WIDGET(g_object_get_data(G_OBJECT(box), "information"));
       GtkWidget *warn_image = GTK_WIDGET(g_object_get_data(G_OBJECT(box), "warning"));
       if (warning) {
-         gtk_widget_hide(GTK_WIDGET(info_image));
-         gtk_widget_show(GTK_WIDGET(warn_image));
+         gtk_widget_set_visible(GTK_WIDGET(info_image), FALSE);
+         gtk_widget_set_visible(GTK_WIDGET(warn_image), TRUE);
       } else {
-         gtk_widget_show(GTK_WIDGET(info_image));
-         gtk_widget_hide(GTK_WIDGET(warn_image));
+         gtk_widget_set_visible(GTK_WIDGET(info_image), TRUE);
+         gtk_widget_set_visible(GTK_WIDGET(warn_image), FALSE);
       }
    }
    return dialog;
@@ -514,7 +514,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
             // GtkWidget *widget = create_no_cif_dictionary_bonds_dialog();
 #ifndef EMSCRIPTEN
             GtkWidget *widget = widget_from_builder("no_cif_dictionary_bonds_dialog");
-            gtk_widget_show(widget);
+            gtk_widget_set_visible(widget, TRUE);
 #endif
          }
       }
@@ -3800,6 +3800,8 @@ graphics_info_t::update_maps_for_mols(const std::vector<int> &mol_idxs) {
 void
 graphics_info_t::update_maps() {
 
+   std::cout << "in update_maps() flag is " << active_map_drag_flag << std::endl;
+
    if (GetActiveMapDrag() == 1) {
 
       // now map updates are internally threaded - we don't need
@@ -3979,7 +3981,8 @@ void
 graphics_info_t::update_things_on_move() {
 
    for (int ii=0; ii<n_molecules(); ii++) {
-      molecules[ii].update_map(auto_recontour_map_flag);
+      if (GetActiveMapDrag())
+         molecules[ii].update_map(auto_recontour_map_flag);
       molecules[ii].update_clipper_skeleton();
       molecules[ii].update_symmetry();
    }
@@ -4003,10 +4006,8 @@ graphics_info_t::start_baton_here() {
       std::vector<int> map_molecules = valid_map_molecules();
 
       if (map_molecules.size() > 0) {
-#ifndef EMSCRIPTEN
          GtkWidget *w = wrapped_create_skeleton_dialog(1);
-         gtk_widget_show(w);
-#endif
+         gtk_widget_set_visible(w, TRUE);
          return 0;
          
 
@@ -4015,11 +4016,11 @@ graphics_info_t::start_baton_here() {
          // 20091218 It is as it was - No map.
          //
          // GtkWidget *w = create_baton_mode_make_skeleton_dialog();
-#ifndef EMSCRIPTEN
+
          GtkWidget *w = widget_from_builder("baton_mode_make_skeleton_dialog");
          g_object_set_data(G_OBJECT(w), "imol", GINT_TO_POINTER(imol_for_skel));
-         gtk_widget_show(w);
-#endif
+         gtk_widget_set_visible(w, TRUE);
+
          return 0;
       }
 
@@ -4614,7 +4615,7 @@ graphics_info_t::apply_undo() {
          GtkWidget *dialog = widget_from_builder("undo_molecule_chooser_dialog");
          GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
          fill_combobox_with_undo_options(combobox);
-         gtk_widget_show(dialog);
+         gtk_widget_set_visible(dialog, TRUE);
 
       }
    } else {
@@ -4682,7 +4683,7 @@ graphics_info_t::apply_redo() {
       GtkWidget *dialog = widget_from_builder("undo_molecule_chooser_dialog");
       GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
       fill_combobox_with_undo_options(combobox);
-      gtk_widget_show(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
    } else {
       if (umol == -1) { // unset
          std::cout << "There are no molecules with modifications "
@@ -5698,17 +5699,15 @@ graphics_info_t::clear_last_measure_distance() {
          labels_for_measure_distances_and_angles.pop_back();
 
       // rebuild the mesh for measure_distance_object_vec
-#ifndef EMSCRIPTEN
+
       mesh_for_measure_distance_object_vec.clear();
-#endif
+
       Material material;
       glm::vec4 col(0.72, 0.79, 0.72, 1.0); // same as add_measure_distance()
 
       for (unsigned int i=0; i<measure_distance_object_vec.size(); i++) {
          const auto &sdo = measure_distance_object_vec[i];
-#ifndef EMSCRIPTEN
          mesh_for_measure_distance_object_vec.add_dashed_line(sdo, material, col);
-#endif
       }
       graphics_draw();
    }
@@ -6019,10 +6018,10 @@ graphics_info_t::check_chiral_volumes(int imol) {
          molecules[imol].bad_chiral_volumes();
          GtkWidget *w = wrapped_check_chiral_volumes_dialog(v.second, imol);
          if (w)
-         gtk_widget_show(w);
+         gtk_widget_set_visible(w, TRUE);
          if (v.first.size() != 0) { // bad, there was at least one residue not found in dic.
             GtkWidget *wcc = wrapped_create_chiral_restraints_problem_dialog(v.first);
-            gtk_widget_show(wcc);
+            gtk_widget_set_visible(wcc, TRUE);
          }
       }
    }
@@ -6834,6 +6833,8 @@ graphics_info_t::quick_save() {
    il = coot::PYTHON_SCRIPT;
    save_state_file("0-coot.state.py", il);
 #endif
+
+   add_status_bar_text("Quick Saved");
 
 }
 

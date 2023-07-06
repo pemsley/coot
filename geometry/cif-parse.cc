@@ -1895,6 +1895,11 @@ coot::protein_geometry::init_standard() {
    char *cmld = NULL;
 
    char *s = getenv("COOT_REFMAC_LIB_DIR");
+   // it is not refmac, it's CCP4
+   if (! s)
+      s = getenv("COOT_MONOMER_LIB_DIR");
+   if (! s)
+      s = getenv("COOT_CCP4_LIB_DIR");
    if (s) {
       if (! is_dir_or_link(s)) {
               env_dir_fails = 1;
@@ -2036,23 +2041,29 @@ coot::protein_geometry::init_standard() {
                 << std::endl;
    }
 
+
    return read_number;
 }
 
 
-int
-coot::protein_geometry::refmac_monomer(const std::string &s, // dir
-                                       const std::string &protein_mono) { // extra path to file
-
+int 
+coot::protein_geometry::refmac_monomer(const std::string &dir, // dir
+				       const std::string &protein_mono) { // extra path to file
+   
    int imol_enc = IMOL_ENC_ANY; // maybe pass this?
-
-   std::string filename = util::append_dir_file(s, protein_mono);
+   
+   std::string filename = util::append_dir_file(dir, protein_mono);
    if (is_regular_file(filename)) {
       init_refmac_mon_lib(filename, read_number, imol_enc);
       read_number++;
    } else {
-      std::cout << "WARNING: file " << filename << " is not a regular file"
-                << std::endl;
+      if (coot::file_exists(filename)) {
+         std::cout << "WARNING:: file " << filename << " is not a regular file"
+                   << std::endl;
+      } else {
+         std::cout << "WARNING:: file " << filename << " does not exist"
+                   << std::endl;
+      }
    }
    return read_number;
 }

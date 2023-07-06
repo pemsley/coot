@@ -69,7 +69,7 @@ coot::sequence_view::sequence_view(mmdb::Manager *mol_in, std::string name, int 
    GtkWidget *scrolled_window = 0; // 20220309-PE FIXME set the scolled_window correctly by name lookup.
    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					 GTK_WIDGET(canvas));
-   gtk_widget_show(top_lev);
+   gtk_widget_set_visible(top_lev, TRUE);
 
 }
 
@@ -170,7 +170,7 @@ coot::sequence_view::setup_canvas(int max_n_res, int n_chains) {
    scroll_height = usize_y;
 
    gtk_widget_set_size_request(GTK_WIDGET(canvas), usize_x, usize_y);
-   gtk_widget_show(GTK_WIDGET(canvas));
+   gtk_widget_set_visible(GTK_WIDGET(canvas), TRUE);
 
    gtk_widget_set_events(GTK_WIDGET(canvas),
 			 GDK_EXPOSURE_MASK      |

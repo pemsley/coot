@@ -11,8 +11,15 @@
 #include "cc-interface-scripting.hh"  // move this up
 #include "cc-interface.hh"
 #include "fit-loop-gui.hh"
+#include "read-molecule.hh" // 20230621-PE now with std::string args
 
 #include "support.h" // for internationalizations.
+#include "c-interface-preferences.h"
+#include "c-interface-ligands-swig.hh"
+#include "curlew-gtk4.hh"
+
+void fill_and_show_shader_preferences(); // should this be in a header?
+                                         // it's in glade-callbacks.cc (that doesn't seem right today)
 
 extern "C" { void load_tutorial_model_and_data(); }
 
@@ -148,7 +155,7 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    add_filename_filter_button(dialog, COOT_COORDS_FILE_SELECTION);
 
    g_signal_connect(dialog, "response", G_CALLBACK(on_coords_filechooser_dialog_response_gtk4), NULL);
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 
 }
 
@@ -164,7 +171,7 @@ void open_dataset_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    set_file_selection_dialog_size(dataset_chooser);
    add_filechooser_filter_button(dataset_chooser, COOT_DATASET_FILE_SELECTION);
    set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
-   gtk_widget_show(dataset_chooser);
+   gtk_widget_set_visible(dataset_chooser, TRUE);
 #endif
 
    GtkWindow *parent_window = GTK_WINDOW(user_data);
@@ -178,7 +185,7 @@ void open_dataset_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkFileFilter *filterselect = gtk_file_filter_new();
    gtk_file_filter_add_pattern(filterselect, "*.mtz");
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 }
 
 void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -193,7 +200,7 @@ void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    g_object_set_data(G_OBJECT(dataset_chooser), "imol", GINT_TO_POINTER(-1)); // 20220627-PE do I need this?
    g_object_set_data(G_OBJECT(dataset_chooser), "is_auto", GINT_TO_POINTER(is_auto_read_fileselection));
    set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
-   gtk_widget_show(dataset_chooser);
+   gtk_widget_set_visible(dataset_chooser, TRUE);
 #endif
 
    // How were is the user-data set?
@@ -211,7 +218,7 @@ void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkFileFilter *filterselect = gtk_file_filter_new();
    gtk_file_filter_add_pattern(filterselect, "*.mtz");
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 }
 
 void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -222,7 +229,7 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *dataset_chooser = widget_from_builder("map_name_filechooser_dialog");
    set_directory_for_filechooser(dataset_chooser);
    set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_chooser);
-   gtk_widget_show(dataset_chooser);
+   gtk_widget_set_visible(dataset_chooser, TRUE);
 #endif
 
 
@@ -244,7 +251,7 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_file_filter_add_pattern(filterselect, "*.mrc");
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 }
 
 
@@ -272,14 +279,13 @@ void calculate_hydrogen_bonds_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    }
 }
 
-#include "curlew-gtk4.hh"
 
 void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                    G_GNUC_UNUSED GVariant *parameter,
                    G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *dialog = curlew_dialog();
    set_transient_for_main_window(dialog);
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 
 }
 
@@ -294,7 +300,7 @@ void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *entry = widget_from_builder("get_monomer_entry");
    gtk_widget_grab_focus(entry);
-   gtk_widget_show(frame);
+   gtk_widget_set_visible(frame, TRUE);
 }
 
 
@@ -320,7 +326,7 @@ void on_cif_dictionary_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       }
       int monomer_index = handle_cif_dictionary_for_molecule(file_name, imol_enc, create_ligand);
    }
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 void import_cif_dictionary_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -343,7 +349,7 @@ void import_cif_dictionary_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_file_filter_add_pattern(filterselect, "*.cif");
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
    set_transient_for_main_window(dialog);
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 
 }
 
@@ -363,7 +369,7 @@ search_monomer_library_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED GVariant *parameter,
                               G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = widget_from_builder("monomer_search_dialog");
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -416,7 +422,7 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_grab_focus(entry);
    // this is probably equivalent
    //gtk_widget_set_visible(frame,TRUE);
-   gtk_widget_show(frame);
+   gtk_widget_set_visible(frame, TRUE);
 }
 
 void
@@ -430,6 +436,17 @@ fetch_and_superpose_alphafold_models_action(G_GNUC_UNUSED GSimpleAction *simple_
       fetch_and_superpose_alphafold_models(imol);
    }
 }
+
+void
+fetch_map_from_emdb_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *frame = widget_from_builder("emdb_map_code_frame");
+   gtk_widget_set_visible(frame, TRUE);
+   
+}
+
 
 void
 fetch_pdbe_ligand_description_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -475,7 +492,7 @@ save_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    if (combobox) {
       fill_combobox_with_coordinates_options(combobox, callback_func, imol);
       set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
-      gtk_widget_show(widget);
+      gtk_widget_set_visible(widget, TRUE);
       gtk_window_present(GTK_WINDOW(widget));
    } else {
       std::cout << "ERROR:: in on_save_coordinates1_activate() bad combobox!\n";
@@ -531,7 +548,7 @@ save_state_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
    gtk_widget_set_size_request(dialog, 800, 700);
    g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(on_save_state_dialog_response), NULL);
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 }
 
 
@@ -567,7 +584,7 @@ on_save_views_clicked(GtkButton *button, gpointer user_data) {
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
    gtk_widget_set_size_request(dialog, 800, 700);
    g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(on_save_views_dialog_response), NULL);
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 }
 
 void
@@ -602,7 +619,7 @@ close_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *widget = wrapped_create_new_close_molecules_dialog(); // uses builder
    set_transient_for_main_window(widget);
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 void
@@ -610,7 +627,7 @@ change_chain_ids_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = wrapped_create_change_chain_id_dialog(); // uses builder
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 void
@@ -636,7 +653,6 @@ fix_nomenclature_errors_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    }
 }
 
-#include "c-interface-ligands-swig.hh"
 
 void
 invert_this_chiral_centre_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -681,7 +697,7 @@ merge_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                        G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = wrapped_create_merge_molecules_dialog();
    set_transient_for_main_window(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 void
@@ -690,7 +706,7 @@ move_molecule_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                           G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
    fill_move_molecule_here_dialog(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 void
@@ -698,7 +714,7 @@ mutate_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                        G_GNUC_UNUSED GVariant *parameter,
                        G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = wrapped_create_mutate_sequence_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 void
@@ -720,7 +736,8 @@ renumber_residues_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                          G_GNUC_UNUSED GVariant *parameter,
                          G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = wrapped_create_renumber_residue_range_dialog();
-   gtk_widget_show(w);
+   set_transient_for_main_window(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 void
@@ -763,7 +780,7 @@ edit_restraints_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    // fills residue types in the combobox
    GtkWidget *w =  wrapped_create_residue_editor_select_monomer_type_dialog();
    set_transient_for_main_window(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 void
@@ -778,7 +795,6 @@ exchange_chain_ids_for_seg_ids_action(G_GNUC_UNUSED GSimpleAction *simple_action
 }
 
 
-#include "c-interface-preferences.h"
 void
 show_preferences_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
@@ -787,7 +803,6 @@ show_preferences_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    update_preference_gui();
 }
 
-void fill_and_show_shader_preferences(); // should this be in a header?
 
 void
 show_shader_preferences_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -802,7 +817,7 @@ align_and_mutate_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = wrapped_create_align_and_mutate_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 void
@@ -820,7 +835,7 @@ fit_loop_by_ramachandran_search(G_GNUC_UNUSED GSimpleAction *simple_action,
                                 G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *w = create_fit_loop_rama_search_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -849,7 +864,7 @@ on_run_script_filechooser_dialog_response_gtk4(GtkDialog *dialog,
 
       std::cout << "Run this script file: " << file_name << std::endl;
       run_script(file_name);
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 
    }
 }
@@ -863,7 +878,7 @@ run_script_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    // std::cout << "lllllllllllllllllllllllll run script action" << std::endl;
    // GtkWidget *dialog = widget_from_builder("run_script_filechooser_dialog");
    // add_filename_filter_button(dialog, COOT_SCRIPTS_FILE_SELECTION);
-   // gtk_widget_show(dialog);
+   // gtk_widget_set_visible(dialog, TRUE);
 
    GtkWindow *parent_window = GTK_WINDOW(user_data);
    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
@@ -878,7 +893,7 @@ run_script_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    g_signal_connect(dialog, "response", G_CALLBACK(on_run_script_filechooser_dialog_response_gtk4), NULL);
    add_filename_filter_button(dialog, COOT_SCRIPTS_FILE_SELECTION);
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 
 }
 
@@ -1255,7 +1270,7 @@ lsq_superpose_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                      G_GNUC_UNUSED GVariant *parameter,
                      G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = wrapped_create_least_squares_dialog(); // uses builder
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 // ---------------- where is LSQ Plane? --------------------------
@@ -1267,7 +1282,7 @@ other_modelling_tools_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *w = wrapped_create_other_model_tools_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 void
@@ -1302,7 +1317,7 @@ ssm_superposition_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       this way because we don't have to introduce HAVE_MMDBSSM into the
       *c* compiler arguments (this is simpler)).  */
   if (w)
-     gtk_widget_show(w);
+     gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -1335,13 +1350,13 @@ sharpen_blur_for_xray_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    g.fill_combobox_with_molecule_options(combobox, func, imol_active, model_list);
 
    set_transient_for_main_window(dialog);
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 
 #endif
 
    GtkWidget *dialog = wrapped_create_map_sharpening_dialog();
    set_transient_for_main_window(dialog);
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 
 }
 
@@ -1456,7 +1471,7 @@ bond_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    graphics_info_t g;
    g.fill_bond_colours_dialog_internal(w);
    set_transient_for_main_window(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -1468,7 +1483,7 @@ bond_parameters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *w = wrapped_create_bond_parameters_dialog(); // uses builder
    set_transient_for_main_window(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 void add_hydrogen_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1504,7 +1519,7 @@ void add_an_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    // GtkWidget *dialog = widget_from_builder("add_an_atom_dialog");
    // set_transient_for_main_window(dialog);
-   // gtk_widget_show(dialog);
+   // gtk_widget_set_visible(dialog, TRUE);
 
    GtkWidget *box = widget_from_builder("add_an_atom_box");
    gtk_widget_set_visible(box, TRUE);
@@ -1530,7 +1545,7 @@ void find_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *w = wrapped_create_find_waters_dialog();
    set_transient_for_main_window(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -1540,7 +1555,7 @@ void dna_rna_models_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *w = widget_from_builder("nucleotide_builder_dialog");
    set_transient_for_main_window(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -1581,7 +1596,7 @@ void add_OXT_to_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *w = wrapped_create_add_OXT_dialog(); // uses builder
    set_transient_for_main_window(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -1726,7 +1741,7 @@ draw_cell_and_symmetry_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *show_symm_window = wrapped_create_show_symmetry_window();
    if (show_symm_window) {
       set_transient_for_main_window(show_symm_window);
-      gtk_widget_show(show_symm_window);
+      gtk_widget_set_visible(show_symm_window, TRUE);
    }
 }
 
@@ -1770,7 +1785,7 @@ go_to_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 				   menu according to molecules that
 				   have coordinates. */
 
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
    graphics_info_t g;
 }
 
@@ -1825,7 +1840,7 @@ ghost_control_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                      G_GNUC_UNUSED GVariant *parameter,
                      G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = wrapped_create_ncs_control_dialog(); // uses builder
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -1903,7 +1918,7 @@ screenshot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
     set_transient_and_position(COOT_UNDEFINED_WINDOW, file_chooser);
     g_object_set_data(G_OBJECT(file_chooser), "image_type", GINT_TO_POINTER(COOT_SCREENDUMP_SIMPLE));
     gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(file_chooser), "coot-screendump.tga");
-    gtk_widget_show(file_chooser);
+    gtk_widget_set_visible(file_chooser, TRUE);
     check_for_dark_blue_density(); /* give a dialog if density it too dark (blue) */
 }
 
@@ -1949,7 +1964,7 @@ distances_and_angles_action(G_GNUC_UNUSED GSimpleAction *simple_action,
   store_geometry_dialog(widget); /* needed to deactivate the distance
 				    togglebutton after 2nd atoms
 				    clicked in graphics */
-  gtk_widget_show(widget);
+  gtk_widget_set_visible(widget, TRUE);
 
 }
 
@@ -1961,7 +1976,7 @@ pointer_distances_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *w = widget_from_builder("pointer_distances_dialog");
    fill_pointer_distances_widget(w);
    set_transient_for_main_window(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 void
@@ -1971,7 +1986,7 @@ environment_distances_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *widget = widget_from_builder("environment_distance_dialog");
    fill_environment_widget(widget);
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 
 }
 
@@ -1983,7 +1998,7 @@ check_delete_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *w = wrapped_create_check_waters_dialog();
    int imol_map = imol_refinement_map();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
    if (imol_map < 0)
       show_select_map_dialog();
 
@@ -2030,7 +2045,7 @@ void show_validation_graphs_dialog(G_GNUC_UNUSED GSimpleAction *simple_action, G
    std::cout << "--------- in show_validation_graphs_dialog() " << model_combobox << " " << imol << std::endl;
    gtk_combo_box_set_active(GTK_COMBO_BOX(model_combobox), imol);
 
-   gtk_widget_show(di);
+   gtk_widget_set_visible(di, TRUE);
 }
 
 void ramachandran_plot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -2149,6 +2164,14 @@ void refmac_log_validation_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    info_dialog("Oops! No Refmac Log Validation yet");
 }
 
+void pepflips_from_difference_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer user_data) {
+   pepflips_by_difference_map_dialog();
+}
+
+
+
 void validation_outliers_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                 G_GNUC_UNUSED GVariant *parameter,
                                 G_GNUC_UNUSED gpointer user_data) {
@@ -2181,7 +2204,7 @@ unmodelled_blobs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *w = wrapped_create_unmodelled_blobs_dialog();
    set_transient_for_main_window(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -2192,7 +2215,7 @@ remarks_browser_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *w = wrapped_create_remarks_browser_molecule_chooser_dialog();
    set_transient_for_main_window(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -2608,6 +2631,7 @@ create_actions(GtkApplication *application) {
    add_action_with_param("show_accession_code_fetch_frame",         show_accession_code_fetch_frame);
    add_action(    "fetch_pdbe_ligand_description_action",    fetch_pdbe_ligand_description_action);
    add_action( "fetch_and_superpose_alphafold_models_action", fetch_and_superpose_alphafold_models_action);
+   add_action(              "fetch_map_from_emdb_action",              fetch_map_from_emdb_action);
    add_action(                 "save_coordinates_action",                 save_coordinates_action);
    add_action(        "save_symmetry_coordinates_action",        save_symmetry_coordinates_action);
    add_action(                       "save_state_action",                       save_state_action);
@@ -2787,6 +2811,7 @@ create_actions(GtkApplication *application) {
    add_action(           "refmac_log_validation_action",            refmac_log_validation_action);
    add_action(       "highly_coordinates_waters_action",        highly_coordinates_waters_action);
    add_action(     "atoms_with_zero_occupancies_action",      atoms_with_zero_occupancies_action);
+   add_action(    "pepflips_from_difference_map_action",     pepflips_from_difference_map_action);
    add_action("all_atom_contact_dots_molprobity_action", all_atom_contact_dots_molprobity_action);
    add_action("overlaps_peptides_cbeta_ramas_and_rotas_action", overlaps_peptides_cbeta_ramas_and_rotas_action);
 

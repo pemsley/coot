@@ -23,7 +23,7 @@ application_activate(GtkApplication *application,
 
       GtkWidget *box = widget_from_builder("main_window_resize_window_button_box");
 #ifdef __APPLE__
-      // gtk_widget_show(box);
+      // gtk_widget_set_visible(box, TRUE);
       // GtkWidget *window = widget_from_builder("main_window");
       // 20220407-PE this causes a crash
       // gtk_window_set_has_resize_grip(GTK_WINDOW(main_window), FALSE);
@@ -31,7 +31,7 @@ application_activate(GtkApplication *application,
       // gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 #else
       if (box)
-         gtk_widget_hide(box);
+         gtk_widget_set_visible(box, FALSE);
 #endif
    };
 
@@ -56,8 +56,8 @@ application_activate(GtkApplication *application,
 
          std::cout << "-------------------- calling do_window_resizing_widgets() " << main_window_vbox << std::endl;
          do_window_resizing_widgets();
-         gtk_widget_show(main_window_vbox);
-         gtk_widget_show(app_window);
+         gtk_widget_set_visible(main_window_vbox, TRUE);
+         gtk_widget_set_visible(app_window, TRUE);
 
       }
    }

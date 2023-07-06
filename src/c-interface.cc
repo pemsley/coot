@@ -132,6 +132,8 @@
 #include "cmtz-interface.hh"
 // #include "mtz-bits.h" stuff from here moved to cmtz-interface
 
+#include "read-molecule.hh" // now with std::string args
+
 #include "widget-from-builder.hh"
 #include "glarea_tick_function.hh"
 
@@ -589,7 +591,7 @@ get_idle_function_rock_target_angle() {
 // Return the molecule number of the molecule that we just filled.
 // Return -1 if there was a failure.
 //
-int handle_read_draw_molecule(const char *filename) {
+int handle_read_draw_molecule(const std::string &filename) {
 
    int r = graphics_info_t::recentre_on_read_pdb;
    return handle_read_draw_molecule_with_recentre(filename, r);
@@ -833,15 +835,13 @@ void set_convert_to_v2_atom_names(short int state) {
 }
 
 
-int handle_read_draw_molecule_with_recentre(const char *filename,
+int handle_read_draw_molecule_with_recentre(const std::string &filename,
 					    int recentre_on_read_pdb_flag) {
 
    int r = -1;
    //
 
    graphics_info_t g;
-   if (! filename)
-      return -1;
 
    std::string cmd = "handle-read-draw-molecule-with-recentre";
    std::vector<coot::command_arg_t> args;
@@ -996,13 +996,14 @@ int move_molecule_to_screen_centre_internal(int imol);
 
 /*! \brief read coordinates from filename and recentre the new
   molecule at the scren rotation centre. */
-int handle_read_draw_molecule_and_move_molecule_here(const char *filename) {
+int handle_read_draw_molecule_and_move_molecule_here(const std::string &filename) {
+
    int imol = handle_read_draw_molecule_with_recentre(filename, 0);
    move_molecule_to_screen_centre_internal(imol);
    return imol;
 }
 
-int read_pdb(const char *filename) {
+int read_pdb(const std::string &filename) {
    // history is done in the handle function
    return handle_read_draw_molecule(filename);
 }
@@ -1181,7 +1182,7 @@ void zalman_stereo_mode() {
 		 (previous_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ) {
 
 	       if (graphics_info_t::glareas.size() == 2) {
-		  gtk_widget_hide(graphics_info_t::glareas[1]); // was deleted
+		  gtk_widget_set_visible(graphics_info_t::glareas[1], FALSE);
 		  graphics_info_t::glareas[1] = NULL;
 	       }
 	    }
@@ -1195,9 +1196,9 @@ void zalman_stereo_mode() {
 		  toggle_idle_spin_function(); // turn it off;
 	       }
 	       // gtk_widget_destroy(graphics_info_t::glareas[0]);
-	       gtk_widget_hide(graphics_info_t::glareas[0]);
+	       gtk_widget_set_visible(graphics_info_t::glareas[0], FALSE);
 	       graphics_info_t::glareas[0] = glarea;
-	       gtk_widget_show(glarea);
+	       gtk_widget_set_visible(glarea, TRUE);
 	       // antialiasing?
 	       graphics_info_t g;
 	       g.draw_anti_aliasing();
@@ -1246,7 +1247,7 @@ void mono_mode() {
 		  graphics_info_t::glareas[1] = NULL;
 	       }
 	       graphics_info_t::glareas[0] = glarea;
-	       gtk_widget_show(glarea);
+	       gtk_widget_set_visible(glarea, TRUE);
                // now we shall resize to half the window size if we had
                // side-by-side stereo before
                if ((previous_mode == coot::SIDE_BY_SIDE_STEREO) ||
@@ -1307,8 +1308,8 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
             }
             gtk_widget_destroy(graphics_info_t::glareas[0]);
             graphics_info_t::glareas[0] = glarea; // glarea_2 is stored by gl_extras()
-            gtk_widget_show(glarea);
-            gtk_widget_show(graphics_info_t::glareas[1]);
+            gtk_widget_set_visible(glarea, TRUE);
+            gtk_widget_set_visible(graphics_info_t::glareas[1], TRUE);
             update_maps();
             // antialiasing?
             graphics_info_t g;
@@ -1360,9 +1361,9 @@ void set_dti_stereo_mode(short int state) {
             }
             gtk_widget_destroy(graphics_info_t::glareas[0]);
             graphics_info_t::glareas[0] = glarea;
-            gtk_widget_show(glarea);
+            gtk_widget_set_visible(glarea, TRUE);
             if (graphics_info_t::glareas.size() == 2)
-               gtk_widget_show(graphics_info_t::glareas[1]);
+               gtk_widget_set_visible(graphics_info_t::glareas[1], TRUE);
             graphics_draw();
          } else {
             std::cout << "WARNING:: switch to side by side mode failed!\n";
@@ -1603,7 +1604,7 @@ void post_model_fit_refine_dialog() {
 
    GtkWidget *widget = wrapped_create_model_fit_refine_dialog();
    if (graphics_info_t::use_graphics_interface_flag) {
-      gtk_widget_show(widget);
+      gtk_widget_set_visible(widget, TRUE);
    }
    std::vector<std::string> command_strings;
    command_strings.push_back("post-model-fit-refine-dialog");
@@ -1614,7 +1615,7 @@ void post_other_modelling_tools_dialog() {
 
    GtkWidget *widget = wrapped_create_model_fit_refine_dialog();
    if (graphics_info_t::use_graphics_interface_flag) {
-      gtk_widget_show(widget);
+      gtk_widget_set_visible(widget, TRUE);
    }
    std::vector<std::string> command_strings;
    command_strings.push_back("post-other-modelling-tools-dialog");
@@ -1824,9 +1825,9 @@ void set_show_modelling_toolbar(short int state) {
       GtkWidget *w = widget_from_builder(wn);
       if (w) {
          if (state == 0) {
-            gtk_widget_hide(w);
+            gtk_widget_set_visible(w, FALSE);
          } else {
-            gtk_widget_show(w);
+            gtk_widget_set_visible(w, TRUE);
          }
       } else {
          std::cout << "ERROR:: widget with name " << wn << " not found" << std::endl;
@@ -4625,7 +4626,7 @@ void do_clipping1_activate() {
    g_signal_connect(G_OBJECT(adjustment), "value_changed",
 		    G_CALLBACK(clipping_adjustment_changed), NULL);
 
-   gtk_widget_show(clipping_window);
+   gtk_widget_set_visible(clipping_window, TRUE);
 
 }
 
@@ -5768,7 +5769,7 @@ void
 post_display_control_window() {
 
    GtkWidget *widget = wrapped_create_display_control_window(); // uses gtkbuilder
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
    std::vector<std::string> command_strings;
    command_strings.push_back("post-display-control-window");
    add_to_history(command_strings);
@@ -5845,7 +5846,7 @@ void close_graphics_display_control_window() {
    GtkWidget *w = g.display_control_window();
    if (w) {
       // gtk_widget_destroy(w); // nope
-      gtk_widget_hide(w);
+      gtk_widget_set_visible(w, FALSE);
       reset_graphics_display_control_window();
    }
 }
@@ -6440,9 +6441,9 @@ void set_refine_ramachandran_angles(int state) {
 	       std::string l = "<span background=\"white\" foreground=\"brown\">Rama</span>";
 	       gtk_label_set_markup(GTK_LABEL(w), l.c_str());
 	    }
-	    gtk_widget_show(w);
+	    gtk_widget_set_visible(w, TRUE);
 	 } else {
-	    gtk_widget_hide(w);
+	    gtk_widget_set_visible(w, FALSE);
 	 }
       }
    }
@@ -7107,7 +7108,7 @@ void post_scheme_scripting_window() {
         // 20220309-PE when will this get used?
         scheme_entry = widget_from_builder("scheme_window_entry");
         setup_guile_window_entry(scheme_entry); // USE_PYTHON and USE_GUILE used here
-        gtk_widget_show(window);
+        gtk_widget_set_visible(window, TRUE);
 
      } else {
 	std::cout << COOT_SCHEME_DIR << " was not defined - cannot open ";
@@ -7364,7 +7365,7 @@ run_state_file_maybe() {
 	    if (graphics_info_t::use_graphics_interface_flag) {
 	       GtkWidget *dialog = wrapped_create_run_state_file_dialog(); // uses builder
                if (dialog)
-                  gtk_widget_show(dialog);
+                  gtk_widget_set_visible(dialog, TRUE);
                else
                   std::cout << "ERROR:: missing dialog" << std::endl;
 	    }
@@ -7419,7 +7420,7 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
 #endif
 
-      gtk_widget_show(label);
+      gtk_widget_set_visible(label, TRUE);
    }
    return w;
 }
@@ -7449,7 +7450,7 @@ GtkWidget *wrapped_create_run_state_file_dialog_py() {
 #else
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
 #endif
-      gtk_widget_show(label);
+      gtk_widget_set_visible(label, TRUE);
    }
    return w;
 }
