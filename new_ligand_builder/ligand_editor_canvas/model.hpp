@@ -178,10 +178,10 @@ class CanvasMolecule {
     /// Part of the lowering process.
     void build_internal_molecule_representation(const RDGeom::INT_POINT2D_MAP& coordinate_map);
 
-    /// Iterates over rings and sets the right alignment for double bonds inside of rings
+    /// Iterates over rings and sets the right alignment for double bonds and atom symbols inside of rings
     ///
     /// Part of the lowering process.
-    void process_bond_alignment_in_rings();
+    void process_alignment_in_rings();
 
     /// Computes length proportions by which 
     /// the parallel segments of double bonds have to be shortened

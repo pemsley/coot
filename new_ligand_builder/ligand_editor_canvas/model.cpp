@@ -806,7 +806,7 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
     return coordinate_map;
 }
 
-void CanvasMolecule::process_bond_alignment_in_rings() {
+void CanvasMolecule::process_alignment_in_rings() {
     g_warning("todo: Align appendices relative to ring center.");
 
     const auto& rings = this->rdkit_molecule->getRingInfo();
@@ -1117,7 +1117,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
         return lhs.idx < rhs.idx;
     });
     // Make sure that double bonds are aligned properly
-    this->process_bond_alignment_in_rings();
+    this->process_alignment_in_rings();
     this->shorten_double_bonds();
 }
 
