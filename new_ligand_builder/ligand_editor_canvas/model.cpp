@@ -370,22 +370,22 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 }
                 case BondGeometry::WedgeTowardsFirst:{
                     draw_straight_wedge(true);
-                    g_warning("todo: rendering bond geometry in rings");
+                    g_warning_once("todo: rendering bond geometry in rings");
                     break;
                 }
                 case BondGeometry::WedgeTowardsSecond:{
                     draw_straight_wedge(false);
-                    g_warning("todo: rendering bond geometry in rings");
+                    g_warning_once("todo: rendering bond geometry in rings");
                     break;
                 }
                 case BondGeometry::DashedTowardsFirst:{
                     draw_straight_dashed_bond(true);
-                    g_warning("todo: rendering bond geometry in rings");
+                    g_warning_once("todo: rendering bond geometry in rings");
                     break;
                 }
                 case BondGeometry::DashedTowardsSecond:{
                     draw_straight_dashed_bond(false);
-                    g_warning("todo: rendering bond geometry in rings");
+                    g_warning_once("todo: rendering bond geometry in rings");
                     break;
                 }
             }
@@ -465,7 +465,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 }
                 case BondType::Triple:{
                     draw_central_bond_line();
-                    g_warning("todo: Triple bonds might need truncating too.");
+                    g_warning_once("todo: Triple bonds might need truncating too.");
                     // "to the left"
                     draw_side_bond_line(false,std::nullopt,std::nullopt);
                     // "to the right"
@@ -575,7 +575,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         if(atom.symbol == "H") {
             process_highlight();
             // Ignore Hydrogen.
-            g_warning("Explicit hydrogen present in drawing representation!");
+            g_warning_once("Explicit hydrogen present in drawing representation!");
         } else if(atom.symbol == "C") {
             if(atom.appendix.has_value()) {
                 auto [markup,reversed] = process_appendix(atom.symbol,atom.appendix);
