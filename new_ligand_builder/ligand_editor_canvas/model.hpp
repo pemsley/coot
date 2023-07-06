@@ -11,6 +11,11 @@
 namespace coot {
 namespace ligand_editor_canvas {
 
+enum class DisplayMode: unsigned char {
+    Standard,
+    AtomIndices,
+    AtomNames
+};
 
 /// Drawing-friendly representation of RDKit molecule
 class CanvasMolecule {
