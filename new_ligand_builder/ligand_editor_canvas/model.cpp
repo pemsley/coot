@@ -445,7 +445,19 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                             break;
                         }
                         case DoubleBondDrawingDirection::Centered:{
-                            g_warning("todo: add support for centered double bonds");
+                            auto [pv_x,pv_y] = bond->get_perpendicular_versor();
+
+                            // Convert the versor to a vector of the desired length
+                            pv_x *= BOND_LINE_SEPARATION / 2.f;
+                            pv_y *= BOND_LINE_SEPARATION / 2.f;
+
+                            cairo_move_to(cr, (bond->first_atom_x + pv_x) * scale_factor + x_offset, (bond->first_atom_y + pv_y) * scale_factor + y_offset);
+                            cairo_line_to(cr, (bond->second_atom_x + pv_x) * scale_factor + x_offset, (bond->second_atom_y + pv_y) * scale_factor + y_offset);
+                            cairo_stroke(cr);
+
+                            cairo_move_to(cr, (bond->first_atom_x - pv_x) * scale_factor + x_offset, (bond->first_atom_y - pv_y) * scale_factor + y_offset);
+                            cairo_line_to(cr, (bond->second_atom_x - pv_x) * scale_factor + x_offset, (bond->second_atom_y - pv_y) * scale_factor + y_offset);
+                            cairo_stroke(cr);
                             break;
                         }
                     }
