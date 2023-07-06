@@ -1029,10 +1029,11 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             if(the_other_atom->getSymbol() != "H") {
                 surrounding_non_hydrogen_count++;
                 x_coordinates_of_bonded_atoms.push_back(coordinate_map.at(the_other_atom_idx).x);
-            } else {
-                g_warning("Skipping explicit hydrogen bound to atom with idx=%u!",canvas_atom.idx);
-                continue;
-            }
+            } 
+            // else {
+            //     g_warning("Skipping explicit hydrogen bound to atom with idx=%u!",canvas_atom.idx);
+            //     continue;
+            // }
 
             // We don't want to have duplicate bonds of atoms that we have already processed
             // so we skip them.
