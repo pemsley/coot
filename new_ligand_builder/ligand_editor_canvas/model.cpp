@@ -58,10 +58,10 @@ CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) cons
     // then bonds
     for(const auto& bond: this->bonds) {
         // 1. Find the point lying in the middle of the segment representing the bond
-        float first_atom_x = bond.first_atom_x * scale + x_offset;
-        float first_atom_y = bond.first_atom_y * scale + y_offset;
-        float second_atom_x = bond.second_atom_x * scale + x_offset;
-        float second_atom_y = bond.second_atom_y * scale + y_offset;
+        float first_atom_x = bond->first_atom_x * scale + x_offset;
+        float first_atom_y = bond->first_atom_y * scale + y_offset;
+        float second_atom_x = bond->second_atom_x * scale + x_offset;
+        float second_atom_y = bond->second_atom_y * scale + y_offset;
         float bond_center_x = (first_atom_x + second_atom_x) / 2.0f;
         float bond_center_y = (first_atom_y + second_atom_y) / 2.0f;
         // 2. Compute its' distance to the edges and let it be the radius of a circle
@@ -80,7 +80,7 @@ CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) cons
             / std::sqrt(std::pow(first_atom_x - second_atom_x,2.f) + std::pow(first_atom_y - second_atom_y,2.f));
         // We've got a match
         if (BOND_DISTANCE_BOUNDARY >= distance) {
-            return bond;
+            return *bond;
         }
     }
     // nothing matches the click
@@ -239,7 +239,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
     
 
     for(const auto& bond: bonds) {
-        if(bond.highlighted) {
+        if(bond->highlighted) {
             cairo_set_line_width(cr, 4.0);
             cairo_set_source_rgb(cr, 0.0, 1.0, 0.5);
         } else {
@@ -247,22 +247,22 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
         }
         auto draw_central_bond_line = [&](){
-            cairo_move_to(cr, bond.first_atom_x * scale_factor + x_offset, bond.first_atom_y * scale_factor + y_offset);
-            cairo_line_to(cr, bond.second_atom_x * scale_factor + x_offset, bond.second_atom_y * scale_factor + y_offset);
+            cairo_move_to(cr, bond->first_atom_x * scale_factor + x_offset, bond->first_atom_y * scale_factor + y_offset);
+            cairo_line_to(cr, bond->second_atom_x * scale_factor + x_offset, bond->second_atom_y * scale_factor + y_offset);
             cairo_stroke(cr);
         };
 
-        if(bond.geometry != BondGeometry::Flat && bond.type == BondType::Single) {
+        if(bond->geometry != BondGeometry::Flat && bond->type == BondType::Single) {
 
             auto draw_straight_wedge = [&](bool reversed){
-                auto origin_x = reversed ? bond.first_atom_x : bond.second_atom_x;
-                auto origin_y = reversed ? bond.first_atom_y : bond.second_atom_y;
+                auto origin_x = reversed ? bond->first_atom_x : bond->second_atom_x;
+                auto origin_y = reversed ? bond->first_atom_y : bond->second_atom_y;
 
-                auto target_x = reversed ? bond.second_atom_x : bond.first_atom_x;
-                auto target_y = reversed ? bond.second_atom_y : bond.first_atom_y;
+                auto target_x = reversed ? bond->second_atom_x : bond->first_atom_x;
+                auto target_y = reversed ? bond->second_atom_y : bond->first_atom_y;
                 
-                auto [pv_x,pv_y] = bond.get_perpendicular_versor();
-                auto bond_len = bond.get_length();
+                auto [pv_x,pv_y] = bond->get_perpendicular_versor();
+                auto bond_len = bond->get_length();
                 auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
                 auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
 
@@ -281,11 +281,11 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 cairo_fill(cr);
             };
             auto draw_straight_dashed_bond = [&](bool reversed){
-                auto current_x = reversed ? bond.first_atom_x : bond.second_atom_x;
-                auto current_y = reversed ? bond.first_atom_y : bond.second_atom_y;
+                auto current_x = reversed ? bond->first_atom_x : bond->second_atom_x;
+                auto current_y = reversed ? bond->first_atom_y : bond->second_atom_y;
 
-                auto target_x = reversed ? bond.second_atom_x : bond.first_atom_x;
-                auto target_y = reversed ? bond.second_atom_y : bond.first_atom_y;
+                auto target_x = reversed ? bond->second_atom_x : bond->first_atom_x;
+                auto target_y = reversed ? bond->second_atom_y : bond->first_atom_y;
 
                 current_x *= scale_factor;
                 current_y *= scale_factor;
@@ -297,8 +297,8 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 target_x += x_offset;
                 target_y += y_offset;
                 
-                auto [pv_x,pv_y] = bond.get_perpendicular_versor();
-                auto bond_len = bond.get_length();
+                auto [pv_x,pv_y] = bond->get_perpendicular_versor();
+                auto bond_len = bond->get_length();
 
                 float dashes = bond_len / GEOMETRY_BOND_DASH_SEPARATION;
                 unsigned int full_dashes = std::floor(dashes);
@@ -319,18 +319,18 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     current_y += step_y;
                 }
             };
-            switch (bond.geometry) {
+            switch (bond->geometry) {
                 default:
                 case BondGeometry::Unspecified:{
                     const float wave_arc_radius = WAVY_BOND_ARC_LENGTH * scale_factor / 2.f;
-                    auto [full_vec_x, full_vec_y] = bond.get_vector();
+                    auto [full_vec_x, full_vec_y] = bond->get_vector();
                     float base_angle = std::atan(full_vec_y / full_vec_x);
                     float arcs_count = std::sqrt(std::pow(full_vec_x,2.f) + std::pow(full_vec_y,2.f)) / WAVY_BOND_ARC_LENGTH;
                     unsigned int rounded_arcs_count = std::floor(arcs_count);
                     float step_x = full_vec_x / arcs_count * scale_factor;
                     float step_y = full_vec_y / arcs_count * scale_factor;
-                    float current_x = bond.first_atom_x * scale_factor + x_offset + step_x / 2.f;
-                    float current_y = bond.first_atom_y * scale_factor + y_offset + step_y / 2.f;
+                    float current_x = bond->first_atom_x * scale_factor + x_offset + step_x / 2.f;
+                    float current_y = bond->first_atom_y * scale_factor + y_offset + step_y / 2.f;
                     bool arc_direction = true;
                     for (unsigned int i = 0; i < rounded_arcs_count; i++) {
                         float next_x = current_x + step_x;
@@ -396,7 +396,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 std::optional<float> second_shortening_proportion
                 ) {
 
-                auto [pv_x,pv_y] = bond.get_perpendicular_versor();
+                auto [pv_x,pv_y] = bond->get_perpendicular_versor();
                 if (!addOrSub) { // change sign of the versor
                     pv_x *= -1.f;
                     pv_y *= -1.f;
@@ -405,11 +405,11 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 pv_x *= BOND_LINE_SEPARATION;
                 pv_y *= BOND_LINE_SEPARATION;
 
-                auto [bond_vec_x, bond_vec_y] = bond.get_vector();
-                auto first_x = bond.first_atom_x;
-                auto second_x = bond.second_atom_x;
-                auto first_y = bond.first_atom_y;
-                auto second_y = bond.second_atom_y;
+                auto [bond_vec_x, bond_vec_y] = bond->get_vector();
+                auto first_x = bond->first_atom_x;
+                auto second_x = bond->second_atom_x;
+                auto first_y = bond->first_atom_y;
+                auto second_y = bond->second_atom_y;
 
                 if(first_shortening_proportion.has_value()) {
                     first_x += first_shortening_proportion.value() * bond_vec_x;
@@ -425,9 +425,9 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 cairo_stroke(cr);
             };
 
-            switch(bond.type) {
+            switch(bond->type) {
                 case BondType::Double:{
-                    DoubleBondDrawingDirection direction = bond.bond_drawing_direction.has_value() ? bond.bond_drawing_direction.value() : DoubleBondDrawingDirection::Primary;
+                    DoubleBondDrawingDirection direction = bond->bond_drawing_direction.has_value() ? bond->bond_drawing_direction.value() : DoubleBondDrawingDirection::Primary;
                     bool direction_as_bool = true;
 
                     switch (direction) { 
@@ -439,8 +439,8 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                             draw_central_bond_line();
                             draw_side_bond_line(
                                 direction_as_bool,
-                                bond.first_shortening_proportion,
-                                bond.second_shortening_proportion
+                                bond->first_shortening_proportion,
+                                bond->second_shortening_proportion
                             );
                             break;
                         }
@@ -815,14 +815,14 @@ void CanvasMolecule::process_bond_alignment_in_rings() {
                 throw std::runtime_error("Critical internal error: Could not find a bond while processing rings.");
             }
             // Find iterator pointing to the bond
-            auto bond = std::find_if(bonds_of_atom_one->second.begin(),bonds_of_atom_one->second.end(),[=](const auto* bond){
+            auto bond = std::find_if(bonds_of_atom_one->second.begin(),bonds_of_atom_one->second.end(),[=](const auto bond){
                 return (bond->first_atom_idx == atom_one_idx && bond->second_atom_idx == atom_two_idx) 
                     || (bond->first_atom_idx == atom_two_idx && bond->second_atom_idx == atom_one_idx);
             });
             if(bond == bonds_of_atom_one->second.end()) {
                 throw std::runtime_error("Critical internal error: Could not find a bond while processing rings.");
             }
-            auto* bond_ptr = *bond;
+            auto bond_ptr = *bond;
             if(bond_ptr->type == BondType::Double) {
                 float x_offset_from_center = (bond_ptr->first_atom_x + bond_ptr->second_atom_x) / 2.f - ring_center_x;
                 // negative y on screen is actually "higher" so we need to flip the sign
@@ -864,11 +864,11 @@ void CanvasMolecule::process_bond_alignment_in_rings() {
 void CanvasMolecule::shorten_double_bonds() {
     typedef std::pair<const Bond*,float> bond_ptr_and_angle;
     for(auto& bond: this->bonds) {
-        if(bond.type != BondType::Double) {
+        if(bond->type != BondType::Double) {
             continue;
         }
-        if(bond.bond_drawing_direction.has_value()) {
-            if(bond.bond_drawing_direction == DoubleBondDrawingDirection::Centered) {
+        if(bond->bond_drawing_direction.has_value()) {
+            if(bond->bond_drawing_direction == DoubleBondDrawingDirection::Centered) {
                 continue;
             }
         }
@@ -876,14 +876,14 @@ void CanvasMolecule::shorten_double_bonds() {
             // We can find the angle between two bonds
             // by computing cosinus arcus (reverse cosine)
             // of ( dot product / (length a) * (length b) )
-            auto [bond_vec_x,bond_vec_y] = bond.get_vector();
+            auto [bond_vec_x,bond_vec_y] = bond->get_vector();
             auto [other_bond_vec_x,other_bond_vec_y] = other_bond->get_vector();
             if(flip) {
                 other_bond_vec_x *= -1.f;
                 other_bond_vec_y *= -1.f;
             }
             auto dot_product = (bond_vec_x*other_bond_vec_x) + (bond_vec_y*other_bond_vec_y);
-            auto bond_length = bond.get_length();
+            auto bond_length = bond->get_length();
             auto other_bond_length = other_bond->get_length();
             auto result = std::acos(dot_product/(bond_length*other_bond_length));
             return result;
@@ -895,39 +895,39 @@ void CanvasMolecule::shorten_double_bonds() {
             // Adjacent bonds touching the second atom
             std::vector<bond_ptr_and_angle> second_bonds;
 
-            auto first_bonds_iter = this->bond_map.find(bond.first_atom_idx);
+            auto first_bonds_iter = this->bond_map.find(bond->first_atom_idx);
             if(first_bonds_iter != this->bond_map.end()) {
                 // Going over bonds of the first atom in the currently evaluated bond
-                for(const auto* i: first_bonds_iter->second) {
-                    if(i->first_atom_idx == bond.first_atom_idx) {
-                        if(i->second_atom_idx == bond.second_atom_idx) {
+                for(const auto i: first_bonds_iter->second) {
+                    if(i->first_atom_idx == bond->first_atom_idx) {
+                        if(i->second_atom_idx == bond->second_atom_idx) {
                             // We're looking at the 'bond' itself. We must skip it.
                             continue;
                         }
-                        first_bonds.push_back(std::make_pair(i, find_angle_between_bonds(i, false)));
-                    } else if(i->second_atom_idx == bond.first_atom_idx) {
+                        first_bonds.push_back(std::make_pair(i.get(), find_angle_between_bonds(i.get(), false)));
+                    } else if(i->second_atom_idx == bond->first_atom_idx) {
                         // i's second atom is bond's first, so we need to flip the sign of the bond vectors
                         // so that we can correctly compute the angle between them.
-                        first_bonds.push_back(std::make_pair(i, find_angle_between_bonds(i, true)));
+                        first_bonds.push_back(std::make_pair(i.get(), find_angle_between_bonds(i.get(), true)));
                     } else {
                         throw std::runtime_error("Internal error: bond_map is inconsistent!");
                     }
                 }
             }
-            auto second_bonds_iter = this->bond_map.find(bond.second_atom_idx);
+            auto second_bonds_iter = this->bond_map.find(bond->second_atom_idx);
             if(second_bonds_iter != this->bond_map.end()) {
                 // Going over bonds of the second atom in the currently evaluated bond
-                for(const auto* i: second_bonds_iter->second) {
-                    if(i->first_atom_idx == bond.second_atom_idx) {
+                for(const auto i: second_bonds_iter->second) {
+                    if(i->first_atom_idx == bond->second_atom_idx) {
                         // i's first atom is bond's second, so we need to flip the sign of the bond vectors
                         // so that we can correctly compute the angle between them.
-                        second_bonds.push_back(std::make_pair(i, find_angle_between_bonds(i, true)));
-                    } else if(i->second_atom_idx == bond.second_atom_idx) {
-                        if(i->first_atom_idx == bond.first_atom_idx) {
+                        second_bonds.push_back(std::make_pair(i.get(), find_angle_between_bonds(i.get(), true)));
+                    } else if(i->second_atom_idx == bond->second_atom_idx) {
+                        if(i->first_atom_idx == bond->first_atom_idx) {
                             // We're looking at the 'bond' itself. We must skip it.
                             continue;
                         }
-                        second_bonds.push_back(std::make_pair(i, find_angle_between_bonds(i, false)));
+                        second_bonds.push_back(std::make_pair(i.get(), find_angle_between_bonds(i.get(), false)));
                     } else {
                         throw std::runtime_error("Internal error: bond_map is inconsistent!");
                     }
@@ -939,7 +939,7 @@ void CanvasMolecule::shorten_double_bonds() {
             // 3. Do a little trigonometry to find the length to be shortened
             auto absolute_shortened_length = BOND_LINE_SEPARATION / std::tan(angle_between_bonds/2.f);
             // 4. Find the proportion of the shortening
-            auto bond_length = bond.get_length();
+            auto bond_length = bond->get_length();
             return absolute_shortened_length / bond_length;
         };
         auto [first_bonds, second_bonds] = find_adjacent_bonds();
@@ -954,11 +954,11 @@ void CanvasMolecule::shorten_double_bonds() {
         };
         if(!first_bonds.empty()) {
             auto [adjbond, angle] = element_with_smallest_angle_between_bonds(first_bonds);
-            bond.first_shortening_proportion = compute_shortening_proportion(adjbond, angle);
+            bond->first_shortening_proportion = compute_shortening_proportion(adjbond, angle);
         }
         if(!second_bonds.empty()) {
             auto [adjbond, angle] = element_with_smallest_angle_between_bonds(second_bonds);
-            bond.second_shortening_proportion = compute_shortening_proportion(adjbond, angle);
+            bond->second_shortening_proportion = compute_shortening_proportion(adjbond, angle);
         }
     }
 }
@@ -994,7 +994,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
         }
 
         // Bond pointers to be stored in the `bond_map`
-        std::vector<Bond *> bonds_to_be_cached;
+        std::vector<std::shared_ptr<Bond>> bonds_to_be_cached;
         // Used to determine if the 'appendix' should be 'reversed'
         std::vector<float> x_coordinates_of_bonded_atoms;
 
@@ -1035,13 +1035,13 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             canvas_bond.type = bond_type_from_rdkit(bond_ptr->getBondType());
             canvas_bond.geometry = bond_geometry_from_rdkit(bond_ptr->getBondDir());
 
-            this->bonds.push_back(std::move(canvas_bond));
+            auto canvas_bond_ptr = std::make_shared<Bond>(canvas_bond);
+            this->bonds.push_back(canvas_bond_ptr);
 
-            Bond* canvas_bond_ptr = this->bonds.data() + this->bonds.size() - 1;
             bonds_to_be_cached.push_back(canvas_bond_ptr);
             auto cached_bonds_for_other_atom = this->bond_map.find(the_other_atom_idx);
             if(cached_bonds_for_other_atom == this->bond_map.end()) {
-                std::vector<Bond *> vec;
+                std::vector<std::shared_ptr<Bond>> vec;
                 vec.push_back(canvas_bond_ptr);
                 this->bond_map.emplace(std::pair(the_other_atom_idx,std::move(vec)));
             } else {
@@ -1085,7 +1085,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
         if(bonds_of_this_atom != this->bond_map.end()) {
             if(terminus && !bonds_of_this_atom->second.empty()) {
                 // This means that we only have one bond
-                Bond* bond = bonds_of_this_atom->second.front();
+                Bond* bond = bonds_of_this_atom->second.front().get();
                 if(bond->type == BondType::Double) {
                     bond->bond_drawing_direction = DoubleBondDrawingDirection::Centered;
                 }
@@ -1132,18 +1132,22 @@ void CanvasMolecule::highlight_atom(int atom_idx) {
 
 void CanvasMolecule::highlight_bond(int atom_a, int atom_b) {
     //g_debug("Highlighted bond between atoms with indices %i and %i",atom_a,atom_b);
-    auto target = std::find_if(this->bonds.begin(),this->bonds.end(),[=](const auto& bond){
-        return bond.first_atom_idx == atom_a && bond.second_atom_idx == atom_b;
+    auto bonds_for_atom_a = this->bond_map.find(atom_a);
+    if(bonds_for_atom_a == this->bond_map.end()) {
+        throw std::runtime_error("Bond doesn't exist");
+    }
+    auto target = std::find_if(bonds_for_atom_a->second.begin(),bonds_for_atom_a->second.end(),[=](const auto& bond){
+        return bond->second_atom_idx == atom_b && bond->first_atom_idx == atom_a;
     });
     if (target == this->bonds.end()) {
         throw std::runtime_error("Bond doesn't exist");
     }
-    target->highlighted = true;
+    (*target)->highlighted = true;
 }
 
 void CanvasMolecule::clear_highlights() {
     for(auto& bond: this->bonds) {
-        bond.highlighted = false;
+        bond->highlighted = false;
     }
     for(auto& atom: this->atoms) {
         atom.highlighted = false;

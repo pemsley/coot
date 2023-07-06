@@ -136,7 +136,7 @@ class CanvasMolecule {
 
     std::shared_ptr<RDKit::RWMol> rdkit_molecule;
     std::vector<Atom> atoms;
-    std::vector<Bond> bonds;
+    std::vector<std::shared_ptr<Bond>> bonds;
 
     /// X centering offset on canvas
     float x_canvas_size_adjustment;
@@ -160,7 +160,7 @@ class CanvasMolecule {
     /// Cached bond map, computed while lowering from RDKit.
     /// Associates atom indices with lists of bonds (the pointers point to the contents of the `bonds` vector).
     /// Used for various lookups: while drawing, in the lowering process itself, etc.
-    std::map<unsigned int,std::vector<Bond*>> bond_map;
+    std::map<unsigned int,std::vector<std::shared_ptr<Bond>>> bond_map;
 
 
     /// Computes the scale used for drawing
