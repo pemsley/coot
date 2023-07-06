@@ -807,8 +807,6 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
 }
 
 void CanvasMolecule::process_alignment_in_rings() {
-    g_warning("todo: Align appendices relative to ring center.");
-
     const auto& rings = this->rdkit_molecule->getRingInfo();
     for(const auto& ring: rings->atomRings()) {
         float ring_center_x = 0.f;
@@ -864,6 +862,11 @@ void CanvasMolecule::process_alignment_in_rings() {
                 //     y_requirement,bond_direction
                 // );
                 bond_ptr->bond_drawing_direction = bond_direction ? DoubleBondDrawingDirection::Primary : DoubleBondDrawingDirection::Secondary;
+            }
+            // Lastly, process appendices' alignment relative to ring center
+            auto& atom = this->atoms.at(i);
+            if(atom.appendix.has_value()) {
+                atom.appendix->reversed = atom.x < ring_center_x;
             }
             i++;
             j++;
