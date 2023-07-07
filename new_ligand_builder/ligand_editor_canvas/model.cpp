@@ -367,16 +367,6 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         // Returns on-screen bond coordinates
         // cropped not to overlap with atoms' symbols and appendices.
         auto cropped_bond_coords = [&]() -> std::pair<graphene_point_t,graphene_point_t> {
-            graphene_point_t first_atom;
-            first_atom.x = bond->first_atom_x * scale_factor + x_offset;
-            first_atom.y = bond->first_atom_y * scale_factor + y_offset;
-
-            graphene_point_t second_atom;
-            second_atom.x = bond->second_atom_x * scale_factor + x_offset;
-            second_atom.y = bond->second_atom_y * scale_factor + y_offset;
-
-            graphene_point_t a = first_atom;
-            graphene_point_t b = second_atom;
 
             // We pass in the bond vector so that it always points "away" from the point
             auto crop_line_against_rect = [](const graphene_rect_t& rect, float bond_vec_x, float bond_vec_y, const graphene_point_t& point){
@@ -396,6 +386,17 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 } 
                 return ret;
             };
+
+            graphene_point_t first_atom;
+            first_atom.x = bond->first_atom_x * scale_factor + x_offset;
+            first_atom.y = bond->first_atom_y * scale_factor + y_offset;
+
+            graphene_point_t second_atom;
+            second_atom.x = bond->second_atom_x * scale_factor + x_offset;
+            second_atom.y = bond->second_atom_y * scale_factor + y_offset;
+
+            graphene_point_t a = first_atom;
+            graphene_point_t b = second_atom;
 
             float bond_vec_x = second_atom.x - first_atom.x;
             float bond_vec_y = second_atom.y - first_atom.y;
