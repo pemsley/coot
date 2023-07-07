@@ -379,22 +379,27 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     // We solve against two edges and then pick the solution lying the closest to 'point'.
 
                     // Line from bond
+                    // TODO!
                     float bond_a, bond_b, bond_c;
 
                     // Pick line from the relevant vertical edge
-                    float vert_edge_a, vert_edge_b, vert_egde_c;
+                    float vert_egde_c;
+                    const float vert_edge_a = 1;
+                    const float vert_edge_b = 0;
                     if(bond_vec_x > 0) { // solve against right side
-                        ret.x = rect.origin.x + rect.size.width;
+                        vert_egde_c = -(rect.origin.x + rect.size.width);
                     } else { // solve against left side
-                        ret.x = rect.origin.x;
+                        vert_egde_c = -rect.origin.x;
                     }
 
                     // Pick line from the relevant horizontal edge
-                    float horiz_edge_a, horiz_edge_b, horiz_egde_c;
+                    float horiz_egde_c;
+                    const float horiz_edge_a = 0;
+                    const float horiz_edge_b = 1;
                     if(bond_vec_y > 0) { // solve against the bottom
-                        ret.y = rect.origin.y + rect.size.height;
+                        horiz_egde_c = -(rect.origin.y + rect.size.height);
                     } else { // solve against the top
-                        ret.y = rect.origin.y;
+                        horiz_egde_c = -rect.origin.y;
                     }
                     graphene_point_t vert_edge_solution;
                     vert_edge_solution.x = (bond_b * vert_egde_c - vert_edge_b * bond_c)/(bond_a * vert_edge_b - vert_edge_a * bond_b);
