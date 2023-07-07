@@ -238,6 +238,8 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
     cairo_t *cr = gtk_snapshot_append_cairo(snapshot, bounds);
     
     cairo_set_line_width(cr, 0.5);
+    // Used to truncate bonds not to cover atoms
+    std::map<unsigned int,graphene_rect_t> atom_idx_to_canvas_rect;
     for(const auto& atom: atoms) {
 
         auto process_highlight = [&,cr,x_offset,y_offset,scale_factor](){
@@ -296,7 +298,8 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             return std::make_tuple(ret,reversed);
         };
 
-        auto render_atom = [&](const Atom& atom){
+        // Returns a pair of atom index and bonding rect
+        auto render_atom = [&](const Atom& atom) -> std::pair<unsigned int,graphene_rect_t> {
             auto [raw_markup,reversed] = process_appendix(atom.symbol,atom.appendix);
             // pre-process text
             auto [r,g,b] = atom_color_to_rgb(atom.color);
@@ -325,24 +328,30 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
             double origin_y = atom.y * scale_factor + y_offset - layout_height_no_ap/2.f;
 
-            //cairo_rectangle(cr, origin_x, origin_y, layout_width, layout_height);
+            graphene_rect_t rect;
+            rect.origin.x = origin_x;
+            rect.origin.y = origin_y;
+            rect.size.width = layout_width;
+            rect.size.height = layout_height;
 
             // highlight
             process_highlight();
             // text
             cairo_move_to(cr, origin_x, origin_y);
             pango_cairo_show_layout(cr, pango_layout);
+
+            return std::make_pair(atom.idx,rect);
         };
 
         
         if(atom.symbol == "C") {
             if(atom.appendix.has_value()) {
-                render_atom(atom);
+                atom_idx_to_canvas_rect.emplace(render_atom(atom));
             } else {
                 process_highlight();
             }
         } else {
-            render_atom(atom);
+            atom_idx_to_canvas_rect.emplace(render_atom(atom));
         }
     }
 
