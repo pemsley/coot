@@ -628,8 +628,17 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     second_y -= second_shortening_proportion.value() * bond_vec_y;
                 }
 
-                cairo_move_to(cr, (first_x + pv_x) * scale_factor + x_offset, (first_y + pv_y) * scale_factor + y_offset);
-                cairo_line_to(cr, (second_x + pv_x) * scale_factor + x_offset, (second_y + pv_y) * scale_factor + y_offset);
+                graphene_point_t a;
+                a.x = (first_x + pv_x) * scale_factor + x_offset;
+                a.y = (first_y + pv_y) * scale_factor + y_offset;
+                graphene_point_t b;
+                b.x = (second_x + pv_x) * scale_factor + x_offset;
+                b.y = (second_y + pv_y) * scale_factor + y_offset;
+
+                auto [a_cropped,b_cropped] = cropped_bond_coords(a,bond->first_atom_idx,b,bond->second_atom_idx);
+            
+                cairo_move_to(cr, a_cropped.x, a_cropped.y);
+                cairo_line_to(cr, b_cropped.x, b_cropped.y);
                 cairo_stroke(cr);
             };
 
