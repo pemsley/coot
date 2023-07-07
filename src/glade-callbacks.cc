@@ -11929,10 +11929,11 @@ void
 on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
                                                         gpointer         user_data) {
 
-   GtkWidget *dialog = widget_from_builder("ramachandran_plot_molecule_chooser_dialog");
-   GtkWidget *combobox = widget_from_builder("ramachandran_plot_molecule_chooser_model_combobox");
+   GtkWidget *dialog          = widget_from_builder("ramachandran_plot_molecule_chooser_dialog");
+   GtkWidget *combobox        = widget_from_builder("ramachandran_plot_molecule_chooser_model_combobox");
    GtkWidget *selection_entry = widget_from_builder("ramachandran_plot_molecule_chooser_residue_selection_entry");
-   GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
+   GtkWidget *scrolled        = widget_from_builder("ramachandran_plots_scrolled_window");
+   GtkWidget *pane            = widget_from_builder("main_window_ramchandran_and_validation_pane");
 
    std::string residue_selection_string = gtk_editable_get_text(GTK_EDITABLE(selection_entry));
 
@@ -11944,6 +11945,11 @@ on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
       show_opengl_ramachandran_plot(imol_active, residue_selection_string);
       gtk_widget_set_visible(dialog, FALSE);
       gtk_widget_set_visible(scrolled, TRUE);
+
+      // Make sure that the pane is big enough
+      int pos = gtk_paned_get_position(GTK_PANED(pane));
+      if (pos < 200)
+         gtk_paned_set_position(GTK_PANED(pane), 480);
    } else {
       std::cout << "ERROR:: on_ramachandran_plot_molecule_chooser_ok_button_clicked() get active iter failed"
                 << std::endl;

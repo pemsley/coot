@@ -69,6 +69,7 @@ gtkgl_rama_on_glarea_render(GtkWidget *gtk_gl_area) {
          // Dangerous for main window code
          // GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(gtk_gl_area)); // needed?
          gtk_gl_area_make_current(GTK_GL_AREA (gtk_gl_area));
+         bool need_clear = true; // this is a "validation" Rama plot and has its own context
 
          GtkAllocation allocation;
          gtk_widget_get_allocation(GTK_WIDGET(gtk_gl_area), &allocation);
@@ -78,7 +79,7 @@ gtkgl_rama_on_glarea_render(GtkWidget *gtk_gl_area) {
          g.rama_plot_boxes[i].rama.draw(&g.shader_for_rama_plot_axes_and_ticks,
                                         &g.shader_for_rama_plot_phi_phis_markers, // instanced
                                         &g.shader_for_hud_image_texture,
-                                        w, h, w, h); // background texture (not text!), uses window_resize_position_correc
+                                        w, h, w, h, need_clear); // background texture (not text!), uses window_resize_position_correc
       }
    }
 }
@@ -93,6 +94,10 @@ gtkgl_rama_on_glarea_resize(GtkWidget *gl_area, gint width, gint height) {
 void show_opengl_ramachandran_plot(int imol, const std::string &residue_selection) {
 
    // find a better name for this function?
+   //
+   // We have come from on_ramachandran_plot_molecule_chooser_ok_button_clicked()
+   // i.e. we have just selected a "validation" rama plot to display.
+   // These Rama plots have their own glarea context.
 
    auto on_rama_glarea_click = +[] (GtkGestureClick* click_gesture,
                                    gint n_press,
@@ -295,6 +300,8 @@ graphics_info_t::rama_plot_boxes_handle_molecule_update(GtkWidget *rama_box) {
 void
 graphics_info_t::draw_rama_plots() {
 
+   // these are the "validation" rama plots (on the left), not the interactive plot.
+
    for (unsigned int i=0; i<rama_plot_boxes.size(); i++) {
       GtkGLArea *gl_area = GTK_GL_AREA(rama_plot_boxes[i].gtk_gl_area);
       if (GTK_IS_GL_AREA(gl_area)) {
@@ -305,10 +312,11 @@ graphics_info_t::draw_rama_plots() {
          gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
          int w = allocation.width;
          int h = allocation.height;
+         bool clear_needed_flag = true; // because drawing to its own glarea OpenGL context
          rama_plot_boxes[i].rama.draw(&shader_for_rama_plot_axes_and_ticks,
                                       &shader_for_rama_plot_phi_phis_markers, // instanced
                                       &shader_for_hud_image_texture,
-                                      w, h, w, h);
+                                      w, h, w, h, clear_needed_flag);
          gtk_widget_queue_draw(GTK_WIDGET(gl_area));
       } else {
          std::cout << "ERROR:: ploting rama plot " << i << " which hash gl_area that has gone out of scope!"
