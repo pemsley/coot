@@ -551,15 +551,27 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             switch (bond->geometry) {
                 default:
                 case BondGeometry::Unspecified:{
+                    graphene_point_t first_atom;
+                    first_atom.x = bond->first_atom_x * scale_factor + x_offset;
+                    first_atom.y = bond->first_atom_y * scale_factor + y_offset;
+
+                    graphene_point_t second_atom;
+                    second_atom.x = bond->second_atom_x * scale_factor + x_offset;
+                    second_atom.y = bond->second_atom_y * scale_factor + y_offset;
+
+                    auto [first,second] = cropped_bond_coords(first_atom,bond->first_atom_idx,second_atom,bond->second_atom_idx);
+                    auto full_vec_x = second.x - first.x;
+                    auto full_vec_y = second.y - first.y;
+
                     const float wave_arc_radius = WAVY_BOND_ARC_LENGTH * scale_factor / 2.f;
-                    auto [full_vec_x, full_vec_y] = bond->get_vector();
+
                     float base_angle = std::atan(full_vec_y / full_vec_x);
-                    float arcs_count = std::sqrt(std::pow(full_vec_x,2.f) + std::pow(full_vec_y,2.f)) / WAVY_BOND_ARC_LENGTH;
+                    float arcs_count = std::sqrt(std::pow(full_vec_x,2.f) + std::pow(full_vec_y,2.f)) / (WAVY_BOND_ARC_LENGTH * scale_factor);
                     unsigned int rounded_arcs_count = std::floor(arcs_count);
-                    float step_x = full_vec_x / arcs_count * scale_factor;
-                    float step_y = full_vec_y / arcs_count * scale_factor;
-                    float current_x = bond->first_atom_x * scale_factor + x_offset + step_x / 2.f;
-                    float current_y = bond->first_atom_y * scale_factor + y_offset + step_y / 2.f;
+                    float step_x = full_vec_x / arcs_count;
+                    float step_y = full_vec_y / arcs_count;
+                    float current_x = first.x + step_x / 2.f;
+                    float current_y = first.y + step_y / 2.f;
                     bool arc_direction = true;
                     for (unsigned int i = 0; i < rounded_arcs_count; i++) {
                         float next_x = current_x + step_x;
