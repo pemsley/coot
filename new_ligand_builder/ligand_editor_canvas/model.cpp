@@ -237,6 +237,119 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
 
     cairo_t *cr = gtk_snapshot_append_cairo(snapshot, bounds);
     
+    cairo_set_line_width(cr, 0.5);
+    for(const auto& atom: atoms) {
+        // Used to make the texts centered where they should be.
+        int layout_width, layout_height;
+
+        auto process_highlight = [&,cr,x_offset,y_offset,scale_factor](){
+            if(atom.highlighted) {
+                //cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
+                cairo_new_sub_path(cr);
+                cairo_set_source_rgb(cr, 0.0, 1.0, 0.5);
+                cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS,0,M_PI * 2.0);
+                cairo_stroke_preserve(cr);
+                cairo_set_source_rgba(cr, 0.0, 1.0, 0.5, 0.5);
+                cairo_fill(cr);
+            }
+        };
+
+        /// Returns the markup string + info if the appendix is reversed
+        auto process_appendix = [&](const std::string& symbol, const std::optional<Atom::Appendix>& appendix) -> std::tuple<std::string,bool> {
+            std::string ret = symbol;
+            bool reversed = false;
+            if(appendix.has_value()) {
+                const auto& ap = appendix.value();
+                //ret += "<span>";
+                std::string ap_root;
+                for(auto i = ap.superatoms.begin(); i != ap.superatoms.end(); i++) {
+                    if(std::isdigit(*i)) {
+                        ap_root += "<sub>";
+                        ap_root.push_back(*i);
+                        ap_root += "</sub>";
+                    } else {
+                        ap_root.push_back(*i);
+                    }
+                }
+                if (ap.reversed) {
+                    ret = ap_root + ret;
+                    reversed = true;
+                } else {
+                    ret += ap_root;
+                }
+                //ret += "</span>";
+                if(ap.charge != 0) {
+                    // The string below begins with 
+                    // the invisible U+200B unicode character.
+                    // This is a workaround for what's likely 
+                    // a bug in pango font rendering engine.
+                    // Without it, the superscript is relative 
+                    // to the subscript (atom count)
+                    // instead of the atom's symbol
+                    ret += "​<sup>";
+                    unsigned int charge_no_sign = std::abs(ap.charge);
+                    if(charge_no_sign > 1) {
+                        ret += std::to_string(charge_no_sign);
+                    }
+                    ret.push_back(ap.charge > 0 ? '+' : '-');
+                    ret += "</sup>";
+                }
+            }
+            return std::make_tuple(ret,reversed);
+        };
+
+        auto render_atom_on_background = [&](const Atom& atom){
+            auto [raw_markup,reversed] = process_appendix(atom.symbol,atom.appendix);
+            // pre-process text
+            auto [r,g,b] = atom_color_to_rgb(atom.color);
+            std::string color_str = atom_color_to_html(atom.color);
+            std::string weight_str = atom.highlighted ? "bold" : "normal";
+            const std::string markup_beginning = "<span color=\"" + color_str + "\" weight=\"" + weight_str + "\" size=\"x-large\">";
+            const std::string markup_ending = "</span>";
+
+            std::string markup_no_appendix = markup_beginning + atom.symbol + markup_ending;
+            int layout_height_no_ap, layout_width_no_ap;
+            pango_layout_set_markup(pango_layout,markup_no_appendix.c_str(),-1);
+            pango_layout_get_pixel_size(pango_layout,&layout_width_no_ap,&layout_height_no_ap);
+
+            std::string markup = markup_beginning + raw_markup + markup_ending;
+            pango_layout_set_markup(pango_layout,markup.c_str(),-1);
+            pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
+            // background
+            cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
+
+            // todo: get rid of this '5' magic number - figure out what's wrong
+            int layout_x_offset = reversed ? layout_width - layout_height_no_ap / 2.f + 5 : layout_width_no_ap / 2.f;
+            double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
+            double origin_y = atom.y * scale_factor + y_offset - layout_height_no_ap/2.f;
+            // an alternative to rendering white-rectangle background is to shorten the bonds
+            // temporary: let's keep the circles only for now
+            //cairo_rectangle(cr, origin_x, origin_y, layout_width, layout_height);
+            //cairo_fill(cr);
+            //cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
+            // temporary: additional white circle in the background
+            cairo_new_sub_path(cr);
+            cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS, 0, M_PI * 2.0);
+            cairo_stroke_preserve(cr);
+            cairo_fill(cr);
+            // highlight
+            process_highlight();
+            // text
+            cairo_move_to(cr, origin_x, origin_y);
+            pango_cairo_show_layout(cr, pango_layout);
+        };
+
+        
+        if(atom.symbol == "C") {
+            if(atom.appendix.has_value()) {
+                render_atom_on_background(atom);
+            } else {
+                process_highlight();
+            }
+        } else {
+            render_atom_on_background(atom);
+        }
+    }
 
     for(const auto& bond: bonds) {
         if(bond->highlighted) {
@@ -481,119 +594,6 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         }
     }
 
-    cairo_set_line_width(cr, 0.5);
-    for(const auto& atom: atoms) {
-        // Used to make the texts centered where they should be.
-        int layout_width, layout_height;
-
-        auto process_highlight = [&,cr,x_offset,y_offset,scale_factor](){
-            if(atom.highlighted) {
-                //cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
-                cairo_new_sub_path(cr);
-                cairo_set_source_rgb(cr, 0.0, 1.0, 0.5);
-                cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS,0,M_PI * 2.0);
-                cairo_stroke_preserve(cr);
-                cairo_set_source_rgba(cr, 0.0, 1.0, 0.5, 0.5);
-                cairo_fill(cr);
-            }
-        };
-
-        /// Returns the markup string + info if the appendix is reversed
-        auto process_appendix = [&](const std::string& symbol, const std::optional<Atom::Appendix>& appendix) -> std::tuple<std::string,bool> {
-            std::string ret = symbol;
-            bool reversed = false;
-            if(appendix.has_value()) {
-                const auto& ap = appendix.value();
-                //ret += "<span>";
-                std::string ap_root;
-                for(auto i = ap.superatoms.begin(); i != ap.superatoms.end(); i++) {
-                    if(std::isdigit(*i)) {
-                        ap_root += "<sub>";
-                        ap_root.push_back(*i);
-                        ap_root += "</sub>";
-                    } else {
-                        ap_root.push_back(*i);
-                    }
-                }
-                if (ap.reversed) {
-                    ret = ap_root + ret;
-                    reversed = true;
-                } else {
-                    ret += ap_root;
-                }
-                //ret += "</span>";
-                if(ap.charge != 0) {
-                    // The string below begins with 
-                    // the invisible U+200B unicode character.
-                    // This is a workaround for what's likely 
-                    // a bug in pango font rendering engine.
-                    // Without it, the superscript is relative 
-                    // to the subscript (atom count)
-                    // instead of the atom's symbol
-                    ret += "​<sup>";
-                    unsigned int charge_no_sign = std::abs(ap.charge);
-                    if(charge_no_sign > 1) {
-                        ret += std::to_string(charge_no_sign);
-                    }
-                    ret.push_back(ap.charge > 0 ? '+' : '-');
-                    ret += "</sup>";
-                }
-            }
-            return std::make_tuple(ret,reversed);
-        };
-
-        auto render_atom_on_background = [&](const Atom& atom){
-            auto [raw_markup,reversed] = process_appendix(atom.symbol,atom.appendix);
-            // pre-process text
-            auto [r,g,b] = atom_color_to_rgb(atom.color);
-            std::string color_str = atom_color_to_html(atom.color);
-            std::string weight_str = atom.highlighted ? "bold" : "normal";
-            const std::string markup_beginning = "<span color=\"" + color_str + "\" weight=\"" + weight_str + "\" size=\"x-large\">";
-            const std::string markup_ending = "</span>";
-
-            std::string markup_no_appendix = markup_beginning + atom.symbol + markup_ending;
-            int layout_height_no_ap, layout_width_no_ap;
-            pango_layout_set_markup(pango_layout,markup_no_appendix.c_str(),-1);
-            pango_layout_get_pixel_size(pango_layout,&layout_width_no_ap,&layout_height_no_ap);
-
-            std::string markup = markup_beginning + raw_markup + markup_ending;
-            pango_layout_set_markup(pango_layout,markup.c_str(),-1);
-            pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
-            // background
-            cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
-
-            // todo: get rid of this '5' magic number - figure out what's wrong
-            int layout_x_offset = reversed ? layout_width - layout_height_no_ap / 2.f + 5 : layout_width_no_ap / 2.f;
-            double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
-            double origin_y = atom.y * scale_factor + y_offset - layout_height_no_ap/2.f;
-            // an alternative to rendering white-rectangle background is to shorten the bonds
-            // temporary: let's keep the circles only for now
-            //cairo_rectangle(cr, origin_x, origin_y, layout_width, layout_height);
-            //cairo_fill(cr);
-            //cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
-            // temporary: additional white circle in the background
-            cairo_new_sub_path(cr);
-            cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS, 0, M_PI * 2.0);
-            cairo_stroke_preserve(cr);
-            cairo_fill(cr);
-            // highlight
-            process_highlight();
-            // text
-            cairo_move_to(cr, origin_x, origin_y);
-            pango_cairo_show_layout(cr, pango_layout);
-        };
-
-        
-        if(atom.symbol == "C") {
-            if(atom.appendix.has_value()) {
-                render_atom_on_background(atom);
-            } else {
-                process_highlight();
-            }
-        } else {
-            render_atom_on_background(atom);
-        }
-    }
     cairo_destroy(cr);
 }
 
