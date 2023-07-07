@@ -383,20 +383,20 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
 
             // We pass in the bond vector so that it always points "away" from the point
             auto crop_line_against_rect = [](const graphene_rect_t& rect, float bond_vec_x, float bond_vec_y, const graphene_point_t& point){
-                //todo
-                graphene_point_t ret;
-                if(rect.origin.x < point.x) { // left side
-                    
-                } else {
-                    
-                }
-                
-                if(rect.origin.y >= point.y) { // upper side
-
-                } else {
-
-                }
-
+                graphene_point_t ret = point;
+                if(rect.origin.x < point.x && rect.origin.x + rect.size.width >= point.x
+                && rect.origin.y < point.y && rect.origin.y + rect.size.height >= point.y) { // inside rectangle
+                    if(bond_vec_x > 0) {
+                        ret.x = rect.origin.x + rect.size.width;
+                    } else {
+                        ret.x = rect.origin.x;
+                    }
+                    if(bond_vec_y > 0) {
+                        ret.y = rect.origin.y + rect.size.height;
+                    } else {
+                        ret.y = rect.origin.y;
+                    }
+                } 
 
                 return ret;
             };
