@@ -136,7 +136,6 @@
 
 #include "widget-from-builder.hh"
 #include "glarea_tick_function.hh"
-#include "dynamic-menus.hh"
 
 
 // This is (already) in git-revision-count.cc

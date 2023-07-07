@@ -4,11 +4,11 @@ lib_LTLIBRARIES=libcoot-validation-graphs.la
 
 AM_CPPFLAGS = -I$(top_srcdir) @GTK_CFLAGS@
 
-#    residue-validation-information.hh \
-#   validation-information.hh
 
 pkginclude_HEADERS = \
+    residue-validation-information.hh \
     validation-information.hh \
+	validation-graphs.hh \
     validation-graph-widget.hh
 
 pkgincludedir = $(includedir)/coot/test-validation
@@ -17,7 +17,9 @@ pkgincludedir = $(includedir)/coot/test-validation
 #
 
 libcoot_validation_graphs_la_SOURCES = \
+    residue-validation-information.cc \
     validation-graph-widget.cc \
+	validation-graphs.cc \
 	validation-information.cc
 
 libcoot_validation_graphs_la_LIBADD = \
