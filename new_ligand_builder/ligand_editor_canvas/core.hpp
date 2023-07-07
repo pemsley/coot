@@ -79,6 +79,8 @@ struct WidgetCoreData {
 
     bool allow_invalid_molecules;
 
+    DisplayMode display_mode;
+
     /// Does Edit->Undo
     void undo_edition();
 
