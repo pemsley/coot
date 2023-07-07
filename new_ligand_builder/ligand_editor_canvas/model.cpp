@@ -441,7 +441,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             return std::make_pair(a,b);
         };
 
-        auto draw_cropped_bond_for_testing = [&](){
+        auto draw_central_bond_line = [&](){
             graphene_point_t first_atom;
             first_atom.x = bond->first_atom_x * scale_factor + x_offset;
             first_atom.y = bond->first_atom_y * scale_factor + y_offset;
@@ -451,18 +451,9 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             second_atom.y = bond->second_atom_y * scale_factor + y_offset;
 
             auto [first,second] = cropped_bond_coords(first_atom,bond->first_atom_idx,second_atom,bond->second_atom_idx);
-            double w = cairo_get_line_width(cr);
-
-            cairo_set_line_width(cr,1.0);
+            
             cairo_move_to(cr, first.x, first.y);
             cairo_line_to(cr, second.x, second.y);
-            cairo_stroke(cr);
-            cairo_set_line_width(cr, w);
-        };
-
-        auto draw_central_bond_line = [&](){
-            cairo_move_to(cr, bond->first_atom_x * scale_factor + x_offset, bond->first_atom_y * scale_factor + y_offset);
-            cairo_line_to(cr, bond->second_atom_x * scale_factor + x_offset, bond->second_atom_y * scale_factor + y_offset);
             cairo_stroke(cr);
         };
 
@@ -688,8 +679,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 }
                 default:
                 case BondType::Single:{
-                    //draw_central_bond_line();
-                    draw_cropped_bond_for_testing();
+                    draw_central_bond_line();
                     break;
                 }
             }
