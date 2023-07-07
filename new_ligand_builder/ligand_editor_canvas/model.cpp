@@ -505,42 +505,47 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 cairo_fill(cr);
             };
             auto draw_straight_dashed_bond = [&](bool reversed){
-                auto current_x = reversed ? bond->first_atom_x : bond->second_atom_x;
-                auto current_y = reversed ? bond->first_atom_y : bond->second_atom_y;
+                graphene_point_t origin;
+                origin.x = reversed ? bond->first_atom_x : bond->second_atom_x;
+                origin.y = reversed ? bond->first_atom_y : bond->second_atom_y;
+                auto origin_idx = reversed ? bond->first_atom_idx : bond->second_atom_idx;
 
-                auto target_x = reversed ? bond->second_atom_x : bond->first_atom_x;
-                auto target_y = reversed ? bond->second_atom_y : bond->first_atom_y;
+                graphene_point_t target;
+                target.x = reversed ? bond->second_atom_x : bond->first_atom_x;
+                target.y = reversed ? bond->second_atom_y : bond->first_atom_y;
+                auto target_idx = reversed ? bond->second_atom_idx : bond->first_atom_idx;
 
-                current_x *= scale_factor;
-                current_y *= scale_factor;
-                target_x *= scale_factor;
-                target_y *= scale_factor;
+                origin.x *= scale_factor;
+                origin.y *= scale_factor;
+                target.x *= scale_factor;
+                target.y *= scale_factor;
 
-                current_x += x_offset;
-                current_y += y_offset;
-                target_x += x_offset;
-                target_y += y_offset;
+                origin.x += x_offset;
+                origin.y += y_offset;
+                target.x += x_offset;
+                target.y += y_offset;
+
+                auto [current,target_cropped] = cropped_bond_coords(origin, origin_idx, target, target_idx);
                 
                 auto [pv_x,pv_y] = bond->get_perpendicular_versor();
-                auto bond_len = bond->get_length();
+                auto cropped_bond_len = std::sqrt(std::pow(target_cropped.x - current.x, 2.f) + std::pow(target_cropped.y - current.y, 2.f));
 
-                float dashes = bond_len / GEOMETRY_BOND_DASH_SEPARATION;
+                float dashes = cropped_bond_len / (GEOMETRY_BOND_DASH_SEPARATION * scale_factor);
                 unsigned int full_dashes = std::floor(dashes);
 
-                float step_x = (target_x - current_x) / dashes;
-                float step_y = (target_y - current_y) / dashes;
+                float step_x = (target_cropped.x - current.x) / dashes;
+                float step_y = (target_cropped.y - current.y) / dashes;
 
-                bond_len *= scale_factor;
-                auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
-                auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
+                auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
+                auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
                 
                 for(unsigned int i = 0; i <= full_dashes; i++) {
                     float spread_multiplier = (float) i / dashes;
-                    cairo_move_to(cr, current_x - v_x * spread_multiplier, current_y - v_y * spread_multiplier);
-                    cairo_line_to(cr, current_x + v_x * spread_multiplier, current_y + v_y * spread_multiplier);
+                    cairo_move_to(cr, current.x - v_x * spread_multiplier, current.y - v_y * spread_multiplier);
+                    cairo_line_to(cr, current.x + v_x * spread_multiplier, current.y + v_y * spread_multiplier);
                     cairo_stroke(cr);
-                    current_x += step_x;
-                    current_y += step_y;
+                    current.x += step_x;
+                    current.y += step_y;
                 }
             };
             switch (bond->geometry) {
