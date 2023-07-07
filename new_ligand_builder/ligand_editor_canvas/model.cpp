@@ -434,7 +434,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 a = crop_line_against_rect(first_rect_iter->second, bond_vec_x, bond_vec_y, first_atom);
             }
             auto second_rect_iter = atom_idx_to_canvas_rect.find(second_atom_idx);
-            if(first_rect_iter != atom_idx_to_canvas_rect.end()) {
+            if(second_rect_iter != atom_idx_to_canvas_rect.end()) {
                 b = crop_line_against_rect(second_rect_iter->second, -bond_vec_x, -bond_vec_y, second_atom);
             }
             
@@ -454,8 +454,8 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             double w = cairo_get_line_width(cr);
 
             cairo_set_line_width(cr,1.0);
-            cairo_move_to(cr, first.x + 2.f, first.y + 2.f);
-            cairo_line_to(cr, second.x + 2.f, second.y + 2.f);
+            cairo_move_to(cr, first.x, first.y);
+            cairo_line_to(cr, second.x, second.y);
             cairo_stroke(cr);
             cairo_set_line_width(cr, w);
         };
@@ -688,7 +688,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 }
                 default:
                 case BondType::Single:{
-                    draw_central_bond_line();
+                    //draw_central_bond_line();
                     draw_cropped_bond_for_testing();
                     break;
                 }
