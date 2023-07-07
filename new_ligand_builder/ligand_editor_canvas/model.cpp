@@ -323,8 +323,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             // background
             cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
 
-            // todo: get rid of this '5' magic number - figure out what's wrong
-            int layout_x_offset = reversed ? layout_width - layout_height_no_ap / 2.f + 5 : layout_width_no_ap / 2.f;
+            int layout_x_offset = reversed ? layout_width - layout_height_no_ap / 2.f : layout_width_no_ap / 2.f;
             double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
             double origin_y = atom.y * scale_factor + y_offset - layout_height_no_ap/2.f;
 
