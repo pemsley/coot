@@ -373,15 +373,41 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 graphene_point_t ret = point;
                 if(rect.origin.x < point.x && rect.origin.x + rect.size.width >= point.x
                 && rect.origin.y < point.y && rect.origin.y + rect.size.height >= point.y) { // inside rectangle
-                    if(bond_vec_x > 0) {
+                    // We need to use the point of intersection formula
+                    // to find the intersection point between the bond and the edges.
+                    // We solve against two edges and then pick the solution lying the closest to 'point'.
+
+                    // Line from bond
+                    float bond_a, bond_b, bond_c;
+
+                    // Pick line from the relevant vertical edge
+                    float vert_edge_a, vert_edge_b, vert_egde_c;
+                    if(bond_vec_x > 0) { // solve against right side
                         ret.x = rect.origin.x + rect.size.width;
-                    } else {
+                    } else { // solve against left side
                         ret.x = rect.origin.x;
                     }
-                    if(bond_vec_y > 0) {
+
+                    // Pick line from the relevant horizontal edge
+                    float horiz_edge_a, horiz_edge_b, horiz_egde_c;
+                    if(bond_vec_y > 0) { // solve against the bottom
                         ret.y = rect.origin.y + rect.size.height;
-                    } else {
+                    } else { // solve against the top
                         ret.y = rect.origin.y;
+                    }
+                    graphene_point_t vert_edge_solution;
+                    vert_edge_solution.x = (bond_b * vert_egde_c - vert_edge_b * bond_c)/(bond_a * vert_edge_b - vert_edge_a * bond_b);
+                    vert_edge_solution.y = (vert_edge_a * bond_c - bond_a * vert_egde_c)/(bond_a * vert_edge_b - vert_edge_a * bond_b);
+                    graphene_point_t horiz_edge_solution;
+                    horiz_edge_solution.x = (bond_b * horiz_egde_c - horiz_edge_b * bond_c)/(bond_a * horiz_edge_b - horiz_edge_a * bond_b);
+                    horiz_edge_solution.y = (horiz_edge_a * bond_c - bond_a * horiz_egde_c)/(bond_a * horiz_edge_b - horiz_edge_a * bond_b);
+
+                    // if vert_edge_solution is farther from the point than horiz_edge_solution
+                    if(std::pow(vert_edge_solution.x - point.x, 2.f) + std::pow(vert_edge_solution.y - point.y, 2.f) 
+                     > std::pow(horiz_edge_solution.x - point.x, 2.f) + std::pow(horiz_edge_solution.y - point.y, 2.f)) {
+                        ret = horiz_edge_solution;
+                    } else {
+                        ret = vert_edge_solution;
                     }
                 } 
                 return ret;
