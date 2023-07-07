@@ -463,26 +463,42 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         if(bond->geometry != BondGeometry::Flat && bond->type == BondType::Single) {
 
             auto draw_straight_wedge = [&](bool reversed){
-                auto origin_x = reversed ? bond->first_atom_x : bond->second_atom_x;
-                auto origin_y = reversed ? bond->first_atom_y : bond->second_atom_y;
+                graphene_point_t origin;
+                origin.x = reversed ? bond->first_atom_x : bond->second_atom_x;
+                origin.y = reversed ? bond->first_atom_y : bond->second_atom_y;
+                auto origin_idx = reversed ? bond->first_atom_idx : bond->second_atom_idx;
 
-                auto target_x = reversed ? bond->second_atom_x : bond->first_atom_x;
-                auto target_y = reversed ? bond->second_atom_y : bond->first_atom_y;
+                graphene_point_t target;
+                target.x = reversed ? bond->second_atom_x : bond->first_atom_x;
+                target.y = reversed ? bond->second_atom_y : bond->first_atom_y;
+                auto target_idx = reversed ? bond->second_atom_idx : bond->first_atom_idx;
+
+                origin.x *= scale_factor;
+                origin.y *= scale_factor;
+                target.x *= scale_factor;
+                target.y *= scale_factor;
+
+                origin.x += x_offset;
+                origin.y += y_offset;
+                target.x += x_offset;
+                target.y += y_offset;
+
+                auto [origin_cropped,target_cropped] = cropped_bond_coords(origin, origin_idx, target, target_idx);
                 
                 auto [pv_x,pv_y] = bond->get_perpendicular_versor();
-                auto bond_len = bond->get_length();
-                auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
-                auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
+                auto cropped_bond_len = std::sqrt(std::pow(target_cropped.x - origin_cropped.x, 2.f) + std::pow(target_cropped.y - origin_cropped.y, 2.f));
+                auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
+                auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
 
                 cairo_new_path(cr);
-                cairo_move_to(cr, origin_x * scale_factor + x_offset, origin_y * scale_factor + y_offset);
-                cairo_line_to(cr, (target_x + v_x) * scale_factor + x_offset, (target_y + v_y) * scale_factor + y_offset);
+                cairo_move_to(cr, origin_cropped.x, origin_cropped.y);
+                cairo_line_to(cr, target_cropped.x + v_x, target_cropped.y + v_y);
                 cairo_stroke_preserve(cr);
 
-                cairo_line_to(cr, (target_x - v_x) * scale_factor + x_offset , (target_y - v_y) * scale_factor + y_offset);
+                cairo_line_to(cr, target_cropped.x - v_x, target_cropped.y - v_y);
                 cairo_stroke_preserve(cr);
 
-                cairo_line_to(cr, origin_x * scale_factor + x_offset, origin_y * scale_factor + y_offset);
+                cairo_line_to(cr, origin_cropped.x, origin_cropped.y);
                 cairo_stroke_preserve(cr);
 
                 cairo_close_path(cr);
