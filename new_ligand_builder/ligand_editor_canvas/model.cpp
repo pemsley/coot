@@ -363,6 +363,49 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             cairo_set_line_width(cr, 2.0);
             cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
         }
+
+        // Returns on-screen bond coordinates
+        // cropped not to overlap with atoms' symbols and appendices.
+        auto cropped_bond_coords = [&]() -> std::pair<graphene_point_t,graphene_point_t> {
+            auto first_rect = atom_idx_to_canvas_rect.at(bond->first_atom_idx);
+            auto second_rect = atom_idx_to_canvas_rect.at(bond->second_atom_idx);
+
+            graphene_point_t first_atom;
+            first_atom.x = bond->first_atom_x * scale_factor + x_offset;
+            first_atom.y = bond->first_atom_y * scale_factor + y_offset;
+
+            graphene_point_t second_atom;
+            second_atom.x = bond->second_atom_x * scale_factor + x_offset;
+            second_atom.y = bond->second_atom_y * scale_factor + y_offset;
+
+            float bond_vec_x = second_atom.x - first_atom.x;
+            float bond_vec_y = second_atom.y - first_atom.y;
+
+            // We pass in the bond vector so that it always points "away" from the point
+            auto crop_line_against_rect = [](const graphene_rect_t& rect, float bond_vec_x, float bond_vec_y, const graphene_point_t& point){
+                //todo
+                graphene_point_t ret;
+                if(rect.origin.x < point.x) { // left side
+                    
+                } else {
+                    
+                }
+                
+                if(rect.origin.y >= point.y) { // upper side
+
+                } else {
+
+                }
+
+
+                return ret;
+            };
+
+            auto a = crop_line_against_rect(first_rect, bond_vec_x, bond_vec_y, first_atom);
+            auto b = crop_line_against_rect(second_rect, -bond_vec_x, -bond_vec_y, second_atom);
+            return std::make_pair(a,b);
+        };
+
         auto draw_central_bond_line = [&](){
             cairo_move_to(cr, bond->first_atom_x * scale_factor + x_offset, bond->first_atom_y * scale_factor + y_offset);
             cairo_line_to(cr, bond->second_atom_x * scale_factor + x_offset, bond->second_atom_y * scale_factor + y_offset);
