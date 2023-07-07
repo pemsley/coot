@@ -237,6 +237,126 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
 
     cairo_t *cr = gtk_snapshot_append_cairo(snapshot, bounds);
     
+    cairo_set_line_width(cr, 0.5);
+    // Used to truncate bonds not to cover atoms
+    std::map<unsigned int,graphene_rect_t> atom_idx_to_canvas_rect;
+    for(const auto& atom: atoms) {
+
+        auto process_highlight = [&,cr,x_offset,y_offset,scale_factor](){
+            if(atom.highlighted) {
+                //cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
+                cairo_new_sub_path(cr);
+                cairo_set_source_rgb(cr, 0.0, 1.0, 0.5);
+                cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS,0,M_PI * 2.0);
+                cairo_stroke_preserve(cr);
+                cairo_set_source_rgba(cr, 0.0, 1.0, 0.5, 0.5);
+                cairo_fill(cr);
+            }
+        };
+
+        /// Returns the markup string + info if the appendix is reversed
+        auto process_appendix = [&](const std::string& symbol, const std::optional<Atom::Appendix>& appendix) -> std::tuple<std::string,bool> {
+            std::string ret = symbol;
+            bool reversed = false;
+            if(appendix.has_value()) {
+                const auto& ap = appendix.value();
+                //ret += "<span>";
+                std::string ap_root;
+                for(auto i = ap.superatoms.begin(); i != ap.superatoms.end(); i++) {
+                    if(std::isdigit(*i)) {
+                        ap_root += "<sub>";
+                        ap_root.push_back(*i);
+                        ap_root += "</sub>";
+                    } else {
+                        ap_root.push_back(*i);
+                    }
+                }
+                if (ap.reversed) {
+                    ret = ap_root + ret;
+                    reversed = true;
+                } else {
+                    ret += ap_root;
+                }
+                //ret += "</span>";
+                if(ap.charge != 0) {
+                    // The string below begins with 
+                    // the invisible U+200B unicode character.
+                    // This is a workaround for what's likely 
+                    // a bug in pango font rendering engine.
+                    // Without it, the superscript is relative 
+                    // to the subscript (atom count)
+                    // instead of the atom's symbol
+                    ret += "​<sup>";
+                    unsigned int charge_no_sign = std::abs(ap.charge);
+                    if(charge_no_sign > 1) {
+                        ret += std::to_string(charge_no_sign);
+                    }
+                    ret.push_back(ap.charge > 0 ? '+' : '-');
+                    ret += "</sup>";
+                }
+            }
+            return std::make_tuple(ret,reversed);
+        };
+
+        // Returns a pair of atom index and bonding rect
+        auto render_atom = [&](const Atom& atom) -> std::pair<unsigned int,graphene_rect_t> {
+            auto [raw_markup,reversed] = process_appendix(atom.symbol,atom.appendix);
+            // pre-process text
+            auto [r,g,b] = atom_color_to_rgb(atom.color);
+            std::string color_str = atom_color_to_html(atom.color);
+            std::string weight_str = atom.highlighted ? "bold" : "normal";
+            const std::string markup_beginning = "<span color=\"" + color_str + "\" weight=\"" + weight_str + "\" size=\"x-large\">";
+            const std::string markup_ending = "</span>";
+
+            std::string markup_no_appendix = markup_beginning + atom.symbol + markup_ending;
+            // Used to make the texts centered where they should be.
+            int layout_height_no_ap, layout_width_no_ap;
+            pango_layout_set_markup(pango_layout,markup_no_appendix.c_str(),-1);
+            // Measure the size of the "main" atom, without "appendix"
+            pango_layout_get_pixel_size(pango_layout,&layout_width_no_ap,&layout_height_no_ap);
+
+            std::string markup = markup_beginning + raw_markup + markup_ending;
+            pango_layout_set_markup(pango_layout,markup.c_str(),-1);
+            // Used to make the texts centered where they should be.
+            int layout_width, layout_height;
+            pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
+            // background
+            cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
+
+            // todo: get rid of this '5' magic number - figure out what's wrong
+            int layout_x_offset = reversed ? layout_width - layout_height_no_ap / 2.f + 5 : layout_width_no_ap / 2.f;
+            double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
+            double origin_y = atom.y * scale_factor + y_offset - layout_height_no_ap/2.f;
+
+            graphene_rect_t rect;
+            rect.origin.x = origin_x;
+            // Magic number. This should be removed.
+            // Workaround for pango giving us too high layout size.
+            const float layout_to_high = 3.f;
+            rect.origin.y = origin_y + layout_to_high;
+            rect.size.width = layout_width;
+            rect.size.height = layout_height - layout_to_high * 2.f;
+
+            // highlight
+            process_highlight();
+            // text
+            cairo_move_to(cr, origin_x, origin_y);
+            pango_cairo_show_layout(cr, pango_layout);
+
+            return std::make_pair(atom.idx,rect);
+        };
+
+        
+        if(atom.symbol == "C") {
+            if(atom.appendix.has_value()) {
+                atom_idx_to_canvas_rect.emplace(render_atom(atom));
+            } else {
+                process_highlight();
+            }
+        } else {
+            atom_idx_to_canvas_rect.emplace(render_atom(atom));
+        }
+    }
 
     for(const auto& bond: bonds) {
         if(bond->highlighted) {
@@ -246,91 +366,213 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             cairo_set_line_width(cr, 2.0);
             cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
         }
+
+        // Returns on-screen bond coordinates
+        // cropped not to overlap with atoms' symbols and appendices.
+        // Accepts on-screen coordinates of bond atoms.
+        auto cropped_bond_coords = [&](const graphene_point_t& first_atom, unsigned int first_atom_idx, const graphene_point_t& second_atom, unsigned int second_atom_idx) -> std::pair<graphene_point_t,graphene_point_t> {
+
+            // We pass in the bond vector so that it always points "away" from the point
+            auto crop_line_against_rect = [](const graphene_rect_t& rect, float bond_vec_x, float bond_vec_y, const graphene_point_t& point){
+                graphene_point_t ret = point;
+                if(rect.origin.x < point.x && rect.origin.x + rect.size.width >= point.x
+                && rect.origin.y < point.y && rect.origin.y + rect.size.height >= point.y) { // inside rectangle
+                    // We need to use the point of intersection formula
+                    // to find the intersection point between the bond and the edges.
+                    // We solve against two edges and then pick the solution lying the closest to 'point'.
+
+                    // Line from bond
+                    graphene_point_t point2 = point;
+                    point2.x += bond_vec_x;
+                    point2.y += bond_vec_y;
+                    const float bond_a_quot = (point.x - point2.x);
+                    const float bond_a = bond_a_quot == 0 ? -point.x : (point.y - point2.y) / bond_a_quot;
+                    const float bond_b = -1;
+                    const float bond_c = point.y - bond_a * point.x;
+
+                    // Pick line from the relevant vertical edge
+                    float vert_egde_c;
+                    const float vert_edge_a = 1;
+                    const float vert_edge_b = 0;
+                    if(bond_vec_x > 0) { // solve against right side
+                        vert_egde_c = -(rect.origin.x + rect.size.width);
+                    } else { // solve against left side
+                        vert_egde_c = -rect.origin.x;
+                    }
+
+                    // Pick line from the relevant horizontal edge
+                    float horiz_egde_c;
+                    const float horiz_edge_a = 0;
+                    const float horiz_edge_b = 1;
+                    if(bond_vec_y > 0) { // solve against the bottom
+                        horiz_egde_c = -(rect.origin.y + rect.size.height);
+                    } else { // solve against the top
+                        horiz_egde_c = -rect.origin.y;
+                    }
+                    graphene_point_t vert_edge_solution;
+                    vert_edge_solution.x = (bond_b * vert_egde_c - vert_edge_b * bond_c)/(bond_a * vert_edge_b - vert_edge_a * bond_b);
+                    vert_edge_solution.y = (vert_edge_a * bond_c - bond_a * vert_egde_c)/(bond_a * vert_edge_b - vert_edge_a * bond_b);
+                    graphene_point_t horiz_edge_solution;
+                    horiz_edge_solution.x = (bond_b * horiz_egde_c - horiz_edge_b * bond_c)/(bond_a * horiz_edge_b - horiz_edge_a * bond_b);
+                    horiz_edge_solution.y = (horiz_edge_a * bond_c - bond_a * horiz_egde_c)/(bond_a * horiz_edge_b - horiz_edge_a * bond_b);
+
+                    // if vert_edge_solution is farther from the point than horiz_edge_solution
+                    if(std::pow(vert_edge_solution.x - point.x, 2.f) + std::pow(vert_edge_solution.y - point.y, 2.f) 
+                     > std::pow(horiz_edge_solution.x - point.x, 2.f) + std::pow(horiz_edge_solution.y - point.y, 2.f)) {
+                        ret = horiz_edge_solution;
+                    } else {
+                        ret = vert_edge_solution;
+                    }
+                } 
+                return ret;
+            };
+
+            graphene_point_t a = first_atom;
+            graphene_point_t b = second_atom;
+
+            float bond_vec_x = second_atom.x - first_atom.x;
+            float bond_vec_y = second_atom.y - first_atom.y;
+
+            auto first_rect_iter = atom_idx_to_canvas_rect.find(first_atom_idx);
+            if(first_rect_iter != atom_idx_to_canvas_rect.end()) {
+                a = crop_line_against_rect(first_rect_iter->second, bond_vec_x, bond_vec_y, first_atom);
+            }
+            auto second_rect_iter = atom_idx_to_canvas_rect.find(second_atom_idx);
+            if(second_rect_iter != atom_idx_to_canvas_rect.end()) {
+                b = crop_line_against_rect(second_rect_iter->second, -bond_vec_x, -bond_vec_y, second_atom);
+            }
+            
+            return std::make_pair(a,b);
+        };
+
         auto draw_central_bond_line = [&](){
-            cairo_move_to(cr, bond->first_atom_x * scale_factor + x_offset, bond->first_atom_y * scale_factor + y_offset);
-            cairo_line_to(cr, bond->second_atom_x * scale_factor + x_offset, bond->second_atom_y * scale_factor + y_offset);
+            graphene_point_t first_atom;
+            first_atom.x = bond->first_atom_x * scale_factor + x_offset;
+            first_atom.y = bond->first_atom_y * scale_factor + y_offset;
+
+            graphene_point_t second_atom;
+            second_atom.x = bond->second_atom_x * scale_factor + x_offset;
+            second_atom.y = bond->second_atom_y * scale_factor + y_offset;
+
+            auto [first,second] = cropped_bond_coords(first_atom,bond->first_atom_idx,second_atom,bond->second_atom_idx);
+            
+            cairo_move_to(cr, first.x, first.y);
+            cairo_line_to(cr, second.x, second.y);
             cairo_stroke(cr);
         };
 
         if(bond->geometry != BondGeometry::Flat && bond->type == BondType::Single) {
 
             auto draw_straight_wedge = [&](bool reversed){
-                auto origin_x = reversed ? bond->first_atom_x : bond->second_atom_x;
-                auto origin_y = reversed ? bond->first_atom_y : bond->second_atom_y;
+                graphene_point_t origin;
+                origin.x = reversed ? bond->first_atom_x : bond->second_atom_x;
+                origin.y = reversed ? bond->first_atom_y : bond->second_atom_y;
+                auto origin_idx = reversed ? bond->first_atom_idx : bond->second_atom_idx;
 
-                auto target_x = reversed ? bond->second_atom_x : bond->first_atom_x;
-                auto target_y = reversed ? bond->second_atom_y : bond->first_atom_y;
+                graphene_point_t target;
+                target.x = reversed ? bond->second_atom_x : bond->first_atom_x;
+                target.y = reversed ? bond->second_atom_y : bond->first_atom_y;
+                auto target_idx = reversed ? bond->second_atom_idx : bond->first_atom_idx;
+
+                origin.x *= scale_factor;
+                origin.y *= scale_factor;
+                target.x *= scale_factor;
+                target.y *= scale_factor;
+
+                origin.x += x_offset;
+                origin.y += y_offset;
+                target.x += x_offset;
+                target.y += y_offset;
+
+                auto [origin_cropped,target_cropped] = cropped_bond_coords(origin, origin_idx, target, target_idx);
                 
                 auto [pv_x,pv_y] = bond->get_perpendicular_versor();
-                auto bond_len = bond->get_length();
-                auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
-                auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
+                auto cropped_bond_len = std::sqrt(std::pow(target_cropped.x - origin_cropped.x, 2.f) + std::pow(target_cropped.y - origin_cropped.y, 2.f));
+                auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
+                auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
 
                 cairo_new_path(cr);
-                cairo_move_to(cr, origin_x * scale_factor + x_offset, origin_y * scale_factor + y_offset);
-                cairo_line_to(cr, (target_x + v_x) * scale_factor + x_offset, (target_y + v_y) * scale_factor + y_offset);
+                cairo_move_to(cr, origin_cropped.x, origin_cropped.y);
+                cairo_line_to(cr, target_cropped.x + v_x, target_cropped.y + v_y);
                 cairo_stroke_preserve(cr);
 
-                cairo_line_to(cr, (target_x - v_x) * scale_factor + x_offset , (target_y - v_y) * scale_factor + y_offset);
+                cairo_line_to(cr, target_cropped.x - v_x, target_cropped.y - v_y);
                 cairo_stroke_preserve(cr);
 
-                cairo_line_to(cr, origin_x * scale_factor + x_offset, origin_y * scale_factor + y_offset);
+                cairo_line_to(cr, origin_cropped.x, origin_cropped.y);
                 cairo_stroke_preserve(cr);
 
                 cairo_close_path(cr);
                 cairo_fill(cr);
             };
             auto draw_straight_dashed_bond = [&](bool reversed){
-                auto current_x = reversed ? bond->first_atom_x : bond->second_atom_x;
-                auto current_y = reversed ? bond->first_atom_y : bond->second_atom_y;
+                graphene_point_t origin;
+                origin.x = reversed ? bond->first_atom_x : bond->second_atom_x;
+                origin.y = reversed ? bond->first_atom_y : bond->second_atom_y;
+                auto origin_idx = reversed ? bond->first_atom_idx : bond->second_atom_idx;
 
-                auto target_x = reversed ? bond->second_atom_x : bond->first_atom_x;
-                auto target_y = reversed ? bond->second_atom_y : bond->first_atom_y;
+                graphene_point_t target;
+                target.x = reversed ? bond->second_atom_x : bond->first_atom_x;
+                target.y = reversed ? bond->second_atom_y : bond->first_atom_y;
+                auto target_idx = reversed ? bond->second_atom_idx : bond->first_atom_idx;
 
-                current_x *= scale_factor;
-                current_y *= scale_factor;
-                target_x *= scale_factor;
-                target_y *= scale_factor;
+                origin.x *= scale_factor;
+                origin.y *= scale_factor;
+                target.x *= scale_factor;
+                target.y *= scale_factor;
 
-                current_x += x_offset;
-                current_y += y_offset;
-                target_x += x_offset;
-                target_y += y_offset;
+                origin.x += x_offset;
+                origin.y += y_offset;
+                target.x += x_offset;
+                target.y += y_offset;
+
+                auto [current,target_cropped] = cropped_bond_coords(origin, origin_idx, target, target_idx);
                 
                 auto [pv_x,pv_y] = bond->get_perpendicular_versor();
-                auto bond_len = bond->get_length();
+                auto cropped_bond_len = std::sqrt(std::pow(target_cropped.x - current.x, 2.f) + std::pow(target_cropped.y - current.y, 2.f));
 
-                float dashes = bond_len / GEOMETRY_BOND_DASH_SEPARATION;
+                float dashes = cropped_bond_len / (GEOMETRY_BOND_DASH_SEPARATION * scale_factor);
                 unsigned int full_dashes = std::floor(dashes);
 
-                float step_x = (target_x - current_x) / dashes;
-                float step_y = (target_y - current_y) / dashes;
+                float step_x = (target_cropped.x - current.x) / dashes;
+                float step_y = (target_cropped.y - current.y) / dashes;
 
-                bond_len *= scale_factor;
-                auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
-                auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * bond_len;
+                auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
+                auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
                 
                 for(unsigned int i = 0; i <= full_dashes; i++) {
                     float spread_multiplier = (float) i / dashes;
-                    cairo_move_to(cr, current_x - v_x * spread_multiplier, current_y - v_y * spread_multiplier);
-                    cairo_line_to(cr, current_x + v_x * spread_multiplier, current_y + v_y * spread_multiplier);
+                    cairo_move_to(cr, current.x - v_x * spread_multiplier, current.y - v_y * spread_multiplier);
+                    cairo_line_to(cr, current.x + v_x * spread_multiplier, current.y + v_y * spread_multiplier);
                     cairo_stroke(cr);
-                    current_x += step_x;
-                    current_y += step_y;
+                    current.x += step_x;
+                    current.y += step_y;
                 }
             };
             switch (bond->geometry) {
                 default:
                 case BondGeometry::Unspecified:{
+                    graphene_point_t first_atom;
+                    first_atom.x = bond->first_atom_x * scale_factor + x_offset;
+                    first_atom.y = bond->first_atom_y * scale_factor + y_offset;
+
+                    graphene_point_t second_atom;
+                    second_atom.x = bond->second_atom_x * scale_factor + x_offset;
+                    second_atom.y = bond->second_atom_y * scale_factor + y_offset;
+
+                    auto [first,second] = cropped_bond_coords(first_atom,bond->first_atom_idx,second_atom,bond->second_atom_idx);
+                    auto full_vec_x = second.x - first.x;
+                    auto full_vec_y = second.y - first.y;
+
                     const float wave_arc_radius = WAVY_BOND_ARC_LENGTH * scale_factor / 2.f;
-                    auto [full_vec_x, full_vec_y] = bond->get_vector();
+
                     float base_angle = std::atan(full_vec_y / full_vec_x);
-                    float arcs_count = std::sqrt(std::pow(full_vec_x,2.f) + std::pow(full_vec_y,2.f)) / WAVY_BOND_ARC_LENGTH;
+                    float arcs_count = std::sqrt(std::pow(full_vec_x,2.f) + std::pow(full_vec_y,2.f)) / (WAVY_BOND_ARC_LENGTH * scale_factor);
                     unsigned int rounded_arcs_count = std::floor(arcs_count);
-                    float step_x = full_vec_x / arcs_count * scale_factor;
-                    float step_y = full_vec_y / arcs_count * scale_factor;
-                    float current_x = bond->first_atom_x * scale_factor + x_offset + step_x / 2.f;
-                    float current_y = bond->first_atom_y * scale_factor + y_offset + step_y / 2.f;
+                    float step_x = full_vec_x / arcs_count;
+                    float step_y = full_vec_y / arcs_count;
+                    float current_x = first.x + step_x / 2.f;
+                    float current_y = first.y + step_y / 2.f;
                     bool arc_direction = true;
                     for (unsigned int i = 0; i < rounded_arcs_count; i++) {
                         float next_x = current_x + step_x;
@@ -420,8 +662,17 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     second_y -= second_shortening_proportion.value() * bond_vec_y;
                 }
 
-                cairo_move_to(cr, (first_x + pv_x) * scale_factor + x_offset, (first_y + pv_y) * scale_factor + y_offset);
-                cairo_line_to(cr, (second_x + pv_x) * scale_factor + x_offset, (second_y + pv_y) * scale_factor + y_offset);
+                graphene_point_t a;
+                a.x = (first_x + pv_x) * scale_factor + x_offset;
+                a.y = (first_y + pv_y) * scale_factor + y_offset;
+                graphene_point_t b;
+                b.x = (second_x + pv_x) * scale_factor + x_offset;
+                b.y = (second_y + pv_y) * scale_factor + y_offset;
+
+                auto [a_cropped,b_cropped] = cropped_bond_coords(a,bond->first_atom_idx,b,bond->second_atom_idx);
+            
+                cairo_move_to(cr, a_cropped.x, a_cropped.y);
+                cairo_line_to(cr, b_cropped.x, b_cropped.y);
                 cairo_stroke(cr);
             };
 
@@ -448,15 +699,25 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                             auto [pv_x,pv_y] = bond->get_perpendicular_versor();
 
                             // Convert the versor to a vector of the desired length
-                            pv_x *= BOND_LINE_SEPARATION / 2.f;
-                            pv_y *= BOND_LINE_SEPARATION / 2.f;
+                            pv_x *= BOND_LINE_SEPARATION / 2.f * scale_factor;
+                            pv_y *= BOND_LINE_SEPARATION / 2.f * scale_factor;
 
-                            cairo_move_to(cr, (bond->first_atom_x + pv_x) * scale_factor + x_offset, (bond->first_atom_y + pv_y) * scale_factor + y_offset);
-                            cairo_line_to(cr, (bond->second_atom_x + pv_x) * scale_factor + x_offset, (bond->second_atom_y + pv_y) * scale_factor + y_offset);
+                            graphene_point_t first_atom;
+                            first_atom.x = bond->first_atom_x * scale_factor + x_offset;
+                            first_atom.y = bond->first_atom_y * scale_factor + y_offset;
+
+                            graphene_point_t second_atom;
+                            second_atom.x = bond->second_atom_x * scale_factor + x_offset;
+                            second_atom.y = bond->second_atom_y * scale_factor + y_offset;
+
+                            auto [first,second] = cropped_bond_coords(first_atom,bond->first_atom_idx,second_atom,bond->second_atom_idx);
+
+                            cairo_move_to(cr, first.x + pv_x, first.y + pv_y);
+                            cairo_line_to(cr, second.x + pv_x, second.y + pv_y);
                             cairo_stroke(cr);
 
-                            cairo_move_to(cr, (bond->first_atom_x - pv_x) * scale_factor + x_offset, (bond->first_atom_y - pv_y) * scale_factor + y_offset);
-                            cairo_line_to(cr, (bond->second_atom_x - pv_x) * scale_factor + x_offset, (bond->second_atom_y - pv_y) * scale_factor + y_offset);
+                            cairo_move_to(cr, first.x - pv_x, first.y - pv_y);
+                            cairo_line_to(cr, second.x - pv_x, second.y - pv_y);
                             cairo_stroke(cr);
                             break;
                         }
@@ -481,119 +742,6 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         }
     }
 
-    cairo_set_line_width(cr, 0.5);
-    for(const auto& atom: atoms) {
-        // Used to make the texts centered where they should be.
-        int layout_width, layout_height;
-
-        auto process_highlight = [&,cr,x_offset,y_offset,scale_factor](){
-            if(atom.highlighted) {
-                //cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
-                cairo_new_sub_path(cr);
-                cairo_set_source_rgb(cr, 0.0, 1.0, 0.5);
-                cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS,0,M_PI * 2.0);
-                cairo_stroke_preserve(cr);
-                cairo_set_source_rgba(cr, 0.0, 1.0, 0.5, 0.5);
-                cairo_fill(cr);
-            }
-        };
-
-        /// Returns the markup string + info if the appendix is reversed
-        auto process_appendix = [&](const std::string& symbol, const std::optional<Atom::Appendix>& appendix) -> std::tuple<std::string,bool> {
-            std::string ret = symbol;
-            bool reversed = false;
-            if(appendix.has_value()) {
-                const auto& ap = appendix.value();
-                //ret += "<span>";
-                std::string ap_root;
-                for(auto i = ap.superatoms.begin(); i != ap.superatoms.end(); i++) {
-                    if(std::isdigit(*i)) {
-                        ap_root += "<sub>";
-                        ap_root.push_back(*i);
-                        ap_root += "</sub>";
-                    } else {
-                        ap_root.push_back(*i);
-                    }
-                }
-                if (ap.reversed) {
-                    ret = ap_root + ret;
-                    reversed = true;
-                } else {
-                    ret += ap_root;
-                }
-                //ret += "</span>";
-                if(ap.charge != 0) {
-                    // The string below begins with 
-                    // the invisible U+200B unicode character.
-                    // This is a workaround for what's likely 
-                    // a bug in pango font rendering engine.
-                    // Without it, the superscript is relative 
-                    // to the subscript (atom count)
-                    // instead of the atom's symbol
-                    ret += "​<sup>";
-                    unsigned int charge_no_sign = std::abs(ap.charge);
-                    if(charge_no_sign > 1) {
-                        ret += std::to_string(charge_no_sign);
-                    }
-                    ret.push_back(ap.charge > 0 ? '+' : '-');
-                    ret += "</sup>";
-                }
-            }
-            return std::make_tuple(ret,reversed);
-        };
-
-        auto render_atom_on_background = [&](const Atom& atom){
-            auto [raw_markup,reversed] = process_appendix(atom.symbol,atom.appendix);
-            // pre-process text
-            auto [r,g,b] = atom_color_to_rgb(atom.color);
-            std::string color_str = atom_color_to_html(atom.color);
-            std::string weight_str = atom.highlighted ? "bold" : "normal";
-            const std::string markup_beginning = "<span color=\"" + color_str + "\" weight=\"" + weight_str + "\" size=\"x-large\">";
-            const std::string markup_ending = "</span>";
-
-            std::string markup_no_appendix = markup_beginning + atom.symbol + markup_ending;
-            int layout_height_no_ap, layout_width_no_ap;
-            pango_layout_set_markup(pango_layout,markup_no_appendix.c_str(),-1);
-            pango_layout_get_pixel_size(pango_layout,&layout_width_no_ap,&layout_height_no_ap);
-
-            std::string markup = markup_beginning + raw_markup + markup_ending;
-            pango_layout_set_markup(pango_layout,markup.c_str(),-1);
-            pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
-            // background
-            cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
-
-            // todo: get rid of this '5' magic number - figure out what's wrong
-            int layout_x_offset = reversed ? layout_width - layout_height_no_ap / 2.f + 5 : layout_width_no_ap / 2.f;
-            double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
-            double origin_y = atom.y * scale_factor + y_offset - layout_height_no_ap/2.f;
-            // an alternative to rendering white-rectangle background is to shorten the bonds
-            // temporary: let's keep the circles only for now
-            //cairo_rectangle(cr, origin_x, origin_y, layout_width, layout_height);
-            //cairo_fill(cr);
-            //cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
-            // temporary: additional white circle in the background
-            cairo_new_sub_path(cr);
-            cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS, 0, M_PI * 2.0);
-            cairo_stroke_preserve(cr);
-            cairo_fill(cr);
-            // highlight
-            process_highlight();
-            // text
-            cairo_move_to(cr, origin_x, origin_y);
-            pango_cairo_show_layout(cr, pango_layout);
-        };
-
-        
-        if(atom.symbol == "C") {
-            if(atom.appendix.has_value()) {
-                render_atom_on_background(atom);
-            } else {
-                process_highlight();
-            }
-        } else {
-            render_atom_on_background(atom);
-        }
-    }
     cairo_destroy(cr);
 }
 
