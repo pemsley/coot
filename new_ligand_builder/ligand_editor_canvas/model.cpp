@@ -335,7 +335,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             const float layout_to_high = 3.f;
             rect.origin.y = origin_y + layout_to_high;
             rect.size.width = layout_width;
-            rect.size.height = layout_height - layout_to_high;
+            rect.size.height = layout_height - layout_to_high * 2.f;
 
             // highlight
             process_highlight();
