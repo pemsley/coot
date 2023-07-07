@@ -298,7 +298,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             return std::make_tuple(ret,reversed);
         };
 
-        auto render_atom_on_background = [&](const Atom& atom){
+        auto render_atom = [&](const Atom& atom){
             auto [raw_markup,reversed] = process_appendix(atom.symbol,atom.appendix);
             // pre-process text
             auto [r,g,b] = atom_color_to_rgb(atom.color);
@@ -322,16 +322,9 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             int layout_x_offset = reversed ? layout_width - layout_height_no_ap / 2.f + 5 : layout_width_no_ap / 2.f;
             double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
             double origin_y = atom.y * scale_factor + y_offset - layout_height_no_ap/2.f;
-            // an alternative to rendering white-rectangle background is to shorten the bonds
-            // temporary: let's keep the circles only for now
+
             //cairo_rectangle(cr, origin_x, origin_y, layout_width, layout_height);
-            //cairo_fill(cr);
-            //cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
-            // temporary: additional white circle in the background
-            cairo_new_sub_path(cr);
-            cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset,ATOM_HITBOX_RADIUS, 0, M_PI * 2.0);
-            cairo_stroke_preserve(cr);
-            cairo_fill(cr);
+
             // highlight
             process_highlight();
             // text
@@ -342,12 +335,12 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         
         if(atom.symbol == "C") {
             if(atom.appendix.has_value()) {
-                render_atom_on_background(atom);
+                render_atom(atom);
             } else {
                 process_highlight();
             }
         } else {
-            render_atom_on_background(atom);
+            render_atom(atom);
         }
     }
 
