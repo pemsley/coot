@@ -632,19 +632,22 @@ int test_add_terminal_residue(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
    mc.set_imol_refinement_map(imol_map);
 
    // test adding to the N-terminus
    bool part_one_done = false;
    coot::atom_spec_t atom_spec_in_new_residue("A", 284, "", " O  ","");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec_in_new_residue);
+   std::cout << "Here 1 A" << std::endl;
    if (! at_1) { // it's not there to begin with
+      std::cout << "Here 1 B" << std::endl;
       mc.add_terminal_residue_directly(imol, "A", 285, "");
       mc.write_coordinates(imol, "test-add-terminal-residue-with-added-terminal-residue.pdb");
       mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec_in_new_residue);
       if (at_2) {
+         std::cout << "Here 1 C" << std::endl;
          // now test that it is there
          coot::Cartesian reference_pos(76.3, 59, 23);
          coot::Cartesian atom_pos = atom_to_cartesian(at_2);
@@ -727,6 +730,11 @@ int test_add_terminal_residue(molecules_container_t &mc) {
       if (oxt_2 == nullptr) // not there
          part_four_done = true;
    }
+
+   std::cout << "part_one_done "   << part_one_done   << std::endl;
+   std::cout << "part_two_done "   << part_two_done   << std::endl;
+   std::cout << "part_three_done " << part_three_done << std::endl;
+   std::cout << "part_four_done "  << part_four_done  << std::endl;
 
    if (part_one_done && part_two_done && part_three_done && part_four_done)
       status = 1;
@@ -3217,7 +3225,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_mmrrcc, "MMRRCC", mc);
 
-   //status += run_test(test_auto_read_mtz, "auto-read MTZ", mc);
+   // status += run_test(test_auto_read_mtz, "auto-read MTZ", mc);
 
    // status += run_test(test_instanced_bonds_mesh, "insta bonds mesh", mc);
 
@@ -3226,6 +3234,8 @@ int main(int argc, char **argv) {
    // status = run_test(test_instanced_bonds_mesh, "instanced_bonds", mc);
 
    // status = run_test(test_svg, "svg string", mc);
+
+   // status = run_test(test_superpose, "SSM superpose ", mc);
 
    // status = run_test(test_multi_colour_rules, "multi colour rules ", mc);
 

@@ -6,6 +6,7 @@
 #include <array>
 
 #include <clipper/core/xmap.h>
+#include "utils/ctpl.h"
 #include "coot-utils/atom-selection-container.hh"
 #include "coot-utils/coot-rama.hh"
 #include "coot-utils/sfcalc-genmap.hh"
@@ -39,6 +40,11 @@
 
 #include "coot-utils/coot-map-utils.hh" // for map_molecule_centre_info_t
 #include "api-cell.hh" // 20230702-PE not needed in this file - remove it from here
+
+// 2023-07-04-PE This is a hack. This should be configured - and the
+// various functions that depend on this being true should be
+// reworked so that they run without a thread pool.
+#define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 namespace coot {
 

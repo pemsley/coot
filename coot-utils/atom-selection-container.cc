@@ -85,6 +85,8 @@ get_atom_selection(std::string pdb_name,
                    bool verbose_mode,
                    bool convert_to_v2_name_flag) {
 
+   std::cout << "get_atom_selection() with file \"" << pdb_name << "\"" << std::endl;
+
    mmdb::ERROR_CODE err;
    mmdb::Manager* MMDBManager;
 

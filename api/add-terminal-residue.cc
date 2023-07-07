@@ -6,6 +6,8 @@
 #include "coot-utils/coot-coord-utils.hh"
 #include "ligand/residue_by_phi_psi.hh"
 
+#define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
 // We need to find the serial number of the residue after the residue
 // we want to insert (i.e. the new residue will be inserted just
 // before the residue whose serial number we return).
@@ -614,6 +616,13 @@ coot::add_terminal_residue(int imol_no, const std::string &terminus_type, mmdb::
 
    int state = 0;
    std::string message;
+
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+   // fine
+#else
+   message = "No Boost-based thread-pool! add-terminal-residue won't work - stopping now";
+   return std::make_pair(state, message);
+#endif
 
    bool add_terminal_residue_debug_trials = false;
    int add_terminal_residue_n_phi_psi_trials = 3000;
