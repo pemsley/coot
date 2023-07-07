@@ -1113,6 +1113,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
                 // This means that we only have one bond
                 Bond* bond = bonds_of_this_atom->second.front().get();
                 if(bond->type == BondType::Double) {
+                    g_warning_once("todo: \"Centered\" double bonds should only be set for termini bound to something which has more than one bond!");
                     bond->bond_drawing_direction = DoubleBondDrawingDirection::Centered;
                 }
             }
