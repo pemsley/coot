@@ -385,7 +385,8 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                     graphene_point_t point2 = point;
                     point2.x += bond_vec_x;
                     point2.y += bond_vec_y;
-                    const float bond_a = (point.y - point2.y) / (point.x - point2.x);
+                    const float bond_a_quot = (point.x - point2.x);
+                    const float bond_a = bond_a_quot == 0 ? 0 : (point.y - point2.y) / bond_a_quot;
                     const float bond_b = -1;
                     const float bond_c = point.y - bond_a * point.x;
 
