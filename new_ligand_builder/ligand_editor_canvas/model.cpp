@@ -686,33 +686,25 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                             auto [pv_x,pv_y] = bond->get_perpendicular_versor();
 
                             // Convert the versor to a vector of the desired length
-                            pv_x *= BOND_LINE_SEPARATION / 2.f;
-                            pv_y *= BOND_LINE_SEPARATION / 2.f;
+                            pv_x *= BOND_LINE_SEPARATION / 2.f * scale_factor;
+                            pv_y *= BOND_LINE_SEPARATION / 2.f * scale_factor;
 
-                            graphene_point_t a_prim;
-                            a_prim.x = (bond->first_atom_x + pv_x) * scale_factor + x_offset;
-                            a_prim.y = (bond->first_atom_y + pv_y) * scale_factor + y_offset;
+                            graphene_point_t first_atom;
+                            first_atom.x = bond->first_atom_x * scale_factor + x_offset;
+                            first_atom.y = bond->first_atom_y * scale_factor + y_offset;
 
-                            graphene_point_t b_prim;
-                            b_prim.x = (bond->second_atom_x + pv_x) * scale_factor + x_offset;
-                            b_prim.y = (bond->second_atom_y + pv_y) * scale_factor + y_offset;
+                            graphene_point_t second_atom;
+                            second_atom.x = bond->second_atom_x * scale_factor + x_offset;
+                            second_atom.y = bond->second_atom_y * scale_factor + y_offset;
 
-                            graphene_point_t a_bis;
-                            a_bis.x = (bond->first_atom_x - pv_x) * scale_factor + x_offset;
-                            a_bis.y = (bond->first_atom_y - pv_y) * scale_factor + y_offset;
-                            graphene_point_t b_bis;
-                            b_bis.x = (bond->second_atom_x - pv_x) * scale_factor + x_offset;
-                            b_bis.y = (bond->second_atom_y - pv_y) * scale_factor + y_offset;
+                            auto [first,second] = cropped_bond_coords(first_atom,bond->first_atom_idx,second_atom,bond->second_atom_idx);
 
-                            auto [a_prim_cropped,b_prim_cropped] = cropped_bond_coords(a_prim,bond->first_atom_idx,b_prim,bond->second_atom_idx);
-                            auto [a_bis_cropped,b_bis_cropped] = cropped_bond_coords(a_bis,bond->first_atom_idx,b_bis,bond->second_atom_idx);
-
-                            cairo_move_to(cr, a_prim_cropped.x, a_prim_cropped.y);
-                            cairo_line_to(cr, b_prim_cropped.x, b_prim_cropped.y);
+                            cairo_move_to(cr, first.x + pv_x, first.y + pv_y);
+                            cairo_line_to(cr, second.x + pv_x, second.y + pv_y);
                             cairo_stroke(cr);
 
-                            cairo_move_to(cr, a_bis_cropped.x, a_bis_cropped.y);
-                            cairo_line_to(cr, b_bis_cropped.x, b_bis_cropped.y);
+                            cairo_move_to(cr, first.x - pv_x, first.y - pv_y);
+                            cairo_line_to(cr, second.x - pv_x, second.y - pv_y);
                             cairo_stroke(cr);
                             break;
                         }
