@@ -329,9 +329,12 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
 
             graphene_rect_t rect;
             rect.origin.x = origin_x;
-            rect.origin.y = origin_y;
+            // Magic number. This should be removed.
+            // Workaround for pango giving us too high layout size.
+            const float layout_to_high = 3.f;
+            rect.origin.y = origin_y + layout_to_high;
             rect.size.width = layout_width;
-            rect.size.height = layout_height;
+            rect.size.height = layout_height - layout_to_high;
 
             // highlight
             process_highlight();
