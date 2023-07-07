@@ -29,6 +29,7 @@ const float CanvasMolecule::ATOM_HITBOX_RADIUS = 12.f;
 const float CanvasMolecule::BOND_DISTANCE_BOUNDARY = 10.f;
 const float CanvasMolecule::BASE_SCALE_FACTOR = 30.f;
 const float CanvasMolecule::BOND_LINE_SEPARATION = 0.3f;
+const float CanvasMolecule::CENTERED_DOUBLE_BOND_LINE_SEPARATION = 0.2f;
 // 10 degrees
 const float CanvasMolecule::GEOMETRY_BOND_SPREAD_ANGLE = M_PI/18.f;
 const float CanvasMolecule::WAVY_BOND_ARC_LENGTH = 0.25f;
@@ -699,8 +700,8 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                             auto [pv_x,pv_y] = bond->get_perpendicular_versor();
 
                             // Convert the versor to a vector of the desired length
-                            pv_x *= BOND_LINE_SEPARATION / 2.f * scale_factor;
-                            pv_y *= BOND_LINE_SEPARATION / 2.f * scale_factor;
+                            pv_x *= CENTERED_DOUBLE_BOND_LINE_SEPARATION / 2.f * scale_factor;
+                            pv_y *= CENTERED_DOUBLE_BOND_LINE_SEPARATION / 2.f * scale_factor;
 
                             graphene_point_t first_atom;
                             first_atom.x = bond->first_atom_x * scale_factor + x_offset;

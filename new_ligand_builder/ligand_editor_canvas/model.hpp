@@ -130,6 +130,7 @@ class CanvasMolecule {
     static const float BOND_DISTANCE_BOUNDARY;
     static const float BASE_SCALE_FACTOR;
     static const float BOND_LINE_SEPARATION;
+    static const float CENTERED_DOUBLE_BOND_LINE_SEPARATION;
     static const float GEOMETRY_BOND_SPREAD_ANGLE;
     static const float WAVY_BOND_ARC_LENGTH;
     static const float GEOMETRY_BOND_DASH_SEPARATION;
