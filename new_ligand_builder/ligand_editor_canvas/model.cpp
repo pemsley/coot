@@ -239,8 +239,6 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
     
     cairo_set_line_width(cr, 0.5);
     for(const auto& atom: atoms) {
-        // Used to make the texts centered where they should be.
-        int layout_width, layout_height;
 
         auto process_highlight = [&,cr,x_offset,y_offset,scale_factor](){
             if(atom.highlighted) {
@@ -308,12 +306,16 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             const std::string markup_ending = "</span>";
 
             std::string markup_no_appendix = markup_beginning + atom.symbol + markup_ending;
+            // Used to make the texts centered where they should be.
             int layout_height_no_ap, layout_width_no_ap;
             pango_layout_set_markup(pango_layout,markup_no_appendix.c_str(),-1);
+            // Measure the size of the "main" atom, without "appendix"
             pango_layout_get_pixel_size(pango_layout,&layout_width_no_ap,&layout_height_no_ap);
 
             std::string markup = markup_beginning + raw_markup + markup_ending;
             pango_layout_set_markup(pango_layout,markup.c_str(),-1);
+            // Used to make the texts centered where they should be.
+            int layout_width, layout_height;
             pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
             // background
             cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
