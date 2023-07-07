@@ -233,7 +233,7 @@ class CanvasMolecule {
 
     /// Draws the molecule on the widget.
     /// Be sure to call set_offset_from_bounds before drawing.
-    void draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, const graphene_rect_t *bounds) const noexcept;
+    void draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, const graphene_rect_t *bounds, DisplayMode display_mode) const noexcept;
 
     /// Checks if any object matches the click coordinates passed as arguments.
     /// Returns the thing that was clicked on (or nullopt if there's no match).

@@ -67,7 +67,7 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
             for(auto& drawn_molecule: *self->molecules) {
                 drawn_molecule.set_canvas_size_adjustment_from_bounds(&background_rect);
                 drawn_molecule.set_canvas_scale(self->scale);
-                drawn_molecule.draw(snapshot,pango_layout,&background_rect);
+                drawn_molecule.draw(snapshot,pango_layout,&background_rect,self->display_mode);
             }
             g_object_unref(pango_layout);
         }
