@@ -37,15 +37,15 @@ else
 if COND_LIBCOOTAPI_ONLY
    SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-mol geometry  \
         lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords \
-	density-contour skeleton  high-res build MoleculesToTriangles pli \
+	density-contour skeleton high-res build MoleculesToTriangles pli \
 	python-tests cootilus goograph fonts pyrogen lbg data buccaneer_ml_growing \
 	man rama-data glTF pixmaps textures api
 else
    SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-mol geometry  \
         lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords \
-	density-contour skeleton  high-res build MoleculesToTriangles pli api greg-tests \
-	python-tests cootilus goograph fonts pyrogen lbg data buccaneer_ml_growing \
-	man rama-data doc glTF pixmaps textures src
+	density-contour skeleton high-res build MoleculesToTriangles pli buccaneer_ml_growing greg-tests \
+        python-tests cootilus goograph fonts pyrogen lbg data  \
+	man rama-data doc glTF pixmaps textures api src
 endif
 endif
 
