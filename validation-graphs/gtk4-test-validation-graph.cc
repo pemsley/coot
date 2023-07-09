@@ -21,6 +21,7 @@ read_mtz(const std::string &file_name,
          bool use_weight, bool is_a_difference_map,
          clipper::Xmap<float> *xmap_p) {
 
+   std::cout << "read_mtz() with file_name " << file_name << std::endl;
    bool status = coot::util::map_fill_from_mtz(xmap_p, file_name, f, phi, weight, use_weight, is_a_difference_map);
    return status;
 }
@@ -465,7 +466,7 @@ int main(int argc, char **argv) {
    if (argc > 2) {
       std::string pdb_file_name = argv[1];
       std::string mtz_file_name = argv[2];
-      coot::validation_information_t vid = density_fit_analysis(pdb_file_name, mtz_file_name);
+      coot::validation_information_t vid; // = density_fit_analysis(pdb_file_name, mtz_file_name);
       coot::validation_information_t vir = rotamer_analysis(pdb_file_name);
       coot::validation_information_t vit = ramachandran_analysis(pdb_file_name);
       coot::validation_information_t vio; // = peptide_omega_analysis(pdb_file_name); smashes the stack.

@@ -3,6 +3,7 @@
 
 #include <gtk/gtk.h>
 #include <mmdb2/mmdb_manager.h>
+#include "geometry/residue-and-atom-specs.hh"
 
 #if __cplusplus > 201402L
     // good times
@@ -20,6 +21,17 @@
     }
 #endif
 
+
+
+class box_info_t {
+public:
+   coot::residue_spec_t residue_spec;
+   int x_base;
+   int y_base;
+   box_info_t(mmdb::Residue *residue_p, int x_base, int y_base) : residue_spec(coot::residue_spec_t(residue_p)),
+                                                                               x_base(x_base), y_base(y_base) {}
+};
+
 G_BEGIN_DECLS
 
 #define COOT_SEQUENCE_VIEW_TYPE (coot_sequence_view_get_type ())
@@ -29,7 +41,7 @@ CootSequenceView *coot_sequence_view_new();
 
 G_END_DECLS
 
-void coot_sequence_view_set_structure(CootSequenceView* self, mmdb::Manager *mol);
+void coot_sequence_view_set_structure(CootSequenceView* self, int imol, mmdb::Manager *mol);
 
 
 #endif // SEQUENCE_VIEW_WIDGET_HH
