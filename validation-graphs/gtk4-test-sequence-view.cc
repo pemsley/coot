@@ -6,14 +6,20 @@
 void fill(GtkWidget *window, mmdb::Manager *mol) {
 
    GtkWidget *scrolled_window = gtk_scrolled_window_new();
+   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+   GtkWidget *frame = gtk_frame_new("");
    gtk_widget_set_hexpand(scrolled_window, TRUE);
    gtk_widget_set_vexpand(scrolled_window, TRUE);
-   gtk_widget_set_size_request(scrolled_window, 1420, 200);
+   gtk_widget_set_size_request(scrolled_window, 200, 240);
+   gtk_widget_set_size_request(frame, 1200, 250); // h size be bigger than the h-size for the scrolled window
    gtk_window_set_child(GTK_WINDOW(window), scrolled_window);
    CootSequenceView *sv = coot_sequence_view_new();
    int imol = 0; // for now
    coot_sequence_view_set_structure(sv, imol, mol);
-   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(sv));
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(frame));
+
+   // gtk_box_append(GTK_BOX(box), GTK_WIDGET(sv));
+   gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(sv));
 
    auto callback = +[] (CootSequenceView* self,
                         const box_info_t *residue_vip,
