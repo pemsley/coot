@@ -10,18 +10,14 @@
 
 ----
 
-4 items
+1 item
 
-Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
-
-Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 4
+Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 2
 set_framebuffer_scale_factor().
 Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
 shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
-
-Do the tutorial from time to time - what's missing? ::: 1
-
-
+Don't confuse the scaling of the framebuffer for screenshot (in "Plain" mode) and
+the scaling of the framebuffers for super-sampling (in "Fancy" mode).
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
@@ -711,3 +707,17 @@ Something is wrong with the generation of the guile code. ::: 0.2
 
 Fix the dynamic validation pane resize on Update of the buttons ::: 0.2
 * Done. gtk_paned_get_position().
+
+Pulling on atoms during refinement doesn't work with trackpad on macOS. ::: 2
+* Done. Let's see how it integrates with regular mouse usage.
+
+Do the tutorial from time to time - what's missing? ::: 1
+* Nothing. It works.
+
+Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 2
+set_framebuffer_scale_factor().
+Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
+shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
+Don't confuse the scaling of the framebuffer for screenshot (in "Plain" mode) and
+the scaling of the framebuffers for super-sampling (in "Fancy" mode).
+* Now the framebuffer scaling for the basic/simple mode work (fat density lines appear)

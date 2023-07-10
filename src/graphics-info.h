@@ -29,8 +29,9 @@
 #define GRAPHICS_INFO_H
 
 #include "compat/coot-sysdep.h"
-#include "validation-graphs.hh"
-#include "validation-graph-widget.hh"
+#include "validation-graphs/validation-information.hh"
+#include "validation-graphs/validation-graphs.hh"
+#include "validation-graphs/validation-graph-widget.hh"
 // need gtk things
 #include <gtk/gtk.h>
 #include <epoxy/gl.h>
@@ -109,11 +110,8 @@
 #ifdef DO_RAMA_PLOT
 #include "rama_plot.hh"
 #endif
-// #ifdef DO_GEOMETRY_GRAPHS
-// #include "geometry-graphs.hh"
-// #endif
 
-#include "validation-graphs/validation-information.hh"
+
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -5162,10 +5160,6 @@ string   static std::string sessionid;
    // like the above, this should be called when a model gets added or deleted.
    static void refresh_ramachandran_plot_model_list();
 
-   // 20230415-PE This should not be needed - because we should always be able to read the active imol
-   // from the widget in any callback. But for now it is needed in on_validation_graph_checkbutton_toggled()
-   // in the glade-callbacks.cc - so let's make it public.
-   //
    /// -1 if none
    static int active_validation_graph_model_idx;
 
@@ -5173,8 +5167,7 @@ string   static std::string sessionid;
    static std::string active_validation_graph_chain_id;
    typedef std::map<coot::validation_graph_type,GtkWidget*> validation_graph_map_t;
    static validation_graph_map_t validation_graph_widgets;
-   // typedef std::map<coot::validation_graph_type,std::shared_ptr<dummy_graph_data_t>> validation_data_map_t;
-   typedef std::map<coot::validation_graph_type,std::shared_ptr<coot::validation_information_t> > validation_data_map_t;
+   typedef std::map<coot::validation_graph_type,std::shared_ptr<coot::validation_information_t>> validation_data_map_t;
    static validation_data_map_t validation_graph_data;
    public:
    static void update_active_validation_graph_model(int new_model_idx);

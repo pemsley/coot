@@ -423,7 +423,8 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
                      Shader *shader_for_hud_image_textures_p,
                      int glarea_width_at_hud_start,
                      int glarea_heigth_at_hud_start,
-                     int glarea_width, int glarea_height) {
+                     int glarea_width, int glarea_height,
+                     bool clear_needed_flag) {
 
    // std::cout << "------------------- gl_rama_plot_t::draw() -- start ---" << std::endl;
 
@@ -488,9 +489,11 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
       return;
    }
 
-   glDisable(GL_BLEND);
-   glClearColor(0,0,0,1);
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   if (clear_needed_flag) {
+      glDisable(GL_BLEND);
+      glClearColor(0,0,0,1);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   }
 
    glm::vec2 offset_position_natural(0.1, 0.1);
    auto p_s = get_munged_offset_and_scale(BOTTOM_LEFT, offset_position_natural, 1.0, 1.0, glarea_width, glarea_height);

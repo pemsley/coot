@@ -6,6 +6,7 @@
 #include <array>
 
 #include <clipper/core/xmap.h>
+#include "utils/ctpl.h"
 #include "coot-utils/atom-selection-container.hh"
 #include "coot-utils/coot-rama.hh"
 #include "coot-utils/sfcalc-genmap.hh"
@@ -38,7 +39,12 @@
 #include "coot-simple-molecule.hh"
 
 #include "coot-utils/coot-map-utils.hh" // for map_molecule_centre_info_t
-#include "api-cell.hh"
+#include "api-cell.hh" // 20230702-PE not needed in this file - remove it from here
+
+// 2023-07-04-PE This is a hack. This should be configured - and the
+// various functions that depend on this being true should be
+// reworked so that they run without a thread pool.
+#define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 namespace coot {
 
@@ -671,7 +677,8 @@ namespace coot {
       std::pair<int, std::string> add_terminal_residue_directly(const residue_spec_t &spec,
                                                                 const std::string &new_res_type,
                                                                 const protein_geometry &geom,
-                                                                const clipper::Xmap<float> &xmap);
+                                                                const clipper::Xmap<float> &xmap,
+                                                                ctpl::thread_pool &static_thread_pool);
 
       int add_compound(const dictionary_residue_restraints_t &monomer_restraints, const Cartesian &position,
                        const clipper::Xmap<float> &xmap, float map_rmsd);
