@@ -21,6 +21,10 @@ struct _CootSequenceView {
 
 static guint sequence_view_residue_clicked_signal;
 
+// C++ API - should this be in the header? It is of no use execpt to functions in this file.
+std::pair<bool, coot::residue_spec_t> find_the_clicked_residue(CootSequenceView *sv, float x, float y);
+
+
 G_BEGIN_DECLS
 
 G_DEFINE_TYPE(CootSequenceView, coot_sequence_view, GTK_TYPE_WIDGET)
@@ -34,13 +38,8 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
    self->box_info_store.clear();
 
-   auto add_chain_label = [widget, snapshot] (const std::string &chain_id, float x_base, float y_base) {
+   auto add_chain_label = [widget] (cairo_t *cairo_canvas, const std::string &chain_id, float x_base, float y_base) {
       
-      float w_pixels_label = 12.0;
-      float h_pixels_label = 12.0;
-
-      graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(x_base, y_base, x_base + w_pixels_label, y_base + h_pixels_label);
-      cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot, &m_graphene_rect);
       GdkRGBA residue_color; // maybe per-residue colouring later
       gdk_rgba_parse(&residue_color, "#222222");
       cairo_set_source_rgb(cairo_canvas, residue_color.red, residue_color.green, residue_color.blue);
@@ -176,7 +175,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
    // This function is used from the loop below.
    //
-   auto add_box_letter_code_label = [widget] (cairo_t *cairo_canvas, graphene_rect_t &m_graphene_rect, mmdb::Residue *residue_p, float x_base, float y_base) {
+   auto add_box_letter_code_label = [widget] (cairo_t *cairo_canvas, mmdb::Residue *residue_p, float x_base, float y_base) {
 
       std::string res_name = residue_p->GetResName();
       std::string slc = coot::util::three_letter_to_one_letter_with_specials(res_name);
@@ -214,7 +213,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             std::string chain_id = chain_p->GetChainID();
             float y_offset = y_offset_base + static_cast<float>(ichain) * Y_OFFSET_PER_CHAIN;
             float x_offset_base = 15.0;
-            add_chain_label(chain_id, x_offset_base, y_offset);
+            add_chain_label(cairo_canvas, chain_id, x_offset_base, y_offset);
          }
 
          // slc labels for each residue
@@ -234,7 +233,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
                   float y_1 = y_offset;
                   box_info_t box_info(residue_p, x_1, y_1);
                   self->box_info_store.push_back(box_info);
-                  add_box_letter_code_label(cairo_canvas, m_graphene_rect, residue_p, x_1, y_1);
+                  add_box_letter_code_label(cairo_canvas, residue_p, x_1, y_1);
                }
             }
          }
@@ -257,34 +256,14 @@ gboolean sequence_view_query_tooltip(CootSequenceView* self,
                                      gboolean keyboard_mode,
                                      GtkTooltip* tooltip,
                                      gpointer user_data) {
+
+   std::pair<bool, coot::residue_spec_t>  p = find_the_clicked_residue(self, x, y);
+   if (p.first)
+      std::cout << "query tooltip for " << p.second << std::endl;
+
    return FALSE; // for now
 }
 
-void
-find_the_clicked_residue(CootSequenceView *sv, float x, float y) {
-
-   coot::residue_spec_t best_spec;
-   float best_dist_initial = 14.0;
-   float best_dist = best_dist_initial;
-   for (unsigned int i=0; i<sv->box_info_store.size(); i++) {
-      const auto &box = sv->box_info_store[i];
-      float d_x = box.x_base - x + RESIDUE_BOX_WIDTH/2;  // Offset from corner to middle of box applied here.
-      float d_y = box.y_base - y + RESIDUE_BOX_HEIGHT/2; // ditto.
-      float dd = d_x * d_x + d_y * d_y;
-      float d = sqrtf(dd);
-      if (d < best_dist) {
-         best_dist = d;
-         best_spec = box.residue_spec;
-      }
-   }
-   if (best_dist < best_dist_initial) {
-      mmdb::Residue *residue_p = coot::util::get_residue(best_spec, sv->mol);
-      if (residue_p) {
-         std::string rn = residue_p->GetResName();
-         std::cout << "   closest clicked residue " << best_spec << " " << rn << std::endl;
-      }
-   }
-}
 
 // static
 void on_sequence_view_left_click(GtkGestureClick* gesture_click,
@@ -294,10 +273,12 @@ void on_sequence_view_left_click(GtkGestureClick* gesture_click,
                                  gpointer user_data) {
 
    // user_data is the CootSequenceView* self.
-
+   //
    CootSequenceView* self = COOT_COOT_SEQUENCE_VIEW(user_data);
-   // std::cout << "--- on_sequence_view_left_click() " << self << " x " << x << " y " << y << std::endl;
-   find_the_clicked_residue(self, x, y);
+   std::pair<bool, coot::residue_spec_t>  p = find_the_clicked_residue(self, x, y);
+   if (p.first)
+      std::cout << "clicked " << p.second << std::endl;
+
 }
 
 
@@ -324,6 +305,7 @@ static void coot_sequence_view_init(CootSequenceView* self) {
 static void coot_sequence_view_dispose(GObject* _self) {
    CootSequenceView* self = COOT_COOT_SEQUENCE_VIEW(_self);
    // clean up self here
+   self->box_info_store.clear();
    G_OBJECT_CLASS(coot_sequence_view_parent_class)->dispose(_self);
 }
 
@@ -354,6 +336,30 @@ coot_sequence_view_new() {
 }
 
 G_END_DECLS
+
+std::pair<bool, coot::residue_spec_t>
+find_the_clicked_residue(CootSequenceView *sv, float x, float y) {
+
+   coot::residue_spec_t best_spec;
+   float best_dist_initial = 14.0;
+   float best_dist = best_dist_initial;
+   for (unsigned int i=0; i<sv->box_info_store.size(); i++) {
+      const auto &box = sv->box_info_store[i];
+      float d_x = box.x_base - x + RESIDUE_BOX_WIDTH/2;  // Offset from corner to middle of box applied here.
+      float d_y = box.y_base - y + RESIDUE_BOX_HEIGHT/2; // ditto.
+      float dd = d_x * d_x + d_y * d_y;
+      float d = sqrtf(dd);
+      if (d < best_dist) {
+         best_dist = d;
+         best_spec = box.residue_spec;
+      }
+   }
+   bool status = false;
+   if (best_dist < best_dist_initial)
+      status = true;
+   return std::make_pair(status, best_spec);
+}
+
 
 void coot_sequence_view_set_structure(CootSequenceView* self, int imol, mmdb::Manager *mol) {
 
