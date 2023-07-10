@@ -690,3 +690,11 @@ unsigned int ElementInsertion::get_atomic_number() const noexcept {
         return std::get<unsigned int>(this->element);
     }
 }
+
+FlipTool::FlipMode FlipTool::get_mode() const noexcept {
+    return this->mode;
+}
+
+FlipTool::FlipTool(FlipMode mode) noexcept {
+    this->mode = mode;
+}

@@ -130,6 +130,7 @@ class FlipTool {
     };
     private:
     FlipMode mode;
+    public:
     FlipTool(FlipMode) noexcept;
     FlipMode get_mode() const noexcept;
 };
