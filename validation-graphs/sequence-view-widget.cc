@@ -201,9 +201,12 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
          std::pair<int, int> n_res_and_n_chains = n_residues_and_n_chains(model_p);
          float w_pixels_rect = n_res_and_n_chains.first * X_OFFSET_PER_RESIDUE + x_offset_base ; // w and h of the box it sits in
          float h_pixels_rect = 100 + n_res_and_n_chains.second * Y_OFFSET_PER_CHAIN + y_offset_base;
-
          graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w_pixels_rect, h_pixels_rect);
          cairo_t *cairo_canvas = gtk_snapshot_append_cairo(snapshot, &m_graphene_rect);
+
+         // lookup the frame and set the size
+         GtkWidget *frame = GTK_WIDGET(g_object_get_data(G_OBJECT(self), "sv3-frame"));
+         gtk_widget_set_size_request(frame, 50.0f + w_pixels_rect, h_pixels_rect);
 
          // Make the labels for the chains
          //
