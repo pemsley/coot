@@ -104,7 +104,7 @@ to download the AlphaFold2 model for ``P54311``
 Check that you have the "Morph" menu item in the main menu bar. If you do not, then you will need to get the "Morph" tools from Curlew
 
   - **File** &rarr; **Curlew**
-  - Look for the **Morph** tool and click its "Install" button
+  - Look for the **Morph** tool and click its **Install** button
 
   - Use the combobox in the Display Manager to change the representation style of the AlphaFold2 ("AF-P54311-F1-model_v3.pdb") model
     to "CA + Ligands".
@@ -112,13 +112,16 @@ Check that you have the "Morph" menu item in the main menu bar. If you do not, t
 
  - **Morph** &rarr; **Jiggle Fit with Fourier Filtering**
    - _{Coot adds the "Morph" menu to the main menu bar}_
+   - Close the Curlew dialog.
 
 [wait a couple of seconds - you can think of this step as local molecular placement. We could have used MOLREP or PHASER
 to achieve the same result with no human intervention, but with considerably more palaver]
 
    - _{The AlphaFold2 model should jump into the density}_
 
-You can check that this is the correct solution because it finds some density for the N-terminal helical extension.
+You can check that this is the correct solution because it finds some density for the N-terminal helical extension (the
+appropriate density level for this helix is at a rather lowver level than the rest of the molecule, so some scrolling will
+be in order).
 
 4: Real Space Refinement Morph Fitting
 --------------------------------------
@@ -126,10 +129,14 @@ You can check that this is the correct solution because it finds some density fo
 RSR morphing in _Coot_ requires that we add some additional restraints:
 
    - **Calculate** &rarr; **Modules** &rarr; **Refine**
+   - _{Coot adds the "Refine" menu to the main menu bar}_
    - **Calculate** &rarr; **Modules** &rarr; **Restraints**
+   - _{Coot adds the "Restraints" menu to the main menu bar}_
    - **Restraints** &rarr; **Generate All-Molecule Self Restraints 5.0**
-   - **Undisplay Extra Restraints**
+   - _{Coot displayes a grey mesh of additional restraints}_
+   - **Restraints** &rarr; **Undisplay Extra Restraints**
    - **R/RC** &rarr; **Refinement Weight** &rarr; **Estimate**
+         o "R/RC.." is labelled "Refine/Regularization Control..." if you have labels on your vertical toolbar
    - **More Control** Geman-McClure weight to `0.01` &rarr; **OK**
    - **Refine** &rarr; **Chain Refine**
    - _{watch and wait}_
@@ -143,7 +150,7 @@ Now let's reduce the weight on the GM restraints:
 This should allow the model to make local/smaller scale adjustments to better fit the map
 
    - _{watch and wait}_
-   - **Accept**
+   - **Accept** (in the refinement dialog)
 
 5: Trim
 -------
@@ -154,7 +161,7 @@ There are two types of trimming that we can do:
 
 either:
 
-   - Look at the model and use the Delete function to remove misfitting residue ranges
+   - Look at the model and use the Delete function to remove residues for which there is little to no density
 
 or (using a recent version of _Coot_)
    - use the Python scripting function `alphafold_pLDDT_colours(3)` to colour by pLDDT and remove the parts of the model that you don't want (the pLDDT replaces the B-factors in AlphaFold2 models). Unlike B-factors, the lower the pLDDT, the lower our confidence in the correctness of that part of the model. A typical value to chop is the 70% level.
@@ -164,7 +171,7 @@ or (using a recent version of _Coot_)
 
  ### 6.1 Unclash
 
-Part of the work on the refinement has been to change the way non-bonded contacts
+Part of the work on the Coot's refinement has been to change the way non-bonded contacts
 are minimized. To reduce/remove atom overlaps (or "Clashes" as Molprobity would
 call them)
 
@@ -174,12 +181,15 @@ call them)
 
 The Extra Distance Restraints are now out of date, we should delete them:
 
-  - **Restraints** &rarr; **Delete Extra Distance Restraints**
+  - **Restraints** &rarr; **Delete Extra Restraints**
+  - Choose "AF-54311-F1-model_v3.pdb" in the combobox
+  - **OK**
 
 Now refine:
 
   - **Refine** &rarr; **Chain Refine**
-  - _{wait - this takes a lot longer than before - there are lots of interactions now}_
+  - _{wait - this takes a lot longer than before - there are lots of interactions now, the atoms should not move
+      much if we have done well in the previous fitting and refinement steps}_
   - **Accept**
 
 _{should we wish to delete the hydrogen atoms (we don't right now), we would use the Python
