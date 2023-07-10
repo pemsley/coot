@@ -38,10 +38,11 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
    self->box_info_store.clear();
 
-   auto add_chain_label = [widget] (cairo_t *cairo_canvas, const std::string &chain_id, float x_base, float y_base) {
+   auto add_chain_label = [widget] (cairo_t *cairo_canvas, const std::string &chain_id, const std::string &text_colour,
+                                    float x_base, float y_base) {
       
       GdkRGBA residue_color; // maybe per-residue colouring later
-      gdk_rgba_parse(&residue_color, "#222222");
+      gdk_rgba_parse(&residue_color, text_colour.c_str());
       cairo_set_source_rgb(cairo_canvas, residue_color.red, residue_color.green, residue_color.blue);
 
       PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
@@ -99,7 +100,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             // std::cout << "add_tick_marks(): ires: " << ires << " pos_x " << pos_x << std::endl;
             double pos_y_start = y_offset_base - 1.0;
             double pos_y_end   = pos_y_start - TICK_LINE_LENGTH;
-            cairo_set_source_rgb(cairo_canvas, 0.1, 0.1, 0.1);
+            cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y_start);
             cairo_line_to(cairo_canvas, pos_x, pos_y_end);
             cairo_stroke(cairo_canvas);
@@ -108,7 +109,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             pos_x = x_offset_base + X_OFFSET_PER_RESIDUE * static_cast<double>(ires-mm.second.first+1) + X_OFFSET_PER_RESIDUE/2;
             pos_y_start = y_offset_base + static_cast<double>(n_chains) * Y_OFFSET_PER_CHAIN + -2.0;
             pos_y_end   = pos_y_start + TICK_LINE_LENGTH;
-            cairo_set_source_rgb(cairo_canvas, 0.1, 0.1, 0.1);
+            cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y_start);
             cairo_line_to(cairo_canvas, pos_x, pos_y_end);
             cairo_stroke(cairo_canvas);
@@ -132,22 +133,19 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
             // above the top line
             double pos_x = x_offset_base + X_OFFSET_PER_RESIDUE * static_cast<double>(ires-mm.second.first+1) + X_OFFSET_PER_RESIDUE/2;
-            // float x_1 = static_cast<float>(res_no-mm.second.first+1) * X_OFFSET_PER_RESIDUE + x_offset_base;
             std::string text = std::to_string(ires);
             float l = text.length();
             pos_x -= 3.5 * l ; // so that the text is centred on the tick.
             double pos_y = y_offset_base - 2.0 - TICK_LINE_LENGTH;
-            cairo_set_source_rgb(cairo_canvas, 0.1, 0.1, 0.1);
+            cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y);
             cairo_show_text(cairo_canvas, text.c_str());
-            // std::cout << "text top " << text << " at " << pos_x << " " << pos_y<< std::endl;
 
             // below the bottom line
             pos_y = y_offset_base + 8.0 + TICK_LINE_LENGTH + Y_OFFSET_PER_CHAIN * n_chains;
-            cairo_set_source_rgb(cairo_canvas, 0.1, 0.1, 0.1);
+            cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y);
             cairo_show_text(cairo_canvas, text.c_str());
-            // std::cout << "text bot " << text << " at " << pos_x << " " << pos_y<< std::endl;
          }
       }
    };
@@ -175,13 +173,14 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
    // This function is used from the loop below.
    //
-   auto add_box_letter_code_label = [widget] (cairo_t *cairo_canvas, mmdb::Residue *residue_p, float x_base, float y_base) {
+   auto add_box_letter_code_label = [widget] (cairo_t *cairo_canvas, mmdb::Residue *residue_p, const std::string &text_colour,
+                                              float x_base, float y_base) {
 
       std::string res_name = residue_p->GetResName();
       std::string slc = coot::util::three_letter_to_one_letter_with_specials(res_name);
 
       GdkRGBA residue_color; // maybe per-residue colouring later
-      gdk_rgba_parse(&residue_color, "#222222");
+      gdk_rgba_parse(&residue_color, text_colour.c_str());
       cairo_set_source_rgb(cairo_canvas, residue_color.red, residue_color.green, residue_color.blue);
 
       PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
@@ -198,6 +197,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       mmdb::Model *model_p = self->mol->GetModel(imod);
       if (model_p) {
 
+         std::string text_colour = "#dddddd";
          std::pair<int, int> n_res_and_n_chains = n_residues_and_n_chains(model_p);
          float w_pixels_rect = n_res_and_n_chains.first * X_OFFSET_PER_RESIDUE + x_offset_base ; // w and h of the box it sits in
          float h_pixels_rect = 100 + n_res_and_n_chains.second * Y_OFFSET_PER_CHAIN + y_offset_base;
@@ -206,7 +206,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
          // lookup the frame and set the size
          GtkWidget *frame = GTK_WIDGET(g_object_get_data(G_OBJECT(self), "sv3-frame"));
-         gtk_widget_set_size_request(frame, 50.0f + w_pixels_rect, h_pixels_rect);
+         gtk_widget_set_size_request(frame, 50.0f + w_pixels_rect, h_pixels_rect + 40.0f);
 
          // Make the labels for the chains
          //
@@ -216,7 +216,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             std::string chain_id = chain_p->GetChainID();
             float y_offset = y_offset_base + static_cast<float>(ichain) * Y_OFFSET_PER_CHAIN;
             float x_offset_base = 15.0;
-            add_chain_label(cairo_canvas, chain_id, x_offset_base, y_offset);
+            add_chain_label(cairo_canvas, chain_id, text_colour, x_offset_base, y_offset);
          }
 
          // slc labels for each residue
@@ -236,7 +236,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
                   float y_1 = y_offset;
                   sv3_box_info_t box_info(residue_p, x_1, y_1);
                   self->box_info_store.push_back(box_info);
-                  add_box_letter_code_label(cairo_canvas, residue_p, x_1, y_1);
+                  add_box_letter_code_label(cairo_canvas, residue_p, text_colour, x_1, y_1);
                }
             }
          }
