@@ -336,21 +336,14 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             const std::string markup_beginning = "<span color=\"" + color_str + "\" weight=\"" + weight_str + "\" size=\"" + size_str + "\">";
             const std::string markup_ending = "</span>";
 
-            // Used to make the texts centered where they should be.
-            int layout_width, layout_height;
-            double origin_x, origin_y;
+            bool reversed = false;
+            std::string markup;
+            std::string markup_no_appendix;
 
             switch (render_mode) {
                 case DisplayMode::AtomIndices: {
-                    std::string markup = markup_beginning + atom.symbol + ":" + std::to_string(atom.idx) + markup_ending;
-                    pango_layout_set_markup(pango_layout,markup.c_str(),-1);
-                    pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
-                    //add margins
-                    //layout_height += 5;
-                    layout_width += 5;
-
-                    origin_x = atom.x * scale_factor + x_offset - layout_width / 2.f;
-                    origin_y = atom.y * scale_factor + y_offset - layout_height / 2.f;
+                    markup_no_appendix = markup_beginning + atom.symbol + markup_ending;
+                    markup = markup_beginning + atom.symbol + ":" + std::to_string(atom.idx) + markup_ending;
                     break;
                 }
                 // todo
@@ -359,26 +352,29 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
                 // }
                 default:
                 case DisplayMode::Standard: {
-                    auto [raw_markup,reversed] = process_appendix(atom.symbol,atom.appendix);
-                    std::string markup_no_appendix = markup_beginning + atom.symbol + markup_ending;
-                    // Used to make the texts centered where they should be.
-                    int layout_height_no_ap, layout_width_no_ap;
-                    pango_layout_set_markup(pango_layout,markup_no_appendix.c_str(),-1);
-                    // Measure the size of the "main" atom, without "appendix"
-                    pango_layout_get_pixel_size(pango_layout,&layout_width_no_ap,&layout_height_no_ap);
-
-                    std::string markup = markup_beginning + raw_markup + markup_ending;
-                    pango_layout_set_markup(pango_layout,markup.c_str(),-1);
-                    
-                    pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
-
-                    // todo: get rid of this '5' magic number - figure out what's wrong
-                    int layout_x_offset = reversed ? layout_width - layout_height_no_ap / 2.f + 5 : layout_width_no_ap / 2.f;
-                    origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
-                    origin_y = atom.y * scale_factor + y_offset - layout_height_no_ap/2.f;
+                    auto [raw_markup,p_reversed] = process_appendix(atom.symbol,atom.appendix);
+                    reversed = p_reversed;
+                    markup_no_appendix = markup_beginning + atom.symbol + markup_ending;
+                    markup = markup_beginning + raw_markup + markup_ending;
                     break;
                 }
             }
+
+            pango_layout_set_markup(pango_layout,markup_no_appendix.c_str(),-1);
+            // Used to make the texts centered where they should be (appendix).
+            int layout_height_no_ap, layout_width_no_ap;
+            // Measure the size of the "main" atom, without "appendix"
+            pango_layout_get_pixel_size(pango_layout,&layout_width_no_ap,&layout_height_no_ap);
+            pango_layout_set_markup(pango_layout,markup.c_str(),-1);
+            // Used to make the texts centered where they should be.
+            int layout_width, layout_height;
+            // Measure full size of the text
+            pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
+
+            // todo: get rid of this '5' magic number - figure out what's wrong
+            int layout_x_offset = reversed ? layout_width - layout_height_no_ap / 2.f + 5 : layout_width_no_ap / 2.f;
+            double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
+            double origin_y = atom.y * scale_factor + y_offset - layout_height_no_ap/2.f;
 
             graphene_rect_t rect;
             rect.origin.x = origin_x;
