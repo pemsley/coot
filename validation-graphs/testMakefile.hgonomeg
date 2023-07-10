@@ -2,7 +2,7 @@
 # to find clipper.pc, you will need to do something like
 # export PKG_CONFIG_PATH=$COOT_DIR/lib/pkgconfig
 
-COOT_DIR=$(HOME)/freshcoot/experimental_systemlibsbuild/prefix
+COOT_DIR=$(HOME)/freshcoot/experimental_systemlibsbuild/prefix2
 
 CXXFLAGS= \
    -I$(COOT_DIR)/include \
