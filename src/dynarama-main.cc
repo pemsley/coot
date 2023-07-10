@@ -429,7 +429,7 @@ main(int argc, char *argv[]) {
                     psi_axis_option);
          if (rama->dynawin) {
             if (is_kleywegt_plot_flag) {
-               gtk_widget_hide(rama->selection_hbox);
+               gtk_widget_set_visible(rama->selection_hbox, FALSE);
                if (selHnd > -1 && selHnd2 > -1) {
                   rama->draw_it(imol, imol2,
                                 mol, mol2,

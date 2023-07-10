@@ -186,7 +186,7 @@ void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coo
 void probe_radius_graph_close_callback( GtkWidget *button,
  					GtkWidget *dialog) {
 
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 }
 
 

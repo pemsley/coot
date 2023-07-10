@@ -104,7 +104,7 @@ coot::rama_plot::init(const std::string &type, short int psi_axis) {
          psi_axis_mode = psi_axis; // or should this be in init_internal?!
          init_internal("Ramachandran Plot (Phi/Psi Edit Mode)", 0.02, 0.002, 1);
          hide_stats_frame();
-         gtk_widget_hide(selection_hbox);
+         gtk_widget_set_visible(selection_hbox, FALSE);
          gtk_widget_set_sensitive(rama_view_menu, FALSE);
          plot_type = PHI_EDIT;
       }
@@ -120,7 +120,7 @@ coot::rama_plot::init(const std::string &type, short int psi_axis) {
          psi_axis_mode = psi_axis; // or should this be in init_internal?!
          init_internal("Ramachandran Plot (Backbone Edit Mode)", 0.02, 0.002, 1, hide_buttons);
          hide_stats_frame();
-         gtk_widget_hide(selection_hbox);
+         gtk_widget_set_visible(selection_hbox, FALSE);
          gtk_widget_set_sensitive(rama_view_menu, FALSE);
          plot_type = BACKBONE_EDIT;
       }
@@ -301,7 +301,7 @@ coot::rama_plot::create_dynarama_window() {
                gtk_builder_connect_signals(builder, dynawin);
                g_object_unref (G_OBJECT (builder));
                status = add_from_file_status;
-               gtk_widget_hide(rama_stats_label2);
+               gtk_widget_set_visible(rama_stats_label2, FALSE);
 
                // new goocanvass don't wan't or need the viewport. So add the canvas to the scrolled_window
                // std::cout << "::::::: calling gtk_widget_destroy() for the dynarama_viewport" << std::endl;
@@ -339,12 +339,12 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    drag_y = 0;
 
    if (hide_buttons == 1) {
-      gtk_widget_hide(dynarama_ok_button);
-      gtk_widget_hide(dynarama_close_button);
+      gtk_widget_set_visible(dynarama_ok_button, FALSE);
+      gtk_widget_set_visible(dynarama_close_button, FALSE);
    }
 
    if (! is_kleywegt_plot_flag_local){
-      gtk_widget_hide(kleywegt_chain_box);
+      gtk_widget_set_visible(kleywegt_chain_box, FALSE);
       gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(rama_radiomenuitem),
                                      TRUE);
    } else {
@@ -354,9 +354,9 @@ coot::rama_plot::init_internal(const std::string &mol_name,
 
 
    if (is_stand_alone()) {
-      gtk_widget_show(rama_open_menuitem);
+      gtk_widget_set_visible(rama_open_menuitem, TRUE);
    } else {
-      gtk_widget_hide(rama_open_menuitem);
+      gtk_widget_set_visible(rama_open_menuitem, FALSE);
    }
    //      // set the title of of widget
    rama_mol_name = mol_name;
@@ -370,7 +370,7 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    GtkAllocation alloc = { 0, 0, 400, ysize };
    gtk_widget_size_allocate(dynawin, &alloc);
    if (dynawin) {
-      gtk_widget_show(dynawin);
+      gtk_widget_set_visible(dynawin, TRUE);
    } else {
       std::cout<<"ERROR:: no window, should bail out"<<std::endl;
    }
@@ -414,7 +414,7 @@ coot::rama_plot::init_internal(const std::string &mol_name,
       std::cout << "rama set the window position here " << std::endl;
    }
 
-   gtk_widget_show(canvas);
+   gtk_widget_set_visible(canvas, TRUE);
 
    // Normally we have a plot from a molecule (and we communicate back
    // to graphics_info_t that we now have one), but occassionally we
@@ -1225,7 +1225,7 @@ coot::rama_plot::hide_yourself() {
 
    // I (BL) think we shouldnt destroy but just hide.
    if (dynawin)
-      gtk_widget_hide(dynawin);
+      gtk_widget_set_visible(dynawin, FALSE);
    else
       std::cout << "ERROR:: could not get dialog from canvas in rama_plot::destroy_yourself"
                 << std::endl;
@@ -2364,7 +2364,7 @@ coot::rama_plot::draw_it(int imol1, int imol2,
    draw_2_phi_psi_sets_on_canvas(mol1, mol2);
    if (is_kleywegt_plot()) {
       hide_stats_frame();
-      gtk_widget_hide(selection_hbox);
+      gtk_widget_set_visible(selection_hbox, FALSE);
       fill_kleywegt_comboboxes(mol1, mol2);
    }
 }
@@ -2379,7 +2379,7 @@ coot::rama_plot::draw_it(int imol1, int imol2,
    draw_2_phi_psi_sets_on_canvas(mol1, mol2, SelHnd1, SelHnd2);
    if (is_kleywegt_plot()) {
       hide_stats_frame();
-      gtk_widget_hide(selection_hbox);
+      gtk_widget_set_visible(selection_hbox, FALSE);
       fill_kleywegt_comboboxes(mol1, mol2);
    }
 }
@@ -2402,7 +2402,7 @@ coot::rama_plot::draw_it(int imol1, int imol2,
    draw_2_phi_psi_sets_on_canvas(mol1, mol2, chain_id_1, chain_id_2);
    if (is_kleywegt_plot()) {
       hide_stats_frame();
-      gtk_widget_hide(selection_hbox);
+      gtk_widget_set_visible(selection_hbox, FALSE);
       fill_kleywegt_comboboxes(mol1, mol2);
    }
 }
@@ -2477,7 +2477,7 @@ void
 coot::rama_plot::hide_stats_frame() {
 
    if (canvas) {
-      gtk_widget_hide(rama_stats_frame);
+      gtk_widget_set_visible(rama_stats_frame, FALSE);
    } else {
       std::cout << "ERROR:: null widget in hide_stats_frame\n";
    } 
@@ -2514,7 +2514,7 @@ coot::rama_plot::counts_to_stats_frame(const coot::rama_stats_container_t &sc) {
       gtk_label_set_text(GTK_LABEL(rama_stats_label3), outlr_str.c_str());
       // gtk_label_set_text(GTK_LABEL(rama_stats_label2), allow_str.c_str());
 
-      gtk_widget_show(rama_stats_frame);
+      gtk_widget_set_visible(rama_stats_frame, TRUE);
 	 
    } else {
       hide_stats_frame();
@@ -3627,15 +3627,15 @@ coot::rama_plot::plot_type_changed() {
 
    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(rama_radiomenuitem))) {
       // rama plot, i.e. hide the kleywegt box
-      gtk_widget_hide(kleywegt_chain_box);
+      gtk_widget_set_visible(kleywegt_chain_box, FALSE);
       if (mols().first) {
          // clear_canvas_items();
          set_kleywegt_plot_state(0);
          kleywegt_plot_uses_chain_ids = 0;
-         gtk_widget_show(rama_stats_frame);
-         gtk_widget_show_all(selection_hbox);
+         gtk_widget_set_visible(rama_stats_frame, TRUE);
+         gtk_widget_set_visible_all(selection_hbox, TRUE);
          // show selections (fill maybe FIXME - and set tick?)
-         // gtk_widget_show(selection_checkbutton);
+         // gtk_widget_set_visible(selection_checkbutton, TRUE);
          draw_it(mols().first);
          if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(selection_checkbutton))) {
             apply_selection_from_widget();
@@ -3643,13 +3643,13 @@ coot::rama_plot::plot_type_changed() {
 
       } else {
          // kleywegt plot
-         gtk_widget_show(kleywegt_chain_box);
-         gtk_widget_hide(rama_stats_frame);
-         gtk_widget_show(selection_hbox);
+         gtk_widget_set_visible(kleywegt_chain_box, TRUE);
+         gtk_widget_set_visible(rama_stats_frame, FALSE);
+         gtk_widget_set_visible(selection_hbox, TRUE);
          // hide the selection stuff
-         gtk_widget_hide(selection_checkbutton);
-         gtk_widget_hide(selection_entry);
-         gtk_widget_hide(selection_apply_button);
+         gtk_widget_set_visible(selection_checkbutton, FALSE);
+         gtk_widget_set_visible(selection_entry, FALSE);
+         gtk_widget_set_visible(selection_apply_button, FALSE);
          // either do a default kleywegt plot, or
          // dont do anything until things are selected and applied
          // better to do the latter. BUT what to do in the reverse direction?
@@ -3889,8 +3889,8 @@ coot::rama_plot::show_selection_widget(int state) {
       // the widget may not be visible any more, so show again
       // instead of checking if they are shown we just show again.
       // shouldnt harm.
-      gtk_widget_show(selection_entry);
-      gtk_widget_show(selection_apply_button);
+      gtk_widget_set_visible(selection_entry, TRUE);
+      gtk_widget_set_visible(selection_apply_button, TRUE);
       gtk_widget_set_sensitive(selection_entry, TRUE);
       gtk_widget_set_sensitive(selection_apply_button, TRUE);
    } else {

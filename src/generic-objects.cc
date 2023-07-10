@@ -641,9 +641,9 @@ void close_generic_object(int object_number) {
       GtkWidget *toggle_button = 0;
       GtkWidget *label = 0;
       if (toggle_button)
-	 gtk_widget_hide(toggle_button);
+	 gtk_widget_set_visible(toggle_button, FALSE);
       if (label)
-	 gtk_widget_hide(label);
+	 gtk_widget_set_visible(label, FALSE);
    }
 }
 
@@ -712,7 +712,7 @@ void generic_objects_gui_wrapper() {
    graphics_info_t g;
    g.generic_objects_dialog = wrapped_create_generic_objects_dialog();
    set_transient_for_main_window(g.generic_objects_dialog);
-   gtk_widget_show(g.generic_objects_dialog);
+   gtk_widget_set_visible(g.generic_objects_dialog, TRUE);
 }
 
 

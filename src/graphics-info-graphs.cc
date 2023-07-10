@@ -21,7 +21,7 @@
  * 02110-1301, USA
  */
 
-#include "validation-graphs.hh"
+#include "validation-graphs/validation-graphs.hh"
 #include "widget-from-builder.hh"
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
@@ -181,6 +181,7 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
    std::cout << "----------------------- done refresh_ramachandran_plot_model_list --------- " << std::endl;
 }
 
+// TODO: we're not using tabs right now. Do we ever intend to do so?
 
 // void create_tab_for_validation_graph(coot::validation_graph_type type, GtkWidget* the_graph) {
 // 	GtkWidget* notebook = widget_from_builder("validation_graph_notebook");
@@ -1335,7 +1336,7 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 			if (use_graphics_interface_flag) {
 			   // GtkWidget *widget = create_no_restraints_info_dialog();
 			   GtkWidget *widget = widget_from_builder("no_restraints_info_dialog");
-			   gtk_widget_show(widget);
+			   gtk_widget_set_visible(widget, TRUE);
 			} else {
 			   std::cout << "WARNING:: No dictionary for some residue types " << std::endl;
 			}

@@ -5495,6 +5495,36 @@ def add_module_cryo_em_gui():
                                                       aa_alt_conf, aa_res_spec]:
                 interactive_nudge_residues.nudge_residues_gui(aa_imol, aa_res_spec)
 
+        def jiggle_fit_chain_simple_wrapper(_simple_action, _arg2):
+            active_atom = coot.active_residue_py()
+            if active_atom:
+                imol  = active_atom[0]
+                ch_id = active_atom[1]
+                n_trials = 20000
+                coot.fit_chain_to_map_by_random_jiggle(imol, ch_id, n_trials, 5)
+
+        def jiggle_fit_molecule_simple_wrapper(_simple_action, _arg2):
+            active_atom = coot.active_residue_py()
+            if active_atom:
+                imol  = active_atom[0]
+                n_trials = 20000
+                coot.fit_molecule_to_map_by_random_jiggle(imol, n_trials, 2)
+
+        def jiggle_fit_chain_with_fourier_filtering_wrapper(_simple_action, _arg2):
+            active_atom = coot.active_residue_py()
+            if active_atom:
+                imol  = active_atom[0]
+                ch_id = active_atom[1]
+                n_trials = 50000
+                coot.fit_chain_to_map_by_random_jiggle_and_blur(imol, ch_id, n_trials, 2, 400)
+
+        def jiggle_fit_molecule_with_fourier_filtering_wrapper(_simple_action, _arg2):
+            active_atom = coot.active_residue_py()
+            if active_atom:
+                imol  = active_atom[0]
+                n_trials = 50000
+                coot.fit_molecule_to_map_by_random_jiggle_and_blur(imol, n_trials, 5, 400)
+
         def sharpen_blur_map_gui_wrapper(_simple_action, _arg2):
             sharpen_blur.sharpen_blur_map_gui()
 
@@ -5535,7 +5565,7 @@ def add_module_cryo_em_gui():
         def add_action(displayed_name,action_name,on_activate_callback):
             add_simple_action_to_menu(menu,displayed_name,action_name,on_activate_callback)
 
-        add_action("Sharpen/Blur...",
+        add_action("Sharpen/Blur/Resample...",
             "sharpen_blur_map_gui",
             sharpen_blur_map_gui_wrapper)
         add_action("Multi-sharpen",
@@ -5560,6 +5590,17 @@ def add_module_cryo_em_gui():
             "interactive_nudge",
             lambda _simple_action, _arg2: interactive_nudge_func())
 
+        add_action("Jiggle-fit This Chain - Simple", "jiggle_fit_chain_simple",
+                   jiggle_fit_chain_simple_wrapper)
+
+        add_action("Jiggle-fit This Molecule - Simple ", "jiggle_fit_molecule_simple",
+                   jiggle_fit_molecule_simple_wrapper)
+
+        add_action("Jiggle-fit This Chain with Fourier Filtering", "jiggle_fit_chain_with_fourier_filtering",
+                   jiggle_fit_chain_with_fourier_filtering_wrapper)
+
+        add_action("Jiggle-fit This Molecule with Fourier Filtering", "jiggle_fit_molecule_with_fourier_filtering",
+                   jiggle_fit_molecule_with_fourier_filtering_wrapper)
         # belongs in Modelling
 
         add_action("Add molecular symmetry using MTRIX",

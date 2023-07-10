@@ -1044,8 +1044,8 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
 
    // gtk_canvas_set_pixels_per_unit(GTK_CANVAS(canvas),zoom);
 
-   gtk_widget_show(GTK_WIDGET(canvas));
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(GTK_WIDGET(canvas), TRUE);
+   gtk_widget_set_visible(dialog, TRUE);
 
    // gtk_widget_ref(GTK_WIDGET(canvas));
    g_object_set_data(G_OBJECT(dialog), "geometry_graph_canvas", canvas);
@@ -1062,9 +1062,9 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
          gtk_entry_set_text(GTK_ENTRY(entry), "1.0");
          gtk_box_pack_start (GTK_BOX (vbox), entry,  FALSE, FALSE, 3);
          gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 3);
-         gtk_widget_show(entry);
-         gtk_widget_show(button);
-         gtk_widget_show(vbox);
+         gtk_widget_set_visible(entry, TRUE);
+         gtk_widget_set_visible(button, TRUE);
+         gtk_widget_set_visible(vbox, TRUE);
          gtk_widget_set_size_request(entry, 90, -1);
          gtk_box_pack_start(GTK_BOX(dialog_vbox), vbox, FALSE, FALSE, 3);
          g_object_set_data(G_OBJECT(button), "rescale_entry", entry);

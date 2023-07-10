@@ -87,7 +87,7 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
 	       coot::torsionable_bonds(imol, mol, atom_selection, n_selected_atoms, Geom_p());
 
 	    GtkWidget *w = wrapped_create_multi_residue_torsion_dialog(pairs);
-	    gtk_widget_show(w);
+	    gtk_widget_set_visible(w, TRUE);
 
 	    moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
 	    make_moving_atoms_graphics_object(imol, make_asc(moving_mol));

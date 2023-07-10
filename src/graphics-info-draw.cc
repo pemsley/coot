@@ -1468,7 +1468,7 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
       // show a (clickable/highlighting) HUD texture - indicating that refinement parameters dialog
       // can be shown (as an overlay)
 
-      std::cout << "here in draw_hud_refinement_dialog_arrow_tab() B " << std::endl;
+      // std::cout << "here in draw_hud_refinement_dialog_arrow_tab() B " << std::endl;
 
       auto get_munged_offset_and_scale =  [] (HUDTextureMesh::screen_position_origins_t spo,
                                               const glm::vec2 &offset_natural,
@@ -1504,10 +1504,10 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
 
       glDisable(GL_DEPTH_TEST);
       if (hud_refinement_dialog_arrow_is_moused_over) {
-         std::cout << "hud_refinement_dialog_arrow_is_moused_over " << std::endl;
+         // std::cout << "hud_refinement_dialog_arrow_is_moused_over " << std::endl;
          texture_for_hud_refinement_dialog_arrow_highlighted.Bind(0);
       } else {
-         std::cout << "hud_refinement_dialog_arrow_is_moused_over not " << std::endl;
+         // std::cout << "hud_refinement_dialog_arrow_is_moused_over not " << std::endl;
          texture_for_hud_refinement_dialog_arrow.Bind(0);
       }
 
@@ -3031,9 +3031,12 @@ graphics_info_t::draw_hud_ramachandran_plot() {
             if (moving_atoms_asc->n_selected_atoms > 0) {
                std::string residue_selection = "//";
                gl_rama_plot.setup_from(imol_moving_atoms, moving_atoms_asc->mol, residue_selection); // checks to see if an update is acutally needed.
+               // no context switch needed for the HUD Rama plot
+               bool clear_needed_flag = false;
                gl_rama_plot.draw(&shader_for_rama_plot_axes_and_ticks,
                                  &shader_for_rama_plot_phi_phis_markers, // instanced
-                                 &shader_for_hud_image_texture, w, h, w, h); // background texture (not text!), uses window_resize_position_correction
+                                 &shader_for_hud_image_texture, w, h, w, h,
+                                 clear_needed_flag); // background texture (not text!), uses window_resize_position_correction
             }
          }
       }
@@ -3196,11 +3199,11 @@ graphics_info_t::show_atom_pull_toolbar_buttons() {
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
 
       if (button_1)
-         gtk_widget_show(button_1);
+         gtk_widget_set_visible(button_1, TRUE);
       else
          std::cout << "in show_atom_pull_toolbar_buttons() missing button1" << std::endl;
       if (button_2)
-         gtk_widget_show(button_2);
+         gtk_widget_set_visible(button_2, TRUE);
       else
          std::cout << "in show_atom_pull_toolbar_buttons() missing button2" << std::endl;
    }
@@ -3215,9 +3218,9 @@ graphics_info_t::hide_atom_pull_toolbar_buttons() {
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
       
       if (button_1)
-         gtk_widget_hide(button_1);
+         gtk_widget_set_visible(button_1, FALSE);
       if (button_2)
-         gtk_widget_hide(button_2);
+         gtk_widget_set_visible(button_2, FALSE);
    }
 }
 
@@ -5471,7 +5474,7 @@ graphics_info_t::make_extra_distance_restraints_objects() {
 
    // c.f. update_hydrogen_bond_mesh().
 
-   std::cout << "here in make_extra_distance_restraints_objects() " << std::endl;
+   // std::cout << "here in make_extra_distance_restraints_objects() " << std::endl;
 
    double penalty_min = 0.1; // only restraints that have more than this "distortion" are considered for drawing.
                              // Make this user-setable.
@@ -5481,6 +5484,9 @@ graphics_info_t::make_extra_distance_restraints_objects() {
    auto clipper_to_glm = [] (const clipper::Coord_orth &co) {
                             return glm::vec3(co.x(), co.y(), co.z());
                          };
+
+   // How frequently should this function be called? Every frame? Hmm..
+   if (moving_atoms_extra_restraints_representation.bonds.empty()) return;
 
    unsigned int maerrb_size = moving_atoms_extra_restraints_representation.bonds.size();
    attach_buffers();
@@ -6308,9 +6314,9 @@ graphics_info_t::fullscreen() {
       // // GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
       GtkWidget* sidebar = widget_from_builder("main_window_vbox_inner");
 
-      gtk_widget_hide(tool_bar);
-      gtk_widget_hide(sidebar);
-      gtk_widget_hide(status_bar);
+      gtk_widget_set_visible(tool_bar, FALSE);
+      gtk_widget_set_visible(sidebar, FALSE);
+      gtk_widget_set_visible(status_bar, FALSE);
 
 
       std::cout << "calling gtk_window_fullscreen() " << window << std::endl;
@@ -6386,10 +6392,10 @@ graphics_info_t::unfullscreen() {
       }
 
       
-      //gtk_widget_show(tool_bar_frame);
-      gtk_widget_show(tool_bar);
-      gtk_widget_show(sidebar);
-      gtk_widget_show(status_bar);
+      //gtk_widget_set_visible(tool_bar_frame, TRUE);
+      gtk_widget_set_visible(tool_bar, TRUE);
+      gtk_widget_set_visible(sidebar, TRUE);
+      gtk_widget_set_visible(status_bar, TRUE);
 } else {
       g_error("%p is not a Gtk.Window !", window);
    }

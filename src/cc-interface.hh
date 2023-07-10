@@ -1489,6 +1489,8 @@ void fetch_and_superpose_alphafold_models(int imol);
 //! \brief return the model number
 int fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id);
 
+int fetch_emdb_map(const std::string &emd_accession_code);
+
 #endif /* USE_LIBCURL */
 
 

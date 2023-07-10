@@ -396,7 +396,8 @@
 # 6.07 20220710 libffi fixes for python
 # 6.08 20220803-PE pygobject cleanups
 # 6.09 20220907-PE meson adjustment for compiling glib (what a pain)
-script_version=6.09
+# 6.10 20240603-PE remove goocanvas
+script_version=6.10
 
 
 
@@ -1982,7 +1983,6 @@ build_gsl=0
 # build_libpng=0
 # build_imlib=0
 # build_gtk_canvas=0
-build_goocanvas=
 build_python=
 build_pygobject=
 build_guile_gtk=
@@ -3304,56 +3304,6 @@ fi
 
 
 #################################################################
-# goocanvas
-#################################################################
-#
-
-# goocanvas-2.0.pc
-if [ -e $install_top_dir/lib/pkgconfig/goocanvas-2.0.pc ] ; then
-   build_goocanvas=no
-fi
-
-# https://download-fallback.gnome.org/sources/goocanvas/2.0/
-
-if [ "$build_goocanvas" != "no" ] ; then
-    goocanvas_version=2.0.4
-    echo BUILDING goocanvas $goocanvas_version :
-    goocanvas_dir=https://download-fallback.gnome.org/sources/goocanvas/2.0
-    # or maybe http://ftp.gnome.org/pub/GNOME/sources/goocanvas/2.0
-    ${WGET} --no-check-certificate $goocanvas_dir/goocanvas-$goocanvas_version.tar.xz
-    (date
-     export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig
-     export LD_LIBRARY_PATH=$install_top_dir/lib64
-     echo building in: $PWD
-     echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
-     echo CFLAGS: $CFLAGS
-     echo CXXFLAGS: $CXXFLAGS
-     echo CPPFLAGS: $CPPFLAGS
-     echo LDFLAGS: $LDFLAGS
-     pwd
-     tar xf ${AUTOBUILD_SOURCES}/goocanvas-$goocanvas_version.tar.xz
-     cd goocanvas-$goocanvas_version
-     # on my Mac, glib depends on libintl.h and that is installed by the ccp4 dir
-     # but that is not added by pkg-config glib-2.0 --cflags. glib bug?
-     # we don't want python 2 bindings (they find/try to install with system python)
-     echo ./configure $generic_prefix $EXTRA_GOOCANVAS_CFLAGS
-     if ./configure $generic_prefix --enable-python=no $EXTRA_GOOCANVAS_CFLAGS ; then
-        if ! $MAKE ; then
-           echo make of goocanvas failed
-        else
-            $MAKE install
-        fi
-     else
-        echo goocanvas configure failed
-     fi
-     ) > $HOSTLOGDIR/17-goocanvas.txt 2>&1
-else
-   echo not building goocanvas
-   echo not building goocanvasA 2>& 1
-fi
-
-
-#################################################################
 # Raster3D
 #################################################################
 #
@@ -3609,7 +3559,7 @@ if [ "$build_rdkit" = true ] ; then
    fi
 
    # hack
-   skip_this=false
+   # skip_this=false
 
    if [ $skip_this = false ] ;  then
 

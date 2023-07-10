@@ -890,7 +890,7 @@ int auto_read_make_and_draw_maps_old(const char *mtz_file_name) {
     g.activate_scroll_radio_button_in_display_manager(imol1);
       } else {
     GtkWidget *w = wrapped_nothing_bad_dialog("Failed to find any suitable F/phi columns in the MTZ file");
-    gtk_widget_show(w);
+    gtk_widget_set_visible(w, TRUE);
       }
 
    } else {

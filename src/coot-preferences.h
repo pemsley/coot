@@ -28,6 +28,7 @@
 #define PREFERENCES_SMOOTH_SCROLL_LIMIT           19
 #define PREFERENCES_MAP_DRAG                      20
 #define PREFERENCES_MARK_CIS_BAD                  21
+#define PREFERENCES_DEFAULT_B_FACTOR              43
 #define PREFERENCES_BG_COLOUR                     22
 #define PREFERENCES_ANTIALIAS                     23
 #define PREFERENCES_CONSOLE_COMMANDS              24

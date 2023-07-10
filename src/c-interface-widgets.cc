@@ -147,7 +147,7 @@ void on_remarks_dialog_response(GtkDialog *dialog,
                                 gint       response_id,
                                 gpointer   user_data) {
 
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 
 }
 
@@ -177,8 +177,8 @@ void remarks_dialog(int imol) {
 	    //     				  GTK_WIDGET(vbox_inner));
 	    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), vbox_inner);
 	    gtk_box_append(GTK_BOX(vbox), GTK_WIDGET(scrolled_window));
-	    gtk_widget_show(scrolled_window);
-	    gtk_widget_show(vbox_inner);
+	    gtk_widget_set_visible(scrolled_window, TRUE);
+	    gtk_widget_set_visible(vbox_inner, TRUE);
 
 	    remarks_browser_fill_compound_info(mol, vbox_inner);
 
@@ -207,7 +207,7 @@ void remarks_dialog(int imol) {
 		  remark_name += coot::util::int_to_string(it->first);
 		  GtkWidget *frame = gtk_frame_new(remark_name.c_str());
 		  gtk_box_append(GTK_BOX(vbox_inner), frame);
-		  gtk_widget_show(frame);
+		  gtk_widget_set_visible(frame, TRUE);
 		  // std::cout << "REMARK number " << it->first << std::endl;
 		  GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
 		  GtkWidget *text_view = gtk_text_view_new();
@@ -215,7 +215,7 @@ void remarks_dialog(int imol) {
 		  gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
 
 		  gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(text_view));
-		  gtk_widget_show(GTK_WIDGET(text_view));
+		  gtk_widget_set_visible(GTK_WIDGET(text_view), TRUE);
 		  gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
 		  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 
@@ -240,7 +240,7 @@ void remarks_dialog(int imol) {
 
 
                // 20211001-PE this is not the "orthodox" method to close/hide the dialog
-	       // gtk_widget_show(close_button);
+	       // gtk_widget_set_visible(close_button, TRUE);
                // data used by the callback (to hide this dialog)
                // g_object_set_data(G_OBJECT(close_button), "remarks_dialog", d);
 
@@ -253,7 +253,7 @@ void remarks_dialog(int imol) {
 
 	       gtk_widget_set_size_request(d, 500, 400);
                set_transient_and_position(COOT_UNDEFINED_WINDOW, d);
-	       gtk_widget_show(d);
+	       gtk_widget_set_visible(d, TRUE);
 	    }
 	 }
       }
@@ -271,7 +271,7 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       GtkWidget *label = gtk_label_new(title.c_str());
       gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
       gtk_box_append(GTK_BOX(vbox), label);
-      gtk_widget_show(label);
+      gtk_widget_set_visible(label, TRUE);
    }
 
    if (compound_lines.size() > 0) {
@@ -279,7 +279,7 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       GtkWidget *frame = gtk_frame_new(compound_label.c_str());
       gtk_box_append(GTK_BOX(vbox), frame);
       gtk_widget_set_vexpand(frame, TRUE);
-      gtk_widget_show(frame);
+      gtk_widget_set_visible(frame, TRUE);
       // this doesn't look right - needs checking.
       std::string s;
       for (std::size_t i=0; i<compound_lines.size(); i++) {
@@ -296,7 +296,7 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       gtk_widget_set_margin_bottom(GTK_WIDGET(text_view), 6);
       gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
       gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(text_view));
-      gtk_widget_show(GTK_WIDGET(text_view));
+      gtk_widget_set_visible(GTK_WIDGET(text_view), TRUE);
       gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
       gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 
@@ -345,7 +345,7 @@ void remarks_browser_fill_author_info(mmdb::Manager *mol, GtkWidget *vbox) {
 #else
       gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
 #endif
-      gtk_widget_show(frame);
+      gtk_widget_set_visible(frame, TRUE);
 
       GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
       GtkWidget *text_view = gtk_text_view_new();
@@ -356,7 +356,7 @@ void remarks_browser_fill_author_info(mmdb::Manager *mol, GtkWidget *vbox) {
 #endif
       gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
       gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(text_view));
-      gtk_widget_show(GTK_WIDGET(text_view));
+      gtk_widget_set_visible(GTK_WIDGET(text_view), TRUE);
       gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
       gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 
@@ -411,7 +411,7 @@ void remarks_browser_fill_journal_info(mmdb::Manager *mol, GtkWidget *vbox) {
 #else
       gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
 #endif
-      gtk_widget_show(frame);
+      gtk_widget_set_visible(frame, TRUE);
 
       GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
       GtkWidget *text_view = gtk_text_view_new();
@@ -422,7 +422,7 @@ void remarks_browser_fill_journal_info(mmdb::Manager *mol, GtkWidget *vbox) {
 #endif
       gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
       gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(text_view));
-      gtk_widget_show(GTK_WIDGET(text_view));
+      gtk_widget_set_visible(GTK_WIDGET(text_view), TRUE);
       gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
       gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 
@@ -467,7 +467,7 @@ void remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
 #else
 	 gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
 #endif
-	 gtk_widget_show(frame);
+	 gtk_widget_set_visible(frame, TRUE);
 
 	 GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
 	 GtkWidget *text_view = gtk_text_view_new();
@@ -482,7 +482,7 @@ void remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
 	 gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
 	 gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(text_view));
          
-	 gtk_widget_show(GTK_WIDGET(text_view));
+	 gtk_widget_set_visible(GTK_WIDGET(text_view), TRUE);
 	 gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
 	 gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 
@@ -570,7 +570,7 @@ on_remarks_dialog_close_button_clicked     (GtkButton *button,
 
    // GtkWidget *dialog = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "remarks_dialog"));
    GtkWidget *dialog = GTK_WIDGET(user_data);
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 }
 
 
@@ -613,7 +613,7 @@ GdkRGBA remark_number_to_colour(int remark_number) {
 void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
 						 GtkWidget *dialog) {
 
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 }
 
 #include "c-interface-gui.hh"
@@ -635,13 +635,13 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
       gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), vbox_inner);
 
       gtk_box_append(GTK_BOX(vbox), GTK_WIDGET(scrolled_window));
-      gtk_widget_show(scrolled_window);
-      gtk_widget_show(vbox_inner);
+      gtk_widget_set_visible(scrolled_window, TRUE);
+      gtk_widget_set_visible(vbox_inner, TRUE);
       gtk_widget_set_hexpand(vbox_inner, TRUE);
       gtk_widget_set_vexpand(vbox_inner, TRUE);
 
       GtkWidget *text_widget = gtk_text_view_new ();
-      gtk_widget_show (text_widget);
+      gtk_widget_set_visible (text_widget, TRUE);
       gtk_box_append (GTK_BOX (vbox_inner), text_widget);
       gtk_text_view_set_editable (GTK_TEXT_VIEW (text_widget), FALSE);
       gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (text_widget), GTK_WRAP_WORD);
@@ -650,14 +650,14 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
       gtk_window_set_default_size(GTK_WINDOW(d), geom_x, geom_y);
 
       GtkWidget *close_button = gtk_dialog_add_button(GTK_DIALOG(d), "Close", 2);
-      gtk_widget_show(close_button);
+      gtk_widget_set_visible(close_button, TRUE);
 
       g_signal_connect(G_OBJECT(close_button), "clicked",
  		       G_CALLBACK(on_simple_text_dialog_close_button_pressed),
  		       (gpointer) d);
 
       set_transient_for_main_window(d);
-      gtk_widget_show(d);
+      gtk_widget_set_visible(d, TRUE);
 
    }
 }
@@ -735,11 +735,11 @@ void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *
 		  }
 	       }
 	       if (show_green_light) {
-		  gtk_widget_hide(red_light_widget);
-		  gtk_widget_show(green_light_widget);
+		  gtk_widget_set_visible(red_light_widget, FALSE);
+		  gtk_widget_set_visible(green_light_widget, TRUE);
 	       } else {
-		  gtk_widget_show(red_light_widget);
-		  gtk_widget_hide(green_light_widget);
+		  gtk_widget_set_visible(red_light_widget, TRUE);
+		  gtk_widget_set_visible(green_light_widget, FALSE);
 	       }
 
 	       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());

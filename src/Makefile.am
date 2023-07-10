@@ -42,7 +42,7 @@ WITH_GUILE_CFLAGS=$(COOT_STDTYPES) $(COOT_USE_GUILE)
 
 # GUILE_VERSION=$(GUILE_CONFIG)
 
-MAKE_COOT_WRAP_GUILE=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-guile.sh "$(GUILE_CONFIG)"
+MAKE_COOT_WRAP_GUILE=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-guile.sh
 
 MAKE_COOT_WRAP_PYTHON_XXX=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-python.sh
 
@@ -154,7 +154,7 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
 # -proxy  exports the GOOPS wrapper definitions into module.scm
 
 coot_wrap_guile.cc: coot_wrap_guile_pre.cc
-	$(MAKE_COOT_WRAP_GUILE) gtk2 $^ $@
+	$(MAKE_COOT_WRAP_GUILE) $^ $@
 
 # python
 
@@ -296,7 +296,12 @@ _coot_extended_la_LIBADD = \
 
 pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la _coot.la
 
-_coot_la_SOURCES = coot.cc coot_wrap_python.cc
+# Does this stop the race condition?
+# Well, it might do, but if I add it then _coot.so is not updated.
+# So, how about I added libcootsumo.la to the SOURCES, will that work?
+# _coot.la: libcootsumo.la
+
+_coot_la_SOURCES = coot.cc coot_wrap_python.cc libcootsumo.la
 
 _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
 	   libcootsumo.la                                    \
@@ -708,10 +713,6 @@ libcootsumo_la_SOURCES = \
 	trackball.c trackball.h  \
 	triangle-extras.h        \
 	user-mods.hh user-mods.cc\
-	validation-graphs.hh	 \
-	validation-graphs.cc	 \
-	validation-graph-widget.hh	 \
-	validation-graph-widget.cc	 \
 	xmap-utils.cc 		 \
 	xmap-utils.h             \
 	remarks-browser-gtk-widgets.hh \
@@ -810,7 +811,7 @@ coot_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 # fixed in configure.
 #
 libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
-      $(COOT_EXTRA_LIBS) \
+                $(COOT_EXTRA_LIBS)      \
 		$(VORBISFILE_LIBS)      \
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\

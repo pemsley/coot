@@ -18,6 +18,7 @@ molecules_container_t::SSM_superpose(int imol_ref, const std::string &chain_id_r
    superpose_results_t results;
 
    if (is_valid_model_molecule(imol_ref)) {
+
       if (is_valid_model_molecule(imol_mov)) {
          atom_selection_container_t asc_ref = molecules[imol_ref].atom_sel;
          atom_selection_container_t asc_mov = molecules[imol_mov].atom_sel;
@@ -55,7 +56,6 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
                                                      std::string reference_mol_name,
                                                      bool move_copy_of_imol2_flag) {
 
-
    // int imodel_return = -1;
    // std::string aligned_sequences_formatted_string;
    // std::string alignment_info;
@@ -65,8 +65,8 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
 
    auto make_alignment_json_string = [] (ssm::Align *SSMAlign) {
 
-#if 0
-            ss << "INFO: core rmsd achieved: " << SSMAlign->rmsd << " Angstroems\n"
+#if 1
+      std::cout << "INFO: core rmsd achieved: " << SSMAlign->rmsd << " Angstroems\n"
                << "      number of residues in reference structure: " << SSMAlign->nres2 << "\n"
                << "      number of residues in moving structure:    " << SSMAlign->nres1 << "\n"
                << "      number of residues in aligned sections (reference):  " << SSMAlign->nsel2 << "\n"
@@ -233,12 +233,17 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
 
 #endif
 
-            results.alignment_info =
+            auto aln =
             make_ssm_sequence_alignment_as_validation_information(SSMAlign,
-                                         asc_ref, asc_mov,
-                                         atom_selection1, atom_selection2,
-                                         n_selected_atoms_1, n_selected_atoms_2,
-                                         move_copy_of_imol2_flag);
+                                                                  asc_ref, asc_mov,
+                                                                  atom_selection1, atom_selection2,
+                                                                  n_selected_atoms_1, n_selected_atoms_2,
+                                                                  move_copy_of_imol2_flag);
+            results.alignment_info_vec.push_back(aln);
+
+            results.aligned_pairs = get_pairs(SSMAlign, asc_ref, asc_mov,
+                                              atom_selection1, atom_selection2,
+                                              n_selected_atoms_1, n_selected_atoms_2);
 
             // map assignment of secondary structure for Ana
             //
@@ -275,7 +280,7 @@ molecules_container_t::superpose_with_atom_selection(atom_selection_container_t 
                << "      number of SSE combinations:  " << SSMAlign->ncombs << "\n"
                << "      sequence identity:           " << SSMAlign->seqIdentity*100.0 << "%\n";
             std::string alignment_info = ss.str();
-            results.suppose_info = make_alignment_json_string(SSMAlign);
+            results.superpose_info = make_alignment_json_string(SSMAlign);
          }
          delete SSMAlign;
       } else {
@@ -512,6 +517,60 @@ molecules_container_t::print_horizontal_ssm_sequence_alignment(std::pair<std::st
    }
 }
 #endif // HAVE_SSMLIB
+
+#ifdef HAVE_SSMLIB
+std::vector<std::pair<coot::residue_validation_information_t, coot::residue_validation_information_t> >
+molecules_container_t::get_pairs(ssm::Align *SSMAlign,
+                                 atom_selection_container_t asc_ref,
+                                 atom_selection_container_t asc_mov,
+                                 mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
+                                 int n_selected_atoms_1, int n_selected_atoms_2) const {
+
+   std::string s;
+   std::string t;
+   int previous_t_index = -1;
+   int previous_s_index = -1;
+   bool debug = true;
+   // in future this will be a vector of vectors for multiple sequence alignment
+   std::vector<std::pair<coot::residue_validation_information_t, coot::residue_validation_information_t> > vprvi;
+
+   for (int i1=0; i1<SSMAlign->nsel1; i1++) {
+      int t_index = SSMAlign->Ca1[i1];
+      if (t_index == -1) {
+         coot::residue_validation_information_t ref;
+         coot::residue_validation_information_t mov;
+         coot::residue_spec_t ref_res_spec(atom_selection1[i1]->residue);
+         coot::residue_spec_t mov_res_spec;
+         ref.residue_spec = ref_res_spec;
+         mov.residue_spec = mov_res_spec;
+         auto p = std::make_pair(ref, mov);
+         vprvi.push_back(p);
+      } else {
+         if (t_index < SSMAlign->nsel2 && t_index >= 0) {
+            int s_index = SSMAlign->Ca2[t_index];
+            if (s_index == i1) {
+               coot::residue_validation_information_t ref;
+               coot::residue_validation_information_t mov;
+               coot::residue_spec_t ref_res_spec(atom_selection1[i1]->residue);
+               coot::residue_spec_t mov_res_spec(atom_selection2[t_index]->residue);
+               ref.residue_spec = ref_res_spec;
+               mov.residue_spec = mov_res_spec;
+               clipper::Coord_orth pt_1 = coot::co(atom_selection1[i1]);
+               clipper::Coord_orth pt_2 = coot::co(atom_selection2[t_index]);
+               double dd = (pt_2-pt_1).lengthsq();
+               double d = std::sqrt(dd);
+               ref.function_value = d;
+               mov.function_value = d;
+               auto p = std::make_pair(ref, mov);
+               vprvi.push_back(p);
+            }
+         }
+      }
+   }
+   return vprvi;
+}
+#endif // HAVE_SSMLIB
+
 
 
 #ifdef HAVE_SSMLIB

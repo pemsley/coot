@@ -879,7 +879,7 @@ ligand_search_install_wiggly_ligands() {
 	         std::cout << mess.what() << std::endl;
 	         if (graphics_info_t::use_graphics_interface_flag) {
 	            GtkWidget *w = wrapped_nothing_bad_dialog(mess.what());
-	            gtk_widget_show(w);
+	            gtk_widget_set_visible(w, TRUE);
 	         }
 	         // return solutions;
 	      }
@@ -1071,11 +1071,11 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
 	 else
 	    label_str += " acceptable ligands  ";
 	 gtk_label_set_text(GTK_LABEL(label), label_str.c_str());
-	 gtk_widget_show(w);
+	 gtk_widget_set_visible(w, TRUE);
       } else {
 	 // GtkWidget *w = create_no_new_ligands_info_dialog();
 	 GtkWidget *w = widget_from_builder("no_new_ligands_info_dialog");
-	 gtk_widget_show(w);
+	 gtk_widget_set_visible(w, TRUE);
       }
    }
 
@@ -1109,7 +1109,7 @@ std::vector<int> ligand_search_make_conformers_internal() {
 	    std::cout << mess.what() << std::endl;
 	    if (graphics_info_t::use_graphics_interface_flag) {
 	       GtkWidget *w = wrapped_nothing_bad_dialog(mess.what());
-	       gtk_widget_show(w);
+	       gtk_widget_set_visible(w, TRUE);
 	    }
 	 }
       }
@@ -1379,7 +1379,7 @@ void do_find_ligands_dialog() {
    int istate = fill_ligands_dialog(dialog); /* return OK, we have map(s), ligand(s), masking(s) */
 
    if (istate == 0) {
-      gtk_widget_hide(dialog);
+      gtk_widget_set_visible(dialog, FALSE);
       std::string s("Problem finding maps, coords or ligands!");
       graphics_info_t g;
       g.add_status_bar_text(s);
@@ -1389,7 +1389,7 @@ void do_find_ligands_dialog() {
       // std::cout << "do_find_ligands_dialog()  showing dialog " << dialog << std::endl;
       set_transient_for_main_window(dialog);
 
-      gtk_widget_show(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
    }
 
 }
@@ -2324,7 +2324,7 @@ setup_multi_residue_torsion() {
    g.multi_residue_torsion_reverse_fragment_mode = false;
    // GtkWidget *w = create_multi_residue_torsion_pick_dialog();
    GtkWidget *w = widget_from_builder("multi_residue_torsion_pick_dialog");
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 

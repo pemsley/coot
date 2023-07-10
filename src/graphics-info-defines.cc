@@ -232,7 +232,7 @@ graphics_info_t::wrapped_create_residue_type_chooser_window(bool show_stub_optio
    GtkWidget *b = widget_from_builder("residue_type_chooser_stub_checkbutton");
 
    if (show_stub_option_flag == 0) 
-      gtk_widget_hide(b);
+      gtk_widget_set_visible(b, FALSE);
 
    return w;
 }
@@ -964,7 +964,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		     std::string s = "That was a symmetry atom\n";
 		     s += "Coot currently doesn't delete symmetry atoms";
 		     GtkWidget *w = wrapped_nothing_bad_dialog(s);
-		     gtk_widget_show(w);
+		     gtk_widget_set_visible(w, TRUE);
 		  }
 	       }
 	    }
@@ -1210,7 +1210,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 		     std::string s = "That was a symmetry atom\n";
 		     s += "Coot currently doesn't delete symmetry atoms";
 		     GtkWidget *w = wrapped_nothing_bad_dialog(s);
-		     gtk_widget_show(w);
+		     gtk_widget_set_visible(w, TRUE);
 		  }
 	       }
 	    }
@@ -1551,10 +1551,10 @@ graphics_info_t::check_if_in_mutate_define(GdkEventButton *event) {
                         // GtkWidget *w = create_nucleic_acid_base_chooser_dialog();
                         GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");
                         if (w)
-                           gtk_widget_show(w);
+                           gtk_widget_set_visible(w, TRUE);
                      } else {
                         GtkWidget *widget = wrapped_create_residue_type_chooser_window(1);
-                        gtk_widget_show(widget);
+                        gtk_widget_set_visible(widget, TRUE);
                      }
                      g.in_mutate_define = 0;
                      g.residue_type_chooser_auto_fit_flag = 0;
@@ -1587,7 +1587,7 @@ graphics_info_t::check_if_in_mutate_auto_fit_define(GdkEventButton *event) {
          g.mutate_auto_fit_residue_imol = naii.imol;
          g.mutate_auto_fit_residue_atom_index = naii.atom_index;
          GtkWidget *widget = wrapped_create_residue_type_chooser_window(0); // uses builder
-         gtk_widget_show(widget);
+         gtk_widget_set_visible(widget, TRUE);
          g.in_mutate_auto_fit_define = 0;
          g.residue_type_chooser_auto_fit_flag = 1;
          pick_pending_flag = 0;
@@ -1971,7 +1971,7 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
          add_filename_filter_button(w, COOT_COORDS_FILE_SELECTION);
 
 	 normal_cursor();
-	 gtk_widget_show(w);
+	 gtk_widget_set_visible(w, TRUE);
 	 pick_pending_flag = 0;
       }
    } 

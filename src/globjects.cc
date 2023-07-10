@@ -107,7 +107,7 @@ gl_gtk3_widget(GtkWidget *vbox, short int try_stereo_flag) {
    GtkWidget *main_window_graphics_hbox = 0; // 20220309-PE removing lookup-widget()s
    gtk_container_add(GTK_CONTAINER(main_window_graphics_hbox), drawing_area);
    gtk_widget_set_size_request(drawing_area, 500, 500);
-   gtk_widget_show(drawing_area);
+   gtk_widget_set_visible(drawing_area, TRUE);
    gtk_gl_area_make_current(GTK_GL_AREA(drawing_area));
 
    return drawing_area;
@@ -1329,7 +1329,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	    } else {
 	       // have docked dialog
 	       if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_HIDE) {
-	          gtk_widget_hide(graphics_info_t::accept_reject_dialog);
+	          gtk_widget_set_visible(graphics_info_t::accept_reject_dialog, FALSE);
 	       } else {
 	          gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
 	       }

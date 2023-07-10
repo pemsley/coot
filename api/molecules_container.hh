@@ -259,6 +259,13 @@ class molecules_container_t {
 					   atom_selection_container_t asc_mov,
 					   mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
 					   int n_selected_atoms_1, int n_selected_atoms_2) const;
+   // for gesmpt this will be vector of vector
+   std::vector<std::pair<coot::residue_validation_information_t, coot::residue_validation_information_t> >
+   get_pairs(ssm::Align *SSMAlign,
+             atom_selection_container_t asc_ref,
+             atom_selection_container_t asc_mov,
+             mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
+             int n_selected_atoms_1, int n_selected_atoms_2) const;
 
 #endif  // HAVE_SSMLIB
 
@@ -270,6 +277,7 @@ class molecules_container_t {
    // --------------------- init --------------------------
 
    void init() {
+
       imol_refinement_map = -1;
       imol_difference_map = -1;
       geometry_init_standard(); // do this by default now
@@ -663,7 +671,7 @@ public:
 
    //! superposition (using SSM)
    //!
-   //! The specified chaing of the moving molecule is superposed onto the chain in the reference molecule (if possible).
+   //! The specified chain of the moving molecule is superposed onto the chain in the reference molecule (if possible).
    //! There is some alignment screen output that would be better added to the return value.
    // std::pair<std::string, std::string>
    superpose_results_t SSM_superpose(int imol_ref, const std::string &chain_id_ref,
@@ -836,10 +844,20 @@ public:
    //! add a residue onto the end of the chain by fitting to density
    //! @return a first of 1 on success. Return a useful message in second if the addition did not work
    std::pair<int, std::string> add_terminal_residue_directly(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
-   //! @return a useful message if the addition did not work
+
    // std::pair<int, std::string> add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
-   //! This used to return a pair, but I removed it so that I could compile the binding
+   //
+   //! the cid is for an atom.
+   //! This used to return a pair, but I removed it so that I could compile the binding.
+   //! @return an status.
    int add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
+
+   //! the cid is for an atom.
+   //! buccaneer building
+   int add_terminal_residue_directly_using_bucca_ml_growing_using_cid(int imol, const std::string &cid);
+
+   //! buccaneer building, called by the above
+   int add_terminal_residue_directly_using_bucca_ml_growing(int imol, const coot::residue_spec_t &spec);
 
    //! add waters, updating imol_model (of course)
    //! @return the number of waters added on a success, -1 on failure.

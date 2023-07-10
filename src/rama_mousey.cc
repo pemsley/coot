@@ -92,7 +92,7 @@ on_dynarama2_ok_button_clicked(GtkButton *button, gpointer user_data) {
          int imol = plot->molecule_number();
          if (imol == -9999)
             accept_phi_psi_moving_atoms();
-         gtk_widget_hide(plot->dynawin); // 20220315-PE hide, not destroy.
+         gtk_widget_set_visible(plot->dynawin, FALSE);
       }
    }
 
@@ -133,7 +133,7 @@ on_dynarama2_close_button_clicked_gtkbuilder_callback(GtkButton *button, gpointe
          int imol = plot->molecule_number();
          if (imol == -9999)
             clear_moving_atoms_object();
-         gtk_widget_hide(plot->dynawin);
+         gtk_widget_set_visible(plot->dynawin, FALSE);
 
          std::cout << "Hiding Rama plot dynawin for imol " << imol << " " << plot->dynawin << std::endl;
       }
@@ -242,7 +242,7 @@ on_rama_open_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
    if (plot) {
-      gtk_widget_show(plot->rama_open_filechooserdialog);
+      gtk_widget_set_visible(plot->rama_open_filechooserdialog, TRUE);
    } else {
       std::cout<< "BL ERROR:: failed to get a plot" <<std::endl;
    }
@@ -257,7 +257,7 @@ on_rama_print_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
       const gchar *file_name = "dynarama.pdf";
       gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(plot->rama_export_as_pdf_filechooserdialog),
                                         file_name);
-      gtk_widget_show(plot->rama_export_as_pdf_filechooserdialog);
+      gtk_widget_set_visible(plot->rama_export_as_pdf_filechooserdialog, TRUE);
    } else {
       std::cout<< "BL ERROR:: failed to get a plot" <<std::endl;
    }
@@ -272,7 +272,7 @@ on_rama_save_as_png_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
       const gchar *file_name = "dynarama.png";
       gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(plot->rama_export_as_png_filechooserdialog),
                                         file_name);
-      gtk_widget_show(plot->rama_export_as_png_filechooserdialog);
+      gtk_widget_set_visible(plot->rama_export_as_png_filechooserdialog, TRUE);
    } else {
       std::cout<< "BL ERROR:: failed to get a plot" <<std::endl;
    }
@@ -367,7 +367,7 @@ on_rama_about_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
    if (plot) {
       GtkWidget *about = plot->about_dialog;
-      gtk_widget_show(about);
+      gtk_widget_set_visible(about, TRUE);
    } else {
       std::cout<< "BL ERROR:: failed to get a plot" <<std::endl;
    }
@@ -381,7 +381,7 @@ on_rama_aboutdialog1_close(GtkDialog *dialog, gpointer user_data){
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
    if (plot) {
       GtkWidget *about = plot->about_dialog;
-      gtk_widget_hide(about);
+      gtk_widget_set_visible(about, FALSE);
    } else {
       std::cout<< "BL ERROR:: failed to get a plot" <<std::endl;
    }
@@ -394,7 +394,7 @@ on_rama_aboutdialog1_response(GtkDialog *dialog, gint response_id, gpointer user
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
    if (plot) {
       GtkWidget *about = plot->about_dialog;
-      gtk_widget_hide(about);
+      gtk_widget_set_visible(about, FALSE);
    } else {
       std::cout<< "BL ERROR:: failed to get a plot" <<std::endl;
    }
@@ -409,7 +409,7 @@ on_rama_export_as_pdf_filechooserdialog_close(GtkDialog *dialog, gpointer user_d
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
    if (plot) {
       GtkWidget *w = plot->rama_export_as_pdf_filechooserdialog;
-      gtk_widget_hide(w);
+      gtk_widget_set_visible(w, FALSE);
    } else {
       std::cout<< "BL ERROR:: failed to get a plot" <<std::endl;
    }
@@ -429,7 +429,7 @@ on_rama_export_as_pdf_filechooserdialog_response(GtkDialog *dialog, gint respons
          std::cout<< "BL ERROR:: failed to get a plot" <<std::endl;
       }
    }
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 extern "C" G_MODULE_EXPORT void
@@ -440,7 +440,7 @@ on_rama_export_as_png_filechooserdialog_close(GtkDialog *dialog, gpointer user_d
                                                                              "user_data"));
    if (plot) {
       GtkWidget *w = plot->rama_export_as_png_filechooserdialog;
-      gtk_widget_hide(w);
+      gtk_widget_set_visible(w, FALSE);
    } else {
       std::cout<< "BL ERROR:: failed to get a plot" <<std::endl;
    }
@@ -461,7 +461,7 @@ on_rama_export_as_png_filechooserdialog_response(GtkDialog *dialog, gint respons
          std::cout<< "BL ERROR:: failed to get a plot" <<std::endl;
       }
    }
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 extern "C" G_MODULE_EXPORT void
@@ -472,7 +472,7 @@ on_rama_open_filechooserdialog_close(GtkDialog *dialog, gpointer user_data){
                                                                              "user_data"));
    if (plot) {
       GtkWidget *w = plot->rama_open_filechooserdialog;
-      gtk_widget_hide(w);
+      gtk_widget_set_visible(w, FALSE);
    } else {
       std::cout<< "BL ERROR:: failed to get a plot" <<std::endl;
    }
@@ -493,7 +493,7 @@ on_rama_open_filechooserdialog_response(GtkDialog *dialog, gint response_id, gpo
          std::cout<< "BL ERROR:: failed to get a plot" <<std::endl;
       }
    }
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 #ifdef HAVE_GOOCANVAS
@@ -630,7 +630,7 @@ gint rama_key_press_event(GtkWidget *widget, GdkEventKey *event) {
  
 //   //    GtkWidget *widget = create_propertybox1();
 //   GtkWidget *widget = create_dynarama_properties_window();
-//   gtk_widget_show(widget);
+//   gtk_widget_set_visible(widget, TRUE);
 
 //}
 
