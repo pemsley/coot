@@ -50,7 +50,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       cairo_set_source_rgb(cairo_canvas, residue_color.red, residue_color.green, residue_color.blue);
 
       PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
-      std::string label_markup = slc;
+      std::string label_markup = std::string("<tt>") + slc + std::string("</tt>");
       pango_layout_set_markup(pango_layout, label_markup.c_str(), -1);
       int layout_width, layout_height;
       pango_layout_get_pixel_size(pango_layout, &layout_width, &layout_height);
