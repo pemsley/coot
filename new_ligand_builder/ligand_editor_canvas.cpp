@@ -377,5 +377,6 @@ DisplayMode coot_ligand_editor_get_display_mode(CootLigandEditorCanvas* self) no
 
 void coot_ligand_editor_set_display_mode(CootLigandEditorCanvas* self, DisplayMode value) noexcept {
     self->display_mode = value;
+    gtk_widget_queue_draw(GTK_WIDGET(self));
 }
 
