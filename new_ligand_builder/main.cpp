@@ -1,6 +1,7 @@
 #include "ligand-builder.hpp"
 #include "ligand_editor_canvas.hpp"
 #include "ligand_editor_canvas/core.hpp"
+#include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
 #include <gtk/gtk.h>
 #include <string>
@@ -312,14 +313,33 @@ GMenu *build_menu(GtkApplication* app, CootLigandEditorCanvas* canvas, GtkWindow
     
     // g_menu_append(GMenu *menu, const gchar *label, const gchar
     // *detailed_action);
-    auto new_menu_item = [app](const char* label,const char* action_name,GCallback func, gpointer userdata = nullptr){
+    auto new_action = [app](const char* action_name, GCallback func, gpointer userdata = nullptr){
         std::string detailed_action_name = "app.";
         detailed_action_name += action_name;
-        GMenuItem* item = g_menu_item_new(label,detailed_action_name.c_str());
         GSimpleAction* action = g_simple_action_new(action_name,nullptr);
         g_action_map_add_action(G_ACTION_MAP(app), G_ACTION(action));
         g_signal_connect(action, "activate", func, userdata);
-        return item;
+        return std::make_pair(detailed_action_name,action);
+    };
+
+    auto new_stateful_action = [app](const char* action_name,const GVariantType *state_type, GVariant* default_state, GCallback func, gpointer userdata = nullptr){
+        std::string detailed_action_name = "app.";
+        detailed_action_name += action_name;
+        GSimpleAction* action = g_simple_action_new_stateful(action_name, state_type, default_state);
+        g_action_map_add_action(G_ACTION_MAP(app), G_ACTION(action));
+        g_signal_connect(action, "activate", func, userdata);
+        return std::make_pair(detailed_action_name,action);
+    };
+
+    auto new_menu_item = [&](const char* label,const char* action_name,GCallback func, gpointer userdata = nullptr){
+        auto [detailed_action_name,action] = new_action(action_name,func,userdata);
+        return g_menu_item_new(label,detailed_action_name.c_str());
+    };
+
+    auto new_radio_menu_item = [&](const char* label,const char* action_name, GVariant* value){
+        GMenuItem* ret =  g_menu_item_new(label,nullptr);
+        g_menu_item_set_action_and_target_value(ret, action_name, value);
+        return ret;
     };
 
     // File
@@ -370,15 +390,49 @@ GMenu *build_menu(GtkApplication* app, CootLigandEditorCanvas* canvas, GtkWindow
     // Display
     GMenu *display = g_menu_new();
     g_menu_append_submenu(ret, "Display", G_MENU_MODEL(display));
-    g_menu_append_item(display, new_menu_item("Standard", "display_standard", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("TODO: Standard");
-    })));
-    g_menu_append_item(display, new_menu_item("Atom Indices", "display_atom_indices", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("TODO: Atom Indices");
-    })));
-    g_menu_append_item(display, new_menu_item("Atom Names", "display_atom_names", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("TODO: Atom Names");
-    })));
+
+    using coot::ligand_editor_canvas::DisplayMode;
+    GVariant* display_mode_action_defstate = g_variant_new("s",coot::ligand_editor_canvas::display_mode_to_string(DisplayMode::Standard));
+    auto [display_mode_action_name,display_mode_action] = new_stateful_action(
+        "switch_display_mode", 
+        G_VARIANT_TYPE_STRING,
+        display_mode_action_defstate, 
+        G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+            const gchar* mode_name = g_variant_get_string(parameter,nullptr);
+            auto mode = coot::ligand_editor_canvas::display_mode_from_string(mode_name);
+            if(mode.has_value()) {
+                coot::ligand_editor::global_instance->switch_display_mode(mode.value());
+                g_simple_action_set_state(self, parameter);
+            } else {
+                g_error("Could not parse display mode from string!");
+            }
+        }
+    ));
+    
+    g_menu_append_item(
+        display, 
+        new_radio_menu_item(
+            coot::ligand_editor_canvas::display_mode_to_string(DisplayMode::Standard),
+            display_mode_action_name.c_str(),
+            g_variant_new("s",coot::ligand_editor_canvas::display_mode_to_string(DisplayMode::Standard))
+        )
+    );
+    g_menu_append_item(
+        display, 
+        new_radio_menu_item(
+            coot::ligand_editor_canvas::display_mode_to_string(DisplayMode::AtomIndices),
+            display_mode_action_name.c_str(),
+            g_variant_new("s",coot::ligand_editor_canvas::display_mode_to_string(DisplayMode::AtomIndices))
+        )
+    );
+    g_menu_append_item(
+        display, 
+        new_radio_menu_item(
+            coot::ligand_editor_canvas::display_mode_to_string(DisplayMode::AtomNames),
+            display_mode_action_name.c_str(),
+            g_variant_new("s",coot::ligand_editor_canvas::display_mode_to_string(DisplayMode::AtomNames))
+        )
+    );
     // Help
     GMenu *help = g_menu_new();
     g_menu_append_submenu(ret, "Help", G_MENU_MODEL(help));

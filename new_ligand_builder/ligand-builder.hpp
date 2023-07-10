@@ -4,6 +4,7 @@
 #include <rdkit/GraphMol/RWMol.h>
 
 #include "geometry/protein-geometry.hh"
+#include "ligand_editor_canvas/model.hpp"
 
 namespace coot::ligand_editor {
 
@@ -58,7 +59,7 @@ class LigandBuilderState {
     void edit_undo();
     void edit_redo();
     // Display
-    // todo
+    void switch_display_mode(ligand_editor_canvas::DisplayMode mode);
 
 };
 

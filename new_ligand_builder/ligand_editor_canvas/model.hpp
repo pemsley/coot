@@ -17,6 +17,9 @@ enum class DisplayMode: unsigned char {
     AtomNames
 };
 
+const char* display_mode_to_string(DisplayMode mode) noexcept;
+std::optional<DisplayMode> display_mode_from_string(const char*) noexcept;
+
 /// Drawing-friendly representation of RDKit molecule
 class CanvasMolecule {
     public:

@@ -35,6 +35,33 @@ const float CanvasMolecule::GEOMETRY_BOND_SPREAD_ANGLE = M_PI/18.f;
 const float CanvasMolecule::WAVY_BOND_ARC_LENGTH = 0.25f;
 const float CanvasMolecule::GEOMETRY_BOND_DASH_SEPARATION = 0.2f;
 
+const char* coot::ligand_editor_canvas::display_mode_to_string(DisplayMode mode) noexcept {
+    switch (mode) {
+        case DisplayMode::AtomIndices:{
+            return "Atom Indices";
+        }
+        case DisplayMode::AtomNames:{
+            return "Atom Names";
+        }
+        default:
+        case DisplayMode::Standard:{
+            return "Standard";
+        }
+    }
+}
+std::optional<DisplayMode> coot::ligand_editor_canvas::display_mode_from_string(const char* value_raw) noexcept {
+    std::string value(value_raw);
+    if(value == "Standard") {
+        return DisplayMode::Standard;
+    } else if (value == "Atom Indices") {
+        return DisplayMode::AtomIndices;
+    } else if (value == "Atom Names") {
+        return DisplayMode::AtomNames;
+    } else {
+        return std::nullopt;
+    }
+}
+
 float CanvasMolecule::get_scale() const noexcept {
     return BASE_SCALE_FACTOR * this->canvas_scale;
 }
