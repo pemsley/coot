@@ -327,7 +327,7 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
         };
 
         // Returns a pair of atom index and bonding rect
-        auto render_atom = [&](const Atom& atom) -> std::pair<unsigned int,graphene_rect_t> {
+        auto render_atom = [&](const Atom& atom, DisplayMode render_mode = DisplayMode::Standard) -> std::pair<unsigned int,graphene_rect_t> {
             auto [raw_markup,reversed] = process_appendix(atom.symbol,atom.appendix);
             // pre-process text
             auto [r,g,b] = atom_color_to_rgb(atom.color);
@@ -374,15 +374,28 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             return std::make_pair(atom.idx,rect);
         };
 
-        
-        if(atom.symbol == "C") {
-            if(atom.appendix.has_value()) {
-                atom_idx_to_canvas_rect.emplace(render_atom(atom));
-            } else {
-                process_highlight();
+        switch (display_mode) {
+            case DisplayMode::AtomIndices: {
+                atom_idx_to_canvas_rect.emplace(render_atom(atom,DisplayMode::AtomIndices));
+                break;
             }
-        } else {
-            atom_idx_to_canvas_rect.emplace(render_atom(atom));
+            case DisplayMode::AtomNames: {
+                g_warning("todo: DisplayMode::AtomNames");
+                break;
+            }
+            default:
+            case DisplayMode::Standard: {
+                if(atom.symbol == "C") {
+                    if(atom.appendix.has_value()) {
+                        atom_idx_to_canvas_rect.emplace(render_atom(atom));
+                    } else {
+                        process_highlight();
+                    }
+                } else {
+                    atom_idx_to_canvas_rect.emplace(render_atom(atom));
+                }
+                break;
+            }
         }
     }
 
