@@ -23,13 +23,13 @@
 
 
 
-class box_info_t {
+class sv3_box_info_t {
 public:
    coot::residue_spec_t residue_spec;
    int x_base;
    int y_base;
-   box_info_t(mmdb::Residue *residue_p, int x_base, int y_base) : residue_spec(coot::residue_spec_t(residue_p)),
-                                                                               x_base(x_base), y_base(y_base) {}
+   sv3_box_info_t(mmdb::Residue *residue_p, int x_base, int y_base) : residue_spec(coot::residue_spec_t(residue_p)),
+                                                                      x_base(x_base), y_base(y_base) {}
 };
 
 G_BEGIN_DECLS

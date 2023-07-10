@@ -16,7 +16,7 @@ struct _CootSequenceView {
    GtkWidget parent;
    int imol;
    mmdb::Manager *mol;
-   std::vector<box_info_t> box_info_store;
+   std::vector<sv3_box_info_t> box_info_store;
 };
 
 static guint sequence_view_residue_clicked_signal;
@@ -234,7 +234,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
                   int res_no = residue_p->GetSeqNum();
                   float x_1 = static_cast<float>(res_no-mm.second.first+1) * X_OFFSET_PER_RESIDUE + x_offset_base;
                   float y_1 = y_offset;
-                  box_info_t box_info(residue_p, x_1, y_1);
+                  sv3_box_info_t box_info(residue_p, x_1, y_1);
                   self->box_info_store.push_back(box_info);
                   add_box_letter_code_label(cairo_canvas, residue_p, x_1, y_1);
                }

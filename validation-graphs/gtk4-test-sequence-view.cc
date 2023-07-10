@@ -23,7 +23,7 @@ void fill(GtkWidget *window, mmdb::Manager *mol) {
    gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(sv));
 
    auto callback = +[] (CootSequenceView* self,
-                        const box_info_t *residue_vip,
+                        const sv3_box_info_t *residue_box_p,
                         gpointer userdata) {
 
       std::cout << "residue-clicked handler" << std::endl;
