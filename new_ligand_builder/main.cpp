@@ -13,6 +13,7 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel*
     using BondModifierMode = coot::ligand_editor_canvas::BondModifier::BondModifierMode;
     using Element = coot::ligand_editor_canvas::ElementInsertion::Element;
     using Structure = coot::ligand_editor_canvas::StructureInsertion::Structure;
+    using FlipMode = coot::ligand_editor_canvas::FlipTool::FlipMode;
 
     GtkWidget* mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
 
@@ -37,19 +38,19 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel*
     GtkWidget* rotate_button = gtk_button_new_with_label("Rotate");
     g_signal_connect(rotate_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
-        // coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(RotateTool()));
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(RotateTool()));
     }), canvas);
     gtk_box_append(GTK_BOX(motions_toolbar), rotate_button);
     GtkWidget* flip_x_button = gtk_button_new_with_label("Flip around X");
     g_signal_connect(flip_x_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
-        //coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(MoveTool()));
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(FlipTool(FlipMode::Horizontal)));
     }), canvas);
     gtk_box_append(GTK_BOX(motions_toolbar), flip_x_button);
     GtkWidget* flip_y_button = gtk_button_new_with_label("Flip around Y");
     g_signal_connect(flip_y_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
-        //coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(MoveTool()));
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(FlipTool(FlipMode::Vertical)));
     }), canvas);
     gtk_box_append(GTK_BOX(motions_toolbar), flip_y_button);
 
