@@ -4,6 +4,7 @@ AM_CPPFLAGS = \
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS)   \
 	$(COOT_GSL_FLAGS)		    \
 	$(GSL_CFLAGS)			    \
+	$(LIBSSM_CXXFLAGS)                  \
 	$(CLIPPER_CXXFLAGS)                 \
 	$(MMDB_CXXFLAGS)                    \
 	$(PYTHON_CPPFLAGS)                  \
@@ -34,12 +35,13 @@ molecules_container.cc       make-a-dodec.cc	                              molec
 phi-psi-prob.cc              coot_molecule_moltris.cc                         coot_molecule_replace_fragment.cc \
 coot_molecule_backup.cc      coot_molecule_bonds_instanced.cc                 molecules_container_mmrrcc.cc \
 coot_molecule_refine.cc      molecules_container_superpose.cc                 rigid-body-fit.cc \
-moorhen-h-bonds.cc
+moorhen-h-bonds.cc           molecules_container_bucca_ml_growing.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \
    $(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la \
    $(top_builddir)/ligand/libcoot-ligand.la           \
+   $(top_builddir)/buccaneer_ml_growing/libcoot-ml-growing.la       \
    $(top_builddir)/pli/libcoot-pli.la                 \
    $(top_builddir)/ideal/libcoot-ideal.la             \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
@@ -56,7 +58,7 @@ libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la       \
    $(top_builddir)/coords/libcoot-coords.la	      \
    $(top_builddir)/utils/libcoot-utils.la             \
-   $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) -lpthread
+   $(CLIPPER_LIBS) $(LIBSSM_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) -lpthread
 
 check_PROGRAMS = test-molecules-container
 

@@ -6,6 +6,8 @@
 #include "coot-utils/coot-coord-utils.hh"
 #include "ligand/residue_by_phi_psi.hh"
 
+#define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
 // We need to find the serial number of the residue after the residue
 // we want to insert (i.e. the new residue will be inserted just
 // before the residue whose serial number we return).
@@ -609,10 +611,17 @@ std::pair<int, std::string>
 coot::add_terminal_residue(int imol_no, const std::string &terminus_type, mmdb::Residue *residue_p,
                            mmdb::Manager *mol, int udd_atom_index,
                            const std::string &chain_id, const std::string &res_type, float b_factor_for_new_atoms,
-                           const clipper::Xmap<float> &xmap, const coot::protein_geometry &geom) {
+                           const clipper::Xmap<float> &xmap, const coot::protein_geometry &geom,
+                           ctpl::thread_pool &static_thread_pool) {
 
    int state = 0;
    std::string message;
+
+#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+   // fine
+#else
+   // we can still work without a thread-pool.
+#endif
 
    bool add_terminal_residue_debug_trials = false;
    int add_terminal_residue_n_phi_psi_trials = 3000;
