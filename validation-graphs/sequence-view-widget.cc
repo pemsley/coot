@@ -30,36 +30,11 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
    CootSequenceView* self = COOT_COOT_SEQUENCE_VIEW(widget);
 
    const float x_offset_base = 30.0;
-   const float y_offset_base = 30.0;
+   const float y_offset_base = 20.0;
 
    self->box_info_store.clear();
 
-   // This function is used from the loop below.
-   //
-   auto add_box_letter_code_label = [widget, snapshot] (mmdb::Residue *residue_p, float x_base, float y_base) {
-      std::string res_name = residue_p->GetResName();
-      std::string slc = coot::util::three_letter_to_one_letter_with_specials(res_name);
-
-      float w_pixels_label = 40.0;
-      float h_pixels_label = 40.0;
-      
-      graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(x_base, y_base, x_base + w_pixels_label, y_base + h_pixels_label);
-      cairo_t *cairo_canvas = gtk_snapshot_append_cairo(snapshot, &m_graphene_rect);
-      GdkRGBA residue_color; // maybe per-residue colouring later
-      gdk_rgba_parse(&residue_color, "#222222");
-      cairo_set_source_rgb(cairo_canvas, residue_color.red, residue_color.green, residue_color.blue);
-
-      PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
-      std::string label_markup = std::string("<tt>") + slc + std::string("</tt>");
-      pango_layout_set_markup(pango_layout, label_markup.c_str(), -1);
-      int layout_width, layout_height;
-      pango_layout_get_pixel_size(pango_layout, &layout_width, &layout_height);
-
-      cairo_move_to(cairo_canvas, x_base +2 , y_base - 2);
-      pango_cairo_show_layout(cairo_canvas, pango_layout);
-   };
-
-   auto add_chain_label = [widget, snapshot] (int i_chain, const std::string &chain_id, float x_base, float y_base) {
+   auto add_chain_label = [widget, snapshot] (const std::string &chain_id, float x_base, float y_base) {
       
       float w_pixels_label = 12.0;
       float h_pixels_label = 12.0;
@@ -199,16 +174,33 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       }
    };
 
+   // This function is used from the loop below.
+   //
+   auto add_box_letter_code_label = [widget] (cairo_t *cairo_canvas, graphene_rect_t &m_graphene_rect, mmdb::Residue *residue_p, float x_base, float y_base) {
+      std::string res_name = residue_p->GetResName();
+      std::string slc = coot::util::three_letter_to_one_letter_with_specials(res_name);
+
+      // cairo_t *cairo_canvas = gtk_snapshot_append_cairo(snapshot, &m_graphene_rect);
+      GdkRGBA residue_color; // maybe per-residue colouring later
+      gdk_rgba_parse(&residue_color, "#222222");
+      cairo_set_source_rgb(cairo_canvas, residue_color.red, residue_color.green, residue_color.blue);
+
+      PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
+      std::string label_markup = std::string("<tt>") + slc + std::string("</tt>");
+      pango_layout_set_markup(pango_layout, label_markup.c_str(), -1);
+      std::cout << "x_base " << x_base << " y_base " << y_base << std::endl;
+      cairo_move_to(cairo_canvas, x_base +2.0 , y_base - 10.0); // I added the -10 here so that you can see that the text is under
+                                                                // the boxes.
+      // cairo_move_to(cairo_canvas, 42.0 , 46.0);
+      pango_cairo_show_layout(cairo_canvas, pango_layout);
+   };
+
    if (self->mol) {
 
       int imod = 1;
       mmdb::Model *model_p = self->mol->GetModel(imod);
       if (model_p) {
 
-         GtkAllocation allocation;
-         gtk_widget_get_allocation(GTK_WIDGET(widget), &allocation);
-         float w = allocation.width;
-         float h = allocation.height;
          GdkRGBA attribute_color;
          gdk_rgba_parse(&attribute_color, "#223322");
 
@@ -217,7 +209,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
          float h_pixels_rect = 100 + n_res_and_n_chains.second * Y_OFFSET_PER_CHAIN + y_offset_base;
 
          graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w_pixels_rect, h_pixels_rect);
-         cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot,&m_graphene_rect);
+         cairo_t *cairo_canvas = gtk_snapshot_append_cairo(snapshot, &m_graphene_rect);
 
          // make tick marks
          add_tick_marks(cairo_canvas, model_p);
@@ -233,10 +225,11 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             std::string chain_id = chain_p->GetChainID();
             float y_offset = y_offset_base + static_cast<float>(ichain) * Y_OFFSET_PER_CHAIN;
             float x_offset_base = 15.0;
-            add_chain_label(ichain, chain_id, x_offset_base, y_offset);
+            add_chain_label(chain_id, x_offset_base, y_offset);
          }
-         
 
+         // boxes and slc labels
+         //
          for (int ichain=0; ichain<n_chains; ichain++) {
             mmdb::Chain *chain_p = model_p->GetChain(ichain);
             std::string chain_id = chain_p->GetChainID();
@@ -254,10 +247,11 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
                   float y_1 = y_offset;
                   float x_2 = RESIDUE_BOX_WIDTH;  // a delta
                   float y_2 = RESIDUE_BOX_HEIGHT; // a delta
+
                   m_graphene_rect = GRAPHENE_RECT_INIT(x_1, y_1, x_2, y_2);
 
                   GdkRGBA residue_color; // maybe per-residue colouring later
-                  gdk_rgba_parse(&residue_color, "#eeeeee");
+                  gdk_rgba_parse(&residue_color, "#ddeedd");
                   gtk_snapshot_append_color(snapshot, &residue_color, &m_graphene_rect);
 
                   if (false)
@@ -266,11 +260,11 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
                   box_info_t box_info(residue_p, x_1, y_1);
                   self->box_info_store.push_back(box_info);
-                  add_box_letter_code_label(residue_p, x_1, y_1);
+
+                  add_box_letter_code_label(cairo_canvas, m_graphene_rect, residue_p, x_1, y_1);
                }
             }
          }
-         //    g_object_unref(pango_layout); // for the title
          cairo_destroy(cairo_canvas);
       }
    } else {
