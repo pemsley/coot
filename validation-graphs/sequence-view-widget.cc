@@ -1,15 +1,16 @@
 
 #include <gtk/gtk.h>
 
+#include "cairo.h"
 #include "sequence-view-widget.hh"
 #include "coot-utils/coot-coord-utils.hh"
 
-/// For drawing the main title
-const int TITLE_HEIGHT = -25; // 30;
 const float RESIDUE_BOX_HEIGHT   = 12.0;
 const float RESIDUE_BOX_WIDTH    = 12.0;
 const float Y_OFFSET_PER_CHAIN   = 16.0;
 const float X_OFFSET_PER_RESIDUE = 12.0;
+const float TICK_LINE_WIDTH  = 2.0;
+const float TICK_LINE_LENGTH = 8.0;
 
 struct _CootSequenceView {
    GtkWidget parent;
@@ -28,34 +29,8 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
    CootSequenceView* self = COOT_COOT_SEQUENCE_VIEW(widget);
 
-   GtkAllocation allocation;
-   gtk_widget_get_allocation(GTK_WIDGET(widget), &allocation);
-   float w = allocation.width;
-   float h = allocation.height;
-   GdkRGBA attribute_color;
-   gdk_rgba_parse(&attribute_color, "#223322");
-
-   float w_pixels_title = 600; // w and h of the box it sits in
-   float h_pixels_title = 100;
-
-   // title
-   graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w_pixels_title, h_pixels_title);
-   cairo_t *cairo_canvas = gtk_snapshot_append_cairo(snapshot, &m_graphene_rect);
-   cairo_set_source_rgb(cairo_canvas, attribute_color.red, attribute_color.green, attribute_color.blue);
-
-   PangoLayout *pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
-   std::string name = "Coooooooooooooot Sequence View";
-   std::string title_markup = std::string("<span size=\"large\" weight=\"bold\">") + name + std::string("</span>");
-   pango_layout_set_markup(pango_layout, title_markup.c_str(), -1);
-   int layout_width, layout_height;
-   pango_layout_get_pixel_size(pango_layout, &layout_width, &layout_height);
-   // std::cout << "layout_width " << layout_width << " layout_height " << layout_height << std::endl;
-   cairo_move_to(cairo_canvas, (w - layout_width) / 2.f, (TITLE_HEIGHT + layout_height) / 2.f);
-   pango_cairo_show_layout(cairo_canvas, pango_layout);
-
-
-   float x_offset_base = 30.0;
-   float y_offset_base = 30.0; // down because of title - this should be changed later
+   const float x_offset_base = 30.0;
+   const float y_offset_base = 30.0;
 
    self->box_info_store.clear();
 
@@ -69,7 +44,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       float h_pixels_label = 40.0;
       
       graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(x_base, y_base, x_base + w_pixels_label, y_base + h_pixels_label);
-      cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot, &m_graphene_rect);
+      cairo_t *cairo_canvas = gtk_snapshot_append_cairo(snapshot, &m_graphene_rect);
       GdkRGBA residue_color; // maybe per-residue colouring later
       gdk_rgba_parse(&residue_color, "#222222");
       cairo_set_source_rgb(cairo_canvas, residue_color.red, residue_color.green, residue_color.blue);
@@ -88,7 +63,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       
       float w_pixels_label = 12.0;
       float h_pixels_label = 12.0;
-      
+
       graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(x_base, y_base, x_base + w_pixels_label, y_base + h_pixels_label);
       cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot, &m_graphene_rect);
       GdkRGBA residue_color; // maybe per-residue colouring later
@@ -104,14 +79,151 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       cairo_move_to(cairo_canvas, x_base +2 , y_base - 2);
       pango_cairo_show_layout(cairo_canvas, pango_layout);
    };
-   
 
+   auto get_min_max_residue_number = [] (mmdb::Model *model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      std::pair<int, int> min_max(10000, -10000);
+      bool min_max_was_set = false;
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::pair<bool, std::pair<int, int> > min_max_for_chain = coot::util::min_max_residues_in_polymer_chain(chain_p);
+         if (min_max_for_chain.first) {
+            min_max_was_set = true;
+            if (min_max_for_chain.second.first  < min_max.first)  min_max.first  = min_max_for_chain.second.first;
+            if (min_max_for_chain.second.second > min_max.second) min_max.second = min_max_for_chain.second.second;
+         }
+      }
+      return std::pair<bool, std::pair<int, int> > (min_max_was_set, min_max);
+   };
+
+   auto calculate_min_max_by_5s = +[] (const std::pair<int, int> &mm) {
+      int f5 = mm.first/5;
+      int f = f5 * 5;
+      int s5 = mm.second/5;
+      int s = s5 * 5;
+      if (f > mm.first)  f -= 5;
+      if (s < mm.second) f += 5;
+      return std::pair<int, int>(f, s);
+   };
+
+   auto add_tick_marks = [calculate_min_max_by_5s, get_min_max_residue_number, x_offset_base, y_offset_base]
+      (cairo_t *cairo_canvas, mmdb::Model *model_p) {
+
+      std::pair<bool, std::pair<int, int> > mm = get_min_max_residue_number(model_p);
+      int n_chains = model_p->GetNumberOfChains();
+      bool min_max_was_set = mm.first;
+      if (min_max_was_set) {
+         // calculate these, rounding up to the nearest 5
+         std::pair<int, int> mmr = calculate_min_max_by_5s(mm.second);
+         int res_no_start =  mmr.first;
+         int res_no_end   = mmr.second; // inclusive, less than or equal to the max residue number
+         cairo_set_line_width(cairo_canvas, TICK_LINE_WIDTH);
+         for (int ires = res_no_start;  ires<=res_no_end; ires+=5) {
+
+            // above the top line
+            double pos_x = x_offset_base + X_OFFSET_PER_RESIDUE * static_cast<double>(ires-mm.second.first+1) + X_OFFSET_PER_RESIDUE/2;
+            // std::cout << "add_tick_marks(): ires: " << ires << " pos_x " << pos_x << std::endl;
+            double pos_y_start = y_offset_base - 1.0;
+            double pos_y_end   = pos_y_start - TICK_LINE_LENGTH;
+            cairo_set_source_rgb(cairo_canvas, 0.1, 0.1, 0.1);
+            cairo_move_to(cairo_canvas, pos_x, pos_y_start);
+            cairo_line_to(cairo_canvas, pos_x, pos_y_end);
+            cairo_stroke(cairo_canvas);
+
+            // below the bottom line
+            pos_x = x_offset_base + X_OFFSET_PER_RESIDUE * static_cast<double>(ires-mm.second.first+1) + X_OFFSET_PER_RESIDUE/2;
+            pos_y_start = y_offset_base + static_cast<double>(n_chains) * Y_OFFSET_PER_CHAIN + -2.0;
+            pos_y_end   = pos_y_start + TICK_LINE_LENGTH;
+            cairo_set_source_rgb(cairo_canvas, 0.1, 0.1, 0.1);
+            cairo_move_to(cairo_canvas, pos_x, pos_y_start);
+            cairo_line_to(cairo_canvas, pos_x, pos_y_end);
+            cairo_stroke(cairo_canvas);
+         }
+      }
+   };
+   
+   auto add_tick_labels = [calculate_min_max_by_5s, get_min_max_residue_number, x_offset_base, y_offset_base]
+      (cairo_t *cairo_canvas, mmdb::Model *model_p) {
+
+      int n_chains = model_p->GetNumberOfChains();
+      std::pair<bool, std::pair<int, int> > mm = get_min_max_residue_number(model_p);
+      bool min_max_was_set = mm.first;
+      if (min_max_was_set) {
+         // as above
+         // calculate these, rounding up to the nearest 5
+         std::pair<int, int> mmr = calculate_min_max_by_5s(mm.second);
+         int res_no_start = mmr.first;
+         int res_no_end   = mmr.second; // inclusive, less than or equal to the max residue number
+         for (int ires = res_no_start;  ires<=res_no_end; ires+=5) {
+
+            // above the top line
+            double pos_x = x_offset_base + X_OFFSET_PER_RESIDUE * static_cast<double>(ires-mm.second.first+1) + X_OFFSET_PER_RESIDUE/2;
+            // float x_1 = static_cast<float>(res_no-mm.second.first+1) * X_OFFSET_PER_RESIDUE + x_offset_base;
+            std::string text = std::to_string(ires);
+            float l = text.length();
+            pos_x -= 3.5 * l ; // so that the text is centred on the tick.
+            double pos_y = y_offset_base - 2.0 - TICK_LINE_LENGTH;
+            cairo_set_source_rgb(cairo_canvas, 0.1, 0.1, 0.1);
+            cairo_move_to(cairo_canvas, pos_x, pos_y);
+            cairo_show_text(cairo_canvas, text.c_str());
+            // std::cout << "text top " << text << " at " << pos_x << " " << pos_y<< std::endl;
+
+            // below the bottom line
+            pos_y = y_offset_base + 8.0 + TICK_LINE_LENGTH + Y_OFFSET_PER_CHAIN * n_chains;
+            cairo_set_source_rgb(cairo_canvas, 0.1, 0.1, 0.1);
+            cairo_move_to(cairo_canvas, pos_x, pos_y);
+            cairo_show_text(cairo_canvas, text.c_str());
+            // std::cout << "text bot " << text << " at " << pos_x << " " << pos_y<< std::endl;
+         }
+      }
+   };
+
+   auto n_residues_and_n_chains = [] (mmdb::Model *model_p) {
+
+      int n_chains = model_p->GetNumberOfChains();
+      bool min_max_is_set = false;
+      std::pair<int, int> min_max(10000, -10000);
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::pair<bool, std::pair<int, int> > mm = coot::util::min_max_residues_in_polymer_chain(chain_p);
+         if (mm.first) {
+            min_max_is_set = true;
+            if (mm.second.first  < min_max.first)  min_max.first  = mm.second.first;
+            if (mm.second.second > min_max.second) min_max.second = mm.second.second;
+         }
+      }
+      if (min_max_is_set) {
+         return std::make_pair(min_max.second - min_max.first + 1, n_chains);
+      } else {
+         return std::make_pair(0,0);
+      }
+   };
 
    if (self->mol) {
 
       int imod = 1;
       mmdb::Model *model_p = self->mol->GetModel(imod);
       if (model_p) {
+
+         GtkAllocation allocation;
+         gtk_widget_get_allocation(GTK_WIDGET(widget), &allocation);
+         float w = allocation.width;
+         float h = allocation.height;
+         GdkRGBA attribute_color;
+         gdk_rgba_parse(&attribute_color, "#223322");
+
+         std::pair<int, int> n_res_and_n_chains = n_residues_and_n_chains(model_p);
+         float w_pixels_rect = n_res_and_n_chains.first * X_OFFSET_PER_RESIDUE + x_offset_base ; // w and h of the box it sits in
+         float h_pixels_rect = 100 + n_res_and_n_chains.second * Y_OFFSET_PER_CHAIN + y_offset_base;
+
+         graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w_pixels_rect, h_pixels_rect);
+         cairo_t* cairo_canvas = gtk_snapshot_append_cairo(snapshot,&m_graphene_rect);
+
+         // make tick marks
+         add_tick_marks(cairo_canvas, model_p);
+
+         //
+         add_tick_labels(cairo_canvas, model_p);
 
          // Make the labels for the chains
          //
@@ -130,13 +242,15 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             std::string chain_id = chain_p->GetChainID();
             int n_res = chain_p->GetNumberOfResidues();
             float y_offset = y_offset_base + static_cast<float>(ichain) * Y_OFFSET_PER_CHAIN;
+
+            std::pair<bool, std::pair<int, int> > mm = get_min_max_residue_number(model_p);
+
             for (int ires=0; ires<n_res; ires++) {
                mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                if (residue_p) {
                   int res_no = residue_p->GetSeqNum();
 
-                  float x_offset = x_offset_base;
-                  float x_1 = static_cast<float>(res_no) * X_OFFSET_PER_RESIDUE + x_offset;
+                  float x_1 = static_cast<float>(res_no-mm.second.first+1) * X_OFFSET_PER_RESIDUE + x_offset_base;
                   float y_1 = y_offset;
                   float x_2 = RESIDUE_BOX_WIDTH;  // a delta
                   float y_2 = RESIDUE_BOX_HEIGHT; // a delta
@@ -146,19 +260,23 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
                   gdk_rgba_parse(&residue_color, "#eeeeee");
                   gtk_snapshot_append_color(snapshot, &residue_color, &m_graphene_rect);
 
+                  if (false)
+                     std::cout << "ires " << ires << " res_no " << res_no << " mm.first " << mm.second.first  << " x_1 " << x_1 << " "
+                               << coot::residue_spec_t(residue_p) << " " << residue_p->GetResName() << std::endl;
+
                   box_info_t box_info(residue_p, x_1, y_1);
                   self->box_info_store.push_back(box_info);
                   add_box_letter_code_label(residue_p, x_1, y_1);
                }
             }
          }
+         //    g_object_unref(pango_layout); // for the title
+         cairo_destroy(cairo_canvas);
       }
    } else {
       std::cout << "error in coot_sequence_view_snapshot() null mol " << std::endl;
    }
-   g_object_unref(pango_layout);
-   cairo_destroy(cairo_canvas);
-   
+
 }
 
 gboolean sequence_view_query_tooltip(CootSequenceView* self,
