@@ -177,10 +177,10 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
    // This function is used from the loop below.
    //
    auto add_box_letter_code_label = [widget] (cairo_t *cairo_canvas, graphene_rect_t &m_graphene_rect, mmdb::Residue *residue_p, float x_base, float y_base) {
+
       std::string res_name = residue_p->GetResName();
       std::string slc = coot::util::three_letter_to_one_letter_with_specials(res_name);
 
-      // cairo_t *cairo_canvas = gtk_snapshot_append_cairo(snapshot, &m_graphene_rect);
       GdkRGBA residue_color; // maybe per-residue colouring later
       gdk_rgba_parse(&residue_color, "#222222");
       cairo_set_source_rgb(cairo_canvas, residue_color.red, residue_color.green, residue_color.blue);
@@ -188,10 +188,8 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
       std::string label_markup = std::string("<tt>") + slc + std::string("</tt>");
       pango_layout_set_markup(pango_layout, label_markup.c_str(), -1);
-      std::cout << "x_base " << x_base << " y_base " << y_base << std::endl;
-      cairo_move_to(cairo_canvas, x_base +2.0 , y_base - 10.0); // I added the -10 here so that you can see that the text is under
+      cairo_move_to(cairo_canvas, x_base +2.0 , y_base - 0.0); // I added the -10 here so that you can see that the text is under
                                                                 // the boxes.
-      // cairo_move_to(cairo_canvas, 42.0 , 46.0);
       pango_cairo_show_layout(cairo_canvas, pango_layout);
    };
 
@@ -201,21 +199,12 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       mmdb::Model *model_p = self->mol->GetModel(imod);
       if (model_p) {
 
-         GdkRGBA attribute_color;
-         gdk_rgba_parse(&attribute_color, "#223322");
-
          std::pair<int, int> n_res_and_n_chains = n_residues_and_n_chains(model_p);
          float w_pixels_rect = n_res_and_n_chains.first * X_OFFSET_PER_RESIDUE + x_offset_base ; // w and h of the box it sits in
          float h_pixels_rect = 100 + n_res_and_n_chains.second * Y_OFFSET_PER_CHAIN + y_offset_base;
 
          graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w_pixels_rect, h_pixels_rect);
          cairo_t *cairo_canvas = gtk_snapshot_append_cairo(snapshot, &m_graphene_rect);
-
-         // make tick marks
-         add_tick_marks(cairo_canvas, model_p);
-
-         //
-         add_tick_labels(cairo_canvas, model_p);
 
          // Make the labels for the chains
          //
@@ -228,43 +217,32 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             add_chain_label(chain_id, x_offset_base, y_offset);
          }
 
-         // boxes and slc labels
+         // slc labels for each residue
          //
+         std::pair<bool, std::pair<int, int> > mm = get_min_max_residue_number(model_p);
          for (int ichain=0; ichain<n_chains; ichain++) {
             mmdb::Chain *chain_p = model_p->GetChain(ichain);
             std::string chain_id = chain_p->GetChainID();
             int n_res = chain_p->GetNumberOfResidues();
             float y_offset = y_offset_base + static_cast<float>(ichain) * Y_OFFSET_PER_CHAIN;
 
-            std::pair<bool, std::pair<int, int> > mm = get_min_max_residue_number(model_p);
-
             for (int ires=0; ires<n_res; ires++) {
                mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                if (residue_p) {
                   int res_no = residue_p->GetSeqNum();
-
                   float x_1 = static_cast<float>(res_no-mm.second.first+1) * X_OFFSET_PER_RESIDUE + x_offset_base;
                   float y_1 = y_offset;
-                  float x_2 = RESIDUE_BOX_WIDTH;  // a delta
-                  float y_2 = RESIDUE_BOX_HEIGHT; // a delta
-
-                  m_graphene_rect = GRAPHENE_RECT_INIT(x_1, y_1, x_2, y_2);
-
-                  GdkRGBA residue_color; // maybe per-residue colouring later
-                  gdk_rgba_parse(&residue_color, "#ddeedd");
-                  gtk_snapshot_append_color(snapshot, &residue_color, &m_graphene_rect);
-
-                  if (false)
-                     std::cout << "ires " << ires << " res_no " << res_no << " mm.first " << mm.second.first  << " x_1 " << x_1 << " "
-                               << coot::residue_spec_t(residue_p) << " " << residue_p->GetResName() << std::endl;
-
                   box_info_t box_info(residue_p, x_1, y_1);
                   self->box_info_store.push_back(box_info);
-
                   add_box_letter_code_label(cairo_canvas, m_graphene_rect, residue_p, x_1, y_1);
                }
             }
          }
+
+         add_tick_marks(cairo_canvas, model_p);
+
+         add_tick_labels(cairo_canvas, model_p);
+
          cairo_destroy(cairo_canvas);
       }
    } else {
