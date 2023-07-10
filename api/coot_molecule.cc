@@ -2243,13 +2243,15 @@ coot::molecule_t::refine_using_last_restraints(int n_steps) {
    return rr.progress;
 }
 
-
+// move these up.
 #include "add-terminal-residue.hh"
+#include "molecules_container.hh"
 
 std::pair<int, std::string>
 coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, const std::string &new_res_type,
                                                 const coot::protein_geometry &geom,
-                                                const clipper::Xmap<float> &xmap) {
+                                                const clipper::Xmap<float> &xmap,
+                                                ctpl::thread_pool &static_thread_pool) {
 
    std::pair<int, std::string> r;
    mmdb::Residue *residue_p = util::get_residue(spec, atom_sel.mol);
@@ -2260,7 +2262,7 @@ coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, cons
       r = add_terminal_residue(imol_no, terminus_type, residue_p,
                                atom_sel.mol, atom_sel.UDDAtomIndexHandle,
                                spec.chain_id, new_res_type,
-                               bf_new, xmap, geom);
+                               bf_new, xmap, geom, static_thread_pool);
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
