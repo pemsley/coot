@@ -334,7 +334,7 @@ on_model_toolbar_side_chain_180_button_clicked(GtkButton *button,
    // look at check_if_in_180_degree_flip_define, it checks for
    // intermediate atoms - we should do that here too.
 
-   std::cout << "Here in on_model_toolbar_add_terminal_residue_button_clicked()" << std::endl;
+   std::cout << "Here in on_model_toolbar_side_chain_180_button_clicked()" << std::endl;
    graphics_info_t g;
    auto active_atom = g.get_active_atom();
    int imol = active_atom.first;
@@ -415,6 +415,15 @@ on_model_toolbar_add_terminal_residue_button_clicked(GtkButton *button,
       g.execute_add_terminal_residue(imol, terminus_type, residue_p,
                                      chain_id, new_type, true);
    }
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_model_toolbar_rotate_translate_menubutton_clicked(GtkMenuButton *button,
+                                                     gpointer   user_data) {
+
+   std::cout << "Rotate/Translate <something> here " << std::endl;
 
 }
 

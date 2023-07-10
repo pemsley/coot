@@ -38,7 +38,11 @@ void setup_menubuttons() {
    GMenuModel *delete_item_menu = menu_model_from_builder("delete-item-menu");
    gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(delete_menubutton), delete_item_menu);
 
-   // move this function to where it can be called when we click on the "Mutate"
+   // move this function to where it can be called when we click on the "Rotate/Translate"
+   GtkWidget *rotate_translate_button = widget_from_builder("rotate_translate_button");
+   GMenuModel *rotate_translate_menu = menu_model_from_builder("rotate-translate-menu");
+   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(rotate_translate_button), delete_item_menu);
+
    // button (both of them, I suppose).
    auto add_typed_menu_to_mutate_menubutton = [] (const std::string &residue_type) {
       if (residue_type == "PROTEIN") {

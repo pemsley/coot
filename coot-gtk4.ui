@@ -946,6 +946,31 @@
     </section>
   </menu>
 
+  <menu id="rotate-translate-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Atom</attribute>
+        <attribute name="action">app.rotate_translate_atom</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Residue</attribute>
+        <attribute name="action">app.rotate_translate_residue</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Residue Range</attribute>
+        <attribute name="action">app.rotate_translate_residue_range</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Chain</attribute>
+        <attribute name="action">app.rotate_translate_residue_chain</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Molecule</attribute>
+        <attribute name="action">app.rotate_translate_residue_molecule</attribute>
+      </item>
+    </section>
+  </menu>
+
   <menu id="delete-item-menu">
     <section>
       <item>
@@ -7763,7 +7788,7 @@ Do you want to continue?
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="label" translatable="yes">Rotate/Translate</property>
+                        <property name="label" translatable="yes">RotatexxxxxTranslate</property>
                       </object>
                     </child>
                   </object>
