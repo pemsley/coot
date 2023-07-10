@@ -19,65 +19,74 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel*
     gtk_window_set_child(win, mainbox);
     gtk_widget_set_margin_start(mainbox,10);
     gtk_widget_set_margin_end(mainbox,10);
-    // Top toolbar
-    GtkWidget* top_toolbar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
-    gtk_box_append(GTK_BOX(mainbox), top_toolbar);
+    // Top toolbars
+
+    GtkWidget* motions_toolbar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
+    gtk_box_append(GTK_BOX(mainbox), motions_toolbar);
+    GtkWidget* tools_toolbar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
+    gtk_box_append(GTK_BOX(mainbox), tools_toolbar);
+    GtkWidget* utils_toolbar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
+    gtk_box_append(GTK_BOX(mainbox), utils_toolbar);
 
     GtkWidget* move_button = gtk_button_new_with_label("Move");
     g_signal_connect(move_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
         coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(MoveTool()));
     }), canvas);
-    gtk_box_append(GTK_BOX(top_toolbar), move_button);
+    gtk_box_append(GTK_BOX(motions_toolbar), move_button);
 
     GtkWidget* single_bond_button = gtk_button_new_with_label("Single Bond");
     g_signal_connect(single_bond_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
         coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(BondModifier(BondModifierMode::Single)));
     }), canvas);
-    gtk_box_append(GTK_BOX(top_toolbar), single_bond_button);
+    gtk_box_append(GTK_BOX(tools_toolbar), single_bond_button);
     GtkWidget* double_bond_button = gtk_button_new_with_label("Double Bond");
     g_signal_connect(double_bond_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
         coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(BondModifier(BondModifierMode::Double)));
     }), canvas);
-    gtk_box_append(GTK_BOX(top_toolbar), double_bond_button);
+    gtk_box_append(GTK_BOX(tools_toolbar), double_bond_button);
     GtkWidget* triple_bond_button = gtk_button_new_with_label("Triple Bond");
     g_signal_connect(triple_bond_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
         coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(BondModifier(BondModifierMode::Triple)));
     }), canvas);
-    gtk_box_append(GTK_BOX(top_toolbar), triple_bond_button);
+    gtk_box_append(GTK_BOX(tools_toolbar), triple_bond_button);
     GtkWidget* stereo_out_modifier_button = gtk_button_new_with_label("Geometry Tool");
     g_signal_connect(stereo_out_modifier_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
         coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(GeometryModifier()));
     }), canvas);
-    gtk_box_append(GTK_BOX(top_toolbar), stereo_out_modifier_button);
+    gtk_box_append(GTK_BOX(tools_toolbar), stereo_out_modifier_button);
     GtkWidget* charge_modifier_button = gtk_button_new_with_label("Charge Tool");
     g_signal_connect(charge_modifier_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
         coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ChargeModifier()));
     }), canvas);
-    gtk_box_append(GTK_BOX(top_toolbar), charge_modifier_button);
+    gtk_box_append(GTK_BOX(tools_toolbar), charge_modifier_button);
     GtkWidget* delete_button = gtk_button_new_with_label("Delete");
     g_signal_connect(delete_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
         coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(DeleteTool()));
     }), canvas);
-    gtk_box_append(GTK_BOX(top_toolbar), delete_button);
-    GtkWidget* delete_hydrogens_button = gtk_button_new_with_label("Delete Hydrogens");
-    gtk_box_append(GTK_BOX(top_toolbar), delete_hydrogens_button);
-    GtkWidget* smiles_button = gtk_button_new_with_label("SMILES");
-    gtk_box_append(GTK_BOX(top_toolbar), smiles_button);
+    gtk_box_append(GTK_BOX(tools_toolbar), delete_button);
     GtkWidget* format_button = gtk_button_new_with_label("Format");
     g_signal_connect(format_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
         coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(FormatTool()));
     }), canvas);
-    gtk_box_append(GTK_BOX(top_toolbar), format_button);
+    gtk_box_append(GTK_BOX(tools_toolbar), format_button);
+    GtkWidget* delete_hydrogens_button = gtk_button_new_with_label("Delete Hydrogens");
+    gtk_box_append(GTK_BOX(utils_toolbar), delete_hydrogens_button);
+    GtkWidget* smiles_button = gtk_button_new_with_label("SMILES");
+    gtk_box_append(GTK_BOX(utils_toolbar), smiles_button);
+    GtkWidget* buttom_EnvResidues = gtk_button_new_with_label("Env. Residues");
+    gtk_box_append(GTK_BOX(utils_toolbar), buttom_EnvResidues);
+    GtkWidget* buttom_Key = gtk_button_new_with_label("Key");
+    gtk_box_append(GTK_BOX(utils_toolbar), buttom_Key);
     GtkWidget* info_button = gtk_button_new_with_label("Info");
-    gtk_box_append(GTK_BOX(top_toolbar), info_button);
+    gtk_box_append(GTK_BOX(utils_toolbar), info_button);
     
     // Carbon ring picker
     GtkWidget* carbon_ring_picker = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,5);
@@ -132,10 +141,6 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel*
         coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloOctaneRing)));
 
     }), canvas);
-    GtkWidget* buttom_EnvResidues = gtk_button_new_with_label("Env. Residues");
-    gtk_box_append(GTK_BOX(carbon_ring_picker), buttom_EnvResidues);
-    GtkWidget* buttom_Key = gtk_button_new_with_label("Key");
-    gtk_box_append(GTK_BOX(carbon_ring_picker), buttom_Key);
 
     GtkWidget* canvas_space = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
     gtk_box_append(GTK_BOX(mainbox), canvas_space);
