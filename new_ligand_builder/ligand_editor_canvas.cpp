@@ -109,10 +109,21 @@ static void on_hover (
   gdouble y,
   gpointer user_data
 ) {
+    GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(controller));
+    GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
-    if(self->active_tool->get_variant() == ActiveTool::Variant::MoveTool) {
-        if(self->active_tool->is_in_move()) {
+    switch (self->active_tool->get_variant()) {
+        case ActiveTool::Variant::MoveTool: {
             self->active_tool->update_move_cursor_pos((int)x, (int)y);
+            break;
+        }
+        case ActiveTool::Variant::RotateTool: {
+            self->active_tool->update_rotate_cursor_pos((int)x, (int)y, modifiers & GDK_ALT_MASK);
+            break;
+        }
+        default: {
+            // nothing
         }
     }
     for(auto& molecule: *self->molecules) {
@@ -160,8 +171,18 @@ on_left_click_released (
   gpointer user_data
 ) {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
-    if(self->active_tool->get_variant() == ActiveTool::Variant::MoveTool) {
-        self->active_tool->end_move();
+    switch (self->active_tool->get_variant()) {
+        case ActiveTool::Variant::MoveTool: {
+            self->active_tool->end_move();
+            break;
+        }
+        case ActiveTool::Variant::RotateTool: {
+            self->active_tool->end_rotate();
+            break;
+        }
+        default: {
+            // nothing
+        }
     }
 }
 
@@ -183,11 +204,11 @@ static void on_left_click (
             break;
         }
         case ActiveTool::Variant::FlipTool:{
-            
+            self->active_tool->flip((int)x, (int) y);
             break;
         }
         case ActiveTool::Variant::RotateTool:{
-            
+            self->active_tool->begin_rotate((int)x, (int) y);
             break;
         }
         case ActiveTool::Variant::BondModifier:{

@@ -224,12 +224,22 @@ class ActiveTool {
     /// Updates the current mouse coordinates
     /// allowing to compute adequate viewport translation.
     void update_move_cursor_pos(int x, int y);
+    /// Valid for Variant::RotateTool
+    /// Updates the current mouse coordinates
+    /// allowing to compute adequate viewport rotation.
+    void update_rotate_cursor_pos(int x, int y, bool snap_to_angle);
     /// Valid for Variant::MoveTool
     /// Ends move
     void end_move();
+    /// Valid for Variant::RotateTool
+    /// Ends rotation
+    void end_rotate();
     /// Valid for Variant::MoveTool
     /// Begins move
     void begin_move(int x, int y);
+    /// Valid for Variant::RotateTool
+    /// Begins rotation
+    void begin_rotate(int x, int y);
     /// Valid for Variant::MoveTool
     /// Returns if the user is currently dragging their mouse
     /// to shift the viewport.
@@ -240,6 +250,9 @@ class ActiveTool {
     /// Valid for Variant::Format.
     /// Forces re-computation of molecule geometry from scratch using RDKit.
     void format_at(int x, int y);
+    /// Valid for Variant::FlipTool.
+    /// Flip molecule under cursor around X/Y axis.
+    void flip(int x, int y);
 
     /// Only meant to be invoked from within CootLigandEditorCanvas implementation
     ///

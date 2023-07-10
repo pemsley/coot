@@ -641,6 +641,22 @@ void ActiveTool::sanitize_molecule(RDKit::RWMol& mol) const {
     }
 }
 
+void ActiveTool::flip(int x, int y) {
+    g_warning("todo: Implement \"void ActiveTool::flip(int x, int y)\"!");
+}
+
+void ActiveTool::begin_rotate(int x, int y) {
+    g_warning("todo: Implement \"void ActiveTool::begin_rotate(int x, int y)\"!");
+}
+
+void ActiveTool::end_rotate() {
+    g_warning("todo: Implement \"void ActiveTool::end_rotate()\"!");
+}
+
+void ActiveTool::update_rotate_cursor_pos(int x, int y, bool snap_to_angle) {
+    g_warning("todo: Implement \"void ActiveTool::update_rotate_cursor_pos(int x, int y, bool snap_to_angle)\"!");
+}
+
 ElementInsertion::ElementInsertion(ElementInsertion::Element el) noexcept {
     this->element = el;
 }
