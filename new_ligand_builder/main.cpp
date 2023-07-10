@@ -13,7 +13,6 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel*
     using BondModifierMode = coot::ligand_editor_canvas::BondModifier::BondModifierMode;
     using Element = coot::ligand_editor_canvas::ElementInsertion::Element;
     using Structure = coot::ligand_editor_canvas::StructureInsertion::Structure;
-    using FlipMode = coot::ligand_editor_canvas::FlipTool::FlipMode;
 
     GtkWidget* mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
 

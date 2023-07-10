@@ -121,14 +121,6 @@ class RotateTool {
 };
 
 class FlipTool {
-    public:
-    enum class FlipMode: unsigned char {
-        /// Along the X axis
-        Horizontal,
-        /// Along the Y axis
-        Vertical
-    };
-    private:
     FlipMode mode;
     public:
     FlipTool(FlipMode) noexcept;

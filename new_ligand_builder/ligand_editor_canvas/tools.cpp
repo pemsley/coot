@@ -642,7 +642,28 @@ void ActiveTool::sanitize_molecule(RDKit::RWMol& mol) const {
 }
 
 void ActiveTool::flip(int x, int y) {
-    g_warning("todo: Implement \"void ActiveTool::flip(int x, int y)\"!");
+    check_variant(Variant::FlipTool);
+    auto& flip = this->flip_tool;
+    auto click_result = this->widget_data->resolve_click(x, y);
+    if(click_result.has_value()) {
+        try{
+            this->widget_data->begin_edition();
+            auto [bond_or_atom,molecule_idx] = click_result.value();
+            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
+            canvas_mol.perform_flip(flip.get_mode());
+            canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
+            this->widget_data->finalize_edition();
+            this->widget_data->update_status("Molecule has been flipped.");
+        } catch(std::exception& e) {
+            g_warning("An error occured: %s",e.what());
+            std::string status_msg = "Coud not flip molecule: "; status_msg += e.what();
+            this->widget_data->update_status(status_msg.c_str());
+            this->widget_data->rollback_current_edition();
+        }
+    } else {
+        // Nothing has been clicked on.
+        g_debug("The click could not be resolved to any atom or bond.");
+    }
 }
 
 void ActiveTool::begin_rotate(int x, int y) {
@@ -707,7 +728,7 @@ unsigned int ElementInsertion::get_atomic_number() const noexcept {
     }
 }
 
-FlipTool::FlipMode FlipTool::get_mode() const noexcept {
+FlipMode FlipTool::get_mode() const noexcept {
     return this->mode;
 }
 

@@ -11,6 +11,13 @@
 namespace coot {
 namespace ligand_editor_canvas {
 
+enum class FlipMode: unsigned char {
+    /// Along the X axis
+    Horizontal,
+    /// Along the Y axis
+    Vertical
+};
+
 enum class DisplayMode: unsigned char {
     Standard,
     AtomIndices,
@@ -234,6 +241,7 @@ class CanvasMolecule {
     void set_canvas_scale(float scale);
 
     void apply_canvas_translation(int delta_x, int delta_y) noexcept;
+    void perform_flip(FlipMode flip_mode);
 
     /// Draws the molecule on the widget.
     /// Be sure to call set_offset_from_bounds before drawing.

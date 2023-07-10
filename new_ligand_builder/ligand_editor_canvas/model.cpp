@@ -125,6 +125,16 @@ void CanvasMolecule::apply_canvas_translation(int delta_x, int delta_y) noexcept
     this->y_canvas_translation += delta_y;
 }
 
+void CanvasMolecule::perform_flip(FlipMode flip_mode) {
+    for(auto& atom: this->cached_atom_coordinate_map.value()) {
+        if(flip_mode == FlipMode::Horizontal) {
+            atom.second.x *= -1;
+        } else {
+            atom.second.y *= -1;
+        }
+    }
+}
+
 std::tuple<float,float,float> CanvasMolecule::atom_color_to_rgb(CanvasMolecule::AtomColor color) noexcept {
     switch (color) {
         case AtomColor::Green:{
