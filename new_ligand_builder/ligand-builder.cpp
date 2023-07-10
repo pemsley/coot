@@ -173,6 +173,67 @@ void LigandBuilderState::file_import_molecule() {
    g_signal_connect(load_dialog, "response", G_CALLBACK(dialog_response), entry_buf);
 }
 
+void LigandBuilderState::run_choose_element_dialog() {
+    auto* choose_element_dialog = gtk_dialog_new();
+    gtk_window_set_transient_for(GTK_WINDOW(choose_element_dialog), this->main_window);
+    // This isn't the best practice but it tremendously simplifies things
+    // by saving us from unnecessary boilerplate.
+    g_object_set_data(G_OBJECT(choose_element_dialog), "ligand_builder_instance", this);
+    gtk_window_set_title(GTK_WINDOW(choose_element_dialog), "Pick chemical element");
+    
+    auto* dialog_body = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
+    gtk_widget_set_margin_bottom(dialog_body, 10);
+    gtk_widget_set_margin_end(dialog_body, 10);
+    gtk_widget_set_margin_start(dialog_body, 10);
+    gtk_widget_set_margin_top(dialog_body, 10);
+
+    auto* label = gtk_label_new("Element symbol");
+    gtk_box_append(GTK_BOX(dialog_body),label);
+
+    auto* entry_buf = gtk_entry_buffer_new("", 0);
+    auto* entry = gtk_entry_new_with_buffer(entry_buf);
+
+    gtk_box_append(GTK_BOX(dialog_body),entry);
+
+    auto* submit_button = gtk_button_new_with_label("Submit");
+    gtk_box_append(GTK_BOX(dialog_body),submit_button);
+    g_signal_connect(submit_button, "clicked", G_CALLBACK(+[](GtkButton* btn, gpointer user_data){
+        gtk_dialog_response(GTK_DIALOG(user_data), GTK_RESPONSE_ACCEPT);
+    }), choose_element_dialog);
+
+    g_signal_connect(choose_element_dialog, "response", G_CALLBACK(+[](GtkDialog* dialog, gint response_id, gpointer user_data){
+        if(response_id != GTK_RESPONSE_ACCEPT) {
+            g_debug("Ignoring unhandled response type: %s",g_enum_to_string(gtk_response_type_get_type(), response_id));
+            return;
+        }
+        auto* text_buf = GTK_ENTRY_BUFFER(user_data);
+        try {
+            auto insertion_tool = std::make_unique<ligand_editor_canvas::ActiveTool>(ligand_editor_canvas::ElementInsertion(gtk_entry_buffer_get_text(text_buf)));
+            RDKit::RWMol* molecule = RDKit::SmilesToMol(gtk_entry_buffer_get_text(text_buf));
+            LigandBuilderState* state = (LigandBuilderState*) g_object_get_data(G_OBJECT(dialog), "ligand_builder_instance");
+            coot_ligand_editor_set_active_tool(state->canvas, std::move(insertion_tool));
+            gtk_window_destroy(GTK_WINDOW(dialog));
+        } catch (std::exception& e) {
+            g_warning("Could not pick element: %s",e.what());
+            auto* message = gtk_message_dialog_new(
+                GTK_WINDOW(dialog), 
+                GTK_DIALOG_DESTROY_WITH_PARENT, 
+                GTK_MESSAGE_ERROR, 
+                GTK_BUTTONS_CLOSE, 
+                "Error: Invalid symbol:\n%s", 
+                e.what()
+            );
+            g_signal_connect(message,"response",G_CALLBACK(+[](GtkDialog* message_dialog, gint response_id, gpointer user_data){
+                gtk_window_close(GTK_WINDOW(message_dialog));
+            }),nullptr);
+            gtk_widget_show(message);
+        }
+    }), entry_buf);
+
+    gtk_window_set_child(GTK_WINDOW(choose_element_dialog),dialog_body);
+    gtk_window_present(GTK_WINDOW(choose_element_dialog));
+}
+
 void LigandBuilderState::file_fetch_molecule() {
     g_warning("TODO: Implement void LigandBuilderState::file_fetch_molecule()");
 }

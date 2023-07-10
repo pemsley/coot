@@ -46,6 +46,8 @@ class LigandBuilderState {
     public:
     LigandBuilderState(CootLigandEditorCanvas* canvas_widget, GtkWindow* main_window, GtkLabel* status_label = nullptr) noexcept;
     
+    // TOOLS
+    void run_choose_element_dialog();
     // FILE
     void load_from_smiles();
     void file_new();

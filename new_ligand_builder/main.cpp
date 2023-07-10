@@ -208,8 +208,7 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel*
     GtkWidget* X_button = gtk_button_new_with_label("X");
     g_signal_connect(X_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
-        // coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ElementInsertion(Element::X)));
-        // todo: make this work
+        coot::ligand_editor::global_instance->run_choose_element_dialog();
     }), canvas);
     gtk_box_append(GTK_BOX(chem_element_picker), X_button);
     // Canvas space: Canvas
