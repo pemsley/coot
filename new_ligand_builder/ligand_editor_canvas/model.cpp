@@ -337,7 +337,11 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             const std::string markup_ending = "</span>";
 
             bool reversed = false;
+            // Markup for the whole thing - includes symbol, appendix, index etc.
             std::string markup;
+            // Markup for the atom symbol - solely.
+            // This allows us to measure the size of the atom's symbol 
+            // and then properly center/align the whole text
             std::string markup_no_appendix;
 
             switch (render_mode) {
