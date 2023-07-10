@@ -50,7 +50,7 @@ class ElementInsertion {
     public:
     ElementInsertion(const char* symbol);
     ElementInsertion(Element el) noexcept;
-    
+
     unsigned int get_atomic_number() const noexcept;
 };
 
@@ -116,6 +116,24 @@ class FormatTool {
 
 };
 
+class RotateTool {
+
+};
+
+class FlipTool {
+    public:
+    enum class FlipMode: unsigned char {
+        /// Along the X axis
+        Horizontal,
+        /// Along the Y axis
+        Vertical
+    };
+    private:
+    FlipMode mode;
+    FlipTool(FlipMode) noexcept;
+    FlipMode get_mode() const noexcept;
+};
+
 class ActiveTool {
     public:
     enum class Variant: unsigned char {
@@ -129,7 +147,9 @@ class ActiveTool {
         DeleteHydrogens,
         Delete,
         Format,
-        ChargeModifier
+        ChargeModifier,
+        RotateTool,
+        FlipTool
     };
 
     private:
@@ -150,6 +170,10 @@ class ActiveTool {
         GeometryModifier geometry_modifier;
         /// Valid for Variant::Format
         FormatTool format_tool;
+        /// Valid for Variant::RotateTool
+        RotateTool rotate_tool;
+        /// Valid for Variant::FlipTool
+        FlipTool flip_tool;
     };
     Variant variant;
     /// Non-owning pointer
@@ -174,6 +198,8 @@ class ActiveTool {
     ActiveTool(StructureInsertion insertion) noexcept;
     ActiveTool(GeometryModifier modifier) noexcept;
     ActiveTool(FormatTool) noexcept;
+    ActiveTool(RotateTool) noexcept;
+    ActiveTool(FlipTool) noexcept;
 
     Variant get_variant() const noexcept;
     /// Valid for Variant::ElementInsertion.

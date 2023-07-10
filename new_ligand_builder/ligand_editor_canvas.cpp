@@ -174,13 +174,20 @@ static void on_left_click (
 ) {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
     switch(self->active_tool->get_variant()) {
-
         case ActiveTool::Variant::None:{
             gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_NONE);
             break;
         }
         case ActiveTool::Variant::MoveTool:{
             self->active_tool->begin_move((int)x, (int)y);
+            break;
+        }
+        case ActiveTool::Variant::FlipTool:{
+            
+            break;
+        }
+        case ActiveTool::Variant::RotateTool:{
+            
             break;
         }
         case ActiveTool::Variant::BondModifier:{

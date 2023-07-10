@@ -130,6 +130,16 @@ ActiveTool::ActiveTool(FormatTool fmt) noexcept {
     this->format_tool = fmt;
 }
 
+ActiveTool::ActiveTool(RotateTool rot) noexcept {
+    this->variant = ActiveTool::Variant::RotateTool;
+    this->rotate_tool = rot;
+}
+
+ActiveTool::ActiveTool(FlipTool flip) noexcept {
+    this->variant = ActiveTool::Variant::FlipTool;
+    this->flip_tool = flip;
+}
+
 ActiveTool::Variant ActiveTool::get_variant() const noexcept {
     return this->variant;
 }
