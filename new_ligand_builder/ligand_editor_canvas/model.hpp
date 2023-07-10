@@ -242,6 +242,7 @@ class CanvasMolecule {
 
     void apply_canvas_translation(int delta_x, int delta_y) noexcept;
     void perform_flip(FlipMode flip_mode);
+    void rotate_by_angle(double radians);
 
     /// Draws the molecule on the widget.
     /// Be sure to call set_offset_from_bounds before drawing.

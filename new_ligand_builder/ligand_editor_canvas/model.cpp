@@ -135,6 +135,12 @@ void CanvasMolecule::perform_flip(FlipMode flip_mode) {
     }
 }
 
+void CanvasMolecule::rotate_by_angle(double radians) {
+    for(auto& atom: this->cached_atom_coordinate_map.value()) {
+        // atom.second.
+    }
+}
+
 std::tuple<float,float,float> CanvasMolecule::atom_color_to_rgb(CanvasMolecule::AtomColor color) noexcept {
     switch (color) {
         case AtomColor::Green:{
