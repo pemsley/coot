@@ -149,8 +149,9 @@ void ActiveTool::check_variant(ActiveTool::Variant expected) const {
 void ActiveTool::insert_atom(int x, int y) {
     check_variant(Variant::ElementInsertion);
     auto& element_insertion = this->element_insertion;
-    const char* el_name = element_insertion.get_element_symbol();
-    g_debug("Inserting element '%s' at %i %i.",el_name,x,y);
+    unsigned int atomic_number = element_insertion.get_atomic_number();
+    auto el_name = RDKit::PeriodicTable::getTable()->getElementSymbol(atomic_number);
+    g_debug("Inserting element '%u' (%s) at %i %i.",atomic_number,el_name.c_str(),x,y);
     //1. Find what we've clicked at
     auto click_result = this->widget_data->resolve_click(x, y);
     if(click_result.has_value()) {
@@ -634,61 +635,48 @@ ElementInsertion::ElementInsertion(ElementInsertion::Element el) noexcept {
     this->element = el;
 }
 
-ElementInsertion::Element ElementInsertion::get_element() const noexcept {
-    return this->element;
+ElementInsertion::ElementInsertion(const char* symbol) {
+    RDKit::PeriodicTable* t = RDKit::PeriodicTable::getTable();
+    unsigned int atomic_number = t->getAtomicNumber(symbol);
+    this->element = atomic_number;
 }
 
-const char* ElementInsertion::get_element_symbol() const noexcept {
-    const char* el_name;
-    switch (this->get_element()) {
-        case ElementInsertion::Element::C:{
-            el_name = "C";
-            break;
+unsigned int ElementInsertion::get_atomic_number() const noexcept {
+    if(std::holds_alternative<Element>(this->element)) {
+        switch (std::get<Element>(this->element)) {
+            default:
+            case ElementInsertion::Element::C:{
+                return 6;
+            }
+            case ElementInsertion::Element::N:{
+                return 7;
+            }
+            case ElementInsertion::Element::O:{
+                return 8;
+            }
+            case ElementInsertion::Element::S:{
+                return 16;
+            }
+            case ElementInsertion::Element::P:{
+                return 15;
+            }
+            case ElementInsertion::Element::H:{
+                return 1;
+            }
+            case ElementInsertion::Element::F:{
+                return 9;
+            }
+            case ElementInsertion::Element::Cl:{
+                return 17;
+            }
+            case ElementInsertion::Element::Br:{
+                return 35;
+            }
+            case ElementInsertion::Element::I:{
+                return 53;
+            }
         }
-        case ElementInsertion::Element::N:{
-            el_name = "N";
-            break;
-        }
-        case ElementInsertion::Element::O:{
-            el_name = "O";
-            break;
-        }
-        case ElementInsertion::Element::S:{
-            el_name = "S";
-            break;
-        }
-        case ElementInsertion::Element::P:{
-            el_name = "P";
-            break;
-        }
-        case ElementInsertion::Element::H:{
-            el_name = "H";
-            break;
-        }
-        case ElementInsertion::Element::F:{
-            el_name = "F";
-            break;
-        }
-        case ElementInsertion::Element::Cl:{
-            el_name = "Cl";
-            break;
-        }
-        case ElementInsertion::Element::Br:{
-            el_name = "Br";
-            break;
-        }
-        case ElementInsertion::Element::I:{
-            el_name = "I";
-            break;
-        }
-        case ElementInsertion::Element::X:{
-            //todo: fixme
-            el_name = "X";
-            break;
-        }
-        default: {
-            break;
-        }
+    } else { // raw atomic number
+        return std::get<unsigned int>(this->element);
     }
-    return el_name;
 }

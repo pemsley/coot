@@ -42,19 +42,16 @@ class ElementInsertion {
         F,
         Cl,
         Br,
-        I,
-        // todo: what is this? an arbitrary element?
-        // [like eg. Selene for organoselene compounds]
-        X
+        I
     };
 
     private:
-    Element element;
+    std::variant<Element,unsigned int> element;
     public:
+    ElementInsertion(const char* symbol);
     ElementInsertion(Element el) noexcept;
-
-    Element get_element() const noexcept;
-    const char* get_element_symbol() const noexcept;
+    
+    unsigned int get_atomic_number() const noexcept;
 };
 
 
