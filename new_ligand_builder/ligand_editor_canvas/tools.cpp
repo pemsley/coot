@@ -65,6 +65,52 @@ std::optional<unsigned int> MoveTool::get_canvas_molecule_index() const noexcept
     return this->canvas_mol_idx;
 }
 
+RotateTool::RotateTool() noexcept {
+    this->in_rotation = false;
+}
+
+void RotateTool::begin_rotation(int x, int y) noexcept {
+    this->prev_rotation_pos = std::make_pair(x,y);
+    this->in_rotation = true;
+    this->current_rotation_pos = std::make_pair(x, y);
+}
+
+std::pair<int,int> RotateTool::end_rotation() {
+    this->in_rotation = false;
+    auto ret = this->get_current_offset();
+    this->current_rotation_pos = std::nullopt;
+    this->prev_rotation_pos = std::nullopt;
+    this->canvas_mol_idx = std::nullopt;
+    return ret.value();
+}
+
+void RotateTool::update_current_rotation_pos(int x, int y) noexcept {
+    this->prev_rotation_pos = this->current_rotation_pos;
+    this->current_rotation_pos = std::make_pair(x, y);
+}
+
+std::optional<std::pair<int,int>> RotateTool::get_current_offset() const {
+    if(!this->current_rotation_pos.has_value() || !this->prev_rotation_pos.has_value()) {
+        return std::nullopt;
+    }
+    auto [x1,y1] = this->prev_rotation_pos.value();
+    auto [x2,y2] = this->current_rotation_pos.value();
+    return std::make_pair(x2 - x1, y2 - y1);
+}
+
+bool RotateTool::is_in_rotation() const noexcept {
+    return this->in_rotation;
+}
+
+void RotateTool::set_canvas_molecule_index(unsigned int idx) noexcept {
+    this->canvas_mol_idx = idx;
+}
+
+std::optional<unsigned int> RotateTool::get_canvas_molecule_index() const noexcept {
+    return this->canvas_mol_idx;
+}
+
+
 StructureInsertion::StructureInsertion(StructureInsertion::Structure st) noexcept 
 :structure(st) {
 
@@ -635,6 +681,24 @@ bool ActiveTool::is_in_move() const {
     return move_tool.is_in_move();
 }
 
+bool ActiveTool::is_in_rotation() const {
+    check_variant(Variant::RotateTool);
+    auto& rotate_tool = this->rotate_tool;
+    return rotate_tool.is_in_rotation();
+}
+
+void ActiveTool::begin_rotation(int x, int y) {
+    g_warning("todo: Implement \"void ActiveTool::begin_rotation(int x, int y)\"!");
+}
+
+void ActiveTool::end_rotation() {
+    g_warning("todo: Implement \"void ActiveTool::end_rotation()\"!");
+}
+
+void ActiveTool::update_rotation_cursor_pos(int x, int y, bool snap_to_angle) {
+    g_warning("todo: Implement \"void ActiveTool::update_rotation_cursor_pos(int x, int y, bool snap_to_angle)\"!");
+}
+
 void ActiveTool::sanitize_molecule(RDKit::RWMol& mol) const {
     if (!this->widget_data->allow_invalid_molecules) {
         RDKit::MolOps::sanitizeMol(mol);
@@ -664,41 +728,6 @@ void ActiveTool::flip(int x, int y) {
         // Nothing has been clicked on.
         g_debug("The click could not be resolved to any atom or bond.");
     }
-}
-
-void ActiveTool::begin_rotate(int x, int y) {
-    g_warning("todo: Implement \"void ActiveTool::begin_rotate(int x, int y)\"!");
-    // temporary:
-    check_variant(Variant::RotateTool);
-    auto& rot = this->rotate_tool;
-    auto click_result = this->widget_data->resolve_click(x, y);
-    if(click_result.has_value()) {
-        try{
-            this->widget_data->begin_edition();
-            auto [bond_or_atom,molecule_idx] = click_result.value();
-            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-            canvas_mol.rotate_by_angle(0.05f);
-            canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
-            this->widget_data->finalize_edition();
-            this->widget_data->update_status("Molecule has been flipped.");
-        } catch(std::exception& e) {
-            g_warning("An error occured: %s",e.what());
-            std::string status_msg = "Coud not flip molecule: "; status_msg += e.what();
-            this->widget_data->update_status(status_msg.c_str());
-            this->widget_data->rollback_current_edition();
-        }
-    } else {
-        // Nothing has been clicked on.
-        g_debug("The click could not be resolved to any atom or bond.");
-    }
-}
-
-void ActiveTool::end_rotate() {
-    g_warning("todo: Implement \"void ActiveTool::end_rotate()\"!");
-}
-
-void ActiveTool::update_rotate_cursor_pos(int x, int y, bool snap_to_angle) {
-    g_warning("todo: Implement \"void ActiveTool::update_rotate_cursor_pos(int x, int y, bool snap_to_angle)\"!");
 }
 
 ElementInsertion::ElementInsertion(ElementInsertion::Element el) noexcept {

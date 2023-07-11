@@ -108,15 +108,29 @@ class MoveTool {
     MoveTool() noexcept;
 };
 
+class RotateTool {
+    std::optional<std::pair<int,int>> prev_rotation_pos;
+    std::optional<std::pair<int,int>> current_rotation_pos;
+    /// Describes whether the user is currently dragging with their mouse
+    bool in_rotation;
+    std::optional<unsigned int> canvas_mol_idx;
+
+    public:
+    RotateTool() noexcept;
+    void begin_rotation(int x, int y) noexcept;
+    std::pair<int,int> end_rotation();
+    void update_current_rotation_pos(int x, int y) noexcept;
+    std::optional<std::pair<int,int>> get_current_offset() const;
+    bool is_in_rotation() const noexcept;
+    void set_canvas_molecule_index(unsigned int) noexcept;
+    std::optional<unsigned int> get_canvas_molecule_index() const noexcept;
+};
+
 class GeometryModifier {
 
 };
 
 class FormatTool {
-
-};
-
-class RotateTool {
 
 };
 
@@ -219,23 +233,27 @@ class ActiveTool {
     /// Valid for Variant::RotateTool
     /// Updates the current mouse coordinates
     /// allowing to compute adequate viewport rotation.
-    void update_rotate_cursor_pos(int x, int y, bool snap_to_angle);
+    void update_rotation_cursor_pos(int x, int y, bool snap_to_angle);
     /// Valid for Variant::MoveTool
     /// Ends move
     void end_move();
     /// Valid for Variant::RotateTool
     /// Ends rotation
-    void end_rotate();
+    void end_rotation();
     /// Valid for Variant::MoveTool
     /// Begins move
     void begin_move(int x, int y);
     /// Valid for Variant::RotateTool
     /// Begins rotation
-    void begin_rotate(int x, int y);
+    void begin_rotation(int x, int y);
     /// Valid for Variant::MoveTool
     /// Returns if the user is currently dragging their mouse
     /// to shift the viewport.
     bool is_in_move() const;
+    /// Valid for Variant::RotateTool
+    /// Returns if the user is currently dragging their mouse
+    /// to rotate the viewport.
+    bool is_in_rotation() const;
     /// Valid for Variant::GeometryModifier.
     /// Changes geometry of the bond found at the given coordinates.
     void alter_geometry(int x, int y);
