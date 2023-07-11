@@ -6631,9 +6631,32 @@ Do you want to continue?
                   <object class="GtkPaned" id="main_window_graphics_validation_graphs_vs_graphics_pane">
                     <property name="position">660</property>
                     <property name="orientation">vertical</property>
+
                     <child>
-                      <object class="GtkBox" id="main_window_graphics_hbox">
-                        <!-- This is where the GTKGLArea is placed at runtime -->
+                      <object class="GtkBox" id="main_window_graphics_vbox">
+                        <property name="orientation">vertical</property>
+
+                        <child>
+                          <object class="GtkPaned" id="main_window_sequence_view_vs_graphics_pane">
+                            <property name="orientation">vertical</property>
+
+                            <child>
+                              <object class="GtkBox" id="main_window_sequence_view_box">
+                                <property name="orientation">horizontal</property>
+
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkBox" id="main_window_graphics_hbox">
+                                <property name="orientation">horizontal</property>
+                                <!-- This is where the GTKGLArea is placed at runtime -->
+                              </object>
+                            </child>
+
+                          </object>
+                        </child>
+
                       </object>
                     </child>
 

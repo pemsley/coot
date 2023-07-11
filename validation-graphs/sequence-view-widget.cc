@@ -17,6 +17,7 @@ struct _CootSequenceView {
    int imol;
    mmdb::Manager *mol;
    std::vector<sv3_box_info_t> box_info_store;
+   int (*residue_click_func) (int imol, const coot::residue_spec_t &spec);
 };
 
 static guint sequence_view_residue_clicked_signal;
@@ -234,7 +235,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
                   int res_no = residue_p->GetSeqNum();
                   float x_1 = static_cast<float>(res_no-mm.second.first+1) * X_OFFSET_PER_RESIDUE + x_offset_base;
                   float y_1 = y_offset;
-                  sv3_box_info_t box_info(residue_p, x_1, y_1);
+                  sv3_box_info_t box_info(self->imol, residue_p, x_1, y_1);
                   self->box_info_store.push_back(box_info);
                   add_box_letter_code_label(cairo_canvas, residue_p, text_colour, x_1, y_1);
                }
@@ -261,8 +262,9 @@ gboolean sequence_view_query_tooltip(CootSequenceView* self,
                                      gpointer user_data) {
 
    std::pair<bool, coot::residue_spec_t>  p = find_the_clicked_residue(self, x, y);
-   if (p.first)
-      std::cout << "query tooltip for " << p.second << std::endl;
+   if (false)
+      if (p.first)
+         std::cout << "query tooltip for " << p.second << std::endl;
 
    return FALSE; // for now
 }
@@ -279,8 +281,10 @@ void on_sequence_view_left_click(GtkGestureClick* gesture_click,
    //
    CootSequenceView* self = COOT_COOT_SEQUENCE_VIEW(user_data);
    std::pair<bool, coot::residue_spec_t>  p = find_the_clicked_residue(self, x, y);
-   if (p.first)
-      std::cout << "clicked " << p.second << std::endl;
+   if (p.first) {
+      // std::cout << "clicked " << p.second << std::endl;
+      self->residue_click_func(self->imol, p.second);
+   }
 
 }
 
@@ -392,5 +396,11 @@ void coot_sequence_view_set_structure(CootSequenceView* self, int imol, mmdb::Ma
 
    self->imol = imol;
    self->mol = mol;
+
+}
+
+void coot_sequence_view_set_click_function(CootSequenceView* self, int (*f) (int imol, const coot::residue_spec_t &spec)) {
+
+   self->residue_click_func = f;
 
 }

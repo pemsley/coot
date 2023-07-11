@@ -22,14 +22,14 @@
 #endif
 
 
-
 class sv3_box_info_t {
 public:
+   int imol;
    coot::residue_spec_t residue_spec;
    int x_base;
    int y_base;
-   sv3_box_info_t(mmdb::Residue *residue_p, int x_base, int y_base) : residue_spec(coot::residue_spec_t(residue_p)),
-                                                                      x_base(x_base), y_base(y_base) {}
+   sv3_box_info_t(int imol, mmdb::Residue *residue_p, int x_base, int y_base) : imol(imol), residue_spec(coot::residue_spec_t(residue_p)),
+                                                                                x_base(x_base), y_base(y_base) {}
 };
 
 G_BEGIN_DECLS
@@ -42,6 +42,7 @@ CootSequenceView *coot_sequence_view_new();
 G_END_DECLS
 
 void coot_sequence_view_set_structure(CootSequenceView* self, int imol, mmdb::Manager *mol);
+void coot_sequence_view_set_click_function(CootSequenceView* self, int (*f) (int imol, const coot::residue_spec_t &spec));
 
 
 #endif // SEQUENCE_VIEW_WIDGET_HH
