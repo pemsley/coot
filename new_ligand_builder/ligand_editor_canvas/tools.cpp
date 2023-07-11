@@ -75,9 +75,9 @@ void RotateTool::begin_rotation(int x, int y) noexcept {
     this->current_rotation_pos = std::make_pair(x, y);
 }
 
-std::pair<int,int> RotateTool::end_rotation() {
+double RotateTool::end_rotation() {
     this->in_rotation = false;
-    auto ret = this->get_current_offset();
+    auto ret = this->get_current_angle();
     this->current_rotation_pos = std::nullopt;
     this->prev_rotation_pos = std::nullopt;
     this->canvas_mol_idx = std::nullopt;
@@ -89,13 +89,15 @@ void RotateTool::update_current_rotation_pos(int x, int y) noexcept {
     this->current_rotation_pos = std::make_pair(x, y);
 }
 
-std::optional<std::pair<int,int>> RotateTool::get_current_offset() const {
+std::optional<double> RotateTool::get_current_angle() const {
     if(!this->current_rotation_pos.has_value() || !this->prev_rotation_pos.has_value()) {
         return std::nullopt;
     }
     auto [x1,y1] = this->prev_rotation_pos.value();
     auto [x2,y2] = this->current_rotation_pos.value();
-    return std::make_pair(x2 - x1, y2 - y1);
+    auto diff_x = x2 - x1;
+    auto diff_y = y2 - y1;
+    return (double)(diff_x + diff_y) / 50.0;
 }
 
 bool RotateTool::is_in_rotation() const noexcept {
@@ -688,15 +690,37 @@ bool ActiveTool::is_in_rotation() const {
 }
 
 void ActiveTool::begin_rotation(int x, int y) {
-    g_warning("todo: Implement \"void ActiveTool::begin_rotation(int x, int y)\"!");
+    check_variant(Variant::RotateTool);
+    auto& rot = this->rotate_tool;
+    auto mol_opt = this->widget_data->resolve_click(x, y);
+    if(mol_opt.has_value()) {
+        auto [atom_or_bond,mol_id] = mol_opt.value();
+        rot.begin_rotation(x, y);
+        rot.set_canvas_molecule_index(mol_id);
+        this->widget_data->begin_edition();
+    }
 }
 
 void ActiveTool::end_rotation() {
-    g_warning("todo: Implement \"void ActiveTool::end_rotation()\"!");
+    check_variant(Variant::RotateTool);
+    auto& rot = this->rotate_tool;
+    if(rot.is_in_rotation()) {
+        auto mol_idx_opt = rot.get_canvas_molecule_index();
+        auto angle = rot.end_rotation();
+        this->widget_data->molecules->at(mol_idx_opt.value()).rotate_by_angle(angle);
+        this->widget_data->finalize_edition();
+    }
 }
 
 void ActiveTool::update_rotation_cursor_pos(int x, int y, bool snap_to_angle) {
-    g_warning("todo: Implement \"void ActiveTool::update_rotation_cursor_pos(int x, int y, bool snap_to_angle)\"!");
+    check_variant(Variant::RotateTool);
+    auto& rot = this->rotate_tool;
+    if(rot.is_in_rotation()) {
+        rot.update_current_rotation_pos(x, y);
+        auto angle = rot.get_current_angle().value();
+        auto mol_idx_opt = rot.get_canvas_molecule_index();
+        this->widget_data->molecules->at(mol_idx_opt.value()).rotate_by_angle(angle);
+    }
 }
 
 void ActiveTool::sanitize_molecule(RDKit::RWMol& mol) const {

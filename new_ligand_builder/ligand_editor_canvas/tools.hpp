@@ -118,9 +118,9 @@ class RotateTool {
     public:
     RotateTool() noexcept;
     void begin_rotation(int x, int y) noexcept;
-    std::pair<int,int> end_rotation();
+    double end_rotation();
     void update_current_rotation_pos(int x, int y) noexcept;
-    std::optional<std::pair<int,int>> get_current_offset() const;
+    std::optional<double> get_current_angle() const;
     bool is_in_rotation() const noexcept;
     void set_canvas_molecule_index(unsigned int) noexcept;
     std::optional<unsigned int> get_canvas_molecule_index() const noexcept;

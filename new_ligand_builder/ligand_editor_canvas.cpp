@@ -119,7 +119,7 @@ static void on_hover (
             break;
         }
         case ActiveTool::Variant::RotateTool: {
-            self->active_tool->update_rotate_cursor_pos((int)x, (int)y, modifiers & GDK_ALT_MASK);
+            self->active_tool->update_rotation_cursor_pos((int)x, (int)y, modifiers & GDK_ALT_MASK);
             break;
         }
         default: {
@@ -177,7 +177,7 @@ on_left_click_released (
             break;
         }
         case ActiveTool::Variant::RotateTool: {
-            self->active_tool->end_rotate();
+            self->active_tool->end_rotation();
             break;
         }
         default: {
@@ -208,7 +208,7 @@ static void on_left_click (
             break;
         }
         case ActiveTool::Variant::RotateTool:{
-            self->active_tool->begin_rotate((int)x, (int) y);
+            self->active_tool->begin_rotation((int)x, (int) y);
             break;
         }
         case ActiveTool::Variant::BondModifier:{
