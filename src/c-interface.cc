@@ -119,7 +119,6 @@
 
 #include "coot-version.hh"
 
-#include "nsv.hh"
 #include "widget-headers.hh"
 #include "widget-from-builder.hh"
 
