@@ -137,13 +137,12 @@ void CanvasMolecule::perform_flip(FlipMode flip_mode) {
 }
 
 void CanvasMolecule::rotate_by_angle(double radians) {
-    std::complex<double> rotation_mult(std::sin(radians),std::cos(radians));
+    std::complex<double> rotation_mult(std::cos(radians),std::sin(radians));
     for(auto& atom: this->cached_atom_coordinate_map.value()) {
-        // atom.second.
         std::complex<double> atom_cn(atom.second.x,atom.second.y);
         atom_cn *= rotation_mult;
-        atom.second.x = rotation_mult.real();
-        atom.second.y = rotation_mult.imag();
+        atom.second.x = atom_cn.real();
+        atom.second.y = atom_cn.imag();
     }
 }
 
