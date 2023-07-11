@@ -97,7 +97,8 @@ std::optional<double> RotateTool::get_current_angle() const {
     auto [x2,y2] = this->current_rotation_pos.value();
     auto diff_x = x2 - x1;
     auto diff_y = y2 - y1;
-    return (double)(diff_x + diff_y) / 50.0;
+    auto ret = ((double)(diff_x + diff_y)) / 25.0;
+    return ret;
 }
 
 bool RotateTool::is_in_rotation() const noexcept {
@@ -707,7 +708,9 @@ void ActiveTool::end_rotation() {
     if(rot.is_in_rotation()) {
         auto mol_idx_opt = rot.get_canvas_molecule_index();
         auto angle = rot.end_rotation();
-        this->widget_data->molecules->at(mol_idx_opt.value()).rotate_by_angle(angle);
+        auto& mol = this->widget_data->molecules->at(mol_idx_opt.value());
+        mol.rotate_by_angle(angle);
+        mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
         this->widget_data->finalize_edition();
     }
 }
@@ -719,7 +722,9 @@ void ActiveTool::update_rotation_cursor_pos(int x, int y, bool snap_to_angle) {
         rot.update_current_rotation_pos(x, y);
         auto angle = rot.get_current_angle().value();
         auto mol_idx_opt = rot.get_canvas_molecule_index();
-        this->widget_data->molecules->at(mol_idx_opt.value()).rotate_by_angle(angle);
+        auto& mol = this->widget_data->molecules->at(mol_idx_opt.value());
+        mol.rotate_by_angle(angle);
+        mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
     }
 }
 
