@@ -19,7 +19,7 @@ ActiveTool::ActiveTool() noexcept {
 
 BondModifier::BondModifier(BondModifierMode mode) noexcept {
     this->mode = mode;
-    this->first_atom_of_new_bond = std::nullopt;
+    this->molecule_idx_and_first_atom_of_new_bond = std::nullopt;
     this->is_in_drag = false;
 }
 
@@ -27,18 +27,18 @@ bool BondModifier::is_creating_bond() const noexcept {
     return this->is_in_drag;
 }
 
-void BondModifier::begin_creating_bond(unsigned int atom_idx) noexcept {
+void BondModifier::begin_creating_bond(unsigned int molecule_idx, unsigned int atom_idx) noexcept {
     this->is_in_drag = true;
-    this->first_atom_of_new_bond = atom_idx;
+    this->molecule_idx_and_first_atom_of_new_bond = std::make_pair(molecule_idx,atom_idx);
 }
 
 void BondModifier::finish_creating_bond() noexcept {
     this->is_in_drag = false;
-    this->first_atom_of_new_bond = std::nullopt;
+    this->molecule_idx_and_first_atom_of_new_bond = std::nullopt;
 }
 
-std::optional<unsigned int> BondModifier::get_first_atom_of_new_bond() const noexcept {
-    return this->first_atom_of_new_bond;
+std::optional<std::pair<unsigned int,unsigned int>> BondModifier::get_molecule_idx_and_first_atom_of_new_bond() const noexcept {
+    return this->molecule_idx_and_first_atom_of_new_bond;
 }
 
 
@@ -296,7 +296,7 @@ void ActiveTool::alter_bond(int x, int y) {
             this->widget_data->begin_edition();
             if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
                 auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
-                mod.begin_creating_bond(atom.idx);
+                mod.begin_creating_bond(molecule_idx, atom.idx);
             } else {
                 auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
                 auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
@@ -341,26 +341,31 @@ void ActiveTool::finish_creating_bond(int x, int y) {
     check_variant(Variant::BondModifier);
     BondModifier& mod = this->bond_modifier;
     auto click_result = this->widget_data->resolve_click(x, y);
+    auto [original_molecule_idx, first_atom_idx] = mod.get_molecule_idx_and_first_atom_of_new_bond().value();
+    mod.finish_creating_bond();
 
     if(click_result.has_value()) {
         try{
             auto [bond_or_atom,molecule_idx] = click_result.value();
             if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
-                auto first_atom = mod.get_first_atom_of_new_bond().value();
                 auto second_atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+                if(original_molecule_idx != molecule_idx) {
+                    this->widget_data->update_status("Cannot create bond between different molecules!");
+                    this->widget_data->rollback_current_edition();
+                    return;
+                }
                 auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
                 RDKit::MolOps::Kekulize(*rdkit_mol.get());
-                if(first_atom == second_atom.idx) {
+                if(first_atom_idx == second_atom.idx) {
                     auto* new_atom = new RDKit::Atom(6);
                     auto new_atom_idx = rdkit_mol->addAtom(new_atom,false,true);
                     rdkit_mol->addBond(new_atom_idx,second_atom.idx,CanvasMolecule::bond_type_to_rdkit(mod.get_target_bond_type()));
                     g_info("New atom added: idx=%i",new_atom_idx);
                     this->widget_data->update_status("New carbon atom added.");
                 } else {
-                    rdkit_mol->addBond(first_atom,second_atom.idx,CanvasMolecule::bond_type_to_rdkit(mod.get_target_bond_type()));
+                    rdkit_mol->addBond(first_atom_idx,second_atom.idx,CanvasMolecule::bond_type_to_rdkit(mod.get_target_bond_type()));
                     this->widget_data->update_status("Created new bond between atoms.");
                 }
-                mod.finish_creating_bond();
                 this->sanitize_molecule(*rdkit_mol.get());
                 auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
                 canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);

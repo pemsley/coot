@@ -22,7 +22,7 @@ class BondModifier {
     };
     private:
     BondModifierMode mode;
-    std::optional<unsigned int> first_atom_of_new_bond;
+    std::optional<std::pair<unsigned int,unsigned int>> molecule_idx_and_first_atom_of_new_bond;
     bool is_in_drag;
 
     public:
@@ -30,9 +30,9 @@ class BondModifier {
 
     CanvasMolecule::BondType get_target_bond_type() const noexcept;
     bool is_creating_bond() const noexcept;
-    void begin_creating_bond(unsigned int atom_idx) noexcept;
+    void begin_creating_bond(unsigned int molecule_idx, unsigned int atom_idx) noexcept;
     void finish_creating_bond() noexcept;
-    std::optional<unsigned int> get_first_atom_of_new_bond() const noexcept;
+    std::optional<std::pair<unsigned int,unsigned int>> get_molecule_idx_and_first_atom_of_new_bond() const noexcept;
 
 };
 
