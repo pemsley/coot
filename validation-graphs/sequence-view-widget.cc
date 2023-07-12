@@ -32,6 +32,8 @@ G_DEFINE_TYPE(CootSequenceView, coot_sequence_view, GTK_TYPE_WIDGET)
 
 void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
+   std::cout << "------------------ start coot_sequence_view_snapshot() ------------------- " << std::endl;
+
    CootSequenceView* self = COOT_COOT_SEQUENCE_VIEW(widget);
 
    const float x_offset_base = 30.0;
@@ -202,12 +204,21 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
          std::pair<int, int> n_res_and_n_chains = n_residues_and_n_chains(model_p);
          float w_pixels_rect = n_res_and_n_chains.first * X_OFFSET_PER_RESIDUE + x_offset_base ; // w and h of the box it sits in
          float h_pixels_rect = 100 + n_res_and_n_chains.second * Y_OFFSET_PER_CHAIN + y_offset_base;
+
+         if (false)
+            std::cout << "w_pixels_rect " << w_pixels_rect << " h_pixels_rect " << h_pixels_rect << std::endl;
+
+         // we need this pixel limit otherwise there is crash.
+         //
+         int pixel_limit = 32000; // Max residue number about 2660.
+                                  // Split and repeat the blocks every 2000 residues. How hard can that be?
+         if (w_pixels_rect > pixel_limit) w_pixels_rect = pixel_limit;
          graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w_pixels_rect, h_pixels_rect);
          cairo_t *cairo_canvas = gtk_snapshot_append_cairo(snapshot, &m_graphene_rect);
 
          // lookup the frame and set the size
          GtkWidget *frame = GTK_WIDGET(g_object_get_data(G_OBJECT(self), "sv3-frame"));
-         gtk_widget_set_size_request(frame, 50.0f + w_pixels_rect, h_pixels_rect + 40.0f);
+         gtk_widget_set_size_request(frame, 60.0f + w_pixels_rect, h_pixels_rect + 40.0f);
 
          // Make the labels for the chains
          //

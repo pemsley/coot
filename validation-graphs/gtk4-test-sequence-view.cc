@@ -15,7 +15,13 @@ void fill(GtkWidget *window, mmdb::Manager *mol) {
    gtk_window_set_child(GTK_WINDOW(window), scrolled_window);
    CootSequenceView *sv = coot_sequence_view_new();
    int imol = 0; // for now
+
+   auto click_function_callback = +[] (int imol, const coot::residue_spec_t &spec) {
+      std::cout << " clicked: " << imol << " " << spec << std::endl;
+      return 1;
+   };
    coot_sequence_view_set_structure(sv, imol, mol);
+   coot_sequence_view_set_click_function(sv, click_function_callback);
    g_object_set_data(G_OBJECT(sv), "sv3-frame", frame);
    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(frame));
 
@@ -41,6 +47,7 @@ int main(int argc, char **argv) {
       auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
       if (atom_sel.read_success) {
          gtk_init();
+         g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
          GtkApplication* app = gtk_application_new("org.pemsley.test-sequence-view", G_APPLICATION_DEFAULT_FLAGS);
          GError *error = NULL;
          g_application_register(G_APPLICATION(app), NULL, &error);
