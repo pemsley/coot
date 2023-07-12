@@ -49,8 +49,8 @@ int test_auto_fit_rotamer_1(molecules_container_t &mc_in) {
 
    molecules_container_t mc;
    mc.geometry_init_standard();
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
 
    if (mc.is_valid_model_molecule(imol)) {
       if (mc.is_valid_map_molecule(imol_map)) {
@@ -59,16 +59,20 @@ int test_auto_fit_rotamer_1(molecules_container_t &mc_in) {
          mmdb::Residue *r = coot::util::get_residue(res_spec, mc[imol].atom_sel.mol);
          if (r) {
             mmdb::Atom *cz = r->GetAtom(" CZ ");
-            coot::Cartesian pt_1(cz->x, cz->y, cz->z);
-            status = mc.auto_fit_rotamer(imol, "A", 61, "", "", imol_map);
-            coot::Cartesian pt_2(cz->x, cz->y, cz->z);
-            double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
-            double d = std::sqrt(dd);
-            std::cout << "d " << d << std::endl;
-            if (d > 6.0) {
-               status = 1;
+            if (cz) {
+               coot::Cartesian pt_1(cz->x, cz->y, cz->z);
+               status = mc.auto_fit_rotamer(imol, "A", 61, "", "", imol_map);
+               coot::Cartesian pt_2(cz->x, cz->y, cz->z);
+               double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
+               double d = std::sqrt(dd);
+               std::cout << "d " << d << std::endl;
+               if (d > 6.0) {
+                  status = 1;
+               } else {
+                  std::cout << "bad d " << d << std::endl;
+               }
             } else {
-               std::cout << "bad d " << d << std::endl;
+               std::cout << "in test_auto_fit_rotamer_1() CZ atom not found " << std::endl;
             }
          } else {
             std::cout << "residue not found" << res_spec << std::endl;
@@ -89,8 +93,8 @@ int test_auto_fit_rotamer_2(molecules_container_t &mc_in) {
 
    molecules_container_t mc;
    mc.geometry_init_standard();
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
 
    if (mc.is_valid_model_molecule(imol)) {
       if (mc.is_valid_map_molecule(imol_map)) {
@@ -185,10 +189,10 @@ int test_updating_maps(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol          = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map      = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT",    "PHWT",    "W", false, false);
-   int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
-   mc.associate_data_mtz_file_with_map(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "F", "SIGF", "FREER");
+   int imol          = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_map      = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT",    "PHWT",    "W", false, false);
+   int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "DELFWT", "PHDELWT", "W", false, true);
+   mc.associate_data_mtz_file_with_map(imol_map, reference_data("moorhen-tutorial-map-number-4.mtz"), "F", "SIGF", "FREER");
 
    // debugging
    mc.display_molecule_names_table();
@@ -210,6 +214,8 @@ int test_updating_maps(molecules_container_t &mc) {
       if (at) {
          mc.flip_peptide_using_cid(imol, atom_cid, "");
       }
+   } else {
+      std::cout << "in test_updating_maps() atom spec was null" << std::endl;
    }
 
    // now update the maps
@@ -304,29 +310,33 @@ int test_undo_and_redo_2(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
 
    coot::atom_spec_t atom_spec("A", 61, "", " CZ ", "");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
-   coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
+   if (at_1) {
+      coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
 
-   int status_af = mc.auto_fit_rotamer(imol, "A", 61, "", "", imol_map);
-   if (status_af == 1) {
-      coot::Cartesian pt_2(at_1->x, at_1->y, at_1->z);
-      double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
-      double d = std::sqrt(dd);
-      if (d > 6.0) {
-         // OK, it moved (fitted)
-         mc.undo(imol);
-         mmdb::Atom *at_3 = mc.get_atom(imol, atom_spec);
-         coot::Cartesian pt_3(at_3->x, at_3->y, at_3->z);
-         dd = coot::Cartesian::lengthsq(pt_1, pt_3);
-         d = std::sqrt(dd);
-         std::cout << "debug:: in test_undo_and_redo_2() d " << d << std::endl;
-         if (d < 0.001)
-            status = 1;
+      int status_af = mc.auto_fit_rotamer(imol, "A", 61, "", "", imol_map);
+      if (status_af == 1) {
+         coot::Cartesian pt_2(at_1->x, at_1->y, at_1->z);
+         double dd = coot::Cartesian::lengthsq(pt_1, pt_2);
+         double d = std::sqrt(dd);
+         if (d > 6.0) {
+            // OK, it moved (fitted)
+            mc.undo(imol);
+            mmdb::Atom *at_3 = mc.get_atom(imol, atom_spec);
+            coot::Cartesian pt_3(at_3->x, at_3->y, at_3->z);
+            dd = coot::Cartesian::lengthsq(pt_1, pt_3);
+            d = std::sqrt(dd);
+            std::cout << "debug:: in test_undo_and_redo_2() d " << d << std::endl;
+            if (d < 0.001)
+               status = 1;
+         }
       }
+   } else {
+      std::cout << "in test_undo_and_redo_2() failed to find atom " << std::endl;
    }
    return status;
 }
@@ -337,7 +347,7 @@ int test_ramachandran_analysis(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    if (mc.is_valid_model_molecule(imol)) {
       unsigned int n_res = 0;
       coot::validation_information_t ra = mc.ramachandran_analysis(imol);
@@ -363,7 +373,7 @@ int test_rama_validation(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   std::string coords_fn = reference_data("moorhen-tutorial-structure-number-1.pdb");
+   std::string coords_fn = reference_data("moorhen-tutorial-structure-number-4.pdb");
    int imol = mc.read_pdb(coords_fn);
 
    std::vector<coot::phi_psi_prob_t> rv = mc.ramachandran_validation(imol);
@@ -584,8 +594,8 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
    mc.set_imol_refinement_map(imol_map);
 
    coot::atom_spec_t atom_spec_N_1("A", 130, "", " N  ","");
@@ -793,7 +803,7 @@ int test_mutate(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    coot::atom_spec_t atom_spec_ser("A", 270, "", " OG ",""); // current SER
    coot::atom_spec_t atom_spec_tyr("A", 270, "", " OH ",""); // TYR
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec_ser);
@@ -819,8 +829,8 @@ int test_weird_delete(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   coot::atom_spec_t atom_spec("A", 151, "", " N  ","");
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   coot::atom_spec_t atom_spec("A", 151, "", " N  ", "");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
    if (at_1) {
       mc.delete_using_cid(imol, "//A/151", "RESIDUE");
@@ -839,7 +849,7 @@ int test_side_chain_180(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    coot::atom_spec_t atom_spec("A", 268, "", " OD1","");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
    if (at_1) {
@@ -1002,7 +1012,7 @@ int test_jed_flip(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    coot::atom_spec_t atom_spec("A", 225, "", " CZ ","");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
    if (at_1) {
@@ -1027,7 +1037,7 @@ int test_sequence_generator(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    std::vector<std::string> chain_ids = mc.get_chains_in_model(imol);
    for (const auto &chain_id : chain_ids) {
       std::vector<std::pair<coot::residue_spec_t, std::string> > seq = mc.get_single_letter_codes_for_chain(imol, chain_id);
@@ -1174,8 +1184,8 @@ int test_pepflips_using_difference_map(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "DELFWT", "PHDELWT", "W", false, true);
    if (mc.is_valid_model_molecule(imol)) {
       if (mc.is_valid_map_molecule(imol_diff_map)) {
          float n_rmsd = 4.0;
@@ -1231,7 +1241,7 @@ int test_transformation_for_atom_selection(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    coot::atom_spec_t atom_spec("A", 20, "", " CA ", "");
    
    //! get the atom position (function for testing)
@@ -1339,7 +1349,7 @@ int test_merge_molecules(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
    mc.import_cif_dictionary("3GP.cif", coot::protein_geometry::IMOL_ENC_ANY);
    mc.import_cif_dictionary("NUT.cif", coot::protein_geometry::IMOL_ENC_ANY);
@@ -1395,12 +1405,12 @@ int test_density_correlation_validation(molecules_container_t &mc) {
                if (res.function_value < -1.0) bad_correls = true;
                if (res.function_value >  1.0) bad_correls = true;
 
-               std::cout << "correl " << res.residue_spec.res_no << " " << res.function_value << std::endl;
+               // std::cout << "correl " << res.residue_spec.res_no << " " << res.function_value << std::endl;
             }
          }
          std::cout << "debug:: in test_density_correlation_validation n_res: " << n_res << std::endl;
          if (bad_correls == false) {
-            if (n_res > 400)
+            if (n_res > 250)
                status = 1;
          } else {
             std::cout << "debug:: in test_density_correlation_validation() bad correls! " << std::endl;
@@ -1487,8 +1497,8 @@ int test_ligand_fitting_here(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
    int imol_ligand = mc.get_monomer("TRS");
 
    if (mc.is_valid_model_molecule(imol)) {
@@ -1535,7 +1545,6 @@ int test_jiggle_fit(molecules_container_t &mc) {
    int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
 
-
    if (mc.is_valid_model_molecule(imol)) {
       mc.imol_refinement_map = imol_map;
       coot::atom_spec_t atom_spec("A", 61, "", " CZ ","");
@@ -1543,7 +1552,7 @@ int test_jiggle_fit(molecules_container_t &mc) {
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
          coot::Cartesian atom_pos_1 = atom_to_cartesian(at_1);
-         mc.fit_to_map_by_random_jiggle(imol, residue_spec, 9110, -1);
+         mc.fit_to_map_by_random_jiggle(imol, residue_spec, 110, -1);
          // you can test that the density for the CZ has improved when that function is available.
          // or maybe "density_fit_for_residue()" ?
          // or maybe "density_correlation_for_residue()" ?
@@ -1564,22 +1573,23 @@ int test_jiggle_fit(molecules_container_t &mc) {
    mc.close_molecule(imol);
    mc.close_molecule(imol_map);
 
+   std::cout << "in test_jiggle_fit() A with status " << status   << std::endl;
 
    if (status == 1) {
 
       status = 0;
       std::cout << "Second jiggle-fit test: using atom selection ------------------------------" << std::endl;
-      imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
-      int imol_start = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+      imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
+      int imol_start = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
       int imol_other = mc.read_pdb("weird-orientation.pdb");
       if (mc.is_valid_model_molecule(imol_other)) {
          // now test that we stared with bad fit to density
          coot::validation_information_t vi_0 = mc.density_correlation_analysis(imol_start, imol_map);
          coot::validation_information_t vi_1 = mc.density_correlation_analysis(imol_other, imol_map);
          // fit!
-         int imol_blur = mc.sharpen_blur_map(imol_map, 100, false);
+         int imol_blur = mc.sharpen_blur_map(imol_map, 300, false);
          mc.imol_refinement_map = imol_blur;
-         mc.fit_to_map_by_random_jiggle_using_cid(imol_other, "//A", 10100, 1);
+         mc.fit_to_map_by_random_jiggle_using_cid(imol_other, "//A", 100, 1);
          // now test that we have good fit to density.
          coot::validation_information_t vi_2 = mc.density_correlation_analysis(imol_other, imol_map);
 
@@ -1590,9 +1600,9 @@ int test_jiggle_fit(molecules_container_t &mc) {
          // 20230402-PE These results are disappointing - they are not as good as doing it interactively.
          // I wonder what the difference is.
 
-         std::cout << "orig:     " << std::fixed << s_0.mean() << " " << std::fixed << std::sqrt(s_0.variance()) << std::endl;
-         std::cout << "pre-fit:  " << std::fixed << s_1.mean() << " " << std::fixed << std::sqrt(s_1.variance()) << std::endl;
-         std::cout << "post-fit: " << std::fixed << s_2.mean() << " " << std::fixed << std::sqrt(s_2.variance()) << std::endl;
+         std::cout << "orig:     mean " << std::fixed << std::right << s_0.mean() << " sd " << std::fixed << std::sqrt(s_0.variance()) << std::endl;
+         std::cout << "pre-fit:  mean " << std::fixed << std::right << s_1.mean() << " sd " << std::fixed << std::sqrt(s_1.variance()) << std::endl;
+         std::cout << "post-fit: mean " << std::fixed << std::right << s_2.mean() << " sd " << std::fixed << std::sqrt(s_2.variance()) << std::endl;
 
          float d1 = s_0.mean() - s_2.mean();
          float d2 = s_2.mean() - s_1.mean();
@@ -1611,7 +1621,7 @@ int test_peptide_omega(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
 
    if (mc.is_valid_model_molecule(imol)) {
       auto vi = mc.peptide_omega_analysis(imol);
@@ -1793,7 +1803,7 @@ int test_replace_fragment(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
 
    if (mc.is_valid_model_molecule(imol)) {
       coot::atom_spec_t atom_spec("A", 15, "", " O  ","");
@@ -1960,7 +1970,7 @@ int test_add_alt_conf(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
 
    if (mc.is_valid_model_molecule(imol)) {
       mc.add_alternative_conformation(imol, "//A/72");
@@ -1991,8 +2001,8 @@ int test_fill_partial(molecules_container_t &mc) {
    int status = 0;
    int part_1 = 0;
 
-   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
 
    mc.set_imol_refinement_map(imol_map);
 
@@ -2195,7 +2205,7 @@ int test_ligand_contact_dots(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    if (mc.is_valid_model_molecule(imol)) {
       unsigned int num_subdivisions = 1;
       coot::instanced_mesh_t im = mc.contact_dots_for_ligand(imol, "262", num_subdivisions);
@@ -3193,7 +3203,7 @@ int main(int argc, char **argv) {
       status += run_test(test_sequence_generator,    "Make a sequence string",   mc);
       status += run_test(test_rotamer_validation,    "rotamer validation",       mc);
       status += run_test(test_ligand_fitting_here,   "Ligand fitting here",      mc);
-      status += run_test(test_ligand_contact_dots,   "lgiand contact dots",      mc);
+      status += run_test(test_ligand_contact_dots,   "ligand contact dots",      mc);
       status += run_test(test_rama_validation,       "rama validation 2",        mc); // for the plot, not the graph
       status += run_test(test_ramachandran_analysis, "ramachandran analysis",    mc); // for the graph, not the plot
       status += run_test(test_difference_map_peaks,  "Difference Map Peaks",     mc);
@@ -3205,13 +3215,15 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
+   status += run_test(test_ramachandran_analysis, "--- current_test ---", mc);
+
    // status += run_test(test_undo_and_redo, "undo and redo", mc);
 
    // status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
 
    // status += run_test(test_rigid_body_fit, "rigid-body fit", mc);
 
-   // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
+   //status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
 
    // status += run_test(test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
 
@@ -3241,7 +3253,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
 
-   status = run_test(test_add_terminal_residue, "add terminal residue", mc);
+   // status = run_test(test_add_terminal_residue, "add terminal residue", mc);
 
    // status = run_test(test_symmetry, "symmetry", mc);
 
