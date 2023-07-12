@@ -77,7 +77,13 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
     }
     if(self->currently_created_bond.has_value()) {
         auto& bond = self->currently_created_bond.value();
-        g_warning("todo: Draw currently created bond");
+        cairo_t *cr = gtk_snapshot_append_cairo(snapshot, &background_rect);
+        cairo_set_line_width(cr, 4.0);
+        cairo_set_source_rgb(cr, 1.0, 0.5, 1.0);
+        cairo_move_to(cr, bond.first_atom_x, bond.first_atom_y);
+        cairo_line_to(cr, bond.second_atom_x, bond.second_atom_y);
+        cairo_stroke(cr);
+        cairo_destroy(cr);
     }
    
 }
@@ -120,11 +126,27 @@ static void on_hover (
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
     switch (self->active_tool->get_variant()) {
         case ActiveTool::Variant::MoveTool: {
-            self->active_tool->update_move_cursor_pos((int)x, (int)y);
+            if(self->active_tool->is_in_move()) {
+                self->active_tool->update_move_cursor_pos((int)x, (int)y);
+                gtk_widget_queue_draw(GTK_WIDGET(self));
+                return;
+            }
             break;
         }
         case ActiveTool::Variant::RotateTool: {
-            self->active_tool->update_rotation_cursor_pos((int)x, (int)y, modifiers & GDK_ALT_MASK);
+            if(self->active_tool->is_in_rotation()) {
+                self->active_tool->update_rotation_cursor_pos((int)x, (int)y, modifiers & GDK_ALT_MASK);
+                gtk_widget_queue_draw(GTK_WIDGET(self));
+                return;
+            }
+            break;
+        }
+        case ActiveTool::Variant::BondModifier: {
+            if(self->active_tool->is_creating_bond() && self->currently_created_bond.has_value()) {
+                auto& new_bond = self->currently_created_bond.value();
+                new_bond.second_atom_x = x;
+                new_bond.second_atom_y = y;
+            }
             break;
         }
         default: {
@@ -188,6 +210,13 @@ on_left_click_released (
             self->active_tool->end_rotation(GDK_ALT_MASK & modifiers);
             break;
         }
+        case ActiveTool::Variant::BondModifier: {
+            if(self->active_tool->is_creating_bond()) {
+                self->currently_created_bond = std::nullopt;
+                self->active_tool->finish_creating_bond(x, y);
+            }
+            break;
+        }
         default: {
             // nothing
         }
@@ -221,6 +250,14 @@ static void on_left_click (
         }
         case ActiveTool::Variant::BondModifier:{
             self->active_tool->alter_bond((int)x, (int) y);
+            if(self->active_tool->is_creating_bond()) {
+                CurrentlyCreatedBond new_bond;
+                new_bond.first_atom_x = x;
+                new_bond.first_atom_y = y;
+                new_bond.second_atom_x = x;
+                new_bond.second_atom_y = y;
+                self->currently_created_bond = new_bond;
+            }
             break;
         }
         case ActiveTool::Variant::StructureInsertion:{

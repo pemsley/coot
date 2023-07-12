@@ -21,12 +21,18 @@ class BondModifier {
         Triple
     };
     private:
-
     BondModifierMode mode;
+    std::optional<unsigned int> first_atom_of_new_bond;
+    bool is_in_drag;
+
     public:
     BondModifier(BondModifierMode) noexcept;
 
     CanvasMolecule::BondType get_target_bond_type() const noexcept;
+    bool is_creating_bond() const noexcept;
+    void begin_creating_bond(unsigned int atom_idx) noexcept;
+    void finish_creating_bond() noexcept;
+    std::optional<unsigned int> get_first_atom_of_new_bond() const noexcept;
 
 };
 
@@ -219,6 +225,10 @@ class ActiveTool {
     /// Changes the bond found at the given coordinates.
     /// The kind of the bond depends upon current BondModifierMode.
     void alter_bond(int x, int y);
+    /// Valid for Variant::BondModifier.
+    bool is_creating_bond() const;
+    /// Valid for Variant::BondModifier.
+    void finish_creating_bond(int x, int y);
     /// Valid for Variant::ChargeModifier.
     /// Modifies the charge of bond found at the given coordinates.
     void alter_charge(int x, int y);

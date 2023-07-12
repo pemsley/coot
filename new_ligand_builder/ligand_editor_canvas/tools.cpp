@@ -19,7 +19,28 @@ ActiveTool::ActiveTool() noexcept {
 
 BondModifier::BondModifier(BondModifierMode mode) noexcept {
     this->mode = mode;
+    this->first_atom_of_new_bond = std::nullopt;
+    this->is_in_drag = false;
 }
+
+bool BondModifier::is_creating_bond() const noexcept {
+    return this->is_in_drag;
+}
+
+void BondModifier::begin_creating_bond(unsigned int atom_idx) noexcept {
+    this->is_in_drag = true;
+    this->first_atom_of_new_bond = atom_idx;
+}
+
+void BondModifier::finish_creating_bond() noexcept {
+    this->is_in_drag = false;
+    this->first_atom_of_new_bond = std::nullopt;
+}
+
+std::optional<unsigned int> BondModifier::get_first_atom_of_new_bond() const noexcept {
+    return this->first_atom_of_new_bond;
+}
+
 
 MoveTool::MoveTool() noexcept {
     this->in_move = false;
@@ -274,19 +295,8 @@ void ActiveTool::alter_bond(int x, int y) {
             auto [bond_or_atom,molecule_idx] = click_result.value();
             this->widget_data->begin_edition();
             if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
-                //g_warning("The BondModifier tool does not operate on atoms. Nothing to do.");
                 auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
-                //g_debug("Resolved insertion destination atom: idx=%i, symbol=%s",atom.idx,atom.symbol.c_str());
-                auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
-                auto* new_atom = new RDKit::Atom(6);
-                RDKit::MolOps::Kekulize(*rdkit_mol.get());
-                auto new_atom_idx = rdkit_mol->addAtom(new_atom,false,true);
-                rdkit_mol->addBond(new_atom_idx,atom.idx,CanvasMolecule::bond_type_to_rdkit(mod.get_target_bond_type()));
-                g_info("New atom added: idx=%i",new_atom_idx);
-                this->widget_data->update_status("New carbon atom added.");
-                this->sanitize_molecule(*rdkit_mol.get());
-                auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-                canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
+                mod.begin_creating_bond(atom.idx);
             } else {
                 auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
                 auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
@@ -307,8 +317,8 @@ void ActiveTool::alter_bond(int x, int y) {
                 this->widget_data->update_status("Bond has been altered.");
                 auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
                 canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
+                this->widget_data->finalize_edition();
             }
-            this->widget_data->finalize_edition();
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
             std::string msg = std::string("Could not alter bond: ") + e.what();
@@ -320,6 +330,58 @@ void ActiveTool::alter_bond(int x, int y) {
         g_debug("The click could not be resolved to any atom or bond.");
     }
 }
+
+bool ActiveTool::is_creating_bond() const {
+    check_variant(Variant::BondModifier);
+    const BondModifier& mod = this->bond_modifier;
+    return mod.is_creating_bond();
+}
+
+void ActiveTool::finish_creating_bond(int x, int y) {
+    check_variant(Variant::BondModifier);
+    BondModifier& mod = this->bond_modifier;
+    auto click_result = this->widget_data->resolve_click(x, y);
+
+    if(click_result.has_value()) {
+        try{
+            auto [bond_or_atom,molecule_idx] = click_result.value();
+            if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
+                auto first_atom = mod.get_first_atom_of_new_bond().value();
+                auto second_atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+                auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
+                RDKit::MolOps::Kekulize(*rdkit_mol.get());
+                if(first_atom == second_atom.idx) {
+                    auto* new_atom = new RDKit::Atom(6);
+                    auto new_atom_idx = rdkit_mol->addAtom(new_atom,false,true);
+                    rdkit_mol->addBond(new_atom_idx,second_atom.idx,CanvasMolecule::bond_type_to_rdkit(mod.get_target_bond_type()));
+                    g_info("New atom added: idx=%i",new_atom_idx);
+                    this->widget_data->update_status("New carbon atom added.");
+                } else {
+                    rdkit_mol->addBond(first_atom,second_atom.idx,CanvasMolecule::bond_type_to_rdkit(mod.get_target_bond_type()));
+                    this->widget_data->update_status("Created new bond between atoms.");
+                }
+                mod.finish_creating_bond();
+                this->sanitize_molecule(*rdkit_mol.get());
+                auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
+                canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
+                this->widget_data->finalize_edition();
+            } else {
+                this->widget_data->update_status("Can't link bond to a bond!");
+                this->widget_data->rollback_current_edition();
+            }
+        } catch(std::exception& e) {
+            g_warning("An error occured: %s",e.what());
+            std::string msg = std::string("Could not alter/create bond: ") + e.what();
+            this->widget_data->update_status(msg.c_str());
+            this->widget_data->rollback_current_edition();
+        }
+    } else {
+        std::string msg = "The new bond goes nowhere.";
+        this->widget_data->update_status(msg.c_str());
+        this->widget_data->rollback_current_edition();
+    }
+}
+
 
 void ActiveTool::alter_geometry(int x, int y) {
     check_variant(Variant::GeometryModifier);
