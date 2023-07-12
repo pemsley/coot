@@ -11,6 +11,14 @@
 namespace coot {
 namespace ligand_editor_canvas {
 
+struct CurrentlyCreatedBond {
+    float first_atom_x;
+    float first_atom_y;
+    unsigned int first_atom_idx;
+    float second_atom_x;
+    float second_atom_y;
+};
+
 enum class FlipMode: unsigned char {
     /// Along the X axis
     Horizontal,

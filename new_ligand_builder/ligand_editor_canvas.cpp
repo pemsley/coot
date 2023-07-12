@@ -27,6 +27,7 @@ void coot_ligand_editor_canvas_init_impl(CootLigandEditorCanvas* self) {
     self->active_tool->set_core_widget_data(static_cast<impl::CootLigandEditorCanvasPriv*>(self));
     self->molecules = std::make_unique<std::vector<CanvasMolecule>>();
     self->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>();
+    self->currently_created_bond = std::nullopt;
     self->state_stack = std::make_unique<impl::WidgetCoreData::StateStack>();
     self->display_mode = DisplayMode::Standard;
     self->scale = 1.0;
@@ -73,6 +74,10 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
         }
     } else {
         g_error("Molecules vector not initialized!");
+    }
+    if(self->currently_created_bond.has_value()) {
+        auto& bond = self->currently_created_bond.value();
+        g_warning("todo: Draw currently created bond");
     }
    
 }

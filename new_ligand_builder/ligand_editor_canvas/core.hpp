@@ -74,6 +74,8 @@ struct WidgetCoreData {
     std::unique_ptr<std::vector<CanvasMolecule>> molecules;
     /// molecules (RDKit)
     std::unique_ptr<std::vector<std::shared_ptr<RDKit::RWMol>>> rdkit_molecules;
+    /// Bond being currently created via click'n'drag
+    std::optional<CurrentlyCreatedBond> currently_created_bond;
 
     float scale;
 
