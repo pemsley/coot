@@ -112,17 +112,16 @@ class RotateTool {
     std::optional<double> last_absolute_angle;
     std::optional<std::pair<int,int>> original_rotation_pos;
     std::optional<std::pair<int,int>> current_rotation_pos;
+    std::optional<unsigned int> canvas_mol_idx;
     /// Describes whether the user is currently dragging with their mouse
     bool in_rotation;
-    std::optional<unsigned int> canvas_mol_idx;
 
-    private:
-    std::optional<double> get_current_absolute_angle(bool snap_to_angle) const;
     public:
     RotateTool() noexcept;
     void begin_rotation(int x, int y) noexcept;
     double end_rotation(bool snap_to_angle);
     void update_current_rotation_pos(int x, int y, bool snap_to_angle) noexcept;
+    std::optional<double> get_current_absolute_angle(bool snap_to_angle) const;
     std::optional<double> get_current_angle_diff(bool snap_to_angle) const;
     bool is_in_rotation() const noexcept;
     void set_canvas_molecule_index(unsigned int) noexcept;

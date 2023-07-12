@@ -729,10 +729,13 @@ void ActiveTool::end_rotation(bool snap_to_angle) {
     auto& rot = this->rotate_tool;
     if(rot.is_in_rotation()) {
         auto mol_idx_opt = rot.get_canvas_molecule_index();
+        auto abs_angle = rot.get_current_absolute_angle(snap_to_angle).value() / M_PI * 180;
         auto angle = rot.end_rotation(snap_to_angle);
         auto& mol = this->widget_data->molecules->at(mol_idx_opt.value());
         mol.rotate_by_angle(angle);
         mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
+        std::string msg = "Molecule rotated by " + std::to_string(abs_angle) + " degrees.";
+        this->widget_data->update_status(msg.c_str());
         this->widget_data->finalize_edition();
     }
 }
@@ -743,10 +746,13 @@ void ActiveTool::update_rotation_cursor_pos(int x, int y, bool snap_to_angle) {
     if(rot.is_in_rotation()) {
         rot.update_current_rotation_pos(x, y, snap_to_angle);
         auto angle = rot.get_current_angle_diff(snap_to_angle).value();
+        auto abs_angle = rot.get_current_absolute_angle(snap_to_angle).value() / M_PI * 180;
         auto mol_idx_opt = rot.get_canvas_molecule_index();
         auto& mol = this->widget_data->molecules->at(mol_idx_opt.value());
         mol.rotate_by_angle(angle);
         mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
+        std::string msg = "Current rotation: " + std::to_string(abs_angle) + " degrees.";
+        this->widget_data->update_status(msg.c_str());
     }
 }
 
