@@ -19,6 +19,15 @@ shows a quadrant in "Plane" mode. The output tga file is full-resolution though,
 Don't confuse the scaling of the framebuffer for screenshot (in "Plain" mode) and
 the scaling of the framebuffers for super-sampling (in "Fancy" mode).
 
+Preferences -> Colours -> Font does not work ::: 1
+
+"Atom Label Font Size" frame should be deleted. ::: 0.5
+
+Nice to have:
+"Resample map (say 11337 to 2.2) It takes a long time. There should be a progress bar.
+
+[ and ] don't change the cryo-EM map radius.
+
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
 Rework the namespace of the python modules to be more cannonical ::: 4
