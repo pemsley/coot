@@ -100,7 +100,7 @@ std::optional<double> RotateTool::get_current_absolute_angle(bool snap_to_angle)
     auto [x1,y1] = this->original_rotation_pos.value();
     auto [x2,y2] = this->current_rotation_pos.value();
     auto diff_x = x2 - x1;
-    auto diff_y = y2 - y1;
+    auto diff_y = y1 - y2;
     auto diff_original = ((double)(diff_x + diff_y)) / 125.0;
     if(snap_to_angle) {
         const double snap = 15.f / 180 * M_PI;
