@@ -6,10 +6,11 @@ AM_CPPFLAGS = -I$(top_srcdir) @GTK_CFLAGS@
 
 
 pkginclude_HEADERS = \
-    residue-validation-information.hh \
-    validation-information.hh \
+	residue-validation-information.hh \
+	validation-information.hh \
 	validation-graphs.hh \
-    validation-graph-widget.hh
+	validation-graph-widget.hh \
+	sequence-view-widget.hh
 
 pkgincludedir = $(includedir)/coot/test-validation
 
@@ -17,10 +18,11 @@ pkgincludedir = $(includedir)/coot/test-validation
 #
 
 libcoot_validation_graphs_la_SOURCES = \
-    residue-validation-information.cc \
-    validation-graph-widget.cc \
+	residue-validation-information.cc \
+	validation-graph-widget.cc \
 	validation-graphs.cc \
-	validation-information.cc
+	validation-information.cc \
+	sequence-view-widget.cc
 
 libcoot_validation_graphs_la_LIBADD = \
    $(top_builddir)/ideal/libcoot-ideal.la             \
@@ -40,11 +42,17 @@ libcoot_validation_graphs_la_LIBADD = \
 
 libcoot_validation_graphs_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-check_PROGRAMS = gtk4-test-validation-graph
+check_PROGRAMS = gtk4-test-validation-graph gtk4-test-sequence-view
 
-gtk4_test_validation_graph_SOURCES = gtk4-test-validation-graph.cc 
+gtk4_test_validation_graph_SOURCES = gtk4-test-validation-graph.cc
 
 gtk4_test_validation_graph_LDADD = ./libcoot-validation-graphs.la \
 	$(top_builddir)/ligand/libcoot-ligand.la             \
+	$(top_builddir)/coords/libcoot-coords.la  \
+	$(GTK_LIBS)
+
+gtk4_test_sequence_view_SOURCES = gtk4-test-sequence-view.cc
+
+gtk4_test_sequence_view_LDADD = ./libcoot-validation-graphs.la \
 	$(top_builddir)/coords/libcoot-coords.la  \
 	$(GTK_LIBS)

@@ -119,7 +119,6 @@
 
 #include "coot-version.hh"
 
-#include "nsv.hh"
 #include "widget-headers.hh"
 #include "widget-from-builder.hh"
 
@@ -137,6 +136,7 @@
 #include "widget-from-builder.hh"
 #include "glarea_tick_function.hh"
 
+#include "validation-graphs/sequence-view-widget.hh"
 
 // This is (already) in git-revision-count.cc
 //
@@ -7645,28 +7645,36 @@ void print_sequence_chain_general(int imol, const char *chain_id,
 void do_sequence_view(int imol) {
 
    if (is_valid_model_molecule(imol)) {
-      bool do_old_style = false;
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      std::vector<mmdb::Residue *> r = coot::util::residues_with_insertion_codes(mol);
-      if (r.size() > 0) {
-         do_old_style = true;
-      } else {
-         // was it a big shelx molecule?
-         if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {
-            std::pair<bool, int> max_resno =
-               coot::util::max_resno_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
-            if (max_resno.first)
-               if (max_resno.second > 3200)
-                  do_old_style = 1;
-         }
-      }
 
+      GtkWidget *scrolled_window = gtk_scrolled_window_new();
+      GtkWidget *frame = gtk_frame_new("");
+      gtk_widget_set_hexpand(scrolled_window, TRUE);
+      gtk_widget_set_vexpand(scrolled_window, TRUE);
+      gtk_widget_set_hexpand(frame, TRUE);
+      gtk_widget_set_vexpand(frame, TRUE);
 
-      if (do_old_style) {
-         sequence_view_old_style(imol);
-      } else {
-         nsv(imol);
-      }
+      // gtk_widget_set_size_request(scrolled_window, 200, 240);
+      // gtk_widget_set_size_request(frame, 200, 250); // h size be bigger than the h-size for the scrolled window
+
+      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box"); // this is where the GLArea widget goes
+      gtk_box_prepend(GTK_BOX(vbox), scrolled_window);
+
+      CootSequenceView *sv = coot_sequence_view_new();
+      coot_sequence_view_set_structure(sv, imol, mol);
+      g_object_set_data(G_OBJECT(sv), "sv3-frame", frame);
+      gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(frame));
+      gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(sv));
+
+      auto click_function = +[] (int imol, const coot::residue_spec_t &spec) {
+         int status = 0;
+         std::cout << "Go here B " << imol << " " << spec << std::endl;
+         graphics_info_t g;
+         g.go_to_residue(imol, spec);
+         return status;
+      };
+
+      coot_sequence_view_set_click_function(sv, click_function);
    }
 }
 
