@@ -171,13 +171,16 @@ on_left_click_released (
   gpointer user_data
 ) {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(gesture_click));
+    GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+
     switch (self->active_tool->get_variant()) {
         case ActiveTool::Variant::MoveTool: {
             self->active_tool->end_move();
             break;
         }
         case ActiveTool::Variant::RotateTool: {
-            self->active_tool->end_rotation();
+            self->active_tool->end_rotation(GDK_ALT_MASK & modifiers);
             break;
         }
         default: {

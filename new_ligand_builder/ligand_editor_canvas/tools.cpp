@@ -77,9 +77,9 @@ void RotateTool::begin_rotation(int x, int y) noexcept {
     this->last_absolute_angle = 0.f;
 }
 
-double RotateTool::end_rotation() {
+double RotateTool::end_rotation(bool snap_to_angle) {
     this->in_rotation = false;
-    auto ret = this->get_current_angle_diff();
+    auto ret = this->get_current_angle_diff(snap_to_angle);
     this->current_rotation_pos = std::nullopt;
     this->original_rotation_pos = std::nullopt;
     this->canvas_mol_idx = std::nullopt;
@@ -87,12 +87,12 @@ double RotateTool::end_rotation() {
     return ret.value();
 }
 
-void RotateTool::update_current_rotation_pos(int x, int y) noexcept {
-    this->last_absolute_angle = this->get_current_absolute_angle();
+void RotateTool::update_current_rotation_pos(int x, int y, bool snap_to_angle) noexcept {
+    this->last_absolute_angle = this->get_current_absolute_angle(snap_to_angle);
     this->current_rotation_pos = std::make_pair(x, y);
 }
 
-std::optional<double> RotateTool::get_current_absolute_angle() const {
+std::optional<double> RotateTool::get_current_absolute_angle(bool snap_to_angle) const {
     if(!this->current_rotation_pos.has_value() 
     || !this->original_rotation_pos.has_value()) {
         return std::nullopt;
@@ -102,11 +102,20 @@ std::optional<double> RotateTool::get_current_absolute_angle() const {
     auto diff_x = x2 - x1;
     auto diff_y = y2 - y1;
     auto diff_original = ((double)(diff_x + diff_y)) / 125.0;
+    if(snap_to_angle) {
+        const double snap = 15.f / 180 * M_PI;
+        int divided = diff_original / snap;
+        if(divided != 0)  {
+            diff_original = divided * snap;
+        } else {
+            diff_original = 0;
+        }
+    }
     return diff_original;
 }
 
-std::optional<double> RotateTool::get_current_angle_diff() const {
-    auto diff_original = this->get_current_absolute_angle();
+std::optional<double> RotateTool::get_current_angle_diff(bool snap_to_angle) const {
+    auto diff_original = this->get_current_absolute_angle(snap_to_angle);
     if(!this->last_absolute_angle.has_value() || !diff_original.has_value()) {
         return std::nullopt;
     }
@@ -715,12 +724,12 @@ void ActiveTool::begin_rotation(int x, int y) {
     }
 }
 
-void ActiveTool::end_rotation() {
+void ActiveTool::end_rotation(bool snap_to_angle) {
     check_variant(Variant::RotateTool);
     auto& rot = this->rotate_tool;
     if(rot.is_in_rotation()) {
         auto mol_idx_opt = rot.get_canvas_molecule_index();
-        auto angle = rot.end_rotation();
+        auto angle = rot.end_rotation(snap_to_angle);
         auto& mol = this->widget_data->molecules->at(mol_idx_opt.value());
         mol.rotate_by_angle(angle);
         mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
@@ -732,8 +741,8 @@ void ActiveTool::update_rotation_cursor_pos(int x, int y, bool snap_to_angle) {
     check_variant(Variant::RotateTool);
     auto& rot = this->rotate_tool;
     if(rot.is_in_rotation()) {
-        rot.update_current_rotation_pos(x, y);
-        auto angle = rot.get_current_angle_diff().value();
+        rot.update_current_rotation_pos(x, y, snap_to_angle);
+        auto angle = rot.get_current_angle_diff(snap_to_angle).value();
         auto mol_idx_opt = rot.get_canvas_molecule_index();
         auto& mol = this->widget_data->molecules->at(mol_idx_opt.value());
         mol.rotate_by_angle(angle);

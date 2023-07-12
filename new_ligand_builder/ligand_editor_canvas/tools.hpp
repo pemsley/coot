@@ -117,13 +117,13 @@ class RotateTool {
     std::optional<unsigned int> canvas_mol_idx;
 
     private:
-    std::optional<double> get_current_absolute_angle() const;
+    std::optional<double> get_current_absolute_angle(bool snap_to_angle) const;
     public:
     RotateTool() noexcept;
     void begin_rotation(int x, int y) noexcept;
-    double end_rotation();
-    void update_current_rotation_pos(int x, int y) noexcept;
-    std::optional<double> get_current_angle_diff() const;
+    double end_rotation(bool snap_to_angle);
+    void update_current_rotation_pos(int x, int y, bool snap_to_angle) noexcept;
+    std::optional<double> get_current_angle_diff(bool snap_to_angle) const;
     bool is_in_rotation() const noexcept;
     void set_canvas_molecule_index(unsigned int) noexcept;
     std::optional<unsigned int> get_canvas_molecule_index() const noexcept;
@@ -242,7 +242,7 @@ class ActiveTool {
     void end_move();
     /// Valid for Variant::RotateTool
     /// Ends rotation
-    void end_rotation();
+    void end_rotation(bool snap_to_angle);
     /// Valid for Variant::MoveTool
     /// Begins move
     void begin_move(int x, int y);
