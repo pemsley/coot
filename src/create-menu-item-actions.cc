@@ -2485,6 +2485,83 @@ unfix_all_atoms(GSimpleAction *simple_action,
    }
 }
 
+void
+rotate_translate_atom(GSimpleAction *simple_action,
+                      GVariant *parameter,
+                      gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      g.attach_buffers(); // 20220823-PE needed?
+
+      g.graphics_draw(); // maybe not needed here
+   }
+}
+
+void
+rotate_translate_residue(GSimpleAction *simple_action,
+                         GVariant *parameter,
+                         gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      g.attach_buffers(); // 20220823-PE needed?
+
+      g.graphics_draw(); // maybe not needed here
+   }
+}
+
+void
+rotate_translate_residue_range(GSimpleAction *simple_action,
+                               GVariant *parameter,
+                               gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      g.attach_buffers(); // 20220823-PE needed?
+
+      g.graphics_draw(); // maybe not needed here
+   }
+}
+
+void
+rotate_translate_chain(GSimpleAction *simple_action,
+                       GVariant *parameter,
+                       gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      g.attach_buffers(); // 20220823-PE needed?
+
+      g.graphics_draw(); // maybe not needed here
+   }
+}
+
+void
+rotate_translate_molecule(GSimpleAction *simple_action,
+                          GVariant *parameter,
+                          gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      int imol = pp.second.first;
+      g.attach_buffers(); // 20220823-PE needed?
+
+      g.graphics_draw(); // maybe not needed here
+   }
+}
+
+
+
 
 void
 mutate_to_type(GSimpleAction *simple_action,
@@ -2840,6 +2917,13 @@ create_actions(GtkApplication *application) {
    add_action(  "fix_atom",        fix_atom);
    add_action("unfix_atom",      unfix_atom);
    add_action("unfix_all_atoms", unfix_all_atoms);
+
+   // Rotate/Translate
+   add_action("rotate_translate_atom",          rotate_translate_atom);
+   add_action("rotate_translate_residue",       rotate_translate_residue);
+   add_action("rotate_translate_residue_range", rotate_translate_residue_range);
+   add_action("rotate_translate_chain",         rotate_translate_chain);
+   add_action("rotate_translate_molecule",      rotate_translate_molecule);
 
    // Mutate menu
    add_action_with_param("mutate_to_type", mutate_to_type);

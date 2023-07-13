@@ -1695,7 +1695,7 @@ Shader graphics_info_t::shader_for_tmeshes;
 Shader graphics_info_t::shader_for_meshes_shadow_map;
 Shader graphics_info_t::shader_for_texture_meshes_shadow_map;
 Shader graphics_info_t::shader_for_shadow_map_image_texture_mesh;
-float graphics_info_t::shadow_box_size = 66.0;
+float graphics_info_t::shadow_box_size = 120.0;
 
 float graphics_info_t::SSAO_bias = 0.02;
 float graphics_info_t::SSAO_radius = 30.0;

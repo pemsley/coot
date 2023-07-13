@@ -83,6 +83,8 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                      };
 
    auto render_to_shadow_map = [] () {
+
+                                 if (shadow_strength == 0.0) return;
                                  GLenum err = glGetError();
                                  if (err)
                                     std::cout << "GL ERROR:: lambda render_to_shadow_map() --- start --- " << err << std::endl;
@@ -274,12 +276,11 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
          } else {
 
-            std::cout << "calling render_to_shadow_map() " << std::endl;
-            render_to_shadow_map(); // needed?
+            render_to_shadow_map(); // needed? yes.
 
             {
 
-               std::cout << "   framebuffer_scale: " << framebuffer_scale << std::endl;
+               // std::cout << "   framebuffer_scale: " << framebuffer_scale << std::endl;
                // glViewport(0,0, width * framebuffer_scale, height * framebuffer_scale);
                glViewport(0,0, width, height);
                di.framebuffer_for_effects.bind();
@@ -431,6 +432,7 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
    auto render_to_shadow_map = [] () {
 
+                                 if (shadow_strength == 0.0) return;
                                   graphics_info_t di;
                                   glViewport(0, 0, shadow_texture_width, shadow_texture_height);
                                   glBindFramebuffer(GL_FRAMEBUFFER, shadow_depthMap_framebuffer);
@@ -438,8 +440,8 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
                                   glClear(GL_DEPTH_BUFFER_BIT);
                                   unsigned int light_index = 0;
                                   // make these static at some stage
-                                  di.draw_Models_for_shadow_map(light_index);
-                                  di.draw_molecules_for_shadow_map(light_index); // for coot non-Model objects
+                                  di.draw_Models_for_shadow_map(light_index); // for coot non-Model objects
+                                  di.draw_molecules_for_shadow_map(light_index);
 
                                };
 
