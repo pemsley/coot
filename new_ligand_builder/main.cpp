@@ -1,9 +1,10 @@
+#include <gtk/gtk.h>
+#include "about_dialog.hpp"
 #include "ligand-builder.hpp"
 #include "ligand_editor_canvas.hpp"
 #include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
-#include <gtk/gtk.h>
 #include <string>
 
 
@@ -459,7 +460,8 @@ GMenu *build_menu(GtkApplication* app, CootLigandEditorCanvas* canvas, GtkWindow
     GMenu *help = g_menu_new();
     g_menu_append_submenu(ret, "Help", G_MENU_MODEL(help));
     g_menu_append_item(help, new_menu_item("About", "about", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        g_info("TODO: About");
+        auto* about_dialog = coot::ligand_editor::build_about_dialog();
+        gtk_window_present(GTK_WINDOW(about_dialog));
     })));
 
     return ret;
