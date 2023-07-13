@@ -133,6 +133,11 @@ static void on_hover (
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
 
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+
+    for(auto& molecule: *self->molecules) {
+        molecule.clear_highlights();
+    }
+
     switch (self->active_tool->get_variant()) {
         case ActiveTool::Variant::MoveTool: {
             if(self->active_tool->is_in_move()) {
@@ -155,15 +160,15 @@ static void on_hover (
                 auto& new_bond = self->currently_created_bond.value();
                 new_bond.second_atom_x = x;
                 new_bond.second_atom_y = y;
+                auto [molecule_idx, atom_idx] = self->active_tool->get_molecule_idx_and_first_atom_of_new_bond().value();
+                auto& target = (*self->molecules)[molecule_idx];
+                target.highlight_atom(atom_idx);
             }
             break;
         }
         default: {
             // nothing
         }
-    }
-    for(auto& molecule: *self->molecules) {
-        molecule.clear_highlights();
     }
     auto maybe_something_clicked = self->resolve_click(x, y);
     if(maybe_something_clicked.has_value()) {
