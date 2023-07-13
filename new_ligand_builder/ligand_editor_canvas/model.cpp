@@ -117,9 +117,38 @@ CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) cons
 }
 
 void CanvasMolecule::apply_canvas_translation(int delta_x, int delta_y) noexcept {
-    this->x_canvas_translation += (float) delta_x / this->get_scale();
-    this->y_canvas_translation += (float) delta_y / this->get_scale();
+    float scale = this->get_scale();
+    this->x_canvas_translation += (float) delta_x / scale;
+    this->y_canvas_translation += (float) delta_y / scale;
 }
+
+std::pair<float,float> CanvasMolecule::get_on_screen_coords(float x, float y) const noexcept {
+    float scale = this->get_scale();
+    auto x_offset = this->x_canvas_translation * scale;
+    auto y_offset = this->y_canvas_translation * scale;
+    return std::make_pair(x * scale + x_offset, y * scale + y_offset);
+}
+
+std::optional<std::pair<float,float>> CanvasMolecule::get_on_screen_coords_of_atom(unsigned int atom_idx) const noexcept {
+    if(this->atoms.size() <= atom_idx) {
+        return std::nullopt;
+    }
+    const Atom& a = this->atoms[atom_idx];
+    return this->get_on_screen_coords(a.x, a.y);
+}
+
+graphene_rect_t CanvasMolecule::get_on_screen_bounding_rect() const noexcept {
+    float scale = this->get_scale();
+    auto x_offset = this->x_canvas_translation * scale;
+    auto y_offset = this->y_canvas_translation * scale;
+    graphene_rect_t ret;
+    ret.origin.x = this->bounding_atom_coords.first.x * scale + x_offset;
+    ret.origin.y = this->bounding_atom_coords.first.y * scale + y_offset;
+    ret.size.width = (this->bounding_atom_coords.second.x - this->bounding_atom_coords.first.x) * scale + x_offset;
+    ret.size.height = (this->bounding_atom_coords.second.y - this->bounding_atom_coords.first.y) * scale + y_offset;
+    return ret;
+}
+
 
 void CanvasMolecule::perform_flip(FlipMode flip_mode) {
     for(auto& atom: this->cached_atom_coordinate_map.value()) {
@@ -832,6 +861,7 @@ CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
     this->lower_from_rdkit(true);
     this->x_canvas_translation = 0;
     this->y_canvas_translation = 0;
+    this->bounding_atom_coords = std::make_pair(RDGeom::Point2D(0,0),RDGeom::Point2D(0,0));
 }
 
 void CanvasMolecule::update_source_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
@@ -1226,6 +1256,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
     this->atoms.clear();
     this->bonds.clear();
     this->bond_map.clear();
+    this->bounding_atom_coords = std::make_pair(RDGeom::Point2D(0,0),RDGeom::Point2D(0,0));
 
     /// Used to avoid duplicating bonds
     std::set<unsigned int> processed_atoms_indices;
@@ -1240,6 +1271,19 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
         canvas_atom.symbol = rdkit_atom->getSymbol();
         canvas_atom.x = plane_point.x;
         canvas_atom.y = plane_point.y;
+
+        if(canvas_atom.x < bounding_atom_coords.first.x) {
+            bounding_atom_coords.first.x = canvas_atom.x;
+        }
+        if(canvas_atom.x > bounding_atom_coords.second.x) {
+            bounding_atom_coords.second.x = canvas_atom.x;
+        }
+        if(canvas_atom.y < bounding_atom_coords.first.y) {
+            bounding_atom_coords.first.y = canvas_atom.y;
+        }
+        if(canvas_atom.y > bounding_atom_coords.second.y) {
+            bounding_atom_coords.second.y = canvas_atom.y;
+        }
 
         auto surrounding_hydrogen_count = rdkit_atom->getTotalNumHs(false);
         auto surrounding_non_hydrogen_count = 0;

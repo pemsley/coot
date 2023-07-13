@@ -163,6 +163,12 @@ static void on_hover (
             auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
             g_debug("Hovering on atom %u (%s)", atom.idx,atom.symbol.c_str());
             target.highlight_atom(atom.idx);
+            if(self->currently_created_bond.has_value()) {
+                auto& new_bond = self->currently_created_bond.value();
+                auto coords = target.get_on_screen_coords(atom.x, atom.y);
+                new_bond.second_atom_x = coords.first;
+                new_bond.second_atom_y = coords.second;
+            }
         } else { // a bond
             auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
             g_debug("Hovering on bond between atoms %u and %u", bond.first_atom_idx, bond.second_atom_idx);
@@ -251,10 +257,12 @@ static void on_left_click (
             self->active_tool->alter_bond((int)x, (int) y);
             if(self->active_tool->is_creating_bond()) {
                 CurrentlyCreatedBond new_bond;
-                new_bond.first_atom_x = x;
-                new_bond.first_atom_y = y;
-                new_bond.second_atom_x = x;
-                new_bond.second_atom_y = y;
+                auto [mol_idx, atom_idx] = self->active_tool->get_molecule_idx_and_first_atom_of_new_bond().value();
+                auto coords = self->molecules->at(mol_idx).get_on_screen_coords_of_atom(atom_idx).value();
+                new_bond.first_atom_x = coords.first;
+                new_bond.first_atom_y = coords.second;
+                new_bond.second_atom_x = coords.first;
+                new_bond.second_atom_y = coords.second;
                 self->currently_created_bond = new_bond;
             }
             break;

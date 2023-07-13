@@ -172,6 +172,11 @@ class CanvasMolecule {
     /// Scale used by the widget
     float canvas_scale;
 
+    /// The top-left and bottom-right points, in between which the molecule lies.
+    /// The coordinates are in "RDKit space".
+    /// They have to be multiplied by scale and added to the offsets to get on-screen coordinates
+    std::pair<RDGeom::Point2D,RDGeom::Point2D> bounding_atom_coords;
+
     /// Coordinate map built in the previous call
     /// to `compute_molecule_geometry()`
     /// stored for reference to maintain alignment 
@@ -243,6 +248,9 @@ class CanvasMolecule {
     void set_canvas_scale(float scale);
 
     void apply_canvas_translation(int delta_x, int delta_y) noexcept;
+    std::pair<float,float> get_on_screen_coords(float x, float y) const noexcept;
+    std::optional<std::pair<float,float>> get_on_screen_coords_of_atom(unsigned int atom_idx) const noexcept;
+    graphene_rect_t get_on_screen_bounding_rect() const noexcept;
     void perform_flip(FlipMode flip_mode);
     void rotate_by_angle(double radians);
 

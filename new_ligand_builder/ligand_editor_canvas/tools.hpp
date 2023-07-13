@@ -275,6 +275,8 @@ class ActiveTool {
     /// Valid for Variant::FlipTool.
     /// Flip molecule under cursor around X/Y axis.
     void flip(int x, int y);
+    /// Valid for Variant::BondModifier.
+    std::optional<std::pair<unsigned int,unsigned int>> get_molecule_idx_and_first_atom_of_new_bond() const;
 
     /// Only meant to be invoked from within CootLigandEditorCanvas implementation
     ///

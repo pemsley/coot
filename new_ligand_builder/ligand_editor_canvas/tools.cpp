@@ -854,6 +854,13 @@ void ActiveTool::flip(int x, int y) {
     }
 }
 
+/// Valid for Variant::BondModifier.
+std::optional<std::pair<unsigned int,unsigned int>> ActiveTool::get_molecule_idx_and_first_atom_of_new_bond() const {
+    check_variant(Variant::BondModifier);
+    auto& mod = this->bond_modifier;
+    return mod.get_molecule_idx_and_first_atom_of_new_bond();
+}
+
 ElementInsertion::ElementInsertion(ElementInsertion::Element el) noexcept {
     this->element = el;
 }
