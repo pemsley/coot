@@ -649,7 +649,6 @@ libcootsumo_la_SOURCES = \
 	molecular-mesh-generator.hh \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
-	nsv.cc nsv.hh		\
 	obj_loader.h obj_loader.cc \
 	pisa-interface.hh	 \
 	pick.hh pick.cc	 \

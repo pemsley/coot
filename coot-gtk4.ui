@@ -6576,62 +6576,69 @@ Do you want to continue?
                             <property name="margin-top">2</property>
 
                             <child>
-                              <object class="GtkBox" id="dynamic_validation_vbox">
+                              <!-- difference map peaks and unmodelled blobs "dialogs" should go here -->
+                              <object class="GtkBox" id="validation_boxes_vbox">
                                 <property name="orientation">vertical</property>
-                                <property name="margin-bottom">2</property>
-                                <property name="margin-end">2</property>
-                                <property name="margin-start">2</property>
-                                <property name="margin-top">2</property>
 
                                 <child>
-                                  <object class="GtkLabel" id="dynamic_validation_outliers_label">
-                                    <property name="label" translatable="yes">Outlier Count: -</property>
-                                    <property name="justify">left</property>
-                                  </object>
-                                </child>
+                                  <object class="GtkBox" id="dynamic_validation_vbox">
+                                    <property name="orientation">vertical</property>
+                                    <property name="margin-bottom">2</property>
+                                    <property name="margin-end">2</property>
+                                    <property name="margin-start">2</property>
+                                    <property name="margin-top">2</property>
 
-                                <child>
-                                  <object class="GtkScrolledWindow">
-                                    <property name="vexpand">True</property>
                                     <child>
-                                      <object class="GtkBox" id="dynamic_validation_outliers_vbox">
-                                        <property name="orientation">vertical</property>
+                                      <object class="GtkLabel" id="dynamic_validation_outliers_label">
+                                        <property name="label" translatable="yes">Outlier Count: -</property>
+                                        <property name="justify">left</property>
                                       </object>
                                     </child>
+
+                                    <child>
+                                      <object class="GtkScrolledWindow">
+                                        <property name="vexpand">True</property>
+                                        <child>
+                                          <object class="GtkBox" id="dynamic_validation_outliers_vbox">
+                                            <property name="orientation">vertical</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+
+                                    <child>
+                                      <object class="GtkCheckButton" id="dynamic_validation_include_missing_sidechains_checkbutton">
+                                        <property name="label" translatable="yes">Include Missing Sidechains</property>
+                                        <property name="active">0</property>
+                                        <property name="visible">False</property>
+                                        <signal name="toggled" handler="on_dynamic_validation_include_missing_sidechains_checkbutton_toggled" swapped="no"/>
+                                      </object>
+                                    </child>
+
+                                    <child>
+                                      <object class="GtkButton" id="dynamic_validation_update_button">
+                                        <property name="label">Update</property>
+                                        <property name="margin-bottom">6</property>
+                                        <property name="margin-end">6</property>
+                                        <property name="margin-start">4</property>
+                                        <property name="margin-top">4</property>
+                                        <signal name="clicked" handler="on_dynamic_validation_update_button_clicked" swapped="no"/>
+                                      </object>
+                                    </child>
+
+                                    <child>
+                                      <object class="GtkButton" id="dynamic_validation_close_button">
+                                        <property name="label">Close</property>
+                                        <property name="margin-bottom">6</property>
+                                        <property name="margin-end">6</property>
+                                        <property name="margin-start">4</property>
+                                        <property name="margin-top">4</property>
+                                        <signal name="clicked" handler="on_dynamic_validation_close_button_clicked" swapped="no"/>
+                                      </object>
+                                    </child>
+
                                   </object>
                                 </child>
-
-                                <child>
-                                  <object class="GtkCheckButton" id="dynamic_validation_include_missing_sidechains_checkbutton">
-                                    <property name="label" translatable="yes">Include Missing Sidechains</property>
-                                    <property name="active">0</property>
-                                    <property name="visible">False</property>
-                                    <signal name="toggled" handler="on_dynamic_validation_include_missing_sidechains_checkbutton_toggled" swapped="no"/>
-                                  </object>
-                                </child>
-
-                                <child>
-                                  <object class="GtkButton" id="dynamic_validation_update_button">
-                                    <property name="label">Update</property>
-                                    <property name="margin-bottom">6</property>
-                                    <property name="margin-end">6</property>
-                                    <property name="margin-start">4</property>
-                                    <property name="margin-top">4</property>
-                                    <signal name="clicked" handler="on_dynamic_validation_update_button_clicked" swapped="no"/>
-                                  </object>
-                                </child>
-
-                                <child>
-                                  <object class="GtkButton" id="dynamic_validation_close_button">
-                                    <property name="label">Close</property>
-                                    <property name="margin-bottom">6</property>
-                                    <property name="margin-end">6</property>
-                                    <property name="margin-start">4</property>
-                                    <property name="margin-top">4</property>
-                                    <signal name="clicked" handler="on_dynamic_validation_close_button_clicked" swapped="no"/>
-                                  </object>
-                                </child>
-
                               </object>
                             </child>
 
@@ -6649,9 +6656,32 @@ Do you want to continue?
                   <object class="GtkPaned" id="main_window_graphics_validation_graphs_vs_graphics_pane">
                     <property name="position">660</property>
                     <property name="orientation">vertical</property>
+
                     <child>
-                      <object class="GtkBox" id="main_window_graphics_hbox">
-                        <!-- This is where the GTKGLArea is placed at runtime -->
+                      <object class="GtkBox" id="main_window_graphics_vbox">
+                        <property name="orientation">vertical</property>
+
+                        <child>
+                          <object class="GtkPaned" id="main_window_sequence_view_vs_graphics_pane">
+                            <property name="orientation">vertical</property>
+
+                            <child>
+                              <object class="GtkBox" id="main_window_sequence_view_box">
+                                <property name="orientation">horizontal</property>
+
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkBox" id="main_window_graphics_hbox">
+                                <property name="orientation">horizontal</property>
+                                <!-- This is where the GTKGLArea is placed at runtime -->
+                              </object>
+                            </child>
+
+                          </object>
+                        </child>
+
                       </object>
                     </child>
 

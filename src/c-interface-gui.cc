@@ -67,7 +67,6 @@
 #include "coot-references.h"
 #include "coot-preferences.h"
 #include "rotate-translate-modes.hh"
-#include "nsv.hh"
 
 #include "graphics-info.h"
 #include "interface.h"

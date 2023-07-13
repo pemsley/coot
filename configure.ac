@@ -41,6 +41,8 @@ AC_PROG_CXX
 # for LT_INIT
 LT_INIT
 
+AC_PROG_LIBTOOL
+
 # AC_PROG_INTLTOOL, no, not today.  Mac compilation problems, no perl/ XML or something.
 # BL says Lets do some testing and use old style if needed
 AC_MSG_CHECKING([which libtool initialization strategy to adopt])

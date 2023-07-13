@@ -11,18 +11,25 @@ void fill(GtkWidget *window, mmdb::Manager *mol) {
    gtk_widget_set_hexpand(scrolled_window, TRUE);
    gtk_widget_set_vexpand(scrolled_window, TRUE);
    gtk_widget_set_size_request(scrolled_window, 200, 240);
-   gtk_widget_set_size_request(frame, 1200, 250); // h size be bigger than the h-size for the scrolled window
+   gtk_widget_set_size_request(frame, 200, 250); // h size be bigger than the h-size for the scrolled window
    gtk_window_set_child(GTK_WINDOW(window), scrolled_window);
    CootSequenceView *sv = coot_sequence_view_new();
    int imol = 0; // for now
+
+   auto click_function_callback = +[] (int imol, const coot::residue_spec_t &spec) {
+      std::cout << " clicked: " << imol << " " << spec << std::endl;
+      return 1;
+   };
    coot_sequence_view_set_structure(sv, imol, mol);
+   coot_sequence_view_set_click_function(sv, click_function_callback);
+   g_object_set_data(G_OBJECT(sv), "sv3-frame", frame);
    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(frame));
 
    // gtk_box_append(GTK_BOX(box), GTK_WIDGET(sv));
    gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(sv));
 
    auto callback = +[] (CootSequenceView* self,
-                        const box_info_t *residue_vip,
+                        const sv3_box_info_t *residue_box_p,
                         gpointer userdata) {
 
       std::cout << "residue-clicked handler" << std::endl;
@@ -40,6 +47,7 @@ int main(int argc, char **argv) {
       auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
       if (atom_sel.read_success) {
          gtk_init();
+         g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
          GtkApplication* app = gtk_application_new("org.pemsley.test-sequence-view", G_APPLICATION_DEFAULT_FLAGS);
          GError *error = NULL;
          g_application_register(G_APPLICATION(app), NULL, &error);
