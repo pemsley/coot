@@ -139,6 +139,7 @@ void WidgetCoreData::finalize_edition() {
         }
 
         auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
+        gtk_widget_queue_resize(GTK_WIDGET(widget_ptr));
         gtk_widget_queue_draw(GTK_WIDGET(widget_ptr));
     }
 }
