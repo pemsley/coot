@@ -295,10 +295,6 @@ static void on_left_click (
             self->active_tool->alter_geometry((int)x, (int) y);
             break;
         }
-        case ActiveTool::Variant::DeleteHydrogens:{
-            
-            break;
-        }
         case ActiveTool::Variant::Delete:{
             self->active_tool->delete_at((int)x, (int) y);
             break;
@@ -309,6 +305,10 @@ static void on_left_click (
         }
         case ActiveTool::Variant::ChargeModifier:{
             self->active_tool->alter_charge((int)x, (int) y);
+            break;
+        }
+        case ActiveTool::Variant::RemoveHydrogens: {
+            // todo
             break;
         }
         default:{

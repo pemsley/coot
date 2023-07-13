@@ -232,6 +232,11 @@ ActiveTool::ActiveTool(FlipTool flip) noexcept {
     this->flip_tool = flip;
 }
 
+ActiveTool::ActiveTool(RemoveHydrogensTool rh) noexcept {
+    this->variant = ActiveTool::Variant::RemoveHydrogens;
+    this->remove_hydrogens_tool = rh;
+}
+
 ActiveTool::Variant ActiveTool::get_variant() const noexcept {
     return this->variant;
 }

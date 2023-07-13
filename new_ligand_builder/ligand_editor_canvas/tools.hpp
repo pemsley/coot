@@ -149,6 +149,10 @@ class FlipTool {
     FlipMode get_mode() const noexcept;
 };
 
+class RemoveHydrogensTool {
+
+};
+
 class ActiveTool {
     public:
     enum class Variant: unsigned char {
@@ -159,12 +163,12 @@ class ActiveTool {
         ElementInsertion,
         /// Stereo out
         GeometryModifier,
-        DeleteHydrogens,
         Delete,
         Format,
         ChargeModifier,
         RotateTool,
-        FlipTool
+        FlipTool,
+        RemoveHydrogens
     };
 
     private:
@@ -189,6 +193,8 @@ class ActiveTool {
         RotateTool rotate_tool;
         /// Valid for Variant::FlipTool
         FlipTool flip_tool;
+        /// Valid for Variant::RemoveHydrogens
+        RemoveHydrogensTool remove_hydrogens_tool;
     };
     Variant variant;
     /// Non-owning pointer
@@ -215,6 +221,7 @@ class ActiveTool {
     ActiveTool(FormatTool) noexcept;
     ActiveTool(RotateTool) noexcept;
     ActiveTool(FlipTool) noexcept;
+    ActiveTool(RemoveHydrogensTool) noexcept;
 
     Variant get_variant() const noexcept;
     /// Valid for Variant::ElementInsertion.

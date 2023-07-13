@@ -97,7 +97,11 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel*
     }), canvas);
     gtk_box_append(GTK_BOX(tools_toolbar), format_button);
     GtkWidget* delete_hydrogens_button = gtk_button_new_with_label("Delete Hydrogens");
-    gtk_box_append(GTK_BOX(utils_toolbar), delete_hydrogens_button);
+    g_signal_connect(delete_hydrogens_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
+        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(RemoveHydrogensTool()));
+    }), canvas);
+    gtk_box_append(GTK_BOX(tools_toolbar), delete_hydrogens_button);
     GtkWidget* smiles_button = gtk_button_new_with_label("SMILES");
     gtk_box_append(GTK_BOX(utils_toolbar), smiles_button);
     GtkWidget* buttom_EnvResidues = gtk_button_new_with_label("Env. Residues");
