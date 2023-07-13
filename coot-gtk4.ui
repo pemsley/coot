@@ -962,11 +962,11 @@
       </item>
       <item>
         <attribute name="label" translatable="yes">Chain</attribute>
-        <attribute name="action">app.rotate_translate_residue_chain</attribute>
+        <attribute name="action">app.rotate_translate_chain</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Molecule</attribute>
-        <attribute name="action">app.rotate_translate_residue_molecule</attribute>
+        <attribute name="action">app.rotate_translate_molecule</attribute>
       </item>
     </section>
   </menu>
@@ -7818,7 +7818,7 @@ Do you want to continue?
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="label" translatable="yes">RotatexxxxxTranslate</property>
+                        <property name="label" translatable="yes">RotateTranslate</property>
                       </object>
                     </child>
                   </object>
