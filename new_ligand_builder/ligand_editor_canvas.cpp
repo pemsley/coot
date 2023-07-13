@@ -66,7 +66,6 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
             // PangoLayout* pango_layout = pango_cairo_create_layout(cairo_canvas);
             PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
             for(auto& drawn_molecule: *self->molecules) {
-                drawn_molecule.set_canvas_size_adjustment_from_bounds(&background_rect);
                 drawn_molecule.set_canvas_scale(self->scale);
                 drawn_molecule.draw(snapshot,pango_layout,&background_rect,self->display_mode);
             }
@@ -398,9 +397,12 @@ void coot_ligand_editor_append_molecule(CootLigandEditorCanvas* self, std::share
         self->begin_edition();
         self->molecules->push_back(CanvasMolecule(rdkit_mol));
         self->molecules->back().set_canvas_scale(self->scale);
+        self->molecules->back().apply_canvas_translation(
+            gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_HORIZONTAL) / 2.0, 
+            gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_VERTICAL) / 2.0
+        );
         self->rdkit_molecules->push_back(std::move(rdkit_mol));
         self->finalize_edition();
-        // g_debug("Should draw.");
         gtk_widget_queue_draw(GTK_WIDGET(self));
         self->update_status("Molecule inserted.");
     }catch(std::exception& e) {

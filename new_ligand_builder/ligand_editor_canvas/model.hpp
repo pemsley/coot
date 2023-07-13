@@ -162,15 +162,12 @@ class CanvasMolecule {
     std::vector<Atom> atoms;
     std::vector<std::shared_ptr<Bond>> bonds;
 
-    /// X centering offset on canvas
-    float x_canvas_size_adjustment;
-    /// Y centering offset on canvas
-    float y_canvas_size_adjustment;
-
-    /// X offset due to translation
-    int x_canvas_translation;
-    /// Y offset due to translation
-    int y_canvas_translation;
+    /// X offset due to translation.
+    /// Has to be multiplied by scale to get on-screen coordinates
+    float x_canvas_translation;
+    /// Y offset due to translation.
+    /// Has to be multiplied by scale to get on-screen coordinates
+    float y_canvas_translation;
 
     /// Scale used by the widget
     float canvas_scale;
@@ -241,9 +238,6 @@ class CanvasMolecule {
     /// Updates the `cached_atom_coordinate_map` after an atom has been removed
     /// in such a way as to prevent the cached molecule geometry from being broken
     void update_cached_atom_coordinate_map_after_atom_removal(unsigned int removed_atom_idx);
-
-    /// Changes the relative placement of the molecule on the screen
-    void set_canvas_size_adjustment_from_bounds(const graphene_rect_t *bounds) noexcept;
     
     /// Sets the scale for drawing
     void set_canvas_scale(float scale);

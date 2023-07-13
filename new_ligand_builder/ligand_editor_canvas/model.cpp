@@ -73,8 +73,8 @@ void CanvasMolecule::set_canvas_scale(float scale) {
 
 CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) const noexcept {
     float scale = this->get_scale();
-    auto x_offset = this->x_canvas_size_adjustment + this->x_canvas_translation;
-    auto y_offset = this->y_canvas_size_adjustment + this->y_canvas_translation;
+    auto x_offset = this->x_canvas_translation * scale;
+    auto y_offset = this->y_canvas_translation * scale;
     // atoms first 
     for(const auto& atom: this->atoms) {
         float atom_x = atom.x * scale + x_offset;
@@ -116,14 +116,9 @@ CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) cons
     return std::nullopt;
 }
 
-void CanvasMolecule::set_canvas_size_adjustment_from_bounds(const graphene_rect_t *bounds) noexcept {
-    this->x_canvas_size_adjustment = bounds->size.width / 2.0;
-    this->y_canvas_size_adjustment = bounds->size.height / 2.0;
-}
-
 void CanvasMolecule::apply_canvas_translation(int delta_x, int delta_y) noexcept {
-    this->x_canvas_translation += delta_x;
-    this->y_canvas_translation += delta_y;
+    this->x_canvas_translation += (float) delta_x / this->get_scale();
+    this->y_canvas_translation += (float) delta_y / this->get_scale();
 }
 
 void CanvasMolecule::perform_flip(FlipMode flip_mode) {
@@ -281,8 +276,8 @@ float CanvasMolecule::Bond::get_length() const noexcept {
 
 void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, const graphene_rect_t *bounds, DisplayMode display_mode) const noexcept {
     auto scale_factor = this->get_scale();
-    auto x_offset = this->x_canvas_size_adjustment + this->x_canvas_translation;
-    auto y_offset = this->y_canvas_size_adjustment + this->y_canvas_translation;
+    auto x_offset = scale_factor * this->x_canvas_translation;
+    auto y_offset = scale_factor * this->y_canvas_translation;
 
     cairo_t *cr = gtk_snapshot_append_cairo(snapshot, bounds);
     
@@ -835,8 +830,6 @@ CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
     this->rdkit_molecule = std::move(rdkit_mol);
     this->cached_atom_coordinate_map = std::nullopt;
     this->lower_from_rdkit(true);
-    this->x_canvas_size_adjustment = 0;
-    this->y_canvas_size_adjustment = 0;
     this->x_canvas_translation = 0;
     this->y_canvas_translation = 0;
 }
