@@ -90,19 +90,25 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
 void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orientation, int for_size, int *minimum_size, int *natural_size, int *minimum_baseline, int *natural_baseline)
 {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(widget);
+    graphene_rect_t bounding_rect_for_all;
+    graphene_rect_init(&bounding_rect_for_all, 0, 0, 0, 0);
 
+    for(const auto& a: *self->molecules) {
+        auto bounding_rect = a.get_on_screen_bounding_rect();
+        graphene_rect_union(&bounding_rect_for_all, &bounding_rect, &bounding_rect_for_all);
+    }
     switch (orientation)
     {
     case GTK_ORIENTATION_HORIZONTAL:{
          // For now:
-        *natural_size = 1200 * self->scale;
-        *minimum_size = 1200 * self->scale;
+        *natural_size = bounding_rect_for_all.size.width;
+        *minimum_size = bounding_rect_for_all.size.width;
         break;
     }
     case GTK_ORIENTATION_VERTICAL:{
          // For now:
-        *natural_size = 500 * self->scale;
-        *minimum_size = 500 * self->scale;
+        *natural_size = bounding_rect_for_all.size.height;
+        *minimum_size = bounding_rect_for_all.size.height;
         break;
     }
     default:
