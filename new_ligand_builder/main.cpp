@@ -14,7 +14,7 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel*
     using Element = coot::ligand_editor_canvas::ElementInsertion::Element;
     using Structure = coot::ligand_editor_canvas::StructureInsertion::Structure;
 
-    GtkWidget* mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
+    GtkWidget* mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 
     gtk_window_set_child(win, mainbox);
     gtk_widget_set_margin_start(mainbox,10);
@@ -246,7 +246,7 @@ void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel*
     gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(canvas_viewport),GTK_WIDGET(canvas));
     gtk_box_append(GTK_BOX(canvas_space), GTK_WIDGET(canvas_viewport));
     // Bottom controls
-    GtkWidget* bottom_bar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+    GtkWidget* bottom_bar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_widget_set_margin_start(bottom_bar, 10);
     gtk_widget_set_margin_end(bottom_bar, 10);
     gtk_box_append(GTK_BOX(mainbox), bottom_bar);
