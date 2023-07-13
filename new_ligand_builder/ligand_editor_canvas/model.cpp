@@ -1383,8 +1383,10 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             if(terminus && !bonds_of_this_atom->second.empty()) {
                 // This means that we only have one bond
                 Bond* bond = bonds_of_this_atom->second.front().get();
-                if(bond->type == BondType::Double) {
-                    g_warning_once("todo: \"Centered\" double bonds should only be set for termini bound to something which has more than one bond!");
+                unsigned int the_other_atom_idx = bond->first_atom_idx == atom_idx ? bond->second_atom_idx : bond->first_atom_idx;
+                // This should always be a valid iterator at this point
+                auto bonds_of_the_other_atom = this->bond_map.find(the_other_atom_idx);
+                if(bonds_of_the_other_atom->second.size() == 3 && bond->type == BondType::Double) {
                     bond->bond_drawing_direction = DoubleBondDrawingDirection::Centered;
                 }
             }
