@@ -91,7 +91,11 @@ void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orienta
 {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(widget);
     graphene_rect_t bounding_rect_for_all;
-    graphene_rect_init(&bounding_rect_for_all, 0, 0, 0, 0);
+    if(self->molecules->empty()) {
+        graphene_rect_init(&bounding_rect_for_all, 0, 0, 0, 0);
+    } else {
+        bounding_rect_for_all = self->molecules->front().get_on_screen_bounding_rect();
+    }
 
     for(const auto& a: *self->molecules) {
         auto bounding_rect = a.get_on_screen_bounding_rect();
