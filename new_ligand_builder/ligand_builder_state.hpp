@@ -1,5 +1,5 @@
-#ifndef LIGAND_BUILDER_HPP
-#define LIGAND_BUILDER_HPP
+#ifndef LIGAND_BUILDER_STATE_HPP
+#define LIGAND_BUILDER_STATE_HPP
 #include "ligand_editor_canvas.hpp"
 #include <rdkit/GraphMol/RWMol.h>
 

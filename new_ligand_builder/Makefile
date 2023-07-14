@@ -28,6 +28,7 @@ LDLIBS=-fuse-ld=mold \
 
 HEADERS = \
     ligand_builder_state.hpp \
+    ligand_builder_ui.hpp \
     ligand_editor_canvas/model.hpp \
     ligand_editor_canvas/core.hpp \
     ligand_editor_canvas/tools.hpp \
@@ -36,6 +37,7 @@ HEADERS = \
 
 SOURCES = \
     ligand_builder_state.cpp \
+    ligand_builder_ui.cpp \
     ligand_editor_canvas/model.cpp \
     ligand_editor_canvas/core.cpp \
     ligand_editor_canvas/tools.cpp \
