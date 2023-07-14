@@ -258,12 +258,13 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
          add_tick_labels(cairo_canvas, model_p);
 
-         g_object_unref(pango_layout);
          cairo_destroy(cairo_canvas);
       }
    } else {
       std::cout << "error in coot_sequence_view_snapshot() null mol " << std::endl;
    }
+   
+   g_object_unref(pango_layout);
 
 }
 
