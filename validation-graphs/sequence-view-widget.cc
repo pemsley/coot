@@ -40,14 +40,16 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
    self->box_info_store.clear();
 
-   auto add_chain_label = [widget] (cairo_t *cairo_canvas, const std::string &chain_id, const std::string &text_colour,
+   PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
+
+   auto add_chain_label = [widget, pango_layout] (cairo_t *cairo_canvas, const std::string &chain_id, const std::string &text_colour,
                                     float x_base, float y_base) {
       
       GdkRGBA residue_color; // maybe per-residue colouring later
       gdk_rgba_parse(&residue_color, text_colour.c_str());
       cairo_set_source_rgb(cairo_canvas, residue_color.red, residue_color.green, residue_color.blue);
 
-      PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
+      
       std::string label_markup = std::string("<span weight=\"bold\">") + chain_id + std::string("</span>");
       pango_layout_set_markup(pango_layout, label_markup.c_str(), -1);
       int layout_width, layout_height;
@@ -175,7 +177,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
    // This function is used from the loop below.
    //
-   auto add_box_letter_code_label = [widget] (cairo_t *cairo_canvas, mmdb::Residue *residue_p, const std::string &text_colour,
+   auto add_box_letter_code_label = [widget, pango_layout] (cairo_t *cairo_canvas, mmdb::Residue *residue_p, const std::string &text_colour,
                                               float x_base, float y_base) {
 
       std::string res_name = residue_p->GetResName();
@@ -185,7 +187,6 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       gdk_rgba_parse(&residue_color, text_colour.c_str());
       cairo_set_source_rgb(cairo_canvas, residue_color.red, residue_color.green, residue_color.blue);
 
-      PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
       std::string label_markup = std::string("<tt>") + slc + std::string("</tt>");
       pango_layout_set_markup(pango_layout, label_markup.c_str(), -1);
       cairo_move_to(cairo_canvas, x_base +2.0 , y_base - 0.0); // I added the -10 here so that you can see that the text is under
@@ -256,6 +257,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
          add_tick_labels(cairo_canvas, model_p);
 
+         g_object_unref(pango_layout);
          cairo_destroy(cairo_canvas);
       }
    } else {
