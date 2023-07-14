@@ -7666,15 +7666,13 @@ void do_sequence_view(int imol) {
       gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(frame));
       gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(sv));
 
-      auto click_function = +[] (int imol, const coot::residue_spec_t &spec) {
-         int status = 0;
+      auto click_function = +[] (CootSequenceView* self, int imol, const coot::residue_spec_t &spec, gpointer userdata) {
          std::cout << "Go here B " << imol << " " << spec << std::endl;
          graphics_info_t g;
          g.go_to_residue(imol, spec);
-         return status;
       };
 
-      coot_sequence_view_set_click_function(sv, click_function);
+      g_signal_connect(sv, "residue-clicked", G_CALLBACK(click_function), nullptr);
    }
 }
 
