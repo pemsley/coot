@@ -1,6 +1,5 @@
 
 #include <gtk/gtk.h>
-
 #include "cairo.h"
 #include "sequence-view-widget.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -121,7 +120,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       }
    };
    
-   auto add_tick_labels = [calculate_min_max_by_5s, get_min_max_residue_number, x_offset_base, y_offset_base]
+   auto add_tick_labels = [calculate_min_max_by_5s, get_min_max_residue_number, x_offset_base, y_offset_base, pango_layout]
       (cairo_t *cairo_canvas, mmdb::Model *model_p) {
 
       int n_chains = model_p->GetNumberOfChains();
@@ -140,16 +139,18 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             std::string text = std::to_string(ires);
             float l = text.length();
             pos_x -= 3.5 * l ; // so that the text is centred on the tick.
-            double pos_y = y_offset_base - 2.0 - TICK_LINE_LENGTH;
+            double pos_y = y_offset_base - 16.0 - TICK_LINE_LENGTH;
             cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y);
-            cairo_show_text(cairo_canvas, text.c_str());
+            pango_cairo_show_layout(cairo_canvas, pango_layout);
+            pango_layout_set_markup(pango_layout, text.c_str(), -1);
 
             // below the bottom line
-            pos_y = y_offset_base + 8.0 + TICK_LINE_LENGTH + Y_OFFSET_PER_CHAIN * n_chains;
+            pos_y = y_offset_base - 6.0 + TICK_LINE_LENGTH + Y_OFFSET_PER_CHAIN * n_chains;
             cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y);
-            cairo_show_text(cairo_canvas, text.c_str());
+            pango_cairo_show_layout(cairo_canvas, pango_layout);
+            pango_layout_set_markup(pango_layout, text.c_str(), -1);
          }
       }
    };
