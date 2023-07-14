@@ -9,7 +9,7 @@ const float RESIDUE_BOX_WIDTH    = 12.0;
 const float Y_OFFSET_PER_CHAIN   = 16.0;
 const float X_OFFSET_PER_RESIDUE = 12.0;
 const float TICK_LINE_WIDTH  = 2.0;
-const float TICK_LINE_LENGTH = 8.0;   
+const float TICK_LINE_LENGTH = 8.0;
 const float X_OFFSET_BASE = 30.0;
 const float Y_OFFSET_BASE = 20.0;
 
@@ -42,14 +42,14 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
    PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
 
-   auto add_chain_label = [widget, pango_layout] (cairo_t *cairo_canvas, const std::string &chain_id, const std::string &text_colour,
-                                    float x_base, float y_base) {
-      
+   auto add_chain_label = [pango_layout] (cairo_t *cairo_canvas, const std::string &chain_id, const std::string &text_colour,
+                                          float x_base, float y_base) {
+
       GdkRGBA residue_color; // maybe per-residue colouring later
       gdk_rgba_parse(&residue_color, text_colour.c_str());
       cairo_set_source_rgb(cairo_canvas, residue_color.red, residue_color.green, residue_color.blue);
 
-      
+
       std::string label_markup = std::string("<span weight=\"bold\">") + chain_id + std::string("</span>");
       pango_layout_set_markup(pango_layout, label_markup.c_str(), -1);
       int layout_width, layout_height;
@@ -120,7 +120,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
          }
       }
    };
-   
+
    auto add_tick_labels = [calculate_min_max_by_5s, get_min_max_residue_number, pango_layout]
       (cairo_t *cairo_canvas, mmdb::Model *model_p) {
 
@@ -156,12 +156,10 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       }
    };
 
-   
-
    // This function is used from the loop below.
    //
-   auto add_box_letter_code_label = [widget, pango_layout] (cairo_t *cairo_canvas, mmdb::Residue *residue_p, const std::string &text_colour,
-                                              float x_base, float y_base) {
+   auto add_box_letter_code_label = [pango_layout] (cairo_t *cairo_canvas, mmdb::Residue *residue_p,
+                                                    const std::string &text_colour, float x_base, float y_base) {
 
       std::string res_name = residue_p->GetResName();
       std::string slc = coot::util::three_letter_to_one_letter_with_specials(res_name);
@@ -298,15 +296,14 @@ static void coot_sequence_view_dispose(GObject* _self) {
 
 
 
-void coot_sequence_view_measure
-   (GtkWidget      *widget,
-   GtkOrientation  orientation,
-   int             for_size,
-   int            *minimum_size,
-   int            *natural_size,
-   int            *minimum_baseline,
-   int            *natural_baseline)
-{
+void coot_sequence_view_measure(GtkWidget      *widget,
+                                GtkOrientation  orientation,
+                                int             for_size,
+                                int            *minimum_size,
+                                int            *natural_size,
+                                int            *minimum_baseline,
+                                int            *natural_baseline) {
+
    CootSequenceView* self = COOT_COOT_SEQUENCE_VIEW(widget);
 
    if(!self->mol) {
@@ -342,25 +339,26 @@ void coot_sequence_view_measure
 
    switch (orientation)
    {
-   case GTK_ORIENTATION_HORIZONTAL:{
-      float w_pixels_rect = n_res_and_n_chains.first * X_OFFSET_PER_RESIDUE + X_OFFSET_BASE ; // w and h of the box it sits in
-      // we need this pixel limit otherwise there is crash.
-                              // Split and repeat the blocks every 2000 residues. How hard can that be?
-      int pixel_limit = 32000; // Max residue number about 2660.
-      if (w_pixels_rect > pixel_limit) 
-         w_pixels_rect = pixel_limit;
+   case GTK_ORIENTATION_HORIZONTAL:
+      {
+         float w_pixels_rect = n_res_and_n_chains.first * X_OFFSET_PER_RESIDUE + X_OFFSET_BASE ; // w and h of the box it sits in
+         // we need this pixel limit otherwise there is crash.
+         // Split and repeat the blocks every 2000 residues. How hard can that be?
+         int pixel_limit = 32000; // Max residue number about 2660.
+         if (w_pixels_rect > pixel_limit)
+            w_pixels_rect = pixel_limit;
 
-      *minimum_size = 60.0f + w_pixels_rect;
-      *natural_size = 60.0f + w_pixels_rect;
-      break;
-   }
-   case GTK_ORIENTATION_VERTICAL:{
-      float h_pixels_rect = 100 + n_res_and_n_chains.second * Y_OFFSET_PER_CHAIN + Y_OFFSET_BASE;
-      *minimum_size = h_pixels_rect + 40.0f;
-      *natural_size = h_pixels_rect + 40.0f;
-
-      break;
-   }
+         *minimum_size = 60.0f + w_pixels_rect;
+         *natural_size = 60.0f + w_pixels_rect;
+         break;
+      }
+   case GTK_ORIENTATION_VERTICAL:
+      {
+         float h_pixels_rect = 100 + n_res_and_n_chains.second * Y_OFFSET_PER_CHAIN + Y_OFFSET_BASE;
+         *minimum_size = h_pixels_rect + 40.0f;
+         *natural_size = h_pixels_rect + 40.0f;
+         break;
+      }
    default:
       break;
    }
