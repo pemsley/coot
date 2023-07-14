@@ -7654,20 +7654,24 @@ void do_sequence_view(int imol) {
       gtk_widget_set_hexpand(frame, TRUE);
       gtk_widget_set_vexpand(frame, TRUE);
 
-      // gtk_widget_set_size_request(scrolled_window, 200, 240);
-      // gtk_widget_set_size_request(frame, 200, 250); // h size be bigger than the h-size for the scrolled window
-
       GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box"); // this is where the GLArea widget goes
       gtk_box_prepend(GTK_BOX(vbox), scrolled_window);
 
+      int n_chains = 3 + graphics_info_t::molecules[imol].number_of_chains();
+      if (n_chains > 10) n_chains = 10;
+
+      int Y_OFFSET_PER_CHAIN = 16.0;
+      int new_height = 30 + n_chains * Y_OFFSET_PER_CHAIN;
+
+      gtk_widget_set_size_request(vbox, -1, new_height);
+
       CootSequenceView *sv = coot_sequence_view_new();
       coot_sequence_view_set_structure(sv, imol, mol);
-      
+
       gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(frame));
       gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(sv));
 
       auto click_function = +[] (CootSequenceView* self, int imol, const coot::residue_spec_t &spec, gpointer userdata) {
-         std::cout << "Go here B " << imol << " " << spec << std::endl;
          graphics_info_t g;
          g.go_to_residue(imol, spec);
       };
