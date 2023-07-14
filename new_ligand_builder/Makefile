@@ -27,7 +27,7 @@ LDLIBS=-fuse-ld=mold \
        #`pkg-config --libs clipper` 
 
 HEADERS = \
-    ligand-builder.hpp \
+    ligand_builder_state.hpp \
     ligand_editor_canvas/model.hpp \
     ligand_editor_canvas/core.hpp \
     ligand_editor_canvas/tools.hpp \
@@ -35,7 +35,7 @@ HEADERS = \
     about_dialog.hpp \
 
 SOURCES = \
-    ligand-builder.cpp \
+    ligand_builder_state.cpp \
     ligand_editor_canvas/model.cpp \
     ligand_editor_canvas/core.cpp \
     ligand_editor_canvas/tools.cpp \

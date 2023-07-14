@@ -1,6 +1,5 @@
 #ifndef COOT_LIGAND_EDITOR_CANVAS_MODEL_HPP
 #define COOT_LIGAND_EDITOR_CANVAS_MODEL_HPP
-#include <cstddef>
 #include <gtk/gtk.h>
 #include <memory>
 #include <vector>

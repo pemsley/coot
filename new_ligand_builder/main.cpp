@@ -1,6 +1,6 @@
 #include <gtk/gtk.h>
 #include "about_dialog.hpp"
-#include "ligand-builder.hpp"
+#include "ligand_builder_state.hpp"
 #include "ligand_editor_canvas.hpp"
 #include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"

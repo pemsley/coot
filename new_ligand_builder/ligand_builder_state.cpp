@@ -1,6 +1,4 @@
-#include "ligand-builder.hpp"
-#include "glibconfig.h"
-#include "gtk/gtktypebuiltins.h"
+#include "ligand_builder_state.hpp"
 #include "ligand_editor_canvas.hpp"
 #include <exception>
 #include <memory>

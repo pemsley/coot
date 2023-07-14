@@ -1,6 +1,6 @@
 #ifndef COOT_LIGAND_EDITOR_CANVAS_CORE_HPP
 #define COOT_LIGAND_EDITOR_CANVAS_CORE_HPP
-#include "gtk/gtk.h"
+#include <gtk/gtk.h>
 #include <rdkit/GraphMol/RWMol.h>
 #include <memory>
 #include <vector>
