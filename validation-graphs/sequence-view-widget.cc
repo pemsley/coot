@@ -9,7 +9,9 @@ const float RESIDUE_BOX_WIDTH    = 12.0;
 const float Y_OFFSET_PER_CHAIN   = 16.0;
 const float X_OFFSET_PER_RESIDUE = 12.0;
 const float TICK_LINE_WIDTH  = 2.0;
-const float TICK_LINE_LENGTH = 8.0;
+const float TICK_LINE_LENGTH = 8.0;   
+const float X_OFFSET_BASE = 30.0;
+const float Y_OFFSET_BASE = 20.0;
 
 struct _CootSequenceView {
    GtkWidget parent;
@@ -34,8 +36,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
    CootSequenceView* self = COOT_COOT_SEQUENCE_VIEW(widget);
 
-   const float x_offset_base = 30.0;
-   const float y_offset_base = 20.0;
+
 
    self->box_info_store.clear();
 
@@ -84,7 +85,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       return std::pair<int, int>(f, s);
    };
 
-   auto add_tick_marks = [calculate_min_max_by_5s, get_min_max_residue_number, x_offset_base, y_offset_base]
+   auto add_tick_marks = [calculate_min_max_by_5s, get_min_max_residue_number]
       (cairo_t *cairo_canvas, mmdb::Model *model_p) {
 
       std::pair<bool, std::pair<int, int> > mm = get_min_max_residue_number(model_p);
@@ -99,9 +100,9 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
          for (int ires = res_no_start;  ires<=res_no_end; ires+=5) {
 
             // above the top line
-            double pos_x = x_offset_base + X_OFFSET_PER_RESIDUE * static_cast<double>(ires-mm.second.first+1) + X_OFFSET_PER_RESIDUE/2;
+            double pos_x = X_OFFSET_BASE + X_OFFSET_PER_RESIDUE * static_cast<double>(ires-mm.second.first+1) + X_OFFSET_PER_RESIDUE/2;
             // std::cout << "add_tick_marks(): ires: " << ires << " pos_x " << pos_x << std::endl;
-            double pos_y_start = y_offset_base - 1.0;
+            double pos_y_start = Y_OFFSET_BASE - 1.0;
             double pos_y_end   = pos_y_start - TICK_LINE_LENGTH;
             cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y_start);
@@ -109,8 +110,8 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             cairo_stroke(cairo_canvas);
 
             // below the bottom line
-            pos_x = x_offset_base + X_OFFSET_PER_RESIDUE * static_cast<double>(ires-mm.second.first+1) + X_OFFSET_PER_RESIDUE/2;
-            pos_y_start = y_offset_base + static_cast<double>(n_chains) * Y_OFFSET_PER_CHAIN + -2.0;
+            pos_x = X_OFFSET_BASE + X_OFFSET_PER_RESIDUE * static_cast<double>(ires-mm.second.first+1) + X_OFFSET_PER_RESIDUE/2;
+            pos_y_start = Y_OFFSET_BASE + static_cast<double>(n_chains) * Y_OFFSET_PER_CHAIN + -2.0;
             pos_y_end   = pos_y_start + TICK_LINE_LENGTH;
             cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y_start);
@@ -120,7 +121,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       }
    };
    
-   auto add_tick_labels = [calculate_min_max_by_5s, get_min_max_residue_number, x_offset_base, y_offset_base, pango_layout]
+   auto add_tick_labels = [calculate_min_max_by_5s, get_min_max_residue_number, pango_layout]
       (cairo_t *cairo_canvas, mmdb::Model *model_p) {
 
       int n_chains = model_p->GetNumberOfChains();
@@ -135,18 +136,18 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
          for (int ires = res_no_start;  ires<=res_no_end; ires+=5) {
 
             // above the top line
-            double pos_x = x_offset_base + X_OFFSET_PER_RESIDUE * static_cast<double>(ires-mm.second.first+1) + X_OFFSET_PER_RESIDUE/2;
+            double pos_x = X_OFFSET_BASE + X_OFFSET_PER_RESIDUE * static_cast<double>(ires-mm.second.first+1) + X_OFFSET_PER_RESIDUE/2;
             std::string text = std::to_string(ires);
             float l = text.length();
             pos_x -= 3.5 * l ; // so that the text is centred on the tick.
-            double pos_y = y_offset_base - 16.0 - TICK_LINE_LENGTH;
+            double pos_y = Y_OFFSET_BASE - 16.0 - TICK_LINE_LENGTH;
             cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y);
             pango_cairo_show_layout(cairo_canvas, pango_layout);
             pango_layout_set_markup(pango_layout, text.c_str(), -1);
 
             // below the bottom line
-            pos_y = y_offset_base - 6.0 + TICK_LINE_LENGTH + Y_OFFSET_PER_CHAIN * n_chains;
+            pos_y = Y_OFFSET_BASE - 6.0 + TICK_LINE_LENGTH + Y_OFFSET_PER_CHAIN * n_chains;
             cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y);
             pango_cairo_show_layout(cairo_canvas, pango_layout);
@@ -155,26 +156,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       }
    };
 
-   auto n_residues_and_n_chains = [] (mmdb::Model *model_p) {
-
-      int n_chains = model_p->GetNumberOfChains();
-      bool min_max_is_set = false;
-      std::pair<int, int> min_max(10000, -10000);
-      for (int ichain=0; ichain<n_chains; ichain++) {
-         mmdb::Chain *chain_p = model_p->GetChain(ichain);
-         std::pair<bool, std::pair<int, int> > mm = coot::util::min_max_residues_in_polymer_chain(chain_p);
-         if (mm.first) {
-            min_max_is_set = true;
-            if (mm.second.first  < min_max.first)  min_max.first  = mm.second.first;
-            if (mm.second.second > min_max.second) min_max.second = mm.second.second;
-         }
-      }
-      if (min_max_is_set) {
-         return std::make_pair(min_max.second - min_max.first + 1, n_chains);
-      } else {
-         return std::make_pair(0,0);
-      }
-   };
+   
 
    // This function is used from the loop below.
    //
@@ -200,26 +182,11 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       int imod = 1;
       mmdb::Model *model_p = self->mol->GetModel(imod);
       if (model_p) {
-
          std::string text_colour = "#dddddd";
-         std::pair<int, int> n_res_and_n_chains = n_residues_and_n_chains(model_p);
-         float w_pixels_rect = n_res_and_n_chains.first * X_OFFSET_PER_RESIDUE + x_offset_base ; // w and h of the box it sits in
-         float h_pixels_rect = 100 + n_res_and_n_chains.second * Y_OFFSET_PER_CHAIN + y_offset_base;
-
-         if (false)
-            std::cout << "w_pixels_rect " << w_pixels_rect << " h_pixels_rect " << h_pixels_rect << std::endl;
-
-         // we need this pixel limit otherwise there is crash.
-         //
-         int pixel_limit = 32000; // Max residue number about 2660.
-                                  // Split and repeat the blocks every 2000 residues. How hard can that be?
-         if (w_pixels_rect > pixel_limit) w_pixels_rect = pixel_limit;
+         float w_pixels_rect = gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_HORIZONTAL);
+         float h_pixels_rect = gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_VERTICAL);
          graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w_pixels_rect, h_pixels_rect);
          cairo_t *cairo_canvas = gtk_snapshot_append_cairo(snapshot, &m_graphene_rect);
-
-         // lookup the frame and set the size
-         GtkWidget *frame = GTK_WIDGET(g_object_get_data(G_OBJECT(self), "sv3-frame"));
-         gtk_widget_set_size_request(frame, 60.0f + w_pixels_rect, h_pixels_rect + 40.0f);
 
          // Make the labels for the chains
          //
@@ -227,9 +194,9 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
          for (int ichain=0; ichain<n_chains; ichain++) {
             mmdb::Chain *chain_p = model_p->GetChain(ichain);
             std::string chain_id = chain_p->GetChainID();
-            float y_offset = y_offset_base + static_cast<float>(ichain) * Y_OFFSET_PER_CHAIN;
-            float x_offset_base = 15.0;
-            add_chain_label(cairo_canvas, chain_id, text_colour, x_offset_base, y_offset);
+            float y_offset = Y_OFFSET_BASE + static_cast<float>(ichain) * Y_OFFSET_PER_CHAIN;
+            float X_OFFSET_BASE = 15.0;
+            add_chain_label(cairo_canvas, chain_id, text_colour, X_OFFSET_BASE, y_offset);
          }
 
          // slc labels for each residue
@@ -239,13 +206,13 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             mmdb::Chain *chain_p = model_p->GetChain(ichain);
             std::string chain_id = chain_p->GetChainID();
             int n_res = chain_p->GetNumberOfResidues();
-            float y_offset = y_offset_base + static_cast<float>(ichain) * Y_OFFSET_PER_CHAIN;
+            float y_offset = Y_OFFSET_BASE + static_cast<float>(ichain) * Y_OFFSET_PER_CHAIN;
 
             for (int ires=0; ires<n_res; ires++) {
                mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                if (residue_p) {
                   int res_no = residue_p->GetSeqNum();
-                  float x_1 = static_cast<float>(res_no-mm.second.first+1) * X_OFFSET_PER_RESIDUE + x_offset_base;
+                  float x_1 = static_cast<float>(res_no-mm.second.first+1) * X_OFFSET_PER_RESIDUE + X_OFFSET_BASE;
                   float y_1 = y_offset;
                   sv3_box_info_t box_info(self->imol, residue_p, x_1, y_1);
                   self->box_info_store.push_back(box_info);
@@ -263,7 +230,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
    } else {
       std::cout << "error in coot_sequence_view_snapshot() null mol " << std::endl;
    }
-   
+
    g_object_unref(pango_layout);
 
 }
@@ -329,6 +296,76 @@ static void coot_sequence_view_dispose(GObject* _self) {
    G_OBJECT_CLASS(coot_sequence_view_parent_class)->dispose(_self);
 }
 
+
+
+void coot_sequence_view_measure
+   (GtkWidget      *widget,
+   GtkOrientation  orientation,
+   int             for_size,
+   int            *minimum_size,
+   int            *natural_size,
+   int            *minimum_baseline,
+   int            *natural_baseline)
+{
+   CootSequenceView* self = COOT_COOT_SEQUENCE_VIEW(widget);
+
+   if(!self->mol) {
+      return;
+   }
+   int imod = 1;
+   mmdb::Model *model_p = self->mol->GetModel(imod);
+   if(!model_p) {
+      return;
+   }
+   auto n_residues_and_n_chains = [] (mmdb::Model *model_p) {
+
+      int n_chains = model_p->GetNumberOfChains();
+      bool min_max_is_set = false;
+      std::pair<int, int> min_max(10000, -10000);
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::pair<bool, std::pair<int, int> > mm = coot::util::min_max_residues_in_polymer_chain(chain_p);
+         if (mm.first) {
+            min_max_is_set = true;
+            if (mm.second.first  < min_max.first)  min_max.first  = mm.second.first;
+            if (mm.second.second > min_max.second) min_max.second = mm.second.second;
+         }
+      }
+      if (min_max_is_set) {
+         return std::make_pair(min_max.second - min_max.first + 1, n_chains);
+      } else {
+         return std::make_pair(0,0);
+      }
+   };
+
+   std::pair<int, int> n_res_and_n_chains = n_residues_and_n_chains(model_p);
+
+   switch (orientation)
+   {
+   case GTK_ORIENTATION_HORIZONTAL:{
+      float w_pixels_rect = n_res_and_n_chains.first * X_OFFSET_PER_RESIDUE + X_OFFSET_BASE ; // w and h of the box it sits in
+      // we need this pixel limit otherwise there is crash.
+                              // Split and repeat the blocks every 2000 residues. How hard can that be?
+      int pixel_limit = 32000; // Max residue number about 2660.
+      if (w_pixels_rect > pixel_limit) 
+         w_pixels_rect = pixel_limit;
+
+      *minimum_size = 60.0f + w_pixels_rect;
+      *natural_size = 60.0f + w_pixels_rect;
+      break;
+   }
+   case GTK_ORIENTATION_VERTICAL:{
+      float h_pixels_rect = 100 + n_res_and_n_chains.second * Y_OFFSET_PER_CHAIN + Y_OFFSET_BASE;
+      *minimum_size = h_pixels_rect + 40.0f;
+      *natural_size = h_pixels_rect + 40.0f;
+
+      break;
+   }
+   default:
+      break;
+   }
+}
+
 static void coot_sequence_view_class_init(CootSequenceViewClass* klass) {
 
     // I think that this is a GObject class constructor that sets up the GObject class at runtime.
@@ -345,10 +382,10 @@ static void coot_sequence_view_class_init(CootSequenceViewClass* klass) {
         G_TYPE_POINTER
     );
     GTK_WIDGET_CLASS(klass)->snapshot = coot_sequence_view_snapshot;
+    GTK_WIDGET_CLASS(klass)->measure = coot_sequence_view_measure;
     G_OBJECT_CLASS(klass)->dispose    = coot_sequence_view_dispose;
 
 }
-
 
 CootSequenceView *
 coot_sequence_view_new() {

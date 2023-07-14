@@ -7662,7 +7662,7 @@ void do_sequence_view(int imol) {
 
       CootSequenceView *sv = coot_sequence_view_new();
       coot_sequence_view_set_structure(sv, imol, mol);
-      g_object_set_data(G_OBJECT(sv), "sv3-frame", frame);
+      
       gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(frame));
       gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(sv));
 
