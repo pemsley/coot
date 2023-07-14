@@ -36,12 +36,10 @@ AM_ACLOCAL_INCLUDE(macros)
 AC_CONFIG_MACRO_DIR(macros)
 
 AC_PROG_CXX
-# LT_INIT that's old style. Now we use LT_INIT.
+# AC_PROG_LIBTOOL? that's old style. Now we use LT_INIT.
 # It is not yet clear to me how AC_LANG_SOURCE should be used
 # for LT_INIT
 LT_INIT
-
-AC_PROG_LIBTOOL
 
 # AC_PROG_INTLTOOL, no, not today.  Mac compilation problems, no perl/ XML or something.
 # BL says Lets do some testing and use old style if needed
