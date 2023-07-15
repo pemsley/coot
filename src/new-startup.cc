@@ -937,6 +937,10 @@ int new_startup(int argc, char **argv) {
 
    g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
 
+   // Here's how you access that:
+   // gboolean dark_mode_flag = FALSE;
+   // g_object_get(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", &dark_mode_flag, NULL);
+
    GError *error = NULL;
    // GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_HANDLES_COMMAND_LINE);
    GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_HANDLES_OPEN);
