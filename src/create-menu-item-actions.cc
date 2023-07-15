@@ -2520,24 +2520,20 @@ rotate_translate_residue(GSimpleAction *simple_action,
                          GVariant *parameter,
                          gpointer user_data) {
 
-   std::cout << "---------- Here A -------------------" << std::endl;
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
-      std::cout << "---------- Here B -------------------" << std::endl;
       int imol = pp.second.first;
 
       mmdb::Atom *at = g.molecules[imol].get_atom(pp.second.second);
       if (at) {
          auto &atom_sel = g.molecules[imol].atom_sel;
-         std::cout << "---------- Here C -------------------" << std::endl;
          int atom_index = 0;
          at->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index);
          if (atom_index >= 0 && atom_index < atom_sel.n_selected_atoms) {
             g.imol_rot_trans_object = imol;
             g.rot_trans_atom_index_1 = atom_index;
             g.rot_trans_atom_index_2 = atom_index;
-            std::cout << "---------- Here D -------------------" << std::endl;
             g.rot_trans_object_type = ROT_TRANS_TYPE_RESIDUE;
             g.attach_buffers(); // 20220823-PE needed?
             g.execute_rotate_translate_ready();
