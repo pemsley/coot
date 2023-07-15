@@ -6604,11 +6604,11 @@ Do you want to continue?
                         <child>
                           <object class="GtkPaned" id="main_window_sequence_view_vs_graphics_pane">
                             <property name="orientation">vertical</property>
+                            <property name="wide-handle">true</property>
 
                             <child>
                               <object class="GtkBox" id="main_window_sequence_view_box">
                                 <property name="orientation">horizontal</property>
-
                               </object>
                             </child>
 
