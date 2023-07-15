@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.36.0 -->
 <interface>
   <requires lib="gtk" version="4.0"/>
 
@@ -5321,65 +5320,6 @@ Do you want to continue?
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
                 <signal name="clicked" handler="on_fixed_atom_dialog_clear_all_fixed_atoms_button_clicked" swapped="no"/>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-    </child>
-  </object>
-  <object class="GtkWindow" id="font_size_window">
-    <property name="title" translatable="yes">window2</property>
-    <child>
-      <object class="GtkBox" id="vbox26">
-        <property name="orientation">vertical</property>
-        <child>
-          <object class="GtkLabel" id="label29">
-            <property name="label" translatable="yes">Atom Label Font Size</property>
-            <property name="justify">center</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkFrame" id="frame22">
-            <child>
-              <object class="GtkBox" id="vbox27">
-                <property name="orientation">vertical</property>
-                <child>
-                  <object class="GtkCheckButton" id="font_size_small_radiobutton">
-                    <property name="label" translatable="yes">Small</property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="font_size_medium_radiobutton">
-                    <property name="label" translatable="yes">Medium</property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <property name="group">font_size_small_radiobutton</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="font_size_large_radiobutton">
-                    <property name="label" translatable="yes">Large</property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <property name="group">font_size_small_radiobutton</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkFrame" id="frame21">
-            <child>
-              <object class="GtkButton" id="font_size_ok_button">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
-                <signal name="clicked" handler="on_font_size_ok_button_clicked" swapped="no"/>
               </object>
             </child>
           </object>
