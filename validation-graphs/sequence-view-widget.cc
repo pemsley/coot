@@ -143,15 +143,15 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             double pos_y = Y_OFFSET_BASE - 16.0 - TICK_LINE_LENGTH;
             cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y);
-            pango_cairo_show_layout(cairo_canvas, pango_layout);
             pango_layout_set_markup(pango_layout, text.c_str(), -1);
+            pango_cairo_show_layout(cairo_canvas, pango_layout);
 
             // below the bottom line
             pos_y = Y_OFFSET_BASE - 6.0 + TICK_LINE_LENGTH + Y_OFFSET_PER_CHAIN * n_chains;
             cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y);
-            pango_cairo_show_layout(cairo_canvas, pango_layout);
             pango_layout_set_markup(pango_layout, text.c_str(), -1);
+            pango_cairo_show_layout(cairo_canvas, pango_layout);
          }
       }
    };
