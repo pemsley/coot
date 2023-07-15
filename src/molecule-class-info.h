@@ -2878,6 +2878,9 @@ public:        //                      public
    //
    void sharpen(float b_factor, bool gompertz, float gompertz_factor);
 
+   // number of chains. Return -1 on failure
+   int number_of_chains() const;
+
    // reorder the chains in the models
    void sort_chains();
 

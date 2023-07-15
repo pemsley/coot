@@ -42,7 +42,6 @@ CootSequenceView *coot_sequence_view_new();
 G_END_DECLS
 
 void coot_sequence_view_set_structure(CootSequenceView* self, int imol, mmdb::Manager *mol);
-void coot_sequence_view_set_click_function(CootSequenceView* self, int (*f) (int imol, const coot::residue_spec_t &spec));
 
 
 #endif // SEQUENCE_VIEW_WIDGET_HH
