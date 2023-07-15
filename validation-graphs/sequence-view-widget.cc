@@ -86,7 +86,11 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
    };
 
    auto add_tick_marks = [calculate_min_max_by_5s, get_min_max_residue_number]
-      (cairo_t *cairo_canvas, mmdb::Model *model_p) {
+      (cairo_t *cairo_canvas, mmdb::Model *model_p, bool use_dark_mode_flag) {
+
+      double greyness = 0.2;
+      if (use_dark_mode_flag) greyness = 0.8;
+      cairo_set_source_rgb(cairo_canvas, greyness, greyness, greyness);
 
       std::pair<bool, std::pair<int, int> > mm = get_min_max_residue_number(model_p);
       int n_chains = model_p->GetNumberOfChains();
@@ -104,7 +108,6 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             // std::cout << "add_tick_marks(): ires: " << ires << " pos_x " << pos_x << std::endl;
             double pos_y_start = Y_OFFSET_BASE - 1.0;
             double pos_y_end   = pos_y_start - TICK_LINE_LENGTH;
-            cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y_start);
             cairo_line_to(cairo_canvas, pos_x, pos_y_end);
             cairo_stroke(cairo_canvas);
@@ -113,7 +116,6 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             pos_x = X_OFFSET_BASE + X_OFFSET_PER_RESIDUE * static_cast<double>(ires-mm.second.first+1) + X_OFFSET_PER_RESIDUE/2;
             pos_y_start = Y_OFFSET_BASE + static_cast<double>(n_chains) * Y_OFFSET_PER_CHAIN + -2.0;
             pos_y_end   = pos_y_start + TICK_LINE_LENGTH;
-            cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y_start);
             cairo_line_to(cairo_canvas, pos_x, pos_y_end);
             cairo_stroke(cairo_canvas);
@@ -122,7 +124,11 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
    };
 
    auto add_tick_labels = [calculate_min_max_by_5s, get_min_max_residue_number, pango_layout]
-      (cairo_t *cairo_canvas, mmdb::Model *model_p) {
+      (cairo_t *cairo_canvas, mmdb::Model *model_p, bool use_dark_mode_flag) {
+
+      double greyness = 0.2;
+      if (use_dark_mode_flag) greyness = 0.8;
+      cairo_set_source_rgb(cairo_canvas, greyness, greyness, greyness);
 
       int n_chains = model_p->GetNumberOfChains();
       std::pair<bool, std::pair<int, int> > mm = get_min_max_residue_number(model_p);
@@ -141,14 +147,12 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             float l = text.length();
             pos_x -= 3.5 * l ; // so that the text is centred on the tick.
             double pos_y = Y_OFFSET_BASE - 16.0 - TICK_LINE_LENGTH;
-            cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y);
             pango_layout_set_markup(pango_layout, text.c_str(), -1);
             pango_cairo_show_layout(cairo_canvas, pango_layout);
 
             // below the bottom line
             pos_y = Y_OFFSET_BASE - 6.0 + TICK_LINE_LENGTH + Y_OFFSET_PER_CHAIN * n_chains;
-            cairo_set_source_rgb(cairo_canvas, 0.8, 0.8, 0.8);
             cairo_move_to(cairo_canvas, pos_x, pos_y);
             pango_layout_set_markup(pango_layout, text.c_str(), -1);
             pango_cairo_show_layout(cairo_canvas, pango_layout);
@@ -181,6 +185,11 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
       mmdb::Model *model_p = self->mol->GetModel(imod);
       if (model_p) {
          std::string text_colour = "#dddddd";
+
+         gboolean dark_mode_flag = FALSE;
+         g_object_get(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", &dark_mode_flag, NULL);
+         if (dark_mode_flag == FALSE) text_colour = "#bbbbbb";
+
          float w_pixels_rect = gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_HORIZONTAL);
          float h_pixels_rect = gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_VERTICAL);
          graphene_rect_t m_graphene_rect = GRAPHENE_RECT_INIT(0, 0, w_pixels_rect, h_pixels_rect);
@@ -219,9 +228,9 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             }
          }
 
-         add_tick_marks(cairo_canvas, model_p);
+         add_tick_marks(cairo_canvas, model_p, dark_mode_flag);
 
-         add_tick_labels(cairo_canvas, model_p);
+         add_tick_labels(cairo_canvas, model_p, dark_mode_flag);
 
          cairo_destroy(cairo_canvas);
       }
