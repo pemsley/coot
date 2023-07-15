@@ -2818,9 +2818,11 @@ void on_rotate_translate_obj_cancel_button_clicked (GtkButton       *button,
   GtkWidget *widget = widget_from_builder("rotate_translate_obj_dialog");
 
  /*   clear_moving_atoms_object(); // redraw done here */
+  std::cout << "clear_up_moving_atoms()" << std::endl;
   clear_up_moving_atoms();
-  store_window_position(COOT_ROTATE_TRANSLATE_DIALOG, widget);
+  std::cout << "gtk_widget_set_visible()" << std::endl;
   gtk_widget_set_visible(widget, FALSE);
+  std::cout << "normal_cursor()" << std::endl;
   normal_cursor();
 }
 

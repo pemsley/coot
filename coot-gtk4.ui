@@ -12175,24 +12175,7 @@ Sorry.
     <child>
       <object class="GtkBox" id="dialog-vbox6">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox40">
-                <child>
-                  <object class="GtkButton" id="rotate_translate_obj_cancel_button">
-                    <property name="label" translatable="yes">Cancel</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_rotate_translate_obj_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="rotate_translate_obj_ok_button">
-                    <property name="label" translatable="yes">  OK  </property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_rotate_translate_obj_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
+        <property name="spacing">4</property>
         <child>
           <object class="GtkFrame" id="frame40">
             <child>
@@ -12288,6 +12271,30 @@ Sorry.
                     </child>
                   </object>
                 </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="action">
+          <object class="GtkBox" id="hbox40">
+            <property name="spacing">6</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <child>
+              <object class="GtkButton" id="rotate_translate_obj_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <signal name="clicked" handler="on_rotate_translate_obj_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="rotate_translate_obj_ok_button">
+                <property name="label" translatable="yes">  OK  </property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
+                <signal name="clicked" handler="on_rotate_translate_obj_ok_button_clicked" swapped="no"/>
               </object>
             </child>
           </object>

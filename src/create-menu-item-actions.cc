@@ -2492,23 +2492,21 @@ rotate_translate_atom(GSimpleAction *simple_action,
                       GVariant *parameter,
                       gpointer user_data) {
 
-   std::cout << "---------- Here A -------------------" << std::endl;
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
-      std::cout << "---------- Here B -------------------" << std::endl;
       int imol = pp.second.first;
       g.attach_buffers(); // 20220823-PE needed?
 
-      auto &atom_sel = g.molecules[imol].atom_sel;
       mmdb::Atom *at = g.molecules[imol].get_atom(pp.second.second);
       if (at) {
-         std::cout << "---------- Here C -------------------" << std::endl;
+         auto &atom_sel = g.molecules[imol].atom_sel;
          int atom_index = 0;
          at->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index);
          if (atom_index >= 0 && atom_index < atom_sel.n_selected_atoms) {
+            g.imol_rot_trans_object = imol;
             g.rot_trans_atom_index_1 = atom_index;
-            std::cout << "---------- Here D -------------------" << std::endl;
+            g.rot_trans_atom_index_2 = atom_index;
             g.rot_trans_object_type = ROT_TRANS_TYPE_RESIDUE;
             g.execute_rotate_translate_ready();
          }
@@ -2529,14 +2527,16 @@ rotate_translate_residue(GSimpleAction *simple_action,
       std::cout << "---------- Here B -------------------" << std::endl;
       int imol = pp.second.first;
 
-      auto &atom_sel = g.molecules[imol].atom_sel;
       mmdb::Atom *at = g.molecules[imol].get_atom(pp.second.second);
       if (at) {
+         auto &atom_sel = g.molecules[imol].atom_sel;
          std::cout << "---------- Here C -------------------" << std::endl;
          int atom_index = 0;
          at->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index);
          if (atom_index >= 0 && atom_index < atom_sel.n_selected_atoms) {
+            g.imol_rot_trans_object = imol;
             g.rot_trans_atom_index_1 = atom_index;
+            g.rot_trans_atom_index_2 = atom_index;
             std::cout << "---------- Here D -------------------" << std::endl;
             g.rot_trans_object_type = ROT_TRANS_TYPE_RESIDUE;
             g.attach_buffers(); // 20220823-PE needed?
@@ -2555,8 +2555,41 @@ rotate_translate_residue_range(GSimpleAction *simple_action,
    // the range has been pre-defined before this menu item was clicked.
 
    graphics_info_t g;
-   g.rot_trans_object_type = ROT_TRANS_TYPE_ZONE;
-   g.execute_rotate_translate_ready();
+   int imol_1 = g.in_range_first_picked_atom.int_user_data;
+   int imol_2 = g.in_range_second_picked_atom.int_user_data;
+   if (imol_1 == imol_2) {
+      g.imol_rot_trans_object = imol_1;
+
+      // 20230715-PE We are calling old-style code here, which uses atom
+      // indices, so we need to set those atom indices from the picked atoms
+      // Meh.  Fix this one day.
+      // set these
+      // g.rot_trans_atom_index_1
+      // g.rot_trans_atom_index_2
+
+      mmdb::Atom *at_1 = g.molecules[imol_1].get_atom(g.in_range_first_picked_atom);
+      mmdb::Atom *at_2 = g.molecules[imol_1].get_atom(g.in_range_second_picked_atom);
+      if (at_1) {
+         if (at_2) {
+            auto &atom_sel = g.molecules[imol_1].atom_sel;
+            int atom_index_1 = 0;
+            int atom_index_2 = 0;
+            at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index_1);
+            at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index_2);
+            if (atom_index_1 >= 0 && atom_index_1 < atom_sel.n_selected_atoms) {
+               if (atom_index_2 >= 0 && atom_index_2 < atom_sel.n_selected_atoms) {
+                  g.rot_trans_atom_index_1 = atom_index_1;
+                  g.rot_trans_atom_index_2 = atom_index_2;
+                  g.attach_buffers(); // 20230715-PE needed?
+                  g.rot_trans_object_type = ROT_TRANS_TYPE_ZONE;
+                  g.execute_rotate_translate_ready();
+               }
+            }
+         }
+      }
+   } else {
+      info_dialog("WARNING:: Failure - Atoms not in the same molecule");
+   }
 }
 
 void
@@ -2570,13 +2603,15 @@ rotate_translate_chain(GSimpleAction *simple_action,
       int imol = pp.second.first;
       g.attach_buffers(); // 20220823-PE needed?
       g.rot_trans_object_type = ROT_TRANS_TYPE_CHAIN;
-      auto &atom_sel = g.molecules[imol].atom_sel;
       mmdb::Atom *at = g.molecules[imol].get_atom(pp.second.second);
       if (at) {
+         auto &atom_sel = g.molecules[imol].atom_sel;
          int atom_index = 0;
          at->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index);
          if (atom_index >= 0 && atom_index < atom_sel.n_selected_atoms) {
+            g.imol_rot_trans_object = imol;
             g.rot_trans_atom_index_1 = atom_index;
+            g.rot_trans_atom_index_2 = atom_index;
             g.rot_trans_object_type = ROT_TRANS_TYPE_CHAIN;
             g.execute_rotate_translate_ready();
             g.graphics_draw(); // maybe not needed here
@@ -2595,14 +2630,16 @@ rotate_translate_molecule(GSimpleAction *simple_action,
       int imol = pp.second.first;
       g.attach_buffers(); // 20220823-PE needed?
       g.rot_trans_object_type = ROT_TRANS_TYPE_CHAIN;
-      auto &atom_sel = g.molecules[imol].atom_sel;
       mmdb::Atom *at = g.molecules[imol].get_atom(pp.second.second);
       if (at) {
+         auto &atom_sel = g.molecules[imol].atom_sel;
          std::cout << "---------- Here C -------------------" << std::endl;
          int atom_index = 0;
          at->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index);
          if (atom_index >= 0 && atom_index < atom_sel.n_selected_atoms) {
+            g.imol_rot_trans_object = imol;
             g.rot_trans_atom_index_1 = atom_index;
+            g.rot_trans_atom_index_2 = atom_index;
             g.rot_trans_object_type = ROT_TRANS_TYPE_MOLECULE;
             g.execute_rotate_translate_ready();
             g.graphics_draw(); // maybe not needed here
