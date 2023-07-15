@@ -792,63 +792,6 @@ on_recentring1_activate                (GMenuItem     *menuitem,
 }
 
 
-extern "C" G_MODULE_EXPORT
-void
-on_font_size1_activate                 (GMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
-   GtkWidget *font_size_window;
-
-   GtkButton *button = 0;
-
-   // font_size_window = create_font_size_window();
-   font_size_window = widget_from_builder("font_size_window"); // what is this?
-
-/* The Font Size RadioButtons */
-
-   if (get_font_size() == 1) {
-            button = GTK_BUTTON(widget_from_builder(
-					"font_size_small_radiobutton"));
-   }
-   if (get_font_size() == 2) {
-            button = GTK_BUTTON(widget_from_builder(
-					"font_size_medium_radiobutton"));
-   }
-   if (get_font_size() == 3) {
-            button = GTK_BUTTON(widget_from_builder(
-					"font_size_large_radiobutton"));
-   }
-   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-
-/* show widget */
-   gtk_widget_set_visible(font_size_window, TRUE);
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_font_size_ok_button_clicked         (GtkButton       *button,
-                                        gpointer         user_data)
-{
-
-/* The Font Size RadioButtons */
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget_from_builder("font_size_small_radiobutton"))))
-
-      set_font_size(1);
-
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget_from_builder("font_size_medium_radiobutton"))))
-
-      set_font_size(2);
-
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget_from_builder("font_size_large_radiobutton"))))
-
-      set_font_size(3);
-
-/* goodbye widget */
-   gtk_widget_set_visible(widget_from_builder("font_size_window"), FALSE);
-
-}
-
-
 /* not used? */
 extern "C" G_MODULE_EXPORT
 void
