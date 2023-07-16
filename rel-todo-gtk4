@@ -10,7 +10,7 @@
 
 ----
 
-6 items
+3 items
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 2
 set_framebuffer_scale_factor().
@@ -19,21 +19,15 @@ shows a quadrant in "Plane" mode. The output tga file is full-resolution though,
 Don't confuse the scaling of the framebuffer for screenshot (in "Plain" mode) and
 the scaling of the framebuffers for super-sampling (in "Fancy" mode).
 
-Preferences -> Colours -> Font does not work ::: 1
-
-"Atom Label Font Size" frame should be deleted from the properties. ::: 0.5
-
-Nice to have:
-"Resample map (say 11337 to 2.2) It takes a long time. There should be a progress bar.
-
-[ and ] don't change the cryo-EM map radius. ::: 1
-
 How do I dismiss the sequence view? ::: 1
 
 Rename python modules fitting, get_ebi, gui_hole, mutate, ncs, pathology and others ::: 2
 https://github.com/microsoft/vscode-docs/blob/vnext/release-notes/v1_63.md#python
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
+
+Nice to have:
+"Resample map (say 11337 to 2.2) It takes a long time. There should be a progress bar.
 
 Rework the namespace of the python modules to be more cannonical :::- 4
 * I don't even know if this is possible
@@ -735,3 +729,10 @@ shows a quadrant in "Plane" mode. The output tga file is full-resolution though,
 Don't confuse the scaling of the framebuffer for screenshot (in "Plain" mode) and
 the scaling of the framebuffers for super-sampling (in "Fancy" mode).
 * Now the framebuffer scaling for the basic/simple mode work (fat density lines appear)
+
+Preferences -> Colours -> Font does not work ::: 1
+
+"Atom Label Font Size" frame should be deleted from the properties. ::: 0.5
+
+[ and ] don't change the cryo-EM map radius. ::: 0.2
+
