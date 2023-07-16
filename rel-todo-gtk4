@@ -10,7 +10,7 @@
 
 ----
 
-3 items
+2 items
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 2
 set_framebuffer_scale_factor().
@@ -20,9 +20,6 @@ Don't confuse the scaling of the framebuffer for screenshot (in "Plain" mode) an
 the scaling of the framebuffers for super-sampling (in "Fancy" mode).
 
 How do I dismiss the sequence view? ::: 1
-
-Rename python modules fitting, get_ebi, gui_hole, mutate, ncs, pathology and others ::: 2
-https://github.com/microsoft/vscode-docs/blob/vnext/release-notes/v1_63.md#python
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
@@ -735,4 +732,8 @@ Preferences -> Colours -> Font does not work ::: 1
 "Atom Label Font Size" frame should be deleted from the properties. ::: 0.5
 
 [ and ] don't change the cryo-EM map radius. ::: 0.2
+
+Rename python modules fitting, get_ebi, gui_hole, mutate, ncs, pathology and others ::: 0.5
+https://github.com/microsoft/vscode-docs/blob/vnext/release-notes/v1_63.md#python
+(that vs code thing didn't work - no clevernesss suggested)
 
