@@ -1134,10 +1134,10 @@ on_preferences_font_size_combobox_changed
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_colour_default_radiobutton_toggled(GtkToggleButton *togglebutton,
+on_preferences_font_colour_default_radiobutton_toggled(GtkCheckButton *checkbutton,
                                                        gpointer         user_data) {
 
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, 1.0, 0.8, 0.8);
       set_font_colour(1.0, 0.8, 0.8);
    }
@@ -1149,6 +1149,10 @@ void
 on_preferences_font_colour_own_radiobutton_toggled(GtkCheckButton *checkbutton,
                                                    gpointer         user_data) {
 
+   // 20230716-PE There is no function to set the colour of the colorbutton if
+   // the button is in the .ui file (which it is in this case (we look up the
+   // widget from the name)).
+
    GdkRGBA font_colour;
    float fval1;
    float fval2;
@@ -1156,22 +1160,12 @@ on_preferences_font_colour_own_radiobutton_toggled(GtkCheckButton *checkbutton,
    int previous_state;
 
    if (gtk_check_button_get_active(checkbutton)) {
-
       previous_state = preferences_internal_font_own_colour_flag();
-
       if (previous_state != -1) { 	/* not unset */
-         GtkWidget *w = widget_from_preferences_builder("preferences_font_colorbutton");
-#if 0
-         gtk_color_button_get_color(GTK_COLOR_BUTTON(w), &font_colour);
-         fval1 = (float) font_colour.red   / (float) 65535;
-         fval2 = (float) font_colour.green / (float) 65535;
-         fval3 = (float) font_colour.blue  / (float) 65535;
-
-         preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, fval1, fval2, fval3);
-         printf("     set_font_colour() - path B\n");
-         set_font_colour(fval1, fval2, fval3);
-         preferences_internal_change_value_int(PREFERENCES_FONT_OWN_COLOUR_FLAG, 1);
-#endif
+         GtkWidget *colorbutton = widget_from_preferences_builder("preferences_font_colorbutton");
+         GdkRGBA col;
+         gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(colorbutton), &col);
+         set_font_colour(col.red, col.green, col.blue);
       }
    }
 
@@ -1181,45 +1175,21 @@ on_preferences_font_colour_own_radiobutton_toggled(GtkCheckButton *checkbutton,
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_colorbutton_color_set
-                                        (GtkColorButton  *colorbutton,
-                                        gpointer         user_data)
-{
+on_preferences_font_colorbutton_color_set (GtkColorButton  *colorbutton,
+                                           gpointer         user_data) {
 
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-
-#else
-   GdkColor font_colour;
-   float fval1;
-   float fval2;
-   float fval3;
-   gtk_color_button_get_color(colorbutton, &font_colour);
-   fval1 = (float) font_colour.red   / (float) 65535;
-   fval2 = (float) font_colour.green / (float) 65535;
-   fval3 = (float) font_colour.blue  / (float) 65535;
-
-   preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, fval1, fval2, fval3);
-   set_font_colour(fval1, fval2, fval3);
-   /* should set own colour button active (if colours away from default) */
-   if (fval1  >= 0.999 &&
-       fval2 >= 0.799 && fval2 <= 0.801 &&
-       fval3 >= 0.799 && fval3 <= 0.801) {
-      // set default button active
-      GtkWidget *w = widget_from_preferences_builder("preferences_font_colour_default_radiobutton");
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-   } else {
-      /* set own font colour button active */
-      GtkWidget *w = widget_from_preferences_builder("preferences_font_colour_own_radiobutton");
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-   }
-#endif
+   GdkRGBA col;
+   // 20230716-PE change to GtkColorDialogButton when moving to 4.12
+   gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(colorbutton), &col);
+   // std::cout << "col: " << col.red << " " << col.green << " " << col.blue << " " << col.alpha << std::endl;
+   preferences_internal_change_value_int(PREFERENCES_FONT_OWN_COLOUR_FLAG, 1); // checked in above function
+   set_font_colour(col.red, col.green, col.blue);
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_font_colorbutton_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
+on_preferences_font_colorbutton_clicked (GtkButton       *button,
+                                         gpointer         user_data)
 {
   /* actually not doing anything */
 }

@@ -35,7 +35,7 @@ https://github.com/microsoft/vscode-docs/blob/vnext/release-notes/v1_63.md#pytho
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
-Rework the namespace of the python modules to be more cannonical ::: 4
+Rework the namespace of the python modules to be more cannonical :::- 4
 * I don't even know if this is possible
 What does it mean to
 import coot
