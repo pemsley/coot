@@ -1,6 +1,6 @@
 import coot
 import coot_utils
-import contact_score_isolated_ligand
+import coot_contact_score_isolated_ligand
 
 def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
                            refmac_input_mtz_file_name,
@@ -18,7 +18,7 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
             error status
             difference_map_stats:
                 the output of map_to_model_correlation_stats_py
-                [correlation, var_x, var_y, n, sum_x, sum_y, D, D2 (based on mean/sd of the map at the ligand) 
+                [correlation, var_x, var_y, n, sum_x, sum_y, D, D2 (based on mean/sd of the map at the ligand)
                 map_mean map_mean_at_ligand map_sd map_sd_at_ligand )
             b_factor_info:
                 [median_ratio median_ligand mediand_-env ks_testd_-result]
@@ -152,7 +152,7 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
     #
     def get_bump_score():
         ligand_spec = [chain_id, res_no, ins_code]
-        cs = contact_score_isolated_ligand.contact_score_ligand(imol, ligand_spec)
+        cs = coot_contact_score_isolated_ligand.contact_score_ligand(imol, ligand_spec)
         coot.graphics_draw()
         return cs
 
@@ -284,7 +284,7 @@ def gui_ligand_check_dialog_wrapper(imol, imol_map, ligand_spec):
 
     neighbs = []
     correl = coot.map_to_model_correlation_py(imol, [ligand_spec], neighbs, 0, imol_map)
-    cs = contact_score_isolated_ligand.contact_score_ligand(imol, ligand_spec)
+    cs = coot_contact_score_isolated_ligand.contact_score_ligand(imol, ligand_spec)
     n_bumps = -1
     if cs:
         n_bumps = cs[0]

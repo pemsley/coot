@@ -17,7 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import coot
-from redefine_functions import *
+from coot_redefine_functions import *
 
 def find_first_model_molecule():
 

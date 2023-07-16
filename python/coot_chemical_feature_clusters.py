@@ -25,7 +25,7 @@ import numpy as np
 from scipy import linalg
 from sklearn import mixture
 
-import res_spec_utils as rsu
+import coot_res_spec_utils as rsu
 
 
 def cluster_star_obj(obj, pos, thick, v_0):

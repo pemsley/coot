@@ -208,6 +208,17 @@ add_python_scripting_entry_completion(GtkWidget *entry) {
    }
    // Get the module object for the `sys` module.
    module = PyImport_ImportModule("coot_utils");
+
+   if (module) {
+      if (false)
+         std::cout << "INFO:: add_python_scripting_entry_completion() coot_utils imported successfully" << std::endl;
+   } else {
+      std::cout << "ERROR:: add_python_scripting_entry_completion() coot_utils import failure" << std::endl;
+      if (PyErr_Occurred())
+         PyErr_PrintEx(0);
+      return;
+   }
+
    // Get the dictionary object for the `sys` module.
    dict = PyModule_GetDict(module);
   // Iterate over the keys and values in the dictionary.

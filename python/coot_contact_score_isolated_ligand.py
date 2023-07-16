@@ -2,8 +2,7 @@
 import os
 import coot
 import coot_utils
-import coot_gui  # does this load probe_command
-import generic_objects
+import coot_gui  # does this load probe_command?
 
 global probe_command
 probe_command = "molprobity.probe"
@@ -77,7 +76,7 @@ def coot_contact_dots_ligand_func():
 
 # not ready for public yet
 def coot_all_atom_contact_dots_func():
-    
+
     with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
 
