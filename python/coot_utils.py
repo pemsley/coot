@@ -1023,10 +1023,11 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False,
     import sys
     import string
     import os
+    import subprocess
 
     major, minor, micro, releaselevel, serial = sys.version_info
 
-    if (os.path.isfile(cmd)):
+    if os.path.isfile(cmd):
         cmd_execfile = cmd
     else:
         if not(command_in_path_qm(cmd)):
@@ -1034,18 +1035,19 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False,
             print("BL INFO:: Maybe we'll find it somewhere else later...")
         cmd_execfile = find_exe(cmd, "CBIN", "CBIN", "CCP4_BIN", "PATH")
 
-    if (cmd_execfile):
-        # minor = 2
-        if (major >= 2 and minor >= 4):
-            # subprocess
-            import subprocess
-            log = open(log_file, 'w')
+    if cmd_execfile:
+
+        if True:
+
+            print("debug open write", log_file)
+
+            log = open(log_file, 'wb')
+
             cmd_args = [cmd_execfile] + args
 
             # set stdin
             pipe_data=False
-            if (isinstance(data_list, str) and
-                os.path.isfile(data_list)):
+            if isinstance(data_list, str) and os.path.isfile(data_list):
                 stdin_inp = open(data_list)
             else:
                 pipe_data=True
@@ -1057,7 +1059,7 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False,
             else:
                 stderr_arg = None
 
-            if (screen_flag):
+            if screen_flag:
                 process = subprocess.Popen(cmd_args, stdin=stdin_inp,
                                            stdout=subprocess.PIPE,
                                            stderr=stderr_arg,
@@ -1077,10 +1079,11 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False,
                 if isinstance(stdin_inp, file):
                     stdin_inp.close()
 
-            if (screen_flag):
+            if screen_flag:
                 for line in process.stdout:
                     # remove trailing whitespace
-                    print("#", line.rstrip(" \n"))
+                    # print("#", line.rstrip(" \n"))
+                    print("#", line)
                     log.write(line)
             process.wait()
             log.close()

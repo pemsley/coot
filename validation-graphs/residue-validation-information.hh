@@ -2,10 +2,11 @@
 #define RESIDUE_VALIDATION_INFORMATION_HH
 
 #include <string>
-#include "geometry/residue-and-atom-specs.hh"
+#include "../geometry/residue-and-atom-specs.hh"
 
 
 namespace coot {
+   /// Represents graph data for a single residue in validation graphs
    class residue_validation_information_t {
    public:
       residue_validation_information_t(const coot::residue_spec_t &rs,

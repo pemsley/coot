@@ -104,7 +104,7 @@ void setup_python_basic(int argc, char **argv) {
    std::string pkgpydirectory = get_pkgpythondir();
    std::string    pydirectory = get_pythondir();
 
-   if (false) {
+   if (true) {
       std::cout << "debug:: in setup_python()    pydirectory is " << pydirectory << std::endl;
       std::cout << "debug:: in setup_python() pkgpydirectory is " << pkgpydirectory << std::endl;
    }
@@ -308,9 +308,6 @@ void try_load_dot_coot_py_and_python_scripts(const std::string &home_directory) 
             run_python_script(script_fn.c_str());
          }
       }
-
-      // update the preferences
-      make_preferences_internal();
 
 #if 0
       // load personal coot file .coot.py

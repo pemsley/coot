@@ -8,6 +8,9 @@
 #include "create-menu-item-actions.hh"
 #include "setup-gui-components.hh"
 #include "coot-setup-python.hh"
+#include "utils/coot-utils.hh"
+#include "command-line.hh"
+#include "c-interface-preferences.h"
 
 void print_opengl_info();
 
@@ -478,8 +481,16 @@ install_icons_into_theme(GtkWidget *w) {
 
    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(w));
    std::string pkg_data_dir = coot::package_data_dir();
-   std::string icon_dir = coot::util::append_dir_dir(pkg_data_dir, "icons/hicolor/16x16/actions");
-   gtk_icon_theme_add_search_path(icon_theme, icon_dir.c_str());
+   std::string pixmap_dir = coot::util::append_dir_dir(pkg_data_dir, "pixmaps");
+   gtk_icon_theme_add_search_path(icon_theme, pixmap_dir.c_str());
+
+   // This is only necessary when coot is installed in a non-standard location
+   // i.e. other than /usr or ~/.local (or /usr/local perhaps?)
+   // which makes it convenient for testing without system-wide coot installation
+   std::string prefix_dir = coot::prefix_dir();
+   std::string icons_dir = coot::util::append_dir_dir(prefix_dir, "share/icons");
+   gtk_icon_theme_add_search_path(icon_theme, icons_dir.c_str());
+
 }
 
 
@@ -499,17 +510,14 @@ on_go_to_residue_keyboarding_mode_entry_key_controller_key_released(GtkEventCont
       graphics_info_t g;
       g.apply_go_to_residue_keyboading_string(s);
       gtk_editable_set_text(GTK_EDITABLE(entry), "");
-      gtk_widget_hide(GTK_WIDGET(window));
+      gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
    }
 
    if (keycode == 53) {
-      gtk_widget_hide(GTK_WIDGET(window));
+      gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
       gtk_editable_set_text(GTK_EDITABLE(entry), "");
    }
 }
-
-// in screen-utils.cc
-void setup_application_icon(GtkWindow *window);
 
 void setup_go_to_residue_keyboarding_mode_entry_signals() {
    GtkWidget *entry = widget_from_builder("keyboard_go_to_residue_entry");
@@ -517,7 +525,6 @@ void setup_go_to_residue_keyboarding_mode_entry_signals() {
       GtkEventController *key_controller = gtk_event_controller_key_new();
       g_signal_connect(key_controller, "key-released", G_CALLBACK(on_go_to_residue_keyboarding_mode_entry_key_controller_key_released), entry);
       gtk_widget_add_controller(GTK_WIDGET(entry), key_controller);
-
    }
 }
 
@@ -573,7 +580,7 @@ new_startup_create_splash_screen_window() {
 
    gtk_widget_set_size_request(picture, 660, 371);
    // std::cout << "@@@@@@@@@@@@@@ create_pixmap_gtk4_version() returned image " << image << std::endl;
-   gtk_widget_show(picture);
+   gtk_widget_set_visible(picture, TRUE);
 
    gtk_window_set_child(GTK_WINDOW(splash_screen_window), picture);
    return splash_screen_window;
@@ -596,7 +603,6 @@ struct application_activate_data {
    }
 };
 
-#include "command-line.hh"
 
 void
 new_startup_application_activate(GtkApplication *application,
@@ -610,7 +616,7 @@ new_startup_application_activate(GtkApplication *application,
    GtkWidget *app_window = gtk_application_window_new(application);
    gtk_window_set_application(GTK_WINDOW(app_window), application);
    gtk_window_set_title(GTK_WINDOW(app_window), window_name.c_str());
-   setup_application_icon(GTK_WINDOW(app_window)); // 20220807-PE not sure what this does in gtk4 or if it works.
+  
    graphics_info_t::set_main_window(app_window);
 
    activate_data->app_window = app_window;
@@ -653,6 +659,9 @@ new_startup_application_activate(GtkApplication *application,
          exit(0);
       }
 
+      install_icons_into_theme(GTK_WIDGET(app_window));
+      gtk_window_set_icon_name(GTK_WINDOW(app_window), "coot");
+
       // the main application builder
 
       // change "glade" to "ui" one day.
@@ -677,9 +686,9 @@ new_startup_application_activate(GtkApplication *application,
       if (coot::file_exists(preferences_ui_file_name))
          preferences_ui_file_name_full = preferences_ui_file_name;
       GtkBuilder *preferences_builder = gtk_builder_new();
-      std::cout << "::::::::::::::::::::::::::::::::::::::::::::: reading " << preferences_ui_file_name_full << std::endl;
+      std::cout << "::::::::::::::::::::::: reading " << preferences_ui_file_name_full << std::endl;
       status = gtk_builder_add_from_file(preferences_builder, preferences_ui_file_name_full.c_str(), &error);
-      std::cout << ":::::::::::::::::::::::::::::::::::::::: done reading " << preferences_ui_file_name_full << std::endl;
+      std::cout << "::::::::::::::::::::::: done reading " << preferences_ui_file_name_full << std::endl;
       if (status == FALSE) {
          std::cout << "ERROR:: Failure to read or parse " << preferences_ui_file_name_full << std::endl;
          std::cout << error->message << std::endl;
@@ -692,13 +701,8 @@ new_startup_application_activate(GtkApplication *application,
       // set this by parsing the command line arguments
       graphics_info.use_graphics_interface_flag = true;
 
-
-      GtkWidget *sb = GTK_WIDGET(gtk_builder_get_object(builder, "main_window_statusbar"));
-      graphics_info_t::statusbar = sb;
-      // std::cout << "debug:: statusbar: " << sb << std::endl;
-
-      install_icons_into_theme(GTK_WIDGET(sb));
-
+      // create the preference defaults
+      make_preferences_internal();
 
       guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
       // std::cout << "debug:: new_startup_application_activate(): Window id: " << id << std::endl;
@@ -717,17 +721,17 @@ new_startup_application_activate(GtkApplication *application,
       gtk_window_set_child(GTK_WINDOW(app_window), graphics_vbox);
 
       gtk_window_present(GTK_WINDOW(app_window));
-      // gtk_widget_show(window);
+      // gtk_widget_set_visible(window, TRUE);
 
       GtkWidget *gl_area = new_startup_create_glarea_widget();
       graphics_info_t::glareas.push_back(gl_area);
-      gtk_widget_show(gl_area);
+      gtk_widget_set_visible(gl_area, TRUE);
       gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
       gtk_window_set_application(GTK_WINDOW(app_window), application);
       gtk_window_set_default_size(GTK_WINDOW(app_window), 1000, 900);
       gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
       gtk_widget_set_size_request(gl_area, 900, 900); // Hmm
-      gtk_widget_show(app_window);
+      gtk_widget_set_visible(app_window, TRUE);
       gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
 
       gtk_widget_grab_focus(gl_area); // at the start, fixes focus problem
@@ -791,7 +795,6 @@ application_open_callback(GtkApplication *app,
                           gchar          *hint,
                           gpointer        user_data) {
 
-   
    command_line_data cld;
 
    for (gint i=0; i<n_files; i++) {
@@ -800,15 +803,18 @@ application_open_callback(GtkApplication *app,
       GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_NAME,
                                                G_FILE_QUERY_INFO_NONE, NULL, &error);
       if (file_info) {
-         const char *file_name = g_file_info_get_name(file_info);
-         if (file_name) {
-            std::cout << "Handle " << file_name << std::endl;
+         // const char *file_name = g_file_info_get_name(file_info);
+         const char *path = g_file_get_path(file);
+
+         if (path) {
+            std::string file_name(path);
+            std::cout << "application_open_callback(): handle " << file_name << std::endl;
             cld.add(std::string(file_name));
          } else {
-            std::cout << "file_name was null " << std::endl;
+            std::cout << "ERROR:: application_open_callback(): file_name was null " << std::endl;
          }
       } else {
-         std::cout << "application_open_callback() error " << i << " " << error->message << std::endl;
+         std::cout << "ERROR:: application_open_callback() error " << i << " " << error->message << std::endl;
       }
    }
 
@@ -927,7 +933,7 @@ int new_startup(int argc, char **argv) {
    load_css();
 
    GtkWidget *splash_screen = new_startup_create_splash_screen_window();
-   gtk_widget_show(splash_screen);
+   gtk_widget_set_visible(splash_screen, TRUE);
 
    g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
 

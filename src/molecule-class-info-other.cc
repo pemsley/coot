@@ -3147,7 +3147,7 @@ molecule_class_info_t::add_OXT_to_residue(mmdb::Residue *residue,
             std::string m("WARNING:: Not all reference atoms found in residue\n");
             m += "          No OXT atom fitted.";
             GtkWidget *w = graphics_info_t::wrapped_nothing_bad_dialog(m);
-            gtk_widget_show(w);
+            gtk_widget_set_visible(w, TRUE);
          } else {
             make_backup();
             double torsion = clipper::Coord_orth::torsion(n_atom_co, ca_atom_co, c_atom_co, o_atom_co);

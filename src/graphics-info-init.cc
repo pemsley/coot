@@ -280,41 +280,40 @@ graphics_info_t::init() {
       dictionary_glob_extensions->push_back(".lib");
 
       /* things for preferences */
+
+      // -------------these are all frame ------------------------------
+
       //preferences_internal = new std::vector<coot::preference_info_t>;
-      preferences_general_tabs = new std::vector<std::string>;
-      preferences_bond_tabs = new std::vector<std::string>;
-      preferences_geometry_tabs = new std::vector<std::string>;
-      preferences_colour_tabs = new std::vector<std::string>;
-      preferences_map_tabs = new std::vector<std::string>;
-      preferences_other_tabs = new std::vector<std::string>;
 
-      preferences_general_tabs->push_back("preferences_file_selection");
-      preferences_general_tabs->push_back("preferences_dock_accept_dialog");
-      preferences_general_tabs->push_back("preferences_hid");
-      preferences_general_tabs->push_back("preferences_recentre_pdb");
-      preferences_general_tabs->push_back("preferences_model_toolbar_style");
-      preferences_general_tabs->push_back("preferences_smooth_scroll");
-      preferences_general_tabs->push_back("preferences_main_toolbar_style");
+      // preferences_general_tabs.push_back("preferences_file_selection");
+      // preferences_general_tabs.push_back("preferences_dock_accept_dialog");
+      preferences_general_tabs.push_back("preferences_hid");
+      preferences_general_tabs.push_back("preferences_recentre_pdb");
+      preferences_general_tabs.push_back("preferences_smooth_scroll");
+      // preferences_general_tabs.push_back("preferences_model_toolbar_style");
+      // preferences_general_tabs.push_back("preferences_main_toolbar_style");
 
-      preferences_bond_tabs->push_back("preferences_bond_parameters");
-      preferences_bond_tabs->push_back("preferences_bond_colours");
+      preferences_bond_tabs.push_back("preferences_bond_parameters");
+      preferences_bond_tabs.push_back("preferences_bond_colours");
 
-      preferences_map_tabs->push_back("preferences_map_parameters");
-      preferences_map_tabs->push_back("preferences_map_colours");
-      preferences_map_tabs->push_back("preferences_map_drag");
+      preferences_map_tabs.push_back("preferences_map_parameters");
+      preferences_map_tabs.push_back("preferences_map_colours");
+      preferences_map_tabs.push_back("preferences_map_drag");
 
-      preferences_geometry_tabs->push_back("preferences_cis_peptides");
+      preferences_geometry_tabs.push_back("preferences_cis_peptides");
+      preferences_geometry_tabs.push_back("preferences_default_b_factor_frame");
 
-      preferences_colour_tabs->push_back("preferences_background_colour");
-      preferences_colour_tabs->push_back("preferences_bond_colours");
-      preferences_colour_tabs->push_back("preferences_map_colours");
+      preferences_colour_tabs.push_back("preferences_background_colour");
+      preferences_colour_tabs.push_back("preferences_bond_colours");
+      preferences_colour_tabs.push_back("preferences_map_colours");
 
-      preferences_other_tabs->push_back("preferences_console");
-      preferences_other_tabs->push_back("preferences_tips");
-      preferences_other_tabs->push_back("preferences_speed");
-      preferences_other_tabs->push_back("preferences_antialias");
-      preferences_other_tabs->push_back("preferences_font");
-      preferences_other_tabs->push_back("preferences_pink_pointer");
+      preferences_other_tabs.push_back("preferences_console");
+      preferences_other_tabs.push_back("preferences_tips");
+      preferences_other_tabs.push_back("preferences_speed");
+      preferences_other_tabs.push_back("preferences_antialias");
+      preferences_other_tabs.push_back("preferences_font");
+      preferences_other_tabs.push_back("preferences_pink_pointer");
+
       // for toolbar icons in preferences
       model_toolbar_icons = new std::vector<coot::preferences_icon_info_t>;
       model_toolbar_icons->push_back(coot::preferences_icon_info_t(0, "refine-1.svg",

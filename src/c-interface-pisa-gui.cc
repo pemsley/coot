@@ -44,7 +44,7 @@ coot::pisa_interfaces_gui(const std::vector<coot::pisa_interface_t> &gui_info) {
    if (graphics_info_t::use_graphics_interface_flag) {
       // GtkWidget *w = create_pisa_interfaces_dialog();
       GtkWidget *w = widget_from_builder("pisa_interface_dialog");
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
       // GtkWidget *treeview = lookup_widget(w, "pisa_interfaces_treeview");
       GtkWidget *treeview = widget_from_builder("pisa_interfaces_treeview");
       // we show:

@@ -86,7 +86,8 @@ coot::molecule_t::modification_info_t::have_unsaved_changes() const {
 std::string
 coot::molecule_t::modification_info_t::make_backup(mmdb::Manager *mol, const std::string &modification_info_string) {
 
-   std::cout << "INFO:: make_backup " << modification_info_string << std::endl;
+   // std::cout << "INFO:: make_backup " << modification_info_string << std::endl;
+
    if (!mol) {
       std::cout << "ERROR:: null mol in make_backup() " << std::endl;
       return std::string("null molecule");
@@ -113,8 +114,6 @@ coot::molecule_t::modification_info_t::make_backup(mmdb::Manager *mol, const std
          std::cout << "get the error message " << fn << std::endl;
       }
       save_info.push_back(save_info_t(fn, modification_info_string));
-      modification_index = save_info.size();
-      std::cout << "INFO:: modification_index is now " << modification_index << std::endl;
 
    } else {
 
@@ -129,9 +128,10 @@ coot::molecule_t::modification_info_t::make_backup(mmdb::Manager *mol, const std
             std::cout << "ERROR:: LINE #" << error_count << "\n     " << error_buf << std::endl;
       }
       save_info.push_back(save_info_t(fn, modification_info_string));
-      modification_index = save_info.size();
-      std::cout << "INFO:: modification_index is now " << modification_index << std::endl;
    }
+   modification_index = save_info.size();
+   std::cout << "INFO:: make_backup(): \"" << modification_info_string << "\" modification_index is now "
+             << modification_index << std::endl;
 
    return message;
 

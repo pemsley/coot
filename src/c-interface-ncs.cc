@@ -146,7 +146,7 @@ GtkWidget *wrapped_create_ncs_maps_dialog() {
       std::cout << "Error: you must have a difference map to analyse!" << std::endl;
       // GtkWidget *none_frame = lookup_widget(dialog, "no_maps_frame");
       GtkWidget *none_frame = widget_from_builder("no_maps_frame");
-      gtk_widget_show(none_frame);
+      gtk_widget_set_visible(none_frame, TRUE);
    }
 
    // Models:
@@ -157,7 +157,7 @@ GtkWidget *wrapped_create_ncs_maps_dialog() {
       std::cout << "You must have molecules with NCS to use this function\n";
       // GtkWidget *none_frame = lookup_widget(dialog, "no_models_frame");
       GtkWidget *none_frame = widget_from_builder("no_models_frame");
-      gtk_widget_show(none_frame);
+      gtk_widget_set_visible(none_frame, TRUE);
    }
 
 

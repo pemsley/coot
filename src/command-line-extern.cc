@@ -51,6 +51,7 @@
 #include "command-line.hh"
 #include "get-monomer.hh"
 
+#include "read-molecule.hh" // now with std::string args
 
 
 extern "C"
@@ -114,6 +115,11 @@ handle_command_line_data(command_line_data cld) {
 
    // coordinates
 
+   std::cout << "debug;: in handle_command_line_data here are the coordinates files " << std::endl;
+   for (unsigned int i=0; i< cld.coords.size(); i++) {
+      std::cout << "           " << cld.coords[i] << std::endl;
+   }
+
    for (unsigned int i=0; i< cld.coords.size(); i++) {
       // don't slide around for 100 ligands
 
@@ -121,7 +127,15 @@ handle_command_line_data(command_line_data cld) {
       short int smooth_scroll_state_pre = graphics_info_t::smooth_scroll;
       graphics_info_t::smooth_scroll_on = 0;
       graphics_info_t::smooth_scroll    = 0;
-      handle_read_draw_molecule(cld.coords[i].c_str());
+      int imol_new = handle_read_draw_molecule(cld.coords[i]);
+      std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHere A " << std::endl;
+      if (! is_valid_model_molecule(imol_new)) {
+         std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHere B " << std::endl;
+         std::string  m("WARNING:: Failed to read " + cld.coords[i]);
+         info_dialog(m.c_str());
+      } else {
+         std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHere C " << std::endl;
+      }
       graphics_info_t::smooth_scroll_on = smooth_scroll_on_state_pre;
       graphics_info_t::smooth_scroll    = smooth_scroll_state_pre;
    }

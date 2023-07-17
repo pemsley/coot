@@ -15,6 +15,7 @@
 #include "c-interface-mogul.hh"
 #include "c-interface-sequence.hh"
 #include "c-interface-refine.h"
+#include "read-molecule.hh"
 #include "cc-interface.hh"
 #include "cc-interface-image.hh"
 #include "cc-interface-scripting.hh"
@@ -25,7 +26,7 @@
 #include "manipulation-modes.hh"
 #include "rotamer-search-modes.hh"
 #include "lbg-interface.hh"
-  // #include "sdf-interface.hh"
+#include "sdf-interface.hh"
 #include "probe-clash-score.hh"
 #include "cmtz-interface.hh"
 #include "coot-version.hh"
@@ -83,6 +84,7 @@ namespace std {
 %include "cc-interface-molecular-representation.hh"
 #endif // USE_MOLECULES_TO_TRIANGLES
 %include "cc-interface.hh"
+%include "read-molecule.hh"
 %include "cc-interface-image.hh"
 %include "cc-interface-scripting.hh"
 %include "c-interface-database.hh"
@@ -97,7 +99,7 @@ namespace std {
 %include "manipulation-modes.hh"
 %include "rotamer-search-modes.hh"
 %include "lbg-interface.hh"
- // %include "sdf-interface.hh" // 20230108-PE remove this while reworking chemical feature code for API and gtk3
+%include "sdf-interface.hh"
 %include "geometry/residue-and-atom-specs.hh" // for atom_spec_t
 %include "probe-clash-score.hh"
 %include "coot-version.hh"

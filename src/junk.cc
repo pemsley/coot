@@ -610,7 +610,7 @@ void do_create_mutate_sequence_gui() {
       graphics_info_t::align_and_mutate_chain_from_optionmenu = set_chain;
    }
    
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -755,7 +755,7 @@ void fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
 
 	 // we do need this bit of course:
 	 gtk_menu_append(GTK_MENU(menu), menuitem); 
-	 gtk_widget_show(menuitem);
+	 gtk_widget_set_visible(menuitem, TRUE);
 	 menu_item_count++;
       }
    }
@@ -985,7 +985,7 @@ manage_column_selector(const char *filename) {
 				GTK_SIGNAL_FUNC(phase_button_select),
 				GINT_TO_POINTER(i));
       gtk_menu_append(GTK_MENU(optionmenu2_menu), menuitem);
-      gtk_widget_show(menuitem);
+      gtk_widget_set_visible(menuitem, TRUE);
       if (! (strncmp(a.phi_cols[i].column_label, "PHWT", 4))) { 
 				/* was PHWT */
 	gtk_menu_set_active(GTK_MENU(optionmenu2_menu), i);
@@ -1011,7 +1011,7 @@ manage_column_selector(const char *filename) {
 				GTK_SIGNAL_FUNC(weight_button_select),
 				GINT_TO_POINTER(i));
       gtk_menu_append(GTK_MENU(optionmenu3_menu), menuitem);
-      gtk_widget_show(menuitem);
+      gtk_widget_set_visible(menuitem, TRUE);
    }
    
    optionmenu_weight = lookup_widget(column_label_window, 
@@ -1035,7 +1035,7 @@ manage_column_selector(const char *filename) {
 
   /* and now show the widget finally. */
    
-   gtk_widget_show (column_label_window);
+   gtk_widget_set_visible (column_label_window, TRUE);
 
 
 }

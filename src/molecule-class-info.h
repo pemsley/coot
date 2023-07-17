@@ -109,7 +109,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 
 
 #ifndef EMSCRIPTEN
-#include "validation-graphs.hh"  // GTK things, now part of
+#include "validation-graphs/validation-graphs.hh"  // GTK things, now part of
 				 // molecule_class_info_t, they used
 				 // to be part of graphics_info_t before the
                                  // array->vector change-over.
@@ -1989,7 +1989,9 @@ public:        //                      public
 
    // pointer atoms:
    void add_pointer_atom(coot::Cartesian pos);
-   void add_typed_pointer_atom(coot::Cartesian pos, const std::string &type);
+   // if there is another atom very close, then don't allow the addition of a new atom
+   // return status false denotes failure.
+   std::pair<bool,std::string> add_typed_pointer_atom(coot::Cartesian pos, const std::string &type);
 
    // dummy atoms (not bonded)
    void add_dummy_atom(coot::Cartesian pos);
@@ -2098,7 +2100,7 @@ public:        //                      public
    model_view_residue_button_labels() const;
 
    std::vector<coot::model_view_atom_tree_chain_t>
-   model_view_residue_tree_labels(bool include_water_residue_flag) const;
+   model_view_residue_tree_labels(bool include_water_residue_flag, bool ligands_ony_flag) const;
 
    std::vector<coot::model_view_atom_button_info_t>
    model_view_atom_button_labels(const std::string &chain_id,
@@ -2915,9 +2917,6 @@ public:        //                      public
    // c.f. progressive_residues_in_chain_check_by_chain()
    // bool residues_in_order_p(std::string &chain_id) const;
 
-#ifndef EMSCRIPTEN
-   coot::validation_graphs_t validation_graphs;
-#endif
 
    // Only apply charges if the molecule contains lots of hydrogens or
    // there were few (< 100) atoms in the molecule.
@@ -3299,6 +3298,7 @@ void draw_map_molecule(bool draw_transparent_maps,
 
    // --------- molecule probability scoring ------------
    coot::rama_score_t get_all_molecule_rama_score() const;
+   coot::rama_score_t get_all_molecule_rama_score_old() const; // 20230611-PE delete this one day
    coot::rotamer_score_t get_all_molecule_rotamer_score(const coot::rotamer_probability_tables &rpt) const;
 
    // --------- lsq-improve ------------
@@ -3350,6 +3350,8 @@ void draw_map_molecule(bool draw_transparent_maps,
 
    bool draw_animated_ligand_interactions_flag; // tweaked by outside function
    void add_hydrogens_from_file(const std::string &reduce_pdb_out);
+
+   void add_hydrogen_atoms_to_residue(const coot::residue_spec_t &rs);
 
    std::pair<bool, clipper::Coord_orth>
    residue_centre(const coot::residue_spec_t &spec) const;
@@ -3440,6 +3442,8 @@ void draw_map_molecule(bool draw_transparent_maps,
    std::vector<coot::residue_spec_t> all_residues() const;
 
    std::vector<coot::residue_spec_t> het_groups() const;
+
+   std::vector<mmdb::Residue *> get_all_protein_residues() const;
 
    // return null on failure.  seq_trip is something like "ACE".
    mmdb::Atom *get_centre_atom_from_sequence_triplet(const std::string &seq_trip) const;

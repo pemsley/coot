@@ -140,7 +140,7 @@ void curlew_old() {
    GtkWidget *vbox = widget_from_builder("curlew_vbox_for_extensions");
    GtkWidget *install_selected_button = widget_from_builder("curlew_install_button");
    // new method does individual installs, not all at once
-   gtk_widget_hide(install_selected_button);
+   gtk_widget_set_visible(install_selected_button, FALSE);
 
    gtk_widget_set_vexpand(vbox, TRUE);
 
@@ -253,7 +253,7 @@ void curlew_old() {
                                  gtk_label_set_justify(GTK_LABEL(wl), GTK_JUSTIFY_LEFT);
                                  gtk_box_append(GTK_BOX(vbox), wl);
                                  gtk_label_set_markup(GTK_LABEL(wl), "   <b>Available</b>");
-                                 gtk_widget_show(wl);
+                                 gtk_widget_set_visible(wl, TRUE);
                               }
                            }
                         }
@@ -350,9 +350,9 @@ void curlew_old() {
                      if (n_already_done != 1) txt += "s";
                      txt += " already installed";
                      gtk_label_set_text(GTK_LABEL(done_label), txt.c_str());
-                     gtk_widget_show(done_label);
+                     gtk_widget_set_visible(done_label, TRUE);
                   } else {
-                     gtk_widget_hide(done_label);
+                     gtk_widget_set_visible(done_label, FALSE);
                   }
                }
             }
@@ -361,7 +361,7 @@ void curlew_old() {
    }
 
    set_transient_for_main_window(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 #else
    // well take out the menu item then!
@@ -399,10 +399,10 @@ void curlew_uninstall_extension(GtkWidget *w, gpointer data) {
       if (status) {
          // Hide the uninstall button, because once it's been uninstalled we can't install it
          // any more
-         gtk_widget_hide(w);
+         gtk_widget_set_visible(w, FALSE);
          if (data) {
             GtkWidget *install_button = static_cast<GtkWidget *>(data);
-            gtk_widget_show(install_button);
+            gtk_widget_set_visible(install_button, TRUE);
          }
       }
    } else {
@@ -552,18 +552,18 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    // gtk_box_pack_start(GTK_BOX(item_hbox), install_frame,     FALSE, FALSE, 0);
    // gtk_box_pack_start(GTK_BOX(item_hbox), uninstall_frame,   FALSE, FALSE, 0);
 
-   gtk_widget_show(icon_widget);
-   gtk_widget_show(description_label);
-   gtk_widget_show(version_label);
-   gtk_widget_show(date_label);
-   gtk_widget_show(install_frame);
-   gtk_widget_show(uninstall_frame);
-   gtk_widget_show(item_hbox);
+   gtk_widget_set_visible(icon_widget, TRUE);
+   gtk_widget_set_visible(description_label, TRUE);
+   gtk_widget_set_visible(version_label, TRUE);
+   gtk_widget_set_visible(date_label, TRUE);
+   gtk_widget_set_visible(install_frame, TRUE);
+   gtk_widget_set_visible(uninstall_frame, TRUE);
+   gtk_widget_set_visible(item_hbox, TRUE);
 
    if (have_this_or_more_recent)
-      gtk_widget_show(uninstall_button);
+      gtk_widget_set_visible(uninstall_button, TRUE);
    else
-      gtk_widget_show(install_button);
+      gtk_widget_set_visible(install_button, TRUE);
 
    gtk_box_append(GTK_BOX(vbox), item_hbox);
 

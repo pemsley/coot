@@ -172,14 +172,14 @@ void do_accept_reject_dialog_with_a_dialog(std::string fit_type, const coot::ref
       // reverse_button = lookup_widget(window, "accept_reject_docked_reverse_button");
       reverse_button = widget_from_builder("accept_reject_docked_reverse_button");
       if (fit_type == "Torsion General") {
-	 gtk_widget_show(reverse_button);
+	 gtk_widget_set_visible(reverse_button, TRUE);
       } else {
-	 gtk_widget_hide(reverse_button);
+	 gtk_widget_set_visible(reverse_button, FALSE);
       }
    } else {
       if (fit_type == "Torsion General") {
 	 reverse_button = widget_from_builder("accept_reject_reverse_button");
-	 gtk_widget_show(reverse_button);
+	 gtk_widget_set_visible(reverse_button, TRUE);
       }
    }
 
@@ -189,9 +189,9 @@ void do_accept_reject_dialog_with_a_dialog(std::string fit_type, const coot::ref
       GtkWidget *button_box = widget_from_builder("hbuttonbox1");
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
 #else
-      gtk_widget_show_all(button_box);
+      gtk_widget_set_visible_all(button_box, TRUE);
 #endif
-      gtk_widget_show(label);
+      gtk_widget_set_visible(label, TRUE);
       if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_SHOW) {
 	 gtk_widget_set_sensitive(window, TRUE);
       }
@@ -227,7 +227,7 @@ void do_accept_reject_dialog_with_a_dialog(std::string fit_type, const coot::ref
          // graphics_info_t::accept_reject_dialog_y_position);
       }
    }
-   gtk_widget_show(window);
+   gtk_widget_set_visible(window, TRUE);
 }
 
 void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results) {
@@ -250,7 +250,7 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
    } else {
       frame = widget_from_builder("accept_reject_lights_frame");
    }
-   gtk_widget_show(frame);
+   gtk_widget_set_visible(frame, TRUE);
 
    // BL says:: First we need to hide all the boxes (actually only for DIALOG_DOCKED)
    // this could be done here, but requires to swap the loops around,
@@ -268,12 +268,12 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
 
       // here comes the hiding
       // if (w && graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED)
-      //    gtk_widget_hide(w);
+      //    gtk_widget_set_visible(w, FALSE);
 
       for (unsigned int i_rest_type=0; i_rest_type<ref_results.lights.size(); i_rest_type++) {
          if (ref_results.lights[i_rest_type].name == distortion_type_string) {
             if (w) {
-	       gtk_widget_show(w);
+	       gtk_widget_set_visible(w, TRUE);
                gtk_widget_set_size_request(w, 20, -1);
                if (boxes[ibox].first != "Rama") {
                   GdkRGBA color = colour_by_distortion(ref_results.lights[i_rest_type].value);
@@ -294,7 +294,7 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
 	       std::string label_name = boxes[ibox].second + "_label"; // needs fixing
 	       GtkWidget *label = widget_from_builder(label_name.c_str());
 	       gtk_label_set_text(GTK_LABEL(label), ref_results.lights[i_rest_type].label.c_str());
-	       gtk_widget_show(label);
+	       gtk_widget_set_visible(label, TRUE);
 	    } else {
                /*
                   GtkTooltips *tooltips;
@@ -600,40 +600,15 @@ graphics_info_t::add_status_bar_text(const std::string &text) {
 
    if (use_graphics_interface_flag) {
 
+      GtkWidget *statusbar = widget_from_builder("main_window_statusbar");
       if (statusbar) {
 	 std::string sbt = text;
-	 // If it is "too long" chop it down.
-	 unsigned int max_width = 130;
-	 GtkWidget *main_window = get_main_window();
-	 // some conversion between the window width and the max text length
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-         // 20220528-PE FIXME
 
-         gtk_statusbar_push(GTK_STATUSBAR(statusbar),
-                            statusbar_context_id,
-                            sbt.c_str());
+         std::cout << "pushing statusbar text: " << sbt << std::endl;
+         gtk_statusbar_push(GTK_STATUSBAR(statusbar), statusbar_context_id, sbt.c_str());
 
-#else
-	 GdkWindow *window = 0;
-         window = gtk_widget_get_window(main_window);
-         if (window) {
-            GtkAllocation allocation;
-            gtk_widget_get_allocation(main_window, &allocation);
-            max_width = allocation.width/4 -38;
-            if (sbt.length() > max_width) { // some number
-               // -------------------------
-               //        |                |
-               //     200-130            200
-               int l = sbt.length();
-               std::string short_text = text.substr(l-max_width, max_width);
-               // std::cout << "short_text length: " << short_text.length() << std::endl;
-               sbt = "..." + short_text;
-            }
-            gtk_statusbar_push(GTK_STATUSBAR(statusbar),
-                               statusbar_context_id,
-                               sbt.c_str());
-         }
-#endif
+      } else {
+         std::cout << "no statusbar" << std::endl;
       }
    }
 }
@@ -917,18 +892,18 @@ graphics_info_t::show_select_map_dialog_gtkbuilder() {
       }
 
       set_transient_for_main_window(dialog);
-      gtk_widget_show(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
 
 
    }
 }
 
-void on_dialog_box_of_buttons_close_button(GtkWidget *button,
-                                           gpointer   user_data) {
-   GtkWidget *dialog = GTK_WIDGET(user_data);
-   gtk_widget_hide(GTK_WIDGET(dialog));
+void
+on_dialog_box_of_buttons_response(GtkDialog *dialog,
+                                  gint       response_id,
+                                  gpointer   user_data) {
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
-
 
 GtkWidget *
 graphics_info_t::dialog_box_of_buttons_internal(const std::string &window_title,
@@ -936,45 +911,44 @@ graphics_info_t::dialog_box_of_buttons_internal(const std::string &window_title,
                                                 const std::string &close_button_label) {
 
 
+   std::string full_title = std::string("Coot: ") + window_title;
    GtkWidget *dialog = gtk_dialog_new();
    GtkWidget *scrolled_window = gtk_scrolled_window_new();
-   gtk_window_set_default_size(GTK_WINDOW(dialog), 160, 500);
-   gtk_window_set_title(GTK_WINDOW(dialog), window_title.c_str());
+   gtk_window_set_default_size(GTK_WINDOW(dialog), 180, 300);
+   gtk_window_set_title(GTK_WINDOW(dialog), full_title.c_str());
    GtkWidget *vbox_outer = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
    GtkWidget *vbox       = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
    GtkWidget *close_button = gtk_button_new_with_label(close_button_label.c_str());
    for (unsigned int i=0; i<buttons.size(); i++) {
       GtkWidget *button  = gtk_button_new_with_label(std::get<0>(buttons[i]).c_str());
       GCallback callback = std::get<1>(buttons[i]);
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       gtk_box_append(GTK_BOX(vbox), button);
-#else
-      gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 1);
-#endif
-      // should we do this here?
+      gtk_widget_set_margin_start (button, 4);
+      gtk_widget_set_margin_end   (button, 4);
+      gtk_widget_set_margin_top   (button, 4);
+      gtk_widget_set_margin_bottom(button, 4);
       g_signal_connect(G_OBJECT(button), "clicked", callback, std::get<2>(buttons[i]));
-      gtk_widget_show(button);
+      gtk_widget_set_visible(button, TRUE);
    }
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
    gtk_box_append(GTK_BOX(vbox_outer), scrolled_window);
-#else
-   gtk_box_pack_start(GTK_BOX(vbox_outer), scrolled_window, TRUE, TRUE, 2);
-#endif
    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), vbox);
-   GtkWidget *aa = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-#if  (GTK_MAJOR_VERSION == 4)
-   gtk_box_append(GTK_BOX(aa), close_button);
-#else
-   gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
-#endif
-   // gtk_dialog_add_button(dialog, close_button, GTK_RESPONSE_CLOSE); // 20211014-PE for the future
-   // GCallback cbc = G_CALLBACK(on_dialog_box_of_buttons_close_button_response);
-   // g_signal_connect(dialog, "response", cbc, NULL);
-   g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(on_dialog_box_of_buttons_close_button), dialog);
-   gtk_widget_show(scrolled_window);
-   gtk_widget_show(vbox);
-   gtk_widget_show(vbox_outer);
-   gtk_widget_show(close_button);
+   gtk_widget_set_vexpand(vbox, TRUE);               // not sure that all of these are needed.
+   gtk_widget_set_hexpand(scrolled_window, TRUE);    //
+   gtk_widget_set_vexpand(scrolled_window, TRUE);    //
+
+   gtk_widget_set_margin_start (vbox_outer, 4);
+   gtk_widget_set_margin_end   (vbox_outer, 4);
+   gtk_widget_set_margin_top   (vbox_outer, 4);
+   gtk_widget_set_margin_bottom(vbox_outer, 4);
+
+   g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(on_dialog_box_of_buttons_response), dialog);
+   gtk_dialog_add_button(GTK_DIALOG(dialog), close_button_label.c_str(), GTK_RESPONSE_CLOSE);
+
+   gtk_widget_set_visible(scrolled_window, TRUE);
+   gtk_widget_set_visible(vbox, TRUE);
+   gtk_widget_set_visible(vbox_outer, TRUE);
+   gtk_widget_set_visible(close_button, TRUE);
+   set_transient_for_main_window(dialog);
    return dialog;
 }
 
@@ -1008,7 +982,7 @@ graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_lab
 		    GINT_TO_POINTER(show_baton_dialog));
 
    if (show_ca_mode_needs_skel_label) {
-      gtk_widget_show(label);
+      gtk_widget_set_visible(label, TRUE);
    }
    set_initial_map_for_skeletonize();
    fill_combobox_with_skeleton_options(combobox);
@@ -1035,13 +1009,13 @@ graphics_info_t::on_skeleton_ok_button_dynamic_clicked (GtkButton       *button,
    graphics_info_t g;
    // g.skeletonize_map_by_optionmenu(optionmenu);
    g.skeletonize_map_by_combobox(combobox);
-   gtk_widget_hide(window); // 20220602-PE was destroy
+   gtk_widget_set_visible(window, FALSE);
    if (do_baton_mode) {
       int state = g.try_set_draw_baton(1);
       if (state) {
 	 //  GtkWidget *w = create_baton_dialog();
 	 GtkWidget *w = widget_from_builder("baton_dialog");
-	 gtk_widget_show(w);
+	 gtk_widget_set_visible(w, TRUE);
       }
    }
 }
@@ -1195,7 +1169,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_men
 			     GINT_TO_POINTER(imol));
 
 	 gtk_menu_append(GTK_MENU(menu), menuitem);
-	 gtk_widget_show(menuitem);
+	 gtk_widget_set_visible(menuitem, TRUE);
  	 if (imol == imol_active_position) {
  	    gtk_menu_set_active(GTK_MENU(menu), item_count);
 	 }
@@ -1507,7 +1481,7 @@ graphics_info_t::output_residue_info_dialog(int imol, int atom_index) {
                                std::vector<coot::alt_confed_chi_angles> chis = chi_angles.get_chi_angles();
                                // GtkWidget *chi_angles_frame = lookup_widget(dialog, "chi_angles_frame");
                                GtkWidget *chi_angles_frame = widget_from_builder("residue_info_chi_angles_frame");
-                               gtk_widget_show(chi_angles_frame);
+                               gtk_widget_set_visible(chi_angles_frame, TRUE);
                                if (chis.size() > 0) {
                                   unsigned int i_chi_set = 0;
                                   // undisplay all chi angles
@@ -1515,7 +1489,7 @@ graphics_info_t::output_residue_info_dialog(int imol, int atom_index) {
                                      std::string label_name = "residue_info_chi_" + std::to_string(i) + "_label";
                                      GtkWidget *label = widget_from_builder(label_name.c_str());
                                      if (label) {
-                                        gtk_widget_hide(label);
+                                        gtk_widget_set_visible(label, FALSE);
                                      }
                                   }
                                   // now display
@@ -1539,7 +1513,7 @@ graphics_info_t::output_residue_info_dialog(int imol, int atom_index) {
                                         text += coot::util::float_to_string(chis[i_chi_set].chi_angles[ich].second);
                                         text += " degrees";
                                         gtk_label_set_text(GTK_LABEL(label), text.c_str());
-                                        gtk_widget_show(label);
+                                        gtk_widget_set_visible(label, TRUE);
                                      } else {
                                         std::cout << "WARNING:: chi label not found " << label_name << std::endl;
                                      }
@@ -1556,7 +1530,7 @@ graphics_info_t::output_residue_info_dialog(int imol, int atom_index) {
       std::string s =  "You have pending (un-Applied) residue edits.\n";
       s += "Deal with them first.";
       GtkWidget *w = wrapped_nothing_bad_dialog(s);
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
 
    } else {
 
@@ -1595,7 +1569,7 @@ graphics_info_t::output_residue_info_dialog(int imol, int atom_index) {
                g_object_set_data(G_OBJECT(dialog), "res_spec_p",  res_spec_p);
                g.fill_output_residue_info_widget(dialog, imol, residue_name, atoms, n_atoms);
                set_transient_for_main_window(dialog);
-               gtk_widget_show(dialog);
+               gtk_widget_set_visible(dialog, TRUE);
                g.reset_residue_info_edits();
 
                add_chi_angles(residue, dialog);
@@ -1740,7 +1714,7 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *dialog, GtkWidg
    // gtk_widget_ref (residue_info_atom_info_label);
    g_object_set_data_full(G_OBJECT (residue_info_dialog_local), "residue_info_atom_info_label",
                           residue_info_atom_info_label, NULL);
-   gtk_widget_show (residue_info_atom_info_label);
+   gtk_widget_set_visible (residue_info_atom_info_label, TRUE);
 
    // The Occupancy entry:
    left_attach = 1;
@@ -1766,7 +1740,7 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *dialog, GtkWidg
    // gtk_widget_set_size_request(residue_info_occ_entry, 20, -1);
 
    gtk_editable_set_width_chars(GTK_EDITABLE(residue_info_occ_entry), 6);
-   gtk_widget_show(residue_info_occ_entry);
+   gtk_widget_set_visible(residue_info_occ_entry, TRUE);
    g_object_set_data(G_OBJECT(residue_info_occ_entry), "select_atom_info", ai);
    gtk_editable_set_text(GTK_EDITABLE(residue_info_occ_entry),
                          graphics_info_t::float_to_string(atom->occupancy).c_str());
@@ -1798,7 +1772,7 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *dialog, GtkWidg
 
    gtk_editable_set_width_chars(GTK_EDITABLE(residue_info_b_factor_entry), 6);
 
-   gtk_widget_show (residue_info_b_factor_entry);
+   gtk_widget_set_visible (residue_info_b_factor_entry, TRUE);
    gtk_editable_set_text(GTK_EDITABLE(residue_info_b_factor_entry),
                          graphics_info_t::float_to_string(atom->tempFactor).c_str());
    g_object_set_data(G_OBJECT(residue_info_b_factor_entry), "select_atom_info", ai);
@@ -1807,7 +1781,7 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *dialog, GtkWidg
 
    // Alt Conf label:
    GtkWidget *alt_conf_label = gtk_label_new(" ");
-   gtk_widget_show(alt_conf_label);
+   gtk_widget_set_visible(alt_conf_label, TRUE);
    left_attach = 3;
    // gtk_table_attach(GTK_TABLE(table), alt_conf_label,
    //      	    left_attach, right_attach, top_attach, bottom_attach,
@@ -1836,7 +1810,7 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *dialog, GtkWidg
    // gtk_widget_set_size_request(residue_info_altloc_entry, 20, -1);
    gtk_editable_set_width_chars(GTK_EDITABLE(residue_info_altloc_entry), 6);
 
-   gtk_widget_show (residue_info_altloc_entry);
+   gtk_widget_set_visible (residue_info_altloc_entry, TRUE);
    g_object_set_data(G_OBJECT(residue_info_altloc_entry), "select_atom_info", ai);
    gtk_editable_set_text(GTK_EDITABLE(residue_info_altloc_entry), atom->altLoc);
    // gtk_table_attach(GTK_TABLE(table), residue_info_altloc_entry,
@@ -2485,7 +2459,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
 	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
 
 	 // we do need this bit of course:
-	 gtk_widget_show(menuitem);
+	 gtk_widget_set_visible(menuitem, TRUE);
 	 last_menu_item_index++;
 	 menu_index++;
       }
@@ -2558,7 +2532,7 @@ graphics_info_t::fill_option_menu_with_undo_options(GtkWidget *option_menu) {
 			       GTK_SIGNAL_FUNC(graphics_info_t::undo_molecule_select),
 			       GINT_TO_POINTER(i));
 	    gtk_menu_append(GTK_MENU(menu), menuitem);
-	    gtk_widget_show(menuitem);
+	    gtk_widget_set_visible(menuitem, TRUE);
 	    if (i == undo_molecule)
 	       gtk_menu_set_active(GTK_MENU(menu), pos_count);
 	    pos_count++;
@@ -2770,7 +2744,7 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
    g_object_set_data(G_OBJECT(vbox), "res_type", s);
    // we get this in c-interface-gui.cc's fill_chi_angles_vbox();
 
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 
    // and now the hydrogen torsion checkbutton:
    GtkWidget *checkbutton = widget_from_builder("edit_chi_angles_add_hydrogen_torsions_checkbutton");
@@ -2880,7 +2854,7 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
 	    gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
 	    gtk_container_set_border_width(GTK_CONTAINER(button), 2);
 #endif
-	    gtk_widget_show(button);
+	    gtk_widget_set_visible(button, TRUE);
 	    ichi++;
 	 }
       }
@@ -3250,7 +3224,7 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 		  // GtkWidget *widget = create_edit_backbone_torsions_dialog();
 		  GtkWidget *widget = widget_from_builder("edit_backbone_torsions_dialog");
 		  set_edit_backbone_adjustments(widget);
-		  gtk_widget_show(widget);
+		  gtk_widget_set_visible(widget, TRUE);
         // update the graph to show both
         GtkWidget *adj;
         adj = widget_from_builder("edit_backbone_torsions_rotate_carbonyl_adjustment");
@@ -3867,7 +3841,7 @@ graphics_info_t::check_waters_by_difference_map(int imol_waters, int imol_diff_m
 	    std::vector <coot::atom_spec_t> v = molecules[imol_waters].check_waters_by_difference_map(molecules[imol_diff_map].xmap, check_waters_by_difference_map_sigma_level);
 	    if (interactive_flag) {
 	       GtkWidget *w = wrapped_create_checked_waters_by_variance_dialog(v, imol_waters);
-	       gtk_widget_show(w);
+	       gtk_widget_set_visible(w, TRUE);
 	    }
 	 } else {
 	    std::cout << "molecule " <<  imol_diff_map
@@ -4045,9 +4019,9 @@ graphics_info_t::wrapped_check_chiral_volumes_dialog(const std::vector <coot::at
 #else
 	 gtk_container_set_border_width(GTK_CONTAINER(button), 6);
 #endif
-	 gtk_widget_show(button);
+	 gtk_widget_set_visible(button, TRUE);
       }
-      gtk_widget_show(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
 
    } else {
       std::cout << "Congratulations: there are no bad chiral volumes in this molecule.\n";
@@ -4250,7 +4224,7 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
    // 20220315-PE  but it doesn't work and who wants this mode anyway? Pink nitrogens?
    //
    // GtkWidget *frame_c_only = widget_from_builder("bond_parameters_rotate_colour_map_c_only_frame");
-   // gtk_widget_hide(frame_c_only);
+   // gtk_widget_set_visible(frame_c_only, FALSE);
 
 
    // Now the tricky bit, fill the scrolled vbox of molecule colour rotation step sliders:
@@ -4287,7 +4261,7 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 	 // gtk_widget_ref (hbox136);
 	 // g_object_set_data_full (G_OBJECT (coords_colour_control_dialog), "hbox136", hbox136, NULL);
 
-	 gtk_widget_show (hbox136);
+	 gtk_widget_set_visible (hbox136, TRUE);
 	 gtk_frame_set_child(GTK_FRAME(frame_molecule_N), hbox136);
 
 	 // g_object_set_data_full(G_OBJECT (coords_colour_control_dialog), "label269", label269, NULL);
@@ -4305,20 +4279,20 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 			  G_CALLBACK(bonds_colour_rotation_adjustment_changed), NULL);
 	 g_object_set_data(G_OBJECT(adjustment_mol), "imol", GINT_TO_POINTER(imol));
 
-	 gtk_widget_show (coords_colour_hscale_mol_N);
+	 gtk_widget_set_visible (coords_colour_hscale_mol_N, TRUE);
 
 	 gtk_box_append(GTK_BOX (hbox136), coords_colour_hscale_mol_N);
 
 	 label270 = gtk_label_new("  degrees  ");
 
-	 gtk_widget_show (label270);
+	 gtk_widget_set_visible (label270, TRUE);
 	 gtk_box_append(GTK_BOX(hbox136), label270);
 
          // needed?
          gtk_label_set_xalign(GTK_LABEL(label270), 0.5);
          gtk_label_set_yalign(GTK_LABEL(label270), 0.56);
 
-	 gtk_widget_show(frame_molecule_N);
+	 gtk_widget_set_visible(frame_molecule_N, TRUE);
       }
    }
 
@@ -4506,13 +4480,13 @@ std::string graphics_info_t::fill_option_menu_with_chain_options(GtkWidget *opti
       if (menu)
 	 gtk_widget_destroy(menu);
       menu = gtk_menu_new();
-      gtk_widget_show(menu);
+      gtk_widget_set_visible(menu, TRUE);
       for (unsigned int i=0; i<chains.size(); i++) {
 	 menu_item = gtk_menu_item_new_with_label(chains[i].c_str());
 	 g_signal_connect(G_OBJECT(menu_item), "activate", signal_func, NULL);
 	 gtk_menu_append(GTK_MENU(menu), menu_item);
 	 // g_object_set_data(G_OBJECT(menu_item), "chain-id", chains[i].c_str());
-	 gtk_widget_show(menu_item);
+	 gtk_widget_set_visible(menu_item, TRUE);
 	 if ((i == 0) || (chains[i] == active_chain_id)) {
 
 	    if (i==0) {
@@ -4896,7 +4870,7 @@ wrapped_create_multi_residue_torsion_dialog(const std::vector<std::pair<mmdb::At
       g_signal_connect(G_OBJECT(button), "clicked",
 		       G_CALLBACK(graphics_info_t::on_multi_residue_torsion_button_clicked),
 		       GINT_TO_POINTER(i));
-      gtk_widget_show(button);
+      gtk_widget_set_visible(button, TRUE);
       coot::atom_spec_t atom_spec_1(pairs[i].first);
       coot::atom_spec_t atom_spec_2(pairs[i].second);
       std::pair<coot::atom_spec_t, coot::atom_spec_t> *atom_spec_pair =
@@ -4986,7 +4960,7 @@ graphics_info_t::add_molecular_representation(int imol,
 
    GtkWidget *w = widget_from_builder("main_window_meshes_frame");
    if (w)
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
    else
       std::cout << "widget main_window_meshes_frame was not found" << std::endl;
 
@@ -5003,7 +4977,7 @@ int
 graphics_info_t::add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name) {
 
    GtkWidget *w = widget_from_builder("main_window_meshes_frame");
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
    attach_buffers();
 
@@ -5024,7 +4998,7 @@ graphics_info_t::remove_molecular_representation(int imol, int idx) {
       n_mesh += molecules[i].meshes.size();
 
    if (n_mesh == 0)
-      gtk_widget_hide(w);
+      gtk_widget_set_visible(w, FALSE);
 
    molecules[imol].remove_molecular_representation(idx);
 }
@@ -5036,7 +5010,7 @@ void
 graphics_info_t::set_show_molecular_representation(int imol, unsigned int mesh_idx, bool on_off) {
 
    GtkWidget *w = widget_from_builder("main_window_meshes_frame");
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
    if (is_valid_model_molecule(imol)) {
       auto &meshes = molecules[imol].meshes;
@@ -5108,9 +5082,9 @@ graphics_info_t::update_main_window_molecular_representation_widgets() {
 
    if (frame) {
       if (n_mesh == 0) {
-         gtk_widget_hide(frame);
+         gtk_widget_set_visible(frame, FALSE);
       } else {
-         gtk_widget_show(frame);
+         gtk_widget_set_visible(frame, TRUE);
       }
    }
 
@@ -5139,7 +5113,7 @@ graphics_info_t::update_main_window_molecular_representation_widgets() {
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
             g_signal_connect(G_OBJECT(w), "toggled", G_CALLBACK(main_window_meshes_togglebutton_toggled), nullptr);
             gtk_box_append(GTK_BOX(vbox), w);
-            gtk_widget_show(w);
+            gtk_widget_set_visible(w, TRUE);
          }
       }
    }

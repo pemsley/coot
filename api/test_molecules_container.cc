@@ -516,8 +516,9 @@ int test_rsr(molecules_container_t &mc) {
    coot::Cartesian pt_n_1_pre = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_pre = atom_to_cartesian(at_n_2);
 
+   int n_cycles = 1000;
    std::string mode = "SPHERE";
-   mc.refine_residues(imol, "A", 14, "", "", mode);
+   mc.refine_residues(imol, "A", 14, "", "", mode, n_cycles);
    coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_post = atom_to_cartesian(at_n_2);
    mc.write_coordinates(imol, "refined-with-big-sphere.pdb");
@@ -559,8 +560,9 @@ int test_rsr_using_atom_cid(molecules_container_t &mc) {
    coot::Cartesian pt_n_1_pre = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_pre = atom_to_cartesian(at_n_2);
 
+   int n_cycles = 1000;
    std::string mode = "SPHERE";
-   mc.refine_residues_using_atom_cid(imol, cid, mode);
+   mc.refine_residues_using_atom_cid(imol, cid, mode, n_cycles);
    coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
    coot::Cartesian pt_n_2_post = atom_to_cartesian(at_n_2);
 
@@ -596,8 +598,9 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
    coot::Cartesian atom_pos_N_2_1 = atom_to_cartesian(at_N_2);
    coot::Cartesian atom_pos_N_3_1 = atom_to_cartesian(at_N_3);
    float w = mc.get_map_weight();
-   mc.set_map_weight(w * 100.0);
-   mc.refine_residue_range(imol, "A", 131, 136);
+   // mc.set_map_weight(w * 100.0);
+   int n_cycles = 500;
+   mc.refine_residue_range(imol, "A", 131, 136, n_cycles);
    mc.set_map_weight(w); // restore sanity.
    coot::Cartesian atom_pos_N_1_2 = atom_to_cartesian(at_N_1);
    coot::Cartesian atom_pos_N_2_2 = atom_to_cartesian(at_N_2);
@@ -613,6 +616,7 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
       if (d_N_3 < 0.0001) // no move
          if (d_N_2 > 0.08) // move a bit
             status = 1;
+   mc.write_coordinates(imol, "post-refine-using-residue-range.pdb");
    return status;
 }
 
@@ -628,19 +632,22 @@ int test_add_terminal_residue(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
    mc.set_imol_refinement_map(imol_map);
 
    // test adding to the N-terminus
    bool part_one_done = false;
    coot::atom_spec_t atom_spec_in_new_residue("A", 284, "", " O  ","");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec_in_new_residue);
+   std::cout << "Here 1 A" << std::endl;
    if (! at_1) { // it's not there to begin with
+      std::cout << "Here 1 B" << std::endl;
       mc.add_terminal_residue_directly(imol, "A", 285, "");
       mc.write_coordinates(imol, "test-add-terminal-residue-with-added-terminal-residue.pdb");
       mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec_in_new_residue);
       if (at_2) {
+         std::cout << "Here 1 C" << std::endl;
          // now test that it is there
          coot::Cartesian reference_pos(76.3, 59, 23);
          coot::Cartesian atom_pos = atom_to_cartesian(at_2);
@@ -723,6 +730,11 @@ int test_add_terminal_residue(molecules_container_t &mc) {
       if (oxt_2 == nullptr) // not there
          part_four_done = true;
    }
+
+   std::cout << "part_one_done "   << part_one_done   << std::endl;
+   std::cout << "part_two_done "   << part_two_done   << std::endl;
+   std::cout << "part_three_done " << part_three_done << std::endl;
+   std::cout << "part_four_done "  << part_four_done  << std::endl;
 
    if (part_one_done && part_two_done && part_three_done && part_four_done)
       status = 1;
@@ -1692,9 +1704,6 @@ int test_add_compound(molecules_container_t &mc) {
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
          coot::Cartesian atom_pos = atom_to_cartesian(at_1);
-         double dd = coot::Cartesian::lengthsq(atom_pos, atom_pos);
-         double d = std::sqrt(dd);
-
          coot::Cartesian lig_pos(1,23,3);
          mc.add_compound(imol, "GOL", coot::protein_geometry::IMOL_ENC_ANY, imol_map, lig_pos.x(), lig_pos.y(), lig_pos.z());
 
@@ -2154,7 +2163,7 @@ int test_editing_session_tutorial_4(molecules_container_t &mc) {
       std::cout << "::::::::::::::::::::::::::::::::::: Rail points F: latest_move: " << rpn_6 << " total: " << rpt_6 << std::endl;
       std::cout << "::::::::::::::::::::::::::::::::::: R-factor " << mc.get_latest_sfcalc_stats().r_factor << std::endl;
 
-      mc.refine_residues_using_atom_cid(imol, "//A/262/CA", "QUINTUPLE");
+      mc.refine_residues_using_atom_cid(imol, "//A/262/CA", "QUINTUPLE", 400);
       map_mesh = mc.get_map_contours_mesh(imol_map, 40,40,40, 6, 0.8);
       int rpn_7 = mc.calculate_new_rail_points();
       int rpt_7 = mc.rail_points_total();
@@ -2419,13 +2428,13 @@ int test_superpose(molecules_container_t &mc) {
 
    int status = 0;
 
-   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_2 = mc.read_pdb(reference_data("3pzt.pdb"));
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1-with-gap.pdb"));
+   int imol_2 = mc.read_pdb(reference_data("1phk-with-gap.pdb"));
 
    unsigned int n_pre = mc.get_number_of_molecules();
 
    coot::atom_spec_t atom_spec_1("A", 227, "", " CA ","");
-   coot::atom_spec_t atom_spec_2("B", 256, "", " CA ","");
+   coot::atom_spec_t atom_spec_2("A", 256, "", " CA ","");
    mmdb::Atom *at_1 = mc.get_atom(imol_1, atom_spec_1);
    mmdb::Atom *at_2 = mc.get_atom(imol_2, atom_spec_2);
 
@@ -2437,17 +2446,28 @@ int test_superpose(molecules_container_t &mc) {
    std::cout << "test d1 " << d1 << std::endl;
 
    // std::pair<std::string, std::string> ss_result_pair = mc.SSM_superpose(imol_1, "A", imol_2, "B");
-   superpose_results_t ss_results = mc.SSM_superpose(imol_1, "A", imol_2, "B");
+   superpose_results_t ss_results = mc.SSM_superpose(imol_1, "A", imol_2, "A");
 
-   std::cout << "ss_result:\n" << ss_results.suppose_info << std::endl;
-   std::cout << "ss_result:\n" << ss_results.alignment.first  << std::endl;
-   std::cout << "ss_result:\n" << ss_results.alignment.second << std::endl;
+   std::cout << "ss_result: info:\n" << ss_results.superpose_info << std::endl;
+   std::cout << "ss_result: alnR\n" << ss_results.alignment.first  << std::endl;
+   std::cout << "ss_result: alnM\n" << ss_results.alignment.second << std::endl;
+
+   if (false) {
+      for (unsigned int i=0; i<ss_results.alignment_info_vec.size(); i++) {
+         for (const auto &chain : ss_results.alignment_info_vec[i].cviv) {
+            for (const auto &res : chain.rviv) {
+               std::cout << res.residue_spec << " " << res.function_value << std::endl;
+            }
+         }
+      }
+   }
 
    if (true) {
-      for (const auto &chain : ss_results.alignment_info.cviv) {
-         for (const auto &res : chain.rviv) {
-            std::cout << res.residue_spec << " " << res.function_value << std::endl;
-         }
+      const auto &pairs = ss_results.aligned_pairs;
+      for (unsigned int i=0; i<pairs.size(); i++) {
+         const auto &r1 = pairs[i].first;
+         const auto &r2 = pairs[i].second;
+         std::cout << "   " << r1.residue_spec << " " << r2.residue_spec << std::endl;
       }
    }
 
@@ -2751,7 +2771,7 @@ int test_alt_conf_and_rotamer(molecules_container_t &mc) {
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
          mc.imol_refinement_map = imol_map;
-         mc.refine_residues_using_atom_cid(imol, "//A/131", "TRIPLE");
+         mc.refine_residues_using_atom_cid(imol, "//A/131", "TRIPLE", 400);
          mc.write_coordinates(imol, "alt-conf-and-rotamer-and-refine.pdb");
          status = 1;
       }
@@ -2778,7 +2798,7 @@ int test_alt_conf_and_rotamer_v2(molecules_container_t &mc) {
          coot::Cartesian atom_pos_start_A = atom_to_cartesian(at_A);
          coot::Cartesian atom_pos_start_B = atom_to_cartesian(at_B);
          mc.imol_refinement_map = imol_map;
-         mc.refine_residues_using_atom_cid(imol, "//A/131", "TRIPLE");
+         mc.refine_residues_using_atom_cid(imol, "//A/131", "TRIPLE", 400);
          mc.change_to_next_rotamer(imol, "//A/131", "A");
          mc.change_to_next_rotamer(imol, "//A/131", "A");
          mc.change_to_next_rotamer(imol, "//A/131", "A");
@@ -2934,6 +2954,130 @@ int test_map_centre(molecules_container_t &mc) {
    return status;
 }
 
+int test_dragged_atom_refinement(molecules_container_t &mc_in) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   molecules_container_t mc;
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+      mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+      if (at_1) {
+         coot::Cartesian atom_pos = atom_to_cartesian(at_1);
+         coot::Cartesian atom_pos_new = atom_pos + coot::Cartesian(2,2,2); // say
+         int imol_new = mc.copy_fragment_for_refinement_using_cid(imol, "//A/265-275"); // make molten molecule
+         mc.init_refinement_of_molecule_as_fragment_based_on_reference(imol_new, imol, imol_map);
+
+         mc.write_coordinates(imol_new, "rtest-0.pdb");
+
+         int refine_status = 0;
+         std::pair<int, coot::instanced_mesh_t> im_0 = mc.refine(imol_new, 10);
+         refine_status = im_0.first;
+         mc.write_coordinates(imol_new, "rtest-1.pdb");
+
+         // keep calling this, and displaying the subsequent mesh again as the mouse moves...
+         coot::instanced_mesh_t im_1 =
+            mc.add_target_position_restraint_and_refine(imol_new, "//A/270/O",
+                                                        atom_pos_new.x(), atom_pos_new.y(), atom_pos_new.z(),
+                                                        1000);
+
+         mc.write_coordinates(imol_new, "rtest-2.pdb");
+
+         // mouse button release
+         mc.clear_target_position_restraints(imol_new);
+
+         std::pair<int, coot::instanced_mesh_t> im_2 = mc.refine(imol_new, 10);
+         refine_status = im_2.first;
+         if (refine_status == GSL_CONTINUE) {
+            std::pair<int, coot::instanced_mesh_t> im_3 = mc.refine(imol_new, 10);
+            refine_status = im_3.first;
+         }
+         if (refine_status == GSL_CONTINUE) {
+            std::pair<int, coot::instanced_mesh_t> im_4 = mc.refine(imol_new, 10);
+            refine_status = im_4.first;
+         }
+         if (refine_status == GSL_CONTINUE) {
+            std::pair<int, coot::instanced_mesh_t> im_5 = mc.refine(imol_new, 10);
+            refine_status = im_5.first;
+         }
+         if (refine_status == GSL_CONTINUE) {
+            std::pair<int, coot::instanced_mesh_t> im_6 = mc.refine(imol_new, 100);
+            refine_status = im_6.first;
+         }
+
+         // finished mousing:
+         mc.clear_refinement(imol);
+
+         // Let's say they liked it:
+         mc.replace_fragment(imol, imol_new, "//");
+
+         if (refine_status == GSL_CONTINUE) status = 1; // the atoms still are moving (a bit) (that's what I want
+                                                        // for success of this test).
+      }
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
+int test_bucca_ml_growing(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // int imol     = mc.read_pdb(reference_data("1gwd-large-C-terminal-fragment-missing.pdb"));
+   std::string fn = "1gwd-large-C-terminal-fragment-missing.pdb";
+   fn = "1gwd-118-chop.pdb";
+   fn = "1gwd-2-chop.pdb";
+   int imol     = mc.read_pdb(reference_data(fn));
+   int imol_map = mc.read_mtz(reference_data("1gwd_map.mtz"), "FWT", "PHWT", "FOM", false, false);
+
+   mc.set_refinement_is_verbose();
+   mc.geometry_init_standard();
+   mc.get_monomer("CL");
+   mc.get_monomer("IOD");
+   mc.get_monomer("CMO");
+
+   std::string chain_id = "A";
+   int res_no = 2; // was 118
+   if (mc.is_valid_model_molecule(imol)) {
+      if (mc.is_valid_map_molecule(imol_map)) {
+         mc.set_imol_refinement_map(imol_map);
+         ::api::cell_t c = mc.get_cell(imol_map);
+         std::cout << "debug cell: "
+                   << c.a << " " << c.b << " " << c.c << " " << c.alpha << " " << c.beta << " " << c.gamma << std::endl;
+         int add_status = 1; // get started.
+         while (add_status == 1) {
+            std::string atom_cid = "//A/" + std::to_string(res_no);
+            std::cout << "-------- building based on " << atom_cid << std::endl;
+            add_status = mc.add_terminal_residue_directly_using_bucca_ml_growing_using_cid(imol, atom_cid);
+
+            if (add_status == 1) {
+
+               std::string fnp = "test-pre-ref-" + std::to_string(res_no) + std::string(".pdb");
+               mc.write_coordinates(imol, fnp);
+               bool do_refine = true;
+               if (do_refine) {
+                  mc.refine_residue_range(imol, chain_id, res_no, res_no+1, 500);
+               }
+
+               std::string fn = "test-" + std::to_string(res_no) + std::string(".pdb");
+               mc.write_coordinates(imol, fn);
+            }
+            res_no += 1; // for next residue
+            if (res_no > 129)
+               add_status = 0; // force stop.
+         }
+      } else {
+         std::cout << "Not a valid map " << imol_map << std::endl;
+      }
+   } else {
+      std::cout << "Not a valid model " << imol << std::endl;
+   }
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -3081,7 +3225,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_mmrrcc, "MMRRCC", mc);
 
-   //status += run_test(test_auto_read_mtz, "auto-read MTZ", mc);
+   // status += run_test(test_auto_read_mtz, "auto-read MTZ", mc);
 
    // status += run_test(test_instanced_bonds_mesh, "insta bonds mesh", mc);
 
@@ -3097,7 +3241,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
 
-   // status = run_test(test_add_terminal_residue, "add terminal residue", mc);
+   status = run_test(test_add_terminal_residue, "add terminal residue", mc);
 
    // status = run_test(test_symmetry, "symmetry", mc);
 
@@ -3113,9 +3257,11 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_molecular_representation, "molecular representation mesh", mc);
 
-   status += run_test(test_cell, "cell", mc);
+   // status += run_test(test_cell, "cell", mc);
 
-   status += run_test(test_map_centre, "map centre", mc);
+   // status += run_test(test_map_centre, "map centre", mc);
+
+   // status += run_test(test_dragged_atom_refinement, "dragged atom refinement", mc);
 
    // status = run_test(test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
 
@@ -3131,6 +3277,11 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_residue_name_group, "residue name group", mc);
 
+   // status = run_test(test_superpose, "SSM superpose ", mc);
+
+   // status = run_test(test_rsr_using_residue_range, "test_rsr using residue range", mc);
+
+   // status = run_test(test_bucca_ml_growing, "Bucca ML growing", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

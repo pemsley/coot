@@ -52,6 +52,17 @@ meshed_generic_display_object::add_line(const coot::colour_holder &colour,
    mesh.import(converted_vertices, c.triangles);
 }
 
+void
+meshed_generic_display_object::add_sphere(const meshed_generic_display_object::sphere_t &sphere) {
+
+   unsigned int num_subdivisions = 2;
+   float radius = sphere.radius;
+   glm::vec4 col = sphere.col;
+   glm::vec3 position = coord_orth_to_glm(sphere.centre);
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+      oct = wrapped_make_octasphere(num_subdivisions, position, radius, col);
+   mesh.import(oct);
+}
 
 void
 meshed_generic_display_object::add_point(const coot::colour_holder &colour_in,
@@ -73,10 +84,29 @@ meshed_generic_display_object::add_point(const coot::colour_holder &colour_in,
 void
 meshed_generic_display_object::add_arrow(const arrow_t &arrow) {
 
-   unsigned int n_slices = 8;
-   std::pair<glm::vec3, glm::vec3 > start_end(coord_orth_to_glm(arrow.start_point),
-                                              coord_orth_to_glm(arrow.end_point));
-   add_cylinder(start_end, arrow.col, arrow.radius, n_slices, true, true, FLAT_CAP, FLAT_CAP);
+   // unsigned int n_slices = 8;
+   // std::pair<glm::vec3, glm::vec3 > start_end(coord_orth_to_glm(arrow.start_point),
+   //                                            coord_orth_to_glm(arrow.end_point));
+   // add_cylinder(start_end, arrow.col, arrow.radius, n_slices, true, true, FLAT_CAP, FLAT_CAP);
+
+   coot::colour_holder col(0.8, 0.2, 0.8);
+
+   float h = glm::distance(coord_orth_to_glm(arrow.start_point), coord_orth_to_glm(arrow.end_point));
+   glm::vec4 base_colour(arrow.col.red, arrow.col.green, arrow.col.blue, 1.0f);
+   unsigned int n_slices = 30;
+   std::pair<glm::vec3, glm::vec3> start_end(coord_orth_to_glm(arrow.start_point), coord_orth_to_glm(arrow.end_point));
+   cylinder c(start_end, arrow.radius, arrow.radius, h, base_colour, n_slices, 2);
+   c.add_flat_start_cap();
+   add_cylinder(start_end, col, arrow.radius, n_slices, true, false, FLAT_CAP, FLAT_CAP);
+   
+
+   clipper::Coord_orth delta_uv((arrow.end_point - arrow.start_point).unit());
+   clipper::Coord_orth cone_start = arrow.end_point + 1.3 * delta_uv;
+   clipper::Coord_orth cone_end   = arrow.end_point;
+   float base_radius = arrow.radius * 3.0;
+   float top_radius = 0.0;
+   std::pair<glm::vec3, glm::vec3> cone_start_end(coord_orth_to_glm(cone_start), coord_orth_to_glm(cone_end));
+   add_cone(cone_start_end, col, base_radius, top_radius, n_slices, false, true, FLAT_CAP, FLAT_CAP);
 
 }
 
@@ -357,7 +387,7 @@ meshed_generic_display_object::add_arc(const arc_t &arc) {
    glm::vec3 start_point = coord_orth_to_glm(arc.start_point); // this is the central atom position
    glm::vec4 col = colour_holder_to_glm(arc.col);
    glm::mat4 rot_mat = glm::orientation(coord_orth_to_glm(arc.normal), glm::vec3(0.0, 0.0, 1.0));
-   std::cout << "rot_mat: " << glm::to_string(rot_mat)<< std::endl;
+   // std::cout << "add_arc: rot_mat: " << glm::to_string(rot_mat)<< std::endl;
 
    const clipper::Mat33<double> &m = arc.orientation_matrix;
    glm::mat3 ori_mat(m(0,0), m(0,1), m(0,2),
@@ -441,9 +471,14 @@ void meshed_generic_display_object::add_torus(const meshed_generic_display_objec
    const float pi = 3.1415926535;
    glm::vec4 col = colour_holder_to_glm(torus.col);
 
+   // std::cout << "torus.normal: " << torus.normal.format() << std::endl;
+
    glm::vec4 centre(torus.position.x(), torus.position.y(), torus.position.z(), 1.0);
-   glm::vec3 ring_normal(torus.normal.x(), torus.normal.y(), torus.normal.z());
-   glm::mat4 ori = glm::orientation(ring_normal, glm::vec3(0,0,1));
+   glm::vec3 ring_normal(glm::normalize(glm::vec3(torus.normal.x(), torus.normal.y(), torus.normal.z())));
+   glm::mat4 ori = glm::orientation(ring_normal, glm::vec3(0.0, 0.0, 1.0));
+
+   std::cout << "ring_normal " << glm::to_string(ring_normal) << std::endl;
+   std::cout << "ori " << glm::to_string(ori) << std::endl;
 
    for (unsigned int ip=0; ip<n_phi_steps; ip++) {
       float phi = 2.0f * pi * static_cast<float>(ip)/static_cast<float>(n_phi_steps);
@@ -455,13 +490,14 @@ void meshed_generic_display_object::add_torus(const meshed_generic_display_objec
          pos.y = (R + r * cosf(theta)) * sinf(phi);
          pos.z = torus.height_scale * r * sinf(theta);
          pos.w = 1.0; // or 0?
-         v.pos = glm::vec3(pos * ori) + glm::vec3(centre);
+         glm::mat4 tori = glm::transpose(ori);
+         v.pos = glm::vec3(pos * tori) + glm::vec3(centre);
          glm::vec4 normal;
          normal.x = cosf(theta) * cosf(phi);
          normal.y = cosf(theta) * sinf(phi);
          normal.z = sinf(theta);
          normal.w = 1.0;
-         v.normal = glm::vec3(normal * ori);
+         v.normal = glm::vec3(normal * tori);
          v.color = col;
          vertices[ip * n_theta_steps + it] = v;
       }

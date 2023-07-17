@@ -29,8 +29,9 @@
 #define GRAPHICS_INFO_H
 
 #include "compat/coot-sysdep.h"
-#include "validation-graphs.hh"
-#include "validation-graph-widget.hh"
+#include "validation-graphs/validation-information.hh"
+#include "validation-graphs/validation-graphs.hh"
+#include "validation-graphs/validation-graph-widget.hh"
 // need gtk things
 #include <gtk/gtk.h>
 #include <epoxy/gl.h>
@@ -109,11 +110,8 @@
 #ifdef DO_RAMA_PLOT
 #include "rama_plot.hh"
 #endif
-// #ifdef DO_GEOMETRY_GRAPHS
-// #include "geometry-graphs.hh"
-// #endif
 
-#include "validation-graphs/validation-information.hh"
+
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -945,6 +943,8 @@ class graphics_info_t {
    // bottom left flat ligand view:
    //
    static bool graphics_ligand_view_flag;
+   static int  graphics_ligand_view_imol; // the molecle of the ligand. We don't want to show the HUG ligand
+                                          // if the molecule of which it is part is not displayed.
 
    // ----------------------------------------------------------------
    //             public:
@@ -1726,14 +1726,16 @@ public:
                                                   // button and function to see it.
    static std::vector<std::string> go_to_ligand_non_interesting_comp_ids;
 
-   void set_go_to_atom_chain_residue_atom_name(const char *chain_id,
-					      int resno, const char *ins_code,
-					      const char *atom_name, const char *altLoc);
+   void set_go_to_atom_chain_residue_atom_name(const std::string &chain_id,
+					      int resno, const std::string &ins_code,
+					      const std::string &atom_name, const std::string &altLoc);
    // 20220723-PE these look like GUI callbacks
    void set_go_to_atom_chain_residue_atom_name(const char *t1,
 					       int it2, const char *t3);
    void set_go_to_atom_chain_residue_atom_name(const char *chain_id,
 					       int resno, const char *atom_name, const char *altLoc);
+   // 20230611-PE this is indeed a gui callback
+   static void set_go_to_atom(int imol, const coot::atom_spec_t &spec);
 
    // 20230520-PE why isn't this here?
    // void set_go_to_atom(const coot::atom_spec_t &atom_spec);
@@ -3824,6 +3826,10 @@ public:
    static float ncs_homology_level;
    static short int ncs_matrix_flag;
 
+   // 20230621-PE not yet implemented, although see l28 lambda (which doesn't work)
+   static void ncs_jump_forward();  // A -> B -> C -> A
+   static void ncs_jump_backward(); // B -> A
+
    // ------------- validation: -------------------
 
    // pretty graphs on a canvas: (not const because geom_p may be added to)
@@ -3865,12 +3871,12 @@ public:
    static GtkWidget *preferences_widget;
    static int mark_cis_peptides_as_bad_flag;
 
-   static std::vector<std::string> *preferences_general_tabs;
-   static std::vector<std::string> *preferences_bond_tabs;
-   static std::vector<std::string> *preferences_geometry_tabs;
-   static std::vector<std::string> *preferences_colour_tabs;
-   static std::vector<std::string> *preferences_map_tabs;
-   static std::vector<std::string> *preferences_other_tabs;
+   static std::vector<std::string> preferences_general_tabs;
+   static std::vector<std::string> preferences_bond_tabs;
+   static std::vector<std::string> preferences_geometry_tabs;
+   static std::vector<std::string> preferences_colour_tabs;
+   static std::vector<std::string> preferences_map_tabs;
+   static std::vector<std::string> preferences_other_tabs;
 
    static std::vector<coot::preferences_icon_info_t> *model_toolbar_icons;
    static std::vector<coot::preferences_icon_info_t> *main_toolbar_icons;
@@ -5154,10 +5160,6 @@ string   static std::string sessionid;
    // like the above, this should be called when a model gets added or deleted.
    static void refresh_ramachandran_plot_model_list();
 
-   // 20230415-PE This should not be needed - because we should always be able to read the active imol
-   // from the widget in any callback. But for now it is needed in on_validation_graph_checkbutton_toggled()
-   // in the glade-callbacks.cc - so let's make it public.
-   //
    /// -1 if none
    static int active_validation_graph_model_idx;
 
@@ -5165,8 +5167,7 @@ string   static std::string sessionid;
    static std::string active_validation_graph_chain_id;
    typedef std::map<coot::validation_graph_type,GtkWidget*> validation_graph_map_t;
    static validation_graph_map_t validation_graph_widgets;
-   // typedef std::map<coot::validation_graph_type,std::shared_ptr<dummy_graph_data_t>> validation_data_map_t;
-   typedef std::map<coot::validation_graph_type,std::shared_ptr<coot::validation_information_t> > validation_data_map_t;
+   typedef std::map<coot::validation_graph_type,std::shared_ptr<coot::validation_information_t>> validation_data_map_t;
    static validation_data_map_t validation_graph_data;
    public:
    static void update_active_validation_graph_model(int new_model_idx);

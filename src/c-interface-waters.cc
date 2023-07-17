@@ -156,7 +156,8 @@ SCM select_atom_under_pointer_scm() {
 
    SCM r = SCM_BOOL_F;
    if (graphics_info_t::use_graphics_interface_flag) {
-      pick_info pi = atom_pick(NULL);
+      graphics_info_t g;
+      pick_info pi = g.atom_pick_gtk3(false);
       if (pi.success) {
 	 mmdb::Atom *at = graphics_info_t::molecules[pi.imol].atom_sel.atom_selection[pi.atom_index];
 	 SCM v1 = scm_from_int(pi.imol);
@@ -182,6 +183,8 @@ PyObject *select_atom_under_pointer_py() {
 	 r = PyList_New(2);
 	 PyObject *r0 = PyLong_FromLong(pi.imol);
 	 PyObject *r1 = atom_spec_to_py(coot::atom_spec_t(at));
+         PyList_SetItem(r, 0, r0);
+         PyList_SetItem(r, 1, r1);
 	 normal_cursor();
       }
    }

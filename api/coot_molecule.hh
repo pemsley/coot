@@ -6,6 +6,7 @@
 #include <array>
 
 #include <clipper/core/xmap.h>
+#include "utils/ctpl.h"
 #include "coot-utils/atom-selection-container.hh"
 #include "coot-utils/coot-rama.hh"
 #include "coot-utils/sfcalc-genmap.hh"
@@ -38,7 +39,12 @@
 #include "coot-simple-molecule.hh"
 
 #include "coot-utils/coot-map-utils.hh" // for map_molecule_centre_info_t
-#include "api-cell.hh"
+#include "api-cell.hh" // 20230702-PE not needed in this file - remove it from here
+
+// 2023-07-04-PE This is a hack. This should be configured - and the
+// various functions that depend on this being true should be
+// reworked so that they run without a thread pool.
+#define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 namespace coot {
 
@@ -319,6 +325,10 @@ namespace coot {
                                              const clipper::Xmap<float> &xmap,
                                              float map_sigma) const;
 
+      // ====================== dragged refinemetn ======================================
+
+      coot::restraints_container_t *last_restraints;
+
       // ====================== init ======================================
 
       void init() {
@@ -340,6 +350,7 @@ namespace coot {
          use_bespoke_grey_colour_for_carbon_atoms = false;
 
          map_colour = colour_holder(0.3, 0.3, 0.7);
+         last_restraints = nullptr;
 
          float rotate_colour_map_on_read_pdb = 0.24;
          bonds_colour_map_rotation = (imol_no + 1) * rotate_colour_map_on_read_pdb;
@@ -368,6 +379,9 @@ namespace coot {
       // set this on reading a pdb file
       float default_temperature_factor_for_new_atoms; // direct access
 
+      // for rsr neighbours - they are fixed.
+      std::vector<std::pair<bool, mmdb::Residue *> > neighbouring_residues;
+
       //! constructor
       molecule_t(const std::string &name_in, int mol_no_in) : name(name_in) {imol_no = mol_no_in; init(); }
       //! constructor
@@ -386,6 +400,11 @@ namespace coot {
       // ------------------------ close
 
       int close_yourself();
+
+      // ------------------------------- rsr utils
+      // - add in the environment of this fragment molecule
+      // from the residue from which this fragment was copied
+      void add_neighbor_residues_for_refinement_help(mmdb::Manager *mol);
 
       // ----------------------- structure factor stuff ------------------------------------------------------
 
@@ -658,7 +677,8 @@ namespace coot {
       std::pair<int, std::string> add_terminal_residue_directly(const residue_spec_t &spec,
                                                                 const std::string &new_res_type,
                                                                 const protein_geometry &geom,
-                                                                const clipper::Xmap<float> &xmap);
+                                                                const clipper::Xmap<float> &xmap,
+                                                                ctpl::thread_pool &static_thread_pool);
 
       int add_compound(const dictionary_residue_restraints_t &monomer_restraints, const Cartesian &position,
                        const clipper::Xmap<float> &xmap, float map_rmsd);
@@ -832,9 +852,45 @@ namespace coot {
       //! resno_start and resno_end are inclusive
       std::vector<mmdb::Residue *> select_residues(const std::string &chain_id, int resno_start, int resno_end) const;
 
+      //! real space refinement
       int refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
-                        float map_weight, const coot::protein_geometry &geom, bool refinement_is_quiet);
+                        float map_weight, int n_cycles, const coot::protein_geometry &geom, bool refinement_is_quiet);
 
+      void fix_atom_selection_during_refinement(const std::string &atom_selection_cid);
+
+      // refine all of this molecule - the links and non-bonded contacts will be determined from mol_ref;
+      void init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::protein_geometry &geom,
+                                        const clipper::Xmap<float> &xmap, float map_weight,
+                                        ctpl::thread_pool *thread_pool);
+
+      // add or update.
+      void add_target_position_restraint(const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
+
+      //
+      void turn_off_when_close_target_position_restraint();
+
+      std::vector<std::pair<mmdb::Atom *, clipper::Coord_orth> > atoms_with_position_restraints;
+
+      instanced_mesh_t add_target_position_restraint_and_refine(const std::string &atom_cid, float pos_x, float pos_y, float pos_z,
+                                                                int n_cyles,
+                                                                coot::protein_geometry *geom_p);
+      //! clear
+      void clear_target_position_restraint(const std::string &atom_cid);
+
+      //! refine (again).
+      //! @return the status of the refinement: GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress).
+      //! i.e. don't call thus function again unless the status is GSL_CONTINUE (-2);
+      int refine_using_last_restraints(int n_steps);
+
+      // something is happening to this pointer - where is it being reset?
+      restraints_container_t *get_last_restraints() { return last_restraints; }
+
+      //! clear any and all drag-atom target position restraints
+      void clear_target_position_restraints();
+
+      //! call this after molecule refinement has finished (say when the molecule molecule is accepted into the
+      //! original molecule)
+      void clear_refinement();
 
       // make them yourself - easy as pie.
       void generate_self_restraints(float local_dist_max,

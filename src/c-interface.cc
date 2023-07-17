@@ -119,7 +119,6 @@
 
 #include "coot-version.hh"
 
-#include "nsv.hh"
 #include "widget-headers.hh"
 #include "widget-from-builder.hh"
 
@@ -132,10 +131,12 @@
 #include "cmtz-interface.hh"
 // #include "mtz-bits.h" stuff from here moved to cmtz-interface
 
+#include "read-molecule.hh" // now with std::string args
+
 #include "widget-from-builder.hh"
 #include "glarea_tick_function.hh"
-#include "dynamic-menus.hh"
 
+#include "validation-graphs/sequence-view-widget.hh"
 
 // This is (already) in git-revision-count.cc
 //
@@ -590,7 +591,7 @@ get_idle_function_rock_target_angle() {
 // Return the molecule number of the molecule that we just filled.
 // Return -1 if there was a failure.
 //
-int handle_read_draw_molecule(const char *filename) {
+int handle_read_draw_molecule(const std::string &filename) {
 
    int r = graphics_info_t::recentre_on_read_pdb;
    return handle_read_draw_molecule_with_recentre(filename, r);
@@ -834,15 +835,13 @@ void set_convert_to_v2_atom_names(short int state) {
 }
 
 
-int handle_read_draw_molecule_with_recentre(const char *filename,
+int handle_read_draw_molecule_with_recentre(const std::string &filename,
 					    int recentre_on_read_pdb_flag) {
 
    int r = -1;
    //
 
    graphics_info_t g;
-   if (! filename)
-      return -1;
 
    std::string cmd = "handle-read-draw-molecule-with-recentre";
    std::vector<coot::command_arg_t> args;
@@ -997,13 +996,14 @@ int move_molecule_to_screen_centre_internal(int imol);
 
 /*! \brief read coordinates from filename and recentre the new
   molecule at the scren rotation centre. */
-int handle_read_draw_molecule_and_move_molecule_here(const char *filename) {
+int handle_read_draw_molecule_and_move_molecule_here(const std::string &filename) {
+
    int imol = handle_read_draw_molecule_with_recentre(filename, 0);
    move_molecule_to_screen_centre_internal(imol);
    return imol;
 }
 
-int read_pdb(const char *filename) {
+int read_pdb(const std::string &filename) {
    // history is done in the handle function
    return handle_read_draw_molecule(filename);
 }
@@ -1182,7 +1182,7 @@ void zalman_stereo_mode() {
 		 (previous_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ) {
 
 	       if (graphics_info_t::glareas.size() == 2) {
-		  gtk_widget_hide(graphics_info_t::glareas[1]); // was deleted
+		  gtk_widget_set_visible(graphics_info_t::glareas[1], FALSE);
 		  graphics_info_t::glareas[1] = NULL;
 	       }
 	    }
@@ -1196,9 +1196,9 @@ void zalman_stereo_mode() {
 		  toggle_idle_spin_function(); // turn it off;
 	       }
 	       // gtk_widget_destroy(graphics_info_t::glareas[0]);
-	       gtk_widget_hide(graphics_info_t::glareas[0]);
+	       gtk_widget_set_visible(graphics_info_t::glareas[0], FALSE);
 	       graphics_info_t::glareas[0] = glarea;
-	       gtk_widget_show(glarea);
+	       gtk_widget_set_visible(glarea, TRUE);
 	       // antialiasing?
 	       graphics_info_t g;
 	       g.draw_anti_aliasing();
@@ -1247,7 +1247,7 @@ void mono_mode() {
 		  graphics_info_t::glareas[1] = NULL;
 	       }
 	       graphics_info_t::glareas[0] = glarea;
-	       gtk_widget_show(glarea);
+	       gtk_widget_set_visible(glarea, TRUE);
                // now we shall resize to half the window size if we had
                // side-by-side stereo before
                if ((previous_mode == coot::SIDE_BY_SIDE_STEREO) ||
@@ -1308,8 +1308,8 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
             }
             gtk_widget_destroy(graphics_info_t::glareas[0]);
             graphics_info_t::glareas[0] = glarea; // glarea_2 is stored by gl_extras()
-            gtk_widget_show(glarea);
-            gtk_widget_show(graphics_info_t::glareas[1]);
+            gtk_widget_set_visible(glarea, TRUE);
+            gtk_widget_set_visible(graphics_info_t::glareas[1], TRUE);
             update_maps();
             // antialiasing?
             graphics_info_t g;
@@ -1361,9 +1361,9 @@ void set_dti_stereo_mode(short int state) {
             }
             gtk_widget_destroy(graphics_info_t::glareas[0]);
             graphics_info_t::glareas[0] = glarea;
-            gtk_widget_show(glarea);
+            gtk_widget_set_visible(glarea, TRUE);
             if (graphics_info_t::glareas.size() == 2)
-               gtk_widget_show(graphics_info_t::glareas[1]);
+               gtk_widget_set_visible(graphics_info_t::glareas[1], TRUE);
             graphics_draw();
          } else {
             std::cout << "WARNING:: switch to side by side mode failed!\n";
@@ -1604,7 +1604,7 @@ void post_model_fit_refine_dialog() {
 
    GtkWidget *widget = wrapped_create_model_fit_refine_dialog();
    if (graphics_info_t::use_graphics_interface_flag) {
-      gtk_widget_show(widget);
+      gtk_widget_set_visible(widget, TRUE);
    }
    std::vector<std::string> command_strings;
    command_strings.push_back("post-model-fit-refine-dialog");
@@ -1615,7 +1615,7 @@ void post_other_modelling_tools_dialog() {
 
    GtkWidget *widget = wrapped_create_model_fit_refine_dialog();
    if (graphics_info_t::use_graphics_interface_flag) {
-      gtk_widget_show(widget);
+      gtk_widget_set_visible(widget, TRUE);
    }
    std::vector<std::string> command_strings;
    command_strings.push_back("post-other-modelling-tools-dialog");
@@ -1825,9 +1825,9 @@ void set_show_modelling_toolbar(short int state) {
       GtkWidget *w = widget_from_builder(wn);
       if (w) {
          if (state == 0) {
-            gtk_widget_hide(w);
+            gtk_widget_set_visible(w, FALSE);
          } else {
-            gtk_widget_show(w);
+            gtk_widget_set_visible(w, TRUE);
          }
       } else {
          std::cout << "ERROR:: widget with name " << wn << " not found" << std::endl;
@@ -4626,7 +4626,7 @@ void do_clipping1_activate() {
    g_signal_connect(G_OBJECT(adjustment), "value_changed",
 		    G_CALLBACK(clipping_adjustment_changed), NULL);
 
-   gtk_widget_show(clipping_window);
+   gtk_widget_set_visible(clipping_window, TRUE);
 
 }
 
@@ -5769,7 +5769,7 @@ void
 post_display_control_window() {
 
    GtkWidget *widget = wrapped_create_display_control_window(); // uses gtkbuilder
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
    std::vector<std::string> command_strings;
    command_strings.push_back("post-display-control-window");
    add_to_history(command_strings);
@@ -5846,7 +5846,7 @@ void close_graphics_display_control_window() {
    GtkWidget *w = g.display_control_window();
    if (w) {
       // gtk_widget_destroy(w); // nope
-      gtk_widget_hide(w);
+      gtk_widget_set_visible(w, FALSE);
       reset_graphics_display_control_window();
    }
 }
@@ -6441,9 +6441,9 @@ void set_refine_ramachandran_angles(int state) {
 	       std::string l = "<span background=\"white\" foreground=\"brown\">Rama</span>";
 	       gtk_label_set_markup(GTK_LABEL(w), l.c_str());
 	    }
-	    gtk_widget_show(w);
+	    gtk_widget_set_visible(w, TRUE);
 	 } else {
-	    gtk_widget_hide(w);
+	    gtk_widget_set_visible(w, FALSE);
 	 }
       }
    }
@@ -6677,53 +6677,35 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
    // std::cout << "in safe_python_command_with_return() A " << python_cmd << std::endl;
 
-   std::string command = "print(111111111111111111111111111111111111)";
-
    // command = "import coot; " + python_cmd;
-   command = python_cmd;
+   std::string command = python_cmd;
 
-   PyObject* d = PyModule_GetDict(PyImport_AddModule("__main__"));
+   PyObject* result = nullptr;
+   PyObject *am = PyImport_AddModule("__main__");
 
-   const char *modulename = "coot";
-   PyObject *pName = myPyString_FromString(modulename);
-   PyObject *pModule_coot = PyImport_Import(pName);
+   if (am) {
+      PyObject* d = PyModule_GetDict(am);
 
-   std::cout << "running command: " << command << std::endl;
-   PyObject* result = PyRun_String(command.c_str(), Py_file_input, d, d);
-   std::cout << "--------------- in safe_python_command_with_return() result: " << result << std::endl;
-   PyRun_String("import coot; print(dir(coot))", Py_file_input, d, d);
+      const char *modulename = "coot";
+      PyObject *pName = myPyString_FromString(modulename);
+      PyObject *pModule_coot = PyImport_Import(pName);
 
-#if 0
-   std::string munged_cmd = std::string("import coot; ") + python_cmd;
+      std::cout << "running command: " << command << std::endl;
+      result = PyRun_String(command.c_str(), Py_file_input, d, d);
+      std::cout << "--------------- in safe_python_command_with_return() result: " << result << std::endl;
+      if (result)
+         std::cout << "--------------- in safe_python_command_with_return() result: "
+                   << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(result))) << std::endl;
+      else
+         std::cout << "--------------- in safe_python_command_with_return() result was null" << std::endl;
 
-   const char *modulename = "__main__";
-   PyObject *pName = myPyString_FromString(modulename);
-   PyObject *pModule_main = PyImport_Import(pName);
+      // debugging
+      // PyRun_String("import coot; print(dir(coot))", Py_file_input, d, d);
 
-   pModule_main = PyModule_GetDict(PyImport_AddModule("__main__"));
-
-   PyObject *pModule = PyImport_AddModule("__main__");
-   std::cout << "pModule  A " << pModule << std::endl;
-   pModule = PyImport_AddModule("coot");
-   PyObject *coot_module = pModule;
-   std::cout << "pModule  B " << pModule << std::endl;
-   pModule = PyImport_AddModule("coot_utils");
-   std::cout << "pModule  C " << pModule << std::endl;
-   pModule = PyImport_AddModule("dynamic_atom_overlaps_and_other_outliers");
-   std::cout << "pModule  D " << pModule << std::endl;
-   PyObject *globals = PyEval_GetGlobals();
-   std::cout << "globals " << globals << std::endl;
-   PyObject *locals  = PyEval_GetLocals();
-   std::cout << "locals " << locals << std::endl;
-   // PyDict_SetItemString(pModule_main, "coot", coot_module);
-   std::cout << "globals " << globals << std::endl;
-   PyObject *result = PyRun_String(python_cmd.c_str(), Py_file_input, pModule_main, pModule_main);
-   // PyObject *result = PyRun_String(munged_cmd.c_str(), Py_file_input, globals, locals);
-   std::cout << "in safe_python_command_with_return() J: " << result << std::endl;
-   if (!result)
-      PyErr_Print();
-#endif
-
+   } else {
+      std::cout << "ERROR:: Hopeless failure: module for __main__ is null" << std::endl;
+   }
+   // 20230605-PE frustratingly this is returning None when I hope/expect it to be True.
    std::cout << "--------------- done safe_python_command_with_return() " << python_cmd << std::endl;
    return result;
 }
@@ -7126,7 +7108,7 @@ void post_scheme_scripting_window() {
         // 20220309-PE when will this get used?
         scheme_entry = widget_from_builder("scheme_window_entry");
         setup_guile_window_entry(scheme_entry); // USE_PYTHON and USE_GUILE used here
-        gtk_widget_show(window);
+        gtk_widget_set_visible(window, TRUE);
 
      } else {
 	std::cout << COOT_SCHEME_DIR << " was not defined - cannot open ";
@@ -7383,7 +7365,7 @@ run_state_file_maybe() {
 	    if (graphics_info_t::use_graphics_interface_flag) {
 	       GtkWidget *dialog = wrapped_create_run_state_file_dialog(); // uses builder
                if (dialog)
-                  gtk_widget_show(dialog);
+                  gtk_widget_set_visible(dialog, TRUE);
                else
                   std::cout << "ERROR:: missing dialog" << std::endl;
 	    }
@@ -7438,7 +7420,7 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
 #endif
 
-      gtk_widget_show(label);
+      gtk_widget_set_visible(label, TRUE);
    }
    return w;
 }
@@ -7468,7 +7450,7 @@ GtkWidget *wrapped_create_run_state_file_dialog_py() {
 #else
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
 #endif
-      gtk_widget_show(label);
+      gtk_widget_set_visible(label, TRUE);
    }
    return w;
 }
@@ -7663,28 +7645,36 @@ void print_sequence_chain_general(int imol, const char *chain_id,
 void do_sequence_view(int imol) {
 
    if (is_valid_model_molecule(imol)) {
-      bool do_old_style = false;
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      std::vector<mmdb::Residue *> r = coot::util::residues_with_insertion_codes(mol);
-      if (r.size() > 0) {
-         do_old_style = true;
-      } else {
-         // was it a big shelx molecule?
-         if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {
-            std::pair<bool, int> max_resno =
-               coot::util::max_resno_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
-            if (max_resno.first)
-               if (max_resno.second > 3200)
-                  do_old_style = 1;
-         }
-      }
 
+      GtkWidget *scrolled_window = gtk_scrolled_window_new();
+      GtkWidget *frame = gtk_frame_new("");
+      gtk_widget_set_hexpand(scrolled_window, TRUE);
+      gtk_widget_set_vexpand(scrolled_window, TRUE);
+      gtk_widget_set_hexpand(frame, TRUE);
+      gtk_widget_set_vexpand(frame, TRUE);
 
-      if (do_old_style) {
-         sequence_view_old_style(imol);
-      } else {
-         nsv(imol);
-      }
+      // gtk_widget_set_size_request(scrolled_window, 200, 240);
+      // gtk_widget_set_size_request(frame, 200, 250); // h size be bigger than the h-size for the scrolled window
+
+      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box"); // this is where the GLArea widget goes
+      gtk_box_prepend(GTK_BOX(vbox), scrolled_window);
+
+      CootSequenceView *sv = coot_sequence_view_new();
+      coot_sequence_view_set_structure(sv, imol, mol);
+      g_object_set_data(G_OBJECT(sv), "sv3-frame", frame);
+      gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(frame));
+      gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(sv));
+
+      auto click_function = +[] (int imol, const coot::residue_spec_t &spec) {
+         int status = 0;
+         std::cout << "Go here B " << imol << " " << spec << std::endl;
+         graphics_info_t g;
+         g.go_to_residue(imol, spec);
+         return status;
+      };
+
+      coot_sequence_view_set_click_function(sv, click_function);
    }
 }
 

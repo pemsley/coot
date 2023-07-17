@@ -183,8 +183,8 @@ def add_module_prosmart():
         vbox.append(check_button)
         vbox.append(h_sep)
         vbox.append(hbox)
-        hbox.append(go_button)
         hbox.append(cancel_button)
+        hbox.append(go_button)
         window.set_child(vbox)
 
         cancel_button.connect("clicked", lambda _w: window.close())

@@ -42,7 +42,7 @@ WITH_GUILE_CFLAGS=$(COOT_STDTYPES) $(COOT_USE_GUILE)
 
 # GUILE_VERSION=$(GUILE_CONFIG)
 
-MAKE_COOT_WRAP_GUILE=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-guile.sh "$(GUILE_CONFIG)"
+MAKE_COOT_WRAP_GUILE=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-guile.sh
 
 MAKE_COOT_WRAP_PYTHON_XXX=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-python.sh
 
@@ -154,7 +154,7 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
 # -proxy  exports the GOOPS wrapper definitions into module.scm
 
 coot_wrap_guile.cc: coot_wrap_guile_pre.cc
-	$(MAKE_COOT_WRAP_GUILE) gtk2 $^ $@
+	$(MAKE_COOT_WRAP_GUILE) $^ $@
 
 # python
 
@@ -296,7 +296,12 @@ _coot_extended_la_LIBADD = \
 
 pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la _coot.la
 
-_coot_la_SOURCES = coot.cc coot_wrap_python.cc
+# Does this stop the race condition?
+# Well, it might do, but if I add it then _coot.so is not updated.
+# So, how about I added libcootsumo.la to the SOURCES, will that work?
+# _coot.la: libcootsumo.la
+
+_coot_la_SOURCES = coot.cc coot_wrap_python.cc libcootsumo.la
 
 _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
 	   libcootsumo.la                                    \
@@ -453,8 +458,9 @@ libcootsumo_la_SOURCES = \
 	cmtz-interface.cc	 \
 	clipper-to-glm.hh        \
 	colour-functions.hh      \
+	colour-holder-to-glm.hh  \
 	command-arg.hh           \
-	command-line.cc	 \
+	command-line.cc	         \
 	command-line-extern.cc   \
 	command-line-extern.hh   \
 	command-line.hh		 \
@@ -475,6 +481,8 @@ libcootsumo_la_SOURCES = \
 	coot-hydrogens.hh        \
 	coot-hydrogens.cc        \
 	coot-render.hh           \
+	coot-phi-psi.cc          \
+	coot-phi-psi.hh          \
 	coot_pythonmodule.cc     \
 	coot-preferences.h       \
 	coot-references.h        \
@@ -495,6 +503,8 @@ libcootsumo_la_SOURCES = \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
+	dynamic-validation.cc    \
+	dynamic-validation.hh    \
 	eyes.cc eyes.hh		 \
 	event-controller-callbacks.hh \
 	event-controller-callbacks.cc \
@@ -639,7 +649,6 @@ libcootsumo_la_SOURCES = \
 	molecular-mesh-generator.hh \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
-	nsv.cc nsv.hh		\
 	obj_loader.h obj_loader.cc \
 	pisa-interface.hh	 \
 	pick.hh pick.cc	 \
@@ -659,11 +668,11 @@ libcootsumo_la_SOURCES = \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
-	read-cif.c		 \
+	read-cif.cc		 \
 	rama_mousey.cc		 \
 	rama_mousey.hh		 \
-	rama_plot.cc		 \
-	rama_plot.hh		 \
+	rama_plot_with_canvas.cc \
+	rama_plot_with_canvas.hh \
 	text-rendering-utils.cc  \
 	text-rendering-utils.hh  \
 	restraints-editor.cc     \
@@ -673,10 +682,12 @@ libcootsumo_la_SOURCES = \
 	rotamer-search-modes.hh  \
 	rsr-functions.cc         \
 	rsr-functions.hh         \
-	screen-utils.cc	 \
 	screendump-tga.hh        \
 	screendump-tga.cc        \
 	sound.cc                 \
+	sdf-interface.cc         \
+	sdf-interface.hh         \
+	sdf-internal.hh          \
 	select-atom-info.hh      \
 	sequence-view.hh         \
 	sequence-view.cc         \
@@ -701,10 +712,6 @@ libcootsumo_la_SOURCES = \
 	trackball.c trackball.h  \
 	triangle-extras.h        \
 	user-mods.hh user-mods.cc\
-	validation-graphs.hh	 \
-	validation-graphs.cc	 \
-	validation-graph-widget.hh	 \
-	validation-graph-widget.cc	 \
 	xmap-utils.cc 		 \
 	xmap-utils.h             \
 	remarks-browser-gtk-widgets.hh \
@@ -803,7 +810,7 @@ coot_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 # fixed in configure.
 #
 libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
-      $(COOT_EXTRA_LIBS) \
+                $(COOT_EXTRA_LIBS)      \
 		$(VORBISFILE_LIBS)      \
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\

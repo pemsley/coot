@@ -520,12 +520,12 @@ bool      graphics_info_t::run_startup_scripts_flag = true;
 GtkWidget *graphics_info_t::preferences_widget = NULL;
 int        graphics_info_t::mark_cis_peptides_as_bad_flag = 1;
 
-std::vector<std::string> *graphics_info_t::preferences_general_tabs;
-std::vector<std::string> *graphics_info_t::preferences_bond_tabs;
-std::vector<std::string> *graphics_info_t::preferences_geometry_tabs;
-std::vector<std::string> *graphics_info_t::preferences_colour_tabs;
-std::vector<std::string> *graphics_info_t::preferences_map_tabs;
-std::vector<std::string> *graphics_info_t::preferences_other_tabs;
+std::vector<std::string> graphics_info_t::preferences_general_tabs;
+std::vector<std::string> graphics_info_t::preferences_bond_tabs;
+std::vector<std::string> graphics_info_t::preferences_geometry_tabs;
+std::vector<std::string> graphics_info_t::preferences_colour_tabs;
+std::vector<std::string> graphics_info_t::preferences_map_tabs;
+std::vector<std::string> graphics_info_t::preferences_other_tabs;
 std::vector<coot::preferences_icon_info_t> *graphics_info_t::model_toolbar_icons;
 std::vector<coot::preferences_icon_info_t> *graphics_info_t::main_toolbar_icons;
 
@@ -788,6 +788,7 @@ short int graphics_info_t::ligand_water_write_peaksearched_atoms = 0;
 std::vector<clipper::Coord_orth> *graphics_info_t::ligand_big_blobs = NULL;
 
 bool graphics_info_t::graphics_ligand_view_flag = false;
+int  graphics_info_t::graphics_ligand_view_imol = -1;
 
 
 short int graphics_info_t::do_probe_dots_on_rotamers_and_chis_flag = 0;
@@ -1664,7 +1665,7 @@ std::vector<coot::colour_holder> graphics_info_t::user_defined_colours; // initi
 
 unsigned int graphics_info_t::bond_smoothness_factor = 1; // changes num_subdivisions and n_slices
 
-float graphics_info_t::contact_dots_density = 0.4; // 20220308-PE was 1.0
+float graphics_info_t::contact_dots_density = 0.6; // 20220308-PE was 1.0, 20230613-PE was 0.4 (too low for ligand contact dots)
 float graphics_info_t::contact_dot_sphere_subdivisions = 1;
 bool graphics_info_t::all_atom_contact_dots_ignore_water_flag = false;
 bool graphics_info_t::all_atom_contact_dots_do_vdw_surface = false;
@@ -1694,7 +1695,7 @@ Shader graphics_info_t::shader_for_tmeshes;
 Shader graphics_info_t::shader_for_meshes_shadow_map;
 Shader graphics_info_t::shader_for_texture_meshes_shadow_map;
 Shader graphics_info_t::shader_for_shadow_map_image_texture_mesh;
-float graphics_info_t::shadow_box_size = 66.0;
+float graphics_info_t::shadow_box_size = 120.0;
 
 float graphics_info_t::SSAO_bias = 0.02;
 float graphics_info_t::SSAO_radius = 30.0;

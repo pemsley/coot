@@ -70,7 +70,7 @@ def sharpen_blur_map_gui():
     hbox_buttons.set_homogeneous(True)
     # combobox = Gtk.combo_box_new_text()
     ok_button    = Gtk.Button(label="Make Map")
-    cancel_button = Gtk.Button(label="Cancel")
+    cancel_button = Gtk.Button(label="Close")
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
     # map_mol_list = fill_option_menu_with_map_mol_options(combobox)
     # map_mol_list = fill_option_menu_with_map_mol_options(combobox)

@@ -499,7 +499,8 @@ int test_reduce() {
    // to the same residues :-)
    int imol = 0; // dummy
    coot::reduce r(mol, imol);
-   r.add_hydrogen_atoms();
+   bool go_nuclear = false;
+   r.add_hydrogen_atoms(go_nuclear);
    mol->WritePDBASCII("reduced.pdb");
    delete mol;
    return 1;
@@ -1427,6 +1428,7 @@ test_correlation_of_residue_runs(int argc, char **argv) {
          file.import_xmap(xmap);
          file.close_read();
 
+#if 0 // I am compiling this with old coot for some reason.
          if (is_cryo_em)
             clipper::ScatteringFactors::selectScattteringFactorsType(clipper::SF_ELECTRON);
 
@@ -1454,6 +1456,7 @@ test_correlation_of_residue_runs(int argc, char **argv) {
             std::cout << "   side-chain-stats " << rs << " " << stats.correlation() << " from " << stats.n << " points ";
             std::cout << std::endl;
          }
+#endif
       } else {
          std::cout << "Failed to read " << pdb_file_name << std::endl;
       }

@@ -889,7 +889,7 @@ coot::is_mmcif_filename(const std::string &filename) {
    return i;
 }
 
-// base, i.e. $HOME/coot-build
+// base, i.e. $HOME/coot-build or /usr
 std::string
 coot::prefix_dir() {
 
@@ -902,19 +902,14 @@ coot::prefix_dir() {
       if (! dds.empty())
          if (dds.back() == '/')
             dds.erase(dds.size() - 1);    // or pop_back
-      std::string ds = util::file_name_directory(dds);
-      if (! ds.empty())
-         if (ds.back() == '/')
-            ds.erase(ds.size() - 1);
-      s = util::file_name_directory(ds);
-      if (! s.empty())
-         if (s.back() == '/')
-            s.erase(s.size() - 1);
-      if (false) {
-         std::cout << "dds: " << dds << std::endl;
-         std::cout << "ds:  " <<  ds << std::endl;
-         std::cout << "s:   " <<   s << std::endl;
-      }
+
+      // 20230607-PE Merge conflict
+      //
+      // maybe I should have kept Jakub's version:
+      // 20230616-PE OK, let's just replace it then
+      std::string jds = util::append_dir_dir(dds,"..");
+      std::string js  = util::append_dir_dir(jds,"..");
+      s = js;
    }
    return s;
 }

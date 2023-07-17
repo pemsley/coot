@@ -124,7 +124,8 @@ graphics_info_t::get_gobject_from_builder(const std::string &w_name) { // use gt
 GtkWidget *
 graphics_info_t::get_widget_from_preferences_builder(const std::string &w_name) { // use gtkbuilder to do new-style lookup_widget();
 
-   std::cout << "debug:: in get_widget_from_preferences_builder() using builder " << preferences_gtkbuilder << " to lookup " << w_name << std::endl;
+   std::cout << "debug:: in get_widget_from_preferences_builder() using builder " << preferences_gtkbuilder
+             << " to lookup " << w_name << std::endl;
    GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(preferences_gtkbuilder, w_name.c_str()));
    return w;
 }
@@ -346,8 +347,8 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label,
       if (ch) {
          // already added - so do nothing
       } else {
-         std::string pdd = coot::package_data_dir();
-         std::string dir = coot::util::append_dir_dir(pdd, "icons/hicolor/scalable/actions");
+         std::string prefix = coot::prefix_dir();
+         std::string dir = coot::util::append_dir_dir(prefix, "share/icons/hicolor/scalable/actions");
          std::string fn_1 = coot::util::append_dir_file(dir, "Stock-dialog-information.svg");
          std::string fn_2 = coot::util::append_dir_file(dir, "Stock-dialog-warning.svg");
          GtkWidget *image_1 = gtk_image_new_from_file(fn_1.c_str());
@@ -370,7 +371,7 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label,
 
       GtkWidget *label_widget = widget_from_builder("nothing_bad_label");
 
-      gtk_widget_show(label_widget);
+      gtk_widget_set_visible(label_widget, TRUE);
       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
 
       // are these correct?
@@ -397,11 +398,11 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label,
       GtkWidget *info_image = GTK_WIDGET(g_object_get_data(G_OBJECT(box), "information"));
       GtkWidget *warn_image = GTK_WIDGET(g_object_get_data(G_OBJECT(box), "warning"));
       if (warning) {
-         gtk_widget_hide(GTK_WIDGET(info_image));
-         gtk_widget_show(GTK_WIDGET(warn_image));
+         gtk_widget_set_visible(GTK_WIDGET(info_image), FALSE);
+         gtk_widget_set_visible(GTK_WIDGET(warn_image), TRUE);
       } else {
-         gtk_widget_show(GTK_WIDGET(info_image));
-         gtk_widget_hide(GTK_WIDGET(warn_image));
+         gtk_widget_set_visible(GTK_WIDGET(info_image), TRUE);
+         gtk_widget_set_visible(GTK_WIDGET(warn_image), FALSE);
       }
    }
    return dialog;
@@ -513,7 +514,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
             // GtkWidget *widget = create_no_cif_dictionary_bonds_dialog();
 #ifndef EMSCRIPTEN
             GtkWidget *widget = widget_from_builder("no_cif_dictionary_bonds_dialog");
-            gtk_widget_show(widget);
+            gtk_widget_set_visible(widget, TRUE);
 #endif
          }
       }
@@ -1922,7 +1923,7 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
    //           << std::endl;
    // return;
 
-   std::string pms = "coot_utils.post_manipulation_script";
+   std::string pms = "post_manipulation_script";
    // pms = "print";
    std::string check_pms = "callable(" + pms + ")";
 
@@ -1932,13 +1933,29 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
    pModule = PyImport_AddModule("__main__");
    pModule = PyImport_AddModule("coot");
    pModule = PyImport_AddModule("coot_utils");
-   pModule = PyImport_AddModule("dynamic_atom_overlaps_and_other_outliers");
    PyObject *globals = PyModule_GetDict(pModule);
 
    PyObject *result = PyRun_String(check_pms.c_str(), Py_eval_input, globals, globals);
    // the above function can set an error  - that's bad news for the python wrapping
    // of accept_moving_atoms(). So instead of properly handling the error, or investigating
    // why it is happening, let's just clear it.
+
+   PyObject *error_thing = PyErr_Occurred();
+   if (! error_thing) {
+      std::cout << "INFO:: run_post_manipulation_hook_py() No Python error on callable check" << std::endl;
+   } else {
+      std::cout << "ERROR:: while executing run_post_manipulation_hook_py() a python error occured " << std::endl;
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_NormalizeException(&type, &value, &traceback);
+      PyObject *exception_string = PyObject_Repr(value);
+      const char *em = myPyString_AsString(exception_string);
+      std::cout << "ERROR:: " << em << std::endl;
+      Py_XDECREF(value);
+      Py_XDECREF(traceback);
+      Py_XDECREF(type);
+   }
+
    PyErr_Clear();
 
    if (false) {
@@ -3783,6 +3800,8 @@ graphics_info_t::update_maps_for_mols(const std::vector<int> &mol_idxs) {
 void
 graphics_info_t::update_maps() {
 
+   std::cout << "in update_maps() flag is " << active_map_drag_flag << std::endl;
+
    if (GetActiveMapDrag() == 1) {
 
       // now map updates are internally threaded - we don't need
@@ -3962,7 +3981,8 @@ void
 graphics_info_t::update_things_on_move() {
 
    for (int ii=0; ii<n_molecules(); ii++) {
-      molecules[ii].update_map(auto_recontour_map_flag);
+      if (GetActiveMapDrag())
+         molecules[ii].update_map(auto_recontour_map_flag);
       molecules[ii].update_clipper_skeleton();
       molecules[ii].update_symmetry();
    }
@@ -3986,10 +4006,8 @@ graphics_info_t::start_baton_here() {
       std::vector<int> map_molecules = valid_map_molecules();
 
       if (map_molecules.size() > 0) {
-#ifndef EMSCRIPTEN
          GtkWidget *w = wrapped_create_skeleton_dialog(1);
-         gtk_widget_show(w);
-#endif
+         gtk_widget_set_visible(w, TRUE);
          return 0;
          
 
@@ -3998,11 +4016,11 @@ graphics_info_t::start_baton_here() {
          // 20091218 It is as it was - No map.
          //
          // GtkWidget *w = create_baton_mode_make_skeleton_dialog();
-#ifndef EMSCRIPTEN
+
          GtkWidget *w = widget_from_builder("baton_mode_make_skeleton_dialog");
          g_object_set_data(G_OBJECT(w), "imol", GINT_TO_POINTER(imol_for_skel));
-         gtk_widget_show(w);
-#endif
+         gtk_widget_set_visible(w, TRUE);
+
          return 0;
       }
 
@@ -4597,7 +4615,7 @@ graphics_info_t::apply_undo() {
          GtkWidget *dialog = widget_from_builder("undo_molecule_chooser_dialog");
          GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
          fill_combobox_with_undo_options(combobox);
-         gtk_widget_show(dialog);
+         gtk_widget_set_visible(dialog, TRUE);
 
       }
    } else {
@@ -4665,7 +4683,7 @@ graphics_info_t::apply_redo() {
       GtkWidget *dialog = widget_from_builder("undo_molecule_chooser_dialog");
       GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
       fill_combobox_with_undo_options(combobox);
-      gtk_widget_show(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
    } else {
       if (umol == -1) { // unset
          std::cout << "There are no molecules with modifications "
@@ -5681,17 +5699,15 @@ graphics_info_t::clear_last_measure_distance() {
          labels_for_measure_distances_and_angles.pop_back();
 
       // rebuild the mesh for measure_distance_object_vec
-#ifndef EMSCRIPTEN
+
       mesh_for_measure_distance_object_vec.clear();
-#endif
+
       Material material;
       glm::vec4 col(0.72, 0.79, 0.72, 1.0); // same as add_measure_distance()
 
       for (unsigned int i=0; i<measure_distance_object_vec.size(); i++) {
          const auto &sdo = measure_distance_object_vec[i];
-#ifndef EMSCRIPTEN
          mesh_for_measure_distance_object_vec.add_dashed_line(sdo, material, col);
-#endif
       }
       graphics_draw();
    }
@@ -6002,10 +6018,10 @@ graphics_info_t::check_chiral_volumes(int imol) {
          molecules[imol].bad_chiral_volumes();
          GtkWidget *w = wrapped_check_chiral_volumes_dialog(v.second, imol);
          if (w)
-         gtk_widget_show(w);
+         gtk_widget_set_visible(w, TRUE);
          if (v.first.size() != 0) { // bad, there was at least one residue not found in dic.
             GtkWidget *wcc = wrapped_create_chiral_restraints_problem_dialog(v.first);
-            gtk_widget_show(wcc);
+            gtk_widget_set_visible(wcc, TRUE);
          }
       }
    }
@@ -6357,7 +6373,9 @@ void graphics_info_t::run_user_defined_click_func() {
                std::cout << "WARNING:: Ignoring it." << std::endl;
                return;
             }
-            PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
+            // PyObject *result = PyEval_CallObject(user_defined_click_py_func, arg_list_py);
+            PyObject *kwargs = nullptr;
+            PyObject *result = PyObject_Call(user_defined_click_py_func, arg_list_py, kwargs);
             PyObject *error_thing = PyErr_Occurred();
             if (! error_thing) {
                std::cout << "No Python error" << std::endl;
@@ -6815,6 +6833,8 @@ graphics_info_t::quick_save() {
    il = coot::PYTHON_SCRIPT;
    save_state_file("0-coot.state.py", il);
 #endif
+
+   add_status_bar_text("Quick Saved");
 
 }
 

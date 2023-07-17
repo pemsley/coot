@@ -48,15 +48,18 @@
 #include "gtk-manual.h"
 #include "c-interface-refine.h"
 #include "cc-interface.hh"
+#include "cfc-widgets-c-interface.h"
 
 #include "graphics-info.h"
-#include "validation-graphs.hh"
+#include "validation-graphs/validation-graphs.hh"
 
 #include "widget-from-builder.hh"
 
 // from support.h
 // GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
 #include "support.h"
+
+#include "fit-loop-gui.hh"
 
 // this from callbacks.h (which I don't want to include here)
 typedef const char entry_char_type;
@@ -151,7 +154,7 @@ on_cancel_coords_button1_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *coords_fileselection1 = widget_from_builder( "coords_fileselection1");
-   gtk_widget_hide(coords_fileselection1);
+   gtk_widget_set_visible(coords_fileselection1, FALSE);
 }
 
 
@@ -161,7 +164,7 @@ on_cancel_dataset_button1_clicked      (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *dataset_fileselection1 = widget_from_builder("dataset_fileselection1");
-   gtk_widget_hide(dataset_fileselection1);
+   gtk_widget_set_visible(dataset_fileselection1, FALSE);
 }
 
 
@@ -182,7 +185,7 @@ on_column_label_cancel_button_clicked  (GtkButton       *button,
                                         gpointer         user_data)
 {
    printf("column_label_window CANCEL button clicked\n");
-   gtk_widget_hide(widget_from_builder("column_label_window"));
+   gtk_widget_set_visible(widget_from_builder("column_label_window"), FALSE);
 }
 
 
@@ -191,7 +194,7 @@ void
 on_clipping_button_clicked             (GtkButton       *button,
                                         gpointer         user_data)
 {
-   gtk_widget_hide(widget_from_builder( "clipping_window"));
+   gtk_widget_set_visible(widget_from_builder( "clipping_window"), FALSE);
 }
 
 
@@ -242,7 +245,7 @@ on_density_ok_button_clicked           (GtkButton       *button,
 
    // what a mish-mash of naming schemes. (it was one of the very first dialogs)
    GtkWidget *dialog = widget_from_builder("global_map_properties_window");
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 
 }
 
@@ -294,7 +297,7 @@ show_map_parameters_dialog() {
    set_map_dynamic_map_display_size_checkbutton(checkbutton);
 
  /* Show the widget */
-   gtk_widget_show(density_window);
+   gtk_widget_set_visible(density_window, TRUE);
 }
 
 
@@ -314,7 +317,7 @@ void
 on_density_cancel_clicked              (GtkButton       *button,
                                         gpointer         user_data)
 {
-   gtk_widget_hide(widget_from_builder("global_map_properties_window"));
+   gtk_widget_set_visible(widget_from_builder("global_map_properties_window"), FALSE);
 }
 
 
@@ -359,7 +362,7 @@ on_fps1_activate(GMenuItem     *menuitem,
    }
 
    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-   gtk_widget_show(fps_window);
+   gtk_widget_set_visible(fps_window, TRUE);
 
 }
 
@@ -379,7 +382,7 @@ on_fps_window_ok_button_clicked        (GtkButton       *button,
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget_from_builder("radiobutton2"))))
       set_fps_flag(0);
 
-   gtk_widget_hide(widget_from_builder("fps_window"));
+   gtk_widget_set_visible(widget_from_builder("fps_window"), FALSE);
 
 }
 
@@ -395,7 +398,7 @@ on_active_map_ok_button_clicked(GtkButton       *button,
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget_from_builder("active_map_radiobutton_no"))))
       set_active_map_drag_flag(0);
 
-   gtk_widget_hide(widget_from_builder( "active_map_window"));
+   gtk_widget_set_visible(widget_from_builder( "active_map_window"), FALSE);
 
 }
 
@@ -416,7 +419,7 @@ on_dragged_map1_activate (GMenuItem     *menuitem,
    }
 
    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
-   gtk_widget_show(active_map_window);
+   gtk_widget_set_visible(active_map_window, TRUE);
 }
 
 // Draw -> Map Colour has been removed.
@@ -444,7 +447,7 @@ on_show_symmetry1_activate(GMenuItem     *menuitem,
                            gpointer         user_data) {
 
    GtkWidget *show_symm_window = wrapped_create_show_symmetry_window();
-   gtk_widget_show(show_symm_window);
+   gtk_widget_set_visible(show_symm_window, TRUE);
 
 }
 
@@ -457,7 +460,7 @@ on_show_symmetry_ok_button_clicked     (GtkButton       *button,
    // 20230513-PE now the widget is active - we don't do anything other than hide
    // (the actual button label is "Close")
 
-   gtk_widget_hide(widget_from_builder( "show_symmetry_window"));
+   gtk_widget_set_visible(widget_from_builder( "show_symmetry_window"), FALSE);
 
 }
 
@@ -559,7 +562,7 @@ on_symmetry_colour_patch_button_clicked (GtkButton       *button,
 /*    colour = get_symmetry_bonds_colour(0); */
 /*    gtk_color_selection_set_color(colorsel, colour); */
 
-/*    gtk_widget_show(colorseldlg);  */
+/*    gtk_widget_set_visible(colorseldlg, TRUE); */
 }
 
 
@@ -569,7 +572,7 @@ void
 on_about_ok_button_clicked             (GtkButton       *button,
                                         gpointer         user_data)
 {
-   gtk_widget_hide(widget_from_builder("about_window"));
+   gtk_widget_set_visible(widget_from_builder("about_window"), FALSE);
 }
 
 
@@ -638,7 +641,7 @@ on_anisotropic_atoms1_activate         (GMenuItem     *menuitem,
 
 
 /* And finally show the widget */
-   gtk_widget_show(aniso_window);
+   gtk_widget_set_visible(aniso_window, TRUE);
 
 }
 
@@ -690,7 +693,7 @@ on_show_aniso_close_button_clicked     (GtkButton       *button,
                                         gpointer         user_data)
 {
 /* Goodbye Widget */
-   gtk_widget_hide(widget_from_builder("aniso_window"));
+   gtk_widget_set_visible(widget_from_builder("aniso_window"), FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -731,7 +734,7 @@ void on_smooth_scrolling_window_ok_button_clicked (GtkButton       *button,
 
    set_smooth_scroll_steps_str(text);
 
-   gtk_widget_hide(widget_from_builder("smooth_scroll_window"));
+   gtk_widget_set_visible(widget_from_builder("smooth_scroll_window"), FALSE);
 
 }
 
@@ -784,7 +787,7 @@ on_recentring1_activate                (GMenuItem     *menuitem,
 
 
 /* And finally show the widget */
-   gtk_widget_show(smooth_scroll_window);
+   gtk_widget_set_visible(smooth_scroll_window, TRUE);
 
 }
 
@@ -818,7 +821,7 @@ on_font_size1_activate                 (GMenuItem     *menuitem,
    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
 
 /* show widget */
-   gtk_widget_show(font_size_window);
+   gtk_widget_set_visible(font_size_window, TRUE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -841,7 +844,7 @@ on_font_size_ok_button_clicked         (GtkButton       *button,
       set_font_size(3);
 
 /* goodbye widget */
-   gtk_widget_hide(widget_from_builder("font_size_window"));
+   gtk_widget_set_visible(widget_from_builder("font_size_window"), FALSE);
 
 }
 
@@ -980,7 +983,7 @@ on_open_map1_activate (GMenuItem     *menuitem,
    GtkWidget *map_name_chooser = widget_from_builder("map_name_filechooser_dialog");
    GtkWidget *filter_button = add_filename_filter_button(map_name_chooser, COOT_MAP_FILE_SELECTION);
 
-   gtk_widget_show (map_name_chooser);
+   gtk_widget_set_visible (map_name_chooser, TRUE);
    add_is_difference_map_checkbutton(map_name_chooser);
    set_directory_for_filechooser(map_name_chooser);
 
@@ -994,7 +997,7 @@ on_cancel_button_map_name_clicked      (GtkButton       *button,
                                         gpointer         user_data)
 {
 
-   gtk_widget_hide(widget_from_builder("map_name_fileselection1"));
+   gtk_widget_set_visible(widget_from_builder("map_name_fileselection1"), FALSE);
 
 }
 
@@ -1029,7 +1032,7 @@ on_skeleton_colour1_activate           (GMenuItem     *menuitem,
 {
    // GtkWidget *col_sel_window = create_skeleton_colour_selection_window();
    GtkWidget *col_sel_window = widget_from_builder("skeleton_colour_selection_window");
-   gtk_widget_show(col_sel_window);
+   gtk_widget_set_visible(col_sel_window, TRUE);
 }
 
 
@@ -1042,7 +1045,7 @@ on_phs_info_ok_button_clicked          (GtkButton       *button,
    phs_pdb_cell_symm(); /* which runs
 			   create_phs_coordinates_fileselection() */
 
-   gtk_widget_hide(widget_from_builder( "phs_info_box"));
+   gtk_widget_set_visible(widget_from_builder( "phs_info_box"), FALSE);
 
 }
 
@@ -1052,7 +1055,7 @@ void
 on_phs_info_cancel_button_clicked      (GtkButton       *button,
                                         gpointer         user_data)
 {
-   gtk_widget_hide(widget_from_builder("phs_info_box"));
+   gtk_widget_set_visible(widget_from_builder("phs_info_box"), FALSE);
 
 }
 
@@ -1063,7 +1066,7 @@ on_cancel_phs_coord_button_clicked     (GtkButton       *button,
                                         gpointer         user_data)
 {
 
-  gtk_widget_hide(widget_from_builder( "phs_coordinates_fileselection"));
+  gtk_widget_set_visible(widget_from_builder( "phs_coordinates_fileselection"), FALSE);
 
 
 }
@@ -1075,7 +1078,8 @@ on_map_and_mol_control1_activate       (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
    GtkWidget *widget = wrapped_create_display_control_window();
-   gtk_widget_show(widget);
+   set_transient_for_main_window(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -1119,7 +1123,8 @@ on_go_to_atom_cancel_button_clicked    (GtkButton       *button,
   widget     = widget_from_builder("goto_atom_window");
 
   unset_go_to_atom_widget();
-  gtk_widget_hide(widget);	/* There is something that had been
+  gtk_widget_set_visible(widget, FALSE);
+                                /* There is something that had been
 				   added to the Go To Atom window that
 				   is not a widget.  It has been
 				   cleared perhaps but not destroyed.
@@ -1145,7 +1150,7 @@ on_go_to_atom1_activate                (GMenuItem     *menuitem,
 
 
      /* and finally show the widget: */
-     gtk_widget_show(widget);
+     gtk_widget_set_visible(widget, TRUE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -1153,7 +1158,7 @@ void on_go_to_atom_button_clicked (GtkButton       *button,
                                    gpointer         user_data) {
 
    GtkWidget *dialog = wrapped_create_goto_atom_window(); // uses gtkbuilder
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 }
 
 
@@ -1222,15 +1227,21 @@ on_go_to_atom_previous_residue_button_clicked (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_go_to_atom_show_waters_togglebutton_toggled(GtkToggleButton *check_button,
-                                               gpointer user_data) {
-
-   std::cout << "on_go_to_atom_show_waters check button toggled" << std::endl;
+on_go_to_atom_show_waters_checkbutton_toggled(GtkCheckButton *check_button,
+                                              gpointer user_data) {
 
    graphics_info_t g;
    g.fill_go_to_atom_window_residue_and_atom_lists_gtk4();
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_go_to_atom_show_ligands_only_checkbutton_toggled(GtkCheckButton *check_button,
+                                                    gpointer user_data) {
+
+   graphics_info_t g;
+   g.fill_go_to_atom_window_residue_and_atom_lists_gtk4();
+}
 
 // -----------------Toolbar buttons - Go to Atom and Go to ligand
 
@@ -1272,7 +1283,7 @@ on_skeleton_box_radius1_activate       (GMenuItem     *menuitem,
   g_free(text);
 
 	/* show the widget */
-  gtk_widget_show(widget);
+  gtk_widget_set_visible(widget, TRUE);
 
 }
 
@@ -1295,7 +1306,7 @@ on_skeletonization_level1_activate     (GMenuItem     *menuitem,
 
    g_free(text);
    /* show the widget */
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 
@@ -1316,7 +1327,7 @@ on_skel_box_radius_ok_button_clicked   (GtkButton       *button,
    GtkEntry *entry = GTK_ENTRY(widget_from_builder("skeleton_box_size_entry"));
    txt = gtk_editable_get_text(GTK_EDITABLE(entry));
    set_skeleton_box_size_from_widget(txt);
-   gtk_widget_hide(widget_from_builder("skeletonization_box_radius_window"));
+   gtk_widget_set_visible(widget_from_builder("skeletonization_box_radius_window"), FALSE);
 }
 
 
@@ -1326,7 +1337,7 @@ on_skel_box_radius_cancel_button_clicked (GtkButton       *button,
 					  gpointer         user_data)
 {
 
-   gtk_widget_hide(widget_from_builder("skeletonization_box_radius_window"));
+   gtk_widget_set_visible(widget_from_builder("skeletonization_box_radius_window"), FALSE);
 
 }
 
@@ -1346,7 +1357,7 @@ on_skeletonization_level_ok_button_clicked (GtkButton       *button,
   set_skeletonization_level_from_widget(txt); /* does a skeleton
 						 update and redraw */
 
-  gtk_widget_hide(widget_from_builder("skeletonization_level_window"));
+  gtk_widget_set_visible(widget_from_builder("skeletonization_level_window"), FALSE);
 
 }
 
@@ -1377,7 +1388,7 @@ on_skeletonization_level_cancel_button_clicked (GtkButton       *button,
 						gpointer         user_data)
 {
 
-  gtk_widget_hide(widget_from_builder("skeletonization_level_window"));
+  gtk_widget_set_visible(widget_from_builder("skeletonization_level_window"), FALSE);
 }
 
 
@@ -1428,7 +1439,7 @@ on_display_control_ok_button_clicked   (GtkButton       *button,
          store_window_position(COOT_DISPLAY_CONTROL_PANE, pane);
 
       // gtk_widget_destroy(w); // 20220309-PE not these days, buddy-boy
-      gtk_widget_hide(w);
+      gtk_widget_set_visible(w, FALSE);
    } else {
       printf("Error:: in on_display_control_ok_button_clicked() failed to lookup display_control_window_glade\n");
    }
@@ -1462,7 +1473,7 @@ on_display_control_window_glade_delete_event(GtkWidget       *widget,
       std::cout << "------------------ on_display_control_window_glade_delete_event()"
                 << std::endl;
 
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 
@@ -1476,7 +1487,7 @@ on_rotation_centre_size_ok_button_clicked(GtkButton       *button,
   GtkEntry *entry = GTK_ENTRY(widget_from_builder("rotation_centre_cube_size_entry"));
   const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
   set_rotation_centre_size_from_widget(text);
-  gtk_widget_hide(widget_from_builder("rotation_centre_cube_size_window"));
+  gtk_widget_set_visible(widget_from_builder("rotation_centre_cube_size_window"), FALSE);
 
 }
 
@@ -1498,7 +1509,7 @@ on_pink_pointer_size1_activate         (GMenuItem     *menuitem,
    entry = widget_from_builder("rotation_centre_cube_size_entry");
    text = get_text_for_rotation_centre_cube_size();
    gtk_editable_set_text(GTK_EDITABLE(entry), text);
-   gtk_widget_show(window);
+   gtk_widget_set_visible(window, TRUE);
    free(text);
 
 }
@@ -1520,7 +1531,7 @@ on_phs_cell_choice_cancel_button_clicked (GtkButton       *button,
 {
    printf("Cancel trying to read a phs file.\n");
    GtkWidget *window = widget_from_builder("phs_cell_choice_window");
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -1555,7 +1566,7 @@ on_scheme_window_close_button_clicked  (GtkButton       *button,
    // 20220309-PE when will this get used...?
    //  GtkWidget *window = widget_from_builder("scheme_window");
   GtkWidget *window = widget_from_builder("scheme_window");
-  gtk_widget_hide(window);
+  gtk_widget_set_visible(window, FALSE);
 
 }
 
@@ -1569,7 +1580,7 @@ on_fetch_pdb_using_code1_activate (GMenuItem     *menuitem,
    int n = COOT_ACCESSION_CODE_WINDOW_OCA;
    GtkWidget *window = widget_from_builder("accession_code_window");
    g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-   gtk_widget_show(window);
+   gtk_widget_set_visible(window, TRUE);
 }
 
 
@@ -1581,7 +1592,7 @@ on_fetch_pdb_and_sf_using_code1_activate (GMenuItem     *menuitem,
    int n = COOT_ACCESSION_CODE_WINDOW_OCA_WITH_SF;
    GtkWidget *window = widget_from_builder("accession_code_window");
    g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-   gtk_widget_show(window);
+   gtk_widget_set_visible(window, TRUE);
 }
 
 
@@ -1593,7 +1604,7 @@ on_fetch_pdb_and_map_using_eds1_activate (GMenuItem     *menuitem,
    int n = COOT_ACCESSION_CODE_WINDOW_EDS;
    GtkWidget *window = widget_from_builder("accession_code_window");
    g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-   gtk_widget_show(window);
+   gtk_widget_set_visible(window, TRUE);
 }
 
 
@@ -1605,7 +1616,7 @@ on_fetch_pdb_and_map_using_pdb_redo1_activate
    int n = COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
    GtkWidget *window = widget_from_builder("accession_code_window");
    g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-   gtk_widget_show(window);
+   gtk_widget_set_visible(window, TRUE);
 
 }
 
@@ -1626,7 +1637,7 @@ on_fetch_alphafold_model_using_uniprot_id1_activate(GMenuItem     *menuitem,
    int n = COOT_UNIPROT_ID;
    GtkWidget *window = widget_from_builder("accession_code_window");
    g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-   gtk_widget_show(window);
+   gtk_widget_set_visible(window, TRUE);
 
 }
 
@@ -1656,9 +1667,21 @@ on_accession_code_get_it_button_clicked(GtkButton *button, gpointer user_data) {
 
    GtkWidget *entry = widget_from_builder("accession_code_entry");
    GtkWidget *frame = widget_from_builder("accession_code_frame");
+   int n = COOT_ACCESSION_CODE_WINDOW_OCA;
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(n));
    handle_get_accession_code(frame, entry);
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_emdb_map_code_get_it_button_clicked(GtkButton *button, gpointer user_data) {
+
+   GtkWidget *entry = widget_from_builder("emdb_map_code_entry");
+   GtkWidget *frame = widget_from_builder("emdb_map_code_frame");
+   int n = COOT_EMDB_CODE;
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(n));
+   handle_get_accession_code(frame, entry);
+}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -1679,7 +1702,7 @@ on_dynarama_ok_button_clicked          (GtkButton       *button,
    if (imol == -9999)
      accept_phi_psi_moving_atoms();
 
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -1702,7 +1725,7 @@ on_dynarama_cancel_button_clicked      (GtkButton       *button,
    if (imol == -9999)
      clear_moving_atoms_object();
 
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
 
    /* maybe we should also destroy the edit backbone torsion dialog, if it exists. */
 
@@ -1769,7 +1792,7 @@ on_find_ligand_ok_button_clicked       (GtkButton       *button,
    if (n_ligands > 0) {
       GtkWidget *window = widget_from_builder("find_ligand_dialog");
       // free_ligand_search_user_data(GTK_WIDGET(button)); // not if not destroyed? Needs checking.
-      gtk_widget_hide(window);
+      gtk_widget_set_visible(window, FALSE);
    } else {
       info_dialog("WARNING:: No ligands were selected");
    }
@@ -1783,7 +1806,7 @@ on_find_ligand_cancel_button_clicked   (GtkButton       *button,
 {
    GtkWidget *window = widget_from_builder("find_ligand_dialog");
    free_ligand_search_user_data(GTK_WIDGET(button));
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
 }
 
 
@@ -1797,8 +1820,8 @@ on_find_ligand_many_atoms_continue_button_clicked (GtkButton       *button,
    GtkWidget *find_ligand_dialog = widget_from_builder("find_ligand_dialog");
 
    execute_ligand_search();
-   gtk_widget_hide(window);
-   gtk_widget_hide(find_ligand_dialog);
+   gtk_widget_set_visible(window, FALSE);
+   gtk_widget_set_visible(find_ligand_dialog, FALSE);
 }
 
 
@@ -1808,7 +1831,7 @@ on_find_ligand_many_atoms_cancel_button_clicked(GtkButton       *button,
                                                                     gpointer         user_data) {
 
    GtkWidget *window = widget_from_builder("find_ligand_many_atoms_dialog");
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
 }
 
 
@@ -1836,7 +1859,7 @@ on_residue_info_dialog_delete_event(GtkWidget       *widget,
                                                         GdkEvent        *event,
                                                         gpointer         user_data) {
 
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 
@@ -1849,7 +1872,7 @@ on_model_refine_activate               (GMenuItem     *menuitem,
 {
    GtkWidget *window_or_frame;
    window_or_frame = wrapped_create_model_fit_refine_dialog();
-   gtk_widget_show(window_or_frame);
+   gtk_widget_set_visible(window_or_frame, TRUE);
 }
 
 
@@ -1870,7 +1893,7 @@ on_model_refine_dialog_dismiss_button_clicked (GtkButton       *button,
    store_window_position(COOT_MODEL_REFINE_DIALOG, dialog);
    /* was it a top-level?  If so, kill off the top-level. */
    if (dialog)
-      gtk_widget_hide(dialog);
+      gtk_widget_set_visible(dialog, FALSE);
 }
 
 
@@ -1892,10 +1915,10 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
       GtkWidget *chooser = coot_save_coords_chooser(); // uses builder
       g_object_set_data(G_OBJECT(chooser), "imol", GINT_TO_POINTER(imol));
       set_file_for_save_filechooser(chooser);
-      gtk_widget_show(chooser);
+      gtk_widget_set_visible(chooser, TRUE);
       set_transient_and_position(COOT_UNDEFINED_WINDOW, chooser);
    }
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 
 }
 
@@ -1920,7 +1943,7 @@ on_save_coords_cancel_button_clicked   (GtkButton       *button,
    // this looks wrong
    gpointer o = g_object_get_data(G_OBJECT(widget), "stuff");
    free(o);
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
 
 }
 
@@ -1961,7 +1984,7 @@ on_model_refine_dialog_fixed_atoms_button_clicked
                                         gpointer         user_data)
 {
   GtkWidget *w = wrapped_create_fixed_atom_dialog();
-  gtk_widget_show(w);
+  gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -1991,7 +2014,7 @@ on_model_refine_dialog_refine_params_button_clicked
    // 20211026-PE I don't think that this is used. Call back is in glade-callbacks-main-window.cc
    // GtkWidget *widget = wrapped_create_refine_params_dialog();
    // GtkWidget *widget = widget_from_builder("refinement_and_regularization_parameters_dialog");
-   // gtk_widget_show(widget);
+   // gtk_widget_set_visible(widget, TRUE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -2023,7 +2046,7 @@ on_refine_params_dialog_ok_button_clicked
     set_refinement_weight_from_entry(entry);
   }
 
-  gtk_widget_hide(widget);
+  gtk_widget_set_visible(widget, FALSE);
 }
 
 
@@ -2089,7 +2112,7 @@ on_accept_reject_refinement_accept_button_clicked (GtkButton       *button,
   c_accept_moving_atoms();
   save_accept_reject_dialog_window_position(window);
   set_accept_reject_dialog(NULL);
-  gtk_widget_hide(window);
+  gtk_widget_set_visible(window, FALSE);
 }
 
 
@@ -2105,7 +2128,7 @@ on_accept_reject_refinement_reject_button_clicked (GtkButton       *button,
 
   stop_refinement_internal();
   clear_up_moving_atoms();
-  gtk_widget_hide(window);
+  gtk_widget_set_visible(window, FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -2144,7 +2167,7 @@ on_model_refine_dialog_find_waters_button_clicked (GtkButton       *button,
    GtkWidget *widget = widget_from_builder("find_waters_dialog");
 
    fill_find_waters_dialog(widget);
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 
 }
 
@@ -2156,7 +2179,7 @@ on_find_waters_ok_button_clicked       (GtkButton       *button,
 {
    execute_find_waters();
    GtkWidget *widget = widget_from_builder("find_waters_dialog");
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
 }
 
 
@@ -2170,7 +2193,7 @@ on_find_waters_cancel_button_clicked   (GtkButton       *button,
    widget = widget_from_builder(
 			  "find_waters_dialog");
 
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
 }
 
 
@@ -2182,7 +2205,7 @@ on_fast_sss_dialog_cancel_button_clicked
 {
   GtkWidget *widget;
   widget = widget_from_builder("fast_ss_search_dialog");
-  gtk_widget_hide(widget);
+  gtk_widget_set_visible(widget, FALSE);
 
 }
 
@@ -2249,7 +2272,7 @@ on_fast_sss_dialog_ok_button_clicked   (GtkButton       *button,
 				 use_strand, strand_length, strand_target,
 				 radius);
 
-  gtk_widget_hide(dialog);
+  gtk_widget_set_visible(dialog, FALSE);
 
 }
 
@@ -2274,7 +2297,7 @@ on_environment_distances1_activate     (GMenuItem     *menuitem,
    //  GtkWidget *widget = create_environment_distance_dialog();
    GtkWidget *widget = widget_from_builder("environment_distance_dialog");
    fill_environment_widget(widget);
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 
 }
 
@@ -2414,7 +2437,7 @@ on_cif_dictionary_fileselection_cancel_button_clicked
   GtkWidget *fileselection;
 
   fileselection = widget_from_builder("cif_dictionary_fileselection");
-  gtk_widget_hide(fileselection);
+  gtk_widget_set_visible(fileselection, FALSE);
 
 }
 
@@ -2446,7 +2469,7 @@ on_residue_type_chooser_ALA_clicked    (GtkButton       *button,
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
 
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("ALA", istate);
 }
 
@@ -2463,7 +2486,7 @@ on_residue_type_chooser_ARG_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("ARG", istate);
 
 }
@@ -2481,7 +2504,7 @@ on_residue_type_chooser_ASN_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("ASN", istate);
 
 }
@@ -2499,7 +2522,7 @@ on_residue_type_chooser_ASP_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("ASP", istate);
 
 }
@@ -2517,7 +2540,7 @@ on_residue_type_chooser_CYS_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("CYS", istate);
 
 }
@@ -2535,7 +2558,7 @@ on_residue_type_chooser_GLN_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("GLN", istate);
 
 }
@@ -2553,7 +2576,7 @@ on_residue_type_chooser_GLU_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("GLU", istate);
 
 }
@@ -2571,7 +2594,7 @@ on_residue_type_chooser_GLY_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("GLY", istate);
 
 }
@@ -2589,7 +2612,7 @@ on_residue_type_chooser_HIS_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("HIS", istate);
 
 }
@@ -2607,7 +2630,7 @@ on_residue_type_chooser_ILE_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("ILE", istate);
 
 }
@@ -2625,7 +2648,7 @@ on_residue_type_chooser_LEU_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("LEU", istate);
 
 }
@@ -2643,7 +2666,7 @@ on_residue_type_chooser_LYS_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("LYS", istate);
 
 }
@@ -2661,7 +2684,7 @@ on_residue_type_chooser_MET_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("MET", istate);
 
 }
@@ -2678,7 +2701,7 @@ on_residue_type_chooser_MSE_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("MSE", istate);
 
 }
@@ -2698,7 +2721,7 @@ on_residue_type_chooser_PHE_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("PHE", istate);
 
 }
@@ -2716,7 +2739,7 @@ on_residue_type_chooser_PRO_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("PRO", istate);
 
 }
@@ -2734,7 +2757,7 @@ on_residue_type_chooser_SER_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("SER", istate);
 
 }
@@ -2752,7 +2775,7 @@ on_residue_type_chooser_THR_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("THR", istate);
 
 }
@@ -2770,7 +2793,7 @@ on_residue_type_chooser_TRP_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("TRP", istate);
 
 }
@@ -2788,7 +2811,7 @@ on_residue_type_chooser_TYR_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("TYR", istate);
 
 }
@@ -2807,7 +2830,7 @@ on_residue_type_chooser_VAL_clicked    (GtkButton       *button,
    short int istate = 0;
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stub_button)))
      istate = 1;
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
    do_mutation("VAL", istate);
 
 }
@@ -2839,7 +2862,7 @@ void on_rotate_translate_obj_ok_button_clicked (GtkButton       *button,
   rot_trans_reset_previous();
   accept_regularizement();
   store_window_position(COOT_ROTATE_TRANSLATE_DIALOG, widget);
-  gtk_widget_hide(widget);
+  gtk_widget_set_visible(widget, FALSE);
   clear_up_moving_atoms(); // redraw done here
 
 }
@@ -2854,7 +2877,7 @@ void on_rotate_translate_obj_cancel_button_clicked (GtkButton       *button,
  /*   clear_moving_atoms_object(); // redraw done here */
   clear_up_moving_atoms();
   store_window_position(COOT_ROTATE_TRANSLATE_DIALOG, widget);
-  gtk_widget_hide(widget);
+  gtk_widget_set_visible(widget, FALSE);
   normal_cursor();
 }
 
@@ -2866,7 +2889,7 @@ on_run_script1_activate (GMenuItem     *menuitem,
 
    GtkWidget *widget = coot_run_script_chooser();
    add_filename_filter_button(widget, COOT_SCRIPTS_FILE_SELECTION);
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 
@@ -2966,10 +2989,10 @@ on_close_molecule1_activate            (GMenuItem     *menuitem,
 /*   GtkWidget *widget = create_close_molecule_dialog(); */
 /*   GtkWidget *optionmenu = widget_from_builder("close_molecule_optionmenu"); */
 /*    fill_close_option_menu_with_all_molecule_options(optionmenu); */
-/*   gtk_widget_show(widget); */
+/*   gtk_widget_set_visible(widget, TRUE); */
 
    GtkWidget *widget = wrapped_create_new_close_molecules_dialog(); // uses builder
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 
@@ -2983,7 +3006,7 @@ on_close_molecule_close_button_clicked (GtkButton       *button,
 				    "close_molecule_dialog");
   GtkWidget *optionmenu = widget_from_builder("close_molecule_optionmenu");
   close_molecule_by_widget(optionmenu);
-/*   gtk_widget_hide(window); */
+/*   gtk_widget_set_visible(window, FALSE); */
 }
 
 
@@ -2994,7 +3017,7 @@ on_close_molecule_cancel_button_clicked (GtkButton       *button,
 {
   GtkWidget *window = widget_from_builder(
 				    "close_molecule_dialog");
-  gtk_widget_hide(window);
+  gtk_widget_set_visible(window, FALSE);
 
 }
 
@@ -3011,7 +3034,7 @@ on_delete_item_cancel_button_clicked   (GtkButton       *button,
    normal_cursor();
    store_window_position(COOT_DELETE_WINDOW, widget);
    // store_delete_item_widget(NULL);
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
 }
 
 
@@ -3022,7 +3045,7 @@ on_hints1_activate                     (GMenuItem     *menuitem,
 {
    // GtkWidget *widget = create_hints_dialog();
    GtkWidget *widget = widget_from_builder("hints_dialog");
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 
@@ -3034,7 +3057,7 @@ on_residue_info_apply_button_clicked(GtkButton       *button,
 
    apply_residue_info_changes();
    // GtkWidget *widget = widget_from_builder("residue_info_dialog");
-   // gtk_widget_hide(widget); maybe, maybe not. 20230515-PE
+   // gtk_widget_set_visible(widget, FALSE);
 }
 
 
@@ -3046,7 +3069,7 @@ on_residue_info_cancel_button_clicked  (GtkButton       *button,
    GtkWidget *widget = widget_from_builder("residue_info_dialog");
 
    residue_info_release_memory(widget);  // Hmmm! that seems dangerous
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    unset_residue_info_widget(); // 20230515-PE seems an ancient thing to do. Needed?
 }
 
@@ -3100,7 +3123,7 @@ on_hints_dialog_ok_button_clicked      (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *widget = widget_from_builder("hints_dialog");
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
 
 }
 
@@ -3125,7 +3148,7 @@ on_rotamer_selection_ok_button_clicked (GtkButton       *button,
    accept_regularizement();
    clear_moving_atoms_object();
    store_window_position(COOT_ROTAMER_SELECTION_DIALOG, dialog);
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 }
 
 
@@ -3154,7 +3177,7 @@ on_rotamer_selection_cancel_button_clicked
    }
 
    store_window_position(COOT_ROTAMER_SELECTION_DIALOG, dialog);
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 }
 
 
@@ -3267,7 +3290,7 @@ on_unsaved_changes_cancel_button_clicked
 {
 
    GtkWidget *dialog = widget_from_builder("unsaved_changes_dialog");
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 }
 
 
@@ -3278,7 +3301,7 @@ on_unsaved_changes_continue_button_clicked
                                         gpointer         user_data)
 {
    GtkWidget *dialog = widget_from_builder("unsaved_changes_dialog");
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
    coot_clear_backup_or_real_exit(0);
 }
 
@@ -3353,7 +3376,7 @@ on_baton_dialog_ok_button_clicked      (GtkButton       *button,
   try_set_draw_baton(0);
   set_baton_mode(0);		/* if you can't see it, there's no
 				   point in trying to move it */
-  gtk_widget_hide(widget);
+  gtk_widget_set_visible(widget, FALSE);
 
 }
 
@@ -3370,7 +3393,7 @@ on_model_refine_dialog_baton_button_clicked (GtkButton       *button,
   if (state) {
      // GtkWidget *widget = create_baton_dialog();
      GtkWidget *widget = widget_from_builder("baton_dialog()");
-    gtk_widget_show(widget);
+    gtk_widget_set_visible(widget, TRUE);
   }
 }
 
@@ -3408,7 +3431,7 @@ on_environment_distance_dialog_ok_button_clicked
    GtkWidget *widget;
    widget = widget_from_builder("environment_distance_dialog");
    execute_environment_settings(GTK_WIDGET(button));
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
 
 }
 
@@ -3431,7 +3454,7 @@ on_show_symmetry_window_delete_event(GtkWidget       *widget,
                                                          GdkEvent        *event,
                                                          gpointer         user_data) {
 
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 
@@ -3462,7 +3485,7 @@ on_coordinates_recentring1_activate    (GMenuItem     *menuitem,
    }
 
 
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 
@@ -3503,10 +3526,10 @@ on_read_pdb_recentre_dialog_ok_button_clicked
                                         gpointer         user_data)
 {
    // GtkWidget *widget = widget_from_builder("read_pdb_recentre_dialog");
-   // gtk_widget_hide(widget);
+   // gtk_widget_set_visible(widget, FALSE);
 
    GtkWidget *w = widget_from_builder("read_pdb_recentre_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -3517,10 +3540,10 @@ on_pointer_atom_type_cancel_button_clicked(GtkButton       *button,
                                                                gpointer         user_data) {
 
    // GtkWidget *widget = widget_from_builder("pointer_atom_type_dialog");
-   // gtk_widget_hide(widget);
+   // gtk_widget_set_visible(widget, FALSE);
 
    GtkWidget *w = widget_from_builder("pointer_atom_type_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -3563,8 +3586,8 @@ on_pointer_atom_type_ok_button_clicked (GtkButton       *button,
   }
   /* Recall that the molecule is set by the callback from menu item "activate" */
 
-  // gtk_widget_hide(dialog);
-  gtk_widget_hide(dialog);
+  // gtk_widget_set_visible(dialog, FALSE);
+  gtk_widget_set_visible(dialog, FALSE);
 }
 
 
@@ -3807,7 +3830,7 @@ on_undo_molecule_chooser_ok_button_clicked (GtkButton       *button,
 					    gpointer         user_data)
 {
    GtkWidget *widget = widget_from_builder("undo_molecule_chooser_dialog");
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
 
 }
 
@@ -3836,7 +3859,7 @@ on_skeleton_ok_button_clicked          (GtkButton       *button,
   skeletonize_map_by_optionmenu(optionmenu);
   */
   skeletonize_map_by_combobox(combobox);
-  gtk_widget_hide(window);
+  gtk_widget_set_visible(window, FALSE);
   if (do_baton_mode)
     try_set_draw_baton(1);
 
@@ -3850,7 +3873,7 @@ on_skeleton_cancel_button_clicked      (GtkButton       *button,
 {
    // GtkWidget *window = widget_from_builder("skeleton_dialog");
   GtkWidget *window = widget_from_builder("skeleton_dialog");
-  gtk_widget_hide(window);
+  gtk_widget_set_visible(window, FALSE);
 }
 
 
@@ -3862,7 +3885,7 @@ on_skeleton1_activate                  (GMenuItem     *menuitem,
 
    /* we need to fill the optionmenu.  Make it a graphics_info_t this time. */
   GtkWidget *w = wrapped_create_skeleton_dialog();
-  gtk_widget_show(w);
+  gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -3975,7 +3998,7 @@ on_crosshairs1_activate                (GMenuItem     *menuitem,
    if (draw_crosshairs_state()) {
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
    }
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 
@@ -4008,7 +4031,7 @@ on_display_crosshairs_ok_button_clicked (GtkButton       *button,
 {
   GtkWidget *dialog = widget_from_builder("crosshairs_dialog");
 
-  gtk_widget_hide(dialog);
+  gtk_widget_set_visible(dialog, FALSE);
 
 }
 
@@ -4065,7 +4088,7 @@ on_add_alt_conf_cancel_button_clicked  (GtkButton       *button,
   GtkWidget *dialog = widget_from_builder("add_alt_conf_dialog");
   unset_add_alt_conf_dialog();
   unset_add_alt_conf_define();
-  gtk_widget_hide(dialog);
+  gtk_widget_set_visible(dialog, FALSE);
 
 }
 
@@ -4095,7 +4118,7 @@ on_validation_dialog_cancel_button_clicked (GtkButton       *button,
 
   GtkWidget *widget = widget_from_builder("");
 
-  gtk_widget_hide(widget);
+  gtk_widget_set_visible(widget, FALSE);
 
 }
 
@@ -4182,7 +4205,7 @@ on_run_state_file_ok_button_clicked    (GtkButton       *button,
 {
    // GtkWidget *dialog = widget_from_builder("run_state_file_dialog");    // old glade style
   GtkWidget *dialog = widget_from_builder("run_state_file_dialog");
-  gtk_widget_hide(dialog);
+  gtk_widget_set_visible(dialog, FALSE);
   run_state_file();
 }
 
@@ -4194,8 +4217,8 @@ on_run_state_file_cancel_button_clicked (GtkButton       *button,
 {
    // GtkWidget *dialog = widget_from_builder("run_state_file_dialog"); // old glade style
   GtkWidget *dialog = widget_from_builder("run_state_file_dialog");
-  gtk_widget_hide(dialog);
-  gtk_widget_hide(dialog);
+  gtk_widget_set_visible(dialog, FALSE);
+  gtk_widget_set_visible(dialog, FALSE);
 }
 
 
@@ -4205,7 +4228,7 @@ on_run_state_file_dialog_delete_event(GtkWidget       *widget,
                                       GdkEvent        *event,
                                       gpointer         user_data) {
 
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 
@@ -4324,7 +4347,7 @@ on_edit_backbone_torsion_ok_button_clicked
 				    "edit_backbone_torsions_dialog");
   accept_regularizement();	/* does a clear too. */
   destroy_edit_backbone_rama_plot();
-  gtk_widget_hide(window);
+  gtk_widget_set_visible(window, FALSE);
 }
 
 
@@ -4338,8 +4361,8 @@ on_edit_backbone_torsion_cancel_button_clicked
    /*   clear_moving_atoms_object(); done as part of window destroy
         callback */
    destroy_edit_backbone_rama_plot(); // 20211006-PE this function name should be changed
-   //gtk_widget_hide(window);
-   gtk_widget_hide(window);
+   //gtk_widget_set_visible(window, FALSE);
+   gtk_widget_set_visible(window, FALSE);
 
 }
 
@@ -4434,7 +4457,7 @@ on_select_map_for_fitting_button_clicked(GtkButton       *button,
       graphics_info_t g;
       g.geometry_vs_map_weight = f;
    }
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 
 }
 
@@ -4444,7 +4467,7 @@ gboolean
 on_select_fitting_map_dialog_delete_event(GtkWidget       *widget,
                                                               GdkEvent        *event,
                                                               gpointer         user_data) {
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 
@@ -4508,7 +4531,7 @@ on_run_refmac_help_button_clicked      (GtkButton       *button,
      as backup for now */
    // GtkWidget *widget = create_run_refmac_nolabels_help_dialog();
    GtkWidget *widget = widget_from_builder("run_refmac_nolabels_help_dialog");
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 
@@ -4520,7 +4543,7 @@ on_run_refmac_help_dialog_ok_button_clicked
 {
 
   GtkWidget *widget = widget_from_builder("run_refmac_help_dialog");
-  gtk_widget_hide(widget);
+  gtk_widget_set_visible(widget, FALSE);
 
 }
 
@@ -4533,7 +4556,7 @@ on_run_refmac_nolabels_help_button_clicked
 {
    // GtkWidget *widget = create_run_refmac_nolabels_help_dialog();
    GtkWidget *widget = widget_from_builder("run_refmac_nolabels_help_dialog");
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 
@@ -4545,7 +4568,7 @@ on_run_refmac_nolabels_help_dialog_ok_button_clicked
 {
 
   GtkWidget *widget = widget_from_builder("run_refmac_nolabels_help_dialog");
-  gtk_widget_hide(widget);
+  gtk_widget_set_visible(widget, FALSE);
 
 }
 
@@ -4558,7 +4581,7 @@ on_no_restraints_info_dialog_button_clicked
 {
 
   GtkWidget *window = widget_from_builder("no_restraints_info_dialog");
-  gtk_widget_hide(window);
+  gtk_widget_set_visible(window, FALSE);
 
 }
 
@@ -4571,7 +4594,7 @@ on_no_cif_dictionary_bonds_ok_button_clicked
 {
 
   GtkWidget *window = widget_from_builder("no_cif_dictionary_bonds_dialog");
-  gtk_widget_hide(window);
+  gtk_widget_set_visible(window, FALSE);
 
 }
 
@@ -4597,7 +4620,7 @@ on_ligand_big_blob_dismiss_button_clicked
 {
 
   GtkWidget *window = widget_from_builder( "ligand_big_blob_dialog");
-  gtk_widget_hide(window);
+  gtk_widget_set_visible(window, FALSE);
 
 }
 
@@ -4612,7 +4635,7 @@ on_edit_chi_angles_dialog_ok_button_clicked
   accept_regularizement();
   unset_moving_atom_move_chis();
   store_window_position(COOT_EDIT_CHI_DIALOG, widget);
-  gtk_widget_hide(widget);
+  gtk_widget_set_visible(widget, FALSE);
 
 }
 
@@ -4626,7 +4649,7 @@ on_edit_chi_angles_cancel_button_clicked(GtkButton       *button,
   clear_up_moving_atoms();	/* and remove the graphics object */
   unset_moving_atom_move_chis();
   store_window_position(COOT_EDIT_CHI_DIALOG, widget);
-  gtk_widget_hide(widget);
+  gtk_widget_set_visible(widget, FALSE);
 
 }
 
@@ -4638,7 +4661,7 @@ on_check_waters_ok_button_clicked(GtkButton       *button,
 
    GtkWidget *widget = widget_from_builder("check_waters_dialog");
    do_check_waters_by_widget(widget);
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
 }
 
 
@@ -4649,7 +4672,7 @@ on_check_waters_cancel_button_clicked  (GtkButton       *button,
 {
 
   GtkWidget *widget = widget_from_builder("check_waters_dialog");
-  gtk_widget_hide(widget);
+  gtk_widget_set_visible(widget, FALSE);
 
 }
 
@@ -4724,12 +4747,12 @@ on_geometry_dialog_close_button_clicked
   /* it is the COOT_DISTANCES_ANGLES_WINDOW, hmm. */
   store_window_position(COOT_DISTANCES_ANGLES_WINDOW, dialog);
   store_geometry_dialog(NULL);
-  gtk_widget_hide(dialog);
+  gtk_widget_set_visible(dialog, FALSE);
 #endif
 
   GtkWidget *frame = widget_from_builder("geometry_frame");
   store_geometry_dialog(NULL);
-  gtk_widget_hide(frame);
+  gtk_widget_set_visible(frame, FALSE);
 }
 
 
@@ -4758,9 +4781,9 @@ on_new_ligands_info_dialog_ok_button_clicked (GtkButton       *button,
                                                                   gpointer         user_data)
 {
    // GtkWidget *w = widget_from_builder("new_ligands_info_dialog");
-   // gtk_widget_hide(w);
+   // gtk_widget_set_visible(w, FALSE);
    GtkWidget *w = widget_from_builder("new_ligands_info_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -4770,9 +4793,9 @@ on_no_new_ligands_info_dialog_ok_button_clicked (GtkButton       *button,
                                                                      gpointer         user_data)
 {
    // GtkWidget *w = widget_from_builder("no_new_ligands_info_dialog");
-   // gtk_widget_hide(w);
+   // gtk_widget_set_visible(w, FALSE);
    GtkWidget *w = widget_from_builder("no_new_ligands_info_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -4785,7 +4808,7 @@ on_zoom1_activate                      (GMenuItem     *menuitem,
    // GtkWidget *w = create_zoom_dialog();
    GtkWidget *w = widget_from_builder("zoom_dialog");
    set_zoom_adjustment(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -4797,7 +4820,7 @@ on_zoom_dialog_ok_button_clicked       (GtkButton       *button,
 {
 
   GtkWidget *w = widget_from_builder("zoom_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -4840,34 +4863,9 @@ on_get_monomer1_activate               (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
   GtkWidget *dialog = wrapped_create_get_monomer_dialog();
-  gtk_widget_show(dialog);
+  gtk_widget_set_visible(dialog, TRUE);
 }
 
-
-extern "C" G_MODULE_EXPORT
-void
-on_get_monomer_ok_button_clicked(GtkButton       *button,
-                                 gpointer         user_data) {
-
-   GtkWidget *entry = widget_from_builder("get_monomer_entry");
-   if (entry) {
-      handle_get_monomer_code(entry);
-   }
-   GtkWidget *frame = widget_from_builder("get_monomer_frame");
-   gtk_widget_hide(frame);
-}
-
-extern "C" G_MODULE_EXPORT
-void on_generic_overlay_frame_cancel_button_clicked(GtkButton       *button,
-                                          gpointer         user_data) {
-   GtkWidget* frame_widget = GTK_WIDGET(user_data);
-   if(frame_widget) {
-      gtk_widget_hide(frame_widget);
-   } else {
-      g_error("'user_data' is NULL. Cannot hide overlay frame.");
-   }
-   
-}
 
 
 #ifdef FIX_THE_KEY_PRESS_EVENTS
@@ -4895,7 +4893,7 @@ on_recover_coordinates_ok_button_clicked(GtkButton       *button,
    GtkWidget *widget = widget_from_builder("recover_coordinates_dialog");
 
   execute_recover_session(widget); /* widget needed for lookup of user data */
-  gtk_widget_hide(widget);
+  gtk_widget_set_visible(widget, FALSE);
 
 }
 
@@ -4907,7 +4905,7 @@ on_recover_coordinates_cancel_button_clicked
                                         gpointer         user_data)
 {
   GtkWidget *widget = widget_from_builder("recover_coordinates_dialog");
-  gtk_widget_hide(widget);
+  gtk_widget_set_visible(widget, FALSE);
 }
 
 
@@ -4935,7 +4933,7 @@ on_centre_atom_label1_activate         (GMenuItem     *menuitem,
    } else {
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(off), TRUE);
    }
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 
@@ -4952,7 +4950,7 @@ on_centre_atom_label_ok_button_clicked (GtkButton       *button,
    } else {
       set_label_on_recentre_flag(0);
    }
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -4977,7 +4975,7 @@ on_edit_chi_angles_help_button_clicked (GtkButton       *button,
 {
    //   GtkWidget *w = create_chi_angle_help_dialog();
    GtkWidget *w = widget_from_builder("chi_angle_help_dialog");
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -4987,7 +4985,7 @@ on_help_chi_angles_dismiss_button_clicked (GtkButton       *button,
 					   gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("chi_angle_help_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5007,7 +5005,7 @@ on_no_symmetry_warning_ok_button_clicked (GtkButton       *button,
 					  gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("no_symmetry_warning_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5017,7 +5015,7 @@ on_nothing_to_recover_ok_button_clicked (GtkButton       *button,
 					 gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("nothing_to_recover_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5030,7 +5028,7 @@ on_superpose_dialog_superpose_button_clicked
 {
   GtkWidget *w = widget_from_builder("superpose_dialog");
   execute_superpose(w);
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5040,7 +5038,7 @@ on_superpose_dialog_cancel_button_clicked (GtkButton       *button,
 					   gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("superpose_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5050,7 +5048,7 @@ on_superpose_nonsense_ok_button_clicked (GtkButton       *button,
 					 gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("superpose_nonsense_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5061,7 +5059,7 @@ on_superpose_nonsense_cancel_button_clicked
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("superpose_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5071,7 +5069,7 @@ on_add_terminal_residue_finds_none_ok_button_clicked (GtkButton       *button,
 						      gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("add_terminal_residue_finds_none_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -5085,7 +5083,8 @@ on_single_map_properties_contour_level_entry_activate(GtkWidget *entry, gpointer
       set_contour_by_sigma_step_by_mol(imol, f, 1);
    }
    catch (const std::runtime_error &rte) {
-      std::cout << "ERROR in on_single_map_properties_contour_level_entry_activate() failed to comprehend " << s << std::endl;
+      std::cout << "ERROR in on_single_map_properties_contour_level_entry_activate() failed to comprehend "
+                << s << std::endl;
    }
 
 }
@@ -5206,7 +5205,7 @@ on_no_bad_chiral_volumes_dialog_ok_button_clicked (GtkButton       *button,
 {
 
    GtkWidget *w = widget_from_builder("no_bad_chiral_volumes_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5217,7 +5216,7 @@ on_check_chiral_volumes_ok_button_clicked (GtkButton       *button,
 {
    GtkWidget *w = widget_from_builder("check_chiral_volumes_dialog");
    check_chiral_volumes_from_widget(w);
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5228,7 +5227,7 @@ on_check_chiral_volumes_cancel_button_clicked (GtkButton       *button,
 					       gpointer         user_data)
 {
    GtkWidget *dialog = widget_from_builder("check_chiral_volumes_dialog");
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 }
 
 
@@ -5241,7 +5240,7 @@ on_find_bad_chiral_atoms1_activate     (GMenuItem     *menuitem,
    // GtkWidget *w = create_check_chiral_volumes_dialog();
    GtkWidget *w = widget_from_builder("check_chiral_volumes_dialog");
    fill_chiral_volume_molecule_combobox(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -5252,7 +5251,7 @@ on_chiral_volume_baddies_dialog_cancel_button_clicked (GtkButton       *button,
 						       gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("bad_chiral_volumes_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5263,7 +5262,7 @@ on_bad_chiral_volumes_dialog_response(GtkDialog       *dialog,
                                                           gpointer         user_data) {
 
    if (response_id == GTK_RESPONSE_CLOSE)
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 
 }
 
@@ -5274,7 +5273,7 @@ on_rigid_body_refinement_failed_dialog_ok_button_clicked (GtkButton *button,
 {
   GtkWidget *w = widget_from_builder(
 			       "rigid_body_refinement_failed_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5286,7 +5285,7 @@ on_baton_mode_calculate_skeleton_ok_button_clicked (GtkButton       *button,
   GtkWidget *w = widget_from_builder(
 			       "baton_mode_make_skeleton_dialog");
   baton_mode_calculate_skeleton(w); /* get the imol from here */
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5297,7 +5296,7 @@ on_baton_mode_calculate_skeleton_cancel_button_clicked (GtkButton       *button,
 {
   GtkWidget *w = widget_from_builder(
 			       "baton_mode_make_skeleton_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5319,9 +5318,9 @@ on_column_label_expert_mode_button_clicked
 
 
    if (gtk_widget_get_visible(frame)) {
-    gtk_widget_hide(frame);
+    gtk_widget_set_visible(frame, FALSE);
    } else {
-     gtk_widget_show(frame);
+     gtk_widget_set_visible(frame, TRUE);
 /*      fill_f_optionmenu_with_expert_options(f_optionmenu); */
      fill_combobox_with_expert_options(combobox);
    }
@@ -5364,7 +5363,7 @@ on_merge_molecules_cancel_button_clicked (GtkButton       *button,
 					  gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("merge_molecules_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5376,7 +5375,7 @@ on_mutate_sequence_ok_button_clicked   (GtkButton       *button,
 {
    GtkWidget *w = widget_from_builder("mutate_sequence_dialog");
    do_mutate_sequence(w);
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5386,7 +5385,7 @@ on_mutate_sequence_cancel_button_clicked (GtkButton       *button,
 					  gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("mutate_sequence_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5396,7 +5395,7 @@ on_merge_molecules1_activate           (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
    GtkWidget *w = wrapped_create_merge_molecules_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -5406,7 +5405,7 @@ on_mutate_molecule1_activate           (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
    GtkWidget *w = wrapped_create_mutate_sequence_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -5496,7 +5495,7 @@ on_renumber_residue_range_ok_button_clicked
   GtkWidget *w = widget_from_builder("renumber_residue_range_dialog");
   bool status = renumber_residues_from_widget(w);
   if (status)
-     gtk_widget_hide(w);
+     gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5508,7 +5507,7 @@ on_renumber_residue_range_cancel_button_clicked
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("renumber_residue_range_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5539,7 +5538,7 @@ on_add_OXT_ok_button_clicked           (GtkButton       *button,
 {
   GtkWidget *w = widget_from_builder("add_OXT_dialog");
   apply_add_OXT_from_widget(w);
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5549,7 +5548,7 @@ on_add_OXT_cancel_button_clicked       (GtkButton       *button,
                                         gpointer         user_data) {
 
    GtkWidget *w = widget_from_builder("add_OXT_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5560,7 +5559,7 @@ on_model_refine_dialog_add_OXT_button_clicked(GtkButton       *button,
 
    GtkWidget *w = wrapped_create_add_OXT_dialog(); // uses builder
    set_transient_for_main_window(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -5570,7 +5569,7 @@ on_renumber_residues1_activate(GMenuItem    *menuitem,
                                gpointer      user_data) {
 
    GtkWidget *w = wrapped_create_renumber_residue_range_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -5580,7 +5579,7 @@ on_bond_parameters1_activate           (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
    GtkWidget *w = wrapped_create_bond_parameters_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -5590,7 +5589,7 @@ on_bond_parameters_ok_button_clicked   (GtkButton       *button,
 
    // GtkWidget *w = widget_from_builder("bond_parameters_dialog");
    // apply_bond_parameters(w);
-   // gtk_widget_hide(w);
+   // gtk_widget_set_visible(w, FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -5611,7 +5610,7 @@ on_bond_parameters_close_button_clicked (GtkButton       *button,
                                         gpointer         user_data) {
 
    GtkWidget *w = widget_from_builder("bond_parameters_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5646,10 +5645,10 @@ on_ligand_no_blobs_OK_button_clicked   (GtkButton       *button,
                                         gpointer         user_data)
 {
    //   GtkWidget *dialog = widget_from_builder("ligand_no_blobs_dialog");
-   // gtk_widget_hide(dialog);
+   // gtk_widget_set_visible(dialog, FALSE);
 
    GtkWidget *dialog = widget_from_builder("ligand_no_blobs_dialog");
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 }
 
 
@@ -5661,7 +5660,7 @@ on_new_delete_molecules_ok_button_clicked(GtkButton       *button,
 
    GtkWidget *w = widget_from_builder("new_close_molecules_dialog");
    close_molecules_gtk4(w);
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5672,7 +5671,7 @@ on_new_delete_molecules_cancel_button_clicked
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("new_close_molecules_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5684,7 +5683,7 @@ on_incorrect_chiral_volumes1_activate  (GMenuItem     *menuitem,
    // GtkWidget *w = create_check_chiral_volumes_dialog();
    GtkWidget *w = widget_from_builder("check_chiral_volumes_dialog");
    fill_chiral_volume_molecule_combobox(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -5696,7 +5695,7 @@ on_unmodelled_blobs1_activate          (GMenuItem     *menuitem,
 {
 
   GtkWidget *w = wrapped_create_unmodelled_blobs_dialog();
-  gtk_widget_show(w);
+  gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -5708,7 +5707,7 @@ on_find_blobs_ok_button_clicked        (GtkButton       *button,
 {
   GtkWidget *w = widget_from_builder("unmodelled_blobs_dialog");
   execute_find_blobs_from_widget(w);
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5718,7 +5717,7 @@ void
 on_find_blobs_cancel_button_clicked    (GtkButton       *button,
                                                             gpointer         user_data) {
   GtkWidget *w = widget_from_builder("unmodelled_blobs_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5731,7 +5730,7 @@ on_chiral_restraints_problem_ok_button_clicked (GtkButton       *button,
 {
 
   GtkWidget *w = widget_from_builder("chiral_restraints_problem_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 /* We'll keep this for now because it is used by
@@ -5746,7 +5745,7 @@ on_check_waters_diff_map_ok_button_clicked (GtkButton       *button,
 
 /*   GtkWidget *w = widget_from_builder("check_waters_diff_map_dialog"); */
 /*   check_waters_by_difference_map_by_widget(w); */
-/*   gtk_widget_hide(w); */
+/*   gtk_widget_set_visible(w, FALSE); */
 
 
 }
@@ -5758,7 +5757,7 @@ on_check_waters_diff_map_cancel_button_clicked (GtkButton       *button,
 						gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("check_waters_diff_map_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5769,7 +5768,7 @@ on_check_waters_by_difference_map_variance1_activate (GMenuItem     *menuitem,
 						      gpointer         user_data)
 {
   /* GtkWidget *w = wrapped_create_check_waters_diff_map_dialog(); */
-  /* gtk_widget_show(w); */
+  /* gtk_widget_set_visible(w, TRUE); */
 }
 
 
@@ -5781,7 +5780,7 @@ on_interesting_waters_by_difference_map_check_ok_button_clicked (GtkButton      
 
   GtkWidget *w = widget_from_builder(
 			       "interesting_waters_by_difference_map_check_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5792,7 +5791,7 @@ on_nothing_bad_ok_button_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("nothing_bad_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5828,7 +5827,7 @@ on_antialiasing1_activate              (GMenuItem     *menuitem,
       checkbutton = widget_from_builder("antialias_dialog_yes_radiobutton");
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
    }
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -5867,7 +5866,7 @@ on_antialiasing_dialog_ok_button_clicked
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("antialiasing_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5883,7 +5882,7 @@ on_geometry_graphs_close_button_clicked(GtkButton       *button,
    // this usage of user_data was set using glade.
    GtkWidget *dialog = GTK_WIDGET(user_data);
    if (dialog)
-      gtk_widget_hide(dialog);
+      gtk_widget_set_visible(dialog, FALSE);
    else
       std::cout << "ERROR getting dialog in on_geometry_graphs_ok_button_clicked\n";
 
@@ -5918,7 +5917,7 @@ on_save_symmetry_coords_fileselection_ok_button_clicked
 {
   GtkWidget *w = widget_from_builder("save_symmetry_coords_fileselection");
   save_symmetry_coords_from_filechooser(w);
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -5929,7 +5928,7 @@ on_save_symmetry_coords_fileselection_cancel_button_clicked
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("save_symmetry_coords_fileselection");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -5946,8 +5945,8 @@ on_peptide_flips_from_difference_map1_activate_gtkbuilder_glade(GMenuItem     *m
 extern "C" G_MODULE_EXPORT
 void
 on_pepflips_by_difference_map_dialog_close (GtkDialog *dialog,
-                                                                gpointer   user_data) {
-   gtk_widget_hide(GTK_WIDGET(dialog));
+                                            gpointer   user_data) {
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 // use a header for this - which one? c-interface-gui.hh?
@@ -5956,9 +5955,10 @@ void pepflips_by_difference_map_results_dialog(int imol_coords, int imol_map, fl
 extern "C" G_MODULE_EXPORT
 void
 on_pepflips_by_difference_map_dialog_response(GtkDialog       *dialog,
-                                                                  gint             response_id,
-                                                                  gpointer         user_data) {
-   if (response_id == GTK_RESPONSE_APPLY) {
+                                              gint             response_id,
+                                              gpointer         user_data) {
+   if (response_id == GTK_RESPONSE_OK) {
+      std::cout << "............... repsonse OK " << std::endl;
       GtkWidget *model_combobox = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), "model_combobox"));
       GtkWidget   *map_combobox = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog),   "map_combobox"));
       GtkWidget *entry = widget_from_builder("pepflips_by_difference_map_dialog_entry");
@@ -5973,8 +5973,10 @@ on_pepflips_by_difference_map_dialog_response(GtkDialog       *dialog,
          // log this
          std::cout << "Failed to convert " << s << " to a number" << std::endl;
       }
+   } else {
+      std::cout << "response was not OK" << std::endl;
    }
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 
@@ -5986,7 +5988,7 @@ on_stereo_dialog_ok_button_clicked     (GtkButton       *button,
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("stereo_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -6022,7 +6024,7 @@ on_stereo_dialog_hardware_stereo_radiobutton_toggled
       nothing_bad_dialog = widget_from_builder("nothing_bad_dialog");
       label_widget = widget_from_builder("nothing_bad_label");
       gtk_label_set_text(GTK_LABEL(label_widget), "This computer appears not to be able\nto do hardware stereo");
-      gtk_widget_show(nothing_bad_dialog);
+      gtk_widget_set_visible(nothing_bad_dialog, TRUE);
     }
   }
 }
@@ -6187,7 +6189,8 @@ void fill_and_show_shader_preferences() {
    gtk_range_set_range(GTK_RANGE(r9), 0.0, 2.0);
    gtk_range_set_value(GTK_RANGE(r9), v9);
 
-   gtk_widget_show(w);
+   set_transient_for_main_window(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -6207,7 +6210,7 @@ on_shader_settings_dialog_delete_event(GtkWidget       *widget,
 
    // this happens when the window manager closes the window (or tries to)
    // std::cout << "-------------- on_shader_settings_dialog_delete_event() " << std::endl;
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 
@@ -6254,7 +6257,7 @@ on_diff_map_peaks_dialog_ok_button_clicked
 {
    GtkWidget *dialog = widget_from_builder("diff_map_peaks_dialog");
    clear_diff_map_peaks();
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -6275,7 +6278,7 @@ on_generate_diff_map_peaks_ok_button_clicked
 
    GtkWidget *w = widget_from_builder("generate_diff_map_peaks_dialog");
    difference_map_peaks_by_widget(w); // make the results (and show the results dialog)
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -6287,7 +6290,7 @@ on_generate_diff_map_peaks_cancel_button_clicked
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("generate_diff_map_peaks_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -6300,7 +6303,7 @@ on_difference_map_peaks1_activate (GMenuItem     *menuitem,
                                    gpointer         user_data) {
 
   GtkWidget *w = wrapped_create_generate_diff_map_peaks_dialog();
-  gtk_widget_show(w);
+  gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -6384,7 +6387,7 @@ on_ncs_maps_ok_button_clicked          (GtkButton       *button,
 {
    GtkWidget *w = widget_from_builder("ncs_maps_dialog");
    make_dynamically_transformed_ncs_maps_by_widget(w);
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -6394,7 +6397,7 @@ on_ncs_maps_cancel_button_clicked      (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("ncs_maps_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -6404,7 +6407,7 @@ on_ncs_maps1_activate                  (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
    GtkWidget *w = wrapped_create_ncs_maps_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -6480,7 +6483,7 @@ on_pointer_distances_ok_button_clicked (GtkButton       *button,
 
    GtkWidget *dialog = widget_from_builder("pointer_distances_dialog");
    execute_pointer_distances_settings(dialog); // upadte and graphics_draw()
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 }
 
 
@@ -6492,7 +6495,7 @@ on_pointer_distances1_activate         (GMenuItem     *menuitem,
    // GtkWidget *w = create_pointer_distances_dialog();
    GtkWidget *w = widget_from_builder("pointer_distances_dialog");
    fill_pointer_distances_widget(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -6505,7 +6508,7 @@ on_align_and_mutate_ok_button_clicked  (GtkButton       *button,
    GtkWidget *dialog = widget_from_builder("align_and_mutate_dialog");
    int handled_state = do_align_mutate_sequence(dialog);
    if (handled_state == 1)
-      gtk_widget_hide(dialog);
+      gtk_widget_set_visible(dialog, FALSE);
 
 }
 
@@ -6517,7 +6520,7 @@ on_align_and_mutate_cancel_button_clicked
                                         gpointer         user_data)
 {
    GtkWidget *dialog = widget_from_builder("align_and_mutate_dialog");
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 
 }
 
@@ -6530,7 +6533,7 @@ on_ramachandran_plot_differences_ok_button_clicked(GtkButton       *button,
    GtkWidget *w = widget_from_builder("ramachandran_plot_differences_dialog");
    int istat = do_ramachandran_plot_differences_by_widget(w);
    if (istat) 			/* the plot was drawn (i.e. no chain selection funnies) */
-      gtk_widget_hide(w);
+      gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -6541,7 +6544,7 @@ on_ramachandran_plot_differences_cancel_button_clicked (GtkButton       *button,
                                                         gpointer         user_data) {
 
    GtkWidget *w = widget_from_builder("ramachandran_plot_differences_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -6552,7 +6555,7 @@ on_ramachandran_differences_plot1_activate(GMenuItem     *menuitem,
                                            gpointer         user_data) {
 
    GtkWidget *w = wrapped_ramachandran_plot_differences_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -6603,7 +6606,7 @@ on_check_waters1_activate              (GMenuItem     *menuitem,
 	  on top rather than underneath. */
    GtkWidget *w = wrapped_create_check_waters_dialog();
    int imol_map = imol_refinement_map();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
    if (imol_map < 0)
       show_select_map_dialog();
 
@@ -6618,7 +6621,7 @@ on_checked_waters_baddies_cancel_button_clicked
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("checked_waters_baddies_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -6630,7 +6633,7 @@ on_align_and_mutate1_activate            (GMenuItem     *menuitem,
 {
 
    GtkWidget *w = wrapped_create_align_and_mutate_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -6682,7 +6685,7 @@ on_save_state1_activate                (GMenuItem     *menuitem,
    add_filename_filter_button(file_chooser, COOT_SCRIPTS_FILE_SELECTION);
    /* add_ccp4i_project_optionmenu(fileselection, COOT_SCRIPTS_FILE_SELECTION); */
    set_file_selection_dialog_size(file_chooser);
-   gtk_widget_show(file_chooser);
+   gtk_widget_set_visible(file_chooser, TRUE);
 }
 
 
@@ -6716,19 +6719,16 @@ on_fit_loop1_activate                  (GMenuItem     *menuitem,
 {
 
 /*    GtkWidget *w = wrapped_fit_loop_dialog(); */
-/*    gtk_widget_show(w); */
+/*    gtk_widget_set_visible(w, TRUE); */
 }
-
-#include "fit-loop-gui.hh"
 
 extern "C" G_MODULE_EXPORT
 void
 on_fit_loop_by_rama_search1_activate (GMenuItem     *menuitem,
-                                                          gpointer         user_data)
-{
+                                      gpointer         user_data) {
 
-   GtkWidget *w = create_fit_loop_rama_search_dialog_gtkbuilder_version(); // fixed
-   gtk_widget_show(w);
+   GtkWidget *w = create_fit_loop_rama_search_dialog(); // fixed
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -6748,7 +6748,7 @@ on_fit_loop_ok_button_clicked          (GtkButton       *button,
 {
    GtkWidget *w = widget_from_builder("mutate_sequence_dialog");
    fit_loop_using_dialog();
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -6768,7 +6768,7 @@ on_base_chooser_A_button_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
    do_base_mutation("A");
 }
 
@@ -6779,7 +6779,7 @@ on_base_chooser_C_button_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
    do_base_mutation("C");
 }
 
@@ -6790,7 +6790,7 @@ on_base_chooser_G_button_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
    do_base_mutation("G");
 }
 
@@ -6801,7 +6801,7 @@ on_base_chooser_T_button_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
    do_base_mutation("T");
 }
 
@@ -6812,7 +6812,7 @@ on_base_chooser_U_button_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
    do_base_mutation("U");
 }
 
@@ -6824,7 +6824,7 @@ on_base_chooser_cancel_button_clicked  (GtkButton       *button,
 {
 
    GtkWidget *w = widget_from_builder("nucleic_acid_base_chooser_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -6844,7 +6844,7 @@ on_change_chain_ids2_activate          (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
    GtkWidget *w = wrapped_create_change_chain_id_dialog(); // uses builder
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -6859,7 +6859,7 @@ on_change_chains_rechain_button_clicked
    // GtkWidget *w = widget_from_builder("change_chain_id_dialog");
    GtkWidget *w = widget_from_builder("change_chain_id_dialog");
    change_chain_id_by_widget(w);
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -6869,10 +6869,10 @@ on_change_chain_cancel_button_clicked  (GtkButton       *button,
                                         gpointer         user_data)
 {
    // GtkWidget *w = widget_from_builder("change_chain_id_dialog");
-   // gtk_widget_hide(w);
+   // gtk_widget_set_visible(w, FALSE);
 
    GtkWidget *w = widget_from_builder("change_chain_id_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -6896,7 +6896,7 @@ on_on_line_docs_url1_activate          (GMenuItem     *menuitem,
 {
    // GtkWidget *w = create_doc_urls_dialog();
    GtkWidget *w = widget_from_builder("doc_urls_dialog");
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -6908,7 +6908,7 @@ on_on_line_documentation_ok_button_clicked
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("doc_urls_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -6922,7 +6922,7 @@ on_save_state_cancel_button1_clicked   (GtkButton       *button,
 {
    GtkWidget *w = widget_from_builder(
 				"save_state_fileselection");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -7118,7 +7118,7 @@ on_other_modelling_tools_close_button_clicked(GtkButton       *button,
                                               gpointer         user_data) {
 
    GtkWidget *w = widget_from_builder("other_model_tools_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -7129,7 +7129,7 @@ on_other_modelling_tools1_activate     (GMenuItem     *menuitem,
 {
 
    GtkWidget *w = wrapped_create_other_model_tools_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -7181,7 +7181,7 @@ on_get_pdb_and_map_using_eds1_activate (GMenuItem     *menuitem,
    // GtkWidget *window = create_accession_code_window();
    GtkWidget *window = widget_from_builder("accession_code_window");
    g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
-   gtk_widget_show(window);
+   gtk_widget_set_visible(window, TRUE);
 }
 
 
@@ -7222,7 +7222,7 @@ on_simple1_activate(GMenuItem     *menuitem,
 
    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(file_chooser), "coot-screendump.tga");
 
-   gtk_widget_show(file_chooser);
+   gtk_widget_set_visible(file_chooser, TRUE);
 
    check_for_dark_blue_density(); /* give a dialog if density it too dark (blue) */
 
@@ -7239,7 +7239,7 @@ on_povray1_activate                    (GMenuItem     *menuitem,
    set_transient_and_position(COOT_UNDEFINED_WINDOW, fileselection);
    g_object_set_data(G_OBJECT(fileselection), "mode", GINT_TO_POINTER(COOT_SCREENDUMP_POVRAY));
    /*    set_directory_for_fileselection(fileselection); */
-   gtk_widget_show(fileselection);
+   gtk_widget_set_visible(fileselection, TRUE);
 }
 
 
@@ -7253,7 +7253,7 @@ on_raster3d1_activate                  (GMenuItem     *menuitem,
    set_transient_and_position(COOT_UNDEFINED_WINDOW, file_chooser);
    g_object_set_data(G_OBJECT(file_chooser), "image_type", GINT_TO_POINTER(COOT_SCREENDUMP_RASTER3D));
    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(file_chooser), "coot-screendump.png.r3d");
-   gtk_widget_show(file_chooser);
+   gtk_widget_set_visible(file_chooser, TRUE);
 }
 
 
@@ -7282,7 +7282,7 @@ on_screendump_image_ok_button_clicked  (GtkButton       *button,
    }
   */
    if (filechooser)
-     gtk_widget_hide(filechooser);
+     gtk_widget_set_visible(filechooser, FALSE);
 }
 
 
@@ -7296,7 +7296,7 @@ on_screendump_image_cancel_button_clicked
 					    "screendump_filechooser"); /* now consistent with above */
 
    if (filechooser)
-     gtk_widget_hide(filechooser);
+     gtk_widget_set_visible(filechooser, FALSE);
 
 }
 
@@ -7347,7 +7347,7 @@ on_symmetry_controller_ok_button_clicked
 {
 
   GtkWidget *w = widget_from_builder("symmetry_controller_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -7362,7 +7362,7 @@ on_show_symmetry_molecule_control_button_clicked
                                         gpointer         user_data)
 {
   GtkWidget *w = symmetry_molecule_controller_dialog();
-  gtk_widget_show(w);
+  gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -7373,7 +7373,7 @@ on_ncs_control_ok_button_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("ncs_control_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -7409,7 +7409,7 @@ on_lsq_plane_ok_button_clicked         (GtkButton       *button,
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("lsq_plane_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
   normal_cursor();
 }
 
@@ -7432,7 +7432,7 @@ on_plane_distances1_activate           (GMenuItem     *menuitem,
    GtkWidget *w = wrapped_create_lsq_plane_dialog();
    setup_lsq_deviation(0);
    setup_lsq_plane_define(1);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -7452,7 +7452,7 @@ on_ncs_ghost_control1_activate         (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
    GtkWidget *w = wrapped_create_ncs_control_dialog(); // uses builder
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -7462,7 +7462,7 @@ on_ncs_control_dialog_delete_event(GtkWidget       *widget,
                                                        GdkEvent        *event,
                                                        gpointer         user_data) {
 
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 
@@ -7475,7 +7475,7 @@ on_coord_colour_control_ok_button_clicked
                                         gpointer         user_data) {
 
   GtkWidget *w = widget_from_builder("coords_colour_control_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -7491,7 +7491,7 @@ on_bond_colours1_activate              (GMenuItem     *menuitem,
    GtkWidget *w = widget_from_builder("coords_colour_control_dialog");
    graphics_info_t g;
    g.fill_bond_colours_dialog_internal(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -7591,7 +7591,7 @@ void on_generic_objects_dialog_response(GtkDialog       *dialog,
                                                             gpointer         user_data) {
 
     if (response_id == GTK_RESPONSE_CLOSE) {
-       gtk_widget_hide(GTK_WIDGET(dialog));
+       gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
     }
 }
 
@@ -7600,7 +7600,7 @@ gboolean
 on_generic_objects_dialog_delete_event(GtkWidget       *widget,
                                        GdkEvent        *event,
                                        gpointer         user_data) {
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 
@@ -7610,7 +7610,7 @@ on_generic_objects_dialog_close_button_clicked(GtkButton       *button,
                                                gpointer         user_data) {
 
    GtkWidget *dialog = widget_from_builder("generic_objects_dialog");
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 
 }
 
@@ -7729,7 +7729,7 @@ on_other_tools_RNA_button_clicked      (GtkButton       *button,
 {
    // non-run function
   // GtkWidget *w = wrapped_nucleotide_builder_dialog();
-  // gtk_widget_show(w);
+  // gtk_widget_set_visible(w, TRUE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -7751,7 +7751,7 @@ on_ideal_rna_ok_button_clicked         (GtkButton       *button,
 {
   GtkWidget *w = widget_from_builder("nucleotide_builder_dialog");
   ideal_nucleic_acid_by_widget(w);
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -7761,7 +7761,7 @@ on_ideal_rna_cancel_button_clicked     (GtkButton       *button,
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("nucleotide_builder_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -7808,7 +7808,7 @@ on_move_molecule_here1_activate(GMenuItem  *menuitem,
 
    GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
    fill_move_molecule_here_dialog(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -7819,7 +7819,7 @@ on_move_molecule_here_ok_button_clicked(GtkButton       *button,
 
   move_molecule_here_by_widget();
   GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -7832,7 +7832,7 @@ on_move_molecule_here_cancel_button_clicked
 {
 
   GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -7844,7 +7844,7 @@ on_monomer_library_search_dialog_cancel_button_clicked
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("monomer_search_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -7855,7 +7855,7 @@ on_search_monomer_library1_activate    (GMenuItem     *menuitem,
 {
    // GtkWidget *w = create_monomer_search_dialog();
    GtkWidget *w = widget_from_builder("monomer_search_dialog");
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -7947,7 +7947,7 @@ on_least_squares_close_button_clicked  (GtkButton       *button,
 {
   GtkWidget *w = widget_from_builder("least_squares_dialog");
   update_lsq_dialog_store_values(w);
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -7960,7 +7960,7 @@ on_least_squares_cancel_button_clicked (GtkButton       *button,
 {
 
   GtkWidget *w = widget_from_builder("least_squares_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -7972,7 +7972,7 @@ on_lsq_superpose1_activate             (GMenuItem     *menuitem,
 {
 
    GtkWidget *w = wrapped_create_least_squares_dialog(); // uses builder
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -8156,7 +8156,7 @@ on_screendump_filechooser_dialog_delete_event(GtkWidget       *widget,
                                               GdkEvent        *event,
                                               gpointer         user_data) {
 
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 #endif
@@ -8260,7 +8260,7 @@ on_display_manager_button_clicked      (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *widget = wrapped_create_display_control_window(); // uses widget_from_builder()
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 
@@ -8277,7 +8277,7 @@ on_display_manager_toolbutton_clicked  (GtkButton   *toolbutton,
                                         gpointer         user_data)
 {
    GtkWidget *widget = wrapped_create_display_control_window();
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -8589,7 +8589,7 @@ void
 on_aboutdialog_response (GtkDialog       *dialog,
                          gint             response_id,
                          gpointer         user_data) {
-  gtk_widget_hide(GTK_WIDGET(dialog));
+  gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -8673,11 +8673,11 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
          sel_files = sel_files->next;
       }
 
-      gtk_widget_hide(coords_fileselection1);
+      gtk_widget_set_visible(coords_fileselection1, FALSE);
 
    } else {
       GtkWidget *coords_fileselection1 = widget_from_builder("coords_filechooserdialog1");
-      gtk_widget_hide(coords_fileselection1);
+      gtk_widget_set_visible(coords_fileselection1, FALSE);
    }
 }
 #endif
@@ -8691,7 +8691,7 @@ on_coords_filechooserdialog1_destroy(GtkWidget       *object,
 
   store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *coords_fileselection1 = widget_from_builder("coords_filechooserdialog1");
-  gtk_widget_hide(coords_fileselection1);
+  gtk_widget_set_visible(coords_fileselection1, FALSE);
 }
 
 
@@ -8754,11 +8754,11 @@ on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
 	    /* try to read as a phs, cif etc... */
 	    manage_column_selector(copied_filename);
       }
-      gtk_widget_hide(dataset_filechooser);
+      gtk_widget_set_visible(dataset_filechooser, FALSE);
       free(copied_filename);
    } else {
       GtkWidget *dataset_filechooser = widget_from_builder("dataset_filechooserdialog1");
-      gtk_widget_hide(dataset_filechooser);
+      gtk_widget_set_visible(dataset_filechooser, FALSE);
    }
 
 }
@@ -8769,7 +8769,7 @@ on_dataset_filechooser_dialog_delete_event(GtkWidget       *widget,
                                            GdkEvent        *event,
                                            gpointer         user_data) {
 
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 
@@ -8784,7 +8784,7 @@ on_dataset_filechooserdialog1_destroy (GtkWidget       *object,
   GtkWidget *dataset_fileselection1 = widget_from_builder(
                                                 "dataset_filechooserdialog1");
 
-  gtk_widget_hide(dataset_fileselection1);
+  gtk_widget_set_visible(dataset_fileselection1, FALSE);
 }
 
 // I don't think that this is used now - delete it
@@ -8829,7 +8829,7 @@ on_map_name_filechooserdialog1_response(GtkDialog       *dialog,
       sfile = (char *) malloc (1001);
       strncpy(sfile, file_name, 1000);
 
-      gtk_widget_hide(map_name_filechooser); /* the file browser,
+      gtk_widget_set_visible(map_name_filechooser, FALSE); /* the file browser,
 						      when destroyed,
 						      scribbles over
 						      filename. */
@@ -8837,7 +8837,7 @@ on_map_name_filechooserdialog1_response(GtkDialog       *dialog,
       free(sfile);
 
    } else {
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 
 }
@@ -8861,7 +8861,7 @@ on_map_name_filechooserdialog1_destroy (GtkWidget       *object,
   GtkWidget *map_name_fileselection1 = widget_from_builder(
                                                 "map_name_filechooserdialog1");
 
-  gtk_widget_hide(map_name_fileselection1);
+  gtk_widget_set_visible(map_name_fileselection1, FALSE);
 }
 
 
@@ -8884,7 +8884,7 @@ on_phs_coordinates_filechooserdialog1_response
      save_directory_from_filechooser(phs_filechooser);
      read_phs_and_coords_and_make_map(file_name);
    }
-   gtk_widget_hide(phs_filechooser);
+   gtk_widget_set_visible(phs_filechooser, FALSE);
 
 }
 
@@ -8898,7 +8898,7 @@ on_phs_coordinates_filechooserdialog1_destroy
 
   store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *phs_fileselection1 = widget_from_builder("phs_coordinates_filechooserdialog1");
-  gtk_widget_hide(phs_fileselection1);
+  gtk_widget_set_visible(phs_fileselection1, FALSE);
 }
 
 
@@ -8933,10 +8933,10 @@ on_save_coords_filechooserdialog1_response
     save_coordinates_using_widget(fileselection);
     // this is wrong // FIXME-LATER-PE
     // free(stuff);
-    gtk_widget_hide(fileselection);
+    gtk_widget_set_visible(fileselection, FALSE);
   } else {
     GtkWidget *fileselection = widget_from_builder("save_coords_filechooserdialog1");
-    gtk_widget_hide(fileselection);
+    gtk_widget_set_visible(fileselection, FALSE);
   }
 }
 
@@ -8952,7 +8952,7 @@ on_save_coords_filechooserdialog1_destroy
   GtkWidget *fileselection = widget_from_builder(
                                                 "save_coords_filechooserdialog1");
 
-  gtk_widget_hide(fileselection);
+  gtk_widget_set_visible(fileselection, FALSE);
 }
 
 
@@ -9004,10 +9004,10 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
 
       handle_cif_dictionary_for_molecule(file_name, imol_enc, new_molecule_checkbutton_state);
 
-      gtk_widget_hide(cif_dictionary_filechooser);
+      gtk_widget_set_visible(cif_dictionary_filechooser, FALSE);
    } else {
       GtkWidget *filechooser = widget_from_builder("cif_dictionary_filechooserdialog1");
-      gtk_widget_hide(filechooser);
+      gtk_widget_set_visible(filechooser, FALSE);
    }
 
 }
@@ -9022,7 +9022,7 @@ on_cif_dictionary_filechooserdialog1_destroy
 
   store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *fileselection = widget_from_builder("cif_dictionary_filechooserdialog1");
-  gtk_widget_hide(fileselection);
+  gtk_widget_set_visible(fileselection, FALSE);
 }
 
 
@@ -9042,9 +9042,9 @@ on_run_script_filechooser_dialog_response(GtkDialog * dialog,
                                                G_FILE_QUERY_INFO_NONE, NULL, &error);
       const char *script_filename = g_file_info_get_name(file_info);
       run_script(script_filename);
-      gtk_widget_hide(file_chooser);
+      gtk_widget_set_visible(file_chooser, FALSE);
    }
-   gtk_widget_hide(file_chooser);
+   gtk_widget_set_visible(file_chooser, FALSE);
 
 }
 
@@ -9061,7 +9061,7 @@ on_run_script_filechooser_dialog_file_activated(GtkFileChooser* dialog,
                                             G_FILE_QUERY_INFO_NONE, NULL, &error);
    const char *script_filename = g_file_info_get_name(file_info);
    run_script(script_filename);
-   gtk_widget_hide(file_chooser);
+   gtk_widget_set_visible(file_chooser, FALSE);
 }
 
 
@@ -9074,7 +9074,7 @@ on_run_script_filechooserdialog1_destroy
 
    store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
    GtkWidget *file_chooser = widget_from_builder("run_script_filechooser_dialog");
-   gtk_widget_hide(file_chooser);
+   gtk_widget_set_visible(file_chooser, FALSE);
 }
 
 #if (GTK_MAJOR_VERSION >= 4)
@@ -9114,10 +9114,10 @@ on_save_symmetry_coords_filechooserdialog1_response(GtkDialog * dialog,
    if (response_id == GTK_RESPONSE_OK) {
       GtkWidget *w = widget_from_builder("save_symmetry_coords_filechooserdialog1");
       save_symmetry_coords_from_filechooser(w);
-      gtk_widget_hide(w);
+      gtk_widget_set_visible(w, FALSE);
    } else {
       GtkWidget *coords_fileselection1 = widget_from_builder("save_symmetry_coords_filechooserdialog1");
-      gtk_widget_hide(coords_fileselection1);
+      gtk_widget_set_visible(coords_fileselection1, FALSE);
    }
 }
 
@@ -9133,7 +9133,7 @@ on_save_symmetry_coords_filechooserdialog1_destroy
   GtkWidget *coords_fileselection1 = widget_from_builder(
                                                 "save_symmetry_coords_filechooserdialog1");
 
-  gtk_widget_hide(coords_fileselection1);
+  gtk_widget_set_visible(coords_fileselection1, FALSE);
 }
 
 
@@ -9176,10 +9176,10 @@ on_save_state_filechooserdialog1_response (GtkDialog * dialog,
    
       save_state_file(file_name);    /* write the file */
       set_save_state_file_name(file_name); /* save as a static in graphics_info_t */
-      gtk_widget_hide(w);
+      gtk_widget_set_visible(w, FALSE);
    } else {
       GtkWidget *coords_fileselection1 = widget_from_builder("save_state_filechooserdialog1");
-      gtk_widget_hide(coords_fileselection1);
+      gtk_widget_set_visible(coords_fileselection1, FALSE);
    }
 }
 
@@ -9194,7 +9194,7 @@ on_save_state_filechooserdialog1_destroy (GtkWidget * object,
   GtkWidget *coords_fileselection1 = widget_from_builder(
                                                 "save_state_filechooserdialog1");
 
-  gtk_widget_hide(coords_fileselection1);
+  gtk_widget_set_visible(coords_fileselection1, FALSE);
 }
 
 
@@ -9241,7 +9241,7 @@ on_screendump_filechooser_dialog_response (GtkDialog * dialog,
          make_image_raster3d(file_name);
       }
    }
-   gtk_widget_hide(file_chooser);
+   gtk_widget_set_visible(file_chooser, FALSE);
 }
 
 
@@ -9271,7 +9271,7 @@ on_screendump_filechooser_dialog_file_activated(GtkFileChooser* dialog,
    if (image_type == COOT_SCREENDUMP_RASTER3D) {
       make_image_raster3d(file_name);
    }
-   gtk_widget_hide(file_chooser);
+   gtk_widget_set_visible(file_chooser, FALSE);
 }
 
 
@@ -9285,7 +9285,7 @@ on_screendump_filechooserdialog1_destroy (GtkWidget * object,
   store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *fileselection = widget_from_builder("screendump_filechooserdialog1");
 
-  gtk_widget_hide(fileselection);
+  gtk_widget_set_visible(fileselection, FALSE);
 }
 /* end of chooser insert */
 
@@ -9392,7 +9392,7 @@ void
 on_fixed_atom_close_button_clicked     (GtkButton       *button,
                                                             gpointer         user_data) {
   GtkWidget *dialog = widget_from_builder("fixed_atom_dialog");
-  gtk_widget_hide(dialog);
+  gtk_widget_set_visible(dialog, FALSE);
 }
 
 
@@ -9420,7 +9420,7 @@ on_fixed_atom_dialog_response(GtkDialog       *dialog,
                                                   gpointer         user_data) {
    if (response_id == GTK_RESPONSE_CLOSE) {
       GtkWidget *dialog = widget_from_builder("fixed_atom_dialog");
-      gtk_widget_hide(dialog);
+      gtk_widget_set_visible(dialog, FALSE);
    }
 }
 
@@ -9457,7 +9457,7 @@ on_add_rep_add_rep_button_clicked (GtkButton       *button,
 {
    // GtkWidget *w = widget_from_builder("add_reps_dialog");
    // add_additional_representation_by_widget(w);
-   // gtk_widget_hide(w);
+   // gtk_widget_set_visible(w, FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -9478,7 +9478,7 @@ on_add_reps_dialog_response(GtkDialog       *dialog,
 
    }
 
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 
 }
 
@@ -9488,7 +9488,7 @@ void
 on_add_reps_dialog_close (GtkDialog *dialog,
                                               gpointer   user_data) {
 
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 
 }
 
@@ -9498,7 +9498,7 @@ on_add_rep_cancel_button_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("add_reps_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -9509,7 +9509,7 @@ on_additional_representation1_activate (GMenuItem     *menuitem,
    // 20210929-PE is this connected now?
    std::cout << "debug:: on_additional_representation1_activate() called" << std::endl;
    GtkWidget *w = wrapped_create_add_additional_representation_gui();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -9547,7 +9547,7 @@ on_residue_editor_select_monomer_type_ok_button_clicked (G_GNUC_UNUSED GtkButton
    GtkWidget *combo_box = widget_from_builder("residue_editor_select_monomer_type_combobox");
    const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combo_box));
    show_restraints_editor(t);
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 
 }
 
@@ -9556,7 +9556,7 @@ on_residue_editor_select_monomer_type_ok_button_clicked (G_GNUC_UNUSED GtkButton
 //   GtkWidget *combo_box = widget_from_builder("residue_editor_select_monomer_type_combobox");
 //   const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combo_box));
 //   show_restraints_editor(t);
-//   gtk_widget_hide(dialog);
+//   gtk_widget_set_visible(dialog, FALSE);
 // }
 
 
@@ -9566,7 +9566,7 @@ on_residue_editor_select_monomer_type_cancel_button_clicked (G_GNUC_UNUSED GtkBu
                                                              G_GNUC_UNUSED gpointer         user_data) {
 
    GtkWidget *dialog = widget_from_builder("residue_editor_select_monomer_type_dialog");
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 }
 
 
@@ -9576,7 +9576,7 @@ on_restraints1_activate                (GMenuItem     *menuitem,
                                         gpointer         user_data) {
 
    GtkWidget *w = wrapped_create_residue_editor_select_monomer_type_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -9600,7 +9600,7 @@ on_restraints_editor_close_button_clicked(GtkButton       *button,
    GtkWidget *w = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "restraints_editor_dialog"));
    if (w) {
       clear_restraints_editor_by_dialog(w);
-      gtk_widget_hide(w);
+      gtk_widget_set_visible(w, FALSE);
    } else {
       std::cout << "ERROR:: null dialog restraints_editor_dialog " << std::endl;
    }
@@ -9662,10 +9662,10 @@ on_save_restraint_chooserdialog_response(GtkDialog       *dialog,
   GtkWidget *w = widget_from_builder("save_restraint_chooserdialog");
   if (response_id == GTK_RESPONSE_OK) {
     save_monomer_restraints_by_widget(dialog);
-    gtk_widget_hide(w);
+    gtk_widget_set_visible(w, FALSE);
   }
   if (response_id == GTK_RESPONSE_CANCEL) {
-    gtk_widget_hide(w);
+    gtk_widget_set_visible(w, FALSE);
   }
 }
 
@@ -9684,7 +9684,7 @@ on_model_refine_dialog_fix_atoms_button_clicked
                                         gpointer         user_data)
 {
   GtkWidget *w = wrapped_create_fixed_atom_dialog();
-  gtk_widget_show(w);
+  gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -9696,7 +9696,7 @@ on_model_refine_dialog_fast_sss_button_clicked
 {
   GtkWidget *dialog;
   dialog = wrapped_create_fast_ss_search_dialog();
-  gtk_widget_show(dialog);
+  gtk_widget_set_visible(dialog, TRUE);
 
 }
 
@@ -9708,7 +9708,7 @@ on_other_tools_build_na_button_clicked (GtkButton       *button,
 {
    // GtkWidget *w = create_build_na_dialog();
    GtkWidget *w = widget_from_builder("build_na_dialog");
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -9720,7 +9720,7 @@ on_build_na_dialog_cancelbutton_clicked
                                         gpointer         user_data)
 {
    GtkWidget *w = widget_from_builder("build_na_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -9739,7 +9739,7 @@ on_build_na_dialog_okbutton_clicked    (GtkButton       *button,
    text = gtk_editable_get_text(GTK_EDITABLE(entry));
    r = atof(text);
    find_nucleic_acids_local(r);
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -9760,7 +9760,7 @@ on_build_na_dialog_radius_entry_activate(GtkEntry        *entry,
    text = gtk_editable_get_text(GTK_EDITABLE(entry));
    r = atof(text);
    find_nucleic_acids_local(r);
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -9872,7 +9872,7 @@ on_coot_references_closebutton_clicked (GtkButton       *button,
 {
   GtkWidget *dialog;
   dialog = widget_from_builder("coot_references_dialog");
-  gtk_widget_hide(dialog);
+  gtk_widget_set_visible(dialog, FALSE);
 
 }
 
@@ -10059,7 +10059,7 @@ on_map_sharpening1_activate            (GMenuItem     *menuitem,
                                         gpointer         user_data)
 {
    GtkWidget *w = wrapped_create_map_sharpening_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -10070,7 +10070,7 @@ on_map_sharpening_ok_button_clicked    (GtkButton       *button,
 {
 
    GtkWidget *w = widget_from_builder("map_sharpening_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -10100,7 +10100,7 @@ on_map_sharpening_dialog_response() {
 
    // there is only one response
    GtkWidget *dialog = widget_from_builder("map_sharpening_dialog");
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 
 }
 
@@ -10124,7 +10124,7 @@ on_baton_build_params_ok_button_clicked
 
   GtkWidget *w = widget_from_builder("baton_build_params_dialog");
   set_baton_build_params_from_widget(w);
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -10137,7 +10137,7 @@ on_baton_build_params_cancel_button_clicked
 {
 
   GtkWidget *w = widget_from_builder("baton_build_params_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -10149,7 +10149,7 @@ on_baton_build_set_params_button_clicked
 
    // GtkWidget *w = create_baton_build_params_dialog();
    GtkWidget *w = widget_from_builder("baton_build_params_dialog");
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -10166,7 +10166,7 @@ void
 on_go_to_atom_toolbutton_clicked(GtkButton   *toolbutton,
                                                      gpointer         user_data) {
    GtkWidget *widget = wrapped_create_goto_atom_window(); // uses builder
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -10267,7 +10267,7 @@ on_pisa_interfces_close_button_clicked (GtkButton       *button,
                                                             gpointer         user_data) {
 
   GtkWidget *w = widget_from_builder("pisa_interfaces_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -10324,7 +10324,7 @@ on_refine_params_weight_matrix_entry_changed
 
 //   GtkWidget *w = wrapped_create_remarks_browser_molecule_chooser_dialog();
 //   std::cout << "in on_remarks_browser1_activate got w " << w << std::endl;
-//   gtk_widget_show(w);
+//   gtk_widget_set_visible(w, TRUE);
 
 // }
 
@@ -10334,10 +10334,10 @@ on_refine_params_weight_matrix_entry_changed
 //                                         (GtkButton       *button,
 // 					 gpointer         user_data) {
 //    // GtkWidget *w = widget_from_builder("remarks_browser_molecule_chooser_dialog");
-//    // gtk_widget_hide(w);
+//    // gtk_widget_set_visible(w, FALSE);
 
 //    GtkWidget *dialog = widget_from_builder("remarks_browser_molecule_chooser_dialog");
-//    gtk_widget_hide(dialog);
+//    gtk_widget_set_visible(dialog, FALSE);
 
 // }
 
@@ -10348,7 +10348,7 @@ on_remarks_browser1_activate (GMenuItem     *menuitem,
                               gpointer         user_data) {
 
    GtkWidget *w = wrapped_create_remarks_browser_molecule_chooser_dialog(); // uses builder
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -10365,7 +10365,7 @@ on_remarks_browser_molecule_chooser_dialog_response(GtkDialog       *dialog,
       std::cout << "here B in on_remarks_browser_molecule_chooser_dialog_response() with response_id " << response_id << std::endl;
       show_remarks_browswer(); // makes an on-the-fly dialog!
    }
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -10375,7 +10375,7 @@ on_remarks_browser_molecule_chooser_ok_button_clicked
 					 gpointer         user_data) {
 
   GtkWidget *w = widget_from_builder("remarks_browser_molecule_chooser_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
   show_remarks_browswer(); // there we look up which molecule to show.
 
 }
@@ -10391,7 +10391,7 @@ on_fix_nomenclature_errors_ok_button_clicked
   GtkWidget *w = widget_from_builder("fix_nomenclature_errors_dialog");
   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "imol"));
   fix_nomenclature_errors(imol);
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -10403,7 +10403,7 @@ on_fix_nomenclature_errors_cancel_button_clicked
 {
 
   GtkWidget *w = widget_from_builder("fix_nomenclature_errors_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -10430,7 +10430,7 @@ on_multi_residue_torsion_cancel_button_clicked
   clear_pending_picks(); /* emcompasses in_multi_residue_torsion_define (but not mode) */
   clear_multi_residue_torsion_mode();
   normal_cursor();
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 
@@ -10442,7 +10442,7 @@ on_multi_residue_torsion_OK_button_clicked
 {
 
   GtkWidget *w = widget_from_builder("multi_residue_torsion_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
   accept_regularizement();
   clear_multi_residue_torsion_mode();
 }
@@ -10471,7 +10471,7 @@ on_multi_residue_torsion_pick_apply_button_clicked
 {
 
   GtkWidget *w = widget_from_builder("multi_residue_torsion_pick_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
   clear_pending_picks(); /* emcompasses in_multi_residue_torsion_mode */
   normal_cursor();
   show_multi_residue_torsion_dialog();
@@ -10494,7 +10494,7 @@ on_multi_residue_torsion_pick_cancel_button_clicked
                                         gpointer         user_data)
 {
   GtkWidget *w = widget_from_builder("multi_residue_torsion_pick_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
   clear_pending_picks(); /* emcompasses in_multi_residue_torsion_define (but not mode) */
   clear_multi_residue_torsion_mode();
   normal_cursor();
@@ -10544,11 +10544,11 @@ on_keyboard_go_to_residue_entry_key_press_event (GtkWidget       *widget,
    const gchar *text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(widget)));
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
       handle_go_to_residue_keyboarding_mode(text);
-      gtk_widget_hide(w);
+      gtk_widget_set_visible(w, FALSE);
       return TRUE;
    }
    if (event->keyval == GDK_KEY_Escape) {
-      gtk_widget_hide(w);
+      gtk_widget_set_visible(w, FALSE);
       return TRUE;
    }
    return FALSE;
@@ -10563,7 +10563,7 @@ on_keyboard_go_to_residue_window_delete_event(GtkWidget       *widget,
                                               GdkEvent        *event,
                                               gpointer         user_data) {
 
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 #endif
@@ -10576,7 +10576,7 @@ on_mogul_geometry_dialog_close_button_clicked (GtkButton       *button,
 
    GtkWidget *dialog = widget_from_builder("mogul_geometry_results_table_dialog");
    /* And the histogram?  How do I look that up? */
-   gtk_widget_hide(dialog);
+   gtk_widget_set_visible(dialog, FALSE);
 }
 
 
@@ -10586,7 +10586,7 @@ on_ligand_check_okbutton_clicked(GtkButton       *button,
                                  gpointer         user_data) {
 
   GtkWidget *w = widget_from_builder("ligand_check_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -10600,7 +10600,7 @@ on_generic_objects_dialog_closebutton_clicked(GtkButton       *button,
 
 #if 0 // 20211007-PE
    GtkWidget *w = widget_from_builder("generic_objects_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
    clear_generic_objects_dialog_pointer();
    graphics_draw();
 #endif
@@ -10685,7 +10685,7 @@ on_export_map_dialog_cancel_button_clicked
 					 gpointer         user_data) {
 
   GtkWidget *w = widget_from_builder("export_map_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_set_visible(w, FALSE);
 }
 
 /* void */
@@ -10695,7 +10695,7 @@ on_export_map_dialog_cancel_button_clicked
 /* { */
 
 /*   GtkWidget *w = widget_from_builder("export_map_filechooserdialog"); */
-/*   gtk_widget_hide(w); */
+/*   gtk_widget_set_visible(w, FALSE); */
 
 
 /* } */
@@ -10721,7 +10721,7 @@ on_export_map_dialog_cancel_button_clicked
 /*   } else {  */
 /*     export_map(imol_map, filename); */
 /*   }  */
-/*   gtk_widget_hide(w); */
+/*   gtk_widget_set_visible(w, FALSE); */
 
 /* } */
 
@@ -10744,8 +10744,8 @@ on_export_map_dialog_response (GtkDialog       *dialog,
       // std::cout << "debug:: in on_export_map_dialog_response() got entry_text \"" << entry_text << "\"" << std::endl;
       GString* text_copy   = g_string_new(entry_text);
       GString* text_copy_2 = g_string_new(entry_text);
-      // gtk_widget_hide(GTK_WIDGET(dialog));
-      gtk_widget_show(file_chooser_dialog);
+      // gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+      gtk_widget_set_visible(file_chooser_dialog, TRUE);
       g_object_set_data(G_OBJECT(file_chooser_dialog), "map_molecule_number", GINT_TO_POINTER(imol_map));
       g_object_set_data(G_OBJECT(file_chooser_dialog), "is_map_fragment",     GINT_TO_POINTER(is_map_fragment));
       // std::cout << "debug:: in on_export_map_dialog_response() storing entry text " << text_copy << std::endl;
@@ -10755,7 +10755,7 @@ on_export_map_dialog_response (GtkDialog       *dialog,
 
    }
    if (response_id == GTK_RESPONSE_CANCEL) {
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 }
 
@@ -10802,10 +10802,9 @@ on_export_map_file_chooser_dialog_response (GtkDialog       *dialog,
       }
    }
    
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
-#include "cfc-widgets-c-interface.h"
 
 extern "C" G_MODULE_EXPORT
 void
@@ -10817,8 +10816,7 @@ on_cfc_dialog_response                 (GtkDialog       *dialog,
 
    if (response_id == GTK_RESPONSE_CLOSE) {
 /*       close_cfc_dialog(GTK_WIDGET(dialog)); */
-      gtk_widget_hide(GTK_WIDGET(dialog)); /* FIXME - not a widget for gtk_widget_unref no destroy */
-
+/*       gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE); */
    }
 
 }
@@ -10853,7 +10851,7 @@ on_find_ligand_real_space_refine_solutions_checkbutton_toggled
 extern "C" G_MODULE_EXPORT
 void
 on_edit_copy_molecule_activate(GMenuItem     *menuitem,
-                               gpointer         user_data) {
+                               gpointer       user_data) {
 
    do_edit_copy_molecule();
 }
@@ -10881,13 +10879,13 @@ on_copy_fragment_dialog_response(GtkDialog *dialog,
       int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
       int imol_new = new_molecule_by_atom_selection(imol, text.c_str());
       GtkWidget *checkbutton = widget_from_builder("copy_fragment_move_molecule_here_checkbutton");
-      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton)))
          move_molecule_to_screen_centre_internal(imol_new);
       if (is_valid_model_molecule(imol_new))
-         gtk_widget_hide(GTK_WIDGET(dialog));
+         gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
    if (response_id == GTK_RESPONSE_CANCEL) {
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 
 }
@@ -10918,7 +10916,7 @@ on_edit_renumber_residues_activate    (GMenuItem     *menuitem,
 {
 
   GtkWidget *w = wrapped_create_renumber_residue_range_dialog();
-  gtk_widget_show(w);
+  gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -10928,7 +10926,7 @@ on_edit_change_chain_ids1_activate(GMenuItem     *menuitem,
                                    gpointer         user_data) {
 
    GtkWidget *w = wrapped_create_change_chain_id_dialog(); // uses builder
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -10936,7 +10934,7 @@ void
 on_residue_editor_select_monomer_type_dialog_close (GtkDialog       *dialog,
                                                     gpointer         user_data) {
    // need to add a "Response ID" to the button in glade
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -10956,7 +10954,7 @@ on_residue_editor_select_monomer_type_dialog_response (GtkDialog       *dialog,
 
   if (response_id == GTK_RESPONSE_CANCEL) {
   }
-  gtk_widget_hide(GTK_WIDGET(dialog));
+  gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 
 }
 
@@ -10973,7 +10971,7 @@ void
 on_general_coot_molecule_chooser_dialog_close (GtkDialog       *dialog,
                                                gpointer         user_data) {
 
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 
@@ -11002,7 +11000,7 @@ on_edit_restraints_activate(GMenuItem     *menuitem,
 
    std::cout << "on_edit_restraints_activate() " << std::endl;
    GtkWidget *w =  wrapped_create_residue_editor_select_monomer_type_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -11013,7 +11011,7 @@ on_edit_merge_molecules1_activate(GMenuItem *menuitem,
 
    GtkWidget *w = wrapped_create_merge_molecules_dialog();
    set_transient_for_main_window(w);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -11056,91 +11054,6 @@ on_mutate_molecule_resno_2_entry_changed(GtkEditable     *editable,
    GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
    mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
 }
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_mutate_molecule_sequence_text_insert_at_cursor
-                                        (GtkTextView     *textview,
-                                        gchar           *string,
-                                        gpointer         user_data) {
-   std::cout << "on_mutate_molecule_sequence_text_insert_at_cursor()... --- start --- " << std::endl;
-   GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
-   GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
-   GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");
-   GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
-   mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_mutate_molecule_sequence_text_move_cursor(GtkTextView* self,
-                                             GtkMovementStep* step,
-                                             gint count,
-                                             gboolean extend_selection,
-                                             gpointer user_data) {
-
-   std::cout << "-------------------------- move cursor! " << std::endl;
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_other_text_insert_at_cursor(GtkTextView     *textview,
-                               gchar           *string,
-                               gpointer         user_data) {
-
-   std::cout << "on_other_text_insert_at_cursor" << std::endl;
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_other_text_move_cursor(GtkTextView* self,
-                          GtkMovementStep* step,
-                          gint count,
-                          gboolean extend_selection,
-                          gpointer user_data) {
-
-   std::cout << "-------------------------- other text move cursor! " << std::endl;
-
-}
-
-
-
-#ifdef FIX_THE_KEY_PRESS_EVENTS
-extern "C" G_MODULE_EXPORT
-gboolean
-on_mutate_molecule_sequence_text_key_release_event(GtkWidget       *widget,
-                                                   GdkEventKey     *event,
-                                                   gpointer         user_data) {
-
-   GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
-   GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
-   GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");
-   GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
-   mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
-   return FALSE;
-}
-#endif
-
-
-#ifdef FIX_THE_KEY_PRESS_EVENTS
-extern "C" G_MODULE_EXPORT
-gboolean
-on_mutate_molecule_sequence_text_button_release_event
-                                        (GtkWidget       *widget,
-                                        GdkEventButton  *event,
-                                        gpointer         user_data) {
-
-  GtkWidget *res_no_1_widget = widget_from_builder("mutate_molecule_resno_1_entry");
-  GtkWidget *res_no_2_widget = widget_from_builder("mutate_molecule_resno_2_entry");
-  GtkWidget *text_widget     = widget_from_builder("mutate_molecule_sequence_text");
-  GtkWidget *label_widget    = widget_from_builder("mutate_residue_range_counts_label");
-  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
-  return FALSE;
-}
-#endif
 
 
 extern "C" G_MODULE_EXPORT
@@ -11191,7 +11104,7 @@ on_curlew_close_button_clicked(GtkButton *button, gpointer user_data) {
 // void
 // on_curlew_dialog_close(GtkDialog       *dialog,
 //                        gpointer         user_data) {
-//   gtk_widget_hide(GTK_WIDGET(dialog)); /* or maybe hide */
+//   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE); */
 // }
 
 
@@ -11209,7 +11122,7 @@ on_curlew_close_button_clicked(GtkButton *button, gpointer user_data) {
 //   */
 
 //   if (response_id == GTK_RESPONSE_CLOSE)
-//     gtk_widget_hide(GTK_WIDGET(dialog));
+//     gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 
 // }
 
@@ -11370,7 +11283,7 @@ on_draw_additional_representations_activate  (GMenuItem     *menuitem,
 {
    std::cout << "on draw additional representations menu item activate" << std::endl;
   GtkWidget *w = wrapped_create_add_additional_representation_gui();
-  gtk_widget_show(w);
+  gtk_widget_set_visible(w, TRUE);
    
 }
 
@@ -11379,7 +11292,7 @@ void
 on_calculate_align_and_mutate_activate (GMenuItem     *menuitem,
                                                            gpointer         user_data) {
    GtkWidget *w = wrapped_create_align_and_mutate_dialog();
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 
@@ -11397,7 +11310,7 @@ on_calculate_find_waters_item_activate() {
    GtkWidget *dialog = widget_from_builder("find_waters_dialog");
    std::cout << "find_waters_dialog " << dialog << std::endl;
    fill_find_waters_dialog(dialog);
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
       
 }
 
@@ -11678,16 +11591,16 @@ on_simple_refmac_dialog_response       (GtkDialog       *dialog,
 
    if (response_id == GTK_RESPONSE_CLOSE) {
       /* do I need to do this? */
-      /* gtk_widget_hide(dialog); */
+      /* gtk_widget_set_visible(dialog, FALSE); */
    }
 
    if (response_id == GTK_RESPONSE_CANCEL) {
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 
    if (response_id == GTK_RESPONSE_OK) {
       simple_refmac_run_refmac(GTK_WIDGET(dialog));
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 
 }
@@ -11707,7 +11620,7 @@ on_simple_refmac_dialog_delete_event(GtkWidget       *widget,
                                                          GdkEvent        *event,
                                                          gpointer         user_data) {
 
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 
@@ -11727,7 +11640,7 @@ on_simple_refmac_mtz_file_button_clicked
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(w), filterselect);
    /* we need to find the file combo box in the simple refmac dialog */
    g_object_set_data(G_OBJECT(w), "simple_refmac_dialog", simple_refmac_dialog);
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -11765,7 +11678,7 @@ on_simple_refmac_filechooser_dialog_response (GtkDialog       *dialog,
       }
    }
 
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 
 }
 
@@ -11803,7 +11716,7 @@ on_residue_type_chooser_entry_key_press_event
       istate = 1;
    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
       handle_residue_type_chooser_entry_chose_type(entry_text, istate);
-      gtk_widget_hide(window);
+      gtk_widget_set_visible(window, FALSE);
    }
    return FALSE;
 }
@@ -11864,7 +11777,7 @@ on_cif_dictionary_filechooser_dialog_delete_event(GtkWidget       *widget,
                                                   GdkEvent        *event,
                                                   gpointer         user_data) {
 
-   gtk_widget_hide(widget);
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 
@@ -11884,7 +11797,7 @@ on_cif_dictionary_filechooser_dialog_file_activated(GtkFileChooser* dialog,
                                             G_FILE_QUERY_INFO_NONE, NULL, &error);
    const char *file_name = g_file_info_get_name(file_info);
    read_cif_dictionary(file_name);
-   gtk_widget_hide(GTK_WIDGET(dialog));
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 
@@ -11908,11 +11821,11 @@ on_cif_dictionary_filechooser_dialog_response(GtkDialog       *dialog,
       if (file_name) {
          read_cif_dictionary(file_name);
       }
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 
    if (response_id == GTK_RESPONSE_CANCEL) {
-      gtk_widget_hide(GTK_WIDGET(dialog));
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
 }
 
@@ -12016,10 +11929,11 @@ void
 on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
                                                         gpointer         user_data) {
 
-   GtkWidget *dialog = widget_from_builder("ramachandran_plot_molecule_chooser_dialog");
-   GtkWidget *combobox = widget_from_builder("ramachandran_plot_molecule_chooser_model_combobox");
+   GtkWidget *dialog          = widget_from_builder("ramachandran_plot_molecule_chooser_dialog");
+   GtkWidget *combobox        = widget_from_builder("ramachandran_plot_molecule_chooser_model_combobox");
    GtkWidget *selection_entry = widget_from_builder("ramachandran_plot_molecule_chooser_residue_selection_entry");
-   GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
+   GtkWidget *scrolled        = widget_from_builder("ramachandran_plots_scrolled_window");
+   GtkWidget *pane            = widget_from_builder("main_window_ramchandran_and_validation_pane");
 
    std::string residue_selection_string = gtk_editable_get_text(GTK_EDITABLE(selection_entry));
 
@@ -12031,6 +11945,11 @@ on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
       show_opengl_ramachandran_plot(imol_active, residue_selection_string);
       gtk_widget_set_visible(dialog, FALSE);
       gtk_widget_set_visible(scrolled, TRUE);
+
+      // Make sure that the pane is big enough
+      int pos = gtk_paned_get_position(GTK_PANED(pane));
+      if (pos < 200)
+         gtk_paned_set_position(GTK_PANED(pane), 480);
    } else {
       std::cout << "ERROR:: on_ramachandran_plot_molecule_chooser_ok_button_clicked() get active iter failed"
                 << std::endl;
@@ -12043,7 +11962,7 @@ void
 on_ramachandran_plot_molecule_chooser_cancel_button_clicked (GtkButton       *button,
                                                              gpointer         user_data) {
    GtkWidget *w = widget_from_builder("ramachandran_plot_molecule_chooser_dialog");
-   gtk_widget_hide(w);
+   gtk_widget_set_visible(w, FALSE);
 
 }
 
@@ -12065,7 +11984,7 @@ on_keyboard_mutate_entry_key_press_event (GtkWidget       *widget,
          gtk_editable_set_text(GTK_EDITABLE(entry), ""); // for next time!
          mutate_active_residue_to_single_letter_code(ss);
       }
-      gtk_widget_hide(dialog);
+      gtk_widget_set_visible(dialog, FALSE);
    }
    return FALSE;
 }
@@ -12120,17 +12039,12 @@ on_updating_maps_ok_button_clicked(GtkButton       *button,
    int imol_map      = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox));
    int imol_diff_map = my_combobox_get_imol(GTK_COMBO_BOX(diff_map_combobox));
 
-   std::cout << "55555555555555555 in on_updating_maps_ok_button_clicked() here are the molecules indices "
-             << imol << " " << imol_map << " " << imol_diff_map << std::endl;
-
    bool auto_update_flag = false;
    if (gtk_check_button_get_active(GTK_CHECK_BUTTON(check_button))) auto_update_flag = true;
 
    if (auto_update_flag) {
-      std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHere 1 " << imol << " " << imol_map << " " << imol_diff_map << std::endl;
       set_auto_updating_sfcalc_genmap(imol, imol_map, imol_diff_map);
    } else {
-      std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHere 2 " << std::endl;
       calculate_maps_and_stats_py(imol, imol_map, imol_map, imol_diff_map);
    }
 
@@ -12138,3 +12052,13 @@ on_updating_maps_ok_button_clicked(GtkButton       *button,
    gtk_widget_set_visible(dialog, FALSE);
 }
 
+
+extern "C" G_MODULE_EXPORT
+void
+on_ligand_check_dialog_close_button_clicked(GtkButton       *button,
+                                            gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("ligand_check_dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+
+}

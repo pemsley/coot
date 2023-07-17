@@ -239,4 +239,8 @@ PyObject *get_ligand_distortion_summary_info_py(int imol, PyObject *residue_spec
 
 double gsl_sf_erf_scm(double v);
 
+// function in pli
+// bool show_feats(int imol, const char *chain_id, int resno, const char *ins_code);
+
+
 #endif // C_INTERFACE_LIGANDS_SWIG_HH
