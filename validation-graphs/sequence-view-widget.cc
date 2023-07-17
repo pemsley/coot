@@ -32,14 +32,8 @@ G_DEFINE_TYPE(CootSequenceView, coot_sequence_view, GTK_TYPE_WIDGET)
 
 void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
-   std::cout << "------------------ start coot_sequence_view_snapshot() ------------------- " << std::endl;
-
    CootSequenceView* self = COOT_COOT_SEQUENCE_VIEW(widget);
-
-
-
    self->box_info_store.clear();
-
    PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
 
    auto add_chain_label = [pango_layout] (cairo_t *cairo_canvas, const std::string &chain_id, const std::string &text_colour,
