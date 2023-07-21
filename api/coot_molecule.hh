@@ -927,6 +927,9 @@ namespace coot {
       void set_map_is_difference_map(bool flag);
       bool is_difference_map_p() const;
 
+      //! @return the suggested initial contour level. Return -1 on not-a-map
+      float get_suggested_initial_contour_level() const;
+
       // changes the internal map mesh holder (hence not const)
       simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level);
 

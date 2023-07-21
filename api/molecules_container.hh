@@ -730,6 +730,9 @@ public:
    //! @return the map rmsd (epsilon testing is not used). -1 is returned if `imol_map` is not a map molecule index.
    float get_map_rmsd_approx(int imol_map) const;
 
+   //! @return the suggested initial contour level. Return -1 on not-a-map
+   float get_suggested_initial_contour_level(int imol) const;
+
    //! create a new map that is blurred/sharpened
    //! @return the molecule index of the new map or -1 on failure or if `in_place_flag` was true.
    int sharpen_blur_map(int imol_map, float b_factor, bool in_place_flag);
