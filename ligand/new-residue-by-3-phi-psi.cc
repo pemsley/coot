@@ -27,7 +27,9 @@ coot::new_residue_by_3_phi_psi::new_residue_by_3_phi_psi(const std::string &term
 void
 coot::new_residue_by_3_phi_psi::init_phi_psi_plot() {
 
-   rama.init(clipper::Ramachandran::All2);
+#ifdef CLIPPER_HAS_TOP8000
+
+  rama.init(clipper::Ramachandran::All2);
 
    rama_pro.init(clipper::Ramachandran::Pro2);
 
@@ -53,6 +55,7 @@ coot::new_residue_by_3_phi_psi::init_phi_psi_plot() {
             rama_pro_max = v;
       }
    }
+#endif
 }
 
 void

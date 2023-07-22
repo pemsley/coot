@@ -864,6 +864,7 @@ coot::residue_by_phi_psi::construct_prev_res_from_rama_angles(float phi, float p
 void
 coot::residue_by_phi_psi::init_phi_psi_plot() {
 
+#ifdef CLIPPER_HAS_TOP8000
    rama.init(clipper::Ramachandran::All2);
 
    rama_pro.init(clipper::Ramachandran::Pro2);
@@ -887,6 +888,7 @@ coot::residue_by_phi_psi::init_phi_psi_plot() {
 	    rama_max_pro = v;
       }
    }
+#endif
 }
 
 // if is_pro_rama is not set correctly, this can fail to terminate
