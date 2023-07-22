@@ -12,6 +12,17 @@
 void
 lbg_info_t::setup_silicos_it_qed_default_func() {
 
+   // 20230722-PE Let's give up with this (QED) Charles.
+   // It's so crashy and I can't understand what the problem is.
+   // I have spend more than a day and am giving up with it.
+   //
+   // I will spend time and effort with the GTK4 build (modern Python, modern RDKit)
+   //
+   silicos_it_qed_default_func    = NULL;
+   silicos_it_qed_properties_func = NULL;
+   return;
+
+
    // Are you here (again)?
    //
    // make sure that this works:
@@ -19,7 +30,10 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
    // >>> import silicos_it.descriptors
    // >>> from silicos_it.descriptors import qed
 
-   silicos_it_qed_default_func = NULL;
+   // and this:
+   // $ ./coot-bin --no-graphics --python
+   // >>> import silicos_it.descriptors
+   // >>> from silicos_it.descriptors import qed
 
    // Build the name object
    PyObject *pName = PyString_FromString("silicos_it");
@@ -29,35 +43,86 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
       // This happens when biscu-it is not installed (which is often(?) the case)
       // 
       std::cout << "Null pModule in get_qed() - biscu-it not installed? " << std::endl;
-   } else { 
-      pName = PyString_FromString("silicos_it.descriptors.qed");
+   } else {
+      std::cout << "--------------- here in setup_silicos_it_qed_default_func() A" << std::endl;
+      pName = PyString_FromString("silicos_it.descriptors");
+      pModule = PyImport_Import(pName);
       // pDict is a borrowed reference
       PyObject *pDict = PyModule_GetDict(pModule);
       if (! PyDict_Check(pDict)) {
          std::cout << "pDict is not a dict"<< std::endl;
       } else {
+         std::cout << "--------------- here in setup_silicos_it_qed_default_func() B found dict" << std::endl;
+
+         // what's in that dictionary?
+         if (true) {
+            Py_ssize_t l = PyDict_Size(pDict);
+            std::cout << "debug:: dictionary size: " << l << std::endl;
+            PyObject *key, *value;
+            Py_ssize_t pos = 0;
+            while (PyDict_Next(pDict, &pos, &key, &value)) {
+               /* do something interesting with the values... */
+               if (PyString_Check(key)) {
+                  std::cout << "pos " << pos << " key: " << PyString_AsString(key) << "  value: " << value << std::endl;
+               } else {
+                  std::cout << "pos " << pos << " key: " << key << "  value: " << value << std::endl;
+               }
+            }
+         }
+
+         pName = PyString_FromString("silicos_it.descriptors.qed");
+         std::cout << "xxx pname " << pName << std::endl;
+         pModule = PyImport_Import(pName);
+         std::cout << "xxx pModule " << pModule << std::endl;
+         pDict = PyModule_GetDict(pModule);
+         std::cout << "xxx pDict " << pDict << std::endl;
+
+         if (true) {
+            Py_ssize_t l = PyDict_Size(pDict);
+            std::cout << "debug:: o dictionary size: " << l << std::endl;
+            PyObject *key, *value;
+            Py_ssize_t pos = 0;
+            while (PyDict_Next(pDict, &pos, &key, &value)) {
+               /* do something interesting with the values... */
+               if (PyString_Check(key)) {
+                  std::cout << "o pos " << pos << " key: " << PyString_AsString(key) << "  value: " << value << std::endl;
+               } else {
+                  std::cout << "o pos " << pos << " key: " << key << "  value: " << value << std::endl;
+               }
+            }
+         }
+         
+
          // pFunc is also a borrowed reference
          PyObject *pFunc = PyDict_GetItemString(pDict, "default");
          if (! pFunc) {
-            // std::cout << "pFunc is NULL" << std::endl;
+            std::cout << "pFunc for default is NULL" << std::endl;
          } else {
+            std::cout << "--------------- here in setup_silicos_it_qed_default_func() D" << std::endl;
             if (PyCallable_Check(pFunc)) {
-               std::cout << "Yeay - storing silicos_it_qed_default_func" << std::endl;
+               std::cout << "Yay - storing silicos_it_qed_default_func" << std::endl;
                silicos_it_qed_default_func = pFunc;
             } else {
-               std::cout << "default() function is not callable"  << std::endl;
+               std::cout << "WARNING:: in setup_silicos_it_qed_default_func() default() function is not callable"
+                         << std::endl;
             }
          }
 
 	 pFunc = PyDict_GetItemString(pDict, "properties");
+         std::cout << "--------------- here in setup_silicos_it_qed_default_func() E " << pFunc << std::endl;
 	 if (pFunc) {
+            std::cout << "--------------- here in setup_silicos_it_qed_default_func() F" << std::endl;
 	    if (PyCallable_Check(pFunc)) {
 	       silicos_it_qed_properties_func = pFunc;
-               std::cout << "Yeay - storing silicos_it_qed_properties_func" << std::endl;
+               std::cout << "Yay - storing silicos_it_qed_properties_func" << std::endl;
 	    } else {
-	       std::cout << "properties() function is not callable"  << std::endl;
+               std::cout << "WARNING:: in setup_silicos_it_qed_default_func() properties() function is not callable"
+                         << std::endl;
 	    }
-	 }
+	 } else {
+            std::cout << "WARNING:: in setup_silicos_it_qed_default_func() properties() function is NULL"
+                      << std::endl;
+         }
 
          silicos_it_qed_pads = PyDict_GetItemString(pDict, "pads2"); // or pads1 for Gerebtzoff
       }
