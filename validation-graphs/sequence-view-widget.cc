@@ -182,7 +182,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
 
          gboolean dark_mode_flag = FALSE;
          g_object_get(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", &dark_mode_flag, NULL);
-         if (dark_mode_flag == FALSE) text_colour = "#bbbbbb";
+         if (dark_mode_flag == FALSE) text_colour = "#222222";
 
          float w_pixels_rect = gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_HORIZONTAL);
          float h_pixels_rect = gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_VERTICAL);
