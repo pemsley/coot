@@ -881,15 +881,12 @@ GtkWidget *get_radio_button_in_scroll_group(int imol_this) {
             inner_child_count++;
             if (inner_child_count == 4) {
                if (GTK_IS_CHECK_BUTTON(item_widget)) {
-                  std::cout << "found a checkbutton at inner_child_count " << inner_child_count << std::endl;
                   w = item_widget;
                }
             }
          }
       }
    }
-
-   std::cout << "done get_radio_button_in_scroll_group()! " << w << " for imol_this " << imol_this << std::endl;
 
    return w;
 }

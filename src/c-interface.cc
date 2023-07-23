@@ -7642,7 +7642,13 @@ void print_sequence_chain_general(int imol, const char *chain_id,
    }
 }
 
+// the old name for the below function
 void do_sequence_view(int imol) {
+   sequence_view(imol);
+}
+
+// This is a gui function - move it to c-interface-gui.cc (and the above function)
+void sequence_view(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
@@ -7654,29 +7660,52 @@ void do_sequence_view(int imol) {
       gtk_widget_set_hexpand(frame, TRUE);
       gtk_widget_set_vexpand(frame, TRUE);
 
-      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box"); // this is where the GLArea widget goes
-      gtk_box_prepend(GTK_BOX(vbox), scrolled_window);
+      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
+      gtk_box_append(GTK_BOX(vbox), scrolled_window);
 
-      int n_chains = 3 + graphics_info_t::molecules[imol].number_of_chains();
-      if (n_chains > 10) n_chains = 10;
+      // We need to set the height of the box - and that depends
+      // on the number of chains and the offset per chain.
+      {
+         int n_chains = 3 + graphics_info_t::molecules[imol].number_of_chains();
+         if (n_chains > 10) n_chains = 10;
+         int Y_OFFSET_PER_CHAIN = 16.0;
+         int new_height = 30 + n_chains * Y_OFFSET_PER_CHAIN;
+         gtk_widget_set_size_request(vbox, -1, new_height);
+      }
 
-      int Y_OFFSET_PER_CHAIN = 16.0;
-      int new_height = 30 + n_chains * Y_OFFSET_PER_CHAIN;
-
-      gtk_widget_set_size_request(vbox, -1, new_height);
+      // The sequence-view is in the frame, the frame is in the scrolled window.
+      // The scrolled window is the widget that has the overlay.
+      // In GTK-overlay speak: the scrolled window is the overlay child
+      // and the button is the overlay overlay.
 
       CootSequenceView *sv = coot_sequence_view_new();
       coot_sequence_view_set_structure(sv, imol, mol);
 
-      gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(frame));
       gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(sv));
+      gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(frame));
 
-      auto click_function = +[] (CootSequenceView* self, int imol, const coot::residue_spec_t &spec, gpointer userdata) {
-         graphics_info_t g;
-         g.go_to_residue(imol, spec);
-      };
+      {
+         auto click_function = +[] (CootSequenceView* self, int imol, const coot::residue_spec_t &spec, gpointer userdata) {
+            graphics_info_t g;
+            g.go_to_residue(imol, spec);
+         };
+         g_signal_connect(sv, "residue-clicked", G_CALLBACK(click_function), nullptr);
+      }
 
-      g_signal_connect(sv, "residue-clicked", G_CALLBACK(click_function), nullptr);
+      // now add a close button for that sequence view as an overlay of the sequence view
+      //
+      GtkWidget *button = gtk_button_new();
+      GtkWidget *label = gtk_label_new("<span foreground='green' weight='bold' font='30'>Close</span>"); // testing
+      gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+      gtk_button_set_child(GTK_BUTTON(button), label);
+      GtkWidget *overlay = gtk_overlay_new();
+      gtk_overlay_set_child(GTK_OVERLAY(overlay), GTK_WIDGET(scrolled_window));
+      gtk_overlay_add_overlay(GTK_OVERLAY(overlay), button);
+      g_object_set(G_OBJECT(button), "halign", GTK_ALIGN_START, NULL);
+      g_object_set(G_OBJECT(button), "valign", GTK_ALIGN_START, NULL);
+
+      // But it doesn't work. Is the button appearing below the sequence view?
+
    }
 }
 

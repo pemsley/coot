@@ -1929,7 +1929,11 @@ sequence_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                      G_GNUC_UNUSED GVariant *parameter,
                      G_GNUC_UNUSED gpointer user_data) {
 
-   g_warning("todo: after the removal of dynamic menus, this has to be reworked");
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      sequence_view(imol);
+   }
 }
 
 void

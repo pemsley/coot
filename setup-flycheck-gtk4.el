@@ -34,7 +34,8 @@
    "/home/paule/autobuild/Linux-penelope-gtk4-python/include"
 
    ;; from https://github.com/Wilfred/flycheck-pkg-config/issues/2
-   "/usr/include/gtk-4.0"
+   "/home/paule/gtk4/include/gtk-4.0"
+   ;; "/usr/include/gtk-4.0"
    "/usr/include/graphene-1.0"
    "/home/paule/gtk/lib/x86_64-linux-gnu/graphene-1.0/include" ;; for graphene-config.h
    "/usr/include/libpng16" "/usr/include/gdk-pixbuf-2.0"
