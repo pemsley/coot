@@ -4432,7 +4432,7 @@ float
 molecules_container_t::get_suggested_initial_contour_level(int imol) const {
 
    float l = -1;
-   if (is_valid_model_molecule(imol)) {
+   if (is_valid_map_molecule(imol)) {
       l = molecules[imol].get_suggested_initial_contour_level();
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
