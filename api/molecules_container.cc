@@ -4426,3 +4426,17 @@ molecules_container_t::flip_hand(int imol_map) {
    return imol_new;
 }
 
+
+//! @return the suggested initial contour level. Return -1 on not-a-map
+float
+molecules_container_t::get_suggested_initial_contour_level(int imol) const {
+
+   float l = -1;
+   if (is_valid_model_molecule(imol)) {
+      l = molecules[imol].get_suggested_initial_contour_level();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return l;
+
+}
