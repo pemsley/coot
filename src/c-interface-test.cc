@@ -1304,7 +1304,8 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
                   }
                }
 
-               rdkit_chem_qed_pads = PyDict_GetItemString(pDict_qed, "pads2"); // or pads1 for Gerebtzoff
+               // pads2 has been renamed to adsParameters
+               PyObject *rdkit_chem_qed_pads = PyDict_GetItemString(pDict_qed, "adsParameters");
             }
          }
       };
