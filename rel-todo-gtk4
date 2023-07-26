@@ -21,9 +21,9 @@ the scaling of the framebuffers for super-sampling (in "Fancy" mode).
 
 How do I dismiss the sequence view? ::: 1
 
+Try using the instanced bonds using the api. Fix the specular lighting.
 
-Ligands in 6l01 and 7tzz fall off the page.
-
+Test the conversion of glm quaternion to coot quaternion and back again.
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
@@ -742,3 +742,8 @@ https://github.com/microsoft/vscode-docs/blob/vnext/release-notes/v1_63.md#pytho
 (that vs code thing didn't work - no clevernesss suggested)
 
 How do I invoke the sequence view? ::: 0.1
+* Add a menu item
+
+Ligands in 6l01 and 7tzz fall off the page
+* Improved. Still needs work.
+
