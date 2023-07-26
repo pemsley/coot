@@ -18,9 +18,6 @@
 #include "c-interface-ligands-swig.hh"
 #include "curlew-gtk4.hh"
 
-void fill_and_show_shader_preferences(); // should this be in a header?
-                                         // it's in glade-callbacks.cc (that doesn't seem right today)
-
 extern "C" { void load_tutorial_model_and_data(); }
 
 extern "C" G_MODULE_EXPORT
@@ -803,6 +800,129 @@ show_preferences_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    update_preference_gui();
 }
 
+
+void
+fill_and_show_shader_preferences() {
+
+   GtkWidget *w  = widget_from_builder("shader_settings_dialog");
+   GtkWidget *r1 = widget_from_builder("shader_settings_ssao_strength_scale");
+   GtkWidget *r2 = widget_from_builder("shader_settings_ssao_radius_scale");
+   GtkWidget *r3 = widget_from_builder("shader_settings_ssao_n_kernel_samples_scale");
+   GtkWidget *r4 = widget_from_builder("shader_settings_shadow_strength_scale");
+   GtkWidget *r5 = widget_from_builder("shader_settings_depth_blur_focus_depth_scale");
+   GtkWidget *r6 = widget_from_builder("shader_settings_depth_blur_strength_scale");
+   GtkWidget *r7 = widget_from_builder("shader_settings_ssao_bias_scale");
+   GtkWidget *r8 = widget_from_builder("shader_settings_brightness_scale");
+   GtkWidget *r9 = widget_from_builder("shader_settings_gamma_scale");
+
+   GtkWidget *sssb_0 = widget_from_builder("shader_settings_ssao_smoothing_blur_size_0_radiobutton");
+   GtkWidget *sssb_1 = widget_from_builder("shader_settings_ssao_smoothing_blur_size_1_radiobutton");
+   GtkWidget *sssb_2 = widget_from_builder("shader_settings_ssao_smoothing_blur_size_2_radiobutton");
+
+   GtkWidget *sss_1 = widget_from_builder("shader_settings_shadow_softness_1_radiobutton");
+   GtkWidget *sss_2 = widget_from_builder("shader_settings_shadow_softness_2_radiobutton");
+   GtkWidget *sss_3 = widget_from_builder("shader_settings_shadow_softness_3_radiobutton");
+
+   GtkWidget *strm_1 = widget_from_builder("shader_settings_shadow_texture_resolution_multiplier_1_radiobutton");
+   GtkWidget *strm_2 = widget_from_builder("shader_settings_shadow_texture_resolution_multiplier_2_radiobutton");
+   GtkWidget *strm_3 = widget_from_builder("shader_settings_shadow_texture_resolution_multiplier_3_radiobutton");
+   GtkWidget *strm_4 = widget_from_builder("shader_settings_shadow_texture_resolution_multiplier_4_radiobutton");
+   GtkWidget *strm_5 = widget_from_builder("shader_settings_shadow_texture_resolution_multiplier_5_radiobutton");
+   GtkWidget *strm_6 = widget_from_builder("shader_settings_shadow_texture_resolution_multiplier_6_radiobutton");
+
+   GtkWidget *do_blur_checkbutton         = widget_from_builder("shader_settings_depth_blur_outline_depth_blur_radiobutton");
+   GtkWidget *do_outline_checkbutton      = widget_from_builder("shader_settings_depth_blur_outline_outline_radiobutton");
+   GtkWidget *do_blur_outline_checkbutton = widget_from_builder("shader_settings_depth_blur_outline_off_radiobutton");
+
+   GtkWidget    *basic_mode_togglebutton = widget_from_builder("shader_settings_basic_mode_togglebutton");
+   GtkWidget    *fancy_mode_togglebutton = widget_from_builder("shader_settings_fancy_mode_togglebutton");
+   GtkWidget *standard_mode_togglebutton = widget_from_builder("shader_settings_standard_mode_togglebutton");
+
+   GtkWidget *do_depth_fog_checkbutton = widget_from_builder("shader_settings_do_depth_fog_checkbutton");
+
+   graphics_info_t g;
+
+   std::cout << "fill_and_show_shader_preferences()    fancy_mode_togglebutton " << fancy_mode_togglebutton << std::endl;
+   std::cout << "fill_and_show_shader_preferences() standard_mode_togglebutton " << standard_mode_togglebutton << std::endl;
+
+   // oh dear... labels and variables inconsistent
+   if (g.displayed_image_type == g.SHOW_AO_SCENE)    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fancy_mode_togglebutton), TRUE);
+   if (g.displayed_image_type == g.SHOW_BASIC_SCENE) gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(standard_mode_togglebutton), TRUE);
+
+   if (g.ssao_blur_size == 0) gtk_check_button_set_active(GTK_CHECK_BUTTON(sssb_0), TRUE);
+   if (g.ssao_blur_size == 1) gtk_check_button_set_active(GTK_CHECK_BUTTON(sssb_1), TRUE);
+   if (g.ssao_blur_size == 2) gtk_check_button_set_active(GTK_CHECK_BUTTON(sssb_2), TRUE);
+
+   if (g.shadow_softness == 1) gtk_check_button_set_active(GTK_CHECK_BUTTON(sss_1), TRUE);
+   if (g.shadow_softness == 2) gtk_check_button_set_active(GTK_CHECK_BUTTON(sss_2), TRUE);
+   if (g.shadow_softness == 3) gtk_check_button_set_active(GTK_CHECK_BUTTON(sss_3), TRUE);
+
+   if (g.shadow_texture_multiplier == 1) gtk_check_button_set_active(GTK_CHECK_BUTTON(strm_1), TRUE);
+   if (g.shadow_texture_multiplier == 2) gtk_check_button_set_active(GTK_CHECK_BUTTON(strm_2), TRUE);
+   if (g.shadow_texture_multiplier == 3) gtk_check_button_set_active(GTK_CHECK_BUTTON(strm_3), TRUE);
+   if (g.shadow_texture_multiplier == 4) gtk_check_button_set_active(GTK_CHECK_BUTTON(strm_4), TRUE);
+   if (g.shadow_texture_multiplier == 5) gtk_check_button_set_active(GTK_CHECK_BUTTON(strm_5), TRUE);
+   if (g.shadow_texture_multiplier == 6) gtk_check_button_set_active(GTK_CHECK_BUTTON(strm_6), TRUE);
+
+   if (! g.shader_do_outline_flag && !g.shader_do_depth_of_field_blur_flag)
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(do_blur_outline_checkbutton), TRUE);
+
+   if (g.shader_do_depth_of_field_blur_flag) // not shader_do_depth_blur_flag (what's that used for? - delete it)
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(do_blur_checkbutton), TRUE);
+
+   if (g.shader_do_outline_flag)
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(do_outline_checkbutton), TRUE);
+
+   if (graphics_info_t::shader_do_depth_fog_flag)
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(do_depth_fog_checkbutton), TRUE);
+   else
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(do_depth_fog_checkbutton), FALSE);
+
+   // make this insensitve if mode is not fancy
+   GtkWidget *fancy_vbox1 = widget_from_builder("shader_settings_fancy_vbox1");
+   GtkWidget *fancy_vbox2 = widget_from_builder("shader_settings_fancy_vbox2");
+   std::cout << "fill_and_show_shader_preferences() fancy_vbox1 " << fancy_vbox1 << std::endl;
+   bool is_fancy_mode = true;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(basic_mode_togglebutton)))    is_fancy_mode = false;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(standard_mode_togglebutton))) is_fancy_mode = false;
+   if (! is_fancy_mode) {
+      gtk_widget_set_sensitive(fancy_vbox1, FALSE);
+      gtk_widget_set_sensitive(fancy_vbox2, FALSE);
+   }
+
+   double v1 = graphics_info_t::ssao_strength;
+   double v2 = graphics_info_t::SSAO_radius;
+   double v3 = graphics_info_t::n_ssao_kernel_samples;
+   double v4 = graphics_info_t::shadow_strength;
+   double v5 = graphics_info_t::focus_blur_z_depth;
+   double v6 = graphics_info_t::focus_blur_strength;
+   double v7 = graphics_info_t::SSAO_bias;
+   double v8 = graphics_info_t::effects_brightness;
+   double v9 = graphics_info_t::effects_gamma;
+
+   gtk_range_set_range(GTK_RANGE(r1), 0.0, 2.0);
+   gtk_range_set_value(GTK_RANGE(r1), v1);
+   gtk_range_set_range(GTK_RANGE(r2), 0.0, 100.0);
+   gtk_range_set_value(GTK_RANGE(r2), v2);
+   gtk_range_set_range(GTK_RANGE(r3), 0.0, 256.0);
+   gtk_range_set_value(GTK_RANGE(r3), v3);
+   gtk_range_set_range(GTK_RANGE(r4), 0.0, 1.0);
+   gtk_range_set_value(GTK_RANGE(r4), v4);
+   gtk_range_set_range(GTK_RANGE(r5), 0.0, 1.0);
+   gtk_range_set_value(GTK_RANGE(r5), v5);
+   gtk_range_set_range(GTK_RANGE(r6), 0.0, 6.0);
+   gtk_range_set_value(GTK_RANGE(r6), v6);
+   gtk_range_set_range(GTK_RANGE(r7), 0.0, 0.4);
+   gtk_range_set_value(GTK_RANGE(r7), v7);
+   gtk_range_set_range(GTK_RANGE(r8), 0.0, 3.0);
+   gtk_range_set_value(GTK_RANGE(r8), v8);
+   gtk_range_set_range(GTK_RANGE(r9), 0.0, 2.0);
+   gtk_range_set_value(GTK_RANGE(r9), v9);
+
+   set_transient_for_main_window(w);
+   gtk_widget_set_visible(w, TRUE);
+
+}
 
 void
 show_shader_preferences_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1825,7 +1945,57 @@ label_neighbours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 
-void show_map_parameters_dialog(); // in glade-callbacks
+void
+show_map_parameters_dialog() {
+
+   char *text;
+   int imol = 0;		/* FIXME */
+
+   // this widget is looked up in
+   // on_density_ok_button_clicked()
+
+   GtkWidget *density_window = widget_from_builder("global_map_properties_window");
+
+   // 20220315-PE archaic but OK for now
+   GtkEntry *entry_xray = GTK_ENTRY(widget_from_builder("map_parameters_x_ray_radius_entry"));
+   GtkEntry *entry_em   = GTK_ENTRY(widget_from_builder("map_parameters_em_radius_entry"));
+   text = get_text_for_density_size_widget(); /* const gchar *text */
+   gtk_editable_set_text(GTK_EDITABLE(entry_xray), text);
+   text = get_text_for_density_size_em_widget(); /* const gchar *text */
+   gtk_editable_set_text(GTK_EDITABLE(entry_em), text);
+   free (text);
+   text = 0;
+
+   /* Now the iso level increment entry  */
+
+   GtkWidget *entry;
+   entry = widget_from_builder("iso_level_increment_entry");
+   text = get_text_for_iso_level_increment_entry(imol);
+
+   gtk_editable_set_text(GTK_EDITABLE(GTK_ENTRY(entry)), text);
+
+   /* Now the iso level for the differenece map increment entry  */
+
+   entry = widget_from_builder("diff_map_iso_level_increment_entry");
+   text = get_text_for_diff_map_iso_level_increment_entry(imol);
+
+   gtk_editable_set_text(GTK_EDITABLE(entry), text);
+
+   /* Now the map rate multiplier: */
+   entry = widget_from_builder("map_sampling_rate_entry");
+   text = get_text_for_map_sampling_rate_text();
+
+   gtk_editable_set_text(GTK_EDITABLE(entry), text);
+
+   GtkWidget *checkbutton = widget_from_builder("map_dynamic_map_sampling_checkbutton");
+   set_map_dynamic_map_sampling_checkbutton(checkbutton);
+   checkbutton = widget_from_builder("map_dynamic_map_size_display_checkbutton");
+   set_map_dynamic_map_display_size_checkbutton(checkbutton);
+
+ /* Show the widget */
+   gtk_widget_set_visible(density_window, TRUE);
+}
+
 
 void
 map_parameters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
