@@ -7660,21 +7660,8 @@ void sequence_view(int imol) {
       gtk_widget_set_hexpand(frame, TRUE);
       gtk_widget_set_vexpand(frame, TRUE);
 
-      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
-      gtk_box_append(GTK_BOX(vbox), scrolled_window);
-
-      // We need to set the height of the box - and that depends
-      // on the number of chains and the offset per chain.
-      {
-         int n_chains = 3 + graphics_info_t::molecules[imol].number_of_chains();
-         if (n_chains > 10) n_chains = 10;
-         int Y_OFFSET_PER_CHAIN = 16.0;
-         int new_height = 30 + n_chains * Y_OFFSET_PER_CHAIN;
-         gtk_widget_set_size_request(vbox, -1, new_height);
-      }
-
       // The sequence-view is in the frame, the frame is in the scrolled window.
-      // The scrolled window is the widget that has the overlay.
+      // The scrolled window is in the overlay.
       // In GTK-overlay speak: the scrolled window is the overlay child
       // and the button is the overlay overlay.
 
@@ -7701,10 +7688,15 @@ void sequence_view(int imol) {
       GtkWidget *overlay = gtk_overlay_new();
       gtk_overlay_set_child(GTK_OVERLAY(overlay), GTK_WIDGET(scrolled_window));
       gtk_overlay_add_overlay(GTK_OVERLAY(overlay), button);
-      g_object_set(G_OBJECT(button), "halign", GTK_ALIGN_START, NULL);
-      g_object_set(G_OBJECT(button), "valign", GTK_ALIGN_START, NULL);
+      gtk_widget_set_halign(GTK_WIDGET(button), GTK_ALIGN_START);
+      gtk_widget_set_valign(GTK_WIDGET(button), GTK_ALIGN_START);
 
-      // But it doesn't work. Is the button appearing below the sequence view?
+      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
+      gtk_box_append(GTK_BOX(vbox), overlay);
+
+      int new_height; 
+      gtk_widget_measure(GTK_WIDGET(sv), GTK_ORIENTATION_VERTICAL, 0, &new_height, nullptr, nullptr, nullptr);
+      gtk_widget_set_size_request(vbox, -1, new_height);
 
    }
 }
