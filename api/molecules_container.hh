@@ -1113,6 +1113,12 @@ public:
    //! @return a vector of hydrogen bonds around the specified residue (typically a ligand)
    std::vector<moorhen::h_bond> get_h_bonds(int imol, const std::string &cid_str, bool mcdonald_and_thornton_mode) const;
 
+   //! get the mesh for ligand validation vs dictionary, coloured by badness.
+   //! greater then 3 standard deviations is fully red.
+   //! Less than 0.5 standard deviations is fully green.
+   // Function is not const because it might change the protein_geometry geom.
+   coot::simple_mesh_t get_mesh_for_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid);
+
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation
 

@@ -4440,3 +4440,19 @@ molecules_container_t::get_suggested_initial_contour_level(int imol) const {
    return l;
 
 }
+
+//! get the mesh for ligand validation vs dictionary, coloured by badness.
+//! greater then 3 standard deviations is fully red.
+//! Less than 0.5 standard deviations is fully green.
+coot::simple_mesh_t
+molecules_container_t::get_mesh_for_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid) {
+
+   coot::simple_mesh_t m;
+   if (is_valid_model_molecule(imol)) {
+      m = molecules[imol].get_mesh_for_ligand_validation_vs_dictionary(ligand_cid, geom, static_thread_pool);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return m;
+
+}

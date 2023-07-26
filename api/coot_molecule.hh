@@ -325,7 +325,14 @@ namespace coot {
                                              const clipper::Xmap<float> &xmap,
                                              float map_sigma) const;
 
-      // ====================== dragged refinemetn ======================================
+      // ====================== validation ======================================
+
+      std::vector<coot::geometry_distortion_info_container_t>
+      geometric_distortions_from_mol(const atom_selection_container_t &asc, bool with_nbcs,
+                                     coot::protein_geometry &geom,
+                                     ctpl::thread_pool &static_thread_pool);
+
+      // ====================== dragged refinement ======================================
 
       coot::restraints_container_t *last_restraints;
 
@@ -650,6 +657,14 @@ namespace coot {
       simple::molecule_t get_simple_molecule(int imol, mmdb::Residue *residue_p,
                                              bool draw_hydrogen_atoms_flag,
                                              coot::protein_geometry *geom_p);
+
+      //! get the mesh for ligand validation vs dictionary, coloured by badness.
+      //! greater then 3 standard deviations is fully red.
+      //! Less than 0.5 standard deviations is fully green.
+      // We need the thread pool?
+      coot::simple_mesh_t get_mesh_for_ligand_validation_vs_dictionary(const std::string &ligand_cid,
+                                                                       coot::protein_geometry &geom,
+                                                                       ctpl::thread_pool &static_thread_pool);
 
       // ------------------------ model-changing functions
 
