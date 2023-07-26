@@ -110,9 +110,17 @@ class TransformManager {
 
     };
 
-    std::variant<RotationState, TranslationState> state;
+    class IdleState {
+
+    };
+
+    std::variant<RotationState, TranslationState, IdleState> state;
 
     public:
+
+    bool is_active() const noexcept;
+    void begin_move(int x, int y) noexcept;
+    void begin_rotation(int x, int y) noexcept;
 };
 
 class MoveTool {
