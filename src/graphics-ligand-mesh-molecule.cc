@@ -103,10 +103,17 @@ graphics_ligand_mesh_molecule_t::init_from_molfile_molecule(const lig_build::mol
    atoms.clear();
    bonds.clear();
 
+   scale_correction = mol_in.get_scale_correction(); // so that the median bond length is 1.0
+   scale_correction.second *= 1.0;
+   std::cout << "debug:: scale_correction " << scale_correction.first << " " << scale_correction.second << std::endl;
+
    for (unsigned int iat=0; iat<mol_in.atoms.size(); iat++) {
       const lig_build::molfile_atom_t &at_in = mol_in.atoms[iat];
-      graphics_ligand_mesh_atom at(lig_build::pos_t(at_in.atom_position.x(), at_in.atom_position.y()),
-                                   at_in.element, at_in.formal_charge);
+      float x = at_in.atom_position.x();
+      float y = at_in.atom_position.y();
+      if (scale_correction.first) x *= scale_correction.second;
+      if (scale_correction.first) y *= scale_correction.second;
+      graphics_ligand_mesh_atom at(lig_build::pos_t(x, y), at_in.element, at_in.formal_charge);
       at.atom_name = at_in.name;
       at.aromatic  = at_in.aromatic;
       // what about chiral here (a lig_build::atom_t does not have chiral information).
@@ -119,9 +126,8 @@ graphics_ligand_mesh_molecule_t::init_from_molfile_molecule(const lig_build::mol
       bonds.push_back(b);
    }
    assign_ring_centres();
-   scale_correction = mol_in.get_scale_correction(); // so that the median bond length is 1.0
 
-   fill_mesh();
+   fill_mesh(); // uses scale_correction
 
    hud_texture_tmesh.setup_quad();
 }
