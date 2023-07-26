@@ -78,7 +78,8 @@ on_calculate_load_tutorial_model_and_data1_activate(GtkMenuItem *menuitem, gpoin
 #if 0 // testing
 // testing function for 2021 main window
 extern "C" G_MODULE_EXPORT
-void on___glade_unnamed_94_activate(GtkMenuItem *menuitem, gpointer user_data) {
+void
+on___glade_unnamed_94_activate(GtkMenuItem *menuitem, gpointer user_data) {
    std::cout << "Load tutorial model and data" << std::endl;
    load_tutorial_model_and_data();
 }
@@ -88,7 +89,7 @@ void on___glade_unnamed_94_activate(GtkMenuItem *menuitem, gpointer user_data) {
 extern "C" G_MODULE_EXPORT
 void
 on_window1_destroy (GtkWidget       *object,
-                                        gpointer         user_data) {
+                    gpointer         user_data) {
 
    // 20220327-PE the window manager killing the Coot window doesn't call this
 
@@ -119,9 +120,9 @@ on_window1_delete_event                (GtkWidget       *widget,
 
 
 extern "C" G_MODULE_EXPORT
-void on_file1_activate (GMenuItem     *menuitem,
-                                            gpointer         user_data)
-{
+void
+on_file1_activate (GMenuItem     *menuitem,
+                   gpointer         user_data) {
 
 }
 
@@ -697,16 +698,17 @@ on_show_aniso_close_button_clicked     (GtkButton       *button,
 }
 
 extern "C" G_MODULE_EXPORT
-void aniso_probability_adjustment_changed(GtkAdjustment *adj, GtkWidget *window) {
+void
+aniso_probability_adjustment_changed(GtkAdjustment *adj, GtkWidget *window) {
 
   set_aniso_probability(gtk_adjustment_get_value(adj));
 }
 
 
 extern "C" G_MODULE_EXPORT
-void on_smooth_scrolling_window_ok_button_clicked (GtkButton       *button,
-                                                                       gpointer         user_data)
-{
+void
+on_smooth_scrolling_window_ok_button_clicked (GtkButton       *button,
+                                              gpointer         user_data) {
    GtkEntry *entry;
    const char *text;
 
@@ -1097,8 +1099,9 @@ on_go_to_atom1_activate                (GMenuItem     *menuitem,
 }
 
 extern "C" G_MODULE_EXPORT
-void on_go_to_atom_button_clicked (GtkButton       *button,
-                                   gpointer         user_data) {
+void
+on_go_to_atom_button_clicked (GtkButton       *button,
+                              gpointer         user_data) {
 
    GtkWidget *dialog = wrapped_create_goto_atom_window(); // uses gtkbuilder
    gtk_widget_set_visible(dialog, TRUE);
@@ -2796,9 +2799,9 @@ on_model_refine_dialog_rot_trans_togglebutton_toggled (GtkButton       *button,
 
 
 extern "C" G_MODULE_EXPORT
-void on_rotate_translate_obj_ok_button_clicked (GtkButton       *button,
-                                                                    gpointer         user_data)
-{
+void
+on_rotate_translate_obj_ok_button_clicked (GtkButton       *button,
+                                           gpointer         user_data) {
   GtkWidget *widget = widget_from_builder("rotate_translate_obj_dialog");
 
   // graphics_unsetup_rotate_translate_buttons(widget);
@@ -2812,8 +2815,9 @@ void on_rotate_translate_obj_ok_button_clicked (GtkButton       *button,
 
 
 extern "C" G_MODULE_EXPORT
-void on_rotate_translate_obj_cancel_button_clicked (GtkButton       *button,
-                                                                        gpointer         user_data)
+void
+on_rotate_translate_obj_cancel_button_clicked (GtkButton       *button,
+                                               gpointer         user_data)
 {
   GtkWidget *widget = widget_from_builder("rotate_translate_obj_dialog");
 
@@ -5069,7 +5073,8 @@ on_single_map_properties_absolute_radiobutton_toggled (GtkCheckButton *checkbutt
 }
 
 extern "C" G_MODULE_EXPORT
-void handle_map_properties_fresnel_change(int imol, GtkWidget *checkbutton) {
+void
+handle_map_properties_fresnel_change(int imol, GtkWidget *checkbutton) {
 
    std::cout << "Here 0 in handle_map_properties_fresnel_change() " << checkbutton << std::endl;
    if (! graphics_info_t::is_valid_map_molecule(imol)) return;
@@ -6017,7 +6022,8 @@ on_preferences1_activate               (GMenuItem     *menuitem,
   preferences();
 }
 
-void fill_and_show_shader_preferences() {
+void
+fill_and_show_shader_preferences() {
 
    GtkWidget *w  = widget_from_builder("shader_settings_dialog");
    GtkWidget *r1 = widget_from_builder("shader_settings_ssao_strength_scale");
@@ -7531,9 +7537,10 @@ on_generic_display_objects1_activate   (GMenuItem     *menuitem,
 
 
 extern "C" G_MODULE_EXPORT
-void on_generic_objects_dialog_response(GtkDialog       *dialog,
-                                                            gint             response_id,
-                                                            gpointer         user_data) {
+void
+on_generic_objects_dialog_response(GtkDialog       *dialog,
+                                   gint             response_id,
+                                   gpointer         user_data) {
 
     if (response_id == GTK_RESPONSE_CLOSE) {
        gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
@@ -11668,7 +11675,8 @@ on_residue_type_chooser_entry_key_press_event
 #endif
 
 
-void handle_map_properties_specularity_change(int imol, GtkWidget *checkbutton) {
+void
+handle_map_properties_specularity_change(int imol, GtkWidget *checkbutton) {
 
    molecule_class_info_t &m = graphics_info_t::molecules[imol];
 
