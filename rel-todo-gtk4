@@ -21,6 +21,12 @@ the scaling of the framebuffers for super-sampling (in "Fancy" mode).
 
 How do I dismiss the sequence view? ::: 1
 
+Open Check/Delete Waters dialog twice.
+I want alignment by using a Grid.
+I want distance in the button label.
+I want the results box to be docked.
+It need an extra distance criterion for distance to a hydrogen atom. ::: 2
+
 Try using the instanced bonds using the api. Fix the specular lighting.
 
 Test the conversion of glm quaternion to coot quaternion and back again.
