@@ -7,19 +7,19 @@ void fill(GtkWidget *window, mmdb::Manager *mol) {
 
    GtkWidget *scrolled_window = gtk_scrolled_window_new();
    GtkWidget *overlay = gtk_overlay_new();
-   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(overlay));
+   gtk_overlay_set_child(GTK_OVERLAY(overlay), GTK_WIDGET(scrolled_window));
    gtk_widget_set_hexpand(scrolled_window, TRUE);
    gtk_widget_set_vexpand(scrolled_window, TRUE);
    gtk_widget_set_size_request(scrolled_window, 200, 130);
-   gtk_window_set_child(GTK_WINDOW(window), scrolled_window);
+   gtk_window_set_child(GTK_WINDOW(window), overlay);
    CootSequenceView *sv = coot_sequence_view_new();
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(sv));
    gtk_widget_set_margin_start(GTK_WIDGET(sv), 10);
    gtk_widget_set_margin_end(GTK_WIDGET(sv), 10);
    gtk_widget_set_margin_top(GTK_WIDGET(sv), 10);
    gtk_widget_set_margin_bottom(GTK_WIDGET(sv), 10);
    int imol = 0; // for now
    coot_sequence_view_set_structure(sv, imol, mol);
-   gtk_overlay_set_child(GTK_OVERLAY(overlay), GTK_WIDGET(sv));
 
    auto click_function_callback = +[] (CootSequenceView* self, int imol, const coot::residue_spec_t &spec, gpointer user_data) {
       std::cout << " clicked: " << imol << " " << spec << std::endl;
