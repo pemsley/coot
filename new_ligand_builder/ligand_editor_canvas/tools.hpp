@@ -95,6 +95,26 @@ class DeleteTool {
 
 };
 
+class TransformManager {
+    public:
+    enum class Mode {
+        Rotation,
+        Translation
+    };
+    private:
+
+    class RotationState {
+
+    };
+    class TranslationState {
+
+    };
+
+    std::variant<RotationState, TranslationState> state;
+
+    public:
+};
+
 class MoveTool {
     std::optional<std::pair<int,int>> prev_move_pos;
     std::optional<std::pair<int,int>> current_move_pos;
@@ -199,6 +219,7 @@ class ActiveTool {
     Variant variant;
     /// Non-owning pointer
     impl::WidgetCoreData* widget_data;
+    TransformManager transform_manager;
 
     /// Checks if the internal variant (the kind of the tool) matches what's expected (passed as argument).
     /// Throws an exception in case of a mismatch.
