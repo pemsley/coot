@@ -6,36 +6,31 @@
 void fill(GtkWidget *window, mmdb::Manager *mol) {
 
    GtkWidget *scrolled_window = gtk_scrolled_window_new();
-   GtkWidget *frame = gtk_frame_new("");
+   GtkWidget *overlay = gtk_overlay_new();
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(overlay));
    gtk_widget_set_hexpand(scrolled_window, TRUE);
    gtk_widget_set_vexpand(scrolled_window, TRUE);
    gtk_widget_set_size_request(scrolled_window, 200, 130);
-   gtk_widget_set_size_request(frame, 200, 140); // h size be bigger than the h-size for the scrolled window
    gtk_window_set_child(GTK_WINDOW(window), scrolled_window);
    CootSequenceView *sv = coot_sequence_view_new();
+   gtk_widget_set_margin_start(GTK_WIDGET(sv), 10);
+   gtk_widget_set_margin_end(GTK_WIDGET(sv), 10);
+   gtk_widget_set_margin_top(GTK_WIDGET(sv), 10);
+   gtk_widget_set_margin_bottom(GTK_WIDGET(sv), 10);
    int imol = 0; // for now
-
    coot_sequence_view_set_structure(sv, imol, mol);
+   gtk_overlay_set_child(GTK_OVERLAY(overlay), GTK_WIDGET(sv));
 
-   g_object_set_data(G_OBJECT(sv), "sv3-frame", frame);
-   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(frame));
-   gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(sv));
-
-   auto click_function_callback = +[] (CootSequenceView* self, int imol, const coot::residue_spec_t &spec,
-                                       gpointer user_data) {
+   auto click_function_callback = +[] (CootSequenceView* self, int imol, const coot::residue_spec_t &spec, gpointer user_data) {
       std::cout << " clicked: " << imol << " " << spec << std::endl;
-      return 1;
    };
    g_signal_connect(sv, "residue-clicked", G_CALLBACK(click_function_callback), nullptr);
 
-   // And now add an overlay "Close" button
-   // (doesn't work).
    GtkWidget *button = gtk_button_new_with_label("Close");
-   GtkWidget *overlay = gtk_overlay_new();
-   gtk_overlay_set_child(GTK_OVERLAY(overlay), GTK_WIDGET(scrolled_window));
+   
    gtk_overlay_add_overlay(GTK_OVERLAY(overlay), button);
-   g_object_set(G_OBJECT(button), "halign", GTK_ALIGN_START, NULL);
-   g_object_set(G_OBJECT(button), "valign", GTK_ALIGN_END, NULL);
+   gtk_widget_set_halign(GTK_WIDGET(button),GTK_ALIGN_START);
+   gtk_widget_set_valign(GTK_WIDGET(button),GTK_ALIGN_END);
 
 }
 
