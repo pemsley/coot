@@ -31,7 +31,7 @@ Set the default termperature factor:
  - `set_default_temperature_factor_for_new_atoms(16)`
  - **Close** the Python window
 
-Let's view the structure anomolies:
+Let's view the structure anomalies:
 
  - **Validate** &rarr; **Overlaps, Peptides, CBeta Ramas & Rotas**
 
