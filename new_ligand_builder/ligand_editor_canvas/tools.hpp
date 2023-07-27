@@ -103,24 +103,41 @@ class TransformManager {
     };
     private:
 
-    class RotationState {
-
+    struct RotationState {
+        double last_absolute_angle;
+        std::pair<int,int> original_rotation_pos;
+        std::pair<int,int> current_rotation_pos;
     };
-    class TranslationState {
-
+    struct TranslationState {
+        std::pair<int,int> prev_move_pos;
+        std::pair<int,int> current_move_pos;
     };
 
     class IdleState {
-
+        // empty
     };
 
     std::variant<RotationState, TranslationState, IdleState> state;
+    std::optional<unsigned int> canvas_mol_idx;
 
     public:
+
+    TransformManager() noexcept;
 
     bool is_active() const noexcept;
     void begin_move(int x, int y) noexcept;
     void begin_rotation(int x, int y) noexcept;
+    void update_current_cursor_pos(int x, int y, bool snap) noexcept;
+
+    void end_transform() noexcept;
+    
+    void set_canvas_molecule_index(unsigned int) noexcept;
+    std::optional<unsigned int> get_canvas_molecule_index() const noexcept;
+
+    /// for translation
+    std::optional<std::pair<int,int>> get_current_offset() const;
+    std::optional<double> get_current_absolute_angle(bool snap_to_angle) const;
+    std::optional<double> get_current_angle_diff(bool snap_to_angle) const;
 };
 
 class MoveTool {

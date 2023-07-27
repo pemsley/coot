@@ -42,6 +42,58 @@ std::optional<std::pair<unsigned int,unsigned int>> BondModifier::get_molecule_i
 }
 
 
+TransformManager::TransformManager() noexcept {
+    this->state = IdleState();
+}
+
+bool TransformManager::is_active() const noexcept {
+    return !std::holds_alternative<IdleState>(this->state);
+}
+
+void TransformManager::begin_move(int x, int y) noexcept {
+    auto tr = TranslationState();
+    tr.prev_move_pos = std::make_pair(x,y);
+    tr.current_move_pos = std::make_pair(x, y);
+    this->state = tr;
+}
+
+void TransformManager::begin_rotation(int x, int y) noexcept {
+    auto rot = RotationState();
+    rot.original_rotation_pos = std::make_pair(x,y);
+    rot.current_rotation_pos = std::make_pair(x, y);
+    rot.last_absolute_angle = 0.f;
+    this->state = rot;
+}
+
+void TransformManager::update_current_cursor_pos(int x, int y, bool snap) noexcept {
+
+}
+
+void TransformManager::end_transform() noexcept {
+    this->state = IdleState();
+    this->canvas_mol_idx = std::nullopt;
+}
+
+void TransformManager::set_canvas_molecule_index(unsigned int) noexcept {
+
+}
+std::optional<unsigned int> TransformManager::get_canvas_molecule_index() const noexcept {
+
+}
+
+
+std::optional<std::pair<int,int>> TransformManager::get_current_offset() const {
+
+}
+
+std::optional<double> TransformManager::get_current_absolute_angle(bool snap_to_angle) const {
+
+}
+
+std::optional<double> TransformManager::get_current_angle_diff(bool snap_to_angle) const {
+
+}
+
 MoveTool::MoveTool() noexcept {
     this->in_move = false;
 }
