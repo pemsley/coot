@@ -134,35 +134,33 @@ static void on_hover (
 
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
 
+    // Clear all highlights first
     for(auto& molecule: *self->molecules) {
         molecule.clear_highlights();
     }
 
-    switch (self->active_tool->get_variant()) {
-        case ActiveTool::Variant::MoveTool:
-        case ActiveTool::Variant::RotateTool: {
-            if(self->active_tool->is_in_transform()) {
-                self->active_tool->update_transform_cursor_pos((int)x, (int)y, modifiers & GDK_ALT_MASK);
-                gtk_widget_queue_draw(GTK_WIDGET(self));
-                return;
-            }
-            break;
-        }
-        case ActiveTool::Variant::BondModifier: {
-            if(self->active_tool->is_creating_bond() && self->currently_created_bond.has_value()) {
-                auto& new_bond = self->currently_created_bond.value();
-                new_bond.second_atom_x = x;
-                new_bond.second_atom_y = y;
-                auto [molecule_idx, atom_idx] = self->active_tool->get_molecule_idx_and_first_atom_of_new_bond().value();
-                auto& target = (*self->molecules)[molecule_idx];
-                target.highlight_atom(atom_idx);
-            }
-            break;
-        }
-        default: {
-            // nothing
+    if(self->active_tool->is_in_transform()) {
+        self->active_tool->update_transform_cursor_pos((int)x, (int)y, modifiers & GDK_ALT_MASK);
+        gtk_widget_queue_draw(GTK_WIDGET(self));
+        return;
+    }
+
+    // Update position of the second atom when creating a bond
+    if(self->currently_created_bond.has_value()) {
+        auto& new_bond = self->currently_created_bond.value();
+        new_bond.second_atom_x = x;
+        new_bond.second_atom_y = y;
+    }
+    // and set highlight for the first atom, if we're creating a new bond
+    if(self->active_tool->get_variant() == ActiveTool::Variant::BondModifier) {
+        if(self->active_tool->is_creating_bond()) {
+            auto [molecule_idx, atom_idx] = self->active_tool->get_molecule_idx_and_first_atom_of_new_bond().value();
+            auto& target = (*self->molecules)[molecule_idx];
+            target.highlight_atom(atom_idx);
         }
     }
+
+    // Highlights and snapping
     auto maybe_something_clicked = self->resolve_click(x, y);
     if(maybe_something_clicked.has_value()) {
         auto [bond_or_atom,molecule_idx] = maybe_something_clicked.value();
@@ -171,6 +169,9 @@ static void on_hover (
             auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
             g_debug("Hovering on atom %u (%s)", atom.idx,atom.symbol.c_str());
             target.highlight_atom(atom.idx);
+
+            // Snapping to the target atom
+            // when creating a bond
             if(self->currently_created_bond.has_value()) {
                 auto& new_bond = self->currently_created_bond.value();
                 auto coords = target.get_on_screen_coords(atom.x, atom.y);
