@@ -110,10 +110,13 @@ class TransformManager {
         std::pair<int,int> current_rotation_pos;
 
         double get_current_absolute_angle(bool snap_to_angle) const;
+        double get_current_angle_diff(bool snap_to_angle) const;
     };
     struct TranslationState {
         std::pair<int,int> prev_move_pos;
         std::pair<int,int> current_move_pos;
+
+        std::pair<int,int> get_current_offset() const;
     };
 
     class IdleState {
@@ -128,7 +131,6 @@ class TransformManager {
     TransformManager() noexcept;
 
     bool is_active() const noexcept;
-    Mode get_mode() const noexcept;
 
     void begin_transform(int x, int y, Mode mode) noexcept;
     void update_current_cursor_pos(int x, int y, bool snap) noexcept;
@@ -136,13 +138,8 @@ class TransformManager {
     void end_transform() noexcept;
     
     void set_canvas_molecule_index(unsigned int) noexcept;
-    std::optional<unsigned int> get_canvas_molecule_index() const noexcept;
 
-    /// for translation
-    std::optional<std::pair<int,int>> get_current_offset() const;
-
-    std::optional<double> get_current_absolute_angle(bool snap_to_angle) const;
-    std::optional<double> get_current_angle_diff(bool snap_to_angle) const;
+    void apply_current_transform_state(impl::WidgetCoreData* widget_data, bool snapt_to_angle, bool about_to_end) const;
 };
 
 class MoveTool {

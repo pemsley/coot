@@ -50,16 +50,6 @@ bool TransformManager::is_active() const noexcept {
     return !std::holds_alternative<IdleState>(this->state);
 }
 
-TransformManager::Mode TransformManager::get_mode() const noexcept {
-    if(std::holds_alternative<RotationState>(this->state)) {
-        return Mode::Rotation;
-    } else if(std::holds_alternative<TranslationState>(this->state)) {
-        return Mode::Translation;
-    } else {
-        return Mode::Idle;
-    }
-}
-
 void TransformManager::begin_transform(int x, int y, Mode mode) noexcept {
     switch(mode) {
         case Mode::Rotation: {
@@ -126,39 +116,44 @@ void TransformManager::set_canvas_molecule_index(unsigned int idx) noexcept {
     this->canvas_mol_idx = idx;
 }
 
-std::optional<unsigned int> TransformManager::get_canvas_molecule_index() const noexcept {
-    return this->canvas_mol_idx;
-}
-
-std::optional<std::pair<int,int>> TransformManager::get_current_offset() const {
+void TransformManager::apply_current_transform_state(impl::WidgetCoreData* widget_data, bool snap_to_angle, bool about_to_end) const {
+    if(!this->canvas_mol_idx.has_value()) {
+        return;
+    }
+    auto& mol = widget_data->molecules->at(this->canvas_mol_idx.value());
+    const RotationState* rot = std::get_if<RotationState>(&this->state);
+    if(rot) {
+        auto angle = rot->get_current_angle_diff(snap_to_angle);
+        auto abs_angle = rot->get_current_absolute_angle(snap_to_angle) / M_PI * 180;
+        mol.rotate_by_angle(angle);
+        mol.lower_from_rdkit(!widget_data->allow_invalid_molecules);
+        std::string msg;
+        if (about_to_end) {
+            msg = "Molecule rotated by: " + std::to_string(abs_angle) + " degrees.";
+        } else {
+            msg = "Current molecule rotation: " + std::to_string(abs_angle) + " degrees.";
+        }
+        widget_data->update_status(msg.c_str());
+        return;
+    }
     const TranslationState* tr = std::get_if<TranslationState>(&this->state);
     if(tr) {
-        auto [x1,y1] = tr->prev_move_pos;
-        auto [x2,y2] = tr->current_move_pos;
-        return std::make_pair(x2 - x1, y2 - y1);
-    } else {
-        return std::nullopt;
+        auto [offset_x,offset_y] = tr->get_current_offset();
+        mol.apply_canvas_translation(offset_x, offset_y);
+        return;
     }
 }
 
-std::optional<double> TransformManager::get_current_absolute_angle(bool snap_to_angle) const {
-    const RotationState* rot = std::get_if<RotationState>(&this->state);
-    if(rot) {
-        return rot->get_current_absolute_angle(snap_to_angle);
-    } else {
-        return std::nullopt;
-    }
+std::pair<int,int> TransformManager::TranslationState::get_current_offset() const {
+    auto [x1,y1] = this->prev_move_pos;
+    auto [x2,y2] = this->current_move_pos;
+    return std::make_pair(x2 - x1, y2 - y1);
 }
 
-std::optional<double> TransformManager::get_current_angle_diff(bool snap_to_angle) const {
-    const RotationState* rot = std::get_if<RotationState>(&this->state);
-    if(rot) {
-        auto original = rot->get_current_absolute_angle(snap_to_angle);
-        auto diff = original - rot->last_absolute_angle;
-        return diff;
-    } else {
-        return std::nullopt;
-    }
+double TransformManager::RotationState::get_current_angle_diff(bool snap_to_angle) const {
+    auto original = this->get_current_absolute_angle(snap_to_angle);
+    auto diff = original - this->last_absolute_angle;
+    return diff;
 }
 
 StructureInsertion::StructureInsertion(StructureInsertion::Structure st) noexcept 
@@ -757,59 +752,20 @@ bool ActiveTool::is_in_transform() const noexcept {
 }
 
 void ActiveTool::update_transform_cursor_pos(int x, int y, bool snap_to_angle) noexcept {
-    auto mode = transform_manager.get_mode();
-    if(mode == TransformManager::Mode::Idle) {
+    if(!transform_manager.is_active()) {
         return;
     }
     transform_manager.update_current_cursor_pos(x, y, snap_to_angle);
-    auto mol_idx_opt = transform_manager.get_canvas_molecule_index();
-
-    switch(mode) {
-        case TransformManager::Mode::Rotation: {
-            auto angle = transform_manager.get_current_angle_diff(snap_to_angle).value();
-            auto abs_angle = transform_manager.get_current_absolute_angle(snap_to_angle).value() / M_PI * 180;
-            auto& mol = this->widget_data->molecules->at(mol_idx_opt.value());
-            mol.rotate_by_angle(angle);
-            mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
-            std::string msg = "Current rotation: " + std::to_string(abs_angle) + " degrees.";
-            this->widget_data->update_status(msg.c_str());
-            break;
-        }
-        default: {
-            auto [offset_x,offset_y] = transform_manager.get_current_offset().value();
-            this->widget_data->molecules->at(mol_idx_opt.value()).apply_canvas_translation(offset_x, offset_y);
-            break;
-        }
-    }
+    transform_manager.apply_current_transform_state(this->widget_data, snap_to_angle, false);
 }
 
 void ActiveTool::end_transform(bool snap_to_angle) {
-    auto mode = transform_manager.get_mode();
-    if(mode == TransformManager::Mode::Idle) {
+    if(!transform_manager.is_active()) {
         return;
     }
-    auto mol_idx_opt = transform_manager.get_canvas_molecule_index();
-
-    switch(mode) {
-        case TransformManager::Mode::Rotation: {
-            auto abs_angle = transform_manager.get_current_absolute_angle(snap_to_angle).value() / M_PI * 180;
-            auto angle = transform_manager.get_current_angle_diff(snap_to_angle).value();
-            auto& mol = this->widget_data->molecules->at(mol_idx_opt.value());
-            mol.rotate_by_angle(angle);
-            mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
-            std::string msg = "Molecule rotated by " + std::to_string(abs_angle) + " degrees.";
-            this->widget_data->update_status(msg.c_str());
-            this->widget_data->finalize_edition();
-            break;
-        }
-        default: {
-            auto [offset_x,offset_y] = transform_manager.get_current_offset().value();
-            this->widget_data->molecules->at(mol_idx_opt.value()).apply_canvas_translation(offset_x, offset_y);
-            this->widget_data->finalize_edition();
-            break;
-        }
-    }
+    transform_manager.apply_current_transform_state(this->widget_data, snap_to_angle, true);
     transform_manager.end_transform();
+    this->widget_data->finalize_edition();
 }
 
 void ActiveTool::sanitize_molecule(RDKit::RWMol& mol) const {
