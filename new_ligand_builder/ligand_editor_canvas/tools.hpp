@@ -99,8 +99,7 @@ class TransformManager {
     public:
     enum class Mode {
         Rotation,
-        Translation,
-        Idle
+        Translation
     };
     private:
 

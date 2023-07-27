@@ -67,10 +67,6 @@ void TransformManager::begin_transform(int x, int y, Mode mode) noexcept {
             this->state = tr;
             break;
         }
-        case Mode::Idle: {
-            this->end_transform();
-            break;
-        }
     }
 }
 
