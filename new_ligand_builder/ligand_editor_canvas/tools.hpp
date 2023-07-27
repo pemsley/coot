@@ -99,7 +99,8 @@ class TransformManager {
     public:
     enum class Mode {
         Rotation,
-        Translation
+        Translation,
+        Idle
     };
     private:
 
@@ -127,8 +128,9 @@ class TransformManager {
     TransformManager() noexcept;
 
     bool is_active() const noexcept;
-    void begin_move(int x, int y) noexcept;
-    void begin_rotation(int x, int y) noexcept;
+    Mode get_mode() const noexcept;
+
+    void begin_transform(int x, int y, Mode mode) noexcept;
     void update_current_cursor_pos(int x, int y, bool snap) noexcept;
 
     void end_transform() noexcept;
@@ -138,47 +140,17 @@ class TransformManager {
 
     /// for translation
     std::optional<std::pair<int,int>> get_current_offset() const;
+
     std::optional<double> get_current_absolute_angle(bool snap_to_angle) const;
     std::optional<double> get_current_angle_diff(bool snap_to_angle) const;
 };
 
 class MoveTool {
-    std::optional<std::pair<int,int>> prev_move_pos;
-    std::optional<std::pair<int,int>> current_move_pos;
-    /// Describes whether the user is currently dragging with their mouse
-    bool in_move;
-    std::optional<unsigned int> canvas_mol_idx;
 
-    public:
-
-    void begin_move(int x, int y) noexcept;
-    std::pair<int,int> end_move();
-    void update_current_move_pos(int x, int y) noexcept;
-    std::optional<std::pair<int,int>> get_current_offset() const;
-    bool is_in_move() const noexcept;
-    void set_canvas_molecule_index(unsigned int) noexcept;
-    std::optional<unsigned int> get_canvas_molecule_index() const noexcept;
-    MoveTool() noexcept;
 };
 
 class RotateTool {
-    std::optional<double> last_absolute_angle;
-    std::optional<std::pair<int,int>> original_rotation_pos;
-    std::optional<std::pair<int,int>> current_rotation_pos;
-    std::optional<unsigned int> canvas_mol_idx;
-    /// Describes whether the user is currently dragging with their mouse
-    bool in_rotation;
-
-    public:
-    RotateTool() noexcept;
-    void begin_rotation(int x, int y) noexcept;
-    double end_rotation(bool snap_to_angle);
-    void update_current_rotation_pos(int x, int y, bool snap_to_angle) noexcept;
-    std::optional<double> get_current_absolute_angle(bool snap_to_angle) const;
-    std::optional<double> get_current_angle_diff(bool snap_to_angle) const;
-    bool is_in_rotation() const noexcept;
-    void set_canvas_molecule_index(unsigned int) noexcept;
-    std::optional<unsigned int> get_canvas_molecule_index() const noexcept;
+    
 };
 
 class GeometryModifier {
@@ -275,7 +247,6 @@ class ActiveTool {
     /// Valid for Variant::ElementInsertion.
     /// Inserts currently chosen atom at the given coordinates.
     void insert_atom(int x, int y);
-
     /// Valid for Variant::BondModifier.
     /// Changes the bond found at the given coordinates.
     /// The kind of the bond depends upon current BondModifierMode.
@@ -293,34 +264,16 @@ class ActiveTool {
     /// Valid for Variant::StructureInsertion.
     /// Inserts currently chosen structure at the given coordinates.
     void insert_structure(int x, int y);
-    /// Valid for Variant::MoveTool
     /// Updates the current mouse coordinates
-    /// allowing to compute adequate viewport translation.
-    void update_move_cursor_pos(int x, int y);
-    /// Valid for Variant::RotateTool
-    /// Updates the current mouse coordinates
-    /// allowing to compute adequate viewport rotation.
-    void update_rotation_cursor_pos(int x, int y, bool snap_to_angle);
-    /// Valid for Variant::MoveTool
-    /// Ends move
-    void end_move();
-    /// Valid for Variant::RotateTool
-    /// Ends rotation
-    void end_rotation(bool snap_to_angle);
-    /// Valid for Variant::MoveTool
-    /// Begins move
-    void begin_move(int x, int y);
-    /// Valid for Variant::RotateTool
-    /// Begins rotation
-    void begin_rotation(int x, int y);
-    /// Valid for Variant::MoveTool
+    /// allowing to compute adequate viewport rotation / translation
+    void update_transform_cursor_pos(int x, int y, bool snap_to_angle) noexcept;
+    /// Ends move or rotation
+    void end_transform(bool snap_to_angle);
+    /// Begins rotation or translation
+    void begin_transform(int x, int y, TransformManager::Mode);
     /// Returns if the user is currently dragging their mouse
-    /// to shift the viewport.
-    bool is_in_move() const;
-    /// Valid for Variant::RotateTool
-    /// Returns if the user is currently dragging their mouse
-    /// to rotate the viewport.
-    bool is_in_rotation() const;
+    /// to shift the viewport / rotate the molecule.
+    bool is_in_transform() const noexcept;
     /// Valid for Variant::GeometryModifier.
     /// Changes geometry of the bond found at the given coordinates.
     void alter_geometry(int x, int y);
