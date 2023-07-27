@@ -5780,15 +5780,8 @@ post_display_control_window() {
 void
 clear_out_container(GtkWidget *vbox) {
 
-#if (GTK_MAJOR_VERSION >= 4)
-   std::cout << "in clear_out_container() FIXME" << std::endl;
-#else
-   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
-                                    gtk_container_remove(GTK_CONTAINER(data), widget); };
-
-   if (GTK_IS_CONTAINER(vbox))
-      gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
-#endif
+   graphics_info_t g;
+   g.clear_out_container(vbox);
 
 }
 
@@ -7660,6 +7653,19 @@ void sequence_view(int imol) {
       gtk_widget_set_hexpand(frame, TRUE);
       gtk_widget_set_vexpand(frame, TRUE);
 
+      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
+      // gtk_box_append(GTK_BOX(vbox), scrolled_window);
+
+      // We need to set the height of the box - and that depends
+      // on the number of chains and the offset per chain.
+      {
+         int n_chains = 3 + graphics_info_t::molecules[imol].number_of_chains();
+         if (n_chains > 10) n_chains = 10;
+         int Y_OFFSET_PER_CHAIN = 16.0;
+         int new_height = 30 + n_chains * Y_OFFSET_PER_CHAIN;
+         gtk_widget_set_size_request(vbox, -1, new_height);
+      }
+
       // The sequence-view is in the frame, the frame is in the scrolled window.
       // The scrolled window is in the overlay.
       // In GTK-overlay speak: the scrolled window is the overlay child
@@ -7679,24 +7685,55 @@ void sequence_view(int imol) {
          g_signal_connect(sv, "residue-clicked", G_CALLBACK(click_function), nullptr);
       }
 
-      // now add a close button for that sequence view as an overlay of the sequence view
+      // now add a close button for that sequence view as an overlay of the sequence view vbox
       //
-      GtkWidget *button = gtk_button_new();
-      GtkWidget *label = gtk_label_new("<span foreground='green' weight='bold' font='30'>Close</span>"); // testing
-      gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-      gtk_button_set_child(GTK_BUTTON(button), label);
+      GtkWidget *button = gtk_button_new_from_icon_name("window-close");
+      GtkStyleContext *sc = gtk_widget_get_style_context(button);
+      gtk_style_context_add_class(sc, "circular");
+      auto close_button_callback = +[] (GtkButton *button, gpointer data) {
+         int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
+         std::cout << "close this sequence view " << imol << std::endl;
+         GtkWidget *sequence_view_box = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "sequence_view_box"));
+         // now find the child (the overlay) in the sequence_view_box and remove it
+
+         GtkWidget *item_widget = gtk_widget_get_first_child(sequence_view_box);
+         int n_children = 0;
+         while (item_widget) {
+            n_children++;
+            GtkWidget *w = item_widget;
+            item_widget = gtk_widget_get_next_sibling(item_widget);
+            int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "imol"));
+            if (imol_overlay == imol) {
+               gtk_box_remove(GTK_BOX(sequence_view_box), w);
+               n_children--;
+            }
+         };
+         // if the sequence view box no longer has children, then we should close up the pane
+         if (n_children == 0) {
+            GtkWidget *pane = widget_from_builder("main_window_sequence_view_vs_graphics_pane");
+            gtk_paned_set_position(GTK_PANED(pane), 0);
+         }
+      };
+      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(close_button_callback), NULL);
+      g_object_set_data(G_OBJECT(button), "imol", GINT_TO_POINTER(imol));
+
       GtkWidget *overlay = gtk_overlay_new();
       gtk_overlay_set_child(GTK_OVERLAY(overlay), GTK_WIDGET(scrolled_window));
       gtk_overlay_add_overlay(GTK_OVERLAY(overlay), button);
+      g_object_set_data(G_OBJECT(button), "sequence_view_box", vbox);
+      g_object_set_data(G_OBJECT(overlay), "imol", GINT_TO_POINTER(imol));
+      // GTK_ALIGN_END works OK/as intended, except the main graphics widget (or window) is too narrow to see it.
+      // Make the window wider and change this to GTK_ALIGN_END.
+      // gtk_widget_set_halign(GTK_WIDGET(button), GTK_ALIGN_END);
       gtk_widget_set_halign(GTK_WIDGET(button), GTK_ALIGN_START);
       gtk_widget_set_valign(GTK_WIDGET(button), GTK_ALIGN_START);
 
-      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
+      // GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
       gtk_box_append(GTK_BOX(vbox), overlay);
 
-      int new_height; 
-      gtk_widget_measure(GTK_WIDGET(sv), GTK_ORIENTATION_VERTICAL, 0, &new_height, nullptr, nullptr, nullptr);
-      gtk_widget_set_size_request(vbox, -1, new_height);
+      // int new_height;
+      // gtk_widget_measure(GTK_WIDGET(sv), GTK_ORIENTATION_VERTICAL, 0, &new_height, nullptr, nullptr, nullptr);
+      // gtk_widget_set_size_request(vbox, -1, new_height);
 
    }
 }
