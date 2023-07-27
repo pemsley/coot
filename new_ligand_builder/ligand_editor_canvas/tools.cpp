@@ -65,8 +65,37 @@ void TransformManager::begin_rotation(int x, int y) noexcept {
     this->state = rot;
 }
 
-void TransformManager::update_current_cursor_pos(int x, int y, bool snap) noexcept {
+double TransformManager::RotationState::get_current_absolute_angle(bool snap_to_angle) const {
+    auto [x1,y1] = this->original_rotation_pos;
+    auto [x2,y2] = this->current_rotation_pos;
+    auto diff_x = x2 - x1;
+    auto diff_y = y1 - y2;
+    auto diff_original = ((double)(diff_x + diff_y)) / 125.0;
+    if(snap_to_angle) {
+        const double snap = 15.f / 180 * M_PI;
+        int divided = diff_original / snap;
+        if(divided != 0)  {
+            diff_original = divided * snap;
+        } else {
+            diff_original = 0;
+        }
+    }
+    return diff_original;
+}
 
+void TransformManager::update_current_cursor_pos(int x, int y, bool snap) noexcept {
+    RotationState* rot = std::get_if<RotationState>(&this->state);
+    if(rot) {
+        rot->last_absolute_angle = rot->get_current_absolute_angle(snap);
+        rot->current_rotation_pos = std::make_pair(x, y);
+        return;
+    }
+    TranslationState* tr = std::get_if<TranslationState>(&this->state);
+    if(tr) {
+        tr->prev_move_pos = tr->current_move_pos;
+        tr->current_move_pos = std::make_pair(x, y);
+        return;
+    }
 }
 
 void TransformManager::end_transform() noexcept {
@@ -74,24 +103,43 @@ void TransformManager::end_transform() noexcept {
     this->canvas_mol_idx = std::nullopt;
 }
 
-void TransformManager::set_canvas_molecule_index(unsigned int) noexcept {
-
+void TransformManager::set_canvas_molecule_index(unsigned int idx) noexcept {
+    this->canvas_mol_idx = idx;
 }
+
 std::optional<unsigned int> TransformManager::get_canvas_molecule_index() const noexcept {
-
+    return this->canvas_mol_idx;
 }
-
 
 std::optional<std::pair<int,int>> TransformManager::get_current_offset() const {
-
+    const TranslationState* tr = std::get_if<TranslationState>(&this->state);
+    if(tr) {
+        auto [x1,y1] = tr->prev_move_pos;
+        auto [x2,y2] = tr->current_move_pos;
+        return std::make_pair(x2 - x1, y2 - y1);
+    } else {
+        return std::nullopt;
+    }
 }
 
 std::optional<double> TransformManager::get_current_absolute_angle(bool snap_to_angle) const {
-
+    const RotationState* rot = std::get_if<RotationState>(&this->state);
+    if(rot) {
+        return rot->get_current_absolute_angle(snap_to_angle);
+    } else {
+        return std::nullopt;
+    }
 }
 
 std::optional<double> TransformManager::get_current_angle_diff(bool snap_to_angle) const {
-
+    const RotationState* rot = std::get_if<RotationState>(&this->state);
+    if(rot) {
+        auto original = rot->get_current_absolute_angle(snap_to_angle);
+        auto diff = original - rot->last_absolute_angle;
+        return diff;
+    } else {
+        return std::nullopt;
+    }
 }
 
 MoveTool::MoveTool() noexcept {

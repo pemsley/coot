@@ -107,6 +107,8 @@ class TransformManager {
         double last_absolute_angle;
         std::pair<int,int> original_rotation_pos;
         std::pair<int,int> current_rotation_pos;
+
+        double get_current_absolute_angle(bool snap_to_angle) const;
     };
     struct TranslationState {
         std::pair<int,int> prev_move_pos;
