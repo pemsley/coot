@@ -257,6 +257,13 @@ void coot::ligand_editor::build_main_window(GtkWindow* win, CootLigandEditorCanv
     gtk_box_append(GTK_BOX(bottom_bar),smiles_label);
     GtkWidget* smiles_display_label = gtk_label_new("");
     gtk_box_append(GTK_BOX(bottom_bar),smiles_display_label);
+
+    g_signal_connect(canvas, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data){
+        GtkLabel* label = GTK_LABEL(user_data);
+        std::string smiles = coot_ligand_editor_get_smiles(self);
+        gtk_label_set_label(label, smiles.c_str());
+    }), smiles_display_label);
+    
     gtk_widget_set_hexpand(smiles_display_label, TRUE);
     GtkWidget* scale_label = gtk_label_new("Scale");
     gtk_box_append(GTK_BOX(bottom_bar),scale_label);

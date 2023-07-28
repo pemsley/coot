@@ -373,6 +373,16 @@ static void coot_ligand_editor_canvas_class_init(CootLigandEditorCanvasClass* kl
         1     /* n_params */,
         G_TYPE_FLOAT
     );
+    impl::smiles_changed_signal = g_signal_new("smiles-changed",
+        G_TYPE_FROM_CLASS (klass),
+        (GSignalFlags) (G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS),
+        0 /* class offset.Subclass cannot override the class handler (default handler). */,
+        NULL /* accumulator */,
+        NULL /* accumulator data */,
+        NULL /* C marshaller. g_cclosure_marshal_generic() will be used */,
+        G_TYPE_NONE /* return_type */,
+        0     /* n_params */
+    );
     GTK_WIDGET_CLASS(klass)->snapshot = coot_ligand_editor_canvas_snapshot;
     GTK_WIDGET_CLASS(klass)->measure = coot_ligand_editor_canvas_measure;
     G_OBJECT_CLASS(klass)->dispose = coot_ligand_editor_canvas_dispose;
@@ -469,3 +479,8 @@ void coot_ligand_editor_set_display_mode(CootLigandEditorCanvas* self, DisplayMo
     gtk_widget_queue_draw(GTK_WIDGET(self));
 }
 
+std::string coot_ligand_editor_get_smiles(CootLigandEditorCanvas* self) noexcept {
+    std::string ret;
+    
+    return ret;
+}

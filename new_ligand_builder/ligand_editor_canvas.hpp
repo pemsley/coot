@@ -35,4 +35,5 @@ bool coot_ligand_editor_get_allow_invalid_molecules(CootLigandEditorCanvas* self
 coot::ligand_editor_canvas::DisplayMode coot_ligand_editor_get_display_mode(CootLigandEditorCanvas* self) noexcept;
 void coot_ligand_editor_set_display_mode(CootLigandEditorCanvas* self, coot::ligand_editor_canvas::DisplayMode value) noexcept;
 
+std::string coot_ligand_editor_get_smiles(CootLigandEditorCanvas* self) noexcept;
 #endif // COOT_LIGAND_EDITOR_CANVAS_HPP

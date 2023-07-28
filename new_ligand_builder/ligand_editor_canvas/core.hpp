@@ -19,6 +19,7 @@ namespace coot::ligand_editor_canvas::impl {
 
 inline guint status_updated_signal;
 inline guint scale_changed_signal;
+inline guint smiles_changed_signal;
 
 /// This is here as a workaround.
 /// 
