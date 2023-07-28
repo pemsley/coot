@@ -242,14 +242,6 @@ static void on_left_click (
             gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_NONE);
             break;
         }
-        case ActiveTool::Variant::MoveTool:{
-            self->active_tool->begin_transform((int)x, (int)y, TransformManager::Mode::Translation);
-            break;
-        }
-        case ActiveTool::Variant::RotateTool:{
-            self->active_tool->begin_transform((int)x, (int) y, TransformManager::Mode::Rotation);
-            break;
-        }
         case ActiveTool::Variant::BondModifier:{
             self->active_tool->alter_bond((int)x, (int) y);
             if(self->active_tool->is_creating_bond()) {

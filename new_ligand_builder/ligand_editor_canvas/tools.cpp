@@ -50,6 +50,11 @@ Tool::~Tool() {
 }
 
 void ActiveTool::on_click(int x, int y) {
+    if(this->mode == Mode::Move) {
+        this->begin_transform(x, y, TransformManager::Mode::Translation);
+    } else if(this->mode == Mode::Rotate) {
+        this->begin_transform(x, y, TransformManager::Mode::Rotation);
+    }
     if(!this->tool) {
         return;
     }
@@ -86,11 +91,6 @@ void ActiveTool::on_release(int x, int y) {
         return;
     }
     this->tool->on_release(*this->widget_data, x, y);
-}
-
-
-ActiveTool::ActiveTool() noexcept {
-    this->variant = ActiveTool::Variant::None;
 }
 
 BondModifier::BondModifier(BondModifierMode mode) noexcept {
@@ -253,53 +253,67 @@ CanvasMolecule::BondType BondModifier::get_target_bond_type() const noexcept {
     }
 }
 
+ActiveTool::ActiveTool() noexcept {
+    this->variant = ActiveTool::Variant::None;
+    this->mode = Mode::Tool;
+}
+
 ActiveTool::ActiveTool(ElementInsertion insertion) noexcept {
     this->variant = ActiveTool::Variant::ElementInsertion;
     this->element_insertion = insertion;
+    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(BondModifier modifier) noexcept {
     this->variant = ActiveTool::Variant::BondModifier;
     this->bond_modifier = modifier;
+    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(DeleteTool deltool) noexcept {
     this->tool = std::make_unique<DeleteTool>(std::move(deltool));
+    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(ChargeModifier chargemod) noexcept {
     this->tool = std::make_unique<ChargeModifier>(std::move(chargemod));
+    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(MoveTool mov) noexcept {
-    this->variant = ActiveTool::Variant::MoveTool;
-    this->move_tool = mov;
+    this->tool = nullptr;
+    this->mode = Mode::Move;
+}
+
+ActiveTool::ActiveTool(RotateTool rot) noexcept {
+    this->tool = nullptr;
+    this->mode = Mode::Rotate;
 }
 
 ActiveTool::ActiveTool(StructureInsertion insertion) noexcept {
     this->variant = ActiveTool::Variant::StructureInsertion;
     this->structure_insertion = insertion;
+    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(GeometryModifier modifier) noexcept {
     this->tool = std::make_unique<GeometryModifier>(std::move(modifier));
+    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(FormatTool fmt) noexcept {
     this->tool = std::make_unique<FormatTool>(std::move(fmt));
-}
-
-ActiveTool::ActiveTool(RotateTool rot) noexcept {
-    this->variant = ActiveTool::Variant::RotateTool;
-    this->rotate_tool = rot;
+    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(FlipTool flip) noexcept {
     this->tool = std::make_unique<FlipTool>(std::move(flip));
+    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(RemoveHydrogensTool rh) noexcept {
     this->tool = std::make_unique<RemoveHydrogensTool>(std::move(rh));
+    this->mode = Mode::Tool;
 }
 
 ActiveTool::Variant ActiveTool::get_variant() const noexcept {

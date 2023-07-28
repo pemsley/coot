@@ -183,11 +183,13 @@ class DeleteTool : public Tool {
 };
 
 class MoveTool {
-
+    // This is an empty type.
+    // It exists for the sake of maintaning API convention.
 };
 
 class RotateTool {
-    
+    // This is an empty type.
+    // It exists for the sake of maintaning API convention.
 };
 
 class GeometryModifier : public Tool {
@@ -222,13 +224,16 @@ class RemoveHydrogensTool : public Tool {
 
 class ActiveTool {
     public:
+    enum class Mode: unsigned char {
+        Rotate,
+        Move,
+        Tool
+    };
     enum class Variant: unsigned char {
         None,
-        MoveTool,
         BondModifier,
         StructureInsertion,
         ElementInsertion,
-        RotateTool,
     };
 
     private:
@@ -239,11 +244,8 @@ class ActiveTool {
         ElementInsertion element_insertion;
         /// Valid for Variant::StructureInsertion
         StructureInsertion structure_insertion;
-        /// Valid for Variant::MoveTool
-        MoveTool move_tool;
-        /// Valid for Variant::RotateTool
-        RotateTool rotate_tool;
     };
+    Mode mode;
     Variant variant;
     /// Non-owning pointer
     impl::WidgetCoreData* widget_data;
