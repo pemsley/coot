@@ -281,10 +281,6 @@ static void on_left_click (
             self->active_tool->alter_geometry((int)x, (int) y);
             break;
         }
-        case ActiveTool::Variant::Delete:{
-            self->active_tool->delete_at((int)x, (int) y);
-            break;
-        }
         case ActiveTool::Variant::Format:{
             self->active_tool->format_at((int)x, (int) y);
             break;

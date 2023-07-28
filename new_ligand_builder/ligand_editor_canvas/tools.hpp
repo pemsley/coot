@@ -18,23 +18,28 @@ class Tool {
     public:
 
     /// Called when the click coordinates do not correspond to anything on canvas
-    virtual void on_blank_space_click(int x, int y);
+    virtual void on_blank_space_click(impl::WidgetCoreData& widget_data, int x, int y);
 
     /// Returns true if `on_bond_click()` or `on_atom_click()` (respectively to what's been clicked) 
     /// should be called next (and then lastly `after_molecule_click()`)
-    virtual bool on_molecule_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) = 0;
+    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) = 0;
 
-    virtual void on_bond_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Bond&) = 0;
-    virtual void on_atom_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Atom&) = 0;
+    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Bond&) = 0;
+    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Atom&) = 0;
 
     /// Generic on-mouse-release event handler.
     /// No dedicated molecule/atom/bond handlers seem to be needed now.
-    virtual void on_release(int x, int y);
+    virtual void on_release(impl::WidgetCoreData& widget_data, int x, int y);
 
-    virtual void after_molecule_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&);
+    virtual void after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&);
 
     /// Used to print tool-specific error messages should any handler throw an exception
-    virtual std::string get_exception_message_prefix();
+    virtual std::string get_exception_message_prefix() const noexcept;
+
+    /// Wraps `RDKit::MolOps::sanitizeMol()`.
+    /// Used for checking validity and reversing kekulization.
+    /// Does nothing when nonsensical molecules are allowed.
+    static void sanitize_molecule(impl::WidgetCoreData&, RDKit::RWMol&);
 
     virtual ~Tool();
 };
@@ -117,8 +122,14 @@ class ChargeModifier {
 
 };
 
-class DeleteTool {
+class DeleteTool : public Tool {
+    public:
 
+    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) override;
+    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Bond&) override;
+    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Atom&) override;
+    virtual void after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) override;
+    virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
 class TransformManager {
@@ -204,7 +215,6 @@ class ActiveTool {
         ElementInsertion,
         /// Stereo out
         GeometryModifier,
-        Delete,
         Format,
         ChargeModifier,
         RotateTool,
@@ -222,8 +232,6 @@ class ActiveTool {
         StructureInsertion structure_insertion;
         /// Valid for Variant::ChargeModifier
         ChargeModifier charge_modifier;
-        /// Valid for Variant::Delete
-        DeleteTool delete_tool;
         /// Valid for Variant::MoveTool
         MoveTool move_tool;
         /// Valid for Variant::GeometryModifier

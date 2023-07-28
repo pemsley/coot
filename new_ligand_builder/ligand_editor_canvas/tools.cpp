@@ -13,19 +13,19 @@
 
 using namespace coot::ligand_editor_canvas;
 
-void Tool::on_blank_space_click(int x, int y) {
+void Tool::on_blank_space_click(impl::WidgetCoreData& widget_data, int x, int y) {
     g_debug("The click could not be resolved to any atom or bond.");
 }
 
-void Tool::on_release(int x, int y) {
+void Tool::on_release(impl::WidgetCoreData& widget_data, int x, int y) {
     // nothing by default
 }
 
-void Tool::after_molecule_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) {
+void Tool::after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) {
     // nothing by default
 }
 
-std::string Tool::get_exception_message_prefix() {
+std::string Tool::get_exception_message_prefix() const noexcept {
     return "An error occured: ";
 }
 
@@ -43,17 +43,17 @@ void ActiveTool::on_click(int x, int y) {
             auto [bond_or_atom,molecule_idx] = click_result.value();
             auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
             auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-            if(!this->tool->on_molecule_click(molecule_idx, rdkit_mol, canvas_mol)) {
+            if(!this->tool->on_molecule_click(*this->widget_data, molecule_idx, rdkit_mol, canvas_mol)) {
                 return;
             }
             if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
                 auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
-                this->tool->on_atom_click(molecule_idx, rdkit_mol, canvas_mol, atom);
+                this->tool->on_atom_click(*this->widget_data, molecule_idx, rdkit_mol, canvas_mol, atom);
             } else { // a bond
                 auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
-                this->tool->on_bond_click(molecule_idx, rdkit_mol, canvas_mol, bond);
+                this->tool->on_bond_click(*this->widget_data, molecule_idx, rdkit_mol, canvas_mol, bond);
             }
-            this->tool->after_molecule_click(molecule_idx, rdkit_mol, canvas_mol);
+            this->tool->after_molecule_click(*this->widget_data, molecule_idx, rdkit_mol, canvas_mol);
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
             std::string msg = this->tool->get_exception_message_prefix() + e.what();
@@ -61,7 +61,7 @@ void ActiveTool::on_click(int x, int y) {
             this->widget_data->rollback_current_edition();
         }
     } else {
-        this->tool->on_blank_space_click(x, y);
+        this->tool->on_blank_space_click(*this->widget_data, x, y);
     }
 }
 
@@ -69,7 +69,7 @@ void ActiveTool::on_release(int x, int y) {
     if(!this->tool) {
         return;
     }
-    this->tool->on_release(x, y);
+    this->tool->on_release(*this->widget_data, x, y);
 }
 
 
@@ -248,8 +248,7 @@ ActiveTool::ActiveTool(BondModifier modifier) noexcept {
 }
 
 ActiveTool::ActiveTool(DeleteTool deltool) noexcept {
-    this->variant = ActiveTool::Variant::Delete;
-    this->delete_tool = deltool;
+    this->tool = std::make_unique<DeleteTool>(std::move(deltool));
 }
 
 ActiveTool::ActiveTool(ChargeModifier chargemod) noexcept {
@@ -572,39 +571,31 @@ void ActiveTool::alter_charge(int x, int y) {
     }
 }
 
-void ActiveTool::delete_at(int x, int y) {
-    check_variant(Variant::Delete);
-    auto click_result = this->widget_data->resolve_click(x, y);
-    if(click_result.has_value()) {
-        try{
-            this->widget_data->begin_edition();
-            auto [bond_or_atom,molecule_idx] = click_result.value();
-            auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
-            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-            RDKit::MolOps::Kekulize(*rdkit_mol.get());
-            if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
-                auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
-                rdkit_mol->removeAtom(atom.idx);
-                canvas_mol.update_cached_atom_coordinate_map_after_atom_removal(atom.idx);
-                this->widget_data->update_status("Atom has been deleted.");
-            } else { // a bond
-                auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
-                rdkit_mol->removeBond(bond.first_atom_idx, bond.second_atom_idx);
-                this->widget_data->update_status("Bond has been deleted.");
-            }
-            this->sanitize_molecule(*rdkit_mol.get());
-            canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
-            this->widget_data->finalize_edition();
-        } catch(std::exception& e) {
-            g_warning("An error occured: %s",e.what());
-            std::string status_msg = "Coud not delete atom: "; status_msg += e.what();
-            this->widget_data->update_status(status_msg.c_str());
-            this->widget_data->rollback_current_edition();
-        }
-    } else {
-        // Nothing has been clicked on.
-        g_debug("The click could not be resolved to any atom or bond.");
-    }
+bool DeleteTool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
+    widget_data.begin_edition();
+    RDKit::MolOps::Kekulize(*rdkit_mol.get());
+    return true;
+}
+
+void DeleteTool::on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) {
+    rdkit_mol->removeBond(bond.first_atom_idx, bond.second_atom_idx);
+    widget_data.update_status("Bond has been deleted.");
+}
+
+void DeleteTool::on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) {
+    rdkit_mol->removeAtom(atom.idx);
+    canvas_mol.update_cached_atom_coordinate_map_after_atom_removal(atom.idx);
+    widget_data.update_status("Atom has been deleted.");
+}
+
+void DeleteTool::after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
+    Tool::sanitize_molecule(widget_data, *rdkit_mol.get());
+    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
+    widget_data.finalize_edition();
+}
+
+std::string DeleteTool::get_exception_message_prefix() const noexcept {
+    return "Could not delete atom/bond: ";
 }
 
 void ActiveTool::insert_structure(int x, int y) {
@@ -826,6 +817,12 @@ void ActiveTool::end_transform(bool snap_to_angle) {
 
 void ActiveTool::sanitize_molecule(RDKit::RWMol& mol) const {
     if (!this->widget_data->allow_invalid_molecules) {
+        RDKit::MolOps::sanitizeMol(mol);
+    }
+}
+
+void Tool::sanitize_molecule(impl::WidgetCoreData& widget_data, RDKit::RWMol& mol) {
+    if (!widget_data.allow_invalid_molecules) {
         RDKit::MolOps::sanitizeMol(mol);
     }
 }
