@@ -213,23 +213,17 @@ on_left_click_released (
     GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(gesture_click));
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
 
-    switch (self->active_tool->get_variant()) {
-        case ActiveTool::Variant::MoveTool: 
-        case ActiveTool::Variant::RotateTool: {
-            self->active_tool->end_transform(GDK_ALT_MASK & modifiers);
-            break;
-        }
-        case ActiveTool::Variant::BondModifier: {
-            if(self->active_tool->is_creating_bond()) {
-                self->currently_created_bond = std::nullopt;
-                self->active_tool->finish_creating_bond(x, y);
-            }
-            break;
-        }
-        default: {
-            // nothing
-        }
+    if(self->active_tool->is_in_transform()) {
+        self->active_tool->end_transform(GDK_ALT_MASK & modifiers);
+        return;
     }
+
+    if(self->active_tool->is_creating_bond()) {
+        //todo: remove after refactor
+        self->active_tool->finish_creating_bond(x, y);
+        self->currently_created_bond = std::nullopt;
+    }
+    self->active_tool->on_release(x, y);
 }
 
 static void on_left_click (
@@ -240,6 +234,9 @@ static void on_left_click (
   gpointer user_data
 ) {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    self->active_tool->on_click(x, y);
+
+    //todo: remove after refactor
     switch(self->active_tool->get_variant()) {
         case ActiveTool::Variant::None:{
             gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_NONE);
@@ -306,9 +303,6 @@ static void on_left_click (
         };
     }
     //gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_CLAIMED);
-    
-    //
-    
 }
 
 
