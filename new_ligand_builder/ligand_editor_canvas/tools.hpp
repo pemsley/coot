@@ -13,6 +13,30 @@ namespace impl {
     struct CootLigandEditorCanvasPriv;
 }
 
+class Tool {
+
+    public:
+
+    /// Called when the click coordinates do not correspond to anything on canvas
+    void on_blank_space_click(int x, int y);
+
+    /// Returns true if `on_bond_click()` or `on_atom_click()` (respectively to what's been clicked) 
+    /// should be called next (and then lastly `after_molecule_click()`)
+    bool on_molecule_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&);
+
+    void on_bond_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Bond&);
+    void on_atom_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Atom&);
+
+    /// Generic on-mouse-release event handler.
+    /// No dedicated molecule/atom/bond handlers seem to be needed now.
+    void on_release(int x, int y);
+
+    void after_molecule_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&);
+
+    /// Used to print tool-specific error messages should any handler throw an exception
+    static const std::string exception_message_prefix;
+};
+
 class BondModifier {
     public:
     enum class BondModifierMode {
