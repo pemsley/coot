@@ -3583,10 +3583,12 @@ if [ "$build_rdkit" = true ] ; then
              exit 2
          fi
          cd rdkit-Release_$rdkit_version
+
          mkdir -p build
          cd build
          pwd
          tree_from_build=..
+
       fi
 
 
@@ -3658,7 +3660,6 @@ if [ "$build_rdkit" = true ] ; then
          $cmake_macosx_rpath \
          -DCMAKE_INSTALL_PREFIX=$install_top_dir $tree_from_build
 
-
       if cmake -DRDK_INSTALL_INTREE=0  \
          -DPYTHON_EXECUTABLE=$install_top_dir/bin/python \
          -DPYTHON_LIBRARY=$install_top_dir/lib/libpython2.7.$extension_type \
@@ -3669,6 +3670,25 @@ if [ "$build_rdkit" = true ] ; then
          -DRDK_BUILD_INCHI_SUPPORT=OFF   \
          $cmake_macosx_rpath \
          -DCMAKE_INSTALL_PREFIX=$install_top_dir $tree_from_build ; then
+
+         pwd
+         echo ls -l
+         ls -l
+         echo ls -l ../External
+         ls -l ../External
+         echo ls -l ../External/catch
+         ls -l ../External/catch
+         echo ls -l ../External/catch/catch
+         ls -l ../External/catch/catch
+
+         # linusheinz: glibc changed SIGSTKSZ to be a syscall instead
+         #             of being constant
+         #
+         # External/catch/catch/single_include/catch.hpp:7320 needs a patch
+         # 7320     //  char FatalConditionHandler::altStackMem[SIGSTKSZ] = {};
+         # 7321     char FatalConditionHandler::altStackMem[32768] = {};
+
+         sed -i.backup -e 's/char FatalConditionHandler::altStackMem.SIGSTKSZ./char FatalConditionHandler::altStackMem[32768]/' ../External/catch/catch/single_include/catch.hpp
 
          if $MAKE ; then
             make install
