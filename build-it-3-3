@@ -2542,11 +2542,17 @@ if true ; then
           else
               git clone https://github.com/project-gemmi/gemmi.git
           fi
-          cd gemmi/include
+          # cd gemmi/include
           # note to self: fix this for Darwin - which has a crippled cp
-          cp -a -r gemmi $install_top_dir/include
-          cd -
-          cd $save_dir
+          # cp -a -r gemmi $install_top_dir/include
+          # cd -
+          # cd $save_dir
+          mkdir build-gemmi
+          cd build-gemmi
+          cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi
+          if $MAKE ; then
+              make install
+          fi
       ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
 fi
 

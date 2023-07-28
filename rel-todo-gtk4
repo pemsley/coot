@@ -19,17 +19,19 @@ shows a quadrant in "Plane" mode. The output tga file is full-resolution though,
 Don't confuse the scaling of the framebuffer for screenshot (in "Plain" mode) and
 the scaling of the framebuffers for super-sampling (in "Fancy" mode).
 
-How do I dismiss the sequence view? ::: 1
-
 Open Check/Delete Waters dialog twice.
 I want alignment by using a Grid.
 I want distance in the button label.
 I want the results box to be docked.
-It need an extra distance criterion for distance to a hydrogen atom. ::: 2
+It needs an extra distance criterion for distance to a hydrogen atom. ::: 2
 
 Try using the instanced bonds using the api. Fix the specular lighting.
 
 Test the conversion of glm quaternion to coot quaternion and back again.
+
+Pyrogen needs to work ::: 2
+
+From Stuart: 1h27 fails on read cif.
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
@@ -60,7 +62,7 @@ perpendicular_ligand_view() is the function. Does it work in gtk3? No.
 
 Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
 
-Alt-B to close the Rama bar.
+Alt-B (or Ctrl-B) to close the Validatin/Rama bar.
 
 Make info_dialog() take a string.
 
@@ -753,3 +755,5 @@ How do I invoke the sequence view? ::: 0.1
 Ligands in 6l01 and 7tzz fall off the page
 * Improved. Still needs work.
 
+How do I dismiss the sequence view? ::: 1
+* Done.
