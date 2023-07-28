@@ -121,6 +121,8 @@ struct WidgetCoreData {
 
     /// Emits 'status-updated' signal.
     void update_status(const gchar* status_text) const noexcept;
+
+    std::string build_smiles_string() const;
 };
 
 /// This is the private struct for GObject

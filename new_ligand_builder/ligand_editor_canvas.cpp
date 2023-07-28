@@ -442,11 +442,13 @@ void coot_ligand_editor_append_molecule(CootLigandEditorCanvas* self, std::share
 void coot_ligand_editor_undo_edition(CootLigandEditorCanvas* self) noexcept {
     self->undo_edition();
     gtk_widget_queue_draw(GTK_WIDGET(self));
+    g_signal_emit((gpointer) self, impl::smiles_changed_signal, 0);
 }
 
 void coot_ligand_editor_redo_edition(CootLigandEditorCanvas* self) noexcept {
     self->redo_edition();
     gtk_widget_queue_draw(GTK_WIDGET(self));
+    g_signal_emit((gpointer) self, impl::smiles_changed_signal, 0);
 }
 
 const RDKit::ROMol* coot_ligand_editor_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept {
@@ -480,7 +482,5 @@ void coot_ligand_editor_set_display_mode(CootLigandEditorCanvas* self, DisplayMo
 }
 
 std::string coot_ligand_editor_get_smiles(CootLigandEditorCanvas* self) noexcept {
-    std::string ret;
-    
-    return ret;
+    return self->build_smiles_string();
 }

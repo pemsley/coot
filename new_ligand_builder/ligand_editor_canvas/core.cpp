@@ -1,5 +1,6 @@
 #include "core.hpp"
 #include <iterator>
+#include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
 
 using namespace coot::ligand_editor_canvas;
 using namespace coot::ligand_editor_canvas::impl;
@@ -57,7 +58,7 @@ void WidgetCoreData::undo_edition() {
         this->molecules = std::make_unique<std::vector<CanvasMolecule>>(*target_state->molecules);
         this->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>(*target_state->rdkit_molecules);
         update_status("");
-        // this is done elsewhere
+        // this is done elsewhere, namely in the caller of this function
         // auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
         // gtk_widget_queue_draw(GTK_WIDGET(widget_ptr));
     } else {
@@ -141,5 +142,26 @@ void WidgetCoreData::finalize_edition() {
         auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
         gtk_widget_queue_resize(GTK_WIDGET(widget_ptr));
         gtk_widget_queue_draw(GTK_WIDGET(widget_ptr));
+        g_signal_emit((gpointer) widget_ptr, smiles_changed_signal, 0);
     }
+}
+
+std::string WidgetCoreData::build_smiles_string() const {
+    std::string ret;
+    auto it = this->rdkit_molecules->cbegin();
+    auto append_smiles = [&](){
+        RDKit::RWMol* mol_ptr = it->get();
+        ret += RDKit::MolToSmiles(*mol_ptr);
+        
+    };
+    if(it != this->rdkit_molecules->cend()) {
+        append_smiles();
+        it++;
+    }
+    while(it != this->rdkit_molecules->cend()) {
+        ret.push_back('\n');
+        append_smiles();
+        it++;
+    }
+    return ret;
 }
