@@ -247,7 +247,7 @@ class ActiveTool {
     /// Changes the bond found at the given coordinates.
     /// The kind of the bond depends upon current BondModifierMode.
     void alter_bond(int x, int y);
-    bool is_creating_bond() const;
+    bool is_creating_bond() const noexcept;
     /// Valid for Variant::BondModifier.
     void finish_creating_bond(int x, int y);
     /// Valid for Variant::ChargeModifier.

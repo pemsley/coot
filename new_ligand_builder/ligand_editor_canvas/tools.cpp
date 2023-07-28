@@ -246,8 +246,6 @@ void ActiveTool::check_variant(ActiveTool::Variant expected) const {
     }
 }
 
-
-
 void ActiveTool::insert_atom(int x, int y) {
     check_variant(Variant::ElementInsertion);
     auto& element_insertion = this->element_insertion;
@@ -331,7 +329,7 @@ void ActiveTool::alter_bond(int x, int y) {
     }
 }
 
-bool ActiveTool::is_creating_bond() const {
+bool ActiveTool::is_creating_bond() const noexcept {
     if (this->variant == Variant::BondModifier) {
         const BondModifier& mod = this->bond_modifier;
         return mod.is_creating_bond();
