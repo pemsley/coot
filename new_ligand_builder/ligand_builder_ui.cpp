@@ -255,16 +255,23 @@ void coot::ligand_editor::build_main_window(GtkWindow* win, CootLigandEditorCanv
 
     GtkWidget* smiles_label = gtk_label_new("SMILES:");
     gtk_box_append(GTK_BOX(bottom_bar),smiles_label);
-    GtkWidget* smiles_display_label = gtk_label_new("");
-    gtk_box_append(GTK_BOX(bottom_bar),smiles_display_label);
+    GtkWidget* smiles_display = gtk_text_view_new();
+    gtk_widget_set_hexpand(smiles_display, TRUE);
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(smiles_display), FALSE);
+    gtk_text_view_set_monospace(GTK_TEXT_VIEW(smiles_display), TRUE);
+
+    GtkWidget* smiles_display_sw = gtk_scrolled_window_new();
+    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(smiles_display_sw), smiles_display);
+    gtk_box_append(GTK_BOX(bottom_bar),smiles_display_sw);
 
     g_signal_connect(canvas, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data){
-        GtkLabel* label = GTK_LABEL(user_data);
+        GtkTextView* view = GTK_TEXT_VIEW(user_data);
         std::string smiles = coot_ligand_editor_get_smiles(self);
-        gtk_label_set_label(label, smiles.c_str());
-    }), smiles_display_label);
-    
-    gtk_widget_set_hexpand(smiles_display_label, TRUE);
+        GtkTextBuffer* buf = gtk_text_view_get_buffer(view);
+        gtk_text_buffer_set_text(buf,smiles.c_str(),-1);
+    }), smiles_display);
+
+    gtk_widget_set_hexpand(smiles_display_sw, TRUE);
     GtkWidget* scale_label = gtk_label_new("Scale");
     gtk_box_append(GTK_BOX(bottom_bar),scale_label);
     gtk_widget_set_halign(scale_label,GTK_ALIGN_END);
