@@ -152,12 +152,10 @@ static void on_hover (
         new_bond.second_atom_y = y;
     }
     // and set highlight for the first atom, if we're creating a new bond
-    if(self->active_tool->get_variant() == ActiveTool::Variant::BondModifier) {
-        if(self->active_tool->is_creating_bond()) {
-            auto [molecule_idx, atom_idx] = self->active_tool->get_molecule_idx_and_first_atom_of_new_bond().value();
-            auto& target = (*self->molecules)[molecule_idx];
-            target.highlight_atom(atom_idx);
-        }
+    if(self->active_tool->is_creating_bond()) {
+        auto [molecule_idx, atom_idx] = self->active_tool->get_molecule_idx_and_first_atom_of_new_bond().value();
+        auto& target = (*self->molecules)[molecule_idx];
+        target.highlight_atom(atom_idx);
     }
 
     // Highlights and snapping

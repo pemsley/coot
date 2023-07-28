@@ -332,9 +332,11 @@ void ActiveTool::alter_bond(int x, int y) {
 }
 
 bool ActiveTool::is_creating_bond() const {
-    check_variant(Variant::BondModifier);
-    const BondModifier& mod = this->bond_modifier;
-    return mod.is_creating_bond();
+    if (this->variant == Variant::BondModifier) {
+        const BondModifier& mod = this->bond_modifier;
+        return mod.is_creating_bond();
+    }
+    return false;
 }
 
 void ActiveTool::finish_creating_bond(int x, int y) {
