@@ -3,16 +3,126 @@ cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_CXX_STANDARD 11)
 
-# set(CMAKE_EXECUTABLE_SUFFIX ".js")
+find_package(CCP4 REQUIRED mmdb2 ssm ccp4srs clipper-core clipper-mmdb clipper-ccp4 clipper-contrib clipper-minimol clipper-cif)
 
-set(coot_src ${CMAKE_CURRENT_SOURCE_DIR}/../coot)
-set(dependency_install_dir $ENV{HOME}/autobuild/$ENV{OS}-$ENV{HOST}-gtk3)
+set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(-DANALYSE_REFINEMENT_TIMING -DVERSION="1.0.06-pre" -DPACKAGE_VERSION="1" -DHAVE_CXX_THREAD -DHAVE_BOOST -DHAVE_GSL -DPKGDATADIR="${coot_src}/pixmaps" -DDATADIR="${coot_src}/data")
 
 #  pyrogen, compat, auxil, goograph, src ignored.
 
 add_library(cootapi SHARED
+            ${coot_src}/lidia-core/svg-molecule.cc
+            ${coot_src}/lidia-core/cod-types.cc
+            ${coot_src}/lidia-core/cod-atom-types.cc
+            ${coot_src}/lidia-core/chemical-feature-clusters.cc
+            ${coot_src}/lidia-core/bond-record-container-t.cc
+            ${coot_src}/lidia-core/atom-types.cc
+            ${coot_src}/lidia-core/cod-atom-type-t.cc
+            ${coot_src}/lidia-core/rdkit-interface.cc
+            ${coot_src}/lidia-core/bond-table-record-t.cc
+            ${coot_src}/pli/pi-stacking.cc
+            ${coot_src}/coot-utils/cmtz-interface.cc
+            ${coot_src}/coot-utils/lidia-core-functions.cc
+            ${coot_src}/coot-utils/atom-selection-container.cc
+            #${coot_src}/coot-utils/dictionary-atom-types.cc
+            #${coot_src}/coot-utils/cod-db-access.cc
+            ${coot_src}/src/coot-hydrogens.cc
+            ${coot_src}/src/cfc.cc
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXBall.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXChargeTable.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCircle.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCircleNode.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCoord.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCreator.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXException.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXFFTSolventMap.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXFortranFile.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXNewHood.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXQADSurface.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXQADSurfaceStaticData.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSpace.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereElement.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereNode.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereTriangle.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereTriangleEdge.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurface.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurfaceMaker.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurfaceVertex.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTorusElement.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTorusNode.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTriangle.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXUtils.cpp
+            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXVCN.cpp
+            #${coot_src}/MoleculesToTriangles/CXXSurface/ElectroSurface.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/AtomPropertyRampColorRule.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/BallsPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/BondsPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/BoxSectionPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/ColorRule.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/ColorScheme.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/CompoundSelection.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/CXXMatrix.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/CylinderPoint.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/CylindersPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/DirectedPositionedEntity.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/DiscreteSegment.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/DishyBase.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/DisplayPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/ElectrostaticColorScheme.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/FlatFanPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/Light.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/LinesPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/MolecularRepresentation.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/MolecularRepresentationInstance.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/MyMolecule.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/NRStuff.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/oglPolyhedron.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/Polyhedron.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/PositionedEntity.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/Quaternion.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/Renderer.cpp
+            # ${coot_src}/MoleculesToTriangles/CXXClasses/RendererGL.cpp
+            # ${coot_src}/MoleculesToTriangles/CXXClasses/RendererGLSL.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/Representation.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/RepresentationInstance.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/RotatedTranslatedScaledEntity.cpp
+            # ${coot_src}/MoleculesToTriangles/CXXClasses/SceneSetup.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/SecondaryColorScheme.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/SolidColorRule.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/SpherePrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/SticksPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/SurfacePrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/Vector2.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/Vector3.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.cpp
+            ${coot_src}/MoleculesToTriangles/CXXClasses/lfit.c
+            ${coot_src}/api/rigid-body-fit.cc
+            ${coot_src}/api//molecules_container_bucca_ml_growing.cc
+            ${coot_src}/api/molecules_container_mmrrcc.cc
+            ${coot_src}/api/molecules_container_superpose.cc
+            ${coot_src}/api/coot_molecule_validation.cc
+            ${coot_src}/api/molecules_container_modelling.cc
+            ${coot_src}/api/add-terminal-residue.cc
+            ${coot_src}/api/interfaces.cc
+            ${coot_src}/api/colour-functions.cc
+            ${coot_src}/api/coot-colour.cc
+            ${coot_src}/api/coot_molecule.cc
+            ${coot_src}/api/coot_molecule_backup.cc
+            ${coot_src}/api/coot_molecule_bonds.cc
+            ${coot_src}/api/coot_molecule_bonds_instanced.cc
+            ${coot_src}/api/coot_molecule_maps.cc
+            ${coot_src}/api/moorhen-h-bonds.cc
+            ${coot_src}/api/coot_molecule_moltris.cc
+            ${coot_src}/api/phi-psi-prob.cc
+            ${coot_src}/api/molecules_container_ligand_fitting.cc
+            ${coot_src}/api/coot_molecule_merge_molecules.cc
+            ${coot_src}/api/coot_molecule_refine.cc
+            ${coot_src}/api/coot_molecule_replace_fragment.cc
+            ${coot_src}/api/add-terminal-residue.cc
+            ${coot_src}/api/molecules_container.cc
+            ${coot_src}/api/molecules_container_bucca_ml_growing.cc
+            ${coot_src}/api/rama-plot-phi-psi.cc
             ${coot_src}/analysis/daca.cc
             ${coot_src}/analysis/kolmogorov.cc
             ${coot_src}/analysis/stats.cc
@@ -26,7 +136,6 @@ add_library(cootapi SHARED
             ${coot_src}/density-contour/CIsoSurface.cpp
             ${coot_src}/density-contour/occlusion.cc
             ${coot_src}/density-contour/gaussian-surface.cc
-            ${coot_src}/ccp4mg-utils/ppmutil.cc
             ${coot_src}/ccp4mg-utils/quat.cc
             ${coot_src}/ccp4mg-utils/mgtree.cc
             ${coot_src}/ccp4mg-utils/cartesian.cc
@@ -38,6 +147,7 @@ add_library(cootapi SHARED
             ${coot_src}/ideal/pepflip.cc
             ${coot_src}/ideal/parallel-planes.cc
             ${coot_src}/ideal/simple-restraint.cc
+            #${coot_src}/ideal/mini-rsr.cc
             ${coot_src}/ideal/ng.cc
             ${coot_src}/ideal/torsion-bonds.cc
             ${coot_src}/ideal/chi-squareds.cc
@@ -61,7 +171,6 @@ add_library(cootapi SHARED
             ${coot_src}/ideal/phi-psi.cc
             ${coot_src}/ideal/lograma.cpp
             ${coot_src}/ideal/process-dfs-in-range.cc
-            ${coot_src}/ideal/write-png.cc
             ${coot_src}/ideal/zo-rama.cc
             ${coot_src}/tw/tw.cc
             ${coot_src}/utils/colour-holder.cc
@@ -80,27 +189,32 @@ add_library(cootapi SHARED
             ${coot_src}/utils/logging.cc
             ${coot_src}/utils/pir-alignment.cc
             ${coot_src}/db-main/db-strands.cc
+            #${coot_src}/db-main/testdbmain.cc
             ${coot_src}/high-res/residue-distortions.cc
             ${coot_src}/high-res/coot-atom-graph.cc
             ${coot_src}/high-res/sequence-assignment.cc
             ${coot_src}/high-res/high-res.cc
-            ${coot_src}/protein_db/protein_db.cpp
-            ${coot_src}/protein_db/protein_db_utils.cpp
-            ${coot_src}/protein_db/rna_db.cpp
+            #${coot_src}/protein_db/protein_db.cpp
+            #${coot_src}/protein_db/protein_db_utils.cpp
+            #${coot_src}/protein_db/rna_db.cpp
+            ${coot_src}/pli/flev-annotations.cc
+            ${coot_src}/pli/protein-ligand-interactions.cc
+            ${coot_src}/pli/pi-stacking.cc
+            ${coot_src}/pli/sdf-interface.cc
+            #${coot_src}/pli/specs.cc
             ${coot_src}/coot-utils/merge-atom-selections.cc
             ${coot_src}/coot-utils/coot-least-squares.cc
-            ${coot_src}/coot-utils/cmtz-interface.cc
             ${coot_src}/coot-utils/shiftfield.cpp
             ${coot_src}/coot-utils/stack-and-pair.cc
             ${coot_src}/coot-utils/spherical-harmonics.cc
             ${coot_src}/coot-utils/peak-search-from-list.cc
             ${coot_src}/coot-utils/helix-analysis.cc
-            ${coot_src}/coot-utils/exp-fit.cc
             ${coot_src}/coot-utils/segmap.cc
             ${coot_src}/coot-utils/lidia-core-functions.cc
             ${coot_src}/coot-utils/cablam-markup.cc
             ${coot_src}/coot-utils/fib-sphere.cc
             ${coot_src}/coot-utils/atom-selection-container.cc
+            ${coot_src}/coot-utils/blob-line.cc
             ${coot_src}/coot-utils/coot-coord-utils-glyco.cc
             ${coot_src}/coot-utils/coot-coord-utils.cc
             ${coot_src}/coot-utils/merge-molecules.cc
@@ -109,7 +223,6 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/bonded-pairs.cc
             ${coot_src}/coot-utils/c-beta-deviations.cc
             ${coot_src}/coot-utils/atom-tools.cc
-            ${coot_src}/coot-utils/blob-line.cc
             ${coot_src}/coot-utils/coot-rama.cc
             ${coot_src}/coot-utils/secondary-structure-headers.cc
             ${coot_src}/coot-utils/helix-like.cc
@@ -147,6 +260,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/hole.cc
             ${coot_src}/coot-utils/slurp-map.cc
             ${coot_src}/coot-utils/read-sm-cif.cc
+            ${coot_src}/coot-utils/exp-fit.cc
             ${coot_src}/coot-utils/cylinder.cc
             ${coot_src}/coot-utils/cylinder-with-rotation-translation.cc
             ${coot_src}/coot-utils/prideout-octasphere.cc
@@ -188,6 +302,7 @@ add_library(cootapi SHARED
             ${coot_src}/geometry/mol-utils-2.cc
             ${coot_src}/geometry/protein-donor-acceptors.cc
             ${coot_src}/build/CalphaBuild.cc
+            #${coot_src}/build/testcabuild.cc
             ${coot_src}/mini-mol/mini-mol-utils.cc
             ${coot_src}/mini-mol/mini-mol.cc
             ${coot_src}/mini-mol/atom-quads.cc
@@ -251,155 +366,54 @@ add_library(cootapi SHARED
             ${coot_src}/db-main/db-main.cc
             ${coot_src}/compat/getopt.cc
             ${coot_src}/compat/getopt1.cc
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXBall.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXChargeTable.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCircle.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCircleNode.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCoord.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCreator.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXException.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXFFTSolventMap.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXFortranFile.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXNewHood.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXQADSurface.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXQADSurfaceStaticData.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSpace.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereElement.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereNode.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereTriangle.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSphereTriangleEdge.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurface.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurfaceMaker.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXSurfaceVertex.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTorusElement.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTorusNode.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXTriangle.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXUtils.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/CXXVCN.cpp
-            ${coot_src}/MoleculesToTriangles/CXXSurface/ElectroSurface.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/AtomPropertyRampColorRule.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/BallsPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/BondsPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/BoxSectionPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/ColorRule.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/ColorScheme.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/CompoundSelection.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/CXXMatrix.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/CylinderPoint.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/CylindersPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/DirectedPositionedEntity.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/DiscreteSegment.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/DishyBase.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/DisplayPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/ElectrostaticColorScheme.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/FlatFanPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/Light.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/LinesPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/MolecularRepresentation.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/MolecularRepresentationInstance.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/MyMolecule.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/NRStuff.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/oglPolyhedron.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/Polyhedron.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/PositionedEntity.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/Quaternion.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/Renderer.cpp
-            # ${coot_src}/MoleculesToTriangles/CXXClasses/RendererGL.cpp
-            # ${coot_src}/MoleculesToTriangles/CXXClasses/RendererGLSL.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/Representation.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/RepresentationInstance.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/RotatedTranslatedScaledEntity.cpp
-            # ${coot_src}/MoleculesToTriangles/CXXClasses/SceneSetup.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/SecondaryColorScheme.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/SolidColorRule.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/SpherePrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/SticksPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/SurfacePrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/Vector2.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/Vector3.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.cpp
-            ${coot_src}/MoleculesToTriangles/CXXClasses/lfit.c
-            ${coot_src}/api/interfaces.cc
-            ${coot_src}/api/colour-functions.cc
-            ${coot_src}/api/coot-colour.cc
-            ${coot_src}/api/coot_molecule.cc
-            ${coot_src}/api/coot_molecule_maps.cc
-            ${coot_src}/api/coot_molecule_backup.cc
-            ${coot_src}/api/coot_molecule_merge_molecules.cc
-            ${coot_src}/api/coot_molecule_bonds.cc
-            ${coot_src}/api/coot_molecule_bonds_instanced.cc
-            ${coot_src}/api/coot_molecule_moltris.cc
-            ${coot_src}/api/coot_molecule_refine.cc
-            ${coot_src}/api/coot_molecule_replace_fragment.cc
-            ${coot_src}/api/coot_molecule_validation.cc
-            ${coot_src}/api/molecules_container.cc
-            ${coot_src}/api/molecules_container_modelling.cc
-            ${coot_src}/api/molecules_container_ligand_fitting.cc
-            ${coot_src}/api/molecules_container_mmrrcc.cc
-            ${coot_src}/api/molecules_container_superpose.cc
-            ${coot_src}/api/moorhen-h-bonds.cc
-            ${coot_src}/api/rigid-body-fit.cc
-            ${coot_src}/api/rama-plot-phi-psi.cc
-            ${coot_src}/api/phi-psi-prob.cc
-            ${coot_src}/api/make-a-dodec.cc
-            ${coot_src}/api/add-terminal-residue.cc
-
+            ${coot_src}/src/gl-matrix.cc
+            ${coot_src}/ideal/write-png.cc
+            #[[
+            ${coot_src}/buccaneer_ml_growing/buccaneer-NN-Select.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-NN-build-cyc.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-NN-build.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-NN-features.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-NN-join.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-NN-model.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-build.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-correct.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-filter.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-find.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-grow.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-join.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-known.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-lib.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-link.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-merge.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-ncsbuild.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-prep.cpp
+            #${coot_src}/buccaneer_ml_growing/buccaneer-prot.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-prune.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-sequence.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-tidy.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-util.cpp
+            ${coot_src}/buccaneer_ml_growing/cbuccaneer.cpp
+            ${coot_src}/buccaneer_ml_growing/cbuccaneerNN.cpp
+            ${coot_src}/buccaneer_ml_growing/csequins.cpp
+            ${coot_src}/buccaneer_ml_growing/k2c_activations.cpp
+            ${coot_src}/buccaneer_ml_growing/k2c_convolution_layers.cpp
+            ${coot_src}/buccaneer_ml_growing/k2c_core_layers.cpp
+            ${coot_src}/buccaneer_ml_growing/k2c_embedding_layers.cpp
+            ${coot_src}/buccaneer_ml_growing/k2c_helper_functions.cpp
+            ${coot_src}/buccaneer_ml_growing/k2c_merge_layers.cpp
+            ${coot_src}/buccaneer_ml_growing/k2c_normalization_layers.cpp
+            ${coot_src}/buccaneer_ml_growing/k2c_pooling_layers.cpp
+            ${coot_src}/buccaneer_ml_growing/k2c_recurrent_layers.cpp
+            ${coot_src}/buccaneer_ml_growing/ml-grow-next.cpp
+            ${coot_src}/buccaneer_ml_growing/ml-grow-prev.cpp
+            ${coot_src}/buccaneer_ml_growing/ml-grow.cpp
+            ${coot_src}/buccaneer_ml_growing/protein_db.cpp
+            ${coot_src}/buccaneer_ml_growing/simplex-lib.cpp
+            ${coot_src}/buccaneer_ml_growing/simulate-lib.cpp
+            ]]
 )
 
-# target_include_directories(coot PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ../include ../example ../checkout/ssm ../checkout/mmdb2 ../checkout/clipper ../checkout/fftw-2.1.5/fftw ../checkout/fftw-2.1.5/rfftw ../checkout/libccp4/ccp4 ../boost)
+target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR}/include ${SSM_INCLUDE_DIR} ${CCP4SRS_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS})
+target_link_libraries(cootapi PUBLIC ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARY} ${GSLBLAS_LIBRARY} ${PNG_LIBRARY})
 
-target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${dependency_install_dir}/include ${dependency_install_dir}/include/python3.9)
-target_link_directories(cootapi PUBLIC ${dependency_install_dir}/lib /usr/local/Cellar/libpng/1.6.39/lib)
-target_link_libraries(cootapi PUBLIC ssm clipper-minimol clipper-phs clipper-mmdb clipper-cif clipper-core clipper-contrib clipper-ccp4 fftw rfftw mmdb2 ccp4c png gsl gslcblas)
-
-# set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DCMAKE_BUILD_TYPE=Debug -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1 -DCLIPPER_HAS_TOP8000")
-set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1 -DCLIPPER_HAS_TOP8000")
-
-
-add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc)
-# # target_link_options(test-molecules-container PRIVATE -sALLOW_MEMORY_GROWTH=1 -sNODERAWFS=1 --pre-js coot_env.js)
-target_link_directories(test-molecules-container PUBLIC ${dependency_install_dir}/lib .)
-
-# how to use the above: set(dependency_install_dir $ENV{HOME}/autobuild/$ENV{OS}-$ENV{HOST}-gtk3)
-target_link_libraries(test-molecules-container cootapi)
-target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/src
-  ../checkout/clipper/ ../checkout/mmdb2 ../checkout/mmdb2/mmdb2 ../checkout/ssm
-  ../checkout/libccp4/ccp4 ../fftw ../rfftw ${dependency_install_dir}/include
-)
-set_target_properties(test-molecules-container PROPERTIES COMPILE_FLAGS "-DHAVE_BOOST -DUSE_LIBPNG=1 -DEMSCRIPTEN=1")
-
-# target_compile_options(test-molecules-container PUBLIC -DFFTW_ENABLE_FLOAT -D_CCP4_NODE_EXAMPLE_ -DNODERAWFS)
-
-
-
-FILE(WRITE ${CMAKE_BINARY_DIR}/coot/coot_env.js
-Module.preRun = [function() {ENV.COOT_DATA_DIR="${coot_src}"}, function() {ENV.CCP4_LIB="${CMAKE_BINARY_DIR}/ccp4_lib"}]
-)
-
-FILE(MAKE_DIRECTORY "data/coot/data/metal/")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/a")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/c")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/g")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/p")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/h")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/i")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/l")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/m")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/s")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/t")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/v")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/e")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/u")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/d")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/h")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/n")
-FILE(MAKE_DIRECTORY "data/ccp4_lib/data/monomers/list")
-FILE(COPY ${coot_src}/data/metal/metal-N-distance.table DESTINATION data/coot/data/metal )
-FILE(COPY ${coot_src}/data/metal/metal-O-distance.table DESTINATION data/coot/data/metal )
-FILE(COPY ${coot_src}/data/metal/metal-S-distance.table DESTINATION data/coot/data/metal )
-
-# install(TARGETS mini-rsr-web DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../react-app/public/wasm)
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/coot_env_web.js
-              DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../react-app/public/wasm)
-
+set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000")

@@ -1,5 +1,22 @@
 ----
 
+  Relese 0.9.8.9
+
+  o FEATURE: Use add_hydrogen_atoms_to_residue() in mutate_internal() if the residue
+             has hydrogen atoms [Clemens Vonrhein].
+
+  o FEATURE: Add add_hydrogen_atoms_to_residue() to the API.
+
+  o CHANGE:  Allow the addition of hydrogen atoms to nitrogens atoms with energy
+             type NR5.
+
+  o CHANGE:  Remove flakey Biscu-it QED interface.
+
+  o BUG-FIX: Change the link-finding algorithm to handle the AA-RNA link in
+             the new monomer library [Keitaro Yamashita].
+
+----
+
   Release 0.9.8.8
 
   o FEATURE: Better atom colours in colour-by-chain-and-dictionary mode.

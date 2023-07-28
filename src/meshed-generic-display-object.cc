@@ -373,8 +373,8 @@ meshed_generic_display_object::add_arc(const arc_t &arc) {
    // y_ring = R * sin(phi)
    // z_ring = 0;
 
-   const unsigned int n_phi_steps = 20;
-   const unsigned int n_theta_steps = 12;
+   const unsigned int n_phi_steps = 60;
+   const unsigned int n_theta_steps = 60;
    std::vector<s_generic_vertex> vertices((n_theta_steps + 1) * n_phi_steps); // 20211007-PE this doesn't look right!
                                                                               // c.f. add_dashed_angle_markup()
    std::vector<g_triangle> triangles;

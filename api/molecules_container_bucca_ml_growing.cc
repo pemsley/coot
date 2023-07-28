@@ -7,6 +7,7 @@
 int
 molecules_container_t::add_terminal_residue_directly_using_bucca_ml_growing(int imol, const coot::residue_spec_t &spec) {
 
+/*
    auto delete_ter = [] (mmdb::Residue *residue_p) {
       mmdb::Atom **residue_atoms = 0;
       int n_residue_atoms = 0;
@@ -146,4 +147,6 @@ molecules_container_t::add_terminal_residue_directly_using_bucca_ml_growing(int 
       }
    }
    return status;
+   */
+   return 0;
 }

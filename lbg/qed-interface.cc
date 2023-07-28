@@ -11,6 +11,17 @@
 void
 lbg_info_t::setup_silicos_it_qed_default_func() {
 
+   // 20230722-PE Let's give up with this (QED) Charles.
+   // It's so crashy and I can't understand what the problem is.
+   // I have spend more than a day and am giving up with it.
+   //
+   // I will spend time and effort with the GTK4 build (modern Python, modern RDKit)
+   //
+   silicos_it_qed_default_func    = NULL;
+   silicos_it_qed_properties_func = NULL;
+   return;
+
+
    // Are you here (again)?
    //
    // make sure that this works:
@@ -18,7 +29,10 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
    // >>> import silicos_it.descriptors
    // >>> from silicos_it.descriptors import qed
 
-   silicos_it_qed_default_func = NULL;
+   // and this:
+   // $ ./coot-bin --no-graphics --python
+   // >>> import silicos_it.descriptors
+   // >>> from silicos_it.descriptors import qed
 
    // Build the name object
    PyObject *pName = PyUnicode_FromString("silicos_it.descriptors.qed"); // 20230513-PE merge: was just "silicos_it" - hmm.
@@ -30,6 +44,7 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
       std::cout << "Null pModule in get_qed() - biscu-it not installed? " << std::endl;
    } else { 
       pName = PyUnicode_FromString("silicos_it.descriptors.qed");
+      pModule = PyImport_Import(pName);
       // pDict is a borrowed reference
       PyObject *pDict = PyModule_GetDict(pModule);
       if (! PyDict_Check(pDict)) {
@@ -38,13 +53,14 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
          // pFunc is also a borrowed reference
          PyObject *pFunc = PyDict_GetItemString(pDict, "default");
          if (! pFunc) {
-            // std::cout << "pFunc is NULL" << std::endl;
+            std::cout << "pFunc for default is NULL" << std::endl;
          } else {
             if (PyCallable_Check(pFunc)) {
-               std::cout << "Yeay - storing silicos_it_qed_default_func" << std::endl;
+               std::cout << "Yay - storing silicos_it_qed_default_func" << std::endl;
                silicos_it_qed_default_func = pFunc;
             } else {
-               std::cout << "default() function is not callable"  << std::endl;
+               std::cout << "WARNING:: in setup_silicos_it_qed_default_func() default() function is not callable"
+                         << std::endl;
             }
          }
 
@@ -52,11 +68,15 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
 	 if (pFunc) {
 	    if (PyCallable_Check(pFunc)) {
 	       silicos_it_qed_properties_func = pFunc;
-               std::cout << "Yeay - storing silicos_it_qed_properties_func" << std::endl;
+               std::cout << "Yay - storing silicos_it_qed_properties_func" << std::endl;
 	    } else {
-	       std::cout << "properties() function is not callable"  << std::endl;
+               std::cout << "WARNING:: in setup_silicos_it_qed_default_func() properties() function is not callable"
+                         << std::endl;
 	    }
-	 }
+	 } else {
+            std::cout << "WARNING:: in setup_silicos_it_qed_default_func() properties() function is NULL"
+                      << std::endl;
+         }
 
          silicos_it_qed_pads = PyDict_GetItemString(pDict, "pads2"); // or pads1 for Gerebtzoff
       }

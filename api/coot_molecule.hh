@@ -325,7 +325,14 @@ namespace coot {
                                              const clipper::Xmap<float> &xmap,
                                              float map_sigma) const;
 
-      // ====================== dragged refinemetn ======================================
+      // ====================== validation ======================================
+
+      std::vector<coot::geometry_distortion_info_container_t>
+      geometric_distortions_from_mol(const atom_selection_container_t &asc, bool with_nbcs,
+                                     coot::protein_geometry &geom,
+                                     ctpl::thread_pool &static_thread_pool);
+
+      // ====================== dragged refinement ======================================
 
       coot::restraints_container_t *last_restraints;
 
@@ -651,6 +658,14 @@ namespace coot {
                                              bool draw_hydrogen_atoms_flag,
                                              coot::protein_geometry *geom_p);
 
+      //! get the mesh for ligand validation vs dictionary, coloured by badness.
+      //! greater then 3 standard deviations is fully red.
+      //! Less than 0.5 standard deviations is fully green.
+      // We need the thread pool?
+      coot::simple_mesh_t get_mesh_for_ligand_validation_vs_dictionary(const std::string &ligand_cid,
+                                                                       coot::protein_geometry &geom,
+                                                                       ctpl::thread_pool &static_thread_pool);
+
       // ------------------------ model-changing functions
 
       int move_molecule_to_new_centre(const coot::Cartesian &new_centre);
@@ -926,6 +941,9 @@ namespace coot {
       int write_map(const std::string &file_name) const;
       void set_map_is_difference_map(bool flag);
       bool is_difference_map_p() const;
+
+      //! @return the suggested initial contour level. Return -1 on not-a-map
+      float get_suggested_initial_contour_level() const;
 
       // changes the internal map mesh holder (hence not const)
       simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level);
