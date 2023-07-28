@@ -484,3 +484,11 @@ void coot_ligand_editor_set_display_mode(CootLigandEditorCanvas* self, DisplayMo
 std::string coot_ligand_editor_get_smiles(CootLigandEditorCanvas* self) noexcept {
     return self->build_smiles_string();
 }
+
+std::string coot_ligand_editor_get_smiles_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
+    if(molecule_idx < self->rdkit_molecules->size()) {
+        return RDKit::MolToSmiles(*(*self->rdkit_molecules)[molecule_idx].get());
+    } else {
+        return "";
+    }
+}

@@ -2,6 +2,7 @@
 #define COOT_LIGAND_EDITOR_CANVAS_CORE_HPP
 #include <gtk/gtk.h>
 #include <rdkit/GraphMol/RWMol.h>
+#include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
 #include <memory>
 #include <vector>
 #include "model.hpp"

@@ -1,6 +1,5 @@
 #include "core.hpp"
 #include <iterator>
-#include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
 
 using namespace coot::ligand_editor_canvas;
 using namespace coot::ligand_editor_canvas::impl;

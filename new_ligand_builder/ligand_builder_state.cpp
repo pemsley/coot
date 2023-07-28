@@ -314,7 +314,7 @@ void LigandBuilderState::file_save_as() {
         gtk_box_append(GTK_BOX(mol_chooser_box), mol_chooser_list_box);
 
         for(unsigned int i = 0; i < mol_count; i++) {
-            auto label_str = std::to_string(i);
+            auto label_str = coot_ligand_editor_get_smiles_for_molecule(this->canvas,i);
             auto* label = gtk_label_new(label_str.c_str());
             gtk_list_box_append(GTK_LIST_BOX(mol_chooser_list_box),label);
         }
