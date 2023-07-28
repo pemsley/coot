@@ -13,21 +13,7 @@
 
 using namespace coot::ligand_editor_canvas;
 
-const std::string Tool::exception_message_prefix = "";
-
 void Tool::on_blank_space_click(int x, int y) {
-
-}
-
-bool Tool::on_molecule_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) {
-    return true;
-}
-
-void Tool::on_bond_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Bond&) {
-
-}
-
-void Tool::on_atom_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Atom&) {
 
 }
 
@@ -36,6 +22,18 @@ void Tool::on_release(int x, int y) {
 }
 
 void Tool::after_molecule_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) {
+
+}
+
+std::string Tool::get_exception_message_prefix() {
+    return "";
+}
+
+void ActiveTool::on_click(int x, int y) {
+
+}
+
+void ActiveTool::on_release(int x, int y) {
 
 }
 

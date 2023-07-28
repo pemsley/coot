@@ -18,23 +18,23 @@ class Tool {
     public:
 
     /// Called when the click coordinates do not correspond to anything on canvas
-    void on_blank_space_click(int x, int y);
+    virtual void on_blank_space_click(int x, int y);
 
     /// Returns true if `on_bond_click()` or `on_atom_click()` (respectively to what's been clicked) 
     /// should be called next (and then lastly `after_molecule_click()`)
-    bool on_molecule_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&);
+    virtual bool on_molecule_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) = 0;
 
-    void on_bond_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Bond&);
-    void on_atom_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Atom&);
+    virtual void on_bond_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Bond&) = 0;
+    virtual void on_atom_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Atom&) = 0;
 
     /// Generic on-mouse-release event handler.
     /// No dedicated molecule/atom/bond handlers seem to be needed now.
-    void on_release(int x, int y);
+    virtual void on_release(int x, int y);
 
-    void after_molecule_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&);
+    virtual void after_molecule_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&);
 
     /// Used to print tool-specific error messages should any handler throw an exception
-    static const std::string exception_message_prefix;
+    virtual std::string get_exception_message_prefix();
 };
 
 class BondModifier {
@@ -238,6 +238,7 @@ class ActiveTool {
     Variant variant;
     /// Non-owning pointer
     impl::WidgetCoreData* widget_data;
+    std::unique_ptr<Tool> tool;
     TransformManager transform_manager;
 
     /// Checks if the internal variant (the kind of the tool) matches what's expected (passed as argument).
@@ -262,6 +263,9 @@ class ActiveTool {
     ActiveTool(RotateTool) noexcept;
     ActiveTool(FlipTool) noexcept;
     ActiveTool(RemoveHydrogensTool) noexcept;
+
+    void on_click(int x, int y);
+    void on_release(int x, int y);
 
     Variant get_variant() const noexcept;
     /// Valid for Variant::ElementInsertion.
