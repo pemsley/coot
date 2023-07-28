@@ -7724,8 +7724,8 @@ void sequence_view(int imol) {
       g_object_set_data(G_OBJECT(overlay), "imol", GINT_TO_POINTER(imol));
       // GTK_ALIGN_END works OK/as intended, except the main graphics widget (or window) is too narrow to see it.
       // Make the window wider and change this to GTK_ALIGN_END.
-      // gtk_widget_set_halign(GTK_WIDGET(button), GTK_ALIGN_END);
-      gtk_widget_set_halign(GTK_WIDGET(button), GTK_ALIGN_START);
+      // gtk_widget_set_halign(GTK_WIDGET(button), GTK_ALIGN_START);
+      gtk_widget_set_halign(GTK_WIDGET(button), GTK_ALIGN_END);
       gtk_widget_set_valign(GTK_WIDGET(button), GTK_ALIGN_START);
 
       // GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");

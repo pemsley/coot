@@ -31,7 +31,10 @@ Test the conversion of glm quaternion to coot quaternion and back again.
 
 Pyrogen needs to work ::: 2
 
-From Stuart: 1h27 fails on read cif.
+From Stuart: 1h27 fails on read cif. ::: 1
+Make Coot use GEMMI.
+* Done.
+
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
