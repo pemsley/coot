@@ -282,13 +282,11 @@ ActiveTool::ActiveTool(StructureInsertion insertion) noexcept {
 }
 
 ActiveTool::ActiveTool(GeometryModifier modifier) noexcept {
-    this->variant = ActiveTool::Variant::GeometryModifier;
-    this->geometry_modifier = modifier;
+    this->tool = std::make_unique<GeometryModifier>(std::move(modifier));
 }
 
 ActiveTool::ActiveTool(FormatTool fmt) noexcept {
-    this->variant = ActiveTool::Variant::Format;
-    this->format_tool = fmt;
+    this->tool = std::make_unique<FormatTool>(std::move(fmt));
 }
 
 ActiveTool::ActiveTool(RotateTool rot) noexcept {
@@ -297,13 +295,11 @@ ActiveTool::ActiveTool(RotateTool rot) noexcept {
 }
 
 ActiveTool::ActiveTool(FlipTool flip) noexcept {
-    this->variant = ActiveTool::Variant::FlipTool;
-    this->flip_tool = flip;
+    this->tool = std::make_unique<FlipTool>(std::move(flip));
 }
 
 ActiveTool::ActiveTool(RemoveHydrogensTool rh) noexcept {
-    this->variant = ActiveTool::Variant::RemoveHydrogens;
-    this->remove_hydrogens_tool = rh;
+    this->tool = std::make_unique<RemoveHydrogensTool>(std::move(rh));
 }
 
 ActiveTool::Variant ActiveTool::get_variant() const noexcept {
@@ -461,45 +457,23 @@ void ActiveTool::finish_creating_bond(int x, int y) {
     }
 }
 
+void GeometryModifier::on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) {
+    widget_data.begin_edition();
+    auto* rdkit_bond = rdkit_mol->getBondBetweenAtoms(bond.first_atom_idx,bond.second_atom_idx);
 
-void ActiveTool::alter_geometry(int x, int y) {
-    check_variant(Variant::GeometryModifier);
-    GeometryModifier& mod = this->geometry_modifier;
-    
-    auto click_result = this->widget_data->resolve_click(x, y);
-    if(click_result.has_value()) {
-        try{
-            auto [bond_or_atom,molecule_idx] = click_result.value();
-            if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
-                g_warning("The GeometryModifier tool does not operate on atoms. Nothing to do.");
-                //auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
-            } else {
-                this->widget_data->begin_edition();
-                auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
-                auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
-                auto* rdkit_bond = rdkit_mol->getBondBetweenAtoms(bond.first_atom_idx,bond.second_atom_idx);
+    auto bond_geometry = CanvasMolecule::bond_geometry_from_rdkit(rdkit_bond->getBondDir());
+    auto new_bond_geometry = CanvasMolecule::cycle_bond_geometry(bond_geometry);
+    g_debug("Target bond geometry: %u",static_cast<unsigned int>(new_bond_geometry));
+    rdkit_bond->setBondDir(CanvasMolecule::bond_geometry_to_rdkit(new_bond_geometry));
 
-                auto bond_geometry = CanvasMolecule::bond_geometry_from_rdkit(rdkit_bond->getBondDir());
-                auto new_bond_geometry = CanvasMolecule::cycle_bond_geometry(bond_geometry);
-                g_debug("Target bond geometry: %u",static_cast<unsigned int>(new_bond_geometry));
-                rdkit_bond->setBondDir(CanvasMolecule::bond_geometry_to_rdkit(new_bond_geometry));
+    widget_data.update_status("Geometry of bond has been altered.");
+    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
+    g_debug("Final bond geometry: %u",static_cast<unsigned int>(CanvasMolecule::bond_geometry_from_rdkit(rdkit_bond->getBondDir())));
+    widget_data.finalize_edition();
+}
 
-                this->widget_data->update_status("Geometry of bond has been altered.");
-                auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-                canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
-                g_debug("Final bond geometry: %u",static_cast<unsigned int>(CanvasMolecule::bond_geometry_from_rdkit(rdkit_bond->getBondDir())));
-                this->widget_data->finalize_edition();
-            }
-        } catch(std::exception& e) {
-            g_warning("An error occured: %s",e.what());
-            std::string msg = std::string("Could not alter bond geometry: ") + e.what();
-            this->widget_data->update_status(msg.c_str());
-            this->widget_data->rollback_current_edition();
-        }
-    } else {
-        // Nothing has been clicked on.
-        g_debug("The click could not be resolved to any atom or bond.");
-    }
+std::string GeometryModifier::get_exception_message_prefix() const noexcept {
+    return "Could not alter bond geometry: ";
 }
 
 void ChargeModifier::on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) {
@@ -745,7 +719,7 @@ void ActiveTool::insert_structure(int x, int y) {
         }
     } catch(std::exception& e) {
         g_warning("An error occured: %s",e.what());
-        std::string status_msg = "Coud not insert structure: "; status_msg += e.what();
+        std::string status_msg = "Could not insert structure: "; status_msg += e.what();
         if (this->widget_data->is_in_edition()) {
             this->widget_data->rollback_current_edition();
         } else { // Needed if a new molecule was created on an empty canvas
@@ -755,28 +729,41 @@ void ActiveTool::insert_structure(int x, int y) {
     }
 }
 
-void ActiveTool::format_at(int x, int y) {
-    check_variant(Variant::Format);
-    auto click_result = this->widget_data->resolve_click(x, y);
-    if(click_result.has_value()) {
-        try{
-            this->widget_data->begin_edition();
-            auto [bond_or_atom,molecule_idx] = click_result.value();
-            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-            canvas_mol.clear_cached_atom_coordinate_map();
-            canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
-            this->widget_data->finalize_edition();
-            this->widget_data->update_status("Molecule has been formatted.");
-        } catch(std::exception& e) {
-            g_warning("An error occured: %s",e.what());
-            std::string status_msg = "Coud not format molecule: "; status_msg += e.what();
-            this->widget_data->update_status(status_msg.c_str());
-            this->widget_data->rollback_current_edition();
-        }
-    } else {
-        // Nothing has been clicked on.
-        g_debug("The click could not be resolved to any atom or bond.");
-    }
+bool RemoveHydrogensTool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
+    g_warning("todo: Implement RemoveHydrogensTool");
+    return false;
+}
+
+std::string RemoveHydrogensTool::get_exception_message_prefix() const noexcept {
+    return "Could not remove hydrogens from molecule: ";
+}
+
+
+bool FlipTool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
+    widget_data.begin_edition();
+    canvas_mol.perform_flip(this->mode);
+    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
+    widget_data.finalize_edition();
+    widget_data.update_status("Molecule has been flipped.");
+    return false;
+}
+
+std::string FlipTool::get_exception_message_prefix() const noexcept {
+    return "Could not flip molecule: ";
+}
+
+
+bool FormatTool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
+    widget_data.begin_edition();
+    canvas_mol.clear_cached_atom_coordinate_map();
+    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
+    widget_data.finalize_edition();
+    widget_data.update_status("Molecule has been formatted.");
+    return false;
+}
+
+std::string FormatTool::get_exception_message_prefix() const noexcept {
+    return "Could not format molecule: ";
 }
 
 void ActiveTool::begin_transform(int x, int y, TransformManager::Mode mode) {
@@ -819,31 +806,6 @@ void ActiveTool::sanitize_molecule(RDKit::RWMol& mol) const {
 void Tool::sanitize_molecule(impl::WidgetCoreData& widget_data, RDKit::RWMol& mol) {
     if (!widget_data.allow_invalid_molecules) {
         RDKit::MolOps::sanitizeMol(mol);
-    }
-}
-
-void ActiveTool::flip(int x, int y) {
-    check_variant(Variant::FlipTool);
-    auto& flip = this->flip_tool;
-    auto click_result = this->widget_data->resolve_click(x, y);
-    if(click_result.has_value()) {
-        try{
-            this->widget_data->begin_edition();
-            auto [bond_or_atom,molecule_idx] = click_result.value();
-            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-            canvas_mol.perform_flip(flip.get_mode());
-            canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
-            this->widget_data->finalize_edition();
-            this->widget_data->update_status("Molecule has been flipped.");
-        } catch(std::exception& e) {
-            g_warning("An error occured: %s",e.what());
-            std::string status_msg = "Coud not flip molecule: "; status_msg += e.what();
-            this->widget_data->update_status(status_msg.c_str());
-            this->widget_data->rollback_current_edition();
-        }
-    } else {
-        // Nothing has been clicked on.
-        g_debug("The click could not be resolved to any atom or bond.");
     }
 }
 
@@ -902,10 +864,6 @@ unsigned int ElementInsertion::get_atomic_number() const noexcept {
     } else { // raw atomic number
         return std::get<unsigned int>(this->element);
     }
-}
-
-FlipMode FlipTool::get_mode() const noexcept {
-    return this->mode;
 }
 
 FlipTool::FlipTool(FlipMode mode) noexcept {

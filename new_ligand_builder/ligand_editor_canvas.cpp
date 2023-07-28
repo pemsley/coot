@@ -246,10 +246,6 @@ static void on_left_click (
             self->active_tool->begin_transform((int)x, (int)y, TransformManager::Mode::Translation);
             break;
         }
-        case ActiveTool::Variant::FlipTool:{
-            self->active_tool->flip((int)x, (int) y);
-            break;
-        }
         case ActiveTool::Variant::RotateTool:{
             self->active_tool->begin_transform((int)x, (int) y, TransformManager::Mode::Rotation);
             break;
@@ -275,18 +271,6 @@ static void on_left_click (
         case ActiveTool::Variant::ElementInsertion:{
             self->active_tool->insert_atom((int)x, (int) y);
             gtk_widget_queue_draw(GTK_WIDGET(self));
-            break;
-        }
-        case ActiveTool::Variant::GeometryModifier:{
-            self->active_tool->alter_geometry((int)x, (int) y);
-            break;
-        }
-        case ActiveTool::Variant::Format:{
-            self->active_tool->format_at((int)x, (int) y);
-            break;
-        }
-        case ActiveTool::Variant::RemoveHydrogens: {
-            // todo
             break;
         }
         default:{

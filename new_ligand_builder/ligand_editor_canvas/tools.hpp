@@ -13,6 +13,52 @@ namespace impl {
     struct CootLigandEditorCanvasPriv;
 }
 
+class TransformManager {
+    public:
+    enum class Mode {
+        Rotation,
+        Translation
+    };
+    private:
+
+    struct RotationState {
+        double last_absolute_angle;
+        std::pair<int,int> original_rotation_pos;
+        std::pair<int,int> current_rotation_pos;
+
+        double get_current_absolute_angle(bool snap_to_angle) const;
+        double get_current_angle_diff(bool snap_to_angle) const;
+    };
+    struct TranslationState {
+        std::pair<int,int> prev_move_pos;
+        std::pair<int,int> current_move_pos;
+
+        std::pair<int,int> get_current_offset() const;
+    };
+
+    class IdleState {
+        // empty
+    };
+
+    std::variant<RotationState, TranslationState, IdleState> state;
+    std::optional<unsigned int> canvas_mol_idx;
+
+    public:
+
+    TransformManager() noexcept;
+
+    bool is_active() const noexcept;
+
+    void begin_transform(int x, int y, Mode mode) noexcept;
+    void update_current_cursor_pos(int x, int y, bool snap) noexcept;
+
+    void end_transform() noexcept;
+    
+    void set_canvas_molecule_index(unsigned int) noexcept;
+
+    void apply_current_transform_state(impl::WidgetCoreData* widget_data, bool snapt_to_angle, bool about_to_end) const;
+};
+
 class Tool {
 
     public:
@@ -136,52 +182,6 @@ class DeleteTool : public Tool {
     virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
-class TransformManager {
-    public:
-    enum class Mode {
-        Rotation,
-        Translation
-    };
-    private:
-
-    struct RotationState {
-        double last_absolute_angle;
-        std::pair<int,int> original_rotation_pos;
-        std::pair<int,int> current_rotation_pos;
-
-        double get_current_absolute_angle(bool snap_to_angle) const;
-        double get_current_angle_diff(bool snap_to_angle) const;
-    };
-    struct TranslationState {
-        std::pair<int,int> prev_move_pos;
-        std::pair<int,int> current_move_pos;
-
-        std::pair<int,int> get_current_offset() const;
-    };
-
-    class IdleState {
-        // empty
-    };
-
-    std::variant<RotationState, TranslationState, IdleState> state;
-    std::optional<unsigned int> canvas_mol_idx;
-
-    public:
-
-    TransformManager() noexcept;
-
-    bool is_active() const noexcept;
-
-    void begin_transform(int x, int y, Mode mode) noexcept;
-    void update_current_cursor_pos(int x, int y, bool snap) noexcept;
-
-    void end_transform() noexcept;
-    
-    void set_canvas_molecule_index(unsigned int) noexcept;
-
-    void apply_current_transform_state(impl::WidgetCoreData* widget_data, bool snapt_to_angle, bool about_to_end) const;
-};
-
 class MoveTool {
 
 };
@@ -190,23 +190,34 @@ class RotateTool {
     
 };
 
-class GeometryModifier {
+class GeometryModifier : public Tool {
+    public:
 
+    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) override;
+    virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
-class FormatTool {
+class FormatTool : public Tool {
+    public:
 
+    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
-class FlipTool {
+class FlipTool : public Tool {
     FlipMode mode;
     public:
     FlipTool(FlipMode) noexcept;
-    FlipMode get_mode() const noexcept;
+
+    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
-class RemoveHydrogensTool {
+class RemoveHydrogensTool : public Tool {
+    public:
 
+    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
 class ActiveTool {
@@ -217,12 +228,7 @@ class ActiveTool {
         BondModifier,
         StructureInsertion,
         ElementInsertion,
-        /// Stereo out
-        GeometryModifier,
-        Format,
         RotateTool,
-        FlipTool,
-        RemoveHydrogens
     };
 
     private:
@@ -235,16 +241,8 @@ class ActiveTool {
         StructureInsertion structure_insertion;
         /// Valid for Variant::MoveTool
         MoveTool move_tool;
-        /// Valid for Variant::GeometryModifier
-        GeometryModifier geometry_modifier;
-        /// Valid for Variant::Format
-        FormatTool format_tool;
         /// Valid for Variant::RotateTool
         RotateTool rotate_tool;
-        /// Valid for Variant::FlipTool
-        FlipTool flip_tool;
-        /// Valid for Variant::RemoveHydrogens
-        RemoveHydrogensTool remove_hydrogens_tool;
     };
     Variant variant;
     /// Non-owning pointer
@@ -289,9 +287,6 @@ class ActiveTool {
     bool is_creating_bond() const noexcept;
     /// Valid for Variant::BondModifier.
     void finish_creating_bond(int x, int y);
-    /// Valid for Variant::Delete.
-    /// Deletes whatever is found at the given coordinates
-    void delete_at(int x, int y);
     /// Valid for Variant::StructureInsertion.
     /// Inserts currently chosen structure at the given coordinates.
     void insert_structure(int x, int y);
@@ -305,15 +300,6 @@ class ActiveTool {
     /// Returns if the user is currently dragging their mouse
     /// to shift the viewport / rotate the molecule.
     bool is_in_transform() const noexcept;
-    /// Valid for Variant::GeometryModifier.
-    /// Changes geometry of the bond found at the given coordinates.
-    void alter_geometry(int x, int y);
-    /// Valid for Variant::Format.
-    /// Forces re-computation of molecule geometry from scratch using RDKit.
-    void format_at(int x, int y);
-    /// Valid for Variant::FlipTool.
-    /// Flip molecule under cursor around X/Y axis.
-    void flip(int x, int y);
     /// Valid for Variant::BondModifier.
     std::optional<std::pair<unsigned int,unsigned int>> get_molecule_idx_and_first_atom_of_new_bond() const;
 
