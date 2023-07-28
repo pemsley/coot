@@ -13,6 +13,8 @@
 
 using namespace coot::ligand_editor_canvas;
 
+const std::string Tool::exception_message_prefix = "";
+
 ActiveTool::ActiveTool() noexcept {
     this->variant = ActiveTool::Variant::None;
 }
