@@ -14,27 +14,62 @@
 using namespace coot::ligand_editor_canvas;
 
 void Tool::on_blank_space_click(int x, int y) {
-
+    g_debug("The click could not be resolved to any atom or bond.");
 }
 
 void Tool::on_release(int x, int y) {
-
+    // nothing by default
 }
 
 void Tool::after_molecule_click(unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) {
-
+    // nothing by default
 }
 
 std::string Tool::get_exception_message_prefix() {
-    return "";
+    return "An error occured: ";
+}
+
+Tool::~Tool() {
+
 }
 
 void ActiveTool::on_click(int x, int y) {
-
+    if(!this->tool) {
+        return;
+    }
+    auto click_result = this->widget_data->resolve_click(x, y);
+    if(click_result.has_value()) {
+        try{
+            auto [bond_or_atom,molecule_idx] = click_result.value();
+            auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
+            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
+            if(!this->tool->on_molecule_click(molecule_idx, rdkit_mol, canvas_mol)) {
+                return;
+            }
+            if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
+                auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+                this->tool->on_atom_click(molecule_idx, rdkit_mol, canvas_mol, atom);
+            } else { // a bond
+                auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+                this->tool->on_bond_click(molecule_idx, rdkit_mol, canvas_mol, bond);
+            }
+            this->tool->after_molecule_click(molecule_idx, rdkit_mol, canvas_mol);
+        } catch(std::exception& e) {
+            g_warning("An error occured: %s",e.what());
+            std::string msg = this->tool->get_exception_message_prefix() + e.what();
+            this->widget_data->update_status(msg.c_str());
+            this->widget_data->rollback_current_edition();
+        }
+    } else {
+        this->tool->on_blank_space_click(x, y);
+    }
 }
 
 void ActiveTool::on_release(int x, int y) {
-
+    if(!this->tool) {
+        return;
+    }
+    this->tool->on_release(x, y);
 }
 
 

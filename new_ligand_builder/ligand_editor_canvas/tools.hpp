@@ -35,6 +35,8 @@ class Tool {
 
     /// Used to print tool-specific error messages should any handler throw an exception
     virtual std::string get_exception_message_prefix();
+
+    virtual ~Tool();
 };
 
 class BondModifier {
