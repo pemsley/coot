@@ -22,10 +22,10 @@ class Tool {
 
     /// Returns true if `on_bond_click()` or `on_atom_click()` (respectively to what's been clicked) 
     /// should be called next (and then lastly `after_molecule_click()`)
-    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) = 0;
+    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&);
 
-    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Bond&) = 0;
-    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Atom&) = 0;
+    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Bond&);
+    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Atom&);
 
     /// Generic on-mouse-release event handler.
     /// No dedicated molecule/atom/bond handlers seem to be needed now.
@@ -118,17 +118,21 @@ class StructureInsertion {
 
 };
 
-class ChargeModifier {
+class ChargeModifier : public Tool {
+    public:
+
+    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) override;
+    virtual std::string get_exception_message_prefix() const noexcept override;
 
 };
 
 class DeleteTool : public Tool {
     public:
 
-    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) override;
-    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Bond&) override;
-    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Atom&) override;
-    virtual void after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) override;
+    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) override;
+    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) override;
+    virtual void after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
@@ -216,7 +220,6 @@ class ActiveTool {
         /// Stereo out
         GeometryModifier,
         Format,
-        ChargeModifier,
         RotateTool,
         FlipTool,
         RemoveHydrogens
@@ -230,8 +233,6 @@ class ActiveTool {
         ElementInsertion element_insertion;
         /// Valid for Variant::StructureInsertion
         StructureInsertion structure_insertion;
-        /// Valid for Variant::ChargeModifier
-        ChargeModifier charge_modifier;
         /// Valid for Variant::MoveTool
         MoveTool move_tool;
         /// Valid for Variant::GeometryModifier
@@ -288,9 +289,6 @@ class ActiveTool {
     bool is_creating_bond() const noexcept;
     /// Valid for Variant::BondModifier.
     void finish_creating_bond(int x, int y);
-    /// Valid for Variant::ChargeModifier.
-    /// Modifies the charge of bond found at the given coordinates.
-    void alter_charge(int x, int y);
     /// Valid for Variant::Delete.
     /// Deletes whatever is found at the given coordinates
     void delete_at(int x, int y);

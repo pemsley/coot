@@ -285,10 +285,6 @@ static void on_left_click (
             self->active_tool->format_at((int)x, (int) y);
             break;
         }
-        case ActiveTool::Variant::ChargeModifier:{
-            self->active_tool->alter_charge((int)x, (int) y);
-            break;
-        }
         case ActiveTool::Variant::RemoveHydrogens: {
             // todo
             break;

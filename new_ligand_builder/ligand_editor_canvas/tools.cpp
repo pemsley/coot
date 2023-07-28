@@ -25,6 +25,22 @@ void Tool::after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int 
     // nothing by default
 }
 
+bool Tool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) {
+    // nothing by default
+    return true;
+}
+
+void Tool::on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Bond&) {
+    // nothing by default
+    g_debug("The tool does not operate on bonds.");
+}
+
+void Tool::on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Atom&) {
+    // nothing by default
+    g_debug("The tool does not operate on atoms.");
+}
+
+
 std::string Tool::get_exception_message_prefix() const noexcept {
     return "An error occured: ";
 }
@@ -252,8 +268,7 @@ ActiveTool::ActiveTool(DeleteTool deltool) noexcept {
 }
 
 ActiveTool::ActiveTool(ChargeModifier chargemod) noexcept {
-    this->variant = ActiveTool::Variant::ChargeModifier;
-    this->charge_modifier = chargemod;
+    this->tool = std::make_unique<ChargeModifier>(std::move(chargemod));
 }
 
 ActiveTool::ActiveTool(MoveTool mov) noexcept {
@@ -487,88 +502,68 @@ void ActiveTool::alter_geometry(int x, int y) {
     }
 }
 
-void ActiveTool::alter_charge(int x, int y) {
-    check_variant(Variant::ChargeModifier);
-    auto click_result = this->widget_data->resolve_click(x, y);
-    if(click_result.has_value()) {
-        try{
-            auto [bond_or_atom,molecule_idx] = click_result.value();
-            if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
-                auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
-                this->widget_data->begin_edition();
-                
-                auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
-                // Do we need this here?
-                RDKit::MolOps::Kekulize(*rdkit_mol.get());
-                auto* rdkit_atom = rdkit_mol->getAtomWithIdx(atom.idx);
-                int old_charge = rdkit_atom->getFormalCharge();
+void ChargeModifier::on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) {
+    widget_data.begin_edition();
+    // Do we need this here?
+    RDKit::MolOps::Kekulize(*rdkit_mol.get());
+    auto* rdkit_atom = rdkit_mol->getAtomWithIdx(atom.idx);
+    int old_charge = rdkit_atom->getFormalCharge();
 
-                const RDKit::PeriodicTable *table = RDKit::PeriodicTable::getTable();
-                auto valence_list = table->getValenceList(rdkit_atom->getAtomicNum());
-                auto valence_list_to_string = [&](){
-                    std::string valence_list_string = "[";
-                    auto vl_it = valence_list.begin();
-                    while(vl_it != valence_list.end()) {
-                        valence_list_string += std::to_string(*vl_it);
-                        vl_it++;
-                        if(vl_it != valence_list.end()) {
-                            valence_list_string += ", ";
-                        }
-                    }
-                    valence_list_string += "]";
-                    return valence_list_string;
-                };
-
-                auto valence_list_string = valence_list_to_string();
-                g_debug(
-                    "Valence list from RDKit: %s Num of outer shell electrons: %i", 
-                    valence_list_string.c_str(),
-                    table->getNouterElecs(rdkit_atom->getAtomicNum())
-                );
-
-                g_warning("todo: Fix-up computing plausible charges for atoms in the charge tool.");
-                // We won't have to clear the list when it'll have the right contents (something to be fixed)
-                valence_list.clear();
-                // valence_list.push_back(0);
-                for(int i = -4; i != 5; i++) {
-                    valence_list.push_back(i);
-                }
-
-                auto it = std::find(valence_list.begin(),valence_list.end(),old_charge);
-                if(it != valence_list.end()) {
-                    it++;
-                }
-                if(it == valence_list.end()) {
-                    it = valence_list.begin();
-                }
-
-                int new_charge = *it;
-
-                valence_list_string = valence_list_to_string();
-                g_info("Old formal charge: %i New formal charge: %i List: %s",old_charge,new_charge,valence_list_string.c_str());
-                rdkit_atom->setFormalCharge(new_charge);
-
-                this->widget_data->update_status("Charge of atom has been altered.");
-
-                this->sanitize_molecule(*rdkit_mol.get());
-                auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-                canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
-
-                this->widget_data->finalize_edition();
-            } else { // a bond
-                // auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
-                g_warning("The ChargeModifier tool does not operate on bonds. Nothing to do.");
+    const RDKit::PeriodicTable *table = RDKit::PeriodicTable::getTable();
+    auto valence_list = table->getValenceList(rdkit_atom->getAtomicNum());
+    auto valence_list_to_string = [&](){
+        std::string valence_list_string = "[";
+        auto vl_it = valence_list.begin();
+        while(vl_it != valence_list.end()) {
+            valence_list_string += std::to_string(*vl_it);
+            vl_it++;
+            if(vl_it != valence_list.end()) {
+                valence_list_string += ", ";
             }
-        } catch(std::exception& e) {
-            g_warning("An error occured: %s",e.what());
-            std::string msg = std::string("Could not alter charge: ") + e.what();
-            this->widget_data->update_status(msg.c_str());
-            this->widget_data->rollback_current_edition();
         }
-    } else {
-        // Nothing has been clicked on.
-        g_debug("The click could not be resolved to any atom or bond.");
+        valence_list_string += "]";
+        return valence_list_string;
+    };
+
+    auto valence_list_string = valence_list_to_string();
+    g_debug(
+        "Valence list from RDKit: %s Num of outer shell electrons: %i", 
+        valence_list_string.c_str(),
+        table->getNouterElecs(rdkit_atom->getAtomicNum())
+    );
+
+    g_warning("todo: Fix-up computing plausible charges for atoms in the charge tool.");
+    // We won't have to clear the list when it'll have the right contents (something to be fixed)
+    valence_list.clear();
+    // valence_list.push_back(0);
+    for(int i = -4; i != 5; i++) {
+        valence_list.push_back(i);
     }
+
+    auto it = std::find(valence_list.begin(),valence_list.end(),old_charge);
+    if(it != valence_list.end()) {
+        it++;
+    }
+    if(it == valence_list.end()) {
+        it = valence_list.begin();
+    }
+
+    int new_charge = *it;
+
+    valence_list_string = valence_list_to_string();
+    g_info("Old formal charge: %i New formal charge: %i List: %s",old_charge,new_charge,valence_list_string.c_str());
+    rdkit_atom->setFormalCharge(new_charge);
+
+    widget_data.update_status("Charge of atom has been altered.");
+
+    Tool::sanitize_molecule(widget_data, *rdkit_mol.get());
+    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
+
+    widget_data.finalize_edition();
+}
+
+std::string ChargeModifier::get_exception_message_prefix() const noexcept {
+    return "Could not alter charge: ";
 }
 
 bool DeleteTool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
