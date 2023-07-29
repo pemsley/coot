@@ -4480,22 +4480,22 @@ on_mutate_sequence_do_autofit_checkbutton_toggled(GtkCheckButton *checkbutton,
 
 extern "C" G_MODULE_EXPORT
 void
-on_mutate_sequence_use_ramachandran_restraints_checkbutton_toggled(GtkToggleButton *togglebutton,
-                                                                   gpointer         user_data) {
+on_mutate_sequence_use_ramachandran_restraints_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                                   gpointer        user_data) {
    /* not doing anything because the button state read at execution time  */
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_check_waters_b_factor_entry_active_checkbutton_toggled(GtkToggleButton *togglebutton,
+on_check_waters_b_factor_entry_active_checkbutton_toggled(GtkCheckButton *checkbutton,
                                                           gpointer         user_data) {
 
    // GtkWidget *hbox = widget_from_builder("check_waters_b_factor_hbox");
-   GtkWidget *hbox = widget_from_builder("check_waters_b_factor_hbox");
-   if (gtk_toggle_button_get_active(togglebutton))
-      gtk_widget_set_sensitive(hbox, TRUE);
+   GtkWidget *entry = widget_from_builder("check_waters_b_factor_entry");
+   if (gtk_check_button_get_active(checkbutton))
+      gtk_widget_set_sensitive(entry, TRUE);
    else
-      gtk_widget_set_sensitive(hbox, FALSE);
+      gtk_widget_set_sensitive(entry, FALSE);
 }
 
 
@@ -4503,45 +4503,43 @@ on_check_waters_b_factor_entry_active_checkbutton_toggled(GtkToggleButton *toggl
 
 extern "C" G_MODULE_EXPORT
 void
-on_check_waters_min_dist_entry_active_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-   GtkWidget *hbox = widget_from_builder(
-				   "check_waters_min_dist_hbox");
-   if (gtk_toggle_button_get_active(togglebutton))
-      gtk_widget_set_sensitive(hbox, TRUE);
+on_check_waters_min_dist_entry_active_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                          gpointer        user_data) {
+
+   GtkWidget *hbox = widget_from_builder("check_waters_min_dist_hbox");
+   GtkWidget *entry = widget_from_builder("check_waters_min_dist_entry");
+   if (gtk_check_button_get_active(checkbutton))
+      gtk_widget_set_sensitive(entry, TRUE);
    else
-      gtk_widget_set_sensitive(hbox, FALSE);
+      gtk_widget_set_sensitive(entry, FALSE);
 
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_check_waters_max_dist_entry_active_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_check_waters_max_dist_entry_active_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                          gpointer         user_data) {
+
    // GtkWidget *hbox = widget_from_builder("check_waters_max_dist_hbox");
    GtkWidget *hbox = widget_from_builder("check_waters_max_dist_hbox");
-   if (gtk_toggle_button_get_active(togglebutton))
-      gtk_widget_set_sensitive(hbox, TRUE);
+   GtkWidget *entry = widget_from_builder("check_waters_max_dist_entry");
+   if (gtk_check_button_get_active(checkbutton))
+      gtk_widget_set_sensitive(entry, TRUE);
    else
-      gtk_widget_set_sensitive(hbox, FALSE);
+      gtk_widget_set_sensitive(entry, FALSE);
 
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_check_waters_map_sigma_entry_active_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
+on_check_waters_map_sigma_entry_active_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                           gpointer         user_data)
 {
    // GtkWidget *hbox = widget_from_builder("check_waters_sigma_level_hbox");
    GtkWidget *hbox = widget_from_builder("check_waters_sigma_level_hbox");
-   if (gtk_toggle_button_get_active(togglebutton))
+   if (gtk_check_button_get_active(checkbutton))
       gtk_widget_set_sensitive(hbox, TRUE);
    else
       gtk_widget_set_sensitive(hbox, FALSE);
@@ -4551,13 +4549,12 @@ on_check_waters_map_sigma_entry_active_checkbutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_check_waters_by_difference_map_active_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_check_waters_by_difference_map_active_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                             gpointer        user_data) {
+
    // GtkWidget *hbox = widget_from_builder("check_waters_by_difference_map_hbox");
    GtkWidget *hbox = widget_from_builder("check_waters_by_difference_map_hbox");
-   if (gtk_toggle_button_get_active(togglebutton))
+   if (gtk_check_button_get_active(checkbutton))
       gtk_widget_set_sensitive(hbox, TRUE);
    else
       gtk_widget_set_sensitive(hbox, FALSE);

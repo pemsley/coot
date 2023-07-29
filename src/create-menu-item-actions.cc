@@ -2173,9 +2173,11 @@ check_delete_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *w = wrapped_create_check_waters_dialog();
    int imol_map = imol_refinement_map();
    gtk_widget_set_visible(w, TRUE);
-   if (imol_map < 0)
-      show_select_map_dialog();
-
+   if (imol_map < 0) {
+      int n_map_molecules = graphics_info_t::n_map_molecules();
+      if (n_map_molecules > 0)
+         show_select_map_dialog();
+   }
 }
 
 void
