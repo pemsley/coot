@@ -14,6 +14,11 @@
 
 using namespace coot::ligand_editor_canvas;
 
+
+void Tool::on_click(impl::WidgetCoreData& widget_data, int x, int y) {
+    // nothing by default
+}
+
 void Tool::on_blank_space_click(impl::WidgetCoreData& widget_data, int x, int y) {
     g_debug("The click could not be resolved to any atom or bond.");
 }
@@ -51,14 +56,11 @@ Tool::~Tool() {
 }
 
 void ActiveTool::on_click(int x, int y) {
-    if(this->mode == Mode::Move) {
-        this->begin_transform(x, y, TransformManager::Mode::Translation);
-    } else if(this->mode == Mode::Rotate) {
-        this->begin_transform(x, y, TransformManager::Mode::Rotation);
-    }
     if(!this->tool) {
         return;
     }
+
+    this->tool->on_click(*this->widget_data, x, y);
     auto click_result = this->widget_data->resolve_click(x, y);
     if(click_result.has_value()) {
         try{
@@ -93,6 +95,30 @@ void ActiveTool::on_release(int x, int y) {
     }
     this->tool->on_release(*this->widget_data, x, y);
 }
+
+void TransformTool::on_click(impl::WidgetCoreData& widget_data, int x, int y) {
+    auto mol_opt = widget_data.resolve_click(x, y);
+    if(mol_opt.has_value()) {
+        auto [atom_or_bond,mol_id] = mol_opt.value();
+        this->transform_manager->begin_transform(x, y, this->mode);
+        this->transform_manager->set_canvas_molecule_index(mol_id);
+        widget_data.begin_edition();
+    }
+}
+
+bool TransformTool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) {
+    return false;
+}
+
+TransformTool::TransformTool(TransformManager::Mode mode) noexcept {
+    this->mode = mode;
+    this->transform_manager = nullptr;
+}
+
+void TransformTool::set_transform_manager(TransformManager* mgr) noexcept {
+    this->transform_manager = mgr;
+}
+
 
 BondModifier::BondModifier(BondModifierMode mode) noexcept {
     this->mode = mode;
@@ -255,62 +281,48 @@ CanvasMolecule::BondType BondModifier::get_target_bond_type() const noexcept {
 }
 
 ActiveTool::ActiveTool() noexcept {
-    this->mode = Mode::Tool;
+    // nothing
 }
 
 ActiveTool::ActiveTool(ElementInsertion insertion) noexcept {
     this->tool = std::make_unique<ElementInsertion>(std::move(insertion));
-    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(BondModifier modifier) noexcept {
     this->tool = std::make_unique<BondModifier>(std::move(modifier));
-    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(DeleteTool deltool) noexcept {
     this->tool = std::make_unique<DeleteTool>(std::move(deltool));
-    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(ChargeModifier chargemod) noexcept {
     this->tool = std::make_unique<ChargeModifier>(std::move(chargemod));
-    this->mode = Mode::Tool;
 }
 
-ActiveTool::ActiveTool(MoveTool mov) noexcept {
-    this->tool = nullptr;
-    this->mode = Mode::Move;
-}
-
-ActiveTool::ActiveTool(RotateTool rot) noexcept {
-    this->tool = nullptr;
-    this->mode = Mode::Rotate;
+ActiveTool::ActiveTool(TransformTool mov) noexcept {
+    mov.set_transform_manager(&this->transform_manager);
+    this->tool = std::make_unique<TransformTool>(std::move(mov));
 }
 
 ActiveTool::ActiveTool(StructureInsertion insertion) noexcept {
     this->tool = std::make_unique<StructureInsertion>(std::move(insertion));
-    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(GeometryModifier modifier) noexcept {
     this->tool = std::make_unique<GeometryModifier>(std::move(modifier));
-    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(FormatTool fmt) noexcept {
     this->tool = std::make_unique<FormatTool>(std::move(fmt));
-    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(FlipTool flip) noexcept {
     this->tool = std::make_unique<FlipTool>(std::move(flip));
-    this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(RemoveHydrogensTool rh) noexcept {
     this->tool = std::make_unique<RemoveHydrogensTool>(std::move(rh));
-    this->mode = Mode::Tool;
 }
 
 void ActiveTool::set_core_widget_data(impl::CootLigandEditorCanvasPriv* owning_widget) noexcept {
@@ -734,15 +746,15 @@ std::string FormatTool::get_exception_message_prefix() const noexcept {
     return "Could not format molecule: ";
 }
 
-void ActiveTool::begin_transform(int x, int y, TransformManager::Mode mode) {
-    auto mol_opt = this->widget_data->resolve_click(x, y);
-    if(mol_opt.has_value()) {
-        auto [atom_or_bond,mol_id] = mol_opt.value();
-        transform_manager.begin_transform(x, y, mode);
-        transform_manager.set_canvas_molecule_index(mol_id);
-        this->widget_data->begin_edition();
-    }
-}
+// void ActiveTool::begin_transform(int x, int y, TransformManager::Mode mode) {
+//     auto mol_opt = this->widget_data->resolve_click(x, y);
+//     if(mol_opt.has_value()) {
+//         auto [atom_or_bond,mol_id] = mol_opt.value();
+//         transform_manager.begin_transform(x, y, mode);
+//         transform_manager.set_canvas_molecule_index(mol_id);
+//         this->widget_data->begin_edition();
+//     }
+// }
 
 bool ActiveTool::is_in_transform() const noexcept {
     return this->transform_manager.is_active();

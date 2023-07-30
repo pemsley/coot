@@ -63,9 +63,14 @@ class Tool {
 
     public:
 
+    /// Called always, whenever there's been a click event.
+    /// Called before other other methods get called.
+    virtual void on_click(impl::WidgetCoreData& widget_data, int x, int y);
+
     /// Called when the click coordinates do not correspond to anything on canvas
     virtual void on_blank_space_click(impl::WidgetCoreData& widget_data, int x, int y);
 
+    /// Called if the click lands on a molecule.
     /// Returns true if `on_bond_click()` or `on_atom_click()` (respectively to what's been clicked) 
     /// should be called next (and then lastly `after_molecule_click()`)
     virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&);
@@ -202,14 +207,18 @@ class DeleteTool : public Tool {
     virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
-class MoveTool {
-    // This is an empty type.
-    // It exists for the sake of maintaning API convention.
-};
+/// Responsible for beginning transforms in the ActiveTool's TransformManager
+class TransformTool : public Tool {
+    TransformManager::Mode mode;
+    // Non-owning pointer
+    TransformManager* transform_manager;
 
-class RotateTool {
-    // This is an empty type.
-    // It exists for the sake of maintaning API convention.
+    public:
+    TransformTool(TransformManager::Mode) noexcept;
+    void set_transform_manager(TransformManager*) noexcept;
+
+    virtual void on_click(impl::WidgetCoreData& widget_data, int x, int y) override;
+    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) override;
 };
 
 class GeometryModifier : public Tool {
@@ -243,16 +252,6 @@ class RemoveHydrogensTool : public Tool {
 };
 
 class ActiveTool {
-    public:
-    enum class Mode: unsigned char {
-        Rotate,
-        Move,
-        Tool
-    };
-
-    private:
-
-    Mode mode;
     /// Non-owning pointer
     impl::WidgetCoreData* widget_data;
     std::unique_ptr<Tool> tool;
@@ -264,26 +263,33 @@ class ActiveTool {
     ActiveTool(BondModifier modifier) noexcept;
     ActiveTool(DeleteTool) noexcept;
     ActiveTool(ChargeModifier) noexcept;
-    ActiveTool(MoveTool) noexcept;
+    ActiveTool(TransformTool) noexcept;
     ActiveTool(StructureInsertion insertion) noexcept;
     ActiveTool(GeometryModifier modifier) noexcept;
     ActiveTool(FormatTool) noexcept;
-    ActiveTool(RotateTool) noexcept;
     ActiveTool(FlipTool) noexcept;
     ActiveTool(RemoveHydrogensTool) noexcept;
 
+    /// Handles mouse click event for the currently chosen tool
     void on_click(int x, int y);
+    /// Handles mouse-release event for the currently chosen tool
     void on_release(int x, int y);
 
+    /// Returns true if a new bond is currently being create via click'n'drag
     bool is_creating_bond() const noexcept;
+    /// Returns a pair of indices - index of the molecule followed by the index of the first atom
+    /// of the newly created bond (if any)
     std::optional<std::pair<unsigned int,unsigned int>> get_molecule_idx_and_first_atom_of_new_bond() const noexcept;
     /// Updates the current mouse coordinates
     /// allowing to compute adequate viewport rotation / translation
     void update_transform_cursor_pos(int x, int y, bool snap_to_angle) noexcept;
     /// Ends move or rotation
     void end_transform(bool snap_to_angle);
+    
+    // Maybe this will be useful in the future:
     /// Begins rotation or translation
-    void begin_transform(int x, int y, TransformManager::Mode);
+    //void begin_transform(int x, int y, TransformManager::Mode);
+    
     /// Returns if the user is currently dragging their mouse
     /// to shift the viewport / rotate the molecule.
     bool is_in_transform() const noexcept;

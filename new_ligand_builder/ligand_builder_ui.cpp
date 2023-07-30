@@ -11,6 +11,7 @@ void coot::ligand_editor::build_main_window(GtkWindow* win, CootLigandEditorCanv
     using BondModifierMode = coot::ligand_editor_canvas::BondModifier::BondModifierMode;
     using Element = coot::ligand_editor_canvas::ElementInsertion::Element;
     using Structure = coot::ligand_editor_canvas::StructureInsertion::Structure;
+    using TransformMode = coot::ligand_editor_canvas::TransformManager::Mode;
 
     GtkWidget* mainbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
 
@@ -29,13 +30,13 @@ void coot::ligand_editor::build_main_window(GtkWindow* win, CootLigandEditorCanv
     GtkWidget* move_button = gtk_button_new_with_label("Move");
     g_signal_connect(move_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
-        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(MoveTool()));
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(TransformTool(TransformMode::Translation)));
     }), canvas);
     gtk_box_append(GTK_BOX(motions_toolbar), move_button);
     GtkWidget* rotate_button = gtk_button_new_with_label("Rotate");
     g_signal_connect(rotate_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
         CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
-        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(RotateTool()));
+        coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(TransformTool(TransformMode::Rotation)));
     }), canvas);
     gtk_box_append(GTK_BOX(motions_toolbar), rotate_button);
     GtkWidget* flip_x_button = gtk_button_new_with_label("Flip around X");
