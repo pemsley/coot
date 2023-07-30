@@ -310,6 +310,8 @@ namespace coot {
       }
 #endif // SWIG
       
+#ifdef SWIG
+#else
       bool operator<(const residue_spec_t &matcher) const{
 	 if (matcher.chain_id == chain_id) {
 	    if (matcher.res_no == res_no) {
@@ -335,6 +337,7 @@ namespace coot {
 	 } 
 	 // return 0; we can't here
       }
+#endif
 
       std::string format() const;
 
