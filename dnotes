@@ -3974,6 +3974,7 @@ INFO::
 
    o Run the damn tests - don't be lazy
    o make check
+   o before the release commit, make sure it builds and passes tests on charybdis
    o try the build on the virtual machines - ubuntu at work, debian at home.
    o New entry in ChangeLog
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
@@ -4018,7 +4019,7 @@ INFO::
    o on charybdis: clear out coot/source/pre-releases
    o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-from-build-it
                    unfortunately the 1.0 release complicated the extraction of the latest release for this.
-                   So the version is hard coded now! You will need to change it, line 4867
+                   So the version is hard coded now! You will need to change it, line 1617
    o on charybdis: bash wrap-build-it-for-release.sh
                    that doesn't do the transfer to web server at the moment, so:
                    cp ~/public_html/software/binaries/stable/coot-0.9.4.1-*  ~/fuse/ftp/coot/binaries/release/
