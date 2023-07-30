@@ -97,14 +97,14 @@ EXTRA_DIST = \
 	post-process-coot-wrap-guile.sh \
 	post-process-coot-wrap-python.sh \
 	fixup-interface.h.sh \
-	coot_wrap_guile_pre.cc dynarama.glade
+	coot_wrap_guile_pre.cc
 
 
 # subpkgdatadir = $(pkgdatadir)
 # subpkgdata_DATA = dynarama.glade geometry_graphs_builder.glade
 
 cootgladedir = $(pkgdatadir)/glade
-dist_cootglade_DATA = dynarama.glade geometry_graphs_builder.glade
+dist_cootglade_DATA = geometry_graphs_builder.glade
 
 cootdatadir = $(pkgdatadir)/shaders
 dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
@@ -316,13 +316,13 @@ _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
 
 if OS_WIN32
 # no more libexec for windows
-bin_PROGRAMS     = coot-bin coot-density-score-by-residue-bin dynarama-bin
+bin_PROGRAMS     = coot-bin coot-density-score-by-residue-bin
 else
-libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin dynarama-bin
+libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin
 bin_PROGRAMS = 
 endif
 
-dist_bin_SCRIPTS = coot coot-density-score-by-residue dynarama
+dist_bin_SCRIPTS = coot coot-density-score-by-residue
 check_PROGRAMS = test-coot-align test-cholesky
 
 #coot_fix_nomenclature_errors_SOURCES = \
@@ -910,28 +910,3 @@ coot_density_score_by_residue_bin_LDADD  =	\
 	$(MMDB_LIBS)		\
 	$(GSL_LIBS)
 
-dynarama_bin_SOURCES = dynarama-main.cc
-dynarama_bin_LDADD = \
-        libcootsumo.la                                          \
-        $(top_builddir)/coords/libcoot-coords.la                \
-	$(top_builddir)/ligand/libcoot-ligand.la      		\
-	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
-	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
-	$(top_builddir)/coot-utils/libcoot-coord-extras.la  	\
-        $(top_builddir)/coot-utils/libcoot-coord-utils.la       \
-	$(top_builddir)/ideal/libcoot-ideal.la    		\
-	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
-        $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
-	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
-        $(top_builddir)/geometry/libcoot-geometry.la            \
-	$(top_builddir)/pli/libcoot-pli.la                      \
-	$(top_builddir)/db-main/libcoot-db-main.la     		\
-	$(top_builddir)/analysis/libcoot-analysis.la 		\
-	$(top_builddir)/cootaneer/libcootaneer.la 		\
-        $(top_builddir)/compat/libcoot-compat.la                \
-        $(top_builddir)/utils/libcoot-utils.la                  \
-        $(CLIPPER_LIBS)         \
-        $(MMDB_LIBS)            \
-        $(GLOB_LIBS)            \
-        $(GOOCANVAS_LIBS)       \
-        @GTK_LIBS@
