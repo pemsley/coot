@@ -2,6 +2,7 @@
 #include "core.hpp"
 #include "model.hpp"
 #include <exception>
+#include <memory>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -254,18 +255,15 @@ CanvasMolecule::BondType BondModifier::get_target_bond_type() const noexcept {
 }
 
 ActiveTool::ActiveTool() noexcept {
-    this->variant = ActiveTool::Variant::None;
     this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(ElementInsertion insertion) noexcept {
-    this->variant = ActiveTool::Variant::ElementInsertion;
-    this->element_insertion = insertion;
+    this->tool = std::make_unique<ElementInsertion>(std::move(insertion));
     this->mode = Mode::Tool;
 }
 
 ActiveTool::ActiveTool(BondModifier modifier) noexcept {
-    this->variant = ActiveTool::Variant::BondModifier;
     this->bond_modifier = modifier;
     this->mode = Mode::Tool;
 }
@@ -291,8 +289,7 @@ ActiveTool::ActiveTool(RotateTool rot) noexcept {
 }
 
 ActiveTool::ActiveTool(StructureInsertion insertion) noexcept {
-    this->variant = ActiveTool::Variant::StructureInsertion;
-    this->structure_insertion = insertion;
+    this->tool = std::make_unique<StructureInsertion>(std::move(insertion));
     this->mode = Mode::Tool;
 }
 
@@ -316,59 +313,40 @@ ActiveTool::ActiveTool(RemoveHydrogensTool rh) noexcept {
     this->mode = Mode::Tool;
 }
 
-ActiveTool::Variant ActiveTool::get_variant() const noexcept {
-    return this->variant;
-}
-
 void ActiveTool::set_core_widget_data(impl::CootLigandEditorCanvasPriv* owning_widget) noexcept {
     this->widget_data = static_cast<impl::WidgetCoreData*>(owning_widget);
 }
 
-void ActiveTool::check_variant(ActiveTool::Variant expected) const {
-    if (expected != this->variant) {
-        throw std::runtime_error("Unexpected ActiveTool variant.");
-    }
+bool ElementInsertion::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
+    // maybe more useful to override in the future
+    return true;
 }
 
-void ActiveTool::insert_atom(int x, int y) {
-    check_variant(Variant::ElementInsertion);
-    auto& element_insertion = this->element_insertion;
-    unsigned int atomic_number = element_insertion.get_atomic_number();
+void ElementInsertion::on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) {
+    g_warning("TODO: Implement handling insertion at bonds (if any should happen)");
+}
+
+void ElementInsertion::on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) {
+    unsigned int atomic_number = this->get_atomic_number();
     auto el_name = RDKit::PeriodicTable::getTable()->getElementSymbol(atomic_number);
-    g_debug("Inserting element '%u' (%s) at %i %i.",atomic_number,el_name.c_str(),x,y);
-    //1. Find what we've clicked at
-    auto click_result = this->widget_data->resolve_click(x, y);
-    if(click_result.has_value()) {
-        try{
-            auto [bond_or_atom,molecule_idx] = click_result.value();
-            this->widget_data->begin_edition();
-            if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
-                auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
-                g_debug("Resolved insertion destination atom: idx=%i, symbol=%s",atom.idx,atom.symbol.c_str());
-                auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
-                auto* new_atom = new RDKit::Atom(std::string(el_name));
-                rdkit_mol->replaceAtom(atom.idx, new_atom);
-                this->widget_data->update_status("Atom has been replaced.");
-                auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-                canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
-            } else { // a bond
-                auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
-                g_warning("TODO: Implement handling insertion at bonds (if any should happen)");
-            }
-            this->widget_data->finalize_edition();
-        } catch(std::exception& e) {
-            g_warning("An error occured: %s",e.what());
-            std::string msg = std::string("Could not insert atom: ") + e.what();
-            this->widget_data->update_status(msg.c_str());
-            this->widget_data->rollback_current_edition();
-        }
-    } else {
-        g_debug("The click could not be resolved to any atom or bond.");
-    }
+    g_debug("Appending element '%u' (%s) to destination atom: idx=%i, symbol=%s.",atomic_number,el_name.c_str(),atom.idx,atom.symbol.c_str());
+    widget_data.begin_edition();
+    auto* new_atom = new RDKit::Atom(std::string(el_name));
+    rdkit_mol->replaceAtom(atom.idx, new_atom);
+    widget_data.update_status("Atom has been replaced.");
+    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
+    widget_data.finalize_edition();
+}
+
+void ElementInsertion::after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
+    // maybe more useful to override in the future
+}
+
+std::string ElementInsertion::get_exception_message_prefix() const noexcept {
+    return "Could not insert atom: ";
 }
 
 void ActiveTool::alter_bond(int x, int y) {
-    check_variant(Variant::BondModifier);
     BondModifier& mod = this->bond_modifier;
     
     auto click_result = this->widget_data->resolve_click(x, y);
@@ -414,15 +392,14 @@ void ActiveTool::alter_bond(int x, int y) {
 }
 
 bool ActiveTool::is_creating_bond() const noexcept {
-    if (this->variant == Variant::BondModifier) {
+    //if (this->variant == Variant::BondModifier) {
         const BondModifier& mod = this->bond_modifier;
         return mod.is_creating_bond();
-    }
+    //}
     return false;
 }
 
 void ActiveTool::finish_creating_bond(int x, int y) {
-    check_variant(Variant::BondModifier);
     BondModifier& mod = this->bond_modifier;
     auto click_result = this->widget_data->resolve_click(x, y);
     auto [original_molecule_idx, first_atom_idx] = mod.get_molecule_idx_and_first_atom_of_new_bond().value();
@@ -581,165 +558,151 @@ std::string DeleteTool::get_exception_message_prefix() const noexcept {
     return "Could not delete atom/bond: ";
 }
 
-void ActiveTool::insert_structure(int x, int y) {
-    check_variant(Variant::StructureInsertion);
-    auto click_result = this->widget_data->resolve_click(x, y);
-    using Structure = StructureInsertion::Structure;
-    auto structure_kind = this->structure_insertion.get_structure();
 
-    RDKit::RWMol* rdkit_mol_ptr = nullptr;
+unsigned int StructureInsertion::append_carbon(RDKit::RWMol* rdkit_mol_ptr, unsigned int target_idx, RDKit::Bond::BondType bond_type) {
+    RDKit::Atom* new_carbon = new RDKit::Atom(6);
+    auto new_carbon_idx = rdkit_mol_ptr->addAtom(new_carbon,false,true);
+    rdkit_mol_ptr->addBond(target_idx,new_carbon_idx,bond_type);
+    return new_carbon_idx;  
+}
 
-    auto append_carbon = [&](unsigned int target_idx, RDKit::Bond::BondType bond_type = RDKit::Bond::SINGLE) -> unsigned int {
-        RDKit::Atom* new_carbon = new RDKit::Atom(6);
-        auto new_carbon_idx = rdkit_mol_ptr->addAtom(new_carbon,false,true);
-        rdkit_mol_ptr->addBond(target_idx,new_carbon_idx,bond_type);
-        return new_carbon_idx;
-    };
+unsigned int StructureInsertion::append_carbon_chain(RDKit::RWMol* rdkit_mol_ptr, unsigned int chain_start_idx, std::size_t atom_count) {
+    unsigned int current_atom = chain_start_idx;
+    for(std::size_t i = 0; i < atom_count; i++) {
+        current_atom = append_carbon(rdkit_mol_ptr, current_atom);
+    }
+    return current_atom;
+}
 
-    auto append_carbon_chain = [&](unsigned int chain_start_idx, std::size_t atom_count) -> unsigned int {
-        unsigned int current_atom = chain_start_idx;
-        for(std::size_t i = 0; i < atom_count; i++) {
-            current_atom = append_carbon(current_atom);
+void StructureInsertion::append_structure_to_atom(RDKit::RWMol* rdkit_mol_ptr, unsigned int atom_idx) const {
+    auto first_carbon = append_carbon(rdkit_mol_ptr, atom_idx);
+    switch (this->get_structure()) {
+        case Structure::CycloPropaneRing: {
+            auto third_carbon = append_carbon_chain(rdkit_mol_ptr, first_carbon,2);
+            rdkit_mol_ptr->addBond(first_carbon,third_carbon,RDKit::Bond::SINGLE);
+            break;
         }
-        return current_atom;
-    };
-
-    auto append_structure_to_atom = [&](unsigned int atom_idx){
-        auto first_carbon = append_carbon(atom_idx);
-        switch (structure_kind) {
-            case Structure::CycloPropaneRing: {
-                auto third_carbon = append_carbon_chain(first_carbon,2);
-                rdkit_mol_ptr->addBond(first_carbon,third_carbon,RDKit::Bond::SINGLE);
-                break;
-            }
-            case Structure::CycloButaneRing: {
-                auto last_carbon = append_carbon_chain(first_carbon,3);
-                rdkit_mol_ptr->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
-                break;
-            }
-            case Structure::CycloPentaneRing: {
-                auto last_carbon = append_carbon_chain(first_carbon,4);
-                rdkit_mol_ptr->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
-                break;
-            }
-            case Structure::CycloHexaneRing: {
-                auto last_carbon = append_carbon_chain(first_carbon,5);
-                rdkit_mol_ptr->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
-                break;
-            }
-            case Structure::BenzeneRing: {
-                auto second_carbon = append_carbon(first_carbon);
-                auto third_carbon = append_carbon(second_carbon,RDKit::Bond::DOUBLE);
-                auto fourth_carbon = append_carbon(third_carbon);
-                auto fifth_carbon = append_carbon(fourth_carbon,RDKit::Bond::DOUBLE);
-                auto sixth_carbon = append_carbon(fifth_carbon);
-                rdkit_mol_ptr->addBond(first_carbon,sixth_carbon,RDKit::Bond::DOUBLE);
-                break;
-            }
-            case Structure::CycloHeptaneRing: {
-                auto last_carbon = append_carbon_chain(first_carbon,6);
-                rdkit_mol_ptr->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
-                break;
-            }
-            case Structure::CycloOctaneRing: {
-                auto last_carbon = append_carbon_chain(first_carbon,7);
-                rdkit_mol_ptr->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
-                break;
-            }
+        case Structure::CycloButaneRing: {
+            auto last_carbon = append_carbon_chain(rdkit_mol_ptr, first_carbon,3);
+            rdkit_mol_ptr->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
+            break;
         }
-    };
-
-    try {
-        if(click_result.has_value()) {
-            this->widget_data->begin_edition();
-            auto [bond_or_atom,molecule_idx] = click_result.value();
-            auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
-            rdkit_mol_ptr = rdkit_mol.get();
-
-            RDKit::MolOps::Kekulize(*rdkit_mol.get());
-
-            if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
-                auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
-                append_structure_to_atom(atom.idx);
-                this->widget_data->update_status("Carbon ring has been appended to the atom.");
-            } else { // a bond
-                auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
-                auto last_carbon = bond.second_atom_idx;
-                auto first_carbon = bond.first_atom_idx;
-                switch (structure_kind) {
-                    case Structure::CycloPropaneRing: {
-                        auto second_carbon = append_carbon(first_carbon);
-                        rdkit_mol->addBond(second_carbon,last_carbon,RDKit::Bond::SINGLE);
-                        break;
-                    }
-                    case Structure::CycloButaneRing: {
-                        auto fourth_carbon = append_carbon_chain(first_carbon,2);
-                        rdkit_mol->addBond(last_carbon,fourth_carbon,RDKit::Bond::SINGLE);
-                        break;
-                    }
-                    case Structure::CycloPentaneRing: {
-                        auto fifth_carbon = append_carbon_chain(first_carbon,3);
-                        rdkit_mol->addBond(last_carbon,fifth_carbon,RDKit::Bond::SINGLE);
-                        break;
-                    }
-                    case Structure::CycloHexaneRing: {
-                        auto sixth_carbon = append_carbon_chain(first_carbon,4);
-                        rdkit_mol->addBond(last_carbon,sixth_carbon,RDKit::Bond::SINGLE);
-                        break;
-                    }
-                    case Structure::BenzeneRing: {
-                        auto second_carbon = append_carbon(first_carbon,RDKit::Bond::DOUBLE);
-                        auto third_carbon = append_carbon(second_carbon);
-                        auto fourth_carbon = append_carbon(third_carbon,RDKit::Bond::DOUBLE);
-                        auto fifth_carbon = append_carbon(fourth_carbon);
-                        rdkit_mol->addBond(last_carbon,fifth_carbon,RDKit::Bond::DOUBLE);
-                        break;
-                    }
-                    case Structure::CycloHeptaneRing: {
-                        auto seventh_carbon = append_carbon_chain(first_carbon,5);
-                        rdkit_mol->addBond(last_carbon,seventh_carbon,RDKit::Bond::SINGLE);
-                        break;
-                    }
-                    case Structure::CycloOctaneRing: {
-                        auto eigth_carbon = append_carbon_chain(first_carbon,6);
-                        rdkit_mol->addBond(last_carbon,eigth_carbon,RDKit::Bond::SINGLE);
-                        break;
-                    }
-                }
-
-                this->widget_data->update_status("Carbon ring has been added, adjacent to the bond.");
-            }
-            this->sanitize_molecule(*rdkit_mol.get());
-            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-            canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
-            this->widget_data->finalize_edition();
-            
-        } else {
-            // Nothing has been clicked on.
-            g_debug("The click could not be resolved to any atom or bond.");
-            if(this->widget_data->rdkit_molecules->empty()) {
-                g_debug("There are no molecules. Structure insertion will therefore create a new one.");
-                auto* widget_ptr = static_cast<impl::CootLigandEditorCanvasPriv*>(this->widget_data);
-                auto rdkit_mol = std::make_shared<RDKit::RWMol>();
-                rdkit_mol->addAtom(new RDKit::Atom(6),false,true);
-                rdkit_mol_ptr = rdkit_mol.get();
-                append_structure_to_atom(0);
-                rdkit_mol->removeAtom((unsigned int) 0);
-                // This function calls "begin_edition" and "finalize_edition", 
-                // so we can't call "begin_edition" here above.
-                coot_ligand_editor_append_molecule(COOT_COOT_LIGAND_EDITOR_CANVAS(widget_ptr), rdkit_mol);
-                this->widget_data->update_status("New molecule created from carbon ring.");
-            }
+        case Structure::CycloPentaneRing: {
+            auto last_carbon = append_carbon_chain(rdkit_mol_ptr, first_carbon,4);
+            rdkit_mol_ptr->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
+            break;
         }
-    } catch(std::exception& e) {
-        g_warning("An error occured: %s",e.what());
-        std::string status_msg = "Could not insert structure: "; status_msg += e.what();
-        if (this->widget_data->is_in_edition()) {
-            this->widget_data->rollback_current_edition();
-        } else { // Needed if a new molecule was created on an empty canvas
-            this->widget_data->undo_edition();
+        case Structure::CycloHexaneRing: {
+            auto last_carbon = append_carbon_chain(rdkit_mol_ptr, first_carbon,5);
+            rdkit_mol_ptr->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
+            break;
         }
-        this->widget_data->update_status(status_msg.c_str());
+        case Structure::BenzeneRing: {
+            auto second_carbon = append_carbon(rdkit_mol_ptr, first_carbon);
+            auto third_carbon = append_carbon(rdkit_mol_ptr, second_carbon, RDKit::Bond::DOUBLE);
+            auto fourth_carbon = append_carbon(rdkit_mol_ptr, third_carbon);
+            auto fifth_carbon = append_carbon(rdkit_mol_ptr, fourth_carbon, RDKit::Bond::DOUBLE);
+            auto sixth_carbon = append_carbon(rdkit_mol_ptr, fifth_carbon);
+            rdkit_mol_ptr->addBond(first_carbon,sixth_carbon,RDKit::Bond::DOUBLE);
+            break;
+        }
+        case Structure::CycloHeptaneRing: {
+            auto last_carbon = append_carbon_chain(rdkit_mol_ptr, first_carbon,6);
+            rdkit_mol_ptr->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
+            break;
+        }
+        case Structure::CycloOctaneRing: {
+            auto last_carbon = append_carbon_chain(rdkit_mol_ptr, first_carbon,7);
+            rdkit_mol_ptr->addBond(first_carbon,last_carbon,RDKit::Bond::SINGLE);
+            break;
+        }
+    }
+}
+
+
+bool StructureInsertion::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
+    widget_data.begin_edition();
+    RDKit::MolOps::Kekulize(*rdkit_mol.get());
+    return true;
+}
+
+void StructureInsertion::on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) {
+    auto last_carbon = bond.second_atom_idx;
+    auto first_carbon = bond.first_atom_idx;
+    auto structure_kind = this->get_structure();
+    auto* rdkit_mol_ptr = rdkit_mol.get();
+    switch (structure_kind) {
+        case Structure::CycloPropaneRing: {
+            auto second_carbon = append_carbon(rdkit_mol_ptr, first_carbon);
+            rdkit_mol->addBond(second_carbon,last_carbon,RDKit::Bond::SINGLE);
+            break;
+        }
+        case Structure::CycloButaneRing: {
+            auto fourth_carbon = append_carbon_chain(rdkit_mol_ptr, first_carbon,2);
+            rdkit_mol->addBond(last_carbon,fourth_carbon,RDKit::Bond::SINGLE);
+            break;
+        }
+        case Structure::CycloPentaneRing: {
+            auto fifth_carbon = append_carbon_chain(rdkit_mol_ptr, first_carbon,3);
+            rdkit_mol->addBond(last_carbon,fifth_carbon,RDKit::Bond::SINGLE);
+            break;
+        }
+        case Structure::CycloHexaneRing: {
+            auto sixth_carbon = append_carbon_chain(rdkit_mol_ptr, first_carbon,4);
+            rdkit_mol->addBond(last_carbon,sixth_carbon,RDKit::Bond::SINGLE);
+            break;
+        }
+        case Structure::BenzeneRing: {
+            auto second_carbon = append_carbon(rdkit_mol_ptr, first_carbon,RDKit::Bond::DOUBLE);
+            auto third_carbon = append_carbon(rdkit_mol_ptr, second_carbon);
+            auto fourth_carbon = append_carbon(rdkit_mol_ptr, third_carbon,RDKit::Bond::DOUBLE);
+            auto fifth_carbon = append_carbon(rdkit_mol_ptr, fourth_carbon);
+            rdkit_mol->addBond(last_carbon,fifth_carbon,RDKit::Bond::DOUBLE);
+            break;
+        }
+        case Structure::CycloHeptaneRing: {
+            auto seventh_carbon = append_carbon_chain(rdkit_mol_ptr, first_carbon,5);
+            rdkit_mol->addBond(last_carbon,seventh_carbon,RDKit::Bond::SINGLE);
+            break;
+        }
+        case Structure::CycloOctaneRing: {
+            auto eigth_carbon = append_carbon_chain(rdkit_mol_ptr, first_carbon,6);
+            rdkit_mol->addBond(last_carbon,eigth_carbon,RDKit::Bond::SINGLE);
+            break;
+        }
+    }
+    widget_data.update_status("Carbon ring has been added, adjacent to the bond.");
+}
+
+void StructureInsertion::on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) {
+    this->append_structure_to_atom(rdkit_mol.get(),atom.idx);
+    widget_data.update_status("Carbon ring has been appended to the atom.");
+}
+
+void StructureInsertion::after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
+    this->sanitize_molecule(widget_data, *rdkit_mol);
+    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
+    widget_data.finalize_edition();
+}
+
+std::string StructureInsertion::get_exception_message_prefix() const noexcept {
+    return "Could not insert structure: ";
+}
+
+void StructureInsertion::on_blank_space_click(impl::WidgetCoreData& widget_data, int x, int y) {
+    g_debug("The click could not be resolved to any atom or bond.");
+    if(widget_data.rdkit_molecules->empty()) {
+        g_debug("There are no molecules. Structure insertion will therefore create a new one.");
+        auto* widget_ptr = static_cast<impl::CootLigandEditorCanvasPriv*>(&widget_data);
+        auto rdkit_mol = std::make_shared<RDKit::RWMol>();
+        rdkit_mol->addAtom(new RDKit::Atom(6),false,true);
+        append_structure_to_atom(rdkit_mol.get(),0);
+        rdkit_mol->removeAtom((unsigned int) 0);
+        // This function calls "begin_edition" and "finalize_edition", 
+        // so we can't call "begin_edition" here above.
+        coot_ligand_editor_append_molecule(COOT_COOT_LIGAND_EDITOR_CANVAS(widget_ptr), rdkit_mol);
+        widget_data.update_status("New molecule created from carbon ring.");
+        // todo: make sure that this is crash-safe vs edit/undo
     }
 }
 
@@ -825,7 +788,7 @@ void Tool::sanitize_molecule(impl::WidgetCoreData& widget_data, RDKit::RWMol& mo
 
 /// Valid for Variant::BondModifier.
 std::optional<std::pair<unsigned int,unsigned int>> ActiveTool::get_molecule_idx_and_first_atom_of_new_bond() const {
-    check_variant(Variant::BondModifier);
+    // check_variant(Variant::BondModifier);
     auto& mod = this->bond_modifier;
     return mod.get_molecule_idx_and_first_atom_of_new_bond();
 }

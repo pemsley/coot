@@ -113,7 +113,7 @@ class BondModifier {
 
 };
 
-class ElementInsertion {
+class ElementInsertion : public Tool {
     public:
     enum class Element {
         C,
@@ -135,11 +135,17 @@ class ElementInsertion {
     ElementInsertion(Element el) noexcept;
 
     unsigned int get_atomic_number() const noexcept;
+
+    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) override;
+    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) override;
+    virtual void after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
 
 
-class StructureInsertion {
+class StructureInsertion : public Tool {
     public:
 
     enum class Structure: unsigned int {
@@ -149,18 +155,27 @@ class StructureInsertion {
         CycloHexaneRing,
         BenzeneRing,
         CycloHeptaneRing,
-        CycloOctaneRing,
-        // todo:
-        // "env residues"
-
+        CycloOctaneRing
     };
     private:
     Structure structure;
+
+    static unsigned int append_carbon(RDKit::RWMol*, unsigned int target_idx, RDKit::Bond::BondType bond_type = RDKit::Bond::SINGLE);
+    static unsigned int append_carbon_chain(RDKit::RWMol*, unsigned int chain_start_idx, std::size_t atom_count);
+    void append_structure_to_atom(RDKit::RWMol*, unsigned int atom_idx) const;
 
     public:
     StructureInsertion(Structure) noexcept;
 
     Structure get_structure() const noexcept;
+
+    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) override;
+    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) override;
+    virtual void after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual void on_blank_space_click(impl::WidgetCoreData& widget_data, int x, int y) override;
+    virtual std::string get_exception_message_prefix() const noexcept override;
+
 
 };
 
@@ -229,32 +244,16 @@ class ActiveTool {
         Move,
         Tool
     };
-    enum class Variant: unsigned char {
-        None,
-        BondModifier,
-        StructureInsertion,
-        ElementInsertion,
-    };
 
     private:
     union {
-        /// Valid for Variant::BondModifier
         BondModifier bond_modifier;
-        /// Valid for Variant::ElementInsertion
-        ElementInsertion element_insertion;
-        /// Valid for Variant::StructureInsertion
-        StructureInsertion structure_insertion;
     };
     Mode mode;
-    Variant variant;
     /// Non-owning pointer
     impl::WidgetCoreData* widget_data;
     std::unique_ptr<Tool> tool;
     TransformManager transform_manager;
-
-    /// Checks if the internal variant (the kind of the tool) matches what's expected (passed as argument).
-    /// Throws an exception in case of a mismatch.
-    void check_variant(Variant) const;
 
     /// Wraps `RDKit::MolOps::sanitizeMol()`.
     /// Used for checking validity and reversing kekulization.
@@ -278,20 +277,12 @@ class ActiveTool {
     void on_click(int x, int y);
     void on_release(int x, int y);
 
-    Variant get_variant() const noexcept;
-    /// Valid for Variant::ElementInsertion.
-    /// Inserts currently chosen atom at the given coordinates.
-    void insert_atom(int x, int y);
-    /// Valid for Variant::BondModifier.
     /// Changes the bond found at the given coordinates.
     /// The kind of the bond depends upon current BondModifierMode.
     void alter_bond(int x, int y);
     bool is_creating_bond() const noexcept;
     /// Valid for Variant::BondModifier.
     void finish_creating_bond(int x, int y);
-    /// Valid for Variant::StructureInsertion.
-    /// Inserts currently chosen structure at the given coordinates.
-    void insert_structure(int x, int y);
     /// Updates the current mouse coordinates
     /// allowing to compute adequate viewport rotation / translation
     void update_transform_cursor_pos(int x, int y, bool snap_to_angle) noexcept;
