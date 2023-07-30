@@ -218,9 +218,7 @@ on_left_click_released (
         return;
     }
 
-    if(self->active_tool->is_creating_bond()) {
-        self->currently_created_bond = std::nullopt;
-    }
+    // `currently_created_bond` gets cleared here when appropriate
     self->active_tool->on_release(x, y);
 }
 

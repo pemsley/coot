@@ -394,6 +394,7 @@ void BondModifier::on_release(impl::WidgetCoreData& widget_data, int x, int y) {
     auto click_result = widget_data.resolve_click(x, y);
     auto [original_molecule_idx, first_atom_idx] = this->get_molecule_idx_and_first_atom_of_new_bond().value();
     this->finish_creating_bond();
+    widget_data.currently_created_bond = std::nullopt;
 
     if(click_result.has_value()) {
         try{
