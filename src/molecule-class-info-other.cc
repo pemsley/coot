@@ -9494,8 +9494,8 @@ molecule_class_info_t::number_of_chains() const {
       if (model_p) {
          n = model_p->GetNumberOfChains();
       }
-      return n;
    }
+   return n;
 }
 
 
