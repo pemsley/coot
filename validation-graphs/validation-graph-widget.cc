@@ -342,13 +342,6 @@ void coot_validation_graph_snapshot (GtkWidget *widget, GtkSnapshot *snapshot) {
                     green_to_red(1.0 - bar_proportion);
                 };
 
-                // debugging
-                std::string graph_type_str = "unknown";
-                if (self->_vi->type == coot::graph_data_type::LogProbability) graph_type_str = "LogProb";
-                if (self->_vi->type == coot::graph_data_type::Probability)    graph_type_str = "Prob";
-                if (self->_vi->type == coot::graph_data_type::Distortion)     graph_type_str = "Distortion";
-                if (self->_vi->type == coot::graph_data_type::Correlation)    graph_type_str = "Correlation";
-                if (self->_vi->type == coot::graph_data_type::Energy)         graph_type_str = "Energy";
 
                 switch (self->_vi->type) {
                     case coot::graph_data_type::LogProbability:

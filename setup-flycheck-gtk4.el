@@ -18,15 +18,14 @@
 
    "." ".."
    "/usr/lib/x86_64-linux-gnu/glib-2.0/include"
-   "/home/paule/autobuild/Linux-penelope-gtk4/include"
-   "/home/paule/autobuild/Linux-penelope-gtk4/include/coot"
-   "/home/paule/autobuild/Linux-penelope-gtk4/include/rdkit"
-   "/home/paule/autobuild/Linux-penelope-gtk4/include/boost"
-   "/home/paule/autobuild/Linux-penelope-gtk4/include/python3.9"
-   "/home/paule/autobuild/Linux-penelope-gtk4/include/MoleculesToTriangles"
+   "/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include"
+   "/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include/coot"
+   "/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include/rdkit"
+   "/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include/boost"
+   "/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include/python3.11"
+   "/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include/MoleculesToTriangles"
    "/home/paule/python3/include/python3.8"
    "/home/paule/glm/include"
-   "/home/paule/goocanvas/include/goocanvas-2.0"
    "/home/paule/ogg-vorbis/include"
    "/home/paule/assimp/include"
 
@@ -34,7 +33,8 @@
    "/home/paule/autobuild/Linux-penelope-gtk4-python/include"
 
    ;; from https://github.com/Wilfred/flycheck-pkg-config/issues/2
-   "/usr/include/gtk-4.0"
+   "/home/paule/gtk4/include/gtk-4.0"
+   ;; "/usr/include/gtk-4.0"
    "/usr/include/graphene-1.0"
    "/home/paule/gtk/lib/x86_64-linux-gnu/graphene-1.0/include" ;; for graphene-config.h
    "/usr/include/libpng16" "/usr/include/gdk-pixbuf-2.0"

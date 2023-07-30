@@ -729,6 +729,9 @@ public:
    //! @return the map rmsd (epsilon testing is not used). -1 is returned if `imol_map` is not a map molecule index.
    float get_map_rmsd_approx(int imol_map) const;
 
+   //! @return the suggested initial contour level. Return -1 on not-a-map
+   float get_suggested_initial_contour_level(int imol) const;
+
    //! create a new map that is blurred/sharpened
    //! @return the molecule index of the new map or -1 on failure or if `in_place_flag` was true.
    int sharpen_blur_map(int imol_map, float b_factor, bool in_place_flag);
@@ -1108,6 +1111,12 @@ public:
    //! `mcdonald_and_thornton_mode` turns on the McDonald & Thornton algorithm - using explicit hydrogen atoms
    //! @return a vector of hydrogen bonds around the specified residue (typically a ligand)
    std::vector<moorhen::h_bond> get_h_bonds(int imol, const std::string &cid_str, bool mcdonald_and_thornton_mode) const;
+
+   //! get the mesh for ligand validation vs dictionary, coloured by badness.
+   //! greater then 3 standard deviations is fully red.
+   //! Less than 0.5 standard deviations is fully green.
+   // Function is not const because it might change the protein_geometry geom.
+   coot::simple_mesh_t get_mesh_for_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid);
 
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation

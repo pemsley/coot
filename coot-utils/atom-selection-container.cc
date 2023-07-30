@@ -33,6 +33,13 @@
 #include "lidia-core/lbg-molfile.hh"
 #include "lidia-core-functions.hh"
 
+#define USE_GEMMI
+
+#ifdef USE_GEMMI
+#include "gemmi/mmread.hpp"
+#include "gemmi/mmdb.hpp"
+#endif
+
 mmdb::Residue *
 atom_selection_container_t::get_next(mmdb::Residue *residue_in) const {
 
@@ -219,8 +226,51 @@ get_atom_selection(std::string pdb_name,
              // atom_selection_container.read_error_message = NULL; // its a string
              asc.mol = MMDBManager;
           } else {
+
 #ifdef USE_GEMMI
-             
+
+             std::cout << "INFO:: Try to use GEMMI here to read " << pdb_name << std::endl;
+
+             // gemmi::cif::Document doc = gemmi::cif::read_file(pdb_name);
+             gemmi::Structure st = gemmi::read_structure_file(pdb_name);
+             if (! st.models.empty()) {
+                mmdb::Manager *mol = new mmdb::Manager;
+                gemmi::copy_to_mmdb(st, mol);
+                asc.read_success = 1;
+                asc.mol = mol;
+
+                for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
+                   mmdb::Model *model_p = mol->GetModel(imod);
+                   if (model_p) {
+                      int n_chains = model_p->GetNumberOfChains();
+                      for (int ichain=0; ichain<n_chains; ichain++) {
+                         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                         int n_res = chain_p->GetNumberOfResidues();
+                         for (int ires=0; ires<n_res; ires++) {
+                            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                            if (residue_p) {
+                               int n_atoms = residue_p->GetNumberOfAtoms();
+                               for (int iat=0; iat<n_atoms; iat++) {
+                                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                                  std::string atom_name = at->GetAtomName();
+                                  int l = atom_name.length();
+                                  std::string new_atom_name;
+                                  if (l == 1) new_atom_name = std::string(" ") + atom_name + std::string("  ");
+                                  if (l == 2) new_atom_name = atom_name + std::string("  ");
+                                  if (l == 3) new_atom_name = atom_name + std::string(" ");
+                                  if (l == 1 || l == 2 || l == 3) {
+                                     at->SetAtomName(new_atom_name.c_str());
+                                  }
+                               }
+                            }
+                         }
+                      }
+                   }
+                }
+             }
+
+#else
+             std::cout << "No GEMMI fallback - sad times " << std::endl;
 #endif
           }
        }

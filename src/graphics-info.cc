@@ -3800,8 +3800,6 @@ graphics_info_t::update_maps_for_mols(const std::vector<int> &mol_idxs) {
 void
 graphics_info_t::update_maps() {
 
-   std::cout << "in update_maps() flag is " << active_map_drag_flag << std::endl;
-
    if (GetActiveMapDrag() == 1) {
 
       // now map updates are internally threaded - we don't need

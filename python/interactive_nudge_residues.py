@@ -1,4 +1,8 @@
 
+
+import coot
+import coot_utils
+
 def new_molecule_with_nudged_residues(imol, residue_spec,
                                       residue_delta, nudge_by):
 

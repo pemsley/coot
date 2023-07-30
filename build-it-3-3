@@ -2072,9 +2072,9 @@ fi
 # python_version is the filename of the python executable.  For python
 # 2.5.1 it is python2.5, not python2.5.1
 #
-python_version=python3.9
-pver=3.9.12
-python_version_extension=3.9 # extract this
+python_version=python3.11
+pver=3.11.4
+python_version_extension=3.11 # extract this
 
 
 # for compatibility with gtk build system
@@ -2220,11 +2220,17 @@ if [ -e $install_top_dir/bin/python3 ] ; then
       # test for ctypes - was it installed correctly?
       ld_lib_path_backup=$LD_LIBRARY_PATH
       unset LD_LIBRARY_PATH
-      if ${install_top_dir}/bin/python3 -c 'import ctypes' ; then
-         echo we have python3 with working ctypes
+      if [ "$(${install_top_dir}/bin/python3 -V)" = "Python $pver" ] ; then
+         echo found version of Python `${install_top_dir}/bin/python3 -V` 2>&1
+         if ${install_top_dir}/bin/python3 -c 'import ctypes' ; then
+            echo we have python3 with working ctypes
+         else
+            echo python3 ctypes failure
+            build_python=1
+         fi
       else
-         echo python3 ctypes failure
-         build_python=1
+         echo wrong version of Python - needs rebuild
+         ${install_top_dir}/bin/python3 -V
       fi
       export LD_LIBRARY_PATH=$ld_lib_path_backup
    else
@@ -2536,11 +2542,17 @@ if true ; then
           else
               git clone https://github.com/project-gemmi/gemmi.git
           fi
-          cd gemmi/include
+          # cd gemmi/include
           # note to self: fix this for Darwin - which has a crippled cp
-          cp -a -r gemmi $install_top_dir/include
-          cd -
-          cd $save_dir
+          # cp -a -r gemmi $install_top_dir/include
+          # cd -
+          # cd $save_dir
+          mkdir build-gemmi
+          cd build-gemmi
+          cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi
+          if $MAKE ; then
+              make install
+          fi
       ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
 fi
 
@@ -3201,6 +3213,7 @@ if test -n "$build_gsl" ; then
 gsl_version=1.12
 gsl_version=1.15
 gsl_version=1.16
+gsl_version=2.7
 # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
 # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
@@ -3246,9 +3259,11 @@ if [ "$build_boost" = true ] ; then
       boost_version=1_71_0
       boost_version=1_72_0
       boost_version=1_74_0
+      boost_version=1_82_0
       boost_server_dir=1.72.0
       boost_server_dir=1.72.0
       boost_server_dir=1.74.0
+      boost_server_dir=1.82.0
       echo BUILDING boost $boost_version :
       (
       echo building ========================= boost $boost_version =========================
@@ -3276,7 +3291,6 @@ if [ "$build_boost" = true ] ; then
       # $HOME/autobuild/Linux-penelope-pre-release-gtk3-python/include/python3.6m/pyconfig.h
 
       address_model=64
-      # ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,serialization --without-icu
       pwd
       echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu
       echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu > bootstrap-command-save
@@ -3721,25 +3735,24 @@ if [ "$build_rdkit" = true ] ; then
       # probblem: $install_top_dir/include/boost/python/detail/wrap_python.hpp:57:23: fatal error: pyconfig.h: No such file or directory
       # solution: https://github.com/rdkit/rdkit/issues/3884
       # -DPYTHON_INCLUDE_DIR=$PYROOT/include/python3.8
+      # -DBoost_PYTHON39_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so
 
-      echo cmake -DBoost_NO_BOOST_CMAKE=ON \
-               -DBoost_INCLUDE_DIR=$install_top_dir/include \
+      echo cmake \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
-               -DBoost_PYTHON39_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
+               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-x86_64-linux-gnu/libpython$python_version_extension.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
                 $tree_from_build
 
-      if cmake -DBoost_NO_BOOST_CMAKE=ON \
-               -DBoost_INCLUDE_DIR=$install_top_dir/include \
+      if cmake  \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
-               -DBoost_PYTHON39_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
+               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-x86_64-linux-gnu/libpython$python_version_extension.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
@@ -3766,24 +3779,7 @@ fi
 
 
 
-# silicos-it's biscu-it
-if [ -e $install_top_dir/lib/$python_version/site-packages/silicos_it/descriptors/qed.py ] ; then
-   echo not building biscu-it:
-else
-   echo building QED
-   (date
-    ${WGET} http://silicos-it.be.s3-website-eu-west-1.amazonaws.com/_downloads/qed-1.0.1.tar.gz
-    ${WGET} $extras_place/coot/qed-python3.patch
-    pwd
-    tar xf ${AUTOBUILD_SOURCES}/qed-1.0.1.tar.gz
-    cd qed-1.0.1
-    patch -p0 < ../qed-python3.patch # correct patch level? needs checking
-    python3 setup.py install
-    cd -
-   ) > $HOSTLOGDIR/19-biscu-it.txt 2>&1
-fi
-
-
+# silicos-it's biscu-it (QED) is now part of RDKit main.
 
 
 ###############################################################################

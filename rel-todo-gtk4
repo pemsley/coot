@@ -10,7 +10,7 @@
 
 ----
 
-1 item
+2 items
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 2
 set_framebuffer_scale_factor().
@@ -19,18 +19,19 @@ shows a quadrant in "Plane" mode. The output tga file is full-resolution though,
 Don't confuse the scaling of the framebuffer for screenshot (in "Plain" mode) and
 the scaling of the framebuffers for super-sampling (in "Fancy" mode).
 
-Preferences -> Colours -> Font does not work ::: 1
+Try using the instanced bonds using the api. Fix the specular lighting.
 
-"Atom Label Font Size" frame should be deleted. ::: 0.5
+Test the conversion of glm quaternion to coot quaternion and back again.
+
+Pyrogen needs to work ::: 2
+
+
+---- "Do they need to work?"/"Nice to have one day" items -----
 
 Nice to have:
 "Resample map (say 11337 to 2.2) It takes a long time. There should be a progress bar.
 
-[ and ] don't change the cryo-EM map radius.
-
----- "Do they need to work?"/"Nice to have one day" items -----
-
-Rework the namespace of the python modules to be more cannonical ::: 4
+Rework the namespace of the python modules to be more cannonical :::- 4
 * I don't even know if this is possible
 What does it mean to
 import coot
@@ -54,7 +55,7 @@ perpendicular_ligand_view() is the function. Does it work in gtk3? No.
 
 Notes: GTK4 is needed for Vulkan and Vulkan is need for AMD FidelityFX Super Resolution and Nvidia thing (name?)
 
-Alt-B to close the Rama bar.
+Alt-B (or Ctrl-B) to close the Validatin/Rama bar.
 
 Make info_dialog() take a string.
 
@@ -730,3 +731,33 @@ shows a quadrant in "Plane" mode. The output tga file is full-resolution though,
 Don't confuse the scaling of the framebuffer for screenshot (in "Plain" mode) and
 the scaling of the framebuffers for super-sampling (in "Fancy" mode).
 * Now the framebuffer scaling for the basic/simple mode work (fat density lines appear)
+
+Preferences -> Colours -> Font does not work ::: 1
+
+"Atom Label Font Size" frame should be deleted from the properties. ::: 0.5
+
+[ and ] don't change the cryo-EM map radius. ::: 0.2
+
+Rename python modules fitting, get_ebi, gui_hole, mutate, ncs, pathology and others ::: 0.5
+https://github.com/microsoft/vscode-docs/blob/vnext/release-notes/v1_63.md#python
+(that vs code thing didn't work - no clevernesss suggested)
+
+How do I invoke the sequence view? ::: 0.1
+* Add a menu item
+
+Ligands in 6l01 and 7tzz fall off the page
+* Improved. Still needs work.
+
+How do I dismiss the sequence view? ::: 1
+* Done.
+
+From Stuart: 1h27 fails on read cif. ::: 1
+Make Coot use GEMMI.
+* Done.
+
+Open Check/Delete Waters dialog twice.
+I want alignment by using a Grid.
+I want distance in the button label.
+I want the results box to be docked.
+It needs an extra distance criterion for distance to a hydrogen atom. ::: 2
+

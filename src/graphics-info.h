@@ -1446,6 +1446,14 @@ public:
    void remove_all_atom_labels();
 
    static int n_molecules() { return molecules.size();}
+   static int n_map_molecules() {
+      int n = 0;
+      for (unsigned int i=0; i<molecules.size(); i++) {
+         if (is_valid_map_molecule(i))
+            n++;
+      }
+      return n;
+   }
    static std::vector<molecule_class_info_t> molecules;
 
    // To which map is the mouse scroll wheel attached?

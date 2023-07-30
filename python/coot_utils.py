@@ -29,7 +29,7 @@ import numbers
 import math
 import coot
 # import coot_gui # circular dependency
-from redefine_functions import * # 20220828-PE this needs fixing
+from coot_redefine_functions import * # 20220828-PE this needs fixing
 
 # hack this in for now
 global use_gui_qm

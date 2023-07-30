@@ -42,12 +42,11 @@ from gi.repository import GLib
 import coot
 import coot_utils
 import coot_gui_api # this is imported on binary startup
-import acedrg_link
-import sharpen_blur
-import libcheck # bleugh
-import redefine_functions as rf
-import get_recent_pdbe
-import interactive_nudge_residues
+import coot_acedrg_link
+import coot_sharpen_blur
+import coot_redefine_functions as rf
+# import get_recent_pdbe # not used
+# import interactive_nudge_residues # not yet converted
 
 
 # thank you ebassi!
@@ -74,14 +73,14 @@ probe_command = "molprobity.probe"
 #
 def handle_smiles_go(tlc_entry, smiles_entry):
 
-    import generator_3d_import
+    import coot_generator_3d_import
 
     tlc_text = tlc_entry.get_text()
     smiles_text = smiles_entry.get_text()
     use_libcheck = False
     if coot_utils.is_windows():
         use_libcheck = True
-    generator_3d_import.new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=use_libcheck)
+    coot_generator_3d_import.new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=use_libcheck)
 
 # smiles GUI
 #
@@ -2960,7 +2959,7 @@ def transform_map_using_lsq_matrix_gui():
 
 def ncs_ligand_gui():
 
-    import ncs
+    import coot_ncs as ncs
 
     def delete_event(*args):
         window.destroy()
@@ -3086,7 +3085,7 @@ ncs_jumping_time_step = 500
 
 def ncs_jumping_gui():
 
-    import ncs
+    import coot_ncs as ncs
 
     global ncs_jumping_time_step
     global timeout_function_token
@@ -3328,7 +3327,7 @@ global news_string_2
 news_string_1 = False
 news_string_2 = False
 
-import fitting
+import coot_fitting as fitting
 
 # Cootaneer/sequencing gui modified by BL with ideas from KC
 # based on Paul's cootaneer gui and generic_chooser_entry_and_file_selector
@@ -5526,7 +5525,7 @@ def add_module_cryo_em_gui():
                 coot.fit_molecule_to_map_by_random_jiggle_and_blur(imol, n_trials, 5, 400)
 
         def sharpen_blur_map_gui_wrapper(_simple_action, _arg2):
-            sharpen_blur.sharpen_blur_map_gui()
+            coot_sharpen_blur.sharpen_blur_map_gui()
 
         def multi_sharpen_map_gui_wrapper(_simple_action, _arg2):
             refmac_multi_sharpen_gui()
@@ -5630,14 +5629,14 @@ def add_module_ccp4_gui():
     if coot_gui_api.main_menumodel():
         menu = attach_module_menu_button("CCP4")
 
-        add_simple_action_to_menu(menu,"Make LINK via Acedrg","make_link_acedrg",lambda _one, _two: acedrg_link.acedrg_link_generation_control_window())
+        add_simple_action_to_menu(menu,"Make LINK via Acedrg","make_link_acedrg",lambda _one, _two: coot_acedrg_link.acedrg_link_generation_control_window())
 
 def show_chem_func():
     with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
         coot.show_feats(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
 
 # for quick-ligand-validate:
-import ligand_check
+import coot_ligand_check
 
 def add_module_ligand_gui():
 
@@ -5696,7 +5695,7 @@ def add_module_ligand_gui():
         add_simple_action_to_menu(menu, "SMILES -> Simple 3D", "smiles_to_simple_3d", lambda _one, _two: coot.do_smiles_to_simple_3d_overlay_frame())
         add_simple_action_to_menu(menu, "Show Chemical Features", "show_chemical_features", lambda _one, _two: show_chem_func())
         add_simple_action_to_menu(menu, "Display Ligand Distortions", "display_ligand_distortions", lambda _one, _two: display_ligand_distortions_func())
-        add_simple_action_to_menu(menu, "Quick Ligand Validate", "quick_ligand_validate", lambda _one, _two: ligand_check.gui_ligand_check_dialog_active_residue())
+        add_simple_action_to_menu(menu, "Quick Ligand Validate", "quick_ligand_validate", lambda _one, _two: coot_ligand_check.gui_ligand_check_dialog_active_residue())
         add_simple_action_to_menu(menu, "Isolated Molprobity Dots for ligand", "isolated_molprobity_dots_for_ligand", lambda _one, _two: probe_ligand_func())
 
 def add_module_pdbe_gui():
@@ -5707,9 +5706,9 @@ def add_module_pdbe_gui():
       #     Recent structures from the PDBe
       # ---------------------------------------------------------------------
       #
-    #   add_simple_coot_menu_menuitem(
-    #      menu, "PDBe recent structures...",
-    #      lambda func: get_recent_pdbe.pdbe_latest_releases_gui())
+      #   add_simple_coot_menu_menuitem(
+      #      menu, "PDBe recent structures...",
+      #      lambda func: get_recent_pdbe.pdbe_latest_releases_gui())
 
       # we do test for refmac at startup not runtime (for simplicity)
       if coot_utils.command_in_path_qm("refmac5"):
@@ -5717,12 +5716,12 @@ def add_module_pdbe_gui():
       else:
          mess = "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
 
-    #   add_simple_coot_menu_menuitem(
-    #      menu, "Get from PDBe...",
-    #      lambda func: generic_single_entry("Get PDBe accession code",
-    #                                        "", " Get it ",
-    #                                        lambda text:
-    #                                        get_recent_pdbe.pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip().lstrip())))
+      #   add_simple_coot_menu_menuitem(
+      #      menu, "Get from PDBe...",
+      #      lambda func: generic_single_entry("Get PDBe accession code",
+      #                                        "", " Get it ",
+      #                                        lambda text:
+      #                                        get_recent_pdbe.pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip().lstrip())))
 
 
 

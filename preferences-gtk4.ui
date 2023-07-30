@@ -1030,69 +1030,6 @@ distances more than:</property>
                           <object class="GtkBox" id="vbox255">
                             <property name="orientation">vertical</property>
                             <child>
-                              <object class="GtkFrame" id="frame248">
-                                <property name="valign">center</property>
-                                <property name="visible">1</property>
-                                <property name="child">
-                                  <object class="GtkBox" id="vbox256">
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkCheckButton" id="preferences_font_size_small_radiobutton">
-                                        <property name="valign">center</property>
-                                        <property name="label" translatable="yes">Small</property>
-                                        <property name="use-underline">1</property>
-                                        <signal name="toggled" handler="on_preferences_font_size_small_radiobutton_toggled" swapped="no"/>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="preferences_font_size_medium_radiobutton">
-                                        <property name="valign">center</property>
-                                        <property name="label" translatable="yes">Medium</property>
-                                        <property name="use-underline">1</property>
-                                        <property name="group">preferences_font_size_small_radiobutton</property>
-                                        <signal name="toggled" handler="on_preferences_font_size_medium_radiobutton_toggled" swapped="no"/>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="preferences_font_size_large_radiobutton">
-                                        <property name="valign">center</property>
-                                        <property name="label" translatable="yes">Large</property>
-                                        <property name="use-underline">1</property>
-                                        <property name="group">preferences_font_size_small_radiobutton</property>
-                                        <signal name="toggled" handler="on_preferences_font_size_large_radiobutton_toggled" swapped="no"/>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkBox" id="hbox323">
-                                        <property name="vexpand">1</property>
-                                        <child>
-                                          <object class="GtkCheckButton" id="preferences_font_size_others_radiobutton">
-                                            <property name="halign">center</property>
-                                            <property name="label" translatable="yes">Others</property>
-                                            <property name="use-underline">1</property>
-                                            <property name="group">preferences_font_size_small_radiobutton</property>
-                                            <signal name="toggled" handler="on_preferences_font_size_others_radiobutton_toggled" swapped="no"/>
-                                          </object>
-                                        </child>
-                                        <child>
-                                          <object class="GtkComboBoxText" id="preferences_font_size_combobox">
-                                            <property name="visible">1</property>
-                                            <signal name="changed" handler="on_preferences_font_size_combobox_changed" swapped="no"/>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </property>
-                                <child type="label">
-                                  <object class="GtkLabel" id="label587">
-                                    <property name="visible">1</property>
-                                    <property name="label" translatable="yes">Atom Label Font Size?</property>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                            <child>
                               <object class="GtkFrame" id="frame286">
                                 <property name="valign">center</property>
                                 <property name="visible">1</property>
@@ -1113,7 +1050,7 @@ distances more than:</property>
                                         <child>
                                           <object class="GtkCheckButton" id="preferences_font_colour_own_radiobutton">
                                             <property name="halign">center</property>
-                                            <property name="label" translatable="yes">Own label colour</property>
+                                            <property name="label" translatable="yes">Own label colour </property>
                                             <property name="tooltip-text" translatable="yes">Select to choose you own colour</property>
                                             <property name="use-underline">1</property>
                                             <property name="group">preferences_font_colour_default_radiobutton</property>
@@ -1121,6 +1058,7 @@ distances more than:</property>
                                           </object>
                                         </child>
                                         <child>
+                                          <!-- come back and change this to a GtkColorDialogButton when we move to 4.12 -->
                                           <object class="GtkColorButton" id="preferences_font_colorbutton">
                                             <property name="halign">center</property>
                                             <property name="visible">1</property>

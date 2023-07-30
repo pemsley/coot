@@ -4247,6 +4247,9 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 /*! \name Sequence View Interface  */
 /* \{ */
 /*! \brief display the sequence view dialog for molecule number imol */
+void sequence_view(int imol);
+
+/*! \brief old name for the above function */
 void do_sequence_view(int imol);
 
 /*!  \brief update the sequnce view current position highlight based on active atom */

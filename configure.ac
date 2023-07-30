@@ -36,12 +36,10 @@ AM_ACLOCAL_INCLUDE(macros)
 AC_CONFIG_MACRO_DIR(macros)
 
 AC_PROG_CXX
-# LT_INIT that's old style. Now we use LT_INIT.
+# AC_PROG_LIBTOOL? that's old style. Now we use LT_INIT.
 # It is not yet clear to me how AC_LANG_SOURCE should be used
 # for LT_INIT
 LT_INIT
-
-AC_PROG_LIBTOOL
 
 # AC_PROG_INTLTOOL, no, not today.  Mac compilation problems, no perl/ XML or something.
 # BL says Lets do some testing and use old style if needed
@@ -357,14 +355,24 @@ dnl AC_CHECK_LIB(m,main)
 dnl AC_CHECK_LIB(gslcblas,main)
 dnl AC_CHECK_LIB(gsl,main)
 
-#GEMMI
-AC_LANG_PUSH(C++)
-AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_NOTICE(GEMMI headers were not found),)
-if test "$ac_cv_header_gemmi_to_json_hpp" = yes ; then
-   GEMMI_CXXFLAGS=-DUSE_GEMMI
+# gemmi doesn't have a pkgconfig file. Frustrating.
+AC_ARG_WITH([gemmi], AS_HELP_STRING([--with-gemmi compile with GEMMI]), with_gemmi="$withval", with_gemmi=false)
+
+if test "x$with_gemmi" = false ; then
+   :
+else
+   AC_SUBST(GEMMI_CXXFLAGS, -I$withval/include -DUSE_GEMMI=1)
+   AC_SUBST(GEMMI_LIBS, "-L$withval/lib -lgemmi_cpp")
 fi
-AC_SUBST(GEMMI_CXXFLAGS)
-AC_LANG_POP
+
+dnl #GEMMI
+dnl AC_LANG_PUSH(C++)
+dnl AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_NOTICE(GEMMI headers were not found),)
+dnl if test "$ac_cv_header_gemmi_to_json_hpp" = yes ; then
+dnl    GEMMI_CXXFLAGS=-DUSE_GEMMI
+dnl fi
+dnl AC_SUBST(GEMMI_CXXFLAGS)
+dnl AC_LANG_POP
 
 
 AM_WITH_MYSQL_DATABASE

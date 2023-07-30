@@ -26,6 +26,7 @@
 // $Rev: 1458 $
 
 // Load the head if it hasn't been included.
+
 #ifdef USE_PYTHON
 #ifndef PYTHONH
 #define PYTHONH
@@ -1246,13 +1247,161 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 #include "density-contour/gaussian-surface.hh"
 
 #include "pli/sdf-interface-for-export.hh"
+#include "get-monomer.hh"
+
+#include <boost/python.hpp> // because we try to call python functions from c++ using an rdkit molecule
 
 #ifdef USE_PYTHON
+static PyObject *rdkit_chem_qed_func        = NULL;
+static PyObject *rdkit_chem_properties_func = NULL;
 PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
    std::cout << "-------------------------- test_function_py() " << std::endl;
    std::string d = coot::prefix_dir();
    std::cout << "--------- prefix_dir " << d << std::endl;
+
+
+   if (true) {
+
+      auto qed_stuff = [] (RDKit::RWMol &rdkm) {
+         PyObject *pName = PyUnicode_FromString("rdkit.Chem"); // 20230513-PE merge: was just "silicos_it" - hmm.
+         // Load the module object
+         PyObject *pModule = PyImport_Import(pName);
+         if (pModule == NULL) {
+            std::cout << "OK... pModule was null " << pModule << std::endl;
+         } else {
+            std::cout << "OK... pModule was not null " << pModule << std::endl;
+            PyObject *pName_qed = PyUnicode_FromString("rdkit.Chem.QED");
+            // pDict is a borrowed reference
+            PyObject *pModule_qed = PyImport_Import(pName_qed);
+            PyObject *pDict_qed = PyModule_GetDict(pModule_qed);
+            if (! PyDict_Check(pDict_qed)) {
+               std::cout << "pDict is not a dict"<< std::endl;
+            } else {
+               std::cout << "OK... found the QED dictionary" << std::endl;
+
+               PyObject *pFunc = PyDict_GetItemString(pDict_qed, "default");
+               if (! pFunc) {
+                  std::cout << "BAD:: pFunc default is NULL" << std::endl;
+               } else {
+                  if (PyCallable_Check(pFunc)) {
+                     std::cout << "OK... Yeay - storing rdkit chem qed default_func" << std::endl;
+                     rdkit_chem_qed_func = pFunc;
+                  } else {
+                     std::cout << "BAD:: default() function is not callable"  << std::endl;
+                  }
+               }
+
+               pFunc = PyDict_GetItemString(pDict_qed, "properties");
+               if (! pFunc) {
+                  std::cout << "BAD:: pFunc properties is NULL" << std::endl;
+               } else {
+                  if (PyCallable_Check(pFunc)) {
+                     std::cout << "OK... Yeay - storing rdkit chem qed properties_func" << std::endl;
+                     rdkit_chem_properties_func = pFunc;
+                  } else {
+                     std::cout << "BAD:: properties() function is not callable"  << std::endl;
+                  }
+               }
+
+               // pads2 has been renamed to adsParameters
+               PyObject *rdkit_chem_qed_pads = PyDict_GetItemString(pDict_qed, "adsParameters");
+            }
+         }
+      };
+
+      graphics_info_t g;
+      std::string ligand_res_name("801");
+      int imol = get_monomer(ligand_res_name);
+      std::cout << "imol: " << imol << std::endl;
+      std::pair<bool, coot::dictionary_residue_restraints_t> p = 
+         g.Geom_p()->get_monomer_restraints_at_least_minimal(ligand_res_name, imol);
+      if (! p.first) {
+         std::cout << "Failed to get dictionary: " << ligand_res_name << std::endl;
+      } else {
+         mmdb::Residue  *res_ref = g.molecules[imol].get_residue("A", 1, "");
+         mmdb::Manager *mol_for_res_ref = g.molecules[imol].atom_sel.mol;
+         if (res_ref) {
+	    try {
+
+	       // can throw a std::runtime_error
+	       RDKit::RWMol rdkm = coot::rdkit_mol(res_ref, imol, *g.Geom_p());
+
+	       // assign atom names
+	       if (int(rdkm.getNumAtoms()) < res_ref->GetNumberOfAtoms()) {
+		  std::cout << "WARNING:: failure to construct rdkit molecule " << rdkm.getNumAtoms() << " vs " << res_ref->GetNumberOfAtoms()
+	                    << std::endl;
+	       } else {
+		  mmdb::PPAtom residue_atoms = 0;
+		  int n_residue_atoms;
+		  res_ref->GetAtomTable(residue_atoms, n_residue_atoms);
+
+		  // polar Hs only, that is - need new function here.
+		  // (can throw a std::exception)
+		  coot::undelocalise(&rdkm);
+		  coot::assign_formal_charges(&rdkm);
+		  // coot::remove_non_polar_Hs(&rdkm);
+
+		  // we need to sanitizeMol() after remove_non_polar_Hs, and have
+		  // a kekulized representation.
+		  // we need to sanitize to get ring info,
+		  // then we need to kekulize because we are making a 2D chemical diagram
+		  //
+		  // failed_op sets set by sanitizeMol() - perhaps we shouldn't ignore it.
+		  //
+		  unsigned int failed_op_1 = 0;
+		  unsigned int failed_op_2 = 0;
+		  RDKit::MolOps::sanitizeMol(rdkm, failed_op_1, RDKit::MolOps::SANITIZE_ALL);
+		  RDKit::MolOps::sanitizeMol(rdkm, failed_op_2, RDKit::MolOps::SANITIZE_KEKULIZE);
+
+		  std::cout << "DEBUG:: sanitizeMol() returned with failed_op: "
+			    << failed_op_1 << " " << failed_op_2
+			    << " (note 'no-failure' is value 0)." << std::endl;
+
+		  try {
+		     RDKit::RingInfo *ri = rdkm.getRingInfo();
+		     unsigned int n_rings = ri->numRings();
+                     std::cout << "----------- OK good so far, n_rings " << n_rings << std::endl;
+                     qed_stuff(rdkm);
+
+                     if (rdkit_chem_qed_func) {
+                        // yay.
+                        double r = -1.0;
+                        PyObject *arg_list = PyTuple_New(1);
+                        RDKit::ROMol *mol_copy_p = new RDKit::ROMol(rdkm);
+                        boost::shared_ptr<RDKit::ROMol> xx(mol_copy_p);
+                        boost::python::object obj(xx);
+                        PyObject *rdkit_mol_py = obj.ptr();
+                        PyTuple_SetItem(arg_list, 0, rdkit_mol_py);
+                        PyObject *result_default = PyEval_CallObject(rdkit_chem_qed_func, arg_list);
+                        if (result_default) {
+                           if (PyFloat_Check(result_default)) {
+                              r = PyFloat_AsDouble(result_default);
+                              std::cout << " ...................... r " << r << std::endl;
+                           } else {
+                              std::cout << "BAD:: result default was not a float " << std::endl;
+                           }
+                        } else {
+                           std::cout << "BAD:: null result_default " << std::endl;
+                        }
+                     }
+                  }
+		  catch (const std::runtime_error &rte) {
+		     std::vector<std::vector<int> > ring_info;
+		     RDKit::MolOps::findSSSR(rdkm, ring_info);
+		  }
+               }
+            }
+            catch (const std::runtime_error &rte) {
+               std::cout << "ERROR:: (runtime error) in fle_view_with_rdkit(): "
+                         << rte.what() << std::endl;
+            } 
+            catch (const std::exception &e) {
+               std::cout << "ERROR (exception) in fle_view_with_rdkit(): " << e.what() << std::endl;
+            }
+         }
+      }
+   }
 
 #if 0
    // There are lots of items in the list, but they don't seem to be toplevels - hmm.
@@ -1286,7 +1435,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    };
 
 
-   if (true) {
+   if (false) {
       int i = PyLong_AsLong(i_py);
       int j = PyLong_AsLong(j_py);
 

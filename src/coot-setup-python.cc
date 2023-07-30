@@ -121,17 +121,18 @@ void setup_python_basic(int argc, char **argv) {
 
 void setup_python_coot_module() {
 
-  PyObject *coot = PyImport_ImportModule("coot");
+   PyObject *coot = PyImport_ImportModule("coot");
    if (! coot) {
       std::cout << "ERROR:: setup_python_coot_module() Null coot" << std::endl;
+   } else {
+      if (false)
+         std::cout << "INFO:: setup_python_coot_module() good coot module" << std::endl;
    }
 }
 
 void setup_python_with_coot_modules(int argc, char **argv) {
 
 #ifdef USE_PYTHON
-
-   std::cout << "------------------------  starting setup_python_with_coot_modules() " << std::endl;
 
    auto get_pythondir = [] () {
                            std::string p = coot::prefix_dir();
@@ -211,8 +212,6 @@ void setup_python_with_coot_modules(int argc, char **argv) {
 
    // std::string home_directory = coot::get_home_dir();
    // try_load_dot_coot_py_and_python_scripts(home_directory);
-
-   std::cout << "------------------------  done setup_python_with_coot_modules() " << std::endl;
 
 #endif // USE_PYTHON
 

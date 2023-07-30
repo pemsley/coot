@@ -130,12 +130,15 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 
    GtkWidget *check_waters_action_combobox = widget_from_builder("check_waters_action_comboboxtext");
 
-   if (check_waters_action_combobox)
+   if (check_waters_action_combobox) {
       gtk_combo_box_set_active(GTK_COMBO_BOX(check_waters_action_combobox), 0); // "Check"
+   }
 
    GCallback callback_func = G_CALLBACK(nullptr);
 
-   GtkWidget *combobox = widget_from_builder("check_waters_molecule_comboboxtext");
+   GtkWidget *combobox_molecule = widget_from_builder("check_waters_molecule_comboboxtext");
+
+   gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox_molecule));
 
    // now fill that dialog's optionmenu with coordinate options.
    for (int imol=0; imol<graphics_n_molecules(); imol++) {
@@ -144,9 +147,10 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 	 break;
       }
    }
+
    graphics_info_t g;
-   if (combobox)
-      g.fill_combobox_with_coordinates_options(combobox, callback_func, g.check_waters_molecule);
+   if (combobox_molecule)
+      g.fill_combobox_with_coordinates_options(combobox_molecule, callback_func, g.check_waters_molecule);
 
    GtkWidget *entry;
    // char text[100];

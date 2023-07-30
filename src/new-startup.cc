@@ -728,9 +728,17 @@ new_startup_application_activate(GtkApplication *application,
       gtk_widget_set_visible(gl_area, TRUE);
       gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
       gtk_window_set_application(GTK_WINDOW(app_window), application);
-      gtk_window_set_default_size(GTK_WINDOW(app_window), 1000, 900);
+      // 20230729-PE 
+      // gtk_widget_set_size_request() does't seem to work on the gl_area.
+      // So expand the gl_area by setting thw window size just so. This makes the
+      // gl_area 900x900 on my desktop. Maybe there is a better way.
+      // The console show that new_startup_on_glarea_resize() is called several times:
+      // DEBUG:: --- new_startup_on_glarea_resize() 900 900
+      // DEBUG:: --- new_startup_on_glarea_resize() 900 710
+      // DEBUG:: --- new_startup_on_glarea_resize() 900 900
+      // Curious.
+      gtk_window_set_default_size(GTK_WINDOW(app_window), 1076, 1023);
       gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
-      gtk_widget_set_size_request(gl_area, 900, 900); // Hmm
       gtk_widget_set_visible(app_window, TRUE);
       gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
 
@@ -936,6 +944,10 @@ int new_startup(int argc, char **argv) {
    gtk_widget_set_visible(splash_screen, TRUE);
 
    g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
+
+   // Here's how you access that:
+   // gboolean dark_mode_flag = FALSE;
+   // g_object_get(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", &dark_mode_flag, NULL);
 
    GError *error = NULL;
    // GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_HANDLES_COMMAND_LINE);

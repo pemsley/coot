@@ -45,7 +45,7 @@ graphics_ligand_molecule::~graphics_ligand_molecule() {}
 void
 graphics_ligand_molecule::generate_display_list(bool dark_background_flag) {
 
-   if (0)
+   if (false)
       std::cout << "graphics_ligand_molecule::store() molecule graphics based on "
 		<< atoms.size() << " atoms and "
 		<< bonds.size() << " bonds" << std::endl;

@@ -7,7 +7,7 @@ import coot_gui
 import coot_gui_api
 import coot_utils
 import res_spec_utils
-import redefine_functions as rdf
+import coot_redefine_functions as rdf
 
 def make_quick_test_validation_info(imol):
 

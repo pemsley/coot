@@ -7,6 +7,14 @@ EXTRA_DIST = hicolor_apps_48x48_coot.png   \
              hicolor_actions_scalable_Stock-dialog-warning.svg \
              hicolor_actions_scalable_Stock-dialog-information.svg
 
+# This needs to be installed in Coot.app/Contents/Resources, only on macOS though.
+# Currently this provides a blank icon (i.e. it doesn't work) when viewing the Coot.app
+# folder  with the Finder.
+# To make the .icns file:
+# https://gist.github.com/jamieweavis/b4c394607641e1280d447deed5fc85fc
+# but am I doing something wrong with the installation?
+MACOS_ICON = Coot.icns
+
 # is this install-data-local thing needed now? Check with other software that install
 # desktop icons.
 #

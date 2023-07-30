@@ -490,6 +490,25 @@ coot::molecule_t::get_map_rmsd_approx() const {
 
 }
 
+//! @return the suggested initial contour level. Return -1 on not-a-map
+float
+coot::molecule_t::get_suggested_initial_contour_level() const {
+
+   float l = -1.0;
+
+   if (is_valid_map_molecule()) {
+      float rmsd = get_map_rmsd_approx();
+      if (is_difference_map_p())
+         l = 3.6 * rmsd;
+      else
+         l = 1.6 * rmsd;
+      if (is_EM_map())
+         l = 4.0 * rmsd;
+   }
+   return l;
+}
+
+
 bool
 coot::molecule_t::is_difference_map_p() const {
 

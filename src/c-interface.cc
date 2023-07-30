@@ -5780,15 +5780,8 @@ post_display_control_window() {
 void
 clear_out_container(GtkWidget *vbox) {
 
-#if (GTK_MAJOR_VERSION >= 4)
-   std::cout << "in clear_out_container() FIXME" << std::endl;
-#else
-   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
-                                    gtk_container_remove(GTK_CONTAINER(data), widget); };
-
-   if (GTK_IS_CONTAINER(vbox))
-      gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
-#endif
+   graphics_info_t g;
+   g.clear_out_container(vbox);
 
 }
 
@@ -7642,7 +7635,13 @@ void print_sequence_chain_general(int imol, const char *chain_id,
    }
 }
 
+// the old name for the below function
 void do_sequence_view(int imol) {
+   sequence_view(imol);
+}
+
+// This is a gui function - move it to c-interface-gui.cc (and the above function)
+void sequence_view(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
@@ -7654,27 +7653,88 @@ void do_sequence_view(int imol) {
       gtk_widget_set_hexpand(frame, TRUE);
       gtk_widget_set_vexpand(frame, TRUE);
 
-      // gtk_widget_set_size_request(scrolled_window, 200, 240);
-      // gtk_widget_set_size_request(frame, 200, 250); // h size be bigger than the h-size for the scrolled window
+      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
+      // gtk_box_append(GTK_BOX(vbox), scrolled_window);
 
-      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box"); // this is where the GLArea widget goes
-      gtk_box_prepend(GTK_BOX(vbox), scrolled_window);
+      // We need to set the height of the box - and that depends
+      // on the number of chains and the offset per chain.
+      {
+         int n_chains = 3 + graphics_info_t::molecules[imol].number_of_chains();
+         if (n_chains > 10) n_chains = 10;
+         int Y_OFFSET_PER_CHAIN = 16.0;
+         int new_height = 30 + n_chains * Y_OFFSET_PER_CHAIN;
+         gtk_widget_set_size_request(vbox, -1, new_height);
+      }
+
+      // The sequence-view is in the frame, the frame is in the scrolled window.
+      // The scrolled window is in the overlay.
+      // In GTK-overlay speak: the scrolled window is the overlay child
+      // and the button is the overlay overlay.
 
       CootSequenceView *sv = coot_sequence_view_new();
       coot_sequence_view_set_structure(sv, imol, mol);
-      g_object_set_data(G_OBJECT(sv), "sv3-frame", frame);
-      gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(frame));
+
       gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(sv));
+      gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(frame));
 
-      auto click_function = +[] (int imol, const coot::residue_spec_t &spec) {
-         int status = 0;
-         std::cout << "Go here B " << imol << " " << spec << std::endl;
-         graphics_info_t g;
-         g.go_to_residue(imol, spec);
-         return status;
+      {
+         auto click_function = +[] (CootSequenceView* self, int imol, const coot::residue_spec_t &spec, gpointer userdata) {
+            graphics_info_t g;
+            g.go_to_residue(imol, spec);
+         };
+         g_signal_connect(sv, "residue-clicked", G_CALLBACK(click_function), nullptr);
+      }
+
+      // now add a close button for that sequence view as an overlay of the sequence view vbox
+      //
+      GtkWidget *button = gtk_button_new_from_icon_name("window-close");
+      GtkStyleContext *sc = gtk_widget_get_style_context(button);
+      gtk_style_context_add_class(sc, "circular");
+      auto close_button_callback = +[] (GtkButton *button, gpointer data) {
+         int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
+         std::cout << "close this sequence view " << imol << std::endl;
+         GtkWidget *sequence_view_box = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "sequence_view_box"));
+         // now find the child (the overlay) in the sequence_view_box and remove it
+
+         GtkWidget *item_widget = gtk_widget_get_first_child(sequence_view_box);
+         int n_children = 0;
+         while (item_widget) {
+            n_children++;
+            GtkWidget *w = item_widget;
+            item_widget = gtk_widget_get_next_sibling(item_widget);
+            int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "imol"));
+            if (imol_overlay == imol) {
+               gtk_box_remove(GTK_BOX(sequence_view_box), w);
+               n_children--;
+            }
+         };
+         // if the sequence view box no longer has children, then we should close up the pane
+         if (n_children == 0) {
+            GtkWidget *pane = widget_from_builder("main_window_sequence_view_vs_graphics_pane");
+            gtk_paned_set_position(GTK_PANED(pane), 0);
+         }
       };
+      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(close_button_callback), NULL);
+      g_object_set_data(G_OBJECT(button), "imol", GINT_TO_POINTER(imol));
 
-      coot_sequence_view_set_click_function(sv, click_function);
+      GtkWidget *overlay = gtk_overlay_new();
+      gtk_overlay_set_child(GTK_OVERLAY(overlay), GTK_WIDGET(scrolled_window));
+      gtk_overlay_add_overlay(GTK_OVERLAY(overlay), button);
+      g_object_set_data(G_OBJECT(button), "sequence_view_box", vbox);
+      g_object_set_data(G_OBJECT(overlay), "imol", GINT_TO_POINTER(imol));
+      // GTK_ALIGN_END works OK/as intended, except the main graphics widget (or window) is too narrow to see it.
+      // Make the window wider and change this to GTK_ALIGN_END.
+      // gtk_widget_set_halign(GTK_WIDGET(button), GTK_ALIGN_START);
+      gtk_widget_set_halign(GTK_WIDGET(button), GTK_ALIGN_END);
+      gtk_widget_set_valign(GTK_WIDGET(button), GTK_ALIGN_START);
+
+      // GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
+      gtk_box_append(GTK_BOX(vbox), overlay);
+
+      // int new_height;
+      // gtk_widget_measure(GTK_WIDGET(sv), GTK_ORIENTATION_VERTICAL, 0, &new_height, nullptr, nullptr, nullptr);
+      // gtk_widget_set_size_request(vbox, -1, new_height);
+
    }
 }
 
