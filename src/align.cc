@@ -29,7 +29,7 @@
 #include <mmdb2/mmdb_tables.h>
 
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "utils/coot-utils.hh"
 #include "coot-align.hh"
 
