@@ -264,7 +264,7 @@ ActiveTool::ActiveTool(ElementInsertion insertion) noexcept {
 }
 
 ActiveTool::ActiveTool(BondModifier modifier) noexcept {
-    this->bond_modifier = modifier;
+    this->tool = std::make_unique<BondModifier>(std::move(modifier));
     this->mode = Mode::Tool;
 }
 
@@ -346,64 +346,54 @@ std::string ElementInsertion::get_exception_message_prefix() const noexcept {
     return "Could not insert atom: ";
 }
 
-void ActiveTool::alter_bond(int x, int y) {
-    BondModifier& mod = this->bond_modifier;
-    
-    auto click_result = this->widget_data->resolve_click(x, y);
-    if(click_result.has_value()) {
-        try{
-            auto [bond_or_atom,molecule_idx] = click_result.value();
-            this->widget_data->begin_edition();
-            if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
-                auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
-                mod.begin_creating_bond(molecule_idx, atom.idx);
-            } else {
-                auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
-                auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
-                auto* rdkit_bond = rdkit_mol->getBondBetweenAtoms(bond.first_atom_idx,bond.second_atom_idx);
-                RDKit::MolOps::Kekulize(*rdkit_mol.get());
-                auto old_type = rdkit_bond->getBondType();
-                rdkit_bond->setBondType(CanvasMolecule::bond_type_to_rdkit(mod.get_target_bond_type()));
-                try {
-                    this->sanitize_molecule(*rdkit_mol.get());
-                }catch(std::exception& e) {
-                    // rollback
-                    g_warning("Rolling back invalid molecule change that makes it unable to sanitize with the following error: %s",e.what());
-                    rdkit_bond->setBondType(old_type);
-                    this->sanitize_molecule(*rdkit_mol.get());
-                    // rethrow
-                    throw std::runtime_error(std::string("Invalid bond modification: ") + e.what());
-                }
-                this->widget_data->update_status("Bond has been altered.");
-                auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-                canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
-                this->widget_data->finalize_edition();
-            }
-        } catch(std::exception& e) {
-            g_warning("An error occured: %s",e.what());
-            std::string msg = std::string("Could not alter bond: ") + e.what();
-            this->widget_data->update_status(msg.c_str());
-            this->widget_data->rollback_current_edition();
-        }
-    } else {
-        // Nothing has been clicked on.
-        g_debug("The click could not be resolved to any atom or bond.");
+bool BondModifier::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
+    widget_data.begin_edition();
+    return true;
+}
+
+void BondModifier::on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) {
+    auto* rdkit_bond = rdkit_mol->getBondBetweenAtoms(bond.first_atom_idx,bond.second_atom_idx);
+    RDKit::MolOps::Kekulize(*rdkit_mol.get());
+    auto old_type = rdkit_bond->getBondType();
+    rdkit_bond->setBondType(CanvasMolecule::bond_type_to_rdkit(this->get_target_bond_type()));
+    try {
+        this->sanitize_molecule(widget_data, *rdkit_mol.get());
+    }catch(std::exception& e) {
+        // rollback
+        g_warning("Rolling back invalid molecule change that makes it unable to sanitize with the following error: %s",e.what());
+        rdkit_bond->setBondType(old_type);
+        this->sanitize_molecule(widget_data, *rdkit_mol.get());
+        // rethrow
+        throw std::runtime_error(std::string("Invalid bond modification: ") + e.what());
     }
+    widget_data.update_status("Bond has been altered.");
+    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
+    widget_data.finalize_edition();
+}
+
+void BondModifier::on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) {
+    this->begin_creating_bond(mol_idx, atom.idx);
+}
+
+std::string BondModifier::get_exception_message_prefix() const noexcept {
+    return "Could not alter/create bond: ";
 }
 
 bool ActiveTool::is_creating_bond() const noexcept {
-    //if (this->variant == Variant::BondModifier) {
-        const BondModifier& mod = this->bond_modifier;
-        return mod.is_creating_bond();
-    //}
+    const BondModifier* mod = dynamic_cast<const BondModifier*>(this->tool.get());
+    if (mod) {
+        return mod->is_creating_bond();
+    }
     return false;
 }
 
-void ActiveTool::finish_creating_bond(int x, int y) {
-    BondModifier& mod = this->bond_modifier;
-    auto click_result = this->widget_data->resolve_click(x, y);
-    auto [original_molecule_idx, first_atom_idx] = mod.get_molecule_idx_and_first_atom_of_new_bond().value();
-    mod.finish_creating_bond();
+void BondModifier::on_release(impl::WidgetCoreData& widget_data, int x, int y) {
+    if(!this->is_creating_bond()) {
+        return;
+    }
+    auto click_result = widget_data.resolve_click(x, y);
+    auto [original_molecule_idx, first_atom_idx] = this->get_molecule_idx_and_first_atom_of_new_bond().value();
+    this->finish_creating_bond();
 
     if(click_result.has_value()) {
         try{
@@ -411,40 +401,40 @@ void ActiveTool::finish_creating_bond(int x, int y) {
             if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
                 auto second_atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
                 if(original_molecule_idx != molecule_idx) {
-                    this->widget_data->update_status("Cannot create bond between different molecules!");
-                    this->widget_data->rollback_current_edition();
+                    widget_data.update_status("Cannot create bond between different molecules!");
+                    widget_data.rollback_current_edition();
                     return;
                 }
-                auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
+                auto& rdkit_mol = widget_data.rdkit_molecules->at(molecule_idx);
                 RDKit::MolOps::Kekulize(*rdkit_mol.get());
                 if(first_atom_idx == second_atom.idx) {
                     auto* new_atom = new RDKit::Atom(6);
                     auto new_atom_idx = rdkit_mol->addAtom(new_atom,false,true);
-                    rdkit_mol->addBond(new_atom_idx,second_atom.idx,CanvasMolecule::bond_type_to_rdkit(mod.get_target_bond_type()));
+                    rdkit_mol->addBond(new_atom_idx,second_atom.idx,CanvasMolecule::bond_type_to_rdkit(this->get_target_bond_type()));
                     g_info("New atom added: idx=%i",new_atom_idx);
-                    this->widget_data->update_status("New carbon atom added.");
+                    widget_data.update_status("New carbon atom added.");
                 } else {
-                    rdkit_mol->addBond(first_atom_idx,second_atom.idx,CanvasMolecule::bond_type_to_rdkit(mod.get_target_bond_type()));
-                    this->widget_data->update_status("Created new bond between atoms.");
+                    rdkit_mol->addBond(first_atom_idx,second_atom.idx,CanvasMolecule::bond_type_to_rdkit(this->get_target_bond_type()));
+                    widget_data.update_status("Created new bond between atoms.");
                 }
-                this->sanitize_molecule(*rdkit_mol.get());
-                auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-                canvas_mol.lower_from_rdkit(!this->widget_data->allow_invalid_molecules);
-                this->widget_data->finalize_edition();
+                this->sanitize_molecule(widget_data, *rdkit_mol.get());
+                auto& canvas_mol = widget_data.molecules->at(molecule_idx);
+                canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
+                widget_data.finalize_edition();
             } else {
-                this->widget_data->update_status("Can't link bond to a bond!");
-                this->widget_data->rollback_current_edition();
+                widget_data.update_status("Can't link bond to a bond!");
+                widget_data.rollback_current_edition();
             }
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
             std::string msg = std::string("Could not alter/create bond: ") + e.what();
-            this->widget_data->update_status(msg.c_str());
-            this->widget_data->rollback_current_edition();
+            widget_data.update_status(msg.c_str());
+            widget_data.rollback_current_edition();
         }
     } else {
         std::string msg = "The new bond goes nowhere.";
-        this->widget_data->update_status(msg.c_str());
-        this->widget_data->rollback_current_edition();
+        widget_data.update_status(msg.c_str());
+        widget_data.rollback_current_edition();
     }
 }
 
@@ -774,23 +764,19 @@ void ActiveTool::end_transform(bool snap_to_angle) {
     this->widget_data->finalize_edition();
 }
 
-void ActiveTool::sanitize_molecule(RDKit::RWMol& mol) const {
-    if (!this->widget_data->allow_invalid_molecules) {
-        RDKit::MolOps::sanitizeMol(mol);
-    }
-}
-
 void Tool::sanitize_molecule(impl::WidgetCoreData& widget_data, RDKit::RWMol& mol) {
     if (!widget_data.allow_invalid_molecules) {
         RDKit::MolOps::sanitizeMol(mol);
     }
 }
 
-/// Valid for Variant::BondModifier.
-std::optional<std::pair<unsigned int,unsigned int>> ActiveTool::get_molecule_idx_and_first_atom_of_new_bond() const {
-    // check_variant(Variant::BondModifier);
-    auto& mod = this->bond_modifier;
-    return mod.get_molecule_idx_and_first_atom_of_new_bond();
+std::optional<std::pair<unsigned int,unsigned int>> ActiveTool::get_molecule_idx_and_first_atom_of_new_bond() const noexcept {
+    const BondModifier* mod = dynamic_cast<const BondModifier*>(this->tool.get());
+    if(mod) {
+        return mod->get_molecule_idx_and_first_atom_of_new_bond();
+    } else {
+        return std::nullopt;
+    }
 }
 
 ElementInsertion::ElementInsertion(ElementInsertion::Element el) noexcept {

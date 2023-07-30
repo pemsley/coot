@@ -219,8 +219,6 @@ on_left_click_released (
     }
 
     if(self->active_tool->is_creating_bond()) {
-        //todo: remove after refactor
-        self->active_tool->finish_creating_bond(x, y);
         self->currently_created_bond = std::nullopt;
     }
     self->active_tool->on_release(x, y);
@@ -236,27 +234,16 @@ static void on_left_click (
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
     self->active_tool->on_click(x, y);
 
-    //todo: remove after refactor
-    // switch(self->active_tool->get_variant()) {
-    //     case ActiveTool::Variant::BondModifier:{
-    //         self->active_tool->alter_bond((int)x, (int) y);
-    //         if(self->active_tool->is_creating_bond()) {
-    //             CurrentlyCreatedBond new_bond;
-    //             auto [mol_idx, atom_idx] = self->active_tool->get_molecule_idx_and_first_atom_of_new_bond().value();
-    //             auto coords = self->molecules->at(mol_idx).get_on_screen_coords_of_atom(atom_idx).value();
-    //             new_bond.first_atom_x = coords.first;
-    //             new_bond.first_atom_y = coords.second;
-    //             new_bond.second_atom_x = coords.first;
-    //             new_bond.second_atom_y = coords.second;
-    //             self->currently_created_bond = new_bond;
-    //         }
-    //         break;
-    //     }
-    //     default:{
-    //         gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_NONE);
-    //         break;
-    //     };
-    // }
+    if(self->active_tool->is_creating_bond()) {
+        CurrentlyCreatedBond new_bond;
+        auto [mol_idx, atom_idx] = self->active_tool->get_molecule_idx_and_first_atom_of_new_bond().value();
+        auto coords = self->molecules->at(mol_idx).get_on_screen_coords_of_atom(atom_idx).value();
+        new_bond.first_atom_x = coords.first;
+        new_bond.first_atom_y = coords.second;
+        new_bond.second_atom_x = coords.first;
+        new_bond.second_atom_y = coords.second;
+        self->currently_created_bond = new_bond;
+    }
     //gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_CLAIMED);
 }
 

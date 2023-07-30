@@ -90,7 +90,7 @@ class Tool {
     virtual ~Tool();
 };
 
-class BondModifier {
+class BondModifier : public Tool {
     public:
     enum class BondModifierMode {
         Single,
@@ -111,6 +111,11 @@ class BondModifier {
     void finish_creating_bond() noexcept;
     std::optional<std::pair<unsigned int,unsigned int>> get_molecule_idx_and_first_atom_of_new_bond() const noexcept;
 
+    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) override;
+    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) override;
+    virtual std::string get_exception_message_prefix() const noexcept override;
+    virtual void on_release(impl::WidgetCoreData& widget_data, int x, int y) override;
 };
 
 class ElementInsertion : public Tool {
@@ -246,19 +251,12 @@ class ActiveTool {
     };
 
     private:
-    union {
-        BondModifier bond_modifier;
-    };
+
     Mode mode;
     /// Non-owning pointer
     impl::WidgetCoreData* widget_data;
     std::unique_ptr<Tool> tool;
     TransformManager transform_manager;
-
-    /// Wraps `RDKit::MolOps::sanitizeMol()`.
-    /// Used for checking validity and reversing kekulization.
-    /// Does nothing when nonsensical molecules are allowed.
-    void sanitize_molecule(RDKit::RWMol&) const;
 
     public:
     ActiveTool() noexcept;
@@ -277,12 +275,8 @@ class ActiveTool {
     void on_click(int x, int y);
     void on_release(int x, int y);
 
-    /// Changes the bond found at the given coordinates.
-    /// The kind of the bond depends upon current BondModifierMode.
-    void alter_bond(int x, int y);
     bool is_creating_bond() const noexcept;
-    /// Valid for Variant::BondModifier.
-    void finish_creating_bond(int x, int y);
+    std::optional<std::pair<unsigned int,unsigned int>> get_molecule_idx_and_first_atom_of_new_bond() const noexcept;
     /// Updates the current mouse coordinates
     /// allowing to compute adequate viewport rotation / translation
     void update_transform_cursor_pos(int x, int y, bool snap_to_angle) noexcept;
@@ -293,8 +287,6 @@ class ActiveTool {
     /// Returns if the user is currently dragging their mouse
     /// to shift the viewport / rotate the molecule.
     bool is_in_transform() const noexcept;
-    /// Valid for Variant::BondModifier.
-    std::optional<std::pair<unsigned int,unsigned int>> get_molecule_idx_and_first_atom_of_new_bond() const;
 
     /// Only meant to be invoked from within CootLigandEditorCanvas implementation
     ///
