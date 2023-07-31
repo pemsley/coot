@@ -7071,7 +7071,7 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
                                           if (at != atom_sel.atom_selection[j]) {
                                              bool is_H = false;
                                              // PDB v3 FIXME?
-                                             if (! strncmp(atom_sel.atom_selection[j]->name, " H", 2))
+                                             if (! strncmp(atom_sel.atom_selection[j]->element, " H", 2))
                                                 is_H = true;
                                              clipper::Coord_orth p(atom_sel.atom_selection[j]->x,
                                                                    atom_sel.atom_selection[j]->y,
