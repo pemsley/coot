@@ -171,11 +171,10 @@ molecules_container_t::fit_to_map_by_random_jiggle_using_cid(int imol, const std
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
+#include <GraphMol/MolDraw2D/MolDraw2DSVG.h>
 #endif
 
 #include "lidia-core/svg-molecule.hh"
-
-
 #include "svg-store-key.hh"
 
 //! This is a ligand function, not really a ligand-fitting function.
@@ -210,7 +209,11 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
             RDKit::Conformer &conf = mol.getConformer(iconf);
             RDKit::WedgeMolBonds(mol, &conf);
             if (use_rdkit_svg) {
-               s = "RDKit svg here";
+               std::stringstream ss;
+               RDKit::MolDraw2DSVG svg_drawer_ss(400, 400, ss);
+               svg_drawer_ss.drawMolecule(mol);
+               svg_drawer_ss.finishDrawing();
+               s = ss.str();
             } else {
                svg_molecule_t svg;
                svg.import_rdkit_mol(&mol, iconf);
