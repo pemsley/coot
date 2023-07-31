@@ -1491,7 +1491,6 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
    };
 
 
-
    bool debug_links = false;
 
    if (debug_links) {
@@ -1517,7 +1516,8 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       if (group_2 == "D-SACCHARIDE") group_2 = "pyranose";
 
       if (debug_links)
-         std::cout << "comp_id_1 " << comp_id_1 << " group_1 " << group_1 << " comp_id_2 " << comp_id_2 << " group_2 " << group_2 << std::endl;
+         std::cout << "comp_id_1 " << comp_id_1 << " group_1 " << group_1 << " comp_id_2 " << comp_id_2 << " group_2 " << group_2
+                   << std::endl;
 
       if (group_1 == "pyranose" || group_2 == "pyranose") { // does this link O-linked carbohydrates?
          std::string link_type_glyco;
@@ -1556,10 +1556,24 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
             }
          }
 
-         // 20221120-PE just choose the top one. I can be more clever if/when needed.
          if (! chem_links.empty()) {
-            link_type = chem_links[0].first.Id();
-            order_switch_was_needed = chem_links[0].second;
+
+            // try to choose TRANS if it is there:
+            for (unsigned int ilink=0; ilink<chem_links.size(); ilink++) {
+               const coot::chem_link &link = chem_links[ilink].first;
+               bool order_switch_is_needed = chem_links[ilink].second;
+               std::cout << "testing link.Id() " << link.Id() << std::endl;
+               if (link.Id() == "TRANS") {
+                  link_type = "TRANS";
+                  order_switch_was_needed = order_switch_is_needed;
+               }
+            }
+
+            // 20221120-PE just choose the top one. I can be more clever if/when needed.
+            if (link_type.empty()) {
+               link_type               = chem_links[0].first.Id();
+               order_switch_was_needed = chem_links[0].second;
+            }
          }
       }
 
