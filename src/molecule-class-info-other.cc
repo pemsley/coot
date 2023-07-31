@@ -7227,8 +7227,6 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
                                     //
                                     if (ignore_zero_occ_flag == false || at->occupancy < 0.01) {
                                        double dist_to_atoms_min = 99999;
-                                       double d;
-                                       double d_sqrd;
                                        double dc_sqrd = dist_to_atoms_min * dist_to_atoms_min;
                                        double d_sqrd_min = 999999999;
                                        clipper::Coord_orth a(at->x, at->y, at->z);
@@ -7236,19 +7234,17 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
                                           if (at != atom_sel.atom_selection[j]) {
                                              bool is_H = false;
                                              // PDB v3 FIXME?
-                                             if (! strncmp(atom_sel.atom_selection[j]->name, " H", 2))
+                                             if (! strncmp(atom_sel.atom_selection[j]->element, " H", 2))
                                                 is_H = true;
-                                             clipper::Coord_orth p(atom_sel.atom_selection[j]->x,
-                                                                   atom_sel.atom_selection[j]->y,
-                                                                   atom_sel.atom_selection[j]->z);
-                                             d_sqrd = (p-a).lengthsq();
+
                                              if (! is_H) {
-                                                if (d_sqrd < d_sqrd_min)
+                                                clipper::Coord_orth p(atom_sel.atom_selection[j]->x,
+                                                                      atom_sel.atom_selection[j]->y,
+                                                                      atom_sel.atom_selection[j]->z);
+                                                double d_sqrd = (p-a).lengthsq();
+                                                if (d_sqrd < d_sqrd_min) {
                                                    d_sqrd_min = d_sqrd;
-                                             } else {
-                                                // special distance rule for hydrogens?
-                                                //
-                                                // currently ignored...
+                                                }
                                              }
                                           }
                                        }
@@ -7269,6 +7265,7 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
 
                                        if (failed_min_dist_test || failed_max_dist_test) {
 
+                                          // std::cout << "mark for display " << coot::atom_spec_t(at) << std::endl;
                                           marked_for_display.push_back(std::pair<mmdb::Atom *, float>(at, den));
                                        }
                                     }
