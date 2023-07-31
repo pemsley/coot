@@ -358,7 +358,7 @@ dnl AC_CHECK_LIB(gsl,main)
 # gemmi doesn't have a pkgconfig file. Frustrating.
 AC_ARG_WITH([gemmi], AS_HELP_STRING([--with-gemmi compile with GEMMI]), with_gemmi="$withval", with_gemmi=false)
 
-if test "x$with_gemmi" = false ; then
+if test "x$with_gemmi" = xfalse ; then
    :
 else
    AC_SUBST(GEMMI_CXXFLAGS, -I$withval/include -DUSE_GEMMI=1)
