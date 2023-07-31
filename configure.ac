@@ -26,7 +26,6 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-
 AC_INIT([coot],[1.0.06-pre])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
@@ -358,7 +357,7 @@ dnl AC_CHECK_LIB(gsl,main)
 # gemmi doesn't have a pkgconfig file. Frustrating.
 AC_ARG_WITH([gemmi], AS_HELP_STRING([--with-gemmi compile with GEMMI]), with_gemmi="$withval", with_gemmi=false)
 
-if test "x$with_gemmi" = false ; then
+if test "x$with_gemmi" = xfalse ; then
    :
 else
    AC_SUBST(GEMMI_CXXFLAGS, -I$withval/include -DUSE_GEMMI=1)

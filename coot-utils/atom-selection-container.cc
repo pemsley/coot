@@ -33,8 +33,6 @@
 #include "lidia-core/lbg-molfile.hh"
 #include "lidia-core-functions.hh"
 
-#define USE_GEMMI
-
 #ifdef USE_GEMMI
 #include "gemmi/mmread.hpp"
 #include "gemmi/mmdb.hpp"
