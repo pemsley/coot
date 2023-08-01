@@ -14,7 +14,7 @@
           <object class="GtkPopoverMenuBar" id="layla_menubar"/>
         </child>
         <child>
-          <object class="GtkActionBar" id="layla_motions_toolbar">
+          <object class="GtkActionBar" id="layla_per_molecule_tools_toolbar">
             <child>
               <object class="GtkButton" id="layla_move_button">
                 <child>
@@ -97,6 +97,53 @@
                             <attribute name="size" value="7200"/>
                           </attributes>
                           <property name="label">Flip around Y</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparator"></object>
+            </child>
+            <child type="end">
+              <object class="GtkButton" id="layla_format_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Format</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkButton" id="layla_delete_hydrogens_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Delete Hydrogens</property>
                         </object>
                       </child>
                   </object>
@@ -233,50 +280,6 @@
                             <attribute name="size" value="7200"/>
                           </attributes>
                           <property name="label">Delete</property>
-                        </object>
-                      </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="layla_format_button">
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
-                      <child>
-                        <object class="GtkImage">
-                          <!-- <property name="visible">false</property> -->
-                        </object>
-                      </child>
-                      <child>
-                        <object class="GtkLabel">
-                          <attributes>
-                            <attribute name="size" value="7200"/>
-                          </attributes>
-                          <property name="label">Format</property>
-                        </object>
-                      </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="layla_delete_hydrogens_button">
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
-                      <child>
-                        <object class="GtkImage">
-                          <!-- <property name="visible">false</property> -->
-                        </object>
-                      </child>
-                      <child>
-                        <object class="GtkLabel">
-                          <attributes>
-                            <attribute name="size" value="7200"/>
-                          </attributes>
-                          <property name="label">Delete Hydrogens</property>
                         </object>
                       </child>
                   </object>
