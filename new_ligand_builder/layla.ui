@@ -6,6 +6,7 @@
   <object class="GtkWindow" id="layla_window">
     <property name="child">
       <object class="GtkBox" id="layla_mainbox">
+        <property name="margin-end">10</property>
         <property name="orientation">vertical</property>
         <property name="spacing">5</property>
         <child>
@@ -45,7 +46,6 @@
         </child>
         <child>
           <object class="GtkBox" id="layla_bottom_bar">
-            <property name="margin-end">10</property>
             <property name="margin-start">10</property>
             <property name="spacing">10</property>
             <child>
@@ -54,7 +54,15 @@
               </object>
             </child>
             <child>
-              <object class="GtkTextView" id="layla_smiles_textview"/>
+              <object class="GtkScrolledWindow" id="layla_smiles_textview_sw">
+                <property name="child">
+                  <object class="GtkTextView" id="layla_smiles_textview">
+                    <property name="editable">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="monospace">True</property>
+                  </object>
+                </property>
+              </object>
             </child>
             <child>
               <object class="GtkLabel" id="layla_scale_label">
@@ -62,17 +70,77 @@
               </object>
             </child>
             <child>
-              <object class="GtkSpinButton" id="layla_scale_spinbutton"/>
+              <object class="GtkSpinButton" id="layla_scale_spinbutton">
+                <property name="adjustment">
+                  <object class="GtkAdjustment">
+                    <property name="lower">0.1</property>
+                    <property name="page-increment">1.0</property>
+                    <property name="page-size">2.0</property>
+                    <property name="step-increment">0.1</property>
+                    <property name="upper">20.0</property>
+                    <property name="value">1.0</property>
+                  </object>
+                </property>
+                <property name="climb-rate">0.1</property>
+                <property name="digits">1</property>
+                <property name="halign">end</property>
+              </object>
             </child>
           </object>
         </child>
         <child>
-          <object class="GtkGrid" id="layla_grid"/>
+          <object class="GtkGrid" id="layla_grid">
+            <child>
+              <object class="GtkCheckButton" id="layla_invalid_molecule_checkbutton">
+                <property name="label">Allow invalid molecules</property>
+                <property name="margin-end">10</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="column-span">1</property>
+                  <property name="row">0</property>
+                  <property name="row-span">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="layla_show_alerts_checkbutton">
+                <property name="label">Show Alerts</property>
+                <property name="margin-end">10</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="column-span">1</property>
+                  <property name="row">1</property>
+                  <property name="row-span">1</property>
+                </layout>
+              </object>
+            </child>
+          </object>
         </child>
         <child>
           <object class="GtkBox" id="layla_button_box">
+            <property name="margin-bottom">10</property>
+            <property name="margin-start">10</property>
+            <property name="margin-top">10</property>
+            <property name="spacing">5</property>
             <child>
-              <object class="GtkLabel" id="layla_status_label"/>
+              <object class="GtkLabel" id="layla_status_label">
+                <property name="halign">start</property>
+                <property name="hexpand">True</property>
+                <property name="margin-end">10</property>
+                <property name="margin-start">10</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_close_button">
+                <property name="halign">end</property>
+                <property name="label">Close</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_apply_button">
+                <property name="halign">end</property>
+                <property name="label">Apply</property>
+              </object>
             </child>
           </object>
         </child>
