@@ -6,46 +6,52 @@
   <menu id="layla_menu">
     <submenu>
       <attribute name="label">File</attribute>
-      <item>
-        <attribute name="label">New</attribute>
-        <attribute name="action">win.file_new</attribute>
-      </item>
-      <item>
-        <attribute name="label">Open</attribute>
-        <attribute name="action">win.file_open</attribute>
-      </item>
-      <item>
-        <attribute name="label">Import from SMILES</attribute>
-        <attribute name="action">win.import_from_smiles</attribute>
-      </item>
-      <item>
-        <attribute name="label">Import Molecule</attribute>
-        <attribute name="action">win.import_molecule</attribute>
-      </item>
-      <item>
-        <attribute name="label">Fetch Molecule</attribute>
-        <attribute name="action">win.fetch_molecule</attribute>
-      </item>
-      <item>
-        <attribute name="label">Save</attribute>
-        <attribute name="action">win.file_save</attribute>
-      </item>
-      <item>
-        <attribute name="label">Save As</attribute>
-        <attribute name="action">win.file_save_as</attribute>
-      </item>
-      <item>
-        <attribute name="label">Export PDF</attribute>
-        <attribute name="action">win.export_pdf</attribute>
-      </item>
-      <item>
-        <attribute name="label">Export PNG</attribute>
-        <attribute name="action">win.export_png</attribute>
-      </item>
-      <item>
-        <attribute name="label">Export SVG</attribute>
-        <attribute name="action">win.export_svg</attribute>
-      </item>
+      <section>
+        <item>
+          <attribute name="label">New</attribute>
+          <attribute name="action">win.file_new</attribute>
+        </item>
+        <item>
+          <attribute name="label">Open</attribute>
+          <attribute name="action">win.file_open</attribute>
+        </item>
+        <item>
+          <attribute name="label">Save</attribute>
+          <attribute name="action">win.file_save</attribute>
+        </item>
+        <item>
+          <attribute name="label">Save As</attribute>
+          <attribute name="action">win.file_save_as</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label">Import from SMILES</attribute>
+          <attribute name="action">win.import_from_smiles</attribute>
+        </item>
+        <item>
+          <attribute name="label">Import Molecule</attribute>
+          <attribute name="action">win.import_molecule</attribute>
+        </item>
+        <item>
+          <attribute name="label">Fetch Molecule</attribute>
+          <attribute name="action">win.fetch_molecule</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label">Export PDF</attribute>
+          <attribute name="action">win.export_pdf</attribute>
+        </item>
+        <item>
+          <attribute name="label">Export PNG</attribute>
+          <attribute name="action">win.export_png</attribute>
+        </item>
+        <item>
+          <attribute name="label">Export SVG</attribute>
+          <attribute name="action">win.export_svg</attribute>
+        </item>
+      </section>
       <item>
         <attribute name="label">Exit</attribute>
         <attribute name="action">win.file_exit</attribute>
