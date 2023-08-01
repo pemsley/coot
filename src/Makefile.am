@@ -813,28 +813,24 @@ coot_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
                 $(COOT_EXTRA_LIBS)      \
 		$(VORBISFILE_LIBS)      \
+		$(GTK_LIBS)             \
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\
 		$(CCP4SRS_LIBS) 	\
 		$(MMDB_LIBS)		\
 		$(MOLTRIANGLES_LIBS)	\
 		$(PYTHON_LIBS)		\
-		$(GUILE_GTK_LIBS)       \
 		$(GUILE_LDFLAGS)      \
 		$(GLOB_LIBS)	      \
-		$(GTKGL_CONTEXT_LIBS) \
 		$(EPOXY_LIBS)         \
-		$(CANVAS_LIBS) 	      \
 		$(GSL_LIBS) -lblas    \
 		$(MYSQL_LIBS)	      \
 		$(CURL_LIBS)	      \
 	  	$(RDKIT_LIBS)	      \
 		$(BOOST_LDFLAGS)      \
 		$(L_BOOST_PYTHON)     \
-		$(GOOCANVAS_LIBS)     \
 		-lfreetype            \
 		$(SQLITE3_LIBS)       \
-		@GTK_LIBS@            \
 		$(SHARED_LDFLAGS)     \
 		-lpthread
 
