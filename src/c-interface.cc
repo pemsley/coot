@@ -7718,10 +7718,17 @@ void sequence_view(int imol) {
 
       gtk_box_append(GTK_BOX(vbox), overlay);
 
-      int new_height;
-      gtk_widget_measure(GTK_WIDGET(sv), GTK_ORIENTATION_VERTICAL, 0, &new_height, nullptr, nullptr, nullptr);
-      gtk_widget_set_size_request(vbox, -1, new_height);
+      // int new_height;
+      // gtk_widget_measure(GTK_WIDGET(sv), GTK_ORIENTATION_VERTICAL, 0, &new_height, nullptr, nullptr, nullptr);
+      // gtk_widget_set_size_request(vbox, -1, new_height);
 
+      int minimum_size;
+      int natural_size;
+      gtk_widget_measure(GTK_WIDGET(sv), GTK_ORIENTATION_VERTICAL, 0, &minimum_size, &natural_size, nullptr, nullptr);
+      int current_height = gtk_widget_get_height(vbox);
+      if (current_height < natural_size) {
+         gtk_widget_set_size_request(vbox, -1, natural_size);
+      }
    }
 }
 
