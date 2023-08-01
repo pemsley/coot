@@ -37,6 +37,7 @@ HEADERS = \
 
 SOURCES = \
     ligand_builder_state.cpp \
+    ligand_builder_signals.cpp \
     ligand_builder_ui.cpp \
     ligand_editor_canvas/model.cpp \
     ligand_editor_canvas/core.cpp \

@@ -7,11 +7,14 @@ int main() {
 
     gtk_init();
     
-    GtkApplication* app = gtk_application_new("org.pemsley.NewLigandEditor",G_APPLICATION_DEFAULT_FLAGS);
+    GtkApplication* app = gtk_application_new("org.pemsley.Layla",G_APPLICATION_DEFAULT_FLAGS);
     GError *error = NULL;
     g_application_register(G_APPLICATION(app), NULL, &error);
 
     g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
+        // todo: Make this not use a relative path:
+        // GtkBuilder* builder = gtk_builder_new_from_file("layla.ui");
+        // g_object_unref(builder);
         //GtkWindow* win = GTK_WINDOW(user_data);
         GtkWidget* win = gtk_application_window_new(app);
         gtk_window_set_title(GTK_WINDOW(win),"New Ligand Editor");

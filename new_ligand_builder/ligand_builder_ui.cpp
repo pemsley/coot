@@ -345,6 +345,10 @@ void coot::ligand_editor::build_main_window(GtkWindow* win, CootLigandEditorCanv
     
 }
 
+void setup_actions(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkBuilder* builder) {
+    
+}
+
 GMenu* coot::ligand_editor::build_menu(GtkApplication* app, CootLigandEditorCanvas* canvas, GtkWindow* win) {
     using ExportMode = coot::ligand_editor::LigandBuilderState::ExportMode;
 
