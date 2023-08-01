@@ -16,18 +16,348 @@
         <child>
           <object class="GtkActionBar" id="layla_motions_toolbar">
             <child>
-              <object class="GtkButton" id="layla_move_button"></object>
+              <object class="GtkButton" id="layla_move_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Move</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_rotate_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Rotate</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_flip_x_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Flip around X</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_flip_y_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Flip around Y</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
             </child>
           </object>
         </child>
         <child>
-          <object class="GtkActionBar" id="layla_editor_tools_toolbar"/>
+          <object class="GtkActionBar" id="layla_editor_tools_toolbar">
+            <child>
+              <object class="GtkButton" id="layla_single_bond_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Single Bond</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_double_bond_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Double Bond</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_triple_bond_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Triple Bond</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
         </child>
         <child>
-          <object class="GtkActionBar" id="layla_utils_toolbar"/>
+          <object class="GtkActionBar" id="layla_utils_toolbar">
+            <child>
+              <object class="GtkButton" id="layla_smiles_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">SMILES</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
         </child>
         <child>
-          <object class="GtkActionBar" id="layla_carbon_ring_picker"/>
+          <object class="GtkActionBar" id="layla_carbon_ring_picker">
+            <child>
+              <object class="GtkButton" id="layla_3C_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">3-C</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_4C_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">4-C</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_5C_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">5-C</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_6C_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">6-C</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_6Arom_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">6-Arom</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_7C_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">7-C</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_8C_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">8-C</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
         </child>
         <child>
           <object class="GtkBox" id="layla_canvas_row">
