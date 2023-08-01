@@ -3,5 +3,54 @@
 <interface>
   <!-- interface-name layla.ui -->
   <requires lib="gtk" version="4.10"/>
-  <object class="GtkWindow"/>
+  <object class="GtkWindow" id="layla_window">
+    <property name="child">
+      <object class="GtkBox" id="layla_mainbox">
+        <property name="orientation">vertical</property>
+        <property name="spacing">5</property>
+        <child>
+          <object class="GtkPopoverMenuBar" id="layla_menubar"/>
+        </child>
+        <child>
+          <object class="GtkActionBar" id="layla_motions_toolbar"/>
+        </child>
+        <child>
+          <object class="GtkActionBar" id="layla_editor_tools_toolbar"/>
+        </child>
+        <child>
+          <object class="GtkActionBar" id="layla_utils_toolbar"/>
+        </child>
+        <child>
+          <object class="GtkActionBar" id="layla_carbon_ring_picker"/>
+        </child>
+        <child>
+          <object class="GtkBox" id="layla_canvas_row">
+            <child>
+              <object class="GtkBox" id="layla_element_picker">
+                <property name="margin-top">10</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">5</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow" id="layla_canvas_viewport">
+                <property name="hexpand">True</property>
+                <property name="margin-bottom">10</property>
+                <property name="margin-start">10</property>
+                <property name="margin-top">10</property>
+                <property name="vexpand">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="layla_bottom_bar"/>
+        </child>
+      </object>
+    </property>
+    <property name="icon-name">layla</property>
+    <property name="margin-end">5</property>
+    <property name="margin-start">5</property>
+    <property name="title">Layla: Coot's Ligand Builder</property>
+  </object>
 </interface>
