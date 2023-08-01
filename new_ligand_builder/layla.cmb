@@ -15,7 +15,14 @@
 	(1,9,"GtkBox","layla_canvas_row",3,None,None,None,5,None),
 	(1,10,"GtkBox","layla_element_picker",9,None,None,None,None,None),
 	(1,11,"GtkScrolledWindow","layla_canvas_viewport",9,None,None,None,1,None),
-	(1,12,"GtkBox","layla_bottom_bar",3,None,None,None,6,None)
+	(1,12,"GtkBox","layla_bottom_bar",3,None,None,None,6,None),
+	(1,13,"GtkGrid","layla_grid",3,None,None,None,7,None),
+	(1,14,"GtkBox","layla_button_box",3,None,None,None,8,None),
+	(1,15,"GtkLabel","layla_status_label",14,None,None,None,None,None),
+	(1,16,"GtkLabel","layla_smiles_label",12,None,None,None,None,None),
+	(1,17,"GtkTextView","layla_smiles_textview",12,None,None,None,1,None),
+	(1,18,"GtkLabel","layla_scale_label",12,None,None,None,2,None),
+	(1,19,"GtkSpinButton","layla_scale_spinbutton",12,None,None,None,3,None)
   </object>
   <object_property>
 	(1,1,"GtkWidget","margin-end","5",None,None,None,None,None,None,None,None,None),
@@ -32,6 +39,11 @@
 	(1,11,"GtkWidget","margin-bottom","10",None,None,None,None,None,None,None,None,None),
 	(1,11,"GtkWidget","margin-start","10",None,None,None,None,None,None,None,None,None),
 	(1,11,"GtkWidget","margin-top","10",None,None,None,None,None,None,None,None,None),
-	(1,11,"GtkWidget","vexpand","True",None,None,None,None,None,None,None,None,None)
+	(1,11,"GtkWidget","vexpand","True",None,None,None,None,None,None,None,None,None),
+	(1,12,"GtkBox","spacing","10",None,None,None,None,None,None,None,None,None),
+	(1,12,"GtkWidget","margin-end","10",None,None,None,None,None,None,None,None,None),
+	(1,12,"GtkWidget","margin-start","10",None,None,None,None,None,None,None,None,None),
+	(1,16,"GtkLabel","label","SMILES:",None,None,None,None,None,None,None,None,None),
+	(1,18,"GtkLabel","label","Scale",None,None,None,None,None,None,None,None,None)
   </object_property>
 </cambalache-project>

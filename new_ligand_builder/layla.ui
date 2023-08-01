@@ -44,7 +44,37 @@
           </object>
         </child>
         <child>
-          <object class="GtkBox" id="layla_bottom_bar"/>
+          <object class="GtkBox" id="layla_bottom_bar">
+            <property name="margin-end">10</property>
+            <property name="margin-start">10</property>
+            <property name="spacing">10</property>
+            <child>
+              <object class="GtkLabel" id="layla_smiles_label">
+                <property name="label">SMILES:</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTextView" id="layla_smiles_textview"/>
+            </child>
+            <child>
+              <object class="GtkLabel" id="layla_scale_label">
+                <property name="label">Scale</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSpinButton" id="layla_scale_spinbutton"/>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkGrid" id="layla_grid"/>
+        </child>
+        <child>
+          <object class="GtkBox" id="layla_button_box">
+            <child>
+              <object class="GtkLabel" id="layla_status_label"/>
+            </child>
+          </object>
         </child>
       </object>
     </property>
