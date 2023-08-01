@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
+<cambalache-project version="0.12.0" target_tk="gtk-4.0">
+  <ui>
+	(1,None,"layla.ui","layla.ui",None,None,None,None,None,None,None)
+  </ui>
+  <object>
+	(1,1,"GtkWindow",None,None,None,None,None,None,None)
+  </object>
+  <object_property>
+	(1,1,"GtkWindow","title","Layla: Coot's Ligand Builder",None,None,None,None,None,None,None,None,None)
+  </object_property>
+</cambalache-project>
