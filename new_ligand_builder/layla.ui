@@ -14,7 +14,11 @@
           <object class="GtkPopoverMenuBar" id="layla_menubar"/>
         </child>
         <child>
-          <object class="GtkActionBar" id="layla_motions_toolbar"/>
+          <object class="GtkActionBar" id="layla_motions_toolbar">
+            <child>
+              <object class="GtkButton" id="layla_move_button"></object>
+            </child>
+          </object>
         </child>
         <child>
           <object class="GtkActionBar" id="layla_editor_tools_toolbar"/>
