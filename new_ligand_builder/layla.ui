@@ -3,6 +3,91 @@
 <interface>
   <!-- interface-name layla.ui -->
   <requires lib="gtk" version="4.10"/>
+  <menu id="layla_menu">
+    <submenu>
+      <attribute name="label">File</attribute>
+      <item>
+        <attribute name="label">New</attribute>
+        <attribute name="action">win.file_new</attribute>
+      </item>
+      <item>
+        <attribute name="label">Open</attribute>
+        <attribute name="action">win.file_open</attribute>
+      </item>
+      <item>
+        <attribute name="label">Import from SMILES</attribute>
+        <attribute name="action">win.import_from_smiles</attribute>
+      </item>
+      <item>
+        <attribute name="label">Import Molecule</attribute>
+        <attribute name="action">win.import_molecule</attribute>
+      </item>
+      <item>
+        <attribute name="label">Fetch Molecule</attribute>
+        <attribute name="action">win.fetch_molecule</attribute>
+      </item>
+      <item>
+        <attribute name="label">Save</attribute>
+        <attribute name="action">win.file_save</attribute>
+      </item>
+      <item>
+        <attribute name="label">Save As</attribute>
+        <attribute name="action">win.file_save_as</attribute>
+      </item>
+      <item>
+        <attribute name="label">Export PDF</attribute>
+        <attribute name="action">win.export_pdf</attribute>
+      </item>
+      <item>
+        <attribute name="label">Export PNG</attribute>
+        <attribute name="action">win.export_png</attribute>
+      </item>
+      <item>
+        <attribute name="label">Export SVG</attribute>
+        <attribute name="action">win.export_svg</attribute>
+      </item>
+      <item>
+        <attribute name="label">Exit</attribute>
+        <attribute name="action">win.file_exit</attribute>
+      </item>
+    </submenu>
+    <submenu>
+      <attribute name="label">Edit</attribute>
+      <item>
+        <attribute name="label">Undo</attribute>
+        <attribute name="action">win.undo</attribute>
+      </item>
+      <item>
+        <attribute name="label">Redo</attribute>
+        <attribute name="action">win.redo</attribute>
+      </item>
+    </submenu>
+    <submenu>
+      <attribute name="label">Display</attribute>
+      <item>
+        <attribute name="label">Standard</attribute>
+        <attribute name="action">win.switch_display_mode</attribute>
+        <attribute name="value">Standard</attribute>
+      </item>
+      <item>
+        <attribute name="label">Atom Indices</attribute>
+        <attribute name="action">win.switch_display_mode</attribute>
+        <attribute name="value">Atom Indices</attribute>
+      </item>
+      <item>
+        <attribute name="label">Atom Names</attribute>
+        <attribute name="action">win.switch_display_mode</attribute>
+        <attribute name="value">Atom Names</attribute>
+      </item>
+    </submenu>
+    <submenu>
+      <attribute name="label">Help</attribute>
+      <item>
+        <attribute name="label">About</attribute>
+        <attribute name="action">win.show_about_dialog</attribute>
+      </item>
+    </submenu>
+  </menu>
   <object class="GtkWindow" id="layla_window">
     <property name="child">
       <object class="GtkBox" id="layla_mainbox">
@@ -11,7 +96,9 @@
         <property name="orientation">vertical</property>
         <property name="spacing">5</property>
         <child>
-          <object class="GtkPopoverMenuBar" id="layla_menubar"/>
+          <object class="GtkPopoverMenuBar" id="layla_menubar">
+            <property name="menu-model">layla_menu</property>
+          </object>
         </child>
         <child>
           <object class="GtkActionBar" id="layla_per_molecule_tools_toolbar">
