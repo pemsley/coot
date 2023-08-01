@@ -746,15 +746,15 @@ std::string FormatTool::get_exception_message_prefix() const noexcept {
     return "Could not format molecule: ";
 }
 
-// void ActiveTool::begin_transform(int x, int y, TransformManager::Mode mode) {
-//     auto mol_opt = this->widget_data->resolve_click(x, y);
-//     if(mol_opt.has_value()) {
-//         auto [atom_or_bond,mol_id] = mol_opt.value();
-//         transform_manager.begin_transform(x, y, mode);
-//         transform_manager.set_canvas_molecule_index(mol_id);
-//         this->widget_data->begin_edition();
-//     }
-// }
+void ActiveTool::begin_transform(int x, int y, TransformManager::Mode mode) {
+    auto mol_opt = this->widget_data->resolve_click(x, y);
+    if(mol_opt.has_value()) {
+        auto [atom_or_bond,mol_id] = mol_opt.value();
+        transform_manager.begin_transform(x, y, mode);
+        transform_manager.set_canvas_molecule_index(mol_id);
+        this->widget_data->begin_edition();
+    }
+}
 
 bool ActiveTool::is_in_transform() const noexcept {
     return this->transform_manager.is_active();

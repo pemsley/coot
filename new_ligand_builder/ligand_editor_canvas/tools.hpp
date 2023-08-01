@@ -286,9 +286,8 @@ class ActiveTool {
     /// Ends move or rotation
     void end_transform(bool snap_to_angle);
     
-    // Maybe this will be useful in the future:
     /// Begins rotation or translation
-    //void begin_transform(int x, int y, TransformManager::Mode);
+    void begin_transform(int x, int y, TransformManager::Mode);
     
     /// Returns if the user is currently dragging their mouse
     /// to shift the viewport / rotate the molecule.
