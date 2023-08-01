@@ -6,6 +6,8 @@
   <object class="GtkWindow" id="layla_window">
     <property name="child">
       <object class="GtkBox" id="layla_mainbox">
+        <property name="margin-end">10</property>
+        <property name="margin-start">10</property>
         <property name="orientation">vertical</property>
         <property name="spacing">5</property>
         <child>
@@ -200,9 +202,17 @@
         </child>
       </object>
     </property>
-    <property name="icon-name">layla</property>
-    <property name="margin-end">5</property>
-    <property name="margin-start">5</property>
+    <property name="icon-name">coot-layla</property>
     <property name="title">Layla: Coot's Ligand Builder</property>
+  </object>
+  <object class="GtkAboutDialog" id="layla_about_dialog">
+    <property name="authors">Jakub Smulski
+Paul Emsley</property>
+    <property name="comments">Ligand builder, successor to Lidia</property>
+    <property name="copyright">Who owns the copyrights now?</property>
+    <property name="license-type">gpl-3-0</property>
+    <property name="logo-icon-name">coot-layla</property>
+    <property name="program-name">Coot Layla</property>
+    <property name="version">v1.0</property>
   </object>
 </interface>
