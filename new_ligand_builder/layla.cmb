@@ -28,7 +28,18 @@
 	(1,22,"GtkCheckButton","layla_invalid_molecule_checkbutton",13,None,None,None,None,None),
 	(1,23,"GtkCheckButton","layla_show_alerts_checkbutton",13,None,None,None,None,None),
 	(1,24,"GtkButton","layla_close_button",14,None,None,None,1,None),
-	(1,25,"GtkButton","layla_apply_button",14,None,None,None,2,None)
+	(1,25,"GtkButton","layla_apply_button",14,None,None,None,2,None),
+	(1,26,"GtkButton","layla_C_button",10,None,None,None,None,None),
+	(1,27,"GtkButton","layla_N_button",10,None,None,None,1,None),
+	(1,28,"GtkButton","layla_O_button",10,None,None,None,2,None),
+	(1,29,"GtkButton","layla_S_button",10,None,None,None,3,None),
+	(1,30,"GtkButton","layla_P_button",10,None,None,None,4,None),
+	(1,31,"GtkButton","layla_H_button",10,None,None,None,5,None),
+	(1,32,"GtkButton","layla_F_button",10,None,None,None,6,None),
+	(1,33,"GtkButton","layla_Cl_button",10,None,None,None,7,None),
+	(1,34,"GtkButton","layla_Br_button",10,None,None,None,8,None),
+	(1,35,"GtkButton","layla_I_button",10,None,None,None,9,None),
+	(1,36,"GtkButton","layla_X_button",10,None,None,None,10,None)
   </object>
   <object_property>
 	(1,1,"GtkWidget","margin-end","5",None,None,None,None,None,None,None,None,None),
@@ -80,7 +91,18 @@
 	(1,24,"GtkButton","label","Close",None,None,None,None,None,None,None,None,None),
 	(1,24,"GtkWidget","halign","end",None,None,None,None,None,None,None,None,None),
 	(1,25,"GtkButton","label","Apply",None,None,None,None,None,None,None,None,None),
-	(1,25,"GtkWidget","halign","end",None,None,None,None,None,None,None,None,None)
+	(1,25,"GtkWidget","halign","end",None,None,None,None,None,None,None,None,None),
+	(1,26,"GtkButton","label","C",None,None,None,None,None,None,None,None,None),
+	(1,27,"GtkButton","label","N",None,None,None,None,None,None,None,None,None),
+	(1,28,"GtkButton","label","O",None,None,None,None,None,None,None,None,None),
+	(1,29,"GtkButton","label","S",None,None,None,None,None,None,None,None,None),
+	(1,30,"GtkButton","label","P",None,None,None,None,None,None,None,None,None),
+	(1,31,"GtkButton","label","H",None,None,None,None,None,None,None,None,None),
+	(1,32,"GtkButton","label","F",None,None,None,None,None,None,None,None,None),
+	(1,33,"GtkButton","label","Cl",None,None,None,None,None,None,None,None,None),
+	(1,34,"GtkButton","label","Br",None,None,None,None,None,None,None,None,None),
+	(1,35,"GtkButton","label","I",None,None,None,None,None,None,None,None,None),
+	(1,36,"GtkButton","label","X",None,None,None,None,None,None,None,None,None)
   </object_property>
   <object_layout_property>
 	(1,13,22,"GtkGridLayoutChild","column","0",None,None,None,None),
