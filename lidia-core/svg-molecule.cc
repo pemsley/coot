@@ -857,8 +857,12 @@ svg_molecule_t::render_to_svg_string(bool dark_background_flag) {
          if (pos.y > max_y) max_y = pos.y;
       }
       // now adjust so that the labels can fit
-      min_x -= 0.0;
-      min_y -= 0.0;
+
+      // a sugar is about 200x200
+      min_x -= 20.0;
+      min_y -= 20.0;
+      max_x += 20.0;
+      max_y += 20.0;
 
       float width  = max_x - min_x;
       float height = max_y - min_y;
