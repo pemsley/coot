@@ -13,9 +13,18 @@ int main() {
 
     g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
         // todo: Make this not use a relative path:
-        // GtkBuilder* builder = gtk_builder_new_from_file("layla.ui");
-        // g_object_unref(builder);
-        //GtkWindow* win = GTK_WINDOW(user_data);
+        GtkBuilder* builder = gtk_builder_new_from_file("layla.ui");
+        GtkWindow* win2 = (GtkWindow*) gtk_builder_get_object(builder, "layla_window");
+        GtkWidget* status_label2 = (GtkWidget*) gtk_builder_get_object(builder, "layla_status_label");
+        GtkScrolledWindow* viewport = (GtkScrolledWindow*) gtk_builder_get_object(builder, "layla_canvas_viewport");
+        auto* canvas2 = coot_ligand_editor_canvas_new();
+        gtk_scrolled_window_set_child(viewport, GTK_WIDGET(canvas2));
+        //coot::ligand_editor::initialize_global_instance(canvas,GTK_WINDOW(win),GTK_LABEL(status_label));
+        coot::ligand_editor::setup_actions(win2, canvas2, builder);
+        gtk_window_present(GTK_WINDOW(win2));
+        gtk_application_add_window(app,GTK_WINDOW(win2));
+        g_object_unref(builder);
+
         GtkWidget* win = gtk_application_window_new(app);
         gtk_window_set_title(GTK_WINDOW(win),"New Ligand Editor");
         gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(win), TRUE);

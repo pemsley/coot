@@ -796,7 +796,7 @@
               <object class="GtkButton" id="layla_close_button">
                 <property name="halign">end</property>
                 <property name="label">Close</property>
-                <signal name="clicked" handler="layla_on_close" swapped="no" object="layla_window"/>
+                <!-- <signal name="clicked" handler="layla_on_close" swapped="no" object="layla_window"/> -->
               </object>
             </child>
             <child>

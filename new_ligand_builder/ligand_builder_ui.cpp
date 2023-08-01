@@ -345,8 +345,29 @@ void coot::ligand_editor::build_main_window(GtkWindow* win, CootLigandEditorCanv
     
 }
 
-void setup_actions(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkBuilder* builder) {
-    
+void coot::ligand_editor::setup_actions(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkBuilder* builder) {
+    auto new_action = [win](const char* action_name, GCallback func, gpointer userdata = nullptr){
+        std::string detailed_action_name = "win.";
+        detailed_action_name += action_name;
+        GSimpleAction* action = g_simple_action_new(action_name,nullptr);
+        g_action_map_add_action(G_ACTION_MAP(win), G_ACTION(action));
+        g_signal_connect(action, "activate", func, userdata);
+        //return std::make_pair(detailed_action_name,action);
+    };
+
+    auto new_stateful_action = [win](const char* action_name,const GVariantType *state_type, GVariant* default_state, GCallback func, gpointer userdata = nullptr){
+        std::string detailed_action_name = "win.";
+        detailed_action_name += action_name;
+        GSimpleAction* action = g_simple_action_new_stateful(action_name, state_type, default_state);
+        g_action_map_add_action(G_ACTION_MAP(win), G_ACTION(action));
+        g_signal_connect(action, "activate", func, userdata);
+        //return std::make_pair(detailed_action_name,action);
+    };
+
+    // new_action("about", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+    //     auto* about_dialog = coot::ligand_editor::build_about_dialog();
+    //     gtk_window_present(GTK_WINDOW(about_dialog));
+    // }));
 }
 
 GMenu* coot::ligand_editor::build_menu(GtkApplication* app, CootLigandEditorCanvas* canvas, GtkWindow* win) {
