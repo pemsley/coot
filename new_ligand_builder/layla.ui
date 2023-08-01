@@ -199,6 +199,72 @@
                 </child>
               </object>
             </child>
+            <child>
+              <object class="GtkButton" id="layla_env_residues_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Env. Residues</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_key_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Key</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_info_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Info</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
           </object>
         </child>
         <child>
