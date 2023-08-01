@@ -433,7 +433,7 @@ void coot_sequence_view_set_structure(CootSequenceView* self, int imol, mmdb::Ma
          for (int ichain=0; ichain<n_chains; ichain++) {
             mmdb::Chain *chain_p = model_p->GetChain(ichain);
             std::string chain_id = chain_p->GetChainID();
-            std::cout << "------ " << chain_id << " ----" << std::endl;
+            // std::cout << "------ " << chain_id << " ----" << std::endl;
             int n_res = chain_p->GetNumberOfResidues();
             for (int ires=0; ires<n_res; ires++) {
                mmdb::Residue *residue_p = chain_p->GetResidue(ires);
@@ -443,7 +443,7 @@ void coot_sequence_view_set_structure(CootSequenceView* self, int imol, mmdb::Ma
                   std::cout << slc;
                }
             }
-            std::cout << "\n";
+            // std::cout << "\n";
          }
       }
    }
