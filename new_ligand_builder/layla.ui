@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.12.1 -->
+<interface>
+  <!-- interface-name layla.ui -->
+  <requires lib="gtk" version="4.10"/>
+  <object class="GtkWindow"/>
+</interface>
