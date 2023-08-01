@@ -6,7 +6,6 @@
   <object class="GtkWindow" id="layla_window">
     <property name="child">
       <object class="GtkBox" id="layla_mainbox">
-        <property name="margin-end">10</property>
         <property name="orientation">vertical</property>
         <property name="spacing">5</property>
         <child>

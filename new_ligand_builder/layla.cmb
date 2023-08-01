@@ -49,7 +49,6 @@
 	(1,1,"GtkWindow","title","Layla: Coot's Ligand Builder",None,None,None,None,None,None,None,None,None),
 	(1,3,"GtkBox","spacing","5",None,None,None,None,None,None,None,None,None),
 	(1,3,"GtkOrientable","orientation","vertical",None,None,None,None,None,None,None,None,None),
-	(1,3,"GtkWidget","margin-end","10",None,None,None,None,None,None,None,None,None),
 	(1,10,"GtkBox","spacing","5",None,None,None,None,None,None,None,None,None),
 	(1,10,"GtkOrientable","orientation","vertical",None,None,None,None,None,None,None,None,None),
 	(1,10,"GtkWidget","margin-top","10",None,None,None,None,None,None,None,None,None),
