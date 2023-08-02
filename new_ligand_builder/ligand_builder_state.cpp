@@ -473,6 +473,8 @@ void LigandBuilderState::run_apply() {
             g_debug("Ignoring unhandled response type: %s",g_enum_to_string(gtk_response_type_get_type(), response_id));
             return;
         }
+        
+        gtk_window_destroy(GTK_WINDOW(dialog));
 
     }),nullptr);
 
