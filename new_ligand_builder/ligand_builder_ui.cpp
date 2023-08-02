@@ -6,7 +6,9 @@
 #include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
 
-void coot::ligand_editor::setup_actions(coot::ligand_editor::LigandBuilderState* state, GtkApplicationWindow* win, GtkBuilder* builder) {
+void setup_actions(coot::ligand_editor::LigandBuilderState* state, GtkApplicationWindow* win, GtkBuilder* builder) {
+    using namespace coot::ligand_editor;
+
     auto new_action = [win](const char* action_name, GCallback func, gpointer userdata = nullptr){
         std::string detailed_action_name = "win.";
         detailed_action_name += action_name;
@@ -96,4 +98,36 @@ void coot::ligand_editor::setup_actions(coot::ligand_editor::LigandBuilderState*
         gtk_window_present(GTK_WINDOW(about_dialog));
     }),gtk_builder_get_object(builder, "layla_about_dialog"));
 
+}
+
+GtkApplicationWindow* coot::ligand_editor::setup_main_window(GtkApplication* app, GtkBuilder* builder) {
+    GtkApplicationWindow* win = (GtkApplicationWindow*) gtk_builder_get_object(builder, "layla_window");
+    gtk_window_set_application(GTK_WINDOW(win),app);
+    GtkWidget* status_label = (GtkWidget*) gtk_builder_get_object(builder, "layla_status_label");
+    GtkScrolledWindow* viewport = (GtkScrolledWindow*) gtk_builder_get_object(builder, "layla_canvas_viewport");
+    auto* canvas = coot_ligand_editor_canvas_new();
+
+    g_signal_connect(canvas, "status-updated", G_CALLBACK(+[](CootLigandEditorCanvas* canvas, const gchar* status_text, gpointer user_data){
+        gtk_label_set_text(GTK_LABEL(user_data), status_text);
+    }), status_label);
+
+    GtkSpinButton* scale_spinbutton = (GtkSpinButton*) gtk_builder_get_object(builder, "layla_scale_spinbutton");
+    g_signal_connect(canvas, "scale-changed", G_CALLBACK(+[](CootLigandEditorCanvas* canvas, float new_scale, gpointer user_data){
+        GtkSpinButton* spinbutton = GTK_SPIN_BUTTON(user_data);
+        gtk_spin_button_set_value(spinbutton, new_scale);
+    }), scale_spinbutton);
+
+
+    GtkTextView* smiles_display = (GtkTextView*) gtk_builder_get_object(builder, "layla_smiles_textview");
+    g_signal_connect(canvas, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data){
+        GtkTextView* view = GTK_TEXT_VIEW(user_data);
+        std::string smiles = coot_ligand_editor_get_smiles(self);
+        GtkTextBuffer* buf = gtk_text_view_get_buffer(view);
+        gtk_text_buffer_set_text(buf,smiles.c_str(),-1);
+    }), smiles_display);
+
+    gtk_scrolled_window_set_child(viewport, GTK_WIDGET(canvas));
+    coot::ligand_editor::initialize_global_instance(canvas,GTK_WINDOW(win),GTK_LABEL(status_label));
+    setup_actions(coot::ligand_editor::global_instance, win, builder);
+    return win;
 }

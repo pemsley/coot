@@ -6,7 +6,15 @@
 
 namespace coot::ligand_editor {
 
-void setup_actions(LigandBuilderState* state, GtkApplicationWindow* win, GtkBuilder* builder);
+// This doesn't need to be public
+// void setup_actions(LigandBuilderState* state, GtkApplicationWindow* win, GtkBuilder* builder);
+
+/// Setups the main window using GtkBuilder (created from 'layla.ui').
+///
+/// Instantiates CootLigandEditor canvas and connects its' signals.
+/// Setups window actions.
+/// Instantiates the global instance of LigandBuilderState
+GtkApplicationWindow* setup_main_window(GtkApplication* app, GtkBuilder* builder);
 
 }
 
