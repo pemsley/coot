@@ -456,6 +456,11 @@ void LigandBuilderState::run_apply() {
     gtk_widget_set_margin_start(dialog_body, 10);
     gtk_widget_set_margin_top(dialog_body, 10);
 
+    // On pressing the "Apply" button the user needs to be given 3 choices/questions
+
+    // 1: What is the monomer id? (default "LIG", "INH" or allow the user to specify)
+    // 2: What input format (SMILES or MolFile)
+    // 3: Which generator to use ("Acedrg", "Grade2", "Pyrogen")
 
     g_signal_connect(apply_dialog, "response", G_CALLBACK(+[](GtkDialog* dialog, gint response_id, gpointer user_data){
         if(response_id != GTK_RESPONSE_ACCEPT) {
