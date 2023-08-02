@@ -21,7 +21,7 @@ int main() {
         auto* canvas = coot_ligand_editor_canvas_new();
         gtk_scrolled_window_set_child(viewport, GTK_WIDGET(canvas));
         coot::ligand_editor::initialize_global_instance(canvas,GTK_WINDOW(win),GTK_LABEL(status_label));
-        coot::ligand_editor::setup_actions(win, canvas, builder);
+        coot::ligand_editor::setup_actions(coot::ligand_editor::global_instance, win, builder);
         gtk_window_present(GTK_WINDOW(win));
         gtk_application_add_window(app,GTK_WINDOW(win));
         g_object_unref(builder);

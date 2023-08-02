@@ -57,6 +57,7 @@ class LigandBuilderState {
     void file_export(ExportMode mode);
     void file_import_molecule();
     void file_fetch_molecule();
+    void file_exit();
     // EDIT
     void edit_undo();
     void edit_redo();

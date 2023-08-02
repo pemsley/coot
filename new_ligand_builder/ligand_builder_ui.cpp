@@ -233,9 +233,8 @@ void coot::ligand_editor::build_main_window(GtkWindow* win, CootLigandEditorCanv
     gtk_box_append(GTK_BOX(chem_element_picker), I_button);
     GtkWidget* X_button = gtk_button_new_with_label("X");
     g_signal_connect(X_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
-        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
-        coot::ligand_editor::global_instance->run_choose_element_dialog();
-    }), canvas);
+        ((LigandBuilderState*)user_data)->run_choose_element_dialog();
+    }), nullptr);
     gtk_box_append(GTK_BOX(chem_element_picker), X_button);
     // Canvas space: Canvas
     GtkWidget* canvas_viewport = gtk_scrolled_window_new();
@@ -345,7 +344,7 @@ void coot::ligand_editor::build_main_window(GtkWindow* win, CootLigandEditorCanv
     
 }
 
-void coot::ligand_editor::setup_actions(GtkApplicationWindow* win, CootLigandEditorCanvas* canvas, GtkBuilder* builder) {
+void coot::ligand_editor::setup_actions(coot::ligand_editor::LigandBuilderState* state, GtkApplicationWindow* win, GtkBuilder* builder) {
     auto new_action = [win](const char* action_name, GCallback func, gpointer userdata = nullptr){
         std::string detailed_action_name = "win.";
         detailed_action_name += action_name;
@@ -368,46 +367,46 @@ void coot::ligand_editor::setup_actions(GtkApplicationWindow* win, CootLigandEdi
 
     // File
     new_action("file_new", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        coot::ligand_editor::global_instance->file_new();
+        ((LigandBuilderState*)user_data)->file_new();
     }));
     new_action("file_open", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        coot::ligand_editor::global_instance->file_open();
+        ((LigandBuilderState*)user_data)->file_open();
     }));
     new_action("import_from_smiles", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        coot::ligand_editor::global_instance->load_from_smiles();
+        ((LigandBuilderState*)user_data)->load_from_smiles();
     }));
     new_action("import_molecule", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        coot::ligand_editor::global_instance->file_import_molecule();
+        ((LigandBuilderState*)user_data)->file_import_molecule();
     }));
     new_action("fetch_molecule", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        coot::ligand_editor::global_instance->file_fetch_molecule();
+        ((LigandBuilderState*)user_data)->file_fetch_molecule();
     }));
     new_action("file_save", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        coot::ligand_editor::global_instance->file_save();
+        ((LigandBuilderState*)user_data)->file_save();
     }));
     new_action("file_save_as", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        coot::ligand_editor::global_instance->file_save_as();
+        ((LigandBuilderState*)user_data)->file_save_as();
     }));
     new_action("export_pdf", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        coot::ligand_editor::global_instance->file_export(ExportMode::PDF);
+        ((LigandBuilderState*)user_data)->file_export(ExportMode::PDF);
     }));
     new_action("export_png", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        coot::ligand_editor::global_instance->file_export(ExportMode::PNG);
+        ((LigandBuilderState*)user_data)->file_export(ExportMode::PNG);
     }));
     new_action("export_svg", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        coot::ligand_editor::global_instance->file_export(ExportMode::SVG);
+        ((LigandBuilderState*)user_data)->file_export(ExportMode::SVG);
     }));
     new_action("file_exit", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        gtk_window_close(GTK_WINDOW(user_data));
-    }),win);
+        ((LigandBuilderState*)user_data)->file_exit();
+    }),state);
 
     // Edit;
     new_action("undo", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        coot::ligand_editor::global_instance->edit_undo();
-    }));
+        ((LigandBuilderState*)user_data)->edit_undo();
+    }),state);
     new_action("redo", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        coot::ligand_editor::global_instance->edit_redo();
-    }));
+        ((LigandBuilderState*)user_data)->edit_redo();
+    }),state);
     // Display
 
     using coot::ligand_editor_canvas::DisplayMode;
@@ -420,13 +419,13 @@ void coot::ligand_editor::setup_actions(GtkApplicationWindow* win, CootLigandEdi
             const gchar* mode_name = g_variant_get_string(parameter,nullptr);
             auto mode = coot::ligand_editor_canvas::display_mode_from_string(mode_name);
             if(mode.has_value()) {
-                coot::ligand_editor::global_instance->switch_display_mode(mode.value());
+                ((LigandBuilderState*)user_data)->switch_display_mode(mode.value());
                 g_simple_action_set_state(self, parameter);
             } else {
                 g_error("Could not parse display mode from string!: '%s'",mode_name);
             }
         }
-    ));
+    ),state);
 
     // Help
 

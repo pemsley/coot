@@ -1,11 +1,14 @@
 #include <gtk/gtk.h>
 #include "ligand_builder_state.hpp"
 
+using namespace coot::ligand_editor;
+
 extern "C" G_MODULE_EXPORT
 void
 layla_on_close(GtkButton* button, gpointer user_data) {
-    // todo: this should probably do some checks before just closing
-    gtk_window_close(GTK_WINDOW(user_data));
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+
+    state->file_exit();
 }
 
 extern "C" G_MODULE_EXPORT

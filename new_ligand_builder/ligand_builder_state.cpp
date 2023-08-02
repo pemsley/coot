@@ -16,6 +16,7 @@ LigandBuilderState::LigandBuilderState(CootLigandEditorCanvas* canvas_widget, Gt
     this->canvas = canvas_widget;
     this->main_window = win;
     this->status_label = status_label;
+    g_object_set_data(G_OBJECT(win), "ligand_builder_instance", this);
 }
 
 void LigandBuilderState::update_status(const char* new_status) noexcept {
@@ -417,6 +418,11 @@ void LigandBuilderState::file_export(ExportMode mode) {
             break;
         }
     }
+}
+
+void LigandBuilderState::file_exit() {
+    // todo: this should probably do some checks before just closing
+    gtk_window_close(GTK_WINDOW(this->main_window));
 }
 
 void LigandBuilderState::edit_undo() {
