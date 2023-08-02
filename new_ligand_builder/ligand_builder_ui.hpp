@@ -6,8 +6,6 @@
 
 namespace coot::ligand_editor {
 
-void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel* status_label);
-
 void setup_actions(LigandBuilderState* state, GtkApplicationWindow* win, GtkBuilder* builder);
 
 }

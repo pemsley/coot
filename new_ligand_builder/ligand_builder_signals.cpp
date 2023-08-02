@@ -16,3 +16,11 @@ void
 layla_on_apply(GtkButton* button, gpointer user_data) {
     g_warning("TODO: Implement 'Apply'");
 }
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_invalid_molecule_toggled(GtkCheckButton* check_button, gpointer user_data) {
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+    coot_ligand_editor_set_allow_invalid_molecules(canvas, gtk_check_button_get_active(check_button));
+}

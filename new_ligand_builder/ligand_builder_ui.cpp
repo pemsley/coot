@@ -6,7 +6,7 @@
 #include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
 
-void coot::ligand_editor::build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel* status_label) {
+void build_main_window(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkLabel* status_label) {
     using namespace coot::ligand_editor_canvas;
     using BondModifierMode = coot::ligand_editor_canvas::BondModifier::BondModifierMode;
     using Element = coot::ligand_editor_canvas::ElementInsertion::Element;
@@ -233,7 +233,7 @@ void coot::ligand_editor::build_main_window(GtkWindow* win, CootLigandEditorCanv
     gtk_box_append(GTK_BOX(chem_element_picker), I_button);
     GtkWidget* X_button = gtk_button_new_with_label("X");
     g_signal_connect(X_button, "clicked", G_CALLBACK(+[](GtkButton* _btn, gpointer user_data){
-        ((LigandBuilderState*)user_data)->run_choose_element_dialog();
+        ((coot::ligand_editor::LigandBuilderState*)user_data)->run_choose_element_dialog();
     }), nullptr);
     gtk_box_append(GTK_BOX(chem_element_picker), X_button);
     // Canvas space: Canvas
@@ -303,45 +303,6 @@ void coot::ligand_editor::build_main_window(GtkWindow* win, CootLigandEditorCanv
     gtk_widget_set_halign(show_alerts_checkbutton, GTK_ALIGN_START);
     gtk_box_append(GTK_BOX(mainbox), show_alerts_checkbutton);
     gtk_widget_set_margin_end(show_alerts_checkbutton, 10);
-
-    GtkWidget* invalid_molecule_checkbutton = gtk_check_button_new_with_label("Allow invalid molecules");
-    g_signal_connect(invalid_molecule_checkbutton,"toggled",G_CALLBACK(+[](GtkCheckButton* check_button, gpointer user_data){
-        CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
-        coot_ligand_editor_set_allow_invalid_molecules(canvas, gtk_check_button_get_active(check_button));
-    }), canvas);
-    gtk_widget_set_halign(invalid_molecule_checkbutton, GTK_ALIGN_START);
-    gtk_box_append(GTK_BOX(mainbox), invalid_molecule_checkbutton);
-    gtk_widget_set_margin_end(invalid_molecule_checkbutton, 10);
-
-    gtk_widget_set_margin_start(GTK_WIDGET(status_label), 10);
-    gtk_widget_set_margin_end(GTK_WIDGET(status_label), 10);
-    gtk_widget_set_halign(GTK_WIDGET(status_label), GTK_ALIGN_START);
-
-    gtk_box_append(GTK_BOX(mainbox),GTK_WIDGET(status_label));
-    g_signal_connect(canvas, "status-updated", G_CALLBACK(+[](CootLigandEditorCanvas* canvas, const gchar* status_text, gpointer user_data){
-        gtk_label_set_text(GTK_LABEL(user_data), status_text);
-    }), status_label);
-
-    GtkWidget* button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
-    gtk_box_append(GTK_BOX(mainbox), button_box);
-    gtk_widget_set_halign(button_box,GTK_ALIGN_END);
-    gtk_widget_set_margin_end(button_box, 10);
-    gtk_widget_set_margin_start(button_box, 10);
-    gtk_widget_set_margin_top(button_box, 10);
-    gtk_widget_set_margin_bottom(button_box, 10);
-
-    GtkWidget* apply_button = gtk_button_new_with_label("Apply");
-    gtk_box_append(GTK_BOX(button_box),apply_button);
-    g_signal_connect(apply_button, "clicked", G_CALLBACK(+[](GtkWidget* button, gpointer user_data){
-        g_warning("TODO: Implement 'Apply'");
-    }), win);
-    GtkWidget* close_button = gtk_button_new_with_label("Close");
-    gtk_box_append(GTK_BOX(button_box),close_button);
-    g_signal_connect(close_button, "clicked", G_CALLBACK(+[](GtkWidget* button, gpointer user_data){
-        // todo: this should probably do some checks before just closing
-        gtk_window_close(GTK_WINDOW(user_data));
-    }), win);
-    
 }
 
 void coot::ligand_editor::setup_actions(coot::ligand_editor::LigandBuilderState* state, GtkApplicationWindow* win, GtkBuilder* builder) {

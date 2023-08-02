@@ -19,6 +19,11 @@ int main() {
         GtkWidget* status_label = (GtkWidget*) gtk_builder_get_object(builder, "layla_status_label");
         GtkScrolledWindow* viewport = (GtkScrolledWindow*) gtk_builder_get_object(builder, "layla_canvas_viewport");
         auto* canvas = coot_ligand_editor_canvas_new();
+
+        g_signal_connect(canvas, "status-updated", G_CALLBACK(+[](CootLigandEditorCanvas* canvas, const gchar* status_text, gpointer user_data){
+            gtk_label_set_text(GTK_LABEL(user_data), status_text);
+        }), status_label);
+
         gtk_scrolled_window_set_child(viewport, GTK_WIDGET(canvas));
         coot::ligand_editor::initialize_global_instance(canvas,GTK_WINDOW(win),GTK_LABEL(status_label));
         coot::ligand_editor::setup_actions(coot::ligand_editor::global_instance, win, builder);

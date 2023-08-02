@@ -4,6 +4,7 @@
 #include <rdkit/GraphMol/RWMol.h>
 
 #include "geometry/protein-geometry.hh"
+#include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"
 
 namespace coot::ligand_editor {
@@ -46,6 +47,9 @@ class LigandBuilderState {
     public:
     LigandBuilderState(CootLigandEditorCanvas* canvas_widget, GtkWindow* main_window, GtkLabel* status_label = nullptr) noexcept;
     
+    ///Useful for signal handlers
+    CootLigandEditorCanvas* get_canvas() const noexcept;
+
     // TOOLS
     void run_choose_element_dialog();
     // FILE
