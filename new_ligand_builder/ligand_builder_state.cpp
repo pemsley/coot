@@ -443,6 +443,30 @@ void LigandBuilderState::switch_display_mode(ligand_editor_canvas::DisplayMode m
 
 void LigandBuilderState::run_apply() {
     g_warning("TODO: Implement 'Apply'");
+    auto* apply_dialog = gtk_dialog_new();
+    gtk_window_set_transient_for(GTK_WINDOW(apply_dialog), this->main_window);
+    // This isn't the best practice but it tremendously simplifies things
+    // by saving us from unnecessary boilerplate.
+    g_object_set_data(G_OBJECT(apply_dialog), "ligand_builder_instance", this);
+    gtk_window_set_title(GTK_WINDOW(apply_dialog), "Apply");
+    
+    auto* dialog_body = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
+    gtk_widget_set_margin_bottom(dialog_body, 10);
+    gtk_widget_set_margin_end(dialog_body, 10);
+    gtk_widget_set_margin_start(dialog_body, 10);
+    gtk_widget_set_margin_top(dialog_body, 10);
+
+
+    g_signal_connect(apply_dialog, "response", G_CALLBACK(+[](GtkDialog* dialog, gint response_id, gpointer user_data){
+        if(response_id != GTK_RESPONSE_ACCEPT) {
+            g_debug("Ignoring unhandled response type: %s",g_enum_to_string(gtk_response_type_get_type(), response_id));
+            return;
+        }
+
+    }),nullptr);
+
+    gtk_window_set_child(GTK_WINDOW(apply_dialog),dialog_body);
+    gtk_window_present(GTK_WINDOW(apply_dialog));
 }
 
 void coot::ligand_editor::initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label) {
