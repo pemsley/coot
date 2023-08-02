@@ -67,7 +67,8 @@ class LigandBuilderState {
     void edit_redo();
     // Display
     void switch_display_mode(ligand_editor_canvas::DisplayMode mode);
-
+    /// Apply button
+    void run_apply();
 };
 
 /// Let this be the singleton used by the editor executable.

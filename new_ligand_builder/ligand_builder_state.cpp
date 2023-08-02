@@ -441,6 +441,10 @@ void LigandBuilderState::switch_display_mode(ligand_editor_canvas::DisplayMode m
     coot_ligand_editor_set_display_mode(this->canvas, mode);
 }
 
+void LigandBuilderState::run_apply() {
+    g_warning("TODO: Implement 'Apply'");
+}
+
 void coot::ligand_editor::initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label) {
     global_instance = new LigandBuilderState(canvas,win,status_label);
     g_info("Global instance of LigandBuilderState has been initialized at: %p",global_instance);

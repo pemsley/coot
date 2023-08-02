@@ -31,7 +31,8 @@ layla_on_close(GtkButton* button, gpointer user_data) {
 extern "C" G_MODULE_EXPORT
 void
 layla_on_apply(GtkButton* button, gpointer user_data) {
-    g_warning("TODO: Implement 'Apply'");
+    LigandBuilderState* state = GET_STATE();
+    state->run_apply();
 }
 
 extern "C" G_MODULE_EXPORT
