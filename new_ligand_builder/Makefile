@@ -17,7 +17,7 @@ LDLIBS=-fuse-ld=mold \
        -L$(COOT_DIR)/lib \
        `pkg-config --libs gtk4`  \
         -g \
-        -Wl,--rpath=$(COOT_DIR)/lib \
+        -Wl,--export-dynamic,--rpath=$(COOT_DIR)/lib \
         -lfreetype -lm -ldl \
         -lRDKitDepictor -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol -lRDKitRDGeneral -lRDKitFileParsers -lRDKitSubstructMatch \
         -lcoot-geometry -lcoot-lidia-core
