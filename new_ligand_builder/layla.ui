@@ -94,7 +94,7 @@
       </item>
     </submenu>
   </menu>
-  <object class="GtkWindow" id="layla_window">
+  <object class="GtkApplicationWindow" id="layla_window">
     <property name="child">
       <object class="GtkBox" id="layla_mainbox">
         <property name="margin-end">10</property>
@@ -813,6 +813,7 @@
     <property name="title">Layla: Coot's Ligand Builder</property>
   </object>
   <object class="GtkAboutDialog" id="layla_about_dialog">
+    <property name="hide-on-close">true</property>
     <property name="authors">Jakub Smulski
 Paul Emsley</property>
     <property name="comments">Ligand builder, successor to Lidia</property>

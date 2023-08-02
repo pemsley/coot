@@ -14,7 +14,8 @@ int main() {
     g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
         // todo: Make this not use a relative path:
         GtkBuilder* builder = gtk_builder_new_from_file("layla.ui");
-        GtkWindow* win2 = (GtkWindow*) gtk_builder_get_object(builder, "layla_window");
+        GtkApplicationWindow* win2 = (GtkApplicationWindow*) gtk_builder_get_object(builder, "layla_window");
+        gtk_window_set_application(GTK_WINDOW(win2),app);
         GtkWidget* status_label2 = (GtkWidget*) gtk_builder_get_object(builder, "layla_status_label");
         GtkScrolledWindow* viewport = (GtkScrolledWindow*) gtk_builder_get_object(builder, "layla_canvas_viewport");
         auto* canvas2 = coot_ligand_editor_canvas_new();

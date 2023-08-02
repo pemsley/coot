@@ -345,7 +345,7 @@ void coot::ligand_editor::build_main_window(GtkWindow* win, CootLigandEditorCanv
     
 }
 
-void coot::ligand_editor::setup_actions(GtkWindow* win, CootLigandEditorCanvas* canvas, GtkBuilder* builder) {
+void coot::ligand_editor::setup_actions(GtkApplicationWindow* win, CootLigandEditorCanvas* canvas, GtkBuilder* builder) {
     auto new_action = [win](const char* action_name, GCallback func, gpointer userdata = nullptr){
         std::string detailed_action_name = "win.";
         detailed_action_name += action_name;
@@ -364,10 +364,10 @@ void coot::ligand_editor::setup_actions(GtkWindow* win, CootLigandEditorCanvas* 
         //return std::make_pair(detailed_action_name,action);
     };
 
-    // new_action("about", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-    //     auto* about_dialog = coot::ligand_editor::build_about_dialog();
-    //     gtk_window_present(GTK_WINDOW(about_dialog));
-    // }));
+    new_action("show_about_dialog", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        auto* about_dialog = GTK_WINDOW(user_data);
+        gtk_window_present(GTK_WINDOW(about_dialog));
+    }),gtk_builder_get_object(builder, "layla_about_dialog"));
 }
 
 GMenu* coot::ligand_editor::build_menu(GtkApplication* app, CootLigandEditorCanvas* canvas, GtkWindow* win) {
