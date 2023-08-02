@@ -2655,6 +2655,7 @@
 
   ;;
   (define (mutate-it)
+
     (let ((imol-ligand (get-monomer-and-dictionary tlc)))
       (if (not (valid-model-molecule? imol-ligand))
 	  (let ((s (string-append " Oops.  Failed to get monomer " tlc)))
@@ -2679,6 +2680,8 @@
             (if (not (is-nucleotide? imol-ligand "A" 1))
                 (match-ligand-torsions imol-ligand imol chain-id-in resno))
 	    (delete-residue imol chain-id-in resno "")
+            (format #t "DEBUG:: ------ calling set-merge-molecules-ligand-spec-scm\n")
+            (set-merge-molecules-ligand-spec-scm (list "ZZZ" 1 ""))
 	    (let* ((new-chain-id-info (merge-molecules (list imol-ligand) imol))
 		   (nov (format #t "DEBUG:: ------ new-chain-id-info: ~s~%" new-chain-id-info)))
 	      (let ((merge-status (car new-chain-id-info)))
@@ -2733,7 +2736,8 @@
   ;; 
   ;; First, if there are multiple maps, force the user to choose one,
   ;; rather than continuing.
-  ;; 
+  ;;
+
   (let ((imol-map (imol-refinement-map)))
     (if (= imol-map -1)
 	(let ((map-mols (map-molecule-list)))
