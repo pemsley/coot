@@ -641,56 +641,67 @@
                 <child>
                   <object class="GtkButton" id="layla_C_button">
                     <property name="label">C</property>
+                    <signal name="clicked" handler="layla_on_C_button_clicked" swapped="no" object="layla_window" />
                   </object>
                 </child>
                 <child>
                   <object class="GtkButton" id="layla_N_button">
                     <property name="label">N</property>
+                    <signal name="clicked" handler="layla_on_N_button_clicked" swapped="no" object="layla_window" />
                   </object>
                 </child>
                 <child>
                   <object class="GtkButton" id="layla_O_button">
                     <property name="label">O</property>
+                    <signal name="clicked" handler="layla_on_O_button_clicked" swapped="no" object="layla_window" />
                   </object>
                 </child>
                 <child>
                   <object class="GtkButton" id="layla_S_button">
                     <property name="label">S</property>
+                    <signal name="clicked" handler="layla_on_S_button_clicked" swapped="no" object="layla_window" />
                   </object>
                 </child>
                 <child>
                   <object class="GtkButton" id="layla_P_button">
                     <property name="label">P</property>
+                    <signal name="clicked" handler="layla_on_P_button_clicked" swapped="no" object="layla_window" />
                   </object>
                 </child>
                 <child>
                   <object class="GtkButton" id="layla_H_button">
                     <property name="label">H</property>
+                    <signal name="clicked" handler="layla_on_H_button_clicked" swapped="no" object="layla_window" />
                   </object>
                 </child>
                 <child>
                   <object class="GtkButton" id="layla_F_button">
                     <property name="label">F</property>
+                    <signal name="clicked" handler="layla_on_F_button_clicked" swapped="no" object="layla_window" />
                   </object>
                 </child>
                 <child>
                   <object class="GtkButton" id="layla_Cl_button">
                     <property name="label">Cl</property>
+                    <signal name="clicked" handler="layla_on_Cl_button_clicked" swapped="no" object="layla_window" />
                   </object>
                 </child>
                 <child>
                   <object class="GtkButton" id="layla_Br_button">
                     <property name="label">Br</property>
+                    <signal name="clicked" handler="layla_on_Br_button_clicked" swapped="no" object="layla_window" />
                   </object>
                 </child>
                 <child>
                   <object class="GtkButton" id="layla_I_button">
                     <property name="label">I</property>
+                    <signal name="clicked" handler="layla_on_I_button_clicked" swapped="no" object="layla_window" />
                   </object>
                 </child>
                 <child>
                   <object class="GtkButton" id="layla_X_button">
                     <property name="label">X</property>
+                    <signal name="clicked" handler="layla_on_X_button_clicked" swapped="no" object="layla_window" />
                   </object>
                 </child>
               </object>
