@@ -364,10 +364,50 @@ void coot::ligand_editor::setup_actions(GtkApplicationWindow* win, CootLigandEdi
         //return std::make_pair(detailed_action_name,action);
     };
 
+    using ExportMode = coot::ligand_editor::LigandBuilderState::ExportMode;
+
     // File
-
-    // Edit
-
+    new_action("file_new", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        coot::ligand_editor::global_instance->file_new();
+    }));
+    new_action("file_open", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        coot::ligand_editor::global_instance->file_open();
+    }));
+    new_action("import_from_smiles", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        coot::ligand_editor::global_instance->load_from_smiles();
+    }));
+    new_action("import_molecule", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        coot::ligand_editor::global_instance->file_import_molecule();
+    }));
+    new_action("fetch_molecule", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        coot::ligand_editor::global_instance->file_fetch_molecule();
+    }));
+    new_action("file_save", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        coot::ligand_editor::global_instance->file_save();
+    }));
+    new_action("file_save_as", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        coot::ligand_editor::global_instance->file_save_as();
+    }));
+    new_action("export_pdf", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        coot::ligand_editor::global_instance->file_export(ExportMode::PDF);
+    }));
+    new_action("export_png", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        coot::ligand_editor::global_instance->file_export(ExportMode::PNG);
+    }));
+    new_action("export_svg", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        coot::ligand_editor::global_instance->file_export(ExportMode::SVG);
+    }));
+    new_action("exit", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        gtk_window_close(GTK_WINDOW(user_data));
+    }),win);
+    
+    // Edit;
+    new_action("undo", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        coot::ligand_editor::global_instance->edit_undo();
+    }));
+    new_action("redo", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        coot::ligand_editor::global_instance->edit_redo();
+    }));
     // Display
 
     using coot::ligand_editor_canvas::DisplayMode;
