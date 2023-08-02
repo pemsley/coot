@@ -14,30 +14,17 @@ int main() {
     g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
         // todo: Make this not use a relative path:
         GtkBuilder* builder = gtk_builder_new_from_file("layla.ui");
-        GtkApplicationWindow* win2 = (GtkApplicationWindow*) gtk_builder_get_object(builder, "layla_window");
-        gtk_window_set_application(GTK_WINDOW(win2),app);
-        GtkWidget* status_label2 = (GtkWidget*) gtk_builder_get_object(builder, "layla_status_label");
-        GtkScrolledWindow* viewport = (GtkScrolledWindow*) gtk_builder_get_object(builder, "layla_canvas_viewport");
-        auto* canvas2 = coot_ligand_editor_canvas_new();
-        gtk_scrolled_window_set_child(viewport, GTK_WIDGET(canvas2));
-        //coot::ligand_editor::initialize_global_instance(canvas,GTK_WINDOW(win),GTK_LABEL(status_label));
-        coot::ligand_editor::setup_actions(win2, canvas2, builder);
-        gtk_window_present(GTK_WINDOW(win2));
-        gtk_application_add_window(app,GTK_WINDOW(win2));
-        g_object_unref(builder);
-
-        GtkWidget* win = gtk_application_window_new(app);
-        gtk_window_set_title(GTK_WINDOW(win),"New Ligand Editor");
-        gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(win), TRUE);
+        GtkApplicationWindow* win = (GtkApplicationWindow*) gtk_builder_get_object(builder, "layla_window");
         gtk_window_set_application(GTK_WINDOW(win),app);
+        GtkWidget* status_label = (GtkWidget*) gtk_builder_get_object(builder, "layla_status_label");
+        GtkScrolledWindow* viewport = (GtkScrolledWindow*) gtk_builder_get_object(builder, "layla_canvas_viewport");
         auto* canvas = coot_ligand_editor_canvas_new();
-        GtkWidget* status_label = gtk_label_new("");
+        gtk_scrolled_window_set_child(viewport, GTK_WIDGET(canvas));
         coot::ligand_editor::initialize_global_instance(canvas,GTK_WINDOW(win),GTK_LABEL(status_label));
-        gtk_application_set_menubar(app, G_MENU_MODEL(build_menu(app,canvas,GTK_WINDOW(win))));
-        gtk_application_add_window(app,GTK_WINDOW(win));
-        build_main_window(GTK_WINDOW(win),canvas,GTK_LABEL(status_label));
+        coot::ligand_editor::setup_actions(win, canvas, builder);
         gtk_window_present(GTK_WINDOW(win));
-
+        gtk_application_add_window(app,GTK_WINDOW(win));
+        g_object_unref(builder);
     }),NULL);
 
 
