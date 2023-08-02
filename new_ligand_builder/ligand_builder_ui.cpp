@@ -397,7 +397,7 @@ void coot::ligand_editor::setup_actions(GtkApplicationWindow* win, CootLigandEdi
     new_action("export_svg", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         coot::ligand_editor::global_instance->file_export(ExportMode::SVG);
     }));
-    new_action("exit", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+    new_action("file_exit", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         gtk_window_close(GTK_WINDOW(user_data));
     }),win);
 
@@ -434,5 +434,5 @@ void coot::ligand_editor::setup_actions(GtkApplicationWindow* win, CootLigandEdi
         auto* about_dialog = GTK_WINDOW(user_data);
         gtk_window_present(GTK_WINDOW(about_dialog));
     }),gtk_builder_get_object(builder, "layla_about_dialog"));
-    
+
 }
