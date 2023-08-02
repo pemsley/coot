@@ -24,6 +24,21 @@ int main() {
             gtk_label_set_text(GTK_LABEL(user_data), status_text);
         }), status_label);
 
+        GtkSpinButton* scale_spinbutton = (GtkSpinButton*) gtk_builder_get_object(builder, "layla_scale_spinbutton");
+        g_signal_connect(canvas, "scale-changed", G_CALLBACK(+[](CootLigandEditorCanvas* canvas, float new_scale, gpointer user_data){
+            GtkSpinButton* spinbutton = GTK_SPIN_BUTTON(user_data);
+            gtk_spin_button_set_value(spinbutton, new_scale);
+        }), scale_spinbutton);
+
+
+        GtkTextView* smiles_display = (GtkTextView*) gtk_builder_get_object(builder, "layla_smiles_textview");
+        g_signal_connect(canvas, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data){
+            GtkTextView* view = GTK_TEXT_VIEW(user_data);
+            std::string smiles = coot_ligand_editor_get_smiles(self);
+            GtkTextBuffer* buf = gtk_text_view_get_buffer(view);
+            gtk_text_buffer_set_text(buf,smiles.c_str(),-1);
+        }), smiles_display);
+
         gtk_scrolled_window_set_child(viewport, GTK_WIDGET(canvas));
         coot::ligand_editor::initialize_global_instance(canvas,GTK_WINDOW(win),GTK_LABEL(status_label));
         coot::ligand_editor::setup_actions(coot::ligand_editor::global_instance, win, builder);

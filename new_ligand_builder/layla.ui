@@ -746,6 +746,7 @@
                 <property name="climb-rate">0.1</property>
                 <property name="digits">1</property>
                 <property name="halign">end</property>
+                <signal name="value-changed" handler="layla_on_scale_spinbutton_value_changed" swapped="no" object="layla_window" />
               </object>
             </child>
           </object>
@@ -775,6 +776,7 @@
                   <property name="row">1</property>
                   <property name="row-span">1</property>
                 </layout>
+                <signal name="toggled" handler="layla_on_show_alerts_toggled" swapped="no" object="layla_window" />
               </object>
             </child>
           </object>
