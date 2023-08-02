@@ -364,6 +364,32 @@ void coot::ligand_editor::setup_actions(GtkApplicationWindow* win, CootLigandEdi
         //return std::make_pair(detailed_action_name,action);
     };
 
+    // File
+
+    // Edit
+
+    // Display
+
+    using coot::ligand_editor_canvas::DisplayMode;
+    GVariant* display_mode_action_defstate = g_variant_new("s",coot::ligand_editor_canvas::display_mode_to_string(DisplayMode::Standard));
+    new_stateful_action(
+        "switch_display_mode", 
+        G_VARIANT_TYPE_STRING,
+        display_mode_action_defstate, 
+        G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+            const gchar* mode_name = g_variant_get_string(parameter,nullptr);
+            auto mode = coot::ligand_editor_canvas::display_mode_from_string(mode_name);
+            if(mode.has_value()) {
+                coot::ligand_editor::global_instance->switch_display_mode(mode.value());
+                g_simple_action_set_state(self, parameter);
+            } else {
+                g_error("Could not parse display mode from string!: '%s'",mode_name);
+            }
+        }
+    ));
+
+    // Help
+
     new_action("show_about_dialog", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         auto* about_dialog = GTK_WINDOW(user_data);
         gtk_window_present(GTK_WINDOW(about_dialog));
