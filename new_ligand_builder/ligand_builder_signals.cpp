@@ -140,57 +140,166 @@ layla_on_I_button_clicked(GtkButton* _btn, gpointer user_data){
 
 extern "C" G_MODULE_EXPORT
 void
-layla_on_button_3C_clicked(GtkButton* _btn, gpointer user_data){
-    CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+layla_on_3C_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+
     coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloPropaneRing)));
 
 }
 
 extern "C" G_MODULE_EXPORT
 void
-layla_on_button_4C_clicked(GtkButton* _btn, gpointer user_data){
-    CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+layla_on_4C_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+
     coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloButaneRing)));
 
 }
 
 extern "C" G_MODULE_EXPORT
 void
-layla_on_button_5C_clicked(GtkButton* _btn, gpointer user_data){
-    CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+layla_on_5C_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+
     coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloPentaneRing)));
 
 }
 
 extern "C" G_MODULE_EXPORT
 void
-layla_on_button_6C_clicked(GtkButton* _btn, gpointer user_data){
-    CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+layla_on_6C_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+
     coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloHexaneRing)));
 
 }
 
 extern "C" G_MODULE_EXPORT
 void
-layla_on_button_6Arom_clicked(GtkButton* _btn, gpointer user_data){
-    CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+layla_on_6Arom_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+
     coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::BenzeneRing)));
 
 }
 
 extern "C" G_MODULE_EXPORT
 void
-layla_on_button_7C_clicked(GtkButton* _btn, gpointer user_data){
-    CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+layla_on_7C_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+
     coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloHeptaneRing)));
 
 }
 
 extern "C" G_MODULE_EXPORT
 void
-layla_on_button_8C_clicked(GtkButton* _btn, gpointer user_data){
-    CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+layla_on_8C_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+
     coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloOctaneRing)));
 
+}
 
+extern "C" G_MODULE_EXPORT
+void
+layla_on_move_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(TransformTool(TransformMode::Translation)));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_rotate_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(TransformTool(TransformMode::Rotation)));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_flip_x_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(FlipTool(FlipMode::Horizontal)));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_flip_y_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(FlipTool(FlipMode::Vertical)));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_single_bond_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(BondModifier(BondModifierMode::Single)));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_double_bond_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(BondModifier(BondModifierMode::Double)));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_triple_bond_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(BondModifier(BondModifierMode::Triple)));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_geometry_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(GeometryModifier()));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_charge_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ChargeModifier()));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_delete_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(DeleteTool()));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_format_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(FormatTool()));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_delete_hydrogens_button_clicked(GtkButton* _btn, gpointer user_data){
+    LigandBuilderState* state = (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance");
+    CootLigandEditorCanvas* canvas = state->get_canvas();
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(RemoveHydrogensTool()));
 }
