@@ -462,6 +462,12 @@ void LigandBuilderState::run_apply() {
     // 2: What input format (SMILES or MolFile)
     // 3: Which generator to use ("Acedrg", "Grade2", "Pyrogen")
 
+    auto* submit_button = gtk_button_new_with_label("Accept");
+    gtk_box_append(GTK_BOX(dialog_body),submit_button);
+    g_signal_connect(submit_button, "clicked", G_CALLBACK(+[](GtkButton* btn, gpointer user_data){
+        gtk_dialog_response(GTK_DIALOG(user_data), GTK_RESPONSE_ACCEPT);
+    }), apply_dialog);
+
     g_signal_connect(apply_dialog, "response", G_CALLBACK(+[](GtkDialog* dialog, gint response_id, gpointer user_data){
         if(response_id != GTK_RESPONSE_ACCEPT) {
             g_debug("Ignoring unhandled response type: %s",g_enum_to_string(gtk_response_type_get_type(), response_id));
