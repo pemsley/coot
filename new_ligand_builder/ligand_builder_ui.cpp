@@ -1,5 +1,4 @@
 #include "ligand_builder_ui.hpp"
-#include "about_dialog.hpp"
 #include "ligand_builder_state.hpp"
 #include "ligand_editor_canvas.hpp"
 #include "ligand_editor_canvas/core.hpp"
