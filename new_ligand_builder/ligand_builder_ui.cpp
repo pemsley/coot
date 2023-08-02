@@ -368,34 +368,34 @@ void coot::ligand_editor::setup_actions(coot::ligand_editor::LigandBuilderState*
     // File
     new_action("file_new", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         ((LigandBuilderState*)user_data)->file_new();
-    }));
+    }),state);
     new_action("file_open", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         ((LigandBuilderState*)user_data)->file_open();
-    }));
+    }),state);
     new_action("import_from_smiles", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         ((LigandBuilderState*)user_data)->load_from_smiles();
-    }));
+    }),state);
     new_action("import_molecule", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         ((LigandBuilderState*)user_data)->file_import_molecule();
-    }));
+    }),state);
     new_action("fetch_molecule", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         ((LigandBuilderState*)user_data)->file_fetch_molecule();
-    }));
+    }),state);
     new_action("file_save", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         ((LigandBuilderState*)user_data)->file_save();
-    }));
+    }),state);
     new_action("file_save_as", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         ((LigandBuilderState*)user_data)->file_save_as();
-    }));
+    }),state);
     new_action("export_pdf", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         ((LigandBuilderState*)user_data)->file_export(ExportMode::PDF);
-    }));
+    }),state);
     new_action("export_png", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         ((LigandBuilderState*)user_data)->file_export(ExportMode::PNG);
-    }));
+    }),state);
     new_action("export_svg", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         ((LigandBuilderState*)user_data)->file_export(ExportMode::SVG);
-    }));
+    }),state);
     new_action("file_exit", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
         ((LigandBuilderState*)user_data)->file_exit();
     }),state);
