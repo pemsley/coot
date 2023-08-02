@@ -10,9 +10,12 @@ using TransformMode = coot::ligand_editor_canvas::TransformManager::Mode;
 
 
 #if 0
-#define GET_STATE() coot::ligand_editor::global_instance
-#else
+// This depends on `layla_window` being passed in XML as the signal's 'object'
+// and on the relevant g_object_set_data call in LigandBuilderState constructor.
+// I don't know if it makes sense to use it if `coot::ligand_editor::global_instance` suffices.
 #define GET_STATE() (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance")
+#else
+#define GET_STATE() coot::ligand_editor::global_instance
 #endif
 
 #define GET_CANVAS() (GET_STATE())->get_canvas()

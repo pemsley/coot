@@ -16,7 +16,7 @@ LigandBuilderState::LigandBuilderState(CootLigandEditorCanvas* canvas_widget, Gt
     this->canvas = canvas_widget;
     this->main_window = win;
     this->status_label = status_label;
-    g_object_set_data(G_OBJECT(win), "ligand_builder_instance", this);
+    //g_object_set_data(G_OBJECT(win), "ligand_builder_instance", this);
 }
 
 CootLigandEditorCanvas* LigandBuilderState::get_canvas() const noexcept {
