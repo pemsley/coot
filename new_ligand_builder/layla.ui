@@ -73,17 +73,17 @@
       <item>
         <attribute name="label">Standard</attribute>
         <attribute name="action">win.switch_display_mode</attribute>
-        <attribute name="value">Standard</attribute>
+        <attribute name="target">Standard</attribute>
       </item>
       <item>
         <attribute name="label">Atom Indices</attribute>
         <attribute name="action">win.switch_display_mode</attribute>
-        <attribute name="value">Atom Indices</attribute>
+        <attribute name="target">Atom Indices</attribute>
       </item>
       <item>
         <attribute name="label">Atom Names</attribute>
         <attribute name="action">win.switch_display_mode</attribute>
-        <attribute name="value">Atom Names</attribute>
+        <attribute name="target">Atom Names</attribute>
       </item>
     </submenu>
     <submenu>
