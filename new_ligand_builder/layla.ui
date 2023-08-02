@@ -477,6 +477,7 @@
           <object class="GtkActionBar" id="layla_carbon_ring_picker">
             <child>
               <object class="GtkButton" id="layla_3C_button">
+                <signal name="clicked" handler="layla_on_3C_button_clicked" swapped="no" object="layla_window" />
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -499,6 +500,7 @@
             </child>
             <child>
               <object class="GtkButton" id="layla_4C_button">
+                <signal name="clicked" handler="layla_on_4C_button_clicked" swapped="no" object="layla_window" />
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -521,6 +523,7 @@
             </child>
             <child>
               <object class="GtkButton" id="layla_5C_button">
+                <signal name="clicked" handler="layla_on_5C_button_clicked" swapped="no" object="layla_window" />
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -543,6 +546,7 @@
             </child>
             <child>
               <object class="GtkButton" id="layla_6C_button">
+                <signal name="clicked" handler="layla_on_6C_button_clicked" swapped="no" object="layla_window" />
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -565,6 +569,7 @@
             </child>
             <child>
               <object class="GtkButton" id="layla_6Arom_button">
+                <signal name="clicked" handler="layla_on_6Arom_button_clicked" swapped="no" object="layla_window" />
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -587,6 +592,7 @@
             </child>
             <child>
               <object class="GtkButton" id="layla_7C_button">
+                <signal name="clicked" handler="layla_on_7C_button_clicked" swapped="no" object="layla_window" />
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -609,6 +615,7 @@
             </child>
             <child>
               <object class="GtkButton" id="layla_8C_button">
+                <signal name="clicked" handler="layla_on_8C_button_clicked" swapped="no" object="layla_window" />
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>

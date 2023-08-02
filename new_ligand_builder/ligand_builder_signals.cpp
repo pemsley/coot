@@ -137,3 +137,60 @@ layla_on_I_button_clicked(GtkButton* _btn, gpointer user_data){
  
     coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(ElementInsertion(Element::I)));
 }
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_button_3C_clicked(GtkButton* _btn, gpointer user_data){
+    CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloPropaneRing)));
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_button_4C_clicked(GtkButton* _btn, gpointer user_data){
+    CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloButaneRing)));
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_button_5C_clicked(GtkButton* _btn, gpointer user_data){
+    CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloPentaneRing)));
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_button_6C_clicked(GtkButton* _btn, gpointer user_data){
+    CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloHexaneRing)));
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_button_6Arom_clicked(GtkButton* _btn, gpointer user_data){
+    CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::BenzeneRing)));
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_button_7C_clicked(GtkButton* _btn, gpointer user_data){
+    CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloHeptaneRing)));
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_button_8C_clicked(GtkButton* _btn, gpointer user_data){
+    CootLigandEditorCanvas* canvas = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    coot_ligand_editor_set_active_tool(canvas, std::make_unique<ActiveTool>(StructureInsertion(Structure::CycloOctaneRing)));
+
+
+}
