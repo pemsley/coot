@@ -280,7 +280,54 @@ int test_phi_psi_values() {
    return status;
 }
 
+#include <glm/gtc/quaternion.hpp>
+
+int test_quaternion_exchange() {
+
+   int status = 0;
+   glm::quat q(0,0,0,1);
+   glm::quat q2(1,0,0,0);
+   glm::quat qi = glm::inverse(q2);
+   glm::quat qr = glm::rotate(q, 3.1415926f/2.0f, glm::normalize(glm::vec3(0.1, 0.2, 0.3)));
+
+   coot::util::quaternion cq(q[0], q[1], q[2], q[3]);
+   glm::quat q_return(cq.q0, cq.q1, cq.q2, cq.q3);
+
+   std::vector<std::reference_wrapper<glm::quat> > quats{ q, q2, qi, qr};
+
+   for (const auto &quatx : quats) {
+      glm::quat q(0,0,0,1);
+      coot::util::quaternion cqq(q[3], q[0], q[1], q[2]);
+      glm::quat quat = quatx;
+      coot::util::quaternion cq(quat[3], quat[0], quat[1], quat[2]);
+      glm::quat q_return(cq.q0, cq.q1, cq.q2, cq.q3);
+      std::cout << "   Start: " << glm::to_string(quat) << " return " << glm::to_string(q_return) << std::endl;
+   }
+
+   {
+      double ang = 3.141f/2.0;
+      clipper::Coord_orth vec(clipper::Coord_orth(0.1, 0.2, 0.3).unit());
+      coot::util::quaternion cq(0,0,0,1); // unity quaterion.
+      coot::util::quaternion cq2(1,0,0,0);
+      coot::util::quaternion cqi  = cq.inverse();
+      coot::util::quaternion cqor(0.1, 0.2, 03, 0.4);
+      cqor.normalize();
+      std::vector<std::reference_wrapper<coot::util::quaternion> > cqs{ cq, cq2, cqi, cqor};
+
+      for (auto &cqx : cqs) {
+         coot::util::quaternion cq = cqx;
+         glm::quat quat(cq.q0, cq.q1, cq.q2, cq.q3);
+         coot::util::quaternion cq_return(quat[3], quat[0], quat[1], quat[2]);
+         std::cout << " Start coot " << cq << " " << cq_return << std::endl;
+      }
+   }
+
+   return status;
+}
+
 int test_internal_single() {
+
+   std::cout << "------------------- test_internal_single() " << std::endl;
    int status = 0;
    try {
       // status = test_symop_card();
@@ -317,7 +364,8 @@ int test_internal_single() {
       // status = test_COO_mod();
       // status = test_output_link_distances_are_correct();
       // status = test_string_splitting();
-      status = test_index_splitting();
+      // status = test_index_splitting();
+      status = test_quaternion_exchange();
    }
    catch (const std::runtime_error &mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;

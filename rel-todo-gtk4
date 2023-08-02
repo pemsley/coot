@@ -25,6 +25,10 @@ Test the conversion of glm quaternion to coot quaternion and back again.
 
 Pyrogen needs to work ::: 2
 
+What about --no-graphics?
+
+Fix crash on coot.coot_real_exit(0)
+
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
