@@ -16,10 +16,10 @@ int main() {
         GtkBuilder* builder = gtk_builder_new_from_file("layla.ui");
         
         auto* win = coot::ligand_editor::setup_main_window(app,builder);
+        coot::ligand_editor::gtk_builder = builder;
         
         gtk_window_present(GTK_WINDOW(win));
         gtk_application_add_window(app,GTK_WINDOW(win));
-        g_object_unref(builder);
     }),NULL);
 
 

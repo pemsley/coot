@@ -75,6 +75,11 @@ class LigandBuilderState {
 /// Could by used by Coot as well.
 inline LigandBuilderState* global_instance;
 
+/// Global GtkBuilder created from `layla.ui`.
+/// Used for accessing widgets inside dialogs 
+/// from within signal handlers.
+inline GtkBuilder* gtk_builder;
+
 void initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label = nullptr);
 
 } // namespace coot::ligand_editor
