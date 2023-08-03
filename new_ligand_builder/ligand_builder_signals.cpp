@@ -31,8 +31,16 @@ layla_on_close(GtkButton* button, gpointer user_data) {
 extern "C" G_MODULE_EXPORT
 void
 layla_on_apply(GtkButton* button, gpointer user_data) {
-    LigandBuilderState* state = GET_STATE();
-    state->run_apply();
+    auto* dialog = gtk_builder_get_object(layla_gtk_builder,"layla_apply_dialog");
+    gtk_window_present(GTK_WINDOW(dialog));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
+    g_warning("Implement 'Apply'");
+    auto* dialog = gtk_builder_get_object(layla_gtk_builder,"layla_apply_dialog");
+    gtk_window_close(GTK_WINDOW(dialog));
 }
 
 extern "C" G_MODULE_EXPORT

@@ -857,4 +857,104 @@ Paul Emsley</property>
     <property name="program-name">Coot Layla</property>
     <property name="version">v1.0</property>
   </object>
+  <object class="GtkWindow" id="layla_apply_dialog">
+    <property name="title">Apply</property>
+    <property name="hide-on-close">true</property>
+    <child>
+      <object class="GtkGrid">
+        <property name="margin-start">10</property>
+        <property name="margin-end">10</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <property name="column-spacing">10</property>
+        <property name="row-spacing">10</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="label">Monomer ID:</property>
+            <layout>
+              <property name="row">0</property>
+              <property name="column">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="layla_generator_monomer_id_combobox">
+            <layout>
+              <property name="column">1</property>
+              <property name="row">0</property>
+              <property name="column-span">1</property>
+            </layout>
+            <items>
+              <item id="LIG">LIG</item>
+              <item id="INH">INH</item>
+              <item id="Custom">Custom</item>
+            </items>
+          </object>
+        </child>
+        <child>
+          <object class="GtkEntry" id="layla_generator_monomer_id_entry">
+            <property name="sensitive">false</property>
+            <layout>
+              <property name="column">2</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel">
+            <property name="label">Input format:</property>
+            <layout>
+              <property name="row">1</property>
+              <property name="column">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="layla_generator_input_format_combobox">
+            <layout>
+              <property name="column">1</property>
+              <property name="row">1</property>
+              <property name="column-span">2</property>
+            </layout>
+            <items>
+              <item id="smiles">SMILES</item>
+              <item id="molfile">MolFile</item>
+            </items>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel">
+            <property name="label">Generator:</property>
+            <layout>
+              <property name="row">2</property>
+              <property name="column">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="layla_generator_program_combobox">
+            <layout>
+              <property name="column">1</property>
+              <property name="row">2</property>
+              <property name="column-span">2</property>
+            </layout>
+            <items>
+              <item id="acedrg">Acedrg</item>
+              <item id="grade2">Grade2</item>
+            </items>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton">
+            <property name="label">Accept</property>
+            <signal name="clicked" swapped="false" handler="layla_on_apply_dialog_accepted"></signal>
+            <layout>
+              <property name="column">2</property>
+              <property name="row">3</property>
+            </layout>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
 </interface>
