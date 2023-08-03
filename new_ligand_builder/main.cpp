@@ -12,11 +12,15 @@ int main() {
     g_application_register(G_APPLICATION(app), NULL, &error);
 
     g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
-        // gtk_icon_theme_add_search_path(GtkIconTheme *self, const char *path)
         // todo: Make this not use a relative path:
         GtkBuilder* builder = gtk_builder_new_from_file("layla.ui");
         
         auto* win = coot::ligand_editor::setup_main_window(app,builder);
+
+        // for now
+        auto* icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(GTK_WIDGET(win)));
+        gtk_icon_theme_add_search_path(icon_theme, "icons");
+        
         coot::ligand_editor::layla_gtk_builder = builder;
         
         gtk_window_present(GTK_WINDOW(win));

@@ -331,6 +331,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_geometry_tool</property>
                         </object>
                       </child>
                       <child>
