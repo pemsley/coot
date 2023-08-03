@@ -889,6 +889,7 @@ Paul Emsley</property>
               <item id="INH">INH</item>
               <item id="Custom">Custom</item>
             </items>
+            <signal name="changed" swapped="false" handler="layla_on_generator_monomer_id_combobox_changed"></signal>
           </object>
         </child>
         <child>

@@ -33,6 +33,30 @@ void
 layla_on_apply(GtkButton* button, gpointer user_data) {
     auto* dialog = gtk_builder_get_object(layla_gtk_builder,"layla_apply_dialog");
     gtk_window_present(GTK_WINDOW(dialog));
+    auto* monomer_id_combobox = gtk_builder_get_object(layla_gtk_builder,"layla_generator_monomer_id_combobox");
+    auto* program_combobox = gtk_builder_get_object(layla_gtk_builder,"layla_generator_program_combobox");
+    auto* input_format_combobox = gtk_builder_get_object(layla_gtk_builder,"layla_generator_input_format_combobox");
+
+    auto set_default_value = [](GtkComboBox* cb){
+        if(gtk_combo_box_get_active(cb) == -1) {
+            gtk_combo_box_set_active(cb,0);
+        }
+    };
+
+    set_default_value(GTK_COMBO_BOX(monomer_id_combobox));
+    set_default_value(GTK_COMBO_BOX(program_combobox));
+    set_default_value(GTK_COMBO_BOX(input_format_combobox));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_generator_monomer_id_combobox_changed(GtkComboBox* self, gpointer user_data) {
+    auto* entry = gtk_builder_get_object(layla_gtk_builder,"layla_generator_monomer_id_entry");
+    if(strcmp(gtk_combo_box_get_active_id(self),"Custom") != 0) {
+        gtk_widget_set_sensitive(GTK_WIDGET(entry), false);
+    } else {
+        gtk_widget_set_sensitive(GTK_WIDGET(entry), true);
+    }
 }
 
 extern "C" G_MODULE_EXPORT
