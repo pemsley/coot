@@ -12,6 +12,7 @@ int main() {
     g_application_register(G_APPLICATION(app), NULL, &error);
 
     g_signal_connect(app,"activate",G_CALLBACK(+[](GtkApplication* app, gpointer user_data){
+        // gtk_icon_theme_add_search_path(GtkIconTheme *self, const char *path)
         // todo: Make this not use a relative path:
         GtkBuilder* builder = gtk_builder_new_from_file("layla.ui");
         
