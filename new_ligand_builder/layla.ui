@@ -958,4 +958,37 @@ Paul Emsley</property>
       </object>
     </child>
   </object>
+  <object class="GtkWindow" id="layla_generator_progress_dialog">
+    <property name="hide-on-close">true</property>
+    <property name="title">CIF Generation</property>
+    <child>
+      <object class="GtkBox">
+        <property name="margin-start">10</property>
+        <property name="margin-end">10</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <property name="spacing">10</property>
+        <property name="orientation">vertical</property>
+        <property name="vexpand">true</property>
+        <child>
+          <object class="GtkSpinner">
+            <property name="spinning">true</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkProgressBar">
+            <property name="vexpand">true</property>
+            <property name="show-text">true</property>
+            <property name="text">Generation in progress...</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="layla_generator_progress_dialog_cancel_button">
+            <property name="label">Cancel</property>
+            <signal name="clicked" swapped="false" handler="on_layla_generator_progress_dialog_cancelled"></signal>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
 </interface>

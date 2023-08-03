@@ -61,10 +61,19 @@ layla_on_generator_monomer_id_combobox_changed(GtkComboBox* self, gpointer user_
 
 extern "C" G_MODULE_EXPORT
 void
+on_layla_generator_progress_dialog_cancelled(GtkButton* button, gpointer user_data) {
+    auto* progress_dialog = gtk_builder_get_object(layla_gtk_builder,"layla_generator_progress_dialog");
+    gtk_window_close(GTK_WINDOW(progress_dialog));
+}
+
+extern "C" G_MODULE_EXPORT
+void
 layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
     g_warning("Implement 'Apply'");
     auto* dialog = gtk_builder_get_object(layla_gtk_builder,"layla_apply_dialog");
     gtk_window_close(GTK_WINDOW(dialog));
+    auto* progress_dialog = gtk_builder_get_object(layla_gtk_builder,"layla_generator_progress_dialog");
+    gtk_window_present(GTK_WINDOW(progress_dialog));
 }
 
 extern "C" G_MODULE_EXPORT
