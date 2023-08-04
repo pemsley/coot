@@ -1008,6 +1008,21 @@ int read_pdb(const std::string &filename) {
    return handle_read_draw_molecule(filename);
 }
 
+//! set (or unset) GEMMI as the molecule parser. Currently by passing an int.
+void set_use_gemmi_as_model_molecule_parser(int state) {
+
+   if (state) {
+#ifdef USE_GEMMI
+      graphics_info_t g;
+      g.set_use_gemmi(state);
+#else
+      std::cout << "WARNING:: this executable was not compiled with gemmi " << std::endl;
+#endif
+   }
+}
+
+
+
 
 /*! \brief replace pdb.  Fail if molecule_number is not a valid model molecule.
   Return -1 on failure.  Else return molecule_number  */

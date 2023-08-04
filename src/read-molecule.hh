@@ -27,6 +27,10 @@ int read_pdb(const std::string &filename);
 int handle_read_draw_molecule(const std::string &filename);
 
 
+//! set (or unset) GEMMI as the molecule parser. Currently by passing an int.
+void set_use_gemmi_as_model_molecule_parser(int state);
+
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

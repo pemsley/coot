@@ -90,6 +90,52 @@ get_atom_selection(std::string pdb_name,
                    bool allow_duplseqnum,
                    bool verbose_mode) {
 
+
+
+   auto file_name_to_manager_via_gemmi = [] (const std::string &pdb_name) {
+#ifdef USE_GEMMI
+      gemmi::Structure st = gemmi::read_structure_file(pdb_name);
+      if (! st.models.empty()) {
+         mmdb::Manager *mol = new mmdb::Manager;
+         gemmi::copy_to_mmdb(st, mol);
+
+         for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
+            mmdb::Model *model_p = mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int n_res = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<n_res; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        int n_atoms = residue_p->GetNumberOfAtoms();
+                        for (int iat=0; iat<n_atoms; iat++) {
+                           mmdb::Atom *at = residue_p->GetAtom(iat);
+                           std::string atom_name = at->GetAtomName();
+                           int l = atom_name.length();
+                           std::string new_atom_name;
+                           if (l == 1) new_atom_name = std::string(" ") + atom_name + std::string("  ");
+                           if (l == 2) new_atom_name = atom_name + std::string("  ");
+                           if (l == 3) new_atom_name = atom_name + std::string(" ");
+                           if (l == 1 || l == 2 || l == 3) {
+                              at->SetAtomName(new_atom_name.c_str());
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         return mol;
+      } else {
+         return nullptr;
+      }
+#else
+      return nullptr;
+#endif // USE_GEMMI
+   };
+
    std::cout << "get_atom_selection() with file \"" << pdb_name << "\"" << std::endl;
 
    mmdb::ERROR_CODE err;
@@ -107,11 +153,11 @@ get_atom_selection(std::string pdb_name,
 
    atom_selection_container_t asc;
 
-    std::string extension = coot::util::file_name_extension(pdb_name);
+   std::string extension = coot::util::file_name_extension(pdb_name);
 
-    // returns e.g. ".ins"
+   // returns e.g. ".ins"
 
-    if (coot::util::extension_is_for_mdl_mol_or_mol2_coords(extension)) {
+   if (coot::util::extension_is_for_mdl_mol_or_mol2_coords(extension)) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
        asc = coot::mol_to_asc_rdkit(pdb_name); // (not a PDB file of course)
@@ -143,145 +189,126 @@ get_atom_selection(std::string pdb_name,
 
        } else {
 
-          MMDBManager = new mmdb::Manager;
-
-          // For mmdb version 1.0.8 and beyond:
-
-          if (allow_duplseqnum)
-             MMDBManager->SetFlag ( mmdb::MMDBF_IgnoreBlankLines |
-                                    mmdb::MMDBF_IgnoreDuplSeqNum |
-                                    mmdb::MMDBF_IgnoreNonCoorPDBErrors |
-                                    mmdb::MMDBF_IgnoreHash |
-                                    mmdb::MMDBF_IgnoreRemarks);
-          else
-             MMDBManager->SetFlag ( mmdb::MMDBF_IgnoreBlankLines |
-                                    mmdb::MMDBF_IgnoreNonCoorPDBErrors |
-                                    mmdb::MMDBF_IgnoreHash |
-                                    mmdb::MMDBF_IgnoreRemarks);
-
-          if (verbose_mode)
-             std::cout << "INFO:: Reading coordinate file: " << pdb_name.c_str() << "\n";
-          err = MMDBManager->ReadCoorFile(pdb_name.c_str());
-
-          if (err) {
-
-             // try Small-molecule cif
-             coot::smcif sm;
-             mmdb::Manager *mol = sm.read_sm_cif(pdb_name);
-
-             if (mol) {
-
-                delete MMDBManager;
-                MMDBManager = mol;
-                err = mmdb::ERROR_CODE(0); // success
-
-             } else {
-
-                // We also failed to read a small molecule cif, but
-                // write the mmCIF error message.
-
-                std::cout << "There was an error reading " << pdb_name.c_str() << ". \n";
-                std::cout << "ERROR " << err << " READ: "
-                          << mmdb::GetErrorDescription(err) << std::endl;
-                //
-                MMDBManager->GetInputBuffer(error_buf, error_count);
-                if (error_count >= 0) {
-                   std::cout << "         LINE #" << error_count << "\n     "
-                             << error_buf << std::endl << std::endl;
-                } else {
-                   if (error_count == -1) {
-                      std::cout << "       CIF ITEM: " << error_buf << std::endl << std::endl;
-                   }
-                }
-                asc.read_success = 0; // FAIL
-                asc.read_error_message = error_buf;
-             }
-
-          }
-
-          if (! err) {
-             // we read the coordinate file OK.
-             //
-             /*
-               switch (MMDBManager->GetFileType())  {
-               case mmdb::MMDB_FILE_PDB    :  std::cout << " PDB"         ;
-               break;
-               case mmdb::MMDB_FILE_CIF    :  std::cout << " mmCIF"       ;
-               break;
-               case mmdb::MMDB_FILE_Binary :  std::cout << " MMDB binary" ;
-               break;
-               default:
-               std::cout << " Unknown\n";
-               }
-             */
-
-             MMDBManager->PDBCleanup(mmdb::PDBCLEAN_ELEMENT);
-
-             if (verbose_mode)
-                std::cout << "INFO:: file " << pdb_name.c_str() << " has been read.\n";
-             asc.read_success = 1; // TRUE
-
-             // atom_selection_container.read_error_message = NULL; // its a string
-             asc.mol = MMDBManager;
-          } else {
+          if (use_gemmi) {
 
 #ifdef USE_GEMMI
-
-             std::cout << "INFO:: Try to use GEMMI here to read " << pdb_name << std::endl;
-
-             // gemmi::cif::Document doc = gemmi::cif::read_file(pdb_name);
-             gemmi::Structure st = gemmi::read_structure_file(pdb_name);
-             if (! st.models.empty()) {
-                mmdb::Manager *mol = new mmdb::Manager;
-                gemmi::copy_to_mmdb(st, mol);
+             MMDBManager = file_name_to_manager_via_gemmi(pdb_name); // new mmdb::Manager;
+             if (MMDBManager) {
                 asc.read_success = 1;
-                asc.mol = mol;
+                asc.mol = MMDBManager;
+             }
+#else
+             MMDBManager = nullptr;
+             std::cout << "No GEMMI - sad times " << std::endl;
+#endif
+          } else {
 
-                for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
-                   mmdb::Model *model_p = mol->GetModel(imod);
-                   if (model_p) {
-                      int n_chains = model_p->GetNumberOfChains();
-                      for (int ichain=0; ichain<n_chains; ichain++) {
-                         mmdb::Chain *chain_p = model_p->GetChain(ichain);
-                         int n_res = chain_p->GetNumberOfResidues();
-                         for (int ires=0; ires<n_res; ires++) {
-                            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                            if (residue_p) {
-                               int n_atoms = residue_p->GetNumberOfAtoms();
-                               for (int iat=0; iat<n_atoms; iat++) {
-                                  mmdb::Atom *at = residue_p->GetAtom(iat);
-                                  std::string atom_name = at->GetAtomName();
-                                  int l = atom_name.length();
-                                  std::string new_atom_name;
-                                  if (l == 1) new_atom_name = std::string(" ") + atom_name + std::string("  ");
-                                  if (l == 2) new_atom_name = atom_name + std::string("  ");
-                                  if (l == 3) new_atom_name = atom_name + std::string(" ");
-                                  if (l == 1 || l == 2 || l == 3) {
-                                     at->SetAtomName(new_atom_name.c_str());
-                                  }
-                               }
-                            }
-                         }
+             MMDBManager = new mmdb::Manager;
+
+             // For mmdb version 1.0.8 and beyond:
+
+             if (allow_duplseqnum)
+                MMDBManager->SetFlag ( mmdb::MMDBF_IgnoreBlankLines |
+                                       mmdb::MMDBF_IgnoreDuplSeqNum |
+                                       mmdb::MMDBF_IgnoreNonCoorPDBErrors |
+                                       mmdb::MMDBF_IgnoreHash |
+                                       mmdb::MMDBF_IgnoreRemarks);
+             else
+                MMDBManager->SetFlag ( mmdb::MMDBF_IgnoreBlankLines |
+                                       mmdb::MMDBF_IgnoreNonCoorPDBErrors |
+                                       mmdb::MMDBF_IgnoreHash |
+                                       mmdb::MMDBF_IgnoreRemarks);
+
+             if (verbose_mode)
+                std::cout << "INFO:: Reading coordinate file: " << pdb_name.c_str() << "\n";
+             err = MMDBManager->ReadCoorFile(pdb_name.c_str());
+
+             if (err) {
+
+                // try Small-molecule cif
+                coot::smcif sm;
+                mmdb::Manager *mol = sm.read_sm_cif(pdb_name);
+
+                if (mol) {
+
+                   delete MMDBManager;
+                   MMDBManager = mol;
+                   err = mmdb::ERROR_CODE(0); // success
+
+                } else {
+
+                   // We also failed to read a small molecule cif, but
+                   // write the mmCIF error message.
+
+                   std::cout << "There was an error reading " << pdb_name.c_str() << ". \n";
+                   std::cout << "ERROR " << err << " READ: "
+                             << mmdb::GetErrorDescription(err) << std::endl;
+                   //
+                   MMDBManager->GetInputBuffer(error_buf, error_count);
+                   if (error_count >= 0) {
+                      std::cout << "         LINE #" << error_count << "\n     "
+                                << error_buf << std::endl << std::endl;
+                   } else {
+                      if (error_count == -1) {
+                         std::cout << "       CIF ITEM: " << error_buf << std::endl << std::endl;
                       }
                    }
+                   asc.read_success = 0; // FAIL
+                   asc.read_error_message = error_buf;
                 }
+
              }
 
+             if (! err) {
+                // we read the coordinate file OK.
+                //
+                /*
+                  switch (MMDBManager->GetFileType())  {
+                  case mmdb::MMDB_FILE_PDB    :  std::cout << " PDB"         ;
+                  break;
+                  case mmdb::MMDB_FILE_CIF    :  std::cout << " mmCIF"       ;
+                  break;
+                  case mmdb::MMDB_FILE_Binary :  std::cout << " MMDB binary" ;
+                  break;
+                  default:
+                  std::cout << " Unknown\n";
+                  }
+                */
+
+                MMDBManager->PDBCleanup(mmdb::PDBCLEAN_ELEMENT);
+
+                if (verbose_mode)
+                   std::cout << "INFO:: file " << pdb_name.c_str() << " has been read.\n";
+                asc.read_success = 1; // TRUE
+
+                // atom_selection_container.read_error_message = NULL; // its a string
+                asc.mol = MMDBManager;
+             } else {
+
+#ifdef USE_GEMMI
+                mmdb::Manager *mol = file_name_to_manager_via_gemmi(pdb_name); // new mmdb::Manager;
+                if (mol) {
+                   asc.read_success = 1;
+                   asc.mol = mol;
+                }
 #else
              std::cout << "No GEMMI fallback - sad times " << std::endl;
 #endif
+             }
           }
        }
 
-       char *str = MMDBManager->GetSpaceGroup();
-       if (str) {
-          if (false) {
-             std::string sgrp(str);
-             std::cout << "Spacegroup: " << sgrp << "\n";
+       if (MMDBManager) {
+          char *str = MMDBManager->GetSpaceGroup();
+          if (str) {
+             if (false) {
+                std::string sgrp(str);
+                std::cout << "Spacegroup: " << sgrp << "\n";
+             }
+          } else {
+             // Too noisy, not valuable
+             // std::cout << "No Spacegroup found for this PDB file\n";
           }
-       } else {
-          // Too noisy, not valuable
-          // std::cout << "No Spacegroup found for this PDB file\n";
        }
 
 //        std::cout << "Cell: "
