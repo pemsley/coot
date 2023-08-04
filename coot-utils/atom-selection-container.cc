@@ -86,6 +86,8 @@ atom_selection_container_t::get_previous(mmdb::Residue *residue_in) const {
 //
 atom_selection_container_t
 get_atom_selection(std::string pdb_name,
+                   std::string dummy,
+                   bool use_gemmi,
                    bool allow_duplseqnum,
                    bool verbose_mode,
                    bool convert_to_v2_name_flag) {
@@ -804,10 +806,10 @@ atom_selection_container_t read_standard_residues() {
 	 // empty" << std::endl;
       } else { 
 	 // stat success:
-	 standard_residues_asc = get_atom_selection(standard_file_name, true, false, false);
+	 standard_residues_asc = get_atom_selection(standard_file_name, "", false, true, false, false);
       }
    } else { 
-      standard_residues_asc = get_atom_selection(filename, true, false, false);
+      standard_residues_asc = get_atom_selection(filename, "", false, true, false, false);
    }
 
    return standard_residues_asc;

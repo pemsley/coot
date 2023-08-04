@@ -180,6 +180,8 @@ public:
 atom_selection_container_t make_asc(mmdb::Manager *mol, bool transfer_atom_indices_flag=false);
 
 atom_selection_container_t get_atom_selection(std::string t,
+                                              std::string dummy,
+                                              bool use_gemmi,
                                               bool allow_duplseqnum = true,
                                               bool verbose_mode = false,
                                               bool convert_to_v2_name_flag = false);
