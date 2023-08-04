@@ -117,6 +117,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_move_tool</property>
                         </object>
                       </child>
                       <child>
@@ -140,6 +141,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">object-rotate-right-symbolic</property>
                         </object>
                       </child>
                       <child>
@@ -163,6 +165,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">object-flip-horizontal-symbolic</property>
                         </object>
                       </child>
                       <child>
@@ -186,6 +189,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">object-flip-vertical-symbolic</property>
                         </object>
                       </child>
                       <child>
@@ -212,6 +216,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_format_tool</property>
                         </object>
                       </child>
                       <child>
@@ -235,6 +240,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_delete_hydrogens_tool</property>
                         </object>
                       </child>
                       <child>
@@ -262,6 +268,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_single_bond</property>
                         </object>
                       </child>
                       <child>
@@ -285,6 +292,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_double_bond</property>
                         </object>
                       </child>
                       <child>
@@ -308,6 +316,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_triple_bond</property>
                         </object>
                       </child>
                       <child>
@@ -379,6 +388,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">edit-delete-symbolic</property>
                         </object>
                       </child>
                       <child>
@@ -405,6 +415,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_smiles</property>
                         </object>
                       </child>
                       <child>
@@ -427,6 +438,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_env_residues</property>
                         </object>
                       </child>
                       <child>
@@ -449,6 +461,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_key</property>
                         </object>
                       </child>
                       <child>
@@ -471,6 +484,7 @@
                       <child>
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">help-about-symbolic</property>
                         </object>
                       </child>
                       <child>
