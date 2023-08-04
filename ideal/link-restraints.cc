@@ -1358,6 +1358,17 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
                                                   mmdb::Residue *second_residue,
                                                   const coot::protein_geometry &geom) const {
 
+   auto get_consecutive = [] (mmdb::Residue *first_residue, mmdb::Residue *second_residue) {
+      bool state = false;
+      int idx_1 =  first_residue->index;
+      int idx_2 = second_residue->index;
+      int d = idx_2 - idx_1;
+      if (d <= 1)
+         if (d >= -1)
+            state = true;
+      return state;
+   };
+
    auto SS_filter = [] (mmdb::Residue *first, mmdb::Residue *second) {
 
       // return either "SS" or "".
@@ -1555,14 +1566,30 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
 
          if (! chem_links.empty()) {
 
-            // try to choose TRANS if it is there:
-            for (unsigned int ilink=0; ilink<chem_links.size(); ilink++) {
-               const coot::chem_link &link = chem_links[ilink].first;
-               bool order_switch_is_needed = chem_links[ilink].second;
-               std::cout << "testing link.Id() " << link.Id() << std::endl;
-               if (link.Id() == "TRANS") {
-                  link_type = "TRANS";
-                  order_switch_was_needed = order_switch_is_needed;
+            bool residues_are_consecutive = get_consecutive(first_residue, second_residue);
+
+            if (residues_are_consecutive) {
+               // try to choose TRANS if it is there:
+               for (unsigned int ilink=0; ilink<chem_links.size(); ilink++) {
+                  const coot::chem_link &link = chem_links[ilink].first;
+                  bool order_switch_is_needed = chem_links[ilink].second;
+                  if (link.Id() == "TRANS") {
+                     link_type = "TRANS";
+                     order_switch_was_needed = order_switch_is_needed;
+                  }
+               }
+            } else {
+               // It cannont be a peptide bond of any kind then.
+               //
+               // It might be a "SS" then, choose it if it is in the list.
+               // The options at this stage are SS, TRANS, or CIS.
+               for (unsigned int ilink=0; ilink<chem_links.size(); ilink++) {
+                  const coot::chem_link &link = chem_links[ilink].first;
+                  bool order_switch_is_needed = chem_links[ilink].second;
+                  if (link.Id() == "SS") {
+                     link_type = "SS";
+                     order_switch_was_needed = order_switch_is_needed;
+                  }
                }
             }
 
