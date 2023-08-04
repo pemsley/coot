@@ -18,16 +18,31 @@ Well this works just like gtk3 version does. No effect on the framebuffer using 
 shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
 Don't confuse the scaling of the framebuffer for screenshot (in "Plain" mode) and
 the scaling of the framebuffers for super-sampling (in "Fancy" mode).
+OK, so the framebuffer scaling works in simple mode.
+Make it work in "fancy" mode and I will call it done.
 
 Try using the instanced bonds using the api. Fix the specular lighting.
 
-Test the conversion of glm quaternion to coot quaternion and back again.
+Fresnel mode for maps in "Plain" mode
+
+Test the conversion of glm quaternion to coot quaternion and back again. OK, done.
+Test are in place. Now try again with the ligand orientation.
 
 Pyrogen needs to work ::: 2
+
+Make the OK button in the single map parameters dialog bigger ::: 0.5
 
 What about --no-graphics?
 
 Fix crash on coot.coot_real_exit(0)
+OK, so framebuffers are being deconstructed after call to exit().
+It seem that framebuffers need to be deconstructed while the GL context is valid.
+So it seems to me that they should be deconstructed as graphics_info_t is deconstructed. So add
+their teardown() functions to ~graphics_info_t(). That prevents the crash I think.
+However, the init_joey_ssao_stuff() are not initializing SSAO-gBuffer-framebuffer and effects-framebuffer
+it seems. Yet they are being bound somewhere. Investigate further later by turning on fancy mode.
+See partial-patch-for-framebuffer-teardown.patch.
+Now I will revert.
 
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
