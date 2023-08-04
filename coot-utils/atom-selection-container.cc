@@ -86,11 +86,9 @@ atom_selection_container_t::get_previous(mmdb::Residue *residue_in) const {
 //
 atom_selection_container_t
 get_atom_selection(std::string pdb_name,
-                   std::string dummy,
                    bool use_gemmi,
                    bool allow_duplseqnum,
-                   bool verbose_mode,
-                   bool convert_to_v2_name_flag) {
+                   bool verbose_mode) {
 
    std::cout << "get_atom_selection() with file \"" << pdb_name << "\"" << std::endl;
 
@@ -314,8 +312,8 @@ get_atom_selection(std::string pdb_name,
 
           fix_element_name_lengths(asc.mol); // should not be needed with new mmdb
 
-          if (convert_to_v2_name_flag)
-             fix_nucleic_acid_residue_names(asc);
+          // if (convert_to_v2_name_flag) fix_nucleic_acid_residue_names(asc);
+
           fix_away_atoms(asc);
           fix_wrapped_names(asc);
        }
@@ -806,10 +804,10 @@ atom_selection_container_t read_standard_residues() {
 	 // empty" << std::endl;
       } else { 
 	 // stat success:
-	 standard_residues_asc = get_atom_selection(standard_file_name, "", false, true, false, false);
+	 standard_residues_asc = get_atom_selection(standard_file_name, false, true, false);
       }
    } else { 
-      standard_residues_asc = get_atom_selection(filename, "", false, true, false, false);
+      standard_residues_asc = get_atom_selection(filename, false, true, false);
    }
 
    return standard_residues_asc;

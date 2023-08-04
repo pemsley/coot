@@ -166,7 +166,7 @@ coot::molecule_t::restore_from_backup(int mod_index, const std::string &cwd) {
    }
 
    std::string file_name = history_filename_vec[mod_index];
-   atom_selection_container_t asc = get_atom_selection(file_name, "", false);
+   atom_selection_container_t asc = get_atom_selection(file_name, false);
    if (asc.read_success) {
       save_info.set_modification_index(mod_index);
       atom_sel.clear_up();
@@ -182,7 +182,7 @@ coot::molecule_t::restore_from_backup(int mod_index, const std::string &cwd) {
 void
 coot::molecule_t::replace_molecule_by_model_from_file(const std::string &pdb_file_name) {
 
-   atom_selection_container_t asc = get_atom_selection(pdb_file_name, "", false, true, false, false);
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, false);
    if (asc.read_success) {
       atom_sel.clear_up();
       atom_sel = asc;

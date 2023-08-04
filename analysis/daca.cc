@@ -87,7 +87,7 @@ coot::daca::fill_reference_fragments() {
    std::string pkg_data_dir = coot::package_data_dir();
    std::string fn = util::append_dir_file(pkg_data_dir, "standard-residues.pdb");
    if (file_exists(fn)) {
-      atom_selection_container_t asc = get_atom_selection(fn, "", false, false, false, false);
+      atom_selection_container_t asc = get_atom_selection(fn, false, false, false);
       if (asc.read_success) {
          // make reference fragments for each of the residues
          // std::cout << "Now do things with residues in standard_residues\n";
@@ -948,7 +948,7 @@ coot::daca::write_tables_using_reference_structures_from_dir(const std::string &
 
    for (unsigned int i=0; i<files.size(); i++) {
       std::string fn = files[i];
-      atom_selection_container_t asc = get_atom_selection(fn, "", false, true, false, false);
+      atom_selection_container_t asc = get_atom_selection(fn, false, true, false);
       if (asc.read_success) {
 
          std::cout << "write_tables()... read pdb file " << fn << std::endl;
@@ -998,7 +998,7 @@ coot::daca::score_molecule(const std::string &pdb_file_name) {
    std::cout << "score_molecule() " << pdb_file_name << std::endl;
    int score = 0;
    if (coot::file_exists(pdb_file_name)) {
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, "", false, false, false, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, false, false);
       if (asc.read_success) {
          mmdb::Model *model_p = asc.mol->GetModel(1);
          if (model_p) {

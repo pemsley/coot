@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 
       std::cout << "INFO:: Getting atoms... " << std::endl;
       bool use_gemmi = false;
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, "", use_gemmi, true, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, use_gemmi, true, true);
       if (asc.read_success) {
 
          std::cout << "INFO:: pdb read success " << pdb_file_name << std::endl;
