@@ -37,7 +37,7 @@ I made a [video about the results](https://www.youtube.com/watch?v=_c7NO3_8KNc).
 It was enough to show me that it was the GTK backend that was the problem for MacOS and a solution
 was available.
 
-So... how to move _Coot_ to GTK4? A quick change to configure.ac to enable the `--with-gtk4` flag
+So... how to move _Coot_ to GTK4? A quick change to `configure.ac` to enable the `--with-gtk4` flag
 and let's see what happens.
 
 Many, many compilation errors, that's what.
@@ -55,7 +55,7 @@ So what's different?
  - radio buttons have gone,
  - drag and drop has changed,
  - Glade doesn't work with GTK4 - so the GUI has to be developed by editing an XML
-   file by hand - _ugh!_ (the Glade XML file for Gtk+3 Coot is 30,000 lines or more)
+   file by hand - _ugh!_ (the Glade XML file for Gtk+3 _Coot_ is 30,000 lines or more)
  - Python deadlocks on startup (and so was commented out).
 
 I should emphasise that this is not a useful build of _Coot_. I just
