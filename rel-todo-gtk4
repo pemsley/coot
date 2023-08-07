@@ -23,7 +23,7 @@ Make it work in "fancy" mode and I will call it done.
 
 Try using the instanced bonds using the api. Fix the specular lighting.
 
-Fresnel mode for maps in "Plain" mode
+Fresnel mode for maps in "Plain" mode ::: 1
 
 Test the conversion of glm quaternion to coot quaternion and back again. OK, done.
 Test are in place. Now try again with the ligand orientation.
@@ -44,6 +44,13 @@ it seems. Yet they are being bound somewhere. Investigate further later by turni
 See partial-patch-for-framebuffer-teardown.patch.
 Now I will revert.
 
+Add a graphics_draw() at the end of the calculation of map after contour level change (it the callback, I guess). :: 0.2
+
+Is the em radius saved to the state file? :: 0.2
+
+Bring the script that shows the SSOA buffer to GTK4 and try to fix the aniostropy. ::: 0.4
+
+go a "Grab focus" before going in to fullscreen! ::: 0.5
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
