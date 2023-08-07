@@ -1,7 +1,19 @@
 
 #include "event-controller-callbacks.hh"
 #include "graphics-info.h"
+#include "sound.hh"
 
+void play_sound_left_click() {
+
+   // play_sound_file("538554_3725923-lq-Sjonas88-success.ogg");
+   // play_sound_file("325112_3246658-lq-fisch12345-success.ogg");
+   // play_sound_file("538546_3725923-lq-Sjonas_Rising.ogg");
+   // play_sound_file("538548_3725923-lq-Sjonas-Select-3.ogg"); // nice soft click
+   // play_sound_file("538549_3725923-lq-Sjonas-Select-2.ogg"); // "tink"
+   // play_sound_file("538550_3725923-lq-Sjonas88-Deep-tone.ogg"); // marimba?
+   // play_sound_file("538553_3725923-lq-Sjonas88-Stars.ogg"); // high pitch couple of notes
+
+}
 
 // ---------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------
@@ -30,6 +42,8 @@ graphics_info_t::on_glarea_drag_begin_primary(GtkGestureDrag *gesture, double x,
    if (! handled) {
       check_if_in_range_defines();
    }
+
+   play_sound_left_click();
 
 }
 

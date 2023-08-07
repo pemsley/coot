@@ -265,6 +265,8 @@ AM_CPPFLAGS = \
 	$(GLOB_CFLAGS)                  \
 	$(WITH_SOUND)                   \
 	$(VORBISFILE_CFLAGS)            \
+	$(ALSA_CFLAGS)                  \
+	$(SOUND_FLAGS)                  \
 	$(SQLITE3_CFLAGS)               \
 	$(GEMMI_CXXFLAGS)               \
 	$(CURL_CFLAGS)
@@ -685,7 +687,6 @@ libcootsumo_la_SOURCES = \
 	rsr-functions.hh         \
 	screendump-tga.hh        \
 	screendump-tga.cc        \
-	sound.cc                 \
 	sdf-interface.cc         \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
@@ -813,6 +814,7 @@ coot_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
                 $(COOT_EXTRA_LIBS)      \
 		$(VORBISFILE_LIBS)      \
+		$(ALSA_LIBS)            \
 		$(GTK_LIBS)             \
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\
