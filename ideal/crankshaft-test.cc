@@ -12,7 +12,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 
 #include "crankshaft.hh"
 
@@ -484,7 +484,7 @@ int main(int argc, char **argv) {
    int status = 0;
 
    input_data_t inputs = get_input_details(argc, argv);
-   atom_selection_container_t asc = get_atom_selection(inputs.input_pdb_file_name, true, false, false);
+   atom_selection_container_t asc = get_atom_selection(inputs.input_pdb_file_name, false, true, false);
    if (! asc.read_success) {
       std::cout << "fail on read pdb" << inputs.input_pdb_file_name << std::endl;
    } else {

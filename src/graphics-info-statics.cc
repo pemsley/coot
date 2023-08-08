@@ -42,6 +42,7 @@ bool graphics_info_t::prefer_python = 0; // no GUILE or PYTHON
 bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
 #endif // windows test
 
+bool graphics_info_t::use_gemmi = false;
 short int graphics_info_t::python_at_prompt_flag = 0;
 
 GtkApplication *graphics_info_t::application = 0;

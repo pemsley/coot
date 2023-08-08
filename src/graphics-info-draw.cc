@@ -4262,32 +4262,10 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
                                    }
                                 };
 
-   unsigned int frame_time_history_list_max_n_elements = 500;
-   GtkWidget *glarea = glareas[0];
-   if (glarea) {
-      auto tp_now = std::chrono::high_resolution_clock::now();
-      frame_time_history_list.push_back(tp_now);
-      if (frame_time_history_list.size() >= (frame_time_history_list_max_n_elements+1))
-         frame_time_history_list.pop_front();
-   }
-
-   // std::cout << "DEBUG:: graphics_info_t::render()!" << std::endl;
-
-   if (! to_screendump_framebuffer_flag) {
-
-      gboolean state = render_scene();
-      draw_hud_elements();
-#ifdef __APPLE__
-      glFinish();
-#else
-      glFlush();
-#endif
-      update_fps_statistics();
-      return state;
-
-   } else {
-
+   auto screendump_image = [update_fps_statistics] (const std::string &output_file_name) {
       // this works! Nice framebuffer scaling with screendump_tga().
+
+      std::cout << "debug:: in screendump_image() with use_framebuffers " << use_framebuffers << std::endl;
 
       GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
       GtkAllocation allocation;
@@ -4318,8 +4296,12 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
          unsigned int index_offset = 0;
          screendump_framebuffer.init(sf * w, sf * h, index_offset, "screendump");
          screendump_framebuffer.bind();
-         render_3d_scene(gl_area);
+
+         // render_3d_scene(gl_area);
          // render_scene_with_screen_ao_shader();
+
+         render_scene();
+
          gtk_gl_area_attach_buffers(gl_area);
          screendump_tga_internal(output_file_name, w, h, sf, screendump_framebuffer.get_fbo());
 
@@ -4346,6 +4328,37 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
       update_fps_statistics();
 
       return FALSE;
+
+   };
+
+   auto update_frame_time_history = [] () {
+      unsigned int frame_time_history_list_max_n_elements = 500;
+      GtkWidget *glarea = glareas[0];
+      if (glarea) {
+         auto tp_now = std::chrono::high_resolution_clock::now();
+         frame_time_history_list.push_back(tp_now);
+         if (frame_time_history_list.size() >= (frame_time_history_list_max_n_elements+1))
+            frame_time_history_list.pop_front();
+      }
+   };
+
+
+   // ################################## main line #############################################
+
+   update_frame_time_history();
+
+   if (to_screendump_framebuffer_flag) {
+      return screendump_image(output_file_name);
+   } else {
+      gboolean state = render_scene();
+      draw_hud_elements();
+#ifdef __APPLE__
+      glFinish();
+#else
+      glFlush();
+#endif
+      update_fps_statistics();
+      return state;
    }
 }
 

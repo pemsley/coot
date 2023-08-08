@@ -204,7 +204,7 @@ read_data_validate_ligand(const input_data_t &input_data) {
       bool verbose = false;
       bool convert_flag = false;
       std::string pdb_file_name = input_data.pdb_file_name;
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, allow_dups, verbose, convert_flag);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, allow_dups, verbose);
       mmdb::Manager *mol = asc.mol;
       
       try {

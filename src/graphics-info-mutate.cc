@@ -359,10 +359,10 @@ graphics_info_t::read_standard_residues() {
 	 // std::cout << "DEBUG:: standard_residues_asc marked as empty" << std::endl;
       } else {
 	 // stat success:
-	 standard_residues_asc = get_atom_selection(standard_file_name, true, false, false);
+	 standard_residues_asc = get_atom_selection(standard_file_name, false, true, false);
       }
    } else { 
-      standard_residues_asc = get_atom_selection(filename, true, false, false);
+      standard_residues_asc = get_atom_selection(filename, false, true, false);
    }
 }
 

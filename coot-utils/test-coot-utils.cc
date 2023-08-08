@@ -603,7 +603,7 @@ int test_nxmap_simple(int argc, char **argv) {
       clipper::Xmap<float> xmap;
       file.open_read(map_file_name);
       file.import_xmap(xmap);
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, true);
       clipper::NXmap<float> nxmap = coot::util::make_nxmap(xmap, asc);
 
       clipper::CCP4MAPfile mapout;
@@ -629,7 +629,7 @@ int test_nxmap(int argc, char **argv) {
       clipper::Xmap<float> xmap;
       file.open_read(map_file_name);
       file.import_xmap(xmap);
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, true);
 
       clipper::NXmap<float> nxmap = coot::util::make_nxmap(xmap, asc);
       int n_atoms_max = asc.n_selected_atoms;
@@ -754,7 +754,7 @@ test_nxmap_edcalc(int argc, char **argv) {
       file.open_read(map_file_name);
       file.import_xmap(xmap);
       std::cout << "Getting atoms... " << std::endl;
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, true);
 
       // now a few residues
       coot::residue_spec_t spec_1("A", 10, "");
@@ -878,7 +878,7 @@ test_xmap_edcalc(int argc, char **argv) {
       file.open_read(map_file_name);
       file.import_xmap(xmap);
       std::cout << "Getting atoms... " << std::endl;
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, true);
 
       // now a few residues
       coot::residue_spec_t spec_1("A", 10, "");
@@ -933,7 +933,7 @@ int test_bonded_atoms(int argc, char **argv) {
    int status = 1;
    if (argc > 2) {
       std::string pdb_file_name = argv[2];
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, true);
 
       auto tp_0 = std::chrono::high_resolution_clock::now();
       std::vector<std::vector<unsigned int> > b = coot::make_bonds(asc.mol,
@@ -974,7 +974,7 @@ int test_helix_like(int argc, char **argv) {
 
     if (argc == 2) {
        std::string file_name = argv[1];
-       atom_selection_container_t asc = get_atom_selection(file_name, true, true, false);
+       atom_selection_container_t asc = get_atom_selection(file_name, false, true, true);
        if (asc.read_success) {
           std::vector<std::string> ch_ids;
           int imod = 1;
@@ -1015,7 +1015,7 @@ test_cablam(int argc, char **argv) {
 
    std::string cablam_log_file_name = "../src/cablam.log";
    std::string file_name = argv[1];
-   atom_selection_container_t asc = get_atom_selection(file_name, true, true, false);
+   atom_selection_container_t asc = get_atom_selection(file_name, false, true, true);
    if (asc.read_success) {
       // parse this log file and call the above function for each cablam outlier residue
       std::vector<coot::cablam_markup_t> v =
@@ -1032,7 +1032,7 @@ test_merge_fragments(int argc, char **argv) {
 
    if (argc == 2) {
       std::string file_name = argv[1];
-      atom_selection_container_t asc = get_atom_selection(file_name, true, true, false);
+      atom_selection_container_t asc = get_atom_selection(file_name, false, true, true);
       if (asc.read_success) {
          std::vector<std::string> ch_ids;
          int imod = 1;
@@ -1079,7 +1079,7 @@ test_make_a_difference_map(int argc, char **argv) {
       file.open_read(map_file_name);
       file.import_xmap(xmap);
       std::cout << "Getting atoms... " << std::endl;
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, true);
 
       // Matching structure factors on an atom selection is a different function.
       //
@@ -1328,7 +1328,7 @@ int test_interface_residues(int argc, char **argv) {
    if (argc > 1) {
       std::string pdb_file_name = argv[1]; // 6lzg
       std::cout << "Getting atoms... " << std::endl;
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, true);
       if (asc.read_success) {
          float min_dist = 3.8;
          std::pair<std::set<mmdb::Residue *>, std::set<mmdb::Residue *> > ir = coot::interface_residues(asc.mol, "A", "B", min_dist);
@@ -1367,7 +1367,7 @@ test_polar_atom_analysis(int argc, char **argv) {
    if (argc > 1) {
       std::string pdb_file_name = argv[1]; // 6lzg
       std::cout << "Getting atoms... " << std::endl;
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, true);
       if (asc.read_success) {
          coot::buried_unsatisfied_polar_atoms(asc.mol);
       }
@@ -1381,7 +1381,7 @@ test_fragment_maker(int argc, char **argv) {
    if (argc > 1) {
       std::string pdb_file_name = argv[1]; // 6lzg
       std::cout << "Getting atoms... " << std::endl;
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, true);
       if (asc.read_success) {
          coot::fragment_container_t fragments = coot::make_fragments(asc.mol);
          fragments.print_fragments();
@@ -1416,7 +1416,7 @@ test_correlation_of_residue_runs(int argc, char **argv) {
       }
 
       std::cout << "Getting atoms... " << std::endl;
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, true);
       if (asc.read_success) {
 
          std::cout << "pdb read success " << pdb_file_name << std::endl;
@@ -1475,7 +1475,7 @@ test_merge_C_and_N_terminii(int argc, char **argv) {
       std::string pdb_file_name = argv[1];
 
       std::cout << "Getting atoms... " << std::endl;
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, true);
       if (asc.read_success) {
          std::cout << "pdb read success " << pdb_file_name << std::endl;
          coot::merge_C_and_N_terminii_0_gap(asc.mol);

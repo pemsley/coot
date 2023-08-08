@@ -411,6 +411,8 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 
 	    GtkWidget *vbox = widget_from_builder("checked_waters_baddies_vbox");
 
+            g.clear_out_container(vbox);
+
 	    if (baddies.size() > 0 ) {
 	       for (int i=0; i<int(baddies.size()); i++) {
 

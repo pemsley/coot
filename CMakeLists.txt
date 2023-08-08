@@ -1,9 +1,20 @@
 project(coot)
 cmake_minimum_required(VERSION 3.13)
 
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 set(CMAKE_CXX_STANDARD 11)
 
 find_package(CCP4 REQUIRED mmdb2 ssm ccp4srs clipper-core clipper-mmdb clipper-ccp4 clipper-contrib clipper-minimol clipper-cif)
+
+find_package(Python 3.10
+  REQUIRED COMPONENTS Interpreter Development.Module
+  OPTIONAL_COMPONENTS Development.SABIModule)
+
+find_package(nanobind CONFIG REQUIRED)
 
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -301,6 +312,7 @@ add_library(cootapi SHARED
             ${coot_src}/geometry/glyco-tools.cc
             ${coot_src}/geometry/mol-utils-2.cc
             ${coot_src}/geometry/protein-donor-acceptors.cc
+            ${coot_src}/geometry/intercept-3GP.cc
             ${coot_src}/build/CalphaBuild.cc
             #${coot_src}/build/testcabuild.cc
             ${coot_src}/mini-mol/mini-mol-utils.cc
@@ -311,7 +323,7 @@ add_library(cootapi SHARED
             ${coot_src}/cootilus/nucleicacid_db.cpp
             ${coot_src}/cootilus/nautilus-join.cpp
             ${coot_src}/cootilus/nautilus-target.cpp
-            ${coot_src}/cootilus/nautilus-ss-find.cpp
+            #${coot_src}/cootilus/nautilus-ss-find.cpp
             ${coot_src}/lidia-core/lbg-shared.cc
             ${coot_src}/lidia-core/cod-types.cc
             ${coot_src}/lidia-core/cod-atom-types.cc
@@ -329,10 +341,10 @@ add_library(cootapi SHARED
             ${coot_src}/angles/AngleInfo.cc
             ${coot_src}/ligand/dipole.cc
             ${coot_src}/ligand/chi-angles.cc
-            ${coot_src}/ligand/trace-2.cc
+            #${coot_src}/ligand/trace-2.cc
             ${coot_src}/ligand/monomer-utils.cc
             ${coot_src}/ligand/ligand-score-card.cc
-            ${coot_src}/ligand/multi-peptide.cc
+            #${coot_src}/ligand/multi-peptide.cc
             ${coot_src}/ligand/chi-angles-autogen.cc
             ${coot_src}/ligand/ligand.cc
             ${coot_src}/ligand/helix-placement.cc
@@ -353,22 +365,21 @@ add_library(cootapi SHARED
             ${coot_src}/ligand/richardson-rotamer.cc
             ${coot_src}/ligand/side-chain.cc
             ${coot_src}/ligand/rigid-body.cc
-            ${coot_src}/ligand/trace.cc
+            #${coot_src}/ligand/trace.cc
             ${coot_src}/ligand/smith-waterman.cc
             ${coot_src}/ligand/tube-finder.cc
             ${coot_src}/ligand/fast-ss-search.cc
             ${coot_src}/ligand/rotamer.cc
-            ${coot_src}/cootaneer/buccaneer-sequence.cpp
-            ${coot_src}/cootaneer/cootaneer-sequence.cpp
-            ${coot_src}/cootaneer/buccaneer-lib.cpp
-            ${coot_src}/cootaneer/buccaneer-prot.cpp
+            #${coot_src}/cootaneer/buccaneer-sequence.cpp
+            #${coot_src}/cootaneer/cootaneer-sequence.cpp
+            #${coot_src}/cootaneer/buccaneer-lib.cpp
+            #${coot_src}/cootaneer/buccaneer-prot.cpp
             ${coot_src}/src/coot-nomenclature.cc
             ${coot_src}/db-main/db-main.cc
             ${coot_src}/compat/getopt.cc
             ${coot_src}/compat/getopt1.cc
             ${coot_src}/src/gl-matrix.cc
             ${coot_src}/ideal/write-png.cc
-            #[[
             ${coot_src}/buccaneer_ml_growing/buccaneer-NN-Select.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-NN-build-cyc.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-NN-build.cpp
@@ -380,20 +391,20 @@ add_library(cootapi SHARED
             ${coot_src}/buccaneer_ml_growing/buccaneer-filter.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-find.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-grow.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-join.cpp
+            #${coot_src}/buccaneer_ml_growing/buccaneer-join.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-known.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-lib.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-link.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-merge.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-ncsbuild.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-prep.cpp
-            #${coot_src}/buccaneer_ml_growing/buccaneer-prot.cpp
+            ${coot_src}/buccaneer_ml_growing/buccaneer-prot.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-prune.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-sequence.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-tidy.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-util.cpp
-            ${coot_src}/buccaneer_ml_growing/cbuccaneer.cpp
-            ${coot_src}/buccaneer_ml_growing/cbuccaneerNN.cpp
+            #${coot_src}/buccaneer_ml_growing/cbuccaneer.cpp
+            #${coot_src}/buccaneer_ml_growing/cbuccaneerNN.cpp
             ${coot_src}/buccaneer_ml_growing/csequins.cpp
             ${coot_src}/buccaneer_ml_growing/k2c_activations.cpp
             ${coot_src}/buccaneer_ml_growing/k2c_convolution_layers.cpp
@@ -410,10 +421,14 @@ add_library(cootapi SHARED
             ${coot_src}/buccaneer_ml_growing/protein_db.cpp
             ${coot_src}/buccaneer_ml_growing/simplex-lib.cpp
             ${coot_src}/buccaneer_ml_growing/simulate-lib.cpp
-            ]]
 )
 
 target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR}/include ${SSM_INCLUDE_DIR} ${CCP4SRS_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS})
 target_link_libraries(cootapi PUBLIC ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARY} ${GSLBLAS_LIBRARY} ${PNG_LIBRARY})
 
 set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000")
+
+nanobind_add_module(chapi ${coot_src}/api/molecules_container_nanobind.cc)
+target_include_directories(chapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR}/include ${SSM_INCLUDE_DIR} ${CCP4SRS_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS})
+target_link_libraries(chapi PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARY} ${GSLBLAS_LIBRARY} ${PNG_LIBRARY})
+set_target_properties(chapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000")

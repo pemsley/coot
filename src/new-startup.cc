@@ -647,7 +647,7 @@ new_startup_application_activate(GtkApplication *application,
 
       graphics_info.application = application;
 
-      // 20230526-PE this now happens i init_coot_as_python_module()
+      // 20230526-PE this now happens in init_coot_as_python_module()
       // Let's not do it (including geom.init_standard()) twice.
       // graphics_info.init();
 

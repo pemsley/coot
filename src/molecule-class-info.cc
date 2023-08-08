@@ -444,7 +444,8 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
    if (coot::is_mmcif_filename(filename))
       input_molecule_was_in_mmcif = true;
 
-   atom_sel = get_atom_selection(filename, allow_duplseqnum, verbose, convert_to_v2_atom_names_flag);
+   bool use_gemmi = graphics_info_t::use_gemmi;
+   atom_sel = get_atom_selection(filename, use_gemmi, allow_duplseqnum, verbose);
 
    if (atom_sel.read_success == 1) {
 

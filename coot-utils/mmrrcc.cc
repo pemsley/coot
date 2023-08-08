@@ -18,7 +18,8 @@ int main(int argc, char **argv) {
       std::string map_file_name = argv[3];
 
       std::cout << "INFO:: Getting atoms... " << std::endl;
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      bool use_gemmi = false;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, use_gemmi, true, true);
       if (asc.read_success) {
 
          std::cout << "INFO:: pdb read success " << pdb_file_name << std::endl;

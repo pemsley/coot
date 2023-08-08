@@ -600,7 +600,6 @@ namespace coot {
       };
 
       class quaternion {
-	 void normalize();
       public:
 	 float q0, q1, q2, q3;
 	 quaternion(const float &q0in, const float &q1in,
@@ -616,7 +615,7 @@ namespace coot {
 	 friend std::ostream&  operator<<(std::ostream&  s, const quaternion &q);
 	 friend std::ofstream& operator<<(std::ofstream& s, const quaternion &q);
 
-	 static void test_quaternion(); // test yourself
+	 void normalize();
 	 static bool close_float_p (const float &f1, const float &f2) { //testing func
 	    float d = fabsf(f1-f2);
 	    if (d < 0.001)
@@ -624,6 +623,9 @@ namespace coot {
 	    else
 	       return 0;
 	 }
+         // angle in radians
+         quaternion rotate(double angle, const clipper::Coord_orth &vec) const;
+         quaternion inverse() const;
 	 bool is_similar_p(const quaternion &q) {
 	    bool r = 0;
 	    if (close_float_p(q.q0, q0) &&
@@ -634,6 +636,7 @@ namespace coot {
 	    }
 	    return r;
 	 }
+	 static void test_quaternion(); // test yourself
 
 	 clipper::RTop_orth centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops);
 	 clipper::RTop_orth centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops,

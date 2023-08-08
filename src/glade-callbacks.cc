@@ -722,9 +722,9 @@ on_phs_cell_choice_cancel_button_clicked (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_fetch_pdb_and_map_using_pdb_redo1_activate
-                                        (GMenuItem     *menuitem,
-					 gpointer         user_data) {
+on_fetch_pdb_and_map_using_pdb_redo1_activate(GMenuItem     *menuitem,
+                                              gpointer         user_data) {
+
    int n = COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
    GtkWidget *window = widget_from_builder("accession_code_window");
    g_object_set_data(G_OBJECT(window), "mode", GINT_TO_POINTER(n));
@@ -750,8 +750,9 @@ on_accession_code_get_it_button_clicked(GtkButton *button, gpointer user_data) {
 
    GtkWidget *entry = widget_from_builder("accession_code_entry");
    GtkWidget *frame = widget_from_builder("accession_code_frame");
-   int n = COOT_ACCESSION_CODE_WINDOW_OCA;
-   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(n));
+   // 20230731-PE don't do this here, you dozy pillock.
+   // int n = COOT_ACCESSION_CODE_WINDOW_OCA;
+   // g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(n));
    handle_get_accession_code(frame, entry);
 }
 

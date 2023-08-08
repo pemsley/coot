@@ -47,12 +47,18 @@ check_PROGRAMS = gtk4-test-validation-graph gtk4-test-sequence-view
 gtk4_test_validation_graph_SOURCES = gtk4-test-validation-graph.cc
 
 gtk4_test_validation_graph_LDADD = ./libcoot-validation-graphs.la \
-	$(top_builddir)/ligand/libcoot-ligand.la             \
-	$(top_builddir)/coords/libcoot-coords.la  \
-	$(GTK_LIBS)
+        $(top_builddir)/ideal/libcoot-ideal.la            \
+	$(top_builddir)/ligand/libcoot-ligand.la          \
+	$(top_builddir)/coords/libcoot-coords.la          \
+        $(top_builddir)/coot-utils/libcoot-map-utils.la   \
+        $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+        $(top_builddir)/geometry/libcoot-geometry.la      \
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GTK_LIBS)
 
 gtk4_test_sequence_view_SOURCES = gtk4-test-sequence-view.cc
 
 gtk4_test_sequence_view_LDADD = ./libcoot-validation-graphs.la \
-	$(top_builddir)/coords/libcoot-coords.la  \
-	$(GTK_LIBS)
+	$(top_builddir)/coords/libcoot-coords.la               \
+        $(top_builddir)/coot-utils/libcoot-coord-utils.la      \
+        $(top_builddir)/geometry/libcoot-geometry.la           \
+	$(MMDB_LIBS) $(GTK_LIBS)

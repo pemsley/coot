@@ -659,7 +659,8 @@ coot::util::get_standard_residue_instance(const std::string &res_name) {
       // fill it
       std::string dir = package_data_dir();
       std::string standard_residues_file_name = append_dir_file(dir, "standard-residues.pdb");
-      atom_selection_container_t asc = get_atom_selection(standard_residues_file_name, false, false, false);
+      bool use_gemmi = false;
+      atom_selection_container_t asc = get_atom_selection(standard_residues_file_name, use_gemmi, false, false);
 
       if (asc.read_success) {
          int imod = 1;

@@ -11,9 +11,6 @@
 #include "c-interface.h" // setup_symm_lib()
 #include "graphics-info.h"
 
-// put these functions in init_coot_as_python_module.cc
-
-// #include "coot-surface/rgbreps.h"
 
 void check_reference_structures_dir() {
 

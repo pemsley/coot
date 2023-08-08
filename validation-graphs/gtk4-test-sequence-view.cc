@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
    int status = 0;
    if (argc > 1) {
       std::string pdb_file_name = argv[1];
-      auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
+      auto atom_sel = get_atom_selection(pdb_file_name, false, true, false);
       if (atom_sel.read_success) {
          gtk_init();
          g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);

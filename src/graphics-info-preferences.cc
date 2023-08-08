@@ -438,15 +438,18 @@ graphics_info_t::make_preferences_internal() {
   ret.push_back(p);
 
   // refinement toolbar icons
-  std::vector<coot::preferences_icon_info_t> all_items =*model_toolbar_icons;
-  for (unsigned int i=0; i<all_items.size(); i++) {
-    coot::preferences_icon_info_t item = all_items[i];
-    p.preference_type = PREFERENCES_MODEL_TOOLBAR_ICONS;
-    // ivalue1 is icon_pos
-    p.ivalue1 = item.icon_pos;
-    // ivalue 2 is show/hide
-    p.ivalue2 = item.show_hide_flag;
-    ret.push_back(p);
+  std::vector<coot::preferences_icon_info_t> all_items;
+  if (model_toolbar_icons) {
+     all_items = *model_toolbar_icons;
+     for (unsigned int i=0; i<all_items.size(); i++) {
+        coot::preferences_icon_info_t item = all_items[i];
+        p.preference_type = PREFERENCES_MODEL_TOOLBAR_ICONS;
+        // ivalue1 is icon_pos
+        p.ivalue1 = item.icon_pos;
+        // ivalue 2 is show/hide
+        p.ivalue2 = item.show_hide_flag;
+        ret.push_back(p);
+     }
   }
 
   // main toolbar
@@ -470,15 +473,17 @@ graphics_info_t::make_preferences_internal() {
   ret.push_back(p);
 
   // refinement toolbar icons
-  all_items =*main_toolbar_icons;
-  for (unsigned int i=0; i<all_items.size(); i++) {
-      coot::preferences_icon_info_t item = all_items[i];
-      p.preference_type = PREFERENCES_MAIN_TOOLBAR_ICONS;
-      // ivalue1 is icon_pos
-      p.ivalue1 = item.icon_pos;
-      // ivalue 2 is show/hide
-      p.ivalue2 = item.show_hide_flag;
-      ret.push_back(p);
+  if (main_toolbar_icons) {
+     all_items = *main_toolbar_icons;
+     for (unsigned int i=0; i<all_items.size(); i++) {
+        coot::preferences_icon_info_t item = all_items[i];
+        p.preference_type = PREFERENCES_MAIN_TOOLBAR_ICONS;
+        // ivalue1 is icon_pos
+        p.ivalue1 = item.icon_pos;
+        // ivalue 2 is show/hide
+        p.ivalue2 = item.show_hide_flag;
+        ret.push_back(p);
+     }
   }
  
   // Bond preference settings

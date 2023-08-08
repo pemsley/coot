@@ -1278,7 +1278,7 @@ public:
    //! This function is not const because it caches the svgs if it can.
    //!
    //! @return the string for the SVG representation.
-   std::string get_svg_for_residue_type(int imol, const std::string &comp_id, bool dark_background_flag);
+   std::string get_svg_for_residue_type(int imol, const std::string &comp_id, bool use_rdkit_svg, bool dark_background_flag);
 
    //! This function is for adding compounds/molecules like buffer agents and precipitants or anions and cations.
    //! _i.e._ those ligands that can be positioned without need for internal torsion angle manipulation.

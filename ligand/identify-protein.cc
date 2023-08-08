@@ -48,7 +48,7 @@ void test_sequence(const std::string &pdb_file_name,
          file.open_read(map_file_name);
          clipper::Xmap<float> xmap;
          file.import_xmap(xmap);
-         atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false);
+         atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, false);
          if (asc.read_success) {
 
             std::vector<std::pair<coot::fragment_container_t::fragment_range_t, std::vector<coot::side_chain_densities::results_t> > > results_vec =

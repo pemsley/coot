@@ -239,8 +239,7 @@ main(int argc, char **argv) {
 					  resolution, have_reso_limit);
 	 }
 
-	 atom_selection_container_t atom_sel =
-	    get_atom_selection(pdb_file_name, true, false, false);
+	 atom_selection_container_t atom_sel = get_atom_selection(pdb_file_name, false, true, false);
 
 	 coot::util::fffear_search f(atom_sel.mol,
 				     atom_sel.SelectionHandle,

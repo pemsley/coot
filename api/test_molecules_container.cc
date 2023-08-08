@@ -2418,14 +2418,29 @@ int test_svg(molecules_container_t &mc) {
    mc.import_cif_dictionary("ATP.cif", imol_1);
    mc.import_cif_dictionary("ATP.cif", imol_2);
    bool dark_bg = false;
-   std::string s = mc.get_svg_for_residue_type(imol_1, "ATP", dark_bg);
+   bool use_rdkit_svg = false;
+   std::string s = mc.get_svg_for_residue_type(imol_1, "ATP", use_rdkit_svg, dark_bg);
 
    if (s.length() > 0) {
 
-      if (true) {
-         std::ofstream f("ATP.svg");
-         f << s;
-         f.close();
+      std::ofstream f("ATP.svg");
+      f << s;
+      f.close();
+
+      {
+         mc.import_cif_dictionary("G37.cif", coot::protein_geometry::IMOL_ENC_ANY);
+         s = mc.get_svg_for_residue_type(imol_1, "G37", use_rdkit_svg, dark_bg);
+         std::ofstream f2("G37.svg");
+         f2 << s;
+         f2.close();
+      }
+
+      {
+         mc.import_cif_dictionary("GLC.cif", coot::protein_geometry::IMOL_ENC_ANY);
+         s = mc.get_svg_for_residue_type(imol_1, "GLC", use_rdkit_svg, dark_bg);
+         std::ofstream f2("GLC.svg");
+         f2 << s;
+         f2.close();
       }
 
       status = 1;
@@ -3215,7 +3230,7 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_ramachandran_analysis, "--- current_test ---", mc);
+   // status += run_test(test_ramachandran_analysis, "--- current_test ---", mc);
 
    // status += run_test(test_undo_and_redo, "undo and redo", mc);
 
@@ -3223,7 +3238,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_rigid_body_fit, "rigid-body fit", mc);
 
-   //status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
+   // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
 
    // status += run_test(test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
 
@@ -3245,7 +3260,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_instanced_bonds_mesh, "instanced_bonds", mc);
 
-   // status = run_test(test_svg, "svg string", mc);
+   status = run_test(test_svg, "svg string", mc);
 
    // status = run_test(test_superpose, "SSM superpose ", mc);
 

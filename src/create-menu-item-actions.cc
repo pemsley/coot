@@ -1410,6 +1410,7 @@ whats_this_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                   G_GNUC_UNUSED GVariant *parameter,
                   G_GNUC_UNUSED gpointer user_data) {
 
+
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
       int imol = pp.second.first;
@@ -2892,7 +2893,7 @@ delete_item(GSimpleAction *simple_action,
          if (par == "hydrogen-atoms-in-residue") {
             auto &m = g.molecules[imol];
             // change this signature to use an residue spec.
-            std::cout << "callign delete_residue_hydrogens()!!!! " << res_spec << std::endl;
+            std::cout << "DEBUG:: calling delete_residue_hydrogens() with " << res_spec << std::endl;
             m.delete_residue_hydrogens(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, atom_spec.alt_conf);
             graphics_draw();
          }

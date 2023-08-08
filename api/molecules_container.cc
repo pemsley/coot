@@ -251,7 +251,7 @@ molecules_container_t::read_standard_residues() {
          // unresolved (linking related?) startup bug here:
          std::cout << "------------------ read_standard_residues() C map_sampling_rate " << map_sampling_rate << std::endl;
          std::cout << "------------------ read_standard_residues() C " << std::endl;
-         atom_selection_container_t t_asc = get_atom_selection(standard_file_name, true, false, false);
+         atom_selection_container_t t_asc = get_atom_selection(standard_file_name, false, true, false);
          std::cout << "------------------ read_standard_residues() D map_sampling_rate " << map_sampling_rate << std::endl;
          // std::cout << "------------------ read_standard_residues() D " << std::endl;
          // standard_residues_asc = t_asc; // Here's the problem
@@ -285,7 +285,7 @@ molecules_container_t::read_standard_residues() {
       }
    } else {
       std::cout << "------------------ read_standard_residues() F " << env_var_filename << std::endl;
-      standard_residues_asc = get_atom_selection(env_var_filename, true, false, false);
+      standard_residues_asc = get_atom_selection(env_var_filename, false, true, false);
    }
    // std::cout << "------------------ read_standard_residues() done " << std::endl;
 }
@@ -550,7 +550,7 @@ int
 molecules_container_t::read_pdb(const std::string &file_name) {
 
    int status = -1;
-   atom_selection_container_t asc = get_atom_selection(file_name, true, false, false);
+   atom_selection_container_t asc = get_atom_selection(file_name, false, true, false);
    if (asc.read_success) {
 
       // 20221011-PE this constructor doesn't call make_bonds().
