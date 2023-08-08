@@ -1148,15 +1148,10 @@ case $dist_name in
        g++
        git
        libssl-dev
-       libxext-dev
-       libxmu-dev
-       libxt-dev
        libc6-dev
        libncurses5-dev
-       libglu1-mesa-dev
        libjpeg-dev
-       mesa-common-dev
-       libgtk-3-dev'
+       libgtk-4-dev'
        # converted from libgtk2.0-dev - not tested
        # not libgtk-3-dev
 
