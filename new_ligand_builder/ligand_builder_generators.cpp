@@ -11,7 +11,9 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
         auto* progress_dialog = gtk_builder_get_object(layla_gtk_builder, "layla_generator_progress_dialog");
         gtk_window_close(GTK_WINDOW(progress_dialog));
 
-        g_object_unref(obj);        
+        g_object_unref(obj);
+        // does this deallocate the task?        
+        g_object_unref(res);
     };
 
 
@@ -27,7 +29,7 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
     
     // Cannnot deallocate task here because it's still runnning.
     // Where should I do this?
-    
+
     return cancellable;
     
 }
