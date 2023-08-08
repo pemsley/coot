@@ -11,7 +11,13 @@ const float X_OFFSET_PER_RESIDUE = 12.0;
 const float TICK_LINE_WIDTH  = 2.0;
 const float TICK_LINE_LENGTH = 8.0;
 const float X_OFFSET_BASE = 30.0;
+#ifdef __APPLE__
+const float Y_OFFSET_BASE = 26.0;
+const float TICK_TEXT_BOTTOM_EXTRA_OFFSET = -6.0;
+#else
+const float TICK_TEXT_BOTTOM_EXTRA_OFFSET = -6.0;
 const float Y_OFFSET_BASE = 20.0;
+#endif
 
 struct _CootSequenceView {
    GtkWidget parent;
@@ -146,7 +152,7 @@ void coot_sequence_view_snapshot(GtkWidget *widget, GtkSnapshot *snapshot) {
             pango_cairo_show_layout(cairo_canvas, pango_layout);
 
             // below the bottom line
-            pos_y = Y_OFFSET_BASE - 6.0 + TICK_LINE_LENGTH + Y_OFFSET_PER_CHAIN * n_chains;
+            pos_y = Y_OFFSET_BASE - TICK_TEXT_BOTTOM_EXTRA_OFFSET + TICK_LINE_LENGTH + Y_OFFSET_PER_CHAIN * n_chains;
             cairo_move_to(cairo_canvas, pos_x, pos_y);
             pango_layout_set_markup(pango_layout, text.c_str(), -1);
             pango_cairo_show_layout(cairo_canvas, pango_layout);

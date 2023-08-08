@@ -1147,13 +1147,19 @@ case $dist_name in
        m4
        g++
        git
+       libtool
+       cmake
+       swig
+       flex
+       bison
+       gfortran
+       libglfw3-dev
        libssl-dev
        libc6-dev
        libncurses5-dev
        libjpeg-dev
        libgtk-4-dev'
-       # converted from libgtk2.0-dev - not tested
-       # not libgtk-3-dev
+       # gfortran is for numpy
 
       for dep in $dep_list
       do
@@ -2787,7 +2793,7 @@ if [ $build_ninja = true ] ; then
    ${WGET} https://github.com/ninja-build/ninja/archive/refs/tags/v$ninja_version.tar.gz
    tar xf ${AUTOBUILD_SOURCES}/v$ninja_version.tar.gz
    cd ninja-$ninja_version
-   ./configure.py --bootstrap # builds ninja, requires python
+   python3 ./configure.py --bootstrap # builds ninja, requires python
    if [ -e ninja ] ; then
       cp ninja $install_top_dir/bin
    else
@@ -2867,7 +2873,7 @@ if test "$build_gobject_introspection" = true ; then
    (
    # just for gobject-introspection - depends on our glib installation
    export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig
-   export LD_LIBRARY_PATH=$install_top_dir/lib64
+   export LD_LIBRARY_PATH=$install_top_dir/lib64:$install_top_dir/lib
    date
    echo BUILDING gobject-introspection:
 
@@ -3008,7 +3014,7 @@ if [ $skip_build = false ] ; then
          which python3
          echo ld_library_path $LD_LIBRARY_PATH
          x=$LD_LIBRARY_PATH
-         unset LD_LIBRARY_PATH
+         # unset LD_LIBRARY_PATH # I want LD_LIBRARY_PATH so that libffi.so is found
          echo :::: in directory $(pwd)
          echo :::: building using meson -Dprefix=$install_top_dir build
          if meson -Dprefix=$install_top_dir build ; then
@@ -3170,8 +3176,8 @@ if test -n "$build_curl" ; then
    # on Ubuntu: install it like this:
    # apt-get install libssl-dev
    #
-   echo ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
-   ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
+   echo ./configure  $generic_prefix --enable-versioned-symbols --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
+   ./configure  $generic_prefix --enable-versioned-symbols --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
    if $MAKE ; then
       if [ -n $post_process_libcurl ] ; then
          fixup_libcurl
@@ -3287,9 +3293,9 @@ if [ "$build_boost" = true ] ; then
 
       address_model=64
       pwd
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu > bootstrap-command-save
-      ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu > bootstrap-command-save
+      ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
 
       # now edit the project-config.jam file using python line
 
@@ -3526,6 +3532,9 @@ if [ true = true ] ; then
         exit 2
       fi
       which python3
+      # let's just try to install it using pip! Maybe that will do good things?
+      python3 -m pip install numpy
+      # OK, back to compiling...
       python3 setup.py build --fcompiler=gfortran
       python3 setup.py install
       if [ ! $? ] ; then
@@ -4321,8 +4330,6 @@ echo 33333
 export LD_LIBRARY_PATH=$install_top_dir/lib
 
 # add this when then are compiling and RDKIT is compiling
-#      --with-enhanced-ligand-tools
-#      ---with-rdkit-prefix=$prfx
 
 echo bash ../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
@@ -4331,8 +4338,9 @@ echo bash ../coot/configure $coot_prefix \
       PYTHON=python3 \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
+      --with-enhanced-ligand-tools \
+      ---with-rdkit-prefix=$prfx \
       --with-guile \
-      --with-gtk4  \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
@@ -4346,8 +4354,9 @@ echo bash ../coot/configure $coot_prefix \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
+      --with-enhanced-ligand-tools \
+      ---with-rdkit-prefix=$prfx \
       --with-guile \
-      --with-gtk4  \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \

@@ -116,7 +116,6 @@ graphics_info_t::init() {
       geom_p->set_verbose(true); // was false
 
       use_gemmi = false;
-
       cif_dictionary_read_number = geom_p->init_standard();
 
       geom_p->add_planar_peptide_restraint();

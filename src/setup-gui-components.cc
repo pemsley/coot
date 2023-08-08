@@ -363,7 +363,7 @@ void setup_python_scripting_entry() {
    g_signal_connect(entry, "activate", G_CALLBACK(on_python_scripting_entry_activated), entry);
 
    // PE adds history and completions (in coot-setup-python.cc)
-   add_python_scripting_entry_completion(entry);
+   // add_python_scripting_entry_completion(entry);
 }
 
 void set_vertical_toolbar_internal_alignment() {

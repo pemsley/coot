@@ -651,6 +651,9 @@ new_startup_application_activate(GtkApplication *application,
       // Let's not do it (including geom.init_standard()) twice.
       // graphics_info.init();
 
+      // but let's do it once at least!
+      graphics_info.init();
+
       GtkBuilder *builder = gtk_builder_new();
       if (GTK_IS_BUILDER(builder)) {
       } else {
@@ -728,6 +731,13 @@ new_startup_application_activate(GtkApplication *application,
       gtk_widget_set_visible(gl_area, TRUE);
       gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
       gtk_window_set_application(GTK_WINDOW(app_window), application);
+#ifdef __APPLE__
+      gtk_widget_set_size_request(gl_area, 600, 600); // Hmm
+      gtk_window_set_default_size(GTK_WINDOW(app_window), 900, 900);
+      gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
+      gtk_widget_set_visible(app_window, TRUE);
+      gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
+#else
       // 20230729-PE 
       // gtk_widget_set_size_request() does't seem to work on the gl_area.
       // So expand the gl_area by setting thw window size just so. This makes the
@@ -741,6 +751,7 @@ new_startup_application_activate(GtkApplication *application,
       gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
       gtk_widget_set_visible(app_window, TRUE);
       gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
+#endif
 
       gtk_widget_grab_focus(gl_area); // at the start, fixes focus problem
       setup_gestures_for_opengl_widget_in_main_window(gl_area);
@@ -939,6 +950,9 @@ int new_startup(int argc, char **argv) {
    gtk_init();
 
    load_css();
+
+   // GTK version
+   std::cout << "GTK " << GTK_MAJOR_VERSION << "." << GTK_MINOR_VERSION << "." << GTK_MICRO_VERSION << std::endl;
 
    GtkWidget *splash_screen = new_startup_create_splash_screen_window();
    gtk_widget_set_visible(splash_screen, TRUE);

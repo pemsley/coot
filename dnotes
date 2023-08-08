@@ -11038,3 +11038,10 @@ Sun 23 Jul 02:32:13 BST 2023
    https://www.collabora.com/news-and-blog/blog/2021/04/29/build-your-own-application-with-gtk4-as-a-meson-subproject/
 
 
+----
+Tue  1 Aug 2023 02:02:39 BST
+
+MacOS linking notes
+
+https://stackoverflow.com/questions/33991581/install-name-tool-to-update-a-executable-to-search-for-dylib-in-mac-os-x
+
