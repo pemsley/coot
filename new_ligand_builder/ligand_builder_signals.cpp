@@ -1,5 +1,6 @@
 #include <gtk/gtk.h>
 #include "ligand_builder_state.hpp"
+#include "ligand_builder_generators.hpp"
 
 using namespace coot::ligand_editor;
 using namespace coot::ligand_editor_canvas;
@@ -69,9 +70,40 @@ on_layla_generator_progress_dialog_cancelled(GtkButton* button, gpointer user_da
 extern "C" G_MODULE_EXPORT
 void
 layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
-    g_warning("Implement 'Apply'");
-    auto* dialog = gtk_builder_get_object(layla_gtk_builder,"layla_apply_dialog");
+    GeneratorRequest request;
+
+    auto* monomer_id_combobox = gtk_builder_get_object(layla_gtk_builder,"layla_generator_monomer_id_combobox");
+    if(strcmp(gtk_combo_box_get_active_id(GTK_COMBO_BOX(monomer_id_combobox)),"Custom") != 0) {
+        auto monomer_id = std::string(gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(monomer_id_combobox)));
+        request.monomer_id = std::move(monomer_id);
+    } else {
+        auto* monomer_id_entry = gtk_builder_get_object(layla_gtk_builder,"layla_generator_monomer_id_entry");
+        auto* buffer = gtk_entry_get_buffer(GTK_ENTRY(monomer_id_entry));
+        auto monomer_id = std::string(gtk_entry_buffer_get_text(buffer));
+        request.monomer_id = std::move(monomer_id);
+    }
+    auto* program_combobox = gtk_builder_get_object(layla_gtk_builder,"layla_generator_program_combobox");
+    auto program_name = std::string(gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(program_combobox)));
+
+    auto* input_format_combobox = gtk_builder_get_object(layla_gtk_builder,"layla_generator_input_format_combobox");
+    auto input_format_name = std::string(gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(input_format_combobox)));
+
+    if(program_name == "Grade2") {
+        request.generator = GeneratorRequest::Generator::Grade2;
+    } else {
+        request.generator = GeneratorRequest::Generator::Acedrg;
+    }
+
+    if(input_format_name == "SMILES") {
+        request.input_format = GeneratorRequest::InputFormat::SMILES;
+    } else {
+        request.input_format = GeneratorRequest::InputFormat::MolFile;
+    }
+
+    auto* dialog = gtk_builder_get_object(layla_gtk_builder, "layla_apply_dialog");
     gtk_window_close(GTK_WINDOW(dialog));
+    
+    g_warning("Implement 'Apply'");
     auto* progress_dialog = gtk_builder_get_object(layla_gtk_builder,"layla_generator_progress_dialog");
     gtk_window_present(GTK_WINDOW(progress_dialog));
 }
