@@ -489,6 +489,7 @@
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
                           <property name="icon-name">layla_3c</property>
+                          <property name="pixel-size">24</property>
                         </object>
                       </child>
                       <child>
@@ -513,6 +514,7 @@
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
                           <property name="icon-name">layla_4c</property>
+                          <property name="pixel-size">24</property>
                         </object>
                       </child>
                       <child>
@@ -537,6 +539,7 @@
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
                           <property name="icon-name">layla_5c</property>
+                          <property name="pixel-size">24</property>
                         </object>
                       </child>
                       <child>
@@ -561,6 +564,7 @@
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
                           <property name="icon-name">layla_6c</property>
+                          <property name="pixel-size">24</property>
                         </object>
                       </child>
                       <child>
@@ -585,6 +589,7 @@
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
                           <property name="icon-name">layla_6arom</property>
+                          <property name="pixel-size">24</property>
                         </object>
                       </child>
                       <child>
@@ -609,6 +614,7 @@
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
                           <property name="icon-name">layla_7c</property>
+                          <property name="pixel-size">24</property>
                         </object>
                       </child>
                       <child>
@@ -633,6 +639,7 @@
                         <object class="GtkImage">
                           <!-- <property name="visible">false</property> -->
                           <property name="icon-name">layla_8c</property>
+                          <property name="pixel-size">24</property>
                         </object>
                       </child>
                       <child>
