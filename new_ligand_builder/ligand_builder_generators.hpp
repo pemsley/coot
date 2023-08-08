@@ -17,6 +17,8 @@ struct GeneratorRequest {
     std::string monomer_id;
 };
 
+void run_generator_request(GeneratorRequest request);
+
 } // namespace coot::ligand_editor
 
 #endif // LIGAND_BUILDER_GENERATORS_HPP

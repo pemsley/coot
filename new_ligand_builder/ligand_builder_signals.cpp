@@ -102,10 +102,11 @@ layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
 
     auto* dialog = gtk_builder_get_object(layla_gtk_builder, "layla_apply_dialog");
     gtk_window_close(GTK_WINDOW(dialog));
-    
+
     g_warning("Implement 'Apply'");
     auto* progress_dialog = gtk_builder_get_object(layla_gtk_builder,"layla_generator_progress_dialog");
     gtk_window_present(GTK_WINDOW(progress_dialog));
+    run_generator_request(request);
 }
 
 extern "C" G_MODULE_EXPORT
