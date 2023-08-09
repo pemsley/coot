@@ -4241,12 +4241,12 @@ else
    save_dir=$(pwd)
    echo :::: $(pwd)
    echo cloning coot...
-   echo :::: git clone https://github.com/pemsley/coot.git -b gtk4
+   echo :::: git clone https://github.com/pemsley/coot.git -b main
    echo save_ld_library_path=$LD_LIBRARY_PATH
    # reset LD_LIBRARY_PATH for now. Do we need it set from now on actually?
    export LD_LIBRARY_PATH=
-   if git clone https://github.com/pemsley/coot.git -b gtk4 --depth 2 ; then
-      echo git clone https://github.com/pemsley/coot.git -b gtk4 without error status
+   if git clone https://github.com/pemsley/coot.git -b main --depth 2 ; then
+      echo git clone https://github.com/pemsley/coot.git -b main without error status
       echo done clone
       cd coot
       rm -rf autom4te.cache
@@ -4255,7 +4255,7 @@ else
       if [ -e config.sub   ] ; then rm config.sub   ; fi
       bash autogen.sh
    else
-      echo git clone https://github.com/pemsley/coot.git -b gtk4 failed
+      echo git clone https://github.com/pemsley/coot.git -b main failed
       echo done clone
       cd coot
    fi
