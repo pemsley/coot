@@ -93,13 +93,14 @@ get_atom_selection(std::string pdb_name,
 
 
    auto file_name_to_manager_via_gemmi = [] (const std::string &pdb_name) {
+      mmdb::Manager *mol = nullptr;
 #ifdef USE_GEMMI
       gemmi::Structure st = gemmi::read_structure_file(pdb_name);
       if (! st.models.empty()) {
-         mmdb::Manager *mol = new mmdb::Manager;
+         mol = new mmdb::Manager;
          gemmi::copy_to_mmdb(st, mol);
 
-         for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
+         for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
             mmdb::Model *model_p = mol->GetModel(imod);
             if (model_p) {
                int n_chains = model_p->GetNumberOfChains();
@@ -127,13 +128,9 @@ get_atom_selection(std::string pdb_name,
                }
             }
          }
-         return mol;
-      } else {
-         return nullptr;
       }
-#else
-      return nullptr;
 #endif // USE_GEMMI
+      return mol;
    };
 
    std::cout << "get_atom_selection() with file \"" << pdb_name << "\"" << std::endl;
