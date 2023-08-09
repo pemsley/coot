@@ -3,8 +3,11 @@
 #include <iostream>
 #include <thread>
 
+// This will need to be more clever in future
+#ifdef WITH_SOUND
 #include <vorbis/vorbisfile.h>
 #include <alsa/asoundlib.h>
+#endif
 
 void
 play_sound_file(const std::string &file_name) {
