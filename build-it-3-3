@@ -2121,6 +2121,7 @@ else
    needed_gsl_version=1.12
    needed_gsl_version=1.15
    needed_gsl_version=1.16
+   needed_gsl_version=2.7
 
    # tmp value.  This uses awk.  It need not do.
    # You can do the comparison with test.
@@ -4339,7 +4340,7 @@ echo bash ../coot/configure $coot_prefix \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
       --with-enhanced-ligand-tools \
-      ---with-rdkit-prefix=$prfx \
+      ---with-rdkit-prefix=$install_top_dir \
       --with-guile \
       $sqlite_config_args \
       $shared_static_flag \
@@ -4355,7 +4356,7 @@ echo bash ../coot/configure $coot_prefix \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
       --with-enhanced-ligand-tools \
-      ---with-rdkit-prefix=$prfx \
+      ---with-rdkit-prefix=$install_top_dir \
       --with-guile \
       $sqlite_config_args \
       $shared_static_flag \
