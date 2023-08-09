@@ -4341,7 +4341,7 @@ echo bash ../coot/configure $coot_prefix \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
       --with-enhanced-ligand-tools \
-      ---with-rdkit-prefix=$install_top_dir \
+      --with-rdkit-prefix=$install_top_dir \
       --with-guile \
       $sqlite_config_args \
       $shared_static_flag \
@@ -4357,7 +4357,7 @@ echo bash ../coot/configure $coot_prefix \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
       --with-enhanced-ligand-tools \
-      ---with-rdkit-prefix=$install_top_dir \
+      --with-rdkit-prefix=$install_top_dir \
       --with-guile \
       $sqlite_config_args \
       $shared_static_flag \
