@@ -1261,8 +1261,8 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    std::cout << "--------- prefix_dir " << d << std::endl;
 
 
+#if 0
    if (true) {
-
       auto qed_stuff = [] (RDKit::RWMol &rdkm) {
          PyObject *pName = PyUnicode_FromString("rdkit.Chem"); // 20230513-PE merge: was just "silicos_it" - hmm.
          // Load the module object
@@ -1402,6 +1402,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
          }
       }
    }
+#endif
 
 #if 0
    // There are lots of items in the list, but they don't seem to be toplevels - hmm.
