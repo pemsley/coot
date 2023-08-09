@@ -25,9 +25,8 @@ AC_DEFUN([AM_WITH_GUILE],
 
 # guile, not with-guile
 AC_ARG_WITH(guile, [  --with-guile=PFX Prefix where GUILE has been installed],
- with_guile_prefix="$withval",
- with_guile_prefix="")
-
+ with_guile="$withval",
+ with_guile="false")
 
 saved_LIBS="$LIBS"
 saved_CFLAGS="$CFLAGS"

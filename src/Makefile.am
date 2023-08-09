@@ -190,12 +190,11 @@ coot.py: coot_wrap_python.cc
 AM_CFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	$(WITH_GUILE_CFLAGS)	\
-	$(USE_GUILE_GTK) 	\
 	$(GUILE_CFLAGS)		\
 	$(PYTHON_CPPFLAGS)	\
 	$(PYTHON_CFLAGS)
 
-# must have GUILE and GUILE_GTK flags before $(INCLUDES), and this
+# must have GUILE flags before $(INCLUDES), and this
 # does not happen because LTCXXCOMPILE has AM_CXXFLAGS after INCLUDES.
 # But DEFAULT_INCLUDES is *before* INCLUDES
 # DEFAULT_INCLUDES = ... snip.  Rethink...
@@ -225,7 +224,6 @@ AM_CXXFLAGS = \
 	-DCOOT_BUILD_INFO_STRING='"$(COOT_BUILD_INFO_STRING)"' \
 	$(USE_LIBCURL)          \
 	$(WITH_GUILE_CFLAGS)	\
-	$(USE_GUILE_GTK) 	\
 	$(GUILE_CFLAGS)		\
         $(MyPyGObject_CFLAGS)   \
 	$(PYGOBJECT_CFLAGS)	\
@@ -251,8 +249,6 @@ AM_CPPFLAGS = \
 	$(GLM_CXXFLAGS)                 \
 	$(GOOCANVAS_CFLAGS)             \
 	$(WITH_GUILE_CFLAGS)		\
-	$(USE_GUILE_GTK)		\
-	$(GUILE_GTK_CFLAGS)		\
 	$(GUILE_CFLAGS)		        \
 	$(CANVAS_CFLAGS)		\
 	$(MOLTRIANGLES_CPPFLAGS)	\

@@ -189,21 +189,29 @@ dnl Check for Clipper.  we exit if clipper is not found.
 #
 AM_PATH_CLIPPER(, [echo Error locating Clipper - a CNS-enabled version of Clipper \(2.1-090520-ac or later\) is required now; exit 1],AC_MSG_ERROR([Cannot find Clipper]))
 
-# 20210313-PE-merge-weirdness
-# we set default coot_guile to true
-coot_guile=true
-AM_WITH_GUILE(, [echo optional guile\?],,)
-if test x$coot_guile = xtrue ; then
-   GUILE_FLAGS
-   AM_GUILE_LIB
-   # guile-gui depends on a gui interface being present.  If it is, force check for guile-gui
-   if test x$with_gnome != x ; then
-      # AM_GUILE_GNOME
-      :
-   fi
-   GUILE_VERSION=$($ac_cv_path_GUILE_CONFIG --version  2>&1 | awk '{split($NF, arr, "[[.]]");  print arr[[1]] "." arr[[2]]}')
-   echo checking GUILE_VERSION: $GUILE_VERSION
-   AC_SUBST(GUILE_VERSION)
+dnl # 20210313-PE-merge-weirdness
+dnl # we set default coot_guile to true
+dnl coot_guile=true
+dnl AM_WITH_GUILE(, [echo optional guile\?],,)
+dnl if test x$coot_guile = xtrue ; then
+dnl    GUILE_FLAGS
+dnl    AM_GUILE_LIB
+dnl    # guile-gui depends on a gui interface being present.  If it is, force check for guile-gui
+dnl    if test x$with_gnome != x ; then
+dnl       # AM_GUILE_GNOME
+dnl       :
+dnl    fi
+dnl    GUILE_VERSION=$($ac_cv_path_GUILE_CONFIG --version  2>&1 | awk '{split($NF, arr, "[[.]]");  print arr[[1]] "." arr[[2]]}')
+dnl    echo checking GUILE_VERSION: $GUILE_VERSION
+dnl    AC_SUBST(GUILE_VERSION)
+dnl fi
+
+GUILE_FLAGS
+if test "x$GUILE_CFLAGS" = x ; then
+   :
+else
+   COOT_USE_GUILE="-DUSE_GUILE"
+   AC_SUBST(COOT_USE_GUILE)
 fi
 
 
