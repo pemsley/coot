@@ -256,23 +256,16 @@ if test -z "$BOOST_PYTHON_LIB" ; then
 fi
 
 # So now BOOST_PYTHON_LIB is set (and that is typically "boost_python").
-# How do we use that?  At the moment we want to only use
-# -l$(BOOST_PYTHON_LIB) when we have RDKIT_LIBS set
-
-if test -z "$RDKIT_LIBS" ; then
-   :
+# How do we use that?
+if test -z "$BOOST_PYTHON_LIB" ; then
+    :
 else
-   if test -z "$BOOST_PYTHON_LIB" ; then
-      :
-   else
-      L_BOOST_PYTHON=-l$BOOST_PYTHON_LIB
-      if test "$have_windows_mingw" = yes; then
+    L_BOOST_PYTHON=-l$BOOST_PYTHON_LIB
+    if test "$have_windows_mingw" = yes; then
          COOT_WINDOWS_CFLAGS+=" -DBOOST_SYSTEM_NO_DEPRECATED"
-      fi
-   fi
+    fi
 fi
 AC_SUBST(L_BOOST_PYTHON)
-
 
 dnl =========================== RDKit =========================
 
@@ -288,10 +281,12 @@ if $coot_enhanced_ligand_additions = true ; then
    fi
 fi
 
-AC_ARG_WITH(rdkit-prefix, [location of the RDKit package], rdkit_prefix="$withval", rdkit_prefix="")
 
-if test x$rdkit_prefix = x ; then
-  :
+AC_ARG_WITH(rdkit-prefix, AS_HELP_STRING([--with-rdkit-prefix location of the RDKit package]),
+            rdkit_prefix="$withval", rdkit_prefix=false)
+
+if test x$rdkit_prefix = xfalse ; then
+   :
 else
    rdkit_install_dir="$withval"
    # better RDKit linking I hope
@@ -355,7 +350,7 @@ dnl AC_CHECK_LIB(gslcblas,main)
 dnl AC_CHECK_LIB(gsl,main)
 
 # gemmi doesn't have a pkgconfig file. Frustrating.
-AC_ARG_WITH([gemmi], AS_HELP_STRING([--with-gemmi compile with GEMMI]), with_gemmi="$withval", with_gemmi=false)
+AC_ARG_WITH([gemmi], AS_HELP_STRING([--with-gemmi location of the GEMMI package]), with_gemmi="$withval", with_gemmi=false)
 
 # is this the wrong logic actually, should the checking message only be seen if with_gemmi is not false?
 AC_MSG_CHECKING([for GEMMI])
