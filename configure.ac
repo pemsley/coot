@@ -26,7 +26,6 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-
 AC_INIT([coot],[1.0.06-pre])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
@@ -358,14 +357,18 @@ dnl AC_CHECK_LIB(gsl,main)
 # gemmi doesn't have a pkgconfig file. Frustrating.
 AC_ARG_WITH([gemmi], AS_HELP_STRING([--with-gemmi compile with GEMMI]), with_gemmi="$withval", with_gemmi=false)
 
-echo  @@@@@@@@@@@@@@@@@ with with_gemmi $with_gemmi
+# is this the wrong logic actually, should the checking message only be seen if with_gemmi is not false?
+AC_MSG_CHECKING([for GEMMI])
 if test "x$with_gemmi" = xfalse ; then
    :
+   AC_MSG_RESULT(no)
 else
-   AC_SUBST(GEMMI_CXXFLAGS, -I$withval/include -DUSE_GEMMI=1)
+   AC_MSG_RESULT(yes)
+   AC_SUBST(GEMMI_CXXFLAGS, "-I$withval/include -DUSE_GEMMI=1")
    AC_SUBST(GEMMI_LIBS, "-L$withval/lib -lgemmi_cpp")
 fi
 
+dnl put this test in the above block. We need to know (and stop) if GEMMI was requested but not found.
 dnl #GEMMI
 dnl AC_LANG_PUSH(C++)
 dnl AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_NOTICE(GEMMI headers were not found),)
@@ -376,10 +379,6 @@ dnl AC_SUBST(GEMMI_CXXFLAGS)
 dnl AC_LANG_POP
 
 
-AM_WITH_MYSQL_DATABASE
-
-COOT_CURL
-
 # 20090613 We need to be able to determine the build type, and embed
 # that value in to coot binary.  We need to do that for the updating
 # Coot.  THe build type will be set by COOT_SYS_BUILD_TYPE.  Which is
@@ -387,6 +386,24 @@ COOT_CURL
 # later.
 AM_COOT_SYS_BUILD_TYPE
 
+
+AC_ARG_WITH([sound], AS_HELP_STRING([--with-sound compile with ogg-vorbis and ALSA libs]), with_sound="withval", with_sound=false)
+AC_MSG_CHECKING([for sound])
+if test "x$with_sound" = xfalse ; then
+   :
+   AC_MSG_RESULT(no)
+else
+   AC_MSG_RESULT(yes)
+   PKG_CHECK_MODULES(VORBISFILE, [vorbisfile >= 1.2])
+   PKG_CHECK_MODULES(ALSA, [alsa >= 1.2])
+   # Use Core Audio on macOS. Consider PortAudio instead of using alsa directly.
+   AC_SUBST(SOUND_FLAGS, -DWITH_SOUND)
+fi
+
+
+AM_WITH_MYSQL_DATABASE
+
+COOT_CURL
 
 dnl Fix this another time.
 dnl dnl Add the languages which your application supports here.
