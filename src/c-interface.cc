@@ -1017,6 +1017,7 @@ void set_use_gemmi_as_model_molecule_parser(int state) {
       g.set_use_gemmi(state);
 #else
       std::cout << "WARNING:: this executable was not compiled with gemmi " << std::endl;
+      add_status_bar_text("WARNING:: this executable was not compiled with gemmi");
 #endif
    }
 }
