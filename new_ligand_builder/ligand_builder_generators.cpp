@@ -45,6 +45,7 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
         // We need to manually remove our own cancellable from here.
         g_object_unref(global_generator_request_task_cancellable);
         global_generator_request_task_cancellable = nullptr;
+        // Apply necessary UI changes after the task is done
         auto* accept_button = gtk_builder_get_object(global_layla_gtk_builder, "layla_apply_dialog_accept_button");
         gtk_widget_set_sensitive(GTK_WIDGET(accept_button), TRUE);
     };
