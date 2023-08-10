@@ -952,7 +952,7 @@ Paul Emsley</property>
           </object>
         </child>
         <child>
-          <object class="GtkButton">
+          <object class="GtkButton" id="layla_apply_dialog_accept_button">
             <property name="label">Accept</property>
             <signal name="clicked" swapped="false" handler="layla_on_apply_dialog_accepted"></signal>
             <layout>

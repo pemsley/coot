@@ -41,6 +41,12 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
         g_object_unref(obj);
         // does this deallocate the task?        
         g_object_unref(res);
+
+        // We need to manually remove our own cancellable from here.
+        g_object_unref(global_generator_request_task_cancellable);
+        global_generator_request_task_cancellable = nullptr;
+        auto* accept_button = gtk_builder_get_object(global_layla_gtk_builder, "layla_apply_dialog_accept_button");
+        gtk_widget_set_sensitive(GTK_WIDGET(accept_button), TRUE);
     };
 
     GTask* task = g_task_new(dummy,cancellable,task_completed_callback, nullptr);
@@ -49,6 +55,8 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
         task_data->cleanup();
         g_slice_free(GeneratorTaskData, task_data_ptr);
     });
+
+    g_warning("Implement 'Apply'");
 
     g_timeout_add_once(5000, [](gpointer user_data){
         g_warning("5 seconds elapsed.");
