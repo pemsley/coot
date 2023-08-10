@@ -982,7 +982,7 @@ Paul Emsley</property>
           </object>
         </child>
         <child>
-          <object class="GtkProgressBar">
+          <object class="GtkProgressBar" id="layla_generator_progress_dialog_progress_bar">
             <property name="vexpand">true</property>
             <property name="show-text">true</property>
             <property name="text">Generation in progress...</property>
