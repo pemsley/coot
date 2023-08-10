@@ -1,5 +1,6 @@
 #include <gtk/gtk.h>
 #include "ligand_builder_state.hpp"
+#include "ligand_builder_generators.hpp"
 #include "ligand_builder_ui.hpp"
 
 int main() {
@@ -21,7 +22,8 @@ int main() {
         auto* icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(GTK_WIDGET(win)));
         gtk_icon_theme_add_search_path(icon_theme, "icons");
         
-        coot::ligand_editor::layla_gtk_builder = builder;
+        coot::ligand_editor::global_layla_gtk_builder = builder;
+        coot::ligand_editor::global_generator_request_task_cancellable = nullptr;
         
         gtk_window_present(GTK_WINDOW(win));
         gtk_application_add_window(app,GTK_WINDOW(win));

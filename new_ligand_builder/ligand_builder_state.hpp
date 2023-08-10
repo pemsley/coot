@@ -76,7 +76,7 @@ inline LigandBuilderState* global_instance;
 /// Global GtkBuilder created from `layla.ui`.
 /// Used for accessing widgets inside dialogs 
 /// from within signal handlers.
-inline GtkBuilder* layla_gtk_builder;
+inline GtkBuilder* global_layla_gtk_builder;
 
 void initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label = nullptr);
 

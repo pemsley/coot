@@ -18,6 +18,8 @@ struct GeneratorRequest {
     std::string monomer_id;
 };
 
+inline GCancellable* global_generator_request_task_cancellable;
+
 GCancellable* run_generator_request(GeneratorRequest request);
 
 } // namespace coot::ligand_editor
