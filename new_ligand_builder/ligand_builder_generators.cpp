@@ -26,7 +26,27 @@ struct GeneratorTaskData {
     }
 };
 
+void launch_generator() {
+
+}
+
+void resolve_target_generator_executable() {
+    //todo: implement
+    launch_generator();
+}
+
+void write_input_file_finish() {
+    // todo: this currently never called
+    resolve_target_generator_executable();
+}
+
+void write_input_file_async(GTask* task) {
+    GCancellable* cancellable = g_task_get_cancellable(task);
+    g_task_return_boolean(task, true);
+}
+
 GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest request) {
+    // Useless dummy
     GObject* dummy = (GObject*)g_object_new(G_TYPE_OBJECT, NULL);
     GCancellable* cancellable = g_cancellable_new();
     GeneratorTaskData* task_data = g_slice_new0(GeneratorTaskData);
@@ -38,6 +58,7 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
         gtk_window_close(task_data->progress_dialog);
         // todo: cleanup after child process (if any) and report results
 
+        // Delete the useless object
         g_object_unref(obj);
         // does this deallocate the task?        
         g_object_unref(res);
@@ -59,9 +80,9 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
 
     g_warning("Implement 'Apply'");
 
-    g_timeout_add_once(5000, [](gpointer user_data){
-        g_warning("5 seconds elapsed.");
-        g_task_return_boolean(G_TASK(user_data), true);
+    g_timeout_add_once(1000, [](gpointer user_data){
+        g_warning("1 second elapsed.");
+        write_input_file_async(G_TASK(user_data));
     }, task);
     
     // this segfaults:
