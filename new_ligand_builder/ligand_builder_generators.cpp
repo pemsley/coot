@@ -282,10 +282,9 @@ void pipe_reader(gpointer user_data) {
             g_bytes_unref(bytes);
         }
         if(should_go_on) {
-            g_idle_add_once(pipe_reader, task);
-        } else {
-            g_object_unref(task);
+            g_idle_add_once(pipe_reader, g_object_ref(task));
         }
+        g_object_unref(task);
     };
     g_input_stream_read_bytes_async(task_data->input_stream, 4, G_PRIORITY_DEFAULT, cancellable, callback, g_object_ref(task));
     g_object_unref(task);
