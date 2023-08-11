@@ -148,31 +148,31 @@ void launch_generator_async(GTask* task) {
     GSubprocess* subprocess = g_subprocess_launcher_spawnv(launcher, argv_raw, &err);
     g_object_unref(launcher);
     g_slice_free1(slice_size, argv_raw);
-    if(subprocess) {
-        g_warning("Subprocess spawned!");
-        task_data->subprocess = g_object_ref(subprocess);
-        task_data->subprocess_running = true;
-        g_subprocess_wait_check_async(subprocess, cancellable, launch_generator_finish, task);
-        g_timeout_add(50, [](gpointer user_data){
-            GTask* task = G_TASK(user_data);
-            GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
-            int should_run = task_data->subprocess_running;
-            if(!should_run) {
-                g_object_unref(task);
-                g_warning("ProgressBar loop exits.");
-            } else {
-                gtk_progress_bar_pulse(task_data->progress_bar);
-            }
-            return should_run;
-        }, g_object_ref(task));
-    } else {
+    if(!subprocess) {
         g_warning("The subprocess could not be spawned.");
         if(err) {
             g_task_return_error(task, err);
         } else {
             g_task_return_boolean(task, false);
         }
+        return;
     }
+    g_warning("Subprocess spawned!");
+    task_data->subprocess = g_object_ref(subprocess);
+    task_data->subprocess_running = true;
+    g_subprocess_wait_check_async(subprocess, cancellable, launch_generator_finish, task);
+    g_timeout_add(50, [](gpointer user_data){
+        GTask* task = G_TASK(user_data);
+        GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
+        int should_run = task_data->subprocess_running;
+        if(!should_run) {
+            g_object_unref(task);
+            g_warning("ProgressBar loop exits.");
+        } else {
+            gtk_progress_bar_pulse(task_data->progress_bar);
+        }
+        return should_run;
+    }, g_object_ref(task));
 }
 
 
