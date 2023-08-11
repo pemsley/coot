@@ -1,5 +1,6 @@
 #include "ligand_builder_generators.hpp"
 #include "ligand_builder_state.hpp"
+#include <cstddef>
 #include <glib.h>
 #include <memory>
 #include <rdkit/GraphMol/RWMol.h>
@@ -10,6 +11,8 @@ struct GeneratorTaskData {
     std::unique_ptr<coot::ligand_editor::GeneratorRequest> request;
     GtkProgressBar* progress_bar;
     GtkWindow* progress_dialog;
+    GSubprocess* subprocess;
+    bool subprocess_running;
 
     void initialize(coot::ligand_editor::GeneratorRequest&& request) {
         g_warning("void GeneratorTaskData::initialize() called.");
@@ -19,64 +22,19 @@ struct GeneratorTaskData {
         this->progress_bar = (GtkProgressBar*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_progress_bar");
         this->progress_dialog = (GtkWindow*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog");
         this->request = std::make_unique<GeneratorRequest>(request);
+        this->subprocess = nullptr;
+        this->subprocess_running = false;
 
     }
 
     void cleanup() {
         g_warning("void GeneratorTaskData::cleanup() called.");
-
+        if(this->subprocess) {
+            g_object_unref(subprocess);
+        }
         this->request.reset();
     }
 };
-
-void launch_generator_async(GTask* task) {
-    GCancellable* cancellable = g_task_get_cancellable(task);
-    GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
-    //todo: implement me
-    g_task_return_boolean(task, true);
-}
-
-void launch_generator_finish(GObject* something, GAsyncResult* res, gpointer user_data) {
-
-}
-
-void resolve_target_generator_executable(GTask* task) {
-    GCancellable* cancellable = g_task_get_cancellable(task);
-    GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
-    using Generator = coot::ligand_editor::GeneratorRequest::Generator;
-
-    switch(task_data->request->generator) {
-        default:
-        case Generator::Acedrg: {
-            g_warning("todo: Implement resolving acedrg executable");
-            task_data->request->executable_path = "acedrg";
-            break;
-        }
-        case Generator::Grade2: {
-            g_error("todo: Implement resolving Grade2 executable");
-            break;
-        }
-    }
-    launch_generator_async(task);
-}
-
-void write_input_file_finish(GObject* file_object, GAsyncResult* res, gpointer user_data) {
-    GTask* task = G_TASK(user_data);
-    GFile* file = G_FILE(file_object);
-    GError* err;
-    bool file_io_res = g_file_replace_contents_finish(file, res, NULL, &err);
-    g_object_unref(file);
-    if(!file_io_res) {
-        g_warning("Write failed");
-        g_task_return_boolean(task, false);
-        if(err) {
-            g_object_unref(err);
-        }
-        return;
-    } 
-    g_warning("Write ok.");
-    resolve_target_generator_executable(task);
-}
 
 std::string coot::ligand_editor::GeneratorRequest::get_filename() const {
     std::string file_name;
@@ -104,6 +62,144 @@ std::string coot::ligand_editor::GeneratorRequest::get_filename() const {
         }
     }
     return file_name;
+}
+
+std::vector<std::string> coot::ligand_editor::GeneratorRequest::build_commandline() const {
+    std::vector<std::string> ret;
+    ret.push_back(this->executable_path.value());
+    auto input_filename = this->get_filename();
+    switch(generator) {
+        case Generator::Grade2: {
+            switch(input_format) {
+                case InputFormat::MolFile: {
+                    g_error("Todo: implement molfile for grade2");
+                    break;
+                }
+                default:
+                case InputFormat::SMILES: {
+                    g_error("Todo: implement smiles for grade2");
+                    break;
+                }
+            }
+            break;
+        }
+        default:
+        case Generator::Acedrg: {
+            switch(input_format) {
+                case InputFormat::MolFile: {
+                    g_error("Todo: implement molfile for acedrg");
+                    break;
+                }
+                default:
+                case InputFormat::SMILES: {
+                    ret.push_back("-i");
+                    ret.push_back(input_filename);
+                    ret.push_back("-r");
+                    ret.push_back(this->monomer_id);
+                    ret.push_back("-o");
+                    ret.push_back(std::string("acedrg-") + this->monomer_id);
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    return ret;
+}
+
+void launch_generator_finish(GObject* subprocess_object, GAsyncResult* res, gpointer user_data) {
+    GTask* task = G_TASK(user_data);
+    GSubprocess* subprocess = G_SUBPROCESS(subprocess_object);
+    GError* err = NULL;
+    bool io_res = g_subprocess_wait_check_finish(subprocess, res, &err);
+    g_object_unref(subprocess);
+    if(!io_res) {
+        g_warning("Subprocess failed");;
+        g_task_return_boolean(task, false);
+        if(err) {
+            g_object_unref(err);
+        }
+        return;
+    } 
+    g_warning("Subprocess ok.");
+    g_task_return_boolean(task, true);
+}
+
+void launch_generator_async(GTask* task) {
+    GCancellable* cancellable = g_task_get_cancellable(task);
+    GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
+    //todo: implement me
+    GSubprocessLauncher* launcher = g_subprocess_launcher_new(G_SUBPROCESS_FLAGS_STDOUT_PIPE);
+    std::vector<std::string> argv = task_data->request->build_commandline();
+    gsize slice_size = sizeof(gchar*) * (argv.size() + 1);
+    const gchar **argv_raw = (const gchar **)g_slice_alloc0(slice_size);
+    for(unsigned int i = 0; i < argv.size(); i++) {
+        argv_raw[i] = argv[0].data();
+    }
+    GError* err = NULL;
+    GSubprocess* subprocess = g_subprocess_launcher_spawnv(launcher, argv_raw, &err);
+    g_object_unref(launcher);
+    g_slice_free1(slice_size, argv_raw);
+    if(subprocess) {
+        g_warning("Subprocess spawned!");
+        task_data->subprocess = g_object_ref(subprocess);
+        task_data->subprocess_running = true;
+        g_subprocess_wait_check_async(subprocess, cancellable, launch_generator_finish, task);
+        g_timeout_add(50, [](gpointer user_data){
+            GTask* task = G_TASK(user_data);
+            GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
+            int should_run = task_data->subprocess_running;
+            if(!should_run) {
+                g_object_unref(task);
+            } else {
+                gtk_progress_bar_pulse(task_data->progress_bar);
+            }
+            return should_run;
+        }, g_object_ref(task));
+    } else {
+        g_warning("The subprocess could not be spawned.");
+        g_task_return_boolean(task, false);
+    }
+}
+
+
+
+void resolve_target_generator_executable(GTask* task) {
+    GCancellable* cancellable = g_task_get_cancellable(task);
+    GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
+    using Generator = coot::ligand_editor::GeneratorRequest::Generator;
+
+    switch(task_data->request->generator) {
+        default:
+        case Generator::Acedrg: {
+            g_warning("todo: Implement resolving acedrg executable");
+            task_data->request->executable_path = "acedrg";
+            break;
+        }
+        case Generator::Grade2: {
+            g_error("todo: Implement resolving Grade2 executable");
+            break;
+        }
+    }
+    launch_generator_async(task);
+}
+
+void write_input_file_finish(GObject* file_object, GAsyncResult* res, gpointer user_data) {
+    GTask* task = G_TASK(user_data);
+    GFile* file = G_FILE(file_object);
+    GError* err = NULL;
+    bool file_io_res = g_file_replace_contents_finish(file, res, NULL, &err);
+    g_object_unref(file);
+    if(!file_io_res) {
+        g_warning("Write failed");
+        g_task_return_boolean(task, false);
+        if(err) {
+            g_object_unref(err);
+        }
+        return;
+    } 
+    g_warning("Write ok.");
+    resolve_target_generator_executable(task);
 }
 
 void write_input_file_async(GTask* task) {
