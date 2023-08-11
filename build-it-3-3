@@ -1153,9 +1153,12 @@ case $dist_name in
        flex
        bison
        gfortran
+       autoconf
+       automake
        libglfw3-dev
        libssl-dev
        libblas-dev
+       liblapack-dev
        libc6-dev
        libncurses5-dev
        libjpeg-dev
@@ -2612,7 +2615,7 @@ fi
 
 test_for_already_installed_dependencies=true
 
-# So that python is found when it is installed:
+# So that python3 is found when it is installed:
 #
 #this should not be needed
 export PATH=$install_top_dir/bin:$PATH
@@ -4092,8 +4095,9 @@ if [ "$build_guile_cairo" = true ] ; then
       if [ -e $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz
       else
-         echo no file $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz
-         exit
+         echo fetching file $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz
+         ${WGET} http://download.savannah.gnu.org/releases/guile-cairo/guile-cairo-$guile_cairo_version.tar.gz
+         tar xf $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz
       fi
       if [ ! -e $install_top_dir/bin/guile ] ; then
          echo no guile
@@ -4185,7 +4189,8 @@ if [ "$build_guile_gnome_platform" = true ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-gnome-platform-$guile_gnome_platform_version.tar.gz
       else
          echo no file $AUTOBUILD_SOURCES/guile-gnome-platform-$guile_gnome_platform_version.tar.gz
-         exit
+         ${WGET} http://ftp.gnu.org/pub/gnu/guile-gnome/guile-gnome-platform/guile-gnome-platform-$guile_gnome_platform_version.tar.gz
+         tar xf $AUTOBUILD_SOURCES/guile-gnome-platform-$guile_gnome_platform_version.tar.gz
       fi
       cd guile-gnome-platform-$guile_gnome_platform_version
       if ./configure --prefix=$install_top_dir ; then
