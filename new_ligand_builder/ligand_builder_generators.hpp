@@ -1,6 +1,7 @@
 #ifndef LIGAND_BUILDER_GENERATORS_HPP
 #define LIGAND_BUILDER_GENERATORS_HPP
 #include <string>
+#include <optional>
 #include <gio/gio.h>
 
 namespace coot::ligand_editor {
@@ -17,6 +18,7 @@ struct GeneratorRequest {
     } generator;
     std::string monomer_id;
     std::string molecule_smiles;
+    std::optional<std::string> executable_path;
 
     std::string get_filename() const;
 };

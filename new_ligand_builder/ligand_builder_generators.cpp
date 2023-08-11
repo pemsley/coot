@@ -29,13 +29,35 @@ struct GeneratorTaskData {
     }
 };
 
-void launch_generator() {
+void launch_generator_async(GTask* task) {
+    GCancellable* cancellable = g_task_get_cancellable(task);
+    GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
+    //todo: implement me
+    g_task_return_boolean(task, true);
+}
+
+void launch_generator_finish(GObject* something, GAsyncResult* res, gpointer user_data) {
 
 }
 
-void resolve_target_generator_executable() {
-    //todo: implement
-    launch_generator();
+void resolve_target_generator_executable(GTask* task) {
+    GCancellable* cancellable = g_task_get_cancellable(task);
+    GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
+    using Generator = coot::ligand_editor::GeneratorRequest::Generator;
+
+    switch(task_data->request->generator) {
+        default:
+        case Generator::Acedrg: {
+            g_warning("todo: Implement resolving acedrg executable");
+            task_data->request->executable_path = "acedrg";
+            break;
+        }
+        case Generator::Grade2: {
+            g_error("todo: Implement resolving Grade2 executable");
+            break;
+        }
+    }
+    launch_generator_async(task);
 }
 
 void write_input_file_finish(GObject* file_object, GAsyncResult* res, gpointer user_data) {
@@ -47,13 +69,13 @@ void write_input_file_finish(GObject* file_object, GAsyncResult* res, gpointer u
     if(!file_io_res) {
         g_warning("Write failed");
         g_task_return_boolean(task, false);
-        //todo: cleanup memory
+        if(err) {
+            g_object_unref(err);
+        }
         return;
     } 
     g_warning("Write ok.");
-    // todo: implement
-    resolve_target_generator_executable();
-    g_task_return_boolean(task, true);
+    resolve_target_generator_executable(task);
 }
 
 std::string coot::ligand_editor::GeneratorRequest::get_filename() const {
