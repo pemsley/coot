@@ -17,6 +17,7 @@ struct GeneratorRequest {
         Acedrg,
         Grade2
     } generator;
+
     std::string monomer_id;
     std::string molecule_smiles;
     std::optional<std::string> executable_path;

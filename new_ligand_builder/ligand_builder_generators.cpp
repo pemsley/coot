@@ -9,6 +9,7 @@
 
 struct GeneratorTaskData {
     std::unique_ptr<coot::ligand_editor::GeneratorRequest> request;
+    std::unique_ptr<std::string> file_contents;
     GtkProgressBar* progress_bar;
     GtkWindow* progress_dialog;
     GSubprocess* subprocess;
@@ -22,6 +23,7 @@ struct GeneratorTaskData {
         this->progress_bar = (GtkProgressBar*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_progress_bar");
         this->progress_dialog = (GtkWindow*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog");
         this->request = std::make_unique<GeneratorRequest>(request);
+        this->file_contents = nullptr;
         this->subprocess = nullptr;
         this->subprocess_running = false;
 
@@ -33,6 +35,7 @@ struct GeneratorTaskData {
             g_object_unref(subprocess);
         }
         this->request.reset();
+        this->file_contents.reset();
     }
 };
 
@@ -119,9 +122,10 @@ void launch_generator_finish(GObject* subprocess_object, GAsyncResult* res, gpoi
     g_object_unref(subprocess);
     if(!io_res || exit_status != 0) {
         g_warning("Subprocess failed.");
-        g_task_return_boolean(task, false);
         if(err) {
-            g_object_unref(err);
+            g_task_return_error(task, err);
+        } else {
+            g_task_return_boolean(task, false);
         }
         return;
     } 
@@ -138,7 +142,7 @@ void launch_generator_async(GTask* task) {
     gsize slice_size = sizeof(gchar*) * (argv.size() + 1);
     const gchar **argv_raw = (const gchar **)g_slice_alloc0(slice_size);
     for(unsigned int i = 0; i < argv.size(); i++) {
-        argv_raw[i] = argv[0].data();
+        argv_raw[i] = argv[i].data();
     }
     GError* err = NULL;
     GSubprocess* subprocess = g_subprocess_launcher_spawnv(launcher, argv_raw, &err);
@@ -163,7 +167,11 @@ void launch_generator_async(GTask* task) {
         }, g_object_ref(task));
     } else {
         g_warning("The subprocess could not be spawned.");
-        g_task_return_boolean(task, false);
+        if(err) {
+            g_task_return_error(task, err);
+        } else {
+            g_task_return_boolean(task, false);
+        }
     }
 }
 
@@ -197,12 +205,9 @@ void write_input_file_finish(GObject* file_object, GAsyncResult* res, gpointer u
     g_object_unref(file);
     if(!file_io_res) {
         g_warning("Write failed");
-        g_task_return_boolean(task, false);
-        if(err) {
-            g_object_unref(err);
-        }
+        g_task_return_error(task, err);
         return;
-    } 
+    }
     g_warning("Write ok.");
     resolve_target_generator_executable(task);
 }
@@ -227,10 +232,12 @@ void write_input_file_async(GTask* task) {
         }
     }
     GFile* file = g_file_new_for_path(file_name.c_str());
+    task_data->file_contents = std::make_unique<std::string>(std::move(file_contents));
+
     g_file_replace_contents_async(
         file, 
-        file_contents.c_str(), 
-        file_contents.size(), 
+        task_data->file_contents->c_str(), 
+        task_data->file_contents->size(), 
         NULL, 
         FALSE, 
         G_FILE_CREATE_REPLACE_DESTINATION, 
@@ -249,14 +256,24 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
 
     auto task_completed_callback = [](GObject* obj, GAsyncResult* res, gpointer user_data){
         g_warning("Task completed callback!");
-        GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(res));
+        GTask* task = G_TASK(res);
+        GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(task);
         gtk_window_close(task_data->progress_dialog);
         // todo: cleanup after child process (if any) and report results
+        GError* err = NULL;
+        if(!g_task_propagate_boolean(task, &err)) {
+            if(err) {
+                g_warning("Task failed. Error: %s", err->message);
+                g_error_free(err);
+            }
+        } else {
+            g_warning("Task finished successfully!");
+        }
 
         // Delete the useless object
         g_object_unref(obj);
-        // does this deallocate the task?        
-        g_object_unref(res);
+
+        g_object_unref(task);
 
         // We need to manually remove our own cancellable from here.
         g_object_unref(global_generator_request_task_cancellable);
