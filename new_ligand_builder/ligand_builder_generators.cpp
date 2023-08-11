@@ -109,12 +109,16 @@ std::vector<std::string> coot::ligand_editor::GeneratorRequest::build_commandlin
 
 void launch_generator_finish(GObject* subprocess_object, GAsyncResult* res, gpointer user_data) {
     GTask* task = G_TASK(user_data);
+    GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
     GSubprocess* subprocess = G_SUBPROCESS(subprocess_object);
     GError* err = NULL;
     bool io_res = g_subprocess_wait_check_finish(subprocess, res, &err);
+    task_data->subprocess_running = false;
+    gint exit_status = g_subprocess_get_exit_status(subprocess);
+    g_warning("Exit status: %i", exit_status);
     g_object_unref(subprocess);
-    if(!io_res) {
-        g_warning("Subprocess failed");;
+    if(!io_res || exit_status != 0) {
+        g_warning("Subprocess failed.");
         g_task_return_boolean(task, false);
         if(err) {
             g_object_unref(err);
@@ -151,6 +155,7 @@ void launch_generator_async(GTask* task) {
             int should_run = task_data->subprocess_running;
             if(!should_run) {
                 g_object_unref(task);
+                g_warning("ProgressBar loop exits.");
             } else {
                 gtk_progress_bar_pulse(task_data->progress_bar);
             }
