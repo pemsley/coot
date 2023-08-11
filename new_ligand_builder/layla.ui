@@ -995,7 +995,7 @@ Paul Emsley</property>
         <property name="orientation">vertical</property>
         <property name="vexpand">true</property>
         <child>
-          <object class="GtkSpinner">
+          <object class="GtkSpinner" id="layla_generator_progress_dialog_spinner">
             <property name="spinning">true</property>
           </object>
         </child>

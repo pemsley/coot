@@ -15,6 +15,7 @@ struct GeneratorTaskData {
     GtkWindow* progress_dialog;
     GtkTextBuffer* stdout_ui_textbuffer;
     GtkLabel* dialog_status_label;
+    GtkSpinner* spinner;
 
     GSubprocess* subprocess;
     bool subprocess_running;
@@ -33,6 +34,7 @@ struct GeneratorTaskData {
             (GtkTextView*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_stdout_textview")
         );
         this->dialog_status_label = (GtkLabel*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_status_label");
+        this->spinner = (GtkSpinner*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_spinner");
         this->request = std::make_unique<GeneratorRequest>(request);
         this->file_contents = nullptr;
         this->subprocess = nullptr;
@@ -339,6 +341,7 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
     gtk_text_buffer_delete(task_data->stdout_ui_textbuffer, &start, &end); 
 
     gtk_label_set_text(task_data->dialog_status_label, "");
+    gtk_spinner_set_spinning(task_data->spinner, true);
 
     auto task_completed_callback = [](GObject* obj, GAsyncResult* res, gpointer user_data){
         g_warning("Task completed callback!");
@@ -372,6 +375,8 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
         gtk_widget_set_sensitive(GTK_WIDGET(cancel_button), FALSE);
         auto* accept_button = gtk_builder_get_object(global_layla_gtk_builder, "layla_apply_dialog_accept_button");
         gtk_widget_set_sensitive(GTK_WIDGET(accept_button), TRUE);
+
+        gtk_spinner_set_spinning(task_data->spinner, false);
     };
 
     GTask* task = g_task_new(dummy,cancellable,task_completed_callback, nullptr);
