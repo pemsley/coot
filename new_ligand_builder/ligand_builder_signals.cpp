@@ -1,6 +1,8 @@
 #include <gtk/gtk.h>
 #include "ligand_builder_state.hpp"
 #include "ligand_builder_generators.hpp"
+#include "ligand_editor_canvas.hpp"
+#include "ligand_editor_canvas/core.hpp"
 
 using namespace coot::ligand_editor;
 using namespace coot::ligand_editor_canvas;
@@ -37,16 +39,25 @@ layla_on_apply(GtkButton* button, gpointer user_data) {
     auto* monomer_id_combobox = gtk_builder_get_object(global_layla_gtk_builder,"layla_generator_monomer_id_combobox");
     auto* program_combobox = gtk_builder_get_object(global_layla_gtk_builder,"layla_generator_program_combobox");
     auto* input_format_combobox = gtk_builder_get_object(global_layla_gtk_builder,"layla_generator_input_format_combobox");
+    auto* molecule_combobox = gtk_builder_get_object(global_layla_gtk_builder,"layla_generator_molecule_combobox");
 
     auto set_default_value = [](GtkComboBox* cb){
         if(gtk_combo_box_get_active(cb) == -1) {
             gtk_combo_box_set_active(cb,0);
         }
     };
+    
+    gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(molecule_combobox));
+    CootLigandEditorCanvas* canvas = GET_CANVAS();
+    for(unsigned int i = 0; i != coot_ligand_editor_get_molecule_count(canvas); i++) {
+        std::string smiles = coot_ligand_editor_get_smiles_for_molecule(canvas, i);
+        gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(molecule_combobox), smiles.c_str());
+    }
 
     set_default_value(GTK_COMBO_BOX(monomer_id_combobox));
     set_default_value(GTK_COMBO_BOX(program_combobox));
     set_default_value(GTK_COMBO_BOX(input_format_combobox));
+    set_default_value(GTK_COMBO_BOX(molecule_combobox));
 }
 
 extern "C" G_MODULE_EXPORT
