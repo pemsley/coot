@@ -1,6 +1,7 @@
 #include "ligand_builder_generators.hpp"
 #include "ligand_builder_state.hpp"
 #include <cstddef>
+#include <cstring>
 #include <glib.h>
 #include <memory>
 #include <rdkit/GraphMol/RWMol.h>
@@ -15,6 +16,9 @@ struct GeneratorTaskData {
     GSubprocess* subprocess;
     bool subprocess_running;
 
+    GInputStream* input_stream;
+    std::unique_ptr<std::string> stdout_read;
+
     void initialize(coot::ligand_editor::GeneratorRequest&& request) {
         g_warning("void GeneratorTaskData::initialize() called.");
         
@@ -25,8 +29,9 @@ struct GeneratorTaskData {
         this->request = std::make_unique<GeneratorRequest>(request);
         this->file_contents = nullptr;
         this->subprocess = nullptr;
+        this->stdout_read = std::make_unique<std::string>();
+        this->input_stream = nullptr;
         this->subprocess_running = false;
-
     }
 
     void cleanup() {
@@ -34,8 +39,12 @@ struct GeneratorTaskData {
         if(this->subprocess) {
             g_object_unref(subprocess);
         }
+        if(this->input_stream) {
+            g_object_unref(input_stream);
+        }
         this->request.reset();
         this->file_contents.reset();
+        this->stdout_read.reset();
     }
 };
 
@@ -193,7 +202,7 @@ void resolve_target_generator_executable(GTask* task) {
 
 // Forward declaration
 void launch_generator_finish(GObject* subprocess_object, GAsyncResult* res, gpointer user_data);
-
+void pipe_reader(gpointer user_data);
 
 void launch_generator_async(GTask* task) {
     GCancellable* cancellable = g_task_get_cancellable(task);
@@ -221,6 +230,8 @@ void launch_generator_async(GTask* task) {
     }
     g_warning("Subprocess spawned!");
     task_data->subprocess = g_object_ref(subprocess);
+    GInputStream* input_stream = g_subprocess_get_stdout_pipe(subprocess);
+    task_data->input_stream = input_stream;
     task_data->subprocess_running = true;
     g_subprocess_wait_check_async(subprocess, cancellable, launch_generator_finish, task);
     g_timeout_add(50, [](gpointer user_data){
@@ -235,7 +246,50 @@ void launch_generator_async(GTask* task) {
         }
         return should_run;
     }, g_object_ref(task));
+
+    g_idle_add_once(pipe_reader, g_object_ref(task));
 }
+
+void pipe_reader(gpointer user_data) {
+    GTask* task = G_TASK(user_data);
+    GCancellable* cancellable = g_task_get_cancellable(task);
+    GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
+    auto callback = [](GObject* obj, GAsyncResult* res, gpointer user_data){
+        GTask* task = G_TASK(user_data);
+        GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
+        GInputStream* stream = G_INPUT_STREAM(obj);
+        GError* err = NULL;
+        GBytes* bytes = g_input_stream_read_bytes_finish(stream, res, &err);
+        bool should_go_on = true;
+        if(err) {
+            g_warning("Stream reading operation ended due to error: %s", err->message);
+            g_error_free(err);
+            should_go_on = false;
+        }
+        if(bytes) {
+            auto size = g_bytes_get_size(bytes);
+            if(size == 0) {
+                g_warning("Stream reading operation ended due to EOF");
+                should_go_on = false;
+            } else {
+                std::string buf;
+                buf.reserve(size + 1);
+                memcpy(buf.data(), g_bytes_get_data(bytes, NULL), size);
+                *(buf.data() + size) = (char) 0;
+                g_debug("Read this: %s", buf.c_str());
+                (*task_data->stdout_read) += buf;
+            }
+            g_bytes_unref(bytes);
+        }
+        if(should_go_on) {
+            g_idle_add_once(pipe_reader, task);
+        } else {
+            g_object_unref(task);
+        }
+    };
+    g_input_stream_read_bytes_async(task_data->input_stream, 4, G_PRIORITY_DEFAULT, cancellable, callback, g_object_ref(task));
+    g_object_unref(task);
+};
 
 void launch_generator_finish(GObject* subprocess_object, GAsyncResult* res, gpointer user_data) {
     GTask* task = G_TASK(user_data);
