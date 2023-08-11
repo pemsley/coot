@@ -121,7 +121,7 @@ void launch_generator_finish(GObject* subprocess_object, GAsyncResult* res, gpoi
         }
         return;
     } 
-    g_warning("Subprocess ok.");
+    g_warning("Subprocess exited ok.");
     g_task_return_boolean(task, true);
 }
 
