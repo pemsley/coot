@@ -46,14 +46,14 @@ void write_input_file_finish(GObject* file_object, GAsyncResult* res, gpointer u
     g_object_unref(file);
     if(!file_io_res) {
         g_warning("Write failed");
-        //g_task_return_boolean(G_TASK(res), false);
+        g_task_return_boolean(task, false);
         //todo: cleanup memory
         return;
     } 
     g_warning("Write ok.");
     // todo: implement
     resolve_target_generator_executable();
-    //g_task_return_boolean(G_TASK(res), true);
+    g_task_return_boolean(task, true);
 }
 
 std::string coot::ligand_editor::GeneratorRequest::get_filename() const {
