@@ -95,7 +95,6 @@ void write_input_file_async(GTask* task) {
         case InputFormat::MolFile: {
             RDKit::RWMol* mol = RDKit::SmilesToMol(task_data->request->molecule_smiles);
             file_contents = RDKit::MolToMolBlock(*mol);
-            g_error("MolFile: TODO");
             break;
         }
         default:
