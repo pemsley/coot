@@ -152,8 +152,7 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
 
     g_warning("Implement 'Apply'");
 
-    g_timeout_add_once(1000, [](gpointer user_data){
-        g_warning("1 second elapsed.");
+    g_idle_add_once([](gpointer user_data){
         write_input_file_async(G_TASK(user_data));
     }, task);
     
