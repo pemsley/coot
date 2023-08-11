@@ -111,28 +111,89 @@ std::vector<std::string> coot::ligand_editor::GeneratorRequest::build_commandlin
     return ret;
 }
 
-void launch_generator_finish(GObject* subprocess_object, GAsyncResult* res, gpointer user_data) {
-    GTask* task = G_TASK(user_data);
+
+// Forward declaration
+void write_input_file_finish(GObject* file_object, GAsyncResult* res, gpointer user_data);
+
+void write_input_file_async(GTask* task) {
+    GCancellable* cancellable = g_task_get_cancellable(task);
     GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
-    GSubprocess* subprocess = G_SUBPROCESS(subprocess_object);
-    GError* err = NULL;
-    bool io_res = g_subprocess_wait_check_finish(subprocess, res, &err);
-    task_data->subprocess_running = false;
-    gint exit_status = g_subprocess_get_exit_status(subprocess);
-    g_warning("Exit status: %i", exit_status);
-    g_object_unref(subprocess);
-    if(!io_res || exit_status != 0) {
-        g_warning("Subprocess failed.");
-        if(err) {
-            g_task_return_error(task, err);
-        } else {
-            g_task_return_boolean(task, false);
+    std::string file_contents;
+    std::string file_name = task_data->request->get_filename();
+
+    using InputFormat = coot::ligand_editor::GeneratorRequest::InputFormat;
+    switch(task_data->request->input_format) {
+        case InputFormat::MolFile: {
+            RDKit::RWMol* mol = RDKit::SmilesToMol(task_data->request->molecule_smiles);
+            file_contents = RDKit::MolToMolBlock(*mol);
+            break;
         }
-        return;
-    } 
-    g_warning("Subprocess exited ok.");
-    g_task_return_boolean(task, true);
+        default:
+        case InputFormat::SMILES: {
+            file_contents = task_data->request->molecule_smiles;
+            break;
+        }
+    }
+    GFile* file = g_file_new_for_path(file_name.c_str());
+    task_data->file_contents = std::make_unique<std::string>(std::move(file_contents));
+
+    g_file_replace_contents_async(
+        file, 
+        task_data->file_contents->c_str(), 
+        task_data->file_contents->size(), 
+        NULL, 
+        FALSE, 
+        G_FILE_CREATE_REPLACE_DESTINATION, 
+        cancellable, 
+        write_input_file_finish, 
+        task
+    );
 }
+
+// Forward declaration
+void resolve_target_generator_executable(GTask* task);
+
+void write_input_file_finish(GObject* file_object, GAsyncResult* res, gpointer user_data) {
+    GTask* task = G_TASK(user_data);
+    GFile* file = G_FILE(file_object);
+    GError* err = NULL;
+    bool file_io_res = g_file_replace_contents_finish(file, res, NULL, &err);
+    g_object_unref(file);
+    if(!file_io_res) {
+        g_warning("Write failed");
+        g_task_return_error(task, err);
+        return;
+    }
+    g_warning("Write ok.");
+    resolve_target_generator_executable(task);
+}
+
+// Forward declaration
+void launch_generator_async(GTask* task);
+
+void resolve_target_generator_executable(GTask* task) {
+    GCancellable* cancellable = g_task_get_cancellable(task);
+    GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
+    using Generator = coot::ligand_editor::GeneratorRequest::Generator;
+
+    switch(task_data->request->generator) {
+        default:
+        case Generator::Acedrg: {
+            g_warning("todo: Implement resolving acedrg executable");
+            task_data->request->executable_path = "acedrg";
+            break;
+        }
+        case Generator::Grade2: {
+            g_error("todo: Implement resolving Grade2 executable");
+            break;
+        }
+    }
+    launch_generator_async(task);
+}
+
+// Forward declaration
+void launch_generator_finish(GObject* subprocess_object, GAsyncResult* res, gpointer user_data);
+
 
 void launch_generator_async(GTask* task) {
     GCancellable* cancellable = g_task_get_cancellable(task);
@@ -176,76 +237,27 @@ void launch_generator_async(GTask* task) {
     }, g_object_ref(task));
 }
 
-
-
-void resolve_target_generator_executable(GTask* task) {
-    GCancellable* cancellable = g_task_get_cancellable(task);
-    GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
-    using Generator = coot::ligand_editor::GeneratorRequest::Generator;
-
-    switch(task_data->request->generator) {
-        default:
-        case Generator::Acedrg: {
-            g_warning("todo: Implement resolving acedrg executable");
-            task_data->request->executable_path = "acedrg";
-            break;
-        }
-        case Generator::Grade2: {
-            g_error("todo: Implement resolving Grade2 executable");
-            break;
-        }
-    }
-    launch_generator_async(task);
-}
-
-void write_input_file_finish(GObject* file_object, GAsyncResult* res, gpointer user_data) {
+void launch_generator_finish(GObject* subprocess_object, GAsyncResult* res, gpointer user_data) {
     GTask* task = G_TASK(user_data);
-    GFile* file = G_FILE(file_object);
-    GError* err = NULL;
-    bool file_io_res = g_file_replace_contents_finish(file, res, NULL, &err);
-    g_object_unref(file);
-    if(!file_io_res) {
-        g_warning("Write failed");
-        g_task_return_error(task, err);
-        return;
-    }
-    g_warning("Write ok.");
-    resolve_target_generator_executable(task);
-}
-
-void write_input_file_async(GTask* task) {
-    GCancellable* cancellable = g_task_get_cancellable(task);
     GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
-    std::string file_contents;
-    std::string file_name = task_data->request->get_filename();
-
-    using InputFormat = coot::ligand_editor::GeneratorRequest::InputFormat;
-    switch(task_data->request->input_format) {
-        case InputFormat::MolFile: {
-            RDKit::RWMol* mol = RDKit::SmilesToMol(task_data->request->molecule_smiles);
-            file_contents = RDKit::MolToMolBlock(*mol);
-            break;
+    GSubprocess* subprocess = G_SUBPROCESS(subprocess_object);
+    GError* err = NULL;
+    bool io_res = g_subprocess_wait_check_finish(subprocess, res, &err);
+    task_data->subprocess_running = false;
+    gint exit_status = g_subprocess_get_exit_status(subprocess);
+    g_warning("Exit status: %i", exit_status);
+    g_object_unref(subprocess);
+    if(!io_res || exit_status != 0) {
+        g_warning("Subprocess failed.");
+        if(err) {
+            g_task_return_error(task, err);
+        } else {
+            g_task_return_boolean(task, false);
         }
-        default:
-        case InputFormat::SMILES: {
-            file_contents = task_data->request->molecule_smiles;
-            break;
-        }
-    }
-    GFile* file = g_file_new_for_path(file_name.c_str());
-    task_data->file_contents = std::make_unique<std::string>(std::move(file_contents));
-
-    g_file_replace_contents_async(
-        file, 
-        task_data->file_contents->c_str(), 
-        task_data->file_contents->size(), 
-        NULL, 
-        FALSE, 
-        G_FILE_CREATE_REPLACE_DESTINATION, 
-        cancellable, 
-        write_input_file_finish, 
-        task
-    );
+        return;
+    } 
+    g_warning("Subprocess exited ok.");
+    g_task_return_boolean(task, true);
 }
 
 GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest request) {
