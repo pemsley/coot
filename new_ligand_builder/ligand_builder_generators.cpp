@@ -93,6 +93,8 @@ void write_input_file_async(GTask* task) {
     using InputFormat = coot::ligand_editor::GeneratorRequest::InputFormat;
     switch(task_data->request->input_format) {
         case InputFormat::MolFile: {
+            RDKit::RWMol* mol = RDKit::SmilesToMol(task_data->request->molecule_smiles);
+            file_contents = RDKit::MolToMolBlock(*mol);
             g_error("MolFile: TODO");
             break;
         }
@@ -102,7 +104,6 @@ void write_input_file_async(GTask* task) {
             break;
         }
     }
-    //RDKit::RWMol* mol = RDKit::SmilesToMol(task_data->request->molecule_smiles);
     GFile* file = g_file_new_for_path(file_name.c_str());
     g_file_replace_contents_async(
         file, 
