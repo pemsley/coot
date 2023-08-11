@@ -952,12 +952,30 @@ Paul Emsley</property>
           </object>
         </child>
         <child>
+          <object class="GtkLabel">
+            <property name="label">Molecule:</property>
+            <layout>
+              <property name="row">3</property>
+              <property name="column">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="layla_generator_molecule_combobox">
+            <layout>
+              <property name="column">1</property>
+              <property name="row">3</property>
+              <property name="column-span">2</property>
+            </layout>
+          </object>
+        </child>
+        <child>
           <object class="GtkButton" id="layla_apply_dialog_accept_button">
             <property name="label">Accept</property>
             <signal name="clicked" swapped="false" handler="layla_on_apply_dialog_accepted"></signal>
             <layout>
               <property name="column">2</property>
-              <property name="row">3</property>
+              <property name="row">4</property>
             </layout>
           </object>
         </child>
