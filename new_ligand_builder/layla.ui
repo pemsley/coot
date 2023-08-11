@@ -1001,9 +1001,25 @@ Paul Emsley</property>
         </child>
         <child>
           <object class="GtkProgressBar" id="layla_generator_progress_dialog_progress_bar">
-            <property name="vexpand">true</property>
             <property name="show-text">true</property>
             <property name="text">Generation in progress...</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkExpander">
+            <property name="vexpand">true</property>
+            <property name="label">Stdout of child process</property>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="vexpand">true</property>
+                <child>
+                  <object class="GtkTextView" id="layla_generator_progress_dialog_stdout_textview">
+                    <property name="editable">false</property>
+                    <property name="monospace">true</property>
+                  </object>
+                </child>
+              </object>
+            </child>
           </object>
         </child>
         <child>

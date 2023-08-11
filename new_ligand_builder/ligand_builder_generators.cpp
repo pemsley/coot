@@ -13,6 +13,7 @@ struct GeneratorTaskData {
     std::unique_ptr<std::string> file_contents;
     GtkProgressBar* progress_bar;
     GtkWindow* progress_dialog;
+    GtkTextBuffer* stdout_ui_textbuffer;
     GSubprocess* subprocess;
     bool subprocess_running;
 
@@ -26,6 +27,9 @@ struct GeneratorTaskData {
 
         this->progress_bar = (GtkProgressBar*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_progress_bar");
         this->progress_dialog = (GtkWindow*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog");
+        this->stdout_ui_textbuffer = gtk_text_view_get_buffer(
+            (GtkTextView*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_stdout_textview")
+        );
         this->request = std::make_unique<GeneratorRequest>(request);
         this->file_contents = nullptr;
         this->subprocess = nullptr;
@@ -278,6 +282,9 @@ void pipe_reader(gpointer user_data) {
                 *(buf.data() + size) = (char) 0;
                 g_debug("Read this: %s", buf.c_str());
                 (*task_data->stdout_read) += buf;
+                GtkTextIter iter;
+                gtk_text_buffer_get_end_iter(task_data->stdout_ui_textbuffer, &iter);
+                gtk_text_buffer_insert(task_data->stdout_ui_textbuffer, &iter, buf.c_str(), -1);
             }
             g_bytes_unref(bytes);
         }
@@ -319,6 +326,11 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
     GCancellable* cancellable = g_cancellable_new();
     GeneratorTaskData* task_data = g_slice_new0(GeneratorTaskData);
     task_data->initialize(std::move(request));
+
+    GtkTextIter start, end;
+    gtk_text_buffer_get_end_iter(task_data->stdout_ui_textbuffer, &end);
+    gtk_text_buffer_get_start_iter(task_data->stdout_ui_textbuffer, &start);
+    gtk_text_buffer_delete(task_data->stdout_ui_textbuffer, &start, &end); 
 
     auto task_completed_callback = [](GObject* obj, GAsyncResult* res, gpointer user_data){
         g_warning("Task completed callback!");
