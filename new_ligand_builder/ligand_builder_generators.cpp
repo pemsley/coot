@@ -14,6 +14,8 @@ struct GeneratorTaskData {
     GtkProgressBar* progress_bar;
     GtkWindow* progress_dialog;
     GtkTextBuffer* stdout_ui_textbuffer;
+    GtkLabel* dialog_status_label;
+
     GSubprocess* subprocess;
     bool subprocess_running;
 
@@ -30,6 +32,7 @@ struct GeneratorTaskData {
         this->stdout_ui_textbuffer = gtk_text_view_get_buffer(
             (GtkTextView*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_stdout_textview")
         );
+        this->dialog_status_label = (GtkLabel*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_status_label");
         this->request = std::make_unique<GeneratorRequest>(request);
         this->file_contents = nullptr;
         this->subprocess = nullptr;
@@ -149,6 +152,7 @@ void write_input_file_async(GTask* task) {
     }
     GFile* file = g_file_new_for_path(file_name.c_str());
     task_data->file_contents = std::make_unique<std::string>(std::move(file_contents));
+    gtk_label_set_text(task_data->dialog_status_label, "Writing input file...");
 
     g_file_replace_contents_async(
         file, 
@@ -168,6 +172,7 @@ void resolve_target_generator_executable(GTask* task);
 
 void write_input_file_finish(GObject* file_object, GAsyncResult* res, gpointer user_data) {
     GTask* task = G_TASK(user_data);
+    GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
     GFile* file = G_FILE(file_object);
     GError* err = NULL;
     bool file_io_res = g_file_replace_contents_finish(file, res, NULL, &err);
@@ -178,6 +183,7 @@ void write_input_file_finish(GObject* file_object, GAsyncResult* res, gpointer u
         return;
     }
     g_warning("Write ok.");
+    gtk_label_set_text(task_data->dialog_status_label, "Input file has been written.");
     resolve_target_generator_executable(task);
 }
 
@@ -211,7 +217,6 @@ void pipe_reader(gpointer user_data);
 void launch_generator_async(GTask* task) {
     GCancellable* cancellable = g_task_get_cancellable(task);
     GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
-    //todo: implement me
     GSubprocessLauncher* launcher = g_subprocess_launcher_new(G_SUBPROCESS_FLAGS_STDOUT_PIPE);
     std::vector<std::string> argv = task_data->request->build_commandline();
     gsize slice_size = sizeof(gchar*) * (argv.size() + 1);
@@ -238,6 +243,7 @@ void launch_generator_async(GTask* task) {
     task_data->input_stream = input_stream;
     task_data->subprocess_running = true;
     g_subprocess_wait_check_async(subprocess, cancellable, launch_generator_finish, task);
+    gtk_label_set_text(task_data->dialog_status_label, "Child process has been launched.");
     g_timeout_add(50, [](gpointer user_data){
         GTask* task = G_TASK(user_data);
         GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
@@ -332,19 +338,24 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
     gtk_text_buffer_get_start_iter(task_data->stdout_ui_textbuffer, &start);
     gtk_text_buffer_delete(task_data->stdout_ui_textbuffer, &start, &end); 
 
+    gtk_label_set_text(task_data->dialog_status_label, "");
+
     auto task_completed_callback = [](GObject* obj, GAsyncResult* res, gpointer user_data){
         g_warning("Task completed callback!");
         GTask* task = G_TASK(res);
         GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(task);
-        gtk_window_close(task_data->progress_dialog);
         // todo: cleanup after child process (if any) and report results
         GError* err = NULL;
         if(!g_task_propagate_boolean(task, &err)) {
             if(err) {
+                std::string label_text = "Operation failed: ";
+                label_text += err->message;
+                gtk_label_set_text(task_data->dialog_status_label, label_text.c_str());
                 g_warning("Task failed. Error: %s", err->message);
                 g_error_free(err);
             }
         } else {
+            gtk_label_set_text(task_data->dialog_status_label, "Operation completed successfully!");
             g_warning("Task finished successfully!");
         }
 
@@ -357,6 +368,8 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
         g_object_unref(global_generator_request_task_cancellable);
         global_generator_request_task_cancellable = nullptr;
         // Apply necessary UI changes after the task is done
+        auto* cancel_button = gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_cancel_button");
+        gtk_widget_set_sensitive(GTK_WIDGET(cancel_button), FALSE);
         auto* accept_button = gtk_builder_get_object(global_layla_gtk_builder, "layla_apply_dialog_accept_button");
         gtk_widget_set_sensitive(GTK_WIDGET(accept_button), TRUE);
     };

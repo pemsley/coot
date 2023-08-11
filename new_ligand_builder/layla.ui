@@ -1023,6 +1023,11 @@ Paul Emsley</property>
           </object>
         </child>
         <child>
+          <object class="GtkLabel" id="layla_generator_progress_dialog_status_label">
+
+          </object>
+        </child>
+        <child>
           <object class="GtkButton" id="layla_generator_progress_dialog_cancel_button">
             <property name="label">Cancel</property>
             <signal name="clicked" swapped="false" handler="on_layla_generator_progress_dialog_cancelled"></signal>

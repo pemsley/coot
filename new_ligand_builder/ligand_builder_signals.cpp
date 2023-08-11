@@ -130,10 +130,12 @@ layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
     //todo: handle global_generator_request_task_cancellable
 
     auto* accept_button = gtk_builder_get_object(global_layla_gtk_builder, "layla_apply_dialog_accept_button");
+    gtk_widget_set_sensitive(GTK_WIDGET(accept_button), FALSE);
+    auto* cancel_button = gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_cancel_button");
+    gtk_widget_set_sensitive(GTK_WIDGET(cancel_button), TRUE);
     auto* progress_dialog = gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog");
     gtk_window_present(GTK_WINDOW(progress_dialog));
     global_generator_request_task_cancellable = run_generator_request(request);
-    gtk_widget_set_sensitive(GTK_WIDGET(accept_button), FALSE);
 }
 
 extern "C" G_MODULE_EXPORT
