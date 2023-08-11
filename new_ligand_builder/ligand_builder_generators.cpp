@@ -90,20 +90,21 @@ std::vector<std::string> coot::ligand_editor::GeneratorRequest::build_commandlin
         case Generator::Acedrg: {
             switch(input_format) {
                 case InputFormat::MolFile: {
-                    g_error("Todo: implement molfile for acedrg");
+                    ret.push_back("-m");
+                    ret.push_back(input_filename);
                     break;
                 }
                 default:
                 case InputFormat::SMILES: {
                     ret.push_back("-i");
                     ret.push_back(input_filename);
-                    ret.push_back("-r");
-                    ret.push_back(this->monomer_id);
-                    ret.push_back("-o");
-                    ret.push_back(std::string("acedrg-") + this->monomer_id);
                     break;
                 }
             }
+            ret.push_back("-r");
+            ret.push_back(this->monomer_id);
+            ret.push_back("-o");
+            ret.push_back(std::string("acedrg-") + this->monomer_id);
             break;
         }
     }
