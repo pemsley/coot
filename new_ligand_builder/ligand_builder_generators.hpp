@@ -16,6 +16,9 @@ struct GeneratorRequest {
         Grade2
     } generator;
     std::string monomer_id;
+    std::string molecule_smiles;
+
+    std::string get_filename() const;
 };
 
 inline GCancellable* global_generator_request_task_cancellable;

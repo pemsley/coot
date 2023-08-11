@@ -2,6 +2,9 @@
 #include "ligand_builder_state.hpp"
 #include <glib.h>
 #include <memory>
+#include <rdkit/GraphMol/RWMol.h>
+#include <rdkit/GraphMol/SmilesParse/SmilesParse.h>
+#include <rdkit/GraphMol/FileParsers/FileParsers.h>
 
 struct GeneratorTaskData {
     std::unique_ptr<coot::ligand_editor::GeneratorRequest> request;
@@ -35,14 +38,83 @@ void resolve_target_generator_executable() {
     launch_generator();
 }
 
-void write_input_file_finish() {
-    // todo: this currently never called
+void write_input_file_finish(GObject* file_object, GAsyncResult* res, gpointer user_data) {
+    GTask* task = G_TASK(user_data);
+    GFile* file = G_FILE(file_object);
+    GError* err;
+    bool file_io_res = g_file_replace_contents_finish(file, res, NULL, &err);
+    g_object_unref(file);
+    if(!file_io_res) {
+        g_warning("Write failed");
+        //g_task_return_boolean(G_TASK(res), false);
+        //todo: cleanup memory
+        return;
+    } 
+    g_warning("Write ok.");
+    // todo: implement
     resolve_target_generator_executable();
+    //g_task_return_boolean(G_TASK(res), true);
+}
+
+std::string coot::ligand_editor::GeneratorRequest::get_filename() const {
+    std::string file_name;
+    switch(generator) {
+        case Generator::Grade2: {
+            file_name = "grade2-";
+            break;
+        }
+        default:
+        case Generator::Acedrg: {
+            file_name = "acedrg-";
+            break;
+        }
+    }
+    file_name += monomer_id;
+    switch(input_format) {
+        case InputFormat::MolFile: {
+            file_name += ".mol";
+            break;
+        }
+        default:
+        case InputFormat::SMILES: {
+            file_name += ".smi";
+            break;
+        }
+    }
+    return file_name;
 }
 
 void write_input_file_async(GTask* task) {
     GCancellable* cancellable = g_task_get_cancellable(task);
-    g_task_return_boolean(task, true);
+    GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
+    std::string file_contents;
+    std::string file_name = task_data->request->get_filename();
+
+    using InputFormat = coot::ligand_editor::GeneratorRequest::InputFormat;
+    switch(task_data->request->input_format) {
+        case InputFormat::MolFile: {
+            g_error("MolFile: TODO");
+            break;
+        }
+        default:
+        case InputFormat::SMILES: {
+            file_contents = task_data->request->molecule_smiles;
+            break;
+        }
+    }
+    //RDKit::RWMol* mol = RDKit::SmilesToMol(task_data->request->molecule_smiles);
+    GFile* file = g_file_new_for_path(file_name.c_str());
+    g_file_replace_contents_async(
+        file, 
+        file_contents.c_str(), 
+        file_contents.size(), 
+        NULL, 
+        FALSE, 
+        G_FILE_CREATE_REPLACE_DESTINATION, 
+        cancellable, 
+        write_input_file_finish, 
+        task
+    );
 }
 
 GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest request) {

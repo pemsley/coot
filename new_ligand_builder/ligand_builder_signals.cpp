@@ -105,6 +105,14 @@ layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
     auto* input_format_combobox = gtk_builder_get_object(global_layla_gtk_builder,"layla_generator_input_format_combobox");
     auto input_format_name = std::string(gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(input_format_combobox)));
 
+    auto* molecule_combobox = gtk_builder_get_object(global_layla_gtk_builder,"layla_generator_molecule_combobox");
+    const auto* molecule_smiles_cstr = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(molecule_combobox));
+    std::string molecule_smiles;
+    if(molecule_smiles_cstr) {
+        molecule_smiles = molecule_smiles_cstr;
+    }
+    request.molecule_smiles = std::move(molecule_smiles);
+
     if(program_name == "Grade2") {
         request.generator = GeneratorRequest::Generator::Grade2;
     } else {
