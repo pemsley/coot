@@ -3913,6 +3913,8 @@ molecule_class_info_t::set_atom_radius_scale_factor(float sf) {
 std::vector<glm::vec4>
 molecule_class_info_t::make_colour_table() const {
 
+   bool debug_colour_table = false;
+
    float goodselliness = graphics_info_t::goodselliness;
 
    // 20220214-PE does this matter (is it useful?) now with modern graphics?
@@ -3977,15 +3979,6 @@ molecule_class_info_t::make_colour_table() const {
       colour_table = std::vector<glm::vec4>(bonds_box.n_consolidated_atom_centres, glm::vec4(0.6f, 0.0f, 0.6f, 1.0f));
    }
 
-   if (false) {
-      for (unsigned int icol=0; icol<colour_table.size(); icol++) {
-         float s = colour_table[icol][0] + colour_table[icol][1] + colour_table[icol][2];
-         // if (icol == 50)
-         // colour_table[icol] = glm::vec4(0.0, 0.1, 0.0, 1.0);
-         std::cout << "colour-table index " << icol << " " << glm::to_string(colour_table[icol]) << " " << s << std::endl;
-      }
-   }
-
    auto pastelize = [] (glm::vec4 &col, float degree) {
                        for (unsigned int i=0; i<3; i++) {
                           const float &cc = col[i];
@@ -4002,6 +3995,18 @@ molecule_class_info_t::make_colour_table() const {
          pastelize(col, degree); //ref
       }
    }
+
+   if (debug_colour_table) {
+      std::cout << "------------ colour table for bonds_box_type " << bonds_box_type << " --------------------" << std::endl;
+      for (unsigned int icol=0; icol<colour_table.size(); icol++) {
+         graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[icol];
+         int n_bonds = ll.num_lines;
+         float s = colour_table[icol][0] + colour_table[icol][1] + colour_table[icol][2];
+         std::cout << "colour-table index " << std::setw(2) << icol << " n-bonds: " << std::setw(4) << n_bonds << " "
+                   << glm::to_string(colour_table[icol]) << " br: " << s << std::endl;
+      }
+   }
+
    return colour_table;
 }
 

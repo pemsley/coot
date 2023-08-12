@@ -3104,6 +3104,45 @@ int test_bucca_ml_growing(molecules_container_t &mc) {
    return status;
 }
 
+int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   auto v = mc.get_colour_rules(imol);
+   if (false) {
+      std::cout << "colour rules: " << std::endl;
+      std::cout << "-------------" << std::endl;
+      for (unsigned int i=0; i<v.size(); i++) {
+         std::cout << i << " " << v[i].first << " " << v[i].second << std::endl;
+      }
+      std::cout << "-------------" << std::endl;
+   }
+
+   std::map<unsigned int, std::array<float, 3> > colour_index_map;
+   colour_index_map[12] = {1,0,1};
+   colour_index_map[13] = {0,1,1};
+   colour_index_map[14] = {0,0,1};
+   colour_index_map[15] = {0.7,0.7,0};
+
+   mc.set_user_defined_bond_colours(imol, colour_index_map);
+   std::vector<std::pair<std::string, unsigned int> > indexed_cids;
+   indexed_cids.push_back(std::make_pair("//A/1-20",   12));
+   indexed_cids.push_back(std::make_pair("//A/22-36",  13));
+   indexed_cids.push_back(std::make_pair("//A/46-80",  14));
+   indexed_cids.push_back(std::make_pair("//A/90-180", 15));
+   mc.set_user_defined_atom_colour_by_residue(imol, indexed_cids);
+
+   std::string mode = "USER-DEFINED-COLOURS";
+
+   auto bonds = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
+
+   return status;
+
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3230,6 +3269,8 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
+   status += run_test(test_user_defined_bond_colours_v2, "user-defined bond colours v2", mc);
+
    // status += run_test(test_ramachandran_analysis, "--- current_test ---", mc);
 
    // status += run_test(test_undo_and_redo, "undo and redo", mc);
@@ -3260,7 +3301,7 @@ int main(int argc, char **argv) {
 
    // status = run_test(test_instanced_bonds_mesh, "instanced_bonds", mc);
 
-   status = run_test(test_svg, "svg string", mc);
+   // status = run_test(test_svg, "svg string", mc);
 
    // status = run_test(test_superpose, "SSM superpose ", mc);
 
