@@ -1432,6 +1432,7 @@ Mesh::draw_instanced(Shader *shader_p,
 
    std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
    float time = std::chrono::duration_cast<std::chrono::milliseconds>(now - time_constructed).count();
+
    // std::cout << "sending time " << time << std::endl;
    shader_p->set_float_for_uniform("time", time);
 

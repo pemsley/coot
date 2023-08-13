@@ -3560,7 +3560,7 @@ void draw_map_molecule(bool draw_transparent_maps,
 					       bool wag_the_dog,
 					       coot::protein_geometry *geom);
 
-   void set_user_defined_colour_indices_by_residues(const std::vector<std::pair<coot::residue_spec_t, int> > &cis);
+   void set_user_defined_colour_indices_by_selections(const std::vector<std::pair<std::string, unsigned int> > &cis);
    void set_user_defined_colour_indices(const std::vector<std::pair<coot::atom_spec_t, int> > &cis);
    void clear_user_defined_atom_colours();
 
@@ -3626,16 +3626,13 @@ void draw_map_molecule(bool draw_transparent_maps,
    void resolve_clashing_sidechains_by_rebuilding(const coot::protein_geometry *geom_p,
                                                   int imol_refinement_map);
 
-#ifndef EMSCRIPTEN
    static int watch_mtz(gpointer data); // return 0 to stop watching
    bool continue_watching_mtz;
    updating_map_params_t updating_map_previous;
    int update_map_from_mtz_if_changed(const updating_map_params_t &rump);
    void update_self_from_file(const std::string &file_name);
    void update_self(const coot::mtz_to_map_info_t &mmi);
-#endif
 
-#ifndef EMSCRIPTEN
    static int watch_coordinates_file(gpointer data);
    bool continue_watching_coordinates_file;
    updating_coordinates_molecule_parameters_t updating_coordinates_molecule_previous;
@@ -3651,7 +3648,6 @@ void draw_map_molecule(bool draw_transparent_maps,
                                                               // a change in the maps, not (as above) where a
                                                               // map molecule looks for a change in the model.
                                                               // In this case, both maps are calculated together.
-#endif
 
    int previous_backup_index;
    int other_molecule_backup_index;
@@ -3712,9 +3708,9 @@ void draw_map_molecule(bool draw_transparent_maps,
    void set_colour_map_using_other_map(bool state) {
       colour_map_using_other_map_flag = state;
    }
-#ifndef EMSCRIPTEN
+
    GdkRGBA position_to_colour_using_other_map(const clipper::Coord_orth &position);
-#endif
+
 
    coot::density_contour_triangles_container_t export_molecule_as_x3d() const;
    bool export_molecule_as_obj(const std::string &file_name);
@@ -3738,13 +3734,13 @@ void draw_map_molecule(bool draw_transparent_maps,
    // and instanced_meshes are drawn with draw_instanced_meshes().
    //
    // these are for specific molecule-based objects using regular Mesh
-#ifndef EMSCRIPTEN
+
    std::vector<Mesh> meshes;
    // these are for specific molecule-based objects using instancing Mesh
    std::vector<Instanced_Markup_Mesh> instanced_meshes;
    Instanced_Markup_Mesh &find_or_make_new(const std::string &mesh_name);
    Mesh mesh_for_symmetry_atoms;
-#endif
+
    // And now symmetry atoms are displayed as a Mesh
    bool this_molecule_has_crystallographic_symmetry;
 
@@ -3758,7 +3754,19 @@ void draw_map_molecule(bool draw_transparent_maps,
 
    static glm::vec4 get_glm_colour_func(int idx_col, int bonds_box_type);
 
-#ifndef EMSCRIPTEN
+   // date user-defined colours that come together with the instanced bonds.
+   // adding colours using the functions below add into user_defined_colours
+   std::vector<coot::colour_holder> user_defined_bond_colours;
+
+   //! user-defined colour-index to colour
+   //! (internallly, this converts the `colour_map` to the above vector of colour holders, so it's probably a good idea
+   //! if the colour (index) keys are less than 200 or so.
+   void set_user_defined_bond_colours(const std::map<unsigned int, std::array<float, 3> > &colour_map);
+
+   //! user-defined atom selection to colour index
+   void set_user_defined_atom_colour_by_selection(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
+                                                  bool apply_to_non_carbon_atoms);
+
    void make_mesh_from_bonds_box();
    void make_meshes_from_bonds_box_instanced_version(); // fills the below meshes (for instancing)
    void set_material_in_molecules_as_mesh(const Material &material) {
@@ -3785,7 +3793,7 @@ void draw_map_molecule(bool draw_transparent_maps,
                       const glm::vec3 &eye_position,
                       const glm::vec4 &background_colour,
                       bool do_depth_fog);
-#endif
+
 
    // float scale_factor 4 , float offset 3
    void recolour_ribbon_by_map(const clipper::Xmap<float> &xmap, float scale_factor, float offset);

@@ -809,8 +809,9 @@ graphics_info_t::draw_model_molecules() {
       if (! m.draw_it) continue;
 
       // I think that this is for the instanced meshes.
-      // Shader &shader_p = shader_for_model_as_meshes; // is this actually instanced meshes?
-      // m.draw_molecule_as_meshes(&shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
+      //
+      Shader &shader_p = shader_for_instanced_objects;
+      m.draw_molecule_as_meshes(&shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
 
       if (show_symmetry) {
          Shader &symm_shader_p = shader_for_symmetry_atoms_bond_lines;
@@ -835,11 +836,11 @@ graphics_info_t::draw_model_molecules() {
          float lw = m.get_bond_thickness(); // returns an int.
          m.molecule_as_mesh.draw_simple_bond_lines(&shader_for_symmetry_atoms_bond_lines, mvp, bgc, lw, shader_do_depth_fog_flag);
       } else {
-         // std::cout << "drawing model " << ii << std::endl;
+#if 0 // the molecule_as_mesh is not filled at the moment, because the bond generation is now on the instanced path.
          m.molecule_as_mesh.draw(shader_p, mvp, model_rotation, lights, eye_position, opacity, bgc,
-                                 wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
+                                  wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
+#endif
       }
-
       m.draw_dots(&shader_for_rama_balls, mvp, model_rotation, lights, eye_position,
                      bgc, shader_do_depth_fog_flag);
 

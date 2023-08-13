@@ -79,7 +79,7 @@ Mesh::make_graphical_bonds_spherical_atoms_instanced_version(Shader *shader_p,
                                                              float atom_radius,
                                                              float bond_radius,
                                                              unsigned int num_subdivisions,
-                                                             glm::vec4 (*get_glm_colour_for_bonds_func) (int, int)) {
+                                                             const std::vector<glm::vec4> &colour_table) {
 
    // udd_handle_bonded_type can be NO_BOND, BONDED_WITH_STANDARD_ATOM_BOND, BONDED_WITH_BOND_TO_HYDROGEN
    // BONDED_WITH_HETATM_BOND.
@@ -87,9 +87,6 @@ Mesh::make_graphical_bonds_spherical_atoms_instanced_version(Shader *shader_p,
    GLenum err = glGetError();
    if (err) std::cout << "error make_graphical_bonds_spherical_atoms() --start-- error "
                       << err << std::endl;
-
-   // do these need to be passed to get_glm_colour_for_bonds()?
-   int bonds_box_type = coot::NORMAL_BONDS; // pass this (or put it into thg gbc)
 
    bool atoms_have_bigger_radius_than_bonds = false;
    if (atom_radius > bond_radius)
@@ -108,7 +105,7 @@ Mesh::make_graphical_bonds_spherical_atoms_instanced_version(Shader *shader_p,
    }
 
    const std::vector<g_triangle> &triangles = octaphere_geom.second;
-   // is_instanced should be false here, so that the vertex colours go in their slot
+   // is_instanced should be false here, so that the vertex colours go in their slot (20230813-PE that seems weird)
    is_instanced = false;
    err = glGetError();
    if (err) std::cout << "error make_graphical_bonds_spherical_atoms() pre-import error "
@@ -137,12 +134,17 @@ Mesh::make_graphical_bonds_spherical_atoms_instanced_version(Shader *shader_p,
    glBindVertexArray(vao); // setup_buffers() unbinds the vao
    glm::mat4 unit(1.0);
    for (int icol=0; icol<gbc.n_consolidated_atom_centres; icol++) {
-      glm::vec4 col = get_glm_colour_for_bonds_func(icol, bonds_box_type); // do we need to send rainbow state and bg-colour state?
+      const glm::vec4 &col = colour_table[icol];
       for (unsigned int i=0; i<gbc.consolidated_atom_centres[icol].num_points; i++) {
          const graphical_bonds_atom_info_t &at_info = gbc.consolidated_atom_centres[icol].points[i];
-         bool do_it = atoms_have_bigger_radius_than_bonds;
-         mmdb::Atom *at = at_info.atom_p;
 
+         mmdb::Atom *at = at_info.atom_p;
+         bool do_it = true; // turn this off is there is only one bond to this atom - the graphical
+                            // bonds container gbc should "know" that - we don't try to sort it out
+                            // here.
+
+#if 0
+         bool do_it = atoms_have_bigger_radius_than_bonds;
          if (! do_it) {
             if (at) {
                int state = -1;
@@ -152,6 +154,7 @@ Mesh::make_graphical_bonds_spherical_atoms_instanced_version(Shader *shader_p,
                }
             }
          }
+#endif
 
          if (do_it) {
             float scale = 1.0;
@@ -191,8 +194,15 @@ Mesh::make_graphical_bonds_hemispherical_atoms_instanced_version(Shader *shader_
                                                                  float atom_radius,
                                                                  float bond_radius,
                                                                  unsigned int num_subdivisions,
-                                                                 glm::vec4 (*get_glm_colour_for_bonds_func) (int, int)) {
+                                                                 const std::vector<glm::vec4> &colour_table) {
 
+   // this is the wrong approach to do hemisphere - make all the atoms spheres for now.
+   //
+   // Later, make the bonds have rounded end caps where needed (and in that case, a separate spherical atom is not needed).
+
+   return;
+
+#if 0
    // udd_handle_bonded_type can be NO_BOND, BONDED_WITH_STANDARD_ATOM_BOND, BONDED_WITH_BOND_TO_HYDROGEN
    // BONDED_WITH_HETATM_BOND.
 
@@ -278,7 +288,7 @@ Mesh::make_graphical_bonds_hemispherical_atoms_instanced_version(Shader *shader_
 
    glm::mat4 unit(1.0);
    for (int icol=0; icol<gbc.n_consolidated_atom_centres; icol++) {
-      glm::vec4 col = get_glm_colour_for_bonds_func(icol, bonds_box_type); // do we need to send rainbow state and bg-colour state?
+      const glm::vec4 &col = colour_table[icol];
       for (unsigned int i=0; i<gbc.consolidated_atom_centres[icol].num_points; i++) {
          const graphical_bonds_atom_info_t &at_info = gbc.consolidated_atom_centres[icol].points[i];
          bool do_it = true;
@@ -337,6 +347,7 @@ Mesh::make_graphical_bonds_hemispherical_atoms_instanced_version(Shader *shader_
    err = glGetError();
    if (err) std::cout << "error make_graphical_bonds_hemispherical_atoms() post setup_instancing_buffer_data() error "
                       << err << std::endl;
+#endif
 }
 
 
@@ -347,7 +358,7 @@ Mesh::make_graphical_bonds_bonds_instanced_version(Shader *shader_p,
                                                    float bond_radius,
                                                    unsigned int n_slices,
                                                    unsigned int n_stacks,
-                                                   glm::vec4 (*get_glm_colour_for_bonds_func) (int, int)) {
+                                                   const std::vector<glm::vec4> &colour_table) {
 
    bool is_intermediate_atoms_molecule = false;  // pass this (but why do I need it?)
 
@@ -363,7 +374,9 @@ Mesh::make_graphical_bonds_bonds_instanced_version(Shader *shader_p,
                              glm::mat4 sc = glm::scale(u, glm::vec3(radius, radius, l_delta));
                              // orient
                              glm::vec3 normalized_bond_orientation(glm::normalize(delta));
-                             glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0)); // nice
+                             // 20230812-PE I added a minus sign here, because in the graphics, the bonds went
+                             // the wrong way. I am using the same shaded as is used for the instanced atom contact display objects
+                             glm::mat4 ori = glm::orientation(-normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0)); // nice
                              // translate
                              glm::mat4 t = glm::translate(u, pos_1);
                              glm::mat4 m = t * ori * sc;
@@ -409,9 +422,9 @@ Mesh::make_graphical_bonds_bonds_instanced_version(Shader *shader_p,
    std::vector<glm::mat4> instanced_matrices;
    std::vector<glm::vec4> instanced_colours;
 
-   int bonds_box_type = coot::NORMAL_BONDS; // pass this (or put it into the gbc)
    for (int icol=0; icol<gbc.num_colours; icol++) {
-      glm::vec4 col = get_glm_colour_for_bonds_func(icol, bonds_box_type); // do we need to send rainbow state and bg-colour state?
+      glm::vec4 col = colour_table[icol];
+      // std::cout << "make_graphical_bonds_bonds_instanced_version() icol " << icol << " " << glm::to_string(col) << std::endl;
       graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol];
       for (int j=0; j<ll.num_lines; j++) {
          const coot::Cartesian &start  = ll.pair_list[j].positions.getStart();
