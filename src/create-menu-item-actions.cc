@@ -1013,6 +1013,7 @@ run_script_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    g_signal_connect(dialog, "response", G_CALLBACK(on_run_script_filechooser_dialog_response_gtk4), NULL);
    add_filename_filter_button(dialog, COOT_SCRIPTS_FILE_SELECTION);
+   set_transient_for_main_window(dialog);
    gtk_widget_set_visible(dialog, TRUE);
 
 }
