@@ -58,6 +58,11 @@ Put the gtk version in the build_type? Currently Linux-x86_64-ubuntu-21.10-gtk4
 
 coot --version
 
+Go into CA mode and try to middle-mouse over an atom that is not displayed. The recentering works.
+The atom picker needs to know about the representation type (or act on it) ::: 1
+
+Make the run-script dialog be transient ::: 0.2
+
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
 Nice to have:
