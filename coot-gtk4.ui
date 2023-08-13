@@ -8063,7 +8063,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">gtk-delete</property>
+                        <property name="icon-name">edit-delete</property>
                       </object>
                     </child>
                     <child>
