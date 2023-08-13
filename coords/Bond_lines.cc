@@ -660,9 +660,9 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				 if (is_hydrogen(element_1)) { // both are hydrogen
 				    float len2 = (atom_1_pos - atom_2_pos).amplitude_squared();
 				    if (len2 < 1.3) { // protection for weirdness, // was 1.0
-				       col = atom_colour(atom_selection_1[ contact[i].id1 ], udd_user_defined_atom_colour_index_handle, atom_colour_type, nullptr);
-				       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-				       addBond(col, atom_1_pos, atom_2_pos, cc, imodel, atom_index_1, atom_index_2, false, false);
+				       col = atom_colour(atom_p_1, atom_colour_type, udd_user_defined_atom_colour_index_handle, nullptr);
+				       graphics_line_t::cylinder_class_t cc_bond = graphics_line_t::SINGLE;
+				       addBond(col, atom_1_pos, atom_2_pos, cc_bond, imodel, atom_index_1, atom_index_2, false, false);
 				    }
 				 } else {
                                     // should this test be here or further up?
@@ -678,9 +678,9 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
                                     }
 
                                     if (do_it) {
-                                       col = atom_colour(atom_selection_1[ contact[i].id1 ], udd_user_defined_atom_colour_index_handle, atom_colour_type, nullptr);
-                                       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-                                       addBond(col, atom_1_pos, atom_2_pos, cc, imodel, atom_index_1, atom_index_2, false, false);
+                                       col = atom_colour(atom_p_1, atom_colour_type, udd_user_defined_atom_colour_index_handle, nullptr);
+                                       graphics_line_t::cylinder_class_t cc_bond = graphics_line_t::SINGLE;
+                                       addBond(col, atom_1_pos, atom_2_pos, cc_bond, imodel, atom_index_1, atom_index_2, false, false);
                                     }
 				 }
 			      }
@@ -847,11 +847,14 @@ Bond_lines_container::add_half_bonds(const coot::Cartesian &atom_1_pos,
    // int udd_user_defined_atom_colour_index_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
 
    coot::Cartesian bond_mid_point = atom_1_pos.mid_point(atom_2_pos);
-   int col = atom_colour(at_1, atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p);
-   addBond(col, atom_1_pos, bond_mid_point, cc, model_number, atom_index_1, atom_index_2, add_begin_end_cap, false);
+   int col_1 = atom_colour(at_1, atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p);
+   addBond(col_1, atom_1_pos, bond_mid_point, cc, model_number, atom_index_1, atom_index_2, add_begin_end_cap, false);
 
-   col = atom_colour(at_2, atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p);
-   addBond(col, bond_mid_point, atom_2_pos, cc, model_number, atom_index_1, atom_index_2, false, add_end_end_cap);
+   int col_2 = atom_colour(at_2, atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p);
+   addBond(col_2, bond_mid_point, atom_2_pos, cc, model_number, atom_index_1, atom_index_2, false, add_end_end_cap);
+
+   if (false)
+      std::cout << "add_half_bonds() with colour indices " << col_1 << " and " << col_2 << std::endl;
 
 }
 
@@ -1126,8 +1129,7 @@ Bond_lines_container::draw_GA_rings(const std::vector<mmdb::Atom *> &ring_atoms,
       coot::Cartesian ip2 = mp + v2 * 0.8;
       mmdb::Atom *at_1 = ring_atoms[iat_1];
       mmdb::Atom *at_2 = ring_atoms[iat_2];
-      int col = atom_colour(at_1, atom_colour_type, udd_user_defined_atom_colour_index_handle,
-                            atom_colour_map_p);
+      int col = atom_colour(at_1, atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p);
       int atom_1_index = -1;
       int atom_2_index = -1;
       ring_atoms[iat_1]->GetUDData(udd_atom_index_handle, atom_1_index);
@@ -5412,14 +5414,15 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 
    int col = 0;
 
-   if (bond_colour_type == coot::COLOUR_BY_MOLECULE) return col; // one colour fits all
-
    // Does this atom have an over-riding/user-defined colour?
+   // User-defined colours trump everything.
    int idx_col_udd;
    if (at->GetUDData(udd_user_defined_atom_colour_index_handle, idx_col_udd) == mmdb::UDDATA_Ok) {
-      std::cout << "atom_colour() for atom " << at << " using user defined colour " << idx_col_udd << std::endl;
+      std::cout << "in atom_colour(): for atom " << at << " using user defined colour " << idx_col_udd << std::endl;
       return idx_col_udd;
    }
+
+   if (bond_colour_type == coot::COLOUR_BY_MOLECULE) return col; // one colour fits all
 
    if (bond_colour_type == coot::COLOUR_BY_CHAIN) {
 

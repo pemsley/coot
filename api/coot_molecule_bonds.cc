@@ -74,6 +74,7 @@ coot::molecule_t::set_user_defined_bond_colours(const std::map<unsigned int, std
 }
 
 //! user-defined atom selection to colour index
+// This function should be called `set_user_defined_atom_colour_by_selections`
 void
 coot::molecule_t::set_user_defined_atom_colour_by_residue(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids) {
 
