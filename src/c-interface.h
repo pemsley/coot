@@ -1047,12 +1047,7 @@ void set_pick_cursor_index(int icursor_index);
 /* section Model/Fit/Refine Functions  */
 /*! \name Model/Fit/Refine Functions  */
 /*! \{ */
-/*! \brief display the Model/Fit/Refine dialog */
-void post_model_fit_refine_dialog();
-/*! \brief unset model/fit/refine dialog */
-void unset_model_fit_refine_dialog();
-/*! \brief unset refine params dialog */
-void unset_refine_params_dialog();
+
 /*! \brief display the Display Manager dialog */
 void show_select_map_dialog();
 /*! \brief Allow the changing of Model/Fit/Refine button label from
@@ -1062,9 +1057,6 @@ void set_model_fit_refine_rotate_translate_zone_label(const char *txt);
   "Place Atom at Pointer" */
 void set_model_fit_refine_place_atom_at_pointer_label(const char *txt);
 
-
-/*! \brief display the Other Modelling Tools dialog */
-void post_other_modelling_tools_dialog();
 
 /*! \brief shall atoms with zero occupancy be moved when refining? (default 1, yes) */
 void set_refinement_move_atoms_with_zero_occupancy(int state);

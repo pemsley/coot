@@ -944,8 +944,14 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
    if (pass_type == PASS_TYPE_STANDARD) {
       Shader &shader = shader_for_meshes_with_shadows;
       bool wireframe_mode = false;
-      m.molecule_as_mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity, bgc,
-                              wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
+
+      // non-instanced:
+      // m.molecule_as_mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity, bgc,
+      //                         wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
+
+      // instanced:
+      Shader &shader_p = shader_for_instanced_objects;
+      m.draw_molecule_as_meshes(&shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
    }
 
    if (pass_type == PASS_TYPE_SSAO) {
@@ -3635,8 +3641,13 @@ graphics_info_t::draw_hud_geometry_bars() {
          const auto &bip = rr.sorted_nbc_baddies[i];
          std::pair<coot::atom_spec_t, float> p_1(bip.atom_spec_1, bip.score);
          std::pair<coot::atom_spec_t, float> p_2(bip.atom_spec_2, bip.score);
-         converted_baddies[2*i  ] = p_1;
-         converted_baddies[2*i+1] = p_2;
+         // 20230813-PE fixes a crash, I hope.
+         if ((2*i+1) < converted_baddies.size()) {
+            converted_baddies[2*i  ] = p_1;
+            converted_baddies[2*i+1] = p_2;
+         } else {
+            std::cout << "ERROR:: out of range in converted_baddies  " << 2*i << " " << converted_baddies.size() << std::endl;
+         }
       }
       add_bars(converted_baddies, 1, &new_bars, moving_atoms_active_residue,
                x_base_for_hud_geometry_bars, distortion_to_rotation_amount_nbc,

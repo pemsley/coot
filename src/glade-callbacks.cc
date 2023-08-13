@@ -2377,14 +2377,6 @@ on_skeleton_cancel_button_clicked      (GtkButton       *button,
 }
 
 
-extern "C" G_MODULE_EXPORT
-void
-on_model_refine_dialog_destroy         (GtkWidget       *object,
-                                        gpointer         user_data)
-{
-   unset_model_fit_refine_dialog();
-}
-
 
 extern "C" G_MODULE_EXPORT
 void
@@ -2394,20 +2386,6 @@ on_residue_info_apply_all_checkbutton_toggled
 {
 
    residue_info_apply_all_checkbutton_toggled();
-}
-
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_model_refine_dialog_mutate_auto_fit_togglebutton_toggled
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
-    setup_mutate_auto_fit(1);
-  else
-     setup_mutate_auto_fit(0);
 }
 
 

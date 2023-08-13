@@ -1612,32 +1612,6 @@ int control_key_for_rotate_state() {
 
 
 
-
-/*  ------------------------------------------------------------------------ */
-/*                         Model/Fit/Refine Functions:                       */
-/*  ------------------------------------------------------------------------ */
-void post_model_fit_refine_dialog() {
-
-   GtkWidget *widget = wrapped_create_model_fit_refine_dialog();
-   if (graphics_info_t::use_graphics_interface_flag) {
-      gtk_widget_set_visible(widget, TRUE);
-   }
-   std::vector<std::string> command_strings;
-   command_strings.push_back("post-model-fit-refine-dialog");
-   add_to_history(command_strings);
-}
-
-void post_other_modelling_tools_dialog() {
-
-   GtkWidget *widget = wrapped_create_model_fit_refine_dialog();
-   if (graphics_info_t::use_graphics_interface_flag) {
-      gtk_widget_set_visible(widget, TRUE);
-   }
-   std::vector<std::string> command_strings;
-   command_strings.push_back("post-other-modelling-tools-dialog");
-   add_to_history(command_strings);
-}
-
 void set_auto_read_column_labels(const char *fwt, const char *phwt,
 				 int is_for_diff_map_flag) {
 

@@ -9367,31 +9367,7 @@ density (too big to be waters):
     <child type="titlebar">
     </child>
   </object>
-  <object class="GtkDialog" id="model_refine_dialog">
-    <property name="title" translatable="yes">Model/Fit/Refine</property>
-    <signal name="destroy" handler="on_model_refine_dialog_destroy" swapped="no"/>
-    <child>
-      <object class="GtkBox" id="model_fit_refine_dialog_vbox">
-        <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="model_refine_dialog_dismiss_button">
-                <property name="label" translatable="yes">   Close   </property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_model_refine_dialog_dismiss_button_clicked" swapped="no"/>
-              </object>
-        </child>
-        <child>
-          <object class="GtkFrame" id="frame39">
-          </object>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="0">model_refine_dialog_dismiss_button</action-widget>
-    </action-widgets>
-    <child type="titlebar">
-    </child>
-  </object>
+
   <object class="GtkDialog" id="monomer_search_dialog">
     <property name="title" translatable="yes">Coot Search Monomer Library</property>
     <child>
@@ -12935,6 +12911,10 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                   <object class="GtkCheckButton" id="shader_settings_do_depth_fog_checkbutton">
                     <property name="label" translatable="yes">Enable</property>
                     <property name="can-focus">0</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">0</property>
+                    <property name="margin-bottom">4</property>
                     <signal name="toggled" handler="on_shader_settings_do_depth_fog_checkbutton_toggled" swapped="no"/>
                   </object>
                 </child>
@@ -12944,6 +12924,10 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                     <attributes>
                       <attribute name="weight" value="bold"/>
                     </attributes>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">2</property>
                   </object>
                 </child>
               </object>
