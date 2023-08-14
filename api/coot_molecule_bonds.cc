@@ -71,7 +71,8 @@ coot::molecule_t::set_user_defined_bond_colours(const std::map<unsigned int, std
 //! user-defined atom selection to colour index
 // This function should be called `set_user_defined_atom_colour_by_selections`
 void
-coot::molecule_t::set_user_defined_atom_colour_by_residue(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids) {
+coot::molecule_t::set_user_defined_atom_colour_by_residue(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
+                                                          bool colour_applies_to_non_carbon_atoms_also) {
 
    if (! is_valid_model_molecule()) return;
 
@@ -98,11 +99,14 @@ coot::molecule_t::set_user_defined_atom_colour_by_residue(const std::vector<std:
 	    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (int iat=0; iat<n_residue_atoms; iat++) {
 	       mmdb::Atom *at = residue_atoms[iat];
-	       int ierr = at->PutUDData(udd_handle, colour_index);
-	       if (ierr != mmdb::UDDATA_Ok) {
-		  std::cout << "WARNING:: in set_user_defined_atom_colour_by_residue() problem setting udd on atom "
-                            << coot::atom_spec_t(at) << std::endl;
-	       }
+               std::string element(at->element);
+               if (element == " C" || colour_applies_to_non_carbon_atoms_also) {
+                  int ierr = at->PutUDData(udd_handle, colour_index);
+                  if (ierr != mmdb::UDDATA_Ok) {
+                     std::cout << "WARNING:: in set_user_defined_atom_colour_by_residue() problem setting udd on atom "
+                               << coot::atom_spec_t(at) << std::endl;
+                  }
+               }
 	    }
          }
       }

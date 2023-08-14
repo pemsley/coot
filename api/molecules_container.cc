@@ -1722,10 +1722,10 @@ molecules_container_t::set_user_defined_bond_colours(int imol, const std::map<un
 
 //! user-defined atom selection to colour index
 void
-molecules_container_t::set_user_defined_atom_colour_by_residue(int imol, const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids) {
+molecules_container_t::set_user_defined_atom_colour_by_selection(int imol, const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids, bool colour_applies_to_non_carbon_atoms_also) {
 
    if (is_valid_model_molecule(imol)) {
-      molecules[imol].set_user_defined_atom_colour_by_residue(indexed_residues_cids);
+      molecules[imol].set_user_defined_atom_colour_by_residue(indexed_residues_cids, colour_applies_to_non_carbon_atoms_also);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

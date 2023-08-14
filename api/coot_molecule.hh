@@ -550,7 +550,8 @@ namespace coot {
       void set_user_defined_bond_colours(const std::map<unsigned int, std::array<float, 3> > &colour_map);
 
       //! user-defined atom selection to colour index
-      void set_user_defined_atom_colour_by_residue(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids);
+      void set_user_defined_atom_colour_by_residue(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
+                                                   bool colour_applies_to_non_carbon_atoms_also);
 
       //! set the colour wheel rotation base for the specified molecule
       void set_colour_wheel_rotation_base(float r);

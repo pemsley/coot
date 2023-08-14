@@ -2735,7 +2735,8 @@ int test_user_defined_bond_colours(molecules_container_t &mc) {
          indexed_residues_cids.push_back(std::make_pair("//A/130-150",0));
          std::string mode("USER-DEFINED-COLOURS");
          mc.set_user_defined_bond_colours(imol, colour_map);
-         mc.set_user_defined_atom_colour_by_residue(imol, indexed_residues_cids);
+         bool colour_applies_to_non_carbon_atoms_also = true;
+         mc.set_user_defined_atom_colour_by_selection(imol, indexed_residues_cids, colour_applies_to_non_carbon_atoms_also);
          coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
          if (im.geom.size() > 3) {
             if (im.geom[0].instancing_data_A.size() > 1000)
@@ -3137,7 +3138,8 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
    indexed_cids.push_back(std::make_pair("//A/22-36",  13));
    indexed_cids.push_back(std::make_pair("//A/46-80",  14));
    indexed_cids.push_back(std::make_pair("//A/90-180", 15));
-   mc.set_user_defined_atom_colour_by_residue(imol, indexed_cids);
+   bool colour_applies_to_non_carbon_atoms_also = false;
+   mc.set_user_defined_atom_colour_by_selection(imol, indexed_cids, colour_applies_to_non_carbon_atoms_also);
 
    std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
 
