@@ -529,24 +529,47 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       return m;
    }
 
-   Bond_lines_container bonds(geom, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag);
-   bonds.do_colour_by_chain_bonds(atom_sel_ligand, false, imol_no, draw_hydrogen_atoms_flag,
-                                  draw_missing_residue_loops, change_c_only_flag, goodsell_mode, do_rota_markup);
+   if (mode == "COLOUR-BY-CHAIN-AND-DICTIONARY") {
+      Bond_lines_container bonds(geom, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag);
+      bonds.do_colour_by_chain_bonds(atom_sel_ligand, false, imol_no, draw_hydrogen_atoms_flag,
+                                     draw_missing_residue_loops, change_c_only_flag, goodsell_mode, do_rota_markup);
 
-   auto gbc = bonds.make_graphical_bonds();
+      auto gbc = bonds.make_graphical_bonds();
 
-   std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
+      std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
 
-   make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type,
-                                                  atom_radius, bond_radius, num_subdivisions, colour_table);
-   make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type, atom_radius,
-                                            bond_radius, num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type,
+                                                     atom_radius, bond_radius, num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type, atom_radius,
+                                                         bond_radius, num_subdivisions, colour_table);
 
-   make_instanced_graphical_bonds_bonds(m, gbc, bond_radius, n_slices, n_stacks, colour_table);
+      make_instanced_graphical_bonds_bonds(m, gbc, bond_radius, n_slices, n_stacks, colour_table);
 
-   make_graphical_bonds_cis_peptides(m.markup, gbc);
+      make_graphical_bonds_cis_peptides(m.markup, gbc);
 
-   atom_sel_ligand.clear_up();
+      atom_sel_ligand.clear_up();
+   }
+
+   if (mode == "CA+LIGANDS") {
+      Bond_lines_container bonds(geom);
+      float min_dist = 2.4;
+      float max_dist = 4.7;
+      bool draw_missing_residue_loops_flag = true;
+      bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom, min_dist, max_dist, draw_hydrogen_atoms_flag,
+                                     draw_missing_residue_loops_flag);
+      bonds_box = bonds.make_graphical_bonds_no_thinning();
+      std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
+      make_instanced_graphical_bonds_bonds(m, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
+   }
+
+   if (mode == "VDW-BALLS") {
+      // we don't make rotamer dodecs in this function
+      // makebonds() is a trivial wrapper of make_colour_by_chain_bonds(), so just remove the makebonds() call.
+      bool draw_missing_residue_loops_flag = false;
+      makebonds(geom, nullptr, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag); // this makes the bonds_box.
+      std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
+      make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(m, bonds_box, num_subdivisions, colour_table, *geom);
+   }
 
    return m;
 }

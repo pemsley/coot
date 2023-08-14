@@ -63,6 +63,7 @@ coot::molecule_t::set_user_defined_bond_colours(const std::map<unsigned int, std
       unsigned int idx = it->first;
       const auto &col = it->second;
       colour_holder ch(col[0], col[1], col[2]);
+      // std::cout << "   " << idx << " " << ch << std::endl;
       user_defined_bond_colours[idx] = ch;
    }
 }
@@ -1338,7 +1339,12 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
                   if (it != user_defined_bond_colours.end()) {
                      auto glm_col = colour_holder_to_glm(it->second);
                      colour_table[icol] = glm_col;
+                  } else {
+                     std::cout << "debug:: user_defined_bond_colours has size " << user_defined_bond_colours.size()
+                               << " but index " << icol << " was not found!" << std::endl;
                   }
+               } else {
+                  std::cout << "debug:: Sad! user_defined_bond_colours was empty" << std::endl;
                }
 
                if (debug_colour_table) { // debugging colours
