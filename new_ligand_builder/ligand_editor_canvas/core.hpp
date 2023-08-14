@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include "model.hpp"
+#include "pango/pango-layout.h"
 #include "tools.hpp"
 
 // GObject declaration 
@@ -44,6 +45,17 @@ struct StateSnapshot {
     StateSnapshot(const WidgetCoreData& core_data);
 };
 
+// class Renderer {
+
+//     public:
+//     PangoLayout* provide_pango_layout();
+//     cairo_t* provide_cairo_surface();
+// };
+
+// class GtkRenderer : public Renderer {
+
+// };
+
 /// Used for widget's struct as a base class.
 /// Useful for exposing inner state to the active tool.
 struct WidgetCoreData {
@@ -70,6 +82,11 @@ struct WidgetCoreData {
     /// from before the current edition began.
     /// nullptr if no edition is being done at the moment.
     std::unique_ptr<StateSnapshot> state_before_edition;
+
+    // template <typename RendererT>
+    // void render(RendererT) {
+
+    // }
 
     public:
     /// molecules on the screen
