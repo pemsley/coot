@@ -1,4 +1,5 @@
 #include "ligand_builder_state.hpp"
+#include "geometry/protein-geometry.hh"
 #include "ligand_editor_canvas.hpp"
 #include <exception>
 #include <memory>
@@ -16,6 +17,7 @@ LigandBuilderState::LigandBuilderState(CootLigandEditorCanvas* canvas_widget, Gt
     this->canvas = canvas_widget;
     this->main_window = win;
     this->status_label = status_label;
+    this->monomer_library_info_store = std::make_unique<protein_geometry>();
     //g_object_set_data(G_OBJECT(win), "ligand_builder_instance", this);
 }
 
@@ -143,9 +145,9 @@ void LigandBuilderState::file_import_molecule() {
             LigandBuilderState* self = static_cast<LigandBuilderState*>(g_object_get_data(G_OBJECT(dialog),
                                                                                         "ligand_builder_instance"));
             // what is 42???
-            self->monomer_library_info_store.try_dynamic_add(monomer_type, 42);
+            self->monomer_library_info_store->try_dynamic_add(monomer_type, 42);
             std::pair<bool, dictionary_residue_restraints_t> p =
-                self->monomer_library_info_store.get_monomer_restraints(monomer_type, imol_enc);
+                self->monomer_library_info_store->get_monomer_restraints(monomer_type, imol_enc);
             if (p.first) {
                 bool show_hydrogens_status = false;
                 // todo: it'd be best to rewrite this function.

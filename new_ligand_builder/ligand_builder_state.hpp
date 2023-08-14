@@ -32,7 +32,7 @@ class LigandBuilderState {
     std::optional<std::string> current_filesave_filename;
 
     /// Store of monomer library information
-    protein_geometry monomer_library_info_store;
+    std::unique_ptr<protein_geometry> monomer_library_info_store;
 
     /// Adds the molecule to the canvas.
     /// This function takes ownership of the molecule pointer.
