@@ -550,7 +550,8 @@ int
 molecules_container_t::read_pdb(const std::string &file_name) {
 
    int status = -1;
-   atom_selection_container_t asc = get_atom_selection(file_name, false, true, false);
+   bool use_gemmi = false;
+   atom_selection_container_t asc = get_atom_selection(file_name, use_gemmi, true, false);
    if (asc.read_success) {
 
       // 20221011-PE this constructor doesn't call make_bonds().
@@ -572,13 +573,11 @@ molecules_container_t::read_pdb(const std::string &file_name) {
 void
 molecules_container_t::replace_molecule_by_model_from_file(int imol, const std::string &pdb_file_name) {
 
-   int status = 0;
    if (is_valid_model_molecule(imol)) {
       molecules[imol].replace_molecule_by_model_from_file(pdb_file_name);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
-   // return status;
 }
 
 
@@ -1694,6 +1693,21 @@ molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const st
    }
    return im;
 }
+
+//! return the colour table (for testing)
+std::vector<glm::vec4>
+molecules_container_t::get_colour_table(int imol, bool against_a_dark_background) const {
+
+   std::vector<glm::vec4> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].make_colour_table(against_a_dark_background);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}
+
+
 
 //! user-defined colour-index to colour
 void

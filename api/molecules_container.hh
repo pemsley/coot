@@ -560,6 +560,9 @@ public:
                                                                  float bond_width, float atom_radius_to_bond_width_ratio,
                                                                  int smoothness_factor);
 
+   //! return the colur table (for testing)
+   std::vector<glm::vec4> get_colour_table(int imol, bool against_a_dark_background) const;
+
    //! set the colour wheel rotation base for the specified molecule (in degrees)
    void set_colour_wheel_rotation_base(int imol, float r);
 

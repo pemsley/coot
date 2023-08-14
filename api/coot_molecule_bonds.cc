@@ -63,13 +63,7 @@ coot::molecule_t::set_user_defined_bond_colours(const std::map<unsigned int, std
       unsigned int idx = it->first;
       const auto &col = it->second;
       colour_holder ch(col[0], col[1], col[2]);
-      unsigned int user_defined_bond_colours_current_size = user_defined_bond_colours.size();
-      if (idx < user_defined_bond_colours_current_size) {
-         user_defined_bond_colours[idx] = ch;
-      } else {
-         user_defined_bond_colours.resize(idx+1, colour_holder());
-         user_defined_bond_colours[idx] = ch;
-      }
+      user_defined_bond_colours[idx] = ch;
    }
 }
 
@@ -1323,26 +1317,7 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
    }
 
    std::vector<glm::vec4> colour_table;
-   if (bonds_box_type == coot::api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS____BONDS ||
-       bonds_box_type == coot::api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS) {
-
-      if (debug_colour_table)
-         std::cout << "................... in make_colour_table() HERE B (user-defined colours) type "
-                   << bonds_box_type << " num colours " << user_defined_bond_colours.size() << std::endl;
-
-      colour_table.resize(user_defined_bond_colours.size());
-      for (unsigned int icol=0; icol<user_defined_bond_colours.size(); icol++) {
-         colour_table[icol] = colour_holder_to_glm(user_defined_bond_colours[icol]);
-
-         if (debug_colour_table) { // debugging colours
-            graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[icol];
-            int n_bonds = ll.num_lines;
-            std::cout << "colour_table: imol " << imol_no << " icol " << std::setw(3) << icol << " has "
-                      << std::setw(4) << n_bonds << " bonds dark-bg: " << dark_bg_flag
-                      << " colour: " << glm::to_string(colour_table[icol]) << std::endl;
-         }
-      }
-   } else {
+   if (true) {
       // std::cout << "................... in make_colour_table() HERE C " << bonds_box_type << std::endl;
       colour_table = std::vector<glm::vec4>(bonds_box.num_colours, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
       for (int icol=0; icol<bonds_box.num_colours; icol++) {
@@ -1354,16 +1329,23 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
             int n_bonds = ll.num_lines;
             if (n_bonds > 0) {
                coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
+               colour_table[icol] = cc.to_glm();
+
+               // was there a user-defined bond colour that superceeds this for this colour index?
+               if (! user_defined_bond_colours.empty()) {
+                  std::map<unsigned int, colour_holder>::const_iterator it;
+                  it = user_defined_bond_colours.find(icol);
+                  if (it != user_defined_bond_colours.end()) {
+                     auto glm_col = colour_holder_to_glm(it->second);
+                     colour_table[icol] = glm_col;
+                  }
+               }
 
                if (debug_colour_table) { // debugging colours
-                  colour_holder ch = cc.to_colour_holder(); // around the houses
-                  std::string hex = ch.hex();
-                  if (debug_colour_table)
-                     std::cout << "colour_table: imol " << imol_no << " icol " << std::setw(3) << icol << " has "
-                               << std::setw(4) << n_bonds << " bonds dark-bg: " << dark_bg_flag
-                               << " colour: " << hex << " " << cc << std::endl;
+                  std::cout << "colour_table: B imol " << imol_no << " icol " << std::setw(3) << icol << " has "
+                            << std::setw(4) << n_bonds << " bonds dark-bg: " << dark_bg_flag
+                            << " colour: " << glm::to_string(colour_table[icol]) << std::endl;
                }
-               colour_table[icol] = cc.to_glm();
             } else {
                // std::cout << "No bonds for colour with index " << icol << std::endl;
             }

@@ -3106,6 +3106,10 @@ int test_bucca_ml_growing(molecules_container_t &mc) {
 
 int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
 
+   auto close_float = [] (float a, float b) {
+      return fabsf(a - b) < 0.001;
+   };
+
    starting_test(__FUNCTION__);
    int status = 0;
 
@@ -3122,10 +3126,10 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
    }
 
    std::map<unsigned int, std::array<float, 3> > colour_index_map;
-   colour_index_map[12] = {1,0,1};
-   colour_index_map[13] = {0,1,1};
-   colour_index_map[14] = {0,0,1};
-   colour_index_map[15] = {0.7,0.7,0};
+   colour_index_map[12] = {1, 0, 1};
+   colour_index_map[13] = {0, 1, 1};
+   colour_index_map[14] = {0, 0, 1};
+   colour_index_map[15] = {0.7, 0.7, 0};
 
    mc.set_user_defined_bond_colours(imol, colour_index_map);
    std::vector<std::pair<std::string, unsigned int> > indexed_cids;
@@ -3135,9 +3139,31 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
    indexed_cids.push_back(std::make_pair("//A/90-180", 15));
    mc.set_user_defined_atom_colour_by_residue(imol, indexed_cids);
 
-   std::string mode = "USER-DEFINED-COLOURS";
+   std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
+
+   {
+     auto colour_table = mc.get_colour_table(imol, false);
+     for (unsigned int i = 0; i < colour_table.size(); i++) {
+       std::cout << "   pre " << i << " " << glm::to_string(colour_table[i])
+                 << std::endl;
+     }
+   }
 
    auto bonds = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
+
+   auto colour_table = mc.get_colour_table(imol, false);
+   for (unsigned int i=0; i<colour_table.size(); i++) {
+      // std::cout << "   post " << i << " " << glm::to_string(colour_table[i]) << std::endl;
+   }
+
+   // test a couple of these
+   if (close_float(colour_table[12][0], 1.0))
+      if (close_float(colour_table[12][1], 0.0))
+         if (close_float(colour_table[12][2], 1.0))
+            if (close_float(colour_table[13][0], 0.0))
+               if (close_float(colour_table[13][1], 1.0))
+                  if (close_float(colour_table[13][2], 1.0))
+                     status = true;
 
    return status;
 

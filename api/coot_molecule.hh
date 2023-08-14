@@ -191,7 +191,7 @@ namespace coot {
       void make_ca_bonds();
       // just a copy of the version in src
       float bonds_colour_map_rotation;
-      std::vector<glm::vec4> make_colour_table(bool against_a_dark_background) const;
+      // std::vector<glm::vec4> make_colour_table(bool against_a_dark_background) const; public now
       glm::vec4 get_bond_colour_by_colour_wheel_position(int icol, int bonds_box_type) const;
       colour_t get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) const;
       colour_t get_bond_colour_basic(int colour_index, bool against_a_dark_background) const;
@@ -498,6 +498,10 @@ namespace coot {
       // public
       void make_bonds(protein_geometry *geom, rotamer_probability_tables *rot_prob_tables_p,
                       bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag);
+
+      //! useful for debugging, perhaps
+      std::vector<glm::vec4> make_colour_table(bool against_a_dark_background) const;
+
       // returns either the specified atom or null if not found
       mmdb::Atom *get_atom(const atom_spec_t &atom_spec) const;
       // returns either the specified residue or null if not found
@@ -538,7 +542,7 @@ namespace coot {
                                                               bool draw_missing_residue_loops);
 
       // adding colours using the functions below add into user_defined_colours
-      std::vector<colour_holder> user_defined_bond_colours;
+      std::map<unsigned int, colour_holder> user_defined_bond_colours;
 
       //! user-defined colour-index to colour
       //! (internallly, this converts the `colour_map` to the above vector of colour holders, so it's probably a good idea
