@@ -358,7 +358,8 @@ Mesh::make_graphical_bonds_bonds_instanced_version(Shader *shader_p,
                                                    float bond_radius,
                                                    unsigned int n_slices,
                                                    unsigned int n_stacks,
-                                                   const std::vector<glm::vec4> &colour_table) {
+                                                   const std::vector<glm::vec4> &colour_table,
+                                                   bool add_start_end_cap, bool add_end_end_cap) {
 
    bool is_intermediate_atoms_molecule = false;  // pass this (but why do I need it?)
 
@@ -399,6 +400,8 @@ Mesh::make_graphical_bonds_bonds_instanced_version(Shader *shader_p,
 
    std::pair<glm::vec3, glm::vec3> pp(glm::vec3(0,0,0), glm::vec3(0,0,1));
    cylinder c(pp, 1.0, 1.0, 1.0, n_slices, n_stacks);
+   if (add_start_end_cap) c.add_flat_start_cap();
+   if (add_end_end_cap)   c.add_flat_end_cap();
 
    is_instanced = false;
    std::vector<s_generic_vertex> converted_vertices = vnc_vertex_vector_to_generic_vertex_vector(c.vertices);
@@ -427,13 +430,20 @@ Mesh::make_graphical_bonds_bonds_instanced_version(Shader *shader_p,
       // std::cout << "make_graphical_bonds_bonds_instanced_version() icol " << icol << " " << glm::to_string(col) << std::endl;
       graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol];
       for (int j=0; j<ll.num_lines; j++) {
-         const coot::Cartesian &start  = ll.pair_list[j].positions.getStart();
-         const coot::Cartesian &finish = ll.pair_list[j].positions.getFinish();
-         glm::vec3 pos_1(start.x(),   start.y(),  start.z());
-         glm::vec3 pos_2(finish.x(), finish.y(), finish.z());
-         glm::mat4 m = get_bond_matrix(pos_1, pos_2, bond_radius);
-         instanced_matrices.push_back(m);
-         instanced_colours.push_back(col);
+
+         const auto &gl = ll.pair_list[j];
+
+         // does the capiness of the line match the cappiness of the mesh?
+         // only add to this mesh, if that is the case:
+         if (gl.has_begin_cap == add_start_end_cap && gl.has_end_cap == add_end_end_cap) {
+            const coot::Cartesian &start  = gl.positions.getStart();
+            const coot::Cartesian &finish = gl.positions.getFinish();
+            glm::vec3 pos_1(start.x(),   start.y(),  start.z());
+            glm::vec3 pos_2(finish.x(), finish.y(), finish.z());
+            glm::mat4 m = get_bond_matrix(pos_1, pos_2, bond_radius);
+            instanced_matrices.push_back(m);
+            instanced_colours.push_back(col);
+         }
       }
    }
 

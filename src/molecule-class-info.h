@@ -3773,9 +3773,12 @@ void draw_map_molecule(bool draw_transparent_maps,
       molecule_as_mesh.set_material(material);
    }
    Mesh molecule_as_mesh; // non-instancing
-   Mesh molecule_as_mesh_atoms_1; // for instancing
-   Mesh molecule_as_mesh_atoms_2; // for instancing
-   Mesh molecule_as_mesh_bonds;   // for instancing
+   Mesh molecule_as_mesh_atoms_1; // for instancing (sphere)
+   Mesh molecule_as_mesh_atoms_2; // for instancing (hemisphere - not currently used)
+   Mesh molecule_as_mesh_bonds_c00; // for instancing, no-end-caps
+   Mesh molecule_as_mesh_bonds_c10; // for instancing, start end cap
+   Mesh molecule_as_mesh_bonds_c01; // for instancing, end end-cap
+   Mesh molecule_as_mesh_bonds_c11; // for instancing, both end-caps
    Mesh molecule_as_mesh_rama_balls;
    Mesh molecule_as_mesh_rota_dodecs;
    // pass this function to the Mesh so that we can determine the atom and bond colours

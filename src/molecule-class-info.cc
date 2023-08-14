@@ -294,9 +294,12 @@ molecule_class_info_t::setup_internal() { // init
    molecule_as_mesh.set_name("empty model molecule mesh");
 
    // instanced version of molecule - I couldn't (quite) get it to work
-   molecule_as_mesh_atoms_1 = Mesh("molecule_as_mesh_atoms_1");
-   molecule_as_mesh_atoms_2 = Mesh("molecule_as_mesh_atoms_2");
-   molecule_as_mesh_bonds   = Mesh("molecule_as_mesh_bonds");
+   molecule_as_mesh_atoms_1   = Mesh("molecule_as_mesh_atoms_1");
+   molecule_as_mesh_atoms_2   = Mesh("molecule_as_mesh_atoms_2");
+   molecule_as_mesh_bonds_c00 = Mesh("molecule_as_mesh_bonds_c00");
+   molecule_as_mesh_bonds_c01 = Mesh("molecule_as_mesh_bonds_c01");
+   molecule_as_mesh_bonds_c10 = Mesh("molecule_as_mesh_bonds_c10");
+   molecule_as_mesh_bonds_c11 = Mesh("molecule_as_mesh_bonds_c11");
 #endif
 
    // draw vectors
@@ -4066,8 +4069,10 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
                    << bonds_box.n_consolidated_atom_centres << std::endl;
       }
 
-      if (graphics_info_t::use_graphics_interface_flag)
-         molecule_as_mesh_bonds.set_is_headless();
+      // 20230814-PE I don't know what this is supposed to do anymore - was it introduced during the emscripten test?
+      //
+      // if (graphics_info_t::use_graphics_interface_flag)
+      // molecule_as_mesh_bonds.set_is_headless();
 
       if (draw_model_molecule_as_lines) {
          molecule_as_mesh.make_bond_lines(bonds_box, colour_table);
@@ -4183,8 +4188,14 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       molecule_as_mesh_atoms_2.make_graphical_bonds_hemispherical_atoms_instanced_version(shader_p, material, bonds_box, udd_handle_bonded_type,
                                                                                           atom_radius, bond_radius, num_subdivisions,
                                                                                           colour_table);
-      molecule_as_mesh_bonds.make_graphical_bonds_bonds_instanced_version(shader_p, material, bonds_box, bond_radius, n_slices, n_stacks,
-                                                                          colour_table);
+      molecule_as_mesh_bonds_c00.make_graphical_bonds_bonds_instanced_version(shader_p, material, bonds_box, bond_radius, n_slices, n_stacks,
+                                                                              colour_table, false, false);
+      molecule_as_mesh_bonds_c01.make_graphical_bonds_bonds_instanced_version(shader_p, material, bonds_box, bond_radius, n_slices, n_stacks,
+                                                                              colour_table, false, true);
+      molecule_as_mesh_bonds_c10.make_graphical_bonds_bonds_instanced_version(shader_p, material, bonds_box, bond_radius, n_slices, n_stacks,
+                                                                              colour_table, true, false);
+      molecule_as_mesh_bonds_c11.make_graphical_bonds_bonds_instanced_version(shader_p, material, bonds_box, bond_radius, n_slices, n_stacks,
+                                                                              colour_table, true, true);
       GLenum err = glGetError();
       if (err) std::cout << "error in make_glsl_bonds_type_checked() post molecules_as_mesh_atoms::make_graphical_bonds spherical atoms\n";
    } else {
@@ -4308,7 +4319,10 @@ molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
    bool transferred_colour_is_instanced = true; // 20230812-PE was false, strangely.  true is needed for "instanced-object.shader"
    molecule_as_mesh_atoms_1.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
    molecule_as_mesh_atoms_2.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-   molecule_as_mesh_bonds.draw_instanced(  shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
+   molecule_as_mesh_bonds_c00.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
+   molecule_as_mesh_bonds_c01.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
+   molecule_as_mesh_bonds_c10.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
+   molecule_as_mesh_bonds_c11.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
 
 }
 
