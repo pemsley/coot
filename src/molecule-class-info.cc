@@ -4162,6 +4162,23 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       unsigned int num_subdivisions = 2;
       unsigned int n_slices = 8;
       unsigned int n_stacks = 2; // try 1
+      // do smooth
+      if (graphics_info_t::bond_smoothness_factor == 1) {
+         num_subdivisions = 1;
+         n_slices = 8;
+      }
+      if (graphics_info_t::bond_smoothness_factor == 2) {
+         num_subdivisions = 2;
+         n_slices = 16;
+      }
+      if (graphics_info_t::bond_smoothness_factor == 3) {
+         num_subdivisions = 3;
+         n_slices = 32;
+      }
+      if (graphics_info_t::bond_smoothness_factor == 4) {
+         num_subdivisions = 4;
+         n_slices = 64;
+      }
       float bond_radius = 0.026 * bond_width;
       float atom_radius = bond_radius * atom_radius_scale_factor;
 
