@@ -1,4 +1,5 @@
 #include "ligand_editor_canvas.hpp"
+#include "cairo.h"
 #include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
@@ -65,11 +66,13 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
             // This does not respect GTK theming
             // PangoLayout* pango_layout = pango_cairo_create_layout(cairo_canvas);
             PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
+            cairo_t *cr = gtk_snapshot_append_cairo(snapshot, &background_rect);
             for(auto& drawn_molecule: *self->molecules) {
                 drawn_molecule.set_canvas_scale(self->scale);
-                drawn_molecule.draw(snapshot,pango_layout,&background_rect,self->display_mode);
+                drawn_molecule.draw(cr,pango_layout,self->display_mode);
             }
             g_object_unref(pango_layout);
+            cairo_destroy(cr);
         }
     } else {
         g_error("Molecules vector not initialized!");

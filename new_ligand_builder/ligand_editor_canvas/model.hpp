@@ -253,8 +253,9 @@ class CanvasMolecule {
     void perform_flip(FlipMode flip_mode);
     void rotate_by_angle(double radians);
 
-    /// Draws the molecule on the widget.
-    void draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, const graphene_rect_t *bounds, DisplayMode display_mode) const noexcept;
+    /// Draws the molecule using the provided PangoLayout and cairo_t.
+    /// Caller owns the pointers.
+    void draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode display_mode) const noexcept;
 
     /// Checks if any object matches the click coordinates passed as arguments.
     /// Returns the thing that was clicked on (or nullopt if there's no match).

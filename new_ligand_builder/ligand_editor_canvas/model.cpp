@@ -302,12 +302,10 @@ float CanvasMolecule::Bond::get_length() const noexcept {
     return std::sqrt(std::pow(bond_vector_x,2.f) + std::pow(bond_vector_y,2.f));
 }
 
-void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, const graphene_rect_t *bounds, DisplayMode display_mode) const noexcept {
+void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode display_mode) const noexcept {
     auto scale_factor = this->get_scale();
     auto x_offset = scale_factor * this->x_canvas_translation;
     auto y_offset = scale_factor * this->y_canvas_translation;
-
-    cairo_t *cr = gtk_snapshot_append_cairo(snapshot, bounds);
     
     cairo_set_line_width(cr, 0.5);
     // Used to truncate bonds not to cover atoms
@@ -850,8 +848,6 @@ void CanvasMolecule::draw(GtkSnapshot* snapshot, PangoLayout* pango_layout, cons
             }
         }
     }
-
-    cairo_destroy(cr);
 }
 
 CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
