@@ -105,7 +105,6 @@ void LigandBuilderState::load_from_smiles() {
 }
 
 void LigandBuilderState::file_import_molecule() {
-    // g_warning("TODO: Implement void LigandBuilderState::file_import_molecule()");
 
     GtkWidget *load_dialog = gtk_dialog_new();
     gtk_window_set_transient_for(GTK_WINDOW(load_dialog), this->main_window);
@@ -125,6 +124,9 @@ void LigandBuilderState::file_import_molecule() {
 
     gtk_box_append(GTK_BOX(dialog_body),entry);
 
+    GtkWidget* remove_hydrogens_checkbutton = gtk_check_button_new_with_label("Remove hydrogens");
+    gtk_box_append(GTK_BOX(dialog_body), remove_hydrogens_checkbutton);
+
     GtkWidget *submit_button = gtk_button_new_with_label("Submit");
     gtk_box_append(GTK_BOX(dialog_body), submit_button);
 
@@ -136,12 +138,22 @@ void LigandBuilderState::file_import_molecule() {
     gtk_window_set_child(GTK_WINDOW(load_dialog), dialog_body);
     gtk_window_present(GTK_WINDOW(load_dialog));
 
+    struct ImportDialogWidgets {
+        GtkEntryBuffer* entry_buf;
+        GtkCheckButton* remove_hydrogens_checkbutton;
+    };
+
+    ImportDialogWidgets* dialog_widgets = g_slice_new0(ImportDialogWidgets);
+    dialog_widgets->entry_buf = entry_buf;
+    dialog_widgets->remove_hydrogens_checkbutton = GTK_CHECK_BUTTON(remove_hydrogens_checkbutton);
+
     auto dialog_response = +[](GtkDialog* dialog, gint response_id, gpointer user_data) {
         if(response_id != GTK_RESPONSE_ACCEPT) {
             g_debug("Ignoring unhandled response type: %s", g_enum_to_string(gtk_response_type_get_type(), response_id));
             return;
         } else {
-            const char *text_buf = gtk_entry_buffer_get_text(GTK_ENTRY_BUFFER(user_data));
+            ImportDialogWidgets* dialog_widgets = (ImportDialogWidgets*) user_data;
+            const char *text_buf = gtk_entry_buffer_get_text(dialog_widgets->entry_buf);
             std::string monomer_type(text_buf);
             int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
             LigandBuilderState* self = static_cast<LigandBuilderState*>(g_object_get_data(G_OBJECT(dialog),
@@ -151,16 +163,17 @@ void LigandBuilderState::file_import_molecule() {
             std::pair<bool, dictionary_residue_restraints_t> p =
                 self->monomer_library_info_store->get_monomer_restraints(monomer_type, imol_enc);
             if (p.first) {
-                bool show_hydrogens_status = false;
+                bool should_remove_hydrogens = gtk_check_button_get_active(dialog_widgets->remove_hydrogens_checkbutton);
                 // todo: it'd be best to rewrite this function.
                 // It's a mess.
                 auto mol = std::make_unique<RDKit::RWMol>(coot::rdkit_mol(p.second));
-                if (! show_hydrogens_status) {
+                if (should_remove_hydrogens) {
                     remove_non_polar_hydrogens(mol.get());
                 }
                 self->append_molecule(mol.release());
                 self->current_filesave_molecule = coot_ligand_editor_get_molecule_count(self->canvas) - 1;
                 gtk_window_destroy(GTK_WINDOW(dialog));
+                g_slice_free(ImportDialogWidgets, user_data);
             } else {
                 g_warning("Failed to find monomer \"%s\"", monomer_type.c_str());
                 auto* message = gtk_message_dialog_new(
@@ -179,7 +192,7 @@ void LigandBuilderState::file_import_molecule() {
         }
    };
 
-   g_signal_connect(load_dialog, "response", G_CALLBACK(dialog_response), entry_buf);
+   g_signal_connect(load_dialog, "response", G_CALLBACK(dialog_response), dialog_widgets);
 }
 
 void LigandBuilderState::run_choose_element_dialog() {

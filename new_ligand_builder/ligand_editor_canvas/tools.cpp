@@ -713,6 +713,7 @@ void StructureInsertion::on_blank_space_click(impl::WidgetCoreData& widget_data,
 bool RemoveHydrogensTool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
     widget_data.begin_edition();
     ligand_editor::remove_non_polar_hydrogens(rdkit_mol.get());
+    this->sanitize_molecule(widget_data, *rdkit_mol);
     canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
     widget_data.finalize_edition();
     widget_data.update_status("Non-polar hydrogens have been removed.");
