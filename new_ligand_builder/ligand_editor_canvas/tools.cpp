@@ -704,6 +704,7 @@ void StructureInsertion::on_blank_space_click(impl::WidgetCoreData& widget_data,
         rdkit_mol->removeAtom((unsigned int) 0);
         // This function calls "begin_edition" and "finalize_edition", 
         // so we can't call "begin_edition" here above.
+        RDKit::MolOps::sanitizeMol(*rdkit_mol);
         coot_ligand_editor_append_molecule(COOT_COOT_LIGAND_EDITOR_CANVAS(widget_ptr), rdkit_mol);
         widget_data.update_status("New molecule created from carbon ring.");
         // todo: make sure that this is crash-safe vs edit/undo
