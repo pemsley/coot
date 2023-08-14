@@ -11,6 +11,7 @@
 #include <rdkit/GraphMol/MolOps.h>
 #include <rdkit/GraphMol/PeriodicTable.h>
 #include "../ligand_editor_canvas.hpp"
+#include "../ligand_builder_utils.hpp"
 
 using namespace coot::ligand_editor_canvas;
 
@@ -710,7 +711,11 @@ void StructureInsertion::on_blank_space_click(impl::WidgetCoreData& widget_data,
 }
 
 bool RemoveHydrogensTool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
-    g_warning("todo: Implement RemoveHydrogensTool");
+    widget_data.begin_edition();
+    ligand_editor::remove_non_polar_hydrogens(rdkit_mol.get());
+    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
+    widget_data.finalize_edition();
+    widget_data.update_status("Non-polar hydrogens have been removed.");
     return false;
 }
 

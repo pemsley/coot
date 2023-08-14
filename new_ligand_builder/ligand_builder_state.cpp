@@ -8,6 +8,8 @@
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesParse.h>
 #include <rdkit/GraphMol/FileParsers/FileParsers.h>
+#include "ligand_builder_utils.hpp"
+// todo: remove dependency on lidia-core
 #include "lidia-core/rdkit-interface.hh"
 #include <string>
 
@@ -154,7 +156,7 @@ void LigandBuilderState::file_import_molecule() {
                 // It's a mess.
                 auto mol = std::make_unique<RDKit::RWMol>(coot::rdkit_mol(p.second));
                 if (! show_hydrogens_status) {
-                    coot::remove_non_polar_Hs(mol.get());
+                    remove_non_polar_hydrogens(mol.get());
                 }
                 self->append_molecule(mol.release());
                 self->current_filesave_molecule = coot_ligand_editor_get_molecule_count(self->canvas) - 1;
