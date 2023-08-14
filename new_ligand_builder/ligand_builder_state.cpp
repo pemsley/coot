@@ -148,6 +148,8 @@ void LigandBuilderState::file_import_molecule() {
                 self->monomer_library_info_store.get_monomer_restraints(monomer_type, imol_enc);
             if (p.first) {
                 bool show_hydrogens_status = false;
+                // todo: it'd be best to rewrite this function.
+                // It's a mess.
                 auto mol = std::make_unique<RDKit::RWMol>(coot::rdkit_mol(p.second));
                 if (! show_hydrogens_status) {
                     coot::remove_non_polar_Hs(mol.get());
