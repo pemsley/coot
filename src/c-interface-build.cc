@@ -117,9 +117,6 @@
  void set_model_fit_refine_rotate_translate_zone_label(const char *txt) {
    graphics_info_t::model_fit_refine_rotate_translate_zone_string = txt;
    // if we have the dialog open we shall change the label
-   if (graphics_info_t::model_fit_refine_dialog) {
-     update_model_fit_refine_dialog_buttons(graphics_info_t::model_fit_refine_dialog);
-   }
    std::vector<std::string> command_strings;
    command_strings.push_back("set-model-fit-refine-rotate-translate-zone-label");
    command_strings.push_back(txt);
