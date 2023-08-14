@@ -56,6 +56,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_meshes_with_shadows,
                                                            shader_for_meshes_shadow_map,
                                                            shader_for_meshes_for_ssao,
+                                                           shader_for_instanced_meshes_with_shadows,
                                                            shader_for_tmeshes_for_ssao,
                                                            shader_for_tmeshes_with_shadows,
                                                            shader_for_texture_meshes_shadow_map,
@@ -80,6 +81,7 @@ graphics_info_t::init_shaders() {
       it->get().set_default_directory(d);
 
    // crows
+   shader_for_instanced_meshes_with_shadows.init("instanced-meshes-with-shadows.shader", Shader::Entity_t::MAP);
    shader_for_meshes_with_shadows.init("meshes-with-shadows.shader",                Shader::Entity_t::MAP);
    shader_for_meshes_shadow_map.init("meshes-shadow-map.shader",                    Shader::Entity_t::MAP);
    shader_for_meshes_for_ssao.init("meshes-for-ssao.shader",                        Shader::Entity_t::MAP);

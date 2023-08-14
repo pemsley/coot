@@ -796,6 +796,9 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 void
 graphics_info_t::draw_model_molecules() {
 
+   // This is only called in "Plain" mode - i.e. it is not used in "Fancy" mode.
+   // This function is called by draw_molecules(), which in turn is called by render_3d_scene()
+
    glm::mat4 mvp = get_molecule_mvp();
 
    // std::cout << "debug:: mvp in draw_model_molecules() is     " << glm::to_string(mvp) << std::endl;
@@ -1717,11 +1720,16 @@ graphics_info_t::draw_molecules_with_shadows() {
             } else {
 
                float opacity = 1.0;
-               shader_for_meshes_with_shadows.Use();
-               shader_for_meshes_with_shadows.set_bool_for_uniform("do_fresnel", false); // models should not fresnel
+               shader_for_instanced_meshes_with_shadows.Use();
+               shader_for_instanced_meshes_with_shadows.set_bool_for_uniform("do_fresnel", false); // models should not fresnel
+#if 0 // before model molecules were instanced
                m.molecule_as_mesh.draw_with_shadows(&shader_for_meshes_with_shadows, mvp, model_rotation_matrix, lights,
                                                     eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
                                                     shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
+#endif
+               m.draw_molecule_as_meshes_with_shadows(&shader_for_instanced_meshes_with_shadows, mvp, model_rotation_matrix, lights,
+                                                      eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
+                                                      shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
             }
 
             // this has not been shadowified:
@@ -4135,10 +4143,12 @@ void
 graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
 
    // note: this function is called from render_scene_sans_depth_blur()
+   // 20230814-PE Is it?
+   //             It is not used by the "Fancy" frame-buffer path
 
    //  ------------------- render scene ----------------------------
 
-   // std::cout << "render_3d_scene() start" << std::endl;
+   std::cout << "render_3d_scene() start" << std::endl;
 
    glEnable(GL_DEPTH_TEST);
 

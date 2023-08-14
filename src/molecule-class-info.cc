@@ -4016,6 +4016,7 @@ molecule_class_info_t::make_colour_table() const {
    return colour_table;
 }
 
+
 void
 molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be an argument SMOOTH, FAST, default FAST
 
@@ -4335,6 +4336,68 @@ molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
    molecule_as_mesh_bonds_c11.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
 
 }
+
+
+// draw molecule as instanced meshes.
+void
+molecule_class_info_t::draw_molecule_as_meshes_for_ssao(Shader *shader_p,
+                                                        const glm::mat4 &model_matrix,
+                                                        const glm::mat4 &view_matrix,
+                                                        const glm::mat4 &projection_matrix) {
+
+   if (true) {
+      std::cout << "draw_molecule_as_meshes_for_ssao() shader " << shader_p->name << " " << std::endl;
+      std::cout << "   model_matrix " << glm::to_string(model_matrix) << std::endl;
+      std::cout << "   view_matrix " << glm::to_string(view_matrix) << std::endl;
+      std::cout << "   proj_matrix " << glm::to_string(projection_matrix) << std::endl;
+   }
+
+   bool transferred_colour_is_instanced = true;
+   molecule_as_mesh_atoms_1.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
+   molecule_as_mesh_atoms_2.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
+   molecule_as_mesh_bonds_c00.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
+   molecule_as_mesh_bonds_c01.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
+   molecule_as_mesh_bonds_c10.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
+   molecule_as_mesh_bonds_c11.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
+
+}
+
+// instanced models
+void
+molecule_class_info_t::draw_molecule_as_meshes_with_shadows(Shader *shader,
+                                                            const glm::mat4 &mvp,
+                                                            const glm::mat4 &model_rotation_matrix,
+                                                            const std::map<unsigned int, lights_info_t> &lights,
+                                                            const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                                            float opacity,
+                                                            const glm::vec4 &background_colour,
+                                                            bool do_depth_fog,
+                                                            const glm::mat4 &light_view_mvp,
+                                                            unsigned int shadow_depthMap,
+                                                            float shadow_strength,
+                                                            unsigned int shadow_softness, // 1, 2 or 3.
+                                                            bool show_just_shadows) {
+
+   std::vector<std::reference_wrapper<Mesh> > meshes = {
+      molecule_as_mesh_atoms_1,
+      molecule_as_mesh_atoms_2,
+      molecule_as_mesh_bonds_c00,
+      molecule_as_mesh_bonds_c01,
+      molecule_as_mesh_bonds_c10,
+      molecule_as_mesh_bonds_c11};
+
+   std::vector<std::reference_wrapper<Mesh> >::iterator it;
+   for (it=meshes.begin(); it!=meshes.end(); ++it) {
+      auto &mesh(it->get());
+      std::cout << "in draw_molecule_as_meshes_with_shadows() drawing instanced_mesh " << mesh.name << std::endl;
+      mesh.draw_with_shadows(shader, mvp, model_rotation_matrix, lights,
+                             eye_position, opacity, background_colour, do_depth_fog, light_view_mvp,
+                             shadow_depthMap, shadow_strength, shadow_softness, show_just_shadows);
+   }
+
+}
+
+
 
 
 

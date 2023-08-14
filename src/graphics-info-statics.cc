@@ -1744,6 +1744,7 @@ GLuint graphics_info_t::screen_AO_quad_VBO = 0;
 
 Shader graphics_info_t::shader_for_tmeshes_with_shadows;
 Shader graphics_info_t::shader_for_meshes_with_shadows;
+Shader graphics_info_t::shader_for_instanced_meshes_with_shadows;
 HUDTextureMesh graphics_info_t::tmesh_for_shadow_map = HUDTextureMesh("tmesh-for-shadow-map");
 
 bool graphics_info_t::stereo_style_2010 = false;

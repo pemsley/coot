@@ -4990,6 +4990,7 @@ string   static std::string sessionid;
    static Shader shader_for_texture_meshes_shadow_map;
    static Shader shader_for_meshes_shadow_map;
    static Shader shader_for_shadow_map_image_texture_mesh;
+   static Shader shader_for_instanced_meshes_with_shadows;
    static Shader shader_for_effects; // colour balance or gamma ramp, say.
    static float shadow_box_size; // 20220402-PE needs to be big enough to cover the molecule. How big is that? I don't know how to
                                  // calculate it now, so let the user decide.

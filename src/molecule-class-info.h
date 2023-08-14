@@ -3754,7 +3754,7 @@ void draw_map_molecule(bool draw_transparent_maps,
 
    static glm::vec4 get_glm_colour_func(int idx_col, int bonds_box_type);
 
-   // date user-defined colours that come together with the instanced bonds.
+   // 20230813-PE user-defined colours that come together with the instanced bonds.
    // adding colours using the functions below add into user_defined_colours
    std::vector<coot::colour_holder> user_defined_bond_colours;
 
@@ -3789,6 +3789,27 @@ void draw_map_molecule(bool draw_transparent_maps,
                                 const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                                 const glm::vec4 &background_colour,
                                 bool do_depth_fog);
+
+   // instanced models
+   void draw_molecule_as_meshes_for_ssao(Shader *shader_p,
+                                         const glm::mat4 &model_matrix,
+                                         const glm::mat4 &view_matrix,
+                                         const glm::mat4 &projection_matrix);
+   // instanced models
+   void draw_molecule_as_meshes_with_shadows(Shader *shader,
+                                             const glm::mat4 &mvp,
+                                             const glm::mat4 &model_rotation_matrix,
+                                             const std::map<unsigned int, lights_info_t> &lights,
+                                             const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                             float opacity,
+                                             const glm::vec4 &background_colour,
+                                             bool do_depth_fog,
+                                             const glm::mat4 &light_view_mvp,
+                                             unsigned int shadow_depthMap,
+                                             float shadow_strength,
+                                             unsigned int shadow_softness, // 1, 2 or 3.
+                                             bool show_just_shadows);
+
    void draw_symmetry(Shader *shader_p,
                       const glm::mat4 &mvp,
                       const glm::mat4 &mouse_based_rotation_matrix,
