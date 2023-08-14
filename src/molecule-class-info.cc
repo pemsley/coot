@@ -3967,6 +3967,7 @@ molecule_class_info_t::make_colour_table() const {
                }
             } else {
                coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
+               cc.brighter(0.8); // calm down - now that we are using the instanced-object.shader - the molecule is too bright.
                colour_table[icol] = cc.to_glm();
             }
          }
@@ -4156,21 +4157,13 @@ molecule_class_info_t::set_user_defined_atom_colour_by_selection(const std::vect
 void
 molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
 
-
-   std::cout << "#####################################################################################################" << std::endl;
-   std::cout << "#####################################################################################################" << std::endl;
-   std::cout << "#####################################################################################################" << std::endl;
-   std::cout << "                         make_meshes_from_bonds_box_instanced_version() " << std::endl;
-   std::cout << "#####################################################################################################" << std::endl;
-   std::cout << "#####################################################################################################" << std::endl;
-
    if (atom_sel.mol) {
 
       unsigned int num_subdivisions = 2;
       unsigned int n_slices = 8;
       unsigned int n_stacks = 2; // try 1
-      float atom_radius = 0.026 * bond_width; // use atom_radius_scale_factor
-      float bond_radius = atom_radius;
+      float bond_radius = 0.026 * bond_width;
+      float atom_radius = bond_radius * atom_radius_scale_factor;
 
       // something like this
       // float radius_scale = 0.2 * bond_width; // arbs
