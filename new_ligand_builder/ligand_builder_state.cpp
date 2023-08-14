@@ -34,6 +34,7 @@ void LigandBuilderState::update_status(const char* new_status) noexcept {
 }
 
 void LigandBuilderState::append_molecule(RDKit::RWMol* molecule_ptr) {
+    RDKit::MolOps::sanitizeMol(*molecule_ptr);
     coot_ligand_editor_append_molecule(this->canvas, std::shared_ptr<RDKit::RWMol>(molecule_ptr));
 }
 
@@ -79,6 +80,8 @@ void LigandBuilderState::load_from_smiles() {
             if(!molecule) {
                 throw std::runtime_error("RDKit::RWMol* is a nullptr. The SMILES code is probably invalid.");
             }
+            // We don't need that here, do we?
+            // RDKit::MolOps::sanitizeMol(*molecule);
             g_info("SMILES Import: Molecule constructed.");
             LigandBuilderState* state = (LigandBuilderState*) g_object_get_data(G_OBJECT(dialog), "ligand_builder_instance");
             state->append_molecule(molecule);
@@ -170,6 +173,7 @@ void LigandBuilderState::file_import_molecule() {
                 if (should_remove_hydrogens) {
                     remove_non_polar_hydrogens(mol.get());
                 }
+                RDKit::MolOps::sanitizeMol(*mol);
                 self->append_molecule(mol.release());
                 self->current_filesave_molecule = coot_ligand_editor_get_molecule_count(self->canvas) - 1;
                 gtk_window_destroy(GTK_WINDOW(dialog));
