@@ -5418,7 +5418,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
    // User-defined colours trump everything.
    int idx_col_udd;
    if (at->GetUDData(udd_user_defined_atom_colour_index_handle, idx_col_udd) == mmdb::UDDATA_Ok) {
-      std::cout << "in atom_colour(): for atom " << at << " using user defined colour " << idx_col_udd << std::endl;
+      // std::cout << "in atom_colour(): for atom " << at << " using user defined colour " << idx_col_udd << std::endl;
       return idx_col_udd;
    }
 
@@ -6802,8 +6802,9 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
    int udd_bond_handle = -1; // surely this is not right.
 
    int udd_user_defined_atom_colour_index_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
-   std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@ here with udd_user_defined_atom_colour_index_handle " << udd_user_defined_atom_colour_index_handle
-             << std::endl;
+
+   //std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@ here with udd_user_defined_atom_colour_index_handle " << udd_user_defined_atom_colour_index_handle
+   // << std::endl;
 
    if (false) {
       int imod = 1;
