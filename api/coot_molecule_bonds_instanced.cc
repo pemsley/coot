@@ -550,15 +550,18 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
    }
 
    if (mode == "CA+LIGANDS") {
+
       Bond_lines_container bonds(geom);
       float min_dist = 2.4;
       float max_dist = 4.7;
       bool draw_missing_residue_loops_flag = true;
       bonds.do_Ca_plus_ligands_bonds(atom_sel_ligand, imol_no, geom, min_dist, max_dist, draw_hydrogen_atoms_flag,
                                      draw_missing_residue_loops_flag);
+      bonds_box.clear_up();
       bonds_box = bonds.make_graphical_bonds_no_thinning();
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
       make_instanced_graphical_bonds_bonds(m, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
+      bonds_box.clear_up();
    }
 
    if (mode == "VDW-BALLS") {

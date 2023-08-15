@@ -4924,7 +4924,18 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 
    int udd_user_defined_atom_colour_index_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
 
-   auto new_style_nucleotide_backbone_chain_rep = [this] (int imod,  mmdb::Chain *chain_p,
+   auto get_atom_colour_index = [udd_user_defined_atom_colour_index_handle] (mmdb:: Atom *at,
+                                                                             const std::string &chain_id,
+                                                                             coot::my_atom_colour_map_t &atom_colour_map) {
+      int idx_col = atom_colour_map.index_for_chain(chain_id);
+      int idx_col_udd;
+      if (at->GetUDData(udd_user_defined_atom_colour_index_handle, idx_col_udd) == mmdb::UDDATA_Ok) {
+         idx_col = idx_col_udd;
+      }
+      return idx_col;
+   };
+
+   auto new_style_nucleotide_backbone_chain_rep = [this, get_atom_colour_index] (int imod,  mmdb::Chain *chain_p,
                                                           int n_atoms_prev, mmdb::Residue *residue_prev, int n_atoms_this, mmdb::Residue *residue_this,
                                                           const std::string &res_name_1, const std::string &res_name_2,
                                                           int udd_atom_index_handle, int bond_colour_type,
@@ -4958,8 +4969,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
                      int iat_2 = -1;
                      at_1->GetUDData(udd_atom_index_handle, iat_1);
                      at_2->GetUDData(udd_atom_index_handle, iat_2);
-                     int col_1 = atom_colour_map.index_for_chain(chain_id);
-                     int col_2 = atom_colour_map.index_for_chain(chain_id);
+                     int col_1 = get_atom_colour_index(at_1, chain_id, atom_colour_map);
                      addBond(col_1, pt_1, bond_mid_point, cc, imod, iat_1, iat_2, false, false);
                      addBond(col_1, bond_mid_point, pt_2, cc, imod, iat_1, iat_2, false, false);
                      at_1->PutUDData(udd_has_bond_handle, 1);
@@ -5024,7 +5034,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
                      int iat_2 = -1;
                      at_1->GetUDData(udd_atom_index_handle, iat_1);
                      at_2->GetUDData(udd_atom_index_handle, iat_2);
-                     int col_1 = atom_colour_map.index_for_chain(chain_id);
+                     int col_1 = get_atom_colour_index(at_1, chain_id, atom_colour_map);
                      addBond(col_1, pt_1, pt_2, cc, imod, iat_1, iat_2);
                      at_1->PutUDData(udd_has_bond_handle, 1);
                      at_2->PutUDData(udd_has_bond_handle, 1);
@@ -5038,7 +5048,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
       }
    };
 
-   auto CA_CA_or_P_P = [this] (int imod, mmdb::Chain *chain_p,
+   auto CA_CA_or_P_P = [this, get_atom_colour_index] (int imod, mmdb::Chain *chain_p,
                                int n_atoms_prev, mmdb::Residue *residue_prev, int n_atoms_this, mmdb::Residue *residue_this,
                                const std::string &res_name_1, const std::string &res_name_2,
                                float dist_max_CA_CA, float dist_max_P_P,
@@ -5051,6 +5061,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
                                int udd_has_ca_handle) {
 
       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+      std::string chain_id = chain_p->GetChainID();
 
       // normal case (not a gap in the sequence)
       for (int iat=0; iat<n_atoms_prev; iat++) {
@@ -5137,7 +5148,9 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
                                           if (col_2 < 0) // ditto
                                              col_2 = 0;
                                        } else {
-                                          col_1 = atom_colour_map.index_for_chain(chain_p->GetChainID());
+
+                                          // col_1 = atom_colour_map.index_for_chain(chain_p->GetChainID());
+                                          col_1 = get_atom_colour_index(at_1, chain_id, atom_colour_map);
                                           col_2 = col_1;
                                        }
                                     }
