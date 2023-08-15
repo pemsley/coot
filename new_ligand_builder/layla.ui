@@ -109,7 +109,7 @@
         <child>
           <object class="GtkActionBar" id="layla_per_molecule_tools_toolbar">
             <child>
-              <object class="GtkButton" id="layla_move_button">
+              <object class="GtkToggleButton" id="layla_move_button">
                 <signal name="clicked" handler="layla_on_move_button_clicked" swapped="no" object="layla_window" />
                 <child>
                   <object class="GtkBox">
@@ -133,8 +133,9 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="layla_rotate_button">
+              <object class="GtkToggleButton" id="layla_rotate_button">
                 <signal name="clicked" handler="layla_on_rotate_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -157,8 +158,9 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="layla_flip_x_button">
+              <object class="GtkToggleButton" id="layla_flip_x_button">
                 <signal name="clicked" handler="layla_on_flip_x_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -181,8 +183,9 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="layla_flip_y_button">
+              <object class="GtkToggleButton" id="layla_flip_y_button">
                 <signal name="clicked" handler="layla_on_flip_y_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -208,8 +211,9 @@
               <object class="GtkSeparator"></object>
             </child>
             <child type="end">
-              <object class="GtkButton" id="layla_format_button">
+              <object class="GtkToggleButton" id="layla_format_button">
                 <signal name="clicked" handler="layla_on_format_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -232,8 +236,9 @@
               </object>
             </child>
             <child type="end">
-              <object class="GtkButton" id="layla_delete_hydrogens_button">
+              <object class="GtkToggleButton" id="layla_delete_hydrogens_button">
                 <signal name="clicked" handler="layla_on_delete_hydrogens_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -260,8 +265,9 @@
         <child>
           <object class="GtkActionBar" id="layla_editor_tools_toolbar">
             <child>
-              <object class="GtkButton" id="layla_single_bond_button">
+              <object class="GtkToggleButton" id="layla_single_bond_button">
                 <signal name="clicked" handler="layla_on_single_bond_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -284,8 +290,9 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="layla_double_bond_button">
+              <object class="GtkToggleButton" id="layla_double_bond_button">
                 <signal name="clicked" handler="layla_on_double_bond_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -308,8 +315,9 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="layla_triple_bond_button">
+              <object class="GtkToggleButton" id="layla_triple_bond_button">
                 <signal name="clicked" handler="layla_on_triple_bond_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -332,8 +340,9 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="layla_geometry_button">
+              <object class="GtkToggleButton" id="layla_geometry_button">
                 <signal name="clicked" handler="layla_on_geometry_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -356,8 +365,9 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="layla_charge_button">
+              <object class="GtkToggleButton" id="layla_charge_button">
                 <signal name="clicked" handler="layla_on_charge_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -380,8 +390,9 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="layla_delete_button">
+              <object class="GtkToggleButton" id="layla_delete_button">
                 <signal name="clicked" handler="layla_on_delete_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -480,8 +491,9 @@
         <child>
           <object class="GtkActionBar" id="layla_carbon_ring_picker">
             <child>
-              <object class="GtkButton" id="layla_3C_button">
+              <object class="GtkToggleButton" id="layla_3C_button">
                 <signal name="clicked" handler="layla_on_3C_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -505,8 +517,9 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="layla_4C_button">
+              <object class="GtkToggleButton" id="layla_4C_button">
                 <signal name="clicked" handler="layla_on_4C_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -530,8 +543,9 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="layla_5C_button">
+              <object class="GtkToggleButton" id="layla_5C_button">
                 <signal name="clicked" handler="layla_on_5C_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -555,8 +569,9 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="layla_6C_button">
+              <object class="GtkToggleButton" id="layla_6C_button">
                 <signal name="clicked" handler="layla_on_6C_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -580,8 +595,9 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="layla_6Arom_button">
+              <object class="GtkToggleButton" id="layla_6Arom_button">
                 <signal name="clicked" handler="layla_on_6Arom_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -605,8 +621,9 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="layla_7C_button">
+              <object class="GtkToggleButton" id="layla_7C_button">
                 <signal name="clicked" handler="layla_on_7C_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -630,8 +647,9 @@
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="layla_8C_button">
+              <object class="GtkToggleButton" id="layla_8C_button">
                 <signal name="clicked" handler="layla_on_8C_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -664,69 +682,80 @@
                 <property name="orientation">vertical</property>
                 <property name="spacing">5</property>
                 <child>
-                  <object class="GtkButton" id="layla_C_button">
+                  <object class="GtkToggleButton" id="layla_C_button">
                     <property name="label">C</property>
                     <signal name="clicked" handler="layla_on_C_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="layla_N_button">
+                  <object class="GtkToggleButton" id="layla_N_button">
                     <property name="label">N</property>
                     <signal name="clicked" handler="layla_on_N_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="layla_O_button">
+                  <object class="GtkToggleButton" id="layla_O_button">
                     <property name="label">O</property>
                     <signal name="clicked" handler="layla_on_O_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="layla_S_button">
+                  <object class="GtkToggleButton" id="layla_S_button">
                     <property name="label">S</property>
                     <signal name="clicked" handler="layla_on_S_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="layla_P_button">
+                  <object class="GtkToggleButton" id="layla_P_button">
                     <property name="label">P</property>
                     <signal name="clicked" handler="layla_on_P_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="layla_H_button">
+                  <object class="GtkToggleButton" id="layla_H_button">
                     <property name="label">H</property>
                     <signal name="clicked" handler="layla_on_H_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="layla_F_button">
+                  <object class="GtkToggleButton" id="layla_F_button">
                     <property name="label">F</property>
                     <signal name="clicked" handler="layla_on_F_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="layla_Cl_button">
+                  <object class="GtkToggleButton" id="layla_Cl_button">
                     <property name="label">Cl</property>
                     <signal name="clicked" handler="layla_on_Cl_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="layla_Br_button">
+                  <object class="GtkToggleButton" id="layla_Br_button">
                     <property name="label">Br</property>
                     <signal name="clicked" handler="layla_on_Br_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="layla_I_button">
+                  <object class="GtkToggleButton" id="layla_I_button">
                     <property name="label">I</property>
                     <signal name="clicked" handler="layla_on_I_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="layla_X_button">
+                  <object class="GtkToggleButton" id="layla_X_button">
                     <property name="label">X</property>
                     <signal name="clicked" handler="layla_on_X_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
                   </object>
                 </child>
               </object>
