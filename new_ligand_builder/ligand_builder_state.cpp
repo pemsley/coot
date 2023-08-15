@@ -1,9 +1,13 @@
 #include "ligand_builder_state.hpp"
+
 #include "geometry/protein-geometry.hh"
 #include "ligand_editor_canvas.hpp"
 #include <exception>
 #include <memory>
 #include <stdexcept>
+#include <cairo.h>
+#include <cairo/cairo-pdf.h>
+#include <cairo/cairo-svg.h>
 #include <gtk/gtk.h>
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesParse.h>
@@ -430,20 +434,40 @@ void LigandBuilderState::file_open() {
 }
 
 void LigandBuilderState::file_export(ExportMode mode) {
-    g_warning("TODO: Implement exports.");
+    cairo_surface_t* target = nullptr;
+    auto draw = [&](){
+        if(target) {
+            cairo_t* cr = cairo_create(target);
+            coot_ligand_editor_draw_on_cairo_surface(this->canvas, cr);
+        }
+    };
+    g_warning("TODO: Finish implementing exports.");
+    // dummy for now
+    int width = 1000;
+    int height = 1000;
     switch (mode) {
         case ExportMode::PDF: {
+            target = cairo_pdf_surface_create("output.pdf", width, height);
+            draw();
             break;
         }
         case ExportMode::PNG: {
+            target = cairo_image_surface_create(CAIRO_FORMAT_RGBA128F, width, height);
+            draw();
+            cairo_surface_write_to_png(target, "output.png");
             break;
         }
         case ExportMode::SVG: {
+            target = cairo_svg_surface_create("output.svg", width, height);
+            draw();
             break;
         }
         default: {
             break;
         }
+    }
+    if(target) {
+        cairo_surface_destroy(target);
     }
 }
 
