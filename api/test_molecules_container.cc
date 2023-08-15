@@ -3165,21 +3165,36 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
             if (close_float(colour_table[13][0], 0.0))
                if (close_float(colour_table[13][1], 1.0))
                   if (close_float(colour_table[13][2], 1.0))
-                     status = true;
+                     status = 1;
 
    coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol, "//A/1-3", "VDW-BALLS", false, 0.1, 1.0, 1);
    if (! im.geom.empty()) {
       const coot::instanced_geometry_t &ig = im.geom[0]; // 0 is spheres
-      std::cout << "im type A " << ig.instancing_data_A.size() << std::endl;
+      std::cout << "debug:: in im type A data size: " << ig.instancing_data_A.size() << std::endl;
       if (ig.instancing_data_A.size() == 25) {
          // as it should be!
+
+         // The colour of the [11]th atom ("CA") should be 1,0,1
+
+         for (unsigned int i=0; i<25; i++) {
+            const auto &sphere = ig.instancing_data_A[i];
+            if (false)
+               std::cout << "sphere " << i << " pos " << glm::to_string(sphere.position) << " colour " << glm::to_string(sphere.colour)
+                         << std::endl;
+            if (i == 11) { // the is "CA" the CA in the first residue (strangely)
+               status = 0;
+               if (close_float(sphere.colour[0], 1.0))
+                  if (close_float(sphere.colour[1], 0.0))
+                     if (close_float(sphere.colour[2], 1.0))
+                        status = 1;
+            }
+         }
+         
       } else {
          status = 0;
       }
    }
-
    return status;
-
 }
 
 int test_template(molecules_container_t &mc) {

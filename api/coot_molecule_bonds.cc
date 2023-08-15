@@ -71,28 +71,51 @@ coot::molecule_t::set_user_defined_bond_colours(const std::map<unsigned int, std
 //! user-defined atom selection to colour index
 // This function should be called `set_user_defined_atom_colour_by_selections`
 void
-coot::molecule_t::set_user_defined_atom_colour_by_residue(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
-                                                          bool colour_applies_to_non_carbon_atoms_also) {
+coot::molecule_t::set_user_defined_atom_colour_by_selections(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
+                                                             bool colour_applies_to_non_carbon_atoms_also,
+                                                             mmdb::Manager *mol) {
 
+   store_user_defined_atom_colour_selections(indexed_residues_cids, colour_applies_to_non_carbon_atoms_also);
+   apply_user_defined_atom_colour_selections(indexed_residues_cids, colour_applies_to_non_carbon_atoms_also, mol);
+
+}
+
+void
+coot::molecule_t::store_user_defined_atom_colour_selections(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids_in,
+                                                            bool colour_applies_to_non_carbon_atoms_also_in) {
+
+   indexed_user_defined_colour_selection_cids = indexed_residues_cids_in;
+   indexed_user_defined_colour_selection_cids_apply_to_non_carbon_atoms_also = colour_applies_to_non_carbon_atoms_also_in;
+
+}
+
+void
+coot::molecule_t::apply_user_defined_atom_colour_selections(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
+                                                            bool colour_applies_to_non_carbon_atoms_also,
+                                                            mmdb::Manager *mol) {
    if (! is_valid_model_molecule()) return;
 
-   int udd_handle = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+   if (indexed_residues_cids.empty()) return;
+
+   int udd_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
    if (udd_handle == 0)
-      udd_handle = atom_sel.mol->RegisterUDInteger(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+      udd_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
 
    for (unsigned int i=0; i<indexed_residues_cids.size(); i++) {
       const auto &rc = indexed_residues_cids[i];
       const std::string &cid = rc.first;
       int colour_index = rc.second; // change type
-      int selHnd = atom_sel.mol->NewSelection(); // d
+      int selHnd = mol->NewSelection(); // d
 
       mmdb::Residue **SelResidues;
       int nSelResidues = 0;
-      atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_NEW);
-      atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+      mol->Select(selHnd, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_NEW);
+      mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+      // std::cout << "debug:: in apply_user_defined_atom_colour_selections() selected " << nSelResidues << " residues" << std::endl;
       if (nSelResidues > 0) {
          for(int ires=0; ires<nSelResidues; ires++) {
             mmdb::Residue *residue_p = SelResidues[ires];
+            if (residue_p == nullptr) continue; // just in case.
 
 	    mmdb::Atom **residue_atoms = 0;
 	    int n_residue_atoms;
@@ -105,12 +128,16 @@ coot::molecule_t::set_user_defined_atom_colour_by_residue(const std::vector<std:
                   if (ierr != mmdb::UDDATA_Ok) {
                      std::cout << "WARNING:: in set_user_defined_atom_colour_by_residue() problem setting udd on atom "
                                << coot::atom_spec_t(at) << std::endl;
+                  } else {
+                     if (false)
+                        std::cout << "debug:: set_user_defined_atom_colour_by_residue() sets user-define atom colour index "
+                                  << "of atom " << coot::atom_spec_t(at) << "to " << colour_index << std::endl;
                   }
                }
 	    }
          }
       }
-      atom_sel.mol->DeleteSelection(selHnd);
+      mol->DeleteSelection(selHnd);
    }
 }
 
@@ -1345,14 +1372,15 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
                      colour_table[icol] = glm_col;
                   } else {
                      std::cout << "debug:: user_defined_bond_colours has size " << user_defined_bond_colours.size()
-                               << " but index " << icol << " was not found!" << std::endl;
+                               << " index " << icol << " was not found in the user-defined bond colours"
+                               << std::endl;
                   }
                } else {
                   std::cout << "debug:: Sad! user_defined_bond_colours was empty" << std::endl;
                }
 
                if (debug_colour_table) { // debugging colours
-                  std::cout << "colour_table: B imol " << imol_no << " icol " << std::setw(3) << icol << " has "
+                  std::cout << "debug:: colour_table: B imol " << imol_no << " icol " << std::setw(3) << icol << " has "
                             << std::setw(4) << n_bonds << " bonds dark-bg: " << dark_bg_flag
                             << " colour: " << glm::to_string(colour_table[icol]) << std::endl;
                }
@@ -1361,6 +1389,15 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
             }
          }
       }
+
+      if (debug_colour_table) {
+         std::cout << "Here is the user-defined colour table:" << std::endl;
+         std::map<unsigned int, colour_holder>::const_iterator it_bc;
+         for (it_bc=user_defined_bond_colours.begin(); it_bc!=user_defined_bond_colours.end(); ++it_bc) {
+            std::cout << "   " << it_bc->first << " " << it_bc->second << std::endl;
+         }
+      }
+
    }
    // 20220303-PE why does this happen? (it happens when refining the newly imported 3GP ligand)
    // I guess the bonds_box for the remaining atoms (there are none of them) is incorrectly constructed.

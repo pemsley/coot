@@ -1725,7 +1725,8 @@ void
 molecules_container_t::set_user_defined_atom_colour_by_selection(int imol, const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids, bool colour_applies_to_non_carbon_atoms_also) {
 
    if (is_valid_model_molecule(imol)) {
-      molecules[imol].set_user_defined_atom_colour_by_residue(indexed_residues_cids, colour_applies_to_non_carbon_atoms_also);
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol; // mol in the following argument need not be this mol
+      molecules[imol].set_user_defined_atom_colour_by_selections(indexed_residues_cids, colour_applies_to_non_carbon_atoms_also, mol);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

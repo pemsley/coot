@@ -376,6 +376,8 @@ namespace coot {
             }
             std::cout << "-------------" << std::endl;
          }
+
+         indexed_user_defined_colour_selection_cids_apply_to_non_carbon_atoms_also = true;
       }
 
    public:
@@ -544,14 +546,29 @@ namespace coot {
       // adding colours using the functions below add into user_defined_colours
       std::map<unsigned int, colour_holder> user_defined_bond_colours;
 
+      // we store these variables so that they can be used by (temporary) molecules constructed from atom selections
+      //
+      std::vector<std::pair<std::string, unsigned int> > indexed_user_defined_colour_selection_cids;
+      bool indexed_user_defined_colour_selection_cids_apply_to_non_carbon_atoms_also;
+
       //! user-defined colour-index to colour
       //! (internallly, this converts the `colour_map` to the above vector of colour holders, so it's probably a good idea
       //! if the colour (index) keys are less than 200 or so.
       void set_user_defined_bond_colours(const std::map<unsigned int, std::array<float, 3> > &colour_map);
 
-      //! user-defined atom selection to colour index
-      void set_user_defined_atom_colour_by_residue(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
-                                                   bool colour_applies_to_non_carbon_atoms_also);
+      //! user-defined atom selection to colour index.
+      // make this static?
+      void set_user_defined_atom_colour_by_selections(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
+                                                      bool colour_applies_to_non_carbon_atoms_also,
+                                                      mmdb::Manager *mol);
+
+      // need not be public
+      void store_user_defined_atom_colour_selections(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
+                                                     bool colour_applies_to_non_carbon_atoms_also);
+
+      void apply_user_defined_atom_colour_selections(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
+                                                     bool colour_applies_to_non_carbon_atoms_also,
+                                                     mmdb::Manager *mol);
 
       //! set the colour wheel rotation base for the specified molecule
       void set_colour_wheel_rotation_base(float r);

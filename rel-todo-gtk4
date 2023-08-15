@@ -50,8 +50,6 @@ Is the em radius saved to the state file? :: 0.2
 
 Bring the script that shows the SSOA buffer to GTK4 and try to fix the aniostropy. ::: 0.4
 
-add a "Grab focus" before going in to fullscreen! ::: 0.5
-
 Clean up "store_window_position()" usage ::: 1
 
 Put the gtk version in the build_type? Currently Linux-x86_64-ubuntu-21.10-gtk4
@@ -803,3 +801,7 @@ It needs an extra distance criterion for distance to a hydrogen atom. ::: 2
 
 Make the run-script dialog be transient ::: 0.2
 * Done.
+
+add a "Grab focus" before going in to fullscreen! ::: 0.5
+* Done.
+

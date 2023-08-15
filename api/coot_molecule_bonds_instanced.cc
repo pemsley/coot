@@ -456,8 +456,8 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
 
 coot::instanced_mesh_t
 coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode, const std::string &atom_selection_cid,
-                                                         coot::protein_geometry *geom,
-                                                         bool against_a_dark_background, float bond_radius, float atom_radius_to_bond_width_ratio,
+                                                         coot::protein_geometry *geom, bool against_a_dark_background,
+                                                         float bond_radius, float atom_radius_to_bond_width_ratio,
                                                          int  num_subdivisions,
                                                          bool draw_hydrogen_atoms_flag,
                                                          bool draw_missing_residue_loops) {
@@ -501,10 +501,9 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       std::cout << "debug:: there are " << n_atoms << " in the atom selection: " << atom_selection_cid << std::endl;
    }
 
-   // atom_sel_ligand.SelectionHandle = atom_sel_ligand.mol->NewSelection();
-   // atom_sel_ligand.mol->Select(atom_sel_ligand.SelectionHandle, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
-   // atom_sel_ligand.mol->GetSelIndex(atom_sel_ligand.SelectionHandle, atom_sel_ligand.atom_selection, atom_sel_ligand.n_selected_atoms);
-   // atom_sel_ligand.read_success = 1;
+   apply_user_defined_atom_colour_selections(indexed_user_defined_colour_selection_cids,
+                                             indexed_user_defined_colour_selection_cids_apply_to_non_carbon_atoms_also,
+                                             atom_sel_ligand.mol);
 
    float atom_radius = bond_radius * atom_radius_to_bond_width_ratio;
 
@@ -520,15 +519,16 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
    }
 
    std::set<int> no_bonds_to_these_atoms; // empty
-   bool change_c_only_flag =  true;
-   bool goodsell_mode = false;
-   bool do_rota_markup = false;
    int udd_handle_bonded_type = atom_sel_ligand.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
    if (udd_handle_bonded_type == mmdb::UDDATA_WrongUDRType) {
       std::cout << "ERROR:: in get_bonds_mesh() wrong udd data type " << udd_handle_bonded_type << std::endl;
       return m;
    }
 
+   bool change_c_only_flag =  true;
+   bool goodsell_mode = false;
+   bool do_rota_markup = false;
+   
    if (mode == "COLOUR-BY-CHAIN-AND-DICTIONARY") {
       Bond_lines_container bonds(geom, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag);
       bonds.do_colour_by_chain_bonds(atom_sel_ligand, false, imol_no, draw_hydrogen_atoms_flag,
@@ -562,16 +562,16 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
    }
 
    if (mode == "VDW-BALLS") {
-      // we don't make rotamer dodecs in this function
-      // makebonds() is a trivial wrapper of make_colour_by_chain_bonds(), so just remove the makebonds() call.
-      // makebonds(geom, nullptr, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag); // this makes the bonds_box.
 
       Bond_lines_container bonds(geom, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag);
       bonds.do_colour_by_chain_bonds(atom_sel_ligand, false, imol_no, draw_hydrogen_atoms_flag,
                                      draw_missing_residue_loops, change_c_only_flag, goodsell_mode, do_rota_markup);
-      std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
-      auto gbc = bonds.make_graphical_bonds();
-      make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(m, gbc, num_subdivisions, colour_table, *geom);
+      bonds_box.clear_up();
+      bonds_box = bonds.make_graphical_bonds();
+
+      std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background); // uses bonds_box
+      make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(m, bonds_box, num_subdivisions, colour_table, *geom);
+      bonds_box.clear_up();
    }
 
    return m;
