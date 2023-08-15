@@ -533,7 +533,6 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       Bond_lines_container bonds(geom, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag);
       bonds.do_colour_by_chain_bonds(atom_sel_ligand, false, imol_no, draw_hydrogen_atoms_flag,
                                      draw_missing_residue_loops, change_c_only_flag, goodsell_mode, do_rota_markup);
-
       auto gbc = bonds.make_graphical_bonds();
 
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
@@ -555,7 +554,7 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       float min_dist = 2.4;
       float max_dist = 4.7;
       bool draw_missing_residue_loops_flag = true;
-      bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom, min_dist, max_dist, draw_hydrogen_atoms_flag,
+      bonds.do_Ca_plus_ligands_bonds(atom_sel_ligand, imol_no, geom, min_dist, max_dist, draw_hydrogen_atoms_flag,
                                      draw_missing_residue_loops_flag);
       bonds_box = bonds.make_graphical_bonds_no_thinning();
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
@@ -565,10 +564,14 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
    if (mode == "VDW-BALLS") {
       // we don't make rotamer dodecs in this function
       // makebonds() is a trivial wrapper of make_colour_by_chain_bonds(), so just remove the makebonds() call.
-      bool draw_missing_residue_loops_flag = false;
-      makebonds(geom, nullptr, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag); // this makes the bonds_box.
+      // makebonds(geom, nullptr, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag); // this makes the bonds_box.
+
+      Bond_lines_container bonds(geom, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag);
+      bonds.do_colour_by_chain_bonds(atom_sel_ligand, false, imol_no, draw_hydrogen_atoms_flag,
+                                     draw_missing_residue_loops, change_c_only_flag, goodsell_mode, do_rota_markup);
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
-      make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(m, bonds_box, num_subdivisions, colour_table, *geom);
+      auto gbc = bonds.make_graphical_bonds();
+      make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(m, gbc, num_subdivisions, colour_table, *geom);
    }
 
    return m;

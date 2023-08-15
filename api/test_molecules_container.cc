@@ -3167,6 +3167,17 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
                   if (close_float(colour_table[13][2], 1.0))
                      status = true;
 
+   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol, "//A/1-3", "VDW-BALLS", false, 0.1, 1.0, 1);
+   if (! im.geom.empty()) {
+      const coot::instanced_geometry_t &ig = im.geom[0]; // 0 is spheres
+      std::cout << "im type A " << ig.instancing_data_A.size() << std::endl;
+      if (ig.instancing_data_A.size() == 25) {
+         // as it should be!
+      } else {
+         status = 0;
+      }
+   }
+
    return status;
 
 }
