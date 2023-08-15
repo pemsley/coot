@@ -3,6 +3,7 @@
 #include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
+#include "pango/pangocairo.h"
 #include <exception>
 #include <utility>
 #include <algorithm>
@@ -417,5 +418,7 @@ std::string coot_ligand_editor_get_smiles_for_molecule(CootLigandEditorCanvas* s
 }
 
 void coot_ligand_editor_draw_on_cairo_surface(CootLigandEditorCanvas* self, cairo_t* cr) noexcept {
-    g_error("todo: implement me");
+    PangoLayout* pango_layout = pango_cairo_create_layout(cr);
+    impl::Renderer ren(cr, pango_layout);
+    self->render(ren);
 }
