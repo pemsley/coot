@@ -321,7 +321,7 @@ void LigandBuilderState::run_file_save_dialog(unsigned int molecule_idx) noexcep
         }
         if(e) {
             g_info("Save File: No file was given.");
-            g_object_unref(*e);
+            g_error_free(*e);
         }
     }, GUINT_TO_POINTER(molecule_idx));
 }
@@ -427,48 +427,69 @@ void LigandBuilderState::file_open() {
         }
         if(e) {
             g_info("Open File: No file was given.");
-            g_object_unref(*e);
+            g_error_free(*e);
         }
     }, this);
 
 }
 
 void LigandBuilderState::file_export(ExportMode mode) {
-    cairo_surface_t* target = nullptr;
-    auto draw = [&](){
-        if(target) {
-            cairo_t* cr = cairo_create(target);
-            coot_ligand_editor_draw_on_cairo_surface(this->canvas, cr);
+    auto* export_dialog = gtk_file_dialog_new();
+    auto* mode_ptr = new ExportMode(mode);
+    // This isn't the best practice but it tremendously simplifies things
+    // by saving us from unnecessary boilerplate.
+    g_object_set_data(G_OBJECT(export_dialog), "ligand_builder_instance", this);
+    gtk_file_dialog_save(export_dialog, this->main_window, NULL, +[](GObject* source_object, GAsyncResult* res, gpointer user_data){
+        GError** e = NULL;
+        GFile* file = gtk_file_dialog_save_finish(GTK_FILE_DIALOG(source_object), res, e);
+        ExportMode* mode_ptr = (ExportMode*) user_data;
+        LigandBuilderState* self = (LigandBuilderState*) g_object_get_data(G_OBJECT(source_object), "ligand_builder_instance");
+        if(file) {
+            //g_info("I have a file");
+            const char* path = g_file_get_path(file);
+            cairo_surface_t* target = nullptr;
+            auto draw = [&](){
+                if(target) {
+                    cairo_t* cr = cairo_create(target);
+                    coot_ligand_editor_draw_on_cairo_surface(self->canvas, cr);
+                }
+            };
+            g_warning("TODO: Finish implementing exports.");
+            // dummy for now
+            int width = 1000;
+            int height = 1000;
+            switch (*mode_ptr) {
+                case ExportMode::PDF: {
+                    target = cairo_pdf_surface_create(path, width, height);
+                    draw();
+                    break;
+                }
+                case ExportMode::PNG: {
+                    target = cairo_image_surface_create(CAIRO_FORMAT_RGBA128F, width, height);
+                    draw();
+                    cairo_surface_write_to_png(target, path);
+                    break;
+                }
+                case ExportMode::SVG: {
+                    target = cairo_svg_surface_create(path, width, height);
+                    draw();
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+            if(target) {
+                cairo_surface_destroy(target);
+            }
+            delete mode_ptr;
+            g_object_unref(file);
         }
-    };
-    g_warning("TODO: Finish implementing exports.");
-    // dummy for now
-    int width = 1000;
-    int height = 1000;
-    switch (mode) {
-        case ExportMode::PDF: {
-            target = cairo_pdf_surface_create("output.pdf", width, height);
-            draw();
-            break;
+        if(e) {
+            g_info("Export: No file was given.");
+            g_error_free(*e);
         }
-        case ExportMode::PNG: {
-            target = cairo_image_surface_create(CAIRO_FORMAT_RGBA128F, width, height);
-            draw();
-            cairo_surface_write_to_png(target, "output.png");
-            break;
-        }
-        case ExportMode::SVG: {
-            target = cairo_svg_surface_create("output.svg", width, height);
-            draw();
-            break;
-        }
-        default: {
-            break;
-        }
-    }
-    if(target) {
-        cairo_surface_destroy(target);
-    }
+    }, mode_ptr);
 }
 
 void LigandBuilderState::file_exit() {
