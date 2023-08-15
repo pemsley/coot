@@ -862,6 +862,10 @@
         <attribute name="label" translatable="yes">RSR Repeat Range Refine</attribute>
         <attribute name="action">app.repeat_refine_range</attribute>
       </item>
+      <item>
+        <attribute name="label" translatable="yes">RSR Fragment</attribute>
+        <attribute name="action">app.refine_fragment</attribute>
+      </item>
     </section>
     <section>
       <item>
@@ -875,6 +879,14 @@
       <item>
         <attribute name="label" translatable="yes">Regularize Single Residue</attribute>
         <attribute name="action">app.refine_regularize_single_residue</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Regularize Fragment</attribute>
+        <attribute name="action">app.refine_regularize_fragment</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Regularize Chain</attribute>
+        <attribute name="action">app.refine_regularize_chain</attribute>
       </item>
     </section>
   </menu>

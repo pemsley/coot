@@ -2531,6 +2531,14 @@ refine_all_atoms(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void
+refine_fragment(G_GNUC_UNUSED GSimpleAction *simple_action,
+                G_GNUC_UNUSED GVariant *parameter,
+                G_GNUC_UNUSED gpointer user_data) {
+
+   rsr_refine_fragment_active_residue();
+}
+
+void
 refine_with_range_picked_atoms() {
 
    graphics_info_t g;
@@ -2616,6 +2624,23 @@ refine_regularize_single_residue(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    regularize_residue();
 }
+
+void
+refine_regularize_chain(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
+
+   regularize_chain();
+}
+
+void
+refine_regularize_fragment(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+   regularize_fragment_active_atom();
+}
+
 
 
 void
@@ -3168,8 +3193,11 @@ create_actions(GtkApplication *application) {
    add_action("refine_single_residue",            refine_single_residue);
    add_action("refine_chain",                     refine_chain);
    add_action("refine_all_atoms",                 refine_all_atoms);
+   add_action("refine_fragment",                  refine_fragment);
    add_action("refine_range",                     refine_range);
    add_action("repeat_refine_range",              repeat_refine_range);
+   add_action("refine_regularize_chain",          refine_regularize_chain);
+   add_action("refine_regularize_fragment",       refine_regularize_fragment);
    add_action("refine_regularize_sphere",         refine_regularize_sphere);
    add_action("refine_regularize_tandem_3",       refine_regularize_tandem_3);
    add_action("refine_regularize_single_residue", refine_regularize_single_residue);

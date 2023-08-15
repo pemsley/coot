@@ -85,6 +85,48 @@ void regularize_sphere() {
    }
 }
 
+void regularize_chain() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = graphics_info_t::active_atom_spec();
+   if (active_atom.first) {
+      graphics_info_t g;
+      int imol = active_atom.second.first;
+      auto atom_spec = active_atom.second.second;
+      mmdb::Atom *at = g.molecules[imol].get_atom(atom_spec);
+      if (at) {
+         mmdb::Chain *chain_p = at->residue->chain;
+         std::string alt_conf = at->altLoc;
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         std::vector<mmdb::Residue *> residues = coot::util::residues_in_chain(chain_p);
+         std::vector<coot::residue_spec_t> rv;
+         g.residue_type_selection_was_user_picked_residue_range = false;
+         coot::refinement_results_t rr = g.regularize_residues_vec(imol, residues, alt_conf, mol);
+      }
+   }
+}
+
+void regularize_fragment_active_atom() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = graphics_info_t::active_atom_spec();
+   if (active_atom.first) {
+      graphics_info_t g;
+      int imol = active_atom.second.first;
+      auto atom_spec = active_atom.second.second;
+      mmdb::Atom *at = g.molecules[imol].get_atom(atom_spec);
+      if (at) {
+         mmdb::Residue *residue_p = at->residue;
+         if (residue_p) {
+            std::string alt_conf = at->altLoc;
+            float close_dist_max = 2.0;
+            mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+            std::vector<mmdb::Residue *> residues = coot::simple_residue_tree(residue_p, mol, close_dist_max);
+            g.residue_type_selection_was_user_picked_residue_range = false;
+            coot::refinement_results_t rr = g.regularize_residues_vec(imol, residues, alt_conf, mol);
+         }
+      }
+   }
+}
+
 void rsr_refine_residue() {
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = graphics_info_t::active_atom_spec();
@@ -270,3 +312,27 @@ void rsr_sphere_refine() {
    }
 }
 
+void rsr_refine_fragment_active_residue() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = graphics_info_t::active_atom_spec();
+   if (active_atom.first) {
+      graphics_info_t g;
+      int imol = active_atom.second.first;
+      auto atom_spec = active_atom.second.second;
+      mmdb::Atom *at = g.molecules[imol].get_atom(atom_spec);
+      if (at) {
+         mmdb::Residue *residue_p = at->residue;
+         if (residue_p) {
+            std::string alt_conf = at->altLoc;
+            float close_dist_max = 2.0;
+            mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+            std::vector<mmdb::Residue *> residues = coot::simple_residue_tree(residue_p, mol, close_dist_max);
+            std::vector<coot::residue_spec_t> v;
+            for (unsigned int i=0; i<residues.size(); i++)
+               v.push_back(coot::residue_spec_t(residues[i]));
+            g.residue_type_selection_was_user_picked_residue_range = false;
+            coot::refinement_results_t rr = refine_residues_with_alt_conf(imol, v, alt_conf);
+         }
+      }
+   }
+}

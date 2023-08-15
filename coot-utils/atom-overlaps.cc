@@ -1763,11 +1763,14 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
                iat_end = n_selected_atoms; // for loop uses iat_start and tests for < iat_end
 
             if (false) // useful for debugging
-               std::cout << "thread: " << i_thread << " from atom " << iat_start << " to "
+               std::cout << "thread: " << i_thread << " from atom index " << iat_start << " to "
                          << iat_end << std::endl;
 
             results_container_vec[i_thread] = atom_overlaps_dots_container_t(n_per_thread);
-             threads.push_back(std::thread(contacts_for_atoms, iat_start, iat_end,
+            // 20230814-PE I saw a crash here today. It seems to be crashing on the creation
+            // of the thread - I don't know what that means.
+            //
+            threads.push_back(std::thread(contacts_for_atoms, iat_start, iat_end,
                                           atom_selection, contact_map, bonded_map,
                                           neighb_atom_radius, udd_h_bond_type_handle,
                                           molecule_has_hydrogens, probe_radius,
