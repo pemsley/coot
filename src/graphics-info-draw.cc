@@ -4148,7 +4148,7 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
 
    //  ------------------- render scene ----------------------------
 
-   std::cout << "render_3d_scene() start" << std::endl;
+   // std::cout << "render_3d_scene() start" << std::endl;
 
    glEnable(GL_DEPTH_TEST);
 
