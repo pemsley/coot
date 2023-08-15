@@ -446,7 +446,7 @@ void LigandBuilderState::file_export(ExportMode mode) {
         LigandBuilderState* self = (LigandBuilderState*) g_object_get_data(G_OBJECT(source_object), "ligand_builder_instance");
         if(file) {
             //g_info("I have a file");
-            const char* path = g_file_get_path(file);
+            auto path = std::string(g_file_get_path(file));
             cairo_surface_t* target = nullptr;
             auto draw = [&](){
                 if(target) {
@@ -454,23 +454,36 @@ void LigandBuilderState::file_export(ExportMode mode) {
                     coot_ligand_editor_draw_on_cairo_surface(self->canvas, cr);
                 }
             };
-            g_warning("TODO: Finish implementing exports.");
+            auto ends_with = [](std::string const & value, std::string const & ending){
+                if (ending.size() > value.size()) 
+                    return false;
+                return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+            };
             int width = gtk_widget_get_size(GTK_WIDGET(self->canvas),GTK_ORIENTATION_HORIZONTAL);
             int height = gtk_widget_get_size(GTK_WIDGET(self->canvas),GTK_ORIENTATION_VERTICAL);
             switch (*mode_ptr) {
                 case ExportMode::PDF: {
-                    target = cairo_pdf_surface_create(path, width, height);
+                    if(!ends_with(path, ".pdf")) {
+                        path += ".pdf";
+                    }
+                    target = cairo_pdf_surface_create(path.c_str(), width, height);
                     draw();
                     break;
                 }
                 case ExportMode::PNG: {
                     target = cairo_image_surface_create(CAIRO_FORMAT_RGBA128F, width, height);
                     draw();
-                    cairo_surface_write_to_png(target, path);
+                    if(!ends_with(path, ".png")) {
+                        path += ".png";
+                    }
+                    cairo_surface_write_to_png(target, path.c_str());
                     break;
                 }
                 case ExportMode::SVG: {
-                    target = cairo_svg_surface_create(path, width, height);
+                    if(!ends_with(path, ".svg")) {
+                        path += ".svg";
+                    }
+                    target = cairo_svg_surface_create(path.c_str(), width, height);
                     draw();
                     break;
                 }
