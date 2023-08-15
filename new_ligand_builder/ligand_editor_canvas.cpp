@@ -61,33 +61,10 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
     const graphene_rect_t background_rect = graphene_rect_t{{0,0},{w,h}};
     const GdkRGBA background_color = GdkRGBA{1.f,1.f,1.f,1.f};
     gtk_snapshot_append_color(snapshot, &background_color, &background_rect);
-    if (self->molecules) {
-        if(!self->molecules->empty()) {
-            // This does not respect GTK theming
-            // PangoLayout* pango_layout = pango_cairo_create_layout(cairo_canvas);
-            PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
-            cairo_t *cr = gtk_snapshot_append_cairo(snapshot, &background_rect);
-            for(auto& drawn_molecule: *self->molecules) {
-                drawn_molecule.set_canvas_scale(self->scale);
-                drawn_molecule.draw(cr,pango_layout,self->display_mode);
-            }
-            g_object_unref(pango_layout);
-            cairo_destroy(cr);
-        }
-    } else {
-        g_error("Molecules vector not initialized!");
-    }
-    if(self->currently_created_bond.has_value()) {
-        auto& bond = self->currently_created_bond.value();
-        cairo_t *cr = gtk_snapshot_append_cairo(snapshot, &background_rect);
-        cairo_set_line_width(cr, 4.0);
-        cairo_set_source_rgb(cr, 1.0, 0.5, 1.0);
-        cairo_move_to(cr, bond.first_atom_x, bond.first_atom_y);
-        cairo_line_to(cr, bond.second_atom_x, bond.second_atom_y);
-        cairo_stroke(cr);
-        cairo_destroy(cr);
-    }
-   
+    PangoLayout* pango_layout = pango_layout_new(gtk_widget_get_pango_context(widget));
+    cairo_t *cr = gtk_snapshot_append_cairo(snapshot, &background_rect);
+    impl::Renderer ren(cr,pango_layout);
+    self->render(ren);
 }
 
 void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orientation, int for_size, int *minimum_size, int *natural_size, int *minimum_baseline, int *natural_baseline)

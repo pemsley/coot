@@ -45,16 +45,13 @@ struct StateSnapshot {
     StateSnapshot(const WidgetCoreData& core_data);
 };
 
-// class Renderer {
-
-//     public:
-//     PangoLayout* provide_pango_layout();
-//     cairo_t* provide_cairo_surface();
-// };
-
-// class GtkRenderer : public Renderer {
-
-// };
+struct Renderer {
+    cairo_t* cr;
+    PangoLayout* pango_layout;
+    /// Takes ownership of the pointers
+    Renderer(cairo_t*,PangoLayout*);
+    ~Renderer();
+};
 
 /// Used for widget's struct as a base class.
 /// Useful for exposing inner state to the active tool.
@@ -83,11 +80,6 @@ struct WidgetCoreData {
     /// nullptr if no edition is being done at the moment.
     std::unique_ptr<StateSnapshot> state_before_edition;
 
-    // template <typename RendererT>
-    // void render(RendererT) {
-
-    // }
-
     public:
     /// molecules on the screen
     std::unique_ptr<std::vector<CanvasMolecule>> molecules;
@@ -101,6 +93,8 @@ struct WidgetCoreData {
     bool allow_invalid_molecules;
 
     DisplayMode display_mode;
+
+    void render(Renderer&);
 
     /// Does Edit->Undo
     void undo_edition();
