@@ -1373,19 +1373,30 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
                 canvas_atom.appendix = ap;
             }
         }
-        auto bonds_of_this_atom = this->bond_map.find(atom_idx);
-        if(bonds_of_this_atom != this->bond_map.end()) {
-            if(terminus && !bonds_of_this_atom->second.empty()) {
-                // This means that we only have one bond
-                Bond* bond = bonds_of_this_atom->second.front().get();
-                unsigned int the_other_atom_idx = bond->first_atom_idx == atom_idx ? bond->second_atom_idx : bond->first_atom_idx;
+        auto setup_potential_centered_double_bond = [&](const int atom_idx){
+            auto bonds_of_this_atom = this->bond_map.find(atom_idx);
+            if(bonds_of_this_atom == this->bond_map.end()) {
+                return;
+            }
+            if(!terminus || bonds_of_this_atom->second.empty()) {
+                return;
+            }
+            // This means that we only have one bond
+            Bond* bond = bonds_of_this_atom->second.front().get();
+            if(bond->type != BondType::Double) {
+                return;
+            }
+            unsigned int the_other_atom_idx = bond->first_atom_idx == atom_idx ? bond->second_atom_idx : bond->first_atom_idx;
+            if(this->rdkit_molecule->getAtomWithIdx(the_other_atom_idx)->getAtomicNum() == 6) {
                 // This should always be a valid iterator at this point
                 auto bonds_of_the_other_atom = this->bond_map.find(the_other_atom_idx);
-                if(bonds_of_the_other_atom->second.size() == 3 && bond->type == BondType::Double) {
-                    bond->bond_drawing_direction = DoubleBondDrawingDirection::Centered;
+                if(bonds_of_the_other_atom->second.size() != 3 && bonds_of_the_other_atom->second.size() != 1) {
+                    return;
                 }
             }
-        }
+            bond->bond_drawing_direction = DoubleBondDrawingDirection::Centered;
+        };
+        setup_potential_centered_double_bond(atom_idx);
 
         this->atoms.push_back(std::move(canvas_atom));
         
