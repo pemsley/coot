@@ -177,11 +177,9 @@ std::string WidgetCoreData::build_smiles_string() const {
 
 void WidgetCoreData::render(Renderer& ren) {
     if (this->molecules) {
-        if(!this->molecules->empty()) {
-            for(auto& drawn_molecule: *this->molecules) {
-                drawn_molecule.set_canvas_scale(this->scale);
-                drawn_molecule.draw(ren.cr,ren.pango_layout,this->display_mode);
-            }
+        for(auto& drawn_molecule: *this->molecules) {
+            drawn_molecule.set_canvas_scale(this->scale);
+            drawn_molecule.draw(ren.cr,ren.pango_layout,this->display_mode);
         }
     } else {
         g_error("Molecules vector not initialized!");
