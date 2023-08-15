@@ -455,9 +455,8 @@ void LigandBuilderState::file_export(ExportMode mode) {
                 }
             };
             g_warning("TODO: Finish implementing exports.");
-            // dummy for now
-            int width = 1000;
-            int height = 1000;
+            int width = gtk_widget_get_size(GTK_WIDGET(self->canvas),GTK_ORIENTATION_HORIZONTAL);
+            int height = gtk_widget_get_size(GTK_WIDGET(self->canvas),GTK_ORIENTATION_VERTICAL);
             switch (*mode_ptr) {
                 case ExportMode::PDF: {
                     target = cairo_pdf_surface_create(path, width, height);
