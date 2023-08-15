@@ -482,13 +482,13 @@ void LigandBuilderState::file_export(ExportMode mode) {
             if(target) {
                 cairo_surface_destroy(target);
             }
-            delete mode_ptr;
             g_object_unref(file);
         }
         if(e) {
             g_info("Export: No file was given.");
             g_error_free(*e);
         }
+        delete mode_ptr;
     }, mode_ptr);
 }
 
