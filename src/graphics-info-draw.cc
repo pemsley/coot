@@ -3287,7 +3287,6 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                    };
 
    auto button_2_func = [] () {
-                           std::cout << "------------------- HUD button Cancel callback start " << std::endl;
                            graphics_info_t g;
                            g.stop_refinement_internal();
                            g.clear_up_moving_atoms();
@@ -3297,7 +3296,6 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            g.graphics_draw();
                            g.hide_atom_pull_toolbar_buttons();
                            g.clear_gl_rama_plot();
-                           std::cout << "------------------- HUD button Cancel callback done " << std::endl;
                            return true;
                         };
    auto button_3_func = [] () {
@@ -3893,14 +3891,17 @@ graphics_info_t::check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(double m
          // but now rr.sorted_nbc_baddies is std::vector<refinement_results_nbc_baddie_t>
          // so now I need to convert
 
-         std::vector<std::pair<coot::atom_spec_t, float> > converted_baddies(rr.sorted_nbc_baddies.size());
+         std::vector<std::pair<coot::atom_spec_t, float> > converted_baddies(rr.sorted_nbc_baddies.size() * 2); // 20230519-PE both ways
          for (unsigned int i=0; i<rr.sorted_nbc_baddies.size(); i++) {
-            if (i < converted_baddies.size()) {
-               const auto &bip = rr.sorted_nbc_baddies[i];
-               std::pair<coot::atom_spec_t, float> p(bip.atom_spec_1, bip.score);
-               converted_baddies[i] = p;
+            const auto &bip = rr.sorted_nbc_baddies[i];
+            std::pair<coot::atom_spec_t, float> p_1(bip.atom_spec_1, bip.score);
+            std::pair<coot::atom_spec_t, float> p_2(bip.atom_spec_2, bip.score);
+            // 20230813-PE fixes a crash, I hope.
+            if ((2*i+1) < converted_baddies.size()) {
+               converted_baddies[2*i  ] = p_1;
+               converted_baddies[2*i+1] = p_2;
             } else {
-               std::cout << "ERROR:: bad converted_baddies index " << i << " " << converted_baddies.size() << std::endl;
+               std::cout << "ERROR:: out of range in converted_baddies  " << 2*i << " " << converted_baddies.size() << std::endl;
             }
          }
 
@@ -3963,6 +3964,9 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
    if (! moving_atoms_asc->mol) return false;
    bool act_on_hit = true;
    std::pair<bool, mmdb::Atom *> r = check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(mouse_x, mouse_y, act_on_hit);
+   if (false)
+      std::cout << ":::::::::: debug:: check_if_hud_bar_clicked() returns "
+                << r.first << " " << r.second << std::endl;
    return  r.first;
 }
 

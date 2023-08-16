@@ -1748,10 +1748,7 @@ graphics_info_t::accept_moving_atoms() {
          update_validation(imol_moving_atoms);
       } else {
          if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
-
             molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
-            // debug
-            // molecules[imol_moving_atoms].atom_sel.mol->WritePDBASCII("post-accept_moving_atoms.pdb");
             update_validation(imol_moving_atoms);
          } else {
             if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
@@ -2208,10 +2205,6 @@ graphics_info_t::clear_up_moving_atoms() {
    // std::cout << "calling rebond_molecule_corresponding_to_moving_atoms() " << std::endl;
    // 20220220-PE I will comment this out (because I think the answer to the below question is "yes"
    // graphics_info_t::rebond_molecule_corresponding_to_moving_atoms(); // haven't we done this?
-
-#ifndef EMSCRIPTEN
-   draw_gl_ramachandran_plot_flag = false;
-#endif
 
    if (use_graphics_interface_flag) {
 

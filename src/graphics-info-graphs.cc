@@ -953,8 +953,6 @@ graphics_info_t::update_validation(int imol_changed_model) {
       mmdb::Manager *mol = molecules[imol_changed_model].atom_sel.mol;
       coot_all_atom_contact_dots_instanced(mol, imol_changed_model);
    }
-
-
 }
 
 void
