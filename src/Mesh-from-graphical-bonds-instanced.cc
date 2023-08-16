@@ -63,8 +63,10 @@ Mesh::setup_instancing_buffer_data(Shader *shader_p,
    // 6 instance rot-trans-3
    // 6 instance rot-trans-4
 
-   std::cout << "::::::::::::: debug:: setup_instancing_buffer_data() calls setup_matrix_and_colour_instancing_buffers_standard"
-             << std::endl;
+   if (false)
+      std::cout << "::::::::::::: debug:: setup_instancing_buffer_data() calls setup_matrix_and_colour_instancing_buffers_standard"
+                << std::endl;
+
    setup_matrix_and_colour_instancing_buffers_standard(instanced_matrices, instanced_colours);
 
 }
@@ -173,7 +175,7 @@ Mesh::make_graphical_bonds_spherical_atoms_instanced_version(Shader *shader_p,
    if (err) std::cout << "error make_graphical_bonds_spherical_atoms() pre setup_instancing_buffer_data() error "
                       << err << std::endl;
    // make space and transfer
-   std::cout << "calling setup_instancing_buffer_data with instanced_matrices size " << instanced_matrices.size() << std::endl;
+   // std::cout << "calling setup_instancing_buffer_data with instanced_matrices size " << instanced_matrices.size() << std::endl;
    setup_instancing_buffer_data(shader_p, material, instanced_matrices, instanced_colours);
    err = glGetError();
    if (err) std::cout << "error make_graphical_bonds_spherical_atoms() post setup_instancing_buffer_data() error "
