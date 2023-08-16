@@ -1562,7 +1562,7 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
             for (unsigned int ilink=0; ilink<chem_links.size(); ilink++) {
                const coot::chem_link &link = chem_links[ilink].first;
                bool order_switch_is_needed = chem_links[ilink].second;
-               std::cout << "testing link.Id() " << link.Id() << std::endl;
+               // std::cout << "testing link.Id() " << link.Id() << std::endl;
                if (link.Id() == "TRANS") {
                   link_type = "TRANS";
                   order_switch_was_needed = order_switch_is_needed;
