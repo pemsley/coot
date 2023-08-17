@@ -239,7 +239,6 @@ void LigandBuilderState::run_choose_element_dialog() {
         auto* text_buf = GTK_ENTRY_BUFFER(user_data);
         try {
             auto insertion_tool = std::make_unique<ligand_editor_canvas::ActiveTool>(ligand_editor_canvas::ElementInsertion(gtk_entry_buffer_get_text(text_buf)));
-            RDKit::RWMol* molecule = RDKit::SmilesToMol(gtk_entry_buffer_get_text(text_buf));
             LigandBuilderState* state = (LigandBuilderState*) g_object_get_data(G_OBJECT(dialog), "ligand_builder_instance");
             coot_ligand_editor_set_active_tool(state->canvas, std::move(insertion_tool));
             gtk_window_destroy(GTK_WINDOW(dialog));
