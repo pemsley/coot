@@ -442,8 +442,14 @@ Mesh::make_graphical_bonds_bonds_instanced_version(Shader *shader_p,
             const coot::Cartesian &finish = gl.positions.getFinish();
             glm::vec3 pos_1(start.x(),   start.y(),  start.z());
             glm::vec3 pos_2(finish.x(), finish.y(), finish.z());
-            glm::mat4 m = get_bond_matrix(pos_1, pos_2, bond_radius);
-            instanced_matrices.push_back(m);
+            glm::mat4 ori = get_bond_matrix(pos_1, pos_2, bond_radius); // apply bond length and width
+            float scale = 1.0;
+            if (ll.thin_lines_flag) scale *= 0.5;
+            if (ll.pair_list[j].cylinder_class == graphics_line_t::KEK_DOUBLE_BOND_INNER_BOND)
+               scale *= 0.7;
+            glm::vec3 sc(scale, scale, 1.0); // now adjust the width (radius) if needed
+            glm::mat4 ori_sc = glm::scale(ori, sc);
+            instanced_matrices.push_back(ori_sc);
             instanced_colours.push_back(col);
          }
       }
