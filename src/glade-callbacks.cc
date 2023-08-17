@@ -646,18 +646,9 @@ on_display_control_ok_button_clicked   (GtkButton       *button,
 
    reset_graphics_display_control_window(); /* Needed! (also resets the scroll group) */
    if (w) {
-      store_window_position(COOT_DISPLAY_CONTROL_WINDOW, w);
       maps_vbox      = widget_from_builder("display_map_vbox");
       molecules_vbox = widget_from_builder("display_molecule_vbox");
       pane           = widget_from_builder("display_control_vpaned");
-
-      /* store the size, actually */
-      if (maps_vbox)
-         store_window_position(COOT_DISPLAY_CONTROL_MAPS_VBOX, maps_vbox);
-      if (molecules_vbox)
-         store_window_position(COOT_DISPLAY_CONTROL_MOLECULES_VBOX, molecules_vbox);
-      if (pane)
-         store_window_position(COOT_DISPLAY_CONTROL_PANE, pane);
 
       // gtk_widget_destroy(w); // 20220309-PE not these days, buddy-boy
       gtk_widget_set_visible(w, FALSE);
@@ -815,26 +806,6 @@ on_dynarama_cancel_button_clicked      (GtkButton       *button,
 
 }
 
-extern "C" G_MODULE_EXPORT
-void
-on_dynarama_window_destroy             (GtkWidget       *object,
-                                        gpointer         user_data)
-{
-  /* Maybe object is window? */
-   GtkWidget *window = widget_from_builder(
-				     "dynarama_window");
-/* we can't use store_window_position here because object->window is
-   null in the store_window_position() function, heyho. */
-/* Hopefully the configure-events for this dialog will save the
-   position. */
-/*    store_window_position(COOT_RAMACHANDRAN_PLOT_WINDOW, GTK_WIDGET(object)); */
-   int imol = get_mol_from_dynarama(window); // return -9999 on edit rama window
-   if (imol >= 0) {
-      set_dynarama_is_displayed(0, imol); // which frees/deletes the
-			      	          // memory of the user data.
-   }
-}
-
 
 extern "C" G_MODULE_EXPORT
 void
@@ -900,7 +871,6 @@ on_model_refine_dialog_dismiss_button_clicked (GtkButton       *button,
    clear_pending_picks();
    normal_cursor();
    dialog = close_model_fit_dialog(hbox);
-   store_window_position(COOT_MODEL_REFINE_DIALOG, dialog);
    /* was it a top-level?  If so, kill off the top-level. */
    if (dialog)
       gtk_widget_set_visible(dialog, FALSE);
@@ -1635,7 +1605,6 @@ on_rotate_translate_obj_ok_button_clicked (GtkButton       *button,
   // graphics_unsetup_rotate_translate_buttons(widget);
   rot_trans_reset_previous();
   accept_regularizement();
-  store_window_position(COOT_ROTATE_TRANSLATE_DIALOG, widget);
   gtk_widget_set_visible(widget, FALSE);
   clear_up_moving_atoms(); // redraw done here
 
@@ -1780,7 +1749,6 @@ on_delete_item_cancel_button_clicked   (GtkButton       *button,
    clear_pending_delete_item();
    clear_pending_picks(); 	/* hmmm.. not sure 20050610 */
    normal_cursor();
-   store_window_position(COOT_DELETE_WINDOW, widget);
    // store_delete_item_widget(NULL);
    gtk_widget_set_visible(widget, FALSE);
 }
@@ -1884,7 +1852,6 @@ on_rotamer_selection_ok_button_clicked (GtkButton       *button,
 				    "rotamer_selection_dialog");
    accept_regularizement();
    clear_moving_atoms_object();
-   store_window_position(COOT_ROTAMER_SELECTION_DIALOG, dialog);
    gtk_widget_set_visible(dialog, FALSE);
 }
 
@@ -1893,10 +1860,9 @@ extern "C" G_MODULE_EXPORT
 void
 on_rotamer_selection_cancel_button_clicked
                                         (GtkButton       *button,
-                                        gpointer         user_data)
-{
-   GtkWidget *dialog = widget_from_builder(
-				    "rotamer_selection_dialog");
+                                        gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("rotamer_selection_dialog");
    int type;
    int imol;
 
@@ -1912,8 +1878,6 @@ on_rotamer_selection_cancel_button_clicked
        apply_undo();
      }
    }
-
-   store_window_position(COOT_ROTAMER_SELECTION_DIALOG, dialog);
    gtk_widget_set_visible(dialog, FALSE);
 }
 
@@ -2776,7 +2740,6 @@ on_edit_chi_angles_dialog_ok_button_clicked
   GtkWidget *widget = widget_from_builder("edit_chi_angles_dialog");
   accept_regularizement();
   unset_moving_atom_move_chis();
-  store_window_position(COOT_EDIT_CHI_DIALOG, widget);
   gtk_widget_set_visible(widget, FALSE);
 
 }
@@ -2790,7 +2753,6 @@ on_edit_chi_angles_cancel_button_clicked(GtkButton       *button,
   GtkWidget *widget = widget_from_builder("edit_chi_angles_dialog");
   clear_up_moving_atoms();	/* and remove the graphics object */
   unset_moving_atom_move_chis();
-  store_window_position(COOT_EDIT_CHI_DIALOG, widget);
   gtk_widget_set_visible(widget, FALSE);
 
 }
@@ -2887,7 +2849,6 @@ on_geometry_dialog_close_button_clicked
   GtkWidget *dialog = widget_from_builder("geometry_dialog");
   /* should we clear geometry on close dialog?  Currently, I think not. */
   /* it is the COOT_DISTANCES_ANGLES_WINDOW, hmm. */
-  store_window_position(COOT_DISTANCES_ANGLES_WINDOW, dialog);
   store_geometry_dialog(NULL);
   gtk_widget_set_visible(dialog, FALSE);
 #endif
@@ -2959,7 +2920,6 @@ on_edit_chi_angles_dialog_destroy      (GtkWidget       *object,
                                         gpointer         user_data)
 {
    /* needs to set widget */
-   /*  store_window_position(COOT_EDIT_CHI_DIALOG, widget); */
   unset_moving_atom_move_chis();
   set_show_chi_angle_bond(0);
 }
@@ -4070,17 +4030,6 @@ on_ncs_maps_cancel_button_clicked      (GtkButton       *button,
 {
    GtkWidget *w = widget_from_builder("ncs_maps_dialog");
    gtk_widget_set_visible(w, FALSE);
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_rotamer_selection_dialog_destroy    (GtkWidget       *object,
-                                        gpointer         user_data)
-{
-   /* set the dialog
-      store_window_position(COOT_ROTAMER_SELECTION_DIALOG, dialog); */
-   set_graphics_rotamer_dialog(NULL);
 }
 
 
@@ -5308,7 +5257,6 @@ on_phs_coordinates_filechooserdialog1_destroy
                                         gpointer         user_data)
 {
 
-  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *phs_fileselection1 = widget_from_builder("phs_coordinates_filechooserdialog1");
   gtk_widget_set_visible(phs_fileselection1, FALSE);
 }
@@ -5355,27 +5303,19 @@ on_save_coords_filechooserdialog1_response
 
 extern "C" G_MODULE_EXPORT
 void
-on_save_coords_filechooserdialog1_destroy
-					(GtkWidget * object,
-					gpointer user_data)
-{
+on_save_coords_filechooserdialog1_destroy(GtkWidget * object,
+                                          gpointer user_data) {
 
-  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
-  GtkWidget *fileselection = widget_from_builder(
-                                                "save_coords_filechooserdialog1");
-
+  GtkWidget *fileselection = widget_from_builder("save_coords_filechooserdialog1");
   gtk_widget_set_visible(fileselection, FALSE);
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_cif_dictionary_filechooserdialog1_destroy
-					(GtkWidget * object,
-					gpointer user_data)
-{
+on_cif_dictionary_filechooserdialog1_destroy(GtkWidget * object,
+                                             gpointer user_data) {
 
-  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
   GtkWidget *fileselection = widget_from_builder("cif_dictionary_filechooserdialog1");
   gtk_widget_set_visible(fileselection, FALSE);
 }
@@ -5386,13 +5326,9 @@ extern "C" G_MODULE_EXPORT
 void
 on_save_symmetry_coords_filechooserdialog1_destroy
 					(GtkWidget * object,
-					gpointer user_data)
-{
+					gpointer user_data) {
 
-  store_window_size(COOT_FILESELECTION_DIALOG, GTK_WIDGET(object));
-  GtkWidget *coords_fileselection1 = widget_from_builder(
-                                                "save_symmetry_coords_filechooserdialog1");
-
+  GtkWidget *coords_fileselection1 = widget_from_builder("save_symmetry_coords_filechooserdialog1");
   gtk_widget_set_visible(coords_fileselection1, FALSE);
 }
 

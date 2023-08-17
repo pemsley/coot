@@ -4306,90 +4306,7 @@ that you wish to delete.               </property>
     <child type="titlebar">
     </child>
   </object>
-  <object class="GtkWindow" id="dynarama_properties_window">
-    <property name="title" translatable="yes">Properies</property>
-    <child>
-      <object class="GtkBox" id="vbox1">
-        <property name="orientation">vertical</property>
-        <child>
-          <object class="GtkButton" id="dynarama_properties_ok_button">
-            <property name="label" translatable="yes">OK</property>
-            <property name="can-focus">1</property>
-            <property name="use-underline">1</property>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-    </child>
-  </object>
-  <object class="GtkWindow" id="dynarama_window">
-    <property name="title" translatable="yes">Dynarama</property>
-    <signal name="destroy" handler="on_dynarama_window_destroy" swapped="no"/>
-    <child>
-      <object class="GtkBox" id="dynarama_vbox">
-        <property name="orientation">vertical</property>
-        <child>
-          <object class="GtkScrolledWindow" id="dynarama_scrolledwindow">
-            <child>
-              <object class="GtkViewport" id="dynarama_viewport">
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkFrame" id="rama_stats_frame">
-            <child>
-              <object class="GtkBox" id="rama_stats_vbox">
-                <property name="orientation">vertical</property>
-                <child>
-                  <object class="GtkLabel" id="rama_stats_label_1">
-                    <property name="label" translatable="yes">In Prefered Regions:  239  (85.02%)</property>
-                    <property name="justify">center</property>
-                    <property name="xalign">0</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="rama_stats_label_2">
-                    <property name="label" translatable="yes">In Allowed Regions:  365  (23.45%)</property>
-                    <property name="justify">center</property>
-                    <property name="xalign">0</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="rama_stats_label_3">
-                    <property name="label" translatable="yes">Outliers:  34 (0.23%) </property>
-                    <property name="justify">center</property>
-                    <property name="xalign">0</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkBox" id="hbox65">
-            <child>
-              <object class="GtkButton" id="dynarama_cancel_button">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="can-focus">1</property>
-                <signal name="clicked" handler="on_dynarama_cancel_button_clicked" swapped="no"/>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="dynarama_ok_button">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
-                <signal name="clicked" handler="on_dynarama_ok_button_clicked" swapped="no"/>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-    </child>
-  </object>
+
   <object class="GtkDialog" id="edit_backbone_torsions_dialog">
     <property name="title" translatable="yes">Edit Backbone Torsions</property>
     <signal name="destroy" handler="on_edit_backbone_torsions_dialog_destroy" swapped="no"/>
@@ -12198,11 +12115,11 @@ Sorry.
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="rotamer_selection_dialog">
     <property name="width-request">250</property>
     <property name="height-request">250</property>
     <property name="title" translatable="yes">Select Rotamer</property>
-    <signal name="destroy" handler="on_rotamer_selection_dialog_destroy" swapped="no"/>
     <child>
       <object class="GtkBox" id="dialog-vbox16">
         <property name="orientation">vertical</property>

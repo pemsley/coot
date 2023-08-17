@@ -89,9 +89,7 @@
 #include "widget-from-builder.hh"
 #include "support.h" // for internationalizations.
 
-// I think this test is wrong. New gtk doesn't have get active text.
-// Use a gtkcomboboxtext for that.
-
+#include "utils/coot-utils.hh"
 
 void set_show_paths_in_display_manager(int i) {
    std::string cmd = "set-show-paths-in-display-manager";
@@ -1249,105 +1247,6 @@ void set_graphics_window_position(int x_pos, int y_pos) {
    add_to_history_typed(cmd, args);
 }
 
-/* a general purpose version of the above, where we pass a widget flag */
-void
-store_window_position(int window_type, GtkWidget *widget) {
-
-   // Note that we can't call this function on xxx_dialog_destroy
-   // because we only have an gtkobject there, and if we cast there:
-   // GTK_WIDGET(object) to get the 'widget' of this function, then
-   // widget->window is NULL, and gdk_window_get_root_origin fails.
-
-   gint upositionx = 0, upositiony = 0;
-
-   GtkAllocation allocation;
-   gtk_widget_get_allocation(widget, &allocation);
-   graphics_info_t::file_chooser_dialog_x_size = allocation.width;
-   graphics_info_t::file_chooser_dialog_y_size = allocation.height;
-
-#if (GTK_MAJOR_VERSION >= 4)
-   std::cout << "in store_window_position() FIXME GtkWindows no longer know about position" << std::endl;
-#else
-   if (window_type != COOT_DISPLAY_CONTROL_MAPS_VBOX)
-      if (window_type != COOT_DISPLAY_CONTROL_MOLECULES_VBOX)
-         if (window_type != COOT_DISPLAY_CONTROL_PANE)
-            gtk_window_get_position(GTK_WINDOW(widget), &upositionx, &upositiony);
-#endif
-
-   if (window_type == COOT_MODEL_REFINE_DIALOG) {
-      graphics_info_t::model_fit_refine_x_position = upositionx;
-      graphics_info_t::model_fit_refine_y_position = upositiony;
-   }
-
-   if (window_type == COOT_DELETE_WINDOW) {
-      // notice that for delete item, this does not get called from
-      // the destroy callback, because we can't get to widget (the
-      // dialog) that has a window
-      graphics_info_t::delete_item_widget_x_position = upositionx;
-      graphics_info_t::delete_item_widget_y_position = upositiony;
-   }
-
-   if (window_type == COOT_GO_TO_ATOM_WINDOW) {
-      graphics_info_t::go_to_atom_window_x_position = upositionx;
-      graphics_info_t::go_to_atom_window_y_position = upositiony;
-   }
-
-   if (window_type == COOT_ACCEPT_REJECT_WINDOW) {
-      graphics_info_t::accept_reject_dialog_x_position = upositionx;
-      graphics_info_t::accept_reject_dialog_y_position = upositiony;
-   }
-
-   if (window_type == COOT_ROTATE_TRANSLATE_DIALOG) {
-      graphics_info_t::rotate_translate_x_position = upositionx;
-      graphics_info_t::rotate_translate_y_position = upositiony;
-   }
-
-   if (window_type == COOT_DISPLAY_CONTROL_WINDOW) {
-      graphics_info_t::display_manager_x_position = upositionx;
-      graphics_info_t::display_manager_y_position = upositiony;
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(widget, &allocation);
-      graphics_info_t::display_manager_x_size = allocation.width;
-      graphics_info_t::display_manager_y_size = allocation.height;
-   }
-
-   if (window_type == COOT_DISPLAY_CONTROL_MAPS_VBOX) {
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(widget, &allocation);
-      graphics_info_t::display_manager_maps_vbox_x_size = allocation.width;
-      graphics_info_t::display_manager_maps_vbox_y_size = allocation.height;
-   }
-   if (window_type == COOT_DISPLAY_CONTROL_MOLECULES_VBOX) {
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(widget, &allocation);
-      graphics_info_t::display_manager_molecules_vbox_x_size = allocation.width;
-      graphics_info_t::display_manager_molecules_vbox_y_size = allocation.height;
-   }
-   if (window_type == COOT_DISPLAY_CONTROL_PANE) {
-      // This is a kludge because this version of gtk doesn't seem to
-      // have a nice accessor such as gtk_pane_get_position()
-      GtkPaned *paned = GTK_PANED(widget);
-
-      // graphics_info_t::display_manager_paned_position = paned->child1_size;
-   }
-
-   if (window_type == COOT_EDIT_CHI_DIALOG) {
-      graphics_info_t::edit_chi_angles_dialog_x_position = upositionx;
-      graphics_info_t::edit_chi_angles_dialog_y_position = upositiony;
-   }
-
-   if (window_type == COOT_ROTAMER_SELECTION_DIALOG) {
-      graphics_info_t::rotamer_selection_dialog_x_position = upositionx;
-      graphics_info_t::rotamer_selection_dialog_y_position = upositiony;
-   }
-
-   if (window_type == COOT_RAMACHANDRAN_PLOT_WINDOW) {
-      graphics_info_t::ramachandran_plot_x_position = upositionx;
-      graphics_info_t::ramachandran_plot_y_position = upositiony;
-   }
-}
-
-#include "utils/coot-utils.hh"
 
 
 /*! \brief store the graphics window position and size to zenops-graphics-window-size-and-postion.scm in
