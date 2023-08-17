@@ -89,6 +89,10 @@
     <submenu>
       <attribute name="label">Help</attribute>
       <item>
+        <attribute name="label">Shortcuts</attribute>
+        <attribute name="action">win.show_shortcuts_window</attribute>
+      </item>
+      <item>
         <attribute name="label">About</attribute>
         <attribute name="action">win.show_about_dialog</attribute>
       </item>
@@ -1065,4 +1069,7 @@ Paul Emsley</property>
       </object>
     </child>
   </object>
+  <object class="GtkShortcutsWindow" id="layla_shortcuts_window">
+    <property name="hide-on-close">true</property>
+  </object>>
 </interface>

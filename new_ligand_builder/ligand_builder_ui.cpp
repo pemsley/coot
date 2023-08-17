@@ -97,6 +97,11 @@ void setup_actions(coot::ligand_editor::LigandBuilderState* state, GtkApplicatio
         gtk_window_present(GTK_WINDOW(about_dialog));
     }),gtk_builder_get_object(builder, "layla_about_dialog"));
 
+    new_action("show_shortcuts_window", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
+        auto* window = GTK_WINDOW(user_data);
+        gtk_window_present(GTK_WINDOW(window));
+    }),gtk_builder_get_object(builder, "layla_shortcuts_window"));
+
 }
 
 GtkApplicationWindow* coot::ligand_editor::setup_main_window(GtkApplication* app, GtkBuilder* builder) {
