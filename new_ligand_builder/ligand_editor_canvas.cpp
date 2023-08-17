@@ -429,3 +429,12 @@ void coot_ligand_editor_draw_on_cairo_surface(CootLigandEditorCanvas* self, cair
 
     pango_font_description_free(font_description);
 }
+
+void coot_ligand_editor_clear_molecules(CootLigandEditorCanvas* self) noexcept {
+    self->begin_edition();
+    self->rdkit_molecules->clear();
+    self->molecules->clear();
+    self->finalize_edition();
+    self->update_status("Molecules cleared.");
+    gtk_widget_queue_draw(GTK_WIDGET(self));
+}

@@ -40,4 +40,6 @@ std::string coot_ligand_editor_get_smiles_for_molecule(CootLigandEditorCanvas* s
 
 /// Takes ownership of the pointer
 void coot_ligand_editor_draw_on_cairo_surface(CootLigandEditorCanvas* self, cairo_t* cr) noexcept;
+
+void coot_ligand_editor_clear_molecules(CootLigandEditorCanvas* self) noexcept;
 #endif // COOT_LIGAND_EDITOR_CANVAS_HPP

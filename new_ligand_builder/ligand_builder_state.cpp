@@ -4,6 +4,7 @@
 #include "ligand_editor_canvas.hpp"
 #include <exception>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <cairo.h>
 #include <cairo/cairo-pdf.h>
@@ -268,7 +269,11 @@ void LigandBuilderState::file_fetch_molecule() {
 }
 
 void LigandBuilderState::file_new() {
-    g_warning("TODO: Implement void LigandBuilderState::file_new()");
+    g_warning("TODO: Finish implementing void LigandBuilderState::file_new()");
+    // A confirmation dialog if we have some unsaved data? Same thing on closing the editor
+    this->current_filesave_filename = std::nullopt;
+    this->current_filesave_filename = std::nullopt;
+    coot_ligand_editor_clear_molecules(this->canvas);
 }
 
 void LigandBuilderState::file_save() {
