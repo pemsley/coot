@@ -3,6 +3,7 @@
 #include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
+#include "pango/pango-font.h"
 #include "pango/pangocairo.h"
 #include <exception>
 #include <utility>
@@ -419,6 +420,12 @@ std::string coot_ligand_editor_get_smiles_for_molecule(CootLigandEditorCanvas* s
 
 void coot_ligand_editor_draw_on_cairo_surface(CootLigandEditorCanvas* self, cairo_t* cr) noexcept {
     PangoLayout* pango_layout = pango_cairo_create_layout(cr);
+    PangoFontDescription* font_description = pango_font_description_new ();
+    pango_font_description_set_family(font_description, "sans");
+
+    pango_layout_set_font_description (pango_layout, font_description);
     impl::Renderer ren(cr, pango_layout);
     self->render(ren);
+
+    pango_font_description_free(font_description);
 }
