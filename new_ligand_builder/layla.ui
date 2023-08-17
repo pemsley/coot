@@ -1071,5 +1071,5 @@ Paul Emsley</property>
   </object>
   <object class="GtkShortcutsWindow" id="layla_shortcuts_window">
     <property name="hide-on-close">true</property>
-  </object>>
+  </object>
 </interface>
