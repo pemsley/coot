@@ -114,6 +114,17 @@
           <object class="GtkActionBar" id="layla_per_molecule_tools_toolbar">
             <child>
               <object class="GtkToggleButton" id="layla_move_button">
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>m</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <signal name="clicked" handler="layla_on_move_button_clicked" swapped="no" object="layla_window" />
                 <child>
                   <object class="GtkBox">
@@ -141,6 +152,17 @@
                 <signal name="clicked" handler="layla_on_rotate_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
                 <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>r</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
                       <child>
@@ -166,6 +188,17 @@
                 <signal name="clicked" handler="layla_on_flip_x_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
                 <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>&lt;Alt&gt;f</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
                       <child>
@@ -190,6 +223,17 @@
               <object class="GtkToggleButton" id="layla_flip_y_button">
                 <signal name="clicked" handler="layla_on_flip_y_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>&lt;Control&gt;&lt;Alt&gt;f</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -219,6 +263,28 @@
                 <signal name="clicked" handler="layla_on_format_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
                 <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>f</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>&lt;Alt&gt;f</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
                       <child>
@@ -243,6 +309,17 @@
               <object class="GtkToggleButton" id="layla_delete_hydrogens_button">
                 <signal name="clicked" handler="layla_on_delete_hydrogens_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>&lt;Alt&gt;Delete</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -273,6 +350,17 @@
                 <signal name="clicked" handler="layla_on_single_bond_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
                 <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>s</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
                       <child>
@@ -297,6 +385,17 @@
               <object class="GtkToggleButton" id="layla_double_bond_button">
                 <signal name="clicked" handler="layla_on_double_bond_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>d</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -323,6 +422,17 @@
                 <signal name="clicked" handler="layla_on_triple_bond_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
                 <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>t</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
                       <child>
@@ -347,6 +457,17 @@
               <object class="GtkToggleButton" id="layla_geometry_button">
                 <signal name="clicked" handler="layla_on_geometry_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>g</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -373,6 +494,17 @@
                 <signal name="clicked" handler="layla_on_charge_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
                 <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>v</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
                       <child>
@@ -397,6 +529,17 @@
               <object class="GtkToggleButton" id="layla_delete_button">
                 <signal name="clicked" handler="layla_on_delete_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>Delete</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -499,6 +642,17 @@
                 <signal name="clicked" handler="layla_on_3C_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
                 <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>3</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
                       <child>
@@ -524,6 +678,17 @@
               <object class="GtkToggleButton" id="layla_4C_button">
                 <signal name="clicked" handler="layla_on_4C_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>4</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -551,6 +716,17 @@
                 <signal name="clicked" handler="layla_on_5C_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
                 <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>5</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
                       <child>
@@ -576,6 +752,17 @@
               <object class="GtkToggleButton" id="layla_6C_button">
                 <signal name="clicked" handler="layla_on_6C_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>6</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -603,6 +790,23 @@
                 <signal name="clicked" handler="layla_on_6Arom_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
                 <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>&lt;Alt&gt;6</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>b</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
                       <child>
@@ -629,6 +833,17 @@
                 <signal name="clicked" handler="layla_on_7C_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
                 <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>7</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
                       <child>
@@ -654,6 +869,17 @@
               <object class="GtkToggleButton" id="layla_8C_button">
                 <signal name="clicked" handler="layla_on_8C_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>8</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -690,6 +916,17 @@
                     <property name="label">C</property>
                     <signal name="clicked" handler="layla_on_C_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>c</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
@@ -697,6 +934,17 @@
                     <property name="label">N</property>
                     <signal name="clicked" handler="layla_on_N_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>n</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
@@ -704,6 +952,17 @@
                     <property name="label">O</property>
                     <signal name="clicked" handler="layla_on_O_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>o</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
@@ -711,6 +970,17 @@
                     <property name="label">S</property>
                     <signal name="clicked" handler="layla_on_S_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>&lt;Alt&gt;s</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
@@ -718,6 +988,17 @@
                     <property name="label">P</property>
                     <signal name="clicked" handler="layla_on_P_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>p</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
@@ -725,6 +1006,17 @@
                     <property name="label">H</property>
                     <signal name="clicked" handler="layla_on_H_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>h</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
@@ -732,6 +1024,17 @@
                     <property name="label">F</property>
                     <signal name="clicked" handler="layla_on_F_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>&lt;Alt&gt;i</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
@@ -739,6 +1042,17 @@
                     <property name="label">Cl</property>
                     <signal name="clicked" handler="layla_on_Cl_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>&lt;Alt&gt;c</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
@@ -746,6 +1060,17 @@
                     <property name="label">Br</property>
                     <signal name="clicked" handler="layla_on_Br_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>&lt;Alt&gt;b</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
@@ -753,6 +1078,17 @@
                     <property name="label">I</property>
                     <signal name="clicked" handler="layla_on_I_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>i</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
@@ -760,6 +1096,17 @@
                     <property name="label">X</property>
                     <signal name="clicked" handler="layla_on_X_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>x</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
