@@ -467,8 +467,8 @@ graphics_info_t::get_projection_matrix(bool do_orthographic_projection,
       // std::cout << "projection matrix ortho " << glm::to_string(projection_matrix) << std::endl;
       return projection_matrix;
    } else {
-      float fov = 30.0; // put this in graphics_info_t and add setters and getters to the API.
-      glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov),
+      // perspective_fov is in degrees
+      glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(perspective_fov),
                                                            screen_ratio,
                                                            screen_z_near_perspective,
                                                            screen_z_far_perspective);

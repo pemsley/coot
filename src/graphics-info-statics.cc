@@ -1429,6 +1429,7 @@ framebuffer graphics_info_t::blur_framebuffer; // 2020
 unsigned int graphics_info_t::framebuffer_scale = 1; // on supersampling by default.
 
 bool graphics_info_t::perspective_projection_flag = false;
+float graphics_info_t::perspective_fov = 26.0; // was 30.0
 
 
 // --------------------------------------------------------------------------------------------

@@ -4612,6 +4612,7 @@ string   static std::string sessionid;
    static float fps_std_dev; // for on-screen FPS IQR (fps is not calculated every frame)
    static long frame_counter_at_last_display;
    static bool perspective_projection_flag;
+   static float perspective_fov;
    static float screen_z_near_perspective;
    static float screen_z_far_perspective;
    static float goodselliness;
@@ -4628,6 +4629,8 @@ string   static std::string sessionid;
    static framebuffer blur_framebuffer; // from 2020
    static framebuffer combine_textures_using_depth_framebuffer;
    static unsigned int framebuffer_scale;
+
+   void set_perspective_fov(float angle) { perspective_fov = angle; } // in degress (typically 30 or so)
 
    // ---------------------------------------------
    static bool shaders_have_been_compiled;
