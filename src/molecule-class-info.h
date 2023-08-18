@@ -91,6 +91,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "coot-utils/coot-shelx.hh"
 #include "utils/coot-utils.hh"
 #include "utils/pir-alignment.hh"
+#include "api/ghost-molecule-display.hh"
 
 #include "protein_db/protein_db_utils.h"
 
@@ -172,6 +173,7 @@ namespace molecule_map_type {
 #include "model-composition-statistics.hh"
 
 #include "coot-utils/g_triangle.hh"
+#include "model-molecule-meshes.hh"
 
 #include "fresnel-settings.hh"
 
@@ -208,43 +210,6 @@ namespace coot {
 	 status = 0; // initially no backup reported
          imol = -1;
       }
-   };
-
-   class ghost_molecule_display_t {
-   public:
-      clipper::RTop_orth rtop;
-      int SelectionHandle;
-      graphical_bonds_container bonds_box;
-#ifndef EMSCRIPTEN
-      Mesh mesh;
-#endif
-      std::string name;
-      std::string chain_id;
-      std::string target_chain_id;  // this operator matches to this chain.
-      bool display_it_flag;
-      std::vector<int> residue_matches;
-      ghost_molecule_display_t() {
-         SelectionHandle = -1;
-	 display_it_flag = false; }
-      ghost_molecule_display_t(const clipper::RTop_orth &rtop_in,
-			       int SelHnd_in,
-			       const std::string &name_in) : rtop(rtop_in), SelectionHandle(SelHnd_in), name(name_in) {
-	 display_it_flag = 1;
-      }
-      void update_bonds(mmdb::Manager *mol); // the parent's mol
-#ifndef EMSCRIPTEN
-      void draw(Shader *shader,
-                const glm::mat4 &mvp,
-                const glm::mat4 &view_rotation_matrix,
-                const std::map<unsigned int, lights_info_t> &lights,
-                const glm::vec3 &eye_position, // eye position in view space (not molecule space)
-                const glm::vec4 &background_colour);
-#endif
-      bool is_empty() { return (SelectionHandle == -1); }
-      ncs_residue_info_t get_differences(mmdb::Residue *this_residue_p,
-					 mmdb::Residue *master_residue_p,
-					 float main_chain_weight) const;
-      friend std::ostream& operator<<(std::ostream &s, const ghost_molecule_display_t &ghost);
    };
 
    std::ostream& operator<<(std::ostream &s, const ghost_molecule_display_t &ghost);
@@ -302,11 +267,9 @@ namespace coot {
 
 #include "coot-utils/cylinder.hh"
 
-#ifndef EMSCRIPTEN
 #include "Mesh.hh"
 #include "LinesMesh.hh"
 #include "Instanced-Markup-Mesh.hh"
-#endif
 
 bool trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 			    const std::pair<clipper::RTop_orth, float> &b);
@@ -823,9 +786,7 @@ public:        //                      public
 			  float map_sampling_rate,
                           bool updating_existing_map_flag=false);
 
-#ifndef EMSCRIPTEN
    void map_fill_from_mtz(const coot::mtz_to_map_info_t &mmi, const std::string &wcd, float sampling_rate);
-#endif
 
    void map_fill_from_mtz_with_reso_limits(std::string mtz_file_name,
 					   std::string cwd,
@@ -953,9 +914,7 @@ public:        //                      public
    std::vector<coot::atom_spec_t> fixed_atom_specs;
    std::vector<coot::Cartesian>   fixed_atom_positions; // updated on make_bonds_type_checked()
    void update_fixed_atom_positions();
-#ifndef EMSCRIPTEN
    void update_additional_representations(const gl_context_info_t &gl_info, const coot::protein_geometry *geom);
-#endif
    void update_mols_in_additional_representations(); //uses atom_sel.mol
    void draw_fixed_atom_positions() const;
    void clear_all_fixed_atoms();
@@ -1028,10 +987,7 @@ public:        //                      public
    mmdb::Atom *get_atom(const coot::atom_spec_t &atom_spec) const;
 
    mmdb::Atom *get_atom(int idx) const;
-
-#ifndef EMSCRIPTEN
    mmdb::Atom *get_atom(const pick_info &pi) const;
-#endif
 
    bool have_atom_close_to_position(const coot::Cartesian &pos) const;
 
@@ -3769,16 +3725,10 @@ void draw_map_molecule(bool draw_transparent_maps,
 
    void make_mesh_from_bonds_box();
    void make_meshes_from_bonds_box_instanced_version(); // fills the below meshes (for instancing)
+   model_molecule_meshes_t model_molecule_meshes;
    void set_material_in_molecules_as_mesh(const Material &material) {
-      molecule_as_mesh.set_material(material);
+      model_molecule_meshes.set_material(material);
    }
-   Mesh molecule_as_mesh; // non-instancing
-   Mesh molecule_as_mesh_atoms_1; // for instancing (sphere)
-   Mesh molecule_as_mesh_atoms_2; // for instancing (hemisphere - not currently used)
-   Mesh molecule_as_mesh_bonds_c00; // for instancing, no-end-caps
-   Mesh molecule_as_mesh_bonds_c10; // for instancing, start end cap
-   Mesh molecule_as_mesh_bonds_c01; // for instancing, end end-cap
-   Mesh molecule_as_mesh_bonds_c11; // for instancing, both end-caps
    Mesh molecule_as_mesh_rama_balls;
    Mesh molecule_as_mesh_rota_dodecs;
    // pass this function to the Mesh so that we can determine the atom and bond colours

@@ -249,9 +249,14 @@ graphics_info_t::draw_molecules_for_shadow_map(unsigned int light_index) {
                bool opacity = 1.0;
                bool do_depth_fog = false;
                // model molecule, that is of course.
+#if 0 // 20230818-PE pre-model_molecule_meshes
                m.molecule_as_mesh.draw(&shader_for_meshes_shadow_map,
                                        mvp_orthogonal, model_rotation, lights, dummy_eye_position,
                                        opacity, bg_col_v4, gl_lines_mode, do_depth_fog, show_just_shadows);
+#endif
+               m.model_molecule_meshes.draw(&shader_for_meshes_shadow_map,
+                                            mvp_orthogonal, model_rotation, lights, dummy_eye_position,
+                                            opacity, bg_col_v4, gl_lines_mode, do_depth_fog, show_just_shadows);
             }
          }
       }

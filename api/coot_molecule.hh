@@ -49,7 +49,7 @@
 namespace coot {
 
    // give this a type
-   enum api_bond_colour_t { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
+   enum class api_bond_colour_t { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
       COLOUR_BY_CHAIN_BONDS=3,
       CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
       BONDS_NO_HYDROGENS=15,
@@ -341,7 +341,7 @@ namespace coot {
       void init() {
          // set the imol before calling this function.
          ligand_flip_number = 0;
-         bonds_box_type = UNSET_TYPE;
+         bonds_box_type = api_bond_colour_t::UNSET_TYPE;
          is_em_map_cached_flag = false;
          xmap_is_diff_map = false;
          is_from_shelx_ins_flag = false;

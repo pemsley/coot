@@ -831,15 +831,15 @@ graphics_info_t::draw_model_molecules() {
       if (! graphics_info_t::is_valid_model_molecule(ii)) continue;
       if (! m.draw_it) continue;
 
-      bool show_just_shadows = false;
-      bool wireframe_mode = false;
-      float opacity = 1.0f;
-      Shader *shader_p = &shader_for_meshes;
       if (m.draw_model_molecule_as_lines) {
          float lw = m.get_bond_thickness(); // returns an int.
-         m.molecule_as_mesh.draw_simple_bond_lines(&shader_for_symmetry_atoms_bond_lines, mvp, bgc, lw, shader_do_depth_fog_flag);
+         m.model_molecule_meshes.draw_simple_bond_lines(&shader_for_symmetry_atoms_bond_lines, mvp, bgc, lw, shader_do_depth_fog_flag);
       } else {
 #if 0 // the molecule_as_mesh is not filled at the moment, because the bond generation is now on the instanced path.
+         bool show_just_shadows = false;
+         bool wireframe_mode = false;
+         float opacity = 1.0f;
+         Shader *shader_p = &shader_for_meshes;
          m.molecule_as_mesh.draw(shader_p, mvp, model_rotation, lights, eye_position, opacity, bgc,
                                   wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 #endif
@@ -938,15 +938,11 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
    molecule_class_info_t &m = graphics_info_t::moving_atoms_molecule;
    glm::vec4 bgc(background_colour, 1.0);
    bool show_just_shadows = false; // make this a member data item.
-   if (false)
-      std::cout << "----------------- draw_intermediate_atoms() intermediate atoms mesh has "
-                << m.molecule_as_mesh.vertices.size() << " vertices and " << m.molecule_as_mesh.triangles.size()
-                << " triangles" << std::endl;
+
    float opacity = 1.0f;
 
    if (pass_type == PASS_TYPE_STANDARD) {
       Shader &shader = shader_for_meshes_with_shadows;
-      bool wireframe_mode = false;
 
       // non-instanced:
       // m.molecule_as_mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity, bgc,
@@ -967,7 +963,7 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
       auto model_matrix = get_model_matrix();
       auto view_matrix = get_view_matrix();
       auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
-      m.molecule_as_mesh.draw_for_ssao(&shader, model_matrix, view_matrix, projection_matrix);
+      m.model_molecule_meshes.draw_for_ssao(&shader, model_matrix, view_matrix, projection_matrix);
    }
 
    if (pass_type == PASS_TYPE_FOR_SHADOWS) { // generating, not using - PASS_TYPE_GEN_SHADOW_MAP is a clearer name.
@@ -984,8 +980,8 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
       }
       bool do_depth_fog = true;
       glm::vec4 bg_col(background_colour, 1.0);
-      m.molecule_as_mesh.draw(&shader, mvp_orthogonal, model_rotation, lights, dummy_eye_position,
-                              opacity, bg_col, gl_lines_mode, do_depth_fog, show_just_shadows);
+      m.model_molecule_meshes.draw(&shader, mvp_orthogonal, model_rotation, lights, dummy_eye_position,
+                                   opacity, bg_col, gl_lines_mode, do_depth_fog, show_just_shadows);
    }
 
 }
@@ -1715,7 +1711,7 @@ graphics_info_t::draw_molecules_with_shadows() {
             if (m.draw_model_molecule_as_lines) {
 
                float lw = m.get_bond_thickness(); // returns an int.
-               m.molecule_as_mesh.draw_simple_bond_lines(&shader_for_symmetry_atoms_bond_lines, mvp, bg_col_v4, lw, shader_do_depth_fog_flag);
+               m.model_molecule_meshes.draw_simple_bond_lines(&shader_for_symmetry_atoms_bond_lines, mvp, bg_col_v4, lw, shader_do_depth_fog_flag);
 
             } else {
 

@@ -251,7 +251,10 @@ void set_model_material_specular(int imol, float specular_strength, float shinin
       molecule_class_info_t &m = graphics_info_t::molecules[imol];
       m.material_for_models.specular_strength = specular_strength;
       m.material_for_models.shininess = shininess;
-      m.molecule_as_mesh.set_material_specularity(specular_strength, shininess);
+
+      // m.molecule_as_mesh.set_material_specularity(specular_strength, shininess);
+      m.model_molecule_meshes.set_material_specularity(specular_strength, shininess);
+
       // how about doing this instead of above? (not tested)
       // m.set_material(m.material_for_models);
       graphics_draw();
@@ -264,7 +267,7 @@ void set_model_material_diffuse(int imol, float r, float g, float b, float a) {
       molecule_class_info_t &m = graphics_info_t::molecules[imol];
       glm::vec4 d(r,g,b,a);
       m.material_for_models.diffuse = d;
-      m.molecule_as_mesh.set_material_diffuse(d);
+      m.model_molecule_meshes.set_material_diffuse(d);
       graphics_draw();
    }
 }
@@ -276,7 +279,7 @@ void set_model_material_ambient(int imol, float r, float g, float b, float a) {
       molecule_class_info_t &m = graphics_info_t::molecules[imol];
       glm::vec4 ambient(r,g,b,a);
       m.material_for_models.ambient = ambient;
-      m.molecule_as_mesh.set_material_ambient(ambient);
+      m.model_molecule_meshes.set_material_ambient(ambient);
    }
    graphics_draw();
 }

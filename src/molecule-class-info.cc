@@ -117,9 +117,10 @@ const double pi = M_PI;
 #include "molecular-mesh-generator.hh"
 #include "make-a-dodec.hh"
 
-#ifndef EMSCRIPTEN
+#include "api/coot_molecule.hh" // the integration with api begins...
+
 #include "widget-from-builder.hh"
-#endif
+
 
 glm::vec3
 cartesian_to_glm(const coot::Cartesian &c) {
@@ -283,7 +284,6 @@ molecule_class_info_t::setup_internal() { // init
    map_mesh_first_time = true;
    model_mesh_first_time = true;
 
-#ifndef EMSCRIPTEN
    material_for_maps.do_specularity = false;
    material_for_maps.specular_strength = 0.5; // non-shiny maps by default.
 
@@ -291,16 +291,14 @@ molecule_class_info_t::setup_internal() { // init
    material_for_models.specular_strength = 1.0;
    
    map_as_mesh.set_name("empty map molecule mesh");
-   molecule_as_mesh.set_name("empty model molecule mesh");
+   model_molecule_meshes.set_name("empty model molecule mesh");
 
-   // instanced version of molecule - I couldn't (quite) get it to work
-   molecule_as_mesh_atoms_1   = Mesh("molecule_as_mesh_atoms_1");
-   molecule_as_mesh_atoms_2   = Mesh("molecule_as_mesh_atoms_2");
-   molecule_as_mesh_bonds_c00 = Mesh("molecule_as_mesh_bonds_c00");
-   molecule_as_mesh_bonds_c01 = Mesh("molecule_as_mesh_bonds_c01");
-   molecule_as_mesh_bonds_c10 = Mesh("molecule_as_mesh_bonds_c10");
-   molecule_as_mesh_bonds_c11 = Mesh("molecule_as_mesh_bonds_c11");
-#endif
+   // molecule_as_mesh_atoms_1   = Mesh("molecule_as_mesh_atoms_1");
+   // molecule_as_mesh_atoms_2   = Mesh("molecule_as_mesh_atoms_2");
+   // molecule_as_mesh_bonds_c00 = Mesh("molecule_as_mesh_bonds_c00");
+   // molecule_as_mesh_bonds_c01 = Mesh("molecule_as_mesh_bonds_c01");
+   // molecule_as_mesh_bonds_c10 = Mesh("molecule_as_mesh_bonds_c10");
+   // molecule_as_mesh_bonds_c11 = Mesh("molecule_as_mesh_bonds_c11");
 
    // draw vectors
    draw_vector_sets.reserve(120); // more than enough
@@ -4077,7 +4075,7 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
       // molecule_as_mesh_bonds.set_is_headless();
 
       if (draw_model_molecule_as_lines) {
-         molecule_as_mesh.make_bond_lines(bonds_box, colour_table);
+         model_molecule_meshes.make_bond_lines(bonds_box, colour_table);
       } else {
 
          if (false)
@@ -4090,12 +4088,28 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
             atom_radius = 1.67; // 20220226-PE  compromise between C, N, O. Actually we should of course get
                                 // the radius of each atom from its type when model_representation_mode == Mesh::BALLS_NOT_BONDS.
                                 // That's for another day.
-         molecule_as_mesh.make_graphical_bonds(bonds_box, bonds_box_type, model_representation_mode,
+
+#if 0 // 20230818-PE previous style
+         model_molecule_meshes.make_graphical_bonds(bonds_box, bonds_box_type, model_representation_mode,
                                                udd_handle_bonded_type,
                                                draw_cis_peptide_markups, atom_radius, bond_radius,
                                                num_subdivisions, n_slices, n_stacks, colour_table, *graphics_info_t::Geom_p());
-         molecule_as_mesh.set_name(name_);
-         molecule_as_mesh.set_material(material_for_models);
+#endif
+
+         // now let's use the api function
+
+         coot::molecule_t cm(atom_sel, imol_no, name_);
+
+         coot::instanced_mesh_t im = cm.get_bonds_mesh_instanced(mode, *geom,
+                                                                 against_a_dark_background,
+                                                                 bonds_width,
+                                                                 atom_radius_to_bond_width_ratio,
+                                                                 smoothness_factor,
+                                                                 draw_hydrogen_atoms_flag,
+                                                                 draw_missing_residue_loops);
+         
+         model_molecule_meshes.set_name(name_);
+         model_molecule_meshes.set_material(material_for_models);
       }
    } else {
       std::cout << "##################### in make_mesh_from_bonds_box() null atom_sel.mol for intermediate atoms " << std::endl;
