@@ -59,9 +59,8 @@ coot --version
 Go into CA mode and try to middle-mouse over an atom that is not displayed. The recentering works.
 The atom picker needs to know about the representation type (or act on it) ::: 1
 
-Tweak down the perspective a notch.
-
-Turn on Intermediate atom All-atom contact dots, refine and accept. The contact dots should disappear but they don't ::: 1
+Are the cis-peptides markers being generated and displayed? ::: 1
+They are non-instanced geometry. Should I just use api/instancing.hh?
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
@@ -803,5 +802,12 @@ Make the run-script dialog be transient ::: 0.2
 * Done.
 
 add a "Grab focus" before going in to fullscreen! ::: 0.5
+* Done.
+
+Turn on Intermediate atom All-atom contact dots, refine and accept. The contact dots
+ should disappear but they don't ::: 1
+* Done.
+
+Tweak down the perspective a notch.
 * Done.
 

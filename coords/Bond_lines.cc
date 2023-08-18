@@ -6866,6 +6866,10 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
 
    // -------- metals and waters
 
+   // I am using RegisterUDInteger here (emphasis on the "Register").
+   // I surely didn't mean that? Because the next loop won't find any atoms that
+   // are registered.
+   //
    int udd_found_bond_handle = asc.mol->RegisterUDInteger(mmdb::UDR_ATOM,"found bond");// Register! Not get.
    int ic = -1;
    for (int iat=0; iat<asc.n_selected_atoms; iat++) {
