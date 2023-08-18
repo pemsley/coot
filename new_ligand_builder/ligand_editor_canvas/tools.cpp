@@ -331,28 +331,33 @@ void ActiveTool::set_core_widget_data(impl::CootLigandEditorCanvasPriv* owning_w
 }
 
 bool ElementInsertion::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
-    // maybe more useful to override in the future
+    widget_data.begin_edition();
     return true;
 }
 
 void ElementInsertion::on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) {
-    g_warning("TODO: Implement handling insertion at bonds (if any should happen)");
+    unsigned int atomic_number = this->get_atomic_number();
+    // auto el_name = RDKit::PeriodicTable::getTable()->getElementSymbol(atomic_number);
+    auto* new_atom = new RDKit::Atom(atomic_number);
+    rdkit_mol->removeBond(bond.first_atom_idx, bond.second_atom_idx);
+    unsigned int new_atom_idx = rdkit_mol->addAtom(new_atom, true, true);
+    rdkit_mol->addBond(bond.first_atom_idx, new_atom_idx, RDKit::Bond::SINGLE);
+    rdkit_mol->addBond(new_atom_idx, bond.second_atom_idx, RDKit::Bond::SINGLE);
+    widget_data.update_status("Atom has been inserted.");
 }
 
 void ElementInsertion::on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) {
     unsigned int atomic_number = this->get_atomic_number();
     auto el_name = RDKit::PeriodicTable::getTable()->getElementSymbol(atomic_number);
     g_debug("Appending element '%u' (%s) to destination atom: idx=%i, symbol=%s.",atomic_number,el_name.c_str(),atom.idx,atom.symbol.c_str());
-    widget_data.begin_edition();
     auto* new_atom = new RDKit::Atom(std::string(el_name));
     rdkit_mol->replaceAtom(atom.idx, new_atom);
     widget_data.update_status("Atom has been replaced.");
-    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
-    widget_data.finalize_edition();
 }
 
 void ElementInsertion::after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
-    // maybe more useful to override in the future
+    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
+    widget_data.finalize_edition();
 }
 
 std::string ElementInsertion::get_exception_message_prefix() const noexcept {
