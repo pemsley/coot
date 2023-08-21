@@ -155,6 +155,25 @@ void WidgetCoreData::finalize_edition() {
     }
 }
 
+void WidgetCoreData::delete_molecule_with_idx(unsigned int idx) noexcept {
+    if(idx < this->rdkit_molecules->size()) {
+        this->begin_edition();
+        auto iter = this->molecules->begin();
+        std::advance(iter, idx);
+        this->molecules->erase(iter);
+
+        auto iter2 = this->rdkit_molecules->begin();
+        std::advance(iter2, idx);
+        this->rdkit_molecules->erase(iter2);
+
+        this->finalize_edition();
+        this->update_status("Molecule deleted.");
+        auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
+        gtk_widget_queue_draw(GTK_WIDGET(widget_ptr));
+        g_signal_emit((gpointer) widget_ptr, impl::molecule_deleted_signal, 0, idx);
+    }
+}
+
 std::string WidgetCoreData::build_smiles_string() const {
     std::string ret;
     auto it = this->rdkit_molecules->cbegin();

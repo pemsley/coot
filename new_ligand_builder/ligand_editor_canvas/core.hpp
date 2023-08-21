@@ -22,6 +22,7 @@ namespace coot::ligand_editor_canvas::impl {
 inline guint status_updated_signal;
 inline guint scale_changed_signal;
 inline guint smiles_changed_signal;
+inline guint molecule_deleted_signal;
 
 /// This is here as a workaround.
 /// 
@@ -130,6 +131,8 @@ struct WidgetCoreData {
     /// The index number indicates which molecule the object comes from.
     /// If nothing matches the coordinates, nullopt is returned.
     MaybeAtomOrBondWithMolIdx resolve_click(int x, int y) const noexcept;
+
+    void delete_molecule_with_idx(unsigned int idx) noexcept;
 
     /// Emits 'status-updated' signal.
     void update_status(const gchar* status_text) const noexcept;

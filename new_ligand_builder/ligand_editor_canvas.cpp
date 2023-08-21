@@ -6,6 +6,7 @@
 #include "pango/pango-font.h"
 #include "pango/pangocairo.h"
 #include <exception>
+#include <iterator>
 #include <utility>
 #include <algorithm>
 #include <vector>
@@ -297,6 +298,17 @@ static void coot_ligand_editor_canvas_class_init(CootLigandEditorCanvasClass* kl
         G_TYPE_NONE /* return_type */,
         1     /* n_params */,
         G_TYPE_FLOAT
+    );
+    impl::molecule_deleted_signal = g_signal_new("molecule-deleted",
+        G_TYPE_FROM_CLASS (klass),
+        (GSignalFlags) (G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS),
+        0 /* class offset.Subclass cannot override the class handler (default handler). */,
+        NULL /* accumulator */,
+        NULL /* accumulator data */,
+        NULL /* C marshaller. g_cclosure_marshal_generic() will be used */,
+        G_TYPE_NONE /* return_type */,
+        1     /* n_params */,
+        G_TYPE_INT
     );
     impl::smiles_changed_signal = g_signal_new("smiles-changed",
         G_TYPE_FROM_CLASS (klass),
