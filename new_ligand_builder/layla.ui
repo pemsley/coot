@@ -99,6 +99,71 @@
     </submenu>
   </menu>
   <object class="GtkApplicationWindow" id="layla_window">
+    <child>
+      <object class='GtkShortcutController'>
+        <property name='scope'>managed</property>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;Z</property>
+            <property name='action'>action(win.undo)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;R</property>
+            <property name='action'>action(win.redo)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;S</property>
+            <property name='action'>action(win.file_save)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;&lt;Shift&gt;S</property>
+            <property name='action'>action(win.file_save_as)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;O</property>
+            <property name='action'>action(win.file_open)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;N</property>
+            <property name='action'>action(win.file_new)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;W</property>
+            <property name='action'>action(win.file_exit)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;i</property>
+            <property name='action'>action(win.import_from_smiles)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;&lt;Shift&gt;i</property>
+            <property name='action'>action(win.import_molecule)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>F1</property>
+            <property name='action'>action(win.show_about_dialog)</property>
+          </object>
+        </child>
+      </object>
+    </child>
     <property name="child">
       <object class="GtkBox" id="layla_mainbox">
         <property name="margin-end">10</property>
@@ -1643,7 +1708,43 @@ Paul Emsley</property>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Control&gt;n</property>
-                <property name="title" translatable="yes">todo: New</property>
+                <property name="title" translatable="yes">New</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;S</property>
+                <property name='title'>Save</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;&lt;Shift&gt;S</property>
+                <property name='title'>Save As</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;O</property>
+                <property name='title'>Open</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;W</property>
+                <property name='title'>Exit</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;i</property>
+                <property name='title'>Import molecule from SMILES</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;&lt;Shift&gt;i</property>
+                <property name='title'>Import molecule</property>
               </object>
             </child>
           </object>
@@ -1654,13 +1755,19 @@ Paul Emsley</property>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Control&gt;Z</property>
-                <property name="title" translatable="yes">todo: Undo</property>
+                <property name="title" translatable="yes">Undo</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Control&gt;R</property>
-                <property name="title" translatable="yes">todo: Redo</property>
+                <property name="title" translatable="yes">Redo</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>F1</property>
+                <property name='title'>Show help</property>
               </object>
             </child>
           </object>
