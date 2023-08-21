@@ -62,6 +62,8 @@ The atom picker needs to know about the representation type (or act on it) ::: 1
 Are the cis-peptides markers being generated and displayed? ::: 1
 They are non-instanced geometry. Should I just use api/instancing.hh?
 
+I want to be able use "Fancy" shader path, but not use SSAO.
+
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
 Nice to have:

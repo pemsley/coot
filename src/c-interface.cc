@@ -5571,6 +5571,11 @@ void set_draw_moving_atoms_restraints(int state) {
    graphics_draw();
 }
 
+/* undocumented feature for development. */
+short int get_draw_moving_atoms_restraints() {
+   return graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object;
+}
+
 
 
 int

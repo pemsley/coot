@@ -4835,6 +4835,9 @@ void set_grey_carbon_colour(int imol, float r, float g, float b);
 /* undocumented feature for development. */
 void set_draw_moving_atoms_restraints(int state);
 
+/* undocumented feature for development. */
+short int get_draw_moving_atoms_restraints();
+
 /*! \brief make a ball and stick representation of imol given atom selection
 
 e.g. (make-ball-and-stick 0 "/1" 0.15 0.25 1) */
@@ -6615,6 +6618,10 @@ short int do_probe_dots_post_refine_state();
 
 /* state is 1 for on and 0 for off */
 void set_do_coot_probe_dots_during_refine(short int state);
+
+/* get state: 1 for on and 0 for off */
+short int get_do_coot_probe_dots_during_refine();
+
 
 /*! \brief make an attempt to convert pdb hydrogen name to the name
   used in Coot (and the refmac dictionary, perhaps). */

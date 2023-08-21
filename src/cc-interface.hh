@@ -1075,6 +1075,9 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 void set_show_intermediate_atoms_rota_markup(short int state);
 void set_show_intermediate_atoms_rama_markup(short int state);
 
+int get_show_intermediate_atoms_rota_markup();
+int get_show_intermediate_atoms_rama_markup();
+
 void set_cryo_em_refinement(bool mode);
 bool get_cryo_em_refinement();
 

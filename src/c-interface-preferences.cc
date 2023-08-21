@@ -1034,6 +1034,11 @@ void set_do_coot_probe_dots_during_refine(short int state) {
    graphics_info_t::do_coot_probe_dots_during_refine_flag = state;
 }
 
+/* state is 1 for on and 0 for off */
+short int get_do_coot_probe_dots_during_refine() {
+   return graphics_info_t::do_coot_probe_dots_during_refine_flag;
+}
+
 
 
 // This is tedious and irritating to parse in C++.
