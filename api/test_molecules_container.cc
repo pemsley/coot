@@ -3197,6 +3197,30 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
    return status;
 }
 
+int test_is_em_map(molecules_container_t &mc) {
+
+   auto close_float = [] (float a, float b) {
+      return fabsf(a - b) < 0.001;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_map = mc.read_ccp4_map("emd_25074.map", 0);
+   bool is_EM_map = mc.is_EM_map(imol_map);
+   float cl = mc.get_suggested_initial_contour_level(imol_map);
+   float rmsd = mc.get_map_rmsd_approx(imol_map);
+
+   std::cout << "test_is_em_map(): EM: " << is_EM_map << " cl " << cl << " with rmsd: " << rmsd
+             << " ratio " << cl/rmsd << std::endl;
+
+   if (is_EM_map) {
+      if (close_float(cl, 4.0 * rmsd))
+         status = 1;
+   }
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3323,7 +3347,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_user_defined_bond_colours_v2, "user-defined bond colours v2", mc);
+   status += run_test(test_is_em_map, "test if EM map flag is correctly set", mc);
+
+   // status += run_test(test_user_defined_bond_colours_v2, "user-defined bond colours v2", mc);
 
    // status += run_test(test_ramachandran_analysis, "--- current_test ---", mc);
 

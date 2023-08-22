@@ -393,6 +393,9 @@ namespace coot {
 
       //! constructor
       molecule_t(const std::string &name_in, int mol_no_in) : name(name_in) {imol_no = mol_no_in; init(); }
+      //! constructor, when we know we are giving it an em map
+      molecule_t(const std::string &name_in, int mol_no_in, short int is_em_map) : name(name_in) {
+         imol_no = mol_no_in; init(); is_em_map_cached_flag = is_em_map; }
       //! constructor
       molecule_t(const std::string &name_in, int mol_no_in, const clipper::Xmap<float> &xmap_in, bool is_em_map_flag)
          : name(name_in), xmap(xmap_in) {imol_no = mol_no_in; init(); is_em_map_cached_flag = is_em_map_flag; }

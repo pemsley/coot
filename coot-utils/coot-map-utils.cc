@@ -3998,6 +3998,9 @@ coot::util::map_molecule_centre(const clipper::Xmap<float> &xmap) {
    std::pair<bool,clipper::Coord_orth> p(false, clipper::Coord_orth(0,0,0));
    clipper::Cell cell = xmap.cell();
 
+   float sr = cell.descr().a() * 0.22;
+   mmci.suggested_radius = sr;
+
    clipper::Coord_orth cell_centre(cell.descr().a() * 0.5,
                                    cell.descr().b() * 0.5,
                                    cell.descr().c() * 0.5);

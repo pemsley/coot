@@ -151,12 +151,15 @@ namespace coot {
          clipper::Coord_orth updated_centre;
          //! suggested contour level
          float suggested_contour_level;
+         //! the suggested radius
+         float suggested_radius;
          //! sum of densities - for whatever use that may be.
          double sum_of_densities; // for scoring origins
          map_molecule_centre_info_t() {
             success = false;
             sum_of_densities = -1;
             suggested_contour_level = 0.0;
+            suggested_radius = -1;
          }
       };
 

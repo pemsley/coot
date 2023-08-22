@@ -932,29 +932,34 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
    bool done = false;
 
    if (coot::util::is_basic_em_map_file(file_name)) {
+      std::cout << ":::::::::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
+   } else {
+      std::cout << ":::::::::::: read_ccp4_map() returns false for is_basic_em_map_file() " << std::endl;
+   }
+   
+
+   if (coot::util::is_basic_em_map_file(file_name)) {
+
+      std::cout << ":::::::::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
 
       // fill xmap
       bool check_only = false;
-      coot::molecule_t m(file_name, imol_in_hope);
+      short int is_em_map = 1; // this is the correct type - it can be -1.
+      coot::molecule_t m(file_name, imol_in_hope, is_em_map);
+      short int m_em_status = m.is_EM_map();
+      std::cout << "m_em_status " << m_em_status << std::endl;
       clipper::Xmap<float> &xmap = m.xmap;
       done = coot::util::slurp_fill_xmap_from_map_file(file_name, &xmap, check_only);
-      try {
-         // what's the point of this now?
-         clipper_map_file_wrapper file;
-         file.open_read(file_name);
-         // set_is_em_map(file); // sets is_em_map_cached_flag
-         // em = is_em_map_cached_flag;
-      }
-      catch (const clipper::Message_base &exc) {
-         std::cout << "WARNING:: failed to open " << file_name << std::endl;
-         // bad_read = true;
-      }
-
       if (done) {
          molecules.push_back(m);
          imol = imol_in_hope;
       }
    }
+
+   short int em_status = molecules[imol].is_EM_map();
+   std::cout << "here with imol " << imol << " molecules size " << molecules.size() << std::endl;
+   std::cout << "here with imol " << imol << " done " << done << std::endl;
+   std::cout << "here with imol " << imol << " is_em_map:  " << em_status << std::endl;
 
    if (! done) {
       // std::cout << "INFO:: attempting to read CCP4 map: " << file_name << std::endl;
@@ -4171,6 +4176,19 @@ molecules_container_t::mask_map_by_atom_selection(int imol_coords, int imol_map,
                 << std::endl;
    }
    return imol_map_new;
+}
+
+//! @return the "EM" status of this molecule. Return false on not-a-map.
+bool
+molecules_container_t::is_EM_map(int imol) const {
+
+   bool status = false;
+   if (is_valid_map_molecule(imol)) {
+      status = molecules[imol].is_EM_map();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
 }
 
 
