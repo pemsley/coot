@@ -3179,8 +3179,8 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
          for (unsigned int i=0; i<25; i++) {
             const auto &sphere = ig.instancing_data_A[i];
             if (false)
-               std::cout << "sphere " << i << " pos " << glm::to_string(sphere.position) << " colour " << glm::to_string(sphere.colour)
-                         << std::endl;
+               std::cout << "sphere " << i << " pos " << glm::to_string(sphere.position)
+                         << " colour " << glm::to_string(sphere.colour) << std::endl;
             if (i == 11) { // the is "CA" the CA in the first residue (strangely)
                status = 0;
                if (close_float(sphere.colour[0], 1.0))
@@ -3214,8 +3214,12 @@ int test_is_em_map(molecules_container_t &mc) {
              << " ratio " << cl/rmsd << std::endl;
 
    if (is_EM_map) {
-      if (close_float(cl, 4.0 * rmsd))
-         status = 1;
+      if (close_float(cl, 4.0 * rmsd)) {
+         coot::util::map_molecule_centre_info_t mci = mc.get_map_molecule_centre(imol_map);
+         std::cout << "mci.suggested_radius " << mci.suggested_radius << std::endl;
+         if (mci.suggested_radius > 50.0)
+            status = 1;
+      }
    }
 
    return status;
