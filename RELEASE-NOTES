@@ -1,3 +1,12 @@
+
+  Release 0.9.8.91
+
+ o BUG-FIX: Restore missing peptide omega plot [Steven Sheriff]
+
+ o BUG-FIX: Check/Delete waters no longer considers hydrogen atoms in close-contact analysis
+
+ o BUG-FIX: Replace Residue works for residues in the B chain [Paul Bond]
+ 
 ----
 
   Release 0.9.8.9
