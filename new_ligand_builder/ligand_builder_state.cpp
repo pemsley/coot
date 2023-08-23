@@ -1,5 +1,4 @@
 #include "ligand_builder_state.hpp"
-
 #include "geometry/protein-geometry.hh"
 #include "ligand_editor_canvas.hpp"
 #include <exception>
@@ -25,6 +24,23 @@ LigandBuilderState::LigandBuilderState(CootLigandEditorCanvas* canvas_widget, Gt
     this->main_window = win;
     this->status_label = status_label;
     this->monomer_library_info_store = std::make_unique<protein_geometry>();
+    g_signal_connect(canvas_widget, "molecule-deleted", G_CALLBACK(+[](CootLigandEditorCanvas* self, unsigned int deleted_mol_idx, gpointer user_data){
+        LigandBuilderState* state = (LigandBuilderState*) user_data;
+        if (state->current_filesave_molecule.has_value()) {
+            unsigned int idx = state->current_filesave_molecule.value();
+            if(idx > deleted_mol_idx) {
+                // The "current" molecule still exists.
+                // Just decrement the index.
+                state->current_filesave_molecule = idx - 1;
+            } else if(idx == deleted_mol_idx) {
+                // The "current" molecule no longer exists
+                state->current_filesave_molecule = std::nullopt;
+                state->current_filesave_filename = std::nullopt;
+            } else {
+                // The "current" molecule idx is not affected
+            }
+        }
+    }), this);
     //g_object_set_data(G_OBJECT(win), "ligand_builder_instance", this);
 }
 
