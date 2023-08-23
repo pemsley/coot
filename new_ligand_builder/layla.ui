@@ -630,29 +630,6 @@
               <object class="GtkSeparator"></object>
             </child>
             <child type="end">
-              <object class="GtkButton" id="layla_smiles_button">
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
-                      <child>
-                        <object class="GtkImage">
-                          <!-- <property name="visible">false</property> -->
-                          <property name="icon-name">layla_smiles</property>
-                        </object>
-                      </child>
-                      <child>
-                        <object class="GtkLabel">
-                          <attributes>
-                            <attribute name="size" value="7200"/>
-                          </attributes>
-                          <property name="label">SMILES</property>
-                        </object>
-                      </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child type="end">
               <object class="GtkButton" id="layla_env_residues_button">
                 <child>
                   <object class="GtkBox">
