@@ -2,25 +2,25 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="48"
    height="48"
    id="svg2160"
    sodipodi:version="0.32"
-   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
    sodipodi:docname="rotamers.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-filename="/home/paule/Projects/coot/pixmaps/rotamers.png"
    inkscape:export-xdpi="100"
    inkscape:export-ydpi="100"
    sodipodi:modified="true"
-   version="1.1">
+   version="1.1"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs2162">
     <inkscape:perspective
@@ -38,18 +38,20 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.7747252"
-     inkscape:cx="53.066093"
-     inkscape:cy="-14.060594"
+     inkscape:zoom="8"
+     inkscape:cx="11.3125"
+     inkscape:cy="19.6875"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="993"
-     inkscape:window-height="964"
-     inkscape:window-x="1403"
-     inkscape:window-y="90"
-     inkscape:window-maximized="0" />
+     inkscape:window-width="1987"
+     inkscape:window-height="1164"
+     inkscape:window-x="1174"
+     inkscape:window-y="71"
+     inkscape:window-maximized="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:snap-global="false" />
   <metadata
      id="metadata2165">
     <rdf:RDF>
@@ -67,12 +69,18 @@
      inkscape:groupmode="layer"
      transform="translate(0,32)">
     <path
-       style="fill:none;stroke:#d5f06b;stroke-width:4.40558767px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 37.024349,13.797206 24.209326,4.3434097 33.145314,-17.270584 14.584509,-29.365315"
+       style="color:#000000;fill:#d5f06b;stroke:#010100;stroke-opacity:1;stroke-width:0.7;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 15.787109,-31.210937 -2.404296,3.691406 17.029296,11.095703 L 21.515625,5.09375 35.716797,15.570313 38.332031,12.025391 26.902344,3.59375 35.878906,-18.119141 Z"
        id="path2168" />
     <path
-       style="fill:none;stroke:#d5f06b;stroke-width:4.40558767px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 25.915955,0.6963543 12.582253,13.797206 3.6931169,2.7003966"
-       id="path3383" />
+       style="color:#000000;fill:#d5f06b;stroke:#000000;stroke-opacity:1;stroke-width:0.7;stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 23.998841,-1.6358534 11.676648,8.9667291 4.9342383,-0.69455145 1.3223796,1.8284713 10.854093,15.485253 26.725682,1.6140659 Z m 10.21944,4.5176128 z"
+       id="path3383"
+       sodipodi:nodetypes="ccccccc" />
+    <path
+       style="color:#000000;fill:#d5f06b;stroke:none;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.424503"
+       d="M 27.858242,-0.32002107 25.19894,-2.3230852 22.366696,0.461285 c 0,0 -3.636494,3.2602068 1.611203,5.6626191 2.046419,-0.1578534 3.880343,-6.44392517 3.880343,-6.44392517 z"
+       id="path3383-8"
+       sodipodi:nodetypes="ccccc" />
   </g>
 </svg>
