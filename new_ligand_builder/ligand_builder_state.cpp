@@ -80,10 +80,15 @@ void LigandBuilderState::load_from_smiles() {
     auto* entry_buf = gtk_entry_buffer_new("", 0);
     auto* entry = gtk_entry_new_with_buffer(entry_buf);
 
+    g_signal_connect(entry, "activate", G_CALLBACK(+[](GtkEntry* entry, gpointer user_data){
+        gtk_dialog_response(GTK_DIALOG(user_data), GTK_RESPONSE_ACCEPT);
+    }), load_dialog);
+
     gtk_box_append(GTK_BOX(dialog_body),entry);
 
     auto* submit_button = gtk_button_new_with_label("Submit");
     gtk_box_append(GTK_BOX(dialog_body),submit_button);
+
     g_signal_connect(submit_button, "clicked", G_CALLBACK(+[](GtkButton* btn, gpointer user_data){
         gtk_dialog_response(GTK_DIALOG(user_data), GTK_RESPONSE_ACCEPT);
     }), load_dialog);
@@ -154,10 +159,11 @@ void LigandBuilderState::file_import_molecule() {
     GtkWidget *submit_button = gtk_button_new_with_label("Submit");
     gtk_box_append(GTK_BOX(dialog_body), submit_button);
 
-    auto submit_callback = +[] (GtkButton *button, gpointer user_data) {
+    auto submit_callback = +[] (GtkWidget* widget, gpointer user_data) {
         gtk_dialog_response(GTK_DIALOG(user_data), GTK_RESPONSE_ACCEPT);
     };
     g_signal_connect(submit_button, "clicked", G_CALLBACK(submit_callback), load_dialog);
+    g_signal_connect(entry, "activate", G_CALLBACK(submit_callback), load_dialog);
 
     gtk_window_set_child(GTK_WINDOW(load_dialog), dialog_body);
     gtk_window_present(GTK_WINDOW(load_dialog));
