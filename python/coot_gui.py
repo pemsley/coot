@@ -5745,17 +5745,17 @@ def add_module_refine():
             print("thing_b", thing_b)
             print("thing_c", thing_c)
             if switch.get_active():
-                coot.set_show_intermediate_atoms_rama_markup(1)
+                coot.set_draw_moving_atoms_rama_markup(1)
             else:
-                coot.set_show_intermediate_atoms_rama_markup(0)
+                coot.set_draw_moving_atoms_rama_markup(0)
 
         def switch_rota_switched(switch, thing_b, thing_c):
             print("thing_b", thing_b)
             print("thing_c", thing_c)
             if switch.get_active():
-                coot.set_show_intermediate_atoms_rota_markup(1)
+                coot.set_draw_moving_atoms_rota_markup(1)
             else:
-                coot.set_show_intermediate_atoms_rota_markup(0)
+                coot.set_draw_moving_atoms_rota_markup(0)
 
         def switch_contact_dots_switched(switch, thing_b, thing_c):
             print("thing_b", thing_b)
@@ -5802,8 +5802,8 @@ def add_module_refine():
         switch_rama_label.set_xalign(0)
         switch_rota_label.set_xalign(0)
 
-        if coot.get_show_intermediate_atoms_rama_markup() == 1: switch_rama.set_active(True)
-        if coot.get_show_intermediate_atoms_rama_markup() == 1: switch_rota.set_active(True)
+        if coot.get_draw_moving_atoms_rama_markup_state() == 1: switch_rama.set_active(True)
+        if coot.get_draw_moving_atoms_rama_markup_state() == 1: switch_rota.set_active(True)
         if coot.get_do_coot_probe_dots_during_refine() == 1:    switch_contact_dots.set_active(True)
         if coot.get_draw_moving_atoms_restraints() == 1:        switch_GM_restraints.set_active(True)
 
