@@ -2350,7 +2350,7 @@ SCM all_molecule_rotamer_score(int imol) {
       coot::rotamer_score_t rs = g.all_molecule_rotamer_score(imol);
       SCM a_scm = scm_from_double(rs.score);
       SCM b_scm = scm_from_int(rs.n_rotamer_residues());
-      r = SCM_LIST2(a_scm, b_scm);
+      r = scm_list_2(a_scm, b_scm);
    }
    return r;
 }
@@ -2393,7 +2393,7 @@ SCM all_molecule_ramachandran_score(int imol) {
 	 SCM d_scm = scm_from_double(rs.scores[ii].score);
 	 SCM phi_scm = scm_from_double(rs.scores[ii].phi_psi.phi());
 	 SCM psi_scm = scm_from_double(rs.scores[ii].phi_psi.psi());
-	 SCM phi_psi_scm = SCM_LIST2(phi_scm, psi_scm);
+	 SCM phi_psi_scm = scm_list_2(phi_scm, psi_scm);
 	 if (false)
 	    std::cout << "here with residue pointers "
 		      << rs.scores[ii].residue_prev << " "
@@ -2403,17 +2403,17 @@ SCM all_molecule_ramachandran_score(int imol) {
 	 if (rs.scores[ii].residue_prev &&
 	     rs.scores[ii].residue_this &&
 	     rs.scores[ii].residue_next) {
-	    SCM res_names_scm = SCM_LIST3(scm_from_locale_string(rs.scores[ii].residue_prev->GetResName()),
+	    SCM res_names_scm = scm_list_3(scm_from_locale_string(rs.scores[ii].residue_prev->GetResName()),
 					  scm_from_locale_string(rs.scores[ii].residue_this->GetResName()),
 					  scm_from_locale_string(rs.scores[ii].residue_next->GetResName()));
-	    SCM residue_results_scm = SCM_LIST4(phi_psi_scm, residue_spec_scm, d_scm, res_names_scm);
+	    SCM residue_results_scm = scm_list_4(phi_psi_scm, residue_spec_scm, d_scm, res_names_scm);
 	    by_residue_scm = scm_cons(residue_results_scm, by_residue_scm);
 	 } else {
-	    SCM residue_results_scm = SCM_LIST3(phi_psi_scm, residue_spec_scm, d_scm);
+	    SCM residue_results_scm = scm_list_3(phi_psi_scm, residue_spec_scm, d_scm);
 	    by_residue_scm = scm_cons(residue_results_scm, by_residue_scm);
 	 }
       }
-      r = SCM_LIST6(a_scm, b_scm, c_scm, d_scm, e_scm, scm_reverse(by_residue_scm));
+      r = scm_list_6(a_scm, b_scm, c_scm, d_scm, e_scm, scm_reverse(by_residue_scm));
    }
 
    return r;
@@ -2842,7 +2842,7 @@ SCM add_cablam_markup_scm(int imol, const std::string &cablam_log_file_name) {
    SCM r = SCM_EOL;
    std::vector<std::pair<coot::residue_spec_t, double> >::const_iterator it;
    for (it=v.begin(); it!=v.end(); it++) {
-      SCM item_scm = SCM_LIST2(residue_spec_to_scm(it->first), scm_from_double(it->second));
+      SCM item_scm = scm_list_2(residue_spec_to_scm(it->first), scm_from_double(it->second));
       r = scm_cons(item_scm, r);
    }
    r = scm_reverse(r);
