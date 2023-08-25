@@ -1153,6 +1153,7 @@ namespace coot {
    };
 
    class chem_link {
+   public:
       std::string id;
       std::string chem_link_comp_id_1;
       std::string chem_link_mod_id_1;
@@ -1162,7 +1163,7 @@ namespace coot {
       std::string chem_link_group_comp_2;
       std::string chem_link_name;
       unsigned int hash_code;
-   public:
+      chem_link() { hash_code = 0; }
       chem_link(const std::string &id_in,
                 const std::string &chem_link_comp_id_1_in,
                 const std::string &chem_link_mod_id_1_in,
@@ -2007,7 +2008,7 @@ namespace coot {
       find_glycosidic_linkage_type_with_order_switch(mmdb::Residue *first, mmdb::Residue *second) const;
 
       // can throw a std::runtime_error
-      chem_link get_chem_link(const std::string &link_id);
+      chem_link get_chem_link(const std::string &link_id) const;
 
       void print_chem_links() const;
       static int chiral_volume_string_to_chiral_sign(const std::string &chiral_vol_string);
