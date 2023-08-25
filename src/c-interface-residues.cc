@@ -361,12 +361,21 @@ SCM glyco_tree_residue_id_scm(int imol, SCM residue_spec_scm) {
 	 if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::NON_PRIME)
 	    prime_flag_sym = scm_string_to_symbol(scm_from_locale_string("non-prime"));
 
-	 r = SCM_LIST6(scm_from_int(id.level),
-		       prime_flag_sym,
-		       scm_from_locale_string(id.res_type.c_str()),
-		       scm_from_locale_string(id.link_type.c_str()),
-		       scm_from_locale_string(id.parent_res_type.c_str()),
-		       parent_spec_scm);
+         // new guile doesn't have SCM_LIST6
+	 // r = SCM_LIST6(scm_from_int(id.level),
+	 //               prime_flag_sym,
+	 //               scm_from_locale_string(id.res_type.c_str()),
+	 //               scm_from_locale_string(id.link_type.c_str()),
+	 //               scm_from_locale_string(id.parent_res_type.c_str()),
+	 //               parent_spec_scm);
+
+         // scm_cons2 ((e0), (e1), SCM_LIST4 ((e2), (e3), (e4), (e5)))
+
+         r = scm_cons2(scm_from_int(id.level), prime_flag_sym,
+                       scm_list_4(scm_from_locale_string(id.res_type.c_str()),
+                                  scm_from_locale_string(id.link_type.c_str()),
+                                  scm_from_locale_string(id.parent_res_type.c_str()),
+                                  parent_spec_scm));
       }
    }
    return r;

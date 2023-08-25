@@ -2413,7 +2413,9 @@ SCM all_molecule_ramachandran_score(int imol) {
 	    by_residue_scm = scm_cons(residue_results_scm, by_residue_scm);
 	 }
       }
-      r = SCM_LIST6(a_scm, b_scm, c_scm, d_scm, e_scm, scm_reverse(by_residue_scm));
+      // r = SCM_LIST6(a_scm, b_scm, c_scm, d_scm, e_scm, scm_reverse(by_residue_scm));
+      // new guile
+      r = scm_cons2(a_scm, b_scm, scm_list_4(c_scm, d_scm, e_scm, scm_reverse(by_residue_scm)));
    }
 
    return r;
