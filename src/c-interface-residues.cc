@@ -361,7 +361,7 @@ SCM glyco_tree_residue_id_scm(int imol, SCM residue_spec_scm) {
 	 if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::NON_PRIME)
 	    prime_flag_sym = scm_string_to_symbol(scm_from_locale_string("non-prime"));
 
-	 r = SCM_LIST6(scm_from_int(id.level),
+	 r = scm_list_6(scm_from_int(id.level),
 		       prime_flag_sym,
 		       scm_from_locale_string(id.res_type.c_str()),
 		       scm_from_locale_string(id.link_type.c_str()),
