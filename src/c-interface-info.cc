@@ -5097,7 +5097,10 @@ SCM remarks_scm(int imol) {
          mmdb::Remark *cr = static_cast<mmdb::Remark *> (tc_p->GetContainerClass(i));
          SCM a_scm = scm_from_int(cr->remarkNum);
          SCM b_scm = scm_from_locale_string(cr->remark);
-         SCM l2 = SCM_LIST2(a_scm, b_scm);
+
+         // #define SCM_LIST2(e0, e1) scm_cons2 ((e0), (e1), SCM_EOL)
+         // SCM l2 = SCM_LIST2(a_scm, b_scm);
+         SCM l2 = scm_cons2(a_scm, b_scm, SCM_EOL);
          r = scm_cons(l2, r);
       }
       r = scm_reverse(r); // undo schemey backwardsness
@@ -5143,9 +5146,9 @@ SCM residue_centre_scm(int imol, const char *chain_id, int resno, const char *in
       std::pair<bool, clipper::Coord_orth> rr =
          graphics_info_t::molecules[imol].residue_centre(chain_id, resno, ins_code);
       if (rr.first) {
-         r = SCM_LIST3(scm_from_double(rr.second.x()),
-                       scm_from_double(rr.second.y()),
-                       scm_from_double(rr.second.z()));
+         r = scm_list_3(scm_from_double(rr.second.x()),
+                        scm_from_double(rr.second.y()),
+                        scm_from_double(rr.second.z()));
       }
    }
    return r;
