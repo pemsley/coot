@@ -119,7 +119,6 @@
 
 #include "coot-version.hh"
 
-#include "nsv.hh"
 #include "widget-headers.hh"
 #include "widget-from-builder.hh"
 
@@ -132,10 +131,12 @@
 #include "cmtz-interface.hh"
 // #include "mtz-bits.h" stuff from here moved to cmtz-interface
 
+#include "read-molecule.hh" // now with std::string args
+
 #include "widget-from-builder.hh"
 #include "glarea_tick_function.hh"
-#include "dynamic-menus.hh"
 
+#include "validation-graphs/sequence-view-widget.hh"
 
 // This is (already) in git-revision-count.cc
 //
@@ -590,7 +591,7 @@ get_idle_function_rock_target_angle() {
 // Return the molecule number of the molecule that we just filled.
 // Return -1 if there was a failure.
 //
-int handle_read_draw_molecule(const char *filename) {
+int handle_read_draw_molecule(const std::string &filename) {
 
    int r = graphics_info_t::recentre_on_read_pdb;
    return handle_read_draw_molecule_with_recentre(filename, r);
@@ -834,15 +835,13 @@ void set_convert_to_v2_atom_names(short int state) {
 }
 
 
-int handle_read_draw_molecule_with_recentre(const char *filename,
+int handle_read_draw_molecule_with_recentre(const std::string &filename,
 					    int recentre_on_read_pdb_flag) {
 
    int r = -1;
    //
 
    graphics_info_t g;
-   if (! filename)
-      return -1;
 
    std::string cmd = "handle-read-draw-molecule-with-recentre";
    std::vector<coot::command_arg_t> args;
@@ -997,16 +996,33 @@ int move_molecule_to_screen_centre_internal(int imol);
 
 /*! \brief read coordinates from filename and recentre the new
   molecule at the scren rotation centre. */
-int handle_read_draw_molecule_and_move_molecule_here(const char *filename) {
+int handle_read_draw_molecule_and_move_molecule_here(const std::string &filename) {
+
    int imol = handle_read_draw_molecule_with_recentre(filename, 0);
    move_molecule_to_screen_centre_internal(imol);
    return imol;
 }
 
-int read_pdb(const char *filename) {
+int read_pdb(const std::string &filename) {
    // history is done in the handle function
    return handle_read_draw_molecule(filename);
 }
+
+//! set (or unset) GEMMI as the molecule parser. Currently by passing an int.
+void set_use_gemmi_as_model_molecule_parser(int state) {
+
+   if (state) {
+#ifdef USE_GEMMI
+      graphics_info_t g;
+      g.set_use_gemmi(state);
+#else
+      std::cout << "WARNING:: this executable was not compiled with gemmi " << std::endl;
+      add_status_bar_text("WARNING:: this executable was not compiled with gemmi");
+#endif
+   }
+}
+
+
 
 
 /*! \brief replace pdb.  Fail if molecule_number is not a valid model molecule.
@@ -1015,7 +1031,7 @@ int clear_and_update_model_molecule_from_file(int molecule_number,
 					      const char *file_name) {
    int imol = -1;
    if (is_valid_model_molecule(molecule_number)) {
-      atom_selection_container_t asc = get_atom_selection(file_name, graphics_info_t::allow_duplseqnum, true, false);
+      atom_selection_container_t asc = get_atom_selection(file_name, true, graphics_info_t::allow_duplseqnum, true);
       mmdb::Manager *mol = asc.mol;
       graphics_info_t::molecules[molecule_number].replace_molecule(mol);
       imol = molecule_number;
@@ -1182,7 +1198,7 @@ void zalman_stereo_mode() {
 		 (previous_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ) {
 
 	       if (graphics_info_t::glareas.size() == 2) {
-		  gtk_widget_hide(graphics_info_t::glareas[1]); // was deleted
+		  gtk_widget_set_visible(graphics_info_t::glareas[1], FALSE);
 		  graphics_info_t::glareas[1] = NULL;
 	       }
 	    }
@@ -1196,9 +1212,9 @@ void zalman_stereo_mode() {
 		  toggle_idle_spin_function(); // turn it off;
 	       }
 	       // gtk_widget_destroy(graphics_info_t::glareas[0]);
-	       gtk_widget_hide(graphics_info_t::glareas[0]);
+	       gtk_widget_set_visible(graphics_info_t::glareas[0], FALSE);
 	       graphics_info_t::glareas[0] = glarea;
-	       gtk_widget_show(glarea);
+	       gtk_widget_set_visible(glarea, TRUE);
 	       // antialiasing?
 	       graphics_info_t g;
 	       g.draw_anti_aliasing();
@@ -1247,7 +1263,7 @@ void mono_mode() {
 		  graphics_info_t::glareas[1] = NULL;
 	       }
 	       graphics_info_t::glareas[0] = glarea;
-	       gtk_widget_show(glarea);
+	       gtk_widget_set_visible(glarea, TRUE);
                // now we shall resize to half the window size if we had
                // side-by-side stereo before
                if ((previous_mode == coot::SIDE_BY_SIDE_STEREO) ||
@@ -1308,8 +1324,8 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
             }
             gtk_widget_destroy(graphics_info_t::glareas[0]);
             graphics_info_t::glareas[0] = glarea; // glarea_2 is stored by gl_extras()
-            gtk_widget_show(glarea);
-            gtk_widget_show(graphics_info_t::glareas[1]);
+            gtk_widget_set_visible(glarea, TRUE);
+            gtk_widget_set_visible(graphics_info_t::glareas[1], TRUE);
             update_maps();
             // antialiasing?
             graphics_info_t g;
@@ -1361,9 +1377,9 @@ void set_dti_stereo_mode(short int state) {
             }
             gtk_widget_destroy(graphics_info_t::glareas[0]);
             graphics_info_t::glareas[0] = glarea;
-            gtk_widget_show(glarea);
+            gtk_widget_set_visible(glarea, TRUE);
             if (graphics_info_t::glareas.size() == 2)
-               gtk_widget_show(graphics_info_t::glareas[1]);
+               gtk_widget_set_visible(graphics_info_t::glareas[1], TRUE);
             graphics_draw();
          } else {
             std::cout << "WARNING:: switch to side by side mode failed!\n";
@@ -1596,32 +1612,6 @@ int control_key_for_rotate_state() {
 
 
 
-
-/*  ------------------------------------------------------------------------ */
-/*                         Model/Fit/Refine Functions:                       */
-/*  ------------------------------------------------------------------------ */
-void post_model_fit_refine_dialog() {
-
-   GtkWidget *widget = wrapped_create_model_fit_refine_dialog();
-   if (graphics_info_t::use_graphics_interface_flag) {
-      gtk_widget_show(widget);
-   }
-   std::vector<std::string> command_strings;
-   command_strings.push_back("post-model-fit-refine-dialog");
-   add_to_history(command_strings);
-}
-
-void post_other_modelling_tools_dialog() {
-
-   GtkWidget *widget = wrapped_create_model_fit_refine_dialog();
-   if (graphics_info_t::use_graphics_interface_flag) {
-      gtk_widget_show(widget);
-   }
-   std::vector<std::string> command_strings;
-   command_strings.push_back("post-other-modelling-tools-dialog");
-   add_to_history(command_strings);
-}
-
 void set_auto_read_column_labels(const char *fwt, const char *phwt,
 				 int is_for_diff_map_flag) {
 
@@ -1825,9 +1815,9 @@ void set_show_modelling_toolbar(short int state) {
       GtkWidget *w = widget_from_builder(wn);
       if (w) {
          if (state == 0) {
-            gtk_widget_hide(w);
+            gtk_widget_set_visible(w, FALSE);
          } else {
-            gtk_widget_show(w);
+            gtk_widget_set_visible(w, TRUE);
          }
       } else {
          std::cout << "ERROR:: widget with name " << wn << " not found" << std::endl;
@@ -4626,7 +4616,7 @@ void do_clipping1_activate() {
    g_signal_connect(G_OBJECT(adjustment), "value_changed",
 		    G_CALLBACK(clipping_adjustment_changed), NULL);
 
-   gtk_widget_show(clipping_window);
+   gtk_widget_set_visible(clipping_window, TRUE);
 
 }
 
@@ -5581,6 +5571,11 @@ void set_draw_moving_atoms_restraints(int state) {
    graphics_draw();
 }
 
+/* undocumented feature for development. */
+short int get_draw_moving_atoms_restraints() {
+   return graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object;
+}
+
 
 
 int
@@ -5769,7 +5764,7 @@ void
 post_display_control_window() {
 
    GtkWidget *widget = wrapped_create_display_control_window(); // uses gtkbuilder
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
    std::vector<std::string> command_strings;
    command_strings.push_back("post-display-control-window");
    add_to_history(command_strings);
@@ -5780,15 +5775,8 @@ post_display_control_window() {
 void
 clear_out_container(GtkWidget *vbox) {
 
-#if (GTK_MAJOR_VERSION >= 4)
-   std::cout << "in clear_out_container() FIXME" << std::endl;
-#else
-   auto my_delete_box_items = [] (GtkWidget *widget, void *data) {
-                                    gtk_container_remove(GTK_CONTAINER(data), widget); };
-
-   if (GTK_IS_CONTAINER(vbox))
-      gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
-#endif
+   graphics_info_t g;
+   g.clear_out_container(vbox);
 
 }
 
@@ -5846,7 +5834,7 @@ void close_graphics_display_control_window() {
    GtkWidget *w = g.display_control_window();
    if (w) {
       // gtk_widget_destroy(w); // nope
-      gtk_widget_hide(w);
+      gtk_widget_set_visible(w, FALSE);
       reset_graphics_display_control_window();
    }
 }
@@ -6441,9 +6429,9 @@ void set_refine_ramachandran_angles(int state) {
 	       std::string l = "<span background=\"white\" foreground=\"brown\">Rama</span>";
 	       gtk_label_set_markup(GTK_LABEL(w), l.c_str());
 	    }
-	    gtk_widget_show(w);
+	    gtk_widget_set_visible(w, TRUE);
 	 } else {
-	    gtk_widget_hide(w);
+	    gtk_widget_set_visible(w, FALSE);
 	 }
       }
    }
@@ -7108,7 +7096,7 @@ void post_scheme_scripting_window() {
         // 20220309-PE when will this get used?
         scheme_entry = widget_from_builder("scheme_window_entry");
         setup_guile_window_entry(scheme_entry); // USE_PYTHON and USE_GUILE used here
-        gtk_widget_show(window);
+        gtk_widget_set_visible(window, TRUE);
 
      } else {
 	std::cout << COOT_SCHEME_DIR << " was not defined - cannot open ";
@@ -7365,7 +7353,7 @@ run_state_file_maybe() {
 	    if (graphics_info_t::use_graphics_interface_flag) {
 	       GtkWidget *dialog = wrapped_create_run_state_file_dialog(); // uses builder
                if (dialog)
-                  gtk_widget_show(dialog);
+                  gtk_widget_set_visible(dialog, TRUE);
                else
                   std::cout << "ERROR:: missing dialog" << std::endl;
 	    }
@@ -7420,7 +7408,7 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
 #endif
 
-      gtk_widget_show(label);
+      gtk_widget_set_visible(label, TRUE);
    }
    return w;
 }
@@ -7450,7 +7438,7 @@ GtkWidget *wrapped_create_run_state_file_dialog_py() {
 #else
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
 #endif
-      gtk_widget_show(label);
+      gtk_widget_set_visible(label, TRUE);
    }
    return w;
 }
@@ -7642,30 +7630,99 @@ void print_sequence_chain_general(int imol, const char *chain_id,
    }
 }
 
+// the old name for the below function
 void do_sequence_view(int imol) {
+   sequence_view(imol);
+}
+
+// This is a gui function - move it to c-interface-gui.cc (and the above function)
+void sequence_view(int imol) {
 
    if (is_valid_model_molecule(imol)) {
-      bool do_old_style = false;
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      std::vector<mmdb::Residue *> r = coot::util::residues_with_insertion_codes(mol);
-      if (r.size() > 0) {
-         do_old_style = true;
-      } else {
-         // was it a big shelx molecule?
-         if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {
-            std::pair<bool, int> max_resno =
-               coot::util::max_resno_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
-            if (max_resno.first)
-               if (max_resno.second > 3200)
-                  do_old_style = 1;
-         }
+
+      GtkWidget *scrolled_window = gtk_scrolled_window_new();
+      GtkWidget *frame = gtk_frame_new("");
+      gtk_widget_set_hexpand(scrolled_window, TRUE);
+      gtk_widget_set_vexpand(scrolled_window, TRUE);
+      gtk_widget_set_hexpand(frame, TRUE);
+      gtk_widget_set_vexpand(frame, TRUE);
+
+      // The sequence-view is in the frame, the frame is in the scrolled window.
+      // The scrolled window is in the overlay.
+      // In GTK-overlay speak: the scrolled window is the overlay child
+      // and the button is the overlay overlay.
+
+      CootSequenceView *sv = coot_sequence_view_new();
+      coot_sequence_view_set_structure(sv, imol, mol);
+
+      gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(sv));
+      gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window), GTK_WIDGET(frame));
+
+      {
+         auto click_function = +[] (CootSequenceView* self, int imol, const coot::residue_spec_t &spec, gpointer userdata) {
+            graphics_info_t g;
+            g.go_to_residue(imol, spec);
+         };
+         g_signal_connect(sv, "residue-clicked", G_CALLBACK(click_function), nullptr);
       }
 
+      // now add a close button for that sequence view as an overlay of the sequence view vbox
+      //
+      GtkWidget *button = gtk_button_new_from_icon_name("window-close");
+      GtkStyleContext *sc = gtk_widget_get_style_context(button);
+      gtk_style_context_add_class(sc, "circular");
+      auto close_button_callback = +[] (GtkButton *button, gpointer data) {
+         int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
+         std::cout << "close this sequence view " << imol << std::endl;
+         GtkWidget *sequence_view_box = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "sequence_view_box"));
+         // now find the child (the overlay) in the sequence_view_box and remove it
 
-      if (do_old_style) {
-         sequence_view_old_style(imol);
-      } else {
-         nsv(imol);
+         GtkWidget *item_widget = gtk_widget_get_first_child(sequence_view_box);
+         int n_children = 0;
+         while (item_widget) {
+            n_children++;
+            GtkWidget *w = item_widget;
+            item_widget = gtk_widget_get_next_sibling(item_widget);
+            int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "imol"));
+            if (imol_overlay == imol) {
+               gtk_box_remove(GTK_BOX(sequence_view_box), w);
+               n_children--;
+            }
+         };
+         // if the sequence view box no longer has children, then we should close up the pane
+         if (n_children == 0) {
+            GtkWidget *pane = widget_from_builder("main_window_sequence_view_vs_graphics_pane");
+            gtk_paned_set_position(GTK_PANED(pane), 0);
+         }
+      };
+      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(close_button_callback), NULL);
+      g_object_set_data(G_OBJECT(button), "imol", GINT_TO_POINTER(imol));
+
+      GtkWidget *overlay = gtk_overlay_new();
+      gtk_overlay_set_child(GTK_OVERLAY(overlay), GTK_WIDGET(scrolled_window));
+      gtk_overlay_add_overlay(GTK_OVERLAY(overlay), button);
+      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
+      g_object_set_data(G_OBJECT(button), "sequence_view_box", vbox);
+      g_object_set_data(G_OBJECT(overlay), "imol", GINT_TO_POINTER(imol));
+      // GTK_ALIGN_END works OK/as intended, except the main graphics widget (or window) is too narrow to see it.
+      // Make the window wider and change this to GTK_ALIGN_END.
+      // gtk_widget_set_halign(GTK_WIDGET(button), GTK_ALIGN_START);
+      gtk_widget_set_halign(GTK_WIDGET(button), GTK_ALIGN_END);
+      gtk_widget_set_valign(GTK_WIDGET(button), GTK_ALIGN_START);
+
+      gtk_box_append(GTK_BOX(vbox), overlay);
+
+      // int new_height;
+      // gtk_widget_measure(GTK_WIDGET(sv), GTK_ORIENTATION_VERTICAL, 0, &new_height, nullptr, nullptr, nullptr);
+      // gtk_widget_set_size_request(vbox, -1, new_height);
+
+      int minimum_size;
+      int natural_size;
+      gtk_widget_measure(GTK_WIDGET(sv), GTK_ORIENTATION_VERTICAL, 0, &minimum_size, &natural_size, nullptr, nullptr);
+      int current_height = gtk_widget_get_height(vbox);
+      if (current_height < natural_size) {
+         gtk_widget_set_size_request(vbox, -1, natural_size);
       }
    }
 }

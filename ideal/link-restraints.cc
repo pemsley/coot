@@ -1325,13 +1325,13 @@ coot::restraints_container_t::link_infos_are_glycosidic_by_name_p(const std::vec
    for (unsigned int i=0; i<link_infos.size(); i++) {
       std::string id = link_infos[i].Id();
       if (id.length() > 4) {
-	 if ((id.substr(0,5) == "ALPHA") ||
-	     (id.substr(0,4) == "BETA")) {
-	    is_sweet = 1;
-	    break;
-	 } 
-      } 
-   } 
+         if ((id.substr(0,5) == "ALPHA") ||
+             (id.substr(0,4) == "BETA")) {
+            is_sweet = 1;
+            break;
+         }
+      }
+   }
    return is_sweet;
 }
 
@@ -1361,13 +1361,143 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
                                                   mmdb::Residue *second_residue,
                                                   const coot::protein_geometry &geom) const {
 
-  bool debug_links = false;
+   auto SS_filter = [] (mmdb::Residue *first, mmdb::Residue *second) {
 
-  if (debug_links) {
-    std::cout << "####################### find_link_type_2022()   called with first_residue "
-	      << coot::residue_spec_t(first_residue)  << " " <<  first_residue->GetResName() << " and second residue "
-	      << coot::residue_spec_t(second_residue) << " " << second_residue->GetResName() << std::endl;
-  }
+      // return either "SS" or "".
+
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      bool found = false;
+      first->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string name(at->name);
+            if (name == " SG ") {
+               found = true;
+               break;
+            }
+         }
+      }
+      if (found) {
+         found = false;
+         n_residue_atoms = 0;
+         residue_atoms = 0;
+         second->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (! at->isTer()) {
+               std::string name(at->name);
+               if (name == " SG ") {
+                  found = true;
+                  break; // micro-optimiziation!
+               }
+            }
+         }
+      }
+      return found ? "SS" : "";
+   };
+
+   auto AA_RNA_filter = [] (mmdb::Residue *first, mmdb::Residue *second, bool order_switch_flag) {
+
+      // return either "AA-RNA" or "".
+
+      if (order_switch_flag)
+         std::swap(first, second);
+
+      bool found_1 = false;
+      bool found_2 = false;
+      clipper::Coord_orth pt_1(0,0,0);
+      clipper::Coord_orth pt_2(0,0,0);
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      first->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string name(at->name);
+            if (name == " C  ") {
+               found_1 = true;
+               pt_1 = clipper::Coord_orth(at->x, at->y, at->z);
+            }
+         }
+      }
+      residue_atoms = 0;
+      n_residue_atoms = 0;
+      second->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string name(at->name);
+            if (name == " O3'") {
+               found_2 = true;
+               pt_2 = clipper::Coord_orth(at->x, at->y, at->z);
+            }
+         }
+      }
+      bool close = false;
+      if (found_1 && found_2) {
+         double dd = (pt_1 - pt_2).lengthsq();
+         double d = std::sqrt(dd);
+         if (d < 3.0) close = true;
+      }
+      return close ? "AA-RNA" : "";
+   };
+
+   auto pyr_SER_filter = [] (mmdb::Residue *first, mmdb::Residue *second, bool order_switch_flag) {
+
+      // return either "SER-pyr" or "".
+
+      if (order_switch_flag)
+         std::swap(first, second);
+
+      bool found_1 = false;
+      bool found_2 = false;
+      clipper::Coord_orth pt_1(0,0,0);
+      clipper::Coord_orth pt_2(0,0,0);
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      first->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string name(at->name);
+            if (name == " C1 ") {
+               found_1 = true;
+               pt_1 = clipper::Coord_orth(at->x, at->y, at->z);
+            }
+         }
+      }
+      residue_atoms = 0;
+      n_residue_atoms = 0;
+      second->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string name(at->name);
+            if (name == " OG ") {
+               found_2 = true;
+               pt_2 = clipper::Coord_orth(at->x, at->y, at->z);
+            }
+         }
+      }
+      bool close = false;
+      if (found_1 && found_2) {
+         double dd = (pt_1 - pt_2).lengthsq();
+         double d = std::sqrt(dd);
+         if (d < 3.0) close = true;
+      }
+      return close ? "pyr-SER" : "";
+   };
+
+
+   bool debug_links = false;
+
+   if (debug_links) {
+      std::cout << "####################### find_link_type_2022()   called with first_residue "
+                << coot::residue_spec_t(first_residue)  << " " <<  first_residue->GetResName() << " and second residue "
+                << coot::residue_spec_t(second_residue) << " " << second_residue->GetResName() << std::endl;
+   }
 
    std::string link_type; // set this
    bool order_switch_was_needed = false; // and this
@@ -1381,7 +1511,13 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       if (group_1 == "RNA") group_1 = "DNA/RNA";
       if (group_2 == "DNA") group_2 = "DNA/RNA";
       if (group_2 == "RNA") group_2 = "DNA/RNA";
+      // handle share/coot/data/cho-acedrg/NAG-acedrg.cif and friends (20230720-PE they should be replaced now).
+      if (group_1 == "D-SACCHARIDE") group_1 = "pyranose";
+      if (group_2 == "D-SACCHARIDE") group_2 = "pyranose";
 
+      if (debug_links)
+         std::cout << "comp_id_1 " << comp_id_1 << " group_1 " << group_1 << " comp_id_2 " << comp_id_2 << " group_2 " << group_2
+                   << std::endl;
 
       if (group_1 == "pyranose" || group_2 == "pyranose") { // does this link O-linked carbohydrates?
          std::string link_type_glyco;
@@ -1402,34 +1538,48 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
          std::vector<coot::chem_link> link_infos_f = geom.matching_chem_links(comp_id_1, group_1, comp_id_2, group_2);
          std::vector<coot::chem_link> link_infos_b = geom.matching_chem_links(comp_id_2, group_2, comp_id_1, group_1);
 
-         // std::cout << "#################### found n-forward  links: " << link_infos_f.size() << std::endl;
-         // std::cout << "#################### found n-backward links: " << link_infos_b.size() << std::endl;
-
-      if (debug_links) {
-	std::cout << "#################### found n-forward  links: " << link_infos_f.size() << std::endl;
-	std::cout << "#################### found n-backward links: " << link_infos_b.size() << std::endl;
-      }
-
-      std::vector<std::pair<coot::chem_link, bool> > chem_links;
-      for (const auto &link : link_infos_f) chem_links.push_back(std::make_pair(link, false));
-      for (const auto &link : link_infos_b) chem_links.push_back(std::make_pair(link,  true));
-
-#if 0 // maybe I need this later - for other links?
-         for (unsigned int ilink=0; ilink<chem_links.size(); ilink++) {
-            const coot::chem_link &link = chem_links[ilink].first;
-            bool order_switch_is_needed = chem_links[ilink].second;
+         if (debug_links) {
+            std::cout << "#################### found n-forward  links: " << link_infos_f.size() << std::endl;
+            std::cout << "#################### found n-backward links: " << link_infos_b.size() << std::endl;
          }
-#endif
 
-         // 20221120-PE just choose the top one. I can be more clever if/when needed.
+         std::vector<std::pair<coot::chem_link, bool> > chem_links;
+         for (const auto &link : link_infos_f) chem_links.push_back(std::make_pair(link, false));
+         for (const auto &link : link_infos_b) chem_links.push_back(std::make_pair(link,  true));
+
+         if (debug_links) {
+            for (unsigned int ilink=0; ilink<chem_links.size(); ilink++) {
+               const coot::chem_link &link = chem_links[ilink].first;
+               bool order_switch_is_needed = chem_links[ilink].second;
+               std::cout << "............... matching links " << ilink << " of " << chem_links.size() << " "
+                         << link << " order_switch_is_needed: " << order_switch_is_needed << std::endl;
+            }
+         }
+
          if (! chem_links.empty()) {
-            link_type = chem_links[0].first.Id();
-            order_switch_was_needed = chem_links[0].second;
+
+            // try to choose TRANS if it is there:
+            for (unsigned int ilink=0; ilink<chem_links.size(); ilink++) {
+               const coot::chem_link &link = chem_links[ilink].first;
+               bool order_switch_is_needed = chem_links[ilink].second;
+               // std::cout << "testing link.Id() " << link.Id() << std::endl;
+               if (link.Id() == "TRANS") {
+                  link_type = "TRANS";
+                  order_switch_was_needed = order_switch_is_needed;
+               }
+            }
+
+            // 20221120-PE just choose the top one. I can be more clever if/when needed.
+            if (link_type.empty()) {
+               link_type               = chem_links[0].first.Id();
+               order_switch_was_needed = chem_links[0].second;
+            }
          }
       }
 
       if (debug_links)
-         std::cout << "#################### find_link_type_2022() returns: " << link_type << " " << order_switch_was_needed << std::endl;
+         std::cout << "#################### find_link_type_2022() returns: " << link_type << " "
+                   << order_switch_was_needed << std::endl;
 
    }
 
@@ -1438,6 +1588,21 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       std::cout << e.what() << std::endl;
       return std::pair<std::string, bool> ("", order_switch_was_needed);
    }
+
+   // 20230605-PE
+   // the match for SS is:
+   // SS . CYS-SS peptide . CYS-SS peptide SS-bridge
+   // i.e. comp_id_1 and comp_id_2 are "." i.e. the SS link matches all peptides.
+   // We don't want that.
+   // Let's filter them out
+   if (link_type == "SS")
+      link_type = SS_filter(first_residue, second_residue); // return "" if these residues don't contain SG atoms
+
+   if (link_type == "AA-RNA")
+      link_type = AA_RNA_filter(first_residue, second_residue, order_switch_was_needed);
+
+   if (link_type == "pyr-SER")
+      link_type = pyr_SER_filter(first_residue, second_residue, order_switch_was_needed);
 
    return std::pair<std::string, bool> (link_type, order_switch_was_needed);
 }

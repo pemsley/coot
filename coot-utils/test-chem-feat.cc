@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
 
       const coot::residue_spec_t &ligand_spec = l[il].second;
 
-      atom_selection_container_t atom_sel = get_atom_selection(l[il].first, true, true, false);
+      atom_selection_container_t atom_sel = get_atom_selection(l[il].first, false, true, true);
 
       if (atom_sel.read_success) {
 

@@ -2191,22 +2191,20 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                                << "considering residues " << residue_spec_t(res_1) << " to " << residue_spec_t(res_2)
                                << std::endl;
 
-                  // not sure that this is what I want now, really
+                  // Returns first (link_type) as "" if not found, second is order switch flag
                   std::pair<std::string, bool> lt = find_link_type_2022(res_1, res_2, geom);
 
-                  // Returns first (link_type) as "" if not found, second is order switch flag
-
-                  if (true)
-                     std::cout << "-------- make_other_types_of_link() \"" << lt.first << "\""
+                  if (! lt.first.empty())
+                     std::cout << "DEBUG:: make_other_types_of_link() \"" << lt.first << "\""
                                << " for " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
-                               << std::endl;
+                               << " detected" << std::endl;
 
                   if (! lt.first.empty()) {
                      // this is not the place to make peptide links, event though find_link_type_complicado()
                      // will return a peptide link (for links that were not made before (perhaps because
                      // missing atoms)).
                      if ((lt.first != "TRANS") && (lt.first != "PTRANS") && (lt.first != "CIS") && (lt.first != "PCIS") && (lt.first != "p")) {
-                        if (false)
+                        if (true)
                            std::cout << "DEBUG:: make_other_types_of_link(): now making a link restraint "
                                      << residue_spec_t(res_1) << " " << residue_spec_t(res_2)
                                      << " with type " << lt.first << " and order switch " << lt.second

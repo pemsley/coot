@@ -13,7 +13,7 @@ This was made with the "gtk3" branch of Coot.
 
 ![Apoferritin small image]({{"../../../images/apoferritin-s9-hemi-tiny.png"}})
 
-[High resolution version:](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/apoferritin-s9-hemi.png)
+[High resolution version:](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/apoferritin/apoferritin-s9-hemi.png)
 
 For radial colouring I used something like:
 {% highlight python %}

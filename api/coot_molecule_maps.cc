@@ -45,8 +45,12 @@ coot::molecule_t::is_EM_map() const {
 
    bool ret_is_em = false;
 
+   std::cout << "in coot::molecule::is_EM_map() A " << std::endl;
+
    if (has_xmap()) {
+      std::cout << "in coot::molecule_t::is_EM_map() B " << is_em_map_cached_flag << std::endl;
       if (is_em_map_cached_flag == 1) { // -1 means unset
+         std::cout << "in coot::molecule_t::is_EM_map() C " << std::endl;
          ret_is_em = true;
       }
    }
@@ -489,6 +493,25 @@ coot::molecule_t::get_map_rmsd_approx() const {
    return rmsd;
 
 }
+
+//! @return the suggested initial contour level. Return -1 on not-a-map
+float
+coot::molecule_t::get_suggested_initial_contour_level() const {
+
+   float l = -1.0;
+
+   if (is_valid_map_molecule()) {
+      float rmsd = get_map_rmsd_approx();
+      if (is_difference_map_p())
+         l = 3.6 * rmsd;
+      else
+         l = 1.6 * rmsd;
+      if (is_EM_map())
+         l = 4.0 * rmsd;
+   }
+   return l;
+}
+
 
 bool
 coot::molecule_t::is_difference_map_p() const {

@@ -9,6 +9,8 @@
 #include "setup-gui-components.hh"
 #include "coot-setup-python.hh"
 #include "utils/coot-utils.hh"
+#include "command-line.hh"
+#include "c-interface-preferences.h"
 
 void print_opengl_info();
 
@@ -508,11 +510,11 @@ on_go_to_residue_keyboarding_mode_entry_key_controller_key_released(GtkEventCont
       graphics_info_t g;
       g.apply_go_to_residue_keyboading_string(s);
       gtk_editable_set_text(GTK_EDITABLE(entry), "");
-      gtk_widget_hide(GTK_WIDGET(window));
+      gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
    }
 
    if (keycode == 53) {
-      gtk_widget_hide(GTK_WIDGET(window));
+      gtk_widget_set_visible(GTK_WIDGET(window), FALSE);
       gtk_editable_set_text(GTK_EDITABLE(entry), "");
    }
 }
@@ -523,7 +525,6 @@ void setup_go_to_residue_keyboarding_mode_entry_signals() {
       GtkEventController *key_controller = gtk_event_controller_key_new();
       g_signal_connect(key_controller, "key-released", G_CALLBACK(on_go_to_residue_keyboarding_mode_entry_key_controller_key_released), entry);
       gtk_widget_add_controller(GTK_WIDGET(entry), key_controller);
-
    }
 }
 
@@ -579,7 +580,7 @@ new_startup_create_splash_screen_window() {
 
    gtk_widget_set_size_request(picture, 660, 371);
    // std::cout << "@@@@@@@@@@@@@@ create_pixmap_gtk4_version() returned image " << image << std::endl;
-   gtk_widget_show(picture);
+   gtk_widget_set_visible(picture, TRUE);
 
    gtk_window_set_child(GTK_WINDOW(splash_screen_window), picture);
    return splash_screen_window;
@@ -602,7 +603,6 @@ struct application_activate_data {
    }
 };
 
-#include "command-line.hh"
 
 void
 new_startup_application_activate(GtkApplication *application,
@@ -647,9 +647,12 @@ new_startup_application_activate(GtkApplication *application,
 
       graphics_info.application = application;
 
-      // 20230526-PE this now happens i init_coot_as_python_module()
+      // 20230526-PE this now happens in init_coot_as_python_module()
       // Let's not do it (including geom.init_standard()) twice.
       // graphics_info.init();
+
+      // but let's do it once at least!
+      graphics_info.init();
 
       GtkBuilder *builder = gtk_builder_new();
       if (GTK_IS_BUILDER(builder)) {
@@ -701,10 +704,8 @@ new_startup_application_activate(GtkApplication *application,
       // set this by parsing the command line arguments
       graphics_info.use_graphics_interface_flag = true;
 
-
-
-      
-
+      // create the preference defaults
+      make_preferences_internal();
 
       guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
       // std::cout << "debug:: new_startup_application_activate(): Window id: " << id << std::endl;
@@ -723,18 +724,34 @@ new_startup_application_activate(GtkApplication *application,
       gtk_window_set_child(GTK_WINDOW(app_window), graphics_vbox);
 
       gtk_window_present(GTK_WINDOW(app_window));
-      // gtk_widget_show(window);
+      // gtk_widget_set_visible(window, TRUE);
 
       GtkWidget *gl_area = new_startup_create_glarea_widget();
       graphics_info_t::glareas.push_back(gl_area);
-      gtk_widget_show(gl_area);
+      gtk_widget_set_visible(gl_area, TRUE);
       gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
       gtk_window_set_application(GTK_WINDOW(app_window), application);
-      gtk_window_set_default_size(GTK_WINDOW(app_window), 1000, 900);
+#ifdef __APPLE__
+      gtk_widget_set_size_request(gl_area, 600, 600); // Hmm
+      gtk_window_set_default_size(GTK_WINDOW(app_window), 900, 900);
       gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
-      gtk_widget_set_size_request(gl_area, 900, 900); // Hmm
-      gtk_widget_show(app_window);
+      gtk_widget_set_visible(app_window, TRUE);
       gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
+#else
+      // 20230729-PE 
+      // gtk_widget_set_size_request() does't seem to work on the gl_area.
+      // So expand the gl_area by setting thw window size just so. This makes the
+      // gl_area 900x900 on my desktop. Maybe there is a better way.
+      // The console show that new_startup_on_glarea_resize() is called several times:
+      // DEBUG:: --- new_startup_on_glarea_resize() 900 900
+      // DEBUG:: --- new_startup_on_glarea_resize() 900 710
+      // DEBUG:: --- new_startup_on_glarea_resize() 900 900
+      // Curious.
+      gtk_window_set_default_size(GTK_WINDOW(app_window), 1076, 1023);
+      gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
+      gtk_widget_set_visible(app_window, TRUE);
+      gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
+#endif
 
       gtk_widget_grab_focus(gl_area); // at the start, fixes focus problem
       setup_gestures_for_opengl_widget_in_main_window(gl_area);
@@ -805,8 +822,11 @@ application_open_callback(GtkApplication *app,
       GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_NAME,
                                                G_FILE_QUERY_INFO_NONE, NULL, &error);
       if (file_info) {
-         const char *file_name = g_file_info_get_name(file_info);
-         if (file_name) {
+         // const char *file_name = g_file_info_get_name(file_info);
+         const char *path = g_file_get_path(file);
+
+         if (path) {
+            std::string file_name(path);
             std::cout << "application_open_callback(): handle " << file_name << std::endl;
             cld.add(std::string(file_name));
          } else {
@@ -931,10 +951,17 @@ int new_startup(int argc, char **argv) {
 
    load_css();
 
+   // GTK version
+   std::cout << "GTK " << GTK_MAJOR_VERSION << "." << GTK_MINOR_VERSION << "." << GTK_MICRO_VERSION << std::endl;
+
    GtkWidget *splash_screen = new_startup_create_splash_screen_window();
-   gtk_widget_show(splash_screen);
+   gtk_widget_set_visible(splash_screen, TRUE);
 
    g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
+
+   // Here's how you access that:
+   // gboolean dark_mode_flag = FALSE;
+   // g_object_get(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", &dark_mode_flag, NULL);
 
    GError *error = NULL;
    // GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_HANDLES_COMMAND_LINE);

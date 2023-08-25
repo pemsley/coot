@@ -37,7 +37,7 @@ import gui_prosmart
 import fitting
 import shelx
 import shelx_extensions
-import find_baddies
+import coot_find_baddies
 import jligand_gui
 import parse_pisa_xml
 import ncs

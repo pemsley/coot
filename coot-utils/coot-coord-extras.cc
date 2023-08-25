@@ -972,12 +972,12 @@ coot::util::parse_prosmart_log_and_gen_CO_plot(const std::string &prosmart_log_f
                                                const std::string &pdb_file_name,
                                                const std::string &chain_id) {
 
-   atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false);
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, false);
    if (asc.read_success) {
       std::vector<std::pair<mmdb::Residue *, double> > co_scores = CO_orientations(asc.mol);
       std::map<residue_spec_t, double> scores_map;
       std::vector<std::pair<mmdb::Residue *, double> >::const_iterator it;
-      for (it=co_scores.begin(); it!=co_scores.end(); it++) {
+      for (it=co_scores.begin(); it!=co_scores.end(); ++it) {
          residue_spec_t spec(it->first);
          scores_map[spec] = it->second;
       }
@@ -1038,7 +1038,7 @@ coot::util::parse_prosmart_log_and_gen_CO_plot(const std::string &prosmart_log_f
             }
          }
 
-         for (it=co_scores.begin(); it!=co_scores.end(); it++) {
+         for (it=co_scores.begin(); it!=co_scores.end(); ++it) {
             residue_spec_t res_spec(it->first);
             const double &co_dp(it->second);
             std::map<residue_spec_t, double>::const_iterator it_helix;
@@ -1060,7 +1060,7 @@ coot::util::parse_prosmart_log_and_gen_CO_plot(const std::string &prosmart_log_f
                   std::cout << "debug:: failed to find residue " << res_spec
                             << " in " << " helix map of size " << helix_scores.size() << std::endl;
                   std::map<residue_spec_t, double>::const_iterator it;
-                  for (it=helix_scores.begin(); it!=helix_scores.end(); it++) {
+                  for (it=helix_scores.begin(); it!=helix_scores.end(); ++it) {
                      std::cout << "   " << it->first << " " << it->second << std::endl;
                   }
                }

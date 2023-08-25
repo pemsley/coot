@@ -21,6 +21,7 @@ read_mtz(const std::string &file_name,
          bool use_weight, bool is_a_difference_map,
          clipper::Xmap<float> *xmap_p) {
 
+   std::cout << "read_mtz() with file_name " << file_name << std::endl;
    bool status = coot::util::map_fill_from_mtz(xmap_p, file_name, f, phi, weight, use_weight, is_a_difference_map);
    return status;
 }
@@ -37,7 +38,7 @@ density_fit_analysis(const std::string &pdb_file_name, const std::string &mtz_fi
    mmdb::PResidue *SelResidues = 0;
    int nSelResidues = 0;
 
-   auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
+   auto atom_sel = get_atom_selection(pdb_file_name, false, true, false);
    int selHnd = atom_sel.mol->NewSelection(); // yes, it's deleted.
    int imod = 1; // multiple models don't work on validation graphs
 
@@ -89,7 +90,7 @@ density_correlation(const std::string &pdb_file_name, const std::string &mtz_fil
 
    coot::validation_information_t r;
 
-   auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
+   auto atom_sel = get_atom_selection(pdb_file_name, false, true, false);
    if (atom_sel.read_success) {
       clipper::Xmap<float> xmap;
       bool status = read_mtz(mtz_file_name, "FWT", "PHWT", "W", 0, 0, &xmap);
@@ -161,7 +162,7 @@ rotamer_analysis(const std::string &pdb_file_name) {
    mmdb::PResidue *SelResidues = 0;
    int nSelResidues = 0;
 
-   auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
+   auto atom_sel = get_atom_selection(pdb_file_name, false, true, false);
    int selHnd = atom_sel.mol->NewSelection(); // yes, it's deleted.
    int imod = 1; // multiple models don't work on validation graphs
 
@@ -395,7 +396,7 @@ ramachandran_analysis(const std::string &pdb_file_name) {
    coot::validation_information_t vi;
    vi.name = "Ramachandran analysis";
 
-   auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
+   auto atom_sel = get_atom_selection(pdb_file_name, false, true, false);
    mmdb::Manager *mol = atom_sel.mol;
 
    const ramachandrans_container_t rc;
@@ -427,7 +428,7 @@ peptide_omega_analysis(const std::string &pdb_file_name) {
    coot::validation_information_t vi;
    vi.name = "Peptide Omega Analysis";
    coot::protein_geometry geom;
-   auto atom_sel = get_atom_selection(pdb_file_name, true, false, false);
+   auto atom_sel = get_atom_selection(pdb_file_name, false, true, false);
    if (! atom_sel.read_success) return vi;
    mmdb::Manager *mol = atom_sel.mol;
    int imodel = 1;
@@ -465,7 +466,7 @@ int main(int argc, char **argv) {
    if (argc > 2) {
       std::string pdb_file_name = argv[1];
       std::string mtz_file_name = argv[2];
-      coot::validation_information_t vid = density_fit_analysis(pdb_file_name, mtz_file_name);
+      coot::validation_information_t vid; // = density_fit_analysis(pdb_file_name, mtz_file_name);
       coot::validation_information_t vir = rotamer_analysis(pdb_file_name);
       coot::validation_information_t vit = ramachandran_analysis(pdb_file_name);
       coot::validation_information_t vio; // = peptide_omega_analysis(pdb_file_name); smashes the stack.

@@ -171,18 +171,17 @@ molecules_container_t::fit_to_map_by_random_jiggle_using_cid(int imol, const std
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
+#include <GraphMol/MolDraw2D/MolDraw2DSVG.h>
 #endif
 
 #include "lidia-core/svg-molecule.hh"
-
-
 #include "svg-store-key.hh"
 
 //! This is a ligand function, not really a ligand-fitting function.
 //!
 std::string
 molecules_container_t::get_svg_for_residue_type(int imol, const std::string &comp_id,
-                                                bool dark_bg_flag) {
+                                                bool use_rdkit_svg, bool dark_bg_flag) {
 
    std::string s = "Needs-to-be-compiled-with-the-RDKit";
 
@@ -200,7 +199,6 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
       if (mr.first) {
          try {
             const coot::dictionary_residue_restraints_t &restraints = mr.second;
-            svg_molecule_t svg;
             RDKit::RWMol mol = coot::rdkit_mol(restraints);
             // bool undelocalize_flag = true;
             // used undelocalize_flag in RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest, "", undelocalize_flag);
@@ -210,9 +208,18 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
             int iconf = RDDepict::compute2DCoords(mol, NULL, true);
             RDKit::Conformer &conf = mol.getConformer(iconf);
             RDKit::WedgeMolBonds(mol, &conf);
-            svg.import_rdkit_mol(&mol, iconf);
-            s = svg.render_to_svg_string(dark_bg_flag);
-            ligand_svg_store[key] = s;
+            if (use_rdkit_svg) {
+               std::stringstream ss;
+               RDKit::MolDraw2DSVG svg_drawer_ss(400, 400, ss);
+               svg_drawer_ss.drawMolecule(mol);
+               svg_drawer_ss.finishDrawing();
+               s = ss.str();
+            } else {
+               svg_molecule_t svg;
+               svg.import_rdkit_mol(&mol, iconf);
+               s = svg.render_to_svg_string(dark_bg_flag);
+               ligand_svg_store[key] = s;
+            }
          }
          catch (const Invar::Invariant &e) {
             std::cout << "error " << e.what() << std::endl;

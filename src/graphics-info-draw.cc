@@ -467,8 +467,8 @@ graphics_info_t::get_projection_matrix(bool do_orthographic_projection,
       // std::cout << "projection matrix ortho " << glm::to_string(projection_matrix) << std::endl;
       return projection_matrix;
    } else {
-      float fov = 30.0; // put this in graphics_info_t and add setters and getters to the API.
-      glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov),
+      // perspective_fov is in degrees
+      glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(perspective_fov),
                                                            screen_ratio,
                                                            screen_z_near_perspective,
                                                            screen_z_far_perspective);
@@ -506,7 +506,7 @@ graphics_info_t::get_mvp_for_shadow_map(const glm::vec3 &light_direction_eye_spa
    glm::mat4 model_matrix = glm::mat4(1.0);
 
    float box_size = shadow_box_size; // user setable, default 66.
-   if (box_size < 0.0) box_size = 66.0;
+   if (box_size < 0.0) box_size = 120.0;
    glm::mat4 projection_matrix = glm::ortho(-box_size, box_size, -box_size, box_size, -box_size, box_size);
 
    glm::vec3 rc = get_rotation_centre();
@@ -796,6 +796,9 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 void
 graphics_info_t::draw_model_molecules() {
 
+   // This is only called in "Plain" mode - i.e. it is not used in "Fancy" mode.
+   // This function is called by draw_molecules(), which in turn is called by render_3d_scene()
+
    glm::mat4 mvp = get_molecule_mvp();
 
    // std::cout << "debug:: mvp in draw_model_molecules() is     " << glm::to_string(mvp) << std::endl;
@@ -809,8 +812,9 @@ graphics_info_t::draw_model_molecules() {
       if (! m.draw_it) continue;
 
       // I think that this is for the instanced meshes.
-      // Shader &shader_p = shader_for_model_as_meshes; // is this actually instanced meshes?
-      // m.draw_molecule_as_meshes(&shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
+      //
+      Shader &shader_p = shader_for_instanced_objects;
+      m.draw_molecule_as_meshes(&shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
 
       if (show_symmetry) {
          Shader &symm_shader_p = shader_for_symmetry_atoms_bond_lines;
@@ -835,11 +839,11 @@ graphics_info_t::draw_model_molecules() {
          float lw = m.get_bond_thickness(); // returns an int.
          m.molecule_as_mesh.draw_simple_bond_lines(&shader_for_symmetry_atoms_bond_lines, mvp, bgc, lw, shader_do_depth_fog_flag);
       } else {
-         // std::cout << "drawing model " << ii << std::endl;
+#if 0 // the molecule_as_mesh is not filled at the moment, because the bond generation is now on the instanced path.
          m.molecule_as_mesh.draw(shader_p, mvp, model_rotation, lights, eye_position, opacity, bgc,
-                                 wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
+                                  wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
+#endif
       }
-
       m.draw_dots(&shader_for_rama_balls, mvp, model_rotation, lights, eye_position,
                      bgc, shader_do_depth_fog_flag);
 
@@ -943,8 +947,14 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
    if (pass_type == PASS_TYPE_STANDARD) {
       Shader &shader = shader_for_meshes_with_shadows;
       bool wireframe_mode = false;
-      m.molecule_as_mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity, bgc,
-                              wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
+
+      // non-instanced:
+      // m.molecule_as_mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity, bgc,
+      //                         wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
+
+      // instanced:
+      Shader &shader_p = shader_for_instanced_objects;
+      m.draw_molecule_as_meshes(&shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
    }
 
    if (pass_type == PASS_TYPE_SSAO) {
@@ -1468,6 +1478,8 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
       // show a (clickable/highlighting) HUD texture - indicating that refinement parameters dialog
       // can be shown (as an overlay)
 
+      // std::cout << "here in draw_hud_refinement_dialog_arrow_tab() B " << std::endl;
+
       auto get_munged_offset_and_scale =  [] (HUDTextureMesh::screen_position_origins_t spo,
                                               const glm::vec2 &offset_natural,
                                               float scale_x_natural, float scale_y_natural,
@@ -1502,8 +1514,10 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
 
       glDisable(GL_DEPTH_TEST);
       if (hud_refinement_dialog_arrow_is_moused_over) {
+         // std::cout << "hud_refinement_dialog_arrow_is_moused_over " << std::endl;
          texture_for_hud_refinement_dialog_arrow_highlighted.Bind(0);
       } else {
+         // std::cout << "hud_refinement_dialog_arrow_is_moused_over not " << std::endl;
          texture_for_hud_refinement_dialog_arrow.Bind(0);
       }
 
@@ -1706,11 +1720,16 @@ graphics_info_t::draw_molecules_with_shadows() {
             } else {
 
                float opacity = 1.0;
-               shader_for_meshes_with_shadows.Use();
-               shader_for_meshes_with_shadows.set_bool_for_uniform("do_fresnel", false); // models should not fresnel
+               shader_for_instanced_meshes_with_shadows.Use();
+               shader_for_instanced_meshes_with_shadows.set_bool_for_uniform("do_fresnel", false); // models should not fresnel
+#if 0 // before model molecules were instanced
                m.molecule_as_mesh.draw_with_shadows(&shader_for_meshes_with_shadows, mvp, model_rotation_matrix, lights,
                                                     eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
                                                     shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
+#endif
+               m.draw_molecule_as_meshes_with_shadows(&shader_for_instanced_meshes_with_shadows, mvp, model_rotation_matrix, lights,
+                                                      eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
+                                                      shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
             }
 
             // this has not been shadowified:
@@ -3027,9 +3046,12 @@ graphics_info_t::draw_hud_ramachandran_plot() {
             if (moving_atoms_asc->n_selected_atoms > 0) {
                std::string residue_selection = "//";
                gl_rama_plot.setup_from(imol_moving_atoms, moving_atoms_asc->mol, residue_selection); // checks to see if an update is acutally needed.
+               // no context switch needed for the HUD Rama plot
+               bool clear_needed_flag = false;
                gl_rama_plot.draw(&shader_for_rama_plot_axes_and_ticks,
                                  &shader_for_rama_plot_phi_phis_markers, // instanced
-                                 &shader_for_hud_image_texture, w, h, w, h); // background texture (not text!), uses window_resize_position_correction
+                                 &shader_for_hud_image_texture, w, h, w, h,
+                                 clear_needed_flag); // background texture (not text!), uses window_resize_position_correction
             }
          }
       }
@@ -3192,11 +3214,11 @@ graphics_info_t::show_atom_pull_toolbar_buttons() {
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
 
       if (button_1)
-         gtk_widget_show(button_1);
+         gtk_widget_set_visible(button_1, TRUE);
       else
          std::cout << "in show_atom_pull_toolbar_buttons() missing button1" << std::endl;
       if (button_2)
-         gtk_widget_show(button_2);
+         gtk_widget_set_visible(button_2, TRUE);
       else
          std::cout << "in show_atom_pull_toolbar_buttons() missing button2" << std::endl;
    }
@@ -3211,9 +3233,9 @@ graphics_info_t::hide_atom_pull_toolbar_buttons() {
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
       
       if (button_1)
-         gtk_widget_hide(button_1);
+         gtk_widget_set_visible(button_1, FALSE);
       if (button_2)
-         gtk_widget_hide(button_2);
+         gtk_widget_set_visible(button_2, FALSE);
    }
 }
 
@@ -3265,7 +3287,6 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                    };
 
    auto button_2_func = [] () {
-                           std::cout << "------------------- HUD button Cancel callback start " << std::endl;
                            graphics_info_t g;
                            g.stop_refinement_internal();
                            g.clear_up_moving_atoms();
@@ -3275,7 +3296,6 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            g.graphics_draw();
                            g.hide_atom_pull_toolbar_buttons();
                            g.clear_gl_rama_plot();
-                           std::cout << "------------------- HUD button Cancel callback done " << std::endl;
                            return true;
                         };
    auto button_3_func = [] () {
@@ -3627,8 +3647,13 @@ graphics_info_t::draw_hud_geometry_bars() {
          const auto &bip = rr.sorted_nbc_baddies[i];
          std::pair<coot::atom_spec_t, float> p_1(bip.atom_spec_1, bip.score);
          std::pair<coot::atom_spec_t, float> p_2(bip.atom_spec_2, bip.score);
-         converted_baddies[2*i  ] = p_1;
-         converted_baddies[2*i+1] = p_2;
+         // 20230813-PE fixes a crash, I hope.
+         if ((2*i+1) < converted_baddies.size()) {
+            converted_baddies[2*i  ] = p_1;
+            converted_baddies[2*i+1] = p_2;
+         } else {
+            std::cout << "ERROR:: out of range in converted_baddies  " << 2*i << " " << converted_baddies.size() << std::endl;
+         }
       }
       add_bars(converted_baddies, 1, &new_bars, moving_atoms_active_residue,
                x_base_for_hud_geometry_bars, distortion_to_rotation_amount_nbc,
@@ -3866,14 +3891,17 @@ graphics_info_t::check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(double m
          // but now rr.sorted_nbc_baddies is std::vector<refinement_results_nbc_baddie_t>
          // so now I need to convert
 
-         std::vector<std::pair<coot::atom_spec_t, float> > converted_baddies(rr.sorted_nbc_baddies.size());
+         std::vector<std::pair<coot::atom_spec_t, float> > converted_baddies(rr.sorted_nbc_baddies.size() * 2); // 20230519-PE both ways
          for (unsigned int i=0; i<rr.sorted_nbc_baddies.size(); i++) {
-            if (i < converted_baddies.size()) {
-               const auto &bip = rr.sorted_nbc_baddies[i];
-               std::pair<coot::atom_spec_t, float> p(bip.atom_spec_1, bip.score);
-               converted_baddies[i] = p;
+            const auto &bip = rr.sorted_nbc_baddies[i];
+            std::pair<coot::atom_spec_t, float> p_1(bip.atom_spec_1, bip.score);
+            std::pair<coot::atom_spec_t, float> p_2(bip.atom_spec_2, bip.score);
+            // 20230813-PE fixes a crash, I hope.
+            if ((2*i+1) < converted_baddies.size()) {
+               converted_baddies[2*i  ] = p_1;
+               converted_baddies[2*i+1] = p_2;
             } else {
-               std::cout << "ERROR:: bad converted_baddies index " << i << " " << converted_baddies.size() << std::endl;
+               std::cout << "ERROR:: out of range in converted_baddies  " << 2*i << " " << converted_baddies.size() << std::endl;
             }
          }
 
@@ -3936,6 +3964,9 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
    if (! moving_atoms_asc->mol) return false;
    bool act_on_hit = true;
    std::pair<bool, mmdb::Atom *> r = check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(mouse_x, mouse_y, act_on_hit);
+   if (false)
+      std::cout << ":::::::::: debug:: check_if_hud_bar_clicked() returns "
+                << r.first << " " << r.second << std::endl;
    return  r.first;
 }
 
@@ -4094,7 +4125,6 @@ graphics_info_t::draw_hud_geometry_tooltip() {
 void
 graphics_info_t::draw_hud_elements() {
 
-
    draw_hud_ligand_view();
 
    draw_hud_geometry_bars();
@@ -4117,6 +4147,8 @@ void
 graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
 
    // note: this function is called from render_scene_sans_depth_blur()
+   // 20230814-PE Is it?
+   //             It is not used by the "Fancy" frame-buffer path
 
    //  ------------------- render scene ----------------------------
 
@@ -4256,32 +4288,10 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
                                    }
                                 };
 
-   unsigned int frame_time_history_list_max_n_elements = 500;
-   GtkWidget *glarea = glareas[0];
-   if (glarea) {
-      auto tp_now = std::chrono::high_resolution_clock::now();
-      frame_time_history_list.push_back(tp_now);
-      if (frame_time_history_list.size() >= (frame_time_history_list_max_n_elements+1))
-         frame_time_history_list.pop_front();
-   }
-
-   // std::cout << "DEBUG:: graphics_info_t::render()!" << std::endl;
-
-   if (! to_screendump_framebuffer_flag) {
-
-      gboolean state = render_scene();
-      draw_hud_elements();
-#ifdef __APPLE__
-      glFinish();
-#else
-      glFlush();
-#endif
-      update_fps_statistics();
-      return state;
-
-   } else {
-
+   auto screendump_image = [update_fps_statistics] (const std::string &output_file_name) {
       // this works! Nice framebuffer scaling with screendump_tga().
+
+      std::cout << "debug:: in screendump_image() with use_framebuffers " << use_framebuffers << std::endl;
 
       GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
       GtkAllocation allocation;
@@ -4312,8 +4322,12 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
          unsigned int index_offset = 0;
          screendump_framebuffer.init(sf * w, sf * h, index_offset, "screendump");
          screendump_framebuffer.bind();
-         render_3d_scene(gl_area);
+
+         // render_3d_scene(gl_area);
          // render_scene_with_screen_ao_shader();
+
+         render_scene();
+
          gtk_gl_area_attach_buffers(gl_area);
          screendump_tga_internal(output_file_name, w, h, sf, screendump_framebuffer.get_fbo());
 
@@ -4340,6 +4354,37 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
       update_fps_statistics();
 
       return FALSE;
+
+   };
+
+   auto update_frame_time_history = [] () {
+      unsigned int frame_time_history_list_max_n_elements = 500;
+      GtkWidget *glarea = glareas[0];
+      if (glarea) {
+         auto tp_now = std::chrono::high_resolution_clock::now();
+         frame_time_history_list.push_back(tp_now);
+         if (frame_time_history_list.size() >= (frame_time_history_list_max_n_elements+1))
+            frame_time_history_list.pop_front();
+      }
+   };
+
+
+   // ################################## main line #############################################
+
+   update_frame_time_history();
+
+   if (to_screendump_framebuffer_flag) {
+      return screendump_image(output_file_name);
+   } else {
+      gboolean state = render_scene();
+      draw_hud_elements();
+#ifdef __APPLE__
+      glFinish();
+#else
+      glFlush();
+#endif
+      update_fps_statistics();
+      return state;
    }
 }
 
@@ -5468,7 +5513,7 @@ graphics_info_t::make_extra_distance_restraints_objects() {
 
    // c.f. update_hydrogen_bond_mesh().
 
-   std::cout << "here in make_extra_distance_restraints_objects() " << std::endl;
+   // std::cout << "here in make_extra_distance_restraints_objects() " << std::endl;
 
    double penalty_min = 0.1; // only restraints that have more than this "distortion" are considered for drawing.
                              // Make this user-setable.
@@ -5478,6 +5523,9 @@ graphics_info_t::make_extra_distance_restraints_objects() {
    auto clipper_to_glm = [] (const clipper::Coord_orth &co) {
                             return glm::vec3(co.x(), co.y(), co.z());
                          };
+
+   // How frequently should this function be called? Every frame? Hmm..
+   if (moving_atoms_extra_restraints_representation.bonds.empty()) return;
 
    unsigned int maerrb_size = moving_atoms_extra_restraints_representation.bonds.size();
    attach_buffers();
@@ -5770,9 +5818,11 @@ graphics_info_t::setup_key_bindings() {
    auto l13l = []() { graphics_info_t g; g.step_screen_left();   return gboolean(TRUE); };
    auto l13r = []() { graphics_info_t g; g.step_screen_right(); return gboolean(TRUE); };
 
-   auto l14 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('forward')"); return gboolean(TRUE); };
+   //    auto l14 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('forward')"); return gboolean(TRUE); };
 
-   auto l15 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('backward')"); return gboolean(TRUE); };
+   // auto l14 = []() { /* use l28 */ return gboolean(TRUE); };
+
+   // auto l15 = []() { /* use l28 */ return gboolean(TRUE); };
 
    auto l16 = []() { graphics_info_t g; g.undo_last_move(); return gboolean(TRUE); };
 
@@ -5896,6 +5946,8 @@ graphics_info_t::setup_key_bindings() {
 
    auto l28 = [] () {
 
+                 std::cout << "@@@@@@@@@@@@@@@@@@@@@@@ l28" << std::endl;
+
                  std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
                  if (aa_spec_pair.first) {
                     int imol = aa_spec_pair.second.first;
@@ -5933,9 +5985,22 @@ graphics_info_t::setup_key_bindings() {
                                                                               this_chain_id, chain_id_next,
                                                                               forward_flag);
                              if (new_ori.first) {
+
                                 coot::util::quaternion q(new_ori.second.rot());
                                 glm::quat q_ncs = coot_quaternion_to_glm(q);
-                                view_quaternion = glm::normalize(view_quaternion * q_ncs); // wrong
+
+                                // glm::quat qq = view_quaternion * q_ncs;
+                                // glm::quat qq = view_quaternion * glm::inverse(q_ncs);
+                                // glm::quat qq = view_quaternion * glm::conjugate(q_ncs);
+                                // glm::quat qq = q_ncs * view_quaternion;
+                                // glm::quat qq = glm::inverse(q_ncs) * view_quaternion;
+                                // glm::quat qq = glm::conjugate(q_ncs) * view_quaternion;
+
+                                glm::quat qq = glm::conjugate(q_ncs) * view_quaternion;
+
+                                view_quaternion = qq;
+                                // view_quaternion = glm::normalize(view_quaternion * q_ncs); // wrong
+
                                 clipper::Coord_orth t(new_ori.second.trn());
                                 set_rotation_centre(t);
 
@@ -6030,6 +6095,7 @@ graphics_info_t::setup_key_bindings() {
 
    auto l41 = [] () {
       box_radius_xray *= (1.0/1.15);
+      box_radius_em *= (1.0/1.15);
       // is there an "update maps" function?
       for (int ii=0; ii<n_molecules(); ii++) {
          if (is_valid_map_molecule(ii))
@@ -6040,6 +6106,7 @@ graphics_info_t::setup_key_bindings() {
 
    auto l42 = [] () {
       box_radius_xray *= 1.15;
+      box_radius_em *= 1.15;
       for (int ii=0; ii<n_molecules(); ii++) {
          if (is_valid_map_molecule(ii))
             molecules[ii].update_map(true);
@@ -6065,8 +6132,8 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_m,      key_bindings_t(l11, "Zoom out")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_w,      key_bindings_t(l12, "Move forward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_s,      key_bindings_t(l13, "Move backward")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
+   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
+   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_u,      key_bindings_t(l16, "Undo Move")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Return, key_bindings_t(l18, "Accept Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
@@ -6280,58 +6347,28 @@ graphics_info_t::fullscreen() {
 
    if (GTK_IS_WINDOW(window)) {
 
-      GtkWidget *vbox       = widget_from_builder("main_window_vbox");
       // GtkWidget *overlay    = widget_from_builder("main_window_graphics_overlay");
       GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
       GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
 
-      // // GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
       GtkWidget* sidebar = widget_from_builder("main_window_vbox_inner");
 
-      gtk_widget_hide(tool_bar);
-      gtk_widget_hide(sidebar);
-      gtk_widget_hide(status_bar);
+      gtk_widget_set_visible(tool_bar, FALSE);
+      gtk_widget_set_visible(sidebar, FALSE);
+      gtk_widget_set_visible(status_bar, FALSE);
 
-
-      std::cout << "calling gtk_window_fullscreen() " << window << std::endl;
       gtk_window_fullscreen(GTK_WINDOW(window));
-      gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(window),FALSE);
+      gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(window), FALSE);
 
+      // gtk_box_remove(GTK_BOX(vbox), status_bar);
+      // gtk_box_remove(GTK_BOX(vbox), tool_bar);
 
-#if (GTK_MAJOR_VERSION >= 4)
-      // std::cout << "in fullscreen(): no gtk_container_remove()" << std::endl;
-      // instead use:
-      gtk_box_remove(GTK_BOX(vbox), status_bar);
-      gtk_box_remove(GTK_BOX(vbox), tool_bar);
-
-#else
-
-      gtk_container_remove(GTK_CONTAINER(vbox), status_bar);
-      gtk_overlay_add_overlay(GTK_OVERLAY(overlay), status_bar);
-      // gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), status_bar, TRUE);
-      gtk_widget_set_halign(status_bar, GTK_ALIGN_START);
-      gtk_widget_set_valign(status_bar, GTK_ALIGN_END);
-      gtk_widget_grab_focus(glareas[0]); // in fullscreen()
-
-
-      if (false) {
-         gtk_container_remove(GTK_CONTAINER(vbox), tool_bar);
-         gtk_overlay_add_overlay(GTK_OVERLAY(overlay), tool_bar);
-         gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), tool_bar, TRUE);
-         gtk_widget_set_halign(tool_bar, GTK_ALIGN_START);
-         gtk_widget_set_valign(tool_bar, GTK_ALIGN_START);
-      }
-
-      if (false) {
-         gtk_container_remove(GTK_CONTAINER(vbox), menu_bar_frame);
-         gtk_overlay_add_overlay(GTK_OVERLAY(overlay), menu_bar_frame);
-         gtk_overlay_set_overlay_pass_through(GTK_OVERLAY(overlay), menu_bar_frame, TRUE);
-         gtk_widget_set_halign(menu_bar_frame, GTK_ALIGN_START);
-         gtk_widget_set_valign(menu_bar_frame, GTK_ALIGN_START);
-      }
-#endif
+      gtk_widget_set_visible(status_bar, FALSE);
+      gtk_widget_set_visible(tool_bar,   FALSE);
 
       graphics_info_t::add_status_bar_text(""); // clear it
+
+      graphics_grab_focus();
 
    } else {
       g_error("%p is not a Gtk.Window !", window);
@@ -6350,9 +6387,9 @@ graphics_info_t::unfullscreen() {
       GtkWidget* sidebar    = widget_from_builder("main_window_vbox_inner");
       GtkWidget* tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
       GtkWidget* status_bar = widget_from_builder("main_window_statusbar");
-      // That likely requires porting:
-      
-      //GtkWidget *tool_bar_frame   = widget_from_builder("main_window_model_fit_dialog_frame");
+
+      gtk_widget_set_visible(status_bar, TRUE);
+      gtk_widget_set_visible(tool_bar,   TRUE);
 
       if(false) {
          GtkWidget *vbox       = widget_from_builder("main_window_vbox");
@@ -6365,12 +6402,12 @@ graphics_info_t::unfullscreen() {
          gtk_box_append(GTK_BOX(vbox), status_bar);
       }
 
-      
-      //gtk_widget_show(tool_bar_frame);
-      gtk_widget_show(tool_bar);
-      gtk_widget_show(sidebar);
-      gtk_widget_show(status_bar);
-} else {
+      //gtk_widget_set_visible(tool_bar_frame, TRUE);
+      gtk_widget_set_visible(tool_bar, TRUE);
+      gtk_widget_set_visible(sidebar, TRUE);
+      gtk_widget_set_visible(status_bar, TRUE);
+
+   } else {
       g_error("%p is not a Gtk.Window !", window);
    }
 }

@@ -396,7 +396,8 @@
 # 6.07 20220710 libffi fixes for python
 # 6.08 20220803-PE pygobject cleanups
 # 6.09 20220907-PE meson adjustment for compiling glib (what a pain)
-script_version=6.09
+# 6.10 20240603-PE remove goocanvas
+script_version=6.10
 
 
 
@@ -1146,18 +1147,23 @@ case $dist_name in
        m4
        g++
        git
+       libtool
+       cmake
+       swig
+       flex
+       bison
+       gfortran
+       autoconf
+       automake
+       libglfw3-dev
        libssl-dev
-       libxext-dev
-       libxmu-dev
-       libxt-dev
+       libblas-dev
+       liblapack-dev
        libc6-dev
        libncurses5-dev
-       libglu1-mesa-dev
        libjpeg-dev
-       mesa-common-dev
-       libgtk-3-dev'
-       # converted from libgtk2.0-dev - not tested
-       # not libgtk-3-dev
+       libgtk-4-dev'
+       # gfortran is for numpy
 
       for dep in $dep_list
       do
@@ -1982,7 +1988,6 @@ build_gsl=0
 # build_libpng=0
 # build_imlib=0
 # build_gtk_canvas=0
-build_goocanvas=
 build_python=
 build_pygobject=
 build_guile_gtk=
@@ -2072,9 +2077,9 @@ fi
 # python_version is the filename of the python executable.  For python
 # 2.5.1 it is python2.5, not python2.5.1
 #
-python_version=python3.9
-pver=3.9.12
-python_version_extension=3.9 # extract this
+python_version=python3.11
+pver=3.11.4
+python_version_extension=3.11 # extract this
 
 
 # for compatibility with gtk build system
@@ -2120,6 +2125,7 @@ else
    needed_gsl_version=1.12
    needed_gsl_version=1.15
    needed_gsl_version=1.16
+   needed_gsl_version=2.7
 
    # tmp value.  This uses awk.  It need not do.
    # You can do the comparison with test.
@@ -2220,11 +2226,17 @@ if [ -e $install_top_dir/bin/python3 ] ; then
       # test for ctypes - was it installed correctly?
       ld_lib_path_backup=$LD_LIBRARY_PATH
       unset LD_LIBRARY_PATH
-      if ${install_top_dir}/bin/python3 -c 'import ctypes' ; then
-         echo we have python3 with working ctypes
+      if [ "$(${install_top_dir}/bin/python3 -V)" = "Python $pver" ] ; then
+         echo found version of Python `${install_top_dir}/bin/python3 -V` 2>&1
+         if ${install_top_dir}/bin/python3 -c 'import ctypes' ; then
+            echo we have python3 with working ctypes
+         else
+            echo python3 ctypes failure
+            build_python=1
+         fi
       else
-         echo python3 ctypes failure
-         build_python=1
+         echo wrong version of Python - needs rebuild
+         ${install_top_dir}/bin/python3 -V
       fi
       export LD_LIBRARY_PATH=$ld_lib_path_backup
    else
@@ -2536,11 +2548,17 @@ if true ; then
           else
               git clone https://github.com/project-gemmi/gemmi.git
           fi
-          cd gemmi/include
+          # cd gemmi/include
           # note to self: fix this for Darwin - which has a crippled cp
-          cp -a -r gemmi $install_top_dir/include
-          cd -
-          cd $save_dir
+          # cp -a -r gemmi $install_top_dir/include
+          # cd -
+          # cd $save_dir
+          mkdir build-gemmi
+          cd build-gemmi
+          cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi
+          if $MAKE ; then
+              make install
+          fi
       ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
 fi
 
@@ -2597,7 +2615,7 @@ fi
 
 test_for_already_installed_dependencies=true
 
-# So that python is found when it is installed:
+# So that python3 is found when it is installed:
 #
 #this should not be needed
 export PATH=$install_top_dir/bin:$PATH
@@ -2758,7 +2776,7 @@ if $build_meson = true ; then
    meson --version
    ) > $HOSTLOGDIR/07b-meson.txt 2>&1
 else
-   echo not building meson
+   echo not building meson:
 fi
 
 
@@ -2780,7 +2798,7 @@ if [ $build_ninja = true ] ; then
    ${WGET} https://github.com/ninja-build/ninja/archive/refs/tags/v$ninja_version.tar.gz
    tar xf ${AUTOBUILD_SOURCES}/v$ninja_version.tar.gz
    cd ninja-$ninja_version
-   ./configure.py --bootstrap # builds ninja, requires python
+   python3 ./configure.py --bootstrap # builds ninja, requires python
    if [ -e ninja ] ; then
       cp ninja $install_top_dir/bin
    else
@@ -2860,7 +2878,7 @@ if test "$build_gobject_introspection" = true ; then
    (
    # just for gobject-introspection - depends on our glib installation
    export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig
-   export LD_LIBRARY_PATH=$install_top_dir/lib64
+   export LD_LIBRARY_PATH=$install_top_dir/lib64:$install_top_dir/lib
    date
    echo BUILDING gobject-introspection:
 
@@ -2913,7 +2931,12 @@ if test "$build_gobject_introspection" = true ; then
    export CC=gcc
    # $install_top_dir/bin/meson is important, otherwise the wrong meson
    # is used.
-   if $install_top_dir/bin/meson -Dprefix=$install_top_dir build ; then
+   #
+   # if $install_top_dir/bin/meson -Dprefix=$install_top_dir build ; then
+   #
+   # BUT... if we don't build meson because we have a new enough meson
+   # in the path then $install_top_dir/bin/meson does not exist!
+   if meson -Dprefix=$install_top_dir build ; then
       echo meson passed
       cd build
       ninja
@@ -2996,9 +3019,9 @@ if [ $skip_build = false ] ; then
          which python3
          echo ld_library_path $LD_LIBRARY_PATH
          x=$LD_LIBRARY_PATH
-         unset LD_LIBRARY_PATH
+         # unset LD_LIBRARY_PATH # I want LD_LIBRARY_PATH so that libffi.so is found
          echo :::: in directory $(pwd)
-         echo :::: building meson with -Dprefix=$install_top_dir build
+         echo :::: building using meson -Dprefix=$install_top_dir build
          if meson -Dprefix=$install_top_dir build ; then
             echo :::: meson passed
             cd build
@@ -3158,8 +3181,8 @@ if test -n "$build_curl" ; then
    # on Ubuntu: install it like this:
    # apt-get install libssl-dev
    #
-   echo ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
-   ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
+   echo ./configure  $generic_prefix --enable-versioned-symbols --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
+   ./configure  $generic_prefix --enable-versioned-symbols --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
    if $MAKE ; then
       if [ -n $post_process_libcurl ] ; then
          fixup_libcurl
@@ -3196,6 +3219,7 @@ if test -n "$build_gsl" ; then
 gsl_version=1.12
 gsl_version=1.15
 gsl_version=1.16
+gsl_version=2.7
 # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
 # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
@@ -3241,9 +3265,11 @@ if [ "$build_boost" = true ] ; then
       boost_version=1_71_0
       boost_version=1_72_0
       boost_version=1_74_0
+      boost_version=1_82_0
       boost_server_dir=1.72.0
       boost_server_dir=1.72.0
       boost_server_dir=1.74.0
+      boost_server_dir=1.82.0
       echo BUILDING boost $boost_version :
       (
       echo building ========================= boost $boost_version =========================
@@ -3271,11 +3297,10 @@ if [ "$build_boost" = true ] ; then
       # $HOME/autobuild/Linux-penelope-pre-release-gtk3-python/include/python3.6m/pyconfig.h
 
       address_model=64
-      # ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,serialization --without-icu
       pwd
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu > bootstrap-command-save
-      ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu > bootstrap-command-save
+      ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
 
       # now edit the project-config.jam file using python line
 
@@ -3296,56 +3321,6 @@ if [ "$build_boost" = true ] ; then
    fi
 fi
 
-
-
-#################################################################
-# goocanvas
-#################################################################
-#
-
-# goocanvas-2.0.pc
-if [ -e $install_top_dir/lib/pkgconfig/goocanvas-2.0.pc ] ; then
-   build_goocanvas=no
-fi
-
-# https://download-fallback.gnome.org/sources/goocanvas/2.0/
-
-if [ "$build_goocanvas" != "no" ] ; then
-    goocanvas_version=2.0.4
-    echo BUILDING goocanvas $goocanvas_version :
-    goocanvas_dir=https://download-fallback.gnome.org/sources/goocanvas/2.0
-    # or maybe http://ftp.gnome.org/pub/GNOME/sources/goocanvas/2.0
-    ${WGET} --no-check-certificate $goocanvas_dir/goocanvas-$goocanvas_version.tar.xz
-    (date
-     export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig
-     export LD_LIBRARY_PATH=$install_top_dir/lib64
-     echo building in: $PWD
-     echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
-     echo CFLAGS: $CFLAGS
-     echo CXXFLAGS: $CXXFLAGS
-     echo CPPFLAGS: $CPPFLAGS
-     echo LDFLAGS: $LDFLAGS
-     pwd
-     tar xf ${AUTOBUILD_SOURCES}/goocanvas-$goocanvas_version.tar.xz
-     cd goocanvas-$goocanvas_version
-     # on my Mac, glib depends on libintl.h and that is installed by the ccp4 dir
-     # but that is not added by pkg-config glib-2.0 --cflags. glib bug?
-     # we don't want python 2 bindings (they find/try to install with system python)
-     echo ./configure $generic_prefix $EXTRA_GOOCANVAS_CFLAGS
-     if ./configure $generic_prefix --enable-python=no $EXTRA_GOOCANVAS_CFLAGS ; then
-        if ! $MAKE ; then
-           echo make of goocanvas failed
-        else
-            $MAKE install
-        fi
-     else
-        echo goocanvas configure failed
-     fi
-     ) > $HOSTLOGDIR/17-goocanvas.txt 2>&1
-else
-   echo not building goocanvas
-   echo not building goocanvasA 2>& 1
-fi
 
 
 #################################################################
@@ -3562,6 +3537,9 @@ if [ true = true ] ; then
         exit 2
       fi
       which python3
+      # let's just try to install it using pip! Maybe that will do good things?
+      python3 -m pip install numpy
+      # OK, back to compiling...
       python3 setup.py build --fcompiler=gfortran
       python3 setup.py install
       if [ ! $? ] ; then
@@ -3604,7 +3582,7 @@ if [ "$build_rdkit" = true ] ; then
    fi
 
    # hack
-   skip_this=false
+   # skip_this=false
 
    if [ $skip_this = false ] ;  then
 
@@ -3766,25 +3744,24 @@ if [ "$build_rdkit" = true ] ; then
       # probblem: $install_top_dir/include/boost/python/detail/wrap_python.hpp:57:23: fatal error: pyconfig.h: No such file or directory
       # solution: https://github.com/rdkit/rdkit/issues/3884
       # -DPYTHON_INCLUDE_DIR=$PYROOT/include/python3.8
+      # -DBoost_PYTHON39_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so
 
-      echo cmake -DBoost_NO_BOOST_CMAKE=ON \
-               -DBoost_INCLUDE_DIR=$install_top_dir/include \
+      echo cmake \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
-               -DBoost_PYTHON39_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
+               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-x86_64-linux-gnu/libpython$python_version_extension.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
                 $tree_from_build
 
-      if cmake -DBoost_NO_BOOST_CMAKE=ON \
-               -DBoost_INCLUDE_DIR=$install_top_dir/include \
+      if cmake  \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
-               -DBoost_PYTHON39_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
+               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-x86_64-linux-gnu/libpython$python_version_extension.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
@@ -3811,24 +3788,7 @@ fi
 
 
 
-# silicos-it's biscu-it
-if [ -e $install_top_dir/lib/$python_version/site-packages/silicos_it/descriptors/qed.py ] ; then
-   echo not building biscu-it:
-else
-   echo building QED
-   (date
-    ${WGET} http://silicos-it.be.s3-website-eu-west-1.amazonaws.com/_downloads/qed-1.0.1.tar.gz
-    ${WGET} $extras_place/coot/qed-python3.patch
-    pwd
-    tar xf ${AUTOBUILD_SOURCES}/qed-1.0.1.tar.gz
-    cd qed-1.0.1
-    patch -p0 < ../qed-python3.patch # correct patch level? needs checking
-    python3 setup.py install
-    cd -
-   ) > $HOSTLOGDIR/19-biscu-it.txt 2>&1
-fi
-
-
+# silicos-it's biscu-it (QED) is now part of RDKit main.
 
 
 ###############################################################################
@@ -4135,8 +4095,9 @@ if [ "$build_guile_cairo" = true ] ; then
       if [ -e $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz
       else
-         echo no file $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz
-         exit
+         echo fetching file $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz
+         ${WGET} http://download.savannah.gnu.org/releases/guile-cairo/guile-cairo-$guile_cairo_version.tar.gz
+         tar xf $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz
       fi
       if [ ! -e $install_top_dir/bin/guile ] ; then
          echo no guile
@@ -4228,7 +4189,8 @@ if [ "$build_guile_gnome_platform" = true ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-gnome-platform-$guile_gnome_platform_version.tar.gz
       else
          echo no file $AUTOBUILD_SOURCES/guile-gnome-platform-$guile_gnome_platform_version.tar.gz
-         exit
+         ${WGET} http://ftp.gnu.org/pub/gnu/guile-gnome/guile-gnome-platform/guile-gnome-platform-$guile_gnome_platform_version.tar.gz
+         tar xf $AUTOBUILD_SOURCES/guile-gnome-platform-$guile_gnome_platform_version.tar.gz
       fi
       cd guile-gnome-platform-$guile_gnome_platform_version
       if ./configure --prefix=$install_top_dir ; then
@@ -4284,12 +4246,12 @@ else
    save_dir=$(pwd)
    echo :::: $(pwd)
    echo cloning coot...
-   echo :::: git clone https://github.com/pemsley/coot.git -b gtk4
+   echo :::: git clone https://github.com/pemsley/coot.git -b main
    echo save_ld_library_path=$LD_LIBRARY_PATH
    # reset LD_LIBRARY_PATH for now. Do we need it set from now on actually?
    export LD_LIBRARY_PATH=
-   if git clone https://github.com/pemsley/coot.git -b gtk4 --depth 2 ; then
-      echo git clone https://github.com/pemsley/coot.git -b gtk4 without error status
+   if git clone https://github.com/pemsley/coot.git -b main --depth 2 ; then
+      echo git clone https://github.com/pemsley/coot.git -b main without error status
       echo done clone
       cd coot
       rm -rf autom4te.cache
@@ -4298,7 +4260,7 @@ else
       if [ -e config.sub   ] ; then rm config.sub   ; fi
       bash autogen.sh
    else
-      echo git clone https://github.com/pemsley/coot.git -b gtk4 failed
+      echo git clone https://github.com/pemsley/coot.git -b main failed
       echo done clone
       cd coot
    fi
@@ -4375,8 +4337,6 @@ echo 33333
 export LD_LIBRARY_PATH=$install_top_dir/lib
 
 # add this when then are compiling and RDKIT is compiling
-#      --with-enhanced-ligand-tools
-#      ---with-rdkit-prefix=$prfx
 
 echo bash ../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
@@ -4385,8 +4345,9 @@ echo bash ../coot/configure $coot_prefix \
       PYTHON=python3 \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
+      --with-enhanced-ligand-tools \
+      --with-rdkit-prefix=$install_top_dir \
       --with-guile \
-      --with-gtk4  \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
@@ -4400,8 +4361,9 @@ echo bash ../coot/configure $coot_prefix \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       --with-boost=$install_top_dir  \
       --with-boost-libdir=$install_top_dir/lib  \
+      --with-enhanced-ligand-tools \
+      --with-rdkit-prefix=$install_top_dir \
       --with-guile \
-      --with-gtk4  \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \

@@ -294,7 +294,7 @@ public:
                                    float bond_radius,
                                    unsigned int n_slices,
                                    unsigned int n_stacks,
-                                   const std::vector<glm::vec4> &colour_table);
+                                   const std::vector<glm::vec4> &colour_table); // add bool add_start_end_cap, bool add_end_end_cap);
 
    void make_graphical_bonds_rama_balls(const graphical_bonds_container &gbc,
                                         const glm::vec3 &screen_up_dir); // normalized
@@ -317,21 +317,22 @@ public:
                                                                float atom_radius,
                                                                float bond_radius,
                                                                unsigned int num_subdivisions,
-                                                               glm::vec4 (*get_glm_colour_for_bonds) (int, int));
+                                                               const std::vector<glm::vec4> &colour_table);
    void make_graphical_bonds_hemispherical_atoms_instanced_version(Shader *shader_p,
                                                                    const Material &material,
                                                                    const graphical_bonds_container &gbc, int udd_handle_bonded_type,
                                                                    float atom_radius,
                                                                    float bond_radius,
                                                                    unsigned int num_subdivisions,
-                                                                   glm::vec4 (*get_glm_colour_for_bonds) (int, int));
+                                                                   const std::vector<glm::vec4> &colour_table);
    void make_graphical_bonds_bonds_instanced_version(Shader *shader_p,
                                                      const Material &material,
                                                      const graphical_bonds_container &gbc,
                                                      float bond_radius,
                                                      unsigned int n_slices,
                                                      unsigned int n_stacks,
-                                                     glm::vec4 (*get_glm_colour_for_bonds) (int, int));
+                                                     const std::vector<glm::vec4> &colour_table,
+                                                     bool add_start_end_cap, bool add_end_end_cap);
 
    void make_symmetry_atoms_bond_lines(const std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > &symmetry_bonds_boxes,
                                        const glm::vec4 &symmetry_colour, double symmetry_colour_weight);

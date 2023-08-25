@@ -217,5 +217,7 @@ void main() {
    }
 
    out_col = mix(out_col, background_colour, fog_amount);
+
+   out_col = vec4(0.99, 0.2, 0.99, 1.0);
    
 }

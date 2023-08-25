@@ -142,7 +142,7 @@ void
 post_delete_item_dialog() {
 
    // GtkWidget *w = wrapped_create_delete_item_dialog();
-   // gtk_widget_show(w);
+   // gtk_widget_set_visible(w, TRUE);
 
 }
 
@@ -328,7 +328,7 @@ void place_atom_at_pointer_by_window() {
 
    GtkWidget *combobox = widget_from_builder("pointer_atom_molecule_combobox");
    fill_place_atom_molecule_combobox(combobox);
-   gtk_widget_show(window);
+   gtk_widget_set_visible(window, TRUE);
 
 }
 
@@ -421,7 +421,7 @@ bool renumber_residues_from_widget(GtkWidget *window) {
       mmdb::Chain *chain_p = graphics_info_t::molecules[imol].get_chain(chain_id);
 
       if (chain_p) {
-	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rb1))) {
+	 if (gtk_check_button_get_active(GTK_CHECK_BUTTON(rb1))) {
 	    // use N-terminus of chain
 	    std::pair<bool, int> nt_resno = coot::util::min_resno_in_chain(chain_p);
 	    if (nt_resno.first) {
@@ -430,7 +430,7 @@ bool renumber_residues_from_widget(GtkWidget *window) {
 	    }
 	 }
 
-	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rb4))) {
+	 if (gtk_check_button_get_active(GTK_CHECK_BUTTON(rb4))) {
 	    // use C-terminus of chain
 	    std::pair<bool, int> ct_resno = coot::util::max_resno_in_chain(chain_p);
 	    if (ct_resno.first) {
@@ -581,7 +581,7 @@ void altconf() {
    // GtkWidget *widget = create_add_alt_conf_dialog();
    GtkWidget *widget = widget_from_builder("add_alt_conf_dialog");
    setup_alt_conf_with_dialog(widget);
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 /*  ------------------------------------------------------------------------ */
@@ -616,7 +616,7 @@ void recover_session() {
 	    gtk_label_set_text(GTK_LABEL(label1), info.name.c_str());
 	    gtk_label_set_text(GTK_LABEL(label2), info.backup_file_name.c_str());
 
-	    gtk_widget_show(widget);
+	    gtk_widget_set_visible(widget, TRUE);
 	    i_rec++;
 	 }
       }
@@ -624,7 +624,7 @@ void recover_session() {
    if (i_rec == 0) {
       // GtkWidget *w = create_nothing_to_recover_dialog();
       GtkWidget *w = widget_from_builder("nothing_to_recover_dialog");
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
    }
 }
 
@@ -740,7 +740,7 @@ void fill_vbox_with_coordinates_options(GtkWidget *dialog,
 
 	      GtkWidget *checkbutton = gtk_check_button_new_with_label(button_label.c_str());
          g_object_set_data(G_OBJECT(checkbutton), "imol", GINT_TO_POINTER(imol));
-         gtk_widget_show(checkbutton);
+         gtk_widget_set_visible(checkbutton, TRUE);
          gtk_box_append(GTK_BOX(molecules_vbox), checkbutton);
       }
    }
@@ -770,7 +770,7 @@ void on_merge_molecules_check_button_toggled(GtkCheckButton *checkbutton,
 void do_merge_molecules_gui() {
 
    GtkWidget *w = wrapped_create_merge_molecules_dialog(); // uses builder
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 // The action on Merge button press:
@@ -1072,13 +1072,13 @@ GtkWidget *wrapped_fit_loop_rama_search_dialog() {
    GtkWidget *rama_checkbutton   = widget_from_builder("mutate_sequence_use_ramachandran_restraints_checkbutton");
 
    gtk_label_set_text(GTK_LABEL(label), "\nFit loop in Molecule:\n");
-   gtk_widget_hide(checkbutton);
+   gtk_widget_set_visible(checkbutton, FALSE);
    gtk_widget_set_visible(mutate_ok_button,   FALSE);
    gtk_widget_set_visible(fit_loop_ok_button, TRUE);
-   gtk_widget_show(rama_checkbutton);
+   gtk_widget_set_visible(rama_checkbutton, TRUE);
    gtk_check_button_set_active(GTK_CHECK_BUTTON(rama_checkbutton), TRUE);
 
-   gtk_widget_show(method_frame);
+   gtk_widget_set_visible(method_frame, TRUE);
 
    return w;
 }
@@ -1192,7 +1192,7 @@ int do_align_mutate_sequence(GtkWidget *w) {
       std::string s = "WARNING:: autofit requested, but \n   refinement map not set!";
       std::cout << s << "\n";
       GtkWidget *warn = wrapped_nothing_bad_dialog(s);
-      gtk_widget_show(warn);
+      gtk_widget_set_visible(warn, TRUE);
 
    } else {
 
@@ -1387,7 +1387,7 @@ change_chain_id_by_widget(GtkWidget *w) {
 	    graphics_draw();
 	 } else {
 	    GtkWidget *ws = wrapped_nothing_bad_dialog(r.second);
-	    gtk_widget_show(ws);
+	    gtk_widget_set_visible(ws, TRUE);
 	 }
 	 graphics_info_t g;
 	 g.update_validation(imol);
@@ -1469,10 +1469,10 @@ show_fix_nomenclature_errors_gui(int imol,
 #else
 	       gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(l), FALSE, FALSE, 2);
 #endif
-	       gtk_widget_show(GTK_WIDGET(l));
+	       gtk_widget_set_visible(GTK_WIDGET(l), TRUE);
 	    }
 	 }
-	 gtk_widget_show(w);
+	 gtk_widget_set_visible(w, TRUE);
 
       }
    }
@@ -1506,7 +1506,7 @@ handle_get_monomer_code(GtkWidget *entry_widget) {
 
       if (is_valid_model_molecule(imol)) {
       } else {
-         gtk_widget_show(failed_to_get_monomer_frame);
+         gtk_widget_set_visible(failed_to_get_monomer_frame, TRUE);
       }
 
    } else {
@@ -1656,7 +1656,7 @@ void  do_edit_copy_fragment() {
    g.new_fill_combobox_with_coordinates_options(combobox_molecule, callback_func, imol_active);
    g_object_set_data(G_OBJECT(dialog), "combobox", combobox_molecule); // for reading. 20220828-PE still needed?
    set_transient_for_main_window(dialog);
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 
 #else
    // For the moment keep this block for reference
@@ -1667,8 +1667,8 @@ void  do_edit_copy_fragment() {
    // GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
    // g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
    // g_object_set_data(G_OBJECT(dialog), "combobox", combobox); // for reading
-   // gtk_widget_show(combobox);
-   // gtk_widget_show(dialog);
+   // gtk_widget_set_visible(combobox, TRUE);
+   // gtk_widget_set_visible(dialog, TRUE);
 
 #endif
 

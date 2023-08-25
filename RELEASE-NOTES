@@ -1,11 +1,37 @@
+----
 
-  Pre-release 0.9.8.8
+  Release 0.9.8.9
+
+  o FEATURE: Use add_hydrogen_atoms_to_residue() in mutate_internal() if the residue
+             has hydrogen atoms [Clemens Vonrhein].
+
+  o FEATURE: Add add_hydrogen_atoms_to_residue() to the API.
+
+  o CHANGE:  Allow the addition of hydrogen atoms to nitrogen atoms with energy
+             type NR5.
+
+  o CHANGE:  Remove flaky Biscu-it QED interface.
+
+  o BUG-FIX: Change the link-finding algorithm to handle the AA-RNA link in
+             the new monomer library [Keitaro Yamashita].
+
+----
+
+  Release 0.9.8.8
 
   o FEATURE: Better atom colours in colour-by-chain-and-dictionary mode.
 
   o CHANGE:  Monomer search now uses the new dictionary
 
-  o BUG-FIX: the zoom state is not correctly set in the saved state file
+  o CHANGE:  Molecules read in as mmCIF (.cif) are now by default saved as .cif
+
+  o CHANGE:  Atoms with element "Cl" are now drawn as CL.
+
+  o BUG-FIX: the zoom state is now correctly set in the saved state file
+
+  o BUG-FIX: additional symmetry check for peaks from flood filling (Paul Bond)
+
+  o BUG-FIX: Link-generation improvements.
 
 ----
 

@@ -127,6 +127,7 @@ when guile-gtk functions have alread done so.  We should clean up this
 
 return 1 for python is prefered, 0 for not. */
 int prefer_python();
+
 /* \} */
 
 /*  ------------------------------------------------------------------------ */
@@ -653,11 +654,6 @@ void set_idle_function_rotate_angle(float f);  /* degrees */
 /*! \brief what is the idle function rotation angle? */
 float idle_function_rotate_angle();
 
-/* pass back the newly created molecule number */
-/*! \brief a synonym for read-pdb.  Read the coordinates from
-  filename (can be pdb, cif or shelx format)  */
-int handle_read_draw_molecule(const char *filename);
-
 /*! \brief make a model molecule from the give file name.
 
 * If the file updates, then the model will be updated. */
@@ -691,19 +687,6 @@ default off (0).
  */
 void set_convert_to_v2_atom_names(short int state);
 
-/*! \brief read coordinates from filename with option to not recentre.
-
-   set recentre_on_read_pdb_flag to 0 if you don't want the view to
-   recentre on the new coordinates. */
-int handle_read_draw_molecule_with_recentre(const char *filename,
-					    int recentre_on_read_pdb_flag);
-
-/*! \brief read coordinates from filename and recentre the new
-  molecule at the screen rotation centre. */
-int handle_read_draw_molecule_and_move_molecule_here(const char *filename);
-
-/*! \brief read coordinates from filename */
-int read_pdb(const char *filename);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
@@ -1064,12 +1047,7 @@ void set_pick_cursor_index(int icursor_index);
 /* section Model/Fit/Refine Functions  */
 /*! \name Model/Fit/Refine Functions  */
 /*! \{ */
-/*! \brief display the Model/Fit/Refine dialog */
-void post_model_fit_refine_dialog();
-/*! \brief unset model/fit/refine dialog */
-void unset_model_fit_refine_dialog();
-/*! \brief unset refine params dialog */
-void unset_refine_params_dialog();
+
 /*! \brief display the Display Manager dialog */
 void show_select_map_dialog();
 /*! \brief Allow the changing of Model/Fit/Refine button label from
@@ -1079,9 +1057,6 @@ void set_model_fit_refine_rotate_translate_zone_label(const char *txt);
   "Place Atom at Pointer" */
 void set_model_fit_refine_place_atom_at_pointer_label(const char *txt);
 
-
-/*! \brief display the Other Modelling Tools dialog */
-void post_other_modelling_tools_dialog();
 
 /*! \brief shall atoms with zero occupancy be moved when refining? (default 1, yes) */
 void set_refinement_move_atoms_with_zero_occupancy(int state);
@@ -4091,39 +4066,6 @@ int read_small_molecule_data_cif_and_make_map_using_coords(const char *file_name
 							   int imol_coords);
 
 /* \} */
-
-/*  ----------------------------------------------------------------------- */
-/*                  SHELX stuff                                             */
-/*  ----------------------------------------------------------------------- */
-/* section SHELXL Functions */
-/*! \name SHELXL Functions */
-/* \{ */
-/*! \brief read a SHELXL .ins file */
-int read_shelx_ins_file(const char *filename, short int recentre_flag);
-/*! \brief write a SHELXL .ins file for molecule number imol */
-int write_shelx_ins_file(int imol, const char *filename);
-/* for shelx fcf file that needs to be filtered: */
-int handle_shelx_fcf_file_internal(const char *filename);
-#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
-#ifdef USE_GUILE
-/*! \brief @return the chain id for the given residue.
-
-@return false if can't do it/fail. */
-SCM chain_id_for_shelxl_residue_number(int imol, int resno);
-#endif /* USE_GUILE */
-/* return 1 for yes, 0 for invalid imol or no. */
-int is_shelx_molecule(int imol);
-
-#ifdef USE_PYTHON
-/*! \brief @return the chain id for the given residue.  Return Py_False if
-  can't do it/fail. */
-PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno);
-#endif /* USE_PYTHON */
-
-void add_shelx_string_to_molecule(int imol, const char *string);
-#endif /* c++ */
-
-/* \} */
 /*  ------------------------------------------------------------------------ */
 /*                         Validation:                                       */
 /*  ------------------------------------------------------------------------ */
@@ -4297,20 +4239,10 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 /*! \name Sequence View Interface  */
 /* \{ */
 /*! \brief display the sequence view dialog for molecule number imol */
+void sequence_view(int imol);
+
+/*! \brief old name for the above function */
 void do_sequence_view(int imol);
-
-/*!  \brief display the sequence view for molecule number imol */
-void nsv(int imol);
-/*!  \brief control where the sequence view is displayed
-
-in the main application or a new dialog */
-void set_sequence_view_is_docked(short int state);
-
-/*!  \brief set the pixel limit for sequence view windows */
-void set_nsv_canvas_pixel_limit(int cpl);
-
-/*!  \brief show old style sequence view */
-void sequence_view_old_style(int imol);
 
 /*!  \brief update the sequnce view current position highlight based on active atom */
 void update_sequence_view_current_position_highlight_from_active_atom();
@@ -4902,6 +4834,9 @@ void set_grey_carbon_colour(int imol, float r, float g, float b);
 
 /* undocumented feature for development. */
 void set_draw_moving_atoms_restraints(int state);
+
+/* undocumented feature for development. */
+short int get_draw_moving_atoms_restraints();
 
 /*! \brief make a ball and stick representation of imol given atom selection
 
@@ -6684,6 +6619,10 @@ short int do_probe_dots_post_refine_state();
 /* state is 1 for on and 0 for off */
 void set_do_coot_probe_dots_during_refine(short int state);
 
+/* get state: 1 for on and 0 for off */
+short int get_do_coot_probe_dots_during_refine();
+
+
 /*! \brief make an attempt to convert pdb hydrogen name to the name
   used in Coot (and the refmac dictionary, perhaps). */
 char *unmangle_hydrogen_name(const char *pdb_hydrogen_name);
@@ -7061,7 +7000,7 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
  *
  * Use a map that is blurred by the give factor for fitting.
  * @return < -100 if not possible, else return the new best fit for this chain.  */
-// float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);  temporary comment                                   
+float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);
 
 /*! \} */
 

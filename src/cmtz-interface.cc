@@ -228,7 +228,7 @@ GtkWidget *make_menu_item(gchar        *name,
 
     GtkWidget *item = gtk_menu_item_new_with_label(name);
     g_signal_connect (G_OBJECT (item), "activate", callback, data);
-    gtk_widget_show (item);
+    gtk_widget_set_visible (item, TRUE);
     return(item);
 #endif
 }
@@ -681,8 +681,8 @@ void handle_phs_cell_choice_ok_button_clicked(GtkWidget *button) {
       std::cout << "special value for none for phs_cell radiobuton active" << std::endl;
       // GtkWidget *info_window = create_phs_info_box();
       GtkWidget *info_window = widget_from_builder("phs_info_box");
-      gtk_widget_show(info_window);
+      gtk_widget_set_visible(info_window, TRUE);
    }
-   gtk_widget_hide(window);
+   gtk_widget_set_visible(window, FALSE);
 
 }

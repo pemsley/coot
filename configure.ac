@@ -26,7 +26,6 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-
 AC_INIT([coot],[1.0.06-pre])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
@@ -36,7 +35,7 @@ AM_ACLOCAL_INCLUDE(macros)
 AC_CONFIG_MACRO_DIR(macros)
 
 AC_PROG_CXX
-# LT_INIT that's old style. Now we use LT_INIT.
+# AC_PROG_LIBTOOL? that's old style. Now we use LT_INIT.
 # It is not yet clear to me how AC_LANG_SOURCE should be used
 # for LT_INIT
 LT_INIT
@@ -190,21 +189,29 @@ dnl Check for Clipper.  we exit if clipper is not found.
 #
 AM_PATH_CLIPPER(, [echo Error locating Clipper - a CNS-enabled version of Clipper \(2.1-090520-ac or later\) is required now; exit 1],AC_MSG_ERROR([Cannot find Clipper]))
 
-# 20210313-PE-merge-weirdness
-# we set default coot_guile to true
-coot_guile=true
-AM_WITH_GUILE(, [echo optional guile\?],,)
-if test x$coot_guile = xtrue ; then
-   GUILE_FLAGS
-   AM_GUILE_LIB
-   # guile-gui depends on a gui interface being present.  If it is, force check for guile-gui
-   if test x$with_gnome != x ; then
-      # AM_GUILE_GNOME
-      :
-   fi
-   GUILE_VERSION=$($ac_cv_path_GUILE_CONFIG --version  2>&1 | awk '{split($NF, arr, "[[.]]");  print arr[[1]] "." arr[[2]]}')
-   echo checking GUILE_VERSION: $GUILE_VERSION
-   AC_SUBST(GUILE_VERSION)
+dnl # 20210313-PE-merge-weirdness
+dnl # we set default coot_guile to true
+dnl coot_guile=true
+dnl AM_WITH_GUILE(, [echo optional guile\?],,)
+dnl if test x$coot_guile = xtrue ; then
+dnl    GUILE_FLAGS
+dnl    AM_GUILE_LIB
+dnl    # guile-gui depends on a gui interface being present.  If it is, force check for guile-gui
+dnl    if test x$with_gnome != x ; then
+dnl       # AM_GUILE_GNOME
+dnl       :
+dnl    fi
+dnl    GUILE_VERSION=$($ac_cv_path_GUILE_CONFIG --version  2>&1 | awk '{split($NF, arr, "[[.]]");  print arr[[1]] "." arr[[2]]}')
+dnl    echo checking GUILE_VERSION: $GUILE_VERSION
+dnl    AC_SUBST(GUILE_VERSION)
+dnl fi
+
+GUILE_FLAGS
+if test "x$GUILE_CFLAGS" = x ; then
+   :
+else
+   COOT_USE_GUILE="-DUSE_GUILE"
+   AC_SUBST(COOT_USE_GUILE)
 fi
 
 
@@ -257,23 +264,16 @@ if test -z "$BOOST_PYTHON_LIB" ; then
 fi
 
 # So now BOOST_PYTHON_LIB is set (and that is typically "boost_python").
-# How do we use that?  At the moment we want to only use
-# -l$(BOOST_PYTHON_LIB) when we have RDKIT_LIBS set
-
-if test -z "$RDKIT_LIBS" ; then
-   :
+# How do we use that?
+if test -z "$BOOST_PYTHON_LIB" ; then
+    :
 else
-   if test -z "$BOOST_PYTHON_LIB" ; then
-      :
-   else
-      L_BOOST_PYTHON=-l$BOOST_PYTHON_LIB
-      if test "$have_windows_mingw" = yes; then
+    L_BOOST_PYTHON=-l$BOOST_PYTHON_LIB
+    if test "$have_windows_mingw" = yes; then
          COOT_WINDOWS_CFLAGS+=" -DBOOST_SYSTEM_NO_DEPRECATED"
-      fi
-   fi
+    fi
 fi
 AC_SUBST(L_BOOST_PYTHON)
-
 
 dnl =========================== RDKit =========================
 
@@ -289,10 +289,12 @@ if $coot_enhanced_ligand_additions = true ; then
    fi
 fi
 
-AC_ARG_WITH(rdkit-prefix, [location of the RDKit package], rdkit_prefix="$withval", rdkit_prefix="")
 
-if test x$rdkit_prefix = x ; then
-  :
+AC_ARG_WITH(rdkit-prefix, AS_HELP_STRING([--with-rdkit-prefix location of the RDKit package]),
+            rdkit_prefix="$withval", rdkit_prefix=false)
+
+if test x$rdkit_prefix = xfalse ; then
+   :
 else
    rdkit_install_dir="$withval"
    # better RDKit linking I hope
@@ -355,19 +357,30 @@ dnl AC_CHECK_LIB(m,main)
 dnl AC_CHECK_LIB(gslcblas,main)
 dnl AC_CHECK_LIB(gsl,main)
 
-#GEMMI
-AC_LANG_PUSH(C++)
-AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_NOTICE(GEMMI headers were not found),)
-if test "$ac_cv_header_gemmi_to_json_hpp" = yes ; then
-   GEMMI_CXXFLAGS=-DUSE_GEMMI
+# gemmi doesn't have a pkgconfig file. Frustrating.
+AC_ARG_WITH([gemmi], AS_HELP_STRING([--with-gemmi location of the GEMMI package]), with_gemmi="$withval", with_gemmi=false)
+
+# is this the wrong logic actually, should the checking message only be seen if with_gemmi is not false?
+AC_MSG_CHECKING([for GEMMI])
+if test "x$with_gemmi" = xfalse ; then
+   :
+   AC_MSG_RESULT(no)
+else
+   AC_MSG_RESULT(yes)
+   AC_SUBST(GEMMI_CXXFLAGS, "-I$withval/include -DUSE_GEMMI=1")
+   AC_SUBST(GEMMI_LIBS, "-L$withval/lib -lgemmi_cpp")
 fi
-AC_SUBST(GEMMI_CXXFLAGS)
-AC_LANG_POP
 
+dnl put this test in the above block. We need to know (and stop) if GEMMI was requested but not found.
+dnl #GEMMI
+dnl AC_LANG_PUSH(C++)
+dnl AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_NOTICE(GEMMI headers were not found),)
+dnl if test "$ac_cv_header_gemmi_to_json_hpp" = yes ; then
+dnl    GEMMI_CXXFLAGS=-DUSE_GEMMI
+dnl fi
+dnl AC_SUBST(GEMMI_CXXFLAGS)
+dnl AC_LANG_POP
 
-AM_WITH_MYSQL_DATABASE
-
-COOT_CURL
 
 # 20090613 We need to be able to determine the build type, and embed
 # that value in to coot binary.  We need to do that for the updating
@@ -376,6 +389,24 @@ COOT_CURL
 # later.
 AM_COOT_SYS_BUILD_TYPE
 
+
+AC_ARG_WITH([sound], AS_HELP_STRING([--with-sound compile with ogg-vorbis and ALSA libs]), with_sound="withval", with_sound=false)
+AC_MSG_CHECKING([for sound])
+if test "x$with_sound" = xfalse ; then
+   :
+   AC_MSG_RESULT(no)
+else
+   AC_MSG_RESULT(yes)
+   PKG_CHECK_MODULES(VORBISFILE, [vorbisfile >= 1.2])
+   PKG_CHECK_MODULES(ALSA, [alsa >= 1.2])
+   # Use Core Audio on macOS. Consider PortAudio instead of using alsa directly.
+   AC_SUBST(SOUND_FLAGS, -DWITH_SOUND)
+fi
+
+
+AM_WITH_MYSQL_DATABASE
+
+COOT_CURL
 
 dnl Fix this another time.
 dnl dnl Add the languages which your application supports here.
@@ -429,6 +460,7 @@ cootilus/Makefile
 greg-tests/Makefile
 python-tests/Makefile
 lidia-core/Makefile
+buccaneer_ml_growing/Makefile
 doc/Makefile
 validation-graphs/Makefile
 python/coot_load_modules.py

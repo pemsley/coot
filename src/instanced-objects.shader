@@ -49,9 +49,9 @@ void main() {
    // the normal doesn't change for translation along z (pulsing)
    if (do_pulse)
       t_pos = position + vec3(0,0, pulsing_amplitude * sin(0.001 * pulsing_frequency * time + pulsing_phase_distribution * gl_InstanceID));
-   float cos_theta = cos(time * 0.014 * z_rotation_angle);
-   float sin_theta = sin(time * 0.014 * z_rotation_angle);
    if (do_rotate_z) {
+      float cos_theta = cos(time * 0.014 * z_rotation_angle);
+      float sin_theta = sin(time * 0.014 * z_rotation_angle);
       t_pos = vec3(position.x * cos_theta - position.y * sin_theta, position.x * sin_theta + position.y * cos_theta, position.z);
       n_dir = vec3(  normal.x * cos_theta -   normal.y * sin_theta,   normal.x * sin_theta +   normal.y * cos_theta, normal.z);
    }

@@ -29,7 +29,7 @@
 #include <mmdb2/mmdb_tables.h>
 
 #include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+#include "coords/mmdb.hh"
 #include "utils/coot-utils.hh"
 #include "coot-align.hh"
 
@@ -55,7 +55,7 @@ main(int argc, char **argv) {
     
 
     if (argc > 1) { 
-       atom_selection_container_t asc = get_atom_selection(argv[1], true, false, false);
+       atom_selection_container_t asc = get_atom_selection(argv[1], false, true, false);
        if (asc.n_selected_atoms > 0) { 
 	  do_alignment(asc);
        }

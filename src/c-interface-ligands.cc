@@ -879,7 +879,7 @@ ligand_search_install_wiggly_ligands() {
 	         std::cout << mess.what() << std::endl;
 	         if (graphics_info_t::use_graphics_interface_flag) {
 	            GtkWidget *w = wrapped_nothing_bad_dialog(mess.what());
-	            gtk_widget_show(w);
+	            gtk_widget_set_visible(w, TRUE);
 	         }
 	         // return solutions;
 	      }
@@ -1071,11 +1071,11 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
 	 else
 	    label_str += " acceptable ligands  ";
 	 gtk_label_set_text(GTK_LABEL(label), label_str.c_str());
-	 gtk_widget_show(w);
+	 gtk_widget_set_visible(w, TRUE);
       } else {
 	 // GtkWidget *w = create_no_new_ligands_info_dialog();
 	 GtkWidget *w = widget_from_builder("no_new_ligands_info_dialog");
-	 gtk_widget_show(w);
+	 gtk_widget_set_visible(w, TRUE);
       }
    }
 
@@ -1109,7 +1109,7 @@ std::vector<int> ligand_search_make_conformers_internal() {
 	    std::cout << mess.what() << std::endl;
 	    if (graphics_info_t::use_graphics_interface_flag) {
 	       GtkWidget *w = wrapped_nothing_bad_dialog(mess.what());
-	       gtk_widget_show(w);
+	       gtk_widget_set_visible(w, TRUE);
 	    }
 	 }
       }
@@ -1379,7 +1379,7 @@ void do_find_ligands_dialog() {
    int istate = fill_ligands_dialog(dialog); /* return OK, we have map(s), ligand(s), masking(s) */
 
    if (istate == 0) {
-      gtk_widget_hide(dialog);
+      gtk_widget_set_visible(dialog, FALSE);
       std::string s("Problem finding maps, coords or ligands!");
       graphics_info_t g;
       g.add_status_bar_text(s);
@@ -1389,7 +1389,7 @@ void do_find_ligands_dialog() {
       // std::cout << "do_find_ligands_dialog()  showing dialog " << dialog << std::endl;
       set_transient_for_main_window(dialog);
 
-      gtk_widget_show(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
    }
 
 }
@@ -1416,73 +1416,52 @@ int
 handle_make_monomer_search(const char *text, GtkWidget *viewport) {
 
    int stat = 0;
-   bool use_sbase_molecules = 0;
    std::string t(text);
-
-   std::cout << "handle_make_monomer_search() " << text << " " << viewport << std::endl;
-
    GtkWidget *vbox_current = widget_from_builder("monomer_search_results_vbox");
-   GtkWidget *checkbutton = widget_from_builder("monomer_search_minimal_descriptions_checkbutton");
-   GtkWidget *use_sbase_checkbutton = widget_from_builder("monomer_search_sbase_molecules_checkbutton");
-
    bool allow_minimal_descriptions_flag = false;
    GtkWidget *dialog = widget_from_builder("monomer_search_dialog");
-
-   // if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
-   // allow_minimal_descriptions_flag = 1;
-
-   // if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(use_sbase_checkbutton)))
-   // use_sbase_molecules = 1;
+   gtk_widget_set_size_request(dialog, 500, 300);
 
    graphics_info_t g;
    std::vector<std::pair<std::string, std::string> > v =
       monomer_lib_3_letter_codes_matching(t, allow_minimal_descriptions_flag);
 
    if (true)
-      std::cout << "DEBUG::  " << use_sbase_molecules
-		<< " found " << v.size() << " matching molecules "
+      std::cout << "DEBUG::  " << " found " << v.size() << " matching molecules "
 		<< " using string :" << t << ":"
 		<< std::endl;
 
-   // std::cout << "DEBUG:: " << v.size() << " solutions matching" << std::endl;
-
-   // here clear the current contents of the monomer vbox:
-   // delete the user_data assocated with the buttons too.
-
-
-//     GList *children = gtk_container_children(GTK_CONTAINER(vbox_current));
-//     int nchild = 0;
-//     while (children) {
-//        // std::cout << "child " << nchild << "  " << (GtkWidget *) children->data << std::endl;
-//        gtk_widget_destroy((GtkWidget *) children->data);
-//        nchild++;
-//        children = g_list_remove_link(children, children);
-//     }
-
    GtkWidget *vbox = vbox_current;
+   g.clear_out_container(vbox);
 
-   // std::cout << "DEBUG:: monomers v.size() " << v.size() << std::endl;
-   // add new buttons
+   GtkWidget *grid = gtk_grid_new();
+   gtk_grid_set_row_spacing(GTK_GRID(grid), 2);
+   gtk_grid_set_column_spacing(GTK_GRID(grid), 2);
+   gtk_box_append(GTK_BOX(vbox), grid);
    for (unsigned int i=0; i<v.size(); i++) {
-      const std::string &n = v[i].first;
-      const std::string &m = v[i].second;
-
-      std::cout << n << "  " << m << std::endl;
-
-      GtkWidget *wp = get_image_widget_for_comp_id(n, coot::protein_geometry::IMOL_ENC_ANY);
-      if (wp)
-         std::cout << i << " " << "insert this image " << wp << std::endl;
-
-      std::string button_name = n + std::string(": ") + m;
-      GtkWidget *button = gtk_button_new_with_label(button_name.c_str());
-      gtk_box_append(GTK_BOX(vbox_current), button);
-      std::string *s = new std::string(n); // memory leak
-      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(on_monomer_lib_search_results_button_press), s);
-      
+      const std::string &tlc           = v[i].first;
+      const std::string &molecule_name = v[i].second;
+      std::string *s = new std::string(tlc); // memory leak
+      GtkWidget *wp = get_image_widget_for_comp_id(tlc, coot::protein_geometry::IMOL_ENC_ANY);
+      if (wp) {
+         GtkWidget *button_for_image = gtk_button_new();
+         gtk_button_set_child(GTK_BUTTON(button_for_image), wp);
+         gtk_widget_set_size_request(wp, 150, 150);
+         gtk_widget_set_hexpand(wp, TRUE);
+         gtk_widget_set_vexpand(wp, TRUE);
+         gtk_grid_attach(GTK_GRID(grid), button_for_image, 0, i, 1, 1);
+         g_signal_connect(G_OBJECT(button_for_image), "clicked", G_CALLBACK(on_monomer_lib_search_results_button_press), s);
+      }
+      std::string button_label = tlc + std::string(": ") + molecule_name;
+      GtkWidget *button_for_label = gtk_button_new();
+      GtkWidget *label = gtk_label_new(button_label.c_str());
+      gtk_button_set_child(GTK_BUTTON(button_for_label), label);
+      gtk_widget_set_halign(label, GTK_ALIGN_START);
+      gtk_grid_attach(GTK_GRID(grid), button_for_label, 1, i, 1, 1);
+      g_signal_connect(G_OBJECT(button_for_label), "clicked", G_CALLBACK(on_monomer_lib_search_results_button_press), s);
    }
 
    return stat;
-
 }
 
 
@@ -2345,7 +2324,7 @@ setup_multi_residue_torsion() {
    g.multi_residue_torsion_reverse_fragment_mode = false;
    // GtkWidget *w = create_multi_residue_torsion_pick_dialog();
    GtkWidget *w = widget_from_builder("multi_residue_torsion_pick_dialog");
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 }
 
 

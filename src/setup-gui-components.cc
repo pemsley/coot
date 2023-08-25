@@ -38,7 +38,10 @@ void setup_menubuttons() {
    GMenuModel *delete_item_menu = menu_model_from_builder("delete-item-menu");
    gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(delete_menubutton), delete_item_menu);
 
-   // move this function to where it can be called when we click on the "Mutate"
+   GtkWidget *rotate_translate_button = widget_from_builder("rotate_translate_menubutton");
+   GMenuModel *rotate_translate_menu = menu_model_from_builder("rotate-translate-menu");
+   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(rotate_translate_button), rotate_translate_menu);
+
    // button (both of them, I suppose).
    auto add_typed_menu_to_mutate_menubutton = [] (const std::string &residue_type) {
       if (residue_type == "PROTEIN") {
@@ -87,7 +90,7 @@ gboolean generic_hide_on_escape_controller_cb(GtkEventControllerKey  *controller
    gboolean handled = TRUE;
    switch (keyval) {
       case GDK_KEY_Escape: {
-         gtk_widget_hide(to_be_hidden);
+         gtk_widget_set_visible(to_be_hidden, FALSE);
          break;
       }
       default: {
@@ -188,11 +191,15 @@ add_python_scripting_entry_completion(GtkWidget *entry) {
    PyObject *key;
    PyObject *value;
 
+   // note to future self... if you get a crash here then
+   // it's because you've messed up the Python startup.
+   // Perhaps by calling a function that no longer exists.
+
    // Get the module object for the `sys` module.
    PyObject *module = PyImport_ImportModule("coot");
    // Get the dictionary object for the `sys` module.
    PyObject *dict = PyModule_GetDict(module);
-  // Iterate over the keys and values in the dictionary.
+   // Iterate over the keys and values in the dictionary.
    while (PyDict_Next(dict, &pos, &key, &value)) {
       // Do something interesting with the key and value.
       // printf("Key: %s, Value: %s\n", PyUnicode_AsUTF8AndSize(key, NULL), PyUnicode_AsUTF8AndSize(value, NULL));
@@ -201,6 +208,17 @@ add_python_scripting_entry_completion(GtkWidget *entry) {
    }
    // Get the module object for the `sys` module.
    module = PyImport_ImportModule("coot_utils");
+
+   if (module) {
+      if (false)
+         std::cout << "INFO:: add_python_scripting_entry_completion() coot_utils imported successfully" << std::endl;
+   } else {
+      std::cout << "ERROR:: add_python_scripting_entry_completion() coot_utils import failure" << std::endl;
+      if (PyErr_Occurred())
+         PyErr_PrintEx(0);
+      return;
+   }
+
    // Get the dictionary object for the `sys` module.
    dict = PyModule_GetDict(module);
   // Iterate over the keys and values in the dictionary.
@@ -345,7 +363,7 @@ void setup_python_scripting_entry() {
    g_signal_connect(entry, "activate", G_CALLBACK(on_python_scripting_entry_activated), entry);
 
    // PE adds history and completions (in coot-setup-python.cc)
-   add_python_scripting_entry_completion(entry);
+   // add_python_scripting_entry_completion(entry);
 }
 
 void set_vertical_toolbar_internal_alignment() {

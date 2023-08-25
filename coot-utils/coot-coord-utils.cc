@@ -1157,6 +1157,24 @@ coot::util::quaternion::normalize() {
 } 
 
 
+coot::util::quaternion
+coot::util::quaternion::rotate(double angle, const clipper::Coord_orth &vec) const {
+
+   coot::util::quaternion q(0,0,0,1);
+
+   std::cout << "rotate() just a stub - fill me later!" << std::endl;
+
+   return q;
+}
+
+coot::util::quaternion
+coot::util::quaternion::inverse() const {
+
+   coot::util::quaternion q(q0, q1, q2, -q3);
+   return q;
+}
+
+
 clipper::RTop_orth
 coot::util::quaternion::centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops) {
 
@@ -4153,7 +4171,7 @@ mmdb::Manager *
 coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_mol,
                                                             int SelectionHandle) {
 
-   std::cout << "----------------- create_mmdbmanager_from_atom_selection_straight() " << std::endl;
+   // std::cout << "----------------- create_mmdbmanager_from_atom_selection_straight() " << std::endl;
 
    mmdb::Manager *atoms_mol = new mmdb::Manager;
 

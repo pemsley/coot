@@ -56,6 +56,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_meshes_with_shadows,
                                                            shader_for_meshes_shadow_map,
                                                            shader_for_meshes_for_ssao,
+                                                           shader_for_instanced_meshes_with_shadows,
                                                            shader_for_tmeshes_for_ssao,
                                                            shader_for_tmeshes_with_shadows,
                                                            shader_for_texture_meshes_shadow_map,
@@ -80,6 +81,7 @@ graphics_info_t::init_shaders() {
       it->get().set_default_directory(d);
 
    // crows
+   shader_for_instanced_meshes_with_shadows.init("instanced-meshes-with-shadows.shader", Shader::Entity_t::MAP);
    shader_for_meshes_with_shadows.init("meshes-with-shadows.shader",                Shader::Entity_t::MAP);
    shader_for_meshes_shadow_map.init("meshes-shadow-map.shader",                    Shader::Entity_t::MAP);
    shader_for_meshes_for_ssao.init("meshes-for-ssao.shader",                        Shader::Entity_t::MAP);
@@ -748,17 +750,20 @@ graphics_info_t::coot_all_atom_contact_dots_are_begin_displayed_for(int imol) co
 
    bool status = false;
    for (unsigned int i=0; i<generic_display_objects.size(); i++) {
-      const std::string &mesh_name = generic_display_objects[i].mesh.name;
-      unsigned int n_instances = generic_display_objects[i].mesh.get_n_instances();
-      std::cout << "debug mesh " << i << " has name " << mesh_name
-                << " and " << n_instances << " instances" << std::endl;
-      if (mesh_name.find("Contact Dots for Molecule") != std::string::npos) {
-         status = true;
-         break;
-      }
-      if (mesh_name.find("insta-mesh") != std::string::npos) {
-         status = true;
-         break;
+      const auto &gdo = generic_display_objects[i];
+      if (gdo.imol == imol) {
+         const std::string &mesh_name = gdo.mesh.name;
+         unsigned int n_instances = generic_display_objects[i].mesh.get_n_instances();
+         std::cout << "debug mesh " << i << " has name " << mesh_name
+                   << " and " << n_instances << " instances" << std::endl;
+         if (mesh_name.find("Contact Dots for Molecule") != std::string::npos) {
+            status = true;
+            break;
+         }
+         if (mesh_name.find("insta-mesh") != std::string::npos) {
+            status = true;
+            break;
+         }
       }
    }
    return status;
@@ -767,7 +772,7 @@ graphics_info_t::coot_all_atom_contact_dots_are_begin_displayed_for(int imol) co
 
 // probably not the right place for this function
 //
-// This sould be called with imol = -1 for intermediate atoms.
+// This should be called with imol = -1 for intermediate atoms.
 void
 graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol) {
 

@@ -312,7 +312,7 @@ main(int argc, char **argv) {
 	 bool map_is_good = false; // currently
 
 	 // if pdb_file_name does not exist -> crash?
-	 atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false, false);
+	 atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, false);
 
 	 if (! asc.read_success) {
 	    std::cout << "coordinates read failure " << pdb_file_name << std::endl;

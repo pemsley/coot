@@ -489,7 +489,7 @@ graphics_info_t::clear_up_moving_atoms_wrapper() {
             save_accept_reject_dialog_window_position(accept_reject_dialog);
             // this calls clear_up_moving_atoms() and clears atom pull restraint.
             // gtk_widget_destroy(accept_reject_dialog);
-            gtk_widget_hide(accept_reject_dialog); // 20220602-PE. Hmm.
+            gtk_widget_set_visible(accept_reject_dialog, FALSE);
             accept_reject_dialog = 0;
          } else {
             gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
@@ -1438,7 +1438,7 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
       if (use_graphics_interface_flag) {
          // GtkWidget *widget = create_no_restraints_info_dialog();
          GtkWidget *widget = widget_from_builder("no_restraints_info_dialog");
-         gtk_widget_show(widget);
+         gtk_widget_set_visible(widget, TRUE);
       }
    }
 
@@ -2764,7 +2764,7 @@ graphics_info_t::refine_residue_range(int imol,
 // 		  std::string s = "That water molecule doesn't have restraints.\n";
 // 		  s += "Using Rigid Body Fit Zone";
 // 		  GtkWidget *w = wrapped_nothing_bad_dialog(s);
-// 		  gtk_widget_show(w);
+// 		  gtk_widget_set_visible(w, TRUE);
 
 		  // rigid body refine uses residue_range_atom_index_1
 		  // and residue_range_atom_index_2, which should be
@@ -3097,7 +3097,7 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
       if (use_graphics_interface_flag) {
 	 // GtkWidget *w = create_rigid_body_refinement_failed_dialog();
 	 GtkWidget *w = widget_from_builder("rigid_body_refinement_failed_dialog");
-	 gtk_widget_show(w);
+	 gtk_widget_set_visible(w, TRUE);
       }
    }
    return success;
@@ -3378,7 +3378,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       if (use_graphics_interface_flag) {
 		  // GtkWidget *w = create_add_terminal_residue_finds_none_dialog();
 		  GtkWidget *w = widget_from_builder("add_terminal_residue_finds_none_dialog");
-		  gtk_widget_show(w);
+		  gtk_widget_set_visible(w, TRUE);
 	       }
 
 	    } else {
@@ -3800,7 +3800,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 				  rotate_translate_y_position);
          */
       }
-      gtk_widget_show(widget);
+      gtk_widget_set_visible(widget, TRUE);
 
       atom_selection_container_t rt_asc;
       // No! It cannot point to the same mmdb::Atoms.
@@ -4471,7 +4471,7 @@ graphics_info_t::execute_db_main(int imol,
                if (use_graphics_interface_flag) {
                   std::string s("Sorry, failed to convert that residue range.\nToo short, perhaps?");
                   GtkWidget *w = wrapped_nothing_bad_dialog(s);
-                  gtk_widget_show(w);
+                  gtk_widget_set_visible(w, TRUE);
                }
             }
             main_chain.clear_results();
@@ -4569,7 +4569,7 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
       } else {
          // GtkWidget *frame = lookup_widget(dialog, "new_alt_conf_occ_frame");
          GtkWidget *frame = widget_from_builder("new_alt_conf_occ_frame");
-         gtk_widget_hide(frame);
+         gtk_widget_set_visible(frame, FALSE);
          g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(0));
       }
 
@@ -4596,7 +4596,7 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
       // short int stat = generate_moving_atoms_from_rotamer(0); // 20220812-PE no longer compiles
 
       if (true) // was stat != 0
-         gtk_widget_show(dialog);
+         gtk_widget_set_visible(dialog, TRUE);
    }
 }
 
@@ -4625,12 +4625,12 @@ graphics_info_t::do_rotamers(int imol, mmdb::Atom *active_atom) {
 
    } else {
       GtkWidget *frame = widget_from_builder("new_alt_conf_occ_frame");
-      gtk_widget_hide(frame);
+      gtk_widget_set_visible(frame, FALSE);
       g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(0));
       fill_rotamer_selection_buttons(dialog, active_atom, imol);
       generate_moving_atoms_from_rotamer(imol, rotamer_residue_atom_spec, 0); // passed and data member - not good design
    }
-   gtk_widget_show(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
 }
 
 
@@ -4790,7 +4790,7 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *dialog, mmdb::Atom *a
                         G_CALLBACK(on_rotamer_selection_button_toggled),
                         iuser_data);
 
-       gtk_widget_show (rotamer_selection_radio_button);
+       gtk_widget_set_visible (rotamer_selection_radio_button, TRUE);
        GtkWidget *frame = gtk_frame_new(NULL);
        gtk_frame_set_child(GTK_FRAME(frame), rotamer_selection_radio_button);
        gtk_widget_set_margin_start(GTK_WIDGET(frame), 6);
@@ -4799,7 +4799,7 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *dialog, mmdb::Atom *a
        gtk_widget_set_margin_bottom(GTK_WIDGET(frame), 6);
 
        gtk_box_append(GTK_BOX(rotamer_selection_button_vbox), frame);
-       gtk_widget_show(frame);
+       gtk_widget_set_visible(frame, TRUE);
    }
 }
 
@@ -5156,6 +5156,8 @@ graphics_info_t::rotate_chi(double x, double y) {
    // it's fun. Maybe tricky and conter-intuitive.
 
    // real values start at 1:
+   if (edit_chi_current_chi <= 0) return;
+
    int chi = edit_chi_current_chi;
 
    mouse_current_x = x;
@@ -5466,7 +5468,7 @@ graphics_info_t::delete_residue_range(int imol,
 	    // gdk_window_get_root_origin (delete_item_widget->window, &upositionx, &upositiony);
 	    // delete_item_widget_x_position = upositionx;
 	    // delete_item_widget_y_position = upositiony;
-	    gtk_widget_hide(delete_item_widget);
+	    gtk_widget_set_visible(delete_item_widget, FALSE);
 	    delete_item_widget = 0;
 	    normal_cursor();
 	 }
@@ -5500,7 +5502,7 @@ graphics_info_t::delete_sidechain_range(int imol,
 	    // don't destroy it.
 	 } else {
 	    // gtk_widget_destroy(delete_item_widget);
-	    gtk_widget_hide(delete_item_widget); // 20220602-PE hmm.
+	    gtk_widget_set_visible(delete_item_widget, FALSE);
 	    delete_item_widget = 0;
 	    normal_cursor();
 	 }

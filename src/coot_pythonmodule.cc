@@ -144,13 +144,11 @@ coot_python_register_classes(PyObject *d) {
     if ((module = PyImport_ImportModule("gobject")) != NULL) {
         _PyGObject_Type = (PyTypeObject *)PyObject_GetAttrString(module, "GObject");
         if (_PyGObject_Type == NULL) {
-            PyErr_SetString(PyExc_ImportError,
-                "cannot import name GObject from gobject");
+            PyErr_SetString(PyExc_ImportError, "cannot import name GObject from gobject");
             return ;
         }
     } else {
-        PyErr_SetString(PyExc_ImportError,
-            "could not import gobject");
+        PyErr_SetString(PyExc_ImportError, "could not import gobject");
         return ;
     }
 }
@@ -209,10 +207,9 @@ PyInit_coot_gui_api(void) {
 
    if (! module) {
       std::cout << "in PyInit_coot_gui_api() module null" << std::endl;
+      return NULL;
    }
 
-   if (module == NULL)
-      return NULL;
    struct module_state *st = GETSTATE(module);
 
    st->error = PyErr_NewException("coot_gui_api.Error", NULL, NULL);

@@ -243,12 +243,22 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_central_residue(int u
                   // std::cout << "----- adding ligand HB_HYDROGEN udd " << atom_spec_t(at) << std::endl;
                   at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN); // hb_t -> int
                }
+	       // additionally NR5 can be a donor (because the real type should be NR15)
+	       if (neigh_energy_type == "NR5") {
+                  at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN);
+	       }
             }
          } else {
             std::string energy_type = central_residue_dictionary.type_energy(atom_name);
             energy_lib_atom ela = geom_p->get_energy_lib_atom(energy_type);
             hb_t hb_type = ela.hb_type;
             at->PutUDData(udd_h_bond_type_handle, hb_type); // hb_t -> int
+	    if (energy_type == "NR5") {
+	      // test here that there is a hydrogen atom bonded to this one
+	      if (true) {
+		at->PutUDData(udd_h_bond_type_handle, coot::HB_DONOR); // hack, for above reasons
+	      }
+	    }
          }
       }
    }
@@ -310,12 +320,22 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_for_neighbours(int ud
                      // std::cout << "----- adding env HB_HYDROGEN udd " << atom_spec_t(n_at) << std::endl;
                      n_at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN); // hb_t -> int
                   }
+		  // additionally NR5 can be a donor (because the real type should be NR15)
+		  if (neigh_energy_type == "NR5") {
+		    n_at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN);
+		  }
                }
             } else {
                std::string energy_type = dict.type_energy(atom_name);
                energy_lib_atom ela = geom_p->get_energy_lib_atom(energy_type);
                hb_t hb_type = ela.hb_type;
                n_at->PutUDData(udd_h_bond_type_handle, hb_type); // hb_t -> int
+	       if (energy_type == "NR5") {
+		 // test here that there is a hydrogen atom bonded to this one
+		 if (true) {
+		   n_at->PutUDData(udd_h_bond_type_handle, coot::HB_DONOR); // hack, for above reasons
+		 }
+	       }
                if (false)
                   std::cout << "........... type_energy for atom name " << atom_name
                             << " in dictionary for comp-id \"" << dict.residue_info.comp_id
@@ -784,6 +804,13 @@ coot::atom_overlaps_container_t::h_bond_info_t::h_bond_info_t(mmdb::Atom *ligand
    int hb_2 = -1;
    if (ligand_atom->GetUDData(udd_h_bond_type_handle, hb_1) == mmdb::UDDATA_Ok) {
       if (env_atom->GetUDData(udd_h_bond_type_handle, hb_2) == mmdb::UDDATA_Ok) {
+
+#if 0
+	if (ligand_atom->GetSeqNum() == 901 || env_atom->GetSeqNum() == 901) {
+	  std::cout << "h_bond_info_t constructor " << atom_spec_t(ligand_atom)   << " "
+		    << atom_spec_t(env_atom) << " " << hb_1 << " " << hb_2 << "\n";
+	}
+#endif
 
          if (hb_1 == HB_HYDROGEN) {
             if (hb_2 == HB_ACCEPTOR || hb_2 == HB_BOTH) {
@@ -1736,11 +1763,14 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
                iat_end = n_selected_atoms; // for loop uses iat_start and tests for < iat_end
 
             if (false) // useful for debugging
-               std::cout << "thread: " << i_thread << " from atom " << iat_start << " to "
+               std::cout << "thread: " << i_thread << " from atom index " << iat_start << " to "
                          << iat_end << std::endl;
 
             results_container_vec[i_thread] = atom_overlaps_dots_container_t(n_per_thread);
-             threads.push_back(std::thread(contacts_for_atoms, iat_start, iat_end,
+            // 20230814-PE I saw a crash here today. It seems to be crashing on the creation
+            // of the thread - I don't know what that means.
+            //
+            threads.push_back(std::thread(contacts_for_atoms, iat_start, iat_end,
                                           atom_selection, contact_map, bonded_map,
                                           neighb_atom_radius, udd_h_bond_type_handle,
                                           molecule_has_hydrogens, probe_radius,
@@ -1770,7 +1800,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
          if (false) { // debugging
             std::cout << "consolidated" << std::endl;
             std::unordered_map<std::string, std::vector<atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
-            for (it=ao.dots.begin(); it!=ao.dots.end(); it++)
+            for (it=ao.dots.begin(); it!=ao.dots.end(); ++it)
                std::cout << " consolidated size "
                          << it->first << " " << it->second.size() << std::endl;
          }
@@ -1875,7 +1905,7 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
                                                                   atom_selection,
                                                                   neighb_atom_radius);
 
-      if (draw_it) {
+      if (draw_it) { // it's on the vdw surface at least...
 
          double biggest_overlap = -1; // should be positive if we get a hit
          mmdb::Atom *atom_with_biggest_overlap = 0;
@@ -2186,20 +2216,26 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta,
 
    bool done = false;
 
+   // return std::make_pair(std::string("H-bond"), std::string("sea"));
+
+
    if (hbi.is_h_bond_H_and_acceptor) {
       done = true;
+      delta -= 2.0; // Hydrogen atom can get to within 1.5A of the acceptor atom
       if (delta >= -0.15) { // not 0, so that we turn small overlaps to H-bond dots
-	 delta -= 0.8;
-	 if (delta > 0.4) {
-	    type = "clash";
-	    colour = "hotpink";
-	 } else {
-	    type = "H-bond";
-	    colour = "greentint";
-	    colour = "darkpurple";
-	 }
+         if (delta > 0.4) {
+            type = "clash";
+            colour = "hotpink";
+         } else {
+            type = "H-bond";
+            colour = "darkpurple";
+         }
+      } else {
+	type = "H-bond";
+	colour = "darkpurple";
       }
    } else {
+
       if (! molecule_has_hydrogens_flag) {
          if (hbi.is_h_bond_donor_and_acceptor) {
             done = true;
@@ -2213,11 +2249,12 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta,
             }
          }
       }
+
    }
 
    if (! done) {
 
-      // "not hydrogen bond" colouring
+     // "not hydrogen bond" colouring
 
       if (delta > -0.3) {
          type = "close-contact";
@@ -2258,6 +2295,7 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta,
          type = "clash";
          colour = "hotpink";
       }
+
    }
    return std::pair<std::string, std::string> (type, colour);
 

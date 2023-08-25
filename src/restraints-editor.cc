@@ -111,7 +111,7 @@ coot::restraints_editor::fill_dialog(const coot::dictionary_residue_restraints_t
       fill_torsion_tree_data(dialog, restraints);
       fill_chiral_tree_data (dialog, restraints);
       fill_plane_tree_data  (dialog, restraints);
-      gtk_widget_show (dialog);
+      gtk_widget_set_visible (dialog, TRUE);
       gtk_window_present(GTK_WINDOW(dialog));
       is_valid_flag = true;
    }
@@ -1375,7 +1375,7 @@ void restraints_editor_save_restraint_by_widget(GtkWidget *w) {
       coot::dictionary_residue_restraints_t *ptr = new coot::dictionary_residue_restraints_t("", 0);
       *ptr = r;
       g_object_set_data(G_OBJECT(ww), "restraints", (gpointer) ptr);
-      gtk_widget_show(ww);
+      gtk_widget_set_visible(ww, TRUE);
    }
 }
 

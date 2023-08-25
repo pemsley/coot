@@ -438,14 +438,20 @@
         </child>
       </object>
     </child>
+
     <action-widgets>
       <action-widget response="-5">test_multiple_use_dialog_ok_button</action-widget>
     </action-widgets>
+
     <child internal-child="action_area">
       <object class="GtkBox">
         <child>
           <object class="GtkButton" id="test_multiple_use_dialog_ok_button">
-            <property name="label" translatable="yes">OK</property>
+            <property name="label" translatable="yes">   OK   </property>
+            <property name="margin-start">8</property>
+            <property name="margin-end">8</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">8</property>
           </object>
         </child>
       </object>

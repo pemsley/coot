@@ -62,7 +62,7 @@ GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id, int imol) {
    unsigned int image_size = 150; // pixels
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#ifdef RDKIT_HAS_CAIRO_SUPPORT_xyz // doesn't compile now.
+#ifdef RDKIT_HAS_CAIRO_SUPPORT
 
    graphics_info_t g;
    g.Geom_p()->try_dynamic_add(comp_id, g.cif_dictionary_read_number++);
@@ -117,7 +117,7 @@ GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id, int imol) {
    } else {
       std::cout << "No dictionary for rdkit_mol from " << comp_id << std::endl;
    }
-   
+
 #endif   // RDKIT_HAS_CAIRO_SUPPORT
 #endif   // MAKE_ENHANCED_LIGAND_TOOLS
    return r;

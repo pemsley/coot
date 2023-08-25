@@ -595,7 +595,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
    if True:
       molblock = Chem.MolToMolBlock(sane_H_mol)
       # print >> file("sane_H_mol.mol",'w'), molblock
-      print(molblock, file=file("sane_H_mol.mol",'w'))
+      print(molblock, file=open("sane_H_mol.mol",'w'))
 
    if (all_set != True):
       return False
@@ -616,11 +616,11 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
           if os.path.isdir(mogul_dir):
               mb = Chem.MolToMolBlock(moguled_mol)
               # print >> file(sdf_file_name,'w'), mb
-              print(m, file=file(sdf_file_name,'w'))
+              print(m, file=open(sdf_file_name,'w'))
       else:
           mb = Chem.MolToMolBlock(moguled_mol)
           # print >> file(sdf_file_name,'w'), mb
-          print(mb, file=file(sdf_file_name,'w'))
+          print(mb, file=open(sdf_file_name,'w'))
 
 
       bor = make_restraints_for_bond_orders(sane_H_mol)
@@ -738,11 +738,11 @@ def atom_match_dictionary(restraints, sane_H_mol, comp_id_list_for_names_match, 
                          'ASN', 'PRO', 'GLN', 'ARG', 'SER', 'THR', 'VAL', 'TRP', 'TYR',
                          'G',   'A',     'C',   'U',    'GLC', 'MAN']
 
-    if isinstance(comp_id_list_for_names_match, basestring):
+    if isinstance(comp_id_list_for_names_match, str):
         template_comp_ids = comp_id_list_for_names_match.split(',')
 
     template_cif_dict_files_names = []
-    if isinstance(dict_files_for_names_match, basestring):
+    if isinstance(dict_files_for_names_match, str):
         template_cif_dict_files_names = dict_files_for_names_match.split(',')
         # don't use my set of comp_ids then
         template_comp_ids = []
@@ -1197,8 +1197,9 @@ if __name__ == "__main__":
                     compound_name=False
                     if len(compound_name_from_file) > 0:
                        compound_name = compound_name_from_file
-                    if isinstance(options.compound_name, basestring):
-                       compound_name = options.compound_name
+                    print("#####", compound_name, options.compound_name)
+                    if isinstance(options.compound_name, str):
+                         compound_name = options.compound_name
                     status = make_restraints_from_smiles(smiles, comp_id, compound_name,
                                                          options.mogul_dir, file_name_stub,
                                                          pdb_out_file_name,

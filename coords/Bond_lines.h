@@ -211,21 +211,30 @@ class Bond_lines_container {
                                      int udd_atom_index_handle,
                                      int udd_fixed_during_refinement_handle);
 
-   void construct_from_model_links(mmdb::Model *model, int udd_atom_index_handle, int atom_colour_type);
+   void construct_from_model_links(mmdb::Model *model, int udd_atom_index_handle,
+                                   int udd_user_defined_atom_colour_index_handle,
+                                   int atom_colour_type);
    // which wraps...
-   void add_link_bond(mmdb::Model *model_p, int udd_atom_index_handle, int atom_colour_type, mmdb::Link *link);
-   void add_link_bond(mmdb::Model *model_p, int udd_atom_index_handle, int atom_colour_type, mmdb::LinkR *linkr);
+   void add_link_bond(mmdb::Model *model_p, int udd_atom_index_handle, int udd_user_defined_atom_colour_index_handle,
+                      int atom_colour_type, mmdb::Link *link);
+   void add_link_bond(mmdb::Model *model_p, int udd_atom_index_handle, int udd_user_defined_atom_colour_index_handle,
+                      int atom_colour_type, mmdb::LinkR *linkr);
 
-   template<class T> void add_link_bond_templ(mmdb::Model *model_p, int udd_atom_index_handle, int atom_colour_type, T *link);
+   template<class T> void add_link_bond_templ(mmdb::Model *model_p, int udd_atom_index_handle,
+                                              int udd_user_defined_atom_colour_index_handle,
+                                              int atom_colour_type, T *link);
 
    // now wit optional arg.  If atom_colour_type is set, then use/fill
    // it to get colour indices from chainids.
    void handle_MET_or_MSE_case (mmdb::PAtom mse_atom, int udd_handle,
-                                int udd_handle_for_atom_index, int atom_colour_type,
+                                int udd_handle_for_atom_index,
+                                int udd_user_defined_atom_colour_index_handle,
+                                int atom_colour_type,
                                 coot::my_atom_colour_map_t *atom_colour_map = 0);
    void handle_long_bonded_atom(mmdb::PAtom atom,
                                 int udd_handle_bond,
                                 int udd_atom_index_handle,
+                                int udd_user_defined_atom_colour_index_handle,
                                 int atom_colour_type,
                                 coot::my_atom_colour_map_t *atom_colour_map = 0);
 
@@ -288,6 +297,7 @@ class Bond_lines_container {
                        int atom_index_1,
                        int atom_index_2,
                        int atom_colour_type,
+                       int udd_user_defined_atom_colour_index_handle,
                        coot::my_atom_colour_map_t *atom_colour_map_p,
                        bool add_begin_end_cap,
                        bool add_end_end_cap);
@@ -298,6 +308,7 @@ class Bond_lines_container {
    void add_double_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms,
                         int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
                         int udd_atom_index_handle,
+                        int udd_user_defined_atom_colour_index_handle,
                         const std::vector<coot::dict_bond_restraint_t> &bond_restraints,
                         bool is_deloc=false);
    // used by above, can throw an exception
@@ -307,6 +318,7 @@ class Bond_lines_container {
                         int atom_colour_type,
                         coot::my_atom_colour_map_t *atom_colour_map_p,
                         int udd_atom_index_handle,
+                        int udd_user_defined_atom_colour_index_handle,
                         const std::vector<coot::dict_bond_restraint_t> &bond_restraints);
 
 
@@ -341,7 +353,9 @@ class Bond_lines_container {
                         int model_number,
                         int atom_index_1, int atom_index_2);
    void addAtom(int colour, const coot::Cartesian &pos);
-   int atom_colour(mmdb::Atom *at, int bond_colour_type, coot::my_atom_colour_map_t *atom_colour_map = 0);
+   int atom_colour(mmdb::Atom *at, int bond_colour_type,
+                   int udd_user_defined_atom_colour_index_handle,
+                   coot::my_atom_colour_map_t *atom_colour_map = 0);
    void bonds_size_colour_check(int icol) {
       int bonds_size = bonds.size();
       if (icol >= bonds_size)
@@ -367,17 +381,19 @@ class Bond_lines_container {
                                                         const coot::Cartesian &atom_1,
                                                         const coot::Cartesian &atom_2,
                                                         int atom_colour_type,
-                                                        int uddHnd);
+                                                        int uddHnd,
+                                                        int udd_user_defined_atom_colour_index_handle);
    void do_colour_by_chain_bonds_internals_goodsell_mode(int imol, int imodel,
-                                                        int chain_idx,
-                                                        mmdb::Atom *at1, mmdb::Atom *at2,
-                                                        int iat_1, int iat_2,
-                                                        std::vector<std::pair<bool, mmdb::Residue *> > *het_residues_p,
-                                                        const std::string &element_1,
-                                                        const std::string &element_2,
-                                                        const coot::Cartesian &atom_1,
-                                                        const coot::Cartesian &atom_2,
-                                                        int uddHnd);
+                                                         int chain_idx,
+                                                         mmdb::Atom *at1, mmdb::Atom *at2,
+                                                         int iat_1, int iat_2,
+                                                         std::vector<std::pair<bool, mmdb::Residue *> > *het_residues_p,
+                                                         const std::string &element_1,
+                                                         const std::string &element_2,
+                                                         const coot::Cartesian &atom_1,
+                                                         const coot::Cartesian &atom_2,
+                                                         int uddHnd,
+                                                         int udd_user_defined_atom_colour_index_handle);
 
    void do_colour_by_dictionary_and_by_chain_bonds(const atom_selection_container_t &asc,
                                                    int imol,
@@ -393,6 +409,7 @@ class Bond_lines_container {
                                   coot::my_atom_colour_map_t *atom_colour_map_p,
                                   int udd_atom_index_handle,
                                   int udd_bond_handle,
+                                  int udd_user_defined_atom_colour_index_handle,
                                   int draw_hydrogens_flag,
                                   bool do_goodsell_colour_mode);
 
@@ -446,35 +463,42 @@ class Bond_lines_container {
    void draw_6_membered_ring(const std::string &residue_name,
                              const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
                              int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
-                             int udd_atom_index_handle);
+                             int udd_atom_index_handle,
+                             int udd_user_defined_atom_colour_index_handle);
    // this calls the above function
    void draw_phenyl_ring_outer(mmdb::Residue *residue_p, int model_number,
                                int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
-                               int udd_atom_index_handle);
+                               int udd_atom_index_handle, int udd_user_defined_atom_colour_index_handle);
    void draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
                        int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
-                       int udd_atom_index_handle);
+                       int udd_atom_index_handle,
+                       int udd_user_defined_atom_colour_index_handle);
    void draw_GA_rings(const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
                       int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
-                      int udd_atom_index_handle);
+                      int udd_atom_index_handle,
+                      int udd_user_defined_atom_colour_index_handle);
    void draw_trp_ring_outer(mmdb::Residue *residue_p, int model_number,
                             int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
-                            int udd_atom_index_handle);
+                            int udd_atom_index_handle,
+                            int udd_user_defined_atom_colour_index_handle);
    void draw_GA_rings_outer(mmdb::Residue *residue_p, int model_number,
                             int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
-                            int udd_atom_index_handle);
+                            int udd_atom_index_handle,
+                            int udd_user_defined_atom_colour_index_handle);
    void draw_CUT_ring(mmdb::Residue *residue_p, int model_number,
                       int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
-                      int udd_atom_index_handle);
+                      int udd_atom_index_handle, int udd_user_defined_atom_colour_index_handle);
    void draw_het_group_rings(mmdb::Residue *residue_p,
                              const std::vector<bonded_quad_atom_names> &bonded_quad_atom_names,
                              int model_number, int atom_colour_type,
                              coot::my_atom_colour_map_t *atom_colour_map,
-                             int udd_atom_index_handle);
+                             int udd_atom_index_handle,
+                             int udd_user_defined_atom_colour_index_handle);
    void draw_bonded_quad_atoms_rings(const std::vector<bonded_quad_atoms> &ring_atoms,
-                             int imodel, int atom_colour_type,
-                             coot::my_atom_colour_map_t *atom_colour_map_p,
-                             int udd_atom_index_handle);
+                                     int imodel, int atom_colour_type,
+                                     coot::my_atom_colour_map_t *atom_colour_map_p,
+                                     int udd_atom_index_handle,
+                                     int udd_user_defined_atom_colour_index_handle);
 
    std::vector<std::pair<std::string, std::string> >
    get_aromatic_bonds(const coot::dictionary_residue_restraints_t &restraints) const;
@@ -484,7 +508,8 @@ class Bond_lines_container {
    void add_bonds_het_residues(const std::vector<std::pair<bool, mmdb::Residue *> > &het_residues,
                                const atom_selection_container_t &sel_atoms,
                                int imol, int atom_colour_t, short int have_udd_atoms,
-                               int udd_found_bond_handle, int udd_atom_index_handle);
+                               int udd_found_bond_handle, int udd_atom_index_handle,
+                               int udd_user_defined_atom_colour_index_handle);
    void het_residue_aromatic_rings(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &restraints,
                                    int udd_atom_index_handle, int col);
    // pass a list of atom name that are part of the aromatic ring system.

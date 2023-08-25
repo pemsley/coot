@@ -5,7 +5,7 @@
 #include "residue-validation-information.hh"
 
 namespace coot {
-
+   /// Validation graph type
    enum class graph_data_type {
       // not yet set
       UNSET,
@@ -25,8 +25,10 @@ namespace coot {
    };
    
    bool should_hang_down(graph_data_type type);
+   /// Probablity plots use logarithmic scale
    bool is_probability_plot(graph_data_type type);
 
+   /// Represents graph data for a single chain in validation graphs
    class chain_validation_information_t {
    public:
       std::string chain_id;
@@ -42,38 +44,28 @@ namespace coot {
       }
    };
 
-  class validation_information_min_max_t {
-   public:
-      bool is_set;
-      double min;
-      double max;
-      validation_information_min_max_t() : is_set(false), min(0), max(0) {}
-      validation_information_min_max_t(const double &min_in, const double &max_in) : is_set(true), min(min_in), max(max_in) {}
+   /// Represents a set minimum-maximum boundaries for residue values used for drawing validation graphs
+   /// 
+   /// This is only used for EMSCRIPTEN. The validation graph widget doesn't use it
+   class validation_information_min_max_t {
+      public:
+         bool is_set;
+         double min;
+         double max;
+         validation_information_min_max_t() : is_set(false), min(0), max(0) {}
+         validation_information_min_max_t(const double &min_in, const double &max_in) : is_set(true), min(min_in), max(max_in) {}
    };
 
+   /// Represents graph data a validation graph
    class validation_information_t {
    public:
       std::string name;
+      enum graph_data_type type;
       std::vector<chain_validation_information_t> cviv;
       unsigned int get_index_for_chain(const std::string &chain_id);
       /// This is only used with EMSCRIPTEN. The validation graph widget doesn't use it.
       validation_information_min_max_t min_max;
 
-#ifdef EMSCRIPTEN
-      std::string type;
-      validation_information_t() : min_max(validation_information_min_max_t()), type("UNSET") {}
-      validation_information_t(const std::string  &gdt, const validation_information_min_max_t &min_max_in) : min_max(min_max_in), type(gdt) {}
-#else
-      enum graph_data_type type;
-      validation_information_t() : min_max(validation_information_min_max_t()) {type = graph_data_type::UNSET;}
-      validation_information_t(graph_data_type gdt, const validation_information_min_max_t &min_max_in) : min_max(min_max_in), type(gdt) {}
-#endif
-
-      void add_residue_validation_information(const residue_validation_information_t &rvi, const std::string &chain_id) {
-         unsigned int idx = get_index_for_chain(chain_id);
-         cviv[idx].add_residue_validation_information(rvi);
-      }
-      bool empty() const { return cviv.empty(); }
       void set_min_max() {
          unsigned int n = 0;
          double min =  9999999999999;
@@ -91,6 +83,24 @@ namespace coot {
             min_max.max = max;
          }
       }
+
+#ifdef EMSCRIPTEN
+      
+      validation_information_t() : min_max(validation_information_min_max_t()), type("UNSET") {}
+      validation_information_t(graph_data_type gdt, const validation_information_min_max_t &min_max_in) : min_max(min_max_in), type(gdt) {}
+
+      
+#else // No EMSCRIPTEN
+      
+      validation_information_t() : type(graph_data_type::UNSET) {}
+      validation_information_t(graph_data_type gdt) : type(gdt) {}
+#endif // EMSCRIPTEN
+
+      void add_residue_validation_information(const residue_validation_information_t &rvi, const std::string &chain_id) {
+         unsigned int idx = get_index_for_chain(chain_id);
+         cviv[idx].add_residue_validation_information(rvi);
+      }
+      bool empty() const { return cviv.empty(); }
    };
 
 }

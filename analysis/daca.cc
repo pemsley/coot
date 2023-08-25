@@ -109,7 +109,7 @@ coot::daca::fill_reference_fragments() {
                         std::vector<clipper::Coord_orth> v; // this has special order
                         const std::vector<std::string> &us = atom_name_sets[iset];
                         std::vector<std::string>::const_iterator it;
-                        for (it=us.begin(); it!=us.end(); it++) {
+                        for (it=us.begin(); it!=us.end(); ++it) {
                            const std::string &frag_atom_name = *it;
                            int n_residue_atoms;
                            mmdb::PPAtom residue_atoms = 0;
@@ -948,7 +948,7 @@ coot::daca::write_tables_using_reference_structures_from_dir(const std::string &
 
    for (unsigned int i=0; i<files.size(); i++) {
       std::string fn = files[i];
-      atom_selection_container_t asc = get_atom_selection(fn, true, false, false);
+      atom_selection_container_t asc = get_atom_selection(fn, false, true, false);
       if (asc.read_success) {
 
          std::cout << "write_tables()... read pdb file " << fn << std::endl;

@@ -42,12 +42,11 @@ from gi.repository import GLib
 import coot
 import coot_utils
 import coot_gui_api # this is imported on binary startup
-import acedrg_link
-import sharpen_blur
-import libcheck # bleugh
-import redefine_functions as rf
-import get_recent_pdbe
-import interactive_nudge_residues
+import coot_acedrg_link
+import coot_sharpen_blur
+import coot_redefine_functions as rf
+# import get_recent_pdbe # not used
+# import interactive_nudge_residues # not yet converted
 
 
 # thank you ebassi!
@@ -74,14 +73,14 @@ probe_command = "molprobity.probe"
 #
 def handle_smiles_go(tlc_entry, smiles_entry):
 
-    import generator_3d_import
+    import coot_generator_3d_import
 
     tlc_text = tlc_entry.get_text()
     smiles_text = smiles_entry.get_text()
     use_libcheck = False
     if coot_utils.is_windows():
         use_libcheck = True
-    generator_3d_import.new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=use_libcheck)
+    coot_generator_3d_import.new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=use_libcheck)
 
 # smiles GUI
 #
@@ -2960,7 +2959,7 @@ def transform_map_using_lsq_matrix_gui():
 
 def ncs_ligand_gui():
 
-    import ncs
+    import coot_ncs as ncs
 
     def delete_event(*args):
         window.destroy()
@@ -3086,7 +3085,7 @@ ncs_jumping_time_step = 500
 
 def ncs_jumping_gui():
 
-    import ncs
+    import coot_ncs as ncs
 
     global ncs_jumping_time_step
     global timeout_function_token
@@ -3328,7 +3327,7 @@ global news_string_2
 news_string_1 = False
 news_string_2 = False
 
-import fitting
+import coot_fitting as fitting
 
 # Cootaneer/sequencing gui modified by BL with ideas from KC
 # based on Paul's cootaneer gui and generic_chooser_entry_and_file_selector
@@ -5495,8 +5494,38 @@ def add_module_cryo_em_gui():
                                                       aa_alt_conf, aa_res_spec]:
                 interactive_nudge_residues.nudge_residues_gui(aa_imol, aa_res_spec)
 
+        def jiggle_fit_chain_simple_wrapper(_simple_action, _arg2):
+            active_atom = coot.active_residue_py()
+            if active_atom:
+                imol  = active_atom[0]
+                ch_id = active_atom[1]
+                n_trials = 20000
+                coot.fit_chain_to_map_by_random_jiggle(imol, ch_id, n_trials, 5)
+
+        def jiggle_fit_molecule_simple_wrapper(_simple_action, _arg2):
+            active_atom = coot.active_residue_py()
+            if active_atom:
+                imol  = active_atom[0]
+                n_trials = 20000
+                coot.fit_molecule_to_map_by_random_jiggle(imol, n_trials, 2)
+
+        def jiggle_fit_chain_with_fourier_filtering_wrapper(_simple_action, _arg2):
+            active_atom = coot.active_residue_py()
+            if active_atom:
+                imol  = active_atom[0]
+                ch_id = active_atom[1]
+                n_trials = 50000
+                coot.fit_chain_to_map_by_random_jiggle_and_blur(imol, ch_id, n_trials, 2, 400)
+
+        def jiggle_fit_molecule_with_fourier_filtering_wrapper(_simple_action, _arg2):
+            active_atom = coot.active_residue_py()
+            if active_atom:
+                imol  = active_atom[0]
+                n_trials = 50000
+                coot.fit_molecule_to_map_by_random_jiggle_and_blur(imol, n_trials, 5, 400)
+
         def sharpen_blur_map_gui_wrapper(_simple_action, _arg2):
-            sharpen_blur.sharpen_blur_map_gui()
+            coot_sharpen_blur.sharpen_blur_map_gui()
 
         def multi_sharpen_map_gui_wrapper(_simple_action, _arg2):
             refmac_multi_sharpen_gui()
@@ -5535,7 +5564,7 @@ def add_module_cryo_em_gui():
         def add_action(displayed_name,action_name,on_activate_callback):
             add_simple_action_to_menu(menu,displayed_name,action_name,on_activate_callback)
 
-        add_action("Sharpen/Blur...",
+        add_action("Sharpen/Blur/Resample...",
             "sharpen_blur_map_gui",
             sharpen_blur_map_gui_wrapper)
         add_action("Multi-sharpen",
@@ -5560,6 +5589,17 @@ def add_module_cryo_em_gui():
             "interactive_nudge",
             lambda _simple_action, _arg2: interactive_nudge_func())
 
+        add_action("Jiggle-fit This Chain - Simple", "jiggle_fit_chain_simple",
+                   jiggle_fit_chain_simple_wrapper)
+
+        add_action("Jiggle-fit This Molecule - Simple ", "jiggle_fit_molecule_simple",
+                   jiggle_fit_molecule_simple_wrapper)
+
+        add_action("Jiggle-fit This Chain with Fourier Filtering", "jiggle_fit_chain_with_fourier_filtering",
+                   jiggle_fit_chain_with_fourier_filtering_wrapper)
+
+        add_action("Jiggle-fit This Molecule with Fourier Filtering", "jiggle_fit_molecule_with_fourier_filtering",
+                   jiggle_fit_molecule_with_fourier_filtering_wrapper)
         # belongs in Modelling
 
         add_action("Add molecular symmetry using MTRIX",
@@ -5589,14 +5629,14 @@ def add_module_ccp4_gui():
     if coot_gui_api.main_menumodel():
         menu = attach_module_menu_button("CCP4")
 
-        add_simple_action_to_menu(menu,"Make LINK via Acedrg","make_link_acedrg",lambda _one, _two: acedrg_link.acedrg_link_generation_control_window())
+        add_simple_action_to_menu(menu,"Make LINK via Acedrg","make_link_acedrg",lambda _one, _two: coot_acedrg_link.acedrg_link_generation_control_window())
 
 def show_chem_func():
     with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
         coot.show_feats(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
 
 # for quick-ligand-validate:
-import ligand_check
+import coot_ligand_check
 
 def add_module_ligand_gui():
 
@@ -5655,7 +5695,7 @@ def add_module_ligand_gui():
         add_simple_action_to_menu(menu, "SMILES -> Simple 3D", "smiles_to_simple_3d", lambda _one, _two: coot.do_smiles_to_simple_3d_overlay_frame())
         add_simple_action_to_menu(menu, "Show Chemical Features", "show_chemical_features", lambda _one, _two: show_chem_func())
         add_simple_action_to_menu(menu, "Display Ligand Distortions", "display_ligand_distortions", lambda _one, _two: display_ligand_distortions_func())
-        add_simple_action_to_menu(menu, "Quick Ligand Validate", "quick_ligand_validate", lambda _one, _two: ligand_check.gui_ligand_check_dialog_active_residue())
+        add_simple_action_to_menu(menu, "Quick Ligand Validate", "quick_ligand_validate", lambda _one, _two: coot_ligand_check.gui_ligand_check_dialog_active_residue())
         add_simple_action_to_menu(menu, "Isolated Molprobity Dots for ligand", "isolated_molprobity_dots_for_ligand", lambda _one, _two: probe_ligand_func())
 
 def add_module_pdbe_gui():
@@ -5666,9 +5706,9 @@ def add_module_pdbe_gui():
       #     Recent structures from the PDBe
       # ---------------------------------------------------------------------
       #
-    #   add_simple_coot_menu_menuitem(
-    #      menu, "PDBe recent structures...",
-    #      lambda func: get_recent_pdbe.pdbe_latest_releases_gui())
+      #   add_simple_coot_menu_menuitem(
+      #      menu, "PDBe recent structures...",
+      #      lambda func: get_recent_pdbe.pdbe_latest_releases_gui())
 
       # we do test for refmac at startup not runtime (for simplicity)
       if coot_utils.command_in_path_qm("refmac5"):
@@ -5676,83 +5716,117 @@ def add_module_pdbe_gui():
       else:
          mess = "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
 
-    #   add_simple_coot_menu_menuitem(
-    #      menu, "Get from PDBe...",
-    #      lambda func: generic_single_entry("Get PDBe accession code",
-    #                                        "", " Get it ",
-    #                                        lambda text:
-    #                                        get_recent_pdbe.pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip().lstrip())))
+      #   add_simple_coot_menu_menuitem(
+      #      menu, "Get from PDBe...",
+      #      lambda func: generic_single_entry("Get PDBe accession code",
+      #                                        "", " Get it ",
+      #                                        lambda text:
+      #                                        get_recent_pdbe.pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip().lstrip())))
 
 
 
 def add_module_refine():
-    def chain_refine_active_atom(_simple_action,_arg2):
-        active_atom = coot.active_residue()
-        if active_atom:
-            aa_imol     = active_atom[0]
-            aa_chain_id = active_atom[1]
-            all_residues = coot_utils.residues_in_chain(aa_imol, aa_chain_id)
-            coot.refine_residues(aa_imol, all_residues)
-
-
-    def all_atom_refine_active_atom(_simple_action,_arg2):
-        active_atom = coot.active_residue()
-        if active_atom:
-            aa_imol = active_atom[0]
-            all_residues_in_mol = coot_utils.all_residues(aa_imol)
-            coot.refine_residues(aa_imol, all_residues_in_mol)
-
-
-    def refine_fragment_active_atom(_simple_action,_arg2):
-        active_atom = coot.active_residue()
-        print("###### active_atom", active_atom)
-        if active_atom:
-            aa_imol = active_atom[0]
-            aa_res_spec = [active_atom[1], active_atom[2], active_atom[3]] # doesn't ative_residue
-            res_list = coot.linked_residues_py(aa_res_spec, aa_imol, 1.7)
-            coot.refine_residues(aa_imol, res_list)
-
-
-    def regularize_fragment_active_atom(_simple_action,_arg2):
-        active_atom = coot.active_residue()
-        if active_atom:
-            aa_imol = active_atom[0]
-            aa_res_spec = [active_atom[1], active_atom[2], active_atom[3]] # doesn't ative_residue
-
-            res_list = coot.linked_residues_py(aa_res_spec, aa_imol, 1.7)
-            coot.regularize_residues(aa_imol, res_list)
-
-    def regularize_chain_active_atom(_simple_action,_arg2):
-        active_atom = coot.active_residue()
-        if active_atom:
-            aa_imol = active_atom[0]
-            aa_chain_id = active_atom[1]
-            all_residues = coot_utils.residues_in_chain(aa_imol, aa_chain_id)
-            coot.regularize_residues(aa_imol, all_residues)
 
     if coot_gui_api.main_menumodel():
-        menu = attach_module_menu_button("Refine")
 
-        add_simple_action_to_menu(menu, "All-Atom Refine","all_atom_refine_active_atom", all_atom_refine_active_atom)
+        # menu = attach_module_menu_button("Refine")
 
-        add_simple_action_to_menu(menu, "Chain Refine","chain_refine_active_atom", chain_refine_active_atom)
+        # add_simple_action_to_menu(menu, "Intermediate Atom Contact Dots On","contact_dots_on",   lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(1))
+        # add_simple_action_to_menu(menu, "Intermediate Atom Contact Dots Off","contact_dots_off", lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(0))
 
-        add_simple_action_to_menu(menu, "Intermediate Atom Contact Dots On","contact_dots_on",   lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(1))
-        add_simple_action_to_menu(menu, "Intermediate Atom Contact Dots Off","contact_dots_off", lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(0))
+        # # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
+        # add_simple_action_to_menu(menu, "Intermediate Atom Restraints On","intermediate_atom_restraints_on",   lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(1))
+        # add_simple_action_to_menu(menu, "Intermediate Atom Restraints Off","intermediate_atom_restraints_off", lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(0))
 
-        # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
-        add_simple_action_to_menu(menu, "Intermediate Atom Restraints On","intermediate_atom_restraints_on",   lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(1))
-        add_simple_action_to_menu(menu, "Intermediate Atom Restraints Off","intermediate_atom_restraints_off", lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(0))
+        # add_simple_action_to_menu(menu, "Rama Goodness Dodecs On","rama_goodness_dodecs_on",  lambda _simple_action, _arg2: coot.set_show_intermediate_atoms_rota_markup(1))
+        # add_simple_action_to_menu(menu, "Rama Goodness Dodecs Off","rama_goodness_dodecs_off", lambda _simple_action, _arg2: coot.set_show_intermediate_atoms_rota_markup(0))
 
-        add_simple_action_to_menu(menu, "Refine Fragment","refine_fragment_active_atom", refine_fragment_active_atom)
+        def switch_rama_switched(switch, thing_b, thing_c):
+            print("thing_b", thing_b)
+            print("thing_c", thing_c)
+            if switch.get_active():
+                coot.set_show_intermediate_atoms_rama_markup(1)
+            else:
+                coot.set_show_intermediate_atoms_rama_markup(0)
 
-        add_simple_action_to_menu(menu, "Regularize Fragment","regularize_fragment_active_atom", regularize_fragment_active_atom)
+        def switch_rota_switched(switch, thing_b, thing_c):
+            print("thing_b", thing_b)
+            print("thing_c", thing_c)
+            if switch.get_active():
+                coot.set_show_intermediate_atoms_rota_markup(1)
+            else:
+                coot.set_show_intermediate_atoms_rota_markup(0)
 
-        add_simple_action_to_menu(menu, "Regularize Chain","regularize_chain_active_atom", regularize_chain_active_atom)
+        def switch_contact_dots_switched(switch, thing_b, thing_c):
+            print("thing_b", thing_b)
+            print("thing_c", thing_c)
+            if switch.get_active():
+                coot.set_do_coot_probe_dots_during_refine(1)
+            else:
+                coot.set_do_coot_probe_dots_during_refine(0)
 
-        add_simple_action_to_menu(menu, "Rama Goodness Dodecs On","rama_goodness_dodecs_on",  lambda _simple_action, _arg2: coot.set_show_intermediate_atoms_rota_markup(1))
-        add_simple_action_to_menu(menu, "Rama Goodness Dodecs Off","rama_goodness_dodecs_off", lambda _simple_action, _arg2: coot.set_show_intermediate_atoms_rota_markup(0))
+        def switch_GM_restraints_switched(switch, thing_b, thing_c):
+            print("thing_b", thing_b)
+            print("thing_c", thing_c)
+            if switch.get_active():
+                coot.set_draw_moving_atoms_restraints(1)
+            else:
+                coot.set_draw_moving_atoms_restraints(0)
 
+        popover = Gtk.PopoverMenu()
+        scrolled_win = Gtk.ScrolledWindow()
+
+        menu_button = Gtk.MenuButton(label="Refine")
+        menu_button.set_popover(popover)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        scrolled_win.set_child(box)
+
+        switch_1_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        switch_2_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        switch_3_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        switch_4_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        switch_contact_dots  = Gtk.Switch()
+        switch_GM_restraints = Gtk.Switch()
+        switch_rama          = Gtk.Switch()
+        switch_rota          = Gtk.Switch()
+        switch_contact_dots.connect( "state_set", switch_contact_dots_switched, 1)
+        switch_GM_restraints.connect("state_set", switch_GM_restraints_switched, 2)
+        switch_rama.connect("state_set", switch_rama_switched, 3)
+        switch_rota.connect("state_set", switch_rota_switched, 4)
+        switch_contact_dots_label  = Gtk.Label(label="Intermediate Atom Contact Dots")
+        switch_GM_restraints_label = Gtk.Label(label="Intermediate Atom GM Restraints")
+        switch_rama_label          = Gtk.Label(label="Ramachandran Probability Spheres")
+        switch_rota_label          = Gtk.Label(label="Rotamer Probability Dodecahedra")
+        switch_contact_dots_label.set_xalign(0)
+        switch_GM_restraints_label.set_xalign(0)
+        switch_rama_label.set_xalign(0)
+        switch_rota_label.set_xalign(0)
+
+        if coot.get_show_intermediate_atoms_rama_markup() == 1: switch_rama.set_active(True)
+        if coot.get_show_intermediate_atoms_rama_markup() == 1: switch_rota.set_active(True)
+        if coot.get_do_coot_probe_dots_during_refine() == 1:    switch_contact_dots.set_active(True)
+        if coot.get_draw_moving_atoms_restraints() == 1:        switch_GM_restraints.set_active(True)
+
+        grid = Gtk.Grid()
+        grid.set_column_spacing(8)
+        grid.set_row_spacing(8)
+        grid.attach(switch_rama_label,          0, 0, 1, 1)
+        grid.attach(switch_rota_label,          0, 1, 1, 1)
+        grid.attach(switch_contact_dots_label,  0, 2, 1, 1)
+        grid.attach(switch_GM_restraints_label, 0, 3, 1, 1)
+        grid.attach(switch_rama,                1, 0, 1, 1)
+        grid.attach(switch_rota,                1, 1, 1, 1)
+        grid.attach(switch_contact_dots,        1, 2, 1, 1)
+        grid.attach(switch_GM_restraints,       1, 3, 1, 1)
+
+        box.append(grid)
+        box.set_margin_top(6)
+        box.set_margin_start(6)
+        popover.set_size_request(300, 160)
+
+        popover.set_child(scrolled_win) # the child of popover is always a scrolled window
+
+        coot_gui_api.main_toolbar().append(menu_button)
 
 def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):
 

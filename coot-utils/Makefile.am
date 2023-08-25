@@ -51,6 +51,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)	\
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
 	$(CLIPPER_CXXFLAGS) 		\
+	$(GEMMI_CXXFLAGS)               \
 	$(MMDB_CXXFLAGS) 		\
 	$(GSL_CFLAGS)			\
 	$(WITH_GUILE_CFLAGS)		\
@@ -90,7 +91,7 @@ libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
     $(top_builddir)/utils/libcoot-utils.la           \
     $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
-    $(CLIPPER_LIBS) $(MMDB_LIBS) \
+    $(CLIPPER_LIBS) $(GEMMI_LIBS) $(MMDB_LIBS) \
     $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS) -lpthread
 
 libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)

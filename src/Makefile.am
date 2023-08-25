@@ -42,7 +42,7 @@ WITH_GUILE_CFLAGS=$(COOT_STDTYPES) $(COOT_USE_GUILE)
 
 # GUILE_VERSION=$(GUILE_CONFIG)
 
-MAKE_COOT_WRAP_GUILE=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-guile.sh "$(GUILE_CONFIG)"
+MAKE_COOT_WRAP_GUILE=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-guile.sh
 
 MAKE_COOT_WRAP_PYTHON_XXX=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-python.sh
 
@@ -97,14 +97,14 @@ EXTRA_DIST = \
 	post-process-coot-wrap-guile.sh \
 	post-process-coot-wrap-python.sh \
 	fixup-interface.h.sh \
-	coot_wrap_guile_pre.cc dynarama.glade
+	coot_wrap_guile_pre.cc
 
 
 # subpkgdatadir = $(pkgdatadir)
 # subpkgdata_DATA = dynarama.glade geometry_graphs_builder.glade
 
 cootgladedir = $(pkgdatadir)/glade
-dist_cootglade_DATA = dynarama.glade geometry_graphs_builder.glade
+dist_cootglade_DATA = geometry_graphs_builder.glade
 
 cootdatadir = $(pkgdatadir)/shaders
 dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
@@ -121,7 +121,7 @@ dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
 		     hud-image-texture.shader hud-lines.shader \
 		     depth-of-field.shader blur-x.shader blur-y.shader texture-meshes.shader \
 		     camera-facing-quad-shader-for-testing.shader outline-of-active-residue.shader \
-		     meshes.shader meshes-shadow-map.shader meshes-with-shadows.shader \
+		     meshes.shader meshes-shadow-map.shader meshes-with-shadows.shader instanced-meshes-with-shadows.shader \
 		     meshes-for-ssao.shader effects.shader 9.ssao_blur.shader 9.ssao_geometry.shader 9.ssao.shader \
 		     texture-meshes-for-ssao.shader texture-meshes-with-shadows.shader \
 		     texture-meshes-shadow-map.shader shadow-map-image-texture.shader \
@@ -154,7 +154,7 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
 # -proxy  exports the GOOPS wrapper definitions into module.scm
 
 coot_wrap_guile.cc: coot_wrap_guile_pre.cc
-	$(MAKE_COOT_WRAP_GUILE) gtk2 $^ $@
+	$(MAKE_COOT_WRAP_GUILE) $^ $@
 
 # python
 
@@ -190,12 +190,11 @@ coot.py: coot_wrap_python.cc
 AM_CFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	$(WITH_GUILE_CFLAGS)	\
-	$(USE_GUILE_GTK) 	\
 	$(GUILE_CFLAGS)		\
 	$(PYTHON_CPPFLAGS)	\
 	$(PYTHON_CFLAGS)
 
-# must have GUILE and GUILE_GTK flags before $(INCLUDES), and this
+# must have GUILE flags before $(INCLUDES), and this
 # does not happen because LTCXXCOMPILE has AM_CXXFLAGS after INCLUDES.
 # But DEFAULT_INCLUDES is *before* INCLUDES
 # DEFAULT_INCLUDES = ... snip.  Rethink...
@@ -225,7 +224,6 @@ AM_CXXFLAGS = \
 	-DCOOT_BUILD_INFO_STRING='"$(COOT_BUILD_INFO_STRING)"' \
 	$(USE_LIBCURL)          \
 	$(WITH_GUILE_CFLAGS)	\
-	$(USE_GUILE_GTK) 	\
 	$(GUILE_CFLAGS)		\
         $(MyPyGObject_CFLAGS)   \
 	$(PYGOBJECT_CFLAGS)	\
@@ -251,8 +249,6 @@ AM_CPPFLAGS = \
 	$(GLM_CXXFLAGS)                 \
 	$(GOOCANVAS_CFLAGS)             \
 	$(WITH_GUILE_CFLAGS)		\
-	$(USE_GUILE_GTK)		\
-	$(GUILE_GTK_CFLAGS)		\
 	$(GUILE_CFLAGS)		        \
 	$(CANVAS_CFLAGS)		\
 	$(MOLTRIANGLES_CPPFLAGS)	\
@@ -265,6 +261,8 @@ AM_CPPFLAGS = \
 	$(GLOB_CFLAGS)                  \
 	$(WITH_SOUND)                   \
 	$(VORBISFILE_CFLAGS)            \
+	$(ALSA_CFLAGS)                  \
+	$(SOUND_FLAGS)                  \
 	$(SQLITE3_CFLAGS)               \
 	$(GEMMI_CXXFLAGS)               \
 	$(CURL_CFLAGS)
@@ -296,7 +294,12 @@ _coot_extended_la_LIBADD = \
 
 pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la _coot.la
 
-_coot_la_SOURCES = coot.cc coot_wrap_python.cc
+# Does this stop the race condition?
+# Well, it might do, but if I add it then _coot.so is not updated.
+# So, how about I added libcootsumo.la to the SOURCES, will that work?
+# _coot.la: libcootsumo.la
+
+_coot_la_SOURCES = coot.cc coot_wrap_python.cc libcootsumo.la
 
 _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
 	   libcootsumo.la                                    \
@@ -311,13 +314,13 @@ _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
 
 if OS_WIN32
 # no more libexec for windows
-bin_PROGRAMS     = coot-bin coot-density-score-by-residue-bin dynarama-bin
+bin_PROGRAMS     = coot-bin coot-density-score-by-residue-bin
 else
-libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin dynarama-bin
+libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin
 bin_PROGRAMS = 
 endif
 
-dist_bin_SCRIPTS = coot coot-density-score-by-residue dynarama
+dist_bin_SCRIPTS = coot coot-density-score-by-residue
 check_PROGRAMS = test-coot-align test-cholesky
 
 #coot_fix_nomenclature_errors_SOURCES = \
@@ -334,9 +337,10 @@ coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
 
 coot_bin_LDADD =  \
 	libcootsumo.la \
-	$(top_builddir)/utils/libcoot-utils.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la  \
-	$(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS)
+	$(top_builddir)/geometry/libcoot-geometry.la      \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS) $(EPOXY_LIBS) $(PYTHON_LIBS)
 
 
 lib_LTLIBRARIES=libcootsumo.la
@@ -644,7 +648,6 @@ libcootsumo_la_SOURCES = \
 	molecular-mesh-generator.hh \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
-	nsv.cc nsv.hh		\
 	obj_loader.h obj_loader.cc \
 	pisa-interface.hh	 \
 	pick.hh pick.cc	 \
@@ -664,7 +667,7 @@ libcootsumo_la_SOURCES = \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
-	read-cif.c		 \
+	read-cif.cc		 \
 	rama_mousey.cc		 \
 	rama_mousey.hh		 \
 	rama_plot_with_canvas.cc \
@@ -680,7 +683,6 @@ libcootsumo_la_SOURCES = \
 	rsr-functions.hh         \
 	screendump-tga.hh        \
 	screendump-tga.cc        \
-	sound.cc                 \
 	sdf-interface.cc         \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
@@ -708,10 +710,6 @@ libcootsumo_la_SOURCES = \
 	trackball.c trackball.h  \
 	triangle-extras.h        \
 	user-mods.hh user-mods.cc\
-	validation-graphs.hh	 \
-	validation-graphs.cc	 \
-	validation-graph-widget.hh	 \
-	validation-graph-widget.cc	 \
 	xmap-utils.cc 		 \
 	xmap-utils.h             \
 	remarks-browser-gtk-widgets.hh \
@@ -810,30 +808,27 @@ coot_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 # fixed in configure.
 #
 libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
-      $(COOT_EXTRA_LIBS) \
+                $(COOT_EXTRA_LIBS)      \
 		$(VORBISFILE_LIBS)      \
+		$(ALSA_LIBS)            \
+		$(GTK_LIBS)             \
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\
 		$(CCP4SRS_LIBS) 	\
 		$(MMDB_LIBS)		\
 		$(MOLTRIANGLES_LIBS)	\
 		$(PYTHON_LIBS)		\
-		$(GUILE_GTK_LIBS)       \
 		$(GUILE_LDFLAGS)      \
 		$(GLOB_LIBS)	      \
-		$(GTKGL_CONTEXT_LIBS) \
 		$(EPOXY_LIBS)         \
-		$(CANVAS_LIBS) 	      \
 		$(GSL_LIBS) -lblas    \
 		$(MYSQL_LIBS)	      \
 		$(CURL_LIBS)	      \
 	  	$(RDKIT_LIBS)	      \
 		$(BOOST_LDFLAGS)      \
 		$(L_BOOST_PYTHON)     \
-		$(GOOCANVAS_LIBS)     \
 		-lfreetype            \
 		$(SQLITE3_LIBS)       \
-		@GTK_LIBS@            \
 		$(SHARED_LDFLAGS)     \
 		-lpthread
 
@@ -909,28 +904,3 @@ coot_density_score_by_residue_bin_LDADD  =	\
 	$(MMDB_LIBS)		\
 	$(GSL_LIBS)
 
-dynarama_bin_SOURCES = dynarama-main.cc
-dynarama_bin_LDADD = \
-        libcootsumo.la                                          \
-        $(top_builddir)/coords/libcoot-coords.la                \
-	$(top_builddir)/ligand/libcoot-ligand.la      		\
-	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
-	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
-	$(top_builddir)/coot-utils/libcoot-coord-extras.la  	\
-        $(top_builddir)/coot-utils/libcoot-coord-utils.la       \
-	$(top_builddir)/ideal/libcoot-ideal.la    		\
-	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
-        $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
-	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
-        $(top_builddir)/geometry/libcoot-geometry.la            \
-	$(top_builddir)/pli/libcoot-pli.la                      \
-	$(top_builddir)/db-main/libcoot-db-main.la     		\
-	$(top_builddir)/analysis/libcoot-analysis.la 		\
-	$(top_builddir)/cootaneer/libcootaneer.la 		\
-        $(top_builddir)/compat/libcoot-compat.la                \
-        $(top_builddir)/utils/libcoot-utils.la                  \
-        $(CLIPPER_LIBS)         \
-        $(MMDB_LIBS)            \
-        $(GLOB_LIBS)            \
-        $(GOOCANVAS_LIBS)       \
-        @GTK_LIBS@

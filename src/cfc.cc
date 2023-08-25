@@ -445,7 +445,7 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
    // gtk_box_pack_start(GTK_BOX(waters_vbox), waters_grid, FALSE, FALSE, 0);
    gtk_box_append(GTK_BOX(waters_vbox), waters_grid);
    if (site_number == 0)
-      gtk_widget_show(waters_grid);
+      gtk_widget_set_visible(waters_grid, TRUE);
 
 
    std::cout << ":::::::::::::::::: cfc_waters_table: " << waters_grid << std::endl;
@@ -499,7 +499,7 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
                           (gpointer) wat_clust_p);
 	 
 	 gtk_grid_attach(GTK_GRID(waters_grid), left_button, 0, 1, i, i+1);
-	 gtk_widget_show(left_button);
+	 gtk_widget_set_visible(left_button, TRUE);
 
 
 	 // right hand buttons - one for every structure
@@ -548,7 +548,7 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 
                   std::cout << "set the button colour here" << std::endl;
 	       }
-	       gtk_widget_show(button);
+	       gtk_widget_set_visible(button, TRUE);
 
 	    } else {
 	       std::cout << "ERRROR:: out of index range jth mol " << j
@@ -557,7 +557,7 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 	 }
 
 	 gtk_grid_attach(GTK_GRID(waters_grid), hbox, 1,2,i,i+1);
-	 gtk_widget_show(hbox);
+	 gtk_widget_set_visible(hbox, TRUE);
       }
    }
 }
@@ -651,7 +651,7 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
    // gtk_box_pack_start(GTK_BOX(cfc_ligands_vbox), ligands_table, FALSE, FALSE, 0);
    gtk_box_append(GTK_BOX(cfc_ligands_vbox), ligands_grid);
    if (site_number == 0)
-      gtk_widget_show(ligands_grid);
+      gtk_widget_set_visible(ligands_grid, TRUE);
 
    // this table has a header, so indexing is +1 vertical
    // gtk_table_resize(GTK_TABLE(ligands_table), n_pharacophores+1, 2);
@@ -791,7 +791,7 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 		  }
 		  // gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 		  gtk_box_append(GTK_BOX(hbox), button);
-		  gtk_widget_show(button);
+		  gtk_widget_set_visible(button, TRUE);
 	       }
 	    }
 	    pharm_button_set_collection.push_back(pbs);
@@ -816,8 +816,8 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 	 const pharm_button_set &p = pharm_button_set_collection[i];
 	 gtk_grid_attach(GTK_GRID(ligands_grid), p.left_hand_button, 0,1, i_row+i,i_row+i+1);
 	 gtk_grid_attach(GTK_GRID(ligands_grid), p.structure_buttons_hbox, 1,2, i_row+i,i_row+i+1);
-	 gtk_widget_show(p.left_hand_button);
-	 gtk_widget_show(p.structure_buttons_hbox);
+	 gtk_widget_set_visible(p.left_hand_button, TRUE);
+	 gtk_widget_set_visible(p.structure_buttons_hbox, TRUE);
       }
    }
 }
@@ -881,9 +881,9 @@ cfc::cfc_table_show_hide(std::string show_this_one_name, GtkWidget *vbox) {
    //    if (gp) {
    //       std::string *name = static_cast<std::string *> (gp);
    //       if (*name == show_this_one_name) {
-   //          gtk_widget_show(GTK_WIDGET(list_item));
+   //          gtk_widget_set_visible(GTK_WIDGET(list_item), TRUE);
    //       } else {
-   //          gtk_widget_hide(GTK_WIDGET(list_item));
+   //          gtk_widget_set_visible(GTK_WIDGET(list_item), FALSE);
    //       }
    //    }
    //    dlist = dlist->next;
@@ -1554,10 +1554,10 @@ cfc::cfc_dialog_add_site_info(unsigned int site_number,
       gtk_grid_attach(GTK_GRID(sites_grid), label_1, 1, 2, site_number, site_number+1);
       gtk_grid_attach(GTK_GRID(sites_grid), label_2, 2, 3, site_number, site_number+1);
       gtk_grid_attach(GTK_GRID(sites_grid), label_3, 3, 4, site_number, site_number+1);
-      gtk_widget_show(site_button);
-      gtk_widget_show(label_1);
-      gtk_widget_show(label_2);
-      gtk_widget_show(label_3);
+      gtk_widget_set_visible(site_button, TRUE);
+      gtk_widget_set_visible(label_1, TRUE);
+      gtk_widget_set_visible(label_2, TRUE);
+      gtk_widget_set_visible(label_3, TRUE);
    } else {
       std::cout << "widget from builder failed for cfc sites grid" << std::endl;
    }
@@ -1575,7 +1575,7 @@ cfc::chemical_feature_clusters_add_site_info(unsigned int site_number,
    cfc_dialog_add_site_info(site_number, eci);
 
    gtk_window_set_default_size(GTK_WINDOW(cfc_dialog), 600, 400);
-   gtk_widget_show(cfc_dialog);
+   gtk_widget_set_visible(cfc_dialog, TRUE);
 }
 
 

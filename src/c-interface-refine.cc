@@ -1296,12 +1296,21 @@ void set_show_intermediate_atoms_rama_markup(short int state) {
 
 }
 
+int get_show_intermediate_atoms_rota_markup() {
+   return graphics_info_t::do_intermediate_atoms_rota_markup;
+}
+
+int get_show_intermediate_atoms_rama_markup() {
+   return graphics_info_t::do_intermediate_atoms_rama_markup;
+}
+
+
+
 #ifdef USE_PYTHON
 void register_post_intermediate_atoms_moved_hook(PyObject *function) {
 
    graphics_info_t g;
    g.register_post_intermediate_atoms_moved_hook(function);
-
 }
 #endif
 

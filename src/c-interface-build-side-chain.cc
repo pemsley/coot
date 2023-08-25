@@ -655,7 +655,7 @@ void mutate_active_residue() {
       int imol = pp.second.first;
       bool show_stub_flag = true;
       GtkWidget *widget = g.wrapped_create_residue_type_chooser_window(show_stub_flag);
-      gtk_widget_show(widget);
+      gtk_widget_set_visible(widget, TRUE);
       g.in_mutate_auto_fit_define = 0;
       g.residue_type_chooser_auto_fit_flag = 1;
       g.pick_pending_flag = 0;
@@ -689,7 +689,7 @@ mutate_active_residue_to_single_letter_code(const std::string &slc) {
 void show_keyboard_mutate_dialog() {
 
    GtkWidget *w = widget_from_builder("keyboard_mutate_dialog");
-   gtk_widget_show(w);
+   gtk_widget_set_visible(w, TRUE);
 
 }
 

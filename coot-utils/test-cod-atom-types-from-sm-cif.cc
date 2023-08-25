@@ -13,7 +13,7 @@ int main(int argc, char **argv) {return 0;}
 mmdb::Residue *get_search_fragment_residue(const std::string &file_name) {
 
    mmdb::Residue *residue_p = 0;
-   atom_selection_container_t asc = get_atom_selection(file_name, true, true, false);
+   atom_selection_container_t asc = get_atom_selection(file_name, false, true, true);
    if (asc.read_success) {
       residue_p = coot::util::get_first_residue(asc.mol);
    }

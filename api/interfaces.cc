@@ -10,7 +10,8 @@ std::string flipPeptide(const std::string &pdb_file_name_in, const coot::residue
    std::string s;
    std::string alt_conf; // this should be an argument
 
-   atom_selection_container_t asc = get_atom_selection(pdb_file_name_in);
+   bool use_gemmi = false;
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name_in, use_gemmi);
    int result = coot::pepflip(asc.mol, rs.chain_id, rs.res_no, rs.ins_code, alt_conf);
    if (result != 0) {
       asc.mol->WritePDBASCII(pdb_file_name_out.c_str());

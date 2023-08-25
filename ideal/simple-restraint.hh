@@ -2616,7 +2616,7 @@ namespace coot {
                                                              mmdb::Residue *second,
                                                              const protein_geometry &geom) const;
 
-      // 20221120-PE find_link_type_complicado is to complicated for me to understand.
+      // 20221120-PE find_link_type_complicado is too complicated for me to understand.
       // Let's try again
       std::pair<std::string, bool> find_link_type_2022(mmdb::Residue *first,
                                                        mmdb::Residue *second,

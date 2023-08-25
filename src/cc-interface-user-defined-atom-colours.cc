@@ -33,32 +33,37 @@
 /*  ----------------------------------------------------------------------- */
 
 #ifdef USE_PYTHON
-void set_user_defined_atom_colour_by_residue_py(int imol, PyObject *residue_specs_colour_index_tuple_list_py) {
+void set_user_defined_atom_colour_by_selection_py(int imol, PyObject *CID_colour_index_tuple_list_py) {
 
    // 20220707-PE You are passing a list of tuples, right?
 
    if (is_valid_model_molecule(imol)) {
-      if (PyList_Check(residue_specs_colour_index_tuple_list_py)) {
-	 unsigned int l = PyObject_Length(residue_specs_colour_index_tuple_list_py);
+      if (PyList_Check(CID_colour_index_tuple_list_py)) {
+	 unsigned int l = PyObject_Length(CID_colour_index_tuple_list_py);
 	 if (l > 0) {
-	    std::vector<std::pair<coot::residue_spec_t, int> > cis;
+	    std::vector<std::pair<std::string, unsigned int> > cis;
 	    for (unsigned int i=0; i<l; i++) {
-	       PyObject *tuple_py = PyList_GetItem(residue_specs_colour_index_tuple_list_py, i);
+	       PyObject *tuple_py = PyList_GetItem(CID_colour_index_tuple_list_py, i);
 	       if (PyTuple_Check(tuple_py)) {
 		  unsigned int l2 = PyObject_Length(tuple_py);
 		  if (l2 == 2) {
-		     PyObject *spec_py = PyTuple_GetItem(tuple_py, 0);
-		     PyObject *idx_py  = PyTuple_GetItem(tuple_py, 1);
-		     if (PyLong_Check(idx_py)) {
-			coot::residue_spec_t spec = residue_spec_from_py(spec_py);
-			long ci = PyLong_AsLong(idx_py);
-			std::pair<coot::residue_spec_t, int> p(spec, ci);
-			cis.push_back(p);
+		     PyObject *selection_py  = PyTuple_GetItem(tuple_py, 0);
+		     PyObject *idx_py        = PyTuple_GetItem(tuple_py, 1);
+                     if (PyUnicode_Check(selection_py)) {
+                        std::string CID_selection = PyBytes_AS_STRING(PyUnicode_AsUTF8String(selection_py));
+                        if (PyLong_Check(idx_py)) {
+                           long ci = PyLong_AsLong(idx_py);
+                           if (ci >= 0) {
+                              std::pair<std::string , unsigned int> p(CID_selection, ci);
+                              cis.push_back(p);
+                           }
+                        }
 		     }
 		  }
 	       }
 	    }
-	    graphics_info_t::molecules[imol].set_user_defined_colour_indices_by_residues(cis);
+            // this sets apply_colour_to_non_carbon_atoms_also to true
+	    graphics_info_t::molecules[imol].set_user_defined_colour_indices_by_selections(cis);
 	 }
       }
    }

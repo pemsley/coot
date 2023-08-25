@@ -16,7 +16,7 @@
 // statics
 std::atomic<bool> molecules_container_t::restraints_lock(false);
 std::atomic<bool> molecules_container_t::on_going_updating_map_lock(false);
-ctpl::thread_pool molecules_container_t::static_thread_pool(4); // or so
+ctpl::thread_pool molecules_container_t::static_thread_pool(8); // or so
 std::string molecules_container_t::restraints_locking_function_name; // I don't know why this needs to be static
 std::vector<atom_pull_info_t> molecules_container_t::atom_pulls;
 // 20221018-PE not sure that this needs to be static.
@@ -229,7 +229,7 @@ molecules_container_t::read_standard_residues() {
       std::string dir = coot::package_data_dir();
       std::string standard_file_name = coot::util::append_dir_file(dir, "standard-residues.pdb");
 
-      // std::cout << "------------------ read_standard_residues() B " << std::endl;
+      std::cout << "------------------ read_standard_residues() B " << standard_file_name << std::endl;
       struct stat buf;
       int status = stat(standard_file_name.c_str(), &buf);
       if (status != 0) { // standard-residues file was not found in
@@ -251,7 +251,7 @@ molecules_container_t::read_standard_residues() {
          // unresolved (linking related?) startup bug here:
          std::cout << "------------------ read_standard_residues() C map_sampling_rate " << map_sampling_rate << std::endl;
          std::cout << "------------------ read_standard_residues() C " << std::endl;
-         atom_selection_container_t t_asc = get_atom_selection(standard_file_name, true, false, false);
+         atom_selection_container_t t_asc = get_atom_selection(standard_file_name, false, true, false);
          std::cout << "------------------ read_standard_residues() D map_sampling_rate " << map_sampling_rate << std::endl;
          // std::cout << "------------------ read_standard_residues() D " << std::endl;
          // standard_residues_asc = t_asc; // Here's the problem
@@ -284,8 +284,8 @@ molecules_container_t::read_standard_residues() {
          // std::cout << "------------------ read_standard_residues() E " << std::endl;
       }
    } else {
-      std::cout << "------------------ read_standard_residues() F " << std::endl;
-      standard_residues_asc = get_atom_selection(env_var_filename, true, false, false);
+      std::cout << "------------------ read_standard_residues() F " << env_var_filename << std::endl;
+      standard_residues_asc = get_atom_selection(env_var_filename, false, true, false);
    }
    // std::cout << "------------------ read_standard_residues() done " << std::endl;
 }
@@ -550,7 +550,8 @@ int
 molecules_container_t::read_pdb(const std::string &file_name) {
 
    int status = -1;
-   atom_selection_container_t asc = get_atom_selection(file_name, true, false, false);
+   bool use_gemmi = false;
+   atom_selection_container_t asc = get_atom_selection(file_name, use_gemmi, true, false);
    if (asc.read_success) {
 
       // 20221011-PE this constructor doesn't call make_bonds().
@@ -572,13 +573,11 @@ molecules_container_t::read_pdb(const std::string &file_name) {
 void
 molecules_container_t::replace_molecule_by_model_from_file(int imol, const std::string &pdb_file_name) {
 
-   int status = 0;
    if (is_valid_model_molecule(imol)) {
       molecules[imol].replace_molecule_by_model_from_file(pdb_file_name);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
-   // return status;
 }
 
 
@@ -933,29 +932,34 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
    bool done = false;
 
    if (coot::util::is_basic_em_map_file(file_name)) {
+      std::cout << ":::::::::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
+   } else {
+      std::cout << ":::::::::::: read_ccp4_map() returns false for is_basic_em_map_file() " << std::endl;
+   }
+   
+
+   if (coot::util::is_basic_em_map_file(file_name)) {
+
+      std::cout << ":::::::::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
 
       // fill xmap
       bool check_only = false;
-      coot::molecule_t m(file_name, imol_in_hope);
+      short int is_em_map = 1; // this is the correct type - it can be -1.
+      coot::molecule_t m(file_name, imol_in_hope, is_em_map);
+      short int m_em_status = m.is_EM_map();
+      std::cout << "m_em_status " << m_em_status << std::endl;
       clipper::Xmap<float> &xmap = m.xmap;
       done = coot::util::slurp_fill_xmap_from_map_file(file_name, &xmap, check_only);
-      try {
-         // what's the point of this now?
-         clipper_map_file_wrapper file;
-         file.open_read(file_name);
-         // set_is_em_map(file); // sets is_em_map_cached_flag
-         // em = is_em_map_cached_flag;
-      }
-      catch (const clipper::Message_base &exc) {
-         std::cout << "WARNING:: failed to open " << file_name << std::endl;
-         // bad_read = true;
-      }
-
       if (done) {
          molecules.push_back(m);
          imol = imol_in_hope;
       }
    }
+
+   short int em_status = molecules[imol].is_EM_map();
+   std::cout << "here with imol " << imol << " molecules size " << molecules.size() << std::endl;
+   std::cout << "here with imol " << imol << " done " << done << std::endl;
+   std::cout << "here with imol " << imol << " is_em_map:  " << em_status << std::endl;
 
    if (! done) {
       // std::cout << "INFO:: attempting to read CCP4 map: " << file_name << std::endl;
@@ -1695,6 +1699,21 @@ molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const st
    return im;
 }
 
+//! return the colour table (for testing)
+std::vector<glm::vec4>
+molecules_container_t::get_colour_table(int imol, bool against_a_dark_background) const {
+
+   std::vector<glm::vec4> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].make_colour_table(against_a_dark_background);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}
+
+
+
 //! user-defined colour-index to colour
 void
 molecules_container_t::set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 3> > &colour_map) {
@@ -1708,10 +1727,11 @@ molecules_container_t::set_user_defined_bond_colours(int imol, const std::map<un
 
 //! user-defined atom selection to colour index
 void
-molecules_container_t::set_user_defined_atom_colour_by_residue(int imol, const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids) {
+molecules_container_t::set_user_defined_atom_colour_by_selection(int imol, const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids, bool colour_applies_to_non_carbon_atoms_also) {
 
    if (is_valid_model_molecule(imol)) {
-      molecules[imol].set_user_defined_atom_colour_by_residue(indexed_residues_cids);
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol; // mol in the following argument need not be this mol
+      molecules[imol].set_user_defined_atom_colour_by_selections(indexed_residues_cids, colour_applies_to_non_carbon_atoms_also, mol);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -2062,7 +2082,7 @@ molecules_container_t::add_terminal_residue_directly(int imol, const std::string
          clipper::Xmap<float> &xmap = molecules[imol_refinement_map].xmap;
          coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
          std::pair<int, std::string> m = molecules[imol].add_terminal_residue_directly(residue_spec, new_res_type,
-                                                                                       geom, xmap);
+                                                                                       geom, xmap, static_thread_pool);
          status  = m.first;
          message = m.second;
          if (! message.empty())
@@ -2092,6 +2112,20 @@ molecules_container_t::add_terminal_residue_directly_using_cid(int imol, const s
    }
    return status;
 }
+
+//! buccaneer building, called by the above
+int
+molecules_container_t::add_terminal_residue_directly_using_bucca_ml_growing_using_cid(int imol, const std::string &cid) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, cid);
+      coot::residue_spec_t res_spec(atom_spec);
+      status = add_terminal_residue_directly_using_bucca_ml_growing(imol, res_spec);
+   }
+   return status;
+}
+
 
 
 // reset the rail_points (calls reset_the_rail_points()), updates the maps (using internal/clipper SFC)
@@ -2326,20 +2360,20 @@ molecules_container_t::thread_for_refinement_loop_threaded() {
 
 
 int
-molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc) {
+molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc, int n_cycles) {
 
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map)) {
          const clipper::Xmap<float> &xmap = molecules[imol_refinement_map].xmap;
-         molecules[imol].refine_direct(rv, alt_loc, xmap, map_weight, geom, refinement_is_quiet);
+         molecules[imol].refine_direct(rv, alt_loc, xmap, map_weight, n_cycles, geom, refinement_is_quiet);
       }
    }
    return status;
 }
 
 int
-molecules_container_t::refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode) {
+molecules_container_t::refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode, int n_cycles) {
 
    // std::cout << "starting refine_residues_using_atom_cid() with imol_refinement_map " << imol_refinement_map
    // << std::endl;
@@ -2348,7 +2382,7 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map)) {
          coot::atom_spec_t spec = atom_cid_to_atom_spec(imol, cid);
-         status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode);
+         status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode, n_cycles);
       } else {
          std::cout << "WARNING:: " << __FUNCTION__ << " Not a valid map molecule " << imol_refinement_map << std::endl;
       }
@@ -2362,14 +2396,14 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
 
 int
 molecules_container_t::refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
-                                       const std::string &alt_conf, const std::string &mode) {
+                                       const std::string &alt_conf, const std::string &mode, int n_cycles) {
 
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
       std::vector<mmdb::Residue *> rv = molecules[imol].select_residues(residue_spec, mode);
       if (! rv.empty()) {
-         status = refine_direct(imol, rv, alt_conf);
+         status = refine_direct(imol, rv, alt_conf, n_cycles);
          set_updating_maps_need_an_update(imol);
       } else {
          std::cout << "WARNING:: in refine_residues() - empty residues." << std::endl;
@@ -2381,14 +2415,15 @@ molecules_container_t::refine_residues(int imol, const std::string &chain_id, in
 }
 
 int
-molecules_container_t::refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end) {
+molecules_container_t::refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end,
+                                            int n_cycles) {
 
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       std::vector<mmdb::Residue *> rv = molecules[imol].select_residues(chain_id, res_no_start, res_no_end);
       if (! rv.empty()) {
          std::string alt_conf = "";
-         status = refine_direct(imol, rv, alt_conf);
+         status = refine_direct(imol, rv, alt_conf, n_cycles);
       } else {
          std::cout << "WARNING:: in refine_residues() - empty residues." << std::endl;
       }
@@ -4143,6 +4178,19 @@ molecules_container_t::mask_map_by_atom_selection(int imol_coords, int imol_map,
    return imol_map_new;
 }
 
+//! @return the "EM" status of this molecule. Return false on not-a-map.
+bool
+molecules_container_t::is_EM_map(int imol) const {
+
+   bool status = false;
+   if (is_valid_map_molecule(imol)) {
+      status = molecules[imol].is_EM_map();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
+
 
 // --------------------- symmetry
 
@@ -4265,3 +4313,179 @@ molecules_container_t::set_bespoke_carbon_atom_colour(int imol, const coot::colo
    }
 }
 
+
+void
+molecules_container_t::add_target_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z) {
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].add_target_position_restraint(atom_cid, pos_x, pos_y, pos_z);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+void
+molecules_container_t::init_refinement_of_molecule_as_fragment_based_on_reference(int imol_frag, int imol_ref, int imol_map) {
+
+   // make last_restraints
+   if (is_valid_model_molecule(imol_frag)) {
+      if (is_valid_model_molecule(imol_ref)) {
+         if (is_valid_map_molecule(imol_map)) {
+            mmdb::Manager *mol_ref = molecules[imol_ref].atom_sel.mol;
+            // this is a fragment molecule - a few residues. mol_ref is used for the NBC an peptide links
+            // a the end of the fragment
+            const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+            std::cout << "debug:: in init_refinement_of_molecule_as_fragment_based_on_reference() "
+                      << " cell " << xmap.cell().descr().format() << std::endl;
+            molecules[imol_frag].init_all_molecule_refinement(mol_ref, geom, xmap, map_weight, &static_thread_pool);
+         } else {
+            std::cout << "WARNING:: in init_refinement_of_molecule_as_fragment_based_on_reference()"
+                      << " not a valid map" << std::endl;
+         }
+      } else {
+         std::cout << "WARNING:: in init_refinement_of_molecule_as_fragment_based_on_reference()"
+                   << " not a valid ref model" << std::endl;
+      }
+   } else {
+         std::cout << "WARNING:: in init_refinement_of_molecule_as_fragment_based_on_reference()"
+                   << " not a valid frag model" << std::endl;
+   }
+}
+
+
+coot::instanced_mesh_t
+molecules_container_t::add_target_position_restraint_and_refine(int imol, const std::string &atom_cid,
+                                                                float pos_x, float pos_y, float pos_z,
+                                                                int n_cycles) {
+
+   coot::instanced_mesh_t m;
+   if (is_valid_model_molecule(imol)) {
+      m = molecules[imol].add_target_position_restraint_and_refine(atom_cid, pos_x, pos_y, pos_z, n_cycles, &geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return m;
+}
+
+
+//! clear any and all drag-atom target position restraints
+void
+molecules_container_t::clear_target_position_restraints(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].clear_target_position_restraints();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+//! clear target_position restraint
+void
+molecules_container_t::clear_target_position_restraint(int imol, const std::string &atom_cid) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].clear_target_position_restraint(atom_cid);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+//! clear target_position restraint if it is (or they are) close to their target position
+void
+molecules_container_t::turn_off_when_close_target_position_restraint(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].turn_off_when_close_target_position_restraint();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+
+
+void
+molecules_container_t::clear_refinement(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].clear_refinement();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+
+//! fix atoms during refinement
+void
+molecules_container_t::fix_atom_selection_during_refinement(int imol, const std::string &atom_selection_cid) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].fix_atom_selection_during_refinement(atom_selection_cid);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+}
+
+//! Run some cycles of refinement and return a mesh
+//! That way we can see the molecule animate as it refines
+std::pair<int, coot::instanced_mesh_t>
+molecules_container_t::refine(int imol, int n_cycles) {
+
+   coot::instanced_mesh_t im;
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].refine_using_last_restraints(n_cycles);
+      std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
+      im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.1, 1.4, 1, true, true);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return std::make_pair(status, im);
+}
+
+
+//! flip the hand of the map.
+//! @return the molecule index of the new map, or -1 on failure.
+int
+molecules_container_t::flip_hand(int imol_map) {
+
+   int imol_new = -1;
+   if (is_valid_map_molecule(imol_map)) {
+      clipper::Xmap<float> xmap = molecules[imol_map].xmap;
+      coot::util::flip_hand(&xmap);
+      std::string name = "Flipped Hand of " + molecules[imol_map].get_name();
+      imol_new = molecules.size();
+      molecules.push_back(coot::molecule_t(name, imol_new, xmap, true));
+   }
+   return imol_new;
+}
+
+
+//! @return the suggested initial contour level. Return -1 on not-a-map
+float
+molecules_container_t::get_suggested_initial_contour_level(int imol) const {
+
+   float l = -1;
+   if (is_valid_map_molecule(imol)) {
+      l = molecules[imol].get_suggested_initial_contour_level();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return l;
+
+}
+
+//! get the mesh for ligand validation vs dictionary, coloured by badness.
+//! greater then 3 standard deviations is fully red.
+//! Less than 0.5 standard deviations is fully green.
+coot::simple_mesh_t
+molecules_container_t::get_mesh_for_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid) {
+
+   coot::simple_mesh_t m;
+   if (is_valid_model_molecule(imol)) {
+      m = molecules[imol].get_mesh_for_ligand_validation_vs_dictionary(ligand_cid, geom, static_thread_pool);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return m;
+
+}

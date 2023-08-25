@@ -19,7 +19,7 @@ Additionally "Add Hydrogen Atoms" will add Hydrogen atoms using these bond lengt
 
 The longer Hydrogen atom bond lengths means different non-bonded
 contacts interactions during real space refinement. But there were
-problems. An analysis of the anomolies highlighted a few problem with
+problems. An analysis of the anomalies highlighted a few problem with
 incorrect non-bonded contact (for example, those of some types of
 Hydrogen bond). These were fixed and now the resulting model is now
 overall typically more consistent with Molprobity clash analysis:

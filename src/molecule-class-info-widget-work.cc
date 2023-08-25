@@ -308,7 +308,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    vbox168 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
    // gtk_widget_ref (vbox168);
    g_object_set_data_full (G_OBJECT (symmetry_controller_dialog), "vbox168", vbox168, NULL);
-   gtk_widget_show (vbox168);
+   gtk_widget_set_visible (vbox168, TRUE);
    gtk_frame_set_child(GTK_FRAME(molecule_0_frame), vbox168);
 
    molecule_0_checkbutton = gtk_check_button_new_with_label (" Show Symmetry?");
@@ -317,7 +317,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    g_object_set_data_full (G_OBJECT (symmetry_controller_dialog),
 			     molecule_n_checkbutton.c_str(),
 			     molecule_0_checkbutton, NULL);
-   gtk_widget_show (molecule_0_checkbutton);
+   gtk_widget_set_visible (molecule_0_checkbutton, TRUE);
 
    gtk_box_append (GTK_BOX (vbox168), molecule_0_checkbutton);
    if (show_symmetry)
@@ -326,7 +326,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    frame162 = gtk_frame_new ("Display Options");
    // gtk_widget_ref (frame162);
    g_object_set_data_full (G_OBJECT (symmetry_controller_dialog), "frame162", frame162, NULL);
-   gtk_widget_show (frame162);
+   gtk_widget_set_visible (frame162, TRUE);
    gtk_box_append (GTK_BOX (vbox168), frame162);
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
@@ -336,7 +336,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    table4 = gtk_grid_new ();
    // gtk_widget_ref (table4);
    g_object_set_data_full (G_OBJECT (symmetry_controller_dialog), "table4", table4, NULL);
-   gtk_widget_show (table4);
+   gtk_widget_set_visible (table4, TRUE);
    gtk_container_add (GTK_CONTAINER (frame162), table4);
 
    display_sphere_radiobutton_molecule_0 = gtk_radio_button_new_with_label (symm_display_mol_0_gr_group, "Display Sphere");
@@ -346,7 +346,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    g_object_set_data_full (G_OBJECT (symmetry_controller_dialog),
 			     s.c_str(),
 			     display_sphere_radiobutton_molecule_0, NULL);
-   gtk_widget_show (display_sphere_radiobutton_molecule_0);
+   gtk_widget_set_visible (display_sphere_radiobutton_molecule_0, TRUE);
 
    gtk_table_attach (GTK_TABLE (table4), display_sphere_radiobutton_molecule_0, 0, 1, 0, 1,
 		     (GtkAttachOptions) (GTK_FILL),
@@ -370,7 +370,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    g_object_set_data_full (G_OBJECT (symmetry_controller_dialog),
 			     s.c_str(),
 			     display_all_radiobutton_molecule_0, NULL);
-   gtk_widget_show (display_all_radiobutton_molecule_0);
+   gtk_widget_set_visible (display_all_radiobutton_molecule_0, TRUE);
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
 
@@ -397,7 +397,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    g_object_set_data_full (G_OBJECT (symmetry_controller_dialog),
 			     s.c_str(),
 			     display_CA_radiobutton_molecule_0, NULL);
-   gtk_widget_show (display_CA_radiobutton_molecule_0);
+   gtk_widget_set_visible (display_CA_radiobutton_molecule_0, TRUE);
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
 
@@ -419,7 +419,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    g_object_set_data_full (G_OBJECT (symmetry_controller_dialog),
 			     s.c_str(),
 			     colour_symm_std_molecule_0, NULL);
-   gtk_widget_show (colour_symm_std_molecule_0);
+   gtk_widget_set_visible (colour_symm_std_molecule_0, TRUE);
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
 
@@ -446,7 +446,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    g_object_set_data_full (G_OBJECT (symmetry_controller_dialog),
 			     s.c_str(),
 			     colour_symm_by_symop_molecule_0, NULL);
-   gtk_widget_show (colour_symm_by_symop_molecule_0);
+   gtk_widget_set_visible (colour_symm_by_symop_molecule_0, TRUE);
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
 
@@ -473,7 +473,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    g_object_set_data_full (G_OBJECT (symmetry_controller_dialog),
 			     s.c_str(),
 			     colour_symm_by_molecule_molecule_0, NULL);
-   gtk_widget_show (colour_symm_by_molecule_molecule_0);
+   gtk_widget_set_visible (colour_symm_by_molecule_molecule_0, TRUE);
 
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
 
@@ -512,7 +512,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
 		       G_CALLBACK (on_colour_symm_by_molecule_molecule_0_toggled_gtkbuilder_callback),
 		       GINT_TO_POINTER(imol_no));
 
-   gtk_widget_show(molecule_0_frame);
+   gtk_widget_set_visible(molecule_0_frame, TRUE);
 }
 
 // NCS control
@@ -575,7 +575,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    vbox176 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
    // gtk_widget_ref (vbox176);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "vbox176", vbox176, NULL);
-   gtk_widget_show (vbox176);
+   gtk_widget_set_visible (vbox176, TRUE);
    gtk_frame_set_child(GTK_FRAME(frame_molecule_N), vbox176);
 
    ncs_controller_molecule_n_display_ncs_checkbutton =
@@ -588,7 +588,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    g_object_set_data_full (G_OBJECT (ncs_control_dialog),
 			     label_str.c_str(),
 			     ncs_controller_molecule_n_display_ncs_checkbutton, NULL);
-   gtk_widget_show (ncs_controller_molecule_n_display_ncs_checkbutton);
+   gtk_widget_set_visible (ncs_controller_molecule_n_display_ncs_checkbutton, TRUE);
 
    gtk_box_append(GTK_BOX (vbox176), ncs_controller_molecule_n_display_ncs_checkbutton);
    if (show_ghosts_flag)
@@ -599,25 +599,25 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    hseparator11 = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
    // gtk_widget_ref (hseparator11);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "hseparator11", hseparator11, NULL);
-   gtk_widget_show (hseparator11);
+   gtk_widget_set_visible (hseparator11, TRUE);
    gtk_box_append(GTK_BOX (vbox176), hseparator11);
 
    hbox134 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
    // gtk_widget_ref (hbox134);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "hbox134", hbox134, NULL);
-   gtk_widget_show (hbox134);
+   gtk_widget_set_visible (hbox134, TRUE);
    gtk_box_append(GTK_BOX (vbox176), hbox134);
 
    vbox172 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
    // gtk_widget_ref (vbox172);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "vbox172", vbox172, NULL);
-   gtk_widget_show (vbox172);
+   gtk_widget_set_visible (vbox172, TRUE);
    gtk_box_append(GTK_BOX (hbox134), vbox172);
 
    label264 = gtk_label_new("Displayed Chains");
    // gtk_widget_ref (label264);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "label264", label264, NULL);
-   gtk_widget_show (label264);
+   gtk_widget_set_visible (label264, TRUE);
    gtk_box_append(GTK_BOX(vbox172), label264);
 
    ncs_controller_molecule_n_display_chain_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
@@ -625,7 +625,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    g_object_set_data_full (G_OBJECT (ncs_control_dialog),
 			     "ncs_controller_molecule_n_display_chain_vbox",
 			     ncs_controller_molecule_n_display_chain_vbox, NULL);
-   gtk_widget_show (ncs_controller_molecule_n_display_chain_vbox);
+   gtk_widget_set_visible (ncs_controller_molecule_n_display_chain_vbox, TRUE);
 
    gtk_box_append(GTK_BOX (vbox172), ncs_controller_molecule_n_display_chain_vbox);
 
@@ -652,7 +652,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
       g_object_set_data_full (G_OBJECT (ncs_control_dialog),
 				name.c_str(),
 				ncs_controller_molecule_n_display_chain_ich_checkbutton, NULL);
-      gtk_widget_show (ncs_controller_molecule_n_display_chain_ich_checkbutton);
+      gtk_widget_set_visible (ncs_controller_molecule_n_display_chain_ich_checkbutton, TRUE);
 
       gtk_box_append(GTK_BOX(ncs_controller_molecule_n_display_chain_vbox),
                      ncs_controller_molecule_n_display_chain_ich_checkbutton);
@@ -695,13 +695,13 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    vbox174 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
    // gtk_widget_ref (vbox174);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "vbox174", vbox174, NULL);
-   gtk_widget_show (vbox174);
+   gtk_widget_set_visible (vbox174, TRUE);
    gtk_box_append(GTK_BOX (hbox134), vbox174);
 
    label265 = gtk_label_new ("NCS Master Chain");
    // gtk_widget_ref (label265);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "label265", label265, NULL);
-   gtk_widget_show (label265);
+   gtk_widget_set_visible (label265, TRUE);
    // 20220528-PE FIXME set alignment
    gtk_box_append(GTK_BOX (vbox174), label265);
 
@@ -709,7 +709,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    // gtk_widget_ref (ncs_controller_molecule_n_vbox);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog),
 			     "ncs_controller_molecule_n_vbox", ncs_controller_molecule_n_vbox, NULL);
-   gtk_widget_show (ncs_controller_molecule_n_vbox);
+   gtk_widget_set_visible (ncs_controller_molecule_n_vbox, TRUE);
 
    gtk_box_append(GTK_BOX (vbox174), ncs_controller_molecule_n_vbox);
 
@@ -733,7 +733,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
       g_object_set_data_full (G_OBJECT (ncs_control_dialog),
 				name.c_str(),
 				ncs_controller_ncs_master_chain_ich_radiobutton, NULL);
-      gtk_widget_show (ncs_controller_ncs_master_chain_ich_radiobutton);
+      gtk_widget_set_visible (ncs_controller_ncs_master_chain_ich_radiobutton, TRUE);
       gtk_box_append(GTK_BOX (ncs_controller_molecule_n_vbox),
                      ncs_controller_ncs_master_chain_ich_radiobutton);
       std::cout << "Fix the tip BB" << std::endl;
@@ -754,7 +754,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
 		       G_CALLBACK (on_ncs_controller_molecule_n_display_ncs_checkbutton_toggled_gtkbuilder_callback),
 		       GINT_TO_POINTER(imol_no));
 
-   gtk_widget_show(frame_molecule_N);
+   gtk_widget_set_visible(frame_molecule_N, TRUE);
 
 }
 

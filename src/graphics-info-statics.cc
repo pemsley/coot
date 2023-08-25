@@ -42,6 +42,7 @@ bool graphics_info_t::prefer_python = 0; // no GUILE or PYTHON
 bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
 #endif // windows test
 
+bool graphics_info_t::use_gemmi = false;
 short int graphics_info_t::python_at_prompt_flag = 0;
 
 GtkApplication *graphics_info_t::application = 0;
@@ -520,12 +521,12 @@ bool      graphics_info_t::run_startup_scripts_flag = true;
 GtkWidget *graphics_info_t::preferences_widget = NULL;
 int        graphics_info_t::mark_cis_peptides_as_bad_flag = 1;
 
-std::vector<std::string> *graphics_info_t::preferences_general_tabs;
-std::vector<std::string> *graphics_info_t::preferences_bond_tabs;
-std::vector<std::string> *graphics_info_t::preferences_geometry_tabs;
-std::vector<std::string> *graphics_info_t::preferences_colour_tabs;
-std::vector<std::string> *graphics_info_t::preferences_map_tabs;
-std::vector<std::string> *graphics_info_t::preferences_other_tabs;
+std::vector<std::string> graphics_info_t::preferences_general_tabs;
+std::vector<std::string> graphics_info_t::preferences_bond_tabs;
+std::vector<std::string> graphics_info_t::preferences_geometry_tabs;
+std::vector<std::string> graphics_info_t::preferences_colour_tabs;
+std::vector<std::string> graphics_info_t::preferences_map_tabs;
+std::vector<std::string> graphics_info_t::preferences_other_tabs;
 std::vector<coot::preferences_icon_info_t> *graphics_info_t::model_toolbar_icons;
 std::vector<coot::preferences_icon_info_t> *graphics_info_t::main_toolbar_icons;
 
@@ -1428,6 +1429,7 @@ framebuffer graphics_info_t::blur_framebuffer; // 2020
 unsigned int graphics_info_t::framebuffer_scale = 1; // on supersampling by default.
 
 bool graphics_info_t::perspective_projection_flag = false;
+float graphics_info_t::perspective_fov = 26.0; // was 30.0
 
 
 // --------------------------------------------------------------------------------------------
@@ -1695,7 +1697,7 @@ Shader graphics_info_t::shader_for_tmeshes;
 Shader graphics_info_t::shader_for_meshes_shadow_map;
 Shader graphics_info_t::shader_for_texture_meshes_shadow_map;
 Shader graphics_info_t::shader_for_shadow_map_image_texture_mesh;
-float graphics_info_t::shadow_box_size = 66.0;
+float graphics_info_t::shadow_box_size = 120.0;
 
 float graphics_info_t::SSAO_bias = 0.02;
 float graphics_info_t::SSAO_radius = 30.0;
@@ -1743,6 +1745,7 @@ GLuint graphics_info_t::screen_AO_quad_VBO = 0;
 
 Shader graphics_info_t::shader_for_tmeshes_with_shadows;
 Shader graphics_info_t::shader_for_meshes_with_shadows;
+Shader graphics_info_t::shader_for_instanced_meshes_with_shadows;
 HUDTextureMesh graphics_info_t::tmesh_for_shadow_map = HUDTextureMesh("tmesh-for-shadow-map");
 
 bool graphics_info_t::stereo_style_2010 = false;

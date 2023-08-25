@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import copy
-from itertools import tee, izip
+from itertools import tee
 import logging
 from rdkit import Chem
 from rdkit.Chem.rdchem import BondType, BondStereo, BondDir
@@ -219,7 +219,7 @@ def _pairwise(iterable):
     """Utility function to iterate in a pairwise fashion."""
     a, b = tee(iterable)
     next(b, None)
-    return izip(a, b)
+    return zip(a, b)
 
 
 tautomer_enumeration_tests = [

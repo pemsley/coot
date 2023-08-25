@@ -386,8 +386,6 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
    lig_build::pos_t pos_1 = pos_1_in;
    lig_build::pos_t pos_2 = pos_2_in;
 
-   
-
    // fraction_point() returns a point that is (say) 0.8 of the way
    // from p1 (first arg) to p2 (second arg).
    //
@@ -397,7 +395,16 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
    if (shorten_second)
       pos_2 = lig_build::pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction);
 
-   // std::cout << "draw_bond for bt " << bt << " between " << at_1 << " and " << at_2 << std::endl;
+   if (false)
+      std::cout << "------ draw_bond for bt " << bt << " between " << at_1 << " and " << at_2
+                << " c.f. "
+                << " single-bond " << lig_build::bond_t::SINGLE_BOND
+                << " single-or-double " << lig_build::bond_t::SINGLE_OR_DOUBLE
+                << " single-or-aromatic " << lig_build::bond_t::SINGLE_OR_AROMATIC
+                << " deloc-on-and-half " << lig_build::bond_t::DELOC_ONE_AND_A_HALF
+                << " bond-any " << lig_build::bond_t::BOND_ANY
+                << " out-bond " << lig_build::bond_t::OUT_BOND
+                << std::endl;
 
    switch (bt) {
    case lig_build::bond_t::SINGLE_BOND:
@@ -535,6 +542,7 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
                std::string bond_string = draw_sheared_or_darted_wedge_bond(pos_1, pos_2, bond_colour,
                                                                            other_connections_to_second_atom,
                                                                            centre, scale);
+
                s += bond_string;
 	       done_darted = true;
 	    }
@@ -553,7 +561,7 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
                std::string bond_string = "   <polygon points=\"";
                for (unsigned int i=0; i<v.size(); i++) {
                   double sf = 400.0; // scale_factor
-                  lig_build::pos_t p_i = svg_molecule_t::mol_coords_to_svg_coords(v[i], centre, scale);         
+                  lig_build::pos_t p_i = svg_molecule_t::mol_coords_to_svg_coords(v[i], centre, scale);
                   bond_string += std::to_string(sf * p_i.x);
                   bond_string += ",";
                   bond_string += std::to_string(sf * p_i.y);
@@ -568,6 +576,7 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
 	    // cairo_fill(cr);
 	    // cairo_stroke(cr);
 	 }
+
       }
       break;
    case BOND_UNDEFINED:
@@ -642,10 +651,10 @@ svg_bond_t::draw_sheared_or_darted_wedge_bond(const lig_build::pos_t &pos_1,
 
    double sf = 400.0; // scale_factor
 
-   if (v.size() > 4) {
+   if (v.size() >= 4) {
       s += "<polygon points=\"";
       for (unsigned int i=0; i<v.size(); i++) {
-         lig_build::pos_t p_i = svg_molecule_t::mol_coords_to_svg_coords(v[i], centre, scale);         
+         lig_build::pos_t p_i = svg_molecule_t::mol_coords_to_svg_coords(v[i], centre, scale);
          s += std::to_string(sf * p_i.x);
          s += ",";
          s += std::to_string(sf * p_i.y);
@@ -758,7 +767,13 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
             double x_fudge = -sf * 0.50 / 50.0;
             double y_fudge =  sf * 0.65 / 50.0;
 
-            std::string default_font_size = "\"0.8em\"";
+            // these were adjusted by eye, previolsy fs was just 0.8;
+            double fs = 0.8;
+            fs *= (scale/0.044);
+            if (fs < 0.7) fs = 0.7;
+
+            std::string fss = std::to_string(fs);
+            std::string default_font_size = "\"" + fss + "em\"";
             std::string font_size = default_font_size;
             if (atom_id_info.offsets[i].superscript) font_size = "\"0.6em\"";
             if (atom_id_info.offsets[i].subscript)   font_size = "\"0.6em\"";
@@ -842,11 +857,17 @@ svg_molecule_t::render_to_svg_string(bool dark_background_flag) {
          if (pos.y > max_y) max_y = pos.y;
       }
       // now adjust so that the labels can fit
-      min_x -= 0.0;
-      min_y -= 0.0;
+
+      // a sugar is about 200x200
+      min_x -= 20.0;
+      min_y -= 20.0;
+      max_x += 20.0;
+      max_y += 20.0;
 
       float width  = max_x - min_x;
       float height = max_y - min_y;
+
+      // std::cout << "width: " << width << std::endl;
       viewBox_string = "viewBox=" + std::string("\"") +
          std::to_string(min_x) + std::string(" ") +
          std::to_string(min_y) + std::string(" ") +
@@ -865,7 +886,7 @@ svg_molecule_t::render_to_svg_string(bool dark_background_flag) {
 
    double scale = get_scale();
    lig_build::pos_t centre = get_ligand_centre();
-   
+
    // cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
    // cairo_set_line_width(cr, 0.07 * scale * median_bond_length_);
 
@@ -919,6 +940,7 @@ svg_molecule_t::render_to_svg_string(bool dark_background_flag) {
 	    std::cout << "in render(): atom_index " << iat << " with charge "
 		      << atoms[iat].charge << " made atom_id_info "
 		      << atom_id_info << std::endl;
+         // std::cout << "atom block: passing scale " << scale << std::endl;
 	 s += atoms[iat].make_text_item(atom_id_info, centre, scale, median_bond_length_);
       } else {
 
@@ -934,7 +956,7 @@ svg_molecule_t::render_to_svg_string(bool dark_background_flag) {
 	 }
       }
    }
-   
+
 
    s += svg_footer;
    return s;

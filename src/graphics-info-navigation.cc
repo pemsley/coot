@@ -115,9 +115,9 @@ graphics_info_t::set_go_to_atom_chain_residue_atom_name(const char *t1,
 
 // After this function, we call try_centre_from_new_go_to_atom();
 void
-graphics_info_t::set_go_to_atom_chain_residue_atom_name(const char *chain_id,
-							int resno, const char *ins_code,
-							const char *atom_name, const char *altLoc) {
+graphics_info_t::set_go_to_atom_chain_residue_atom_name(const std::string &chain_id,
+							int resno, const std::string &ins_code,
+							const std::string &atom_name, const std::string &altLoc) {
    // these are strings, don't forget.
    go_to_atom_chain_     = chain_id;
    go_to_atom_residue_   = resno;
@@ -340,8 +340,6 @@ graphics_info_t::intelligent_previous_atom_centring(GtkWidget *go_to_atom_window
 
 }
 
-#include "nsv.hh"
-
 // direction is either "next" or "previous"
 //
 int
@@ -422,22 +420,8 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
          ai = atom_info_as_text_for_statusbar(atom_index, imol);
          add_status_bar_text(ai);
 
-// #if GTK3_CAN_DO_SEQUENCE_VIEW
-#ifdef HAVE_GOOCANVAS
-         auto sequence_view_highlight_residue_maybe = [] (mmdb::Atom *next_atom,
-                                                          GtkWidget *svc) {
-                                                         if (svc) {
-                                                            mmdb::Residue *residue_p = next_atom->residue;
-                                                            if (residue_p) {
-                                                               exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
-                                                               if (nsv)
-                                                                  nsv->highlight_residue(residue_p);
-                                                            }
-                                                         }
-                                                      };
+         std::cout << "if sequence view is displayed update highlighted position here C " << std::endl;
 
-         sequence_view_highlight_residue_maybe(next_atom, get_sequence_view_is_displayed(imol));
-#endif
       }
    }
    return 1;
@@ -1328,3 +1312,5 @@ graphics_info_t::sequence_view_highlight_residue_maybe(mmdb::Atom *atom, GtkWidg
    }
 #endif // HAVE_GOOCANVAS
 }
+
+

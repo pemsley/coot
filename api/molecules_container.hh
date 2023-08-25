@@ -187,9 +187,16 @@ class molecules_container_t {
    static void atom_pull_off(const coot::atom_spec_t &spec);
    static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
    std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::Residue *> > &local_residues) const;
-   //! this is like mini-rsr:
-   //! @return success status
-   int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc);
+
+   //! Real space refinement.
+   //!
+   //! the `n_cycles` parameter allows partial refinement - so for an animated representation one would call this
+   //! with a small number (10, 20, 100?) and call it again if the refine status is still yet to reach completion
+   //! GSL_CONTINUE (-2). And then make a call to get the bonds mesh (or other molecular representation).
+   //! If n_cycles is negative, this means "refine to completion."
+   //!
+   //! @return success/progress status
+   int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc, int n_cycles);
 
    double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
 
@@ -252,6 +259,13 @@ class molecules_container_t {
 					   atom_selection_container_t asc_mov,
 					   mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
 					   int n_selected_atoms_1, int n_selected_atoms_2) const;
+   // for gesmpt this will be vector of vector
+   std::vector<std::pair<coot::residue_validation_information_t, coot::residue_validation_information_t> >
+   get_pairs(ssm::Align *SSMAlign,
+             atom_selection_container_t asc_ref,
+             atom_selection_container_t asc_mov,
+             mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
+             int n_selected_atoms_1, int n_selected_atoms_2) const;
 
 #endif  // HAVE_SSMLIB
 
@@ -263,6 +277,7 @@ class molecules_container_t {
    // --------------------- init --------------------------
 
    void init() {
+
       imol_refinement_map = -1;
       imol_difference_map = -1;
       geometry_init_standard(); // do this by default now
@@ -545,6 +560,9 @@ public:
                                                                  float bond_width, float atom_radius_to_bond_width_ratio,
                                                                  int smoothness_factor);
 
+   //! return the colur table (for testing)
+   std::vector<glm::vec4> get_colour_table(int imol, bool against_a_dark_background) const;
+
    //! set the colour wheel rotation base for the specified molecule (in degrees)
    void set_colour_wheel_rotation_base(int imol, float r);
 
@@ -560,8 +578,9 @@ public:
    //! user-defined colour-index to colour
    void set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 3> > &colour_map);
 
-   //! user-defined atom selection to colour index
-   void set_user_defined_atom_colour_by_residue(int imol, const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids);
+   //! set the user-defined residue selections (CIDs) to colour index
+   void set_user_defined_atom_colour_by_selection(int imol, const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
+                                                  bool colour_applies_to_non_carbon_atoms_also);
 
    //! Add a colour rule for M2T representations
    //
@@ -656,7 +675,7 @@ public:
 
    //! superposition (using SSM)
    //!
-   //! The specified chaing of the moving molecule is superposed onto the chain in the reference molecule (if possible).
+   //! The specified chain of the moving molecule is superposed onto the chain in the reference molecule (if possible).
    //! There is some alignment screen output that would be better added to the return value.
    // std::pair<std::string, std::string>
    superpose_results_t SSM_superpose(int imol_ref, const std::string &chain_id_ref,
@@ -714,6 +733,12 @@ public:
    //! @return the map rmsd (epsilon testing is not used). -1 is returned if `imol_map` is not a map molecule index.
    float get_map_rmsd_approx(int imol_map) const;
 
+   //! @return the suggested initial contour level. Return -1 on not-a-map
+   float get_suggested_initial_contour_level(int imol) const;
+
+   //! @return the "EM" status of this molecule. Return false on not-a-map.
+   bool is_EM_map(int imol) const;
+
    //! create a new map that is blurred/sharpened
    //! @return the molecule index of the new map or -1 on failure or if `in_place_flag` was true.
    int sharpen_blur_map(int imol_map, float b_factor, bool in_place_flag);
@@ -726,6 +751,10 @@ public:
    //!
    //! @return the index of the new map - or -1 on failure
    int mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &cid, bool invert_flag);
+
+   //! generate a new map which is the hand-flipped version of the input map.
+   //! @return the molecule index of the new map, or -1 on failure.
+   int flip_hand(int imol_map);
 
    //! Make a vector of maps that are split by chain-id of the input imol
    //! @return a vector of the map molecule indices.
@@ -825,10 +854,20 @@ public:
    //! add a residue onto the end of the chain by fitting to density
    //! @return a first of 1 on success. Return a useful message in second if the addition did not work
    std::pair<int, std::string> add_terminal_residue_directly(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
-   //! @return a useful message if the addition did not work
+
    // std::pair<int, std::string> add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
-   //! This used to return a pair, but I removed it so that I could compile the binding
+   //
+   //! the cid is for an atom.
+   //! This used to return a pair, but I removed it so that I could compile the binding.
+   //! @return an status.
    int add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
+
+   //! the cid is for an atom.
+   //! buccaneer building
+   int add_terminal_residue_directly_using_bucca_ml_growing_using_cid(int imol, const std::string &cid);
+
+   //! buccaneer building, called by the above
+   int add_terminal_residue_directly_using_bucca_ml_growing(int imol, const coot::residue_spec_t &spec);
 
    //! add waters, updating imol_model (of course)
    //! @return the number of waters added on a success, -1 on failure.
@@ -894,6 +933,15 @@ public:
    //! copy a fragment
    //! @return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_using_cid(int imol, const std::string &cid);
+
+   //! copy a fragment - use this in preference to `copy_fragment_using_cid()` when copying
+   //! a molecule fragment to make a molten zone for refinement.
+   //! That is because this version quietly also copies the residues near the residues of the selection.
+   //! so that those residues can be used for links and non-bonded contact restraints.
+   //! `multi_cids" is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
+   //! @return the new molecule number (or -1 on no atoms selected)
+   int copy_fragment_for_refinement_using_cid(int imol, const std::string &multi_cid);
+
    //! copy a residue-range fragment
    //! @return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_using_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end);
@@ -950,14 +998,52 @@ public:
    //
    //! ``mode`` is one of {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
-   int refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode);
+   int refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode, int n_cycles);
    //! refine the residues
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
-                       const std::string &alt_conf, const std::string &mode);
+                       const std::string &alt_conf, const std::string &mode, int n_cycles);
    //! refine residue range
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
-   int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end);
+   int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end, int n_cycles);
+
+   //! fix atoms during refinement. Does nothing at the moment.
+   void fix_atom_selection_during_refinement(int imol, const std::string &atom_selection_cid);
+
+   //! add or update (if it has a pull restraint already)
+   void add_target_position_restraint(int imol, const std::string &atom_cid, float pos_x, float pos_y, float pos_z);
+
+   //! clear target_position restraint
+   void clear_target_position_restraint(int imol, const std::string &atom_cid);
+
+   //! clear target_position restraint if it is (or they are) close to their target position
+   void turn_off_when_close_target_position_restraint(int imol);
+
+   //! initialise the refinement of (all of) molecule `imol_frag`
+   void init_refinement_of_molecule_as_fragment_based_on_reference(int imol_frag, int imol_ref, int imol_map);
+
+   //! Run some cycles of refinement and return a mesh.
+   //! That way we can see the molecule animate as it refines
+   //! @return a pair: the first of which is the status of the refinement: GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress).
+   //! i.e. don't call thus function again unless the status is GSL_CONTINUE (-2);
+   //! The second is a `coot::instanced_mesh_t`
+   std::pair<int, coot::instanced_mesh_t> refine(int imol, int n_cycles);
+
+   //! Create a new position for the given atom and create a new bonds mesh based on that.
+   //! This is currently "heavyweight" as the bonds mesh is calculated from scratch (it is not (yet) merely a distortion
+   //! of an internally-stored mesh).
+   //! `n_cycles` specifies the number of refinement cyles to run after the target position of the atom has been applied.
+   //! If n_cycles is -1 then, no cycles are done and the mesh is bonds merely calculated.
+   //! @return a `coot::instanced_mesh_t`
+   coot::instanced_mesh_t add_target_position_restraint_and_refine(int imol, const std::string &atom_cid,
+                                                                   float pos_x, float pos_y, float pos_z,
+                                                                   int n_cycles);
+   //! clear any and all drag-atom target position restraints
+   void clear_target_position_restraints(int imol);
+
+   //! call this after molecule refinement has finished (say when the molecule molecule is accepted into the
+   //! original molecule)
+   void clear_refinement(int imol);
 
    //! for debugging the refinement - write out some diagnositics - some might be useful
    void set_refinement_is_verbose() { refinement_is_quiet = false; }
@@ -1032,6 +1118,12 @@ public:
    //! `mcdonald_and_thornton_mode` turns on the McDonald & Thornton algorithm - using explicit hydrogen atoms
    //! @return a vector of hydrogen bonds around the specified residue (typically a ligand)
    std::vector<moorhen::h_bond> get_h_bonds(int imol, const std::string &cid_str, bool mcdonald_and_thornton_mode) const;
+
+   //! get the mesh for ligand validation vs dictionary, coloured by badness.
+   //! greater then 3 standard deviations is fully red.
+   //! Less than 0.5 standard deviations is fully green.
+   // Function is not const because it might change the protein_geometry geom.
+   coot::simple_mesh_t get_mesh_for_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid);
 
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation
@@ -1193,7 +1285,7 @@ public:
    //! This function is not const because it caches the svgs if it can.
    //!
    //! @return the string for the SVG representation.
-   std::string get_svg_for_residue_type(int imol, const std::string &comp_id, bool dark_background_flag);
+   std::string get_svg_for_residue_type(int imol, const std::string &comp_id, bool use_rdkit_svg, bool dark_background_flag);
 
    //! This function is for adding compounds/molecules like buffer agents and precipitants or anions and cations.
    //! _i.e._ those ligands that can be positioned without need for internal torsion angle manipulation.
@@ -1276,7 +1368,7 @@ public:
                                                         const std::string &style);
    PyObject *get_pythonic_gaussian_surface_mesh(int imol, float sigma, float contour_level,
                                                 float box_radius, float grid_scale);
-   
+
    //! @return a pair - the first of which (index 0) is the list of atoms, the second (index 1) is the list of bonds.
    //! An atom is a list:
    //!

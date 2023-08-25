@@ -5,6 +5,7 @@
 #include <map>
 #include "vertex.hh"
 #include "g_triangle.hh"
+#include "cylinder.hh"
 
 namespace coot {
 
@@ -25,6 +26,9 @@ namespace coot {
       explicit simple_mesh_t(const std::string &name_in) : status(1), name(name_in) {}
       simple_mesh_t(const std::vector<api::vnc_vertex> &vertices_in,
                     const std::vector<g_triangle> &triangles_in) : status(1), vertices(vertices_in), triangles(triangles_in) {}
+      explicit simple_mesh_t(const cylinder &cyl) : vertices(cyl.vertices), triangles(cyl.triangles) {
+         status = 1;
+      }
       void translate(const glm::vec3 &t);
       // 20221101-PE blender uses colours/materials for faces. So let's store those too.
       // Now each face (each g_triangle) can have a colour_index (default is -1 (unset)).

@@ -79,14 +79,14 @@ create_fit_loop_rama_search_dialog() {
 
    gtk_window_set_title(GTK_WINDOW(dialog), "Coot: Fit Loop");
    gtk_label_set_text(GTK_LABEL(label), "\nFit loop in Molecule:\n");
-   gtk_widget_hide(mutate_ok_button);
-   gtk_widget_hide(autofit_checkbutton);
-   gtk_widget_show(fit_loop_ok_button);
-   gtk_widget_show(rama_checkbutton);
+   gtk_widget_set_visible(mutate_ok_button, FALSE);
+   gtk_widget_set_visible(autofit_checkbutton, FALSE);
+   gtk_widget_set_visible(fit_loop_ok_button, TRUE);
+   gtk_widget_set_visible(rama_checkbutton, TRUE);
    gtk_check_button_set_active(GTK_CHECK_BUTTON(rama_checkbutton), TRUE);
    gtk_widget_set_visible(mutate_sequence_green_light_image, FALSE); // initially no match.
 
-   gtk_widget_show(method_frame);
+   gtk_widget_set_visible(method_frame, TRUE);
 
    return dialog;
 }

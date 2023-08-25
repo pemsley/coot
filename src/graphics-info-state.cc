@@ -163,6 +163,8 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
    commands.push_back(state_command("set-map-radius", box_radius_xray, il));
 
+   commands.push_back(state_command("set-map-radius-em", box_radius_em, il));
+
    unsigned short int v = 4; // 4 dec pl. if float_to_string_using_dec_pl is fixed.
    // a "flag" to use a different function to generate the string from the float
    commands.push_back(state_command("set-iso-level-increment", iso_level_increment, il, v));
@@ -1059,7 +1061,7 @@ graphics_info_t::check_for_unsaved_changes() const {
 	 GtkWidget *dialog = widget_from_builder("unsaved_changes_dialog");
 	 fill_unsaved_changes_dialog(dialog);
          set_transient_and_position(COOT_UNDEFINED_WINDOW, dialog);
-	 gtk_widget_show(dialog);
+	 gtk_widget_set_visible(dialog, TRUE);
 	 iv = 1;
 	 break;
       }
@@ -1080,7 +1082,7 @@ graphics_info_t::fill_unsaved_changes_dialog(GtkWidget *dialog) const {
          labelstr += "  ";
          labelstr += molecules[imol].name_;
          GtkWidget *label = gtk_label_new(labelstr.c_str());
-         gtk_widget_show(label);
+         gtk_widget_set_visible(label, TRUE);
          // gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f); gtk3 fix alignment
          gtk_box_append(GTK_BOX (vbox), label);
       }

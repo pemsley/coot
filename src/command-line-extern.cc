@@ -51,6 +51,7 @@
 #include "command-line.hh"
 #include "get-monomer.hh"
 
+#include "read-molecule.hh" // now with std::string args
 
 
 extern "C"
@@ -126,14 +127,11 @@ handle_command_line_data(command_line_data cld) {
       short int smooth_scroll_state_pre = graphics_info_t::smooth_scroll;
       graphics_info_t::smooth_scroll_on = 0;
       graphics_info_t::smooth_scroll    = 0;
-      int imol_new = handle_read_draw_molecule(cld.coords[i].c_str());
-      std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHere A " << std::endl;
+      int imol_new = handle_read_draw_molecule(cld.coords[i]);
       if (! is_valid_model_molecule(imol_new)) {
-         std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHere B " << std::endl;
          std::string  m("WARNING:: Failed to read " + cld.coords[i]);
          info_dialog(m.c_str());
       } else {
-         std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHere C " << std::endl;
       }
       graphics_info_t::smooth_scroll_on = smooth_scroll_on_state_pre;
       graphics_info_t::smooth_scroll    = smooth_scroll_state_pre;

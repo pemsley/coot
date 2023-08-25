@@ -115,14 +115,14 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
       std::cout << "WARNING:: you must have a map to search for ligands!" << std::endl;
       std::string s("WARNING:: you must have a map to\n search for ligands!");
       GtkWidget *w = wrapped_nothing_bad_dialog(s);
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
    }
    ifound_coords = fill_ligands_dialog_protein_bits(find_ligand_dialog);
    if (ifound_coords == 0) {
       std::cout << "Error: you must have a protein to mask the map!" << std::endl;
       std::string s("WARNING:: you must have a protein\n to mask the map");
       GtkWidget *w = wrapped_nothing_bad_dialog(s);
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
    }
    ifound_ligand = fill_ligands_dialog_ligands_bits(find_ligand_dialog);
    if (ifound_ligand == 0) {
@@ -132,7 +132,7 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
       s += coot::util::int_to_string(graphics_info_t::find_ligand_ligand_atom_limit);
       s += " atoms\n";
       GtkWidget *w = wrapped_nothing_bad_dialog(s);
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
    }
 
    // The mask waters radio buttons:
@@ -357,7 +357,7 @@ int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialo
             //                find_ligand_protein_radiobutton_imol,
             //                (GDestroyNotify) NULL);
             g_object_set_data(G_OBJECT(find_ligand_protein_radiobutton_imol), "imol", GINT_TO_POINTER(imol));
-	    gtk_widget_show (find_ligand_protein_radiobutton_imol);
+	    gtk_widget_set_visible (find_ligand_protein_radiobutton_imol, TRUE);
 	    gtk_box_pack_start (GTK_BOX (find_ligand_protein_vbox),
 				find_ligand_protein_radiobutton_imol, FALSE, FALSE, 0);
 #endif
@@ -414,7 +414,7 @@ int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
 					 protein_str.c_str(),
 					 find_ligand_protein_radiobutton_imol,
 					 (GDestroyNotify) NULL);
-	       gtk_widget_show (find_ligand_protein_radiobutton_imol);
+	       gtk_widget_set_visible (find_ligand_protein_radiobutton_imol, TRUE);
 	       gtk_box_pack_start (GTK_BOX (find_ligand_protein_vbox),
 				   find_ligand_protein_radiobutton_imol, FALSE, FALSE, 0);
 #endif
@@ -468,14 +468,14 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
 
             g_object_set_data(G_OBJECT(find_ligand_ligands_checkbutton_imol), "imol", GINT_TO_POINTER(imol));
 
-            gtk_widget_show (find_ligand_wligands_checkbutton_imol);
-            gtk_widget_show (find_ligand_ligands_checkbutton_imol);
+            gtk_widget_set_visible (find_ligand_wligands_checkbutton_imol, TRUE);
+            gtk_widget_set_visible (find_ligand_ligands_checkbutton_imol, TRUE);
 
          // gtk_box_append(GTK_BOX(hbox), find_ligand_wligands_checkbutton_imol);
          // gtk_box_append(GTK_BOX(hbox), find_ligand_ligands_checkbutton_imol);
          // pack the hbox into the ligands vbox
          // gtk_box_append(GTK_BOX(find_ligand_ligands_vbox), hbox);
-         // gtk_widget_show(hbox);
+         // gtk_widget_set_visible(hbox, TRUE);
 
             gtk_grid_attach(GTK_GRID(find_ligands_select_ligands_grid), find_ligand_ligands_checkbutton_imol,  0, imol, 1, 1);
             gtk_grid_attach(GTK_GRID(find_ligands_select_ligands_grid), find_ligand_wligands_checkbutton_imol, 1, imol, 1, 1);
@@ -634,7 +634,7 @@ void do_find_ligand_many_atoms_in_ligands(GtkWidget *find_ligand_dialog) {
    // GtkWidget *widget = create_find_ligand_many_atoms_dialog();
    GtkWidget *widget = widget_from_builder("find_ligand_many_atoms_dialog");
    g_object_set_data(G_OBJECT(widget), "find_ligand_dialog", find_ligand_dialog);
-   gtk_widget_show(widget);
+   gtk_widget_set_visible(widget, TRUE);
 }
 
 void set_ligand_expert_options_from_widget(GtkWidget *button) {
@@ -1038,17 +1038,17 @@ coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
 	 // bad ligand
 	 if (lr.mogul_percentile < 0) {
 	    // test failed
-	    gtk_widget_hide(mogul_tick_w);
-	    gtk_widget_hide(mogul_cross_w);
+	    gtk_widget_set_visible(mogul_tick_w, FALSE);
+	    gtk_widget_set_visible(mogul_cross_w, FALSE);
 	 } else {
 	    // ligand failed test
-	    gtk_widget_hide(mogul_tick_w);
-	    gtk_widget_hide(mogul_incom_w);
+	    gtk_widget_set_visible(mogul_tick_w, FALSE);
+	    gtk_widget_set_visible(mogul_incom_w, FALSE);
 	 }
       } else {
 	 // happy ligand
-	 gtk_widget_hide(mogul_cross_w);
-	 gtk_widget_hide(mogul_incom_w);
+	 gtk_widget_set_visible(mogul_cross_w, FALSE);
+	 gtk_widget_set_visible(mogul_incom_w, FALSE);
       } 
 #endif
 
@@ -1058,17 +1058,17 @@ coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
          // bad ligand
          if (lr.dictionary_geometry_percentile < 0) {
             // test failed
-            gtk_widget_hide(mogul_tick_w);
-            gtk_widget_hide(mogul_cross_w);
+            gtk_widget_set_visible(mogul_tick_w, FALSE);
+            gtk_widget_set_visible(mogul_cross_w, FALSE);
          } else {
             // ligand failed percentile test
-            gtk_widget_hide(mogul_tick_w);
-            gtk_widget_hide(mogul_incom_w);
+            gtk_widget_set_visible(mogul_tick_w, FALSE);
+            gtk_widget_set_visible(mogul_incom_w, FALSE);
          }
       } else {
          // happy ligand
-         gtk_widget_hide(mogul_incom_w);
-         gtk_widget_hide(mogul_cross_w);
+         gtk_widget_set_visible(mogul_incom_w, FALSE);
+         gtk_widget_set_visible(mogul_cross_w, FALSE);
       }
 
       
@@ -1076,36 +1076,36 @@ coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
 	 // bad ligand
 	 if (lr.density_correlation_percentile < -1) {
 	    // the test failed/was incomplete
-	    gtk_widget_hide(density_tick_w);
-	    gtk_widget_hide(density_cross_w);
+	    gtk_widget_set_visible(density_tick_w, FALSE);
+	    gtk_widget_set_visible(density_cross_w, FALSE);
 	 } else {
 	    // the ligand failed the percentile test
-	    gtk_widget_hide(density_tick_w);
-	    gtk_widget_hide(density_incom_w);
+	    gtk_widget_set_visible(density_tick_w, FALSE);
+	    gtk_widget_set_visible(density_incom_w, FALSE);
 	 }
       } else {
 	 // happy
-	 gtk_widget_hide(density_cross_w);
-	 gtk_widget_hide(density_incom_w);
+	 gtk_widget_set_visible(density_cross_w, FALSE);
+	 gtk_widget_set_visible(density_incom_w, FALSE);
       }
 
       if (lr.probe_clash_percentile < percentile_limit) {
 	 // bad bumps
 	 if (lr.probe_clash_percentile < 0) {
-	    gtk_widget_hide(bumps_tick_w);
-	    gtk_widget_hide(bumps_cross_w);
+	    gtk_widget_set_visible(bumps_tick_w, FALSE);
+	    gtk_widget_set_visible(bumps_cross_w, FALSE);
 	 } else {
-	    gtk_widget_hide(bumps_tick_w);
-	    gtk_widget_hide(bumps_incom_w);
+	    gtk_widget_set_visible(bumps_tick_w, FALSE);
+	    gtk_widget_set_visible(bumps_incom_w, FALSE);
 	 }
       } else {
 	 // happy bumps
-	 gtk_widget_hide(bumps_cross_w);
-	 gtk_widget_hide(bumps_incom_w);
+	 gtk_widget_set_visible(bumps_cross_w, FALSE);
+	 gtk_widget_set_visible(bumps_incom_w, FALSE);
       }
 
 
-      gtk_widget_show(w);
+      gtk_widget_set_visible(w, TRUE);
    }
 
 }
@@ -1135,10 +1135,10 @@ setup_ligands_progress_bar() {
    // was: lookup_widget(graphics_info_t::glarea, "window1");
    gtk_window_set_transient_for(GTK_WINDOW(window), GTK_WINDOW(main_window));
 
-   gtk_widget_show(vbox);
-   gtk_widget_show(progress_bar);
-   gtk_widget_show(label);
-   gtk_widget_show(window);
+   gtk_widget_set_visible(vbox, TRUE);
+   gtk_widget_set_visible(progress_bar, TRUE);
+   gtk_widget_set_visible(label, TRUE);
+   gtk_widget_set_visible(window, TRUE);
 #if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
    gtk_box_append(GTK_BOX(vbox), progress_bar);
    gtk_box_append(GTK_BOX(vbox), label);
@@ -1194,7 +1194,7 @@ gboolean install_simple_wiggly_ligand_idle_fn(gpointer data) {
       if (ldp->finish) {
 	 status = 0;
 	 execute_ligand_search_internal(ldp->wlig);
-	 gtk_widget_hide(ldp->progress_bar_window);
+	 gtk_widget_set_visible(ldp->progress_bar_window, FALSE);
       } else {
 	 // continue one more round
 	 gtk_label_set_text(GTK_LABEL(ldp->progress_bar_label), "Searching density clusters");

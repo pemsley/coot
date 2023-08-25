@@ -98,13 +98,13 @@ create_fit_loop_rama_search_dialog_gtkbuilder_version() {
    fill_mutate_sequence_dialog_gtkbuilder_version(dialog);
 
    gtk_label_set_text(GTK_LABEL(label), "\nFit loop in Molecule:\n");
-   gtk_widget_hide(mutate_ok_button);
-   gtk_widget_hide(checkbutton);
-   gtk_widget_show(fit_loop_ok_button);
-   gtk_widget_show(rama_checkbutton);
+   gtk_widget_set_visible(mutate_ok_button, FALSE);
+   gtk_widget_set_visible(checkbutton, FALSE);
+   gtk_widget_set_visible(fit_loop_ok_button, TRUE);
+   gtk_widget_set_visible(rama_checkbutton, TRUE);
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rama_checkbutton), TRUE);
 
-   gtk_widget_show(method_frame);
+   gtk_widget_set_visible(method_frame, TRUE);
 
    
    return dialog;
