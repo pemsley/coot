@@ -64,6 +64,8 @@ They are non-instanced geometry. Should I just use api/instancing.hh?
 
 I want to be able use "Fancy" shader path, but not use SSAO.
 
+Rotation in Proportional Editing
+
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
 Nice to have:
