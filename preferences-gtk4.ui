@@ -47,6 +47,23 @@
                         <property name="label" translatable="yes">General</property>
                         <property name="use-underline">1</property>
                         <property name="active">1</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">5</property>
+                            <property name="halign">center</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">preferences-system</property>
+                             `</object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">General</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                         <signal name="toggled" handler="on_preferences_general_radiotoolbutton_toggled" swapped="no"/>
                       </object>
                     </child>
@@ -55,6 +72,23 @@
                         <property name="label" translatable="yes">Bonds</property>
                         <property name="use-underline">1</property>
                         <property name="group">preferences_general_radiotoolbutton</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">5</property>
+                            <property name="halign">center</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">preferences-system-sharing</property>
+                             `</object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Bonds</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                         <signal name="toggled" handler="on_preferences_bond_radiotoolbutton_toggled" swapped="no"/>
                       </object>
                     </child>
@@ -63,6 +97,23 @@
                         <property name="label" translatable="yes">Maps</property>
                         <property name="use-underline">1</property>
                         <property name="group">preferences_general_radiotoolbutton</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">5</property>
+                            <property name="halign">center</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">map</property>
+                             `</object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Maps</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                         <signal name="toggled" handler="on_preferences_map_radiotoolbutton_toggled" swapped="no"/>
                       </object>
                     </child>
@@ -71,6 +122,23 @@
                         <property name="label" translatable="yes">Geometry</property>
                         <property name="use-underline">1</property>
                         <property name="group">preferences_general_radiotoolbutton</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">5</property>
+                            <property name="halign">center</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">applications-accessories</property>
+                             `</object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Geometry</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                         <signal name="toggled" handler="on_preferences_geometry_radiotoolbutton_toggled" swapped="no"/>
                       </object>
                     </child>
@@ -79,6 +147,23 @@
                         <property name="label" translatable="yes">Colours</property>
                         <property name="use-underline">1</property>
                         <property name="group">preferences_general_radiotoolbutton</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">5</property>
+                            <property name="halign">center</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">applications-graphics</property>
+                             `</object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Colours</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                         <signal name="toggled" handler="on_preferences_colour_radiotoolbutton_toggled" swapped="no"/>
                       </object>
                     </child>
@@ -87,6 +172,23 @@
                         <property name="label" translatable="yes">Others</property>
                         <property name="use-underline">1</property>
                         <property name="group">preferences_general_radiotoolbutton</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">5</property>
+                            <property name="halign">center</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">dialog-question</property>
+                             `</object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Others</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                         <signal name="toggled" handler="on_preferences_other_radiotoolbutton_toggled" swapped="no"/>
                       </object>
                     </child>
