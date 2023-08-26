@@ -1757,52 +1757,63 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 void
 graphics_info_t::make_moving_atoms_restraints_graphics_object() {
 
-   draw_it_for_moving_atoms_restraints_graphics_object = true; // hack          
+   // 20230823-PE do we need any control over this (extra bond restraints) other than
+   // the user_control?
+   // Let's see...
+   draw_it_for_moving_atoms_restraints_graphics_object = true;
 
    if (moving_atoms_asc) {
       if (last_restraints) {
          if (draw_it_for_moving_atoms_restraints_graphics_object) {
-            moving_atoms_extra_restraints_representation.clear();
-            for (int i=0; i<last_restraints->size(); i++) {
-               // std::cout << "-------------------- in make_moving_atoms_restraints_graphics_object() D " << i << std::endl;
-               const coot::simple_restraint &rest = last_restraints->at(i);
-               if (rest.restraint_type == coot::BOND_RESTRAINT ||
-                   rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+            if (draw_it_for_moving_atoms_restraints_graphics_object_user_control) {
+               moving_atoms_extra_restraints_representation.clear();
+               for (int i=0; i<last_restraints->size(); i++) {
+                  // std::cout << "-------------------- in make_moving_atoms_restraints_graphics_object() D " << i << std::endl;
+                  const coot::simple_restraint &rest = last_restraints->at(i);
+                  if (rest.restraint_type == coot::BOND_RESTRAINT ||
+                      rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
 
-                  if (rest.target_value > 2.15) {  // no real bond restraints
-                     int idx_1 = rest.atom_index_1;
-                     int idx_2 = rest.atom_index_2;
-                     // we can't display bonds to non-moving atoms
-                     if (idx_1 < moving_atoms_asc->n_selected_atoms) {
-                        if (idx_2 < moving_atoms_asc->n_selected_atoms) {
-                           mmdb::Atom *at_1 = moving_atoms_asc->atom_selection[idx_1];
-                           mmdb::Atom *at_2 = moving_atoms_asc->atom_selection[idx_2];
-                           if (at_1 && at_2) {
-                              clipper::Coord_orth p1 = coot::co(at_1);
-                              clipper::Coord_orth p2 = coot::co(at_2);
-                              const double &dd = rest.target_value;
-                              float def = sqrtf(clipper::Coord_orth(p1-p2).lengthsq());
-                              double de = static_cast<double>(def);
-                              bool do_it = true;
-                              std::string atom_name_1 = at_1->GetAtomName();
-                              std::string atom_name_2 = at_2->GetAtomName();
-                              if (atom_name_1 == " CA ")
-                                 if (atom_name_2 == " CA ")
-                                    do_it = false;
-                              if (do_it)
-                                 moving_atoms_extra_restraints_representation.add_bond(p1, p2, dd, de);
+                     if (rest.target_value > 2.15) {  // no real bond restraints
+                        int idx_1 = rest.atom_index_1;
+                        int idx_2 = rest.atom_index_2;
+                        // we can't display bonds to non-moving atoms
+                        if (idx_1 < moving_atoms_asc->n_selected_atoms) {
+                           if (idx_2 < moving_atoms_asc->n_selected_atoms) {
+                              mmdb::Atom *at_1 = moving_atoms_asc->atom_selection[idx_1];
+                              mmdb::Atom *at_2 = moving_atoms_asc->atom_selection[idx_2];
+                              if (at_1 && at_2) {
+                                 clipper::Coord_orth p1 = coot::co(at_1);
+                                 clipper::Coord_orth p2 = coot::co(at_2);
+                                 // dd is the target value
+                                 // de is the actual value
+                                 const double &dd = rest.target_value;
+                                 float def = sqrtf(clipper::Coord_orth(p1-p2).lengthsq());
+                                 double de = static_cast<double>(def);
+                                 bool do_it = true;
+                                 std::string atom_name_1 = at_1->GetAtomName();
+                                 std::string atom_name_2 = at_2->GetAtomName();
+                                 if (atom_name_1 == " CA ")
+                                    if (atom_name_2 == " CA ")
+                                       do_it = false;
+                                 if (do_it)
+                                    moving_atoms_extra_restraints_representation.add_bond(p1, p2, dd, de);
+                              }
                            }
                         }
                      }
                   }
                }
+
+               if (false)
+                  std::cout << "in make_moving_atoms_restraints_graphics_object calling make_extra_distance_restraints_objects() "
+                            << std::endl;
+               // now call the new graphics function:
+               make_extra_distance_restraints_objects(); // make graphics objecs from moving_atoms_extra_restraints_representation()
             }
          }
       }
    }
 
-   // now call the new graphics function:
-   make_extra_distance_restraints_objects(); // make graphics objecs from moving_atoms_extra_restraints_representation()
 }
 
 // static

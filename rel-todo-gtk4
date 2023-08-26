@@ -21,6 +21,8 @@ the scaling of the framebuffers for super-sampling (in "Fancy" mode).
 OK, so the framebuffer scaling works in simple mode.
 Make it work in "fancy" mode and I will call it done.
 
+2koc: do a Coot contact dots analysis on it.
+
 Try using the instanced bonds using the api. Fix the specular lighting.
 
 Fresnel mode for maps in "Plain" mode ::: 1
@@ -61,6 +63,19 @@ The atom picker needs to know about the representation type (or act on it) ::: 1
 
 Are the cis-peptides markers being generated and displayed? ::: 1
 They are non-instanced geometry. Should I just use api/instancing.hh?
+
+I want to be able use "Fancy" shader path, but not use SSAO.
+
+Rotation in Proportional Editing
+
+Do we get Diegos for bad backbone neightbours O3' bumping int 05'? We
+would need them for validating RNA backbone torsions.
+
+Colour by chain (and dict?) but not by atom - i.e. how colour-by-chain used to work. This gives us
+a nicer representation of ribosomes.
+
+Use a state script for 2 model molecules - the first of which is undisplayed. The display manager
+doesn't show that it's undisplayed ::: 0.6
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 

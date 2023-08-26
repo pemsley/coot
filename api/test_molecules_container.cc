@@ -3179,8 +3179,8 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
          for (unsigned int i=0; i<25; i++) {
             const auto &sphere = ig.instancing_data_A[i];
             if (false)
-               std::cout << "sphere " << i << " pos " << glm::to_string(sphere.position) << " colour " << glm::to_string(sphere.colour)
-                         << std::endl;
+               std::cout << "sphere " << i << " pos " << glm::to_string(sphere.position)
+                         << " colour " << glm::to_string(sphere.colour) << std::endl;
             if (i == 11) { // the is "CA" the CA in the first residue (strangely)
                status = 0;
                if (close_float(sphere.colour[0], 1.0))
@@ -3194,6 +3194,34 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
          status = 0;
       }
    }
+   return status;
+}
+
+int test_is_em_map(molecules_container_t &mc) {
+
+   auto close_float = [] (float a, float b) {
+      return fabsf(a - b) < 0.001;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_map = mc.read_ccp4_map("emd_25074.map", 0);
+   bool is_EM_map = mc.is_EM_map(imol_map);
+   float cl = mc.get_suggested_initial_contour_level(imol_map);
+   float rmsd = mc.get_map_rmsd_approx(imol_map);
+
+   std::cout << "test_is_em_map(): EM: " << is_EM_map << " cl " << cl << " with rmsd: " << rmsd
+             << " ratio " << cl/rmsd << std::endl;
+
+   if (is_EM_map) {
+      if (close_float(cl, 4.0 * rmsd)) {
+         coot::util::map_molecule_centre_info_t mci = mc.get_map_molecule_centre(imol_map);
+         std::cout << "mci.suggested_radius " << mci.suggested_radius << std::endl;
+         if (mci.suggested_radius > 50.0)
+            status = 1;
+      }
+   }
+
    return status;
 }
 
@@ -3323,7 +3351,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_user_defined_bond_colours_v2, "user-defined bond colours v2", mc);
+   status += run_test(test_is_em_map, "test if EM map flag is correctly set", mc);
+
+   // status += run_test(test_user_defined_bond_colours_v2, "user-defined bond colours v2", mc);
 
    // status += run_test(test_ramachandran_analysis, "--- current_test ---", mc);
 

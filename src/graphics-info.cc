@@ -2320,6 +2320,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
    // --------------- also do the restraints -----------------------
    //
+
    make_moving_atoms_restraints_graphics_object();
 
    int do_disulphide_flag = 0;

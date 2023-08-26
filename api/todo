@@ -72,6 +72,14 @@ Thu  8 Jun 05:49:47 BST 2023
    ftype level_allowed = graphics_info_t::rama_level_allowed;
 
 
+Wed 23 Aug 16:04:12 BST 2023
+
+   Add a std::string message to simple-mesh.hh so that when the status is 0, then an error
+   message can be displayed. For example selecting //A/1-111 in 1x8b.
+   Gaussian surface on //A/901 doesn't work either.
+
+
+
 --- Done Items ---
 
    o add a status flag to simple_mesh_t - used for "did we run out of memory/bad alloc"? (say) ::: 1

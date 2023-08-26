@@ -5728,18 +5728,105 @@ def add_module_pdbe_gui():
 def add_module_refine():
 
     if coot_gui_api.main_menumodel():
-        menu = attach_module_menu_button("Refine")
 
-        add_simple_action_to_menu(menu, "Intermediate Atom Contact Dots On","contact_dots_on",   lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(1))
-        add_simple_action_to_menu(menu, "Intermediate Atom Contact Dots Off","contact_dots_off", lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(0))
+        # menu = attach_module_menu_button("Refine")
 
-        # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
-        add_simple_action_to_menu(menu, "Intermediate Atom Restraints On","intermediate_atom_restraints_on",   lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(1))
-        add_simple_action_to_menu(menu, "Intermediate Atom Restraints Off","intermediate_atom_restraints_off", lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(0))
+        # add_simple_action_to_menu(menu, "Intermediate Atom Contact Dots On","contact_dots_on",   lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(1))
+        # add_simple_action_to_menu(menu, "Intermediate Atom Contact Dots Off","contact_dots_off", lambda _simple_action, _arg2: coot.set_do_coot_probe_dots_during_refine(0))
 
-        add_simple_action_to_menu(menu, "Rama Goodness Dodecs On","rama_goodness_dodecs_on",  lambda _simple_action, _arg2: coot.set_show_intermediate_atoms_rota_markup(1))
-        add_simple_action_to_menu(menu, "Rama Goodness Dodecs Off","rama_goodness_dodecs_off", lambda _simple_action, _arg2: coot.set_show_intermediate_atoms_rota_markup(0))
+        # # they get turned on but are not active - they currently need to be turn off by the user using the Generic Display dialog
+        # add_simple_action_to_menu(menu, "Intermediate Atom Restraints On","intermediate_atom_restraints_on",   lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(1))
+        # add_simple_action_to_menu(menu, "Intermediate Atom Restraints Off","intermediate_atom_restraints_off", lambda _simple_action, _arg2: coot.set_draw_moving_atoms_restraints(0))
 
+        # add_simple_action_to_menu(menu, "Rama Goodness Dodecs On","rama_goodness_dodecs_on",  lambda _simple_action, _arg2: coot.set_show_intermediate_atoms_rota_markup(1))
+        # add_simple_action_to_menu(menu, "Rama Goodness Dodecs Off","rama_goodness_dodecs_off", lambda _simple_action, _arg2: coot.set_show_intermediate_atoms_rota_markup(0))
+
+        def switch_rama_switched(switch, thing_b, thing_c):
+            print("thing_b", thing_b)
+            print("thing_c", thing_c)
+            if switch.get_active():
+                coot.set_draw_moving_atoms_rama_markup(1)
+            else:
+                coot.set_draw_moving_atoms_rama_markup(0)
+
+        def switch_rota_switched(switch, thing_b, thing_c):
+            print("thing_b", thing_b)
+            print("thing_c", thing_c)
+            if switch.get_active():
+                coot.set_draw_moving_atoms_rota_markup(1)
+            else:
+                coot.set_draw_moving_atoms_rota_markup(0)
+
+        def switch_contact_dots_switched(switch, thing_b, thing_c):
+            print("thing_b", thing_b)
+            print("thing_c", thing_c)
+            if switch.get_active():
+                coot.set_do_coot_probe_dots_during_refine(1)
+            else:
+                coot.set_do_coot_probe_dots_during_refine(0)
+
+        def switch_GM_restraints_switched(switch, thing_b, thing_c):
+            print("thing_b", thing_b)
+            print("thing_c", thing_c)
+            if switch.get_active():
+                coot.set_draw_moving_atoms_restraints(1)
+            else:
+                coot.set_draw_moving_atoms_restraints(0)
+
+        popover = Gtk.PopoverMenu()
+        scrolled_win = Gtk.ScrolledWindow()
+
+        menu_button = Gtk.MenuButton(label="Refine")
+        menu_button.set_popover(popover)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        scrolled_win.set_child(box)
+
+        switch_1_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        switch_2_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        switch_3_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        switch_4_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        switch_contact_dots  = Gtk.Switch()
+        switch_GM_restraints = Gtk.Switch()
+        switch_rama          = Gtk.Switch()
+        switch_rota          = Gtk.Switch()
+        switch_contact_dots.connect( "state_set", switch_contact_dots_switched, 1)
+        switch_GM_restraints.connect("state_set", switch_GM_restraints_switched, 2)
+        switch_rama.connect("state_set", switch_rama_switched, 3)
+        switch_rota.connect("state_set", switch_rota_switched, 4)
+        switch_contact_dots_label  = Gtk.Label(label="Intermediate Atom Contact Dots")
+        switch_GM_restraints_label = Gtk.Label(label="Intermediate Atom GM Restraints")
+        switch_rama_label          = Gtk.Label(label="Ramachandran Probability Spheres")
+        switch_rota_label          = Gtk.Label(label="Rotamer Probability Dodecahedra")
+        switch_contact_dots_label.set_xalign(0)
+        switch_GM_restraints_label.set_xalign(0)
+        switch_rama_label.set_xalign(0)
+        switch_rota_label.set_xalign(0)
+
+        if coot.get_draw_moving_atoms_rama_markup_state() == 1: switch_rama.set_active(True)
+        if coot.get_draw_moving_atoms_rama_markup_state() == 1: switch_rota.set_active(True)
+        if coot.get_do_coot_probe_dots_during_refine() == 1:    switch_contact_dots.set_active(True)
+        if coot.get_draw_moving_atoms_restraints() == 1:        switch_GM_restraints.set_active(True)
+
+        grid = Gtk.Grid()
+        grid.set_column_spacing(8)
+        grid.set_row_spacing(8)
+        grid.attach(switch_rama_label,          0, 0, 1, 1)
+        grid.attach(switch_rota_label,          0, 1, 1, 1)
+        grid.attach(switch_contact_dots_label,  0, 2, 1, 1)
+        grid.attach(switch_GM_restraints_label, 0, 3, 1, 1)
+        grid.attach(switch_rama,                1, 0, 1, 1)
+        grid.attach(switch_rota,                1, 1, 1, 1)
+        grid.attach(switch_contact_dots,        1, 2, 1, 1)
+        grid.attach(switch_GM_restraints,       1, 3, 1, 1)
+
+        box.append(grid)
+        box.set_margin_top(6)
+        box.set_margin_start(6)
+        popover.set_size_request(300, 160)
+
+        popover.set_child(scrolled_win) # the child of popover is always a scrolled window
+
+        coot_gui_api.main_toolbar().append(menu_button)
 
 def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):
 

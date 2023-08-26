@@ -3996,8 +3996,11 @@ INFO::
      make clean && make
    o make dist to make a tar-ball
         Use this to untar and make a build - this will test that the tarball has
-        all the files before commit: cd ../build-test-dist and untar it there, copy into
-        the new directory the script configure-it. configure and make check
+        all the files before commit:
+        cd ../build-test-dist
+        and untar it there
+        copy into the new directory the script configure-it.
+        configure and make check
    o git status # what did you forget to add?
    o are the shaders up to date?
    o Is the glade file up to date? (header-bars)

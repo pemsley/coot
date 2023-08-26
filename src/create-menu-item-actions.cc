@@ -354,10 +354,10 @@ void toggle_display_frames_per_second_action(G_GNUC_UNUSED GSimpleAction *simple
                                              G_GNUC_UNUSED GVariant *parameter,
                                              G_GNUC_UNUSED gpointer user_data) {
 
-int state = get_fps_flag();
-if (state == 1)
-   set_show_fps(0);
-else
+   int state = get_fps_flag();
+   if (state == 1)
+      set_show_fps(0);
+   else
    set_show_fps(1);
 }
 
@@ -375,7 +375,7 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
    gchar* mode_name_cstr;
    g_variant_get(parameter,"s",&mode_name_cstr);
    std::string mode_name(mode_name_cstr);
-   auto mode_num_from_name = [](const std::string& mode_name){
+   auto mode_num_from_name = [](const std::string& mode_name) {
       if(mode_name == "oca") {
          return COOT_ACCESSION_CODE_WINDOW_OCA;
       } else if(mode_name == "eds") {
@@ -2991,8 +2991,8 @@ create_actions(GtkApplication *application) {
    add_action(     "curlew_action",      curlew_action);
    add_action(       "exit_action",        exit_action);
 
-   add_action(             "search_monomer_library_action",           search_monomer_library_action);
-   add_action_with_param("show_accession_code_fetch_frame",         show_accession_code_fetch_frame);
+   add_action_with_param("show_accession_code_fetch_frame",       show_accession_code_fetch_frame);
+   add_action(             "search_monomer_library_action",         search_monomer_library_action);
    add_action(    "fetch_pdbe_ligand_description_action",    fetch_pdbe_ligand_description_action);
    add_action( "fetch_and_superpose_alphafold_models_action", fetch_and_superpose_alphafold_models_action);
    add_action(              "fetch_map_from_emdb_action",              fetch_map_from_emdb_action);

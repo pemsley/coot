@@ -5238,6 +5238,9 @@ graphics_info_t::draw_boids() {
 void
 graphics_info_t::update_hydrogen_bond_mesh(const std::string &label) {
 
+   return; // 20230823-PE for now we don't want hydrogen-bond mesh, I don't want
+           // to debug while the tick function is active.
+
    // caller fills static std::vector<std::pair<glm::vec3, glm::vec3> > hydrogen_bonds_atom_position_pairs
    // before this function
 
@@ -5543,7 +5546,7 @@ graphics_info_t::make_extra_distance_restraints_objects() {
       double sigma = 0.1; // what is this actually?
       double penalty = ebrr.distortion_score_GM(sigma, geman_mcclure_alpha);
       if (penalty < penalty_min) continue;
-      double width = 0.3 * penalty;
+      double width = 0.2 * penalty; // 20230823-PE was 0.3
       if (width < 0.01) width = 0.01;
       if (width > 0.10) width = 0.10;
       edrmid.width = width;
@@ -5587,11 +5590,28 @@ graphics_info_t::make_extra_distance_restraints_objects() {
 void
 graphics_info_t::draw_extra_distance_restraints(int pass_type) {
 
+   // 20230825-PE we don't want to see these if there are no intermediate atoms being displayed
+   // Maybe they should be cleared up on "clear_moving_atoms()" (or whatever the function is called).
+
+   if (!moving_atoms_asc)
+      return;
+   if (!moving_atoms_asc->mol)
+      return;
+
+   std::cout << "draw_extra_distance_restraints() pass_type: " << pass_type << std::endl;
+   std::cout << "draw_extra_distance_restraints() mesh_for_extra_distance_restraints " << std::endl;;
+   mesh_for_extra_distance_restraints.debug();
+
    // it used to be called draw_it_for_moving_atoms_restraints_graphics_object - why not use that varible?
    //
+   // what about draw_it_for_moving_atoms_restraints_graphics_object?
+   //
    if (pass_type == PASS_TYPE_STANDARD) {
+      std::cout << "draw_extra_distance_restraints() A: " << std::endl;
       if (show_extra_distance_restraints_flag) {
+         std::cout << "draw_extra_distance_restraints() B: " << std::endl;
          if (! extra_distance_restraints_markup_data.empty()) {
+            std::cout << "draw_extra_distance_restraints() C: " << std::endl;
             glm::mat4 mvp = get_molecule_mvp();
             glm::mat4 model_rotation_matrix = get_model_rotation();
             glm::vec4 bg_col(background_colour, 1.0f);

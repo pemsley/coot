@@ -170,6 +170,8 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
                                                     const std::string &colour_scheme,
                                                     const std::string &style) const {
 
+   bool debug = true;
+
    auto get_max_resno_for_polymer = [] (mmdb::Chain *chain_p) {
       int res_no_max = -1;
       int nres = chain_p->GetNumberOfResidues();
@@ -328,6 +330,9 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
 
    coot::simple_mesh_t mesh;
 
+   if (debug)
+      std::cout << "get_molecular_representation_mesh() atom_selection: " << atom_selection_str
+                << " colour_scheme " << colour_scheme << " style " << style << std::endl;
 
    try {
 
