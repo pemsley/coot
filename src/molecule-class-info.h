@@ -3725,6 +3725,7 @@ void draw_map_molecule(bool draw_transparent_maps,
 
    void make_mesh_from_bonds_box();
    void make_meshes_from_bonds_box_instanced_version(); // fills the below meshes (for instancing)
+   // 20230826-PE here we go with the new "instancing.hh" wrapper class
    model_molecule_meshes_t model_molecule_meshes;
    void set_material_in_molecules_as_mesh(const Material &material) {
       model_molecule_meshes.set_material(material);

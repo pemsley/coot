@@ -61,7 +61,7 @@ namespace coot {
       Cartesian(float xi, float yi, float zi) { x_ = xi; y_ = yi; z_ = zi; }
       Cartesian();
 
-      Cartesian(const clipper::Coord_orth &pt) {
+      explicit Cartesian(const clipper::Coord_orth &pt) {
 	 x_ = pt.x();
 	 y_ = pt.y();
 	 z_ = pt.z();
@@ -97,8 +97,10 @@ namespace coot {
       }
    
       void unit_vector_yourself() {
-	 float l = (*this).amplitude();
-	 (*this) /= l;
+	 float l = this->amplitude();
+	 x_ /= l;
+	 y_ /= l;
+	 z_ /= l;
       }
 
       Cartesian unit() const {

@@ -11048,3 +11048,11 @@ MacOS linking notes
 
 https://stackoverflow.com/questions/33991581/install-name-tool-to-update-a-executable-to-search-for-dylib-in-mac-os-x
 
+
+---
+Sat 26 Aug 15:38:09 BST 2023
+
+  For the old morphing method:
+  Here is how to handle the averaging of the fragment rotations.
+  https://stackoverflow.com/questions/12374087/average-of-multiple-quaternions
+

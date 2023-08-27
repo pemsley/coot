@@ -23,7 +23,7 @@ add-terminal-residue.hh  interfaces.hh              moorhen-h-bonds.hh          
 atom-pull.hh             rigid-body-fit.hh          svg-store-key.hh                       \
 phi-psi-prob.hh          saved-strand-info.hh       simple-molecule.hh                     \
 generic-3d-lines.hh      cell.hh                    coot-simple-molecule.hh                \
-api-cell.hh
+api-cell.hh              bond-colour.hh             make-instanced-graphical-bonds.hh
 
 lib_LTLIBRARIES=libcoot-api.la
 

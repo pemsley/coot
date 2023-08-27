@@ -234,10 +234,15 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
    std::vector<glm::vec4> colour_table;
    for (unsigned int i=0; i<15; i++) { colour_table.push_back(glm::vec4(0.4, 0.8, 0.2, 1.0)); }
    graphics_info_t::attach_buffers();
+
+   std::cout << "ghost code needs reworking: update_bonds() for ghosts " << std::endl;
+
+#if 0
    mesh.make_graphical_bonds(bonds_box, bbt, Mesh::BALL_AND_STICK, -1, false, 0.1, 0.08, 1, 8, 2, colour_table, *graphics_info_t::Geom_p());
    if (false)
       std::cout << "########################## ghost mesh v and ts: " << mesh.vertices.size() << " " << mesh.triangles.size()
                 << " with representation_type " << Mesh::BALL_AND_STICK << std::endl;
+#endif
 }
 
 void
@@ -251,12 +256,15 @@ molecule_class_info_t::draw_ncs_ghosts(Shader *shader_for_meshes,
    // std::cout << "draw_ncs_ghosts() " << std::endl;
    if (show_ghosts_flag) {
       for (auto &ghost : ncs_ghosts) {
-         ghost.draw(shader_for_meshes, mvp, model_rotation_matrix, lights, eye_position, background_colour);
+         // ghost.draw(shader_for_meshes, mvp, model_rotation_matrix, lights, eye_position, background_colour);
+         std::cout << "draw_ncs_ghosts() missing draw() function - FIXME" << std::endl;
       }
    }
 
 }
 
+#if 0 // 20230826-PE needs to derive from the api ghost_molecule_display_t class - which doesn't have a draw()
+      // function.
 void
 coot::ghost_molecule_display_t::draw(Shader *shader_p,
                                      const glm::mat4 &mvp,
@@ -268,6 +276,7 @@ coot::ghost_molecule_display_t::draw(Shader *shader_p,
    // std::cout << "ncs_ghosts::draw() " << mesh.vertices.size() << " " << mesh.triangles.size() << std::endl;
    mesh.draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, 1.0f, background_colour, false, true, false);
 }
+#endif
 
 // public interface
 int

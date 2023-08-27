@@ -39,8 +39,7 @@
 
 // make space
 void
-Mesh::setup_instancing_buffer_data(Shader *shader_p,
-                                   const Material &mat,
+Mesh::setup_instancing_buffer_data(const Material &mat,
                                    const std::vector<glm::mat4> &instanced_matrices,
                                    const std::vector<glm::vec4> &instanced_colours) {
 
@@ -51,7 +50,7 @@ Mesh::setup_instancing_buffer_data(Shader *shader_p,
 
    if (vao == VAO_NOT_SET)
       std::cout << "ERROR:: Mesh::setup_instancing_buffer_data() You forgot to setup this Mesh "
-                << name << " " << shader_p->name << std::endl;
+                << name << std::endl;
    glBindVertexArray(vao);
 
    // 0 vertex position
@@ -176,7 +175,7 @@ Mesh::make_graphical_bonds_spherical_atoms_instanced_version(Shader *shader_p,
                       << err << std::endl;
    // make space and transfer
    // std::cout << "calling setup_instancing_buffer_data with instanced_matrices size " << instanced_matrices.size() << std::endl;
-   setup_instancing_buffer_data(shader_p, material, instanced_matrices, instanced_colours);
+   setup_instancing_buffer_data(material, instanced_matrices, instanced_colours);
    err = glGetError();
    if (err) std::cout << "error make_graphical_bonds_spherical_atoms() post setup_instancing_buffer_data() error "
                       << err << std::endl;
@@ -456,7 +455,7 @@ Mesh::make_graphical_bonds_bonds_instanced_version(Shader *shader_p,
    }
 
    glBindVertexArray(vao); // setup_buffers() unbinds the vao
-   setup_instancing_buffer_data(shader_p, material, instanced_matrices, instanced_colours);
+   setup_instancing_buffer_data(material, instanced_matrices, instanced_colours);
    err = glGetError();
    if (err) std::cout << "error make_graphical_bonds_spherical_atoms() post setup_instancing_buffer_data() error "
                       << err << std::endl;

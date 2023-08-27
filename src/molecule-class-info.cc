@@ -156,9 +156,7 @@ molecule_class_info_t::setup_internal() { // init
    bonds_box_type = coot::UNSET_TYPE;
    bonds_rotate_colour_map_flag = 0;
 
-#ifndef EMSCRIPTEN
    model_representation_mode = Mesh::BALL_AND_STICK;
-#endif
    save_time_string = "";
 
    pickable_atom_selection = 1;
@@ -2596,7 +2594,7 @@ molecule_class_info_t::draw_fixed_atom_positions() const {
 void
 molecule_class_info_t::draw_ghost_bonds(int ighost) {
 
-#if 0
+#if 0 // olden code
    // hack in a value
    bool against_a_dark_background = true;
 
@@ -2624,7 +2622,6 @@ molecule_class_info_t::draw_ghost_bonds(int ighost) {
    }
 #endif
 
-#ifndef EMSCRIPTEN
    if (ighost<int(ncs_ghosts.size())) {
       if (ncs_ghosts[ighost].display_it_flag) {
          Shader *shader_p = &graphics_info_t::shader_for_meshes_with_shadows;
@@ -2634,10 +2631,15 @@ molecule_class_info_t::draw_ghost_bonds(int ighost) {
          const auto &lights = graphics_info_t::lights;
          const auto &eye_position = graphics_info_t::eye_position;
          // mabye draw_with_shadows() should be used?
-         ncs_ghosts[ighost].draw(shader_p, mvp, model_rotation_matrix, lights, eye_position, background_colour);
+
+         // 20230826-PE ghost-molecule-display.hh was moved to the api directory some time ago.
+         // That contains the draw method, but is if defed out (of course).
+         // To bring back this draw() method, we need to derive a class, say draw_ncs_ghost_t,
+         // that adds the draw method. For now, I will comment it out, but I should come back to it.
+         //
+         // ncs_ghosts[ighost].draw(shader_p, mvp, model_rotation_matrix, lights, eye_position, background_colour);
       }
    }
-#endif
 
 }
 
@@ -3595,10 +3597,10 @@ void
 molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
                                  const std::set<int> &no_bonds_to_these_atoms) {
 
-   if (false)
-      std::cout << "---------------------------------- makebonds() C "
+   if (true)
+      std::cout << "---------------------------------- makebonds() --- start --- "
                 << "with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
-                << std::endl;
+                << " draw_it: " << draw_it << std::endl;
 
    // Don't try to use OpenGL if we don't have graphics
    if (! graphics_info_t::use_graphics_interface_flag) return;
@@ -3646,7 +3648,13 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
       std::cout << "   makebonds() C calls make_glsl_bonds_type_checked() imol "
                 << imol_no << " " << name_
                 << " intermediate-atoms: " << is_intermediate_atoms_molecule << std::endl;
+
    make_glsl_bonds_type_checked(__FUNCTION__);
+
+   if (true)
+      std::cout << "---------------------------------- makebonds() ---  end  --- "
+                << "with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
+                << " draw_it: " << draw_it << std::endl;
 
 }
 
@@ -3900,7 +3908,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 #endif
 
    if (debug) {
-      std::cout << "debug:: -------------- make_bonds_type_checked() done " << std::endl;
+      std::cout << "debug:: -------------- make_bonds_type_checked() done " << draw_it << std::endl;
    }
 }
 
@@ -4089,27 +4097,21 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
                                 // the radius of each atom from its type when model_representation_mode == Mesh::BALLS_NOT_BONDS.
                                 // That's for another day.
 
-#if 0 // 20230818-PE previous style
-         model_molecule_meshes.make_graphical_bonds(bonds_box, bonds_box_type, model_representation_mode,
-                                               udd_handle_bonded_type,
-                                               draw_cis_peptide_markups, atom_radius, bond_radius,
-                                               num_subdivisions, n_slices, n_stacks, colour_table, *graphics_info_t::Geom_p());
-#endif
 
-         // now let's use the api function
+         // in molecule_class_info_t, the bonds_box_type is an int.
+         // It should be a coot::api_bond_colour_t. That's a lot of tedius work to fix I think.
+         // So for now I will kludge the bonds_box_type
+         coot::api_bond_colour_t bonds_box_type_local = coot::api_bond_colour_t::COLOUR_BY_CHAIN_BONDS;
+         const std::string &model_representation_mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
+         model_molecule_meshes.make_graphical_bonds(bonds_box, bonds_box_type_local, model_representation_mode,
+                                                    udd_handle_bonded_type,
+                                                    draw_cis_peptide_markups, atom_radius, bond_radius,
+                                                    num_subdivisions, n_slices, n_stacks, colour_table,
+                                                    graphics_info_t::Geom_p());
 
-         coot::molecule_t cm(atom_sel, imol_no, name_);
-
-         coot::instanced_mesh_t im = cm.get_bonds_mesh_instanced(mode, *geom,
-                                                                 against_a_dark_background,
-                                                                 bonds_width,
-                                                                 atom_radius_to_bond_width_ratio,
-                                                                 smoothness_factor,
-                                                                 draw_hydrogen_atoms_flag,
-                                                                 draw_missing_residue_loops);
-         
          model_molecule_meshes.set_name(name_);
          model_molecule_meshes.set_material(material_for_models);
+
       }
    } else {
       std::cout << "##################### in make_mesh_from_bonds_box() null atom_sel.mol for intermediate atoms " << std::endl;
@@ -4172,8 +4174,12 @@ molecule_class_info_t::set_user_defined_atom_colour_by_selection(const std::vect
 void
 molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
 
+  std::cout << "################## make_meshes_from_bonds_box_instanced_version() #########################################"
+            << std::endl;
+
    if (atom_sel.mol) {
 
+      std::cout << "################## make_meshes_from_bonds_box_instanced_version() A" << std::endl;
       unsigned int num_subdivisions = 2;
       unsigned int n_slices = 8;
       unsigned int n_stacks = 2; // try 1
@@ -4207,6 +4213,8 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
       Material material;
       Shader *shader_p = &graphics_info_t::shader_for_model_as_meshes;
+
+#if 0 // 20230826-PE code before api instancing.
       molecule_as_mesh_atoms_1.make_graphical_bonds_spherical_atoms_instanced_version(shader_p, material, bonds_box, udd_handle_bonded_type,
                                                                                       atom_radius, bond_radius, num_subdivisions,
                                                                                       colour_table);
@@ -4221,6 +4229,22 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
                                                                               colour_table, true, false);
       molecule_as_mesh_bonds_c11.make_graphical_bonds_bonds_instanced_version(shader_p, material, bonds_box, bond_radius, n_slices, n_stacks,
                                                                               colour_table, true, true);
+#endif
+
+      std::cout << "################## make_meshes_from_bonds_box_instanced_version() B" << std::endl;
+      std::cout << "make_meshes_from_bonds_box_instanced_version() -----------------------------" << std::endl;
+      coot::api_bond_colour_t bonds_box_type(coot::api_bond_colour_t::NORMAL_BONDS);
+      std::string model_representation_mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+      bool draw_cis_peptide_markups = true;
+      model_molecule_meshes.make_graphical_bonds(bonds_box, bonds_box_type, model_representation_mode,
+                                                 udd_handle_bonded_type, draw_cis_peptide_markups,
+                                                 atom_radius, bond_radius,
+                                                 num_subdivisions, n_slices, n_stacks, colour_table,
+                                                 graphics_info_t::Geom_p());
+      if (true) // test that model_molecule_meshes is not empty()
+         draw_it = 1;
+      std::cout << "################## make_meshes_from_bonds_box_instanced_version() C" << std::endl;
+
       GLenum err = glGetError();
       if (err) std::cout << "error in make_glsl_bonds_type_checked() post molecules_as_mesh_atoms::make_graphical_bonds spherical atoms\n";
    } else {
@@ -4258,12 +4282,12 @@ molecule_class_info_t::get_glm_colour_func(int idx_col, int bonds_box_type) {
 
 void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
-   if (false)
+   if (true)
       std::cout << "debug:: make_glsl_bonds_type_checked() called by " << caller << "()"
                 << " with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
                 << std::endl;
 
-   if (false)
+   if (true)
       std::cout << "debug:: ---- in make_glsl_bonds_type_checked() --- start ---" << std::endl;
 
 
@@ -4280,6 +4304,7 @@ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
                                // cis peptides,
                                // missing residue loops
                                // and rama balls if intermediate atoms.
+
 }
 
 void
@@ -4341,6 +4366,7 @@ molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
       std::cout << "   eye pos              " << glm::to_string(eye_position) << std::endl;
    }
 
+#if 0
    bool transferred_colour_is_instanced = true; // 20230812-PE was false, strangely.  true is needed for "instanced-object.shader"
    molecule_as_mesh_atoms_1.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
    molecule_as_mesh_atoms_2.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
@@ -4348,6 +4374,15 @@ molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
    molecule_as_mesh_bonds_c01.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
    molecule_as_mesh_bonds_c10.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
    molecule_as_mesh_bonds_c11.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
+#endif
+
+   Shader *shader_for_simple_mesh = &graphics_info_t::shader_for_model_as_meshes; // is this right?
+   Shader *shader_for_instances = shader_p;
+   float opacity = 1.0f;
+   bool gl_lines_mode = false;
+   bool show_just_shadows = false;
+   model_molecule_meshes.draw(shader_for_simple_mesh, shader_for_instances, mvp, view_rotation_matrix, lights, eye_position, opacity, background_colour,
+                              gl_lines_mode, do_depth_fog, show_just_shadows);
 
 }
 
@@ -4365,7 +4400,7 @@ molecule_class_info_t::draw_molecule_as_meshes_for_ssao(Shader *shader_p,
       std::cout << "   view_matrix " << glm::to_string(view_matrix) << std::endl;
       std::cout << "   proj_matrix " << glm::to_string(projection_matrix) << std::endl;
    }
-
+#if 0
    bool transferred_colour_is_instanced = true;
    molecule_as_mesh_atoms_1.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
    molecule_as_mesh_atoms_2.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
@@ -4373,6 +4408,8 @@ molecule_class_info_t::draw_molecule_as_meshes_for_ssao(Shader *shader_p,
    molecule_as_mesh_bonds_c01.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
    molecule_as_mesh_bonds_c10.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
    molecule_as_mesh_bonds_c11.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
+#endif
+   std::cout << "draw_molecule_as_meshes_for_ssao() replacement code needed here" << std::endl;
 
 }
 
@@ -4391,7 +4428,7 @@ molecule_class_info_t::draw_molecule_as_meshes_with_shadows(Shader *shader,
                                                             float shadow_strength,
                                                             unsigned int shadow_softness, // 1, 2 or 3.
                                                             bool show_just_shadows) {
-
+#if 0
    std::vector<std::reference_wrapper<Mesh> > meshes = {
       molecule_as_mesh_atoms_1,
       molecule_as_mesh_atoms_2,
@@ -4408,6 +4445,8 @@ molecule_class_info_t::draw_molecule_as_meshes_with_shadows(Shader *shader,
                              eye_position, opacity, background_colour, do_depth_fog, light_view_mvp,
                              shadow_depthMap, shadow_strength, shadow_softness, show_just_shadows);
    }
+#endif
+   std::cout << "draw_molecule_as_meshes_with_shadows() replacement code needed here" << std::endl;
 
 }
 

@@ -5,6 +5,8 @@
 #include "api/instancing.hh"
 #include "Shader.hh"
 #include "Material.hh"
+#include "Mesh.hh"
+#include "api/bond-colour.hh"
 
 // This class draws the meshes in instanced_mesh_t
 // (and that is a vector of instanced meshes and a simple_mesh_t)
@@ -14,6 +16,8 @@ class model_molecule_meshes_t {
 public:
    model_molecule_meshes_t() {}
    coot::instanced_mesh_t im;
+   std::vector<Mesh> instanced_meshes;
+   Mesh simple_mesh;
    Material material;
    std::string name;
 
@@ -21,7 +25,8 @@ public:
    void set_name(const std::string &n) { name = n; }
 
    // wrapper for both the instanced and simple meshes
-   void draw(Shader *shader,
+   void draw(Shader *shader_mesh,
+             Shader *shader_instanced_mesh,
              const glm::mat4 &mvp,
              const glm::mat4 &view_rotation_matrix,
              const std::map<unsigned int, lights_info_t> &lights,
@@ -30,7 +35,7 @@ public:
              const glm::vec4 &background_colour,
              bool gl_lines_mode, // i.e. as chickenwire
              bool do_depth_fog,
-	     bool show_just_shadows);
+             bool show_just_shadows);
 
    void draw_instances(Shader *shader_for_instanced_meshes_p,
                        const glm::mat4 &mvp,
@@ -102,6 +107,16 @@ public:
 
    // the simple-lines option for the main molecule
    void make_bond_lines(const graphical_bonds_container &bonds_box, const std::vector<glm::vec4> &colour_table);
+
+   void make_graphical_bonds(const graphical_bonds_container &bonds_box,
+                             coot::api_bond_colour_t bonds_box_type,
+                             const std::string &model_representation_mode,
+                             int udd_handle_bonded_type,
+                             bool draw_cis_peptide_markups,
+                             float atom_radius, float bond_radius,
+                             int num_subdivisions, int n_slices, int n_stacks,
+                             const std::vector<glm::vec4> &colour_table,
+                             coot::protein_geometry *protein_geometry_p);
 
 };
 

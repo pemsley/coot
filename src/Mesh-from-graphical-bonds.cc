@@ -654,7 +654,7 @@ Mesh::make_graphical_bonds_rotamer_dodecs(const graphical_bonds_container &gbc,
 
       for (int i=0; i<gbc.n_rotamer_markups; i++) {
          const rotamer_markup_container_t &rm = gbc.rotamer_markups[i];
-         glm::vec3 atom_pos = cartesian_to_glm(rm.pos);
+         glm::vec3 atom_pos = clipper_to_glm(rm.pos);
 
          std::vector<s_generic_vertex> this_dodec_vertices = dodec_vertices; // at the origin to start
          // now move it.

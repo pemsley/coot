@@ -85,6 +85,7 @@ public:
    Mesh(const coot::simple_mesh_t& mesh);
    // import from somewhere else
    explicit Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices);
+   explicit Mesh(const std::vector<s_generic_vertex> &vertices, const std::vector<g_triangle> &triangles);
    explicit Mesh(const std::string &name_in) : name(name_in) { init(); }
    explicit Mesh(const molecular_triangles_mesh_t &mtm);
    // If this mesh will become part of another mesh, then we don't want to setup buffers for this one
@@ -388,8 +389,7 @@ public:
                                 const glm::mat4 &projection);
 
    // make space
-   void setup_instancing_buffer_data(Shader *shader_p,
-                                     const Material &mat,
+   void setup_instancing_buffer_data(const Material &mat,
                                      const std::vector<glm::mat4> &instanced_matrices,
                                      const std::vector<glm::vec4> &instanced_colours);
 

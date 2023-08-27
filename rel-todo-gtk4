@@ -77,6 +77,8 @@ a nicer representation of ribosomes.
 Use a state script for 2 model molecules - the first of which is undisplayed. The display manager
 doesn't show that it's undisplayed ::: 0.6
 
+Restore the draw() function in draw_ghost_bonds() in molecule-class-info.cc - needs a new class to do so.
+
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
 Nice to have:

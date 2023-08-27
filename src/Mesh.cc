@@ -69,6 +69,14 @@ Mesh::Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle
    triangles = indexed_vertices.second;
 }
 
+Mesh::Mesh(const std::vector<s_generic_vertex> &vertices_in, const std::vector<g_triangle> &triangles_in) {
+
+   init();
+   vertices  = vertices_in;
+   triangles = triangles_in;
+}
+
+
 // a molecular_triangles_mesh_t is a poor man's Mesh. Why does it exist?
 Mesh::Mesh(const molecular_triangles_mesh_t &mtm) {
 
@@ -1092,6 +1100,9 @@ Mesh::setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm:
    n_instances = mats.size();
    n_instances_allocated = n_instances;
 
+   std::cout << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& in setup_matrix_and_colour_instancing_buffers_standard() "
+             << "n_instances " << n_instances << std::endl;
+
    const std::vector<glm::mat4> &inst_rts_matrices = mats;
    const std::vector<glm::vec4> &inst_col_matrices = colours;
 
@@ -1403,9 +1414,10 @@ Mesh::draw_instanced(Shader *shader_p,
                      float pulsing_phase_distribution,
                      float z_rotation_angle) {
 
-   if (false)
+   if (true)
       std::cout << "Mesh::draw_instanced() Mesh " << name << " -- start -- with shader " << shader_p->name
-                << " and do_pulse " << do_pulse << std::endl;
+                << " and do_pulse " << do_pulse << " and draw_this_mesh " << draw_this_mesh
+                << std::endl;
 
    if (! draw_this_mesh) return;
 
@@ -1503,7 +1515,7 @@ Mesh::draw_instanced(Shader *shader_p,
    // glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id); // needed?
    // err = glGetError(); if (err) std::cout << "error draw_instanced() glBindBuffer() inst_rts_buffer_id" << std::endl;
 
-   if (false)
+   if (true)
       std::cout << "Mesh::draw_instanced() Mesh " << name << " drawing n_verts " << n_verts << " n_instances " << n_instances
                 << " with shader " << shader_p->name << std::endl;
 
@@ -1726,7 +1738,7 @@ Mesh::draw(Shader *shader_p,
            bool do_depth_fog,
            bool show_just_shadows) {
 
-   if (false)
+   if (true)
       std::cout << "debug:: Mesh::draw() \"" << name << "\" shader: " << shader_p->name
                 << " draw_this_mesh: " << draw_this_mesh
                 << " n-vertices:" << vertices.size()

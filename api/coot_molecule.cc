@@ -1374,7 +1374,7 @@ coot::molecule_t::get_rotamer_dodecs(coot::protein_geometry *geom_p,
             if (hav.first) offset = hav.second * 1.6;
          }
 
-         glm::vec3 atom_pos = cartesian_to_glm(rm.pos) + cartesian_to_glm(offset);
+         glm::vec3 atom_pos = clipper_to_glm(rm.pos) + cartesian_to_glm(offset);
          // 20221126-PE Calm down the ultra-bright rota dodec:
          auto rm_col = rm.col;
          rm_col.scale_intensity(0.75); // was 0.6 in Mesh-from-graphical-bonds.cc
@@ -1498,7 +1498,7 @@ coot::molecule_t::get_rotamer_dodecs_instanced(protein_geometry *geom_p, rotamer
             std::pair<bool, coot::Cartesian> hav = get_HA_unit_vector(residue_p);
             if (hav.first) offset = hav.second * 1.6;
          }
-         glm::vec3 atom_pos = cartesian_to_glm(rm.pos) + cartesian_to_glm(offset);
+         glm::vec3 atom_pos = clipper_to_glm(rm.pos) + cartesian_to_glm(offset);
          auto rm_col = rm.col;
          rm_col.scale_intensity(0.75); // was 0.6 in Mesh-from-graphical-bonds.cc
          auto this_dodec_colour = colour_holder_to_glm(rm_col);

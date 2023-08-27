@@ -796,6 +796,8 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 void
 graphics_info_t::draw_model_molecules() {
 
+   std::cout << "draw_model_molecules() --- start ---" << std::endl;
+
    // This is only called in "Plain" mode - i.e. it is not used in "Fancy" mode.
    // This function is called by draw_molecules(), which in turn is called by render_3d_scene()
 
@@ -808,13 +810,22 @@ graphics_info_t::draw_model_molecules() {
 
    for (int ii=n_molecules()-1; ii>=0; ii--) {
       if (! is_valid_model_molecule(ii)) continue;
+
       molecule_class_info_t &m = molecules[ii];
-      if (! m.draw_it) continue;
+      std::cout << "draw_model_molecules() A " << ii << " m.draw_it " << m.draw_it << std::endl;
+
+      // if (! m.draw_it) continue;    restore this                      
+      std::cout << "draw_model_molecules() B " << ii << std::endl;
 
       // I think that this is for the instanced meshes.
       //
-      Shader &shader_p = shader_for_instanced_objects;
-      m.draw_molecule_as_meshes(&shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
+      Shader &shader_instances_p = shader_for_instanced_objects;
+      // m.draw_molecule_as_meshes(&shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
+      float opacity = 1.0f;
+      bool gl_lines_mode = false;
+      bool show_just_shadows = false;
+      m.model_molecule_meshes.draw(&shader_for_meshes, &shader_instances_p, mvp, model_rotation, lights, eye_position,
+                                   opacity, bgc, gl_lines_mode, shader_do_depth_fog_flag, show_just_shadows);
 
       if (show_symmetry) {
          Shader &symm_shader_p = shader_for_symmetry_atoms_bond_lines;
@@ -925,6 +936,11 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
 void
 graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_moving_atoms()
 
+
+   // ----------------------------------------
+   // move this function into graphics-info-draw-model-molecules.cc
+   // ----------------------------------------
+
    // this function gets called from draw_with_shadows() - but doesn't yet
    // use the shodows meshes shader.
 
@@ -980,7 +996,8 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
       }
       bool do_depth_fog = true;
       glm::vec4 bg_col(background_colour, 1.0);
-      m.model_molecule_meshes.draw(&shader, mvp_orthogonal, model_rotation, lights, dummy_eye_position,
+      m.model_molecule_meshes.draw(&shader_for_models, &shader_for_instanced_objects,
+                                   mvp_orthogonal, model_rotation, lights, dummy_eye_position,
                                    opacity, bg_col, gl_lines_mode, do_depth_fog, show_just_shadows);
    }
 

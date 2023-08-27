@@ -1299,11 +1299,11 @@ Bond_lines_container::add_double_bond(int imol, int imodel, int iat_1, int iat_2
 
       if (ele_1 == ele_2) {
 	 // simple double bond (e.g. C=C)
-	 addBond(col, pt_1_1, pt_2_1, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, true);
+	 addBond(col, coot::Cartesian(pt_1_1), coot::Cartesian(pt_2_1), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, true);
 	 if (! is_deloc)
-	    addBond(col, pt_1_2, pt_2_2, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, true);
+	    addBond(col, coot::Cartesian(pt_1_2), coot::Cartesian(pt_2_2), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, true);
 	 else
-	    add_dashed_bond(col, pt_1_2, pt_2_2, NOT_HALF_BOND, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
+	    add_dashed_bond(col, coot::Cartesian(pt_1_2), coot::Cartesian(pt_2_2), NOT_HALF_BOND, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
       } else {
 
 	 // we have to draw double half bonds, e.g. C=0
@@ -1312,18 +1312,18 @@ Bond_lines_container::add_double_bond(int imol, int imodel, int iat_1, int iat_2
 	 clipper::Coord_orth mp_2 = bond_mid_point + offset * perp_n;
 	 if (! is_deloc) {
 
-	    addBond(col, pt_1_1, mp_1, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, false);
-	    addBond(col, pt_1_2, mp_2, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, false);
+	    addBond(col, coot::Cartesian(pt_1_1), coot::Cartesian(mp_1), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, false);
+	    addBond(col, coot::Cartesian(pt_1_2), coot::Cartesian(mp_2), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, false);
 	    col = atom_colour(residue_atoms[iat_2], atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p);
-	    addBond(col, pt_2_1, mp_1, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, false);
-	    addBond(col, pt_2_2, mp_2, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, false);
+	    addBond(col, coot::Cartesian(pt_2_1), coot::Cartesian(mp_1), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, false);
+	    addBond(col, coot::Cartesian(pt_2_2), coot::Cartesian(mp_2), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, false);
 	 } else {
-	    addBond(col, pt_1_1, mp_1, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, false);
+	    addBond(col, coot::Cartesian(pt_1_1), coot::Cartesian(mp_1), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, false);
 	    // add dashed bond doesn't take a residue pointer argument (yet)
-	    add_dashed_bond(col, pt_1_2, mp_2, HALF_BOND_FIRST_ATOM, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
+	    add_dashed_bond(col, coot::Cartesian(pt_1_2), coot::Cartesian(mp_2), HALF_BOND_FIRST_ATOM, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
 	    col = atom_colour(residue_atoms[iat_2], atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p);
-	    addBond(col, pt_2_1, mp_1, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, false);
-	    add_dashed_bond(col, pt_2_2, mp_2, HALF_BOND_SECOND_ATOM, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
+	    addBond(col, coot::Cartesian(pt_2_1), coot::Cartesian(mp_1), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing, true, false);
+	    add_dashed_bond(col, coot::Cartesian(pt_2_2), coot::Cartesian(mp_2), HALF_BOND_SECOND_ATOM, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
 	 }
       }
    }
@@ -1381,22 +1381,22 @@ Bond_lines_container::add_triple_bond(int imol, int imodel, int iat_1, int iat_2
       clipper::Coord_orth pt_2_3 = pos_at_2 + offset * perp_n;
       if (ele_1 == ele_2) {
 	 // e.g. -C#C-
-	 addBond(col, pt_1_1, pt_2_1, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
-	 addBond(col, pt_1_2, pt_2_2, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
-	 addBond(col, pt_1_3, pt_2_3, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
+	 addBond(col, coot::Cartesian(pt_1_1), coot::Cartesian(pt_2_1), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
+	 addBond(col, coot::Cartesian(pt_1_2), coot::Cartesian(pt_2_2), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
+	 addBond(col, coot::Cartesian(pt_1_3), coot::Cartesian(pt_2_3), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
       } else {
 	 // e.g. -C#N
 	 clipper::Coord_orth bond_mid_point = 0.5 * clipper::Coord_orth(pos_at_1 + pos_at_2);
 	 clipper::Coord_orth mp_1 = bond_mid_point - offset * perp_n;
 	 clipper::Coord_orth mp_2 = bond_mid_point;
 	 clipper::Coord_orth mp_3 = bond_mid_point + offset * perp_n;
-	 addBond(col, pt_1_1, mp_1, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
-	 addBond(col, pt_1_2, mp_2, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
-	 addBond(col, pt_1_3, mp_3, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
+	 addBond(col, coot::Cartesian(pt_1_1), coot::Cartesian(mp_1), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
+	 addBond(col, coot::Cartesian(pt_1_2), coot::Cartesian(mp_2), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
+	 addBond(col, coot::Cartesian(pt_1_3), coot::Cartesian(mp_3), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
 	 col = atom_colour(atoms[iat_2], atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p);
-	 addBond(col, pt_2_1, mp_1, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
-	 addBond(col, pt_2_2, mp_2, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
-	 addBond(col, pt_2_3, mp_3, cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
+	 addBond(col, coot::Cartesian(pt_2_1), coot::Cartesian(mp_1), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
+	 addBond(col, coot::Cartesian(pt_2_2), coot::Cartesian(mp_2), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
+	 addBond(col, coot::Cartesian(pt_2_3), coot::Cartesian(mp_3), cc, imodel, idx_1_mol_indexing, idx_2_mol_indexing);
       }
    }
 
@@ -1904,7 +1904,7 @@ Bond_lines_container::add_aromatic_ring_bond_lines(const std::vector<std::string
 		     double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
 		     clipper::Coord_orth pt_1 = coot::util::rotate_around_vector(n, first_pt, c, angle_1);
 		     clipper::Coord_orth pt_2 = coot::util::rotate_around_vector(n, first_pt, c, angle_2);
-		     addBond(col, pt_1, pt_2, graphics_line_t::SINGLE, -1, -1, -1); // sort of, 20171224-PE FIXME needs more thought
+		     addBond(col, coot::Cartesian(pt_1), coot::Cartesian(pt_2), graphics_line_t::SINGLE, -1, -1, -1); // sort of, 20171224-PE FIXME needs more thought
 		  }
 	       }
 	    } else {

@@ -332,7 +332,7 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
 
    coot::simple_mesh_t m; // initially status is good (1).
 
-   clipper::Coord_orth p(position.x(), position.y(), position.z());
+   coot::Cartesian p(position.x(), position.y(), position.z());
    update_map_triangles(radius, p, contour_level);
 
    auto &vertices  = m.vertices;
