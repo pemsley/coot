@@ -59,6 +59,9 @@ namespace coot {
 
       //! cis-peptide markup can't be drawn instanced
       simple_mesh_t markup;
+
+      //! clear
+      void clear() { geom.clear(); markup.clear(); }
    };
 
 }

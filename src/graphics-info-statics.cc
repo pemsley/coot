@@ -553,7 +553,7 @@ bool graphics_info_t::show_pointer_distances_flag = false;
 float graphics_info_t::extra_distance_restraint_penalty_cutoff = 0.01; // draw them all to start with
 bool graphics_info_t::show_extra_distance_restraints_flag = true;
 std::vector<extra_distance_restraint_markup_instancing_data_t> graphics_info_t::extra_distance_restraints_markup_data;
-Mesh graphics_info_t::mesh_for_extra_distance_restraints; // draw this with instancing
+Mesh graphics_info_t::mesh_for_extra_distance_restraints = Mesh("mesh_for_extra_distance_restraints"); // draw this with instancing
 
 
 // Go to Atom widget:

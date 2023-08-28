@@ -3564,9 +3564,7 @@ void
 molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p) {
 
    // debug_atom_selection_container(atom_sel);
-
-
-   std::cout << "---------------------------------- makebonds() A " << std::endl;
+   // std::cout << "---------------------------------- makebonds() A " << std::endl;
 
    Bond_lines_container bonds(atom_sel, min_dist, max_dist);
    bonds_box.clear_up();
@@ -3582,7 +3580,7 @@ molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::pro
 void
 molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *geom_p) {
 
-   std::cout << "---------------------------------- makebonds() B " << std::endl;
+   // std::cout << "---------------------------------- makebonds() B " << std::endl;
    Bond_lines_container bonds(atom_sel, max_dist, graphics_info_t::draw_missing_loops_flag);
 
    bonds_box.clear_up();
@@ -3597,7 +3595,7 @@ void
 molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
                                  const std::set<int> &no_bonds_to_these_atoms) {
 
-   if (true)
+   if (false)
       std::cout << "---------------------------------- makebonds() --- start --- "
                 << "with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
                 << " draw_it: " << draw_it << std::endl;
@@ -3651,7 +3649,7 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
 
    make_glsl_bonds_type_checked(__FUNCTION__);
 
-   if (true)
+   if (false)
       std::cout << "---------------------------------- makebonds() ---  end  --- "
                 << "with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
                 << " draw_it: " << draw_it << std::endl;
@@ -4102,12 +4100,10 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
          // It should be a coot::api_bond_colour_t. That's a lot of tedius work to fix I think.
          // So for now I will kludge the bonds_box_type
          coot::api_bond_colour_t bonds_box_type_local = coot::api_bond_colour_t::COLOUR_BY_CHAIN_BONDS;
-         const std::string &model_representation_mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
-         model_molecule_meshes.make_graphical_bonds(bonds_box, bonds_box_type_local, model_representation_mode,
-                                                    udd_handle_bonded_type,
-                                                    draw_cis_peptide_markups, atom_radius, bond_radius,
-                                                    num_subdivisions, n_slices, n_stacks, colour_table,
-                                                    graphics_info_t::Geom_p());
+         graphics_info_t::attach_buffers();
+         // is this function used any more (I mean this one, not make_graphical_bonds()).
+         model_molecule_meshes.make_graphical_bonds(bonds_box, draw_cis_peptide_markups, atom_radius, bond_radius,
+                                                    num_subdivisions, n_slices, n_stacks, colour_table);
 
          model_molecule_meshes.set_name(name_);
          model_molecule_meshes.set_material(material_for_models);
@@ -4174,12 +4170,34 @@ molecule_class_info_t::set_user_defined_atom_colour_by_selection(const std::vect
 void
 molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
 
-  std::cout << "################## make_meshes_from_bonds_box_instanced_version() #########################################"
-            << std::endl;
+   // what is the api_bond_colour_t for the given bbt?
+   auto convert_box_box_type = [] (int bbt) {
+      coot::api_bond_colour_t abbt(coot::api_bond_colour_t::NORMAL_BONDS);
+
+      if (bbt == coot::UNSET_TYPE) abbt = coot::api_bond_colour_t::UNSET_TYPE;
+      if (bbt == coot::NORMAL_BONDS) abbt = coot::api_bond_colour_t::NORMAL_BONDS;
+      if (bbt == coot::CA_BONDS) abbt = coot::api_bond_colour_t::CA_BONDS;
+      if (bbt == coot::COLOUR_BY_CHAIN_BONDS) abbt = coot::api_bond_colour_t::COLOUR_BY_CHAIN_BONDS;
+      if (bbt == coot::CA_BONDS_PLUS_LIGANDS) abbt = coot::api_bond_colour_t::CA_BONDS_PLUS_LIGANDS;
+      if (bbt == coot::BONDS_NO_WATERS) abbt = coot::api_bond_colour_t::BONDS_NO_WATERS;
+      if (bbt == coot::BONDS_SEC_STRUCT_COLOUR) abbt = coot::api_bond_colour_t::BONDS_SEC_STRUCT_COLOUR;
+      if (bbt == coot::BONDS_NO_HYDROGENS) abbt = coot::api_bond_colour_t::BONDS_NO_HYDROGENS;
+      if (bbt == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR) abbt = coot::api_bond_colour_t::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR;
+      if (bbt == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) abbt = coot::api_bond_colour_t::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR;
+      if (bbt == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS) abbt = coot::api_bond_colour_t::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS;
+      if (bbt == coot::COLOUR_BY_MOLECULE_BONDS) abbt = coot::api_bond_colour_t::COLOUR_BY_MOLECULE_BONDS;
+      if (bbt == coot::COLOUR_BY_RAINBOW_BONDS) abbt = coot::api_bond_colour_t::COLOUR_BY_RAINBOW_BONDS;
+      if (bbt == coot::COLOUR_BY_B_FACTOR_BONDS) abbt = coot::api_bond_colour_t::COLOUR_BY_B_FACTOR_BONDS;
+      if (bbt == coot::COLOUR_BY_OCCUPANCY_BONDS) abbt = coot::api_bond_colour_t::COLOUR_BY_OCCUPANCY_BONDS;
+      if (bbt == coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS) abbt = coot::api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS____BONDS;
+      if (bbt == coot::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS) abbt = coot::api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS;
+      if (bbt == coot::COLOUR_BY_CHAIN_GOODSELL) abbt = coot::api_bond_colour_t::COLOUR_BY_CHAIN_GOODSELL;
+
+      return abbt;
+   };
 
    if (atom_sel.mol) {
 
-      std::cout << "################## make_meshes_from_bonds_box_instanced_version() A" << std::endl;
       unsigned int num_subdivisions = 2;
       unsigned int n_slices = 8;
       unsigned int n_stacks = 2; // try 1
@@ -4231,22 +4249,23 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
                                                                               colour_table, true, true);
 #endif
 
-      std::cout << "################## make_meshes_from_bonds_box_instanced_version() B" << std::endl;
-      std::cout << "make_meshes_from_bonds_box_instanced_version() -----------------------------" << std::endl;
-      coot::api_bond_colour_t bonds_box_type(coot::api_bond_colour_t::NORMAL_BONDS);
-      std::string model_representation_mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+      // std::cout << "*****************  bonds_box_type " << bonds_box_type << std::endl;
+      // 20230828-PE this is not needed now.
+      //coot::api_bond_colour_t api_bonds_box_type = convert_box_box_type(bonds_box_type);
+
+      // 20230828-PE it seems that udd_handle_bonded_type is not used at the moment.
+      // the "cis-peptide" question should be addressed by the function that makes the bonds box
+      // not the drawing function. When things are working, remove the flag.
+      //
       bool draw_cis_peptide_markups = true;
-      model_molecule_meshes.make_graphical_bonds(bonds_box, bonds_box_type, model_representation_mode,
-                                                 udd_handle_bonded_type, draw_cis_peptide_markups,
+      model_molecule_meshes.make_graphical_bonds(bonds_box, draw_cis_peptide_markups,
                                                  atom_radius, bond_radius,
-                                                 num_subdivisions, n_slices, n_stacks, colour_table,
-                                                 graphics_info_t::Geom_p());
+                                                 num_subdivisions, n_slices, n_stacks, colour_table);
       if (true) // test that model_molecule_meshes is not empty()
          draw_it = 1;
-      std::cout << "################## make_meshes_from_bonds_box_instanced_version() C" << std::endl;
 
       GLenum err = glGetError();
-      if (err) std::cout << "error in make_glsl_bonds_type_checked() post molecules_as_mesh_atoms::make_graphical_bonds spherical atoms\n";
+      if (err) std::cout << "error in make_glsl_bonds_type_checked() post molecules_as_mesh\n";
    } else {
       std::cout << "ERROR:: Null mol in make_glsl_bonds_type_checked() " << std::endl;
    }
@@ -4258,9 +4277,11 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
 glm::vec4
 molecule_class_info_t::get_glm_colour_func(int idx_col, int bonds_box_type) {
 
-   // 20220208-PE future Paul, when you come to fix this, use vector<glm::vec4> index_to_colour rather than calling this function
+   // 20220208-PE Future Paul, when you come to fix this, use vector<glm::vec4> index_to_colour rather than calling this function
    // because it's a tangle when you make it call other functions which  are not yet static (get_bond_colour_by_mol_no()).
    // i.e. don't use glm::vec4 (*get_glm_colour_for_bonds) (int, int)) in the function call.
+
+   // 20230828-PE OK Past-Paul, I did it the way that you suggested.
 
    glm::vec4 col(0.7, 0.65, 0.4, 1.0);
    if (idx_col == 1) col = glm::vec4(0.7, 0.7, 0.2, 1.0);
@@ -4282,12 +4303,12 @@ molecule_class_info_t::get_glm_colour_func(int idx_col, int bonds_box_type) {
 
 void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
-   if (true)
+   if (false)
       std::cout << "debug:: make_glsl_bonds_type_checked() called by " << caller << "()"
                 << " with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
                 << std::endl;
 
-   if (true)
+   if (false)
       std::cout << "debug:: ---- in make_glsl_bonds_type_checked() --- start ---" << std::endl;
 
 

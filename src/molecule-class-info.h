@@ -165,10 +165,10 @@ namespace molecule_map_type {
 #endif
 
 #include "updating-map-params.hh"
-#ifndef EMSCRIPTEN
+
 #include "updating-coordinates-molecule-parameters.hh"
 #include "cmtz-interface.hh" // for udating molecules
-#endif
+
 #include "clipper-ccp4-map-file-wrapper.hh"
 #include "model-composition-statistics.hh"
 
@@ -181,6 +181,8 @@ glm::vec3 cartesian_to_glm(const coot::Cartesian &c);
 
 namespace coot {
 
+   // c.f. Bond_lines.h coords_bond_colour_t and api/bond-colour.hh - what a mess.
+   //
    enum { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
 	  COLOUR_BY_CHAIN_BONDS=3,
 	  CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
@@ -193,7 +195,9 @@ namespace coot {
 	  COLOUR_BY_B_FACTOR_BONDS=10,
 	  COLOUR_BY_OCCUPANCY_BONDS=11,
 	  COLOUR_BY_USER_DEFINED_COLOURS____BONDS=12,
-	  COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS=13 };
+	  COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS=13,
+          COLOUR_BY_CHAIN_GOODSELL_BONDS=21
+   };
 
    enum { RESIDUE_NUMBER_UNSET = -1111};
 
@@ -646,8 +650,13 @@ public:        //                      public
 
    // we should dump this constructor in the skip then.
    // it does not set imol_no;
-   molecule_class_info_t() {
-
+   molecule_class_info_t() :
+      map_as_mesh(Mesh("map-as-mesh")),
+      map_as_mesh_gl_lines_version(Mesh("map-as-mesh-gl-lines")),
+      mesh_for_symmetry_atoms(Mesh("mesh-for-symmetry-atoms")),
+      molecule_as_mesh_rama_balls(Mesh("molecule_as_mesh_rama_balls")),
+      molecule_as_mesh_rota_dodecs(Mesh("molecule_as_mesh_rota_dodecs"))
+   {
       setup_internal();
       // give it a pointer to something at least *vagely* sensible
       // (better than pointing at -129345453).
@@ -657,8 +666,13 @@ public:        //                      public
 
    // See graphics_info_t::initialize_graphics_molecules()
    //
-   molecule_class_info_t(int i) {
-
+   molecule_class_info_t(int i) :
+      map_as_mesh(Mesh("map-as-mesh")),
+      map_as_mesh_gl_lines_version(Mesh("map-as-mesh-gl-lines")),
+      mesh_for_symmetry_atoms(Mesh("mesh-for-symmetry-atoms")),
+      molecule_as_mesh_rama_balls(Mesh("molecule_as_mesh_rama_balls")),
+      molecule_as_mesh_rota_dodecs(Mesh("molecule_as_mesh_rota_dodecs"))
+   {
       setup_internal();
       imol_no = i;
    }
@@ -1082,7 +1096,6 @@ public:        //                      public
    // void draw_map_unit_cell(const coot::colour_holder &cell_colour);
    // void draw_unit_cell_internal(float rsc[8][3]);
 
-#ifndef EMSCRIPTEN
    LinesMesh lines_mesh_for_cell;
    void setup_unit_cell();
    void draw_unit_cell(Shader *shader_p, const glm::mat4 &mvp);
@@ -1094,7 +1107,6 @@ public:        //                      public
                   const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                   const glm::vec4 &background_colour,
                   bool do_depth_fog);
-#endif
 
    // return the status of whether or not the dots were cleared.
    bool clear_dots(int dots_handle);

@@ -14,7 +14,7 @@
 class model_molecule_meshes_t {
 
 public:
-   model_molecule_meshes_t() {}
+   model_molecule_meshes_t() : simple_mesh(Mesh("model_molecule_meshes_t constructor")) {}
    coot::instanced_mesh_t im;
    std::vector<Mesh> instanced_meshes;
    Mesh simple_mesh;
@@ -108,15 +108,12 @@ public:
    // the simple-lines option for the main molecule
    void make_bond_lines(const graphical_bonds_container &bonds_box, const std::vector<glm::vec4> &colour_table);
 
+   // 20230828-PE it seem sthat udd_handle_bonded_type is not used at the moment
    void make_graphical_bonds(const graphical_bonds_container &bonds_box,
-                             coot::api_bond_colour_t bonds_box_type,
-                             const std::string &model_representation_mode,
-                             int udd_handle_bonded_type,
                              bool draw_cis_peptide_markups,
                              float atom_radius, float bond_radius,
                              int num_subdivisions, int n_slices, int n_stacks,
-                             const std::vector<glm::vec4> &colour_table,
-                             coot::protein_geometry *protein_geometry_p);
+                             const std::vector<glm::vec4> &colour_table);
 
 };
 

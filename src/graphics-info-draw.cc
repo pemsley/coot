@@ -796,7 +796,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 void
 graphics_info_t::draw_model_molecules() {
 
-   std::cout << "draw_model_molecules() --- start ---" << std::endl;
+   // std::cout << "draw_model_molecules() --- start ---" << std::endl;
 
    // This is only called in "Plain" mode - i.e. it is not used in "Fancy" mode.
    // This function is called by draw_molecules(), which in turn is called by render_3d_scene()
@@ -812,15 +812,13 @@ graphics_info_t::draw_model_molecules() {
       if (! is_valid_model_molecule(ii)) continue;
 
       molecule_class_info_t &m = molecules[ii];
-      std::cout << "draw_model_molecules() A " << ii << " m.draw_it " << m.draw_it << std::endl;
+      // std::cout << "draw_model_mqolecules() A " << ii << " m.draw_it " << m.draw_it << std::endl;
 
-      // if (! m.draw_it) continue;    restore this                      
-      std::cout << "draw_model_molecules() B " << ii << std::endl;
+      if (! m.draw_it) continue;
 
-      // I think that this is for the instanced meshes.
+      // 20230827-PE this is for the new/consolidated api-based instanced meshes.
       //
       Shader &shader_instances_p = shader_for_instanced_objects;
-      // m.draw_molecule_as_meshes(&shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
       float opacity = 1.0f;
       bool gl_lines_mode = false;
       bool show_just_shadows = false;

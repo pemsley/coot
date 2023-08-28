@@ -1642,7 +1642,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
    if (false) {
 #ifdef USE_MOLECULES_TO_TRIANGLES
-      Mesh mesh;
+      Mesh mesh("test-molecule-to-triangle");
       // mesh.load_from_glTF("blue-eyelashes-1.glb");
       // mesh.load_from_glTF("augmented-box.glb");
       // mesh.load_from_glTF("Triangle.gltf");

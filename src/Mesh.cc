@@ -41,7 +41,8 @@
 void
 Mesh::init() {
 
-   clear();
+   vao = VAO_NOT_SET;
+   clear(false);
    first_time = true;
    is_instanced = false;
    is_instanced_colours = false;
@@ -55,8 +56,9 @@ Mesh::init() {
    n_instances_allocated = 0;
    particle_draw_count = 0;
    gl_lines_mode = false;
-   vao = VAO_NOT_SET;
    is_headless = false;
+   buffer_id = 0; // not valid
+   index_buffer_id = 0; // not valid
 
    std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
    time_constructed = now;
@@ -87,8 +89,9 @@ Mesh::Mesh(const molecular_triangles_mesh_t &mtm) {
 }
 
 
-Mesh::Mesh(const coot::simple_mesh_t &mesh) {
+Mesh::Mesh(const std::string &name_in, const coot::simple_mesh_t &mesh) {
 
+   name = name_in;
    vertices.resize(mesh.vertices.size());
    for (unsigned int i = 0; i < mesh.vertices.size(); i++) {
       const auto &vv = mesh.vertices[i];
@@ -97,6 +100,13 @@ Mesh::Mesh(const coot::simple_mesh_t &mesh) {
    }
    triangles = mesh.triangles;
 }
+
+Mesh::~Mesh() {
+
+   bool gl_buffers_flag = false;
+   clear(gl_buffers_flag);
+}
+
 
 
 void
@@ -666,6 +676,38 @@ Mesh::setup_debugging_instancing_buffers() {
 }
 
 void
+Mesh::delete_gl_buffers() {
+
+#if 0
+
+   // 20230828-PE Because Mesh is copied around, this can be called many times if it is
+   // called from the destructor. But deleting the GL buffers more than
+   // once causes as crash.
+   // So let's not delete it at all (Hmm)
+
+   if (vao == VAO_NOT_SET) {
+      std::cout << "ERROR:: Mesh::delete_gl_buffers() called without the VAO set for mesh \"" << name << "\"" << std::endl;
+   } else {
+      glBindVertexArray(vao);
+      if (buffer_id != 0) { // 0 is not valid
+         std::cout << "delete_gl_buffers() deleting buffer_id " << buffer_id << std::endl;
+         glDeleteBuffers(1, &buffer_id);
+         buffer_id = 0;
+      }
+      glDeleteBuffers(1, &index_buffer_id);
+
+      if (is_instanced) {
+         glDeleteBuffers(1, &inst_colour_buffer_id);
+         glDeleteBuffers(1, &inst_rts_buffer_id);
+      }
+   }
+#else
+   std::cout << "Mesh::delete_gl_buffers() - no deletion" << std::endl;
+#endif
+
+}
+
+void
 Mesh::setup_buffers() {
 
    if (is_headless) return;
@@ -1100,8 +1142,9 @@ Mesh::setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm:
    n_instances = mats.size();
    n_instances_allocated = n_instances;
 
-   std::cout << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& in setup_matrix_and_colour_instancing_buffers_standard() "
-             << "n_instances " << n_instances << std::endl;
+   if (false)
+      std::cout << "in setup_matrix_and_colour_instancing_buffers_standard() "
+                << "n_instances " << n_instances << std::endl;
 
    const std::vector<glm::mat4> &inst_rts_matrices = mats;
    const std::vector<glm::vec4> &inst_col_matrices = colours;
@@ -1414,7 +1457,7 @@ Mesh::draw_instanced(Shader *shader_p,
                      float pulsing_phase_distribution,
                      float z_rotation_angle) {
 
-   if (true)
+   if (false)
       std::cout << "Mesh::draw_instanced() Mesh " << name << " -- start -- with shader " << shader_p->name
                 << " and do_pulse " << do_pulse << " and draw_this_mesh " << draw_this_mesh
                 << std::endl;
@@ -1515,9 +1558,9 @@ Mesh::draw_instanced(Shader *shader_p,
    // glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id); // needed?
    // err = glGetError(); if (err) std::cout << "error draw_instanced() glBindBuffer() inst_rts_buffer_id" << std::endl;
 
-   if (true)
-      std::cout << "Mesh::draw_instanced() Mesh " << name << " drawing n_verts " << n_verts << " n_instances " << n_instances
-                << " with shader " << shader_p->name << std::endl;
+   if (false)
+      std::cout << "Mesh::draw_instanced() Mesh \"" << name << "\" drawing n_verts " << n_verts << " n_instances " << n_instances
+                << " with shader " << shader_p->name << " and vao " << vao << std::endl;
 
    glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
    err = glGetError();
@@ -1738,7 +1781,7 @@ Mesh::draw(Shader *shader_p,
            bool do_depth_fog,
            bool show_just_shadows) {
 
-   if (true)
+   if (false)
       std::cout << "debug:: Mesh::draw() \"" << name << "\" shader: " << shader_p->name
                 << " draw_this_mesh: " << draw_this_mesh
                 << " n-vertices:" << vertices.size()
