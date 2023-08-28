@@ -119,6 +119,7 @@ public:
                              const std::vector<glm::vec4> &colour_table);
 
    void add_rotamer_dodecs(int imol, const graphical_bonds_container &bonds_box);
+   void add_ramachandran_spheres(int imol, const graphical_bonds_container &gbc);
 
    std::pair<bool, coot::Cartesian> get_HA_unit_vector(mmdb::Residue *r) const;
 

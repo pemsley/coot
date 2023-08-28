@@ -61,9 +61,10 @@ model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_co
    make_instanced_graphical_bonds_bonds(im, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
    make_graphical_bonds_cis_peptides(im.markup, bonds_box);
    add_rotamer_dodecs(imol, bonds_box);
+   add_ramachandran_spheres(imol, bonds_box);
 
    
-   // ===================================== now convert im meshes to src style "Mesh"es =======================
+   // ===================================== now convert instancing.hh meshes to src style "Mesh"es =======================
 
 
    std::cout << "in make_graphical_bonds() post im generation: with im.geom.size() " << im.geom.size() << std::endl;
@@ -264,7 +265,7 @@ model_molecule_meshes_t::add_rotamer_dodecs(int imol, const graphical_bonds_cont
          const rotamer_markup_container_t &rm = bonds_box.rotamer_markups[i];
          if (rm.rpi.state == coot::rotamer_probability_info_t::OK) { // should be coot::rotamer_probability_info_t::OK
             const coot::residue_spec_t &residue_spec = rm.spec;
-            std::cout << "Rotamer-markup " << i << " " << residue_spec << std::endl;
+            // std::cout << "Rotamer-markup " << i << " " << residue_spec << std::endl;
             mmdb::Residue *residue_p = get_residue(imol, residue_spec);
             coot::Cartesian offset(0,0,rama_ball_pos_offset_scale);
             if (residue_p) {
@@ -278,6 +279,54 @@ model_molecule_meshes_t::add_rotamer_dodecs(int imol, const graphical_bonds_cont
             coot::instancing_data_type_A_t idA(atom_pos, this_dodec_colour, size_3);
             ig.instancing_data_A.push_back(idA);
          }
+      }
+      im.add(ig);
+   }
+}
+
+#include "coot-utils/oct.hh"                                        
+
+void
+model_molecule_meshes_t::add_ramachandran_spheres(int imol, const graphical_bonds_container &gbc) {
+
+   // 20230828-PE I am "doing this" yet again because this version uses instancing.
+
+   auto colour_holder_to_glm = [] (const coot::colour_holder &ch) {
+                                  return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
+                               };
+
+   auto prob_raw_to_colour_rotation = [] (float prob) {
+                                         if (prob > 0.5) prob = 0.5; // 0.4 and 2.5 f(for q) might be better (not tested)
+                                         // good probabilities have q = 0
+                                         // bad probabilities have q 0.66
+                                         double q = (1.0 - 2.0 * prob);
+                                         q = pow(q, 20.0);
+                                         return q;
+                                      };
+
+   if (gbc.n_ramachandran_goodness_spots > 0) {
+      unsigned int num_subdivisions = 2;
+      std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octaball = tessellate_octasphere(num_subdivisions);
+      const auto &octaball_vertices_raw  = octaball.first;
+      const auto &octaball_triangles_raw = octaball.second;
+      std::vector<coot::api::vn_vertex> octaball_vertices(octaball_vertices_raw.size()); // cooked
+      for (unsigned int i=0; i<octaball_vertices_raw.size(); i++) {
+         const auto &v = octaball_vertices_raw[i];
+         octaball_vertices[i] = coot::api::vn_vertex(v,v);
+      }
+      coot::instanced_geometry_t ig(octaball_vertices, octaball_triangles_raw);
+      float size = 0.5f;
+      glm::vec3 size_3(size, size, size);
+      for (int i=0; i<gbc.n_ramachandran_goodness_spots; i++) {
+         const coot::Cartesian &position = gbc.ramachandran_goodness_spots_ptr[i].first;
+         const float &prob_raw = gbc.ramachandran_goodness_spots_ptr[i].second;
+         double q = prob_raw_to_colour_rotation(prob_raw);
+         coot::colour_holder col = coot::colour_holder(q, 0.0, 1.0, false, std::string(""));
+         col.scale_intensity(0.6); // calm down the otherwise super-bright Rama ball colours
+         glm::vec4 col_glm = colour_holder_to_glm(col);
+         glm::vec3 ball_position = cartesian_to_glm(position);
+         coot::instancing_data_type_A_t idA(ball_position, col_glm, size_3);
+         ig.instancing_data_A.push_back(idA);
       }
       im.add(ig);
    }

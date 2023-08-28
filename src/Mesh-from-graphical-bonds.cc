@@ -63,7 +63,7 @@ Mesh::make_graphical_bonds(const graphical_bonds_container &gbc,
    // (at the moment unused) layout and shader.
    //
    glm::vec3 screen_up_dir(0,1,0); // for now
-   make_graphical_bonds_rama_balls(gbc, screen_up_dir);
+   make_graphical_bonds_rama_balls(gbc);
 
    make_graphical_bonds_rotamer_dodecs(gbc, screen_up_dir);
 
@@ -522,8 +522,7 @@ Mesh::make_graphical_bonds_bonds(const graphical_bonds_container &gbc,
 
 
 void
-Mesh::make_graphical_bonds_rama_balls(const graphical_bonds_container &gbc,
-                                      const glm::vec3 &screen_up_dir) {
+Mesh::make_graphical_bonds_rama_balls(const graphical_bonds_container &gbc) {
 
    auto cartesian_to_glm = [] (const coot::Cartesian &c) {
                               return glm::vec3(c.x(), c.y(), c.z());
@@ -544,6 +543,7 @@ Mesh::make_graphical_bonds_rama_balls(const graphical_bonds_container &gbc,
       glm::vec3 origin(0,0,0);
       float rama_ball_pos_offset_scale = 0.6;
       float rama_ball_radius = 0.5;
+      glm::vec3 screen_up_dir(0,0,1);
 
       std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octaball = tessellate_octasphere(num_subdivisions);
 

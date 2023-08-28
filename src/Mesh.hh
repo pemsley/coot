@@ -300,8 +300,7 @@ public:
                                    unsigned int n_stacks,
                                    const std::vector<glm::vec4> &colour_table); // add bool add_start_end_cap, bool add_end_end_cap);
 
-   void make_graphical_bonds_rama_balls(const graphical_bonds_container &gbc,
-                                        const glm::vec3 &screen_up_dir); // normalized
+   void make_graphical_bonds_rama_balls(const graphical_bonds_container &gbc);
 
    void make_graphical_bonds_rotamer_dodecs(const graphical_bonds_container &gbc,
                                             const glm::vec3 &screen_up_dir);
