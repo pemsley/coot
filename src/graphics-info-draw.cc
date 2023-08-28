@@ -5615,7 +5615,7 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
 
    // std::cout << "draw_extra_distance_restraints() pass_type: " << pass_type << std::endl;
    // std::cout << "draw_extra_distance_restraints() mesh_for_extra_distance_restraints " << std::endl;;
-   mesh_for_extra_distance_restraints.debug();
+   // mesh_for_extra_distance_restraints.debug();
 
    // it used to be called draw_it_for_moving_atoms_restraints_graphics_object - why not use that varible?
    //
