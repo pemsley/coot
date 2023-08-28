@@ -5,6 +5,20 @@
 #include "model-molecule-meshes.hh"
 #include "api/make-instanced-graphical-bonds.hh" // make_instanced_graphical_bonds_spherical_atoms() etc
 #include "generic-vertex.hh"
+
+#include "graphics-info.h" // for get_residue - used for Rotamer markup.
+
+bool
+model_molecule_meshes_t::empty() const {
+
+   bool state = false;
+   if (instanced_meshes.empty())
+      if (simple_mesh.empty())
+         state = true;
+
+   return state;
+}
+
 void
 model_molecule_meshes_t::draw_simple_bond_lines(Shader *shader,
                                                 const glm::mat4 &glm,
@@ -26,7 +40,7 @@ model_molecule_meshes_t::draw_for_ssao(Shader *shader_for_meshes_p,
 
 
 void
-model_molecule_meshes_t::make_graphical_bonds(const graphical_bonds_container &bonds_box,
+model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_container &bonds_box,
                                               bool draw_cis_peptide_markups,
                                               float atom_radius, float bond_radius,
                                               int num_subdivisions, int n_slices, int n_stacks,
@@ -37,21 +51,22 @@ model_molecule_meshes_t::make_graphical_bonds(const graphical_bonds_container &b
    simple_mesh.clear();
    im.clear();
 
-   if (true) { // test the style
-      // api functions
-      coot::api_bond_colour_t dummy_bonds_box_type(coot::api_bond_colour_t::NORMAL_BONDS);
-      // 20230828-PE remove the dummy_handle - when we make the *meshes* we don't need to
-      // have the bonding handle - that should have been handled already.
-      int dummy_handle = -1;
-      make_instanced_graphical_bonds_spherical_atoms(im, bonds_box, dummy_bonds_box_type, dummy_handle, atom_radius, bond_radius,
-                                                     num_subdivisions, colour_table);
-      make_instanced_graphical_bonds_bonds(im, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
-      if (draw_cis_peptide_markups)
-         make_graphical_bonds_cis_peptides(im.markup, bonds_box);
-   }
+   // api functions
+   coot::api_bond_colour_t dummy_bonds_box_type(coot::api_bond_colour_t::NORMAL_BONDS);
+   // 20230828-PE remove the dummy_handle - when we make the *meshes* we don't need to
+   // have the bonding handle - that should have been handled already.
+   int dummy_handle = -1;
+   make_instanced_graphical_bonds_spherical_atoms(im, bonds_box, dummy_bonds_box_type, dummy_handle, atom_radius, bond_radius,
+                                                  num_subdivisions, colour_table);
+   make_instanced_graphical_bonds_bonds(im, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
+   make_graphical_bonds_cis_peptides(im.markup, bonds_box);
+   add_rotamer_dodecs(imol, bonds_box);
 
-   // now convert im meshes to src style "Mesh"es.
-   // std::cout << "in make_graphical_bonds() with im.geom.size() " << im.geom.size() << std::endl;
+   
+   // ===================================== now convert im meshes to src style "Mesh"es =======================
+
+
+   std::cout << "in make_graphical_bonds() post im generation: with im.geom.size() " << im.geom.size() << std::endl;
    for (unsigned int i_g=0; i_g<im.geom.size(); i_g++) {
       const coot::instanced_geometry_t &ig = im.geom[i_g];
       // mesh
@@ -62,7 +77,7 @@ model_molecule_meshes_t::make_graphical_bonds(const graphical_bonds_container &b
                                              ig.vertices[iv].normal,
                                              col);
       Mesh m(src_vertices, ig.triangles);
-      std::string mesh_name = "make_graphical_bonds instancing-mesh-" + std::to_string(i_g);
+      std::string mesh_name("make_graphical_bonds instancing-mesh-" + std::to_string(i_g) + " " + ig.name);
       m.set_name(mesh_name);
       m.setup_buffers();
 
@@ -76,7 +91,7 @@ model_molecule_meshes_t::make_graphical_bonds(const graphical_bonds_container &b
             // 20230828-PE Atom sizes (sphere radius) can vary. Waters and metals are bigger.
             // size for a sphere should be a vector of size 3 of the same number.
 	    float sphere_radius = Atd.size[0];
-            std::cout << "atom_radius " << atom_radius << " size: " << glm::to_string(Atd.size) << std::endl;
+            // std::cout << "atom_radius " << atom_radius << " size: " << glm::to_string(Atd.size) << std::endl;
             colours[i_A] = Atd.colour;
 	    glm::mat4 mm = glm::scale(unit_matrix, Atd.size);
             matrices[i_A] = glm::translate(mm, Atd.position/sphere_radius);
@@ -125,14 +140,146 @@ model_molecule_meshes_t::make_graphical_bonds(const graphical_bonds_container &b
       simple_mesh.import(src_vertices, triangles);
       simple_mesh.setup_buffers();
    }
+}
 
+mmdb::Residue *
+model_molecule_meshes_t::get_residue(int imol, const coot::residue_spec_t &spec) const {
 
-   std::cout << "DEBUG:: in make_graphical_bonds(): n_rotamer_markups: " << bonds_box.n_rotamer_markups << std::endl;
-   for (int i=0; i<bonds_box.n_rotamer_markups; i++) {
-      const rotamer_markup_container_t &rm = bonds_box.rotamer_markups[i];
-      if (rm.rpi.state == coot::rotamer_probability_info_t::OK) { // should be coot::rotamer_probability_info_t::OK
-         const coot::residue_spec_t &residue_spec = rm.spec;
+   mmdb::Residue *residue_p = graphics_info_t::get_residue(imol, spec);
+   return residue_p;
+}
+
+std::pair<bool, coot::Cartesian>
+model_molecule_meshes_t::get_HA_unit_vector(mmdb::Residue *r) const {
+   bool status = false;
+   coot::Cartesian dir;
+   mmdb::Atom *CA = r->GetAtom(" CA ");
+   mmdb::Atom *C  = r->GetAtom(" C  ");
+   mmdb::Atom *N  = r->GetAtom(" N  ");
+   mmdb::Atom *CB = r->GetAtom(" CB ");
+
+   if (CA && C && N && CB) {
+      coot::Cartesian ca_pos(CA->x, CA->y, CA->z);
+      coot::Cartesian  c_pos( C->x,  C->y,  C->z);
+      coot::Cartesian  n_pos( N->x,  N->y,  N->z);
+      coot::Cartesian cb_pos(CB->x, CB->y, CB->z);
+      coot::Cartesian dir_1 = ca_pos - c_pos;
+      coot::Cartesian dir_2 = ca_pos - n_pos;
+      coot::Cartesian dir_3 = ca_pos - cb_pos;
+      coot::Cartesian r = dir_1 + dir_2 + dir_3;
+      dir = r.unit();
+      status = true;
+   } else {
+      if (CA && C && N) {
+         coot::Cartesian ca_pos(CA->x, CA->y, CA->z);
+         coot::Cartesian  c_pos( C->x,  C->y,  C->z);
+         coot::Cartesian  n_pos( N->x,  N->y,  N->z);
+         coot::Cartesian dir_1 = ca_pos - c_pos;
+         coot::Cartesian dir_2 = ca_pos - n_pos;
+         coot::Cartesian r = dir_1 + dir_2;
+         dir = r.unit();
+         status = true;
       }
+   }
+   return std::make_pair(status, dir);
+}
+
+// this function should live somewhere more basic, I think. perhaps coot-utils (shapes.hh?)
+std::pair<std::vector<coot::api::vn_vertex>, std::vector<g_triangle> >
+model_molecule_meshes_t::get_dodec_vertices_and_triangles() const {
+
+   auto clipper_to_glm = [] (const clipper::Coord_orth &c) {
+                              return glm::vec3(c.x(), c.y(), c.z());
+                           };
+
+   dodec d;
+   std::vector<clipper::Coord_orth> coords = d.coords();
+   std::vector<glm::vec3> dodec_postions(coords.size());
+   for (unsigned int i=0; i<coords.size(); i++)
+      dodec_postions[i] = clipper_to_glm(coords[i]);
+
+   std::vector<coot::api::vn_vertex> dodec_vertices;
+   std::vector<g_triangle> dodec_triangles;
+   dodec_triangles.reserve(36);
+
+   for (unsigned int iface=0; iface<12; iface++) {
+
+      std::vector<coot::api::vn_vertex> face_verts;
+      std::vector<g_triangle> face_triangles;
+      face_triangles.reserve(3);
+
+      std::vector<unsigned int> indices_for_face = d.face(iface);
+      glm::vec3 ns(0,0,0);
+      for (unsigned int j=0; j<5; j++)
+         ns += dodec_postions[indices_for_face[j]];
+      glm::vec3 normal = glm::normalize(ns);
+
+      for (unsigned int j=0; j<5; j++) {
+         glm::vec3 &pos = dodec_postions[indices_for_face[j]];
+         coot::api::vn_vertex v(0.5f * pos, normal);
+         face_verts.push_back(v);
+      }
+
+      face_triangles.push_back(g_triangle(0,1,2));
+      face_triangles.push_back(g_triangle(0,2,3));
+      face_triangles.push_back(g_triangle(0,3,4));
+
+      unsigned int idx_base = dodec_vertices.size();
+      unsigned int idx_tri_base = dodec_triangles.size();
+      dodec_vertices.insert(dodec_vertices.end(), face_verts.begin(), face_verts.end());
+      dodec_triangles.insert(dodec_triangles.end(), face_triangles.begin(), face_triangles.end());
+      for (unsigned int jj=idx_tri_base; jj<dodec_triangles.size(); jj++)
+         dodec_triangles[jj].rebase(idx_base);
+   }
+
+   return std::make_pair(dodec_vertices, dodec_triangles);
+}
+
+void
+model_molecule_meshes_t::add_rotamer_dodecs(int imol, const graphical_bonds_container &bonds_box) {
+
+   auto cartesian_to_glm = [] (const coot::Cartesian &c) {
+                              return glm::vec3(c.x(), c.y(), c.z());
+                           };
+   auto clipper_to_glm = [] (const clipper::Coord_orth &c) {
+                              return glm::vec3(c.x(), c.y(), c.z());
+                           };
+   auto colour_holder_to_glm = [] (const coot::colour_holder &ch) {
+                                  return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
+                               };
+   std::cout << "DEBUG:: in make_graphical_bonds(): n_rotamer_markups: " << bonds_box.n_rotamer_markups << std::endl;
+   if (bonds_box.n_rotamer_markups > 0) {
+
+      std::pair<std::vector<coot::api::vn_vertex>, std::vector<g_triangle> > vtd = get_dodec_vertices_and_triangles();
+      const std::vector<coot::api::vn_vertex> &dodec_vertices = vtd.first;
+      const std::vector<g_triangle> &dodec_triangles = vtd.second;
+
+      coot::instanced_geometry_t ig(dodec_vertices, dodec_triangles);
+      ig.name = "Rotamer dodecs";
+
+      double rama_ball_pos_offset_scale = 1.5;
+      float size = 1.0;
+      glm::vec3 size_3(size, size, size);
+      for (int i=0; i<bonds_box.n_rotamer_markups; i++) {
+         const rotamer_markup_container_t &rm = bonds_box.rotamer_markups[i];
+         if (rm.rpi.state == coot::rotamer_probability_info_t::OK) { // should be coot::rotamer_probability_info_t::OK
+            const coot::residue_spec_t &residue_spec = rm.spec;
+            std::cout << "Rotamer-markup " << i << " " << residue_spec << std::endl;
+            mmdb::Residue *residue_p = get_residue(imol, residue_spec);
+            coot::Cartesian offset(0,0,rama_ball_pos_offset_scale);
+            if (residue_p) {
+               std::pair<bool, coot::Cartesian> hav = get_HA_unit_vector(residue_p);
+               if (hav.first) offset = hav.second * 1.6;
+            }
+            glm::vec3 atom_pos = clipper_to_glm(rm.pos) + cartesian_to_glm(offset);
+            auto rm_col = rm.col;
+            rm_col.scale_intensity(0.75); // was 0.6 in Mesh-from-graphical-bonds.cc
+            auto this_dodec_colour = colour_holder_to_glm(rm_col);
+            coot::instancing_data_type_A_t idA(atom_pos, this_dodec_colour, size_3);
+            ig.instancing_data_A.push_back(idA);
+         }
+      }
+      im.add(ig);
    }
 }
 
@@ -141,6 +288,7 @@ model_molecule_meshes_t::make_graphical_bonds(const graphical_bonds_container &b
 void
 model_molecule_meshes_t::make_bond_lines(const graphical_bonds_container &bonds_box, const std::vector<glm::vec4> &colour_table) {
 
+   std::cout << "model_molecule_meshes_t::make_bond_lines() missing function" << std::endl;
 }
 
 
@@ -180,10 +328,13 @@ model_molecule_meshes_t::draw_instances(Shader *shader_for_instanced_meshes_p,
                                         float pulsing_phase_distribution,
                                         float z_rotation_angle) {
 
-   // std::cout << "model_molecule_meshes_t::draw_instances(): n-instanced meshes: " << instanced_meshes.size() << std::endl;
+   if (false)
+      std::cout << "model_molecule_meshes_t::draw_instances(): n-instanced meshes: " << instanced_meshes.size() << std::endl;
    for (unsigned int i=0; i<instanced_meshes.size(); i++) {
       auto &mesh = instanced_meshes[i];
-      // std::cout << "   calling mesh.draw_instanced() with shader " << shader_for_instanced_meshes_p->name << std::endl;
+      if (false)
+         std::cout << "   calling mesh.draw_instanced() \"" << mesh.name << "\" with shader "
+                   << "\"" << shader_for_instanced_meshes_p->name << "\"" << std::endl;
       mesh.draw_instanced(shader_for_instanced_meshes_p, mvp, view_rotation_matrix, lights, eye_position, background_colour,
                           do_depth_fog, transferred_colour_is_instanced,
                           do_pulse, do_rotate_z, pulsing_amplitude, pulsing_frequency,

@@ -4102,7 +4102,7 @@ molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be 
          coot::api_bond_colour_t bonds_box_type_local = coot::api_bond_colour_t::COLOUR_BY_CHAIN_BONDS;
          graphics_info_t::attach_buffers();
          // is this function used any more (I mean this one, not make_graphical_bonds()).
-         model_molecule_meshes.make_graphical_bonds(bonds_box, draw_cis_peptide_markups, atom_radius, bond_radius,
+         model_molecule_meshes.make_graphical_bonds(imol_no, bonds_box, draw_cis_peptide_markups, atom_radius, bond_radius,
                                                     num_subdivisions, n_slices, n_stacks, colour_table);
 
          model_molecule_meshes.set_name(name_);
@@ -4258,9 +4258,13 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       // not the drawing function. When things are working, remove the flag.
       //
       bool draw_cis_peptide_markups = true;
-      model_molecule_meshes.make_graphical_bonds(bonds_box, draw_cis_peptide_markups,
+      model_molecule_meshes.make_graphical_bonds(imol_no, bonds_box, draw_cis_peptide_markups,
                                                  atom_radius, bond_radius,
                                                  num_subdivisions, n_slices, n_stacks, colour_table);
+      // that function now calles
+      // model_molecule_meshes.add_rotamer_dodecs(imol_no, bonds_box)
+      // internally.
+
       if (true) // test that model_molecule_meshes is not empty()
          draw_it = 1;
 

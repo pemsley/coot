@@ -171,11 +171,11 @@ graphics_info_t::get_atom(int imol, const coot::atom_spec_t &spec) const {
    return at;
 }
 
-
+// static
 mmdb::Residue *
-graphics_info_t::get_residue(int imol, const coot::residue_spec_t &spec) const {
+graphics_info_t::get_residue(int imol, const coot::residue_spec_t &spec) {
 
-   mmdb::Residue *r = 0;
+   mmdb::Residue *r = nullptr;
    if (is_valid_model_molecule(imol)) {
       r = molecules[imol].get_residue(spec);
    }

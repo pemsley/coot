@@ -1761,7 +1761,7 @@ public:
    static std::pair<std::string, std::string> split_resno_inscode(const std::string &atom_name);
 
    mmdb::Atom *get_atom(int imol, const coot::atom_spec_t &spec) const;
-   mmdb::Residue *get_residue(int imol, const coot::residue_spec_t &spec) const;
+   static mmdb::Residue *get_residue(int imol, const coot::residue_spec_t &spec);
 
    void set_go_to_atom_molecule(int pos);
 

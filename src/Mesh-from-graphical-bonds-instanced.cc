@@ -50,7 +50,7 @@ Mesh::setup_instancing_buffer_data(const Material &mat,
 
    if (vao == VAO_NOT_SET)
       std::cout << "ERROR:: Mesh::setup_instancing_buffer_data() You forgot to setup this Mesh "
-                << name << std::endl;
+                << "\"" << name << "\" - or perhaps the Mesh had no vertices?" << std::endl;
    glBindVertexArray(vao);
 
    // 0 vertex position

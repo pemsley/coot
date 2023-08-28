@@ -5613,8 +5613,8 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
    if (!moving_atoms_asc->mol)
       return;
 
-   std::cout << "draw_extra_distance_restraints() pass_type: " << pass_type << std::endl;
-   std::cout << "draw_extra_distance_restraints() mesh_for_extra_distance_restraints " << std::endl;;
+   // std::cout << "draw_extra_distance_restraints() pass_type: " << pass_type << std::endl;
+   // std::cout << "draw_extra_distance_restraints() mesh_for_extra_distance_restraints " << std::endl;;
    mesh_for_extra_distance_restraints.debug();
 
    // it used to be called draw_it_for_moving_atoms_restraints_graphics_object - why not use that varible?
@@ -5622,11 +5622,8 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
    // what about draw_it_for_moving_atoms_restraints_graphics_object?
    //
    if (pass_type == PASS_TYPE_STANDARD) {
-      std::cout << "draw_extra_distance_restraints() A: " << std::endl;
       if (show_extra_distance_restraints_flag) {
-         std::cout << "draw_extra_distance_restraints() B: " << std::endl;
          if (! extra_distance_restraints_markup_data.empty()) {
-            std::cout << "draw_extra_distance_restraints() C: " << std::endl;
             glm::mat4 mvp = get_molecule_mvp();
             glm::mat4 model_rotation_matrix = get_model_rotation();
             glm::vec4 bg_col(background_colour, 1.0f);

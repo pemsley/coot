@@ -712,6 +712,9 @@ Mesh::setup_buffers() {
 
    if (is_headless) return;
 
+   if (vertices.empty())  std::cout << "WARNING:: Mesh::setup_buffers() zero vertices -  probably an error" << std::endl;
+   if (triangles.empty()) std::cout << "WARNING:: Mesh::setup_buffers() zero triangles - probably an error" << std::endl;
+
    if (vertices.empty()) return;
    if (triangles.empty() && lines_vertex_indices.empty()) return;
 

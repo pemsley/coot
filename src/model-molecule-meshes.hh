@@ -24,6 +24,8 @@ public:
    void import(const coot::instanced_mesh_t &api_mol_mesh);
    void set_name(const std::string &n) { name = n; }
 
+   bool empty() const;
+
    // wrapper for both the instanced and simple meshes
    void draw(Shader *shader_mesh,
              Shader *shader_instanced_mesh,
@@ -109,11 +111,20 @@ public:
    void make_bond_lines(const graphical_bonds_container &bonds_box, const std::vector<glm::vec4> &colour_table);
 
    // 20230828-PE it seem sthat udd_handle_bonded_type is not used at the moment
-   void make_graphical_bonds(const graphical_bonds_container &bonds_box,
+   void make_graphical_bonds(int imol,
+                             const graphical_bonds_container &bonds_box,
                              bool draw_cis_peptide_markups,
                              float atom_radius, float bond_radius,
                              int num_subdivisions, int n_slices, int n_stacks,
                              const std::vector<glm::vec4> &colour_table);
+
+   void add_rotamer_dodecs(int imol, const graphical_bonds_container &bonds_box);
+
+   std::pair<bool, coot::Cartesian> get_HA_unit_vector(mmdb::Residue *r) const;
+
+   mmdb::Residue *get_residue(int imol, const coot::residue_spec_t &spec) const;
+
+   std::pair<std::vector<coot::api::vn_vertex>, std::vector<g_triangle> > get_dodec_vertices_and_triangles() const;
 
 };
 
