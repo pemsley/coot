@@ -270,7 +270,9 @@ model_molecule_meshes_t::add_rotamer_dodecs(int imol, const graphical_bonds_cont
             coot::Cartesian offset(0,0,rama_ball_pos_offset_scale);
             if (residue_p) {
                std::pair<bool, coot::Cartesian> hav = get_HA_unit_vector(residue_p);
-               if (hav.first) offset = hav.second * 1.6;
+               if (hav.first) offset = hav.second * rama_ball_pos_offset_scale;
+            } else {
+               std::cout << "in add_rotamer_dodecs() sadge null residue_p " << imol << " " << residue_spec << std::endl;
             }
             glm::vec3 atom_pos = clipper_to_glm(rm.pos) + cartesian_to_glm(offset);
             auto rm_col = rm.col;
@@ -295,6 +297,8 @@ model_molecule_meshes_t::add_ramachandran_spheres(int imol, const graphical_bond
                                   return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
                                };
 
+   // This should match the HUD rotamer bar colour.
+   //
    auto prob_raw_to_colour_rotation = [] (float prob) {
                                          if (prob > 0.5) prob = 0.5; // 0.4 and 2.5 f(for q) might be better (not tested)
                                          // good probabilities have q = 0

@@ -179,6 +179,14 @@ graphics_info_t::get_residue(int imol, const coot::residue_spec_t &spec) {
    if (is_valid_model_molecule(imol)) {
       r = molecules[imol].get_residue(spec);
    }
+   // find the residue in the intermediate atoms?
+   if (imol == -1) {
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->mol) {
+            r = coot::util::get_residue(spec, moving_atoms_asc->mol);
+         }
+      }
+   }
    return r;
 }
 

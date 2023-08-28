@@ -8154,6 +8154,41 @@ bool residue_sort_function(mmdb::Residue *r1, mmdb::Residue *r2) {
 void
 Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_container_t &SelAtom) {
 
+
+   auto get_HA_unit_vector = [] (mmdb::Residue *r) {
+      bool status = false;
+      coot::Cartesian dir;
+      mmdb::Atom *CA = r->GetAtom(" CA ");
+      mmdb::Atom *C  = r->GetAtom(" C  ");
+      mmdb::Atom *N  = r->GetAtom(" N  ");
+      mmdb::Atom *CB = r->GetAtom(" CB ");
+
+      if (CA && C && N && CB) {
+         coot::Cartesian ca_pos(CA->x, CA->y, CA->z);
+         coot::Cartesian  c_pos( C->x,  C->y,  C->z);
+         coot::Cartesian  n_pos( N->x,  N->y,  N->z);
+         coot::Cartesian cb_pos(CB->x, CB->y, CB->z);
+         coot::Cartesian dir_1 = ca_pos - c_pos;
+         coot::Cartesian dir_2 = ca_pos - n_pos;
+         coot::Cartesian dir_3 = ca_pos - cb_pos;
+         coot::Cartesian r = dir_1 + dir_2 + dir_3;
+         dir = r.unit();
+         status = true;
+      } else {
+         if (CA && C && N) {
+            coot::Cartesian ca_pos(CA->x, CA->y, CA->z);
+            coot::Cartesian  c_pos( C->x,  C->y,  C->z);
+            coot::Cartesian  n_pos( N->x,  N->y,  N->z);
+            coot::Cartesian dir_1 = ca_pos - c_pos;
+            coot::Cartesian dir_2 = ca_pos - n_pos;
+            coot::Cartesian r = dir_1 + dir_2;
+            dir = r.unit();
+            status = true;
+         }
+      }
+      return std::make_pair(status, dir);
+   };
+
    ramachandran_goodness_spots.clear();
    std::set<mmdb::Residue *, bool(*)(mmdb::Residue *, mmdb::Residue *)> sorted_residues_set(residue_sort_function);
 
@@ -8195,7 +8230,13 @@ Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_conta
 			mmdb::Atom *at = this_res->GetAtom(" CA "); // PDBv3 FIXME
 			if (at) {
 			   coot::Cartesian pos(at->x, at->y, at->z);
-			   std::pair<coot::Cartesian, coot::util::phi_psi_t> p(pos, pp);
+                           coot::Cartesian offset_in_HA_dir_uv(0,0,1);
+                           auto r = get_HA_unit_vector(this_res);
+                           if (r.first)
+                              offset_in_HA_dir_uv = r.second;
+                           else
+                              std::cout << "oooppps - missing HA vector" << std::endl;
+			   std::pair<coot::Cartesian, coot::util::phi_psi_t> p(pos + offset_in_HA_dir_uv * 0.5, pp);
 			   ramachandran_goodness_spots.push_back(p);
 			}
 		     }
