@@ -9507,3 +9507,26 @@ int probe_available_p_py() {
    return r;
 }
 #endif // USE_PYTHON
+
+
+/*! \brief set the state of showing chiral volume outlier markers - of a model molecule that is,
+   not the intermediate atoms (derived from restraints) */
+void set_show_chiral_volume_outliers(int imol, int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_show_chiral_volume_outlier_markers(state);
+      graphics_draw();
+   }
+
+}
+
+/*! \brief set the state of showing non-bonded contact markers - of a model molecule that is,
+   not the intermediate atoms (derived from restraints) */
+void set_show_non_bonded_contact_baddies_markers(int imol, int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      // for the molecule, not the intermediate atoms.
+      graphics_info_t::molecules[imol].set_show_non_bonded_contact_baddies_markers(state);
+      graphics_draw();
+   }
+}

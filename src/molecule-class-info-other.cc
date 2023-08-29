@@ -9662,3 +9662,15 @@ molecule_class_info_t::lsq_improve(mmdb::Manager *mol_ref, const std::string &re
       }
    }
 }
+
+
+void
+molecule_class_info_t::set_show_chiral_volume_outlier_markers(int state) {
+
+}
+
+
+void
+molecule_class_info_t::set_show_non_bonded_contact_baddies_markers(int state) {
+
+}

@@ -4177,8 +4177,17 @@ void set_multi_residue_torsion_reverse_mode(short int mode);
 void show_multi_residue_torsion_dialog(); /* show the rotatable bonds dialog */
 void setup_multi_residue_torsion();  /* show the pick dialog */
 
-
+/*! \brief return the atom overlap score */
 float atom_overlap_score(int imol);
+
+
+/*! \brief set the state of showing chiral volume outlier markers - of a model molecule that is,
+   not the intermediate atoms (derived from restraints) */
+void set_show_chiral_volume_outliers(int imol, int state);
+
+/*! \brief set the state of showing non-bonded contact markers - of a model molecule that is,
+   not the intermediate atoms (derived from restraints) */
+void set_show_chiral_volume_outliers(int imol, int state);
 
 /* \} */
 
