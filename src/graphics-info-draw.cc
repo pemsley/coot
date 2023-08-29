@@ -2802,6 +2802,8 @@ graphics_info_t::setup_hud_geometry_bars() {
    texture_for_hud_geometry_labels_map["Pull"].init("hud-label-pull-small.png");
    // texture_for_hud_geometry_labels_map["Pull"].init("rama-plot-other-normal.png");
 
+   texture_for_hud_geometry_labels_map["Chiral"].init("hud-label-chiral-small.png");
+
    // texture_for_hud_tooltip_background.set_default_directory(coot::package_data_dir());
    texture_for_hud_tooltip_background.init("hud-tooltip.png"); // 94x47
 
@@ -3430,10 +3432,11 @@ graphics_info_t::draw_hud_geometry_bars() {
       hud_label_info_t(const std::string &n, unsigned int i) : name(n), bar_index(i) { label_relative_width = 1.0; }
    };
    std::vector<hud_label_info_t> hud_label_info;
-   hud_label_info.push_back(hud_label_info_t("Pull", 0, 0.7));
-   hud_label_info.push_back(hud_label_info_t("Rama", 2));
-   hud_label_info.push_back(hud_label_info_t("Rota", 3, 0.9));
-   hud_label_info.push_back(hud_label_info_t("NBC",  1, 0.9));
+   hud_label_info.push_back(hud_label_info_t("Pull",   0, 0.7));
+   hud_label_info.push_back(hud_label_info_t("Rama",   2, 1.0));
+   hud_label_info.push_back(hud_label_info_t("Rota",   3, 0.9));
+   hud_label_info.push_back(hud_label_info_t("NBC",    1, 0.9));
+   hud_label_info.push_back(hud_label_info_t("Chiral", 4, 1.0));
    float x_base = get_x_base_for_hud_geometry_bars();
 
    // Note that the x-positions are are not the left-most edge of the label (hmm)
