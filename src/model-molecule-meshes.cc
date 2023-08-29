@@ -41,7 +41,6 @@ model_molecule_meshes_t::draw_for_ssao(Shader *shader_for_meshes_p,
 
 void
 model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_container &bonds_box,
-                                              bool draw_cis_peptide_markups,
                                               float atom_radius, float bond_radius,
                                               int num_subdivisions, int n_slices, int n_stacks,
                                               const std::vector<glm::vec4> &colour_table) {

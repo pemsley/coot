@@ -4022,96 +4022,9 @@ molecule_class_info_t::make_colour_table() const {
 
 
 void
-molecule_class_info_t::make_mesh_from_bonds_box() { // smooth or fast should be an argument SMOOTH, FAST, default FAST
+molecule_class_info_t::make_mesh_from_bonds_box() {
 
-   //  std::cout << "debug:: ---- in make_mesh_from_bonds_box() --- start ---" << std::endl;
-
-   if (! graphics_info_t::use_graphics_interface_flag)
-      return;
-
-   unsigned int num_subdivisions = 1;
-   unsigned int n_slices = 8;
-
-   // num_subdivisions = 2 corresponds to n_slices = 16 ie.. num_slices = 4 * 2^(n_subdivision)
-
-   unsigned int n_stacks = 2; // top and bottom stacks.
-
-   float bond_radius = 0.02 * bond_width;
-   float atom_radius = bond_radius * atom_radius_scale_factor;
-
-   if (is_intermediate_atoms_molecule) bond_radius *= 1.5;
-   if (is_intermediate_atoms_molecule) atom_radius *= 1.5; // 20220220-PE hack, I don't know why I need this.
-
-   // std::cout << "::::::::::::::::::: make_mesh_from_bonds_box() with bond_width " << bond_width
-   //           << " bond_radius " << bond_radius << "  atom_radius " << atom_radius << std::endl;
-
-   // do smooth
-   if (graphics_info_t::bond_smoothness_factor == 1) {
-      num_subdivisions = 1;
-      n_slices = 8;
-   }
-   if (graphics_info_t::bond_smoothness_factor == 2) {
-      num_subdivisions = 2;
-      n_slices = 16;
-   }
-   if (graphics_info_t::bond_smoothness_factor == 3) {
-      num_subdivisions = 3;
-      n_slices = 32;
-   }
-
-   // std::cout << "######################## imol_no " << imol_no << std::endl;
-   // std::cout << "######################## is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule << std::endl;
-
-   if (atom_sel.mol) {
-
-      std::vector<glm::vec4> colour_table = make_colour_table();
-
-      if (false) {
-         // when refining a ligand, the "remaining partos of the molecule" should be empty but has bonds_box.n_consolidated_atom_centres
-         // non zero. It should be zero. Fix later.
-         std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() colour_table size " << colour_table.size() << std::endl;
-         std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() bonds_box.num_colours " << bonds_box.num_colours << std::endl;
-         std::cout << "::::::::::::::::::: in make_mesh_from_bonds_box() bonds_box.n_consolidated_atom_centres "
-                   << bonds_box.n_consolidated_atom_centres << std::endl;
-      }
-
-      // 20230814-PE I don't know what this is supposed to do anymore - was it introduced during the emscripten test?
-      //
-      // if (graphics_info_t::use_graphics_interface_flag)
-      // molecule_as_mesh_bonds.set_is_headless();
-
-      if (draw_model_molecule_as_lines) {
-         model_molecule_meshes.make_bond_lines(bonds_box, colour_table);
-      } else {
-
-         if (false)
-         std::cout << "debug:: ---- in make_mesh_from_bonds_box() with model_representation_mode "
-                   << model_representation_mode << std::endl;
-
-         bool draw_cis_peptide_markups = true; //
-         int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
-         if (model_representation_mode == Mesh::BALLS_NOT_BONDS)
-            atom_radius = 1.67; // 20220226-PE  compromise between C, N, O. Actually we should of course get
-                                // the radius of each atom from its type when model_representation_mode == Mesh::BALLS_NOT_BONDS.
-                                // That's for another day.
-
-
-         // in molecule_class_info_t, the bonds_box_type is an int.
-         // It should be a coot::api_bond_colour_t. That's a lot of tedius work to fix I think.
-         // So for now I will kludge the bonds_box_type
-         coot::api_bond_colour_t bonds_box_type_local = coot::api_bond_colour_t::COLOUR_BY_CHAIN_BONDS;
-         graphics_info_t::attach_buffers();
-         // is this function used any more (I mean this one, not make_graphical_bonds()).
-         model_molecule_meshes.make_graphical_bonds(imol_no, bonds_box, draw_cis_peptide_markups, atom_radius, bond_radius,
-                                                    num_subdivisions, n_slices, n_stacks, colour_table);
-
-         model_molecule_meshes.set_name(name_);
-         model_molecule_meshes.set_material(material_for_models);
-
-      }
-   } else {
-      std::cout << "##################### in make_mesh_from_bonds_box() null atom_sel.mol for intermediate atoms " << std::endl;
-   }
+   // it's all instanced now.
 }
 
 //! user-defined atom selection to colour index
@@ -4253,17 +4166,8 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       // 20230828-PE this is not needed now.
       //coot::api_bond_colour_t api_bonds_box_type = convert_box_box_type(bonds_box_type);
 
-      // 20230828-PE it seems that udd_handle_bonded_type is not used at the moment.
-      // the "cis-peptide" question should be addressed by the function that makes the bonds box
-      // not the drawing function. When things are working, remove the flag.
-      //
-      bool draw_cis_peptide_markups = true;
-      model_molecule_meshes.make_graphical_bonds(imol_no, bonds_box, draw_cis_peptide_markups,
-                                                 atom_radius, bond_radius,
+      model_molecule_meshes.make_graphical_bonds(imol_no, bonds_box, atom_radius, bond_radius,
                                                  num_subdivisions, n_slices, n_stacks, colour_table);
-      // that function now calles
-      // model_molecule_meshes.add_rotamer_dodecs(imol_no, bonds_box)
-      // internally.
 
       if (true) // test that model_molecule_meshes is not empty()
          draw_it = 1;

@@ -113,7 +113,6 @@ public:
    // 20230828-PE it seem sthat udd_handle_bonded_type is not used at the moment
    void make_graphical_bonds(int imol,
                              const graphical_bonds_container &bonds_box,
-                             bool draw_cis_peptide_markups,
                              float atom_radius, float bond_radius,
                              int num_subdivisions, int n_slices, int n_stacks,
                              const std::vector<glm::vec4> &colour_table);

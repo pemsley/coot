@@ -79,6 +79,11 @@ doesn't show that it's undisplayed ::: 0.6
 
 Restore the draw() function in draw_ghost_bonds() in molecule-class-info.cc - needs a new class to do so.
 
+In Moorhen, it's nice to work with the contact dots on. When I improve the fit and remove a clash, I want
+to see something like the Moorhen points (but for the clash score, of course).
+
+Make auto_read_mtz return the column labels - for Moorhen.
+
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
 Nice to have:
