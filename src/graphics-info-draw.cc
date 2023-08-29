@@ -3476,6 +3476,21 @@ graphics_info_t::draw_hud_geometry_bars() {
                                                return rotation_amount;
                                             };
 
+   auto chiral_volume_distortion_to_rotation_amount = [] (float distortion) {
+                                               float fac = 0.05;
+                                               float rotation_amount = 1.0 - fac * distortion;
+                                               if (rotation_amount < 0.68) rotation_amount = 0.68;
+                                               return rotation_amount;
+   };
+
+
+   // Other hud_geometry_distortion_to_x function are class members
+   // So make this function match the function of the same name in check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked()
+   //
+   auto hud_geometry_distortion_to_bar_size_chiral = +[] (float distortion) {
+      return distortion * 0.01f; // the f is needed
+   };
+
    auto add_bars = [] (const std::vector<std::pair<coot::atom_spec_t, float> > &baddies,
                        unsigned int bar_index,
                        std::vector<HUD_bar_attribs_t> *new_bars_p,
@@ -3675,6 +3690,16 @@ graphics_info_t::draw_hud_geometry_bars() {
       // std::cout << "add_bars() for rama with " << rr.sorted_rama_baddies.size() << " sorted baddies" << std::endl;
       add_bars(rr.sorted_rama_baddies, 2, &new_bars, moving_atoms_active_residue, x_base_for_hud_geometry_bars,
                hud_geometry_distortion_to_rotation_amount_rama, hud_geometry_distortion_to_bar_size_rama);
+   }
+
+   if (! rr.sorted_chiral_volume_baddies.empty()) {
+      std::vector<std::pair<coot::atom_spec_t, float> > converted_baddies(rr.sorted_chiral_volume_baddies.size());
+      for (unsigned int ii=0; ii<rr.sorted_chiral_volume_baddies.size(); ii++) {
+         converted_baddies[ii] = std::make_pair(rr.sorted_chiral_volume_baddies[ii].atom_spec,
+                                                rr.sorted_chiral_volume_baddies[ii].distortion);
+      }
+      add_bars(converted_baddies, 4, &new_bars, moving_atoms_active_residue, x_base_for_hud_geometry_bars,
+               chiral_volume_distortion_to_rotation_amount, hud_geometry_distortion_to_bar_size_chiral);
    }
 
    // add rotas to new_bars
@@ -3938,6 +3963,27 @@ graphics_info_t::check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(double m
       }
    }
 
+   if (!status_pair.first) {
+      if (! rr.sorted_chiral_volume_baddies.empty()) {
+         if (moving_atoms_asc) {
+            if (moving_atoms_asc->mol) {
+
+               auto hud_geometry_distortion_to_bar_size_chiral = +[] (float distortion) {
+                  return distortion * 0.01f; // the f is needed - match lambda function of the same name
+                                             // in draw_hud_geometry_bars().
+               };
+
+               std::vector<std::pair<coot::atom_spec_t, float> > converted_baddies(rr.sorted_chiral_volume_baddies.size());
+               for (unsigned int ii=0; ii<rr.sorted_chiral_volume_baddies.size(); ii++) {
+                  converted_baddies[ii] = std::make_pair(rr.sorted_chiral_volume_baddies[ii].atom_spec,
+                                                         rr.sorted_chiral_volume_baddies[ii].distortion);
+               }
+               status_pair = check_blocks(converted_baddies, 4, x_base_for_hud_geometry_bars,
+                                          hud_geometry_distortion_to_bar_size_chiral, act_on_hit);
+            }
+         }
+      }
+   }
 
    if (act_on_hit) {
       if (status_pair.first) {

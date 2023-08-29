@@ -516,7 +516,7 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
 
    if (false)
       std::cout << "rotamer_probability_tables::probability_this_rotamer()" << std::endl;
-   
+
    std::vector<int> bins = chi_angles_to_bins(i_table, chi_angles);
    if (bins.size() != chi_angles.size()) {
       throw std::runtime_error("ERROR:: bin size and chi_angles size do not match");

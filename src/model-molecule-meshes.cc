@@ -66,7 +66,6 @@ model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_co
    // ===================================== now convert instancing.hh meshes to src style "Mesh"es =======================
 
 
-   std::cout << "in make_graphical_bonds() post im generation: with im.geom.size() " << im.geom.size() << std::endl;
    for (unsigned int i_g=0; i_g<im.geom.size(); i_g++) {
       const coot::instanced_geometry_t &ig = im.geom[i_g];
       // mesh
@@ -247,7 +246,7 @@ model_molecule_meshes_t::add_rotamer_dodecs(int imol, const graphical_bonds_cont
    auto colour_holder_to_glm = [] (const coot::colour_holder &ch) {
                                   return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
                                };
-   std::cout << "DEBUG:: in make_graphical_bonds(): n_rotamer_markups: " << bonds_box.n_rotamer_markups << std::endl;
+   // std::cout << "DEBUG:: in make_graphical_bonds(): n_rotamer_markups: " << bonds_box.n_rotamer_markups << std::endl;
    if (bonds_box.n_rotamer_markups > 0) {
 
       std::pair<std::vector<coot::api::vn_vertex>, std::vector<g_triangle> > vtd = get_dodec_vertices_and_triangles();

@@ -175,6 +175,10 @@ main(int argc, char **argv) {
 	 // flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES;
 	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRAL;
 
+         int n_threads = 1;
+         ctpl::thread_pool tp(n_threads);
+         restraints.thread_pool(&tp, n_threads);
+
 	 coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 	 bool do_trans_peptide_restraints = false;
 	 bool do_link_restraints = true;

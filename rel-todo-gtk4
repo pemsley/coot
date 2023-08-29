@@ -84,6 +84,8 @@ to see something like the Moorhen points (but for the clash score, of course).
 
 Make auto_read_mtz return the column labels - for Moorhen.
 
+Updatating difference map for cryo-EM using ServalCat.
+
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
 Nice to have:

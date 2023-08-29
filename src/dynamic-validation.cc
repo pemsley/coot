@@ -226,14 +226,16 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
    auto make_chiral_volume_buttons = [chiral_volume_button_clicked_callback] (int imol) {
       std::vector<std::pair<coot::residue_spec_t, GtkWidget *> > buttons;
       // the first is types with no dictionary
-      std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> > v =
-         graphics_info_t::molecules[imol].bad_chiral_volumes();
+      double chiral_volume_distortion_limit = 6.0;
+      std::pair<std::vector<std::string>, std::vector<std::pair<coot::atom_spec_t, double> > > v =
+         graphics_info_t::molecules[imol].distorted_chiral_volumes(chiral_volume_distortion_limit);
 
       for (unsigned int i=0; i<v.second.size(); i++) {
-         auto spec = v.second[i];
+         const auto &spec = v.second[i].first;
+         float distortion = v.second[i].second;
          coot::atom_spec_t *spec_p = new coot::atom_spec_t(spec);
          spec_p->int_user_data = imol;
-         std::string lab = "Chiral Volume Error ";
+         std::string lab = "Chiral Volume Outlier ";
          coot::residue_spec_t res_spec(*spec_p);
          mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(res_spec);
          if (residue_p) {
@@ -243,6 +245,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
             lab += " ";
             lab += residue_p->GetResName();
             lab += " ";
+            lab += coot::util::float_to_string_using_dec_pl(distortion, 1);
             // GtkWidget *button = gtk_button_new_with_label(lab.c_str());
             GtkWidget *button = gtk_button_new();
             GtkWidget *label = gtk_label_new(lab.c_str());

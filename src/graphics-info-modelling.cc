@@ -4954,12 +4954,15 @@ graphics_info_t::get_rotamer_probability(mmdb::Residue *res,
    }
    if (rot_prob_tables.is_well_formatted()) {
       try {
-	 std::vector<coot::rotamer_probability_info_t> v = rot_prob_tables.probability_this_rotamer(res);
-	 if (v.size() > 0) {
-	    r = v[0];
-	    if (debug)
-	       std::cout << "  residue " << coot::residue_spec_t(res) << " " << v[0] << std::endl;
-	 }
+         std::string res_name(res->GetResName());
+         if (coot::util::is_standard_amino_acid_name(res_name)) {
+            std::vector<coot::rotamer_probability_info_t> v = rot_prob_tables.probability_this_rotamer(res);
+            if (v.size() > 0) {
+               r = v[0];
+               if (debug)
+                  std::cout << "  residue " << coot::residue_spec_t(res) << " " << v[0] << std::endl;
+            }
+         }
 
       }
       catch (const std::runtime_error &e) {

@@ -20,9 +20,9 @@ coot::restraints_container_t::make_restraints_ng(int imol,
                                                  bool do_link_restraints,
                                                  bool do_flank_restraints) {
 
-   // debug_sets();
 
-   // restraints_usage_flag = BONDS_AND_ANGLES; // debugging
+   // std::cout << "..................     make_restraints_ng() --- start --- n_atoms: " << n_atoms << std::endl;
+   // debug_sets();
 
    bool console_output_for_restraints_generation_timings = false;
 

@@ -2449,6 +2449,8 @@ public:        //                      public
    //  a dictionary).
    //
    std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> > bad_chiral_volumes() const;
+   std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> > inverted_chiral_volumes() const;
+   std::pair<std::vector<std::string>, std::vector<std::pair<coot::atom_spec_t, double> > > distorted_chiral_volumes(double chiral_volume_distortion_limit) const;
 
    // a other function
    float score_residue_range_fit_to_map(int res1, int res2, std::string altloc,

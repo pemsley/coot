@@ -5000,6 +5000,12 @@ molecule_class_info_t::check_waters_by_difference_map(const clipper::Xmap<float>
 std::pair<std::vector<std::string> , std::vector <coot::atom_spec_t> >
 molecule_class_info_t::bad_chiral_volumes() const {
 
+   return inverted_chiral_volumes();
+}
+
+std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> >
+molecule_class_info_t::inverted_chiral_volumes() const {
+
    std::vector <coot::atom_spec_t> v;
    std::vector<std::string> unknown_types_vec;
    std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> > pair(unknown_types_vec, v);
@@ -5016,6 +5022,16 @@ molecule_class_info_t::bad_chiral_volumes() const {
    return pair;
 }
 
+std::pair<std::vector<std::string>, std::vector<std::pair<coot::atom_spec_t, double> > >
+molecule_class_info_t::distorted_chiral_volumes(double chiral_volume_limit_for_outlier) const {
+
+   std::pair<std::vector<std::string> , std::vector<std::pair<coot::atom_spec_t, double> > > p =
+      coot::distorted_chiral_volumes(imol_no, atom_sel.mol, graphics_info_t::Geom_p(),
+                                     graphics_info_t::cif_dictionary_read_number,
+                                     chiral_volume_limit_for_outlier);
+
+   return p;
+}
 
 
 float
