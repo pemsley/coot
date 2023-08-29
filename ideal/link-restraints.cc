@@ -1501,6 +1501,71 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       return close ? "pyr-SER" : "";
    };
 
+   // return the link_id if the linking atoms are close (3A)
+   // otherwise return empty string
+   auto link_type_filter_general = [&geom] (mmdb::Residue *first, mmdb::Residue *second,
+                                            const std::string &link_id,
+                                            bool order_switch_flag) {
+
+      std::cout << "link_type_filter_general() for " << link_id << std::endl;
+
+      double dist_crit = 3.0; // A
+      std::string found_link; // fail initially.
+
+      dictionary_residue_link_restraints_t link = geom.link(link_id);
+      if (link.link_id.empty()) {
+      } else {
+         if (order_switch_flag)
+            std::swap(first, second);
+         if (link.link_bond_restraint.empty()) {
+         } else {
+            // very bizarre to have more than one of these
+            const dict_link_bond_restraint_t &lbr = link.link_bond_restraint[0];
+            bool found_1 = false;
+            bool found_2 = false;
+            std::string link_atom_1_name = lbr.atom_id_1_4c();
+            std::string link_atom_2_name = lbr.atom_id_2_4c();
+            clipper::Coord_orth pt_1(0,0,0);
+            clipper::Coord_orth pt_2(0,0,0);
+            mmdb::Atom **residue_atoms = 0;
+            int n_residue_atoms = 0;
+            first->GetAtomTable(residue_atoms, n_residue_atoms);
+            for (int iat=0; iat<n_residue_atoms; iat++) {
+               mmdb::Atom *at = residue_atoms[iat];
+               if (! at->isTer()) {
+                  std::string name(at->name);
+                  if (name == link_atom_1_name) {
+                     found_1 = true;
+                     pt_1 = clipper::Coord_orth(at->x, at->y, at->z);
+                  }
+               }
+            }
+            residue_atoms = 0;
+            n_residue_atoms = 0;
+            second->GetAtomTable(residue_atoms, n_residue_atoms);
+            for (int iat=0; iat<n_residue_atoms; iat++) {
+               mmdb::Atom *at = residue_atoms[iat];
+               if (! at->isTer()) {
+                  std::string name(at->name);
+                  if (name == link_atom_2_name) {
+                     found_2 = true;
+                     pt_2 = clipper::Coord_orth(at->x, at->y, at->z);
+                  }
+               }
+            }
+            if (found_1 && found_2) {
+               double dd = (pt_1 - pt_2).lengthsq();
+               double d = std::sqrt(dd);
+               if (d < dist_crit) {
+                  found_link = link_id;
+               }
+            }
+         }
+      }
+      std::cout << "link_type_filter_general() checking type " << link_id << " and returns \""
+                << found_link << "\"" << std::endl;
+      return found_link;
+   };
 
    bool debug_links = false;
 
@@ -1630,6 +1695,24 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
 
    if (link_type == "pyr-SER")
       link_type = pyr_SER_filter(first_residue, second_residue, order_switch_was_needed);
+
+   // now check other links (but no need to check the links that we have already checked)
+   if (! link_type.empty()) {
+      if (link_type != "SS") {
+         if (link_type != "AA-RNA") {
+            if (link_type != "pyr-SER") {
+               if (link_type != "TRANS") {
+                  if (link_type != "CIS") {
+                     if (link_type != "p") {
+                        // if the link is real, this should come back with the link id that it was sent.
+                        link_type = link_type_filter_general(first_residue, second_residue, link_type, order_switch_was_needed);
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
 
    return std::pair<std::string, bool> (link_type, order_switch_was_needed);
 }
