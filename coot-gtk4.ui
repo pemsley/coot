@@ -7376,29 +7376,6 @@ Do you want to continue?
               </object>
             </child>
 
-            <!-- this frame and box is no longer used because we use a GtkPaned now. -->
-            <!-- Now main_window_validation_graph_box and main_window_validation_graph_frame. -->
-            <child type="overlay">
-              <object class="GtkFrame" id="validation_graph_frame">
-                <property name="halign">fill</property>
-                <property name="valign">end</property>
-                <property name="hexpand">True</property>
-                <property name="visible">False</property>
-                <property name="can-focus">True</property>
-                <property name="height-request">200</property>
-                <!-- <property name="scrollable">True</property> -->
-                <child>
-                  <object class="GtkScrolledWindow">
-                    <child>
-                      <object class="GtkBox" id="validation_graph_box">
-                        <property name="orientation">vertical</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-
             <child type="overlay">
               <object class="GtkBox" id="add_an_atom_box">
                 <property name="visible">False</property>
