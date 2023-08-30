@@ -6952,7 +6952,7 @@ graphics_info_t::rgba_to_symmetry_colour(GdkRGBA rgba) {
 void graphics_info_t::hide_vertical_validation_frame_if_appropriate() {
    GtkWidget *vbox = widget_from_builder("validation_boxes_vbox");
    bool should_show_vbox = false;
-   for(GtkWidget* i = gtk_widget_get_first_child(GtkWidget *widget); i != nullptr; gtk_widget_get_next_sibling(i)) {
+   for(GtkWidget* i = gtk_widget_get_first_child(vbox); i != nullptr; i = gtk_widget_get_next_sibling(i)) {
       if(gtk_widget_get_visible(i)) {
          should_show_vbox = true;
       }
@@ -6967,6 +6967,4 @@ void graphics_info_t::hide_vertical_validation_frame_if_appropriate() {
       GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
       gtk_widget_set_visible(pane, FALSE);
    }
-
-   std::cout << "todo\n";
 }

@@ -4671,8 +4671,10 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
    };
 
 
+   GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   gtk_widget_set_visible(pane_to_show,  TRUE);
+   
    GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
-   gtk_widget_set_visible(pane,  TRUE);
    int pos = gtk_paned_get_position(GTK_PANED(pane));
    if (pos < 300)
       gtk_paned_set_position(GTK_PANED(pane), 300);

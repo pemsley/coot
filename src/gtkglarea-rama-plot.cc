@@ -134,6 +134,9 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
       GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
       gtk_widget_set_visible(scrolled, TRUE);
 
+      GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+      gtk_widget_set_visible(pane_to_show,  TRUE);
+
       GtkWidget *box_for_all_plots = widget_from_builder("ramachandran_plots_vbox");
 
       GtkWidget *box_for_this_plot = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);

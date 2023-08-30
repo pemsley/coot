@@ -126,8 +126,9 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return 0.5 * (p1 + p2);
    };
 
+   GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   gtk_widget_set_visible(pane_to_show,  TRUE);
    GtkWidget *pane  = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
-   gtk_widget_set_visible(pane,  TRUE);
 
    GtkWidget *outer_vbox  = widget_from_builder("dynamic_validation_vbox");
    gtk_widget_set_visible(outer_vbox,  TRUE);
