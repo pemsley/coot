@@ -4604,7 +4604,7 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
       return label;
    };
 
-   auto fill_difference_map_button_box_inner = [make_label] (GtkWidget *button_vbox, GSList *diff_map_group,
+   auto fill_difference_map_button_box_inner = [make_label] (GtkWidget *button_vbox,
                                                              const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                                                              float map_sigma) {
 
@@ -4681,12 +4681,11 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
 
    std::vector<std::pair<clipper::Coord_orth, float> > centres = make_diff_map_peaks(button_vbox);
    std::cout << "make_diff_map_peaks() made " << centres.size() << " centres" << std::endl;
-   GSList *diff_map_group = NULL;  // Hmm.
    float map_sigma = 0.5;
    int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button_vbox), "imol_map"));
    if (is_valid_map_molecule(imol_map))
       map_sigma = molecules[imol_map].map_sigma();
-   fill_difference_map_button_box_inner(button_vbox, diff_map_group, centres, map_sigma);
+   fill_difference_map_button_box_inner(button_vbox, centres, map_sigma);
    
 
 }
