@@ -511,10 +511,10 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   // int pos = gtk_paned_get_position(GTK_PANED(pane));
+   int pos = gtk_paned_get_position(GTK_PANED(pane));
    // // std::cout << "here in overlaps_peptides_cbeta_ramas_and_rotas_internal(): with pos " << pos << std::endl;
-   // if (pos < 300)
-   //    gtk_paned_set_position(GTK_PANED(pane), 300);
+   if (pos < 300)
+      gtk_paned_set_position(GTK_PANED(pane), 300);
 
    graphics_info_t::clear_out_container(vbox);
 
