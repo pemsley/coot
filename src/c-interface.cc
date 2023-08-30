@@ -9514,7 +9514,9 @@ int probe_available_p_py() {
 void set_show_chiral_volume_outliers(int imol, int state) {
 
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].set_show_chiral_volume_outlier_markers(state);
+      graphics_info_t::molecules[imol].draw_chiral_volume_outlier_markers_flag = state;
+      graphics_info_t::molecules[imol].fill_chiral_volume_outlier_marker_positions(state);
+      graphics_info_t::update_chiral_volume_outlier_marker_positions();
       graphics_draw();
    }
 

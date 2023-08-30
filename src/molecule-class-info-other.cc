@@ -9646,7 +9646,7 @@ molecule_class_info_t::lsq_improve(mmdb::Manager *mol_ref, const std::string &re
                                    const std::string &moving_selection_str,
                                    int n_res, float dist_crit) {
    if (mol_ref) {
-
+ 
       try {
          make_backup();
          coot::lsq_improve lsq_imp(mol_ref, ref_selection_str, atom_sel.mol, moving_selection_str);
@@ -9663,10 +9663,29 @@ molecule_class_info_t::lsq_improve(mmdb::Manager *mol_ref, const std::string &re
    }
 }
 
-
+// this function is fill_chiral_volume_outlier_markers()
 void
-molecule_class_info_t::set_show_chiral_volume_outlier_markers(int state) {
+molecule_class_info_t::fill_chiral_volume_outlier_marker_positions(int state) {
 
+   double chiral_volume_limit_for_outlier = 6.0;
+   chiral_volume_outlier_marker_positions.clear();
+   if (state) {
+      if (atom_sel.mol) {
+         std::pair<std::vector<std::string> , std::vector<std::pair<coot::atom_spec_t, double> > > dcv =
+            coot::distorted_chiral_volumes(imol_no, atom_sel.mol, graphics_info_t::Geom_p(),
+                                           graphics_info_t::cif_dictionary_read_number,
+                                           chiral_volume_limit_for_outlier);
+         for (unsigned int i=0; i<dcv.second.size(); i++) {
+            const auto &atom_spec = dcv.second[i].first;
+            mmdb:: Atom *at = get_atom(atom_spec);
+            if (at) {
+               glm::vec3 p(at->x, at->y, at->z);
+               // std::cout << "set_show_chiral_volume_outlier_markers() adding atom " << at << std::endl;
+               chiral_volume_outlier_marker_positions.push_back(p);
+            }
+         }
+      }
+   }
 }
 
 

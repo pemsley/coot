@@ -338,11 +338,9 @@ molecule_class_info_t::setup_internal() { // init
    // single model view
    single_model_view_current_model_number = 0; // all models
 
-#ifndef EMSCRIPTEN
    // mtz updating
    continue_watching_mtz = false;
    continue_watching_coordinates_file = false;
-#endif
 
    previous_eye_position = clipper::Coord_orth(-999, -999, -999);
 
@@ -367,6 +365,8 @@ molecule_class_info_t::setup_internal() { // init
    manual_bond_colour = false;
    map_mean_ = 0.0;
    map_sigma_ = 1.0;
+
+   draw_chiral_volume_outlier_markers_flag = false;
 }
 
 int

@@ -105,6 +105,7 @@ new_startup_realize(GtkWidget *gl_area) {
    // and allow it to be set in the API
    g.setup_draw_for_happy_face_residue_markers_init();
    g.setup_draw_for_bad_nbc_atom_pair_markers();
+   g.setup_draw_for_chiral_volume_outlier_markers();
    g.setup_draw_for_anchored_atom_markers_init();
    g.lines_mesh_for_hud_lines.set_name("lines mesh for fps graph");
    unsigned int frame_time_history_list_max_n_elements = 500;

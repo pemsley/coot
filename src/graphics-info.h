@@ -3437,6 +3437,12 @@ public:
    static std::vector<glm::vec3> bad_nbc_atom_pair_marker_positions;
    const unsigned int draw_count_max_for_bad_nbc_atom_pair_markers = 100; // needed?
 
+   void setup_draw_for_chiral_volume_outlier_markers();
+   static void draw_chiral_volume_outlier_markers(unsigned int pass_type);
+   static void update_chiral_volume_outlier_marker_positions();
+   static Texture texture_for_chiral_volume_outlier_markers;
+   static TextureMesh tmesh_for_chiral_volume_outlier_markers;
+
    static void update_hydrogen_bond_positions(); // if the intermediate atoms had hydrogen bond restraints, we can have dynamic
                                                  // hydrogen bonds. c.f. update_bad_nbc_atom_pair_marker_positions()
 

@@ -2214,8 +2214,9 @@ graphics_info_t::clear_up_moving_atoms() {
       update_hydrogen_bond_mesh("");
 
       // now the diegos
-      bad_nbc_atom_pair_marker_positions.clear();
+      bad_nbc_atom_pair_marker_positions.clear(); // this should be in the update function, surely?
       update_bad_nbc_atom_pair_marker_positions();
+      update_chiral_volume_outlier_marker_positions();
 
    }
 }

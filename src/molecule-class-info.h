@@ -3761,8 +3761,13 @@ void draw_map_molecule(bool draw_transparent_maps,
    // float scale_factor 4 , float offset 3
    void recolour_ribbon_by_map(const clipper::Xmap<float> &xmap, float scale_factor, float offset);
 
-   void set_show_chiral_volume_outlier_markers(int state);
+   void fill_chiral_volume_outlier_marker_positions(int state);
    void set_show_non_bonded_contact_baddies_markers(int state);
+   // 20230829-PE
+   // draw_chiral_volume_outlier_markers_flag is per molecule
+   // draw_bad_nbc_atom_pair_markers is global (only one). Maybe this is a mistake
+   bool draw_chiral_volume_outlier_markers_flag;
+   std::vector<glm::vec3> chiral_volume_outlier_marker_positions;
 
 };
 

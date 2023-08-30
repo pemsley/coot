@@ -1690,6 +1690,8 @@ graphics_info_t::draw_molecules() {
 
    draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
 
+   draw_chiral_volume_outlier_markers(PASS_TYPE_STANDARD);
+
    draw_anchored_atom_markers();
 
    // this is the last opaque thing to be drawn because the atom labels are blended.
@@ -5108,6 +5110,85 @@ graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
       }
    }
 }
+
+ void
+    graphics_info_t::setup_draw_for_chiral_volume_outlier_markers() {
+
+    texture_for_chiral_volume_outlier_markers.init("chiral-volume-outlier-marker.png");
+    float ts = 0.7; // relative texture size
+    tmesh_for_chiral_volume_outlier_markers.setup_camera_facing_quad(ts, ts, 0.0, 0.7);
+    tmesh_for_chiral_volume_outlier_markers.setup_instancing_buffers(200);
+    tmesh_for_chiral_volume_outlier_markers.draw_this_mesh = true;
+
+}
+
+ // static
+ void
+    graphics_info_t::draw_chiral_volume_outlier_markers(unsigned int pass_type) {
+
+    // unlike NBC markers, each molecule can have it's own chiral volume outlier markers
+    for (unsigned int imol=0; imol<molecules.size(); imol++) {
+       if (is_valid_model_molecule(imol)) {
+          if (molecules[imol].draw_it) {
+             if (molecules[imol].draw_chiral_volume_outlier_markers_flag) {
+                if (! molecules[imol].chiral_volume_outlier_marker_positions.empty()) {
+
+                   unsigned int n = graphics_info_t::molecules[imol].chiral_volume_outlier_marker_positions.size();
+
+                   glm::mat4 mvp = get_molecule_mvp();
+                   glm::mat4 model_rotation = get_model_rotation();
+                   glm::vec4 bg_col(background_colour, 1.0);
+                   texture_for_chiral_volume_outlier_markers.Bind(0);
+
+                   if (pass_type == PASS_TYPE_STANDARD) {
+                      tmesh_for_chiral_volume_outlier_markers.draw_instances(&shader_for_happy_face_residue_markers,
+                                                                             mvp, model_rotation, bg_col, perspective_projection_flag);
+                   }
+
+                   if (pass_type == PASS_TYPE_SSAO) {
+                      GtkAllocation allocation;
+                      gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+                      int w = allocation.width;
+                      int h = allocation.height;
+                      bool do_orthographic_projection = ! perspective_projection_flag;
+                      auto model_matrix = get_model_matrix();
+                      auto view_matrix = get_view_matrix();
+                      auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+                      tmesh_for_chiral_volume_outlier_markers.draw_instances_for_ssao(&shader_for_happy_face_residue_markers_for_ssao,
+                                                                                      model_matrix, view_matrix, projection_matrix);
+                   }
+                }
+             }
+          }
+       }
+    }
+ }
+
+
+ //static
+ void
+    graphics_info_t::update_chiral_volume_outlier_marker_positions() {
+
+    for (unsigned int imol=0; imol<molecules.size(); imol++) {
+       if (is_valid_model_molecule(imol)) {
+          if (molecules[imol].draw_chiral_volume_outlier_markers_flag) {
+             unsigned int n_prev = molecules[imol].chiral_volume_outlier_marker_positions.size();
+             molecules[imol].fill_chiral_volume_outlier_marker_positions(1);
+             const auto &positions = molecules[imol].chiral_volume_outlier_marker_positions;
+             if (positions.size() < n_prev) {
+                // play a "success" sound
+             }
+             if (! positions.empty()) {
+                // update the instancing mesh
+                attach_buffers();
+                tmesh_for_chiral_volume_outlier_markers.draw_this_mesh = true;
+                tmesh_for_chiral_volume_outlier_markers.update_instancing_buffer_data(positions);
+                molecules[imol].draw_chiral_volume_outlier_markers_flag = true;
+             }
+          }
+       }
+    }
+ }
 
 
 // static
