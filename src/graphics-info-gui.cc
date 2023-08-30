@@ -4673,10 +4673,10 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
 
    GtkWidget *main_window_vertical_validation_frame = widget_from_builder("main_window_vertical_validation_frame");
    GtkWidget *validation_boxes_vbox = widget_from_builder("validation_boxes_vbox");
-   GtkWidget *outer_vbox             = widget_from_builder("dialog-vbox78");
+   GtkWidget *inner_vbox             = widget_from_builder("dialog-vbox78");
    gtk_widget_set_visible(main_window_vertical_validation_frame,   TRUE);
    gtk_widget_set_visible(validation_boxes_vbox,   TRUE);
-   gtk_widget_set_visible(outer_vbox,   TRUE);
+   gtk_widget_set_visible(inner_vbox,   TRUE);
    GtkWidget *button_vbox = widget_from_builder("diff_map_peaks_vbox");
 
    std::vector<std::pair<clipper::Coord_orth, float> > centres = make_diff_map_peaks(button_vbox);
