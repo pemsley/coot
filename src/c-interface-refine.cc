@@ -647,7 +647,19 @@ int  get_auto_clear_atom_pull_restraint_state() {
    return g.auto_clear_atom_pull_restraint_flag;
 }
 
+void increase_proportional_editing_radius() {
+   graphics_info_t g;
+   bool dir = false;
+   g.pull_restraint_neighbour_displacement_change_max_radius(dir);
+   graphics_draw();
+}
 
+void decrease_proportional_editing_radius() {
+   graphics_info_t g;
+   bool dir = true;
+   g.pull_restraint_neighbour_displacement_change_max_radius(dir);
+   graphics_draw();
+}
 
 
 void set_show_extra_restraints(int imol, int state) {

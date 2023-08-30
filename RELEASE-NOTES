@@ -1,5 +1,12 @@
 
-  Release 0.9.8.91
+  Release 0.9.8.92
+
+ o BUG-FIX: Change the linking code once more - fixes erroneous DNA+protien links
+            [Keitaro Yamashita].
+
+----
+
+ Release 0.9.8.91
 
  o BUG-FIX: Restore missing peptide omega plot [Steven Sheriff]
 

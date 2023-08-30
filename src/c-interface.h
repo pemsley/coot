@@ -3754,8 +3754,18 @@ void set_use_only_extra_torsion_restraints_for_torsions(short int state);
 int use_only_extra_torsion_restraints_for_torsions_state();
 
 void clear_all_atom_pull_restraints();
+
+/*! \brief set auto-clear atom pull restraint */
 void set_auto_clear_atom_pull_restraint(int state);
+
+/*! \brief get auto-clear atom pull restraint state */
 int  get_auto_clear_atom_pull_restraint_state();
+
+/*! \brief iscrease the proportional editing radius*/
+void increase_proportional_editing_radius();
+
+/*! \brief descrease the proportional editing radius*/
+void decrease_proportional_editing_radius();
 
 
 /*  ----------------------------------------------------------------------- */
