@@ -4,6 +4,7 @@
 #endif
 
 #include "graphics-info.h"
+#include "sound.hh"
 
 /*! \brief shiftfield B-factor refinement */
 void 
@@ -86,6 +87,7 @@ graphics_info_t::calculate_new_rail_points(const updating_model_molecule_paramet
    }
 }
 
+
 void
 graphics_info_t::updating_maps_update_the_coot_points_overlay() {
 
@@ -100,7 +102,10 @@ graphics_info_t::updating_maps_update_the_coot_points_overlay() {
       gtk_label_set_text(GTK_LABEL(label_3), "-----");
    } else {
       int d = rail_point_history.back().map_rail_points_delta;
-      // std::cout << "------------- update the overlay! B" << std::endl;
+      if (d > 10)
+         play_sound("SUCCESS");
+      if (d < -10)
+         play_sound("OOPS");
       std::string plus;
       if (d > 0) plus = "+";
       std::string colour = "#dddddd";
@@ -111,7 +116,6 @@ graphics_info_t::updating_maps_update_the_coot_points_overlay() {
       l_1 += std::string("'>");
       l_1 += "New Coot Points:   " + plus + std::to_string(d);
       l_1 += std::string("</span>");
-      // std::cout << l_1 << std::endl;
       std::string l_2 = "Total Coot Points: " + std::to_string(api::rail_points_t::total(rail_point_history));
       std::string l_3 = "R-factors: ";
       l_3 += coot::util::float_to_string_using_dec_pl(100.0f * latest_sfcalc_stats.r_factor, 2);
@@ -135,7 +139,7 @@ graphics_info_t::updating_maps_update_the_coot_points_overlay() {
    if (frame) {
       gtk_widget_set_visible(frame, TRUE);
       GSourceFunc cb = G_SOURCE_FUNC(coot_points_frame_callback);
-      g_timeout_add(3000, cb, nullptr);
+      g_timeout_add(3500, cb, nullptr);
    }
 
 }
