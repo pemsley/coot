@@ -5164,6 +5164,7 @@ graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
     }
  }
 
+ #include "sound.hh"
 
  //static
  void
@@ -5176,7 +5177,7 @@ graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
              molecules[imol].fill_chiral_volume_outlier_marker_positions(1);
              const auto &positions = molecules[imol].chiral_volume_outlier_marker_positions;
              if (positions.size() < n_prev) {
-                // play a "success" sound
+                play_sound("STARS");
              }
              if (! positions.empty()) {
                 // update the instancing mesh
