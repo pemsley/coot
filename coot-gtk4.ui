@@ -6510,6 +6510,7 @@ Do you want to continue?
 
                                 <child>
                                   <object class="GtkBox" id="dialog-vbox78">
+                                    <property name="visible">False</property>
                                     <property name="orientation">vertical</property>
                                     <child>
                                       <object class="GtkScrolledWindow" id="scrolledwindow18">
@@ -6559,6 +6560,7 @@ Do you want to continue?
 
                                 <child>
                                   <object class="GtkBox" id="dynamic_validation_vbox">
+                                    <property name="visible">False</property>
                                     <property name="orientation">vertical</property>
                                     <property name="margin-bottom">2</property>
                                     <property name="margin-end">2</property>
