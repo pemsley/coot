@@ -4691,25 +4691,19 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
 
 }
 
-// This function now needs to be sent the parameters to make_peaks so to that those values can be stored
-// in the dialog and used when the dialog peaks are ordered to be regenerated.
-//
-// static
-GtkWidget *
-graphics_info_t::wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coords,
+
+void
+graphics_info_t::show_diff_map_peaks_vbox(int imol_map, int imol_coords,
                                                       const std::vector<std::pair<clipper::Coord_orth, float> > &centres_in,
                                                       float n_sigma,
                                                       bool do_positive_level_flag,
                                                       bool do_negative_level_flag,
-                                                      bool around_model_only_flag,
-                                                      const std::string &dialog_title) {
+                                                      bool around_model_only_flag) {
 
    std::vector<std::pair<clipper::Coord_orth, float> > centres = centres_in;
 
    // GtkWidget *w = create_diff_map_peaks_dialog();
    GtkWidget *peaks_vbox = widget_from_builder("diff_map_peaks_vbox");
-
-   gtk_window_set_title(GTK_WINDOW(peaks_vbox), dialog_title.c_str());
 
    char *n_sigma_cs = new char[20];
    std::string ns = std::to_string(n_sigma);
