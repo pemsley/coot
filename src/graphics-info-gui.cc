@@ -4673,6 +4673,10 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
 
    GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
    gtk_widget_set_visible(pane,  TRUE);
+   int pos = gtk_paned_get_position(GTK_PANED(pane));
+   if (pos < 300)
+      gtk_paned_set_position(GTK_PANED(pane), 300);
+
    GtkWidget *outer_vbox = widget_from_builder("dialog-vbox78");
    gtk_widget_set_visible(outer_vbox,   TRUE);
    GtkWidget *button_vbox = widget_from_builder("diff_map_peaks_vbox");
