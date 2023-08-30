@@ -131,6 +131,12 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
 
+      GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
+      gtk_widget_set_visible(scrolled, TRUE);
+
+      GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+      gtk_widget_set_visible(pane_to_show,  TRUE);
+
       GtkWidget *box_for_all_plots = widget_from_builder("ramachandran_plots_vbox");
 
       GtkWidget *box_for_this_plot = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
@@ -179,9 +185,11 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
          GtkWidget *box_for_all_plots = widget_from_builder("ramachandran_plots_vbox");
          GtkWidget *box_for_this_plot = GTK_WIDGET(user_data);
          graphics_info_t g;
-         g.remove_plot_from_rama_plots(box_for_this_plot); // hides the rama pane in main_window_graphics_rama_vs_graphics_pane
-                                                           // if there are no plots left.
+         g.remove_plot_from_rama_plots(box_for_this_plot); 
          gtk_box_remove(GTK_BOX(box_for_all_plots), box_for_this_plot);
+         GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
+         gtk_widget_set_visible(scrolled, FALSE);
+         graphics_info_t::hide_vertical_validation_frame_if_appropriate();
       };
 
       g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(close_callback), box_for_this_plot);
@@ -212,14 +220,6 @@ graphics_info_t::remove_plot_from_rama_plots(GtkWidget *plot_box) {
          rama_plot_boxes.erase(it);
          break;
       }
-   }
-
-   if (rama_plot_boxes.empty()) {
-      GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
-      if (GTK_IS_SCROLLED_WINDOW(scrolled))
-         gtk_widget_set_visible(scrolled, FALSE);
-      else
-         std::cout << "Not a scrolled window " << scrolled << std::endl;
    }
 }
 

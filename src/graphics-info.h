@@ -3857,15 +3857,15 @@ public:
    coot::rotamer_graphs_info_t rotamer_graphs(int imol); // give results back to scripting layer
    void density_fit_graphs(int imol);
    static void diff_map_peaks_dialog_update_button_clicked_func(GtkButton *button, gpointer user_data); // called by below
-   static void fill_difference_map_peaks_button_box(bool force_fill=false);
+   static void fill_difference_map_peaks_button_box();
 
-   static GtkWidget *wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coords,
+   static void show_diff_map_peaks_vbox(int imol_map, int imol_coords,
                                                           const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                                                           float n_sigma,
                                                           bool do_positive_level_flag,
                                                           bool do_negative_level_flag,
-                                                          bool around_model_only_flag,
-                                                          const std::string &dialog_title);
+                                                          bool around_model_only_flag);
+   static void hide_vertical_validation_frame_if_appropriate();
    // the buttons callback for above:
    static void on_diff_map_peak_button_selection_toggled (GtkToggleButton *button,
 							  gpointer         user_data);

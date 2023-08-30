@@ -6703,7 +6703,7 @@ graphics_info_t::sfcalc_genmap(int imol_model,
                            molecules[imol_model].sfcalc_genmap(*fobs_data, *free_flag, xmap_p);
                            molecules[imol_updating_difference_map].set_mean_and_sigma(false, ignore_pseudo_zeros_for_map_stats);
                            molecules[imol_updating_difference_map].set_contour_level_by_sigma(cls); // does an update
-                           fill_difference_map_peaks_button_box(); // do nothing if widget not realized.
+                           fill_difference_map_peaks_button_box();
                         }
                         on_going_updating_map_lock = false;
                      } else {
@@ -6948,4 +6948,24 @@ graphics_info_t::rgba_to_symmetry_colour(GdkRGBA rgba) {
    symmetry_colour.b = rgba.blue;
    symmetry_colour.a = rgba.alpha;
 
+}
+
+void graphics_info_t::hide_vertical_validation_frame_if_appropriate() {
+   GtkWidget *vbox = widget_from_builder("validation_boxes_vbox");
+   bool should_show_vbox = false;
+   for(GtkWidget* i = gtk_widget_get_first_child(vbox); i != nullptr; i = gtk_widget_get_next_sibling(i)) {
+      if(gtk_widget_get_visible(i)) {
+         should_show_vbox = true;
+      }
+   }
+
+   GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
+   bool rama_plot_shown = gtk_widget_get_visible(scrolled);
+
+   bool should_hide = !rama_plot_shown && !should_show_vbox;
+
+   if(should_hide) {
+      GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
+      gtk_widget_set_visible(pane, FALSE);
+   }
 }

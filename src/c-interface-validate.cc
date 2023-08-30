@@ -811,64 +811,68 @@ difference_map_peaks(int imol, int imol_coords,
    // I don't think we want ligand/cluster search.  We just want peak
    // searching.
    //
-   if (is_valid_map_molecule(imol)) {
-      if (graphics_info_t::molecules[imol].is_difference_map_p()) {
+   if (! is_valid_map_molecule(imol)) {
 
-         // c.f. trace-high-res.cc
-         coot::peak_search ps(graphics_info_t::molecules[imol].xmap);
-         ps.set_max_closeness(max_closeness);
-         std::vector<std::pair<clipper::Coord_orth, float> > centres;
+      std::cout << "Molecule number " << imol << " is not a valid map molecule" << std::endl;
+      return;
+   }
 
-         if (is_valid_model_molecule(imol_coords)) {
-            centres =
-               ps.get_peaks(graphics_info_t::molecules[imol].xmap,
-                  graphics_info_t::molecules[imol_coords].atom_sel.mol,
-                  n_sigma, do_positive_level_flag, do_negative_levels_flag,
-                                 around_model_only_flag);
-            for (unsigned int ii=0; ii<centres.size(); ii++)
-               std::cout << centres[ii].second << " " << centres[ii].first.format()
-                         << std::endl;
-         } else {
-            centres =
-               ps.get_peaks(graphics_info_t::molecules[imol].xmap,
-                  n_sigma, do_positive_level_flag, do_negative_levels_flag);
-         }
+   if (!graphics_info_t::molecules[imol].is_difference_map_p()) {
+      return;
+   }
 
-         if (centres.size() == 0) {
-            if (graphics_info_t::use_graphics_interface_flag) {
-               std::string info_string("No difference map peaks\nat ");
-               info_string += graphics_info_t::float_to_string(n_sigma);
-               info_string += " sigma";
-               GtkWidget *w = wrapped_nothing_bad_dialog(info_string);
-               gtk_widget_set_visible(w, TRUE);
-            }
-         } else {
-            float map_sigma = graphics_info_t::molecules[imol].map_sigma();
-            if (graphics_info_t::use_graphics_interface_flag) {
-               std::string title = "Difference Map Peaks Dialog From Map No. ";
-               title += coot::util::int_to_string(imol);
-               GtkWidget *w = graphics_info_t::wrapped_create_diff_map_peaks_dialog(imol, imol_coords, centres,
-                                                                                          n_sigma,
-                                                                                          do_positive_level_flag,
-                                                                                          do_negative_levels_flag,
-                                                                                          around_model_only_flag,
-                                                                                          title);
-               gtk_widget_set_visible(w, TRUE);
-            }
+   // c.f. trace-high-res.cc
+   coot::peak_search ps(graphics_info_t::molecules[imol].xmap);
+   ps.set_max_closeness(max_closeness);
+   std::vector<std::pair<clipper::Coord_orth, float> > centres;
 
-            std::cout << "\n   Found these peak positions:\n";
-            for (unsigned int i=0; i<centres.size(); i++) {
-               std::cout << "   " << i << " dv: "
-               << centres[i].second << " n-rmsd: "
-               << centres[i].second/map_sigma << " "
-               << centres[i].first.format() << std::endl;
-            }
-            std::cout << "\n   Found " << centres.size() << " peak positions:\n";
-         }
+   if (is_valid_model_molecule(imol_coords)) {
+      centres =
+         ps.get_peaks(graphics_info_t::molecules[imol].xmap,
+            graphics_info_t::molecules[imol_coords].atom_sel.mol,
+            n_sigma, do_positive_level_flag, do_negative_levels_flag,
+                           around_model_only_flag);
+      for (unsigned int ii=0; ii<centres.size(); ii++)
+         std::cout << centres[ii].second << " " << centres[ii].first.format()
+                     << std::endl;
+   } else {
+      centres =
+         ps.get_peaks(graphics_info_t::molecules[imol].xmap,
+            n_sigma, do_positive_level_flag, do_negative_levels_flag);
+   }
+
+   if (centres.size() == 0) {
+      if (graphics_info_t::use_graphics_interface_flag) {
+         std::string info_string("No difference map peaks\nat ");
+         info_string += graphics_info_t::float_to_string(n_sigma);
+         info_string += " sigma";
+         GtkWidget *w = wrapped_nothing_bad_dialog(info_string);
+         gtk_widget_set_visible(w, TRUE);
       }
    } else {
-      std::cout << "Molecule number " << imol << " is not a valid map molecule" << std::endl;
+      float map_sigma = graphics_info_t::molecules[imol].map_sigma();
+      if (graphics_info_t::use_graphics_interface_flag) {
+         graphics_info_t::show_diff_map_peaks_vbox(imol, imol_coords, centres,
+                                                               n_sigma,
+                                                               do_positive_level_flag,
+                                                               do_negative_levels_flag,
+                                                               around_model_only_flag);
+         GtkWidget *peaks_vbox = widget_from_builder("diff_map_peaks_vbox");
+         gtk_widget_set_visible(peaks_vbox, TRUE);
+      }
+
+      std::cout << "\n   Found these peak positions:\n";
+      for (unsigned int i=0; i<centres.size(); i++) {
+         std::cout << "   " << i << " dv: "
+         << centres[i].second << " n-rmsd: "
+         << centres[i].second/map_sigma << " "
+         << centres[i].first.format() << std::endl;
+      }
+      std::cout << "\n   Found " << centres.size() << " peak positions:\n";
    }
+   
+      
+   
 }
 
 void set_difference_map_peaks_widget(GtkWidget *w) {
@@ -977,7 +981,7 @@ GtkWidget *wrapped_create_generate_diff_map_peaks_dialog() {
    return dialog;
 }
 
-void difference_map_peaks_by_widget(GtkWidget *dialog) {
+void difference_map_peaks_from_dialog() {
 
    // Check the level:
 
@@ -1014,103 +1018,6 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
 	   difference_map_peaks(imol_diff_map, imol_coords, v,
 		      	      graphics_info_t::difference_map_peaks_max_closeness,
 			            do_positive_level, do_negative_level, around_model_only);
-}
-
-// delete this
-void difference_map_peaks_by_widget_old(GtkWidget *dialog) {
-
-   // c.f. check_waters_by_difference_map_by_widget(GtkWidget *dialog)
-
-   short int found_active_button_for_map = 0;
-   // short int found_active_button_for_coords = 0; // but not terminal
-   int imol_diff_map = -1;
-   int imol_coords = -1;
-
-   GtkWidget *map_vbox = widget_from_builder("generate_diff_map_peaks_map_vbox");
-   GtkWidget *protein_vbox = widget_from_builder("generate_diff_map_peaks_model_vbox");
-
-   auto get_mol_for_find_waters = [] (GtkWidget *item, void *data) {
-                                     if (GTK_IS_TOGGLE_BUTTON(item)) {
-                                        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(item))) {
-                                           int *imol_ptr = static_cast<int *>(data);
-                                           int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "imol"));
-                                           *imol_ptr = imol;
-                                        }
-                                     }
-                                  };
-
-   if (GTK_IS_BOX(map_vbox)) {
-      int imol_map = -1;
-      void *imol_ptr = &imol_map;
-#if (GTK_MAJOR_VERSION >= 4)
-      // 20220602-PE FIXME difference_map_peaks_by_widget()
-      std::cout << "in difference_map_peaks_by_widget() FIXME " << std::endl;
-#else
-      gtk_container_foreach(GTK_CONTAINER(map_vbox), get_mol_for_find_waters, imol_ptr);
-#endif
-      if (is_valid_map_molecule(imol_map)) {
-         imol_diff_map = imol_map;
-      }
-   }
-   if (GTK_IS_BOX(protein_vbox)) {
-      int imol_protein = -1;
-      void *imol_ptr = &imol_protein;
-#if (GTK_MAJOR_VERSION >= 4)
-      // 20220602-PE FIXME difference_map_peaks_by_widget()
-      std::cout << "in difference_map_peaks_by_widget() FIXME " << std::endl;
-#else
-      gtk_container_foreach(GTK_CONTAINER(protein_vbox), get_mol_for_find_waters, imol_ptr);
-#endif
-      if (is_valid_model_molecule(imol_protein)) {
-         imol_coords = imol_protein;
-      }
-   }
-
-
-   // Check the level:
-
-   GtkWidget *sigma_entry = widget_from_builder("generate_diff_map_peaks_sigma_level_entry");
-   const gchar *txt = gtk_editable_get_text(GTK_EDITABLE(sigma_entry));
-   float v = coot::util::string_to_float(txt);
-
-   bool good_sigma = false;
-   if (v > -1000 && v < 1000) {
-      good_sigma = true;
-   } else {
-      std::cout << "WARNING:: Invalid sigma level: " << v
-		<< " can't do peak search." << std::endl;
-   }
-
-   // Check the negative level checkbutton:
-
-   bool do_negative_level = false;
-   bool do_positive_level = false;
-   GtkWidget *checkbutton_negative = widget_from_builder("generate_diff_map_peaks_negative_level_checkbutton");
-   GtkWidget *checkbutton_positive = widget_from_builder("generate_diff_map_peaks_positive_level_checkbutton");
-
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton_negative)))
-      do_negative_level = true;
-
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton_positive)))
-      do_positive_level = true;
-
-   GtkWidget *around_model_checkbutton = widget_from_builder("generate_diff_map_peaks_around_model_only_checkbutton");
-   bool around_model_only = false;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(around_model_checkbutton)))
-      around_model_only = true;
-
-   if (is_valid_model_molecule(imol_coords) && is_valid_map_molecule(imol_diff_map)) {
-      if (good_sigma)
-	 // if imol_coords is -1 it is ignored in difference_map_peaks
-	 difference_map_peaks(imol_diff_map, imol_coords, v,
-			      graphics_info_t::difference_map_peaks_max_closeness,
-			      do_positive_level, do_negative_level, around_model_only);
-   } else {
-      std::cout << "WARNING:: failed to find a difference map "
-		<< "Can't do peak search" << std::endl;
-      GtkWidget *w = wrapped_nothing_bad_dialog("WARNING:: failed to find difference map\nCan't do peak search");
-      gtk_widget_set_visible(w, TRUE);
-   }
 }
 
 
