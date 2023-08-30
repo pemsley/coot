@@ -852,14 +852,11 @@ difference_map_peaks(int imol, int imol_coords,
    } else {
       float map_sigma = graphics_info_t::molecules[imol].map_sigma();
       if (graphics_info_t::use_graphics_interface_flag) {
-         std::string title = "Difference Map Peaks Dialog From Map No. ";
-         title += coot::util::int_to_string(imol);
          graphics_info_t::show_diff_map_peaks_vbox(imol, imol_coords, centres,
                                                                n_sigma,
                                                                do_positive_level_flag,
                                                                do_negative_levels_flag,
-                                                               around_model_only_flag,
-                                                               title);
+                                                               around_model_only_flag);
          GtkWidget *peaks_vbox = widget_from_builder("diff_map_peaks_vbox");
          gtk_widget_set_visible(peaks_vbox, TRUE);
       }
