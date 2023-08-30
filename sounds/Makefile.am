@@ -25,6 +25,7 @@ cootsoundsdir = $(pkgdatadir)/sounds
 # no longer use xpms.
 
 dist_cootsounds_DATA = \
+      sounds.readme \
       325112_3246658-lq-fisch12345-success.ogg \
       538546_3725923-lq-Sjonas_Rising.ogg      \
       538548_3725923-lq-Sjonas-Select-3.ogg    \
