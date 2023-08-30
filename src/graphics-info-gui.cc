@@ -4741,7 +4741,6 @@ graphics_info_t::show_diff_map_peaks_vbox(int imol_map, int imol_coords,
       g.update_things_on_move();
       graphics_draw();
    }
-   return nullptr;
 }
 
 
