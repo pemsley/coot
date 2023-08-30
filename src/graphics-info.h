@@ -3851,7 +3851,7 @@ public:
    coot::rotamer_graphs_info_t rotamer_graphs(int imol); // give results back to scripting layer
    void density_fit_graphs(int imol);
    static void diff_map_peaks_dialog_update_button_clicked_func(GtkButton *button, gpointer user_data); // called by below
-   static void fill_difference_map_peaks_button_box(bool force_fill=false);
+   static void fill_difference_map_peaks_button_box();
 
    static void show_diff_map_peaks_vbox(int imol_map, int imol_coords,
                                                           const std::vector<std::pair<clipper::Coord_orth, float> > &centres,

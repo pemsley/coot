@@ -4577,98 +4577,98 @@ graphics_info_t::renumber_residue_range_chain_combobox_changed(GtkWidget *combob
 // static
 // force_fill default false
 void
-graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
+graphics_info_t::fill_difference_map_peaks_button_box() {
 
    // does nothing if the diff map peaks dialog is not realized.
 
    std::cout << "fill_difference_map_peaks_button_box() --- start ---" << std::endl;
 
    auto make_label = [] (unsigned int i_peak, const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
-                         float map_sigma) {
+                        float map_sigma) {
 
-                        std::string label = "Peak ";
-                        float f = centres[i_peak].second/map_sigma;
-                        label += int_to_string(i_peak+1);
-                        label += ": ";
-                        label += float_to_string(centres[i_peak].second);
-                        label += " (";
-                        label += float_to_string(f);
-                        label += " rmsd) at ";
-                        label += "(";
-                        label += coot::util::float_to_string_using_dec_pl(centres[i_peak].first.x(), 2);
-                        label += ", ";
-                        label += coot::util::float_to_string_using_dec_pl(centres[i_peak].first.y(), 2);
-                        label += ", ";
-                        label += coot::util::float_to_string_using_dec_pl(centres[i_peak].first.z(), 2);
-                        label += ")";
-                        return label;
-                     };
+      std::string label = "Peak ";
+      float f = centres[i_peak].second/map_sigma;
+      label += int_to_string(i_peak+1);
+      label += ": ";
+      label += float_to_string(centres[i_peak].second);
+      label += " (";
+      label += float_to_string(f);
+      label += " rmsd) at ";
+      label += "(";
+      label += coot::util::float_to_string_using_dec_pl(centres[i_peak].first.x(), 2);
+      label += ", ";
+      label += coot::util::float_to_string_using_dec_pl(centres[i_peak].first.y(), 2);
+      label += ", ";
+      label += coot::util::float_to_string_using_dec_pl(centres[i_peak].first.z(), 2);
+      label += ")";
+      return label;
+   };
 
    auto fill_difference_map_button_box_inner = [make_label] (GtkWidget *button_vbox, GSList *diff_map_group,
                                                              const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                                                              float map_sigma) {
 
-                                                   std::cout << "------ there are " << centres.size() << " centres" << std::endl;
-                                                   clear_out_container(button_vbox);
-                                                   // a cutn'paste jobby from fill_rotamer_selection_buttons().
-                                                   GtkWidget *group = nullptr; // initially
-                                                   for (unsigned int i=0; i<centres.size(); i++) {
-                                                      std::string label = make_label(i, centres, map_sigma);
-                                                      GtkWidget *radio_button = gtk_toggle_button_new_with_label(label.c_str());
-                                                      std::string button_name = "difference_map_peaks_button_";
-                                                      button_name += int_to_string(i);
-                                                      if (group)
-                                                         gtk_toggle_button_set_group(GTK_TOGGLE_BUTTON(radio_button), GTK_TOGGLE_BUTTON(group));
-                                                      else
-                                                         group = radio_button;
+      std::cout << "------ there are " << centres.size() << " centres" << std::endl;
+      clear_out_container(button_vbox);
+      // a cutn'paste jobby from fill_rotamer_selection_buttons().
+      GtkWidget *group = nullptr; // initially
+      for (unsigned int i=0; i<centres.size(); i++) {
+         std::string label = make_label(i, centres, map_sigma);
+         GtkWidget *radio_button = gtk_toggle_button_new_with_label(label.c_str());
+         std::string button_name = "difference_map_peaks_button_";
+         button_name += int_to_string(i);
+         if (group)
+            gtk_toggle_button_set_group(GTK_TOGGLE_BUTTON(radio_button), GTK_TOGGLE_BUTTON(group));
+         else
+            group = radio_button;
 
-                                                      gtk_widget_set_margin_bottom(radio_button, 4);
-                                                      gtk_widget_set_margin_top(radio_button, 4);
-                                                      gtk_widget_set_margin_start(radio_button, 6);
-                                                      gtk_widget_set_margin_end(radio_button, 6);
+         gtk_widget_set_margin_bottom(radio_button, 4);
+         gtk_widget_set_margin_top(radio_button, 4);
+         gtk_widget_set_margin_start(radio_button, 6);
+         gtk_widget_set_margin_end(radio_button, 6);
 
-                                                      coot::diff_map_peak_helper_data *hd = new coot::diff_map_peak_helper_data;
-                                                     hd->ipeak = i;
-                                                     hd->pos = centres[i].first;
+         coot::diff_map_peak_helper_data *hd = new coot::diff_map_peak_helper_data;
+         hd->ipeak = i;
+         hd->pos = centres[i].first;
 
-                                                     g_signal_connect(G_OBJECT (radio_button), "toggled",
-                                                                      G_CALLBACK(on_diff_map_peak_button_selection_toggled), hd);
-                                                     gtk_box_append(GTK_BOX(button_vbox), radio_button);
+         g_signal_connect(G_OBJECT (radio_button), "toggled",
+                           G_CALLBACK(on_diff_map_peak_button_selection_toggled), hd);
+         gtk_box_append(GTK_BOX(button_vbox), radio_button);
 
-                                                  }
-                                               };
+      }
+   };
 
    auto make_diff_map_peaks = [] (GtkWidget *peaks_vbox) {
 
-                                 bool do_positive_level_flag = true;
-                                 bool do_negative_level_flag = true;
-                                 bool around_model_only_flag = true;
-                                 int imol_map    = -1;
-                                 int imol_coords = -1;
-                                 float n_sigma   = 5;
-                                 do_positive_level_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "do_positive_level_flag"));
-                                 do_negative_level_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "do_negative_level_flag"));
-                                 around_model_only_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "around_model_only_flag"));
-                                 char *n_sigma_cs = static_cast<char *>  (g_object_get_data(G_OBJECT(peaks_vbox), "n_sigma_str"));
-                                 imol_map    = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "imol_map"));
-                                 imol_coords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "imol_model"));
-                                 if (n_sigma_cs) {
-                                    std::string n_sigma_str(n_sigma_cs);
-                                    n_sigma = coot::util::string_to_float(n_sigma_str);
-                                 }
-                                 coot::peak_search ps(molecules[imol_map].xmap);
-                                 ps.set_max_closeness(difference_map_peaks_max_closeness);
-                                 std::vector<std::pair<clipper::Coord_orth, float> > centres;
-                                 if (is_valid_model_molecule(imol_coords)) {
-                                    if (is_valid_map_molecule(imol_map)) {
-                                       centres = ps.get_peaks(molecules[imol_map].xmap,
-                                                              molecules[imol_coords].atom_sel.mol,
-                                                              n_sigma, do_positive_level_flag, do_negative_level_flag,
-                                                              around_model_only_flag);
-                                    }
-                                 }
-                                 return centres;
-                              };
+      bool do_positive_level_flag = true;
+      bool do_negative_level_flag = true;
+      bool around_model_only_flag = true;
+      int imol_map    = -1;
+      int imol_coords = -1;
+      float n_sigma   = 5;
+      do_positive_level_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "do_positive_level_flag"));
+      do_negative_level_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "do_negative_level_flag"));
+      around_model_only_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "around_model_only_flag"));
+      char *n_sigma_cs = static_cast<char *>  (g_object_get_data(G_OBJECT(peaks_vbox), "n_sigma_str"));
+      imol_map    = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "imol_map"));
+      imol_coords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "imol_model"));
+      if (n_sigma_cs) {
+         std::string n_sigma_str(n_sigma_cs);
+         n_sigma = coot::util::string_to_float(n_sigma_str);
+      }
+      coot::peak_search ps(molecules[imol_map].xmap);
+      ps.set_max_closeness(difference_map_peaks_max_closeness);
+      std::vector<std::pair<clipper::Coord_orth, float> > centres;
+      if (is_valid_model_molecule(imol_coords)) {
+         if (is_valid_map_molecule(imol_map)) {
+            centres = ps.get_peaks(molecules[imol_map].xmap,
+                                    molecules[imol_coords].atom_sel.mol,
+                                    n_sigma, do_positive_level_flag, do_negative_level_flag,
+                                    around_model_only_flag);
+         }
+      }
+      return centres;
+   };
 
 
    GtkWidget *main_window_vertical_validation_frame = widget_from_builder("main_window_vertical_validation_frame");
@@ -4678,16 +4678,16 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
    gtk_widget_set_visible(validation_boxes_vbox,   TRUE);
    gtk_widget_set_visible(outer_vbox,   TRUE);
    GtkWidget *button_vbox = widget_from_builder("diff_map_peaks_vbox");
-   if (force_fill) {
-      std::vector<std::pair<clipper::Coord_orth, float> > centres = make_diff_map_peaks(button_vbox);
-      std::cout << "make_diff_map_peaks() made " << centres.size() << " centres" << std::endl;
-      GSList *diff_map_group = NULL;  // Hmm.
-      float map_sigma = 0.5;
-      int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button_vbox), "imol_map"));
-      if (is_valid_map_molecule(imol_map))
-         map_sigma = molecules[imol_map].map_sigma();
-      fill_difference_map_button_box_inner(button_vbox, diff_map_group, centres, map_sigma);
-   }
+
+   std::vector<std::pair<clipper::Coord_orth, float> > centres = make_diff_map_peaks(button_vbox);
+   std::cout << "make_diff_map_peaks() made " << centres.size() << " centres" << std::endl;
+   GSList *diff_map_group = NULL;  // Hmm.
+   float map_sigma = 0.5;
+   int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button_vbox), "imol_map"));
+   if (is_valid_map_molecule(imol_map))
+      map_sigma = molecules[imol_map].map_sigma();
+   fill_difference_map_button_box_inner(button_vbox, diff_map_group, centres, map_sigma);
+   
 
 }
 
@@ -4724,7 +4724,7 @@ graphics_info_t::show_diff_map_peaks_vbox(int imol_map, int imol_coords,
    // for . and , synthetic clicking.
    g_object_set_data(G_OBJECT(peaks_vbox), "centres_size", GINT_TO_POINTER(centres.size()));
 
-   fill_difference_map_peaks_button_box(true); // with position buttons
+   fill_difference_map_peaks_button_box(); // with position buttons
 
    // not used in the callback now that the button contains a pointer
    // to this info:
