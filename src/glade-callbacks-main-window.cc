@@ -603,6 +603,31 @@ on_smiles_to_simple_3d_ok_button_clicked(GtkButton       *button,
    gtk_widget_set_visible(frame, FALSE);
 }
 
+void hide_vertical_validation_frame_if_appropriate() {
+   std::cout << "todo\n";
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_diff_map_peaks_close_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+   GtkWidget *vbox = widget_from_builder("dialog-vbox78");
+   clear_diff_map_peaks();
+   gtk_widget_set_visible(vbox, FALSE);
+   hide_vertical_validation_frame_if_appropriate();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_diff_map_peaks_update_button_clicked(GtkButton *button,
+                                       gpointer         user_data) {
+   graphics_info_t g;
+   g.fill_difference_map_peaks_button_box(); 
+
+}
+
 #include "dynamic-validation.hh"
 
 extern "C" G_MODULE_EXPORT
@@ -618,8 +643,9 @@ void
 on_dynamic_validation_close_button_clicked(GtkButton *button,
                                            gpointer  user_data) {
 
-   GtkWidget *validation_frame = widget_from_builder("main_window_vertical_validation_frame");
-   gtk_widget_set_visible(validation_frame, FALSE);
+   GtkWidget *validation_vbox = widget_from_builder("dynamic_validation_vbox");
+   gtk_widget_set_visible(validation_vbox, FALSE);
+   hide_vertical_validation_frame_if_appropriate();
 }
 
 extern "C" G_MODULE_EXPORT

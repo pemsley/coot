@@ -23,13 +23,9 @@ void update_dynamic_validation() {
 
 void update_dynamic_validation_for_molecule(int imol) {
 
-   GtkWidget *frame = widget_from_builder("main_window_vertical_validation_frame");
    GtkWidget *vbox  = widget_from_builder("dynamic_validation_outliers_vbox");
-
-   if (gtk_widget_get_visible(frame)) {
-      if (gtk_widget_get_visible(vbox)) {
-         overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
-      }
+   if (gtk_widget_get_visible(vbox)) {
+      overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
    }
 }
 
@@ -131,7 +127,11 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
    };
 
    GtkWidget *pane  = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
-   GtkWidget *frame = widget_from_builder("main_window_vertical_validation_frame");
+   gtk_widget_set_visible(pane,  TRUE);
+
+   GtkWidget *outer_vbox  = widget_from_builder("dynamic_validation_vbox");
+   gtk_widget_set_visible(outer_vbox,  TRUE);
+
    GtkWidget *vbox  = widget_from_builder("dynamic_validation_outliers_vbox");
    GtkWidget *label = widget_from_builder("dynamic_validation_outliers_label");
 
@@ -511,49 +511,41 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       return buttons;
    };
 
-   if (frame && vbox && pane) {
-      gtk_widget_set_visible(frame, TRUE);
-      gtk_widget_set_visible(vbox,  TRUE);
-      gtk_widget_set_visible(pane,  TRUE);
+   // int pos = gtk_paned_get_position(GTK_PANED(pane));
+   // // std::cout << "here in overlaps_peptides_cbeta_ramas_and_rotas_internal(): with pos " << pos << std::endl;
+   // if (pos < 300)
+   //    gtk_paned_set_position(GTK_PANED(pane), 300);
 
-      int pos = gtk_paned_get_position(GTK_PANED(pane));
-      // std::cout << "here in overlaps_peptides_cbeta_ramas_and_rotas_internal(): with pos " << pos << std::endl;
-      if (pos < 300)
-         gtk_paned_set_position(GTK_PANED(pane), 300);
+   graphics_info_t::clear_out_container(vbox);
 
-      graphics_info_t::clear_out_container(vbox);
+   mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 
-      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+   std::vector<std::pair<coot::residue_spec_t, GtkWidget *> > buttons;
+   auto overlap_buttons = make_overlap_buttons(mol);
+   buttons.insert(buttons.end(), overlap_buttons.begin(), overlap_buttons.end());
+   auto rota_buttons = make_rota_buttons(mol);
+   buttons.insert(buttons.end(), rota_buttons.begin(), rota_buttons.end());
+   auto chiral_buttons = make_chiral_volume_buttons(imol);
+   buttons.insert(buttons.end(), chiral_buttons.begin(), chiral_buttons.end());
+   auto rama_buttons = make_rama_buttons(imol);
+   buttons.insert(buttons.end(), rama_buttons.begin(), rama_buttons.end());
+   auto npcp_buttons = make_non_pro_cis_peptide_buttons(imol, mol);
+   buttons.insert(buttons.end(), npcp_buttons.begin(), npcp_buttons.end());
+   auto twisted_trans_buttons = make_twisted_trans_buttons(imol, mol);
+   buttons.insert(buttons.end(), twisted_trans_buttons.begin(), twisted_trans_buttons.end());
+   auto cbeta_devi_buttons = make_cbeta_devi_buttons(imol, mol);
+   buttons.insert(buttons.end(), cbeta_devi_buttons.begin(), cbeta_devi_buttons.end());
 
-      std::vector<std::pair<coot::residue_spec_t, GtkWidget *> > buttons;
-      auto overlap_buttons = make_overlap_buttons(mol);
-      buttons.insert(buttons.end(), overlap_buttons.begin(), overlap_buttons.end());
-      auto rota_buttons = make_rota_buttons(mol);
-      buttons.insert(buttons.end(), rota_buttons.begin(), rota_buttons.end());
-      auto chiral_buttons = make_chiral_volume_buttons(imol);
-      buttons.insert(buttons.end(), chiral_buttons.begin(), chiral_buttons.end());
-      auto rama_buttons = make_rama_buttons(imol);
-      buttons.insert(buttons.end(), rama_buttons.begin(), rama_buttons.end());
-      auto npcp_buttons = make_non_pro_cis_peptide_buttons(imol, mol);
-      buttons.insert(buttons.end(), npcp_buttons.begin(), npcp_buttons.end());
-      auto twisted_trans_buttons = make_twisted_trans_buttons(imol, mol);
-      buttons.insert(buttons.end(), twisted_trans_buttons.begin(), twisted_trans_buttons.end());
-      auto cbeta_devi_buttons = make_cbeta_devi_buttons(imol, mol);
-      buttons.insert(buttons.end(), cbeta_devi_buttons.begin(), cbeta_devi_buttons.end());
-
-      if (label) {
-         unsigned int n_baddies = buttons.size();
-         std::string label_txt = "Outlier Count: ";
-         label_txt += std::to_string(n_baddies);
-         gtk_label_set_text(GTK_LABEL(label), label_txt.c_str());
-      }
-
-      auto sorted_buttons = sort_buttons(buttons); // sort by chain-id and residue number
-
-      for(auto button_info : sorted_buttons)
-         gtk_box_append(GTK_BOX(vbox), button_info.second);
-
-   } else {
-      std::cout << "ERROR:: failed to find widgets " << frame << " " << vbox << " " << pane << std::endl;
+   if (label) {
+      unsigned int n_baddies = buttons.size();
+      std::string label_txt = "Outlier Count: ";
+      label_txt += std::to_string(n_baddies);
+      gtk_label_set_text(GTK_LABEL(label), label_txt.c_str());
    }
+
+   auto sorted_buttons = sort_buttons(buttons); // sort by chain-id and residue number
+
+   for(auto button_info : sorted_buttons)
+      gtk_box_append(GTK_BOX(vbox), button_info.second);
+
 }

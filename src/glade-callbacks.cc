@@ -3903,26 +3903,6 @@ on_shader_settings_dialog_close(GtkDialog *dialog,
 
 extern "C" G_MODULE_EXPORT
 void
-on_diff_map_peaks_dialog_ok_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
-   GtkWidget *dialog = widget_from_builder("diff_map_peaks_dialog");
-   clear_diff_map_peaks();
-   gtk_widget_set_visible(dialog, FALSE);
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_diff_map_peaks_dialog_update_button_clicked(GtkButton *button,
-                                                gpointer         user_data) {
-   graphics_info_t g;
-   g.fill_difference_map_peaks_button_box(); 
-
-}
-
-extern "C" G_MODULE_EXPORT
-void
 on_generate_diff_map_peaks_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
