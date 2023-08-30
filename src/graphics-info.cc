@@ -6951,7 +6951,22 @@ graphics_info_t::rgba_to_symmetry_colour(GdkRGBA rgba) {
 
 void graphics_info_t::hide_vertical_validation_frame_if_appropriate() {
    GtkWidget *vbox = widget_from_builder("validation_boxes_vbox");
+   bool should_show_vbox = false;
+   for(GtkWidget* i = gtk_widget_get_first_child(GtkWidget *widget); i != nullptr; gtk_widget_get_next_sibling(i)) {
+      if(gtk_widget_get_visible(i)) {
+         should_show_vbox = true;
+      }
+   }
+
    GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
+   bool rama_plot_shown = gtk_widget_get_visible(scrolled);
+
+   bool should_hide = !rama_plot_shown && !should_show_vbox;
+
+   if(should_hide) {
+      GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
+      gtk_widget_set_visible(pane, FALSE);
+   }
 
    std::cout << "todo\n";
 }
