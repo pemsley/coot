@@ -6497,6 +6497,7 @@ Do you want to continue?
                         <child>
                           <object class="GtkFrame" id="main_window_vertical_validation_frame">
                             <property name="hexpand">True</property>
+                            <property name="visible">False</property>
                             <property name="vexpand">True</property>
                             <property name="margin-bottom">2</property>
                             <property name="margin-end">2</property>
