@@ -979,7 +979,7 @@ GtkWidget *wrapped_create_generate_diff_map_peaks_dialog() {
    return dialog;
 }
 
-void difference_map_peaks_by_widget(GtkWidget *dialog) {
+void difference_map_peaks_from_dialog() {
 
    // Check the level:
 

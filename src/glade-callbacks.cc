@@ -3929,7 +3929,7 @@ on_generate_diff_map_peaks_ok_button_clicked
 {
 
    GtkWidget *w = widget_from_builder("generate_diff_map_peaks_dialog");
-   difference_map_peaks_by_widget(w); // make the results (and show them)
+   difference_map_peaks_from_dialog(); // make the results (and show them)
    gtk_widget_set_visible(w, FALSE);
 
 }
