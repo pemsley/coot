@@ -4604,7 +4604,7 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
                         return label;
                      };
 
-   auto fill_difference_map_button_box_inner = [make_label] (GtkWidget *dialog, GtkWidget *button_vbox, GSList *diff_map_group,
+   auto fill_difference_map_button_box_inner = [make_label] (GtkWidget *button_vbox, GSList *diff_map_group,
                                                              const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                                                              float map_sigma) {
 
@@ -4638,7 +4638,7 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
                                                   }
                                                };
 
-   auto make_diff_map_peaks = [] (GtkWidget *dialog) {
+   auto make_diff_map_peaks = [] (GtkWidget *peaks_vbox) {
 
                                  bool do_positive_level_flag = true;
                                  bool do_negative_level_flag = true;
@@ -4646,12 +4646,12 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
                                  int imol_map    = -1;
                                  int imol_coords = -1;
                                  float n_sigma   = 5;
-                                 do_positive_level_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "do_positive_level_flag"));
-                                 do_negative_level_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "do_negative_level_flag"));
-                                 around_model_only_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "around_model_only_flag"));
-                                 char *n_sigma_cs = static_cast<char *>  (g_object_get_data(G_OBJECT(dialog), "n_sigma_str"));
-                                 imol_map    = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol_map"));
-                                 imol_coords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol_model"));
+                                 do_positive_level_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "do_positive_level_flag"));
+                                 do_negative_level_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "do_negative_level_flag"));
+                                 around_model_only_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "around_model_only_flag"));
+                                 char *n_sigma_cs = static_cast<char *>  (g_object_get_data(G_OBJECT(peaks_vbox), "n_sigma_str"));
+                                 imol_map    = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "imol_map"));
+                                 imol_coords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "imol_model"));
                                  if (n_sigma_cs) {
                                     std::string n_sigma_str(n_sigma_cs);
                                     n_sigma = coot::util::string_to_float(n_sigma_str);
@@ -4671,17 +4671,22 @@ graphics_info_t::fill_difference_map_peaks_button_box(bool force_fill) {
                               };
 
 
-   GtkWidget *dialog      = widget_from_builder("diff_map_peaks_dialog");
+   GtkWidget *main_window_vertical_validation_frame = widget_from_builder("main_window_vertical_validation_frame");
+   GtkWidget *validation_boxes_vbox = widget_from_builder("validation_boxes_vbox");
+   GtkWidget *outer_vbox             = widget_from_builder("dialog-vbox78");
+   gtk_widget_set_visible(main_window_vertical_validation_frame,   TRUE);
+   gtk_widget_set_visible(validation_boxes_vbox,   TRUE);
+   gtk_widget_set_visible(outer_vbox,   TRUE);
    GtkWidget *button_vbox = widget_from_builder("diff_map_peaks_vbox");
-   if (gtk_widget_get_realized(dialog) || force_fill) {
-      std::vector<std::pair<clipper::Coord_orth, float> > centres = make_diff_map_peaks(dialog);
+   if (force_fill) {
+      std::vector<std::pair<clipper::Coord_orth, float> > centres = make_diff_map_peaks(button_vbox);
       std::cout << "make_diff_map_peaks() made " << centres.size() << " centres" << std::endl;
       GSList *diff_map_group = NULL;  // Hmm.
       float map_sigma = 0.5;
-      int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol_map"));
+      int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button_vbox), "imol_map"));
       if (is_valid_map_molecule(imol_map))
          map_sigma = molecules[imol_map].map_sigma();
-      fill_difference_map_button_box_inner(dialog, button_vbox, diff_map_group, centres, map_sigma);
+      fill_difference_map_button_box_inner(button_vbox, diff_map_group, centres, map_sigma);
    }
 
 }
@@ -4702,30 +4707,28 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coo
    std::vector<std::pair<clipper::Coord_orth, float> > centres = centres_in;
 
    // GtkWidget *w = create_diff_map_peaks_dialog();
-   GtkWidget *dialog = widget_from_builder("diff_map_peaks_dialog");
+   GtkWidget *peaks_vbox = widget_from_builder("diff_map_peaks_vbox");
 
-   gtk_window_set_title(GTK_WINDOW(dialog), dialog_title.c_str());
-
-   difference_map_peaks_dialog = dialog; // save it for use with , and . (globjects key press callback) // 20220418-PE still true?
+   gtk_window_set_title(GTK_WINDOW(peaks_vbox), dialog_title.c_str());
 
    char *n_sigma_cs = new char[20];
    std::string ns = std::to_string(n_sigma);
    unsigned int l = ns.length();
    strncpy(n_sigma_cs, ns.c_str(), l+1);
-   set_transient_and_position(COOT_DIFF_MAPS_PEAK_DIALOG, dialog);
-   g_object_set_data(G_OBJECT(dialog), "imol_map",               GINT_TO_POINTER(imol_map));
-   g_object_set_data(G_OBJECT(dialog), "imol_model",             GINT_TO_POINTER(imol_coords));
-   g_object_set_data(G_OBJECT(dialog), "do_positive_level_flag", GINT_TO_POINTER(do_positive_level_flag));
-   g_object_set_data(G_OBJECT(dialog), "do_negative_level_flag", GINT_TO_POINTER(do_negative_level_flag));
-   g_object_set_data(G_OBJECT(dialog), "around_model_only_flag", GINT_TO_POINTER(around_model_only_flag));
-   g_object_set_data(G_OBJECT(dialog), "n_sigma_str", n_sigma_cs);
+
+   g_object_set_data(G_OBJECT(peaks_vbox), "imol_map",               GINT_TO_POINTER(imol_map));
+   g_object_set_data(G_OBJECT(peaks_vbox), "imol_model",             GINT_TO_POINTER(imol_coords));
+   g_object_set_data(G_OBJECT(peaks_vbox), "do_positive_level_flag", GINT_TO_POINTER(do_positive_level_flag));
+   g_object_set_data(G_OBJECT(peaks_vbox), "do_negative_level_flag", GINT_TO_POINTER(do_negative_level_flag));
+   g_object_set_data(G_OBJECT(peaks_vbox), "around_model_only_flag", GINT_TO_POINTER(around_model_only_flag));
+   g_object_set_data(G_OBJECT(peaks_vbox), "n_sigma_str", n_sigma_cs);
 
    // We don't need to do this if was already done (last time that the window was opened). How do I check
    // if there is already a signal attached to this button?  Why not just do it in glade?
    // g_signal_connect(G_OBJECT(update_button), "clicked", G_CALLBACK(diff_map_peaks_dialog_update_button_clicked_func), nullptr);
 
    // for . and , synthetic clicking.
-   g_object_set_data(G_OBJECT(dialog), "centres_size", GINT_TO_POINTER(centres.size()));
+   g_object_set_data(G_OBJECT(peaks_vbox), "centres_size", GINT_TO_POINTER(centres.size()));
 
    fill_difference_map_peaks_button_box(true); // with position buttons
 
@@ -4744,7 +4747,7 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coo
       g.update_things_on_move();
       graphics_draw();
    }
-   return dialog;
+   return nullptr;
 }
 
 
