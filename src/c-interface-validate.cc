@@ -854,7 +854,7 @@ difference_map_peaks(int imol, int imol_coords,
       if (graphics_info_t::use_graphics_interface_flag) {
          std::string title = "Difference Map Peaks Dialog From Map No. ";
          title += coot::util::int_to_string(imol);
-         graphics_info_t::wrapped_create_diff_map_peaks_dialog(imol, imol_coords, centres,
+         graphics_info_t::show_diff_map_peaks_vbox(imol, imol_coords, centres,
                                                                n_sigma,
                                                                do_positive_level_flag,
                                                                do_negative_levels_flag,
