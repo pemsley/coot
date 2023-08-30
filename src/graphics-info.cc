@@ -6948,3 +6948,10 @@ graphics_info_t::rgba_to_symmetry_colour(GdkRGBA rgba) {
    symmetry_colour.a = rgba.alpha;
 
 }
+
+void graphics_info_t::hide_vertical_validation_frame_if_appropriate() {
+   GtkWidget *vbox = widget_from_builder("validation_boxes_vbox");
+   GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
+
+   std::cout << "todo\n";
+}

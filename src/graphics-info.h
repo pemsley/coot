@@ -3859,6 +3859,7 @@ public:
                                                           bool do_positive_level_flag,
                                                           bool do_negative_level_flag,
                                                           bool around_model_only_flag);
+   static void hide_vertical_validation_frame_if_appropriate();
    // the buttons callback for above:
    static void on_diff_map_peak_button_selection_toggled (GtkToggleButton *button,
 							  gpointer         user_data);
