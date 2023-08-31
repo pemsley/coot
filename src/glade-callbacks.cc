@@ -6114,31 +6114,20 @@ on_export_map_file_chooser_dialog_response (GtkDialog       *dialog,
       // std::cout << "extracted imol_map " << imol_map << " from file chooser dialog " << std::endl;
       // std::cout << "extracted is_map_fragment " << is_map_fragment << " from file chooser dialog " << std::endl;
 
-      if (is_map_fragment > 0) {
-         if (GTK_IS_FILE_CHOOSER(dialog)) {
-            // const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      // const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
+      const char *file_name = g_file_get_path(file);
 
-            GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
-            GError *error = NULL;
-            GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-                                                     G_FILE_QUERY_INFO_NONE, NULL, &error);
-            const char *file_name = g_file_info_get_name(file_info);
-
+      if (GTK_IS_FILE_CHOOSER(dialog)) {
+         if (is_map_fragment > 0) {
             GString *txt_radius_str = static_cast<GString *>(g_object_get_data(G_OBJECT(dialog), "export_map_radius_entry_text"));
             const char *entry_text = g_string_free(txt_radius_str, FALSE); // leaking entry_text - ho hum.
             if (entry_text == 0) {
                std::cout << "ERROR:: entry_text is null " << std::endl;
             }
             export_map_fragment_with_text_radius(imol_map, entry_text, file_name);
-         }
-      } else {
-         if (GTK_IS_FILE_CHOOSER(dialog)) {
-            // const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-            GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
-            GError *error = NULL;
-            GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-                                                     G_FILE_QUERY_INFO_NONE, NULL, &error);
-            const char *file_name = g_file_info_get_name(file_info);
+            
+         } else {
             export_map(imol_map, file_name);
          }
       }
