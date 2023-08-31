@@ -7600,7 +7600,7 @@ Do you want to continue?
                         </child>
                         <child>
                           <object class="GtkLabel">
-                            <property name="label" translatable="yes"> Ångströms of the screen centre</property>
+                            <property name="label" translatable="yes">Ångströms of the screen centre</property>
                           </object>
                         </child>
                       </object>
@@ -7619,6 +7619,7 @@ Do you want to continue?
                             <property name="label" translatable="yes">Cancel</property>
                             <property name="can-focus">1</property>
                             <property name="halign">end</property>
+                            <signal name="clicked" handler="on_export_map_frame_cancel_button_clicked" swapped="no" />
                           </object>
                         </child>
                         <child>
@@ -7627,6 +7628,7 @@ Do you want to continue?
                             <property name="can-focus">1</property>
                             <property name="receives-default">1</property>
                             <property name="halign">end</property>
+                            <signal name="clicked" handler="on_export_map_frame_ok_button_clicked" swapped="no" />
                           </object>
                         </child>
                       </object>
