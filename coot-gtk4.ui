@@ -4545,71 +4545,6 @@ that you wish to delete.               </property>
     </child>
   </object>
 
-  <object class="GtkDialog" id="export_map_dialog">
-    <property name="title">Export</property>
-    <signal name="response" handler="on_export_map_dialog_response" swapped="no"/>
-    <child>
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <property name="spacing">10</property>
-        <property name="margin-start">10</property>
-        <property name="margin-end">10</property>
-        <property name="margin-top">10</property>
-        <property name="margin-bottom">10</property>
-        <child>
-          <object class="GtkComboBoxText" id="export_map_map_combobox">
-          </object>
-        </child>
-        <child>
-          <object class="GtkBox" id="export_map_fragment_hbox">
-            <child>
-              <object class="GtkLabel">
-                <property name="label" translatable="yes">Export map within </property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkEntry" id="export_map_radius_entry">
-                <property name="can-focus">1</property>
-                <property name="text" translatable="yes">12</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="label" translatable="yes"> Ångströms of the screen centre</property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkBox">
-            <property name="orientation">horizontal</property>
-            <property name="spacing">5</property>
-            <child>
-              <object class="GtkLabel">
-                <property name="hexpand">true</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="can-focus">1</property>
-                <property name="halign">end</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton">
-                <property name="label" translatable="yes">OK</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-                <property name="halign">end</property>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-  </object>
-
   <object class="GtkFileChooserDialog" id="export_map_filechooser_dialog">
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select Filename for Map Export</property>
@@ -7625,6 +7560,75 @@ Do you want to continue?
                           <property name="row">2</property>
                           <property name="row-span">1</property>
                         </layout>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="export_map_frame">
+                <property name="visible">False</property>
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <!-- <signal name="response" handler="on_export_map_dialog_response" swapped="no"/> -->
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">10</property>
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">10</property>
+                    <property name="margin-top">10</property>
+                    <property name="margin-bottom">10</property>
+                    <child>
+                      <object class="GtkComboBoxText" id="export_map_map_combobox">
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox" id="export_map_fragment_hbox">
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Export map within </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="export_map_radius_entry">
+                            <property name="can-focus">1</property>
+                            <property name="text" translatable="yes">12</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes"> Ångströms of the screen centre</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="hexpand">true</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <property name="can-focus">1</property>
+                            <property name="halign">end</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton">
+                            <property name="label" translatable="yes">OK</property>
+                            <property name="can-focus">1</property>
+                            <property name="receives-default">1</property>
+                            <property name="halign">end</property>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>
