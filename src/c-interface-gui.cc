@@ -4565,13 +4565,10 @@ void export_map_gui(short int export_map_fragment) {
 
    // this is the widget that chooses the map molecule, not the file chooser.
    //
-   GtkWidget *w = widget_from_builder("export_map_dialog");
+   GtkWidget *w = widget_from_builder("export_map_frame");
 
-   if (! export_map_fragment) {
-      // GtkWidget *hbox = lookup_widget(w, "export_map_fragment_hbox");
-      GtkWidget *hbox = widget_from_builder("export_map_fragment_hbox");
-      gtk_widget_set_visible(hbox, FALSE);
-   }
+   GtkWidget *hbox = widget_from_builder("export_map_fragment_hbox");
+   gtk_widget_set_visible(hbox, export_map_fragment == 0 ? FALSE : TRUE);
 
    // GtkWidget *combobox = lookup_widget(w, "export_map_map_combobox");
    GtkWidget *combobox = widget_from_builder("export_map_map_combobox");
@@ -4609,7 +4606,7 @@ void on_export_map_dialog_ok_button_clicked_cc(GtkButton *button) {
    if (true) {
 
       // GtkWidget *file_chooser_dialog = create_export_map_filechooserdialog();
-      GtkWidget *file_chooser_dialog = widget_from_builder("export_map_filechooser_dialog");
+      GtkWidget *file_chooser_dialog = widget_from_builder("export_map_file_chooser_dialog");
       unsigned int l = std::string(entry_text).length();
       char *c = new char [l + 1];
       strncpy(c, entry_text, l+1);
