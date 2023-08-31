@@ -4606,7 +4606,7 @@ void on_export_map_dialog_ok_button_clicked_cc(GtkButton *button) {
    if (true) {
 
       // GtkWidget *file_chooser_dialog = create_export_map_filechooserdialog();
-      GtkWidget *file_chooser_dialog = widget_from_builder("export_map_filechooser_dialog");
+      GtkWidget *file_chooser_dialog = widget_from_builder("export_map_file_chooser_dialog");
       unsigned int l = std::string(entry_text).length();
       char *c = new char [l + 1];
       strncpy(c, entry_text, l+1);

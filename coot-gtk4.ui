@@ -4545,7 +4545,7 @@ that you wish to delete.               </property>
     </child>
   </object>
 
-  <object class="GtkFileChooserDialog" id="export_map_filechooser_dialog">
+  <object class="GtkFileChooserDialog" id="export_map_file_chooser_dialog">
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select Filename for Map Export</property>
     <property name="deletable">0</property>
@@ -7587,6 +7587,7 @@ Do you want to continue?
                     </child>
                     <child>
                       <object class="GtkBox" id="export_map_fragment_hbox">
+                        <property name="spacing">5</property>
                         <child>
                           <object class="GtkLabel">
                             <property name="label" translatable="yes">Export map within </property>

@@ -6083,25 +6083,22 @@ on_export_map_frame_cancel_button_clicked(GtkButton* self, gpointer user_data) {
 extern "C" G_MODULE_EXPORT
 void
 on_export_map_frame_ok_button_clicked(GtkButton* self, gpointer user_data) {
-      // GtkWidget *file_chooser_dialog = widget_from_builder("export_map_file_chooser_dialog");
-      // GtkWidget *combobox            = widget_from_builder("export_map_map_combobox");
-      // GtkWidget *radius_entry        = widget_from_builder("export_map_radius_entry");
-      // int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
-      // int is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "is_map_fragment"));
-      // // std::cout << "debug:: in on_export_map_dialog_response() imol_map is " << imol_map << std::endl;
-      // const char *entry_text = gtk_editable_get_text(GTK_EDITABLE(radius_entry));
-      // // std::cout << "debug:: in on_export_map_dialog_response() got entry_text \"" << entry_text << "\"" << std::endl;
-      // GString* text_copy   = g_string_new(entry_text);
-      // GString* text_copy_2 = g_string_new(entry_text);
-      // // gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
-      // gtk_widget_set_visible(file_chooser_dialog, TRUE);
-      // g_object_set_data(G_OBJECT(file_chooser_dialog), "map_molecule_number", GINT_TO_POINTER(imol_map));
-      // g_object_set_data(G_OBJECT(file_chooser_dialog), "is_map_fragment",     GINT_TO_POINTER(is_map_fragment));
-      // // std::cout << "debug:: in on_export_map_dialog_response() storing entry text " << text_copy << std::endl;
-      // g_object_set_data(G_OBJECT(file_chooser_dialog), "export_map_radius_entry_text", text_copy);
-      // // decoded:
-      // // int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number"));
-   std::cout<<"todo\n";
+   GtkWidget *file_chooser_dialog = widget_from_builder("export_map_file_chooser_dialog");
+   GtkWidget *combobox            = widget_from_builder("export_map_map_combobox");
+   GtkWidget *radius_entry        = widget_from_builder("export_map_radius_entry");
+   GtkWidget *frame               = widget_from_builder("export_map_frame");
+   int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   int is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(frame), "is_map_fragment"));
+   // std::cout << "debug:: in on_export_map_dialog_response() imol_map is " << imol_map << std::endl;
+   const char *entry_text = gtk_editable_get_text(GTK_EDITABLE(radius_entry));
+   // std::cout << "debug:: in on_export_map_dialog_response() got entry_text \"" << entry_text << "\"" << std::endl;
+   GString* text_copy   = g_string_new(entry_text);
+   gtk_widget_set_visible(GTK_WIDGET(frame), FALSE);
+   gtk_widget_set_visible(file_chooser_dialog, TRUE);
+   g_object_set_data(G_OBJECT(file_chooser_dialog), "map_molecule_number", GINT_TO_POINTER(imol_map));
+   g_object_set_data(G_OBJECT(file_chooser_dialog), "is_map_fragment",     GINT_TO_POINTER(is_map_fragment));
+   // std::cout << "debug:: in on_export_map_dialog_response() storing entry text " << text_copy << std::endl;
+   g_object_set_data(G_OBJECT(file_chooser_dialog), "export_map_radius_entry_text", text_copy);
 }
 
 extern "C" G_MODULE_EXPORT
