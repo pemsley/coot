@@ -6107,7 +6107,7 @@ on_export_map_file_chooser_dialog_response (GtkDialog       *dialog,
                                                                 gint             response_id,
                                                                 gpointer         user_data) {
 
-   if (response_id == GTK_RESPONSE_OK) {
+   if (response_id == GTK_RESPONSE_OK) { 
       int imol_map        = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number"));
       int is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "is_map_fragment"));
 

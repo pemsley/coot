@@ -4548,22 +4548,23 @@ that you wish to delete.               </property>
   <object class="GtkFileChooserDialog" id="export_map_file_chooser_dialog">
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select Filename for Map Export</property>
-    <property name="deletable">0</property>
+    <property name="hide-on-close">true</property>
     <property name="action">save</property>
     <signal name="response" handler="on_export_map_file_chooser_dialog_response" swapped="no"/>
-    <child>
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="button10">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-        </child>
+    <child type="action">
+      <object class="GtkButton" id="export_map_file_chooser_dialog_button_cancel">
+        <property name="label">Cancel</property>
       </object>
     </child>
+    <child type="action">
+      <object class="GtkButton" id="export_map_file_chooser_dialog_button_ok">
+        <property name="label">OK</property>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="cancel">export_map_file_chooser_dialog_button_cancel</action-widget>
+      <action-widget response="ok" default="true">export_map_file_chooser_dialog_button_ok</action-widget>
+    </action-widgets>
   </object>
 
   <object class="GtkDialog" id="find_ligand_dialog">
