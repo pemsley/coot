@@ -4551,7 +4551,11 @@ that you wish to delete.               </property>
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
-        <property name="spacing">5</property>
+        <property name="spacing">10</property>
+        <property name="margin-start">10</property>
+        <property name="margin-end">10</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
         <child>
           <object class="GtkComboBoxText" id="export_map_map_combobox">
           </object>
@@ -4581,10 +4585,15 @@ that you wish to delete.               </property>
             <property name="orientation">horizontal</property>
             <property name="spacing">5</property>
             <child>
+              <object class="GtkLabel">
+                <property name="hexpand">true</property>
+              </object>
+            </child>
+            <child>
               <object class="GtkButton">
                 <property name="label" translatable="yes">Cancel</property>
                 <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
+                <property name="halign">end</property>
               </object>
             </child>
             <child>
@@ -4592,6 +4601,7 @@ that you wish to delete.               </property>
                 <property name="label" translatable="yes">OK</property>
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
+                <property name="halign">end</property>
               </object>
             </child>
           </object>
