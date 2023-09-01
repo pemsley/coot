@@ -700,12 +700,12 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
                         arc_direction = !arc_direction;
                     }
                     // Final part of the path. Truncated arc.
-                    float angle_one = base_angle;
-                    float angle_two = base_angle;
                     float partial_arc_proportion = arcs_count - (float) rounded_arcs_count;
                     float el = 1.f - (partial_arc_proportion / WAVY_BOND_ARC_LENGTH / 2.f);
-                    //g_debug("el: %f",el);
                     float complement_angle = std::acos(el);
+                    float angle_one = base_angle;
+                    float angle_two = base_angle;
+                    //g_debug("el: %f",el);
                     if(arc_direction) {
                         angle_two += complement_angle;
                     } else {
@@ -718,12 +718,13 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
                     //     // }
                     // }
                     g_debug(
-                        "theta=%f, a1=%f, a2=%f a2-a1=%f abs(a2-a1)=%f",
+                        "theta=%f, a1=%f, a2=%f a2-a1=%f abs(a2-a1)=%f direction=%s",
                         complement_angle / M_PI * 180.f,
                         angle_one / M_PI * 180.f,
                         angle_two / M_PI * 180.f,
                         (angle_two - angle_one) / M_PI * 180.f,
-                        std::fabs(angle_two - angle_one) / M_PI * 180.f
+                        std::fabs(angle_two - angle_one) / M_PI * 180.f,
+                        arc_direction ? "true" : "false"
                     );
                     cairo_new_sub_path(cr);
                     cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
