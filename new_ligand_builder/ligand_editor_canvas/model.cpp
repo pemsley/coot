@@ -706,11 +706,7 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
                     float angle_one = base_angle;
                     float angle_two = base_angle;
                     //g_debug("el: %f",el);
-                    if(arc_direction) {
-                        angle_two += complement_angle;
-                    } else {
-                        angle_one += complement_angle;
-                    }
+                    angle_two += complement_angle;
                     // if(angle_one < 0) {
                     //     angle_one += M_PI;
                     //     // if(angle_two - angle_one < 0) {
