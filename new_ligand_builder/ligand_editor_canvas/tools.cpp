@@ -16,15 +16,15 @@
 using namespace coot::ligand_editor_canvas;
 
 
-void Tool::on_click(impl::WidgetCoreData& widget_data, int x, int y) {
+void Tool::on_click(ClickContext& ctx, int x, int y) {
     // nothing by default
 }
 
-void Tool::on_blank_space_click(impl::WidgetCoreData& widget_data, int x, int y) {
+void Tool::on_blank_space_click(ClickContext& ctx, int x, int y) {
     g_debug("The click could not be resolved to any atom or bond.");
 }
 
-void Tool::on_release(impl::WidgetCoreData& widget_data, int x, int y) {
+void Tool::on_release(ClickContext& ctx, int x, int y) {
     // nothing by default
 }
 
@@ -56,12 +56,23 @@ Tool::~Tool() {
 
 }
 
-void ActiveTool::on_click(int x, int y) {
+Tool::ClickContext::ClickContext(impl::WidgetCoreData& widget_data) :widget_data(widget_data) {
+
+}
+
+Tool::MoleculeClickContext::MoleculeClickContext(ClickContext super, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) 
+:ClickContext(super), rdkit_mol(rdkit_mol), canvas_mol(canvas_mol) {
+    this->mol_idx = mol_idx;
+}
+
+void ActiveTool::on_click(bool ctrl_pressed, int x, int y) {
     if(!this->tool) {
         return;
     }
+    Tool::ClickContext ctx(*this->widget_data);
+    ctx.control_pressed = ctrl_pressed;
 
-    this->tool->on_click(*this->widget_data, x, y);
+    this->tool->on_click(ctx, x, y);
     auto click_result = this->widget_data->resolve_click(x, y);
     if(click_result.has_value()) {
         try{
@@ -86,24 +97,27 @@ void ActiveTool::on_click(int x, int y) {
             this->widget_data->rollback_current_edition();
         }
     } else {
-        this->tool->on_blank_space_click(*this->widget_data, x, y);
+        this->tool->on_blank_space_click(ctx, x, y);
     }
 }
 
-void ActiveTool::on_release(int x, int y) {
+void ActiveTool::on_release(bool ctrl_pressed, int x, int y) {
     if(!this->tool) {
         return;
     }
-    this->tool->on_release(*this->widget_data, x, y);
+    Tool::ClickContext ctx(*this->widget_data);
+    ctx.control_pressed = ctrl_pressed;
+
+    this->tool->on_release(ctx, x, y);
 }
 
-void TransformTool::on_click(impl::WidgetCoreData& widget_data, int x, int y) {
-    auto mol_opt = widget_data.resolve_click(x, y);
+void TransformTool::on_click(ClickContext& ctx, int x, int y) {
+    auto mol_opt = ctx.widget_data.resolve_click(x, y);
     if(mol_opt.has_value()) {
         auto [atom_or_bond,mol_id] = mol_opt.value();
         this->transform_manager->begin_transform(x, y, this->mode);
         this->transform_manager->set_canvas_molecule_index(mol_id);
-        widget_data.begin_edition();
+        ctx.widget_data.begin_edition();
     }
 }
 
@@ -405,10 +419,12 @@ bool ActiveTool::is_creating_bond() const noexcept {
     return false;
 }
 
-void BondModifier::on_release(impl::WidgetCoreData& widget_data, int x, int y) {
+void BondModifier::on_release(ClickContext& ctx, int x, int y) {
     if(!this->is_creating_bond()) {
         return;
     }
+    impl::WidgetCoreData& widget_data = ctx.widget_data;
+
     auto click_result = widget_data.resolve_click(x, y);
     auto [original_molecule_idx, first_atom_idx] = this->get_molecule_idx_and_first_atom_of_new_bond().value();
     this->finish_creating_bond();
@@ -707,11 +723,11 @@ std::string StructureInsertion::get_exception_message_prefix() const noexcept {
     return "Could not insert structure: ";
 }
 
-void StructureInsertion::on_blank_space_click(impl::WidgetCoreData& widget_data, int x, int y) {
+void StructureInsertion::on_blank_space_click(ClickContext& ctx, int x, int y) {
     g_debug("The click could not be resolved to any atom or bond.");
-    if(widget_data.rdkit_molecules->empty()) {
+    if(ctx.widget_data.rdkit_molecules->empty()) {
         g_debug("There are no molecules. Structure insertion will therefore create a new one.");
-        auto* widget_ptr = static_cast<impl::CootLigandEditorCanvasPriv*>(&widget_data);
+        auto* widget_ptr = static_cast<impl::CootLigandEditorCanvasPriv*>(&ctx.widget_data);
         auto rdkit_mol = std::make_shared<RDKit::RWMol>();
         rdkit_mol->addAtom(new RDKit::Atom(6),false,true);
         append_structure_to_atom(rdkit_mol.get(),0);
@@ -720,7 +736,7 @@ void StructureInsertion::on_blank_space_click(impl::WidgetCoreData& widget_data,
         // so we can't call "begin_edition" here above.
         RDKit::MolOps::sanitizeMol(*rdkit_mol);
         coot_ligand_editor_append_molecule(COOT_COOT_LIGAND_EDITOR_CANVAS(widget_ptr), rdkit_mol);
-        widget_data.update_status("New molecule created from carbon ring.");
+        ctx.widget_data.update_status("New molecule created from carbon ring.");
         // todo: make sure that this is crash-safe vs edit/undo
     }
 }

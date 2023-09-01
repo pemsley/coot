@@ -66,20 +66,24 @@ class Tool {
     struct ClickContext {
         impl::WidgetCoreData& widget_data;
         bool control_pressed;
+
+        ClickContext(impl::WidgetCoreData& widget_data);
     };
 
     struct MoleculeClickContext : public ClickContext {
         unsigned int mol_idx;
         std::shared_ptr<RDKit::RWMol>& rdkit_mol;
         CanvasMolecule& canvas_mol;
+
+        MoleculeClickContext(ClickContext super, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol);
     };
 
     /// Called always, whenever there's been a click event.
     /// Called before other other methods get called.
-    virtual void on_click(impl::WidgetCoreData& widget_data, int x, int y);
+    virtual void on_click(ClickContext& ctx, int x, int y);
 
     /// Called when the click coordinates do not correspond to anything on canvas
-    virtual void on_blank_space_click(impl::WidgetCoreData& widget_data, int x, int y);
+    virtual void on_blank_space_click(ClickContext& ctx, int x, int y);
 
     /// Called if the click lands on a molecule.
     /// Returns true if `on_bond_click()` or `on_atom_click()` (respectively to what's been clicked) 
@@ -91,7 +95,7 @@ class Tool {
 
     /// Generic on-mouse-release event handler.
     /// No dedicated molecule/atom/bond handlers seem to be needed now.
-    virtual void on_release(impl::WidgetCoreData& widget_data, int x, int y);
+    virtual void on_release(ClickContext& ctx, int x, int y);
 
     virtual void after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&);
 
@@ -131,7 +135,7 @@ class BondModifier : public Tool {
     virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) override;
     virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
-    virtual void on_release(impl::WidgetCoreData& widget_data, int x, int y) override;
+    virtual void on_release(ClickContext& ctx, int x, int y) override;
 };
 
 class ElementInsertion : public Tool {
@@ -194,7 +198,7 @@ class StructureInsertion : public Tool {
     virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) override;
     virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) override;
     virtual void after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
-    virtual void on_blank_space_click(impl::WidgetCoreData& widget_data, int x, int y) override;
+    virtual void on_blank_space_click(ClickContext& ctx, int x, int y) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
 
 
@@ -228,7 +232,7 @@ class TransformTool : public Tool {
     TransformTool(TransformManager::Mode) noexcept;
     void set_transform_manager(TransformManager*) noexcept;
 
-    virtual void on_click(impl::WidgetCoreData& widget_data, int x, int y) override;
+    virtual void on_click(ClickContext& ctx, int x, int y) override;
     virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) override;
 };
 
@@ -282,9 +286,9 @@ class ActiveTool {
     ActiveTool(RemoveHydrogensTool) noexcept;
 
     /// Handles mouse click event for the currently chosen tool
-    void on_click(int x, int y);
+    void on_click(bool ctrl_pressed, int x, int y);
     /// Handles mouse-release event for the currently chosen tool
-    void on_release(int x, int y);
+    void on_release(bool ctrl_pressed, int x, int y);
 
     /// Returns true if a new bond is currently being create via click'n'drag
     bool is_creating_bond() const noexcept;

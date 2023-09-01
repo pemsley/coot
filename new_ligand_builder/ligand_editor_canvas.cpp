@@ -202,7 +202,7 @@ on_left_click_released (
     }
 
     // `currently_created_bond` gets cleared here when appropriate
-    self->active_tool->on_release(x, y);
+    self->active_tool->on_release(GDK_CONTROL_MASK & modifiers, x, y);
 }
 
 static void on_left_click (
@@ -224,7 +224,7 @@ static void on_left_click (
         return;
     }
 
-    self->active_tool->on_click(x, y);
+    self->active_tool->on_click(GDK_CONTROL_MASK & modifiers, x, y);
 
     if(self->active_tool->is_creating_bond()) {
         CurrentlyCreatedBond new_bond;
