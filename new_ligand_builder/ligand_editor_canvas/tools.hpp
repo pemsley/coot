@@ -63,6 +63,17 @@ class Tool {
 
     public:
 
+    struct ClickContext {
+        impl::WidgetCoreData& widget_data;
+        bool control_pressed;
+    };
+
+    struct MoleculeClickContext : public ClickContext {
+        unsigned int mol_idx;
+        std::shared_ptr<RDKit::RWMol>& rdkit_mol;
+        CanvasMolecule& canvas_mol;
+    };
+
     /// Called always, whenever there's been a click event.
     /// Called before other other methods get called.
     virtual void on_click(impl::WidgetCoreData& widget_data, int x, int y);
