@@ -88,16 +88,16 @@ class Tool {
     /// Called if the click lands on a molecule.
     /// Returns true if `on_bond_click()` or `on_atom_click()` (respectively to what's been clicked) 
     /// should be called next (and then lastly `after_molecule_click()`)
-    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&);
+    virtual bool on_molecule_click(MoleculeClickContext& ctx);
 
-    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Bond&);
-    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Atom&);
+    virtual void on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond&);
+    virtual void on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom&);
 
     /// Generic on-mouse-release event handler.
     /// No dedicated molecule/atom/bond handlers seem to be needed now.
     virtual void on_release(ClickContext& ctx, int x, int y);
 
-    virtual void after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&);
+    virtual void after_molecule_click(MoleculeClickContext& ctx);
 
     /// Used to print tool-specific error messages should any handler throw an exception
     virtual std::string get_exception_message_prefix() const noexcept;
@@ -131,9 +131,9 @@ class BondModifier : public Tool {
     void finish_creating_bond() noexcept;
     std::optional<std::pair<unsigned int,unsigned int>> get_molecule_idx_and_first_atom_of_new_bond() const noexcept;
 
-    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
-    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) override;
-    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) override;
+    virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
+    virtual void on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) override;
+    virtual void on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
     virtual void on_release(ClickContext& ctx, int x, int y) override;
 };
@@ -161,10 +161,10 @@ class ElementInsertion : public Tool {
 
     unsigned int get_atomic_number() const noexcept;
 
-    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
-    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) override;
-    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) override;
-    virtual void after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
+    virtual void on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) override;
+    virtual void on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) override;
+    virtual void after_molecule_click(MoleculeClickContext& ctx) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
@@ -194,10 +194,10 @@ class StructureInsertion : public Tool {
 
     Structure get_structure() const noexcept;
 
-    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
-    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) override;
-    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) override;
-    virtual void after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
+    virtual void on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) override;
+    virtual void on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) override;
+    virtual void after_molecule_click(MoleculeClickContext& ctx) override;
     virtual void on_blank_space_click(ClickContext& ctx, int x, int y) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
 
@@ -207,7 +207,7 @@ class StructureInsertion : public Tool {
 class ChargeModifier : public Tool {
     public:
 
-    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) override;
+    virtual void on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
 
 };
@@ -215,10 +215,10 @@ class ChargeModifier : public Tool {
 class DeleteTool : public Tool {
     public:
 
-    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
-    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) override;
-    virtual void on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) override;
-    virtual void after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
+    virtual void on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) override;
+    virtual void on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) override;
+    virtual void after_molecule_click(MoleculeClickContext& ctx) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
@@ -233,20 +233,20 @@ class TransformTool : public Tool {
     void set_transform_manager(TransformManager*) noexcept;
 
     virtual void on_click(ClickContext& ctx, int x, int y) override;
-    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) override;
+    virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
 };
 
 class GeometryModifier : public Tool {
     public:
 
-    virtual void on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) override;
+    virtual void on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
 class FormatTool : public Tool {
     public:
 
-    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
@@ -255,14 +255,14 @@ class FlipTool : public Tool {
     public:
     FlipTool(FlipMode) noexcept;
 
-    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
 class RemoveHydrogensTool : public Tool {
     public:
 
-    virtual bool on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) override;
+    virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
 };
 

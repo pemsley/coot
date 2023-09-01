@@ -28,21 +28,21 @@ void Tool::on_release(ClickContext& ctx, int x, int y) {
     // nothing by default
 }
 
-void Tool::after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) {
+void Tool::after_molecule_click(MoleculeClickContext& ctx) {
     // nothing by default
 }
 
-bool Tool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) {
+bool Tool::on_molecule_click(MoleculeClickContext& ctx) {
     // nothing by default
     return true;
 }
 
-void Tool::on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Bond&) {
+void Tool::on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond&) {
     // nothing by default
     g_debug("The tool does not operate on bonds.");
 }
 
-void Tool::on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&, CanvasMolecule::Atom&) {
+void Tool::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom&) {
     // nothing by default
     g_debug("The tool does not operate on atoms.");
 }
@@ -79,17 +79,18 @@ void ActiveTool::on_click(bool ctrl_pressed, int x, int y) {
             auto [bond_or_atom,molecule_idx] = click_result.value();
             auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
             auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
-            if(!this->tool->on_molecule_click(*this->widget_data, molecule_idx, rdkit_mol, canvas_mol)) {
+            Tool::MoleculeClickContext mctx(ctx, molecule_idx, rdkit_mol, canvas_mol);
+            if(!this->tool->on_molecule_click(mctx)) {
                 return;
             }
             if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
                 auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
-                this->tool->on_atom_click(*this->widget_data, molecule_idx, rdkit_mol, canvas_mol, atom);
+                this->tool->on_atom_click(mctx, atom);
             } else { // a bond
                 auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
-                this->tool->on_bond_click(*this->widget_data, molecule_idx, rdkit_mol, canvas_mol, bond);
+                this->tool->on_bond_click(mctx, bond);
             }
-            this->tool->after_molecule_click(*this->widget_data, molecule_idx, rdkit_mol, canvas_mol);
+            this->tool->after_molecule_click(mctx);
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
             std::string msg = this->tool->get_exception_message_prefix() + e.what();
@@ -121,7 +122,7 @@ void TransformTool::on_click(ClickContext& ctx, int x, int y) {
     }
 }
 
-bool TransformTool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>&, CanvasMolecule&) {
+bool TransformTool::on_molecule_click(MoleculeClickContext& ctx) {
     return false;
 }
 
@@ -344,67 +345,67 @@ void ActiveTool::set_core_widget_data(impl::CootLigandEditorCanvasPriv* owning_w
     this->widget_data = static_cast<impl::WidgetCoreData*>(owning_widget);
 }
 
-bool ElementInsertion::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
-    widget_data.begin_edition();
+bool ElementInsertion::on_molecule_click(MoleculeClickContext& ctx) {
+    ctx.widget_data.begin_edition();
     return true;
 }
 
-void ElementInsertion::on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) {
+void ElementInsertion::on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) {
     unsigned int atomic_number = this->get_atomic_number();
     // auto el_name = RDKit::PeriodicTable::getTable()->getElementSymbol(atomic_number);
     auto* new_atom = new RDKit::Atom(atomic_number);
-    rdkit_mol->removeBond(bond.first_atom_idx, bond.second_atom_idx);
-    unsigned int new_atom_idx = rdkit_mol->addAtom(new_atom, true, true);
-    rdkit_mol->addBond(bond.first_atom_idx, new_atom_idx, RDKit::Bond::SINGLE);
-    rdkit_mol->addBond(new_atom_idx, bond.second_atom_idx, RDKit::Bond::SINGLE);
-    widget_data.update_status("Atom has been inserted.");
+    ctx.rdkit_mol->removeBond(bond.first_atom_idx, bond.second_atom_idx);
+    unsigned int new_atom_idx = ctx.rdkit_mol->addAtom(new_atom, true, true);
+    ctx.rdkit_mol->addBond(bond.first_atom_idx, new_atom_idx, RDKit::Bond::SINGLE);
+    ctx.rdkit_mol->addBond(new_atom_idx, bond.second_atom_idx, RDKit::Bond::SINGLE);
+    ctx.widget_data.update_status("Atom has been inserted.");
 }
 
-void ElementInsertion::on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) {
+void ElementInsertion::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) {
     unsigned int atomic_number = this->get_atomic_number();
     auto el_name = RDKit::PeriodicTable::getTable()->getElementSymbol(atomic_number);
     g_debug("Appending element '%u' (%s) to destination atom: idx=%i, symbol=%s.",atomic_number,el_name.c_str(),atom.idx,atom.symbol.c_str());
     auto* new_atom = new RDKit::Atom(std::string(el_name));
-    rdkit_mol->replaceAtom(atom.idx, new_atom);
-    widget_data.update_status("Atom has been replaced.");
+    ctx.rdkit_mol->replaceAtom(atom.idx, new_atom);
+    ctx.widget_data.update_status("Atom has been replaced.");
 }
 
-void ElementInsertion::after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
-    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
-    widget_data.finalize_edition();
+void ElementInsertion::after_molecule_click(MoleculeClickContext& ctx) {
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.widget_data.finalize_edition();
 }
 
 std::string ElementInsertion::get_exception_message_prefix() const noexcept {
     return "Could not insert atom: ";
 }
 
-bool BondModifier::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
-    widget_data.begin_edition();
+bool BondModifier::on_molecule_click(MoleculeClickContext& ctx) {
+    ctx.widget_data.begin_edition();
     return true;
 }
 
-void BondModifier::on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) {
-    auto* rdkit_bond = rdkit_mol->getBondBetweenAtoms(bond.first_atom_idx,bond.second_atom_idx);
-    RDKit::MolOps::Kekulize(*rdkit_mol.get());
+void BondModifier::on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) {
+    auto* rdkit_bond = ctx.rdkit_mol->getBondBetweenAtoms(bond.first_atom_idx,bond.second_atom_idx);
+    RDKit::MolOps::Kekulize(*ctx.rdkit_mol.get());
     auto old_type = rdkit_bond->getBondType();
     rdkit_bond->setBondType(CanvasMolecule::bond_type_to_rdkit(this->get_target_bond_type()));
     try {
-        this->sanitize_molecule(widget_data, *rdkit_mol.get());
+        this->sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol.get());
     }catch(std::exception& e) {
         // rollback
         g_warning("Rolling back invalid molecule change that makes it unable to sanitize with the following error: %s",e.what());
         rdkit_bond->setBondType(old_type);
-        this->sanitize_molecule(widget_data, *rdkit_mol.get());
+        this->sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol.get());
         // rethrow
         throw std::runtime_error(std::string("Invalid bond modification: ") + e.what());
     }
-    widget_data.update_status("Bond has been altered.");
-    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
-    widget_data.finalize_edition();
+    ctx.widget_data.update_status("Bond has been altered.");
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.widget_data.finalize_edition();
 }
 
-void BondModifier::on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) {
-    this->begin_creating_bond(mol_idx, atom.idx);
+void BondModifier::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) {
+    this->begin_creating_bond(ctx.mol_idx, atom.idx);
 }
 
 std::string BondModifier::get_exception_message_prefix() const noexcept {
@@ -473,30 +474,30 @@ void BondModifier::on_release(ClickContext& ctx, int x, int y) {
     }
 }
 
-void GeometryModifier::on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) {
-    widget_data.begin_edition();
-    auto* rdkit_bond = rdkit_mol->getBondBetweenAtoms(bond.first_atom_idx,bond.second_atom_idx);
+void GeometryModifier::on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) {
+    ctx.widget_data.begin_edition();
+    auto* rdkit_bond = ctx.rdkit_mol->getBondBetweenAtoms(bond.first_atom_idx,bond.second_atom_idx);
 
     auto bond_geometry = CanvasMolecule::bond_geometry_from_rdkit(rdkit_bond->getBondDir());
     auto new_bond_geometry = CanvasMolecule::cycle_bond_geometry(bond_geometry);
     g_debug("Target bond geometry: %u",static_cast<unsigned int>(new_bond_geometry));
     rdkit_bond->setBondDir(CanvasMolecule::bond_geometry_to_rdkit(new_bond_geometry));
 
-    widget_data.update_status("Geometry of bond has been altered.");
-    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
+    ctx.widget_data.update_status("Geometry of bond has been altered.");
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
     g_debug("Final bond geometry: %u",static_cast<unsigned int>(CanvasMolecule::bond_geometry_from_rdkit(rdkit_bond->getBondDir())));
-    widget_data.finalize_edition();
+    ctx.widget_data.finalize_edition();
 }
 
 std::string GeometryModifier::get_exception_message_prefix() const noexcept {
     return "Could not alter bond geometry: ";
 }
 
-void ChargeModifier::on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) {
-    widget_data.begin_edition();
+void ChargeModifier::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) {
+    ctx.widget_data.begin_edition();
     // Do we need this here?
-    RDKit::MolOps::Kekulize(*rdkit_mol.get());
-    auto* rdkit_atom = rdkit_mol->getAtomWithIdx(atom.idx);
+    RDKit::MolOps::Kekulize(*ctx.rdkit_mol.get());
+    auto* rdkit_atom = ctx.rdkit_mol->getAtomWithIdx(atom.idx);
     int old_charge = rdkit_atom->getFormalCharge();
 
     const RDKit::PeriodicTable *table = RDKit::PeriodicTable::getTable();
@@ -544,47 +545,47 @@ void ChargeModifier::on_atom_click(impl::WidgetCoreData& widget_data, unsigned i
     g_info("Old formal charge: %i New formal charge: %i List: %s",old_charge,new_charge,valence_list_string.c_str());
     rdkit_atom->setFormalCharge(new_charge);
 
-    widget_data.update_status("Charge of atom has been altered.");
+    ctx.widget_data.update_status("Charge of atom has been altered.");
 
-    Tool::sanitize_molecule(widget_data, *rdkit_mol.get());
-    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
+    Tool::sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol.get());
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
 
-    widget_data.finalize_edition();
+    ctx.widget_data.finalize_edition();
 }
 
 std::string ChargeModifier::get_exception_message_prefix() const noexcept {
     return "Could not alter charge: ";
 }
 
-bool DeleteTool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
+bool DeleteTool::on_molecule_click(MoleculeClickContext& ctx) {
     // Cannot do it here
     // widget_data.begin_edition();
-    RDKit::MolOps::Kekulize(*rdkit_mol.get());
+    RDKit::MolOps::Kekulize(*ctx.rdkit_mol.get());
     return true;
 }
 
-void DeleteTool::on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) {
-    widget_data.begin_edition();
-    rdkit_mol->removeBond(bond.first_atom_idx, bond.second_atom_idx);
-    widget_data.update_status("Bond has been deleted.");
+void DeleteTool::on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) {
+    ctx.widget_data.begin_edition();
+    ctx.rdkit_mol->removeBond(bond.first_atom_idx, bond.second_atom_idx);
+    ctx.widget_data.update_status("Bond has been deleted.");
 }
 
-void DeleteTool::on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) {
-    if(rdkit_mol->getNumAtoms() > 1) {
-        widget_data.begin_edition();
+void DeleteTool::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) {
+    if(ctx.rdkit_mol->getNumAtoms() > 1) {
+        ctx.widget_data.begin_edition();
     }
-    rdkit_mol->removeAtom(atom.idx);
-    canvas_mol.update_cached_atom_coordinate_map_after_atom_removal(atom.idx);
-    widget_data.update_status("Atom has been deleted.");
+    ctx.rdkit_mol->removeAtom(atom.idx);
+    ctx.canvas_mol.update_cached_atom_coordinate_map_after_atom_removal(atom.idx);
+    ctx.widget_data.update_status("Atom has been deleted.");
 }
 
-void DeleteTool::after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
-    if(widget_data.is_in_edition()) {
-        Tool::sanitize_molecule(widget_data, *rdkit_mol.get());
-        canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
-        widget_data.finalize_edition();
+void DeleteTool::after_molecule_click(MoleculeClickContext& ctx) {
+    if(ctx.widget_data.is_in_edition()) {
+        Tool::sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol.get());
+        ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+        ctx.widget_data.finalize_edition();
     } else {
-        widget_data.delete_molecule_with_idx(mol_idx);
+        ctx.widget_data.delete_molecule_with_idx(ctx.mol_idx);
     }
 }
 
@@ -654,16 +655,17 @@ void StructureInsertion::append_structure_to_atom(RDKit::RWMol* rdkit_mol_ptr, u
 }
 
 
-bool StructureInsertion::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
-    widget_data.begin_edition();
-    RDKit::MolOps::Kekulize(*rdkit_mol.get());
+bool StructureInsertion::on_molecule_click(MoleculeClickContext& ctx) {
+    ctx.widget_data.begin_edition();
+    RDKit::MolOps::Kekulize(*ctx.rdkit_mol.get());
     return true;
 }
 
-void StructureInsertion::on_bond_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Bond& bond) {
+void StructureInsertion::on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) {
     auto last_carbon = bond.second_atom_idx;
     auto first_carbon = bond.first_atom_idx;
     auto structure_kind = this->get_structure();
+    auto& rdkit_mol = ctx.rdkit_mol;
     auto* rdkit_mol_ptr = rdkit_mol.get();
     switch (structure_kind) {
         case Structure::CycloPropaneRing: {
@@ -705,18 +707,18 @@ void StructureInsertion::on_bond_click(impl::WidgetCoreData& widget_data, unsign
             break;
         }
     }
-    widget_data.update_status("Carbon ring has been added, adjacent to the bond.");
+    ctx.widget_data.update_status("Carbon ring has been added, adjacent to the bond.");
 }
 
-void StructureInsertion::on_atom_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol, CanvasMolecule::Atom& atom) {
-    this->append_structure_to_atom(rdkit_mol.get(),atom.idx);
-    widget_data.update_status("Carbon ring has been appended to the atom.");
+void StructureInsertion::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) {
+    this->append_structure_to_atom(ctx.rdkit_mol.get(),atom.idx);
+    ctx.widget_data.update_status("Carbon ring has been appended to the atom.");
 }
 
-void StructureInsertion::after_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
-    this->sanitize_molecule(widget_data, *rdkit_mol);
-    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
-    widget_data.finalize_edition();
+void StructureInsertion::after_molecule_click(MoleculeClickContext& ctx) {
+    this->sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol);
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.widget_data.finalize_edition();
 }
 
 std::string StructureInsertion::get_exception_message_prefix() const noexcept {
@@ -741,13 +743,13 @@ void StructureInsertion::on_blank_space_click(ClickContext& ctx, int x, int y) {
     }
 }
 
-bool RemoveHydrogensTool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
-    widget_data.begin_edition();
-    ligand_editor::remove_non_polar_hydrogens(rdkit_mol.get());
-    this->sanitize_molecule(widget_data, *rdkit_mol);
-    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
-    widget_data.finalize_edition();
-    widget_data.update_status("Non-polar hydrogens have been removed.");
+bool RemoveHydrogensTool::on_molecule_click(MoleculeClickContext& ctx) {
+    ctx.widget_data.begin_edition();
+    ligand_editor::remove_non_polar_hydrogens(ctx.rdkit_mol.get());
+    this->sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol);
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.widget_data.finalize_edition();
+    ctx.widget_data.update_status("Non-polar hydrogens have been removed.");
     return false;
 }
 
@@ -756,12 +758,12 @@ std::string RemoveHydrogensTool::get_exception_message_prefix() const noexcept {
 }
 
 
-bool FlipTool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
-    widget_data.begin_edition();
-    canvas_mol.perform_flip(this->mode);
-    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
-    widget_data.finalize_edition();
-    widget_data.update_status("Molecule has been flipped.");
+bool FlipTool::on_molecule_click(MoleculeClickContext& ctx) {
+    ctx.widget_data.begin_edition();
+    ctx.canvas_mol.perform_flip(this->mode);
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.widget_data.finalize_edition();
+    ctx.widget_data.update_status("Molecule has been flipped.");
     return false;
 }
 
@@ -770,12 +772,12 @@ std::string FlipTool::get_exception_message_prefix() const noexcept {
 }
 
 
-bool FormatTool::on_molecule_click(impl::WidgetCoreData& widget_data, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol) {
-    widget_data.begin_edition();
-    canvas_mol.clear_cached_atom_coordinate_map();
-    canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
-    widget_data.finalize_edition();
-    widget_data.update_status("Molecule has been formatted.");
+bool FormatTool::on_molecule_click(MoleculeClickContext& ctx) {
+    ctx.widget_data.begin_edition();
+    ctx.canvas_mol.clear_cached_atom_coordinate_map();
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.widget_data.finalize_edition();
+    ctx.widget_data.update_status("Molecule has been formatted.");
     return false;
 }
 
