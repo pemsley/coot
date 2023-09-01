@@ -568,10 +568,15 @@ std::string ChargeModifier::get_exception_message_prefix() const noexcept {
 }
 
 bool DeleteTool::on_molecule_click(MoleculeClickContext& ctx) {
-    // Cannot do it here
-    // widget_data.begin_edition();
-    RDKit::MolOps::Kekulize(*ctx.rdkit_mol.get());
-    return true;
+    if(ctx.control_pressed) {
+        ctx.widget_data.delete_molecule_with_idx(ctx.mol_idx);
+        return false;
+    } else {
+        // Cannot do it here
+        // widget_data.begin_edition();
+        RDKit::MolOps::Kekulize(*ctx.rdkit_mol.get());
+        return true;
+    }
 }
 
 void DeleteTool::on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) {
