@@ -711,9 +711,23 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
                     } else {
                         angle_one += complement_angle;
                     }
+                    if(angle_one < 0) {
+                        angle_one += M_PI;
+                        // if(angle_two - angle_one < 0) {
+                        //     std::swap(angle_one, angle_two);
+                        // }
+                    }
+                    g_debug(
+                        "theta=%f, a1=%f, a2=%f a2-a1=%f abs(a2-a1)=%f",
+                        complement_angle / M_PI * 180.f,
+                        angle_one / M_PI * 180.f,
+                        angle_two / M_PI * 180.f,
+                        (angle_two - angle_one) / M_PI * 180.f,
+                        std::fabs(angle_two - angle_one) / M_PI * 180.f
+                    );
                     cairo_new_sub_path(cr);
                     cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
-                    g_debug("angle: %f",complement_angle);
+                    //g_debug("angle: %f",complement_angle);
                     cairo_stroke(cr);
                     break;
                 }
