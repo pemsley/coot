@@ -185,7 +185,7 @@ static gboolean on_scroll(GtkEventControllerScroll* zoom_controller, gdouble dx,
 }
 
 static void
-on_left_click_released (
+on_left_click_released(
   GtkGestureClick* gesture_click,
   gint n_press,
   gdouble x,
@@ -202,10 +202,10 @@ on_left_click_released (
     }
 
     // `currently_created_bond` gets cleared here when appropriate
-    self->active_tool->on_release(GDK_CONTROL_MASK & modifiers, x, y);
+    self->active_tool->on_release(GDK_CONTROL_MASK & modifiers, x, y, false);
 }
 
-static void on_left_click (
+static void on_left_click(
   GtkGestureClick* gesture_click,
   gint n_press,
   gdouble x,
@@ -224,7 +224,7 @@ static void on_left_click (
         return;
     }
 
-    self->active_tool->on_click(GDK_CONTROL_MASK & modifiers, x, y);
+    self->active_tool->on_click(GDK_CONTROL_MASK & modifiers, x, y, false);
 
     if(self->active_tool->is_creating_bond()) {
         CurrentlyCreatedBond new_bond;
@@ -239,6 +239,36 @@ static void on_left_click (
     //gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_CLAIMED);
 }
 
+static void
+on_right_click_released(
+  GtkGestureClick* gesture_click,
+  gint n_press,
+  gdouble x,
+  gdouble y,
+  gpointer user_data
+) {
+    CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(gesture_click));
+    GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+
+    self->active_tool->on_release(GDK_CONTROL_MASK & modifiers, x, y, true);
+}
+
+static void on_right_click(
+  GtkGestureClick* gesture_click,
+  gint n_press,
+  gdouble x,
+  gdouble y,
+  gpointer user_data
+) {
+    CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+    GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(gesture_click));
+    GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+
+
+    self->active_tool->on_click(GDK_CONTROL_MASK & modifiers, x, y, true);
+}
+
 
 
 static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
@@ -247,20 +277,27 @@ static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
     // GObject doesn't run C++ constructors upon allocation
     // so we take care of this ourselves
     coot_ligand_editor_canvas_init_impl(self);
-    GtkGesture* click_controller = gtk_gesture_click_new();
+    GtkGesture* left_click_controller = gtk_gesture_click_new();
+    GtkGesture* right_click_controller = gtk_gesture_click_new();
     GtkEventController* hover_controller = gtk_event_controller_motion_new();
     GtkEventController* zoom_controller = gtk_event_controller_scroll_new(GTK_EVENT_CONTROLLER_SCROLL_VERTICAL);
 
     // left mouse button
-    gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(click_controller),GDK_BUTTON_PRIMARY);
-    g_signal_connect(click_controller,"pressed",G_CALLBACK(on_left_click),self);
-    g_signal_connect(click_controller,"released",G_CALLBACK(on_left_click_released),self);
+    gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(left_click_controller),GDK_BUTTON_PRIMARY);
+    g_signal_connect(left_click_controller,"pressed",G_CALLBACK(on_left_click),self);
+    g_signal_connect(left_click_controller,"released",G_CALLBACK(on_left_click_released),self);
+
+    //right mouse button
+    gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(right_click_controller),GDK_BUTTON_SECONDARY);
+    g_signal_connect(right_click_controller,"pressed",G_CALLBACK(on_right_click),self);
+    g_signal_connect(right_click_controller,"released",G_CALLBACK(on_right_click_released),self);
 
     g_signal_connect(hover_controller,"motion",G_CALLBACK(on_hover),self);
 
     g_signal_connect(zoom_controller, "scroll",G_CALLBACK(on_scroll), self);
 
-    gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(click_controller));
+    gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(left_click_controller));
+    gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(right_click_controller));
     gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(hover_controller));
     gtk_widget_add_controller(GTK_WIDGET(self), GTK_EVENT_CONTROLLER(zoom_controller));
 }

@@ -65,12 +65,17 @@ Tool::MoleculeClickContext::MoleculeClickContext(ClickContext super, unsigned in
     this->mol_idx = mol_idx;
 }
 
-void ActiveTool::on_click(bool ctrl_pressed, int x, int y) {
+void ActiveTool::on_click(bool ctrl_pressed, int x, int y, bool right_click) {
     if(!this->tool) {
         return;
     }
     Tool::ClickContext ctx(*this->widget_data);
     ctx.control_pressed = ctrl_pressed;
+
+    if(right_click) {
+        g_warning("todo: Add support for right-clicks in the tools API (when needed).");
+        return;
+    }
 
     this->tool->on_click(ctx, x, y);
     auto click_result = this->widget_data->resolve_click(x, y);
@@ -102,12 +107,17 @@ void ActiveTool::on_click(bool ctrl_pressed, int x, int y) {
     }
 }
 
-void ActiveTool::on_release(bool ctrl_pressed, int x, int y) {
+void ActiveTool::on_release(bool ctrl_pressed, int x, int y, bool right_click) {
     if(!this->tool) {
         return;
     }
     Tool::ClickContext ctx(*this->widget_data);
     ctx.control_pressed = ctrl_pressed;
+
+    if(right_click) {
+        g_warning("todo: Add support for right-clicks in the tools API (when needed).");
+        return;
+    }
 
     this->tool->on_release(ctx, x, y);
 }

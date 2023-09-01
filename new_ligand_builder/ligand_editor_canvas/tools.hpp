@@ -286,9 +286,9 @@ class ActiveTool {
     ActiveTool(RemoveHydrogensTool) noexcept;
 
     /// Handles mouse click event for the currently chosen tool
-    void on_click(bool ctrl_pressed, int x, int y);
+    void on_click(bool ctrl_pressed, int x, int y, bool right_click);
     /// Handles mouse-release event for the currently chosen tool
-    void on_release(bool ctrl_pressed, int x, int y);
+    void on_release(bool ctrl_pressed, int x, int y, bool right_click);
 
     /// Returns true if a new bond is currently being create via click'n'drag
     bool is_creating_bond() const noexcept;
