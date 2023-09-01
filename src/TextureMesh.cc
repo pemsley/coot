@@ -420,7 +420,7 @@ TextureMesh::draw(Shader *shader_p,
                   const glm::vec4 &background_colour,
                   bool do_depth_fog) {
 
-   // std::cout << "Here in TextureMesh::draw() " << name << std::endl;
+   // std::cout << "Here in TextureMesh::draw() " << name << " with shader " << shader_p->name  << std::endl;
 
    if (! draw_this_mesh) return;
 

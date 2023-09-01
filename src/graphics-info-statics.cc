@@ -553,7 +553,7 @@ bool graphics_info_t::show_pointer_distances_flag = false;
 float graphics_info_t::extra_distance_restraint_penalty_cutoff = 0.01; // draw them all to start with
 bool graphics_info_t::show_extra_distance_restraints_flag = true;
 std::vector<extra_distance_restraint_markup_instancing_data_t> graphics_info_t::extra_distance_restraints_markup_data;
-Mesh graphics_info_t::mesh_for_extra_distance_restraints; // draw this with instancing
+Mesh graphics_info_t::mesh_for_extra_distance_restraints = Mesh("mesh_for_extra_distance_restraints"); // draw this with instancing
 
 
 // Go to Atom widget:
@@ -718,6 +718,7 @@ int graphics_info_t::imol_moving_atoms = 0;
 coot::extra_restraints_representation_t graphics_info_t::moving_atoms_extra_restraints_representation;
 
 bool graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object = false;
+bool graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object_user_control = false;
 int graphics_info_t::imol_refinement_map = -1; // magic initial value "None set"
                                                // checked in graphics_info_t::refine()
 
@@ -1614,6 +1615,9 @@ std::vector<glm::vec3> graphics_info_t::happy_face_residue_marker_starting_posit
 TextureMesh graphics_info_t::tmesh_for_bad_nbc_atom_pair_markers = TextureMesh("tmesh-for-angry-diego");
 Texture graphics_info_t::texture_for_bad_nbc_atom_pair_markers;
 std::vector<glm::vec3> graphics_info_t::bad_nbc_atom_pair_marker_positions;
+
+TextureMesh graphics_info_t::tmesh_for_chiral_volume_outlier_markers = TextureMesh("tmesh-chiral-volume-outliers");
+Texture graphics_info_t::texture_for_chiral_volume_outlier_markers;
 
 TextureMesh graphics_info_t::tmesh_for_anchored_atom_markers = TextureMesh("tmesh-for-anchored-atoms");
 Texture graphics_info_t::texture_for_anchored_atom_markers;

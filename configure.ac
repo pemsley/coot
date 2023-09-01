@@ -473,6 +473,7 @@ glTF/Makefile
 pixmaps/Makefile
 pixmaps/icons/Makefile
 textures/Makefile
+sounds/Makefile
 rama-data/Makefile
 man/Makefile
 api/Makefile

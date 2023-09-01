@@ -5,6 +5,8 @@
 #include <atomic>
 #include <array>
 
+#include "compat/coot-sysdep.h"
+
 #include <clipper/core/xmap.h>
 #include "utils/ctpl.h"
 #include "coot-utils/atom-selection-container.hh"
@@ -41,27 +43,15 @@
 #include "coot-utils/coot-map-utils.hh" // for map_molecule_centre_info_t
 #include "api-cell.hh" // 20230702-PE not needed in this file - remove it from here
 
+#include "bond-colour.hh"
+
 // 2023-07-04-PE This is a hack. This should be configured - and the
 // various functions that depend on this being true should be
 // reworked so that they run without a thread pool.
 #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
-namespace coot {
 
-   // give this a type
-   enum api_bond_colour_t { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
-      COLOUR_BY_CHAIN_BONDS=3,
-      CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
-      BONDS_NO_HYDROGENS=15,
-      CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR=7,
-      CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR=14,
-      CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS=17,
-      COLOUR_BY_MOLECULE_BONDS=8,
-      COLOUR_BY_RAINBOW_BONDS=9,
-      COLOUR_BY_B_FACTOR_BONDS=10,
-      COLOUR_BY_OCCUPANCY_BONDS=11,
-      COLOUR_BY_USER_DEFINED_COLOURS____BONDS=12,
-      COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS=13 };
+namespace coot {
 
    class molecule_t {
 
@@ -173,9 +163,9 @@ namespace coot {
       void make_bonds_type_checked(protein_geometry *geom, rotamer_probability_tables *rot_prob_tables_p, bool draw_hydrogen_atoms_flag, bool draw_missing_loops_flag, const char *s = 0);
 #endif
 
-      int bonds_box_type; // public accessable via get_bonds_box_type(); // wass Bonds_box_type()
+      api_bond_colour_t bonds_box_type; // public accessable via get_bonds_box_type(); // wass Bonds_box_type()
       graphical_bonds_container bonds_box;
-      int get_bonds_box_type() const { return bonds_box_type; }
+      api_bond_colour_t get_bonds_box_type() const { return bonds_box_type; }
 
       // this is the bond dictionary also mode.
       // 20221011-PE force_rebonding arg is not currently used.
@@ -192,7 +182,7 @@ namespace coot {
       // just a copy of the version in src
       float bonds_colour_map_rotation;
       // std::vector<glm::vec4> make_colour_table(bool against_a_dark_background) const; public now
-      glm::vec4 get_bond_colour_by_colour_wheel_position(int icol, int bonds_box_type) const;
+      glm::vec4 get_bond_colour_by_colour_wheel_position(int icol, api_bond_colour_t bonds_box_type) const;
       colour_t get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) const;
       colour_t get_bond_colour_basic(int colour_index, bool against_a_dark_background) const;
       bool use_bespoke_grey_colour_for_carbon_atoms;
@@ -341,7 +331,7 @@ namespace coot {
       void init() {
          // set the imol before calling this function.
          ligand_flip_number = 0;
-         bonds_box_type = UNSET_TYPE;
+         bonds_box_type = api_bond_colour_t::UNSET_TYPE;
          is_em_map_cached_flag = false;
          xmap_is_diff_map = false;
          is_from_shelx_ins_flag = false;

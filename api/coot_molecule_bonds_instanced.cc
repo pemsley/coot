@@ -11,13 +11,13 @@
 
 void
 make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add to this
-                                     const graphical_bonds_container &gbc,
-                                     int bonds_box_type,
-                                     int udd_handle_bonded_type,
-                                     float base_atom_radius,
-                                     float base_bond_radius,
-                                     unsigned int num_subdivisions,
-                                     const std::vector<glm::vec4> &colour_table) {
+                                               const graphical_bonds_container &gbc,
+                                               coot::api_bond_colour_t bonds_box_type,
+                                               int udd_handle_bonded_type,
+                                               float base_atom_radius,
+                                               float base_bond_radius,
+                                               unsigned int num_subdivisions,
+                                               const std::vector<glm::vec4> &colour_table) {
 
    // 20230114-PE
    // copied and edited from from src/Mesh-from-graphical-bonds-instanced.cc
@@ -82,13 +82,13 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
 
 void
 make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, // add to this
-                                     const graphical_bonds_container &gbc,
-                                     int bonds_box_type,
-                                     int udd_handle_bonded_type,
-                                     float atom_radius,
-                                     float bond_radius,
-                                     unsigned int num_subdivisions,
-                                     const std::vector<glm::vec4> &colour_table) {
+                                                   const graphical_bonds_container &gbc,
+                                                   coot::api_bond_colour_t bonds_box_type,
+                                                   int udd_handle_bonded_type,
+                                                   float atom_radius,
+                                                   float bond_radius,
+                                                   unsigned int num_subdivisions,
+                                                   const std::vector<glm::vec4> &colour_table) {
 
    return; // 20230224-PE every atom is spherical for the moment.
 
@@ -364,7 +364,7 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
    }
 
 
-   bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
+   bonds_box_type = coot::api_bond_colour_t::COLOUR_BY_CHAIN_BONDS;
 
    std::set<int> no_bonds_to_these_atoms = no_bonds_to_these_atom_indices; // weird that this is not passed.
 
@@ -425,7 +425,7 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
 
    if (mode == "USER-DEFINED-COLOURS") {
 
-      std::cout << "---------------  in get_bonds_mesh_instanced() C mode is " << mode << " bonds_box_type is " << bonds_box_type << std::endl;
+      std::cout << "---------------  in get_bonds_mesh_instanced() C mode is " << mode << " bonds_box_type is " << int(bonds_box_type) << std::endl;
       bool force_rebond = true;
       bool do_rotamer_markup = false; // pass this
       // don't do rotamer dodecs
@@ -435,11 +435,11 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
          std::cout << "ERROR:: in get_bonds_mesh() wrong udd data type " << udd_handle_bonded_type << std::endl;
          return m;
       }
-      std::cout << "---------------  in get_bonds_mesh_instanced() D mode is " << mode << " bonds_box_type is " << bonds_box_type << std::endl;
+      std::cout << "---------------  in get_bonds_mesh_instanced() D mode is " << mode << " bonds_box_type is " << int(bonds_box_type) << std::endl;
       make_colour_by_chain_bonds(geom, no_bonds_to_these_atoms, true, false, draw_hydrogen_atoms_flag,
                                  draw_missing_residue_loops_flag, do_rotamer_markup, nullptr, force_rebond);
-      bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS;
-      std::cout << "---------------  in get_bonds_mesh_instanced() E mode is " << mode << " bonds_box_type is " << bonds_box_type << std::endl;
+      bonds_box_type = coot::api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS____BONDS;
+      std::cout << "---------------  in get_bonds_mesh_instanced() E mode is " << mode << " bonds_box_type is " << int(bonds_box_type) << std::endl;
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
       make_instanced_graphical_bonds_spherical_atoms(m, bonds_box, bonds_box_type, udd_handle_bonded_type,
                                                      atom_radius, bond_radius, num_subdivisions, colour_table);

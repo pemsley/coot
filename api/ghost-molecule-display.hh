@@ -11,10 +11,8 @@ namespace coot {
       clipper::RTop_orth rtop;
       int SelectionHandle;
       graphical_bonds_container bonds_box;
-#ifdef EMSCRIPTEN
-#else
       // Mesh mesh; 20221025-PE not in this directory
-#endif
+
       std::string name;
       std::string chain_id;
       std::string target_chain_id;  // this operator matches to this chain.
@@ -29,8 +27,9 @@ namespace coot {
 	 display_it_flag = 1;
       }
       void update_bonds(mmdb::Manager *mol); // the parent's mol
-#ifndef EMSCRIPTEN
-#if 0 // 20221025-PE  Hmm.
+
+#if 0 // 20221025-PE  Hmm. When using this class in src, from this class and add a draw()
+      // function
       void draw(Shader *shader,
                 const glm::mat4 &mvp,
                 const glm::mat4 &view_rotation_matrix,
@@ -38,7 +37,7 @@ namespace coot {
                 const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                 const glm::vec4 &background_colour);
 #endif
-#endif
+
       bool is_empty() { return (SelectionHandle == -1); }
       ncs_residue_info_t get_differences(mmdb::Residue *this_residue_p,
 					 mmdb::Residue *master_residue_p,

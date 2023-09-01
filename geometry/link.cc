@@ -882,6 +882,34 @@ coot::protein_geometry::print_chem_links() const {
 }
 
 
+// can throw a std::runtime_error
+coot::chem_link
+coot::protein_geometry::get_chem_link(const std::string &link_id) const {
+
+   coot::chem_link clf;
+   bool found = false;
+   // why do the chem links have an int key?
+   std::map<unsigned int, std::vector<chem_link> >::const_iterator it;
+   for (it=chem_link_map.begin(); it!=chem_link_map.end(); ++it) {
+      const std::vector<chem_link> &v = it->second;
+      std::vector<chem_link>::const_iterator itv;
+      for (itv=v.begin(); itv!=v.end(); ++itv) {
+         const chem_link &cl = *itv;
+         if (cl.id == link_id ) {
+            clf = cl;
+            found = true;
+            break;
+         }
+      }
+   }
+   if (! found) {
+      std::string message = "Failed to find link with id " + link_id + " in the chem links";
+      throw std::runtime_error(message);
+   }
+   return clf;
+}
+
+
 
 bool
 coot::protein_geometry::linkable_residue_types_p(const std::string &this_res_type,

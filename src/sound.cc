@@ -9,6 +9,8 @@
 #include <alsa/asoundlib.h>
 #endif
 
+#include "utils/coot-utils.hh"
+
 void
 play_sound_file(const std::string &file_name) {
 
@@ -92,11 +94,32 @@ play_sound_file(const std::string &file_name) {
       }
    };
 
-   std::thread t(play_sound_file_inner, file_name);
+   std::string fn = file_name;
+   if (coot::file_exists(fn)) {
+      // do nothing
+   } else {
+      // try to find it in the installation
+      std::string dir = coot::package_data_dir();
+      std::string sounds_dir = coot::util::append_dir_dir(dir, "sounds");
+      fn = coot::util::append_dir_file(sounds_dir, fn);
+   }
+
+   std::thread t(play_sound_file_inner, fn);
    t.detach();
 #endif
 
 }
+
+void play_sound(const std::string &type) {
+
+   if (type == "SUCCESS") play_sound_file("538554_3725923-lq-Sjonas88-success.ogg");
+   if (type == "CLICK")   play_sound_file("538548_3725923-lq-Sjonas-Select-3.ogg");
+   if (type == "TINK")    play_sound_file("538549_3725923-lq-Sjonas-Select-2.ogg");
+   if (type == "STARS")   play_sound_file("538553_3725923-lq-Sjonas88-Stars.ogg");
+   if (type == "OOPS")    play_sound_file("538550_3725923-lq-Sjonas88-Deep-tone.ogg");
+
+}
+
 
 int test_sound(int argc, char **argv) {
 

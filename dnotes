@@ -3996,8 +3996,11 @@ INFO::
      make clean && make
    o make dist to make a tar-ball
         Use this to untar and make a build - this will test that the tarball has
-        all the files before commit: cd ../build-test-dist and untar it there, copy into
-        the new directory the script configure-it. configure and make check
+        all the files before commit:
+        cd ../build-test-dist
+        and untar it there
+        copy into the new directory the script configure-it.
+        configure and make check
    o git status # what did you forget to add?
    o are the shaders up to date?
    o Is the glade file up to date? (header-bars)
@@ -11044,4 +11047,12 @@ Tue  1 Aug 2023 02:02:39 BST
 MacOS linking notes
 
 https://stackoverflow.com/questions/33991581/install-name-tool-to-update-a-executable-to-search-for-dylib-in-mac-os-x
+
+
+---
+Sat 26 Aug 15:38:09 BST 2023
+
+  For the old morphing method:
+  Here is how to handle the averaging of the fragment rotations.
+  https://stackoverflow.com/questions/12374087/average-of-multiple-quaternions
 

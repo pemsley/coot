@@ -12,6 +12,8 @@
 #include <ssm/ssm_align.h>
 #endif
 
+#include "compat/coot-sysdep.h"
+
 #include "coords/Cartesian.h"
 #include "coords/ramachandran-container.hh"
 #include "coot_molecule.hh"

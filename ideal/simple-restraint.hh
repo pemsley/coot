@@ -1095,6 +1095,13 @@ namespace coot {
    inverted_chiral_volumes(int imol, mmdb::Manager *mol, protein_geometry *geom_p,
                            int cif_dictionary_read_number);
 
+   // make restraints and get distortions. chiral_volume_limit_for_outlier
+   // should/might be about 2.0.
+   // the spec for the chiral atom and its distortion
+   std::pair<std::vector<std::string> , std::vector<std::pair<atom_spec_t, double> > >
+   distorted_chiral_volumes(int imol, mmdb::Manager *mol, protein_geometry *geom_p,
+                            int cif_dictionary_read_number,
+                            double chiral_volume_limit_for_outlier);
 
 
    // -------------------------------------------------------------------------

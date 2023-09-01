@@ -31,8 +31,9 @@ dist_coottexture_DATA = \
 	rama-plot-gly-normal.png rama-plot-gly-outlier.png \
 	rama-plot-other-normal.png rama-plot-other-outlier.png \
 	rama-standard-inverted.png \
-	hud-label-NBC-small.png hud-label-pull-small.png \
+	hud-label-NBC-small.png hud-label-pull-small.png\
+	hud-label-chiral-small.png \
 	hud-label-rama-small.png hud-label-rota-small.png \
 	anchor-for-fixed-atoms.png \
 	refinement-dialog-arrrow-highlighted.png refinement-dialog-arrrow.png \
-        angry-diego.svg angry-diego.png
+        angry-diego.svg angry-diego.png chiral-volume-outlier-marker.png

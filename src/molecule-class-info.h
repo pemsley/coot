@@ -43,9 +43,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 //#include "mmdb-extras.h"
 //#include "mmdb.h"
 
-#ifndef EMSCRIPTEN
 #include <epoxy/gl.h>
-#endif
 
 #include <glm/glm.hpp>
 
@@ -76,21 +74,19 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "coords/mmdb-crystal.h"
 #include "coords/Bond_lines.h"
 
-#ifndef EMSCRIPTEN
 #include "gtk-manual.h"
-#endif
 
 #include "mini-mol/mini-mol.hh"
 #include "build/CalphaBuild.hh"
-#ifndef EMSCRIPTEN
 #include "coot-render.hh" // 20220723-PE no graphics for WebAssembly build
-#endif
+
 // #include "coot-surface/coot-surface.hh" dead now
 #include "coot-align.hh"
 #include "utils/coot-fasta.hh"
 #include "coot-utils/coot-shelx.hh"
 #include "utils/coot-utils.hh"
 #include "utils/pir-alignment.hh"
+#include "api/ghost-molecule-display.hh"
 
 #include "protein_db/protein_db_utils.h"
 
@@ -108,36 +104,28 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "ligand/rotamer.hh" // in ligand, for rotamer probabilty tables
 
 
-#ifndef EMSCRIPTEN
 #include "validation-graphs/validation-graphs.hh"  // GTK things, now part of
 				 // molecule_class_info_t, they used
 				 // to be part of graphics_info_t before the
                                  // array->vector change-over.
-#endif
 
 #include "ligand/dipole.hh"
 #include "density-contour/density-contour-triangles.hh"
 
 #include "coot-utils/sfcalc-genmap.hh"
 
-#ifndef EMSCRIPTEN
 #include "gl-bits.hh"
-#endif
 
 #include "pli/flev-annotations.hh" // animated ligand interactions
 
-#ifndef EMSCRIPTEN
 #include "pick.hh"
-#endif
 
 #include "dots-representation.hh"
 #include "named-rotamer-score.hh"
 
 #include "c-interface-sequence.hh"
 #include "map-statistics.hh"
-#ifndef EMSCRIPTEN
 #include "animated-ligand.hh"
-#endif
 
 #include "array-2d.hh"
 
@@ -159,19 +147,18 @@ namespace molecule_map_type {
 #include "merge-molecule-results-info-t.hh"
 #include "density-results-container-t.hh"
 
-#ifndef EMSCRIPTEN
 #include "Shader.hh"
-#endif
 
 #include "updating-map-params.hh"
-#ifndef EMSCRIPTEN
+
 #include "updating-coordinates-molecule-parameters.hh"
 #include "cmtz-interface.hh" // for udating molecules
-#endif
+
 #include "clipper-ccp4-map-file-wrapper.hh"
 #include "model-composition-statistics.hh"
 
 #include "coot-utils/g_triangle.hh"
+#include "model-molecule-meshes.hh"
 
 #include "fresnel-settings.hh"
 
@@ -179,6 +166,8 @@ glm::vec3 cartesian_to_glm(const coot::Cartesian &c);
 
 namespace coot {
 
+   // c.f. Bond_lines.h coords_bond_colour_t and api/bond-colour.hh - what a mess.
+   //
    enum { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
 	  COLOUR_BY_CHAIN_BONDS=3,
 	  CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
@@ -191,7 +180,9 @@ namespace coot {
 	  COLOUR_BY_B_FACTOR_BONDS=10,
 	  COLOUR_BY_OCCUPANCY_BONDS=11,
 	  COLOUR_BY_USER_DEFINED_COLOURS____BONDS=12,
-	  COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS=13 };
+	  COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS=13,
+          COLOUR_BY_CHAIN_GOODSELL_BONDS=21
+   };
 
    enum { RESIDUE_NUMBER_UNSET = -1111};
 
@@ -208,43 +199,6 @@ namespace coot {
 	 status = 0; // initially no backup reported
          imol = -1;
       }
-   };
-
-   class ghost_molecule_display_t {
-   public:
-      clipper::RTop_orth rtop;
-      int SelectionHandle;
-      graphical_bonds_container bonds_box;
-#ifndef EMSCRIPTEN
-      Mesh mesh;
-#endif
-      std::string name;
-      std::string chain_id;
-      std::string target_chain_id;  // this operator matches to this chain.
-      bool display_it_flag;
-      std::vector<int> residue_matches;
-      ghost_molecule_display_t() {
-         SelectionHandle = -1;
-	 display_it_flag = false; }
-      ghost_molecule_display_t(const clipper::RTop_orth &rtop_in,
-			       int SelHnd_in,
-			       const std::string &name_in) : rtop(rtop_in), SelectionHandle(SelHnd_in), name(name_in) {
-	 display_it_flag = 1;
-      }
-      void update_bonds(mmdb::Manager *mol); // the parent's mol
-#ifndef EMSCRIPTEN
-      void draw(Shader *shader,
-                const glm::mat4 &mvp,
-                const glm::mat4 &view_rotation_matrix,
-                const std::map<unsigned int, lights_info_t> &lights,
-                const glm::vec3 &eye_position, // eye position in view space (not molecule space)
-                const glm::vec4 &background_colour);
-#endif
-      bool is_empty() { return (SelectionHandle == -1); }
-      ncs_residue_info_t get_differences(mmdb::Residue *this_residue_p,
-					 mmdb::Residue *master_residue_p,
-					 float main_chain_weight) const;
-      friend std::ostream& operator<<(std::ostream &s, const ghost_molecule_display_t &ghost);
    };
 
    std::ostream& operator<<(std::ostream &s, const ghost_molecule_display_t &ghost);
@@ -302,11 +256,9 @@ namespace coot {
 
 #include "coot-utils/cylinder.hh"
 
-#ifndef EMSCRIPTEN
 #include "Mesh.hh"
 #include "LinesMesh.hh"
 #include "Instanced-Markup-Mesh.hh"
-#endif
 
 bool trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 			    const std::pair<clipper::RTop_orth, float> &b);
@@ -683,8 +635,13 @@ public:        //                      public
 
    // we should dump this constructor in the skip then.
    // it does not set imol_no;
-   molecule_class_info_t() {
-
+   molecule_class_info_t() :
+      map_as_mesh(Mesh("map-as-mesh")),
+      map_as_mesh_gl_lines_version(Mesh("map-as-mesh-gl-lines")),
+      mesh_for_symmetry_atoms(Mesh("mesh-for-symmetry-atoms")),
+      molecule_as_mesh_rama_balls(Mesh("molecule_as_mesh_rama_balls")),
+      molecule_as_mesh_rota_dodecs(Mesh("molecule_as_mesh_rota_dodecs"))
+   {
       setup_internal();
       // give it a pointer to something at least *vagely* sensible
       // (better than pointing at -129345453).
@@ -694,8 +651,13 @@ public:        //                      public
 
    // See graphics_info_t::initialize_graphics_molecules()
    //
-   molecule_class_info_t(int i) {
-
+   molecule_class_info_t(int i) :
+      map_as_mesh(Mesh("map-as-mesh")),
+      map_as_mesh_gl_lines_version(Mesh("map-as-mesh-gl-lines")),
+      mesh_for_symmetry_atoms(Mesh("mesh-for-symmetry-atoms")),
+      molecule_as_mesh_rama_balls(Mesh("molecule_as_mesh_rama_balls")),
+      molecule_as_mesh_rota_dodecs(Mesh("molecule_as_mesh_rota_dodecs"))
+   {
       setup_internal();
       imol_no = i;
    }
@@ -823,9 +785,7 @@ public:        //                      public
 			  float map_sampling_rate,
                           bool updating_existing_map_flag=false);
 
-#ifndef EMSCRIPTEN
    void map_fill_from_mtz(const coot::mtz_to_map_info_t &mmi, const std::string &wcd, float sampling_rate);
-#endif
 
    void map_fill_from_mtz_with_reso_limits(std::string mtz_file_name,
 					   std::string cwd,
@@ -953,9 +913,7 @@ public:        //                      public
    std::vector<coot::atom_spec_t> fixed_atom_specs;
    std::vector<coot::Cartesian>   fixed_atom_positions; // updated on make_bonds_type_checked()
    void update_fixed_atom_positions();
-#ifndef EMSCRIPTEN
    void update_additional_representations(const gl_context_info_t &gl_info, const coot::protein_geometry *geom);
-#endif
    void update_mols_in_additional_representations(); //uses atom_sel.mol
    void draw_fixed_atom_positions() const;
    void clear_all_fixed_atoms();
@@ -1028,10 +986,7 @@ public:        //                      public
    mmdb::Atom *get_atom(const coot::atom_spec_t &atom_spec) const;
 
    mmdb::Atom *get_atom(int idx) const;
-
-#ifndef EMSCRIPTEN
    mmdb::Atom *get_atom(const pick_info &pi) const;
-#endif
 
    bool have_atom_close_to_position(const coot::Cartesian &pos) const;
 
@@ -1126,7 +1081,6 @@ public:        //                      public
    // void draw_map_unit_cell(const coot::colour_holder &cell_colour);
    // void draw_unit_cell_internal(float rsc[8][3]);
 
-#ifndef EMSCRIPTEN
    LinesMesh lines_mesh_for_cell;
    void setup_unit_cell();
    void draw_unit_cell(Shader *shader_p, const glm::mat4 &mvp);
@@ -1138,7 +1092,6 @@ public:        //                      public
                   const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                   const glm::vec4 &background_colour,
                   bool do_depth_fog);
-#endif
 
    // return the status of whether or not the dots were cleared.
    bool clear_dots(int dots_handle);
@@ -1443,13 +1396,13 @@ public:        //                      public
 
    //
    void update_map_colour_menu_maybe(int imol);
-#ifndef EMSCRIPTEN
+
    void handle_map_colour_change(GdkRGBA map_col,
                                  bool swap_difference_map_colours_flag,
                                  bool main_or_secondary,
                                  clipper::Coord_orth centre,
                                  float radius);
-#endif
+
    void handle_map_colour_change_rotate_difference_map(bool swap_difference_map_colours_flag);
 
    int next_free_map();
@@ -1541,9 +1494,8 @@ public:        //                      public
    void new_coords_mol_in_display_control_widget() const;  // for a new molecule.
    void update_mol_in_display_control_widget() const; // changing the name of
                                                       // this mol (e.g on save).
-#ifndef EMSCRIPTEN // 20220723-PE is this function still used?
+
    void update_mol_in_simple_display_control_menu(GtkWidget *model_menu, int map_coords_mol_flag);
-#endif
 
    //
    float map_mean()  const { return map_mean_;  }
@@ -2050,13 +2002,10 @@ public:        //                      public
       return save_state_command_strings_;
    }
 
-#ifndef EMSCRIPTEN
+
    void set_map_colour(GdkRGBA col) { map_colour = col; update_map(true); /* for now */ }
    std::pair<GdkRGBA, GdkRGBA> get_map_colours() const;
-#else
-   void set_map_colour(coot::colour_holder col) { map_colour = col; update_map(true); /* for now */ }
-   std::pair<coot::colour_holder, coot::colour_holder> get_map_colours() const;
-#endif
+
    std::vector<std::string> set_map_colour_strings() const;
    void colour_map_using_map(const clipper::Xmap<float> &xmap);
    void colour_map_using_map(const clipper::Xmap<float> &xmap, float table_bin_start, float table_bin_size,
@@ -2469,18 +2418,18 @@ public:        //                      public
 
    void delete_sequence_by_chain_id(const std::string &chain_id);
 
-#ifndef EMSCRIPTEN // 20220723-PE can this be restored?
    // render option (other functions)
    coot::ray_trace_molecule_info fill_raster_model_info(bool against_a_dark_background); // messes with bond_colour_internal
    coot::ray_trace_molecule_info fill_raster_map_info(short int lev) const;
    coot::ray_trace_molecule_info fill_raster_additional_info() const;
-#endif
 
    // return a list of bad chiral volumes for this molecule
    // (first is a vector of bad chiral volume types (residues for which we don't have
    //  a dictionary).
    //
    std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> > bad_chiral_volumes() const;
+   std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> > inverted_chiral_volumes() const;
+   std::pair<std::vector<std::string>, std::vector<std::pair<coot::atom_spec_t, double> > > distorted_chiral_volumes(double chiral_volume_distortion_limit) const;
 
    // a other function
    float score_residue_range_fit_to_map(int res1, int res2, std::string altloc,
@@ -2573,14 +2522,13 @@ public:        //                      public
    int draw_ncs_ghosts_p() const { // needed for setting the Bond Parameters checkbutton
       return show_ghosts_flag;
    }
-#ifndef EMSCRIPTEN
+
    void draw_ncs_ghosts(Shader *shader_for_meshes,
                         const glm::mat4 &mvp,
                         const glm::mat4 &model_rotation_matrix,
                         const std::map<unsigned int, lights_info_t> &lights,
                         const glm::vec3 &eye_position,
                         const glm::vec4 &background_colour);
-#endif
 
    std::vector<coot::ghost_molecule_display_t> NCS_ghosts() const;
 
@@ -2780,9 +2728,9 @@ public:        //                      public
    //
    // We fill the frame that's passed.  It is used to fill the
    // symmetry control widget (requested by Frank von Delft)
-#ifndef EMSCRIPTEN
+
    void fill_symmetry_control_frame(GtkWidget *dialog) const;
-#endif
+
    int   symmetry_whole_chain_flag;
    int   symmetry_as_calphas;
    int   symmetry_colour_by_symop_flag;
@@ -2791,12 +2739,12 @@ public:        //                      public
 						     // colour [MOL]?
 
    // ncs control
-#ifndef EMSCRIPTEN
+
    void move_reference_chain_to_symm_chain_position(coot::Symm_Atom_Pick_Info_t naii);
    void fill_ncs_control_frame(GtkWidget *dialog) const; // called for every coords mol
    void fill_ncs_control_frame_internal(GtkWidget *dialog) const; // called if needed.
    void ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int ichain) const;
-#endif
+
    void set_display_ncs_ghost_chain(int ichain, int state);
    // return status 0 if ncs master chain was not set.
    std::pair<bool, std::string> first_ncs_master_chain_id() const; // for ncs graphs use
@@ -2887,7 +2835,6 @@ public:        //                      public
    // reorder the residues in the models
    void sort_residues();
 
-#ifndef EMSCRIPTEN
    int add_additional_representation(int representation_type,
 				     const int &bonds_box_type_in,
 				     float bonds_width,
@@ -2896,7 +2843,6 @@ public:        //                      public
 				     GtkWidget *display_control_window,
 				     const gl_context_info_t &glci,
 				     const coot::protein_geometry *geom);
-#endif
 
    int adjust_additional_representation(int representation_number,
 					const int &bonds_box_type_in,
@@ -3100,9 +3046,7 @@ public:        //                      public
    int add_extra_target_position_restraint(coot::atom_spec_t &spec,
 					   const clipper::Coord_orth &pos,
 					   float weight);
-#ifdef HAVE_CXX11
    int add_extra_target_position_restraints(const std::vector<std::tuple<coot::atom_spec_t, const clipper::Coord_orth , float > > &etprs);
-#endif //  HAVE_CXX11
 
    // the atom specs do not need to be in order for bond restraints only
    void remove_extra_bond_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2);
@@ -3769,16 +3713,11 @@ void draw_map_molecule(bool draw_transparent_maps,
 
    void make_mesh_from_bonds_box();
    void make_meshes_from_bonds_box_instanced_version(); // fills the below meshes (for instancing)
+   // 20230826-PE here we go with the new "instancing.hh" wrapper class
+   model_molecule_meshes_t model_molecule_meshes;
    void set_material_in_molecules_as_mesh(const Material &material) {
-      molecule_as_mesh.set_material(material);
+      model_molecule_meshes.set_material(material);
    }
-   Mesh molecule_as_mesh; // non-instancing
-   Mesh molecule_as_mesh_atoms_1; // for instancing (sphere)
-   Mesh molecule_as_mesh_atoms_2; // for instancing (hemisphere - not currently used)
-   Mesh molecule_as_mesh_bonds_c00; // for instancing, no-end-caps
-   Mesh molecule_as_mesh_bonds_c10; // for instancing, start end cap
-   Mesh molecule_as_mesh_bonds_c01; // for instancing, end end-cap
-   Mesh molecule_as_mesh_bonds_c11; // for instancing, both end-caps
    Mesh molecule_as_mesh_rama_balls;
    Mesh molecule_as_mesh_rota_dodecs;
    // pass this function to the Mesh so that we can determine the atom and bond colours
@@ -3821,6 +3760,14 @@ void draw_map_molecule(bool draw_transparent_maps,
 
    // float scale_factor 4 , float offset 3
    void recolour_ribbon_by_map(const clipper::Xmap<float> &xmap, float scale_factor, float offset);
+
+   void fill_chiral_volume_outlier_marker_positions(int state);
+   void set_show_non_bonded_contact_baddies_markers(int state);
+   // 20230829-PE
+   // draw_chiral_volume_outlier_markers_flag is per molecule
+   // draw_bad_nbc_atom_pair_markers is global (only one). Maybe this is a mistake
+   bool draw_chiral_volume_outlier_markers_flag;
+   std::vector<glm::vec3> chiral_volume_outlier_marker_positions;
 
 };
 

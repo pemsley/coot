@@ -1,7 +1,7 @@
 
 ACLOCAL_AMFLAGS="-Im4"
 AM_CPPFLAGS = -I$(top_srcdir) $(BOOST_CPPFLAGS) $(MMDB_CFLAGS)
-AM_LDFLAGS = $(BOOST_LDFLAGS)
+AM_LDFLAGS = $(BOOST_LDFLAGS) $(SHARED_LDFLAGS)
 
 lib_LTLIBRARIES=libMoleculesToTrianglesCXXClasses.la
 
@@ -28,7 +28,7 @@ libMoleculesToTrianglesCXXClasses_la_SOURCES=AtomPropertyRampColorRule.cpp	 \
 # is $(CPPFLAGS) needed here?
 libMoleculesToTrianglesCXXClasses_la_CPPFLAGS=$(AM_CPPFLAGS) \
    $(MoleculesToTrianglesCXXSurface_CFLAGS) $(MMDB_CFLAGS) \
-   $(OPENMP_CXXFLAGS)
+   $(OPENMP_CXXFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 # rather than specifying the libs directly, you should test for clipper in configure
 # and use $(CLIPPER_LIBS) here
@@ -38,6 +38,7 @@ libMoleculesToTrianglesCXXClasses_la_CPPFLAGS=$(AM_CPPFLAGS) \
 # $(GL_LIBS) $(GLU_LIBS)
 
 libMoleculesToTrianglesCXXClasses_la_LIBADD=$(MoleculesToTrianglesCXXSurface_LIBS) \
+				            $(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la                        \
    $(CLIPPER_LIBS) $(MMDB_LIBS) $(GL_LIBS)
 
 # otherincludedir = $(includedir)/MoleculesToTriangles/CXXClasses

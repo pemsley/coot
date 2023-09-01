@@ -1072,10 +1072,26 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
                                            const char *altconf);
 #endif // USE_PYTHON
 
+//! set display of rotamer markup during interactive real space refinement
+void set_draw_moving_atoms_rota_markup(short int state);
+//! set display of ramachandran markup during interactive real space refinement
+void set_draw_moving_atoms_rama_markup(short int state);
+
+//! the old names for the above functions:
 void set_show_intermediate_atoms_rota_markup(short int state);
+//! the old names for the above functions:
 void set_show_intermediate_atoms_rama_markup(short int state);
 
+//! the geters for the rota markup
+int get_draw_moving_atoms_rota_markup_state();
+
+//! the geters for the rama markup
+int get_draw_moving_atoms_rama_markup_state();
+
+//! the old names for the above functions:
 int get_show_intermediate_atoms_rota_markup();
+
+//! the old names for the above functions:
 int get_show_intermediate_atoms_rama_markup();
 
 void set_cryo_em_refinement(bool mode);

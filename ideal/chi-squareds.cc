@@ -207,7 +207,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
                double dist = coot::distortion_score_parallel_planes(restraint, v);
                parallel_planes_distortion += dist;
                baddies["Parallel Planes"].update_if_worse(dist, i);
-               if (true) {
+               if (false) {
                   std::cout << "parallel plane " << i << " " << restraint << " " << dist << std::endl;
                }
             }

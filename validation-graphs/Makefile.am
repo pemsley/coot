@@ -2,7 +2,7 @@
 
 lib_LTLIBRARIES=libcoot-validation-graphs.la
 
-AM_CPPFLAGS = -I$(top_srcdir) @GTK_CFLAGS@
+AM_CPPFLAGS = -I$(top_srcdir) $(COOT_WINDOWS_CFLAGS) @GTK_CFLAGS@
 
 
 pkginclude_HEADERS = \

@@ -105,6 +105,7 @@ new_startup_realize(GtkWidget *gl_area) {
    // and allow it to be set in the API
    g.setup_draw_for_happy_face_residue_markers_init();
    g.setup_draw_for_bad_nbc_atom_pair_markers();
+   g.setup_draw_for_chiral_volume_outlier_markers();
    g.setup_draw_for_anchored_atom_markers_init();
    g.lines_mesh_for_hud_lines.set_name("lines mesh for fps graph");
    unsigned int frame_time_history_list_max_n_elements = 500;
@@ -612,7 +613,11 @@ new_startup_application_activate(GtkApplication *application,
 
    activate_data->application = application;
 
+#ifdef WINDOWS_MINGW
+   std::string window_name = "GTK4 WinCoot-" + std::string(VERSION);
+#else
    std::string window_name = "GTK4 Coot-" + std::string(VERSION);
+#endif
    GtkWidget *app_window = gtk_application_window_new(application);
    gtk_window_set_application(GTK_WINDOW(app_window), application);
    gtk_window_set_title(GTK_WINDOW(app_window), window_name.c_str());

@@ -20,6 +20,13 @@
  * 02110-1301, USA
  */
 
+#ifndef COOT_API_NCS_HH
+#define COOT_API_NCS_HH
+
+#include <string>
+#include <vector>
+#include <clipper/core/coords.h>
+
 namespace coot { 
 
    // Maybe we want a mainchain/side chain split here...
@@ -94,3 +101,8 @@ namespace coot {
    };
 
 }
+
+
+
+#endif // COOT_API_NCS_HH
+

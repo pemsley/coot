@@ -601,7 +601,7 @@ void my_delete_validaton_graph_mol_option(GtkWidget *widget, void *);
 /* void create_initial_validation_graph_geometry_submenu(GtkWidget *window1); */
 /* void create_initial_validation_graph_omega_submenu(GtkWidget *window1); */
 
-void difference_map_peaks_by_widget(GtkWidget *dialog);
+void difference_map_peaks_from_dialog();
 void set_difference_map_peaks_widget(GtkWidget *w);
 
 GtkWidget *wrapped_create_generate_diff_map_peaks_dialog();

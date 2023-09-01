@@ -662,6 +662,7 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
                int timeout_ms = 15;
                timeout_ms =  30; // 20220503-PE try this value
                timeout_ms = 120; // 20221227-PE try this value - Lucrezia crash
+               timeout_ms = 30;
 	       int id = g_timeout_add(timeout_ms, cb, NULL);
                threaded_refinement_redraw_timeout_fn_id = id;
             }
@@ -1757,52 +1758,63 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 void
 graphics_info_t::make_moving_atoms_restraints_graphics_object() {
 
-   draw_it_for_moving_atoms_restraints_graphics_object = true; // hack          
+   // 20230823-PE do we need any control over this (extra bond restraints) other than
+   // the user_control?
+   // Let's see...
+   draw_it_for_moving_atoms_restraints_graphics_object = true;
 
    if (moving_atoms_asc) {
       if (last_restraints) {
          if (draw_it_for_moving_atoms_restraints_graphics_object) {
-            moving_atoms_extra_restraints_representation.clear();
-            for (int i=0; i<last_restraints->size(); i++) {
-               // std::cout << "-------------------- in make_moving_atoms_restraints_graphics_object() D " << i << std::endl;
-               const coot::simple_restraint &rest = last_restraints->at(i);
-               if (rest.restraint_type == coot::BOND_RESTRAINT ||
-                   rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+            if (draw_it_for_moving_atoms_restraints_graphics_object_user_control) {
+               moving_atoms_extra_restraints_representation.clear();
+               for (int i=0; i<last_restraints->size(); i++) {
+                  // std::cout << "-------------------- in make_moving_atoms_restraints_graphics_object() D " << i << std::endl;
+                  const coot::simple_restraint &rest = last_restraints->at(i);
+                  if (rest.restraint_type == coot::BOND_RESTRAINT ||
+                      rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
 
-                  if (rest.target_value > 2.15) {  // no real bond restraints
-                     int idx_1 = rest.atom_index_1;
-                     int idx_2 = rest.atom_index_2;
-                     // we can't display bonds to non-moving atoms
-                     if (idx_1 < moving_atoms_asc->n_selected_atoms) {
-                        if (idx_2 < moving_atoms_asc->n_selected_atoms) {
-                           mmdb::Atom *at_1 = moving_atoms_asc->atom_selection[idx_1];
-                           mmdb::Atom *at_2 = moving_atoms_asc->atom_selection[idx_2];
-                           if (at_1 && at_2) {
-                              clipper::Coord_orth p1 = coot::co(at_1);
-                              clipper::Coord_orth p2 = coot::co(at_2);
-                              const double &dd = rest.target_value;
-                              float def = sqrtf(clipper::Coord_orth(p1-p2).lengthsq());
-                              double de = static_cast<double>(def);
-                              bool do_it = true;
-                              std::string atom_name_1 = at_1->GetAtomName();
-                              std::string atom_name_2 = at_2->GetAtomName();
-                              if (atom_name_1 == " CA ")
-                                 if (atom_name_2 == " CA ")
-                                    do_it = false;
-                              if (do_it)
-                                 moving_atoms_extra_restraints_representation.add_bond(p1, p2, dd, de);
+                     if (rest.target_value > 2.15) {  // no real bond restraints
+                        int idx_1 = rest.atom_index_1;
+                        int idx_2 = rest.atom_index_2;
+                        // we can't display bonds to non-moving atoms
+                        if (idx_1 < moving_atoms_asc->n_selected_atoms) {
+                           if (idx_2 < moving_atoms_asc->n_selected_atoms) {
+                              mmdb::Atom *at_1 = moving_atoms_asc->atom_selection[idx_1];
+                              mmdb::Atom *at_2 = moving_atoms_asc->atom_selection[idx_2];
+                              if (at_1 && at_2) {
+                                 clipper::Coord_orth p1 = coot::co(at_1);
+                                 clipper::Coord_orth p2 = coot::co(at_2);
+                                 // dd is the target value
+                                 // de is the actual value
+                                 const double &dd = rest.target_value;
+                                 float def = sqrtf(clipper::Coord_orth(p1-p2).lengthsq());
+                                 double de = static_cast<double>(def);
+                                 bool do_it = true;
+                                 std::string atom_name_1 = at_1->GetAtomName();
+                                 std::string atom_name_2 = at_2->GetAtomName();
+                                 if (atom_name_1 == " CA ")
+                                    if (atom_name_2 == " CA ")
+                                       do_it = false;
+                                 if (do_it)
+                                    moving_atoms_extra_restraints_representation.add_bond(p1, p2, dd, de);
+                              }
                            }
                         }
                      }
                   }
                }
+
+               if (false)
+                  std::cout << "in make_moving_atoms_restraints_graphics_object calling make_extra_distance_restraints_objects() "
+                            << std::endl;
+               // now call the new graphics function:
+               make_extra_distance_restraints_objects(); // make graphics objecs from moving_atoms_extra_restraints_representation()
             }
          }
       }
    }
 
-   // now call the new graphics function:
-   make_extra_distance_restraints_objects(); // make graphics objecs from moving_atoms_extra_restraints_representation()
 }
 
 // static
@@ -4942,12 +4954,15 @@ graphics_info_t::get_rotamer_probability(mmdb::Residue *res,
    }
    if (rot_prob_tables.is_well_formatted()) {
       try {
-	 std::vector<coot::rotamer_probability_info_t> v = rot_prob_tables.probability_this_rotamer(res);
-	 if (v.size() > 0) {
-	    r = v[0];
-	    if (debug)
-	       std::cout << "  residue " << coot::residue_spec_t(res) << " " << v[0] << std::endl;
-	 }
+         std::string res_name(res->GetResName());
+         if (coot::util::is_standard_amino_acid_name(res_name)) {
+            std::vector<coot::rotamer_probability_info_t> v = rot_prob_tables.probability_this_rotamer(res);
+            if (v.size() > 0) {
+               r = v[0];
+               if (debug)
+                  std::cout << "  residue " << coot::residue_spec_t(res) << " " << v[0] << std::endl;
+            }
+         }
 
       }
       catch (const std::runtime_error &e) {

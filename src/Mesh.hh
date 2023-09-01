@@ -81,12 +81,14 @@ public:
    std::chrono::time_point<std::chrono::system_clock>  time_constructed;
    bool is_headless; // i.e. don't try to use OpenGL calls because we've been imported into python, blender or jupyter.
 
-   Mesh() { init(); }
-   Mesh(const coot::simple_mesh_t& mesh);
+   // Mesh() { init(); }
+   Mesh(const std::string &name_in, const coot::simple_mesh_t& mesh);
    // import from somewhere else
    explicit Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices);
+   explicit Mesh(const std::vector<s_generic_vertex> &vertices, const std::vector<g_triangle> &triangles);
    explicit Mesh(const std::string &name_in) : name(name_in) { init(); }
    explicit Mesh(const molecular_triangles_mesh_t &mtm);
+   ~Mesh();
    // If this mesh will become part of another mesh, then we don't want to setup buffers for this one
    // (return the success status 1 is good)
    bool load_from_glTF(const std::string &file_name, bool include_call_to_setup_buffers=true);
@@ -94,8 +96,10 @@ public:
 
    void debug() const;
    void debug_to_file() const;
-   void clear() {
-      // delete some gl buffers here
+   void delete_gl_buffers();
+   void clear(bool delete_gl_buffers_also = false) {
+      if (delete_gl_buffers_also)
+         delete_gl_buffers();
       is_instanced = false;
       is_instanced_colours = false;
       is_instanced_with_rts_matrix = false;
@@ -296,8 +300,7 @@ public:
                                    unsigned int n_stacks,
                                    const std::vector<glm::vec4> &colour_table); // add bool add_start_end_cap, bool add_end_end_cap);
 
-   void make_graphical_bonds_rama_balls(const graphical_bonds_container &gbc,
-                                        const glm::vec3 &screen_up_dir); // normalized
+   void make_graphical_bonds_rama_balls(const graphical_bonds_container &gbc);
 
    void make_graphical_bonds_rotamer_dodecs(const graphical_bonds_container &gbc,
                                             const glm::vec3 &screen_up_dir);
@@ -388,8 +391,7 @@ public:
                                 const glm::mat4 &projection);
 
    // make space
-   void setup_instancing_buffer_data(Shader *shader_p,
-                                     const Material &mat,
+   void setup_instancing_buffer_data(const Material &mat,
                                      const std::vector<glm::mat4> &instanced_matrices,
                                      const std::vector<glm::vec4> &instanced_colours);
 

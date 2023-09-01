@@ -1,6 +1,8 @@
 //
 #include <iomanip>
 
+#include "compat/coot-sysdep.h"
+
 #include "simple-restraint.hh"
 #include "coot-utils/contacts-by-bricks.hh"
 #include "coot-utils/stack-and-pair.hh"
@@ -20,9 +22,9 @@ coot::restraints_container_t::make_restraints_ng(int imol,
                                                  bool do_link_restraints,
                                                  bool do_flank_restraints) {
 
-   // debug_sets();
 
-   // restraints_usage_flag = BONDS_AND_ANGLES; // debugging
+   // std::cout << "..................     make_restraints_ng() --- start --- n_atoms: " << n_atoms << std::endl;
+   // debug_sets();
 
    bool console_output_for_restraints_generation_timings = false;
 
@@ -35,6 +37,8 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
    restraints_usage_flag = flags_in;
+   bool just_chirals = false;
+   if (restraints_usage_flag == coot::CHIRAL_VOLUMES) just_chirals = true;
    rama_plot_weight = rama_plot_target_weight;
    if (n_atoms > 0) {
       mark_OXT(geom);
@@ -91,7 +95,9 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       auto tp_2 = std::chrono::high_resolution_clock::now();
 
       auto tp_3 = std::chrono::high_resolution_clock::now();
-      raic.init(restraints_vec);
+
+      if (! just_chirals)
+         raic.init(restraints_vec);
 
       auto tp_4 = std::chrono::high_resolution_clock::now();
 
@@ -101,7 +107,9 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       // them when splitting non-bonded contacts into range sets).
       //
 
-      non_bonded_contacts_atom_indices.resize(n_atoms_limit_for_nbc);
+      if (! just_chirals)
+         non_bonded_contacts_atom_indices.resize(n_atoms_limit_for_nbc);
+
       // the non-threaded version has a different limit on the
       // non_bonded_contacts_atom_indices (so, out of range if you use it?)
 
@@ -112,7 +120,9 @@ coot::restraints_container_t::make_restraints_ng(int imol,
          std::cout << "ERROR:: Bad things will now happen" << std::endl;
       }
 
-      make_non_bonded_contact_restraints_using_threads_ng(imol, geom);
+      if (! just_chirals)
+         make_non_bonded_contact_restraints_using_threads_ng(imol, geom);
+
       auto tp_5 = std::chrono::high_resolution_clock::now();
 
       if (do_rama_plot_restraints)
@@ -132,24 +142,26 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       // probably not needed because plane restraints don't come in a bunch (I don't know why)
       // disperse_plane_restraints();
 
-      if (residues_vec.size() > 1)
-         if (sec_struct_pseudo_bonds == coot::HELIX_PSEUDO_BONDS)
-            make_helix_pseudo_bond_restraints();
+      if (! just_chirals) {
+         if (residues_vec.size() > 1)
+            if (sec_struct_pseudo_bonds == coot::HELIX_PSEUDO_BONDS)
+               make_helix_pseudo_bond_restraints();
 
-      if (residues_vec.size() > 1)
-         if (sec_struct_pseudo_bonds == coot::STRAND_PSEUDO_BONDS)
-            make_strand_pseudo_bond_restraints();
+         if (residues_vec.size() > 1)
+            if (sec_struct_pseudo_bonds == coot::STRAND_PSEUDO_BONDS)
+               make_strand_pseudo_bond_restraints();
 
-      if (residues_vec.size() > 1)
-         if (do_auto_helix_restraints)
-            make_helix_pseudo_bond_restraints_from_res_vec_auto();
+         if (residues_vec.size() > 1)
+            if (do_auto_helix_restraints)
+               make_helix_pseudo_bond_restraints_from_res_vec_auto();
 
-      if (residues_vec.size() > 1)
-         if (do_auto_h_bond_restraints)
-            make_h_bond_restraints_from_res_vec_auto(geom);
+         if (residues_vec.size() > 1)
+            if (do_auto_h_bond_restraints)
+               make_h_bond_restraints_from_res_vec_auto(geom);
 
-      if (residues_vec.size() > 1)
-         make_base_pairing_and_stacking_restraints_ng(imol, geom);
+         if (residues_vec.size() > 1)
+            make_base_pairing_and_stacking_restraints_ng(imol, geom);
+      }
 
       make_df_restraints_indices();
       make_distortion_electron_density_ranges();

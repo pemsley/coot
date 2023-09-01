@@ -1761,7 +1761,7 @@ public:
    static std::pair<std::string, std::string> split_resno_inscode(const std::string &atom_name);
 
    mmdb::Atom *get_atom(int imol, const coot::atom_spec_t &spec) const;
-   mmdb::Residue *get_residue(int imol, const coot::residue_spec_t &spec) const;
+   static mmdb::Residue *get_residue(int imol, const coot::residue_spec_t &spec);
 
    void set_go_to_atom_molecule(int pos);
 
@@ -2597,6 +2597,7 @@ public:
    void make_moving_atoms_restraints_graphics_object();
    static coot::extra_restraints_representation_t moving_atoms_extra_restraints_representation;
    static bool draw_it_for_moving_atoms_restraints_graphics_object;
+   static bool draw_it_for_moving_atoms_restraints_graphics_object_user_control;
    static bool draw_missing_loops_flag;
 
    //
@@ -3436,6 +3437,12 @@ public:
    static std::vector<glm::vec3> bad_nbc_atom_pair_marker_positions;
    const unsigned int draw_count_max_for_bad_nbc_atom_pair_markers = 100; // needed?
 
+   void setup_draw_for_chiral_volume_outlier_markers();
+   static void draw_chiral_volume_outlier_markers(unsigned int pass_type);
+   static void update_chiral_volume_outlier_marker_positions();
+   static Texture texture_for_chiral_volume_outlier_markers;
+   static TextureMesh tmesh_for_chiral_volume_outlier_markers;
+
    static void update_hydrogen_bond_positions(); // if the intermediate atoms had hydrogen bond restraints, we can have dynamic
                                                  // hydrogen bonds. c.f. update_bad_nbc_atom_pair_marker_positions()
 
@@ -3850,15 +3857,15 @@ public:
    coot::rotamer_graphs_info_t rotamer_graphs(int imol); // give results back to scripting layer
    void density_fit_graphs(int imol);
    static void diff_map_peaks_dialog_update_button_clicked_func(GtkButton *button, gpointer user_data); // called by below
-   static void fill_difference_map_peaks_button_box(bool force_fill=false);
+   static void fill_difference_map_peaks_button_box();
 
-   static GtkWidget *wrapped_create_diff_map_peaks_dialog(int imol_map, int imol_coords,
+   static void show_diff_map_peaks_vbox(int imol_map, int imol_coords,
                                                           const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                                                           float n_sigma,
                                                           bool do_positive_level_flag,
                                                           bool do_negative_level_flag,
-                                                          bool around_model_only_flag,
-                                                          const std::string &dialog_title);
+                                                          bool around_model_only_flag);
+   static void hide_vertical_validation_frame_if_appropriate();
    // the buttons callback for above:
    static void on_diff_map_peak_button_selection_toggled (GtkToggleButton *button,
 							  gpointer         user_data);

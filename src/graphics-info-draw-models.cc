@@ -43,7 +43,7 @@ graphics_info_t::draw_molecules_for_ssao() {
       if (is_valid_model_molecule(i)) {
          if (molecules[i].draw_it)
             if (! molecules[i].draw_model_molecule_as_lines) {
-               //molecules[i].molecule_as_mesh.draw_for_ssao(&shader_for_meshes_for_ssao, model_mat, view_mat, projection_mat);
+               // molecules[i].molecule_as_mesh.draw_for_ssao(&shader_for_meshes_for_ssao, model_mat, view_mat, projection_mat);
                molecules[i].draw_molecule_as_meshes_for_ssao(&shader_for_meshes_for_ssao, model_mat, view_mat, projection_mat);
             }
       }
@@ -249,9 +249,16 @@ graphics_info_t::draw_molecules_for_shadow_map(unsigned int light_index) {
                bool opacity = 1.0;
                bool do_depth_fog = false;
                // model molecule, that is of course.
+#if 0 // 20230818-PE pre-model_molecule_meshes
                m.molecule_as_mesh.draw(&shader_for_meshes_shadow_map,
                                        mvp_orthogonal, model_rotation, lights, dummy_eye_position,
                                        opacity, bg_col_v4, gl_lines_mode, do_depth_fog, show_just_shadows);
+#endif
+               Shader &shader_for_meshes_shadow_map_instanced = shader_for_meshes_shadow_map; // this is wrong, surely.
+               m.model_molecule_meshes.draw(&shader_for_meshes_shadow_map,
+                                            &shader_for_meshes_shadow_map_instanced,
+                                            mvp_orthogonal, model_rotation, lights, dummy_eye_position,
+                                            opacity, bg_col_v4, gl_lines_mode, do_depth_fog, show_just_shadows);
             }
          }
       }

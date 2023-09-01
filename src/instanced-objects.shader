@@ -95,6 +95,8 @@ struct Material {
    float specular_strength;
    vec4 specular;
 };
+
+uniform mat4 view_rotation;
 uniform LightSource light_sources[2];
 uniform vec3 eye_position;
 uniform Material material;
@@ -149,8 +151,9 @@ void main() {
          float specular_strength = material.specular_strength;
          if (dp_raw < 0.0)
             specular_strength = 0.0; // no shiny interiors
-         vec3 eye_pos = eye_position;
-         vec3 view_dir = normalize(eye_pos - frag_pos_transfer.xyz);
+         //
+         vec3 eye_pos_in_view = vec3(vec4(eye_position, 1.0) * view_rotation);
+         vec3 view_dir = normalize(eye_pos_in_view - frag_pos_transfer.xyz);
          vec3 light_dir_v3 = light_dir.xyz;
          vec3 reflect_dir = reflect(light_dir_v3, norm_2);
          reflect_dir = normalize(reflect_dir); // belt and braces
@@ -160,7 +163,7 @@ void main() {
 
          float spec = specular_strength * pow(dp_view_reflect, shininess);
          // spec = 0;
-         vec4 specular = spec * light_sources[i].specular;
+         vec4 specular = 3.0 * spec * light_sources[i].specular;
 
          // final
          running_col += ambient + diffuse + specular;
@@ -182,6 +185,5 @@ void main() {
    outputColor = mix(running_col, background_colour, fog_amount);
 
    // outputColor = vec4(0.8, 0.2, 0.8, 1.0);
-
 
 }

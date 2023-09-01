@@ -325,13 +325,13 @@ on_display_manager_selections_and_colours_combobox_changed(GtkComboBox     *comb
 
    if (txt) {
       std::string at(txt);
-      std::cout << "at: " << at << std::endl;
+      // std::cout << "at: " << at << std::endl;
       if (at == _("Bonds (Colour by Atom)")) {
-         std::cout << "display as bonds " <<std::endl;
+         // std::cout << "on_display_manager_selections_and_colours_combobox_changed() display as bonds " <<std::endl;
          graphics_to_bonds_representation(imol);
       }
       if (at == _("C-alphas/Backbone")) {
-         std::cout << "display as CA " <<std::endl;
+         // std::cout << "display as CA " <<std::endl;
          graphics_to_ca_representation(imol);
       }
       if (at == _("Bonds (Colour by Chain)")) {

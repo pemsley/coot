@@ -5567,13 +5567,13 @@ void set_grey_carbon_colour(int imol, float r, float g, float b) {
 
 /* undocumented feature for development. */
 void set_draw_moving_atoms_restraints(int state) {
-   graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object = state;
+   graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object_user_control = state;
    graphics_draw();
 }
 
 /* undocumented feature for development. */
 short int get_draw_moving_atoms_restraints() {
-   return graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object;
+   return graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object_user_control;
 }
 
 
@@ -9507,3 +9507,28 @@ int probe_available_p_py() {
    return r;
 }
 #endif // USE_PYTHON
+
+
+/*! \brief set the state of showing chiral volume outlier markers - of a model molecule that is,
+   not the intermediate atoms (derived from restraints) */
+void set_show_chiral_volume_outliers(int imol, int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].draw_chiral_volume_outlier_markers_flag = state;
+      graphics_info_t::molecules[imol].fill_chiral_volume_outlier_marker_positions(state);
+      graphics_info_t::update_chiral_volume_outlier_marker_positions();
+      graphics_draw();
+   }
+
+}
+
+/*! \brief set the state of showing non-bonded contact markers - of a model molecule that is,
+   not the intermediate atoms (derived from restraints) */
+void set_show_non_bonded_contact_baddies_markers(int imol, int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      // for the molecule, not the intermediate atoms.
+      graphics_info_t::molecules[imol].set_show_non_bonded_contact_baddies_markers(state);
+      graphics_draw();
+   }
+}

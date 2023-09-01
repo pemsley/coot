@@ -4806,7 +4806,7 @@ molecule_class_info_t::export_vertices_and_triangles_func(const std::vector<coot
    // write to export_vertices_and_triangles_file_name_for_func, which is set below
    // in export_model_molecule_as_obj().
 
-   Mesh mesh;
+   Mesh mesh("export_vertices_and_triangles_file_name_for_func()");
    std::vector<s_generic_vertex> vertices(vertices_in.size());
    for (unsigned int i=0; i<vertices_in.size(); i++) {
       s_generic_vertex gv;
@@ -4948,7 +4948,11 @@ molecule_class_info_t::export_model_molecule_as_gltf(const std::string &file_nam
       const Mesh &mesh = meshes[0];
       mesh.export_to_glTF(file_name, use_binary);
    } else {
-      molecule_as_mesh.export_to_glTF(file_name, use_binary);
+      // 20230826-PE now that the model molecule is an api instancing object
+      // this needs to be completey reworked
+      // molecule_as_mesh.export_to_glTF(file_name, use_binary);
+      // FIXME
+      std::cout << "export_model_molecule_as_gltf() FIXME" << std::endl;
    }
    return status;
 }

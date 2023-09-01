@@ -1,6 +1,7 @@
 #ifndef API_RIGID_BODY_FIT_HH
 #define API_RIGID_BODY_FIT_HH
 
+#include "compat/coot-sysdep.h"
 #include <mmdb2/mmdb_manager.h>
 #include <clipper/core/xmap.h>
 #include "mini-mol/mini-mol.hh"

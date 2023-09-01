@@ -6,6 +6,8 @@
 #include <map>
 #include <algorithm>
 
+#include "compat/coot-sysdep.h"
+
 #include <mmdb2/mmdb_manager.h>
 
 #include "geometry/protein-geometry.hh"

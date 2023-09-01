@@ -3903,33 +3903,13 @@ on_shader_settings_dialog_close(GtkDialog *dialog,
 
 extern "C" G_MODULE_EXPORT
 void
-on_diff_map_peaks_dialog_ok_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
-   GtkWidget *dialog = widget_from_builder("diff_map_peaks_dialog");
-   clear_diff_map_peaks();
-   gtk_widget_set_visible(dialog, FALSE);
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_diff_map_peaks_dialog_update_button_clicked(GtkButton *button,
-                                                gpointer         user_data) {
-   graphics_info_t g;
-   g.fill_difference_map_peaks_button_box(true); // force fill.
-
-}
-
-extern "C" G_MODULE_EXPORT
-void
 on_generate_diff_map_peaks_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
 
    GtkWidget *w = widget_from_builder("generate_diff_map_peaks_dialog");
-   difference_map_peaks_by_widget(w); // make the results (and show the results dialog)
+   difference_map_peaks_from_dialog(); // make the results (and show them)
    gtk_widget_set_visible(w, FALSE);
 
 }
@@ -6095,35 +6075,30 @@ on_export_map_dialog_cancel_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_export_map_dialog_response (GtkDialog       *dialog,
-                                                   gint             response_id,
-                                                   gpointer         user_data) {
+on_export_map_frame_cancel_button_clicked(GtkButton* self, gpointer user_data) {
+   GtkWidget *frame = widget_from_builder("export_map_frame");
+   gtk_widget_set_visible(frame, FALSE);
+}
 
-
-   if (response_id == GTK_RESPONSE_OK) {
-      GtkWidget *file_chooser_dialog = widget_from_builder("export_map_file_chooser_dialog");
-      GtkWidget *combobox            = widget_from_builder("export_map_map_combobox");
-      GtkWidget *radius_entry        = widget_from_builder("export_map_radius_entry");
-      int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
-      int is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "is_map_fragment"));
-      // std::cout << "debug:: in on_export_map_dialog_response() imol_map is " << imol_map << std::endl;
-      const char *entry_text = gtk_editable_get_text(GTK_EDITABLE(radius_entry));
-      // std::cout << "debug:: in on_export_map_dialog_response() got entry_text \"" << entry_text << "\"" << std::endl;
-      GString* text_copy   = g_string_new(entry_text);
-      GString* text_copy_2 = g_string_new(entry_text);
-      // gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
-      gtk_widget_set_visible(file_chooser_dialog, TRUE);
-      g_object_set_data(G_OBJECT(file_chooser_dialog), "map_molecule_number", GINT_TO_POINTER(imol_map));
-      g_object_set_data(G_OBJECT(file_chooser_dialog), "is_map_fragment",     GINT_TO_POINTER(is_map_fragment));
-      // std::cout << "debug:: in on_export_map_dialog_response() storing entry text " << text_copy << std::endl;
-      g_object_set_data(G_OBJECT(file_chooser_dialog), "export_map_radius_entry_text", text_copy);
-      // decoded:
-      // int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number"));
-
-   }
-   if (response_id == GTK_RESPONSE_CANCEL) {
-      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
-   }
+extern "C" G_MODULE_EXPORT
+void
+on_export_map_frame_ok_button_clicked(GtkButton* self, gpointer user_data) {
+   GtkWidget *file_chooser_dialog = widget_from_builder("export_map_file_chooser_dialog");
+   GtkWidget *combobox            = widget_from_builder("export_map_map_combobox");
+   GtkWidget *radius_entry        = widget_from_builder("export_map_radius_entry");
+   GtkWidget *frame               = widget_from_builder("export_map_frame");
+   int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   int is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(frame), "is_map_fragment"));
+   // std::cout << "debug:: in on_export_map_dialog_response() imol_map is " << imol_map << std::endl;
+   const char *entry_text = gtk_editable_get_text(GTK_EDITABLE(radius_entry));
+   // std::cout << "debug:: in on_export_map_dialog_response() got entry_text \"" << entry_text << "\"" << std::endl;
+   GString* text_copy   = g_string_new(entry_text);
+   gtk_widget_set_visible(GTK_WIDGET(frame), FALSE);
+   gtk_widget_set_visible(file_chooser_dialog, TRUE);
+   g_object_set_data(G_OBJECT(file_chooser_dialog), "map_molecule_number", GINT_TO_POINTER(imol_map));
+   g_object_set_data(G_OBJECT(file_chooser_dialog), "is_map_fragment",     GINT_TO_POINTER(is_map_fragment));
+   // std::cout << "debug:: in on_export_map_dialog_response() storing entry text " << text_copy << std::endl;
+   g_object_set_data(G_OBJECT(file_chooser_dialog), "export_map_radius_entry_text", text_copy);
 }
 
 extern "C" G_MODULE_EXPORT
@@ -6132,38 +6107,27 @@ on_export_map_file_chooser_dialog_response (GtkDialog       *dialog,
                                                                 gint             response_id,
                                                                 gpointer         user_data) {
 
-   if (response_id == GTK_RESPONSE_OK) {
+   if (response_id == GTK_RESPONSE_OK) { 
       int imol_map        = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number"));
       int is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "is_map_fragment"));
 
       // std::cout << "extracted imol_map " << imol_map << " from file chooser dialog " << std::endl;
       // std::cout << "extracted is_map_fragment " << is_map_fragment << " from file chooser dialog " << std::endl;
 
-      if (is_map_fragment > 0) {
-         if (GTK_IS_FILE_CHOOSER(dialog)) {
-            // const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      // const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+      GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
+      const char *file_name = g_file_get_path(file);
 
-            GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
-            GError *error = NULL;
-            GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-                                                     G_FILE_QUERY_INFO_NONE, NULL, &error);
-            const char *file_name = g_file_info_get_name(file_info);
-
+      if (GTK_IS_FILE_CHOOSER(dialog)) {
+         if (is_map_fragment > 0) {
             GString *txt_radius_str = static_cast<GString *>(g_object_get_data(G_OBJECT(dialog), "export_map_radius_entry_text"));
             const char *entry_text = g_string_free(txt_radius_str, FALSE); // leaking entry_text - ho hum.
             if (entry_text == 0) {
                std::cout << "ERROR:: entry_text is null " << std::endl;
             }
             export_map_fragment_with_text_radius(imol_map, entry_text, file_name);
-         }
-      } else {
-         if (GTK_IS_FILE_CHOOSER(dialog)) {
-            // const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-            GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
-            GError *error = NULL;
-            GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-                                                     G_FILE_QUERY_INFO_NONE, NULL, &error);
-            const char *file_name = g_file_info_get_name(file_info);
+            
+         } else {
             export_map(imol_map, file_name);
          }
       }

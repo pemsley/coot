@@ -42,6 +42,15 @@ namespace coot {
       float score;
    };
 
+   class refinement_results_for_chiral_t {
+   public:
+      atom_spec_t atom_spec;
+      clipper::Coord_orth atom_pos;
+      float distortion;
+      refinement_results_for_chiral_t(const atom_spec_t &spec, const clipper::Coord_orth &p, float s) :
+         atom_spec(spec), atom_pos(p), distortion(s) {}
+   };
+
    // to animate the bad NBC contacts removal, I need to know if a contact has
    // disappeared, so I want to store a list of bad NBC contacts which I can
    // use for round-to-round comparison to see if any have disappeared.
@@ -69,6 +78,7 @@ namespace coot {
       std::vector<refinement_results_for_rama_t> all_ramas;
       float overall_atom_pull_score;
       std::vector<std::pair<atom_spec_t, float> > sorted_atom_pulls; // all of them
+      std::vector<refinement_results_for_chiral_t> sorted_chiral_volume_baddies;
 
       refinement_results_t(bool frf, int prog_in,
                            const std::vector<refinement_lights_info_t> &lights_in) {

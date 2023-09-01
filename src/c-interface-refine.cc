@@ -1285,6 +1285,17 @@ remove_initial_position_restraints(int imol, const std::vector<coot::residue_spe
 }
 
 
+//! set display of rotamer markup during interactive real space refinement
+void set_draw_moving_atoms_rota_markup(short int state) {
+   graphics_info_t::do_intermediate_atoms_rota_markup = state;
+
+}
+
+//! set display of ramachandran markup during interactive real space refinement
+void set_draw_moving_atoms_rama_markup(short int state) {
+   graphics_info_t::do_intermediate_atoms_rama_markup = state;
+
+}
 
 void set_show_intermediate_atoms_rota_markup(short int state) {
    graphics_info_t::do_intermediate_atoms_rota_markup = state;
@@ -1303,6 +1314,18 @@ int get_show_intermediate_atoms_rota_markup() {
 int get_show_intermediate_atoms_rama_markup() {
    return graphics_info_t::do_intermediate_atoms_rama_markup;
 }
+
+//! the geters for the rota markup
+int get_draw_moving_atoms_rota_markup_state() {
+   return graphics_info_t::do_intermediate_atoms_rota_markup;
+}
+
+//! the geters for the rota markup
+int get_draw_moving_atoms_rama_markup_state() {
+   return graphics_info_t::do_intermediate_atoms_rama_markup;
+}
+
+
 
 
 

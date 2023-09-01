@@ -41,7 +41,7 @@ namespace coot {
 
       instanced_geometry_t() {}
       explicit instanced_geometry_t(const std::string &n) : name(n) {};
-      instanced_geometry_t(const std::vector<coot::api::vn_vertex> &v, std::vector<g_triangle> &t) :
+      instanced_geometry_t(const std::vector<coot::api::vn_vertex> &v, const std::vector<g_triangle> &t) :
          vertices(v), triangles(t) {}
 
       //! a vector of type A instancing
@@ -59,6 +59,9 @@ namespace coot {
 
       //! cis-peptide markup can't be drawn instanced
       simple_mesh_t markup;
+
+      //! clear
+      void clear() { geom.clear(); markup.clear(); }
    };
 
 }

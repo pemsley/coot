@@ -57,6 +57,7 @@ MAKE_COOT_WRAP_PYTHON_XXX=$(SHELL) $(top_srcdir)/src/post-process-coot-wrap-pyth
 #        $(top_builddir)/lbg/libcoot-lidia.la
 
 COOT_EXTRA_LIBS = \
+	$(top_builddir)/api/libcoot-api.la      		\
 	$(top_builddir)/pli/libcoot-pli.la      		\
 	$(top_builddir)/ligand/libcoot-res-tracer.la  		\
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
@@ -618,6 +619,8 @@ libcootsumo_la_SOURCES = \
 	map-statistics.hh                \
 	merge-molecule-results-info-t.hh \
 	model-composition-statistics.hh  \
+	model-molecule-meshes.hh         \
+	model-molecule-meshes.cc         \
 	molecular-triangles-mesh.hh      \
 	molecule-class-info.cc		 \
 	molecule-class-info-alignment.cc \

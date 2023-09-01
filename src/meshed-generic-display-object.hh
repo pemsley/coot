@@ -133,8 +133,9 @@ public:
       coot::colour_holder col;
    };
    enum {UNDEFINED = -1, INTERMEDIATE_ATOMS=-9};
-   meshed_generic_display_object() { imol = UNDEFINED; wireframe_mode = false; }
-   explicit meshed_generic_display_object(const std::string &name_in) {
+   meshed_generic_display_object() : mesh(Mesh("init_meshed_generic_display_object-A"))
+      { imol = UNDEFINED; wireframe_mode = false; }
+   explicit meshed_generic_display_object(const std::string &name_in) : mesh(Mesh(name_in)) {
       imol = UNDEFINED;
       mesh.name = name_in;
       wireframe_mode = false; }

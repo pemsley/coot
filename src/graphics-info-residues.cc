@@ -355,7 +355,7 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
          if (residue_centre.first) {
 
             if (false) // new style ligand navigation 20160720
-               g.setRotationCentre(residue_centre.second);
+               g.setRotationCentre(coot::Cartesian(residue_centre.second));
 
             if (false) { // debug matrices/eigen
 

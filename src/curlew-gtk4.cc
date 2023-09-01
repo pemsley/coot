@@ -6,6 +6,8 @@
 #include "utils/coot-utils.hh"
 #include "graphics-info.h"
 
+#include "utils/win-compat.hh"
+
 #include "json.hpp" // clever stuff from Niels Lohmann
 using json = nlohmann::json;
 

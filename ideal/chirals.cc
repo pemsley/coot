@@ -730,6 +730,74 @@ coot::restraints_container_t::bond_is_very_long(const coot::simple_restraint &bo
 
 
 
+// make restraints and get distortions. chiral_volume_limit_for_outlier
+// should/might be about 2.0.
+// the second is the chiral atom and the distortion score
+std::pair<std::vector<std::string> , std::vector <std::pair<coot::atom_spec_t, double> > >
+coot::distorted_chiral_volumes(int imol, mmdb::Manager *mol, protein_geometry *geom_p,
+                               int cif_dictionary_read_number,
+                               double chiral_volume_limit_for_outlier) {
+
+   auto make_local_residues = [] (mmdb::Manager *mol) {
+
+      std::vector<std::pair<bool,mmdb::Residue *> > lr;
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  lr.push_back(std::make_pair(false, residue_p));
+               }
+            }
+         }
+      }
+      return lr;
+   };
+
+   std::vector<std::string> missing_types;
+   std::vector<std::pair<atom_spec_t, double> > d_specs;
+
+   std::vector<std::pair<bool,mmdb::Residue *> > local_residues = make_local_residues(mol);
+   std::vector<mmdb::Link> links;
+   std::vector<coot::atom_spec_t> fixed_atom_specs;
+   clipper::Xmap<float> dummy_map;
+   restraints_container_t restraints(local_residues, links, *geom_p, mol, fixed_atom_specs, &dummy_map);
+   restraint_usage_Flags flags = coot::CHIRAL_VOLUMES;
+   bool do_trans_peptide_restraints = false;
+   bool do_link_restraints = false;
+   bool do_flank_restraints = false;
+   pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+   int n_threads = 1;
+   ctpl::thread_pool tp(n_threads);
+   restraints.thread_pool(&tp, n_threads);
+
+   // this is making nbc restraints I think - stop it.
+   int n_restraints = restraints.make_restraints(imol, *geom_p, flags, 1, do_trans_peptide_restraints,
+                                                0.0, false, true, true, false, pseudos, do_link_restraints, do_flank_restraints);
+
+   std::cout << "--------------------- distorted_chiral_volumes() made " << n_restraints << " restraints" << std::endl;
+
+   if (n_restraints > 0) {
+      geometry_distortion_info_container_t gdic = restraints.geometric_distortions();
+      for (std::size_t id=0; id<gdic.geometry_distortion.size(); id++) {
+         const auto &rest = gdic.geometry_distortion[id];
+         // std::cout << "   " << resst << std::endl;
+         if (rest.distortion_score > chiral_volume_limit_for_outlier) {
+            if (rest.atom_indices.size() == 4) {
+               mmdb:: Atom *at = restraints.get_atom(rest.atom_indices[0]); // the chiral centre of course
+               if (at)
+                  d_specs.push_back(std::make_pair(atom_spec_t(at), rest.distortion_score));
+            }
+         }
+      }
+   }
+   return std::make_pair(missing_types, d_specs);
+}
 
 
 #endif // GSL

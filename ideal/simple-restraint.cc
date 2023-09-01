@@ -1744,6 +1744,8 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
    double nbc_distortion_score_sum = 0;
    double rama_distortion_score_sum = 0;
 
+   std::vector<refinement_results_for_chiral_t> chiral_baddies;
+
    if (! m_s) {
       std::cout << "m_s is null - returning early from add_details_to_refinement_results() " << std::endl;
       return;
@@ -1801,6 +1803,19 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
                // std::cout << "hyrogen bond restraint " << restraint.atom_index_1 << " " << restraint.atom_index_2 << std::endl;
                n_hydrogen_bond_restraints++;
                rr->hydrogen_bond_atom_index_vec.push_back(std::make_pair(restraint.atom_index_1, restraint.atom_index_2));
+            }
+         }
+      }
+
+      if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) {
+         if (restraint.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+            double dist = distortion_score_chiral_volume(restraint, v);
+            double chiral_volume_distortion_limit = 6.0; // c.f. limiit in dynamic-valiation.cc make_chiral_volume_buttons()
+            if (dist > chiral_volume_distortion_limit) {
+               mmdb:: Atom *at = atom[restraint.atom_index_centre];
+               clipper::Coord_orth pos(at->x, at->y, at->z);
+               refinement_results_for_chiral_t cb(atom_spec_t(at), pos, dist);
+               chiral_baddies.push_back(cb);
             }
          }
       }
@@ -1950,6 +1965,22 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
       rr->sorted_rama_baddies = rama_baddies_with_spec_vec;
       rr->overall_rama_plot_score = rama_distortion_score_sum;
 
+   }
+
+   // --- chiral ---
+
+   auto chiral_sorter = [] (const refinement_results_for_chiral_t &r1,
+                            const refinement_results_for_chiral_t &r2) {
+      return (r2.distortion < r1.distortion);
+   };
+   std::sort(chiral_baddies.begin(), chiral_baddies.end(), chiral_sorter);
+   rr->sorted_chiral_volume_baddies = chiral_baddies;
+
+   if (false) {
+      for (unsigned int ii=0; ii<rr->sorted_chiral_volume_baddies.size(); ii++)
+         std::cout << "chiral-vol-baddie " << ii
+                   << " " << rr->sorted_chiral_volume_baddies[ii].atom_spec
+                   << " " << rr->sorted_chiral_volume_baddies[ii].distortion << std::endl;
    }
 
    // --- atom pulls ---
