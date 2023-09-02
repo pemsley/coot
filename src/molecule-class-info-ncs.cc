@@ -1649,6 +1649,36 @@ molecule_class_info_t::copy_from_ncs_master_to_others(const std::string &master_
 }
 
 int
+molecule_class_info_t::copy_from_ncs_master_to_specific_other_chains(const std::string &master_chain_id,
+                                                                     const std::vector<std::string> &other_chain_ids) {
+
+   // check in the ghosts if master_chain_id is actually a master
+   // molecule, and if it is, apply the copy to all ghosts for which
+   // it is a master.
+   int ncopied = 0;
+   if (atom_sel.n_selected_atoms > 0) {
+      if (ncs_ghosts.size() > 0) {
+	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) {
+	    // std::cout << "   %%%%%%%%% calling fill_ghost_info from "
+	    // std::cout << "copy_from_ncs_master_to_others "
+	    // << std::endl;
+	    fill_ghost_info(1, 0.7); // 0.7?
+	 }
+	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+            const std::string this_chain_id = ncs_ghosts[ighost].chain_id;
+	    std::string master_for_this_chain = ncs_ghosts[ighost].target_chain_id;
+	    if (master_for_this_chain == master_chain_id) {
+               if (std::find(other_chain_ids.begin(), other_chain_ids.end(), this_chain_id) != other_chain_ids.end()) {
+                  copy_chain(master_for_this_chain, this_chain_id);
+               }
+	    }
+	 }
+      }
+   }
+   return ncopied;
+}
+
+int
 molecule_class_info_t::copy_residue_range_from_ncs_master_to_others(const std::string &master_chain_id,
 								    int residue_range_1,
 								    int residue_range_2) {

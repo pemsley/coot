@@ -6120,6 +6120,10 @@ void copy_residue_range_from_ncs_master_to_others(int imol, const char *master_c
 						  int residue_range_start, int residue_range_end);
 #ifdef __cplusplus
 #ifdef USE_GUILE
+
+/*! \brief Copy chain from master to specified related NCS chains */
+void copy_from_ncs_master_to_specific_other_chains_scm(int imol, const char *chain_id, SCM other_chain_id_list_scm);
+
 /*! \brief Copy residue range to selected NCS chains
 
    If the target residues do not exist in the peer chains, then create
@@ -6135,6 +6139,9 @@ void copy_from_ncs_master_to_chains_scm(int imol, const char *master_chain_id,
 					SCM chain_id_list);
 #endif
 #ifdef USE_PYTHON
+/*! \brief Copy chain from master to specified other NCS chains */
+void copy_from_ncs_master_to_specific_other_chains_py(int imol, const char *chain_id, PyObject *other_chain_id_list_py);
+
 PyObject *ncs_master_chains_py(int imol);
 void copy_residue_range_from_ncs_master_to_chains_py(int imol, const char *master_chain_id,
 						     int residue_range_start, int residue_range_end,

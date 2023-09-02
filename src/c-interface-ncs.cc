@@ -1048,7 +1048,7 @@ SCM ncs_master_chains_scm(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       std::vector<std::string> v = graphics_info_t::molecules[imol].ncs_master_chains();
-      if (v.size()) {
+      if (! v.empty()) {
 	 r = generic_string_vector_to_list_internal(v);
       } 
    } 
@@ -1063,7 +1063,7 @@ PyObject *ncs_master_chains_py(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       std::vector<std::string> v = graphics_info_t::molecules[imol].ncs_master_chains();
-      if (v.size()) {
+      if (! v.empty()) {
 	 r = generic_string_vector_to_list_internal_py(v);
       }
    } 
@@ -1075,6 +1075,32 @@ PyObject *ncs_master_chains_py(int imol) {
 
 }
 #endif
+
+#ifdef USE_GUILE
+/*! \brief Copy chain from master to specified related NCS chains */
+void copy_from_ncs_master_to_specific_other_chains_scm(int imol, const char *chain_id, SCM other_chain_id_list_scm) {
+
+   if (is_valid_model_molecule(imol)) {
+      std::vector<std::string> v = generic_list_to_string_vector_internal(other_chain_id_list_scm);
+      graphics_info_t::molecules[imol].copy_from_ncs_master_to_specific_other_chains(chain_id, v);
+      graphics_draw();
+   }
+
+}
+#endif
+
+#ifdef USE_PYTHON
+/*! \brief Copy chain from master to specified related NCS chains */
+void copy_from_ncs_master_to_specific_other_chains_py(int imol, const char *chain_id, PyObject *other_chain_id_list_py) {
+
+   if (is_valid_model_molecule(imol)) {
+      std::vector<std::string> v = generic_list_to_string_vector_internal_py(other_chain_id_list_py);
+      graphics_info_t::molecules[imol].copy_from_ncs_master_to_specific_other_chains(chain_id, v);
+      graphics_draw();
+   }
+}
+#endif
+
 
 
 #ifdef USE_GUILE
