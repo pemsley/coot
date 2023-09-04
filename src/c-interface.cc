@@ -6684,8 +6684,13 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
       if (result)
          std::cout << "--------------- in safe_python_command_with_return() result: "
                    << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(result))) << std::endl;
-      else
+      else {
          std::cout << "--------------- in safe_python_command_with_return() result was null" << std::endl;
+         if(PyErr_Occurred()) {
+            std::cout << "--------------- in safe_python_command_with_return() Printing Python exception:" << std::endl;
+            PyErr_Print();
+         }
+      }
 
       // debugging
       // PyRun_String("import coot; print(dir(coot))", Py_file_input, d, d);
