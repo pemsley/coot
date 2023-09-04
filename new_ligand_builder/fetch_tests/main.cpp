@@ -5,6 +5,7 @@
 int main(int argc, char** argv) {
     setup_python_basic(argc, argv);
     setup_python_coot_module();
+    PyRun_SimpleString("import coot_utils");
     std::string input;
     std::cout<<"Drug to fetch: \n";
     std::cin>>input;
