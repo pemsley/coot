@@ -271,7 +271,7 @@ def get_eds_pdb_and_mtz(id):
         coot_tmp_dir = coot_utils.get_directory("coot-download")	
         r = coot_utils.coot_mkdir(coot_tmp_dir)
 
-        if (r):
+        if r:
             down_id = id.lower()
             target_pdb_file = "pdb" + down_id + ".ent"
             target_cif_file = down_id + ".cif"
