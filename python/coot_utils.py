@@ -3584,7 +3584,7 @@ def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
 def get_drug_via_wikipedia(drug_name_in):
 
 
-    import urllib2, ssl, os
+    import urllib, ssl, os
     from xml.etree import ElementTree
 
     def get_redirected_drug_name(xml):
