@@ -324,7 +324,7 @@ std::string
 get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname) {
 
    std::string s;
-   std::string command = "coot_utils.get_drug_via_wikipedia(";
+   std::string command = "get_drug_via_wikipedia(";
    command += single_quote(drugname);
    command += ")";
    PyObject *r = safe_python_command_with_return(command);
