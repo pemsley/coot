@@ -1,7 +1,11 @@
 
   Release 0.9.8.92
 
- o BUG-FIX: Change the linking code once more - fixes erroneous DNA+protien links
+ o FEATURE: Added copy_from_ncs_master_to_specific_other_chains_py(). Now one can update
+            (only) specific peer chains (instead of all of them as was previously the case)
+            [Oli Clarke]
+
+ o BUG-FIX: Change the linking code once more - fixes erroneous DNA+protein links
             [Keitaro Yamashita].
 
 ----
