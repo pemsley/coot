@@ -84,6 +84,9 @@ public:
       material.shininess = shininess; }
    void set_material_diffuse(const glm::vec4 &diffuse) { material.diffuse = diffuse; }
    void set_material_ambient(const glm::vec4 &ambient) { material.ambient = ambient; }
+
+   // --------------------- drawing function ------------------------------------
+
    void draw_simple_bond_lines(Shader *shader,
                                const glm::mat4 &glm,
                                const glm::vec4 &background_colour,
@@ -106,6 +109,24 @@ public:
                                 const glm::mat4 &model,
                                 const glm::mat4 &view,
                                 const glm::mat4 &projection);
+
+   // instanced models
+   void draw_molecule_with_shadows(Shader *shader,
+                                   const glm::mat4 &mvp,
+                                   const glm::mat4 &model_rotation_matrix,
+                                   const std::map<unsigned int, lights_info_t> &lights,
+                                   const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                   float opacity,
+                                   const glm::vec4 &background_colour,
+                                   bool do_depth_fog,
+                                   const glm::mat4 &light_view_mvp,
+                                   unsigned int shadow_depthMap,
+                                   float shadow_strength,
+                                   unsigned int shadow_softness, // 1, 2 or 3.
+                                   bool show_just_shadows);
+
+
+   // --------------------------- mesh-making functions -----------------------------------
 
    // the simple-lines option for the main molecule
    void make_bond_lines(const graphical_bonds_container &bonds_box, const std::vector<glm::vec4> &colour_table);

@@ -154,7 +154,8 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type) {
                         std::cout << "   draw_generic_objects() draw_instanced() " << obj.mesh.name
                                   << " with shader " << shader_for_instanced_objects.name
                                   << " and pulsing should be on" << std::endl;
-                     obj.mesh.draw_instanced(&shader_for_instanced_objects, mvp, model_rotation,
+                     int pass_type = PASS_TYPE_STANDARD;
+                     obj.mesh.draw_instanced(pass_type, &shader_for_instanced_objects, mvp, model_rotation,
                                              lights, eye_position, bg_col,
                                              do_depth_fog, true, true, false, 0.25f, 3.0f, 0.2f, 0.0f);
                   } else {

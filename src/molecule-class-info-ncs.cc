@@ -1189,7 +1189,8 @@ molecule_class_info_t::ncs_chains_match_p(const std::vector<std::pair<std::strin
 		  }
 	       }
 	       int n_count = a.size();
-	       std::cout << "INFO:: NCS chain comparison " << n_match << "/" << v1.size() << std::endl;
+               if (false)
+                  std::cout << "INFO:: NCS chain comparison " << n_match << "/" << v1.size() << std::endl;
 	       if (n_count > 0) {
 		  // float hit_rate = float(n_match)/float(n_count);
 		  // case where protein is 1 to 123 but NAP at 500 fails.  So not n_count but v1.size():
