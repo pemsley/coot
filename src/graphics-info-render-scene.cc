@@ -84,7 +84,10 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
    auto render_to_shadow_map = [] () {
 
-                                 if (shadow_strength == 0.0) return;
+      std::cout << "---------------------------------------- render_to_shadow_map() ------------------------------- "
+                << shadow_strength << std::endl;
+
+                                 if (shadow_strength == 0.0f) return;
                                  GLenum err = glGetError();
                                  if (err)
                                     std::cout << "GL ERROR:: lambda render_to_shadow_map() --- start --- " << err << std::endl;
@@ -657,7 +660,7 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
                glActiveTexture(GL_TEXTURE0 + 2);
                glBindTexture(GL_TEXTURE_2D, di.ssaoColorBufferBlur);
                di.shader_for_effects.Use();
-               // std::cout << "using shader " << shader_for_effects.name << std::endl;
+               std::cout << "using shader_for_effects " << shader_for_effects.name << std::endl;
                shader_for_effects.set_int_for_uniform("screenTexture", 0);
                shader_for_effects.set_int_for_uniform("screenDepth",   1);
                shader_for_effects.set_int_for_uniform("ssao",          2); // sampler2D

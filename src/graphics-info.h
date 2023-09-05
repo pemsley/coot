@@ -4999,6 +4999,7 @@ string   static std::string sessionid;
    static Shader shader_for_meshes_for_ssao;  // render to white
    static Shader shader_for_texture_meshes_shadow_map;
    static Shader shader_for_meshes_shadow_map;
+   static Shader shader_for_instanced_meshes_shadow_map;
    static Shader shader_for_shadow_map_image_texture_mesh;
    static Shader shader_for_instanced_meshes_with_shadows;
    static Shader shader_for_effects; // colour balance or gamma ramp, say.

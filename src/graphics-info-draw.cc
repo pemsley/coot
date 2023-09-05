@@ -1734,15 +1734,20 @@ graphics_info_t::draw_molecules_with_shadows() {
 
                float opacity = 1.0;
                shader_for_instanced_meshes_with_shadows.Use();
-               shader_for_instanced_meshes_with_shadows.set_bool_for_uniform("do_fresnel", false); // models should not fresnel
 #if 0 // before model molecules were instanced
                m.molecule_as_mesh.draw_with_shadows(&shader_for_meshes_with_shadows, mvp, model_rotation_matrix, lights,
                                                     eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
                                                     shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
-#endif
                m.draw_molecule_as_meshes_with_shadows(&shader_for_instanced_meshes_with_shadows, mvp, model_rotation_matrix, lights,
                                                       eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
                                                       shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
+#endif
+
+               // shader_for_instanced_meshes_with_shadows.set_bool_for_uniform("do_fresnel", false); // models should not fresnel
+               // 20230904-PE Let's try using the new model_molecule_as_meshes class
+               m.model_molecule_meshes.draw_molecule_with_shadows(&shader_for_instanced_meshes_with_shadows, mvp, model_rotation_matrix, lights,
+                                                                  eye_position, opacity, bg_col_v4, shader_do_depth_fog_flag, light_view_mvp,
+                                                                  shadow_depthMap_texture, shadow_strength, shadow_softness, show_just_shadows);
             }
 
             // this has not been shadowified:
@@ -2114,7 +2119,8 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                if (mesh.is_instanced) {
 
                   bool transferred_colour_is_instanced = false;
-                  mesh.draw_instanced(&shader_for_moleculestotriangles, mvp,
+                  mesh.draw_instanced(pass_type,
+                                      &shader_for_moleculestotriangles, mvp,
                                       model_rotation, lights, eye_position,
                                       bg_col, do_depth_fog, transferred_colour_is_instanced);
                } else {
@@ -4251,6 +4257,8 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
 void
 graphics_info_t::render_3d_scene_with_shadows() {
 
+   std::cout << "render_3d_scene_with_shadows() --- start ---" << std::endl;
+
    // note: this function is called from render_scene_sans_depth_blur()
 
    //  ------------------- render scene ----------------------------
@@ -5429,7 +5437,9 @@ graphics_info_t::draw_hydrogen_bonds_mesh() {
       glm::mat4 model_rotation_matrix = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
 
-      mesh_for_hydrogen_bonds.draw_instanced(&shader_for_instanced_objects,
+      int pass_type = PASS_TYPE_STANDARD;
+      mesh_for_hydrogen_bonds.draw_instanced(pass_type,
+                                             &shader_for_instanced_objects,
                                              mvp, model_rotation_matrix, lights, eye_position, bg_col,
                                              shader_do_depth_fog_flag, false, false, true, 0, 0, 0, 0.2);
    }

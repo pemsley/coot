@@ -192,7 +192,8 @@ public:
    // 5 instance rot-trans-2
    // 6 instance rot-trans-3
    // 7 instance rot-trans-4
-   void draw_instanced(Shader *shader,
+   void draw_instanced(int pass_type,
+                       Shader *shader,
                        const glm::mat4 &mvp,
                        const glm::mat4 &view_rotation_matrix,
                        const std::map<unsigned int, lights_info_t> &lights,

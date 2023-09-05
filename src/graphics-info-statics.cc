@@ -1699,6 +1699,7 @@ unsigned int graphics_info_t::ssao_blur_size = 1;
 Shader graphics_info_t::shader_for_meshes;
 Shader graphics_info_t::shader_for_tmeshes;
 Shader graphics_info_t::shader_for_meshes_shadow_map;
+Shader graphics_info_t::shader_for_instanced_meshes_shadow_map;
 Shader graphics_info_t::shader_for_texture_meshes_shadow_map;
 Shader graphics_info_t::shader_for_shadow_map_image_texture_mesh;
 float graphics_info_t::shadow_box_size = 120.0;

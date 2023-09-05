@@ -5,6 +5,8 @@
 
 #version 330 core
 
+// This is instanced-objects.shader
+
 // keep these because they are s_generic_vertex:
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
@@ -32,6 +34,7 @@ out vec3 normal_transfer;
 out vec4 frag_pos_transfer;
 
 void main() {
+
    mat4 model_rotation_translation_scale = mat4(model_rotation_translation_scale_0,
                                                 model_rotation_translation_scale_1,
                                                 model_rotation_translation_scale_2,
@@ -39,10 +42,6 @@ void main() {
    mat3 model_rotation = mat3(model_rotation_translation_scale_0.xyz,
                               model_rotation_translation_scale_1.xyz,
                               model_rotation_translation_scale_2.xyz);
-
-   // vec3 t_pos = position + vec3(0,0, 0.5 * sin(0.01 * time));
-   // vec3 t_pos = position + vec3(0,0, 0.2 * sin(0.003 * time + 0.2 * gl_InstanceID));
-   // vec3 t_pos = position + vec3(0,0, 0.2 * sin(0.3 * gl_InstanceID));
 
    vec3 t_pos = position;
    vec3 n_dir = normal;
@@ -74,21 +73,21 @@ void main() {
 #version 330 core
 
 struct LightSource {
-    bool is_on;
-    bool directional;
-    vec4 position;
-    vec3 direction_in_molecule_coordinates_space;
-    vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
-    vec4 halfVector;
-    vec3 spotDirection;
-    float spotExponent;
-    float spotCutoff;
-    float spotCosCutoff;
-    float constantAttenuation;
-    float linearAttenuation;
-    float quadraticAttenuation;
+   bool is_on;
+   bool directional;
+   vec4 position;
+   vec3 direction_in_molecule_coordinates_space;
+   vec4 ambient;
+   vec4 diffuse;
+   vec4 specular;
+   vec4 halfVector;
+   vec3 spotDirection;
+   float spotExponent;
+   float spotCutoff;
+   float spotCosCutoff;
+   float constantAttenuation;
+   float linearAttenuation;
+   float quadraticAttenuation;
 };
 struct Material {
    float shininess;

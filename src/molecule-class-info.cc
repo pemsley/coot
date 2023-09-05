@@ -4323,12 +4323,16 @@ molecule_class_info_t::draw_molecule_as_meshes_for_ssao(Shader *shader_p,
                                                         const glm::mat4 &view_matrix,
                                                         const glm::mat4 &projection_matrix) {
 
-   if (true) {
-      std::cout << "draw_molecule_as_meshes_for_ssao() shader " << shader_p->name << " " << std::endl;
+   std::cout << "draw_molecule_as_meshes_for_ssao() shader " << shader_p->name << " " << std::endl;
+   if (false) {
       std::cout << "   model_matrix " << glm::to_string(model_matrix) << std::endl;
       std::cout << "   view_matrix " << glm::to_string(view_matrix) << std::endl;
       std::cout << "   proj_matrix " << glm::to_string(projection_matrix) << std::endl;
    }
+
+   // we should have two different shaders, shouldn't we?
+   model_molecule_meshes.draw_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
+
 #if 0
    bool transferred_colour_is_instanced = true;
    molecule_as_mesh_atoms_1.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
@@ -4338,7 +4342,6 @@ molecule_class_info_t::draw_molecule_as_meshes_for_ssao(Shader *shader_p,
    molecule_as_mesh_bonds_c10.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
    molecule_as_mesh_bonds_c11.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
 #endif
-   std::cout << "draw_molecule_as_meshes_for_ssao() replacement code needed here" << std::endl;
 
 }
 

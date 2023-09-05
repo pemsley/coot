@@ -20,12 +20,13 @@ model_molecule_meshes_t::empty() const {
 }
 
 void
-model_molecule_meshes_t::draw_simple_bond_lines(Shader *shader,
-                                                const glm::mat4 &glm,
+model_molecule_meshes_t::draw_simple_bond_lines(Shader *shader_p,
+                                                const glm::mat4 &mvp,
                                                 const glm::vec4 &background_colour,
                                                 float line_width,
                                                 bool do_depth_fog) {
 
+   simple_mesh.draw_simple_bond_lines(shader_p, mvp, background_colour, line_width, do_depth_fog);
 }
 
 
@@ -36,6 +37,10 @@ model_molecule_meshes_t::draw_for_ssao(Shader *shader_for_meshes_p,
                                        const glm::mat4 &view,
                                        const glm::mat4 &projection) { // draw into the gbuffer framebuffer.
 
+   simple_mesh.draw_for_ssao(shader_for_meshes_p, model, view, projection);
+   for (unsigned int i=0; i<instanced_meshes.size(); i++) {
+      instanced_meshes[i].draw_instances_for_ssao(shader_for_meshes_p, model, view, projection);
+   }
 }
 
 
@@ -386,7 +391,8 @@ model_molecule_meshes_t::draw_instances(Shader *shader_for_instanced_meshes_p,
       if (false)
          std::cout << "   calling mesh.draw_instanced() \"" << mesh.name << "\" with shader "
                    << "\"" << shader_for_instanced_meshes_p->name << "\"" << std::endl;
-      mesh.draw_instanced(shader_for_instanced_meshes_p, mvp, view_rotation_matrix, lights, eye_position, background_colour,
+      int pass_type = graphics_info_t::PASS_TYPE_FOR_SHADOWS;
+      mesh.draw_instanced(pass_type, shader_for_instanced_meshes_p, mvp, view_rotation_matrix, lights, eye_position, background_colour,
                           do_depth_fog, transferred_colour_is_instanced,
                           do_pulse, do_rotate_z, pulsing_amplitude, pulsing_frequency,
                           pulsing_phase_distribution, z_rotation_angle);
@@ -410,4 +416,31 @@ model_molecule_meshes_t::draw_simple(Shader *shader,
    // std::cout << "model_molecule_meshes_t::draw_simple()" << std::endl;
    simple_mesh.draw(shader, mvp, view_rotation_matrix, lights, eye_position, opacity, background_colour,
                     gl_lines_mode, do_depth_fog, show_just_shadows);
+}
+
+// instanced models
+void
+model_molecule_meshes_t::draw_molecule_with_shadows(Shader *shader,
+                                                    const glm::mat4 &mvp,
+                                                    const glm::mat4 &model_rotation_matrix,
+                                                    const std::map<unsigned int, lights_info_t> &lights,
+                                                    const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                                    float opacity,
+                                                    const glm::vec4 &background_colour,
+                                                    bool do_depth_fog,
+                                                    const glm::mat4 &light_view_mvp,
+                                                    unsigned int shadow_depthMap,
+                                                    float shadow_strength,
+                                                    unsigned int shadow_softness, // 1, 2 or 3.
+                                                    bool show_just_shadows) {
+
+   std::vector<Mesh>::iterator it;
+   for (it=instanced_meshes.begin(); it!=instanced_meshes.end(); ++it) {
+      auto &mesh(*it);
+      // std::cout << "in draw_molecule_as_meshes_with_shadows() drawing instanced_mesh \"" << mesh.name << "\"" << std::endl;
+      mesh.draw_with_shadows(shader, mvp, model_rotation_matrix, lights,
+                             eye_position, opacity, background_colour, do_depth_fog, light_view_mvp,
+                             shadow_depthMap, shadow_strength, shadow_softness, show_just_shadows);
+   }
+
 }
