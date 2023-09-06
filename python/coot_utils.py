@@ -27,6 +27,9 @@ import re
 import string
 import numbers
 import math
+import urllib
+import requests
+
 import coot
 # import coot_gui # circular dependency
 from coot_redefine_functions import * # 20220828-PE this needs fixing
@@ -3577,136 +3580,77 @@ def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
         dist_sum_sq = sum(square(rcx-scx) for rcx, scx in zip(rc, sc))
         return dist_sum_sq < 25.
 
-# return a string "DB00xxxx.mol" or some such - this is the file name
-# of the mdl mol file from drugbank. Or False/undefined on fail.
-# Test result with string?.
-#
-def get_drug_via_wikipedia(drug_name_in):
+from xml.etree import ElementTree
 
-    import urllib, ssl, os
-    from xml.etree import ElementTree
+def fetch_drug_via_wikipedia(drug_name_in):
 
-    def get_redirected_drug_name(xml):
-        return parse_wiki_drug_xml(xml, '#REDIRECT', True)
-
-    def file_seems_good_qm(file_name):
-        if not os.path.isfile(file_name):
-            return False
-        else:
-            return os.stat(file_name).st_size > 20
-
-    def parse_wiki_drug_xml(tree, key, redirect=False):
-        key_re = re.compile(key)
-        drug_bank_id = False
+    def parse_wiki_drug_xml(tree, key):
+        code =  False
         query_ele = tree.find("query")
-        rev_iter = query_ele.getiterator("rev")
-        if len(rev_iter) > 0:
-            rev_text = rev_iter[0].text
-            # seems to be in some strange format!?
-            decode_text = rev_text.encode('ascii', 'ignore')
-            for line in decode_text.split("\n"):
-                # if key in line: # too simple, we need a regular expresssion search
-                if key_re.search(line):
-                    if (redirect == False):
-                        drug_bank_id = line.split(" ")[-1]
-                        if not drug_bank_id:
-                            # we can get an empty string
-                            drug_bank_id = False
-                    else:
-                        # a REDIRECT was found
-                        drug_bank_id = line[line.find("[[")+2:line.find("]]")]
-        else:
-            print('Oops! len rev_text is 0')
+        rev_iter = query_ele.iter("rev")
+        for item in rev_iter:
+            # print("item", item)
+            item_text = item.text
+            for idx,line in enumerate(item_text.split("\n")):
+                # print("searching for", key, "in", line)
+                # try to find the "| DrugBank = DB0001" without finding anything else
+                if key in line:
+                    if "|" in line:
+                        if " = " in line:
+                            print(idx, line)
+                            parts = line.split()
+                            if len(parts) > 2:
+                                if len(parts) < 5:
+                                    code = parts[-1]
+        return code
 
-        return drug_bank_id
+    def get_redirected_drug_name(xml_tree):
+        query_ele = xml_tree.find("query")
+        rev_iter = query_ele.iter("rev")
+        for item in rev_iter:
+            if "#REDIRECT " in item.text:
+                lines = item.text.split("\n")
+                for line in lines:
+                    if "#REDIRECT " in line:
+                        parts = line.split()
+                        last_word = parts[-1]
+                        print("last_word", last_word);
+                        p_1 = last_word.strip("[")
+                        print("p_1", p_1);
+                        p_2 = p_1.strip("]")
+                        print("p_2:", p_2);
+                        redirected_drug_name = p_2
+                        return redirected_drug_name
+        return False
 
-    file_name = False
-    if isinstance(drug_name_in, str):
-        if len(drug_name_in) > 0:
-            drug_name = drug_name_in.lower()
-            url = "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles=" + \
-                  drug_name + \
-                  "&prop=revisions&rvprop=content"
+    drug_name = drug_name_in.lower()
+    url = "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles=" + drug_name + \
+        "&prop=revisions&rvprop=content"
+    print("DEBUG:: url", url)
+    xml = requests.get(url, stream=True)
+    xml_tree = ElementTree.fromstring(xml.content)
+    redirected_drug_name = get_redirected_drug_name(xml_tree)
+    print("redirected_drug_name", redirected_drug_name)
+    if redirected_drug_name:
+        drug_name = redirected_drug_name
+        url = "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles=" + drug_name + \
+            "&prop=revisions&rvprop=content"
+        print("DEBGU:: url", url)
+        xml = requests.get(url)
+        xml_tree = ElementTree.parse(xml)
 
-            # we want to parse the Etree rather than xml as this is an addurlinfo thingy
-            xml = urllib.request.urlopen(url)
-            xml_tree = ElementTree.parse(xml)
+    db_code = parse_wiki_drug_xml(xml_tree, "DrugBank ")
+    print("db_code", db_code)
+    if db_code:
+        db_mol_uri = "https://www.drugbank.ca/structures/small_molecule_drugs/" + str(db_code) + ".mol"
+        file_name = str(db_code) + ".mol"
+        print("DEBUG:: db_mol_uri", db_mol_uri)
+        r = requests.get(db_mol_uri, allow_redirects=True)
+        with open(file_name, "wb") as f:
+            f.write(r.content)
+        return file_name
 
-            db_id_list = []
-
-            mol_name = parse_wiki_drug_xml(xml_tree, "DrugBank  *= ")
-            if isinstance(mol_name, str):
-                db_id_list.append(["DrugBank", mol_name])
-
-            mol_name = parse_wiki_drug_xml(xml_tree,  "ChemSpider  *= ")
-            if isinstance(mol_name, str):
-                db_id_list.append(["ChemSpider", mol_name])
-
-            mol_name = parse_wiki_drug_xml(xml_tree,  "PubChem  *= ")
-            if isinstance(mol_name, str):
-                db_id_list.append(["PubChem", mol_name])
-
-            mol_name = parse_wiki_drug_xml(xml_tree,  "ChEMBL  *= ")
-            if isinstance(mol_name, str):
-                db_id_list.append(["ChEMBL", mol_name])
-
-            # now db_id_list is something like [["DrugBank" , "12234"], ["ChEMBL" , "6789"]]
-            # can we find one of them that works?
-            for db, id in db_id_list:
-                if id:
-                    if db == "DrugBank":
-                        db_mol_uri = "https://www.drugbank.ca/structures/small_molecule_drugs/" + \
-                                     id + ".mol"
-                        file_name = "drugbank-" + id + ".mol"
-                        print("BL DEBUG:: DrugBank path: getting url:", db_mol_uri)
-                        coot.coot_get_url(db_mol_uri, file_name)
-                        # check that filename is good here
-                        if file_seems_good_qm(file_name):
-                            print(
-                                "BL DEBUG:: yes db file-name: %s seems good" % file_name)
-                            return file_name
-
-                    if db == "ChemSpider":
-                        cs_mol_url = "http://www.chemspider.com/" + \
-                                     "FilesHandler.ashx?type=str&striph=yes&id=" + \
-                                     "cs-" + id + ".mol"
-                        file_name = "cs-" + id + ".mol"
-                        print("BL DEBUG:: DrugBank path: getting url:", cs_mol_ur)
-                        coot.coot_get_url(cs_mol_url, file_name)
-                        # check that filename is good here
-                        if file_seems_good_qm(file_name):
-                            print(
-                                "BL DEBUG:: yes cs file-name: %s seems good" % file_name)
-                            return file_name
-
-                    if db == "ChEMBL":
-                        mol_url = "https://www.ebi.ac.uk/chembl/api/data/molecule/CHEMBL" + \
-                            id + ".sdf"
-                        file_name = "chembl-" + id + ".sdf"
-                        print("BL DEBUG:: ChEMBL path: getting url:", mol_url)
-                        coot.coot_get_url(mol_url, file_name)
-                        # check that filename is good here
-                        if file_seems_good_qm(file_name):
-                            print(
-                                "BL DEBUG:: yes chembl file-name: %s seems good" % file_name)
-                            return file_name
-
-                    if db == "PubChem":
-                        pc_mol_url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/" + \
-                                     id + "/record/SDF/?record_type=2d&response_type=display"
-                        file_name = "pc-" + id + ".mol"
-                        print("BL DEBUG:: pubchem path: getting url:", pc_mol_url)
-                        coot.coot_get_url(pc_mol_url, file_name)
-                        # check that filename is good here
-                        if file_seems_good_qm(file_name):
-                            print(
-                                "BL DEBUG:: yes pc file-name: %s seems good" % file_name)
-                            return file_name
-    # last resort, try a redirect
-    new_id = get_redirected_drug_name(xml_tree)
-    if new_id:
-        return get_drug_via_wikipedia(new_id)
-    return False  # nothing was found...
+    return False
 
 
 def get_SMILES_for_comp_id_from_pdbe(comp_id):
