@@ -324,10 +324,14 @@ std::string
 get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname) {
 
    std::string s;
-   std::string command = "get_drug_via_wikipedia(";
+   std::string command = "coot_utils.get_drug_via_wikipedia(";
    command += single_quote(drugname);
    command += ")";
    PyObject *r = safe_python_command_with_return(command);
+   if(!r) {
+      std::cout<<"fixme: Call to Python get_drug_via_wikipedia('"<<drugname<<"') returned a null pointer.\n";
+      return s;
+   }
    if (PyUnicode_Check(r))
      s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(r));
    Py_XDECREF(r);

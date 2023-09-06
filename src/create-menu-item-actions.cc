@@ -3001,7 +3001,7 @@ create_actions(GtkApplication *application) {
    add_action(                       "save_state_action",                       save_state_action);
    add_action(                  "recover_session_action",                  recover_session_action);
    add_action(                  "file_export_map_action",                  file_export_map_action);
-   add_action(         "file_export_map_fragment_action",                  file_export_map_action);
+   add_action(         "file_export_map_fragment_action",                  file_export_map_fragment_action);
    add_action(                   "close_molecule_action",                   close_molecule_action);
 
    // Edit

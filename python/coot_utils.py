@@ -3582,8 +3582,6 @@ def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
 
 from xml.etree import ElementTree
 
-from xml.etree import ElementTree
-
 def fetch_drug_via_wikipedia(drug_name_in):
 
     def parse_wiki_drug_xml(tree, key):
