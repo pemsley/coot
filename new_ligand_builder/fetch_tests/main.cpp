@@ -17,12 +17,11 @@ int main(int argc, char** argv) {
     setup_python_basic(argc, argv);
     setup_python_coot_module();
     PyRun_SimpleString("import coot_utils");
-    repl();
-    return 0;
 
     std::string input;
     std::cout<<"Drug to fetch: \n";
     std::cin>>input;
     auto res = get_drug_via_wikipedia_and_drugbank_py(input);
     std::cout<<"\nResult: \n"<<res<<'\n';
+    repl();
 }
