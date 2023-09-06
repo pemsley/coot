@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 
     std::string input;
     std::cout<<"Drug to fetch: \n";
-    std::cin>>input;
+    std::getline(std::cin,input);
     auto res = get_drug_via_wikipedia_and_drugbank_py(input);
     std::cout<<"\nResult: \n"<<res<<'\n';
     repl();
