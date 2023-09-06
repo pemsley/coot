@@ -990,8 +990,8 @@ fi
 # exec 2>&1 > $LOGS/$HOST.log
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
-echo INFO:: redirecting std output to $LOGS/build.log
-exec > $LOGS/build.log
+echo INFO:: redirecting std output to $LOGS/build-gtk2.log
+exec > $LOGS/build-gtk2.log
 
 # local tinkering because our sgi runs out of room on /tmp on compiling
 if [ $HOST = batman ] ; then
