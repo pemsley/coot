@@ -3585,6 +3585,7 @@ def get_drug_via_wikipedia(drug_name_in):
 
 
     import urllib, ssl, os
+    import urllib.request
     from xml.etree import ElementTree
 
     def get_redirected_drug_name(xml):
