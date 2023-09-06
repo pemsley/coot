@@ -3582,6 +3582,8 @@ def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
 
 from xml.etree import ElementTree
 
+from xml.etree import ElementTree
+
 def fetch_drug_via_wikipedia(drug_name_in):
 
     def parse_wiki_drug_xml(tree, key):
@@ -3635,7 +3637,7 @@ def fetch_drug_via_wikipedia(drug_name_in):
         drug_name = redirected_drug_name
         url = "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles=" + drug_name + \
             "&prop=revisions&rvprop=content"
-        print("DEBGU:: url", url)
+        print("DEBUG:: url", url)
         xml = requests.get(url)
         xml_tree = ElementTree.parse(xml)
 
@@ -3651,7 +3653,6 @@ def fetch_drug_via_wikipedia(drug_name_in):
         return file_name
 
     return False
-
 
 def get_SMILES_for_comp_id_from_pdbe(comp_id):
 
