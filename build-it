@@ -4592,6 +4592,7 @@ echo ./configure $coot_prefix \
 # So I will convert that to say just "../py-compile"
 #
 sed -ibackup -e 's/am__py_compile.*destdir.*/am__py_compile)/' pyrogen/Makefile
+sed -ibackup -e 's/am__py_compile.*destdir.*/am__py_compile)/' python/Makefile
 
 # these are no longer used
 #         --with-mmdb-prefix=$install_top_dir 
