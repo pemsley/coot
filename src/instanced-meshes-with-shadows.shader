@@ -215,8 +215,9 @@ void main() {
 
          float shadow_diffuse = calc_shadow(dp); // calc_shadow() returns 0.0 for full shadow
          float shadow_specular = shadow_diffuse;
-         if (shadow_specular < 0.95)
-            shadow_specular = 0;
+
+         // if (shadow_specular < 0.95)
+         //    shadow_specular = 0;
 
          //
          vec3 eye_pos_in_view = vec3(vec4(eye_position, 1.0) * view_rotation);
@@ -229,7 +230,7 @@ void main() {
          dp_view_reflect = min(dp_view_reflect, 1.0);
 
          float spec = specular_strength * pow(dp_view_reflect, shininess);
-         // spec = 0;
+
          vec4 specular = 3.0 * spec * light_sources[i].specular;
 
          // final
@@ -237,13 +238,16 @@ void main() {
          // running_col += ambient + diffuse * shadow_diffuse + specular * shadow_specular * specular_strength;
          vec4 test_col = vec4(0.4, 0.0, 0.4, 1.0);
 
-         vec4 addition_col = vec4(0,0,0,1);
-         if (shadow_diffuse > 10.99)
+         vec4 addition_col = vec4(0,0,0,0);
+
+         if (shadow_diffuse > 1.99)
             addition_col = test_col;
          else 
             addition_col += ambient + diffuse * shadow_diffuse + specular * shadow_specular * specular_strength;
 
          // addition_col = vec4(vec3(shadow_diffuse), 1.0);
+         // addition_col = vec4(0.3, 0.3, 0.3, 1.0);
+
          running_col += addition_col;
 
          // if (dp_view_reflect > 0.98) outputColor = vec4(1,0,0,1);

@@ -4642,6 +4642,7 @@ string   static std::string sessionid;
    // ---------------------------------------------
    static bool shaders_have_been_compiled;
    bool init_shaders(); // return status (true = OK)
+   bool init_shader(const std::string &shader_file_name);
    void init_framebuffers(unsigned int width, unsigned int height);// 20220129-PE a crows thing
 
    // draw-2 functions
@@ -4997,6 +4998,7 @@ string   static std::string sessionid;
    static Shader shader_for_meshes_with_shadows;
    static Shader shader_for_tmeshes_for_ssao; // render to white, don't use texture (like ssao_geometry)
    static Shader shader_for_meshes_for_ssao;  // render to white
+   static Shader shader_for_instanced_meshes_for_ssao;
    static Shader shader_for_texture_meshes_shadow_map;
    static Shader shader_for_meshes_shadow_map;
    static Shader shader_for_instanced_meshes_shadow_map;

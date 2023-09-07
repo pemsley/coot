@@ -3730,7 +3730,8 @@ void draw_map_molecule(bool draw_transparent_maps,
                                 bool do_depth_fog);
 
    // instanced models
-   void draw_molecule_as_meshes_for_ssao(Shader *shader_p,
+   void draw_molecule_as_meshes_for_ssao(Shader *shader_for_meshes_for_ssao,
+                                         Shader *shader_for_instanced_meshes_for_ssao,
                                          const glm::mat4 &model_matrix,
                                          const glm::mat4 &view_matrix,
                                          const glm::mat4 &projection_matrix);

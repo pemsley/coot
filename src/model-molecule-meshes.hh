@@ -95,6 +95,7 @@ public:
 
    // wrap draw_simple_for_ssao() and draw_instances_for_ssao()
    void draw_for_ssao(Shader *shader_for_meshes_p,
+                      Shader *shader_for_instanced_meshes_p,
                       const glm::mat4 &model,
                       const glm::mat4 &view,
                       const glm::mat4 &projection);  // draw into the gbuffer framebuffer.

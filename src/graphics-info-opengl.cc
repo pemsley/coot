@@ -12,6 +12,77 @@
 #define ENABLE_NLS // 20220606-PE fixes weird dcgettext() compiler errors
 #include "graphics-info.h"
 
+std::vector<std::reference_wrapper<Shader> > get_shader_refs() {
+
+   return std::vector<std::reference_wrapper<Shader> > { graphics_info_t::shader_for_maps,
+                                                        graphics_info_t::shader_for_map_caps,
+                                                        graphics_info_t::shader_for_models,
+                                                        graphics_info_t::shader_for_outline_of_active_residue,
+                                                        graphics_info_t::shader_for_model_as_meshes,
+                                                        graphics_info_t::shader_for_symmetry_atoms_bond_lines,
+                                                        graphics_info_t::shader_for_central_cube,
+                                                        graphics_info_t::shader_for_origin_cube,
+                                                        graphics_info_t::shader_for_hud_text,
+                                                        graphics_info_t::shader_for_hud_geometry_bars,
+                                                        graphics_info_t::shader_for_hud_geometry_labels,
+                                                        graphics_info_t::shader_for_hud_geometry_tooltip_text,
+                                                        graphics_info_t::shader_for_hud_buttons,
+                                                        graphics_info_t::shader_for_hud_image_texture,
+                                                        graphics_info_t::shader_for_atom_labels,
+                                                        graphics_info_t::shader_for_moleculestotriangles,
+                                                        graphics_info_t::shader_for_hud_lines,
+                                                        graphics_info_t::shader_for_lines,
+                                                        graphics_info_t::shader_for_lines_pulse,
+                                                        graphics_info_t::shader_for_rama_balls,
+                                                        graphics_info_t::shader_for_particles,
+                                                        graphics_info_t::shader_for_instanced_objects,
+                                                        graphics_info_t::shader_for_extra_distance_restraints,
+                                                        graphics_info_t::shader_for_happy_face_residue_markers,
+                                                        graphics_info_t::shader_for_happy_face_residue_markers_for_ssao,
+                                                        graphics_info_t::shader_for_rama_plot_phi_phis_markers,
+                                                        graphics_info_t::shader_for_rama_plot_axes_and_ticks,
+                                                        graphics_info_t::shader_for_ligand_view,
+                                                        graphics_info_t::shader_for_x_blur,
+                                                        graphics_info_t::shader_for_y_blur,
+                                                        graphics_info_t::shader_for_dof_blur_by_texture_combination,
+                                                        graphics_info_t::shader_for_texture_meshes,
+                                                        graphics_info_t::shader_for_meshes,
+                                                        graphics_info_t::shader_for_background_image,
+                                                        graphics_info_t::shader_for_meshes_with_shadows,
+                                                        graphics_info_t::shader_for_meshes_shadow_map,
+                                                        graphics_info_t::shader_for_instanced_meshes_shadow_map,
+                                                        graphics_info_t::shader_for_meshes_for_ssao,
+                                                        graphics_info_t::shader_for_instanced_meshes_with_shadows,
+                                                        graphics_info_t::shader_for_tmeshes_for_ssao,
+                                                        graphics_info_t::shader_for_tmeshes_with_shadows,
+                                                        graphics_info_t::shader_for_texture_meshes_shadow_map,
+                                                        graphics_info_t::shader_for_rotation_centre_cross_hairs_for_ssao,
+                                                        graphics_info_t::shader_for_tmeshes,
+                                                        graphics_info_t::shader_for_tmeshes_for_ssao,
+                                                        graphics_info_t::shader_for_shadow_map_image_texture_mesh,
+                                                        graphics_info_t::shader_for_effects,
+                                                        graphics_info_t::shaderGeometryPass,
+                                                        graphics_info_t::shaderSSAO,
+                                                        graphics_info_t::shaderSSAOBlur};
+}
+
+
+bool
+graphics_info_t::init_shader(const std::string &shader_file_name) {
+
+   std::vector<std::reference_wrapper<Shader> > shader_refs = get_shader_refs();
+   std::vector<std::reference_wrapper<Shader> >::iterator it;
+   for (it=shader_refs.begin(); it!=shader_refs.end(); ++it) {
+      if (it->get().name == shader_file_name) {
+         Shader &shader(it->get());
+         std::cout << "init_shader(): found the shader " << shader.name << std::endl;
+         shader.init(shader_file_name, Shader::Entity_t::NONE);
+      }
+   }
+   std::cout << "--- done init_shader() ---" << std::endl;
+}
+
+
 
 bool
 graphics_info_t::init_shaders() {
@@ -86,6 +157,7 @@ graphics_info_t::init_shaders() {
    shader_for_meshes_shadow_map.init("meshes-for-shadow-map.shader",                Shader::Entity_t::MAP);
    shader_for_instanced_meshes_shadow_map.init("instanced-meshes-for-shadow-map.shader", Shader::Entity_t::MAP);
    shader_for_meshes_for_ssao.init("meshes-for-ssao.shader",                        Shader::Entity_t::MAP);
+   shader_for_instanced_meshes_for_ssao.init("instanced-meshes-for-ssao.shader",    Shader::Entity_t::MAP);
    shader_for_tmeshes_for_ssao.init("texture-meshes-for-ssao.shader",               Shader::Entity_t::MAP);
    shader_for_tmeshes_with_shadows.init("texture-meshes-with-shadows.shader",       Shader::Entity_t::MAP);
    shader_for_texture_meshes_shadow_map.init("texture-meshes-shadow-map.shader",    Shader::Entity_t::MAP);

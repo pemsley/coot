@@ -4145,26 +4145,12 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       Material material;
       Shader *shader_p = &graphics_info_t::shader_for_model_as_meshes;
 
-#if 0 // 20230826-PE code before api instancing.
-      molecule_as_mesh_atoms_1.make_graphical_bonds_spherical_atoms_instanced_version(shader_p, material, bonds_box, udd_handle_bonded_type,
-                                                                                      atom_radius, bond_radius, num_subdivisions,
-                                                                                      colour_table);
-      molecule_as_mesh_atoms_2.make_graphical_bonds_hemispherical_atoms_instanced_version(shader_p, material, bonds_box, udd_handle_bonded_type,
-                                                                                          atom_radius, bond_radius, num_subdivisions,
-                                                                                          colour_table);
-      molecule_as_mesh_bonds_c00.make_graphical_bonds_bonds_instanced_version(shader_p, material, bonds_box, bond_radius, n_slices, n_stacks,
-                                                                              colour_table, false, false);
-      molecule_as_mesh_bonds_c01.make_graphical_bonds_bonds_instanced_version(shader_p, material, bonds_box, bond_radius, n_slices, n_stacks,
-                                                                              colour_table, false, true);
-      molecule_as_mesh_bonds_c10.make_graphical_bonds_bonds_instanced_version(shader_p, material, bonds_box, bond_radius, n_slices, n_stacks,
-                                                                              colour_table, true, false);
-      molecule_as_mesh_bonds_c11.make_graphical_bonds_bonds_instanced_version(shader_p, material, bonds_box, bond_radius, n_slices, n_stacks,
-                                                                              colour_table, true, true);
-#endif
+      // 20230905-PE use model_representation_mode here.
 
-      // std::cout << "*****************  bonds_box_type " << bonds_box_type << std::endl;
-      // 20230828-PE this is not needed now.
-      //coot::api_bond_colour_t api_bonds_box_type = convert_box_box_type(bonds_box_type);
+      if (model_representation_mode == Mesh::BALLS_NOT_BONDS)
+         atom_radius = 1.67; // 20220226-PE  compromise between C, N, O. Actually we should of course get
+                             // the radius of each atom from its type when model_representation_mode == Mesh::BALLS_NOT_BONDS.
+                             // That's for another day.
 
       model_molecule_meshes.make_graphical_bonds(imol_no, bonds_box, atom_radius, bond_radius,
                                                  num_subdivisions, n_slices, n_stacks, colour_table);
@@ -4318,12 +4304,14 @@ molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
 
 // draw molecule as instanced meshes.
 void
-molecule_class_info_t::draw_molecule_as_meshes_for_ssao(Shader *shader_p,
+molecule_class_info_t::draw_molecule_as_meshes_for_ssao(Shader *shader_for_meshes_for_ssao,
+                                                        Shader *shader_for_instanced_meshes_for_ssao,
                                                         const glm::mat4 &model_matrix,
                                                         const glm::mat4 &view_matrix,
                                                         const glm::mat4 &projection_matrix) {
 
-   std::cout << "draw_molecule_as_meshes_for_ssao() shader " << shader_p->name << " " << std::endl;
+   std::cout << "draw_molecule_as_meshes_for_ssao() shader " << shader_for_meshes_for_ssao->name << " and "
+             << shader_for_meshes_for_ssao->name << std::endl;
    if (false) {
       std::cout << "   model_matrix " << glm::to_string(model_matrix) << std::endl;
       std::cout << "   view_matrix " << glm::to_string(view_matrix) << std::endl;
@@ -4331,9 +4319,10 @@ molecule_class_info_t::draw_molecule_as_meshes_for_ssao(Shader *shader_p,
    }
 
    // we should have two different shaders, shouldn't we?
-   model_molecule_meshes.draw_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
+   model_molecule_meshes.draw_for_ssao(shader_for_meshes_for_ssao, shader_for_instanced_meshes_for_ssao,
+                                       model_matrix, view_matrix, projection_matrix);
 
-#if 0
+#if 0 // delete this when ssao is working
    bool transferred_colour_is_instanced = true;
    molecule_as_mesh_atoms_1.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
    molecule_as_mesh_atoms_2.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);

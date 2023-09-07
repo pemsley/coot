@@ -43,6 +43,8 @@ layout(location = 0) out vec4 out_color;
 
 float get_fog_amount(float depth_in) {
 
+   return 0.0;
+
    bool do_depth_fog = true;
    bool is_perspective_projection = true;
    if (do_depth_fog) {
@@ -103,6 +105,7 @@ void main() {
       vec4 fogged_ssao = vec4(vec3(aafa), 1.0);
       out_color = 2.4 * t4 * fogged_ssao;
 #endif
+
 #if 1
       float compensating_scale = 1.0 + 0.1 * ssao_strength; // use more?
 
@@ -127,6 +130,8 @@ void main() {
    }
 
    // see graphics-info.h effects_shader_output_type
+
+   // effects_output_type = 2; // hack
 
    if (effects_output_type == 0) {
       // standard
@@ -153,7 +158,7 @@ void main() {
 
    // out_color = vec4(1,1,0,1);
 
-   // out_color = vec4(texture(ssao, TexCoords).r);
+   out_color = vec4(vec3(texture(ssao, TexCoords).r), 1.0);
    // out_color = 0.001 * gl_FragCoord;
    // out_color = texture(screenTexture, TexCoords);
 

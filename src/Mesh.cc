@@ -2298,8 +2298,9 @@ Mesh::draw_for_ssao(Shader *shader_p,
    GLuint n_verts = 3 * n_triangles;
    if (n_triangles == 0) return;
 
-   if (false)
-      std::cout << "debug:: in Mesh::draw_for_ssao() " << name << " n_verts " << n_verts << " n_triangles " << n_triangles << std::endl;
+   if (true)
+      std::cout << "debug:: in Mesh::draw_for_ssao() " << name << " " << shader_p->name
+                << " n_verts " << n_verts << " n_triangles " << n_triangles << std::endl;
 
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: Mesh::draw_for_ssao() " << shader_p->name << " -- start -- "
@@ -2382,6 +2383,9 @@ Mesh::draw_instances_for_ssao(Shader *shader_p,
    if (n_instances == 0) return;
    if (triangles.empty()) return;
 
+   std::cout << "debug:: Mesh::draw_instances_for_ssao() " << name << " \"" << shader_p->name << "\""
+             << " " << " " << n_instances << std::endl;
+
    shader_p->Use();
    glBindVertexArray(vao);
    GLenum err = glGetError();
@@ -2391,12 +2395,12 @@ Mesh::draw_instances_for_ssao(Shader *shader_p,
 
    glEnableVertexAttribArray(0); // vertex positions
    glEnableVertexAttribArray(1); // vertex normal
-   glEnableVertexAttribArray(2); // tangent // not used for camera-facing textures
-   glEnableVertexAttribArray(3); // bitangent // not used
-   glEnableVertexAttribArray(4); // colour
-   glEnableVertexAttribArray(5); // texCoord
-   glEnableVertexAttribArray(6); // instanced position
-
+   glEnableVertexAttribArray(2); // vertex colour
+   glEnableVertexAttribArray(3); // 4xvec4 for model rotation,scale,translation
+   glEnableVertexAttribArray(4);
+   glEnableVertexAttribArray(5);
+   glEnableVertexAttribArray(6);
+   glEnableVertexAttribArray(7); // instanced colour - not used of course
 
    shader_p->set_mat4_for_uniform("model",      model);
    shader_p->set_mat4_for_uniform("view",       view);
@@ -2405,7 +2409,6 @@ Mesh::draw_instances_for_ssao(Shader *shader_p,
    unsigned int n_verts = 6;
    glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
 
-
    glDisableVertexAttribArray(0);
    glDisableVertexAttribArray(1);
    glDisableVertexAttribArray(2);
@@ -2413,6 +2416,7 @@ Mesh::draw_instances_for_ssao(Shader *shader_p,
    glDisableVertexAttribArray(4);
    glDisableVertexAttribArray(5);
    glDisableVertexAttribArray(6);
+   glDisableVertexAttribArray(7);
 
 }
 

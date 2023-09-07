@@ -33,13 +33,14 @@ model_molecule_meshes_t::draw_simple_bond_lines(Shader *shader_p,
 // wrap draw_simple_for_ssao() and draw_instances_for_ssao()
 void
 model_molecule_meshes_t::draw_for_ssao(Shader *shader_for_meshes_p,
+                                       Shader *shader_for_instanced_meshes_p,
                                        const glm::mat4 &model,
                                        const glm::mat4 &view,
                                        const glm::mat4 &projection) { // draw into the gbuffer framebuffer.
 
    simple_mesh.draw_for_ssao(shader_for_meshes_p, model, view, projection);
    for (unsigned int i=0; i<instanced_meshes.size(); i++) {
-      instanced_meshes[i].draw_instances_for_ssao(shader_for_meshes_p, model, view, projection);
+      instanced_meshes[i].draw_instances_for_ssao(shader_for_instanced_meshes_p, model, view, projection);
    }
 }
 

@@ -171,6 +171,9 @@ void attach_css_style_class_to_overlays() {
 void
 add_python_scripting_entry_completion(GtkWidget *entry) {
 
+   std::cout << "**************************************************************************** add_python_scripting_entry_completion"
+             << std::endl;
+
    // call this *after* python has been setup!
 
    graphics_info_t g; // for history
@@ -195,9 +198,9 @@ add_python_scripting_entry_completion(GtkWidget *entry) {
    // it's because you've messed up the Python startup.
    // Perhaps by calling a function that no longer exists.
 
-   // Get the module object for the `sys` module.
+   // Get the module object for the `coot` module.
    PyObject *module = PyImport_ImportModule("coot");
-   // Get the dictionary object for the `sys` module.
+   // Get the dictionary object for the `coot` module.
    PyObject *dict = PyModule_GetDict(module);
    // Iterate over the keys and values in the dictionary.
    while (PyDict_Next(dict, &pos, &key, &value)) {
@@ -206,6 +209,7 @@ add_python_scripting_entry_completion(GtkWidget *entry) {
       std::string key_c = std::string("coot.") +  (PyUnicode_AsUTF8AndSize(key, NULL));
       module_coot_completions.push_back(key_c);
    }
+   Py_DECREF(module);
    // Get the module object for the `sys` module.
    module = PyImport_ImportModule("coot_utils");
 
@@ -228,6 +232,7 @@ add_python_scripting_entry_completion(GtkWidget *entry) {
       std::string key_c = std::string("coot_utils.") +  (PyUnicode_AsUTF8AndSize(key, NULL));
       module_coot_utils_completions.push_back(key_c);
    }
+   Py_DECREF(module);
 
    // command history
    std::vector<std::string> chv = g.command_history.commands;
@@ -362,8 +367,8 @@ void setup_python_scripting_entry() {
    // for executing Python commands
    g_signal_connect(entry, "activate", G_CALLBACK(on_python_scripting_entry_activated), entry);
 
-   // PE adds history and completions (in coot-setup-python.cc)
-   // add_python_scripting_entry_completion(entry);
+   // PE adds history and completions
+   add_python_scripting_entry_completion(entry);
 }
 
 void set_vertical_toolbar_internal_alignment() {

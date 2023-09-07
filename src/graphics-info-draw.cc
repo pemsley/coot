@@ -968,7 +968,6 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
    }
 
    if (pass_type == PASS_TYPE_SSAO) {
-      Shader &shader = shader_for_meshes_for_ssao;
       bool do_orthographic_projection = ! perspective_projection_flag;
       GtkAllocation allocation;
       gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
@@ -977,7 +976,9 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
       auto model_matrix = get_model_matrix();
       auto view_matrix = get_view_matrix();
       auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
-      m.model_molecule_meshes.draw_for_ssao(&shader, model_matrix, view_matrix, projection_matrix);
+      m.model_molecule_meshes.draw_for_ssao(&shader_for_meshes_for_ssao,
+                                            &shader_for_instanced_meshes_for_ssao,
+                                            model_matrix, view_matrix, projection_matrix);
    }
 
    if (pass_type == PASS_TYPE_FOR_SHADOWS) { // generating, not using - PASS_TYPE_GEN_SHADOW_MAP is a clearer name.
@@ -4257,7 +4258,7 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
 void
 graphics_info_t::render_3d_scene_with_shadows() {
 
-   std::cout << "render_3d_scene_with_shadows() --- start ---" << std::endl;
+   // std::cout << "render_3d_scene_with_shadows() --- start ---" << std::endl;
 
    // note: this function is called from render_scene_sans_depth_blur()
 

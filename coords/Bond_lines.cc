@@ -8336,6 +8336,9 @@ Bond_lines_container::add_atom_centres(int imol,
                p.is_hydrogen_atom = false;
             if (atom_colour_type == coot::COLOUR_BY_OCCUPANCY)
                p.is_hydrogen_atom = false;
+            if (false) // debugging large atom radius
+               std::cout << "pushing back: " << coot::atom_spec_t(at)
+                         << " p with radius_scale " << p.radius_scale << std::endl;
             atom_centres.push_back(p);
             int icol = atom_colour(at, atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p);
             bonds_size_colour_check(icol);

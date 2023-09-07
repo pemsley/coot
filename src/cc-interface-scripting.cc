@@ -70,7 +70,7 @@ void add_key_binding_gtk3_scm(int key, int ctrl_key, SCM thunk, const std::strin
 
 void reload_shaders() {
 
-   std::cout << "Here in reload_shaders() " << std::endl;
+   std::cout << "INGO:: reload_shaders() " << std::endl;
    graphics_info_t g;
    g.screen_framebuffer.tear_down();
    g.blur_framebuffer.tear_down();
@@ -79,6 +79,14 @@ void reload_shaders() {
    g.graphics_draw();
 
 }
+
+void reload_shader(const std::string &shader_name) {
+
+   graphics_info_t g;
+   g.init_shader(shader_name); // 20230905-PE perhaps this should be named reload_shader()?
+
+}
+
 
 #ifdef USE_PYTHON
 void set_light_position_py(int light_id, float x, float y, float z) {

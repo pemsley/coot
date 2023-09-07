@@ -44,7 +44,9 @@ graphics_info_t::draw_molecules_for_ssao() {
          if (molecules[i].draw_it)
             if (! molecules[i].draw_model_molecule_as_lines) {
                // molecules[i].molecule_as_mesh.draw_for_ssao(&shader_for_meshes_for_ssao, model_mat, view_mat, projection_mat);
-               molecules[i].draw_molecule_as_meshes_for_ssao(&shader_for_meshes_for_ssao, model_mat, view_mat, projection_mat);
+               molecules[i].draw_molecule_as_meshes_for_ssao(&shader_for_meshes_for_ssao,
+                                                             &shader_for_instanced_meshes_for_ssao,
+                                                             model_mat, view_mat, projection_mat);
             }
       }
       if (is_valid_map_molecule(i)) {

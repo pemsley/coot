@@ -45,4 +45,7 @@ void main() {
    // also store the per-fragment normals into the gbuffer
    gNormal = normal_transfer;
 
+   gPosition = vec3(1,1,0);
+   gNormal   = vec3(0,0,1);
+   
 }
