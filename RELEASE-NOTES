@@ -1,5 +1,16 @@
 
-  Release 0.9.8.91
+  Release 0.9.8.92
+
+ o FEATURE: Added copy_from_ncs_master_to_specific_other_chains_py(). Now one can update
+            (only) specific peer chains (instead of all of them as was previously the case)
+            [Oli Clarke]
+
+ o BUG-FIX: Change the linking code once more - fixes erroneous DNA+protein links
+            [Keitaro Yamashita].
+
+----
+
+ Release 0.9.8.91
 
  o BUG-FIX: Restore missing peptide omega plot [Steven Sheriff]
 
