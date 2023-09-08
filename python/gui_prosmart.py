@@ -195,6 +195,11 @@ def add_module_restraints():
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     set_extra_restraints_prosmart_sigma_limits(aa_imol,
                                                                sig_low, sig_high)
+            def add_menu_separator(menu):
+              sep = gtk.MenuItem()
+              menu.add(sep)
+              sep.show()
+
             add_simple_coot_menu_menuitem(
                 menu, "Show Only Deviant Distances Beyond 6",
                 lambda func: prosmart_cut_to_func(-6, 6))
@@ -223,9 +228,9 @@ def add_module_restraints():
                 menu, "Add Intermediate Atom Ramachandran Spheres",
                 lambda func: set_show_intermediate_atoms_rama_markup(1))
 
-            add_coot_menu_separator(menu)
+            add_menu_separator(menu)
             load_from_search_load_path("user_define_restraints.py")
-            add_coot_menu_separator(menu)
+            add_menu_separator(menu)
 
             def delete_all_extra_restraints_func():
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
