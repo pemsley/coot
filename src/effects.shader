@@ -131,18 +131,22 @@ void main() {
 
    // see graphics-info.h effects_shader_output_type
 
-   // effects_output_type = 2; // hack
+   int eot = effects_output_type; // we can't change the uniform effects_output_type
+   // eot = 2; // ssao
 
-   if (effects_output_type == 0) {
+   // eot = 2; // force just the SSAO
+
+   if (eot == 0) {
       // standard
    }
-   if (effects_output_type == 1) {
+   if (eot == 1) {
       out_color = texture(screenTexture, TexCoords);
    }
-   if (effects_output_type == 2) {
+   if (eot == 2) {
       out_color = vec4(vec3(texture(ssao, TexCoords).r), 1.0);
+      // out_color = vec4(texture(ssao, TexCoords).rgb, 1.0);
    }
-   if (effects_output_type == 3) {
+   if (eot == 3) {
       out_color = vec4(vec3(texture(screenDepth, TexCoords).r), 1.0);
    }
 
@@ -158,7 +162,7 @@ void main() {
 
    // out_color = vec4(1,1,0,1);
 
-   out_color = vec4(vec3(texture(ssao, TexCoords).r), 1.0);
+   // out_color = vec4(vec3(texture(ssao, TexCoords).r), 1.0);
    // out_color = 0.001 * gl_FragCoord;
    // out_color = texture(screenTexture, TexCoords);
 
