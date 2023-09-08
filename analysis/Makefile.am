@@ -1,7 +1,7 @@
 
 lib_LTLIBRARIES=libcoot-analysis.la
 
-pkginclude_HEADERS=bfkurt.hh mogul-interface.hh stats.hh daca.hh
+pkginclude_HEADERS=bfkurt.hh mogul-interface.hh stats.hh daca.hh rna-backbone.hh
 pkgincludedir = $(includedir)/coot/analysis
 
 # CXXFLAGS =	$(COOT_GSL_FLAGS)
@@ -14,11 +14,12 @@ AM_CPPFLAGS = \
 
 libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc kolmogorov.hh kolmogorov.cc stats.cc \
 	cablam.hh cablam.cc typed-distances.cc typed-distances.hh \
-	b-factor-histogram.cc b-factor-histogram.hh daca.cc
+	b-factor-histogram.cc b-factor-histogram.hh daca.cc rna-backbone.cc
 
 # note to self: does RDKIT_LIBS belong here or should it be added to the LDADD of
 # one of these libraries?
 libcoot_analysis_la_LIBADD = \
+   $(top_builddir)/coot-utils/libcoot-map-utils.la   \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
    $(top_builddir)/geometry/libcoot-geometry.la      \
@@ -31,7 +32,7 @@ libcoot_analysis_la_LDFLAGS = $(SHARED_LDFLAGS)
 bin_PROGRAMS = coot-bfactan
 
 check_PROGRAMS = test-mogul peptide-projection test-align  \
-	test-stats coot-daca
+	test-stats coot-daca test-rna-backbone
 
 # test-cablam improper-dihedrals
 
@@ -61,6 +62,12 @@ test_stats_LDADD = libcoot-analysis.la \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la
+
+test_rna_backbone_SOURCES = test-rna-backbone.cc
+test_rna_backbone_LDADD = libcoot-analysis.la  \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(CLIPPER_LIBS) $(MMDB_LIBS)
 
 
 # wrong build order

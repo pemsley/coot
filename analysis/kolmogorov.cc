@@ -157,12 +157,11 @@ nicholls::get_KS(const std::vector<double> &v1_in, const std::vector<double> &v2
 std::pair<double, double>
 nicholls::get_KL(const std::vector<double> &v1, const std::vector<double> &v2) {
 
-   std::vector<double> result;
    unsigned int n1 = v1.size();
    unsigned int n2 = v2.size();
    if(n1==0 || n2==0) return std::pair<double, double> (-1, -1);
     
-   double BIN_SIZE = 0.05;
+   double BIN_SIZE = 0.005;
    double SCALE1 = 1.0/(double)n1;
    double SCALE2 = 1.0/(double)n2;
 
@@ -193,12 +192,10 @@ nicholls::get_KL(const std::vector<double> &v1, const std::vector<double> &v2) {
    //calculate contribution of intensity bins to KL divergence
    std::vector<double> KL1;
    std::vector<double> KL2;
-   double logP;
-   double logQ;
    for(unsigned int i=0; i<P.size(); i++){
       if(P[i]>0.0 && Q[i]>0.0){
-	 logP = log(P[i]);
-	 logQ = log(Q[i]);
+	 double logP = log(P[i]);
+	 double logQ = log(Q[i]);
 	 //cout << endl << logP << "\t" << logQ << "\t" << P[i]*(logP-logQ) << "\t" << Q[i]*(logQ-logP);
 	 KL1.push_back(P[i]*(logP-logQ));
 	 KL2.push_back(Q[i]*(logQ-logP));

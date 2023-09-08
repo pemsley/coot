@@ -2698,6 +2698,8 @@ public:        //                      public
    // public interface to chain copying
    void copy_chain(const std::string &from_chain, const std::string &to_chain);
    int copy_from_ncs_master_to_others(const std::string &master_chain_id);
+   int copy_from_ncs_master_to_specific_other_chains(const std::string &master_chain_id,
+                                                     const std::vector<std::string> &other_chain_ids);
    int copy_residue_range_from_ncs_master_to_other_using_ghost(std::string from_chain_id,
 							       std::string to_chain_id,
 							       int residue_range_1,
@@ -3730,7 +3732,8 @@ void draw_map_molecule(bool draw_transparent_maps,
                                 bool do_depth_fog);
 
    // instanced models
-   void draw_molecule_as_meshes_for_ssao(Shader *shader_p,
+   void draw_molecule_as_meshes_for_ssao(Shader *shader_for_meshes_for_ssao,
+                                         Shader *shader_for_instanced_meshes_for_ssao,
                                          const glm::mat4 &model_matrix,
                                          const glm::mat4 &view_matrix,
                                          const glm::mat4 &projection_matrix);

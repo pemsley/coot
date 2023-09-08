@@ -50,3 +50,5 @@ void add_key_binding_gtk3_scm(int key, int ctrl_key, SCM thunk, const std::strin
 
 void reload_shaders();
 
+void reload_shader(const std::string &shader_name);
+

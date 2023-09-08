@@ -84,7 +84,10 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
    auto render_to_shadow_map = [] () {
 
-                                 if (shadow_strength == 0.0) return;
+      std::cout << "---------------------------------------- render_to_shadow_map() ------------------------------- "
+                << shadow_strength << std::endl;
+
+                                 if (shadow_strength == 0.0f) return;
                                  GLenum err = glGetError();
                                  if (err)
                                     std::cout << "GL ERROR:: lambda render_to_shadow_map() --- start --- " << err << std::endl;
@@ -162,6 +165,8 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
          glm::mat4 model_matrix      = di.get_model_matrix();
          model_matrix = glm::translate(model_matrix, glm::vec3(1.1f, 4.0f, 2.2f));
          model_matrix = glm::scale(model_matrix, glm::vec3(0.5f, 0.5f, 0.5f));
+
+         std::cout << "We are using shaderGeometryPass " << shaderGeometryPass.name << std::endl;
          di.shaderGeometryPass.Use();
          di.shaderGeometryPass.set_mat4_for_uniform("model", model_matrix);
          di.shaderGeometryPass.set_mat4_for_uniform("view", view_matrix);
@@ -194,6 +199,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
          // std::cout << "Here in render_scene_sans_depth_blur() bound ssaFBO frame buffer " << di.ssaoFBO << std::endl;
 
          glClear(GL_COLOR_BUFFER_BIT);
+         std::cout << "We are using shaderSSAO " << shaderSSAO.name << std::endl;
          di.shaderSSAO.Use();
          di.shaderSSAO.set_int_for_uniform("gPosition", 0);
          di.shaderSSAO.set_int_for_uniform("gNormal",   1);
@@ -207,7 +213,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
          }
          di.shaderSSAO.set_mat4_for_uniform("projection", projection_matrix);
 
-         if (false)
+         if (true)
             std::cout << "sending ssao radius " << SSAO_radius << " bias " << SSAO_bias
                       << " n-kernel-samples "  << n_ssao_kernel_samples << std::endl;
          shaderSSAO.set_float_for_uniform("radius", SSAO_radius);
@@ -657,7 +663,7 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
                glActiveTexture(GL_TEXTURE0 + 2);
                glBindTexture(GL_TEXTURE_2D, di.ssaoColorBufferBlur);
                di.shader_for_effects.Use();
-               // std::cout << "using shader " << shader_for_effects.name << std::endl;
+               std::cout << "using shader_for_effects " << shader_for_effects.name << std::endl;
                shader_for_effects.set_int_for_uniform("screenTexture", 0);
                shader_for_effects.set_int_for_uniform("screenDepth",   1);
                shader_for_effects.set_int_for_uniform("ssao",          2); // sampler2D

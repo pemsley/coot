@@ -987,17 +987,11 @@ fi
 # the sub-shell log?  (testing)
 
 if [ -n "$TEE_STDOUT" ]; then
-   echo INFO:: std output will be both printed here and written to $LOGS/build.log
-   exec > >(tee $LOGS/build.log)
+   echo INFO:: std output will be both printed here and written to $LOGS/build-gtk4.log
+   exec > >(tee $LOGS/build-gtk4.log)
 else
-   echo INFO:: redirecting std output to $LOGS/build.log
-   exec > $LOGS/build.log
-fi
-
-# local tinkering because our sgi runs out of room on /tmp on compiling
-if [ $HOST = batman ] ; then
-   TMPDIR=$HOME/tmp
-   export TMPDIR
+   echo INFO:: redirecting std output to $LOGS/build-gtk4.log
+   exec > $LOGS/build-gtk4.log
 fi
 
 date
@@ -2553,8 +2547,13 @@ if true ; then
           # cp -a -r gemmi $install_top_dir/include
           # cd -
           # cd $save_dir
-          mkdir build-gemmi
+	  if [ -d build-gemmi ] ; then
+ 	      :
+	  else
+              mkdir build-gemmi
+	  fi
           cd build-gemmi
+	  pwd
           cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi
           if $MAKE ; then
               make install

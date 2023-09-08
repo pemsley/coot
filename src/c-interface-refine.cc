@@ -650,6 +650,20 @@ void set_show_extra_distance_restraints(short int state) {
    graphics_info_t::graphics_draw();
 }
 
+void increase_proportional_editing_radius() {
+   graphics_info_t g;
+   bool dir = false;
+   g.pull_restraint_neighbour_displacement_change_max_radius(dir);
+   graphics_draw();
+}
+
+void decrease_proportional_editing_radius() {
+   graphics_info_t g;
+   bool dir = true;
+   g.pull_restraint_neighbour_displacement_change_max_radius(dir);
+   graphics_draw();
+}
+
 void set_show_extra_restraints(int imol, int state) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].set_display_extra_restraints(state);

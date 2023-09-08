@@ -50,10 +50,14 @@ namespace coot {
 	    // have_cached_kurtosis = false;
 	 }
 	 unsigned int size() const { return v.size(); }
+	 bool empty() const { return v.size() == 0; }
 	 void add(const double &a) {
 	    v.push_back(a);
 	    // have_cached_kurtosis = false;
 	 }
+         void add(const single &s) {
+            v.insert(v.end(), s.v.begin(), s.v.end());
+         }
 
 	 double mean() const {
 	    double m = 0;

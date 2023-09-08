@@ -990,8 +990,8 @@ fi
 # exec 2>&1 > $LOGS/$HOST.log
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
-echo INFO:: redirecting std output to $LOGS/build.log
-exec > $LOGS/build.log
+echo INFO:: redirecting std output to $LOGS/build-gtk2.log
+exec > $LOGS/build-gtk2.log
 
 # local tinkering because our sgi runs out of room on /tmp on compiling
 if [ $HOST = batman ] ; then
@@ -1166,6 +1166,8 @@ echo systype: $systype
 echo update_libtool: $update_libtool
 echo update_config_guess_sub: $update_config_guess_sub
 
+# Fedora required package libXt-devel which provides X11/Intrinsic.h (for gtktlext)
+# and                     libgnomecanvas-devel (which is probably a mistake)
 
 # check dependencies for Ubuntu.
 case $dist_name in
@@ -1614,6 +1616,7 @@ if test "$build_coot_prerelease" = 1 ; then
       coot_version=coot-0.9.8.6
       coot_version=coot-0.9.8.7
       coot_version=coot-0.9.8.8
+      coot_version=coot-0.9.8.92
       echo NNX:: coot_version $coot_version
 
    else
@@ -4582,6 +4585,14 @@ echo ./configure $coot_prefix \
       $coot_extra_args    \
       $extra_args_for_darwin
 
+# 20230907-PE There is a problem on Fedora now, it seems - possibly/probably before
+# also, when installing the python files. They are compiled with ../py-compile
+# but using ../py-compile --destdir "" fails, i.e. when DESTDIR is not defined,
+# as is the case when one dose "make install"
+# So I will convert that to say just "../py-compile"
+#
+sed -ibackup -e 's/am__py_compile.*destdir.*/am__py_compile)/' pyrogen/Makefile
+sed -ibackup -e 's/am__py_compile.*destdir.*/am__py_compile)/' python/Makefile
 
 # these are no longer used
 #         --with-mmdb-prefix=$install_top_dir
