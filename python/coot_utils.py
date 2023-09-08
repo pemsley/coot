@@ -3624,20 +3624,21 @@ def fetch_drug_via_wikipedia(drug_name_in):
         return False
 
     drug_name = drug_name_in.lower()
-    url = "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles=" + drug_name + \
-        "&prop=revisions&rvprop=content"
-    print("DEBUG:: url", url)
-    xml = requests.get(url, stream=True)
-    xml_tree = ElementTree.fromstring(xml.content)
-    redirected_drug_name = get_redirected_drug_name(xml_tree)
-    print("redirected_drug_name", redirected_drug_name)
-    if redirected_drug_name:
-        drug_name = redirected_drug_name
+
+    def get_xml_from_wikipedia(drug_name):
         url = "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles=" + drug_name + \
             "&prop=revisions&rvprop=content"
         print("DEBUG:: url", url)
-        xml = requests.get(url)
-        xml_tree = ElementTree.parse(xml)
+        xml = requests.get(url, stream=True)
+        xml_tree = ElementTree.fromstring(xml.content)
+        return xml_tree
+    
+    xml_tree = get_xml_from_wikipedia(drug_name)
+        
+    redirected_drug_name = get_redirected_drug_name(xml_tree).lower()
+    print("redirected_drug_name", redirected_drug_name)
+    if redirected_drug_name:
+        xml_tree = get_xml_from_wikipedia(redirected_drug_name)
 
     db_code = parse_wiki_drug_xml(xml_tree, "DrugBank ")
     print("db_code", db_code)
