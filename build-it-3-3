@@ -2547,8 +2547,13 @@ if true ; then
           # cp -a -r gemmi $install_top_dir/include
           # cd -
           # cd $save_dir
-          mkdir build-gemmi
+	  if [ -d build-gemmi ] ; then
+ 	      :
+	  else
+              mkdir build-gemmi
+	  fi
           cd build-gemmi
+	  pwd
           cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi
           if $MAKE ; then
               make install
