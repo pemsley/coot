@@ -2384,7 +2384,7 @@ Mesh::draw_instances_for_ssao(Shader *shader_p,
    if (triangles.empty()) return;
 
    std::cout << "debug:: Mesh::draw_instances_for_ssao() " << name << " \"" << shader_p->name << "\""
-             << " " << " " << n_instances << std::endl;
+             << " " << n_instances << std::endl;
 
    shader_p->Use();
    glBindVertexArray(vao);
@@ -2406,7 +2406,7 @@ Mesh::draw_instances_for_ssao(Shader *shader_p,
    shader_p->set_mat4_for_uniform("view",       view);
    shader_p->set_mat4_for_uniform("projection", projection);
 
-   unsigned int n_verts = 6;
+   GLuint n_verts = 3 * triangles.size();
    glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
 
    glDisableVertexAttribArray(0);
