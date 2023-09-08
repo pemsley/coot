@@ -3585,7 +3585,6 @@ from xml.etree import ElementTree
 def fetch_drug_via_wikipedia(drug_name_in):
 
     def parse_wiki_drug_xml(tree, key):
-        code =  False
         query_ele = tree.find("query")
         rev_iter = query_ele.iter("rev")
         for item in rev_iter:
@@ -3597,12 +3596,13 @@ def fetch_drug_via_wikipedia(drug_name_in):
                 if key in line:
                     if "|" in line:
                         if " = " in line:
-                            print(idx, line)
+                            print("DEBUG:: ", idx, line)
                             parts = line.split()
                             if len(parts) > 2:
                                 if len(parts) < 5:
                                     code = parts[-1]
-        return code
+                                    return code
+        return False
 
     def get_redirected_drug_name(xml_tree):
         query_ele = xml_tree.find("query")
@@ -3644,12 +3644,13 @@ def fetch_drug_via_wikipedia(drug_name_in):
     if db_code:
         db_mol_uri = "https://www.drugbank.ca/structures/small_molecule_drugs/" + str(db_code) + ".mol"
         file_name = str(db_code) + ".mol"
+        print("DEBUG:: file_name", file_name)
         print("DEBUG:: db_mol_uri", db_mol_uri)
         r = requests.get(db_mol_uri, allow_redirects=True)
         with open(file_name, "wb") as f:
             f.write(r.content)
         return file_name
-
+    print("DEBUG:: returning False")
     return False
 
 def get_SMILES_for_comp_id_from_pdbe(comp_id):
