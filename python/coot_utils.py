@@ -3635,10 +3635,10 @@ def fetch_drug_via_wikipedia(drug_name_in):
     
     xml_tree = get_xml_from_wikipedia(drug_name)
         
-    redirected_drug_name = get_redirected_drug_name(xml_tree).lower()
+    redirected_drug_name = get_redirected_drug_name(xml_tree)
     print("redirected_drug_name", redirected_drug_name)
     if redirected_drug_name:
-        xml_tree = get_xml_from_wikipedia(redirected_drug_name)
+        xml_tree = get_xml_from_wikipedia(redirected_drug_name).lower()
 
     db_code = parse_wiki_drug_xml(xml_tree, "DrugBank ")
     print("db_code", db_code)
