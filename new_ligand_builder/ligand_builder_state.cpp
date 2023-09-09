@@ -288,6 +288,7 @@ void LigandBuilderState::run_choose_element_dialog() {
 
 void LigandBuilderState::file_fetch_molecule() {
     g_warning("TODO: Implement void LigandBuilderState::file_fetch_molecule()");
+    // auto res = get_drug_via_wikipedia_and_drugbank_py(input);
 }
 
 void LigandBuilderState::file_new() {

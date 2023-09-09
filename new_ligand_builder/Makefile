@@ -8,6 +8,8 @@ CXXFLAGS= \
    -I$(COOT_DIR)/include \
    -I$(COOT_DIR)/include/coot \
    -I/usr/include/rdkit \
+   -I/usr/include/python3.11 \
+   -DUSE_PYTHON \
    `pkg-config --cflags gtk4` \
    -ggdb -O2 -march=native -std=c++17
 # `pkg-config --cflags epoxy` 
@@ -19,8 +21,9 @@ LDLIBS=-fuse-ld=mold \
         -g \
         -Wl,--export-dynamic,--rpath=$(COOT_DIR)/lib \
         -lfreetype -lm -ldl \
+        -lcootsumo -lcoot-geometry -lcoot-lidia-core \
         -lRDKitDepictor -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol -lRDKitRDGeneral -lRDKitFileParsers -lRDKitSubstructMatch \
-        -lcoot-geometry -lcoot-lidia-core
+        -lboost_iostreams -lboost_serialization -lboost_python311 -lpython3.11
 
 	   # -lcoot-ligand -lcoot-ideal -lcoot-coords -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 
        #`pkg-config --libs epoxy` 

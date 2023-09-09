@@ -1,10 +1,20 @@
 #include <gtk/gtk.h>
+#include <thread>
 #include "ligand_builder_state.hpp"
 #include "ligand_builder_generators.hpp"
 #include "ligand_builder_ui.hpp"
+#include "../src/coot-setup-python.hh"
 
-int main() {
+int main(int argc, char** argv) {
     using namespace coot::ligand_editor;
+
+    std::thread python_init_thread([argc,argv](){
+        setup_python_basic(argc, argv);
+        setup_python_coot_module();
+        PyRun_SimpleString("import coot_utils");
+    });
+
+    python_init_thread.detach();
 
     gtk_init();
     
