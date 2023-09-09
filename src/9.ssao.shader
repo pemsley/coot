@@ -56,7 +56,7 @@ void main() {
    for(int i = 0; i < n_ssao_kernel_samples; ++i) {
       // get sample position
       vec3 samplePos = TBN * samples[i]; // from tangent to view-space
-      samplePos = fragPos + samplePos * radius; 
+      samplePos = fragPos + samplePos * 3.0 * radius;
 
       // project sample position (to sample texture) (to get position on screen/texture)
       vec4 offset = vec4(samplePos, 1.0);
@@ -67,8 +67,9 @@ void main() {
       // get sample depth
       float sampleDepth = texture(gPosition, offset.xy).z; // get depth value of kernel sample
       if (sampleDepth == 1.0) {
+         // n_hits++;
       } else {
-         // range check & accumulate
+         // // range check & accumulate
          float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
          occlusion += (sampleDepth >= (samplePos.z + bias) ? 1.0 : 0.0) * rangeCheck;           
          n_hits++;
@@ -79,7 +80,5 @@ void main() {
    float occ = 1.0 - (occlusion / float(n_hits));
 
    FragColor = occ;
-   // FragColor = float(n_ssao_kernel_samples)/100.0;
-   // FragColor = 0.00001 * occ + normal.z;
 
 }
