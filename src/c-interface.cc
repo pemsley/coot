@@ -25,6 +25,7 @@
 // $Rev: 1458 $
 
 // Load the head if it hasn't been included.
+#include "object.h"
 #ifdef USE_PYTHON
 #ifndef PYTHONH
 #define PYTHONH
@@ -6679,7 +6680,9 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
       PyObject *pModule_coot = PyImport_Import(pName);
 
       std::cout << "running command: " << command << std::endl;
-      result = PyRun_String(command.c_str(), Py_file_input, d, d);
+      PyObject* source_code = Py_CompileString(command.c_str(), "adhoc", Py_eval_input);
+      PyObject* func = PyFunction_New(source_code, d);
+      result = PyObject_CallObject(func, PyTuple_New(0));
       std::cout << "--------------- in safe_python_command_with_return() result: " << result << std::endl;
       if (result)
          std::cout << "--------------- in safe_python_command_with_return() result: "
@@ -6694,7 +6697,8 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
       // debugging
       // PyRun_String("import coot; print(dir(coot))", Py_file_input, d, d);
-
+      Py_XDECREF(func);
+      Py_XDECREF(source_code);
    } else {
       std::cout << "ERROR:: Hopeless failure: module for __main__ is null" << std::endl;
    }
