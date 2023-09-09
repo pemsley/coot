@@ -15,6 +15,7 @@
 #include "ligand_builder_utils.hpp"
 // todo: remove dependency on lidia-core
 #include "lidia-core/rdkit-interface.hh"
+#include "../src/cc-interface-network.hh"
 #include <string>
 
 using namespace coot::ligand_editor;
@@ -287,8 +288,70 @@ void LigandBuilderState::run_choose_element_dialog() {
 }
 
 void LigandBuilderState::file_fetch_molecule() {
-    g_warning("TODO: Implement void LigandBuilderState::file_fetch_molecule()");
-    // auto res = get_drug_via_wikipedia_and_drugbank_py(input);
+    GtkWidget *load_dialog = gtk_dialog_new();
+    gtk_window_set_transient_for(GTK_WINDOW(load_dialog), this->main_window);
+    g_object_set_data(G_OBJECT(load_dialog), "ligand_builder_instance", this);
+    gtk_window_set_title(GTK_WINDOW(load_dialog), "Fetch Molecule");
+    GtkWidget *dialog_body = gtk_box_new(GTK_ORIENTATION_VERTICAL,10);
+    gtk_widget_set_margin_bottom(dialog_body, 10);
+    gtk_widget_set_margin_end(dialog_body, 10);
+    gtk_widget_set_margin_start(dialog_body, 10);
+    gtk_widget_set_margin_top(dialog_body, 10);
+
+    GtkWidget *label = gtk_label_new("Type in drug name");
+    gtk_box_append(GTK_BOX(dialog_body),label);
+
+    GtkEntryBuffer *entry_buf = gtk_entry_buffer_new("", 0);
+    GtkWidget *entry = gtk_entry_new_with_buffer(entry_buf);
+
+    gtk_box_append(GTK_BOX(dialog_body),entry);
+
+    GtkWidget *submit_button = gtk_button_new_with_label("Submit");
+    gtk_box_append(GTK_BOX(dialog_body), submit_button);
+
+    auto submit_callback = +[] (GtkWidget* widget, gpointer user_data) {
+        gtk_dialog_response(GTK_DIALOG(user_data), GTK_RESPONSE_ACCEPT);
+    };
+    g_signal_connect(submit_button, "clicked", G_CALLBACK(submit_callback), load_dialog);
+    g_signal_connect(entry, "activate", G_CALLBACK(submit_callback), load_dialog);
+
+    gtk_window_set_child(GTK_WINDOW(load_dialog), dialog_body);
+    gtk_window_present(GTK_WINDOW(load_dialog));
+
+    auto dialog_response = +[](GtkDialog* dialog, gint response_id, gpointer user_data) {
+        if(response_id != GTK_RESPONSE_ACCEPT) {
+            g_debug("Ignoring unhandled response type: %s", g_enum_to_string(gtk_response_type_get_type(), response_id));
+            return;
+        } else {
+            const char *text_buf = gtk_entry_buffer_get_text(GTK_ENTRY_BUFFER(user_data));
+            auto res = get_drug_via_wikipedia_and_drugbank_py(std::string(text_buf));
+            LigandBuilderState* self = static_cast<LigandBuilderState*>(g_object_get_data(G_OBJECT(dialog),
+                                                                                        "ligand_builder_instance"));
+            try {
+                RDKit::RWMol* mol = RDKit::MolFileToMol(res,true,false,false);
+                if(!mol) {
+                    throw std::runtime_error("RDKit::RWMol* is a nullptr. The MolFile could not be loaded.");
+                }
+                g_info("Molecule Fetch: Molecule constructed.");
+                self->append_molecule(mol);
+                self->current_filesave_molecule = coot_ligand_editor_get_molecule_count(self->canvas) - 1;
+                self->current_filesave_filename = res;
+                // todo: optionally delete the file
+            } catch(std::exception& e) {
+                g_warning("MolFile Import error: %s",e.what());
+                auto* message = gtk_message_dialog_new(
+                    GTK_WINDOW(dialog), 
+                    GTK_DIALOG_DESTROY_WITH_PARENT, 
+                    GTK_MESSAGE_ERROR, 
+                    GTK_BUTTONS_CLOSE, 
+                    "Error: Molecule could not be loaded.\n%s", 
+                    e.what()
+                );
+            }
+        }
+   };
+
+   g_signal_connect(load_dialog, "response", G_CALLBACK(dialog_response), entry_buf);
 }
 
 void LigandBuilderState::file_new() {
