@@ -877,28 +877,80 @@ on_model_refine_dialog_dismiss_button_clicked (GtkButton       *button,
 }
 
 
+extern "C" G_MODULE_EXPORT
+void on_save_coords_filechooser_dialog_response(GtkDialog *dialog,
+                                                int        response) {
+
+   if (response == GTK_RESPONSE_YES) { // maybe not the right one, but it is the one set in
+                                       // on_save_coords_dialog_save_button_clicked()
+      GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
+      GFile *file   = gtk_file_chooser_get_file(chooser);
+      char *file_name = g_file_get_path(file);
+      int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol"));
+      graphics_info_t g;
+      if (g.is_valid_model_molecule(imol)) {
+         bool save_hydrogens = true;
+         bool save_conect_records = true;
+         bool save_aniso_records = true;
+         g.molecules[imol].save_coordinates(file_name, save_hydrogens, save_aniso_records, save_conect_records);
+      }
+   }
+
+   // destroy this?
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+
+}
+
+
 
 extern "C" G_MODULE_EXPORT
 void
-on_save_coords_dialog_save_button_clicked (GtkButton       *button,
-                                                               gpointer         user_data) {
+on_save_coords_dialog_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                          G_GNUC_UNUSED gpointer         user_data) {
 
    // we need to select the molecule to save - this is someone clicking on the
    // "Save Molecule" button in the save molecule chooser - not in a file selector
 
    GtkWidget *combobox = widget_from_builder("save_coordinates_combobox");
-   GtkWidget *dialog = widget_from_builder("save_coords_dialog");
+   GtkWidget *mol_selector_dialog = widget_from_builder("save_coords_dialog");
    if (! combobox) {
       std::cout << "ERROR:: on_save_coords_dialog_save_button_clicked: bad combobox\n";
    } else {
+
+#if 0 // 20230910-PE old - delete when no longer useful
       int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
       GtkWidget *chooser = coot_save_coords_chooser(); // uses builder
       g_object_set_data(G_OBJECT(chooser), "imol", GINT_TO_POINTER(imol));
       set_file_for_save_filechooser(chooser);
       gtk_widget_set_visible(chooser, TRUE);
       set_transient_and_position(COOT_UNDEFINED_WINDOW, chooser);
+#endif
+
+      int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+      GtkWindow *parent_window = GTK_WINDOW(graphics_info_t::get_main_window());
+      GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_SAVE;
+
+      // gtk_file_chooser_dialog_new() is deprecrated!
+      //
+      GtkWidget *file_chooser_dialog = gtk_file_chooser_dialog_new("Save Coordinates",
+                                                                   parent_window,
+                                                                   action,
+                                                                   _("_Cancel"),
+                                                                   GTK_RESPONSE_CANCEL,
+                                                                   _("_Save"),
+                                                                   GTK_RESPONSE_YES,
+                                                                   NULL);
+
+      // 20230910-PE imol is used in on_save_coords_filechooser_dialog_response().
+      // Maybe I could/should use user-data instead of get/set data on the widget...
+      //
+      g_object_set_data(G_OBJECT(file_chooser_dialog), "imol", GINT_TO_POINTER(imol));
+      g_signal_connect(file_chooser_dialog, "response",
+                       G_CALLBACK(on_save_coords_filechooser_dialog_response), NULL);
+      gtk_widget_set_visible(file_chooser_dialog, TRUE);
+
    }
-   gtk_widget_set_visible(dialog, FALSE);
+   gtk_widget_set_visible(mol_selector_dialog, FALSE);
 
 }
 
