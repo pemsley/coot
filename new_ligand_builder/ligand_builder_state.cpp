@@ -328,6 +328,9 @@ void LigandBuilderState::file_fetch_molecule() {
             LigandBuilderState* self = static_cast<LigandBuilderState*>(g_object_get_data(G_OBJECT(dialog),
                                                                                         "ligand_builder_instance"));
             try {
+                if(res.empty()) {
+                    throw std::runtime_error("Could not fetch MolFile from the internet.");
+                }
                 RDKit::RWMol* mol = RDKit::MolFileToMol(res,true,false,false);
                 if(!mol) {
                     throw std::runtime_error("RDKit::RWMol* is a nullptr. The MolFile could not be loaded.");
@@ -338,7 +341,7 @@ void LigandBuilderState::file_fetch_molecule() {
                 self->current_filesave_filename = res;
                 // todo: optionally delete the file
             } catch(std::exception& e) {
-                g_warning("MolFile Import error: %s",e.what());
+                g_warning("MolFile Fetch error: %s",e.what());
                 auto* message = gtk_message_dialog_new(
                     GTK_WINDOW(dialog), 
                     GTK_DIALOG_DESTROY_WITH_PARENT, 
