@@ -25,6 +25,8 @@
 // $Rev: 1458 $
 
 // Load the head if it hasn't been included.
+#include "object.h"
+#include "unicodeobject.h"
 #ifdef USE_PYTHON
 #ifndef PYTHONH
 #define PYTHONH
@@ -6682,10 +6684,18 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
       PyObject* source_code = Py_CompileString(command.c_str(), "adhoc", Py_eval_input);
       PyObject* func = PyFunction_New(source_code, d);
       result = PyObject_CallObject(func, PyTuple_New(0));
-      std::cout << "--------------- in safe_python_command_with_return() result: " << result << std::endl;
-      if (result)
+      std::cout << "--------------- in safe_python_command_with_return() result at: " << result << std::endl;
+      if (result) {
+         if(!PyUnicode_Check(result)) {
+             std::cout << "--------------- in safe_python_command_with_return() result is probably not a string." << std::endl;
+         }
+         PyObject* displayed = display_python(result);
+         PyObject* as_string = PyUnicode_AsUTF8String(displayed);
          std::cout << "--------------- in safe_python_command_with_return() result: "
-                   << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(result))) << std::endl;
+                   << PyBytes_AS_STRING(as_string) << std::endl;
+         Py_XDECREF(displayed);
+         Py_XDECREF(as_string);
+      }
       else {
          std::cout << "--------------- in safe_python_command_with_return() result was null" << std::endl;
          if(PyErr_Occurred()) {
