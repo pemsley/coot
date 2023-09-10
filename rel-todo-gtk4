@@ -12,6 +12,25 @@
 
 8 items
 
+Save Coordinates dialog is not working ::: 1
+
+Clean up "store_window_position()" usage ::: 1
+
+Add a graphics_draw() at the end of the calculation of map after contour level change (in the callback, I guess). :: 0.2
+
+Go into CA mode and try to middle-mouse over an atom that is not displayed. The recentering works.
+The atom picker needs to know about the representation type (or act on it) ::: 1
+
+Bring the script that shows the SSOA buffer to GTK4 and try to fix the aniostropy. ::: 1
+* The SSAO for model is not anisotropic now that we use the new instanced code (if it ever was).
+  The SSAO for map is though. Compare and constrast with the model shaders.
+
+Fresnel mode for maps in "Plain" mode ::: 1
+
+Pyrogen needs to work ::: 2
+
+Proportional editing ::: 3
+
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 2
 set_framebuffer_scale_factor().
 Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
@@ -25,16 +44,12 @@ Make it work in "fancy" mode and I will call it done.
 
 Try using the instanced bonds using the api. Fix the specular lighting.
 
-Fresnel mode for maps in "Plain" mode ::: 1
-
 Test the conversion of glm quaternion to coot quaternion and back again. OK, done.
 Test are in place. Now try again with the ligand orientation.
 
-Pyrogen needs to work ::: 2
+What about coot --no-graphics?
 
-Make the OK button in the single map parameters dialog bigger ::: 0.5
-
-What about --no-graphics?
+What about coot --version?
 
 Fix crash on coot.coot_real_exit(0)
 OK, so framebuffers are being deconstructed after call to exit().
@@ -46,23 +61,7 @@ it seems. Yet they are being bound somewhere. Investigate further later by turni
 See partial-patch-for-framebuffer-teardown.patch.
 Now I will revert.
 
-Add a graphics_draw() at the end of the calculation of map after contour level change (it the callback, I guess). :: 0.2
-
-Is the em radius saved to the state file? :: 0.2
-
-Bring the script that shows the SSOA buffer to GTK4 and try to fix the aniostropy. ::: 0.4
-
-Clean up "store_window_position()" usage ::: 1
-
 Put the gtk version in the build_type? Currently Linux-x86_64-ubuntu-21.10-gtk4
-
-coot --version
-
-Go into CA mode and try to middle-mouse over an atom that is not displayed. The recentering works.
-The atom picker needs to know about the representation type (or act on it) ::: 1
-
-Are the cis-peptides markers being generated and displayed? ::: 1
-They are non-instanced geometry. Should I just use api/instancing.hh?
 
 I want to be able use "Fancy" shader path, but not use SSAO.
 
@@ -834,4 +833,13 @@ Turn on Intermediate atom All-atom contact dots, refine and accept. The contact 
 
 Tweak down the perspective a notch.
 * Done.
+
+Is the em radius saved to the state file? :: 0.2
+It is now.
+
+Are the cis-peptides markers being generated and displayed? ::: 1
+They are non-instanced geometry. Should I just use api/instancing.hh?
+*Yes. A slog, but a Good Thing in the end.
+
+Make the OK button in the single map parameters dialog bigger ::: 0.5
 
