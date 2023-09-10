@@ -14,10 +14,6 @@
 
 Save Coordinates dialog is not working ::: 1
 
-Clean up "store_window_position()" usage ::: 1
-
-Add a graphics_draw() at the end of the calculation of map after contour level change (in the callback, I guess). :: 0.2
-
 Go into CA mode and try to middle-mouse over an atom that is not displayed. The recentering works.
 The atom picker needs to know about the representation type (or act on it) ::: 1
 
@@ -839,7 +835,12 @@ It is now.
 
 Are the cis-peptides markers being generated and displayed? ::: 1
 They are non-instanced geometry. Should I just use api/instancing.hh?
-*Yes. A slog, but a Good Thing in the end.
+* Yes. A slog, but a Good Thing in the end.
 
 Make the OK button in the single map parameters dialog bigger ::: 0.5
 
+Add a graphics_draw() at the end of the calculation of map after contour level change (in the callback, I guess). :: 0.
+* Done.
+
+Clean up "store_window_position()" usage ::: 0.2
+* Done.

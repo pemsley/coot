@@ -513,41 +513,6 @@ graphics_info_t::menu_item_label(GtkWidget *menu_item) {
 
 
 
-// static
-void
-graphics_info_t::store_window_position(int window_type, GtkWidget *widget) {
-
-   // I am not sure that this function is worth anything now.  It will
-   // only be useful for dialog destroys that happen from within
-   // graphics-info class... i.e. not many.  Most destroys happen from
-   // callbacks.c and thus will use the c-interface.cc's version of
-   // this function.
-   //
-   // If you find yourself in future wanting to add stuff here,
-   // instead just move the body of the c-interface.cc's function here
-   // and make the c-interface.cc just a one line which calls this
-   // function.
-
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME windows
-#else
-
-   gint upositionx, upositiony;
-   GdkWindow *window = gtk_widget_get_window(widget); // missing function in 4.
-   gdk_window_get_root_origin(window, &upositionx, &upositiony);
-
-   if (window_type == COOT_EDIT_CHI_DIALOG) {
-      graphics_info_t::edit_chi_angles_dialog_x_position = upositionx;
-      graphics_info_t::edit_chi_angles_dialog_y_position = upositiony;
-   }
-
-   if (window_type == COOT_ROTAMER_SELECTION_DIALOG) {
-      graphics_info_t::rotamer_selection_dialog_x_position = upositionx;
-      graphics_info_t::rotamer_selection_dialog_y_position = upositiony;
-   }
-#endif
-
-}
 
 // static
 void
