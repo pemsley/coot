@@ -6952,18 +6952,42 @@ graphics_info_t::rgba_to_symmetry_colour(GdkRGBA rgba) {
 
 void graphics_info_t::hide_vertical_validation_frame_if_appropriate() {
 
+   // Paul style:
+   auto get_n_children = [] (GtkWidget *box) {
+      int n_children = 0;
+      GtkWidget *item_widget = gtk_widget_get_first_child(box);
+      while (item_widget) {
+         n_children++;
+         item_widget = gtk_widget_get_next_sibling(item_widget);
+      }
+      return n_children;
+   };
+
+   std::cout << "here in hide_vertical_validation_frame_if_appropriate -- start ---" << std::endl;
+
    GtkWidget *vbox = widget_from_builder("validation_boxes_vbox");
+   // Jakub style:  :-)
    bool should_show_vbox = false;
-   for(GtkWidget* i = gtk_widget_get_first_child(vbox); i != nullptr; i = gtk_widget_get_next_sibling(i)) {
-      if(gtk_widget_get_visible(i)) {
+   for (GtkWidget *w = gtk_widget_get_first_child(vbox); w != nullptr; w = gtk_widget_get_next_sibling(w)) {
+      if (gtk_widget_get_visible(w)) {
          should_show_vbox = true;
       }
    }
 
-   GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
-   bool rama_plot_shown = gtk_widget_get_visible(scrolled);
+   GtkWidget *scrolled        = widget_from_builder("ramachandran_plots_scrolled_window");
+   GtkWidget *rama_plots_vbox = widget_from_builder("ramachandran_plots_vbox");
+   int n_children = get_n_children(rama_plots_vbox);
+
+   // 20230910-PE I don't think that this is right
+   // bool rama_plot_shown = gtk_widget_get_visible(scrolled);
+   bool rama_plot_shown = false;
+   if (n_children > 0) rama_plot_shown = true;
 
    bool should_hide = !rama_plot_shown && !should_show_vbox;
+
+   std::cout << "here in hide_vertical_validation_frame_if_appropriate rama_plot_shown : " << rama_plot_shown << std::endl;
+   std::cout << "here in hide_vertical_validation_frame_if_appropriate should_show_vbox : " << should_show_vbox << std::endl;
+   std::cout << "here in hide_vertical_validation_frame_if_appropriate should_hide: " << should_hide << std::endl;
 
    if(should_hide) {
       GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
