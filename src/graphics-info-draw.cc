@@ -5875,11 +5875,10 @@ graphics_info_t::idle_contour_function(gpointer data) {
          }
       }
    }
-   // std::cout << "Here with something_changed: " << something_changed << std::endl;
 
-   // is this needed?
-   // if (something_changed)
-   //    graphics_draw();
+   if (something_changed)
+      graphics_draw();
+
    // std::cout << "--- debug:: idle_contour_function() done " << continue_status << std::endl;
    return continue_status;
 }
