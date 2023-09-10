@@ -25,8 +25,6 @@
 // $Rev: 1458 $
 
 // Load the head if it hasn't been included.
-#include "object.h"
-#include "unicodeobject.h"
 #ifdef USE_PYTHON
 #ifndef PYTHONH
 #define PYTHONH
