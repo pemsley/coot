@@ -2298,7 +2298,7 @@ Mesh::draw_for_ssao(Shader *shader_p,
    GLuint n_verts = 3 * n_triangles;
    if (n_triangles == 0) return;
 
-   if (true)
+   if (false)
       std::cout << "debug:: in Mesh::draw_for_ssao() " << name << " " << shader_p->name
                 << " n_verts " << n_verts << " n_triangles " << n_triangles << std::endl;
 
@@ -2383,8 +2383,9 @@ Mesh::draw_instances_for_ssao(Shader *shader_p,
    if (n_instances == 0) return;
    if (triangles.empty()) return;
 
-   std::cout << "debug:: Mesh::draw_instances_for_ssao() " << name << " \"" << shader_p->name << "\""
-             << " " << n_instances << std::endl;
+   if (false)
+      std::cout << "debug:: Mesh::draw_instances_for_ssao() " << name << " \"" << shader_p->name << "\""
+                << " " << n_instances << std::endl;
 
    shader_p->Use();
    glBindVertexArray(vao);

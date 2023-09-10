@@ -24,6 +24,8 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+// These output values should be in ** screen space **
+// so we need the view matrix.
 out vec3 frag_pos_transfer;
 out vec3 normal_transfer;
 
@@ -46,14 +48,12 @@ void main() {
    mat4 mvp = projection * view * model;
    gl_Position = mvp * frag_pos;
 
-   mat3 normal_matrix = model_rotation * mat3(view);
-   mat3 transpose_normal_matrix = transpose(normal_matrix);
+   // unlike in instanced-meshes-with-shaddws.shader, frag_pos_transfer is a vec3
+   //
+   frag_pos_transfer = (view * model * frag_pos).xyz;
 
-   normal_transfer = normal * transpose_normal_matrix;
-   // normal_transfer = normal; // testing
-   vec4 frag_pos_transfer_v4 = view * model * vec4(position, 1.0);
-   frag_pos_transfer = frag_pos_transfer_v4.xyz;
-   // frag_pos_transfer = vec3(0,0,1);
+   mat3 normal_matrix = transpose(inverse(mat3(view * model)));
+   normal_transfer = normal_matrix * model_rotation * normal;
 
 }
 

@@ -1,5 +1,6 @@
 
 #shader vertex
+// This is 9.ssao.shader
 // ---------------- 9.ssao.shader shaderGeometryPass ---------------------
 
 #version 330 core
@@ -15,6 +16,8 @@ void main()
 }
 
 #shader fragment
+// This is 9.ssao.shader
+
 // ---------------- 9.ssao.shader shaderGeometryPass ---------------------
 
 #version 330 core
@@ -49,10 +52,11 @@ void main() {
    mat3 TBN = mat3(tangent, bitangent, normal);
    // iterate over the sample kernel and calculate occlusion factor
    float occlusion = 0.0;
+   int n_hits = 0; // non-background
    for(int i = 0; i < n_ssao_kernel_samples; ++i) {
       // get sample position
       vec3 samplePos = TBN * samples[i]; // from tangent to view-space
-      samplePos = fragPos + samplePos * radius; 
+      samplePos = fragPos + samplePos * 3.0 * radius;
 
       // project sample position (to sample texture) (to get position on screen/texture)
       vec4 offset = vec4(samplePos, 1.0);
@@ -62,14 +66,19 @@ void main() {
         
       // get sample depth
       float sampleDepth = texture(gPosition, offset.xy).z; // get depth value of kernel sample
-
-      // range check & accumulate
-      float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
-      occlusion += (sampleDepth >= (samplePos.z + bias) ? 1.0 : 0.0) * rangeCheck;           
+      if (sampleDepth == 1.0) {
+         // n_hits++;
+      } else {
+         // // range check & accumulate
+         float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
+         occlusion += (sampleDepth >= (samplePos.z + bias) ? 1.0 : 0.0) * rangeCheck;           
+         n_hits++;
+      }
    }
 
-   float occ = 1.0 - (occlusion / n_ssao_kernel_samples);
-    
+   if (n_hits == 0) n_hits = 1;
+   float occ = 1.0 - (occlusion / float(n_hits));
+
    FragColor = occ;
 
 }

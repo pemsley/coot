@@ -231,7 +231,7 @@ void main() {
 
          float spec = specular_strength * pow(dp_view_reflect, shininess);
 
-         vec4 specular = 3.0 * spec * light_sources[i].specular;
+         vec4 specular = 13.0 * spec * light_sources[i].specular;
 
          // final
 

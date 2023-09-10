@@ -166,7 +166,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
          model_matrix = glm::translate(model_matrix, glm::vec3(1.1f, 4.0f, 2.2f));
          model_matrix = glm::scale(model_matrix, glm::vec3(0.5f, 0.5f, 0.5f));
 
-         std::cout << "We are using shaderGeometryPass " << shaderGeometryPass.name << std::endl;
+         // std::cout << "We are using shaderGeometryPass " << shaderGeometryPass.name << std::endl;
          di.shaderGeometryPass.Use();
          di.shaderGeometryPass.set_mat4_for_uniform("model", model_matrix);
          di.shaderGeometryPass.set_mat4_for_uniform("view", view_matrix);
@@ -199,7 +199,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
          // std::cout << "Here in render_scene_sans_depth_blur() bound ssaFBO frame buffer " << di.ssaoFBO << std::endl;
 
          glClear(GL_COLOR_BUFFER_BIT);
-         std::cout << "We are using shaderSSAO " << shaderSSAO.name << std::endl;
+         // std::cout << "We are using shaderSSAO " << shaderSSAO.name << std::endl;
          di.shaderSSAO.Use();
          di.shaderSSAO.set_int_for_uniform("gPosition", 0);
          di.shaderSSAO.set_int_for_uniform("gNormal",   1);
