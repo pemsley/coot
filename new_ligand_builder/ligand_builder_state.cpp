@@ -347,9 +347,13 @@ void LigandBuilderState::file_fetch_molecule() {
                     GTK_DIALOG_DESTROY_WITH_PARENT, 
                     GTK_MESSAGE_ERROR, 
                     GTK_BUTTONS_CLOSE, 
-                    "Error: Molecule could not be loaded.\n%s", 
+                    "Error: Molecule could not be fetched.\n%s", 
                     e.what()
                 );
+                g_signal_connect(message,"response",G_CALLBACK(+[](GtkDialog* message_dialog, gint response_id, gpointer user_data){
+                    gtk_window_close(GTK_WINDOW(message_dialog));
+                }),nullptr);
+                gtk_widget_show(message);
             }
         }
    };
