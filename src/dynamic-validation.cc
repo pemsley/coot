@@ -23,9 +23,17 @@ void update_dynamic_validation() {
 
 void update_dynamic_validation_for_molecule(int imol) {
 
-   GtkWidget *vbox  = widget_from_builder("dynamic_validation_outliers_vbox");
-   if (gtk_widget_get_visible(vbox)) {
-      overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
+   // only update if dynamic validation was being displayed already.
+
+   GtkWidget* pane_1 = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   GtkWidget* vbox_2 = widget_from_builder("validation_boxes_vbox");
+   GtkWidget *vbox_1  = widget_from_builder("dynamic_validation_outliers_vbox");
+   if (gtk_widget_get_visible(vbox_1)) {
+      if (gtk_widget_get_visible(vbox_2)) {
+         if (gtk_widget_get_visible(pane_1)) {
+            overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
+         }
+      }
    }
 }
 
