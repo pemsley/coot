@@ -6983,6 +6983,10 @@ void graphics_info_t::hide_vertical_validation_frame_if_appropriate() {
 
    bool should_hide = !rama_plot_shown && !should_show_vbox;
 
+   std::cout << "here in hide_vertical_validation_frame_if_appropriate rama_plot_shown : " << rama_plot_shown << std::endl;
+   std::cout << "here in hide_vertical_validation_frame_if_appropriate should_show_vbox : " << should_show_vbox << std::endl;
+   std::cout << "here in hide_vertical_validation_frame_if_appropriate should_hide: " << should_hide << std::endl;
+
    if(should_hide) {
       GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
       gtk_widget_set_visible(pane, FALSE);
