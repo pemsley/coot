@@ -673,6 +673,7 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
 
                     const float wave_arc_radius = WAVY_BOND_ARC_LENGTH * scale_factor / 2.f;
 
+                    // The angle at which the bond points
                     float base_angle = std::atan(full_vec_y / full_vec_x);
                     float arcs_count = std::sqrt(std::pow(full_vec_x,2.f) + std::pow(full_vec_y,2.f)) / (WAVY_BOND_ARC_LENGTH * scale_factor);
                     unsigned int rounded_arcs_count = std::floor(arcs_count);
@@ -680,18 +681,33 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
                     float step_y = full_vec_y / arcs_count;
                     float current_x = first.x + step_x / 2.f;
                     float current_y = first.y + step_y / 2.f;
+                    // It seems that for positive base_angle, 
+                    // 'true' is counter-clockwise
+                    // and 'false is clockwise.
+                    // For negative base_angle, it's the opposite.
                     bool arc_direction = true;
+                    // for debugging
+                    // float l_angle_one = 0, l_angle_two = 0;
+
+                    // Two core angles for semi-circles
+                    float p1 = base_angle;
+                    float p2 = base_angle - M_PI;
+
+                    float angle_one, angle_two;
+
                     for (unsigned int i = 0; i < rounded_arcs_count; i++) {
                         float next_x = current_x + step_x;
                         float next_y = current_y + step_y;
-                        float angle_one = base_angle;
-                        float angle_two = base_angle;
+                        
                         if(arc_direction) {
-                            angle_two -= M_PI;
+                            angle_one = p1;
+                            angle_two = p2;
                         } else {
-                            angle_one -= M_PI;
+                            angle_one = p2;
+                            angle_two = p1;
                         }
-                        //cairo_move_to(cr, current_x + next_x, current_y + next_y);
+                        // l_angle_one = angle_one;
+                        // l_angle_two = angle_two;
                         cairo_new_sub_path(cr);
                         cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
                         cairo_stroke(cr);
@@ -701,30 +717,75 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
                     }
                     // Final part of the path. Truncated arc.
                     float partial_arc_proportion = arcs_count - (float) rounded_arcs_count;
-                    float el = 1.f - (partial_arc_proportion / WAVY_BOND_ARC_LENGTH / 2.f);
-                    float complement_angle = std::acos(el);
-                    float angle_one = base_angle;
-                    float angle_two = base_angle;
-                    //g_debug("el: %f",el);
-                    angle_two += complement_angle;
-                    // if(angle_one < 0) {
-                    //     angle_one += M_PI;
-                    //     // if(angle_two - angle_one < 0) {
-                    //     //     std::swap(angle_one, angle_two);
-                    //     // }
+                    float arccos_arg = 1.f - (partial_arc_proportion / WAVY_BOND_ARC_LENGTH / 2.f);
+                    
+                    // This is the angle for the final arc.
+                    float theta = std::acos(arccos_arg);
+
+                    // The magic behind 'step_x > 0'
+                    // is a bit of a mystery (derived empirically).
+                    // There's certain correlation with the sign of base_angle
+                    // but that's not the whole story.
+                    // What matters is that it allows for differentiating
+                    // between various cases, with angles from different quarters.
+                    float starting_angle = step_x > 0 ? p2 : p1;
+                    if(arc_direction) {
+                        if(step_x > 0) {
+                            angle_one = starting_angle - theta;
+                            angle_two = starting_angle;
+                        } else {
+                            angle_one = starting_angle;
+                            angle_two = starting_angle + theta;
+                        }
+                    } else {
+                        if(step_x > 0) {
+                            angle_one = starting_angle;
+                            angle_two = starting_angle + theta;
+                        } else {
+                            angle_one = starting_angle - theta;
+                            angle_two = starting_angle;
+                        }
+                    }
+
+                    // debugging stuff
+
+                    // std::string case_info;
+                    // if(theta > M_PI_2) {
+                    //     case_info += "T";
+                    // } else {
+                    //     case_info += "G";
                     // }
-                    g_debug(
-                        "theta=%f, a1=%f, a2=%f a2-a1=%f abs(a2-a1)=%f direction=%s",
-                        complement_angle / M_PI * 180.f,
-                        angle_one / M_PI * 180.f,
-                        angle_two / M_PI * 180.f,
-                        (angle_two - angle_one) / M_PI * 180.f,
-                        std::fabs(angle_two - angle_one) / M_PI * 180.f,
-                        arc_direction ? "true" : "false"
-                    );
+                    // if(base_angle > 0) {
+                    //     case_info += "A";
+                    // } else {
+                    //     case_info += "E";
+                    // }
+                    // if(arc_direction) {
+                    //     case_info += "K";
+                    // } else {
+                    //     case_info += "V";
+                    // }
+                    // case_info += angle_two - angle_one > 0 ? "O" : "U";
+                    // if(step_x > 0) {
+                    //     case_info += "Z";
+                    // } else {
+                    //     case_info += "V";
+                    // }
+                    // g_debug(
+                    //     "theta=%f, base_angle=%f a1=%f, a2=%f a2-a1=%f abs(a2-a1)=%f direction=%s p1=%f, p2=%f case_codename=%s",
+                    //     theta / M_PI * 180.f,
+                    //     base_angle / M_PI * 180.f,
+                    //     angle_one / M_PI * 180.f,
+                    //     angle_two / M_PI * 180.f,
+                    //     (angle_two - angle_one) / M_PI * 180.f,
+                    //     std::fabs(angle_two - angle_one) / M_PI * 180.f,
+                    //     arc_direction ? "true" : "false",
+                    //     l_angle_one / M_PI * 180.f,
+                    //     l_angle_two / M_PI * 180.f,
+                    //     case_info.c_str()
+                    // );
                     cairo_new_sub_path(cr);
                     cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
-                    //g_debug("angle: %f",complement_angle);
                     cairo_stroke(cr);
                     break;
                 }
