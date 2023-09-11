@@ -15,10 +15,6 @@
 Go into CA mode and try to middle-mouse over an atom that is not displayed. The recentering works.
 The atom picker needs to know about the representation type (or act on it) ::: 1
 
-Bring the script that shows the SSOA buffer to GTK4 and try to fix the aniostropy. ::: 1
-* The SSAO for model is not anisotropic now that we use the new instanced code (if it ever was).
-  The SSAO for map is though. Compare and constrast with the model shaders.
-
 Pyrogen needs to work ::: 2
 
 Proportional editing ::: 3
@@ -851,3 +847,7 @@ Save Coordinates dialog is not working ::: 0.6
 Fresnel mode for maps in "Plain" mode ::: 1
 * Done.
 
+Bring the script that shows the SSOA buffer to GTK4 and try to fix the aniostropy. ::: 1
+  The SSAO for model is not anisotropic now that we use the new instanced code (if it ever was).
+  The SSAO for map is though. Compare and constrast with the model shaders.
+* Done. Yay.

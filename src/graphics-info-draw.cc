@@ -1368,6 +1368,35 @@ graphics_info_t::draw_atom_pull_restraints() {
    }
 }
 
+// static
+void // draw_proportional_editing_neighbour_displacement_max_radius
+graphics_info_t::draw_intermediate_atoms_pull_restraint_neighbour_displacement_max_radius_ring() {
+
+   if (! regularize_object_bonds_box.empty()) {
+      if (!moving_atoms_asc) return;
+      if (moving_atoms_asc->n_selected_atoms > 0) {
+         auto rcc = RotationCentre();
+         glm::vec3 rc(rcc.x(), rcc.y(), rcc.z());
+         rc = glm::vec3(0,0,0);
+         glm::mat4 unit(1.0);
+         glm::mat4 trans = glm::translate(unit, -rc);
+         glm::mat4 view = get_view_matrix();
+         int w = graphics_x_size;
+         int h = graphics_y_size;
+         bool ortho_flag = true;
+         glm::mat4 proj = get_projection_matrix(ortho_flag, w, h);
+         glm::mat4 mvp = proj * view * trans;
+         glm::mat4 model_rotation = get_model_rotation();
+         bool use_model_rotation = false;
+         lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring.draw(&shader_for_lines,
+                                                                                   rc, mvp,
+                                                                                   model_rotation,
+                                                                                   use_model_rotation);
+      }
+   }
+}
+
+
 void
 graphics_info_t::draw_molecular_triangles() {
 
@@ -1664,6 +1693,8 @@ graphics_info_t::draw_molecules() {
    draw_intermediate_atoms(PASS_TYPE_STANDARD);
 
    draw_intermediate_atoms_rama_balls(PASS_TYPE_STANDARD);
+
+   draw_intermediate_atoms_pull_restraint_neighbour_displacement_max_radius_ring(); // proportional editing
 
    draw_atom_pull_restraints();
 
@@ -5809,6 +5840,36 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
    }
 
 }
+
+// called from gl widget realize function
+// static
+ void
+    graphics_info_t::setup_lines_mesh_for_proportional_editing() {
+
+    unsigned int n_points = 100;
+    std::vector<s_generic_vertex> vertices(n_points);
+    glm::vec3 n(0,0,1);
+    glm::vec4 c(0.7,0.7,0.7,1.0);
+    for (unsigned int i=0; i<n_points; i++) {
+       double theta = 2.0 * M_PI * static_cast<double>(i) / 100.0;
+       glm::vec3 pt(cos(theta), sin(theta), 0.0);
+       vertices[i] = s_generic_vertex(pt, n, c);
+    }
+
+    std::vector<unsigned int> indices;
+    for (unsigned int i=0; i<n_points; i++) {
+       unsigned int i_next = i+1;
+       if (i_next == n_points) i_next = 0;
+       indices.push_back(i);
+       indices.push_back(i_next);
+    }
+
+    lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring = LinesMesh(vertices, indices);
+    std::string name = "lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring";
+    lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring.set_name(name);
+    lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring.setup();
+ }
+
 
 
 void

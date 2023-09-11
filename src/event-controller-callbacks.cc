@@ -592,6 +592,14 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
             change_model_molecule_representation_mode(1);
          graphics_draw();
          handled = true;
+      } else {
+         // dy is either 1.0 or -1.0
+         // std::cout << "change the proportional editing " << dx << " " << dy << std::endl;
+         bool dir = false;
+         if (dy < 0.0) dir = true;
+         pull_restraint_neighbour_displacement_change_max_radius(dir);
+         graphics_draw();
+         handled = true;
       }
    }
 
