@@ -19,8 +19,6 @@ Bring the script that shows the SSOA buffer to GTK4 and try to fix the aniostrop
 * The SSAO for model is not anisotropic now that we use the new instanced code (if it ever was).
   The SSAO for map is though. Compare and constrast with the model shaders.
 
-Fresnel mode for maps in "Plain" mode ::: 1
-
 Pyrogen needs to work ::: 2
 
 Proportional editing ::: 3
@@ -849,3 +847,7 @@ Clean up "store_window_position()" usage ::: 0.2
 
 Save Coordinates dialog is not working ::: 0.6
 * Done.
+
+Fresnel mode for maps in "Plain" mode ::: 1
+* Done.
+

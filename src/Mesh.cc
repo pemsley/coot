@@ -2297,7 +2297,10 @@ Mesh::draw_for_ssao(Shader *shader_p,
                     const glm::mat4 &view,
                     const glm::mat4 &projection) {
 
-   // std::cout << "debug:: start Mesh::draw_for_ao() this mesh: " << name << std::endl;
+   if (false)
+      std::cout << "debug:: start Mesh::draw_for_ssao() this mesh: " << name << " with shader " << shader_p->name
+                << std::endl;
+
    if (! shader_p) return; // if we don't want this mesh to be drawn a null shader is passed
 
    unsigned int n_triangles = triangles.size();

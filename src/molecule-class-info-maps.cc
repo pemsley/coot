@@ -248,7 +248,6 @@ molecule_class_info_t::draw_map_molecule_for_ssao(Shader *shader_p,
                                                   const glm::mat4 &view_matrix,
                                                   const glm::mat4 &proj_matrix) {
 
-   // std::cout << "debug:: start Mesh::draw_for_ao() this mesh: " << name << std::endl;
    if (! shader_p) return; // if we don't want this mesh to be drawn a null shader is passed
 
    if (draw_it_for_map) {
