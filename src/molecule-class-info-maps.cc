@@ -174,11 +174,14 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
 
       // --- lights ----
 
+      auto rc = graphics_info_t::RotationCentre();
+      glm::vec3 rotation_centre(rc.x(), rc.y(), rc.z());
+      shader.setup_eye_position(eye_position, rotation_centre, view_rotation);
       std::map<unsigned int, lights_info_t>::const_iterator it; // iterate over the lights map
       for (it=lights.begin(); it!=lights.end(); ++it) {
          unsigned int light_idx = it->first;
          const lights_info_t &light = it->second;
-         shader.setup_light(light_idx, light, view_rotation, eye_position);
+         shader.setup_light(light_idx, light, view_rotation);
       }
 
       // --- material ---
@@ -222,7 +225,7 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
          bool show_just_shadows = false;
          bool do_depth_fog = graphics_info_t::shader_do_depth_fog_flag;
          bool wireframe_mode = true; // aka "standard lines" / chickenwire
-         map_as_mesh_gl_lines_version.draw(&shader, mvp, view_rotation, lights, eye_position, opacity, bgc,
+         map_as_mesh_gl_lines_version.draw(&shader, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
                                            wireframe_mode, do_depth_fog, show_just_shadows);
       }
 
@@ -232,7 +235,7 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
          bool wireframe_mode = false; // aka "standard lines" / chickenwire
          if (opacity < 1.0)
             map_as_mesh.sort_map_triangles(eye_position);
-         map_as_mesh.draw(&shader, mvp, view_rotation, lights, eye_position, opacity, bgc,
+         map_as_mesh.draw(&shader, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
                           wireframe_mode, do_depth_fog, show_just_shadows);
       }
    }

@@ -1500,12 +1500,14 @@ Mesh::draw_instanced(int pass_type,
    std::map<unsigned int, lights_info_t>::const_iterator it;
    unsigned int light_idx = 0;
    it = lights.find(light_idx);
-   if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+   if (it != lights.end()) {
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
+   }
    light_idx = 1;
    it = lights.find(light_idx);
-   if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+   if (it != lights.end()) {
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
+   }
 
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
@@ -1632,11 +1634,11 @@ Mesh::draw_extra_distance_restraint_instances(Shader *shader_p,
    unsigned int light_idx = 0;
    it = lights.find(light_idx);
    if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
    light_idx = 1;
    it = lights.find(light_idx);
    if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
 
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
@@ -1781,6 +1783,7 @@ Mesh::draw(Shader *shader_p,
            const glm::mat4 &mouse_based_rotation_matrix,
            const std::map<unsigned int, lights_info_t> &lights,
            const glm::vec3 &eye_position,
+           const glm::vec3 &rotation_centre,
            float opacity, // map_opacity
            const glm::vec4 &background_colour,
            bool draw_as_lines_flag, // or surface mesh
@@ -1827,12 +1830,15 @@ Mesh::draw(Shader *shader_p,
    std::map<unsigned int, lights_info_t>::const_iterator it;
    unsigned int light_idx = 0;
    it = lights.find(light_idx);
-   if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, mouse_based_rotation_matrix, eye_position);
+   if (it != lights.end()) {
+      shader_p->setup_light(light_idx, it->second, mouse_based_rotation_matrix);
+   }
    light_idx = 1;
    it = lights.find(light_idx);
-   if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, mouse_based_rotation_matrix, eye_position);
+   if (it != lights.end()) {
+      shader_p->setup_light(light_idx, it->second, mouse_based_rotation_matrix);
+   }
+   shader_p->setup_eye_position(eye_position, rotation_centre, mouse_based_rotation_matrix);
 
    // add material properties, use class built-ins this time.
 
@@ -2088,11 +2094,11 @@ Mesh::draw_with_shadows(Shader *shader_p,
    unsigned int light_idx = 0;
    it = lights.find(light_idx);
    if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
    light_idx = 1;
    it = lights.find(light_idx);
    if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
 
    glActiveTexture(GL_TEXTURE0);
    err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::draw_with_shadows() A4 " << err << std::endl;

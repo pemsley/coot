@@ -162,11 +162,13 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type) {
                      // std::cout << "   draw_generic_objects() draw() " << obj.mesh.name << std::endl;
                      bool show_just_shadows = false;
                      float opacity = 1.0f;
+                     auto ccrc = RotationCentre();
+                     glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
                      if (obj.wireframe_mode) {
-                        obj.mesh.draw(&shader_for_lines, mvp, model_rotation, lights, eye_position, opacity,
+                        obj.mesh.draw(&shader_for_lines, mvp, model_rotation, lights, eye_position, rc, opacity,
                                       bg_col, obj.wireframe_mode, do_depth_fog, show_just_shadows);
                      } else {
-                        obj.mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity,
+                        obj.mesh.draw(&shader, mvp, model_rotation, lights, eye_position, rc, opacity,
                                       bg_col, obj.wireframe_mode, do_depth_fog, show_just_shadows);
                      }
                   }

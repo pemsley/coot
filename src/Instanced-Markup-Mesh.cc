@@ -304,12 +304,14 @@ Instanced_Markup_Mesh::draw(Shader *shader_p,
    std::map<unsigned int, lights_info_t>::const_iterator it;
    unsigned int light_idx = 0;
    it = lights.find(light_idx);
-   if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+   if (it != lights.end()) {
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
+   }
    light_idx = 1;
    it = lights.find(light_idx);
-   if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+   if (it != lights.end()) {
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
+   }
 
    // add material properties, use class built-ins this time.
 

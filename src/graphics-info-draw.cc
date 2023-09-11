@@ -1337,11 +1337,11 @@ graphics_info_t::draw_atom_pull_restraints() {
             unsigned int light_idx = 0;
             it = lights.find(light_idx);
             if (it != lights.end())
-               shader.setup_light(light_idx, it->second, model_rotation, eye_position);
+               shader.setup_light(light_idx, it->second, model_rotation);
             light_idx = 1;
             it = lights.find(light_idx);
             if (it != lights.end())
-               shader.setup_light(light_idx, it->second, model_rotation, eye_position);
+               shader.setup_light(light_idx, it->second, model_rotation);
 
             glm::vec4 bg_col(background_colour, 1.0f);
             shader.set_vec4_for_uniform("background_colour", bg_col);
@@ -1932,9 +1932,11 @@ graphics_info_t::draw_environment_graphics_object() {
             bool show_just_shadows = false;
             bool wireframe_mode = false;
             float opacity = 1.0f;
+            auto ccrc = RotationCentre();
+            glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
             mesh_for_environment_distances.mesh.draw(&shader_for_moleculestotriangles,
                                                      mvp, model_rotation,
-                                                     lights, eye_position, opacity, bg_col,
+                                                     lights, eye_position, rc, opacity, bg_col,
                                                      wireframe_mode, do_depth_fog, show_just_shadows);
 
             Shader *shader_p = &shader_for_atom_labels;
@@ -2005,8 +2007,10 @@ graphics_info_t::draw_outlined_active_residue() {
       bool show_just_shadows = false;
       bool wireframe_mode = false;
       float opacity = 1.0f;
-      mesh_for_outline_of_active_residue.draw(&shader, mvp, model_rotation, dummy_lights, eye_position, opacity,
-                                              bg_col, wireframe_mode, false, show_just_shadows);
+      auto ccrc = RotationCentre();
+      glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+      mesh_for_outline_of_active_residue.draw(&shader, mvp, model_rotation, dummy_lights, eye_position, rc,
+                                              opacity, bg_col, wireframe_mode, false, show_just_shadows);
    }
 };
 
@@ -2040,9 +2044,11 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
          glm::vec4 bg_col(background_colour, 1.0);
          bool wireframe_mode = false;
          float opacity = 1.0f;
+         auto ccrc = RotationCentre();
+         glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
          for (unsigned int i=0; i<generic_display_objects.size(); i++) {
             generic_display_objects[i].mesh.draw(&shader_for_moleculestotriangles,
-                                                 mvp, model_rotation, lights, eye_position, opacity,
+                                                 mvp, model_rotation, lights, eye_position, rc, opacity,
                                                  bg_col, wireframe_mode, false, show_just_shadows);
          }
       }
@@ -2072,6 +2078,8 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
    glm::mat4 mvp_orthogonal = glm::mat4(1.0f); // placeholder
    glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col(background_colour, 1.0);
+   auto ccrc = RotationCentre();
+   glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
    bool do_depth_fog = shader_do_depth_fog_flag;
 
    unsigned int light_index = 0;
@@ -2130,7 +2138,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                      bool wireframe_mode = false;
                      float opacity = 1.0f;
                      m.meshes[jj].draw(&shader_for_meshes_with_shadows, mvp,
-                                       model_rotation, lights, eye_position, opacity, bg_col,
+                                       model_rotation, lights, eye_position, rc, opacity, bg_col,
                                        wireframe_mode, do_depth_fog, show_just_shadows);
                   }
                   if (pass_type == PASS_TYPE_SSAO) {
@@ -2158,7 +2166,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                                mvp_orthogonal,
                                model_rotation,
                                lights,
-                               dummy_eye_position,
+                               dummy_eye_position, rc,
                                opacity,
                                bg_col,
                                gl_lines_mode,
@@ -2719,10 +2727,12 @@ graphics_info_t::draw_measure_distance_and_angles() {
       bool show_just_shadows = false;
       bool wireframe_mode = false;
       float opacity = 1.0f;
-      mesh_for_measure_distance_object_vec.draw(&shader, mvp, model_rotation_matrix, lights, eye_position,
+      auto ccrc = RotationCentre();
+      glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+      mesh_for_measure_distance_object_vec.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc,
                                                 opacity, bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
-      mesh_for_measure_angle_object_vec.draw(&shader, mvp, model_rotation_matrix, lights, eye_position,
+      mesh_for_measure_angle_object_vec.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc,
                                              opacity, bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
       if (! labels_for_measure_distances_and_angles.empty()) {
@@ -5382,8 +5392,10 @@ graphics_info_t::draw_boids() {
       bool show_just_shadows = false;
       bool wireframe_mode = false;
       float opacity = 1.0f;
+      auto ccrc = RotationCentre();
+      glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
       mesh_for_boids.draw(&shader_for_instanced_objects,
-                          mvp, model_rotation_matrix, lights, eye_position, opacity, bg_col,
+                          mvp, model_rotation_matrix, lights, eye_position, rc, opacity, bg_col,
                           wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
       lines_mesh_for_boids_box.draw(&shader_for_lines, mvp, model_rotation_matrix);
@@ -5648,7 +5660,9 @@ graphics_info_t::draw_pointer_distances_objects() {
          bool show_just_shadows = false;
          bool wireframe_mode = false;
          float opacity = 1.0f;
-         mesh_for_pointer_distances.mesh.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, opacity,
+         auto ccrc = RotationCentre();
+         glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+         mesh_for_pointer_distances.mesh.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc, opacity,
                                               bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
          if (! labels_for_pointer_distances.empty()) {

@@ -34,6 +34,10 @@ the scaling of the framebuffers for super-sampling (in "Fancy" mode).
 OK, so the framebuffer scaling works in simple mode.
 Make it work in "fancy" mode and I will call it done.
 
+Missing Bernie cherries
+
+Fix build for St Judes Walid
+
 2koc: do a Coot contact dots analysis on it.
 
 Try using the instanced bonds using the api. Fix the specular lighting.

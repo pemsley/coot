@@ -491,11 +491,11 @@ TextureMesh::draw(Shader *shader_p,
    unsigned int light_idx = 0;
    it = lights.find(light_idx);
    if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
    light_idx = 1;
    it = lights.find(light_idx);
    if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
 
    if (vao == VAO_NOT_SET)
       std::cout << "You forgot to setup this mesh (or setup with empty vertices or triangles) "
@@ -657,11 +657,11 @@ TextureMesh::draw_with_shadows(Shader *shader_p,
    unsigned int light_idx = 0;
    it = lights.find(light_idx);
    if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
    light_idx = 1;
    it = lights.find(light_idx);
    if (it != lights.end())
-      shader_p->setup_light(light_idx, it->second, view_rotation_matrix, eye_position);
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
 
    if (vao == VAO_NOT_SET)
       std::cout << "ERROR:: TextureMess::draw_with_shadows() You forgot to setup this mesh"
