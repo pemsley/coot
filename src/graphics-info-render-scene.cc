@@ -187,7 +187,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
          }
          di.shaderSSAO.set_mat4_for_uniform("projection", projection_matrix);
 
-         if (true)
+         if (false)
             std::cout << "sending ssao radius " << SSAO_radius << " bias " << SSAO_bias
                       << " n-kernel-samples "  << n_ssao_kernel_samples << std::endl;
          shaderSSAO.set_float_for_uniform("radius", SSAO_radius);
