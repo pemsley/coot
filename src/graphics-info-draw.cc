@@ -5714,10 +5714,8 @@ graphics_info_t::make_extra_distance_restraints_objects() {
 
    // c.f. update_hydrogen_bond_mesh().
 
-   // std::cout << "here in make_extra_distance_restraints_objects() " << std::endl;
-
-   double penalty_min = 0.1; // only restraints that have more than this "distortion" are considered for drawing.
-                             // Make this user-setable.
+   double penalty_min = 0.05; // only restraints that have more than this "distortion" are considered for drawing.
+                               // Make this user-setable.
 
    // the model has been updated, we need to update the positions and orientations using in the instancing
 
@@ -5809,6 +5807,10 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
    // what about draw_it_for_moving_atoms_restraints_graphics_object?
    //
    if (pass_type == PASS_TYPE_STANDARD) {
+      if (false)
+         std::cout << "in draw_extra_distance_restraints() with show_extra_distance_restraints_flag "
+                   << show_extra_distance_restraints_flag << " " << extra_distance_restraints_markup_data.size()
+                   << std::endl;
       if (show_extra_distance_restraints_flag) {
          if (! extra_distance_restraints_markup_data.empty()) {
             glm::mat4 mvp = get_molecule_mvp();

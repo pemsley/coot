@@ -1636,7 +1636,7 @@ HUDTextureMesh graphics_info_t::tmesh_for_background_image = HUDTextureMesh("tme
 Shader         graphics_info_t::shader_for_background_image;
 bool           graphics_info_t::draw_background_image_flag = false; // uses "background-image.png"
 
-float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;
+float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 0.0; // we don't see it initially.
 
 coot::command_history_t graphics_info_t::command_history;
 

@@ -4721,7 +4721,9 @@ molecule_class_info_t::get_fixed_atoms() const {
 void
 molecule_class_info_t::update_extra_restraints_representation() {
 
-   std::cout << "here we are in update_extra_restraints_representation()"  << std::endl;
+   std::cout << "here we are in update_extra_restraints_representation() "
+             << extra_restraints.bond_restraints.size() << " "
+             << extra_restraints.geman_mcclure_restraints.size() << std::endl;
 
    extra_restraints_representation.clear();
    update_extra_restraints_representation_bonds();

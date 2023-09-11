@@ -1768,6 +1768,7 @@ graphics_info_t::make_moving_atoms_restraints_graphics_object() {
          if (draw_it_for_moving_atoms_restraints_graphics_object) {
             if (draw_it_for_moving_atoms_restraints_graphics_object_user_control) {
                moving_atoms_extra_restraints_representation.clear();
+
                for (int i=0; i<last_restraints->size(); i++) {
                   // std::cout << "-------------------- in make_moving_atoms_restraints_graphics_object() D " << i << std::endl;
                   const coot::simple_restraint &rest = last_restraints->at(i);

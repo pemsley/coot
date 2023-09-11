@@ -1758,6 +1758,7 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
    rr->nbc_baddies_atom_index_map.clear();
 
    unsigned int n_hydrogen_bond_restraints = 0;
+   unsigned int n_geman_mcclure_distance_restraints = 0;
    for (int i=0; i<n_restraints; i++) {
       const simple_restraint &restraint = restraints_vec[i];
 
@@ -1818,6 +1819,11 @@ coot::restraints_container_t::add_details_to_refinement_results(coot::refinement
                chiral_baddies.push_back(cb);
             }
          }
+      }
+
+      if (restraint.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+         if (restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK)
+            n_geman_mcclure_distance_restraints++;
       }
 
       if (restraints_usage_flag & coot::RAMA_PLOT_MASK) {
