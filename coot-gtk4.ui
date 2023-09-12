@@ -14660,6 +14660,7 @@ Move a copy?</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="unsaved_changes_dialog">
     <property name="title" translatable="yes">Coot: Unsaved Changes</property>
     <property name="deletable">0</property>
@@ -14689,8 +14690,13 @@ Move a copy?</property>
                 <child>
                   <object class="GtkBox" id="unsaved_changes_molecule_vbox">
                     <property name="orientation">vertical</property>
+                    <property name="margin-top">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-start">8</property>
+                    <property name="margin-end">8</property>
                   </object>
                 </child>
+
                 <child>
                   <object class="GtkLabel" id="label99">
                     <property name="label" translatable="yes">Do you wish to Continue to Exit?</property>
@@ -14706,28 +14712,22 @@ Move a copy?</property>
           </object>
         </child>
 
-        <child type="action">
-          <object class="GtkBox" id="hbox51">
-            <property name="spacing">12</property>
+        <child>
+          <object class="GtkBox">
+            <property name="spacing">8</property>
             <property name="margin-top">6</property>
-            <property name="margin-bottom">6</property>
+            <property name="margin-bottom">10</property>
             <property name="margin-start">6</property>
             <property name="margin-end">6</property>
             <child>
               <object class="GtkButton" id="unsaved_changes_cancel_button">
                 <property name="label" translatable="yes">Cancel</property>
-                <property name="can-focus">1</property>
-                <property name="margin-start">8</property>
-                <property name="margin-end">8</property>
-                <property name="margin-top">8</property>
-                <property name="margin-bottom">8</property>
                 <signal name="clicked" handler="on_unsaved_changes_cancel_button_clicked" swapped="no"/>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="unsaved_changes_continue_button">
                 <property name="label" translatable="yes">Continue Exit</property>
-                <property name="can-focus">1</property>
                 <signal name="clicked" handler="on_unsaved_changes_continue_button_clicked" swapped="no"/>
                 <style>
                   <class name="destructive-action"/>
@@ -14738,8 +14738,6 @@ Move a copy?</property>
         </child>
 
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
 
