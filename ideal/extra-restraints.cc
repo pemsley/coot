@@ -491,7 +491,7 @@ coot::restraints_container_t::try_add_using_old_atom_indices(const extra_restrai
 	 int index_2 = old_atom_index_to_new_atom_index[idx_2_old];
 	 if (debug)
 	    std::cout << "debug:: index_1: " << index_1 << " index_2: " << index_2 << "\n";
-	 if ((index_1 != -1) && (index_2 != -1)) { 
+	 if ((index_1 != -1) && (index_2 != -1)) {
 	    std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
 	    add_geman_mcclure_distance(GEMAN_MCCLURE_DISTANCE_RESTRAINT, index_1, index_2, fixed_flags,
 				       ebr.bond_dist, ebr.esd);
@@ -501,6 +501,9 @@ coot::restraints_container_t::try_add_using_old_atom_indices(const extra_restrai
 	 }
       }
    }
+
+   if (false)
+      std::cout << "try_add_using_old_atom_indices() added status for GM restraint " << success << std::endl;
    return success;
 
 }
@@ -658,14 +661,17 @@ coot::restraints_container_t::add_extra_geman_mcclure_restraints(const extra_res
    for (unsigned int i=0; i<extra_restraints.geman_mcclure_restraints.size(); i++) {
       mmdb::Residue *r_1 = NULL;
       mmdb::Residue *r_2 = NULL;
-      mmdb::Atom *at_1 = 0;
-      mmdb::Atom *at_2 = 0;
       bool fixed_1 = false;
       bool fixed_2 = false;
 
       const extra_restraints_t::extra_geman_mcclure_restraint_t &ebr = extra_restraints.geman_mcclure_restraints[i];
+
+      // this is the fast/right way to do it if it works
       bool done = try_add_using_old_atom_indices(ebr);
-      if (done) continue;
+      if (done) {
+         n_extra_bond_restraints++;
+         continue;
+      }
 
       if (from_residue_vector) {
 	 residue_spec_t br_res_atom_1(extra_restraints.geman_mcclure_restraints[i].atom_1);
@@ -715,11 +721,13 @@ coot::restraints_container_t::add_extra_geman_mcclure_restraints(const extra_res
 	    }
 	 } 
 	 mol->DeleteSelection(selHnd);
-
       }
-      
+
       if (r_1 && r_2) {
 	 if (! (fixed_1 && fixed_2)) {
+            mmdb::Atom *at_1 = 0;
+            mmdb::Atom *at_2 = 0;
+
 	    mmdb::PPAtom residue_atoms_1 = 0;
 	    mmdb::PPAtom residue_atoms_2 = 0;
 	    int n_residue_atoms_1;
@@ -765,9 +773,11 @@ coot::restraints_container_t::add_extra_geman_mcclure_restraints(const extra_res
 	 } 
       } 
    }
-   if (true)
-      std::cout << "INFO:: --------------------------  made " << n_extra_bond_restraints
-		<< " extra GM restraints" << std::endl;
+
+   // hopfully they have been added using the fast method,
+   if (false)
+      std::cout << "INFO:: --------------------------  add_extra_geman_mcclure_restraints() made "
+                << n_extra_bond_restraints << " extra GM restraints" << std::endl;
 
 }
 

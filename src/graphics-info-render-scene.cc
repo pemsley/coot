@@ -84,8 +84,8 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
    auto render_to_shadow_map = [] () {
 
-      std::cout << "---------------------------------------- render_to_shadow_map() ------------------------------- "
-                << shadow_strength << std::endl;
+      // std::cout << "---------------------------------------- render_to_shadow_map() ------------------------------- "
+      // << shadow_strength << std::endl;
 
                                  if (shadow_strength == 0.0f) return;
                                  GLenum err = glGetError();
@@ -117,32 +117,8 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
    if (di.displayed_image_type == SHOW_AO_SCENE) {
 
-      // std::cout << "DEBUG:: render_scene_sans_depth_blur() ------------------------------- " << std::endl;
-
-      // bind SSAO gbuffer framebuffer
-      // draw_models_for_ssao()
-      // bind SSAO framebuffer
-      // renderQuad()
-      // bind SSAO blur framebuffer
-      // renderQuad()
-      // bind depthMap framebuffer // call this shadow_depthMap
-      // draw_models_for_shadow_map()
-      // bind effects framebuffer
-      // draw_models_with_shadows()
-      // bind blur_y framebuffer
-      // ... send ssao texture/flag/strength
-      // glDrawArrays()
-      // bind blur_x framebuffer
-      // render_scene_with_y_blur()
-      // bind combine_textures_using_depth_framebuffer
-      // render_scene_with_x_blur();
-      // di.attach_buffers()
-      // render_scene_with_texture_combination_for_depth_blur();
-
       {
 
-         // GtkAllocation allocation;
-         // gtk_widget_get_allocation(di.gl_area, &allocation);
          int w = width;
          int h = height;
 
@@ -152,8 +128,6 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
          // 1. geometry pass: render scene's geometry/color data into gbuffer
          // -----------------------------------------------------------------
          // glBindFramebuffer(GL_FRAMEBUFFER, di.gBufferFBO);
-
-         // std::cout << "render_scene_sans_depth_blur() here 1 " << std::endl;
 
          di.framebuffer_for_ssao_gbuffer.bind();
          glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -213,7 +187,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
          }
          di.shaderSSAO.set_mat4_for_uniform("projection", projection_matrix);
 
-         if (true)
+         if (false)
             std::cout << "sending ssao radius " << SSAO_radius << " bias " << SSAO_bias
                       << " n-kernel-samples "  << n_ssao_kernel_samples << std::endl;
          shaderSSAO.set_float_for_uniform("radius", SSAO_radius);

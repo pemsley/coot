@@ -2310,7 +2310,7 @@ coot::restraints_container_t::analyze_for_bad_restraints(analyze_bad_restraints_
 void
 coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type, double interesting_distortion_limit) {
 
-   unsigned int n_baddies = 10;
+   unsigned int n_baddies = 20;
 
    std::vector<std::tuple<unsigned int, double, double, double> > distortions; // index n_z bl_delta, target-value distortion
    for (unsigned int i=0; i<restraints_vec.size(); i++) {

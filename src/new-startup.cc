@@ -107,6 +107,7 @@ new_startup_realize(GtkWidget *gl_area) {
    g.setup_draw_for_bad_nbc_atom_pair_markers();
    g.setup_draw_for_chiral_volume_outlier_markers();
    g.setup_draw_for_anchored_atom_markers_init();
+   g.setup_lines_mesh_for_proportional_editing();
    g.lines_mesh_for_hud_lines.set_name("lines mesh for fps graph");
    unsigned int frame_time_history_list_max_n_elements = 500;
    // +40 for base and grid lines
@@ -122,6 +123,10 @@ new_startup_realize(GtkWidget *gl_area) {
    g.texture_for_hud_refinement_dialog_arrow_highlighted = Texture("refinement-dialog-arrrow-highlighted.png", Texture::DIFFUSE);
 
    g.tmesh_for_shadow_map.setup_quad();
+
+   g.attach_buffers();
+   Material material;
+   g.mesh_for_extra_distance_restraints.setup_extra_distance_restraint_cylinder(material); // init
 
    g.setup_key_bindings();
 

@@ -110,7 +110,11 @@ def add_module_restraints():
         lambda _simple_action, _arg: generate_self_restraint_func(4.3))
 
     add_simple_action_to_menu(
-        menu, "Generate Chain Self Restraints 6 for Chain","generate_self_restraint_60",
+        menu, "Generate Chain Self Restraints 5.0 for Chain","generate_self_restraint_50",
+        lambda _simple_action, _arg: generate_self_restraint_func(5.0))
+
+    add_simple_action_to_menu(
+        menu, "Generate Chain Self Restraints 6.0 for Chain","generate_self_restraint_60",
         lambda _simple_action, _arg: generate_self_restraint_func(6))
 
     add_simple_action_to_menu(

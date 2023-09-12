@@ -2063,12 +2063,22 @@ graphics_info_t::run_post_set_rotation_centre_hook_py() {
 void
 graphics_info_t::pull_restraint_neighbour_displacement_change_max_radius(bool up_or_down) {
 
-   if (up_or_down)
-      pull_restraint_neighbour_displacement_max_radius -= 1.0;
-   else
-      pull_restraint_neighbour_displacement_max_radius += 1.0;
-
    if (last_restraints) {
+      if (up_or_down)
+         pull_restraint_neighbour_displacement_max_radius -= 1.0;
+      else
+         pull_restraint_neighbour_displacement_max_radius += 1.0;
+
+      if (pull_restraint_neighbour_displacement_max_radius < 0.0)
+         pull_restraint_neighbour_displacement_max_radius = 0.0;
+
+      // std::cout << "debug:: pull_restraint_neighbour_displacement_max_radius "
+      // << pull_restraint_neighbour_displacement_max_radius << std::endl;
+
+      float r = pull_restraint_neighbour_displacement_max_radius;
+      attach_buffers(); // because we touch some GL buffers
+      lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring.update_radius_ring_vertices(r);
+
       if (pull_restraint_neighbour_displacement_max_radius > 1.99) {
          last_restraints->set_use_proportional_editing(true);
          last_restraints->pull_restraint_neighbour_displacement_max_radius =
@@ -6962,8 +6972,6 @@ void graphics_info_t::hide_vertical_validation_frame_if_appropriate() {
       }
       return n_children;
    };
-
-   std::cout << "here in hide_vertical_validation_frame_if_appropriate -- start ---" << std::endl;
 
    GtkWidget *vbox = widget_from_builder("validation_boxes_vbox");
    // Jakub style:  :-)

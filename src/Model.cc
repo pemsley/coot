@@ -240,6 +240,7 @@ Model::draw_meshes(Shader *shader_p,  // e.g. molecular_triangles_shader
                    const glm::mat4 &view_rotation_matrix,
                    const std::map<unsigned int, lights_info_t> &lights,
                    const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                   const glm::vec3 &rotation_centre,
                    float opacity,
                    const glm::vec4 &background_colour,
                    bool do_depth_fog) {
@@ -256,8 +257,8 @@ Model::draw_meshes(Shader *shader_p,  // e.g. molecular_triangles_shader
       }
       bool draw_just_shadows = false; // pass this if needed.
       bool wireframe_mode = false;
-      meshes[i].draw(shader_p, mvp, view_rotation_matrix, lights,
-                     eye_position, opacity, background_colour, wireframe_mode, do_depth_fog, draw_just_shadows);
+      meshes[i].draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
+                     opacity, background_colour, wireframe_mode, do_depth_fog, draw_just_shadows);
       if (false)
          meshes[i].draw_normals(mvp, 0.1);
    }
@@ -270,6 +271,7 @@ Model::draw_mesh(unsigned int mesh_index,
                  const glm::mat4 &view_rotation_matrix,
                  const std::map<unsigned int, lights_info_t> &lights,
                  const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                 const glm::vec3 &rotation_centre,
                  float opacity,
                  const glm::vec4 &background_colour,
                  bool do_depth_fog,
@@ -278,8 +280,8 @@ Model::draw_mesh(unsigned int mesh_index,
    glDisable(GL_BLEND);
    // std::cout << "Model draw_mesh() " << mesh_index << " \"" << meshes[mesh_index].name << "\"" << std::endl;
    bool wireframe_mode = false;
-   meshes[mesh_index].draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, opacity,
-			   background_colour, wireframe_mode, do_depth_fog, draw_just_shadows);
+   meshes[mesh_index].draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
+                           opacity, background_colour, wireframe_mode, do_depth_fog, draw_just_shadows);
 }
 
 void

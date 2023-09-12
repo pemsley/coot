@@ -54,6 +54,7 @@ public:
                                    const std::vector<unsigned int> &indices); // calls setup().
    void update_vertices_and_indices(const std::vector<s_generic_vertex> &vertices,
                                     const std::vector<unsigned int> &indices); // no call to setup(). Just update sub buffer data
+   void update_radius_ring_vertices(float new_radius);
    void draw(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation, bool use_view_rotation=false);
    void draw(Shader *shader_p, const glm::vec3 &atom_position, const glm::mat4 &mvp,
              const glm::mat4 &view_rotation, bool use_view_rotation=false);

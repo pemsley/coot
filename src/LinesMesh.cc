@@ -139,6 +139,20 @@ LinesMesh::update_vertices_and_indices(const std::vector<s_generic_vertex> &vert
 
 }
 
+void
+LinesMesh::update_radius_ring_vertices(float new_radius) {
+
+   float r = new_radius;
+   unsigned int n_points = vertices.size();
+   for (unsigned int i=0; i<n_points; i++) {
+      double theta = 2.0 * M_PI * static_cast<double>(i) / 100.0;
+      glm::vec3 pt(r * cos(theta), r * sin(theta), 0.0);
+      vertices[i].pos = pt;
+   }
+   update_vertices_and_indices(vertices, indices);
+}
+
+
 
 void
 LinesMesh::clear() {
