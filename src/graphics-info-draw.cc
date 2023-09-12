@@ -5852,9 +5852,10 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
     std::vector<s_generic_vertex> vertices(n_points);
     glm::vec3 n(0,0,1);
     glm::vec4 c(0.7,0.7,0.7,1.0);
+    double r = 0.001;
     for (unsigned int i=0; i<n_points; i++) {
        double theta = 2.0 * M_PI * static_cast<double>(i) / 100.0;
-       glm::vec3 pt(cos(theta), sin(theta), 0.0);
+       glm::vec3 pt(r * cos(theta), r * sin(theta), 0.0);
        vertices[i] = s_generic_vertex(pt, n, c);
     }
 
