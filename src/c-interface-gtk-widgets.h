@@ -820,11 +820,7 @@ void calc_and_set_optimal_b_factor ( GtkWidget *w ) ;
 void store_fixed_atom_dialog(GtkWidget *w);
 GtkWidget *wrapped_create_fixed_atom_dialog();
 
-#if (GTK_MAJOR_VERSION >= 4)
-#else
-void start_ligand_builder_gui_internal(GtkMenuItem     *menuitem,
-				       gpointer         user_data);
-#endif
+void start_ligand_builder_gui_internal();
 
 void set_file_selection_dialog_size(GtkWidget *w);
 

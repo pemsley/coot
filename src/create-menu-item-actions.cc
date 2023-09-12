@@ -981,11 +981,7 @@ ligand_builder_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                       G_GNUC_UNUSED GVariant *parameter,
                       G_GNUC_UNUSED gpointer user_data) {
 
-#if (GTK_MAJOR_VERSION >= 4)
-   std::cout << "FIXME:: start_ligand_builder_gui_internal() " << std::endl;
-#else
-   start_ligand_builder_gui_internal(menuitem, user_data);
-#endif
+   start_ligand_builder_gui_internal();
 }
 
 

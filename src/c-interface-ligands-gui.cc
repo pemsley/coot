@@ -703,14 +703,8 @@ void set_ligand_cluster_sigma_level_from_widget(GtkWidget *button) {
 
 
 
-// The name has beend changed because the function we want at the
-// scripting layer (start_ligand_builder_gui()) should not need
-// arguments.
-//
 void
-start_ligand_builder_gui_internal(GMenuItem     *menuitem,
-				  gpointer       user_data) {
-
+start_ligand_builder_gui_internal() {
       start_ligand_builder_gui();
 }
 
@@ -745,6 +739,7 @@ start_ligand_builder_gui() {
 	  );
 #else
       std::cout << "No goocanvas" << std::endl;
+      std::cout << "FIXME:: Integrate Layla." << std::endl;
 #endif // HAVE_GOOCANVAS
 
    }
