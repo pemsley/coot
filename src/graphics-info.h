@@ -4428,10 +4428,13 @@ string   static std::string sessionid;
       if (refine_again_flag)
 	 if (last_restraints)
 	    drag_refine_refine_intermediate_atoms();
-
    }
+
    void clear_all_atom_pull_restraints(bool refine_again_flag);
    static bool auto_clear_atom_pull_restraint_flag;
+   static LinesMesh lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring;
+   static void draw_intermediate_atoms_pull_restraint_neighbour_displacement_max_radius_ring();
+   static void setup_lines_mesh_for_proportional_editing(); // called from gl widget realize function
 
    static bool continue_update_refinement_atoms_flag;
 

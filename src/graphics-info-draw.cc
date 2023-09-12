@@ -1337,11 +1337,11 @@ graphics_info_t::draw_atom_pull_restraints() {
             unsigned int light_idx = 0;
             it = lights.find(light_idx);
             if (it != lights.end())
-               shader.setup_light(light_idx, it->second, model_rotation, eye_position);
+               shader.setup_light(light_idx, it->second, model_rotation);
             light_idx = 1;
             it = lights.find(light_idx);
             if (it != lights.end())
-               shader.setup_light(light_idx, it->second, model_rotation, eye_position);
+               shader.setup_light(light_idx, it->second, model_rotation);
 
             glm::vec4 bg_col(background_colour, 1.0f);
             shader.set_vec4_for_uniform("background_colour", bg_col);
@@ -1367,6 +1367,35 @@ graphics_info_t::draw_atom_pull_restraints() {
       }
    }
 }
+
+// static
+void // draw_proportional_editing_neighbour_displacement_max_radius
+graphics_info_t::draw_intermediate_atoms_pull_restraint_neighbour_displacement_max_radius_ring() {
+
+   if (! regularize_object_bonds_box.empty()) {
+      if (!moving_atoms_asc) return;
+      if (moving_atoms_asc->n_selected_atoms > 0) {
+         auto rcc = RotationCentre();
+         glm::vec3 rc(rcc.x(), rcc.y(), rcc.z());
+         rc = glm::vec3(0,0,0);
+         glm::mat4 unit(1.0);
+         glm::mat4 trans = glm::translate(unit, -rc);
+         glm::mat4 view = get_view_matrix();
+         int w = graphics_x_size;
+         int h = graphics_y_size;
+         bool ortho_flag = true;
+         glm::mat4 proj = get_projection_matrix(ortho_flag, w, h);
+         glm::mat4 mvp = proj * view * trans;
+         glm::mat4 model_rotation = get_model_rotation();
+         bool use_model_rotation = false;
+         lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring.draw(&shader_for_lines,
+                                                                                   rc, mvp,
+                                                                                   model_rotation,
+                                                                                   use_model_rotation);
+      }
+   }
+}
+
 
 void
 graphics_info_t::draw_molecular_triangles() {
@@ -1665,6 +1694,8 @@ graphics_info_t::draw_molecules() {
 
    draw_intermediate_atoms_rama_balls(PASS_TYPE_STANDARD);
 
+   draw_intermediate_atoms_pull_restraint_neighbour_displacement_max_radius_ring(); // proportional editing
+
    draw_atom_pull_restraints();
 
    draw_meshed_generic_display_object_meshes(PASS_TYPE_STANDARD);
@@ -1932,9 +1963,11 @@ graphics_info_t::draw_environment_graphics_object() {
             bool show_just_shadows = false;
             bool wireframe_mode = false;
             float opacity = 1.0f;
+            auto ccrc = RotationCentre();
+            glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
             mesh_for_environment_distances.mesh.draw(&shader_for_moleculestotriangles,
                                                      mvp, model_rotation,
-                                                     lights, eye_position, opacity, bg_col,
+                                                     lights, eye_position, rc, opacity, bg_col,
                                                      wireframe_mode, do_depth_fog, show_just_shadows);
 
             Shader *shader_p = &shader_for_atom_labels;
@@ -2005,8 +2038,10 @@ graphics_info_t::draw_outlined_active_residue() {
       bool show_just_shadows = false;
       bool wireframe_mode = false;
       float opacity = 1.0f;
-      mesh_for_outline_of_active_residue.draw(&shader, mvp, model_rotation, dummy_lights, eye_position, opacity,
-                                              bg_col, wireframe_mode, false, show_just_shadows);
+      auto ccrc = RotationCentre();
+      glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+      mesh_for_outline_of_active_residue.draw(&shader, mvp, model_rotation, dummy_lights, eye_position, rc,
+                                              opacity, bg_col, wireframe_mode, false, show_just_shadows);
    }
 };
 
@@ -2040,9 +2075,11 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
          glm::vec4 bg_col(background_colour, 1.0);
          bool wireframe_mode = false;
          float opacity = 1.0f;
+         auto ccrc = RotationCentre();
+         glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
          for (unsigned int i=0; i<generic_display_objects.size(); i++) {
             generic_display_objects[i].mesh.draw(&shader_for_moleculestotriangles,
-                                                 mvp, model_rotation, lights, eye_position, opacity,
+                                                 mvp, model_rotation, lights, eye_position, rc, opacity,
                                                  bg_col, wireframe_mode, false, show_just_shadows);
          }
       }
@@ -2072,6 +2109,8 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
    glm::mat4 mvp_orthogonal = glm::mat4(1.0f); // placeholder
    glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col(background_colour, 1.0);
+   auto ccrc = RotationCentre();
+   glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
    bool do_depth_fog = shader_do_depth_fog_flag;
 
    unsigned int light_index = 0;
@@ -2130,7 +2169,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                      bool wireframe_mode = false;
                      float opacity = 1.0f;
                      m.meshes[jj].draw(&shader_for_meshes_with_shadows, mvp,
-                                       model_rotation, lights, eye_position, opacity, bg_col,
+                                       model_rotation, lights, eye_position, rc, opacity, bg_col,
                                        wireframe_mode, do_depth_fog, show_just_shadows);
                   }
                   if (pass_type == PASS_TYPE_SSAO) {
@@ -2158,7 +2197,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                                mvp_orthogonal,
                                model_rotation,
                                lights,
-                               dummy_eye_position,
+                               dummy_eye_position, rc,
                                opacity,
                                bg_col,
                                gl_lines_mode,
@@ -2719,10 +2758,12 @@ graphics_info_t::draw_measure_distance_and_angles() {
       bool show_just_shadows = false;
       bool wireframe_mode = false;
       float opacity = 1.0f;
-      mesh_for_measure_distance_object_vec.draw(&shader, mvp, model_rotation_matrix, lights, eye_position,
+      auto ccrc = RotationCentre();
+      glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+      mesh_for_measure_distance_object_vec.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc,
                                                 opacity, bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
-      mesh_for_measure_angle_object_vec.draw(&shader, mvp, model_rotation_matrix, lights, eye_position,
+      mesh_for_measure_angle_object_vec.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc,
                                              opacity, bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
       if (! labels_for_measure_distances_and_angles.empty()) {
@@ -5382,8 +5423,10 @@ graphics_info_t::draw_boids() {
       bool show_just_shadows = false;
       bool wireframe_mode = false;
       float opacity = 1.0f;
+      auto ccrc = RotationCentre();
+      glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
       mesh_for_boids.draw(&shader_for_instanced_objects,
-                          mvp, model_rotation_matrix, lights, eye_position, opacity, bg_col,
+                          mvp, model_rotation_matrix, lights, eye_position, rc, opacity, bg_col,
                           wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
       lines_mesh_for_boids_box.draw(&shader_for_lines, mvp, model_rotation_matrix);
@@ -5648,7 +5691,9 @@ graphics_info_t::draw_pointer_distances_objects() {
          bool show_just_shadows = false;
          bool wireframe_mode = false;
          float opacity = 1.0f;
-         mesh_for_pointer_distances.mesh.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, opacity,
+         auto ccrc = RotationCentre();
+         glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+         mesh_for_pointer_distances.mesh.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc, opacity,
                                               bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
          if (! labels_for_pointer_distances.empty()) {
@@ -5669,10 +5714,8 @@ graphics_info_t::make_extra_distance_restraints_objects() {
 
    // c.f. update_hydrogen_bond_mesh().
 
-   // std::cout << "here in make_extra_distance_restraints_objects() " << std::endl;
-
-   double penalty_min = 0.1; // only restraints that have more than this "distortion" are considered for drawing.
-                             // Make this user-setable.
+   double penalty_min = 0.05; // only restraints that have more than this "distortion" are considered for drawing.
+                               // Make this user-setable.
 
    // the model has been updated, we need to update the positions and orientations using in the instancing
 
@@ -5685,8 +5728,6 @@ graphics_info_t::make_extra_distance_restraints_objects() {
 
    unsigned int maerrb_size = moving_atoms_extra_restraints_representation.bonds.size();
    attach_buffers();
-   Material material;
-   mesh_for_extra_distance_restraints.setup_extra_distance_restraint_cylinder(material); // init
    mesh_for_extra_distance_restraints.setup_instancing_buffer_data_for_extra_distance_restraints(maerrb_size);
    // now fill extra_distance_restraints_markup_data
 
@@ -5764,6 +5805,10 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
    // what about draw_it_for_moving_atoms_restraints_graphics_object?
    //
    if (pass_type == PASS_TYPE_STANDARD) {
+      if (false)
+         std::cout << "in draw_extra_distance_restraints() with show_extra_distance_restraints_flag "
+                   << show_extra_distance_restraints_flag << " " << extra_distance_restraints_markup_data.size()
+                   << std::endl;
       if (show_extra_distance_restraints_flag) {
          if (! extra_distance_restraints_markup_data.empty()) {
             glm::mat4 mvp = get_molecule_mvp();
@@ -5795,6 +5840,37 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
    }
 
 }
+
+// called from gl widget realize function
+// static
+ void
+    graphics_info_t::setup_lines_mesh_for_proportional_editing() {
+
+    unsigned int n_points = 100;
+    std::vector<s_generic_vertex> vertices(n_points);
+    glm::vec3 n(0,0,1);
+    glm::vec4 c(0.7,0.7,0.7,1.0);
+    double r = 0.001;
+    for (unsigned int i=0; i<n_points; i++) {
+       double theta = 2.0 * M_PI * static_cast<double>(i) / 100.0;
+       glm::vec3 pt(r * cos(theta), r * sin(theta), 0.0);
+       vertices[i] = s_generic_vertex(pt, n, c);
+    }
+
+    std::vector<unsigned int> indices;
+    for (unsigned int i=0; i<n_points; i++) {
+       unsigned int i_next = i+1;
+       if (i_next == n_points) i_next = 0;
+       indices.push_back(i);
+       indices.push_back(i_next);
+    }
+
+    lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring = LinesMesh(vertices, indices);
+    std::string name = "lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring";
+    lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring.set_name(name);
+    lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring.setup();
+ }
+
 
 
 void
@@ -5875,11 +5951,10 @@ graphics_info_t::idle_contour_function(gpointer data) {
          }
       }
    }
-   // std::cout << "Here with something_changed: " << something_changed << std::endl;
 
-   // is this needed?
-   // if (something_changed)
-   //    graphics_draw();
+   if (something_changed)
+      graphics_draw();
+
    // std::cout << "--- debug:: idle_contour_function() done " << continue_status << std::endl;
    return continue_status;
 }

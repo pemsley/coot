@@ -60,6 +60,7 @@ public:
                     const glm::mat4 &view_rotation_matrix,
                     const std::map<unsigned int, lights_info_t> &lights,
                     const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                    const glm::vec3 &rotation_centre, // maybe not needed (was for fresnel)
                     float opacity,
                     const glm::vec4 &background_colour,
                     bool gl_lines_mode, // i.e. as chickenwire

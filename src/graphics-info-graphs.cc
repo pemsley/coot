@@ -926,24 +926,15 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 void
 graphics_info_t::update_ramachandran_plot(int imol) {
 
-#ifdef HAVE_GOOCANVAS
-   GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
-   if (w) {
-      // this object get data has been changed - the set needs to changed too - whereever that is.
-      coot::rama_plot *plot = reinterpret_cast<coot::rama_plot *>(g_object_get_data(G_OBJECT(w), "rama_plot"));
-      std::cout << "doing handle_rama_plot_update() " << std::endl;
-      handle_rama_plot_update(plot);
-   } else {
-      std::cout << "debug:: in update_ramachandran_plot() failed to find plot widget" << std::endl;
-   }
-#endif
-
+   std::cout << "update_ramachandran_plot() " << imol << " FIXME? " << std::endl;
 }
 
 #include "dynamic-validation.hh"
 
 void
 graphics_info_t::update_validation(int imol_changed_model) {
+
+   // 20230910-PE, well, we only want to update the validation if it was already being displayed.
 
    update_validation_graphs(imol_changed_model);
    update_ramachandran_plot(imol_changed_model);

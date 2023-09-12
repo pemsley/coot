@@ -29,14 +29,23 @@ uniform int blur_size;
 void main() {
     vec2 texelSize = 1.0 / vec2(textureSize(ssaoInput, 0));
     float result = 0.0;
+    float n_blur = 0.0;
     for (int x = -blur_size; x <= blur_size; ++x) {
         for (int y = -blur_size; y <= blur_size; ++y) {
             vec2 offset = vec2(float(x), float(y)) * texelSize;
-            result += texture(ssaoInput, TexCoords + offset).r;
+            float ts = texture(ssaoInput, TexCoords + offset).r;
+            // This test removes the SSAO outline.
+            // Perhaps use a weight w = 1 = ts ?
+            if (ts != 1.0) { // don't blur with the background
+               result += ts;
+               n_blur += 1.0; // counting int to float
+            }
         }
     }
-    float n_blur = 2 * blur_size + 1;
-    FragColor = result / (n_blur * n_blur);
+    if (n_blur > 0)
+       FragColor = result / n_blur;
+    else
+       FragColor = texture(ssaoInput, TexCoords).r;
 
     // FragColor = texture(ssaoInput, TexCoords).r;
 

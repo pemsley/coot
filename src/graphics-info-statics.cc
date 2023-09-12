@@ -1597,6 +1597,7 @@ LinesMesh graphics_info_t::lines_mesh_for_delete_item_pulse;
 std::vector<glm::vec3> graphics_info_t::delete_item_pulse_centres;
 
 LinesMesh graphics_info_t::lines_mesh_for_hud_lines;
+LinesMesh graphics_info_t::lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring;
 
 std::vector<atom_label_info_t> graphics_info_t::labels;
 TextureMesh graphics_info_t::tmesh_for_labels = TextureMesh("tmesh-for-labels");
@@ -1635,7 +1636,7 @@ HUDTextureMesh graphics_info_t::tmesh_for_background_image = HUDTextureMesh("tme
 Shader         graphics_info_t::shader_for_background_image;
 bool           graphics_info_t::draw_background_image_flag = false; // uses "background-image.png"
 
-float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;
+float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 0.0; // we don't see it initially.
 
 coot::command_history_t graphics_info_t::command_history;
 

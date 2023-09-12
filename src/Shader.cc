@@ -481,9 +481,7 @@ Shader::create() const {
 }
 
 void
-Shader::setup_light(unsigned int light_index, const lights_info_t &light,
-                    const glm::mat4 &vrm,
-                    const glm::vec3 &eye_position) {
+Shader::setup_light(unsigned int light_index, const lights_info_t &light, const glm::mat4 &vrm) {
 
    bool debug = false;
 
@@ -536,11 +534,23 @@ Shader::setup_light(unsigned int light_index, const lights_info_t &light,
    if (err)
       std::cout << "error setup_light() " << light_index << " " << name << " -- end -- " << err << std::endl;
 
+}
+
+
+void
+Shader::setup_eye_position(const glm::vec3 &eye_position, const glm::vec3 &rotation_centre,
+                           const glm::mat4 &vrm) {
+
+   // 20230910-PE The eye position doesn't depend on the lights - so this code fragment should not be in
+   // this function. There should be a "setup_eye_position()" function - or some such.
+
    // similarly we need to move the eye_position in the same way:
    {
       glm::vec4 p4_eye = glm::vec4(eye_position, 1.0) * vrm;
-      glm::vec3 ep_mcs = glm::vec3(p4_eye);
+      glm::vec3 ep_mcs = glm::vec3(p4_eye) + rotation_centre;
+      // std::cout << "sending eye_position_in_molecule_coordinates_space " << glm::to_string(ep_mcs) << std::endl;
       set_vec3_for_uniform("eye_position_in_molecule_coordinates_space", ep_mcs);
    }
+
 
 }

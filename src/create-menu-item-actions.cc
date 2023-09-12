@@ -472,6 +472,19 @@ save_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
 
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   // 20230910-PE Who cares? What matters is what the combobox says when the "Save" button
+   // save_coords_dialog_save_button is pressed.
+   // See on_save_coords_dialog_save_button_clicked().
    GCallback callback_func = G_CALLBACK(save_molecule_coords_combobox_changed);
    int imol = first_coords_imol();
    int imol_unsaved = first_unsaved_coords_imol();
@@ -487,7 +500,10 @@ save_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *combobox = widget_from_builder("save_coordinates_combobox");
 
    if (combobox) {
-      fill_combobox_with_coordinates_options(combobox, callback_func, imol);
+      graphics_info_t g;
+      int imol_active = imol;
+      auto mol_vec = get_model_molecule_vector();
+      g.fill_combobox_with_molecule_options(combobox, callback_func, imol_active, mol_vec);
       set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
       gtk_widget_set_visible(widget, TRUE);
       gtk_window_present(GTK_WINDOW(widget));

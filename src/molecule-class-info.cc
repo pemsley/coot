@@ -4310,27 +4310,16 @@ molecule_class_info_t::draw_molecule_as_meshes_for_ssao(Shader *shader_for_meshe
                                                         const glm::mat4 &view_matrix,
                                                         const glm::mat4 &projection_matrix) {
 
-   std::cout << "draw_molecule_as_meshes_for_ssao() shader " << shader_for_meshes_for_ssao->name << " and "
-             << shader_for_meshes_for_ssao->name << std::endl;
    if (false) {
+      std::cout << "draw_molecule_as_meshes_for_ssao() shader " << shader_for_meshes_for_ssao->name << " and "
+                << shader_for_meshes_for_ssao->name << std::endl;
       std::cout << "   model_matrix " << glm::to_string(model_matrix) << std::endl;
       std::cout << "   view_matrix " << glm::to_string(view_matrix) << std::endl;
       std::cout << "   proj_matrix " << glm::to_string(projection_matrix) << std::endl;
    }
 
-   // we should have two different shaders, shouldn't we?
    model_molecule_meshes.draw_for_ssao(shader_for_meshes_for_ssao, shader_for_instanced_meshes_for_ssao,
                                        model_matrix, view_matrix, projection_matrix);
-
-#if 0 // delete this when ssao is working
-   bool transferred_colour_is_instanced = true;
-   molecule_as_mesh_atoms_1.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
-   molecule_as_mesh_atoms_2.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
-   molecule_as_mesh_bonds_c00.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
-   molecule_as_mesh_bonds_c01.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
-   molecule_as_mesh_bonds_c10.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
-   molecule_as_mesh_bonds_c11.draw_instances_for_ssao(shader_p, model_matrix, view_matrix, projection_matrix);
-#endif
 
 }
 
@@ -4349,26 +4338,9 @@ molecule_class_info_t::draw_molecule_as_meshes_with_shadows(Shader *shader,
                                                             float shadow_strength,
                                                             unsigned int shadow_softness, // 1, 2 or 3.
                                                             bool show_just_shadows) {
-#if 0
-   std::vector<std::reference_wrapper<Mesh> > meshes = {
-      molecule_as_mesh_atoms_1,
-      molecule_as_mesh_atoms_2,
-      molecule_as_mesh_bonds_c00,
-      molecule_as_mesh_bonds_c01,
-      molecule_as_mesh_bonds_c10,
-      molecule_as_mesh_bonds_c11};
 
-   std::vector<std::reference_wrapper<Mesh> >::iterator it;
-   for (it=meshes.begin(); it!=meshes.end(); ++it) {
-      auto &mesh(it->get());
-      std::cout << "in draw_molecule_as_meshes_with_shadows() drawing instanced_mesh " << mesh.name << std::endl;
-      mesh.draw_with_shadows(shader, mvp, model_rotation_matrix, lights,
-                             eye_position, opacity, background_colour, do_depth_fog, light_view_mvp,
-                             shadow_depthMap, shadow_strength, shadow_softness, show_just_shadows);
-   }
-#endif
    std::cout << "draw_molecule_as_meshes_with_shadows() replacement code needed here" << std::endl;
-
+   // 20230909-PE if this function is bypassed, then remove this fun
 }
 
 
@@ -4749,7 +4721,9 @@ molecule_class_info_t::get_fixed_atoms() const {
 void
 molecule_class_info_t::update_extra_restraints_representation() {
 
-   std::cout << "here we are in update_extra_restraints_representation()"  << std::endl;
+   std::cout << "here we are in update_extra_restraints_representation() "
+             << extra_restraints.bond_restraints.size() << " "
+             << extra_restraints.geman_mcclure_restraints.size() << std::endl;
 
    extra_restraints_representation.clear();
    update_extra_restraints_representation_bonds();

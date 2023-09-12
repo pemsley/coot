@@ -364,8 +364,9 @@ model_molecule_meshes_t::draw(Shader *shader_mesh,
                               bool show_just_shadows) {
 
    bool transferred_colour_is_instanced = true;
+   glm::vec3 dummy_rc(0,0,0);
    draw_instances(shader_for_instanced_mesh, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-   draw_simple(shader_mesh, mvp, view_rotation_matrix, lights, eye_position, opacity, background_colour, gl_lines_mode, do_depth_fog, show_just_shadows);
+   draw_simple(shader_mesh, mvp, view_rotation_matrix, lights, eye_position, dummy_rc, opacity, background_colour, gl_lines_mode, do_depth_fog, show_just_shadows);
 
 }
 
@@ -408,6 +409,7 @@ model_molecule_meshes_t::draw_simple(Shader *shader,
                                      const glm::mat4 &view_rotation_matrix,
                                      const std::map<unsigned int, lights_info_t> &lights,
                                      const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                     const glm::vec3 &rotation_centre,
                                      float opacity,
                                      const glm::vec4 &background_colour,
                                      bool gl_lines_mode, // i.e. as chickenwire
@@ -415,8 +417,8 @@ model_molecule_meshes_t::draw_simple(Shader *shader,
                                      bool show_just_shadows) {
 
    // std::cout << "model_molecule_meshes_t::draw_simple()" << std::endl;
-   simple_mesh.draw(shader, mvp, view_rotation_matrix, lights, eye_position, opacity, background_colour,
-                    gl_lines_mode, do_depth_fog, show_just_shadows);
+   simple_mesh.draw(shader, mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
+                    opacity, background_colour, gl_lines_mode, do_depth_fog, show_just_shadows);
 }
 
 // instanced models

@@ -24,14 +24,12 @@ out vec3 normal_transfer;
 void main() {
 
    mat4 mvp = projection * view * model;
-   gl_Position = mvp * vec4(position, 1.0);
+   vec4 frag_pos = vec4(position, 1.0);
+   gl_Position = mvp * frag_pos;
 
-   mat3 normal_matrix = mat3(view);
-   mat3 transpose_normal_matrix = transpose(normal_matrix);
-
-   normal_transfer = normal * transpose_normal_matrix;
-   vec4 frag_pos_transfer_v4 = view * model * vec4(position, 1.0);
-   frag_pos_transfer = frag_pos_transfer_v4.xyz;
+   frag_pos_transfer = (view * model * frag_pos).xyz;
+   mat3 normal_matrix = transpose(inverse(mat3(view * model)));
+   normal_transfer = normal_matrix * normal;
 
 }
 

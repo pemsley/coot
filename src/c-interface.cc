@@ -495,69 +495,6 @@ std::vector<float> rotate_rgb(std::vector<float> &rgb, float amount) {
 }
 
 
-// ################################ put this in globjects-new.cc ? #############################
-
-//  20220528-PE from globjects.cc
-gint idle_contour_function(gpointer data) {
-
-   gint continue_status = 0;
-   bool something_changed = false;
-
-   bool is_from_contour_level_change(GPOINTER_TO_INT(data));
-
-   // when there's nothing else to do, update the contour levels
-   //
-   // then update maps
-
-   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-      if (graphics_info_t::molecules[imol].has_xmap()) { // FIXME or nxmap : needs test for being a map molecule
-         int &cc = graphics_info_t::molecules[imol].pending_contour_level_change_count;
-
-         if (cc != 0) {
-
-	          if (cc < 0) {
-	             while (cc != 0) {
-	                cc++;
-	                graphics_info_t::molecules[imol].change_contour(-1);
-	             }
-	          }
-
-	          if (cc > 0) {
-	              while (cc != 0) {
-	                 cc--;
-	                 graphics_info_t::molecules[imol].change_contour(1);
-	              }
-	          }
-
-           graphics_info_t g;
-           bool really_change_the_map_contours = true;
-           if (! is_from_contour_level_change) really_change_the_map_contours = false;
-	   g.molecules[imol].update_map(really_change_the_map_contours);
-           float map_rmsd = g.molecules[imol].map_sigma();
-	   continue_status = 0;
-           float cl = g.molecules[imol].contour_level;
-           float r = cl/map_rmsd;
-           std::cout << "DEBUG:: idle_contour_function() imol: " << imol << " contour level: "
-                     << g.molecules[imol].contour_level << " n-rmsd: " << r << std::endl;
-           g.set_density_level_string(imol, g.molecules[imol].contour_level);
-           std::string s = "Map " + std::to_string(imol) + "  contour_level " +
-              coot::util::float_to_string_using_dec_pl(cl, 3) + "  n-rmsd: " +
-              coot::util::float_to_string_using_dec_pl(r, 3);
-           add_status_bar_text(s.c_str());
-           g.display_density_level_this_image = 1;
-           something_changed = true;
-         }
-      }
-   }
-   // std::cout << "Here with something_changed: " << something_changed << std::endl;
-
-   // is this needed?
-   // if (something_changed)
-   //    graphics_draw();
-   // std::cout << "--- debug:: idle_contour_function() done " << continue_status << std::endl;
-   return continue_status;
-}
-
 
 // ################################ put this in globjects-new.cc ? #############################
 

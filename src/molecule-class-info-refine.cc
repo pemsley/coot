@@ -539,8 +539,7 @@ molecule_class_info_t::generate_self_restraints(float local_dist_max,
    // Find all the contacts in chain_id that are less than or equal to local_dist_max
    // that are not bonded or related by an angle.
 
-   int selHnd = atom_sel.mol->NewSelection(); // deleted in generate_local_self_restraints()
-                                              // Confusing! bleugh! FIXME
+   int selHnd = atom_sel.mol->NewSelection();
 
    atom_sel.mol->SelectAtoms(selHnd, 0, "*",
 			     mmdb::ANY_RES, "*", // start, insertion code
@@ -551,6 +550,8 @@ molecule_class_info_t::generate_self_restraints(float local_dist_max,
 			     "*"); // alt locs
 
    generate_local_self_restraints(selHnd, local_dist_max, geom);
+   atom_sel.mol->DeleteSelection(selHnd);
+
 }
 
 
@@ -576,14 +577,15 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 
    generate_local_self_restraints(selHnd, local_dist_max, geom);
 
-   // atom_sel.mol->DeleteSelection(selHnd);
+   atom_sel.mol->DeleteSelection(selHnd);
 }
 
 void
 molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_dist_max,
 						      const coot::protein_geometry &geom) {
 
-   std::cout << "here we are in mci::generate_local_self_restraints()! " << local_dist_max << std::endl;
+   std::cout << "DEBUG:: here we are in mci::generate_local_self_restraints()! " << local_dist_max
+             << std::endl;
 
    // clear what's already there - if anything
    extra_restraints.bond_restraints.clear();
@@ -710,6 +712,12 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
       }
    }
 
+   if (true) {
+      std::cout << "----------- extra restraints ---------" << std::endl;
+      std::cout << "     " << extra_restraints.bond_restraints.size() << std::endl;
+      std::cout << "     " << extra_restraints.geman_mcclure_restraints.size() << std::endl;
+   }
+
    // 20180510-PE surely I want to update the representation even if there are no
    //             extra bond restraints?
    //
@@ -718,7 +726,8 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
    //
    update_extra_restraints_representation();
 
-   atom_sel.mol->DeleteSelection(selHnd);
+   // delete the selection from the calling function, not here.
+   // atom_sel.mol->DeleteSelection(selHnd);
 }
 
 void
@@ -733,6 +742,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
    if (selHnd >= 0) {
       generate_local_self_restraints(selHnd, local_dist_max, geom);
    }
+   atom_sel.mol->DeleteSelection(selHnd);
 }
 
 

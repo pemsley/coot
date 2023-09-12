@@ -506,6 +506,8 @@ command_line_data::add(const std::string &file_name) {
       coords.push_back(file_name);
    if (extension == ".ent")
       coords.push_back(file_name);
+   if (extension == ".mmcif") // mmcifs are always coordinates, right?
+      coords.push_back(file_name);
    if (extension == ".map")
       maps.push_back(file_name);
    if (extension == ".mrc")
@@ -517,9 +519,10 @@ command_line_data::add(const std::string &file_name) {
    if (extension == ".scm")
       script.push_back(file_name);
 
-   if (extension == ".cif")
-      std::cout << ":::::::::::::::::::::::::: is_dictionary " << file_name
-                << " " << is_dictionary(file_name) << std::endl;
+   if (false) // debugging
+      if (extension == ".cif")
+         std::cout << ":::::::::::::::::::::::::: is_dictionary " << file_name
+                   << " " << is_dictionary(file_name) << std::endl;
 
    if (extension == ".cif") {
       if (is_dictionary(file_name))

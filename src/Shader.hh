@@ -62,11 +62,16 @@ public:
    void set_mat4_for_uniform(const std::string &uniform_name, const glm::mat4 &m);
    void setup_light(unsigned int light_index,
                     const lights_info_t &light,
-                    const glm::mat4 &view_rotation_matrix, // mouse trackball rotation
-                    const glm::vec3 &eye_position); // input eye_position in view space (e.g. (0,0,40))
-                                                    // it gets converted by the using the view rotation matrix.
-                                                    // Use uniform vec3 eye_position_in_molecule_coordinates_space
-                                                    // in the shader.
+                    const glm::mat4 &view_rotation_matrix); // mouse trackball rotation
+                    // input eye_position in view space (e.g. (0,0,40))
+                    // it gets converted by the using the view rotation matrix.
+                    // Use uniform vec3 eye_position_in_molecule_coordinates_space
+                    // in the shader.
+
+   // 20230910-PE Fresnel shading doesn't work when wee are far from the origin.
+   // I think that's because we need to use the rotation centre also.
+   void setup_eye_position(const glm::vec3 &eye_position, const glm::vec3 &rotation_centre,
+                           const glm::mat4 &vrm);
    void close();
    bool get_success_status() const { return success_status; }
    bool unset_p() const { return name == "---Unset---"; }
