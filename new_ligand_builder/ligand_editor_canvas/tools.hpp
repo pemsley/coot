@@ -99,6 +99,23 @@ class Tool {
 
     virtual void after_molecule_click(MoleculeClickContext& ctx);
 
+    /// Called always, whenever there's been a right-click event.
+    /// Called before other other methods get called.
+    virtual void on_right_click(ClickContext& ctx, int x, int y);
+
+    /// Called when the right-click coordinates do not correspond to anything on canvas
+    virtual void on_blank_space_right_click(ClickContext& ctx, int x, int y);
+
+    /// Called if the right-click lands on a molecule.
+    /// Returns true if `on_bond_right_click()` or `on_atom_right_click()` (respectively to what's been clicked) 
+    /// should be called next (and then lastly `after_molecule_right_click()`)
+    virtual bool on_molecule_right_click(MoleculeClickContext& ctx);
+
+    virtual void on_bond_right_click(MoleculeClickContext& ctx, CanvasMolecule::Bond&);
+    virtual void on_atom_right_click(MoleculeClickContext& ctx, CanvasMolecule::Atom&);
+
+    virtual void after_molecule_right_click(MoleculeClickContext& ctx);
+
     /// Used to print tool-specific error messages should any handler throw an exception
     virtual std::string get_exception_message_prefix() const noexcept;
 

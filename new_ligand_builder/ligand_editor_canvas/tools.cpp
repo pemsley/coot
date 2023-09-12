@@ -47,6 +47,32 @@ void Tool::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom&) {
     g_debug("The tool does not operate on atoms.");
 }
 
+void Tool::on_right_click(ClickContext& ctx, int x, int y) {
+    // nothing by default
+}
+
+void Tool::on_blank_space_right_click(ClickContext& ctx, int x, int y) {
+    g_debug("The click could not be resolved to any atom or bond.");
+}
+
+bool Tool::on_molecule_right_click(MoleculeClickContext& ctx) {
+    // nothing by default
+    return true;
+}
+
+void Tool::on_bond_right_click(MoleculeClickContext& ctx, CanvasMolecule::Bond&) {
+    // nothing by default
+    g_debug("The tool does not handle right-click on bonds.");
+}
+
+void Tool::on_atom_right_click(MoleculeClickContext& ctx, CanvasMolecule::Atom&) {
+    // nothing by default
+    g_debug("The tool does not handle right-click on atoms.");
+}
+
+void Tool::after_molecule_right_click(MoleculeClickContext& ctx) {
+    // nothing by default
+}
 
 std::string Tool::get_exception_message_prefix() const noexcept {
     return "An error occured: ";
@@ -72,12 +98,12 @@ void ActiveTool::on_click(bool ctrl_pressed, int x, int y, bool right_click) {
     Tool::ClickContext ctx(*this->widget_data);
     ctx.control_pressed = ctrl_pressed;
 
-    if(right_click) {
-        g_warning("todo: Add support for right-clicks in the tools API (when needed).");
-        return;
-    }
 
-    this->tool->on_click(ctx, x, y);
+    if(!right_click) {
+        this->tool->on_click(ctx, x, y);
+    } else {
+        this->tool->on_right_click(ctx, x, y);
+    }
     auto click_result = this->widget_data->resolve_click(x, y);
     if(click_result.has_value()) {
         try{
@@ -85,17 +111,35 @@ void ActiveTool::on_click(bool ctrl_pressed, int x, int y, bool right_click) {
             auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
             auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
             Tool::MoleculeClickContext mctx(ctx, molecule_idx, rdkit_mol, canvas_mol);
-            if(!this->tool->on_molecule_click(mctx)) {
-                return;
+            if(!right_click) {
+                if(!this->tool->on_molecule_click(mctx)) {
+                    return;
+                }
+            } else {
+                if(!this->tool->on_molecule_right_click(mctx)) {
+                    return;
+                }
             }
             if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
                 auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
-                this->tool->on_atom_click(mctx, atom);
+                if(!right_click) {
+                    this->tool->on_atom_click(mctx, atom);
+                } else {
+                    this->tool->on_atom_right_click(mctx, atom);
+                }
             } else { // a bond
                 auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
-                this->tool->on_bond_click(mctx, bond);
+                if(!right_click) {
+                    this->tool->on_bond_click(mctx, bond);
+                } else {
+                    this->tool->on_bond_right_click(mctx, bond);
+                }
             }
-            this->tool->after_molecule_click(mctx);
+            if(!right_click) {
+                this->tool->after_molecule_click(mctx);
+            } else {
+                this->tool->after_molecule_right_click(mctx);
+            }
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
             std::string msg = this->tool->get_exception_message_prefix() + e.what();
@@ -103,7 +147,11 @@ void ActiveTool::on_click(bool ctrl_pressed, int x, int y, bool right_click) {
             this->widget_data->rollback_current_edition();
         }
     } else {
-        this->tool->on_blank_space_click(ctx, x, y);
+        if(!right_click) {
+            this->tool->on_blank_space_click(ctx, x, y);
+        } else {
+            this->tool->on_blank_space_right_click(ctx, x, y);
+        }
     }
 }
 
@@ -115,7 +163,7 @@ void ActiveTool::on_release(bool ctrl_pressed, int x, int y, bool right_click) {
     ctx.control_pressed = ctrl_pressed;
 
     if(right_click) {
-        g_warning("todo: Add support for right-clicks in the tools API (when needed).");
+        g_warning("todo: Add support for releasing right-clicks in the tools API (when needed).");
         return;
     }
 
