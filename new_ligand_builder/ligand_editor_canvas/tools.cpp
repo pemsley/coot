@@ -551,6 +551,23 @@ std::string GeometryModifier::get_exception_message_prefix() const noexcept {
     return "Could not alter bond geometry: ";
 }
 
+void ChargeModifier::on_atom_right_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) {
+    ctx.widget_data.begin_edition();
+    // Do we need this here?
+    RDKit::MolOps::Kekulize(*ctx.rdkit_mol.get());
+    auto* rdkit_atom = ctx.rdkit_mol->getAtomWithIdx(atom.idx);
+    int old_charge = rdkit_atom->getFormalCharge();
+    
+    rdkit_atom->setFormalCharge(old_charge + 1);
+
+    ctx.widget_data.update_status("Charge of atom has been increased.");
+
+    Tool::sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol.get());
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+
+    ctx.widget_data.finalize_edition();
+}
+
 void ChargeModifier::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) {
     ctx.widget_data.begin_edition();
     // Do we need this here?
@@ -558,52 +575,54 @@ void ChargeModifier::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::At
     auto* rdkit_atom = ctx.rdkit_mol->getAtomWithIdx(atom.idx);
     int old_charge = rdkit_atom->getFormalCharge();
 
-    const RDKit::PeriodicTable *table = RDKit::PeriodicTable::getTable();
-    auto valence_list = table->getValenceList(rdkit_atom->getAtomicNum());
-    auto valence_list_to_string = [&](){
-        std::string valence_list_string = "[";
-        auto vl_it = valence_list.begin();
-        while(vl_it != valence_list.end()) {
-            valence_list_string += std::to_string(*vl_it);
-            vl_it++;
-            if(vl_it != valence_list.end()) {
-                valence_list_string += ", ";
-            }
-        }
-        valence_list_string += "]";
-        return valence_list_string;
-    };
+    // const RDKit::PeriodicTable *table = RDKit::PeriodicTable::getTable();
+    // auto valence_list = table->getValenceList(rdkit_atom->getAtomicNum());
+    // auto valence_list_to_string = [&](){
+    //     std::string valence_list_string = "[";
+    //     auto vl_it = valence_list.begin();
+    //     while(vl_it != valence_list.end()) {
+    //         valence_list_string += std::to_string(*vl_it);
+    //         vl_it++;
+    //         if(vl_it != valence_list.end()) {
+    //             valence_list_string += ", ";
+    //         }
+    //     }
+    //     valence_list_string += "]";
+    //     return valence_list_string;
+    // };
 
-    auto valence_list_string = valence_list_to_string();
-    g_debug(
-        "Valence list from RDKit: %s Num of outer shell electrons: %i", 
-        valence_list_string.c_str(),
-        table->getNouterElecs(rdkit_atom->getAtomicNum())
-    );
+    // auto valence_list_string = valence_list_to_string();
+    // g_debug(
+    //     "Valence list from RDKit: %s Num of outer shell electrons: %i", 
+    //     valence_list_string.c_str(),
+    //     table->getNouterElecs(rdkit_atom->getAtomicNum())
+    // );
 
-    g_warning("todo: Fix-up computing plausible charges for atoms in the charge tool.");
-    // We won't have to clear the list when it'll have the right contents (something to be fixed)
-    valence_list.clear();
-    // valence_list.push_back(0);
-    for(int i = -4; i != 5; i++) {
-        valence_list.push_back(i);
-    }
+    // g_warning("todo: Fix-up computing plausible charges for atoms in the charge tool.");
+    // // We won't have to clear the list when it'll have the right contents (something to be fixed)
+    // valence_list.clear();
+    // // valence_list.push_back(0);
+    // for(int i = -4; i != 5; i++) {
+    //     valence_list.push_back(i);
+    // }
 
-    auto it = std::find(valence_list.begin(),valence_list.end(),old_charge);
-    if(it != valence_list.end()) {
-        it++;
-    }
-    if(it == valence_list.end()) {
-        it = valence_list.begin();
-    }
+    // auto it = std::find(valence_list.begin(),valence_list.end(),old_charge);
+    // if(it != valence_list.end()) {
+    //     it++;
+    // }
+    // if(it == valence_list.end()) {
+    //     it = valence_list.begin();
+    // }
 
-    int new_charge = *it;
+    // int new_charge = *it;
 
-    valence_list_string = valence_list_to_string();
-    g_info("Old formal charge: %i New formal charge: %i List: %s",old_charge,new_charge,valence_list_string.c_str());
-    rdkit_atom->setFormalCharge(new_charge);
+    // valence_list_string = valence_list_to_string();
+    // g_info("Old formal charge: %i New formal charge: %i List: %s",old_charge,new_charge,valence_list_string.c_str());
+    // rdkit_atom->setFormalCharge(new_charge);
 
-    ctx.widget_data.update_status("Charge of atom has been altered.");
+    rdkit_atom->setFormalCharge(old_charge - 1);
+
+    ctx.widget_data.update_status("Charge of atom has been decreased.");
 
     Tool::sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol.get());
     ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);

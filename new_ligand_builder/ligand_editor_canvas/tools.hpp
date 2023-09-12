@@ -225,6 +225,7 @@ class ChargeModifier : public Tool {
     public:
 
     virtual void on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) override;
+    virtual void on_atom_right_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
 
 };
