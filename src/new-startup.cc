@@ -124,6 +124,10 @@ new_startup_realize(GtkWidget *gl_area) {
 
    g.tmesh_for_shadow_map.setup_quad();
 
+   g.attach_buffers();
+   Material material;
+   g.mesh_for_extra_distance_restraints.setup_extra_distance_restraint_cylinder(material); // init
+
    g.setup_key_bindings();
 
    GLenum err = glGetError();

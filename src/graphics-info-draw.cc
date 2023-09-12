@@ -5728,8 +5728,6 @@ graphics_info_t::make_extra_distance_restraints_objects() {
 
    unsigned int maerrb_size = moving_atoms_extra_restraints_representation.bonds.size();
    attach_buffers();
-   Material material;
-   mesh_for_extra_distance_restraints.setup_extra_distance_restraint_cylinder(material); // init
    mesh_for_extra_distance_restraints.setup_instancing_buffer_data_for_extra_distance_restraints(maerrb_size);
    // now fill extra_distance_restraints_markup_data
 

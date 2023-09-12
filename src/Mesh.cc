@@ -1681,12 +1681,20 @@ Mesh::draw_extra_distance_restraint_instances(Shader *shader_p,
    glEnableVertexAttribArray(8);  // mat3 orientation 2
    glEnableVertexAttribArray(9);  // colour_instanced
 
+   if (false)
+      std::cout << "draw_extra_distance_restraint_instances() n_verts: " << n_verts
+                << " n_instances " << n_instances << " with shader " << shader_p->name << std::endl;
+
+   // hack/test
+   // n_instances = 200;
+
    glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
    err = glGetError();
    if (err) std::cout << "error draw_instanced() glDrawElementsInstanced()"
                       << " shader: " << shader_p->name << " vao: " << vao
                       << " n_triangle_verts: " << n_verts << " n_instances: " << n_instances
                       << " with GL err " << err << std::endl;
+
    glDisableVertexAttribArray(0);
    glDisableVertexAttribArray(1);
    glDisableVertexAttribArray(2);
@@ -1697,6 +1705,7 @@ Mesh::draw_extra_distance_restraint_instances(Shader *shader_p,
    glDisableVertexAttribArray(7);
    glDisableVertexAttribArray(8);
    glDisableVertexAttribArray(9);
+
    glUseProgram(0);
 
 }
@@ -2256,7 +2265,7 @@ Mesh::draw_with_shadows(Shader *shader_p,
                             << " of Mesh \"" << name << "\""
                             << " shader: " << shader_p->name
                             << " vao " << vao
-                            << " n_vertes_for_gl_lines " << n_verts_for_gl_lines
+                            << " n_verts_for_gl_lines " << n_verts_for_gl_lines
                             << " with GL err " << err << std::endl;
       } else {
 
@@ -2669,7 +2678,6 @@ Mesh::update_instancing_buffer_data_standard(const std::vector<glm::mat4> &mats)
 void
 Mesh::setup_instancing_buffer_data_for_extra_distance_restraints(unsigned int n_matrices) {
 
-
    GLenum err = glGetError();
    if (err) std::cout << "Error setup_matrix_and_colour_instancing_buffers_standard() -- start -- "
                       << err << std::endl;
@@ -2694,12 +2702,13 @@ Mesh::setup_instancing_buffer_data_for_extra_distance_restraints(unsigned int n_
                       << err << " with vao " << vao << std::endl;
 
    if (! first_time) {
+      // std::cout << "in setup_instancing_buffer_data_for_extra_distance_restraints() deleting inst_rts_buffer_id " << std::endl;
       glDeleteBuffers(1, &inst_rts_buffer_id); // setup_buffers() sets first_time to false but doesn't set inst_rts_buffer_id.
    }
    glGenBuffers(1, &inst_rts_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
    unsigned int size_of_edrmidt = sizeof(extra_distance_restraint_markup_instancing_data_t);
-   if (true)
+   if (false)
       std::cout << "Mesh::setup_instancing_buffer_data_for_extra_distance_restraints() allocating matrix buffer data "
                 << n_instances * size_of_edrmidt << std::endl;
    glBufferData(GL_ARRAY_BUFFER, n_instances * size_of_edrmidt, nullptr, GL_DYNAMIC_DRAW); // dynamic
@@ -2770,11 +2779,15 @@ Mesh::update_instancing_buffer_data_for_extra_distance_restraints(const std::vec
                 << std::endl;
 
    unsigned int size_of_edrmidt = sizeof(extra_distance_restraint_markup_instancing_data_t);
-   unsigned int n_mats = edrmid.size();
+
+   int n_mats = edrmid.size();
+
+   if (n_mats > n_instances_allocated) n_mats = n_instances_allocated;
 
    if (n_mats > 0) {
       glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
       glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * size_of_edrmidt, &(edrmid[0]));
+      n_instances = n_mats;
    }
 
 }
