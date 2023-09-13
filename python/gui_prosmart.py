@@ -73,6 +73,7 @@ def run_prosmart(imol_target, imol_ref, include_side_chains=False):
 # this should not be in gui_prosmart. Put it in restraints_gui.py
 #
 def add_module_restraints():
+
     menu = attach_module_menu_button("Restraints")
 
     def generate_all_molecule_self_restraints(val):
@@ -101,51 +102,60 @@ def add_module_restraints():
             coot.set_show_extra_restraints(aa_imol, state)
             coot.set_show_extra_distance_restraints(state)
 
+    def delete_all_extra_restraints_func():
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                              aa_ins_code, aa_atom_name, aa_alt_conf]:
+            coot.delete_all_extra_restraints(aa_imol)
+
     add_simple_action_to_menu(
-        menu, "Generate Self Restraints 3.7 for Chain","generate_self_restraint_37",
+        menu, "Generate Self Restraints 3.7 for Chain", "generate_self_restraint_37",
         lambda _simple_action, _arg: generate_self_restraint_func(3.7))
 
     add_simple_action_to_menu(
-        menu, "Generate Chain Self Restraints 4.3 for Chain","generate_self_restraint_43",
+        menu, "Generate Chain Self Restraints 4.3 for Chain", "generate_self_restraint_43",
         lambda _simple_action, _arg: generate_self_restraint_func(4.3))
 
     add_simple_action_to_menu(
-        menu, "Generate Chain Self Restraints 5.0 for Chain","generate_self_restraint_50",
+        menu, "Generate Chain Self Restraints 5.0 for Chain", "generate_self_restraint_50",
         lambda _simple_action, _arg: generate_self_restraint_func(5.0))
 
     add_simple_action_to_menu(
-        menu, "Generate Chain Self Restraints 6.0 for Chain","generate_self_restraint_60",
+        menu, "Generate Chain Self Restraints 6.0 for Chain", "generate_self_restraint_60",
         lambda _simple_action, _arg: generate_self_restraint_func(6))
 
     add_simple_action_to_menu(
-        menu, "Generate Local Self Restraints 6","generate_self_restraint_in_sphere",
+        menu, "Generate Local Self Restraints 6", "generate_self_restraint_in_sphere",
         lambda _simple_action, _arg: generate_self_restraint_in_sphere_func())
 
-    add_simple_action_to_menu(
-        menu, "Generate All-molecule Self Restraints 4.3","generate_all_molecule_self_restraints_43",
-        lambda _simple_action, _arg: generate_all_molecule_self_restraints(4.3))
+    add_simple_action_to_menu(menu, "Generate All-molecule Self Restraints 4.3",
+                              "generate_all_molecule_self_restraints_43",
+                              lambda _simple_action, _arg: generate_all_molecule_self_restraints(4.3))
 
-    add_simple_action_to_menu(
-        menu, "Generate All-molecule Self Restraints 5.0","generate_all_molecule_self_restraints_50",
-        lambda _simple_action, _arg: generate_all_molecule_self_restraints(5.0))
+    add_simple_action_to_menu(menu, "Generate All-molecule Self Restraints 5.0",
+                              "generate_all_molecule_self_restraints_50",
+                              lambda _simple_action, _arg: generate_all_molecule_self_restraints(5.0))
 
-    add_simple_action_to_menu(
-        menu, "Generate All-molecule Self Restraints 6.0","generate_all_molecule_self_restraints_60",
-        lambda _simple_action, _arg: generate_all_molecule_self_restraints(6.0))
+    add_simple_action_to_menu(menu, "Generate All-molecule Self Restraints 6.0",
+                              "generate_all_molecule_self_restraints_60",
+                              lambda _simple_action, _arg: generate_all_molecule_self_restraints(6.0))
+
+    add_simple_action_to_menu(menu, "Delete All Extra Restraints", "delete_all_extra_restraints",
+                              lambda _simple_action, _arg: delete_all_extra_restraints_func())
+
 
     # todo: Move it under R/RC and make it a single toggle
 
-    add_simple_action_to_menu(
-        menu, "Undisplay Extra Restraints","undisplay_extra_restraints",
-        lambda _simple_action, _arg: display_extra_restraints_func(0))
+    # add_simple_action_to_menu(
+    #     menu, "Undisplay Extra Restraints","undisplay_extra_restraints",
+    #     lambda _simple_action, _arg: display_extra_restraints_func(0))
 
-    add_simple_action_to_menu(
-        menu, "Display Extra Restraints","display_extra_restraints",
-        lambda _simple_action, _arg: display_extra_restraints_func(1))
+    # add_simple_action_to_menu(
+    #     menu, "Display Extra Restraints","display_extra_restraints",
+    #     lambda _simple_action, _arg: display_extra_restraints_func(1))
 
 
 def add_module_prosmart():
-    
+
     menu = attach_module_menu_button("ProSMART")
 
     def combobox_to_molecule_number(combobox):
