@@ -4,7 +4,7 @@
 #shader vertex
 
 #version 330 core
-// meshes-for-ssao.shader
+// instanced-meshes-for-ssao.shader
 
 // make it work like 9.ssao_geometry.shader
 
@@ -60,7 +60,7 @@ void main() {
 #shader fragment
 
 #version 330 core
-// meshes-for-ssao.shader
+// instanced-meshes-for-ssao.shader
 
 layout (location = 0) out vec3 gPosition;
 layout (location = 1) out vec3 gNormal;
