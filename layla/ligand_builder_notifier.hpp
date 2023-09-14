@@ -31,4 +31,8 @@ G_DECLARE_FINAL_TYPE  (CootLaylaNotifier, coot_layla_notifier, COOT, COOT_LAYLA_
 
 G_END_DECLS
 
+extern "C" {
+    CootLaylaNotifier* coot_layla_notifier_new();
+}
+
 #endif // LIGAND_BUILDER_NOTIFIER_HPP
