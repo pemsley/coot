@@ -1269,6 +1269,7 @@
             <child>
               <object class="GtkButton" id="layla_apply_button">
                 <property name="halign">end</property>
+                <!-- TODO: Add shortcut -->
                 <property name="label">Apply</property>
                 <signal name="clicked" handler="layla_on_apply" swapped="no" />
               </object>
