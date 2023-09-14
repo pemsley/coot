@@ -22,7 +22,7 @@
  #include "ligand_builder_notifier.hpp"
 
 class _CootLaylaNotifier {
-    // GObject* base;
+    GObject base;
 };
 
 G_BEGIN_DECLS

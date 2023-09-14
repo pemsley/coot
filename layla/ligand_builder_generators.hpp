@@ -25,6 +25,7 @@
 #include <optional>
 #include <vector>
 #include <gio/gio.h>
+#include "ligand_builder_notifier.hpp"
 
 namespace coot::ligand_editor {
 
@@ -49,7 +50,7 @@ struct GeneratorRequest {
 
 inline GCancellable* global_generator_request_task_cancellable;
 
-GCancellable* run_generator_request(GeneratorRequest request);
+GCancellable* run_generator_request(GeneratorRequest request, CootLaylaNotifier* notifier);
 
 } // namespace coot::ligand_editor
 

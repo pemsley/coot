@@ -156,7 +156,10 @@ layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
     gtk_widget_set_sensitive(GTK_WIDGET(cancel_button), TRUE);
     auto* progress_dialog = gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog");
     gtk_window_present(GTK_WINDOW(progress_dialog));
-    global_generator_request_task_cancellable = run_generator_request(request);
+
+    LigandBuilderState* state = GET_STATE();
+    CootLaylaNotifier* notifier = state->get_notifier();
+    global_generator_request_task_cancellable = run_generator_request(request, notifier);
 }
 
 extern "C" G_MODULE_EXPORT

@@ -22,6 +22,7 @@
 #ifndef LIGAND_BUILDER_STATE_HPP
 #define LIGAND_BUILDER_STATE_HPP
 #include "ligand_editor_canvas.hpp"
+#include "ligand_builder_notifier.hpp"
 #include <rdkit/GraphMol/RWMol.h>
 
 #include "geometry/protein-geometry.hh"
@@ -48,6 +49,8 @@ class LigandBuilderState {
     GtkWindow* main_window;
     /// Owned by glib/gtk
     GtkLabel* status_label;
+    /// Owned by us.
+    CootLaylaNotifier* notifier;
 
     std::optional<unsigned int> current_filesave_molecule;
     std::optional<std::string> current_filesave_filename;
@@ -67,7 +70,11 @@ class LigandBuilderState {
 
     public:
     LigandBuilderState(CootLigandEditorCanvas* canvas_widget, GtkWindow* main_window, GtkLabel* status_label = nullptr) noexcept;
+    ~LigandBuilderState() noexcept;
     
+    /// Returns a new reference to the event notifier object
+    CootLaylaNotifier* get_notifier() const noexcept;
+
     ///Useful for signal handlers
     CootLigandEditorCanvas* get_canvas() const noexcept;
 

@@ -349,7 +349,7 @@ void launch_generator_finish(GObject* subprocess_object, GAsyncResult* res, gpoi
     g_task_return_boolean(task, true);
 }
 
-GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest request) {
+GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest request, CootLaylaNotifier* notifier) {
     // Useless dummy
     GObject* dummy = (GObject*)g_object_new(G_TYPE_OBJECT, NULL);
     GCancellable* cancellable = g_cancellable_new();
@@ -368,6 +368,7 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
         g_warning("Task completed callback!");
         GTask* task = G_TASK(res);
         GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(task);
+        CootLaylaNotifier* notifier = COOT_COOT_LAYLA_NOTIFIER(user_data);
         // todo: cleanup after child process (if any) and report results
         GError* err = NULL;
         if(!g_task_propagate_boolean(task, &err)) {
@@ -387,6 +388,7 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
         g_object_unref(obj);
 
         g_object_unref(task);
+        g_object_unref(notifier);
 
         // We need to manually remove our own cancellable from here.
         g_object_unref(global_generator_request_task_cancellable);
@@ -400,7 +402,7 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
         gtk_spinner_set_spinning(task_data->spinner, false);
     };
 
-    GTask* task = g_task_new(dummy,cancellable,task_completed_callback, nullptr);
+    GTask* task = g_task_new(dummy,cancellable,task_completed_callback, notifier);
     g_task_set_task_data(task, task_data, [](gpointer task_data_ptr){
         GeneratorTaskData* task_data = (GeneratorTaskData*) task_data_ptr;
         task_data->cleanup();

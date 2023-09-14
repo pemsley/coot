@@ -63,11 +63,22 @@ LigandBuilderState::LigandBuilderState(CootLigandEditorCanvas* canvas_widget, Gt
             }
         }
     }), this);
+    this->notifier = coot_layla_notifier_new();
     //g_object_set_data(G_OBJECT(win), "ligand_builder_instance", this);
+}
+
+LigandBuilderState::~LigandBuilderState() noexcept {
+    if(this->notifier) {
+        g_object_unref(this->notifier);
+    }
 }
 
 CootLigandEditorCanvas* LigandBuilderState::get_canvas() const noexcept {
     return this->canvas;
+}
+
+CootLaylaNotifier* LigandBuilderState::get_notifier() const noexcept {
+    return g_object_ref(this->notifier);
 }
 
 void LigandBuilderState::update_status(const char* new_status) noexcept {
