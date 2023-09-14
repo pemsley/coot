@@ -12,12 +12,11 @@
 
 8 items
 
-Go into CA mode and try to middle-mouse over an atom that is not displayed. The recentering works.
-The atom picker needs to know about the representation type (or act on it) ::: 1
+Layla: make python setup be available for Coot and Layla - put it in its own directory. So that layla is not linked with src files.
+
+
 
 Pyrogen needs to work ::: 2
-
-Make Local distances restraints 5 ::: 1
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 2
 set_framebuffer_scale_factor().
@@ -27,6 +26,8 @@ Don't confuse the scaling of the framebuffer for screenshot (in "Plain" mode) an
 the scaling of the framebuffers for super-sampling (in "Fancy" mode).
 OK, so the framebuffer scaling works in simple mode.
 Make it work in "fancy" mode and I will call it done.
+
+Where is Make Link? ::: 0.5
 
 Missing Bernie cherries
 
@@ -855,3 +856,12 @@ Bring the script that shows the SSOA buffer to GTK4 and try to fix the aniostrop
 Proportional editing ::: 1
 * Done. Nice.
 
+Make Local distances restraints 5 ::: 1
+* Done. Nice.
+
+The Restraints menu needs a "Delete Extra Restraints" button. ::: 0.5
+* Done. Nice.
+
+Go into CA mode and try to middle-mouse over an atom that is not displayed. The recentering works.
+The atom picker needs to know about the representation type (or act on it) ::: 0.1
+* Can't reproduce (thankfully?)

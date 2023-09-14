@@ -4445,7 +4445,6 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
       } else {
 
-         // simple/direct - for debugging framebuffers
          gtk_gl_area_attach_buffers(gl_area);
          render_3d_scene(gl_area);
          draw_hud_elements();
