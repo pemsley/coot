@@ -1190,6 +1190,7 @@
             </child>
             <child>
               <object class="GtkSpinButton" id="layla_scale_spinbutton">
+                <property name="can-focus">false</property>
                 <property name="adjustment">
                   <object class="GtkAdjustment">
                     <property name="lower">0.1</property>
