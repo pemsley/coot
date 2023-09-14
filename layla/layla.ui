@@ -152,8 +152,14 @@
         </child>
         <child>
           <object class='GtkShortcut'>
-            <property name='trigger'>&lt;Control&gt;&lt;Shift&gt;i</property>
+            <property name='trigger'>&lt;Control&gt;L</property>
             <property name='action'>action(win.import_molecule)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;F</property>
+            <property name='action'>action(win.fetch_molecule)</property>
           </object>
         </child>
         <child>
@@ -1723,8 +1729,14 @@ Paul Emsley</property>
             </child>
             <child>
               <object class='GtkShortcutsShortcut'>
-                <property name='accelerator'>&lt;Control&gt;&lt;Shift&gt;i</property>
+                <property name='accelerator'>&lt;Control&gt;l</property>
                 <property name='title'>Import molecule</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;F</property>
+                <property name='title'>Fetch molecule</property>
               </object>
             </child>
           </object>
