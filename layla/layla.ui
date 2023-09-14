@@ -1729,7 +1729,7 @@ Paul Emsley</property>
             </child>
             <child>
               <object class='GtkShortcutsShortcut'>
-                <property name='accelerator'>&lt;Control&gt;l</property>
+                <property name='accelerator'>&lt;Control&gt;L</property>
                 <property name='title'>Import molecule</property>
               </object>
             </child>
