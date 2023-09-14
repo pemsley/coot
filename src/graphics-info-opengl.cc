@@ -128,6 +128,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_meshes_shadow_map,
                                                            shader_for_instanced_meshes_shadow_map,
                                                            shader_for_meshes_for_ssao,
+                                                           shader_for_instanced_meshes_for_ssao,
                                                            shader_for_instanced_meshes_with_shadows,
                                                            shader_for_tmeshes_for_ssao,
                                                            shader_for_tmeshes_with_shadows,

@@ -1287,6 +1287,7 @@ Paul Emsley</property>
   </object>
   <object class="GtkWindow" id="layla_apply_dialog">
     <property name="title">Apply</property>
+    <property name="transient-for">layla_window</property>
     <property name="hide-on-close">true</property>
     <child>
       <object class="GtkGrid">
@@ -1406,6 +1407,7 @@ Paul Emsley</property>
   </object>
   <object class="GtkWindow" id="layla_generator_progress_dialog">
     <property name="hide-on-close">true</property>
+    <property name="transient-for">layla_window</property>
     <property name="title">CIF Generation</property>
     <child>
       <object class="GtkBox">
@@ -1459,6 +1461,7 @@ Paul Emsley</property>
     </child>
   </object>
   <object class="GtkShortcutsWindow" id="layla_shortcuts_window">
+    <property name="transient-for">layla_window</property>
     <property name="hide-on-close">true</property>
     <child>
       <object class="GtkShortcutsSection">
