@@ -58,5 +58,5 @@ OBJS := $(patsubst %.cpp,%.o,$(SOURCES))
 %.o: %.cc $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-new-ligand-editor: $(OBJS) $(HEADERS)
+layla: $(OBJS) $(HEADERS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDLIBS)
