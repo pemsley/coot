@@ -78,7 +78,7 @@ void LigandBuilderState::update_status(const char* new_status) noexcept {
 
 void LigandBuilderState::append_molecule(RDKit::RWMol* molecule_ptr) {
     RDKit::MolOps::sanitizeMol(*molecule_ptr);
-    coot_ligand_editor_append_molecule(this->canvas, std::shared_ptr<RDKit::RWMol>(molecule_ptr));
+    coot_ligand_editor_canvas_append_molecule(this->canvas, std::shared_ptr<RDKit::RWMol>(molecule_ptr));
 }
 
 void LigandBuilderState::load_from_smiles() {
@@ -224,7 +224,7 @@ void LigandBuilderState::file_import_molecule() {
                 }
                 RDKit::MolOps::sanitizeMol(*mol);
                 self->append_molecule(mol.release());
-                self->current_filesave_molecule = coot_ligand_editor_get_molecule_count(self->canvas) - 1;
+                self->current_filesave_molecule = coot_ligand_editor_canvas_get_molecule_count(self->canvas) - 1;
                 gtk_window_destroy(GTK_WINDOW(dialog));
                 g_slice_free(ImportDialogWidgets, user_data);
             } else {
@@ -285,7 +285,7 @@ void LigandBuilderState::run_choose_element_dialog() {
         try {
             auto insertion_tool = std::make_unique<ligand_editor_canvas::ActiveTool>(ligand_editor_canvas::ElementInsertion(gtk_entry_buffer_get_text(text_buf)));
             LigandBuilderState* state = (LigandBuilderState*) g_object_get_data(G_OBJECT(dialog), "ligand_builder_instance");
-            coot_ligand_editor_set_active_tool(state->canvas, std::move(insertion_tool));
+            coot_ligand_editor_canvas_set_active_tool(state->canvas, std::move(insertion_tool));
             gtk_window_destroy(GTK_WINDOW(dialog));
         } catch (std::exception& e) {
             g_warning("Could not pick element: %s",e.what());
@@ -358,7 +358,7 @@ void LigandBuilderState::file_fetch_molecule() {
                 }
                 g_info("Molecule Fetch: Molecule constructed.");
                 self->append_molecule(mol);
-                self->current_filesave_molecule = coot_ligand_editor_get_molecule_count(self->canvas) - 1;
+                self->current_filesave_molecule = coot_ligand_editor_canvas_get_molecule_count(self->canvas) - 1;
                 self->current_filesave_filename = res;
                 // todo: optionally delete the file
             } catch(std::exception& e) {
@@ -387,7 +387,7 @@ void LigandBuilderState::file_new() {
     // A confirmation dialog if we have some unsaved data? Same thing on closing the editor
     this->current_filesave_filename = std::nullopt;
     this->current_filesave_filename = std::nullopt;
-    coot_ligand_editor_clear_molecules(this->canvas);
+    coot_ligand_editor_canvas_clear_molecules(this->canvas);
 }
 
 void LigandBuilderState::file_save() {
@@ -401,7 +401,7 @@ void LigandBuilderState::file_save() {
 
 void LigandBuilderState::save_file(unsigned int idx, const char* filename, GtkWindow* parent) noexcept {
     try {
-        const auto* mol = coot_ligand_editor_get_rdkit_molecule(this->canvas, idx);
+        const auto* mol = coot_ligand_editor_canvas_get_rdkit_molecule(this->canvas, idx);
         RDKit::MolToMolFile(*mol,std::string(filename));
         g_info("MolFile Save: Molecule file saved.");
         this->update_status("File saved.");
@@ -445,7 +445,7 @@ void LigandBuilderState::run_file_save_dialog(unsigned int molecule_idx) noexcep
 }
 
 void LigandBuilderState::file_save_as() {
-    auto mol_count = coot_ligand_editor_get_molecule_count(this->canvas);
+    auto mol_count = coot_ligand_editor_canvas_get_molecule_count(this->canvas);
     if(mol_count == 1) {
         run_file_save_dialog(0);
     } else if(mol_count == 0) {
@@ -464,7 +464,7 @@ void LigandBuilderState::file_save_as() {
         gtk_box_append(GTK_BOX(mol_chooser_box), mol_chooser_list_box);
 
         for(unsigned int i = 0; i < mol_count; i++) {
-            auto label_str = coot_ligand_editor_get_smiles_for_molecule(this->canvas,i);
+            auto label_str = coot_ligand_editor_canvas_get_smiles_for_molecule(this->canvas,i);
             auto* label = gtk_label_new(label_str.c_str());
             gtk_list_box_append(GTK_LIST_BOX(mol_chooser_list_box),label);
         }
@@ -528,7 +528,7 @@ void LigandBuilderState::file_open() {
                 }
                 g_info("MolFile Import: Molecule constructed.");
                 self->append_molecule(mol);
-                self->current_filesave_molecule = coot_ligand_editor_get_molecule_count(self->canvas) - 1;
+                self->current_filesave_molecule = coot_ligand_editor_canvas_get_molecule_count(self->canvas) - 1;
                 self->current_filesave_filename = std::string(path);
             } catch(std::exception& e) {
                 g_warning("MolFile Import error: %s",e.what());
@@ -569,7 +569,7 @@ void LigandBuilderState::file_export(ExportMode mode) {
             auto draw = [&](){
                 if(target) {
                     cairo_t* cr = cairo_create(target);
-                    coot_ligand_editor_draw_on_cairo_surface(self->canvas, cr);
+                    coot_ligand_editor_canvas_draw_on_cairo_surface(self->canvas, cr);
                 }
             };
             auto ends_with = [](std::string const & value, std::string const & ending){
@@ -628,15 +628,15 @@ void LigandBuilderState::file_exit() {
 }
 
 void LigandBuilderState::edit_undo() {
-    coot_ligand_editor_undo_edition(this->canvas);
+    coot_ligand_editor_canvas_undo_edition(this->canvas);
 }
 
 void LigandBuilderState::edit_redo() {
-    coot_ligand_editor_redo_edition(this->canvas);
+    coot_ligand_editor_canvas_redo_edition(this->canvas);
 }
 
 void LigandBuilderState::switch_display_mode(ligand_editor_canvas::DisplayMode mode) {
-    coot_ligand_editor_set_display_mode(this->canvas, mode);
+    coot_ligand_editor_canvas_set_display_mode(this->canvas, mode);
 }
 
 void coot::ligand_editor::initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label) {

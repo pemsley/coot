@@ -33,6 +33,7 @@ HEADERS = \
     ligand_builder_state.hpp \
     ligand_builder_ui.hpp \
     ligand_builder_utils.hpp \
+    ligand_builder_notifier.hpp \
     ligand_builder_generators.hpp \
     ligand_editor_canvas/model.hpp \
     ligand_editor_canvas/core.hpp \
@@ -44,6 +45,7 @@ SOURCES = \
     ligand_builder_signals.cpp \
     ligand_builder_ui.cpp \
     ligand_builder_utils.cpp \
+    ligand_builder_notifier.cpp \
     ligand_builder_generators.cpp \
     ligand_editor_canvas/model.cpp \
     ligand_editor_canvas/core.cpp \
@@ -58,5 +60,5 @@ OBJS := $(patsubst %.cpp,%.o,$(SOURCES))
 %.o: %.cc $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-new-ligand-editor: $(OBJS) $(HEADERS)
+layla: $(OBJS) $(HEADERS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDLIBS)

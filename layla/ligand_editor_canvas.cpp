@@ -393,23 +393,23 @@ coot_ligand_editor_canvas_new()
 G_END_DECLS
 
 
-void coot_ligand_editor_set_scale(CootLigandEditorCanvas* self, float display_scale) noexcept {
+void coot_ligand_editor_canvas_set_scale(CootLigandEditorCanvas* self, float display_scale) noexcept {
     self->scale = display_scale;
     g_signal_emit(self,impl::scale_changed_signal,0,self->scale);
     gtk_widget_queue_draw(GTK_WIDGET(self));
     gtk_widget_queue_resize(GTK_WIDGET(self));
 }
 
-float coot_ligand_editor_get_scale(CootLigandEditorCanvas* self) noexcept {
+float coot_ligand_editor_canvas_get_scale(CootLigandEditorCanvas* self) noexcept {
     return self->scale;
 }
 
-void coot_ligand_editor_set_active_tool(CootLigandEditorCanvas* self, std::unique_ptr<ActiveTool>&& active_tool) {
+void coot_ligand_editor_canvas_set_active_tool(CootLigandEditorCanvas* self, std::unique_ptr<ActiveTool>&& active_tool) {
     self->active_tool = std::move(active_tool);
     self->active_tool->set_core_widget_data(static_cast<impl::CootLigandEditorCanvasPriv*>(self));
 }
 
-void coot_ligand_editor_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
+void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
     try {
         g_debug("Appending new molecule to the widget...");
         // Might throw if the constructor fails.
@@ -428,25 +428,25 @@ void coot_ligand_editor_append_molecule(CootLigandEditorCanvas* self, std::share
         std::string msg = "2D representation could not be created: ";
         msg += e.what();
         msg += ". New molecule could not be added.";
-        g_warning("coot_ligand_editor_append_molecule: %s",msg.c_str());
+        g_warning("coot_ligand_editor_canvas_append_molecule: %s",msg.c_str());
         self->update_status(msg.c_str());
         self->rollback_current_edition();
     }
 }
 
-void coot_ligand_editor_undo_edition(CootLigandEditorCanvas* self) noexcept {
+void coot_ligand_editor_canvas_undo_edition(CootLigandEditorCanvas* self) noexcept {
     self->undo_edition();
     gtk_widget_queue_draw(GTK_WIDGET(self));
     g_signal_emit((gpointer) self, impl::smiles_changed_signal, 0);
 }
 
-void coot_ligand_editor_redo_edition(CootLigandEditorCanvas* self) noexcept {
+void coot_ligand_editor_canvas_redo_edition(CootLigandEditorCanvas* self) noexcept {
     self->redo_edition();
     gtk_widget_queue_draw(GTK_WIDGET(self));
     g_signal_emit((gpointer) self, impl::smiles_changed_signal, 0);
 }
 
-const RDKit::ROMol* coot_ligand_editor_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept {
+const RDKit::ROMol* coot_ligand_editor_canvas_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept {
     if(self->rdkit_molecules->size() > index) {
         const auto& vec = *self->rdkit_molecules.get();
         return vec[index].get();
@@ -455,32 +455,32 @@ const RDKit::ROMol* coot_ligand_editor_get_rdkit_molecule(CootLigandEditorCanvas
     }
 }
 
-unsigned int coot_ligand_editor_get_molecule_count(CootLigandEditorCanvas* self) noexcept {
+unsigned int coot_ligand_editor_canvas_get_molecule_count(CootLigandEditorCanvas* self) noexcept {
     return self->rdkit_molecules->size();
 }
 
-void coot_ligand_editor_set_allow_invalid_molecules(CootLigandEditorCanvas* self, bool value) noexcept {
+void coot_ligand_editor_canvas_set_allow_invalid_molecules(CootLigandEditorCanvas* self, bool value) noexcept {
     self->allow_invalid_molecules = value;
 }
 
-bool coot_ligand_editor_get_allow_invalid_molecules(CootLigandEditorCanvas* self) noexcept {
+bool coot_ligand_editor_canvas_get_allow_invalid_molecules(CootLigandEditorCanvas* self) noexcept {
     return self->allow_invalid_molecules;
 }
 
-DisplayMode coot_ligand_editor_get_display_mode(CootLigandEditorCanvas* self) noexcept {
+DisplayMode coot_ligand_editor_canvas_get_display_mode(CootLigandEditorCanvas* self) noexcept {
     return self->display_mode;
 }
 
-void coot_ligand_editor_set_display_mode(CootLigandEditorCanvas* self, DisplayMode value) noexcept {
+void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, DisplayMode value) noexcept {
     self->display_mode = value;
     gtk_widget_queue_draw(GTK_WIDGET(self));
 }
 
-std::string coot_ligand_editor_get_smiles(CootLigandEditorCanvas* self) noexcept {
+std::string coot_ligand_editor_canvas_get_smiles(CootLigandEditorCanvas* self) noexcept {
     return self->build_smiles_string();
 }
 
-std::string coot_ligand_editor_get_smiles_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
+std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
     if(molecule_idx < self->rdkit_molecules->size()) {
         return RDKit::MolToSmiles(*(*self->rdkit_molecules)[molecule_idx].get());
     } else {
@@ -488,7 +488,7 @@ std::string coot_ligand_editor_get_smiles_for_molecule(CootLigandEditorCanvas* s
     }
 }
 
-void coot_ligand_editor_draw_on_cairo_surface(CootLigandEditorCanvas* self, cairo_t* cr) noexcept {
+void coot_ligand_editor_canvas_draw_on_cairo_surface(CootLigandEditorCanvas* self, cairo_t* cr) noexcept {
     PangoLayout* pango_layout = pango_cairo_create_layout(cr);
     PangoFontDescription* font_description = pango_font_description_new ();
     pango_font_description_set_family(font_description, "sans");
@@ -500,7 +500,7 @@ void coot_ligand_editor_draw_on_cairo_surface(CootLigandEditorCanvas* self, cair
     pango_font_description_free(font_description);
 }
 
-void coot_ligand_editor_clear_molecules(CootLigandEditorCanvas* self) noexcept {
+void coot_ligand_editor_canvas_clear_molecules(CootLigandEditorCanvas* self) noexcept {
     self->begin_edition();
     self->rdkit_molecules->clear();
     self->molecules->clear();

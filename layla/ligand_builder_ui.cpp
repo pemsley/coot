@@ -146,7 +146,7 @@ GtkApplicationWindow* coot::ligand_editor::setup_main_window(GtkApplication* app
     GtkTextView* smiles_display = (GtkTextView*) gtk_builder_get_object(builder, "layla_smiles_textview");
     g_signal_connect(canvas, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data){
         GtkTextView* view = GTK_TEXT_VIEW(user_data);
-        std::string smiles = coot_ligand_editor_get_smiles(self);
+        std::string smiles = coot_ligand_editor_canvas_get_smiles(self);
         GtkTextBuffer* buf = gtk_text_view_get_buffer(view);
         gtk_text_buffer_set_text(buf,smiles.c_str(),-1);
     }), smiles_display);

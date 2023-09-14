@@ -36,31 +36,31 @@ CootLigandEditorCanvas *coot_ligand_editor_canvas_new();
 } // extern "C"
 
 
-void coot_ligand_editor_set_active_tool(CootLigandEditorCanvas* self, std::unique_ptr<coot::ligand_editor_canvas::ActiveTool>&& active_tool);
-void coot_ligand_editor_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept;
-void coot_ligand_editor_set_scale(CootLigandEditorCanvas* self, float scale) noexcept;
-float coot_ligand_editor_get_scale(CootLigandEditorCanvas* self) noexcept;
+void coot_ligand_editor_canvas_set_active_tool(CootLigandEditorCanvas* self, std::unique_ptr<coot::ligand_editor_canvas::ActiveTool>&& active_tool);
+void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept;
+void coot_ligand_editor_canvas_set_scale(CootLigandEditorCanvas* self, float scale) noexcept;
+float coot_ligand_editor_canvas_get_scale(CootLigandEditorCanvas* self) noexcept;
 
-void coot_ligand_editor_undo_edition(CootLigandEditorCanvas* self) noexcept;
-void coot_ligand_editor_redo_edition(CootLigandEditorCanvas* self) noexcept;
+void coot_ligand_editor_canvas_undo_edition(CootLigandEditorCanvas* self) noexcept;
+void coot_ligand_editor_canvas_redo_edition(CootLigandEditorCanvas* self) noexcept;
 
 /// Returns the pointer to the molecule with the given index or nullptr when index is out of range.
 ///
 /// Canvas owns the returned pointer
-const RDKit::ROMol* coot_ligand_editor_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept;
-unsigned int coot_ligand_editor_get_molecule_count(CootLigandEditorCanvas* self) noexcept;
+const RDKit::ROMol* coot_ligand_editor_canvas_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept;
+unsigned int coot_ligand_editor_canvas_get_molecule_count(CootLigandEditorCanvas* self) noexcept;
 
-void coot_ligand_editor_set_allow_invalid_molecules(CootLigandEditorCanvas* self, bool value) noexcept;
-bool coot_ligand_editor_get_allow_invalid_molecules(CootLigandEditorCanvas* self) noexcept;
+void coot_ligand_editor_canvas_set_allow_invalid_molecules(CootLigandEditorCanvas* self, bool value) noexcept;
+bool coot_ligand_editor_canvas_get_allow_invalid_molecules(CootLigandEditorCanvas* self) noexcept;
 
-coot::ligand_editor_canvas::DisplayMode coot_ligand_editor_get_display_mode(CootLigandEditorCanvas* self) noexcept;
-void coot_ligand_editor_set_display_mode(CootLigandEditorCanvas* self, coot::ligand_editor_canvas::DisplayMode value) noexcept;
+coot::ligand_editor_canvas::DisplayMode coot_ligand_editor_canvas_get_display_mode(CootLigandEditorCanvas* self) noexcept;
+void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, coot::ligand_editor_canvas::DisplayMode value) noexcept;
 
-std::string coot_ligand_editor_get_smiles(CootLigandEditorCanvas* self) noexcept;
-std::string coot_ligand_editor_get_smiles_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept;
+std::string coot_ligand_editor_canvas_get_smiles(CootLigandEditorCanvas* self) noexcept;
+std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept;
 
 /// Takes ownership of the pointer
-void coot_ligand_editor_draw_on_cairo_surface(CootLigandEditorCanvas* self, cairo_t* cr) noexcept;
+void coot_ligand_editor_canvas_draw_on_cairo_surface(CootLigandEditorCanvas* self, cairo_t* cr) noexcept;
 
-void coot_ligand_editor_clear_molecules(CootLigandEditorCanvas* self) noexcept;
+void coot_ligand_editor_canvas_clear_molecules(CootLigandEditorCanvas* self) noexcept;
 #endif // COOT_LIGAND_EDITOR_CANVAS_HPP
