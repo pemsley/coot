@@ -29,6 +29,8 @@ G_BEGIN_DECLS
 
 G_DEFINE_TYPE(CootLaylaNotifier, coot_layla_notifier, G_TYPE_OBJECT)
 
+static guint cif_file_generated_signal;
+
 static void coot_layla_notifier_init(CootLaylaNotifier* self) {
     // This is the primary constructor
     
@@ -51,17 +53,17 @@ static void coot_layla_notifier_dispose(GObject* _self) {
 static void coot_layla_notifier_class_init(CootLaylaNotifierClass* klass) {
     // I think that this is a GObject class constructor that sets up the GObject class at runtime.
 
-    // impl::status_updated_signal = g_signal_new("status-updated",
-    //     G_TYPE_FROM_CLASS (klass),
-    //     (GSignalFlags) (G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS),
-    //     0 /* class offset.Subclass cannot override the class handler (default handler). */,
-    //     NULL /* accumulator */,
-    //     NULL /* accumulator data */,
-    //     NULL /* C marshaller. g_cclosure_marshal_generic() will be used */,
-    //     G_TYPE_NONE /* return_type */,
-    //     1     /* n_params */,
-    //     G_TYPE_STRING
-    // );
+    cif_file_generated_signal = g_signal_new("cif-file-generated",
+        G_TYPE_FROM_CLASS (klass),
+        (GSignalFlags) (G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS),
+        0 /* class offset.Subclass cannot override the class handler (default handler). */,
+        NULL /* accumulator */,
+        NULL /* accumulator data */,
+        NULL /* C marshaller. g_cclosure_marshal_generic() will be used */,
+        G_TYPE_NONE /* return_type */,
+        1     /* n_params */,
+        G_TYPE_STRING
+    );
     G_OBJECT_CLASS(klass)->dispose = coot_layla_notifier_dispose;
     
 }
