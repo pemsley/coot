@@ -21,5 +21,14 @@
 
 #ifndef LIGAND_BUILDER_NOTIFIER_HPP
 #define LIGAND_BUILDER_NOTIFIER_HPP
+#include <glib-object.h>
+
+// GObject declaration 
+G_BEGIN_DECLS   
+
+#define COOT_LAYLA_NOTIFIER_TYPE (coot_layla_notifier_get_type ())
+G_DECLARE_FINAL_TYPE  (CootLaylaNotifier, coot_layla_notifier, COOT, COOT_LAYLA_NOTIFIER, GObject)
+
+G_END_DECLS
 
 #endif // LIGAND_BUILDER_NOTIFIER_HPP
