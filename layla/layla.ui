@@ -1269,9 +1269,19 @@
             <child>
               <object class="GtkButton" id="layla_apply_button">
                 <property name="halign">end</property>
-                <!-- TODO: Add shortcut -->
                 <property name="label">Apply</property>
                 <signal name="clicked" handler="layla_on_apply" swapped="no" />
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>&lt;Control&gt;A</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
           </object>
@@ -1738,6 +1748,12 @@ Paul Emsley</property>
               <object class='GtkShortcutsShortcut'>
                 <property name='accelerator'>&lt;Control&gt;F</property>
                 <property name='title'>Fetch molecule</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;A</property>
+                <property name='title'>Apply - run dictionary generator</property>
               </object>
             </child>
           </object>
