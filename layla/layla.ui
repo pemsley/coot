@@ -629,6 +629,7 @@
             <child>
               <object class="GtkSeparator"></object>
             </child>
+<!--            TODO: FLEV
             <child type="end">
               <object class="GtkButton" id="layla_env_residues_button">
                 <child>
@@ -636,7 +637,6 @@
                     <property name="orientation">vertical</property>
                       <child>
                         <object class="GtkImage">
-                          <!-- <property name="visible">false</property> -->
                           <property name="icon-name">layla_env_residues</property>
                         </object>
                       </child>
@@ -659,7 +659,6 @@
                     <property name="orientation">vertical</property>
                       <child>
                         <object class="GtkImage">
-                          <!-- <property name="visible">false</property> -->
                           <property name="icon-name">layla_key</property>
                         </object>
                       </child>
@@ -674,7 +673,7 @@
                   </object>
                 </child>
               </object>
-            </child>
+            </child>-->
           </object>
         </child>
         <child>
@@ -1224,7 +1223,7 @@
                 <signal name="toggled" handler="layla_on_invalid_molecule_toggled" swapped="no" object="layla_window" />
               </object>
             </child>
-            <child>
+            <!-- <child>
               <object class="GtkCheckButton" id="layla_show_alerts_checkbutton">
                 <property name="label">Show Alerts</property>
                 <property name="margin-end">10</property>
@@ -1236,7 +1235,7 @@
                 </layout>
                 <signal name="toggled" handler="layla_on_show_alerts_toggled" swapped="no" object="layla_window" />
               </object>
-            </child>
+            </child> -->
           </object>
         </child>
         <child>
