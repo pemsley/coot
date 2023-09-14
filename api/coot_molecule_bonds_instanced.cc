@@ -533,9 +533,10 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       Bond_lines_container bonds(geom, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag);
       bonds.do_colour_by_chain_bonds(atom_sel_ligand, false, imol_no, draw_hydrogen_atoms_flag,
                                      draw_missing_residue_loops, change_c_only_flag, goodsell_mode, do_rota_markup);
-      auto gbc = bonds.make_graphical_bonds();
 
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
+
+      auto gbc = bonds.make_graphical_bonds();
 
       make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type,
                                                      atom_radius, bond_radius, num_subdivisions, colour_table);
