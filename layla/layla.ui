@@ -564,6 +564,9 @@
               <object class="GtkToggleButton" id="layla_charge_button">
                 <signal name="clicked" handler="layla_on_charge_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;left click&lt;/b&gt; - add electrons (towards negative)
+&lt;b&gt;right click&lt;/b&gt; - remove electrons (towards positive)
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
