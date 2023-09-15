@@ -1,0 +1,56 @@
+/* layla/ligand_builder_generators.hpp
+ * 
+ * Copyright 2023 by Global Phasing Ltd.
+ * Author: Jakub Smulski
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
+
+#ifndef LIGAND_BUILDER_GENERATORS_HPP
+#define LIGAND_BUILDER_GENERATORS_HPP
+#include <string>
+#include <optional>
+#include <vector>
+#include <gio/gio.h>
+
+namespace coot::ligand_editor {
+
+
+struct GeneratorRequest {
+    enum class InputFormat: unsigned char {
+        SMILES,
+        MolFile
+    } input_format;
+    enum class Generator: unsigned char {
+        Acedrg,
+        Grade2
+    } generator;
+
+    std::string monomer_id;
+    std::string molecule_smiles;
+    std::optional<std::string> executable_path;
+
+    std::string get_filename() const;
+    std::vector<std::string> build_commandline() const;
+};
+
+inline GCancellable* global_generator_request_task_cancellable;
+
+GCancellable* run_generator_request(GeneratorRequest request);
+
+} // namespace coot::ligand_editor
+
+#endif // LIGAND_BUILDER_GENERATORS_HPP

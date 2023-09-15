@@ -1,0 +1,1787 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.12.1 -->
+<interface>
+  <!-- interface-name layla.ui -->
+  <requires lib="gtk" version="4.10"/>
+  <menu id="layla_menu">
+    <submenu>
+      <attribute name="label">File</attribute>
+      <section>
+        <item>
+          <attribute name="label">New</attribute>
+          <attribute name="action">win.file_new</attribute>
+        </item>
+        <item>
+          <attribute name="label">Open</attribute>
+          <attribute name="action">win.file_open</attribute>
+        </item>
+        <item>
+          <attribute name="label">Save</attribute>
+          <attribute name="action">win.file_save</attribute>
+        </item>
+        <item>
+          <attribute name="label">Save As</attribute>
+          <attribute name="action">win.file_save_as</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label">Import from SMILES</attribute>
+          <attribute name="action">win.import_from_smiles</attribute>
+        </item>
+        <item>
+          <attribute name="label">Import Molecule</attribute>
+          <attribute name="action">win.import_molecule</attribute>
+        </item>
+        <item>
+          <attribute name="label">Fetch Molecule</attribute>
+          <attribute name="action">win.fetch_molecule</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label">Export PDF</attribute>
+          <attribute name="action">win.export_pdf</attribute>
+        </item>
+        <item>
+          <attribute name="label">Export PNG</attribute>
+          <attribute name="action">win.export_png</attribute>
+        </item>
+        <item>
+          <attribute name="label">Export SVG</attribute>
+          <attribute name="action">win.export_svg</attribute>
+        </item>
+      </section>
+      <item>
+        <attribute name="label">Exit</attribute>
+        <attribute name="action">win.file_exit</attribute>
+      </item>
+    </submenu>
+    <submenu>
+      <attribute name="label">Edit</attribute>
+      <item>
+        <attribute name="label">Undo</attribute>
+        <attribute name="action">win.undo</attribute>
+      </item>
+      <item>
+        <attribute name="label">Redo</attribute>
+        <attribute name="action">win.redo</attribute>
+      </item>
+    </submenu>
+    <submenu>
+      <attribute name="label">Display</attribute>
+      <item>
+        <attribute name="label">Standard</attribute>
+        <attribute name="action">win.switch_display_mode</attribute>
+        <attribute name="target">Standard</attribute>
+      </item>
+      <item>
+        <attribute name="label">Atom Indices</attribute>
+        <attribute name="action">win.switch_display_mode</attribute>
+        <attribute name="target">Atom Indices</attribute>
+      </item>
+      <item>
+        <attribute name="label">Atom Names</attribute>
+        <attribute name="action">win.switch_display_mode</attribute>
+        <attribute name="target">Atom Names</attribute>
+      </item>
+    </submenu>
+    <submenu>
+      <attribute name="label">Help</attribute>
+      <item>
+        <attribute name="label">Shortcuts</attribute>
+        <attribute name="action">win.show_shortcuts_window</attribute>
+      </item>
+      <item>
+        <attribute name="label">About</attribute>
+        <attribute name="action">win.show_about_dialog</attribute>
+      </item>
+    </submenu>
+  </menu>
+  <object class="GtkApplicationWindow" id="layla_window">
+    <child>
+      <object class='GtkShortcutController'>
+        <property name='scope'>managed</property>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;Z</property>
+            <property name='action'>action(win.undo)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;R</property>
+            <property name='action'>action(win.redo)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;S</property>
+            <property name='action'>action(win.file_save)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;&lt;Shift&gt;S</property>
+            <property name='action'>action(win.file_save_as)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;O</property>
+            <property name='action'>action(win.file_open)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;N</property>
+            <property name='action'>action(win.file_new)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;W</property>
+            <property name='action'>action(win.file_exit)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;i</property>
+            <property name='action'>action(win.import_from_smiles)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;L</property>
+            <property name='action'>action(win.import_molecule)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>&lt;Control&gt;F</property>
+            <property name='action'>action(win.fetch_molecule)</property>
+          </object>
+        </child>
+        <child>
+          <object class='GtkShortcut'>
+            <property name='trigger'>F1</property>
+            <property name='action'>action(win.show_about_dialog)</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <property name="child">
+      <object class="GtkBox" id="layla_mainbox">
+        <property name="margin-end">10</property>
+        <property name="margin-start">10</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">5</property>
+        <child>
+          <object class="GtkPopoverMenuBar" id="layla_menubar">
+            <property name="menu-model">layla_menu</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkActionBar" id="layla_per_molecule_tools_toolbar">
+            <child>
+              <object class="GtkToggleButton" id="layla_move_button">
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>m</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <signal name="clicked" handler="layla_on_move_button_clicked" swapped="no" object="layla_window" />
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_move_tool</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Move</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="layla_rotate_button">
+                <signal name="clicked" handler="layla_on_rotate_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>r</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">object-rotate-right-symbolic</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Rotate</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="layla_flip_x_button">
+                <signal name="clicked" handler="layla_on_flip_x_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>&lt;Alt&gt;f</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">object-flip-horizontal-symbolic</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Flip around X</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="layla_flip_y_button">
+                <signal name="clicked" handler="layla_on_flip_y_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>&lt;Control&gt;&lt;Alt&gt;f</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">object-flip-vertical-symbolic</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Flip around Y</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparator"></object>
+            </child>
+            <child type="end">
+              <object class="GtkToggleButton" id="layla_format_button">
+                <signal name="clicked" handler="layla_on_format_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>f</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>&lt;Alt&gt;f</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_format_tool</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Format</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkToggleButton" id="layla_delete_hydrogens_button">
+                <signal name="clicked" handler="layla_on_delete_hydrogens_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>&lt;Alt&gt;Delete</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_delete_hydrogens_tool</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Delete Hydrogens</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkActionBar" id="layla_editor_tools_toolbar">
+            <child>
+              <object class="GtkToggleButton" id="layla_single_bond_button">
+                <signal name="clicked" handler="layla_on_single_bond_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>s</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_single_bond</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Single Bond</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="layla_double_bond_button">
+                <signal name="clicked" handler="layla_on_double_bond_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>d</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_double_bond</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Double Bond</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="layla_triple_bond_button">
+                <signal name="clicked" handler="layla_on_triple_bond_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>t</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_triple_bond</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Triple Bond</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="layla_geometry_button">
+                <signal name="clicked" handler="layla_on_geometry_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>g</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_geometry_tool</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Geometry</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="layla_charge_button">
+                <signal name="clicked" handler="layla_on_charge_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>v</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_charge_tool</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Charge</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="layla_delete_button">
+                <signal name="clicked" handler="layla_on_delete_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>Delete</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">edit-delete-symbolic</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Delete</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparator"></object>
+            </child>
+<!--            TODO: FLEV
+            <child type="end">
+              <object class="GtkButton" id="layla_env_residues_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <property name="icon-name">layla_env_residues</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Env. Residues</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkButton" id="layla_key_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <property name="icon-name">layla_key</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">Key</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>-->
+          </object>
+        </child>
+        <child>
+          <object class="GtkActionBar" id="layla_carbon_ring_picker">
+            <child>
+              <object class="GtkToggleButton" id="layla_3C_button">
+                <signal name="clicked" handler="layla_on_3C_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>3</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_3c</property>
+                          <property name="pixel-size">24</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">3-C</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="layla_4C_button">
+                <signal name="clicked" handler="layla_on_4C_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>4</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_4c</property>
+                          <property name="pixel-size">24</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">4-C</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="layla_5C_button">
+                <signal name="clicked" handler="layla_on_5C_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>5</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_5c</property>
+                          <property name="pixel-size">24</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">5-C</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="layla_6C_button">
+                <signal name="clicked" handler="layla_on_6C_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>6</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_6c</property>
+                          <property name="pixel-size">24</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">6-C</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="layla_6Arom_button">
+                <signal name="clicked" handler="layla_on_6Arom_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>&lt;Alt&gt;6</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>b</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_6arom</property>
+                          <property name="pixel-size">24</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">6-Arom</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="layla_7C_button">
+                <signal name="clicked" handler="layla_on_7C_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>7</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_7c</property>
+                          <property name="pixel-size">24</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">7-C</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="layla_8C_button">
+                <signal name="clicked" handler="layla_on_8C_button_clicked" swapped="no" object="layla_window" />
+                <property name="group">layla_move_button</property>
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>8</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                      <child>
+                        <object class="GtkImage">
+                          <!-- <property name="visible">false</property> -->
+                          <property name="icon-name">layla_8c</property>
+                          <property name="pixel-size">24</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkLabel">
+                          <attributes>
+                            <attribute name="size" value="7200"/>
+                          </attributes>
+                          <property name="label">8-C</property>
+                        </object>
+                      </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="layla_canvas_row">
+            <child>
+              <object class="GtkBox" id="layla_element_picker">
+                <property name="margin-top">10</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">5</property>
+                <child>
+                  <object class="GtkToggleButton" id="layla_C_button">
+                    <property name="label">C</property>
+                    <signal name="clicked" handler="layla_on_C_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>c</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="layla_N_button">
+                    <property name="label">N</property>
+                    <signal name="clicked" handler="layla_on_N_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>n</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="layla_O_button">
+                    <property name="label">O</property>
+                    <signal name="clicked" handler="layla_on_O_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>o</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="layla_S_button">
+                    <property name="label">S</property>
+                    <signal name="clicked" handler="layla_on_S_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>&lt;Alt&gt;s</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="layla_P_button">
+                    <property name="label">P</property>
+                    <signal name="clicked" handler="layla_on_P_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>p</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="layla_H_button">
+                    <property name="label">H</property>
+                    <signal name="clicked" handler="layla_on_H_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>h</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="layla_F_button">
+                    <property name="label">F</property>
+                    <signal name="clicked" handler="layla_on_F_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>&lt;Alt&gt;i</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="layla_Cl_button">
+                    <property name="label">Cl</property>
+                    <signal name="clicked" handler="layla_on_Cl_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>&lt;Alt&gt;c</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="layla_Br_button">
+                    <property name="label">Br</property>
+                    <signal name="clicked" handler="layla_on_Br_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>&lt;Alt&gt;b</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="layla_I_button">
+                    <property name="label">I</property>
+                    <signal name="clicked" handler="layla_on_I_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>i</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkToggleButton" id="layla_X_button">
+                    <property name="label">X</property>
+                    <signal name="clicked" handler="layla_on_X_button_clicked" swapped="no" object="layla_window" />
+                    <property name="group">layla_move_button</property>
+                    <child>
+                      <object class='GtkShortcutController'>
+                        <property name='scope'>managed</property>
+                        <child>
+                          <object class='GtkShortcut'>
+                            <property name='trigger'>x</property>
+                            <property name='action'>activate</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow" id="layla_canvas_viewport">
+                <property name="hexpand">True</property>
+                <property name="margin-bottom">10</property>
+                <property name="margin-start">10</property>
+                <property name="margin-top">10</property>
+                <property name="vexpand">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="layla_bottom_bar">
+            <property name="margin-start">10</property>
+            <property name="spacing">10</property>
+            <child>
+              <object class="GtkLabel" id="layla_smiles_label">
+                <property name="label">SMILES:</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow" id="layla_smiles_textview_sw">
+                <property name="child">
+                  <object class="GtkTextView" id="layla_smiles_textview">
+                    <property name="editable">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="monospace">True</property>
+                  </object>
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="layla_scale_label">
+                <property name="label">Scale</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSpinButton" id="layla_scale_spinbutton">
+                <property name="can-focus">false</property>
+                <property name="adjustment">
+                  <object class="GtkAdjustment">
+                    <property name="lower">0.1</property>
+                    <property name="page-increment">1.0</property>
+                    <property name="page-size">2.0</property>
+                    <property name="step-increment">0.05</property>
+                    <property name="upper">20.0</property>
+                    <property name="value">1.0</property>
+                  </object>
+                </property>
+                <property name="climb-rate">0.05</property>
+                <property name="digits">2</property>
+                <property name="halign">end</property>
+                <signal name="value-changed" handler="layla_on_scale_spinbutton_value_changed" swapped="no" object="layla_window" />
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkGrid" id="layla_grid">
+            <child>
+              <object class="GtkCheckButton" id="layla_invalid_molecule_checkbutton">
+                <property name="label">Allow invalid molecules</property>
+                <property name="margin-end">10</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="column-span">1</property>
+                  <property name="row">0</property>
+                  <property name="row-span">1</property>
+                </layout>
+                <signal name="toggled" handler="layla_on_invalid_molecule_toggled" swapped="no" object="layla_window" />
+              </object>
+            </child>
+            <!-- <child>
+              <object class="GtkCheckButton" id="layla_show_alerts_checkbutton">
+                <property name="label">Show Alerts</property>
+                <property name="margin-end">10</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="column-span">1</property>
+                  <property name="row">1</property>
+                  <property name="row-span">1</property>
+                </layout>
+                <signal name="toggled" handler="layla_on_show_alerts_toggled" swapped="no" object="layla_window" />
+              </object>
+            </child> -->
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="layla_button_box">
+            <property name="margin-bottom">10</property>
+            <property name="margin-start">10</property>
+            <property name="margin-top">10</property>
+            <property name="spacing">5</property>
+            <child>
+              <object class="GtkLabel" id="layla_status_label">
+                <property name="halign">start</property>
+                <property name="hexpand">True</property>
+                <property name="margin-end">10</property>
+                <property name="margin-start">10</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_close_button">
+                <property name="halign">end</property>
+                <property name="label">Close</property>
+                <signal name="clicked" handler="layla_on_close" swapped="no" object="layla_window"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_apply_button">
+                <property name="halign">end</property>
+                <property name="label">Apply</property>
+                <signal name="clicked" handler="layla_on_apply" swapped="no" />
+                <child>
+                  <object class='GtkShortcutController'>
+                    <property name='scope'>managed</property>
+                    <child>
+                      <object class='GtkShortcut'>
+                        <property name='trigger'>&lt;Control&gt;A</property>
+                        <property name='action'>activate</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </property>
+    <property name="icon-name">coot-layla</property>
+    <property name="title">Layla: Coot's Ligand Builder</property>
+  </object>
+  <object class="GtkAboutDialog" id="layla_about_dialog">
+    <property name="hide-on-close">true</property>
+    <property name="authors">Jakub Smulski
+Paul Emsley</property>
+    <property name="comments">Coot's Ligand builder, successor to Lidia</property>
+    <property name="copyright">Copyright: Global Phasing Ltd.</property>
+    <property name="license-type">gpl-3-0</property>
+    <property name="logo-icon-name">coot-layla</property>
+    <property name="program-name">Coot Layla</property>
+    <property name="version">v1.0</property>
+  </object>
+  <object class="GtkWindow" id="layla_apply_dialog">
+    <property name="title">Apply</property>
+    <property name="transient-for">layla_window</property>
+    <property name="hide-on-close">true</property>
+    <child>
+      <object class="GtkGrid">
+        <property name="margin-start">10</property>
+        <property name="margin-end">10</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <property name="column-spacing">10</property>
+        <property name="row-spacing">10</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="label">Monomer ID:</property>
+            <layout>
+              <property name="row">0</property>
+              <property name="column">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="layla_generator_monomer_id_combobox">
+            <layout>
+              <property name="column">1</property>
+              <property name="row">0</property>
+              <property name="column-span">1</property>
+            </layout>
+            <items>
+              <item id="LIG">LIG</item>
+              <item id="INH">INH</item>
+              <item id="Custom">Custom</item>
+            </items>
+            <signal name="changed" swapped="false" handler="layla_on_generator_monomer_id_combobox_changed"></signal>
+          </object>
+        </child>
+        <child>
+          <object class="GtkEntry" id="layla_generator_monomer_id_entry">
+            <property name="sensitive">false</property>
+            <layout>
+              <property name="column">2</property>
+              <property name="row">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel">
+            <property name="label">Input format:</property>
+            <layout>
+              <property name="row">1</property>
+              <property name="column">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="layla_generator_input_format_combobox">
+            <layout>
+              <property name="column">1</property>
+              <property name="row">1</property>
+              <property name="column-span">2</property>
+            </layout>
+            <items>
+              <item id="smiles">SMILES</item>
+              <item id="molfile">MolFile</item>
+            </items>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel">
+            <property name="label">Generator:</property>
+            <layout>
+              <property name="row">2</property>
+              <property name="column">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="layla_generator_program_combobox">
+            <layout>
+              <property name="column">1</property>
+              <property name="row">2</property>
+              <property name="column-span">2</property>
+            </layout>
+            <items>
+              <item id="acedrg">Acedrg</item>
+              <item id="grade2">Grade2</item>
+            </items>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel">
+            <property name="label">Molecule:</property>
+            <layout>
+              <property name="row">3</property>
+              <property name="column">0</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="layla_generator_molecule_combobox">
+            <layout>
+              <property name="column">1</property>
+              <property name="row">3</property>
+              <property name="column-span">2</property>
+            </layout>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="layla_apply_dialog_accept_button">
+            <property name="label">Accept</property>
+            <signal name="clicked" swapped="false" handler="layla_on_apply_dialog_accepted"></signal>
+            <layout>
+              <property name="column">2</property>
+              <property name="row">4</property>
+            </layout>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkWindow" id="layla_generator_progress_dialog">
+    <property name="hide-on-close">true</property>
+    <property name="transient-for">layla_window</property>
+    <property name="title">CIF Generation</property>
+    <child>
+      <object class="GtkBox">
+        <property name="margin-start">10</property>
+        <property name="margin-end">10</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <property name="spacing">10</property>
+        <property name="orientation">vertical</property>
+        <property name="vexpand">true</property>
+        <child>
+          <object class="GtkSpinner" id="layla_generator_progress_dialog_spinner">
+            <property name="spinning">true</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkProgressBar" id="layla_generator_progress_dialog_progress_bar">
+            <property name="show-text">true</property>
+            <property name="text">Generation in progress...</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkExpander">
+            <property name="vexpand">true</property>
+            <property name="label">Stdout of child process</property>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="vexpand">true</property>
+                <child>
+                  <object class="GtkTextView" id="layla_generator_progress_dialog_stdout_textview">
+                    <property name="editable">false</property>
+                    <property name="monospace">true</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="layla_generator_progress_dialog_status_label">
+
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="layla_generator_progress_dialog_cancel_button">
+            <property name="label">Cancel</property>
+            <signal name="clicked" swapped="false" handler="on_layla_generator_progress_dialog_cancelled"></signal>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkShortcutsWindow" id="layla_shortcuts_window">
+    <property name="transient-for">layla_window</property>
+    <property name="hide-on-close">true</property>
+    <child>
+      <object class="GtkShortcutsSection">
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">Carbon rings</property>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">3</property>
+                <property name="title" translatable="yes">Cyclopropane ring</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">4</property>
+                <property name="title" translatable="yes">Cyclobutane ring</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">5</property>
+                <property name="title" translatable="yes">Cyclopentane ring</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">6</property>
+                <property name="title" translatable="yes">Cyclohexane ring</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">b &lt;Alt&gt;6</property>
+                <property name="title" translatable="yes">Benzene ring</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">7</property>
+                <property name="title" translatable="yes">Cycloheptane ring</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">8</property>
+                <property name="title" translatable="yes">Cyclooctane ring</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">Atom insertion</property>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">c</property>
+                <property name="title" translatable="yes">Carbon</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">n</property>
+                <property name="title" translatable="yes">Nitrogen</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">o</property>
+                <property name="title" translatable="yes">Oxygen</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Alt&gt;s</property>
+                <property name="title" translatable="yes">Sulphur</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">p</property>
+                <property name="title" translatable="yes">Phosphorus</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">h</property>
+                <property name="title" translatable="yes">Hydrogen</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Alt&gt;c</property>
+                <property name="title" translatable="yes">Chlorine</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">i</property>
+                <property name="title" translatable="yes">Iodine</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Alt&gt;i</property>
+                <property name="title" translatable="yes">Flourine</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Alt&gt;b</property>
+                <property name="title" translatable="yes">Bromine</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">x</property>
+                <property name="title" translatable="yes">Custom symbol</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">Editor tools</property>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">s</property>
+                <property name="title" translatable="yes">Single bond</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">d</property>
+                <property name="title" translatable="yes">Double bond</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">t</property>
+                <property name="title" translatable="yes">Triple bond</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">v</property>
+                <property name="title" translatable="yes">Charge tool</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">g</property>
+                <property name="title" translatable="yes">Bond geometry tool</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">Delete</property>
+                <property name="title" translatable="yes">Delete tool</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">Hold-to-override tool</property>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Alt&gt;</property>
+                <property name="title" translatable="yes">Move molecule</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;</property>
+                <property name="title" translatable="yes">Rotate molecule</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">Per-molecule tools</property>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">r</property>
+                <property name="title" translatable="yes">Rotate tool</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">m</property>
+                <property name="title" translatable="yes">Move tool</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">f</property>
+                <property name="title" translatable="yes">Format tool</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Alt&gt;f</property>
+                <property name="title" translatable="yes">Horizontal flip tool</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Control&gt;&lt;Alt&gt;f</property>
+                <property name="title" translatable="yes">Vertical flip tool</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Alt&gt;Delete</property>
+                <property name="title" translatable="yes">Delete hydrogens tool</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">Document</property>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Control&gt;n</property>
+                <property name="title" translatable="yes">New</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;S</property>
+                <property name='title'>Save</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;&lt;Shift&gt;S</property>
+                <property name='title'>Save As</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;O</property>
+                <property name='title'>Open</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;W</property>
+                <property name='title'>Exit</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;i</property>
+                <property name='title'>Import molecule from SMILES</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;L</property>
+                <property name='title'>Import molecule</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;F</property>
+                <property name='title'>Fetch molecule</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>&lt;Control&gt;A</property>
+                <property name='title'>Apply - run dictionary generator</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">General edition</property>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Control&gt;Z</property>
+                <property name="title" translatable="yes">Undo</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Control&gt;R</property>
+                <property name="title" translatable="yes">Redo</property>
+              </object>
+            </child>
+            <child>
+              <object class='GtkShortcutsShortcut'>
+                <property name='accelerator'>F1</property>
+                <property name='title'>Show help</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
