@@ -39,6 +39,7 @@ HEADERS = \
     ligand_editor_canvas/core.hpp \
     ligand_editor_canvas/tools.hpp \
     ligand_editor_canvas.hpp \
+    layla_embedded.hpp \
 
 SOURCES = \
     ligand_builder_state.cpp \
@@ -51,6 +52,7 @@ SOURCES = \
     ligand_editor_canvas/core.cpp \
     ligand_editor_canvas/tools.cpp \
     ligand_editor_canvas.cpp \
+    layla_embedded.cpp \
     main.cpp
 
 
