@@ -5417,211 +5417,149 @@ Bond_lines_container::set_b_factor_colours(mmdb::Manager *mol) {
 int
 Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
                                   int udd_user_defined_atom_colour_index_handle,
-				  coot::my_atom_colour_map_t *atom_colour_map_p) { // atom_colour_map_in is an optional arg
+                                  coot::my_atom_colour_map_t *atom_colour_map_p) { // atom_colour_map_in is an optional arg
 
-   if (false)
-      std::cout << "in atom_colour() with at " << at
-                << " bond_colour_type " << bond_colour_type << " vs (user-defined) " << coot::COLOUR_BY_USER_DEFINED_COLOURS
-                << " vs (colour-by-atom-type) " << coot::COLOUR_BY_ATOM_TYPE
-                << std::endl;
 
-   int col = 0;
+   auto atom_colour_inner = [this] (mmdb::Atom *at, int bond_colour_type,
+                                int udd_user_defined_atom_colour_index_handle,
+                                coot::my_atom_colour_map_t *atom_colour_map_p,
+                                float b_factor_scale) {
 
-   // Does this atom have an over-riding/user-defined colour?
-   // User-defined colours trump everything.
-   int idx_col_udd;
-   if (at->GetUDData(udd_user_defined_atom_colour_index_handle, idx_col_udd) == mmdb::UDDATA_Ok) {
-      // std::cout << "in atom_colour(): for atom " << at << " using user defined colour " << idx_col_udd << std::endl;
-      return idx_col_udd;
-   }
+      if (false)
+         std::cout << "in atom_colour() with at " << at
+                   << " bond_colour_type " << bond_colour_type << " vs (user-defined) " << coot::COLOUR_BY_USER_DEFINED_COLOURS
+                   << " vs (colour-by-atom-type) " << coot::COLOUR_BY_ATOM_TYPE
+                   << std::endl;
 
-   if (bond_colour_type == coot::COLOUR_BY_MOLECULE) return col; // one colour fits all
+      int col = 0;
 
-   if (bond_colour_type == coot::COLOUR_BY_CHAIN) {
-
-      if (atom_colour_map_p) {
-	 col = atom_colour_map_p->index_for_chain(std::string(at->GetChainID()));
-	 if (false)
-	    std::cout << " atom_colour_map->index_for_chain(\"" << at->GetChainID()
-		      << "\") returns " << col << std::endl;
-      } else {
-         // std::cout << "no atom colour map" << std::endl;
+      // Does this atom have an over-riding/user-defined colour?
+      // User-defined colours trump everything.
+      int idx_col_udd;
+      if (at->GetUDData(udd_user_defined_atom_colour_index_handle, idx_col_udd) == mmdb::UDDATA_Ok) {
+         // std::cout << "in atom_colour(): for atom " << at << " using user defined colour " << idx_col_udd << std::endl;
+         return idx_col_udd;
       }
-   } else {
 
-      if (bond_colour_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
+      if (bond_colour_type == coot::COLOUR_BY_MOLECULE) return col; // one colour fits all
 
-	 if (atom_colour_map_p) {
-            std::string ch_id(std::string(at->GetChainID()));
-	    int col_idx = atom_colour_map_p->index_for_chain(ch_id);
-	    col = 2 * col_idx;
-	    std::string ele = at->element;
-	    if (ele != " C")
-	       col += 1;
-            // std::cout << "here in atom_colour(): with goodsell colours with chain-id " << ch_id
-            //           << " coL_idx " << col_idx << " col " << col << " ele " << ele << std::endl;
-	 }
+      if (bond_colour_type == coot::COLOUR_BY_CHAIN) {
 
+         if (atom_colour_map_p) {
+            col = atom_colour_map_p->index_for_chain(std::string(at->GetChainID()));
+            if (false)
+               std::cout << " atom_colour_map->index_for_chain(\"" << at->GetChainID()
+                         << "\") returns " << col << std::endl;
+         } else {
+            // std::cout << "no atom colour map" << std::endl;
+         }
       } else {
 
-         if (bond_colour_type == coot::COLOUR_BY_HYDROPHOBIC_SIDE_CHAIN) {
-            mmdb::Residue *r = at->residue;
-            if (r) {
-               std::string res_name(r->GetResName());
-               if (coot::util::is_standard_amino_acid_name(res_name)) {
-                  std::string atom_name(at->GetAtomName());
-                  if (coot::is_main_chain_p(at)) {
-                     col = 50; // or the chain indexed colour in future
-                  } else {
-                     if (coot::is_hydrophobic_atom(res_name, atom_name))
-                        col = 1;
-                     else
-                        col = 2;
+         if (bond_colour_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
+
+            if (atom_colour_map_p) {
+               std::string ch_id(std::string(at->GetChainID()));
+               int col_idx = atom_colour_map_p->index_for_chain(ch_id);
+               col = 2 * col_idx;
+               std::string ele = at->element;
+               if (ele != " C")
+                  col += 1;
+               // std::cout << "here in atom_colour(): with goodsell colours with chain-id " << ch_id
+               //           << " coL_idx " << col_idx << " col " << col << " ele " << ele << std::endl;
+            }
+
+         } else {
+
+            if (bond_colour_type == coot::COLOUR_BY_HYDROPHOBIC_SIDE_CHAIN) {
+               mmdb::Residue *r = at->residue;
+               if (r) {
+                  std::string res_name(r->GetResName());
+                  if (coot::util::is_standard_amino_acid_name(res_name)) {
+                     std::string atom_name(at->GetAtomName());
+                     if (coot::is_main_chain_p(at)) {
+                        col = 50; // or the chain indexed colour in future
+                     } else {
+                        if (coot::is_hydrophobic_atom(res_name, atom_name))
+                           col = 1;
+                        else
+                           col = 2;
+                     }
                   }
                }
             }
-         }
 
-	 if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) {
-	    int sse = at->residue->SSE;
-	    switch (sse)  {
-	    case mmdb::SSE_None:
-	       col = 0;
-	       break;
-	    case mmdb::SSE_Strand:
-	       col = 1;
-	       break;
-	    case mmdb::SSE_Bulge:
-	       col = 1;
-	       break;
-	    case mmdb::SSE_3Turn:
-	       col = 2;
-	       break;
-	    case mmdb::SSE_4Turn:
-	       col = 2;
-	       break;
-	    case mmdb::SSE_5Turn:
-	       col = 2;
-	       break;
-	    case mmdb::SSE_Helix:
-	       col = 2;
-	       break;
-	    default:
-	       col = 3;
-	    }
-	 } else {
-	    if (bond_colour_type == coot::COLOUR_BY_ATOM_TYPE) {
-	       std::string element(at->element);
+            if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) {
+               int sse = at->residue->SSE;
+               switch (sse)  {
+               case mmdb::SSE_None:
+                  col = 0;
+                  break;
+               case mmdb::SSE_Strand:
+                  col = 1;
+                  break;
+               case mmdb::SSE_Bulge:
+                  col = 1;
+                  break;
+               case mmdb::SSE_3Turn:
+                  col = 2;
+                  break;
+               case mmdb::SSE_4Turn:
+                  col = 2;
+                  break;
+               case mmdb::SSE_5Turn:
+                  col = 2;
+                  break;
+               case mmdb::SSE_Helix:
+                  col = 2;
+                  break;
+               default:
+                  col = 3;
+               }
+            } else {
+               if (bond_colour_type == coot::COLOUR_BY_ATOM_TYPE) {
+                  std::string element(at->element);
 
-	       if (element == " C") {
-		  return CARBON_BOND;
-	       } else {
-		  if (element == " N") {
-		     return BLUE_BOND;
-		  } else {
-		     if (element == " O") {
-			return RED_BOND;
-		     } else {
-			if (element == " S") {
-			   return YELLOW_BOND;
-			} else {
-			   if (is_hydrogen(element)) {
-                              if (is_deuterium(element))
-                                 return DEUTERIUM_PINK;
-                              else
-                                 return HYDROGEN_GREY_BOND;
-			   } else {
-			      if (element == " P") {
-				 return ORANGE_BOND;
-			      } else {
-				 if (element == " F") {
-				    return GREEN_BOND;
-				 } else {
-				    if (element == "CL" || element == "Cl") {
-				       return GREEN_BOND;
-				    } else {
-				       if (element == "BR") {
-					  return DARK_BROWN_BOND;
-				       } else {
-					  if (element == " I") {
-					     return DARK_VIOLET;
-					  } else {
-                                             if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
-						return DARK_GREEN_BOND;
-					     } else {
-						if (element == "FE") {
-						   return DARK_ORANGE_BOND;
-						} else {
-                                                   if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
-                                                      return VIOLET;
-                                                   }
-                                                }
-					     }
-					  }
-				       }
-				    }
-				 }
-			      }
-			   }
-			}
-		     }
-		  }
-	       }
-	       return GREY_BOND;
-	    } else {
-
-	       if (bond_colour_type == coot::COLOUR_BY_CHAIN_C_ONLY) {
-		  std::string element(at->element);
-
-		  if (element == " C") {   // PDBv3 FIXME (and below)
-		     if (atom_colour_map_p) {
-			int l_col = atom_colour_map_p->index_for_chain(std::string(at->GetChainID()));
-			return l_col;
-		     } else {
-                        if (false)
-                           std::cout << "ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode"
-                                     << std::endl;
-			return col;
-		     }
-		  } else {
-		     if (element == " N") {
-			return BLUE_BOND;
-		     } else {
-			if (element == " O") {
-			   return RED_BOND;
-			} else {
-			   if (element == " S") {
-			      return YELLOW_BOND;
-			   } else {
-			      if (element == " P") {
-				 return ORANGE_BOND;
-			      } else {
-				 if (is_hydrogen(element)) {
-                                    if (is_deuterium(element))
-                                       return DEUTERIUM_PINK;
-                                    else
-                                       return HYDROGEN_GREY_BOND;
+                  if (element == " C") {
+                     col = CARBON_BOND;
+                  } else {
+                     if (element == " N") {
+                        col = BLUE_BOND;
+                     } else {
+                        if (element == " O") {
+                           col = RED_BOND;
+                        } else {
+                           if (element == " S") {
+                              col = YELLOW_BOND;
+                           } else {
+                              if (this->is_hydrogen(element)) {
+                                 if (this->is_deuterium(element))
+                                    col = DEUTERIUM_PINK;
+                                 else
+                                    col = HYDROGEN_GREY_BOND;
+                              } else {
+                                 if (element == " P") {
+                                    col = ORANGE_BOND;
                                  } else {
                                     if (element == " F") {
-                                       return GREEN_BOND;
+                                       col = GREEN_BOND;
                                     } else {
                                        if (element == "CL" || element == "Cl") {
-                                          return GREEN_BOND;
+                                          col = GREEN_BOND;
                                        } else {
                                           if (element == "BR") {
-                                             return DARK_BROWN_BOND;
+                                             col = DARK_BROWN_BOND;
                                           } else {
                                              if (element == " I") {
-                                                return DARK_VIOLET;
+                                                col = DARK_VIOLET;
                                              } else {
                                                 if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
-                                                   return DARK_GREEN_BOND;
+                                                   col = DARK_GREEN_BOND;
                                                 } else {
                                                    if (element == "FE") {
-                                                      return DARK_ORANGE_BOND;
+                                                      col = DARK_ORANGE_BOND;
                                                    } else {
                                                       if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
-                                                         return VIOLET;
+                                                         col = VIOLET;
                                                       }
                                                    }
                                                 }
@@ -5634,107 +5572,179 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
                            }
                         }
                      }
-		  }
-		  return GREY_BOND;
+                  }
+                  col = GREY_BOND;
+               } else {
 
-	       } else {
+                  if (bond_colour_type == coot::COLOUR_BY_CHAIN_C_ONLY) {
+                     std::string element(at->element);
 
-		  if (bond_colour_type == coot::DISULFIDE_COLOUR) {
-		     return YELLOW_BOND;
-		  } else {
-		     if (bond_colour_type == coot::COLOUR_BY_OCCUPANCY) {
-			if (at->occupancy > 0.95) {
-			   return BLUE_BOND;
-			} else {
-			   if (at->occupancy < 0.05) {
-			      return RED_BOND;
-			   } else {
-			      if (at->occupancy > 0.7) {
-				 return CYAN_BOND;
-			      } else {
-				 if (at->occupancy > 0.45) {
-				    return GREEN_BOND;
-				 } else {
-				    if (at->occupancy > 0.25) {
-				       return YELLOW_BOND;
-				    } else {
-				       return ORANGE_BOND;
-				    }
-				 }
-			      }
-			   }
-			}
-		     } else {
-			if (bond_colour_type == coot::COLOUR_BY_B_FACTOR) {
-                           // B-factors by atom are done this way.
-                           float scaled_b = at->tempFactor * b_factor_scale;
-                           float max_b = 62.0;
-                           if (scaled_b < 10.0) {
-                              return BLUE_BOND;
+                     if (element == " C") {   // PDBv3 FIXME (and below)
+                        if (atom_colour_map_p) {
+                           int l_col = atom_colour_map_p->index_for_chain(std::string(at->GetChainID()));
+                           return l_col;
+                        } else {
+                           if (false)
+                              std::cout << "ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode"
+                                        << std::endl;
+                           return col;
+                        }
+                     } else {
+                        if (element == " N") {
+                           col = BLUE_BOND;
+                        } else {
+                           if (element == " O") {
+                              col = RED_BOND;
                            } else {
-                              if (scaled_b > max_b) {
-                                 return RED_BOND;
+                              if (element == " S") {
+                                 col = YELLOW_BOND;
                               } else {
-                                 if (scaled_b < 22.0) {
-                                    return CYAN_BOND;
+                                 if (element == " P") {
+                                    col = ORANGE_BOND;
                                  } else {
-                                    if (scaled_b < 36.0) {
-                                       return GREEN_BOND;
+                                    if (this->is_hydrogen(element)) {
+                                       if (this->is_deuterium(element))
+                                          col = DEUTERIUM_PINK;
+                                       else
+                                          col = HYDROGEN_GREY_BOND;
                                     } else {
-                                       if (scaled_b < 48.0) {
-                                          return YELLOW_BOND;
+                                       if (element == " F") {
+                                          col = GREEN_BOND;
                                        } else {
-                                          if (scaled_b <= max_b) {
-                                             return ORANGE_BOND;
+                                          if (element == "CL" || element == "Cl") {
+                                             col = GREEN_BOND;
+                                          } else {
+                                             if (element == "BR") {
+                                                col = DARK_BROWN_BOND;
+                                             } else {
+                                                if (element == " I") {
+                                                   col = DARK_VIOLET;
+                                                } else {
+                                                   if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
+                                                      col = DARK_GREEN_BOND;
+                                                   } else {
+                                                      if (element == "FE") {
+                                                         col = DARK_ORANGE_BOND;
+                                                      } else {
+                                                         if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
+                                                            col = VIOLET;
+                                                         }
+                                                      }
+                                                   }
+                                                }
+                                             }
                                           }
                                        }
                                     }
                                  }
                               }
                            }
-                           
-			} else {
-			   if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
-			      col = 20; // elsewhere
-			   } else {
-			      if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS) {
-				 // up and down again...
-				 mmdb::Model *model_p = at->GetModel();
-				 if (model_p) {
-				    mmdb::Manager *mol = model_p->GetCoordHierarchy();
-				    if (mol) {
-				       int udd_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
-				       int ic;
-				       if (at->GetUDData(udd_handle, ic) == mmdb::UDDATA_Ok) {
-					  col = ic;
-				       } else {
-                                          if (false)
-                                             std::cout << "DEBUG:: failed to get udd for udd_handle " << udd_handle
-                                                       << " for user-defined-atom-colour-index" << std::endl;
-					  col = 20;
-				       }
-				    } else {
-				       col = 20; // :-)
-				    }
-				 } else {
-				    // disaster!
-				    col = 20; // (haha)
-				 }
-			      } else {
-				 col = 20;
-			      }
-			   }
-			}
-		     }
-		  }
-	       }
-	    }
-	 }
-      }
-   }
+                        }
+                     }
+                     col = GREY_BOND;
 
-   // std::cout << "        atom_colour() returning col " << col << std::endl;
+                  } else {
+
+                     if (bond_colour_type == coot::DISULFIDE_COLOUR) {
+                        col = YELLOW_BOND;
+                     } else {
+                        if (bond_colour_type == coot::COLOUR_BY_OCCUPANCY) {
+                           if (at->occupancy > 0.95) {
+                              col = BLUE_BOND;
+                           } else {
+                              if (at->occupancy < 0.05) {
+                                 col = RED_BOND;
+                              } else {
+                                 if (at->occupancy > 0.7) {
+                                    col = CYAN_BOND;
+                                 } else {
+                                    if (at->occupancy > 0.45) {
+                                       col = GREEN_BOND;
+                                    } else {
+                                       if (at->occupancy > 0.25) {
+                                          col = YELLOW_BOND;
+                                       } else {
+                                          col = ORANGE_BOND;
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        } else {
+                           if (bond_colour_type == coot::COLOUR_BY_B_FACTOR) {
+                              // B-factors by atom are done this way.
+                              float scaled_b = at->tempFactor * b_factor_scale;
+                              float max_b = 62.0;
+                              if (scaled_b < 10.0) {
+                                 col = BLUE_BOND;
+                              } else {
+                                 if (scaled_b > max_b) {
+                                    col = RED_BOND;
+                                 } else {
+                                    if (scaled_b < 22.0) {
+                                       col = CYAN_BOND;
+                                    } else {
+                                       if (scaled_b < 36.0) {
+                                          col = GREEN_BOND;
+                                       } else {
+                                          if (scaled_b < 48.0) {
+                                             col = YELLOW_BOND;
+                                          } else {
+                                             if (scaled_b <= max_b) {
+                                                col = ORANGE_BOND;
+                                             }
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                           
+                           } else {
+                              if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
+                                 col = 20; // elsewhere
+                              } else {
+                                 if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS) {
+                                    // up and down again...
+                                    mmdb::Model *model_p = at->GetModel();
+                                    if (model_p) {
+                                       mmdb::Manager *mol = model_p->GetCoordHierarchy();
+                                       if (mol) {
+                                          int udd_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+                                          int ic;
+                                          if (at->GetUDData(udd_handle, ic) == mmdb::UDDATA_Ok) {
+                                             col = ic;
+                                          } else {
+                                             if (false)
+                                                std::cout << "DEBUG:: failed to get udd for udd_handle " << udd_handle
+                                                          << " for user-defined-atom-colour-index" << std::endl;
+                                             col = 20;
+                                          }
+                                       } else {
+                                          col = 20; // :-)
+                                       }
+                                    } else {
+                                       // disaster!
+                                       col = 20; // (haha)
+                                    }
+                                 } else {
+                                    col = 20;
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return col;
+   };
+
+   int col = atom_colour_inner(at, bond_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p, b_factor_scale);
+   // std::cout << "        atom_colour() for atom " << coot::atom_spec_t(at) << " returning col " << col << std::endl;
    return col;
+
 }
 
 // This gets called by ca_plus_ligands_rainbow_representation()
