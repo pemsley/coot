@@ -23,12 +23,20 @@
 #define LIGAND_BUILDER_GENERATORS_HPP
 #include <string>
 #include <optional>
+#include <variant>
 #include <vector>
 #include <gio/gio.h>
 #include "ligand_builder_notifier.hpp"
 
 namespace coot::ligand_editor {
 
+struct AcedrgOptions {
+
+};
+
+struct Grade2Options {
+
+};
 
 struct GeneratorRequest {
     enum class InputFormat: unsigned char {
@@ -43,6 +51,7 @@ struct GeneratorRequest {
     std::string monomer_id;
     std::string molecule_smiles;
     std::optional<std::string> executable_path;
+    std::variant<Grade2Options, AcedrgOptions> options_settings;
 
     std::string get_filename() const;
     std::vector<std::string> build_commandline() const;
