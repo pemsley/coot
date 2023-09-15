@@ -133,7 +133,8 @@ get_atom_selection(std::string pdb_name,
       return mol;
    };
 
-   std::cout << "get_atom_selection() with file \"" << pdb_name << "\"" << std::endl;
+   if (false) // too noisy
+      std::cout << "get_atom_selection() with file \"" << pdb_name << "\"" << std::endl;
 
    mmdb::ERROR_CODE err;
    mmdb::Manager* MMDBManager;
