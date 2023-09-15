@@ -538,7 +538,7 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
 
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
 
-      print_colour_table("from get_bonds_mesh_for_selection_instanced()");
+      // print_colour_table("from get_bonds_mesh_for_selection_instanced()");
 
       auto gbc = bonds.make_graphical_bonds();
 
