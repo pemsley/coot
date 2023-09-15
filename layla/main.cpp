@@ -43,21 +43,20 @@ int main(int argc, char** argv) {
     python_init_thread.detach();
 
     gtk_init();
-    
+
     GtkApplication* app = gtk_application_new("org.pemsley.Layla", G_APPLICATION_DEFAULT_FLAGS);
     GError *error = NULL;
     g_application_register(G_APPLICATION(app), NULL, &error);
 
     g_signal_connect(app, "activate", G_CALLBACK(+[](GtkApplication* app, gpointer user_data) {
 
-        // todo: Make this not use a relative path:
         std::string dir = coot::package_data_dir();
         // all ui files should live here:
         std::string dir_ui = coot::util::append_dir_dir(dir, "ui");
         std::string ui_file_name = "layla.ui";
         std::string ui_file_full = coot::util::append_dir_file(dir_ui, ui_file_name);
-        if (coot::file_exists(ui_file_name))
-            ui_file_full = ui_file_name;
+        // allow local override
+        if (coot::file_exists(ui_file_name)) ui_file_full = ui_file_name;
         GError* error = NULL;
         GtkBuilder* builder = gtk_builder_new();
         gboolean status = gtk_builder_add_from_file(builder, ui_file_full.c_str(), &error);
@@ -71,7 +70,8 @@ int main(int argc, char** argv) {
 
         // for now
         auto* icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(GTK_WIDGET(win)));
-        gtk_icon_theme_add_search_path(icon_theme, "icons");
+        std::string full_path_for_icons = coot::util::append_dir_dir(dir, "icons");
+        gtk_icon_theme_add_search_path(icon_theme, full_path_for_icons.c_str());
 
         coot::ligand_editor::global_layla_gtk_builder = builder;
         coot::ligand_editor::global_generator_request_task_cancellable = nullptr;
