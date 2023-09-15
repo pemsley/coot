@@ -46,7 +46,7 @@ else
         lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords \
 	density-contour skeleton high-res build MoleculesToTriangles pli buccaneer_ml_growing greg-tests \
 	python-tests cootilus fonts pyrogen data \
-	man rama-data doc glTF pixmaps textures sounds api validation-graphs src
+	man rama-data doc glTF pixmaps textures sounds api layla validation-graphs src
 endif
 endif
 
