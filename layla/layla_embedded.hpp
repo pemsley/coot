@@ -21,5 +21,10 @@
 
 #ifndef LAYLA_EMBEDDED_HPP
 #define LAYLA_EMBEDDED_HPP
+#include "ligand_builder_state.hpp"
+#include <rdkit/GraphMol/GraphMol.h>
+
+void launch_layla();
+void launch_layla(std::unique_ptr<RDKit::RWMol>&& mol);
 
 #endif // LIGAND_BUILDER_GENERATORS_HPP

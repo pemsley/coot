@@ -20,3 +20,11 @@
  */
 
 #include "layla_embedded.hpp"
+
+void launch_layla() {
+
+}
+
+void launch_layla(std::unique_ptr<RDKit::RWMol>&& mol) {
+
+}
