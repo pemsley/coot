@@ -1452,7 +1452,7 @@ Paul Emsley</property>
         <child>
           <object class="GtkExpander">
             <property name="vexpand">true</property>
-            <property name="label">Stdout of child process</property>
+            <property name="label">Output of dictionary generator</property>
             <child>
               <object class="GtkScrolledWindow">
                 <property name="vexpand">true</property>
