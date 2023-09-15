@@ -5686,6 +5686,19 @@ def add_module_ligand_gui():
             coot.handle_read_draw_probe_dots_unformatted(probe_dots_file_name, aa_imol, 0)
             coot.graphics_draw()
 
+    def make_link_ext_func(*args):
+        # not used yet - see comment below
+        m_spec_1 = args[0]
+        m_spec_2 = args[1]
+        imol_1 = coot_utils.atom_spec_to_imol(m_spec_1)
+        imol_2 = coot_utils.atom_spec_to_imol(m_spec_2)
+        spec_1 = m_spec_1[2:]
+        spec_2 = m_spec_2[2:]
+        if not (imol_1 == imol_2):
+            print("Mismatch molecules")
+        else:
+            coot.make_link_py(imol_1, spec_1, spec_2, "dummy", 0.1)
+
     if coot_gui_api.main_menumodel():
         menu = attach_module_menu_button("Ligand")
         add_simple_action_to_menu(menu, "Find Ligands", "find_ligands", lambda _one, _two: coot.do_find_ligands_dialog())
@@ -5697,6 +5710,9 @@ def add_module_ligand_gui():
         add_simple_action_to_menu(menu, "Display Ligand Distortions", "display_ligand_distortions", lambda _one, _two: display_ligand_distortions_func())
         add_simple_action_to_menu(menu, "Quick Ligand Validate", "quick_ligand_validate", lambda _one, _two: coot_ligand_check.gui_ligand_check_dialog_active_residue())
         add_simple_action_to_menu(menu, "Isolated Molprobity Dots for ligand", "isolated_molprobity_dots_for_ligand", lambda _one, _two: probe_ligand_func())
+        # 20230915-PE this is commented out for now because although user_defined_click_py() runs as before, the no longer a check for
+        # in_user_defined_define reaching zero and then running the specified function. There should be of course.
+        # add_simple_action_to_menu(menu, "Add Link to Header...", "make_link_trivia", lambda _one, _two: coot.user_defined_click_py(2, make_link_ext_func))
 
 def add_module_pdbe_gui():
    if coot_gui_api.main_menumodel():
