@@ -51,7 +51,7 @@ struct GeneratorRequest {
     std::string monomer_id;
     std::string molecule_smiles;
     std::optional<std::string> executable_path;
-    std::variant<Grade2Options, AcedrgOptions> options_settings;
+    std::variant<Grade2Options, AcedrgOptions> generator_settings;
 
     std::string get_filename() const;
     std::vector<std::string> build_commandline() const;
