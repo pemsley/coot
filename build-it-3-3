@@ -2833,7 +2833,8 @@ if [ "$build_glib" = true ] ; then
     echo meson --version
     meson --version
     glib_version=2.64.3
-    glib_version=2.72.3
+    glib_version=2.72.3 # doesn't have g_idle_add_once, it seems.
+    glib_version=2.74.4
     echo the following is the result of: /bin/pkg-config --modversion libffi
     /bin/pkg-config --modversion libffi
 
