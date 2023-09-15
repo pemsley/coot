@@ -397,6 +397,8 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
       }
 
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
+
+      // print_colour_table("from get_bonds_mesh_instanced()");
       if (colour_table.empty()) {
          std::cout << "ERROR:: you need to make the bonds before getting the bonds mesh" << std::endl;
       }
@@ -535,6 +537,8 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
                                      draw_missing_residue_loops, change_c_only_flag, goodsell_mode, do_rota_markup);
 
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
+
+      print_colour_table("from get_bonds_mesh_for_selection_instanced()");
 
       auto gbc = bonds.make_graphical_bonds();
 

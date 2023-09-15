@@ -3230,19 +3230,20 @@ int test_other_user_define_colours_other(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
 
    if (mc.is_valid_model_molecule(imol)) {
       coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
          std::map<unsigned int, std::array<float, 3> > colour_index_map;
-         colour_index_map[51] = {0.7, 0.7, 0};
-
+         colour_index_map[21] = {1.11111111, 1.111111, 0};
          std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
          mc.set_user_defined_bond_colours(imol, colour_index_map);
          std::vector<std::pair<std::string, unsigned int> > indexed_cids;
-         indexed_cids.push_back(std::make_pair("/", 51));
+         indexed_cids.push_back(std::make_pair("//A/1-5", 21));
+         bool non_carbon_atoms_also_flag = false;
+         mc.set_user_defined_atom_colour_by_selection(imol, indexed_cids, non_carbon_atoms_also_flag);
          auto bonds_1 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
          auto bonds_2 = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
          auto bonds_3 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
@@ -3253,15 +3254,15 @@ int test_other_user_define_colours_other(molecules_container_t &mc) {
          auto &vb_3 = geom_3[1].instancing_data_B;
 
          for (unsigned int i=0; i<vb_1.size(); i++) {
-             if (i > 0) continue;
+             if (i > 10) continue;
              auto col = vb_1[i].colour;
              std::cout << "instancing colour_1: " << i << " " << glm::to_string(col) << "\n";
          }
 
          for (unsigned int i=0; i<vb_3.size(); i++) {
-             if (i > 0) continue;
-             auto col = vb_3[i].colour;
-             std::cout << "instancing colour_3: " << i << " " << glm::to_string(col) << "\n";
+            // if (i > 10) continue;
+            auto col = vb_3[i].colour;
+            std::cout << "instancing colour_3: " << i << " " << glm::to_string(col) << "\n";
          }
       }
    }

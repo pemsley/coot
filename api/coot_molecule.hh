@@ -497,6 +497,9 @@ namespace coot {
       //! useful for debugging, perhaps
       std::vector<glm::vec4> make_colour_table(bool against_a_dark_background) const;
 
+      // for debugging
+      void print_colour_table(const std::string &debugging_label) const;
+
       // returns either the specified atom or null if not found
       mmdb::Atom *get_atom(const atom_spec_t &atom_spec) const;
       // returns either the specified residue or null if not found

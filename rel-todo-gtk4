@@ -14,7 +14,9 @@
 
 Layla: make python setup be available for Coot and Layla - put it in its own directory. So that layla is not linked with src files.
 
+Rob's problematic links
 
+Where is Make Link? ::: 0.5
 
 Pyrogen needs to work ::: 2
 
@@ -26,8 +28,6 @@ Don't confuse the scaling of the framebuffer for screenshot (in "Plain" mode) an
 the scaling of the framebuffers for super-sampling (in "Fancy" mode).
 OK, so the framebuffer scaling works in simple mode.
 Make it work in "fancy" mode and I will call it done.
-
-Where is Make Link? ::: 0.5
 
 Missing Bernie cherries
 
