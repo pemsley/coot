@@ -65,8 +65,8 @@ int main(int argc, char** argv) {
             std::cout << error->message << std::endl;
             exit(0);
         }
-        
-        auto *win = coot::ligand_editor::setup_main_window(app,builder);
+
+        auto *win = coot::ligand_editor::setup_main_window(app, builder);
 
         // for now
         auto* icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(GTK_WIDGET(win)));
