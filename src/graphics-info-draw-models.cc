@@ -214,7 +214,7 @@ graphics_info_t::draw_Models_for_shadow_map(unsigned int light_index) {
 void
 graphics_info_t::draw_molecules_for_shadow_map(unsigned int light_index) {
 
-   std::cout << "draw_molecules_for_shadow_map() " << std::endl;
+   // std::cout << "draw_molecules_for_shadow_map() " << std::endl;
 
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: draw_molecules_for_shadow_map() -- start -- " << err << std::endl;
