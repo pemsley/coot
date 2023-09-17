@@ -96,7 +96,7 @@ void setup_actions(coot::ligand_editor::LigandBuilderState* state, GtkApplicatio
     using coot::ligand_editor_canvas::DisplayMode;
     GVariant* display_mode_action_defstate = g_variant_new("s",coot::ligand_editor_canvas::display_mode_to_string(DisplayMode::Standard));
     new_stateful_action(
-        "switch_display_mode", 
+        "switch_display_mode",
         G_VARIANT_TYPE_STRING,
         display_mode_action_defstate, 
         G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){

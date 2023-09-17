@@ -1436,6 +1436,25 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
    return colour_table;
 }
 
+void
+coot::molecule_t::print_colour_table(const std::string &l) const {
+
+   std::cout << "----------- Here is the user-defined colour table: " << l << " -------" << std::endl;
+   std::map<unsigned int, colour_holder>::const_iterator it_bc;
+   for (it_bc=user_defined_bond_colours.begin(); it_bc!=user_defined_bond_colours.end(); ++it_bc) {
+      std::cout << "   " << it_bc->first << " " << it_bc->second << std::endl;
+   }
+
+   bool against_a_dark_background = false;
+   std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
+   std::cout << "----------- Here is the colour table: " << l << " -------" << std::endl;
+   for (unsigned int i=0; i<colour_table.size(); i++) {
+      std::cout << "    " << i << " " << glm::to_string(colour_table[i]) << std::endl;
+   }
+
+}
+
+
 coot::simple_mesh_t
 coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom,
                                  bool against_a_dark_background,

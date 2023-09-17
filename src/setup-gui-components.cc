@@ -171,9 +171,6 @@ void attach_css_style_class_to_overlays() {
 void
 add_python_scripting_entry_completion(GtkWidget *entry) {
 
-   std::cout << "**************************************************************************** add_python_scripting_entry_completion"
-             << std::endl;
-
    // call this *after* python has been setup!
 
    graphics_info_t g; // for history

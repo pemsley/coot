@@ -2165,6 +2165,8 @@ SCM molecule_atom_overlaps_scm(int imol);
 /* ------------------------------------------------------------------------- */
 /*                      prodrg import function                               */
 /* ------------------------------------------------------------------------- */
+
+// 20230916-PE Kill this
 //
 //! \brief import given mdl file into prodrg or other 3d generation program
 //!
@@ -2179,6 +2181,8 @@ void prodrg_import_function(std::string file_name, std::string comp_id);
 /* ------------------------------------------------------------------------- */
 /*                       SBase import function                               */
 /* ------------------------------------------------------------------------- */
+
+// 20230916-PE Kill this
 //
 //! \brief import molecule from CCP4 SRS (or SBase, as it used to be called).
 //!
@@ -2187,6 +2191,8 @@ void prodrg_import_function(std::string file_name, std::string comp_id);
 //! function waiting for prodrg-in.mdl to be updated/written.
 //
 void sbase_import_function(std::string comp_id);
+
+void layla();
 
 /* ------------------------------------------------------------------------- */
 /*                       Alignment functions (now C++)                       */

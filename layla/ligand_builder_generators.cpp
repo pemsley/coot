@@ -107,6 +107,7 @@ std::string coot::ligand_editor::GeneratorRequest::get_filename() const {
 }
 
 std::vector<std::string> coot::ligand_editor::GeneratorRequest::build_commandline() const {
+
     std::vector<std::string> ret;
     ret.push_back(this->executable_path.value());
     auto input_filename = this->get_filename();
@@ -135,6 +136,10 @@ std::vector<std::string> coot::ligand_editor::GeneratorRequest::build_commandlin
                 }
                 default:
                 case InputFormat::SMILES: {
+                    // 20230916-PE "-p" and "-z" should be conditionally added, but
+                    // let's just shove them in for now, while we are testing
+                    ret.push_back("-p");
+                    ret.push_back("-z");
                     ret.push_back("-i");
                     ret.push_back(input_filename);
                     break;
@@ -238,6 +243,7 @@ void launch_generator_finish(GObject* subprocess_object, GAsyncResult* res, gpoi
 void pipe_reader(gpointer user_data);
 
 void launch_generator_async(GTask* task) {
+
     GCancellable* cancellable = g_task_get_cancellable(task);
     GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
     GSubprocessLauncher* launcher = g_subprocess_launcher_new(G_SUBPROCESS_FLAGS_STDOUT_PIPE);

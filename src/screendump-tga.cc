@@ -52,8 +52,10 @@ void screendump_tga_internal(std::string tga_file,
    display_info_t di;
    di.attach_buffers();
 #else
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+   graphics_info_t g;
+   g.attach_buffers();
 #endif
+
    err = glGetError();
    if (err) std::cout << "error:: screendump_tga_internal() post-attach " << err << std::endl;
 

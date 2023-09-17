@@ -4445,7 +4445,6 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
       } else {
 
-         // simple/direct - for debugging framebuffers
          gtk_gl_area_attach_buffers(gl_area);
          render_3d_scene(gl_area);
          draw_hud_elements();
@@ -4771,8 +4770,6 @@ graphics_info_t::get_particle_centre_positions() {
 
 void
 graphics_info_t::setup_draw_for_particles() {
-
-   std::cout << "------------------ setup_draw_for_particles()!!!!!!!!!!!!!!!!! ---------" << std::endl;
 
    if (false) // from the days when particle drawing was a problem!
       std::cout << "setup_draw_for_particles(): -- start -- n_particles " << particles.size()

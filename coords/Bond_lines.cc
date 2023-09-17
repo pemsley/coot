@@ -5417,7 +5417,7 @@ Bond_lines_container::set_b_factor_colours(mmdb::Manager *mol) {
 int
 Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
                                   int udd_user_defined_atom_colour_index_handle,
-				  coot::my_atom_colour_map_t *atom_colour_map_p) { // atom_colour_map_in is an optional arg
+                                  coot::my_atom_colour_map_t *atom_colour_map_p) { // atom_colour_map_in is an optional arg
 
    if (false)
       std::cout << "in atom_colour() with at " << at
@@ -5735,6 +5735,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 
    // std::cout << "        atom_colour() returning col " << col << std::endl;
    return col;
+
 }
 
 // This gets called by ca_plus_ligands_rainbow_representation()

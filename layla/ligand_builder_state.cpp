@@ -19,6 +19,7 @@
  * 02110-1301, USA
  */
 
+#include "Python.h"
 #include "ligand_builder_state.hpp"
 #include "geometry/protein-geometry.hh"
 #include "ligand_editor_canvas.hpp"
@@ -319,6 +320,84 @@ void LigandBuilderState::run_choose_element_dialog() {
     gtk_window_present(GTK_WINDOW(choose_element_dialog));
 }
 
+PyObject *layla_PyString_FromString(const char *str) {
+
+   PyObject *r = PyUnicode_FromString(str);
+   return r;
+}
+
+PyObject *layla_safe_python_command_with_return(const std::string &python_cmd) {
+
+   std::cout << "--------------- start layla_safe_python_command_with_return(): " << python_cmd << std::endl;
+
+   // 20220330-PE I think that this is super ricketty now!
+   // Does it only find things in dynamic_atom_overlaps_and_other_outliers module?
+   // this function was empty before today, returning NULL.
+
+   // std::cout << "in safe_python_command_with_return() A " << python_cmd << std::endl;
+
+   // command = "import coot; " + python_cmd;
+   std::string command = python_cmd;
+
+   PyObject* result = nullptr;
+   PyObject *am = PyImport_AddModule("__main__");
+
+   if (am) {
+      PyObject* d = PyModule_GetDict(am);
+
+      const char *modulename = "coot";
+      PyObject *pName = layla_PyString_FromString(modulename);
+      PyObject *pModule_coot = PyImport_Import(pName);
+
+      std::cout << "running command: " << command << std::endl;
+      PyObject* source_code = Py_CompileString(command.c_str(), "adhoc", Py_eval_input);
+      PyObject* func = PyFunction_New(source_code, d);
+      result = PyObject_CallObject(func, PyTuple_New(0));
+      std::cout << "--------------- in safe_python_command_with_return() result at: " << result << std::endl;
+      if (result) {
+         if(!PyUnicode_Check(result)) {
+             std::cout << "--------------- in safe_python_command_with_return() result is probably not a string." << std::endl;
+         }
+      }
+      else {
+         std::cout << "--------------- in safe_python_command_with_return() result was null" << std::endl;
+         if(PyErr_Occurred()) {
+            std::cout << "--------------- in safe_python_command_with_return() Printing Python exception:" << std::endl;
+            PyErr_Print();
+         }
+      }
+
+      // debugging
+      // PyRun_String("import coot; print(dir(coot))", Py_file_input, d, d);
+      Py_XDECREF(func);
+      Py_XDECREF(source_code);
+   } else {
+      std::cout << "ERROR:: Hopeless failure: module for __main__ is null" << std::endl;
+   }
+   // 20230605-PE frustratingly this is returning None when I hope/expect it to be True.
+   std::cout << "--------------- done safe_python_command_with_return() " << python_cmd << std::endl;
+   return result;
+}
+
+#include "utils/coot-utils.hh"
+std::string
+get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname) {
+
+   std::string s;
+   std::string command = "coot_utils.fetch_drug_via_wikipedia(";
+   command += coot::util::single_quote(drugname);
+   command += ")";
+   PyObject *r = layla_safe_python_command_with_return(command);
+   if(!r) {
+      std::cout<<"fixme: Call to Python get_drug_via_wikipedia('"<<drugname<<"') returned a null pointer.\n";
+      return s;
+   }
+   if (PyUnicode_Check(r))
+     s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(r));
+   Py_XDECREF(r);
+   return s;
+}
+
 void LigandBuilderState::file_fetch_molecule() {
     GtkWidget *load_dialog = gtk_dialog_new();
     gtk_window_set_transient_for(GTK_WINDOW(load_dialog), this->main_window);
@@ -600,7 +679,8 @@ void LigandBuilderState::file_export(ExportMode mode) {
                     break;
                 }
                 case ExportMode::PNG: {
-                    target = cairo_image_surface_create(CAIRO_FORMAT_RGBA128F, width, height);
+                    // target = cairo_image_surface_create(CAIRO_FORMAT_RGBA128F, width, height);
+                    target = cairo_image_surface_create(CAIRO_FORMAT_RGB24, width, height);
                     draw();
                     if(!ends_with(path, ".png")) {
                         path += ".png";

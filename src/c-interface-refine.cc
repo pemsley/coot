@@ -1216,6 +1216,9 @@ delete_all_extra_restraints(int imol) {
    // c.f. clear_extra_restraints()
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].clear_extra_restraints();
+      graphics_info_t g;
+      g.extra_distance_restraints_markup_data.clear();
+      g.mesh_for_extra_distance_restraints.update_instancing_buffer_data_for_extra_distance_restraints(g.extra_distance_restraints_markup_data);
    }
    graphics_draw();
 }
