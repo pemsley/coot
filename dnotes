@@ -10999,14 +10999,12 @@ Sun 11 Jun 01:10:48 BST 2023
 ---
 Tue 13 Jun 08:31:31 BST 2023
 
-
-https://www.youtube.com/watch?v=w9KBxifGYiU&lc=Ugxa4aNqAg4qQmk84HF4AaABAg.9jUk4yP3ACt9qt6p-8ILY7
- Create Mesh with Code: ArrayMesh Basics
+  Godot:
+  Create Mesh with Code: ArrayMesh Basics
+  https://www.youtube.com/watch?v=w9KBxifGYiU
 
 ----
 Sun 18 Jun 11:18:37 BST 2023
-
-I don't need this in rel-todo-gtk4:
 
 ## --- Widgets that have changed in GTK ---
 
@@ -11053,9 +11051,8 @@ https://stackoverflow.com/questions/33991581/install-name-tool-to-update-a-execu
 Sat 26 Aug 15:38:09 BST 2023
 
   For the old morphing method:
-  Here is how to handle the averaging of the fragment rotations.
+  Here is how to (better?) handle the averaging of the fragment rotations.
   https://stackoverflow.com/questions/12374087/average-of-multiple-quaternions
-
 
 
 ---
@@ -11064,3 +11061,19 @@ Wed 13 Sep 23:08:19 BST 2023
    Godot and steam deck
 
    https://www.kodeco.com/41495624-targeting-the-steam-deck-with-godot
+
+---
+Sat 16 Sep 22:08:13 BST 2023
+
+   ChimeraX Ambient Occlusion notes from 9 years ago
+   https://www.cgl.ucsf.edu/chimera/data/ambient-jul2014/ambient.html
+   Mentions 3D textures.
+
+
+---
+Sun 17 Sep 00:43:45 BST 2023
+
+   6zhp is a good example for model specularity (failure) when shadows are on.
+
+
+
