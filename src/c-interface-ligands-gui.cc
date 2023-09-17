@@ -69,6 +69,7 @@
 #include "widget-from-builder.hh"
 
 #include "guile-fixups.h"
+#include "layla-interface.hh"
 
 void clear_out_container(GtkWidget *vbox);  // in c-interface.cc
 
@@ -711,38 +712,7 @@ start_ligand_builder_gui_internal() {
 void
 start_ligand_builder_gui() {
 
-   if (graphics_info_t::use_graphics_interface_flag) {
-
-#ifdef HAVE_GOOCANVAS
-      lig_build::molfile_molecule_t mm;
-      mmdb::Manager *mol = NULL;
-      std::string molecule_file_name = "coot-lidia.mol"; // non-null file name passed to lbg, used
-      // in save function
-      std::string view_name;
-      std::pair<bool, coot::residue_spec_t> dummy_pair(0, coot::residue_spec_t());
-      bool use_graphics_interface_flag = 1;
-      bool stand_alone_flag = 0;
-      int imol_dummy = -1;
-
-      int (*get_url_func_pointer) (const char *s1, const char *s2) = NULL;
-#ifdef USE_LIBCURL
-      get_url_func_pointer= coot_get_url;
-#endif
-
-      lbg(mm, dummy_pair, mol, view_name, molecule_file_name, imol_dummy,
-	  graphics_info_t::Geom_p(),
-	  use_graphics_interface_flag, stand_alone_flag,
-	  get_url_func_pointer,
-	  prodrg_import_function,
-	  sbase_import_function,
-	  get_drug_mdl_via_wikipedia_and_drugbank
-	  );
-#else
-      std::cout << "No goocanvas" << std::endl;
-      std::cout << "FIXME:: Integrate Layla." << std::endl;
-#endif // HAVE_GOOCANVAS
-
-   }
+   layla();
 }
 
 
