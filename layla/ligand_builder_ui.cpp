@@ -127,7 +127,7 @@ void setup_actions(coot::ligand_editor::LigandBuilderState* state, GtkApplicatio
 
 GtkApplicationWindow* coot::ligand_editor::setup_main_window(GtkApplication* app, GtkBuilder* builder) {
 
-   GtkApplicationWindow* win = (GtkApplicationWindow*) gtk_builder_get_object(builder, "layla_window");
+    GtkApplicationWindow* win = (GtkApplicationWindow*) gtk_builder_get_object(builder, "layla_window");
     gtk_window_set_application(GTK_WINDOW(win),app);
     GtkWidget* status_label = (GtkWidget*) gtk_builder_get_object(builder, "layla_status_label");
     GtkScrolledWindow* viewport = (GtkScrolledWindow*) gtk_builder_get_object(builder, "layla_canvas_viewport");
