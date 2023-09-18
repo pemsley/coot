@@ -177,8 +177,8 @@ float calc_shadow(float dp_light_to_fragment) {
       }
    }
 
-   // return (1.0-shadow_strength) + (shadow * shadow_strength) / pixel_count;
-   return texture(shadow_map, pos.xy).r;
+   return (1.0-shadow_strength) + (shadow * shadow_strength) / pixel_count;
+   // return texture(shadow_map, pos.xy).r;
 
 }
 
@@ -231,7 +231,7 @@ void main() {
 
          float spec = specular_strength * pow(dp_view_reflect, shininess);
 
-         vec4 specular = 13.0 * spec * light_sources[i].specular;
+         vec4 specular = 2.0 * spec * light_sources[i].specular;
 
          // final
 

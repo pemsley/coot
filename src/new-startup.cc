@@ -655,6 +655,8 @@ new_startup_application_activate(GtkApplication *application,
 
       graphics_info_t graphics_info;
 
+      // use this to look up things - and it is used to attach the lidia
+      // application window
       graphics_info.application = application;
 
       // 20230526-PE this now happens in init_coot_as_python_module()
@@ -999,6 +1001,6 @@ int new_startup(int argc, char **argv) {
 
    int status = g_application_run(G_APPLICATION(app), argc, argv);
    std::cout << "--- g_application_run() returns with status " << status << std::endl;
-   g_object_unref (app);
+   g_object_unref(app);
    return status;
 }

@@ -12,11 +12,17 @@
 
 8 items
 
-Layla: make python setup be available for Coot and Layla - put it in its own directory. So that layla is not linked with src files.
+Layla: make python setup be available for Coot and Layla - put it in its own directory. So that layla
+is not linked with src files.
 
 Rob's problematic links
+* Need details.
 
-Where is Make Link? ::: 0.5
+Where is Make Link? ::: 1.5
+* Needs user-defined click click. Just do it in C++?
+* Not that Make Link via Acedrg also needs user-defined click click (or a rewrite).
+
+Colour rules (like Moorhen) need to be added to the Coot API.
 
 Pyrogen needs to work ::: 2
 
