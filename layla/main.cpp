@@ -29,8 +29,6 @@
 #include "python-utils.hpp"
 
 
-// #include "../src/coot-setup-python.hh"
-
 int main(int argc, char** argv) {
     using namespace coot::ligand_editor;
 
@@ -56,14 +54,14 @@ int main(int argc, char** argv) {
         std::string ui_file_name = "layla.ui";
         std::string ui_file_full = coot::util::append_dir_file(dir_ui, ui_file_name);
         // allow local override
-        if (coot::file_exists(ui_file_name)) ui_file_full = ui_file_name;
+        if(coot::file_exists(ui_file_name)) {
+            ui_file_full = ui_file_name;
+        }
         GError* error = NULL;
         GtkBuilder* builder = gtk_builder_new();
         gboolean status = gtk_builder_add_from_file(builder, ui_file_full.c_str(), &error);
         if (status == FALSE) {
-            std::cout << "ERROR:: Failure to read or parse " << ui_file_full << std::endl;
-            std::cout << error->message << std::endl;
-            exit(0);
+            g_error("Failed to read or parse %s: %s", ui_file_full.c_str(), error->message);
         }
 
         auto *win = coot::ligand_editor::setup_main_window(app, builder);
