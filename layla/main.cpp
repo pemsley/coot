@@ -49,29 +49,17 @@ int main(int argc, char** argv) {
 
     g_signal_connect(app, "activate", G_CALLBACK(+[](GtkApplication* app, gpointer user_data) {
 
-        std::string dir = coot::package_data_dir();
-        // all ui files should live here:
-        std::string dir_ui = coot::util::append_dir_dir(dir, "ui");
-        std::string ui_file_name = "layla.ui";
-        std::string ui_file_full = coot::util::append_dir_file(dir_ui, ui_file_name);
-        // allow local override
-        if(coot::file_exists(ui_file_name)) {
-            ui_file_full = ui_file_name;
-        }
-        GError* error = NULL;
-        GtkBuilder* builder = gtk_builder_new();
-        gboolean status = gtk_builder_add_from_file(builder, ui_file_full.c_str(), &error);
-        if (status == FALSE) {
-            g_error("Failed to read or parse %s: %s", ui_file_full.c_str(), error->message);
-        }
+        auto* builder = load_gtk_builder();
+        coot::ligand_editor::global_layla_gtk_builder = builder;
 
-        auto *win = coot::ligand_editor::setup_main_window(app, builder);
+        auto *win = coot::layla::setup_main_window(app, builder);
 
         auto* icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(GTK_WIDGET(win)));
+        
+        std::string dir = coot::package_data_dir();
         std::string full_path_for_icons = coot::util::append_dir_dir(dir, "pixmaps");
         gtk_icon_theme_add_search_path(icon_theme, full_path_for_icons.c_str());
 
-        coot::ligand_editor::global_layla_gtk_builder = builder;
         coot::ligand_editor::global_generator_request_task_cancellable = nullptr;
 
         gtk_window_present(GTK_WINDOW(win));

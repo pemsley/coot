@@ -981,7 +981,7 @@ ligand_builder_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                       G_GNUC_UNUSED GVariant *parameter,
                       G_GNUC_UNUSED gpointer user_data) {
 
-   start_ligand_builder_gui_internal();
+   start_ligand_builder_gui();
 }
 
 

@@ -25,7 +25,7 @@
 #include "ligand_editor_canvas.hpp"
 #include "ligand_builder_state.hpp"
 
-namespace coot::ligand_editor {
+namespace coot::layla {
 
 // This doesn't need to be public
 // void setup_actions(LigandBuilderState* state, GtkApplicationWindow* win, GtkBuilder* builder);
@@ -36,6 +36,9 @@ namespace coot::ligand_editor {
 /// Setups window actions.
 /// Instantiates the global instance of LigandBuilderState
 GtkApplicationWindow* setup_main_window(GtkApplication* app, GtkBuilder* builder);
+
+/// Fetches and loads 'layla.ui'
+GtkBuilder* load_gtk_builder();
 
 }
 

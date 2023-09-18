@@ -46,14 +46,6 @@ p  So we need to have this function external for c++ linking.
 #include "meshed-generic-display-object.hh"
 #include "old-generic-display-object.hh" // get rid of this one day
 
-/* I think that this should this be a .hh file */
-
-// void add_ligand_builder_menu_item_maybe();
-
-void start_ligand_builder_gui_XXX(GMenuItem     *menuitem,
-				  gpointer       user_data);
-
-
 /* ------------------------------------------------------------------------- */
 /*                    Cif dictionary                                         */
 /* ------------------------------------------------------------------------- */

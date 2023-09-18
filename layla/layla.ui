@@ -99,6 +99,8 @@
     </submenu>
   </menu>
   <object class="GtkApplicationWindow" id="layla_window">
+    <property name="icon-name">coot-layla</property>
+    <property name="title">Layla: Coot's Ligand Builder</property>
     <child>
       <object class='GtkShortcutController'>
         <property name='scope'>managed</property>
@@ -170,7 +172,7 @@
         </child>
       </object>
     </child>
-    <property name="child">
+    <child>
       <object class="GtkBox" id="layla_mainbox">
         <property name="margin-end">10</property>
         <property name="margin-start">10</property>
@@ -1290,9 +1292,7 @@
           </object>
         </child>
       </object>
-    </property>
-    <property name="icon-name">coot-layla</property>
-    <property name="title">Layla: Coot's Ligand Builder</property>
+    </child>
   </object>
   <object class="GtkAboutDialog" id="layla_about_dialog">
     <property name="hide-on-close">true</property>

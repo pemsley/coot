@@ -25,6 +25,7 @@
 #include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
+#include "utils/coot-utils.hh"
 
 void setup_actions(coot::ligand_editor::LigandBuilderState* state, GtkApplicationWindow* win, GtkBuilder* builder) {
     using namespace coot::ligand_editor;
@@ -125,7 +126,7 @@ void setup_actions(coot::ligand_editor::LigandBuilderState* state, GtkApplicatio
 
 }
 
-GtkApplicationWindow* coot::ligand_editor::setup_main_window(GtkApplication* app, GtkBuilder* builder) {
+GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBuilder* builder) {
 
     GtkApplicationWindow* win = (GtkApplicationWindow*) gtk_builder_get_object(builder, "layla_window");
     gtk_window_set_application(GTK_WINDOW(win),app);
@@ -156,4 +157,27 @@ GtkApplicationWindow* coot::ligand_editor::setup_main_window(GtkApplication* app
     coot::ligand_editor::initialize_global_instance(canvas,GTK_WINDOW(win),GTK_LABEL(status_label));
     setup_actions(coot::ligand_editor::global_instance, win, builder);
     return win;
+}
+
+GtkBuilder* coot::layla::load_gtk_builder() {
+
+        g_info("Loading Layla's UI...");
+        
+        std::string dir = coot::package_data_dir();
+        // all ui files should live here:
+        std::string dir_ui = coot::util::append_dir_dir(dir, "ui");
+        std::string ui_file_name = "layla.ui";
+        std::string ui_file_full = coot::util::append_dir_file(dir_ui, ui_file_name);
+        // allow local override
+        if(coot::file_exists(ui_file_name)) {
+            ui_file_full = ui_file_name;
+        }
+        GError* error = NULL;
+        GtkBuilder* builder = gtk_builder_new();
+        gboolean status = gtk_builder_add_from_file(builder, ui_file_full.c_str(), &error);
+        if (status == FALSE) {
+            g_error("Failed to read or parse %s: %s", ui_file_full.c_str(), error->message);
+        }
+
+        return builder;
 }

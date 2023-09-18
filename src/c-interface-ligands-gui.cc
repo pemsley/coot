@@ -69,7 +69,7 @@
 #include "widget-from-builder.hh"
 
 #include "guile-fixups.h"
-#include "layla-interface.hh"
+#include "layla/layla_embedded.hpp"
 
 void clear_out_container(GtkWidget *vbox);  // in c-interface.cc
 
@@ -702,17 +702,22 @@ void set_ligand_cluster_sigma_level_from_widget(GtkWidget *button) {
 		<< std::endl;
 }
 
-
-
-void
-start_ligand_builder_gui_internal() {
-      start_ligand_builder_gui();
-}
-
 void
 start_ligand_builder_gui() {
-
-   layla();
+   graphics_info_t g;
+   GtkApplication *app = g.application;
+   GtkApplicationWindow* win = coot::launch_layla(app);
+   g.set_transient_for_main_window(GTK_WIDGET(win));
+   CootLaylaNotifier* notifier = coot::ligand_editor::global_instance->get_notifier();
+   
+   g_signal_connect(
+      notifier, 
+      "cif-file-generated", 
+      G_CALLBACK(+[](CootLaylaNotifier* notifier, const gchar* filename, gpointer user_data){
+         g_warning("todo: Handle CIF file generation in Coot!");
+      }), 
+      nullptr
+   );
 }
 
 

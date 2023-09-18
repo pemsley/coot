@@ -142,7 +142,6 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/cc-interface-scripting.hh \
                              $(top_srcdir)/src/coot.i           \
                              $(top_srcdir)/src/lbg-interface.hh \
-                             $(top_srcdir)/src/layla-interface.hh \
                              $(top_srcdir)/src/c-interface-refine.hh \
                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
                              $(top_srcdir)/src/c-interface-generic-objects.h \
@@ -172,7 +171,6 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/cc-interface-molecular-representation.hh  \
                          $(top_srcdir)/src/cc-interface-scripting.hh \
                          $(top_srcdir)/src/lbg-interface.hh   \
-                         $(top_srcdir)/src/layla-interface.hh \
                          $(top_srcdir)/src/c-interface-refine.hh \
                          $(top_srcdir)/src/c-interface-ligands-swig.hh \
                          $(top_srcdir)/src/cfc.hh \
@@ -606,8 +604,6 @@ libcootsumo_la_SOURCES = \
 	lbg-interface.hh         \
 	lbg-callbacks-outer.cc   \
 	lbg-interface.cc         \
-        layla-interface.hh       \
-        layla-interface.cc       \
 	ligand-check.hh          \
 	Model.cc Model.hh        \
 	make-a-dodec.cc make-a-dodec.hh \
