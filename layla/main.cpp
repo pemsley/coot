@@ -66,19 +66,18 @@ int main(int argc, char** argv) {
 
         auto *win = coot::ligand_editor::setup_main_window(app, builder);
 
-        // for now
         auto* icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(GTK_WIDGET(win)));
-        std::string full_path_for_icons = coot::util::append_dir_dir(dir, "icons");
+        std::string full_path_for_icons = coot::util::append_dir_dir(dir, "pixmaps");
         gtk_icon_theme_add_search_path(icon_theme, full_path_for_icons.c_str());
 
         coot::ligand_editor::global_layla_gtk_builder = builder;
         coot::ligand_editor::global_generator_request_task_cancellable = nullptr;
 
         gtk_window_present(GTK_WINDOW(win));
-        gtk_application_add_window(app,GTK_WINDOW(win));
+        gtk_application_add_window(app, GTK_WINDOW(win));
     }), NULL);
 
-    auto ret = g_application_run(G_APPLICATION(app),0,0);
+    auto ret = g_application_run(G_APPLICATION(app), 0, 0);
     g_info("Exiting...");
     delete coot::ligand_editor::global_instance;
     return ret;
