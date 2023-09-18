@@ -38,6 +38,7 @@
 #include "lidia-core/rdkit-interface.hh"
 #include "../src/cc-interface-network.hh"
 #include <string>
+#include "python-utils.hpp"
 
 using namespace coot::ligand_editor;
 
