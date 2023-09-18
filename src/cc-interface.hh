@@ -2192,8 +2192,6 @@ void prodrg_import_function(std::string file_name, std::string comp_id);
 //
 void sbase_import_function(std::string comp_id);
 
-void layla();
-
 /* ------------------------------------------------------------------------- */
 /*                       Alignment functions (now C++)                       */
 /* ------------------------------------------------------------------------- */
