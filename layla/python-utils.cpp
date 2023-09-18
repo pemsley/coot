@@ -19,12 +19,12 @@
  * 02110-1301, USA
  */
 
-#include "Python.h"
 #include <string>
 #include <iostream>
 #include "utils/coot-utils.hh"
+#include "python-utils.hpp"
 
-void layla_setup_python_basic(int argc, char **argv) {
+void coot::layla::setup_python_basic(int argc, char **argv) {
 
 #ifdef USE_PYTHON
 #ifdef USE_PYMAC_INIT
@@ -93,7 +93,7 @@ void layla_setup_python_basic(int argc, char **argv) {
 
 }
 
-void layla_setup_python_coot_module() {
+void coot::layla::setup_python_coot_module() {
 
    PyObject *coot = PyImport_ImportModule("coot");
    if (! coot) {
@@ -105,7 +105,7 @@ void layla_setup_python_coot_module() {
 }
 
 
-void layla_setup_python_module(const std::string &module_name) {
+void coot::layla::setup_python_module(const std::string &module_name) {
 
    PyObject *coot = PyImport_ImportModule(module_name.c_str());
    if (! coot) {
@@ -116,7 +116,7 @@ void layla_setup_python_module(const std::string &module_name) {
    }
 }
 
-PyObject *layla_safe_python_command_with_return(const std::string &python_cmd) {
+PyObject *coot::layla::safe_python_command_with_return(const std::string &python_cmd) {
 
    std::cout << "--------------- start layla_safe_python_command_with_return(): " << python_cmd << std::endl;
 
@@ -170,13 +170,13 @@ PyObject *layla_safe_python_command_with_return(const std::string &python_cmd) {
 }
 
 
-std::string get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname) {
+std::string coot::layla::get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname) {
 
    std::string s;
    std::string command = "coot_utils.fetch_drug_via_wikipedia(";
    command += coot::util::single_quote(drugname);
    command += ")";
-   PyObject *r = layla_safe_python_command_with_return(command);
+   PyObject *r = safe_python_command_with_return(command);
    if(!r) {
       std::cout<<"fixme: Call to Python get_drug_via_wikipedia('"<<drugname<<"') returned a null pointer.\n";
       return s;

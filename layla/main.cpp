@@ -31,11 +31,12 @@
 
 int main(int argc, char** argv) {
     using namespace coot::ligand_editor;
+    using namespace coot::layla;
 
     std::thread python_init_thread([argc,argv](){
-        layla_setup_python_basic(argc, argv);
-        // layla_setup_python_module("coot");
-        // layla_setup_python_module("coot_utils");
+        setup_python_basic(argc, argv);
+        // setup_python_module("coot");
+        // setup_python_module("coot_utils");
     });
 
     python_init_thread.detach();
