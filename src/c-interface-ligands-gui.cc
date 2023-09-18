@@ -689,35 +689,35 @@ void set_ligand_cluster_sigma_level_from_widget(GtkWidget *button) {
    if (entry) {
       const gchar *text = gtk_editable_get_text(GTK_EDITABLE(entry));
       if (text) {
-	 float f = atof(text);
-	 if (f > 0.0 && f < 1000.0) {
-	    graphics_info_t::ligand_cluster_sigma_level = f;
-	    setit = 1;
-	 }
+         float f = atof(text);
+         if (f > 0.0 && f < 1000.0) {
+            graphics_info_t::ligand_cluster_sigma_level = f;
+            setit = 1;
+         }
       }
    }
    if (setit == 0)
       std::cout << "INFO:: ignoring bogus attempt to set "
-		<< "the ligand search sigma level"
-		<< std::endl;
+                << "the ligand search sigma level"
+                << std::endl;
 }
 
 void
 start_ligand_builder_gui() {
+
    graphics_info_t g;
    GtkApplication *app = g.application;
-   GtkApplicationWindow* win = coot::launch_layla(app);
+   GtkApplicationWindow *win = coot::launch_layla(app);
    g.set_transient_for_main_window(GTK_WIDGET(win));
    CootLaylaNotifier* notifier = coot::ligand_editor::global_instance->get_notifier();
-   
-   g_signal_connect(
-      notifier, 
-      "cif-file-generated", 
-      G_CALLBACK(+[](CootLaylaNotifier* notifier, const gchar* filename, gpointer user_data){
-         g_warning("todo: Handle CIF file generation in Coot!");
-      }), 
-      nullptr
-   );
+
+   g_signal_connect(notifier,
+                    "cif-file-generated",
+                    G_CALLBACK(+[] (CootLaylaNotifier* notifier, const gchar* filename, gpointer user_data){
+                       int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+                       handle_cif_dictionary_for_molecule(filename, imol_enc, true);
+                    }),
+                    nullptr);
 }
 
 
