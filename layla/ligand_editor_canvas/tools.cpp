@@ -36,7 +36,7 @@
 
 using namespace coot::ligand_editor_canvas;
 
-void Tool::on_load() {
+void Tool::on_load(impl::WidgetCoreData& widget_data) {
     // nothing by default
 }
 
@@ -412,14 +412,17 @@ ActiveTool::ActiveTool(GeometryModifier modifier) noexcept {
 }
 
 ActiveTool::ActiveTool(FormatTool fmt) noexcept {
+    fmt.on_load(*this->widget_data);
     this->tool = std::make_unique<FormatTool>(std::move(fmt));
 }
 
 ActiveTool::ActiveTool(FlipTool flip) noexcept {
+    flip.on_load(*this->widget_data);
     this->tool = std::make_unique<FlipTool>(std::move(flip));
 }
 
 ActiveTool::ActiveTool(RemoveHydrogensTool rh) noexcept {
+    rh.on_load(*this->widget_data);
     this->tool = std::make_unique<RemoveHydrogensTool>(std::move(rh));
 }
 
@@ -859,10 +862,31 @@ bool RemoveHydrogensTool::on_molecule_click(MoleculeClickContext& ctx) {
     return false;
 }
 
+void RemoveHydrogensTool::on_load(impl::WidgetCoreData& widget_data) {
+    if(widget_data.molecules->size() == 1) {
+        auto& canvas_mol = widget_data.molecules->at(0);
+        auto& rdkit_mol = widget_data.rdkit_molecules->at(0);
+        ClickContext ctx(widget_data);
+        ctx.control_pressed = false;
+        MoleculeClickContext mctx(ctx, 0, rdkit_mol, canvas_mol);
+        this->on_molecule_click(mctx);
+    }
+}
+
 std::string RemoveHydrogensTool::get_exception_message_prefix() const noexcept {
     return "Could not remove hydrogens from molecule: ";
 }
 
+void FlipTool::on_load(impl::WidgetCoreData& widget_data) {
+    if(widget_data.molecules->size() == 1) {
+        auto& canvas_mol = widget_data.molecules->at(0);
+        auto& rdkit_mol = widget_data.rdkit_molecules->at(0);
+        ClickContext ctx(widget_data);
+        ctx.control_pressed = false;
+        MoleculeClickContext mctx(ctx, 0, rdkit_mol, canvas_mol);
+        this->on_molecule_click(mctx);
+    }
+}
 
 bool FlipTool::on_molecule_click(MoleculeClickContext& ctx) {
     ctx.widget_data.begin_edition();
@@ -877,6 +901,16 @@ std::string FlipTool::get_exception_message_prefix() const noexcept {
     return "Could not flip molecule: ";
 }
 
+void FormatTool::on_load(impl::WidgetCoreData& widget_data) {
+    if(widget_data.molecules->size() == 1) {
+        auto& canvas_mol = widget_data.molecules->at(0);
+        auto& rdkit_mol = widget_data.rdkit_molecules->at(0);
+        ClickContext ctx(widget_data);
+        ctx.control_pressed = false;
+        MoleculeClickContext mctx(ctx, 0, rdkit_mol, canvas_mol);
+        this->on_molecule_click(mctx);
+    }
+}
 
 bool FormatTool::on_molecule_click(MoleculeClickContext& ctx) {
     ctx.widget_data.begin_edition();

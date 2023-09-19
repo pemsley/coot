@@ -100,7 +100,7 @@ class Tool {
     };
 
     /// Called when the tools is set in the ActiveTool
-    void on_load();
+    void on_load(impl::WidgetCoreData& widget_data);
 
     /// Called always, whenever there's been a click event.
     /// Called before other other methods get called.
@@ -288,6 +288,7 @@ class GeometryModifier : public Tool {
 class FormatTool : public Tool {
     public:
 
+    void on_load(impl::WidgetCoreData& widget_data);
     virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
 };
@@ -297,6 +298,7 @@ class FlipTool : public Tool {
     public:
     FlipTool(FlipMode) noexcept;
 
+    void on_load(impl::WidgetCoreData& widget_data);
     virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
 };
@@ -304,6 +306,7 @@ class FlipTool : public Tool {
 class RemoveHydrogensTool : public Tool {
     public:
 
+    void on_load(impl::WidgetCoreData& widget_data);
     virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
     virtual std::string get_exception_message_prefix() const noexcept override;
 };
