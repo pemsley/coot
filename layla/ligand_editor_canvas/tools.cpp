@@ -36,6 +36,9 @@
 
 using namespace coot::ligand_editor_canvas;
 
+void Tool::on_load() {
+    // nothing by default
+}
 
 void Tool::on_click(ClickContext& ctx, int x, int y) {
     // nothing by default

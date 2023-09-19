@@ -99,6 +99,9 @@ class Tool {
         MoleculeClickContext(ClickContext super, unsigned int mol_idx, std::shared_ptr<RDKit::RWMol>& rdkit_mol, CanvasMolecule& canvas_mol);
     };
 
+    /// Called when the tools is set in the ActiveTool
+    void on_load();
+
     /// Called always, whenever there's been a click event.
     /// Called before other other methods get called.
     virtual void on_click(ClickContext& ctx, int x, int y);
