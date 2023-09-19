@@ -115,6 +115,12 @@ Tool::MoleculeClickContext::MoleculeClickContext(ClickContext super, unsigned in
     this->mol_idx = mol_idx;
 }
 
+void ActiveTool::on_load() {
+    if(this->tool) {
+        this->tool->on_load(*this->widget_data);
+    }
+}
+
 void ActiveTool::on_click(bool ctrl_pressed, int x, int y, bool right_click) {
     if(!this->tool) {
         return;
@@ -412,17 +418,14 @@ ActiveTool::ActiveTool(GeometryModifier modifier) noexcept {
 }
 
 ActiveTool::ActiveTool(FormatTool fmt) noexcept {
-    fmt.on_load(*this->widget_data);
     this->tool = std::make_unique<FormatTool>(std::move(fmt));
 }
 
 ActiveTool::ActiveTool(FlipTool flip) noexcept {
-    flip.on_load(*this->widget_data);
     this->tool = std::make_unique<FlipTool>(std::move(flip));
 }
 
 ActiveTool::ActiveTool(RemoveHydrogensTool rh) noexcept {
-    rh.on_load(*this->widget_data);
     this->tool = std::make_unique<RemoveHydrogensTool>(std::move(rh));
 }
 

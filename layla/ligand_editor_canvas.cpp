@@ -407,6 +407,7 @@ float coot_ligand_editor_canvas_get_scale(CootLigandEditorCanvas* self) noexcept
 void coot_ligand_editor_canvas_set_active_tool(CootLigandEditorCanvas* self, std::unique_ptr<ActiveTool>&& active_tool) {
     self->active_tool = std::move(active_tool);
     self->active_tool->set_core_widget_data(static_cast<impl::CootLigandEditorCanvasPriv*>(self));
+    self->active_tool->on_load();
 }
 
 void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
