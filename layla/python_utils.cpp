@@ -24,7 +24,7 @@
 #include <fstream>
 #include <sstream>
 #include "utils/coot-utils.hh"
-#include "python-utils.hpp"
+#include "python_utils.hpp"
 
 
 // Include curl
