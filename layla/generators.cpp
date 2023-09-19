@@ -425,7 +425,7 @@ GCancellable* coot::layla::run_generator_request(GeneratorRequest request, CootL
     g_warning("Implement 'Apply'");
 
     g_idle_add_once([](gpointer user_data){
-        GeneratorTaskData* task_data = (GeneratorTaskData*) user_data;
+        GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(user_data));
         std::string title = "Layla: Running ";
         switch (task_data->request->generator) {
             case GeneratorRequest::Generator::Grade2: {
