@@ -1,4 +1,6 @@
 
+AUTOMAKE_OPTIONS = subdir-objects
+
 lib_LTLIBRARIES=libcoot-layla.la
 
 AM_CPPFLAGS = \
