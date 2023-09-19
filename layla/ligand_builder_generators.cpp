@@ -35,6 +35,7 @@ struct GeneratorTaskData {
     std::unique_ptr<std::string> file_contents;
     GtkProgressBar* progress_bar;
     GtkWindow* progress_dialog;
+    GtkButton* progress_dialog_close_button;
     GtkTextBuffer* stdout_ui_textbuffer;
     GtkLabel* dialog_status_label;
     GtkSpinner* spinner;
@@ -52,6 +53,7 @@ struct GeneratorTaskData {
 
         this->progress_bar = (GtkProgressBar*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_progress_bar");
         this->progress_dialog = (GtkWindow*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog");
+        this->progress_dialog_close_button = (GtkButton*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_close_button");
         this->stdout_ui_textbuffer = gtk_text_view_get_buffer(
             (GtkTextView*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_stdout_textview")
         );
@@ -407,6 +409,7 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
         gtk_widget_set_sensitive(GTK_WIDGET(cancel_button), FALSE);
         auto* accept_button = gtk_builder_get_object(global_layla_gtk_builder, "layla_apply_dialog_accept_button");
         gtk_widget_set_sensitive(GTK_WIDGET(accept_button), TRUE);
+        gtk_widget_set_sensitive(GTK_WIDGET(task_data->progress_dialog_close_button), TRUE);
 
         gtk_spinner_set_spinning(task_data->spinner, false);
     };

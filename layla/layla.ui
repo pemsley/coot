@@ -1473,9 +1473,22 @@ Paul Emsley</property>
           </object>
         </child>
         <child>
-          <object class="GtkButton" id="layla_generator_progress_dialog_cancel_button">
-            <property name="label">Cancel</property>
-            <signal name="clicked" swapped="false" handler="on_layla_generator_progress_dialog_cancelled"></signal>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">5</property>
+            <child>
+              <object class="GtkButton" id="layla_generator_progress_dialog_cancel_button">
+                <property name="label">Cancel</property>
+                <signal name="clicked" swapped="false" handler="on_layla_generator_progress_dialog_cancelled"></signal>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="layla_generator_progress_dialog_close_button">
+                <property name="label">Close</property>
+                <property name="sensitive">false</property>
+                <signal name="clicked" swapped="false" handler="on_layla_generator_progress_dialog_closed"></signal>
+              </object>
+            </child>
           </object>
         </child>
       </object>

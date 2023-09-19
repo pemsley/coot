@@ -103,6 +103,17 @@ on_layla_generator_progress_dialog_cancelled(GtkButton* button, gpointer user_da
 
 extern "C" G_MODULE_EXPORT
 void
+on_layla_generator_progress_dialog_closed(GtkButton* button, gpointer user_data) {
+    auto* progress_dialog = gtk_builder_get_object(global_layla_gtk_builder,"layla_generator_progress_dialog");
+    if(global_generator_request_task_cancellable) {
+        g_cancellable_cancel(global_generator_request_task_cancellable);
+    }
+    gtk_window_close(GTK_WINDOW(progress_dialog));
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
 layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
     if(global_generator_request_task_cancellable != nullptr) {
         return;
@@ -154,6 +165,8 @@ layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
     gtk_widget_set_sensitive(GTK_WIDGET(accept_button), FALSE);
     auto* cancel_button = gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_cancel_button");
     gtk_widget_set_sensitive(GTK_WIDGET(cancel_button), TRUE);
+    auto* close_button = gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_close_button");
+    gtk_widget_set_sensitive(GTK_WIDGET(close_button), FALSE);
     auto* progress_dialog = gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog");
     gtk_window_present(GTK_WINDOW(progress_dialog));
 
