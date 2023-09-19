@@ -31,7 +31,8 @@
 namespace coot::layla {
 
 struct AcedrgOptions {
-
+    bool p;
+    bool z;
 };
 
 struct Grade2Options {
