@@ -80,6 +80,7 @@ class CanvasMolecule {
     
     struct Atom {
         std::string symbol;
+        std::optional<std::string> name;
         
         /// Appendix represents optional elements that appear after atom's symbol,
         /// e.g. charge, hydrogens
