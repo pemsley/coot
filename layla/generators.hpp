@@ -54,7 +54,8 @@ struct GeneratorRequest {
     std::optional<std::string> executable_path;
     std::variant<Grade2Options, AcedrgOptions> generator_settings;
 
-    std::string get_filename() const;
+    std::string get_input_filename() const;
+    std::string get_output_filename() const;
     std::vector<std::string> build_commandline() const;
 };
 
