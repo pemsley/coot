@@ -28,13 +28,13 @@
 namespace coot::layla {
 
 // This doesn't need to be public
-// void setup_actions(LigandBuilderState* state, GtkApplicationWindow* win, GtkBuilder* builder);
+// void setup_actions(LaylaState* state, GtkApplicationWindow* win, GtkBuilder* builder);
 
 /// Setups the main window using GtkBuilder (created from 'layla.ui').
 ///
 /// Instantiates CootLigandEditor canvas and connects its' signals.
 /// Setups window actions.
-/// Instantiates the global instance of LigandBuilderState
+/// Instantiates the global instance of LaylaState
 GtkApplicationWindow* setup_main_window(GtkApplication* app, GtkBuilder* builder);
 
 /// Fetches and loads 'layla.ui'

@@ -25,7 +25,7 @@
 #include "ligand_editor_canvas.hpp"
 #include "ligand_editor_canvas/core.hpp"
 
-using namespace coot::ligand_editor;
+using namespace coot::layla;
 using namespace coot::ligand_editor_canvas;
 using BondModifierMode = coot::ligand_editor_canvas::BondModifier::BondModifierMode;
 using Element = coot::ligand_editor_canvas::ElementInsertion::Element;
@@ -35,11 +35,11 @@ using TransformMode = coot::ligand_editor_canvas::TransformManager::Mode;
 
 #if 0
 // This depends on `layla_window` being passed in XML as the signal's 'object'
-// and on the relevant g_object_set_data call in LigandBuilderState constructor.
-// I don't know if it makes sense to use it if `coot::ligand_editor::global_instance` suffices.
-#define GET_STATE() (LigandBuilderState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance")
+// and on the relevant g_object_set_data call in LaylaState constructor.
+// I don't know if it makes sense to use it if `coot::layla::global_instance` suffices.
+#define GET_STATE() (LaylaState*)g_object_get_data(G_OBJECT(user_data), "ligand_builder_instance")
 #else
-#define GET_STATE() coot::ligand_editor::global_instance
+#define GET_STATE() coot::layla::global_instance
 #endif
 
 #define GET_CANVAS() (GET_STATE())->get_canvas()
@@ -47,7 +47,7 @@ using TransformMode = coot::ligand_editor_canvas::TransformManager::Mode;
 extern "C" G_MODULE_EXPORT
 void
 layla_on_close(GtkButton* button, gpointer user_data) {
-    LigandBuilderState* state = GET_STATE();
+    LaylaState* state = GET_STATE();
 
     state->file_exit();
 }
@@ -170,7 +170,7 @@ layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
     auto* progress_dialog = gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog");
     gtk_window_present(GTK_WINDOW(progress_dialog));
 
-    LigandBuilderState* state = GET_STATE();
+    LaylaState* state = GET_STATE();
     CootLaylaNotifier* notifier = state->get_notifier();
     global_generator_request_task_cancellable = run_generator_request(request, notifier);
 }
@@ -203,7 +203,7 @@ layla_on_scale_spinbutton_value_changed(GtkSpinButton* self,gpointer user_data){
 extern "C" G_MODULE_EXPORT
 void
 layla_on_X_button_clicked(GtkButton* _btn, gpointer user_data){
-    LigandBuilderState* state = GET_STATE();
+    LaylaState* state = GET_STATE();
     state->run_choose_element_dialog();
 }
 

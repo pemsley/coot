@@ -709,7 +709,7 @@ start_ligand_builder_gui() {
    GtkApplication *app = g.application;
    GtkApplicationWindow *win = coot::launch_layla(app);
    g.set_transient_for_main_window(GTK_WIDGET(win));
-   CootLaylaNotifier* notifier = coot::ligand_editor::global_instance->get_notifier();
+   CootLaylaNotifier* notifier = coot::layla::global_instance->get_notifier();
 
    g_signal_connect(notifier,
                     "cif-file-generated",

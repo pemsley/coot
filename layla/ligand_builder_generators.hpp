@@ -28,7 +28,7 @@
 #include <gio/gio.h>
 #include "ligand_builder_notifier.hpp"
 
-namespace coot::ligand_editor {
+namespace coot::layla {
 
 struct AcedrgOptions {
 
@@ -61,6 +61,6 @@ inline GCancellable* global_generator_request_task_cancellable;
 
 GCancellable* run_generator_request(GeneratorRequest request, CootLaylaNotifier* notifier);
 
-} // namespace coot::ligand_editor
+} // namespace coot::layla
 
 #endif // LIGAND_BUILDER_GENERATORS_HPP

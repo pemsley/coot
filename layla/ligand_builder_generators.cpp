@@ -31,7 +31,7 @@
 
 struct GeneratorTaskData {
 
-    std::unique_ptr<coot::ligand_editor::GeneratorRequest> request;
+    std::unique_ptr<coot::layla::GeneratorRequest> request;
     std::unique_ptr<std::string> file_contents;
     GtkProgressBar* progress_bar;
     GtkWindow* progress_dialog;
@@ -46,10 +46,10 @@ struct GeneratorTaskData {
     GInputStream* input_stream;
     std::unique_ptr<std::string> stdout_read;
 
-    void initialize(coot::ligand_editor::GeneratorRequest&& request) {
+    void initialize(coot::layla::GeneratorRequest&& request) {
         g_warning("void GeneratorTaskData::initialize() called.");
         
-        using namespace coot::ligand_editor;
+        using namespace coot::layla;
 
         this->progress_bar = (GtkProgressBar*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_progress_bar");
         this->progress_dialog = (GtkWindow*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog");
@@ -82,7 +82,7 @@ struct GeneratorTaskData {
     }
 };
 
-std::string coot::ligand_editor::GeneratorRequest::get_filename() const {
+std::string coot::layla::GeneratorRequest::get_filename() const {
 
     std::string file_name;
     switch (generator) {
@@ -111,7 +111,7 @@ std::string coot::ligand_editor::GeneratorRequest::get_filename() const {
     return file_name;
 }
 
-std::vector<std::string> coot::ligand_editor::GeneratorRequest::build_commandline() const {
+std::vector<std::string> coot::layla::GeneratorRequest::build_commandline() const {
 
     std::vector<std::string> ret;
     ret.push_back(this->executable_path.value());
@@ -170,7 +170,7 @@ void write_input_file_async(GTask* task) {
     std::string file_contents;
     std::string file_name = task_data->request->get_filename();
 
-    using InputFormat = coot::ligand_editor::GeneratorRequest::InputFormat;
+    using InputFormat = coot::layla::GeneratorRequest::InputFormat;
     switch(task_data->request->input_format) {
         case InputFormat::MolFile: {
             RDKit::RWMol* mol = RDKit::SmilesToMol(task_data->request->molecule_smiles);
@@ -226,7 +226,7 @@ void launch_generator_async(GTask* task);
 void resolve_target_generator_executable(GTask* task) {
     GCancellable* cancellable = g_task_get_cancellable(task);
     GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
-    using Generator = coot::ligand_editor::GeneratorRequest::Generator;
+    using Generator = coot::layla::GeneratorRequest::Generator;
 
     switch(task_data->request->generator) {
         default:
@@ -360,7 +360,7 @@ void launch_generator_finish(GObject* subprocess_object, GAsyncResult* res, gpoi
     g_task_return_boolean(task, true);
 }
 
-GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest request, CootLaylaNotifier* notifier) {
+GCancellable* coot::layla::run_generator_request(GeneratorRequest request, CootLaylaNotifier* notifier) {
     // Useless dummy
     GObject* dummy = (GObject*)g_object_new(G_TYPE_OBJECT, NULL);
     GCancellable* cancellable = g_cancellable_new();

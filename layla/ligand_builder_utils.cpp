@@ -21,7 +21,7 @@
 
 #include "ligand_builder_utils.hpp"
 
-void coot::ligand_editor::remove_non_polar_hydrogens(RDKit::RWMol* mol) {
+void coot::layla::remove_non_polar_hydrogens(RDKit::RWMol* mol) {
     std::vector<RDKit::Atom*> atoms_to_be_removed;
 
     auto atoms = mol->atoms();

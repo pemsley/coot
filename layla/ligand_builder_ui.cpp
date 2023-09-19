@@ -27,8 +27,8 @@
 #include "ligand_editor_canvas/tools.hpp"
 #include "utils/coot-utils.hh"
 
-void setup_actions(coot::ligand_editor::LigandBuilderState* state, GtkApplicationWindow* win, GtkBuilder* builder) {
-    using namespace coot::ligand_editor;
+void setup_actions(coot::layla::LaylaState* state, GtkApplicationWindow* win, GtkBuilder* builder) {
+    using namespace coot::layla;
 
     auto new_action = [win](const char* action_name, GCallback func, gpointer userdata = nullptr){
         std::string detailed_action_name = "win.";
@@ -48,49 +48,49 @@ void setup_actions(coot::ligand_editor::LigandBuilderState* state, GtkApplicatio
         //return std::make_pair(detailed_action_name,action);
     };
 
-    using ExportMode = coot::ligand_editor::LigandBuilderState::ExportMode;
+    using ExportMode = coot::layla::LaylaState::ExportMode;
 
     // File
     new_action("file_new", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        ((LigandBuilderState*)user_data)->file_new();
+        ((LaylaState*)user_data)->file_new();
     }),state);
     new_action("file_open", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        ((LigandBuilderState*)user_data)->file_open();
+        ((LaylaState*)user_data)->file_open();
     }),state);
     new_action("import_from_smiles", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        ((LigandBuilderState*)user_data)->load_from_smiles();
+        ((LaylaState*)user_data)->load_from_smiles();
     }),state);
     new_action("import_molecule", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        ((LigandBuilderState*)user_data)->file_import_molecule();
+        ((LaylaState*)user_data)->file_import_molecule();
     }),state);
     new_action("fetch_molecule", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        ((LigandBuilderState*)user_data)->file_fetch_molecule();
+        ((LaylaState*)user_data)->file_fetch_molecule();
     }),state);
     new_action("file_save", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        ((LigandBuilderState*)user_data)->file_save();
+        ((LaylaState*)user_data)->file_save();
     }),state);
     new_action("file_save_as", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        ((LigandBuilderState*)user_data)->file_save_as();
+        ((LaylaState*)user_data)->file_save_as();
     }),state);
     new_action("export_pdf", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        ((LigandBuilderState*)user_data)->file_export(ExportMode::PDF);
+        ((LaylaState*)user_data)->file_export(ExportMode::PDF);
     }),state);
     new_action("export_png", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        ((LigandBuilderState*)user_data)->file_export(ExportMode::PNG);
+        ((LaylaState*)user_data)->file_export(ExportMode::PNG);
     }),state);
     new_action("export_svg", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        ((LigandBuilderState*)user_data)->file_export(ExportMode::SVG);
+        ((LaylaState*)user_data)->file_export(ExportMode::SVG);
     }),state);
     new_action("file_exit", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        ((LigandBuilderState*)user_data)->file_exit();
+        ((LaylaState*)user_data)->file_exit();
     }),state);
 
     // Edit;
     new_action("undo", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        ((LigandBuilderState*)user_data)->edit_undo();
+        ((LaylaState*)user_data)->edit_undo();
     }),state);
     new_action("redo", G_CALLBACK(+[](GSimpleAction* self, GVariant* parameter, gpointer user_data){
-        ((LigandBuilderState*)user_data)->edit_redo();
+        ((LaylaState*)user_data)->edit_redo();
     }),state);
     // Display
 
@@ -104,7 +104,7 @@ void setup_actions(coot::ligand_editor::LigandBuilderState* state, GtkApplicatio
             const gchar* mode_name = g_variant_get_string(parameter,nullptr);
             auto mode = coot::ligand_editor_canvas::display_mode_from_string(mode_name);
             if(mode.has_value()) {
-                ((LigandBuilderState*)user_data)->switch_display_mode(mode.value());
+                ((LaylaState*)user_data)->switch_display_mode(mode.value());
                 g_simple_action_set_state(self, parameter);
             } else {
                 g_error("Could not parse display mode from string!: '%s'",mode_name);
@@ -154,8 +154,8 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
     }), smiles_display);
 
     gtk_scrolled_window_set_child(viewport, GTK_WIDGET(canvas));
-    coot::ligand_editor::initialize_global_instance(canvas,GTK_WINDOW(win),GTK_LABEL(status_label));
-    setup_actions(coot::ligand_editor::global_instance, win, builder);
+    coot::layla::initialize_global_instance(canvas,GTK_WINDOW(win),GTK_LABEL(status_label));
+    setup_actions(coot::layla::global_instance, win, builder);
     return win;
 }
 

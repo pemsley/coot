@@ -24,8 +24,7 @@
 #include <string>
 #include "Python.h"
 
-namespace coot {
-   namespace layla {
+namespace coot::layla {
 
       std::string get_drug_via_wikipedia_and_drugbank_curl(const std::string &drugname);
 #if 0
@@ -35,7 +34,7 @@ namespace coot {
       PyObject *safe_python_command_with_return(const std::string &python_cmd);
       std::string get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname);
 #endif
-   }
+
 }
 
 

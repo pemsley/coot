@@ -30,22 +30,22 @@ GtkApplicationWindow* coot::launch_layla(GtkApplication* app) {
     
     GtkBuilder* builder;
 
-    if(! coot::ligand_editor::global_layla_gtk_builder) {
+    if(! coot::layla::global_layla_gtk_builder) {
         builder = load_gtk_builder();
-        coot::ligand_editor::global_layla_gtk_builder = builder;
+        coot::layla::global_layla_gtk_builder = builder;
     } else {
-        builder = coot::ligand_editor::global_layla_gtk_builder;
+        builder = coot::layla::global_layla_gtk_builder;
     }
 
     auto *win = coot::layla::setup_main_window(app, builder);
     
     gtk_window_set_hide_on_close(GTK_WINDOW(win), TRUE);
 
-    coot::ligand_editor::global_generator_request_task_cancellable = nullptr;
+    coot::layla::global_generator_request_task_cancellable = nullptr;
 
     g_signal_connect(win, "hide", G_CALLBACK(+[](GtkWidget* self, gpointer user_data){
         g_info("Deinitializing global ligand editor state...");
-        delete coot::ligand_editor::global_instance;
+        delete coot::layla::global_instance;
     }), nullptr);
     gtk_window_present(GTK_WINDOW(win));
     gtk_application_add_window(app, GTK_WINDOW(win));

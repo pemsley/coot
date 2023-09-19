@@ -29,11 +29,11 @@
 #include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"
 
-namespace coot::ligand_editor {
+namespace coot::layla {
 
 
 /// Structure holding the state of the editor
-class LigandBuilderState {
+class LaylaState {
 
     public:
     enum class ExportMode: unsigned char {
@@ -69,8 +69,8 @@ class LigandBuilderState {
     void run_file_save_dialog(unsigned int molecule_idx) noexcept;
 
     public:
-    LigandBuilderState(CootLigandEditorCanvas* canvas_widget, GtkWindow* main_window, GtkLabel* status_label = nullptr) noexcept;
-    ~LigandBuilderState() noexcept;
+    LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* main_window, GtkLabel* status_label = nullptr) noexcept;
+    ~LaylaState() noexcept;
     
     /// Returns a new reference to the event notifier object
     CootLaylaNotifier* get_notifier() const noexcept;
@@ -99,7 +99,7 @@ class LigandBuilderState {
 
 /// Let this be the singleton used by the editor executable.
 /// Could by used by Coot as well.
-inline LigandBuilderState* global_instance = nullptr;
+inline LaylaState* global_instance = nullptr;
 
 /// Global GtkBuilder created from `layla.ui`.
 /// Used for accessing widgets inside dialogs 
@@ -108,7 +108,7 @@ inline GtkBuilder* global_layla_gtk_builder = nullptr;
 
 void initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label = nullptr);
 
-} // namespace coot::ligand_editor
+} // namespace coot::layla
 
 
 #endif

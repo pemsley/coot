@@ -40,15 +40,15 @@
 #include <string>
 #include "python-utils.hpp"
 
-using namespace coot::ligand_editor;
+using namespace coot::layla;
 
-LigandBuilderState::LigandBuilderState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, GtkLabel* status_label) noexcept {
+LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, GtkLabel* status_label) noexcept {
     this->canvas = canvas_widget;
     this->main_window = win;
     this->status_label = status_label;
     this->monomer_library_info_store = std::make_unique<protein_geometry>();
     g_signal_connect(canvas_widget, "molecule-deleted", G_CALLBACK(+[](CootLigandEditorCanvas* self, unsigned int deleted_mol_idx, gpointer user_data){
-        LigandBuilderState* state = (LigandBuilderState*) user_data;
+        LaylaState* state = (LaylaState*) user_data;
         if (state->current_filesave_molecule.has_value()) {
             unsigned int idx = state->current_filesave_molecule.value();
             if(idx > deleted_mol_idx) {
@@ -68,32 +68,32 @@ LigandBuilderState::LigandBuilderState(CootLigandEditorCanvas* canvas_widget, Gt
     //g_object_set_data(G_OBJECT(win), "ligand_builder_instance", this);
 }
 
-LigandBuilderState::~LigandBuilderState() noexcept {
+LaylaState::~LaylaState() noexcept {
     if(this->notifier) {
         g_object_unref(this->notifier);
     }
 }
 
-CootLigandEditorCanvas* LigandBuilderState::get_canvas() const noexcept {
+CootLigandEditorCanvas* LaylaState::get_canvas() const noexcept {
     return this->canvas;
 }
 
-CootLaylaNotifier* LigandBuilderState::get_notifier() const noexcept {
+CootLaylaNotifier* LaylaState::get_notifier() const noexcept {
     return g_object_ref(this->notifier);
 }
 
-void LigandBuilderState::update_status(const char* new_status) noexcept {
+void LaylaState::update_status(const char* new_status) noexcept {
     if(this->status_label) {
         gtk_label_set_text(this->status_label, new_status);
     }
 }
 
-void LigandBuilderState::append_molecule(RDKit::RWMol* molecule_ptr) {
+void LaylaState::append_molecule(RDKit::RWMol* molecule_ptr) {
     RDKit::MolOps::sanitizeMol(*molecule_ptr);
     coot_ligand_editor_canvas_append_molecule(this->canvas, std::shared_ptr<RDKit::RWMol>(molecule_ptr));
 }
 
-void LigandBuilderState::load_from_smiles() {
+void LaylaState::load_from_smiles() {
 
     auto* load_dialog = gtk_dialog_new();
     gtk_window_set_transient_for(GTK_WINDOW(load_dialog), this->main_window);
@@ -143,7 +143,7 @@ void LigandBuilderState::load_from_smiles() {
             // We don't need that here, do we?
             // RDKit::MolOps::sanitizeMol(*molecule);
             g_info("SMILES Import: Molecule constructed.");
-            LigandBuilderState* state = (LigandBuilderState*) g_object_get_data(G_OBJECT(dialog), "ligand_builder_instance");
+            LaylaState* state = (LaylaState*) g_object_get_data(G_OBJECT(dialog), "ligand_builder_instance");
             state->append_molecule(molecule);
             gtk_window_destroy(GTK_WINDOW(dialog));
         } catch (std::exception& e) {
@@ -167,7 +167,7 @@ void LigandBuilderState::load_from_smiles() {
     gtk_window_present(GTK_WINDOW(load_dialog));
 }
 
-void LigandBuilderState::file_import_molecule() {
+void LaylaState::file_import_molecule() {
 
     GtkWidget *load_dialog = gtk_dialog_new();
     gtk_window_set_transient_for(GTK_WINDOW(load_dialog), this->main_window);
@@ -220,7 +220,7 @@ void LigandBuilderState::file_import_molecule() {
             const char *text_buf = gtk_entry_buffer_get_text(dialog_widgets->entry_buf);
             std::string monomer_type(text_buf);
             int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
-            LigandBuilderState* self = static_cast<LigandBuilderState*>(g_object_get_data(G_OBJECT(dialog),
+            LaylaState* self = static_cast<LaylaState*>(g_object_get_data(G_OBJECT(dialog),
                                                                                         "ligand_builder_instance"));
             // what is 42???
             self->monomer_library_info_store->try_dynamic_add(monomer_type, 42);
@@ -260,7 +260,7 @@ void LigandBuilderState::file_import_molecule() {
    g_signal_connect(load_dialog, "response", G_CALLBACK(dialog_response), dialog_widgets);
 }
 
-void LigandBuilderState::run_choose_element_dialog() {
+void LaylaState::run_choose_element_dialog() {
     auto* choose_element_dialog = gtk_dialog_new();
     gtk_window_set_transient_for(GTK_WINDOW(choose_element_dialog), this->main_window);
     // This isn't the best practice but it tremendously simplifies things
@@ -296,7 +296,7 @@ void LigandBuilderState::run_choose_element_dialog() {
         auto* text_buf = GTK_ENTRY_BUFFER(user_data);
         try {
             auto insertion_tool = std::make_unique<ligand_editor_canvas::ActiveTool>(ligand_editor_canvas::ElementInsertion(gtk_entry_buffer_get_text(text_buf)));
-            LigandBuilderState* state = (LigandBuilderState*) g_object_get_data(G_OBJECT(dialog), "ligand_builder_instance");
+            LaylaState* state = (LaylaState*) g_object_get_data(G_OBJECT(dialog), "ligand_builder_instance");
             coot_ligand_editor_canvas_set_active_tool(state->canvas, std::move(insertion_tool));
             gtk_window_destroy(GTK_WINDOW(dialog));
         } catch (std::exception& e) {
@@ -320,7 +320,7 @@ void LigandBuilderState::run_choose_element_dialog() {
     gtk_window_present(GTK_WINDOW(choose_element_dialog));
 }
 
-void LigandBuilderState::file_fetch_molecule() {
+void LaylaState::file_fetch_molecule() {
 
     GtkWidget *load_dialog = gtk_dialog_new();
     gtk_window_set_transient_for(GTK_WINDOW(load_dialog), this->main_window);
@@ -359,7 +359,7 @@ void LigandBuilderState::file_fetch_molecule() {
         } else {
             const char *text_buf = gtk_entry_buffer_get_text(GTK_ENTRY_BUFFER(user_data));
             auto res = coot::layla::get_drug_via_wikipedia_and_drugbank_curl(std::string(text_buf));
-            LigandBuilderState* self = static_cast<LigandBuilderState*>(g_object_get_data(G_OBJECT(dialog),
+            LaylaState* self = static_cast<LaylaState*>(g_object_get_data(G_OBJECT(dialog),
                                                                                         "ligand_builder_instance"));
             try {
                 if(res.empty()) {
@@ -395,15 +395,15 @@ void LigandBuilderState::file_fetch_molecule() {
    g_signal_connect(load_dialog, "response", G_CALLBACK(dialog_response), entry_buf);
 }
 
-void LigandBuilderState::file_new() {
-    g_warning("TODO: Finish implementing void LigandBuilderState::file_new()");
+void LaylaState::file_new() {
+    g_warning("TODO: Finish implementing void LaylaState::file_new()");
     // A confirmation dialog if we have some unsaved data? Same thing on closing the editor
     this->current_filesave_filename = std::nullopt;
     this->current_filesave_filename = std::nullopt;
     coot_ligand_editor_canvas_clear_molecules(this->canvas);
 }
 
-void LigandBuilderState::file_save() {
+void LaylaState::file_save() {
     if(this->current_filesave_filename.has_value() && this->current_filesave_molecule.has_value()) {
         save_file(this->current_filesave_molecule.value(), this->current_filesave_filename->c_str());
     } else {
@@ -412,7 +412,7 @@ void LigandBuilderState::file_save() {
 
 }
 
-void LigandBuilderState::save_file(unsigned int idx, const char* filename, GtkWindow* parent) noexcept {
+void LaylaState::save_file(unsigned int idx, const char* filename, GtkWindow* parent) noexcept {
     try {
         const auto* mol = coot_ligand_editor_canvas_get_rdkit_molecule(this->canvas, idx);
         RDKit::MolToMolFile(*mol,std::string(filename));
@@ -434,7 +434,7 @@ void LigandBuilderState::save_file(unsigned int idx, const char* filename, GtkWi
     }
 }
 
-void LigandBuilderState::run_file_save_dialog(unsigned int molecule_idx) noexcept {
+void LaylaState::run_file_save_dialog(unsigned int molecule_idx) noexcept {
     auto* save_dialog = gtk_file_dialog_new();
     // This isn't the best practice but it tremendously simplifies things
     // by saving us from unnecessary boilerplate.
@@ -443,7 +443,7 @@ void LigandBuilderState::run_file_save_dialog(unsigned int molecule_idx) noexcep
         GError** e = NULL;
         GFile* file = gtk_file_dialog_save_finish(GTK_FILE_DIALOG(source_object), res, e);
         unsigned int molecule_idx = GPOINTER_TO_UINT(user_data);
-        LigandBuilderState* self = (LigandBuilderState*) g_object_get_data(G_OBJECT(source_object), "ligand_builder_instance");
+        LaylaState* self = (LaylaState*) g_object_get_data(G_OBJECT(source_object), "ligand_builder_instance");
         if(file) {
             //g_info("I have a file");
             const char* path = g_file_get_path(file);
@@ -457,7 +457,7 @@ void LigandBuilderState::run_file_save_dialog(unsigned int molecule_idx) noexcep
     }, GUINT_TO_POINTER(molecule_idx));
 }
 
-void LigandBuilderState::file_save_as() {
+void LaylaState::file_save_as() {
     auto mol_count = coot_ligand_editor_canvas_get_molecule_count(this->canvas);
     if(mol_count == 1) {
         run_file_save_dialog(0);
@@ -503,7 +503,7 @@ void LigandBuilderState::file_save_as() {
         g_signal_connect(G_OBJECT(ok_button), "clicked", G_CALLBACK(+[](GtkButton* button, gpointer userdata){
             GtkWindow* window = GTK_WINDOW(userdata);
             int chosen_molecule = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "chosen_molecule"));
-            LigandBuilderState* self = (LigandBuilderState*) g_object_get_data(G_OBJECT(window), "ligand_builder_instance");
+            LaylaState* self = (LaylaState*) g_object_get_data(G_OBJECT(window), "ligand_builder_instance");
             if(chosen_molecule == -1) {
                 auto* message = gtk_message_dialog_new(
                     window, 
@@ -525,12 +525,12 @@ void LigandBuilderState::file_save_as() {
     }
 }
 
-void LigandBuilderState::file_open() {
+void LaylaState::file_open() {
     auto* open_dialog = gtk_file_dialog_new();
     gtk_file_dialog_open(open_dialog, this->main_window, NULL, +[](GObject* source_object, GAsyncResult* res, gpointer user_data){
         GError** e = NULL;
         GFile* file = gtk_file_dialog_open_finish(GTK_FILE_DIALOG(source_object), res, e);
-        LigandBuilderState* self = (LigandBuilderState*) user_data;
+        LaylaState* self = (LaylaState*) user_data;
         if(file) {
             //g_info("I have a file");
             const char* path = g_file_get_path(file);
@@ -564,7 +564,7 @@ void LigandBuilderState::file_open() {
 
 }
 
-void LigandBuilderState::file_export(ExportMode mode) {
+void LaylaState::file_export(ExportMode mode) {
     auto* export_dialog = gtk_file_dialog_new();
     auto* mode_ptr = new ExportMode(mode);
     // This isn't the best practice but it tremendously simplifies things
@@ -574,7 +574,7 @@ void LigandBuilderState::file_export(ExportMode mode) {
         GError** e = NULL;
         GFile* file = gtk_file_dialog_save_finish(GTK_FILE_DIALOG(source_object), res, e);
         ExportMode* mode_ptr = (ExportMode*) user_data;
-        LigandBuilderState* self = (LigandBuilderState*) g_object_get_data(G_OBJECT(source_object), "ligand_builder_instance");
+        LaylaState* self = (LaylaState*) g_object_get_data(G_OBJECT(source_object), "ligand_builder_instance");
         if(file) {
             //g_info("I have a file");
             auto path = std::string(g_file_get_path(file));
@@ -636,24 +636,24 @@ void LigandBuilderState::file_export(ExportMode mode) {
     }, mode_ptr);
 }
 
-void LigandBuilderState::file_exit() {
+void LaylaState::file_exit() {
     // todo: this should probably do some checks before just closing
     gtk_window_close(GTK_WINDOW(this->main_window));
 }
 
-void LigandBuilderState::edit_undo() {
+void LaylaState::edit_undo() {
     coot_ligand_editor_canvas_undo_edition(this->canvas);
 }
 
-void LigandBuilderState::edit_redo() {
+void LaylaState::edit_redo() {
     coot_ligand_editor_canvas_redo_edition(this->canvas);
 }
 
-void LigandBuilderState::switch_display_mode(ligand_editor_canvas::DisplayMode mode) {
+void LaylaState::switch_display_mode(ligand_editor_canvas::DisplayMode mode) {
     coot_ligand_editor_canvas_set_display_mode(this->canvas, mode);
 }
 
-void coot::ligand_editor::initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label) {
-    global_instance = new LigandBuilderState(canvas,win,status_label);
-    g_info("Global instance of LigandBuilderState has been initialized at: %p",global_instance);
+void coot::layla::initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label) {
+    global_instance = new LaylaState(canvas,win,status_label);
+    g_info("Global instance of LaylaState has been initialized at: %p",global_instance);
 }

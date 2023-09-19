@@ -23,7 +23,7 @@
 #define LIGAND_BUILDER_UTILS_HPP
 #include <rdkit/GraphMol/RWMol.h>
 
-namespace coot::ligand_editor {
+namespace coot::layla {
 
 void remove_non_polar_hydrogens(RDKit::RWMol* mol);
 

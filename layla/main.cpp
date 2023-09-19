@@ -31,7 +31,6 @@
 
 int main(int argc, char** argv) {
 
-    using namespace coot::ligand_editor;
     using namespace coot::layla;
 
     // std::thread python_init_thread([argc,argv](){
@@ -51,7 +50,7 @@ int main(int argc, char** argv) {
     g_signal_connect(app, "activate", G_CALLBACK(+[](GtkApplication* app, gpointer user_data) {
 
         auto* builder = load_gtk_builder();
-        coot::ligand_editor::global_layla_gtk_builder = builder;
+        coot::layla::global_layla_gtk_builder = builder;
 
         auto *win = coot::layla::setup_main_window(app, builder);
 
@@ -61,7 +60,7 @@ int main(int argc, char** argv) {
         std::string full_path_for_icons = coot::util::append_dir_dir(dir, "pixmaps");
         gtk_icon_theme_add_search_path(icon_theme, full_path_for_icons.c_str());
 
-        coot::ligand_editor::global_generator_request_task_cancellable = nullptr;
+        coot::layla::global_generator_request_task_cancellable = nullptr;
 
         gtk_window_present(GTK_WINDOW(win));
         gtk_application_add_window(app, GTK_WINDOW(win));
@@ -69,6 +68,6 @@ int main(int argc, char** argv) {
 
     auto ret = g_application_run(G_APPLICATION(app), 0, 0);
     g_info("Exiting...");
-    delete coot::ligand_editor::global_instance;
+    delete coot::layla::global_instance;
     return ret;
 }
