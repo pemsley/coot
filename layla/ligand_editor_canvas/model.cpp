@@ -395,7 +395,7 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
             auto [r,g,b] = atom_color_to_rgb(atom.color);
             const std::string color_str = atom_color_to_html(atom.color);
             const std::string weight_str = atom.highlighted ? "bold" : "normal";
-            const std::string size_str = render_mode == DisplayMode::Standard ? "x-large" : "medium";
+            const std::string size_str = render_mode != DisplayMode::AtomIndices ? "x-large" : "medium";
             const std::string markup_beginning = "<span color=\"" + color_str + "\" weight=\"" + weight_str + "\" size=\"" + size_str + "\">";
             const std::string markup_ending = "</span>";
 
@@ -413,10 +413,16 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
                     markup = markup_beginning + atom.symbol + ":" + std::to_string(atom.idx) + markup_ending;
                     break;
                 }
-                // todo
-                // case DisplayMode::AtomNames: {
-                //      break;
-                // }
+                case DisplayMode::AtomNames: {
+                    if(atom.name.has_value()) {
+                        std::string atom_name = atom.name.value();
+                        markup_no_appendix = markup_beginning + atom_name + markup_ending;
+                        markup = markup_no_appendix;
+                        break;
+                    } 
+                    // break;
+                    // We want to fall back to the standard case if the atom has no name.
+                }
                 default:
                 case DisplayMode::Standard: {
                     auto [raw_markup,p_reversed] = process_appendix(atom.symbol,atom.appendix);
@@ -467,8 +473,12 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
                 break;
             }
             case DisplayMode::AtomNames: {
-                g_warning("todo: DisplayMode::AtomNames");
-                break;
+                if(atom.name.has_value()) {
+                    atom_idx_to_canvas_rect.emplace(render_atom(atom,DisplayMode::AtomNames));
+                    break;
+                }
+                // We want to fall back to the standard case if the atom has no name
+                // break;
             }
             default:
             case DisplayMode::Standard: {
@@ -1354,6 +1364,11 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
         const auto* rdkit_atom = this->rdkit_molecule->getAtomWithIdx(atom_idx);
         auto canvas_atom = CanvasMolecule::Atom();
         canvas_atom.color = atom_color_from_rdkit(rdkit_atom);
+        if(rdkit_atom->hasProp("name")) {
+            std::string atom_name;
+            rdkit_atom->getProp("name", atom_name);
+            canvas_atom.name = atom_name;
+        }
         canvas_atom.highlighted = false;
         canvas_atom.idx = atom_idx;
         canvas_atom.symbol = rdkit_atom->getSymbol();
