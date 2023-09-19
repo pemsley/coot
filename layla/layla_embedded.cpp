@@ -46,6 +46,7 @@ GtkApplicationWindow* coot::launch_layla(GtkApplication* app) {
     g_signal_connect(win, "hide", G_CALLBACK(+[](GtkWidget* self, gpointer user_data){
         g_info("Deinitializing global ligand editor state...");
         delete coot::layla::global_instance;
+        coot::layla::global_instance = nullptr;
     }), nullptr);
     gtk_window_present(GTK_WINDOW(win));
     gtk_application_add_window(app, GTK_WINDOW(win));
