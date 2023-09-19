@@ -263,12 +263,6 @@ void coot::layla::setup_python_module(const std::string &module_name) {
    }
 }
 
-PyObject *layla_PyString_FromString(const char *str) {
-
-   PyObject *r = PyUnicode_FromString(str);
-   return r;
-}
-
 
 PyObject *coot::layla::safe_python_command_with_return(const std::string &python_cmd) {
 
@@ -289,27 +283,10 @@ PyObject *coot::layla::safe_python_command_with_return(const std::string &python
    if (am) {
       PyObject* d = PyModule_GetDict(am);
 
-      const char *modulename = "coot";
-      PyObject *pName = PyUnicode_FromString(modulename);
-      PyObject *pModule_coot = PyImport_Import(pName);
-
       std::cout << "running command: " << command << std::endl;
-      modulename = "__main__";
-      pName = layla_PyString_FromString(modulename);
-      PyObject *pModule = PyImport_Import(pName);
-      std::cout << "pModule " << pModule << std::endl;
-      pModule = PyImport_AddModule("__main__");
-      std::cout << "pModule " << pModule << std::endl;
-      pModule = PyImport_AddModule("coot");
-      std::cout << "pModule " << pModule << std::endl;
-      pModule = PyImport_AddModule("coot_utils");
-      std::cout << "pModule " << pModule << std::endl;
-      PyObject *globals = PyModule_GetDict(pModule);
-      result = PyRun_String(python_cmd.c_str(), Py_eval_input, globals, globals);
-      std::cout << "in layla::safe_python_command_with_return() " << result << std::endl;
-      if (!result)
-         PyErr_Print();
-      
+      PyObject* source_code = Py_CompileString(command.c_str(), "adhoc", Py_eval_input);
+      PyObject* func = PyFunction_New(source_code, d);
+      result = PyObject_CallObject(func, PyTuple_New(0));
       std::cout << "--------------- in safe_python_command_with_return() result at: " << result << std::endl;
       if (result) {
          if(!PyUnicode_Check(result)) {
@@ -325,11 +302,11 @@ PyObject *coot::layla::safe_python_command_with_return(const std::string &python
 
       // debugging
       // PyRun_String("import coot; print(dir(coot))", Py_file_input, d, d);
+      Py_XDECREF(func);
+      Py_XDECREF(source_code);
    } else {
       std::cout << "ERROR:: Hopeless failure: module for __main__ is null" << std::endl;
    }
-   std::cout << "--------------- done safe_python_command_with_return() " << python_cmd << " return value " << result << std::endl;
-   // 20230605-PE frustratingly this is returning None when I hope/expect it to be True.
    return result;
 }
 
