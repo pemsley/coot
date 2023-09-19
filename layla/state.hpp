@@ -78,6 +78,9 @@ class LaylaState {
     ///Useful for signal handlers
     CootLigandEditorCanvas* get_canvas() const noexcept;
 
+    /// Clears all molecules, file names, etc.
+    void reset();
+
     // TOOLS
     void run_choose_element_dialog();
     // FILE

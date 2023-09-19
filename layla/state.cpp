@@ -73,6 +73,13 @@ LaylaState::~LaylaState() noexcept {
     }
 }
 
+void LaylaState::reset() {
+    // for now this is sufficient.
+    // Consider removing edit history too.
+    this->file_new();
+    this->update_status("");
+}
+
 CootLigandEditorCanvas* LaylaState::get_canvas() const noexcept {
     return this->canvas;
 }

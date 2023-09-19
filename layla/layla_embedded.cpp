@@ -26,36 +26,49 @@
 
 using namespace coot::layla;
 
-GtkApplicationWindow* coot::launch_layla(GtkApplication* app) {
-    
-    GtkBuilder* builder;
+bool coot::is_layla_initialized() {
+    return coot::layla::global_layla_gtk_builder != nullptr;
+}
 
-    if(! coot::layla::global_layla_gtk_builder) {
-        builder = load_gtk_builder();
-        coot::layla::global_layla_gtk_builder = builder;
-    } else {
-        builder = coot::layla::global_layla_gtk_builder;
+GtkApplicationWindow* coot::initialize_layla(GtkApplication* app) {
+    if(coot::layla::global_layla_gtk_builder) {
+        g_warning("Layla has already been initialized!");
+        auto* ptr = gtk_builder_get_object(coot::layla::global_layla_gtk_builder, "layla_window");
+        return GTK_APPLICATION_WINDOW(ptr);
     }
 
+    GtkBuilder* builder = load_gtk_builder();
+    coot::layla::global_layla_gtk_builder = builder;
     auto *win = coot::layla::setup_main_window(app, builder);
-    
+
     gtk_window_set_hide_on_close(GTK_WINDOW(win), TRUE);
 
     coot::layla::global_generator_request_task_cancellable = nullptr;
 
     g_signal_connect(win, "hide", G_CALLBACK(+[](GtkWidget* self, gpointer user_data){
-        g_info("Deinitializing global ligand editor state...");
-        delete coot::layla::global_instance;
-        coot::layla::global_instance = nullptr;
+        g_info("Resetting global ligand editor state...");
+        coot::layla::global_instance->reset();
     }), nullptr);
-    gtk_window_present(GTK_WINDOW(win));
+
     gtk_application_add_window(app, GTK_WINDOW(win));
 
     return win;
 }
 
-GtkApplicationWindow* coot::launch_layla(GtkApplication* app, std::unique_ptr<RDKit::RWMol>&& mol) {
-    auto* win = launch_layla(app);
-    // todo: setup
-    return win;
+void coot::launch_layla() {
+    if(!is_layla_initialized()) {
+        g_error("coot::launch_layla() called before coot::initialize_layla()");
+    }
+    auto *win = gtk_builder_get_object(coot::layla::global_layla_gtk_builder, "layla_window");
+    if(gtk_widget_get_visible(GTK_WIDGET(win))) {
+        g_warning("Layla window is already visible!");
+        return;
+    }
+    gtk_window_present(GTK_WINDOW(win));
+}
+
+void coot::launch_layla(std::shared_ptr<RDKit::RWMol> mol) {
+    launch_layla();
+    CootLigandEditorCanvas* canvas = coot::layla::global_instance->get_canvas();
+    coot_ligand_editor_canvas_append_molecule(canvas, std::move(mol));
 }

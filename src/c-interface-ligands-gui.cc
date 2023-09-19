@@ -704,20 +704,21 @@ void set_ligand_cluster_sigma_level_from_widget(GtkWidget *button) {
 
 void
 start_ligand_builder_gui() {
-
-   graphics_info_t g;
-   GtkApplication *app = g.application;
-   GtkApplicationWindow *win = coot::launch_layla(app);
-   g.set_transient_for_main_window(GTK_WIDGET(win));
-   CootLaylaNotifier* notifier = coot::layla::global_instance->get_notifier();
-
-   g_signal_connect(notifier,
-                    "cif-file-generated",
-                    G_CALLBACK(+[] (CootLaylaNotifier* notifier, const gchar* filename, gpointer user_data){
-                       int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
-                       handle_cif_dictionary_for_molecule(filename, imol_enc, true);
-                    }),
-                    nullptr);
+   if(!coot::is_layla_initialized()) {
+      graphics_info_t g;
+      GtkApplication *app = g.application;
+      GtkApplicationWindow *win = coot::initialize_layla(app);
+      g.set_transient_for_main_window(GTK_WIDGET(win));
+      CootLaylaNotifier* notifier = coot::layla::global_instance->get_notifier();
+      g_signal_connect(notifier,
+                     "cif-file-generated",
+                     G_CALLBACK(+[] (CootLaylaNotifier* notifier, const gchar* filename, gpointer user_data){
+                        int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+                        handle_cif_dictionary_for_molecule(filename, imol_enc, true);
+                     }),
+                     nullptr);
+   }
+   coot::launch_layla();
 }
 
 
