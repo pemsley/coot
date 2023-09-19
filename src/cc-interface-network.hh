@@ -18,6 +18,7 @@
  * 02110-1301, USA
  */
 
+#include <string>
 
 #ifdef USE_GUILE
 std::string get_drug_via_wikipedia_and_drugbank_scm(const std::string &drugname);
