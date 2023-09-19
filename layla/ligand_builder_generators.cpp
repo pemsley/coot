@@ -71,6 +71,7 @@ struct GeneratorTaskData {
             g_object_unref(subprocess);
         }
         if (this->input_stream) {
+            g_warning("todo: Make sure that `input_stream` does not leak and there's no crash.");
            // g_object_unref(input_stream);
         }
         this->request.reset();
@@ -425,9 +426,6 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
     
     // this segfaults:
     // g_object_unref(dummy);
-    
-    // Cannnot deallocate task here because it's still runnning.
-    // Where should I do this?
 
     return cancellable;
     
