@@ -22,32 +22,32 @@ subpkgdata_DATA = layla.ui
 
 pkginclude_HEADERS = \
 	layla_embedded.hpp \
-	ligand_builder_generators.hpp \
-	ligand_builder_notifier.hpp \
-	ligand_builder_ui.hpp \
-	ligand_builder_utils.hpp \
-	ligand_builder_state.hpp \
+	generators.hpp \
+	notifier.hpp \
+	ui.hpp \
+	utils.hpp \
+	state.hpp \
 	ligand_editor_canvas/core.hpp  \
 	ligand_editor_canvas/model.hpp \
 	ligand_editor_canvas/tools.hpp \
 	ligand_editor_canvas.hpp \
-	python-utils.hpp
+	python_utils.hpp
 
 pkgincludedir = $(includedir)/coot/layla
 
 libcoot_layla_la_SOURCES = \
 	layla_embedded.cpp \
-	ligand_builder_generators.cpp \
-	ligand_builder_notifier.cpp \
-	ligand_builder_signals.cpp \
-	ligand_builder_state.cpp \
-	ligand_builder_ui.cpp \
-	ligand_builder_utils.cpp \
+	generators.cpp \
+	notifier.cpp \
+	signals.cpp \
+	state.cpp \
+	ui.cpp \
+	utils.cpp \
 	ligand_editor_canvas/core.cpp \
 	ligand_editor_canvas.cpp \
 	ligand_editor_canvas/model.cpp \
 	ligand_editor_canvas/tools.cpp \
-	python-utils.cpp
+	python_utils.cpp
 
 libcoot_layla_la_LIBADD = $(top_builddir)/geometry/libcoot-geometry.la \
                           $(top_builddir)/utils/libcoot-utils.la \

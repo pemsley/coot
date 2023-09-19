@@ -1,4 +1,4 @@
-/* layla/ligand_builder_generators.cpp
+/* layla/generators.cpp
  * 
  * Copyright 2023 by Global Phasing Ltd.
  * Author: Jakub Smulski
@@ -19,8 +19,8 @@
  * 02110-1301, USA
  */
 
-#include "ligand_builder_generators.hpp"
-#include "ligand_builder_state.hpp"
+#include "generators.hpp"
+#include "state.hpp"
 #include <cstddef>
 #include <cstring>
 #include <glib.h>

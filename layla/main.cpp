@@ -23,10 +23,10 @@
 #include <gtk/gtk.h>
 #include <thread>
 #include "utils/coot-utils.hh"
-#include "ligand_builder_state.hpp"
-#include "ligand_builder_generators.hpp"
-#include "ligand_builder_ui.hpp"
-#include "python-utils.hpp"
+#include "state.hpp"
+#include "generators.hpp"
+#include "ui.hpp"
+#include "python_utils.hpp"
 
 
 int main(int argc, char** argv) {

@@ -1,4 +1,4 @@
-/* layla/ligand_builder_utils.hpp
+/* layla/utils.hpp
  * 
  * Copyright 2023 by Global Phasing Ltd.
  * Author: Jakub Smulski

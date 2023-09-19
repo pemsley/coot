@@ -20,9 +20,9 @@
  */
 
 #include "layla_embedded.hpp"
-#include "ligand_builder_ui.hpp"
-#include "ligand_builder_state.hpp"
-#include "ligand_builder_generators.hpp"
+#include "ui.hpp"
+#include "state.hpp"
+#include "generators.hpp"
 
 using namespace coot::layla;
 

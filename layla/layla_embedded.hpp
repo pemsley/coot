@@ -21,7 +21,7 @@
 
 #ifndef LAYLA_EMBEDDED_HPP
 #define LAYLA_EMBEDDED_HPP
-#include "ligand_builder_state.hpp"
+#include "state.hpp"
 #include <rdkit/GraphMol/GraphMol.h>
 
 namespace coot {

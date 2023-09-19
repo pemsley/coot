@@ -1,4 +1,4 @@
-/* layla/ligand_builder_ui.hpp
+/* layla/notifier.hpp
  * 
  * Copyright 2023 by Global Phasing Ltd.
  * Author: Jakub Smulski
@@ -19,27 +19,22 @@
  * 02110-1301, USA
  */
 
-#ifndef LAYLA_UI_HPP
-#define LAYLA_UI_HPP
-#include <gtk/gtk.h>
-#include "ligand_editor_canvas.hpp"
-#include "ligand_builder_state.hpp"
+#ifndef LAYLA_NOTIFIER_HPP
+#define LAYLA_NOTIFIER_HPP
+#include <glib-object.h>
 
-namespace coot::layla {
+// GObject declaration 
+G_BEGIN_DECLS   
 
-// This doesn't need to be public
-// void setup_actions(LaylaState* state, GtkApplicationWindow* win, GtkBuilder* builder);
+#define COOT_LAYLA_NOTIFIER_TYPE (coot_layla_notifier_get_type ())
+G_DECLARE_FINAL_TYPE  (CootLaylaNotifier, coot_layla_notifier, COOT, COOT_LAYLA_NOTIFIER, GObject)
 
-/// Setups the main window using GtkBuilder (created from 'layla.ui').
-///
-/// Instantiates CootLigandEditor canvas and connects its' signals.
-/// Setups window actions.
-/// Instantiates the global instance of LaylaState
-GtkApplicationWindow* setup_main_window(GtkApplication* app, GtkBuilder* builder);
+G_END_DECLS
 
-/// Fetches and loads 'layla.ui'
-GtkBuilder* load_gtk_builder();
-
+extern "C" {
+    CootLaylaNotifier* coot_layla_notifier_new();
 }
 
-#endif //  LAYLA_UI_HPP
+void coot_layla_notifier_report_cif_file_generated(CootLaylaNotifier* self, const gchar* filepath);
+
+#endif // LAYLA_NOTIFIER_HPP

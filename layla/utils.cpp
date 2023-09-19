@@ -1,4 +1,4 @@
-/* layla/ligand_builder_utils.cpp
+/* layla/utils.cpp
  * 
  * Copyright 2023 by Global Phasing Ltd.
  * Author: Jakub Smulski
@@ -19,7 +19,7 @@
  * 02110-1301, USA
  */
 
-#include "ligand_builder_utils.hpp"
+#include "utils.hpp"
 
 void coot::layla::remove_non_polar_hydrogens(RDKit::RWMol* mol) {
     std::vector<RDKit::Atom*> atoms_to_be_removed;

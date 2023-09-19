@@ -32,7 +32,7 @@
 #include <rdkit/GraphMol/MolOps.h>
 #include <rdkit/GraphMol/PeriodicTable.h>
 #include "../ligand_editor_canvas.hpp"
-#include "../ligand_builder_utils.hpp"
+#include "../utils.hpp"
 
 using namespace coot::ligand_editor_canvas;
 

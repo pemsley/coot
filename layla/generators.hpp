@@ -1,4 +1,4 @@
-/* layla/ligand_builder_generators.hpp
+/* layla/generators.hpp
  * 
  * Copyright 2023 by Global Phasing Ltd.
  * Author: Jakub Smulski
@@ -26,7 +26,7 @@
 #include <variant>
 #include <vector>
 #include <gio/gio.h>
-#include "ligand_builder_notifier.hpp"
+#include "notifier.hpp"
 
 namespace coot::layla {
 

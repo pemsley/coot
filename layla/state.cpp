@@ -1,4 +1,4 @@
-/* layla/ligand_builder_state.cpp
+/* layla/state.cpp
  * 
  * Copyright 2023 by Global Phasing Ltd.
  * Author: Jakub Smulski
@@ -19,7 +19,7 @@
  * 02110-1301, USA
  */
 
-#include "ligand_builder_state.hpp"
+#include "state.hpp"
 #include "geometry/protein-geometry.hh"
 #include "ligand_editor_canvas.hpp"
 #include <exception>
@@ -33,12 +33,11 @@
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesParse.h>
 #include <rdkit/GraphMol/FileParsers/FileParsers.h>
-#include "ligand_builder_utils.hpp"
+#include "utils.hpp"
 // todo: remove dependency on lidia-core
 #include "lidia-core/rdkit-interface.hh"
-#include "../src/cc-interface-network.hh"
 #include <string>
-#include "python-utils.hpp"
+#include "python_utils.hpp"
 
 using namespace coot::layla;
 

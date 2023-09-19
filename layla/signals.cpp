@@ -1,4 +1,4 @@
-/* layla/ligand_builder_signals.cpp
+/* layla/signals.cpp
  * 
  * Copyright 2023 by Global Phasing Ltd.
  * Author: Jakub Smulski
@@ -20,8 +20,8 @@
  */
 
 #include <gtk/gtk.h>
-#include "ligand_builder_state.hpp"
-#include "ligand_builder_generators.hpp"
+#include "state.hpp"
+#include "generators.hpp"
 #include "ligand_editor_canvas.hpp"
 #include "ligand_editor_canvas/core.hpp"
 

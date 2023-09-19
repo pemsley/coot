@@ -1,4 +1,4 @@
-/* layla/ligand_builder_notifier.cpp
+/* layla/notifier.cpp
  * 
  * Copyright 2023 by Global Phasing Ltd.
  * Author: Jakub Smulski
@@ -19,7 +19,7 @@
  * 02110-1301, USA
  */
 
- #include "ligand_builder_notifier.hpp"
+ #include "notifier.hpp"
 
 class _CootLaylaNotifier {
     GObject base;

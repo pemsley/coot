@@ -1,4 +1,4 @@
-/* layla/ligand_builder_state.hpp
+/* layla/state.hpp
  * 
  * Copyright 2023 by Global Phasing Ltd.
  * Author: Jakub Smulski
@@ -22,7 +22,7 @@
 #ifndef LAYLA_STATE_HPP
 #define LAYLA_STATE_HPP
 #include "ligand_editor_canvas.hpp"
-#include "ligand_builder_notifier.hpp"
+#include "notifier.hpp"
 #include <rdkit/GraphMol/RWMol.h>
 
 #include "geometry/protein-geometry.hh"

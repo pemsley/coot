@@ -1,4 +1,4 @@
-/* layla/ligand_builder_ui.cpp
+/* layla/ui.cpp
  * 
  * Copyright 2023 by Global Phasing Ltd.
  * Author: Jakub Smulski
@@ -19,8 +19,8 @@
  * 02110-1301, USA
  */
 
-#include "ligand_builder_ui.hpp"
-#include "ligand_builder_state.hpp"
+#include "ui.hpp"
+#include "state.hpp"
 #include "ligand_editor_canvas.hpp"
 #include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"
