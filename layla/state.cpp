@@ -346,7 +346,7 @@ void LaylaState::file_fetch_molecule() {
 
     gtk_box_append(GTK_BOX(dialog_body),entry);
 
-    GtkWidget *submit_button = gtk_button_new_with_label("Submit");
+    GtkWidget *submit_button = gtk_button_new_with_label("Fetch");
     gtk_box_append(GTK_BOX(dialog_body), submit_button);
 
     auto submit_callback = +[] (GtkWidget* widget, gpointer user_data) {
@@ -379,6 +379,7 @@ void LaylaState::file_fetch_molecule() {
                 self->append_molecule(mol);
                 self->current_filesave_molecule = coot_ligand_editor_canvas_get_molecule_count(self->canvas) - 1;
                 self->current_filesave_filename = res;
+                gtk_window_destroy(GTK_WINDOW(dialog));
                 // todo: optionally delete the file
             } catch(std::exception& e) {
                 g_warning("MolFile Fetch error: %s",e.what());
