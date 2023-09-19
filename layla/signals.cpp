@@ -94,6 +94,32 @@ layla_on_generator_monomer_id_combobox_changed(GtkComboBox* self, gpointer user_
 
 extern "C" G_MODULE_EXPORT
 void
+layla_on_generator_program_combobox_changed(GtkComboBox* self, gpointer user_data) {
+    auto* acedrg = gtk_builder_get_object(global_layla_gtk_builder,"layla_acedrg_options_frame");
+    auto* grade2 = gtk_builder_get_object(global_layla_gtk_builder,"layla_grade2_options_frame");
+    if(strcmp(gtk_combo_box_get_active_id(self),"acedrg") == 0) {
+        gtk_widget_set_visible(GTK_WIDGET(acedrg), true);
+        gtk_widget_set_visible(GTK_WIDGET(grade2), false);
+    } else {
+        gtk_widget_set_visible(GTK_WIDGET(acedrg), false);
+        gtk_widget_set_visible(GTK_WIDGET(grade2), true);
+    }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+layla_on_generator_input_format_combobox_changed(GtkComboBox* self, gpointer user_data) {
+    auto* p_flag = gtk_builder_get_object(global_layla_gtk_builder,"layla_acedrg_p_flag_checkbutton");
+    if(strcmp(gtk_combo_box_get_active_id(self),"molfile") == 0) {
+        gtk_widget_set_sensitive(GTK_WIDGET(p_flag), true);
+    } else {
+        gtk_check_button_set_active(GTK_CHECK_BUTTON(p_flag), false);
+        gtk_widget_set_sensitive(GTK_WIDGET(p_flag), false);
+    }
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_layla_generator_progress_dialog_cancelled(GtkButton* button, gpointer user_data) {
     auto* progress_dialog = gtk_builder_get_object(global_layla_gtk_builder,"layla_generator_progress_dialog");
     if(global_generator_request_task_cancellable) {
@@ -147,8 +173,25 @@ layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
 
     if(program_name == "Grade2") {
         request.generator = GeneratorRequest::Generator::Grade2;
+        Grade2Options generator_options;
+        request.generator_settings = generator_options;
     } else {
         request.generator = GeneratorRequest::Generator::Acedrg;
+        AcedrgOptions generator_options;
+        generator_options.p = gtk_check_button_get_active(
+            GTK_CHECK_BUTTON(gtk_builder_get_object(
+                global_layla_gtk_builder,
+                "layla_acedrg_p_flag_checkbutton"
+            ))
+        );
+        generator_options.z = gtk_check_button_get_active(
+            GTK_CHECK_BUTTON(gtk_builder_get_object(
+                global_layla_gtk_builder,
+                "layla_acedrg_z_flag_checkbutton"
+            ))
+        );
+        request.generator_settings = generator_options;
+        
     }
 
     if(input_format_name == "SMILES") {

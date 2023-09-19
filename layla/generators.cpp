@@ -158,10 +158,6 @@ std::vector<std::string> coot::layla::GeneratorRequest::build_commandline() cons
                 }
                 default:
                 case InputFormat::SMILES: {
-                    // 20230916-PE "-p" and "-z" should be conditionally added, but
-                    // let's just shove them in for now, while we are testing
-                    ret.push_back("-p");
-                    ret.push_back("-z");
                     ret.push_back("-i");
                     ret.push_back(input_filename);
                     break;
@@ -169,6 +165,15 @@ std::vector<std::string> coot::layla::GeneratorRequest::build_commandline() cons
             }
             ret.push_back("-r");
             ret.push_back(this->monomer_id);
+            if(std::holds_alternative<AcedrgOptions>(this->generator_settings)) {
+                auto settings = std::get<AcedrgOptions>(this->generator_settings);
+                if(settings.p) {
+                    ret.push_back("-p");
+                }
+                if(settings.z) {
+                    ret.push_back("-z");
+                }
+            }
             ret.push_back("-o");
             ret.push_back(this->get_output_filename());
             break;

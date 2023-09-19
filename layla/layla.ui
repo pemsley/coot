@@ -1339,7 +1339,7 @@ Paul Emsley</property>
               <item id="INH">INH</item>
               <item id="Custom">Custom</item>
             </items>
-            <signal name="changed" swapped="false" handler="layla_on_generator_monomer_id_combobox_changed"></signal>
+            <signal name="changed" swapped="false" handler="layla_on_generator_monomer_id_combobox_changed" />
           </object>
         </child>
         <child>
@@ -1371,6 +1371,7 @@ Paul Emsley</property>
               <item id="smiles">SMILES</item>
               <item id="molfile">MolFile</item>
             </items>
+            <signal name="changed" swapped="false" handler="layla_on_generator_input_format_combobox_changed" />
           </object>
         </child>
         <child>
@@ -1393,13 +1394,70 @@ Paul Emsley</property>
               <item id="acedrg">Acedrg</item>
               <item id="grade2">Grade2</item>
             </items>
+            <signal name="changed" swapped="false" handler="layla_on_generator_program_combobox_changed" />
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <layout>
+              <property name="column">0</property>
+              <property name="row">3</property>
+              <property name="column-span">3</property>
+            </layout>
+            <child>
+              <object class="GtkFrame" id="layla_acedrg_options_frame">
+                <property name="visible">false</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Commandline flags for Acedrg:</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="layla_acedrg_p_flag_checkbutton">
+                        <property name="label">-p    Using existing coordinates</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="layla_acedrg_z_flag_checkbutton">
+                        <property name="label">-z    No geometry optimization for the model</property>
+                        <property name="active">true</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkFrame" id="layla_grade2_options_frame">
+                <property name="visible">false</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label">Commandline flags for Grade2:</property>
+                      </object>
+                    </child>
+                    <!-- <child>
+                      <object class="GtkCheckButton">
+                        <property name="label">menel</property>
+                      </object>
+                    </child> -->
+                  </object>
+                </child>
+              </object>
+            </child>
           </object>
         </child>
         <child>
           <object class="GtkLabel">
             <property name="label">Molecule:</property>
             <layout>
-              <property name="row">3</property>
+              <property name="row">4</property>
               <property name="column">0</property>
             </layout>
           </object>
@@ -1408,7 +1466,7 @@ Paul Emsley</property>
           <object class="GtkComboBoxText" id="layla_generator_molecule_combobox">
             <layout>
               <property name="column">1</property>
-              <property name="row">3</property>
+              <property name="row">4</property>
               <property name="column-span">2</property>
             </layout>
           </object>
@@ -1419,7 +1477,7 @@ Paul Emsley</property>
             <signal name="clicked" swapped="false" handler="layla_on_apply_dialog_accepted"></signal>
             <layout>
               <property name="column">2</property>
-              <property name="row">4</property>
+              <property name="row">5</property>
             </layout>
           </object>
         </child>
