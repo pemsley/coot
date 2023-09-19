@@ -424,6 +424,24 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
     g_warning("Implement 'Apply'");
 
     g_idle_add_once([](gpointer user_data){
+        GeneratorTaskData* task_data = (GeneratorTaskData*) user_data;
+        std::string title = "Layla: Running ";
+        switch (task_data->request->generator) {
+            case GeneratorRequest::Generator::Grade2: {
+                title += "Grade2";
+                break;
+            }
+            case GeneratorRequest::Generator::Acedrg: {
+                title += "Acedrg";
+                break;
+            }
+            default: {
+                title += "<unknown>";
+                break;
+            }
+        }
+        title += " for CIF";
+        gtk_window_set_title(task_data->progress_dialog, title.c_str());
         write_input_file_async(G_TASK(user_data));
     }, task);
     
