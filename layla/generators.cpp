@@ -82,8 +82,7 @@ struct GeneratorTaskData {
     }
 };
 
-std::string coot::layla::GeneratorRequest::get_filename() const {
-
+std::string coot::layla::GeneratorRequest::get_input_filename() const {
     std::string file_name;
     switch (generator) {
         case Generator::Grade2: {
@@ -111,11 +110,29 @@ std::string coot::layla::GeneratorRequest::get_filename() const {
     return file_name;
 }
 
+std::string coot::layla::GeneratorRequest::get_output_filename() const {
+    std::string file_name;
+    switch (generator) {
+        case Generator::Grade2: {
+            file_name = "grade2-";
+            break;
+        }
+        default:
+        case Generator::Acedrg: {
+            file_name = "acedrg-";
+            break;
+        }
+    }
+    file_name += monomer_id;
+    file_name += ".cif";
+    return file_name;
+}
+
 std::vector<std::string> coot::layla::GeneratorRequest::build_commandline() const {
 
     std::vector<std::string> ret;
     ret.push_back(this->executable_path.value());
-    auto input_filename = this->get_filename();
+    auto input_filename = this->get_input_filename();
     switch(generator) {
         case Generator::Grade2: {
             switch(input_format) {
@@ -153,7 +170,7 @@ std::vector<std::string> coot::layla::GeneratorRequest::build_commandline() cons
             ret.push_back("-r");
             ret.push_back(this->monomer_id);
             ret.push_back("-o");
-            ret.push_back(std::string("acedrg-") + this->monomer_id);
+            ret.push_back(this->get_output_filename());
             break;
         }
     }
@@ -168,7 +185,7 @@ void write_input_file_async(GTask* task) {
     GCancellable* cancellable = g_task_get_cancellable(task);
     GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
     std::string file_contents;
-    std::string file_name = task_data->request->get_filename();
+    std::string file_name = task_data->request->get_input_filename();
 
     using InputFormat = coot::layla::GeneratorRequest::InputFormat;
     switch(task_data->request->input_format) {
@@ -392,7 +409,7 @@ GCancellable* coot::layla::run_generator_request(GeneratorRequest request, CootL
         } else {
             gtk_label_set_text(task_data->dialog_status_label, "Operation completed successfully!");
             g_warning("Task finished successfully!");
-            auto filename = task_data->request->get_filename();
+            auto filename = task_data->request->get_output_filename();
             coot_layla_notifier_report_cif_file_generated(notifier, filename.c_str());
         }
 
