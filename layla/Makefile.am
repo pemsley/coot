@@ -7,7 +7,7 @@ AM_CPPFLAGS = \
 	$(GSL_CFLAGS)		\
 	$(CLIPPER_CXXFLAGS)     \
 	$(RDKIT_CXXFLAGS)       \
-        $(BOOST_CPPFLAGS)       \
+    $(BOOST_CPPFLAGS)       \
 	-DUSE_PYTHON=1 $(PYTHON_CPPFLAGS)      \
 	$(GTK_CFLAGS)           \
 	$(GLIB_CFLAGS)          \
