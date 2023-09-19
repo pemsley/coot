@@ -21,14 +21,161 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include "utils/coot-utils.hh"
 #include "python-utils.hpp"
+
+
+// Include curl
+#ifdef USE_LIBCURL
+#ifndef HAVE_CURL_H
+#define HAVE_CURL_H
+// defined in new python!?
+#ifdef socklen_t
+#undef socklen_t
+#endif
+#include <curl/curl.h>
+#endif // HAVE_CURL_H
+#endif
+
+// Let's try again just using curl. This is not python so should not be in a python file
+// However, it is namespace coot::layla, and there is nowhere else for those functions
+// to go at the moment. Just rename the file if/when this works, I guess
+// 
+std::string
+coot::layla::get_drug_via_wikipedia_and_drugbank_curl(const std::string &drugname_in) {
+
+   auto write_coot_curl_data = +[] (void *buffer, size_t size, size_t nmemb, void *userp) {
+
+      // std::cout << "size: " << size << " nmeb: " << nmemb;
+      if (buffer) {
+         char *s = static_cast<char *> (buffer);
+         std::string res(s);
+         // std::cout << res << std::endl;
+         std::string *sp = static_cast<std::string *>(userp);
+         *sp += res;
+      } else {
+         std::cout << std::endl;
+      }
+      return nmemb; // slightly naughty, we should return the size of the
+      // data that we actually delt with.
+   };
+
+   auto get_url_as_string = [write_coot_curl_data] (const std::string &url) {
+
+      std::string user_agent = "coot";
+      user_agent += " ";
+      user_agent += VERSION;
+      user_agent += " https://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/";
+      char buff[1024];
+      std::string s;
+
+      long int no_signal = 1; 
+      CURL *c = curl_easy_init();
+      curl_easy_setopt(c, CURLOPT_URL, url.c_str());
+      curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
+      curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 4);
+      curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER, 0);
+      curl_easy_setopt(c, CURLOPT_USERAGENT, user_agent.c_str());
+      curl_easy_setopt(c, CURLOPT_FOLLOWLOCATION, true); // 20230919-PE new, so that fetch from DrugBank works.
+      CURLcode cc = curl_easy_setopt(c, CURLOPT_ERRORBUFFER, buff);
+      curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data);
+      curl_easy_setopt(c, CURLOPT_WRITEDATA, &s);
+      CURLcode success = curl_easy_perform(c);
+      // std::cout << "DEBUG:: curl_easy_perform() for " << url << " success " << success << std::endl;
+      if (success != 0) {
+         std::cout << "WARNING:: coot_get_url_as_string with arg " << url << " failed" << std::endl;
+         std::cout << "ERROR: " << buff << std::endl;
+      }
+      curl_easy_cleanup(c);
+      // std::cout << "DEBUG:: get_url_as_string() result size " << s.length() << std::endl;
+      return s;
+   };
+
+   auto write_file = [] (const std::string &s, const std::string &file_name) {
+      std::ofstream f(file_name.c_str());
+      f << s;
+      f.close();
+   };
+
+   auto get_drugbank_code_from_html = [] (const std::string &s) {
+      // hacky function - use an xml parser instead/as well
+
+      std::string r;
+      // std::string::size_type p1 = s.find("| DrugBank ");
+
+      std::stringstream ss(s);
+      std::string line;
+      while (std::getline(ss, line)) {
+         if (line.find(" DrugBank ") != std::string::npos) {
+            if (line.length() < 80) {
+               std::vector<std::string> parts = coot::util::split_string_no_blanks(line);
+               if (parts.size() == 4) {
+                  r = parts[3];
+               }
+            }
+         }
+      }
+      return r;
+   };
+
+   std::string r;
+   std::string drug_name = coot::util::downcase(drugname_in);
+   std::string url_pre  = "https://en.wikipedia.org/w/api.php?format=xml&action=query&titles=";
+   std::string url_post = "&prop=revisions&rvprop=content";
+   std::string url = url_pre + drug_name + url_post;
+   // std::cout << "debug:: url:: " << url << std::endl;
+   std::string result = get_url_as_string(url);
+
+   if (result.length() > 10) {
+      std::string::size_type p1 = result.find(">#REDIRECT ");
+      if (p1 != std::string::npos) {
+         // Redirected. find the new drug name
+         std::string s1 = result.substr(p1+13);
+         // std::cout << "s1: \"" << s1 << "\"" << std::endl;
+         std::string::size_type p2 = s1.find("]]");
+         if (p2 != std::string::npos) {
+            std::string s2 = s1.substr(0,p2);
+            // std::cout << "s2: \"" << s2 << "\"" << std::endl;
+            drug_name = s2;
+            url = url_pre + drug_name + url_post;
+            result = get_url_as_string(url);
+         }
+      }
+      // std::cout << "result: \"" << result << "\"" << std::endl;
+
+      std::string db_code = get_drugbank_code_from_html(result);
+      std::cout << "DEBUG:: db_code: " << db_code << std::endl;
+
+      std::string db_mol_url_pre = "https://www.drugbank.ca/structures/small_molecule_drugs/";
+      std::string db_mol_url_post = ".mol";
+      std::string db_mol_url = db_mol_url_pre + db_code + db_mol_url_post;
+      std::string db_result = get_url_as_string(db_mol_url);
+
+      // std::cout << "DEBUG:: db_mol_url: " << db_mol_url << std::endl;
+      // std::cout << "DEBUG:: db_result \"" << db_result << "\"" << std::endl;
+      if (db_result.length() > 10) {
+         std::string db_file_name = db_code + ".mol";
+         write_file(db_result, db_file_name);
+         r = db_file_name;
+      }
+   }
+
+   return r;
+}
+
+
+
+#if 0 // Python - bleugh.
 
 void coot::layla::setup_python_basic(int argc, char **argv) {
 
 #ifdef USE_PYTHON
+
 #ifdef USE_PYMAC_INIT
 
+                   asdlkfasdf
   //  (on Mac OS, call PyMac_Initialize() instead)
   //http://www.python.org/doc/current/ext/embedding.html
   //
@@ -111,10 +258,17 @@ void coot::layla::setup_python_module(const std::string &module_name) {
    if (! coot) {
       std::cout << "ERROR:: setup_python_coot_module() Null module for " << module_name << std::endl;
    } else {
-      if (false)
+      if (true)
          std::cout << "INFO:: setup_python_coot_module() good module " << module_name << std::endl;
    }
 }
+
+PyObject *layla_PyString_FromString(const char *str) {
+
+   PyObject *r = PyUnicode_FromString(str);
+   return r;
+}
+
 
 PyObject *coot::layla::safe_python_command_with_return(const std::string &python_cmd) {
 
@@ -140,16 +294,28 @@ PyObject *coot::layla::safe_python_command_with_return(const std::string &python
       PyObject *pModule_coot = PyImport_Import(pName);
 
       std::cout << "running command: " << command << std::endl;
-      PyObject* source_code = Py_CompileString(command.c_str(), "adhoc", Py_eval_input);
-      PyObject* func = PyFunction_New(source_code, d);
-      result = PyObject_CallObject(func, PyTuple_New(0));
+      modulename = "__main__";
+      pName = layla_PyString_FromString(modulename);
+      PyObject *pModule = PyImport_Import(pName);
+      std::cout << "pModule " << pModule << std::endl;
+      pModule = PyImport_AddModule("__main__");
+      std::cout << "pModule " << pModule << std::endl;
+      pModule = PyImport_AddModule("coot");
+      std::cout << "pModule " << pModule << std::endl;
+      pModule = PyImport_AddModule("coot_utils");
+      std::cout << "pModule " << pModule << std::endl;
+      PyObject *globals = PyModule_GetDict(pModule);
+      result = PyRun_String(python_cmd.c_str(), Py_eval_input, globals, globals);
+      std::cout << "in layla::safe_python_command_with_return() " << result << std::endl;
+      if (!result)
+         PyErr_Print();
+      
       std::cout << "--------------- in safe_python_command_with_return() result at: " << result << std::endl;
       if (result) {
          if(!PyUnicode_Check(result)) {
              std::cout << "--------------- in safe_python_command_with_return() result is probably not a string." << std::endl;
          }
-      }
-      else {
+      } else {
          std::cout << "--------------- in safe_python_command_with_return() result was null" << std::endl;
          if(PyErr_Occurred()) {
             std::cout << "--------------- in safe_python_command_with_return() Printing Python exception:" << std::endl;
@@ -159,13 +325,11 @@ PyObject *coot::layla::safe_python_command_with_return(const std::string &python
 
       // debugging
       // PyRun_String("import coot; print(dir(coot))", Py_file_input, d, d);
-      Py_XDECREF(func);
-      Py_XDECREF(source_code);
    } else {
       std::cout << "ERROR:: Hopeless failure: module for __main__ is null" << std::endl;
    }
+   std::cout << "--------------- done safe_python_command_with_return() " << python_cmd << " return value " << result << std::endl;
    // 20230605-PE frustratingly this is returning None when I hope/expect it to be True.
-   std::cout << "--------------- done safe_python_command_with_return() " << python_cmd << std::endl;
    return result;
 }
 
@@ -173,12 +337,17 @@ PyObject *coot::layla::safe_python_command_with_return(const std::string &python
 std::string coot::layla::get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname) {
 
    std::string s;
+
+   setup_python_basic(0,0);
+   setup_python_module("coot");
+   setup_python_module("coot_utils");
+
    std::string command = "coot_utils.fetch_drug_via_wikipedia(";
    command += coot::util::single_quote(drugname);
    command += ")";
    PyObject *r = safe_python_command_with_return(command);
    if(!r) {
-      std::cout<<"fixme: Call to Python get_drug_via_wikipedia('"<<drugname<<"') returned a null pointer.\n";
+      std::cout<<"FIXME: Call to Python get_drug_via_wikipedia('" << drugname << "') returned a null pointer.\n";
       return s;
    }
    if (PyUnicode_Check(r))
@@ -186,3 +355,4 @@ std::string coot::layla::get_drug_via_wikipedia_and_drugbank_py(const std::strin
    Py_XDECREF(r);
    return s;
 }
+#endif // Python stuff

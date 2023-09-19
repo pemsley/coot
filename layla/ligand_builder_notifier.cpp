@@ -65,7 +65,7 @@ static void coot_layla_notifier_class_init(CootLaylaNotifierClass* klass) {
         G_TYPE_STRING
     );
     G_OBJECT_CLASS(klass)->dispose = coot_layla_notifier_dispose;
-    
+
 }
 
 CootLaylaNotifier* 

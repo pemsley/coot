@@ -30,6 +30,7 @@
 #include <rdkit/GraphMol/FileParsers/FileParsers.h>
 
 struct GeneratorTaskData {
+
     std::unique_ptr<coot::ligand_editor::GeneratorRequest> request;
     std::unique_ptr<std::string> file_contents;
     GtkProgressBar* progress_bar;
@@ -66,11 +67,11 @@ struct GeneratorTaskData {
 
     void cleanup() {
         g_warning("void GeneratorTaskData::cleanup() called.");
-        if(this->subprocess) {
+        if (this->subprocess) {
             g_object_unref(subprocess);
         }
-        if(this->input_stream) {
-            g_object_unref(input_stream);
+        if (this->input_stream) {
+           // g_object_unref(input_stream);
         }
         this->request.reset();
         this->file_contents.reset();
@@ -79,8 +80,9 @@ struct GeneratorTaskData {
 };
 
 std::string coot::ligand_editor::GeneratorRequest::get_filename() const {
+
     std::string file_name;
-    switch(generator) {
+    switch (generator) {
         case Generator::Grade2: {
             file_name = "grade2-";
             break;
