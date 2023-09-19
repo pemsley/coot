@@ -83,13 +83,13 @@ coot::layla::get_drug_via_wikipedia_and_drugbank_curl(const std::string &drugnam
       curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data);
       curl_easy_setopt(c, CURLOPT_WRITEDATA, &s);
       CURLcode success = curl_easy_perform(c);
-      std::cout << "DEBUG:: curl_easy_perform() for " << url << " success " << success << std::endl;
+      // std::cout << "DEBUG:: curl_easy_perform() for " << url << " success " << success << std::endl;
       if (success != 0) {
          std::cout << "WARNING:: coot_get_url_as_string with arg " << url << " failed" << std::endl;
          std::cout << "ERROR: " << buff << std::endl;
       }
       curl_easy_cleanup(c);
-      std::cout << "DEBUG:: get_url_as_string() result size " << s.length() << std::endl;
+      // std::cout << "DEBUG:: get_url_as_string() result size " << s.length() << std::endl;
       return s;
    };
 
@@ -125,7 +125,7 @@ coot::layla::get_drug_via_wikipedia_and_drugbank_curl(const std::string &drugnam
    std::string url_pre  = "https://en.wikipedia.org/w/api.php?format=xml&action=query&titles=";
    std::string url_post = "&prop=revisions&rvprop=content";
    std::string url = url_pre + drug_name + url_post;
-   std::cout << "debug:: url:: " << url << std::endl;
+   // std::cout << "debug:: url:: " << url << std::endl;
    std::string result = get_url_as_string(url);
 
    if (result.length() > 10) {
@@ -133,11 +133,11 @@ coot::layla::get_drug_via_wikipedia_and_drugbank_curl(const std::string &drugnam
       if (p1 != std::string::npos) {
          // Redirected. find the new drug name
          std::string s1 = result.substr(p1+13);
-         std::cout << "s1: \"" << s1 << "\"" << std::endl;
+         // std::cout << "s1: \"" << s1 << "\"" << std::endl;
          std::string::size_type p2 = s1.find("]]");
          if (p2 != std::string::npos) {
             std::string s2 = s1.substr(0,p2);
-            std::cout << "s2: \"" << s2 << "\"" << std::endl;
+            // std::cout << "s2: \"" << s2 << "\"" << std::endl;
             drug_name = s2;
             url = url_pre + drug_name + url_post;
             result = get_url_as_string(url);
@@ -153,8 +153,8 @@ coot::layla::get_drug_via_wikipedia_and_drugbank_curl(const std::string &drugnam
       std::string db_mol_url = db_mol_url_pre + db_code + db_mol_url_post;
       std::string db_result = get_url_as_string(db_mol_url);
 
-      std::cout << "DEBUG:: db_mol_url: " << db_mol_url << std::endl;
-      std::cout << "DEBUG:: db_result \"" << db_result << "\"" << std::endl;
+      // std::cout << "DEBUG:: db_mol_url: " << db_mol_url << std::endl;
+      // std::cout << "DEBUG:: db_result \"" << db_result << "\"" << std::endl;
       if (db_result.length() > 10) {
          std::string db_file_name = db_code + ".mol";
          write_file(db_result, db_file_name);
