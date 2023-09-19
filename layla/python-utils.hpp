@@ -24,14 +24,18 @@
 #include <string>
 #include "Python.h"
 
-namespace coot::layla {
+namespace coot {
+   namespace layla {
 
-void setup_python_basic(int argc, char **argv);
-void setup_python_coot_module();
-void setup_python_module(const std::string &module_name);
-PyObject *safe_python_command_with_return(const std::string &python_cmd);
-std::string get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname);
-
+      std::string get_drug_via_wikipedia_and_drugbank_curl(const std::string &drugname);
+#if 0
+      void setup_python_basic(int argc, char **argv);
+      void setup_python_coot_module();
+      void setup_python_module(const std::string &module_name);
+      PyObject *safe_python_command_with_return(const std::string &python_cmd);
+      std::string get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname);
+#endif
+   }
 }
 
 

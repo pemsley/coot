@@ -321,6 +321,7 @@ void LigandBuilderState::run_choose_element_dialog() {
 }
 
 void LigandBuilderState::file_fetch_molecule() {
+
     GtkWidget *load_dialog = gtk_dialog_new();
     gtk_window_set_transient_for(GTK_WINDOW(load_dialog), this->main_window);
     g_object_set_data(G_OBJECT(load_dialog), "ligand_builder_instance", this);
@@ -357,7 +358,7 @@ void LigandBuilderState::file_fetch_molecule() {
             return;
         } else {
             const char *text_buf = gtk_entry_buffer_get_text(GTK_ENTRY_BUFFER(user_data));
-            auto res = coot::layla::get_drug_via_wikipedia_and_drugbank_py(std::string(text_buf));
+            auto res = coot::layla::get_drug_via_wikipedia_and_drugbank_curl(std::string(text_buf));
             LigandBuilderState* self = static_cast<LigandBuilderState*>(g_object_get_data(G_OBJECT(dialog),
                                                                                         "ligand_builder_instance"));
             try {

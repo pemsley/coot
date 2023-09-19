@@ -7,10 +7,11 @@ AM_CPPFLAGS = \
 	$(GSL_CFLAGS)		\
 	$(CLIPPER_CXXFLAGS)     \
 	$(RDKIT_CXXFLAGS)       \
-    $(BOOST_CPPFLAGS)       \
-	$(PYTHON_CPPFLAGS)      \
+        $(BOOST_CPPFLAGS)       \
+	-DUSE_PYTHON=1 $(PYTHON_CPPFLAGS)      \
 	$(GTK_CFLAGS)           \
 	$(GLIB_CFLAGS)          \
+	-DUSE_LIBCURL=1 $(CURL_CFLAGS)          \
 	$(MMDB_CXXFLAGS)
 
 # needed? test make dist
@@ -59,6 +60,7 @@ AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	$(SQLITE3_CFLAGS)              \
 	$(COOT_WINDOWS_CFLAGS)         \
+	$(CURL_LIBS)                   \
         $(LIBPNG_CFLAGS)
 
 # maybe libexec_PROGRAMS if/when we use a shell-script wrapper
