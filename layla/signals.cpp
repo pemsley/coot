@@ -191,7 +191,6 @@ layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
             ))
         );
         request.generator_settings = generator_options;
-        
     }
 
     if(input_format_name == "SMILES") {
