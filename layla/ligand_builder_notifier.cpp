@@ -75,3 +75,7 @@ coot_layla_notifier_new()
 }
 
 G_END_DECLS
+
+void coot_layla_notifier_report_cif_file_generated(CootLaylaNotifier* self, const gchar* filepath) {
+    g_signal_emit(self, cif_file_generated_signal, 0, filepath);
+}

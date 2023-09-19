@@ -380,7 +380,6 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
         GTask* task = G_TASK(res);
         GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(task);
         CootLaylaNotifier* notifier = COOT_COOT_LAYLA_NOTIFIER(user_data);
-        // todo: cleanup after child process (if any) and report results
         GError* err = NULL;
         if(!g_task_propagate_boolean(task, &err)) {
             if(err) {
@@ -393,6 +392,8 @@ GCancellable* coot::ligand_editor::run_generator_request(GeneratorRequest reques
         } else {
             gtk_label_set_text(task_data->dialog_status_label, "Operation completed successfully!");
             g_warning("Task finished successfully!");
+            auto filename = task_data->request->get_filename();
+            coot_layla_notifier_report_cif_file_generated(notifier, filename.c_str());
         }
 
         // Delete the useless object

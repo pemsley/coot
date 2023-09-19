@@ -35,4 +35,6 @@ extern "C" {
     CootLaylaNotifier* coot_layla_notifier_new();
 }
 
+void coot_layla_notifier_report_cif_file_generated(CootLaylaNotifier* self, const gchar* filepath);
+
 #endif // LIGAND_BUILDER_NOTIFIER_HPP
