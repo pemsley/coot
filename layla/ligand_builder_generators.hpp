@@ -19,8 +19,8 @@
  * 02110-1301, USA
  */
 
-#ifndef LIGAND_BUILDER_GENERATORS_HPP
-#define LIGAND_BUILDER_GENERATORS_HPP
+#ifndef LAYLA_GENERATORS_HPP
+#define LAYLA_GENERATORS_HPP
 #include <string>
 #include <optional>
 #include <variant>
@@ -63,4 +63,4 @@ GCancellable* run_generator_request(GeneratorRequest request, CootLaylaNotifier*
 
 } // namespace coot::layla
 
-#endif // LIGAND_BUILDER_GENERATORS_HPP
+#endif // LAYLA_GENERATORS_HPP

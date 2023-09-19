@@ -19,8 +19,8 @@
  * 02110-1301, USA
  */
 
-#ifndef LIGAND_BUILDER_UTILS_HPP
-#define LIGAND_BUILDER_UTILS_HPP
+#ifndef LAYLA_UTILS_HPP
+#define LAYLA_UTILS_HPP
 #include <rdkit/GraphMol/RWMol.h>
 
 namespace coot::layla {
@@ -29,4 +29,4 @@ void remove_non_polar_hydrogens(RDKit::RWMol* mol);
 
 }
 
-#endif //  LIGAND_BUILDER_UTILS_HPP
+#endif //  LAYLA_UTILS_HPP

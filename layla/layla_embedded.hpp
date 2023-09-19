@@ -32,4 +32,4 @@ GtkApplicationWindow* launch_layla(GtkApplication* app, std::unique_ptr<RDKit::R
 }
 
 
-#endif // LIGAND_BUILDER_GENERATORS_HPP
+#endif // LAYLA_GENERATORS_HPP

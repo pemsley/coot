@@ -19,8 +19,8 @@
  * 02110-1301, USA
  */
 
-#ifndef LIGAND_BUILDER_NOTIFIER_HPP
-#define LIGAND_BUILDER_NOTIFIER_HPP
+#ifndef LAYLA_NOTIFIER_HPP
+#define LAYLA_NOTIFIER_HPP
 #include <glib-object.h>
 
 // GObject declaration 
@@ -37,4 +37,4 @@ extern "C" {
 
 void coot_layla_notifier_report_cif_file_generated(CootLaylaNotifier* self, const gchar* filepath);
 
-#endif // LIGAND_BUILDER_NOTIFIER_HPP
+#endif // LAYLA_NOTIFIER_HPP

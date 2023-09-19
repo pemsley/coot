@@ -19,8 +19,8 @@
  * 02110-1301, USA
  */
 
-#ifndef LIGAND_BUILDER_STATE_HPP
-#define LIGAND_BUILDER_STATE_HPP
+#ifndef LAYLA_STATE_HPP
+#define LAYLA_STATE_HPP
 #include "ligand_editor_canvas.hpp"
 #include "ligand_builder_notifier.hpp"
 #include <rdkit/GraphMol/RWMol.h>
