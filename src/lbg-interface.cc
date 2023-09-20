@@ -38,6 +38,10 @@
 #include "c-interface.h"
 #include "cc-interface.hh" // for coot_get_url()
 
+#if 0 // 20230920-PE goodbye lbg functions. Maybe remove this file in due course
+
+// replacement functions are not in c-interface-ligands-gui.cc
+
 void
 residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char *ins_code,
 			  double weight_for_3d_distances) {
@@ -208,3 +212,4 @@ void smiles_to_ligand_builder(const char *smiles_string) {
 } 
 
 
+#endif

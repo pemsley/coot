@@ -344,6 +344,11 @@
         <!-- </item> -->
 
         <item>
+          <attribute name="label">Residue → 2D</attribute>
+          <attribute name="action">app.ligand_builder_residue_to_2d_action</attribute>
+        </item>
+
+        <item>
           <attribute name="label">Run Script...</attribute>
           <attribute name="action">app.run_script_action</attribute>
         </item>

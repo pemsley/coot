@@ -702,8 +702,11 @@ void set_ligand_cluster_sigma_level_from_widget(GtkWidget *button) {
                 << std::endl;
 }
 
+#include "lidia-core/rdkit-interface.hh"
+
 void
 start_ligand_builder_gui() {
+
    if(!coot::is_layla_initialized()) {
       graphics_info_t g;
       GtkApplication *app = g.application;
@@ -720,6 +723,54 @@ start_ligand_builder_gui() {
    }
    coot::launch_layla();
 }
+
+void
+residue_to_ligand_builder(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
+			  double weight_for_3d_distances) {
+
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol)) {
+      mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
+      if (residue_p) {
+	 try {
+	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, imol, *g.Geom_p());
+	    RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
+            std::shared_ptr<RDKit::RWMol> rdkit_mol_sp = std::make_shared<RDKit::RWMol> (rdk_mol_with_no_Hs);
+
+            if(!coot::is_layla_initialized()) {
+               GtkApplication *app = g.application;
+               GtkApplicationWindow *win = coot::initialize_layla(app);
+               g.set_transient_for_main_window(GTK_WIDGET(win));
+               CootLaylaNotifier* notifier = coot::layla::global_instance->get_notifier();
+               g_signal_connect(notifier,
+                                "cif-file-generated",
+                                G_CALLBACK(+[] (CootLaylaNotifier* notifier, const gchar* filename, gpointer user_data){
+                                   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+                                   handle_cif_dictionary_for_molecule(filename, imol_enc, true);
+                                }),
+                                nullptr);
+            }
+            coot::launch_layla(rdkit_mol_sp);
+
+         }
+         catch (const std::runtime_error &e) {
+            std::cout << "WARNING::" << e.what() << std::endl;
+         }
+      }
+   }
+}
+
+void smiles_to_ligand_builder(const std::string &smiles_string) {
+
+   try {
+      RDKit::RWMol *rdk_mol = RDKit::SmilesToMol(smiles_string);
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+
+}
+
 
 
 // for "better than the median", percentile_limit should be 0.5 (of course).

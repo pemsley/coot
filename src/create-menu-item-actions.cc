@@ -17,6 +17,7 @@
 #include "c-interface-preferences.h"
 #include "c-interface-ligands-swig.hh"
 #include "curlew-gtk4.hh"
+#include "c-interface-ligands.hh" // 20230920-PE new layla interface functions
 
 extern "C" { void load_tutorial_model_and_data(); }
 
@@ -981,7 +982,28 @@ ligand_builder_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                       G_GNUC_UNUSED GVariant *parameter,
                       G_GNUC_UNUSED gpointer user_data) {
 
+   // No ligand specified
    start_ligand_builder_gui();
+}
+
+
+
+void
+ligand_builder_residue_to_2d_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      const coot::atom_spec_t atom_spec(pp.second.second);
+      graphics_info_t g;
+      float weight_for_3d_distances = 0.01; // or something
+      residue_to_ligand_builder(imol, atom_spec.chain_id, atom_spec.res_no, atom_spec.ins_code,
+                                weight_for_3d_distances);
+   } else {
+      add_status_bar_text("No active residue found");
+   }
 }
 
 
@@ -3052,6 +3074,7 @@ create_actions(GtkApplication *application) {
    add_action(  "sharpen_blur_for_xray_action",   sharpen_blur_for_xray_action);
    add_action(       "scripting_python_action",        scripting_python_action);
    add_action(       "scripting_scheme_action",        scripting_scheme_action);
+   add_action("ligand_builder_residue_to_2d_action", ligand_builder_residue_to_2d_action);
 
    add_action("calculate_hydrogen_bonds_action", calculate_hydrogen_bonds_action);
    add_action(          "load_tutorial_model_and_data_action",           load_tutorial_model_and_data_action);

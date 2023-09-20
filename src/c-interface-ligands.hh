@@ -85,5 +85,8 @@ void coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spe
 // 20230605-PE this was done via scripting previously. Not today though
 void smiles_to_simple_3d(const std::string &smiles);
 
+void residue_to_ligand_builder(int imol, const std::string &chain_id, int resno, const std::string &ins_code,
+                               double weight_for_3d_distances);
+void smiles_to_ligand_builder(const std::string &smiles_string);
 
 #endif // C_INTERFACE_LIGANDS_HH
