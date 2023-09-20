@@ -4046,6 +4046,26 @@ molecule_class_info_t::set_user_defined_atom_colour_by_selection(const std::vect
       int colour_index = rc.second; // change type
       int selHnd = atom_sel.mol->NewSelection(); // d
 
+      mmdb::Atom **SelAtoms;
+      int nSelAtoms = 0;
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+      atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+      if (nSelAtoms > 0) {
+         for (int iat=0; iat<nSelAtoms; iat++) {
+            mmdb::Atom *at = SelAtoms[iat];
+            std::string ele(at->element);
+            if (apply_colour_to_non_carbon_atoms_also || ele == " C") {
+               int ierr = at->PutUDData(udd_handle, colour_index);
+               if (ierr != mmdb::UDDATA_Ok) {
+                  std::cout << "WARNING:: in set_user_defined_atom_colour_by_residue() problem setting udd on atom "
+                            << coot::atom_spec_t(at) << std::endl;
+               }
+            }
+         }
+      }
+      atom_sel.mol->DeleteSelection(selHnd);
+
+#if 0 // 20230919-PE old - select residues - this is wrong.
       mmdb::Residue **SelResidues;
       int nSelResidues = 0;
       atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_NEW);
@@ -4070,10 +4090,13 @@ molecule_class_info_t::set_user_defined_atom_colour_by_selection(const std::vect
                         std::cout << "set user-defined colour index for " << at << " to " << colour_index << std::endl;
                   }
                }
-	    }
+            }
          }
       }
       atom_sel.mol->DeleteSelection(selHnd);
+#endif
+
+
    }
 }
 

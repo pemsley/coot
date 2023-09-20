@@ -4815,6 +4815,7 @@ string   static std::string sessionid;
    // by setting actual user defined colours for give colour indices
    //
 
+   static bool draw_hud_colour_bar_flag;
    static std::vector<coot::colour_holder> user_defined_colours;
    // this function sets up the colour bar too and enables its drawing. It will need extra args for
    // the tick marks.

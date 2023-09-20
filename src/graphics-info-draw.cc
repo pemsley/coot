@@ -1585,6 +1585,14 @@ graphics_info_t::draw_hud_refinement_dialog_arrow_tab() {
 void
 graphics_info_t::draw_hud_colour_bar() {
 
+   // 20230919-PE draw_hud_colour_bar_flag needs to be turned on somewhere when alphafold is used. It isn't.
+   // Previously I had used user_defined_colours.empty(), which is the wrong test when we have
+   // user defined colours and not alphafold (probably most of the time this is the case).
+   //
+   if (! draw_hud_colour_bar_flag) return;
+
+   if (user_defined_colours.empty()) return;
+
    // this is the colour bar for Alphafold pLDDTs and the like
 
    // I think that all the draw_hud_*() functions should be passed h, w.
@@ -1628,8 +1636,6 @@ graphics_info_t::draw_hud_colour_bar() {
       return std::pair<glm::vec2, glm::vec2>(offset_rel, scales_new);
    };
 
-
-   if (user_defined_colours.empty()) return;
 
    glDisable(GL_DEPTH_TEST);
    texture_for_hud_colour_bar.Bind(0);
