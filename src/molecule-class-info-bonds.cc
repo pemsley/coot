@@ -63,13 +63,10 @@ molecule_class_info_t::user_defined_colours_representation(coot::protein_geometr
 							   bool all_atoms_mode,
                                                            bool draw_missing_loops_flag) {
 
-   // std::cout << "::::::::::::::::::::::::::::: in user_defined_colours_representation() " << std::endl;
-
    bonds_box.clear_up();
    if (all_atoms_mode) {
 
-      std::cout << "::::::::::::::::::::::::::::: in user_defined_colours_representation() Path A " << std::endl;
-      Bond_lines_container bonds(atom_sel, imol_no, Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS);
+      Bond_lines_container bonds(atom_sel, imol_no, geom_p, Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS);
       bonds_box = bonds.make_graphical_bonds_no_thinning();
       bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS;
 

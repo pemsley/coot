@@ -156,7 +156,7 @@ molecule_class_info_t::setup_internal() { // init
    bonds_box_type = coot::UNSET_TYPE;
    bonds_rotate_colour_map_flag = 0;
 
-   model_representation_mode = Mesh::BALL_AND_STICK;
+   model_representation_mode = Mesh::representation_mode_t::BALL_AND_STICK;
    save_time_string = "";
 
    pickable_atom_selection = 1;
@@ -4166,15 +4166,23 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
 
       int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
       Material material;
-      Shader *shader_p = &graphics_info_t::shader_for_model_as_meshes;
 
       // 20230905-PE use model_representation_mode here.
 
-      if (model_representation_mode == Mesh::BALLS_NOT_BONDS)
-         atom_radius = 1.67; // 20220226-PE  compromise between C, N, O. Actually we should of course get
+      if (false) {
+         std::cout << "DEBUG:: ************* model_representation_mode: BALL_AND_STICK " << int(Mesh::representation_mode_t::BALL_AND_STICK) << std::endl;
+         std::cout << "DEBUG:: ************* model_representation_mode: BALLS_NOT_BONDS " << int(Mesh::representation_mode_t::BALLS_NOT_BONDS) << std::endl;
+         std::cout << "DEBUG:: ************* model_representation_mode: VDW_BALLS " << int(Mesh::representation_mode_t::VDW_BALLS) << std::endl;
+         std::cout << "DEBUG:: ************* model_representation_mode: " << int(model_representation_mode) << std::endl;
+      }
+
+      if (model_representation_mode == Mesh::representation_mode_t::BALLS_NOT_BONDS) {
+         atom_radius = 1.91; // 20220226-PE  compromise between C, N, O. Actually we should of course get
                              // the radius of each atom from its type when model_representation_mode == Mesh::BALLS_NOT_BONDS.
                              // That's for another day.
+      }
 
+      // std::cout << "DEBUG:: ************* atom_radius: " << atom_radius << std::endl;
       model_molecule_meshes.make_graphical_bonds(imol_no, bonds_box, atom_radius, bond_radius,
                                                  num_subdivisions, n_slices, n_stacks, colour_table);
 
@@ -4263,21 +4271,21 @@ molecule_class_info_t::set_model_molecule_representation_style(unsigned int mode
 
    // we should use goodsell colouring by default here
 
-   if (mode == Mesh::BALL_AND_STICK) {
-      if (model_representation_mode != Mesh::BALL_AND_STICK) {
-         model_representation_mode = mode;
+   if (int(mode) == int(Mesh::representation_mode_t::BALL_AND_STICK)) {
+      if (model_representation_mode != Mesh::representation_mode_t::BALL_AND_STICK) {
+         model_representation_mode = Mesh::representation_mode_t::BALL_AND_STICK;
          make_glsl_bonds_type_checked(__FUNCTION__);
       }
    }
-   if (mode == Mesh::BALLS_NOT_BONDS) {
-      if (model_representation_mode != Mesh::BALLS_NOT_BONDS) {
-         model_representation_mode = mode;
+   if (int(mode) == int(Mesh::representation_mode_t::BALLS_NOT_BONDS)) {
+      if (model_representation_mode != Mesh::representation_mode_t::BALLS_NOT_BONDS) {
+         model_representation_mode = Mesh::representation_mode_t::BALLS_NOT_BONDS;
          make_glsl_bonds_type_checked(__FUNCTION__);
       }
    }
-   if (mode == Mesh::VDW_BALLS) {
-      if (model_representation_mode != Mesh::VDW_BALLS) {
-         model_representation_mode = mode;
+   if (int(mode) == int(Mesh::representation_mode_t::VDW_BALLS)) {
+      if (model_representation_mode != Mesh::representation_mode_t::VDW_BALLS) {
+         model_representation_mode = Mesh::representation_mode_t::VDW_BALLS;
          make_glsl_bonds_type_checked(__FUNCTION__);
       }
    }

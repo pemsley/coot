@@ -9,10 +9,11 @@
 #include "coot-utils/oct.hh"
 #include "coot-utils/cylinder.hh"
 
+// Atom radii are limited to 2.0
 void
 make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add to this
                                                const graphical_bonds_container &gbc,
-                                               coot::api_bond_colour_t bonds_box_type,
+                                               coot::api_bond_colour_t bonds_box_type, // remove these one day
                                                int udd_handle_bonded_type,
                                                float base_atom_radius,
                                                float base_bond_radius,

@@ -623,8 +623,9 @@ public:
 
    // This is the one for user-defined, occupancy and B-factor representation
    //
-   Bond_lines_container (const atom_selection_container_t &SelAtom,
-                         int imol, bond_representation_type br_type);
+   Bond_lines_container (const atom_selection_container_t &SelAtom, int imol,
+                         const coot::protein_geometry *protein_geom,
+                         bond_representation_type br_type);
 
    explicit Bond_lines_container(int col);
 

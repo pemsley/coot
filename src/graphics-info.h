@@ -43,8 +43,6 @@
 #include <vector>
 #endif // HAVE_VECTOR
 
-// #include <utils/backward.hpp>
-
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -173,6 +171,21 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 #include "rail-points.hh"
 
 #include "extra-distance-restraint-markup.hh"
+
+// 20230920-PE It would be good to include this:
+// #include <utils/backward.hpp>
+
+// /usr/include/libintl.h:51:14: error: expected unqualified-id before ‘const’
+//    51 | extern char *dcgettext (const char *__domainname,
+//       |              ^~~~~~~~~
+// /usr/include/libintl.h:51:14: error: expected ‘)’ before ‘const’
+// ../../coot/src/support.h:39:42: note: to match this ‘(’
+//    39 | #  define dcgettext(Domain,Message,Type) (Message)
+//       |                                          ^
+// /usr/include/libintl.h:82:14: error: expected unqualified-id before ‘const’
+//   82 | extern char *textdomain (const char *__domainname) __THROW;
+//       |              ^~~~~~~~~~
+
 
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
@@ -5174,6 +5187,13 @@ string   static std::string sessionid;
          if (err) std::cout << "GL ERROR:: attach_buffers() --- post gtk_gl_area_attach_buffers() "
                             << " with gl_area " << gl_area << " "
                             << s << "() not much more insight \n";
+
+#if 0 // 20230920-PE when the include of utils/backward.hpp is fixed then we can have this
+         backward::StackTrace st;
+         backward::Printer p;
+         st.load_here(32);
+         p.print(st);
+#endif
       }
    }
 

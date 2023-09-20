@@ -14,7 +14,7 @@
 void
 Mesh::make_graphical_bonds(const graphical_bonds_container &gbc,
                            int bonds_box_type,
-                           unsigned int representation_type, // BALL_AND_STICK or BALLS_NOT_BONDS
+                           Mesh::representation_mode_t representation_type, // BALL_AND_STICK or BALLS_NOT_BONDS
                            int udd_handle_bonded_type,
                            bool draw_cis_peptides,
                            float atom_radius,
@@ -46,13 +46,13 @@ Mesh::make_graphical_bonds(const graphical_bonds_container &gbc,
    vertices.reserve(allocation_for_vertices);
    triangles.reserve(allocation_for_triangles);
 
-   if (representation_type == BALL_AND_STICK || representation_type == BALLS_NOT_BONDS) {
+   if (representation_type == Mesh::representation_mode_t::BALL_AND_STICK || representation_type == Mesh::representation_mode_t::BALLS_NOT_BONDS) {
       make_graphical_bonds_spherical_atoms(gbc, bonds_box_type, udd_handle_bonded_type, atom_radius, bond_radius, num_subdivisions, colour_table);
       make_graphical_bonds_hemispherical_atoms(gbc, bonds_box_type, udd_handle_bonded_type, atom_radius, bond_radius, num_subdivisions, colour_table);
    }
-   if (representation_type == BALL_AND_STICK)
+   if (representation_type == Mesh::representation_mode_t::BALL_AND_STICK)
          make_graphical_bonds_bonds(gbc, bond_radius, n_slices, n_stacks, colour_table);
-   if (representation_type == VDW_BALLS) {
+   if (representation_type == Mesh::representation_mode_t::VDW_BALLS) {
       make_graphical_bonds_spherical_atoms_with_vdw_radii(gbc, num_subdivisions, colour_table, geom);
    }
 
