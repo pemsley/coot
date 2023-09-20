@@ -65,6 +65,11 @@ LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, Gt
             }
         }
     }), this);
+    g_signal_connect(canvas_widget, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data){
+        LaylaState* state = (LaylaState*) user_data;
+        state->unsaved_changes = true;
+    }), this);
+    
     auto func = [](GtkWindow* win, gpointer user_data){
         auto state = (LaylaState*) user_data;
         if(state->has_unsaved_changes()) {
