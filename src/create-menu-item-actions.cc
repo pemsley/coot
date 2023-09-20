@@ -13,7 +13,6 @@
 #include "fit-loop-gui.hh"
 #include "read-molecule.hh" // 20230621-PE now with std::string args
 
-#include "support.h" // for internationalizations.
 #include "c-interface-preferences.h"
 #include "c-interface-ligands-swig.hh"
 #include "curlew-gtk4.hh"
@@ -127,9 +126,9 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File",
                                                    parent_window,
                                                    action,
-                                                   _("_Cancel"),
-                                                  GTK_RESPONSE_CANCEL,
-                                                   _("_Open"),
+                                                   ("_Cancel"),
+                                                   GTK_RESPONSE_CANCEL,
+                                                   ("_Open"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
 
@@ -175,8 +174,8 @@ void open_dataset_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWindow *parent_window = GTK_WINDOW(user_data);
    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File", parent_window, action,
-                                                   _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                                   _("_Open"), GTK_RESPONSE_ACCEPT,
+                                                   ("_Cancel"), GTK_RESPONSE_CANCEL,
+                                                   ("_Open"), GTK_RESPONSE_ACCEPT,
                                                    NULL);
    g_signal_connect(dialog, "response", G_CALLBACK(on_dataset_filechooser_dialog_response_gtk4), NULL);
    g_object_set_data(G_OBJECT(dialog), "auto_read_flag", GINT_TO_POINTER(FALSE));
@@ -208,8 +207,8 @@ void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    }
    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File", parent_window, action,
-                                                   _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                                   _("_Open"), GTK_RESPONSE_ACCEPT,
+                                                   ("_Cancel"), GTK_RESPONSE_CANCEL,
+                                                   ("_Open"), GTK_RESPONSE_ACCEPT,
                                                    NULL);
    g_signal_connect(dialog, "response", G_CALLBACK(on_dataset_filechooser_dialog_response_gtk4), NULL);
    g_object_set_data(G_OBJECT(dialog), "auto_read_flag", GINT_TO_POINTER(TRUE));
@@ -236,9 +235,9 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File",
                                                    parent_window,
                                                    action,
-                                                   _("_Cancel"),
+                                                   ("_Cancel"),
                                                    GTK_RESPONSE_CANCEL,
-                                                   _("_Open"),
+                                                   ("_Open"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
 
@@ -334,8 +333,8 @@ void import_cif_dictionary_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWindow *parent_window = GTK_WINDOW(user_data);
    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File", parent_window, action,
-                                                   _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                                   _("_Open"), GTK_RESPONSE_ACCEPT,
+                                                   ("_Cancel"), GTK_RESPONSE_CANCEL,
+                                                   ("_Open"), GTK_RESPONSE_ACCEPT,
                                                    NULL);
 
    const gchar *labels[]  = {"No Instance", "Create New Instance", NULL};
@@ -551,9 +550,9 @@ save_state_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Save State",
                                                    parent_window,
                                                    action,
-                                                   _("Cancel"),
+                                                   ("Cancel"),
                                                    GTK_RESPONSE_CANCEL,
-                                                   _("Save"),
+                                                   ("Save"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
    GtkFileFilter *filterselect = gtk_file_filter_new();
@@ -587,9 +586,9 @@ on_save_views_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Save Views",
                                                    parent_window,
                                                    action,
-                                                   _("Cancel"),
+                                                   ("Cancel"),
                                                    GTK_RESPONSE_CANCEL,
-                                                   _("Save"),
+                                                   ("Save"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
    GtkFileFilter *filterselect = gtk_file_filter_new();
@@ -1039,9 +1038,9 @@ run_script_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Run Script File",
                                                    parent_window,
                                                    action,
-                                                   _("_Cancel"),
+                                                   ("_Cancel"),
                                                    GTK_RESPONSE_CANCEL,
-                                                   _("_Open"),
+                                                   ("_Open"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
 

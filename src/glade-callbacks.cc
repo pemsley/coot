@@ -55,10 +55,6 @@
 
 #include "widget-from-builder.hh"
 
-// from support.h
-// GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
-#include "support.h"
-
 #include "fit-loop-gui.hh"
 
 // this from callbacks.h (which I don't want to include here)
@@ -935,9 +931,9 @@ on_save_coords_dialog_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
       GtkWidget *file_chooser_dialog = gtk_file_chooser_dialog_new("Save Coordinates",
                                                                    parent_window,
                                                                    action,
-                                                                   _("_Cancel"),
+                                                                   ("_Cancel"),
                                                                    GTK_RESPONSE_CANCEL,
-                                                                   _("_Save"),
+                                                                   ("_Save"),
                                                                    GTK_RESPONSE_YES,
                                                                    NULL);
 

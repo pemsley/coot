@@ -53,7 +53,6 @@
 #include <vector>
 #include "utils/coot-utils.hh"
 
-#include "support.h"  // for lookup_widget
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh" // for str_mtime

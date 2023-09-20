@@ -48,10 +48,6 @@
 #include "c-interface-refine.h"
 #include "utils/coot-utils.hh"
 
-// from support.h
-// GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
-#include "support.h" // 20220310-PE  goodbye one day soon!
-
 #include "widget-from-builder.hh"
 
 // this from callbacks.h (which I don't want to include here)
