@@ -472,6 +472,9 @@ void
 on_layla_unsaved_changes_dialog_yes_clicked(GtkButton* _btn, gpointer user_data) {
     auto* dialog = GTK_WINDOW(gtk_builder_get_object(global_layla_gtk_builder, "layla_unsaved_changes_dialog"));
     gtk_window_close(dialog);
+    LaylaState* state = GET_STATE();
+    state->unsaved_changes_dialog_accepted();
+
 }
 
 extern "C" G_MODULE_EXPORT
@@ -479,4 +482,5 @@ void
 on_layla_unsaved_changes_dialog_no_clicked(GtkButton* _btn, gpointer user_data) {
     auto* dialog = GTK_WINDOW(gtk_builder_get_object(global_layla_gtk_builder, "layla_unsaved_changes_dialog"));
     gtk_window_close(dialog);
+    // Nothing more needed here
 }

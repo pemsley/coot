@@ -46,6 +46,7 @@ LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, Gt
     this->main_window = win;
     this->status_label = status_label;
     this->monomer_library_info_store = std::make_unique<protein_geometry>();
+    this->unsaved_changes = false;
     this->notifier = coot_layla_notifier_new();
     g_signal_connect(canvas_widget, "molecule-deleted", G_CALLBACK(+[](CootLigandEditorCanvas* self, unsigned int deleted_mol_idx, gpointer user_data){
         LaylaState* state = (LaylaState*) user_data;
@@ -67,12 +68,12 @@ LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, Gt
     auto func = [](GtkWindow* win, gpointer user_data){
         auto state = (LaylaState*) user_data;
         if(state->has_unsaved_changes()) {
+            state->unsaved_changes_dialog_purpose = UnsavedChangesDialogPurpose::CloseEditor;
             auto* win = gtk_builder_get_object(global_layla_gtk_builder, "layla_unsaved_changes_dialog");
             gtk_window_present(GTK_WINDOW(win));
             return true;
         }
         // returning false closes the window
-        g_warning("Siema Eniu.");
         return false;
     };
     g_signal_connect(win, "close-request", G_CALLBACK(+func), this);
@@ -85,17 +86,39 @@ LaylaState::~LaylaState() noexcept {
     }
 }
 
-void LaylaState::reset() {
+void LaylaState::reset() noexcept {
     // for now this is sufficient.
     // Consider removing edit history too.
     this->current_filesave_filename = std::nullopt;
     this->current_filesave_filename = std::nullopt;
+    this->unsaved_changes = false;
     coot_ligand_editor_canvas_clear_molecules(this->canvas);
     this->update_status("");
 }
 
-bool LaylaState::has_unsaved_changes() {
-    return true;
+void LaylaState::unsaved_changes_dialog_accepted() {
+    if(!this->unsaved_changes_dialog_purpose.has_value()) {
+        throw std::runtime_error("unsaved_changes_dialog_accepted() called with no 'unsaved_changes_dialog_purpose' set.");
+    }
+    this->unsaved_changes = false;
+    switch(this->unsaved_changes_dialog_purpose.value()) {
+        case UnsavedChangesDialogPurpose::CloseEditor: {
+            this->file_exit();
+            break;
+        }
+        case UnsavedChangesDialogPurpose::FileNew: {
+            this->file_new();
+            break;
+        }
+        default: {
+            throw std::runtime_error("Unknown value of UnsavedChangesDialogPurpose.");
+            break;
+        }
+    }
+}
+
+bool LaylaState::has_unsaved_changes() const noexcept {
+    return this->unsaved_changes;
 }
 
 CootLigandEditorCanvas* LaylaState::get_canvas() const noexcept {
@@ -421,8 +444,12 @@ void LaylaState::file_fetch_molecule() {
 }
 
 void LaylaState::file_new() {
-    g_warning("TODO: Finish implementing void LaylaState::file_new()");
-    // A confirmation dialog if we have some unsaved data? Same thing on closing the editor
+    if(this->has_unsaved_changes()) {
+        this->unsaved_changes_dialog_purpose = UnsavedChangesDialogPurpose::FileNew;
+        auto* win = gtk_builder_get_object(global_layla_gtk_builder, "layla_unsaved_changes_dialog");
+        gtk_window_present(GTK_WINDOW(win));
+        return;
+    }
     this->reset();
     
 }
@@ -444,6 +471,7 @@ void LaylaState::save_file(unsigned int idx, const char* filename, GtkWindow* pa
         this->update_status("File saved.");
         this->current_filesave_filename = std::string(filename);
         this->current_filesave_molecule = idx;
+        this->unsaved_changes = false;
     } catch(std::exception& e) {
         g_warning("MolFile Save error: %s",e.what());
         auto* message = gtk_message_dialog_new(
