@@ -172,8 +172,9 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "extra-distance-restraint-markup.hh"
 
-// 20230920-PE It would be good to include this:
-// #include <utils/backward.hpp>
+#ifdef USE_BACKWARD
+#include <utils/backward.hpp>
+#endif
 
 // /usr/include/libintl.h:51:14: error: expected unqualified-id before ‘const’
 //    51 | extern char *dcgettext (const char *__domainname,
@@ -5178,22 +5179,31 @@ string   static std::string sessionid;
    void load_gltf_model(const std::string &gltf_file_name);
 
    static void attach_buffers(const char *s = __builtin_FUNCTION()) {
-      GLenum err = glGetError();
-      if (err) std::cout << "GL ERROR:: attach_buffers --- start ---\n";
       if (use_graphics_interface_flag) {
+         GLenum err = glGetError();
+         if (err) {
+            std::cout << "GL ERROR:: attach_buffers --- start ---\n";
+#ifdef USE_BACKWARD
+            backward::StackTrace st;
+            backward::Printer p;
+            st.load_here(32);
+            p.print(st);
+#endif
+         }
          auto gl_area = glareas[0];
          gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));
          err = glGetError();
-         if (err) std::cout << "GL ERROR:: attach_buffers() --- post gtk_gl_area_attach_buffers() "
-                            << " with gl_area " << gl_area << " "
-                            << s << "() not much more insight \n";
-
-#if 0 // 20230920-PE when the include of utils/backward.hpp is fixed then we can have this
-         backward::StackTrace st;
-         backward::Printer p;
-         st.load_here(32);
-         p.print(st);
+         if (err) {
+            std::cout << "GL ERROR:: attach_buffers() --- post gtk_gl_area_attach_buffers() "
+                      << " with gl_area " << gl_area << " calling function: "
+                      << s << "()\n";
+#ifdef USE_BACKWARD
+            backward::StackTrace st;
+            backward::Printer p;
+            st.load_here(32);
+            p.print(st);
 #endif
+         }
       }
    }
 
