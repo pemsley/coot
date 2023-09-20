@@ -80,7 +80,6 @@ LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, Gt
         // returning false closes the window
         return false;
     }), this);
-    //g_object_set_data(G_OBJECT(win), "ligand_builder_instance", this);
 }
 
 LaylaState::~LaylaState() noexcept {
