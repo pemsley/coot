@@ -1859,4 +1859,50 @@ Paul Emsley</property>
       </object>
     </child>
   </object>
+  <object class="GtkWindow" id="layla_unsaved_changes_dialog">
+    <property name="transient-for">layla_window</property>
+    <property name="title">Layla: Unsaved Changes</property>
+    <property name="hide-on-close">true</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="margin-start">10</property>
+        <property name="margin-end">10</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <property name="spacing">10</property>
+        <child>
+          <object class="GtkImage">
+            <property name="icon-name">dialog-warning-symbolic</property>
+            <property name="pixel-size">48</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel">
+            <property name="label">You have unsaved changes!
+Do you really want to continue?</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">10</property>
+            <child>
+              <object class="GtkButton">
+                <property name="label">Yes</property>
+                <signal name="clicked" handler="on_layla_unsaved_changes_dialog_yes_clicked" swapped="false" />
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label">No</property>
+                <property name="receives-default">true</property>
+                <signal name="clicked" handler="on_layla_unsaved_changes_dialog_no_clicked" swapped="false" />
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
 </interface>
