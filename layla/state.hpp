@@ -80,6 +80,8 @@ class LaylaState {
 
     /// Clears all molecules, file names, etc.
     void reset();
+    
+    bool has_unsaved_changes();
 
     // TOOLS
     void run_choose_element_dialog();

@@ -46,6 +46,7 @@ LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, Gt
     this->main_window = win;
     this->status_label = status_label;
     this->monomer_library_info_store = std::make_unique<protein_geometry>();
+    this->notifier = coot_layla_notifier_new();
     g_signal_connect(canvas_widget, "molecule-deleted", G_CALLBACK(+[](CootLigandEditorCanvas* self, unsigned int deleted_mol_idx, gpointer user_data){
         LaylaState* state = (LaylaState*) user_data;
         if (state->current_filesave_molecule.has_value()) {
@@ -63,7 +64,18 @@ LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, Gt
             }
         }
     }), this);
-    this->notifier = coot_layla_notifier_new();
+    auto func = [](GtkWindow* win, gpointer user_data){
+        auto state = (LaylaState*) user_data;
+        if(state->has_unsaved_changes()) {
+            auto* win = gtk_builder_get_object(global_layla_gtk_builder, "layla_unsaved_changes_dialog");
+            gtk_window_present(GTK_WINDOW(win));
+            return true;
+        }
+        // returning false closes the window
+        g_warning("Siema Eniu.");
+        return false;
+    };
+    g_signal_connect(win, "close-request", G_CALLBACK(+func), this);
     //g_object_set_data(G_OBJECT(win), "ligand_builder_instance", this);
 }
 
@@ -76,8 +88,14 @@ LaylaState::~LaylaState() noexcept {
 void LaylaState::reset() {
     // for now this is sufficient.
     // Consider removing edit history too.
-    this->file_new();
+    this->current_filesave_filename = std::nullopt;
+    this->current_filesave_filename = std::nullopt;
+    coot_ligand_editor_canvas_clear_molecules(this->canvas);
     this->update_status("");
+}
+
+bool LaylaState::has_unsaved_changes() {
+    return true;
 }
 
 CootLigandEditorCanvas* LaylaState::get_canvas() const noexcept {
@@ -405,9 +423,8 @@ void LaylaState::file_fetch_molecule() {
 void LaylaState::file_new() {
     g_warning("TODO: Finish implementing void LaylaState::file_new()");
     // A confirmation dialog if we have some unsaved data? Same thing on closing the editor
-    this->current_filesave_filename = std::nullopt;
-    this->current_filesave_filename = std::nullopt;
-    coot_ligand_editor_canvas_clear_molecules(this->canvas);
+    this->reset();
+    
 }
 
 void LaylaState::file_save() {
@@ -644,7 +661,6 @@ void LaylaState::file_export(ExportMode mode) {
 }
 
 void LaylaState::file_exit() {
-    // todo: this should probably do some checks before just closing
     gtk_window_close(GTK_WINDOW(this->main_window));
 }
 

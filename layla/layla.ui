@@ -1880,7 +1880,7 @@ Paul Emsley</property>
         <child>
           <object class="GtkLabel">
             <property name="label">You have unsaved changes!
-Do you really want to quit?</property>
+Do you really want to continue?</property>
           </object>
         </child>
         <child>
