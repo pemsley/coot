@@ -74,7 +74,7 @@ struct GeneratorTaskData {
         }
         if (this->input_stream) {
             g_warning("todo: Make sure that `input_stream` does not leak and there's no crash.");
-           // g_object_unref(input_stream);
+            g_object_unref(input_stream);
         }
         this->request.reset();
         this->file_contents.reset();
