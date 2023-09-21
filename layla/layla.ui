@@ -200,6 +200,13 @@
                   </object>
                 </child>
                 <signal name="clicked" handler="layla_on_move_button_clicked" swapped="no" object="layla_window" />
+                <property name="tooltip-markup">&lt;b&gt;Move Tool&lt;/b&gt;
+Move molecules around the screen.
+
+Left click on a molecule and drag to move it.
+
+Move mode is also triggered by pressing the Alt key.
+                </property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -225,6 +232,13 @@
               <object class="GtkToggleButton" id="layla_rotate_button">
                 <signal name="clicked" handler="layla_on_rotate_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Rotate Tool&lt;/b&gt;
+Rotate molecules.
+
+Left click on a molecule and drag to rotate it.
+
+Rotation mode is also triggered by pressing the Shift key.
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -261,6 +275,12 @@
               <object class="GtkToggleButton" id="layla_flip_x_button">
                 <signal name="clicked" handler="layla_on_flip_x_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Flip Horizontal&lt;/b&gt;
+Flip molecule in the X axis.
+
+Left click on a molecule to flip it.
+If there's a single molecule on the screen, it will get flipped when the tool is selected.
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -297,6 +317,12 @@
               <object class="GtkToggleButton" id="layla_flip_y_button">
                 <signal name="clicked" handler="layla_on_flip_y_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Flip Vertical&lt;/b&gt;
+Flip molecule in the Y axis.
+
+Left click on a molecule to flip it.
+If there's a single molecule on the screen, it will get flipped when the tool is selected.
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -336,6 +362,12 @@
               <object class="GtkToggleButton" id="layla_format_button">
                 <signal name="clicked" handler="layla_on_format_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Format Tool&lt;/b&gt;
+"Formatting" re-computes atom positions of the selected molecule on the screen.
+
+Left click on a molecule to format it.
+If there's a single molecule on the screen, it will get formatted when the tool is selected.
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -383,6 +415,12 @@
               <object class="GtkToggleButton" id="layla_delete_hydrogens_button">
                 <signal name="clicked" handler="layla_on_delete_hydrogens_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Remove Hydrogens Tool&lt;/b&gt;
+Removes explicit non-polar hydrogens from the selected molecule.
+
+Left click on a molecule to remove explicit non-polar hydrogens.
+If there's a single molecule on the screen, it will get processed automatically when the tool is selected.
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
