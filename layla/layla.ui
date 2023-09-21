@@ -767,6 +767,12 @@ Delete atoms, bonds or molecules.
               <object class="GtkToggleButton" id="layla_3C_button">
                 <signal name="clicked" handler="layla_on_3C_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Carbon Ring Tool&lt;/b&gt;
+Insert a carbon ring.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a carbon ring (of the selected kind) adjacent to the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Attach a carbon ring (of the selected kind) to the atom.
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -804,6 +810,12 @@ Delete atoms, bonds or molecules.
               <object class="GtkToggleButton" id="layla_4C_button">
                 <signal name="clicked" handler="layla_on_4C_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Carbon Ring Tool&lt;/b&gt;
+Insert a carbon ring.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a carbon ring (of the selected kind) adjacent to the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Attach a carbon ring (of the selected kind) to the atom.
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -841,6 +853,12 @@ Delete atoms, bonds or molecules.
               <object class="GtkToggleButton" id="layla_5C_button">
                 <signal name="clicked" handler="layla_on_5C_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Carbon Ring Tool&lt;/b&gt;
+Insert a carbon ring.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a carbon ring (of the selected kind) adjacent to the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Attach a carbon ring (of the selected kind) to the atom.
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -878,6 +896,12 @@ Delete atoms, bonds or molecules.
               <object class="GtkToggleButton" id="layla_6C_button">
                 <signal name="clicked" handler="layla_on_6C_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Carbon Ring Tool&lt;/b&gt;
+Insert a carbon ring.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a carbon ring (of the selected kind) adjacent to the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Attach a carbon ring (of the selected kind) to the atom.
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -915,6 +939,12 @@ Delete atoms, bonds or molecules.
               <object class="GtkToggleButton" id="layla_6Arom_button">
                 <signal name="clicked" handler="layla_on_6Arom_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Carbon Ring Tool&lt;/b&gt;
+Insert a carbon ring.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a carbon ring (of the selected kind) adjacent to the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Attach a carbon ring (of the selected kind) to the atom.
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -958,6 +988,12 @@ Delete atoms, bonds or molecules.
               <object class="GtkToggleButton" id="layla_7C_button">
                 <signal name="clicked" handler="layla_on_7C_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Carbon Ring Tool&lt;/b&gt;
+Insert a carbon ring.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a carbon ring (of the selected kind) adjacent to the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Attach a carbon ring (of the selected kind) to the atom.
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -995,6 +1031,12 @@ Delete atoms, bonds or molecules.
               <object class="GtkToggleButton" id="layla_8C_button">
                 <signal name="clicked" handler="layla_on_8C_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Carbon Ring Tool&lt;/b&gt;
+Insert a carbon ring.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a carbon ring (of the selected kind) adjacent to the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Attach a carbon ring (of the selected kind) to the atom.
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -1042,6 +1084,14 @@ Delete atoms, bonds or molecules.
                     <property name="label">C</property>
                     <signal name="clicked" handler="layla_on_C_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <property name="tooltip-markup">&lt;b&gt;Element Tool&lt;/b&gt;
+Add a new atom or replace an existent atom with the chosen element.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a new atom (of the selected kind) in between the atoms of the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Replace the atom with the chosen element.
+
+&lt;b&gt;&lt;i&gt;X&lt;/i&gt;&lt;/b&gt; allows to manually type in a custom symbol.
+                    </property>
                     <child>
                       <object class='GtkShortcutController'>
                         <property name='scope'>managed</property>
@@ -1060,6 +1110,14 @@ Delete atoms, bonds or molecules.
                     <property name="label">N</property>
                     <signal name="clicked" handler="layla_on_N_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <property name="tooltip-markup">&lt;b&gt;Element Tool&lt;/b&gt;
+Add a new atom or replace an existent atom with the chosen element.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a new atom (of the selected kind) in between the atoms of the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Replace the atom with the chosen element.
+
+&lt;b&gt;&lt;i&gt;X&lt;/i&gt;&lt;/b&gt; allows to manually type in a custom symbol.
+                    </property>
                     <child>
                       <object class='GtkShortcutController'>
                         <property name='scope'>managed</property>
@@ -1078,6 +1136,14 @@ Delete atoms, bonds or molecules.
                     <property name="label">O</property>
                     <signal name="clicked" handler="layla_on_O_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <property name="tooltip-markup">&lt;b&gt;Element Tool&lt;/b&gt;
+Add a new atom or replace an existent atom with the chosen element.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a new atom (of the selected kind) in between the atoms of the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Replace the atom with the chosen element.
+
+&lt;b&gt;&lt;i&gt;X&lt;/i&gt;&lt;/b&gt; allows to manually type in a custom symbol.
+                    </property>
                     <child>
                       <object class='GtkShortcutController'>
                         <property name='scope'>managed</property>
@@ -1096,6 +1162,14 @@ Delete atoms, bonds or molecules.
                     <property name="label">S</property>
                     <signal name="clicked" handler="layla_on_S_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <property name="tooltip-markup">&lt;b&gt;Element Tool&lt;/b&gt;
+Add a new atom or replace an existent atom with the chosen element.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a new atom (of the selected kind) in between the atoms of the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Replace the atom with the chosen element.
+
+&lt;b&gt;&lt;i&gt;X&lt;/i&gt;&lt;/b&gt; allows to manually type in a custom symbol.
+                    </property>
                     <child>
                       <object class='GtkShortcutController'>
                         <property name='scope'>managed</property>
@@ -1114,6 +1188,14 @@ Delete atoms, bonds or molecules.
                     <property name="label">P</property>
                     <signal name="clicked" handler="layla_on_P_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <property name="tooltip-markup">&lt;b&gt;Element Tool&lt;/b&gt;
+Add a new atom or replace an existent atom with the chosen element.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a new atom (of the selected kind) in between the atoms of the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Replace the atom with the chosen element.
+
+&lt;b&gt;&lt;i&gt;X&lt;/i&gt;&lt;/b&gt; allows to manually type in a custom symbol.
+                    </property>
                     <child>
                       <object class='GtkShortcutController'>
                         <property name='scope'>managed</property>
@@ -1132,6 +1214,14 @@ Delete atoms, bonds or molecules.
                     <property name="label">H</property>
                     <signal name="clicked" handler="layla_on_H_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <property name="tooltip-markup">&lt;b&gt;Element Tool&lt;/b&gt;
+Add a new atom or replace an existent atom with the chosen element.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a new atom (of the selected kind) in between the atoms of the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Replace the atom with the chosen element.
+
+&lt;b&gt;&lt;i&gt;X&lt;/i&gt;&lt;/b&gt; allows to manually type in a custom symbol.
+                    </property>
                     <child>
                       <object class='GtkShortcutController'>
                         <property name='scope'>managed</property>
@@ -1150,6 +1240,14 @@ Delete atoms, bonds or molecules.
                     <property name="label">F</property>
                     <signal name="clicked" handler="layla_on_F_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <property name="tooltip-markup">&lt;b&gt;Element Tool&lt;/b&gt;
+Add a new atom or replace an existent atom with the chosen element.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a new atom (of the selected kind) in between the atoms of the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Replace the atom with the chosen element.
+
+&lt;b&gt;&lt;i&gt;X&lt;/i&gt;&lt;/b&gt; allows to manually type in a custom symbol.
+                    </property>
                     <child>
                       <object class='GtkShortcutController'>
                         <property name='scope'>managed</property>
@@ -1168,6 +1266,14 @@ Delete atoms, bonds or molecules.
                     <property name="label">Cl</property>
                     <signal name="clicked" handler="layla_on_Cl_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <property name="tooltip-markup">&lt;b&gt;Element Tool&lt;/b&gt;
+Add a new atom or replace an existent atom with the chosen element.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a new atom (of the selected kind) in between the atoms of the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Replace the atom with the chosen element.
+
+&lt;b&gt;&lt;i&gt;X&lt;/i&gt;&lt;/b&gt; allows to manually type in a custom symbol.
+                    </property>
                     <child>
                       <object class='GtkShortcutController'>
                         <property name='scope'>managed</property>
@@ -1186,6 +1292,14 @@ Delete atoms, bonds or molecules.
                     <property name="label">Br</property>
                     <signal name="clicked" handler="layla_on_Br_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <property name="tooltip-markup">&lt;b&gt;Element Tool&lt;/b&gt;
+Add a new atom or replace an existent atom with the chosen element.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a new atom (of the selected kind) in between the atoms of the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Replace the atom with the chosen element.
+
+&lt;b&gt;&lt;i&gt;X&lt;/i&gt;&lt;/b&gt; allows to manually type in a custom symbol.
+                    </property>
                     <child>
                       <object class='GtkShortcutController'>
                         <property name='scope'>managed</property>
@@ -1204,6 +1318,14 @@ Delete atoms, bonds or molecules.
                     <property name="label">I</property>
                     <signal name="clicked" handler="layla_on_I_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <property name="tooltip-markup">&lt;b&gt;Element Tool&lt;/b&gt;
+Add a new atom or replace an existent atom with the chosen element.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a new atom (of the selected kind) in between the atoms of the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Replace the atom with the chosen element.
+
+&lt;b&gt;&lt;i&gt;X&lt;/i&gt;&lt;/b&gt; allows to manually type in a custom symbol.
+                    </property>
                     <child>
                       <object class='GtkShortcutController'>
                         <property name='scope'>managed</property>
@@ -1222,6 +1344,14 @@ Delete atoms, bonds or molecules.
                     <property name="label">X</property>
                     <signal name="clicked" handler="layla_on_X_button_clicked" swapped="no" object="layla_window" />
                     <property name="group">layla_move_button</property>
+                    <property name="tooltip-markup">&lt;b&gt;Element Tool&lt;/b&gt;
+Add a new atom or replace an existent atom with the chosen element.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a new atom (of the selected kind) in between the atoms of the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Replace the atom with the chosen element.
+
+&lt;b&gt;&lt;i&gt;X&lt;/i&gt;&lt;/b&gt; allows to manually type in a custom symbol.
+                    </property>
                     <child>
                       <object class='GtkShortcutController'>
                         <property name='scope'>managed</property>
@@ -1299,6 +1429,7 @@ Delete atoms, bonds or molecules.
             <child>
               <object class="GtkCheckButton" id="layla_invalid_molecule_checkbutton">
                 <property name="label">Allow invalid molecules</property>
+                <property name="tooltip-markup">Allows for working on chemically nonsensical molecules</property>
                 <property name="margin-end">10</property>
                 <layout>
                   <property name="column">0</property>
@@ -1349,6 +1480,7 @@ Delete atoms, bonds or molecules.
               <object class="GtkButton" id="layla_apply_button">
                 <property name="halign">end</property>
                 <property name="label">Apply</property>
+                <property name="tooltip-markup">Generate CIF restraint dictionary with an external program</property>
                 <signal name="clicked" handler="layla_on_apply" swapped="no" />
                 <child>
                   <object class='GtkShortcutController'>
