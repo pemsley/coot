@@ -72,6 +72,7 @@ layla_on_apply(GtkButton* button, gpointer user_data) {
     
     gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(molecule_combobox));
     CootLigandEditorCanvas* canvas = GET_CANVAS();
+    
     if(coot_ligand_editor_canvas_get_molecule_count(canvas) == 0) {
         gtk_widget_set_sensitive(GTK_WIDGET(accept_button), FALSE);
     } else {

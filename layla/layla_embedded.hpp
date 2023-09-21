@@ -28,6 +28,7 @@ namespace coot {
 
 bool is_layla_initialized();
 GtkApplicationWindow* initialize_layla(GtkApplication* app);
+void deinitialize_layla();
 void launch_layla();
 void launch_layla(std::shared_ptr<RDKit::RWMol> mol);
 

@@ -203,9 +203,9 @@
                 <property name="tooltip-markup">&lt;b&gt;Move Tool&lt;/b&gt;
 Move molecules around the screen.
 
-Left click on a molecule and drag to move it.
+&lt;b&gt;Left click&lt;/b&gt; on a molecule (and drag) to move it.
 
-Move mode is also triggered by pressing the Alt key.
+Move mode is also triggered by pressing the &lt;b&gt;Alt&lt;/b&gt; key.
                 </property>
                 <child>
                   <object class="GtkBox">
@@ -235,9 +235,10 @@ Move mode is also triggered by pressing the Alt key.
                 <property name="tooltip-markup">&lt;b&gt;Rotate Tool&lt;/b&gt;
 Rotate molecules.
 
-Left click on a molecule and drag to rotate it.
+&lt;b&gt;Left click&lt;/b&gt; on a molecule (and drag) to rotate it.
+Press &lt;b&gt;Alt&lt;/b&gt; while dragging to snap angles (by 15 degrees).
 
-Rotation mode is also triggered by pressing the Shift key.
+Rotation mode is also triggered by pressing the &lt;b&gt;Shift&lt;/b&gt; key.
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
@@ -278,7 +279,7 @@ Rotation mode is also triggered by pressing the Shift key.
                 <property name="tooltip-markup">&lt;b&gt;Flip Horizontal&lt;/b&gt;
 Flip molecule in the X axis.
 
-Left click on a molecule to flip it.
+&lt;b&gt;Left click&lt;/b&gt; on a molecule to flip it.
 If there's a single molecule on the screen, it will get flipped when the tool is selected.
                 </property>
                 <child>
@@ -320,7 +321,7 @@ If there's a single molecule on the screen, it will get flipped when the tool is
                 <property name="tooltip-markup">&lt;b&gt;Flip Vertical&lt;/b&gt;
 Flip molecule in the Y axis.
 
-Left click on a molecule to flip it.
+&lt;b&gt;Left click&lt;/b&gt; on a molecule to flip it.
 If there's a single molecule on the screen, it will get flipped when the tool is selected.
                 </property>
                 <child>
@@ -365,7 +366,7 @@ If there's a single molecule on the screen, it will get flipped when the tool is
                 <property name="tooltip-markup">&lt;b&gt;Format Tool&lt;/b&gt;
 "Formatting" re-computes atom positions of the selected molecule on the screen.
 
-Left click on a molecule to format it.
+&lt;b&gt;Left click&lt;/b&gt; on a molecule to format it.
 If there's a single molecule on the screen, it will get formatted when the tool is selected.
                 </property>
                 <child>
@@ -418,7 +419,7 @@ If there's a single molecule on the screen, it will get formatted when the tool 
                 <property name="tooltip-markup">&lt;b&gt;Remove Hydrogens Tool&lt;/b&gt;
 Removes explicit non-polar hydrogens from the selected molecule.
 
-Left click on a molecule to remove explicit non-polar hydrogens.
+&lt;b&gt;Left click&lt;/b&gt; on a molecule to remove explicit non-polar hydrogens.
 If there's a single molecule on the screen, it will get processed automatically when the tool is selected.
                 </property>
                 <child>
@@ -464,8 +465,9 @@ If there's a single molecule on the screen, it will get processed automatically 
                 <property name="tooltip-markup">&lt;b&gt;Single Bond Tool&lt;/b&gt;
 Add bond (of the selected kind) or replace an existing one.
 
-&lt;b&gt;Left click on a bond&lt;/b&gt; - replace it with the selected kind of bond.
-&lt;b&gt;Left click on an atom&lt;/b&gt; - append a new bond to the atom (along with a new carbon atom).
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Replace it with the selected kind of bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Append a new bond to the atom (along with a new carbon atom).
+&lt;b&gt;Left click on an atom and drag&lt;/b&gt; - Begin creating new bond via dragging. Release mouse at the final atom to complete the now bond.
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
@@ -506,8 +508,9 @@ Add bond (of the selected kind) or replace an existing one.
                 <property name="tooltip-markup">&lt;b&gt;Double Bond Tool&lt;/b&gt;
 Add bond (of the selected kind) or replace an existing one.
 
-&lt;b&gt;Left click on a bond&lt;/b&gt; - replace it with the selected kind of bond.
-&lt;b&gt;Left click on an atom&lt;/b&gt; - append a new bond to the atom (along with a new carbon atom).
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Replace it with the selected kind of bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Append a new bond to the atom (along with a new carbon atom).
+&lt;b&gt;Left click on an atom and drag&lt;/b&gt; - Begin creating new bond via dragging. Release mouse at the final atom to complete the now bond.
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
@@ -548,8 +551,9 @@ Add bond (of the selected kind) or replace an existing one.
                 <property name="tooltip-markup">&lt;b&gt;Triple Bond Tool&lt;/b&gt;
 Add bond (of the selected kind) or replace an existing one.
 
-&lt;b&gt;Left click on a bond&lt;/b&gt; - replace it with the selected kind of bond.
-&lt;b&gt;Left click on an atom&lt;/b&gt; - append a new bond to the atom (along with a new carbon atom).
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Replace it with the selected kind of bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Append a new bond to the atom (along with a new carbon atom).
+&lt;b&gt;Left click on an atom and drag&lt;/b&gt; - Begin creating new bond via dragging. Release mouse at the final atom to complete the now bond.
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
@@ -590,7 +594,7 @@ Add bond (of the selected kind) or replace an existing one.
                 <property name="tooltip-markup">&lt;b&gt;Bond Geometry Tool&lt;/b&gt;
 Alter geometry of a bond.
 
-Left click on a bond cycles between &lt;i&gt;"wedged"&lt;/i&gt;, &lt;i&gt;"dashed"&lt;/i&gt; and unspecified (&lt;i&gt;"wavy"&lt;/i&gt;) bond geometry.
+&lt;b&gt;Left click&lt;/b&gt; on a bond cycles between &lt;i&gt;"wedged"&lt;/i&gt;, &lt;i&gt;"dashed"&lt;/i&gt; and unspecified (&lt;i&gt;"wavy"&lt;/i&gt;) bond geometry.
 Bond geometry is only represented for single bonds.
                 </property>
                 <child>
@@ -1746,6 +1750,7 @@ Paul Emsley</property>
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
             <property name="spacing">5</property>
+            <property name="halign">end</property>
             <child>
               <object class="GtkButton" id="layla_generator_progress_dialog_cancel_button">
                 <property name="label">Cancel</property>
@@ -2099,6 +2104,7 @@ Do you really want to continue?</property>
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
             <property name="spacing">10</property>
+            <property name="halign">end</property>
             <child>
               <object class="GtkButton">
                 <property name="label">Yes</property>
