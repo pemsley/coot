@@ -236,6 +236,7 @@ Move mode is also triggered by pressing the Alt key.
 Rotate molecules.
 
 Left click on a molecule and drag to rotate it.
+Press Alt while dragging to snap angles (by 15 degrees).
 
 Rotation mode is also triggered by pressing the Shift key.
                 </property>
