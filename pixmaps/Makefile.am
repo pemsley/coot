@@ -83,7 +83,7 @@ koppi-green-tick-64.png rygle-red-cross-64.png forest51690-dwcheckno-incomplete-
   layla_8c.svg            layla_charge_tool.svg  layla_delete_hydrogens_tool.svg \
   layla_double_bond.svg   layla_format_tool.svg  layla_geometry_tool-dark.svg    \
   layla_geometry_tool.svg layla_key.svg          layla_move_tool.svg             \
-  layla_single_bond.svg   layla_triple_bond.svg  coot-layla.svg
+  layla_single_bond.svg   layla_triple_bond.svg
 
 
 if CLIPPER_TOP8000

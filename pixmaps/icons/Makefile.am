@@ -4,8 +4,9 @@ EXTRA_DIST = hicolor_apps_48x48_coot.png   \
 	     hicolor_apps_96x96_coot.png   \
 	     hicolor_apps_256x256_coot.png \
 	     hicolor_apps_scalable_coot.svg \
-             hicolor_actions_scalable_Stock-dialog-warning.svg \
-             hicolor_actions_scalable_Stock-dialog-information.svg
+		 hicolor_apps_scalable_coot-layla.svg \
+		 hicolor_actions_scalable_Stock-dialog-warning.svg \
+		 hicolor_actions_scalable_Stock-dialog-information.svg
 
 # This needs to be installed in Coot.app/Contents/Resources, only on macOS though.
 # Currently this provides a blank icon (i.e. it doesn't work) when viewing the Coot.app
