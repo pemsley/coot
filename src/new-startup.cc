@@ -11,6 +11,7 @@
 #include "utils/coot-utils.hh"
 #include "command-line.hh"
 #include "c-interface-preferences.h"
+#include "layla/layla_embedded.hpp"
 
 void print_opengl_info();
 
@@ -736,6 +737,13 @@ new_startup_application_activate(GtkApplication *application,
       gtk_window_set_child(GTK_WINDOW(app_window), graphics_vbox);
 
       gtk_window_present(GTK_WINDOW(app_window));
+
+      g_signal_connect(app_window, "destroy", G_CALLBACK(+[](GtkWidget *w, gpointer user_data){
+         if(coot::is_layla_initialized()) {
+            g_info("De-initializing Layla so that GtkApplication can exit...");
+            coot::deinitialize_layla();
+         }
+      }), nullptr);
       // gtk_widget_set_visible(window, TRUE);
 
       GtkWidget *gl_area = new_startup_create_glarea_widget();
