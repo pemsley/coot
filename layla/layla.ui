@@ -101,7 +101,6 @@
   <object class="GtkApplicationWindow" id="layla_window">
     <property name="icon-name">coot-layla</property>
     <property name="title">Layla: Coot's Ligand Builder</property>
-    
     <child>
       <object class='GtkShortcutController'>
         <property name='scope'>managed</property>
