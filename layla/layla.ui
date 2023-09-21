@@ -1750,6 +1750,7 @@ Paul Emsley</property>
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
             <property name="spacing">5</property>
+            <property name="halign">end</property>
             <child>
               <object class="GtkButton" id="layla_generator_progress_dialog_cancel_button">
                 <property name="label">Cancel</property>
@@ -2103,6 +2104,7 @@ Do you really want to continue?</property>
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
             <property name="spacing">10</property>
+            <property name="halign">end</property>
             <child>
               <object class="GtkButton">
                 <property name="label">Yes</property>
