@@ -1513,6 +1513,7 @@ Add a new atom or replace an existent atom with the chosen element.
   </object>
   <object class="GtkAboutDialog" id="layla_about_dialog">
     <property name="hide-on-close">true</property>
+    <property name="transient-for">layla_window</property>
     <property name="authors">Jakub Smulski
 Paul Emsley</property>
     <property name="comments">Coot's Ligand builder, successor to Lidia</property>
