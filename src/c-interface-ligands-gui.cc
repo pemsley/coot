@@ -711,7 +711,8 @@ start_ligand_builder_gui() {
       graphics_info_t g;
       GtkApplication *app = g.application;
       GtkApplicationWindow *win = coot::initialize_layla(app);
-      g.set_transient_for_main_window(GTK_WIDGET(win));
+      // This is not correct
+      // g.set_transient_for_main_window(GTK_WIDGET(win));
       CootLaylaNotifier* notifier = coot::layla::global_instance->get_notifier();
       g_signal_connect(notifier,
                      "cif-file-generated",
