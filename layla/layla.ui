@@ -461,6 +461,12 @@ If there's a single molecule on the screen, it will get processed automatically 
               <object class="GtkToggleButton" id="layla_single_bond_button">
                 <signal name="clicked" handler="layla_on_single_bond_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Single Bond Tool&lt;/b&gt;
+Add bond (of the selected kind) or replace an existing one.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - replace it with the selected kind of bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - append a new bond to the atom (along with a new carbon atom).
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -497,6 +503,12 @@ If there's a single molecule on the screen, it will get processed automatically 
               <object class="GtkToggleButton" id="layla_double_bond_button">
                 <signal name="clicked" handler="layla_on_double_bond_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Double Bond Tool&lt;/b&gt;
+Add bond (of the selected kind) or replace an existing one.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - replace it with the selected kind of bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - append a new bond to the atom (along with a new carbon atom).
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -533,6 +545,12 @@ If there's a single molecule on the screen, it will get processed automatically 
               <object class="GtkToggleButton" id="layla_triple_bond_button">
                 <signal name="clicked" handler="layla_on_triple_bond_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Triple Bond Tool&lt;/b&gt;
+Add bond (of the selected kind) or replace an existing one.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - replace it with the selected kind of bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - append a new bond to the atom (along with a new carbon atom).
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -569,6 +587,12 @@ If there's a single molecule on the screen, it will get processed automatically 
               <object class="GtkToggleButton" id="layla_geometry_button">
                 <signal name="clicked" handler="layla_on_geometry_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Bond Geometry Tool&lt;/b&gt;
+Alter geometry of a bond.
+
+Left click on a bond cycles between &lt;i&gt;"wedged"&lt;/i&gt;, &lt;i&gt;"dashed"&lt;/i&gt; and unspecified (&lt;i&gt;"wavy"&lt;/i&gt;) bond geometry.
+Bond geometry is only represented for single bonds.
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
@@ -605,8 +629,11 @@ If there's a single molecule on the screen, it will get processed automatically 
               <object class="GtkToggleButton" id="layla_charge_button">
                 <signal name="clicked" handler="layla_on_charge_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
-                <property name="tooltip-markup">&lt;b&gt;left click&lt;/b&gt; - add electrons (towards negative)
-&lt;b&gt;right click&lt;/b&gt; - remove electrons (towards positive)
+                <property name="tooltip-markup">&lt;b&gt;Atom Charge Tool&lt;/b&gt;
+Alter charge of an atom.
+
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Add electrons (more negative charge).
+&lt;b&gt;Right click on an atom&lt;/b&gt; - Remove electrons (more positive charge).
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
@@ -644,6 +671,14 @@ If there's a single molecule on the screen, it will get processed automatically 
               <object class="GtkToggleButton" id="layla_delete_button">
                 <signal name="clicked" handler="layla_on_delete_button_clicked" swapped="no" object="layla_window" />
                 <property name="group">layla_move_button</property>
+                <property name="tooltip-markup">&lt;b&gt;Delete Tool&lt;/b&gt;
+Delete atoms, bonds or molecules.
+
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Removes the bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Removes the atom.
+
+&lt;b&gt;Control + Left click on a molecule&lt;/b&gt; - Remove the selected molecule.
+                </property>
                 <child>
                   <object class='GtkShortcutController'>
                     <property name='scope'>managed</property>
