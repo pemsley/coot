@@ -465,8 +465,9 @@ If there's a single molecule on the screen, it will get processed automatically 
                 <property name="tooltip-markup">&lt;b&gt;Single Bond Tool&lt;/b&gt;
 Add bond (of the selected kind) or replace an existing one.
 
-&lt;b&gt;Left click on a bond&lt;/b&gt; - replace it with the selected kind of bond.
-&lt;b&gt;Left click on an atom&lt;/b&gt; - append a new bond to the atom (along with a new carbon atom).
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Replace it with the selected kind of bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Append a new bond to the atom (along with a new carbon atom).
+&lt;b&gt;Left click on an atom and drag&lt;/b&gt; - Begin creating new bond via dragging. Release mouse at the final atom to complete the now bond.
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
@@ -507,8 +508,9 @@ Add bond (of the selected kind) or replace an existing one.
                 <property name="tooltip-markup">&lt;b&gt;Double Bond Tool&lt;/b&gt;
 Add bond (of the selected kind) or replace an existing one.
 
-&lt;b&gt;Left click on a bond&lt;/b&gt; - replace it with the selected kind of bond.
-&lt;b&gt;Left click on an atom&lt;/b&gt; - append a new bond to the atom (along with a new carbon atom).
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Replace it with the selected kind of bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Append a new bond to the atom (along with a new carbon atom).
+&lt;b&gt;Left click on an atom and drag&lt;/b&gt; - Begin creating new bond via dragging. Release mouse at the final atom to complete the now bond.
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
@@ -549,8 +551,9 @@ Add bond (of the selected kind) or replace an existing one.
                 <property name="tooltip-markup">&lt;b&gt;Triple Bond Tool&lt;/b&gt;
 Add bond (of the selected kind) or replace an existing one.
 
-&lt;b&gt;Left click on a bond&lt;/b&gt; - replace it with the selected kind of bond.
-&lt;b&gt;Left click on an atom&lt;/b&gt; - append a new bond to the atom (along with a new carbon atom).
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Replace it with the selected kind of bond.
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Append a new bond to the atom (along with a new carbon atom).
+&lt;b&gt;Left click on an atom and drag&lt;/b&gt; - Begin creating new bond via dragging. Release mouse at the final atom to complete the now bond.
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
