@@ -61,6 +61,8 @@ layla_on_apply(GtkButton* button, gpointer user_data) {
     auto* program_combobox = gtk_builder_get_object(global_layla_gtk_builder,"layla_generator_program_combobox");
     auto* input_format_combobox = gtk_builder_get_object(global_layla_gtk_builder,"layla_generator_input_format_combobox");
     auto* molecule_combobox = gtk_builder_get_object(global_layla_gtk_builder,"layla_generator_molecule_combobox");
+    auto* accept_button = gtk_builder_get_object(global_layla_gtk_builder,"layla_apply_dialog_accept_button");
+    
 
     auto set_default_value = [](GtkComboBox* cb){
         if(gtk_combo_box_get_active(cb) == -1) {
@@ -70,6 +72,11 @@ layla_on_apply(GtkButton* button, gpointer user_data) {
     
     gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(molecule_combobox));
     CootLigandEditorCanvas* canvas = GET_CANVAS();
+    if(coot_ligand_editor_canvas_get_molecule_count(canvas) == 0) {
+        gtk_widget_set_sensitive(GTK_WIDGET(accept_button), FALSE);
+    } else {
+        gtk_widget_set_sensitive(GTK_WIDGET(accept_button), TRUE);
+    }
     for(unsigned int i = 0; i != coot_ligand_editor_canvas_get_molecule_count(canvas); i++) {
         std::string smiles = coot_ligand_editor_canvas_get_smiles_for_molecule(canvas, i);
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(molecule_combobox), smiles.c_str());
