@@ -772,6 +772,7 @@ Insert a carbon ring.
 
 &lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a carbon ring (of the selected kind) adjacent to the bond.
 &lt;b&gt;Left click on an atom&lt;/b&gt; - Attach a carbon ring (of the selected kind) to the atom.
+&lt;b&gt;Left click on empty canvas&lt;/b&gt; - Initialize a new molecule with the selected kind of carbon ring.
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
@@ -815,6 +816,7 @@ Insert a carbon ring.
 
 &lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a carbon ring (of the selected kind) adjacent to the bond.
 &lt;b&gt;Left click on an atom&lt;/b&gt; - Attach a carbon ring (of the selected kind) to the atom.
+&lt;b&gt;Left click on empty canvas&lt;/b&gt; - Initialize a new molecule with the selected kind of carbon ring.
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
@@ -858,6 +860,7 @@ Insert a carbon ring.
 
 &lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a carbon ring (of the selected kind) adjacent to the bond.
 &lt;b&gt;Left click on an atom&lt;/b&gt; - Attach a carbon ring (of the selected kind) to the atom.
+&lt;b&gt;Left click on empty canvas&lt;/b&gt; - Initialize a new molecule with the selected kind of carbon ring.
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
@@ -901,6 +904,7 @@ Insert a carbon ring.
 
 &lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a carbon ring (of the selected kind) adjacent to the bond.
 &lt;b&gt;Left click on an atom&lt;/b&gt; - Attach a carbon ring (of the selected kind) to the atom.
+&lt;b&gt;Left click on empty canvas&lt;/b&gt; - Initialize a new molecule with the selected kind of carbon ring.
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
@@ -944,6 +948,7 @@ Insert a carbon ring.
 
 &lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a carbon ring (of the selected kind) adjacent to the bond.
 &lt;b&gt;Left click on an atom&lt;/b&gt; - Attach a carbon ring (of the selected kind) to the atom.
+&lt;b&gt;Left click on empty canvas&lt;/b&gt; - Initialize a new molecule with the selected kind of carbon ring.
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
@@ -993,6 +998,7 @@ Insert a carbon ring.
 
 &lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a carbon ring (of the selected kind) adjacent to the bond.
 &lt;b&gt;Left click on an atom&lt;/b&gt; - Attach a carbon ring (of the selected kind) to the atom.
+&lt;b&gt;Left click on empty canvas&lt;/b&gt; - Initialize a new molecule with the selected kind of carbon ring.
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
@@ -1036,6 +1042,7 @@ Insert a carbon ring.
 
 &lt;b&gt;Left click on a bond&lt;/b&gt; - Insert a carbon ring (of the selected kind) adjacent to the bond.
 &lt;b&gt;Left click on an atom&lt;/b&gt; - Attach a carbon ring (of the selected kind) to the atom.
+&lt;b&gt;Left click on empty canvas&lt;/b&gt; - Initialize a new molecule with the selected kind of carbon ring.
                 </property>
                 <child>
                   <object class='GtkShortcutController'>
