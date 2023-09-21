@@ -744,6 +744,7 @@ new_startup_application_activate(GtkApplication *application,
             coot::deinitialize_layla();
          }
       }), nullptr);
+      
       // gtk_widget_set_visible(window, TRUE);
 
       GtkWidget *gl_area = new_startup_create_glarea_widget();
