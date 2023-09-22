@@ -13,10 +13,10 @@
 #include "fit-loop-gui.hh"
 #include "read-molecule.hh" // 20230621-PE now with std::string args
 
-#include "support.h" // for internationalizations.
 #include "c-interface-preferences.h"
 #include "c-interface-ligands-swig.hh"
 #include "curlew-gtk4.hh"
+#include "c-interface-ligands.hh" // 20230920-PE new layla interface functions
 
 extern "C" { void load_tutorial_model_and_data(); }
 
@@ -126,9 +126,9 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File",
                                                    parent_window,
                                                    action,
-                                                   _("_Cancel"),
-                                                  GTK_RESPONSE_CANCEL,
-                                                   _("_Open"),
+                                                   ("_Cancel"),
+                                                   GTK_RESPONSE_CANCEL,
+                                                   ("_Open"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
 
@@ -174,8 +174,8 @@ void open_dataset_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWindow *parent_window = GTK_WINDOW(user_data);
    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File", parent_window, action,
-                                                   _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                                   _("_Open"), GTK_RESPONSE_ACCEPT,
+                                                   ("_Cancel"), GTK_RESPONSE_CANCEL,
+                                                   ("_Open"), GTK_RESPONSE_ACCEPT,
                                                    NULL);
    g_signal_connect(dialog, "response", G_CALLBACK(on_dataset_filechooser_dialog_response_gtk4), NULL);
    g_object_set_data(G_OBJECT(dialog), "auto_read_flag", GINT_TO_POINTER(FALSE));
@@ -207,8 +207,8 @@ void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    }
    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File", parent_window, action,
-                                                   _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                                   _("_Open"), GTK_RESPONSE_ACCEPT,
+                                                   ("_Cancel"), GTK_RESPONSE_CANCEL,
+                                                   ("_Open"), GTK_RESPONSE_ACCEPT,
                                                    NULL);
    g_signal_connect(dialog, "response", G_CALLBACK(on_dataset_filechooser_dialog_response_gtk4), NULL);
    g_object_set_data(G_OBJECT(dialog), "auto_read_flag", GINT_TO_POINTER(TRUE));
@@ -235,9 +235,9 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File",
                                                    parent_window,
                                                    action,
-                                                   _("_Cancel"),
+                                                   ("_Cancel"),
                                                    GTK_RESPONSE_CANCEL,
-                                                   _("_Open"),
+                                                   ("_Open"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
 
@@ -333,8 +333,8 @@ void import_cif_dictionary_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWindow *parent_window = GTK_WINDOW(user_data);
    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File", parent_window, action,
-                                                   _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                                   _("_Open"), GTK_RESPONSE_ACCEPT,
+                                                   ("_Cancel"), GTK_RESPONSE_CANCEL,
+                                                   ("_Open"), GTK_RESPONSE_ACCEPT,
                                                    NULL);
 
    const gchar *labels[]  = {"No Instance", "Create New Instance", NULL};
@@ -550,9 +550,9 @@ save_state_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Save State",
                                                    parent_window,
                                                    action,
-                                                   _("Cancel"),
+                                                   ("Cancel"),
                                                    GTK_RESPONSE_CANCEL,
-                                                   _("Save"),
+                                                   ("Save"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
    GtkFileFilter *filterselect = gtk_file_filter_new();
@@ -586,9 +586,9 @@ on_save_views_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Save Views",
                                                    parent_window,
                                                    action,
-                                                   _("Cancel"),
+                                                   ("Cancel"),
                                                    GTK_RESPONSE_CANCEL,
-                                                   _("Save"),
+                                                   ("Save"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
    GtkFileFilter *filterselect = gtk_file_filter_new();
@@ -981,7 +981,28 @@ ligand_builder_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                       G_GNUC_UNUSED GVariant *parameter,
                       G_GNUC_UNUSED gpointer user_data) {
 
+   // No ligand specified
    start_ligand_builder_gui();
+}
+
+
+
+void
+ligand_builder_residue_to_2d_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      const coot::atom_spec_t atom_spec(pp.second.second);
+      graphics_info_t g;
+      float weight_for_3d_distances = 0.01; // or something
+      residue_to_ligand_builder(imol, atom_spec.chain_id, atom_spec.res_no, atom_spec.ins_code,
+                                weight_for_3d_distances);
+   } else {
+      add_status_bar_text("No active residue found");
+   }
 }
 
 
@@ -1017,9 +1038,9 @@ run_script_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *dialog = gtk_file_chooser_dialog_new("Run Script File",
                                                    parent_window,
                                                    action,
-                                                   _("_Cancel"),
+                                                   ("_Cancel"),
                                                    GTK_RESPONSE_CANCEL,
-                                                   _("_Open"),
+                                                   ("_Open"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
 
@@ -3052,6 +3073,7 @@ create_actions(GtkApplication *application) {
    add_action(  "sharpen_blur_for_xray_action",   sharpen_blur_for_xray_action);
    add_action(       "scripting_python_action",        scripting_python_action);
    add_action(       "scripting_scheme_action",        scripting_scheme_action);
+   add_action("ligand_builder_residue_to_2d_action", ligand_builder_residue_to_2d_action);
 
    add_action("calculate_hydrogen_bonds_action", calculate_hydrogen_bonds_action);
    add_action(          "load_tutorial_model_and_data_action",           load_tutorial_model_and_data_action);

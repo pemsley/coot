@@ -1,4 +1,6 @@
 
+#if 0 // 20230920-PE Now we have layla. Remove this header
+
 // 20140226: now we change things so that the interface functions always get generated,
 //           and what the function does depends on MAKE_ENHANCED_LIGAND_TOOLS
 // 
@@ -7,3 +9,4 @@ void residue_to_ligand_builder(int imol, const char *chain_id, int resno, const 
 void smiles_to_ligand_builder(const char *smiles_string);
 // #endif
 
+#endif

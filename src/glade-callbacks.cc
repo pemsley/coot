@@ -55,10 +55,6 @@
 
 #include "widget-from-builder.hh"
 
-// from support.h
-// GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
-#include "support.h"
-
 #include "fit-loop-gui.hh"
 
 // this from callbacks.h (which I don't want to include here)
@@ -935,9 +931,9 @@ on_save_coords_dialog_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
       GtkWidget *file_chooser_dialog = gtk_file_chooser_dialog_new("Save Coordinates",
                                                                    parent_window,
                                                                    action,
-                                                                   _("_Cancel"),
+                                                                   ("_Cancel"),
                                                                    GTK_RESPONSE_CANCEL,
-                                                                   _("_Save"),
+                                                                   ("_Save"),
                                                                    GTK_RESPONSE_YES,
                                                                    NULL);
 
@@ -1069,66 +1065,6 @@ on_goto_atom_window_destroy            (GtkWidget       *object,
   unset_go_to_atom_widget();
 }
 
-
-/* accept_reject_refinement_accept_button */
-
-extern "C" G_MODULE_EXPORT
-void
-on_accept_reject_refinement_accept_button_clicked (GtkButton       *button,
-						   gpointer         user_data)
-{
-  GtkWidget *window = widget_from_builder(
-				    "accept_reject_refinement_dialog");
-
-  /* Pressing Return while focus is on the Accept/Reject dialog brings us here. */
-
-  stop_refinement_internal();
-  c_accept_moving_atoms();
-  save_accept_reject_dialog_window_position(window);
-  set_accept_reject_dialog(NULL);
-  gtk_widget_set_visible(window, FALSE);
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_accept_reject_refinement_reject_button_clicked (GtkButton       *button,
-						   gpointer         user_data)
-{
-  GtkWidget *window = widget_from_builder(
-				    "accept_reject_refinement_dialog");
-  save_accept_reject_dialog_window_position(window);
-  /*   clear_up_moving_atoms(); done in destroy of the window */
-
-  stop_refinement_internal();
-  clear_up_moving_atoms();
-  gtk_widget_set_visible(window, FALSE);
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_accept_reject_refinement_dialog_destroy
-                                        (GtkWidget       *object,
-                                        gpointer         user_data)
-{
-
-
-  /* Pressing Escape while focus is on the Accept/Reject dialog brings us here. */
-
-  /* 20070801 To Fix a crash reported by "Gajiwala, Ketan", we need to
-     reset the value for graphics_info_t::accept_reject_dialog (it's
-     gone now).  And I suppose that we should clean up (and undisplay)
-     the intermediate atoms too.
- */
-
-  set_accept_reject_dialog(NULL);
-  stop_refinement_internal();
-  /* I want to merely clear the stick restraint, not refine again after I did that */
-
-  /* clear_atom_pull_restraint_on_accept_reject_destroy(); */
-
-  clear_up_moving_atoms();
-}
 
 
 extern "C" G_MODULE_EXPORT

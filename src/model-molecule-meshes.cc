@@ -61,6 +61,9 @@ model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_co
    // 20230828-PE remove the dummy_handle - when we make the *meshes* we don't need to
    // have the bonding handle - that should have been handled already.
    int dummy_handle = -1;
+
+   // std::cout << "calling make_instanced_graphical_bonds_spherical_atoms() with atom_radius " << atom_radius << std::endl;
+   // Atom radii are limited to 2.0
    make_instanced_graphical_bonds_spherical_atoms(im, bonds_box, dummy_bonds_box_type, dummy_handle, atom_radius, bond_radius,
                                                   num_subdivisions, colour_table);
    make_instanced_graphical_bonds_bonds(im, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
@@ -96,7 +99,7 @@ model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_co
             // 20230828-PE Atom sizes (sphere radius) can vary. Waters and metals are bigger.
             // size for a sphere should be a vector of size 3 of the same number.
 	    float sphere_radius = Atd.size[0];
-            // std::cout << "atom_radius " << atom_radius << " size: " << glm::to_string(Atd.size) << std::endl;
+            // std::cout << "sphere_radius " << sphere_radius << " size: " << glm::to_string(Atd.size) << std::endl;
             colours[i_A] = Atd.colour;
 	    glm::mat4 mm = glm::scale(unit_matrix, Atd.size);
             matrices[i_A] = glm::translate(mm, Atd.position/sphere_radius);

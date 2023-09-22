@@ -87,8 +87,6 @@
 #include "c-interface-widgets.hh"
 
 #include "widget-from-builder.hh"
-#include "support.h" // for internationalizations.
-
 #include "utils/coot-utils.hh"
 
 void set_show_paths_in_display_manager(int i) {
@@ -817,7 +815,7 @@ void fill_about_window(GtkWidget *widget) {
   gtk_text_view_set_editable (GTK_TEXT_VIEW (text_widget), FALSE);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (text_widget), GTK_WRAP_WORD);
   gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW (text_widget)),
-			    _(widget_text.c_str()), -1);
+			    widget_text.c_str(), -1);
 
 }
 
@@ -5577,7 +5575,7 @@ generic_objects_dialog_grid_add_object_internal(const meshed_generic_display_obj
                                                 int io) {
 
    if (! gdo.mesh.is_closed()) {
-      GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (_("Display"));
+      GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (("Display"));
       std::string label_str = gdo.mesh.name;
       GtkWidget *label = gtk_label_new(label_str.c_str());
 
@@ -5618,7 +5616,7 @@ generic_objects_dialog_grid_add_object_for_molecule_internal(int imol,
                                                              GtkWidget *grid) {
 
    if (! imm.is_closed()) {
-      GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (_("Display"));
+      GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (("Display"));
       std::string label_str = imm.get_name();
       // label_str = "NMO: "  + label_str;
       GtkWidget *label = gtk_label_new(label_str.c_str());

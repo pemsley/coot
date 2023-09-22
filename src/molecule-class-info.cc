@@ -156,7 +156,7 @@ molecule_class_info_t::setup_internal() { // init
    bonds_box_type = coot::UNSET_TYPE;
    bonds_rotate_colour_map_flag = 0;
 
-   model_representation_mode = Mesh::BALL_AND_STICK;
+   model_representation_mode = Mesh::representation_mode_t::BALL_AND_STICK;
    save_time_string = "";
 
    pickable_atom_selection = 1;
@@ -3797,7 +3797,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds(bool force_rebonding) {
 void
 molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
-   bool debug = true;
+   bool debug = false;
 
    // Note caller can be 0 (e.g. with clang) - so be aware of that when debugging.
 
@@ -3885,7 +3885,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    // Should the glci be passed to make_bonds_type_checked()?  Urgh.
    // That is called from many places....
    //
-#ifndef EMSCRIPTEN
+
    gl_context_info_t glci = graphics_info_t::get_gl_context_info();
 
    // make glsl triangles
@@ -3903,7 +3903,6 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    update_fixed_atom_positions();
    update_ghosts();
    update_extra_restraints_representation();
-#endif
 
    if (debug) {
       std::cout << "debug:: -------------- make_bonds_type_checked() done " << draw_it << std::endl;
@@ -3912,13 +3911,15 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
 void
 molecule_class_info_t::set_atom_radius_scale_factor(float sf) {
-   
+
    atom_radius_scale_factor = sf;
    make_glsl_bonds_type_checked(__FUNCTION__);
 }
 
 std::vector<glm::vec4>
 molecule_class_info_t::make_colour_table() const {
+
+   graphics_info_t g; // Hmm..
 
    bool debug_colour_table = false;
 
@@ -3974,6 +3975,16 @@ molecule_class_info_t::make_colour_table() const {
                cc.brighter(0.8); // calm down - now that we are using the instanced-object.shader - the molecule is too bright.
                colour_table[icol] = cc.to_glm();
             }
+         }
+      }
+
+      // wsa there a graphics_info_t user-defined bond colour that superceeds this?
+
+      if (! g.user_defined_colours.empty()) {
+         if (icol < int(g.user_defined_colours.size())) {
+            const coot::colour_holder &col = g.user_defined_colours[icol];
+            auto glm_col = colour_holder_to_glm(col);
+            colour_table[icol] = glm_col;
          }
       }
    }
@@ -4046,6 +4057,26 @@ molecule_class_info_t::set_user_defined_atom_colour_by_selection(const std::vect
       int colour_index = rc.second; // change type
       int selHnd = atom_sel.mol->NewSelection(); // d
 
+      mmdb::Atom **SelAtoms;
+      int nSelAtoms = 0;
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+      atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+      if (nSelAtoms > 0) {
+         for (int iat=0; iat<nSelAtoms; iat++) {
+            mmdb::Atom *at = SelAtoms[iat];
+            std::string ele(at->element);
+            if (apply_colour_to_non_carbon_atoms_also || ele == " C") {
+               int ierr = at->PutUDData(udd_handle, colour_index);
+               if (ierr != mmdb::UDDATA_Ok) {
+                  std::cout << "WARNING:: in set_user_defined_atom_colour_by_residue() problem setting udd on atom "
+                            << coot::atom_spec_t(at) << std::endl;
+               }
+            }
+         }
+      }
+      atom_sel.mol->DeleteSelection(selHnd);
+
+#if 0 // 20230919-PE old - select residues - this is wrong.
       mmdb::Residue **SelResidues;
       int nSelResidues = 0;
       atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_NEW);
@@ -4070,10 +4101,13 @@ molecule_class_info_t::set_user_defined_atom_colour_by_selection(const std::vect
                         std::cout << "set user-defined colour index for " << at << " to " << colour_index << std::endl;
                   }
                }
-	    }
+            }
          }
       }
       atom_sel.mol->DeleteSelection(selHnd);
+#endif
+
+
    }
 }
 
@@ -4109,6 +4143,15 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       return abbt;
    };
 
+   auto print_colour_table = [this] (const std::string &l) {
+
+      std::vector<glm::vec4> colour_table = this->make_colour_table();
+      std::cout << "----------- Here is the colour table: " << l << " -------" << std::endl;
+      for (unsigned int i=0; i<colour_table.size(); i++) {
+         std::cout << "    " << i << " " << glm::to_string(colour_table[i]) << std::endl;
+      }
+   };
+
    if (atom_sel.mol) {
 
       unsigned int num_subdivisions = 2;
@@ -4139,19 +4182,24 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       // if (is_intermediate_atoms_molecule) radius_scale *= 1.8f;
       // radius_scale *= atom_radius_scale_factor;
 
-      std::vector<glm::vec4> colour_table = make_colour_table();
+      if (false) {
+         std::cout << "DEBUG:: ************* model_representation_mode: BALL_AND_STICK " << int(Mesh::representation_mode_t::BALL_AND_STICK) << std::endl;
+         std::cout << "DEBUG:: ************* model_representation_mode: BALLS_NOT_BONDS " << int(Mesh::representation_mode_t::BALLS_NOT_BONDS) << std::endl;
+         std::cout << "DEBUG:: ************* model_representation_mode: VDW_BALLS " << int(Mesh::representation_mode_t::VDW_BALLS) << std::endl;
+         std::cout << "DEBUG:: ************* model_representation_mode: " << int(model_representation_mode) << std::endl;
+      }
 
-      int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
-      Material material;
-      Shader *shader_p = &graphics_info_t::shader_for_model_as_meshes;
-
-      // 20230905-PE use model_representation_mode here.
-
-      if (model_representation_mode == Mesh::BALLS_NOT_BONDS)
+      if (model_representation_mode == Mesh::representation_mode_t::BALLS_NOT_BONDS) {
          atom_radius = 1.67; // 20220226-PE  compromise between C, N, O. Actually we should of course get
                              // the radius of each atom from its type when model_representation_mode == Mesh::BALLS_NOT_BONDS.
                              // That's for another day.
+      }
 
+      std::vector<glm::vec4> colour_table = make_colour_table();
+
+      // print_colour_table(" ");
+
+      // std::cout << "DEBUG:: ************* atom_radius: " << atom_radius << std::endl;
       model_molecule_meshes.make_graphical_bonds(imol_no, bonds_box, atom_radius, bond_radius,
                                                  num_subdivisions, n_slices, n_stacks, colour_table);
 
@@ -4240,21 +4288,21 @@ molecule_class_info_t::set_model_molecule_representation_style(unsigned int mode
 
    // we should use goodsell colouring by default here
 
-   if (mode == Mesh::BALL_AND_STICK) {
-      if (model_representation_mode != Mesh::BALL_AND_STICK) {
-         model_representation_mode = mode;
+   if (int(mode) == int(Mesh::representation_mode_t::BALL_AND_STICK)) {
+      if (model_representation_mode != Mesh::representation_mode_t::BALL_AND_STICK) {
+         model_representation_mode = Mesh::representation_mode_t::BALL_AND_STICK;
          make_glsl_bonds_type_checked(__FUNCTION__);
       }
    }
-   if (mode == Mesh::BALLS_NOT_BONDS) {
-      if (model_representation_mode != Mesh::BALLS_NOT_BONDS) {
-         model_representation_mode = mode;
+   if (int(mode) == int(Mesh::representation_mode_t::BALLS_NOT_BONDS)) {
+      if (model_representation_mode != Mesh::representation_mode_t::BALLS_NOT_BONDS) {
+         model_representation_mode = Mesh::representation_mode_t::BALLS_NOT_BONDS;
          make_glsl_bonds_type_checked(__FUNCTION__);
       }
    }
-   if (mode == Mesh::VDW_BALLS) {
-      if (model_representation_mode != Mesh::VDW_BALLS) {
-         model_representation_mode = mode;
+   if (int(mode) == int(Mesh::representation_mode_t::VDW_BALLS)) {
+      if (model_representation_mode != Mesh::representation_mode_t::VDW_BALLS) {
+         model_representation_mode = Mesh::representation_mode_t::VDW_BALLS;
          make_glsl_bonds_type_checked(__FUNCTION__);
       }
    }

@@ -3691,7 +3691,7 @@ void draw_map_molecule(bool draw_transparent_maps,
    bool this_molecule_has_crystallographic_symmetry;
 
    // either we have licorice/ball-and-stick (licorice is a form of ball-and-stick) or big-ball-no-bonds
-   unsigned int model_representation_mode;
+   Mesh::representation_mode_t model_representation_mode;
    void set_model_molecule_representation_style(unsigned int mode);
 
    // These meshes are the molecule, replacing the inital way of representing the molecule. Uses
