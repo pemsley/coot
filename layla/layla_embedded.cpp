@@ -83,5 +83,16 @@ void coot::launch_layla() {
 void coot::launch_layla(std::shared_ptr<RDKit::RWMol> mol) {
     launch_layla();
     CootLigandEditorCanvas* canvas = coot::layla::global_instance->get_canvas();
-    coot_ligand_editor_canvas_append_molecule(canvas, std::move(mol));
+    struct _cb_data_t {
+        CootLigandEditorCanvas* canvas;
+        std::shared_ptr<RDKit::RWMol> mol;
+    };
+    auto* cbd = new _cb_data_t;
+    cbd->canvas = canvas;
+    cbd->mol = std::move(mol);
+    g_idle_add_once([](gpointer user_data){
+        _cb_data_t* cbd = (_cb_data_t*) user_data;
+        coot_ligand_editor_canvas_append_molecule(cbd->canvas, std::move(cbd->mol));
+        delete cbd;
+    }, cbd);
 }
