@@ -1232,44 +1232,6 @@ Copyright 2023 Global Phasing Ltd.</property>
     <property name="website-label">The Coot Website</property>
   </object>
 
-  <object class="GtkDialog" id="accept_reject_refinement_dialog">
-    <property name="title" translatable="yes">Accept Refinement?</property>
-    <property name="deletable">0</property>
-    <signal name="destroy" handler="on_accept_reject_refinement_dialog_destroy" swapped="no"/>
-    <child>
-      <object class="GtkBox" id="dialog-vbox9">
-        <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox41">
-                <child>
-                  <object class="GtkButton" id="accept_reject_refinement_accept_button">
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_accept_reject_refinement_accept_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="accept_reject_refinement_reject_button">
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_accept_reject_refinement_reject_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
-        <child>
-          <object class="GtkFrame" id="frame129">
-            <child>
-              <object class="GtkLabel" id="accept_dialog_accept_label_string">
-                <property name="label" translatable="yes">Accept Refinement?</property>
-                <property name="justify">center</property>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-    </child>
-  </object>
   <object class="GtkWindow" id="active_map_window">
     <property name="title" translatable="yes">Active Map on Dragging?</property>
     <property name="deletable">0</property>
@@ -15130,8 +15092,8 @@ Move a copy?</property>
             <property name="orientation">horizontal</property>
             <child>
               <object class="GtkLabel">
-                <property name="label" translatable="yes"></property>
-                <property name="justify">Order: </property>
+                <property name="label" translatable="yes">Order:</property>
+                <property name="justify">center</property>
               </object>
             </child>
 

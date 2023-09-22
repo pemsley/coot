@@ -300,18 +300,20 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
 //
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
 					   int imol,
+                                           const coot::protein_geometry *protein_geom,
 					   Bond_lines_container::bond_representation_type br_type) {
 
-   // std::cout << "Bond_lines_container() for B-factors! @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
 
+   init(); // sets geom to null pointer
    verbose_reporting = 0;
    do_disulfide_bonds_flag = 1;
    udd_has_ca_handle = -1;
    do_bonds_to_hydrogens = 1;
    b_factor_scale = 1.0;
+   geom = protein_geom;
    have_dictionary = 0;
+   if (geom) have_dictionary = 1;
    for_GL_solid_model_rendering = 1;
-   init();
    n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
    float max_dist = 1.71;
    int model_number = 0; // all models
@@ -324,8 +326,9 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	 try_set_b_factor_scale(SelAtom.mol);
 	 construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_B_FACTOR, 0, model_number, do_rama_markup);
       } else {
-	 if (br_type == Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS)
+	 if (br_type == Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS) {
 	    construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_USER_DEFINED_COLOURS, 0, model_number, do_rama_markup);
+         }
       }
    }
 }
@@ -732,7 +735,7 @@ Bond_lines_container::add_bond_by_dictionary_maybe(int imol,
 						   std::vector<std::pair<bool, mmdb::Residue *> > *het_residues) {
 
    bool bond_het_residue_by_dictionary = false;
-   if (have_dictionary)
+   if (have_dictionary && geom)
       if (atom_p_1->residue == atom_p_2->residue)
 	 if (atom_p_1->Het)
 	    if (atom_p_2->Het) {
@@ -2254,7 +2257,6 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 					 int model_number,
 					 bool do_rama_markup,
 					 bool do_rota_markup) {
-
 
    // initialize each colour in the Bond_lines_container
    //
@@ -8309,11 +8311,16 @@ Bond_lines_container::add_atom_centres(int imol,
             have_dict_for_this_type = it->second;
          }
       }
+
+      if (false)
+         std::cout << "   geom: " << geom << " " << coot::atom_spec_t(at)
+                   << " have_dict_for_this_type: " << have_dict_for_this_type << std::endl;
+
       if (is_hydrogen(std::string(at->element)))
          is_H_flag = true;
       if (do_bonds_to_hydrogens || (do_bonds_to_hydrogens == 0 && (!is_H_flag))) {
          coot::Cartesian pos(at->x, at->y, at->z);
-	 graphical_bonds_atom_info_t p(pos, i, is_H_flag);
+	 graphical_bonds_atom_info_t gbai(pos, i, is_H_flag);
 
          // 20230224-PE
          // if (p.radius_for_atom_should_be_big(at)) // maybe put this in the constructor.
@@ -8322,7 +8329,13 @@ Bond_lines_container::add_atom_centres(int imol,
          // replace with:
          bool make_fat_atom = false;
          if (! have_dict_for_this_type) make_fat_atom = true;
-         p.set_radius_scale_for_atom(at, make_fat_atom);
+         gbai.set_radius_scale_for_atom(at, make_fat_atom);
+
+         // this is a bit hacky
+         if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
+            if (is_H_flag)
+               gbai.radius_scale += 0.18; // otherwise too tiny. At 0.25 Garib said that
+                                          // the spheres were too big.
 
          if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
 
@@ -8330,17 +8343,17 @@ Bond_lines_container::add_atom_centres(int imol,
             // because the add_bond function doesn't take a "thin" flag
             // (thinning is only currently done by bond colour)
             //
-            if (std::string(at->residue->GetResName()) == "HOH") p.is_water = true;
-            if (is_H_flag) p.is_hydrogen_atom = true;
-            p.atom_p = at;
+            if (std::string(at->residue->GetResName()) == "HOH") gbai.is_water = true;
+            if (is_H_flag) gbai.is_hydrogen_atom = true;
+            gbai.atom_p = at;
             if (atom_colour_type == coot::COLOUR_BY_B_FACTOR)
-               p.is_hydrogen_atom = false;
+               gbai.is_hydrogen_atom = false;
             if (atom_colour_type == coot::COLOUR_BY_OCCUPANCY)
-               p.is_hydrogen_atom = false;
+               gbai.is_hydrogen_atom = false;
             if (false) // debugging large atom radius
                std::cout << "pushing back: " << coot::atom_spec_t(at)
-                         << " p with radius_scale " << p.radius_scale << std::endl;
-            atom_centres.push_back(p);
+                         << " p with radius_scale " << gbai.radius_scale << std::endl;
+            atom_centres.push_back(gbai);
             int icol = atom_colour(at, atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p);
             bonds_size_colour_check(icol);
             atom_centres_colour.push_back(icol);

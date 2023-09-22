@@ -40,11 +40,7 @@
 #include "gtk-manual.h"
 #include "gtk-manual.hh"
 
-#include "support.h" 
-
-#include "interface.h"  /* for create_single_map_properties_dialog() */
 #include "utils/coot-utils.hh"
-
 #include "widget-from-builder.hh"
 
 #include "graphics-info.h" // 20220409-PE now we check use_graphics_interface_flag
@@ -326,46 +322,46 @@ on_display_manager_selections_and_colours_combobox_changed(GtkComboBox     *comb
    if (txt) {
       std::string at(txt);
       // std::cout << "at: " << at << std::endl;
-      if (at == _("Bonds (Colour by Atom)")) {
+      if (at == ("Bonds (Colour by Atom)")) {
          // std::cout << "on_display_manager_selections_and_colours_combobox_changed() display as bonds " <<std::endl;
          graphics_to_bonds_representation(imol);
       }
-      if (at == _("C-alphas/Backbone")) {
+      if (at == ("C-alphas/Backbone")) {
          // std::cout << "display as CA " <<std::endl;
          graphics_to_ca_representation(imol);
       }
-      if (at == _("Bonds (Colour by Chain)")) {
+      if (at == ("Bonds (Colour by Chain)")) {
          render_as_bonds_colored_by_chain_button_select(imol);
       }
-      if (at == _("Bonds (Colour by Molecule)")) {
+      if (at == ("Bonds (Colour by Molecule)")) {
          render_as_bonds_colored_by_molecule_button_select(imol);
       }
       // 20211019-PE currently this can't happen
-      if (at == _("Bonds (Goodsell Colour by Chain)")) {
+      if (at == ("Bonds (Goodsell Colour by Chain)")) {
          render_as_bonds_goodsell_colored_by_chain_button_select(imol);
       }
-      if (at == _("Colour by Sec. Str. Bonds")) {
+      if (at == ("Colour by Sec. Str. Bonds")) {
          render_as_sec_struct_bonds_button_select(imol);
       }
-      if (at == _("CAs + Ligands")) {
+      if (at == ("CAs + Ligands")) {
          render_as_ca_plus_ligands_bonds_button_select(imol);
       }
-      if (at ==  _("CAs+Ligs SecStr Col")) {
+      if (at ==  ("CAs+Ligs SecStr Col")) {
          render_as_ca_plus_ligands_sec_str_bonds_button_select(imol);
       }
-      if (at == _("Jones' Rainbow")) {
+      if (at == ("Jones' Rainbow")) {
          render_as_rainbow_representation_button_select(imol);
       }
-      if (at ==  _("Colour by Atom - No Waters")) {
+      if (at ==  ("Colour by Atom - No Waters")) {
          render_as_bonds_no_waters(imol);
       }
-      if (at ==  _("Colour by B-factor - Backbone")) {
+      if (at ==  ("Colour by B-factor - Backbone")) {
          render_as_b_factor_cas_representation_button_select(imol);
       }
-      if (at ==  _("Colour by B-factor - All")) {
+      if (at ==  ("Colour by B-factor - All")) {
          render_as_b_factor_representation_button_select(imol);
       }
-      if (at ==  _("Colour by Occupancy")) {
+      if (at ==  ("Colour by Occupancy")) {
          render_as_occupancy_representation_button_select(imol);
       }
    }
@@ -383,19 +379,19 @@ GtkWidget *selections_and_colours_combobox(int imol) {
    gtk_widget_set_margin_top   (combobox, 1);
    gtk_widget_set_margin_bottom(combobox, 1);
    
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Atom)"));
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Chain)"));
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Molecule)"));
-   // gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Goodsell Colour by Chain)"));
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("C-alphas/Backbone"));
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("CAs + Ligands"));
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("CAs+Ligs SecStr Col"));
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Jones' Rainbow"));
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Colour by Sec. Str. Bonds"));
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Colour by Atom - No Waters"));
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Colour by B-factor - Backbone"));
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Colour by B-factor - All"));
-   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Colour by Occupancy"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), ("Bonds (Colour by Atom)"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), ("Bonds (Colour by Chain)"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), ("Bonds (Colour by Molecule)"));
+   // gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), ("Bonds (Goodsell Colour by Chain)"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), ("C-alphas/Backbone"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), ("CAs + Ligands"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), ("CAs+Ligs SecStr Col"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), ("Jones' Rainbow"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), ("Colour by Sec. Str. Bonds"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), ("Colour by Atom - No Waters"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), ("Colour by B-factor - Backbone"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), ("Colour by B-factor - All"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), ("Colour by Occupancy"));
 
    gpointer user_data = GINT_TO_POINTER(imol);
    g_signal_connect(G_OBJECT(combobox), "changed",
@@ -550,7 +546,7 @@ void display_control_add_delete_molecule_button(int imol,
    std::string button_string = "Delete Model";
    if (is_map_molecule)
       button_string = "Delete Map";
-   GtkWidget *delete_button = gtk_button_new_with_label(_(button_string.c_str()));
+   GtkWidget *delete_button = gtk_button_new_with_label((button_string.c_str()));
    gtk_widget_set_visible(delete_button, TRUE);
 
    // used in callback on_display_control_mol_active_button_toggled()
@@ -1186,7 +1182,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_radiobutton_1, FALSE, FALSE, 4);
 #endif
 
-  label53 = gtk_label_new (_("Symm"));
+  label53 = gtk_label_new (("Symm"));
   // gtk_widget_ref (label53);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label53", label53, NULL);
   gtk_widget_set_visible (label53, TRUE);
@@ -1216,7 +1212,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 
   gtk_widget_set_size_request(GTK_WIDGET(phs_cell_symm_entry_1), 80, -2);
 
-  label54 = gtk_label_new (_("a"));
+  label54 = gtk_label_new (("a"));
   // gtk_widget_ref (label54);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label54", label54, NULL);
   gtk_widget_set_visible (label54, TRUE);
@@ -1245,7 +1241,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 #endif
   gtk_widget_set_size_request (phs_cell_a_entry_1, 65, -2);
 
-  label55 = gtk_label_new (_("b"));
+  label55 = gtk_label_new (("b"));
   // gtk_widget_ref (label55);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label55", label55,
 			  NULL);
@@ -1274,7 +1270,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 #endif
   gtk_widget_set_size_request (phs_cell_b_entry_1, 65, -2);
 
-  label56 = gtk_label_new (_("c"));
+  label56 = gtk_label_new (("c"));
   // gtk_widget_ref (label56);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label56", label56, NULL);
   gtk_widget_set_visible (label56, TRUE);
@@ -1302,7 +1298,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 #endif
   gtk_widget_set_size_request (phs_cell_c_entry_1, 65, -2);
 
-  label57 = gtk_label_new (_("alpha"));
+  label57 = gtk_label_new (("alpha"));
   // gtk_widget_ref (label57);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label57", label57,
 			  NULL);
@@ -1332,7 +1328,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 #endif
   gtk_widget_set_size_request (phs_cell_alpha_entry_1, 60, -2);
 
-  label58 = gtk_label_new (_("beta"));
+  label58 = gtk_label_new (("beta"));
   // gtk_widget_ref (label58);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label58", label58,
 			  NULL);
@@ -1361,7 +1357,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 #endif
   gtk_widget_set_size_request (phs_cell_beta_entry_1, 60, -2);
 
-  label59 = gtk_label_new (_("gamma"));
+  label59 = gtk_label_new (("gamma"));
   // gtk_widget_ref (label59);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "label59", label59,
 			  NULL);

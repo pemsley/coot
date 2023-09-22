@@ -236,6 +236,10 @@ AM_CXXFLAGS = \
 	$(COOT_GSL_FLAGS) $(OPENMP_CFLAGS)
 
 
+if USE_BACKWARD
+   BACKWARD_FLAGS=-DUSE_BACKWARD
+endif
+
 # SWIG_FLAGS is something of a misnomer.  It actually defines
 # COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
 # correct callbacks in both GTK1 and GTK2 regimes.
@@ -250,10 +254,8 @@ AM_CPPFLAGS = \
 	$(BOOST_CPPFLAGS)		\
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
 	$(GLM_CXXFLAGS)                 \
-	$(GOOCANVAS_CFLAGS)             \
 	$(WITH_GUILE_CFLAGS)		\
 	$(GUILE_CFLAGS)		        \
-	$(CANVAS_CFLAGS)		\
 	$(MOLTRIANGLES_CPPFLAGS)	\
 	$(LIBSSM_CXXFLAGS)		\
 	$(MMDB_CXXFLAGS)		\
@@ -268,7 +270,8 @@ AM_CPPFLAGS = \
 	$(SOUND_FLAGS)                  \
 	$(SQLITE3_CFLAGS)               \
 	$(GEMMI_CXXFLAGS)               \
-	$(CURL_CFLAGS)
+	$(BACKWARD_FLAGS)               \
+        $(CURL_CFLAGS)
 
 #	$(WITH_SCRIPT_CFLAGS)
 

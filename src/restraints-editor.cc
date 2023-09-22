@@ -36,9 +36,6 @@
 #include <string.h>  // strcpy
 #include <gtk/gtk.h>
 
-#include "interface.h"
-#include "support.h"
-
 #include "geometry/protein-geometry.hh"
 #include "utils/coot-utils.hh"
 

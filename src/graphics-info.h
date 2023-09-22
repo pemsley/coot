@@ -43,8 +43,6 @@
 #include <vector>
 #endif // HAVE_VECTOR
 
-// #include <utils/backward.hpp>
-
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -173,6 +171,22 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 #include "rail-points.hh"
 
 #include "extra-distance-restraint-markup.hh"
+
+#ifdef USE_BACKWARD
+#include <utils/backward.hpp>
+#endif
+
+// /usr/include/libintl.h:51:14: error: expected unqualified-id before ‘const’
+//    51 | extern char *dcgettext (const char *__domainname,
+//       |              ^~~~~~~~~
+// /usr/include/libintl.h:51:14: error: expected ‘)’ before ‘const’
+// ../../coot/src/support.h:39:42: note: to match this ‘(’
+//    39 | #  define dcgettext(Domain,Message,Type) (Message)
+//       |                                          ^
+// /usr/include/libintl.h:82:14: error: expected unqualified-id before ‘const’
+//   82 | extern char *textdomain (const char *__domainname) __THROW;
+//       |              ^~~~~~~~~~
+
 
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
@@ -5165,15 +5179,31 @@ string   static std::string sessionid;
    void load_gltf_model(const std::string &gltf_file_name);
 
    static void attach_buffers(const char *s = __builtin_FUNCTION()) {
-      GLenum err = glGetError();
-      if (err) std::cout << "GL ERROR:: attach_buffers --- start ---\n";
       if (use_graphics_interface_flag) {
+         GLenum err = glGetError();
+         if (err) {
+            std::cout << "GL ERROR:: attach_buffers --- start ---\n";
+#ifdef USE_BACKWARD
+            backward::StackTrace st;
+            backward::Printer p;
+            st.load_here(32);
+            p.print(st);
+#endif
+         }
          auto gl_area = glareas[0];
          gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));
          err = glGetError();
-         if (err) std::cout << "GL ERROR:: attach_buffers() --- post gtk_gl_area_attach_buffers() "
-                            << " with gl_area " << gl_area << " "
-                            << s << "() not much more insight \n";
+         if (err) {
+            std::cout << "GL ERROR:: attach_buffers() --- post gtk_gl_area_attach_buffers() "
+                      << " with gl_area " << gl_area << " calling function: "
+                      << s << "()\n";
+#ifdef USE_BACKWARD
+            backward::StackTrace st;
+            backward::Printer p;
+            st.load_here(32);
+            p.print(st);
+#endif
+         }
       }
    }
 

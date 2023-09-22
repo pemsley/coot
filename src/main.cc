@@ -50,16 +50,6 @@
 // #ifdef DATADIR
 // #endif // DATADIR
 
-// #include <GL/glut.h> // for glutInit()
-
-// #include "lbg/lbg.hh"
-
-#include "interface.h"
-#ifndef HAVE_SUPPORT_H
-#define HAVE_SUPPORT_H
-#include "support.h"
-#endif /* HAVE_SUPPORT_H */
-
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>

@@ -636,8 +636,6 @@ void clear_all_atom_pull_restraints() {
 void set_auto_clear_atom_pull_restraint(int state) {
    graphics_info_t g;
    g.auto_clear_atom_pull_restraint_flag = state;
-   std::cout << "------------------ set_auto_clear_atom_pull_restraint_state ";
-   std::cout << "------------------ update the accept_reject_refinement_dialog here. " << std::endl;
 } 
 
 int  get_auto_clear_atom_pull_restraint_state() {

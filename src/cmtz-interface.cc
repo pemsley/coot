@@ -45,12 +45,6 @@
 
 #include <clipper/ccp4/ccp4_mtz_io.h>
 
-#include "interface.h"
-#ifndef HAVE_SUPPORT_H
-#define HAVE_SUPPORT_H
-#include "support.h"
-#endif /* HAVE_SUPPORT_H */
-
 #include "read-phs.h"
 #include "read-cif.h"
 

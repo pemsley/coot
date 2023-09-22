@@ -49,10 +49,6 @@
 #include "widget-from-builder.hh"
 #include "read-molecule.hh" // 20230621-PE now with std::string args
 
-// from support.h
-// GtkWidget* lookup_widget (GtkWidget *widget, const gchar *widget_name);
-#include "support.h"
-
 // this from callbacks.h (which I don't want to include here)
 typedef const char entry_char_type;
 
