@@ -15130,8 +15130,8 @@ Move a copy?</property>
             <property name="orientation">horizontal</property>
             <child>
               <object class="GtkLabel">
-                <property name="label" translatable="yes"></property>
-                <property name="justify">Order: </property>
+                <property name="label" translatable="yes">Order:</property>
+                <property name="justify">center</property>
               </object>
             </child>
 
