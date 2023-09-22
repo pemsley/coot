@@ -72,10 +72,10 @@ struct GeneratorTaskData {
         if (this->subprocess) {
             g_object_unref(subprocess);
         }
-        if (this->input_stream) {
-            g_warning("todo: Make sure that `input_stream` does not leak and there's no crash.");
-           // g_object_unref(input_stream);
-        }
+        // freeing subprocess also frees input stream
+        // if (this->input_stream) {
+        //     g_object_unref(input_stream);
+        // }
         this->request.reset();
         this->file_contents.reset();
         this->stdout_read.reset();
@@ -300,7 +300,7 @@ void launch_generator_async(GTask* task) {
     task_data->subprocess_running = true;
     g_subprocess_wait_check_async(subprocess, cancellable, launch_generator_finish, task);
     gtk_label_set_text(task_data->dialog_status_label, "Child process has been launched.");
-    g_timeout_add(50, [](gpointer user_data){
+    g_timeout_add(150, [](gpointer user_data){
         GTask* task = G_TASK(user_data);
         GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
         int should_run = task_data->subprocess_running;
@@ -342,7 +342,7 @@ void pipe_reader(gpointer user_data) {
                 buf.reserve(size + 1);
                 memcpy(buf.data(), g_bytes_get_data(bytes, NULL), size);
                 *(buf.data() + size) = (char) 0;
-                g_debug("Read this: %s", buf.c_str());
+                //g_debug("Read this: %s", buf.c_str());
                 (*task_data->stdout_read) += buf;
                 GtkTextIter iter;
                 gtk_text_buffer_get_end_iter(task_data->stdout_ui_textbuffer, &iter);
@@ -355,7 +355,7 @@ void pipe_reader(gpointer user_data) {
         }
         g_object_unref(task);
     };
-    g_input_stream_read_bytes_async(task_data->input_stream, 4, G_PRIORITY_DEFAULT, cancellable, callback, g_object_ref(task));
+    g_input_stream_read_bytes_async(task_data->input_stream, 18, G_PRIORITY_HIGH, cancellable, callback, g_object_ref(task));
     g_object_unref(task);
 };
 
@@ -444,8 +444,6 @@ GCancellable* coot::layla::run_generator_request(GeneratorRequest request, CootL
         task_data->cleanup();
         g_slice_free(GeneratorTaskData, task_data_ptr);
     });
-
-    g_warning("Implement 'Apply'");
 
     g_idle_add_once([](gpointer user_data){
         GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(user_data));

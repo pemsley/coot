@@ -43,6 +43,11 @@ class LaylaState {
     };
     private:
 
+    enum class UnsavedChangesDialogPurpose: unsigned char {
+        CloseEditor,
+        FileNew
+    };
+
     /// The widget. Owned by glib/gtk
     CootLigandEditorCanvas* canvas;
     /// Owned by glib/gtk
@@ -52,6 +57,8 @@ class LaylaState {
     /// Owned by us.
     CootLaylaNotifier* notifier;
 
+    bool unsaved_changes;
+    std::optional<UnsavedChangesDialogPurpose> unsaved_changes_dialog_purpose;
     std::optional<unsigned int> current_filesave_molecule;
     std::optional<std::string> current_filesave_filename;
 
@@ -79,7 +86,10 @@ class LaylaState {
     CootLigandEditorCanvas* get_canvas() const noexcept;
 
     /// Clears all molecules, file names, etc.
-    void reset();
+    void reset() noexcept;
+
+    bool has_unsaved_changes() const noexcept;
+    void unsaved_changes_dialog_accepted();
 
     // TOOLS
     void run_choose_element_dialog();

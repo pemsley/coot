@@ -56,9 +56,13 @@ int main(int argc, char** argv) {
 
         auto* icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(GTK_WIDGET(win)));
         
-        std::string dir = coot::package_data_dir();
-        std::string full_path_for_icons = coot::util::append_dir_dir(dir, "pixmaps");
-        gtk_icon_theme_add_search_path(icon_theme, full_path_for_icons.c_str());
+        std::string package_dir = coot::package_data_dir();
+        std::string prefix_dir = coot::prefix_dir();
+        std::string pixmaps_path_for_icons = coot::util::append_dir_dir(package_dir, "pixmaps");
+        std::string prefix_main_path_for_icons = coot::util::append_dir_dir(prefix_dir, "share");
+        prefix_main_path_for_icons = coot::util::append_dir_dir(prefix_main_path_for_icons, "icons");
+        gtk_icon_theme_add_search_path(icon_theme, pixmaps_path_for_icons.c_str());
+        gtk_icon_theme_add_search_path(icon_theme, prefix_main_path_for_icons.c_str());
 
         coot::layla::global_generator_request_task_cancellable = nullptr;
 

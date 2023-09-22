@@ -55,6 +55,19 @@ GtkApplicationWindow* coot::initialize_layla(GtkApplication* app) {
     return win;
 }
 
+void coot::deinitialize_layla() {
+    if(!is_layla_initialized()) {
+        g_error("coot::deinitialize_layla() called before coot::initialize_layla()");
+    }
+    auto* win = gtk_builder_get_object(coot::layla::global_layla_gtk_builder, "layla_window");
+    gtk_window_destroy(GTK_WINDOW(win));
+    delete coot::layla::global_instance;
+    coot::layla::global_instance = nullptr;
+    g_object_unref(coot::layla::global_layla_gtk_builder);
+    coot::layla::global_layla_gtk_builder = nullptr;
+    coot::layla::global_generator_request_task_cancellable = nullptr;
+}
+
 void coot::launch_layla() {
     if(!is_layla_initialized()) {
         g_error("coot::launch_layla() called before coot::initialize_layla()");

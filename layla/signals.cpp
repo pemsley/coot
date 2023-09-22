@@ -61,6 +61,8 @@ layla_on_apply(GtkButton* button, gpointer user_data) {
     auto* program_combobox = gtk_builder_get_object(global_layla_gtk_builder,"layla_generator_program_combobox");
     auto* input_format_combobox = gtk_builder_get_object(global_layla_gtk_builder,"layla_generator_input_format_combobox");
     auto* molecule_combobox = gtk_builder_get_object(global_layla_gtk_builder,"layla_generator_molecule_combobox");
+    auto* accept_button = gtk_builder_get_object(global_layla_gtk_builder,"layla_apply_dialog_accept_button");
+    
 
     auto set_default_value = [](GtkComboBox* cb){
         if(gtk_combo_box_get_active(cb) == -1) {
@@ -70,6 +72,12 @@ layla_on_apply(GtkButton* button, gpointer user_data) {
     
     gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(molecule_combobox));
     CootLigandEditorCanvas* canvas = GET_CANVAS();
+    
+    if(coot_ligand_editor_canvas_get_molecule_count(canvas) == 0) {
+        gtk_widget_set_sensitive(GTK_WIDGET(accept_button), FALSE);
+    } else {
+        gtk_widget_set_sensitive(GTK_WIDGET(accept_button), TRUE);
+    }
     for(unsigned int i = 0; i != coot_ligand_editor_canvas_get_molecule_count(canvas); i++) {
         std::string smiles = coot_ligand_editor_canvas_get_smiles_for_molecule(canvas, i);
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(molecule_combobox), smiles.c_str());
@@ -191,7 +199,6 @@ layla_on_apply_dialog_accepted(GtkButton* button, gpointer user_data) {
             ))
         );
         request.generator_settings = generator_options;
-        
     }
 
     if(input_format_name == "SMILES") {
@@ -466,4 +473,22 @@ void
 layla_on_delete_hydrogens_button_clicked(GtkButton* _btn, gpointer user_data){
     CootLigandEditorCanvas* canvas = GET_CANVAS();
     coot_ligand_editor_canvas_set_active_tool(canvas, std::make_unique<ActiveTool>(RemoveHydrogensTool()));
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_layla_unsaved_changes_dialog_yes_clicked(GtkButton* _btn, gpointer user_data) {
+    auto* dialog = GTK_WINDOW(gtk_builder_get_object(global_layla_gtk_builder, "layla_unsaved_changes_dialog"));
+    gtk_window_close(dialog);
+    LaylaState* state = GET_STATE();
+    state->unsaved_changes_dialog_accepted();
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_layla_unsaved_changes_dialog_no_clicked(GtkButton* _btn, gpointer user_data) {
+    auto* dialog = GTK_WINDOW(gtk_builder_get_object(global_layla_gtk_builder, "layla_unsaved_changes_dialog"));
+    gtk_window_close(dialog);
+    // Nothing more needed here
 }
