@@ -704,9 +704,7 @@ void set_ligand_cluster_sigma_level_from_widget(GtkWidget *button) {
 
 #include "lidia-core/rdkit-interface.hh"
 
-void
-start_ligand_builder_gui() {
-
+void ensure_layla_initialized() {
    if(!coot::is_layla_initialized()) {
       graphics_info_t g;
       GtkApplication *app = g.application;
@@ -722,6 +720,11 @@ start_ligand_builder_gui() {
                      }),
                      nullptr);
    }
+}
+
+void
+start_ligand_builder_gui() {
+   ensure_layla_initialized();
    coot::launch_layla();
 }
 
@@ -738,19 +741,7 @@ residue_to_ligand_builder(int imol, const std::string &chain_id, int res_no, con
 	    RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
             std::shared_ptr<RDKit::RWMol> rdkit_mol_sp = std::make_shared<RDKit::RWMol> (rdk_mol_with_no_Hs);
 
-            if(!coot::is_layla_initialized()) {
-               GtkApplication *app = g.application;
-               GtkApplicationWindow *win = coot::initialize_layla(app);
-               g.set_transient_for_main_window(GTK_WIDGET(win));
-               CootLaylaNotifier* notifier = coot::layla::global_instance->get_notifier();
-               g_signal_connect(notifier,
-                                "cif-file-generated",
-                                G_CALLBACK(+[] (CootLaylaNotifier* notifier, const gchar* filename, gpointer user_data){
-                                   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
-                                   handle_cif_dictionary_for_molecule(filename, imol_enc, true);
-                                }),
-                                nullptr);
-            }
+            ensure_layla_initialized();
             coot::launch_layla(rdkit_mol_sp);
 
          }
