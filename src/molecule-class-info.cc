@@ -3797,7 +3797,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds(bool force_rebonding) {
 void
 molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
-   bool debug = true;
+   bool debug = false;
 
    // Note caller can be 0 (e.g. with clang) - so be aware of that when debugging.
 
@@ -3885,7 +3885,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    // Should the glci be passed to make_bonds_type_checked()?  Urgh.
    // That is called from many places....
    //
-#ifndef EMSCRIPTEN
+
    gl_context_info_t glci = graphics_info_t::get_gl_context_info();
 
    // make glsl triangles
@@ -3903,7 +3903,6 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    update_fixed_atom_positions();
    update_ghosts();
    update_extra_restraints_representation();
-#endif
 
    if (debug) {
       std::cout << "debug:: -------------- make_bonds_type_checked() done " << draw_it << std::endl;
@@ -3912,13 +3911,15 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
 void
 molecule_class_info_t::set_atom_radius_scale_factor(float sf) {
-   
+
    atom_radius_scale_factor = sf;
    make_glsl_bonds_type_checked(__FUNCTION__);
 }
 
 std::vector<glm::vec4>
 molecule_class_info_t::make_colour_table() const {
+
+   graphics_info_t g; // Hmm..
 
    bool debug_colour_table = false;
 
@@ -3974,6 +3975,16 @@ molecule_class_info_t::make_colour_table() const {
                cc.brighter(0.8); // calm down - now that we are using the instanced-object.shader - the molecule is too bright.
                colour_table[icol] = cc.to_glm();
             }
+         }
+      }
+
+      // wsa there a graphics_info_t user-defined bond colour that superceeds this?
+
+      if (! g.user_defined_colours.empty()) {
+         if (icol < int(g.user_defined_colours.size())) {
+            const coot::colour_holder &col = g.user_defined_colours[icol];
+            auto glm_col = colour_holder_to_glm(col);
+            colour_table[icol] = glm_col;
          }
       }
    }
@@ -4132,6 +4143,15 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       return abbt;
    };
 
+   auto print_colour_table = [this] (const std::string &l) {
+
+      std::vector<glm::vec4> colour_table = this->make_colour_table();
+      std::cout << "----------- Here is the colour table: " << l << " -------" << std::endl;
+      for (unsigned int i=0; i<colour_table.size(); i++) {
+         std::cout << "    " << i << " " << glm::to_string(colour_table[i]) << std::endl;
+      }
+   };
+
    if (atom_sel.mol) {
 
       unsigned int num_subdivisions = 2;
@@ -4162,13 +4182,6 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       // if (is_intermediate_atoms_molecule) radius_scale *= 1.8f;
       // radius_scale *= atom_radius_scale_factor;
 
-      std::vector<glm::vec4> colour_table = make_colour_table();
-
-      int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
-      Material material;
-
-      // 20230905-PE use model_representation_mode here.
-
       if (false) {
          std::cout << "DEBUG:: ************* model_representation_mode: BALL_AND_STICK " << int(Mesh::representation_mode_t::BALL_AND_STICK) << std::endl;
          std::cout << "DEBUG:: ************* model_representation_mode: BALLS_NOT_BONDS " << int(Mesh::representation_mode_t::BALLS_NOT_BONDS) << std::endl;
@@ -4177,10 +4190,14 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       }
 
       if (model_representation_mode == Mesh::representation_mode_t::BALLS_NOT_BONDS) {
-         atom_radius = 1.91; // 20220226-PE  compromise between C, N, O. Actually we should of course get
+         atom_radius = 1.67; // 20220226-PE  compromise between C, N, O. Actually we should of course get
                              // the radius of each atom from its type when model_representation_mode == Mesh::BALLS_NOT_BONDS.
                              // That's for another day.
       }
+
+      std::vector<glm::vec4> colour_table = make_colour_table();
+
+      // print_colour_table(" ");
 
       // std::cout << "DEBUG:: ************* atom_radius: " << atom_radius << std::endl;
       model_molecule_meshes.make_graphical_bonds(imol_no, bonds_box, atom_radius, bond_radius,
