@@ -8334,7 +8334,8 @@ Bond_lines_container::add_atom_centres(int imol,
          // this is a bit hacky
          if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
             if (is_H_flag)
-               gbai.radius_scale += 0.25; // otherwise too tiny
+               gbai.radius_scale += 0.18; // otherwise too tiny. At 0.25 Garib said that
+                                          // the spheres were too big.
 
          if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
 
