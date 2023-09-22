@@ -637,7 +637,7 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
                glActiveTexture(GL_TEXTURE0 + 2);
                glBindTexture(GL_TEXTURE_2D, di.ssaoColorBufferBlur);
                di.shader_for_effects.Use();
-               std::cout << "using shader_for_effects " << shader_for_effects.name << std::endl;
+               // std::cout << "using shader_for_effects " << shader_for_effects.name << std::endl;
                shader_for_effects.set_int_for_uniform("screenTexture", 0);
                shader_for_effects.set_int_for_uniform("screenDepth",   1);
                shader_for_effects.set_int_for_uniform("ssao",          2); // sampler2D
