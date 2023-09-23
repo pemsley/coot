@@ -2593,8 +2593,11 @@ void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_fac
       };
 
       sbr_callback_data_t sbrcd(map_name, is_em_map_flag, contour_level);
+      // 20230923-PE should I now use a shared pointer?
+      // std::shared_ptr<sbr_callback_data_t> sbrcd_sp(new sbr_callback_data_t(sbrcd));
+      sbr_callback_data_t *sbrcd_sp = new sbr_callback_data_t(sbrcd);
 
-      auto check_it = +[] (G_GNUC_UNUSED gpointer data) {
+      auto check_it = +[] (gpointer data) {
          int status = 1;
          graphics_info_t g;
          std::cout << "---------------- check! " << std::endl;
@@ -2606,14 +2609,15 @@ void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_fac
                g.molecules[imol_new].set_contour_level(sbrcd_p->contour_level);
             }
             status = 0;
-            // graphics_draw();
-            std::cout << "hide the Sharpen/Blur/Resample dialog here " << std::endl;
+            graphics_draw();
+            // on no... the sharpen blur map dialog is in Python. Sigh. What a mare.
+            std::cout << "hide the progress bar here " << std::endl;
          }
          return status;
       };
 
       GSourceFunc f = GSourceFunc(check_it);
-      g_timeout_add(200, f, nullptr);
+      g_timeout_add(200, f, sbrcd_sp);
 
    }
 
