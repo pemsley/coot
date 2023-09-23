@@ -523,6 +523,11 @@ int fetch_emdb_map(const std::string &emd_accession_code) {
    std::string gz_fn = coot::util::append_dir_file(download_dir, gz_fnl);
    std::string fn    = coot::util::append_dir_file(download_dir,    fnl);
 
+   if (coot::file_exists_and_non_tiny(fn)) {
+      imol = read_ccp4_map(fn, false);
+      return imol;
+   }
+
    // a progress bar here woudl be nice
    int status = coot_get_url(map_gz_url, gz_fn);
 
