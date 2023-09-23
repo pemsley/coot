@@ -70,6 +70,7 @@ std::vector<std::reference_wrapper<Shader> > get_shader_refs() {
 bool
 graphics_info_t::init_shader(const std::string &shader_file_name) {
 
+   bool status = false;
    std::vector<std::reference_wrapper<Shader> > shader_refs = get_shader_refs();
    std::vector<std::reference_wrapper<Shader> >::iterator it;
    for (it=shader_refs.begin(); it!=shader_refs.end(); ++it) {
@@ -77,9 +78,11 @@ graphics_info_t::init_shader(const std::string &shader_file_name) {
          Shader &shader(it->get());
          std::cout << "init_shader(): found the shader " << shader.name << std::endl;
          shader.init(shader_file_name, Shader::Entity_t::NONE);
+         status = true;
       }
    }
    std::cout << "--- done init_shader() ---" << std::endl;
+   return status;
 }
 
 

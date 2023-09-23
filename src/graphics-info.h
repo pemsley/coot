@@ -5264,6 +5264,11 @@ string   static std::string sessionid;
    static void rama_plot_boxes_handle_molecule_update(GtkWidget *box);
    static void rama_plot_boxes_handle_molecule_update(GtkWidget *box, const std::string &entry_string); // used in the residue selection
                                                                                                         // entry change callback
+
+   enum class sharpen_blur_resample { UNSET, THREAD_RUNNING, THREAD_DONE };
+   static sharpen_blur_resample sharpen_blur_resample_thread_state;
+   static std::shared_ptr<clipper::Xmap<float> > xmap_for_sharpen_blur_resample_p;
+
 };
 
 

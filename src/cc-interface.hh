@@ -268,6 +268,9 @@ int sharpen_blur_map(int imol_map, float b_factor);
 //!        to the given map. Return -1 on failure.
 int sharpen_blur_map_with_resampling(int imol_map, float b_factor, float resample_factor);
 
+// This (gui function) allows a progress bar, and should not be part of the documented API
+void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_factor, float resample_factor);
+
 #ifdef USE_GUILE
 //! \brief make many sharpened or blurred maps
 //!
@@ -344,6 +347,7 @@ int read_ccp4_map(const std::string &filename, int is_diff_map_flag);
 /*! \brief same function as above - old name for the function. Deleted from the API at some stage */
 int handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag);
 
+/*! \brief this reads a EMDB bundle - I don't think they exist any more */
 int handle_read_emdb_data(const std::string &dir_name);
 //! \}
 

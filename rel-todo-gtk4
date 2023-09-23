@@ -12,6 +12,10 @@
 
 8 items
 
+Ribbons don't cast shadows.
+
+Fetch EMDB map doesn't check the cache/coot-download
+
 Layla: make python setup be available for Coot and Layla - put it in its own directory. So that layla
 is not linked with src files.
 
