@@ -2081,7 +2081,11 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
       if (n == COOT_EMDB_CODE) {
          fetch_emdb_map(text);
       } else {
-         python_network_get(text_c, n);
+         if (n == COOT_COD_CODE) {
+            fetch_cod_entry(text);
+         } else {
+            python_network_get(text_c, n);
+         }
       }
    }
 

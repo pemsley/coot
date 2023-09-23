@@ -41,6 +41,7 @@
 #define COOT_ACCESSION_CODE_WINDOW_PDB_REDO 112
 #define COOT_UNIPROT_ID                     113
 #define COOT_EMDB_CODE                      114
+#define COOT_COD_CODE                       115
 #define COOT_MODEL_REFINE_DIALOG           13
 #define COOT_GO_TO_ATOM_WINDOW             14
 #define COOT_RAMACHANDRAN_PLOT_WINDOW      15
