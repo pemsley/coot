@@ -1552,6 +1552,9 @@ void set_use_perspective_projection(short int state);
 //! \brief query if perspective mode is being used
 int use_perspective_projection_state();
 
+//! \brief set the perspective fov. Default 20 degrees.
+void set_perspective_fov(float degrees);
+
 //! \brief set use ambient occlusion
 void set_use_ambient_occlusion(short int state);
 //! \brief query use ambient occlusion
@@ -1694,6 +1697,9 @@ void read_test_gltf_models();
 
 //! \brief load a gltf model
 void load_gltf_model(const std::string &gltf_file_name);
+
+//! \brief load a gltf model
+void scale_model(unsigned int model_index, float scale_factor);
 
 //! \brief reset the frame buffers
 void reset_framebuffers();

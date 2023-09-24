@@ -1465,13 +1465,17 @@ graphics_info_t::load_gltf_model(const std::string &gltf_file_name) {
    Mesh e("some name"); // extract/replace this from the gltf data
    e.load_from_glTF(gltf_file_name);
    // e.invert_normals(); // it is shiny on the inside either way around - hmm.
-   Material mat;
-   mat.shininess = 64.0;
-   mat.specular_strength = 1.0;
-   mat.ambient  = glm::vec4(0.9, 0.9, 0.9, 1.0);
-   mat.diffuse  = glm::vec4(0.9, 0.9, 0.9, 1.0);
-   mat.turn_specularity_on(true);
-   e.set_material(mat); // override the material extracted from the gltf
+
+   // why do this?
+   if (false) {
+      Material mat;
+      mat.shininess = 64.0;
+      mat.specular_strength = 1.0;
+      mat.ambient  = glm::vec4(0.7, 0.7, 0.7, 1.0);
+      mat.diffuse  = glm::vec4(0.7, 0.7, 0.7, 1.0);
+      mat.turn_specularity_on(true);
+      e.set_material(mat); // override the material extracted from the gltf
+   }
    Model e_model;
    e_model.add_mesh(e);
    add_model(e_model);

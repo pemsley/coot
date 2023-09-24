@@ -5130,6 +5130,11 @@ string   static std::string sessionid;
    static void add_model(const Model &model) {
       models.push_back(model);
    }
+   void scale_model(unsigned int idx, float scale_factor) {
+      attach_buffers(); // because the glbufferdata is changed
+      if (idx < models.size())
+         models[idx].scale(scale_factor);
+   }
 
 
    // static unsigned int gBufferFBO;
