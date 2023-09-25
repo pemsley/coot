@@ -2592,22 +2592,23 @@ void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_fac
          float contour_level;
          std::future<clipper::Xmap<float>> computation_result;
       };
-      sbr_callback_data_t *sbrcd_sp = new sbr_callback_data_t(map_name, is_em_map_flag, contour_level);
+      sbr_callback_data_t *sbrcd_p = new sbr_callback_data_t(map_name, is_em_map_flag, contour_level);
       sbrcd_sp->computation_result = computation_result_promise.get_future();
 
       auto check_it = +[] (gpointer data) {
          std::cout << "---------------- check! " << std::endl;
          if (data) {
             sbr_callback_data_t *sbrcd_p = static_cast<sbr_callback_data_t *>(data);
-            if (sbrcd_sp->computation_result.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+            if (sbrcd_p->computation_result.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
                graphics_info_t g;
                int imol_new = g.create_molecule();
-               g.molecules[imol_new].install_new_map(*g.xmap_for_sharpen_blur_resample_p, sbrcd_p->new_map_name, sbrcd_p->is_em_map_flag);
+               auto result = sbrcd_p->computation_result.get();
+               g.molecules[imol_new].install_new_map(result, sbrcd_p->new_map_name, sbrcd_p->is_em_map_flag);
                g.molecules[imol_new].set_contour_level(sbrcd_p->contour_level);
                graphics_draw();
                // on no... the sharpen blur map dialog is in Python. Sigh. What a mare.
                std::cout << "hide the progress bar here " << std::endl;
-               delete sbrcd_sp;
+               delete sbrcd_p;
                return FALSE;
             }
          }
@@ -2615,7 +2616,7 @@ void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_fac
       };
 
       GSourceFunc f = GSourceFunc(check_it);
-      g_idle_add(f, sbrcd_sp);
+      g_idle_add(f, sbrcd_p);
 
    }
 
