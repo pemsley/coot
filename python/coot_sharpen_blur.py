@@ -23,7 +23,7 @@ def sharpen_blur_map_gui():
             if state_1:
                 t2 = entry_for_resample.get_text()
                 resample_factor = float(t2)
-                imol_new = coot.sharpen_blur_map_with_resampling(imol_map, blur_factor, resample_factor)
+                imol_new = coot.sharpen_blur_map_with_resampling_threaded_version(imol_map, blur_factor, resample_factor)
             else:
                 imol_new = coot.sharpen_blur_map(imol_map, blur_factor)
             if state_2:

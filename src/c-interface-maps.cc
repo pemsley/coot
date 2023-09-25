@@ -2581,9 +2581,6 @@ void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_fac
       bool is_em_map_flag = g.molecules[imol_map].is_EM_map();
       float contour_level = g.molecules[imol_map].get_contour_level();
       std::promise<clipper::Xmap<float>> computation_result_promise;
-      
-      std::thread thread(sharpen_blur_inner, std::move(computation_result_promise), xmap, b_factor, resample_factor);
-      thread.detach();
 
       struct sbr_callback_data_t {
          sbr_callback_data_t(const std::string &n, bool f, float cl) : new_map_name(n), is_em_map_flag(f), contour_level(cl) {}
@@ -2594,6 +2591,9 @@ void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_fac
       };
       sbr_callback_data_t *sbrcd_p = new sbr_callback_data_t(map_name, is_em_map_flag, contour_level);
       sbrcd_p->computation_result = computation_result_promise.get_future();
+
+      std::thread thread(sharpen_blur_inner, std::move(computation_result_promise), xmap, b_factor, resample_factor);
+      thread.detach();
 
       auto check_it = +[] (gpointer data) {
          std::cout << "---------------- check! " << std::endl;
