@@ -2555,6 +2555,75 @@ int sharpen_blur_map_with_resampling(int imol_map, float b_factor, float resampl
    return imol_new;
 }
 
+
+void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_factor, float resample_factor) {
+
+   auto sharpen_blur_inner = +[] (const clipper::Xmap<float> &xmap_ref,
+                                  float b_factor,
+                                  float resample_factor) {
+
+      // this lambda function should not/cannot touch the graphics
+
+      graphics_info_t g;
+      *g.xmap_for_sharpen_blur_resample_p = coot::util::sharpen_blur_map_with_resample(xmap_ref, b_factor, resample_factor);
+      g.sharpen_blur_resample_thread_state = graphics_info_t::sharpen_blur_resample::THREAD_DONE;
+   };
+
+   if (is_valid_map_molecule(imol_map)) {
+      graphics_info_t g;
+      clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+      // make a name for the new map
+      std::string map_name = g.molecules[imol_map].name_; // use get_name() when it arrives
+      if (b_factor < 0)
+         map_name += " Sharpen ";
+      else
+         map_name += " Blur ";
+      map_name += coot::util::float_to_string(b_factor);
+      bool is_em_map_flag = g.molecules[imol_map].is_EM_map();
+      float contour_level = g.molecules[imol_map].get_contour_level();
+      std::thread thread(sharpen_blur_inner, std::cref(xmap), b_factor, resample_factor);
+      thread.detach();
+
+      class sbr_callback_data_t {
+      public:
+         sbr_callback_data_t(const std::string &n, bool f, float cl) : new_map_name(n), is_em_map_flag(f), contour_level(cl) {}
+         std::string new_map_name;
+         bool is_em_map_flag;
+         float contour_level;
+      };
+
+      sbr_callback_data_t sbrcd(map_name, is_em_map_flag, contour_level);
+      // 20230923-PE should I now use a shared pointer?
+      // std::shared_ptr<sbr_callback_data_t> sbrcd_sp(new sbr_callback_data_t(sbrcd));
+      sbr_callback_data_t *sbrcd_sp = new sbr_callback_data_t(sbrcd);
+
+      auto check_it = +[] (gpointer data) {
+         int status = 1;
+         graphics_info_t g;
+         std::cout << "---------------- check! " << std::endl;
+         if (g.sharpen_blur_resample_thread_state == graphics_info_t::sharpen_blur_resample::THREAD_DONE) {
+            if (data) {
+               sbr_callback_data_t *sbrcd_p = static_cast<sbr_callback_data_t *>(data);
+               int imol_new = g.create_molecule();
+               g.molecules[imol_new].install_new_map(*g.xmap_for_sharpen_blur_resample_p, sbrcd_p->new_map_name, sbrcd_p->is_em_map_flag);
+               g.molecules[imol_new].set_contour_level(sbrcd_p->contour_level);
+            }
+            status = 0;
+            graphics_draw();
+            // on no... the sharpen blur map dialog is in Python. Sigh. What a mare.
+            std::cout << "hide the progress bar here " << std::endl;
+         }
+         return status;
+      };
+
+      GSourceFunc f = GSourceFunc(check_it);
+      g_timeout_add(200, f, sbrcd_sp);
+
+   }
+
+}
+
+
 #ifdef USE_GUILE
 //! \brief make many sharpened or blurred maps
 //!

@@ -372,18 +372,24 @@ search_monomer_library_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
                                      G_GNUC_UNUSED GVariant *parameter,
                                      G_GNUC_UNUSED gpointer user_data) {
+
+   // 20230923-PE now does COD too
+
    gchar* mode_name_cstr;
    g_variant_get(parameter,"s",&mode_name_cstr);
    std::string mode_name(mode_name_cstr);
    auto mode_num_from_name = [](const std::string& mode_name) {
-      if(mode_name == "oca") {
+      std::cout << ":::::::::::::::::::::: mode_name \"" << mode_name << "\"" << std::endl;
+      if (mode_name == "oca") {
          return COOT_ACCESSION_CODE_WINDOW_OCA;
-      } else if(mode_name == "eds") {
+      } else if (mode_name == "eds") {
          return COOT_ACCESSION_CODE_WINDOW_EDS;
       } else if (mode_name == "pdb-redo"){
          return COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
-      } else if(mode_name == "uniprot-id") {
+      } else if (mode_name == "uniprot-id") {
          return COOT_UNIPROT_ID;
+      } else if (mode_name == "cod") {
+         return COOT_COD_CODE;
       } else {
          g_error("Unrecognized mode name for the accession code frame: %s",mode_name.c_str());
          // fallback
@@ -391,11 +397,11 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
       }
    };
    int mode_num = mode_num_from_name(mode_name);
-   g_debug("Accession code fetch frame mode number: %i",mode_num);
+   g_debug("Accession code fetch frame mode number: %i", mode_num);
    GtkWidget *frame = widget_from_builder("accession_code_frame");
    g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(mode_num));
    GtkWidget *label = widget_from_builder("accession_code_label");
-   switch(mode_num) {
+   switch (mode_num) {
       case COOT_ACCESSION_CODE_WINDOW_EDS:
       case COOT_ACCESSION_CODE_WINDOW_OCA:
       case COOT_ACCESSION_CODE_WINDOW_PDB_REDO:
@@ -403,8 +409,12 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
          gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
          break;
       }
-      case COOT_UNIPROT_ID:{
+      case COOT_UNIPROT_ID: {
          gtk_label_set_text(GTK_LABEL(label), "UniProt ID: ");
+         break;
+      }
+      case COOT_COD_CODE: {
+         gtk_label_set_text(GTK_LABEL(label), "COD Entry ID: ");
          break;
       }
       default: {
@@ -3025,7 +3035,7 @@ create_actions(GtkApplication *application) {
    add_action(       "exit_action",        exit_action);
 
    add_action_with_param("show_accession_code_fetch_frame",       show_accession_code_fetch_frame);
-   add_action(             "search_monomer_library_action",         search_monomer_library_action);
+   add_action(           "search_monomer_library_action",           search_monomer_library_action);
    add_action(    "fetch_pdbe_ligand_description_action",    fetch_pdbe_ligand_description_action);
    add_action( "fetch_and_superpose_alphafold_models_action", fetch_and_superpose_alphafold_models_action);
    add_action(              "fetch_map_from_emdb_action",              fetch_map_from_emdb_action);

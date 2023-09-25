@@ -127,6 +127,13 @@ int use_perspective_projection_state() {
    return graphics_info_t::perspective_projection_flag;
 }
 
+//! \brief set the perspective fov. Default 20 degrees.
+void set_perspective_fov(float degrees) {
+   graphics_info_t::perspective_fov = degrees;
+   graphics_draw();
+}
+
+
 //! \brief set use ambient occlusion
 void set_use_ambient_occlusion(short int state) {
    // user interface is set_use_xxx
@@ -536,6 +543,15 @@ void load_gltf_model(const std::string &gltf_file_name) {
    g.load_gltf_model(gltf_file_name);
    g.graphics_draw();
 }
+
+//! \brief load a gltf model
+void scale_model(unsigned int model_index, float scale_factor) {
+
+   graphics_info_t g;
+   g.scale_model(model_index, scale_factor);
+   g.graphics_draw();
+}
+
 
 
 

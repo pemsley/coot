@@ -5738,9 +5738,9 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 	    // ===================== show it? ==============================
 
 	    if (show_chiral_volume_errors_dialog_flag) {
+#if 0 // 20230923-PE accept_reject_dialog is not a thing now. I should delete this widget
 	       if (accept_reject_dialog) {
 		  if (message_string != "Unset") {
-
 		     if (false)
 			std::cout << "debug:: here in check_and_warn_inverted_chirals_and_cis_peptides() A calling "
 				  << "update_accept_reject_dialog_with_results() with message string \""
@@ -5750,6 +5750,7 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 							      coot::refinement_results_t(message_string));
 		  } else {
 		     coot::refinement_results_t rr("");
+                     
 		     if (false)
 			std::cout << "debug:: here in check_and_warn_inverted_chirals_and_cis_peptides() B calling "
 				  << "update_accept_reject_dialog_with_results() with rr.info \""
@@ -5762,6 +5763,7 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 	       if (message_string != "Unset") {
 		  std::cout << message_string << std::endl;
 	       }
+#endif
 	    }
 	 }
       }

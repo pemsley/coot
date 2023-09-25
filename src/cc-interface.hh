@@ -268,6 +268,9 @@ int sharpen_blur_map(int imol_map, float b_factor);
 //!        to the given map. Return -1 on failure.
 int sharpen_blur_map_with_resampling(int imol_map, float b_factor, float resample_factor);
 
+// This (gui function) allows a progress bar, and should not be part of the documented API
+void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_factor, float resample_factor);
+
 #ifdef USE_GUILE
 //! \brief make many sharpened or blurred maps
 //!
@@ -344,6 +347,7 @@ int read_ccp4_map(const std::string &filename, int is_diff_map_flag);
 /*! \brief same function as above - old name for the function. Deleted from the API at some stage */
 int handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag);
 
+/*! \brief this reads a EMDB bundle - I don't think they exist any more */
 int handle_read_emdb_data(const std::string &dir_name);
 //! \}
 
@@ -1508,7 +1512,11 @@ void fetch_and_superpose_alphafold_models(int imol);
 //! \brief return the model number
 int fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id);
 
+//! \brief return the EMD map, return a molecule index
 int fetch_emdb_map(const std::string &emd_accession_code);
+
+//! \brief return the COD entry, return a molecule index
+int fetch_cod_entry(const std::string &cod_entry_id);
 
 #endif /* USE_LIBCURL */
 
@@ -1543,6 +1551,9 @@ void set_use_perspective_projection(short int state);
 
 //! \brief query if perspective mode is being used
 int use_perspective_projection_state();
+
+//! \brief set the perspective fov. Default 20 degrees.
+void set_perspective_fov(float degrees);
 
 //! \brief set use ambient occlusion
 void set_use_ambient_occlusion(short int state);
@@ -1686,6 +1697,9 @@ void read_test_gltf_models();
 
 //! \brief load a gltf model
 void load_gltf_model(const std::string &gltf_file_name);
+
+//! \brief load a gltf model
+void scale_model(unsigned int model_index, float scale_factor);
 
 //! \brief reset the frame buffers
 void reset_framebuffers();

@@ -1777,4 +1777,5 @@ int graphics_info_t::updating_maps_imol_diff_map = -1;
 std::vector<api::rail_points_t> graphics_info_t::rail_point_history;
 coot::util::sfcalc_genmap_stats_t graphics_info_t::latest_sfcalc_stats;
 
-
+graphics_info_t::sharpen_blur_resample graphics_info_t::sharpen_blur_resample_thread_state = graphics_info_t::sharpen_blur_resample::UNSET;
+std::shared_ptr<clipper::Xmap<float> > graphics_info_t::xmap_for_sharpen_blur_resample_p(new clipper::Xmap<float>);

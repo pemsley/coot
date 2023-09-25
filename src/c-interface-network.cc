@@ -523,6 +523,11 @@ int fetch_emdb_map(const std::string &emd_accession_code) {
    std::string gz_fn = coot::util::append_dir_file(download_dir, gz_fnl);
    std::string fn    = coot::util::append_dir_file(download_dir,    fnl);
 
+   if (coot::file_exists_and_non_tiny(fn)) {
+      imol = read_ccp4_map(fn, false);
+      return imol;
+   }
+
    // a progress bar here woudl be nice
    int status = coot_get_url(map_gz_url, gz_fn);
 
@@ -606,6 +611,31 @@ int fetch_emdb_map(const std::string &emd_accession_code) {
    return imol;
 }
 #endif // USE_LIBCURL
+
+#ifdef USE_LIBCURL
+int fetch_cod_entry(const std::string &cod_code) {
+
+   int imol = -1;
+   std::string url = "http://www.crystallography.net/cod/" + cod_code + ".cif?CODSESSION=fromCoot";
+   std::cout << "url: " << url << std::endl;
+   std::string download_dir = "coot-download";
+   download_dir = coot::get_directory(download_dir.c_str());
+   std::string fn_tail = cod_code + std::string(".cif");
+   std::string fn = coot::util::append_dir_file(download_dir, fn_tail);
+   if (coot::file_exists_and_non_tiny(fn)) {
+      imol = read_small_molecule_cif(fn.c_str());
+   } else {
+      coot_get_url(url.c_str(), fn.c_str());
+      if (coot::file_exists_and_non_tiny(fn)) {
+         imol = read_small_molecule_cif(fn.c_str());
+      } else {
+         std::cout << "DEBUG:: failed to download " << url << std::endl;
+      }
+   }
+   return imol;
+}
+#endif // USE_LIBCURL
+
 
 
 #ifdef USE_LIBCURL

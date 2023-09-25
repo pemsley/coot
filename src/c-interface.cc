@@ -2725,7 +2725,7 @@ get_symmetry_bonds_colour(int idummy) {
 //
 void set_show_symmetry_master(short int state) {
 
-   std::cout << "set_show_symmetry_master() " << state << std::endl;
+   // std::cout << "set_show_symmetry_master() " << state << std::endl;
 
    //
    graphics_info_t g;
