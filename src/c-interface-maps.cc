@@ -2616,7 +2616,7 @@ void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_fac
       };
 
       GSourceFunc f = GSourceFunc(check_it);
-      g_idle_add(f, sbrcd_p);
+      g_timeout_add(50, f, sbrcd_p);
 
    }
 
