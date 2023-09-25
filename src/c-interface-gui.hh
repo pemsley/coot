@@ -18,6 +18,9 @@ class ProgressBarPopUp {
 
 	public:
 	ProgressBarPopUp(const char* title, const char* description);
+    ProgressBarPopUp(const ProgressBarPopUp&) = delete;
+    ProgressBarPopUp(ProgressBarPopUp&&);
+    
 	void pulse();
 	void set_fraction(float frac);
 	~ProgressBarPopUp();
