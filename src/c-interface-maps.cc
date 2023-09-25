@@ -2593,7 +2593,7 @@ void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_fac
          std::future<clipper::Xmap<float>> computation_result;
       };
       sbr_callback_data_t *sbrcd_p = new sbr_callback_data_t(map_name, is_em_map_flag, contour_level);
-      sbrcd_sp->computation_result = computation_result_promise.get_future();
+      sbrcd_p->computation_result = computation_result_promise.get_future();
 
       auto check_it = +[] (gpointer data) {
          std::cout << "---------------- check! " << std::endl;
