@@ -28,7 +28,6 @@ import string
 import numbers
 import math
 import urllib
-import requests
 
 import coot
 # import coot_gui # circular dependency
@@ -3626,6 +3625,7 @@ def fetch_drug_via_wikipedia(drug_name_in):
     drug_name = drug_name_in.lower()
 
     def get_xml_from_wikipedia(drug_name):
+        import requests
         url = "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles=" + drug_name + \
             "&prop=revisions&rvprop=content"
         print("DEBUG:: url", url)
@@ -3643,6 +3643,7 @@ def fetch_drug_via_wikipedia(drug_name_in):
     db_code = parse_wiki_drug_xml(xml_tree, "DrugBank ")
     print("db_code", db_code)
     if db_code:
+        import requests
         db_mol_uri = "https://www.drugbank.ca/structures/small_molecule_drugs/" + str(db_code) + ".mol"
         file_name = str(db_code) + ".mol"
         print("DEBUG:: file_name", file_name)
