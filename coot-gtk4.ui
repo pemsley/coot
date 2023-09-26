@@ -1285,6 +1285,7 @@ Copyright 2023 Global Phasing Ltd.</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="add_OXT_dialog">
     <property name="title" translatable="yes">Coot: Add OXT to Chain</property>
     <property name="deletable">0</property>

@@ -12,6 +12,9 @@
 
 8 items
 
+Make sure that set_scroll_wheel_map and set_scrollable_map() (how are they different?) change the scroll indicator
+in the Display Manager.
+
 Ribbons don't cast shadows.
 
 Fetch EMDB map doesn't check the cache/coot-download

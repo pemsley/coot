@@ -4075,7 +4075,8 @@ int scroll_wheel_map() {
 void set_scroll_wheel_map(int imap) {
 
    if (is_valid_map_molecule(imap)) {
-      graphics_info_t::scroll_wheel_map = imap;
+      graphics_info_t g;
+      g.set_scrollable_map(imap);
    }
 }
 
