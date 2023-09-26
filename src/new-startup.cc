@@ -216,9 +216,10 @@ void on_glarea_scale_changed(GtkGestureZoom* self,
                              gdouble scale,
                              gpointer user_data) {
    graphics_info_t g;
-   double s = pow(scale, 1.02);
-   std::cout << "on_glarea_scale_changed " << scale << " " << s << std::endl;
-   g.mouse_zoom(s, 0.0);
+   std::cout << "on_glarea_scale_changed " << scale << std::endl;
+   // mouse_zoom() expects args (delta-x, delta-y)
+   // we need to convert scale into something like that.
+   g.mouse_zoom_by_scale_factor(scale);
 }
 
 void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,

@@ -1275,6 +1275,8 @@ public:
    static float zoom;
    static short int quanta_like_zoom_flag;
    static void mouse_zoom(double delta_x, double delta_y);
+   static void mouse_zoom_by_scale_factor(double sf);
+   static void mouse_zoom_by_scale_factor_inner(double sf);
    static void scroll_zoom(int direction);
    static void handle_delete_item_curor_change(GtkWidget *widget);
 
