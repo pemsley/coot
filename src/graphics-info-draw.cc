@@ -290,42 +290,50 @@ graphics_info_t::handle_delete_item_curor_change(GtkWidget *widget) {
    }
 }
 
+// Called by pinch zoom gesture
+// static
+void
+graphics_info_t::mouse_zoom_by_scale_factor(double sf) {
+
+   // with a "long" pinch gesture, sf can be 0.4
+   // so using sf directly is not what we want.
+
+   // So try adding a fixed zoom depending on which size
+   // of 1.0 sf is
+   float zf = 1.0;
+   if (sf > 1.0) zf = 1.05;
+   if (sf < 1.0) zf = 0.95;
+
+   zoom /= zf;
+   // sensible limits for looking at proteins
+   if (zoom <    0.2) zoom = 0.2;
+   if (zoom > 2000.0) zoom = 2000.0;
+   // std::cout << "debug:: mouse_zoom_by_scale_factor() sf " << sf << " zoom " << zoom << std::endl;
+   //  mouse_zoom_by_scale_factor_inner(sf);
+   graphics_draw();
+
+}
+
 
 // static
 void
-graphics_info_t::mouse_zoom(double delta_x_drag, double delta_y_drag) {
+graphics_info_t::mouse_zoom_by_scale_factor_inner(double sf) {
 
-   double current_mouse_x = drag_begin_x + delta_x_drag;
-   double current_mouse_y = drag_begin_y + delta_y_drag;
+   if (perspective_projection_flag) {
 
-   double delta_x = current_mouse_x - get_mouse_previous_position_x();
-   double delta_y = current_mouse_y - get_mouse_previous_position_y();
+      // but see comment below
+      std::cout << "MISSING:: no mouse_zoom_by_scale_factor_inner() for perspective zoom" << std::endl;
 
-   // std::cout << "mouse_zoom() delta_x " << delta_x << " delta_y " << delta_y << std::endl;
-
-   // Zooming
-   double fx = 1.0 + delta_x/300.0;
-   double fy = 1.0 + delta_y/300.0;
-   if (fx > 0.0) graphics_info_t::zoom /= fx;
-   if (fy > 0.0) graphics_info_t::zoom /= fy;
-   if (false)
-      std::cout << "zooming with perspective_projection_flag "
-                << graphics_info_t::perspective_projection_flag
-                << " " << graphics_info_t::zoom << std::endl;
-   if (! graphics_info_t::perspective_projection_flag) {
-      // std::cout << "now zoom: " << g.zoom << std::endl;
    } else {
-      // Move the eye towards the rotation centre (don't move the rotation centre)
-      if (fabs(delta_y) > fabs(delta_x))
-         delta_x = delta_y;
-      float sf = 1.0 - delta_x * 0.003;
 
-      // stabilize sf:
+      // stabilize the scale factor
       if (sf < 0.1) sf = 0.1;
       if (sf > 2.0) sf = 2.0;
-      // std::cout << "mouse_zoom(): delta_x " << delta_x << " sf " << sf << std::endl;
       graphics_info_t::eye_position.z *= sf;
+      // std::cout << "mouse_zoom_by_scale_factor_inner(): delta_x eye_pos.z " << eye_position.z << " sf " << sf << std::endl;
 
+      // Now change the perspective limits, even though we are not in perpective
+      // mode - that seems a weird thing to do.
       { // own graphics_info_t function - c.f. adjust clipping
          double  l = graphics_info_t::eye_position.z;
          double zf = graphics_info_t::screen_z_far_perspective;
@@ -350,6 +358,36 @@ graphics_info_t::mouse_zoom(double delta_x_drag, double delta_y_drag) {
                       << graphics_info_t::screen_z_near_perspective << " "
                       << graphics_info_t::screen_z_far_perspective << std::endl;
       }
+   }
+}
+
+// static
+void
+graphics_info_t::mouse_zoom(double delta_x_drag, double delta_y_drag) {
+
+   double current_mouse_x = drag_begin_x + delta_x_drag;
+   double current_mouse_y = drag_begin_y + delta_y_drag;
+
+   double delta_x = current_mouse_x - get_mouse_previous_position_x();
+   double delta_y = current_mouse_y - get_mouse_previous_position_y();
+
+   // Zooming
+   double fx = 1.0 + delta_x/300.0;
+   double fy = 1.0 + delta_y/300.0;
+   if (fx > 0.0) graphics_info_t::zoom /= fx;
+   if (fy > 0.0) graphics_info_t::zoom /= fy;
+   if (false)
+      std::cout << "zooming with perspective_projection_flag "
+                << graphics_info_t::perspective_projection_flag
+                << " " << graphics_info_t::zoom << std::endl;
+   if (! graphics_info_t::perspective_projection_flag) {
+      // std::cout << "now zoom: " << g.zoom << std::endl;
+   } else {
+      // Move the eye towards the rotation centre (don't move the rotation centre)
+      if (fabs(delta_y) > fabs(delta_x))
+         delta_x = delta_y;
+      float sf = 1.0 - delta_x * 0.003;
+      mouse_zoom_by_scale_factor_inner(sf);
    }
    graphics_draw(); // or should this be called by the function that calls this function?
 }
