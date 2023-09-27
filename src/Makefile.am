@@ -343,8 +343,9 @@ coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
 
 coot_bin_LDADD =  \
 	libcootsumo.la \
-	$(top_builddir)/lidia-core/libcoot-lidia-core.la  \
-	$(top_builddir)/geometry/libcoot-geometry.la      \
+	$(top_builddir)/layla/libcoot-layla.la           \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/geometry/libcoot-geometry.la     \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS) $(EPOXY_LIBS) $(PYTHON_LIBS)
 

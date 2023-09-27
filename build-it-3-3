@@ -4338,6 +4338,8 @@ export LD_LIBRARY_PATH=$install_top_dir/lib
 
 # add this when then are compiling and RDKIT is compiling
 
+# if compiling with sound on ubuntu libvorbis-dev libasound2-dev
+
 echo bash ../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
