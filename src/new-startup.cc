@@ -368,6 +368,22 @@ on_glarea_scrolled(GtkEventControllerScroll *controller,
 }
 
 void
+on_glarea_swipe(GtkEventControllerScroll *controller,
+                double                    dx,
+                double                    dy,
+                gpointer                  user_data) {
+
+   graphics_info_t g;
+   std::cout << "swipe " << dx << " " << dy << std::endl;
+
+   GtkGestureSwipe *swipe_gesture; // how to get this?
+   double vel_x;
+   double vel_y;
+   // gboolean state = gtk_gesture_get_velocity(swipe_gesture, &vel_x, &vel_y);
+
+}
+
+void
 on_glarea_motion(GtkEventControllerMotion *controller,
                  gdouble x,
                  gdouble y,
@@ -411,6 +427,7 @@ void setup_gestures_for_opengl_widget_in_main_window(GtkWidget *glarea) {
    GtkGesture *drag_controller_primary   = gtk_gesture_drag_new();
    GtkGesture *drag_controller_middle    = gtk_gesture_drag_new();
    GtkGesture *click_controller          = gtk_gesture_click_new();
+   GtkGesture *swipe_controller          = gtk_gesture_swipe_new();
 
    GtkEventControllerScrollFlags scroll_flags = GTK_EVENT_CONTROLLER_SCROLL_VERTICAL;
    GtkEventController *scroll_controller = gtk_event_controller_scroll_new(scroll_flags);
@@ -446,6 +463,9 @@ void setup_gestures_for_opengl_widget_in_main_window(GtkWidget *glarea) {
 
    gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(scroll_controller));
    g_signal_connect(scroll_controller, "scroll",  G_CALLBACK(on_glarea_scrolled),  glarea);
+
+   gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(swipe_controller));
+   g_signal_connect(click_controller, "swipe",  G_CALLBACK(on_glarea_swipe),  glarea);
 
    GtkEventController *motion_controller = gtk_event_controller_motion_new();
    gtk_event_controller_set_propagation_phase(motion_controller, GTK_PHASE_CAPTURE);
@@ -628,7 +648,7 @@ new_startup_application_activate(GtkApplication *application,
    GtkWidget *app_window = gtk_application_window_new(application);
    gtk_window_set_application(GTK_WINDOW(app_window), application);
    gtk_window_set_title(GTK_WINDOW(app_window), window_name.c_str());
-  
+
    graphics_info_t::set_main_window(app_window);
 
    activate_data->app_window = app_window;
@@ -745,7 +765,7 @@ new_startup_application_activate(GtkApplication *application,
             coot::deinitialize_layla();
          }
       }), nullptr);
-      
+
       // gtk_widget_set_visible(window, TRUE);
 
       GtkWidget *gl_area = new_startup_create_glarea_widget();
@@ -760,7 +780,7 @@ new_startup_application_activate(GtkApplication *application,
       gtk_widget_set_visible(app_window, TRUE);
       gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
 #else
-      // 20230729-PE 
+      // 20230729-PE
       // gtk_widget_set_size_request() does't seem to work on the gl_area.
       // So expand the gl_area by setting thw window size just so. This makes the
       // gl_area 900x900 on my desktop. Maybe there is a better way.
