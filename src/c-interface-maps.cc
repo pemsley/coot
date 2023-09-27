@@ -2598,7 +2598,6 @@ void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_fac
       thread.detach();
 
       auto check_it = +[] (gpointer data) {
-         std::cout << "---------------- check! " << std::endl;
          if(!data) {
             return FALSE;
          }
