@@ -201,6 +201,7 @@ void initial_check(GTask* task) {
         }
         return true;
     };
+    
     using Generator = coot::layla::GeneratorRequest::Generator;
     switch(task_data->request->generator) {
         case Generator::Acedrg: {
