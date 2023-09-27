@@ -9,7 +9,7 @@ AM_CPPFLAGS = \
 	$(GSL_CFLAGS)		\
 	$(CLIPPER_CXXFLAGS)     \
 	$(RDKIT_CXXFLAGS)       \
-    $(BOOST_CPPFLAGS)       \
+        $(BOOST_CPPFLAGS)       \
 	-DUSE_PYTHON=1 $(PYTHON_CPPFLAGS)      \
 	$(GTK_CFLAGS)           \
 	$(GLIB_CFLAGS)          \
@@ -52,9 +52,11 @@ libcoot_layla_la_SOURCES = \
 	python_utils.cpp
 
 libcoot_layla_la_LIBADD = $(top_builddir)/geometry/libcoot-geometry.la \
-                          $(top_builddir)/utils/libcoot-utils.la \
                           $(top_builddir)/lidia-core/libcoot-lidia-core.la \
-                          $(RDKIT_LIBS) -lpthread
+                          $(top_builddir)/utils/libcoot-utils.la \
+                          $(GTK_LIBS) $(GLIB_LIBS) \
+                          $(RDKIT_LIBS) \
+                          -lpthread
 
 libcoot_layla_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -70,5 +72,5 @@ bin_PROGRAMS = layla
 
 layla_SOURCES = main.cpp
 
-layla_LDADD = libcoot-layla.la $(GTK_LIBS) $(GLIB_LIBS)
+layla_LDADD = libcoot-layla.la $(top_builddir)/utils/libcoot-utils.la $(GTK_LIBS) $(GLIB_LIBS)
 
