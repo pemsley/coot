@@ -479,8 +479,16 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
    }
 }
 
+void
+graphics_info_t::set_scrollable_map(int imol) {
 
-// I find this somewhat asthetically pleasing (maybe because the
+   scroll_wheel_map = imol;
+   activate_scroll_radio_button_in_display_manager(imol);
+
+}
+   
+
+// i find this somewhat asthetically pleasing (maybe because the
 // display control widgets are uniquely named [which was a bit of a
 // struggle in C, I seem to recall]).
 //
@@ -502,26 +510,44 @@ graphics_info_t::activate_scroll_radio_button_in_display_manager(int imol) {
 //       }
 //    }
 
+   auto get_scrollable_map_checkbutton = [] () {
+
+      GtkWidget *w = nullptr;
+      GtkWidget *display_map_vbox = widget_from_builder("display_map_vbox");
+      if (display_map_vbox) {
+         GtkWidget *item_widget = gtk_widget_get_first_child(display_map_vbox);
+         while (item_widget) {
+            // the child is a hbox
+            GtkWidget *item_widget_inner = gtk_widget_get_first_child(item_widget);
+            while (item_widget_inner) {
+               // the checkbuttons are the Display checkbutton or the Scroll checkbutton
+               if (GTK_IS_CHECK_BUTTON(item_widget_inner)) {
+                  const char *l = gtk_check_button_get_label(GTK_CHECK_BUTTON(item_widget_inner));
+                  if (l) {
+                     std::string ls(l);
+                     if (ls == "Scroll") {
+                        int imol_button = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget_inner), "imol"));
+                        if (imol_button == scroll_wheel_map) {
+                           w = item_widget_inner;
+                        }
+                     }
+                  }
+               }
+               item_widget_inner = gtk_widget_get_next_sibling(item_widget_inner);
+            };
+            item_widget = gtk_widget_get_next_sibling(item_widget);
+         }
+      }
+      return w;
+   };
+
 
    graphics_info_t g;
-   if (g.display_control_window()) {
-
-      // toggle all the other maps off of being scrolled map and this one on.
-      for (unsigned int i=0; i<molecules.size(); i++) {
-	 if (is_valid_map_molecule(i)) {
-	    std::string wname = "map_scroll_button_";
-	    wname += graphics_info_t::int_to_string(i);
-	    // GtkWidget *w = lookup_widget(g.display_control_window(), wname.c_str());
-	    GtkWidget *w = nullptr;
-            std::cout << "FIXME:: in activate_scroll_radio_button_in_display_manager() fix the map scroll button " << std::endl;
-	    if (w) {
-	       if (int(i) == g.scroll_wheel_map) {
-		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-	       } else {
-		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), FALSE);
-	       }
-	    }
-	 }
+   if (use_graphics_interface_flag) {
+      GtkWidget *w = get_scrollable_map_checkbutton();
+      if (w) {
+         // it's a radio button
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
       }
    }
 }

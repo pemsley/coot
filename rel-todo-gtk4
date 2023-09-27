@@ -12,6 +12,7 @@
 
 8 items
 
+
 Ribbons don't cast shadows.
 
 Fetch EMDB map doesn't check the cache/coot-download
@@ -29,6 +30,8 @@ Where is Make Link? ::: 1.5
 Colour rules (like Moorhen) need to be added to the Coot API.
 
 Pyrogen needs to work ::: 2
+
+Greg Crichlow cifs
 
 Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 2
 set_framebuffer_scale_factor().
@@ -875,3 +878,7 @@ The Restraints menu needs a "Delete Extra Restraints" button. ::: 0.5
 Go into CA mode and try to middle-mouse over an atom that is not displayed. The recentering works.
 The atom picker needs to know about the representation type (or act on it) ::: 0.1
 * Can't reproduce (thankfully?)
+
+Make sure that set_scroll_wheel_map and set_scrollable_map() (how are they different?) change the scroll indicator
+in the Display Manager. ::: 0.5
+* Done.

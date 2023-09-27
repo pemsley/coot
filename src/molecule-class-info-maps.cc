@@ -1105,6 +1105,10 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
 
    // This is called from update_map_triangles().
 
+   auto gdk_col_to_glm = [] (const GdkRGBA &rgba) {
+      return glm::vec4(rgba.red, rgba.green, rgba.blue, rgba.alpha);
+   };
+
    if (false)
       std::cout << "#### setup_glsl_map_rendering() start: map_colour " << imol_no << " "
                 << map_colour.red << " "  << map_colour.green << " " << map_colour.blue << std::endl;
@@ -1118,35 +1122,75 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    auto &triangles = vertices_and_triangles.second;
    std::vector<std::pair<int, map_triangle_t> > map_triangle_centres; // for sorting
 
-   std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
-   glm::vec4 col(map_colour.red, map_colour.green, map_colour.blue, 1.0f);
    auto tp_0 = std::chrono::high_resolution_clock::now();
-   for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); ++it) {
-      const coot::density_contour_triangles_container_t &tri_con(*it);
-      unsigned int idx_base = vertices.size();
-      for (unsigned int i=0; i<tri_con.points.size(); i++) {
-         glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
-         glm::vec3 normal = coord_orth_to_glm(tri_con.normals[i]);
-         s_generic_vertex vert(pos, normal, col);
-         vertices.push_back(vert);
+
+   if (colour_map_using_other_map_flag) {
+
+      std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
+      for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); ++it) {
+         const coot::density_contour_triangles_container_t &tri_con(*it);
+         unsigned int idx_base = vertices.size();
+         for (unsigned int i=0; i<tri_con.points.size(); i++) {
+            glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
+            glm::vec3 normal = coord_orth_to_glm(tri_con.normals[i]);
+            clipper::Coord_orth clipper_pos(pos.x, pos.y, pos.z);
+            GdkRGBA gdk_col = position_to_colour_using_other_map(clipper_pos);
+            glm::vec4 col = gdk_col_to_glm(gdk_col);
+            s_generic_vertex vert(pos, normal, col);
+            vertices.push_back(vert);
+         }
+         for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
+            g_triangle tri(tri_con.point_indices[i].pointID[0],
+                           tri_con.point_indices[i].pointID[1],
+                           tri_con.point_indices[i].pointID[2]);
+            tri.rebase(idx_base);
+            triangles.push_back(tri);
+
+            glm::vec3 sum(0.0f,0.0f,0.0f);
+            sum += vertices[tri_con.point_indices[i].pointID[0]].pos;
+            sum += vertices[tri_con.point_indices[i].pointID[1]].pos;
+            sum += vertices[tri_con.point_indices[i].pointID[2]].pos;
+            glm::vec3 mid_point = 0.333333 * sum;
+
+            // now map triangles (used for sorting)
+            int idx = map_triangle_centres.size();
+            map_triangle_t map_tri(tri, mid_point);
+            map_triangle_centres.push_back(std::make_pair(idx, map_tri));
+         }
       }
-      for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
-         g_triangle tri(tri_con.point_indices[i].pointID[0],
-                        tri_con.point_indices[i].pointID[1],
-                        tri_con.point_indices[i].pointID[2]);
-         tri.rebase(idx_base);
-         triangles.push_back(tri);
 
-         glm::vec3 sum(0.0f,0.0f,0.0f);
-         sum += vertices[tri_con.point_indices[i].pointID[0]].pos;
-         sum += vertices[tri_con.point_indices[i].pointID[1]].pos;
-         sum += vertices[tri_con.point_indices[i].pointID[2]].pos;
-         glm::vec3 mid_point = 0.333333 * sum;
+   } else {
 
-         // now map triangles (used for sorting)
-         int idx = map_triangle_centres.size();
-         map_triangle_t map_tri(tri, mid_point);
-         map_triangle_centres.push_back(std::make_pair(idx, map_tri));
+      // 20230924-PE as it was before today
+      std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
+      glm::vec4 col(map_colour.red, map_colour.green, map_colour.blue, 1.0f);
+      for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); ++it) {
+         const coot::density_contour_triangles_container_t &tri_con(*it);
+         unsigned int idx_base = vertices.size();
+         for (unsigned int i=0; i<tri_con.points.size(); i++) {
+            glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
+            glm::vec3 normal = coord_orth_to_glm(tri_con.normals[i]);
+            s_generic_vertex vert(pos, normal, col);
+            vertices.push_back(vert);
+         }
+         for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
+            g_triangle tri(tri_con.point_indices[i].pointID[0],
+                           tri_con.point_indices[i].pointID[1],
+                           tri_con.point_indices[i].pointID[2]);
+            tri.rebase(idx_base);
+            triangles.push_back(tri);
+
+            glm::vec3 sum(0.0f,0.0f,0.0f);
+            sum += vertices[tri_con.point_indices[i].pointID[0]].pos;
+            sum += vertices[tri_con.point_indices[i].pointID[1]].pos;
+            sum += vertices[tri_con.point_indices[i].pointID[2]].pos;
+            glm::vec3 mid_point = 0.333333 * sum;
+
+            // now map triangles (used for sorting)
+            int idx = map_triangle_centres.size();
+            map_triangle_t map_tri(tri, mid_point);
+            map_triangle_centres.push_back(std::make_pair(idx, map_tri));
+         }
       }
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
@@ -1157,6 +1201,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
 
    if (xmap_is_diff_map) {
       glm::vec4 diff_map_col(map_colour_negative_level.red, map_colour_negative_level.green, map_colour_negative_level.blue, 1.0f);
+      std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
       for (it=draw_diff_map_vector_sets.begin(); it!=draw_diff_map_vector_sets.end(); ++it) {
          const coot::density_contour_triangles_container_t &tri_con(*it);
          unsigned int idx_base = vertices.size();

@@ -1275,6 +1275,8 @@ public:
    static float zoom;
    static short int quanta_like_zoom_flag;
    static void mouse_zoom(double delta_x, double delta_y);
+   static void mouse_zoom_by_scale_factor(double sf);
+   static void mouse_zoom_by_scale_factor_inner(double sf);
    static void scroll_zoom(int direction);
    static void handle_delete_item_curor_change(GtkWidget *widget);
 
@@ -1632,7 +1634,7 @@ public:
 
    static short int do_scroll_by_wheel_mouse_flag;
    //
-   void set_scrollable_map(int imol) { scroll_wheel_map = imol; }
+   void set_scrollable_map(int imol);
 
    // Transfered from molecule_class_info, because they are a parameter
    // of the *graphis* at the moment, not each molecule (there is no
