@@ -5986,3 +5986,48 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
       }
    }
 }
+
+ProgressBarPopUp::ProgressBarPopUp(const char* title, const char* description) {
+   this->window = (GtkWindow*) gtk_window_new();
+   this->progress_bar = (GtkProgressBar*) gtk_progress_bar_new();
+
+   gtk_window_set_title(this->window, title);
+   gtk_window_set_deletable(this->window, FALSE);
+   graphics_info_t::set_transient_for_main_window(GTK_WIDGET(this->window));
+   auto* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+   gtk_widget_set_margin_bottom(box, 10);
+   gtk_widget_set_margin_top(box, 10);
+   gtk_widget_set_margin_start(box, 10);
+   gtk_widget_set_margin_end(box, 10);
+
+   gtk_window_set_child(this->window, box);
+   gtk_box_append(GTK_BOX(box), gtk_label_new(description));
+   gtk_box_append(GTK_BOX(box), GTK_WIDGET(this->progress_bar));
+   gtk_window_present(this->window);
+}
+
+ProgressBarPopUp::ProgressBarPopUp(ProgressBarPopUp&& other) {
+   this->window = other.window;
+   this->progress_bar = other.progress_bar;
+   other.window = nullptr;
+   other.progress_bar = nullptr;
+}
+
+void ProgressBarPopUp::pulse() {
+   if(this->progress_bar) {
+      gtk_progress_bar_pulse(this->progress_bar);
+   }
+}
+
+void ProgressBarPopUp::set_fraction(float frac) {
+   if(this->progress_bar) {
+      gtk_progress_bar_set_fraction(this->progress_bar, frac);
+   }
+}
+
+ProgressBarPopUp::~ProgressBarPopUp() {
+   if(this->window) {
+      gtk_window_close(this->window);
+      // gtk_window_destroy(this->window);
+   }
+}
