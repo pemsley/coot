@@ -52,7 +52,9 @@
 #include "graphics-info.h" // because that is where the curl handlers and filenames vector is stored
 
 #include "read-molecule.hh" // now with std::string args
-
+#include <thread>
+#include <chrono>
+#include "c-interface-gui.hh"
 
 // return 0 on success
 #ifdef USE_LIBCURL
