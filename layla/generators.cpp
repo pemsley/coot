@@ -25,6 +25,7 @@
 #include <cstring>
 #include <glib.h>
 #include <memory>
+#include <set>
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesParse.h>
 #include <rdkit/GraphMol/FileParsers/FileParsers.h>
@@ -184,6 +185,64 @@ std::vector<std::string> coot::layla::GeneratorRequest::build_commandline() cons
     return ret;
 }
 
+// Forward declaration
+void write_input_file_async(GTask* task);
+
+void initial_check(GTask* task) {
+    GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(task));
+    bool valid = true;
+    std::string reason;
+    auto does_molecule_only_consist_of_given_elements = [](RDKit::RWMol* mol, const std::set<unsigned int>& allowed_elements){
+        for(const auto* i: mol->atoms()) {
+            auto atomic_num = i->getAtomicNum();
+            if(allowed_elements.find(atomic_num) == allowed_elements.cend()) {
+                return false;
+            }
+        }
+        return true;
+    };
+    using Generator = coot::layla::GeneratorRequest::Generator;
+    switch(task_data->request->generator) {
+        case Generator::Acedrg: {
+            std::unique_ptr<RDKit::RWMol> mol;
+            mol.reset(RDKit::SmilesToMol(task_data->request->molecule_smiles));
+            std::set<unsigned int> elements = {
+                33, // As
+                5,  // B
+                35, // Br
+                6,  // C
+                17, // Cl
+                9,  // F
+                32, // Ge
+                1,  // H
+                53, // I
+                7,  // N
+                8,  // O
+                15, // P
+                16, // S
+                14  // Si
+            };
+            
+            if(!does_molecule_only_consist_of_given_elements(mol.get(), elements)) {
+                valid = false;
+                reason = "Molecule contains elements unhandled by Acedrg\n(not among As, B, Br, C, Cl, F, Ge, H, I, N, O, P, S, Si).";
+            }
+            break;
+        }
+        default:
+        case Generator::Grade2: {
+            valid = false;
+            reason = "Support for Grade2 has not been implemented yet.";
+            break;
+        }
+    }
+    if(valid) {
+        write_input_file_async(task);
+    } else {
+        GError* err = g_error_new(G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE, "Input validation failed:\n%s", reason.c_str());
+        g_task_return_error(task, err);
+    }
+}
 
 // Forward declaration
 void write_input_file_finish(GObject* file_object, GAsyncResult* res, gpointer user_data);
@@ -197,7 +256,8 @@ void write_input_file_async(GTask* task) {
     using InputFormat = coot::layla::GeneratorRequest::InputFormat;
     switch(task_data->request->input_format) {
         case InputFormat::MolFile: {
-            RDKit::RWMol* mol = RDKit::SmilesToMol(task_data->request->molecule_smiles);
+            std::unique_ptr<RDKit::RWMol> mol;
+            mol.reset(RDKit::SmilesToMol(task_data->request->molecule_smiles));
             file_contents = RDKit::MolToMolBlock(*mol);
             break;
         }
@@ -466,7 +526,7 @@ GCancellable* coot::layla::run_generator_request(GeneratorRequest request, CootL
         }
         title += " for CIF";
         gtk_window_set_title(task_data->progress_dialog, title.c_str());
-        write_input_file_async(G_TASK(user_data));
+        initial_check(G_TASK(user_data));
     }, task);
     
     // this segfaults:
