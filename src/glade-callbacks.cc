@@ -2869,8 +2869,7 @@ on_geometry_torsion_togglebutton_toggled(GtkToggleButton *togglebutton,
 extern "C" G_MODULE_EXPORT
 void
 on_new_ligands_info_dialog_ok_button_clicked (GtkButton       *button,
-                                                                  gpointer         user_data)
-{
+                                              gpointer         user_data) {
    // GtkWidget *w = widget_from_builder("new_ligands_info_dialog");
    // gtk_widget_set_visible(w, FALSE);
    GtkWidget *w = widget_from_builder("new_ligands_info_dialog");
@@ -2881,8 +2880,7 @@ on_new_ligands_info_dialog_ok_button_clicked (GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_no_new_ligands_info_dialog_ok_button_clicked (GtkButton       *button,
-                                                                     gpointer         user_data)
-{
+                                                 gpointer         user_data) {
    // GtkWidget *w = widget_from_builder("no_new_ligands_info_dialog");
    // gtk_widget_set_visible(w, FALSE);
    GtkWidget *w = widget_from_builder("no_new_ligands_info_dialog");
@@ -2893,8 +2891,7 @@ on_no_new_ligands_info_dialog_ok_button_clicked (GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_zoom_dialog_ok_button_clicked       (GtkButton       *button,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
   GtkWidget *w = widget_from_builder("zoom_dialog");
   gtk_widget_set_visible(w, FALSE);
@@ -2905,8 +2902,7 @@ on_zoom_dialog_ok_button_clicked       (GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_edit_chi_angles_dialog_destroy      (GtkWidget       *object,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
    /* needs to set widget */
   unset_moving_atom_move_chis();
   set_show_chi_angle_bond(0);
@@ -2917,8 +2913,7 @@ extern "C" G_MODULE_EXPORT
 void
 on_check_waters_low_occ_dist_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
 }
 
@@ -2927,8 +2922,7 @@ extern "C" G_MODULE_EXPORT
 void
 on_check_waters_zero_occ_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 
 }
 
@@ -2951,10 +2945,9 @@ extern "C" G_MODULE_EXPORT
 void
 on_recover_coordinates_cancel_button_clicked
                                         (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *widget = widget_from_builder("recover_coordinates_dialog");
-  gtk_widget_set_visible(widget, FALSE);
+                                        gpointer         user_data) {
+   GtkWidget *widget = widget_from_builder("recover_coordinates_dialog");
+   gtk_widget_set_visible(widget, FALSE);
 }
 
 

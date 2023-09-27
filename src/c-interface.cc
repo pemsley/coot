@@ -2608,6 +2608,8 @@ colour_map_by_other_map_py(int imol_map, int imol_map_used_for_colouring, float 
                }
             }
 
+            std::cout << "debug:: in colour_map_by_other_map_py() colour_list size " << colour_list.size() << std::endl;
+
             if (colour_list.size() == n) {
                // we read the table OK.
                g.molecules[imol_map].colour_map_using_map(xmap_for_colouring,
@@ -2725,7 +2727,7 @@ get_symmetry_bonds_colour(int idummy) {
 //
 void set_show_symmetry_master(short int state) {
 
-   std::cout << "set_show_symmetry_master() " << state << std::endl;
+   // std::cout << "set_show_symmetry_master() " << state << std::endl;
 
    //
    graphics_info_t g;

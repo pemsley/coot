@@ -65,6 +65,11 @@
           <attribute name="action">app.fetch_pdbe_ligand_description_action</attribute>
         </item>
         <item>
+          <attribute name="label">Fetch COD Entry...</attribute>
+          <attribute name="action">app.show_accession_code_fetch_frame</attribute>
+          <attribute name="target">cod</attribute>
+        </item>
+        <item>
           <attribute name="label">Fetch Map from EMDB...</attribute>
           <attribute name="action">app.fetch_map_from_emdb_action</attribute>
         </item>
@@ -1280,6 +1285,7 @@ Copyright 2023 Global Phasing Ltd.</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="add_OXT_dialog">
     <property name="title" translatable="yes">Coot: Add OXT to Chain</property>
     <property name="deletable">0</property>

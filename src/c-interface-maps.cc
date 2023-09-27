@@ -29,6 +29,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <future>
+#include <chrono>
 
 #include "coot-utils/coot-map-utils.hh" // for variance map
 #include "coot-utils/xmap-stats.hh"
@@ -47,6 +49,7 @@
 #include "graphics-info.h"
 #include "cc-interface.hh"
 #include "c-interface.h"
+#include "c-interface-gui.hh"
 #include "c-interface-gtk-widgets.h"
 #include "widget-headers.hh"
 
@@ -2554,6 +2557,75 @@ int sharpen_blur_map_with_resampling(int imol_map, float b_factor, float resampl
    }
    return imol_new;
 }
+
+
+void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_factor, float resample_factor) {
+
+   auto sharpen_blur_inner = +[] (std::promise<clipper::Xmap<float>> return_value,
+                                  const clipper::Xmap<float> xmap,
+                                  float b_factor,
+                                  float resample_factor) {
+
+      return_value.set_value(coot::util::sharpen_blur_map_with_resample(xmap, b_factor, resample_factor));
+   };
+
+   if (is_valid_map_molecule(imol_map)) {
+      graphics_info_t g;
+      clipper::Xmap<float> xmap = g.molecules[imol_map].xmap;
+      // make a name for the new map
+      std::string map_name = g.molecules[imol_map].name_; // use get_name() when it arrives
+      if (b_factor < 0)
+         map_name += " Sharpen ";
+      else
+         map_name += " Blur ";
+      map_name += coot::util::float_to_string(b_factor);
+      bool is_em_map_flag = g.molecules[imol_map].is_EM_map();
+      float contour_level = g.molecules[imol_map].get_contour_level();
+      std::promise<clipper::Xmap<float>> computation_result_promise;
+
+      struct sbr_callback_data_t {
+         sbr_callback_data_t(const std::string &n, bool f, float cl, ProgressBarPopUp&& pp) : new_map_name(n), is_em_map_flag(f), contour_level(cl), popup(std::move(pp)) {}
+         std::string new_map_name;
+         bool is_em_map_flag;
+         float contour_level;
+         std::future<clipper::Xmap<float>> computation_result;
+         ProgressBarPopUp popup;
+      };
+      sbr_callback_data_t *sbrcd_p = new sbr_callback_data_t(map_name, is_em_map_flag, contour_level, ProgressBarPopUp("Sharpen Blur", "Computing..."));
+      sbrcd_p->computation_result = computation_result_promise.get_future();
+
+      std::thread thread(sharpen_blur_inner, std::move(computation_result_promise), std::move(xmap), b_factor, resample_factor);
+      thread.detach();
+
+      auto check_it = +[] (gpointer data) {
+         std::cout << "---------------- check! " << std::endl;
+         if(!data) {
+            return FALSE;
+         }
+         sbr_callback_data_t *sbrcd_p = static_cast<sbr_callback_data_t *>(data);
+         if (sbrcd_p->computation_result.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+            graphics_info_t g;
+            int imol_new = g.create_molecule();
+            auto result = sbrcd_p->computation_result.get();
+            g.molecules[imol_new].install_new_map(result, sbrcd_p->new_map_name, sbrcd_p->is_em_map_flag);
+            g.molecules[imol_new].set_contour_level(sbrcd_p->contour_level);
+            graphics_draw();
+            // hides the progress bar popup automatically
+            delete sbrcd_p;
+            return FALSE;
+         } else {
+            sbrcd_p->popup.pulse();
+         }
+         return TRUE;
+      };
+
+      GSourceFunc f = GSourceFunc(check_it);
+      g_timeout_add(50, f, sbrcd_p);
+
+   }
+
+}
+
 
 #ifdef USE_GUILE
 //! \brief make many sharpened or blurred maps

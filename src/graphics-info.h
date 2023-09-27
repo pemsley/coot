@@ -1275,6 +1275,8 @@ public:
    static float zoom;
    static short int quanta_like_zoom_flag;
    static void mouse_zoom(double delta_x, double delta_y);
+   static void mouse_zoom_by_scale_factor(double sf);
+   static void mouse_zoom_by_scale_factor_inner(double sf);
    static void scroll_zoom(int direction);
    static void handle_delete_item_curor_change(GtkWidget *widget);
 
@@ -1632,7 +1634,7 @@ public:
 
    static short int do_scroll_by_wheel_mouse_flag;
    //
-   void set_scrollable_map(int imol) { scroll_wheel_map = imol; }
+   void set_scrollable_map(int imol);
 
    // Transfered from molecule_class_info, because they are a parameter
    // of the *graphis* at the moment, not each molecule (there is no
@@ -5130,6 +5132,11 @@ string   static std::string sessionid;
    static void add_model(const Model &model) {
       models.push_back(model);
    }
+   void scale_model(unsigned int idx, float scale_factor) {
+      attach_buffers(); // because the glbufferdata is changed
+      if (idx < models.size())
+         models[idx].scale(scale_factor);
+   }
 
 
    // static unsigned int gBufferFBO;
@@ -5264,6 +5271,7 @@ string   static std::string sessionid;
    static void rama_plot_boxes_handle_molecule_update(GtkWidget *box);
    static void rama_plot_boxes_handle_molecule_update(GtkWidget *box, const std::string &entry_string); // used in the residue selection
                                                                                                         // entry change callback
+
 };
 
 

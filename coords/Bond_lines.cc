@@ -2467,6 +2467,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 		  //
 		  mmdb::Residue *atom_residue_p = non_Hydrogen_atoms[i]->residue;
 		  if (atom_residue_p) {
+
 		     std::string resname = non_Hydrogen_atoms[i]->GetResName();
 		     if ((is_from_symmetry_flag == 0) &&
 			 (resname == "MSE" || resname == "MET" || resname == "MSO"
@@ -2483,9 +2484,10 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 			   add_bonds_het_residues(het_residues, SelAtom, imol, atom_colour_type, have_udd_atoms, udd_found_bond_handle,
                                                   udd_atom_index_handle, udd_user_defined_atom_colour_index_handle);
 			} else {
+
 			   std::string ele = non_Hydrogen_atoms[i]->element;
 			   if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
-			       || ele == "Cl" || ele == "Br"  || ele == "MO"
+			       || ele == "Cl" || ele == "Br"  || ele == "MO" || ele == "AL"
 			       || ele == "PT" || ele == "RU" || ele == " W"
 			       || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG"
 			       || ele == "PD" || ele == "PB" || ele == "AG") {
@@ -8297,47 +8299,45 @@ Bond_lines_container::add_atom_centres(int imol,
    }
 
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
-      mmdb::Atom *at = SelAtom.atom_selection[i];
-      bool is_H_flag = false;
-      std::string res_type(at->GetResName());
-      bool have_dict_for_this_type = false;
-      std::map<std::string, bool>::const_iterator it = have_at_least_minimal_dictionary.find(res_type);
-      if (geom) {
-         if (it == have_at_least_minimal_dictionary.end()) { // no hit in the cache
-            bool s = geom->have_at_least_minimal_dictionary_for_residue_type(res_type, imol);
-            have_at_least_minimal_dictionary[res_type] = s;
-            have_dict_for_this_type = s;
-         } else {
-            have_dict_for_this_type = it->second;
+
+      if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
+
+         mmdb::Atom *at = SelAtom.atom_selection[i];
+         bool is_H_flag = false;
+         std::string res_type(at->GetResName());
+         bool have_dict_for_this_type = false;
+         std::map<std::string, bool>::const_iterator it = have_at_least_minimal_dictionary.find(res_type);
+         if (geom) {
+            if (it == have_at_least_minimal_dictionary.end()) { // no hit in the cache
+               bool s = geom->have_at_least_minimal_dictionary_for_residue_type(res_type, imol);
+               have_at_least_minimal_dictionary[res_type] = s;
+               have_dict_for_this_type = s;
+            } else {
+               have_dict_for_this_type = it->second;
+            }
          }
-      }
 
-      if (false)
-         std::cout << "   geom: " << geom << " " << coot::atom_spec_t(at)
-                   << " have_dict_for_this_type: " << have_dict_for_this_type << std::endl;
+         if (false)
+            std::cout << "   geom: " << geom << " " << coot::atom_spec_t(at)
+                      << " have_dict_for_this_type: " << have_dict_for_this_type << std::endl;
 
-      if (is_hydrogen(std::string(at->element)))
-         is_H_flag = true;
-      if (do_bonds_to_hydrogens || (do_bonds_to_hydrogens == 0 && (!is_H_flag))) {
-         coot::Cartesian pos(at->x, at->y, at->z);
-	 graphical_bonds_atom_info_t gbai(pos, i, is_H_flag);
+         if (is_hydrogen(std::string(at->element)))
+            is_H_flag = true;
+         if (do_bonds_to_hydrogens || (do_bonds_to_hydrogens == 0 && (!is_H_flag))) {
+            coot::Cartesian pos(at->x, at->y, at->z);
+            graphical_bonds_atom_info_t gbai(pos, i, is_H_flag);
 
-         // 20230224-PE
-         // if (p.radius_for_atom_should_be_big(at)) // maybe put this in the constructor.
-         // p.radius_scale = 2.0;
-         // p.radius_scale = p.get_radius_scale_for_atom(at);
-         // replace with:
-         bool make_fat_atom = false;
-         if (! have_dict_for_this_type) make_fat_atom = true;
-         gbai.set_radius_scale_for_atom(at, make_fat_atom);
+            bool make_fat_atom = false;
+            if (! have_dict_for_this_type)
+               if (atom_colour_type != coot::COLOUR_BY_ATOM_TYPE)
+                  make_fat_atom = true;
+            gbai.set_radius_scale_for_atom(at, make_fat_atom);
 
-         // this is a bit hacky
-         if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
-            if (is_H_flag)
-               gbai.radius_scale += 0.18; // otherwise too tiny. At 0.25 Garib said that
-                                          // the spheres were too big.
-
-         if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
+            // this is a bit hacky
+            if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
+               if (is_H_flag)
+                  gbai.radius_scale += 0.18; // otherwise too tiny. At 0.25 Garib said that
+            // the spheres were too big.
 
             // No small atoms (H) in COLOUR_BY_B_FACTOR or COLOUR_BY_OCCUPANCY
             // because the add_bond function doesn't take a "thin" flag
@@ -8352,7 +8352,7 @@ Bond_lines_container::add_atom_centres(int imol,
                gbai.is_hydrogen_atom = false;
             if (false) // debugging large atom radius
                std::cout << "pushing back: " << coot::atom_spec_t(at)
-                         << " p with radius_scale " << gbai.radius_scale << std::endl;
+                         << " with is_H_flag " << is_H_flag << " radius_scale " << gbai.radius_scale << std::endl;
             atom_centres.push_back(gbai);
             int icol = atom_colour(at, atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p);
             bonds_size_colour_check(icol);

@@ -2089,7 +2089,14 @@ int read_small_molecule_cif(const char *file_name) {
    if (mol) {
       graphics_info_t g;
       imol = g.create_molecule();
-      g.molecules[imol].install_model(imol, mol, g.Geom_p(), file_name, 0, 1);
+      // do the "Show Symmetry" and Bond (ball) smoothness for the user:
+      if (g.bond_smoothness_factor == 1)
+         g.bond_smoothness_factor = 2;
+      short int display_in_diplay_control = 1;
+      bool is_from_shelx_ins_flag = false;
+      g.show_symmetry = 1;
+      g.molecules[imol].install_model(imol, mol, g.Geom_p(), file_name, display_in_diplay_control, is_from_shelx_ins_flag);
+      // g.molecules[imol].update_symmetry();
       update_go_to_atom_window_on_new_mol();
       graphics_draw();
    }

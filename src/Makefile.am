@@ -300,6 +300,9 @@ _coot_extended_la_LIBADD = \
 
 pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la _coot.la
 
+# the python libraries depend on libcootsumo - don't race
+BUILT_SOURCES = libcootsumo.la
+
 # Does this stop the race condition?
 # Well, it might do, but if I add it then _coot.so is not updated.
 # So, how about I added libcootsumo.la to the SOURCES, will that work?
@@ -343,8 +346,9 @@ coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
 
 coot_bin_LDADD =  \
 	libcootsumo.la \
-	$(top_builddir)/lidia-core/libcoot-lidia-core.la  \
-	$(top_builddir)/geometry/libcoot-geometry.la      \
+	$(top_builddir)/layla/libcoot-layla.la           \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+	$(top_builddir)/geometry/libcoot-geometry.la     \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS) $(EPOXY_LIBS) $(PYTHON_LIBS)
 

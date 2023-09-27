@@ -199,7 +199,7 @@ NB_MODULE(chapi, m) {
     .def("change_to_next_rotamer",&molecules_container_t::change_to_next_rotamer)
     .def("change_to_previous_rotamer",&molecules_container_t::change_to_previous_rotamer)
     .def("change_to_first_rotamer",&molecules_container_t::change_to_first_rotamer)
-    .def("set_user_defined_atom_colour_by_residue",&molecules_container_t::set_user_defined_atom_colour_by_residue)
+    .def("set_user_defined_atom_colour_by_selection",&molecules_container_t::set_user_defined_atom_colour_by_selection)
     .def("set_user_defined_bond_colours",&molecules_container_t::set_user_defined_bond_colours)
     .def("set_colour_wheel_rotation_base",&molecules_container_t::set_colour_wheel_rotation_base)
     .def("get_symmetry",&molecules_container_t::get_symmetry)

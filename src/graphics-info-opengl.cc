@@ -70,6 +70,7 @@ std::vector<std::reference_wrapper<Shader> > get_shader_refs() {
 bool
 graphics_info_t::init_shader(const std::string &shader_file_name) {
 
+   bool status = false;
    std::vector<std::reference_wrapper<Shader> > shader_refs = get_shader_refs();
    std::vector<std::reference_wrapper<Shader> >::iterator it;
    for (it=shader_refs.begin(); it!=shader_refs.end(); ++it) {
@@ -77,9 +78,11 @@ graphics_info_t::init_shader(const std::string &shader_file_name) {
          Shader &shader(it->get());
          std::cout << "init_shader(): found the shader " << shader.name << std::endl;
          shader.init(shader_file_name, Shader::Entity_t::NONE);
+         status = true;
       }
    }
    std::cout << "--- done init_shader() ---" << std::endl;
+   return status;
 }
 
 
@@ -1462,13 +1465,17 @@ graphics_info_t::load_gltf_model(const std::string &gltf_file_name) {
    Mesh e("some name"); // extract/replace this from the gltf data
    e.load_from_glTF(gltf_file_name);
    // e.invert_normals(); // it is shiny on the inside either way around - hmm.
-   Material mat;
-   mat.shininess = 64.0;
-   mat.specular_strength = 1.0;
-   mat.ambient  = glm::vec4(0.9, 0.9, 0.9, 1.0);
-   mat.diffuse  = glm::vec4(0.9, 0.9, 0.9, 1.0);
-   mat.turn_specularity_on(true);
-   e.set_material(mat); // override the material extracted from the gltf
+
+   // why do this?
+   if (false) {
+      Material mat;
+      mat.shininess = 64.0;
+      mat.specular_strength = 1.0;
+      mat.ambient  = glm::vec4(0.7, 0.7, 0.7, 1.0);
+      mat.diffuse  = glm::vec4(0.7, 0.7, 0.7, 1.0);
+      mat.turn_specularity_on(true);
+      e.set_material(mat); // override the material extracted from the gltf
+   }
    Model e_model;
    e_model.add_mesh(e);
    add_model(e_model);
