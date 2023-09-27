@@ -7647,8 +7647,8 @@ void sequence_view(int imol) {
          };
          // if the sequence view box no longer has children, then we should close up the pane
          if (n_children == 0) {
-            GtkWidget *pane = widget_from_builder("main_window_sequence_view_vs_graphics_pane");
-            gtk_paned_set_position(GTK_PANED(pane), 0);
+            GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
+            gtk_widget_set_visible(vbox, FALSE);
          }
       };
       g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(close_button_callback), NULL);
@@ -7658,6 +7658,7 @@ void sequence_view(int imol) {
       gtk_overlay_set_child(GTK_OVERLAY(overlay), GTK_WIDGET(scrolled_window));
       gtk_overlay_add_overlay(GTK_OVERLAY(overlay), button);
       GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
+      gtk_widget_set_visible(vbox, TRUE);
       g_object_set_data(G_OBJECT(button), "sequence_view_box", vbox);
       g_object_set_data(G_OBJECT(overlay), "imol", GINT_TO_POINTER(imol));
       // GTK_ALIGN_END works OK/as intended, except the main graphics widget (or window) is too narrow to see it.

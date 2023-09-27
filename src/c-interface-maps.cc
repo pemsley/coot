@@ -2598,7 +2598,6 @@ void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_fac
       thread.detach();
 
       auto check_it = +[] (gpointer data) {
-         std::cout << "---------------- check! " << std::endl;
          if(!data) {
             return FALSE;
          }
@@ -2609,6 +2608,7 @@ void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_fac
             auto result = sbrcd_p->computation_result.get();
             g.molecules[imol_new].install_new_map(result, sbrcd_p->new_map_name, sbrcd_p->is_em_map_flag);
             g.molecules[imol_new].set_contour_level(sbrcd_p->contour_level);
+            g.set_imol_refinement_map(imol_new);
             graphics_draw();
             // hides the progress bar popup automatically
             delete sbrcd_p;

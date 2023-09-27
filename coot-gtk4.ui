@@ -4080,7 +4080,7 @@ that you wish to delete.               </property>
     <property name="height-request">380</property>
     <property name="title" translatable="yes">Display Manager</property>
     <property name="default-width">700</property>
-    <signal name="destroy" handler="on_display_control_window_glade_destroy" swapped="no"/>
+    <property name="hide-on-close">True</property>
     <child>
       <object class="GtkBox" id="vbox30">
         <property name="orientation">vertical</property>
@@ -6575,6 +6575,7 @@ Do you want to continue?
                             <child>
                               <object class="GtkBox" id="main_window_sequence_view_box">
                                 <property name="orientation">horizontal</property>
+                                <property name="visible">False</property>
                               </object>
                             </child>
 
