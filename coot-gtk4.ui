@@ -6575,6 +6575,7 @@ Do you want to continue?
                             <child>
                               <object class="GtkBox" id="main_window_sequence_view_box">
                                 <property name="orientation">horizontal</property>
+                                <property name="visible">False</property>
                               </object>
                             </child>
 
