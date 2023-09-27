@@ -47,8 +47,6 @@ struct GeneratorTaskData {
     std::unique_ptr<std::string> stdout_read;
 
     void initialize(coot::layla::GeneratorRequest&& request) {
-        g_warning("void GeneratorTaskData::initialize() called.");
-        
         using namespace coot::layla;
 
         this->progress_bar = (GtkProgressBar*) gtk_builder_get_object(global_layla_gtk_builder, "layla_generator_progress_dialog_progress_bar");
