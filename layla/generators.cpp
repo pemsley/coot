@@ -144,6 +144,10 @@ std::vector<std::string> coot::layla::GeneratorRequest::build_commandline() cons
                     break;
                 }
             }
+            if(std::holds_alternative<Grade2Options>(this->generator_settings)) {
+                auto settings = std::get<Grade2Options>(this->generator_settings);
+                // todo
+            }
             break;
         }
         default:
