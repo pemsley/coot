@@ -6031,3 +6031,20 @@ ProgressBarPopUp::~ProgressBarPopUp() {
       // gtk_window_destroy(this->window);
    }
 }
+
+ProgressNotifier::ProgressNotifier(std::shared_ptr<ProgressBarPopUp> popup) noexcept 
+:progress_bar_popup(std::move(popup)) { }
+
+void ProgressNotifier::update_progress(float frac) {
+   struct callback_data {
+      std::shared_ptr<ProgressBarPopUp> popup;
+      float frac;
+   };
+   callback_data* data = new callback_data{this->progress_bar_popup, frac};
+   // This guarantes execution from the main thread
+   g_idle_add_once((GSourceOnceFunc)+[](gpointer user_data){
+      callback_data* data = (callback_data*) user_data;
+      data->popup->set_fraction(data->frac);
+      delete data;
+   }, data);
+}

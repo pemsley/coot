@@ -2,6 +2,7 @@
 
 #include <gtk/gtk.h>
 #include <string>
+#include <memory>
 
 // this might need a better name
 
@@ -24,4 +25,15 @@ class ProgressBarPopUp {
 	void pulse();
 	void set_fraction(float frac);
 	~ProgressBarPopUp();
+};
+
+class ProgressNotifier {
+	std::shared_ptr<ProgressBarPopUp> progress_bar_popup;
+
+	public:
+
+	ProgressNotifier(std::shared_ptr<ProgressBarPopUp> popup) noexcept;
+	/// This allows for reporting progress in a thread-safe way
+	void update_progress(float frac);
+
 };
