@@ -536,18 +536,15 @@ int fetch_emdb_map(const std::string &emd_accession_code) {
    if (status == 0) { // that's good
 
       std::string gzipedBytes;
-      gzipedBytes.clear();
 
       std::ifstream file(gz_fn);
-      std::stringstream sss;
-      std::stringstream &ss = sss;
-      ss.flush();
+      std::stringstream ss;
 
-      while (!file.eof())
+      while (!file.eof()) {
          gzipedBytes += (char) file.get();
+      }
       file.close();
       if (gzipedBytes.size() == 0) {
-         ss << gzipedBytes;
          return -1;
       }
 
@@ -601,10 +598,10 @@ int fetch_emdb_map(const std::string &emd_accession_code) {
       for (size_t i = 0; i < strm.total_out; ++i) {
          ss << uncomp[i];
       }
-      free(uncomp);
+      delete [] uncomp;
 
       std::ofstream out(fn);
-      out << sss.str();
+      out << ss.str();
       out.close();
       remove(gz_fn.c_str());
       imol = read_ccp4_map(fn, false);
