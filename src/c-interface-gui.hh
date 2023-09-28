@@ -1,5 +1,7 @@
 
 
+#ifndef C_INTERFACE_GUI_HH
+#define C_INTERFACE_GUI_HH
 #include <gtk/gtk.h>
 #include <string>
 #include <memory>
@@ -37,3 +39,6 @@ class ProgressNotifier {
 	void update_progress(float frac);
 
 };
+
+
+#endif // C_INTERFACE_GUI_HH

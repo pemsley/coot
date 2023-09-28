@@ -59,15 +59,29 @@
 
 // return 0 on success
 #ifdef USE_LIBCURL
-int coot_get_url(const std::string &url, const std::string  &file_name) {
-   return coot_get_url_and_activate_curl_hook(url, file_name, 0);
+int coot_get_url(const std::string &url, const std::string  &file_name, std::optional<ProgressNotifier> notifier) {
+   return coot_get_url_and_activate_curl_hook(url, file_name, 0, notifier);
 }
 #endif /* USE_LIBCURL */
 
 
 #ifdef USE_LIBCURL
+
+int coot_curl_progress_callback(void *clientp,
+   curl_off_t dltotal,
+   curl_off_t dlnow,
+   curl_off_t ultotal,
+   curl_off_t ulnow) {
+      ProgressNotifier* notifier_ptr = (ProgressNotifier*)(clientp);
+      if(dltotal == 0) {
+         dltotal++;
+      }
+      notifier_ptr->update_progress((float)dlnow/(float)dltotal);
+      return 0;
+}
+
 int coot_get_url_and_activate_curl_hook(const std::string &url, const std::string &file_name,
-					short int activate_curl_hook_flag) {
+					short int activate_curl_hook_flag, std::optional<ProgressNotifier> notifier) {
 
    std::cout << "DEBUG:: in coot_get_url_and_activate_curl_hook "
 	     << url << " " << file_name << std::endl;
@@ -113,6 +127,11 @@ int coot_get_url_and_activate_curl_hook(const std::string &url, const std::strin
       curl_easy_setopt(c, CURLOPT_USERAGENT, user_agent_str.c_str());
       curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data_to_file);
       curl_easy_setopt(c, CURLOPT_WRITEDATA, &p_for_write);
+      if(notifier.has_value()) {
+         auto* notifier_ptr = &notifier.value();
+         curl_easy_setopt(c, CURLOPT_XFERINFOFUNCTION, coot_curl_progress_callback);
+         curl_easy_setopt(c, CURLOPT_XFERINFODATA, notifier_ptr);
+      }
       std::pair <CURL *, std::string> p(c,file_name);
       CURLcode success = CURLcode(-1);
       if (activate_curl_hook_flag) {

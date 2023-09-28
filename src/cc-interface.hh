@@ -28,6 +28,7 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <optional>
 
 #ifdef USE_GUILE
 #include <libguile.h>
@@ -47,6 +48,7 @@
 #include "named-rotamer-score.hh"
 
 #include "coords/phenix-geo.hh"
+#include "c-interface-gui.hh"
 
 /*! \file
   \brief Coot Scripting Interface - General (C++ functions)
@@ -1477,8 +1479,8 @@ mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(mmdb::Manager *mol,
 
 #ifdef USE_LIBCURL
 // return 0 on success.
-int coot_get_url(const std::string &url, const std::string &file_name);
-int coot_get_url_and_activate_curl_hook(const std::string &url, const std::string &file_name, short int do_hook_flag);
+int coot_get_url(const std::string &url, const std::string &file_name, std::optional<ProgressNotifier> notifier = std::nullopt);
+int coot_get_url_and_activate_curl_hook(const std::string &url, const std::string &file_name, short int do_hook_flag, std::optional<ProgressNotifier> notifier = std::nullopt);
 #ifdef USE_GUILE
 // this handles URLs that are strings, not binaries.
 SCM coot_get_url_as_string(const char *url);
