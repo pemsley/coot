@@ -132,6 +132,7 @@ int coot_get_url_and_activate_curl_hook(const std::string &url, const std::strin
          auto* notifier_ptr = &notifier.value();
          curl_easy_setopt(c, CURLOPT_XFERINFOFUNCTION, coot_curl_progress_callback);
          curl_easy_setopt(c, CURLOPT_XFERINFODATA, notifier_ptr);
+         curl_easy_setopt(c, CURLOPT_NOPROGRESS, 0);
       }
       std::pair <CURL *, std::string> p(c,file_name);
       CURLcode success = CURLcode(-1);
