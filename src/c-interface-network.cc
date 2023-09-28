@@ -76,6 +76,7 @@ int coot_curl_progress_callback(void *clientp,
       if(dltotal == 0) {
          dltotal++;
       }
+      g_debug("Inside coot_curl_progress_callback(); dlnow=%li, dltotal=%li", dlnow, dltotal);
       notifier_ptr->update_progress((float)dlnow/(float)dltotal);
       return 0;
 }
@@ -639,7 +640,7 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
          read_ccp4_map(cbd->fn, false);
          delete cbd;
       }, cbd);
-      
+
    }, std::move(popup));
    worker.detach();
 
