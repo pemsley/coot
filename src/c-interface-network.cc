@@ -54,6 +54,7 @@
 #include "read-molecule.hh" // now with std::string args
 #include <thread>
 #include <chrono>
+#include <future>
 #include "c-interface-gui.hh"
 
 // return 0 on success
@@ -530,7 +531,31 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
 
    ProgressBarPopUp popup("Coot Download", "Downloading a map from EMDB...");
    std::thread worker([=](ProgressBarPopUp&& popup){
-      // a progress bar here woudl be nice
+
+      std::promise<std::string> fn_promise;
+
+      struct callback_data {
+         std::future<std::string> fn_future;
+         ProgressBarPopUp popup;
+      };
+      callback_data* cbd = new callback_data{fn_promise.get_future(), std::move(popup)};
+      g_timeout_add(50, (GSourceFunc)+[](gpointer user_data) -> int {
+         callback_data* cbd = (callback_data*) user_data;
+         if(cbd->fn_future.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
+            cbd->popup.pulse();
+            return TRUE;
+         } else {
+            try {
+               auto m_fn = cbd->fn_future.get();
+               read_ccp4_map(m_fn, false);
+            } catch(std::exception& e) {
+               g_warning("An error occured. CCP4 map could not be downloaded.");
+            }
+            delete cbd;
+            return FALSE;
+         }
+      }, cbd);
+      // todo: set fraction for the progress bar
       int status = coot_get_url(map_gz_url, gz_fn);
 
       if (status != 0) { // if it's bad
@@ -606,17 +631,7 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
       out << ss.str();
       out.close();
       remove(gz_fn.c_str());
-      
-      struct callback_data {
-         std::string fn;
-         ProgressBarPopUp popup;
-      };
-      callback_data* cbd = new callback_data{fn, std::move(popup)};
-      g_idle_add_once((GSourceOnceFunc)+[](gpointer user_data){
-         callback_data* cbd = (callback_data*) user_data;
-         read_ccp4_map(cbd->fn, false);
-         delete cbd;
-      }, cbd);
+      fn_promise.set_value(fn);
    }, std::move(popup));
    worker.detach();
 
