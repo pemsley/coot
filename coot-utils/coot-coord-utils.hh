@@ -1443,19 +1443,6 @@ namespace coot {
       std::vector<cis_peptide_info_t>
       cis_peptides_info_from_coords(mmdb::Manager *mol);
 
-      // where the atoms are in cis peptides
-      //
-      // mark up things that have omega > 210 or omega < 150. i.e, 180 +/- 30.
-      //
-      // strictly_cis_flag is false by default.
-      //
-      // if model_number == 0, make cis_peptides quads for all models.
-      //
-      std::vector<cis_peptide_quad_info_t>
-      cis_peptide_quads_from_coords(mmdb::Manager *mol,
-				    int model_number,
-				    bool strictly_cis_flag = false);
-
       // remove wrong cis_peptides from the header records
       void remove_wrong_cis_peptides(mmdb::Manager *mol);
 

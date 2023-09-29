@@ -6594,9 +6594,10 @@ SCM twisted_trans_peptides(int imol) {
 
    if (is_valid_model_molecule(imol)) {
 
+      graphics_info_t g;
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<coot::util::cis_peptide_quad_info_t> v =
-	 coot::util::cis_peptide_quads_from_coords(mol, 0, false);
+	 coot::cis_peptide_quads_from_coords(mol, 0, g.Geom_p(), false);
 
       for (unsigned int i=0; i<v.size(); i++) {
 	 if (v[i].type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS) {
@@ -6690,9 +6691,10 @@ PyObject *twisted_trans_peptides_py(int imol) {
 
    if (is_valid_model_molecule(imol)) {
 
+      graphics_info_t g;
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<coot::util::cis_peptide_quad_info_t> v =
-	 coot::util::cis_peptide_quads_from_coords(mol, 0, false);
+	 coot::cis_peptide_quads_from_coords(mol, 0, g.Geom_p(), false);
 
       for (unsigned int i=0; i<v.size(); i++) {
 	 if (v[i].type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS) {
