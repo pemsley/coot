@@ -521,7 +521,7 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       n_slices = 32;
    }
 
-   std::set<int> no_bonds_to_these_atoms; // empty
+   const std::set<int> &no_bonds_to_these_atoms = no_bonds_to_these_atom_indices;
    int udd_handle_bonded_type = atom_sel_ligand.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
    if (udd_handle_bonded_type == mmdb::UDDATA_WrongUDRType) {
       std::cout << "ERROR:: in get_bonds_mesh() wrong udd data type " << udd_handle_bonded_type << std::endl;
