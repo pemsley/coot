@@ -5987,7 +5987,7 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
    }
 }
 
-ProgressBarPopUp::ProgressBarPopUp(const char* title, const char* description) {
+ProgressBarPopUp::ProgressBarPopUp(const char* title, const char* description) noexcept {
    this->window = (GtkWindow*) gtk_window_new();
    this->progress_bar = (GtkProgressBar*) gtk_progress_bar_new();
 
@@ -6006,36 +6006,42 @@ ProgressBarPopUp::ProgressBarPopUp(const char* title, const char* description) {
    gtk_window_present(this->window);
 }
 
-ProgressBarPopUp::ProgressBarPopUp(ProgressBarPopUp&& other) {
+ProgressBarPopUp::ProgressBarPopUp(ProgressBarPopUp&& other) noexcept {
    this->window = other.window;
    this->progress_bar = other.progress_bar;
    other.window = nullptr;
    other.progress_bar = nullptr;
 }
 
-void ProgressBarPopUp::pulse() {
+void ProgressBarPopUp::pulse() noexcept {
    if(this->progress_bar) {
       gtk_progress_bar_pulse(this->progress_bar);
    }
 }
 
-void ProgressBarPopUp::set_fraction(float frac) {
+void ProgressBarPopUp::set_fraction(float frac) noexcept {
    if(this->progress_bar) {
       gtk_progress_bar_set_fraction(this->progress_bar, frac);
+   }
+}
+
+void ProgressBarPopUp::set_text(const char* text) noexcept {
+   if(this->progress_bar) {
+      gtk_progress_bar_set_show_text(this->progress_bar, TRUE);
+      gtk_progress_bar_set_text(this->progress_bar, text);
    }
 }
 
 ProgressBarPopUp::~ProgressBarPopUp() {
    if(this->window) {
       gtk_window_close(this->window);
-      // gtk_window_destroy(this->window);
    }
 }
 
 ProgressNotifier::ProgressNotifier(std::shared_ptr<ProgressBarPopUp> popup) noexcept 
 :progress_bar_popup(std::move(popup)) { }
 
-void ProgressNotifier::update_progress(float frac) {
+void ProgressNotifier::update_progress(float frac) noexcept {
    struct callback_data {
       std::shared_ptr<ProgressBarPopUp> popup;
       float frac;
@@ -6045,6 +6051,45 @@ void ProgressNotifier::update_progress(float frac) {
    g_idle_add_once((GSourceOnceFunc)+[](gpointer user_data){
       callback_data* data = (callback_data*) user_data;
       data->popup->set_fraction(data->frac);
+      delete data;
+   }, data);
+}
+
+void ProgressNotifier::pulse() noexcept {
+   struct callback_data {
+      std::shared_ptr<ProgressBarPopUp> popup;
+   };
+   callback_data* data = new callback_data{this->progress_bar_popup};
+   // This guarantes execution from the main thread
+   g_idle_add_once((GSourceOnceFunc)+[](gpointer user_data){
+      callback_data* data = (callback_data*) user_data;
+      data->popup->pulse();
+      delete data;
+   }, data);
+}
+
+void ProgressNotifier::set_text(const char* text) noexcept {
+   struct callback_data {
+      std::shared_ptr<ProgressBarPopUp> popup;
+      std::string text;
+   };
+   callback_data* data = new callback_data{this->progress_bar_popup, std::string(text)};
+   // This guarantes execution from the main thread
+   g_idle_add_once((GSourceOnceFunc)+[](gpointer user_data){
+      callback_data* data = (callback_data*) user_data;
+      data->popup->set_text(data->text.c_str());
+      delete data;
+   }, data);
+}
+
+ProgressNotifier::~ProgressNotifier() {
+   struct callback_data {
+      std::shared_ptr<ProgressBarPopUp> popup;
+   };
+   callback_data* data = new callback_data{std::move(this->progress_bar_popup)};
+   // This guarantes that de-allocation happens on the main thread
+   g_idle_add_once((GSourceOnceFunc)+[](gpointer user_data){
+      callback_data* data = (callback_data*) user_data;
       delete data;
    }, data);
 }
