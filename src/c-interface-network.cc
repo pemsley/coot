@@ -548,6 +548,7 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
 
    if (coot::file_exists_and_non_tiny(fn)) {
       read_ccp4_map(fn, false);
+      return;
    }
 
    ProgressBarPopUp popup("Coot Download", "Downloading a map from EMDB...");
