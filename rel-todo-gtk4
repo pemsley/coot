@@ -12,8 +12,38 @@
 
 8 items
 
+Don't draw cis-peptide markup for an MDO
+
+/Users/pemsley/Projects/ccp4-webassembly/Moorhen/checkout/coot-1.0/lidia-core/atom-types.cc:70:43: warning: left operand of comma operator has no effect [-Wunused-value]
+        atom_typing("CSP",  "[C]#[C]",   (0,1)),
+                                          ^
+/Users/pemsley/Projects/ccp4-webassembly/Moorhen/checkout/coot-1.0/lidia-core/atom-types.cc:74:48: warning: left operand of comma operator has no effect [-Wunused-value]
+        atom_typing("CR56", "c12aaaac1aaa2",  (0,5)), // works on indole
+                                               ^
+/Users/pemsley/Projects/ccp4-webassembly/Moorhen/checkout/coot-1.0/lidia-core/atom-types.cc:76:47: warning: left operand of comma operator has no effect [-Wunused-value]
+        atom_typing("CR56", "c12AAAAc1aaa2", (0,5)), // 6-ring doesn't have to aromatic (8UG) (maybe 5 neither!?)
+                                              ^
+/Users/pemsley/Projects/ccp4-webassembly/Moorhen/checkout/coot-1.0/lidia-core/atom-types.cc:78:48: warning: left operand of comma operator has no effect [-Wunused-value]
+        atom_typing("CR6",  "c12ccccc1OCO2",  (0,5)),   // mouse, fused atoms in 6-ring not non-arom 5-ring
+                                               ^
+/Users/pemsley/Projects/ccp4-webassembly/Moorhen/checkout/coot-1.0/lidia-core/atom-types.cc:79:48: warning: left operand of comma operator has no effect [-Wunused-value]
+        atom_typing("CR66", "c12aaaac1AAAA2", (0,5)),   // one 6-ring aromatic, other not. Needed for XXX?
+                                               ^
+/Users/pemsley/Projects/ccp4-webassembly/Moorhen/checkout/coot-1.0/lidia-core/atom-types.cc:81:48: warning: left operand of comma operator has no effect [-Wunused-value]
+        atom_typing("CR6",  "c12caccc1***2",  (0,5)),  // aromatic 6, (non-)aromatic 5, maybe this should be CR56?
+                                               ^
+/Users/pemsley/Projects/ccp4-webassembly/Moorhen/checkout/coot-1.0/lidia-core/atom-types.cc:134:45: warning: left operand of comma operator has no effect [-Wunused-value]
+        atom_typing("HOH2", "[H][OH2][H]", (0,2)), // H of HOH - water
+                                            ^
+/Users/pemsley/Projects/ccp4-webassembly/Moorhen/checkout/coot-1.0/lidia-core/atom-types.cc:154:58: warning: left operand of comma operator has no effect [-Wunused-value]
+        atom_typing("NH2",  "[NX3^2][CX3^2]=[N^2;X3+]", (0,2)), // amidinium (charged)...
+
 
 Ribbons don't cast shadows.
+
+No reaction to Validate -> Atoms with Zero Occs (there were some)
+
+No reaction to Aligment vs PIR (no PIR was loaded)
 
 Fetch EMDB map doesn't check the cache/coot-download
 
