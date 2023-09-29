@@ -701,8 +701,8 @@ new_startup_application_activate(GtkApplication *application,
 
       // the main application builder
 
-      // change "glade" to "ui" one day.
       std::string dir = coot::package_data_dir();
+      // change "glade" to "ui" one day.
       std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
       std::string ui_file_name = "coot-gtk4.ui";
       std::string ui_file_full = coot::util::append_dir_file(dir_glade, ui_file_name);
