@@ -548,6 +548,7 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
 
    if (coot::file_exists_and_non_tiny(fn)) {
       read_ccp4_map(fn, false);
+      g_info("Reading CCP4 map from cached downloads...");
       return;
    }
 
@@ -558,6 +559,7 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
       int status = coot_get_url(map_gz_url, gz_fn, ProgressNotifier(popup));
 
       if (status != 0) { // if it's bad
+         g_warning("Download failed. Status=%i", status);
          return;
       }
 
@@ -571,6 +573,7 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
       }
       file.close();
       if (gzipedBytes.size() == 0) {
+         g_warning("The downloaded file (%s) is empty or could not be read.", gz_fn.c_str());
          return;
       }
 
@@ -586,8 +589,10 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
       strm.zfree     = Z_NULL;
       bool done = false;
 
-      if (inflateInit2(&strm, (16 + MAX_WBITS)) != Z_OK) {
+      int err = inflateInit2(&strm, (16 + MAX_WBITS));
+      if (err != Z_OK) {
          delete [] uncomp;
+         g_warning("The downloaded file (%s) could not be decompressed (zlib error: %i) [1].", gz_fn.c_str(), err);
          return;
       }
 
@@ -612,12 +617,15 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
          if (err == Z_STREAM_END) {
             done = true;
          } else if (err != Z_OK) {
+            g_warning("The downloaded file (%s) could not be decompressed (zlib error: %i) [2].", gz_fn.c_str(), err);
             break;
          }
       }
 
-      if (inflateEnd (&strm) != Z_OK) {
+      err = inflateEnd (&strm);
+      if (err != Z_OK) {
          delete [] uncomp;
+         g_warning("The downloaded file (%s) could not be decompressed (zlib error: %i) [3].", gz_fn.c_str(), err);
          return;
       }
 
@@ -626,9 +634,11 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
       }
       delete [] uncomp;
 
+      g_info("The downloaded file has been successfully decompressed. Writing it down...");
       std::ofstream out(fn);
       out << ss.str();
       out.close();
+      g_info("Deleting the downloaded archive...");
       remove(gz_fn.c_str());
 
       struct callback_data {
@@ -639,6 +649,7 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
 
       g_idle_add_once((GSourceOnceFunc)+[](gpointer user_data) {
          callback_data* cbd = (callback_data*) user_data;
+         g_info("Reading CCP4 map from downloaded file...");
          read_ccp4_map(cbd->fn, false);
          delete cbd;
       }, cbd);
