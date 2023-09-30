@@ -567,6 +567,8 @@ libcootsumo_la_SOURCES = \
 	gtk-widget-conversion-utils.h  \
 	gtk-widget-conversion-utils.cc \
 	gtk-manual.hh		 \
+	gtk-utils.cc \
+	gtk-utils.hh \
 	guile-fixups.h		 \
 	history_list.hh		 \
 	HUDMesh.cc               \

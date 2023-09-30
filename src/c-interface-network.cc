@@ -55,7 +55,7 @@
 #include <thread>
 #include <chrono>
 #include <future>
-#include "c-interface-gui.hh"
+#include "gtk-utils.hh"
 
 // return 0 on success
 #ifdef USE_LIBCURL

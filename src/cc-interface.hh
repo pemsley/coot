@@ -48,7 +48,7 @@
 #include "named-rotamer-score.hh"
 
 #include "coords/phenix-geo.hh"
-#include "c-interface-gui.hh"
+#include "gtk-utils.hh"
 
 /*! \file
   \brief Coot Scripting Interface - General (C++ functions)
