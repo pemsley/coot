@@ -66,19 +66,25 @@ coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
         atom_typing("O",   "O",   0),
 
         // Carbon SP
-        atom_typing("CSP1", "[H][C]#*",  1), // e.g. in 2GT
-        atom_typing("CSP",  "[C]#[C]",   (0,1)),
-        atom_typing("CSP",  "[C]#*",     0),
-        
+        {"CSP1", "[H][C]#*",  1}, // e.g. in 2GT
+        {"CSP",  "[C]#[C]",   0},
+        {"CSP",  "[C]#[C]",   1},
+        {"CSP",  "[C]#*",     0},
+
         // Carbon SP2
-        atom_typing("CR56", "c12aaaac1aaa2",  (0,5)), // works on indole
-        atom_typing("CR56", "c12aaaan1aaa2",  0), // same pattern as (below) N56, but catching first 56 atom
-        atom_typing("CR56", "c12AAAAc1aaa2", (0,5)), // 6-ring doesn't have to aromatic (8UG) (maybe 5 neither!?)
-        atom_typing("CR56", "c12aaaan1aaa2",  0), // same pattern as (below) N56, but catching first 56 atom
-        atom_typing("CR6",  "c12ccccc1OCO2",  (0,5)),   // mouse, fused atoms in 6-ring not non-arom 5-ring
-        atom_typing("CR66", "c12aaaac1AAAA2", (0,5)),   // one 6-ring aromatic, other not. Needed for XXX?
-                                             // but makes a fail on 113.
-        atom_typing("CR6",  "c12caccc1***2",  (0,5)),  // aromatic 6, (non-)aromatic 5, maybe this should be CR56?
+        {"CR56", "c12aaaac1aaa2",  0}, // works on indole
+        {"CR56", "c12aaaac1aaa2",  5}, // works on indole
+        {"CR56", "c12aaaan1aaa2",  0}, // same pattern as (below) N56, but catching first 56 atom
+        {"CR56", "c12AAAAc1aaa2",  0}, // 6-ring doesn"t have to aromatic (8UG)
+        {"CR66", "c12aaaac1aaaa2", 0},
+        {"CR66", "c12aaaac1aaaa2", 5},
+        {"CR6",  "c12ccccc1OCO2",  0},   // mouse, fused atoms in 6-ring not non-arom 5-ring
+        {"CR6",  "c12ccccc1OCO2",  5},   // mouse, fused atoms in 6-ring not non-arom 5-ring
+        {"CR66", "c12aaaac1AAAA2", 0},   // one 6-ring aromatic, other not. Needed for XXX?
+        {"CR66", "c12aaaac1AAAA2", 5},   // one 6-ring aromatic, other not. Needed for XXX?
+        // but makes a fail on 113.
+        {"CR6",  "c12caccc1***2",  0},  // aromatic 6, (non-)aromatic 5, maybe this should be CR56?
+        {"CR6",  "c12caccc1***2",  5},  // aromatic 6, (non-)aromatic 5, maybe this should be CR56?
 
         // note CR1  missing - can"t find example
         //      CR1H missing - can"t find example
@@ -131,9 +137,10 @@ coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
         atom_typing("HCR1", "[H]c",        0),
         atom_typing("HNH1", "[H][NH1]",    0),
         atom_typing("HOH1", "[H][OH1]",    0),
-        atom_typing("HOH2", "[H][OH2][H]", (0,2)), // H of HOH - water
+        atom_typing("HOH2", "[H][OH2][H]", 0), // H of HOH - water
+        atom_typing("HOH2", "[H][OH2][H]", 2), // H of HOH - water
         atom_typing("H",    "[H]",         0),
-        
+
         // Nitrogen, SP3
 
         atom_typing("NT1", "[NX4;H1;^3]",  0),
@@ -151,7 +158,8 @@ coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
         atom_typing("NR56", "c12aaaan1aaa2",  5), // (second) 56 atom is an N.
         atom_typing("NR55", "c12aaan1aaa2",   4), // (second) 55 atom is an N.
         atom_typing("NC2",  "[NX3;H2^2]", 0),     // N of sp2 NH2 (as in ARG).
-        atom_typing("NH2",  "[NX3^2][CX3^2]=[N^2;X3+]", (0,2)), // amidinium (charged)... 
+        atom_typing("NH2",  "[NX3^2][CX3^2]=[N^2;X3+]", 0), // amidinium (charged)... 
+        atom_typing("NH2",  "[NX3^2][CX3^2]=[N^2;X3+]", 2), // amidinium (charged)... 
         atom_typing("NR15", "[nr5;X3;H1]",    0),
         atom_typing("NR5",  "[nr5;X3;H0]",    0),
         atom_typing("NR5",  "[NR;X3;H0;^2]",  0), // [NR5;X3;H0;^2] fails on 14C (also at daylight)
