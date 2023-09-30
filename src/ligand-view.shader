@@ -11,7 +11,7 @@ void main() {
 
    // shader offsets
    float x_off =  0.02;
-   float y_off = -0.00;
+   float y_off = -0.20;
 
    vec2 scaled_pos = 0.05 * position;
    scaled_pos.x /= aspect_ratio;
