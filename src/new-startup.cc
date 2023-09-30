@@ -844,49 +844,6 @@ void load_css() {
 
 }
 
-void
-application_open_callback(GtkApplication *app,
-                          GFile          **files,
-                          gint            n_files,
-                          gchar          *hint,
-                          gpointer        user_data) {
-
-   command_line_data cld;
-
-   for (gint i=0; i<n_files; i++) {
-      GFile *file = files[i];
-      GError *error = NULL;
-      GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_NAME,
-                                               G_FILE_QUERY_INFO_NONE, NULL, &error);
-      if (file_info) {
-         // const char *file_name = g_file_info_get_name(file_info);
-         const char *path = g_file_get_path(file);
-
-         if (path) {
-            std::string file_name(path);
-            std::cout << "application_open_callback(): handle " << file_name << std::endl;
-            cld.add(std::string(file_name));
-         } else {
-            std::cout << "ERROR:: application_open_callback(): file_name was null " << std::endl;
-         }
-      } else {
-         std::cout << "ERROR:: application_open_callback() error " << i << " " << error->message << std::endl;
-      }
-   }
-
-   // make a pointer to that stuff
-   command_line_data *cld_p = new command_line_data(cld);
-   g_object_set_data(G_OBJECT(app), "command-line-data", cld_p);
-
-   // 20230515-PE Is this really what I want to do?
-   // This seems like a bit of a hack.
-   // Perhaps put the contentx of new_startup_application_activate() is a new function
-   // That both this function and new_startup_application_activate() call.
-   //
-   new_startup_application_activate(app, user_data);
-
-}
-
 void window_removed(GtkApplication* self,GtkWindow* window, gpointer user_data) {
 
    // this is not needed because closing the main window using the window manager
