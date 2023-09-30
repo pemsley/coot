@@ -634,6 +634,8 @@ molecular_mesh_generator_t::get_cis_peptides(const std::string &pdb_file_name) {
 std::map<int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > >
 molecular_mesh_generator_t::make_cis_peptide_quads_mesh(mmdb::Manager *mol) {
 
+   // this is old code. Probably should be deleted.
+
    std::map<int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > > cis_pep_geometry_map;
    if (! mol) std::cout << "error:: in molecular_mesh_generator_t::make_cis_peptide_quads_mesh() null mol" << std::endl;
    if (! mol) return cis_pep_geometry_map;
@@ -645,8 +647,8 @@ molecular_mesh_generator_t::make_cis_peptide_quads_mesh(mmdb::Manager *mol) {
       mmdb::Model *model_p = mol->GetModel(imod);
       if (model_p) {
          bool strictly_cis = false;
-         std::vector<coot::util::cis_peptide_quad_info_t> cis_peps =
-            coot::util::cis_peptide_quads_from_coords(mol, imod, strictly_cis);
+         std::vector<coot::util::cis_peptide_quad_info_t> cis_peps;
+         // coot::util::cis_peptide_quads_from_coords(mol, imod, strictly_cis);
 
          std::vector<s_generic_vertex> sum_of_vertices;
          std::vector<g_triangle> sum_of_triangles;

@@ -774,6 +774,15 @@ public:
    coot::simple_mesh_t get_map_contours_mesh(int imol, double position_x, double position_y, double position_z,
                                              float radius, float contour_level);
 
+   //! get the mesh for the map contours using another map for colouring
+   //!
+   coot::simple_mesh_t get_map_contours_mesh_using_other_map_for_colours(int imol_ref, int imol_map_for_colouring,
+                                                                         double position_x, double position_y, double position_z,
+                                                                         float radius, float contour_level,
+                                                                         float other_map_for_colouring_min_value,
+                                                                         float other_map_for_colouring_max_value,
+                                                                         bool invert_colour_ramp);
+
    coot::util::sfcalc_genmap_stats_t get_latest_sfcalc_stats() const { return latest_sfcalc_stats; }
 
    class r_factor_stats {

@@ -415,6 +415,26 @@ namespace coot {
       bool compare_trees(const tree<linked_residue_t> &tree_in) const;
       std::vector<std::pair<coot::residue_spec_t, coot::residue_spec_t> > matched_pairs(const tree<linked_residue_t> &t_in) const;
    };
+
+
+   // This was moved from coot-coord-utils.hh because this now requires the protein_geometry
+   // where the atoms are in cis peptides
+   //
+   // mark up things that have omega > 210 or omega < 150. i.e, 180 +/- 30.
+   //
+   // strictly_cis_flag is false by default.
+   //
+   // if model_number == 0, make cis_peptides quads for all models.
+   //
+   // The function gets called from Bond_lines, and that has a possibly null
+   // pointer - so we can't use a reference for the geometry.
+   //
+   std::vector<util::cis_peptide_quad_info_t>
+   cis_peptide_quads_from_coords(mmdb::Manager *mol,
+                                 int model_number,
+                                 const protein_geometry *geom_p,
+                                 bool strictly_cis_flag = false);
+
 }
 
 #endif // HAVE_COOT_COORD_EXTRAS_HH

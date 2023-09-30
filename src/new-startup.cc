@@ -11,6 +11,7 @@
 #include "utils/coot-utils.hh"
 #include "command-line.hh"
 #include "c-interface-preferences.h"
+#include "src/boot-python.hh"
 #include "layla/layla_embedded.hpp"
 
 void print_opengl_info();
@@ -465,7 +466,7 @@ void setup_gestures_for_opengl_widget_in_main_window(GtkWidget *glarea) {
    g_signal_connect(scroll_controller, "scroll",  G_CALLBACK(on_glarea_scrolled),  glarea);
 
    gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(swipe_controller));
-   g_signal_connect(click_controller, "swipe",  G_CALLBACK(on_glarea_swipe),  glarea);
+   g_signal_connect(swipe_controller, "swipe",  G_CALLBACK(on_glarea_swipe),  glarea);
 
    GtkEventController *motion_controller = gtk_event_controller_motion_new();
    gtk_event_controller_set_propagation_phase(motion_controller, GTK_PHASE_CAPTURE);
@@ -621,13 +622,15 @@ struct application_activate_data {
    GtkWidget* splash_screen;
    GtkApplication* application;
    GtkWidget* app_window;
+   command_line_data cld;
 
-   application_activate_data(int _argc, char** _argv) {
+   application_activate_data(int _argc, char** _argv, command_line_data&& cld) {
       argc = _argc;
       argv = _argv;
       splash_screen = nullptr;
       application = nullptr;
       app_window = nullptr;
+      this->cld = std::move(cld);
    }
 };
 
@@ -701,8 +704,8 @@ new_startup_application_activate(GtkApplication *application,
 
       // the main application builder
 
-      // change "glade" to "ui" one day.
       std::string dir = coot::package_data_dir();
+      // change "glade" to "ui" one day.
       std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
       std::string ui_file_name = "coot-gtk4.ui";
       std::string ui_file_full = coot::util::append_dir_file(dir_glade, ui_file_name);
@@ -733,10 +736,12 @@ new_startup_application_activate(GtkApplication *application,
       }
       graphics_info_t::set_preferences_gtkbuilder(preferences_builder);
 
+
       python_init();
 
-      // set this by parsing the command line arguments
-      graphics_info.use_graphics_interface_flag = true;
+      handle_command_line_data(activate_data->cld);
+      run_command_line_scripts();
+      // graphics_info.use_graphics_interface_flag = true;
 
       // create the preference defaults
       make_preferences_internal();
@@ -805,16 +810,8 @@ new_startup_application_activate(GtkApplication *application,
       setup_gui_components();
       setup_go_to_residue_keyboarding_mode_entry_signals();
 
-      // if there is no command line arguments, the the function that sets this data is not run
-      // so cld is null
-      command_line_data *cld = static_cast<command_line_data *>(g_object_get_data(G_OBJECT(application),
-                                                                                  "command-line-data"));
-      if (cld) {
-         handle_command_line_data(*cld);
-         run_command_line_scripts();
-      }
-
       // load_tutorial_model_and_data();
+      delete activate_data;
 
       g_idle_add(+[](gpointer data)-> gboolean {
          GtkWindow* splash_screen = GTK_WINDOW(data);
@@ -825,7 +822,6 @@ new_startup_application_activate(GtkApplication *application,
       return G_SOURCE_REMOVE;
    }, activate_data);
 
-   // delete activate_data; // 20230515-PE restore this when other command line stuff is working OK
 
 }
 
@@ -849,122 +845,6 @@ void load_css() {
 
 }
 
-void
-application_open_callback(GtkApplication *app,
-                          GFile          **files,
-                          gint            n_files,
-                          gchar          *hint,
-                          gpointer        user_data) {
-
-   command_line_data cld;
-
-   for (gint i=0; i<n_files; i++) {
-      GFile *file = files[i];
-      GError *error = NULL;
-      GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_NAME,
-                                               G_FILE_QUERY_INFO_NONE, NULL, &error);
-      if (file_info) {
-         // const char *file_name = g_file_info_get_name(file_info);
-         const char *path = g_file_get_path(file);
-
-         if (path) {
-            std::string file_name(path);
-            std::cout << "application_open_callback(): handle " << file_name << std::endl;
-            cld.add(std::string(file_name));
-         } else {
-            std::cout << "ERROR:: application_open_callback(): file_name was null " << std::endl;
-         }
-      } else {
-         std::cout << "ERROR:: application_open_callback() error " << i << " " << error->message << std::endl;
-      }
-   }
-
-   // make a pointer to that stuff
-   command_line_data *cld_p = new command_line_data(cld);
-   g_object_set_data(G_OBJECT(app), "command-line-data", cld_p);
-
-   // 20230515-PE Is this really what I want to do?
-   // This seems like a bit of a hack.
-   // Perhaps put the contentx of new_startup_application_activate() is a new function
-   // That both this function and new_startup_application_activate() call.
-   //
-   new_startup_application_activate(app, user_data);
-
-}
-
-typedef struct {
-  gboolean switch_option;
-} AppOptions;
-static AppOptions app_options;
-
-void
-command_line_stuff(GApplication *app, AppOptions *options) {
-
-   const GOptionEntry cmd_params[] =
-  {
-    {
-      .long_name = "my_switch_option",
-      .short_name = 'm',
-      .flags = G_OPTION_FLAG_NONE,     // see `GOptionFlags`
-      .arg = G_OPTION_ARG_NONE,        // type of option (see `GOptionArg`)
-      .arg_data = &(options->switch_option),// store data here
-      .description = "<my description>",
-      .arg_description = NULL,
-    },
-    {NULL}
-  };
-
-  g_application_add_main_option_entries(G_APPLICATION (app), cmd_params);
-}
-
-
-void application_command_line_callback(GtkApplication *app, GVariant *parameters, gpointer user_data) {
-
-#if 0
-   GVariantIter iter;
-   GVariant *argument;
-   gchar *key;
-   gsize length;
-   g_variant_iter_init(&iter, arguments);
-   while (g_variant_iter_next(&iter, "{sv}", &key, &argument)) {
-      std::string ss = g_variant_get_string(argument, &length);
-      std::cout << "command line argument: " << key << " " << ss << std::endl;
-      g_variant_unref(argument);
-   };
-   g_variant_unref(arguments);
-#endif
-
-   GVariant *argument;
-   GVariantIter iter;
-   const char *arg;
-
-   return;
-
-   /* Convert the command line arguments to a GVariant */
-   // variant = g_variant_new_strv((const gchar * const *)argv, argc);
-
-   // variant = arguments;
-
-   std::cout << "Here A " << parameters << std::endl;
-   /* Create an iterator for the GVariant */
-   // iter = g_variant_iter_new(parameters);
-
-   g_variant_iter_init(&iter, parameters);
-
-   /* Loop over the arguments and print them */
-   std::cout << "Here B " << &iter << std::endl;
-   while (g_variant_iter_next(&iter, "{sv}", &arg, &argument)) {
-      std::cout << "Here C " << &iter << std::endl;
-      g_print("Argument: %s\n", arg);
-   }
-
-   /* Free the iterator and GVariant */
-   // g_variant_iter_free(iter);
-
-   // g_variant_unref(variant);
-  
-}
-
 void window_removed(GtkApplication* self,GtkWindow* window, gpointer user_data) {
 
    // this is not needed because closing the main window using the window manager
@@ -978,6 +858,19 @@ void window_removed(GtkApplication* self,GtkWindow* window, gpointer user_data) 
 
 }
 
+int do_no_graphics_mode(command_line_data& cld, int argc, char** argv) {
+   handle_command_line_data(cld);
+   // Is this correct here like this?
+   // How is this supposed to behave exactly?
+   run_command_line_scripts();
+
+   setup_python_basic(argc, argv);
+   setup_python_coot_module();
+   setup_python_with_coot_modules(argc, argv);
+   start_command_line_python_maybe(true, argc, argv);
+   return 0;
+}
+
 int new_startup(int argc, char **argv) {
 
 #ifdef USE_LIBCURL
@@ -988,6 +881,12 @@ int new_startup(int argc, char **argv) {
 
    // setup_symm_lib();
    // check_reference_structures_dir();
+
+   command_line_data cld = parse_command_line(argc, argv);
+
+   if(!cld.do_graphics) {
+      return do_no_graphics_mode(cld, argc, argv);
+   }
 
    gtk_init();
 
@@ -1006,19 +905,12 @@ int new_startup(int argc, char **argv) {
    // g_object_get(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", &dark_mode_flag, NULL);
 
    GError *error = NULL;
-   // GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_HANDLES_COMMAND_LINE);
-   GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_HANDLES_OPEN);
+   GtkApplication *app = gtk_application_new ("org.emsley.coot", 
+      (GApplicationFlags) (G_APPLICATION_DEFAULT_FLAGS | G_APPLICATION_NON_UNIQUE));
    g_application_register(G_APPLICATION(app), NULL, &error);
-   // g_application_set_flags(G_APPLICATION(app), G_APPLICATION_HANDLES_COMMAND_LINE);
 
-
-   // command_line_stuff(G_APPLICATION(app), &app_options);
-
-   // g_signal_connect(app, "command-line", G_CALLBACK(application_command_line_callback), nullptr);
-
-   application_activate_data *activate_data = new application_activate_data(argc,argv);
+   application_activate_data *activate_data = new application_activate_data(argc,argv,std::move(cld));
    activate_data->splash_screen = splash_screen;
-   g_signal_connect(app, "open",     G_CALLBACK(application_open_callback), activate_data); // passed on
    // this destroys active_data
    g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), activate_data);
 
@@ -1029,7 +921,7 @@ int new_startup(int argc, char **argv) {
    // delete activate_data; Nope. This is used in new_startup_application_activate.
    // Delete it there if you want to delete it.
 
-   int status = g_application_run(G_APPLICATION(app), argc, argv);
+   int status = g_application_run(G_APPLICATION(app), 1, argv);
    std::cout << "--- g_application_run() returns with status " << status << std::endl;
    g_object_unref(app);
    return status;
