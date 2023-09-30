@@ -28,7 +28,6 @@ void c_inner_main(void *closure, int argc, char** argv);
 void c_wrapper_scm_boot_guile(int argc, char** argv);
 char* does_file_exist (const char     *directory,
 		       const char     *filename); 
-void start_command_line_python_maybe(char **argv);
 void handle_command_line_data_argc_argv(int argc, char **argv);
 
 END_C_DECLS

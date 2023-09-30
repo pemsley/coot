@@ -11,6 +11,7 @@
 #include "utils/coot-utils.hh"
 #include "command-line.hh"
 #include "c-interface-preferences.h"
+#include "src/boot-python.hh"
 #include "layla/layla_embedded.hpp"
 
 void print_opengl_info();
@@ -857,9 +858,16 @@ void window_removed(GtkApplication* self,GtkWindow* window, gpointer user_data) 
 
 }
 
-int do_no_graphics_mode(command_line_data& cld) {
-   std::cout<<"Todo: handle no-graphics mode.\n";
-   return 5;
+int do_no_graphics_mode(command_line_data& cld, int argc, char** argv) {
+   handle_command_line_data(cld);
+   // Is this correct here like this?
+   // How is this supposed to behave exactly?
+   run_command_line_scripts();
+
+   // this SEGFAULTS:
+   // setup_python_with_coot_modules(argc, argv);
+   start_command_line_python_maybe(true, argc, argv);
+   return 0;
 }
 
 int new_startup(int argc, char **argv) {
@@ -876,7 +884,7 @@ int new_startup(int argc, char **argv) {
    command_line_data cld = parse_command_line(argc, argv);
 
    if(!cld.do_graphics) {
-      return do_no_graphics_mode(cld);
+      return do_no_graphics_mode(cld, argc, argv);
    }
 
    gtk_init();
@@ -897,7 +905,7 @@ int new_startup(int argc, char **argv) {
 
    GError *error = NULL;
    GtkApplication *app = gtk_application_new ("org.emsley.coot", 
-      (GApplicationFlags) (G_APPLICATION_HANDLES_COMMAND_LINE | G_APPLICATION_NON_UNIQUE));
+      (GApplicationFlags) (G_APPLICATION_DEFAULT_FLAGS | G_APPLICATION_NON_UNIQUE));
    g_application_register(G_APPLICATION(app), NULL, &error);
 
    application_activate_data *activate_data = new application_activate_data(argc,argv,std::move(cld));
@@ -912,7 +920,7 @@ int new_startup(int argc, char **argv) {
    // delete activate_data; Nope. This is used in new_startup_application_activate.
    // Delete it there if you want to delete it.
 
-   int status = g_application_run(G_APPLICATION(app), argc, argv);
+   int status = g_application_run(G_APPLICATION(app), 1, argv);
    std::cout << "--- g_application_run() returns with status " << status << std::endl;
    g_object_unref(app);
    return status;
