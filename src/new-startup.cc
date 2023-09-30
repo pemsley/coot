@@ -864,8 +864,9 @@ int do_no_graphics_mode(command_line_data& cld, int argc, char** argv) {
    // How is this supposed to behave exactly?
    run_command_line_scripts();
 
-   // this SEGFAULTS:
-   // setup_python_with_coot_modules(argc, argv);
+   setup_python_basic(argc, argv);
+   setup_python_coot_module();
+   setup_python_with_coot_modules(argc, argv);
    start_command_line_python_maybe(true, argc, argv);
    return 0;
 }
