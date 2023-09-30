@@ -811,6 +811,7 @@ new_startup_application_activate(GtkApplication *application,
       setup_go_to_residue_keyboarding_mode_entry_signals();
 
       // load_tutorial_model_and_data();
+      delete activate_data;
 
       g_idle_add(+[](gpointer data)-> gboolean {
          GtkWindow* splash_screen = GTK_WINDOW(data);
@@ -821,7 +822,6 @@ new_startup_application_activate(GtkApplication *application,
       return G_SOURCE_REMOVE;
    }, activate_data);
 
-   delete activate_data;
 
 }
 
