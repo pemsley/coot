@@ -387,7 +387,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
    auto make_twisted_trans_buttons = [twisted_trans_button_clicked_callback] (int imol, mmdb::Manager *mol) {
       std::vector<std::pair<coot::residue_spec_t, GtkWidget *> > buttons;
 
-      std::vector<coot::util::cis_peptide_quad_info_t> v = coot::util::cis_peptide_quads_from_coords(mol, 0, false);
+      graphics_info_t g;
+      std::vector<coot::util::cis_peptide_quad_info_t> v = coot::cis_peptide_quads_from_coords(mol, 0, g.Geom_p(), false);
       for (unsigned int i=0; i<v.size(); i++) {
 	 if (v[i].type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS) {
             try {

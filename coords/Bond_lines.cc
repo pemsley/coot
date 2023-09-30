@@ -8365,8 +8365,10 @@ Bond_lines_container::add_atom_centres(int imol,
       delete atom_colour_map_p;
 }
 
+#include "coot-utils/coot-coord-extras.hh"
 
-// if model_number is 0, do all models
+// if model_number is 0, do all models.
+//
 void
 Bond_lines_container::add_cis_peptide_markup(const atom_selection_container_t &SelAtom, int model_number) {
 
@@ -8374,7 +8376,7 @@ Bond_lines_container::add_cis_peptide_markup(const atom_selection_container_t &S
    cis_peptide_quads.clear();
 
    std::vector<coot::util::cis_peptide_quad_info_t> quads =
-      coot::util::cis_peptide_quads_from_coords(SelAtom.mol, model_number);
+      coot::cis_peptide_quads_from_coords(SelAtom.mol, model_number, geom); // geom can be null.
 
    for (unsigned int i=0; i<quads.size(); i++) {
       bool keep_this = true;
