@@ -465,7 +465,7 @@ void setup_gestures_for_opengl_widget_in_main_window(GtkWidget *glarea) {
    g_signal_connect(scroll_controller, "scroll",  G_CALLBACK(on_glarea_scrolled),  glarea);
 
    gtk_widget_add_controller(GTK_WIDGET(glarea), GTK_EVENT_CONTROLLER(swipe_controller));
-   g_signal_connect(click_controller, "swipe",  G_CALLBACK(on_glarea_swipe),  glarea);
+   g_signal_connect(swipe_controller, "swipe",  G_CALLBACK(on_glarea_swipe),  glarea);
 
    GtkEventController *motion_controller = gtk_event_controller_motion_new();
    gtk_event_controller_set_propagation_phase(motion_controller, GTK_PHASE_CAPTURE);
