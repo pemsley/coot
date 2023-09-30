@@ -1007,7 +1007,8 @@ int new_startup(int argc, char **argv) {
 
    GError *error = NULL;
    // GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_HANDLES_COMMAND_LINE);
-   GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_HANDLES_OPEN);
+   GtkApplication *app = gtk_application_new ("org.emsley.coot", 
+      (GApplicationFlags) (G_APPLICATION_HANDLES_OPEN | G_APPLICATION_NON_UNIQUE));
    g_application_register(G_APPLICATION(app), NULL, &error);
    // g_application_set_flags(G_APPLICATION(app), G_APPLICATION_HANDLES_COMMAND_LINE);
 
