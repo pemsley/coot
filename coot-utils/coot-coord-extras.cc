@@ -1236,8 +1236,13 @@ coot::cis_peptide_quads_from_coords(mmdb::Manager *mol,
                                     std::string res_2_group;
 
                                     if (geom_p) {
-                                       res_1_group = geom_p->get_group(res_name_1);
-                                       res_2_group = geom_p->get_group(res_name_2);
+                                       try {
+                                          res_1_group = geom_p->get_group(res_name_1);
+                                          res_2_group = geom_p->get_group(res_name_2);
+                                       }
+                                       catch(const std::runtime_error &rte) {
+                                          std::cout << "WARNING:: " << rte.what() << std::endl;
+                                       }
                                     }
 
                                     if (! geom_p || (res_1_group == "peptide" && res_2_group == "peptide")) {
