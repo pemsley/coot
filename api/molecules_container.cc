@@ -1775,6 +1775,35 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
    return mesh;
 }
 
+//! get the mesh for the map contours using another map for colouring
+//!
+coot::simple_mesh_t
+molecules_container_t::get_map_contours_mesh_using_other_map_for_colours(int imol_ref, int imol_map_for_colouring,
+                                                                         double position_x, double position_y, double position_z,
+                                                                         float radius, float contour_level,
+                                                                         float other_map_for_colouring_min_value,
+                                                                         float other_map_for_colouring_max_value,
+                                                                         bool invert_colour_ramp) {
+   coot::simple_mesh_t mesh;
+   try {
+      if (is_valid_map_molecule(imol_ref)) {
+         if (is_valid_map_molecule(imol_map_for_colouring)) {
+            clipper::Coord_orth position(position_x, position_y, position_z);
+            molecules[imol_ref].set_other_map_for_colouring_min_max(other_map_for_colouring_min_value,
+                                                                    other_map_for_colouring_max_value);
+            molecules[imol_ref].set_other_map_for_colouring_invert_colour_ramp(invert_colour_ramp);
+            mesh = molecules[imol_ref].get_map_contours_mesh_using_other_map_for_colours(position, radius, contour_level,
+                                                                                         molecules[imol_map_for_colouring].xmap);
+         }
+      }
+   }
+   catch (...) {
+      std::cout << "An error occured in " << __FUNCTION__<< "() - this should not happen " << std::endl;
+   }
+   return mesh;
+}
+
+
 void
 molecules_container_t::set_map_colour(int imol, float r, float g, float b) {
 

@@ -198,6 +198,13 @@ namespace coot {
       bool has_xmap() const { return is_valid_map_molecule(); }
 
       colour_holder map_colour;
+      glm::vec4 position_to_colour_using_other_map(const clipper::Coord_orth &position,
+                                                   const clipper::Xmap<float> &other_map_for_colouring) const;
+      float other_map_for_colouring_min_value;
+      float other_map_for_colouring_max_value;
+      glm::vec4 fraction_to_colour(float f) const; // for other map colouring - perhaps this function name is too generic?
+      bool  radial_map_colour_invert_flag;
+      float radial_map_colour_saturation;
 
       // save the data used for the fourier, so that we can use it to
       // sharpen the map:
@@ -345,6 +352,12 @@ namespace coot {
          original_r_free_flags_p = nullptr;
          refmac_r_free_flag_sensible = false;
          use_bespoke_grey_colour_for_carbon_atoms = false;
+
+         radial_map_colour_saturation = 0.5;
+         radial_map_colour_invert_flag = false;
+
+         other_map_for_colouring_min_value = 0.0;
+         other_map_for_colouring_max_value = 1.0;
 
          map_colour = colour_holder(0.3, 0.3, 0.7);
          last_restraints = nullptr;
@@ -967,8 +980,18 @@ namespace coot {
 
       // changes the internal map mesh holder (hence not const)
       simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level);
+      simple_mesh_t get_map_contours_mesh_using_other_map_for_colours(const clipper::Coord_orth &position, float radius, float contour_level,
+                                                                      const clipper::Xmap<float> &xmap);
 
       void set_map_colour(colour_holder holder);
+
+      //! Set the limit for the colour range for the values from the other map.
+      //! If the other map were, for example, a map of correlation values, then
+      //! you'd pass -1.0 and 1.0.
+      void set_other_map_for_colouring_min_max(float min_v, float max_v);
+      void set_other_map_for_colouring_invert_colour_ramp(bool state) {
+         radial_map_colour_invert_flag = state;
+      }
 
       //! The container class for an interesting place.
       //!
