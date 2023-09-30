@@ -621,13 +621,15 @@ struct application_activate_data {
    GtkWidget* splash_screen;
    GtkApplication* application;
    GtkWidget* app_window;
+   command_line_data cld;
 
-   application_activate_data(int _argc, char** _argv) {
+   application_activate_data(int _argc, char** _argv, command_line_data&& cld) {
       argc = _argc;
       argv = _argv;
       splash_screen = nullptr;
       application = nullptr;
       app_window = nullptr;
+      this->cld = std::move(cld);
    }
 };
 
@@ -733,10 +735,12 @@ new_startup_application_activate(GtkApplication *application,
       }
       graphics_info_t::set_preferences_gtkbuilder(preferences_builder);
 
+
       python_init();
 
-      // set this by parsing the command line arguments
-      graphics_info.use_graphics_interface_flag = true;
+      handle_command_line_data(activate_data->cld);
+      run_command_line_scripts();
+      // graphics_info.use_graphics_interface_flag = true;
 
       // create the preference defaults
       make_preferences_internal();
@@ -804,15 +808,6 @@ new_startup_application_activate(GtkApplication *application,
 
       setup_gui_components();
       setup_go_to_residue_keyboarding_mode_entry_signals();
-
-      // if there is no command line arguments, the the function that sets this data is not run
-      // so cld is null
-      command_line_data *cld = static_cast<command_line_data *>(g_object_get_data(G_OBJECT(application),
-                                                                                  "command-line-data"));
-      if (cld) {
-         handle_command_line_data(*cld);
-         run_command_line_scripts();
-      }
 
       // load_tutorial_model_and_data();
 
@@ -892,53 +887,6 @@ application_open_callback(GtkApplication *app,
 
 }
 
-void application_command_line_callback(GtkApplication *app, GVariant *parameters, gpointer user_data) {
-
-#if 0
-   GVariantIter iter;
-   GVariant *argument;
-   gchar *key;
-   gsize length;
-   g_variant_iter_init(&iter, arguments);
-   while (g_variant_iter_next(&iter, "{sv}", &key, &argument)) {
-      std::string ss = g_variant_get_string(argument, &length);
-      std::cout << "command line argument: " << key << " " << ss << std::endl;
-      g_variant_unref(argument);
-   };
-   g_variant_unref(arguments);
-#endif
-
-   GVariant *argument;
-   GVariantIter iter;
-   const char *arg;
-
-   return;
-
-   /* Convert the command line arguments to a GVariant */
-   // variant = g_variant_new_strv((const gchar * const *)argv, argc);
-
-   // variant = arguments;
-
-   std::cout << "Here A " << parameters << std::endl;
-   /* Create an iterator for the GVariant */
-   // iter = g_variant_iter_new(parameters);
-
-   g_variant_iter_init(&iter, parameters);
-
-   /* Loop over the arguments and print them */
-   std::cout << "Here B " << &iter << std::endl;
-   while (g_variant_iter_next(&iter, "{sv}", &arg, &argument)) {
-      std::cout << "Here C " << &iter << std::endl;
-      g_print("Argument: %s\n", arg);
-   }
-
-   /* Free the iterator and GVariant */
-   // g_variant_iter_free(iter);
-
-   // g_variant_unref(variant);
-  
-}
-
 void window_removed(GtkApplication* self,GtkWindow* window, gpointer user_data) {
 
    // this is not needed because closing the main window using the window manager
@@ -952,6 +900,11 @@ void window_removed(GtkApplication* self,GtkWindow* window, gpointer user_data) 
 
 }
 
+int do_no_graphics_mode(command_line_data& cld) {
+   std::cout<<"Todo: handle no-graphics mode.\n";
+   return 5;
+}
+
 int new_startup(int argc, char **argv) {
 
 #ifdef USE_LIBCURL
@@ -962,6 +915,12 @@ int new_startup(int argc, char **argv) {
 
    // setup_symm_lib();
    // check_reference_structures_dir();
+
+   command_line_data cld = parse_command_line(argc, argv);
+
+   if(!cld.do_graphics) {
+      return do_no_graphics_mode(cld);
+   }
 
    gtk_init();
 
@@ -984,9 +943,7 @@ int new_startup(int argc, char **argv) {
       (GApplicationFlags) (G_APPLICATION_HANDLES_COMMAND_LINE | G_APPLICATION_NON_UNIQUE));
    g_application_register(G_APPLICATION(app), NULL, &error);
 
-   g_signal_connect(app, "command-line", G_CALLBACK(application_command_line_callback), nullptr);
-
-   application_activate_data *activate_data = new application_activate_data(argc,argv);
+   application_activate_data *activate_data = new application_activate_data(argc,argv,std::move(cld));
    activate_data->splash_screen = splash_screen;
    // this destroys active_data
    g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), activate_data);
