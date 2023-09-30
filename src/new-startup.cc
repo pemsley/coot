@@ -892,32 +892,6 @@ application_open_callback(GtkApplication *app,
 
 }
 
-typedef struct {
-  gboolean switch_option;
-} AppOptions;
-static AppOptions app_options;
-
-void
-command_line_stuff(GApplication *app, AppOptions *options) {
-
-   const GOptionEntry cmd_params[] =
-  {
-    {
-      .long_name = "my_switch_option",
-      .short_name = 'm',
-      .flags = G_OPTION_FLAG_NONE,     // see `GOptionFlags`
-      .arg = G_OPTION_ARG_NONE,        // type of option (see `GOptionArg`)
-      .arg_data = &(options->switch_option),// store data here
-      .description = "<my description>",
-      .arg_description = NULL,
-    },
-    {NULL}
-  };
-
-  g_application_add_main_option_entries(G_APPLICATION (app), cmd_params);
-}
-
-
 void application_command_line_callback(GtkApplication *app, GVariant *parameters, gpointer user_data) {
 
 #if 0
@@ -1006,14 +980,11 @@ int new_startup(int argc, char **argv) {
    // g_object_get(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", &dark_mode_flag, NULL);
 
    GError *error = NULL;
-   // GtkApplication *app = gtk_application_new ("org.emsley.coot", G_APPLICATION_HANDLES_COMMAND_LINE);
    GtkApplication *app = gtk_application_new ("org.emsley.coot", 
-      (GApplicationFlags) (G_APPLICATION_HANDLES_OPEN | G_APPLICATION_NON_UNIQUE));
+      (GApplicationFlags) (G_APPLICATION_HANDLES_COMMAND_LINE | G_APPLICATION_NON_UNIQUE));
    g_application_register(G_APPLICATION(app), NULL, &error);
 
-   // command_line_stuff(G_APPLICATION(app), &app_options);
-
-   // g_signal_connect(app, "command-line", G_CALLBACK(application_command_line_callback), nullptr);
+   g_signal_connect(app, "command-line", G_CALLBACK(application_command_line_callback), nullptr);
 
    application_activate_data *activate_data = new application_activate_data(argc,argv);
    activate_data->splash_screen = splash_screen;
