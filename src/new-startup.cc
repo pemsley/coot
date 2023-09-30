@@ -825,7 +825,7 @@ new_startup_application_activate(GtkApplication *application,
       return G_SOURCE_REMOVE;
    }, activate_data);
 
-   // delete activate_data; // 20230515-PE restore this when other command line stuff is working OK
+   delete activate_data;
 
 }
 
@@ -1010,8 +1010,6 @@ int new_startup(int argc, char **argv) {
    GtkApplication *app = gtk_application_new ("org.emsley.coot", 
       (GApplicationFlags) (G_APPLICATION_HANDLES_OPEN | G_APPLICATION_NON_UNIQUE));
    g_application_register(G_APPLICATION(app), NULL, &error);
-   // g_application_set_flags(G_APPLICATION(app), G_APPLICATION_HANDLES_COMMAND_LINE);
-
 
    // command_line_stuff(G_APPLICATION(app), &app_options);
 
@@ -1019,7 +1017,6 @@ int new_startup(int argc, char **argv) {
 
    application_activate_data *activate_data = new application_activate_data(argc,argv);
    activate_data->splash_screen = splash_screen;
-   g_signal_connect(app, "open",     G_CALLBACK(application_open_callback), activate_data); // passed on
    // this destroys active_data
    g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), activate_data);
 
