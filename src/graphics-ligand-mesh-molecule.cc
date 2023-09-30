@@ -135,7 +135,7 @@ graphics_ligand_mesh_molecule_t::init_from_molfile_molecule(const lig_build::mol
 void
 graphics_ligand_mesh_molecule_t::fill_mesh() {
 
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0])); // needed?
+   graphics_info_t::attach_buffers(); // needed?
 
    std::vector<position_triple_t> pt = fill_mesh_bonds();
 
@@ -150,6 +150,8 @@ graphics_ligand_mesh_molecule_t::fill_mesh() {
 
    fill_mesh_atoms();
 }
+
+
 
 std::vector<graphics_ligand_mesh_molecule_t::position_triple_t>
 graphics_ligand_mesh_molecule_t::fill_mesh_bonds() {
@@ -503,10 +505,12 @@ graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_
             pos.y += 0.03 * 0.08 * offset.tweak.y;
 
             // 20230620-PE extra tweaking for the position to match the changes in ligand-view.shader
-            pos.x += 0.02;
+            pos.x +=  0.02;
+            pos.y += -0.20;
 
             float sc = 0.000184;
-            sc *= 0.5; // 20211016-PE
+            // sc *= 0.5; // 20211016-PE
+            sc *= 0.4; // 20230930-PE
             if (offset.subscript)   sc *= 0.9;
             if (offset.superscript) sc *= 1.5; // "-" is too small! so scale it up
             glm::vec2 scales(sc, sc);
