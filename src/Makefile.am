@@ -481,6 +481,7 @@ libcootsumo_la_SOURCES = \
 	coot-setup-python.hh     \
 	coot-version.hh          \
 	coot_wrap_guile.cc       \
+        curl-utils.hh            \
 	curlew.h                 \
 	curlew.hh                \
 	curlew-gtk4.cc           \
@@ -587,6 +588,7 @@ libcootsumo_la_SOURCES = \
 	key-bindings.cc	         \
 	key-bindings.hh	         \
 	manipulation-modes.hh    \
+        labelled-button-info.hh  \
 	LinesMesh.cc LinesMesh.hh \
 	LigandViewMesh.cc        \
 	LigandViewMesh.hh        \

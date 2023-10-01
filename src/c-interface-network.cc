@@ -56,10 +56,15 @@
 #include <chrono>
 #include <future>
 #include "gtk-utils.hh"
+#include "curl-utils.hh"
 
 // return 0 on success
 #ifdef USE_LIBCURL
-int coot_get_url(const std::string &url, const std::string  &file_name, std::optional<ProgressNotifier> notifier) {
+int coot_get_url(const std::string &url, const std::string  &file_name) {
+   std::optional<ProgressNotifier> notifier = std::nullopt;
+   return coot_get_url_and_activate_curl_hook(url, file_name, 0, notifier);
+}
+int coot_get_url_with_notifier(const std::string &url, const std::string  &file_name, std::optional<ProgressNotifier> notifier) {
    return coot_get_url_and_activate_curl_hook(url, file_name, 0, notifier);
 }
 #endif /* USE_LIBCURL */
@@ -556,7 +561,7 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
    std::thread worker([=](ProgressBarPopUp&& pp){
 
       std::shared_ptr<ProgressBarPopUp> popup = std::make_shared<ProgressBarPopUp>(std::move(pp));
-      int status = coot_get_url(map_gz_url, gz_fn, ProgressNotifier(popup));
+      int status = coot_get_url_with_notifier(map_gz_url, gz_fn, ProgressNotifier(popup));
 
       if (status != 0) { // if it's bad
          g_warning("Download failed. Status=%i", status);

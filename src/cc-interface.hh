@@ -1475,33 +1475,11 @@ mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(mmdb::Manager *mol,
 
 (no return value because get-url-str does not return one).
  */
-   void get_coords_for_accession_code(const std::string &code);
+void get_coords_for_accession_code(const std::string &code);
 
-#ifdef USE_LIBCURL
-// return 0 on success.
-int coot_get_url(const std::string &url, const std::string &file_name, std::optional<ProgressNotifier> notifier = std::nullopt);
-int coot_get_url_and_activate_curl_hook(const std::string &url, const std::string &file_name, short int do_hook_flag, std::optional<ProgressNotifier> notifier = std::nullopt);
-#ifdef USE_GUILE
-// this handles URLs that are strings, not binaries.
-SCM coot_get_url_as_string(const char *url);
-// for the callback of the update binary progress bar.  How much done
-// is the file that I am downloading?
-SCM curl_progress_info(const char *file_name);
-#endif /* USE_GUILE */
-#ifdef USE_PYTHON
-// this handles URLs that are strings, not binaries.
-PyObject *coot_get_url_as_string_py(const char *url);
-// for the callback of the update binary progress bar.  How much done
-// is the file that I am downloading? Not absolutely required for python
-PyObject *curl_progress_info_py(const char *file_name);
-#endif /* USE_PYTHON */
-// internal use
-size_t write_coot_curl_data(void *buffer, size_t size, size_t nmemb, void *userp);
-// internal use
-size_t write_coot_curl_data_to_file(void *buffer, size_t size, size_t nmemb, void *userp);
 // internal use (strings, not binaries).
 std::string coot_get_url_as_string_internal(const char *url);
-void *wrapped_curl_easy_perform(void *data);
+
 void stop_curl_download(const char *file_name); // stop curling the to file_name;
 
 std::string get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname);
@@ -1519,8 +1497,6 @@ void fetch_emdb_map(const std::string &emd_accession_code);
 
 //! \brief return the COD entry, return a molecule index
 int fetch_cod_entry(const std::string &cod_entry_id);
-
-#endif /* USE_LIBCURL */
 
 
 /*  ----------------------------------------------------------------------- */
