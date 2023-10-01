@@ -172,6 +172,8 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "extra-distance-restraint-markup.hh"
 
+#include "labelled-button-info.hh"
+
 #ifdef USE_BACKWARD
 #include <utils/backward.hpp>
 #endif
@@ -1344,6 +1346,9 @@ public:
    void change_model_molecule_representation_mode(int step);
 
    void do_drag_pan_gtk3(GtkWidget *widget, double drag_delta_x, double drag_delta_y);
+   // here drag_delta_y and drag_delta_y are the differences from
+   // drag_begin_x and drag_begin_y.
+   void do_drag_pan_gtk4(GtkWidget *widget, double drag_delta_x, double drag_delta_y);
 
    gboolean on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
                                                  guint                  keyval,
@@ -5243,6 +5248,10 @@ string   static std::string sessionid;
 
    // 20230417-PE functions to fill the validation information for the new valiadtionn graphs
    coot::validation_information_t get_validation_data_for_geometry_analysis(int imol);
+
+   // "Coot: " will be prepended to the dialog title before use
+   void fill_generic_validation_box_of_buttons(const std::string &dialog_title,
+                                               const std::vector<labelled_button_info_t> &v);
 
 
    // 20230419-PE ----- a holder for the OpenGL-based Ramachandran Plots

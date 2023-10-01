@@ -736,9 +736,9 @@ residue_to_ligand_builder(int imol, const std::string &chain_id, int res_no, con
    if (g.is_valid_model_molecule(imol)) {
       mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (residue_p) {
-	 try {
-	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, imol, *g.Geom_p());
-	    RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
+         try {
+         RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, imol, *g.Geom_p());
+         RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
             std::shared_ptr<RDKit::RWMol> rdkit_mol_sp = std::make_shared<RDKit::RWMol> (rdk_mol_with_no_Hs);
 
             ensure_layla_initialized();

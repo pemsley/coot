@@ -67,6 +67,7 @@
 #include "coot-references.h"
 #include "coot-preferences.h"
 #include "rotate-translate-modes.hh"
+#include "curl-utils.hh"
 
 #include "graphics-info.h"
 #include "interface.h"
@@ -5986,3 +5987,5 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
       }
    }
 }
+
+

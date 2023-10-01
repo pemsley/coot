@@ -113,8 +113,6 @@ graphics_info_t::show_refinement_and_regularization_parameters_frame() {
    auto visible = gtk_widget_get_visible(frame);
    gtk_widget_set_visible(frame,!visible);
 
-   /// I think that all that code below can be deleted:
-
    // GtkWidget *vbox_container = widget_from_builder("refinement_and_regularization_vbox_container");
    // GtkWidget *vbox_outer     = widget_from_builder("refinement_and_regularization_vbox_outer"); // inside vbox_container
 
@@ -132,46 +130,46 @@ graphics_info_t::show_refinement_and_regularization_parameters_frame() {
    //    // but let's do it in place here now. (There was a lot of widget frobbery that is not
    //    // needed in the new dialog).
 
-   //    GtkWidget *overall_weight_combobox = widget_from_builder("refine_params_overall_weight_combobox");
-   //    std::vector<float> mv = {0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 10.0, 20.0};
-   //    graphics_info_t g;
-   //    float w = g.geometry_vs_map_weight;
-   //    for (auto m : mv) {
-   //       std::string t = coot::util::float_to_string_using_dec_pl(w * m, 2);
-   //       gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(overall_weight_combobox), t.c_str());
-   //    }
-   //    gtk_combo_box_set_active(GTK_COMBO_BOX(overall_weight_combobox), 4);
+   GtkWidget *overall_weight_combobox = widget_from_builder("refine_params_overall_weight_combobox");
+   std::vector<float> mv = {0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 10.0, 20.0};
+   graphics_info_t g;
+   float w = g.geometry_vs_map_weight;
+   for (auto m : mv) {
+      std::string t = coot::util::float_to_string_using_dec_pl(w * m, 2);
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(overall_weight_combobox), t.c_str());
+   }
+   gtk_combo_box_set_active(GTK_COMBO_BOX(overall_weight_combobox), 4);
 
-   //    GtkWidget *use_torsions_checkbutton = widget_from_builder("refine_params_use_torsions_checkbutton");
-   //    GtkWidget *use_planepep_checkbutton = widget_from_builder("refine_params_use_planar_peptides_checkbutton");
-   //    GtkWidget *use_transpep_checkbutton = widget_from_builder("refine_params_use_trans_peptide_restraints_checkbutton");
-   //    GtkWidget *use_rama_restr_checkbutton = widget_from_builder("refine_params_use_ramachandran_goodness_torsions_checkbutton");
+   GtkWidget *use_torsions_checkbutton = widget_from_builder("refine_params_use_torsions_checkbutton");
+   GtkWidget *use_planepep_checkbutton = widget_from_builder("refine_params_use_planar_peptides_checkbutton");
+   GtkWidget *use_transpep_checkbutton = widget_from_builder("refine_params_use_trans_peptide_restraints_checkbutton");
+   GtkWidget *use_rama_restr_checkbutton = widget_from_builder("refine_params_use_ramachandran_goodness_torsions_checkbutton");
 
-   //    if (false) {
-   //       std::cout << "debug:: do_torsions " << g.do_torsion_restraints << std::endl;
-   //       std::cout << "debug:: do_trans_peptide_restraints " << g.do_trans_peptide_restraints << std::endl;
-   //       std::cout << "debug:: planar peptides " << Geom_p()->planar_peptide_restraint_state() << std::endl;
-   //    }
+   if (false) {
+      std::cout << "debug:: do_torsions " << g.do_torsion_restraints << std::endl;
+      std::cout << "debug:: do_trans_peptide_restraints " << g.do_trans_peptide_restraints << std::endl;
+      std::cout << "debug:: planar peptides " << Geom_p()->planar_peptide_restraint_state() << std::endl;
+   }
 
-   //    if (g.do_torsion_restraints)
-   //       gtk_check_button_set_active(GTK_CHECK_BUTTON(use_torsions_checkbutton), TRUE);
-   //    else
-   //       gtk_check_button_set_active(GTK_CHECK_BUTTON(use_torsions_checkbutton), FALSE);
+   if (g.do_torsion_restraints)
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(use_torsions_checkbutton), TRUE);
+   else
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(use_torsions_checkbutton), FALSE);
 
-   //    if (g.do_trans_peptide_restraints)
-   //       gtk_check_button_set_active(GTK_CHECK_BUTTON(use_transpep_checkbutton), TRUE);
-   //    else
-   //       gtk_check_button_set_active(GTK_CHECK_BUTTON(use_transpep_checkbutton), FALSE);
+   if (g.do_trans_peptide_restraints)
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(use_transpep_checkbutton), TRUE);
+   else
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(use_transpep_checkbutton), FALSE);
 
-   //    if (Geom_p()->planar_peptide_restraint_state())
-   //       gtk_check_button_set_active(GTK_CHECK_BUTTON(use_planepep_checkbutton), TRUE);
-   //    else
-   //       gtk_check_button_set_active(GTK_CHECK_BUTTON(use_planepep_checkbutton), FALSE);
+   if (Geom_p()->planar_peptide_restraint_state())
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(use_planepep_checkbutton), TRUE);
+   else
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(use_planepep_checkbutton), FALSE);
 
-   //    if (g.do_rama_restraints)
-   //       gtk_check_button_set_active(GTK_CHECK_BUTTON(use_rama_restr_checkbutton), TRUE);
-   //    else
-   //       gtk_check_button_set_active(GTK_CHECK_BUTTON(use_rama_restr_checkbutton), FALSE);
+   if (g.do_rama_restraints)
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(use_rama_restr_checkbutton), TRUE);
+   else
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(use_rama_restr_checkbutton), FALSE);
 
    // } //vbox outer not realized
 }
@@ -4865,3 +4863,42 @@ graphics_info_t::update_main_window_molecular_representation_widgets() {
    }
 
 }
+
+// "Coot: " will be prepended to the dialog label before use
+ void
+    graphics_info_t::fill_generic_validation_box_of_buttons(const std::string &dialog_label,
+                                                            const std::vector<labelled_button_info_t> &v) {
+
+    auto cb = +[] (GtkButton *button, gpointer user_data) {
+       clipper::Coord_orth *co = reinterpret_cast<clipper::Coord_orth *>(user_data);
+       set_rotation_centre(*co);
+    };
+
+    if (! v.empty()) {
+       GtkWidget *box = widget_from_builder("generic_validation_box_of_buttons_box");
+       if (box) {
+          clear_out_container(box);
+          for (unsigned int i = 0; i < v.size(); i++) {
+             GtkWidget *box_for_item = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+             GtkWidget *button = gtk_button_new_with_label(v[i].label.c_str());
+             gtk_widget_set_hexpand(button, TRUE);
+
+             // I can't do this:
+             // std::shared_ptr<clipper::Coord_orth> sco = std::make_shared<clipper::Coord_orth>(v[i].position);
+             // void *user_data = reinterpret_cast<void *>(sco);
+             // I should use a GObject?
+
+             clipper::Coord_orth *co = new clipper::Coord_orth(v[i].position); // never deleted
+             void *user_data = reinterpret_cast<void *>(co);
+             g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(cb), user_data);
+             gtk_box_append(GTK_BOX(box_for_item), button);
+             gtk_box_append(GTK_BOX(box), box_for_item);
+          }
+       }
+       GtkWidget *dialog = widget_from_builder("generic_validation_box_of_buttons_dialog");
+       std::string title = std::string("Coot: ") + dialog_label;
+       gtk_window_set_title(GTK_WINDOW(dialog), title.c_str());
+       set_transient_for_main_window(dialog);
+       gtk_window_present(GTK_WINDOW(dialog));
+    }
+ }

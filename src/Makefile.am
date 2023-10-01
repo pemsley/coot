@@ -277,28 +277,7 @@ AM_CPPFLAGS = \
 
 pkginclude_HEADERS = crunch-model.hh
 
-_coot_embedded_la_SOURCES = coot-embedded.cc
-_coot_extended_la_SOURCES = coot-extended.cc
-
-# use -Wl,--no-undefined or  -Wl,-undefined,error (clang) ?
-_coot_embedded_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
-_coot_embedded_la_LIBADD = \
-                       $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
-                       $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)   \
-                       $(PYTHON_LIBS) \
-                       $(MMDB_LIBS)
-
-_coot_extended_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
-_coot_extended_la_LIBADD = \
-                        $(top_builddir)/pli/libcoot-pli.la                 \
-                        $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
-                        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
-                        $(top_builddir)/geometry/libcoot-geometry.la       \
-                        $(top_builddir)/utils/libcoot-utils.la             \
-                        $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)   \
-                        $(PYTHON_LIBS) $(MMDB_LIBS)
-
-pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la _coot.la
+pyexec_LTLIBRARIES = _coot.la
 
 # the python libraries depend on libcootsumo - don't race
 BUILT_SOURCES = libcootsumo.la
@@ -344,9 +323,12 @@ coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
 	create-menu-item-actions.cc \
 	create-menu-item-actions.hh
 
+# is it a good idea to move functions from coot-bin dependencies into libcootsumo?
+# e.g. atoms_with_zero_occupancy()?
 coot_bin_LDADD =  \
 	libcootsumo.la \
 	$(top_builddir)/layla/libcoot-layla.la           \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/geometry/libcoot-geometry.la     \
 	$(top_builddir)/utils/libcoot-utils.la \
@@ -499,6 +481,7 @@ libcootsumo_la_SOURCES = \
 	coot-setup-python.hh     \
 	coot-version.hh          \
 	coot_wrap_guile.cc       \
+        curl-utils.hh            \
 	curlew.h                 \
 	curlew.hh                \
 	curlew-gtk4.cc           \
@@ -588,6 +571,8 @@ libcootsumo_la_SOURCES = \
 	gtk-widget-conversion-utils.h  \
 	gtk-widget-conversion-utils.cc \
 	gtk-manual.hh		 \
+	gtk-utils.cc \
+	gtk-utils.hh \
 	guile-fixups.h		 \
 	history_list.hh		 \
 	HUDMesh.cc               \
@@ -603,6 +588,7 @@ libcootsumo_la_SOURCES = \
 	key-bindings.cc	         \
 	key-bindings.hh	         \
 	manipulation-modes.hh    \
+        labelled-button-info.hh  \
 	LinesMesh.cc LinesMesh.hh \
 	LigandViewMesh.cc        \
 	LigandViewMesh.hh        \

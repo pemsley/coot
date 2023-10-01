@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 
     gtk_init();
 
-    GtkApplication* app = gtk_application_new("org.pemsley.Layla", G_APPLICATION_DEFAULT_FLAGS);
+    GtkApplication* app = gtk_application_new("org.pemsley.Layla", G_APPLICATION_NON_UNIQUE);
     GError *error = NULL;
     g_application_register(G_APPLICATION(app), NULL, &error);
 

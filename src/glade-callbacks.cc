@@ -653,24 +653,6 @@ on_display_control_ok_button_clicked   (GtkButton       *button,
    }
 }
 
-
-extern "C" G_MODULE_EXPORT
-void
-on_display_control_window_glade_destroy (GtkWidget       *object,
-                                                             gpointer         user_data) {
-
-   // Do nothing the the poor old widget.
-
-   //    std::cout << "-------------------------------------------- on_display_control_window_glade_destroy()"
-   // << std::endl;
-
-   // we don't want to use the stored pointer in graphics_info_t any more. We just use
-   // widget_from_builder() to get the display control dialog.
-
-   // reset_graphics_display_control_window(); /* (also resets the scroll group) */
-}
-
-
 extern "C" G_MODULE_EXPORT
 void
 on_rotation_centre_size_ok_button_clicked(GtkButton       *button,
@@ -6843,4 +6825,18 @@ on_ligand_check_dialog_close_button_clicked(GtkButton       *button,
    GtkWidget *dialog = widget_from_builder("ligand_check_dialog");
    gtk_widget_set_visible(dialog, FALSE);
 
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_generic_validation_box_of_buttons_close_button_clicked(GtkButton       *button,
+                                                          gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("generic_validation_box_of_buttons_dialog");
+   GtkWidget *box = widget_from_builder("generic_validation_box_of_buttons_box");
+   if (box) {
+      graphics_info_t g;
+      g.clear_out_container(box);
+   }
+   gtk_widget_set_visible(dialog, FALSE);
 }

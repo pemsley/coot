@@ -2,6 +2,7 @@
 #include <iostream>
 #include <gtk/gtk.h>
 
+#include "coot-utils/coot-coord-utils.hh"
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
@@ -17,6 +18,8 @@
 #include "c-interface-ligands-swig.hh"
 #include "curlew-gtk4.hh"
 #include "c-interface-ligands.hh" // 20230920-PE new layla interface functions
+#include "labelled-button-info.hh"
+#include "cc-interface.hh" // for fullscreen()
 
 extern "C" { void load_tutorial_model_and_data(); }
 
@@ -653,16 +656,55 @@ change_chain_ids_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_set_visible(w, TRUE);
 }
 
+// make link uses the same API setup as refine_range()
 void
 make_link_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                  G_GNUC_UNUSED GVariant *parameter,
                  G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "make_link_action(): coot user_defined click 2" << std::endl;
-   // 20220828-PE needs check_if_in_range_define
+   graphics_info_t g;
+   const std::string &alt_conf_1 = g.in_range_first_picked_atom.alt_conf;
+   const std::string &alt_conf_2 = g.in_range_second_picked_atom.alt_conf;
+
+   if (alt_conf_1 == alt_conf_2) {
+
+      int imol_1 = g.in_range_first_picked_atom.int_user_data;
+      int imol_2 = g.in_range_second_picked_atom.int_user_data;
+
+      if (imol_1 == imol_2) {
+         if (g.is_valid_model_molecule(imol_1)) {
+            auto &m = g.molecules[imol_1];
+            mmdb:: Atom *at_1 = m.get_atom(g.in_range_first_picked_atom);
+            mmdb:: Atom *at_2 = m.get_atom(g.in_range_second_picked_atom);
+
+            if (at_1) {
+               if (at_2) {
+                  clipper::Coord_orth p1 = coot::co(at_1);
+                  clipper::Coord_orth p2 = coot::co(at_2);
+                  double d2 = (p1-p2).lengthsq();
+                  double dist = std::sqrt(d2);
+                  std::string link_name;
+                  m.make_link(g.in_range_first_picked_atom,
+                              g.in_range_second_picked_atom,
+                              link_name, dist, *g.Geom_p());
+                  g.graphics_draw();
+               } else {
+                  std::cout << "ERROR:: Missing atom " << std::endl;
+               }
+            } else {
+               std::cout << "ERROR:: Missing atom " << std::endl;
+            }
+         }
+      } else {
+         add_status_bar_text("Can't link residues in different molecules - doing nothing");
+      }
+   } else {
+      add_status_bar_text("Mismatched alt-confs - doing nothing");
+   }
 }
 
-#include "cc-interface.hh" // for fullscreen()
+
+
 
 void
 fix_nomenclature_errors_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -2299,6 +2341,23 @@ void atoms_with_zero_occupancies_action(G_GNUC_UNUSED GSimpleAction *simple_acti
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
       int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         std::vector<mmdb::Atom *> v = coot::atoms_with_zero_occupancy(mol);
+         std::vector<labelled_button_info_t> lbv;
+         for (unsigned int i=0; i<v.size(); i++) {
+            mmdb::Atom *at = v[i];
+            clipper::Coord_orth position(at->x, at->y, at->z);
+            std::string label = std::string(at->GetChainID());
+            label += std::string(" ");
+            label += std::to_string(at->GetSeqNum());
+            label += std::string(" ");
+            label += std::string(at->GetAtomName());
+            lbv.push_back(labelled_button_info_t(label, position));
+         }
+
+         g.fill_generic_validation_box_of_buttons("Zero Occupancy Atoms", lbv);
+      }
    }
 }
 
@@ -2634,6 +2693,8 @@ refine_range(G_GNUC_UNUSED GSimpleAction *simple_action,
       g.add_status_bar_text(m);
    }
 }
+
+
 
 void
 repeat_refine_range(G_GNUC_UNUSED GSimpleAction *simple_action,

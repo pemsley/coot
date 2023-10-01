@@ -140,6 +140,8 @@
 #include "goograph/goograph.hh"
 #endif
 
+#include "curl-utils.hh"
+
 #include "ideal/simple-restraint.hh"  // for multi-residue torsion map fitting.
 #include "ideal/torsion-bonds.hh"     // for multi-residue torsion map fitting.
 

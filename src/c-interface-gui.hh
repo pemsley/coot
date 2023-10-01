@@ -1,5 +1,7 @@
 
 
+#ifndef C_INTERFACE_GUI_HH
+#define C_INTERFACE_GUI_HH
 #include <gtk/gtk.h>
 #include <string>
 
@@ -11,3 +13,6 @@ std::string get_active_label_in_combobox(GtkComboBox *combobox);
 void pepflips_by_difference_map_dialog();
 
 void set_transient_for_main_window(GtkWidget *dialog);
+
+
+#endif // C_INTERFACE_GUI_HH

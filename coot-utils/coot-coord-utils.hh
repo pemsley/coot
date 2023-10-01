@@ -310,6 +310,8 @@ namespace coot {
    int hetify_residues_as_needed(mmdb::Manager *mol);
    void put_amino_acid_residue_atom_in_standard_order(mmdb::Residue *residue_p);
 
+   std::vector<mmdb::Atom *> atoms_with_zero_occupancy(mmdb::Manager *mol);
+
    // convert atoms in residue to HETATMs.  Return the number of HET
    // atoms.
    int hetify_residue_atoms(mmdb::Residue *res);
@@ -1334,19 +1336,6 @@ namespace coot {
       // more info on the real cis peptides derived from atom positions:
       std::vector<cis_peptide_info_t>
       cis_peptides_info_from_coords(mmdb::Manager *mol);
-
-      // where the atoms are in cis peptides
-      //
-      // mark up things that have omega > 210 or omega < 150. i.e, 180 +/- 30.
-      //
-      // strictly_cis_flag is false by default.
-      //
-      // if model_number == 0, make cis_peptides quads for all models.
-      //
-      std::vector<cis_peptide_quad_info_t>
-      cis_peptide_quads_from_coords(mmdb::Manager *mol,
-				    int model_number,
-				    bool strictly_cis_flag = false);
 
       // remove wrong cis_peptides from the header records
       void remove_wrong_cis_peptides(mmdb::Manager *mol);

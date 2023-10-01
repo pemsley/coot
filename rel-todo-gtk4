@@ -12,10 +12,13 @@
 
 8 items
 
-
 Ribbons don't cast shadows.
 
-Fetch EMDB map doesn't check the cache/coot-download
+Renumber residue range on a molecule that is not the first molecule ::: 0.6
+
+No reaction to Validate -> Atoms with Zero Occs (there were some) ::: 0.5
+
+No reaction to Aligment vs PIR (no PIR was loaded)
 
 Layla: make python setup be available for Coot and Layla - put it in its own directory. So that layla
 is not linked with src files.
@@ -882,3 +885,13 @@ The atom picker needs to know about the representation type (or act on it) ::: 0
 Make sure that set_scroll_wheel_map and set_scrollable_map() (how are they different?) change the scroll indicator
 in the Display Manager. ::: 0.5
 * Done.
+
+Don't draw cis-peptide markup for an MDO ::: 0.8
+* Done. Pretty tricky.
+
+Blog tutorial: why do we change the default B-factor? ::: 0.2
+* Done.
+
+Fetch EMDB map doesn't check the cache/coot-download.
+* It does now.
+

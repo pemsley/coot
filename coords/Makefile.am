@@ -58,6 +58,7 @@ libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
 libcoot_coords_la_LIBADD = \
    $(top_builddir)/ligand/libcoot-ligand.la          \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+   $(top_builddir)/coot-utils/libcoot-coord-extras.la \
    $(top_builddir)/geometry/libcoot-geometry.la      \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la      \
    $(top_builddir)/cootaneer/libcootaneer.la         \
