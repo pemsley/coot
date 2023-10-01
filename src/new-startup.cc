@@ -685,7 +685,7 @@ new_startup_application_activate(GtkApplication *application,
       graphics_info.application = application;
 
       // 20230526-PE this now happens in init_coot_as_python_module()
-      // Let's not do it (including geom.init_standard()) twice.
+      // Let's not do it (calling geom.init_standard()) twice.
       // graphics_info.init();
 
       // but let's do it once at least!
@@ -736,12 +736,12 @@ new_startup_application_activate(GtkApplication *application,
       }
       graphics_info_t::set_preferences_gtkbuilder(preferences_builder);
 
-
       python_init();
 
       handle_command_line_data(activate_data->cld);
       run_command_line_scripts();
-      // graphics_info.use_graphics_interface_flag = true;
+      if (activate_data->cld.do_graphics)
+         graphics_info.use_graphics_interface_flag = true;
 
       // create the preference defaults
       make_preferences_internal();
