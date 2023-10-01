@@ -153,13 +153,15 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
 
    if (false)
       std::cout << "on_glarea_drag_update_secondary shift is pressed " << shift_is_pressed
-                << " control_is_pressed " << control_is_pressed << std::endl;
+                << " control_is_pressed " << control_is_pressed << " "
+                << drag_delta_x << " " << drag_delta_y
+                << std::endl;
 
    if (shift_is_pressed) {
       do_view_zoom(drag_delta_x, drag_delta_y);
    } else {
       if (control_is_pressed) {
-         do_drag_pan_gtk3(gl_area, drag_delta_x, drag_delta_x);
+         do_drag_pan_gtk4(gl_area, drag_delta_x, drag_delta_y);
       } else {
 
          bool trackpad_drag = false;
@@ -411,10 +413,78 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
    }
 }
 
+void
+graphics_info_t::do_drag_pan_gtk4(GtkWidget *widget, double drag_delta_x, double drag_delta_y) {
+
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(widget, &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+
+   graphics_info_t g;
+   glm::mat4 mvp = g.get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
+
+   mouse_current_x = mouse_clicked_begin.first  + drag_delta_x;
+   mouse_current_y = mouse_clicked_begin.second + drag_delta_y;
+
+   float mouseX_1 = mouse_current_x / (w * 0.5f) - 1.0f;
+   float mouseY_1 = mouse_current_y / (h * 0.5f) - 1.0f;
+   float mouseX_2 = get_mouse_previous_position_x() / (w * 0.5f) - 1.0f;
+   float mouseY_2 = get_mouse_previous_position_y() / (h * 0.5f) - 1.0f;
+
+   glm::mat4 vp_inv = glm::inverse(mvp);
+   glm::vec4 screenPos_1 = glm::vec4(mouseX_1, -mouseY_1, 1.0f, 1.0f);
+   glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2, 1.0f, 1.0f);
+   glm::vec4 worldPos_1 = vp_inv * screenPos_1;
+   glm::vec4 worldPos_2 = vp_inv * screenPos_2;
+
+   glm::vec4 delta(worldPos_1 / worldPos_1.w - worldPos_2 / worldPos_2.w);
+   glm::vec3 delta_v3(-delta);
+
+   // it was a typo in the caller of this function, not the static variables!
+
+   if (false)
+      std::cout << "mouse-clicked-begin " << mouse_clicked_begin.first << " " << mouse_clicked_begin.second
+                << std::endl;
+ 
+   if (false)
+      std::cout << "drag_delta_x " << drag_delta_x << " drag_delta_y " << drag_delta_y
+                << std::endl;
+ 
+   if (false)
+      std::cout << "mouse_current_x " << mouse_current_x << " mouse_current_y " << mouse_current_y
+                << std::endl;
+
+   if (false) {
+      std::cout << "screen pos delta "
+                << mouse_current_x - get_mouse_previous_position_x() << " "
+                << mouse_current_y - get_mouse_previous_position_y() << std::endl;
+   }
+   if (false) {
+      std::cout << "in do_drag_pan_gtk4() mouse-current: "
+                << mouse_current_x << " " << mouse_current_y << " "
+                << "mouse-prev: " << get_mouse_previous_position_x() << " " << get_mouse_previous_position_y()
+                << " mouse-1 " << mouseX_1 << " " << mouseY_1
+                << " mouse-2 " << mouseX_2 << " " << mouseY_2
+                << " delta " << glm::to_string(delta) << " delta_v3 " << glm::to_string(delta_v3) << std::endl;
+   }
+
+   g.add_to_rotation_centre(delta_v3);
+
+   // g.update_maps();
+   // if (graphics_info_t::glareas.size() > 0)
+   // int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
+
+   g.update_things_on_move(); // 20211013-PE do I need the _and_redraw() version of this function?
+
+   set_mouse_previous_position(mouse_current_x, mouse_current_y); // for next round
+}
 
 
 void
 graphics_info_t::do_drag_pan_gtk3(GtkWidget *widget, double drag_delta_x, double drag_delta_y) {
+
+   // who calls this function now?
 
    std::cout << "do_drag_pan_gtk3() " << std::endl;
 

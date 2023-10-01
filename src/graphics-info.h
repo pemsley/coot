@@ -1346,6 +1346,9 @@ public:
    void change_model_molecule_representation_mode(int step);
 
    void do_drag_pan_gtk3(GtkWidget *widget, double drag_delta_x, double drag_delta_y);
+   // here drag_delta_y and drag_delta_y are the differences from
+   // drag_begin_x and drag_begin_y.
+   void do_drag_pan_gtk4(GtkWidget *widget, double drag_delta_x, double drag_delta_y);
 
    gboolean on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
                                                  guint                  keyval,
