@@ -1,5 +1,7 @@
 
 
+#ifndef C_INTERFACE_GUI_HH
+#define C_INTERFACE_GUI_HH
 #include <gtk/gtk.h>
 #include <string>
 
@@ -12,16 +14,5 @@ void pepflips_by_difference_map_dialog();
 
 void set_transient_for_main_window(GtkWidget *dialog);
 
-class ProgressBarPopUp {
-	GtkWindow* window;
-	GtkProgressBar* progress_bar;
 
-	public:
-	ProgressBarPopUp(const char* title, const char* description);
-    ProgressBarPopUp(const ProgressBarPopUp&) = delete;
-    ProgressBarPopUp(ProgressBarPopUp&&);
-    
-	void pulse();
-	void set_fraction(float frac);
-	~ProgressBarPopUp();
-};
+#endif // C_INTERFACE_GUI_HH

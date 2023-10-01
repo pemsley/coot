@@ -28,6 +28,7 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <optional>
 
 #ifdef USE_GUILE
 #include <libguile.h>
@@ -47,6 +48,7 @@
 #include "named-rotamer-score.hh"
 
 #include "coords/phenix-geo.hh"
+#include "gtk-utils.hh"
 
 /*! \file
   \brief Coot Scripting Interface - General (C++ functions)
@@ -1477,8 +1479,8 @@ mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(mmdb::Manager *mol,
 
 #ifdef USE_LIBCURL
 // return 0 on success.
-int coot_get_url(const std::string &url, const std::string &file_name);
-int coot_get_url_and_activate_curl_hook(const std::string &url, const std::string &file_name, short int do_hook_flag);
+int coot_get_url(const std::string &url, const std::string &file_name, std::optional<ProgressNotifier> notifier = std::nullopt);
+int coot_get_url_and_activate_curl_hook(const std::string &url, const std::string &file_name, short int do_hook_flag, std::optional<ProgressNotifier> notifier = std::nullopt);
 #ifdef USE_GUILE
 // this handles URLs that are strings, not binaries.
 SCM coot_get_url_as_string(const char *url);
@@ -1512,8 +1514,8 @@ void fetch_and_superpose_alphafold_models(int imol);
 //! \brief return the model number
 int fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id);
 
-//! \brief return the EMD map, return a molecule index
-int fetch_emdb_map(const std::string &emd_accession_code);
+//! \brief Loads up map frmo emdb
+void fetch_emdb_map(const std::string &emd_accession_code);
 
 //! \brief return the COD entry, return a molecule index
 int fetch_cod_entry(const std::string &cod_entry_id);
