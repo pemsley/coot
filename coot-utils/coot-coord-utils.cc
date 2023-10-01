@@ -9311,3 +9311,34 @@ coot::get_position_hash(mmdb::Manager *mol) {
 
    return h;
 }
+
+std::vector<mmdb::Atom *>
+coot::atoms_with_zero_occupancy(mmdb::Manager *mol) {
+
+   std::vector<mmdb::Atom *> v;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  if (! at->isTer()) {
+                     if (at->occupancy < 0.01) {
+                        v.push_back(at);
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return v;
+}
+

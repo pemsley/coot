@@ -2,6 +2,7 @@
 #include <iostream>
 #include <gtk/gtk.h>
 
+#include "coot-utils/coot-coord-utils.hh"
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
@@ -17,6 +18,7 @@
 #include "c-interface-ligands-swig.hh"
 #include "curlew-gtk4.hh"
 #include "c-interface-ligands.hh" // 20230920-PE new layla interface functions
+#include "labelled-button-info.hh"
 
 extern "C" { void load_tutorial_model_and_data(); }
 
@@ -2299,6 +2301,23 @@ void atoms_with_zero_occupancies_action(G_GNUC_UNUSED GSimpleAction *simple_acti
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
       int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         std::vector<mmdb::Atom *> v = coot::atoms_with_zero_occupancy(mol);
+         std::vector<labelled_button_info_t> lbv;
+         for (unsigned int i=0; i<v.size(); i++) {
+            mmdb::Atom *at = v[i];
+            clipper::Coord_orth position(at->x, at->y, at->z);
+            std::string label = std::string(at->GetChainID());
+            label += std::string(" ");
+            label += std::to_string(at->GetSeqNum());
+            label += std::string(" ");
+            label += std::string(at->GetAtomName());
+            lbv.push_back(labelled_button_info_t(label, position));
+         }
+
+         g.fill_generic_validation_box_of_buttons("Zero Occupancy Atoms", lbv);
+      }
    }
 }
 

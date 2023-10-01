@@ -6826,3 +6826,17 @@ on_ligand_check_dialog_close_button_clicked(GtkButton       *button,
    gtk_widget_set_visible(dialog, FALSE);
 
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_generic_validation_box_of_buttons_close_button_clicked(GtkButton       *button,
+                                                          gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("generic_validation_box_of_buttons_dialog");
+   GtkWidget *box = widget_from_builder("generic_validation_box_of_buttons_box");
+   if (box) {
+      graphics_info_t g;
+      g.clear_out_container(box);
+   }
+   gtk_widget_set_visible(dialog, FALSE);
+}

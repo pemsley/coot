@@ -310,6 +310,8 @@ namespace coot {
    int hetify_residues_as_needed(mmdb::Manager *mol);
    void put_amino_acid_residue_atom_in_standard_order(mmdb::Residue *residue_p);
 
+   std::vector<mmdb::Atom *> atoms_with_zero_occupancy(mmdb::Manager *mol);
+
    // convert atoms in residue to HETATMs.  Return the number of HET
    // atoms.
    int hetify_residue_atoms(mmdb::Residue *res);

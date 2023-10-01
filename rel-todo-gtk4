@@ -12,6 +12,8 @@
 
 8 items
 
+read 8cug.cif.gz
+
 Ribbons don't cast shadows.
 
 Renumber residue range on a molecule that is not the first molecule ::: 0.6
@@ -19,8 +21,6 @@ Renumber residue range on a molecule that is not the first molecule ::: 0.6
 No reaction to Validate -> Atoms with Zero Occs (there were some) ::: 0.5
 
 No reaction to Aligment vs PIR (no PIR was loaded)
-
-Fetch EMDB map doesn't check the cache/coot-download
 
 Layla: make python setup be available for Coot and Layla - put it in its own directory. So that layla
 is not linked with src files.
@@ -893,3 +893,7 @@ Don't draw cis-peptide markup for an MDO ::: 0.8
 
 Blog tutorial: why do we change the default B-factor? ::: 0.2
 * Done.
+
+Fetch EMDB map doesn't check the cache/coot-download.
+* It does now.
+

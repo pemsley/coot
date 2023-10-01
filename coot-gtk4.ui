@@ -2025,6 +2025,41 @@ Copyright 2023 Global Phasing Ltd.</property>
     <child type="titlebar">
     </child>
   </object>
+
+  <object class="GtkDialog" id="generic_validation_box_of_buttons_dialog">
+    <property name="title" translatable="yes">Coot: Validation</property>
+    <property name="width-request">170</property>
+    <child>
+      <object class="GtkBox" id="generic_validation_box_of_buttons_outer_box"> <!-- for reparenting -->
+        <property name="orientation">vertical</property>
+        <property name="margin-start">4</property>
+        <property name="margin-end">4</property>
+        <property name="margin-top">4</property>
+        <property name="margin-bottom">4</property>
+        <child>
+          <object class="GtkBox" id="generic_validation_box_of_buttons_box">
+            <property name="orientation">vertical</property>
+            <property name="spacing">4</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="generic_validation_box_of_buttons_close_button">
+            <property name="label">Close</property>
+            <property name="margin-start">8</property>
+            <property name="margin-end">8</property>
+            <property name="margin-top">8</property>
+            <property name="margin-bottom">8</property>
+            <signal name="clicked" handler="on_generic_validation_box_of_buttons_close_button_clicked" swapped="no"/>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+
   <object class="GtkDialog" id="antialiasing_dialog">
     <property name="title" translatable="yes">Antialiasing</property>
     <property name="deletable">0</property>
