@@ -2191,8 +2191,8 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
          for (int ii=n_molecules()-1; ii>=0; ii--) {
             // std::cout << "Here B in draw_meshed_generic_display_object_meshes() " << ii  << std::endl;
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
+            if (! is_valid_model_molecule(ii)) continue;
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
-               if (! is_valid_model_molecule(jj)) continue;
 
                Mesh &mesh = m.meshes[jj];
 

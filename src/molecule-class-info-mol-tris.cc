@@ -43,8 +43,8 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
 
-   std::cout << "DEBUG:: in mcit::add_molecular_representation() atom_selection: " << atom_selection
-             << " colour_scheme: " << colour_scheme << " style: " << style << std::endl;
+   std::cout << "DEBUG:: in mcit::add_molecular_representation() atom_selection: \"" << atom_selection << "\""
+             << " colour_scheme: \"" << colour_scheme << "\" style: \"" << style << "\"" << std::endl;
 
    if (! atom_sel.mol)  return 0;
    if (atom_sel.n_selected_atoms == 0)  return 0;

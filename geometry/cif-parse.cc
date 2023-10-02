@@ -1901,12 +1901,12 @@ coot::protein_geometry::init_standard() {
    if (! s)
       s = getenv("COOT_CCP4_LIB_DIR");
    if (s) {
-      if (! is_dir_or_link(s)) {
-              env_dir_fails = 1;
-              std::cout << "WARNING:: Coot REFMAC dictionary override COOT_REFMAC_LIB_DIR"
-                             << "failed to find a dictionary " << s << std::endl;
+      if (is_dir_or_link(s)) {
+          mon_lib_dir = s;
       } else {
-              mon_lib_dir = s;
+          env_dir_fails = 1;
+          std::cout << "WARNING:: Coot REFMAC dictionary override COOT_REFMAC_LIB_DIR "
+                    << s << " " << "failed to find the monomer library " << std::endl;
       }
    }
 
