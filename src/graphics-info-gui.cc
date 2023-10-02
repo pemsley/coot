@@ -4702,6 +4702,10 @@ graphics_info_t::add_molecular_representation(int imol,
                                               const std::string &colour_scheme,
                                               const std::string &style) {
 
+   std::cout << "g.add_molecular_representation(): atom_sel: \"" << atom_selection << "\" "
+             << "colour-scheme: \"" << colour_scheme << "\" "
+             << "style \"" << style << "\"" << std::endl;
+
    GtkWidget *w = widget_from_builder("main_window_meshes_frame");
    if (w)
       gtk_widget_set_visible(w, TRUE);
