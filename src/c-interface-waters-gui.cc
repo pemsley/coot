@@ -214,6 +214,7 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 	       std::cout << "Coot found no blobs" << std::endl;
 	       // GtkWidget *dialog = create_ligand_no_blobs_dialog();
 	       GtkWidget *dialog = widget_from_builder("ligand_no_blobs_dialog");
+               g.set_transient_for_main_window(dialog);
 	       gtk_widget_set_visible(dialog, TRUE);
 	    } 
 	 }
