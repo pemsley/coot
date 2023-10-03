@@ -12,6 +12,8 @@
 
 8 items
 
+Missing difference map peaks in 1bl8 from Oliver Clarke.
+
 Missing validation items: Some currently under Draw -> Molecule
    "Residues with Alt Confs" and
    "Residues with Missing Atoms"
@@ -19,8 +21,6 @@ Missing validation items: Some currently under Draw -> Molecule
    "Residue type selection" action needs to be filled.
 
 Fix the R/RC combo-box changed handlers.
-
-Missing difference map peaks in 1bl8 from Oliver Clarke.
 
 Issue 67:
 On reflection, I will add a function that allows the user to override Coot's attempt to determine the EM-state of the map.
