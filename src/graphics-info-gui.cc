@@ -131,6 +131,7 @@ graphics_info_t::show_refinement_and_regularization_parameters_frame() {
    //    // needed in the new dialog).
 
    GtkWidget *overall_weight_combobox = widget_from_builder("refine_params_overall_weight_combobox");
+   gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(overall_weight_combobox));
    std::vector<float> mv = {0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 10.0, 20.0};
    graphics_info_t g;
    float w = g.geometry_vs_map_weight;
