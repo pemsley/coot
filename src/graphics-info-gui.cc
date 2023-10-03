@@ -88,6 +88,7 @@
 #include "manipulation-modes.hh"
 #include "guile-fixups.h"
 #include "widget-from-builder.hh"
+#include "c-interface-gtk-widgets.h"
 
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
 
@@ -103,8 +104,6 @@ void do_accept_reject_hud_buttons(std::string fit_type, const coot::refinement_r
 
 }
 
-
-#include "widget-from-builder.hh"
 
 void
 graphics_info_t::show_refinement_and_regularization_parameters_frame() {
