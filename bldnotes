@@ -1,5 +1,10 @@
  -*-text-*-
 
+EDS:
+ebi.ac.uk/pdbe/entry-files/*.mdb
+
+to be updated
+
 scripts      rev 5732 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then) , check_ligand.py is dummy dict-gen for windows...
 check drugbox in python
 tests        rev 5460 update
