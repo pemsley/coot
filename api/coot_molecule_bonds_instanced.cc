@@ -631,7 +631,7 @@ coot::molecule_t::get_extra_restraints_mesh(int mode) const {
                   double bl = std::sqrt(delta.lengthsq());
                   glm::vec3 delta_uv_glm = clipper_to_glm(delta_uv);
                   glm::mat4 ori = glm::orientation(delta_uv_glm, z1);
-                  glm::vec3 p = clipper_to_glm(p_1);
+                  glm::vec3 p = clipper_to_glm(p_2);
                   glm::vec4 col(0.5, 0.5, 0.5, 1.0);
                   glm::vec3 s(0.1, 0.1, bl);
                   coot::instancing_data_type_B_t idB(p, col, s, ori);
