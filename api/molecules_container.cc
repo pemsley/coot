@@ -4042,8 +4042,7 @@ molecules_container_t::generate_self_restraints(int imol, float local_dist_max) 
 void
 molecules_container_t::generate_chain_self_restraints(int imol,
                                                       float local_dist_max,
-                                                      const std::string &chain_id,
-                                                      const coot::protein_geometry &geom) {
+                                                      const std::string &chain_id) {
    if (is_valid_model_molecule(imol)) {
       molecules[imol].generate_chain_self_restraints(local_dist_max, chain_id, geom);
    } else {
@@ -4055,8 +4054,7 @@ molecules_container_t::generate_chain_self_restraints(int imol,
 //! `residue_cids" is a "||"-separated list of residues, e.g. "//A/12||//A/14||/B/56"
 void
 molecules_container_t::generate_local_self_restraints(int imol, float local_dist_max,
-                                                      const std::string & residue_cids,
-                                                      const coot::protein_geometry &geom) {
+                                                      const std::string & residue_cids) {
    if (is_valid_model_molecule(imol)) {
       std::vector<coot::residue_spec_t> residue_specs;
       std::vector<std::string> parts = coot::util::split_string(residue_cids, "||");

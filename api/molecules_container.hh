@@ -1071,14 +1071,12 @@ public:
 
    //! generate GM self restraints for the given chain
    void generate_chain_self_restraints(int imol, float local_dist_max,
-                                       const std::string &chain_id,
-                                       const coot::protein_geometry &geom);
+                                       const std::string &chain_id);
 
    //! generate GM self restraints for the given residues.
    //! `residue_cids" is a "||"-separated list of residues, e.g. "//A/12||//A/14||/B/56"
    void generate_local_self_restraints(int imol, float local_dist_max,
-                                       const std::string &residue_cids,
-                                       const coot::protein_geometry &geom);
+                                       const std::string &residue_cids);
 
    //! generate parallel plane restraints (for RNA and DNA)
    void add_parallel_plane_restraint(int imol,

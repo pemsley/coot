@@ -817,12 +817,15 @@ namespace coot {
       //! @return the number of atoms added.
       int merge_molecules(const std::vector<mmdb::Manager *> &mols);
 
-      //! My ligands don't jiggle-jiggle...
-      //!
-      //! Hey, what do you know, they actually do.
+      // My ligands don't jiggle-jiggle...
+      //
+      // Hey, what do you know, they actually do.
       float fit_to_map_by_random_jiggle(const residue_spec_t &res_spec, const clipper::Xmap<float> &xmap, float map_rmsd,
                                         int n_trials, float translation_scale_factor);
 
+      //! My ligands don't jiggle-jiggle...
+      //!
+      //! Hey, what do you know, they actually do.
       float fit_to_map_by_random_jiggle_using_atom_selection(const std::string &cid, const clipper::Xmap<float> &xmap, float map_rmsd,
                                         int n_trials, float translation_scale_factor);
 
