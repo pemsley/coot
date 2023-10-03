@@ -381,7 +381,7 @@ def get_pdb_redo(text):
             if not status == 0:
                 print("Failed to get %s %s status %s" %(url_py, py_file_name, status))
 
-            status_imol = read_pdb(pdb_file_name)
+            status_imol = coot.read_pdb(pdb_file_name)
             if status_imol < 0:
                 print("INFO:: problem opening pdb file. Most likely something went wrong in the download")
             else:
