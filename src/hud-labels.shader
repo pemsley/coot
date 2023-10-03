@@ -46,7 +46,12 @@ void main() {
    // sampled = vec4(text_colour.r, text_colour.r, text_colour.r, sampled.r);
    outputColor = sampled;
 
-   if (outputColor.a < 0.5) discard;
+   // 20231003-PE this is a quick fix. It should really use the background colour
+   // and be a box with nice margins around the letters - but that would mean another
+   // shader. This will do for now.
+   //
+   // if (outputColor.a < 0.5) discard;
+   if (outputColor.a < 0.5) outputColor = vec4(0.0, 0.0, 0.0, 1.0);
 
    // outputColor.a = 0.9; // why did I have this? For the rama underlying distribution? Hmm.
                            // OK I guess I need a uniform for that if I'm going to use this shader

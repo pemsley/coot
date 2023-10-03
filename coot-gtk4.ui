@@ -1415,6 +1415,7 @@ Copyright 2023 Global Phasing Ltd.</property>
       </object>
     </child>
   </object>
+
   <object class="GtkDialog" id="add_alt_conf_dialog">
     <property name="title" translatable="yes">Add Alternate Conformation</property>
     <signal name="destroy" handler="on_add_alt_conf_dialog_destroy" swapped="no"/>
@@ -1485,6 +1486,7 @@ Copyright 2023 Global Phasing Ltd.</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="add_reps_dialog">
     <signal name="close" handler="on_add_reps_dialog_close" swapped="no"/>
     <signal name="response" handler="on_add_reps_dialog_response" swapped="no"/>
@@ -2022,7 +2024,25 @@ Copyright 2023 Global Phasing Ltd.</property>
         </child>
       </object>
     </child>
-    <child type="titlebar">
+  </object>
+
+  <!-- ribbons, I mean. It should be part of a redesigned Display Manager - but this quick fix will do for now -->
+  <object class="GtkDialog" id="molecular_representations_dialog">
+    <property name="title" translatable="yes">Coot: Representations</property>
+    <property name="width-request">180</property>
+    <child>
+      <object class="GtkFrame" id="molecular_representations_frame"> <!-- for reparenting? -->
+        <child>
+          <object class="GtkBox" id="molecular_representations_vbox">
+            <property name="spacing">4</property>
+            <property name="orientation">vertical</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+          </object>
+        </child>
+      </object>
     </child>
   </object>
 
@@ -2060,70 +2080,6 @@ Copyright 2023 Global Phasing Ltd.</property>
     </child>
   </object>
 
-  <object class="GtkDialog" id="antialiasing_dialog">
-    <property name="title" translatable="yes">Antialiasing</property>
-    <property name="deletable">0</property>
-    <child>
-      <object class="GtkBox" id="dialog-vbox74">
-        <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="antialiasing_dialog_ok_button">
-                <property name="label" translatable="yes">   OK   </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_antialiasing_dialog_ok_button_clicked" swapped="no"/>
-              </object>
-        </child>
-        <child>
-          <object class="GtkFrame" id="frame131">
-            <child>
-              <object class="GtkBox" id="vbox135">
-                <property name="orientation">vertical</property>
-                <child>
-                  <object class="GtkLabel" id="label219">
-                    <property name="label" translatable="yes">Antialias Lines?</property>
-                    <property name="justify">center</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkFrame" id="frame132">
-                    <child>
-                      <object class="GtkBox" id="vbox136">
-                        <property name="orientation">vertical</property>
-                        <child>
-                          <object class="GtkCheckButton" id="antialias_dialog_yes_radiobutton">
-                            <property name="label" translatable="yes">Yes</property>
-                            <property name="can-focus">1</property>
-                            <property name="use-underline">1</property>
-                            <signal name="toggled" handler="on_antialias_dialog_yes_radiobutton_toggled" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkCheckButton" id="antialias_dialog_no_radiobutton">
-                            <property name="label" translatable="yes">No</property>
-                            <property name="can-focus">1</property>
-                            <property name="use-underline">1</property>
-                            <property name="active">1</property>
-                            <property name="group">antialias_dialog_yes_radiobutton</property>
-                            <signal name="toggled" handler="on_antialias_dialog_no_radiobutton_toggled" swapped="no"/>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="0">antialiasing_dialog_ok_button</action-widget>
-    </action-widgets>
-    <child type="titlebar">
-    </child>
-  </object>
   <object class="GtkDialog" id="bad_chiral_volumes_dialog">
     <property name="title" translatable="yes">Chiral Volume Baddies:</property>
     <property name="default-width">200</property>
@@ -2167,6 +2123,7 @@ Copyright 2023 Global Phasing Ltd.</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="baton_dialog">
     <property name="title" translatable="yes">Baton</property>
     <property name="deletable">0</property>
@@ -2563,6 +2520,7 @@ Calculate a skeleton now?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="change_chain_id_dialog">
     <property name="title" translatable="yes">Change Chain ID</property>
     <child>
@@ -2754,6 +2712,7 @@ Calculate a skeleton now?
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="check_chiral_volumes_dialog">
     <property name="title" translatable="yes">Check Chiral Volumes molecule chooser:</property>
     <child>

@@ -585,3 +585,66 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
 
    return m;
 }
+
+
+coot::instanced_mesh_t
+coot::molecule_t::get_extra_restraints_mesh(int mode) const {
+
+   auto convert_vertices = [] (const std::vector<coot::api::vnc_vertex> &v_in) {
+      std::vector<coot::api::vn_vertex> v_out(v_in.size());
+      for (unsigned int i=0; i<v_in.size(); i++) {
+         const auto &v = v_in[i];
+         v_out[i] = coot::api::vn_vertex(v.pos, v.normal);
+      }
+      return v_out;
+   };
+
+   auto clipper_to_glm = [] (const clipper::Coord_orth &co) {
+                            return glm::vec3(co.x(), co.y(), co.z());
+                         };
+
+   coot::instanced_mesh_t im;
+   if (mode > -999) { // check the mode here
+
+      if (! extra_restraints.geman_mcclure_restraints.empty()) {
+         coot::instanced_geometry_t igeom;
+         unsigned int n_slices = 6;
+         unsigned int n_stacks = 6;
+         glm::vec3 z0(0,0,0);
+         glm::vec3 z1(0,0,1);
+         std::pair<glm::vec3, glm::vec3> pp(z0, z1);
+         cylinder c_00(pp, 1.0, 1.0, 1.0, n_slices, n_stacks);
+         c_00.add_flat_end_cap();
+         c_00.add_flat_start_cap();
+         igeom.vertices = convert_vertices(c_00.vertices);
+         igeom.triangles = c_00.triangles;
+         for (unsigned int i=0; i<extra_restraints.geman_mcclure_restraints.size(); i++) {
+            const auto &r = extra_restraints.geman_mcclure_restraints[i];
+            mmdb::Atom *at_1 = get_atom(r.atom_1);
+            mmdb::Atom *at_2 = get_atom(r.atom_2);
+            if (at_1) {
+               if (at_2) {
+                  clipper::Coord_orth p_1 = coot::co(at_1);
+                  clipper::Coord_orth p_2 = coot::co(at_2);
+                  clipper::Coord_orth delta = p_2 - p_1;
+                  clipper::Coord_orth delta_uv = clipper::Coord_orth(delta.unit());
+                  double bl = std::sqrt(delta.lengthsq());
+                  glm::vec3 delta_uv_glm = clipper_to_glm(delta_uv);
+                  glm::mat4 ori = glm::orientation(delta_uv_glm, z1);
+                  glm::vec3 p = clipper_to_glm(p_1);
+                  glm::vec4 col(0.5, 0.5, 0.5, 1.0);
+                  glm::vec3 s(0.1, 0.1, bl);
+                  coot::instancing_data_type_B_t idB(p, col, s, ori);
+                  igeom.instancing_data_B.push_back(idB);
+               } else {
+                  std::cout << "WARNING:: no atom found " << r.atom_2 << std::endl;
+               }
+            } else {
+               std::cout << "WARNING:: no atom found " << r.atom_1 << std::endl;
+            }
+         }
+         im.add(igeom);
+      }
+   }
+   return im;
+}
