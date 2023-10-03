@@ -12,10 +12,28 @@
 
 8 items
 
+Missing validation items: Some currently under Draw -> Molecule
+   "Residues with Alt Confs" and
+   "Residues with Missing Atoms"
+   "Residue with cis-peptide" action needs to be filled.
+   "Residue type selection" action needs to be filled.
+
+Fix the R/RC combo-box changed handlers.
+
+Missing difference map peaks in 1bl8 from Oliver Clarke.
+
+Issue 67:
+On reflection, I will add a function that allows the user to override Coot's attempt to determine the EM-state of the map.
+
 Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
+
+Fix the undo molecule chooser (have 2 molecules with edits)
 
 Fix this:
 "widget main_window_meshes_frame was not found"
+
+a7956aa695f8c19e52622447ca292434812d4e62.
+How about deleting the timeout altogether?
 
 Ribbons don't cast shadows.
 

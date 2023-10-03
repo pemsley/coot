@@ -2358,6 +2358,9 @@ void atoms_with_zero_occupancies_action(G_GNUC_UNUSED GSimpleAction *simple_acti
 
          g.fill_generic_validation_box_of_buttons("Zero Occupancy Atoms", lbv);
       }
+   } else {
+      add_status_bar_text("No active molecule found!");
+      info_dialog("No active molecule found!");
    }
 }
 
@@ -2537,14 +2540,40 @@ void residue_type_selection_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void residues_with_alt_confs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                   G_GNUC_UNUSED GVariant *parameter,
-                                   G_GNUC_UNUSED gpointer user_data) {
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "residues with alt confs action" << std::endl;
+   std::cout << "debug:: residues with alt confs action" << std::endl;
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
       int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         std::vector<mmdb::Residue *> rv = coot::residues_with_alt_confs(mol);
+         if (rv.empty()) {
+            add_status_bar_text("No residues with Alt confs in this molecule");
+         } else {
+            std::vector<labelled_button_info_t> lbv;
+            for (unsigned int i=0; i<rv.size(); i++) {
+               mmdb::Residue *residue_p = rv[i];
+               std::pair<bool, clipper::Coord_orth> rc = coot::util::get_residue_centre(residue_p);
+               if (rc.first) {
+                  // make a function to make the label from a residue
+                  std::string label = residue_p->GetChainID();
+                  label += " ";
+                  label += std::to_string(residue_p->GetSeqNum());
+                  if (residue_p->GetInsCode()) {
+                     label += " ";
+                     label += residue_p->GetInsCode();
+                  }
+                  labelled_button_info_t lbi(label, rc.second);
+                  lbv.push_back(lbi);
+               }
+            }
+            g.fill_generic_validation_box_of_buttons("Residues with AltConfs", lbv);
+         }
+      }
    }
 }
 
@@ -2564,11 +2593,53 @@ void residues_with_missing_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_acti
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "residues with missing atoms action" << std::endl;
+   auto residue_to_label = [] (mmdb::Residue *residue_p ) {
+      std::string label = residue_p->GetChainID();
+      label += " ";
+      label += std::to_string(residue_p->GetSeqNum());
+      if (residue_p->GetInsCode()) {
+         label += " ";
+         label += residue_p->GetInsCode();
+      }
+      return label;
+   };
+
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
       int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         bool missing_hydrogens_flag = false;
+         coot::util::missing_atom_info m_i_info =
+            g.molecules[imol].missing_atoms(missing_hydrogens_flag, g.Geom_p());
+         if (m_i_info.residues_with_missing_atoms.empty()) {
+            add_status_bar_text("No residues with missing atoms");
+         } else {
+            std::vector<labelled_button_info_t> lbv;
+            for (unsigned int i=0; i<m_i_info.residues_with_missing_atoms.size(); i++) {
+               mmdb::Residue *residue_p = m_i_info.residues_with_missing_atoms[i];
+               std::map<mmdb::Residue *, std::vector<std::string> >::const_iterator it;
+               it = m_i_info.residue_missing_atom_names_map.find(residue_p);
+
+               std::string label = residue_to_label(residue_p);
+               label += " missing";
+
+               if (it != m_i_info.residue_missing_atom_names_map.end()) {
+                  const auto &atom_name_vec = it->second;
+                  for (unsigned int j=0; j<atom_name_vec.size(); j++) {
+                     label += " ";
+                     label += atom_name_vec[j];
+                  }
+               }
+               std::pair<bool, clipper::Coord_orth> rc = coot::util::get_residue_centre(residue_p);
+               if (rc.first) {
+                  labelled_button_info_t lbi(label, rc.second);
+                  lbv.push_back(lbi);
+               }
+            }
+            g.fill_generic_validation_box_of_buttons("Residues with Missing Atoms", lbv);
+         }
+      }
    }
 }
 

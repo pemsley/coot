@@ -312,6 +312,8 @@ namespace coot {
 
    std::vector<mmdb::Atom *> atoms_with_zero_occupancy(mmdb::Manager *mol);
 
+   std::vector<mmdb::Residue *> residues_with_alt_confs(mmdb::Manager *mol);
+
    // convert atoms in residue to HETATMs.  Return the number of HET
    // atoms.
    int hetify_residue_atoms(mmdb::Residue *res);

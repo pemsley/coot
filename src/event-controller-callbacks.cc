@@ -486,7 +486,7 @@ graphics_info_t::do_drag_pan_gtk3(GtkWidget *widget, double drag_delta_x, double
 
    // who calls this function now?
 
-   std::cout << "do_drag_pan_gtk3() " << std::endl;
+   // std::cout << "do_drag_pan_gtk3() " << std::endl;
 
    // This should be a graphics_info_t function
 
