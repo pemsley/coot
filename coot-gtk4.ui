@@ -14479,7 +14479,7 @@ Move a copy?</property>
 
   <object class="GtkDialog" id="undo_molecule_chooser_dialog">
     <property name="title" translatable="yes">Coot: Choose Molecule for Undoing:</property>
-    <property name="deletable">0</property>
+    <property name="width-request">200</property>
     <child>
       <object class="GtkBox" id="dialog-vbox24">
         <property name="orientation">vertical</property>
