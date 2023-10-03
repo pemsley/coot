@@ -2344,19 +2344,23 @@ void atoms_with_zero_occupancies_action(G_GNUC_UNUSED GSimpleAction *simple_acti
       if (is_valid_model_molecule(imol)) {
          mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
          std::vector<mmdb::Atom *> v = coot::atoms_with_zero_occupancy(mol);
-         std::vector<labelled_button_info_t> lbv;
-         for (unsigned int i=0; i<v.size(); i++) {
-            mmdb::Atom *at = v[i];
-            clipper::Coord_orth position(at->x, at->y, at->z);
-            std::string label = std::string(at->GetChainID());
-            label += std::string(" ");
-            label += std::to_string(at->GetSeqNum());
-            label += std::string(" ");
-            label += std::string(at->GetAtomName());
-            lbv.push_back(labelled_button_info_t(label, position));
+         if (v.empty()) {
+            info_dialog("No atoms with zero occupancy");
+            add_status_bar_text("No atoms with zero occupancy");
+         } else {
+            std::vector<labelled_button_info_t> lbv;
+            for (unsigned int i=0; i<v.size(); i++) {
+               mmdb::Atom *at = v[i];
+               clipper::Coord_orth position(at->x, at->y, at->z);
+               std::string label = std::string(at->GetChainID());
+               label += std::string(" ");
+               label += std::to_string(at->GetSeqNum());
+               label += std::string(" ");
+               label += std::string(at->GetAtomName());
+               lbv.push_back(labelled_button_info_t(label, position));
+            }
+            g.fill_generic_validation_box_of_buttons("Zero Occupancy Atoms", lbv);
          }
-
-         g.fill_generic_validation_box_of_buttons("Zero Occupancy Atoms", lbv);
       }
    } else {
       add_status_bar_text("No active molecule found!");
