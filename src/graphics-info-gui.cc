@@ -125,10 +125,9 @@ graphics_info_t::show_refinement_and_regularization_parameters_frame() {
 
    //    // 20211027-PE this is how the old dialog was filled.
    //    // set_refine_params_toggle_buttons(dialog);
-   //    // set_refine_params_comboboxes(dialog);
 
-   //    // but let's do it in place here now. (There was a lot of widget frobbery that is not
-   //    // needed in the new dialog).
+
+   set_refine_params_comboboxes();
 
    GtkWidget *overall_weight_combobox = widget_from_builder("refine_params_overall_weight_combobox");
    gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(overall_weight_combobox));
