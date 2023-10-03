@@ -4474,6 +4474,12 @@ coot::instanced_mesh_t
 molecules_container_t::get_extra_restraints_mesh(int imol, int mode) {
 
    coot::instanced_mesh_t m;
+   if (is_valid_model_molecule(imol)) {
+      m = molecules[imol].get_extra_restraints_mesh(mode);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   
    return m;
 }
 

@@ -1083,7 +1083,7 @@ public:
                                      const std::string &residue_cid_1,
                                      const std::string &residue_cid_2);
 
-   //! get the mesh for extra restraints (currently an empty object is returned).
+   //! get the mesh for extra restraints
    //! currently mode is unused.
    coot::instanced_mesh_t get_extra_restraints_mesh(int imol, int mode);
 
