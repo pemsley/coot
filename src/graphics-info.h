@@ -4051,8 +4051,8 @@ public:
    // -------- Meshes control (i.e. the Meshes of molecule_class_info)
    void set_show_molecular_representation(int imol, unsigned int mesh_idx, bool on_off);
 
-   void update_main_window_molecular_representation_widgets();
-   static void main_window_meshes_togglebutton_toggled(GtkToggleButton *button, gpointer *user_data);
+   void update_molecular_representation_widgets();
+   static void molecular_representation_meshes_checkbutton_toggled(GtkCheckButton *button, gpointer *user_data);
 
 
    int add_molecular_representation(int imol,

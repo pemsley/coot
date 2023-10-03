@@ -4705,7 +4705,7 @@ graphics_info_t::add_molecular_representation(int imol,
              << "colour-scheme: \"" << colour_scheme << "\" "
              << "style \"" << style << "\"" << std::endl;
 
-   GtkWidget *w = widget_from_builder("main_window_meshes_frame");
+   GtkWidget *w = widget_from_builder("molecular_representations_dialog");
    if (w)
       gtk_widget_set_visible(w, TRUE);
    else
@@ -4715,7 +4715,7 @@ graphics_info_t::add_molecular_representation(int imol,
 
    int status = molecules[imol].add_molecular_representation(atom_selection, colour_scheme, style);
 
-   update_main_window_molecular_representation_widgets();
+   update_molecular_representation_widgets();
    graphics_draw();
    return status;
 }
@@ -4723,7 +4723,7 @@ graphics_info_t::add_molecular_representation(int imol,
 int
 graphics_info_t::add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name) {
 
-   GtkWidget *w = widget_from_builder("main_window_meshes_frame");
+   GtkWidget *w = widget_from_builder("molecular_representation_meshes_frame");
    gtk_widget_set_visible(w, TRUE);
 
    attach_buffers();
@@ -4731,7 +4731,7 @@ graphics_info_t::add_ribbon_representation_with_user_defined_colours(int imol, c
    int status = -1;
    molecules[imol].add_ribbon_representation_with_user_defined_residue_colours(user_defined_colours, name);
 
-   update_main_window_molecular_representation_widgets();
+   update_molecular_representation_widgets();
    graphics_draw();
    return status;
 }
@@ -4770,7 +4770,7 @@ graphics_info_t::set_show_molecular_representation(int imol, unsigned int mesh_i
 
 // static
 void
-graphics_info_t::main_window_meshes_togglebutton_toggled(GtkToggleButton *button, gpointer *user_data) {
+graphics_info_t::molecular_representation_meshes_checkbutton_toggled(GtkCheckButton *button, gpointer *user_data) {
 
    const char *n = static_cast<const char *>(g_object_get_data(G_OBJECT(button), "name"));
    if (n) {
@@ -4781,7 +4781,7 @@ graphics_info_t::main_window_meshes_togglebutton_toggled(GtkToggleButton *button
          auto &m = molecules[imol];
          if (mesh_idx < static_cast<int>(m.meshes.size())) {
             auto &mesh = m.meshes[mesh_idx];
-            if (gtk_toggle_button_get_active(button)) {
+            if (gtk_check_button_get_active(button)) {
                mesh.set_draw_mesh_state(true);
             } else {
                mesh.set_draw_mesh_state(false);
@@ -4795,33 +4795,31 @@ graphics_info_t::main_window_meshes_togglebutton_toggled(GtkToggleButton *button
 }
 
 void
-graphics_info_t::update_main_window_molecular_representation_widgets() {
+graphics_info_t::update_molecular_representation_widgets() {
 
+   // find the display toggle button for mesh idx_mesh for molecule imol
    auto find_button = [] (GtkWidget *box, unsigned int imol, unsigned int idx_mesh) {
-                         std::string test_name = "main_window_meshes_dialog_mesh_button_" + std::to_string(imol) + "_" + std::to_string(idx_mesh);
                          GtkWidget *w = 0;
-#if (GTK_MAJOR_VERSION >= 4)
-                         std::cout << "FIXME in update_main_window_molecular_representation_widgets() find_button()" << std::endl;
-#else
-                         GList *container_list = gtk_container_get_children(GTK_CONTAINER(box));
-                         int len = g_list_length(container_list);
-                         for(int i=0; i < len; i++) {
-                            GtkWidget *widget = static_cast<GtkWidget *>(g_list_nth_data(container_list, i));
-                            char *n = static_cast<char *>(g_object_get_data(G_OBJECT(widget), "name"));
+                         std::string test_name = "molecular_representation_meshes_dialog_mesh_button_" +
+                            std::to_string(imol) + "_" + std::to_string(idx_mesh);
+
+                         GtkWidget *item_widget = gtk_widget_get_first_child(box);
+                         while (item_widget) {
+                            char *n = static_cast<char *>(g_object_get_data(G_OBJECT(item_widget), "name"));
                             if (n) {
                                std::string sn(n);
-                               if (test_name == sn) {
-                                  w = widget;
+                               if (sn == test_name) {
+                                  w = item_widget;
                                   break;
                                }
                             }
-                         }
-#endif
+                            item_widget = gtk_widget_get_next_sibling(item_widget);
+                         };
                          return w;
                       };
 
-   GtkWidget *frame = widget_from_builder("main_window_meshes_frame");
-   GtkWidget *vbox  = widget_from_builder("main_window_meshes_vbox");
+   GtkWidget *frame = widget_from_builder("molecular_representations_frame");
+   GtkWidget *vbox  = widget_from_builder("molecular_representations_vbox");
 
    unsigned int n_mesh = 0;
    for (unsigned int i=0; i<molecules.size(); i++)
@@ -4835,7 +4833,7 @@ graphics_info_t::update_main_window_molecular_representation_widgets() {
       }
    }
 
-   std::cout << "DEBUG:: update_main_window_molecular_representation_widgets() n_mesh " << n_mesh << std::endl;
+   // std::cout << "DEBUG:: update_molecular_representation_widgets() n_mesh " << n_mesh << std::endl;
 
    if (!vbox) return;
 
@@ -4850,17 +4848,22 @@ graphics_info_t::update_main_window_molecular_representation_widgets() {
             w = gtk_check_button_new_with_label(label.c_str());
             gtk_widget_set_can_focus(w, FALSE);
             // gtk_widget_set_can_default(w, FALSE);
-            std::string widget_name = "main_window_meshes_dialog_mesh_button_" + std::to_string(imol) + "_" + std::to_string(j);
+            std::string widget_name = "molecular_representation_meshes_dialog_mesh_button_" +
+               std::to_string(imol) + "_" + std::to_string(j);
             unsigned int l = widget_name.length();
             char *widget_name_cstr = new char[l + 1];             // bleugh!
             strncpy(widget_name_cstr, widget_name.c_str(), l+1);  // bleugh!
             g_object_set_data(G_OBJECT(w), "name", widget_name_cstr);
             g_object_set_data(G_OBJECT(w), "imol",     GINT_TO_POINTER(imol));
             g_object_set_data(G_OBJECT(w), "mesh_idx", GINT_TO_POINTER(j));
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
-            g_signal_connect(G_OBJECT(w), "toggled", G_CALLBACK(main_window_meshes_togglebutton_toggled), nullptr);
+            gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
+            g_signal_connect(G_OBJECT(w), "toggled", G_CALLBACK(molecular_representation_meshes_checkbutton_toggled), nullptr);
             gtk_box_append(GTK_BOX(vbox), w);
             gtk_widget_set_visible(w, TRUE);
+            gtk_widget_set_margin_start (w, 4);
+            gtk_widget_set_margin_end   (w, 4);
+            gtk_widget_set_margin_top   (w, 2);
+            gtk_widget_set_margin_bottom(w, 2);
          }
       }
    }

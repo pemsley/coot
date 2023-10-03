@@ -3269,6 +3269,18 @@ int test_other_user_define_colours_other(molecules_container_t &mc) {
    return status;
 }
 
+int test_self_restraints(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   mc.generate_self_restraints(imol, 5.0);
+   coot::instanced_mesh_t im = mc.get_extra_restraints_mesh(imol, 0);
+   if (im.geom[0].instancing_data_B.size() > 10) status = 1;
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3395,7 +3407,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_other_user_define_colours_other, "New colour test", mc);
+   status += run_test(test_self_restraints, "Self restraints mesh", mc);
+
+   // status += run_test(test_other_user_define_colours_other, "New colour test", mc);
 
    // status += run_test(test_is_em_map, "test if EM map flag is correctly set", mc);
 
