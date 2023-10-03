@@ -4469,6 +4469,13 @@ molecules_container_t::refine(int imol, int n_cycles) {
    return std::make_pair(status, im);
 }
 
+//! get the mesh for extra restraints (currently an empty object is returned)
+coot::instanced_mesh_t
+molecules_container_t::get_extra_restraints_mesh(int imol, int mode) {
+
+   coot::instanced_mesh_t m;
+   return m;
+}
 
 //! flip the hand of the map.
 //! @return the molecule index of the new map, or -1 on failure.
