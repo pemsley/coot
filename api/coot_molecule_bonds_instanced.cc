@@ -590,6 +590,14 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
 coot::instanced_mesh_t
 coot::molecule_t::get_extra_restraints_mesh(int mode) const {
 
+   auto  distortion_score_GM = [] (const double &bl, const double &target_dist,
+                                   const double &sigma, const double &alpha) {
+      double bit = bl - target_dist;
+      double z = bit/sigma;
+      double distortion = z*z/(1+alpha*z*z);
+      return distortion;
+   };
+
    auto convert_vertices = [] (const std::vector<coot::api::vnc_vertex> &v_in) {
       std::vector<coot::api::vn_vertex> v_out(v_in.size());
       for (unsigned int i=0; i<v_in.size(); i++) {
@@ -602,6 +610,8 @@ coot::molecule_t::get_extra_restraints_mesh(int mode) const {
    auto clipper_to_glm = [] (const clipper::Coord_orth &co) {
                             return glm::vec3(co.x(), co.y(), co.z());
                          };
+
+   double geman_mcclure_alpha = 1.0;
 
    coot::instanced_mesh_t im;
    if (mode > -999) { // check the mode here
@@ -618,6 +628,7 @@ coot::molecule_t::get_extra_restraints_mesh(int mode) const {
          c_00.add_flat_start_cap();
          igeom.vertices = convert_vertices(c_00.vertices);
          igeom.triangles = c_00.triangles;
+         glm::vec4 col_base(0.5, 0.5, 0.5, 1.0);
          for (unsigned int i=0; i<extra_restraints.geman_mcclure_restraints.size(); i++) {
             const auto &r = extra_restraints.geman_mcclure_restraints[i];
             mmdb::Atom *at_1 = get_atom(r.atom_1);
@@ -632,8 +643,19 @@ coot::molecule_t::get_extra_restraints_mesh(int mode) const {
                   glm::vec3 delta_uv_glm = clipper_to_glm(delta_uv);
                   glm::mat4 ori = glm::orientation(delta_uv_glm, z1);
                   glm::vec3 p = clipper_to_glm(p_2);
-                  glm::vec4 col(0.5, 0.5, 0.5, 1.0);
-                  glm::vec3 s(0.1, 0.1, bl);
+                  double delta_length = r.bond_dist - bl;
+                  if (delta_length >  1.0) delta_length =  1.0;
+                  if (delta_length < -1.0) delta_length = -1.0;
+
+                  const double &sigma = r.esd;
+                  double penalty = distortion_score_GM(bl, r.bond_dist, sigma, geman_mcclure_alpha);
+                  double width = 0.23 * penalty;
+                  if (width < 0.01) width = 0.01;
+                  if (width > 0.10) width = 0.10;
+
+                  glm::vec3 s(width, width, bl); // a function of delta_length?
+                  glm::vec4 col = col_base + delta_length * glm::vec4(-0.8f, 0.8f, -0.8, 0.0f);
+                  col = 0.8 * col; // calm down
                   coot::instancing_data_type_B_t idB(p, col, s, ori);
                   igeom.instancing_data_B.push_back(idB);
                } else {
