@@ -655,7 +655,8 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
       g_idle_add_once((GSourceOnceFunc)+[](gpointer user_data) {
          callback_data* cbd = (callback_data*) user_data;
          g_info("Reading CCP4 map from downloaded file...");
-         read_ccp4_map(cbd->fn, false);
+         int imol = read_ccp4_map(cbd->fn, false);
+         go_to_map_molecule_centre(imol);
          delete cbd;
       }, cbd);
 

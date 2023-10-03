@@ -88,6 +88,7 @@
 #include "manipulation-modes.hh"
 #include "guile-fixups.h"
 #include "widget-from-builder.hh"
+#include "c-interface-gtk-widgets.h"
 
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
 
@@ -103,8 +104,6 @@ void do_accept_reject_hud_buttons(std::string fit_type, const coot::refinement_r
 
 }
 
-
-#include "widget-from-builder.hh"
 
 void
 graphics_info_t::show_refinement_and_regularization_parameters_frame() {
@@ -125,12 +124,12 @@ graphics_info_t::show_refinement_and_regularization_parameters_frame() {
 
    //    // 20211027-PE this is how the old dialog was filled.
    //    // set_refine_params_toggle_buttons(dialog);
-   //    // set_refine_params_comboboxes(dialog);
 
-   //    // but let's do it in place here now. (There was a lot of widget frobbery that is not
-   //    // needed in the new dialog).
+
+   set_refine_params_comboboxes();
 
    GtkWidget *overall_weight_combobox = widget_from_builder("refine_params_overall_weight_combobox");
+   gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(overall_weight_combobox));
    std::vector<float> mv = {0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 10.0, 20.0};
    graphics_info_t g;
    float w = g.geometry_vs_map_weight;

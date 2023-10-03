@@ -739,7 +739,6 @@ new_startup_application_activate(GtkApplication *application,
       python_init();
 
       handle_command_line_data(activate_data->cld);
-      run_command_line_scripts();
       if (activate_data->cld.do_graphics)
          graphics_info.use_graphics_interface_flag = true;
 
@@ -818,6 +817,10 @@ new_startup_application_activate(GtkApplication *application,
          gtk_window_destroy(splash_screen);
          return G_SOURCE_REMOVE;
       }, splash_screen);
+
+      g_idle_add_once((GSourceOnceFunc)[](gpointer user_data){
+         run_command_line_scripts();
+      }, nullptr);
 
       return G_SOURCE_REMOVE;
    }, activate_data);
