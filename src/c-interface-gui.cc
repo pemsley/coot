@@ -2112,9 +2112,9 @@ void set_refine_params_comboboxes() {
 
    graphics_info_t g;
    GtkWidget *cb1 = widget_from_builder("refine_params_geman_mcclure_alpha_combobox");
-   GtkWidget *cb2 = widget_from_builder("refine_params_rama_restraints_weight_combobox");
+   GtkWidget *cb2 = widget_from_builder("refine_params_rama_restraints_combobox");
    GtkWidget *cb3 = widget_from_builder("refine_params_lennard_jones_epsilon_combobox");
-   GtkWidget *cb4 = widget_from_builder("refine_params_torsions_weight_combobox");
+   GtkWidget *cb4 = widget_from_builder("refine_params_torsion_weight_combobox");
    GtkWidget *cb5 = widget_from_builder("refine_params_overall_weight_combobox");
    GtkWidget *tb  = widget_from_builder("refine_params_more_control_togglebutton");
 
