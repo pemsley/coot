@@ -113,7 +113,7 @@ int coot_get_url_and_activate_curl_hook(const std::string &url, const std::strin
       // of mallocing.  So the memory is messed up elsewhere and beforehand.
       CURL *c = curl_easy_init();
       long int no_signal = 1;
-      int to = 31;
+      int to = 301; // we can tolerate longer waits with sub-thread
       std::string ext = coot::util::file_name_extension(file_name);
       if (ext == ".gz") {
          std::string ext_2 = coot::util::file_name_extension(coot::util::name_sans_extension(file_name));
