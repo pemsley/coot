@@ -125,7 +125,8 @@ int coot_get_url_and_activate_curl_hook(const std::string &url, const std::strin
       curl_easy_setopt(c, CURLOPT_URL, url.c_str());
       curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
       curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 6);
-      curl_easy_setopt(c, CURLOPT_TIMEOUT, to); // maximum time the request is allowed to take
+      // 20231004-PE remove the timeout
+      // curl_easy_setopt(c, CURLOPT_TIMEOUT, to); // maximum time the request is allowed to take
       curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER, FALSE);
       std::string user_agent_str = "Coot-";
       user_agent_str += VERSION;
