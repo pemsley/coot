@@ -651,11 +651,14 @@ coot::molecule_t::get_extra_restraints_mesh(int mode) const {
                   double penalty = distortion_score_GM(bl, r.bond_dist, sigma, geman_mcclure_alpha);
                   double width = 0.23 * penalty;
                   if (width < 0.01) width = 0.01;
-                  if (width > 0.10) width = 0.10;
+                  if (width > 0.08) width = 0.08;
+
+		  width *= 2.5;
 
                   glm::vec3 s(width, width, bl); // a function of delta_length?
                   glm::vec4 col = col_base + delta_length * glm::vec4(-0.8f, 0.8f, -0.8, 0.0f);
                   col = 0.8 * col; // calm down
+		  col.a = 1.0;
                   coot::instancing_data_type_B_t idB(p, col, s, ori);
                   igeom.instancing_data_B.push_back(idB);
                } else {
