@@ -1515,7 +1515,7 @@ Add a new atom or replace an existent atom with the chosen element.
     <property name="transient-for">layla_window</property>
     <property name="authors">Jakub Smulski
 Paul Emsley</property>
-    <property name="comments">Coot's Ligand builder, successor to Lidia</property>
+    <property name="comments">Coot's Ligand builder</property>
     <property name="copyright">Copyright: Global Phasing Ltd.</property>
     <property name="license-type">gpl-3-0</property>
     <property name="logo-icon-name">coot-layla</property>
