@@ -2590,6 +2590,43 @@ void residues_with_cis_peptides_action(G_GNUC_UNUSED GSimpleAction *simple_actio
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
       int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         int model_number = 1;
+         std::vector<coot::util::cis_peptide_quad_info_t> quads =
+            coot::cis_peptide_quads_from_coords(mol, model_number, g.Geom_p());
+
+         if (quads.empty()) {
+            info_dialog("No cis-peptides found in this molecule");
+         } else {
+            std::vector<labelled_button_info_t> lbv;
+            for (unsigned int i=0; i<quads.size(); i++) {
+               const coot::util::cis_peptide_quad_info_t &quad = quads[i];
+               if (quad.quad.atom_1 && quad.quad.atom_2 && quad.quad.atom_3 && quad.quad.atom_4) {
+                  clipper::Coord_orth sum(0,0,0);
+                  sum += coot::co(quad.quad.atom_1);
+                  sum += coot::co(quad.quad.atom_2);
+                  sum += coot::co(quad.quad.atom_3);
+                  sum += coot::co(quad.quad.atom_4);
+                  clipper::Coord_orth pos = 0.25 * sum;
+                  std::string label = "cis-peptide ";
+                  if (quad.type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS)
+                     label = "Twisted trans ";
+                  if (quad.type == coot::util::cis_peptide_quad_info_t::PRE_PRO_CIS)
+                     label = "Pre-PRO cis ";
+                  label += quad.quad.atom_1->GetChainID();
+                  label += " ";
+                  label += std::to_string(quad.quad.atom_1->GetSeqNum());
+                  label += "-";
+                  label += std::to_string(quad.quad.atom_4->GetSeqNum());
+                  labelled_button_info_t lbi(label, pos);
+                  lbv.push_back(lbi);
+               }
+            }
+            g.fill_generic_validation_box_of_buttons("Residues with cis-peptides", lbv);
+         }
+      }
    }
 }
 

@@ -14,7 +14,7 @@
 
 Fourier filter for Moorhen.
 
-Missing difference map peaks in 1bl8 from Oliver Clarke.
+Read gziped maps in libcootapi, so moorhen can get maps from emdb.
 
 Moorhen carbon bonds are too light on white background.
 
@@ -934,3 +934,9 @@ Fix this: ::: 1
 "widget main_window_meshes_frame was not found"
 * Done. Mow there is a ribbons dialog
 
+Missing difference map peaks in 1bl8 from Oliver Clarke. ::: 1
+* Done
+
+a7956aa695f8c19e52622447ca292434812d4e62. ::: 0.1
+How about deleting the timeout altogether?
+* OK, done.
