@@ -6379,11 +6379,11 @@ Do you want to continue?
                         <object class="GtkLabel">
                           <property name="label" translatable="yes">Py</property>
                         </object>
-                        <child>
-                          <object class="GtkImage">
-                            <property name="icon-name">anchor</property>
-                          </object>
-                        </child>
+                      </child>
+                      <child>
+                        <object class="GtkImage">
+                          <property name="icon-name">python-logo</property>
+                        </object>
                       </child>
                     </object>
                   </child>
