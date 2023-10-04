@@ -1,7 +1,7 @@
 /*
 * @author Filomeno Sanchez
 * 
-* Copyright (c) 2023, University of York
+* Copyright 2023, University of York
 * All rights reserved.
 *
 * This program is free software; you can redistribute it and/or modify
