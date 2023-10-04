@@ -12,7 +12,13 @@
 
 8 items
 
+Fourier filter for Moorhen.
+
 Missing difference map peaks in 1bl8 from Oliver Clarke.
+
+Moorhen carbon bonds are too light on white background.
+
+Read gziped maps in libcootapi, so moorhen can get maps from emdb.
 
 Missing validation items: Some currently under Draw -> Molecule
    "Residues with Alt Confs" and
@@ -22,6 +28,8 @@ Missing validation items: Some currently under Draw -> Molecule
 
 Fix the R/RC combo-box changed handlers.
 
+Moorhen carbon bonds are too light on white background.
+
 Renumber residue range on a molecule that is not the first molecule ::: 0.6
 
 Issue 67:
@@ -30,9 +38,6 @@ On reflection, I will add a function that allows the user to override Coot's att
 Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
 
 Fix the undo molecule chooser (have 2 molecules with edits)
-
-a7956aa695f8c19e52622447ca292434812d4e62.
-How about deleting the timeout altogether?
 
 Ribbons don't cast shadows.
 
