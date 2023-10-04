@@ -5,6 +5,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 #include "molecules_container.hh"
+#include "filo-tests.hh"
 
 void starting_test(const char *func) {
    std::cout << "Starting " << func << "()" << std::endl;
@@ -3407,7 +3408,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_self_restraints, "Self restraints mesh", mc);
+   status += run_test(test_something_filo, "Self something filo", mc);
+
+   // status += run_test(test_self_restraints, "Self restraints mesh", mc);
 
    // status += run_test(test_other_user_define_colours_other, "New colour test", mc);
 
