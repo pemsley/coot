@@ -250,7 +250,6 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--zalman-stereo]\n"
 			       << "            [--side-by-side]\n"
 			       << "            [--version]\n"
-			       << "            [--version-full]\n"
 // 			       << "            [--update-self]\n"
 			       << "            [--self-test]\n"
 			       << "            [--no-state-script]\n"
@@ -262,12 +261,7 @@ parse_command_line(int argc, char ** argv ) {
 		     exit(0);
 		  } else {
 		     
-		     if (arg_str == "version") {
-			std::cout << VERSION << " " << coot_version_extra_info();
-			exit(0);
-		     } else {
-			
-			if (arg_str == "version-full") {
+			if (arg_str == "version") {
 			   std::cout  << VERSION << " " << coot_version_extra_info();
 			   // this is in coot_version_extra_info() now
 			   // std::cout << "Binary type: " << COOT_SYS_BUILD_TYPE << std::endl;
@@ -294,7 +288,7 @@ parse_command_line(int argc, char ** argv ) {
 			   enableds.push_back("GSL");
 #endif
 #ifdef USE_GEMMI
-                           enableds.push_back("GEMMI");
+            enableds.push_back("GEMMI");
 #endif
 #ifdef USE_SQLITE3
 			   enableds.push_back("SQLite3");
@@ -371,7 +365,7 @@ parse_command_line(int argc, char ** argv ) {
                               }
 			   }
 			}
-		     }
+		     
 		  }
 	       }
 	    }
