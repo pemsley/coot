@@ -5738,10 +5738,10 @@ graphics_info_t::draw_pointer_distances_objects() {
                                               bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
          if (! labels_for_pointer_distances.empty()) {
-            Shader &shader = shader_for_atom_labels;
+            Shader &shader_labels = shader_for_atom_labels;
             for (unsigned int i=0; i<labels_for_pointer_distances.size(); i++) {
                const auto &label = labels_for_pointer_distances[i];
-               tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader,
+               tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_labels,
                                                 mvp, model_rotation_matrix, bg_col,
                                                 shader_do_depth_fog_flag, perspective_projection_flag);
             }
@@ -6400,6 +6400,28 @@ graphics_info_t::setup_key_bindings() {
       return gboolean(TRUE);
    };
 
+   auto l43 = [] () {
+      bool done = false;
+      for (int ii=0; ii<n_molecules(); ii++) {
+         if (is_valid_map_molecule(ii)) {
+            if (ii > scroll_wheel_map) {
+               scroll_wheel_map = ii;
+               done = true;
+               break;
+            }
+         }
+      }
+      if (! done) {
+         for (int ii=0; ii<n_molecules(); ii++) {
+            if (is_valid_map_molecule(ii)) {
+               scroll_wheel_map = ii;
+               break;
+            }
+         }
+      }
+      return gboolean(TRUE);
+   };
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -6446,6 +6468,9 @@ graphics_info_t::setup_key_bindings() {
    // map radius
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_bracketleft,  key_bindings_t(l41, "Decrease Map Radius")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_bracketright, key_bindings_t(l42, "Increase Map Radius")));
+
+   // scroll-wheel map change
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_W, key_bindings_t(l43, "Change Scroll-wheel map")));
 
    // control
    // meh - ugly and almost useless. Try again.
