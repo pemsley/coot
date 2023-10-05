@@ -1226,7 +1226,7 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
                atom_selection_container_t asc_ligand = make_asc(mol);
                replace_coords(asc_ligand, false, true);
-               asc_ligand.mol->WritePDBASCII("asc_ligand.pdb");
+               // asc_ligand.mol->WritePDBASCII("asc_ligand.pdb");
             }
 
             // have_unsaved_changes_flag = 1;

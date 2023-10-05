@@ -1286,6 +1286,13 @@ public:
    //! @return a value less than -99.9 on failure to fit.
    float fit_to_map_by_random_jiggle_using_cid(int imol, const std::string &cid, int n_trials, float translation_scale_factor);
 
+   //! Jiggle fit an atom selection, typically a whole molecule or a chain
+   //! As above, if n_trials is 0, then a sensible default value will be used.
+   //! if translation_scale_factor is negative then a sensible default value will be used.
+   //! @return a value less than -99.9 on failure to fit.
+   float fit_to_map_by_random_jiggle_with_blur_using_cid(int imol, int imol_map, const std::string &cid, float b_factor,
+                                                         int n_trials, float translation_scale_factor);
+
    //! This is a ligand function, not really a ligand-fitting function.
    //!
    //! It won't work unless the dictionary for that ligand has been imported.
