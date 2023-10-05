@@ -12,32 +12,35 @@
 
 8 items
 
-Fourier filter for Moorhen.
+Moorhen: Fourier filter jiggle fit
 
-Read gziped maps in libcootapi, so moorhen can get maps from emdb.
+Moorhen: carbon bonds are too light on white background. Looking at the code, it seems
+to do the right thing, but needs testing. Print the colour table.
 
-Moorhen carbon bonds are too light on white background.
+Moorhen: Read gziped maps in libcootapi, so moorhen can get maps from emdb.
 
-Read gziped maps in libcootapi, so moorhen can get maps from emdb.
+Moorhen: libcootapi neeeds to return the columns that it has read in auto-read.
 
 Missing validation items: Some currently under Draw -> Molecule
    "Residues with Alt Confs" and
    "Residues with Missing Atoms"
-   "Residue with cis-peptide" action needs to be filled.
-   "Residue type selection" action needs to be filled.
+   "Residue with cis-peptide" action needs to be filled
+   "Residue type selection" action needs to be filled  <- This one remains to be done.
 
 Fix the R/RC combo-box changed handlers.
 
-Moorhen carbon bonds are too light on white background.
+Rotate/Translate <fragment> doesn't work.
 
 Renumber residue range on a molecule that is not the first molecule ::: 0.6
 
-Issue 67:
-On reflection, I will add a function that allows the user to override Coot's attempt to determine the EM-state of the map.
+Fix the undo molecule chooser (have 2 molecules with edits)
+
+When I Open Coords I have a option to choose coordinate files.
+When I Auto-open MTZ I dont have a option to choose mtz files.
 
 Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
 
-Fix the undo molecule chooser (have 2 molecules with edits)
+---- older issues ---
 
 Ribbons don't cast shadows.
 
@@ -46,6 +49,9 @@ No reaction to Aligment vs PIR (no PIR was loaded)
 Size and user-defined "screen axis" displacement of atom labels, e.g. [0,0,5] to bring
 the label towards the camera.
 
+Issue 67:
+On reflection, I will add a function that allows the user to override Coot's attempt to determine the EM-state of the map.
+
 Layla: make python setup be available for Coot and Layla - put it in its own directory. So that layla
 is not linked with src files.
 
@@ -53,8 +59,6 @@ Rob's problematic links
 * Need details.
 
 startup with default map opacity.
-
-User-defined atom label shift in screen space
 
 Where is Make Link? ::: 1.5
 * Needs user-defined click click. Just do it in C++?
