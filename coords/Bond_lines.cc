@@ -128,6 +128,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    b_factor_scale = 1.0;
+   geom = 0;
    have_dictionary = 0;
    for_GL_solid_model_rendering = 1;
    n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
