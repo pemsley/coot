@@ -1617,6 +1617,19 @@ int test_jiggle_fit(molecules_container_t &mc) {
    return status;
 }
 
+int test_jiggle_fit_with_blur(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4-unfit.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.fit_to_map_by_random_jiggle_with_blur_using_cid(imol, imol_map, "//", 200, 2000, 3.0);
+      mc.write_coordinates(imol, "jiggled-with-blur.pdb");
+   }
+   return status;
+}
+
 int test_peptide_omega(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3408,7 +3421,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_something_filo, "Self something filo", mc);
+   status += run_test(test_jiggle_fit_with_blur, "Jiggle-fit-with-blur", mc);
+
+   // status += run_test(test_something_filo, "Self something filo", mc);
 
    // status += run_test(test_self_restraints, "Self restraints mesh", mc);
 
