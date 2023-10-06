@@ -724,9 +724,26 @@ public:
    int replace_map_by_mtz_from_file(int imol, const std::string &file_name, const std::string &f, const std::string &phi,
                                     const std::string &weight, bool use_weight);
 
+   //! class for the information about columns extracted from auto-reading the given mtz file
+   class auto_read_mtz_info_t {
+   public:
+      //! molecule index
+      int idx;
+      //! F column
+      std::string F;
+      //! phi column
+      std::string phi;
+      //! weights column
+      std::string w;
+      //! flag for weights usage
+      bool weights_used;
+      auto_read_mtz_info_t(int index, const std::string &F_in, const std::string &phi_in) :
+         idx(index), F(F_in), phi(phi_in), weights_used(false) {}
+   };
+
    //! Read the given mtz file.
    //! @return a vector of the maps created from reading the file
-   std::vector<int> auto_read_mtz(const std::string &file_name);
+   std::vector<auto_read_mtz_info_t> auto_read_mtz(const std::string &file_name);
    //! @return the new molecule number or -1 on failure
    int read_ccp4_map(const std::string &file_name, bool is_a_difference_map);
    //! write a map. This function was be renamed from ``writeMap``

@@ -864,10 +864,10 @@ molecules_container_t::valid_labels(const std::string &mtz_file_name, const std:
 
 //! Read the given mtz file.
 //! @return a vector of the maps created from reading the file
-std::vector<int>
+std::vector<molecules_container_t::auto_read_mtz_info_t>
 molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
 
-   std::vector<int> imols;
+   std::vector<molecules_container_t::auto_read_mtz_info_t> mol_infos;
 
    std::vector<coot::mtz_column_trials_info_t> auto_mtz_pairs;
 
@@ -886,7 +886,7 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
       if (valid_labels(mtz_file_name.c_str(), b.f_col.c_str(), b.phi_col.c_str(), "", 0)) {
          int imol = read_mtz(mtz_file_name, b.f_col, b.phi_col, "", 0, b.is_diff_map);
 	 if (is_valid_map_molecule(imol))
-	    imols.push_back(imol);
+	    mol_infos.push_back(auto_read_mtz_info_t(imol, b.f_col, b.phi_col));
       }
    }
 
@@ -895,7 +895,7 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
    if (r.f_cols.size() == 1) {
       if (r.phi_cols.size() == 1) {
          int imol = read_mtz(mtz_file_name, r.f_cols[0].column_label, r.phi_cols[0].column_label, "", false, false);
-         imols.push_back(imol);
+         mol_infos.push_back(auto_read_mtz_info_t(imol, r.f_cols[0].column_label, r.phi_cols[0].column_label));
       }
    }
 
@@ -911,13 +911,13 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
 	       std::string phi_col = r.phi_cols[j].column_label;
                int imol = read_mtz(mtz_file_name, f_col, phi_col, "", false, false);
                if (is_valid_map_molecule(imol))
-                  imols.push_back(imol);
+                  mol_infos.push_back(auto_read_mtz_info_t(imol, f_col, phi_col));
 	    }
 	 }
       }
    }
 
-   return imols;
+   return mol_infos;
 }
 
 
