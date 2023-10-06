@@ -957,9 +957,11 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
    }
 
    short int em_status = molecules[imol].is_EM_map();
-   std::cout << "here with imol " << imol << " molecules size " << molecules.size() << std::endl;
-   std::cout << "here with imol " << imol << " done " << done << std::endl;
-   std::cout << "here with imol " << imol << " is_em_map:  " << em_status << std::endl;
+   if (false) {
+      std::cout << "here with imol " << imol << " molecules size " << molecules.size() << std::endl;
+      std::cout << "here with imol " << imol << " done " << done << std::endl;
+      std::cout << "here with imol " << imol << " is_em_map:  " << em_status << std::endl;
+   }
 
    if (! done) {
       // std::cout << "INFO:: attempting to read CCP4 map: " << file_name << std::endl;

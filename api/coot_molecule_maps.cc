@@ -416,6 +416,12 @@ coot::molecule_t::get_map_contours_mesh_using_other_map_for_colours(const clippe
       return glm::vec3(co.x(), co.y(), co.z());
    };
 
+   auto clipper_to_cartesian = [] (const clipper::Coord_orth &c) {
+      return Cartesian(c.x(), c.y(), c.z()); };
+
+   auto cpos = clipper_to_cartesian(position);
+   update_map_triangles(radius, cpos, contour_level);
+
    coot::simple_mesh_t m; // initially status is good (1).
    auto &vertices  = m.vertices;
    auto &triangles = m.triangles;
