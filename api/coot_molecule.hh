@@ -989,6 +989,7 @@ namespace coot {
                                                                       const clipper::Xmap<float> &xmap);
 
       void set_map_colour(colour_holder holder);
+      void set_map_colour_saturation(float s) { radial_map_colour_saturation = s; }
 
       //! Set the limit for the colour range for the values from the other map.
       //! If the other map were, for example, a map of correlation values, then

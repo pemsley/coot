@@ -782,6 +782,8 @@ public:
                                                                          float other_map_for_colouring_min_value,
                                                                          float other_map_for_colouring_max_value,
                                                                          bool invert_colour_ramp);
+   //! set the map saturation
+   void set_map_colour_saturation(int imol, float s);
 
    coot::util::sfcalc_genmap_stats_t get_latest_sfcalc_stats() const { return latest_sfcalc_stats; }
 

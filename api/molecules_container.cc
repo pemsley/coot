@@ -4531,3 +4531,15 @@ molecules_container_t::get_mesh_for_ligand_validation_vs_dictionary(int imol, co
    return m;
 
 }
+
+
+//! set the map saturation
+void
+molecules_container_t::set_map_colour_saturation(int imol, float s) {
+
+   if (is_valid_map_molecule(imol)) {
+      molecules[imol].set_map_colour_saturation(s);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol << std::endl;
+   }
+}
