@@ -2417,6 +2417,37 @@ int test_mmrrcc(molecules_container_t &mc) {
    return status;
 }
 
+int test_map_histogram(molecules_container_t &mc) {
+
+   auto print_hist = [&mc] (int imol_map) {
+
+      if (mc.is_valid_map_molecule(imol_map)) {
+         coot::molecule_t::histogram_info_t hist = mc.get_map_histogram(imol_map);
+         for (unsigned int i=0; i<hist.counts.size(); i++) {
+            float range_start = hist.base + static_cast<float>(i)   * hist.bin_width;
+            float range_end   = hist.base + static_cast<float>(i+1) * hist.bin_width;
+            std::cout << "    "
+                      << std::setw(10) << std::right << range_start << " - "
+                      << std::setw(10) << std::right << range_end   << "  "
+                      << std::setw(10) << std::right << hist.counts[i] << std::endl;
+         }
+         return static_cast<int>(hist.counts.size());
+      }
+      return -1;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_map_1 = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol_map_2 = mc.read_ccp4_map(reference_data("emd_16890.map"), false);
+   int counts_1 = print_hist(imol_map_1);
+   int counts_2 = print_hist(imol_map_2);
+
+   if (counts_1 > 10) status = 1;
+
+   return status;
+}
+
 int test_auto_read_mtz(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3507,7 +3538,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_read_a_missing_map, "read a missing map file ", mc);
+   status += run_test(test_map_histogram, "map histogram", mc);
+
+   // status += run_test(test_read_a_missing_map, "read a missing map file ", mc);
 
    // status += run_test(test_colour_map_by_other_map, "colour-map-by-other-map", mc);
 

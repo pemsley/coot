@@ -4548,3 +4548,19 @@ molecules_container_t::set_map_colour_saturation(int imol, float s) {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol << std::endl;
    }
 }
+
+
+//! @return the map histogram
+coot::molecule_t::histogram_info_t
+molecules_container_t::get_map_histogram(int imol) const {
+
+   coot::molecule_t::histogram_info_t hi;
+   if (is_valid_map_molecule(imol)) {
+      unsigned int n_bins = 50;
+      hi = molecules[imol].get_map_histogram(n_bins);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a map model molecule " << imol << std::endl;
+   }
+   return hi;
+
+}

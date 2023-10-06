@@ -752,6 +752,9 @@ public:
    //! @return the map rmsd (epsilon testing is not used). -1 is returned if `imol_map` is not a map molecule index.
    float get_map_rmsd_approx(int imol_map) const;
 
+   //! @return the map histogram
+   coot::molecule_t::histogram_info_t get_map_histogram(int imol) const;
+
    //! @return the suggested initial contour level. Return -1 on not-a-map
    float get_suggested_initial_contour_level(int imol) const;
 

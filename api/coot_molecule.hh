@@ -988,6 +988,23 @@ namespace coot {
       simple_mesh_t get_map_contours_mesh_using_other_map_for_colours(const clipper::Coord_orth &position, float radius, float contour_level,
                                                                       const clipper::Xmap<float> &xmap);
 
+      //! map histogram class
+      class histogram_info_t {
+      public:
+         //! base
+         float base;
+         //! bin width
+         float bin_width;
+         // counts
+         std::vector<int> counts;
+         histogram_info_t() : base(-1), bin_width(-1) {}
+         histogram_info_t(float min_density, float bw, const std::vector<int> &c) :
+            base(min_density), bin_width(bw), counts(c) {}
+      };
+
+      //! @return the map histogram
+      histogram_info_t get_map_histogram(unsigned int n_bins) const;
+
       void set_map_colour(colour_holder holder);
       void set_map_colour_saturation(float s) { radial_map_colour_saturation = s; }
 
