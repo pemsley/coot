@@ -93,8 +93,8 @@ on_density_ok_button_clicked           (GtkButton       *button,
    GtkEntry      *entry;
    const char *text;
 
-   GtkEntry *entry_xray = GTK_ENTRY(widget_from_builder("map_parameters_xray_radius_entry"));
-   GtkEntry *entry_em   = GTK_ENTRY(widget_from_builder("map_paameters_em_radius_entry"));
+   GtkEntry *entry_xray = GTK_ENTRY(widget_from_builder("map_parameters_x_ray_radius_entry"));
+   GtkEntry *entry_em   = GTK_ENTRY(widget_from_builder("map_parameters_em_radius_entry"));
    const char *text_xray = gtk_editable_get_text(GTK_EDITABLE(entry_xray));
    const char *text_em   = gtk_editable_get_text(GTK_EDITABLE(entry_em));
    int imol = -1;
