@@ -1493,6 +1493,20 @@ int test_read_a_map(molecules_container_t &mc) {
 
 }
 
+int test_read_a_missing_map(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_map_1 = mc.read_ccp4_map("a-map-that-just-isnt-there.map", false);
+   if (mc.is_valid_map_molecule(imol_map_1))
+      status = 0;
+   else
+      status = 1;
+   return status;
+}
+
+
+
 int test_ligand_fitting_here(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3342,18 +3356,6 @@ int test_self_restraints(molecules_container_t &mc) {
    return status;
 }
 
-int test_read_map(molecules_container_t &mc) {
-
-   starting_test(__FUNCTION__);
-   int status = 0;
-   int imol_map_1 = mc.read_ccp4_map("a-map-that-just-isnt-there.map", false);
-   if (mc.is_valid_map_molecule(imol_map_1))
-      status = 0;
-   else
-      status = 1;
-   return status;
-}
-
 
 
 int test_colour_map_by_other_map(molecules_container_t &mc) {
@@ -3504,7 +3506,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_colour_map_by_other_map, "colour-map-by-other-map", mc);
+   status += run_test(test_read_a_missing_map, "read a missing map file ", mc);
+
+   // status += run_test(test_colour_map_by_other_map, "colour-map-by-other-map", mc);
 
    // status += run_test(test_jiggle_fit_with_blur, "Jiggle-fit-with-blur", mc);
 

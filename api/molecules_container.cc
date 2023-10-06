@@ -931,16 +931,23 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
    int imol_in_hope = molecules.size();
    bool done = false;
 
-   if (coot::util::is_basic_em_map_file(file_name)) {
-      std::cout << ":::::::::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
-   } else {
-      std::cout << ":::::::::::: read_ccp4_map() returns false for is_basic_em_map_file() " << std::endl;
+   if (! coot::file_exists(file_name)) {
+      std::cout << "WARNING:: file does not exist " << file_name << std::endl;
+      return imol;
+   }
+
+   if (false) {
+      if (coot::util::is_basic_em_map_file(file_name)) {
+         std::cout << "::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
+      } else {
+         std::cout << "::::: read_ccp4_map() returns false for is_basic_em_map_file() " << std::endl;
+      }
    }
    
 
    if (coot::util::is_basic_em_map_file(file_name)) {
 
-      std::cout << ":::::::::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
+      std::cout << ":::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
 
       // fill xmap
       bool check_only = false;
@@ -972,9 +979,7 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
 
          // em = set_is_em_map(file);
 
-         bool use_xmap = true; // not an nxmap
          if (true) {
-            clipper::Grid_sampling fgs = w_file.grid_sampling();
             clipper::Cell fcell = w_file.cell();
             double vol = fcell.volume();
             if (vol < 1.0) {
