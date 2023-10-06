@@ -629,12 +629,19 @@ coot::molecule_t::get_extra_restraints_mesh(int mode) const {
          igeom.vertices = convert_vertices(c_00.vertices);
          igeom.triangles = c_00.triangles;
          glm::vec4 col_base(0.5, 0.5, 0.5, 1.0);
+         int atom_index_udd_handle = atom_sel.UDDAtomIndexHandle;
          for (unsigned int i=0; i<extra_restraints.geman_mcclure_restraints.size(); i++) {
             const auto &r = extra_restraints.geman_mcclure_restraints[i];
             mmdb::Atom *at_1 = get_atom(r.atom_1);
             mmdb::Atom *at_2 = get_atom(r.atom_2);
             if (at_1) {
                if (at_2) {
+                  int idx_1;
+                  int idx_2;
+                  at_1->GetUDData(atom_index_udd_handle, idx_1);
+                  at_2->GetUDData(atom_index_udd_handle, idx_2);
+                  if (no_bonds_to_these_atom_indices.find(idx_1) != no_bonds_to_these_atom_indices.end()) continue;
+                  if (no_bonds_to_these_atom_indices.find(idx_2) != no_bonds_to_these_atom_indices.end()) continue;
                   clipper::Coord_orth p_1 = coot::co(at_1);
                   clipper::Coord_orth p_2 = coot::co(at_2);
                   clipper::Coord_orth delta = p_2 - p_1;
