@@ -56,6 +56,9 @@
 #include "widget-from-builder.hh"
 
 #include "fit-loop-gui.hh"
+#include "c-interface-refine.hh"
+#include "gtkglarea-rama-plot.hh"
+#include "cc-interface-scripting.hh"
 
 // this from callbacks.h (which I don't want to include here)
 typedef const char entry_char_type;
@@ -1110,10 +1113,10 @@ on_fast_sss_dialog_citation_button_clicked
 extern "C" G_MODULE_EXPORT
 void
 on_refine_params_use_planar_peptides_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkCheckButton *checkbutton,
                                         gpointer         user_data)
 {
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       add_planar_peptide_restraints();
    } else {
       remove_planar_peptide_restraints();
@@ -1125,10 +1128,10 @@ on_refine_params_use_planar_peptides_checkbutton_toggled
 extern "C" G_MODULE_EXPORT
 void
 on_refine_params_use_trans_peptide_restraints_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkCheckButton *checkbutton,
                                         gpointer         user_data)
 {
-   if (gtk_toggle_button_get_active(togglebutton)) {
+   if (gtk_check_button_get_active(checkbutton)) {
       set_use_trans_peptide_restraints(1);
    } else {
       set_use_trans_peptide_restraints(0);
@@ -4776,7 +4779,7 @@ on_map_radius_em_apply_button_clicked(GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_refine_params_use_helix_peptide_torsions_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkCheckButton *checkbutton,
                                         gpointer         user_data)
 {
   /* not visible */
@@ -4787,7 +4790,7 @@ on_refine_params_use_helix_peptide_torsions_radiobutton_toggled
 extern "C" G_MODULE_EXPORT
 void
 on_refine_params_use_beta_strand_peptide_torsions_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkCheckButton *checkbutton,
                                         gpointer         user_data)
 {
   /* not visible */
@@ -4798,13 +4801,11 @@ on_refine_params_use_beta_strand_peptide_torsions_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_refine_params_use_ramachandran_goodness_torsions_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                                        gpointer         user_data) {
 
   int state = 0;
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (gtk_check_button_get_active(checkbutton)) {
     state = 1;
   }
   set_refine_ramachandran_angles(state);
@@ -4814,17 +4815,23 @@ on_refine_params_use_ramachandran_goodness_torsions_radiobutton_toggled
 extern "C" G_MODULE_EXPORT
 void
 on_refine_params_use_peptide_omegas_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
+                                        (GtkCheckButton *checkbutton,
                                         gpointer         user_data)
 {
-  if (gtk_toggle_button_get_active(togglebutton)) {
+  if (gtk_check_button_get_active(checkbutton)) {
     add_omega_torsion_restriants();
   } else {
     remove_omega_torsion_restriants();
   }
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_refine_params_use_torsions_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                  gpointer         user_data) {
 
+   do_torsions_toggle(GTK_WIDGET(checkbutton)); // 20231007-PE very old function
+}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -5524,21 +5531,6 @@ on_build_na_dialog_cancelbutton_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
-    set_refine_ramachandran_angles(1);
-  else
-    set_refine_ramachandran_angles(0);
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
 on_edit_chi_angles_add_hydrogen_torsions_checkbutton_toggled(GtkCheckButton *checkbutton,
                                                              gpointer        user_data) {
 
@@ -5792,20 +5784,6 @@ on_map_opacity_hscale_value_changed(GtkRange        *range,
   set_solid_density_surface_opacity(imol, fvalue);
 }
 
-
-extern "C" G_MODULE_EXPORT
-void
-on_refine_params_weight_matrix_entry_changed
-                                        (GtkEditable     *editable,
-                                        gpointer         user_data)
-{
-
-  GtkWidget *entry = widget_from_builder("refine_params_weight_matrix_entry");
-  struct entry_info_t ei = coot_entry_to_val(GTK_ENTRY(entry));
-  if (ei.float_is_set)
-    set_matrix(ei.val_as_float);
-
-}
 
 
 extern "C" G_MODULE_EXPORT
@@ -6240,8 +6218,6 @@ on_curlew_close_button_clicked(GtkButton *button, gpointer user_data) {
 
 }
 
-#include "cc-interface-scripting.hh"
-
 
 
 extern "C" G_MODULE_EXPORT
@@ -6262,28 +6238,27 @@ on_calculate_load_tutorial_model_and_data1_activate
   load_tutorial_model_and_data();
 }
 
-
 extern "C" G_MODULE_EXPORT
 void
-on_refine_params_geman_mcclure_alpha_combobox_changed
-                                        (GtkComboBox     *combobox,
-                                        gpointer         user_data)
-{
+on_refine_params_geman_mcclure_alpha_combobox_changed(GtkComboBox     *combobox,
+                                                      gpointer         user_data) {
 
    const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
-
-   printf("GTK3 FIXME on_refine_params_geman_mcclure_alpha_combobox_changed\n");
-   // int active_item_idx = gtk_combo_box_text_get_active(combobox);
-   // set_refinement_geman_mcclure_alpha_from_text(active_item_idx, t);
+   try {
+      float v = coot::util::string_to_float(t);
+      set_refinement_geman_mcclure_alpha(v); // in cc-interface.hh
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_refine_params_lennard_jones_epsilon_combobox_changed
-                                        (GtkComboBox     *combobox,
-                                        gpointer         user_data)
-{
+on_refine_params_lennard_jones_epsilon_combobox_changed(GtkComboBox     *combobox,
+                                                        gpointer         user_data) {
+
    const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
    int active_item_idx = gtk_combo_box_get_active(combobox); // save it for set active item next time
    set_refinement_lennard_jones_epsilon_from_text(active_item_idx, t);
@@ -6292,22 +6267,21 @@ on_refine_params_lennard_jones_epsilon_combobox_changed
 
 extern "C" G_MODULE_EXPORT
 void
-on_refine_params_rama_restraints_weight_combobox_changed
-                                        (GtkComboBox     *combobox,
-                                        gpointer         user_data)
-{
+on_refine_params_rama_restraints_weight_combobox_changed(GtkComboBox     *combobox,
+                                                         gpointer         user_data) {
+
    const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
    int active_item_idx = gtk_combo_box_get_active(combobox);
    set_refinement_ramachandran_restraints_weight_from_text(active_item_idx, t);
+
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_refine_params_torsions_weight_combobox_changed
-                                        (GtkComboBox     *combobox,
-                                        gpointer         user_data)
-{
+on_refine_params_torsion_weight_combobox_changed(GtkComboBox     *combobox,
+                                                 gpointer         user_data) {
+
    const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
    int active_item_idx = gtk_combo_box_get_active(combobox);
    set_refinement_torsion_weight_from_text(active_item_idx, t);
@@ -6321,6 +6295,10 @@ on_refine_params_overall_weight_combobox_changed
                                         gpointer         user_data)
 {
    const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox));
+   if (t)
+      std::cout << "in on_refine_params_overall_weight_combobox_changed() " << t << std::endl;
+   else
+      std::cout << "in on_refine_params_overall_weight_combobox_changed() t was null "  << std::endl;
    set_refinement_overall_weight_from_text(t);
 }
 
@@ -6718,8 +6696,6 @@ void
 on_density_correlation_graph_toggled(GtkCheckButton* self, gpointer user_data) {
    on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::density_correlation);
 }
-
-#include "gtkglarea-rama-plot.hh"
 
 extern "C" G_MODULE_EXPORT
 void

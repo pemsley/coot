@@ -6865,6 +6865,7 @@ Do you want to continue?
                                 <property name="label" translatable="yes">Use Torsion Restraints</property>
                                 <property name="name">refine_params_use_torsions_checkbutton</property>
                                 <property name="can-focus">1</property>
+                                <signal name="toggled" handler="on_refine_params_use_torsions_checkbutton_toggled" />
                               </object>
                             </child>
                             <child>
@@ -6883,6 +6884,7 @@ Do you want to continue?
                               <object class="GtkCheckButton" id="refine_params_use_ramachandran_goodness_torsions_checkbutton">
                                 <property name="label" translatable="yes">Use Ramachandran Restraints</property>
                                 <property name="can-focus">1</property>
+                                <signal name="toggled" handler="on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled" />
                               </object>
                             </child>
                           </object>
@@ -6989,6 +6991,7 @@ Do you want to continue?
                                   <property name="column">1</property>
                                   <property name="row">0</property>
                                 </layout>
+                                <signal name="changed" handler="on_refine_params_overall_weight_combobox_changed"/>
                               </object>
                             </child>
                             <child>
@@ -7007,8 +7010,9 @@ Do you want to continue?
                                   <item translatable="yes">0.3</item>
                                   <item translatable="yes">1.0</item>
                                   <item translatable="yes">3.0</item>
-                                  <item translatable="yes">1.0</item>
+                                  <item translatable="yes">10.0</item>
                                 </items>
+                                <signal name="changed" handler="on_refine_params_geman_mcclure_alpha_combobox_changed" />
                               </object>
                             </child>
                             <child>
@@ -7027,6 +7031,7 @@ Do you want to continue?
                                   <item translatable="yes">5.0</item>
                                   <item translatable="yes">10.0</item>
                                 </items>
+                                <signal name="changed" handler="on_refine_params_lennard_jones_epsilon_combobox_changed" />
                               </object>
                             </child>
                             <child>
@@ -7048,6 +7053,7 @@ Do you want to continue?
                                   <item translatable="yes">50.0</item>
                                   <item translatable="yes">100.0</item>
                                 </items>
+                                <signal name="changed" handler="on_refine_params_rama_restraints_weight_combobox_changed" />
                               </object>
                             </child>
                             <child>
@@ -7069,6 +7075,7 @@ Do you want to continue?
                                   <item translatable="yes">50.0</item>
                                   <item translatable="yes">100.0</item>
                                 </items>
+                                <signal name="changed" handler="on_refine_params_torsion_weight_combobox_changed" />
                               </object>
                             </child>
                           </object>

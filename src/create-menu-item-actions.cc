@@ -249,8 +249,11 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkFileFilter *filterselect = gtk_file_filter_new();
    gtk_file_filter_add_pattern(filterselect, "*.map");
    gtk_file_filter_add_pattern(filterselect, "*.mrc");
+   gtk_file_filter_add_pattern(filterselect, "*.mrc.gz");
+   gtk_file_filter_add_pattern(filterselect, "*.map.gz");
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
+   set_transient_for_main_window(dialog);
    gtk_widget_set_visible(dialog, TRUE);
 }
 

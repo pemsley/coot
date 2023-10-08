@@ -2098,14 +2098,13 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
 
 // Set the internal state of the torsion restraints
 // (hang-over from old interface)
-void do_torsions_toggle(GtkWidget *togglebutton) {
+void do_torsions_toggle(GtkWidget *checkbutton) {
 
    graphics_info_t g;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton)))
       g.do_torsion_restraints = 1;
    else
       g.do_torsion_restraints = 0;
-
 }
 
 void set_refine_params_comboboxes() {

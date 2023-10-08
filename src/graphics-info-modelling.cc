@@ -746,8 +746,9 @@ graphics_info_t::set_geman_mcclure_alpha(float alpha) {
 
    graphics_info_t g;
    geman_mcclure_alpha = alpha;
-   if (g.last_restraints_size() > 0)
+   if (g.last_restraints_size() > 0) {
       thread_for_refinement_loop_threaded();
+   }
 }
 
 // reruns refinement if we have restraints
