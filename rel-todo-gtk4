@@ -12,14 +12,15 @@
 
 8 items
 
-Moorhen: Fourier filter jiggle fit
-
-Moorhen: carbon bonds are too light on white background. Looking at the code, it seems
-to do the right thing, but needs testing. Print the colour table.
-
 Moorhen: Read gziped maps in libcootapi, so moorhen can get maps from emdb.
 
-Moorhen: libcootapi neeeds to return the columns that it has read in auto-read.
+Moorhen: Request: electrostatic surface.
+
+Moorhen: carbon bonds are too light on white background. Looking at the code, it seems
+         to do the right thing, but needs testing. Print the colour table.
+
+Colour by B-factor CA is wrong: test with tutorial and 8oie.
+          B-factor all doesn't work at all.
 
 Missing validation items: Some currently under Draw -> Molecule
    "Residues with Alt Confs" and
@@ -30,6 +31,11 @@ Missing validation items: Some currently under Draw -> Molecule
 Fix the R/RC combo-box changed handlers.
 
 Rotate/Translate <fragment> doesn't work.
+
+clicking the switch Refine -> GM Restraints doesn't undisplay the GM restraints.
+
+Rigid-body refine the tutorial A chain. It used to display an intermediate atoms
+representation. What happens now and is that what you want?
 
 Renumber residue range on a molecule that is not the first molecule ::: 0.6
 
@@ -944,3 +950,15 @@ Missing difference map peaks in 1bl8 from Oliver Clarke. ::: 1
 a7956aa695f8c19e52622447ca292434812d4e62. ::: 0.1
 How about deleting the timeout altogether?
 * OK, done.
+
+Moorhen: Fourier filter jiggle fit:
+* Done.
+
+Moorhen: read_ccp4_map() with the wrong file name
+* Done.
+
+Moorhen: map histogram - user chooses number of bins, I guess 50?
+* Done.
+
+Moorhen: libcootapi neeeds to return the columns that it has read in auto-read.
+* Done.

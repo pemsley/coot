@@ -2163,14 +2163,20 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    for (unsigned int iextension=0; iextension<acceptable_extensions.size(); iextension++) {
       std::string::size_type imap = tstring.rfind(acceptable_extensions[iextension]);
       if (imap != std::string::npos) {
-	 good_extension_flag = 1;
+	 good_extension_flag = true;
 	 break;
       }
    }
 
+   // 20231006-PE now allow .gz files
+   if (filename.find(".map.gz") != std::string::npos) good_extension_flag = true;
+   if (filename.find(".mrc.gz") != std::string::npos) good_extension_flag = true;
+   std::string extension = coot::util::file_name_extension(filename);
+   bool is_gzip = (extension == ".gz");
+
    // not really extension checking, just that it has it in the
    // filename:
-   if (good_extension_flag == 0) {
+   if (good_extension_flag == false) {
 
       std::cout << "Filename for a CCP4 map must end in .map or .ext "
 		<< "or some other approved extension - sorry\n";
@@ -2199,6 +2205,9 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
      else           map_file_type = CNS;
    }
 
+   if (filename.find(".map.gz") != std::string::npos) map_file_type = CCP4;
+   if (filename.find(".mrc.gz") != std::string::npos) map_file_type = CCP4;
+
    if (map_file_type == CCP4)
       std::cout << "INFO:: map file type was determined to be CCP4 type\n";
    if (map_file_type == CNS)
@@ -2219,87 +2228,95 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          auto tp_2 = std::chrono::high_resolution_clock::now();
          auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
          std::cout << "INFO:: map read " << d21 << " milliseconds" << std::endl;
-         try {
-            clipper_map_file_wrapper file;
-            file.open_read(filename);
-            set_is_em_map(file); // sets is_em_map_cached_flag
-            em = is_em_map_cached_flag;
-            if (imol_no == 0) {
-               clipper::Cell c = file.cell();
-               coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
-               graphics_info_t g;
-               g.setRotationCentre(m);
-            }
 
-         }
-         catch (const clipper::Message_base &exc) {
-            std::cout << "WARNING:: failed to open " << filename << std::endl;
-            bad_read = true;
+         // Now set is_em_map_cached_flag and set the rotation centres.
+         // I think that we only need set the is_em_map_cached_flag.
+         //
+         if (done) {
+            try {
+               clipper_map_file_wrapper file;
+               file.open_read(filename);
+               set_is_em_map(file); // sets is_em_map_cached_flag
+               em = is_em_map_cached_flag;
+               if (imol_no == 0) {
+                  clipper::Cell c = file.cell();
+                  coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
+                  graphics_info_t g;
+                  g.setRotationCentre(m);
+               }
+            }
+            catch (const clipper::Message_base &exc) {
+               std::cout << "WARNING:: failed to open " << filename << std::endl;
+               bad_read = true;
+            }
          }
       }
 
-      if (! done) {
-         std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
-         // clipper::CCP4MAPfile file;
-         clipper_map_file_wrapper file;
-         try {
-            file.open_read(filename);
+      if (! is_gzip) {
 
-            em = set_is_em_map(file);
+         if (! done) {
+            std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
+            // clipper::CCP4MAPfile file;
+            clipper_map_file_wrapper file;
+            try {
+               file.open_read(filename);
 
-            bool use_xmap = true; // not an nxmap
-            if (true) {
+               em = set_is_em_map(file);
 
-               clipper::Grid_sampling fgs = file.grid_sampling();
+               bool use_xmap = true; // not an nxmap
+               if (true) {
 
-               clipper::Cell fcell = file.cell();
-               double vol = fcell.volume();
-               if (vol < 1.0) {
-                  std::cout << "WARNING:: non-sane unit cell volume " << vol << " - skip read"
-                            << std::endl;
-                  bad_read = true;
-               } else {
-                  try {
-                     file.import_xmap(xmap);
-                  }
-                  catch (const clipper::Message_generic &exc) {
-                     std::cout << "WARNING:: failed to read " << filename
-                               << " Bad ASU (inconsistant gridding?)." << std::endl;
+                  clipper::Grid_sampling fgs = file.grid_sampling();
+
+                  clipper::Cell fcell = file.cell();
+                  double vol = fcell.volume();
+                  if (vol < 1.0) {
+                     std::cout << "WARNING:: non-sane unit cell volume " << vol << " - skip read"
+                               << std::endl;
                      bad_read = true;
+                  } else {
+                     try {
+                        file.import_xmap(xmap);
+                     }
+                     catch (const clipper::Message_generic &exc) {
+                        std::cout << "WARNING:: failed to read " << filename
+                                  << " Bad ASU (inconsistant gridding?)." << std::endl;
+                        bad_read = true;
+                     }
                   }
+               } else {
+
+                  // Should never happen.  Not yet.
+                  //
+                  std::cout << "=================== EM Map NXmap =================== " << std::endl;
+                  file.import_nxmap(nxmap);
+                  std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
                }
-            } else {
+            } catch (const clipper::Message_base &exc) {
+               std::cout << "WARNING:: failed to open " << filename << std::endl;
+               bad_read = true;
+            }
 
-               // Should never happen.  Not yet.
+            std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
+
+            if (em) {
+
+               // If this was the first map, recentre to the middle of the cell
                //
-               std::cout << "=================== EM Map NXmap =================== " << std::endl;
-               file.import_nxmap(nxmap);
-               std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
-            }
-         } catch (const clipper::Message_base &exc) {
-            std::cout << "WARNING:: failed to open " << filename << std::endl;
-            bad_read = true;
-         }
+               if (imol_no == 0) {
+                  clipper::Cell c = file.cell();
+                  coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
+                  new_centre.first = true;
+                  new_centre.second = m;
+                  std::cout << "INFO:: map appears to be EM map."<< std::endl;
+               }
+               std::cout << "INFO:: closing CCP4 map: " << filename << std::endl;
+               file.close_read();
 
-         std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
-
-         if (em) {
-
-            // If this was the first map, recentre to the middle of the cell
-            //
-            if (imol_no == 0) {
-               clipper::Cell c = file.cell();
-               coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
-               new_centre.first = true;
-               new_centre.second = m;
-               std::cout << "INFO:: map appears to be EM map."<< std::endl;
-            }
-            std::cout << "INFO:: closing CCP4 map: " << filename << std::endl;
-            file.close_read();
-
-            if (new_centre.first) {
-               graphics_info_t g;
-               g.setRotationCentre(new_centre.second);
+               if (new_centre.first) {
+                  graphics_info_t g;
+                  g.setRotationCentre(new_centre.second);
+               }
             }
          }
       }
