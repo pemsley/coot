@@ -1423,14 +1423,14 @@ if (have_coot_python):
        lambda func: make_grey_atoms_func(0))
 
 
-     add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Electrostatic Surface...",
-       lambda func: molecule_chooser_gui(
-          "Choose a molecule to represent as a surface..." + \
-          "\n" + \
-          "Can be SLOW",
-          lambda imol: do_surface(imol, 1)))  # shall we switch on the light too?!
+     # add_simple_coot_menu_menuitem(
+     #   submenu_representation,
+     #   "Electrostatic Surface...",
+     #   lambda func: molecule_chooser_gui(
+     #      "Choose a molecule to represent as a surface..." + \
+     #      "\n" + \
+     #      "Can be SLOW",
+     #      lambda imol: do_surface(imol, 1)))  # shall we switch on the light too?!
 
 
      def surface_func1(clipped = 0):
