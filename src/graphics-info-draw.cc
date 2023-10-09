@@ -321,20 +321,10 @@ graphics_info_t::mouse_zoom_by_scale_factor_inner(double sf) {
 
    if (perspective_projection_flag) {
 
-      // but see comment below
-      std::cout << "MISSING:: no mouse_zoom_by_scale_factor_inner() for perspective zoom" << std::endl;
-
-   } else {
-
-      // stabilize the scale factor
-      if (sf < 0.1) sf = 0.1;
-      if (sf > 2.0) sf = 2.0;
-      graphics_info_t::eye_position.z *= sf;
-      // std::cout << "mouse_zoom_by_scale_factor_inner(): delta_x eye_pos.z " << eye_position.z << " sf " << sf << std::endl;
-
-      // Now change the perspective limits, even though we are not in perpective
-      // mode - that seems a weird thing to do.
       { // own graphics_info_t function - c.f. adjust clipping
+
+         eye_position.z *= sf;
+
          double  l = graphics_info_t::eye_position.z;
          double zf = graphics_info_t::screen_z_far_perspective;
          double zn = graphics_info_t::screen_z_near_perspective;
@@ -354,10 +344,18 @@ graphics_info_t::mouse_zoom_by_scale_factor_inner(double sf) {
          if (graphics_info_t::screen_z_far_perspective < screen_z_far_perspective_limit)
             graphics_info_t::screen_z_far_perspective = screen_z_far_perspective_limit;
          if (false)
-            std::cout << "on_glarea_motion_notify(): debug l: " << l << " post-manip: "
+            std::cout << "mouse_zoom_by_scale_factor_inner(): debug l: " << l << " post-manip: "
                       << graphics_info_t::screen_z_near_perspective << " "
                       << graphics_info_t::screen_z_far_perspective << std::endl;
       }
+
+   } else {
+
+      // stabilize the scale factor
+      if (sf < 0.1) sf = 0.1;
+      if (sf > 2.0) sf = 2.0;
+      graphics_info_t::eye_position.z *= sf;
+
    }
 }
 
@@ -380,9 +378,17 @@ graphics_info_t::mouse_zoom(double delta_x_drag, double delta_y_drag) {
       std::cout << "zooming with perspective_projection_flag "
                 << graphics_info_t::perspective_projection_flag
                 << " " << graphics_info_t::zoom << std::endl;
-   if (! graphics_info_t::perspective_projection_flag) {
-      // std::cout << "now zoom: " << g.zoom << std::endl;
+
+   if (perspective_projection_flag) {
+
+      // std::cout << "now zoom: " << screen_z_near_perspective << " " << screen_z_far_perspective << std::endl;
+      if (fabs(delta_y) > fabs(delta_x))
+         delta_x = delta_y;
+      float sf = 1.0 - delta_x * 0.003;
+      mouse_zoom_by_scale_factor_inner(sf);
+
    } else {
+
       // Move the eye towards the rotation centre (don't move the rotation centre)
       if (fabs(delta_y) > fabs(delta_x))
          delta_x = delta_y;
