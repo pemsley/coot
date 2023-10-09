@@ -57,6 +57,7 @@
 #include <future>
 #include "gtk-utils.hh"
 #include "curl-utils.hh"
+#include <zlib.h>
 
 // return 0 on success
 #ifdef USE_LIBCURL
@@ -536,10 +537,9 @@ void stop_curl_download(const char *file_name) {  // stop curling the to file_na
    graphics_info_t g;
    g.set_stop_curl_download_flag(file_name);
 
-} 
+}
 #endif // USE_LIBCURL
 
-#include <zlib.h>                                              
 #ifdef USE_LIBCURL
 void fetch_emdb_map(const std::string &emd_accession_code) {
 
@@ -653,6 +653,7 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
       };
       callback_data* cbd = new callback_data{fn, std::move(popup)};
 
+#if (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 10) || (GTK_MAJOR_VERSION == 5)
       g_idle_add_once((GSourceOnceFunc)+[](gpointer user_data) {
          callback_data* cbd = (callback_data*) user_data;
          g_info("Reading CCP4 map from downloaded file...");
@@ -660,11 +661,14 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
          go_to_map_molecule_centre(imol);
          delete cbd;
       }, cbd);
+#else
+      std::cout << "WARNING:: Function not available in the version of GTK" << std::endl;
+#endif
 
    }, std::move(popup));
    worker.detach();
 
-   
+
 }
 #endif // USE_LIBCURL
 

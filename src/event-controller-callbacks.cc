@@ -145,13 +145,13 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
    double x = drag_begin_x + drag_delta_x;
    double y = drag_begin_y + drag_delta_y;
 
-   // std::cout << "drag update_secondary: " << x << " " << y << std::endl;
+   std::cout << "drag update_secondary: " << x << " " << y << std::endl;
 
    GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(gesture));
    bool control_is_pressed = (modifier & GDK_CONTROL_MASK);
    bool   shift_is_pressed = (modifier & GDK_SHIFT_MASK);
 
-   if (false)
+   if (true)
       std::cout << "on_glarea_drag_update_secondary shift is pressed " << shift_is_pressed
                 << " control_is_pressed " << control_is_pressed << " "
                 << drag_delta_x << " " << drag_delta_y
