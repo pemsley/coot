@@ -265,7 +265,7 @@ void on_glarea_drag_begin_secondary(GtkGestureDrag *gesture,
                                     double          x,
                                     double          y,
                                     GtkWidget      *area) {
-   std::cout << "begin secondary" << std::endl;
+   // std::cout << "begin secondary" << std::endl;
    graphics_info_t g;
    g.on_glarea_drag_begin_secondary(gesture, x, y, area);
 }
@@ -275,7 +275,7 @@ void on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
                                      double          delta_y,
                                      GtkWidget      *area) {
 
-   std::cout << "update secondary" << std::endl;
+   // std::cout << "update secondary" << std::endl;
    graphics_info_t g;
    g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
 }
