@@ -375,7 +375,9 @@ void launch_generator_async(GTask* task) {
         return should_run;
     }, g_object_ref(task));
 
+#if 0
     g_idle_add_once(pipe_reader, g_object_ref(task));
+#endif
 }
 
 void pipe_reader(gpointer user_data) {
@@ -413,7 +415,9 @@ void pipe_reader(gpointer user_data) {
             g_bytes_unref(bytes);
         }
         if(should_go_on) {
+#if 0
             g_idle_add_once(pipe_reader, g_object_ref(task));
+#endif
         }
         g_object_unref(task);
     };
@@ -507,6 +511,7 @@ GCancellable* coot::layla::run_generator_request(GeneratorRequest request, CootL
         g_slice_free(GeneratorTaskData, task_data_ptr);
     });
 
+#if 0
     g_idle_add_once([](gpointer user_data){
         GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(user_data));
         std::string title = "Layla: Running ";
@@ -528,10 +533,10 @@ GCancellable* coot::layla::run_generator_request(GeneratorRequest request, CootL
         gtk_window_set_title(task_data->progress_dialog, title.c_str());
         initial_check(G_TASK(user_data));
     }, task);
-    
+#endif
     // this segfaults:
     // g_object_unref(dummy);
 
     return cancellable;
-    
+
 }

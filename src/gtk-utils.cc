@@ -80,6 +80,9 @@ ProgressNotifier::ProgressNotifier(std::shared_ptr<ProgressBarPopUp> popup) noex
 :progress_bar_popup(std::move(popup)) { }
 
 void ProgressNotifier::update_progress(float frac) noexcept {
+
+#if (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 10) || (GTK_MAJOR_VERSION == 5)
+
    struct callback_data {
       std::shared_ptr<ProgressBarPopUp> popup;
       float frac;
@@ -91,9 +94,13 @@ void ProgressNotifier::update_progress(float frac) noexcept {
       data->popup->set_fraction(data->frac);
       delete data;
    }, data);
+#else
+   std::cout << "WARNING:: feature not available with this version of GTK" << std::endl;
+#endif
 }
 
 void ProgressNotifier::pulse() noexcept {
+#if (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 10) || (GTK_MAJOR_VERSION == 5)
    struct callback_data {
       std::shared_ptr<ProgressBarPopUp> popup;
    };
@@ -104,9 +111,14 @@ void ProgressNotifier::pulse() noexcept {
       data->popup->pulse();
       delete data;
    }, data);
+#else
+   std::cout << "WARNING:: feature not available with this version of GTK" << std::endl;
+#endif
 }
 
 void ProgressNotifier::set_text(const char* text) noexcept {
+
+#if (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 10) || (GTK_MAJOR_VERSION == 5)
    struct callback_data {
       std::shared_ptr<ProgressBarPopUp> popup;
       std::string text;
@@ -118,9 +130,14 @@ void ProgressNotifier::set_text(const char* text) noexcept {
       data->popup->set_text(data->text.c_str());
       delete data;
    }, data);
+#else
+   std::cout << "WARNING:: feature not available with this version of GTK" << std::endl;
+#endif
 }
 
 ProgressNotifier::~ProgressNotifier() {
+
+#if (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 10) || (GTK_MAJOR_VERSION == 5)
    struct callback_data {
       std::shared_ptr<ProgressBarPopUp> popup;
    };
@@ -130,4 +147,8 @@ ProgressNotifier::~ProgressNotifier() {
       callback_data* data = (callback_data*) user_data;
       delete data;
    }, data);
+#else
+   std::cout << "WARNING:: feature not available with this version of GTK" << std::endl;
+#endif
 }
+

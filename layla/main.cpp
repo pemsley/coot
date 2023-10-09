@@ -44,6 +44,7 @@ int main(int argc, char** argv) {
     gtk_init();
 
     GtkApplication* app = gtk_application_new("org.pemsley.Layla", G_APPLICATION_NON_UNIQUE);
+
     GError *error = NULL;
     g_application_register(G_APPLICATION(app), NULL, &error);
 
@@ -55,7 +56,7 @@ int main(int argc, char** argv) {
         auto *win = coot::layla::setup_main_window(app, builder);
 
         auto* icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(GTK_WIDGET(win)));
-        
+
         std::string package_dir = coot::package_data_dir();
         std::string prefix_dir = coot::prefix_dir();
         std::string pixmaps_path_for_icons = coot::util::append_dir_dir(package_dir, "pixmaps");
