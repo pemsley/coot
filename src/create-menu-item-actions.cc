@@ -2620,7 +2620,7 @@ void residue_type_selection_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
       int imol = my_combobox_get_imol(GTK_COMBO_BOX(molecule_chooser_combobox));
       std::string entry_text = gtk_editable_get_text(GTK_EDITABLE(molecule_chooser_entry));
-      
+
       if (is_valid_model_molecule(imol)) {
          mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
          std::vector<mmdb::Residue *> rv = coot::util::residues_in_molecule_of_type(mol, entry_text);

@@ -5837,6 +5837,8 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
    if (!moving_atoms_asc->mol)
       return;
 
+   if (! draw_it_for_moving_atoms_restraints_graphics_object_user_control) return;
+
    // std::cout << "draw_extra_distance_restraints() pass_type: " << pass_type << std::endl;
    // std::cout << "draw_extra_distance_restraints() mesh_for_extra_distance_restraints " << std::endl;;
    // mesh_for_extra_distance_restraints.debug();
