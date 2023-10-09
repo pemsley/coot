@@ -3919,8 +3919,8 @@ molecule_class_info_t::set_atom_radius_scale_factor(float sf) {
 std::vector<glm::vec4>
 molecule_class_info_t::make_colour_table() const {
 
-   std::cout << ":::::::::::: in make_colour_table() bonds_box_type is " << bonds_box_type << " vs "
-             << coot::COLOUR_BY_B_FACTOR_BONDS << std::endl;
+   // std::cout << ":::::::::::: in make_colour_table() bonds_box_type is " << bonds_box_type << " vs "
+   // << coot::COLOUR_BY_B_FACTOR_BONDS << std::endl;
 
    graphics_info_t g; // Hmm..
 
