@@ -326,12 +326,13 @@ coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
 # is it a good idea to move functions from coot-bin dependencies into libcootsumo?
 # e.g. atoms_with_zero_occupancy()?
 coot_bin_LDADD =  \
-	libcootsumo.la \
-	$(top_builddir)/layla/libcoot-layla.la           \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
-	$(top_builddir)/geometry/libcoot-geometry.la     \
-	$(top_builddir)/utils/libcoot-utils.la \
+	libcootsumo.la                                     \
+	$(top_builddir)/layla/libcoot-layla.la             \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+	$(top_builddir)/geometry/libcoot-geometry.la       \
+	$(top_builddir)/utils/libcoot-utils.la             \
 	$(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS) $(EPOXY_LIBS) $(PYTHON_LIBS)
 
 
