@@ -9814,6 +9814,68 @@ density (too big to be waters):
     </action-widgets>
   </object>
 
+  <object class="GtkDialog" id="molecule_chooser_dialog">
+    <property name="title" translatable="yes">Coot: Molecule Chooser</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkComboBoxText" id="molecule_chooser_comboboxtext">
+            <property name="margin-start">8</property>
+            <property name="margin-end">8</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkEntry" id="molecule_chooser_entry">
+            <property name="width-request">10</property>
+            <property name="can-focus">1</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkSeparator">
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox" id="molecule_chooser_buttons_vbox">
+            <property name="orientation">horizontal</property>
+            <property name="margin-start">8</property>
+            <property name="margin-end">8</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+
+            <child>
+              <object class="GtkButton" id="molecule_chooser_cancel_button">
+                <property name="label">Cancel</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkButton" id="molecule_chooser_ok_button">
+                <property name="label">   OK  </property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+              </object>
+            </child>
+
+          </object>
+        </child>
+
+      </object>
+    </child>
+  </object>
+
+
   <object class="GtkDialog" id="ncs_maps_dialog">
     <property name="title" translatable="yes">NCS Maps Dialog</property>
     <child>

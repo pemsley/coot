@@ -19,9 +19,6 @@ Moorhen: Request: electrostatic surface.
 Moorhen: carbon bonds are too light on white background. Looking at the code, it seems
          to do the right thing, but needs testing. Print the colour table.
 
-Colour by B-factor CA is wrong: test with tutorial and 8oie.
-          B-factor all doesn't work at all.
-
 Missing validation items: Some currently under Draw -> Molecule
    "Residues with Alt Confs" and
    "Residues with Missing Atoms"
@@ -30,7 +27,7 @@ Missing validation items: Some currently under Draw -> Molecule
 
 Rotate/Translate <fragment> doesn't work.
 
-clicking the switch Refine -> GM Restraints doesn't undisplay the GM restraints.
+Clicking the switch Refine -> GM Restraints doesn't undisplay the GM restraints.
 
 Rigid-body refine the tutorial A chain. It used to display an intermediate atoms
 representation. What happens now and is that what you want?
@@ -962,4 +959,8 @@ Moorhen: libcootapi neeeds to return the columns that it has read in auto-read.
 * Done.
 
 Fix the R/RC combo-box changed handlers.
+* Done.
+
+Colour by B-factor CA is wrong: test with tutorial and 8oie.
+          B-factor all doesn't work at all.
 * Done.
