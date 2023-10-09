@@ -312,8 +312,9 @@ on_display_manager_selections_and_colours_combobox_changed(GtkComboBox     *comb
 
    // 20220305-PE note to self: opening the Display Manager calls this function for every model
 
-   std::cout << "DEBUG:: :::::: on_display_manager_selections_and_colours_combobox_changed() "
-             << combo_box << " " << GPOINTER_TO_INT(user_data) << std::endl;
+   if (false)
+      std::cout << "DEBUG:: :::::: on_display_manager_selections_and_colours_combobox_changed() "
+                << combo_box << " " << GPOINTER_TO_INT(user_data) << std::endl;
 
    int imol = GPOINTER_TO_INT(user_data);
    gchar *txt = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combo_box));

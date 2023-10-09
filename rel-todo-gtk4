@@ -28,8 +28,6 @@ Missing validation items: Some currently under Draw -> Molecule
    "Residue with cis-peptide" action needs to be filled
    "Residue type selection" action needs to be filled  <- This one remains to be done.
 
-Fix the R/RC combo-box changed handlers.
-
 Rotate/Translate <fragment> doesn't work.
 
 clicking the switch Refine -> GM Restraints doesn't undisplay the GM restraints.
@@ -961,4 +959,7 @@ Moorhen: map histogram - user chooses number of bins, I guess 50?
 * Done.
 
 Moorhen: libcootapi neeeds to return the columns that it has read in auto-read.
+* Done.
+
+Fix the R/RC combo-box changed handlers.
 * Done.

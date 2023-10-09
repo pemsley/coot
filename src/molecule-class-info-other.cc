@@ -492,23 +492,22 @@ molecule_class_info_t::ca_plus_ligands_rainbow_representation(coot::protein_geom
     //
     Bond_lines_container bonds;
     bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, pg,
-        2.4, 4.7,
-        graphics_info_t::draw_missing_loops_flag,
-        coot::COLOUR_BY_RAINBOW,
-        draw_hydrogens_flag); // not COLOUR_BY_RAINBOW_BONDS
-        bonds_box = bonds.make_graphical_bonds_no_thinning();
-        bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS;
-        make_glsl_bonds_type_checked(__FUNCTION__);
+                                   2.4, 4.7,
+                                   graphics_info_t::draw_missing_loops_flag,
+                                   coot::COLOUR_BY_RAINBOW,
+                                   draw_hydrogens_flag); // not COLOUR_BY_RAINBOW_BONDS
+    bonds_box = bonds.make_graphical_bonds_no_thinning();
+    bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS;
+    make_glsl_bonds_type_checked(__FUNCTION__);
 
-    }
+}
 
-    void
+void
 molecule_class_info_t::b_factor_representation() {
 
-   Bond_lines_container::bond_representation_type bond_type =
-      Bond_lines_container::COLOUR_BY_B_FACTOR;
+   Bond_lines_container::bond_representation_type bond_type = Bond_lines_container::COLOUR_BY_B_FACTOR;
 
-   Bond_lines_container bonds(atom_sel, imol_no, bond_type);
+   Bond_lines_container bonds(atom_sel, imol_no, graphics_info_t::Geom_p(), bond_type);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::COLOUR_BY_B_FACTOR_BONDS;
    make_glsl_bonds_type_checked(__FUNCTION__);
@@ -517,8 +516,9 @@ molecule_class_info_t::b_factor_representation() {
 void
 molecule_class_info_t::b_factor_representation_as_cas() {
 
-   Bond_lines_container::bond_representation_type bond_type =
-      Bond_lines_container::COLOUR_BY_B_FACTOR;
+   // std::cout << "************************************************ b_factor_representation_as_cas() " << std::endl;
+
+   Bond_lines_container::bond_representation_type bond_type = Bond_lines_container::COLOUR_BY_B_FACTOR;
    Bond_lines_container bonds;
    bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, NULL, 2.4, 4.7,
                                   graphics_info_t::draw_missing_loops_flag,

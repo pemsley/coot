@@ -3919,6 +3919,9 @@ molecule_class_info_t::set_atom_radius_scale_factor(float sf) {
 std::vector<glm::vec4>
 molecule_class_info_t::make_colour_table() const {
 
+   std::cout << ":::::::::::: in make_colour_table() bonds_box_type is " << bonds_box_type << " vs "
+             << coot::COLOUR_BY_B_FACTOR_BONDS << std::endl;
+
    graphics_info_t g; // Hmm..
 
    bool debug_colour_table = false;
@@ -3936,6 +3939,7 @@ molecule_class_info_t::make_colour_table() const {
    for (int icol=0; icol<bonds_box.num_colours; icol++) {
       if (bonds_box_type == coot::COLOUR_BY_RAINBOW_BONDS) {
          glm::vec4 col = get_bond_colour_by_colour_wheel_position(icol, coot::COLOUR_BY_RAINBOW_BONDS);
+         std::cout << "rainbow " << icol << glm::to_string(col) << std::endl;
          colour_table[icol] = col;
       } else {
          // this is the old way of dogin user-defined colours. Now we use
@@ -3971,9 +3975,15 @@ molecule_class_info_t::make_colour_table() const {
                   colour_table[icol] = colour_holder_to_glm(ch);
                }
             } else {
-               coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
-               cc.brighter(0.8); // calm down - now that we are using the instanced-object.shader - the molecule is too bright.
-               colour_table[icol] = cc.to_glm();
+               if (bonds_box_type == coot::COLOUR_BY_B_FACTOR_BONDS ||
+                   bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
+                  glm::vec4 col = get_bond_colour_by_colour_wheel_position(icol, bonds_box_type);
+                  colour_table[icol] = col;
+               } else {
+                  coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
+                  cc.brighter(0.8); // calm down - now that we are using the instanced-object.shader - the molecule is too bright.
+                  colour_table[icol] = cc.to_glm();
+               }
             }
          }
       }
@@ -4112,10 +4122,10 @@ molecule_class_info_t::set_user_defined_atom_colour_by_selection(const std::vect
 }
 
 
-// instanced meshes, that is - clever but I couldn't get it to work - there's a branch
-// where I tried.
 void
 molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
+
+   // this function presumes that bonds_box has been set before this function is called.
 
    // what is the api_bond_colour_t for the given bbt?
    auto convert_box_box_type = [] (int bbt) {
@@ -4769,9 +4779,10 @@ molecule_class_info_t::get_fixed_atoms() const {
 void
 molecule_class_info_t::update_extra_restraints_representation() {
 
-   std::cout << "here we are in update_extra_restraints_representation() "
-             << extra_restraints.bond_restraints.size() << " "
-             << extra_restraints.geman_mcclure_restraints.size() << std::endl;
+   if (false)
+      std::cout << "here we are in update_extra_restraints_representation() "
+                << extra_restraints.bond_restraints.size() << " "
+                << extra_restraints.geman_mcclure_restraints.size() << std::endl;
 
    extra_restraints_representation.clear();
    update_extra_restraints_representation_bonds();

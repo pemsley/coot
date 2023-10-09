@@ -122,7 +122,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   coot::rotamer_probability_tables *tables_p
 					   ) {
    // teehee
-   // std::cout << "################################## yes this constructor ###########################" << std::endl;
+   // std::cout << "################################## yes this constructor A ###########################" << std::endl;
 
    init();
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
@@ -304,6 +304,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                                            const coot::protein_geometry *protein_geom,
 					   Bond_lines_container::bond_representation_type br_type) {
 
+   // std::cout << "*************************** Bond_lines_container() constructor with geom and type " << br_type << std::endl;
 
    init(); // sets geom to null pointer
    verbose_reporting = 0;
@@ -5428,6 +5429,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
       std::cout << "in atom_colour() with at " << at
                 << " bond_colour_type " << bond_colour_type << " vs (user-defined) " << coot::COLOUR_BY_USER_DEFINED_COLOURS
                 << " vs (colour-by-atom-type) " << coot::COLOUR_BY_ATOM_TYPE
+                << " vs (colour-by-b-factor) " << coot::COLOUR_BY_B_FACTOR
                 << std::endl;
 
    int col = 0;
@@ -5673,31 +5675,12 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 			if (bond_colour_type == coot::COLOUR_BY_B_FACTOR) {
                            // B-factors by atom are done this way.
                            float scaled_b = at->tempFactor * b_factor_scale;
-                           float max_b = 62.0;
-                           if (scaled_b < 10.0) {
-                              return BLUE_BOND;
-                           } else {
-                              if (scaled_b > max_b) {
-                                 return RED_BOND;
-                              } else {
-                                 if (scaled_b < 22.0) {
-                                    return CYAN_BOND;
-                                 } else {
-                                    if (scaled_b < 36.0) {
-                                       return GREEN_BOND;
-                                    } else {
-                                       if (scaled_b < 48.0) {
-                                          return YELLOW_BOND;
-                                       } else {
-                                          if (scaled_b <= max_b) {
-                                             return ORANGE_BOND;
-                                          }
-                                       }
-                                    }
-                                 }
-                              }
-                           }
-                           
+                           float max_b = 100.0;
+                           // std::cout << "here we go! scaled_b " << scaled_b << std::endl;
+                           float f = scaled_b/max_b;
+                           if (f > 0.999) f = 0.999;
+                           if (f < 0.0)   f = 0.0;
+                           col = static_cast<int>(f * 45); // 50 colours in the table.
 			} else {
 			   if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
 			      col = 20; // elsewhere

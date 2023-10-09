@@ -281,6 +281,7 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
       if (icol<cts) // it will be of course!
          col = colour_table[icol];
       graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol];
+
       // std::cout << "_bonds_bonds icol " << icol << " has n_lines " << ll.num_lines << std::endl;
 
       for (int j=0; j<ll.num_lines; j++) {
