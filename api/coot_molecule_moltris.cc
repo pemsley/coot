@@ -352,22 +352,33 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       if (colour_scheme == "RampChains") {
          mesh = ramp_chains(my_mol, atom_selection_str, style, M2T_float_params, M2T_int_params);
       } else {
-         std::shared_ptr<MolecularRepresentationInstance> molrepinst =
-            MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
-         mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
 
-         if (false) {
-            for (unsigned int i=0; i<mesh.vertices.size(); i++) {
-               const auto &vertex = mesh.vertices[i];
-               std::cout << i << " " << glm::to_string(vertex.pos) << " " << glm::to_string(vertex.color) << std::endl;
+         if (colour_scheme == "ByOwnPotential") {
+
+            std::shared_ptr<MolecularRepresentationInstance> molrepinst =
+               MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
+            mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
+
+         } else {
+            std::shared_ptr<MolecularRepresentationInstance> molrepinst =
+               MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
+            mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
+
+            if (false) {
+               for (unsigned int i=0; i<mesh.vertices.size(); i++) {
+                  const auto &vertex = mesh.vertices[i];
+                  std::cout << i << " " << glm::to_string(vertex.pos) << " " << glm::to_string(vertex.color) << std::endl;
+               }
             }
          }
       }
-
       mesh.fill_colour_map(); // for blendering
    }
    catch (const std::out_of_range &oor) {
       std::cout << "ERROR:: out of range in get_molecular_representation_mesh() " << oor.what() << std::endl;
+   }
+   catch (const std::runtime_error &rte) {
+      std::cout << "ERROR:: runtime error in get_molecular_representation_mesh() " << rte.what() << std::endl;
    }
    catch (...) {
       std::cout << "ERROR:: unknown exception in get_molecular_representation_mesh()! " << std::endl;

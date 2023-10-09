@@ -1825,6 +1825,26 @@ int test_molecular_representation(molecules_container_t &mc) {
    return status;
 }
 
+int test_electro_molecular_representation(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      std::string selection = "//";
+      std::string colour = "ByOwnPotential";
+      std::string style = "MolecularSurface";
+
+      coot::simple_mesh_t mesh = mc.get_molecular_representation_mesh(imol, selection, colour, style);
+      if (mesh.vertices.size() > 10) {
+         status = true;
+      }
+   }
+   mc.close_molecule(imol);
+   return status;
+}
 
 int test_replace_fragment(molecules_container_t &mc) {
 
@@ -3538,7 +3558,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_map_histogram, "map histogram", mc);
+   status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
+
+   // status += run_test(test_map_histogram, "map histogram", mc);
 
    // status += run_test(test_read_a_missing_map, "read a missing map file ", mc);
 
