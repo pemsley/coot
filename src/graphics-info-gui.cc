@@ -4588,10 +4588,8 @@ graphics_info_t::add_molecular_representation(int imol,
              << "style \"" << style << "\"" << std::endl;
 
    GtkWidget *w = widget_from_builder("molecular_representations_dialog");
-   if (w)
-      gtk_widget_set_visible(w, TRUE);
-   else
-      std::cout << "widget main_window_meshes_frame was not found" << std::endl;
+   gtk_widget_set_visible(w, TRUE);
+   set_transient_for_main_window(w);
 
    attach_buffers();
 
