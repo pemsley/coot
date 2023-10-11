@@ -15218,8 +15218,307 @@ Move a copy?</property>
 
   <object class="GtkShortcutsWindow" id="coot_shortcuts_window">
     <property name="hide-on-close">true</property>
+    <child>
+      <object class="GtkShortcutsSection">
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">View Functions</property>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">l</property>
+                <property name="title" translatable="yes">Toggle Atom Label</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">1</property>
+                <property name="title" translatable="yes">Clipping Front Expand</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">2</property>
+                <property name="title" translatable="yes">Clipping Front Reduce</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">3</property>
+                <property name="title" translatable="yes">Clipping Back Reduce</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">4</property>
+                <property name="title" translatable="yes">Clipping Back Expand</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">n</property>
+                <property name="title" translatable="yes">Zoom In</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">m</property>
+                <property name="title" translatable="yes">Zoom Out</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">f</property>
+                <property name="title" translatable="yes">Decrease clipping</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">i</property>
+                <property name="title" translatable="yes">Spin View</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">Moving Around Functions</property>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">space</property>
+                <property name="title" translatable="yes">Go to Next Residue</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;space</property>
+                <property name="title" translatable="yes">Go to Previous Residue</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">g</property>
+                <property name="title" translatable="yes">Go To Blob</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">o</property>
+                <property name="title" translatable="yes">NCS Other Chain</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">p</property>
+                <property name="title" translatable="yes">Update "Go To Atom" Position</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">w</property>
+                <property name="title" translatable="yes">Move Forward</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">s</property>
+                <property name="title" translatable="yes">Move Backward</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">a</property>
+                <property name="title" translatable="yes">Step Left</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">d</property>
+                <property name="title" translatable="yes">Step right</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">u</property>
+                <property name="title" translatable="yes">Undo Move</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">Map Functions</property>
+            
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">plus</property>
+                <property name="title" translatable="yes">Increase Contour Level</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">minus</property>
+                <property name="title" translatable="yes">Decrease Contour Level</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;W</property>
+                <property name="title" translatable="yes">Change Scroll-wheel map</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">Refinement Functions</property>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">Return</property>
+                <property name="title" translatable="yes">Accept Moving Atoms</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">Escape</property>
+                <property name="title" translatable="yes">Reject Moving Atoms</property>
+              </object>
+            </child>
+
+          </object>
+        </child>
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">Building Functions</property>
+            
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">y</property>
+                <property name="title" translatable="yes">Add Terminal Residue</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">j</property>
+                <property name="title" translatable="yes">Auto-fit Rotamer</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">k</property>
+                <property name="title" translatable="yes">Fill Partial Residue</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;K</property>
+                <property name="title" translatable="yes">Delete Side-chain</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;R</property>
+                <property name="title" translatable="yes">Sphere Refine</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;E</property>
+                <property name="title" translatable="yes">Chain Refine</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">bracketleft</property>
+                <property name="title" translatable="yes">Decrease Map Radius</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">bracketright</property>
+                <property name="title" translatable="yes">Increase Map Radius</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">Function Keys</property>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">F8</property>
+                <property name="title" translatable="yes">Display Manager</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">Moving Residues</property>
+             <child>
+               <object class="GtkShortcutsShortcut">
+                 <property name="accelerator">&lt;Ctrl&gt;E</property>
+                 <property name="title" translatable="yes">Eigen-flip ligand</property>
+               </object>
+             </child>
+             <child>
+               <object class="GtkShortcutsShortcut">
+                 <property name="accelerator">&lt;Ctrl&gt;Left</property>
+                 <property name="title" translatable="yes">Rot/Trans Left</property>
+               </object>
+             </child>
+             <child>
+               <object class="GtkShortcutsShortcut">
+                 <property name="accelerator">&lt;Ctrl&gt;Right</property>
+                 <property name="title" translatable="yes">Rot/Trans Right</property>
+               </object>
+             </child>
+             <child>
+               <object class="GtkShortcutsShortcut">
+                 <property name="accelerator">&lt;Ctrl&gt;Up</property>
+                 <property name="title" translatable="yes">Rot/Trans up</property>
+               </object>
+             </child>
+             <child>
+               <object class="GtkShortcutsShortcut">
+                 <property name="accelerator">&lt;Ctrl&gt;Down</property>
+                 <property name="title" translatable="yes">Rot/Trans Down</property>
+               </object>
+             </child>
+
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">Save Functions</property>
+             <child>
+               <object class="GtkShortcutsShortcut">
+                 <property name="accelerator">&lt;Ctrl&gt;S</property>
+                 <property name="title" translatable="yes">Quick Save As</property>
+               </object>
+             </child>
+
+          </object>
+        </child>
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title">Copy Functions</property>
+             <child>
+               <object class="GtkShortcutsShortcut">
+                 <property name="accelerator">&lt;Ctrl&gt;C</property>
+                 <property name="title" translatable="yes">Copy Molecule</property>
+               </object>
+             </child>
+
+          </object>
+        </child>
+      </object>
+    </child>
   </object>
-  
 
 </interface>
 

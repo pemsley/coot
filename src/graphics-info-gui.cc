@@ -4794,6 +4794,7 @@ graphics_info_t::update_molecular_representation_widgets() {
 void
 graphics_info_t::add_shortcuts_to_window(GtkWidget *shortcuts_window) {
 
+#if 0
    {
       auto shortcut_activated = +[] (GtkWidget *widget,
                                      GVariant  *unused,
@@ -4832,4 +4833,6 @@ graphics_info_t::add_shortcuts_to_window(GtkWidget *shortcuts_window) {
       // GtkShortcutsSection* section = ...
       // gtk_shortcuts_window_add_section(GTK_SHORTCUTS_WINDOW(shortcuts_window), section);
    }
+#endif
+
 }
