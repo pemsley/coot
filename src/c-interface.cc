@@ -5401,11 +5401,11 @@ void graphics_to_b_factor_representation(int imol) {
       command_strings.push_back("graphics-to-b-factor-representation");
       command_strings.push_back(graphics_info_t::int_to_string(imol));
       add_to_history(command_strings);
-   }
-   else
+   } else {
       std::cout << "WARNING:: no such valid molecule " << imol
 		<< " in graphics_to_b_factor_representation"
 		<< std::endl;
+   }
    graphics_draw();
 }
 
@@ -6414,12 +6414,12 @@ void set_refine_rotamers(int state) {
 
 #include "c-interface-refine.hh"
 
-void set_refinement_geman_mcclure_alpha_from_text(int idx, const char *t) {
+void set_refinement_geman_mcclure_alpha_from_text(int combobox_index, const char *t) {
 
    graphics_info_t g;
    float v = coot::util::string_to_float(t);
    set_refinement_geman_mcclure_alpha(v);
-   graphics_info_t::refine_params_dialog_geman_mcclure_alpha_combobox_position = idx;
+   graphics_info_t::refine_params_dialog_geman_mcclure_alpha_combobox_position = combobox_index;
    // poke the refinement if there are moving atoms
 }
 
@@ -6452,7 +6452,7 @@ void set_refinement_overall_weight_from_text(const char *t) {
       g.poke_the_refinement();
       
    } else {
-      std::cout << "in set_refinement_overall_weight_from_text() t null " << std::endl;
+      std::cout << "WARNING:: in set_refinement_overall_weight_from_text() t null " << std::endl;
    }
 
 }

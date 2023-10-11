@@ -249,8 +249,11 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkFileFilter *filterselect = gtk_file_filter_new();
    gtk_file_filter_add_pattern(filterselect, "*.map");
    gtk_file_filter_add_pattern(filterselect, "*.mrc");
+   gtk_file_filter_add_pattern(filterselect, "*.mrc.gz");
+   gtk_file_filter_add_pattern(filterselect, "*.map.gz");
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
+   set_transient_for_main_window(dialog);
    gtk_widget_set_visible(dialog, TRUE);
 }
 
@@ -2505,7 +2508,6 @@ remarks_browser_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_set_visible(w, TRUE);
 }
 
-
 void
 about_coot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                   G_GNUC_UNUSED GVariant *parameter,
@@ -2519,6 +2521,21 @@ about_coot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       gtk_widget_set_visible(dialog, TRUE);
    }
 }
+
+void
+coot_shortcuts_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                      G_GNUC_UNUSED GVariant *parameter,
+                      G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *window = widget_from_builder("coot_shortcuts_window");
+   if (window) {
+      graphics_info_t g;
+      g.add_shortcuts_to_window(window);
+      set_transient_for_main_window(window);
+      gtk_widget_set_visible(window, TRUE);
+   }
+}
+
 
 void
 orthographic_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -2535,12 +2552,110 @@ perspective_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    set_use_perspective_projection(1);
 }
 
+
+// gui helper function
+std::vector<labelled_button_info_t>
+residues_vec_to_labelled_buttons_vec(const std::vector<mmdb::Residue *> &rv) {
+
+   std::vector<labelled_button_info_t> lbv;
+   for (unsigned int i=0; i<rv.size(); i++) {
+      mmdb::Residue *residue_p = rv[i];
+      std::pair<bool, clipper::Coord_orth> rc = coot::util::get_residue_centre(residue_p);
+      if (rc.first) {
+         std::string label = residue_p->GetChainID();
+         label += " ";
+         label += std::to_string(residue_p->GetSeqNum());
+         if (residue_p->GetInsCode()) {
+            label += " ";
+            label += residue_p->GetInsCode();
+         }
+         labelled_button_info_t lbi(label, rc.second);
+         lbv.push_back(lbi);
+      }
+   }
+   return lbv;
+}
+
 void residue_type_selection_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                    G_GNUC_UNUSED GVariant *parameter,
                                    G_GNUC_UNUSED gpointer user_data) {
 
    std::cout << "residue_type_selection action" << std::endl;
 
+   auto callback = +[] (int imol, const std::string &entry_text) {
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+         std::vector<mmdb::Residue *> rv = coot::util::residues_in_molecule_of_type(mol, entry_text);
+         if (rv.empty()) {
+            add_status_bar_text("No residues of that type in this molecule");
+         } else {
+            new_molecule_by_atom_selection(imol, entry_text.c_str()); // make this a c++ function one day
+            std::vector<labelled_button_info_t> lbv = residues_vec_to_labelled_buttons_vec(rv);
+            graphics_info_t g;
+            std::string title = "Residues of type " + entry_text;
+            g.fill_generic_validation_box_of_buttons(title, lbv);
+         }
+      }
+   };
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   GtkWidget *molecule_chooser_combobox      = widget_from_builder("molecule_chooser_comboboxtext");
+   GtkWidget *molecule_chooser_ok_button     = widget_from_builder("molecule_chooser_ok_button");
+   GtkWidget *molecule_chooser_cancel_button = widget_from_builder("molecule_chooser_cancel_button");
+   GtkWidget *dialog                         = widget_from_builder("molecule_chooser_dialog");
+
+   auto mol_vec = get_model_molecule_vector();
+   int imol_active = 0;
+   graphics_info_t g;
+   // we don't need a callback for when the combobox changes
+   g.fill_combobox_with_molecule_options(molecule_chooser_combobox, nullptr, imol_active, mol_vec);
+   set_transient_for_main_window(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
+
+   auto cancel_callback = +[] (G_GNUC_UNUSED GtkButton *button, G_GNUC_UNUSED gpointer user_data) {
+      GtkWidget *dialog = widget_from_builder("molecule_chooser_dialog");
+      gtk_widget_set_visible(dialog, FALSE);
+   };
+   g_signal_connect(G_OBJECT(molecule_chooser_cancel_button), "clicked", G_CALLBACK(cancel_callback), nullptr);
+
+   auto ok_callback = +[] (GtkButton *button, gpointer user_data) {
+      GtkWidget *dialog = widget_from_builder("molecule_chooser_dialog");
+      GtkWidget *molecule_chooser_combobox = widget_from_builder("molecule_chooser_comboboxtext");
+      GtkWidget *molecule_chooser_entry    = widget_from_builder("molecule_chooser_entry");
+
+      int imol = my_combobox_get_imol(GTK_COMBO_BOX(molecule_chooser_combobox));
+      std::string entry_text = gtk_editable_get_text(GTK_EDITABLE(molecule_chooser_entry));
+
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+         std::vector<mmdb::Residue *> rv = coot::util::residues_in_molecule_of_type(mol, entry_text);
+         if (rv.empty()) {
+            add_status_bar_text("No residues of that type in this molecule");
+         } else {
+            std::string atom_selection = std::string("(") +  entry_text + std::string(")");
+            new_molecule_by_atom_selection(imol, atom_selection.c_str()); // make this a c++ function one day
+            std::vector<labelled_button_info_t> lbv = residues_vec_to_labelled_buttons_vec(rv);
+            graphics_info_t g;
+            std::string title = "Residues of type " + entry_text;
+            g.fill_generic_validation_box_of_buttons(title, lbv);
+         }
+      }
+      gtk_widget_set_visible(dialog, FALSE);
+   };
+   // I should disconnect all existing connected signals here.
+   // see g_signal_handler_disconnect()
+   // Or perhaps it's easier to create an "OK" button every time? rather than look it up
+   // from the builder?
+   g_signal_connect(G_OBJECT(molecule_chooser_ok_button), "clicked", G_CALLBACK(ok_callback), nullptr);
 }
 
 void residues_with_alt_confs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -2558,23 +2673,7 @@ void residues_with_alt_confs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
          if (rv.empty()) {
             add_status_bar_text("No residues with Alt confs in this molecule");
          } else {
-            std::vector<labelled_button_info_t> lbv;
-            for (unsigned int i=0; i<rv.size(); i++) {
-               mmdb::Residue *residue_p = rv[i];
-               std::pair<bool, clipper::Coord_orth> rc = coot::util::get_residue_centre(residue_p);
-               if (rc.first) {
-                  // make a function to make the label from a residue
-                  std::string label = residue_p->GetChainID();
-                  label += " ";
-                  label += std::to_string(residue_p->GetSeqNum());
-                  if (residue_p->GetInsCode()) {
-                     label += " ";
-                     label += residue_p->GetInsCode();
-                  }
-                  labelled_button_info_t lbi(label, rc.second);
-                  lbv.push_back(lbi);
-               }
-            }
+            std::vector<labelled_button_info_t> lbv = residues_vec_to_labelled_buttons_vec(rv);
             g.fill_generic_validation_box_of_buttons("Residues with AltConfs", lbv);
          }
       }
@@ -2590,6 +2689,43 @@ void residues_with_cis_peptides_action(G_GNUC_UNUSED GSimpleAction *simple_actio
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
       int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         int model_number = 1;
+         std::vector<coot::util::cis_peptide_quad_info_t> quads =
+            coot::cis_peptide_quads_from_coords(mol, model_number, g.Geom_p());
+
+         if (quads.empty()) {
+            info_dialog("No cis-peptides found in this molecule");
+         } else {
+            std::vector<labelled_button_info_t> lbv;
+            for (unsigned int i=0; i<quads.size(); i++) {
+               const coot::util::cis_peptide_quad_info_t &quad = quads[i];
+               if (quad.quad.atom_1 && quad.quad.atom_2 && quad.quad.atom_3 && quad.quad.atom_4) {
+                  clipper::Coord_orth sum(0,0,0);
+                  sum += coot::co(quad.quad.atom_1);
+                  sum += coot::co(quad.quad.atom_2);
+                  sum += coot::co(quad.quad.atom_3);
+                  sum += coot::co(quad.quad.atom_4);
+                  clipper::Coord_orth pos = 0.25 * sum;
+                  std::string label = "cis-peptide ";
+                  if (quad.type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS)
+                     label = "Twisted trans ";
+                  if (quad.type == coot::util::cis_peptide_quad_info_t::PRE_PRO_CIS)
+                     label = "Pre-PRO cis ";
+                  label += quad.quad.atom_1->GetChainID();
+                  label += " ";
+                  label += std::to_string(quad.quad.atom_1->GetSeqNum());
+                  label += "-";
+                  label += std::to_string(quad.quad.atom_4->GetSeqNum());
+                  labelled_button_info_t lbi(label, pos);
+                  lbv.push_back(lbi);
+               }
+            }
+            g.fill_generic_validation_box_of_buttons("Residues with cis-peptides", lbv);
+         }
+      }
    }
 }
 
@@ -3363,6 +3499,7 @@ create_actions(GtkApplication *application) {
 
    add_action("remarks_browser_action", remarks_browser_action);
    add_action("about_coot_action", about_coot_action);
+   add_action("coot_shortcuts_action", coot_shortcuts_action);
 
    // Refine menu
 

@@ -2306,6 +2306,33 @@ coot::util::number_of_residues_in_molecule(mmdb::Manager *mol) {
    return number_of_residues;
 }
 
+std::vector<mmdb::Residue *>
+coot::util::residues_in_molecule_of_type(mmdb::Manager *mol, const std::string &residue_type) {
+
+   std::vector<mmdb::Residue *> v;
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  std::string res_name = residue_p->GetResName();
+                  if (res_name == residue_type) {
+                     v.push_back(residue_p);
+                  }
+               }
+            }
+         }
+      }
+   }
+   return v;
+}
+
+
 std::vector<mmdb::Chain *>
 coot::util::chains_in_atom_selection(mmdb::Manager *mol, int model_number, const std::string &atom_selection) {
 

@@ -827,6 +827,10 @@
           <attribute name="action">app.about_coot_action</attribute>
         </item>
         <item>
+          <attribute name="label">Shortcuts...</attribute>
+          <attribute name="action">app.coot_shortcuts_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Header/Remarks Browser...</attribute>
           <attribute name="action">app.remarks_browser_action</attribute>
         </item>
@@ -6880,6 +6884,7 @@ Do you want to continue?
                                 <property name="label" translatable="yes">Use Torsion Restraints</property>
                                 <property name="name">refine_params_use_torsions_checkbutton</property>
                                 <property name="can-focus">1</property>
+                                <signal name="toggled" handler="on_refine_params_use_torsions_checkbutton_toggled" />
                               </object>
                             </child>
                             <child>
@@ -6898,6 +6903,7 @@ Do you want to continue?
                               <object class="GtkCheckButton" id="refine_params_use_ramachandran_goodness_torsions_checkbutton">
                                 <property name="label" translatable="yes">Use Ramachandran Restraints</property>
                                 <property name="can-focus">1</property>
+                                <signal name="toggled" handler="on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled" />
                               </object>
                             </child>
                           </object>
@@ -7004,6 +7010,7 @@ Do you want to continue?
                                   <property name="column">1</property>
                                   <property name="row">0</property>
                                 </layout>
+                                <signal name="changed" handler="on_refine_params_overall_weight_combobox_changed"/>
                               </object>
                             </child>
                             <child>
@@ -7022,8 +7029,9 @@ Do you want to continue?
                                   <item translatable="yes">0.3</item>
                                   <item translatable="yes">1.0</item>
                                   <item translatable="yes">3.0</item>
-                                  <item translatable="yes">1.0</item>
+                                  <item translatable="yes">10.0</item>
                                 </items>
+                                <signal name="changed" handler="on_refine_params_geman_mcclure_alpha_combobox_changed" />
                               </object>
                             </child>
                             <child>
@@ -7042,6 +7050,7 @@ Do you want to continue?
                                   <item translatable="yes">5.0</item>
                                   <item translatable="yes">10.0</item>
                                 </items>
+                                <signal name="changed" handler="on_refine_params_lennard_jones_epsilon_combobox_changed" />
                               </object>
                             </child>
                             <child>
@@ -7063,6 +7072,7 @@ Do you want to continue?
                                   <item translatable="yes">50.0</item>
                                   <item translatable="yes">100.0</item>
                                 </items>
+                                <signal name="changed" handler="on_refine_params_rama_restraints_weight_combobox_changed" />
                               </object>
                             </child>
                             <child>
@@ -7084,6 +7094,7 @@ Do you want to continue?
                                   <item translatable="yes">50.0</item>
                                   <item translatable="yes">100.0</item>
                                 </items>
+                                <signal name="changed" handler="on_refine_params_torsion_weight_combobox_changed" />
                               </object>
                             </child>
                           </object>
@@ -9822,6 +9833,68 @@ density (too big to be waters):
     </action-widgets>
   </object>
 
+  <object class="GtkDialog" id="molecule_chooser_dialog">
+    <property name="title" translatable="yes">Coot: Molecule Chooser</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkComboBoxText" id="molecule_chooser_comboboxtext">
+            <property name="margin-start">8</property>
+            <property name="margin-end">8</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkEntry" id="molecule_chooser_entry">
+            <property name="width-request">10</property>
+            <property name="can-focus">1</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkSeparator">
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox" id="molecule_chooser_buttons_vbox">
+            <property name="orientation">horizontal</property>
+            <property name="margin-start">8</property>
+            <property name="margin-end">8</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+
+            <child>
+              <object class="GtkButton" id="molecule_chooser_cancel_button">
+                <property name="label">Cancel</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkButton" id="molecule_chooser_ok_button">
+                <property name="label">   OK  </property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+              </object>
+            </child>
+
+          </object>
+        </child>
+
+      </object>
+    </child>
+  </object>
+
+
   <object class="GtkDialog" id="ncs_maps_dialog">
     <property name="title" translatable="yes">NCS Maps Dialog</property>
     <child>
@@ -12183,6 +12256,10 @@ Sorry.
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkFrame" id="frame90">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkScale" id="rotate_translate_obj_xtrans_hscale">
                         <property name="can-focus">1</property>
@@ -12198,6 +12275,10 @@ Sorry.
                 </child>
                 <child>
                   <object class="GtkFrame" id="frame91">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkScale" id="rotate_translate_obj_ytrans_hscale">
                         <property name="can-focus">1</property>
@@ -12213,6 +12294,10 @@ Sorry.
                 </child>
                 <child>
                   <object class="GtkFrame" id="frame92">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkScale" id="rotate_translate_obj_ztrans_hscale">
                         <property name="can-focus">1</property>
@@ -12228,6 +12313,10 @@ Sorry.
                 </child>
                 <child>
                   <object class="GtkFrame" id="frame93">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkScale" id="rotate_translate_obj_xrot_hscale">
                         <property name="can-focus">1</property>
@@ -12243,6 +12332,10 @@ Sorry.
                 </child>
                 <child>
                   <object class="GtkFrame" id="frame94">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkScale" id="rotate_translate_obj_yrot_hscale">
                         <property name="can-focus">1</property>
@@ -12258,6 +12351,10 @@ Sorry.
                 </child>
                 <child>
                   <object class="GtkFrame" id="frame95">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkScale" id="rotate_translate_obj_zrot_hscale">
                         <property name="can-focus">1</property>
@@ -15119,4 +15216,10 @@ Move a copy?</property>
     </child>
   </object>
 
+  <object class="GtkShortcutsWindow" id="coot_shortcuts_window">
+    <property name="hide-on-close">true</property>
+  </object>
+  
+
 </interface>
+

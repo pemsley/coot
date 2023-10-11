@@ -538,6 +538,12 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
                               return coords;
                            };
 
+   if (false) {
+      std::cout << "in get_peaks do_positive_levels_flag " << do_positive_levels_flag << std::endl;
+      std::cout << "in get_peaks also_negative_levels_flag " << also_negative_levels_flag << std::endl;
+      std::cout << "in get_peaks only_around_protein_flag " << only_around_protein_flag << std::endl;
+   }
+
    std::vector<std::pair<clipper::Coord_orth, float> > peaks =
       get_peaks(xmap, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
 
@@ -551,6 +557,7 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
       // std::cout << "sampled_protein_coords size is " << sampled_protein_coords.size() << std::endl;
 
       double max_dist = 4.0; // maybe a bit too much, actually!
+      max_dist = 6.5; // 20231004-PE for 1bl8
       double max_dist_sqrd = max_dist * max_dist;
       unsigned int n_outside = 0;
       for (const auto &peak : peaks) {
@@ -568,7 +575,9 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
             n_outside++;
          }
       }
-      // std::cout << "........... n_outside " << n_outside << std::endl;
+
+      std::cout << "INFO:: n_peaks outside of contact with protein (and thus ignored): "
+                << n_outside << std::endl;
 
    } else {
 

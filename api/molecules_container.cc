@@ -864,10 +864,10 @@ molecules_container_t::valid_labels(const std::string &mtz_file_name, const std:
 
 //! Read the given mtz file.
 //! @return a vector of the maps created from reading the file
-std::vector<int>
+std::vector<molecules_container_t::auto_read_mtz_info_t>
 molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
 
-   std::vector<int> imols;
+   std::vector<molecules_container_t::auto_read_mtz_info_t> mol_infos;
 
    std::vector<coot::mtz_column_trials_info_t> auto_mtz_pairs;
 
@@ -886,7 +886,7 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
       if (valid_labels(mtz_file_name.c_str(), b.f_col.c_str(), b.phi_col.c_str(), "", 0)) {
          int imol = read_mtz(mtz_file_name, b.f_col, b.phi_col, "", 0, b.is_diff_map);
 	 if (is_valid_map_molecule(imol))
-	    imols.push_back(imol);
+	    mol_infos.push_back(auto_read_mtz_info_t(imol, b.f_col, b.phi_col));
       }
    }
 
@@ -895,7 +895,7 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
    if (r.f_cols.size() == 1) {
       if (r.phi_cols.size() == 1) {
          int imol = read_mtz(mtz_file_name, r.f_cols[0].column_label, r.phi_cols[0].column_label, "", false, false);
-         imols.push_back(imol);
+         mol_infos.push_back(auto_read_mtz_info_t(imol, r.f_cols[0].column_label, r.phi_cols[0].column_label));
       }
    }
 
@@ -911,13 +911,13 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
 	       std::string phi_col = r.phi_cols[j].column_label;
                int imol = read_mtz(mtz_file_name, f_col, phi_col, "", false, false);
                if (is_valid_map_molecule(imol))
-                  imols.push_back(imol);
+                  mol_infos.push_back(auto_read_mtz_info_t(imol, f_col, phi_col));
 	    }
 	 }
       }
    }
 
-   return imols;
+   return mol_infos;
 }
 
 
@@ -931,16 +931,23 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
    int imol_in_hope = molecules.size();
    bool done = false;
 
-   if (coot::util::is_basic_em_map_file(file_name)) {
-      std::cout << ":::::::::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
-   } else {
-      std::cout << ":::::::::::: read_ccp4_map() returns false for is_basic_em_map_file() " << std::endl;
+   if (! coot::file_exists(file_name)) {
+      std::cout << "WARNING:: file does not exist " << file_name << std::endl;
+      return imol;
+   }
+
+   if (false) {
+      if (coot::util::is_basic_em_map_file(file_name)) {
+         std::cout << "::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
+      } else {
+         std::cout << "::::: read_ccp4_map() returns false for is_basic_em_map_file() " << std::endl;
+      }
    }
    
 
    if (coot::util::is_basic_em_map_file(file_name)) {
 
-      std::cout << ":::::::::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
+      std::cout << ":::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
 
       // fill xmap
       bool check_only = false;
@@ -957,9 +964,11 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
    }
 
    short int em_status = molecules[imol].is_EM_map();
-   std::cout << "here with imol " << imol << " molecules size " << molecules.size() << std::endl;
-   std::cout << "here with imol " << imol << " done " << done << std::endl;
-   std::cout << "here with imol " << imol << " is_em_map:  " << em_status << std::endl;
+   if (false) {
+      std::cout << "here with imol " << imol << " molecules size " << molecules.size() << std::endl;
+      std::cout << "here with imol " << imol << " done " << done << std::endl;
+      std::cout << "here with imol " << imol << " is_em_map:  " << em_status << std::endl;
+   }
 
    if (! done) {
       // std::cout << "INFO:: attempting to read CCP4 map: " << file_name << std::endl;
@@ -970,9 +979,7 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
 
          // em = set_is_em_map(file);
 
-         bool use_xmap = true; // not an nxmap
          if (true) {
-            clipper::Grid_sampling fgs = w_file.grid_sampling();
             clipper::Cell fcell = w_file.cell();
             double vol = fcell.volume();
             if (vol < 1.0) {
@@ -4527,5 +4534,33 @@ molecules_container_t::get_mesh_for_ligand_validation_vs_dictionary(int imol, co
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return m;
+
+}
+
+
+//! set the map saturation
+void
+molecules_container_t::set_map_colour_saturation(int imol, float s) {
+
+   if (is_valid_map_molecule(imol)) {
+      molecules[imol].set_map_colour_saturation(s);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol << std::endl;
+   }
+}
+
+
+//! @return the map histogram
+coot::molecule_t::histogram_info_t
+molecules_container_t::get_map_histogram(int imol) const {
+
+   coot::molecule_t::histogram_info_t hi;
+   if (is_valid_map_molecule(imol)) {
+      unsigned int n_bins = 50;
+      hi = molecules[imol].get_map_histogram(n_bins);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a map model molecule " << imol << std::endl;
+   }
+   return hi;
 
 }

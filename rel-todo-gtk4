@@ -12,37 +12,46 @@
 
 8 items
 
-Missing difference map peaks in 1bl8 from Oliver Clarke.
+Moorhen: Read gziped maps in libcootapi, so moorhen can get maps from emdb.
+
+Moorhen: Request: electrostatic surface.
+
+Moorhen: carbon bonds are too light on white background. Looking at the code, it seems
+         to do the right thing, but needs testing. Print the colour table.
 
 Missing validation items: Some currently under Draw -> Molecule
    "Residues with Alt Confs" and
    "Residues with Missing Atoms"
-   "Residue with cis-peptide" action needs to be filled.
-   "Residue type selection" action needs to be filled.
+   "Residue with cis-peptide" action needs to be filled
+   "Residue type selection" action needs to be filled  <- This one remains to be done.
 
-Fix the R/RC combo-box changed handlers.
+Rotate/Translate <fragment> doesn't work.
 
-Issue 67:
-On reflection, I will add a function that allows the user to override Coot's attempt to determine the EM-state of the map.
+Clicking the switch Refine -> GM Restraints doesn't undisplay the GM restraints.
 
-Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
+Rigid-body refine the tutorial A chain. It used to display an intermediate atoms
+representation. What happens now and is that what you want?
+
+Renumber residue range on a molecule that is not the first molecule ::: 0.6
 
 Fix the undo molecule chooser (have 2 molecules with edits)
 
-Fix this:
-"widget main_window_meshes_frame was not found"
+When I Open Coords I have a option to choose coordinate files.
+When I Auto-open MTZ I dont have a option to choose mtz files.
 
-a7956aa695f8c19e52622447ca292434812d4e62.
-How about deleting the timeout altogether?
+Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
+
+---- older issues ---
 
 Ribbons don't cast shadows.
-
-Renumber residue range on a molecule that is not the first molecule ::: 0.6
 
 No reaction to Aligment vs PIR (no PIR was loaded)
 
 Size and user-defined "screen axis" displacement of atom labels, e.g. [0,0,5] to bring
 the label towards the camera.
+
+Issue 67:
+On reflection, I will add a function that allows the user to override Coot's attempt to determine the EM-state of the map.
 
 Layla: make python setup be available for Coot and Layla - put it in its own directory. So that layla
 is not linked with src files.
@@ -51,8 +60,6 @@ Rob's problematic links
 * Need details.
 
 startup with default map opacity.
-
-User-defined atom label shift in screen space
 
 Where is Make Link? ::: 1.5
 * Needs user-defined click click. Just do it in C++?
@@ -123,6 +130,8 @@ Make auto_read_mtz return the column labels - for Moorhen.
 Updatating difference map for cryo-EM using ServalCat.
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
+
+Find 3-10 helices and make restraints. Max Perutz wrote the first paper.
 
 Nice to have:
 "Resample map (say 11337 to 2.2) It takes a long time. There should be a progress bar.
@@ -926,3 +935,32 @@ Fetch EMDB map doesn't check the cache/coot-download.
 No reaction to Validate -> Atoms with Zero Occs (there were some) ::: 0.5
 * Done.
 
+Fix this: ::: 1
+"widget main_window_meshes_frame was not found"
+* Done. Mow there is a ribbons dialog
+
+Missing difference map peaks in 1bl8 from Oliver Clarke. ::: 1
+* Done
+
+a7956aa695f8c19e52622447ca292434812d4e62. ::: 0.1
+How about deleting the timeout altogether?
+* OK, done.
+
+Moorhen: Fourier filter jiggle fit:
+* Done.
+
+Moorhen: read_ccp4_map() with the wrong file name
+* Done.
+
+Moorhen: map histogram - user chooses number of bins, I guess 50?
+* Done.
+
+Moorhen: libcootapi neeeds to return the columns that it has read in auto-read.
+* Done.
+
+Fix the R/RC combo-box changed handlers.
+* Done.
+
+Colour by B-factor CA is wrong: test with tutorial and 8oie.
+          B-factor all doesn't work at all.
+* Done.

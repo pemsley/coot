@@ -416,6 +416,12 @@ coot::molecule_t::get_map_contours_mesh_using_other_map_for_colours(const clippe
       return glm::vec3(co.x(), co.y(), co.z());
    };
 
+   auto clipper_to_cartesian = [] (const clipper::Coord_orth &c) {
+      return Cartesian(c.x(), c.y(), c.z()); };
+
+   auto cpos = clipper_to_cartesian(position);
+   update_map_triangles(radius, cpos, contour_level);
+
    coot::simple_mesh_t m; // initially status is good (1).
    auto &vertices  = m.vertices;
    auto &triangles = m.triangles;
@@ -1226,7 +1232,7 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
                atom_selection_container_t asc_ligand = make_asc(mol);
                replace_coords(asc_ligand, false, true);
-               asc_ligand.mol->WritePDBASCII("asc_ligand.pdb");
+               // asc_ligand.mol->WritePDBASCII("asc_ligand.pdb");
             }
 
             // have_unsaved_changes_flag = 1;
@@ -1274,4 +1280,14 @@ coot::molecule_t::get_map_molecule_centre() const {
 
    util::map_molecule_centre_info_t mc = util::map_molecule_centre(xmap);
    return mc;
+}
+
+
+//! @return the map histogram
+coot::molecule_t::histogram_info_t
+coot::molecule_t::get_map_histogram(unsigned int n_bins) const {
+
+   mean_and_variance<float> mv = map_density_distribution(xmap, n_bins, false, false);
+   coot::molecule_t::histogram_info_t hi(mv.min_density, mv.bin_width, mv.bins);
+   return hi;
 }

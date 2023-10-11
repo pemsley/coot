@@ -4908,3 +4908,43 @@ graphics_info_t::update_molecular_representation_widgets() {
        gtk_window_present(GTK_WINDOW(dialog));
     }
  }
+
+
+ void
+    graphics_info_t::add_shortcuts_to_window(GtkWidget *shortcuts_window) {
+
+   {
+      auto shortcut_activated = +[] (GtkWidget *widget,
+                                     GVariant  *unused,
+                                     gpointer   row) {
+         g_print ("activated %s\n", gtk_label_get_label(GTK_LABEL(row)));
+         return gboolean(TRUE);
+      };
+
+      auto create_ctrl_g = +[] () {
+         return gtk_keyval_trigger_new(GDK_KEY_g, GDK_CONTROL_MASK);
+      };
+
+      auto create_x = +[] () {
+         return gtk_keyval_trigger_new(GDK_KEY_x, GdkModifierType(0));
+      };
+
+      struct {
+         const char *description;
+         GtkShortcutTrigger * (* create_trigger_func) (void);
+      } shortcuts[] = {
+         { "Press Ctrl-G", create_ctrl_g },
+         { "Press X", create_x },
+      };
+
+      for (int i=0; i<2; i++) {
+         GtkEventController *controller = gtk_shortcut_controller_new();
+         GtkWidget *row = gtk_label_new (shortcuts[i].description);
+
+         GtkShortcut *shortcut = gtk_shortcut_new(shortcuts[i].create_trigger_func(),
+                                                  gtk_callback_action_new(shortcut_activated, row, NULL));
+
+         gtk_shortcut_controller_add_shortcut(GTK_SHORTCUT_CONTROLLER(controller), shortcut);
+      }
+   }
+ }

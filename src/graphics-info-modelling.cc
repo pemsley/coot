@@ -378,11 +378,24 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 void
 graphics_info_t::info_dialog_missing_refinement_residues(const std::vector<std::string> &res_names) {
 
-   std::string problem_residues = "Warning: Refinement setup failure.\nFailed to find restraints for:\n";
-   for (unsigned int icheck_res=0; icheck_res<res_names.size(); icheck_res++) {
-      problem_residues+= " ";
-      problem_residues+= res_names[icheck_res];
+   std::string problem_residues = "WARNING: Refinement setup failure.\nFailed to find restraints for:\n";
+
+   std::set<std::string> res_set;
+   for (unsigned int icheck_res=0; icheck_res<res_names.size(); icheck_res++)
+      res_set.insert(res_names[icheck_res]);
+
+   std::set<std::string>::const_iterator it;
+   unsigned int count = 0;
+   for (it=res_set.begin(); it!=res_set.end(); ++it) {
+      problem_residues += " ";
+      problem_residues += *it;
+      count++;
+      if (count == 10) {
+         problem_residues += "\n";
+         count = 0;
+      }
    }
+
    info_dialog(problem_residues);
 }
 
@@ -746,8 +759,9 @@ graphics_info_t::set_geman_mcclure_alpha(float alpha) {
 
    graphics_info_t g;
    geman_mcclure_alpha = alpha;
-   if (g.last_restraints_size() > 0)
+   if (g.last_restraints_size() > 0) {
       thread_for_refinement_loop_threaded();
+   }
 }
 
 // reruns refinement if we have restraints
