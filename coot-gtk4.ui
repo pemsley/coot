@@ -827,6 +827,10 @@
           <attribute name="action">app.about_coot_action</attribute>
         </item>
         <item>
+          <attribute name="label">Shortcuts...</attribute>
+          <attribute name="action">app.coot_shortcuts_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Header/Remarks Browser...</attribute>
           <attribute name="action">app.remarks_browser_action</attribute>
         </item>
@@ -12237,6 +12241,10 @@ Sorry.
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkFrame" id="frame90">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkScale" id="rotate_translate_obj_xtrans_hscale">
                         <property name="can-focus">1</property>
@@ -12252,6 +12260,10 @@ Sorry.
                 </child>
                 <child>
                   <object class="GtkFrame" id="frame91">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkScale" id="rotate_translate_obj_ytrans_hscale">
                         <property name="can-focus">1</property>
@@ -12267,6 +12279,10 @@ Sorry.
                 </child>
                 <child>
                   <object class="GtkFrame" id="frame92">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkScale" id="rotate_translate_obj_ztrans_hscale">
                         <property name="can-focus">1</property>
@@ -12282,6 +12298,10 @@ Sorry.
                 </child>
                 <child>
                   <object class="GtkFrame" id="frame93">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkScale" id="rotate_translate_obj_xrot_hscale">
                         <property name="can-focus">1</property>
@@ -12297,6 +12317,10 @@ Sorry.
                 </child>
                 <child>
                   <object class="GtkFrame" id="frame94">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkScale" id="rotate_translate_obj_yrot_hscale">
                         <property name="can-focus">1</property>
@@ -12312,6 +12336,10 @@ Sorry.
                 </child>
                 <child>
                   <object class="GtkFrame" id="frame95">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkScale" id="rotate_translate_obj_zrot_hscale">
                         <property name="can-focus">1</property>
@@ -15173,4 +15201,10 @@ Move a copy?</property>
     </child>
   </object>
 
+  <object class="GtkShortcutsWindow" id="coot_shortcuts_window">
+    <property name="hide-on-close">true</property>
+  </object>
+  
+
 </interface>
+
