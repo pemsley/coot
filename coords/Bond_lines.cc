@@ -4030,6 +4030,12 @@ graphical_bonds_container::n_atoms() const {
    return count;
 }
 
+void
+graphical_bonds_container::debug() const {
+   std::cout << "This graphical_bonds_container has " << n_bonds() << " bonds and " << n_atoms()
+             << " atoms." << std::endl;
+}
+
 
 // This function used by skeletonization (and nothing else)
 void

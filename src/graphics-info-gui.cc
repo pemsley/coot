@@ -1694,107 +1694,6 @@ graphics_info_t::apply_residue_info_changes() {
 }
 
 
-
-#if 0 // old
-// This is the callback when the OK button of the residue info was pressed.
-//
-// The new way with a table:
-void
-graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
-
-   int imol = -1;
-   // This is where we accumulate the residue edits:
-   std::vector<coot::select_atom_info> local_atom_edits;
-
-   // GtkWidget *table = lookup_widget(dialog, "residue_info_atom_table");
-   GtkWidget *grid = widget_from_builder("residue_info_atom_grid");
-
-   // GList *container_list = gtk_grid_get_children(GTK_GRID(grid));
-
-   // The children are a list, gone in "backward", just like we'd been
-   // consing onto a list as we added widgets to the table.
-   //
-   // int len = g_list_length(container_list);
-   // std::cout << "=== The table has " << len << " elements" << std::endl;
-   for(int i=0; i < len; i+=5) {
-      if ((i+1) < len) {
-	 GtkWidget *widget_alt = 0; // (GtkWidget*) g_list_nth_data(container_list, i);
-	 GtkWidget *widget_b   = 0; // (GtkWidget*) g_list_nth_data(container_list, i+2);
-	 GtkWidget *widget_o   = 0; // (GtkWidget*) g_list_nth_data(container_list, i+3);
-	 std::string b_text = gtk_editable_get_text(GTK_EDITABLE(widget_b));
-	 std::string o_text = gtk_editable_get_text(GTK_EDITABLE(widget_o));
-// 	 std::cout << "b_text :" <<b_text << std::endl;
-// 	 std::cout << "o_text :" <<o_text << std::endl;
-
-	 // Handle OCCUPANCY edits
-	 //
-	 coot::select_atom_info *ai = static_cast<coot::select_atom_info *>(g_object_get_data(G_OBJECT(widget_o), "select_atom_info"));
-	 if (ai) {
-	    imol = ai->molecule_number;  // hehe
-	    mmdb::Atom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
-	    // std::cout << "got atom at " << at << std::endl;
-	    std::pair<short int, float>  occ_entry =
-	       graphics_info_t::float_from_entry(GTK_WIDGET(widget_o));
-	    if (occ_entry.first) {
-	       if (at) {
-		  if (abs(occ_entry.second - at->occupancy) > 0.009) {
-		     coot::select_atom_info local_at = *ai;
-		     local_at.add_occ_edit(occ_entry.second);
-		     local_atom_edits.push_back(local_at);
-		  }
-	       }
-	    }
-	 } else {
-	    std::cout << "no user data found for widget_o" << std::endl;
-	 }
-
-	 // HANDLE B-FACTOR edits
-	 ai = (coot::select_atom_info *) g_object_get_data(G_OBJECT(widget_b), "select_atom_info");
-	 if (ai) {
-	    imol = ai->molecule_number;  // hehe
-	    mmdb::Atom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
-	    std::pair<short int, float>  temp_entry =
-	       graphics_info_t::float_from_entry(GTK_WIDGET(widget_b));
-	    if (temp_entry.first) {
-	       if (at) {
-		  // std::cout << "    temp comparison " << temp_entry.second
-		  // << " " << at->tempFactor << std::endl;
-		  if (abs(temp_entry.second - at->tempFactor) > 0.009) {
-		     coot::select_atom_info local_at = *ai;
-		     local_at.add_b_factor_edit(temp_entry.second);
-		     local_atom_edits.push_back(local_at);
-		  }
-	       }
-	    }
-	 }
-
-	 // HANDLE Alt-conf edits
-	 ai = (coot::select_atom_info *) g_object_get_data(G_OBJECT(widget_alt), "select_atom_info");
-	 if (ai) {
-	    imol = ai->molecule_number;  // hehe
-	    mmdb::Atom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
-	    std::string entry_text = gtk_editable_get_text(GTK_EDITABLE((widget_alt));
-	    if (at) {
-	       coot::select_atom_info local_at = *ai;
-	       local_at.add_altloc_edit(entry_text);
-	       local_atom_edits.push_back(local_at);
-	    }
-	 }
-      } else {
-	 std::cout << "Programmer error in decoding table." << std::endl;
-	 std::cout << "  Residue Edits not applied!" << std::endl;
-      }
-   }
-
-   if (local_atom_edits.size() >0)
-      if (imol >= 0)
-	 graphics_info_t::molecules[imol].apply_atom_edits(local_atom_edits);
-
-   residue_info_edits->clear();
-   // delete res_spec; // can't do this: the user may press the button twice
-}
-#endif // old
-
 // static
 // (should be called by the destroy event and the close button)
 void
@@ -1853,23 +1752,6 @@ graphics_info_t::pointer_atom_molecule_combobox_changed(GtkWidget *combobox, gpo
 
 }
 
-
-#if 0
-// See Changelog 2004-05-05
-//
-// We are passed an GtkOptionMenu *option_menu
-//
-void
-graphics_info_t::fill_option_menu_with_coordinates_options_internal(GtkWidget *option_menu,
-								    GtkSignalFunc callback_func,
-								    short int set_last_active_flag) {
-
-   int imol_active = -1; // To allow the function to work as it used to.
-   fill_option_menu_with_coordinates_options_internal_2(option_menu, callback_func,
-							set_last_active_flag, imol_active);
-
-}
-#endif
 
 void
 graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_molecule,
@@ -4867,7 +4749,6 @@ graphics_info_t::update_molecular_representation_widgets() {
          }
       }
    }
-
 }
 
 // "Coot: " will be prepended to the dialog label before use
@@ -4910,8 +4791,8 @@ graphics_info_t::update_molecular_representation_widgets() {
  }
 
 
- void
-    graphics_info_t::add_shortcuts_to_window(GtkWidget *shortcuts_window) {
+void
+graphics_info_t::add_shortcuts_to_window(GtkWidget *shortcuts_window) {
 
    {
       auto shortcut_activated = +[] (GtkWidget *widget,
@@ -4946,5 +4827,9 @@ graphics_info_t::update_molecular_representation_widgets() {
 
          gtk_shortcut_controller_add_shortcut(GTK_SHORTCUT_CONTROLLER(controller), shortcut);
       }
+
+      // 4.14!
+      // GtkShortcutsSection* section = ...
+      // gtk_shortcuts_window_add_section(GTK_SHORTCUTS_WINDOW(shortcuts_window), section);
    }
- }
+}

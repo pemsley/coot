@@ -59,12 +59,13 @@ Mesh::init() {
    is_headless = false;
    buffer_id = 0; // not valid
    index_buffer_id = 0; // not valid
+   debug_mode = false;
 
    std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
    time_constructed = now;
 }
 
-Mesh::Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices) {
+Mesh::Mesh(const std::pair<std::vector<s_generic_vertex>, const std::vector<g_triangle> > &indexed_vertices) {
 
    init();
    vertices  = indexed_vertices.first;
@@ -746,7 +747,6 @@ Mesh::setup_buffers() {
 
    unsigned int n_vertices = vertices.size();
 
-   // std::cout << "setup_buffers() n_vertices " << n_vertices << std::endl;
    // std::cout << "setup_buffers() setup_buffers_for_gl_lines " << setup_buffers_for_gl_lines << std::endl;
 
    if (first_time) {
@@ -1463,7 +1463,7 @@ Mesh::draw_instanced(int pass_type,
                      float pulsing_phase_distribution,
                      float z_rotation_angle) {
 
-   if (false)
+   if (debug_mode)
       std::cout << "Mesh::draw_instanced() Mesh " << name << " -- start -- with shader " << shader_p->name
                 << " and do_pulse " << do_pulse << " and draw_this_mesh " << draw_this_mesh
                 << std::endl;
@@ -1566,7 +1566,7 @@ Mesh::draw_instanced(int pass_type,
    // glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id); // needed?
    // err = glGetError(); if (err) std::cout << "error draw_instanced() glBindBuffer() inst_rts_buffer_id" << std::endl;
 
-   if (false)
+   if (debug_mode)
       std::cout << "Mesh::draw_instanced() Mesh \"" << name << "\" drawing n_verts " << n_verts << " n_instances " << n_instances
                 << " with shader " << shader_p->name << " and vao " << vao << std::endl;
 
@@ -1715,7 +1715,7 @@ Mesh::draw_extra_distance_restraint_instances(Shader *shader_p,
 void
 Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation) {
 
-   if (false)
+   if (debug_mode)
       std::cout << "in draw_particles() with n_instances " << n_instances << " and n_triangles: "
                 << triangles.size() << std::endl;
 
@@ -1773,7 +1773,7 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &vi
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
    unsigned int n_verts = 3 * triangles.size();
-   if (false)
+   if (debug_mode)
       std::cout << "debug:: Mesh::draw_particles() " << name << " with shader " << shader_p->name
                 << " drawing n_instances " << n_instances << std::endl;
    glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);

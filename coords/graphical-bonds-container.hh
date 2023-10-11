@@ -333,7 +333,8 @@ class graphical_bonds_container {
       n_rotamer_markups = 0;
       rotamer_markups = NULL;
    }
-      
+
+   void debug() const;
    void add_colour(const std::vector<graphics_line_t> &a);
    void add_zero_occ_spots(const std::vector<coot::Cartesian> &spots);
    void add_bad_CA_CA_dist_spots(const std::vector<coot::Cartesian> &spots);

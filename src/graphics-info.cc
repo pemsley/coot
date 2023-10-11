@@ -2188,7 +2188,7 @@ graphics_info_t::clear_up_moving_atoms() {
    dynamic_distances.clear();
 
 
-   std::cout << "------------------------ clear_up_moving_atoms(): setting moving_atoms_asc to null" << std::endl;
+   // std::cout << "------------------------ clear_up_moving_atoms(): setting moving_atoms_asc to null" << std::endl;
    // and now the signal that moving_atoms_asc has been cleared:
    //
    moving_atoms_asc = NULL; // 20200412-PE. Why was this not done years ago?
@@ -2494,140 +2494,18 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
                                                                  // radius adjustment in make_glsl_bonds_type_checked()
    moving_atoms_molecule.is_intermediate_atoms_molecule = true;
 
-#ifndef EMSCRIPTEN
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
    shader_for_models.Use();
    moving_atoms_molecule.make_glsl_bonds_type_checked(__FUNCTION__);
 
    setup_atom_pull_restraints_glsl();
-#endif
 
-#ifndef EMSCRIPTEN
    { // put this somewhere
       std::vector<Instanced_Markup_Mesh_attrib_t> balls;
       update_rama_balls(&balls);
       rama_balls_mesh.update_instancing_buffers(balls);
    }
-#endif
 
-}
-
-#if 0
-void
-graphics_info_t::draw_moving_atoms_peptide_markup() {
-
-   if (regularize_object_bonds_box.n_cis_peptide_markups > 0) {
-      for (int i=0; i<regularize_object_bonds_box.n_cis_peptide_markups; i++) {
-         const graphical_bonds_cis_peptide_markup &m = regularize_object_bonds_box.cis_peptide_markups[i];
-
-         glColor3f(0.7, 0.7, 0.8);
-         coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
-
-         coot::Cartesian v1 = fan_centre - m.pt_ca_1;
-         coot::Cartesian v2 = fan_centre - m.pt_c_1;
-         coot::Cartesian v3 = fan_centre - m.pt_n_2;
-         coot::Cartesian v4 = fan_centre - m.pt_ca_2;
-
-         coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
-         coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
-         coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
-         coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
-
-         glBegin(GL_TRIANGLE_FAN);
-
-         glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
-         glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
-         glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
-         glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
-         glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
-
-         glEnd();
-      }
-   }
-}
-#endif
-
-
-// Display the graphical object of the regularization.
-// static
-void
-graphics_info_t::draw_ramachandran_goodness_spots() {
-
-#if 0
-   if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) {
-      if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
-
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT1);
-    glEnable(GL_LIGHT0);
-    glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    // ------------------------------------------
-
-    coot::Cartesian top       = unproject_xyz(100, 100, 0.5);
-    coot::Cartesian bottom    = unproject_xyz(100,   0, 0.5);
-    coot::Cartesian screen_y = top - bottom;
-
-    // ------------------------------------------
-
-    float ball_scale_factor = 1.0; // 1.2;
-    for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
-
-       coot::Cartesian pos = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
-       const float &prob_raw      = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
-
-       // ------------------------------------------
-
-       pos -= screen_y * (float(7.5)/float(graphics_info_t::zoom));
-       double prob = prob_raw;
-       if (prob > 0.5) prob = 0.5; // 0.4 and 2.5 f(for q) might be better (not tested)
-       double q = (1 - 2.0 * prob);
-       q = pow(q, 25);
-       coot::colour_holder col = coot::colour_holder(q, 0.0, 1.0, std::string(""));
-       double radius = 0.5;
-
-       // ------------------------------------------
-
-       int slices = 20;
-       GLUquadric* quad = gluNewQuadric();
-
-       GLfloat  mat_specular[]  = {col.red, col.green, col.blue, 0.6};
-       GLfloat  mat_shininess[] = {25};
-       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
-       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
-       glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-
-       glPushMatrix();
-       glTranslatef(pos.x(), pos.y(), pos.z());
-       // gluDisk(quad, 0, base, slices, 2);
-       gluSphere(quad, radius, 10, 10);
-       glPopMatrix();
-    }
-
-    glDisable(GL_LIGHTING); // maybe not needed.
-      }
-
-      // we don't want disks any more
-      if (false) {
-    if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
-       for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
-          const coot::Cartesian &pos = regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
-          const float &size          = regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
-
-          double base = size * 0.3;
-          int slices = 10;
-          GLUquadric* quad = gluNewQuadric();
-          glPushMatrix();
-          glTranslatef(pos.x(), pos.y(), pos.z());
-          gluDisk(quad, 0, base, slices, 2);
-          glPopMatrix();
-       }
-    }
-      }
-   }
-#endif
 }
 
 #include "utils/dodec.hh"
@@ -2683,7 +2561,6 @@ graphics_info_t::get_rotamer_dodecs() {
 // }
 
 
-#ifndef EMSCRIPTEN // 20220724-PE no pick info.  Hmm...
 mmdb::Atom *
 graphics_info_t::get_moving_atom(const pick_info &pi) const {
    mmdb::Atom *at = 0;
@@ -2694,7 +2571,6 @@ graphics_info_t::get_moving_atom(const pick_info &pi) const {
    }
    return at;
 }
-#endif
 
 
 // static
