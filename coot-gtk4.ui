@@ -6372,11 +6372,26 @@ Do you want to continue?
 
               <child>
                 <object class="GtkButton" id="python_scripting_button">
-                  <property name="label" translatable="yes">Py</property>
                   <property name="can-focus">0</property>
                   <signal name="clicked" handler="on_python_scripting_button" swapped="no"/>
                   <property name="margin-start">2</property>
                   <property name="halign">end</property> 
+                  <child>
+                    <object class="GtkBox">
+                      <property name="orientation">vertical</property>
+                      <property name="spacing">2</property>
+                      <child>
+                        <object class="GtkLabel">
+                          <property name="label" translatable="yes">Py</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkImage">
+                          <property name="icon-name">python-logo</property>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
                 </object>
               </child>
 
