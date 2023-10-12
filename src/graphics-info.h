@@ -5281,6 +5281,8 @@ string   static std::string sessionid;
    static void rama_plot_boxes_handle_molecule_update(GtkWidget *box, const std::string &entry_string); // used in the residue selection
                                                                                                         // entry change callback
 
+   static void add_shortcuts_to_window(GtkWidget *shortcuts_window);
+
 };
 
 

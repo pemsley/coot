@@ -2508,7 +2508,6 @@ remarks_browser_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_set_visible(w, TRUE);
 }
 
-
 void
 about_coot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                   G_GNUC_UNUSED GVariant *parameter,
@@ -2522,6 +2521,21 @@ about_coot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       gtk_widget_set_visible(dialog, TRUE);
    }
 }
+
+void
+coot_shortcuts_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                      G_GNUC_UNUSED GVariant *parameter,
+                      G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *window = widget_from_builder("coot_shortcuts_window");
+   if (window) {
+      graphics_info_t g;
+      g.add_shortcuts_to_window(window);
+      set_transient_for_main_window(window);
+      gtk_widget_set_visible(window, TRUE);
+   }
+}
+
 
 void
 orthographic_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -3485,6 +3499,7 @@ create_actions(GtkApplication *application) {
 
    add_action("remarks_browser_action", remarks_browser_action);
    add_action("about_coot_action", about_coot_action);
+   add_action("coot_shortcuts_action", coot_shortcuts_action);
 
    // Refine menu
 

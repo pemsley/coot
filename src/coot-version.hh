@@ -2,7 +2,7 @@
 /*! \file
   \brief Coot Scripting Interface - Version info
 */
-
+#include <string>
 
 /*! \brief the coot version string 
 

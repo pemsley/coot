@@ -11111,3 +11111,11 @@ Tue  3 Oct 11:20:14 BST 2023
          igeom.vertices = convert_vertices(c_00.vertices);
          igeom.triangles = c_00.triangles;
 
+
+----
+Mon  9 Oct 22:46:13 BST 2023
+
+  typescript type-fest:
+
+  https://github.com/sindresorhus/type-fest
+

@@ -978,6 +978,7 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
 void
 graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_moving_atoms()
 
+   // std::cout << "draw_intermediate_atoms() --- start --- " << std::endl;
 
    // ----------------------------------------
    // move this function into graphics-info-draw-model-molecules.cc
@@ -992,7 +993,6 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 model_rotation = get_model_rotation();
 
-
    molecule_class_info_t &m = graphics_info_t::moving_atoms_molecule;
    glm::vec4 bgc(background_colour, 1.0);
    bool show_just_shadows = false; // make this a member data item.
@@ -1000,14 +1000,10 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
    float opacity = 1.0f;
 
    if (pass_type == PASS_TYPE_STANDARD) {
-      Shader &shader = shader_for_meshes_with_shadows;
-
-      // non-instanced:
-      // m.molecule_as_mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity, bgc,
-      //                         wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
       // instanced:
       Shader &shader_p = shader_for_instanced_objects;
+      // m.model_molecule_meshes.set_debug_mode(true);
       m.draw_molecule_as_meshes(&shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
    }
 
@@ -1026,6 +1022,8 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
    }
 
    if (pass_type == PASS_TYPE_FOR_SHADOWS) { // generating, not using - PASS_TYPE_GEN_SHADOW_MAP is a clearer name.
+
+      // 20231011-PE have I used the right shader here?
       Shader &shader = shader_for_meshes_shadow_map;
       glm::vec3 dummy_eye_position;
       bool gl_lines_mode = false;

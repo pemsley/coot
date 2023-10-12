@@ -3797,9 +3797,11 @@ molecule_class_info_t::make_colour_by_molecule_bonds(bool force_rebonding) {
 void
 molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
-   bool debug = false;
+   bool debug = true;
 
    // Note caller can be 0 (e.g. with clang) - so be aware of that when debugging.
+
+   if (bonds_box_type == coot::UNSET_TYPE) bonds_box_type = coot::NORMAL_BONDS;
 
    std::string caller_s("NULL");
    if (caller) caller_s = std::string(caller);
@@ -3831,7 +3833,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
    std::set<int> dummy;
 
-   if (bonds_box_type == coot::NORMAL_BONDS){
+   if (bonds_box_type == coot::NORMAL_BONDS) {
       std::cout << "debug:: plain make_bonds_type_checked() calls makebonds() with geom_p " << geom_p << std::endl;
       makebonds(geom_p, dummy);
    }
@@ -3880,6 +3882,8 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
    if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS)
       user_defined_colours_representation(g.Geom_p(), false, g.draw_missing_loops_flag); // hack,
+
+   bonds_box.debug();
 
    // bleugh. But if we don't do this here, where *do* we do it?
    // Should the glci be passed to make_bonds_type_checked()?  Urgh.
@@ -4046,6 +4050,7 @@ void
 molecule_class_info_t::make_mesh_from_bonds_box() {
 
    // it's all instanced now.
+   std::cout << "don't use make_mesh_from_bonds_box() - it's all instanced now " << std::endl;
 }
 
 //! user-defined atom selection to colour index
@@ -4338,16 +4343,6 @@ molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
       std::cout << "   view_rotation_matrix " << glm::to_string(view_rotation_matrix) << std::endl;
       std::cout << "   eye pos              " << glm::to_string(eye_position) << std::endl;
    }
-
-#if 0
-   bool transferred_colour_is_instanced = true; // 20230812-PE was false, strangely.  true is needed for "instanced-object.shader"
-   molecule_as_mesh_atoms_1.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-   molecule_as_mesh_atoms_2.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-   molecule_as_mesh_bonds_c00.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-   molecule_as_mesh_bonds_c01.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-   molecule_as_mesh_bonds_c10.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-   molecule_as_mesh_bonds_c11.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-#endif
 
    Shader *shader_for_simple_mesh = &graphics_info_t::shader_for_model_as_meshes; // is this right?
    Shader *shader_for_instances = shader_p;

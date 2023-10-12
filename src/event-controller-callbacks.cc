@@ -163,37 +163,41 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
       if (control_is_pressed) {
          do_drag_pan_gtk4(gl_area, drag_delta_x, drag_delta_y);
       } else {
+         if (modifier & GDK_BUTTON1_MASK) {
+            do_view_zoom(drag_delta_x, drag_delta_y);
+         } else {
 
-         bool trackpad_drag = false;
+            bool trackpad_drag = false;
 #ifdef __APPLE__ // this is right-mouse on PC, trackpad on MacBook
-         trackpad_drag = true;
+            trackpad_drag = true;
 #endif
-         bool handled = false;
-         if (trackpad_drag) {
-            if (in_moving_atoms_drag_atom_mode_flag) {
-               if (last_restraints_size() > 0) {
-                  // move an already picked atom
-                  move_atom_pull_target_position(x, y);
-                  handled = true;
-               }
-            } else {
-               int x_as_int = static_cast<int>(x);
-               int y_as_int = static_cast<int>(y);
-               if (moving_atoms_asc) {
-                  if (moving_atoms_asc->n_selected_atoms > 0) {
-                     if (last_restraints_size() > 0) {
-                        // here we are refining atoms, but are trying to rotate
-                        // the view, and not dragging on an atom
-                     } else {
-                        rotate_chi(x_as_int, y_as_int);
-                        handled = true;
+            bool handled = false;
+            if (trackpad_drag) {
+               if (in_moving_atoms_drag_atom_mode_flag) {
+                  if (last_restraints_size() > 0) {
+                     // move an already picked atom
+                     move_atom_pull_target_position(x, y);
+                     handled = true;
+                  }
+               } else {
+                  int x_as_int = static_cast<int>(x);
+                  int y_as_int = static_cast<int>(y);
+                  if (moving_atoms_asc) {
+                     if (moving_atoms_asc->n_selected_atoms > 0) {
+                        if (last_restraints_size() > 0) {
+                           // here we are refining atoms, but are trying to rotate
+                           // the view, and not dragging on an atom
+                        } else {
+                           rotate_chi(x_as_int, y_as_int);
+                           handled = true;
+                        }
                      }
                   }
                }
             }
-         }
-         if (! handled) {
-            do_view_rotation(drag_delta_x, drag_delta_y);
+            if (! handled) {
+               do_view_rotation(drag_delta_x, drag_delta_y);
+            }
          }
       }
    }

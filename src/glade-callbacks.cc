@@ -6437,12 +6437,11 @@ show_symmetry_switch_state_set(GtkSwitch *switch_widget,
 
 extern "C" G_MODULE_EXPORT
 void
-on_hscale_symmetry_colour_value_changed
-                                        (GtkRange        *range,
-                                        gpointer         user_data)
-{
-  gdouble f = gtk_range_get_value(range);
-  set_symmetry_colour_merge(f);
+on_hscale_symmetry_colour_value_changed(GtkRange        *range,
+                                        gpointer         user_data) {
+
+   gdouble f = gtk_range_get_value(range);
+   set_symmetry_colour_merge(f);
 }
 
 

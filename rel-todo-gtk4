@@ -12,6 +12,9 @@
 
 8 items
 
+Moorhen: test robustness of jiggle-fitting. Move the molecule around a bit
+         and see if you get solutions. Use the nanobody in 7vvl.
+
 Moorhen: Read gziped maps in libcootapi, so moorhen can get maps from emdb.
 
 Moorhen: Request: electrostatic surface.
@@ -19,18 +22,12 @@ Moorhen: Request: electrostatic surface.
 Moorhen: carbon bonds are too light on white background. Looking at the code, it seems
          to do the right thing, but needs testing. Print the colour table.
 
-Missing validation items: Some currently under Draw -> Molecule
-   "Residues with Alt Confs" and
-   "Residues with Missing Atoms"
-   "Residue with cis-peptide" action needs to be filled
-   "Residue type selection" action needs to be filled  <- This one remains to be done.
-
 Rotate/Translate <fragment> doesn't work.
-
-Clicking the switch Refine -> GM Restraints doesn't undisplay the GM restraints.
 
 Rigid-body refine the tutorial A chain. It used to display an intermediate atoms
 representation. What happens now and is that what you want?
+
+Outliers only in Rama plots
 
 Renumber residue range on a molecule that is not the first molecule ::: 0.6
 
@@ -42,6 +39,13 @@ When I Auto-open MTZ I dont have a option to choose mtz files.
 Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
 
 ---- older issues ---
+
+Typical example of "what to do?"
+  - Filo has been trying the Coot EM tutorial in Moorhen and finds some problem with
+    "jiggle fit" - this is an interesting scientific problem - how far can you be away
+  - Bogged down in tracking events and model coordinates and mesh and drawing updates
+    for rotation/translation
+  - Chatting with Jakub about Shortcuts but making no progress
 
 Ribbons don't cast shadows.
 
@@ -964,3 +968,13 @@ Fix the R/RC combo-box changed handlers.
 Colour by B-factor CA is wrong: test with tutorial and 8oie.
           B-factor all doesn't work at all.
 * Done.
+
+Missing validation items: Some currently under Draw -> Molecule
+   "Residues with Alt Confs" and
+   "Residues with Missing Atoms"
+   "Residue with cis-peptide" action needs to be filled
+   "Residue type selection" action needs to be filled  <- This one remains to be done.
+* Done. A bit of a fudge and what a grind - boring.
+
+Clicking the switch Refine -> GM Restraints doesn't undisplay the GM restraints.
+* Done. Easy.
