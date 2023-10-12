@@ -530,12 +530,9 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport);
 /* now we use */
 void fill_option_menu_with_refine_options(GtkWidget *option_menu);
 
-GtkWidget *wrapped_create_refine_params_dialog();
-
 void do_torsions_toggle(GtkWidget *button);
 
-void set_refine_params_toggle_buttons(GtkWidget *button);
-void set_refine_params_comboboxes(GtkWidget *button);
+void set_refine_params_comboboxes();
 
 
 /* Now the refinement weight can be set from an entry in the refine_params_dialog. */

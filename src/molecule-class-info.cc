@@ -3797,9 +3797,11 @@ molecule_class_info_t::make_colour_by_molecule_bonds(bool force_rebonding) {
 void
 molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
-   bool debug = false;
+   bool debug = true;
 
    // Note caller can be 0 (e.g. with clang) - so be aware of that when debugging.
+
+   if (bonds_box_type == coot::UNSET_TYPE) bonds_box_type = coot::NORMAL_BONDS;
 
    std::string caller_s("NULL");
    if (caller) caller_s = std::string(caller);
@@ -3831,7 +3833,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
    std::set<int> dummy;
 
-   if (bonds_box_type == coot::NORMAL_BONDS){
+   if (bonds_box_type == coot::NORMAL_BONDS) {
       std::cout << "debug:: plain make_bonds_type_checked() calls makebonds() with geom_p " << geom_p << std::endl;
       makebonds(geom_p, dummy);
    }
@@ -3881,6 +3883,8 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS)
       user_defined_colours_representation(g.Geom_p(), false, g.draw_missing_loops_flag); // hack,
 
+   bonds_box.debug();
+
    // bleugh. But if we don't do this here, where *do* we do it?
    // Should the glci be passed to make_bonds_type_checked()?  Urgh.
    // That is called from many places....
@@ -3919,6 +3923,9 @@ molecule_class_info_t::set_atom_radius_scale_factor(float sf) {
 std::vector<glm::vec4>
 molecule_class_info_t::make_colour_table() const {
 
+   // std::cout << ":::::::::::: in make_colour_table() bonds_box_type is " << bonds_box_type << " vs "
+   // << coot::COLOUR_BY_B_FACTOR_BONDS << std::endl;
+
    graphics_info_t g; // Hmm..
 
    bool debug_colour_table = false;
@@ -3936,6 +3943,7 @@ molecule_class_info_t::make_colour_table() const {
    for (int icol=0; icol<bonds_box.num_colours; icol++) {
       if (bonds_box_type == coot::COLOUR_BY_RAINBOW_BONDS) {
          glm::vec4 col = get_bond_colour_by_colour_wheel_position(icol, coot::COLOUR_BY_RAINBOW_BONDS);
+         std::cout << "rainbow " << icol << glm::to_string(col) << std::endl;
          colour_table[icol] = col;
       } else {
          // this is the old way of dogin user-defined colours. Now we use
@@ -3971,9 +3979,15 @@ molecule_class_info_t::make_colour_table() const {
                   colour_table[icol] = colour_holder_to_glm(ch);
                }
             } else {
-               coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
-               cc.brighter(0.8); // calm down - now that we are using the instanced-object.shader - the molecule is too bright.
-               colour_table[icol] = cc.to_glm();
+               if (bonds_box_type == coot::COLOUR_BY_B_FACTOR_BONDS ||
+                   bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
+                  glm::vec4 col = get_bond_colour_by_colour_wheel_position(icol, bonds_box_type);
+                  colour_table[icol] = col;
+               } else {
+                  coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
+                  cc.brighter(0.8); // calm down - now that we are using the instanced-object.shader - the molecule is too bright.
+                  colour_table[icol] = cc.to_glm();
+               }
             }
          }
       }
@@ -4036,6 +4050,7 @@ void
 molecule_class_info_t::make_mesh_from_bonds_box() {
 
    // it's all instanced now.
+   std::cout << "don't use make_mesh_from_bonds_box() - it's all instanced now " << std::endl;
 }
 
 //! user-defined atom selection to colour index
@@ -4112,10 +4127,10 @@ molecule_class_info_t::set_user_defined_atom_colour_by_selection(const std::vect
 }
 
 
-// instanced meshes, that is - clever but I couldn't get it to work - there's a branch
-// where I tried.
 void
 molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
+
+   // this function presumes that bonds_box has been set before this function is called.
 
    // what is the api_bond_colour_t for the given bbt?
    auto convert_box_box_type = [] (int bbt) {
@@ -4328,16 +4343,6 @@ molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
       std::cout << "   view_rotation_matrix " << glm::to_string(view_rotation_matrix) << std::endl;
       std::cout << "   eye pos              " << glm::to_string(eye_position) << std::endl;
    }
-
-#if 0
-   bool transferred_colour_is_instanced = true; // 20230812-PE was false, strangely.  true is needed for "instanced-object.shader"
-   molecule_as_mesh_atoms_1.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-   molecule_as_mesh_atoms_2.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-   molecule_as_mesh_bonds_c00.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-   molecule_as_mesh_bonds_c01.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-   molecule_as_mesh_bonds_c10.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-   molecule_as_mesh_bonds_c11.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog, transferred_colour_is_instanced);
-#endif
 
    Shader *shader_for_simple_mesh = &graphics_info_t::shader_for_model_as_meshes; // is this right?
    Shader *shader_for_instances = shader_p;
@@ -4769,9 +4774,10 @@ molecule_class_info_t::get_fixed_atoms() const {
 void
 molecule_class_info_t::update_extra_restraints_representation() {
 
-   std::cout << "here we are in update_extra_restraints_representation() "
-             << extra_restraints.bond_restraints.size() << " "
-             << extra_restraints.geman_mcclure_restraints.size() << std::endl;
+   if (false)
+      std::cout << "here we are in update_extra_restraints_representation() "
+                << extra_restraints.bond_restraints.size() << " "
+                << extra_restraints.geman_mcclure_restraints.size() << std::endl;
 
    extra_restraints_representation.clear();
    update_extra_restraints_representation_bonds();

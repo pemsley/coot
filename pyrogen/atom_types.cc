@@ -33,6 +33,9 @@ std::vector<std::tuple<std::string, std::string, int> > get_smarts_by_element() 
 
 void set_monomer_library_atom_types(const RDKit::ROMol& mol) {
 
+   // This function is a copy of atom-types.cc.  Maybe they
+   // both were derived from the same original python script atom_types.py?
+
    std::vector<std::tuple<std::string, std::string, int> > smarts_list = {
 
       {"O2",  "[OX2;H0]", 0},

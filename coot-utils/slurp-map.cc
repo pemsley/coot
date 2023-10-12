@@ -21,11 +21,18 @@
 #include <iostream>
 #include <system_error>
 #include <chrono>
+#include <zlib.h>
 
 #include "utils/coot-utils.hh"
 #include "slurp-map.hh"
 
 // Test on 5778, 10289, 6338
+
+#include <fstream>
+#include <iostream>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
 
 bool
 coot::util::is_basic_em_map_file(const std::string &file_name) {
@@ -39,36 +46,82 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
                                           clipper::Xmap<float> *xmap_p,
                                           bool check_only) { // default arg, false
 
-   // std::cout << "slurp_fill_xmap_from_map_file() callled with check_only " << check_only << std::endl;
+   auto test_do_something = [] (std::basic_streambuf<char> *data) {
+      bool debug = true;
+      // std::cout << "data: " << data << std::endl;
+      int n_rows = -1;
+      int n_cols = -1;
+      int n_secs = -1;
+      n_cols = *reinterpret_cast<int *>(data);
+      n_rows = *reinterpret_cast<int *>(data+4);
+      n_secs = *reinterpret_cast<int *>(data+8);
+      if (debug) {
+         std::cout << "n_cols " << n_cols << std::endl;
+         std::cout << "n_rows " << n_rows << std::endl;
+         std::cout << "n_sections " << n_secs << std::endl;
+      }
+   };
+
+   auto slurp_fill_xmap_from_gz_map_file = [] (std::istream &instream,
+                                               clipper::Xmap<float> *xmap_p,
+                                               bool check_only) {
+
+      bool debug = true;
+      int n_rows = -1;
+      int n_cols = -1;
+      int n_secs = -1;
+
+      instream >> n_rows;
+      instream >> n_cols;
+      instream >> n_secs;
+
+      if (debug) {
+         std::cout << "slurp_fill_xmap_from_gz_map_file: n_cols " << n_cols << std::endl;
+         std::cout << "slurp_fill_xmap_from_gz_map_file: n_rows " << n_rows << std::endl;
+         std::cout << "slurp_fill_xmap_from_gz_map_file: n_sections " << n_secs << std::endl;
+      }
+   };
+
+   // std::cout << "\n******** slurp_fill_xmap_from_map_file() called with check_only " << check_only << std::endl;
 
    bool status = false;
    if (file_exists(file_name)) {
-      struct stat s;
-      int fstat = stat(file_name.c_str(), &s);
-      if (fstat == 0) {
-         FILE *fptr = fopen(file_name.c_str(), "rb");
-         int st_size = s.st_size;
-         void *space = malloc(st_size);
-         // Happy Path
-         size_t st_size_2 = fread(space, st_size, 1, fptr);
-         char *data = static_cast<char *>(space);
-         fclose(fptr);
-         if (st_size_2 == 1) {
+
+      bool is_gzip = false;
+      std::string ext = file_name_extension(file_name);
+      if (ext == ".gz") is_gzip = true;
+
+      if (is_gzip) {
+
+      } else {
+         // 20231006-PE as it used to be.
+         struct stat s;
+         int fstat = stat(file_name.c_str(), &s);
+         if (fstat == 0) {
+            FILE *fptr = fopen(file_name.c_str(), "rb");
+            int st_size = s.st_size;
+            void *space = malloc(st_size+1);
             // Happy Path
-            if (st_size > 1024) {
-               status = slurp_parse_xmap_data(data, xmap_p, check_only); // fill xmap
+            size_t st_size_2 = fread(space, st_size, 1, fptr);
+            char *data = static_cast<char *>(space);
+            fclose(fptr);
+            if (st_size_2 == 1) {
+               // Happy Path
+               if (st_size > 1024) {
+                  status = slurp_parse_xmap_data(data, xmap_p, check_only); // fill xmap
+               } else {
+                  std::cout << "WARNING:: bad read " << file_name << std::endl;
+               }
             } else {
                std::cout << "WARNING:: bad read " << file_name << std::endl;
             }
-         } else {
-            std::cout << "WARNING:: bad read " << file_name << std::endl;
          }
       }
    } else {
       std::cout << "WARNING:: file does not exist " << file_name << std::endl;
    }
 
-   // std::cout << "debug:: slurp_fill_xmap_from_map_file() returning " << status << std::endl;
+   // std::cout << "debug:: ***************** slurp_fill_xmap_from_map_file() returning " << status << std::endl;
    return status;
 }
 
@@ -258,7 +311,22 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
                                int crs[3];  // col,row,sec coordinate
                                clipper::Xmap<float>::Map_reference_coord mrc(*xmap);
                                // this is unsigned int because split_indices returns unsigned int pairs.
+
+                               if (true) { // debugging
+                                  bool unlocked = false;
+                                  while (! print_lock.compare_exchange_weak(unlocked, true)) {
+                                     std::this_thread::sleep_for(std::chrono::microseconds(1));
+                                     unlocked = false;
+                                  }
+                                  std::cout << "start stop sections: "
+                                            << start_stop_section_index.first << " "
+                                            << start_stop_section_index.second << " "
+                                            << std::endl;
+                                  print_lock = false;
+                               }
+
                                for (unsigned int isec = start_stop_section_index.first; isec < start_stop_section_index.second; isec++ ) {
+
                                   crs[2] = isec + nz_start;
                                   for ( int irow = 0; irow < n_rows; irow++ ) {
                                      crs[1] = irow + ny_start;
@@ -283,7 +351,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
                                   }
                                }
                                
-                               if (false) { // debugging
+                               if (true) { // debugging
                                   bool unlocked = false;
                                   while (! print_lock.compare_exchange_weak(unlocked, true)) {
                                      std::this_thread::sleep_for(std::chrono::microseconds(1));
@@ -346,6 +414,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
 
    if (debug)
       std::cout << "DEBUG:: coot::util::slurp_parse_xmap_data(): returning status " << status << std::endl;
+   // std::cout << "^^^^^^^^^^^^^^^^ slurp_parse_xmap_data() done, returning " << status << std::endl;
    return status;
 }
 

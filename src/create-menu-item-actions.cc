@@ -2,6 +2,7 @@
 #include <iostream>
 #include <gtk/gtk.h>
 
+#include "coot-utils/coot-coord-utils.hh"
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
@@ -17,6 +18,8 @@
 #include "c-interface-ligands-swig.hh"
 #include "curlew-gtk4.hh"
 #include "c-interface-ligands.hh" // 20230920-PE new layla interface functions
+#include "labelled-button-info.hh"
+#include "cc-interface.hh" // for fullscreen()
 
 extern "C" { void load_tutorial_model_and_data(); }
 
@@ -246,8 +249,11 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkFileFilter *filterselect = gtk_file_filter_new();
    gtk_file_filter_add_pattern(filterselect, "*.map");
    gtk_file_filter_add_pattern(filterselect, "*.mrc");
+   gtk_file_filter_add_pattern(filterselect, "*.mrc.gz");
+   gtk_file_filter_add_pattern(filterselect, "*.map.gz");
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
+   set_transient_for_main_window(dialog);
    gtk_widget_set_visible(dialog, TRUE);
 }
 
@@ -653,16 +659,55 @@ change_chain_ids_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_set_visible(w, TRUE);
 }
 
+// make link uses the same API setup as refine_range()
 void
 make_link_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                  G_GNUC_UNUSED GVariant *parameter,
                  G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "make_link_action(): coot user_defined click 2" << std::endl;
-   // 20220828-PE needs check_if_in_range_define
+   graphics_info_t g;
+   const std::string &alt_conf_1 = g.in_range_first_picked_atom.alt_conf;
+   const std::string &alt_conf_2 = g.in_range_second_picked_atom.alt_conf;
+
+   if (alt_conf_1 == alt_conf_2) {
+
+      int imol_1 = g.in_range_first_picked_atom.int_user_data;
+      int imol_2 = g.in_range_second_picked_atom.int_user_data;
+
+      if (imol_1 == imol_2) {
+         if (g.is_valid_model_molecule(imol_1)) {
+            auto &m = g.molecules[imol_1];
+            mmdb:: Atom *at_1 = m.get_atom(g.in_range_first_picked_atom);
+            mmdb:: Atom *at_2 = m.get_atom(g.in_range_second_picked_atom);
+
+            if (at_1) {
+               if (at_2) {
+                  clipper::Coord_orth p1 = coot::co(at_1);
+                  clipper::Coord_orth p2 = coot::co(at_2);
+                  double d2 = (p1-p2).lengthsq();
+                  double dist = std::sqrt(d2);
+                  std::string link_name;
+                  m.make_link(g.in_range_first_picked_atom,
+                              g.in_range_second_picked_atom,
+                              link_name, dist, *g.Geom_p());
+                  g.graphics_draw();
+               } else {
+                  std::cout << "ERROR:: Missing atom " << std::endl;
+               }
+            } else {
+               std::cout << "ERROR:: Missing atom " << std::endl;
+            }
+         }
+      } else {
+         add_status_bar_text("Can't link residues in different molecules - doing nothing");
+      }
+   } else {
+      add_status_bar_text("Mismatched alt-confs - doing nothing");
+   }
 }
 
-#include "cc-interface.hh" // for fullscreen()
+
+
 
 void
 fix_nomenclature_errors_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -2299,6 +2344,30 @@ void atoms_with_zero_occupancies_action(G_GNUC_UNUSED GSimpleAction *simple_acti
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
       int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         std::vector<mmdb::Atom *> v = coot::atoms_with_zero_occupancy(mol);
+         if (v.empty()) {
+            info_dialog("No atoms with zero occupancy");
+            add_status_bar_text("No atoms with zero occupancy");
+         } else {
+            std::vector<labelled_button_info_t> lbv;
+            for (unsigned int i=0; i<v.size(); i++) {
+               mmdb::Atom *at = v[i];
+               clipper::Coord_orth position(at->x, at->y, at->z);
+               std::string label = std::string(at->GetChainID());
+               label += std::string(" ");
+               label += std::to_string(at->GetSeqNum());
+               label += std::string(" ");
+               label += std::string(at->GetAtomName());
+               lbv.push_back(labelled_button_info_t(label, position));
+            }
+            g.fill_generic_validation_box_of_buttons("Zero Occupancy Atoms", lbv);
+         }
+      }
+   } else {
+      add_status_bar_text("No active molecule found!");
+      info_dialog("No active molecule found!");
    }
 }
 
@@ -2439,7 +2508,6 @@ remarks_browser_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_set_visible(w, TRUE);
 }
 
-
 void
 about_coot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                   G_GNUC_UNUSED GVariant *parameter,
@@ -2453,6 +2521,21 @@ about_coot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       gtk_widget_set_visible(dialog, TRUE);
    }
 }
+
+void
+coot_shortcuts_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                      G_GNUC_UNUSED GVariant *parameter,
+                      G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *window = widget_from_builder("coot_shortcuts_window");
+   if (window) {
+      graphics_info_t g;
+      g.add_shortcuts_to_window(window);
+      set_transient_for_main_window(window);
+      gtk_widget_set_visible(window, TRUE);
+   }
+}
+
 
 void
 orthographic_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -2469,23 +2552,131 @@ perspective_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    set_use_perspective_projection(1);
 }
 
+
+// gui helper function
+std::vector<labelled_button_info_t>
+residues_vec_to_labelled_buttons_vec(const std::vector<mmdb::Residue *> &rv) {
+
+   std::vector<labelled_button_info_t> lbv;
+   for (unsigned int i=0; i<rv.size(); i++) {
+      mmdb::Residue *residue_p = rv[i];
+      std::pair<bool, clipper::Coord_orth> rc = coot::util::get_residue_centre(residue_p);
+      if (rc.first) {
+         std::string label = residue_p->GetChainID();
+         label += " ";
+         label += std::to_string(residue_p->GetSeqNum());
+         if (residue_p->GetInsCode()) {
+            label += " ";
+            label += residue_p->GetInsCode();
+         }
+         labelled_button_info_t lbi(label, rc.second);
+         lbv.push_back(lbi);
+      }
+   }
+   return lbv;
+}
+
 void residue_type_selection_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                    G_GNUC_UNUSED GVariant *parameter,
                                    G_GNUC_UNUSED gpointer user_data) {
 
    std::cout << "residue_type_selection action" << std::endl;
 
+   auto callback = +[] (int imol, const std::string &entry_text) {
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+         std::vector<mmdb::Residue *> rv = coot::util::residues_in_molecule_of_type(mol, entry_text);
+         if (rv.empty()) {
+            add_status_bar_text("No residues of that type in this molecule");
+         } else {
+            new_molecule_by_atom_selection(imol, entry_text.c_str()); // make this a c++ function one day
+            std::vector<labelled_button_info_t> lbv = residues_vec_to_labelled_buttons_vec(rv);
+            graphics_info_t g;
+            std::string title = "Residues of type " + entry_text;
+            g.fill_generic_validation_box_of_buttons(title, lbv);
+         }
+      }
+   };
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   GtkWidget *molecule_chooser_combobox      = widget_from_builder("molecule_chooser_comboboxtext");
+   GtkWidget *molecule_chooser_ok_button     = widget_from_builder("molecule_chooser_ok_button");
+   GtkWidget *molecule_chooser_cancel_button = widget_from_builder("molecule_chooser_cancel_button");
+   GtkWidget *dialog                         = widget_from_builder("molecule_chooser_dialog");
+
+   auto mol_vec = get_model_molecule_vector();
+   int imol_active = 0;
+   graphics_info_t g;
+   // we don't need a callback for when the combobox changes
+   g.fill_combobox_with_molecule_options(molecule_chooser_combobox, nullptr, imol_active, mol_vec);
+   set_transient_for_main_window(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
+
+   auto cancel_callback = +[] (G_GNUC_UNUSED GtkButton *button, G_GNUC_UNUSED gpointer user_data) {
+      GtkWidget *dialog = widget_from_builder("molecule_chooser_dialog");
+      gtk_widget_set_visible(dialog, FALSE);
+   };
+   g_signal_connect(G_OBJECT(molecule_chooser_cancel_button), "clicked", G_CALLBACK(cancel_callback), nullptr);
+
+   auto ok_callback = +[] (GtkButton *button, gpointer user_data) {
+      GtkWidget *dialog = widget_from_builder("molecule_chooser_dialog");
+      GtkWidget *molecule_chooser_combobox = widget_from_builder("molecule_chooser_comboboxtext");
+      GtkWidget *molecule_chooser_entry    = widget_from_builder("molecule_chooser_entry");
+
+      int imol = my_combobox_get_imol(GTK_COMBO_BOX(molecule_chooser_combobox));
+      std::string entry_text = gtk_editable_get_text(GTK_EDITABLE(molecule_chooser_entry));
+
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+         std::vector<mmdb::Residue *> rv = coot::util::residues_in_molecule_of_type(mol, entry_text);
+         if (rv.empty()) {
+            add_status_bar_text("No residues of that type in this molecule");
+         } else {
+            std::string atom_selection = std::string("(") +  entry_text + std::string(")");
+            new_molecule_by_atom_selection(imol, atom_selection.c_str()); // make this a c++ function one day
+            std::vector<labelled_button_info_t> lbv = residues_vec_to_labelled_buttons_vec(rv);
+            graphics_info_t g;
+            std::string title = "Residues of type " + entry_text;
+            g.fill_generic_validation_box_of_buttons(title, lbv);
+         }
+      }
+      gtk_widget_set_visible(dialog, FALSE);
+   };
+   // I should disconnect all existing connected signals here.
+   // see g_signal_handler_disconnect()
+   // Or perhaps it's easier to create an "OK" button every time? rather than look it up
+   // from the builder?
+   g_signal_connect(G_OBJECT(molecule_chooser_ok_button), "clicked", G_CALLBACK(ok_callback), nullptr);
 }
 
 void residues_with_alt_confs_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                   G_GNUC_UNUSED GVariant *parameter,
-                                   G_GNUC_UNUSED gpointer user_data) {
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "residues with alt confs action" << std::endl;
+   std::cout << "debug:: residues with alt confs action" << std::endl;
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
       int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         std::vector<mmdb::Residue *> rv = coot::residues_with_alt_confs(mol);
+         if (rv.empty()) {
+            add_status_bar_text("No residues with Alt confs in this molecule");
+         } else {
+            std::vector<labelled_button_info_t> lbv = residues_vec_to_labelled_buttons_vec(rv);
+            g.fill_generic_validation_box_of_buttons("Residues with AltConfs", lbv);
+         }
+      }
    }
 }
 
@@ -2498,6 +2689,43 @@ void residues_with_cis_peptides_action(G_GNUC_UNUSED GSimpleAction *simple_actio
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
       int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         int model_number = 1;
+         std::vector<coot::util::cis_peptide_quad_info_t> quads =
+            coot::cis_peptide_quads_from_coords(mol, model_number, g.Geom_p());
+
+         if (quads.empty()) {
+            info_dialog("No cis-peptides found in this molecule");
+         } else {
+            std::vector<labelled_button_info_t> lbv;
+            for (unsigned int i=0; i<quads.size(); i++) {
+               const coot::util::cis_peptide_quad_info_t &quad = quads[i];
+               if (quad.quad.atom_1 && quad.quad.atom_2 && quad.quad.atom_3 && quad.quad.atom_4) {
+                  clipper::Coord_orth sum(0,0,0);
+                  sum += coot::co(quad.quad.atom_1);
+                  sum += coot::co(quad.quad.atom_2);
+                  sum += coot::co(quad.quad.atom_3);
+                  sum += coot::co(quad.quad.atom_4);
+                  clipper::Coord_orth pos = 0.25 * sum;
+                  std::string label = "cis-peptide ";
+                  if (quad.type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS)
+                     label = "Twisted trans ";
+                  if (quad.type == coot::util::cis_peptide_quad_info_t::PRE_PRO_CIS)
+                     label = "Pre-PRO cis ";
+                  label += quad.quad.atom_1->GetChainID();
+                  label += " ";
+                  label += std::to_string(quad.quad.atom_1->GetSeqNum());
+                  label += "-";
+                  label += std::to_string(quad.quad.atom_4->GetSeqNum());
+                  labelled_button_info_t lbi(label, pos);
+                  lbv.push_back(lbi);
+               }
+            }
+            g.fill_generic_validation_box_of_buttons("Residues with cis-peptides", lbv);
+         }
+      }
    }
 }
 
@@ -2505,11 +2733,53 @@ void residues_with_missing_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_acti
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "residues with missing atoms action" << std::endl;
+   auto residue_to_label = [] (mmdb::Residue *residue_p ) {
+      std::string label = residue_p->GetChainID();
+      label += " ";
+      label += std::to_string(residue_p->GetSeqNum());
+      if (residue_p->GetInsCode()) {
+         label += " ";
+         label += residue_p->GetInsCode();
+      }
+      return label;
+   };
+
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
       int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         bool missing_hydrogens_flag = false;
+         coot::util::missing_atom_info m_i_info =
+            g.molecules[imol].missing_atoms(missing_hydrogens_flag, g.Geom_p());
+         if (m_i_info.residues_with_missing_atoms.empty()) {
+            add_status_bar_text("No residues with missing atoms");
+         } else {
+            std::vector<labelled_button_info_t> lbv;
+            for (unsigned int i=0; i<m_i_info.residues_with_missing_atoms.size(); i++) {
+               mmdb::Residue *residue_p = m_i_info.residues_with_missing_atoms[i];
+               std::map<mmdb::Residue *, std::vector<std::string> >::const_iterator it;
+               it = m_i_info.residue_missing_atom_names_map.find(residue_p);
+
+               std::string label = residue_to_label(residue_p);
+               label += " missing";
+
+               if (it != m_i_info.residue_missing_atom_names_map.end()) {
+                  const auto &atom_name_vec = it->second;
+                  for (unsigned int j=0; j<atom_name_vec.size(); j++) {
+                     label += " ";
+                     label += atom_name_vec[j];
+                  }
+               }
+               std::pair<bool, clipper::Coord_orth> rc = coot::util::get_residue_centre(residue_p);
+               if (rc.first) {
+                  labelled_button_info_t lbi(label, rc.second);
+                  lbv.push_back(lbi);
+               }
+            }
+            g.fill_generic_validation_box_of_buttons("Residues with Missing Atoms", lbv);
+         }
+      }
    }
 }
 
@@ -2634,6 +2904,8 @@ refine_range(G_GNUC_UNUSED GSimpleAction *simple_action,
       g.add_status_bar_text(m);
    }
 }
+
+
 
 void
 repeat_refine_range(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -3227,6 +3499,7 @@ create_actions(GtkApplication *application) {
 
    add_action("remarks_browser_action", remarks_browser_action);
    add_action("about_coot_action", about_coot_action);
+   add_action("coot_shortcuts_action", coot_shortcuts_action);
 
    // Refine menu
 

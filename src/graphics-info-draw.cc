@@ -321,20 +321,10 @@ graphics_info_t::mouse_zoom_by_scale_factor_inner(double sf) {
 
    if (perspective_projection_flag) {
 
-      // but see comment below
-      std::cout << "MISSING:: no mouse_zoom_by_scale_factor_inner() for perspective zoom" << std::endl;
-
-   } else {
-
-      // stabilize the scale factor
-      if (sf < 0.1) sf = 0.1;
-      if (sf > 2.0) sf = 2.0;
-      graphics_info_t::eye_position.z *= sf;
-      // std::cout << "mouse_zoom_by_scale_factor_inner(): delta_x eye_pos.z " << eye_position.z << " sf " << sf << std::endl;
-
-      // Now change the perspective limits, even though we are not in perpective
-      // mode - that seems a weird thing to do.
       { // own graphics_info_t function - c.f. adjust clipping
+
+         eye_position.z *= sf;
+
          double  l = graphics_info_t::eye_position.z;
          double zf = graphics_info_t::screen_z_far_perspective;
          double zn = graphics_info_t::screen_z_near_perspective;
@@ -354,10 +344,18 @@ graphics_info_t::mouse_zoom_by_scale_factor_inner(double sf) {
          if (graphics_info_t::screen_z_far_perspective < screen_z_far_perspective_limit)
             graphics_info_t::screen_z_far_perspective = screen_z_far_perspective_limit;
          if (false)
-            std::cout << "on_glarea_motion_notify(): debug l: " << l << " post-manip: "
+            std::cout << "mouse_zoom_by_scale_factor_inner(): debug l: " << l << " post-manip: "
                       << graphics_info_t::screen_z_near_perspective << " "
                       << graphics_info_t::screen_z_far_perspective << std::endl;
       }
+
+   } else {
+
+      // stabilize the scale factor
+      if (sf < 0.1) sf = 0.1;
+      if (sf > 2.0) sf = 2.0;
+      graphics_info_t::eye_position.z *= sf;
+
    }
 }
 
@@ -380,9 +378,17 @@ graphics_info_t::mouse_zoom(double delta_x_drag, double delta_y_drag) {
       std::cout << "zooming with perspective_projection_flag "
                 << graphics_info_t::perspective_projection_flag
                 << " " << graphics_info_t::zoom << std::endl;
-   if (! graphics_info_t::perspective_projection_flag) {
-      // std::cout << "now zoom: " << g.zoom << std::endl;
+
+   if (perspective_projection_flag) {
+
+      // std::cout << "now zoom: " << screen_z_near_perspective << " " << screen_z_far_perspective << std::endl;
+      if (fabs(delta_y) > fabs(delta_x))
+         delta_x = delta_y;
+      float sf = 1.0 - delta_x * 0.003;
+      mouse_zoom_by_scale_factor_inner(sf);
+
    } else {
+
       // Move the eye towards the rotation centre (don't move the rotation centre)
       if (fabs(delta_y) > fabs(delta_x))
          delta_x = delta_y;
@@ -972,6 +978,7 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
 void
 graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_moving_atoms()
 
+   // std::cout << "draw_intermediate_atoms() --- start --- " << std::endl;
 
    // ----------------------------------------
    // move this function into graphics-info-draw-model-molecules.cc
@@ -986,7 +993,6 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 model_rotation = get_model_rotation();
 
-
    molecule_class_info_t &m = graphics_info_t::moving_atoms_molecule;
    glm::vec4 bgc(background_colour, 1.0);
    bool show_just_shadows = false; // make this a member data item.
@@ -994,14 +1000,10 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
    float opacity = 1.0f;
 
    if (pass_type == PASS_TYPE_STANDARD) {
-      Shader &shader = shader_for_meshes_with_shadows;
-
-      // non-instanced:
-      // m.molecule_as_mesh.draw(&shader, mvp, model_rotation, lights, eye_position, opacity, bgc,
-      //                         wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
       // instanced:
       Shader &shader_p = shader_for_instanced_objects;
+      // m.model_molecule_meshes.set_debug_mode(true);
       m.draw_molecule_as_meshes(&shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
    }
 
@@ -1020,6 +1022,8 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
    }
 
    if (pass_type == PASS_TYPE_FOR_SHADOWS) { // generating, not using - PASS_TYPE_GEN_SHADOW_MAP is a clearer name.
+
+      // 20231011-PE have I used the right shader here?
       Shader &shader = shader_for_meshes_shadow_map;
       glm::vec3 dummy_eye_position;
       bool gl_lines_mode = false;
@@ -2191,8 +2195,8 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
          for (int ii=n_molecules()-1; ii>=0; ii--) {
             // std::cout << "Here B in draw_meshed_generic_display_object_meshes() " << ii  << std::endl;
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
+            if (! is_valid_model_molecule(ii)) continue;
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
-               if (! is_valid_model_molecule(jj)) continue;
 
                Mesh &mesh = m.meshes[jj];
 
@@ -5738,10 +5742,10 @@ graphics_info_t::draw_pointer_distances_objects() {
                                               bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
          if (! labels_for_pointer_distances.empty()) {
-            Shader &shader = shader_for_atom_labels;
+            Shader &shader_labels = shader_for_atom_labels;
             for (unsigned int i=0; i<labels_for_pointer_distances.size(); i++) {
                const auto &label = labels_for_pointer_distances[i];
-               tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader,
+               tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_labels,
                                                 mvp, model_rotation_matrix, bg_col,
                                                 shader_do_depth_fog_flag, perspective_projection_flag);
             }
@@ -5836,6 +5840,8 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
       return;
    if (!moving_atoms_asc->mol)
       return;
+
+   if (! draw_it_for_moving_atoms_restraints_graphics_object_user_control) return;
 
    // std::cout << "draw_extra_distance_restraints() pass_type: " << pass_type << std::endl;
    // std::cout << "draw_extra_distance_restraints() mesh_for_extra_distance_restraints " << std::endl;;
@@ -6400,6 +6406,28 @@ graphics_info_t::setup_key_bindings() {
       return gboolean(TRUE);
    };
 
+   auto l43 = [] () {
+      bool done = false;
+      for (int ii=0; ii<n_molecules(); ii++) {
+         if (is_valid_map_molecule(ii)) {
+            if (ii > scroll_wheel_map) {
+               scroll_wheel_map = ii;
+               done = true;
+               break;
+            }
+         }
+      }
+      if (! done) {
+         for (int ii=0; ii<n_molecules(); ii++) {
+            if (is_valid_map_molecule(ii)) {
+               scroll_wheel_map = ii;
+               break;
+            }
+         }
+      }
+      return gboolean(TRUE);
+   };
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -6446,6 +6474,9 @@ graphics_info_t::setup_key_bindings() {
    // map radius
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_bracketleft,  key_bindings_t(l41, "Decrease Map Radius")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_bracketright, key_bindings_t(l42, "Increase Map Radius")));
+
+   // scroll-wheel map change
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_W, key_bindings_t(l43, "Change Scroll-wheel map")));
 
    // control
    // meh - ugly and almost useless. Try again.

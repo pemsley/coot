@@ -19,6 +19,20 @@ model_molecule_meshes_t::empty() const {
    return state;
 }
 
+// transfer this to the meshes
+void
+model_molecule_meshes_t::set_debug_mode(bool state) {
+
+   // std::vector<Mesh> instanced_meshes;
+   // Mesh simple_mesh;
+
+   simple_mesh.debug_mode = state; // make this a function?
+   for (unsigned int i=0; i<instanced_meshes.size(); i++)
+      instanced_meshes[i].debug_mode = state;
+
+}
+
+
 void
 model_molecule_meshes_t::draw_simple_bond_lines(Shader *shader_p,
                                                 const glm::mat4 &mvp,

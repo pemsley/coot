@@ -45,7 +45,7 @@ AM_CXXFLAGS = \
 # 		 mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
 #		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc phenix-geo-bonds.cc
 
-libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
+libcoot_coords_la_SOURCES = Bond_lines.cc Cartesian.cc cos-sin.cc \
 		 phenix-geo-bonds.cc mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
 		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc \
 		 rotamer-markup.cc \
@@ -56,13 +56,14 @@ libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
 
 # we use rotamer probabilites, hence need libcoot-ligand
 libcoot_coords_la_LIBADD = \
-   $(top_builddir)/ligand/libcoot-ligand.la          \
-   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
-   $(top_builddir)/geometry/libcoot-geometry.la      \
-   $(top_builddir)/mini-mol/libcoot-mini-mol.la      \
-   $(top_builddir)/cootaneer/libcootaneer.la         \
-   $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
-   $(top_builddir)/utils/libcoot-utils.la            \
+   $(top_builddir)/ligand/libcoot-ligand.la           \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+   $(top_builddir)/coot-utils/libcoot-coord-extras.la \
+   $(top_builddir)/geometry/libcoot-geometry.la       \
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+   $(top_builddir)/cootaneer/libcootaneer.la          \
+   $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+   $(top_builddir)/utils/libcoot-utils.la             \
    $(CLIPPER_LIBS) -lpthread
 
 

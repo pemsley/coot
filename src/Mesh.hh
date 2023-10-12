@@ -84,7 +84,7 @@ public:
    // Mesh() { init(); }
    Mesh(const std::string &name_in, const coot::simple_mesh_t& mesh);
    // import from somewhere else
-   explicit Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices);
+   explicit Mesh(const std::pair<std::vector<s_generic_vertex>, const std::vector<g_triangle> > &indexed_vertices);
    explicit Mesh(const std::vector<s_generic_vertex> &vertices, const std::vector<g_triangle> &triangles);
    explicit Mesh(const std::string &name_in) : name(name_in) { init(); }
    explicit Mesh(const molecular_triangles_mesh_t &mtm);
@@ -94,6 +94,7 @@ public:
    bool load_from_glTF(const std::string &file_name, bool include_call_to_setup_buffers=true);
    void export_to_glTF(const std::string &file_name, bool use_binary_format) const; // 20210927-PE I'd rather not include tiny_gltf.h in Mesh.hh
 
+   bool debug_mode; // setable from the outside, rather than me editing the draw() function
    void debug() const;
    void debug_to_file() const;
    void delete_gl_buffers();

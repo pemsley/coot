@@ -18,7 +18,7 @@ find_package(nanobind CONFIG REQUIRED)
 
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DANALYSE_REFINEMENT_TIMING -DVERSION="1.0.06-pre" -DPACKAGE_VERSION="1" -DHAVE_CXX_THREAD -DHAVE_BOOST -DHAVE_GSL -DPKGDATADIR="${coot_src}/pixmaps" -DDATADIR="${coot_src}/data")
+add_definitions(-DANALYSE_REFINEMENT_TIMING -DVERSION="1.0.06-pre" -DPACKAGE_VERSION="1" -DHAVE_CXX_THREAD -DHAVE_BOOST -DHAVE_GSL -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
 #  pyrogen, compat, auxil, goograph, src ignored.
 
@@ -433,6 +433,21 @@ target_include_directories(chapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_s
 target_link_libraries(chapi PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARY} ${GSLBLAS_LIBRARY} ${PNG_LIBRARY})
 set_target_properties(chapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000")
 
-add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc)
-target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4m
+add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc ${coot_src}/api/filo-tests.cc)
+target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR}/include ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS})
 target_link_libraries(test-molecules-container PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARY} ${GSLBLAS_LIBRARY} ${PNG_LIBRARY})
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/syminfo.lib
+DESTINATION ${CMAKE_INSTALL_PREFIX}/data)
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/standard-residues.pdb
+DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/pdb-templates/
+DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/rama-data/
+DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/rama-data)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/metal/
+DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/data/metal)

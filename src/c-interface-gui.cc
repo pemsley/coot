@@ -67,6 +67,7 @@
 #include "coot-references.h"
 #include "coot-preferences.h"
 #include "rotate-translate-modes.hh"
+#include "curl-utils.hh"
 
 #include "graphics-info.h"
 #include "interface.h"
@@ -2097,33 +2098,22 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
 
 // Set the internal state of the torsion restraints
 // (hang-over from old interface)
-void do_torsions_toggle(GtkWidget *togglebutton) {
+void do_torsions_toggle(GtkWidget *checkbutton) {
 
    graphics_info_t g;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton)))
       g.do_torsion_restraints = 1;
    else
       g.do_torsion_restraints = 0;
-
 }
 
-GtkWidget *wrapped_create_refine_params_dialog() {
-
-   //    What is this?
-   // GtkWidget *w = create_refine_params_dialog();
-   GtkWidget *w = widget_from_builder("refine_params_dialog");
-   set_refine_params_toggle_buttons(w);
-   set_refine_params_comboboxes(w);
-   return w;
-}
-
-void set_refine_params_comboboxes(GtkWidget *button) {
+void set_refine_params_comboboxes() {
 
    graphics_info_t g;
    GtkWidget *cb1 = widget_from_builder("refine_params_geman_mcclure_alpha_combobox");
-   GtkWidget *cb2 = widget_from_builder("refine_params_rama_restraints_weight_combobox");
+   GtkWidget *cb2 = widget_from_builder("refine_params_rama_restraints_combobox");
    GtkWidget *cb3 = widget_from_builder("refine_params_lennard_jones_epsilon_combobox");
-   GtkWidget *cb4 = widget_from_builder("refine_params_torsions_weight_combobox");
+   GtkWidget *cb4 = widget_from_builder("refine_params_torsion_weight_combobox");
    GtkWidget *cb5 = widget_from_builder("refine_params_overall_weight_combobox");
    GtkWidget *tb  = widget_from_builder("refine_params_more_control_togglebutton");
 
@@ -2132,16 +2122,6 @@ void set_refine_params_comboboxes(GtkWidget *button) {
    if (cb3) gtk_combo_box_set_active(GTK_COMBO_BOX(cb3), g.refine_params_dialog_lennard_jones_epsilon_combobox_position);
    if (cb4) gtk_combo_box_set_active(GTK_COMBO_BOX(cb4), g.refine_params_dialog_torsions_weight_combox_position);
 
-   // put items into the refinement overall weight combobox
-   if (cb5) {
-      std::vector<float> mv = {0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 10.0, 20.0};
-      float w = g.geometry_vs_map_weight;
-      for (auto m : mv) {
-         std::string t = coot::util::float_to_string_using_dec_pl(w * m, 2);
-         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(cb5), t.c_str());
-      }
-      gtk_combo_box_set_active(GTK_COMBO_BOX(cb5), 4);
-   }
 
    if (tb) {
       if (g.refine_params_dialog_extra_control_frame_is_visible) {
@@ -2151,79 +2131,6 @@ void set_refine_params_comboboxes(GtkWidget *button) {
       }
    }
 
-}
-
-void set_refine_params_toggle_buttons(GtkWidget *button) {
-
-   // initiallly buttons are inactive and sensitive
-
-   graphics_info_t g;
-   // GtkWidget *checkbutton = lookup_widget(button, "refine_params_use_torsions_checkbutton");
-   // GtkWidget *planar_peptide_restraints_checkbutton = lookup_widget(button, "refine_params_use_planar_peptides_checkbutton");
-   // GtkWidget *trans_peptide_restraints_checkbutton = lookup_widget(button, "refine_params_use_trans_peptide_restraints_checkbutton");
-   // GtkWidget *phi_psi_peptide_checkbutton = lookup_widget(button, "refine_params_use_peptide_torsions_checkbutton");
-   // GtkWidget *link_torsion_type_vbox = lookup_widget(button, "peptide_torsions_restraints_vbox");
-   GtkWidget *checkbutton = widget_from_builder("refine_params_use_torsions_checkbutton");
-   GtkWidget *planar_peptide_restraints_checkbutton = widget_from_builder("refine_params_use_planar_peptides_checkbutton");
-   GtkWidget *trans_peptide_restraints_checkbutton = widget_from_builder("refine_params_use_trans_peptide_restraints_checkbutton");
-   GtkWidget *phi_psi_peptide_checkbutton = widget_from_builder("refine_params_use_peptide_torsions_checkbutton");
-   GtkWidget *link_torsion_type_vbox = widget_from_builder("peptide_torsions_restraints_vbox");
-
-   // refine_params_use_ramachandran_goodness_torsions_checkbutton
-   // GtkWidget *rama_button = lookup_widget(button, "refine_params_use_ramachandran_goodness_torsions_checkbutton");
-   GtkWidget *rama_button = widget_from_builder("refine_params_use_ramachandran_goodness_torsions_checkbutton");
-
-   if (g.do_torsion_restraints) {
-      g.do_torsion_restraints = 0;
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-   } else {
-      gtk_widget_set_sensitive(GTK_WIDGET(phi_psi_peptide_checkbutton), FALSE);
-   }
-
-   if (trans_peptide_restraints_checkbutton) {
-      if (g.do_trans_peptide_restraints) {
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(trans_peptide_restraints_checkbutton), TRUE);
-      } else {
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(trans_peptide_restraints_checkbutton), FALSE);
-      }
-   }
-
-   // planar peptide restraints:
-   int pps = planar_peptide_restraints_state();
-   if (pps) {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(planar_peptide_restraints_checkbutton), TRUE);
-   } else {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(planar_peptide_restraints_checkbutton), FALSE);
-   }
-
-   // refine_params_use_helix_peptide_torsions_radiobutton
-   // refine_params_use_beta_strand_peptide_torsions_radiobutton
-   // refine_params_use_ramachandran_goodness_torsions_radiobutton
-
-   // GtkWidget *sec_str_rest_no_rest_radiobutton = lookup_widget(button, "sec_str_rest_no_rest_radiobutton");
-   // GtkWidget *sec_str_rest_helix_rest_radiobutton = lookup_widget(button, "sec_str_rest_helix_rest_radiobutton");
-   // GtkWidget *sec_str_rest_strand_rest_radiobutton = lookup_widget(button, "sec_str_rest_strand_rest_radiobutton");
-   GtkWidget *sec_str_rest_no_rest_radiobutton = widget_from_builder("sec_str_rest_no_rest_radiobutton");
-   GtkWidget *sec_str_rest_helix_rest_radiobutton = widget_from_builder("sec_str_rest_helix_rest_radiobutton");
-   GtkWidget *sec_str_rest_strand_rest_radiobutton = widget_from_builder("sec_str_rest_strand_rest_radiobutton");
-
-#ifdef HAVE_GSL
-   if (graphics_info_t::pseudo_bonds_type == coot::NO_PSEUDO_BONDS)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sec_str_rest_no_rest_radiobutton), TRUE);
-   if (graphics_info_t::pseudo_bonds_type == coot::HELIX_PSEUDO_BONDS)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sec_str_rest_helix_rest_radiobutton), TRUE);
-   if (graphics_info_t::pseudo_bonds_type == coot::STRAND_PSEUDO_BONDS)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sec_str_rest_strand_rest_radiobutton), TRUE);
-   if (graphics_info_t::do_rama_restraints)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rama_button), TRUE);
-#endif // HAVE_GSL
-
-   // GtkWidget *refinement_weight_entry = lookup_widget(button, "refine_params_weight_matrix_entry");
-   GtkWidget *refinement_weight_entry = widget_from_builder("refine_params_weight_matrix_entry");
-   if (refinement_weight_entry) {
-      gtk_editable_set_text(GTK_EDITABLE(refinement_weight_entry),
-                            coot::util::float_to_string(g.geometry_vs_map_weight).c_str());
-   }
 }
 
 // void fill_chiral_volume_molecule_option_menu(GtkWidget *w) {
@@ -5987,47 +5894,4 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
    }
 }
 
-ProgressBarPopUp::ProgressBarPopUp(const char* title, const char* description) {
-   this->window = (GtkWindow*) gtk_window_new();
-   this->progress_bar = (GtkProgressBar*) gtk_progress_bar_new();
 
-   gtk_window_set_title(this->window, title);
-   gtk_window_set_deletable(this->window, FALSE);
-   graphics_info_t::set_transient_for_main_window(GTK_WIDGET(this->window));
-   auto* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-   gtk_widget_set_margin_bottom(box, 10);
-   gtk_widget_set_margin_top(box, 10);
-   gtk_widget_set_margin_start(box, 10);
-   gtk_widget_set_margin_end(box, 10);
-
-   gtk_window_set_child(this->window, box);
-   gtk_box_append(GTK_BOX(box), gtk_label_new(description));
-   gtk_box_append(GTK_BOX(box), GTK_WIDGET(this->progress_bar));
-   gtk_window_present(this->window);
-}
-
-ProgressBarPopUp::ProgressBarPopUp(ProgressBarPopUp&& other) {
-   this->window = other.window;
-   this->progress_bar = other.progress_bar;
-   other.window = nullptr;
-   other.progress_bar = nullptr;
-}
-
-void ProgressBarPopUp::pulse() {
-   if(this->progress_bar) {
-      gtk_progress_bar_pulse(this->progress_bar);
-   }
-}
-
-void ProgressBarPopUp::set_fraction(float frac) {
-   if(this->progress_bar) {
-      gtk_progress_bar_set_fraction(this->progress_bar, frac);
-   }
-}
-
-ProgressBarPopUp::~ProgressBarPopUp() {
-   if(this->window) {
-      gtk_window_close(this->window);
-      // gtk_window_destroy(this->window);
-   }
-}

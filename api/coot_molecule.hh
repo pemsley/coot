@@ -198,6 +198,13 @@ namespace coot {
       bool has_xmap() const { return is_valid_map_molecule(); }
 
       colour_holder map_colour;
+      glm::vec4 position_to_colour_using_other_map(const clipper::Coord_orth &position,
+                                                   const clipper::Xmap<float> &other_map_for_colouring) const;
+      float other_map_for_colouring_min_value;
+      float other_map_for_colouring_max_value;
+      glm::vec4 fraction_to_colour(float f) const; // for other map colouring - perhaps this function name is too generic?
+      bool  radial_map_colour_invert_flag;
+      float radial_map_colour_saturation;
 
       // save the data used for the fourier, so that we can use it to
       // sharpen the map:
@@ -345,6 +352,12 @@ namespace coot {
          original_r_free_flags_p = nullptr;
          refmac_r_free_flag_sensible = false;
          use_bespoke_grey_colour_for_carbon_atoms = false;
+
+         radial_map_colour_saturation = 0.5;
+         radial_map_colour_invert_flag = false;
+
+         other_map_for_colouring_min_value = 0.0;
+         other_map_for_colouring_max_value = 1.0;
 
          map_colour = colour_holder(0.3, 0.3, 0.7);
          last_restraints = nullptr;
@@ -686,6 +699,8 @@ namespace coot {
                                                                        coot::protein_geometry &geom,
                                                                        ctpl::thread_pool &static_thread_pool);
 
+      coot::instanced_mesh_t get_extra_restraints_mesh(int mode) const;
+
       // ------------------------ model-changing functions
 
       int move_molecule_to_new_centre(const coot::Cartesian &new_centre);
@@ -804,12 +819,15 @@ namespace coot {
       //! @return the number of atoms added.
       int merge_molecules(const std::vector<mmdb::Manager *> &mols);
 
-      //! My ligands don't jiggle-jiggle...
-      //!
-      //! Hey, what do you know, they actually do.
+      // My ligands don't jiggle-jiggle...
+      //
+      // Hey, what do you know, they actually do.
       float fit_to_map_by_random_jiggle(const residue_spec_t &res_spec, const clipper::Xmap<float> &xmap, float map_rmsd,
                                         int n_trials, float translation_scale_factor);
 
+      //! My ligands don't jiggle-jiggle...
+      //!
+      //! Hey, what do you know, they actually do.
       float fit_to_map_by_random_jiggle_using_atom_selection(const std::string &cid, const clipper::Xmap<float> &xmap, float map_rmsd,
                                         int n_trials, float translation_scale_factor);
 
@@ -967,8 +985,36 @@ namespace coot {
 
       // changes the internal map mesh holder (hence not const)
       simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level);
+      simple_mesh_t get_map_contours_mesh_using_other_map_for_colours(const clipper::Coord_orth &position, float radius, float contour_level,
+                                                                      const clipper::Xmap<float> &xmap);
+
+      //! map histogram class
+      class histogram_info_t {
+      public:
+         //! base
+         float base;
+         //! bin width
+         float bin_width;
+         // counts
+         std::vector<int> counts;
+         histogram_info_t() : base(-1), bin_width(-1) {}
+         histogram_info_t(float min_density, float bw, const std::vector<int> &c) :
+            base(min_density), bin_width(bw), counts(c) {}
+      };
+
+      //! @return the map histogram
+      histogram_info_t get_map_histogram(unsigned int n_bins) const;
 
       void set_map_colour(colour_holder holder);
+      void set_map_colour_saturation(float s) { radial_map_colour_saturation = s; }
+
+      //! Set the limit for the colour range for the values from the other map.
+      //! If the other map were, for example, a map of correlation values, then
+      //! you'd pass -1.0 and 1.0.
+      void set_other_map_for_colouring_min_max(float min_v, float max_v);
+      void set_other_map_for_colouring_invert_colour_ramp(bool state) {
+         radial_map_colour_invert_flag = state;
+      }
 
       //! The container class for an interesting place.
       //!

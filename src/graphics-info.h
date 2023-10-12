@@ -172,6 +172,8 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "extra-distance-restraint-markup.hh"
 
+#include "labelled-button-info.hh"
+
 #ifdef USE_BACKWARD
 #include <utils/backward.hpp>
 #endif
@@ -1344,6 +1346,9 @@ public:
    void change_model_molecule_representation_mode(int step);
 
    void do_drag_pan_gtk3(GtkWidget *widget, double drag_delta_x, double drag_delta_y);
+   // here drag_delta_y and drag_delta_y are the differences from
+   // drag_begin_x and drag_begin_y.
+   void do_drag_pan_gtk4(GtkWidget *widget, double drag_delta_x, double drag_delta_y);
 
    gboolean on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
                                                  guint                  keyval,
@@ -4046,8 +4051,8 @@ public:
    // -------- Meshes control (i.e. the Meshes of molecule_class_info)
    void set_show_molecular_representation(int imol, unsigned int mesh_idx, bool on_off);
 
-   void update_main_window_molecular_representation_widgets();
-   static void main_window_meshes_togglebutton_toggled(GtkToggleButton *button, gpointer *user_data);
+   void update_molecular_representation_widgets();
+   static void molecular_representation_meshes_checkbutton_toggled(GtkCheckButton *button, gpointer *user_data);
 
 
    int add_molecular_representation(int imol,
@@ -5244,6 +5249,10 @@ string   static std::string sessionid;
    // 20230417-PE functions to fill the validation information for the new valiadtionn graphs
    coot::validation_information_t get_validation_data_for_geometry_analysis(int imol);
 
+   // "Coot: " will be prepended to the dialog title before use
+   void fill_generic_validation_box_of_buttons(const std::string &dialog_title,
+                                               const std::vector<labelled_button_info_t> &v);
+
 
    // 20230419-PE ----- a holder for the OpenGL-based Ramachandran Plots
    // each rama plot is held in a GtkBox - and that box has a "Close" button
@@ -5271,6 +5280,8 @@ string   static std::string sessionid;
    static void rama_plot_boxes_handle_molecule_update(GtkWidget *box);
    static void rama_plot_boxes_handle_molecule_update(GtkWidget *box, const std::string &entry_string); // used in the residue selection
                                                                                                         // entry change callback
+
+   static void add_shortcuts_to_window(GtkWidget *shortcuts_window);
 
 };
 

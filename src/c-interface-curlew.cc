@@ -40,6 +40,7 @@ using json = nlohmann::json;
 #include "c-interface.h"
 #include "cc-interface.hh" // for coot_get_url()
 #include "coot-version.hh"
+#include "curl-utils.hh"
 
 #include "graphics-info.h" // for extensions register // after json.hpp
 

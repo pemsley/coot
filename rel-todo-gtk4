@@ -12,16 +12,58 @@
 
 8 items
 
+Moorhen: test robustness of jiggle-fitting. Move the molecule around a bit
+         and see if you get solutions. Use the nanobody in 7vvl.
+
+Moorhen: Read gziped maps in libcootapi, so moorhen can get maps from emdb.
+
+Moorhen: Request: electrostatic surface.
+
+Moorhen: carbon bonds are too light on white background. Looking at the code, it seems
+         to do the right thing, but needs testing. Print the colour table.
+
+Rotate/Translate <fragment> doesn't work.
+
+Rigid-body refine the tutorial A chain. It used to display an intermediate atoms
+representation. What happens now and is that what you want?
+
+Outliers only in Rama plots
+
+Renumber residue range on a molecule that is not the first molecule ::: 0.6
+
+Fix the undo molecule chooser (have 2 molecules with edits)
+
+When I Open Coords I have a option to choose coordinate files.
+When I Auto-open MTZ I dont have a option to choose mtz files.
+
+Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
+
+---- older issues ---
+
+Typical example of "what to do?"
+  - Filo has been trying the Coot EM tutorial in Moorhen and finds some problem with
+    "jiggle fit" - this is an interesting scientific problem - how far can you be away
+  - Bogged down in tracking events and model coordinates and mesh and drawing updates
+    for rotation/translation
+  - Chatting with Jakub about Shortcuts but making no progress
 
 Ribbons don't cast shadows.
 
-Fetch EMDB map doesn't check the cache/coot-download
+No reaction to Aligment vs PIR (no PIR was loaded)
+
+Size and user-defined "screen axis" displacement of atom labels, e.g. [0,0,5] to bring
+the label towards the camera.
+
+Issue 67:
+On reflection, I will add a function that allows the user to override Coot's attempt to determine the EM-state of the map.
 
 Layla: make python setup be available for Coot and Layla - put it in its own directory. So that layla
 is not linked with src files.
 
 Rob's problematic links
 * Need details.
+
+startup with default map opacity.
 
 Where is Make Link? ::: 1.5
 * Needs user-defined click click. Just do it in C++?
@@ -92,6 +134,8 @@ Make auto_read_mtz return the column labels - for Moorhen.
 Updatating difference map for cryo-EM using ServalCat.
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
+
+Find 3-10 helices and make restraints. Max Perutz wrote the first paper.
 
 Nice to have:
 "Resample map (say 11337 to 2.2) It takes a long time. There should be a progress bar.
@@ -882,3 +926,55 @@ The atom picker needs to know about the representation type (or act on it) ::: 0
 Make sure that set_scroll_wheel_map and set_scrollable_map() (how are they different?) change the scroll indicator
 in the Display Manager. ::: 0.5
 * Done.
+
+Don't draw cis-peptide markup for an MDO ::: 0.8
+* Done. Pretty tricky.
+
+Blog tutorial: why do we change the default B-factor? ::: 0.2
+* Done.
+
+Fetch EMDB map doesn't check the cache/coot-download.
+* It does now.
+
+No reaction to Validate -> Atoms with Zero Occs (there were some) ::: 0.5
+* Done.
+
+Fix this: ::: 1
+"widget main_window_meshes_frame was not found"
+* Done. Mow there is a ribbons dialog
+
+Missing difference map peaks in 1bl8 from Oliver Clarke. ::: 1
+* Done
+
+a7956aa695f8c19e52622447ca292434812d4e62. ::: 0.1
+How about deleting the timeout altogether?
+* OK, done.
+
+Moorhen: Fourier filter jiggle fit:
+* Done.
+
+Moorhen: read_ccp4_map() with the wrong file name
+* Done.
+
+Moorhen: map histogram - user chooses number of bins, I guess 50?
+* Done.
+
+Moorhen: libcootapi neeeds to return the columns that it has read in auto-read.
+* Done.
+
+Fix the R/RC combo-box changed handlers.
+* Done.
+
+Colour by B-factor CA is wrong: test with tutorial and 8oie.
+          B-factor all doesn't work at all.
+* Done.
+
+Missing validation items: Some currently under Draw -> Molecule
+   "Residues with Alt Confs" and
+   "Residues with Missing Atoms"
+   "Residue with cis-peptide" action needs to be filled
+   "Residue type selection" action needs to be filled  <- This one remains to be done.
+* Done. A bit of a fudge and what a grind - boring.
+
+Clicking the switch Refine -> GM Restraints doesn't undisplay the GM restraints.
+* Done. Easy.

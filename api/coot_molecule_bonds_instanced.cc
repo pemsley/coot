@@ -281,6 +281,7 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
       if (icol<cts) // it will be of course!
          col = colour_table[icol];
       graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol];
+
       // std::cout << "_bonds_bonds icol " << icol << " has n_lines " << ll.num_lines << std::endl;
 
       for (int j=0; j<ll.num_lines; j++) {
@@ -521,7 +522,7 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       n_slices = 32;
    }
 
-   std::set<int> no_bonds_to_these_atoms; // empty
+   const std::set<int> &no_bonds_to_these_atoms = no_bonds_to_these_atom_indices;
    int udd_handle_bonded_type = atom_sel_ligand.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
    if (udd_handle_bonded_type == mmdb::UDDATA_WrongUDRType) {
       std::cout << "ERROR:: in get_bonds_mesh() wrong udd data type " << udd_handle_bonded_type << std::endl;
@@ -584,4 +585,99 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
    }
 
    return m;
+}
+
+
+coot::instanced_mesh_t
+coot::molecule_t::get_extra_restraints_mesh(int mode) const {
+
+   auto  distortion_score_GM = [] (const double &bl, const double &target_dist,
+                                   const double &sigma, const double &alpha) {
+      double bit = bl - target_dist;
+      double z = bit/sigma;
+      double distortion = z*z/(1+alpha*z*z);
+      return distortion;
+   };
+
+   auto convert_vertices = [] (const std::vector<coot::api::vnc_vertex> &v_in) {
+      std::vector<coot::api::vn_vertex> v_out(v_in.size());
+      for (unsigned int i=0; i<v_in.size(); i++) {
+         const auto &v = v_in[i];
+         v_out[i] = coot::api::vn_vertex(v.pos, v.normal);
+      }
+      return v_out;
+   };
+
+   auto clipper_to_glm = [] (const clipper::Coord_orth &co) {
+                            return glm::vec3(co.x(), co.y(), co.z());
+                         };
+
+   double geman_mcclure_alpha = 1.0;
+
+   coot::instanced_mesh_t im;
+   if (mode > -999) { // check the mode here
+
+      if (! extra_restraints.geman_mcclure_restraints.empty()) {
+         coot::instanced_geometry_t igeom;
+         unsigned int n_slices = 6;
+         unsigned int n_stacks = 6;
+         glm::vec3 z0(0,0,0);
+         glm::vec3 z1(0,0,1);
+         std::pair<glm::vec3, glm::vec3> pp(z0, z1);
+         cylinder c_00(pp, 1.0, 1.0, 1.0, n_slices, n_stacks);
+         c_00.add_flat_end_cap();
+         c_00.add_flat_start_cap();
+         igeom.vertices = convert_vertices(c_00.vertices);
+         igeom.triangles = c_00.triangles;
+         glm::vec4 col_base(0.5, 0.5, 0.5, 1.0);
+         int atom_index_udd_handle = atom_sel.UDDAtomIndexHandle;
+         for (unsigned int i=0; i<extra_restraints.geman_mcclure_restraints.size(); i++) {
+            const auto &r = extra_restraints.geman_mcclure_restraints[i];
+            mmdb::Atom *at_1 = get_atom(r.atom_1);
+            mmdb::Atom *at_2 = get_atom(r.atom_2);
+            if (at_1) {
+               if (at_2) {
+                  int idx_1;
+                  int idx_2;
+                  at_1->GetUDData(atom_index_udd_handle, idx_1);
+                  at_2->GetUDData(atom_index_udd_handle, idx_2);
+                  if (no_bonds_to_these_atom_indices.find(idx_1) != no_bonds_to_these_atom_indices.end()) continue;
+                  if (no_bonds_to_these_atom_indices.find(idx_2) != no_bonds_to_these_atom_indices.end()) continue;
+                  clipper::Coord_orth p_1 = coot::co(at_1);
+                  clipper::Coord_orth p_2 = coot::co(at_2);
+                  clipper::Coord_orth delta = p_2 - p_1;
+                  clipper::Coord_orth delta_uv = clipper::Coord_orth(delta.unit());
+                  double bl = std::sqrt(delta.lengthsq());
+                  glm::vec3 delta_uv_glm = clipper_to_glm(delta_uv);
+                  glm::mat4 ori = glm::orientation(delta_uv_glm, z1);
+                  glm::vec3 p = clipper_to_glm(p_2);
+                  double delta_length = r.bond_dist - bl;
+                  if (delta_length >  1.0) delta_length =  1.0;
+                  if (delta_length < -1.0) delta_length = -1.0;
+
+                  const double &sigma = r.esd;
+                  double penalty = distortion_score_GM(bl, r.bond_dist, sigma, geman_mcclure_alpha);
+                  double width = 0.23 * penalty;
+                  if (width < 0.01) width = 0.01;
+                  if (width > 0.08) width = 0.08;
+
+		  width *= 2.5;
+
+                  glm::vec3 s(width, width, bl); // a function of delta_length?
+                  glm::vec4 col = col_base + delta_length * glm::vec4(-0.8f, 0.8f, -0.8, 0.0f);
+                  col = 0.8 * col; // calm down
+		  col.a = 1.0;
+                  coot::instancing_data_type_B_t idB(p, col, s, ori);
+                  igeom.instancing_data_B.push_back(idB);
+               } else {
+                  std::cout << "WARNING:: no atom found " << r.atom_2 << std::endl;
+               }
+            } else {
+               std::cout << "WARNING:: no atom found " << r.atom_1 << std::endl;
+            }
+         }
+         im.add(igeom);
+      }
+   }
+   return im;
 }

@@ -3786,6 +3786,7 @@ if [ "$build_rdkit" = true ] ; then
    fi
 fi
 
+python3 -m pip install requests
 
 
 # silicos-it's biscu-it (QED) is now part of RDKit main.

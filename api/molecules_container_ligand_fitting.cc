@@ -169,6 +169,36 @@ molecules_container_t::fit_to_map_by_random_jiggle_using_cid(int imol, const std
 
 }
 
+float
+molecules_container_t::fit_to_map_by_random_jiggle_with_blur_using_cid(int imol, int imol_map, const std::string &cid, float b_factor,
+                                                                       int n_trials, float translation_scale_factor) {
+
+   float r = -999.0;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+         // make blurred copy of imol_map's map and use that for fitting
+         clipper::Xmap<float> xmap = molecules[imol_map].xmap;
+         coot::util::sharpen_blur_map(&xmap, b_factor);
+         auto p = coot::util::mean_and_variance(xmap);
+         float rmsd = std::sqrt(p.second);
+         float tf_1 = translation_scale_factor;
+         float tf_2 = 0.5 * translation_scale_factor;
+         float tf_3 = 0.25 * translation_scale_factor;
+         float tf_4 = 0.18 * translation_scale_factor;
+         r = molecules[imol].fit_to_map_by_random_jiggle_using_atom_selection(cid, xmap, rmsd, n_trials, tf_1);
+         r = molecules[imol].fit_to_map_by_random_jiggle_using_atom_selection(cid, xmap, rmsd, n_trials, tf_2);
+         r = molecules[imol].fit_to_map_by_random_jiggle_using_atom_selection(cid, xmap, rmsd, n_trials, tf_3);
+         r = molecules[imol].fit_to_map_by_random_jiggle_using_atom_selection(cid, xmap, rmsd, n_trials, tf_4);
+      } else {
+         std::cout << "WARNING:: " << imol_map << " is not a valid map"<< std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: " << imol_map << " is not a valid model"<< std::endl;
+   }
+   return r;
+}
+
+
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
 #include <GraphMol/MolDraw2D/MolDraw2DSVG.h>

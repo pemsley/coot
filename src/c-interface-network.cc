@@ -52,19 +52,43 @@
 #include "graphics-info.h" // because that is where the curl handlers and filenames vector is stored
 
 #include "read-molecule.hh" // now with std::string args
-
+#include <thread>
+#include <chrono>
+#include <future>
+#include "gtk-utils.hh"
+#include "curl-utils.hh"
+#include <zlib.h>
 
 // return 0 on success
 #ifdef USE_LIBCURL
 int coot_get_url(const std::string &url, const std::string  &file_name) {
-   return coot_get_url_and_activate_curl_hook(url, file_name, 0);
+   std::optional<ProgressNotifier> notifier = std::nullopt;
+   return coot_get_url_and_activate_curl_hook(url, file_name, 0, notifier);
+}
+int coot_get_url_with_notifier(const std::string &url, const std::string  &file_name, std::optional<ProgressNotifier> notifier) {
+   return coot_get_url_and_activate_curl_hook(url, file_name, 0, notifier);
 }
 #endif /* USE_LIBCURL */
 
 
 #ifdef USE_LIBCURL
+
+int coot_curl_progress_callback(void *clientp,
+   curl_off_t dltotal,
+   curl_off_t dlnow,
+   curl_off_t ultotal,
+   curl_off_t ulnow) {
+      ProgressNotifier* notifier_ptr = (ProgressNotifier*)(clientp);
+      if(dltotal == 0) {
+         dltotal++;
+      }
+      g_debug("Inside coot_curl_progress_callback(); dlnow=%li, dltotal=%li", dlnow, dltotal);
+      notifier_ptr->update_progress((float)dlnow/(float)dltotal);
+      return 0;
+}
+
 int coot_get_url_and_activate_curl_hook(const std::string &url, const std::string &file_name,
-					short int activate_curl_hook_flag) {
+					short int activate_curl_hook_flag, std::optional<ProgressNotifier> notifier) {
 
    std::cout << "DEBUG:: in coot_get_url_and_activate_curl_hook "
 	     << url << " " << file_name << std::endl;
@@ -90,7 +114,7 @@ int coot_get_url_and_activate_curl_hook(const std::string &url, const std::strin
       // of mallocing.  So the memory is messed up elsewhere and beforehand.
       CURL *c = curl_easy_init();
       long int no_signal = 1;
-      int to = 31;
+      int to = 301; // we can tolerate longer waits with sub-thread
       std::string ext = coot::util::file_name_extension(file_name);
       if (ext == ".gz") {
          std::string ext_2 = coot::util::file_name_extension(coot::util::name_sans_extension(file_name));
@@ -102,7 +126,8 @@ int coot_get_url_and_activate_curl_hook(const std::string &url, const std::strin
       curl_easy_setopt(c, CURLOPT_URL, url.c_str());
       curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
       curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 6);
-      curl_easy_setopt(c, CURLOPT_TIMEOUT, to); // maximum time the request is allowed to take
+      // 20231004-PE remove the timeout
+      // curl_easy_setopt(c, CURLOPT_TIMEOUT, to); // maximum time the request is allowed to take
       curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER, FALSE);
       std::string user_agent_str = "Coot-";
       user_agent_str += VERSION;
@@ -110,6 +135,12 @@ int coot_get_url_and_activate_curl_hook(const std::string &url, const std::strin
       curl_easy_setopt(c, CURLOPT_USERAGENT, user_agent_str.c_str());
       curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data_to_file);
       curl_easy_setopt(c, CURLOPT_WRITEDATA, &p_for_write);
+      if(notifier.has_value()) {
+         auto* notifier_ptr = &notifier.value();
+         curl_easy_setopt(c, CURLOPT_XFERINFOFUNCTION, coot_curl_progress_callback);
+         curl_easy_setopt(c, CURLOPT_XFERINFODATA, notifier_ptr);
+         curl_easy_setopt(c, CURLOPT_NOPROGRESS, 0);
+      }
       std::pair <CURL *, std::string> p(c,file_name);
       CURLcode success = CURLcode(-1);
       if (activate_curl_hook_flag) {
@@ -506,14 +537,12 @@ void stop_curl_download(const char *file_name) {  // stop curling the to file_na
    graphics_info_t g;
    g.set_stop_curl_download_flag(file_name);
 
-} 
+}
 #endif // USE_LIBCURL
 
-#include <zlib.h>                                              
 #ifdef USE_LIBCURL
-int fetch_emdb_map(const std::string &emd_accession_code) {
+void fetch_emdb_map(const std::string &emd_accession_code) {
 
-   int imol = -1;
    std::string map_gz_url = "https://ftp.ebi.ac.uk/pub/databases/emdb/structures/EMD-" +
       emd_accession_code + "/map/emd_" + emd_accession_code + ".map.gz";
    std::string download_dir = "coot-download";
@@ -524,29 +553,34 @@ int fetch_emdb_map(const std::string &emd_accession_code) {
    std::string fn    = coot::util::append_dir_file(download_dir,    fnl);
 
    if (coot::file_exists_and_non_tiny(fn)) {
-      imol = read_ccp4_map(fn, false);
-      return imol;
+      read_ccp4_map(fn, false);
+      g_info("Reading CCP4 map from cached downloads...");
+      return;
    }
 
-   // a progress bar here woudl be nice
-   int status = coot_get_url(map_gz_url, gz_fn);
+   ProgressBarPopUp popup("Coot Download", "Downloading a map from EMDB...");
+   std::thread worker([=](ProgressBarPopUp&& pp){
 
-   if (status == 0) { // that's good
+      std::shared_ptr<ProgressBarPopUp> popup = std::make_shared<ProgressBarPopUp>(std::move(pp));
+      int status = coot_get_url_with_notifier(map_gz_url, gz_fn, ProgressNotifier(popup));
+
+      if (status != 0) { // if it's bad
+         g_warning("Download failed. Status=%i", status);
+         return;
+      }
 
       std::string gzipedBytes;
-      gzipedBytes.clear();
 
       std::ifstream file(gz_fn);
-      std::stringstream sss;
-      std::stringstream &ss = sss;
-      ss.flush();
+      std::stringstream ss;
 
-      while (!file.eof())
+      while (!file.eof()) {
          gzipedBytes += (char) file.get();
+      }
       file.close();
       if (gzipedBytes.size() == 0) {
-         ss << gzipedBytes;
-         return -1;
+         g_warning("The downloaded file (%s) is empty or could not be read.", gz_fn.c_str());
+         return;
       }
 
       unsigned int full_length   = gzipedBytes.size();
@@ -561,9 +595,11 @@ int fetch_emdb_map(const std::string &emd_accession_code) {
       strm.zfree     = Z_NULL;
       bool done = false;
 
-      if (inflateInit2(&strm, (16 + MAX_WBITS)) != Z_OK) {
+      int err = inflateInit2(&strm, (16 + MAX_WBITS));
+      if (err != Z_OK) {
          delete [] uncomp;
-         return -1;
+         g_warning("The downloaded file (%s) could not be decompressed (zlib error: %i) [1].", gz_fn.c_str(), err);
+         return;
       }
 
       while (!done) {
@@ -587,28 +623,52 @@ int fetch_emdb_map(const std::string &emd_accession_code) {
          if (err == Z_STREAM_END) {
             done = true;
          } else if (err != Z_OK) {
+            g_warning("The downloaded file (%s) could not be decompressed (zlib error: %i) [2].", gz_fn.c_str(), err);
             break;
          }
       }
 
-      if (inflateEnd (&strm) != Z_OK) {
+      err = inflateEnd (&strm);
+      if (err != Z_OK) {
          delete [] uncomp;
-         return -1;
+         g_warning("The downloaded file (%s) could not be decompressed (zlib error: %i) [3].", gz_fn.c_str(), err);
+         return;
       }
 
       for (size_t i = 0; i < strm.total_out; ++i) {
          ss << uncomp[i];
       }
-      free(uncomp);
+      delete [] uncomp;
 
+      g_info("The downloaded file has been successfully decompressed. Writing it down...");
       std::ofstream out(fn);
-      out << sss.str();
+      out << ss.str();
       out.close();
+      g_info("Deleting the downloaded archive...");
       remove(gz_fn.c_str());
-      imol = read_ccp4_map(fn, false);
-   }
 
-   return imol;
+      struct callback_data {
+         std::string fn;
+         std::shared_ptr<ProgressBarPopUp> popup;
+      };
+      callback_data* cbd = new callback_data{fn, std::move(popup)};
+
+#if (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 10) || (GTK_MAJOR_VERSION == 5)
+      g_idle_add_once((GSourceOnceFunc)+[](gpointer user_data) {
+         callback_data* cbd = (callback_data*) user_data;
+         g_info("Reading CCP4 map from downloaded file...");
+         int imol = read_ccp4_map(cbd->fn, false);
+         go_to_map_molecule_centre(imol);
+         delete cbd;
+      }, cbd);
+#else
+      std::cout << "WARNING:: Function not available in the version of GTK" << std::endl;
+#endif
+
+   }, std::move(popup));
+   worker.detach();
+
+
 }
 #endif // USE_LIBCURL
 

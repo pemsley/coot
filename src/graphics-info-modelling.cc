@@ -378,11 +378,24 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 void
 graphics_info_t::info_dialog_missing_refinement_residues(const std::vector<std::string> &res_names) {
 
-   std::string problem_residues = "Warning: Refinement setup failure.\nFailed to find restraints for:\n";
-   for (unsigned int icheck_res=0; icheck_res<res_names.size(); icheck_res++) {
-      problem_residues+= " ";
-      problem_residues+= res_names[icheck_res];
+   std::string problem_residues = "WARNING: Refinement setup failure.\nFailed to find restraints for:\n";
+
+   std::set<std::string> res_set;
+   for (unsigned int icheck_res=0; icheck_res<res_names.size(); icheck_res++)
+      res_set.insert(res_names[icheck_res]);
+
+   std::set<std::string>::const_iterator it;
+   unsigned int count = 0;
+   for (it=res_set.begin(); it!=res_set.end(); ++it) {
+      problem_residues += " ";
+      problem_residues += *it;
+      count++;
+      if (count == 10) {
+         problem_residues += "\n";
+         count = 0;
+      }
    }
+
    info_dialog(problem_residues);
 }
 
@@ -746,8 +759,9 @@ graphics_info_t::set_geman_mcclure_alpha(float alpha) {
 
    graphics_info_t g;
    geman_mcclure_alpha = alpha;
-   if (g.last_restraints_size() > 0)
+   if (g.last_restraints_size() > 0) {
       thread_for_refinement_loop_threaded();
+   }
 }
 
 // reruns refinement if we have restraints
@@ -3728,6 +3742,8 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 void
 graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
+   std::cout << "execute_rotate_translate_ready() --- start ---" << std::endl;
+
    // now we are called by chain and molecule pick (as well as the old
    // zone pick).
 
@@ -3795,7 +3811,6 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       }
    }
 
-
    if (good_settings) {
 
       // GtkWidget *widget = create_rotate_translate_obj_dialog();
@@ -3805,7 +3820,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
       do_rot_trans_adjustments(widget);
 
-      // set its position if it was  shown before
+      // set its position if it was shown before
       if (rotate_translate_x_position > -100) {
          /*
 	 gtk_widget_set_uposition(widget,
@@ -3837,7 +3852,6 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 							    mmdb::SKEY_NEW // selection key
 							    );
       molecules[imol_rot_trans_object].atom_sel.mol->GetSelIndex(selHnd, sel_residues, n_sel_residues);
-
 
       short int alt_conf_split_flag = 0;
       std::string altloc_string(altLoc);
@@ -3877,6 +3891,11 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       imol_moving_atoms = imol_rot_trans_object;
       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
       make_moving_atoms_graphics_object(imol_rot_trans_object, rt_asc, false, false); // shallow copy rt_asc to moving_atoms_asc
+
+      if (false) {
+         std::cout << "in execute_rotate_translate_ready() with moving_atoms_asc " << moving_atoms_asc << std::endl;
+         std::cout << "in execute_rotate_translate_ready() with moving_atoms_asc mol " << moving_atoms_asc->mol << std::endl;
+      }
 
       // set the rotation centre atom index:
       //   rot_trans_atom_index_rotation_origin_atom =
@@ -4068,6 +4087,8 @@ coot::ScreenVectors::ScreenVectors() {
 void
 graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_data) {
 
+   // std::cout << "rot_trans_adjustment_changed() ... start ... " << std::endl;
+
    graphics_info_t g;  // because rotate_round_vector is not static - it should be.
                        // FIXME at some stage.
    double v = gtk_adjustment_get_value(adj);
@@ -4168,6 +4189,7 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
 	 moving_atoms_asc->atom_selection[i]->y = new_pos.y();
 	 moving_atoms_asc->atom_selection[i]->z = new_pos.z();
       }
+
    } else {
 
       for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
@@ -4178,11 +4200,13 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
       }
    }
 
-   if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS ||
-       molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS ||
-       molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS ||
-       molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR ||
-       molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
+   int originating_molecule_bonds_box_type = molecules[imol_moving_atoms].Bonds_box_type();
+
+   if (originating_molecule_bonds_box_type == coot::CA_BONDS ||
+       originating_molecule_bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS ||
+       originating_molecule_bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS ||
+       originating_molecule_bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR ||
+       originating_molecule_bonds_box_type == coot::COLOUR_BY_RAINBOW_BONDS) {
 
       Bond_lines_container bonds;
       bool draw_hydrogens_flag = false;
@@ -4191,29 +4215,26 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
 
       bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol_moving_atoms, Geom_p(), 1.0, 4.7,
                                      draw_missing_loops_flag, draw_hydrogens_flag);
-      regularize_object_bonds_box.clear_up();
-      regularize_object_bonds_box = bonds.make_graphical_bonds();
+
+      moving_atoms_molecule.atom_sel = *moving_atoms_asc;
+      moving_atoms_molecule.bonds_box = bonds.make_graphical_bonds();
+      attach_buffers();
+      moving_atoms_molecule.make_meshes_from_bonds_box_instanced_version();
+
    } else {
+
       int do_disulphide_flag = 0;
       int do_bonds_to_hydrogens = 1;
       bool do_rama_markup = false;
       bool do_rota_markup = false;
       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, do_disulphide_flag, do_bonds_to_hydrogens,
                                  do_rama_markup, do_rota_markup);
-      regularize_object_bonds_box.clear_up();
-      regularize_object_bonds_box = bonds.make_graphical_bonds();
-   }
 
-   // 20220304-PE I do this in make_moving_atoms_graphics_object() I should do it here too because
-   // draw_hud_geometry_bars() uses moving_atoms_molecule, not regularize_object_bonds_box. Hmm.
-   // (that sounds like bad planning).
-   //
-   // Where else do I set regularize_object_bonds_box? Presumably we need these lines there also.
-   //
-   moving_atoms_molecule.atom_sel = *moving_atoms_asc;
-   moving_atoms_molecule.bonds_box = regularize_object_bonds_box;
-   attach_buffers();
-   moving_atoms_molecule.make_mesh_from_bonds_box();
+      moving_atoms_molecule.atom_sel = *moving_atoms_asc;
+      moving_atoms_molecule.bonds_box = bonds.make_graphical_bonds();
+      attach_buffers();
+      moving_atoms_molecule.make_meshes_from_bonds_box_instanced_version();
+   }
 
    graphics_draw();
 }

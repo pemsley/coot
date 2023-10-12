@@ -36,6 +36,7 @@
 #include "cc-interface.hh"
 #include "c-interface.h"
 #include "read-molecule.hh" // now with std::string args
+#include "curl-utils.hh"
 
 #if 0 // 20220602-PE FIXME
 gboolean

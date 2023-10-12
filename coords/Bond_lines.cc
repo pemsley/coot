@@ -122,12 +122,13 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   coot::rotamer_probability_tables *tables_p
 					   ) {
    // teehee
-   // std::cout << "################################## yes this constructor ###########################" << std::endl;
+   // std::cout << "################################## yes this constructor A ###########################" << std::endl;
 
    init();
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    b_factor_scale = 1.0;
+   geom = 0;
    have_dictionary = 0;
    for_GL_solid_model_rendering = 1;
    n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
@@ -303,6 +304,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
                                            const coot::protein_geometry *protein_geom,
 					   Bond_lines_container::bond_representation_type br_type) {
 
+   // std::cout << "*************************** Bond_lines_container() constructor with geom and type " << br_type << std::endl;
 
    init(); // sets geom to null pointer
    verbose_reporting = 0;
@@ -4028,6 +4030,12 @@ graphical_bonds_container::n_atoms() const {
    return count;
 }
 
+void
+graphical_bonds_container::debug() const {
+   std::cout << "This graphical_bonds_container has " << n_bonds() << " bonds and " << n_atoms()
+             << " atoms." << std::endl;
+}
+
 
 // This function used by skeletonization (and nothing else)
 void
@@ -5427,6 +5435,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
       std::cout << "in atom_colour() with at " << at
                 << " bond_colour_type " << bond_colour_type << " vs (user-defined) " << coot::COLOUR_BY_USER_DEFINED_COLOURS
                 << " vs (colour-by-atom-type) " << coot::COLOUR_BY_ATOM_TYPE
+                << " vs (colour-by-b-factor) " << coot::COLOUR_BY_B_FACTOR
                 << std::endl;
 
    int col = 0;
@@ -5672,31 +5681,12 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 			if (bond_colour_type == coot::COLOUR_BY_B_FACTOR) {
                            // B-factors by atom are done this way.
                            float scaled_b = at->tempFactor * b_factor_scale;
-                           float max_b = 62.0;
-                           if (scaled_b < 10.0) {
-                              return BLUE_BOND;
-                           } else {
-                              if (scaled_b > max_b) {
-                                 return RED_BOND;
-                              } else {
-                                 if (scaled_b < 22.0) {
-                                    return CYAN_BOND;
-                                 } else {
-                                    if (scaled_b < 36.0) {
-                                       return GREEN_BOND;
-                                    } else {
-                                       if (scaled_b < 48.0) {
-                                          return YELLOW_BOND;
-                                       } else {
-                                          if (scaled_b <= max_b) {
-                                             return ORANGE_BOND;
-                                          }
-                                       }
-                                    }
-                                 }
-                              }
-                           }
-                           
+                           float max_b = 100.0;
+                           // std::cout << "here we go! scaled_b " << scaled_b << std::endl;
+                           float f = scaled_b/max_b;
+                           if (f > 0.999) f = 0.999;
+                           if (f < 0.0)   f = 0.0;
+                           col = static_cast<int>(f * 45); // 50 colours in the table.
 			} else {
 			   if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
 			      col = 20; // elsewhere
@@ -8365,8 +8355,10 @@ Bond_lines_container::add_atom_centres(int imol,
       delete atom_colour_map_p;
 }
 
+#include "coot-utils/coot-coord-extras.hh"
 
-// if model_number is 0, do all models
+// if model_number is 0, do all models.
+//
 void
 Bond_lines_container::add_cis_peptide_markup(const atom_selection_container_t &SelAtom, int model_number) {
 
@@ -8374,7 +8366,7 @@ Bond_lines_container::add_cis_peptide_markup(const atom_selection_container_t &S
    cis_peptide_quads.clear();
 
    std::vector<coot::util::cis_peptide_quad_info_t> quads =
-      coot::util::cis_peptide_quads_from_coords(SelAtom.mol, model_number);
+      coot::cis_peptide_quads_from_coords(SelAtom.mol, model_number, geom); // geom can be null.
 
    for (unsigned int i=0; i<quads.size(); i++) {
       bool keep_this = true;

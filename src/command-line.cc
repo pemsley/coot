@@ -250,7 +250,6 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--zalman-stereo]\n"
 			       << "            [--side-by-side]\n"
 			       << "            [--version]\n"
-			       << "            [--version-full]\n"
 // 			       << "            [--update-self]\n"
 			       << "            [--self-test]\n"
 			       << "            [--no-state-script]\n"
@@ -262,12 +261,7 @@ parse_command_line(int argc, char ** argv ) {
 		     exit(0);
 		  } else {
 		     
-		     if (arg_str == "version") {
-			std::cout << VERSION << " " << coot_version_extra_info();
-			exit(0);
-		     } else {
-			
-			if (arg_str == "version-full") {
+			if (arg_str == "version") {
 			   std::cout  << VERSION << " " << coot_version_extra_info();
 			   // this is in coot_version_extra_info() now
 			   // std::cout << "Binary type: " << COOT_SYS_BUILD_TYPE << std::endl;
@@ -294,7 +288,7 @@ parse_command_line(int argc, char ** argv ) {
 			   enableds.push_back("GSL");
 #endif
 #ifdef USE_GEMMI
-                           enableds.push_back("GEMMI");
+            enableds.push_back("GEMMI");
 #endif
 #ifdef USE_SQLITE3
 			   enableds.push_back("SQLite3");
@@ -371,7 +365,7 @@ parse_command_line(int argc, char ** argv ) {
                               }
 			   }
 			}
-		     }
+		     
 		  }
 	       }
 	    }
@@ -435,10 +429,10 @@ void
 command_line_data::handle_immediate_settings() {
 
    // start the graphics?
-   if (do_graphics == 1) {
-      graphics_info_t::use_graphics_interface_flag = 1;
+   if (do_graphics) {
+      graphics_info_t::use_graphics_interface_flag = true;
    } else {
-      graphics_info_t::use_graphics_interface_flag = 0; 
+      graphics_info_t::use_graphics_interface_flag = false;
    }
 
    if (script_is_python_flag)
@@ -449,13 +443,13 @@ command_line_data::handle_immediate_settings() {
 
    // small screen
    if (small_screen_display && graphics_info_t::use_graphics_interface_flag) {
-     std::cout <<"INFO:: set labels and icons for small screens" <<std::endl;
+      std::cout <<"INFO:: set labels and icons for small screens" <<std::endl;
 
-     std::cout << "Fix small screen parsing in handle_immediate_settings() " << std::endl;
-     // gtk_rc_parse_string("gtk-icon-sizes=\"gtk-large-toolbar=10,10:gtk-button=10,10\"");
-     // gtk_rc_parse_string("class \"GtkLabel\" style \"small-font\"");
-     graphics_info_t::graphics_x_size = 400;
-     graphics_info_t::graphics_y_size = 400;
+      std::cout << "Fix small screen parsing in handle_immediate_settings() " << std::endl;
+      // gtk_rc_parse_string("gtk-icon-sizes=\"gtk-large-toolbar=10,10:gtk-button=10,10\"");
+      // gtk_rc_parse_string("class \"GtkLabel\" style \"small-font\"");
+      graphics_info_t::graphics_x_size = 400;
+      graphics_info_t::graphics_y_size = 400;
    }
 }
 

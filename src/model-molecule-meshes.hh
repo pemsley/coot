@@ -20,6 +20,7 @@ public:
    Mesh simple_mesh;
    Material material;
    std::string name;
+   void set_debug_mode(bool state); // transfer this to the meshes
 
    void import(const coot::instanced_mesh_t &api_mol_mesh);
    void set_name(const std::string &n) { name = n; }

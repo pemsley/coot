@@ -157,11 +157,8 @@ namespace coot {
 	 atom_spec_t atom_spec;
 	 clipper::Coord_orth pos;
 	 double weight;
-	 extra_target_position_restraint_t(const atom_spec_t &as, const clipper::Coord_orth &pos_in, double w) {
-	    atom_spec = as;
-	    weight = w;
-	    pos = pos_in;
-	 }
+	 extra_target_position_restraint_t(const atom_spec_t &as, const clipper::Coord_orth &pos_in, double w) :
+            atom_spec(as), pos(pos_in), weight(w) {}
       };
 
       std::vector<extra_bond_restraint_t> bond_restraints;
@@ -213,6 +210,9 @@ namespace coot {
 	    start_pos_restraints.push_back(r.start_pos_restraints[i]);
 	 for (unsigned int i=0; i<r.parallel_plane_restraints.size(); i++)
 	    parallel_plane_restraints.push_back(r.parallel_plane_restraints[i]);
+         // 20231003-PE GM was not in this list. Why not?
+	 for (unsigned int i=0; i<r.geman_mcclure_restraints.size(); i++)
+	    geman_mcclure_restraints.push_back(r.geman_mcclure_restraints[i]);
       }
 
       void delete_restraints_for_residue(const residue_spec_t &rs);

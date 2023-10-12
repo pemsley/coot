@@ -52,6 +52,7 @@ class graphics_ligand_mesh_molecule_t : public lig_build::molecule_t<graphics_li
    void fill_mesh();
    std::vector<position_triple_t> fill_mesh_bonds();
    void fill_mesh_atoms();
+   void position_analysis();
 
 public:
    // this is a static in graphics_info_t
