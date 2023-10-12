@@ -909,13 +909,8 @@ int new_startup(int argc, char **argv) {
    // g_object_get(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", &dark_mode_flag, NULL);
 
    GError *error = NULL;
-#if (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 10) || (GTK_MAJOR_VERSION == 5)
    GtkApplication *app = gtk_application_new ("org.emsley.coot",
       (GApplicationFlags) (G_APPLICATION_DEFAULT_FLAGS | G_APPLICATION_NON_UNIQUE));
-#else
-   GtkApplication *app = gtk_application_new ("org.emsley.coot",
-      (GApplicationFlags) (G_APPLICATION_NON_UNIQUE));
-#endif
    g_application_register(G_APPLICATION(app), NULL, &error);
 
    application_activate_data *activate_data = new application_activate_data(argc,argv,std::move(cld));
