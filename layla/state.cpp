@@ -489,7 +489,6 @@ void LaylaState::save_file(unsigned int idx, const char* filename, GtkWindow* pa
 }
 
 void LaylaState::run_file_save_dialog(unsigned int molecule_idx) noexcept {
-#if 0
     auto* save_dialog = gtk_file_dialog_new();
     // This isn't the best practice but it tremendously simplifies things
     // by saving us from unnecessary boilerplate.
@@ -510,7 +509,6 @@ void LaylaState::run_file_save_dialog(unsigned int molecule_idx) noexcept {
             g_error_free(*e);
         }
     }, GUINT_TO_POINTER(molecule_idx));
-#endif
 }
 
 void LaylaState::file_save_as() {
@@ -582,7 +580,6 @@ void LaylaState::file_save_as() {
 }
 
 void LaylaState::file_open() {
-#if 0
     auto* open_dialog = gtk_file_dialog_new();
     gtk_file_dialog_open(open_dialog, this->main_window, NULL, +[](GObject* source_object, GAsyncResult* res, gpointer user_data){
         GError** e = NULL;
@@ -618,12 +615,10 @@ void LaylaState::file_open() {
             g_error_free(*e);
         }
     }, this);
-#endif
 
 }
 
 void LaylaState::file_export(ExportMode mode) {
-#if 0
     auto* export_dialog = gtk_file_dialog_new();
     auto* mode_ptr = new ExportMode(mode);
     // This isn't the best practice but it tremendously simplifies things
@@ -693,7 +688,6 @@ void LaylaState::file_export(ExportMode mode) {
         }
         delete mode_ptr;
     }, mode_ptr);
-#endif
 }
 
 void LaylaState::file_exit() {

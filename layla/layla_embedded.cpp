@@ -83,6 +83,7 @@ void coot::launch_layla() {
 void coot::launch_layla(std::shared_ptr<RDKit::RWMol> mol) {
     launch_layla();
     CootLigandEditorCanvas* canvas = coot::layla::global_instance->get_canvas();
+#if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 74 || GLIB_MAJOR_VERSION > 2
     struct _cb_data_t {
         CootLigandEditorCanvas* canvas;
         std::shared_ptr<RDKit::RWMol> mol;
@@ -90,11 +91,12 @@ void coot::launch_layla(std::shared_ptr<RDKit::RWMol> mol) {
     auto* cbd = new _cb_data_t;
     cbd->canvas = canvas;
     cbd->mol = std::move(mol);
-#if (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 10) || (GTK_MAJOR_VERSION == 5)
     g_idle_add_once([](gpointer user_data){
         _cb_data_t* cbd = (_cb_data_t*) user_data;
         coot_ligand_editor_canvas_append_molecule(cbd->canvas, std::move(cbd->mol));
         delete cbd;
     }, cbd);
+#else
+    std::cout << "WARNING:: Rebuild Coot against Glib >= 2.74. Functionality is broken." << std::endl;
 #endif
 }
