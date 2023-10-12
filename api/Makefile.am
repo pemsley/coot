@@ -68,6 +68,7 @@ test_molecules_container_LDFLAGS = ./libcoot-api.la \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \
    $(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la \
    $(top_builddir)/ligand/libcoot-ligand.la           \
+   $(top_builddir)/ideal/libcoot-ideal.la             \
    $(top_builddir)/pli/libcoot-pli.la                 \
    $(top_builddir)/density-contour/libcoot-isosurface.la \
    $(top_builddir)/coot-utils/libcoot-map-utils.la    \

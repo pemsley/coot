@@ -269,3 +269,24 @@ void
 coot::molecule_t::clear_extra_restraints() {
    extra_restraints.clear();
 }
+
+
+//! read extra restraints (e.g. from ProSMART)
+void
+coot::molecule_t::read_extra_restraints(const std::string &file_name) {
+
+    extra_restraints.read_refmac_extra_restraints(file_name);
+
+    const auto &r = extra_restraints;
+
+    std::cout << "  bonds size "   << r.bond_restraints.size() << " "
+              << "  angles size "  << r.angle_restraints.size() << " "
+              << "  torsion size " << r.torsion_restraints.size() << " "
+              << "  start-pos size " << r.start_pos_restraints.size() << " "
+              << " parplane size " << r.parallel_plane_restraints.size() << " "
+              << " GM-disst size " << r.geman_mcclure_restraints.size() << "\n";
+
+}
+
+
+
