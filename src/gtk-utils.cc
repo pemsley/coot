@@ -81,8 +81,7 @@ ProgressNotifier::ProgressNotifier(std::shared_ptr<ProgressBarPopUp> popup) noex
 
 void ProgressNotifier::update_progress(float frac) noexcept {
 
-#if (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 10) || (GTK_MAJOR_VERSION == 5)
-
+#if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 74 || GLIB_MAJOR_VERSION > 2
    struct callback_data {
       std::shared_ptr<ProgressBarPopUp> popup;
       float frac;
@@ -95,12 +94,12 @@ void ProgressNotifier::update_progress(float frac) noexcept {
       delete data;
    }, data);
 #else
-   std::cout << "WARNING:: feature not available with this version of GTK" << std::endl;
+   std::cout << "WARNING:: Rebuild Coot against Glib >= 2.74. Functionality is broken." << std::endl;
 #endif
 }
 
 void ProgressNotifier::pulse() noexcept {
-#if (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 10) || (GTK_MAJOR_VERSION == 5)
+#if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 74 || GLIB_MAJOR_VERSION > 2
    struct callback_data {
       std::shared_ptr<ProgressBarPopUp> popup;
    };
@@ -112,13 +111,13 @@ void ProgressNotifier::pulse() noexcept {
       delete data;
    }, data);
 #else
-   std::cout << "WARNING:: feature not available with this version of GTK" << std::endl;
+   std::cout << "WARNING:: Rebuild Coot against Glib >= 2.74. Functionality is broken." << std::endl;
 #endif
 }
 
 void ProgressNotifier::set_text(const char* text) noexcept {
 
-#if (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 10) || (GTK_MAJOR_VERSION == 5)
+#if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 74 || GLIB_MAJOR_VERSION > 2
    struct callback_data {
       std::shared_ptr<ProgressBarPopUp> popup;
       std::string text;
@@ -131,13 +130,13 @@ void ProgressNotifier::set_text(const char* text) noexcept {
       delete data;
    }, data);
 #else
-   std::cout << "WARNING:: feature not available with this version of GTK" << std::endl;
+   std::cout << "WARNING:: Rebuild Coot against Glib >= 2.74. Functionality is broken." << std::endl;
 #endif
 }
 
 ProgressNotifier::~ProgressNotifier() {
 
-#if (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 10) || (GTK_MAJOR_VERSION == 5)
+#if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 74 || GLIB_MAJOR_VERSION > 2
    struct callback_data {
       std::shared_ptr<ProgressBarPopUp> popup;
    };
@@ -148,7 +147,7 @@ ProgressNotifier::~ProgressNotifier() {
       delete data;
    }, data);
 #else
-   std::cout << "WARNING:: feature not available with this version of GTK" << std::endl;
+   std::cout << "WARNING:: Rebuild Coot against Glib >= 2.74. Functionality is broken." << std::endl;
 #endif
 }
 
