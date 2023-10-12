@@ -1109,6 +1109,9 @@ public:
    //! currently mode is unused.
    coot::instanced_mesh_t get_extra_restraints_mesh(int imol, int mode);
 
+   //! read extra restraints (e.g. from ProSMART)
+   void read_extra_restraints(int imol, const std::string &file_name);
+
    //! clear the extra restraints
    void clear_extra_restraints(int imol);
 
