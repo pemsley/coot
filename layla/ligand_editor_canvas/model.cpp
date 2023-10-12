@@ -908,7 +908,44 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
 
                 // Now we need to make sure that the off-center bond 
                 // after cropping is not going to be longer than the center bond
-                
+                if(bond_vec_x > 0) {
+                    // The beginning is shorter for the centered bond
+                    if(first_c.x > a_cropped.x) {
+                        a_cropped = first_c;
+                    }
+                    // The end is shorter for the centered bond
+                    if(second_c.x < b_cropped.x) {
+                        b_cropped = second_c;
+                    }
+                } else {
+                    // The beginning is shorter for the centered bond
+                    if(first_c.x < a_cropped.x) {
+                        a_cropped = first_c;
+                    }
+                    // The end is shorter for the centered bond
+                    if(second_c.x > b_cropped.x) {
+                        b_cropped = second_c;
+                    }
+                }
+                if(bond_vec_y > 0) {
+                    // The beginning is shorter for the centered bond
+                    if(first_c.y > a_cropped.y) {
+                        a_cropped = first_c;
+                    }
+                    // The end is shorter for the centered bond
+                    if(second_c.y < b_cropped.y) {
+                        b_cropped = second_c;
+                    }
+                } else {
+                    // The beginning is shorter for the centered bond
+                    if(first_c.y < a_cropped.y) {
+                        a_cropped = first_c;
+                    }
+                    // The end is shorter for the centered bond
+                    if(second_c.y > b_cropped.y) {
+                        b_cropped = second_c;
+                    }
+                }
 
                 cairo_move_to(cr, a_cropped.x, a_cropped.y);
                 cairo_line_to(cr, b_cropped.x, b_cropped.y);
