@@ -376,8 +376,10 @@ void launch_generator_async(GTask* task) {
         return should_run;
     }, g_object_ref(task));
 
-#if 0
+#if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 74 || GLIB_MAJOR_VERSION > 2
     g_idle_add_once(pipe_reader, g_object_ref(task));
+#else
+    std::cout << "WARNING:: Rebuild Layla against Glib >= 2.74. Functionality is broken." << std::endl;
 #endif
 }
 
@@ -416,8 +418,10 @@ void pipe_reader(gpointer user_data) {
             g_bytes_unref(bytes);
         }
         if(should_go_on) {
-#if 0
+#if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 74 || GLIB_MAJOR_VERSION > 2
             g_idle_add_once(pipe_reader, g_object_ref(task));
+#else
+            std::cout << "WARNING:: Rebuild Layla against Glib >= 2.74. Functionality is broken." << std::endl;
 #endif
         }
         g_object_unref(task);
@@ -512,7 +516,7 @@ GCancellable* coot::layla::run_generator_request(GeneratorRequest request, CootL
         g_slice_free(GeneratorTaskData, task_data_ptr);
     });
 
-#if 0
+#if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 74 || GLIB_MAJOR_VERSION > 2
     g_idle_add_once([](gpointer user_data){
         GeneratorTaskData* task_data = (GeneratorTaskData*) g_task_get_task_data(G_TASK(user_data));
         std::string title = "Layla: Running ";
@@ -534,6 +538,8 @@ GCancellable* coot::layla::run_generator_request(GeneratorRequest request, CootL
         gtk_window_set_title(task_data->progress_dialog, title.c_str());
         initial_check(G_TASK(user_data));
     }, task);
+#else
+        std::cout << "WARNING:: Rebuild Layla against Glib >= 2.74. Functionality is broken." << std::endl;
 #endif
     // this segfaults:
     // g_object_unref(dummy);
