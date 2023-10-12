@@ -590,6 +590,8 @@ create_local_picture(const std::string &local_filename) {
    if (picture) {
 #if GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 8
       gtk_picture_set_content_fit(GTK_PICTURE(picture), GTK_CONTENT_FIT_FILL);
+#else
+      g_warning("gtk_picture_set_content_fit() not available in your version of GTK.");
 #endif
    }
    return picture;
