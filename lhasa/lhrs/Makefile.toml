@@ -27,7 +27,7 @@ dependencies = ["fmt", "clippy", "test_h_firefox"]
 
 [tasks.build]
 description = "Build with wasm-pack"
-install_crate = { crate_name = "wasm-pack", binary = "wasm-pack", test_arg = "-V" }
+install_crate = { crate_name = "wasm-pack", binary = "wasm-pack", test_arg = "-V", version = "0.10.3"}
 command = "wasm-pack"
 args = ["build", "--target", "web", "--out-name", "package", "--dev"]
 

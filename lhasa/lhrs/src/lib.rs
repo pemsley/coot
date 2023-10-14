@@ -4,6 +4,7 @@
 #![allow(clippy::wildcard_imports)]
 
 use seed::{prelude::*, *};
+use js_sys::{eval};
 
 // ------ ------
 //     Init
@@ -37,7 +38,17 @@ enum Msg {
 // `update` describes how to handle each `Msg`.
 fn update(msg: Msg, model: &mut Model, _: &mut impl Orders<Msg>) {
     match msg {
-        Msg::Increment => model.counter += 1,
+        Msg::Increment => {
+            model.counter += 1;
+            match eval(&format!("console.log('[SEED] lerp result: ' + Module.lerp(1, {}, 0.5));", model.counter)) {
+                Ok(_jsval) => {
+
+                },
+                Err(js_err) => {
+                    
+                }
+            };
+        },
     }
 }
 

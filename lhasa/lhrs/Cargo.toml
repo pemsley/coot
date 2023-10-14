@@ -1,13 +1,8 @@
 [package]
 version = "0.1.0"
 name = "lhrs"
-repository = "https://github.com/seed-rs/seed-quickstart"
 authors = ["Jakub Smulski <hgonomeg@gmail.com>"]
-description = "App Description"
-categories = ["category"]
-license = "MIT"
-readme = "./README.md"
-edition = "2018"
+edition = "2021"
 
 [lib]
 crate-type = ["cdylib"]
@@ -16,7 +11,7 @@ crate-type = ["cdylib"]
 wasm-bindgen-test = "0.3.18"
 
 [dependencies]
-seed = "0.8.0"
+seed = "0.10.0"
 
 [profile.release]
 lto = true
