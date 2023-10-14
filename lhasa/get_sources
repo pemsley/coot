@@ -27,14 +27,14 @@ echo "" > silly.c
 emcc silly.c -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_FREETYPE=1
 rm -f silly.c
 
-#Get RDKit
-echo "Downloading RDKit_minimal js/wasm"
-echo
-curl -L https://unpkg.com/@rdkit/rdkit/Code/MinimalLib/dist/RDKit_minimal.wasm -o web_example/RDKit_minimal.wasm
-curl -L https://unpkg.com/@rdkit/rdkit/Code/MinimalLib/dist/RDKit_minimal.js -o web_example/RDKit_minimal.js
+# #Get RDKit
+# echo "Downloading RDKit_minimal js/wasm"
+# echo
+# curl -L https://unpkg.com/@rdkit/rdkit/Code/MinimalLib/dist/RDKit_minimal.wasm -o web_example/RDKit_minimal.wasm
+# curl -L https://unpkg.com/@rdkit/rdkit/Code/MinimalLib/dist/RDKit_minimal.js -o web_example/RDKit_minimal.js
 
 echo "Checking out boost"
-curl -L https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_83_0.tar.bz2 -o boost_1_83_0.tar.bz2
+curl -L https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2 -o boost_1_83_0.tar.bz2
 tar xf boost_1_83_0.tar.bz2
 
 cd ..
