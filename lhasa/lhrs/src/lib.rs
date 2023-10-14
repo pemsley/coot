@@ -40,7 +40,12 @@ fn update(msg: Msg, model: &mut Model, _: &mut impl Orders<Msg>) {
     match msg {
         Msg::Increment => {
             model.counter += 1;
-            match eval(&format!("console.log('[SEED] lerp result: ' + Module.lerp(1, {}, 0.5));", model.counter)) {
+            match eval(&format!(
+r#"console.log('[SEED] lerp result: ' + Module.lerp(1, {}, 0.5));
+var instance = new Module.LhasaDemo();
+console.log(instance.demo());
+instance.delete();"#
+                , model.counter)) {
                 Ok(_jsval) => {
 
                 },

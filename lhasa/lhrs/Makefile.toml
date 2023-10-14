@@ -9,6 +9,7 @@ skip_core_tasks = true
 [tasks.watch]
 description = "Watch files and recompile the project on change"
 run_task = [
+    # { name = "build_embind" },
     { name = "build" },
 ]
 watch = true
@@ -24,6 +25,11 @@ description = "Format, lint with Clippy and run tests"
 dependencies = ["fmt", "clippy", "test_h_firefox"]
 
 # ---- BUILD ----
+
+[tasks.build_embind]
+description = "Build Emscripten Binding"
+command = "emcc"
+args = ["-lembind", "-O2", "-o", "binding_demo.js", "../binding_demo.cpp"]
 
 [tasks.build]
 description = "Build with wasm-pack"
