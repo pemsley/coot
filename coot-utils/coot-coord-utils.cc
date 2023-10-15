@@ -1578,8 +1578,8 @@ coot::util::max_min_max_residue_range(mmdb::Manager *mol) {
       for (int imod=1; imod<=n_models; imod++) { 
       
          mmdb::Model *model_p = mol->GetModel(imod);
+         if (! model_p) continue;
    
-         mmdb::Chain *chain;
          // run over chains of the existing mol
          int nchains = model_p->GetNumberOfChains();
          if (nchains <= 0) { 
@@ -1587,21 +1587,20 @@ coot::util::max_min_max_residue_range(mmdb::Manager *mol) {
                       << nchains << std::endl;
          } else { 
             for (int ichain=0; ichain<nchains; ichain++) {
-               chain = model_p->GetChain(ichain);
+               mmdb::Chain *chain = model_p->GetChain(ichain);
                if (chain == NULL) {  
                   // This should not be necessary. It seem to be a
                   // result of mmdb corruption elsewhere - possibly
                   // DeleteChain in update_molecule_to().
-                  std::cout << "NULL chain in residues_in_molecule: "
+                  std::cout << "NULL chain in max_min_max_residue_range(): "
                             << std::endl;
                } else { 
                   int nres = chain->GetNumberOfResidues();
                   if (nres > 0) { 
                      int min_resno = 99999;
                      int max_resno = -99999;
-                     int this_resno;
                      for (int i=0; i<nres; i++) {
-                        this_resno = chain->GetResidue(i)->GetSeqNum();
+                        int this_resno = chain->GetResidue(i)->GetSeqNum();
                         if (this_resno > max_resno)
                            max_resno = this_resno;
                         if (this_resno < min_resno)
