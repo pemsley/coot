@@ -21,6 +21,9 @@ Moorhen: Request: electrostatic surface.
 
 Moorhen: carbon bonds are too light on white background. Looking at the code, it seems
          to do the right thing, but needs testing. Print the colour table.
+* Colour table seems fine. Needs a look.
+
+Moorhen: Check/Delete waters function for the api
 
 Quick save as should save the shader settings
 

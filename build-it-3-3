@@ -3496,6 +3496,8 @@ echo pip3 install --upgrade pip
 pip3 install --upgrade pip
 echo pip3 install cython
 pip3 install cython
+echo pip3 install nanobind
+pip3 install nanobind
 
 if [ true = true ] ; then
    skip_this=false

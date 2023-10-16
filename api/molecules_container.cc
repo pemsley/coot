@@ -4552,11 +4552,10 @@ molecules_container_t::set_map_colour_saturation(int imol, float s) {
 
 //! @return the map histogram
 coot::molecule_t::histogram_info_t
-molecules_container_t::get_map_histogram(int imol) const {
+molecules_container_t::get_map_histogram(int imol, unsigned int n_bins) const {
 
    coot::molecule_t::histogram_info_t hi;
    if (is_valid_map_molecule(imol)) {
-      unsigned int n_bins = 50;
       hi = molecules[imol].get_map_histogram(n_bins);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a map model molecule " << imol << std::endl;
@@ -4578,3 +4577,37 @@ molecules_container_t::read_extra_restraints(int imol, const std::string &file_n
 }
 
 
+#include "coot-utils/find-water-baddies.hh"
+
+//! check waters, implicit OR
+//! return a vector of atom specifiers
+std::vector <coot::atom_spec_t>
+molecules_container_t::find_water_baddies(int imol_model, int imol_map,
+                                          float b_factor_lim,
+                                          float outlier_sigma_level,
+                                          float min_dist, float max_dist,
+                                          bool ignore_part_occ_contact_flag,
+                                          bool ignore_zero_occ_flag) {
+
+   std::vector <coot::atom_spec_t> v;
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+
+         float map_sigma = molecules[imol_model].get_map_rmsd_approx();
+         v = coot::find_water_baddies_OR(molecules[imol_model].atom_sel,
+                                         b_factor_lim,
+                                         molecules[imol_map].xmap,
+                                         map_sigma,
+                                         outlier_sigma_level,
+                                         min_dist, max_dist,
+                                         ignore_part_occ_contact_flag,
+                                         ignore_zero_occ_flag);
+      } else {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_model << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_map << std::endl;
+   }
+   return v;
+
+}

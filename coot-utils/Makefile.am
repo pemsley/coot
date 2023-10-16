@@ -43,7 +43,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
         polar-atoms.hh 3d-texture.hh fragment-container.hh map-index.hh \
         atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh simple-mesh.hh vertex.hh g_triangle.hh \
 	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh cmtz-interface.hh mtz-column-auto-read.hh \
-	pugixml.hpp pugiconfig.hpp
+	pugixml.hpp pugiconfig.hpp find-water-baddies.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -130,7 +130,7 @@ libcoot_coord_extras_la_LDFLAGS = $(SHARED_LDFLAGS)
 # for (map) things that need to link mmdb and clipper:
 libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc \
 	xmap-stats.cc maps-spherical.cc pepflip-using-difference-map.cc exp-fit.cc blob-line.cc \
-        slurp-map.cc
+        slurp-map.cc find-water-baddies.cc
 
 
 # should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)

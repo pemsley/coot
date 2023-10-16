@@ -753,7 +753,7 @@ public:
    float get_map_rmsd_approx(int imol_map) const;
 
    //! @return the map histogram
-   coot::molecule_t::histogram_info_t get_map_histogram(int imol) const;
+   coot::molecule_t::histogram_info_t get_map_histogram(int imol, unsigned int n_bins) const;
 
    //! @return the suggested initial contour level. Return -1 on not-a-map
    float get_suggested_initial_contour_level(int imol) const;
@@ -1207,6 +1207,22 @@ public:
    //! unmodelled blobs
    //! @return a vector of `coot::validation_information_t`
    std::vector<coot::molecule_t::interesting_place_t> unmodelled_blobs(int imol_model, int imol_map) const;
+
+   //! check waters, implicit OR
+   //!
+   //! typical values for `b_factor_lim` is 60.0
+   //! typical values for `outlier_sigma_level` is 0.8
+   //! typical values for `min_dist` is 2.3
+   //! typical values for `max_dist` is 3.5
+   //!
+   //! return a vector of atom specifiers
+   std::vector <coot::atom_spec_t>
+   find_water_baddies(int imol_model, int imol_map,
+                      float b_factor_lim,
+                      float outlier_sigma_level,
+                      float min_dist, float max_dist,
+                      bool ignore_part_occ_contact_flag,
+                      bool ignore_zero_occ_flag);
 
    //! calculate the MMRRCC for the residues in the chain
    //! Multi Masked Residue Range Corellation Coefficient
