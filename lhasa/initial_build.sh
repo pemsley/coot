@@ -109,10 +109,11 @@ export EM_PKG_CONFIG_LIBDIR=${INSTALL_DIR}/lib/
 export PKG_CONFIG_LIBDIR=${INSTALL_DIR}/lib/
 
 # Graphene
-CFLAGS="-s USE_PTHREADS" LDFLAGS=" -lpthread" meson setup _build \
+cd ${SOURCE_DIR}/deps/graphene-1.10.8/
+CFLAGS="-s USE_PTHREADS" LDFLAGS=" -lpthread" meson setup ${BUILD_DIR}/graphene_build \
     --prefix=${INSTALL_DIR} \
     --cross-file=$MESON_CROSS \
     --default-library=static \
     --buildtype=release \
     -Dtests=disabled && \
-    meson install -C _build
+    meson install -C ${BUILD_DIR}/graphene_build
