@@ -872,6 +872,7 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
                     second_y -= second_shortening_proportion.value() * bond_vec_y;
                 }
 
+                // Points a and b represent the off-center bond before cropping.
                 graphene_point_t a;
                 a.x = (first_x + pv_x) * scale_factor + x_offset;
                 a.y = (first_y + pv_y) * scale_factor + y_offset;
@@ -879,8 +880,73 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
                 b.x = (second_x + pv_x) * scale_factor + x_offset;
                 b.y = (second_y + pv_y) * scale_factor + y_offset;
 
+                // We need to make sure that the off-center bond 
+                // after cropping is not going to be longer than the center bond
+                graphene_point_t first_atom_centered;
+                first_atom_centered.x = first_x * scale_factor + x_offset;
+                first_atom_centered.y = first_y * scale_factor + y_offset;
+
+                graphene_point_t second_atom_centered;
+                second_atom_centered.x = second_x * scale_factor + x_offset;
+                second_atom_centered.y = second_y * scale_factor + y_offset;
+
+                /// Centered bond cropped
+                auto [first_c,second_c] = cropped_bond_coords(
+                    first_atom_centered,
+                    bond->first_atom_idx,
+                    second_atom_centered,
+                    bond->second_atom_idx
+                );
+                // Now we offset the center bond after cropping
+                first_c.x += pv_x * scale_factor;
+                first_c.y += pv_y * scale_factor;
+                second_c.x += pv_x * scale_factor;
+                second_c.y += pv_y * scale_factor;
+
+                // Points a_cropped and b_cropped represent the off-center bond after cropping.
                 auto [a_cropped,b_cropped] = cropped_bond_coords(a,bond->first_atom_idx,b,bond->second_atom_idx);
-            
+
+                // Now we need to make sure that the off-center bond 
+                // after cropping is not going to be longer than the center bond
+                if(bond_vec_x > 0) {
+                    // The beginning is shorter for the centered bond
+                    if(first_c.x > a_cropped.x) {
+                        a_cropped = first_c;
+                    }
+                    // The end is shorter for the centered bond
+                    if(second_c.x < b_cropped.x) {
+                        b_cropped = second_c;
+                    }
+                } else {
+                    // The beginning is shorter for the centered bond
+                    if(first_c.x < a_cropped.x) {
+                        a_cropped = first_c;
+                    }
+                    // The end is shorter for the centered bond
+                    if(second_c.x > b_cropped.x) {
+                        b_cropped = second_c;
+                    }
+                }
+                if(bond_vec_y > 0) {
+                    // The beginning is shorter for the centered bond
+                    if(first_c.y > a_cropped.y) {
+                        a_cropped = first_c;
+                    }
+                    // The end is shorter for the centered bond
+                    if(second_c.y < b_cropped.y) {
+                        b_cropped = second_c;
+                    }
+                } else {
+                    // The beginning is shorter for the centered bond
+                    if(first_c.y < a_cropped.y) {
+                        a_cropped = first_c;
+                    }
+                    // The end is shorter for the centered bond
+                    if(second_c.y > b_cropped.y) {
+                        b_cropped = second_c;
+                    }
+                }
+
                 cairo_move_to(cr, a_cropped.x, a_cropped.y);
                 cairo_line_to(cr, b_cropped.x, b_cropped.y);
                 cairo_stroke(cr);
