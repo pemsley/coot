@@ -42,10 +42,11 @@ tar xf boost_1_83_0.tar.bz2
 ln -s boost_1_83_0 boost
 ln -s "rdkit-$rdkit_release" rdkit
 
+
+patch -p0 < ../patches/boost-emscripten.patch
+patch -p0 < ../patches/boost-cxx-17.patch
+
 cd ..
 
 
-echo
-patch -p0 < patches/boost-emscripten.patch
-patch -p0 < patches/boost-cxx-17.patch
 
