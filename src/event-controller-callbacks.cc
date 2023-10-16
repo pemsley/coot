@@ -373,26 +373,44 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
          } else { // not "option" modifier
 
-            // std::cout << "Here with in_range_define " << in_range_define << std::endl;
-            if (in_range_define == 1 || in_range_define == 2) {
+            GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
+            std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
+
+            if (modifier == 17) { // shift
+
                bool intermediate_atoms_only_flag = false;
                pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
                if (naii.success) {
                   int imol = naii.imol;
                   mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[naii.atom_index];
-                  if (in_range_define == 1) {
-                     in_range_first_picked_atom  = coot::atom_spec_t(at);
-                     in_range_first_picked_atom.int_user_data = imol;
-                     molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                  molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                  graphics_draw();
+                  handled = true;
+               }
+
+            } else {
+
+               // std::cout << "Here with in_range_define " << in_range_define << std::endl;
+               if (in_range_define == 1 || in_range_define == 2) {
+                  bool intermediate_atoms_only_flag = false;
+                  pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+                  if (naii.success) {
+                     int imol = naii.imol;
+                     mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[naii.atom_index];
+                     if (in_range_define == 1) {
+                        in_range_first_picked_atom  = coot::atom_spec_t(at);
+                        in_range_first_picked_atom.int_user_data = imol;
+                        molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                     }
+                     if (in_range_define == 2) {
+                        in_range_second_picked_atom = coot::atom_spec_t(at);
+                        in_range_second_picked_atom.int_user_data = imol;
+                        molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                     }
+                     in_range_define = 2;
+                     graphics_draw(); // make the label appear
+                     handled =  true;
                   }
-                  if (in_range_define == 2) {
-                     in_range_second_picked_atom = coot::atom_spec_t(at);
-                     in_range_second_picked_atom.int_user_data = imol;
-                     molecules[imol].add_to_labelled_atom_list(naii.atom_index);
-                  }
-                  in_range_define = 2;
-                  graphics_draw(); // make the label appear
-                  handled =  true;
                }
             }
 
