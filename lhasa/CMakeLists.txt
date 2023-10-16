@@ -19,7 +19,7 @@ include_directories(${CMAKE_INSTALL_PREFIX}/lib/graphene-1.0/include)
 include_directories(${CMAKE_INSTALL_PREFIX}/include/rdkit)
 
 if("${EMSCRIPTEN_VERSION}" VERSION_GREATER 3.1.26)
-add_link_options(-sDEFAULT_PTHREAD_STACK_SIZE=2MB -sSTACK_SIZE=5MB)
+add_link_options(-sDEFAULT_PTHREAD_STACK_SIZE=2MB -sSTACK_SIZE=5MB -lembind)
 endif()
 
 add_library(lhasa STATIC lhasa.hpp lhasa.cpp)
