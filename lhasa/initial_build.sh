@@ -115,5 +115,5 @@ CFLAGS="-s USE_PTHREADS" LDFLAGS=" -lpthread" meson setup ${BUILD_DIR}/graphene_
     --cross-file=$MESON_CROSS \
     --default-library=static \
     --buildtype=release \
-    -Dtests=disabled && \
+    -Dtests=false && \
     meson install -C ${BUILD_DIR}/graphene_build
