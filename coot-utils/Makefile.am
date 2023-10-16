@@ -42,7 +42,8 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	pepflip-using-difference-map.hh blob-line.hh \
         polar-atoms.hh 3d-texture.hh fragment-container.hh map-index.hh \
         atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh simple-mesh.hh vertex.hh g_triangle.hh \
-	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh cmtz-interface.hh mtz-column-auto-read.hh
+	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh cmtz-interface.hh mtz-column-auto-read.hh \
+	pugixml.hpp pugiconfig.hpp
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -76,7 +77,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp fib-sphere.cc polar-atoms.cc \
 	3d-texture.cc merge-molecules.cc fragment-container.cc mutate.cc merge-C-and-N-terminii.cc \
 	cylinder.cc cylinder-with-rotation-translation.cc oct.cc prideout-octasphere.cc simple-mesh.cc \
-	shapes.cc cmtz-interface.cc
+	shapes.cc cmtz-interface.cc pugixml.cpp parse-pisa.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
@@ -165,7 +166,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-spherical glyco-torsions test-tt-morph test-coot-probe test-chem-feat \
 		 test-cod-atom-types dictionary-atom-types cod-db-access \
 		 test-5-residue-fragments \
-		 make-cablam-like-stats test-cod-atom-types-from-sm-cif
+		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -208,6 +209,10 @@ test_coot_probe_LDADD =          \
 	./libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(MMDB_LIBS)
+
+test_parse_pisa_SOURCES = test-parse-pisa.cc
+test_parse_pisa_LDADD = \
+	./libcoot-coord-utils.la
 
 testshelxreader_SOURCES = test-shelx-reader.cc
 testshelxreader_LDADD =  ./libcoot-coord-utils.la    \
