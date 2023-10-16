@@ -48,7 +48,7 @@ mkdir -p ${BUILD_DIR}/rdkit_build
 cd ${BUILD_DIR}/rdkit_build
 emcmake cmake -Dboost_iostreams_DIR="${INSTALL_DIR}/lib/cmake/boost_iostreams-1.83.0"  \
               -Dboost_system_DIR="${INSTALL_DIR}/lib/cmake/boost_system-1.83.0"        \
-              -Dboost_headers_DIR="${INSTALL_DIR}/lib/cmake/boost_headers-1.83.0"      \ 
+              -Dboost_headers_DIR="${INSTALL_DIR}/lib/cmake/boost_headers-1.83.0"      \
               -DBoost_DIR="${INSTALL_DIR}/lib/cmake/Boost-1.83.0"                      \
               -DRDK_BUILD_PYTHON_WRAPPERS=OFF                                          \
               -DRDK_INSTALL_STATIC_LIBS=ON                                             \
