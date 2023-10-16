@@ -3137,6 +3137,157 @@ int test_bespoke_carbon_colour(molecules_container_t &mc) {
    return status;
 }
 
+void colour_analysis(const coot::simple_mesh_t &mesh) {
+
+   auto is_near_colour = [] (const glm::vec4 &col_1, const glm::vec4 &col_2) {
+      float cf = 0.04;
+      if (std::fabs(col_2.r - col_1.r) < cf)
+         if (std::fabs(col_2.g - col_1.g) < cf)
+            if (std::fabs(col_2.b - col_1.b) < cf)
+               if (std::fabs(col_2.a - col_1.a) < cf)
+                  return true;
+      return false;
+   };
+
+   auto sorter = [] (const std::pair<glm::vec4, unsigned int> &p1,
+                     const std::pair<glm::vec4, unsigned int> &p2) {
+      if (p1.first[0] == p2.first[0]) {
+         return (p1.first[1] > p2.first[1]);
+      } else {
+         return (p1.first[0] > p2.first[0]);
+      }
+   };
+
+   std::vector<std::pair<glm::vec4, unsigned int> > colour_count;
+   for (unsigned int i=0; i<mesh.vertices.size(); i++) {
+      const auto &vertex = mesh.vertices[i];
+      const glm::vec4 &col = vertex.color;
+      bool found_col = false;
+      for (unsigned int j=0; j<colour_count.size(); j++) {
+         if (is_near_colour(col, colour_count[j].first)) {
+            colour_count[j].second ++;
+            found_col = true;
+            break;
+         }
+      }
+      if (! found_col) {
+         colour_count.push_back(std::make_pair(col, 1));
+      }
+   }
+
+   std::sort(colour_count.begin(), colour_count.end(), sorter);
+
+   std::cout << "INFO:: " << colour_count.size() << " colours" << std::endl;
+   for (unsigned int i=0; i<colour_count.size(); i++)
+      std::cout << "    " << glm::to_string(colour_count[i].first) << " "
+                << std::setw(7) << std::right << colour_count[i].second << std::endl;
+
+}
+
+void colour_analysis(const coot::instanced_mesh_t &mesh) {
+
+   auto is_near_colour = [] (const glm::vec4 &col_1, const glm::vec4 &col_2) {
+      float cf = 0.04;
+      if (std::fabs(col_2.r - col_1.r) < cf)
+         if (std::fabs(col_2.g - col_1.g) < cf)
+            if (std::fabs(col_2.b - col_1.b) < cf)
+               if (std::fabs(col_2.a - col_1.a) < cf)
+                  return true;
+      return false;
+   };
+
+   auto sorter = [] (const std::pair<glm::vec4, unsigned int> &p1,
+                     const std::pair<glm::vec4, unsigned int> &p2) {
+      if (p1.first[0] == p2.first[0]) {
+         return (p1.first[1] > p2.first[1]);
+      } else {
+         return (p1.first[0] > p2.first[0]);
+      }
+   };
+
+   std::vector<std::pair<glm::vec4, unsigned int> > colour_count;
+
+   for (unsigned int i=0; i<mesh.geom.size(); i++) {
+      const coot::instanced_geometry_t &ig = mesh.geom[i];
+      for (unsigned int jj=0; jj<ig.instancing_data_A.size(); jj++) {
+         const auto &col =  ig.instancing_data_A[jj].colour;
+         bool found_col = false;
+         for (unsigned int j=0; j<colour_count.size(); j++) {
+            if (is_near_colour(col, colour_count[j].first)) {
+               colour_count[j].second ++;
+               found_col = true;
+               break;
+            }
+         }
+         if (! found_col) {
+            colour_count.push_back(std::make_pair(col, 1));
+         }
+      }
+
+      for (unsigned int jj=0; jj<ig.instancing_data_B.size(); jj++) {
+         const auto &col =  ig.instancing_data_B[jj].colour;
+         bool found_col = false;
+         for (unsigned int j=0; j<colour_count.size(); j++) {
+            if (is_near_colour(col, colour_count[j].first)) {
+               colour_count[j].second ++;
+               found_col = true;
+               break;
+            }
+         }
+         if (! found_col) {
+            colour_count.push_back(std::make_pair(col, 1));
+         }
+      }
+
+   }
+
+
+   for (unsigned int i=0; i<mesh.markup.vertices.size(); i++) {
+      const auto &vertex = mesh.markup.vertices[i];
+      const glm::vec4 &col = vertex.color;
+      bool found_col = false;
+      for (unsigned int j=0; j<colour_count.size(); j++) {
+         if (is_near_colour(col, colour_count[j].first)) {
+            colour_count[j].second ++;
+            found_col = true;
+            break;
+         }
+      }
+      if (! found_col) {
+         colour_count.push_back(std::make_pair(col, 1));
+      }
+   }
+
+   std::sort(colour_count.begin(), colour_count.end(), sorter);
+
+   std::cout << "INFO:: " << colour_count.size() << " colours" << std::endl;
+   for (unsigned int i=0; i<colour_count.size(); i++)
+      std::cout << "    " << glm::to_string(colour_count[i].first) << " "
+                << std::setw(7) << std::right << colour_count[i].second << std::endl;
+
+
+}
+
+
+int test_dark_mode_colours(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.get_monomer("LZA");
+   if (mc.is_valid_model_molecule(imol)) {
+      std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
+      auto mesh_light = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
+      auto mesh_dark  = mc.get_bonds_mesh_instanced(imol, mode, true, 0.2, 1.0, 1);
+      colour_analysis(mesh_light);
+      colour_analysis(mesh_dark);
+   }
+
+   return status;
+
+}
+
+
 int test_number_of_hydrogen_atoms(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3484,52 +3635,6 @@ int test_other_user_define_colours_other(molecules_container_t &mc) {
    return status;
 }
 
-void colour_analysis(const coot::simple_mesh_t &mesh) {
-
-   auto is_near_colour = [] (const glm::vec4 &col_1, const glm::vec4 &col_2) {
-      float cf = 0.04;
-      if (std::fabs(col_2.r - col_1.r) < cf)
-         if (std::fabs(col_2.g - col_1.g) < cf)
-            if (std::fabs(col_2.b - col_1.b) < cf)
-               if (std::fabs(col_2.a - col_1.a) < cf)
-                  return true;
-      return false;
-   };
-
-   auto sorter = [] (const std::pair<glm::vec4, unsigned int> &p1,
-                     const std::pair<glm::vec4, unsigned int> &p2) {
-      if (p1.first[0] == p2.first[0]) {
-         return (p1.first[1] > p2.first[1]);
-      } else {
-         return (p1.first[0] > p2.first[0]);
-      }
-   };
-
-   std::vector<std::pair<glm::vec4, unsigned int> > colour_count;
-   for (unsigned int i=0; i<mesh.vertices.size(); i++) {
-      const auto &vertex = mesh.vertices[i];
-      const glm::vec4 &col = vertex.color;
-      bool found_col = false;
-      for (unsigned int j=0; j<colour_count.size(); j++) {
-         if (is_near_colour(col, colour_count[j].first)) {
-            colour_count[j].second ++;
-            found_col = true;
-            break;
-         }
-      }
-      if (! found_col) {
-         colour_count.push_back(std::make_pair(col, 1));
-      }
-   }
-
-   std::sort(colour_count.begin(), colour_count.end(), sorter);
-
-   std::cout << "INFO:: " << colour_count.size() << " colours" << std::endl;
-   for (unsigned int i=0; i<colour_count.size(); i++)
-      std::cout << "    " << glm::to_string(colour_count[i].first) << " "
-                << std::setw(7) << std::right << colour_count[i].second << std::endl;
-
-}
 
 int test_self_restraints(molecules_container_t &mc) {
 
@@ -3714,7 +3819,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
 
-   status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
+   // status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
+
+   status += run_test(test_dark_mode_colours, "light vs dark mode colours", mc);
 
    // status += run_test(test_read_extra_restraints, "read extra restraints", mc);
 

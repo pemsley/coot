@@ -1352,6 +1352,7 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
    if (debug_colour_table) {
       std::cout << "........ in make_colour_table() A with bonds_box_type " << int(bonds_box_type) << std::endl;
       std::cout << "........ in make_colour_table() A with num_colours " << bonds_box.num_colours << std::endl;
+      std::cout << "........ in make_colour_table() A with dark_bg_flag " << dark_bg_flag << std::endl;
    }
 
    std::vector<glm::vec4> colour_table;
@@ -1382,7 +1383,7 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
                                << std::endl;
                   }
                } else {
-                  std::cout << "debug:: Sad! user_defined_bond_colours was empty" << std::endl;
+                  // std::cout << "debug:: Sad! user_defined_bond_colours was empty" << std::endl;
                }
 
                if (debug_colour_table) { // debugging colours
