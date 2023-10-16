@@ -25,14 +25,25 @@
 using namespace coot::ligand_editor_canvas;
 using namespace coot::ligand_editor_canvas::impl;
 
+#ifndef __EMSCRIPTEN__
 Renderer::Renderer(cairo_t* cr, PangoLayout* pango_layout) {
     this->cr = cr;
     this->pango_layout = pango_layout;
 }
+#else // __EMSCRIPTEN__ defined
+// Lhasa-specific includes/definitions
+Renderer::Renderer() {
+
+}
+#endif
 
 Renderer::~Renderer() {
+    #ifndef __EMSCRIPTEN__
     g_object_unref(this->pango_layout);
     cairo_destroy(this->cr);
+    #else // __EMSCRIPTEN__ defined
+    // Lhasa-specific includes/definitions
+    #endif
 }
 
 StateSnapshot::StateSnapshot(const WidgetCoreData& core_data) {

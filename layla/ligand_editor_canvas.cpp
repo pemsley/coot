@@ -20,18 +20,23 @@
  */
 
 #include "ligand_editor_canvas.hpp"
-#include "cairo.h"
 #include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
-#include "pango/pango-font.h"
-#include "pango/pangocairo.h"
 #include <exception>
 #include <iterator>
 #include <utility>
 #include <algorithm>
 #include <vector>
 #include <memory>
+
+#ifndef __EMSCRIPTEN__
+#include "cairo.h"
+#include "pango/pango-font.h"
+#include "pango/pangocairo.h"
+#else
+// Lhasa-specific includes
+#endif
 
 using namespace coot::ligand_editor_canvas;
 

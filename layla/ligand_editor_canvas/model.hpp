@@ -21,12 +21,17 @@
 
 #ifndef COOT_LIGAND_EDITOR_CANVAS_MODEL_HPP
 #define COOT_LIGAND_EDITOR_CANVAS_MODEL_HPP
-#include <gtk/gtk.h>
 #include <memory>
 #include <vector>
 #include <variant>
 #include <optional>
 #include <rdkit/GraphMol/RWMol.h>
+
+#ifndef __EMSCRIPTEN__
+#include <gtk/gtk.h>
+#else // __EMSCRIPTEN__ defined
+// Lhasa-specific includes/definitions
+#endif
 
 namespace coot {
 namespace ligand_editor_canvas {

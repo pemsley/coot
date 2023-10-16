@@ -28,12 +28,15 @@
 
 /// GObject declaration had to be moved to "core.hpp"
 
+#ifndef __EMSCRIPTEN__
 extern "C" {
+#endif
 
 CootLigandEditorCanvas *coot_ligand_editor_canvas_new();
 
-
+#ifndef __EMSCRIPTEN__
 } // extern "C"
+#endif
 
 
 void coot_ligand_editor_canvas_set_active_tool(CootLigandEditorCanvas* self, std::unique_ptr<coot::ligand_editor_canvas::ActiveTool>&& active_tool);
@@ -59,8 +62,12 @@ void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, co
 std::string coot_ligand_editor_canvas_get_smiles(CootLigandEditorCanvas* self) noexcept;
 std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept;
 
+#ifndef __EMSCRIPTEN__
 /// Takes ownership of the pointer
 void coot_ligand_editor_canvas_draw_on_cairo_surface(CootLigandEditorCanvas* self, cairo_t* cr) noexcept;
+#else // __EMSCRIPTEN__ defined
+// Lhasa-specific includes/definitions
+#endif
 
 void coot_ligand_editor_canvas_clear_molecules(CootLigandEditorCanvas* self) noexcept;
 #endif // COOT_LIGAND_EDITOR_CANVAS_HPP

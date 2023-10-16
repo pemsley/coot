@@ -21,14 +21,17 @@
 
 #ifndef COOT_LIGAND_EDITOR_CANVAS_CORE_HPP
 #define COOT_LIGAND_EDITOR_CANVAS_CORE_HPP
-#include <gtk/gtk.h>
+
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
 #include <memory>
 #include <vector>
 #include "model.hpp"
-#include "pango/pango-layout.h"
 #include "tools.hpp"
+
+#ifndef __EMSCRIPTEN__
+#include <gtk/gtk.h>
+#include "pango/pango-layout.h"
 
 // GObject declaration 
 G_BEGIN_DECLS   
@@ -37,6 +40,11 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE  (CootLigandEditorCanvas, coot_ligand_editor_canvas, COOT, COOT_LIGAND_EDITOR_CANVAS, GtkWidget)
 
 G_END_DECLS
+
+#else // __EMSCRIPTEN__ defined
+// Lhasa-specific includes/definitions
+#endif
+
 
 namespace coot::ligand_editor_canvas::impl {
 
@@ -56,7 +64,11 @@ inline guint molecule_deleted_signal;
 /// This is how you can use (multiple) inheritance while
 /// keeping the ABI happy.
 struct CootLigandEditorCanvasPrivBase {
+    #ifndef __EMSCRIPTEN__
     GtkWidget parent;
+    #else // __EMSCRIPTEN__ defined
+    // Lhasa-specific includes/definitions
+    #endif
 };
 
 
@@ -68,10 +80,17 @@ struct StateSnapshot {
 };
 
 struct Renderer {
+    #ifndef __EMSCRIPTEN__
+
     cairo_t* cr;
     PangoLayout* pango_layout;
     /// Takes ownership of the pointers
     Renderer(cairo_t*,PangoLayout*);
+
+    #else // __EMSCRIPTEN__ defined
+    // Lhasa-specific includes/definitions
+    Renderer();
+    #endif
     ~Renderer();
 };
 
@@ -168,7 +187,14 @@ struct CootLigandEditorCanvasPriv : CootLigandEditorCanvasPrivBase, impl::Widget
 };
 
 
+} // namespace coot::ligand_editor_canvas::impl
 
-}
+#ifdef __EMSCRIPTEN__
+/// For Lhasa
+struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEditorCanvasPriv {
+
+};
+#endif
+
 
 #endif //#define COOT_LIGAND_EDITOR_CANVAS_CORE_HPP
