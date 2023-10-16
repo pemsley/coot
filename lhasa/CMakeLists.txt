@@ -21,10 +21,22 @@ if("${EMSCRIPTEN_VERSION}" VERSION_GREATER 3.1.26)
 add_link_options(-sDEFAULT_PTHREAD_STACK_SIZE=2MB -sSTACK_SIZE=5MB)
 endif()
 
-add_library(lhasa STATIC lhasa.cpp)
+add_library(lhasa STATIC lhasa.hpp lhasa.cpp)
 
 target_sources(lhasa PRIVATE
   ../layla/ligand_editor_canvas/tools.hpp
+)
+
+target_link_libraries(lhasa PRIVATE 
+    RDKitDepictor 
+    RDKitSmilesParse 
+    RDKitMolDraw2D 
+    RDKitGraphMol 
+    RDKitRDGeneral 
+    RDKitFileParsers 
+    RDKitSubstructMatch 
+    boost_iostreams 
+    boost_serialization
 )
 
 # target_link_libraries(lhasa PUBLIC ...)
