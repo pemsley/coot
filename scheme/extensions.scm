@@ -1287,15 +1287,15 @@
 	   (using-active-atom
 	    (set-use-grey-carbons-for-molecule aa-imol 0))))
 
-	(add-simple-coot-menu-menuitem
-	 submenu-representation "Electrostatic Surface..."
-	 (lambda () 
-	   (molecule-chooser-gui (string-append 
-				  "Choose a molecule to represent as a surface..."
-				  "\n"
-				  "Can be SLOW")
-				 (lambda (imol)
-				   (do-surface imol 1)))))
+	;; (add-simple-coot-menu-menuitem
+	;;  submenu-representation "Electrostatic Surface..."
+	;;  (lambda () 
+	;;    (molecule-chooser-gui (string-append 
+	;; 			  "Choose a molecule to represent as a surface..."
+	;; 			  "\n"
+	;; 			  "Can be SLOW")
+	;; 			 (lambda (imol)
+	;; 			   (do-surface imol 1)))))
 
 
 	(add-simple-coot-menu-menuitem 
