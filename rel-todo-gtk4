@@ -22,7 +22,11 @@ Moorhen: Request: electrostatic surface.
 Moorhen: carbon bonds are too light on white background. Looking at the code, it seems
          to do the right thing, but needs testing. Print the colour table.
 
-Rotate/Translate <fragment> doesn't work.
+Put 7vvl in CA mode. You can label atoms that are not displayed. Bad.
+
+Quick save as should save the shader settings
+
+Try Quick save as on a mac and restore settings - the graphics window size is wrong.
 
 Rigid-body refine the tutorial A chain. It used to display an intermediate atoms
 representation. What happens now and is that what you want?
@@ -37,6 +41,8 @@ When I Open Coords I have a option to choose coordinate files.
 When I Auto-open MTZ I dont have a option to choose mtz files.
 
 Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
+
+Rotate/Translate <fragment> doesn't work.
 
 ---- older issues ---
 

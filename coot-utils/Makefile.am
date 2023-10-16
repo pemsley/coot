@@ -41,7 +41,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	coot_shiftfield.h shiftfield.h fib-sphere.hh cis-peptide-info.hh \
 	pepflip-using-difference-map.hh blob-line.hh \
         polar-atoms.hh 3d-texture.hh fragment-container.hh map-index.hh \
-        atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh \
+        atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh simple-mesh.hh vertex.hh g_triangle.hh \
 	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh cmtz-interface.hh mtz-column-auto-read.hh
 
 
