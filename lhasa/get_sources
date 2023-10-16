@@ -27,7 +27,7 @@ echo "" > silly.c
 emcc silly.c -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_FREETYPE=1
 rm -f silly.c
 rm -f a.out.js
-rm -f a.out.asm
+rm -f a.out.wasm
 
 # #Get RDKit
 # echo "Downloading RDKit_minimal js/wasm"
