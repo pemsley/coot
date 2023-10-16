@@ -18,18 +18,11 @@ echo "Installing in ${INSTALL_DIR}"
 mkdir -p ${INSTALL_DIR}
 mkdir -p ${BUILD_DIR}
 
-# #gsl
-# mkdir -p ${BUILD_DIR}/gsl_build
-# cd ${BUILD_DIR}/gsl_build
-# emconfigure ${SOURCE_DIR}/gsl-2.7.1/configure --prefix=${INSTALL_DIR}
-# emmake make LDFLAGS=-all-static -j ${NUMPROCS}
-# emmake make install
-# cd ${BUILD_DIR}
 
 #Boost (has to be built in source tree as far as I am aware)
 cd ${SOURCE_DIR}/deps/boost
-./bootstrap.sh --with-libraries=serialization,regex,chrono,date_time,filesystem,iostreams,program_options,thread,math,random,system
-./b2 toolset=emscripten link=static variant=release threading=single runtime-link=static thread system filesystem regex serialization chrono date_time program_options random -j ${NUMPROCS}
+./bootstrap.sh --with-libraries=serialization,regex,chrono,date_time,filesystem,iostreams,program_options,thread,math,random,system &&\
+./b2 toolset=emscripten link=static variant=release threading=single runtime-link=static thread system filesystem regex serialization chrono date_time program_options random -j ${NUMPROCS} &&\
 ./b2 toolset=emscripten link=static variant=release threading=single runtime-link=static install --prefix=${INSTALL_DIR}
 cd ${BUILD_DIR}
 
