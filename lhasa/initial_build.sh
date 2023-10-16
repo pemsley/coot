@@ -16,6 +16,7 @@ echo "Building in ${BUILD_DIR}"
 echo "Installing in ${INSTALL_DIR}"
 
 mkdir -p ${INSTALL_DIR}
+mkdir -p ${BUILD_DIR}
 
 # #gsl
 # mkdir -p ${BUILD_DIR}/gsl_build
@@ -76,3 +77,49 @@ emmake make install
 cd ${BUILD_DIR}
 
 
+export CHOST="wasm32-unknown-linux"
+export ax_cv_c_float_words_bigendian=no
+
+export MESON_CROSS="${BUILD_DIR}/emscripten-crossfile.meson"
+
+cat > "${BUILD_DIR}/emscripten-crossfile.meson" <<END
+[binaries]
+c = 'emcc'
+cpp = 'em++'
+ld = 'wasm-ld'
+ar = 'emar'
+ranlib = 'emranlib'
+pkgconfig = ['emconfigure', 'pkg-config']
+
+# https://docs.gtk.org/glib/cross-compiling.html#cross-properties
+[properties]
+growing_stack = true
+have_c99_vsnprintf = true
+have_c99_snprintf = true
+have_unix98_printf = true
+
+# Ensure that '-s PTHREAD_POOL_SIZE=*' is not injected into .pc files
+[built-in options]
+c_thread_count = 0
+cpp_thread_count = 0
+
+[host_machine]
+system = 'emscripten'
+cpu_family = 'wasm32'
+cpu = 'wasm32'
+endian = 'little'
+END
+
+export EM_PKG_CONFIG_PATH=${INSTALL_DIR}/lib/pkgconfig/
+export PKG_CONFIG_PATH=${INSTALL_DIR}/lib/pkgconfig/
+export EM_PKG_CONFIG_LIBDIR=${INSTALL_DIR}/lib/
+export PKG_CONFIG_LIBDIR=${INSTALL_DIR}/lib/
+
+# Graphene
+CFLAGS="-s USE_PTHREADS" LDFLAGS=" -lpthread" meson setup _build \
+    --prefix=${INSTALL_DIR} \
+    --cross-file=$MESON_CROSS \
+    --default-library=static \
+    --buildtype=release \
+    -Dtests=disabled && \
+    meson install -C _build
