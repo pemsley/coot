@@ -3543,6 +3543,25 @@ int test_self_restraints(molecules_container_t &mc) {
    return status;
 }
 
+int test_read_extra_restraints(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_2 = mc.read_pdb(reference_data("3pzt.pdb"));
+   mc.read_extra_restraints(imol_1, reference_data("moorhen-tutorial-structure-number-1-prosmart.txt"));
+   coot::instanced_mesh_t im = mc.get_extra_restraints_mesh(imol_1, 0);
+   if (! im.geom.empty()) {
+      std::cout << "instancing_data_B size " << im.geom[0].instancing_data_B.size() << std::endl;
+      if (im.geom[0].instancing_data_B.size() > 10) status = 1;
+   } else {
+      std::cout << "ERROR:: im geom is empty" << std::endl;
+   }
+   return status;
+}
+
+
 
 
 int test_colour_map_by_other_map(molecules_container_t &mc) {
@@ -3696,6 +3715,10 @@ int main(int argc, char **argv) {
    // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
 
    status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
+
+   // status += run_test(test_read_extra_restraints, "read extra restraints", mc);
+
+   // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
 
    // status += run_test(test_map_histogram, "map histogram", mc);
 

@@ -900,6 +900,9 @@ namespace coot {
       // ----------------------- refinement
 
       coot::extra_restraints_t extra_restraints;
+
+      //! read extra restraints (e.g. from ProSMART)
+      void read_extra_restraints(const std::string &file_name);
       //! refinement tool
       std::vector<mmdb::Residue *> select_residues(const residue_spec_t &spec, const std::string &mode) const;
       //! resno_start and resno_end are inclusive
