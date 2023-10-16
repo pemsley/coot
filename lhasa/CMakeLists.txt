@@ -10,7 +10,6 @@ set(CMAKE_CXX_FLAGS "-Wno-enum-constexpr-conversion -s USE_PTHREADS=1 -pthread")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 set(CMAKE_CXX_STANDARD 17)
-  
 
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
