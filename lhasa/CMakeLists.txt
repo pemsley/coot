@@ -15,6 +15,7 @@ set(CMAKE_CXX_STANDARD 17)
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 include_directories(${CMAKE_INSTALL_PREFIX}/include)
 include_directories(${CMAKE_INSTALL_PREFIX}/include/graphene-1.0)
+include_directories(${CMAKE_INSTALL_PREFIX}/lib/graphene-1.0/include)
 include_directories(${CMAKE_INSTALL_PREFIX}/include/rdkit)
 
 if("${EMSCRIPTEN_VERSION}" VERSION_GREATER 3.1.26)
