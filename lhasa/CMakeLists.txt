@@ -15,6 +15,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 include_directories(${CMAKE_INSTALL_PREFIX}/include)
+include_directories(${CMAKE_INSTALL_PREFIX}/include/graphene-1.0)
 include_directories(${CMAKE_INSTALL_PREFIX}/include/rdkit)
 
 if("${EMSCRIPTEN_VERSION}" VERSION_GREATER 3.1.26)
@@ -25,6 +26,7 @@ add_library(lhasa STATIC lhasa.hpp lhasa.cpp)
 
 target_sources(lhasa PRIVATE
   ../layla/ligand_editor_canvas/tools.hpp
+  ../layla/ligand_editor_canvas/tools.cpp
 )
 
 target_link_libraries(lhasa PRIVATE 
@@ -37,6 +39,7 @@ target_link_libraries(lhasa PRIVATE
     RDKitSubstructMatch 
     boost_iostreams 
     boost_serialization
+    graphene-1.0
 )
 
 # target_link_libraries(lhasa PUBLIC ...)
