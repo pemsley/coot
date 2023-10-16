@@ -1644,6 +1644,141 @@ int test_jiggle_fit_with_blur(molecules_container_t &mc) {
    return status;
 }
 
+int test_jiggle_fit_params(molecules_container_t &mc) {
+
+   auto get_score_vs_true_solution = [&mc] (int imol_testing, int imol_ref) {
+
+      // ref is the true solution
+
+      std::map<int, clipper::Coord_orth> ca_map;
+
+      std::cout << "imol_testing " << imol_testing << " imol_ref " << imol_ref << std::endl;
+
+      mmdb::Manager *mol_ref = mc.get_mol(imol_ref);
+      int imod = 1;
+      mmdb::Model *model_p = mol_ref->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            std::string chain_id(chain_p->GetChainID());
+            if (chain_id == "N") {
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at->isTer()) {
+                           std::string atom_name(at->GetAtomName());
+                           if (atom_name == " CA ") {
+                              int res_no = residue_p->GetSeqNum();
+                              clipper::Coord_orth co = coot::co(at);
+                              ca_map[res_no] = co;
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+
+
+      // now find the CAs of the "hypothesis" chain
+      mmdb::Manager *mol_testing = mc.get_mol(imol_testing);
+      model_p = mol_testing->GetModel(imod);
+      int n_found = 0;
+      double sum_dist = 0.0;
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            std::string chain_id(chain_p->GetChainID());
+            if (chain_id == "E") {
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at->isTer()) {
+                           std::string atom_name(at->GetAtomName());
+                           if (atom_name == " CA ") {
+                              int res_no = residue_p->GetSeqNum();
+                              clipper::Coord_orth co = coot::co(at);
+
+                              std::map<int, clipper::Coord_orth>::const_iterator it;
+                              it = ca_map.find(res_no);
+                              if (it != ca_map.end()) {
+                                 double dd = (co - it->second).lengthsq();
+                                 double d = std::sqrt(dd);
+                                 sum_dist += d;
+                                 n_found++;
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+      std::cout << "n_found " << n_found << " sum-dist: " << sum_dist << std::endl;
+      return sum_dist;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_1   = mc.read_pdb(reference_data("7vvl.pdb"));
+   int imol_2   = mc.read_pdb(reference_data("6gdg.cif"));
+   int imol_map = mc.read_ccp4_map(reference_data("emd_32143.map"), false);
+
+   int imol_3 = mc.copy_fragment_using_cid(imol_2, "//E");
+   int n_atoms = mc.get_number_of_atoms(imol_3);
+   if (n_atoms > 100) {
+      clipper::Coord_orth ref_centre(121, 71, 102);
+      std::vector<float> b_variants = {0, 11, 24, 50, 100, 200, 400, 800};
+      std::vector<int> n_trials_variants = {10, 24, 50, 100, 200, 400, 800, 2000, 4000};
+      std::vector<float> tr_variants = {0, 1, 2, 4, 8, 16};
+      int r = 8;
+      std::vector<float>::const_iterator it_1;
+      std::vector<int>::const_iterator it_2;
+      std::vector<float>::const_iterator it_3;
+
+      for (it_1=b_variants.begin(); it_1!=b_variants.end(); ++it_1) {
+         for (it_2=n_trials_variants.begin(); it_2!=n_trials_variants.end(); ++it_2) {
+            for (it_3=tr_variants.begin(); it_3!=tr_variants.end(); ++it_3) {
+               float b = *it_1;
+               float tr = *it_3;
+               int n_tr = *it_2;
+
+               for (float xo=static_cast<float>(-r); xo<=static_cast<float>(r); xo += 4.0) {
+                  for (float yo=static_cast<float>(-r); yo<=static_cast<float>(r); yo += 4.0) {
+                     for (float zo=static_cast<float>(-r); zo<=static_cast<float>(r); zo += 4.0) {
+                        clipper::Coord_orth offset(xo, yo, zo);
+                        clipper::Coord_orth this_centre = ref_centre + offset;
+                        int imol_E_copy = mc.copy_fragment_using_cid(imol_3, "/");
+                        mc.move_molecule_to_new_centre(imol_3, this_centre.x(), this_centre.y(), this_centre.z());
+                        float score = mc.fit_to_map_by_random_jiggle_with_blur_using_cid(imol_E_copy, imol_map, "//", b, n_tr, tr);
+                        float score_vs_true = get_score_vs_true_solution(imol_E_copy, imol_1);
+                        std::cout << "--- score:: " << xo << " " << yo << " " << zo << " "
+                                  << b << " " << n_tr << " " << tr << " score: " << score
+                                  << " score_vs_true: " << score_vs_true << std::endl;
+                        mc.write_coordinates(imol_3, "fitted.pdb");
+                     }
+                  }
+               }
+            }
+         }
+      }
+
+   }
+   return status;
+}
+
 int test_peptide_omega(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3577,7 +3712,11 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_read_extra_restraints, "read extra restraints", mc);
+   // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
+
+   status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
+
+   // status += run_test(test_read_extra_restraints, "read extra restraints", mc);
 
    // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
 

@@ -937,6 +937,7 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    // float initial_score = coot::util::z_weighted_density_score(direct_mol, atom_numbers, xmap);
    // initial_score = coot::util::biased_z_weighted_density_score(direct_mol, atom_numbers, xmap);
 
+   v = initial_score;
    float best_score = initial_score;
 
    std::cout << "---------------- initial_score " << initial_score << " ---------------" << std::endl;

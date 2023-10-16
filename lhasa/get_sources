@@ -39,12 +39,13 @@ echo "Checking out boost"
 curl -L https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2 -o boost_1_83_0.tar.bz2
 tar xf boost_1_83_0.tar.bz2
 
+ln -s boost_1_83_0 boost
+ln -s "rdkit-$rdkit_release" rdkit
+
 cd ..
 
 
-ln -s deps/boost_1_83_0 boost
 echo
 patch -p0 < patches/boost-emscripten.patch
 patch -p0 < patches/boost-cxx-17.patch
 
-ln -s "deps/rdkit-$rdkit_release" rdkit
