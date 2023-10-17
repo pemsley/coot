@@ -37,7 +37,6 @@ include_directories(${DEPS_INCLUDE_DIRS})
 
 add_library(lh STATIC lhasa.hpp lhasa.cpp)
 
-add_executable(lhasa embind.cpp embind.hpp)
 
 target_sources(lh PRIVATE
   glog_replacement.hpp
@@ -54,6 +53,10 @@ target_sources(lh PRIVATE
   ../layla/ligand_editor_canvas/tools.cpp
 )
 
+add_executable(lhasa embind.cpp embind.hpp)
+
+set_target_properties(lhasa PROPERTIES LINK_FLAGS "-s ENVIRONMENT=web,worker -s MODULARIZE -s 'EXPORT_NAME=Lhasa'")
+
 target_link_libraries(lhasa PRIVATE 
     RDKitDepictor 
     RDKitSmilesParse 
@@ -68,4 +71,4 @@ target_link_libraries(lhasa PRIVATE
     boost_serialization
     ${DEPS_LIBRARIES}
     lh
-)
+)    
