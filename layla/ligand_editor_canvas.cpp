@@ -31,9 +31,9 @@
 #include <memory>
 
 #ifndef __EMSCRIPTEN__
-#include "cairo.h"
-#include "pango/pango-font.h"
-#include "pango/pangocairo.h"
+#include <cairo.h>
+#include <pango/pango-font.h>
+#include <pango/pangocairo.h>
 #else
 // Lhasa-specific includes
 #endif
