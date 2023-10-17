@@ -31,6 +31,7 @@
 #include <gtk/gtk.h>
 #else // __EMSCRIPTEN__ defined
 // Lhasa-specific includes/definitions
+#include <graphene.h>
 #endif
 
 namespace coot {
@@ -280,9 +281,13 @@ class CanvasMolecule {
     void perform_flip(FlipMode flip_mode);
     void rotate_by_angle(double radians);
 
+    #ifndef __EMSCRIPTEN__
     /// Draws the molecule using the provided PangoLayout and cairo_t.
     /// Caller owns the pointers.
     void draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode display_mode) const noexcept;
+    #else // __EMSCRIPTEN__ defined
+    // TODO: Drawing for Lhasa
+    #endif
 
     /// Checks if any object matches the click coordinates passed as arguments.
     /// Returns the thing that was clicked on (or nullopt if there's no match).
