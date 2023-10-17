@@ -125,6 +125,5 @@ CFLAGS="-s USE_PTHREADS" LDFLAGS=" -lpthread" meson setup ${BUILD_DIR}/libsigcpl
     --libdir=lib \
     --cross-file=$MESON_CROSS \
     --default-library=static \
-    --buildtype=release \
-    -Dtests=false && \
+    --buildtype=release && \
     meson install -C ${BUILD_DIR}/libsigcplusplus_build
