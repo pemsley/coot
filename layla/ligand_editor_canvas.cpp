@@ -40,6 +40,9 @@
 
 using namespace coot::ligand_editor_canvas;
 
+// This can be safely omitted in Lhasa
+#ifndef __EMSCRIPTEN__
+
 /// Because of GObject's amazing macro system, 
 /// I can't use a "typedef" to denote that
 /// "_CootLigandEditorCanvas" is the same type as "coot::ligand_editor_canvas::impl::CootLigandEditorCanvasPriv".
@@ -51,8 +54,16 @@ struct _CootLigandEditorCanvas:  coot::ligand_editor_canvas::impl::CootLigandEdi
     friend void coot_ligand_editor_canvas_init_impl(CootLigandEditorCanvas* self);
     friend void coot_ligand_editor_canvas_dispose_impl(CootLigandEditorCanvas* self);
 };
+#endif
 
+// Constructor
+
+#ifndef __EMSCRIPTEN__
 void coot_ligand_editor_canvas_init_impl(CootLigandEditorCanvas* self) {
+#else // Lhasa code
+CootLigandEditorCanvas::CootLigandEditorCanvas() noexcept {
+    auto* self = this;
+#endif
     self->active_tool = std::make_unique<ActiveTool>();
     self->active_tool->set_core_widget_data(static_cast<impl::CootLigandEditorCanvasPriv*>(self));
     self->molecules = std::make_unique<std::vector<CanvasMolecule>>();
@@ -65,13 +76,21 @@ void coot_ligand_editor_canvas_init_impl(CootLigandEditorCanvas* self) {
     self->state_stack_pos = -1;
 }
 
+// Destructor
+
+#ifndef __EMSCRIPTEN__
 void coot_ligand_editor_canvas_dispose_impl(CootLigandEditorCanvas* self) {
+#else // Lhasa code
+CootLigandEditorCanvas::~CootLigandEditorCanvas() noexcept {
+#endif
     self->molecules.reset(nullptr);
     self->active_tool.reset(nullptr);
     self->rdkit_molecules.reset(nullptr);
     self->state_stack.reset(nullptr);
 }
 
+
+#ifndef __EMSCRIPTEN__
 G_BEGIN_DECLS
 
 G_DEFINE_TYPE(CootLigandEditorCanvas, coot_ligand_editor_canvas, GTK_TYPE_WIDGET)
@@ -80,6 +99,8 @@ G_DEFINE_TYPE(CootLigandEditorCanvas, coot_ligand_editor_canvas, GTK_TYPE_WIDGET
 // struct _CootLigandEditorCanvasClass {
 //     GObjectClass parent_class;
 // };
+
+#endif
 
 void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 {
@@ -389,14 +410,23 @@ static void coot_ligand_editor_canvas_class_init(CootLigandEditorCanvasClass* kl
     
 }
 
+#ifndef __EMSCRIPTEN__
 CootLigandEditorCanvas* 
 coot_ligand_editor_canvas_new()
 {
     return COOT_COOT_LIGAND_EDITOR_CANVAS(g_object_new (COOT_LIGAND_EDITOR_CANVAS_TYPE, NULL));
 }
+#else // Lhasa-specific code
+CootLigandEditorCanvas* 
+coot_ligand_editor_canvas_new()
+{
+    return new CootLigandEditorCanvas();
+}
+#endif
 
+#ifndef __EMSCRIPTEN__
 G_END_DECLS
-
+#endif
 
 void coot_ligand_editor_canvas_set_scale(CootLigandEditorCanvas* self, float display_scale) noexcept {
     self->scale = display_scale;

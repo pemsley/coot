@@ -196,6 +196,10 @@ struct CootLigandEditorCanvasPriv : CootLigandEditorCanvasPrivBase, impl::Widget
 /// For Lhasa
 struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEditorCanvasPriv {
 
+    // Implemented at 'ligand_editor_canvas.cpp'
+    CootLigandEditorCanvas() noexcept;
+    // Implemented at 'ligand_editor_canvas.cpp'
+    ~CootLigandEditorCanvas() noexcept;
 };
 #endif
 
