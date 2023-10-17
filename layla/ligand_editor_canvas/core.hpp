@@ -42,8 +42,8 @@ G_DECLARE_FINAL_TYPE  (CootLigandEditorCanvas, coot_ligand_editor_canvas, COOT, 
 G_END_DECLS
 
 #else // __EMSCRIPTEN__ defined
-// Lhasa-specific includes/definitions
 #include "../../lhasa/glog_replacement.hpp"
+#include <sigc++-3.0/sigc++/sigc++.h>
 #endif
 
 
