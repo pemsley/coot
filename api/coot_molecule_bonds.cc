@@ -1120,7 +1120,11 @@ coot::molecule_t::get_bond_colour_basic(int colour_index, bool against_a_dark_ba
 coot::colour_t
 coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) const {
 
-   // std::cout << "get_bond_colour_by_mol_no() " << colour_index << " " << against_a_dark_background << std::endl;
+   // 20231017-PE note to self - this colour can be over-ridden by user-define bond colours
+   //             when the colour table is made.
+
+   // std::cout << "get_bond_colour_by_mol_no() col-index: " << colour_index
+   // << " dark-bg-flag: " << against_a_dark_background << std::endl;
 
    coot::colour_t rgb;
 
@@ -1146,13 +1150,13 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
             float ii_f = colour_index - 50;
             ii_f += 1.2 * static_cast<float>(imol_no);
             if (against_a_dark_background) {
-               rgb[0] = base_colour_for_bonds.red   + 0.2;
-               rgb[1] = base_colour_for_bonds.green + 0.2;
-               rgb[2] = base_colour_for_bonds.blue  + 0.3;
+               rgb.set(base_colour_for_bonds.red   + 0.2,
+                       base_colour_for_bonds.green + 0.2,
+                       base_colour_for_bonds.blue  + 0.2);
             } else {
-               rgb[0] = base_colour_for_bonds.red;
-               rgb[1] = base_colour_for_bonds.green;
-               rgb[2] = base_colour_for_bonds.blue;
+               rgb.set(base_colour_for_bonds.red   * 0.92,
+                       base_colour_for_bonds.green * 0.92,
+                       base_colour_for_bonds.blue  * 0.92);
             }
             float ra = ii_f*79.0/360.0;
             ra += rotation_size;
@@ -1338,7 +1342,8 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
          }
       }
    }
-   // err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() --end-- " << err << std::endl;
+
+   // std::cout << "returning rgb " << rgb << std::endl;
    return rgb;
 }
 
@@ -1356,56 +1361,54 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
    }
 
    std::vector<glm::vec4> colour_table;
-   if (true) {
-      // std::cout << "................... in make_colour_table() HERE C " << bonds_box_type << std::endl;
-      colour_table = std::vector<glm::vec4>(bonds_box.num_colours, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
-      for (int icol=0; icol<bonds_box.num_colours; icol++) {
-         if (bonds_box_type == coot::api_bond_colour_t::COLOUR_BY_RAINBOW_BONDS) {
-            glm::vec4 col = get_bond_colour_by_colour_wheel_position(icol, coot::api_bond_colour_t::COLOUR_BY_RAINBOW_BONDS);
-            colour_table[icol] = col;
-         } else {
-            graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[icol];
-            int n_bonds = ll.num_lines;
-            if (n_bonds > 0) {
-               coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
-               colour_table[icol] = cc.to_glm();
+   // std::cout << "................... in make_colour_table() HERE C " << bonds_box_type << std::endl;
+   colour_table = std::vector<glm::vec4>(bonds_box.num_colours, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+   for (int icol=0; icol<bonds_box.num_colours; icol++) {
+      if (bonds_box_type == coot::api_bond_colour_t::COLOUR_BY_RAINBOW_BONDS) {
+         glm::vec4 col = get_bond_colour_by_colour_wheel_position(icol, coot::api_bond_colour_t::COLOUR_BY_RAINBOW_BONDS);
+         colour_table[icol] = col;
+      } else {
+         graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[icol];
+         int n_bonds = ll.num_lines;
+         if (n_bonds > 0) {
+            coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
+            colour_table[icol] = cc.to_glm();
 
-               // was there a user-defined bond colour that superceeds this for this colour index?
-               if (! user_defined_bond_colours.empty()) {
-                  std::map<unsigned int, colour_holder>::const_iterator it;
-                  it = user_defined_bond_colours.find(icol);
-                  if (it != user_defined_bond_colours.end()) {
-                     auto glm_col = colour_holder_to_glm(it->second);
-                     colour_table[icol] = glm_col;
-                  } else {
-                     std::cout << "debug:: user_defined_bond_colours has size " << user_defined_bond_colours.size()
-                               << " index " << icol << " was not found in the user-defined bond colours"
-                               << std::endl;
-                  }
+            // was there a user-defined bond colour that superceeds this for this colour index?
+            if (! user_defined_bond_colours.empty()) {
+               std::map<unsigned int, colour_holder>::const_iterator it;
+               it = user_defined_bond_colours.find(icol);
+               if (it != user_defined_bond_colours.end()) {
+                  auto glm_col = colour_holder_to_glm(it->second);
+                  colour_table[icol] = glm_col;
                } else {
-                  // std::cout << "debug:: Sad! user_defined_bond_colours was empty" << std::endl;
-               }
-
-               if (debug_colour_table) { // debugging colours
-                  std::cout << "debug:: colour_table: B imol " << imol_no << " icol " << std::setw(3) << icol << " has "
-                            << std::setw(4) << n_bonds << " bonds dark-bg: " << dark_bg_flag
-                            << " colour: " << glm::to_string(colour_table[icol]) << std::endl;
+                  std::cout << "debug:: user_defined_bond_colours has size " << user_defined_bond_colours.size()
+                            << " index " << icol << " was not found in the user-defined bond colours"
+                            << std::endl;
                }
             } else {
-               // std::cout << "No bonds for colour with index " << icol << std::endl;
+               // std::cout << "debug:: Sad! user_defined_bond_colours was empty" << std::endl;
             }
+
+            if (debug_colour_table) { // debugging colours
+               std::cout << "debug:: colour_table: B imol " << imol_no << " icol " << std::setw(3) << icol << " has "
+                         << std::setw(4) << n_bonds << " bonds dark-bg: " << dark_bg_flag
+                         << " colour: " << glm::to_string(colour_table[icol]) << std::endl;
+            }
+         } else {
+            // std::cout << "No bonds for colour with index " << icol << std::endl;
          }
       }
-
-      if (debug_colour_table) {
-         std::cout << "Here is the user-defined colour table:" << std::endl;
-         std::map<unsigned int, colour_holder>::const_iterator it_bc;
-         for (it_bc=user_defined_bond_colours.begin(); it_bc!=user_defined_bond_colours.end(); ++it_bc) {
-            std::cout << "   " << it_bc->first << " " << it_bc->second << std::endl;
-         }
-      }
-
    }
+
+   if (debug_colour_table) {
+      std::cout << "Here is the user-defined colour table:" << std::endl;
+      std::map<unsigned int, colour_holder>::const_iterator it_bc;
+      for (it_bc=user_defined_bond_colours.begin(); it_bc!=user_defined_bond_colours.end(); ++it_bc) {
+         std::cout << "   " << it_bc->first << " " << it_bc->second << std::endl;
+      }
+   }
+
    // 20220303-PE why does this happen? (it happens when refining the newly imported 3GP ligand)
    // I guess the bonds_box for the remaining atoms (there are none of them) is incorrectly constructed.
    // FIXME later.

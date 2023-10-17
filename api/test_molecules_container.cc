@@ -3279,7 +3279,7 @@ int test_dark_mode_colours(molecules_container_t &mc) {
    if (mc.is_valid_model_molecule(imol)) {
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
       auto mesh_light = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
-      auto mesh_dark  = mc.get_bonds_mesh_instanced(imol, mode, true, 0.2, 1.0, 1);
+      auto mesh_dark  = mc.get_bonds_mesh_instanced(imol, mode, true,  0.2, 1.0, 1);
       colour_analysis(mesh_light);
       colour_analysis(mesh_dark);
    }
