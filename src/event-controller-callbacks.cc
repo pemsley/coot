@@ -163,8 +163,12 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
       if (control_is_pressed) {
          do_drag_pan_gtk4(gl_area, drag_delta_x, drag_delta_y);
       } else {
+         // zoom with chording. Check both because currently
+         // APPLE has primary swapped.
          if (modifier & GDK_BUTTON1_MASK) {
-            do_view_zoom(drag_delta_x, drag_delta_y);
+            if (modifier & GDK_BUTTON3_MASK) {
+               do_view_zoom(drag_delta_x, drag_delta_y);
+            }
          } else {
 
             bool trackpad_drag = false;
@@ -427,7 +431,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
             if (! handled) {
 
                // does this ever run?
-               std::cout << "Symmetry atom pick here B - does this run? When? " << std::endl;
+               // std::cout << "Symmetry atom pick here B - does this run? When? " << std::endl;
                coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
             }
          }
