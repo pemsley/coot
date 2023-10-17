@@ -38,8 +38,10 @@ include_directories(${DEPS_INCLUDE_DIRS})
 add_library(lhasa STATIC lhasa.hpp lhasa.cpp)
 
 target_sources(lhasa PRIVATE
-  glog_replacement.cpp
   glog_replacement.hpp
+  glog_replacement.cpp
+  embind.hpp
+  embind.cpp
   ../layla/utils.hpp
   ../layla/utils.cpp
   ../layla/ligand_editor_canvas.hpp
