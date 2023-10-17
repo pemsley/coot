@@ -41,9 +41,13 @@ G_DECLARE_FINAL_TYPE  (CootLigandEditorCanvas, coot_ligand_editor_canvas, COOT, 
 
 G_END_DECLS
 
+#define _LIGAND_EDITOR_SIGNAL_EMIT(_instance_, _signal_name_) g_signal_emit(_instance_,impl::_signal_name_,0)
+#define _LIGAND_EDITOR_SIGNAL_EMIT_ARG(_instance_, _signal_name_, ...) g_signal_emit(_instance_,impl::_signal_name_,0,__VA_ARGS__)
 #else // __EMSCRIPTEN__ defined
 #include "../../lhasa/glog_replacement.hpp"
 #include <sigc++-3.0/sigc++/sigc++.h>
+#define _LIGAND_EDITOR_SIGNAL_EMIT(_instance_, _signal_name_) _instance_->_signal_name_.emit()
+#define _LIGAND_EDITOR_SIGNAL_EMIT_ARG(_instance_, _signal_name_, ...) _instance_->_signal_name_.emit(__VA_ARGS__)
 #endif
 
 
@@ -193,13 +197,19 @@ struct CootLigandEditorCanvasPriv : CootLigandEditorCanvasPrivBase, impl::Widget
 } // namespace coot::ligand_editor_canvas::impl
 
 #ifdef __EMSCRIPTEN__
+
+
+// Implemented at 'ligand_editor_canvas.cpp'
 /// For Lhasa
 struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEditorCanvasPriv {
 
-    // Implemented at 'ligand_editor_canvas.cpp'
     CootLigandEditorCanvas() noexcept;
-    // Implemented at 'ligand_editor_canvas.cpp'
     ~CootLigandEditorCanvas() noexcept;
+
+    sigc::signal<void(const char*)> status_updated_signal;
+    sigc::signal<void(float)> scale_changed_signal;
+    sigc::signal<void()> smiles_changed_signal;
+    sigc::signal<void(int)> molecule_deleted_signal;
 };
 #endif
 

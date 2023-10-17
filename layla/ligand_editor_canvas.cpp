@@ -233,7 +233,7 @@ static gboolean on_scroll(GtkEventControllerScroll* zoom_controller, gdouble dx,
 
     if (modifiers & GDK_CONTROL_MASK) {
         self->scale *= (1.f - dy / 20.f);
-        g_signal_emit(self,impl::scale_changed_signal,0,self->scale);
+        _LIGAND_EDITOR_SIGNAL_EMIT_ARG(self, scale_changed_signal,self->scale);
         gtk_widget_queue_draw(GTK_WIDGET(self));
         gtk_widget_queue_resize(GTK_WIDGET(self));
         return TRUE;
@@ -451,7 +451,7 @@ G_END_DECLS
 
 void coot_ligand_editor_canvas_set_scale(CootLigandEditorCanvas* self, float display_scale) noexcept {
     self->scale = display_scale;
-    g_signal_emit(self,impl::scale_changed_signal,0,self->scale);
+    _LIGAND_EDITOR_SIGNAL_EMIT_ARG(self, scale_changed_signal,self->scale);
     gtk_widget_queue_draw(GTK_WIDGET(self));
     gtk_widget_queue_resize(GTK_WIDGET(self));
 }
@@ -498,13 +498,13 @@ void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std
 void coot_ligand_editor_canvas_undo_edition(CootLigandEditorCanvas* self) noexcept {
     self->undo_edition();
     gtk_widget_queue_draw(GTK_WIDGET(self));
-    g_signal_emit((gpointer) self, impl::smiles_changed_signal, 0);
+    _LIGAND_EDITOR_SIGNAL_EMIT(self, smiles_changed_signal);
 }
 
 void coot_ligand_editor_canvas_redo_edition(CootLigandEditorCanvas* self) noexcept {
     self->redo_edition();
     gtk_widget_queue_draw(GTK_WIDGET(self));
-    g_signal_emit((gpointer) self, impl::smiles_changed_signal, 0);
+    _LIGAND_EDITOR_SIGNAL_EMIT(self, smiles_changed_signal);
 }
 
 const RDKit::ROMol* coot_ligand_editor_canvas_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept {
