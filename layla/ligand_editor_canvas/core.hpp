@@ -30,24 +30,24 @@
 #include "tools.hpp"
 
 #ifndef __EMSCRIPTEN__
-#include <gtk/gtk.h>
-#include <pango/pango-layout.h>
+    #include <gtk/gtk.h>
+    #include <pango/pango-layout.h>
 
-// GObject declaration 
-G_BEGIN_DECLS   
+    // GObject declaration 
+    G_BEGIN_DECLS   
 
-#define COOT_LIGAND_EDITOR_CANVAS_TYPE (coot_ligand_editor_canvas_get_type ())
-G_DECLARE_FINAL_TYPE  (CootLigandEditorCanvas, coot_ligand_editor_canvas, COOT, COOT_LIGAND_EDITOR_CANVAS, GtkWidget)
+    #define COOT_LIGAND_EDITOR_CANVAS_TYPE (coot_ligand_editor_canvas_get_type ())
+    G_DECLARE_FINAL_TYPE  (CootLigandEditorCanvas, coot_ligand_editor_canvas, COOT, COOT_LIGAND_EDITOR_CANVAS, GtkWidget)
 
-G_END_DECLS
+    G_END_DECLS
 
-#define _LIGAND_EDITOR_SIGNAL_EMIT(_instance_, _signal_name_) g_signal_emit(_instance_,impl::_signal_name_,0)
-#define _LIGAND_EDITOR_SIGNAL_EMIT_ARG(_instance_, _signal_name_, ...) g_signal_emit(_instance_,impl::_signal_name_,0,__VA_ARGS__)
+    #define _LIGAND_EDITOR_SIGNAL_EMIT(_instance_, _signal_name_) g_signal_emit(_instance_,impl::_signal_name_,0)
+    #define _LIGAND_EDITOR_SIGNAL_EMIT_ARG(_instance_, _signal_name_, ...) g_signal_emit(_instance_,impl::_signal_name_,0,__VA_ARGS__)
 #else // __EMSCRIPTEN__ defined
-#include "../../lhasa/glog_replacement.hpp"
-#include <sigc++-3.0/sigc++/sigc++.h>
-#define _LIGAND_EDITOR_SIGNAL_EMIT(_instance_, _signal_name_) _instance_->_signal_name_.emit()
-#define _LIGAND_EDITOR_SIGNAL_EMIT_ARG(_instance_, _signal_name_, ...) _instance_->_signal_name_.emit(__VA_ARGS__)
+    #include "../../lhasa/glog_replacement.hpp"
+    #include <sigc++-3.0/sigc++/sigc++.h>
+    #define _LIGAND_EDITOR_SIGNAL_EMIT(_instance_, _signal_name_) _instance_->_signal_name_.emit()
+    #define _LIGAND_EDITOR_SIGNAL_EMIT_ARG(_instance_, _signal_name_, ...) _instance_->_signal_name_.emit(__VA_ARGS__)
 #endif
 
 
@@ -185,6 +185,11 @@ struct WidgetCoreData {
     void update_status(const char* status_text) const noexcept;
 
     std::string build_smiles_string() const;
+
+    /// Abstraction over gtk_widget_queue_draw
+    void queue_redraw() const noexcept;
+    /// Abstraction over gtk_widget_queue_resize
+    void queue_resize() const noexcept;
 };
 
 /// This is the private struct for GObject

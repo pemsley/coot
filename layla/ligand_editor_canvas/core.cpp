@@ -244,3 +244,21 @@ void WidgetCoreData::render(Renderer& ren) {
         cairo_stroke(ren.cr);
     }
 }
+
+void WidgetCoreData::queue_redraw() const noexcept {
+    #ifndef __EMSCRIPTEN__
+    auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
+    gtk_widget_queue_draw(GTK_WIDGET(widget_ptr));
+    #else
+    g_warning("TODO: Implement queue_redraw for Lhasa");
+    #endif
+}
+
+void WidgetCoreData::queue_resize() const noexcept {
+    #ifndef __EMSCRIPTEN__
+    auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
+    gtk_widget_queue_resize(GTK_WIDGET(widget_ptr));
+    #else
+    g_warning("TODO: Implement queue_resize for Lhasa");
+    #endif
+}

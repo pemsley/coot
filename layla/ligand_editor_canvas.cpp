@@ -178,7 +178,7 @@ static void on_hover (
 
     if(self->active_tool->is_in_transform()) {
         self->active_tool->update_transform_cursor_pos((int)x, (int)y, modifiers & GDK_ALT_MASK);
-        gtk_widget_queue_draw(GTK_WIDGET(self));
+        self->queue_redraw();
         return;
     }
 
@@ -219,7 +219,7 @@ static void on_hover (
             target.highlight_bond(bond.first_atom_idx, bond.second_atom_idx);
         }
     }
-    gtk_widget_queue_draw(GTK_WIDGET(self));
+    self->queue_redraw();
 }
 #warning TODO: Implement on_hover for Lhasa
 #endif
@@ -234,8 +234,8 @@ static gboolean on_scroll(GtkEventControllerScroll* zoom_controller, gdouble dx,
     if (modifiers & GDK_CONTROL_MASK) {
         self->scale *= (1.f - dy / 20.f);
         _LIGAND_EDITOR_SIGNAL_EMIT_ARG(self, scale_changed_signal,self->scale);
-        gtk_widget_queue_draw(GTK_WIDGET(self));
-        gtk_widget_queue_resize(GTK_WIDGET(self));
+        self->queue_redraw();
+        self->queue_resize();
         return TRUE;
     }
     return FALSE;
@@ -452,8 +452,8 @@ G_END_DECLS
 void coot_ligand_editor_canvas_set_scale(CootLigandEditorCanvas* self, float display_scale) noexcept {
     self->scale = display_scale;
     _LIGAND_EDITOR_SIGNAL_EMIT_ARG(self, scale_changed_signal,self->scale);
-    gtk_widget_queue_draw(GTK_WIDGET(self));
-    gtk_widget_queue_resize(GTK_WIDGET(self));
+    self->queue_redraw();
+    self->queue_resize();
 }
 
 float coot_ligand_editor_canvas_get_scale(CootLigandEditorCanvas* self) noexcept {
@@ -483,7 +483,7 @@ void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std
         #endif
         self->rdkit_molecules->push_back(std::move(rdkit_mol));
         self->finalize_edition();
-        gtk_widget_queue_draw(GTK_WIDGET(self));
+        self->queue_redraw();
         self->update_status("Molecule inserted.");
     }catch(std::exception& e) {
         std::string msg = "2D representation could not be created: ";
@@ -497,13 +497,13 @@ void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std
 
 void coot_ligand_editor_canvas_undo_edition(CootLigandEditorCanvas* self) noexcept {
     self->undo_edition();
-    gtk_widget_queue_draw(GTK_WIDGET(self));
+    self->queue_redraw();
     _LIGAND_EDITOR_SIGNAL_EMIT(self, smiles_changed_signal);
 }
 
 void coot_ligand_editor_canvas_redo_edition(CootLigandEditorCanvas* self) noexcept {
     self->redo_edition();
-    gtk_widget_queue_draw(GTK_WIDGET(self));
+    self->queue_redraw();
     _LIGAND_EDITOR_SIGNAL_EMIT(self, smiles_changed_signal);
 }
 
@@ -534,7 +534,7 @@ DisplayMode coot_ligand_editor_canvas_get_display_mode(CootLigandEditorCanvas* s
 
 void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, DisplayMode value) noexcept {
     self->display_mode = value;
-    gtk_widget_queue_draw(GTK_WIDGET(self));
+    self->queue_redraw();
 }
 
 std::string coot_ligand_editor_canvas_get_smiles(CootLigandEditorCanvas* self) noexcept {
@@ -569,5 +569,5 @@ void coot_ligand_editor_canvas_clear_molecules(CootLigandEditorCanvas* self) noe
     self->molecules->clear();
     self->finalize_edition();
     self->update_status("Molecules cleared.");
-    gtk_widget_queue_draw(GTK_WIDGET(self));
+    self->queue_redraw();
 }
