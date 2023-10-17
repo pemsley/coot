@@ -31,7 +31,7 @@
 
 #ifndef __EMSCRIPTEN__
 #include <gtk/gtk.h>
-#include "pango/pango-layout.h"
+#include <pango/pango-layout.h>
 
 // GObject declaration 
 G_BEGIN_DECLS   
@@ -43,6 +43,7 @@ G_END_DECLS
 
 #else // __EMSCRIPTEN__ defined
 // Lhasa-specific includes/definitions
+#include "../lhasa/glog_replacement.hpp"
 #endif
 
 
