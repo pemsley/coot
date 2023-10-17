@@ -1,8 +1,10 @@
 #include "embind.hpp"
+#include "../layla/ligand_editor_canvas.hpp"
 
-// EMSCRIPTEN_BINDINGS(my_module) {
+EMSCRIPTEN_BINDINGS(lhasa) {
 //   function("lerp", &lerp);
-//   class_<LhasaDemo>("LhasaDemo")
-//     .constructor<>()
-//     .function("demo", &LhasaDemo::demo);
-// }
+  class_<CootLigandEditorCanvas>("LhasaCanvas")
+  // remove the semicolon when adding functions
+    .constructor<>();
+    // .function("demo", &LhasaDemo::demo);
+}
