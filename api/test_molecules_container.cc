@@ -2577,7 +2577,8 @@ int test_map_histogram(molecules_container_t &mc) {
    auto print_hist = [&mc] (int imol_map) {
 
       if (mc.is_valid_map_molecule(imol_map)) {
-         coot::molecule_t::histogram_info_t hist = mc.get_map_histogram(imol_map);
+         unsigned int n_bins = 20;
+         coot::molecule_t::histogram_info_t hist = mc.get_map_histogram(imol_map, n_bins);
          for (unsigned int i=0; i<hist.counts.size(); i++) {
             float range_start = hist.base + static_cast<float>(i)   * hist.bin_width;
             float range_end   = hist.base + static_cast<float>(i+1) * hist.bin_width;
