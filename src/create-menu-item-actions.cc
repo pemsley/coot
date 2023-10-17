@@ -203,6 +203,8 @@ void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_set_visible(dataset_chooser, TRUE);
 #endif
 
+   graphics_info_t g;
+
    // How were is the user-data set?
    GtkWindow *parent_window = GTK_WINDOW(user_data);
    if (user_data) {
@@ -213,11 +215,20 @@ void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                                    ("_Cancel"), GTK_RESPONSE_CANCEL,
                                                    ("_Open"), GTK_RESPONSE_ACCEPT,
                                                    NULL);
+
+   GError *error = NULL;
+   std::string dir = g.get_directory_for_filechooser();
+   if (coot::is_directory_p(dir)) {
+      GFile *f_dir = g_file_new_for_path(dir.c_str());
+      gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), f_dir, &error);
+   }
+
    g_signal_connect(dialog, "response", G_CALLBACK(on_dataset_filechooser_dialog_response_gtk4), NULL);
    g_object_set_data(G_OBJECT(dialog), "auto_read_flag", GINT_TO_POINTER(TRUE));
    GtkFileFilter *filterselect = gtk_file_filter_new();
    gtk_file_filter_add_pattern(filterselect, "*.mtz");
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
+   add_filename_filter_button(dialog, COOT_DATASET_FILE_SELECTION);
    gtk_widget_set_visible(dialog, TRUE);
 }
 

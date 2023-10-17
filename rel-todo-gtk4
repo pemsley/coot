@@ -21,6 +21,8 @@ Moorhen: Request: electrostatic surface.
 
 Moorhen: Check/Delete waters function for the api
 
+Apply Charles patches.
+
 Quick save as should save the shader settings
 
 Try Quick save as on a mac and restore settings - the graphics window size is wrong.

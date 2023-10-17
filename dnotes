@@ -10421,6 +10421,17 @@ Thu  9 Sep 22:15:06 BST 2021
 
    There were a few snapshots from Janes' presentation that are worth more thought.
 
+Tue 17 Oct 22:32:02 BST 2023
+
+  Gtk4 is installed in a different directory to the one in which Coot is installed:
+
+  GLib-GIO-ERROR **: 22:26:14.852: No GSettings schemas are installed on the system
+
+  > echo $XDG_DATA_DIR
+  /home/paule/gtk4/share/glib-2.0/schemas
+  > cp $XDG_DATA_DIR/gschemas.compiled $prfx/share/glib-2.0/schemas
+
+
 ----
 Fri 10 Sep 15:20:23 BST 2021
 
