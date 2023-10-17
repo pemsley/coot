@@ -30,7 +30,7 @@ target_sources(lhasa PRIVATE
   ../layla/utils.hpp
   ../layla/utils.cpp
   ../layla/ligand_editor_canvas.hpp
-  # ../layla/ligand_editor_canvas.cpp
+  ../layla/ligand_editor_canvas.cpp
   ../layla/ligand_editor_canvas/core.hpp
   # ../layla/ligand_editor_canvas/core.cpp
   ../layla/ligand_editor_canvas/model.hpp

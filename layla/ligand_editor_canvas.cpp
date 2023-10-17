@@ -82,6 +82,7 @@ CootLigandEditorCanvas::CootLigandEditorCanvas() noexcept {
 void coot_ligand_editor_canvas_dispose_impl(CootLigandEditorCanvas* self) {
 #else // Lhasa code
 CootLigandEditorCanvas::~CootLigandEditorCanvas() noexcept {
+    auto* self = this;
 #endif
     self->molecules.reset(nullptr);
     self->active_tool.reset(nullptr);
