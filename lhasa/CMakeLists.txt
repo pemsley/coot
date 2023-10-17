@@ -78,6 +78,8 @@ target_link_libraries(lhasac PRIVATE
     RDKitRDGeneral 
     RDKitFileParsers 
     RDKitSubstructMatch 
+    RDKitGenericGroups
+    RDKitDataStructs
     boost_iostreams 
     boost_serialization
     ${DEPS_LIBRARIES}
