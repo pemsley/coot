@@ -753,7 +753,10 @@ public:
    float get_map_rmsd_approx(int imol_map) const;
 
    //! @return the map histogram
-   coot::molecule_t::histogram_info_t get_map_histogram(int imol, unsigned int n_bins) const;
+   //! The caller should select the number of bins - 200 is a reasonable default.
+   //! The caller should also set the zoom factor (which reduces the range by the given factor)
+   //! centred around the median (typically 1.0 but usefully can vary until ~20.0).
+   coot::molecule_t::histogram_info_t get_map_histogram(int imol, unsigned int n_bins, float zoom_factor) const;
 
    //! @return the suggested initial contour level. Return -1 on not-a-map
    float get_suggested_initial_contour_level(int imol) const;

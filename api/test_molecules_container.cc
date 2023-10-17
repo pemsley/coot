@@ -2577,8 +2577,9 @@ int test_map_histogram(molecules_container_t &mc) {
    auto print_hist = [&mc] (int imol_map) {
 
       if (mc.is_valid_map_molecule(imol_map)) {
-         unsigned int n_bins = 20;
-         coot::molecule_t::histogram_info_t hist = mc.get_map_histogram(imol_map, n_bins);
+         unsigned int n_bins = 200;
+         float zoom_factor = 10.0;
+         coot::molecule_t::histogram_info_t hist = mc.get_map_histogram(imol_map, n_bins, zoom_factor);
          for (unsigned int i=0; i<hist.counts.size(); i++) {
             float range_start = hist.base + static_cast<float>(i)   * hist.bin_width;
             float range_end   = hist.base + static_cast<float>(i+1) * hist.bin_width;
@@ -3822,13 +3823,13 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
 
-   status += run_test(test_dark_mode_colours, "light vs dark mode colours", mc);
+   // status += run_test(test_dark_mode_colours, "light vs dark mode colours", mc);
 
    // status += run_test(test_read_extra_restraints, "read extra restraints", mc);
 
    // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
 
-   // status += run_test(test_map_histogram, "map histogram", mc);
+   status += run_test(test_map_histogram, "map histogram", mc);
 
    // status += run_test(test_read_a_missing_map, "read a missing map file ", mc);
 
