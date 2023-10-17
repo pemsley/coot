@@ -11,16 +11,24 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 set(CMAKE_CXX_STANDARD 17)
 
+include(FindPkgConfig)
+pkg_check_modules(DEPS REQUIRED sigc++-3.0 graphene-1.0)
+
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 include_directories(${CMAKE_INSTALL_PREFIX}/include)
-include_directories(${CMAKE_INSTALL_PREFIX}/include/graphene-1.0)
-include_directories(${CMAKE_INSTALL_PREFIX}/lib/graphene-1.0/include)
+include_directories(${DEPS_INCLUDE_DIRS})
+# include_directories(${CMAKE_INSTALL_PREFIX}/include/graphene-1.0)
+# include_directories(${CMAKE_INSTALL_PREFIX}/lib/graphene-1.0/include)
+
+# todo: use find_package() for rdkit
 include_directories(${CMAKE_INSTALL_PREFIX}/include/rdkit)
 
 if("${EMSCRIPTEN_VERSION}" VERSION_GREATER 3.1.26)
-add_link_options(-sDEFAULT_PTHREAD_STACK_SIZE=2MB -sSTACK_SIZE=5MB -lembind)
+  add_link_options(-sDEFAULT_PTHREAD_STACK_SIZE=2MB -sSTACK_SIZE=5MB)
 endif()
+
+add_link_options(-lembind)
 
 add_library(lhasa STATIC lhasa.hpp lhasa.cpp)
 
@@ -30,7 +38,7 @@ target_sources(lhasa PRIVATE
   ../layla/utils.hpp
   ../layla/utils.cpp
   ../layla/ligand_editor_canvas.hpp
-  ../layla/ligand_editor_canvas.cpp
+  # ../layla/ligand_editor_canvas.cpp
   ../layla/ligand_editor_canvas/core.hpp
   # ../layla/ligand_editor_canvas/core.cpp
   ../layla/ligand_editor_canvas/model.hpp
@@ -49,7 +57,9 @@ target_link_libraries(lhasa PRIVATE
     RDKitSubstructMatch 
     boost_iostreams 
     boost_serialization
-    graphene-1.0
+    # graphene-1.0
+    ${DEPS_LIBRARIES}
+
 )
 
 # target_link_libraries(lhasa PUBLIC ...)
