@@ -35,11 +35,11 @@ pkg_check_modules(DEPS REQUIRED sigc++-3.0 graphene-1.0)
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 include_directories(${DEPS_INCLUDE_DIRS})
 
-add_library(lhasa STATIC lhasa.hpp lhasa.cpp)
+add_library(lh STATIC lhasa.hpp lhasa.cpp)
 
-add_executable(lhasac embind.cpp embind.hpp)
+add_executable(lhasa embind.cpp embind.hpp)
 
-target_sources(lhasa PRIVATE
+target_sources(lh PRIVATE
   glog_replacement.hpp
   glog_replacement.cpp
   ../layla/utils.hpp
@@ -62,26 +62,10 @@ target_link_libraries(lhasa PRIVATE
     RDKitRDGeneral 
     RDKitFileParsers 
     RDKitSubstructMatch 
-    boost_iostreams 
-    boost_serialization
-    ${DEPS_LIBRARIES}
-
-)
-
-# target_link_libraries(lhasa PUBLIC ...)
-
-target_link_libraries(lhasac PRIVATE 
-    RDKitDepictor 
-    RDKitSmilesParse 
-    RDKitMolDraw2D 
-    RDKitGraphMol 
-    RDKitRDGeneral 
-    RDKitFileParsers 
-    RDKitSubstructMatch 
     RDKitGenericGroups
     RDKitDataStructs
     boost_iostreams 
     boost_serialization
     ${DEPS_LIBRARIES}
-    lhasa
+    lh
 )

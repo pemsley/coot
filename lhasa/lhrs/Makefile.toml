@@ -26,12 +26,6 @@ dependencies = ["fmt", "clippy", "test_h_firefox"]
 
 # ---- BUILD ----
 
-[tasks.build_embind]
-description = "Build Emscripten Binding"
-command = "emcc"
-args = ["-lembind", "-O2", "-o", "liblhasa.js", "../embind.cpp", "-L../lhbuild/", "-l", "lhasa"]
-# args = ["-lembind", "-O2", "-o", "liblhasa.js", "../lhbuild/liblhasa.a"]
-
 [tasks.build]
 description = "Build with wasm-pack"
 install_crate = { crate_name = "wasm-pack", binary = "wasm-pack", test_arg = "-V", version = "0.10.3"}
