@@ -25,6 +25,8 @@ endif()
 add_library(lhasa STATIC lhasa.hpp lhasa.cpp)
 
 target_sources(lhasa PRIVATE
+  glog_replacement.cpp
+  glog_replacement.hpp
   ../layla/utils.hpp
   ../layla/utils.cpp
   ../layla/ligand_editor_canvas.hpp
