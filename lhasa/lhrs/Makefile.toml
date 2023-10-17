@@ -29,7 +29,7 @@ dependencies = ["fmt", "clippy", "test_h_firefox"]
 [tasks.build_embind]
 description = "Build Emscripten Binding"
 command = "emcc"
-args = ["-lembind", "-O2", "-o", "binding_demo.js", "../binding_demo.cpp"]
+args = ["-lembind", "-O2", "-o", "liblhasa.js", "../lhbuild/liblhasa.a"]
 
 [tasks.build]
 description = "Build with wasm-pack"

@@ -40,17 +40,18 @@ fn update(msg: Msg, model: &mut Model, _: &mut impl Orders<Msg>) {
     match msg {
         Msg::Increment => {
             model.counter += 1;
+            log("Halok");
             match eval(&format!(
-r#"console.log('[SEED] lerp result: ' + Module.lerp(1, {}, 0.5));
-var instance = new Module.LhasaDemo();
-console.log(instance.demo());
-instance.delete();"#
-                , model.counter)) {
+r#"
+var lhasa = new Module.LhasaCanvas();
+console.log("halo");
+console.log(typeof lhasa);
+lhasa.delete();"#)) {
                 Ok(_jsval) => {
-
+                    log("Works");
                 },
                 Err(js_err) => {
-                    
+                    log("Doesn't work");
                 }
             };
         },

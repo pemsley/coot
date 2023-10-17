@@ -64,6 +64,7 @@ void coot_ligand_editor_canvas_init_impl(CootLigandEditorCanvas* self) {
 CootLigandEditorCanvas::CootLigandEditorCanvas() noexcept {
     auto* self = this;
 #endif
+    g_debug("Instantiating CootLigandEditorCanvas.");
     self->active_tool = std::make_unique<ActiveTool>();
     self->active_tool->set_core_widget_data(static_cast<impl::CootLigandEditorCanvasPriv*>(self));
     self->molecules = std::make_unique<std::vector<CanvasMolecule>>();
@@ -84,6 +85,7 @@ void coot_ligand_editor_canvas_dispose_impl(CootLigandEditorCanvas* self) {
 CootLigandEditorCanvas::~CootLigandEditorCanvas() noexcept {
     auto* self = this;
 #endif
+    g_debug("De-instantiating CootLigandEditorCanvas.");
     self->molecules.reset(nullptr);
     self->active_tool.reset(nullptr);
     self->rdkit_molecules.reset(nullptr);
