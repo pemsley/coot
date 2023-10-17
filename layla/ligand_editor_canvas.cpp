@@ -103,6 +103,7 @@ G_DEFINE_TYPE(CootLigandEditorCanvas, coot_ligand_editor_canvas, GTK_TYPE_WIDGET
 
 #endif
 
+#ifndef __EMSCRIPTEN__
 void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(widget);
@@ -117,7 +118,11 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
     impl::Renderer ren(cr,pango_layout);
     self->render(ren);
 }
+#else
+#warning TODO: Implement drawing for Lhasa
+#endif
 
+#ifndef __EMSCRIPTEN__
 void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orientation, int for_size, int *minimum_size, int *natural_size, int *minimum_baseline, int *natural_baseline)
 {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(widget);
@@ -132,28 +137,29 @@ void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orienta
         auto bounding_rect = a.get_on_screen_bounding_rect();
         graphene_rect_union(&bounding_rect_for_all, &bounding_rect, &bounding_rect_for_all);
     }
-    switch (orientation)
-    {
-    case GTK_ORIENTATION_HORIZONTAL:{
-         // For now:
-        *natural_size = bounding_rect_for_all.size.width;
-        *minimum_size = bounding_rect_for_all.size.width;
-        break;
+    switch (orientation) {
+        case GTK_ORIENTATION_HORIZONTAL:{
+            // For now:
+            *natural_size = bounding_rect_for_all.size.width;
+            *minimum_size = bounding_rect_for_all.size.width;
+            break;
+        }
+        case GTK_ORIENTATION_VERTICAL:{
+            // For now:
+            *natural_size = bounding_rect_for_all.size.height;
+            *minimum_size = bounding_rect_for_all.size.height;
+            break;
+        }
+        default:
+            break;
     }
-    case GTK_ORIENTATION_VERTICAL:{
-         // For now:
-        *natural_size = bounding_rect_for_all.size.height;
-        *minimum_size = bounding_rect_for_all.size.height;
-        break;
-    }
-    default:
-        break;
-    }
-
-   
 
 }
+#else
+#warning TODO: Decide if canvas measurement should be implemented for Lhasa
+#endif
 
+#ifndef __EMSCRIPTEN__
 static void on_hover (
   GtkEventControllerMotion* controller,
   gdouble x,
@@ -215,7 +221,10 @@ static void on_hover (
     }
     gtk_widget_queue_draw(GTK_WIDGET(self));
 }
+#warning TODO: Implement on_hover for Lhasa
+#endif
 
+#ifndef __EMSCRIPTEN__
 static gboolean on_scroll(GtkEventControllerScroll* zoom_controller, gdouble dx, gdouble dy, gpointer user_data) {
     GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(zoom_controller));
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
@@ -231,7 +240,11 @@ static gboolean on_scroll(GtkEventControllerScroll* zoom_controller, gdouble dx,
     }
     return FALSE;
 }
+#else
+#warning TODO: Implement on_scroll for Lhasa
+#endif
 
+#ifndef __EMSCRIPTEN__
 static void
 on_left_click_released(
   GtkGestureClick* gesture_click,
@@ -316,9 +329,12 @@ static void on_right_click(
 
     self->active_tool->on_click(GDK_CONTROL_MASK & modifiers, x, y, true);
 }
+#else
+#warning TODO: Implement handling click events for Lhasa
+#endif
 
 
-
+#ifndef __EMSCRIPTEN__
 static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
     // This is the primary constructor
     
@@ -349,9 +365,10 @@ static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
     gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(hover_controller));
     gtk_widget_add_controller(GTK_WIDGET(self), GTK_EVENT_CONTROLLER(zoom_controller));
 }
+#endif
 
 
-
+#ifndef __EMSCRIPTEN__
 static void coot_ligand_editor_canvas_dispose(GObject* _self) {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(_self);
     // GObject doesn't run C++ destructors
@@ -359,7 +376,9 @@ static void coot_ligand_editor_canvas_dispose(GObject* _self) {
     coot_ligand_editor_canvas_dispose_impl(self);
     G_OBJECT_CLASS(coot_ligand_editor_canvas_parent_class)->dispose(_self);
 }
+#endif
 
+#ifndef __EMSCRIPTEN__
 static void coot_ligand_editor_canvas_class_init(CootLigandEditorCanvasClass* klass) {
     // I think that this is a GObject class constructor that sets up the GObject class at runtime.
     impl::status_updated_signal = g_signal_new("status-updated",
@@ -410,6 +429,7 @@ static void coot_ligand_editor_canvas_class_init(CootLigandEditorCanvasClass* kl
     G_OBJECT_CLASS(klass)->dispose = coot_ligand_editor_canvas_dispose;
     
 }
+#endif
 
 #ifndef __EMSCRIPTEN__
 CootLigandEditorCanvas* 
@@ -525,6 +545,7 @@ std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCa
     }
 }
 
+#ifndef __EMSCRIPTEN__
 void coot_ligand_editor_canvas_draw_on_cairo_surface(CootLigandEditorCanvas* self, cairo_t* cr) noexcept {
     PangoLayout* pango_layout = pango_cairo_create_layout(cr);
     PangoFontDescription* font_description = pango_font_description_new ();
@@ -536,6 +557,7 @@ void coot_ligand_editor_canvas_draw_on_cairo_surface(CootLigandEditorCanvas* sel
 
     pango_font_description_free(font_description);
 }
+#endif
 
 void coot_ligand_editor_canvas_clear_molecules(CootLigandEditorCanvas* self) noexcept {
     self->begin_edition();
