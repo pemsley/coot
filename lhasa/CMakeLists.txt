@@ -37,11 +37,11 @@ include_directories(${DEPS_INCLUDE_DIRS})
 
 add_library(lhasa STATIC lhasa.hpp lhasa.cpp)
 
+add_executable(lhasac embind.cpp embind.hpp)
+
 target_sources(lhasa PRIVATE
   glog_replacement.hpp
   glog_replacement.cpp
-  embind.hpp
-  embind.cpp
   ../layla/utils.hpp
   ../layla/utils.cpp
   ../layla/ligand_editor_canvas.hpp
@@ -69,3 +69,17 @@ target_link_libraries(lhasa PRIVATE
 )
 
 # target_link_libraries(lhasa PUBLIC ...)
+
+target_link_libraries(lhasac PRIVATE 
+    RDKitDepictor 
+    RDKitSmilesParse 
+    RDKitMolDraw2D 
+    RDKitGraphMol 
+    RDKitRDGeneral 
+    RDKitFileParsers 
+    RDKitSubstructMatch 
+    boost_iostreams 
+    boost_serialization
+    ${DEPS_LIBRARIES}
+    lhasa
+)
