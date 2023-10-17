@@ -473,10 +473,14 @@ void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std
         self->begin_edition();
         self->molecules->push_back(CanvasMolecule(rdkit_mol));
         self->molecules->back().set_canvas_scale(self->scale);
+        #ifndef __EMSCRIPTEN__
         self->molecules->back().apply_canvas_translation(
             gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_HORIZONTAL) / 2.0, 
             gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_VERTICAL) / 2.0
         );
+        #else
+        #warning TODO: Design and implement getting canvas size for Lhasa
+        #endif
         self->rdkit_molecules->push_back(std::move(rdkit_mol));
         self->finalize_edition();
         gtk_widget_queue_draw(GTK_WIDGET(self));
