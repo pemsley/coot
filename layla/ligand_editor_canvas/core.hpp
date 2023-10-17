@@ -48,10 +48,12 @@ G_END_DECLS
 
 namespace coot::ligand_editor_canvas::impl {
 
+#ifndef __EMSCRIPTEN__
 inline guint status_updated_signal;
 inline guint scale_changed_signal;
 inline guint smiles_changed_signal;
 inline guint molecule_deleted_signal;
+#endif
 
 /// This is here as a workaround.
 /// 
@@ -175,7 +177,7 @@ struct WidgetCoreData {
     void delete_molecule_with_idx(unsigned int idx) noexcept;
 
     /// Emits 'status-updated' signal.
-    void update_status(const gchar* status_text) const noexcept;
+    void update_status(const char* status_text) const noexcept;
 
     std::string build_smiles_string() const;
 };
