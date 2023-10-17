@@ -77,9 +77,13 @@ WidgetCoreData::MaybeAtomOrBondWithMolIdx WidgetCoreData::resolve_click(int x, i
     return std::nullopt;
 }
 
-void WidgetCoreData::update_status(const gchar* status_text) const noexcept {
+void WidgetCoreData::update_status(const char* status_text) const noexcept {
+    #ifndef __EMSCRIPTEN__
     auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
-    g_signal_emit((gpointer) widget_ptr, status_updated_signal, 0, status_text);
+    #else
+    auto* widget_ptr = static_cast<const ::CootLigandEditorCanvas*>(this);
+    #endif
+    _LIGAND_EDITOR_SIGNAL_EMIT_ARG(widget_ptr, status_updated_signal, status_text);
 }
 
 
@@ -180,10 +184,14 @@ void WidgetCoreData::finalize_edition() {
             this->state_stack->erase(this->state_stack->begin(), last_iter);
         }
 
+        this->queue_resize();
+        this->queue_redraw();
+        #ifndef __EMSCRIPTEN__
         auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
-        gtk_widget_queue_resize(GTK_WIDGET(widget_ptr));
-        gtk_widget_queue_draw(GTK_WIDGET(widget_ptr));
-        g_signal_emit((gpointer) widget_ptr, smiles_changed_signal, 0);
+        #else
+        auto* widget_ptr = static_cast<const ::CootLigandEditorCanvas*>(this);
+        #endif
+        _LIGAND_EDITOR_SIGNAL_EMIT(widget_ptr, smiles_changed_signal);
     }
 }
 
@@ -200,9 +208,15 @@ void WidgetCoreData::delete_molecule_with_idx(unsigned int idx) noexcept {
 
         this->finalize_edition();
         this->update_status("Molecule deleted.");
+
+        this->queue_redraw();
+
+        #ifndef __EMSCRIPTEN__
         auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
-        gtk_widget_queue_draw(GTK_WIDGET(widget_ptr));
-        g_signal_emit((gpointer) widget_ptr, impl::molecule_deleted_signal, 0, idx);
+        #else
+        auto* widget_ptr = static_cast<const ::CootLigandEditorCanvas*>(this);
+        #endif
+        _LIGAND_EDITOR_SIGNAL_EMIT_ARG(widget_ptr, molecule_deleted_signal, idx);
     }
 }
 
@@ -230,18 +244,26 @@ void WidgetCoreData::render(Renderer& ren) {
     if (this->molecules) {
         for(auto& drawn_molecule: *this->molecules) {
             drawn_molecule.set_canvas_scale(this->scale);
+            #ifndef __EMSCRIPTEN__
             drawn_molecule.draw(ren.cr,ren.pango_layout,this->display_mode);
+            #else
+            #warning TODO: Add drawing method for Lhasa
+            #endif
         }
     } else {
         g_error("Molecules vector not initialized!");
     }
     if(this->currently_created_bond.has_value()) {
         auto& bond = this->currently_created_bond.value();
+        #ifndef __EMSCRIPTEN__
         cairo_set_line_width(ren.cr, 4.0);
         cairo_set_source_rgb(ren.cr, 1.0, 0.5, 1.0);
         cairo_move_to(ren.cr, bond.first_atom_x, bond.first_atom_y);
         cairo_line_to(ren.cr, bond.second_atom_x, bond.second_atom_y);
         cairo_stroke(ren.cr);
+        #else 
+        #warning TODO: Implement rendering currently_created_bond for Lhasa
+        #endif
     }
 }
 

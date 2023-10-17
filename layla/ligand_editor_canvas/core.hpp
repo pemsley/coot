@@ -41,8 +41,8 @@
 
     G_END_DECLS
 
-    #define _LIGAND_EDITOR_SIGNAL_EMIT(_instance_, _signal_name_) g_signal_emit(_instance_,impl::_signal_name_,0)
-    #define _LIGAND_EDITOR_SIGNAL_EMIT_ARG(_instance_, _signal_name_, ...) g_signal_emit(_instance_,impl::_signal_name_,0,__VA_ARGS__)
+    #define _LIGAND_EDITOR_SIGNAL_EMIT(_instance_, _signal_name_) g_signal_emit((gpointer)(_instance_),impl::_signal_name_,0)
+    #define _LIGAND_EDITOR_SIGNAL_EMIT_ARG(_instance_, _signal_name_, ...) g_signal_emit((gpointer)(_instance_),impl::_signal_name_,0,__VA_ARGS__)
 #else // __EMSCRIPTEN__ defined
     #include "../../lhasa/glog_replacement.hpp"
     #include <sigc++-3.0/sigc++/sigc++.h>
