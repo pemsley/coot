@@ -117,3 +117,14 @@ CFLAGS="-s USE_PTHREADS" LDFLAGS=" -lpthread" meson setup ${BUILD_DIR}/graphene_
     --buildtype=release \
     -Dtests=false && \
     meson install -C ${BUILD_DIR}/graphene_build
+
+# Libsigc++
+cd ${SOURCE_DIR}/deps/libsigcplusplus-3.6.0/
+CFLAGS="-s USE_PTHREADS" LDFLAGS=" -lpthread" meson setup ${BUILD_DIR}/libsigcplusplus_build \
+    --prefix=${INSTALL_DIR} \
+    --libdir=lib \
+    --cross-file=$MESON_CROSS \
+    --default-library=static \
+    --buildtype=release \
+    -Dtests=false && \
+    meson install -C ${BUILD_DIR}/libsigcplusplus_build

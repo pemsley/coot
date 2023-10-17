@@ -20,6 +20,14 @@ echo "Unpacking graphene source"
 tar xf "graphene_1.10.8.tar.gz"
 echo
 
+echo "Downloading libsigc++ source"
+curl -L https://github.com/libsigcplusplus/libsigcplusplus/archive/refs/tags/3.6.0.tar.gz -o libsigcplusplus_3.6.0.tar.gz
+echo
+
+echo "Unpacking libsigc++ source"
+tar xf "libsigcplusplus_3.6.0.tar.gz"
+echo
+
 #Create an empty file silly.c and then compile it with USE_ZLIB and USE_LIBPNG to force emsdk to get zlib/png.
 echo "Attempting to get emsdk zlib/png ports"
 echo
