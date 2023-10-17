@@ -40,7 +40,6 @@ fn update(msg: Msg, model: &mut Model, _: &mut impl Orders<Msg>) {
     match msg {
         Msg::Increment => {
             model.counter += 1;
-            log("Halok");
             match eval(&format!(
 r#"
 var lhasa = new Module.LhasaCanvas();
@@ -51,7 +50,7 @@ lhasa.delete();"#)) {
                     log("Works");
                 },
                 Err(js_err) => {
-                    log("Doesn't work");
+                    log(format!("Doesn't work {:?}", js_err));
                 }
             };
         },
