@@ -43,6 +43,9 @@
 #include <utility>
 #include <cctype>
 #include <complex>
+#ifdef __EMSCRIPTEN__
+#include "../../lhasa/glog_replacement.hpp"
+#endif
 
 using namespace coot::ligand_editor_canvas;
 
@@ -323,6 +326,7 @@ float CanvasMolecule::Bond::get_length() const noexcept {
     return std::sqrt(std::pow(bond_vector_x,2.f) + std::pow(bond_vector_y,2.f));
 }
 
+#ifndef __EMSCRIPTEN__
 void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode display_mode) const noexcept {
     auto scale_factor = this->get_scale();
     auto x_offset = scale_factor * this->x_canvas_translation;
@@ -1018,6 +1022,7 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
         }
     }
 }
+#endif
 
 CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
     this->rdkit_molecule = std::move(rdkit_mol);
