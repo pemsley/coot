@@ -128,4 +128,4 @@ meson setup ${BUILD_DIR}/libsigcplusplus_build \
     -Dc_link_args='-pthread' \
     -Dcpp_args='-s USE_PTHREADS=1 -pthread' \
     --buildtype=release && \
-    CFLAGS="-s USE_PTHREADS=1 -pthread" meson install -C ${BUILD_DIR}/libsigcplusplus_build
+    meson install -C ${BUILD_DIR}/libsigcplusplus_build
