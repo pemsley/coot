@@ -55,7 +55,7 @@ target_sources(lh PRIVATE
 
 add_executable(lhasa embind.cpp embind.hpp)
 
-set_target_properties(lhasa PROPERTIES LINK_FLAGS "-s ENVIRONMENT=web,worker -s MODULARIZE -s 'EXPORT_NAME=Lhasa'")
+set_target_properties(lhasa PROPERTIES LINK_FLAGS "-s ENVIRONMENT=web,worker ")
 
 target_link_libraries(lhasa PRIVATE 
     RDKitDepictor 

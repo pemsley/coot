@@ -42,10 +42,7 @@ fn update(msg: Msg, model: &mut Model, _: &mut impl Orders<Msg>) {
             model.counter += 1;
             match eval(&format!(
 r#"
-// console.log(typeof Lhasa().LhasaCanvas);
-// console.log(typeof lhasa);
-// console.log(typeof Module.LhasaCanvas);
-var lh = new Lhasa().LhasaCanvas();
+var lh = new Module.LhasaCanvas;
 console.log("halo");
 lh.delete();"#)) {
                 Ok(_jsval) => {
