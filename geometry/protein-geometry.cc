@@ -1781,9 +1781,12 @@ coot::protein_geometry::get_monomer_type_index(const std::string &monomer_type) 
 std::string
 coot::protein_geometry::three_letter_code(const unsigned int &i) const {
 
-   std::string r = dict_res_restraints[i].second.residue_info.three_letter_code;
-   if (r == "")
-      r = dict_res_restraints[i].second.residue_info.comp_id;
+   std::string r;
+   if (i < dict_res_restraints.size()) {
+      r = dict_res_restraints[i].second.residue_info.three_letter_code;
+      if (r == "")
+         r = dict_res_restraints[i].second.residue_info.comp_id;
+   }
    return r;
 }
 

@@ -992,6 +992,7 @@ public:
       do_disulfide_bonds_flag = true;
       b_factor_scale = 1.0;
       have_dictionary = false;
+      geom = protein_geom;
       init();
       udd_has_ca_handle = -1;
       if (protein_geom)

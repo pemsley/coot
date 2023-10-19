@@ -251,6 +251,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 
    // std::cout << "Bond_lines_container() for B-factors! @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
 
+   geom = nullptr;
    verbose_reporting = 0;
    do_disulfide_bonds_flag = 1;
    udd_has_ca_handle = -1;
@@ -2406,6 +2407,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       add_rotamer_goodness_markup(SelAtom);
    }
    add_atom_centres(SelAtom, atom_colour_type);
+
    add_cis_peptide_markup(SelAtom, model_number);
 }
 
