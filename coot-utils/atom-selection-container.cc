@@ -171,19 +171,44 @@ get_atom_selection(std::string pdb_name,
           if (! err) {
              // we read the coordinate file OK.
              //
-        /*
-             switch (MMDBManager->GetFileType())  {
-             case mmdb::MMDB_FILE_PDB    :  std::cout << " PDB"         ;
-             break;
-             case mmdb::MMDB_FILE_CIF    :  std::cout << " mmCIF"       ;
-             break;
-             case mmdb::MMDB_FILE_Binary :  std::cout << " MMDB binary" ;
-             break;
-             default:
-             std::cout << " Unknown\n";
-             }
-        */
 
+             /*
+               switch (MMDBManager->GetFileType())  {
+               case mmdb::MMDB_FILE_PDB    :  std::cout << " PDB"         ;
+               break;
+               case mmdb::MMDB_FILE_CIF    :  std::cout << " mmCIF"       ;
+               break;
+               case mmdb::MMDB_FILE_Binary :  std::cout << " MMDB binary" ;
+               break;
+               default:
+               std::cout << " Unknown\n";
+               }
+             */
+
+#if 0 // 20231020-PE debugging atom names
+             for(int imod = 1; imod<=MMDBManager->GetNumberOfModels(); imod++) {
+                mmdb::Model *model_p = MMDBManager->GetModel(imod);
+                if (model_p) {
+                   int n_chains = model_p->GetNumberOfChains();
+                   for (int ichain=0; ichain<n_chains; ichain++) {
+                      mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                      int n_res = chain_p->GetNumberOfResidues();
+                      for (int ires=0; ires<n_res; ires++) {
+                         mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                         if (residue_p) {
+                            int n_atoms = residue_p->GetNumberOfAtoms();
+                            for (int iat=0; iat<n_atoms; iat++) {
+                               mmdb::Atom *at = residue_p->GetAtom(iat);
+                               if (! at->isTer()) {
+                                  std::cout << "       " << coot::atom_spec_t(at) << std::endl;
+                               }
+                            }
+                         }
+                      }
+                   }
+                }
+             }
+#endif
              MMDBManager->PDBCleanup(mmdb::PDBCLEAN_ELEMENT);
 
              if (verbose_mode)
@@ -238,6 +263,8 @@ get_atom_selection(std::string pdb_name,
           fix_wrapped_names(asc);
        }
     }
+
+    // debug_atom_selection_container(asc);
     return asc;
 }
 
@@ -581,8 +608,7 @@ coot::is_hydrogen(const std::string &ele) {
 void
 debug_atom_selection_container(atom_selection_container_t asc) {
 
-   //
-   mmdb::PAtom ap;
+   bool all_atoms = false;
 
    std::cout << "DEBUG: asc " << "mol=" << asc.mol << std::endl;
    std::cout << "DEBUG: asc " << "n_selected_atoms=" << asc.n_selected_atoms << std::endl;
@@ -605,13 +631,21 @@ debug_atom_selection_container(atom_selection_container_t asc) {
       std::cout << "DEBUG start 10 atoms: " << std::endl;
       for (int ii = 0; ii< 10; ii++) {
          std::cout << ii << " " << asc.atom_selection[ii] << " " ;
-         ap = asc.atom_selection[ii];
+         mmdb:: Atom *ap = asc.atom_selection[ii];
          std::cout << coot::atom_spec_t(ap) << std::endl;
       }
       std::cout << "DEBUG end 10 atoms: " << std::endl;
       for (int ii = asc.n_selected_atoms - 10; ii< asc.n_selected_atoms; ii++) {
          std::cout << ii << " " << asc.atom_selection[ii] << " " ;
-         ap = asc.atom_selection[ii];
+         mmdb:: Atom *ap = asc.atom_selection[ii];
+         std::cout << coot::atom_spec_t(ap) << std::endl;
+      }
+   }
+
+   if (all_atoms) {
+      for (int ii = 0; ii< asc.n_selected_atoms; ii++) {
+         std::cout << ii << " " << asc.atom_selection[ii] << " " ;
+         mmdb:: Atom *ap = asc.atom_selection[ii];
          std::cout << coot::atom_spec_t(ap) << std::endl;
       }
    }
