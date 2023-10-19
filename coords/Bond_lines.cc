@@ -8518,7 +8518,7 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
    }
    col_idx_max += 1;
 
-   unsigned int counts[col_idx_max]; // is this allowed?
+   std::vector<unsigned int> counts(col_idx_max); // is this allowed?
    for (int i=0; i<col_idx_max; i++) {
       counts[i] = 0;
    }

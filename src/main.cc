@@ -89,10 +89,8 @@
 //
 #if defined (WINDOWS_MINGW)
 #include <locale.h>
-#ifdef DATADIR
-#undef DATADIR
-#endif // DATADIR
 #endif
+
 #include "compat/sleep-fixups.h"
 
 #include "c-interface.h"

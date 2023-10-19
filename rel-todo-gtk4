@@ -8,6 +8,8 @@
 
  - Check QED is now part of RDKit.
 
+C++ 17 and git for CCP4i2
+
 ----
 
 8 items
@@ -23,9 +25,17 @@ Moorhen: Check/Delete waters function for the api
 
 Apply Charles patches.
 
+Rebuild RDKit, check that Eigen is pulled in correctly.
+
+Cryo-EM -> Mask Map by Chain for 7vvl.
+
 Quick save as should save the shader settings
 
 Try Quick save as on a mac and restore settings - the graphics window size is wrong.
+
+No sound api.
+
+Jakub: sugar representation in RDKit and layla? (add it?)
 
 Rigid-body refine the tutorial A chain. It used to display an intermediate atoms
 representation. What happens now and is that what you want?
@@ -36,7 +46,7 @@ Renumber residue range on a molecule that is not the first molecule ::: 0.6
 
 Fix the undo molecule chooser (have 2 molecules with edits)
 
-When I Open Coords I have a option to choose coordinate files.
+When I Open Coords I have a option to choose c oordinate files.
 When I Auto-open MTZ I dont have a option to choose mtz files.
 
 Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.

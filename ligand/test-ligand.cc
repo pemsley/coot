@@ -24,7 +24,11 @@
 #include "coords/mmdb.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "torsion-general.hh"
+#ifdef _MSC_VER
+#include "dirent.h"
+#else
 #include <dirent.h>
+#endif
 
 #include "rotamer.hh"
 

@@ -575,13 +575,13 @@ namespace lig_build {
 	       // std::cout << "got angle for " << at_1 << " " << at_2 << " " << a << std::endl;
 	       // Actually, it would be better to have a more severe cut
 	       // when the bond comes from the right (because of the l of the Cl)
-	       // i.e. when theta is beteen -90 and 90 (-M_PI_4 -> M_PI_4)
-	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI_4)); // 0 -> 1, max at the corners
+	       // i.e. when theta is beteen -90 and 90 (-M_PI/4 -> M_PI/4)
+	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI/4)); // 0 -> 1, max at the corners
 	       shorten_fraction -= sc_1 * 0.25;
 	    }
 	    if (at_1.element == "N") {
 	       double theta = atom_t::angle_of_bond(at_1, at_2);
-	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI_4));
+	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI/4));
 	       shorten_fraction -= sc_1 * 0.05; // need optimization
 	    }
 
@@ -594,12 +594,12 @@ namespace lig_build {
 		at_2.element == "As") {
 	       double theta = atom_t::angle_of_bond(at_2, at_1); // radians
 	       // std::cout << "got angle for " << at_1 << " " << at_2 << " " << a << std::endl;
-	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI_4)); // 0 -> 1, max at the corners
+	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI/4)); // 0 -> 1, max at the corners
 	       shorten_fraction -= sc_1 * 0.25;
 	    }
 	    if (at_2.element == "N") {
 	       double theta = atom_t::angle_of_bond(at_2, at_1);
-	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI_4));
+	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI/4));
 	       shorten_fraction -= sc_1 * 0.05;
 	    }
 	    pos_2 = pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction);

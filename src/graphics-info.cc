@@ -44,7 +44,11 @@
 #endif
 
 #include <iostream>
+#ifdef _MSC_VER
+#include "compat/dirent.h"
+#else
 #include <dirent.h>   // for refmac dictionary files
+#endif
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>

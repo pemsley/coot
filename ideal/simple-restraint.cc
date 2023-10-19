@@ -26,7 +26,11 @@
 #include <string.h> // for strcmp
 
 #ifdef ANALYSE_REFINEMENT_TIMING
+#ifdef _MSC_VER
+#include <time.h>
+#else
 #include <sys/time.h>
+#endif
 #endif // ANALYSE_REFINEMENT_TIMING
 
 

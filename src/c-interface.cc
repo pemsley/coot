@@ -55,11 +55,6 @@
 #include "c-interface-python.hh"
 #endif // USE_PYTHON
 
-#if defined (WINDOWS_MINGW)
-#ifdef DATADIR
-#undef DATADIR
-#endif // DATADIR
-#endif /* MINGW */
 #include "compat/sleep-fixups.h"
 
 // Here we used to define GTK_ENABLE_BROKEN if defined(WINDOWS_MINGW)

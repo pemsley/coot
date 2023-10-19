@@ -1049,7 +1049,7 @@ coot::util::qq_plot_t::qq_norm() {
 #ifdef HAVE_GSL   
    std::sort(data.begin(), data.end());
    size_t stride = 1;
-   double sorted_data[data.size()];
+   std::vector<double> sorted_data(data.size());
    for (unsigned int i=0; i<data.size(); i++) { 
       sorted_data[i] = data[i];
    }
@@ -1064,7 +1064,7 @@ coot::util::qq_plot_t::qq_norm() {
    for (double frac=0.01; frac<1; frac+= 0.01) {
 
       double g = gsl_cdf_gaussian_Pinv(frac, sd.sd);
-      double q = gsl_stats_quantile_from_sorted_data(sorted_data, stride,
+      double q = gsl_stats_quantile_from_sorted_data(sorted_data.data(), stride,
                                                      data.size(), frac);
 
       // mean correction (gs would otherwise have mean 0)

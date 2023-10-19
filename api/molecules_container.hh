@@ -296,7 +296,6 @@ class molecules_container_t {
       map_sampling_rate = 1.8;
       draw_missing_residue_loops_flag = true;
       read_standard_residues();
-      make_backups_flag = true;
       interrupt_long_term_job = false;
       mmdb::InitMatType();
       // debug();
@@ -330,7 +329,7 @@ public:
    //! @return the backup-enabled state
    bool get_make_backups() const { return make_backups_flag; }
    //! the backup-enable state (raw public if needed/prefered)
-   static bool make_backups_flag; // does this need to be static?
+   inline static bool make_backups_flag = false; // does this need to be static?
 
    //! @return the string of the contents of the given file-name.
    std::string file_name_to_string(const std::string &file_name) const;

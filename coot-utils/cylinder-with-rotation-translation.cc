@@ -1,6 +1,5 @@
-
-#include <iostream>
 #define _USE_MATH_DEFINES
+#include <iostream>
 #include <cmath>
 const double pi = M_PI;
 

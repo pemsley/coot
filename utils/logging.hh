@@ -6,6 +6,10 @@
 #include <string>
 #include <vector>
 
+#ifdef _MSC_VER
+#undef WARNING
+#undef ERROR
+#endif
 
 class logging {
 

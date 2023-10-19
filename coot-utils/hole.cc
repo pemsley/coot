@@ -20,6 +20,7 @@
  * 02110-1301, USA
  */
 
+#define _USE_MATH_DEFINES
 #include <fstream>
 #include "clipper/ccp4/ccp4_map_io.h"
 // #include "clipper/contrib/skeleton.h" // needed?

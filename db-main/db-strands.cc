@@ -22,7 +22,11 @@
 
 // for directory reading
 #include <sys/types.h>   
+#ifdef _MSC_VER
+#include "compat/dirent.h"
+#else
 #include <dirent.h>
+#endif
 
 #include "geometry/main-chain.hh"
 

@@ -2126,7 +2126,7 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
          std::cout << "DEBUG:: map_to_model_correlation_stats() calc_map null status: "
                    << calc_map.is_null() << std::endl;
 
-      if (not (calc_map.is_null())) {
+      if (! (calc_map.is_null())) {
          clipper::Xmap<short int> masked_map(reference_map.spacegroup(),
          reference_map.cell(),
          reference_map.grid_sampling());
@@ -2581,7 +2581,7 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
                                 reference_map.spacegroup(),
                                 reference_map.grid_sampling());
 
-   if (not (calc_map.is_null())) {
+   if (! (calc_map.is_null())) {
       // fill with null residue specs
       clipper::Xmap<residue_spec_t> contributor_map(reference_map.spacegroup(),
                                                     reference_map.cell(),
@@ -2753,7 +2753,7 @@ coot::util::map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
    clipper::Xmap<float> calc_map =
       coot::util::calc_atom_map(mol, SelHnd, xmap.cell(), xmap.spacegroup(), xmap.grid_sampling());
 
-   if (not (calc_map.is_null())) {
+   if (! (calc_map.is_null())) {
       // fill with null residue specs
       clipper::Xmap<residue_spec_t> contributor_map(xmap.spacegroup(),
                                                     xmap.cell(),
