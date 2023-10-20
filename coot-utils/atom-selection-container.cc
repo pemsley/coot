@@ -61,6 +61,62 @@ get_atom_selection(std::string pdb_name,
                    bool verbose_mode,
                    bool convert_to_v2_name_flag) {
 
+   auto atom_name_fix_ups = [] (mmdb::Manager *mol) {
+
+      // Currently fixes "HH  " in "TYR" // mmdb2 parse mmcif with H atoms
+
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     if (strncmp(residue_p->GetResName(), "TYR", 3) == 0) {
+                        int n_atoms = residue_p->GetNumberOfAtoms();
+                        for (int iat=0; iat<n_atoms; iat++) {
+                           mmdb::Atom *at = residue_p->GetAtom(iat);
+                           if (strncmp(at->GetAtomName(), "HH  ", 4) == 0) {
+                              at->SetAtomName(" HH ");
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   };
+
+   auto debug_atom_names = [] (mmdb::Manager *mol) {
+      
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at->isTer()) {
+                           std::cout << "       " << coot::atom_spec_t(at) << std::endl;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   };
+
    mmdb::ERROR_CODE err;
    mmdb::Manager* MMDBManager;
 
@@ -149,9 +205,8 @@ get_atom_selection(std::string pdb_name,
                 // We also failed to read a small molecule cif, but
                 // write the mmCIF error message.
 
-                std::cout << "There was an error reading " << pdb_name.c_str() << ". \n";
-                std::cout << "ERROR " << err << " READ: "
-                          << mmdb::GetErrorDescription(err) << std::endl;
+                std::cout << "INFO:: There was an error reading " << pdb_name.c_str() << ". \n";
+                std::cout << "INFO:: read error " << err << " READ: " << mmdb::GetErrorDescription(err) << std::endl;
                 //
                 MMDBManager->GetInputBuffer(error_buf, error_count);
                 if (error_count >= 0) {
@@ -169,46 +224,13 @@ get_atom_selection(std::string pdb_name,
           }
 
           if (! err) {
+
              // we read the coordinate file OK.
-             //
 
-             /*
-               switch (MMDBManager->GetFileType())  {
-               case mmdb::MMDB_FILE_PDB    :  std::cout << " PDB"         ;
-               break;
-               case mmdb::MMDB_FILE_CIF    :  std::cout << " mmCIF"       ;
-               break;
-               case mmdb::MMDB_FILE_Binary :  std::cout << " MMDB binary" ;
-               break;
-               default:
-               std::cout << " Unknown\n";
-               }
-             */
+             // debug_atom_names(MMDBManager);
 
-#if 0 // 20231020-PE debugging atom names
-             for(int imod = 1; imod<=MMDBManager->GetNumberOfModels(); imod++) {
-                mmdb::Model *model_p = MMDBManager->GetModel(imod);
-                if (model_p) {
-                   int n_chains = model_p->GetNumberOfChains();
-                   for (int ichain=0; ichain<n_chains; ichain++) {
-                      mmdb::Chain *chain_p = model_p->GetChain(ichain);
-                      int n_res = chain_p->GetNumberOfResidues();
-                      for (int ires=0; ires<n_res; ires++) {
-                         mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                         if (residue_p) {
-                            int n_atoms = residue_p->GetNumberOfAtoms();
-                            for (int iat=0; iat<n_atoms; iat++) {
-                               mmdb::Atom *at = residue_p->GetAtom(iat);
-                               if (! at->isTer()) {
-                                  std::cout << "       " << coot::atom_spec_t(at) << std::endl;
-                               }
-                            }
-                         }
-                      }
-                   }
-                }
-             }
-#endif
+             atom_name_fix_ups(MMDBManager);
+
              MMDBManager->PDBCleanup(mmdb::PDBCLEAN_ELEMENT);
 
              if (verbose_mode)
