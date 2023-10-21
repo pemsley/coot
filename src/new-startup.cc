@@ -284,6 +284,7 @@ void on_glarea_drag_end_secondary(GtkGestureDrag *gesture,
                                   double          x,
                                   double          y,
                                   GtkWidget      *area) {
+   // std::cout << "end secondary" << std::endl;
    graphics_info_t g;
    g.on_glarea_drag_end_secondary(gesture, x, y, area);
 }
@@ -913,8 +914,13 @@ int new_startup(int argc, char **argv) {
    // g_object_get(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", &dark_mode_flag, NULL);
 
    GError *error = NULL;
+#if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 74 || GLIB_MAJOR_VERSION > 2
    GtkApplication *app = gtk_application_new ("org.emsley.coot",
       (GApplicationFlags) (G_APPLICATION_DEFAULT_FLAGS | G_APPLICATION_NON_UNIQUE));
+#else
+   GtkApplication *app = gtk_application_new ("org.emsley.coot",
+      (GApplicationFlags) (G_APPLICATION_NON_UNIQUE));
+#endif
    g_application_register(G_APPLICATION(app), NULL, &error);
 
    application_activate_data *activate_data = new application_activate_data(argc,argv,std::move(cld));
