@@ -2530,7 +2530,7 @@ fi
 ###############################################################################
 
 if true ; then
-      echo BUILDING gemmi \(installing GEMMI\)
+      echo BUILDING gemmi from git repo \(and installing GEMMI\)
       (
           save_dir=$(pwd)
           cd $start_dir
@@ -2554,6 +2554,7 @@ if true ; then
 	  fi
           cd build-gemmi
 	  pwd
+          # add -DUSE_PYTHON=1 here at some stage.
           cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi
           if $MAKE ; then
               make install
@@ -3555,6 +3556,20 @@ fi
 
 # this is a hack for charybdis   - we need cmake version 3.1 or later
 export PATH=$HOME/cmake/bin:$PATH
+
+############################### eigen ##########################################
+eigen_version=3.3.9
+${WGET} https://gitlab.com/libeigen/eigen/-/archive/$eigen_version/eigen-$eigen_version.tar.gz
+tar xf $AUTOBUILD_SOURCES/eigen-$eigen_version.tar.gz
+
+mkdir -p build-eigen
+cd build-eigen
+cmake -DCMAKE_INSTALL_PREFIX=$AUTOBUILD_INSTALLED ../eigen-$eigen_version
+make install
+cd -
+
+
+############################### rdkit ##########################################
 
 # we need to set rdkit_tar_size because the WGET doesn't skip the download if the
 # file exists. Amazon.
