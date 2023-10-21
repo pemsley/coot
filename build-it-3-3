@@ -3559,14 +3559,20 @@ export PATH=$HOME/cmake/bin:$PATH
 
 ############################### eigen ##########################################
 eigen_version=3.3.9
-${WGET} https://gitlab.com/libeigen/eigen/-/archive/$eigen_version/eigen-$eigen_version.tar.gz
-tar xf $AUTOBUILD_SOURCES/eigen-$eigen_version.tar.gz
+if [ -e $install_top_dir/include/eigen3 ] ; then
+   echo eigen3 is installed
+else
+   (
+   ${WGET} https://gitlab.com/libeigen/eigen/-/archive/$eigen_version/eigen-$eigen_version.tar.gz
+   tar xf $AUTOBUILD_SOURCES/eigen-$eigen_version.tar.gz
 
-mkdir -p build-eigen
-cd build-eigen
-cmake -DCMAKE_INSTALL_PREFIX=$AUTOBUILD_INSTALLED ../eigen-$eigen_version
-make install
-cd -
+   mkdir -p build-eigen
+   cd build-eigen
+   cmake -DCMAKE_INSTALL_PREFIX=$AUTOBUILD_INSTALLED ../eigen-$eigen_version
+   make install
+   cd -
+   ) > $HOSTLOGDIR/17-b-eigen.txt 2>&1
+fi
 
 
 ############################### rdkit ##########################################
