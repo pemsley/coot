@@ -736,8 +736,17 @@ public:
       std::string w;
       //! flag for weights usage
       bool weights_used;
+      //! F_obs column. There were not avaliable if the return value is empty
+      std::string F_obs;
+      //! sigF_obs column
+      std::string sigF_obs;
+      auto_read_mtz_info_t() {idx = -1;}
       auto_read_mtz_info_t(int index, const std::string &F_in, const std::string &phi_in) :
          idx(index), F(F_in), phi(phi_in), weights_used(false) {}
+      void set_fobs_sigfobs(const std::string &f, const std::string &s) {
+         F_obs = f;
+         sigF_obs = s;
+      }
    };
 
    //! Read the given mtz file.

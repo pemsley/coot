@@ -892,6 +892,7 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
 
    // 20221001-PE if there is one F and one PHI col, read that also (and it is not a difference map)
    coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
+
    if (r.f_cols.size() == 1) {
       if (r.phi_cols.size() == 1) {
          int imol = read_mtz(mtz_file_name, r.f_cols[0].column_label, r.phi_cols[0].column_label, "", false, false);
@@ -914,6 +915,25 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
                   mol_infos.push_back(auto_read_mtz_info_t(imol, f_col, phi_col));
 	    }
 	 }
+      }
+   }
+
+   // and now the observed data, this relies on the column label being of the form
+   // /crystal/dataset/label
+   //
+   for (unsigned int i=0; i<r.f_cols.size(); i++) {
+      const std::string &f = r.f_cols[i].column_label;
+      // example f: "/2vtq/1/FP"
+      std::string  nd_f = coot::util::file_name_non_directory(f);
+      std::string dir_f = coot::util::file_name_directory(f);
+      for (unsigned int j=0; j<r.sigf_cols.size(); j++) {
+         const std::string &sf = r.sigf_cols[j].column_label;
+         std::string test_string = std::string(dir_f + std::string("SIG") + nd_f);
+         if (sf == test_string) {
+            auto_read_mtz_info_t armi;
+            armi.set_fobs_sigfobs(f, sf);
+            mol_infos.push_back(armi);
+         }
       }
    }
 

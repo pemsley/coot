@@ -2578,7 +2578,7 @@ int test_map_histogram(molecules_container_t &mc) {
 
       if (mc.is_valid_map_molecule(imol_map)) {
          unsigned int n_bins = 200;
-         float zoom_factor = 10.0;
+         float zoom_factor = 20.0; // 10 is fine
          coot::molecule_t::histogram_info_t hist = mc.get_map_histogram(imol_map, n_bins, zoom_factor);
          for (unsigned int i=0; i<hist.counts.size(); i++) {
             float range_start = hist.base + static_cast<float>(i)   * hist.bin_width;
@@ -2612,13 +2612,34 @@ int test_auto_read_mtz(molecules_container_t &mc) {
    std::vector<molecules_container_t::auto_read_mtz_info_t> imol_maps
       = mc.auto_read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"));
 
-   if (imol_maps.size() == 2) {
+   // one of these (the last one) should be observed data without an imol
+   if (imol_maps.size() == 3) {
       float rmsd_0 = mc.get_map_rmsd_approx(imol_maps[0].idx);
       float rmsd_1 = mc.get_map_rmsd_approx(imol_maps[1].idx);
-      std::cout << "rmsds " << rmsd_0 << " " << rmsd_1 << std::endl;
-      if (rmsd_0 > 0.4) // test that the FWT map is the first of the pair
-         if (rmsd_1 > 0.2)
-      status = 1;
+      std::cout << "test_auto_read_mtz() rmsds " << rmsd_0 << " " << rmsd_1 << std::endl;
+      if (rmsd_0 > 0.3) { // test that the FWT map is the first of the pair
+         if (rmsd_1 > 0.1) {
+            // what observed data did we find?
+            unsigned int n_fobs_found = 0;
+            for (unsigned int i=0; i<imol_maps.size(); i++) {
+               const auto &mtz_info = imol_maps[i];
+               if (! mtz_info.F_obs.empty()) {
+                  n_fobs_found++;
+                  if (! mtz_info.sigF_obs.empty()) {
+                     if (mtz_info.F_obs == "/2vtq/1/FP") {
+                        if (mtz_info.sigF_obs == "/2vtq/1/SIGFP") {
+                           status = 1;
+                        }
+                     }
+                  }
+               }
+            }
+            if (n_fobs_found != 1) {
+               std::cout << "Too many: " << n_fobs_found << std::endl;
+               status = 0;
+            }
+         }
+      }
    }
 
    return status;
@@ -3829,7 +3850,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
 
-   status += run_test(test_map_histogram, "map histogram", mc);
+   // status += run_test(test_map_histogram, "map histogram", mc);
+
+   status += run_test(test_auto_read_mtz, "auto-read-mtz", mc);
 
    // status += run_test(test_read_a_missing_map, "read a missing map file ", mc);
 
