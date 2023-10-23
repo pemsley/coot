@@ -743,6 +743,8 @@ public:
       std::string F_obs;
       //! sigF_obs column
       std::string sigF_obs;
+      //! R-Free column. There were not avaliable if the return value is empty
+      std::string Rfree;
       auto_read_mtz_info_t() {idx = -1;}
       auto_read_mtz_info_t(int index, const std::string &F_in, const std::string &phi_in) :
          idx(index), F(F_in), phi(phi_in), weights_used(false) {}

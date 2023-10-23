@@ -2644,6 +2644,11 @@ int test_auto_read_mtz(molecules_container_t &mc) {
                      }
                   }
                }
+               if (mtz_info.Rfree == "FREE") {
+                  // we are good.
+               } else {
+                  status = 0;
+               }
             }
             if (n_fobs_found != 1) {
                std::cout << "Too many: " << n_fobs_found << std::endl;

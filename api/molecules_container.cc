@@ -919,6 +919,16 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
       }
    }
 
+   auto add_r_free_column_label = [] (auto_read_mtz_info_t *a, const coot::mtz_column_types_info_t &r) {
+      for (unsigned int i=0; i<r.r_free_cols.size(); i++) {
+         const std::string &l = r.r_free_cols[i].column_label;
+         if (! l.empty()) {
+            a->Rfree = l;
+            break;
+         }
+      }
+   };
+
    // and now the observed data, this relies on the column label being of the form
    // /crystal/dataset/label
    //
@@ -933,6 +943,7 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
          if (sf == test_string) {
             auto_read_mtz_info_t armi;
             armi.set_fobs_sigfobs(f, sf);
+            add_r_free_column_label(&armi, r); // modify armi possibly
             mol_infos.push_back(armi);
          }
       }
