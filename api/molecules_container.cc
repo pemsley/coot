@@ -584,12 +584,13 @@ molecules_container_t::replace_molecule_by_model_from_file(int imol, const std::
 int
 molecules_container_t::import_cif_dictionary(const std::string &cif_file_name, int imol_enc) {
 
-   coot::read_refmac_mon_lib_info_t r = geom.init_refmac_mon_lib(cif_file_name, cif_dictionary_read_number, imol_enc);
+   coot::read_refmac_mon_lib_info_t r = geom.init_refmac_mon_lib(cif_file_name,
+                                                                 cif_dictionary_read_number, imol_enc);
    cif_dictionary_read_number++;
 
-   std::cout << "debug:: import_cif_dictionary() cif_file_name(): " << cif_file_name << " success " << r.success << " with "
-             << r.n_atoms << " atoms " << r.n_bonds << " bonds " << r.n_links << " links and momoner index "
-             << r.monomer_idx << std::endl;
+   std::cout << "debug:: import_cif_dictionary() cif_file_name(): " << cif_file_name
+             << " success " << r.success << " with " << r.n_atoms << " atoms " << r.n_bonds
+             << " bonds " << r.n_links << " links and momoner index " << r.monomer_idx << std::endl;
 
    return r.success;
 
@@ -4630,4 +4631,13 @@ molecules_container_t::find_water_baddies(int imol_model, int imol_map,
    }
    return v;
 
+}
+
+//! @return the dictionary read for the give residue type, return an empty string on failure
+//! to lookup the residue type
+std::string
+molecules_container_t::get_cif_file_name(const std::string &comp_id, int imol_enc) const {
+
+   std::string fn = geom.get_cif_file_name(comp_id, imol_enc);
+   return fn;
 }

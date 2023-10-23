@@ -1137,8 +1137,11 @@ int test_import_cif_dictionary(molecules_container_t &mc) {
          double d = std::sqrt(dd);
          std::cout << "debug:: in test_import_cif_dictionary() ligand_centre is " << ligand_centre
                    << " d is " << d << std::endl;
-         if (d < 0.001)
-            status = 1;
+         if (d < 0.001) {
+            std::string fn = mc.get_cif_file_name("ATP", coot::protein_geometry::IMOL_ENC_ANY);
+            if (fn == "ATP.cif")
+               status = 1;
+         }
       }
 
    } else {
@@ -3848,6 +3851,8 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
+   status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
+
    // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
 
    // status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
@@ -3858,7 +3863,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
 
-   status += run_test(test_map_histogram, "map histogram", mc);
+   // status += run_test(test_map_histogram, "map histogram", mc);
 
    // status += run_test(test_auto_read_mtz, "auto-read-mtz", mc);
 
