@@ -14,18 +14,29 @@ C++ 17 and git for CCP4i2
 
 8 items
 
-Moorhen: test robustness of jiggle-fitting. Move the molecule around a bit
-         and see if you get solutions. Use the nanobody in 7vvl.
-
-Moorhen: Read gziped maps in libcootapi, so moorhen can get maps from emdb.
-
 Moorhen: Request: electrostatic surface.
 
 Moorhen: Check/Delete waters function for the api
 
+Moorhen: test robustness of jiggle-fitting. Move the molecule around a bit and
+         see if you get solutions.
+         Use the nanobody in 7vvl.
+         Use one of the WD40 domains in 6eoj
+
+Moorhen: Read gziped maps in libcootapi, so moorhen can get maps from emdb.
+
+Moorhen: auto-read-mtz needs to return the Fobs and sigFobs also (if possible, of course)
+  add std::string F_obs and sigF_obs to auto_read_mtz_info_t
+  They were not set if F_obs is empty.
+
 Apply Charles patches.
+* Done.
+
+Make the CMakefile install chapi
 
 Rebuild RDKit, check that Eigen is pulled in correctly.
+
+Reading cif file with --pdb ~/Desktop/ejd/thing.cif seems borked (no file in file browser)
 
 Cryo-EM -> Mask Map by Chain for 7vvl.
 

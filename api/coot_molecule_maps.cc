@@ -1303,10 +1303,12 @@ coot::molecule_t::get_map_histogram(unsigned int n_bins_in, float zoom_factor) c
       level += mv.bin_width;
       count++;
       // sanity
-      if (count > 999) break;
+      if (count > 9999) break; // 20231023-PE needed a bigger limit for large zoom
    }
 
-   // std::cout << "Now remove the first " << count << " entries from mv.bins " << std::endl;
+   // std::cout << "n_bins_in " << n_bins_in << " zoom_factor " << zoom_factor << " n_bins " << n_bins << std::endl;
+   // std::cout << "Now create new_bins by removing the first " << count << " entries from mv.bins "
+   // << "and limiting number of bins" << std::endl;
 
    std::vector<int> new_bins(n_bins_in, 0);
    for (unsigned int ibin=0; ibin<mv.bins.size(); ibin++) {
@@ -1318,5 +1320,7 @@ coot::molecule_t::get_map_histogram(unsigned int n_bins_in, float zoom_factor) c
    }
 
    coot::molecule_t::histogram_info_t hi(new_min_density, mv.bin_width, new_bins);
+   hi.mean = mean;
+   hi.variance = mv.variance;
    return hi;
 }
