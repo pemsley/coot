@@ -1983,7 +1983,6 @@ build_gsl=0
 # build_libjpeg=0
 # build_libpng=0
 # build_imlib=0
-# build_gtk_canvas=0
 build_python=
 build_pygobject=
 build_guile_gtk=
@@ -2844,8 +2843,8 @@ if [ "$build_glib" = true ] ; then
 
     # find new versions here: https://gitlab.gnome.org/GNOME/glib/-/releases
     if [ ! -e ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz ] ; then
-       echo ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/2.72.3/glib-$glib_version.tar.gz
-       ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/2.72.3/glib-$glib_version.tar.gz
+       echo ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/$glib_version/glib-$glib_version.tar.gz
+       ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/$glib_version/glib-$glib_version.tar.gz
     fi
     echo tar xf ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz
     tar xf ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz
@@ -3571,7 +3570,7 @@ else
 
    mkdir -p build-eigen
    cd build-eigen
-   cmake -DCMAKE_INSTALL_PREFIX=$AUTOBUILD_INSTALLED ../eigen-$eigen_version
+   cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ../eigen-$eigen_version
    make install
    cd -
    ) > $HOSTLOGDIR/17-b-eigen.txt 2>&1
