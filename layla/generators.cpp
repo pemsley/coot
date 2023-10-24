@@ -152,7 +152,7 @@ std::vector<std::string> coot::layla::GeneratorRequest::build_commandline() cons
                 }
                 default:
                 case InputFormat::SMILES: {
-                    auto smiles_arg = "'" + this->molecule_smiles + "'";
+                    auto smiles_arg = this->molecule_smiles;
                     ret.push_back(smiles_arg);
                     break;
                 }
