@@ -498,6 +498,9 @@ GCancellable* coot::layla::run_generator_request(GeneratorRequest request, CootL
             gtk_label_set_text(task_data->dialog_status_label, "Operation completed successfully!");
             g_warning("Task finished successfully!");
             auto filename = task_data->request->get_output_filename();
+            if(task_data->request->generator == GeneratorRequest::Generator::Grade2) {
+                filename += ".restraints";    
+            }
             filename += ".cif";
             coot_layla_notifier_report_cif_file_generated(notifier, filename.c_str());
         }
