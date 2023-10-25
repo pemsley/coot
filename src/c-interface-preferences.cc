@@ -47,6 +47,7 @@
 #include <sys/stat.h>
 #if !defined _MSC_VER
 #include <unistd.h>
+#include <dirent.h>   // for extra scheme dir
 #else
 #define S_IRUSR S_IREAD
 #define S_IWUSR S_IWRITE
@@ -54,9 +55,8 @@
 #define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #include <windows.h>
 #include <direct.h>
+#include "compat/dirent.h"   // for extra scheme dir
 #endif // _MSC_VER
-
-#include <dirent.h>   // for extra scheme dir
 
 
 #include "guile-fixups.h"

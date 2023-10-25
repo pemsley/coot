@@ -33,7 +33,7 @@ AM_CPPFLAGS = -I$(top_srcdir) \
 	 $(CLIPPER_CXXFLAGS) $(CCP4SRS_CXXFLAGS) $(MMDB_CXXFLAGS)
 
 AM_CXXFLAGS = \
-	-DDATADIR='"$(datadir)"'       \
+	-DXDATADIR='"$(datadir)"'       \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	$(COOT_WINDOWS_CFLAGS)
 

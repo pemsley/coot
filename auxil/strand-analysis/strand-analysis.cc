@@ -1,6 +1,10 @@
 
 #include <sys/types.h>
+#ifdef _MSC_VER
+#include "compat/dirent.h"
+#else
 #include <dirent.h>
+#endif
 #include <string.h>
 #include <stdlib.h>
 

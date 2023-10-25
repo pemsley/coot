@@ -7,6 +7,7 @@
  *
  */
 
+#define _USE_MATH_DEFINES
 #include "CXXSurfaceVertex.h"
 #include "CXXSphereElement.h"
 #include "CXXCoord.h"

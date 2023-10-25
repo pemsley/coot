@@ -312,7 +312,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
                                clipper::Xmap<float>::Map_reference_coord mrc(*xmap);
                                // this is unsigned int because split_indices returns unsigned int pairs.
 
-                               if (true) { // debugging
+                               if (false) { // debugging
                                   bool unlocked = false;
                                   while (! print_lock.compare_exchange_weak(unlocked, true)) {
                                      std::this_thread::sleep_for(std::chrono::microseconds(1));
@@ -351,7 +351,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
                                   }
                                }
                                
-                               if (true) { // debugging
+                               if (false) { // debugging
                                   bool unlocked = false;
                                   while (! print_lock.compare_exchange_weak(unlocked, true)) {
                                      std::this_thread::sleep_for(std::chrono::microseconds(1));

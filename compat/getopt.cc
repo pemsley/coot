@@ -26,7 +26,6 @@
 #include <stdlib.h>             /* getenv() */
 #include <cstring>
 
-#include <cstring>
 #include "coot-getopt.h"
 
 /* For communication from `getopt' to the caller.
@@ -124,11 +123,13 @@ static char *posixly_correct;
 # define my_index	strchr
 #else
 
+#ifndef _MSC_VER
 # if HAVE_STRING_H
 #  include <string.h>
 # else
 #  include <strings.h>
 # endif
+#endif
 
 /* Avoid depending on library functions or files
    whose names are inconsistent.  */

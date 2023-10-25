@@ -29,7 +29,7 @@
 #if !defined _MSC_VER
 #include <unistd.h>
 #else
-#define DATADIR "C:/coot/share"
+#define XDATADIR "C:/coot/share"
 #endif
 
 #include "utils/coot-utils.hh"
@@ -277,7 +277,7 @@ coot::db_main::get_reference_pdb_list() const {
    std::string mapview_ref_structs("COOT_REF_STRUCTS"); 
    
    char *dir = getenv(mapview_ref_structs.c_str()); 
-   std::string d(DATADIR); // prefix/share
+   std::string d(XDATADIR); // prefix/share
    std::string ref_struct_dir = coot::util::append_dir_dir(d, "coot");
    ref_struct_dir = coot::util::append_dir_dir(ref_struct_dir, "reference-structures");
 

@@ -43,7 +43,11 @@
 // #include <GL/glut.h>  // for some reason...  // Eh?
 
 #include <iostream>
+#ifdef _MSC_VER
+#include "compat/dirent.h"
+#else
 #include <dirent.h>   // for refmac dictionary files
+#endif
 
 #include <string.h> // strncpy
 

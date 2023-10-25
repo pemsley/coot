@@ -937,6 +937,7 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    // float initial_score = coot::util::z_weighted_density_score(direct_mol, atom_numbers, xmap);
    // initial_score = coot::util::biased_z_weighted_density_score(direct_mol, atom_numbers, xmap);
 
+   v = initial_score;
    float best_score = initial_score;
 
    std::cout << "---------------- initial_score " << initial_score << " ---------------" << std::endl;
@@ -1285,9 +1286,41 @@ coot::molecule_t::get_map_molecule_centre() const {
 
 //! @return the map histogram
 coot::molecule_t::histogram_info_t
-coot::molecule_t::get_map_histogram(unsigned int n_bins) const {
+coot::molecule_t::get_map_histogram(unsigned int n_bins_in, float zoom_factor) const {
 
+   float n_bins_fl = static_cast<float>(n_bins_in) * zoom_factor;
+   int n_bins = static_cast<int>(n_bins_fl);
    mean_and_variance<float> mv = map_density_distribution(xmap, n_bins, false, false);
-   coot::molecule_t::histogram_info_t hi(mv.min_density, mv.bin_width, mv.bins);
+   float mean = mv.mean;
+   float prev_range = mean - mv.min_density;
+   float new_range = prev_range/zoom_factor;
+   float new_min_density = mean - new_range;
+
+   // how many bins are there between mv.min_density and new_min_density?
+   unsigned int count = 0;
+   float level = mv.min_density;
+   while (level < new_min_density) {
+      level += mv.bin_width;
+      count++;
+      // sanity
+      if (count > 9999) break; // 20231023-PE needed a bigger limit for large zoom
+   }
+
+   // std::cout << "n_bins_in " << n_bins_in << " zoom_factor " << zoom_factor << " n_bins " << n_bins << std::endl;
+   // std::cout << "Now create new_bins by removing the first " << count << " entries from mv.bins "
+   // << "and limiting number of bins" << std::endl;
+
+   std::vector<int> new_bins(n_bins_in, 0);
+   for (unsigned int ibin=0; ibin<mv.bins.size(); ibin++) {
+      int new_index = ibin - count; 
+      if (new_index >= 0) {
+         if (new_index < static_cast<int>(n_bins_in))
+            new_bins[new_index] = mv.bins[ibin];
+      }
+   }
+
+   coot::molecule_t::histogram_info_t hi(new_min_density, mv.bin_width, new_bins);
+   hi.mean = mean;
+   hi.variance = mv.variance;
    return hi;
 }

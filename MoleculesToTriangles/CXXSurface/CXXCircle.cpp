@@ -6,7 +6,7 @@
  *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
-
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include "CXXSurfaceVertex.h"
 #include "CXXCircle.h"

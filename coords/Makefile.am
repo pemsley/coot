@@ -37,7 +37,7 @@ AM_CPPFLAGS = \
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
-	-DDATADIR='"$(datadir)"'       \
+	-DXDATADIR='"$(datadir)"'       \
 	$(COOT_WINDOWS_CFLAGS)
 
 # other in merge:

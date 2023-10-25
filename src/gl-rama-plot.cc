@@ -537,31 +537,33 @@ gl_rama_plot_t::draw(Shader *shader_for_rama_plot_axes_and_ticks_p,
    // std::cout << "munged_scales " << glm::to_string(munged_scales) << " munged_offsets "
    // << glm::to_string(munged_position_offset) << std::endl;
 
-   err = glGetError();
-   if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() A error " << err << std::endl;
-   hud_tmesh_for_other_normal.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
+   if (!draw_outliers_only_flag) {
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() A error " << err << std::endl;
+      hud_tmesh_for_other_normal.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
 
-   err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() B error " << err << std::endl;
-   hud_tmesh_for_other_normal.set_window_resize_scales_correction(munged_scales);
+      err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() B error " << err << std::endl;
+      hud_tmesh_for_other_normal.set_window_resize_scales_correction(munged_scales);
 
-   err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() C error " << err << std::endl;
-   texture_for_other_normal.Bind(0);
-   err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() D error " << err << std::endl;
-   hud_tmesh_for_other_normal.draw_instances(shader_for_rama_plot_phi_psis_markers_p);
-   err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() E error " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() C error " << err << std::endl;
+      texture_for_other_normal.Bind(0);
+      err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() D error " << err << std::endl;
+      hud_tmesh_for_other_normal.draw_instances(shader_for_rama_plot_phi_psis_markers_p);
+      err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() E error " << err << std::endl;
 
-   texture_for_pro_normal.Bind(0);
-   hud_tmesh_for_pro_normal.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
+      texture_for_pro_normal.Bind(0);
+      hud_tmesh_for_pro_normal.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
 
-   hud_tmesh_for_pro_normal.set_window_resize_scales_correction(munged_scales);
-   hud_tmesh_for_pro_normal.draw_instances(shader_for_rama_plot_phi_psis_markers_p);
-   err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() F error " << err << std::endl;
+      hud_tmesh_for_pro_normal.set_window_resize_scales_correction(munged_scales);
+      hud_tmesh_for_pro_normal.draw_instances(shader_for_rama_plot_phi_psis_markers_p);
+      err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() F error " << err << std::endl;
 
-   texture_for_gly_normal.Bind(0);
-   hud_tmesh_for_gly_normal.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
-   hud_tmesh_for_gly_normal.set_window_resize_scales_correction(munged_scales);
-   hud_tmesh_for_gly_normal.draw_instances(shader_for_rama_plot_phi_psis_markers_p);
-   err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() G error " << err << std::endl;
+      texture_for_gly_normal.Bind(0);
+      hud_tmesh_for_gly_normal.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));
+      hud_tmesh_for_gly_normal.set_window_resize_scales_correction(munged_scales);
+      hud_tmesh_for_gly_normal.draw_instances(shader_for_rama_plot_phi_psis_markers_p);
+      err = glGetError(); if (err) std::cout << "GL ERROR:: gl_rama_plot_t::draw() G error " << err << std::endl;
+   }
 
    texture_for_other_outlier.Bind(0);
    hud_tmesh_for_other_outlier.set_window_resize_position_correction(munged_position_offset * glm::vec2(10,10));

@@ -24,7 +24,11 @@
 #include "CXXTriangle.h"
 #include "CXXSphereFlatTriangle.h"
 #include "CXXSurfaceVertex.h"
+#ifdef _MSC_VER
+#include <time.h>
+#else
 #include <sys/time.h>
+#endif
 #include <limits>
 #include <stdint.h>
 //#include <forward_list>
@@ -740,9 +744,9 @@ int CXXSurface::uploadTorus(CXXTorusElement &theTorus) {
     //	Add vertices to surface
     size_t oldVertexCount;
     {
-        double verticesBuffer[theTorus.nTorusNodes()*3];// = new double[nodes.size()*3];
-        double accessiblesBuffer[theTorus.nTorusNodes()*3];// = new double[nodes.size()*3];
-        double normalsBuffer[theTorus.nTorusNodes()*3];// = new double[nodes.size()*3];
+	std::vector<double> verticesBuffer(theTorus.nTorusNodes()*3);// = new double[nodes.size()*3];
+	std::vector<double> accessiblesBuffer(theTorus.nTorusNodes()*3);// = new double[nodes.size()*3];
+	std::vector<double> normalsBuffer(theTorus.nTorusNodes()*3);// = new double[nodes.size()*3];
         for (unsigned int i=0; i< theTorus.nTorusNodes(); i++){
             for (int j=0; j<3; j++) verticesBuffer[3*i+j] = theTorus.node(i).coord().element(j);
             CXXCoord<CXXCoord_ftype>accessible = theTorus.probeAtOmega(theTorus.node(i).getOmega());
@@ -752,21 +756,21 @@ int CXXSurface::uploadTorus(CXXTorusElement &theTorus) {
             for (int j=0; j<3; j++) normalsBuffer[3*i+j] = normal.element(j);
         }
         oldVertexCount = numberOfVertices();
-        updateWithVectorData(theTorus.nTorusNodes(), "vertices", oldVertexCount, verticesBuffer);
-        updateWithVectorData(theTorus.nTorusNodes(), "accessibles", oldVertexCount, accessiblesBuffer);
-        updateWithVectorData(theTorus.nTorusNodes(), "normals",  oldVertexCount, normalsBuffer);
+        updateWithVectorData(theTorus.nTorusNodes(), "vertices", oldVertexCount, verticesBuffer.data());
+        updateWithVectorData(theTorus.nTorusNodes(), "accessibles", oldVertexCount, accessiblesBuffer.data());
+        updateWithVectorData(theTorus.nTorusNodes(), "normals",  oldVertexCount, normalsBuffer.data());
     }
     //Add atom pointers to the surface
     {
-        void *atomBuffer[theTorus.nTorusNodes()];// = new void*[nodes.size()];
+	std::vector<void *>atomBuffer(theTorus.nTorusNodes());// = new void*[nodes.size()];
         for (unsigned int i=0; i< theTorus.nTorusNodes(); i++){
             atomBuffer[i] = (void *)theTorus.node(i).getAtom();
         }
-        updateWithPointerData(theTorus.nTorusNodes(), "atom", oldVertexCount, atomBuffer);
+        updateWithPointerData(theTorus.nTorusNodes(), "atom", oldVertexCount, atomBuffer.data());
     }
     // Add triangles to surface
     {
-        int triangleBuffer[theTorus.nFlatTriangles()*3];// = new int[flatTriangles.size()*3];
+	std::vector<int> triangleBuffer(theTorus.nFlatTriangles()*3);// = new int[flatTriangles.size()*3];
         int nToDraw = 0;
         ;
         for (list <CXXTriangle  >::const_iterator triangle = theTorus.firstTriangle();
@@ -782,7 +786,7 @@ int CXXSurface::uploadTorus(CXXTorusElement &theTorus) {
                 nToDraw++;
             }
         }
-        extendTriangles(triangleBuffer, nToDraw);
+        extendTriangles(triangleBuffer.data(), nToDraw);
     }
     
     //});

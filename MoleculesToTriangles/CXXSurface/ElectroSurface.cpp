@@ -1,4 +1,4 @@
-
+#define _USE_MATH_DEFINES
 #include "clipper/clipper.h"
 #include "clipper/clipper-ccp4.h"
 

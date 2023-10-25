@@ -40,8 +40,8 @@
 #if !defined _MSC_VER
 #include <unistd.h>
 #else
-#define DATADIR "C:/coot/share"
-#define PKGDATADIR DATADIR
+#define XDATADIR "C:/coot/share"
+#define PKGDATADIR XDATADIR
 #define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
 #define S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
 #endif
@@ -1794,9 +1794,12 @@ coot::protein_geometry::get_monomer_type_index(const std::string &monomer_type) 
 std::string
 coot::protein_geometry::three_letter_code(const unsigned int &i) const {
 
-   std::string r = dict_res_restraints[i].second.residue_info.three_letter_code;
-   if (r == "")
-      r = dict_res_restraints[i].second.residue_info.comp_id;
+   std::string r;
+   if (i < dict_res_restraints.size()) {
+      r = dict_res_restraints[i].second.residue_info.three_letter_code;
+      if (r == "")
+         r = dict_res_restraints[i].second.residue_info.comp_id;
+   }
    return r;
 }
 
