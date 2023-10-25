@@ -14,14 +14,26 @@ C++ 17 and git for CCP4i2
 
 8 items
 
+Save coordinates chooser and dialog is broken.
+
+Copy Fragment buttons need more space.
+
+cif parser fail for 6eoj from the PDBe - display as CAs.
+
+no_sound()
+
+coot.halloween()
+
 Moorhen: Request: electrostatic surface.
 
 Moorhen: Check/Delete waters function for the api
+* Done.
 
 Moorhen: test robustness of jiggle-fitting. Move the molecule around a bit and
          see if you get solutions.
          Use the nanobody in 7vvl.
          Use one of the WD40 domains in 6eoj
+* Done - good enough for now
 
 Moorhen: Read gziped maps in libcootapi, so moorhen can get maps from emdb.
 

@@ -11147,3 +11147,11 @@ Sat 14 Oct 17:26:23 BST 2023
 Sat 14 Oct 19:03:12 BST 2023
 
    shaders: https://www.youtube.com/watch?v=3mfvZ-mdtZQ
+
+---
+Tue 24 Oct 21:30:11 BST 2023
+
+   It's infuriating that gtk4 requires a version of meson that is newer
+   than the one provided by pip
+
+
