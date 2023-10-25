@@ -5,6 +5,7 @@
 
 EMSCRIPTEN_BINDINGS(lhasa) {
   function("remove_non_polar_hydrogens", &coot::layla::remove_non_polar_hydrogens);
+  function("append_from_smiles", &lhasa::append_from_smiles);
   // function("rdkit_mol_from_smiles", &lhasa::rdkit_mol_from_smiles);
   // function("rdkit_mol_to_smiles", &lhasa::rdkit_mol_to_smiles);
   class_<CootLigandEditorCanvas>("LhasaCanvas")
