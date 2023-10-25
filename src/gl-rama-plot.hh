@@ -122,6 +122,8 @@ public:
    bool is_active() const; // for mouse-overing
    mouse_over_hit_t get_mouse_over_hit(double x_mouse, double y_mouse,
                                        int widget_width, int widget_height) const;
+   // lightweight, don't draw,
+   void set_outliers_only(bool state) { draw_outliers_only_flag = state; }
 };
 
 #endif // GL_RAMA_PLOT_HH

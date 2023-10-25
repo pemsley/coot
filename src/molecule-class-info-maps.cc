@@ -3830,15 +3830,21 @@ molecule_class_info_t::fit_chain_to_map_by_random_jiggle(const std::string &chai
 
    atom_sel.mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
 
-   if (n_atoms) {
+   if (n_atoms > 0) {
       bool use_biased_density_scoring = false; // not for all-molecule
       std::vector<mmdb::Chain *> chains;
       chains.push_back(chain_p);
-      r = fit_to_map_by_random_jiggle(atom_selection, n_atoms,
-                                      xmap, map_sigma,
-                                      n_trials, jiggle_scale_factor,
-                                      use_biased_density_scoring,
-                                      chains);
+      // 20231017-PE give it 4 rounds like api fit_to_map_by_random_jiggle_with_blur_using_cid().
+      // The fact that this needs 4 rounds is worrying. It suggests that there is a bug
+      // in the fitting function.
+      // This improves the success rate and is a cheap improvement that will do for now.
+      for (unsigned int i=0; i<4; i++) {
+         r = fit_to_map_by_random_jiggle(atom_selection, n_atoms,
+                                         xmap, map_sigma,
+                                         n_trials, jiggle_scale_factor,
+                                         use_biased_density_scoring,
+                                         chains);
+      }
    }
    atom_sel.mol->DeleteSelection(SelHnd);
    return r;

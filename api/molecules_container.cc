@@ -21,7 +21,7 @@ std::string molecules_container_t::restraints_locking_function_name; // I don't 
 std::vector<atom_pull_info_t> molecules_container_t::atom_pulls;
 // 20221018-PE not sure that this needs to be static.
 clipper::Xmap<float> *molecules_container_t::dummy_xmap = new clipper::Xmap<float>;
-bool molecules_container_t::make_backups_flag = true;
+//bool molecules_container_t::make_backups_flag = true;
 
 bool
 molecules_container_t::is_valid_model_molecule(int imol) const {
@@ -584,12 +584,13 @@ molecules_container_t::replace_molecule_by_model_from_file(int imol, const std::
 int
 molecules_container_t::import_cif_dictionary(const std::string &cif_file_name, int imol_enc) {
 
-   coot::read_refmac_mon_lib_info_t r = geom.init_refmac_mon_lib(cif_file_name, cif_dictionary_read_number, imol_enc);
+   coot::read_refmac_mon_lib_info_t r = geom.init_refmac_mon_lib(cif_file_name,
+                                                                 cif_dictionary_read_number, imol_enc);
    cif_dictionary_read_number++;
 
-   std::cout << "debug:: import_cif_dictionary() cif_file_name(): " << cif_file_name << " success " << r.success << " with "
-             << r.n_atoms << " atoms " << r.n_bonds << " bonds " << r.n_links << " links and momoner index "
-             << r.monomer_idx << std::endl;
+   std::cout << "debug:: import_cif_dictionary() cif_file_name(): " << cif_file_name
+             << " success " << r.success << " with " << r.n_atoms << " atoms " << r.n_bonds
+             << " bonds " << r.n_links << " links and momoner index " << r.monomer_idx << std::endl;
 
    return r.success;
 
@@ -892,6 +893,7 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
 
    // 20221001-PE if there is one F and one PHI col, read that also (and it is not a difference map)
    coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
+
    if (r.f_cols.size() == 1) {
       if (r.phi_cols.size() == 1) {
          int imol = read_mtz(mtz_file_name, r.f_cols[0].column_label, r.phi_cols[0].column_label, "", false, false);
@@ -914,6 +916,36 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
                   mol_infos.push_back(auto_read_mtz_info_t(imol, f_col, phi_col));
 	    }
 	 }
+      }
+   }
+
+   auto add_r_free_column_label = [] (auto_read_mtz_info_t *a, const coot::mtz_column_types_info_t &r) {
+      for (unsigned int i=0; i<r.r_free_cols.size(); i++) {
+         const std::string &l = r.r_free_cols[i].column_label;
+         if (! l.empty()) {
+            a->Rfree = l;
+            break;
+         }
+      }
+   };
+
+   // and now the observed data, this relies on the column label being of the form
+   // /crystal/dataset/label
+   //
+   for (unsigned int i=0; i<r.f_cols.size(); i++) {
+      const std::string &f = r.f_cols[i].column_label;
+      // example f: "/2vtq/1/FP"
+      std::string  nd_f = coot::util::file_name_non_directory(f);
+      std::string dir_f = coot::util::file_name_directory(f);
+      for (unsigned int j=0; j<r.sigf_cols.size(); j++) {
+         const std::string &sf = r.sigf_cols[j].column_label;
+         std::string test_string = std::string(dir_f + std::string("SIG") + nd_f);
+         if (sf == test_string) {
+            auto_read_mtz_info_t armi;
+            armi.set_fobs_sigfobs(f, sf);
+            add_r_free_column_label(&armi, r); // modify armi possibly
+            mol_infos.push_back(armi);
+         }
       }
    }
 
@@ -4552,12 +4584,11 @@ molecules_container_t::set_map_colour_saturation(int imol, float s) {
 
 //! @return the map histogram
 coot::molecule_t::histogram_info_t
-molecules_container_t::get_map_histogram(int imol) const {
+molecules_container_t::get_map_histogram(int imol, unsigned int n_bins, float zoom_factor) const {
 
    coot::molecule_t::histogram_info_t hi;
    if (is_valid_map_molecule(imol)) {
-      unsigned int n_bins = 50;
-      hi = molecules[imol].get_map_histogram(n_bins);
+      hi = molecules[imol].get_map_histogram(n_bins, zoom_factor);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a map model molecule " << imol << std::endl;
    }
@@ -4578,3 +4609,46 @@ molecules_container_t::read_extra_restraints(int imol, const std::string &file_n
 }
 
 
+#include "coot-utils/find-water-baddies.hh"
+
+//! check waters, implicit OR
+//! return a vector of atom specifiers
+std::vector <coot::atom_spec_t>
+molecules_container_t::find_water_baddies(int imol_model, int imol_map,
+                                          float b_factor_lim,
+                                          float outlier_sigma_level,
+                                          float min_dist, float max_dist,
+                                          bool ignore_part_occ_contact_flag,
+                                          bool ignore_zero_occ_flag) {
+
+   std::vector <coot::atom_spec_t> v;
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+
+         float map_sigma = molecules[imol_model].get_map_rmsd_approx();
+         v = coot::find_water_baddies_OR(molecules[imol_model].atom_sel,
+                                         b_factor_lim,
+                                         molecules[imol_map].xmap,
+                                         map_sigma,
+                                         outlier_sigma_level,
+                                         min_dist, max_dist,
+                                         ignore_part_occ_contact_flag,
+                                         ignore_zero_occ_flag);
+      } else {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_model << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_map << std::endl;
+   }
+   return v;
+
+}
+
+//! @return the dictionary read for the give residue type, return an empty string on failure
+//! to lookup the residue type
+std::string
+molecules_container_t::get_cif_file_name(const std::string &comp_id, int imol_enc) const {
+
+   std::string fn = geom.get_cif_file_name(comp_id, imol_enc);
+   return fn;
+}

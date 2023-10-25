@@ -8,7 +8,7 @@
  */
 #ifndef CXXCoord_included
 #define CXXCoord_included
-
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <iostream>
 

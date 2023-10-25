@@ -1,6 +1,6 @@
 
 lib_LTLIBRARIES = libcoot-compat.la
-pkginclude_HEADERS = coot-getopt.h coot-sysdep.h getopt_int.h sleep-fixups.h
+pkginclude_HEADERS = coot-getopt.h coot-sysdep.h getopt_int.h sleep-fixups.h dirent.h
 
 pkgincludedir = $(includedir)/coot/compat
 

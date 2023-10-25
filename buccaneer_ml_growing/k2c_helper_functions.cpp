@@ -9,7 +9,11 @@ https://github.com/f0uriest/keras2c
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef _MSC_VER
+#include <string>
+#else
 #include <string.h>
+#endif
 #include <fstream>
 #include "k2c_include.h"
 

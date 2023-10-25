@@ -3,7 +3,7 @@ lib_LTLIBRARIES=libcoot-db-main.la
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
-	-DDATADIR='"$(datadir)"'
+	-DXDATADIR='"$(datadir)"'
 
 AM_CPPFLAGS = -I$(top_srcdir) \
    $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) $(COOT_WINDOWS_CFLAGS)

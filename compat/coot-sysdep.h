@@ -52,7 +52,7 @@
 // some redefinitions for Visual C++
 #if defined _MSC_VER
 #define PKGDATADIR "C:/coot/share"
-#define snprintf _snprintf
+//#define snprintf _snprintf
 #define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
 #define S_ISREG(m)  (((m) & S_IFMT) == S_IFREG)
 #define S_IWUSR S_IWRITE

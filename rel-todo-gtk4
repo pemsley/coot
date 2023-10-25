@@ -8,25 +8,45 @@
 
  - Check QED is now part of RDKit.
 
+C++ 17 and git for CCP4i2
+
 ----
 
 8 items
 
-Moorhen: test robustness of jiggle-fitting. Move the molecule around a bit
-         and see if you get solutions. Use the nanobody in 7vvl.
+Moorhen: Request: electrostatic surface.
+
+Moorhen: Check/Delete waters function for the api
+
+Moorhen: test robustness of jiggle-fitting. Move the molecule around a bit and
+         see if you get solutions.
+         Use the nanobody in 7vvl.
+         Use one of the WD40 domains in 6eoj
 
 Moorhen: Read gziped maps in libcootapi, so moorhen can get maps from emdb.
 
-Moorhen: Request: electrostatic surface.
+Moorhen: auto-read-mtz needs to return the Fobs and sigFobs also (if possible, of course)
+  add std::string F_obs and sigF_obs to auto_read_mtz_info_t
+  They were not set if F_obs is empty.
 
-Moorhen: carbon bonds are too light on white background. Looking at the code, it seems
-         to do the right thing, but needs testing. Print the colour table.
+Apply Charles patches.
+* Done.
 
-Put 7vvl in CA mode. You can label atoms that are not displayed. Bad.
+Make the CMakefile install chapi
+
+Rebuild RDKit, check that Eigen is pulled in correctly.
+
+Reading cif file with --pdb ~/Desktop/ejd/thing.cif seems borked (no file in file browser)
+
+Cryo-EM -> Mask Map by Chain for 7vvl.
 
 Quick save as should save the shader settings
 
 Try Quick save as on a mac and restore settings - the graphics window size is wrong.
+
+No sound api.
+
+Jakub: sugar representation in RDKit and layla? (add it?)
 
 Rigid-body refine the tutorial A chain. It used to display an intermediate atoms
 representation. What happens now and is that what you want?
@@ -37,7 +57,7 @@ Renumber residue range on a molecule that is not the first molecule ::: 0.6
 
 Fix the undo molecule chooser (have 2 molecules with edits)
 
-When I Open Coords I have a option to choose coordinate files.
+When I Open Coords I have a option to choose c oordinate files.
 When I Auto-open MTZ I dont have a option to choose mtz files.
 
 Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
@@ -151,6 +171,8 @@ Rework the namespace of the python modules to be more cannonical :::- 4
 What does it mean to
 import coot
 import coot.utils?
+
+User-defined sf for distances.
 
 NCS Jumping should use the correct matrix :::- 0.5
 l28. Tried and failed. Test the conversion of glm quaternion to coot quaternion and back again.
@@ -984,3 +1006,11 @@ Missing validation items: Some currently under Draw -> Molecule
 
 Clicking the switch Refine -> GM Restraints doesn't undisplay the GM restraints.
 * Done. Easy.
+
+Put 7vvl in CA mode. You can label atoms that are not displayed. Bad.
+* Can't reproduce.
+
+Moorhen: carbon bonds are too light on white background. Looking at the code, it seems
+         to do the right thing, but needs testing. Print the colour table.
+* Colour table seems fine. Needs a look.
+* Done. Not a libcootapi problem.

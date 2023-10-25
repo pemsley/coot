@@ -998,15 +998,22 @@ namespace coot {
          float base;
          //! bin width
          float bin_width;
-         // counts
+         //! counts
          std::vector<int> counts;
+         //! mean
+         float mean;
+         //! variance
+         float variance;
          histogram_info_t() : base(-1), bin_width(-1) {}
          histogram_info_t(float min_density, float bw, const std::vector<int> &c) :
             base(min_density), bin_width(bw), counts(c) {}
       };
 
       //! @return the map histogram
-      histogram_info_t get_map_histogram(unsigned int n_bins) const;
+      //! The caller should select the number of bins - 200 is a reasonable default.
+      //! The caller should also set the zoom factor (which reduces the range by the given factor)
+      //! centred around the median (typically 1.0 but usefully can vary until ~20.0).
+      histogram_info_t get_map_histogram(unsigned int n_bins, float zoom_factor) const;
 
       void set_map_colour(colour_holder holder);
       void set_map_colour_saturation(float s) { radial_map_colour_saturation = s; }

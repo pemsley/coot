@@ -62,7 +62,7 @@ libccp4mg_redirect_la_SOURCES = \
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	-DPACKAGE_LOCALE_DIR='"$(pkgdatadir)/locale"' \
-	-DDATADIR='"$(datadir)"'    \
+	-DXDATADIR='"$(datadir)"'    \
 	$(COOT_WINDOWS_CFLAGS) 
 
 

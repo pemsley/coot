@@ -38,21 +38,23 @@
 #if defined _MSC_VER
 #include <direct.h>
 #include <windows.h>
+#include <initguid.h>
 #include <lm.h>
 #else
 #if !defined(WINDOWS_MINGW)
 #include <unistd.h>
 #include <pwd.h>
 #endif // MINGW
-#endif
-
 #include <glob.h>
+#endif
 
 #include <ctype.h>  // for toupper
 
 #include <sys/types.h>  // for getpwnam
 #include <sys/stat.h>   // for mkdir
+#ifndef _MSC_VER
 #include <unistd.h> // Also needed for mkdir on Fedora?
+#endif
 
 #include "coot-utils.hh"
 
@@ -681,7 +683,7 @@ std::string coot::util::file_name_directory(const std::string &file_name) {
 std::string
 coot::util::current_working_dir() {
    std::string s = "";
-   unsigned long l = 2480;
+   const unsigned long l = 2480;
    char b[l];
    char *x = getcwd(b,l);
    if (x)
@@ -1507,7 +1509,7 @@ coot::sequence::is_sequence_triplet(const std::string &s) {
 // return a set of string that match the glob, with the directory name pre-appended
 std::vector<std::string>
 coot::util::glob_files(const std::string &dir, const std::string &glob_pattern) {
-
+#ifndef _MSC_VER
    std::vector<std::string> r;
    glob_t myglob;
    std::string glob_files = append_dir_file(dir, glob_pattern);
@@ -1520,6 +1522,20 @@ coot::util::glob_files(const std::string &dir, const std::string &glob_pattern) 
    }
    globfree(&myglob);
    return r;
+#else
+   std::vector<std::string> r;
+   WIN32_FIND_DATA ffd;
+   HANDLE hFind;
+   std::string glob_files = append_dir_file(dir, glob_pattern);
+   hFind = FindFirstFile(glob_files.c_str(), &ffd);
+   if (hFind != INVALID_HANDLE_VALUE) {
+     do {
+       r.push_back(ffd.cFileName);
+     } while (FindNextFile(hFind, &ffd) != 0);
+     FindClose(hFind);
+   }
+   return r;
+#endif
 }
 
 

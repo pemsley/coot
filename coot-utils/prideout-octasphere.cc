@@ -24,6 +24,7 @@
 // # Copyright 2019 Philip Rideout
 // # Translated into C++/glm by Paul Emsley
 
+#define _USE_MATH_DEFINES
 #include <iostream>
 #include <cmath>
 #include <vector>

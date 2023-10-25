@@ -1,6 +1,6 @@
 
 #include <iostream>
-
+#include <string>
 #include "simple-mesh.hh"
 #include "oct.hh"
 

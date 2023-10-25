@@ -1,3 +1,22 @@
+/* src/gtkglarea-rama-plot.cc
+ *
+ * Copyright 2022 by Paul Emsley
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 // this is the Gtk Wrapper of the OpengGL Rama plot
 
@@ -145,11 +164,15 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
       GtkWidget *box_for_selection = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
       GtkWidget *selection_label = gtk_label_new("Selection: ");
       GtkWidget *selection_entry = gtk_entry_new();
+      GtkWidget *outliers_only_checkbutton = gtk_check_button_new_with_label("Outliers Only");
       gtk_editable_set_text(GTK_EDITABLE(selection_entry), residue_selection.c_str());
       gtk_widget_set_margin_start(selection_label, 6);
       gtk_widget_set_margin_start(box_for_this_plot, 6);
-      gtk_widget_set_margin_start(close_button, 6);
-      gtk_widget_set_margin_end(close_button, 6);
+      gtk_widget_set_margin_start(close_button, 8);
+      gtk_widget_set_margin_end(close_button, 8);
+
+      gtk_widget_set_margin_start(outliers_only_checkbutton, 6);
+      gtk_widget_set_margin_end(outliers_only_checkbutton, 6);
 
       gl_rama_plot_t rama;
       graphics_info_t::widgeted_rama_plot_t wr(imol, residue_selection, rama, gl_area, close_button, box_for_this_plot);
@@ -192,10 +215,29 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
          graphics_info_t::hide_vertical_validation_frame_if_appropriate();
       };
 
+      auto outliers_only_checkbutton_toggled = +[] (GtkCheckButton *button, gpointer user_data) {
+         GtkWidget *box = GTK_WIDGET(user_data);
+         graphics_info_t g;
+         std::vector<graphics_info_t::widgeted_rama_plot_t>::iterator it;
+         for (it=g.rama_plot_boxes.begin(); it!=g.rama_plot_boxes.end(); ++it) {
+            GtkWidget *this_plot_box = it->box;
+            if (this_plot_box == box) {
+               if (gtk_check_button_get_active(button)) {
+                  it->rama.set_outliers_only(true);
+               } else {
+                  it->rama.set_outliers_only(false);
+               }
+            }
+         }
+         graphics_info_t::draw_rama_plots();
+      };
+
       g_signal_connect(G_OBJECT(close_button), "clicked", G_CALLBACK(close_callback), box_for_this_plot);
+      g_signal_connect(G_OBJECT(outliers_only_checkbutton), "toggled", G_CALLBACK(outliers_only_checkbutton_toggled), box_for_this_plot);
 
       gtk_box_append(GTK_BOX(box_for_selection), selection_label);
       gtk_box_append(GTK_BOX(box_for_selection), selection_entry);
+      gtk_box_append(GTK_BOX(box_for_selection), outliers_only_checkbutton);
 
       gtk_box_append(GTK_BOX(box_for_this_plot), gl_area);
       gtk_box_append(GTK_BOX(box_for_this_plot), box_for_selection);

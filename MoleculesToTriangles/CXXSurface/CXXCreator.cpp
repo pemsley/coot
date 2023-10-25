@@ -773,10 +773,10 @@ int CXXCreator::evolve(int optionSOR, double convergenceCriterion) {
             // iterate over all grid points in the grid interior
             for (size_t i = 0; i < space->getDimI(); i++) {
                 
-                double largestChangeOfRow[space->getDimJ()];
+		std::vector<double> largestChangeOfRow(space->getDimJ());
                 double *largestChangeOfRowPntr = &(largestChangeOfRow[0]);
                 for (size_t j=0; j<space->getDimJ(); j++) largestChangeOfRow[j]=-1e30;
-                double largestPotentialOfRow[space->getDimJ()];
+		std::vector<double> largestPotentialOfRow(space->getDimJ());
                 double *largestPotentialOfRowPntr = &(largestPotentialOfRow[0]);
                 for (size_t j=0; j<space->getDimJ(); j++) largestPotentialOfRow[j]=-1e30;
                 CXXSpace *passableSpace = space;

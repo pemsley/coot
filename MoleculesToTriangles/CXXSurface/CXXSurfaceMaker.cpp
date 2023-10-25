@@ -6,6 +6,7 @@
 //  Copyright © 2016 MartinNobleSoftware. All rights reserved.
 //
 
+#define _USE_MATH_DEFINES
 #ifdef _WIN32
 #include <windows.h>
 #else

@@ -296,7 +296,6 @@ class molecules_container_t {
       map_sampling_rate = 1.8;
       draw_missing_residue_loops_flag = true;
       read_standard_residues();
-      make_backups_flag = true;
       interrupt_long_term_job = false;
       mmdb::InitMatType();
       // debug();
@@ -330,7 +329,7 @@ public:
    //! @return the backup-enabled state
    bool get_make_backups() const { return make_backups_flag; }
    //! the backup-enable state (raw public if needed/prefered)
-   static bool make_backups_flag; // does this need to be static?
+   inline static bool make_backups_flag = false; // does this need to be static?
 
    //! @return the string of the contents of the given file-name.
    std::string file_name_to_string(const std::string &file_name) const;
@@ -474,6 +473,9 @@ public:
    //! IMOL_ENC_ANY = -999999
    //! @return 1 on success and 0 on failure
    int import_cif_dictionary(const std::string &cif_file_name, int imol_enc);
+   //! @return the dictionary read for the give residue type, return an empty string on failure
+   //! to lookup the residue type
+   std::string get_cif_file_name(const std::string &comp_id, int imol_enc) const;
    //! get a monomer
    //! @return the new molecule index on success and -1 on failure
    int get_monomer(const std::string &monomer_name);
@@ -737,8 +739,19 @@ public:
       std::string w;
       //! flag for weights usage
       bool weights_used;
+      //! F_obs column. There were not avaliable if the return value is empty
+      std::string F_obs;
+      //! sigF_obs column
+      std::string sigF_obs;
+      //! R-Free column. There were not avaliable if the return value is empty
+      std::string Rfree;
+      auto_read_mtz_info_t() {idx = -1;}
       auto_read_mtz_info_t(int index, const std::string &F_in, const std::string &phi_in) :
          idx(index), F(F_in), phi(phi_in), weights_used(false) {}
+      void set_fobs_sigfobs(const std::string &f, const std::string &s) {
+         F_obs = f;
+         sigF_obs = s;
+      }
    };
 
    //! Read the given mtz file.
@@ -753,7 +766,10 @@ public:
    float get_map_rmsd_approx(int imol_map) const;
 
    //! @return the map histogram
-   coot::molecule_t::histogram_info_t get_map_histogram(int imol) const;
+   //! The caller should select the number of bins - 200 is a reasonable default.
+   //! The caller should also set the zoom factor (which reduces the range by the given factor)
+   //! centred around the median (typically 1.0 but usefully can vary until ~20.0).
+   coot::molecule_t::histogram_info_t get_map_histogram(int imol, unsigned int n_bins, float zoom_factor) const;
 
    //! @return the suggested initial contour level. Return -1 on not-a-map
    float get_suggested_initial_contour_level(int imol) const;
@@ -1207,6 +1223,22 @@ public:
    //! unmodelled blobs
    //! @return a vector of `coot::validation_information_t`
    std::vector<coot::molecule_t::interesting_place_t> unmodelled_blobs(int imol_model, int imol_map) const;
+
+   //! check waters, implicit OR
+   //!
+   //! typical values for `b_factor_lim` is 60.0
+   //! typical values for `outlier_sigma_level` is 0.8
+   //! typical values for `min_dist` is 2.3
+   //! typical values for `max_dist` is 3.5
+   //!
+   //! return a vector of atom specifiers
+   std::vector <coot::atom_spec_t>
+   find_water_baddies(int imol_model, int imol_map,
+                      float b_factor_lim,
+                      float outlier_sigma_level,
+                      float min_dist, float max_dist,
+                      bool ignore_part_occ_contact_flag,
+                      bool ignore_zero_occ_flag);
 
    //! calculate the MMRRCC for the residues in the chain
    //! Multi Masked Residue Range Corellation Coefficient

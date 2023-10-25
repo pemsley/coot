@@ -1137,8 +1137,11 @@ int test_import_cif_dictionary(molecules_container_t &mc) {
          double d = std::sqrt(dd);
          std::cout << "debug:: in test_import_cif_dictionary() ligand_centre is " << ligand_centre
                    << " d is " << d << std::endl;
-         if (d < 0.001)
-            status = 1;
+         if (d < 0.001) {
+            std::string fn = mc.get_cif_file_name("ATP", coot::protein_geometry::IMOL_ENC_ANY);
+            if (fn == "ATP.cif")
+               status = 1;
+         }
       }
 
    } else {
@@ -2574,17 +2577,24 @@ int test_mmrrcc(molecules_container_t &mc) {
 
 int test_map_histogram(molecules_container_t &mc) {
 
-   auto print_hist = [&mc] (int imol_map) {
+   auto print_hist = [&mc] (int imol_map, float hist_scale_factor) {
 
       if (mc.is_valid_map_molecule(imol_map)) {
-         coot::molecule_t::histogram_info_t hist = mc.get_map_histogram(imol_map);
+         unsigned int n_bins = 200;
+         float zoom_factor = 18.0; // 10 is fine
+         coot::molecule_t::histogram_info_t hist = mc.get_map_histogram(imol_map, n_bins, zoom_factor);
+         std::cout << "STATS:: mean: " << hist.mean << " sd: " << std::sqrt(hist.variance) << std::endl;
          for (unsigned int i=0; i<hist.counts.size(); i++) {
             float range_start = hist.base + static_cast<float>(i)   * hist.bin_width;
             float range_end   = hist.base + static_cast<float>(i+1) * hist.bin_width;
             std::cout << "    "
                       << std::setw(10) << std::right << range_start << " - "
                       << std::setw(10) << std::right << range_end   << "  "
-                      << std::setw(10) << std::right << hist.counts[i] << std::endl;
+                      << std::setw(10) << std::right << hist.counts[i] << " ";
+            unsigned int n_stars = static_cast<int>(static_cast<float>(hist.counts[i]) * hist_scale_factor);
+            for (unsigned int jj=0; jj<n_stars; jj++)
+               std::cout << "*";
+            std::cout << std::endl;
          }
          return static_cast<int>(hist.counts.size());
       }
@@ -2595,10 +2605,13 @@ int test_map_histogram(molecules_container_t &mc) {
    int status = 0;
    int imol_map_1 = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
    int imol_map_2 = mc.read_ccp4_map(reference_data("emd_16890.map"), false);
-   int counts_1 = print_hist(imol_map_1);
-   int counts_2 = print_hist(imol_map_2);
+   std::cout << "map_1:" << std::endl;
+   int counts_1 = print_hist(imol_map_1, 0.03);
+   std::cout << "map_2:" << std::endl;
+   int counts_2 = print_hist(imol_map_2, 0.00004);
 
-   if (counts_1 > 10) status = 1;
+   if (counts_1 > 10)
+      if (counts_2 > 10) status = 1;
 
    return status;
 }
@@ -2610,13 +2623,39 @@ int test_auto_read_mtz(molecules_container_t &mc) {
    std::vector<molecules_container_t::auto_read_mtz_info_t> imol_maps
       = mc.auto_read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"));
 
-   if (imol_maps.size() == 2) {
+   // one of these (the last one) should be observed data without an imol
+   if (imol_maps.size() == 3) {
       float rmsd_0 = mc.get_map_rmsd_approx(imol_maps[0].idx);
       float rmsd_1 = mc.get_map_rmsd_approx(imol_maps[1].idx);
-      std::cout << "rmsds " << rmsd_0 << " " << rmsd_1 << std::endl;
-      if (rmsd_0 > 0.4) // test that the FWT map is the first of the pair
-         if (rmsd_1 > 0.2)
-      status = 1;
+      std::cout << "test_auto_read_mtz() rmsds " << rmsd_0 << " " << rmsd_1 << std::endl;
+      if (rmsd_0 > 0.3) { // test that the FWT map is the first of the pair
+         if (rmsd_1 > 0.1) {
+            // what observed data did we find?
+            unsigned int n_fobs_found = 0;
+            for (unsigned int i=0; i<imol_maps.size(); i++) {
+               const auto &mtz_info = imol_maps[i];
+               if (! mtz_info.F_obs.empty()) {
+                  n_fobs_found++;
+                  if (! mtz_info.sigF_obs.empty()) {
+                     if (mtz_info.F_obs == "/2vtq/1/FP") {
+                        if (mtz_info.sigF_obs == "/2vtq/1/SIGFP") {
+                           status = 1;
+                        }
+                     }
+                  }
+               }
+               if (mtz_info.Rfree == "FREE") {
+                  // we are good.
+               } else {
+                  status = 0;
+               }
+            }
+            if (n_fobs_found != 1) {
+               std::cout << "Too many: " << n_fobs_found << std::endl;
+               status = 0;
+            }
+         }
+      }
    }
 
    return status;
@@ -3137,6 +3176,157 @@ int test_bespoke_carbon_colour(molecules_container_t &mc) {
    return status;
 }
 
+void colour_analysis(const coot::simple_mesh_t &mesh) {
+
+   auto is_near_colour = [] (const glm::vec4 &col_1, const glm::vec4 &col_2) {
+      float cf = 0.04;
+      if (std::fabs(col_2.r - col_1.r) < cf)
+         if (std::fabs(col_2.g - col_1.g) < cf)
+            if (std::fabs(col_2.b - col_1.b) < cf)
+               if (std::fabs(col_2.a - col_1.a) < cf)
+                  return true;
+      return false;
+   };
+
+   auto sorter = [] (const std::pair<glm::vec4, unsigned int> &p1,
+                     const std::pair<glm::vec4, unsigned int> &p2) {
+      if (p1.first[0] == p2.first[0]) {
+         return (p1.first[1] > p2.first[1]);
+      } else {
+         return (p1.first[0] > p2.first[0]);
+      }
+   };
+
+   std::vector<std::pair<glm::vec4, unsigned int> > colour_count;
+   for (unsigned int i=0; i<mesh.vertices.size(); i++) {
+      const auto &vertex = mesh.vertices[i];
+      const glm::vec4 &col = vertex.color;
+      bool found_col = false;
+      for (unsigned int j=0; j<colour_count.size(); j++) {
+         if (is_near_colour(col, colour_count[j].first)) {
+            colour_count[j].second ++;
+            found_col = true;
+            break;
+         }
+      }
+      if (! found_col) {
+         colour_count.push_back(std::make_pair(col, 1));
+      }
+   }
+
+   std::sort(colour_count.begin(), colour_count.end(), sorter);
+
+   std::cout << "INFO:: " << colour_count.size() << " colours" << std::endl;
+   for (unsigned int i=0; i<colour_count.size(); i++)
+      std::cout << "    " << glm::to_string(colour_count[i].first) << " "
+                << std::setw(7) << std::right << colour_count[i].second << std::endl;
+
+}
+
+void colour_analysis(const coot::instanced_mesh_t &mesh) {
+
+   auto is_near_colour = [] (const glm::vec4 &col_1, const glm::vec4 &col_2) {
+      float cf = 0.04;
+      if (std::fabs(col_2.r - col_1.r) < cf)
+         if (std::fabs(col_2.g - col_1.g) < cf)
+            if (std::fabs(col_2.b - col_1.b) < cf)
+               if (std::fabs(col_2.a - col_1.a) < cf)
+                  return true;
+      return false;
+   };
+
+   auto sorter = [] (const std::pair<glm::vec4, unsigned int> &p1,
+                     const std::pair<glm::vec4, unsigned int> &p2) {
+      if (p1.first[0] == p2.first[0]) {
+         return (p1.first[1] > p2.first[1]);
+      } else {
+         return (p1.first[0] > p2.first[0]);
+      }
+   };
+
+   std::vector<std::pair<glm::vec4, unsigned int> > colour_count;
+
+   for (unsigned int i=0; i<mesh.geom.size(); i++) {
+      const coot::instanced_geometry_t &ig = mesh.geom[i];
+      for (unsigned int jj=0; jj<ig.instancing_data_A.size(); jj++) {
+         const auto &col =  ig.instancing_data_A[jj].colour;
+         bool found_col = false;
+         for (unsigned int j=0; j<colour_count.size(); j++) {
+            if (is_near_colour(col, colour_count[j].first)) {
+               colour_count[j].second ++;
+               found_col = true;
+               break;
+            }
+         }
+         if (! found_col) {
+            colour_count.push_back(std::make_pair(col, 1));
+         }
+      }
+
+      for (unsigned int jj=0; jj<ig.instancing_data_B.size(); jj++) {
+         const auto &col =  ig.instancing_data_B[jj].colour;
+         bool found_col = false;
+         for (unsigned int j=0; j<colour_count.size(); j++) {
+            if (is_near_colour(col, colour_count[j].first)) {
+               colour_count[j].second ++;
+               found_col = true;
+               break;
+            }
+         }
+         if (! found_col) {
+            colour_count.push_back(std::make_pair(col, 1));
+         }
+      }
+
+   }
+
+
+   for (unsigned int i=0; i<mesh.markup.vertices.size(); i++) {
+      const auto &vertex = mesh.markup.vertices[i];
+      const glm::vec4 &col = vertex.color;
+      bool found_col = false;
+      for (unsigned int j=0; j<colour_count.size(); j++) {
+         if (is_near_colour(col, colour_count[j].first)) {
+            colour_count[j].second ++;
+            found_col = true;
+            break;
+         }
+      }
+      if (! found_col) {
+         colour_count.push_back(std::make_pair(col, 1));
+      }
+   }
+
+   std::sort(colour_count.begin(), colour_count.end(), sorter);
+
+   std::cout << "INFO:: " << colour_count.size() << " colours" << std::endl;
+   for (unsigned int i=0; i<colour_count.size(); i++)
+      std::cout << "    " << glm::to_string(colour_count[i].first) << " "
+                << std::setw(7) << std::right << colour_count[i].second << std::endl;
+
+
+}
+
+
+int test_dark_mode_colours(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.get_monomer("LZA");
+   if (mc.is_valid_model_molecule(imol)) {
+      std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
+      auto mesh_light = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
+      auto mesh_dark  = mc.get_bonds_mesh_instanced(imol, mode, true,  0.2, 1.0, 1);
+      colour_analysis(mesh_light);
+      colour_analysis(mesh_dark);
+   }
+
+   return status;
+
+}
+
+
 int test_number_of_hydrogen_atoms(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3484,52 +3674,6 @@ int test_other_user_define_colours_other(molecules_container_t &mc) {
    return status;
 }
 
-void colour_analysis(const coot::simple_mesh_t &mesh) {
-
-   auto is_near_colour = [] (const glm::vec4 &col_1, const glm::vec4 &col_2) {
-      float cf = 0.04;
-      if (std::fabs(col_2.r - col_1.r) < cf)
-         if (std::fabs(col_2.g - col_1.g) < cf)
-            if (std::fabs(col_2.b - col_1.b) < cf)
-               if (std::fabs(col_2.a - col_1.a) < cf)
-                  return true;
-      return false;
-   };
-
-   auto sorter = [] (const std::pair<glm::vec4, unsigned int> &p1,
-                     const std::pair<glm::vec4, unsigned int> &p2) {
-      if (p1.first[0] == p2.first[0]) {
-         return (p1.first[1] > p2.first[1]);
-      } else {
-         return (p1.first[0] > p2.first[0]);
-      }
-   };
-
-   std::vector<std::pair<glm::vec4, unsigned int> > colour_count;
-   for (unsigned int i=0; i<mesh.vertices.size(); i++) {
-      const auto &vertex = mesh.vertices[i];
-      const glm::vec4 &col = vertex.color;
-      bool found_col = false;
-      for (unsigned int j=0; j<colour_count.size(); j++) {
-         if (is_near_colour(col, colour_count[j].first)) {
-            colour_count[j].second ++;
-            found_col = true;
-            break;
-         }
-      }
-      if (! found_col) {
-         colour_count.push_back(std::make_pair(col, 1));
-      }
-   }
-
-   std::sort(colour_count.begin(), colour_count.end(), sorter);
-
-   std::cout << "INFO:: " << colour_count.size() << " colours" << std::endl;
-   for (unsigned int i=0; i<colour_count.size(); i++)
-      std::cout << "    " << glm::to_string(colour_count[i].first) << " "
-                << std::setw(7) << std::right << colour_count[i].second << std::endl;
-
-}
 
 int test_self_restraints(molecules_container_t &mc) {
 
@@ -3712,15 +3856,21 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
+   status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
+
    // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
 
-   status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
+   // status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
+
+   // status += run_test(test_dark_mode_colours, "light vs dark mode colours", mc);
 
    // status += run_test(test_read_extra_restraints, "read extra restraints", mc);
 
    // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
 
    // status += run_test(test_map_histogram, "map histogram", mc);
+
+   // status += run_test(test_auto_read_mtz, "auto-read-mtz", mc);
 
    // status += run_test(test_read_a_missing_map, "read a missing map file ", mc);
 
