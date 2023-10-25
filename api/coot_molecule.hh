@@ -998,8 +998,12 @@ namespace coot {
          float base;
          //! bin width
          float bin_width;
-         // counts
+         //! counts
          std::vector<int> counts;
+         //! mean
+         float mean;
+         //! variance
+         float variance;
          histogram_info_t() : base(-1), bin_width(-1) {}
          histogram_info_t(float min_density, float bw, const std::vector<int> &c) :
             base(min_density), bin_width(bw), counts(c) {}

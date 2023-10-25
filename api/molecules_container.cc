@@ -584,12 +584,13 @@ molecules_container_t::replace_molecule_by_model_from_file(int imol, const std::
 int
 molecules_container_t::import_cif_dictionary(const std::string &cif_file_name, int imol_enc) {
 
-   coot::read_refmac_mon_lib_info_t r = geom.init_refmac_mon_lib(cif_file_name, cif_dictionary_read_number, imol_enc);
+   coot::read_refmac_mon_lib_info_t r = geom.init_refmac_mon_lib(cif_file_name,
+                                                                 cif_dictionary_read_number, imol_enc);
    cif_dictionary_read_number++;
 
-   std::cout << "debug:: import_cif_dictionary() cif_file_name(): " << cif_file_name << " success " << r.success << " with "
-             << r.n_atoms << " atoms " << r.n_bonds << " bonds " << r.n_links << " links and momoner index "
-             << r.monomer_idx << std::endl;
+   std::cout << "debug:: import_cif_dictionary() cif_file_name(): " << cif_file_name
+             << " success " << r.success << " with " << r.n_atoms << " atoms " << r.n_bonds
+             << " bonds " << r.n_links << " links and momoner index " << r.monomer_idx << std::endl;
 
    return r.success;
 
@@ -918,6 +919,16 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
       }
    }
 
+   auto add_r_free_column_label = [] (auto_read_mtz_info_t *a, const coot::mtz_column_types_info_t &r) {
+      for (unsigned int i=0; i<r.r_free_cols.size(); i++) {
+         const std::string &l = r.r_free_cols[i].column_label;
+         if (! l.empty()) {
+            a->Rfree = l;
+            break;
+         }
+      }
+   };
+
    // and now the observed data, this relies on the column label being of the form
    // /crystal/dataset/label
    //
@@ -932,6 +943,7 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
          if (sf == test_string) {
             auto_read_mtz_info_t armi;
             armi.set_fobs_sigfobs(f, sf);
+            add_r_free_column_label(&armi, r); // modify armi possibly
             mol_infos.push_back(armi);
          }
       }
@@ -4630,4 +4642,13 @@ molecules_container_t::find_water_baddies(int imol_model, int imol_map,
    }
    return v;
 
+}
+
+//! @return the dictionary read for the give residue type, return an empty string on failure
+//! to lookup the residue type
+std::string
+molecules_container_t::get_cif_file_name(const std::string &comp_id, int imol_enc) const {
+
+   std::string fn = geom.get_cif_file_name(comp_id, imol_enc);
+   return fn;
 }

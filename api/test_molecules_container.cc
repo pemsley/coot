@@ -1137,8 +1137,11 @@ int test_import_cif_dictionary(molecules_container_t &mc) {
          double d = std::sqrt(dd);
          std::cout << "debug:: in test_import_cif_dictionary() ligand_centre is " << ligand_centre
                    << " d is " << d << std::endl;
-         if (d < 0.001)
-            status = 1;
+         if (d < 0.001) {
+            std::string fn = mc.get_cif_file_name("ATP", coot::protein_geometry::IMOL_ENC_ANY);
+            if (fn == "ATP.cif")
+               status = 1;
+         }
       }
 
    } else {
@@ -2574,19 +2577,24 @@ int test_mmrrcc(molecules_container_t &mc) {
 
 int test_map_histogram(molecules_container_t &mc) {
 
-   auto print_hist = [&mc] (int imol_map) {
+   auto print_hist = [&mc] (int imol_map, float hist_scale_factor) {
 
       if (mc.is_valid_map_molecule(imol_map)) {
          unsigned int n_bins = 200;
-         float zoom_factor = 20.0; // 10 is fine
+         float zoom_factor = 18.0; // 10 is fine
          coot::molecule_t::histogram_info_t hist = mc.get_map_histogram(imol_map, n_bins, zoom_factor);
+         std::cout << "STATS:: mean: " << hist.mean << " sd: " << std::sqrt(hist.variance) << std::endl;
          for (unsigned int i=0; i<hist.counts.size(); i++) {
             float range_start = hist.base + static_cast<float>(i)   * hist.bin_width;
             float range_end   = hist.base + static_cast<float>(i+1) * hist.bin_width;
             std::cout << "    "
                       << std::setw(10) << std::right << range_start << " - "
                       << std::setw(10) << std::right << range_end   << "  "
-                      << std::setw(10) << std::right << hist.counts[i] << std::endl;
+                      << std::setw(10) << std::right << hist.counts[i] << " ";
+            unsigned int n_stars = static_cast<int>(static_cast<float>(hist.counts[i]) * hist_scale_factor);
+            for (unsigned int jj=0; jj<n_stars; jj++)
+               std::cout << "*";
+            std::cout << std::endl;
          }
          return static_cast<int>(hist.counts.size());
       }
@@ -2597,10 +2605,13 @@ int test_map_histogram(molecules_container_t &mc) {
    int status = 0;
    int imol_map_1 = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
    int imol_map_2 = mc.read_ccp4_map(reference_data("emd_16890.map"), false);
-   int counts_1 = print_hist(imol_map_1);
-   int counts_2 = print_hist(imol_map_2);
+   std::cout << "map_1:" << std::endl;
+   int counts_1 = print_hist(imol_map_1, 0.03);
+   std::cout << "map_2:" << std::endl;
+   int counts_2 = print_hist(imol_map_2, 0.00004);
 
-   if (counts_1 > 10) status = 1;
+   if (counts_1 > 10)
+      if (counts_2 > 10) status = 1;
 
    return status;
 }
@@ -2632,6 +2643,11 @@ int test_auto_read_mtz(molecules_container_t &mc) {
                         }
                      }
                   }
+               }
+               if (mtz_info.Rfree == "FREE") {
+                  // we are good.
+               } else {
+                  status = 0;
                }
             }
             if (n_fobs_found != 1) {
@@ -3840,6 +3856,8 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
+   status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
+
    // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
 
    // status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
@@ -3852,7 +3870,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_map_histogram, "map histogram", mc);
 
-   status += run_test(test_auto_read_mtz, "auto-read-mtz", mc);
+   // status += run_test(test_auto_read_mtz, "auto-read-mtz", mc);
 
    // status += run_test(test_read_a_missing_map, "read a missing map file ", mc);
 
