@@ -43,7 +43,6 @@ fn update(msg: Msg, model: &mut Model, _: &mut impl Orders<Msg>) {
             match eval(&format!(
 r#"
 var lh = new Module.LhasaCanvas;
-console.log("halo");
 lh.delete();"#)) {
                 Ok(_jsval) => {
                     log("Works");
