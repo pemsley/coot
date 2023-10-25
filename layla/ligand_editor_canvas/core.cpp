@@ -20,6 +20,7 @@
  */
 
 #include "core.hpp"
+#include "../ligand_editor_canvas.hpp"
 #include <iterator>
 
 using namespace coot::ligand_editor_canvas;
@@ -284,3 +285,67 @@ void WidgetCoreData::queue_resize() const noexcept {
     g_warning("TODO: Implement queue_resize for Lhasa");
     #endif
 }
+
+#ifdef __EMSCRIPTEN__
+
+void CootLigandEditorCanvas::set_active_tool(std::unique_ptr<coot::ligand_editor_canvas::ActiveTool>&& active_tool) {
+    coot_ligand_editor_canvas_set_active_tool(this, std::move(active_tool));
+}
+
+void CootLigandEditorCanvas::append_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
+    coot_ligand_editor_canvas_append_molecule(this, std::move(rdkit_mol));
+}
+
+void CootLigandEditorCanvas::set_scale(float scale) noexcept {
+    coot_ligand_editor_canvas_set_scale(this, scale);
+}
+
+float CootLigandEditorCanvas::get_scale() noexcept {
+    return coot_ligand_editor_canvas_get_scale(this);
+}
+
+void CootLigandEditorCanvas::undo_edition() noexcept {
+    coot_ligand_editor_canvas_undo_edition(this);
+}
+
+void CootLigandEditorCanvas::redo_edition() noexcept {
+    coot_ligand_editor_canvas_redo_edition(this);
+}
+
+// const RDKit::ROMol& CanvasMolecule::get_rdkit_molecule(unsigned int index) noexcept {
+//     RDKit::ROMol* coot_ligand_editor_canvas_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept;
+// }
+
+unsigned int CootLigandEditorCanvas::get_molecule_count() noexcept {
+    return coot_ligand_editor_canvas_get_molecule_count(this);
+}
+
+void CootLigandEditorCanvas::set_allow_invalid_molecules(bool value) noexcept {
+    coot_ligand_editor_canvas_set_allow_invalid_molecules(this, value);
+}
+
+bool CootLigandEditorCanvas::get_allow_invalid_molecules() noexcept {
+    return coot_ligand_editor_canvas_get_allow_invalid_molecules(this);
+}
+
+coot::ligand_editor_canvas::DisplayMode CootLigandEditorCanvas::get_display_mode() noexcept {
+    return coot_ligand_editor_canvas_get_display_mode(this);
+}
+
+void CootLigandEditorCanvas::set_display_mode(coot::ligand_editor_canvas::DisplayMode value) noexcept {
+    coot_ligand_editor_canvas_set_display_mode(this, value);
+}
+
+std::string CootLigandEditorCanvas::get_smiles() noexcept {
+    return coot_ligand_editor_canvas_get_smiles(this);
+}
+
+std::string CootLigandEditorCanvas::get_smiles_for_molecule(unsigned int molecule_idx) noexcept {
+    return coot_ligand_editor_canvas_get_smiles_for_molecule(this, molecule_idx);
+}
+
+void CootLigandEditorCanvas::clear_molecules() noexcept {
+    coot_ligand_editor_canvas_clear_molecules(this);
+}
+
+#endif // EMSCRIPTEN
