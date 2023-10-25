@@ -281,7 +281,7 @@ void LaylaState::file_import_molecule() {
                 // It's a mess.
                 auto mol = std::make_unique<RDKit::RWMol>(coot::rdkit_mol(p.second));
                 if (should_remove_hydrogens) {
-                    remove_non_polar_hydrogens(mol.get());
+                    remove_non_polar_hydrogens(*mol);
                 }
                 RDKit::MolOps::sanitizeMol(*mol);
                 self->append_molecule(mol.release());

@@ -25,7 +25,7 @@
 
 namespace coot::layla {
 
-void remove_non_polar_hydrogens(RDKit::RWMol* mol);
+void remove_non_polar_hydrogens(RDKit::RWMol& mol);
 
 }
 

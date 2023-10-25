@@ -865,7 +865,7 @@ void StructureInsertion::on_blank_space_click(ClickContext& ctx, int x, int y) {
 
 bool RemoveHydrogensTool::on_molecule_click(MoleculeClickContext& ctx) {
     ctx.widget_data.begin_edition();
-    layla::remove_non_polar_hydrogens(ctx.rdkit_mol.get());
+    layla::remove_non_polar_hydrogens(*ctx.rdkit_mol);
     this->sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol);
     ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
     ctx.widget_data.finalize_edition();
