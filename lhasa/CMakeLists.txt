@@ -63,6 +63,7 @@ target_link_libraries(lhasa PRIVATE
     RDKitMolDraw2D 
     RDKitGraphMol 
     RDKitRDGeneral 
+    RDKitRDGeometryLib
     RDKitFileParsers 
     RDKitSubstructMatch 
     RDKitGenericGroups
