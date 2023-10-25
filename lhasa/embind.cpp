@@ -3,11 +3,31 @@
 #include "../layla/ligand_editor_canvas.hpp"
 #include "../layla/utils.hpp"
 
+
+using coot::ligand_editor_canvas::ActiveTool;
+using coot::ligand_editor_canvas::DisplayMode;
+
 EMSCRIPTEN_BINDINGS(lhasa) {
   function("remove_non_polar_hydrogens", &coot::layla::remove_non_polar_hydrogens);
   function("append_from_smiles", &lhasa::append_from_smiles);
   // function("rdkit_mol_from_smiles", &lhasa::rdkit_mol_from_smiles);
   // function("rdkit_mol_to_smiles", &lhasa::rdkit_mol_to_smiles);
+  enum_<DisplayMode>("LhasaDisplayMode")
+    .value("Standard", DisplayMode::Standard)
+    .value("AtomIndices", DisplayMode::AtomIndices)
+    .value("AtomNames", DisplayMode::AtomNames);
+  class_<ActiveTool>("LhasaActiveTool")
+    // ActiveTool(ElementInsertion insertion) noexcept;
+    // ActiveTool(BondModifier modifier) noexcept;
+    // ActiveTool(DeleteTool) noexcept;
+    // ActiveTool(ChargeModifier) noexcept;
+    // ActiveTool(TransformTool) noexcept;
+    // ActiveTool(StructureInsertion insertion) noexcept;
+    // ActiveTool(GeometryModifier modifier) noexcept;
+    // ActiveTool(FormatTool) noexcept;
+    // ActiveTool(FlipTool) noexcept;
+    // ActiveTool(RemoveHydrogensTool) noexcept;
+    .constructor<>();
   class_<CootLigandEditorCanvas>("LhasaCanvas")
     .constructor<>()
     .function("set_active_tool", &CootLigandEditorCanvas::set_active_tool)
