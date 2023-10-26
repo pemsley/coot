@@ -40,15 +40,16 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   class_<ActiveTool>("LhasaActiveTool")
     // ActiveTool(ElementInsertion insertion) noexcept;
     // ActiveTool(BondModifier modifier) noexcept;
-    .constructor<ChargeModifier>()
     // ActiveTool(TransformTool) noexcept;
     // ActiveTool(StructureInsertion insertion) noexcept;
-    .constructor<GeometryModifier>()
-    .constructor<FormatTool>()
     // ActiveTool(FlipTool) noexcept;
-    .constructor<RemoveHydrogensTool>()
+    // .constructor<ChargeModifier>()
+    // .constructor<GeometryModifier>()
+    // .constructor<FormatTool>()
+    // .constructor<RemoveHydrogensTool>()
     .constructor<DeleteTool>()
     .constructor<>();
+    // .smart_ptr<std::unique_ptr<ActiveTool>>("UniquePtrLhasaActiveTool");
   class_<CootLigandEditorCanvas>("LhasaCanvas")
     .constructor<>()
     .function("set_active_tool", &CootLigandEditorCanvas::set_active_tool)
