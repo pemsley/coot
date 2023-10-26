@@ -30,13 +30,13 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   class_<DeleteTool>("LhasaDeleteTool")
     .constructor<>();
   class_<ChargeModifier>("LhasaChargeModifier")
-    .constructor();
+    .constructor<>();
   class_<GeometryModifier>("LhasaGeometryModifier")
-    .constructor();
+    .constructor<>();
   class_<FormatTool>("LhasaFormatTool")
-    .constructor();
+    .constructor<>();
   class_<RemoveHydrogensTool>("LhasaRemoveHydrogensTool")
-    .constructor();
+    .constructor<>();
   class_<ActiveTool>("LhasaActiveTool")
     // ActiveTool(ElementInsertion insertion) noexcept;
     // ActiveTool(BondModifier modifier) noexcept;
@@ -48,7 +48,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     // .constructor<FormatTool>()
     // .constructor<RemoveHydrogensTool>()
     .constructor<DeleteTool>()
-    .constructor<>();
+    .constructor<>();<>
     // .smart_ptr<std::unique_ptr<ActiveTool>>("UniquePtrLhasaActiveTool");
   class_<CootLigandEditorCanvas>("LhasaCanvas")
     .constructor<>()
