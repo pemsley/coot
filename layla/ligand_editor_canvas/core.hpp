@@ -207,12 +207,13 @@ struct CootLigandEditorCanvasPriv : CootLigandEditorCanvasPrivBase, impl::Widget
 /// For Lhasa
 struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEditorCanvasPriv {
 
+    public:
+    
     sigc::signal<void(const char*)> status_updated_signal;
     sigc::signal<void(float)> scale_changed_signal;
     sigc::signal<void()> smiles_changed_signal;
     sigc::signal<void(int)> molecule_deleted_signal;
 
-    public:
     // Implemented at 'ligand_editor_canvas.cpp'
     CootLigandEditorCanvas() noexcept;
     // Implemented at 'ligand_editor_canvas.cpp'
@@ -222,8 +223,8 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     void append_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept;
     void set_scale(float scale) noexcept;
     float get_scale() noexcept;
-    void undo_edition() noexcept;
-    void redo_edition() noexcept;
+    void undo() noexcept;
+    void redo() noexcept;
     // const RDKit::ROMol& get_rdkit_molecule(unsigned int index) noexcept;
     unsigned int get_molecule_count() noexcept;
     void set_allow_invalid_molecules(bool value) noexcept;

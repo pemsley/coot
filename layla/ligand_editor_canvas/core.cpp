@@ -304,11 +304,11 @@ float CootLigandEditorCanvas::get_scale() noexcept {
     return coot_ligand_editor_canvas_get_scale(this);
 }
 
-void CootLigandEditorCanvas::undo_edition() noexcept {
+void CootLigandEditorCanvas::undo() noexcept {
     coot_ligand_editor_canvas_undo_edition(this);
 }
 
-void CootLigandEditorCanvas::redo_edition() noexcept {
+void CootLigandEditorCanvas::redo() noexcept {
     coot_ligand_editor_canvas_redo_edition(this);
 }
 
