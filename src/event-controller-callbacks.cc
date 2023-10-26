@@ -60,6 +60,8 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
    }
    double x = drag_begin_x + drag_delta_x;
    double y = drag_begin_y + drag_delta_y;
+   double delta_delta_x = x - get_mouse_previous_position_x();
+   double delta_delta_y = y - get_mouse_previous_position_y();
    set_mouse_previous_position(x, y);
 
    if (in_moving_atoms_drag_atom_mode_flag) {
@@ -68,9 +70,7 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
          move_atom_pull_target_position(x, y);
       }
    } else {
-      int x_as_int = static_cast<int>(x);
-      int y_as_int = static_cast<int>(y);
-      rotate_chi(x_as_int, y_as_int);
+      rotate_chi(delta_delta_x, delta_delta_y);
    }
 }
 

@@ -33,10 +33,10 @@ ProgressBarPopUp::ProgressBarPopUp(const char* title, const char* description) n
    gtk_window_set_deletable(this->window, FALSE);
    graphics_info_t::set_transient_for_main_window(GTK_WIDGET(this->window));
    auto* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-   gtk_widget_set_margin_bottom(box, 10);
-   gtk_widget_set_margin_top(box, 10);
-   gtk_widget_set_margin_start(box, 10);
-   gtk_widget_set_margin_end(box, 10);
+   gtk_widget_set_margin_bottom(box, 30);
+   gtk_widget_set_margin_top(box,    30);
+   gtk_widget_set_margin_start(box,  30);
+   gtk_widget_set_margin_end(box,    30);
 
    gtk_window_set_child(this->window, box);
    gtk_box_append(GTK_BOX(box), gtk_label_new(description));

@@ -328,7 +328,7 @@ graphics_info_t::add_status_bar_text(const std::string &text) {
       if (statusbar) {
 	 std::string sbt = text;
 
-         std::cout << "pushing statusbar text: " << sbt << std::endl;
+         // std::cout << "pushing statusbar text: " << sbt << std::endl;
          gtk_statusbar_push(GTK_STATUSBAR(statusbar), statusbar_context_id, sbt.c_str());
 
       } else {
@@ -2508,7 +2508,7 @@ graphics_info_t::on_change_current_chi_button_clicked(GtkButton *button,
    edit_chi_edit_type mode = static_cast<edit_chi_edit_type> (i_mode);
 
    int i_bond = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "i_bond"));
-   std::cout << "on_change_current_chi_button_clicked "
+   std::cout << "DEBUG:: g.on_change_current_chi_button_clicked() "
 	     << g.edit_chi_current_chi << " mode " << mode
 	     << " i_bond " << i_bond << std::endl;
 

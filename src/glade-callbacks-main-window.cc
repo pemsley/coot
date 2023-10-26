@@ -184,7 +184,7 @@ on_model_toolbar_rotamers_button_clicked(GtkButton *button,
    }
 }
 
-
+// delete this when done
 extern "C" G_MODULE_EXPORT
 void
 on_model_toolbar_edit_chi_angles_togglebutton_toggled(GtkToggleButton *toggletoolbutton,
@@ -196,6 +196,23 @@ on_model_toolbar_edit_chi_angles_togglebutton_toggled(GtkToggleButton *toggletoo
    } else {
       setup_edit_chi_angles(0);
       set_show_chi_angle_bond(0);
+   }
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_model_toolbar_edit_chi_angles_button_clicked(GtkButton *button,
+                                                gpointer   user_data) {
+
+   graphics_info_t g;
+   auto active_atom = g.get_active_atom();
+   int imol = active_atom.first;
+   if (is_valid_model_molecule(imol)) {
+      auto &m = g.molecules[imol];
+      mmdb:: Atom *at = active_atom.second;
+      int idx = m.get_atom_index(at);
+      g.execute_edit_chi_angles(idx, imol);
    }
 }
 

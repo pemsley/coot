@@ -5195,25 +5195,22 @@ graphics_info_t::rotate_chi(double x, double y) {
    // real values start at 1:
    if (edit_chi_current_chi <= 0) return;
 
-   int chi = edit_chi_current_chi;
-
    mouse_current_x = x;
    mouse_current_y = y;
-   double diff;
+   double diff = x + y;
 
-   diff  = mouse_current_x - GetMouseBeginX();
-   diff += mouse_current_y - GetMouseBeginY();
 
    // diff *= 15;
-   diff *= 7; // 20230519-PE slow it down, because it's acceleration
+   diff *= 10; // 20230519-PE slow it down, because it's acceleration
 
-   // std::cout << "graphics_info_t::rotate_chi " << chi << " by "
-   // << diff << std::endl;
+   int chi = edit_chi_current_chi;
+   // std::cout << "graphics_info_t::rotate_chi " << chi << " by " << diff << std::endl;
 
    // c.f. generate_moving_atoms_from_rotamer(i), except here we will
    // not be changing our moving_atoms_asc, just updating the atom
    // positions.
    //
+
 
    short int istat = 1; // failure
    if (! moving_atoms_asc) {

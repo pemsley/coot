@@ -7846,7 +7846,7 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_6">
+              <object class="GtkButton" id="vertical_toolbar_testbutton_6">
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">horizontal</property>
@@ -7866,7 +7866,7 @@ Do you want to continue?
                   </object>
                 </child>
                 <property name="can-focus">0</property>
-                <signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled"/>
+                <signal name="clicked" handler="on_model_toolbar_edit_chi_angles_button_clicked"/>
               </object>
             </child>
             <child>

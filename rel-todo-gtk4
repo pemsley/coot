@@ -24,6 +24,9 @@ no_sound()
 
 coot.halloween()
 
+Don't draw rama ball when intermediate atoms are from edit chi angles (and some others
+presumably).
+
 Moorhen: Request: electrostatic surface.
 
 Moorhen: Check/Delete waters function for the api
