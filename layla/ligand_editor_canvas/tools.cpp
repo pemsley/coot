@@ -721,8 +721,13 @@ unsigned int StructureInsertion::append_carbon_chain(RDKit::RWMol* rdkit_mol_ptr
     return current_atom;
 }
 
-void StructureInsertion::append_structure_to_atom(RDKit::RWMol* rdkit_mol_ptr, unsigned int atom_idx) const {
-    auto first_carbon = append_carbon(rdkit_mol_ptr, atom_idx);
+void StructureInsertion::append_structure_to_atom(RDKit::RWMol* rdkit_mol_ptr, unsigned int atom_idx, bool spiro) const {
+    unsigned int first_carbon;
+    if(spiro) {
+        first_carbon = atom_idx;
+    } else {
+        first_carbon = append_carbon(rdkit_mol_ptr, atom_idx);
+    }
     switch (this->get_structure()) {
         case Structure::CycloPropaneRing: {
             auto third_carbon = append_carbon_chain(rdkit_mol_ptr, first_carbon,2);
@@ -823,7 +828,8 @@ void StructureInsertion::on_bond_click(MoleculeClickContext& ctx, CanvasMolecule
 }
 
 void StructureInsertion::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) {
-    this->append_structure_to_atom(ctx.rdkit_mol.get(),atom.idx);
+    bool spiro = ctx.control_pressed;
+    this->append_structure_to_atom(ctx.rdkit_mol.get(),atom.idx, spiro);
     ctx.widget_data.update_status("Carbon ring has been appended to the atom.");
 }
 
@@ -844,7 +850,7 @@ void StructureInsertion::on_blank_space_click(ClickContext& ctx, int x, int y) {
         auto* widget_ptr = static_cast<impl::CootLigandEditorCanvasPriv*>(&ctx.widget_data);
         auto rdkit_mol = std::make_shared<RDKit::RWMol>();
         rdkit_mol->addAtom(new RDKit::Atom(6),false,true);
-        append_structure_to_atom(rdkit_mol.get(),0);
+        append_structure_to_atom(rdkit_mol.get(),0, false);
         rdkit_mol->removeAtom((unsigned int) 0);
         // This function calls "begin_edition" and "finalize_edition", 
         // so we can't call "begin_edition" here above.
