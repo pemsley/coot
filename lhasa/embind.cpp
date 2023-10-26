@@ -29,19 +29,26 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .value("AtomNames", DisplayMode::AtomNames);
   class_<DeleteTool>("LhasaDeleteTool")
     .constructor<>();
+  class_<ChargeModifier>("LhasaChargeModifier")
+    .constructor();
+  class_<GeometryModifier>("LhasaGeometryModifier")
+    .constructor();
+  class_<FormatTool>("LhasaFormatTool")
+    .constructor();
+  class_<RemoveHydrogensTool>("LhasaRemoveHydrogensTool")
+    .constructor();
   class_<ActiveTool>("LhasaActiveTool")
     // ActiveTool(ElementInsertion insertion) noexcept;
     // ActiveTool(BondModifier modifier) noexcept;
-    // ActiveTool(DeleteTool) noexcept;
-    // ActiveTool(ChargeModifier) noexcept;
+    .constructor<ChargeModifier>()
     // ActiveTool(TransformTool) noexcept;
     // ActiveTool(StructureInsertion insertion) noexcept;
-    // ActiveTool(GeometryModifier modifier) noexcept;
-    // ActiveTool(FormatTool) noexcept;
+    .constructor<GeometryModifier>()
+    .constructor<FormatTool>()
     // ActiveTool(FlipTool) noexcept;
-    // ActiveTool(RemoveHydrogensTool) noexcept;
-    .constructor<>()
-    .constructor<DeleteTool>();
+    .constructor<RemoveHydrogensTool>()
+    .constructor<DeleteTool>()
+    .constructor<>();
   class_<CootLigandEditorCanvas>("LhasaCanvas")
     .constructor<>()
     .function("set_active_tool", &CootLigandEditorCanvas::set_active_tool)
