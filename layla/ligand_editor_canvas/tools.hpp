@@ -228,7 +228,7 @@ class StructureInsertion : public Tool {
 
     static unsigned int append_carbon(RDKit::RWMol*, unsigned int target_idx, RDKit::Bond::BondType bond_type = RDKit::Bond::SINGLE);
     static unsigned int append_carbon_chain(RDKit::RWMol*, unsigned int chain_start_idx, std::size_t atom_count);
-    void append_structure_to_atom(RDKit::RWMol*, unsigned int atom_idx) const;
+    void append_structure_to_atom(RDKit::RWMol*, unsigned int atom_idx, bool spiro) const;
 
     public:
     StructureInsertion(Structure) noexcept;
