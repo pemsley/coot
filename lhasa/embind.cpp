@@ -48,7 +48,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     // .constructor<FormatTool>()
     // .constructor<RemoveHydrogensTool>()
     .constructor<DeleteTool>()
-    .constructor<>();<>
+    .constructor<>();
     // .smart_ptr<std::unique_ptr<ActiveTool>>("UniquePtrLhasaActiveTool");
   class_<CootLigandEditorCanvas>("LhasaCanvas")
     .constructor<>()
