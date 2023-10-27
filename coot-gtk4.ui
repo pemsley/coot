@@ -3898,8 +3898,10 @@ the Ctrl key when moving the mouse.</property>
       <object class="GtkBox">
         <property name="spacing">6</property>
         <property name="orientation">vertical</property>
-        <property name="margin-start">4</property>
-        <property name="margin-end">4</property>
+        <property name="margin-start">6</property>
+        <property name="margin-end">6</property>
+        <property name="margin-bottom">6</property>
+        <property name="margin-top">6</property>
 
         <child>
           <object class="GtkLabel">
@@ -15521,4 +15523,3 @@ Move a copy?</property>
   </object>
 
 </interface>
-
