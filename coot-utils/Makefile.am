@@ -43,7 +43,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
         polar-atoms.hh 3d-texture.hh fragment-container.hh map-index.hh \
         atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh simple-mesh.hh vertex.hh g_triangle.hh \
 	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh cmtz-interface.hh mtz-column-auto-read.hh \
-	pugixml.hpp pugiconfig.hpp find-water-baddies.hh
+	pugixml.hpp pugiconfig.hpp find-water-baddies.hh voidp-buffer.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils

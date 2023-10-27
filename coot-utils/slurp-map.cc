@@ -41,6 +41,8 @@ coot::util::is_basic_em_map_file(const std::string &file_name) {
    return slurp_fill_xmap_from_map_file(file_name, &xmap, true); // check-only mode
 }
 
+#include "voidp-buffer.hh"
+
 bool
 coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
                                           clipper::Xmap<float> *xmap_p,
@@ -62,27 +64,46 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
       }
    };
 
-   auto slurp_fill_xmap_from_gz_map_file = [] (std::istream &instream,
+   auto slurp_fill_xmap_from_gz_map_file = [] (const std::string &file_name,
                                                clipper::Xmap<float> *xmap_p,
                                                bool check_only) {
 
-      bool debug = true;
-      int n_rows = -1;
-      int n_cols = -1;
-      int n_secs = -1;
-
-      instream >> n_rows;
-      instream >> n_cols;
-      instream >> n_secs;
-
-      if (debug) {
-         std::cout << "slurp_fill_xmap_from_gz_map_file: n_cols " << n_cols << std::endl;
-         std::cout << "slurp_fill_xmap_from_gz_map_file: n_rows " << n_rows << std::endl;
-         std::cout << "slurp_fill_xmap_from_gz_map_file: n_sections " << n_secs << std::endl;
+      int status  = 0;
+      struct stat s;
+      int fstat = stat(file_name.c_str(), &s);
+      if (fstat == 0) {
+         gzFile file = gzopen(file_name.c_str(), "rb");
+         int z_status = Z_OK;
+         voidp_buffer_t buff(4);
+         size_t read_pos = 0;
+         while (! gzeof(file)) {
+            size_t space_remaining = buff.size() - read_pos;
+            int bytes_read = gzread(file, (char *)buff.get() + read_pos, space_remaining);
+            const char *error_message = gzerror(file, &z_status);
+            if ((bytes_read == -1) || z_status != Z_OK) {
+               std::cout << "WARNING:: gz read error for " << file_name << " "
+                         << error_message << std::endl;
+               break;
+            }
+            read_pos += bytes_read;
+            if (buff.size() == read_pos) {
+               buff.resize(buff.size() * 2);
+            }
+         }
+         z_status = gzclose_r(file);
+         if (z_status != Z_OK) {
+            std::cout << "WARNING:: gz close read error for " << file_name << std::endl;
+         }
+         if (read_pos >= buff.size()) {
+            buff.resize(buff.size() + 1);
+         }
+         *((char *)buff.get() + read_pos) = 0;
+         char *data = reinterpret_cast< char *>(buff.get());
+         status = slurp_parse_xmap_data(data, xmap_p, check_only); // fill xmap
+         std::cout << "**** slurp_parse_xmap_data() returns with status " << status << std::endl;
       }
+      return status;
    };
-
-   // std::cout << "\n******** slurp_fill_xmap_from_map_file() called with check_only " << check_only << std::endl;
 
    bool status = false;
    if (file_exists(file_name)) {
@@ -92,6 +113,8 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
       if (ext == ".gz") is_gzip = true;
 
       if (is_gzip) {
+
+         status = slurp_fill_xmap_from_gz_map_file(file_name, xmap_p, check_only);
 
       } else {
          // 20231006-PE as it used to be.
@@ -121,7 +144,8 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
       std::cout << "WARNING:: file does not exist " << file_name << std::endl;
    }
 
-   // std::cout << "debug:: ***************** slurp_fill_xmap_from_map_file() returning " << status << std::endl;
+   std::cout << "debug:: ***************** slurp_fill_xmap_from_map_file() returning "
+             << status << std::endl;
    return status;
 }
 
