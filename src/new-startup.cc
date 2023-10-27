@@ -823,11 +823,7 @@ new_startup_application_activate(GtkApplication *application,
          return G_SOURCE_REMOVE;
       }, splash_screen);
 
-#if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 74 || GLIB_MAJOR_VERSION > 2
-      g_idle_add_once((GSourceOnceFunc)[](gpointer user_data) { run_command_line_scripts(); }, nullptr);
-#else
-      std::cout << "WARNING:: Rebuild Coot against Glib >= 2.74. Won't run commandline scripts." << std::endl;
-#endif
+      g_idle_add([](gpointer user_data) { run_command_line_scripts(); return FALSE; }, nullptr);
       return G_SOURCE_REMOVE;
    }, activate_data);
 

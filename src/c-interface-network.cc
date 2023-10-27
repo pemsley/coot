@@ -647,22 +647,19 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
       g_info("Deleting the downloaded archive...");
       remove(gz_fn.c_str());
 
-#if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 74 || GLIB_MAJOR_VERSION > 2
       struct callback_data {
          std::string fn;
          std::shared_ptr<ProgressBarPopUp> popup;
       };
       callback_data* cbd = new callback_data{fn, std::move(popup)};
-      g_idle_add_once((GSourceOnceFunc)+[](gpointer user_data) {
+      g_idle_add(+[](gpointer user_data) {
          callback_data* cbd = (callback_data*) user_data;
          g_info("Reading CCP4 map from downloaded file...");
          int imol = read_ccp4_map(cbd->fn, false);
          go_to_map_molecule_centre(imol);
          delete cbd;
+         return FALSE; // only one
       }, cbd);
-#else
-      std::cout << "WARNING:: Rebuild Coot against Glib >= 2.74. Functionality is broken." << std::endl;
-#endif
 
    }, std::move(popup));
    worker.detach();
