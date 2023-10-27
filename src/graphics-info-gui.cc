@@ -420,23 +420,22 @@ graphics_info_t::set_directory_for_filechooser(GtkWidget *filechooser) const {
 }
 
 void
-graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
+graphics_info_t::set_file_for_save_filechooser(GtkWidget *filechooser) const {
 
    // just like set_directory_for_filechooser actually, but we give
    // it the full filename, not just the directory.
 
    int imol = save_imol;
-   if (imol >= 0 && imol < graphics_info_t::n_molecules()) {
-      std::string stripped_name =
-         graphics_info_t::molecules[imol].stripped_save_name_suggestion();
+   if (imol >= 0 && imol < n_molecules()) {
+      std::string stripped_name = molecules[imol].stripped_save_name_suggestion();
       std::string full_name = stripped_name;
 
-      if (graphics_info_t::directory_for_saving_for_filechooser != "") {
+      if (directory_for_saving_for_filechooser != "") {
 	full_name = directory_for_saving_for_filechooser + stripped_name;
       } else {
-	// if we have a directory in the fileselection path we take this
-	if (graphics_info_t::directory_for_saving_for_fileselection != "") {
-	  directory_for_saving_for_filechooser = graphics_info_t::directory_for_saving_for_fileselection;
+	// if we have a directory in the filechooser path we take this
+	if (directory_for_saving_for_filechooser != "") {
+	  directory_for_saving_for_filechooser = graphics_info_t::directory_for_saving_for_filechooser;
 
 	} else {
 	  // otherwise we make one
@@ -447,35 +446,33 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
 	}
       }
 
-      if (false)
-	 std::cout << "INFO:: Setting fileselection with file: " << full_name
+      if (true)
+	 std::cout << "DEBUG:: Setting filechooser with file: " << full_name
 		   << std::endl;
+
+      // https://docs.gtk.org/gtk3/method.FileChooser.set_current_name.html
+      //
+      // use gtk_file_chooser_set_current_name() if the file is "made up" e.g. "Untitled.doc"
+      // and use gtk_file_chooser_set_file() if the file exists.
 
       if (g_file_test(full_name.c_str(), G_FILE_TEST_EXISTS)) {
 
-#if (GTK_MAJOR_VERSION >= 4)
-         std::cout << "in set_file_for_save_filechooser() FIXME" << std::endl;
-#else
-         gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(fileselection), full_name.c_str());
-#endif
+         GFile *file = g_file_new_for_path(full_name.c_str());
+         GError *error = 0;
+         gtk_file_chooser_set_file(GTK_FILE_CHOOSER(filechooser), file, &error); // deprecated
+         g_object_unref(file);
 
-	 // we shouldnt need to call set_current_name and the filename
-	 // should be automatically set in the entry field, but this seems
-	 // to be buggy at least on gtk+-2.0 v. 1.20.13
-	 gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
-					   stripped_name.c_str());
       } else {
 
+         GFile *file_dir = g_file_new_for_path(directory_for_saving_for_filechooser.c_str());
+         GError *error = 0;
 
-#if (GTK_MAJOR_VERSION >= 4)
-         // 20220602-PE FIXME
-         std::cout << "in save_directory_for_saving_from_filechooser() FIXME" << std::endl;
-#else
-         gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
-                                      directory_for_saving_for_filechooser.c_str());
-         gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
-                                      stripped_name.c_str());
-#endif
+         // this is the right directory, but the dialog gives us a warning messge. Don't understand
+         // std::cout << "not using file dir for " << directory_for_saving_for_filechooser << std::endl;
+         // gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(filechooser), file_dir, &error);
+
+         gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(filechooser), stripped_name.c_str());
+         g_object_unref(file_dir);
       }
    }
 }
