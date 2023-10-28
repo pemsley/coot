@@ -25,11 +25,11 @@
 #include <string>
 #include "src/graphics-info.h"
 
-ProgressBarPopUp::ProgressBarPopUp(const char* title, const char* description) noexcept {
+ProgressBarPopUp::ProgressBarPopUp(const std::string &title, const std::string &description) noexcept {
    this->window = (GtkWindow*) gtk_window_new();
    this->progress_bar = (GtkProgressBar*) gtk_progress_bar_new();
 
-   gtk_window_set_title(this->window, title);
+   gtk_window_set_title(this->window, title.c_str());
    gtk_window_set_deletable(this->window, FALSE);
    graphics_info_t::set_transient_for_main_window(GTK_WIDGET(this->window));
    auto* box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
@@ -39,7 +39,7 @@ ProgressBarPopUp::ProgressBarPopUp(const char* title, const char* description) n
    gtk_widget_set_margin_end(box,    30);
 
    gtk_window_set_child(this->window, box);
-   gtk_box_append(GTK_BOX(box), gtk_label_new(description));
+   gtk_box_append(GTK_BOX(box), gtk_label_new(description.c_str()));
    gtk_box_append(GTK_BOX(box), GTK_WIDGET(this->progress_bar));
    gtk_window_present(this->window);
 }
@@ -63,10 +63,10 @@ void ProgressBarPopUp::set_fraction(float frac) noexcept {
    }
 }
 
-void ProgressBarPopUp::set_text(const char* text) noexcept {
+void ProgressBarPopUp::set_text(const std::string &text) noexcept {
    if(this->progress_bar) {
       gtk_progress_bar_set_show_text(this->progress_bar, TRUE);
-      gtk_progress_bar_set_text(this->progress_bar, text);
+      gtk_progress_bar_set_text(this->progress_bar, text.c_str());
    }
 }
 
@@ -110,7 +110,7 @@ void ProgressNotifier::pulse() noexcept {
    }, data);
 }
 
-void ProgressNotifier::set_text(const char* text) noexcept {
+void ProgressNotifier::set_text(const std::string &text) noexcept {
 
    struct callback_data {
       std::shared_ptr<ProgressBarPopUp> popup;

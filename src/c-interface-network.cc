@@ -558,7 +558,8 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
       return;
    }
 
-   ProgressBarPopUp popup("Coot Download", "Downloading a map from EMDB...");
+   std::string label_str = "Downloading map for " + emd_accession_code + " from EMDB...";
+   ProgressBarPopUp popup("Coot: Downloading Map", label_str);
    std::thread worker([=](ProgressBarPopUp&& pp){
 
       std::shared_ptr<ProgressBarPopUp> popup = std::make_shared<ProgressBarPopUp>(std::move(pp));
