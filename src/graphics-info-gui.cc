@@ -433,9 +433,9 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *filechooser) const {
       if (directory_for_saving_for_filechooser != "") {
 	full_name = directory_for_saving_for_filechooser + stripped_name;
       } else {
+
 	// if we have a directory in the filechooser path we take this
 	if (directory_for_saving_for_filechooser != "") {
-	  directory_for_saving_for_filechooser = graphics_info_t::directory_for_saving_for_filechooser;
 
 	} else {
 	  // otherwise we make one
