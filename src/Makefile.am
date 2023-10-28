@@ -656,6 +656,7 @@ libcootsumo_la_SOURCES = \
 	probe-clash-score.hh     \
 	protein_db-interface.hh  \
 	protein_db-interface.cc  \
+	pumpkin.cc pumpkin.hh    \
 	python-classes.cc	 \
 	python-classes.hh	 \
 	python-3-interface.hh	 \

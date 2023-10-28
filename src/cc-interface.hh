@@ -2299,4 +2299,6 @@ void set_use_sounds(bool state);
 //! no sounds
 void curmudgeon_mode();
 
+void halloween();
+
 #endif // CC_INTERFACE_HH

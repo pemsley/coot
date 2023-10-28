@@ -5285,6 +5285,9 @@ string   static std::string sessionid;
 
    static bool use_sounds; // default true
 
+   // add a pumpkin as a graphics object and draw it.
+   void pumpkin();
+
 };
 
 

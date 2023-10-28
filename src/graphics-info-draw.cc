@@ -6728,3 +6728,44 @@ graphics_info_t::unfullscreen() {
       g_error("%p is not a Gtk.Window !", window);
    }
 }
+
+#include "pumpkin.hh"
+ void
+    graphics_info_t::pumpkin() {
+
+    std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > p1 = ::pumpkin();
+    std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > p2 = ::pumpkin_stalk();
+    
+    glm::vec4 col_1(0.85, 0.45, 0.19, 1.0);
+    glm::vec4 col_2(0.35, 0.45, 0.19, 1.0);
+    attach_buffers();
+    std::vector<s_generic_vertex> v1(p1.first.size());
+    std::vector<s_generic_vertex> v2(p2.first.size());
+
+    coot::Cartesian scc = get_rotation_centre_cart();
+    glm::vec3 sc(scc.x(), scc.y(), scc.z());
+    for (unsigned int i=0; i<p1.first.size(); i++)
+       v1[i] = s_generic_vertex(2.0f * p1.first[i].pos + sc, p1.first[i].normal, col_1);
+    for (unsigned int i=0; i<p2.first.size(); i++)
+       v2[i] = s_generic_vertex(2.0f * p2.first[i].pos + sc, p2.first[i].normal, col_2);
+
+    // add v2 to v1
+    unsigned int idx_base = p1.first.size();
+    unsigned int idx_tri_base = p1.second.size();
+    v1.insert(v1.end(), v2.begin(), v2.end());
+    std::vector<g_triangle> triangles = p1.second;
+    triangles.insert(triangles.end(), p2.second.begin(), p2.second.end());
+    for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
+       triangles[i].rebase(idx_base);
+
+    Mesh m(v1, triangles);
+    m.set_name("Pumpkin");
+    Material material;
+    m.setup(material);
+    meshed_generic_display_object obj(m);
+
+    generic_display_objects.push_back(obj);
+
+    graphics_draw();
+
+ }

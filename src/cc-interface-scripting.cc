@@ -110,3 +110,11 @@ void curmudgeon_mode() {
    graphics_info_t::use_sounds = false;
 }
 
+
+void halloween() {
+
+   // make a graphical object
+   graphics_info_t g;
+   g.pumpkin();
+
+}
