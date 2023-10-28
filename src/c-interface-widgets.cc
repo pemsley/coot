@@ -50,8 +50,7 @@ GMenuModel *main_menumodel() {
 
    GtkApplication *app = graphics_info_t::application;
    GMenuModel *menubar = gtk_application_get_menubar(app);
-   // GtkWidget *w = GTK_WIDGET(menubar);
-   std::cout << "@@@@@@@ in main_menumodel() returning " << menubar << std::endl;
+   // std::cout << "@@@@@@@ in main_menumodel() returning " << menubar << std::endl;
    return menubar;
 }
 

@@ -5623,6 +5623,9 @@ def add_module_cryo_em_gui():
         add_action("Enable Auto-Recontour Map Mode",
             "set_auto_recontour_map",
             lambda _simple_action, _arg2: coot.set_auto_recontour_map(1))
+        add_action("Solidify Maps",
+                   "solidify_maps",
+                   lambda _simple_action, _arg2: solidify_maps("all"))
 
 
 def add_module_ccp4_gui():
