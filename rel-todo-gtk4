@@ -12,30 +12,15 @@ C++ 17 and git for CCP4i2
 
 ----
 
-"A Report on the Work of Jakub while Sponsered by Global Phasing"
-Report on work with Jakub - what has been done?
-~2 pages - something like that.
-"Productive and successful."
-Especially of work outside of GTK4.
-Like a letter of reference?
-
 8 items
 
+Jakub's SMILES exception
+
 Find some Cryo-EM ligand for demo at the ligands meeting.
-
-sharpen_blur_with_resampling to moorhen api
-
-Atsushi Nakagawa wrote:
->    I cannot display the PDB1uv6 on coot
-* Still broken?
-*   Looks OK to me now.
-
-Save coordinates chooser and dialog is broken.
+* I found a couple so far.
 
 Moorhen:: change the return type so that there is a label or some such.
 (or the reason why it was an outlier)
-
-Copy Fragment buttons need more space.
 
 cif parser fail for 6eoj from the PDBe - display as CAs.
 * set_use_gemmi_as_model_parser_xxx(1) fixes it
@@ -43,8 +28,6 @@ cif parser fail for 6eoj from the PDBe - display as CAs.
 no_sound()
 
 coot.halloween()
-
-Jakub's SMILES exception
 
 Find some ligands in EM maps for moorhen demo at the ligand meeting
 
@@ -1054,3 +1037,17 @@ Moorhen: carbon bonds are too light on white background. Looking at the code, it
          to do the right thing, but needs testing. Print the colour table.
 * Colour table seems fine. Needs a look.
 * Done. Not a libcootapi problem.
+
+sharpen_blur_with_resampling to moorhen api
+* Done.
+
+Save coordinates chooser and dialog is broken.
+* Done.
+
+Copy Fragment buttons need more space.
+* Jakub Done.
+
+Atsushi Nakagawa wrote:
+>    I cannot display the PDB1uv6 on coot
+* Still broken?
+*   Looks OK to me now.
