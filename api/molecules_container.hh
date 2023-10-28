@@ -1236,7 +1236,8 @@ public:
    //! typical values for `min_dist` is 2.3
    //! typical values for `max_dist` is 3.5
    //!
-   //! return a vector of atom specifiers
+   //! @return a vector of atom specifiers
+   //! Use the string_user_data of the spec for the button label
    std::vector <coot::atom_spec_t>
    find_water_baddies(int imol_model, int imol_map,
                       float b_factor_lim,
