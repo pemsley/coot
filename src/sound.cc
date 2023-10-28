@@ -10,6 +10,7 @@
 #endif
 
 #include "utils/coot-utils.hh"
+#include "graphics-info.h" // to check for graphics_info_t::use_sounds
 
 void
 play_sound_file(const std::string &file_name) {
@@ -112,11 +113,13 @@ play_sound_file(const std::string &file_name) {
 
 void play_sound(const std::string &type) {
 
-   if (type == "SUCCESS") play_sound_file("538554_3725923-lq-Sjonas88-success.ogg");
-   if (type == "CLICK")   play_sound_file("538548_3725923-lq-Sjonas-Select-3.ogg");
-   if (type == "TINK")    play_sound_file("538549_3725923-lq-Sjonas-Select-2.ogg");
-   if (type == "STARS")   play_sound_file("538553_3725923-lq-Sjonas88-Stars.ogg");
-   if (type == "OOPS")    play_sound_file("538550_3725923-lq-Sjonas88-Deep-tone.ogg");
+   if (graphics_info_t::use_sounds) {
+      if (type == "SUCCESS") play_sound_file("538554_3725923-lq-Sjonas88-success.ogg");
+      if (type == "CLICK")   play_sound_file("538548_3725923-lq-Sjonas-Select-3.ogg");
+      if (type == "TINK")    play_sound_file("538549_3725923-lq-Sjonas-Select-2.ogg");
+      if (type == "STARS")   play_sound_file("538553_3725923-lq-Sjonas88-Stars.ogg");
+      if (type == "OOPS")    play_sound_file("538550_3725923-lq-Sjonas88-Deep-tone.ogg");
+   }
 
 }
 

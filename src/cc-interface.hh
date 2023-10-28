@@ -2293,4 +2293,10 @@ clipper::Spacegroup scm_symop_strings_to_space_group(SCM symop_string_list);
 clipper::Spacegroup py_symop_strings_to_space_group(PyObject *symop_string_list);
 #endif
 
+//! \brief enable or diable sounds (coot needs to have been compiled with sounds of course)
+void set_use_sounds(bool state);
+
+//! no sounds
+void curmudgeon_mode();
+
 #endif // CC_INTERFACE_HH

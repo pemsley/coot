@@ -5283,6 +5283,8 @@ string   static std::string sessionid;
 
    static void add_shortcuts_to_window(GtkWidget *shortcuts_window);
 
+   static bool use_sounds; // default true
+
 };
 
 
