@@ -745,7 +745,7 @@ public:
       std::string sigF_obs;
       //! R-Free column. There were not avaliable if the return value is empty
       std::string Rfree;
-      auto_read_mtz_info_t() {idx = -1;}
+      auto_read_mtz_info_t() {idx = -1; weights_used = false; }
       auto_read_mtz_info_t(int index, const std::string &F_in, const std::string &phi_in) :
          idx(index), F(F_in), phi(phi_in), weights_used(false) {}
       void set_fobs_sigfobs(const std::string &f, const std::string &s) {
@@ -780,6 +780,11 @@ public:
    //! create a new map that is blurred/sharpened
    //! @return the molecule index of the new map or -1 on failure or if `in_place_flag` was true.
    int sharpen_blur_map(int imol_map, float b_factor, bool in_place_flag);
+
+   //! create a new map that is blurred/sharpened and resampling.
+   //! Note that resampling can be slow, a resample_factor of 1.5 is about the limit of the trade of of prettiness for speed.
+   //! @return the molecule index of the new map or -1 on failure or if `in_place_flag` was true.
+   int sharpen_blur_map_with_resample(int imol_map, float b_factor, float resample_factor, bool in_place_flag);
 
    //! mask map by atom selection (note the argument order is reversed compared to the coot api).
    //!
