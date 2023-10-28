@@ -11155,3 +11155,16 @@ Tue 24 Oct 21:30:11 BST 2023
    than the one provided by pip
 
 
+----
+Fri 27 Oct 01:39:28 BST 2023
+
+# compiling
+install_top_dir=$HOME/gtk4
+epxort PKG_CONFIG_PATH=$install_top_dir/lib/x86_64-linux-gnu/pkgconfig:$install_top_dir/lib/pkgconfig
+meson setup -Dprefix=$install_top_dir build
+cd build
+ninja
+
+meson-logs/meson-log.txt says
+
+   Dependency glib-2.0 found: NO found 2.66.8 but need: '>= 2.72.0'

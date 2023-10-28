@@ -3960,8 +3960,6 @@ the Ctrl key when moving the mouse.</property>
         </child>
       </object>
     </child>
-    <child type="titlebar">
-    </child>
     <action-widgets>
       <action-widget response="-6">copy_fragment_cancel_button</action-widget>
       <action-widget response="-5">copy_fragment_ok_button</action-widget>
