@@ -946,7 +946,6 @@ void CanvasMolecule::draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode di
                         b_cropped = second_c;
                     }
                 }
-
                 cairo_move_to(cr, a_cropped.x, a_cropped.y);
                 cairo_line_to(cr, b_cropped.x, b_cropped.y);
                 cairo_stroke(cr);
