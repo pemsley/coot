@@ -5589,9 +5589,10 @@ def add_module_cryo_em_gui():
 
         # where does this one belong?
 
-        add_action("Interactive Nudge Residues...",
-            "interactive_nudge",
-            lambda _simple_action, _arg2: interactive_nudge_func())
+        # 20231029-PE remove this for now - restore later
+        # add_action("Interactive Nudge Residues...",
+        #     "interactive_nudge",
+        #    lambda _simple_action, _arg2: interactive_nudge_func())
 
         add_action("Jiggle-fit This Chain - Simple", "jiggle_fit_chain_simple",
                    jiggle_fit_chain_simple_wrapper)
