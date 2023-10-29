@@ -15,6 +15,7 @@ C++ 17 and git for CCP4i2
 8 items
 
 Jakub's SMILES exception
+O=C(C)Oc1ccccc1C(=O)O
 
 Find some Cryo-EM ligand for demo at the ligands meeting.
 * I found a couple so far.
@@ -25,35 +26,12 @@ Moorhen:: change the return type so that there is a label or some such.
 cif parser fail for 6eoj from the PDBe - display as CAs.
 * set_use_gemmi_as_model_parser_xxx(1) fixes it
 
-no_sound()
-
 coot.halloween()
-
-Find some ligands in EM maps for moorhen demo at the ligand meeting
-
 
 Don't draw rama ball when intermediate atoms are from edit chi angles (and some others
 presumably).
 
 Moorhen: Request: electrostatic surface.
-
-Moorhen: Check/Delete waters function for the api
-* Done.
-
-Moorhen: test robustness of jiggle-fitting. Move the molecule around a bit and
-         see if you get solutions.
-         Use the nanobody in 7vvl.
-         Use one of the WD40 domains in 6eoj
-* Done - good enough for now
-
-Moorhen: Read gziped maps in libcootapi, so moorhen can get maps from emdb.
-
-Moorhen: auto-read-mtz needs to return the Fobs and sigFobs also (if possible, of course)
-  add std::string F_obs and sigF_obs to auto_read_mtz_info_t
-  They were not set if F_obs is empty.
-
-Apply Charles patches.
-* Done.
 
 Make the CMakefile install chapi
 
@@ -67,14 +45,8 @@ Quick save as should save the shader settings
 
 Try Quick save as on a mac and restore settings - the graphics window size is wrong.
 
-No sound api.
-
-Jakub: sugar representation in RDKit and layla? (add it?)
-
 Rigid-body refine the tutorial A chain. It used to display an intermediate atoms
 representation. What happens now and is that what you want?
-
-Outliers only in Rama plots
 
 Renumber residue range on a molecule that is not the first molecule ::: 0.6
 
@@ -113,6 +85,8 @@ Rob's problematic links
 * Need details.
 
 startup with default map opacity.
+
+Jakub: sugar representation in RDKit and layla? (add it?)
 
 Where is Make Link? ::: 1.5
 * Needs user-defined click click. Just do it in C++?
@@ -196,6 +170,8 @@ import coot
 import coot.utils?
 
 User-defined sf for distances.
+
+A cancel button on the Download EMD map progress bar dialog
 
 NCS Jumping should use the correct matrix :::- 0.5
 l28. Tried and failed. Test the conversion of glm quaternion to coot quaternion and back again.
@@ -1051,3 +1027,39 @@ Atsushi Nakagawa wrote:
 >    I cannot display the PDB1uv6 on coot
 * Still broken?
 *   Looks OK to me now.
+
+no_sound()
+* Done.
+
+Moorhen: Check/Delete waters function for the api
+* Done.
+
+Moorhen: test robustness of jiggle-fitting. Move the molecule around a bit and
+         see if you get solutions.
+         Use the nanobody in 7vvl.
+         Use one of the WD40 domains in 6eoj
+* Done - good enough for now
+
+Moorhen: Read gziped maps in libcootapi, so moorhen can get maps from emdb.
+* Done.
+
+Moorhen: auto-read-mtz needs to return the Fobs and sigFobs also (if possible, of course)
+  add std::string F_obs and sigF_obs to auto_read_mtz_info_t
+  They were not set if F_obs is empty.
+* Done
+
+Apply Charles patches.
+* Done.
+
+"Solidify maps" in Cryo-EM module menu
+* Done
+
+No sound api.
+* Done.
+
+Outliers only in Rama plots
+* Done.
+
+Residues-near-residues
+* Done.
+
