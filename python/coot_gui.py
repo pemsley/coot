@@ -1206,11 +1206,17 @@ def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter,
     vbox.append(label)
     vbox.append(combobox)
     vbox.append(hbox_for_entry)
-    hbox_buttons.append(ok_button)
     hbox_buttons.append(cancel_button)
+    hbox_buttons.append(ok_button)
     hbox_for_entry.append(entry_label)
     hbox_for_entry.append(entry)
     entry.set_text(default_entry_text)
+
+    for button in [ok_button, cancel_button]:
+        button.set_margin_start(8)
+        button.set_margin_end(2)
+        button.set_margin_top(10)
+        button.set_margin_bottom(10)
 
     c_button = None
     if use_check_button:
@@ -1224,8 +1230,7 @@ def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter,
 
     # button callbacks
     ok_button.connect("clicked", on_ok_button_clicked, entry, combobox,
-                      callback_function,
-                      c_button, alternative_callback_function)
+                      callback_function, c_button, alternative_callback_function)
     cancel_button.connect("clicked", delete_event)
 
     window.show()
@@ -5556,8 +5561,7 @@ def add_module_cryo_em_gui():
                 "",
                 "Select PIR Alignment file",
                 lambda imol, chain_id, target_sequence_pif_file:
-                coot.run_clustalw_alignment(imol, chain_id,
-                                            target_sequence_pif_file))
+                coot.run_clustalw_alignment(imol, chain_id, target_sequence_pif_file))
 
         menu = attach_module_menu_button("Cryo-EM")
 
