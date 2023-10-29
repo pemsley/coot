@@ -152,32 +152,34 @@ get_atom_selection(std::string pdb_name,
    auto file_name_to_manager_via_gemmi = [] (const std::string &pdb_name) {
       mmdb::Manager *mol = nullptr;
 #ifdef USE_GEMMI
-      gemmi::Structure st = gemmi::read_structure_file(pdb_name);
-      if (! st.models.empty()) {
-         mol = new mmdb::Manager;
-         gemmi::copy_to_mmdb(st, mol);
+      try {
+         gemmi::Structure st = gemmi::read_structure_file(pdb_name);
+         if (! st.models.empty()) {
+            mol = new mmdb::Manager;
+            gemmi::copy_to_mmdb(st, mol);
 
-         for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-            mmdb::Model *model_p = mol->GetModel(imod);
-            if (model_p) {
-               int n_chains = model_p->GetNumberOfChains();
-               for (int ichain=0; ichain<n_chains; ichain++) {
-                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
-                  int n_res = chain_p->GetNumberOfResidues();
-                  for (int ires=0; ires<n_res; ires++) {
-                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                     if (residue_p) {
-                        int n_atoms = residue_p->GetNumberOfAtoms();
-                        for (int iat=0; iat<n_atoms; iat++) {
-                           mmdb::Atom *at = residue_p->GetAtom(iat);
-                           std::string atom_name = at->GetAtomName();
-                           int l = atom_name.length();
-                           std::string new_atom_name;
-                           if (l == 1) new_atom_name = std::string(" ") + atom_name + std::string("  ");
-                           if (l == 2) new_atom_name = atom_name + std::string("  ");
-                           if (l == 3) new_atom_name = atom_name + std::string(" ");
-                           if (l == 1 || l == 2 || l == 3) {
-                              at->SetAtomName(new_atom_name.c_str());
+            for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+               mmdb::Model *model_p = mol->GetModel(imod);
+               if (model_p) {
+                  int n_chains = model_p->GetNumberOfChains();
+                  for (int ichain=0; ichain<n_chains; ichain++) {
+                     mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                     int n_res = chain_p->GetNumberOfResidues();
+                     for (int ires=0; ires<n_res; ires++) {
+                        mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                        if (residue_p) {
+                           int n_atoms = residue_p->GetNumberOfAtoms();
+                           for (int iat=0; iat<n_atoms; iat++) {
+                              mmdb::Atom *at = residue_p->GetAtom(iat);
+                              std::string atom_name = at->GetAtomName();
+                              int l = atom_name.length();
+                              std::string new_atom_name;
+                              if (l == 1) new_atom_name = std::string(" ") + atom_name + std::string("  ");
+                              if (l == 2) new_atom_name = atom_name + std::string("  ");
+                              if (l == 3) new_atom_name = atom_name + std::string(" ");
+                              if (l == 1 || l == 2 || l == 3) {
+                                 at->SetAtomName(new_atom_name.c_str());
+                              }
                            }
                         }
                      }
@@ -185,6 +187,9 @@ get_atom_selection(std::string pdb_name,
                }
             }
          }
+      }
+      catch (const std::runtime_error &e) {
+         std::cout << "WARNING::" << e.what() << std::endl;
       }
 #endif // USE_GEMMI
       return mol;
