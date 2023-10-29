@@ -724,8 +724,12 @@ void ensure_layla_initialized() {
 
 void
 start_ligand_builder_gui() {
+#if (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION > 9) || (GTK_MAJOR_VERSION > 4)
    ensure_layla_initialized();
    coot::launch_layla();
+#else
+   std::cout << "GTK4 version too old for the ligand builder (needs 4.10 or later)" << std::endl;
+#endif
 }
 
 void
