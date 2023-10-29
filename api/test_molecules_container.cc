@@ -3730,6 +3730,21 @@ int test_colour_map_by_other_map(molecules_container_t &mc) {
 
 }
 
+int test_residues_near_residues(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      std::string residue_cid = "//A/60";
+      std::vector<coot::residue_spec_t> neighbour_specs = mc.get_residues_near_residue(imol, residue_cid, 5);
+      std::cout << "debug:: found " << neighbour_specs.size() << " neighbouring residues" << std::endl;
+      if (neighbour_specs.size() > 3) status = 1;
+   }
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3856,7 +3871,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
+   status += run_test(test_residues_near_residues, "residues near residues",    mc);
+
+   // status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
 
    // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
 

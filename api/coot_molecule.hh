@@ -701,6 +701,10 @@ namespace coot {
 
       coot::instanced_mesh_t get_extra_restraints_mesh(int mode) const;
 
+      //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
+      std::vector<coot::residue_spec_t> residues_near_residue(const std::string &residue_cid, float dist) const;
+
+
       // ------------------------ model-changing functions
 
       int move_molecule_to_new_centre(const coot::Cartesian &new_centre);

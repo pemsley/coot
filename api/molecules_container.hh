@@ -677,6 +677,9 @@ public:
    //! in the the specified molecule
    coot::util::missing_atom_info missing_atoms_info_raw(int imol);
 
+   //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
+   std::vector<coot::residue_spec_t> get_residues_near_residue(int imol, const std::string &residue_cid, float dist) const;
+
    //! superposition (using SSM)
    //!
    //! The specified chain of the moving molecule is superposed onto the chain in the reference molecule (if possible).

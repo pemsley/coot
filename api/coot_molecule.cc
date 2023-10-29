@@ -4025,3 +4025,16 @@ coot::molecule_t::add_neighbor_residues_for_refinement_help(mmdb::Manager *mol) 
 
 // ------------------------------ put these functions in coot_molecule_refine.cc --------------
 
+
+//! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
+std::vector<coot::residue_spec_t>
+coot::molecule_t::residues_near_residue(const std::string &residue_cid, float dist) const {
+
+   std::vector<coot::residue_spec_t> v;
+   mmdb::Residue *residue_p = cid_to_residue(residue_cid);
+   if (residue_p) {
+      coot::residue_spec_t res_spec_in(residue_p);
+      v = coot::residues_near_residue(res_spec_in, atom_sel.mol, dist);
+   }
+   return v;
+}

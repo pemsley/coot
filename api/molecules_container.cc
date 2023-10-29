@@ -4684,3 +4684,18 @@ molecules_container_t::get_cif_file_name(const std::string &comp_id, int imol_en
    std::string fn = geom.get_cif_file_name(comp_id, imol_enc);
    return fn;
 }
+
+//! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
+std::vector<coot::residue_spec_t>
+molecules_container_t::get_residues_near_residue(int imol, const std::string &residue_cid, float dist) const {
+
+   std::vector<coot::residue_spec_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].residues_near_residue(residue_cid, dist);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+
+}
+
