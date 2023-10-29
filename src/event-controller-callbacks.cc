@@ -165,10 +165,13 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
       } else {
          // zoom with chording. Check both because currently
          // APPLE has primary swapped.
-         if (modifier & GDK_BUTTON1_MASK) {
-            if (modifier & GDK_BUTTON3_MASK) {
-               do_view_zoom(drag_delta_x, drag_delta_y);
-            }
+         bool do_chorded_view_zoom = false;
+         if (modifier & GDK_BUTTON1_MASK)
+            if (modifier & GDK_BUTTON3_MASK)
+               do_chorded_view_zoom = true;
+
+         if (do_chorded_view_zoom) {
+            do_view_zoom(drag_delta_x, drag_delta_y);
          } else {
 
             bool trackpad_drag = false;
@@ -176,6 +179,7 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
             trackpad_drag = true;
 #endif
             bool handled = false;
+            std::cout << "here with trackpad_drag " << trackpad_drag << std::endl;
             if (trackpad_drag) {
                if (in_moving_atoms_drag_atom_mode_flag) {
                   if (last_restraints_size() > 0) {
@@ -199,6 +203,7 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
                   }
                }
             }
+            std::cout << "here with handled " << handled << std::endl;
             if (! handled) {
                do_view_rotation(drag_delta_x, drag_delta_y);
             }
