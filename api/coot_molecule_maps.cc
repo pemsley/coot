@@ -431,7 +431,7 @@ coot::molecule_t::get_map_contours_mesh_using_other_map_for_colours(const clippe
       unsigned int idx_base = vertices.size();
       for (unsigned int i=0; i<tri_con.points.size(); i++) {
          glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
-         glm::vec3 normal = coord_orth_to_glm(tri_con.normals[i]);
+         glm::vec3 normal = coord_orth_to_glm(-tri_con.normals[i]); // reverse normals
          clipper::Coord_orth clipper_pos(pos.x, pos.y, pos.z);
          glm::vec4 col = position_to_colour_using_other_map(clipper_pos, other_map);
          api::vnc_vertex vert(pos, normal, col);
