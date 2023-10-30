@@ -6833,3 +6833,9 @@ graphics_info_t::set_bond_colour_from_user_defined_colours(int icol) {
    }
    
 }
+
+
+void
+graphics_info_t::update_scroll_wheel_map_on_molecule_close() {
+
+}

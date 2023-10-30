@@ -1250,6 +1250,7 @@ public:
    // To which map is the mouse scroll wheel attached?
    //
    static int scroll_wheel_map;
+   void update_scroll_wheel_map_on_molecule_close();
 
    // a static utility function (excised for portability)
    static std::string add_dir_file(const std::string &dirname, const std::string &filename);
