@@ -13468,6 +13468,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <child>
                   <object class="GtkButton" id="show_symmetry_molecule_control_button">
                     <property name="label" translatable="yes">Symmetry by Molecule...</property>
+                    <property name="visible">False</property>
                     <property name="margin-top">6</property>
                     <property name="margin-bottom">6</property>
                     <property name="margin-start">6</property>

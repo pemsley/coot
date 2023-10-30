@@ -1778,3 +1778,4 @@ std::vector<api::rail_points_t> graphics_info_t::rail_point_history;
 coot::util::sfcalc_genmap_stats_t graphics_info_t::latest_sfcalc_stats;
 
 bool graphics_info_t::use_sounds = true;
+guint graphics_info_t::updating_maps_timeout_function_idx = UPDATING_MAPS_TIMEOUT_FUNCTION_IDX_UNSET;

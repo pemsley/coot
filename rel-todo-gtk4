@@ -17,6 +17,10 @@ C++ 17 and git for CCP4i2
 Jakub's SMILES exception
 O=C(C)Oc1ccccc1C(=O)O
 
+Symmetry by molecule: removed from UI. Buggy. Nees a fix.
+
+Use "updating maps" a second time.
+
 Find some Cryo-EM ligand for demo at the ligands meeting.
 * I found a couple so far.
 

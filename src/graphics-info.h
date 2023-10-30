@@ -500,6 +500,8 @@ enum { IN_STEREO_MONO = 0,
 #include "select-atom-info.hh"
 #include "gl-bits.hh"
 
+const guint UPDATING_MAPS_TIMEOUT_FUNCTION_IDX_UNSET = 99999999;
+
 class graphics_info_t {
 
    static int n_molecules_max;
@@ -4829,6 +4831,8 @@ string   static std::string sessionid;
    int rail_points_total() const;
 
    void updating_maps_update_the_coot_points_overlay();
+
+   static guint updating_maps_timeout_function_idx;
 
    // --------------------------------------------------------------------------------------
 
