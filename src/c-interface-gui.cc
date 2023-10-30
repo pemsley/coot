@@ -3448,6 +3448,8 @@ close_molecules_gtk4(GtkWidget *dialog) {
          }
       }
    }
+   graphics_info_t g;
+   g.update_scroll_wheel_map_on_molecule_close();
    graphics_draw();
 }
 
