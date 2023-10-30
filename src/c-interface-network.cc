@@ -494,7 +494,9 @@ void fetch_and_superpose_alphafold_models(int imol) {
             }
          }
          if (!found_a_uniprot_dbref) {
-            std::cout << "INFO:: no DBREF found in molecule header " << imol << std::endl;
+            std::string m = "WARNING:: no DBREF found in molecule header";
+            info_dialog(m.c_str());
+            std::cout << m << " " << imol << std::endl;
          }
       }
    }

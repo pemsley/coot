@@ -6882,3 +6882,32 @@ void graphics_info_t::hide_vertical_validation_frame_if_appropriate() {
       gtk_widget_set_visible(pane, FALSE);
    }
 }
+
+
+void
+graphics_info_t::update_scroll_wheel_map_on_molecule_close() {
+
+   int imol_start = scroll_wheel_map;
+
+   if (is_valid_map_molecule(imol_start)) {
+      // nothing need be done
+   } else {
+      bool changed = false; // to a higher number
+      int m = molecules.size() - 1;
+      for(int imol=m; imol>=0; imol--) {
+	 if (imol > imol_start) {
+	    if (is_valid_map_molecule(imol)) {
+	       scroll_wheel_map = imol;
+	       changed = true;
+	    }
+	 } else {
+	    if (! changed) {
+	       if (is_valid_map_molecule(imol))
+		  scroll_wheel_map = imol;
+	    }
+	 }
+      }
+      // nothing was satisfactory then.
+      scroll_wheel_map = -1;
+   }
+}

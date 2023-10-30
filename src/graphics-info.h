@@ -1484,6 +1484,7 @@ public:
    // To which map is the mouse scroll wheel attached?
    //
    static int scroll_wheel_map;
+   void update_scroll_wheel_map_on_molecule_close();
 
    void contour_level_scroll_scrollable_map(int direction);
 
