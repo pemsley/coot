@@ -144,7 +144,7 @@ namespace molecule_map_type {
 #include "fragment-info.hh"
 #include "atom-name-bits.hh"
 #include "rama-rota-score.hh"
-#include "merge-molecule-results-info-t.hh"
+#include "api/merge-molecule-results-info-t.hh"
 #include "density-results-container-t.hh"
 
 #include "Shader.hh"

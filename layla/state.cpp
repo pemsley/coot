@@ -563,14 +563,12 @@ void LaylaState::file_save_as() {
             int chosen_molecule = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "chosen_molecule"));
             LaylaState* self = (LaylaState*) g_object_get_data(G_OBJECT(window), "ligand_builder_instance");
             if(chosen_molecule == -1) {
-                auto* message = gtk_message_dialog_new(
-                    window, 
-                    GTK_DIALOG_DESTROY_WITH_PARENT, 
-                    GTK_MESSAGE_ERROR, 
-                    GTK_BUTTONS_CLOSE,
-                    "Nothing was chosen!",
-                    NULL
-                );
+                auto* message = gtk_message_dialog_new(window,
+                                                       GTK_DIALOG_DESTROY_WITH_PARENT, 
+                                                       GTK_MESSAGE_ERROR, 
+                                                       GTK_BUTTONS_CLOSE,
+                                                       "Nothing was chosen!",
+                                                       NULL);
                 gtk_widget_show(message);
                 g_info("Nothing was chosen.");
             } else {

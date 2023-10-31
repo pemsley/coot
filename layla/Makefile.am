@@ -60,6 +60,8 @@ libcoot_layla_la_LIBADD = $(top_builddir)/geometry/libcoot-geometry.la \
 
 libcoot_layla_la_LDFLAGS = $(SHARED_LDFLAGS)
 
+EXTRA_DIST = layla.ui
+
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	$(SQLITE3_CFLAGS)              \

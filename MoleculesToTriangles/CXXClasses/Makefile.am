@@ -44,7 +44,7 @@ libMoleculesToTrianglesCXXClasses_la_LIBADD=$(MoleculesToTrianglesCXXSurface_LIB
 # otherincludedir = $(includedir)/MoleculesToTriangles/CXXClasses
 # otherincludedir = $(top_srcdir)/MoleculesToTriangles/CXXClasses
 # other
-include_HEADERS = Quaternion.hpp Vector.hpp Vector2.hpp \
+include_HEADERS = Quaternion.hpp Vector.hpp Vector2.hpp Vector3.hpp \
    AtomPropertyRampColorRule.h 	DirectedPositionedEntity.h		RendererImplementations.h       \
    BallsPrimitive.h		DiscreteSegment.h			Representation.h                \
    BondsPrimitive.h		DisplayPrimitive.h			RepresentationInstance.h        \
@@ -58,7 +58,8 @@ include_HEADERS = Quaternion.hpp Vector.hpp Vector2.hpp \
    ColorScheme.h		Polyhedron.h				VertexColorNormalPrimitive.h    \
    CompoundSelection.h		PositionedEntity.h			lfit.h                          \
    CylinderPoint.h		Renderer.h				oglPolyhedron.h                 \
-   CylindersPrimitive.h		RendererGL.h                            RendererGLSL.hpp
+   CylindersPrimitive.h		RendererGL.h                            RendererGLSL.hpp                \
+   DishyBase.h                  FlatFanPrimitive.h
 
 # PointLight.hpp: $(top_srcdir)/PointLight.frag $(top_srcdir)/PointLight.vert $(top_srcdir)/ShaderPacker.py
 # python $(top_srcdir)/ShaderPacker.py PointLight $(top_srcdir)

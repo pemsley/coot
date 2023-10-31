@@ -22,7 +22,8 @@ AM_CPPFLAGS = -I.. -I$(top_srcdir) $(CLIPPER_CXXFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 lib_LTLIBRARIES = libcoot-isosurface.la
 
-pkginclude_HEADERS = Vectors.h CIsoSurface.h density-contour-triangles.hh occlusion.hh transfer-occlusions.hh
+pkginclude_HEADERS = Vectors.h CIsoSurface.h density-contour-triangles.hh occlusion.hh transfer-occlusions.hh gaussian-surface.hh
+
 pkgincludedir = $(includedir)/coot/density-contour
 
 check_PROGRAMS = test-occlusion test-gaussian-surface

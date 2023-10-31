@@ -448,6 +448,7 @@ libcootsumo_la_SOURCES = \
 	cmtz-interface-gui.hh	 \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \
+	clip-hybrid-atom.hh      \
 	clipper-to-glm.hh        \
 	colour-functions.hh      \
 	colour-holder-to-glm.hh  \
@@ -493,6 +494,7 @@ libcootsumo_la_SOURCES = \
 	draw.cc                  \
 	graphics-info-tick-function.cc \
 	draw.hh                  \
+	draw-2.hh                \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
@@ -511,7 +513,6 @@ libcootsumo_la_SOURCES = \
 	ft-character.hh \
 	old-generic-display-object.hh \
 	old-generic-display-object.cc \
-	gaussian-surface.hh      \
 	gaussian-surface.cc      \
 	generic-objects.cc	 \
 	generic-display-objects-c.h \
@@ -613,7 +614,6 @@ libcootsumo_la_SOURCES = \
 	meshed-generic-display-object.hh \
 	meshed-generic-display-object.cc \
 	map-statistics.hh                \
-	merge-molecule-results-info-t.hh \
 	model-composition-statistics.hh  \
 	model-molecule-meshes.hh         \
 	model-molecule-meshes.cc         \
@@ -647,6 +647,7 @@ libcootsumo_la_SOURCES = \
 	molecular-mesh-generator.hh \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
+	nsv.hh                   \
 	obj_loader.h obj_loader.cc \
 	pisa-interface.hh	 \
 	pick.hh pick.cc	 \
@@ -664,6 +665,7 @@ libcootsumo_la_SOURCES = \
 	Particle.cc Particle.hh  \
 	pulse-data.hh            \
 	rail-points.hh           \
+        read-molecule.hh         \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
@@ -723,6 +725,7 @@ libcootsumo_la_SOURCES = \
 	atom-name-bits.hh	 \
 	additional-representation.hh	   \
 	extra-restraints-representation.hh \
+	extra-distance-restraint-markup.hh \
 	atom-attribute.hh	 \
 	animated-ligand.hh	 \
 	atom-selection.hh	 \

@@ -39,11 +39,11 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh strand-fragments.hh \
 	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh merge-molecules.hh arc-info.hh exp-fit.hh \
 	coot_shiftfield.h shiftfield.h fib-sphere.hh cis-peptide-info.hh \
-	pepflip-using-difference-map.hh blob-line.hh \
+	pepflip-using-difference-map.hh blob-line.hh shape-types.hh shapes.hh \
         polar-atoms.hh 3d-texture.hh fragment-container.hh map-index.hh \
         atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh simple-mesh.hh vertex.hh g_triangle.hh \
 	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh cmtz-interface.hh mtz-column-auto-read.hh \
-	pugixml.hpp pugiconfig.hpp find-water-baddies.hh voidp-buffer.hh
+	pugixml.hpp pugiconfig.hpp find-water-baddies.hh voidp-buffer.hh parse-pisa.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils

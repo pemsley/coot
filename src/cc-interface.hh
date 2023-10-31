@@ -550,7 +550,7 @@ void add_to_database(const std::vector<std::string> &command_strings);
 /*  ----------------------------------------------------------------------- */
 /*                         Merge Molecules                                  */
 /*  ----------------------------------------------------------------------- */
-#include "merge-molecule-results-info-t.hh"
+#include "api/merge-molecule-results-info-t.hh"
 // return the status and vector of chain-ids of the new chain ids.
 //
 std::pair<int, std::vector<merge_molecule_results_info_t> > merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol);
