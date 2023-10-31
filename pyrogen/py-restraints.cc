@@ -80,6 +80,7 @@ monomer_restraints_from_python(PyObject *restraints) {
       // std::cout << ":::::::key: " << PyString_AsString(key) << std::endl;
 
       std::string key_string = PyBytes_AS_STRING(PyUnicode_AsUTF8String(key));
+
       if (key_string == "_chem_comp") {
 	 PyObject *chem_comp_list = value;
 	 if (PyList_Check(chem_comp_list)) {
@@ -368,7 +369,9 @@ monomer_restraints_from_python(PyObject *restraints) {
 		  }
 	       }
 	    }
-	 }
+	 } else {
+            std::cout << "plane_restraint_list was not a list" << std::endl;
+         }
       }
    }
 	
