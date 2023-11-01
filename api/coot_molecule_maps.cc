@@ -480,14 +480,24 @@ coot::molecule_t::position_to_colour_using_other_map(const clipper::Coord_orth &
    return col;
 }
 
+#include "colour-functions.hh"
+
 glm::vec4
 coot::molecule_t::fraction_to_colour(float fraction) const {
 
+   // 20231101-PE innards reworked - now based on get_bond_colour_by_colour_wheel_position()
+
    float sat = radial_map_colour_saturation;
-   coot::colour_t cc(0.6+0.4*sat, 0.6-0.6*sat, 0.6-0.6*sat);
-   // cc.rotate(1.05 * fraction); // blue end is a bit purple/indigo
-   cc.rotate(0.66 * fraction);
-   glm::vec4 col(cc.col[0], cc.col[1], cc.col[1], 1.0);
+   // coot::colour_t cc(0.6+0.4*sat, 0.6-0.6*sat, 0.6-0.6*sat);
+   std::vector<float> rgb(3);
+   rgb[0] = 0.1f; rgb[1] =  0.1f; rgb[2] =  0.8f; // blue
+   float max_colour = 30.0;
+   // float rotation_size = float(fraction) * 36.0/max_colour - 0.2; pretty goo
+   float rotation_size = float(fraction) * 36.0/max_colour - 0.28;
+   rgb = rotate_rgb(rgb, rotation_size);
+
+   glm::vec4 col(rgb[0], rgb[1], rgb[2], 1.0);
+
    return col;
 }
 
