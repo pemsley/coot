@@ -133,7 +133,10 @@ namespace coot {
 	    double c = top/(std::sqrt(b_1) * std::sqrt(b_2));
 	    return c;
 	 }
-      }; 
+         bool operator<(const density_correlation_stats_info_t &dcsi) const {
+            return sum_xy < dcsi.sum_xy; // or something.
+         };
+      };
 
    }
 }
