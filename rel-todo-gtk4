@@ -66,6 +66,9 @@ Rotate/Translate <fragment> doesn't work.
 
 ---- older issues ---
 
+Auto-centre the user-suggestion for the centre of the blob when using
+jiggle-fit. c.f. "Place Helix Here" initial centering.
+
 Typical example of "what to do?"
   - Filo has been trying the Coot EM tutorial in Moorhen and finds some problem with
     "jiggle fit" - this is an interesting scientific problem - how far can you be away
@@ -162,6 +165,10 @@ Make auto_read_mtz return the column labels - for Moorhen.
 Updatating difference map for cryo-EM using ServalCat.
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
+
+locscale map viewer: colour map by other map?
+
+Get an images -> map from takanori and check that it works well in Coot and in the tomogram image mode
 
 Find 3-10 helices and make restraints. Max Perutz wrote the first paper.
 
