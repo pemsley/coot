@@ -51,6 +51,8 @@ target_sources(lh PRIVATE
   ../layla/ligand_editor_canvas/model.cpp
   ../layla/ligand_editor_canvas/tools.hpp
   ../layla/ligand_editor_canvas/tools.cpp
+  ../layla/ligand_editor_canvas/render.hpp
+  ../layla/ligand_editor_canvas/render.cpp
 )
 
 add_executable(lhasa embind.cpp embind.hpp)

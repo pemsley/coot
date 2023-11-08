@@ -26,27 +26,6 @@
 using namespace coot::ligand_editor_canvas;
 using namespace coot::ligand_editor_canvas::impl;
 
-#ifndef __EMSCRIPTEN__
-Renderer::Renderer(cairo_t* cr, PangoLayout* pango_layout) {
-    this->cr = cr;
-    this->pango_layout = pango_layout;
-}
-#else // __EMSCRIPTEN__ defined
-// Lhasa-specific includes/definitions
-Renderer::Renderer() {
-
-}
-#endif
-
-Renderer::~Renderer() {
-    #ifndef __EMSCRIPTEN__
-    g_object_unref(this->pango_layout);
-    cairo_destroy(this->cr);
-    #else // __EMSCRIPTEN__ defined
-    // Lhasa-specific includes/definitions
-    #endif
-}
-
 StateSnapshot::StateSnapshot(const WidgetCoreData& core_data) {
     this->molecules = std::make_unique<std::vector<CanvasMolecule>>(*core_data.molecules);
     const std::vector<std::shared_ptr<RDKit::RWMol>>& original_rdkit_molecules = *core_data.rdkit_molecules;
@@ -245,11 +224,7 @@ void WidgetCoreData::render(Renderer& ren) {
     if (this->molecules) {
         for(auto& drawn_molecule: *this->molecules) {
             drawn_molecule.set_canvas_scale(this->scale);
-            #ifndef __EMSCRIPTEN__
-            drawn_molecule.draw(ren.cr,ren.pango_layout,this->display_mode);
-            #else
-            #warning TODO: Add drawing method for Lhasa
-            #endif
+            drawn_molecule.draw(ren,this->display_mode);
         }
     } else {
         g_error("Molecules vector not initialized!");

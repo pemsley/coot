@@ -26,6 +26,7 @@
 #include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
 #include <memory>
 #include <vector>
+#include "render.hpp"
 #include "model.hpp"
 #include "tools.hpp"
 
@@ -84,21 +85,6 @@ struct StateSnapshot {
     std::unique_ptr<std::vector<std::shared_ptr<RDKit::RWMol>>> rdkit_molecules;
 
     StateSnapshot(const WidgetCoreData& core_data);
-};
-
-struct Renderer {
-    #ifndef __EMSCRIPTEN__
-
-    cairo_t* cr;
-    PangoLayout* pango_layout;
-    /// Takes ownership of the pointers
-    Renderer(cairo_t*,PangoLayout*);
-
-    #else // __EMSCRIPTEN__ defined
-    // Lhasa-specific includes/definitions
-    Renderer();
-    #endif
-    ~Renderer();
 };
 
 /// Used for widget's struct as a base class.

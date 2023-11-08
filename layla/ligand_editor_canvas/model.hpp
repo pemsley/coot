@@ -26,6 +26,7 @@
 #include <variant>
 #include <optional>
 #include <rdkit/GraphMol/RWMol.h>
+#include "render.hpp"
 
 #ifndef __EMSCRIPTEN__
 #include <gtk/gtk.h>
@@ -281,13 +282,8 @@ class CanvasMolecule {
     void perform_flip(FlipMode flip_mode);
     void rotate_by_angle(double radians);
 
-    #ifndef __EMSCRIPTEN__
-    /// Draws the molecule using the provided PangoLayout and cairo_t.
-    /// Caller owns the pointers.
-    void draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode display_mode) const noexcept;
-    #else // __EMSCRIPTEN__ defined
-    // TODO: Drawing for Lhasa
-    #endif
+    /// Draws the molecule using the renderer
+    void draw(impl::Renderer& ren, DisplayMode display_mode) const noexcept;
 
     /// Checks if any object matches the click coordinates passed as arguments.
     /// Returns the thing that was clicked on (or nullopt if there's no match).
