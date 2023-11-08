@@ -1,6 +1,14 @@
 
 ----
 
+  Release 1.1.01
+
+  o BUG-FIX: Added an operator<() function for density_correlation_stats_info_t
+             to fix compilation issue.
+             [Yoshitaka Moriwaki]
+
+----
+
   Release 1.1
   
 18 months after the release of Coot 1 it's time for Coot 1.1
