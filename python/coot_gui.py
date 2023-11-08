@@ -5519,15 +5519,15 @@ def add_module_cryo_em_gui():
             if active_atom:
                 imol  = active_atom[0]
                 ch_id = active_atom[1]
-                n_trials = 50000
-                coot.fit_chain_to_map_by_random_jiggle_and_blur(imol, ch_id, n_trials, 2, 400)
+                n_trials = 5000
+                coot.fit_chain_to_map_by_random_jiggle_and_blur(imol, ch_id, n_trials, 3.2, 320)
 
         def jiggle_fit_molecule_with_fourier_filtering_wrapper(_simple_action, _arg2):
             active_atom = coot.active_residue_py()
             if active_atom:
                 imol  = active_atom[0]
-                n_trials = 50000
-                coot.fit_molecule_to_map_by_random_jiggle_and_blur(imol, n_trials, 5, 400)
+                n_trials = 5000
+                coot.fit_molecule_to_map_by_random_jiggle_and_blur(imol, n_trials, 3.2, 320)
 
         def sharpen_blur_map_gui_wrapper(_simple_action, _arg2):
             coot_sharpen_blur.sharpen_blur_map_gui()

@@ -14,23 +14,26 @@ C++ 17 and git for CCP4i2
 
 8 items
 
-Jakub's SMILES exception
-O=C(C)Oc1ccccc1C(=O)O
+Symmetry by molecule: removed from UI. Buggy. Needs a fix.
 
-Symmetry by molecule: removed from UI. Buggy. Nees a fix.
+Martin Moncrieffe: distance and angles on Mac.
 
-Use "updating maps" a second time.
+Cryo-EM module: Add Toggle switch for auto-recontour map
+
+Moorhen: Export dictionary as string
+
+Moorhen: replace fragment: does it take the vertical bar?
+https://github.com/moorhen-coot/Moorhen/issues/13
+
+Moorhen: does get_bonds_mesh_instanced() take the vertical bar?
+
+Moorhen: Export input dictionary as string (needs to store result of file-to-string)
 
 Find some Cryo-EM ligand for demo at the ligands meeting.
 * I found a couple so far.
 
-Moorhen:: change the return type so that there is a label or some such.
-(or the reason why it was an outlier)
-
 cif parser fail for 6eoj from the PDBe - display as CAs.
 * set_use_gemmi_as_model_parser_xxx(1) fixes it
-
-coot.halloween()
 
 Don't draw rama ball when intermediate atoms are from edit chi angles (and some others
 presumably).
@@ -38,8 +41,6 @@ presumably).
 Moorhen: Request: electrostatic surface.
 
 Make the CMakefile install chapi
-
-Rebuild RDKit, check that Eigen is pulled in correctly.
 
 Reading cif file with --pdb ~/Desktop/ejd/thing.cif seems borked (no file in file browser)
 
@@ -64,6 +65,9 @@ Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use 
 Rotate/Translate <fragment> doesn't work.
 
 ---- older issues ---
+
+Auto-centre the user-suggestion for the centre of the blob when using
+jiggle-fit. c.f. "Place Helix Here" initial centering.
 
 Typical example of "what to do?"
   - Filo has been trying the Coot EM tutorial in Moorhen and finds some problem with
@@ -161,6 +165,10 @@ Make auto_read_mtz return the column labels - for Moorhen.
 Updatating difference map for cryo-EM using ServalCat.
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
+
+locscale map viewer: colour map by other map?
+
+Get an images -> map from takanori and check that it works well in Coot and in the tomogram image mode
 
 Find 3-10 helices and make restraints. Max Perutz wrote the first paper.
 
@@ -1067,3 +1075,15 @@ Outliers only in Rama plots
 Residues-near-residues
 * Done.
 
+Use "updating maps" a second time.
+* Done. Added protection.
+
+coot.halloween()
+* Done.
+
+Moorhen:: check waters: change the return type so that there is a label or some such.
+(or the reason why it was an outlier)
+* Already done
+
+Rebuild RDKit, check that Eigen is pulled in correctly.
+* Done.
