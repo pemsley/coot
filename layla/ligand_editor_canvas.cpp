@@ -223,6 +223,7 @@ static void on_hover (
     }
     self->queue_redraw();
 }
+#else
 #warning TODO: Implement on_hover for Lhasa
 #endif
 
