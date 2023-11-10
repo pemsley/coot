@@ -322,11 +322,413 @@ std::pair<graphene_point_t,graphene_point_t> MoleculeRenderContext::cropped_bond
     return std::make_pair(a,b);
 }
 
-void MoleculeRenderContext::draw_bonds() {
+void MoleculeRenderContext::draw_central_bond_line(const CanvasMolecule::Bond& bond) {
+    graphene_point_t first_atom;
+    first_atom.x = bond.first_atom_x * scale_factor + x_offset;
+    first_atom.y = bond.first_atom_y * scale_factor + y_offset;
+
+    graphene_point_t second_atom;
+    second_atom.x = bond.second_atom_x * scale_factor + x_offset;
+    second_atom.y = bond.second_atom_y * scale_factor + y_offset;
+
+    auto [first,second] = cropped_bond_coords(first_atom,bond.first_atom_idx,second_atom,bond.second_atom_idx);
+    
     #ifndef __EMSCRIPTEN__
     cairo_t* cr = ren.cr;
-    PangoLayout* pango_layout = ren.pango_layout;
+
+    cairo_move_to(cr, first.x, first.y);
+    cairo_line_to(cr, second.x, second.y);
+    cairo_stroke(cr);
+    #else
+    #warning TODO: Drawing central bond lines in Lhasa
+    #endif
+}
+
+void MoleculeRenderContext::draw_straight_wedge(const CanvasMolecule::Bond& bond, bool reversed) {
+    graphene_point_t origin;
+    origin.x = reversed ? bond.first_atom_x : bond.second_atom_x;
+    origin.y = reversed ? bond.first_atom_y : bond.second_atom_y;
+    auto origin_idx = reversed ? bond.first_atom_idx : bond.second_atom_idx;
+
+    graphene_point_t target;
+    target.x = reversed ? bond.second_atom_x : bond.first_atom_x;
+    target.y = reversed ? bond.second_atom_y : bond.first_atom_y;
+    auto target_idx = reversed ? bond.second_atom_idx : bond.first_atom_idx;
+
+    origin.x *= scale_factor;
+    origin.y *= scale_factor;
+    target.x *= scale_factor;
+    target.y *= scale_factor;
+
+    origin.x += x_offset;
+    origin.y += y_offset;
+    target.x += x_offset;
+    target.y += y_offset;
+
+    auto [origin_cropped,target_cropped] = cropped_bond_coords(origin, origin_idx, target, target_idx);
+    
+    auto [pv_x,pv_y] = bond.get_perpendicular_versor();
+    auto cropped_bond_len = std::sqrt(std::pow(target_cropped.x - origin_cropped.x, 2.f) + std::pow(target_cropped.y - origin_cropped.y, 2.f));
+    auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
+    auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
+
+    #ifndef __EMSCRIPTEN__
+    cairo_t* cr = ren.cr;
+    
+    cairo_new_path(cr);
+    cairo_move_to(cr, origin_cropped.x, origin_cropped.y);
+    cairo_line_to(cr, target_cropped.x + v_x, target_cropped.y + v_y);
+    cairo_stroke_preserve(cr);
+
+    cairo_line_to(cr, target_cropped.x - v_x, target_cropped.y - v_y);
+    cairo_stroke_preserve(cr);
+
+    cairo_line_to(cr, origin_cropped.x, origin_cropped.y);
+    cairo_stroke_preserve(cr);
+
+    cairo_close_path(cr);
+    cairo_fill(cr);
+
+    #else
+    #warning TODO: Drawing wedge bonds for Lhasa
+    #endif
+}
+
+void MoleculeRenderContext::draw_straight_dashed_bond(const CanvasMolecule::Bond& bond, bool reversed) {
+    graphene_point_t origin;
+    origin.x = reversed ? bond.first_atom_x : bond.second_atom_x;
+    origin.y = reversed ? bond.first_atom_y : bond.second_atom_y;
+    auto origin_idx = reversed ? bond.first_atom_idx : bond.second_atom_idx;
+
+    graphene_point_t target;
+    target.x = reversed ? bond.second_atom_x : bond.first_atom_x;
+    target.y = reversed ? bond.second_atom_y : bond.first_atom_y;
+    auto target_idx = reversed ? bond.second_atom_idx : bond.first_atom_idx;
+
+    origin.x *= scale_factor;
+    origin.y *= scale_factor;
+    target.x *= scale_factor;
+    target.y *= scale_factor;
+
+    origin.x += x_offset;
+    origin.y += y_offset;
+    target.x += x_offset;
+    target.y += y_offset;
+
+    auto [current,target_cropped] = cropped_bond_coords(origin, origin_idx, target, target_idx);
+    
+    auto [pv_x,pv_y] = bond.get_perpendicular_versor();
+    auto cropped_bond_len = std::sqrt(std::pow(target_cropped.x - current.x, 2.f) + std::pow(target_cropped.y - current.y, 2.f));
+
+    float dashes = cropped_bond_len / (GEOMETRY_BOND_DASH_SEPARATION * scale_factor);
+    unsigned int full_dashes = std::floor(dashes);
+
+    float step_x = (target_cropped.x - current.x) / dashes;
+    float step_y = (target_cropped.y - current.y) / dashes;
+
+    auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
+    auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
+    
+    for(unsigned int i = 0; i <= full_dashes; i++) {
+        float spread_multiplier = (float) i / dashes;
+        #ifndef __EMSCRIPTEN__
+        cairo_t* cr = ren.cr;
+        cairo_move_to(cr, current.x - v_x * spread_multiplier, current.y - v_y * spread_multiplier);
+        cairo_line_to(cr, current.x + v_x * spread_multiplier, current.y + v_y * spread_multiplier);
+        cairo_stroke(cr);
+        #else
+        #warning TODO: Drawing dashed bonds for Lhasa
+        #endif
+        current.x += step_x;
+        current.y += step_y;
+    }
+}
+
+void MoleculeRenderContext::draw_wavy_bond(const CanvasMolecule::Bond& bond) {
+    #ifndef __EMSCRIPTEN__
+    cairo_t* cr = ren.cr;
+    #else
+    #warning TODO: Drawing wavy bonds in Lhasa
+    #endif
+    graphene_point_t first_atom;
+    first_atom.x = bond.first_atom_x * scale_factor + x_offset;
+    first_atom.y = bond.first_atom_y * scale_factor + y_offset;
+
+    graphene_point_t second_atom;
+    second_atom.x = bond.second_atom_x * scale_factor + x_offset;
+    second_atom.y = bond.second_atom_y * scale_factor + y_offset;
+
+    auto [first,second] = cropped_bond_coords(first_atom,bond.first_atom_idx,second_atom,bond.second_atom_idx);
+    auto full_vec_x = second.x - first.x;
+    auto full_vec_y = second.y - first.y;
+
+    const float wave_arc_radius = WAVY_BOND_ARC_LENGTH * scale_factor / 2.f;
+
+    // The angle at which the bond points
+    float base_angle = std::atan(full_vec_y / full_vec_x);
+    float arcs_count = std::sqrt(std::pow(full_vec_x,2.f) + std::pow(full_vec_y,2.f)) / (WAVY_BOND_ARC_LENGTH * scale_factor);
+    unsigned int rounded_arcs_count = std::floor(arcs_count);
+    float step_x = full_vec_x / arcs_count;
+    float step_y = full_vec_y / arcs_count;
+    float current_x = first.x + step_x / 2.f;
+    float current_y = first.y + step_y / 2.f;
+    // It seems that for positive base_angle, 
+    // 'true' is counter-clockwise
+    // and 'false is clockwise.
+    // For negative base_angle, it's the opposite.
+    bool arc_direction = true;
+    // for debugging
+    // float l_angle_one = 0, l_angle_two = 0;
+
+    // Two core angles for semi-circles
+    float p1 = base_angle;
+    float p2 = base_angle - M_PI;
+
+    float angle_one, angle_two;
+
+    for (unsigned int i = 0; i < rounded_arcs_count; i++) {
+        float next_x = current_x + step_x;
+        float next_y = current_y + step_y;
+        
+        if(arc_direction) {
+            angle_one = p1;
+            angle_two = p2;
+        } else {
+            angle_one = p2;
+            angle_two = p1;
+        }
+        // l_angle_one = angle_one;
+        // l_angle_two = angle_two;
+        #ifndef __EMSCRIPTEN__
+        cairo_new_sub_path(cr);
+        cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
+        cairo_stroke(cr);
+        #endif
+        current_x = next_x;
+        current_y = next_y;
+        arc_direction = !arc_direction;
+    }
+    // Final part of the path. Truncated arc.
+    float partial_arc_proportion = arcs_count - (float) rounded_arcs_count;
+    float arccos_arg = 1.f - (partial_arc_proportion / WAVY_BOND_ARC_LENGTH / 2.f);
+    
+    // This is the angle for the final arc.
+    float theta = std::acos(arccos_arg);
+
+    // The magic behind 'step_x > 0'
+    // is a bit of a mystery (derived empirically).
+    // There's certain correlation with the sign of base_angle
+    // but that's not the whole story.
+    // What matters is that it allows for differentiating
+    // between various cases, with angles from different quarters.
+    float starting_angle = step_x > 0 ? p2 : p1;
+    if(arc_direction) {
+        if(step_x > 0) {
+            angle_one = starting_angle - theta;
+            angle_two = starting_angle;
+        } else {
+            angle_one = starting_angle;
+            angle_two = starting_angle + theta;
+        }
+    } else {
+        if(step_x > 0) {
+            angle_one = starting_angle;
+            angle_two = starting_angle + theta;
+        } else {
+            angle_one = starting_angle - theta;
+            angle_two = starting_angle;
+        }
+    }
+
+    // debugging stuff
+
+    // std::string case_info;
+    // if(theta > M_PI_2) {
+    //     case_info += "T";
+    // } else {
+    //     case_info += "G";
+    // }
+    // if(base_angle > 0) {
+    //     case_info += "A";
+    // } else {
+    //     case_info += "E";
+    // }
+    // if(arc_direction) {
+    //     case_info += "K";
+    // } else {
+    //     case_info += "V";
+    // }
+    // case_info += angle_two - angle_one > 0 ? "O" : "U";
+    // if(step_x > 0) {
+    //     case_info += "Z";
+    // } else {
+    //     case_info += "V";
+    // }
+    // g_debug(
+    //     "theta=%f, base_angle=%f a1=%f, a2=%f a2-a1=%f abs(a2-a1)=%f direction=%s p1=%f, p2=%f case_codename=%s",
+    //     theta / M_PI * 180.f,
+    //     base_angle / M_PI * 180.f,
+    //     angle_one / M_PI * 180.f,
+    //     angle_two / M_PI * 180.f,
+    //     (angle_two - angle_one) / M_PI * 180.f,
+    //     std::fabs(angle_two - angle_one) / M_PI * 180.f,
+    //     arc_direction ? "true" : "false",
+    //     l_angle_one / M_PI * 180.f,
+    //     l_angle_two / M_PI * 180.f,
+    //     case_info.c_str()
+    // );
+    #ifndef __EMSCRIPTEN__
+    cairo_new_sub_path(cr);
+    cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
+    cairo_stroke(cr);
+    #endif
+}
+
+void MoleculeRenderContext::draw_side_bond_line(const CanvasMolecule::Bond& bond, bool addOrSub, std::optional<float> first_shortening_proportion, std::optional<float> second_shortening_proportion) {
+    auto [pv_x,pv_y] = bond.get_perpendicular_versor();
+    if (!addOrSub) { // change sign of the versor
+        pv_x *= -1.f;
+        pv_y *= -1.f;
+    }
+    // Convert the versor to a vector of the desired length
+    pv_x *= CanvasMolecule::BOND_LINE_SEPARATION;
+    pv_y *= CanvasMolecule::BOND_LINE_SEPARATION;
+
+    auto [bond_vec_x, bond_vec_y] = bond.get_vector();
+    auto first_x = bond.first_atom_x;
+    auto second_x = bond.second_atom_x;
+    auto first_y = bond.first_atom_y;
+    auto second_y = bond.second_atom_y;
+
+    if(first_shortening_proportion.has_value()) {
+        first_x += first_shortening_proportion.value() * bond_vec_x;
+        first_y += first_shortening_proportion.value() * bond_vec_y;
+    }
+    if(second_shortening_proportion.has_value()) {
+        second_x -= second_shortening_proportion.value() * bond_vec_x;
+        second_y -= second_shortening_proportion.value() * bond_vec_y;
+    }
+
+    // Points a and b represent the off-center bond before cropping.
+    graphene_point_t a;
+    a.x = (first_x + pv_x) * scale_factor + x_offset;
+    a.y = (first_y + pv_y) * scale_factor + y_offset;
+    graphene_point_t b;
+    b.x = (second_x + pv_x) * scale_factor + x_offset;
+    b.y = (second_y + pv_y) * scale_factor + y_offset;
+
+    // We need to make sure that the off-center bond 
+    // after cropping is not going to be longer than the center bond
+    graphene_point_t first_atom_centered;
+    first_atom_centered.x = first_x * scale_factor + x_offset;
+    first_atom_centered.y = first_y * scale_factor + y_offset;
+
+    graphene_point_t second_atom_centered;
+    second_atom_centered.x = second_x * scale_factor + x_offset;
+    second_atom_centered.y = second_y * scale_factor + y_offset;
+
+    /// Centered bond cropped
+    auto [first_c,second_c] = cropped_bond_coords(
+        first_atom_centered,
+        bond.first_atom_idx,
+        second_atom_centered,
+        bond.second_atom_idx
+    );
+    // Now we offset the center bond after cropping
+    first_c.x += pv_x * scale_factor;
+    first_c.y += pv_y * scale_factor;
+    second_c.x += pv_x * scale_factor;
+    second_c.y += pv_y * scale_factor;
+
+    // Points a_cropped and b_cropped represent the off-center bond after cropping.
+    auto [a_cropped,b_cropped] = cropped_bond_coords(a,bond.first_atom_idx,b,bond.second_atom_idx);
+
+    // Now we need to make sure that the off-center bond 
+    // after cropping is not going to be longer than the center bond
+    if(bond_vec_x > 0) {
+        // The beginning is shorter for the centered bond
+        if(first_c.x > a_cropped.x) {
+            a_cropped = first_c;
+        }
+        // The end is shorter for the centered bond
+        if(second_c.x < b_cropped.x) {
+            b_cropped = second_c;
+        }
+    } else {
+        // The beginning is shorter for the centered bond
+        if(first_c.x < a_cropped.x) {
+            a_cropped = first_c;
+        }
+        // The end is shorter for the centered bond
+        if(second_c.x > b_cropped.x) {
+            b_cropped = second_c;
+        }
+    }
+    if(bond_vec_y > 0) {
+        // The beginning is shorter for the centered bond
+        if(first_c.y > a_cropped.y) {
+            a_cropped = first_c;
+        }
+        // The end is shorter for the centered bond
+        if(second_c.y < b_cropped.y) {
+            b_cropped = second_c;
+        }
+    } else {
+        // The beginning is shorter for the centered bond
+        if(first_c.y < a_cropped.y) {
+            a_cropped = first_c;
+        }
+        // The end is shorter for the centered bond
+        if(second_c.y > b_cropped.y) {
+            b_cropped = second_c;
+        }
+    }
+    #ifndef __EMSCRIPTEN__
+    cairo_t* cr = ren.cr;
+    cairo_move_to(cr, a_cropped.x, a_cropped.y);
+    cairo_line_to(cr, b_cropped.x, b_cropped.y);
+    cairo_stroke(cr);
+    #else
+    #warning TODO: Drawing side bond lines for Lhasa
+    #endif
+}
+
+void MoleculeRenderContext::draw_centered_double_bond(const CanvasMolecule::Bond& bond) {
+    auto [pv_x,pv_y] = bond.get_perpendicular_versor();
+
+    // Convert the versor to a vector of the desired length
+    pv_x *= CENTERED_DOUBLE_BOND_LINE_SEPARATION / 2.f * scale_factor;
+    pv_y *= CENTERED_DOUBLE_BOND_LINE_SEPARATION / 2.f * scale_factor;
+
+    graphene_point_t first_atom;
+    first_atom.x = bond.first_atom_x * scale_factor + x_offset;
+    first_atom.y = bond.first_atom_y * scale_factor + y_offset;
+
+    graphene_point_t second_atom;
+    second_atom.x = bond.second_atom_x * scale_factor + x_offset;
+    second_atom.y = bond.second_atom_y * scale_factor + y_offset;
+
+    auto [first,second] = cropped_bond_coords(first_atom,bond.first_atom_idx,second_atom,bond.second_atom_idx);
+
+    #ifndef __EMSCRIPTEN__
+    cairo_t* cr = ren.cr;
+    cairo_move_to(cr, first.x + pv_x, first.y + pv_y);
+    cairo_line_to(cr, second.x + pv_x, second.y + pv_y);
+    cairo_stroke(cr);
+
+    cairo_move_to(cr, first.x - pv_x, first.y - pv_y);
+    cairo_line_to(cr, second.x - pv_x, second.y - pv_y);
+    cairo_stroke(cr);
+    #else
+    #warning TODO: Drawing centered double bonds for Lhasa
+    #endif
+}
+
+
+void MoleculeRenderContext::draw_bonds() {
     for(const auto& bond: canvas_molecule.bonds) {
+        #ifndef __EMSCRIPTEN__
+        cairo_t* cr = ren.cr;
         if(bond->highlighted) {
             cairo_set_line_width(cr, 4.0);
             cairo_set_source_rgb(cr, 0.0, 1.0, 0.5);
@@ -334,378 +736,45 @@ void MoleculeRenderContext::draw_bonds() {
             cairo_set_line_width(cr, 2.0);
             cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
         }
-
-        auto draw_central_bond_line = [&](){
-            graphene_point_t first_atom;
-            first_atom.x = bond->first_atom_x * scale_factor + x_offset;
-            first_atom.y = bond->first_atom_y * scale_factor + y_offset;
-
-            graphene_point_t second_atom;
-            second_atom.x = bond->second_atom_x * scale_factor + x_offset;
-            second_atom.y = bond->second_atom_y * scale_factor + y_offset;
-
-            auto [first,second] = cropped_bond_coords(first_atom,bond->first_atom_idx,second_atom,bond->second_atom_idx);
-            
-            cairo_move_to(cr, first.x, first.y);
-            cairo_line_to(cr, second.x, second.y);
-            cairo_stroke(cr);
-        };
+        #else
+        #warning TODO: Abstract-away drawing bond highlights for Lhasa
+        #endif
 
         if(bond->geometry != BondGeometry::Flat && bond->type == BondType::Single) {
-
-            auto draw_straight_wedge = [&](bool reversed){
-                graphene_point_t origin;
-                origin.x = reversed ? bond->first_atom_x : bond->second_atom_x;
-                origin.y = reversed ? bond->first_atom_y : bond->second_atom_y;
-                auto origin_idx = reversed ? bond->first_atom_idx : bond->second_atom_idx;
-
-                graphene_point_t target;
-                target.x = reversed ? bond->second_atom_x : bond->first_atom_x;
-                target.y = reversed ? bond->second_atom_y : bond->first_atom_y;
-                auto target_idx = reversed ? bond->second_atom_idx : bond->first_atom_idx;
-
-                origin.x *= scale_factor;
-                origin.y *= scale_factor;
-                target.x *= scale_factor;
-                target.y *= scale_factor;
-
-                origin.x += x_offset;
-                origin.y += y_offset;
-                target.x += x_offset;
-                target.y += y_offset;
-
-                auto [origin_cropped,target_cropped] = cropped_bond_coords(origin, origin_idx, target, target_idx);
-                
-                auto [pv_x,pv_y] = bond->get_perpendicular_versor();
-                auto cropped_bond_len = std::sqrt(std::pow(target_cropped.x - origin_cropped.x, 2.f) + std::pow(target_cropped.y - origin_cropped.y, 2.f));
-                auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
-                auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
-
-                cairo_new_path(cr);
-                cairo_move_to(cr, origin_cropped.x, origin_cropped.y);
-                cairo_line_to(cr, target_cropped.x + v_x, target_cropped.y + v_y);
-                cairo_stroke_preserve(cr);
-
-                cairo_line_to(cr, target_cropped.x - v_x, target_cropped.y - v_y);
-                cairo_stroke_preserve(cr);
-
-                cairo_line_to(cr, origin_cropped.x, origin_cropped.y);
-                cairo_stroke_preserve(cr);
-
-                cairo_close_path(cr);
-                cairo_fill(cr);
-            };
-            auto draw_straight_dashed_bond = [&](bool reversed){
-                graphene_point_t origin;
-                origin.x = reversed ? bond->first_atom_x : bond->second_atom_x;
-                origin.y = reversed ? bond->first_atom_y : bond->second_atom_y;
-                auto origin_idx = reversed ? bond->first_atom_idx : bond->second_atom_idx;
-
-                graphene_point_t target;
-                target.x = reversed ? bond->second_atom_x : bond->first_atom_x;
-                target.y = reversed ? bond->second_atom_y : bond->first_atom_y;
-                auto target_idx = reversed ? bond->second_atom_idx : bond->first_atom_idx;
-
-                origin.x *= scale_factor;
-                origin.y *= scale_factor;
-                target.x *= scale_factor;
-                target.y *= scale_factor;
-
-                origin.x += x_offset;
-                origin.y += y_offset;
-                target.x += x_offset;
-                target.y += y_offset;
-
-                auto [current,target_cropped] = cropped_bond_coords(origin, origin_idx, target, target_idx);
-                
-                auto [pv_x,pv_y] = bond->get_perpendicular_versor();
-                auto cropped_bond_len = std::sqrt(std::pow(target_cropped.x - current.x, 2.f) + std::pow(target_cropped.y - current.y, 2.f));
-
-                float dashes = cropped_bond_len / (GEOMETRY_BOND_DASH_SEPARATION * scale_factor);
-                unsigned int full_dashes = std::floor(dashes);
-
-                float step_x = (target_cropped.x - current.x) / dashes;
-                float step_y = (target_cropped.y - current.y) / dashes;
-
-                auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
-                auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
-                
-                for(unsigned int i = 0; i <= full_dashes; i++) {
-                    float spread_multiplier = (float) i / dashes;
-                    cairo_move_to(cr, current.x - v_x * spread_multiplier, current.y - v_y * spread_multiplier);
-                    cairo_line_to(cr, current.x + v_x * spread_multiplier, current.y + v_y * spread_multiplier);
-                    cairo_stroke(cr);
-                    current.x += step_x;
-                    current.y += step_y;
-                }
-            };
             switch (bond->geometry) {
                 default:
                 case BondGeometry::Unspecified:{
-                    graphene_point_t first_atom;
-                    first_atom.x = bond->first_atom_x * scale_factor + x_offset;
-                    first_atom.y = bond->first_atom_y * scale_factor + y_offset;
-
-                    graphene_point_t second_atom;
-                    second_atom.x = bond->second_atom_x * scale_factor + x_offset;
-                    second_atom.y = bond->second_atom_y * scale_factor + y_offset;
-
-                    auto [first,second] = cropped_bond_coords(first_atom,bond->first_atom_idx,second_atom,bond->second_atom_idx);
-                    auto full_vec_x = second.x - first.x;
-                    auto full_vec_y = second.y - first.y;
-
-                    const float wave_arc_radius = WAVY_BOND_ARC_LENGTH * scale_factor / 2.f;
-
-                    // The angle at which the bond points
-                    float base_angle = std::atan(full_vec_y / full_vec_x);
-                    float arcs_count = std::sqrt(std::pow(full_vec_x,2.f) + std::pow(full_vec_y,2.f)) / (WAVY_BOND_ARC_LENGTH * scale_factor);
-                    unsigned int rounded_arcs_count = std::floor(arcs_count);
-                    float step_x = full_vec_x / arcs_count;
-                    float step_y = full_vec_y / arcs_count;
-                    float current_x = first.x + step_x / 2.f;
-                    float current_y = first.y + step_y / 2.f;
-                    // It seems that for positive base_angle, 
-                    // 'true' is counter-clockwise
-                    // and 'false is clockwise.
-                    // For negative base_angle, it's the opposite.
-                    bool arc_direction = true;
-                    // for debugging
-                    // float l_angle_one = 0, l_angle_two = 0;
-
-                    // Two core angles for semi-circles
-                    float p1 = base_angle;
-                    float p2 = base_angle - M_PI;
-
-                    float angle_one, angle_two;
-
-                    for (unsigned int i = 0; i < rounded_arcs_count; i++) {
-                        float next_x = current_x + step_x;
-                        float next_y = current_y + step_y;
-                        
-                        if(arc_direction) {
-                            angle_one = p1;
-                            angle_two = p2;
-                        } else {
-                            angle_one = p2;
-                            angle_two = p1;
-                        }
-                        // l_angle_one = angle_one;
-                        // l_angle_two = angle_two;
-                        cairo_new_sub_path(cr);
-                        cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
-                        cairo_stroke(cr);
-                        current_x = next_x;
-                        current_y = next_y;
-                        arc_direction = !arc_direction;
-                    }
-                    // Final part of the path. Truncated arc.
-                    float partial_arc_proportion = arcs_count - (float) rounded_arcs_count;
-                    float arccos_arg = 1.f - (partial_arc_proportion / WAVY_BOND_ARC_LENGTH / 2.f);
-                    
-                    // This is the angle for the final arc.
-                    float theta = std::acos(arccos_arg);
-
-                    // The magic behind 'step_x > 0'
-                    // is a bit of a mystery (derived empirically).
-                    // There's certain correlation with the sign of base_angle
-                    // but that's not the whole story.
-                    // What matters is that it allows for differentiating
-                    // between various cases, with angles from different quarters.
-                    float starting_angle = step_x > 0 ? p2 : p1;
-                    if(arc_direction) {
-                        if(step_x > 0) {
-                            angle_one = starting_angle - theta;
-                            angle_two = starting_angle;
-                        } else {
-                            angle_one = starting_angle;
-                            angle_two = starting_angle + theta;
-                        }
-                    } else {
-                        if(step_x > 0) {
-                            angle_one = starting_angle;
-                            angle_two = starting_angle + theta;
-                        } else {
-                            angle_one = starting_angle - theta;
-                            angle_two = starting_angle;
-                        }
-                    }
-
-                    // debugging stuff
-
-                    // std::string case_info;
-                    // if(theta > M_PI_2) {
-                    //     case_info += "T";
-                    // } else {
-                    //     case_info += "G";
-                    // }
-                    // if(base_angle > 0) {
-                    //     case_info += "A";
-                    // } else {
-                    //     case_info += "E";
-                    // }
-                    // if(arc_direction) {
-                    //     case_info += "K";
-                    // } else {
-                    //     case_info += "V";
-                    // }
-                    // case_info += angle_two - angle_one > 0 ? "O" : "U";
-                    // if(step_x > 0) {
-                    //     case_info += "Z";
-                    // } else {
-                    //     case_info += "V";
-                    // }
-                    // g_debug(
-                    //     "theta=%f, base_angle=%f a1=%f, a2=%f a2-a1=%f abs(a2-a1)=%f direction=%s p1=%f, p2=%f case_codename=%s",
-                    //     theta / M_PI * 180.f,
-                    //     base_angle / M_PI * 180.f,
-                    //     angle_one / M_PI * 180.f,
-                    //     angle_two / M_PI * 180.f,
-                    //     (angle_two - angle_one) / M_PI * 180.f,
-                    //     std::fabs(angle_two - angle_one) / M_PI * 180.f,
-                    //     arc_direction ? "true" : "false",
-                    //     l_angle_one / M_PI * 180.f,
-                    //     l_angle_two / M_PI * 180.f,
-                    //     case_info.c_str()
-                    // );
-                    cairo_new_sub_path(cr);
-                    cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
-                    cairo_stroke(cr);
+                    draw_wavy_bond(*bond.get());
                     break;
                 }
                 case BondGeometry::WedgeTowardsFirst:{
-                    draw_straight_wedge(true);
+                    draw_straight_wedge(*bond.get(), true);
                     g_warning_once("todo: rendering bond geometry in rings");
                     break;
                 }
                 case BondGeometry::WedgeTowardsSecond:{
-                    draw_straight_wedge(false);
+                    draw_straight_wedge(*bond.get(), false);
                     g_warning_once("todo: rendering bond geometry in rings");
                     break;
                 }
                 case BondGeometry::DashedTowardsFirst:{
-                    draw_straight_dashed_bond(true);
+                    draw_straight_dashed_bond(*bond.get(), true);
                     g_warning_once("todo: rendering bond geometry in rings");
                     break;
                 }
                 case BondGeometry::DashedTowardsSecond:{
-                    draw_straight_dashed_bond(false);
+                    draw_straight_dashed_bond(*bond.get(), false);
                     g_warning_once("todo: rendering bond geometry in rings");
                     break;
                 }
             }
         } else {
-            auto draw_side_bond_line = [&](
-                bool addOrSub, 
-                std::optional<float> first_shortening_proportion, 
-                std::optional<float> second_shortening_proportion
-                ) {
-
-                auto [pv_x,pv_y] = bond->get_perpendicular_versor();
-                if (!addOrSub) { // change sign of the versor
-                    pv_x *= -1.f;
-                    pv_y *= -1.f;
-                }
-                // Convert the versor to a vector of the desired length
-                pv_x *= CanvasMolecule::BOND_LINE_SEPARATION;
-                pv_y *= CanvasMolecule::BOND_LINE_SEPARATION;
-
-                auto [bond_vec_x, bond_vec_y] = bond->get_vector();
-                auto first_x = bond->first_atom_x;
-                auto second_x = bond->second_atom_x;
-                auto first_y = bond->first_atom_y;
-                auto second_y = bond->second_atom_y;
-
-                if(first_shortening_proportion.has_value()) {
-                    first_x += first_shortening_proportion.value() * bond_vec_x;
-                    first_y += first_shortening_proportion.value() * bond_vec_y;
-                }
-                if(second_shortening_proportion.has_value()) {
-                    second_x -= second_shortening_proportion.value() * bond_vec_x;
-                    second_y -= second_shortening_proportion.value() * bond_vec_y;
-                }
-
-                // Points a and b represent the off-center bond before cropping.
-                graphene_point_t a;
-                a.x = (first_x + pv_x) * scale_factor + x_offset;
-                a.y = (first_y + pv_y) * scale_factor + y_offset;
-                graphene_point_t b;
-                b.x = (second_x + pv_x) * scale_factor + x_offset;
-                b.y = (second_y + pv_y) * scale_factor + y_offset;
-
-                // We need to make sure that the off-center bond 
-                // after cropping is not going to be longer than the center bond
-                graphene_point_t first_atom_centered;
-                first_atom_centered.x = first_x * scale_factor + x_offset;
-                first_atom_centered.y = first_y * scale_factor + y_offset;
-
-                graphene_point_t second_atom_centered;
-                second_atom_centered.x = second_x * scale_factor + x_offset;
-                second_atom_centered.y = second_y * scale_factor + y_offset;
-
-                /// Centered bond cropped
-                auto [first_c,second_c] = cropped_bond_coords(
-                    first_atom_centered,
-                    bond->first_atom_idx,
-                    second_atom_centered,
-                    bond->second_atom_idx
-                );
-                // Now we offset the center bond after cropping
-                first_c.x += pv_x * scale_factor;
-                first_c.y += pv_y * scale_factor;
-                second_c.x += pv_x * scale_factor;
-                second_c.y += pv_y * scale_factor;
-
-                // Points a_cropped and b_cropped represent the off-center bond after cropping.
-                auto [a_cropped,b_cropped] = cropped_bond_coords(a,bond->first_atom_idx,b,bond->second_atom_idx);
-
-                // Now we need to make sure that the off-center bond 
-                // after cropping is not going to be longer than the center bond
-                if(bond_vec_x > 0) {
-                    // The beginning is shorter for the centered bond
-                    if(first_c.x > a_cropped.x) {
-                        a_cropped = first_c;
-                    }
-                    // The end is shorter for the centered bond
-                    if(second_c.x < b_cropped.x) {
-                        b_cropped = second_c;
-                    }
-                } else {
-                    // The beginning is shorter for the centered bond
-                    if(first_c.x < a_cropped.x) {
-                        a_cropped = first_c;
-                    }
-                    // The end is shorter for the centered bond
-                    if(second_c.x > b_cropped.x) {
-                        b_cropped = second_c;
-                    }
-                }
-                if(bond_vec_y > 0) {
-                    // The beginning is shorter for the centered bond
-                    if(first_c.y > a_cropped.y) {
-                        a_cropped = first_c;
-                    }
-                    // The end is shorter for the centered bond
-                    if(second_c.y < b_cropped.y) {
-                        b_cropped = second_c;
-                    }
-                } else {
-                    // The beginning is shorter for the centered bond
-                    if(first_c.y < a_cropped.y) {
-                        a_cropped = first_c;
-                    }
-                    // The end is shorter for the centered bond
-                    if(second_c.y > b_cropped.y) {
-                        b_cropped = second_c;
-                    }
-                }
-                cairo_move_to(cr, a_cropped.x, a_cropped.y);
-                cairo_line_to(cr, b_cropped.x, b_cropped.y);
-                cairo_stroke(cr);
-            };
-
             switch(bond->type) {
                 case BondType::Double:{
-                    DoubleBondDrawingDirection direction = bond->bond_drawing_direction.has_value() ? bond->bond_drawing_direction.value() : DoubleBondDrawingDirection::Primary;
+                    DoubleBondDrawingDirection direction = 
+                        bond->bond_drawing_direction.has_value() ? 
+                        bond->bond_drawing_direction.value() 
+                        : DoubleBondDrawingDirection::Primary;
                     bool direction_as_bool = true;
 
                     switch (direction) { 
@@ -714,8 +783,9 @@ void MoleculeRenderContext::draw_bonds() {
                             // no break here.
                         }
                         case DoubleBondDrawingDirection::Primary:{
-                            draw_central_bond_line();
+                            draw_central_bond_line(*bond.get());
                             draw_side_bond_line(
+                                *bond.get(),
                                 direction_as_bool,
                                 bond->first_shortening_proportion,
                                 bond->second_shortening_proportion
@@ -723,52 +793,27 @@ void MoleculeRenderContext::draw_bonds() {
                             break;
                         }
                         case DoubleBondDrawingDirection::Centered:{
-                            auto [pv_x,pv_y] = bond->get_perpendicular_versor();
-
-                            // Convert the versor to a vector of the desired length
-                            pv_x *= CENTERED_DOUBLE_BOND_LINE_SEPARATION / 2.f * scale_factor;
-                            pv_y *= CENTERED_DOUBLE_BOND_LINE_SEPARATION / 2.f * scale_factor;
-
-                            graphene_point_t first_atom;
-                            first_atom.x = bond->first_atom_x * scale_factor + x_offset;
-                            first_atom.y = bond->first_atom_y * scale_factor + y_offset;
-
-                            graphene_point_t second_atom;
-                            second_atom.x = bond->second_atom_x * scale_factor + x_offset;
-                            second_atom.y = bond->second_atom_y * scale_factor + y_offset;
-
-                            auto [first,second] = cropped_bond_coords(first_atom,bond->first_atom_idx,second_atom,bond->second_atom_idx);
-
-                            cairo_move_to(cr, first.x + pv_x, first.y + pv_y);
-                            cairo_line_to(cr, second.x + pv_x, second.y + pv_y);
-                            cairo_stroke(cr);
-
-                            cairo_move_to(cr, first.x - pv_x, first.y - pv_y);
-                            cairo_line_to(cr, second.x - pv_x, second.y - pv_y);
-                            cairo_stroke(cr);
+                            draw_centered_double_bond(*bond.get());
                             break;
                         }
                     }
                     break;
                 }
                 case BondType::Triple:{
-                    draw_central_bond_line();
+                    draw_central_bond_line(*bond.get());
                     g_warning_once("todo: Triple bonds might need truncating too.");
                     // "to the left"
-                    draw_side_bond_line(false,std::nullopt,std::nullopt);
+                    draw_side_bond_line(*bond.get(), false, std::nullopt,std::nullopt);
                     // "to the right"
-                    draw_side_bond_line(true,std::nullopt,std::nullopt);
+                    draw_side_bond_line(*bond.get(), true, std::nullopt,std::nullopt);
                     break;
                 }
                 default:
                 case BondType::Single:{
-                    draw_central_bond_line();
+                    draw_central_bond_line(*bond.get());
                     break;
                 }
             }
         }
     }
-    #else
-    #warning TODO: Abstract-away drawing bonds for Lhasa
-    #endif
 }

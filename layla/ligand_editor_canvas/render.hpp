@@ -73,6 +73,13 @@ class MoleculeRenderContext {
     // Accepts on-screen coordinates of bond atoms.
     std::pair<graphene_point_t,graphene_point_t> cropped_bond_coords(const graphene_point_t& first_atom, unsigned int first_atom_idx, const graphene_point_t& second_atom, unsigned int second_atom_idx);
 
+    void draw_central_bond_line(const CanvasMolecule::Bond& bond);
+    void draw_straight_wedge(const CanvasMolecule::Bond& bond, bool reversed);
+    void draw_straight_dashed_bond(const CanvasMolecule::Bond& bond, bool reversed);
+    void draw_wavy_bond(const CanvasMolecule::Bond& bond);
+    void draw_side_bond_line(const CanvasMolecule::Bond& bond, bool addOrSub, std::optional<float> first_shortening_proportion, std::optional<float> second_shortening_proportion);
+    void draw_centered_double_bond(const CanvasMolecule::Bond& bond);
+
     static const float CENTERED_DOUBLE_BOND_LINE_SEPARATION;
     static const float GEOMETRY_BOND_SPREAD_ANGLE;
     static const float WAVY_BOND_ARC_LENGTH;
