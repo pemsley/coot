@@ -21,6 +21,9 @@
 
 #include "render.hpp"
 #include "model.hpp"
+#ifdef __EMSCRIPTEN__
+#include "../../lhasa/glog_replacement.hpp"
+#endif
 
 using namespace coot::ligand_editor_canvas::impl;
 using Atom = coot::ligand_editor_canvas::CanvasMolecule::Atom;
