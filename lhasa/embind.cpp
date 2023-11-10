@@ -27,6 +27,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .value("Standard", DisplayMode::Standard)
     .value("AtomIndices", DisplayMode::AtomIndices)
     .value("AtomNames", DisplayMode::AtomNames);
+  class_<impl::Renderer>("LhasaRenderer")
+    .constructor<>();
   class_<DeleteTool>("LhasaDeleteTool")
     .constructor<>();
   class_<ChargeModifier>("LhasaChargeModifier")
@@ -65,5 +67,6 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("set_display_mode", &CootLigandEditorCanvas::set_display_mode)
     .function("get_smiles", &CootLigandEditorCanvas::get_smiles)
     .function("get_smiles_for_molecule", &CootLigandEditorCanvas::get_smiles_for_molecule)
-    .function("clear_molecules", &CootLigandEditorCanvas::clear_molecules);
+    .function("clear_molecules", &CootLigandEditorCanvas::clear_molecules)
+    .function("render", &CootLigandEditorCanvas::render);
 }
