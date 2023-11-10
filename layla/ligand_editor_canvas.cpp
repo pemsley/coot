@@ -121,7 +121,8 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
     self->render(ren);
 }
 #else
-#warning TODO: Implement drawing for Lhasa
+// Rendering in Lhasa is done via manually instantiating the renderer 
+// and calling the 'render()' method
 #endif
 
 #ifndef __EMSCRIPTEN__
