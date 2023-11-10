@@ -71,8 +71,6 @@ void MoleculeRenderContext::draw_atoms() {
     cairo_t* cr = ren.cr;
     PangoLayout* pango_layout = ren.pango_layout;
     cairo_set_line_width(cr, 0.5);
-    // Used to truncate bonds not to cover atoms
-    std::map<unsigned int,graphene_rect_t> atom_idx_to_canvas_rect;
     for(const auto& atom: canvas_molecule.atoms) {
         /// Returns the markup string + info if the appendix is reversed
         auto process_appendix = [&](const std::string& symbol, const std::optional<Atom::Appendix>& appendix) -> std::tuple<std::string,bool> {

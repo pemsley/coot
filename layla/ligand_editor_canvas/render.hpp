@@ -58,7 +58,7 @@ class MoleculeRenderContext {
     float scale_factor;
     float x_offset;
     float y_offset;
-
+    // Used to truncate bonds not to cover atoms
     std::map<unsigned int,graphene_rect_t> atom_idx_to_canvas_rect;
 
 
