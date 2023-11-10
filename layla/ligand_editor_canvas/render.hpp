@@ -28,12 +28,7 @@
     #include <graphene.h>
 #endif
 #include <map>
-
-namespace coot::ligand_editor_canvas {
-// Forward declaration
-class CanvasMolecule;
-}
-
+#include "model.hpp"
 
 namespace coot::ligand_editor_canvas::impl {
 
@@ -59,6 +54,7 @@ class MoleculeRenderContext {
 
     const CanvasMolecule& canvas_molecule;
     Renderer& ren;
+    DisplayMode display_mode;
     float scale_factor;
     float x_offset;
     float y_offset;
@@ -66,9 +62,19 @@ class MoleculeRenderContext {
     std::map<unsigned int,graphene_rect_t> atom_idx_to_canvas_rect;
 
 
+    void process_atom_highlight(const CanvasMolecule::Atom& atom);
+
+    static const float CENTERED_DOUBLE_BOND_LINE_SEPARATION;
+    static const float GEOMETRY_BOND_SPREAD_ANGLE;
+    static const float WAVY_BOND_ARC_LENGTH;
+    static const float GEOMETRY_BOND_DASH_SEPARATION;
+
     public:
-    MoleculeRenderContext(const CanvasMolecule& cm, Renderer& ren);
+    MoleculeRenderContext(const CanvasMolecule& cm, Renderer& ren, DisplayMode mode);
     ~MoleculeRenderContext();
+
+    void draw_atoms();
+    void draw_bonds();
 };
 
 } //coot::ligand_editor_canvas::impl
