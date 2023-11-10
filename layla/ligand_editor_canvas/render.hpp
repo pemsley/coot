@@ -24,15 +24,21 @@
 #ifndef __EMSCRIPTEN__
     #include <gtk/gtk.h>
     #include <pango/pango-layout.h>
-#else
-    // Nothing for Lhasa for now
+#else // Lhasa-specific includes
+    #include <graphene.h>
 #endif
+#include <map>
+
+namespace coot::ligand_editor_canvas {
+// Forward declaration
+class CanvasMolecule;
+}
+
 
 namespace coot::ligand_editor_canvas::impl {
 
 struct Renderer {
     #ifndef __EMSCRIPTEN__
-
     cairo_t* cr;
     PangoLayout* pango_layout;
     /// Takes ownership of the pointers
@@ -42,7 +48,27 @@ struct Renderer {
     // Lhasa-specific includes/definitions
     Renderer();
     #endif
+
+    // todo: Common rendering API
+
     ~Renderer();
+};
+
+/// Encapsulates routines and state to render CanvasMolecule
+class MoleculeRenderContext {
+
+    const CanvasMolecule& canvas_molecule;
+    Renderer& ren;
+    float scale_factor;
+    float x_offset;
+    float y_offset;
+
+    std::map<unsigned int,graphene_rect_t> atom_idx_to_canvas_rect;
+
+
+    public:
+    MoleculeRenderContext(const CanvasMolecule& cm, Renderer& ren);
+    ~MoleculeRenderContext();
 };
 
 } //coot::ligand_editor_canvas::impl

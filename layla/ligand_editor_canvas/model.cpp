@@ -327,6 +327,7 @@ float CanvasMolecule::Bond::get_length() const noexcept {
 }
 
 void CanvasMolecule::draw(impl::Renderer& ren, DisplayMode display_mode) const noexcept {
+    impl::MoleculeRenderContext renctx(*this, ren);
     #ifndef __EMSCRIPTEN__
     cairo_t* cr = ren.cr;
     PangoLayout* pango_layout = ren.pango_layout;

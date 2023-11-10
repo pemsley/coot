@@ -64,6 +64,9 @@ std::optional<DisplayMode> display_mode_from_string(const char*) noexcept;
 
 /// Drawing-friendly representation of RDKit molecule
 class CanvasMolecule {
+    // Rendering is done via a separate class 
+    // for the sake of code organization
+    friend class impl::MoleculeRenderContext;
     public:
     enum class AtomColor: unsigned char {
         /// Carbon and hydrogens

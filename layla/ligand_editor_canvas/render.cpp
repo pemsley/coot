@@ -20,6 +20,8 @@
  */
 
 #include "render.hpp"
+#include "model.hpp"
+
 using namespace coot::ligand_editor_canvas::impl;
 
 #ifndef __EMSCRIPTEN__
@@ -41,4 +43,15 @@ Renderer::~Renderer() {
     #else // __EMSCRIPTEN__ defined
     // Lhasa-specific includes/definitions
     #endif
+}
+
+MoleculeRenderContext::MoleculeRenderContext(const CanvasMolecule& cm, Renderer& ren) 
+:canvas_molecule(cm), ren(ren) {
+    scale_factor = canvas_molecule.get_scale();
+    x_offset = scale_factor * canvas_molecule.x_canvas_translation;
+    y_offset = scale_factor * canvas_molecule.y_canvas_translation;
+}
+
+MoleculeRenderContext::~MoleculeRenderContext() {
+
 }
