@@ -28,6 +28,7 @@
     #include <graphene.h>
 #endif
 #include <map>
+#include <tuple>
 #include "model.hpp"
 
 namespace coot::ligand_editor_canvas::impl {
@@ -63,6 +64,14 @@ class MoleculeRenderContext {
 
 
     void process_atom_highlight(const CanvasMolecule::Atom& atom);
+    /// Returns the markup string + info if the appendix is reversed
+    std::tuple<std::string, bool> process_appendix(const std::string& symbol, const std::optional<CanvasMolecule::Atom::Appendix>& appendix);
+    /// Returns a pair of atom index and bonding rect
+    std::pair<unsigned int,graphene_rect_t> render_atom(const CanvasMolecule::Atom& atom, DisplayMode render_mode = DisplayMode::Standard);
+    // Returns on-screen bond coordinates
+    // cropped not to overlap with atoms' symbols and appendices.
+    // Accepts on-screen coordinates of bond atoms.
+    std::pair<graphene_point_t,graphene_point_t> cropped_bond_coords(const graphene_point_t& first_atom, unsigned int first_atom_idx, const graphene_point_t& second_atom, unsigned int second_atom_idx);
 
     static const float CENTERED_DOUBLE_BOND_LINE_SEPARATION;
     static const float GEOMETRY_BOND_SPREAD_ANGLE;
