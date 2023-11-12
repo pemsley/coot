@@ -16,6 +16,8 @@ C++ 17 and git for CCP4i2
 
 Symmetry by molecule: removed from UI. Buggy. Needs a fix.
 
+Does "Fetch PDB & Map using EDS" work with Updating maps?
+
 Martin Moncrieffe: distance and angles on Mac.
 
 Cryo-EM module: Add Toggle switch for auto-recontour map
@@ -168,7 +170,7 @@ Updatating difference map for cryo-EM using ServalCat.
 
 locscale map viewer: colour map by other map?
 
-Get an images -> map from takanori and check that it works well in Coot and in the tomogram image mode
+Get an example of images->map from takanori and check that it works well in Coot and in the tomogram image mode
 
 Find 3-10 helices and make restraints. Max Perutz wrote the first paper.
 
