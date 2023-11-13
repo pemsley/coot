@@ -1583,7 +1583,7 @@ create_splash_screen_window_for_file(const char *file_name) {
 
    GtkWidget *splash_screen_window = gtk_window_new();
    gtk_widget_set_name (splash_screen_window, "splash_screen_window");
-   std::string window_name = "GTK4 Coot " + std::string(VERSION);
+   std::string window_name = "Coot " + std::string(VERSION);
    gtk_window_set_title (GTK_WINDOW (splash_screen_window), _(window_name.c_str()));
 #if (GTK_MAJOR_VERSION >= 4)
    std::cout << "in create_splash_screen_window_for_file() set position " << std::endl;
