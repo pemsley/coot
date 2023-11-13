@@ -14,7 +14,6 @@ void
 make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add to this
                                                const graphical_bonds_container &gbc,
                                                coot::api_bond_colour_t bonds_box_type, // remove these one day
-                                               int udd_handle_bonded_type,
                                                float base_atom_radius,
                                                float base_bond_radius,
                                                unsigned int num_subdivisions,
@@ -90,7 +89,6 @@ void
 make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, // add to this
                                                    const graphical_bonds_container &gbc,
                                                    coot::api_bond_colour_t bonds_box_type,
-                                                   int udd_handle_bonded_type,
                                                    float atom_radius,
                                                    float bond_radius,
                                                    unsigned int num_subdivisions,
@@ -413,9 +411,9 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
 
       const graphical_bonds_container &gbc = bonds_box; // alias because it's named like that in Mesh-from-graphical-bonds
 
-      make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type,
-                                                     atom_radius, bond_radius, num_subdivisions, colour_table);
-      make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type, atom_radius,
+      make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
+                                                     num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, atom_radius,
                                                          bond_radius, num_subdivisions, colour_table);
 
       make_instanced_graphical_bonds_bonds(m, gbc, bond_radius, n_slices, n_stacks, colour_table);
@@ -451,10 +449,11 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
       bonds_box_type = coot::api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS____BONDS;
       std::cout << "---------------  in get_bonds_mesh_instanced() E mode is " << mode << " bonds_box_type is " << int(bonds_box_type) << std::endl;
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
-      make_instanced_graphical_bonds_spherical_atoms(m, bonds_box, bonds_box_type, udd_handle_bonded_type,
-                                                     atom_radius, bond_radius, num_subdivisions, colour_table);
-      make_instanced_graphical_bonds_hemispherical_atoms(m, bonds_box, bonds_box_type, udd_handle_bonded_type, atom_radius,
-                                                         bond_radius, num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_spherical_atoms(m, bonds_box, bonds_box_type, atom_radius, bond_radius,
+                                                     num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_hemispherical_atoms(m, bonds_box, bonds_box_type,
+                                                         atom_radius, bond_radius,
+                                                         num_subdivisions, colour_table);
       make_instanced_graphical_bonds_bonds(m, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
       make_graphical_bonds_cis_peptides(m.markup, bonds_box);
    }
@@ -558,10 +557,10 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
 
       auto gbc = bonds.make_graphical_bonds();
 
-      make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type,
-                                                     atom_radius, bond_radius, num_subdivisions, colour_table);
-      make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type, atom_radius,
-                                                         bond_radius, num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
+                                                     num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
+                                                         num_subdivisions, colour_table);
 
       make_instanced_graphical_bonds_bonds(m, gbc, bond_radius, n_slices, n_stacks, colour_table);
 
