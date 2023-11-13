@@ -8317,6 +8317,7 @@ Bond_lines_container::add_atom_centres(int imol,
             coot::Cartesian pos(at->x, at->y, at->z);
             graphical_bonds_atom_info_t gbai(pos, i, is_H_flag);
 
+            // Fat atoms are for atom in residues with no dictionary
             bool make_fat_atom = false;
             if (! have_dict_for_this_type)
                if (atom_colour_type != coot::COLOUR_BY_ATOM_TYPE)
@@ -8327,7 +8328,7 @@ Bond_lines_container::add_atom_centres(int imol,
             if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
                if (is_H_flag)
                   gbai.radius_scale += 0.18; // otherwise too tiny. At 0.25 Garib said that
-            // the spheres were too big.
+                                             // the spheres were too big.
 
             // No small atoms (H) in COLOUR_BY_B_FACTOR or COLOUR_BY_OCCUPANCY
             // because the add_bond function doesn't take a "thin" flag

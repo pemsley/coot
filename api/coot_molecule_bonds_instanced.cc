@@ -65,11 +65,16 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
          bool do_it = true;  // everything is spherical for the moment.
 
          if (do_it) {
+
+            // radius_scale is 2 for waters and 4 for metals
+            //
             float scale = at_info.radius_scale;
             float sar = scale * base_atom_radius;
-            if (sar > 2.0f) sar = 2.0f;
+            // 20231113-PE should I check for waters for this limit?
+            if (sar > 0.65) sar = 0.65f;
             glm::vec3 sc(sar, sar, sar);
             glm::vec3 t(at->x, at->y, at->z);
+            col = glm::vec4(0.5, 0.0, 0.5, 1.0);
             coot::instancing_data_type_A_t idA(t, col, sc);
             ig.instancing_data_A.push_back(idA);
          }
@@ -148,7 +153,8 @@ make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, //
          glm::mat4 ori(1.0); // 20230114-PE needs fixing.
          float scale = 1.0;
          if (at_info.is_hydrogen_atom) scale *= 0.5;
-         if (at_info.is_water) scale *= 3.33;
+         // 20231113-PE get rid
+         // if (at_info.is_water) scale *= 3.33;
          float sar = scale * atom_radius;
          glm::vec3 sc(sar, sar, sar);
          coot::instancing_data_type_B_t id(t, col, sc, ori);
