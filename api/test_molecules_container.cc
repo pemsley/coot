@@ -3875,7 +3875,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
 
-   status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
+   // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
+
+   status += run_test(test_replace_fragment,      "replace fragment",         mc);
 
    // status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
 

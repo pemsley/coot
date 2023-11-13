@@ -333,9 +333,15 @@ molecules_container_t::replace_fragment(int imol_base, int imol_reference, const
    if (is_valid_model_molecule(imol_base)) {
       if (is_valid_model_molecule(imol_reference)) {
 
+         std::string multi_cids = atom_selection;
          mmdb::Manager *mol_ref = molecules[imol_reference].atom_sel.mol;
          int SelHnd = mol_ref->NewSelection(); // d
-         mol_ref->Select(SelHnd, mmdb::STYPE_ATOM, atom_selection.c_str(), mmdb::SKEY_NEW);
+         // 20231113-PE replace with multi-selection
+         // mol_ref->Select(SelHnd, mmdb::STYPE_ATOM, atom_selection.c_str(), mmdb::SKEY_NEW);
+         std::vector<std::string> v = coot::util::split_string(multi_cids, "||");
+         if (! v.empty())
+            for (const auto &cid : v)
+               mol_ref->Select(SelHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
          mmdb::Manager *mol_select = coot::util::create_mmdbmanager_from_atom_selection(mol_ref, SelHnd);
          atom_selection_container_t asc_moving = make_asc(mol_select);
          status = molecules[imol_base].replace_fragment(asc_moving);
