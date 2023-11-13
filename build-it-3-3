@@ -396,13 +396,16 @@
 # 6.07 20220710 libffi fixes for python
 # 6.08 20220803-PE pygobject cleanups
 # 6.09 20220907-PE meson adjustment for compiling glib (what a pain)
-# 6.10 20240603-PE remove goocanvas
+# 6.10 20230603-PE remove goocanvas
+# 6.11 20241113-PE print out the script_version
 script_version=6.10
 
 
 
 echo ==================================================== add test for SWIG version
 echo ==================================================== add test for CMake version
+echo this is script version $script_version
+echo this is script version $script_version >&2
 
 
 # :: NOTE::
