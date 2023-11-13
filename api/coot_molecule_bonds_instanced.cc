@@ -459,7 +459,7 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
 
 
 coot::instanced_mesh_t
-coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode, const std::string &atom_selection_cid,
+coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode, const std::string &multi_cids,
                                                          coot::protein_geometry *geom, bool against_a_dark_background,
                                                          float bond_radius, float atom_radius_to_bond_width_ratio,
                                                          int  num_subdivisions,
@@ -494,15 +494,23 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
 
    coot::instanced_mesh_t m;
 
-   int sel_hnd = atom_sel.mol->NewSelection(); // d
-   atom_sel.mol->Select(sel_hnd, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
-   mmdb::Manager *new_mol = util::create_mmdbmanager_from_atom_selection(atom_sel.mol, sel_hnd, false);
+   std::vector<std::string> v = coot::util::split_string(multi_cids, "||");
+
+   int udd_atom_selection = atom_sel.mol->NewSelection(); // d
+   if (! v.empty()) {
+      for (const auto &cid : v) {
+         atom_sel.mol->Select(udd_atom_selection, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
+      }
+   }
+
+   mmdb::Manager *new_mol = util::create_mmdbmanager_from_atom_selection(atom_sel.mol, udd_atom_selection, false);
    atom_selection_container_t atom_sel_ligand = make_asc(new_mol); // cleared up at end of function
-   atom_sel.mol->DeleteSelection(sel_hnd);
+   atom_sel.mol->DeleteSelection(udd_atom_selection);
 
    if (true) {
       unsigned int n_atoms = count_atoms_in_mol(new_mol);
-      std::cout << "debug:: there are " << n_atoms << " in the atom selection: " << atom_selection_cid << std::endl;
+      std::cout << "debug:: in get_bonds_mesh_for_selection_instanced() there are " << n_atoms
+                << " in the atom selection: " << multi_cids << std::endl;
    }
 
    apply_user_defined_atom_colour_selections(indexed_user_defined_colour_selection_cids,

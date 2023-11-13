@@ -140,8 +140,7 @@ int main (int argc, char * const argv[]) {
 			CCP4MAPfile inputMap;
 			inputMap.open_read(inputMapName);
 			inputMap.import_nxmap(theClipperNXMap);
-		}
-		else {
+		} else {
 			//Instantiate an electrostatics map and cause it to calculate itself
 			CXXChargeTable theChargeTable;
 			CXXUtils::assignCharge(theMMDBManager, selHnd, &theChargeTable);
@@ -152,23 +151,23 @@ int main (int argc, char * const argv[]) {
 		
 		// Now bring the surface and the map together
 		double coords[4];
-        for (std::vector<CXXSurface>::iterator subSurfaceIter= calculatedSurface->getChildSurfaces().begin();
-             subSurfaceIter != calculatedSurface->getChildSurfaces().end();
-             subSurfaceIter++){
-            int potentialHandle = subSurfaceIter->getScalarHandle("potential");
-            
-            for (int i=0; i< subSurfaceIter->numberOfVertices(); i++){
-                //Use the colour if it has been assigned
-                if (subSurfaceIter->getCoord(vertexName, i, coords)){
-                    cout << "Bizarely no vertices for coordinate "<< i << endl;
+                for (std::vector<CXXSurface>::iterator subSurfaceIter= calculatedSurface->getChildSurfaces().begin();
+                     subSurfaceIter != calculatedSurface->getChildSurfaces().end(); ++subSurfaceIter){
+
+                   int potentialHandle = subSurfaceIter->getScalarHandle("potential");
+
+                   for (unsigned int i=0; i < subSurfaceIter->numberOfVertices(); i++){
+                      //Use the colour if it has been assigned
+                      if (subSurfaceIter->getCoord(vertexName, i, coords)){
+                         cout << "Bizarely no vertices for coordinate "<< i << endl;
+                      }
+                      Coord_orth orthogonals(coords[0], coords[1], coords[2]);
+                      double potential;
+                      const Coord_map mapUnits(theClipperNXMap.coord_map(orthogonals));
+                      potential = theClipperNXMap.interp<Interp_cubic>( mapUnits );
+                      subSurfaceIter->setScalar(potentialHandle, i, potential);
+                   }
                 }
-                Coord_orth orthogonals(coords[0], coords[1], coords[2]);
-                double potential;
-                const Coord_map mapUnits(theClipperNXMap.coord_map(orthogonals));
-                potential = theClipperNXMap.interp<Interp_cubic>( mapUnits );
-                subSurfaceIter->setScalar(potentialHandle, i, potential);
-            }
-        }
 	}
 	
 	//Output surface file if desired

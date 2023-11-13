@@ -163,7 +163,10 @@ coot::molecule_t::print_M2T_IntParameters() const {
 }
 
 
-
+#include "MoleculesToTriangles/CXXSurface/CXXChargeTable.h"
+#include "MoleculesToTriangles/CXXSurface/CXXUtils.h"
+#include "MoleculesToTriangles/CXXSurface/CXXSurface.h"
+#include "MoleculesToTriangles/CXXSurface/CXXCreator.h"
 
 coot::simple_mesh_t
 coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_selection_str,
@@ -328,11 +331,27 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       return mesh;
    };
 
+   auto glm_to_clipper = [] (const glm::vec3 &gp) {
+      return clipper::Coord_orth(gp[0], gp[1], gp[2]);
+   };
+
+   auto set_vertex_colour = [] (api::vnc_vertex &vertex, float potential) {
+      float pk = 10.0;
+      if (potential == 0.0) {
+         vertex.color = glm::vec4(0.6, 0.6, 0.6, 1.0);
+      } else {
+         if (potential < 0.0)
+            vertex.color = glm::vec4(0.6 - pk, 0.6 + pk * 0.5, 0.6 + pk * 0.5, 1.0);
+         else
+            vertex.color = glm::vec4(0.6 - pk * 0.5, 0.6 - pk * 0.5, 0.6 + pk, 1.0);
+      }
+   };
+
    coot::simple_mesh_t mesh;
 
-   if (debug)
+   if (false)
       std::cout << "get_molecular_representation_mesh() atom_selection: " << atom_selection_str
-                << " colour_scheme " << colour_scheme << " style " << style << std::endl;
+                << " colour_scheme: " << colour_scheme << " style: " << style << std::endl;
 
    try {
 
@@ -359,7 +378,26 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
                MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
             mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
 
+            //Instantiate an electrostatics map and cause it to calculate itself
+            CXXChargeTable theChargeTable;
+            CXXUtils::assignCharge(atom_sel.mol, atom_sel.SelectionHandle, &theChargeTable);
+            CXXCreator *theCreator = new CXXCreator(atom_sel.mol, atom_sel.SelectionHandle);
+            theCreator->calculate();
+            clipper::Cell cell;
+            clipper::NXmap<double> theClipperNXMap;
+            theClipperNXMap = theCreator->coerceToClipperMap(cell);
+
+            for (unsigned int i=0; i<mesh.vertices.size(); i++) {
+               clipper::Coord_orth orthogonals = glm_to_clipper(mesh.vertices[i].pos);
+               const clipper::Coord_map mapUnits(theClipperNXMap.coord_map(orthogonals));
+               float potential = theClipperNXMap.interp<clipper::Interp_cubic>( mapUnits );
+               // subSurfaceIter->setScalar(potentialHandle, i, potential);
+               std::cout << "potential: " << potential << std::endl;
+               set_vertex_colour(mesh.vertices[i], potential); // change ref
+            }
+
          } else {
+
             std::shared_ptr<MolecularRepresentationInstance> molrepinst =
                MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
             mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);

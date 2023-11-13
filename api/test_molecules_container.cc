@@ -3871,11 +3871,11 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_residues_near_residues, "residues near residues",    mc);
+   // status += run_test(test_residues_near_residues, "residues near residues",    mc);
 
    // status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
 
-   // status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
+   status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
 
    // status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
 
