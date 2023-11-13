@@ -73,7 +73,6 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
             if (sar > 0.65) sar = 0.65f;
             glm::vec3 sc(sar, sar, sar);
             glm::vec3 t(at->x, at->y, at->z);
-            col = glm::vec4(0.5, 0.0, 0.5, 1.0);
             coot::instancing_data_type_A_t idA(t, col, sc);
             ig.instancing_data_A.push_back(idA);
          }
