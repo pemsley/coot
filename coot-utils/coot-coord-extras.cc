@@ -1386,6 +1386,7 @@ coot::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 
                                     if (geom_p) {
                                        try {
+                                          // "PRO" group is "P-peptide" (not "peptide")
                                           res_1_group = geom_p->get_group(res_name_1);
                                           res_2_group = geom_p->get_group(res_name_2);
                                        }
@@ -1394,7 +1395,16 @@ coot::cis_peptide_quads_from_coords(mmdb::Manager *mol,
                                        }
                                     }
 
-                                    if (! geom_p || (res_1_group == "peptide" && res_2_group == "peptide")) {
+                                    // std::cout << ":::::::::: geom_p " << geom_p
+                                    //           << " residue_p_1 " << coot::residue_spec_t(residue_p_1)
+                                    //           << " res_1_group " << res_1_group
+                                    //           << " res_2_group " << res_2_group << " is_pre_pro " << is_pre_pro << std::endl;
+
+                                    bool res_1_group_ok = (res_1_group == "peptide");
+                                    bool res_2_group_ok = (res_2_group == "peptide");
+                                    if (res_2_group == "P-peptide") res_2_group_ok = true;
+
+                                    if (! geom_p || (res_1_group_ok && res_2_group_ok)) {
 
                                        // put torsion in the range -180 -> + 180
                                        //
