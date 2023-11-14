@@ -291,7 +291,7 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
     // highlight
     process_atom_highlight(atom);
     // text
-    cairo_move_to(cr, origin_x, origin_y);
+    ren.move_to(origin_x, origin_y);
     pango_cairo_show_layout(cr, pango_layout);
 
     #else
@@ -340,19 +340,13 @@ void MoleculeRenderContext::draw_atoms() {
 
 void MoleculeRenderContext::process_atom_highlight(const Atom& atom) {
     if(atom.highlighted) {
-        #ifndef __EMSCRIPTEN__
-        cairo_t* cr = ren.cr;
-        PangoLayout* pango_layout = ren.pango_layout;
-        //cairo_move_to(cr, atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
-        cairo_new_sub_path(cr);
-        cairo_set_source_rgb(cr, 0.0, 1.0, 0.5);
-        cairo_arc(cr, atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset, CanvasMolecule::ATOM_HITBOX_RADIUS, 0, M_PI * 2.0);
-        cairo_stroke_preserve(cr);
-        cairo_set_source_rgba(cr, 0.0, 1.0, 0.5, 0.5);
-        cairo_fill(cr);
-        #else
-        #warning TODO: Abstract-away drawing atom highlights for Lhasa
-        #endif
+        //ren.move_to(atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
+        ren.new_sub_path();
+        ren.set_source_rgb(0.0, 1.0, 0.5);
+        ren.arc(atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset, CanvasMolecule::ATOM_HITBOX_RADIUS, 0, M_PI * 2.0);
+        ren.stroke_preserve();
+        ren.set_source_rgba(0.0, 1.0, 0.5, 0.5);
+        ren.fill();
     }
 }
 
@@ -441,15 +435,9 @@ void MoleculeRenderContext::draw_central_bond_line(const CanvasMolecule::Bond& b
 
     auto [first,second] = cropped_bond_coords(first_atom,bond.first_atom_idx,second_atom,bond.second_atom_idx);
     
-    #ifndef __EMSCRIPTEN__
-    cairo_t* cr = ren.cr;
-
-    cairo_move_to(cr, first.x, first.y);
-    cairo_line_to(cr, second.x, second.y);
-    cairo_stroke(cr);
-    #else
-    #warning TODO: Drawing central bond lines in Lhasa
-    #endif
+    ren.move_to(first.x, first.y);
+    ren.line_to(second.x, second.y);
+    ren.stroke();
 }
 
 void MoleculeRenderContext::draw_straight_wedge(const CanvasMolecule::Bond& bond, bool reversed) {
@@ -480,26 +468,19 @@ void MoleculeRenderContext::draw_straight_wedge(const CanvasMolecule::Bond& bond
     auto v_x = pv_x * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
     auto v_y = pv_y * std::sin(GEOMETRY_BOND_SPREAD_ANGLE / 2.f) * cropped_bond_len;
 
-    #ifndef __EMSCRIPTEN__
-    cairo_t* cr = ren.cr;
-    
-    cairo_new_path(cr);
-    cairo_move_to(cr, origin_cropped.x, origin_cropped.y);
-    cairo_line_to(cr, target_cropped.x + v_x, target_cropped.y + v_y);
-    cairo_stroke_preserve(cr);
+    ren.new_path();
+    ren.move_to(origin_cropped.x, origin_cropped.y);
+    ren.line_to(target_cropped.x + v_x, target_cropped.y + v_y);
+    ren.stroke_preserve();
 
-    cairo_line_to(cr, target_cropped.x - v_x, target_cropped.y - v_y);
-    cairo_stroke_preserve(cr);
+    ren.line_to(target_cropped.x - v_x, target_cropped.y - v_y);
+    ren.stroke_preserve();
 
-    cairo_line_to(cr, origin_cropped.x, origin_cropped.y);
-    cairo_stroke_preserve(cr);
+    ren.line_to(origin_cropped.x, origin_cropped.y);
+    ren.stroke_preserve();
 
-    cairo_close_path(cr);
-    cairo_fill(cr);
-
-    #else
-    #warning TODO: Drawing wedge bonds for Lhasa
-    #endif
+    ren.close_path();
+    ren.fill();
 }
 
 void MoleculeRenderContext::draw_straight_dashed_bond(const CanvasMolecule::Bond& bond, bool reversed) {
@@ -539,25 +520,15 @@ void MoleculeRenderContext::draw_straight_dashed_bond(const CanvasMolecule::Bond
     
     for(unsigned int i = 0; i <= full_dashes; i++) {
         float spread_multiplier = (float) i / dashes;
-        #ifndef __EMSCRIPTEN__
-        cairo_t* cr = ren.cr;
-        cairo_move_to(cr, current.x - v_x * spread_multiplier, current.y - v_y * spread_multiplier);
-        cairo_line_to(cr, current.x + v_x * spread_multiplier, current.y + v_y * spread_multiplier);
-        cairo_stroke(cr);
-        #else
-        #warning TODO: Drawing dashed bonds for Lhasa
-        #endif
+        ren.move_to(current.x - v_x * spread_multiplier, current.y - v_y * spread_multiplier);
+        ren.line_to(current.x + v_x * spread_multiplier, current.y + v_y * spread_multiplier);
+        ren.stroke();
         current.x += step_x;
         current.y += step_y;
     }
 }
 
 void MoleculeRenderContext::draw_wavy_bond(const CanvasMolecule::Bond& bond) {
-    #ifndef __EMSCRIPTEN__
-    cairo_t* cr = ren.cr;
-    #else
-    #warning TODO: Drawing wavy bonds in Lhasa
-    #endif
     graphene_point_t first_atom;
     first_atom.x = bond.first_atom_x * scale_factor + x_offset;
     first_atom.y = bond.first_atom_y * scale_factor + y_offset;
@@ -607,11 +578,10 @@ void MoleculeRenderContext::draw_wavy_bond(const CanvasMolecule::Bond& bond) {
         }
         // l_angle_one = angle_one;
         // l_angle_two = angle_two;
-        #ifndef __EMSCRIPTEN__
-        cairo_new_sub_path(cr);
-        cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
-        cairo_stroke(cr);
-        #endif
+        ren.new_sub_path();
+        ren.arc(current_x, current_y, wave_arc_radius, angle_one, angle_two);
+        ren.stroke();
+
         current_x = next_x;
         current_y = next_y;
         arc_direction = !arc_direction;
@@ -685,11 +655,9 @@ void MoleculeRenderContext::draw_wavy_bond(const CanvasMolecule::Bond& bond) {
     //     l_angle_two / M_PI * 180.f,
     //     case_info.c_str()
     // );
-    #ifndef __EMSCRIPTEN__
-    cairo_new_sub_path(cr);
-    cairo_arc(cr, current_x, current_y, wave_arc_radius, angle_one, angle_two);
-    cairo_stroke(cr);
-    #endif
+    ren.new_sub_path();
+    ren.arc(current_x, current_y, wave_arc_radius, angle_one, angle_two);
+    ren.stroke();
 }
 
 void MoleculeRenderContext::draw_side_bond_line(const CanvasMolecule::Bond& bond, bool addOrSub, std::optional<float> first_shortening_proportion, std::optional<float> second_shortening_proportion) {
@@ -791,14 +759,9 @@ void MoleculeRenderContext::draw_side_bond_line(const CanvasMolecule::Bond& bond
             b_cropped = second_c;
         }
     }
-    #ifndef __EMSCRIPTEN__
-    cairo_t* cr = ren.cr;
-    cairo_move_to(cr, a_cropped.x, a_cropped.y);
-    cairo_line_to(cr, b_cropped.x, b_cropped.y);
-    cairo_stroke(cr);
-    #else
-    #warning TODO: Drawing side bond lines for Lhasa
-    #endif
+    ren.move_to(a_cropped.x, a_cropped.y);
+    ren.line_to(b_cropped.x, b_cropped.y);
+    ren.stroke();
 }
 
 void MoleculeRenderContext::draw_centered_double_bond(const CanvasMolecule::Bond& bond) {
@@ -818,35 +781,25 @@ void MoleculeRenderContext::draw_centered_double_bond(const CanvasMolecule::Bond
 
     auto [first,second] = cropped_bond_coords(first_atom,bond.first_atom_idx,second_atom,bond.second_atom_idx);
 
-    #ifndef __EMSCRIPTEN__
-    cairo_t* cr = ren.cr;
-    cairo_move_to(cr, first.x + pv_x, first.y + pv_y);
-    cairo_line_to(cr, second.x + pv_x, second.y + pv_y);
-    cairo_stroke(cr);
+    ren.move_to(first.x + pv_x, first.y + pv_y);
+    ren.line_to(second.x + pv_x, second.y + pv_y);
+    ren.stroke();
 
-    cairo_move_to(cr, first.x - pv_x, first.y - pv_y);
-    cairo_line_to(cr, second.x - pv_x, second.y - pv_y);
-    cairo_stroke(cr);
-    #else
-    #warning TODO: Drawing centered double bonds for Lhasa
-    #endif
+    ren.move_to(first.x - pv_x, first.y - pv_y);
+    ren.line_to(second.x - pv_x, second.y - pv_y);
+    ren.stroke();
 }
 
 
 void MoleculeRenderContext::draw_bonds() {
     for(const auto& bond: canvas_molecule.bonds) {
-        #ifndef __EMSCRIPTEN__
-        cairo_t* cr = ren.cr;
         if(bond->highlighted) {
-            cairo_set_line_width(cr, 4.0);
-            cairo_set_source_rgb(cr, 0.0, 1.0, 0.5);
+            ren.set_line_width(4.0);
+            ren.set_source_rgb(0.0, 1.0, 0.5);
         } else {
-            cairo_set_line_width(cr, 2.0);
-            cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+            ren.set_line_width(2.0);
+            ren.set_source_rgb(0.0, 0.0, 0.0);
         }
-        #else
-        #warning TODO: Abstract-away drawing bond highlights for Lhasa
-        #endif
 
         if(bond->geometry != BondGeometry::Flat && bond->type == BondType::Single) {
             switch (bond->geometry) {
