@@ -231,15 +231,11 @@ void WidgetCoreData::render(Renderer& ren) {
     }
     if(this->currently_created_bond.has_value()) {
         auto& bond = this->currently_created_bond.value();
-        #ifndef __EMSCRIPTEN__
-        cairo_set_line_width(ren.cr, 4.0);
-        cairo_set_source_rgb(ren.cr, 1.0, 0.5, 1.0);
-        cairo_move_to(ren.cr, bond.first_atom_x, bond.first_atom_y);
-        cairo_line_to(ren.cr, bond.second_atom_x, bond.second_atom_y);
-        cairo_stroke(ren.cr);
-        #else 
-        #warning TODO: Implement rendering currently_created_bond for Lhasa
-        #endif
+        ren.set_line_width(4.0);
+        ren.set_source_rgb(1.0, 0.5, 1.0);
+        ren.move_to(bond.first_atom_x, bond.first_atom_y);
+        ren.line_to(bond.second_atom_x, bond.second_atom_y);
+        ren.stroke();
     }
 }
 

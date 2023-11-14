@@ -40,6 +40,7 @@ struct Renderer {
     PangoLayout* pango_layout;
     /// Takes ownership of the pointers
     Renderer(cairo_t*,PangoLayout*);
+    Renderer(const Renderer&) = delete;
 
     #else // __EMSCRIPTEN__ defined
     //       Lhasa-specific includes/definitions
