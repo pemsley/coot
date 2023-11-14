@@ -62,7 +62,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .constructor<DeleteTool>()
     .constructor<>();
     // .smart_ptr<std::unique_ptr<ActiveTool>>("UniquePtrLhasaActiveTool");
-  class_<CootLigandEditorCanvas>("LhasaCanvas")
+  class_<impl::WidgetCoreData>("LhasaImplWidgetCoreData");
+  class_<CootLigandEditorCanvas, base<impl::WidgetCoreData>>("LhasaCanvas")
     .constructor<>()
     .function("set_active_tool", &CootLigandEditorCanvas::set_active_tool)
     .function("append_molecule", &CootLigandEditorCanvas::append_molecule)
@@ -83,5 +84,5 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("on_left_click_released", &CootLigandEditorCanvas::on_left_click_released)
     .function("on_right_click", &CootLigandEditorCanvas::on_right_click)
     .function("on_right_click_released", &CootLigandEditorCanvas::on_right_click_released)
-    .function("render", &impl::WidgetCoreData::render);
+    .function("render", &CootLigandEditorCanvas::render);
 }
