@@ -2059,10 +2059,12 @@ graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot:
          coot::residue_spec_t res_spec(spec);
          mmdb::Residue *residue_p = molecules[imol].get_residue(res_spec);
          if (residue_p) {
-            // what about Mesh's make_graphical_bonds_bonds_bonds adn make_graphical_bonds_hemispherical_atoms
+            int bond_width = 10;
+            int model_number = residue_p->GetModelNum();
             molecular_mesh_generator_t mmg;
             std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > p =
-               mmg.get_molecular_triangles_mesh_for_active_residue(imol, mol, residue_p, Geom_p());
+               mmg.get_molecular_triangles_mesh_for_active_residue(imol, mol, model_number, residue_p, Geom_p(),
+                                                                   bond_width);
             mesh_for_outline_of_active_residue.clear();
             mesh_for_outline_of_active_residue.import(p);
             Material mat;
