@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   </head>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <script>
     var Module = {
       onRuntimeInitialized: function() {
@@ -38,16 +39,29 @@
           const ren = new Module.LhasaRenderer("dummy");
           lh.render(ren);
           const commands = ren.get_commands();
+          const svg = d3.create("svg")
+            .attr("id", "editor_canvas");
           for(var i = 0; i < commands.size(); i++) {
             const command = commands.get(i);
-            console.log('line arc path: ' + command.is_line() + ' ' + command.is_arc() + ' ' + command.is_path());
+            // console.log('line arc path: ' + command.is_line() + ' ' + command.is_arc() + ' ' + command.is_path());
             if(command.is_line()) {
               const line = command.as_line();
-              console.log(line);
+              // console.log(line);
+              svg.append("line")
+                .attr("x1", line.start.x)
+                .attr("y1", line.start.y)
+                .attr("x2", line.end.x)
+                .attr("y2", line.end.y)
+                .attr("stroke", 'rgba(' + line.style.r + ','+ line.style.g + ',' + line.style.b + ',' + line.style.a + ')');
+
             }
           }
           commands.delete();
           ren.delete();
+          while (elem.firstChild) {
+            elem.removeChild(elem.lastChild);
+          }
+          elem.append(svg.node());
         };
         on_render();
       }
@@ -57,7 +71,6 @@
 
   <body>
     <div id="editor_canvas">
-      text
     </div>
   </body>
 </html>
