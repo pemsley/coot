@@ -15234,6 +15234,12 @@ Move a copy?</property>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
+                <property name="accelerator">quoteleft</property>
+                <property name="title" translatable="yes">Highlight Active Residue</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
                 <property name="accelerator">1</property>
                 <property name="title" translatable="yes">Clipping Front Expand</property>
               </object>
@@ -15285,7 +15291,7 @@ Move a copy?</property>
 
         <child>
           <object class="GtkShortcutsGroup">
-            <property name="title">Moving Around Functions</property>
+            <property name="title">Functions for Moving Around</property>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">space</property>
