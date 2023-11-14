@@ -14,6 +14,10 @@ C++ 17 and git for CCP4i2
 
 8 items
 
+Bug:: Preferences Others Fonts - the Atom Label Radiobuttons are not correctly lit.
+
+Look at the terminal output when using the Preferences dialog. Is it all needed?
+
 Symmetry by molecule: removed from UI. Buggy. Needs a fix.
 
 Does "Fetch PDB & Map using EDS" work with Updating maps?
