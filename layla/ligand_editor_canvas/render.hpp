@@ -58,8 +58,7 @@ struct Renderer {
     graphene_point_t position;
     std::vector<DrawingCommand> drawing_commands;
     std::string measurement_svg_element_id;
-
-    // todo: path API stack management
+    std::vector<std::vector<DrawingCommand>*> drawing_structure_stack;
 
     public:
 
@@ -95,6 +94,8 @@ struct Renderer {
     };
 
     Renderer(std::string measurement_svg_element_id);
+
+    std::vector<DrawingCommand> get_commands() const;
     #endif
 
     // PRIMITIVES

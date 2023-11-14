@@ -53,6 +53,7 @@ Renderer::Renderer(std::string measurement_svg_element_id) {
     this->style.g = 0.f;
     this->style.b = 0.f;
     this->style.a = 1.f;
+    this->drawing_structure_stack.push_back(&this->drawing_commands);
 }
 
 bool Renderer::DrawingCommand::is_path() {
@@ -78,6 +79,10 @@ const Renderer::Arc& Renderer::DrawingCommand::as_arc() const {
 const Renderer::Line& Renderer::DrawingCommand::as_line() const {
     return std::get<Renderer::Line>(this->content);
 }
+
+std::vector<Renderer::DrawingCommand> Renderer::get_commands() const {
+    return this->drawing_commands;
+}
 #endif
 
 void Renderer::move_to(double x, double y) {
@@ -93,7 +98,13 @@ void Renderer::line_to(double x, double y) {
     #ifndef __EMSCRIPTEN__
     cairo_line_to(cr, x, y);
     #else // __EMSCRIPTEN__ defined
-
+    Line line;
+    line.style = this->style;
+    line.start = this->position;
+    line.end.x = x;
+    line.end.y = y;
+    auto* structure_ptr = *this->drawing_structure_stack.rbegin();
+    structure_ptr->push_back(DrawingCommand{line});
     #endif
 }
 
@@ -101,7 +112,14 @@ void Renderer::arc(double x, double y, double radius, double angle_one, double a
     #ifndef __EMSCRIPTEN__
     cairo_arc(cr, x, y, radius, angle_one, angle_two);
     #else // __EMSCRIPTEN__ defined
-
+    Arc arc;
+    arc.origin.x = x;
+    arc.origin.y = y;
+    arc.radius = radius;
+    arc.angle_one = angle_one;
+    arc.angle_two = angle_two;
+    auto* structure_ptr = *this->drawing_structure_stack.rbegin();
+    structure_ptr->push_back(DrawingCommand{arc});
     #endif
 }
 
@@ -109,7 +127,7 @@ void Renderer::fill() {
     #ifndef __EMSCRIPTEN__
     cairo_fill(cr);
     #else // __EMSCRIPTEN__ defined
-
+    #warning TODO: fill() for Lhasa
     #endif
 }
 
@@ -117,7 +135,7 @@ void Renderer::stroke() {
     #ifndef __EMSCRIPTEN__
     cairo_stroke(cr);
     #else // __EMSCRIPTEN__ defined
-
+    #warning TODO: stroke() for Lhasa
     #endif
 }
 
@@ -125,7 +143,7 @@ void Renderer::stroke_preserve() {
     #ifndef __EMSCRIPTEN__
     cairo_stroke_preserve(cr);
     #else // __EMSCRIPTEN__ defined
-
+    #warning TODO: stroke_preserve() for Lhasa
     #endif
 }
 
@@ -133,7 +151,7 @@ void Renderer::new_path() {
     #ifndef __EMSCRIPTEN__
     cairo_new_path(cr);
     #else // __EMSCRIPTEN__ defined
-
+    #warning TODO: new_path() for Lhasa
     #endif
 }
 
@@ -141,7 +159,7 @@ void Renderer::close_path() {
     #ifndef __EMSCRIPTEN__
     cairo_close_path(cr);
     #else // __EMSCRIPTEN__ defined
-
+    #warning TODO: close_path() for Lhasa
     #endif
 }
 
@@ -149,7 +167,7 @@ void Renderer::new_sub_path() {
     #ifndef __EMSCRIPTEN__
     cairo_new_sub_path(cr);
     #else // __EMSCRIPTEN__ defined
-
+    #warning TODO: new_sub_path() for Lhasa
     #endif
 }
 
