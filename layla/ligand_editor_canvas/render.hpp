@@ -42,7 +42,8 @@ struct Renderer {
 
     #else // __EMSCRIPTEN__ defined
     // Lhasa-specific includes/definitions
-    Renderer();
+    std::string measurement_svg_element_id;
+    Renderer(std::string measurement_svg_element_id);
     #endif
 
     // todo: Common rendering API

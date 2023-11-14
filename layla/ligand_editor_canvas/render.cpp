@@ -44,8 +44,8 @@ Renderer::Renderer(cairo_t* cr, PangoLayout* pango_layout) {
 }
 #else // __EMSCRIPTEN__ defined
 // Lhasa-specific includes/definitions
-Renderer::Renderer() {
-
+Renderer::Renderer(std::string measurement_svg_element_id) {
+    this->measurement_svg_element_id = measurement_svg_element_id;
 }
 #endif
 
