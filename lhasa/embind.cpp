@@ -27,10 +27,18 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .value("Standard", DisplayMode::Standard)
     .value("AtomIndices", DisplayMode::AtomIndices)
     .value("AtomNames", DisplayMode::AtomNames);
+  register_vector<impl::Renderer::DrawingCommand>("LhasaDrawingCommandVector");
   class_<impl::Renderer>("LhasaRenderer")
-    .constructor<std::string>();
-  class_<impl::Renderer::DrawingCommand>("LhasaDrawingCommand");
-    //.constructor()
+    .constructor<std::string>()
+    .function("get_commands", &impl::Renderer::get_commands);
+  // todo expose Line, Arc and Path
+  class_<impl::Renderer::DrawingCommand>("LhasaDrawingCommand")
+    .function("is_path", &impl::Renderer::DrawingCommand::is_path)
+    .function("is_arc", &impl::Renderer::DrawingCommand::is_arc)
+    .function("is_line", &impl::Renderer::DrawingCommand::is_line)
+    .function("as_path", &impl::Renderer::DrawingCommand::as_path)
+    .function("as_arc", &impl::Renderer::DrawingCommand::as_arc)
+    .function("as_line", &impl::Renderer::DrawingCommand::as_line);
   class_<DeleteTool>("LhasaDeleteTool")
     .constructor<>();
   class_<ChargeModifier>("LhasaChargeModifier")
@@ -75,5 +83,5 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("on_left_click_released", &CootLigandEditorCanvas::on_left_click_released)
     .function("on_right_click", &CootLigandEditorCanvas::on_right_click)
     .function("on_right_click_released", &CootLigandEditorCanvas::on_right_click_released)
-    .function("render", &CootLigandEditorCanvas::render);
+    .function("render", &impl::WidgetCoreData::render);
 }
