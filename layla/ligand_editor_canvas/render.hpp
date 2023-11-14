@@ -26,6 +26,9 @@
     #include <pango/pango-layout.h>
 #else // Lhasa-specific includes
     #include <graphene.h>
+    #include <variant>
+    #include <optional>
+    #include <vector>
 #endif
 #include <map>
 #include <tuple>
@@ -45,11 +48,38 @@ struct Renderer {
     #else // __EMSCRIPTEN__ defined
     //       Lhasa-specific includes/definitions
     private:
-    struct CurrentBrushStyle {
-        float line_width;
-        float r, g, b, a;
+    struct BrushStyle {
+        double line_width;
+        double r, g, b, a;
     } style;
     graphene_point_t position;
+
+    struct Line {
+        graphene_point_t start, end;
+        BrushStyle style;
+    };
+
+    struct Arc {
+        graphene_point_t origin;
+        double radius, angle_one, angle_two;
+        /// for color info
+        std::optional<BrushStyle> fill;
+    };
+
+    struct DrawingCommand;
+
+    struct Path {
+        std::vector<DrawingCommand> commands;
+        /// for color info
+        std::optional<BrushStyle> fill;
+        // std::optional<BrushStyle> stroke;
+    };
+
+    struct DrawingCommand {
+        std::variant<Line, Arc, Path> content;
+    };
+
+    std::vector<DrawingCommand> drawing_commands;
     std::string measurement_svg_element_id;
 
     public:
