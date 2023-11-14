@@ -58,6 +58,8 @@
           }
           commands.delete();
           ren.delete();
+
+          const elem = document.getElementById("editor_canvas");
           while (elem.firstChild) {
             elem.removeChild(elem.lastChild);
           }
