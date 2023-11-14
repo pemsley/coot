@@ -47,12 +47,21 @@ struct Renderer {
 
     #else // __EMSCRIPTEN__ defined
     //       Lhasa-specific includes/definitions
-    private:
+    struct DrawingCommand;
     struct BrushStyle {
         double line_width;
         double r, g, b, a;
-    } style;
+    };
+    private:
+
+    BrushStyle style;
     graphene_point_t position;
+    std::vector<DrawingCommand> drawing_commands;
+    std::string measurement_svg_element_id;
+
+    // todo: path API stack management
+
+    public:
 
     struct Line {
         graphene_point_t start, end;
@@ -66,8 +75,6 @@ struct Renderer {
         std::optional<BrushStyle> fill;
     };
 
-    struct DrawingCommand;
-
     struct Path {
         std::vector<DrawingCommand> commands;
         /// for color info
@@ -77,12 +84,16 @@ struct Renderer {
 
     struct DrawingCommand {
         std::variant<Line, Arc, Path> content;
+
+        bool is_path();
+        bool is_arc();
+        bool is_line();
+
+        const Path& as_path() const;
+        const Arc& as_arc() const;
+        const Line& as_line() const;
     };
 
-    std::vector<DrawingCommand> drawing_commands;
-    std::string measurement_svg_element_id;
-
-    public:
     Renderer(std::string measurement_svg_element_id);
     #endif
 

@@ -54,6 +54,30 @@ Renderer::Renderer(std::string measurement_svg_element_id) {
     this->style.b = 0.f;
     this->style.a = 1.f;
 }
+
+bool Renderer::DrawingCommand::is_path() {
+    return std::holds_alternative<Renderer::Path>(this->content);
+}
+
+bool Renderer::DrawingCommand::is_arc() {
+    return std::holds_alternative<Renderer::Arc>(this->content);
+}
+
+bool Renderer::DrawingCommand::is_line() {
+    return std::holds_alternative<Renderer::Line>(this->content);
+}
+
+const Renderer::Path& Renderer::DrawingCommand::as_path() const {
+    return std::get<Renderer::Path>(this->content);
+}
+
+const Renderer::Arc& Renderer::DrawingCommand::as_arc() const {
+    return std::get<Renderer::Arc>(this->content);
+}
+
+const Renderer::Line& Renderer::DrawingCommand::as_line() const {
+    return std::get<Renderer::Line>(this->content);
+}
 #endif
 
 void Renderer::move_to(double x, double y) {

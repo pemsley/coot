@@ -29,6 +29,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .value("AtomNames", DisplayMode::AtomNames);
   class_<impl::Renderer>("LhasaRenderer")
     .constructor<std::string>();
+  class_<impl::Renderer::DrawingCommand>("LhasaDrawingCommand");
+    //.constructor()
   class_<DeleteTool>("LhasaDeleteTool")
     .constructor<>();
   class_<ChargeModifier>("LhasaChargeModifier")
