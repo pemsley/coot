@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  </head>
+  <script>
+    var Module = {
+      onRuntimeInitialized: function() {
+        // console.log('lerp result: ' + Module.lerp(1, 2, 0.5));
+        console.log('Module is here.');
+        lh = new Module.LhasaCanvas();
+        console.log('Adding demo molecule.');
+        Module.append_from_smiles(lh, "O=C(C)Oc1ccccc1C(=O)O");
+
+        const elem = document.getElementById("editor_canvas");
+        elem.addEventListener("mousemove", (event) => {
+          // console.log('Mousemove');
+          lh.on_hover(event.clientX, event.clientY, event.altKey);
+        });
+        elem.addEventListener("mousedown", (event) => {
+          if(event.button == 0) {
+            lh.on_left_click(event.clientX, event.clientY, event.altKey, event.ctrlKey, event.shiftKey);
+          } else if(event.button == 2) {
+            lh.on_right_click(event.clientX, event.clientY, event.altKey, event.ctrlKey, event.shiftKey);
+          }
+        });
+        elem.addEventListener("mouseup", (event) => {
+          if(event.button == 0) {
+            lh.on_left_click_released(event.clientX, event.clientY, event.altKey, event.ctrlKey, event.shiftKey);
+          } else if(event.button == 2) {
+            lh.on_right_click_released(event.clientX, event.clientY, event.altKey, event.ctrlKey, event.shiftKey);
+          }
+        });
+        const on_render = function() {
+          console.log("on_render() called.");
+          const ren = new Module.LhasaRenderer("dummy");
+          lh.render(ren);
+          const commands = ren.get_commands();
+          for(var i = 0; i < commands.size(); i++) {
+            const command = commands.get(i);
+            console.log('line arc path: ' + command.is_line() + ' ' + command.is_arc() + ' ' + command.is_path());
+            if(command.is_line()) {
+              const line = command.as_line();
+              console.log(line);
+            }
+          }
+          commands.delete();
+          ren.delete();
+        };
+        on_render();
+      }
+    };
+  </script>
+  <script src="lhasa.js"></script>
+
+  <body>
+    <div id="editor_canvas">
+      text
+    </div>
+  </body>
+</html>
