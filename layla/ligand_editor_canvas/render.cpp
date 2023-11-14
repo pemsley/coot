@@ -46,8 +46,113 @@ Renderer::Renderer(cairo_t* cr, PangoLayout* pango_layout) {
 // Lhasa-specific includes/definitions
 Renderer::Renderer(std::string measurement_svg_element_id) {
     this->measurement_svg_element_id = measurement_svg_element_id;
+    this->position.x = 0.f;
+    this->position.y = 0.f;
+    this->style.line_width = 1.0f;
+    this->style.r = 0.f;
+    this->style.g = 0.f;
+    this->style.b = 0.f;
+    this->style.a = 1.f;
 }
 #endif
+
+void Renderer::move_to(double x, double y) {
+    #ifndef __EMSCRIPTEN__
+    cairo_move_to(cr, x, y);
+    #else // __EMSCRIPTEN__ defined
+
+    #endif
+}
+
+void Renderer::line_to(double x, double y) {
+    #ifndef __EMSCRIPTEN__
+    cairo_line_to(cr, x, y);
+    #else // __EMSCRIPTEN__ defined
+
+    #endif
+}
+
+void Renderer::arc(double x, double y, double radius, double angle_one, double angle_two) {
+    #ifndef __EMSCRIPTEN__
+    cairo_arc(cr, x, y, radius, angle_one, angle_two);
+    #else // __EMSCRIPTEN__ defined
+
+    #endif
+}
+
+void Renderer::fill() {
+    #ifndef __EMSCRIPTEN__
+    cairo_fill(cr);
+    #else // __EMSCRIPTEN__ defined
+
+    #endif
+}
+
+void Renderer::stroke() {
+    #ifndef __EMSCRIPTEN__
+    cairo_stroke(cr);
+    #else // __EMSCRIPTEN__ defined
+
+    #endif
+}
+
+void Renderer::stroke_preserve() {
+    #ifndef __EMSCRIPTEN__
+    cairo_stroke_preserve(cr);
+    #else // __EMSCRIPTEN__ defined
+
+    #endif
+}
+
+void Renderer::new_path() {
+    #ifndef __EMSCRIPTEN__
+    cairo_new_path(cr);
+    #else // __EMSCRIPTEN__ defined
+
+    #endif
+}
+
+void Renderer::close_path() {
+    #ifndef __EMSCRIPTEN__
+    cairo_close_path(cr);
+    #else // __EMSCRIPTEN__ defined
+
+    #endif
+}
+
+void Renderer::new_sub_path() {
+    #ifndef __EMSCRIPTEN__
+    cairo_new_sub_path(cr);
+    #else // __EMSCRIPTEN__ defined
+
+    #endif
+}
+
+void Renderer::set_source_rgb(double r, double g, double b) {
+    #ifndef __EMSCRIPTEN__
+    cairo_set_source_rgb(cr, r, g, b);
+    #else // __EMSCRIPTEN__ defined
+
+    #endif
+}
+
+void Renderer::set_source_rgba(double r, double g, double b, double a) {
+    #ifndef __EMSCRIPTEN__
+    cairo_set_source_rgba(cr, r, g, b, a);
+    #else // __EMSCRIPTEN__ defined
+
+    #endif
+}
+
+void Renderer::set_line_width(double width) {
+    #ifndef __EMSCRIPTEN__
+    cairo_set_line_width(cr, width);
+    #else // __EMSCRIPTEN__ defined
+
+    #endif
+}
+
+
 
 Renderer::~Renderer() {
     #ifndef __EMSCRIPTEN__

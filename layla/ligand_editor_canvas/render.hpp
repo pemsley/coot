@@ -33,6 +33,7 @@
 
 namespace coot::ligand_editor_canvas::impl {
 
+
 struct Renderer {
     #ifndef __EMSCRIPTEN__
     cairo_t* cr;
@@ -41,12 +42,43 @@ struct Renderer {
     Renderer(cairo_t*,PangoLayout*);
 
     #else // __EMSCRIPTEN__ defined
-    // Lhasa-specific includes/definitions
+    //       Lhasa-specific includes/definitions
+    private:
+    struct CurrentBrushStyle {
+        float line_width;
+        float r, g, b, a;
+    } style;
+    graphene_point_t position;
     std::string measurement_svg_element_id;
+
+    public:
     Renderer(std::string measurement_svg_element_id);
     #endif
 
-    // todo: Common rendering API
+    // PRIMITIVES
+
+    void move_to(double x, double y);
+    void line_to(double x, double y);
+    void arc(double x, double y, double radius, double angle_one, double angle_two);
+    void fill();
+    void stroke();
+    void stroke_preserve();
+
+    // PATH
+
+    void new_path();
+    void close_path();
+    void new_sub_path();
+
+    // STYLE
+
+    void set_source_rgb(double r, double g, double b);
+    void set_source_rgba(double r, double g, double b, double a);
+    void set_line_width(double width);
+
+    // TEXT
+
+    // todo
 
     ~Renderer();
 };
