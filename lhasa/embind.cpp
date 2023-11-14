@@ -44,7 +44,15 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .field("start", &impl::Renderer::Line::start)
     .field("end", &impl::Renderer::Line::end)
     .field("style", &impl::Renderer::Line::style);
-  // todo expose Arc and Path
+  value_object<impl::Renderer::Arc>("LhasaArc")
+    .field("origin", &impl::Renderer::Arc::origin)
+    .field("radius", &impl::Renderer::Arc::radius)
+    .field("angle_one", &impl::Renderer::Arc::angle_one)
+    // todo: fill
+    .field("angle_two", &impl::Renderer::Arc::angle_two);
+  value_object<impl::Renderer::Path>("LhasaPath")
+    // todo: fill
+    .field("commands", &impl::Renderer::Path::commands);
   class_<impl::Renderer::DrawingCommand>("LhasaDrawingCommand")
     .function("is_path", &impl::Renderer::DrawingCommand::is_path)
     .function("is_arc", &impl::Renderer::DrawingCommand::is_arc)
