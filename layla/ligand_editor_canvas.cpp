@@ -171,8 +171,15 @@ static void on_hover (
 ) {
     GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(controller));
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+    bool alt_pressed = modifiers & GDK_ALT_MASK;
+    bool shift_pressed = modifiers & GDK_SHIFT_MASK;
+    bool control_pressed = modifiers & GDK_CONTROL_MASK;
 
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+#else
+void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
+    auto* self = this;
+#endif
 
     // Clear all highlights first
     for(auto& molecule: *self->molecules) {
@@ -180,7 +187,7 @@ static void on_hover (
     }
 
     if(self->active_tool->is_in_transform()) {
-        self->active_tool->update_transform_cursor_pos((int)x, (int)y, modifiers & GDK_ALT_MASK);
+        self->active_tool->update_transform_cursor_pos((int)x, (int)y, alt_pressed);
         self->queue_redraw();
         return;
     }
@@ -224,9 +231,6 @@ static void on_hover (
     }
     self->queue_redraw();
 }
-#else
-#warning TODO: Implement on_hover for Lhasa
-#endif
 
 #ifndef __EMSCRIPTEN__
 static gboolean on_scroll(GtkEventControllerScroll* zoom_controller, gdouble dx, gdouble dy, gpointer user_data) {
@@ -260,16 +264,24 @@ on_left_click_released(
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
     GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(gesture_click));
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+    bool alt_pressed = modifiers & GDK_ALT_MASK;
+    bool shift_pressed = modifiers & GDK_SHIFT_MASK;
+    bool control_pressed = modifiers & GDK_CONTROL_MASK;
+#else
+void CootLigandEditorCanvas::on_left_click_released(double x, double y, bool alt_pressed, bool control_pressed, bool shift_pressed) {
+    auto* self = this;
+#endif
 
     if(self->active_tool->is_in_transform()) {
-        self->active_tool->end_transform(GDK_ALT_MASK & modifiers);
+        self->active_tool->end_transform(alt_pressed);
         return;
     }
 
     // `currently_created_bond` gets cleared here when appropriate
-    self->active_tool->on_release(GDK_CONTROL_MASK & modifiers, x, y, false);
+    self->active_tool->on_release(control_pressed, x, y, false);
 }
 
+#ifndef __EMSCRIPTEN__
 static void on_left_click(
   GtkGestureClick* gesture_click,
   gint n_press,
@@ -280,16 +292,23 @@ static void on_left_click(
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
     GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(gesture_click));
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+    bool alt_pressed = modifiers & GDK_ALT_MASK;
+    bool shift_pressed = modifiers & GDK_SHIFT_MASK;
+    bool control_pressed = modifiers & GDK_CONTROL_MASK;
+#else
+void CootLigandEditorCanvas::on_left_click(double x, double y, bool alt_pressed, bool control_pressed, bool shift_pressed) {
+    auto* self = this;
+#endif
 
-    if(GDK_ALT_MASK & modifiers) {
+    if(alt_pressed) {
         self->active_tool->begin_transform(x, y, TransformManager::Mode::Translation);
         return;
-    } else if(GDK_SHIFT_MASK & modifiers) {
+    } else if(shift_pressed) {
         self->active_tool->begin_transform(x, y, TransformManager::Mode::Rotation);
         return;
     }
 
-    self->active_tool->on_click(GDK_CONTROL_MASK & modifiers, x, y, false);
+    self->active_tool->on_click(control_pressed, x, y, false);
 
     if(self->active_tool->is_creating_bond()) {
         CurrentlyCreatedBond new_bond;
@@ -304,6 +323,7 @@ static void on_left_click(
     //gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_CLAIMED);
 }
 
+#ifndef __EMSCRIPTEN__
 static void
 on_right_click_released(
   GtkGestureClick* gesture_click,
@@ -315,10 +335,18 @@ on_right_click_released(
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
     GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(gesture_click));
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+    bool alt_pressed = modifiers & GDK_ALT_MASK;
+    bool shift_pressed = modifiers & GDK_SHIFT_MASK;
+    bool control_pressed = modifiers & GDK_CONTROL_MASK;
+#else
+void CootLigandEditorCanvas::on_right_click_released(double x, double y, bool alt_pressed, bool control_pressed, bool shift_pressed) {
+    auto* self = this;
+#endif
 
-    self->active_tool->on_release(GDK_CONTROL_MASK & modifiers, x, y, true);
+    self->active_tool->on_release(control_pressed, x, y, true);
 }
 
+#ifndef __EMSCRIPTEN__
 static void on_right_click(
   GtkGestureClick* gesture_click,
   gint n_press,
@@ -329,13 +357,16 @@ static void on_right_click(
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
     GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(gesture_click));
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
-
-
-    self->active_tool->on_click(GDK_CONTROL_MASK & modifiers, x, y, true);
-}
+    bool alt_pressed = modifiers & GDK_ALT_MASK;
+    bool shift_pressed = modifiers & GDK_SHIFT_MASK;
+    bool control_pressed = modifiers & GDK_CONTROL_MASK;
 #else
-#warning TODO: Implement handling click events for Lhasa
+void CootLigandEditorCanvas::on_right_click(double x, double y, bool alt_pressed, bool control_pressed, bool shift_pressed) {
+    auto* self = this;
 #endif
+
+    self->active_tool->on_click(control_pressed, x, y, true);
+}
 
 
 #ifndef __EMSCRIPTEN__
