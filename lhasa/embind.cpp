@@ -31,7 +31,20 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   class_<impl::Renderer>("LhasaRenderer")
     .constructor<std::string>()
     .function("get_commands", &impl::Renderer::get_commands);
-  // todo expose Line, Arc and Path
+  value_object<impl::Renderer::BrushStyle>("LhasaBrushStyle")
+    .field("r", &impl::Renderer::BrushStyle::r)
+    .field("g", &impl::Renderer::BrushStyle::g)
+    .field("b", &impl::Renderer::BrushStyle::b)
+    .field("a", &impl::Renderer::BrushStyle::a)
+    .field("line_width", &impl::Renderer::BrushStyle::line_width);
+  value_object<graphene_point_t>("GraphenePoint")
+    .field("x", &graphene_point_t::x)
+    .field("y", &graphene_point_t::y);
+  value_object<impl::Renderer::Line>("LhasaLine")
+    .field("start", &impl::Renderer::Line::start)
+    .field("end", &impl::Renderer::Line::end)
+    .field("style", &impl::Renderer::Line::style);
+  // todo expose Arc and Path
   class_<impl::Renderer::DrawingCommand>("LhasaDrawingCommand")
     .function("is_path", &impl::Renderer::DrawingCommand::is_path)
     .function("is_arc", &impl::Renderer::DrawingCommand::is_arc)
