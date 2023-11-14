@@ -60,7 +60,8 @@ void Renderer::move_to(double x, double y) {
     #ifndef __EMSCRIPTEN__
     cairo_move_to(cr, x, y);
     #else // __EMSCRIPTEN__ defined
-
+    this->position.x = x;
+    this->position.y = y;
     #endif
 }
 
@@ -132,7 +133,9 @@ void Renderer::set_source_rgb(double r, double g, double b) {
     #ifndef __EMSCRIPTEN__
     cairo_set_source_rgb(cr, r, g, b);
     #else // __EMSCRIPTEN__ defined
-
+    this->style.r = r;
+    this->style.g = g;
+    this->style.b = b;
     #endif
 }
 
@@ -140,7 +143,10 @@ void Renderer::set_source_rgba(double r, double g, double b, double a) {
     #ifndef __EMSCRIPTEN__
     cairo_set_source_rgba(cr, r, g, b, a);
     #else // __EMSCRIPTEN__ defined
-
+    this->style.r = r;
+    this->style.g = g;
+    this->style.b = b;
+    this->style.a = a;
     #endif
 }
 
@@ -148,7 +154,7 @@ void Renderer::set_line_width(double width) {
     #ifndef __EMSCRIPTEN__
     cairo_set_line_width(cr, width);
     #else // __EMSCRIPTEN__ defined
-
+    this->style.line_width = width;
     #endif
 }
 
