@@ -70,6 +70,7 @@
           }
           elem.append(svg.node());
         };
+        // For now, "queue_redraw" will just render immediately
         lh.connect("queue_redraw", on_render);
         console.log('Adding demo molecule.');
         Module.append_from_smiles(lh, "O=C(C)Oc1ccccc1C(=O)O");
