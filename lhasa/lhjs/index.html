@@ -78,6 +78,13 @@
           console.log("Status: " + status_text);
         };
         lh.connect("status_updated", on_status_updated);
+        lh.connect("smiles_changed", function () {
+          const elem = document.getElementById("smiles_display");
+          while (elem.firstChild) {
+            elem.removeChild(elem.lastChild);
+          }
+          elem.textContent = lh.get_smiles();
+        });
         console.log('Adding demo molecule.');
         Module.append_from_smiles(lh, "O=C(C)Oc1ccccc1C(=O)O");
       }
@@ -86,7 +93,25 @@
   <script src="lhasa.js"></script>
 
   <body>
-    <div id="editor_canvas_container">
+    <div id="molecule_tools_toolbar" class="horizontal_toolbar">
+      <div class="button"></div>
+    </div>
+    <div id="main_tools_toolbar" class="horizontal_toolbar">
+      <div class="button"></div>
+    </div>
+    <div id="structure_toolbar" class="horizontal_toolbar">
+      <div class="button"></div>
+    </div>
+    <div id="main_horizontal_container" class="horizontal_container">
+      <div id="element_toolbar" class="vertical_toolbar"></div>
+      <div id="editor_canvas_container">
+      </div>
+    </div>
+    <div id="smiles_display">
+      <!-- Smiles goes here -->
+    </div>
+    <div id="bottom_toolbar" class="horizontal_toolbar">
+      <div class="button"></div>
     </div>
   </body>
 </html>
