@@ -193,12 +193,22 @@ struct CootLigandEditorCanvasPriv : CootLigandEditorCanvasPrivBase, impl::Widget
 /// For Lhasa
 struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEditorCanvasPriv {
 
-    public:
     
     sigc::signal<void(const char*)> status_updated_signal;
     sigc::signal<void(float)> scale_changed_signal;
     sigc::signal<void()> smiles_changed_signal;
     sigc::signal<void(int)> molecule_deleted_signal;
+
+    public:
+
+    enum class MeasurementDirection :unsigned char {
+        HORIZONTAL = 0,
+        VERTICAL = 1
+    };
+
+    struct SizingInfo {
+        int requested_size;
+    };
 
     // Implemented at 'ligand_editor_canvas.cpp'
     CootLigandEditorCanvas() noexcept;
@@ -221,6 +231,8 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     std::string get_smiles_for_molecule(unsigned int molecule_idx) noexcept;
     void clear_molecules() noexcept;
 
+    // Implemented at 'ligand_editor_canvas.cpp'
+    SizingInfo measure(MeasurementDirection orientation) const noexcept;
     // Implemented at 'ligand_editor_canvas.cpp'
     void on_hover(double x, double y, bool alt_pressed);
     // Implemented at 'ligand_editor_canvas.cpp'

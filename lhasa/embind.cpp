@@ -53,13 +53,13 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   value_object<impl::Renderer::Path>("LhasaPath")
     // todo: fill
     .field("commands", &impl::Renderer::Path::commands);
-  value_object<impl::Renderer::TextSpan>("LhasaTextSpan")
+  class_<impl::Renderer::TextSpan>("LhasaTextSpan")
     // todo: everything
-    .field("caption", &impl::Renderer::TextSpan::caption);    
+    .property("caption", &impl::Renderer::TextSpan::caption);    
   register_vector<impl::Renderer::TextSpan>("LhasaTextSpanVector");
-  value_object<impl::Renderer::Text>("LhasaText")
+  class_<impl::Renderer::Text>("LhasaText")
     // todo: everything
-    .field("spans", &impl::Renderer::Text::spans);
+    .property("spans", &impl::Renderer::Text::spans);
   class_<impl::Renderer::DrawingCommand>("LhasaDrawingCommand")
     .function("is_path", &impl::Renderer::DrawingCommand::is_path)
     .function("is_arc", &impl::Renderer::DrawingCommand::is_arc)
@@ -92,6 +92,11 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .constructor<DeleteTool>()
     .constructor<>();
     // .smart_ptr<std::unique_ptr<ActiveTool>>("UniquePtrLhasaActiveTool");
+  value_object<CootLigandEditorCanvas::SizingInfo>("LhasaSizingInfo")
+    .field("requested_size", &CootLigandEditorCanvas::SizingInfo::requested_size);
+  enum_<CootLigandEditorCanvas::MeasurementDirection>("LhasaMeasurementDirection")
+    .value("HORIZONTAL", CootLigandEditorCanvas::MeasurementDirection::HORIZONTAL)
+    .value("VERTICAL", CootLigandEditorCanvas::MeasurementDirection::VERTICAL);
   class_<impl::WidgetCoreData>("LhasaImplWidgetCoreData");
   class_<CootLigandEditorCanvas, base<impl::WidgetCoreData>>("LhasaCanvas")
     .constructor<>()
@@ -114,5 +119,6 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("on_left_click_released", &CootLigandEditorCanvas::on_left_click_released)
     .function("on_right_click", &CootLigandEditorCanvas::on_right_click)
     .function("on_right_click_released", &CootLigandEditorCanvas::on_right_click_released)
-    .function("render", &CootLigandEditorCanvas::render);
+    .function("render", &CootLigandEditorCanvas::render)
+    .function("measure", &CootLigandEditorCanvas::measure);
 }

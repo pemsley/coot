@@ -6,7 +6,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_FLAGS "-Wno-enum-constexpr-conversion -s USE_PTHREADS=1 -pthread")
+set(CMAKE_CXX_FLAGS "-Wall -s USE_PTHREADS=1 -pthread")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 set(CMAKE_CXX_STANDARD 17)

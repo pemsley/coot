@@ -129,6 +129,13 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
 void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orientation, int for_size, int *minimum_size, int *natural_size, int *minimum_baseline, int *natural_baseline)
 {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(widget);
+#else
+CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEditorCanvas::MeasurementDirection orientation) const noexcept {
+    auto* self = this;
+    SizingInfo ret;
+    int* minimum_size = &ret.requested_size;
+    int* natural_size = &ret.requested_size;
+#endif
     graphene_rect_t bounding_rect_for_all;
     if(self->molecules->empty()) {
         graphene_rect_init(&bounding_rect_for_all, 0, 0, 0, 0);
@@ -141,13 +148,21 @@ void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orienta
         graphene_rect_union(&bounding_rect_for_all, &bounding_rect, &bounding_rect_for_all);
     }
     switch (orientation) {
+        #ifndef __EMSCRIPTEN__
         case GTK_ORIENTATION_HORIZONTAL:{
+        #else
+        case MeasurementDirection::HORIZONTAL:{
+        #endif
             // For now:
             *natural_size = bounding_rect_for_all.size.width;
             *minimum_size = bounding_rect_for_all.size.width;
             break;
         }
+        #ifndef __EMSCRIPTEN__
         case GTK_ORIENTATION_VERTICAL:{
+        #else
+        case MeasurementDirection::VERTICAL:{
+        #endif
             // For now:
             *natural_size = bounding_rect_for_all.size.height;
             *minimum_size = bounding_rect_for_all.size.height;
@@ -156,11 +171,10 @@ void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orienta
         default:
             break;
     }
-
+    #ifdef __EMSCRIPTEN__
+    return ret;
+    #endif
 }
-#else
-#warning TODO: Decide if canvas measurement should be implemented for Lhasa
-#endif
 
 #ifndef __EMSCRIPTEN__
 static void on_hover (
@@ -514,7 +528,10 @@ void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std
             gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_VERTICAL) / 2.0
         );
         #else
-        #warning TODO: Design and implement getting canvas size for Lhasa
+        self->molecules->back().apply_canvas_translation(
+            self->measure(CootLigandEditorCanvas::MeasurementDirection::HORIZONTAL).requested_size / 2.0, 
+            self->measure(CootLigandEditorCanvas::MeasurementDirection::VERTICAL).requested_size / 2.0
+        );
         #endif
         self->rdkit_molecules->push_back(std::move(rdkit_mol));
         self->finalize_edition();
