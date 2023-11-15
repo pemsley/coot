@@ -13,8 +13,6 @@
         // console.log('lerp result: ' + Module.lerp(1, 2, 0.5));
         console.log('Module is here.');
         lh = new Module.LhasaCanvas();
-        console.log('Adding demo molecule.');
-        Module.append_from_smiles(lh, "O=C(C)Oc1ccccc1C(=O)O");
 
         const elem = document.getElementById("editor_canvas_container");
         elem.addEventListener("mousemove", (event) => {
@@ -23,15 +21,19 @@
         });
         elem.addEventListener("mousedown", (event) => {
           if(event.button == 0) {
+            //console.log('lclick');
             lh.on_left_click(event.clientX, event.clientY, event.altKey, event.ctrlKey, event.shiftKey);
           } else if(event.button == 2) {
+            //console.log('rclick');
             lh.on_right_click(event.clientX, event.clientY, event.altKey, event.ctrlKey, event.shiftKey);
           }
         });
         elem.addEventListener("mouseup", (event) => {
           if(event.button == 0) {
+            //console.log('lreleased');
             lh.on_left_click_released(event.clientX, event.clientY, event.altKey, event.ctrlKey, event.shiftKey);
           } else if(event.button == 2) {
+            //console.log('rreleased');
             lh.on_right_click_released(event.clientX, event.clientY, event.altKey, event.ctrlKey, event.shiftKey);
           }
         });
@@ -68,7 +70,9 @@
           }
           elem.append(svg.node());
         };
-        on_render();
+        lh.connect("queue_redraw", on_render);
+        console.log('Adding demo molecule.');
+        Module.append_from_smiles(lh, "O=C(C)Oc1ccccc1C(=O)O");
       }
     };
   </script>

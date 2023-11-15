@@ -13,5 +13,5 @@ std::string lhasa::rdkit_mol_to_smiles(RDKit::ROMol& mol) {
 }
 
 void lhasa::append_from_smiles(CootLigandEditorCanvas& canvas, std::string smiles) {
-    canvas.append_molecule(std::move(rdkit_mol_from_smiles(smiles)));
+    canvas.append_molecule(rdkit_mol_from_smiles(smiles));
 }

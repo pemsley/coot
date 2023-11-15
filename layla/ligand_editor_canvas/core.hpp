@@ -189,6 +189,10 @@ struct CootLigandEditorCanvasPriv : CootLigandEditorCanvasPrivBase, impl::Widget
 
 #ifdef __EMSCRIPTEN__
 
+//Forward declaration
+namespace emscripten {
+    struct val;
+}
 
 /// For Lhasa
 struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEditorCanvasPriv {
@@ -198,6 +202,9 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     sigc::signal<void(float)> scale_changed_signal;
     sigc::signal<void()> smiles_changed_signal;
     sigc::signal<void(int)> molecule_deleted_signal;
+    // Lhasa-only signals (for JS handlers):
+    sigc::signal<void()> queue_redraw_signal;
+    sigc::signal<void()> queue_resize_signal;
 
     public:
 
@@ -230,6 +237,9 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     std::string get_smiles() noexcept;
     std::string get_smiles_for_molecule(unsigned int molecule_idx) noexcept;
     void clear_molecules() noexcept;
+
+    /// For connecting javascript handlers to signals
+    void connect(std::string signal_name, emscripten::val callback);
 
     // Implemented at 'ligand_editor_canvas.cpp'
     SizingInfo measure(MeasurementDirection orientation) const noexcept;

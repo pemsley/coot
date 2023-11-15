@@ -22,6 +22,9 @@
 #include "core.hpp"
 #include "../ligand_editor_canvas.hpp"
 #include <iterator>
+#ifdef __EMSCRIPTEN__
+#include <emscripten/val.h>
+#endif
 
 using namespace coot::ligand_editor_canvas;
 using namespace coot::ligand_editor_canvas::impl;
@@ -244,7 +247,8 @@ void WidgetCoreData::queue_redraw() const noexcept {
     auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
     gtk_widget_queue_draw(GTK_WIDGET(widget_ptr));
     #else
-    g_warning("TODO: Implement queue_redraw for Lhasa");
+    auto* widget_ptr = static_cast<const::CootLigandEditorCanvas*>(this);
+    _LIGAND_EDITOR_SIGNAL_EMIT(widget_ptr, queue_redraw_signal);
     #endif
 }
 
@@ -253,7 +257,8 @@ void WidgetCoreData::queue_resize() const noexcept {
     auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
     gtk_widget_queue_resize(GTK_WIDGET(widget_ptr));
     #else
-    g_warning("TODO: Implement queue_resize for Lhasa");
+    auto* widget_ptr = static_cast<const::CootLigandEditorCanvas*>(this);
+    _LIGAND_EDITOR_SIGNAL_EMIT(widget_ptr, queue_resize_signal);
     #endif
 }
 
@@ -319,4 +324,34 @@ void CootLigandEditorCanvas::clear_molecules() noexcept {
     coot_ligand_editor_canvas_clear_molecules(this);
 }
 
+void CootLigandEditorCanvas::connect(std::string signal_name, emscripten::val callback) {
+
+    if(signal_name == "status_updated") {
+        status_updated_signal.connect([=](const char* new_status){
+            callback(std::string(new_status));
+        });
+    } else if(signal_name == "scale_changed") {
+        scale_changed_signal.connect([=](float new_scale){
+            callback(new_scale);
+        });
+    } else if(signal_name == "smiles_changed") {
+        smiles_changed_signal.connect([=](){
+            callback();
+        });
+    } else if(signal_name == "molecule_deleted") {
+        molecule_deleted_signal.connect([=](int molecule_idx){
+            callback(molecule_idx);
+        });
+    } else if(signal_name == "queue_redraw") {
+        queue_redraw_signal.connect([=](){
+            callback();
+        });
+    } else if(signal_name == "queue_resize") {
+        queue_resize_signal.connect([=](){
+            callback();
+        });
+    } else {
+        g_critical("No such signal!");
+    }
+}
 #endif // EMSCRIPTEN

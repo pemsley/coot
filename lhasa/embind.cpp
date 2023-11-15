@@ -120,5 +120,6 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("on_right_click", &CootLigandEditorCanvas::on_right_click)
     .function("on_right_click_released", &CootLigandEditorCanvas::on_right_click_released)
     .function("render", &CootLigandEditorCanvas::render)
-    .function("measure", &CootLigandEditorCanvas::measure);
+    .function("measure", &CootLigandEditorCanvas::measure)
+    .function("connect", &CootLigandEditorCanvas::connect);
 }
