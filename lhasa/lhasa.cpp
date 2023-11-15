@@ -32,19 +32,19 @@ std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> lhasa::make_active_tool(
     // ActiveTool(StructureInsertion insertion) noexcept;
     // ActiveTool(FlipTool) noexcept;
     if(classname == "LhasaDeleteTool") {
-        return std::make_unique<ActiveTool>(DeleteTool());
+        return std::make_unique<ActiveTool>(tool.as<DeleteTool>());
     }
     if(classname == "LhasaChargeModifier") {
-        return std::make_unique<ActiveTool>(ChargeModifier());
+        return std::make_unique<ActiveTool>(tool.as<ChargeModifier>());
     }
     if(classname == "LhasaGeometryModifier") {
-        return std::make_unique<ActiveTool>(GeometryModifier());
+        return std::make_unique<ActiveTool>(tool.as<GeometryModifier>());
     }
     if(classname == "LhasaFormatTool") {
-        return std::make_unique<ActiveTool>(FormatTool());
+        return std::make_unique<ActiveTool>(tool.as<FormatTool>());
     }
     if(classname == "LhasaRemoveHydrogensTool") {
-        return std::make_unique<ActiveTool>(RemoveHydrogensTool());
+        return std::make_unique<ActiveTool>(tool.as<RemoveHydrogensTool>());
     }
 
     g_critical("%s does not correspond to any known tool type. Returning empty ActiveTool.", classname.c_str());
