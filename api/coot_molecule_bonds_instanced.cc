@@ -70,7 +70,8 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
             float scale = at_info.radius_scale;
             float sar = scale * base_atom_radius;
             // 20231113-PE should I check for waters for this limit?
-            if (sar > 0.65) sar = 0.65f;
+            if (at_info.is_water)
+               if (sar > 0.65) sar = 0.65f;
             glm::vec3 sc(sar, sar, sar);
             glm::vec3 t(at->x, at->y, at->z);
             coot::instancing_data_type_A_t idA(t, col, sc);
