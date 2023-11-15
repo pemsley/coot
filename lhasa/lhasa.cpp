@@ -26,11 +26,21 @@ std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> lhasa::make_active_tool(
     std::string classname = tool["__proto__"]["constructor"]["name"].as<std::string>();
     // std::cout<< classname << '\n';
 
-    // ActiveTool(ElementInsertion insertion) noexcept;
-    // ActiveTool(BondModifier modifier) noexcept;
-    // ActiveTool(TransformTool) noexcept;
-    // ActiveTool(StructureInsertion insertion) noexcept;
-    // ActiveTool(FlipTool) noexcept;
+    if(classname == "LhasaElementInsertion") {
+        return std::make_unique<ActiveTool>(tool.as<ElementInsertion>());
+    }
+    if(classname == "LhasaBondModifier") {
+        return std::make_unique<ActiveTool>(tool.as<BondModifier>());
+    }
+    if(classname == "LhasaTransformTool") {
+        return std::make_unique<ActiveTool>(tool.as<TransformTool>());
+    }
+    if(classname == "LhasaStructureInsertion") {
+        return std::make_unique<ActiveTool>(tool.as<StructureInsertion>());
+    }
+    if(classname == "LhasaFlipTool") {
+        return std::make_unique<ActiveTool>(tool.as<FlipTool>());
+    }
     if(classname == "LhasaDeleteTool") {
         return std::make_unique<ActiveTool>(tool.as<DeleteTool>());
     }

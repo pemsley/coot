@@ -79,6 +79,11 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .constructor<>();
   class_<RemoveHydrogensTool>("LhasaRemoveHydrogensTool")
     .constructor<>();
+    // ActiveTool(ElementInsertion insertion) noexcept;
+    // ActiveTool(BondModifier modifier) noexcept;
+    // ActiveTool(TransformTool) noexcept;
+    // ActiveTool(StructureInsertion insertion) noexcept;
+    // ActiveTool(FlipTool) noexcept;
   class_<ActiveTool>("LhasaActiveTool")
     // I've no idea what's wrong with that
     // but that's why 'make_active_tool' exists.
