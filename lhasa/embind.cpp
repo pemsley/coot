@@ -80,18 +80,16 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   class_<RemoveHydrogensTool>("LhasaRemoveHydrogensTool")
     .constructor<>();
   class_<ActiveTool>("LhasaActiveTool")
-    // ActiveTool(ElementInsertion insertion) noexcept;
-    // ActiveTool(BondModifier modifier) noexcept;
-    // ActiveTool(TransformTool) noexcept;
-    // ActiveTool(StructureInsertion insertion) noexcept;
-    // ActiveTool(FlipTool) noexcept;
-    // .constructor<ChargeModifier>()
-    // .constructor<GeometryModifier>()
-    // .constructor<FormatTool>()
-    // .constructor<RemoveHydrogensTool>()
-    .constructor<DeleteTool>()
+    // I've no idea what's wrong with that
+    // but that's why 'make_active_tool' exists.
+    // .constructor<emscripten::val>(select_overload<ActiveTool(emscripten::val)>([](emscripten::val t) -> ActiveTool {
+    //   std::string type_name = t.typeOf().as<std::string>();
+
+    //   return ActiveTool();
+    // }))
     .constructor<>();
     // .smart_ptr<std::unique_ptr<ActiveTool>>("UniquePtrLhasaActiveTool");
+  function("make_active_tool", &lhasa::make_active_tool);
   value_object<CootLigandEditorCanvas::SizingInfo>("LhasaSizingInfo")
     .field("requested_size", &CootLigandEditorCanvas::SizingInfo::requested_size);
   enum_<CootLigandEditorCanvas::MeasurementDirection>("LhasaMeasurementDirection")
