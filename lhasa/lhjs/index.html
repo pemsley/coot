@@ -73,6 +73,11 @@
         };
         // For now, "queue_redraw" will just render immediately
         lh.connect("queue_redraw", on_render);
+        const on_status_updated = function (status_text) {
+          // For now
+          console.log("Status: " + status_text);
+        };
+        lh.connect("status_updated", on_status_updated);
         console.log('Adding demo molecule.');
         Module.append_from_smiles(lh, "O=C(C)Oc1ccccc1C(=O)O");
       }
