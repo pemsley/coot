@@ -57,6 +57,9 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
                n_threads = n_threads - 2;
                if (n_threads < 1) n_threads = 1;
 #endif
+
+#ifdef LETS_USE_THE_THREAD_POOL
+
                ctpl::thread_pool thread_pool(n_threads);
                if (use_conformers) {
                   bool optim_geom = true;
@@ -69,6 +72,21 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
                   mmdb::Manager *ligand_mol = molecules[imol_ligand].atom_sel.mol;
                   wlig.install_ligand(ligand_mol);
                }
+#else
+
+               if (use_conformers) {
+                  // bool optim_geom = true;
+                  bool optim_geom = false;
+                  for (unsigned int i_conf=0; i_conf<n_conformers; i_conf++) {
+                     wlig.install_simple_wiggly_ligand(&geom, mmol, imol_ligand, i_conf, optim_geom);
+                  }
+
+               } else {
+
+                  mmdb::Manager *ligand_mol = molecules[imol_ligand].atom_sel.mol;
+                  wlig.install_ligand(ligand_mol);
+               }
+#endif
 
                clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
                wlig.import_map_from(xmap);
