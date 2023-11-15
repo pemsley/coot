@@ -222,7 +222,7 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     // Implemented at 'ligand_editor_canvas.cpp'
     ~CootLigandEditorCanvas() noexcept;
 
-    void set_active_tool(std::unique_ptr<coot::ligand_editor_canvas::ActiveTool>&& active_tool);
+    void set_active_tool(std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> active_tool);
     void append_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept;
     void set_scale(float scale) noexcept;
     float get_scale() noexcept;

@@ -88,7 +88,6 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     //   return ActiveTool();
     // }))
     .constructor<>();
-    // .smart_ptr<std::unique_ptr<ActiveTool>>("UniquePtrLhasaActiveTool");
   function("make_active_tool", &lhasa::make_active_tool);
   value_object<CootLigandEditorCanvas::SizingInfo>("LhasaSizingInfo")
     .field("requested_size", &CootLigandEditorCanvas::SizingInfo::requested_size);

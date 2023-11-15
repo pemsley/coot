@@ -17,7 +17,7 @@ void lhasa::append_from_smiles(CootLigandEditorCanvas& canvas, std::string smile
     canvas.append_molecule(rdkit_mol_from_smiles(smiles));
 }
 
-coot::ligand_editor_canvas::ActiveTool lhasa::make_active_tool(emscripten::val tool) {
+std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> lhasa::make_active_tool(emscripten::val tool) {
     using namespace coot::ligand_editor_canvas;
 
     // Just returns 'object'
@@ -32,22 +32,22 @@ coot::ligand_editor_canvas::ActiveTool lhasa::make_active_tool(emscripten::val t
     // ActiveTool(StructureInsertion insertion) noexcept;
     // ActiveTool(FlipTool) noexcept;
     if(classname == "LhasaDeleteTool") {
-        return ActiveTool(DeleteTool());
+        return std::make_unique<ActiveTool>(DeleteTool());
     }
     if(classname == "LhasaChargeModifier") {
-        return ActiveTool(ChargeModifier());
+        return std::make_unique<ActiveTool>(ChargeModifier());
     }
     if(classname == "LhasaGeometryModifier") {
-        return ActiveTool(GeometryModifier());
+        return std::make_unique<ActiveTool>(GeometryModifier());
     }
     if(classname == "LhasaFormatTool") {
-        return ActiveTool(FormatTool());
+        return std::make_unique<ActiveTool>(FormatTool());
     }
     if(classname == "LhasaRemoveHydrogensTool") {
-        return ActiveTool(RemoveHydrogensTool());
+        return std::make_unique<ActiveTool>(RemoveHydrogensTool());
     }
 
     g_critical("%s does not correspond to any known tool type. Returning empty ActiveTool.", classname.c_str());
-    return ActiveTool();
+    return std::make_unique<ActiveTool>();
 
 }

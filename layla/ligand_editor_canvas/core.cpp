@@ -264,7 +264,7 @@ void WidgetCoreData::queue_resize() const noexcept {
 
 #ifdef __EMSCRIPTEN__
 
-void CootLigandEditorCanvas::set_active_tool(std::unique_ptr<coot::ligand_editor_canvas::ActiveTool>&& active_tool) {
+void CootLigandEditorCanvas::set_active_tool(std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> active_tool) {
     coot_ligand_editor_canvas_set_active_tool(this, std::move(active_tool));
 }
 
