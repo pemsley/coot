@@ -81,16 +81,28 @@ struct Renderer {
         // std::optional<BrushStyle> stroke;
     };
 
+    struct TextSpan {
+        // todo
+        std::string caption;
+    };
+
+    struct Text {
+        // todo
+        std::vector<TextSpan> spans;
+    };
+
     struct DrawingCommand {
-        std::variant<Line, Arc, Path> content;
+        std::variant<Line, Arc, Path, Text> content;
 
         bool is_path();
         bool is_arc();
         bool is_line();
+        bool is_text();
 
         const Path& as_path() const;
         const Arc& as_arc() const;
         const Line& as_line() const;
+        const Text& as_text() const;
     };
 
     Renderer(std::string measurement_svg_element_id);

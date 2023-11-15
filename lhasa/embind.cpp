@@ -53,13 +53,22 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   value_object<impl::Renderer::Path>("LhasaPath")
     // todo: fill
     .field("commands", &impl::Renderer::Path::commands);
+  value_object<impl::Renderer::TextSpan>("LhasaTextSpan")
+    // todo: everything
+    .field("caption", &impl::Renderer::TextSpan::caption);    
+  register_vector<impl::Renderer::TextSpan>("LhasaTextSpanVector");
+  value_object<impl::Renderer::Text>("LhasaText")
+    // todo: everything
+    .field("spans", &impl::Renderer::Text::spans);
   class_<impl::Renderer::DrawingCommand>("LhasaDrawingCommand")
     .function("is_path", &impl::Renderer::DrawingCommand::is_path)
     .function("is_arc", &impl::Renderer::DrawingCommand::is_arc)
     .function("is_line", &impl::Renderer::DrawingCommand::is_line)
+    .function("is_text", &impl::Renderer::DrawingCommand::is_text)
     .function("as_path", &impl::Renderer::DrawingCommand::as_path)
     .function("as_arc", &impl::Renderer::DrawingCommand::as_arc)
-    .function("as_line", &impl::Renderer::DrawingCommand::as_line);
+    .function("as_line", &impl::Renderer::DrawingCommand::as_line)
+    .function("as_text", &impl::Renderer::DrawingCommand::as_text);
   class_<DeleteTool>("LhasaDeleteTool")
     .constructor<>();
   class_<ChargeModifier>("LhasaChargeModifier")

@@ -68,6 +68,10 @@ bool Renderer::DrawingCommand::is_line() {
     return std::holds_alternative<Renderer::Line>(this->content);
 }
 
+bool Renderer::DrawingCommand::is_text() {
+    return std::holds_alternative<Renderer::Text>(this->content);
+}
+
 const Renderer::Path& Renderer::DrawingCommand::as_path() const {
     return std::get<Renderer::Path>(this->content);
 }
@@ -78,6 +82,10 @@ const Renderer::Arc& Renderer::DrawingCommand::as_arc() const {
 
 const Renderer::Line& Renderer::DrawingCommand::as_line() const {
     return std::get<Renderer::Line>(this->content);
+}
+
+const Renderer::Text& Renderer::DrawingCommand::as_text() const {
+    return std::get<Renderer::Text>(this->content);
 }
 
 std::vector<Renderer::DrawingCommand> Renderer::get_commands() const {
