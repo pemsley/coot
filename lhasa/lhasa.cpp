@@ -61,3 +61,7 @@ std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> lhasa::make_active_tool(
     return std::make_unique<ActiveTool>();
 
 }
+
+coot::ligand_editor_canvas::ElementInsertion lhasa::element_insertion_from_symbol(std::string sym) {
+    return coot::ligand_editor_canvas::ElementInsertion(sym.c_str());
+}

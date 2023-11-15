@@ -29,7 +29,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .value("AtomNames", DisplayMode::AtomNames);
   register_vector<impl::Renderer::DrawingCommand>("LhasaDrawingCommandVector");
   class_<impl::Renderer>("LhasaRenderer")
-    .constructor<std::string>()
+    .constructor<emscripten::val>()
     .function("get_commands", &impl::Renderer::get_commands);
   value_object<impl::Renderer::BrushStyle>("LhasaBrushStyle")
     .field("r", &impl::Renderer::BrushStyle::r)
@@ -79,14 +79,58 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .constructor<>();
   class_<RemoveHydrogensTool>("LhasaRemoveHydrogensTool")
     .constructor<>();
-    // ActiveTool(ElementInsertion insertion) noexcept;
-    // ActiveTool(BondModifier modifier) noexcept;
-    // ActiveTool(TransformTool) noexcept;
-    // ActiveTool(StructureInsertion insertion) noexcept;
-    // ActiveTool(FlipTool) noexcept;
+  enum_<ElementInsertion::Element>("LhasaElement")
+    .value("C", ElementInsertion::Element::C)
+    .value("N", ElementInsertion::Element::N)
+    .value("O", ElementInsertion::Element::O)
+    .value("S", ElementInsertion::Element::S)
+    .value("P", ElementInsertion::Element::P)
+    .value("H", ElementInsertion::Element::H)
+    .value("F", ElementInsertion::Element::F)
+    .value("Cl", ElementInsertion::Element::Cl)
+    .value("Br", ElementInsertion::Element::Br)
+    .value("I", ElementInsertion::Element::I);
+  class_<ElementInsertion>("LhasaElementInsertion")
+    // Doesn't compile: https://github.com/emscripten-core/emscripten/issues/11274
+    // .constructor([](std::string element){
+    //   return ElementInsertion(element.c_str());
+    // });
+    .constructor<ElementInsertion::Element>();
+  // Workaround for constructor overload not being available:
+  function("element_insertion_from_symbol", &lhasa::element_insertion_from_symbol);
+  enum_<StructureInsertion::Structure>("LhasaStructure")
+    .value("CycloPropaneRing", StructureInsertion::Structure::CycloPropaneRing)
+    .value("CycloButaneRing", StructureInsertion::Structure::CycloButaneRing)
+    .value("CycloPentaneRing", StructureInsertion::Structure::CycloPentaneRing)
+    .value("CycloHexaneRing", StructureInsertion::Structure::CycloHexaneRing)
+    .value("BenzeneRing", StructureInsertion::Structure::BenzeneRing)
+    .value("CycloHeptaneRing", StructureInsertion::Structure::CycloHeptaneRing)
+    .value("CycloOctaneRing", StructureInsertion::Structure::CycloOctaneRing);
+  class_<StructureInsertion>("LhasaStructureInsertion")
+    .constructor<StructureInsertion::Structure>();
+  enum_<BondModifier::BondModifierMode>("LhasaBondModifierMode")
+    .value("Single", BondModifier::BondModifierMode::Single)
+    .value("Double", BondModifier::BondModifierMode::Double)
+    .value("Triple", BondModifier::BondModifierMode::Triple);
+  class_<BondModifier>("LhasaBondModifier")
+    .constructor<BondModifier::BondModifierMode>();
+  enum_<TransformManager::Mode>("LhasaTransformMode")
+    .value("Rotation", TransformManager::Mode::Rotation)
+    .value("Translation", TransformManager::Mode::Translation);
+  class_<TransformTool>("LhasaTransformTool")
+    .constructor<TransformManager::Mode>();
+  enum_<FlipMode>("LhasaFlipMode")
+    .value("Horizontal", FlipMode::Horizontal)
+    .value("Vertical", FlipMode::Vertical);
+  class_<FlipTool>("LhasaFlipTool")
+    .constructor<FlipMode>();
   class_<ActiveTool>("LhasaActiveTool")
+    // Embind doesn't currently support type-based overloads
+    // so I needed a generic constructor from emscripten::val.
+    // The code below does not compile.
     // I've no idea what's wrong with that
     // but that's why 'make_active_tool' exists.
+    // EDIT: Likely doesn't compile because of this: https://github.com/emscripten-core/emscripten/issues/11274
     // .constructor<emscripten::val>(select_overload<ActiveTool(emscripten::val)>([](emscripten::val t) -> ActiveTool {
     //   std::string type_name = t.typeOf().as<std::string>();
 

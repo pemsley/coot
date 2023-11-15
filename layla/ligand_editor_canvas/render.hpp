@@ -29,6 +29,7 @@
     #include <variant>
     #include <optional>
     #include <vector>
+    #include <emscripten/val.h>
 #endif
 #include <map>
 #include <tuple>
@@ -57,7 +58,7 @@ struct Renderer {
     BrushStyle style;
     graphene_point_t position;
     std::vector<DrawingCommand> drawing_commands;
-    std::string measurement_svg_element_id;
+    emscripten::val text_measurement_function;
     std::vector<std::vector<DrawingCommand>*> drawing_structure_stack;
 
     public:
@@ -105,7 +106,7 @@ struct Renderer {
         const Text& as_text() const;
     };
 
-    Renderer(std::string measurement_svg_element_id);
+    Renderer(emscripten::val text_measurement_function);
 
     std::vector<DrawingCommand> get_commands() const;
     #endif
