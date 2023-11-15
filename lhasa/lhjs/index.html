@@ -57,7 +57,8 @@
                 .attr("y1", line.start.y)
                 .attr("x2", line.end.x)
                 .attr("y2", line.end.y)
-                .attr("stroke", 'rgba(' + line.style.r + ','+ line.style.g + ',' + line.style.b + ',' + line.style.a + ')');
+                .attr("stroke", 'rgba(' + line.style.r * 255 + ','+ line.style.g * 255 + ',' + line.style.b * 255 + ',' + line.style.a + ')')
+                .attr("stroke-width", line.style.line_width);
 
             }
           }
