@@ -186,6 +186,7 @@ void Renderer::set_source_rgb(double r, double g, double b) {
     this->style.r = r;
     this->style.g = g;
     this->style.b = b;
+    this->style.a = 1.0f;
     #endif
 }
 
