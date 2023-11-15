@@ -489,7 +489,7 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
         previous_coordinate_map = &prev_coord_map_ref;
         // We need to make sure that each atom in the last_atom_coordinate_map still exists in the molecule.
         // If it doesn't, RDDepict::compute2DCoords() throws an exception. We cannot let this happen.
-        for(const auto [atom_idx,_point]: prev_coord_map_ref) {
+        for(const auto& [atom_idx,_point]: prev_coord_map_ref) {
             try {
                 auto* _atom_ptr = this->rdkit_molecule->getAtomWithIdx(atom_idx);
                 // All good.
