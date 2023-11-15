@@ -3,6 +3,7 @@
 
   <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="lhasa.css">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   </head>
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
@@ -15,7 +16,7 @@
         console.log('Adding demo molecule.');
         Module.append_from_smiles(lh, "O=C(C)Oc1ccccc1C(=O)O");
 
-        const elem = document.getElementById("editor_canvas");
+        const elem = document.getElementById("editor_canvas_container");
         elem.addEventListener("mousemove", (event) => {
           // console.log('Mousemove');
           lh.on_hover(event.clientX, event.clientY, event.altKey);
@@ -40,7 +41,9 @@
           lh.render(ren);
           const commands = ren.get_commands();
           const svg = d3.create("svg")
-            .attr("id", "editor_canvas");
+            .attr("id", "lhasa_drawing")
+            .attr("width", lh.measure(Module.LhasaMeasurementDirection.HORIZONTAL).requested_size)
+            .attr("height", lh.measure(Module.LhasaMeasurementDirection.VERTICAL).requested_size);
           for(var i = 0; i < commands.size(); i++) {
             const command = commands.get(i);
             // console.log('line arc path: ' + command.is_line() + ' ' + command.is_arc() + ' ' + command.is_path());
@@ -59,7 +62,7 @@
           commands.delete();
           ren.delete();
 
-          const elem = document.getElementById("editor_canvas");
+          const elem = document.getElementById("editor_canvas_container");
           while (elem.firstChild) {
             elem.removeChild(elem.lastChild);
           }
@@ -72,7 +75,7 @@
   <script src="lhasa.js"></script>
 
   <body>
-    <div id="editor_canvas">
+    <div id="editor_canvas_container">
     </div>
   </body>
 </html>
