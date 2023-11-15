@@ -4699,3 +4699,17 @@ molecules_container_t::get_residues_near_residue(int imol, const std::string &re
 
 }
 
+
+//! Get the chains that are related by NCS:
+std::vector<std::vector<std::string> >
+molecules_container_t::get_ncs_related_chains(int imol) const {
+
+   std::vector<std::vector<std::string> > v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_ncs_related_chains();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}
+

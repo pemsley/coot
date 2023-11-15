@@ -660,6 +660,11 @@ public:
 
    //! @return vector of chain-ids for the given molecule
    std::vector<std::string> get_chains_in_model(int imol) const;
+
+   //! Get the chains that are related by NCS or molecular symmetry:
+   //! @return a vector of vector of chain ids, e.g. [[A,C], [B,D]] (for hemoglobin).
+   std::vector<std::vector<std::string> > get_ncs_related_chains(int imol) const;
+
    //! @return vector of single letter codes - in a pair with the given residue spec
    std::vector<std::pair<coot::residue_spec_t, std::string> > get_single_letter_codes_for_chain(int imol, const std::string &chain_id) const;
 
