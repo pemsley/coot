@@ -76,6 +76,11 @@
         const on_status_updated = function (status_text) {
           // For now
           console.log("Status: " + status_text);
+          const elem = document.getElementById("status_display");
+          while (elem.firstChild) {
+            elem.removeChild(elem.lastChild);
+          }
+          elem.textContent = status_text;
         };
         lh.connect("status_updated", on_status_updated);
         lh.connect("smiles_changed", function () {
@@ -83,7 +88,20 @@
           while (elem.firstChild) {
             elem.removeChild(elem.lastChild);
           }
-          elem.textContent = lh.get_smiles();
+          const smiles_raw = lh.get_smiles();
+          elem.textContent = smiles_raw;
+
+          // This is broken. TODO: FIX
+
+          // const smiles_array = smiles_raw.split("\n");
+          // //console.log("array: ", smiles_array);
+          // //const smiles_array = smiles_raw.split("/\r?\n/");
+          // for(const smiles_string in smiles_array) {
+          //   const m_div = document.createElement("div");
+          //   m_div.innerHTML = smiles_string;
+          //   //m_div.textContent = smiles_string;
+          //   elem.append(m_div);
+          // }
         });
         console.log('Adding demo molecule.');
         Module.append_from_smiles(lh, "O=C(C)Oc1ccccc1C(=O)O");
@@ -93,24 +111,59 @@
   <script src="lhasa.js"></script>
 
   <body>
-    <div id="molecule_tools_toolbar" class="horizontal_toolbar">
-      <div class="button"></div>
+    <div id="molecule_tools_toolbar" class="horizontal_toolbar toolbar horizontal_container">
+      <div class="button">Move</div>
+      <div class="button">Rotate</div>
+      <div class="button">Flip around X</div>
+      <div class="button">Flip around Y</div>
+      <div class="button">Delete hydrogens</div>
+      <div class="button">Format</div>
     </div>
-    <div id="main_tools_toolbar" class="horizontal_toolbar">
-      <div class="button"></div>
+    <div id="main_tools_toolbar" class="horizontal_toolbar toolbar horizontal_container">
+      <div class="button">Single Bond</div>
+      <div class="button">Double Bond</div>
+      <div class="button">Triple Bond</div>
+      <div class="button">Geometry</div>
+      <div class="button">Charge</div>
+      <div class="button">Delete</div>
     </div>
-    <div id="structure_toolbar" class="horizontal_toolbar">
-      <div class="button"></div>
+    <div id="structure_toolbar" class="horizontal_toolbar toolbar horizontal_container">
+      <div class="button">3-C</div>
+      <div class="button">4-C</div>
+      <div class="button">5-C</div>
+      <div class="button">6-C</div>
+      <div class="button">6-Arom</div>
+      <div class="button">7-C</div>
+      <div class="button">8-C</div>
     </div>
     <div id="main_horizontal_container" class="horizontal_container">
-      <div id="element_toolbar" class="vertical_toolbar"></div>
+      <div id="element_toolbar" class="vertical_toolbar toolbar vertical_container">
+        <div class="button">C</div>
+        <div class="button">N</div>
+        <div class="button">O</div>
+        <div class="button">S</div>
+        <div class="button">P</div>
+        <div class="button">H</div>
+        <div class="button">F</div>
+        <div class="button">Cl</div>
+        <div class="button">Br</div>
+        <div class="button">I</div>
+        <div class="button">X</div>
+      </div>
       <div id="editor_canvas_container">
       </div>
     </div>
-    <div id="smiles_display">
-      <!-- Smiles goes here -->
+    <div id="status_display">
+
     </div>
-    <div id="bottom_toolbar" class="horizontal_toolbar">
+    <div id="smiles_display_outer">
+      SMILES:
+      <div id="smiles_display">
+        <!-- Smiles goes here -->
+      </div>
+    </div>
+    <div id="bottom_toolbar" class="horizontal_toolbar toolbar horizontal_container">
+      <!-- edit undo, display mode, smiles imports, etc. -->
       <div class="button"></div>
     </div>
   </body>

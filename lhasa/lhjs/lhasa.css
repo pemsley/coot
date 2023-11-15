@@ -1,3 +1,50 @@
 #editor_canvas_container {
-    border: black 1px solid;
-};
+    border: greenyellow 1px solid;
+    background-color: white;
+}
+
+body {
+    font-family: sans-serif;
+    background-color: rgb(0, 0, 66);
+    color: yellow;
+    font-size: small;
+}
+
+.toolbar {
+    border: red 2px solid;
+    padding: 5px;
+}
+
+.horizontal_container {
+    display: flex;
+    flex-direction: row;
+}
+
+.vertical_container {
+    display: flex;
+    flex-direction: column;
+}
+
+.horizontal_toolbar {
+    gap: 5px;
+}
+
+.vertical_toolbar {
+    gap: 5px;
+}
+
+.button {
+    border: yellowgreen 1px solid;
+    background-color: rgb(0, 0, 110);
+    padding: 2px;
+}
+
+
+#smiles_display {
+    padding: 5px;
+    font-family: monospace;
+}
+
+#status_display {
+    padding: 10px;
+}
