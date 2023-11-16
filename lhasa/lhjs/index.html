@@ -49,7 +49,7 @@
           }
         });
         const on_render = function() {
-          console.log("on_render() called.");
+          console.debug("on_render() called.");
           const ren = new Module.LhasaRenderer("dummy");
           lh.render(ren);
           const commands = ren.get_commands();
@@ -119,60 +119,62 @@
   <script src="lhasa.js"></script>
 
   <body>
-    <div id="molecule_tools_toolbar" class="horizontal_toolbar toolbar horizontal_container">
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaTransformTool(Module.LhasaTransformMode.Translation))" >Move</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaTransformTool(Module.LhasaTransformMode.Rotation))" >Rotate</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaFlipTool(Module.LhasaFlipMode.Horizontal))" >Flip around X</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaFlipTool(Module.LhasaFlipMode.Vertical))" >Flip around Y</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaRemoveHydrogensTool())" >Delete hydrogens</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaFormatTool())" >Format</div>
-    </div>
-    <div id="main_tools_toolbar" class="horizontal_toolbar toolbar horizontal_container">
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaBondModifier(Module.LhasaBondModifierMode.Single))" >Single Bond</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaBondModifier(Module.LhasaBondModifierMode.Double))" >Double Bond</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaBondModifier(Module.LhasaBondModifierMode.Triple))" >Triple Bond</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaGeometryModifier())" >Geometry</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaChargeModifier())" >Charge</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaDeleteTool())" >Delete</div>
-    </div>
-    <div id="structure_toolbar" class="horizontal_toolbar toolbar horizontal_container">
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloPropaneRing))" >3-C</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloButaneRing))" >4-C</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloPentaneRing))" >5-C</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloHexaneRing))" >6-C</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.BenzeneRing))" >6-Arom</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloHeptaneRing))" >7-C</div>
-      <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloOctaneRing))" >8-C</div>
-    </div>
-    <div id="main_horizontal_container" class="horizontal_container">
-      <div id="element_toolbar" class="vertical_toolbar toolbar vertical_container">
-        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.C))" >C</div>
-        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.N))" >N</div>
-        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.O))" >O</div>
-        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.S))" >S</div>
-        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.P))" >P</div>
-        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.H))" >H</div>
-        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.F))" >F</div>
-        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.Cl))" >Cl</div>
-        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.Br))" >Br</div>
-        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.I))" >I</div>
-        <!-- <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.X)))" >X</div> -->
+    <div id="lhasa_editor">
+      <div id="molecule_tools_toolbar" class="horizontal_toolbar toolbar horizontal_container">
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaTransformTool(Module.LhasaTransformMode.Translation))" >Move</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaTransformTool(Module.LhasaTransformMode.Rotation))" >Rotate</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaFlipTool(Module.LhasaFlipMode.Horizontal))" >Flip around X</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaFlipTool(Module.LhasaFlipMode.Vertical))" >Flip around Y</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaRemoveHydrogensTool())" >Delete hydrogens</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaFormatTool())" >Format</div>
       </div>
-      <div id="editor_canvas_container">
+      <div id="main_tools_toolbar" class="horizontal_toolbar toolbar horizontal_container">
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaBondModifier(Module.LhasaBondModifierMode.Single))" >Single Bond</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaBondModifier(Module.LhasaBondModifierMode.Double))" >Double Bond</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaBondModifier(Module.LhasaBondModifierMode.Triple))" >Triple Bond</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaGeometryModifier())" >Geometry</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaChargeModifier())" >Charge</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaDeleteTool())" >Delete</div>
       </div>
-    </div>
-    <div id="status_display">
-
-    </div>
-    <div id="smiles_display_outer">
-      SMILES:
-      <div id="smiles_display">
-        <!-- Smiles goes here -->
+      <div id="structure_toolbar" class="horizontal_toolbar toolbar horizontal_container">
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloPropaneRing))" >3-C</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloButaneRing))" >4-C</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloPentaneRing))" >5-C</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloHexaneRing))" >6-C</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.BenzeneRing))" >6-Arom</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloHeptaneRing))" >7-C</div>
+        <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloOctaneRing))" >8-C</div>
       </div>
-    </div>
-    <div id="bottom_toolbar" class="horizontal_toolbar toolbar horizontal_container">
-      <!-- edit undo, display mode, smiles imports, etc. -->
-      <div class="button"></div>
+      <div id="main_horizontal_container" class="horizontal_container">
+        <div id="element_toolbar" class="vertical_toolbar toolbar vertical_container">
+          <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.C))" >C</div>
+          <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.N))" >N</div>
+          <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.O))" >O</div>
+          <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.S))" >S</div>
+          <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.P))" >P</div>
+          <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.H))" >H</div>
+          <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.F))" >F</div>
+          <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.Cl))" >Cl</div>
+          <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.Br))" >Br</div>
+          <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.I))" >I</div>
+          <!-- <div class="button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.X)))" >X</div> -->
+        </div>
+        <div id="editor_canvas_container">
+        </div>
+      </div>
+      <div id="status_display">
+  
+      </div>
+      <div id="smiles_display_outer">
+        SMILES:
+        <div id="smiles_display">
+          <!-- Smiles goes here -->
+        </div>
+      </div>
+      <div id="bottom_toolbar" class="horizontal_toolbar toolbar horizontal_container">
+        <!-- edit undo, display mode, smiles imports, etc. -->
+        <div class="button"></div>
+      </div>
     </div>
   </body>
 </html>

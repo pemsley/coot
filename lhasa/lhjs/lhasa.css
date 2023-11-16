@@ -3,11 +3,12 @@
     background-color: white;
 }
 
-body {
+#lhasa_editor {
     font-family: sans-serif;
     background-color: rgb(0, 0, 66);
     color: yellow;
     font-size: small;
+    padding: 10px;
 }
 
 .toolbar {
