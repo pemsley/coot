@@ -11,7 +11,7 @@ body {
 }
 
 .toolbar {
-    border: red 2px solid;
+    border: red 1px solid;
     padding: 5px;
 }
 
@@ -27,10 +27,12 @@ body {
 
 .horizontal_toolbar {
     gap: 5px;
+    margin-bottom: 2px;
 }
 
 .vertical_toolbar {
     gap: 5px;
+    margin-right: 2px;
 }
 
 .button {
@@ -39,6 +41,17 @@ body {
     padding: 2px;
 }
 
+.button:hover {
+    background-color: rgb(0, 0, 148);
+}
+
+.button:active {
+    background-color: rgb(0, 0, 175);
+}
+
+.active_tool {
+    background-color: rgb(0, 0, 175) !important;
+}
 
 #smiles_display {
     padding: 5px;
