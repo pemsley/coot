@@ -14,32 +14,45 @@
 .toolbar {
     border: red 1px solid;
     padding: 5px;
+    align-items: center;
+}
+
+.panel {
+    border: limegreen 1px solid;
+    padding: 5px;
 }
 
 .horizontal_container {
     display: flex;
     flex-direction: row;
+    gap: 5px;
 }
 
 .vertical_container {
     display: flex;
     flex-direction: column;
+    gap: 5px;
 }
 
 .horizontal_toolbar {
-    gap: 5px;
     margin-bottom: 2px;
+    margin-top: 2px;
 }
 
 .vertical_toolbar {
-    gap: 5px;
     margin-right: 2px;
+    margin-left: 2px;
 }
 
 .button {
-    border: yellowgreen 1px solid;
+    border: yellowgreen 2px outset;
     background-color: rgb(0, 0, 110);
     padding: 2px;
+    text-align: center;
+}
+
+.tool_button {
+    border: limegreen 1px outset !important;
 }
 
 .button:hover {
@@ -59,6 +72,17 @@
     font-family: monospace;
 }
 
+#scale_display {
+    padding: 5px;
+}
+
 #status_display {
     padding: 10px;
+}
+
+#smiles_input {
+    font-family: sans-serif;
+    background-color: rgb(0, 0, 66);
+    color: yellow;
+    font-size: small;
 }
