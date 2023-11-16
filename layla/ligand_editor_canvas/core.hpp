@@ -246,6 +246,8 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     // Implemented at 'ligand_editor_canvas.cpp'
     void on_hover(double x, double y, bool alt_pressed);
     // Implemented at 'ligand_editor_canvas.cpp'
+    void on_scroll(double dx, double dy, bool control_pressed);
+    // Implemented at 'ligand_editor_canvas.cpp'
     void on_left_click(double x, double y, bool alt_pressed, bool control_pressed, bool shift_pressed);
     // Implemented at 'ligand_editor_canvas.cpp'
     void on_left_click_released(double x, double y, bool alt_pressed, bool control_pressed, bool shift_pressed);

@@ -48,6 +48,9 @@
             lh.on_right_click_released(event.offsetX, event.offsetY, event.altKey, event.ctrlKey, event.shiftKey);
           }
         });
+        elem.addEventListener("wheel", (event) => {
+          lh.on_scroll(event.deltaX, event.deltaY, event.ctrlKey);
+        });
         const on_render = function() {
           console.debug("on_render() called.");
           const ren = new Module.LhasaRenderer("dummy");

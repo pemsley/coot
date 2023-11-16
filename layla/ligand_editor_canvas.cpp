@@ -254,21 +254,26 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
 static gboolean on_scroll(GtkEventControllerScroll* zoom_controller, gdouble dx, gdouble dy, gpointer user_data) {
     GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(zoom_controller));
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+    bool control_pressed = modifiers & GDK_CONTROL_MASK;
 
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
-
-    if (modifiers & GDK_CONTROL_MASK) {
+#else
+void CootLigandEditorCanvas::on_scroll(double dx, double dy, bool control_pressed) {
+    auto* self = this;
+#endif
+    if (control_pressed) {
         self->scale *= (1.f - dy / 20.f);
         _LIGAND_EDITOR_SIGNAL_EMIT_ARG(self, scale_changed_signal,self->scale);
         self->queue_redraw();
         self->queue_resize();
+        #ifndef __EMSCRIPTEN__
         return TRUE;
+        #endif
     }
+    #ifndef __EMSCRIPTEN__
     return FALSE;
+    #endif
 }
-#else
-#warning TODO: Implement on_scroll for Lhasa
-#endif
 
 #ifndef __EMSCRIPTEN__
 static void
