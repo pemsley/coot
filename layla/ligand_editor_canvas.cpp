@@ -262,7 +262,12 @@ void CootLigandEditorCanvas::on_scroll(double dx, double dy, bool control_presse
     auto* self = this;
 #endif
     if (control_pressed) {
+        #ifndef __EMSCRIPTEN__
         self->scale *= (1.f - dy / 20.f);
+        #else
+        g_info("DeltaY = %f", dy);
+        self->scale *= (1.f - dy / 200.f);
+        #endif
         _LIGAND_EDITOR_SIGNAL_EMIT_ARG(self, scale_changed_signal,self->scale);
         self->queue_redraw();
         self->queue_resize();
