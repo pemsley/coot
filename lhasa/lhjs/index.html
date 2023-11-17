@@ -53,25 +53,64 @@
         });
         const on_render = function() {
           console.debug("on_render() called.");
+          const css_color_from_lhasa_color = (lhasa_color) => {
+            return 'rgba(' + lhasa_color.r * 255 + ','+ lhasa_color.g * 255 + ',' + lhasa_color.b * 255 + ',' + lhasa_color.a + ')';
+          }
           const lhasa_text_to_d3js = (msvg, text) => {
-            const spans_to_text_data = (spans) => {
-              let ret = "";
+            const style_to_attrstring = (style) => {
+              let style_string = "";
+              if(style.specfies_color) {
+                style_string += "fill:";
+                style_string += css_color_from_lhasa_color(style.color);
+                style_string += ";";
+              }
+              // font-size:65%;baseline-shift:sub / super
+              switch(style.positioning) {
+                case Module.LhasaTextPositioning.Normal:
+                  // nothing to do
+                  break;
+                case Module.LhasaTextPositioning.Sub:
+                  style_string += "font-size:65%;baseline-shift:sub;";
+                  break;
+                case Module.LhasaTextPositioning.Super:
+                  style_string += "font-size:65%;baseline-shift:super;";
+                  break;
+              }
+              if(style.weight != "") {
+                style_string += "font-weight:";
+                style_string += style.weight;
+                style_string += ";";
+              }
+              if(style.size != "") {
+                style_string += "font-size:";
+                style_string += style.size;
+                style_string += ";";
+              }
+              return style_string;
+            };
+            const append_spans_to_node = (spans, text_node) => {
               for(let i = 0; i < spans.size(); i++) {
                 const span = spans.get(i);
+                let child = text_node
+                  // .enter()
+                  .append("tspan");
+                if(span.specifies_style) {
+                  child.attr("style", style_to_attrstring(span.style));
+                }
                 if(span.has_subspans()) {
-                  spans_to_text_data(span.as_subspans());
+                  append_spans_to_node(span.as_subspans(), child);
                 } else {
-                  console.log(span.as_caption());
+                  const caption = span.as_caption();
+                  child.text(caption);
                 }
               }
               return ret;
             }
-            const text_data = spans_to_text_data(text.spans);
             const ret = msvg.append("text")
               .attr("x", text.origin.x)
               .attr("y", text.origin.y)
-              .text(text_data);
-            console.log("todo: render text");
+              .attr("style", style_to_attrstring(text.style));
+            append_spans_to_node(text.spans, ret);
             return ret;
           };
           const text_measure_function = (text) => {
@@ -104,7 +143,7 @@
                   .attr("y1", line.start.y)
                   .attr("x2", line.end.x)
                   .attr("y2", line.end.y)
-                  .attr("stroke", 'rgba(' + color.r * 255 + ','+ color.g * 255 + ',' + color.b * 255 + ',' + color.a + ')')
+                  .attr("stroke", css_color_from_lhasa_color(color))
                   .attr("stroke-width", line.style.line_width);
 
               } else if(command.is_arc()) {
