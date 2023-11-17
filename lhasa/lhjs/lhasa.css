@@ -86,3 +86,7 @@
     color: yellow;
     font-size: small;
 }
+
+#invalid_molecules_panel, #scale_panel, #smiles_display_outer {
+    margin-bottom: 5px;
+}
