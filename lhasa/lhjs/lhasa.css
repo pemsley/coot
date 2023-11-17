@@ -15,18 +15,21 @@
 .toolbar {
     border: red 1px solid;
     padding: 5px;
-    align-items: center;
+    /* align-items: center; */
 }
 
 .panel {
     border: limegreen 1px solid;
     padding: 5px;
-    margin-bottom: 5px;
 }
 
-/* #invalid_molecules_panel, #scale_panel, #smiles_display_outer {
+#invalid_molecules_panel, 
+#scale_panel, 
+#smiles_display_outer, 
+#display_mode_panel,
+#status_display_panel {
     margin-bottom: 5px;
-} */
+}
 
 .horizontal_container {
     display: flex;
@@ -56,6 +59,10 @@
     background-color: rgb(0, 0, 110);
     padding: 2px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    justify-content: center;
 }
 
 .tool_button {
