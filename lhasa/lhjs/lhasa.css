@@ -46,8 +46,9 @@
 }
 
 .vertical_toolbar {
-    margin-right: 2px;
-    margin-left: 2px;
+    /* margin-right: 2px;
+    margin-left: 2px; */
+    align-items: normal;
 }
 
 .button {
