@@ -102,7 +102,7 @@ struct Renderer {
     PangoLayout* pango_layout;
 
     private:
-    std::string text_span_to_pango_markup(const TextSpan&) const;
+    std::string text_span_to_pango_markup(const TextSpan&, const std::optional<TextStyle>& parent_style = std::nullopt) const;
     public:
     /// Takes ownership of the pointers
     Renderer(cairo_t*,PangoLayout*);

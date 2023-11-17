@@ -260,22 +260,43 @@ void Renderer::set_line_width(double width) {
 }
 
 #ifndef __EMSCRIPTEN__
-std::string Renderer::text_span_to_pango_markup(const TextSpan& span) const {
+std::string Renderer::text_span_to_pango_markup(const TextSpan& span, const std::optional<TextStyle>& parent_style) const {
     std::string ret;
-    if(span.specifies_style) {
+    auto should_specify_style = [&](){
+        if(span.specifies_style) {
+
+            if(parent_style.has_value()) {
+                auto& pstyle = parent_style.value();
+                //strange compiler error
+                //return pstyle != span.style;
+                return true;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    };
+    bool style_block = should_specify_style();
+    if(style_block) {
         const auto& style = span.style;
         ret += "<span ";
         if(style.specifies_color) {
             std::stringstream html_color;
             html_color << "#";
-            html_color << std::hex << std::setfill('0') << std::setw(2);
-            html_color << style.color.r << ' ';
-            html_color << style.color.g << ' ';
-            html_color << style.color.b << ' ';
-            html_color << style.color.a << ' ';
-            std::cout<<html_color.str()<<'\n';
+            html_color << std::hex << std::setfill('0') << std::setw(2) << (int)(style.color.r * 255);
+            html_color << std::hex << std::setfill('0') << std::setw(2) << (int)(style.color.g * 255);
+            html_color << std::hex << std::setfill('0') << std::setw(2) << (int)(style.color.b * 255);
+            html_color << std::hex << std::setfill('0') << std::setw(2) << (int)(style.color.a * 255);
+            // std::cout<<html_color.str()<<' '<<style.color.r<<' '<<style.color.g<<' '<<style.color.b<<'\n';
             ret += "color=\"" + html_color.str() + "\" ";
         }
+        if(!style.size.empty()) {
+            ret += "size=\"" + style.size + "\" ";
+        }
+        if(!style.weight.empty()) {
+            ret += "weight=\"" + style.weight + "\" ";
+        }
+        ret += ">";
         switch(style.positioning) {
             case TextPositioning::Sub: {
                 ret += "<sub>";
@@ -297,25 +318,19 @@ std::string Renderer::text_span_to_pango_markup(const TextSpan& span) const {
                 // nothing
             }
         }
-        if(!style.size.empty()) {
-            ret += "size=\"" + style.size + "\" ";
-        }
-        if(!style.weight.empty()) {
-            ret += "weight=\"" + style.weight + "\" ";
-        }
-        ret += ">";
     }
     if(span.has_subspans()) {
         const auto& subspans = span.as_subspans();
         for(const auto& subspan: subspans) {
-            ret += this->text_span_to_pango_markup(subspan);
+            std::optional<TextStyle> styleopt = subspan.specifies_style ? subspan.style : parent_style;
+            ret += this->text_span_to_pango_markup(subspan, styleopt);
         }
     } else {
         const auto& caption = span.as_caption();
         // todo: escape characters!
         ret += caption;
     }
-    if(span.specifies_style) {
+    if(style_block) {
         switch(span.style.positioning) {
             case TextPositioning::Sub: {
                 ret += "</sub>";
@@ -462,8 +477,8 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
     atom_span.specifies_style = true;
     atom_span.style.specifies_color = true;
     atom_span.style.color.r = r;
-    atom_span.style.color.r = g;
-    atom_span.style.color.r = b;
+    atom_span.style.color.g = g;
+    atom_span.style.color.b = b;
     atom_span.style.size = render_mode != DisplayMode::AtomIndices ? "x-large" : "medium";
     atom_span.style.weight = atom.highlighted ? "bold" : "normal";
 
