@@ -32,6 +32,7 @@
     #include <emscripten/val.h>
 #endif
 #include <map>
+#include <memory>
 #include <tuple>
 #include "model.hpp"
 
@@ -51,11 +52,18 @@ struct Renderer {
 
     struct TextStyle {
         TextPositioning positioning;
-        // Has to be compatible with both pango markup and HTML/CSS
+        /// Has to be compatible with both pango markup and HTML/CSS.
+        ///
+        /// Empty if unspecified
         std::string weight;
-        // Has to be compatible with both pango markup and HTML/CSS
+        /// Has to be compatible with both pango markup and HTML/CSS.
+        ///
+        /// Empty if unspecified
         std::string size;
         Color color;
+
+        bool specifies_positioning;
+        bool specifies_color;
 
         TextStyle();
     };
@@ -64,7 +72,14 @@ struct Renderer {
         TextStyle style;
         // Emscripten doesn't currently support std::optional
         bool specifies_style;
-        std::string caption;
+        std::variant<std::string, std::vector<TextSpan>> content;
+
+        bool has_subspans();
+        std::string& as_caption();
+        std::vector<TextSpan>& as_subspans();
+        TextSpan();
+        TextSpan(const std::string&);
+        TextSpan(const std::vector<TextSpan>&);
     };
 
     struct Text {
@@ -81,6 +96,7 @@ struct Renderer {
 
     #else // __EMSCRIPTEN__ defined
     //       Lhasa-specific includes/definitions
+    struct Path;
     struct DrawingCommand;
     struct BrushStyle {
         Color color;
@@ -92,6 +108,9 @@ struct Renderer {
     graphene_point_t position;
     std::vector<DrawingCommand> drawing_commands;
     emscripten::val text_measurement_function;
+    // WIP
+    std::unique_ptr<std::vector<DrawingCommand>> currently_created_path;
+    // WIP
     std::vector<std::vector<DrawingCommand>*> drawing_structure_stack;
 
     public:
@@ -180,7 +199,8 @@ class MoleculeRenderContext {
 
     void process_atom_highlight(const CanvasMolecule::Atom& atom);
     /// Returns the markup string + info if the appendix is reversed
-    std::tuple<std::string, bool> process_appendix(const std::string& symbol, const std::optional<CanvasMolecule::Atom::Appendix>& appendix);
+    std::tuple<std::string, bool> process_appendix_old(const std::string& symbol, const std::optional<CanvasMolecule::Atom::Appendix>& appendix);
+    std::tuple<Renderer::TextSpan, bool> process_appendix(const std::string& symbol, const std::optional<CanvasMolecule::Atom::Appendix>& appendix, const Renderer::TextStyle& inherited_style);
     /// Returns a pair of atom index and bonding rect
     std::pair<unsigned int,graphene_rect_t> render_atom(const CanvasMolecule::Atom& atom, DisplayMode render_mode = DisplayMode::Standard);
     // Returns on-screen bond coordinates

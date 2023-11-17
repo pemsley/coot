@@ -69,11 +69,17 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .property("weight", &impl::Renderer::TextStyle::weight)
     .property("size", &impl::Renderer::TextStyle::size)
     .property("color", &impl::Renderer::TextStyle::color)
+    .property("specifies_positioning", &impl::Renderer::TextStyle::specifies_positioning)
+    .property("specifies_color", &impl::Renderer::TextStyle::specifies_color)
     .constructor();
   class_<impl::Renderer::TextSpan>("LhasaTextSpan")
     .property("style", &impl::Renderer::TextSpan::style)
     .property("specifies_style", &impl::Renderer::TextSpan::specifies_style)
-    .property("caption", &impl::Renderer::TextSpan::caption);    
+    .function("has_subspans", &impl::Renderer::TextSpan::has_subspans) 
+    .function("as_caption", &impl::Renderer::TextSpan::as_caption)
+    .function("as_subspans", &impl::Renderer::TextSpan::as_subspans)
+    .constructor<std::vector<impl::Renderer::TextSpan>>()
+    .constructor();
   register_vector<impl::Renderer::TextSpan>("LhasaTextSpanVector");
   class_<impl::Renderer::Text>("LhasaText")
     .property("style", &impl::Renderer::Text::style)

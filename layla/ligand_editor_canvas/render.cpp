@@ -96,12 +96,42 @@ std::vector<Renderer::DrawingCommand> Renderer::get_commands() const {
 
 Renderer::TextStyle::TextStyle() {
     this->positioning = TextPositioning::Normal;
-    this->weight = "normal";
-    this->size = "medium";
+    // We want to set them to "" to denote unspecified values by defult
+    // this->weight = "normal";
+    // this->size = "medium";
     this->color.r = 0.f;
     this->color.g = 0.f;
     this->color.b = 0.f;
     this->color.a = 1.f;
+    this->specifies_color = false;
+    this->specifies_positioning = false;
+}
+
+Renderer::TextSpan::TextSpan() {
+    this->specifies_style = false;
+    this->content = std::string();
+}
+
+Renderer::TextSpan::TextSpan(const std::string& caption) {
+    this->specifies_style = false;
+    this->content = caption;
+}
+
+Renderer::TextSpan::TextSpan(const std::vector<TextSpan>& subspans) {
+    this->specifies_style = false;
+    this->content = subspans;
+}
+
+bool Renderer::TextSpan::has_subspans() {
+    return std::holds_alternative<std::vector<TextSpan>>(this->content);
+}
+
+std::string& Renderer::TextSpan::as_caption() {
+    return std::get<std::string>(this->content);
+}
+
+std::vector<Renderer::TextSpan>& Renderer::TextSpan::as_subspans() {
+    return std::get<std::vector<TextSpan>>(this->content);
 }
 
 void Renderer::move_to(double x, double y) {
@@ -242,7 +272,7 @@ MoleculeRenderContext::~MoleculeRenderContext() {
 
 }
 
-std::tuple<std::string, bool> MoleculeRenderContext::process_appendix(const std::string& symbol, const std::optional<Atom::Appendix>& appendix) {
+std::tuple<std::string, bool> MoleculeRenderContext::process_appendix_old(const std::string& symbol, const std::optional<Atom::Appendix>& appendix) {
     std::string ret = symbol;
     bool reversed = false;
     if(appendix.has_value()) {
@@ -285,6 +315,69 @@ std::tuple<std::string, bool> MoleculeRenderContext::process_appendix(const std:
     return std::make_tuple(ret,reversed);
 }
 
+std::tuple<Renderer::TextSpan, bool> MoleculeRenderContext::process_appendix(const std::string& symbol, const std::optional<Atom::Appendix>& appendix, const Renderer::TextStyle& inherited_style) {
+    Renderer::TextSpan ret((std::vector<Renderer::TextSpan>()));
+    Renderer::TextSpan symbol_span(symbol);
+    bool reversed = false;
+    if(!appendix.has_value()) {
+        ret.as_subspans().push_back(symbol_span);
+    } else {
+        const auto& ap = appendix.value();
+        //ret += "<span>";
+        Renderer::TextSpan root_span((std::vector<Renderer::TextSpan>()));
+        Renderer::TextSpan superatoms_symbol_span;
+        auto make_index_span = [=](){
+            Renderer::TextSpan index_span;
+            index_span.specifies_style = true;
+            index_span.style = inherited_style;
+            index_span.style.specifies_positioning = true;
+            index_span.style.positioning = Renderer::TextPositioning::Sub;
+            return index_span;
+        };
+        auto index_span = make_index_span();
+
+        for(auto i = ap.superatoms.begin(); i != ap.superatoms.end(); i++) {
+            if(std::isdigit(*i)) {
+                if(!superatoms_symbol_span.as_caption().empty()) {
+                    root_span.as_subspans().push_back(std::move(superatoms_symbol_span));
+                    superatoms_symbol_span = Renderer::TextSpan();
+                }
+                index_span.as_caption().push_back(*i);
+            } else {
+                if(!index_span.as_caption().empty()) {
+                    root_span.as_subspans().push_back(std::move(index_span));
+                    index_span = make_index_span();
+                }
+                superatoms_symbol_span.as_caption().push_back(*i);
+            }
+        }
+        if (ap.reversed) {
+            ret.as_subspans().push_back(root_span);
+            ret.as_subspans().push_back(symbol_span);
+            reversed = true;
+        } else {
+            ret.as_subspans().push_back(symbol_span);
+            ret.as_subspans().push_back(root_span);
+        }
+        //ret += "</span>";
+        if(ap.charge != 0) {
+            Renderer::TextSpan charge_span;
+            charge_span.specifies_style = true;
+            charge_span.style = inherited_style;
+            charge_span.style.specifies_positioning = true;
+            charge_span.style.positioning = Renderer::TextPositioning::Super;
+
+            unsigned int charge_no_sign = std::abs(ap.charge);
+            if(charge_no_sign > 1) {
+                charge_span.as_caption() += std::to_string(charge_no_sign);
+            }
+            charge_span.as_caption().push_back(ap.charge > 0 ? '+' : '-');
+            ret.as_subspans().push_back(charge_span);
+        }
+    }
+    return std::make_tuple(ret,reversed);
+}
+
 std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const CanvasMolecule::Atom& atom, DisplayMode render_mode) {
     // pre-process text
     // auto [r,g,b] = CanvasMolecule::atom_color_to_rgb(atom.color);
@@ -320,7 +413,7 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
         }
         default:
         case DisplayMode::Standard: {
-            auto [raw_markup,p_reversed] = process_appendix(atom.symbol,atom.appendix);
+            auto [raw_markup,p_reversed] = process_appendix_old(atom.symbol,atom.appendix);
             reversed = p_reversed;
             markup_no_appendix = markup_beginning + atom.symbol + markup_ending;
             markup = markup_beginning + raw_markup + markup_ending;
