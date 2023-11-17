@@ -9,6 +9,7 @@
     color: yellow;
     font-size: small;
     padding: 10px;
+    width: fit-content;
 }
 
 .toolbar {
