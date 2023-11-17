@@ -6,7 +6,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_FLAGS "-Wall -s USE_PTHREADS=1 -pthread")
+set(CMAKE_CXX_FLAGS "-Wall -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 set(CMAKE_CXX_STANDARD 17)
@@ -27,7 +27,7 @@ if("${EMSCRIPTEN_VERSION}" VERSION_GREATER 3.1.26)
   add_link_options(-sDEFAULT_PTHREAD_STACK_SIZE=2MB -sSTACK_SIZE=5MB)
 endif()
 
-add_link_options(-lembind)
+add_link_options(-lembind -fwasm-exceptions)
 
 include(FindPkgConfig)
 pkg_check_modules(DEPS REQUIRED sigc++-3.0 graphene-1.0)
