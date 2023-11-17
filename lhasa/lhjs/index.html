@@ -133,6 +133,7 @@
         // For now
         console.log('Adding demo molecule.');
         Module.append_from_smiles(lh, "O=C(C)Oc1ccccc1C(=O)O");
+        lh.set_scale(1.0);
       }
     };
   </script>
@@ -201,6 +202,10 @@
           SCALE:
           <div id="scale_display">
             <!-- scale info goes here -->
+          </div>
+          <div class="toolbar horizontal_toolbar horizontal_container">
+            <div class="button" onclick="javascript:{const sc = lh.get_scale(); lh.set_scale(sc-0.05);}"><b>-</b></div>
+            <div class="button" onclick="javascript:{const sc = lh.get_scale(); lh.set_scale(sc+0.05);}"><b>+</b></div>
           </div>
         </div>
       </div>
