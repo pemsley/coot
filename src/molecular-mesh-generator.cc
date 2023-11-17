@@ -1180,12 +1180,12 @@ molecular_mesh_generator_t::get_test_molecular_triangles_mesh(mmdb::Manager *mol
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int imol, mmdb::Manager *mol,
+                                                                            int model_number,
                                                                             mmdb::Residue *residue_p,
-                                                                            const coot::protein_geometry *geom_in) {
+                                                                            const coot::protein_geometry *geom_in,
+                                                                            int bond_width) {
 
    float atom_radius_scale_factor = 1.0; // this needs to be passed
-   float bond_width = 4; // pass this
-   int model_number = 1; // pass this, I guess
 
    coot::residue_spec_t res_spec(residue_p); // pass the spec!
    int selhnd = mol->NewSelection(); // d

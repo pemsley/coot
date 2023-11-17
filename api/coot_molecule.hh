@@ -531,6 +531,9 @@ namespace coot {
 
       std::vector<std::string> get_chain_ids() const;
 
+      //! Get the chains that are related by NCS:
+      std::vector<std::vector<std::string> > get_ncs_related_chains() const;
+
       // ----------------------- model bonds
 
       simple_mesh_t get_bonds_mesh(const std::string &mode, protein_geometry *geom,

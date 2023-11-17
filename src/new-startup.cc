@@ -743,7 +743,10 @@ new_startup_application_activate(GtkApplication *application,
 
       python_init();
 
-      handle_command_line_data(activate_data->cld);
+      // 20231114-PE we can't handle the command line data until the graphics have started.
+      // so this should be in the realize() function for the graphics widget.
+      // handle_command_line_data(activate_data->cld);
+
       if (activate_data->cld.do_graphics)
          graphics_info.use_graphics_interface_flag = true;
 
@@ -809,10 +812,14 @@ new_startup_application_activate(GtkApplication *application,
 
       create_actions(application);
 
+      // again?
       setup_python_with_coot_modules(argc, argv);
 
       setup_gui_components();
       setup_go_to_residue_keyboarding_mode_entry_signals();
+
+      // now we are ready to show graphical objects made from reading files:
+      handle_command_line_data(activate_data->cld);
 
       // load_tutorial_model_and_data();
       delete activate_data;
@@ -897,8 +904,9 @@ int new_startup(int argc, char **argv) {
 
    load_css();
 
-   // GTK version
-   std::cout << "GTK " << GTK_MAJOR_VERSION << "." << GTK_MINOR_VERSION << "." << GTK_MICRO_VERSION << std::endl;
+   // Tell us the GTK version
+   std::cout << "INFO:: built with GTK " << GTK_MAJOR_VERSION << "." << GTK_MINOR_VERSION << "." << GTK_MICRO_VERSION
+             << std::endl;
 
    GtkWidget *splash_screen = new_startup_create_splash_screen_window();
    gtk_widget_set_visible(splash_screen, TRUE);

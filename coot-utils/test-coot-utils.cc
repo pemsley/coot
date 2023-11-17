@@ -1509,9 +1509,38 @@ test_compare_structure_factors(int argc, char **argv) {
 
 }
 
+void
+test_ncs_chain_match(int argc, char **argv) {
+
+   if (argc > 1) {
+      std::string pdb_file_name(argv[1]);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true, false);
+      int imod = 1;
+      std::vector<std::vector<mmdb::Chain *> > v = coot::ncs_related_chains(asc.mol, imod);
+      std::cout << "------------------------------------ ncs --------------------------" << std::endl;
+      unsigned int n_chains = 0;
+      for (unsigned int iv1=0; iv1<v.size(); ++iv1) {
+         // std::cout << "New Set .... " << std::endl;
+         std::vector<mmdb::Chain *> &vv = v[iv1];
+         for (unsigned int iv2=0; iv2<vv.size(); ++iv2) {
+            mmdb::Chain *c = vv[iv2];
+            std::string chain_id(c->GetChainID());
+            std::cout << " " << chain_id;
+            n_chains++;
+         }
+         std::cout << std::endl;
+      }
+      std::cout << "Found " << n_chains << " total chains" << std::endl;
+   }
+
+}
+
 int main(int argc, char **argv) {
 
+   mmdb::InitMatType();
 
+   if (true)
+      test_ncs_chain_match(argc, argv);
 
    if (false)
       test_all_atom_overlaps();
@@ -1557,7 +1586,7 @@ int main(int argc, char **argv) {
    if (false)
        test_cp();
 
-   if (true)
+   if (false)
       test_soi(argc, argv);
 
    if (false)

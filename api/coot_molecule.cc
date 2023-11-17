@@ -3357,6 +3357,29 @@ coot::molecule_t::get_chain_ids() const {
    return chain_ids;
 }
 
+//! Get the chains that are related by NCS:
+std::vector<std::vector<std::string> >
+coot::molecule_t::get_ncs_related_chains() const {
+
+   std::vector<std::vector<std::string> > v;
+   int model_number = 1;
+   std::vector<std::vector<mmdb::Chain *> > ncs_related_chains = coot::ncs_related_chains(atom_sel.mol, model_number);
+   std::cout << "found ncs_related_chains size " << ncs_related_chains.size() << std::endl;
+   for (const auto &vv : ncs_related_chains) {
+      std::cout << "vv size " << vv.size() << std::endl;
+      std::vector<std::string> vc;
+      for (const auto &c : vv) {
+         std::string chid = c->GetChainID();
+         std::cout << " " << chid;
+         vc.push_back(chid);
+      }
+      std::cout << std::endl;
+      v.push_back(vc);
+   }
+   return v;
+}
+
+
 
 #include "density-contour/gaussian-surface.hh"
 

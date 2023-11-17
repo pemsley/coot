@@ -9,7 +9,6 @@ void
 make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add to this
                                                const graphical_bonds_container &gbc,
                                                coot::api_bond_colour_t bonds_box_type,
-                                               int udd_handle_bonded_type,
                                                float base_atom_radius,
                                                float base_bond_radius,
                                                unsigned int num_subdivisions,
@@ -20,7 +19,6 @@ void
 make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, // add to this
                                                    const graphical_bonds_container &gbc,
                                                    coot::api_bond_colour_t bonds_box_type,
-                                                   int udd_handle_bonded_type,
                                                    float atom_radius,
                                                    float bond_radius,
                                                    unsigned int num_subdivisions,

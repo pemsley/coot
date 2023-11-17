@@ -111,8 +111,10 @@ public:
                                 const std::string &style);
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
-   get_molecular_triangles_mesh_for_active_residue(int imol, mmdb::Manager *mol, mmdb::Residue *residue_p,
-                                                   const coot::protein_geometry *geom_in);
+   get_molecular_triangles_mesh_for_active_residue(int imol, mmdb::Manager *mol, int model_number,
+                                                   mmdb::Residue *residue_p,
+                                                   const coot::protein_geometry *geom_in,
+                                                   int bond_width);
 
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
