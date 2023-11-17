@@ -60,22 +60,38 @@
             .attr("id", "lhasa_drawing")
             .attr("width", lh.measure(Module.LhasaMeasurementDirection.HORIZONTAL).requested_size)
             .attr("height", lh.measure(Module.LhasaMeasurementDirection.VERTICAL).requested_size);
-          for(var i = 0; i < commands.size(); i++) {
-            const command = commands.get(i);
-            // console.log('line arc path: ' + command.is_line() + ' ' + command.is_arc() + ' ' + command.is_path());
-            if(command.is_line()) {
-              const line = command.as_line();
-              // console.log(line);
-              svg.append("line")
-                .attr("x1", line.start.x)
-                .attr("y1", line.start.y)
-                .attr("x2", line.end.x)
-                .attr("y2", line.end.y)
-                .attr("stroke", 'rgba(' + line.style.r * 255 + ','+ line.style.g * 255 + ',' + line.style.b * 255 + ',' + line.style.a + ')')
-                .attr("stroke-width", line.style.line_width);
 
+          const render_commands = (cmds) => {
+            for(var i = 0; i < cmds.size(); i++) {
+              const command = cmds.get(i);
+              if(command.is_line()) {
+                const line = command.as_line();
+                const color = line.style.color;
+                svg.append("line")
+                  .attr("x1", line.start.x)
+                  .attr("y1", line.start.y)
+                  .attr("x2", line.end.x)
+                  .attr("y2", line.end.y)
+                  .attr("stroke", 'rgba(' + color.r * 255 + ','+ color.g * 255 + ',' + color.b * 255 + ',' + color.a + ')')
+                  .attr("stroke-width", line.style.line_width);
+
+              } else if(command.is_arc()) {
+                const arc = command.as_arc();
+                console.log("todo: render arcs");
+
+              } else if(command.is_path()) {
+                const path = command.as_path();
+                render_commands(path.commands);
+                console.log("todo: implement fills for paths.");
+
+              } else if(command.is_text()) {
+                const text = command.as_text();
+                console.log("todo: render text");
+
+              }
             }
-          }
+          };
+          render_commands(commands);
           commands.delete();
           ren.delete();
 

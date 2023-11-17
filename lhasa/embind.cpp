@@ -31,11 +31,13 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   class_<impl::Renderer>("LhasaRenderer")
     .constructor<emscripten::val>()
     .function("get_commands", &impl::Renderer::get_commands);
+  value_object<impl::Renderer::Color>("LhasaColor")
+    .field("r", &impl::Renderer::Color::r)
+    .field("g", &impl::Renderer::Color::g)
+    .field("b", &impl::Renderer::Color::b)
+    .field("a", &impl::Renderer::Color::a);
   value_object<impl::Renderer::BrushStyle>("LhasaBrushStyle")
-    .field("r", &impl::Renderer::BrushStyle::r)
-    .field("g", &impl::Renderer::BrushStyle::g)
-    .field("b", &impl::Renderer::BrushStyle::b)
-    .field("a", &impl::Renderer::BrushStyle::a)
+    .field("color", &impl::Renderer::BrushStyle::color)
     .field("line_width", &impl::Renderer::BrushStyle::line_width);
   value_object<graphene_point_t>("GraphenePoint")
     .field("x", &graphene_point_t::x)
@@ -48,17 +50,33 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .field("origin", &impl::Renderer::Arc::origin)
     .field("radius", &impl::Renderer::Arc::radius)
     .field("angle_one", &impl::Renderer::Arc::angle_one)
-    // todo: fill
-    .field("angle_two", &impl::Renderer::Arc::angle_two);
-  value_object<impl::Renderer::Path>("LhasaPath")
-    // todo: fill
-    .field("commands", &impl::Renderer::Path::commands);
+    .field("angle_two", &impl::Renderer::Arc::angle_two)
+    .field("has_fill", &impl::Renderer::Arc::has_fill)
+    .field("fill_color", &impl::Renderer::Arc::fill_color)
+    .field("has_stroke", &impl::Renderer::Arc::has_stroke)
+    .field("stroke_style", &impl::Renderer::Arc::stroke_style);
+  class_<impl::Renderer::Path>("LhasaPath")
+    .property("fill_color", &impl::Renderer::Path::fill_color)
+    .property("has_fill", &impl::Renderer::Path::has_fill)
+    .property("stroke_style", &impl::Renderer::Path::stroke_style)
+    .property("commands", &impl::Renderer::Path::commands);
+  enum_<impl::Renderer::TextPositioning>("LhasaTextPositioning")
+    .value("Normal", impl::Renderer::TextPositioning::Normal)
+    .value("Sub", impl::Renderer::TextPositioning::Sub)
+    .value("Super", impl::Renderer::TextPositioning::Super);
+  class_<impl::Renderer::TextStyle>("LhasaTextStyle")
+    .property("positioning", &impl::Renderer::TextStyle::positioning)
+    .property("weight", &impl::Renderer::TextStyle::weight)
+    .property("size", &impl::Renderer::TextStyle::size)
+    .property("color", &impl::Renderer::TextStyle::color)
+    .constructor();
   class_<impl::Renderer::TextSpan>("LhasaTextSpan")
-    // todo: everything
+    .property("style", &impl::Renderer::TextSpan::style)
+    .property("specifies_style", &impl::Renderer::TextSpan::specifies_style)
     .property("caption", &impl::Renderer::TextSpan::caption);    
   register_vector<impl::Renderer::TextSpan>("LhasaTextSpanVector");
   class_<impl::Renderer::Text>("LhasaText")
-    // todo: everything
+    .property("style", &impl::Renderer::Text::style)
     .property("spans", &impl::Renderer::Text::spans);
   class_<impl::Renderer::DrawingCommand>("LhasaDrawingCommand")
     .function("is_path", &impl::Renderer::DrawingCommand::is_path)

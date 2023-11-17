@@ -6,7 +6,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_FLAGS "-Wall -s USE_PTHREADS=1 -pthread -fwasm-exceptions -s ALLOW_MEMORY_GROWTH=1")
+set(CMAKE_CXX_FLAGS "-Wall -Wno-unused-command-line-argument -s USE_PTHREADS=1 -pthread -fwasm-exceptions -s ALLOW_MEMORY_GROWTH=1")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 set(CMAKE_CXX_STANDARD 17)
@@ -76,4 +76,4 @@ target_link_libraries(lhasa PRIVATE
     boost_serialization
     ${DEPS_LIBRARIES}
     lh
-)    
+)

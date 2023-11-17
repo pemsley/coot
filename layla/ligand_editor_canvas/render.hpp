@@ -39,6 +39,39 @@ namespace coot::ligand_editor_canvas::impl {
 
 
 struct Renderer {
+    struct Color {
+        double r, g, b, a;
+    };
+
+    enum class TextPositioning: unsigned char {
+        Normal,
+        Sub,
+        Super
+    };
+
+    struct TextStyle {
+        TextPositioning positioning;
+        // Has to be compatible with both pango markup and HTML/CSS
+        std::string weight;
+        // Has to be compatible with both pango markup and HTML/CSS
+        std::string size;
+        Color color;
+
+        TextStyle();
+    };
+
+    struct TextSpan {
+        TextStyle style;
+        // Emscripten doesn't currently support std::optional
+        bool specifies_style;
+        std::string caption;
+    };
+
+    struct Text {
+        TextStyle style;
+        std::vector<TextSpan> spans;
+    };
+
     #ifndef __EMSCRIPTEN__
     cairo_t* cr;
     PangoLayout* pango_layout;
@@ -50,8 +83,8 @@ struct Renderer {
     //       Lhasa-specific includes/definitions
     struct DrawingCommand;
     struct BrushStyle {
+        Color color;
         double line_width;
-        double r, g, b, a;
     };
     private:
 
@@ -71,25 +104,18 @@ struct Renderer {
     struct Arc {
         graphene_point_t origin;
         double radius, angle_one, angle_two;
-        /// for color info
-        std::optional<BrushStyle> fill;
+        bool has_fill;
+        Color fill_color;
+        bool has_stroke;
+        BrushStyle stroke_style;
     };
 
     struct Path {
         std::vector<DrawingCommand> commands;
-        /// for color info
-        std::optional<BrushStyle> fill;
-        // std::optional<BrushStyle> stroke;
-    };
-
-    struct TextSpan {
-        // todo
-        std::string caption;
-    };
-
-    struct Text {
-        // todo
-        std::vector<TextSpan> spans;
+        Color fill_color;
+        bool has_fill;
+        // this needs work. Do we need a boolean here?
+        BrushStyle stroke_style;
     };
 
     struct DrawingCommand {

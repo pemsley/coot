@@ -49,10 +49,10 @@ Renderer::Renderer(emscripten::val text_measurement_function) {
     this->position.x = 0.f;
     this->position.y = 0.f;
     this->style.line_width = 1.0f;
-    this->style.r = 0.f;
-    this->style.g = 0.f;
-    this->style.b = 0.f;
-    this->style.a = 1.f;
+    this->style.color.r = 0.f;
+    this->style.color.g = 0.f;
+    this->style.color.b = 0.f;
+    this->style.color.a = 1.f;
     this->drawing_structure_stack.push_back(&this->drawing_commands);
 }
 
@@ -91,7 +91,18 @@ const Renderer::Text& Renderer::DrawingCommand::as_text() const {
 std::vector<Renderer::DrawingCommand> Renderer::get_commands() const {
     return this->drawing_commands;
 }
-#endif
+
+#endif // Emscripten defined
+
+Renderer::TextStyle::TextStyle() {
+    this->positioning = TextPositioning::Normal;
+    this->weight = "normal";
+    this->size = "medium";
+    this->color.r = 0.f;
+    this->color.g = 0.f;
+    this->color.b = 0.f;
+    this->color.a = 1.f;
+}
 
 void Renderer::move_to(double x, double y) {
     #ifndef __EMSCRIPTEN__
@@ -183,10 +194,10 @@ void Renderer::set_source_rgb(double r, double g, double b) {
     #ifndef __EMSCRIPTEN__
     cairo_set_source_rgb(cr, r, g, b);
     #else // __EMSCRIPTEN__ defined
-    this->style.r = r;
-    this->style.g = g;
-    this->style.b = b;
-    this->style.a = 1.0f;
+    this->style.color.r = r;
+    this->style.color.g = g;
+    this->style.color.b = b;
+    this->style.color.a = 1.0f;
     #endif
 }
 
@@ -194,10 +205,10 @@ void Renderer::set_source_rgba(double r, double g, double b, double a) {
     #ifndef __EMSCRIPTEN__
     cairo_set_source_rgba(cr, r, g, b, a);
     #else // __EMSCRIPTEN__ defined
-    this->style.r = r;
-    this->style.g = g;
-    this->style.b = b;
-    this->style.a = a;
+    this->style.color.r = r;
+    this->style.color.g = g;
+    this->style.color.b = b;
+    this->style.color.a = a;
     #endif
 }
 
@@ -276,7 +287,7 @@ std::tuple<std::string, bool> MoleculeRenderContext::process_appendix(const std:
 
 std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const CanvasMolecule::Atom& atom, DisplayMode render_mode) {
     // pre-process text
-    auto [r,g,b] = CanvasMolecule::atom_color_to_rgb(atom.color);
+    // auto [r,g,b] = CanvasMolecule::atom_color_to_rgb(atom.color);
     const std::string color_str = CanvasMolecule::atom_color_to_html(atom.color);
     const std::string weight_str = atom.highlighted ? "bold" : "normal";
     const std::string size_str = render_mode != DisplayMode::AtomIndices ? "x-large" : "medium";
