@@ -343,6 +343,7 @@ Renderer::TextSize Renderer::measure_text(const Renderer::TextSpan& text) {
     pango_layout_get_pixel_size(this->pango_layout, &ret.width, &ret.height);
     return ret;
     #else // __EMSCRIPTEN__ defined
+    return {0,0};
     return this->text_measurement_function(text).as<TextSize>();
     #endif
 }
