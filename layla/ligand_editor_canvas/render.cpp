@@ -281,7 +281,14 @@ std::string Renderer::text_span_to_pango_markup(const TextSpan& span) const {
                 break;
             }
             case TextPositioning::Super: {
-                ret += "<sup>";
+                // The string below begins with 
+                // the invisible U+200B unicode character.
+                // This is a workaround for what's likely 
+                // a bug in pango font rendering engine.
+                // Without it, the superscript is relative 
+                // to the subscript (atom count)
+                // instead of the atom's symbol
+                ret += "​<sup>";
                 break;
             }
             default:
@@ -382,49 +389,6 @@ MoleculeRenderContext::~MoleculeRenderContext() {
 
 }
 
-std::tuple<std::string, bool> MoleculeRenderContext::process_appendix_old(const std::string& symbol, const std::optional<Atom::Appendix>& appendix) {
-    std::string ret = symbol;
-    bool reversed = false;
-    if(appendix.has_value()) {
-        const auto& ap = appendix.value();
-        //ret += "<span>";
-        std::string ap_root;
-        for(auto i = ap.superatoms.begin(); i != ap.superatoms.end(); i++) {
-            if(std::isdigit(*i)) {
-                ap_root += "<sub>";
-                ap_root.push_back(*i);
-                ap_root += "</sub>";
-            } else {
-                ap_root.push_back(*i);
-            }
-        }
-        if (ap.reversed) {
-            ret = ap_root + ret;
-            reversed = true;
-        } else {
-            ret += ap_root;
-        }
-        //ret += "</span>";
-        if(ap.charge != 0) {
-            // The string below begins with 
-            // the invisible U+200B unicode character.
-            // This is a workaround for what's likely 
-            // a bug in pango font rendering engine.
-            // Without it, the superscript is relative 
-            // to the subscript (atom count)
-            // instead of the atom's symbol
-            ret += "​<sup>";
-            unsigned int charge_no_sign = std::abs(ap.charge);
-            if(charge_no_sign > 1) {
-                ret += std::to_string(charge_no_sign);
-            }
-            ret.push_back(ap.charge > 0 ? '+' : '-');
-            ret += "</sup>";
-        }
-    }
-    return std::make_tuple(ret,reversed);
-}
-
 std::tuple<Renderer::TextSpan, bool> MoleculeRenderContext::process_appendix(const std::string& symbol, const std::optional<Atom::Appendix>& appendix, const Renderer::TextStyle& inherited_style) {
     Renderer::TextSpan ret((std::vector<Renderer::TextSpan>()));
     Renderer::TextSpan symbol_span(symbol);
@@ -488,32 +452,43 @@ std::tuple<Renderer::TextSpan, bool> MoleculeRenderContext::process_appendix(con
 
 std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const CanvasMolecule::Atom& atom, DisplayMode render_mode) {
     // pre-process text
-    // auto [r,g,b] = CanvasMolecule::atom_color_to_rgb(atom.color);
-    const std::string color_str = CanvasMolecule::atom_color_to_html(atom.color);
-    const std::string weight_str = atom.highlighted ? "bold" : "normal";
-    const std::string size_str = render_mode != DisplayMode::AtomIndices ? "x-large" : "medium";
-    const std::string markup_beginning = "<span color=\"" + color_str + "\" weight=\"" + weight_str + "\" size=\"" + size_str + "\">";
-    const std::string markup_ending = "</span>";
+    auto [r,g,b] = CanvasMolecule::atom_color_to_rgb(atom.color);
+    // const std::string color_str = CanvasMolecule::atom_color_to_html(atom.color);
+    
+    // Span for the whole thing - includes symbol, appendix, index etc.
+    Renderer::TextSpan atom_span((std::vector<Renderer::TextSpan>()));
+    atom_span.specifies_style = true;
+    atom_span.style.specifies_color = true;
+    atom_span.style.color.r = r;
+    atom_span.style.color.r = g;
+    atom_span.style.color.r = b;
+    atom_span.style.size = render_mode != DisplayMode::AtomIndices ? "x-large" : "medium";
+    atom_span.style.weight = atom.highlighted ? "bold" : "normal";
 
-    bool reversed = false;
-    // Markup for the whole thing - includes symbol, appendix, index etc.
-    std::string markup;
-    // Markup for the atom symbol - solely.
+    // Span for the atom symbol - solely.
     // This allows us to measure the size of the atom's symbol 
     // and then properly center/align the whole text
-    std::string markup_no_appendix;
+    Renderer::TextSpan raw_atom_span;
+    raw_atom_span.specifies_style = true;
+    raw_atom_span.style = atom_span.style;
+
+    bool reversed = false;
 
     switch (render_mode) {
         case DisplayMode::AtomIndices: {
-            markup_no_appendix = markup_beginning + atom.symbol + markup_ending;
-            markup = markup_beginning + atom.symbol + ":" + std::to_string(atom.idx) + markup_ending;
+            raw_atom_span.as_caption() += atom.symbol;
+            atom_span
+                .as_subspans()
+                .push_back(
+                    Renderer::TextSpan(std::string(atom.symbol + ":" + std::to_string(atom.idx)))
+                );
             break;
         }
         case DisplayMode::AtomNames: {
             if(atom.name.has_value()) {
                 std::string atom_name = atom.name.value();
-                markup_no_appendix = markup_beginning + atom_name + markup_ending;
-                markup = markup_no_appendix;
+                raw_atom_span.as_caption() += atom_name;
+                atom_span = raw_atom_span;
                 break;
             } 
             // break;
@@ -521,32 +496,26 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
         }
         default:
         case DisplayMode::Standard: {
-            auto [raw_markup,p_reversed] = process_appendix_old(atom.symbol,atom.appendix);
+            auto [appendix,p_reversed] = process_appendix(atom.symbol, atom.appendix, atom_span.style);
             reversed = p_reversed;
-            markup_no_appendix = markup_beginning + atom.symbol + markup_ending;
-            markup = markup_beginning + raw_markup + markup_ending;
+            raw_atom_span.as_caption() += atom.symbol;
+            atom_span
+                .as_subspans()
+                .push_back(appendix);
             break;
         }
     }
 
-    #ifndef __EMSCRIPTEN__
-    cairo_t* cr = ren.cr;
-    PangoLayout* pango_layout = ren.pango_layout;
-    pango_layout_set_markup(pango_layout,markup_no_appendix.c_str(),-1);
     // Used to make the texts centered where they should be (appendix).
-    int layout_height_no_ap, layout_width_no_ap;
     // Measure the size of the "main" atom, without "appendix"
-    pango_layout_get_pixel_size(pango_layout,&layout_width_no_ap,&layout_height_no_ap);
-    pango_layout_set_markup(pango_layout,markup.c_str(),-1);
-    // Used to make the texts centered where they should be.
-    int layout_width, layout_height;
+    Renderer::TextSize raw_size = ren.measure_text(raw_atom_span);
     // Measure full size of the text
-    pango_layout_get_pixel_size(pango_layout,&layout_width,&layout_height);
+    Renderer::TextSize size = ren.measure_text(atom_span);
 
     // todo: get rid of this '5' magic number - figure out what's wrong
-    int layout_x_offset = reversed ? layout_width - layout_height_no_ap / 2.f + 5 : layout_width_no_ap / 2.f;
+    int layout_x_offset = reversed ? size.width - raw_size.height / 2.f + 5 : raw_size.width / 2.f;
     double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
-    double origin_y = atom.y * scale_factor + y_offset - layout_height_no_ap/2.f;
+    double origin_y = atom.y * scale_factor + y_offset - raw_size.height / 2.f;
 
     graphene_rect_t rect;
     rect.origin.x = origin_x;
@@ -554,24 +523,15 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
     // Workaround for pango giving us too high layout size.
     const float layout_to_high = 3.f;
     rect.origin.y = origin_y + layout_to_high;
-    rect.size.width = layout_width;
-    rect.size.height = layout_height - layout_to_high * 2.f;
+    rect.size.width = size.width;
+    rect.size.height = size.height - layout_to_high * 2.f;
 
     // highlight
     process_atom_highlight(atom);
     // text
     ren.move_to(origin_x, origin_y);
-    pango_cairo_show_layout(cr, pango_layout);
+    ren.show_text(atom_span);
 
-    #else
-    #warning TODO: Abstract-away drawing atoms for Lhasa
-    g_warning("WARNING: Drawing atoms not implemented!");
-    graphene_rect_t rect;
-    rect.origin.x = 0;
-    rect.origin.y = 0;
-    rect.size.width = 0;
-    rect.size.height = 0;
-    #endif
     return std::make_pair(atom.idx, rect);
 }
 

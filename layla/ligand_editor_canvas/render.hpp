@@ -73,7 +73,7 @@ struct Renderer {
     };
 
     class TextSpan {
-        
+
         std::variant<std::string, std::vector<TextSpan>> content;
 
         public:
@@ -212,8 +212,7 @@ class MoleculeRenderContext {
 
 
     void process_atom_highlight(const CanvasMolecule::Atom& atom);
-    /// Returns the markup string + info if the appendix is reversed
-    std::tuple<std::string, bool> process_appendix_old(const std::string& symbol, const std::optional<CanvasMolecule::Atom::Appendix>& appendix);
+    /// Returns the appendix span + info if the appendix is reversed
     std::tuple<Renderer::TextSpan, bool> process_appendix(const std::string& symbol, const std::optional<CanvasMolecule::Atom::Appendix>& appendix, const Renderer::TextStyle& inherited_style);
     /// Returns a pair of atom index and bonding rect
     std::pair<unsigned int,graphene_rect_t> render_atom(const CanvasMolecule::Atom& atom, DisplayMode render_mode = DisplayMode::Standard);
