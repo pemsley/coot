@@ -441,6 +441,12 @@ std::tuple<Renderer::TextSpan, bool> MoleculeRenderContext::process_appendix(con
                 superatoms_symbol_span.as_caption().push_back(*i);
             }
         }
+        if(!superatoms_symbol_span.as_caption().empty()) {
+            root_span.as_subspans().push_back(std::move(superatoms_symbol_span));
+        }
+        if(!index_span.as_caption().empty()) {
+            root_span.as_subspans().push_back(std::move(index_span));
+        }
         if (ap.reversed) {
             ret.as_subspans().push_back(root_span);
             ret.as_subspans().push_back(symbol_span);
