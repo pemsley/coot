@@ -58,7 +58,11 @@
               let ret = "";
               for(let i = 0; i < spans.size(); i++) {
                 const span = spans.get(i);
-                console.log(span);
+                if(span.has_subspans()) {
+                  spans_to_text_data(span.as_subspans());
+                } else {
+                  console.log(span.as_caption());
+                }
               }
               return ret;
             }

@@ -269,10 +269,10 @@ std::string Renderer::text_span_to_pango_markup(const TextSpan& span) const {
             std::stringstream html_color;
             html_color << "#";
             html_color << std::hex << std::setfill('0') << std::setw(2);
-            html_color << style.color.r;
-            html_color << style.color.g;
-            html_color << style.color.b;
-            html_color << style.color.a;
+            html_color << style.color.r << ' ';
+            html_color << style.color.g << ' ';
+            html_color << style.color.b << ' ';
+            html_color << style.color.a << ' ';
             std::cout<<html_color.str()<<'\n';
             ret += "color=\"" + html_color.str() + "\" ";
         }
