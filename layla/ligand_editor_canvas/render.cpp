@@ -23,6 +23,8 @@
 #include "model.hpp"
 #ifdef __EMSCRIPTEN__
 #include "../../lhasa/glog_replacement.hpp"
+#else
+#include <sstream>
 #endif
 
 using namespace coot::ligand_editor_canvas::impl;
@@ -104,7 +106,6 @@ Renderer::TextStyle::TextStyle() {
     this->color.b = 0.f;
     this->color.a = 1.f;
     this->specifies_color = false;
-    this->specifies_positioning = false;
 }
 
 Renderer::TextSpan::TextSpan() {
@@ -122,7 +123,7 @@ Renderer::TextSpan::TextSpan(const std::vector<TextSpan>& subspans) {
     this->content = subspans;
 }
 
-bool Renderer::TextSpan::has_subspans() {
+bool Renderer::TextSpan::has_subspans() const {
     return std::holds_alternative<std::vector<TextSpan>>(this->content);
 }
 
@@ -131,6 +132,14 @@ std::string& Renderer::TextSpan::as_caption() {
 }
 
 std::vector<Renderer::TextSpan>& Renderer::TextSpan::as_subspans() {
+    return std::get<std::vector<TextSpan>>(this->content);
+}
+
+const std::string& Renderer::TextSpan::as_caption() const {
+    return std::get<std::string>(this->content);
+}
+
+const std::vector<Renderer::TextSpan>& Renderer::TextSpan::as_subspans() const {
     return std::get<std::vector<TextSpan>>(this->content);
 }
 
@@ -250,7 +259,108 @@ void Renderer::set_line_width(double width) {
     #endif
 }
 
+#ifndef __EMSCRIPTEN__
+std::string Renderer::text_span_to_pango_markup(const TextSpan& span) const {
+    std::string ret;
+    if(span.specifies_style) {
+        const auto& style = span.style;
+        ret += "<span ";
+        if(style.specifies_color) {
+            std::stringstream html_color;
+            html_color << "#";
+            html_color << std::hex << std::setfill('0') << std::setw(2);
+            html_color << style.color.r;
+            html_color << style.color.g;
+            html_color << style.color.b;
+            html_color << style.color.a;
+            ret += "color=\"" + html_color.str() + "\" ";
+        }
+        switch(style.positioning) {
+            case TextPositioning::Sub: {
+                ret += "<sub>";
+                break;
+            }
+            case TextPositioning::Super: {
+                ret += "<sup>";
+                break;
+            }
+            default:
+            case TextPositioning::Normal: {
+                // nothing
+            }
+        }
+        if(!style.size.empty()) {
+            ret += "size=\"" + style.size + "\" ";
+        }
+        if(!style.weight.empty()) {
+            ret += "weight=\"" + style.weight + "\" ";
+        }
+        ret += ">";
+    }
+    if(span.has_subspans()) {
+        const auto& subspans = span.as_subspans();
+        for(const auto& subspan: subspans) {
+            ret += this->text_span_to_pango_markup(subspan);
+        }
+    } else {
+        const auto& caption = span.as_caption();
+        // todo: escape characters!
+        ret += caption;
+    }
+    if(span.specifies_style) {
+        switch(span.style.positioning) {
+            case TextPositioning::Sub: {
+                ret += "</sub>";
+                break;
+            }
+            case TextPositioning::Super: {
+                ret += "</sup>";
+                break;
+            }
+            default:
+            case TextPositioning::Normal: {
+                // nothing
+            }
+        }
+        ret += "</span>";
+    }
+    return ret;
+}
+#endif
 
+Renderer::TextSize Renderer::measure_text(const Renderer::TextSpan& text) {
+    #ifndef __EMSCRIPTEN__
+    std::string markup = this->text_span_to_pango_markup(text);
+    pango_layout_set_markup(this->pango_layout, markup.c_str(), -1);
+    TextSize ret;
+    pango_layout_get_pixel_size(this->pango_layout, &ret.width, &ret.height);
+    return ret;
+    #else // __EMSCRIPTEN__ defined
+    return this->text_measurement_function(text).as<TextSize>();
+    #endif
+}
+
+void Renderer::show_text(const Renderer::TextSpan& text_span) {
+    #ifndef __EMSCRIPTEN__
+    std::string markup = this->text_span_to_pango_markup(text_span);
+    pango_layout_set_markup(this->pango_layout, markup.c_str(), -1);
+    pango_cairo_show_layout(this->cr, this->pango_layout);
+    #else // Lhasa
+    Text text;
+    if(text_span.has_subspans()) {
+        // This is a deep copy. Yikes.
+        text.spans = text_span.as_subspans();
+        text.style = text_span.style;
+    } else {
+        text.spans.push_back(text_span);
+        // Let's leave the style as it is, for now.
+        // text.style
+    }
+    text.origin = this->position;
+    auto* structure_ptr = *this->drawing_structure_stack.rbegin();
+    structure_ptr->push_back(DrawingCommand{text});
+    #endif
+}
 
 Renderer::~Renderer() {
     #ifndef __EMSCRIPTEN__
@@ -330,7 +440,6 @@ std::tuple<Renderer::TextSpan, bool> MoleculeRenderContext::process_appendix(con
             Renderer::TextSpan index_span;
             index_span.specifies_style = true;
             index_span.style = inherited_style;
-            index_span.style.specifies_positioning = true;
             index_span.style.positioning = Renderer::TextPositioning::Sub;
             return index_span;
         };
@@ -364,7 +473,6 @@ std::tuple<Renderer::TextSpan, bool> MoleculeRenderContext::process_appendix(con
             Renderer::TextSpan charge_span;
             charge_span.specifies_style = true;
             charge_span.style = inherited_style;
-            charge_span.style.specifies_positioning = true;
             charge_span.style.positioning = Renderer::TextPositioning::Super;
 
             unsigned int charge_no_sign = std::abs(ap.charge);

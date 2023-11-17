@@ -53,7 +53,17 @@
         });
         const on_render = function() {
           console.debug("on_render() called.");
-          const ren = new Module.LhasaRenderer("dummy");
+          const lhasa_text_to_d3js = (text) => {
+            // todo
+          };
+          const text_measure_function = (text) => {
+            console.warn("todo: Text measurement in JS");
+            let size_info = new Module.LhasaTextSize;
+            size_info.width = 0;
+            size_info.height = 0;
+            return size_info;
+          };
+          const ren = new Module.LhasaRenderer(text_measure_function);
           lh.render(ren);
           const commands = ren.get_commands();
           const svg = d3.create("svg")

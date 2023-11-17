@@ -69,19 +69,22 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .property("weight", &impl::Renderer::TextStyle::weight)
     .property("size", &impl::Renderer::TextStyle::size)
     .property("color", &impl::Renderer::TextStyle::color)
-    .property("specifies_positioning", &impl::Renderer::TextStyle::specifies_positioning)
     .property("specifies_color", &impl::Renderer::TextStyle::specifies_color)
     .constructor();
   class_<impl::Renderer::TextSpan>("LhasaTextSpan")
     .property("style", &impl::Renderer::TextSpan::style)
     .property("specifies_style", &impl::Renderer::TextSpan::specifies_style)
     .function("has_subspans", &impl::Renderer::TextSpan::has_subspans) 
-    .function("as_caption", &impl::Renderer::TextSpan::as_caption)
-    .function("as_subspans", &impl::Renderer::TextSpan::as_subspans)
+    .function("as_caption", select_const(&impl::Renderer::TextSpan::as_caption))
+    .function("as_subspans", select_const(&impl::Renderer::TextSpan::as_subspans))
     .constructor<std::vector<impl::Renderer::TextSpan>>()
     .constructor();
   register_vector<impl::Renderer::TextSpan>("LhasaTextSpanVector");
+  value_object<impl::Renderer::TextSize>("LhasaTextSize")
+    .field("width", &impl::Renderer::TextSize::width)
+    .field("height", &impl::Renderer::TextSize::height);
   class_<impl::Renderer::Text>("LhasaText")
+    .property("origin", &impl::Renderer::Text::origin)
     .property("style", &impl::Renderer::Text::style)
     .property("spans", &impl::Renderer::Text::spans);
   class_<impl::Renderer::DrawingCommand>("LhasaDrawingCommand")

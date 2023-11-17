@@ -50,6 +50,11 @@ struct Renderer {
         Super
     };
 
+    struct TextSize {
+        int width;
+        int height;
+    };
+
     struct TextStyle {
         TextPositioning positioning;
         /// Has to be compatible with both pango markup and HTML/CSS.
@@ -62,21 +67,25 @@ struct Renderer {
         std::string size;
         Color color;
 
-        bool specifies_positioning;
         bool specifies_color;
 
         TextStyle();
     };
 
-    struct TextSpan {
+    class TextSpan {
+        
+        std::variant<std::string, std::vector<TextSpan>> content;
+
+        public:
         TextStyle style;
         // Emscripten doesn't currently support std::optional
         bool specifies_style;
-        std::variant<std::string, std::vector<TextSpan>> content;
 
-        bool has_subspans();
+        bool has_subspans() const;
         std::string& as_caption();
+        const std::string& as_caption() const;
         std::vector<TextSpan>& as_subspans();
+        const std::vector<TextSpan>& as_subspans() const;
         TextSpan();
         TextSpan(const std::string&);
         TextSpan(const std::vector<TextSpan>&);
@@ -85,11 +94,16 @@ struct Renderer {
     struct Text {
         TextStyle style;
         std::vector<TextSpan> spans;
+        graphene_point_t origin;
     };
 
     #ifndef __EMSCRIPTEN__
     cairo_t* cr;
     PangoLayout* pango_layout;
+
+    private:
+    std::string text_span_to_pango_markup(const TextSpan&) const;
+    public:
     /// Takes ownership of the pointers
     Renderer(cairo_t*,PangoLayout*);
     Renderer(const Renderer&) = delete;
@@ -178,8 +192,8 @@ struct Renderer {
     void set_line_width(double width);
 
     // TEXT
-
-    // todo
+    TextSize measure_text(const Renderer::TextSpan&);
+    void show_text(const Renderer::TextSpan&);
 
     ~Renderer();
 };
