@@ -273,6 +273,7 @@ std::string Renderer::text_span_to_pango_markup(const TextSpan& span) const {
             html_color << style.color.g;
             html_color << style.color.b;
             html_color << style.color.a;
+            std::cout<<html_color.str()<<'\n';
             ret += "color=\"" + html_color.str() + "\" ";
         }
         switch(style.positioning) {

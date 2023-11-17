@@ -53,11 +53,29 @@
         });
         const on_render = function() {
           console.debug("on_render() called.");
-          const lhasa_text_to_d3js = (text) => {
-            // todo
+          const lhasa_text_to_d3js = (msvg, text) => {
+            const spans_to_text_data = (spans) => {
+              let ret = "";
+              for(let i = 0; i < spans.size(); i++) {
+                const span = spans.get(i);
+                console.log(span);
+              }
+              return ret;
+            }
+            const text_data = spans_to_text_data(text.spans);
+            const ret = msvg.append("text")
+              .attr("x", text.origin.x)
+              .attr("y", text.origin.y)
+              .text(text_data);
+            console.log("todo: render text");
+            return ret;
           };
           const text_measure_function = (text) => {
             console.warn("todo: Text measurement in JS");
+            const msvg = d3.create("svg")
+              .attr("width", 100)
+              .attr("height", 100);
+            const text_elem = lhasa_text_to_d3js(msvg, text);
             let size_info = new Module.LhasaTextSize;
             size_info.width = 0;
             size_info.height = 0;
@@ -96,8 +114,7 @@
 
               } else if(command.is_text()) {
                 const text = command.as_text();
-                console.log("todo: render text");
-
+                lhasa_text_to_d3js(svg, text);
               }
             }
           };
