@@ -462,16 +462,18 @@ get_validation_data_for_peptide_omega_analysis(int imol) {
    if (model_p) {
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
-         std::cout << "ichain: " << ichain << std::endl;
+         // std::cout << "ichain: " << ichain << std::endl;
          mmdb::Chain *chain_p = model_p->GetChain(ichain);
-         std::cout << "ichain: " << ichain << " " << chain_p << std::endl;
+         // std::cout << "ichain: " << ichain << " " << chain_p << std::endl;
          std::string chain_id(chain_p->GetChainID());
          coot::restraints_container_t rc(g.molecules[imol].atom_sel, chain_id, nullptr);
          coot::omega_distortion_info_container_t odi = rc.omega_trans_distortions(geom, true);
-         std::cout << "odi: chain_id "  << odi.chain_id << std::endl;
-         std::cout << "odi: min_resno " << odi.min_resno << std::endl;
-         std::cout << "odi: max_resno " << odi.max_resno << std::endl;
-         std::cout << "odi: n omega_distortions " << odi.omega_distortions.size() << std::endl;
+         if (false) {
+            std::cout << "odi: chain_id "  << odi.chain_id << std::endl;
+            std::cout << "odi: min_resno " << odi.min_resno << std::endl;
+            std::cout << "odi: max_resno " << odi.max_resno << std::endl;
+            std::cout << "odi: n omega_distortions " << odi.omega_distortions.size() << std::endl;
+         }
 
          coot::chain_validation_information_t cvi(chain_id);
          for (const auto &od : odi.omega_distortions) {
