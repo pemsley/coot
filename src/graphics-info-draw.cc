@@ -549,6 +549,8 @@ graphics_info_t::get_mvp_for_shadow_map(const glm::vec3 &light_direction_eye_spa
 
    glm::mat4 model_matrix = glm::mat4(1.0);
 
+   // 20231119-PE Calculate this from the extents of the displayed molecules? suggest_shadow_box_size() ?
+   //             Not every frame though. Hmm.
    float box_size = shadow_box_size; // user setable, default 66.
    if (box_size < 0.0) box_size = 120.0;
    glm::mat4 projection_matrix = glm::ortho(-box_size, box_size, -box_size, box_size, -box_size, box_size);
