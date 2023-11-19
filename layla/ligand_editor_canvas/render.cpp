@@ -363,7 +363,12 @@ Renderer::TextSize Renderer::measure_text(const Renderer::TextSpan& text) {
     // The try..catch doesn't work for me.
     // try {
     // g_info("Measuring...");
-    emscripten::val result = this->text_measurement_function(text);
+    Renderer::Text wtext;
+    wtext.origin.x = 0;
+    wtext.origin.y = 0;
+    wtext.spans.push_back(text);
+    // g_info("Wrapper text has been built.");
+    emscripten::val result = this->text_measurement_function(wtext);
     // g_info("Got result.");
     return result.as<TextSize>();
     // } catch(...) {

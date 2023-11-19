@@ -114,12 +114,15 @@
             if(style_string != "") {
               ret.attr("style", style_string);
             } else {
-              console.warn("Empty style string!");
+              // console.warn("Empty style string!");
+            }
+            if(text.spans.size() == 0) {
+              console.warn("Text contains no spans!");
             }
             append_spans_to_node(text.spans, ret);
             return ret;
           };
-          const text_measure_function = (textspan) => {
+          const text_measure_function = (text) => {
             // let size_info = new Module.LhasaTextSize;
             let size_info = {
               'width': 0,
@@ -131,12 +134,7 @@
                 .attr("width", 100)
                 .attr("height", 100)
                 .attr("id", "measurement_temporary");
-              const text = new Module.LhasaText();
-              text.origin.x = 0;
-              text.origin.y = 0;
-              text.spans.push_back(textspan);
               const text_elem = lhasa_text_to_d3js(msvg, text);
-              text.delete();
               parent.append(msvg.node());
               const node = text_elem.node();
               const bbox = node.getBBox();
