@@ -114,15 +114,29 @@
             return ret;
           };
           const text_measure_function = (text) => {
-            console.warn("todo: Text measurement in JS");
-            const msvg = d3.create("svg")
-              .attr("width", 100)
-              .attr("height", 100);
-            const text_elem = lhasa_text_to_d3js(msvg, text);
-            let size_info = new Module.LhasaTextSize;
-            size_info.width = 0;
-            size_info.height = 0;
-            return size_info;
+            // let size_info = new Module.LhasaTextSize;
+            let size_info = {
+              'width': 0,
+              'height': 0
+            };
+            try{
+              const parent = document.getElementById("editor_canvas_container");
+              const msvg = d3.create("svg")
+                .attr("width", 100)
+                .attr("height", 100);
+              const text_elem = lhasa_text_to_d3js(msvg, text);
+              parent.append(msvg.node());
+              const node = text_elem.node();
+              const bbox = node.getBBox();
+              size_info.width = bbox.width;
+              size_info.height = bbox.height;
+              msvg.remove();
+            } catch(err) {
+              console.eror('Error occured in text measurement: ', err);
+            } finally {
+              return size_info
+            }
+            
           };
           const ren = new Module.LhasaRenderer(text_measure_function);
           lh.render(ren);
@@ -157,6 +171,7 @@
 
               } else if(command.is_text()) {
                 const text = command.as_text();
+                console.log(text_measure_function(text));
                 lhasa_text_to_d3js(svg, text);
               }
             }
@@ -272,6 +287,7 @@
           <!-- <div class="button tool_button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.X)))" >X</div> -->
         </div>
         <div id="editor_canvas_container">
+          Lhasa not loaded.
         </div>
       </div>
       <div id="status_display_panel" class="panel">

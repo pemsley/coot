@@ -360,7 +360,12 @@ Renderer::TextSize Renderer::measure_text(const Renderer::TextSpan& text) {
     return ret;
     #else // __EMSCRIPTEN__ defined
     return {0,0};
-    return this->text_measurement_function(text).as<TextSize>();
+    // The try..catch doesn't work for me.
+    // try {
+        return this->text_measurement_function(text).as<TextSize>();
+    // } catch(...) {
+    //     return {0,0};
+    // }
     #endif
 }
 
