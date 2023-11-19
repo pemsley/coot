@@ -138,8 +138,8 @@
               parent.append(msvg.node());
               const node = text_elem.node();
               const bbox = node.getBBox();
-              size_info.width = bbox.width;
-              size_info.height = bbox.height;
+              size_info.width = Math.ceil(bbox.width);
+              size_info.height = Math.ceil(bbox.height);
               msvg.remove();
             } catch(err) {
               console.error('Error occured in text measurement: ', err);

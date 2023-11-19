@@ -498,7 +498,11 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
     atom_span.style.color.r = r;
     atom_span.style.color.g = g;
     atom_span.style.color.b = b;
+    #ifndef __EMSCRIPTEN__
     atom_span.style.size = render_mode != DisplayMode::AtomIndices ? "x-large" : "medium";
+    #else
+    atom_span.style.size = render_mode != DisplayMode::AtomIndices ? "medium" : "small";
+    #endif
     atom_span.style.weight = atom.highlighted ? "bold" : "normal";
 
     // Span for the atom symbol - solely.
@@ -548,21 +552,33 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
     // Measure full size of the text
     Renderer::TextSize size = ren.measure_text(atom_span);
 
-    g_info("Measurement results: %i %i %i %i", raw_size.height, raw_size.width, size.height, size.width);
+    // g_info("Measurement results: raw %ix%i n %ix%i", raw_size.width, raw_size.height, size.width, size.height);
 
+    #ifndef __EMSCRIPTEN__
     // todo: get rid of this '5' magic number - figure out what's wrong
-    int layout_x_offset = reversed ? size.width - raw_size.height / 2.f + 5 : raw_size.width / 2.f;
-    double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
-    double origin_y = atom.y * scale_factor + y_offset - raw_size.height / 2.f;
-
-    graphene_rect_t rect;
-    rect.origin.x = origin_x;
+    const int magic1 = 5;
+    // For Lhasa
+    const int magic2 = 0;
     // Magic number. This should be removed.
     // Workaround for pango giving us too high layout size.
     const float layout_to_high = 3.f;
+    #else
+    const int magic1 = 0;
+    // Text appears too high. Manuall offset.
+    const int magic2 = 15;
+    const float layout_to_high = 0.f;
+    #endif
+    int layout_x_offset = reversed ? size.width - raw_size.width / 2.f + magic1 : raw_size.width / 2.f;
+    double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
+    double origin_y = atom.y * scale_factor + y_offset - raw_size.height / 2.f + magic2;
+
+    graphene_rect_t rect;
+    rect.origin.x = origin_x;
     rect.origin.y = origin_y + layout_to_high;
     rect.size.width = size.width;
     rect.size.height = size.height - layout_to_high * 2.f;
+
+    // g_info("Rect: x=%f, y=%f, width=%f, height=%f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
 
     // highlight
     process_atom_highlight(atom);
