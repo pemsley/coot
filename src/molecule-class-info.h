@@ -1021,6 +1021,7 @@ public:        //                      public
    void make_ca_plus_ligands_and_sidechains_bonds(coot::protein_geometry *pg);
    void make_colour_by_chain_bonds(bool rebonding_is_needed); // simple/usual interfce to below function
    void make_colour_by_chain_bonds(const std::set<int> &no_bonds_to_these_atoms, bool c_only_flag, bool goodsell_mode, bool rebonding_is_needed);
+   void make_colour_by_ncs_related_chains(bool goodsell_mode); // presume rebonding *is* needed.
    void make_colour_by_molecule_bonds(bool rebonding_is_needed);
    void bonds_no_waters_representation();
    void bonds_sec_struct_representation();

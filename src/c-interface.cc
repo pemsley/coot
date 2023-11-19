@@ -3056,6 +3056,20 @@ void set_colour_by_chain(int imol) {
    add_to_history_typed(cmd, args);
 }
 
+/*! \brief colour molecule number imol by chain type */
+void set_colour_by_ncs_chain(int imol, short int goodsell_mode) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].make_colour_by_ncs_related_chains(goodsell_mode);
+      graphics_draw();
+   }
+   std::string cmd = "set-colour-by-ncs-chain";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
+}
+
+
 void set_colour_by_chain_goodsell_mode(int imol) {
 
    if (is_valid_model_molecule(imol)) {
@@ -9440,6 +9454,9 @@ void load_tutorial_model_and_data() {
       std::cout << "--------- imol_map: " << imol_map << std::endl;
       std::cout << "--------- imol_diff_map: " << imol_diff_map << std::endl;
    }
+
+   graphics_info_t g;
+   g.graphics_grab_focus();
 
 }
 

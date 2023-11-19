@@ -9442,6 +9442,10 @@ coot::ncs_related_chains(mmdb::Manager *mol, int imod) {
    auto chains_match = [] (mmdb::Chain *c1, mmdb::Chain *c2) {
       int n_res_1 = c1->GetNumberOfResidues();
       int n_res_2 = c2->GetNumberOfResidues();
+      if (false)
+         std::cout << "chains_match() start "
+                   << c1->GetChainID() << " has " << n_res_1 << " residues "
+                   << c2->GetChainID() << " has " << n_res_2 << " residues " << std::endl;
       std::map<int, std::string> m1;
       std::map<int, std::string> m2;
       for (int ires=0; ires<n_res_1; ires++) {
@@ -9477,8 +9481,13 @@ coot::ncs_related_chains(mmdb::Manager *mol, int imod) {
       if (n_count > 0) {
          float f1 = static_cast<float>(n_count);
          float f2 = static_cast<float>(n_match);
+         if (false)
+            std::cout << "debug:: chain-id " << c1->GetChainID() << " vs " << c2->GetChainID() << " n-match: " << n_match << " n-count " << n_count
+                      << " r " << f2/f1 << std::endl;
          if (f2/f1 > 0.7)
             return true;
+      } else {
+         // std::cout << "debug:: chain-id " << c1->GetChainID() << " vs " << c2->GetChainID() << " n-count " << n_count << std::endl;
       }
       return false;
    };
@@ -9489,26 +9498,33 @@ coot::ncs_related_chains(mmdb::Manager *mol, int imod) {
       for (int ichain=0; ichain<n_chains; ichain++) {
          mmdb::Chain *chain_p = model_p->GetChain(ichain);
 
-         // now check if this is like anything else we've seen
-         bool found_a_match = false;
-         for (unsigned int iv1=0; iv1<v.size(); ++iv1) {
-            std::vector<mmdb::Chain *> &vv = v[iv1];
-            mmdb::Chain *vv_chain_p = vv[0];
-            bool cm = chains_match(vv_chain_p, chain_p);
-            if (cm) {
-               vv.push_back(chain_p);
-               found_a_match = true;
-               break;
+         // std::cout << "------------- checking chain ich " << ichain << ": " << chain_p->GetChainID() << std::endl;
+         if (chain_p->GetNumberOfResidues() > 0) {
+
+            // now check if this is like anything else we've seen
+            bool found_a_match = false;
+            for (unsigned int iv1=0; iv1<v.size(); ++iv1) {
+               std::vector<mmdb::Chain *> &vv = v[iv1];
+               mmdb::Chain *vv_chain_p = vv[0];
+               bool cm = chains_match(vv_chain_p, chain_p);
+               if (cm) {
+                  vv.push_back(chain_p);
+                  found_a_match = true;
+                  break;
+               }
             }
-         }
-         if (! found_a_match) {
-            v.push_back({chain_p});
+            if (! found_a_match) {
+               // std::cout << "   starting a new group with chain-id " << chain_p->GetChainID() << std::endl;
+               v.push_back({chain_p});
+            }
+         } else {
+            // std::cout << "debug:: no residues in chain " << chain_p->GetChainID() << std::endl;
          }
       }
    }
 
    if (false) {
-      std::cout << "------------------------------------  debug --------------------------" << std::endl;
+      std::cout << "------------------------------------ debug in coot::ncs_related_chains()  --------------------------" << std::endl;
       unsigned int n_chains = 0;
       for (unsigned int iv1=0; iv1<v.size(); ++iv1) {
          std::cout << "New Set .... " << std::endl;

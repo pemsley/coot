@@ -110,7 +110,6 @@ model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_co
             // 20230828-PE Atom sizes (sphere radius) can vary. Waters and metals are bigger.
             // size for a sphere should be a vector of size 3 of the same number.
 	    float sphere_radius = Atd.size[0];
-            // std::cout << "sphere_radius " << sphere_radius << " size: " << glm::to_string(Atd.size) << std::endl;
             colours[i_A] = Atd.colour;
 	    glm::mat4 mm = glm::scale(unit_matrix, Atd.size);
             matrices[i_A] = glm::translate(mm, Atd.position/sphere_radius);

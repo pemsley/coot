@@ -395,6 +395,11 @@ class Bond_lines_container {
                                                          int uddHnd,
                                                          int udd_user_defined_atom_colour_index_handle);
 
+   void do_colour_by_ncs_related_chains_atoms_only(const atom_selection_container_t &asc,
+                                                   int imol,
+                                                   std::vector<std::vector<mmdb::Chain *> > ncs_related_chains,
+                                                   bool change_c_only_flag, bool goodsell_mode);
+
    void do_colour_by_dictionary_and_by_chain_bonds(const atom_selection_container_t &asc,
                                                    int imol,
                                                    int draw_hydrogens_flag,
@@ -891,6 +896,12 @@ public:
                                                    float min_dist, float max_dist,
                                                    bool draw_missing_loops_flag,
                                                    bool do_bonds_to_hydrogens_in);
+
+   void do_colour_by_ncs_related_chain_bonds(const atom_selection_container_t &asc,
+                                             int imol,
+                                             std::vector<std::vector<mmdb::Chain *> > ncs_related_chains,
+                                             int draw_mode, // just_atoms_or_bonds_and_atoms mode
+                                             bool change_c_only_flag, bool goodsell_mode);
 
    atom_selection_container_t
       ContactSel(mmdb::PPAtom trans_sel, mmdb::Contact *contact, int ncontacts) const;
