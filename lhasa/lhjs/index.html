@@ -59,7 +59,7 @@
           const lhasa_text_to_d3js = (msvg, text) => {
             const style_to_attrstring = (style) => {
               let style_string = "";
-              if(style.specfies_color) {
+              if(style.specifies_color) {
                 style_string += "fill:";
                 style_string += css_color_from_lhasa_color(style.color);
                 style_string += ";";
@@ -108,12 +108,18 @@
             }
             const ret = msvg.append("text")
               .attr("x", text.origin.x)
-              .attr("y", text.origin.y)
-              .attr("style", style_to_attrstring(text.style));
+              .attr("y", text.origin.y);
+            
+            const style_string = style_to_attrstring(text.style);
+            if(style_string != "") {
+              ret.attr("style", style_string);
+            } else {
+              console.warn("Empty style string!");
+            }
             append_spans_to_node(text.spans, ret);
             return ret;
           };
-          const text_measure_function = (text) => {
+          const text_measure_function = (textspan) => {
             // let size_info = new Module.LhasaTextSize;
             let size_info = {
               'width': 0,
@@ -123,8 +129,14 @@
               const parent = document.getElementById("editor_canvas_container");
               const msvg = d3.create("svg")
                 .attr("width", 100)
-                .attr("height", 100);
+                .attr("height", 100)
+                .attr("id", "measurement_temporary");
+              const text = new Module.LhasaText();
+              text.origin.x = 0;
+              text.origin.y = 0;
+              text.spans.push_back(textspan);
               const text_elem = lhasa_text_to_d3js(msvg, text);
+              text.delete();
               parent.append(msvg.node());
               const node = text_elem.node();
               const bbox = node.getBBox();
@@ -132,9 +144,9 @@
               size_info.height = bbox.height;
               msvg.remove();
             } catch(err) {
-              console.eror('Error occured in text measurement: ', err);
+              console.error('Error occured in text measurement: ', err);
             } finally {
-              return size_info
+              return size_info;
             }
             
           };
@@ -171,7 +183,6 @@
 
               } else if(command.is_text()) {
                 const text = command.as_text();
-                console.log(text_measure_function(text));
                 lhasa_text_to_d3js(svg, text);
               }
             }

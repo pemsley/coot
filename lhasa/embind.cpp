@@ -86,7 +86,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   class_<impl::Renderer::Text>("LhasaText")
     .property("origin", &impl::Renderer::Text::origin)
     .property("style", &impl::Renderer::Text::style)
-    .property("spans", &impl::Renderer::Text::spans);
+    .property("spans", &impl::Renderer::Text::spans)
+    .constructor();
   class_<impl::Renderer::DrawingCommand>("LhasaDrawingCommand")
     .function("is_path", &impl::Renderer::DrawingCommand::is_path)
     .function("is_arc", &impl::Renderer::DrawingCommand::is_arc)

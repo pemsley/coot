@@ -359,10 +359,13 @@ Renderer::TextSize Renderer::measure_text(const Renderer::TextSpan& text) {
     pango_layout_get_pixel_size(this->pango_layout, &ret.width, &ret.height);
     return ret;
     #else // __EMSCRIPTEN__ defined
-    return {0,0};
+    // return {0,0};
     // The try..catch doesn't work for me.
     // try {
-        return this->text_measurement_function(text).as<TextSize>();
+    // g_info("Measuring...");
+    emscripten::val result = this->text_measurement_function(text);
+    // g_info("Got result.");
+    return result.as<TextSize>();
     // } catch(...) {
     //     return {0,0};
     // }
@@ -539,6 +542,8 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
     Renderer::TextSize raw_size = ren.measure_text(raw_atom_span);
     // Measure full size of the text
     Renderer::TextSize size = ren.measure_text(atom_span);
+
+    g_info("Measurement results: %i %i %i %i", raw_size.height, raw_size.width, size.height, size.width);
 
     // todo: get rid of this '5' magic number - figure out what's wrong
     int layout_x_offset = reversed ? size.width - raw_size.height / 2.f + 5 : raw_size.width / 2.f;
