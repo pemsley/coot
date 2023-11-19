@@ -88,6 +88,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       catch (const std::runtime_error &e) {
          std::cout << "WARNING::" << e.what() << std::endl;
       }
+      graphics_info_t g;
+      g.graphics_grab_focus();
    };
 
    auto set_target_position_data = [] (GtkWidget *button, const clipper::Coord_orth &p) {
@@ -230,6 +232,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       graphics_info_t g;
       graphics_info_t::set_go_to_atom(imol, atom_spec);
       g.try_centre_from_new_go_to_atom(); // oh dear!
+      g.graphics_grab_focus();
    };
 
    auto make_chiral_volume_buttons = [chiral_volume_button_clicked_callback] (int imol) {
@@ -280,6 +283,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       graphics_info_t g;
       graphics_info_t::set_go_to_atom(imol, atom_spec);
       g.try_centre_from_new_go_to_atom(); // oh dear!
+      g.graphics_grab_focus();
    };
 
    auto make_rama_buttons = [rama_button_clicked_callback] (int imol) {
@@ -334,6 +338,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       graphics_info_t g;
       graphics_info_t::set_go_to_atom(imol, atom_spec);
       g.try_centre_from_new_go_to_atom(); // oh dear!
+      g.graphics_grab_focus();
    };
 
    auto make_non_pro_cis_peptide_buttons = [non_pro_cis_button_clicked_callback] (int imol, mmdb::Manager *mol) {
@@ -382,6 +387,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       graphics_info_t g;
       graphics_info_t::set_go_to_atom(imol, atom_spec);
       g.try_centre_from_new_go_to_atom(); // oh dear!
+      g.graphics_grab_focus();
    };
 
    auto make_twisted_trans_buttons = [twisted_trans_button_clicked_callback] (int imol, mmdb::Manager *mol) {
@@ -434,6 +440,7 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       graphics_info_t g;
       graphics_info_t::set_go_to_atom(imol, atom_spec);
       g.try_centre_from_new_go_to_atom(); // oh dear!
+      g.graphics_grab_focus();
    };
 
    auto make_cbeta_devi_buttons = [c_beta_devi_button_clicked_callback] (int imol, mmdb::Manager *mol) {

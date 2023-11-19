@@ -4345,6 +4345,7 @@ graphics_info_t::on_diff_map_peak_button_selection_toggled(GtkToggleButton  *but
       s += int_to_string(hd->ipeak);
       g.add_status_bar_text(s);
    }
+   g.graphics_grab_focus();
 }
 
 

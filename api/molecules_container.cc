@@ -4657,7 +4657,7 @@ molecules_container_t::find_water_baddies(int imol_model, int imol_map,
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map)) {
 
-         float map_sigma = molecules[imol_model].get_map_rmsd_approx();
+         float map_sigma = molecules[imol_map].get_map_rmsd_approx();
          v = coot::find_water_baddies_OR(molecules[imol_model].atom_sel,
                                          b_factor_lim,
                                          molecules[imol_map].xmap,

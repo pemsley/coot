@@ -1806,6 +1806,18 @@ int test_peptide_omega(molecules_container_t &mc) {
    return status;
 }
 
+int test_omega_5tig_cif(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("5tig.cif"));
+   coot::validation_information_t oa = mc.peptide_omega_analysis(imol);
+   status = 1; // it didn't crash
+
+   return status;
+}
+
 int test_delete_literal(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3902,7 +3914,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_replace_fragment,      "replace fragment",         mc);
 
-   status += run_test(test_ncs_chains,      "NCS chains",         mc);
+   // status += run_test(test_ncs_chains,      "NCS chains",         mc);
+
+   status += run_test(test_omega_5tig_cif,      "Omega for 5tig cif",         mc);
 
    // status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
 
