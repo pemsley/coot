@@ -570,7 +570,7 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
     #endif
     int layout_x_offset = reversed ? size.width - raw_size.width / 2.f + magic1 : raw_size.width / 2.f;
     double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
-    double origin_y = atom.y * scale_factor + y_offset - raw_size.height / 2.f + magic2;
+    double origin_y = atom.y * scale_factor + y_offset - raw_size.height / 2.f;
 
     graphene_rect_t rect;
     rect.origin.x = origin_x;
@@ -583,7 +583,7 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
     // highlight
     process_atom_highlight(atom);
     // text
-    ren.move_to(origin_x, origin_y);
+    ren.move_to(origin_x, origin_y + magic2);
     ren.show_text(atom_span);
 
     return std::make_pair(atom.idx, rect);
