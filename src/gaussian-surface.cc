@@ -117,7 +117,7 @@ int gaussian_surface(int imol) {
          int n_chains = model_p->GetNumberOfChains();
          for (int ichain=0; ichain<n_chains; ichain++) {
             mmdb::Chain *chain_p = model_p->GetChain(ichain);
-            std::cout << "surfce for chain " << chain_p->GetChainID() << std::endl;
+            std::cout << "INFOO:: Calculatiing Gaussian surface for chain " << chain_p->GetChainID() << std::endl;
             make_an_ncs_chain_surface(imol, mol, chain_p, ncs_chains);
          }
       }

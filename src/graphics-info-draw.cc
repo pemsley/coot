@@ -2112,27 +2112,60 @@ graphics_info_t::draw_unit_cells() {
 void
 graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_type) {
 
-   if (!generic_display_objects.empty()) {
-      bool generic_display_objects_to_draw = false;
-      for (unsigned int i=0; i<generic_display_objects.size(); i++) {
-         if (generic_display_objects[i].mesh.get_draw_this_mesh()) {
-            generic_display_objects_to_draw = true;
-            break;
+   if (pass_type == PASS_TYPE_STANDARD) {
+      if (!generic_display_objects.empty()) {
+         bool generic_display_objects_to_draw = false;
+         for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+            if (generic_display_objects[i].mesh.get_draw_this_mesh()) {
+               generic_display_objects_to_draw = true;
+               break;
+            }
+         }
+
+         if (generic_display_objects_to_draw) {
+            glm::mat4 model_rotation = get_model_rotation();
+            glm::mat4 mvp = get_molecule_mvp();
+            glm::vec4 bg_col(background_colour, 1.0);
+            bool wireframe_mode = false;
+            float opacity = 1.0f;
+            auto ccrc = RotationCentre();
+            glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+            for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+               generic_display_objects[i].mesh.draw(&shader_for_moleculestotriangles,
+                                                    mvp, model_rotation, lights, eye_position, rc, opacity,
+                                                    bg_col, wireframe_mode, false, show_just_shadows);
+            }
          }
       }
+   }
 
-      if (generic_display_objects_to_draw) {
-         glm::mat4 model_rotation = get_model_rotation();
-         glm::mat4 mvp = get_molecule_mvp();
-         glm::vec4 bg_col(background_colour, 1.0);
-         bool wireframe_mode = false;
-         float opacity = 1.0f;
-         auto ccrc = RotationCentre();
-         glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+   if (pass_type == PASS_TYPE_SSAO) {
+      if (!generic_display_objects.empty()) {
+         bool generic_display_objects_to_draw = false;
          for (unsigned int i=0; i<generic_display_objects.size(); i++) {
-            generic_display_objects[i].mesh.draw(&shader_for_moleculestotriangles,
-                                                 mvp, model_rotation, lights, eye_position, rc, opacity,
-                                                 bg_col, wireframe_mode, false, show_just_shadows);
+            if (generic_display_objects[i].mesh.get_draw_this_mesh()) {
+               generic_display_objects_to_draw = true;
+               break;
+            }
+         }
+
+         if (generic_display_objects_to_draw) {
+
+            glm::vec4 bg_col(background_colour, 1.0);
+            auto ccrc = RotationCentre();
+            glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+            bool do_orthographic_projection = ! perspective_projection_flag;
+            GtkAllocation allocation;
+            gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+            int w = allocation.width;
+            int h = allocation.height;
+            auto model_matrix = get_model_matrix();
+            auto view_matrix = get_view_matrix();
+            auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+            for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+               generic_display_objects[i].mesh.draw_for_ssao(&shader_for_meshes_for_ssao,
+                                                             model_matrix, view_matrix, projection_matrix);
+            }
          }
       }
    }
