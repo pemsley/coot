@@ -250,7 +250,12 @@
 
         on_x_element_button = (button) => {
           const panel = document.getElementById("x_element_panel");
-          panel.style.display = 'flex';
+          console.log(panel.style.display);
+          if(panel.style.display == 'none' || panel.style.display == '') {
+            panel.style.display = 'flex';
+          } else {
+            panel.style.display = 'none';
+          }
         };
 
         on_x_element_submit_button = (button) => {
