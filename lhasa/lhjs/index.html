@@ -260,10 +260,11 @@
 
         on_x_element_submit_button = (button) => {
           const symbol_input = document.getElementById("x_element_symbol_input");
+          const x_button = document.getElementById("x_element_button");
           const err_display = document.getElementById("error_display");
           try {
             const el_ins = Module.element_insertion_from_symbol(symbol_input.value);
-            switch_tool(button, el_ins);
+            switch_tool(x_button, el_ins);
             const panel = document.getElementById("x_element_panel");
             panel.style.display = 'none';
             err_display.style.display = 'none';
@@ -341,7 +342,7 @@
           <div class="button tool_button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.Cl))" >Cl</div>
           <div class="button tool_button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.Br))" >Br</div>
           <div class="button tool_button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.I))" >I</div>
-          <div class="button tool_button" onclick="javascript:on_x_element_button(this)" >X</div>
+          <div class="button tool_button" id="x_element_button" onclick="javascript:on_x_element_button(this)" >X</div>
         </div>
         <div id="editor_canvas_container">
           <div id="pre_render_message">Lhasa not loaded.</div>
