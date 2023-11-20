@@ -1,8 +1,12 @@
 #editor_canvas_container {
     border: greenyellow 1px solid;
-    background-color: white;
+    padding: 5px;
     cursor: default;
     user-select: none;
+}
+
+#lhasa_drawing {
+    background-color: white;
 }
 
 #lhasa_editor {
@@ -15,7 +19,7 @@
 }
 
 .toolbar {
-    border: red 1px solid;
+    border: darkred 1px solid;
     padding: 5px;
     /* align-items: center; */
 }
