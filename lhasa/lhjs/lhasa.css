@@ -30,11 +30,15 @@
 }
 
 #invalid_molecules_panel, 
-#scale_panel, 
-#smiles_display_outer, 
+#scale_panel,  
 #display_mode_panel,
 #status_display_panel {
     margin-bottom: 5px;
+}
+
+#smiles_display_outer {
+    margin-bottom: 5px;
+    flex-grow: 1;
 }
 
 #x_element_panel {
