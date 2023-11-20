@@ -175,7 +175,41 @@
 
               } else if(command.is_arc()) {
                 const arc = command.as_arc();
-                console.log("todo: render arcs");
+                // Thanks to: https://stackoverflow.com/questions/5736398/how-to-calculate-the-svg-path-for-an-arc-of-a-circle
+                function polarToCartesian(centerX, centerY, radius, angleInRadians) {
+                  //var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
+
+                  return {
+                    x: centerX + (radius * Math.cos(angleInRadians)),
+                    y: centerY + (radius * Math.sin(angleInRadians))
+                  };
+                }
+
+                function describeArc(x, y, radius, startAngle, endAngle){
+
+                    var start = polarToCartesian(x, y, radius, endAngle);
+                    var end = polarToCartesian(x, y, radius, startAngle);
+
+                    var largeArcFlag = endAngle - startAngle <= Math.PI ? "0" : "1";
+                    //var largeArcFlag = "1";
+
+                    var d = [
+                        "M", start.x, start.y, 
+                        "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
+                    ].join(" ");
+                    // console.log("d", d);
+
+                    return d;       
+                }
+                svg.append("path")
+                  // todo
+                  .attr("stroke-width", 1)
+                  // todo
+                  .attr("fill", "none")
+                  // todo
+                  .attr("stroke", "#000000")
+                  .attr("d", describeArc(arc.origin.x, arc.origin.y, arc.radius, arc.angle_one - 0.001, arc.angle_two));
+                console.log("todo: render arcs properly");
 
               } else if(command.is_path()) {
                 const path = command.as_path();
