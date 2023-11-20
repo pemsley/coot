@@ -31,6 +31,22 @@
     margin-bottom: 5px;
 }
 
+#x_element_panel {
+    margin-bottom: 5px;
+    display: none;
+}
+
+
+#error_display {
+    margin-bottom: 5px;
+    display: none;
+    color: red;
+    font-weight: bold;
+    border: red 1px solid;
+    padding: 5px;
+}
+
+
 .horizontal_container {
     display: flex;
     flex-direction: row;
@@ -95,7 +111,7 @@
     margin-top: 5px;
 }
 
-#smiles_input {
+#lhasa_editor input {
     font-family: sans-serif;
     background-color: rgb(0, 0, 66);
     color: yellow;
@@ -104,4 +120,11 @@
 
 #lhasa_footer {
     margin-top: 20px;
+}
+
+#pre_render_message {
+    color: yellow;
+    font-weight: bold;
+    font-size: 200%;
+    background-color: rgb(0, 0, 66);
 }

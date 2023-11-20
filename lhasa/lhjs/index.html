@@ -104,7 +104,7 @@
                   child.text(caption);
                 }
               }
-              return ret;
+              // return ret;
             }
             const ret = msvg.append("text")
               .attr("x", text.origin.x)
@@ -244,6 +244,27 @@
         console.log('Adding demo molecule.');
         Module.append_from_smiles(lh, "O=C(C)Oc1ccccc1C(=O)O");
         lh.set_scale(1.0);
+
+        on_x_element_button = (button) => {
+          const panel = document.getElementById("x_element_panel");
+          panel.style.display = 'flex';
+        };
+
+        on_x_element_submit_button = (button) => {
+          const symbol_input = document.getElementById("x_element_symbol_input");
+          const err_display = document.getElementById("error_display");
+          try {
+            const el_ins = Module.element_insertion_from_symbol(symbol_input.value);
+            switch_tool(button, el_ins);
+            const panel = document.getElementById("x_element_panel");
+            panel.style.display = 'none';
+            err_display.style.display = 'none';
+          }catch(err) {
+            console.warn("Could not set custom element: ", err);
+            err_display.textContent = "Could not load ElementInsertion tool. Is your symbol valid?";
+            err_display.style.display = 'flex';
+          }
+        };
       }
     };
   </script>
@@ -281,6 +302,14 @@
         <div class="button tool_button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloHeptaneRing))" >7-C</div>
         <div class="button tool_button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloOctaneRing))" >8-C</div>
       </div>
+      <div id="x_element_panel" class="panel horizontal_container" >
+        <span style="align-self: center;">Custom element symbol: </span>
+        <input id="x_element_symbol_input"></input>
+        <div class="button" id="x_element_submit_button" onclick="javascript:on_x_element_submit_button(this)">Submit</div>
+      </div>
+      <div id="error_display" class="vertical_container vertical_toolbar">
+
+      </div>
       <div id="main_horizontal_container" class="horizontal_container">
         <div id="element_toolbar" class="vertical_toolbar toolbar vertical_container">
           <div class="button tool_button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.C))" >C</div>
@@ -293,10 +322,10 @@
           <div class="button tool_button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.Cl))" >Cl</div>
           <div class="button tool_button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.Br))" >Br</div>
           <div class="button tool_button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.I))" >I</div>
-          <!-- <div class="button tool_button" onclick="javascript:switch_tool(this,new Module.LhasaElementInsertion(Module.LhasaElement.X)))" >X</div> -->
+          <div class="button tool_button" onclick="javascript:on_x_element_button(this)" >X</div>
         </div>
         <div id="editor_canvas_container">
-          Lhasa not loaded.
+          <div id="pre_render_message">Lhasa not loaded.</div>
         </div>
       </div>
       <div id="status_display_panel" class="panel">
