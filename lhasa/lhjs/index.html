@@ -268,6 +268,18 @@
             err_display.style.display = 'flex';
           }
         };
+
+        switch_display_mode = (value) => {
+          switch(value) {
+            default:
+            case 'standard':
+              lh.set_display_mode(Module.LhasaDisplayMode.Standard);
+              break;
+            case 'atom_indices':
+              lh.set_display_mode(Module.LhasaDisplayMode.AtomIndices);
+              break;
+          }
+        };
       }
     };
   </script>
@@ -336,17 +348,22 @@
         <span id="status_display"></span>
       </div>
       <div id="invalid_molecules_panel" class="panel">
-        <input type="checkbox" id="allow_invalid_molecules_checkbox" name="allow_invalid_molecules">TODO: Allow invalid molecules</input>
+        <input 
+          type="checkbox" 
+          id="allow_invalid_molecules_checkbox" 
+          name="allow_invalid_molecules"
+          onchange="javascript:lh.set_allow_invalid_molecules(this.checked);"
+          >Allow invalid molecules</input>
       </div>
       <div id="info_block" class="horizontal_container">
         <div id="smiles_display_outer" class="panel">
-          SMILES:
+          <b>SMILES:</b>
           <div id="smiles_display">
             <!-- Smiles goes here -->
           </div>
         </div>
         <div id="scale_panel" class="panel">
-          SCALE:
+          <b>SCALE:</b>
           <div id="scale_display">
             <!-- scale info goes here -->
           </div>
@@ -356,8 +373,10 @@
           </div>
         </div>
         <div id="display_mode_panel" class="panel">
-          Display modes will go here
-          <!-- todo: display modes etc. -->
+          <b>DISPLAY MODES</b>
+          <br/><input type="radio" name="display_mode" checked value="standard" onchange="javascript:switch_display_mode(this.value);">Standard</input>
+          <br/><input type="radio" name="display_mode" value="atom_indices" onchange="javascript:switch_display_mode(this.value);">Atom Indices</input>
+          <!-- <input type="radio" name="display_mode" id="display_mode_atom_names">Atom Names</input> -->
         </div>
       </div>
       <div id="bottom_toolbar" class="horizontal_toolbar toolbar horizontal_container">
