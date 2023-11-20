@@ -1,6 +1,8 @@
 #editor_canvas_container {
     border: greenyellow 1px solid;
     background-color: white;
+    cursor: default;
+    user-select: none;
 }
 
 #lhasa_editor {
@@ -79,6 +81,7 @@
     flex-direction: column;
     gap: 2px;
     justify-content: center;
+    cursor: pointer;
 }
 
 .tool_button {

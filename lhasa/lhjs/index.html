@@ -12,6 +12,7 @@
       onRuntimeInitialized: function() {
         // console.log('lerp result: ' + Module.lerp(1, 2, 0.5));
         console.log('Module is here.');
+
         lh = new Module.LhasaCanvas();
 
         switch_tool = function (element, tool) {
@@ -26,6 +27,8 @@
           lh.set_active_tool(Module.make_active_tool(tool));
         };
         const elem = document.getElementById("editor_canvas_container");
+        // Disables right-click menu
+        elem.oncontextmenu =new Function("return false;");
         elem.addEventListener("mousemove", (event) => {
           // console.log('Mousemove');
           lh.on_hover(event.offsetX, event.offsetY, event.altKey);
@@ -333,7 +336,7 @@
         <span id="status_display"></span>
       </div>
       <div id="invalid_molecules_panel" class="panel">
-        TODO: Allow invalid molecules
+        <input type="checkbox" id="allow_invalid_molecules_checkbox" name="allow_invalid_molecules">TODO: Allow invalid molecules</input>
       </div>
       <div id="info_block" class="horizontal_container">
         <div id="smiles_display_outer" class="panel">
