@@ -67,26 +67,25 @@
                 style_string += css_color_from_lhasa_color(style.color);
                 style_string += ";";
               }
-              // font-size:65%;baseline-shift:sub / super
+              // font-size:75%;baseline-shift:sub / super
               switch(style.positioning) {
                 case Module.LhasaTextPositioning.Normal:
-                  // nothing to do
+                  if(style.size != "") {
+                    style_string += "font-size:";
+                    style_string += style.size;
+                    style_string += ";";
+                  }
                   break;
                 case Module.LhasaTextPositioning.Sub:
-                  style_string += "font-size:65%;baseline-shift:sub;";
+                  style_string += "font-size:75%;baseline-shift:sub;";
                   break;
                 case Module.LhasaTextPositioning.Super:
-                  style_string += "font-size:65%;baseline-shift:super;";
+                  style_string += "font-size:75%;baseline-shift:super;";
                   break;
               }
               if(style.weight != "") {
                 style_string += "font-weight:";
                 style_string += style.weight;
-                style_string += ";";
-              }
-              if(style.size != "") {
-                style_string += "font-size:";
-                style_string += style.size;
                 style_string += ";";
               }
               return style_string;
@@ -318,7 +317,7 @@
         <div class="button tool_button" onclick="javascript:switch_tool(this,new Module.LhasaStructureInsertion(Module.LhasaStructure.CycloOctaneRing))" >8-C</div>
       </div>
       <div id="x_element_panel" class="panel horizontal_container" >
-        <span style="align-self: center;">Custom element symbol: </span>
+        <span style="align-self: center;flex-grow:1;">Custom element symbol: </span>
         <input id="x_element_symbol_input"></input>
         <div class="button" id="x_element_submit_button" onclick="javascript:on_x_element_submit_button(this)">Submit</div>
       </div>
@@ -382,7 +381,7 @@
       <div id="bottom_toolbar" class="horizontal_toolbar toolbar horizontal_container">
         <div class="button" onclick="javascript:lh.undo_edition()" >Undo</div>
         <div class="button" onclick="javascript:lh.redo_edition()" >Redo</div>
-        <div class="horizontal_container toolbar">
+        <div style="flex-grow: 1;" class="horizontal_container toolbar">
           <input id="smiles_input"></input>
           <div class="button" id="smiles_import_button">Import SMILES</div>
         </div>
