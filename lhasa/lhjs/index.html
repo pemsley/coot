@@ -140,6 +140,7 @@
               const text_elem = lhasa_text_to_d3js(msvg, text);
               parent.append(msvg.node());
               const node = text_elem.node();
+              // This has awful performance but I don't really have a choice
               const bbox = node.getBBox();
               size_info.width = Math.ceil(bbox.width);
               size_info.height = Math.ceil(bbox.height);
