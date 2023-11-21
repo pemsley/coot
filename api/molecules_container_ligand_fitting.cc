@@ -165,6 +165,93 @@ molecules_container_t::fit_to_map_by_random_jiggle(int imol, const coot::residue
 
 }
 
+
+//! Ligand Fitting
+//!
+//! @return a vector of indices of molecules for the best fitting ligands to this blob.
+std::vector<int>
+molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligand,
+                                  float n_rmsd, bool use_conformers, unsigned int n_conformers) {
+
+   std::vector<int> mol_list;
+
+   if (is_valid_model_molecule(imol_protein)) {
+      if (is_valid_model_molecule(imol_ligand)) {
+         if (is_valid_map_molecule(imol_map)) {
+
+            coot::wligand wlig;
+            wlig.set_verbose_reporting();
+            wlig.set_debug_wiggly_ligands();
+
+            // 20231121-PE No thread pool. Add it here if needed
+
+            coot::minimol::molecule mmol(molecules[imol_ligand].atom_sel.mol);
+            if (use_conformers) {
+               // bool optim_geom = true;
+               bool optim_geom = false;
+               for (unsigned int i_conf=0; i_conf<n_conformers; i_conf++) {
+                  wlig.install_simple_wiggly_ligand(&geom, mmol, imol_ligand, i_conf, optim_geom);
+               }
+            } else {
+               mmdb::Manager *ligand_mol = molecules[imol_ligand].atom_sel.mol;
+               wlig.install_ligand(ligand_mol);
+            }
+            clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+            wlig.import_map_from(xmap);
+            short int mask_waters_flag = true;
+            wlig.set_map_atom_mask_radius(2.0);  // Angstroms
+            mmdb::Manager *protein_mol = molecules[imol_protein].atom_sel.mol;
+            wlig.mask_map(protein_mol, mask_waters_flag);
+
+            float ligand_acceptable_fit_fraction = 0.75;
+            int find_ligand_n_top_ligands = 10;
+
+            wlig.find_clusters(n_rmsd);  // trashes the xmap
+            wlig.set_acceptable_fit_fraction(ligand_acceptable_fit_fraction);
+            wlig.fit_ligands_to_clusters(find_ligand_n_top_ligands); // 10 clusters
+
+            // now add in the solution ligands: 20231121-PE (What did I mean by this?)
+            int n_clusters = wlig.n_clusters_final();
+
+            coot::minimol::molecule m;
+            for (int iclust=0; iclust<n_clusters; iclust++) {
+
+               float frac_lim = 0.7;
+               float correl_frac_lim = 0.9;
+               bool find_ligand_multiple_solutions_per_cluster_flag = true;
+
+               // nino-mode
+               unsigned int nlc = wlig.n_ligands_for_cluster(iclust, frac_lim);
+               wlig.score_and_resort_using_correlation(iclust, nlc);
+
+               // false is the default case
+               if (find_ligand_multiple_solutions_per_cluster_flag == false) {
+                  nlc = 1;
+                  correl_frac_lim = 0.975;
+               }
+
+               if (nlc > 12) nlc = 12; // arbitrary limit of max 12 solutions per cluster
+               float tolerance = 20.0;
+               // limit_solutions should be run only after a post-correlation sort.
+               //
+               wlig.limit_solutions(iclust, correl_frac_lim, nlc, tolerance, true);
+
+               for (unsigned int isol=0; isol<nlc; isol++) {
+                  m = wlig.get_solution(isol, iclust);
+                  if (! m.is_empty()) {
+                     coot::minimol::molecule m = wlig.get_solution(isol, iclust);
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   return mol_list;
+}
+
+
+
 //! "Jiggle-Fit Ligand" with different interface
 //! @return a value less than -99.9 on failure to fit.
 float

@@ -1341,9 +1341,15 @@ public:
    //! For trivial (i.e non-flexible) ligands you should instead use the jiggle-fit algorithm, which
    //! takes a fraction of a second. (That is the algorithm used for "Add Other Solvent Molecules" in Coot.)
    //!
-   //! @return a vector indices of molecules for the best fitting ligands to this blob.
+   //! @return a vector of indices of molecules for the best fitting ligands to this blob.
    std::vector<int> fit_ligand_right_here(int imol_protein, int imol_map, int imol_ligand, float x, float y, float z,
                                           float n_rmsd, bool use_conformers, unsigned int n_conformers);
+
+   //! Ligand Fitting
+   //!
+   //! @return a vector of indices of molecules for the best fitting ligands to this blob.
+   std::vector<int> fit_ligand(int imol_protein, int imol_map, int imol_ligand,
+                               float n_rmsd, bool use_conformers, unsigned int n_conformers);
 
    //! "Jiggle-Fit Ligand"
    //! if n_trials is 0, then a sensible default value will be used.
