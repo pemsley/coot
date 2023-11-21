@@ -4700,7 +4700,7 @@ string   static std::string sessionid;
    static gboolean render(bool render_to_screendump_framebuffer_flag=false,
                           const std::string &output_file_name="coot-screendump.tga");
    static gboolean render_scene(); // like crows
-   enum { PASS_TYPE_STANDARD, PASS_TYPE_FOR_SHADOWS, PASS_TYPE_SSAO};
+   enum { PASS_TYPE_STANDARD, PASS_TYPE_GEN_SHADOW_MAP, PASS_TYPE_SSAO, PASS_TYPE_WITH_SHADOWS};
    static void render_scene_with_x_blur();
    static void render_scene_with_y_blur();
    static void render_scene_with_texture_combination_for_depth_blur();

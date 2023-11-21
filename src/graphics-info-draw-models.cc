@@ -278,9 +278,9 @@ graphics_info_t::draw_molecules_for_shadow_map(unsigned int light_index) {
 
    // ribbons
 
-   draw_meshed_generic_display_object_meshes(PASS_TYPE_FOR_SHADOWS); // draws generic objects
+   draw_meshed_generic_display_object_meshes(PASS_TYPE_GEN_SHADOW_MAP); // draws generic objects
 
-   draw_molecules_other_meshes(PASS_TYPE_FOR_SHADOWS); // draws the meshes in a molecules std::vector<Messh> meshes;
+   draw_molecules_other_meshes(PASS_TYPE_GEN_SHADOW_MAP); // draws the meshes in a molecules std::vector<Messh> meshes;
 
    // more stuff needs to be added here - see draw_molecules_for_ssao() (where they haven't been added either)
 }

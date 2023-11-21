@@ -406,7 +406,7 @@ model_molecule_meshes_t::draw_instances(Shader *shader_for_instanced_meshes_p,
       if (false)
          std::cout << "   calling mesh.draw_instanced() \"" << mesh.name << "\" with shader "
                    << "\"" << shader_for_instanced_meshes_p->name << "\"" << std::endl;
-      int pass_type = graphics_info_t::PASS_TYPE_FOR_SHADOWS;
+      int pass_type = graphics_info_t::PASS_TYPE_WITH_SHADOWS; // is this right?
       mesh.draw_instanced(pass_type, shader_for_instanced_meshes_p, mvp, view_rotation_matrix, lights, eye_position, background_colour,
                           do_depth_fog, transferred_colour_is_instanced,
                           do_pulse, do_rotate_z, pulsing_amplitude, pulsing_frequency,
