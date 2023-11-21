@@ -2112,7 +2112,7 @@ graphics_info_t::draw_unit_cells() {
 void
 graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_type) {
 
-   std::cout << "draw_meshed_generic_display_object_meshes() with pass_type " << pass_type << std::endl;
+   // std::cout << "draw_meshed_generic_display_object_meshes() with pass_type " << pass_type << std::endl;
 
    auto have_generic_display_objects_to_draw = [] () {
       bool generic_display_objects_to_draw = false;
@@ -2193,7 +2193,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
 
    if (pass_type == PASS_TYPE_WITH_SHADOWS) {
 
-      std::cout << "--------------------------- pass_type WITH SHADOWS!!!!!!!!!!!!!!!!!" << std::endl;
+      // std::cout << "--------------------------- pass_type WITH SHADOWS!!!!!!!!!!!!!!!!!" << std::endl;
       if (have_generic_display_objects_to_draw()) {
          glm::mat4 mvp = get_molecule_mvp();
          glm::mat4 model_rotation = get_model_rotation();
@@ -4433,7 +4433,7 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
 void
 graphics_info_t::render_3d_scene_with_shadows() {
 
-   std::cout << "render_3d_scene_with_shadows() --- start ---" << std::endl;
+   // std::cout << "render_3d_scene_with_shadows() --- start ---" << std::endl;
 
    // note: this function is called from render_scene_sans_depth_blur()
 
@@ -6729,13 +6729,14 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
 
    if (is_valid_map_molecule(imol_scroll)) {
       // use direction
-      if (direction == 1)
-         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
-      if (direction == -1)
-         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
+      if (direction ==  1) molecules[imol_scroll].pending_contour_level_change_count--;
+      if (direction == -1) molecules[imol_scroll].pending_contour_level_change_count++;
 
-      // std::cout << "INFO:: contour level for map " << imol_scroll << " is "
-      // << molecules[imol_scroll].contour_level << std::endl;
+      std::cout << "INFO:: contour level for map " << imol_scroll << " is "
+                << molecules[imol_scroll].contour_level
+                << " pending: " << molecules[imol_scroll].pending_contour_level_change_count
+                << std::endl;
+
       set_density_level_string(imol_scroll, molecules[imol_scroll].contour_level);
       display_density_level_this_image = 1;
 

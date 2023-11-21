@@ -680,8 +680,9 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
    shift_is_pressed = (modifier & GDK_SHIFT_MASK);
 
    bool handled = false;
-   std::cout << "on_glarea_scrolled() control_is_pressed " << control_is_pressed
-             << " shift_is_pressed " << shift_is_pressed << std::endl;
+   if (false)
+      std::cout << "on_glarea_scrolled() control_is_pressed " << control_is_pressed
+                << " shift_is_pressed " << shift_is_pressed << std::endl;
 
    if (control_is_pressed) {
       if (shift_is_pressed) {
