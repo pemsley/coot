@@ -62,6 +62,7 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
                               const std::vector<float> &expo) {
       // std::cout << "place_atom_in_grid " << pt.format() << std::endl;
       clipper::Coord_frac centre_f = pt.coord_frac(xmap.cell());
+      float box_radius_sqrd = box_radius * box_radius;
 
       clipper::Coord_frac box0(
                                centre_f.u() - box_radius/xmap.cell().descr().a(),
@@ -82,10 +83,11 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
                clipper::Coord_grid c_g = iw.coord();
                clipper::Coord_frac c_f = c_g.coord_frac(xmap.grid_sampling());
                clipper::Coord_orth c_o = c_f.coord_orth(xmap.cell());
-               float plength = clipper::Coord_orth::length(c_o, pt);
-               float z = plength/sigma;
-               float x_prime = - z * z;
-               if (plength < box_radius) {
+               // float plength = clipper::Coord_orth::length(c_o, pt);
+               float plength_sqrd = (c_o - pt).lengthsq();
+               float z_sqrd = plength_sqrd/(sigma*sigma);
+               float x_prime = - z_sqrd;
+               if (plength_sqrd < box_radius_sqrd) {
                   // int idx = float_to_expo_index(x_prime);
                   // float v = expo[idx];
                   float atomic_number_scaling = 1.0;
@@ -93,8 +95,8 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
                   xmap[iw] += v;
                   if (false)
                      std::cout << "adding " << v << " to " << c_g.format() << " from "
-                            << x_prime << " using z " << z << " x_prime " << x_prime
-                            << std::endl;
+                               << x_prime << " using z " << std::sqrt(z_sqrd) << " x_prime " << x_prime
+                               << std::endl;
                }
             }
          }
