@@ -5,36 +5,38 @@
 
 #include <clipper/ccp4/ccp4_map_io.h> // debugging mapout
 
+// Give this ex-lambda function a home?
+std::string get_first_residue_name(mmdb::Manager *mol) {
 
-   //! Ligand Fit
-   //! @return a vector or the best fitting ligands to this blob.
-   //! I am not yet clear what extra cut-offs and flags need to be added here.
+   std::string res_name;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               res_name = residue_p->GetResName();
+               break;
+            }
+         }
+         if (! res_name.empty()) break;
+      }
+   }
+   return res_name;
+}
+
+//! Ligand Fit
+//! @return a vector or the best fitting ligands to this blob.
+//! I am not yet clear what extra cut-offs and flags need to be added here.
 std::vector<int>
 molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int imol_ligand, float x, float y, float z,
                                              float n_rmsd,
                                              bool use_conformers, unsigned int n_conformers) {
 
-   auto get_first_residue_name = [] (mmdb::Manager *mol) {
-      std::string res_name;
-      int imod = 1;
-      mmdb::Model *model_p = mol->GetModel(imod);
-      if (model_p) {
-         int n_chains = model_p->GetNumberOfChains();
-         for (int ichain=0; ichain<n_chains; ichain++) {
-            mmdb::Chain *chain_p = model_p->GetChain(ichain);
-            int n_res = chain_p->GetNumberOfResidues();
-            for (int ires=0; ires<n_res; ires++) {
-               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-               if (residue_p) {
-                  res_name = residue_p->GetResName();
-                  break;
-               }
-            }
-            if (! res_name.empty()) break;
-         }
-      }
-      return res_name;
-   };
 
    std::vector<int> mol_list;
 
@@ -109,7 +111,7 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
                   if (false)
                      std::cout << "########## fit_ligand_right_here(): m has " << m.count_atoms() << " atoms " << std::endl;
                   mmdb::Manager *ligand_mol = m.pcmmdbmanager();
-                  
+
                   coot::hetify_residues_as_needed(ligand_mol);
                   atom_selection_container_t asc = make_asc(ligand_mol);
                   int imol_in_hope = molecules.size();
@@ -184,64 +186,79 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
             wlig.set_debug_wiggly_ligands();
 
             // 20231121-PE No thread pool. Add it here if needed
+            try {
 
-            coot::minimol::molecule mmol(molecules[imol_ligand].atom_sel.mol);
-            if (use_conformers) {
-               // bool optim_geom = true;
-               bool optim_geom = false;
-               for (unsigned int i_conf=0; i_conf<n_conformers; i_conf++) {
-                  wlig.install_simple_wiggly_ligand(&geom, mmol, imol_ligand, i_conf, optim_geom);
+               coot::minimol::molecule mmol(molecules[imol_ligand].atom_sel.mol);
+               std::string res_name = get_first_residue_name(molecules[imol_ligand].atom_sel.mol);
+               if (use_conformers) {
+                  // bool optim_geom = true;
+                  bool optim_geom = false;
+                  for (unsigned int i_conf=0; i_conf<n_conformers; i_conf++) {
+                     wlig.install_simple_wiggly_ligand(&geom, mmol, imol_ligand, i_conf, optim_geom);
+                  }
+               } else {
+                  mmdb::Manager *ligand_mol = molecules[imol_ligand].atom_sel.mol;
+                  wlig.install_ligand(ligand_mol);
                }
-            } else {
-               mmdb::Manager *ligand_mol = molecules[imol_ligand].atom_sel.mol;
-               wlig.install_ligand(ligand_mol);
-            }
-            clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
-            wlig.import_map_from(xmap);
-            short int mask_waters_flag = true;
-            wlig.set_map_atom_mask_radius(2.0);  // Angstroms
-            mmdb::Manager *protein_mol = molecules[imol_protein].atom_sel.mol;
-            wlig.mask_map(protein_mol, mask_waters_flag);
+               clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+               wlig.import_map_from(xmap);
+               short int mask_waters_flag = true;
+               wlig.set_map_atom_mask_radius(2.0);  // Angstroms
+               mmdb::Manager *protein_mol = molecules[imol_protein].atom_sel.mol;
+               wlig.mask_map(protein_mol, mask_waters_flag);
 
-            float ligand_acceptable_fit_fraction = 0.75;
-            int find_ligand_n_top_ligands = 10;
+               float ligand_acceptable_fit_fraction = 0.75;
+               int find_ligand_n_top_ligands = 10;
 
-            wlig.find_clusters(n_rmsd);  // trashes the xmap
-            wlig.set_acceptable_fit_fraction(ligand_acceptable_fit_fraction);
-            wlig.fit_ligands_to_clusters(find_ligand_n_top_ligands); // 10 clusters
+               wlig.find_clusters(n_rmsd);  // trashes the xmap
+               wlig.set_acceptable_fit_fraction(ligand_acceptable_fit_fraction);
+               wlig.fit_ligands_to_clusters(find_ligand_n_top_ligands); // 10 clusters
 
-            // now add in the solution ligands: 20231121-PE (What did I mean by this?)
-            int n_clusters = wlig.n_clusters_final();
+               // now add in the solution ligands: 20231121-PE (What did I mean by this?)
+               int n_clusters = wlig.n_clusters_final();
 
-            coot::minimol::molecule m;
-            for (int iclust=0; iclust<n_clusters; iclust++) {
+               coot::minimol::molecule m;
+               for (int iclust=0; iclust<n_clusters; iclust++) {
 
-               float frac_lim = 0.7;
-               float correl_frac_lim = 0.9;
-               bool find_ligand_multiple_solutions_per_cluster_flag = true;
+                  float frac_lim = 0.7;
+                  float correl_frac_lim = 0.9;
+                  bool find_ligand_multiple_solutions_per_cluster_flag = true;
 
-               // nino-mode
-               unsigned int nlc = wlig.n_ligands_for_cluster(iclust, frac_lim);
-               wlig.score_and_resort_using_correlation(iclust, nlc);
+                  // nino-mode
+                  unsigned int nlc = wlig.n_ligands_for_cluster(iclust, frac_lim);
+                  wlig.score_and_resort_using_correlation(iclust, nlc);
 
-               // false is the default case
-               if (find_ligand_multiple_solutions_per_cluster_flag == false) {
-                  nlc = 1;
-                  correl_frac_lim = 0.975;
-               }
+                  // false is the default case
+                  if (find_ligand_multiple_solutions_per_cluster_flag == false) {
+                     nlc = 1;
+                     correl_frac_lim = 0.975;
+                  }
 
-               if (nlc > 12) nlc = 12; // arbitrary limit of max 12 solutions per cluster
-               float tolerance = 20.0;
-               // limit_solutions should be run only after a post-correlation sort.
-               //
-               wlig.limit_solutions(iclust, correl_frac_lim, nlc, tolerance, true);
+                  if (nlc > 12) nlc = 12; // arbitrary limit of max 12 solutions per cluster
+                  float tolerance = 20.0;
+                  // limit_solutions should be run only after a post-correlation sort.
+                  //
+                  wlig.limit_solutions(iclust, correl_frac_lim, nlc, tolerance, true);
 
-               for (unsigned int isol=0; isol<nlc; isol++) {
-                  m = wlig.get_solution(isol, iclust);
-                  if (! m.is_empty()) {
-                     coot::minimol::molecule m = wlig.get_solution(isol, iclust);
+                  for (unsigned int isol=0; isol<nlc; isol++) {
+                     m = wlig.get_solution(isol, iclust);
+                     if (! m.is_empty()) {
+                        std::cout << "------------------ found a solution " << isol << " for iclust " << iclust << std::endl;
+                        coot::minimol::molecule m = wlig.get_solution(isol, iclust);
+                        mmdb::Manager *ligand_mol = m.pcmmdbmanager();
+                        coot::hetify_residues_as_needed(ligand_mol);
+                        atom_selection_container_t asc = make_asc(ligand_mol);
+                        int imol_in_hope = molecules.size();
+                        std::string name = "Fitted ligand " + res_name;
+                        coot::molecule_t mm(asc, imol_in_hope, name);
+                        molecules.push_back(mm);
+                        mol_list.push_back(imol_in_hope);
+                     }
                   }
                }
+            }
+            catch (const std::runtime_error &e) {
+               std::cout << "WARNING::" << e.what() << std::endl;
             }
          }
       }

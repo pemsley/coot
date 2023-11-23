@@ -1552,6 +1552,38 @@ int test_ligand_fitting_here(molecules_container_t &mc) {
    return status;
 }
 
+int test_ligand_fitting_in_map(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol_ligand = mc.get_monomer("GLC");
+
+   if (mc.is_valid_model_molecule(imol)) {
+      if (mc.is_valid_model_molecule(imol_ligand)) {
+         std::vector<int> solutions = mc.fit_ligand(imol, imol_map, imol_ligand, 1.0, 300, true);
+         std::cout << "found " << solutions.size() << " ligand fitting solutions" << std::endl;
+         if (solutions.size() > 0)
+            status = 1;
+
+         if (true) { // let's write out those solutions
+            std::vector<int>::const_iterator it;
+            for (it=solutions.begin(); it!=solutions.end(); ++it) {
+               std::string fn("Ligand-sol-" + coot::util::int_to_string(*it) + ".pdb");
+               mc.write_coordinates(*it, fn);
+            }
+         }
+      }
+   }
+
+   return status;
+
+}
+
+
+
 int test_jiggle_fit(molecules_container_t &mc) {
 
    // 20221119-PE this needs a better test. I need to construct a problem
@@ -3906,6 +3938,8 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
+   status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
+
    // status += run_test(test_residues_near_residues, "residues near residues",    mc);
 
    // status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
@@ -3916,7 +3950,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_ncs_chains,      "NCS chains",         mc);
 
-   status += run_test(test_omega_5tig_cif,      "Omega for 5tig cif",         mc);
+   // status += run_test(test_omega_5tig_cif,      "Omega for 5tig cif",         mc);
 
    // status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
 
