@@ -14,7 +14,24 @@ C++ 17 and git for CCP4i2
 
 8 items
 
+Moorhen tutorial 4 is (shold be) nice for key-binding (flip and rotamer)
+
+What is "J" doing? Not auto-fit rotamer!
+
+Where is pepflip Q in the key-bindings?
+
+Centre on a N in the mainchain "Flip peptide" flips the wrong peptide!
+
+Update the validation box when "flip peptide" button is pressed.
+
+"Use Trans-peptide restraints" button doesn't work (the button is on again
+when the dialog is displayed again).
+
+--auto moorhen-tutorial-4.mtz doesn't auto-read the Fobs colums, so the
+auto-updating maps doesn't work sadly.
+
 Rewrite moorhen ligand fitting to use a vector of threads, not the thread pool.
+* Done - sort of. Ligand geometry optimization has been removed. Seems fine.
 
 Bug:: Preferences Others Fonts - the Atom Label Radiobuttons are not correctly lit.
 
