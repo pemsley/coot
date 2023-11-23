@@ -15377,6 +15377,18 @@ Move a copy?</property>
                 <property name="title" translatable="yes">Change Scroll-wheel map</property>
               </object>
             </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">bracketleft</property>
+                <property name="title" translatable="yes">Decrease Map Radius</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">bracketright</property>
+                <property name="title" translatable="yes">Increase Map Radius</property>
+              </object>
+            </child>
           </object>
         </child>
 
@@ -15436,18 +15448,6 @@ Move a copy?</property>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Shift&gt;E</property>
                 <property name="title" translatable="yes">Chain Refine</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">bracketleft</property>
-                <property name="title" translatable="yes">Decrease Map Radius</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">bracketright</property>
-                <property name="title" translatable="yes">Increase Map Radius</property>
               </object>
             </child>
           </object>
