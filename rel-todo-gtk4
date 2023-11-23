@@ -6,88 +6,101 @@
  - Validation Plots
  - Ramachandran Plot
 
- - Check QED is now part of RDKit.
-
-C++ 17 and git for CCP4i2
-
 ----
 
-8 items
+GUI: Moorhen tutorial 4 is (shold be) nice for key-binding (flip and rotamer)
 
-Moorhen tutorial 4 is (shold be) nice for key-binding (flip and rotamer)
+GUI: What is "J" doing? Not auto-fit rotamer!
 
-What is "J" doing? Not auto-fit rotamer!
+GUI: Where is pepflip Q in the key-bindings?
 
-Where is pepflip Q in the key-bindings?
+GUI: Centre on a N in the mainchain "Flip peptide" flips the wrong peptide!
 
-Centre on a N in the mainchain "Flip peptide" flips the wrong peptide!
+GUI: Update the validation box when "flip peptide" button is pressed.
 
-Update the validation box when "flip peptide" button is pressed.
+GUI: "Use Trans-peptide restraints" button doesn't work (the button is on again
+    when the dialog is displayed again).
 
-"Use Trans-peptide restraints" button doesn't work (the button is on again
-when the dialog is displayed again).
+GUI: --auto moorhen-tutorial-4.mtz doesn't auto-read the Fobs colums, so the
+     auto-updating maps doesn't work sadly.
 
---auto moorhen-tutorial-4.mtz doesn't auto-read the Fobs colums, so the
-auto-updating maps doesn't work sadly.
+GUI: Bug:: Preferences Others Fonts - the Atom Label Radiobuttons are not correctly lit.
 
-Rewrite moorhen ligand fitting to use a vector of threads, not the thread pool.
+GUI: Look at the terminal output when using the Preferences dialog. Is it all needed?
+
+GUI: Symmetry by molecule: removed from UI. Buggy. Needs a fix.
+
+GUI: Does "Fetch PDB & Map using EDS" work with Updating maps? is auto_read_mtz() setting
+     the Fobs, sigFobs and Rfree?
+
+GUI: Martin Moncrieffe: distance and angles on Mac.
+
+GUI: Use "Trackpad-mode" rather than __APPLE__ for mouse bindings
+
+GUI: Cryo-EM -> Mask Map by Chain for 7vvl.
+
+GUI: Quick save as should save the shader settings
+
+GUI: Try Quick save as on a mac and restore settings - the graphics window size is wrong.
+
+GUI: Cryo-EM module: Add Toggle switch for auto-recontour map
+
+GUI: Renumber residue range on a molecule that is not the first molecule ::: 0.6
+
+GUI: When I Open Coords I have a option to choose coordinate files.
+     When I Auto-open MTZ I dont have a option to choose mtz files.
+
+GUI: Fix the undo molecule chooser (have 2 molecules with edits)
+
+GUI: Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
+
+GUI: Rotate/Translate <fragment> doesn't work.
+
+GUI: No reaction to Aligment vs PIR (no PIR was loaded)
+
+Moorhen: rewrite ligand fitting to use a vector of threads, not the thread pool.
 * Done - sort of. Ligand geometry optimization has been removed. Seems fine.
-
-Bug:: Preferences Others Fonts - the Atom Label Radiobuttons are not correctly lit.
-
-Look at the terminal output when using the Preferences dialog. Is it all needed?
-
-Symmetry by molecule: removed from UI. Buggy. Needs a fix.
-
-Does "Fetch PDB & Map using EDS" work with Updating maps?
-
-Martin Moncrieffe: distance and angles on Mac.
-
-Cryo-EM module: Add Toggle switch for auto-recontour map
 
 Moorhen: Export dictionary as string
 
 Moorhen: replace fragment: does it take the vertical bar?
-https://github.com/moorhen-coot/Moorhen/issues/13
+         https://github.com/moorhen-coot/Moorhen/issues/13
+* Fixed?
 
 Moorhen: does get_bonds_mesh_instanced() take the vertical bar?
+* Fixed?
 
-Moorhen: Export input dictionary as string (needs to store result of file-to-string)
+Moorhen: Export input dictionary as string
+         (perhaps write to a virtual file and then run file_to_string and return the result)
 
 Find some Cryo-EM ligand for demo at the ligands meeting.
 * I found a couple so far.
 
-cif parser fail for 6eoj from the PDBe - display as CAs.
-* set_use_gemmi_as_model_parser_xxx(1) fixes it
+Note: mmdb cif parser fails for 6eoj from the PDBe - display as CAs.
+* set_use_gemmi_as_model_molecule_parser(1) fixes it.
 
-Don't draw rama ball when intermediate atoms are from edit chi angles (and some others
-presumably).
+Graphics: Don't draw rama balls when intermediate atoms are from edit chi angles (and
+          some others presumably).
 
-Moorhen: Request: electrostatic surface.
+Graphics: Rigid-body refine the tutorial A chain. It used to display an intermediate
+          atoms representation. What happens now and is that what you want?
 
-Make the CMakefile install chapi
+Moorhen: Request: electrostatic surface. What happens when you put the chages
+         on a Gaussian surface?
 
-Reading cif file with --pdb ~/Desktop/ejd/thing.cif seems borked (no file in file browser)
+Libcootapi: Make the CMakefile install chapi
 
-Cryo-EM -> Mask Map by Chain for 7vvl.
+Libcootapi: Make the CMakefile install findwaters and findligands
 
-Quick save as should save the shader settings
+Fun: flattening difference map peaks animation:
+        find peak and negative peaks in the
+        current diff-map - previous diff-map difference map
+        Use those peaks for particle animation.
+        Make a moorhen function for these.
 
-Try Quick save as on a mac and restore settings - the graphics window size is wrong.
+Science: middle of blob for EM fitting, try 3908?
 
-Rigid-body refine the tutorial A chain. It used to display an intermediate atoms
-representation. What happens now and is that what you want?
-
-Renumber residue range on a molecule that is not the first molecule ::: 0.6
-
-Fix the undo molecule chooser (have 2 molecules with edits)
-
-When I Open Coords I have a option to choose c oordinate files.
-When I Auto-open MTZ I dont have a option to choose mtz files.
-
-Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
-
-Rotate/Translate <fragment> doesn't work.
+Science: analytical gradients for Gaussian surfaces
 
 ---- older issues ---
 
@@ -101,33 +114,28 @@ Typical example of "what to do?"
     for rotation/translation
   - Chatting with Jakub about Shortcuts but making no progress
 
-Ribbons don't cast shadows.
+Graphics: Ribbons don't cast shadows.
 
-No reaction to Aligment vs PIR (no PIR was loaded)
-
-Size and user-defined "screen axis" displacement of atom labels, e.g. [0,0,5] to bring
-the label towards the camera.
+Graphics: Size and user-defined "screen axis" displacement of atom labels, e.g. [0,0,5] to bring
+          the label towards the camera.
 
 Issue 67:
-On reflection, I will add a function that allows the user to override Coot's attempt to determine the EM-state of the map.
+On reflection, I will add a function that allows the user to override Coot's attempt to determine
+the EM-state of the map.
 
 Layla: make python setup be available for Coot and Layla - put it in its own directory. So that layla
-is not linked with src files.
+       is not linked with src files.
 
 Rob's problematic links
 * Need details.
 
 startup with default map opacity.
 
-Jakub: sugar representation in RDKit and layla? (add it?)
+Jakub: sugar representation in RDKit and layla? (add it?). Tricky.
 
 Where is Make Link? ::: 1.5
 * Needs user-defined click click. Just do it in C++?
 * Not that Make Link via Acedrg also needs user-defined click click (or a rewrite).
-
-Colour rules (like Moorhen) need to be added to the Coot API.
-
-Pyrogen needs to work ::: 2
 
 Greg Crichlow cifs
 
@@ -153,8 +161,6 @@ Test are in place. Now try again with the ligand orientation.
 
 What about coot --no-graphics?
 
-What about coot --version?
-
 Fix crash on coot.coot_real_exit(0)
 OK, so framebuffers are being deconstructed after call to exit().
 It seem that framebuffers need to be deconstructed while the GL context is valid.
@@ -167,12 +173,12 @@ Now I will revert.
 
 Put the gtk version in the build_type? Currently Linux-x86_64-ubuntu-21.10-gtk4
 
-I want to be able use "Fancy" shader path, but not use SSAO.
+Low Priority: I want to be able use "Fancy" shader path, but not use SSAO.
 
-Rotation in Proportional Editing
+Rotation in Proportional Editing. The makes sense on the domain level.
 
-Do we get Diegos for bad backbone neightbours O3' bumping int 05'? We
-would need them for validating RNA backbone torsions.
+Do we get Diegos for bad backbone neightbours O3' bumping int 05'? We would need them for validating
+RNA backbone torsions.
 
 Colour by chain (and dict?) but not by atom - i.e. how colour-by-chain used to work. This gives us
 a nicer representation of ribosomes.
@@ -182,20 +188,18 @@ doesn't show that it's undisplayed ::: 0.6
 
 Restore the draw() function in draw_ghost_bonds() in molecule-class-info.cc - needs a new class to do so.
 
-In Moorhen, it's nice to work with the contact dots on. When I improve the fit and remove a clash, I want
+Moorhen: it's nice to work with the contact dots on. When I improve the fit and remove a clash, I want
 to see something like the Moorhen points (but for the clash score, of course).
 
-Make auto_read_mtz return the column labels - for Moorhen.
-
-Updatating difference map for cryo-EM using ServalCat.
+Cryo-EM tool: Updatating difference map for cryo-EM using ServalCat.
 
 ---- "Do they need to work?"/"Nice to have one day" items -----
 
 locscale map viewer: colour map by other map?
 
-Get an example of images->map from takanori and check that it works well in Coot and in the tomogram image mode
+Get an example of images->map and check that it works well in Coot and in the tomogram image mode
 
-Find 3-10 helices and make restraints. Max Perutz wrote the first paper.
+Science: Find 3-10 helices and make restraints. Max Perutz wrote the first paper.
 
 Nice to have:
 "Resample map (say 11337 to 2.2) It takes a long time. There should be a progress bar.
@@ -1112,3 +1116,18 @@ Moorhen:: check waters: change the return type so that there is a label or some 
 
 Rebuild RDKit, check that Eigen is pulled in correctly.
 * Done.
+
+Reading cif file with --pdb ~/Desktop/ejd/thing.cif seems borked (no file in file browser)
+* Done.
+
+Make auto_read_mtz return the column labels - for Moorhen.
+Done.
+
+Pyrogen needs to work ::: 2
+* Planes work again.
+
+What about coot --version?
+* Done
+
+Colour rules (like Moorhen) need to be added to the Coot API.
+* Done
