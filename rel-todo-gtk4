@@ -18,6 +18,9 @@ Rewrite moorhen ligand fitting to use a vector of threads, not the thread pool.
 
 Bug:: Preferences Others Fonts - the Atom Label Radiobuttons are not correctly lit.
 
+Bug:: if rdkit has not been installed then it should fail in configure
+not when building lidia-core
+
 Look at the terminal output when using the Preferences dialog. Is it all needed?
 
 Symmetry by molecule: removed from UI. Buggy. Needs a fix.
