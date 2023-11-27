@@ -1009,13 +1009,17 @@ coot::ligand::get_solution(unsigned int isolution, unsigned int iclust) const {
       if (isolution < final_ligand[iclust].size()) {
 	 return final_ligand[iclust][isolution].first;
       } else {
-         std::cout << "ERROR:: in ligand::get_solution() bad isolution " << isolution << std::endl;
+         // this is not an error. More debugging
+         if (false)
+            std::cout << "ERROR:: in ligand::get_solution() bad isolution " << isolution << std::endl;
       }
    } else {
-      std::cout << "ERROR:: in ligand::get_solution(): iclust is " << iclust
-		<< " but final_size is " << final_ligand.size()
-		<< " with inital ligand size "
-		<< int(initial_ligand.size()) << std::endl;
+      // this is not an error. More debugging
+      if (false)
+         std::cout << "ERROR:: in ligand::get_solution(): iclust is " << iclust
+                   << " but final_size is " << final_ligand.size()
+                   << " with inital ligand size "
+                   << int(initial_ligand.size()) << std::endl;
    }
    return empty;
 }

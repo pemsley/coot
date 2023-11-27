@@ -2253,8 +2253,7 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 
 
       // std::vector<double> eigens = mat.eigen(true);
-
-      std::tuple<double, double, double> eigens = fast_eigens(mat, true);
+      //  std::tuple<double, double, double> eigens = fast_eigens(mat, true);
 
       // Let's now extract the values of a,b,c normalize them
       std::vector<double> abcd(4);

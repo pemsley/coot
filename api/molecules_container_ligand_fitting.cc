@@ -107,6 +107,7 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
                   unsigned int iclust = 0;
                   unsigned int isol   = 0;
                   coot::minimol::molecule m = wlig.get_solution(isol, iclust);
+                  int n_atoms = m.count_atoms();
 
                   if (false)
                      std::cout << "########## fit_ligand_right_here(): m has " << m.count_atoms() << " atoms " << std::endl;
@@ -182,8 +183,8 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
          if (is_valid_map_molecule(imol_map)) {
 
             coot::wligand wlig;
-            wlig.set_verbose_reporting();
-            wlig.set_debug_wiggly_ligands();
+            // wlig.set_verbose_reporting();
+            // wlig.set_debug_wiggly_ligands();
 
             // 20231121-PE No thread pool. Add it here if needed
             try {
@@ -243,7 +244,7 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
                   for (unsigned int isol=0; isol<nlc; isol++) {
                      m = wlig.get_solution(isol, iclust);
                      if (! m.is_empty()) {
-                        std::cout << "------------------ found a solution " << isol << " for iclust " << iclust << std::endl;
+                        // std::cout << "------------------ found a solution " << isol << " for iclust " << iclust << std::endl;
                         coot::minimol::molecule m = wlig.get_solution(isol, iclust);
                         mmdb::Manager *ligand_mol = m.pcmmdbmanager();
                         coot::hetify_residues_as_needed(ligand_mol);
@@ -318,6 +319,73 @@ molecules_container_t::fit_to_map_by_random_jiggle_with_blur_using_cid(int imol,
       std::cout << "WARNING:: " << imol_map << " is not a valid model"<< std::endl;
    }
    return r;
+}
+
+// move this into coot-utils, I think - maybe fast-eigens get_fast_eigenvalues_for_residue_atoms()
+#include "coot-utils/fast-eigens.hh"
+std::vector<double>
+get_eigenvalues(mmdb::Residue *residue_p) {
+
+   // c.f. coot::distortion_score_plane_internal()
+   std::vector<double> v;
+   std::vector<double> x, y, z;
+   if (residue_p) {
+      int n_atoms = residue_p->GetNumberOfAtoms();
+      for (int iat=0; iat<n_atoms; iat++) {
+         mmdb::Atom *at = residue_p->GetAtom(iat);
+         if (! at->isTer()) {
+            x.push_back(at->x);
+            y.push_back(at->y);
+            z.push_back(at->z);
+         }
+      }
+      if (! x.empty()) {
+         coot::stats::single stats_x(x);
+         coot::stats::single stats_y(y);
+         coot::stats::single stats_z(z);
+         double x_mean = stats_x.mean();
+         double y_mean = stats_y.mean();
+         double z_mean = stats_z.mean();
+         clipper::Matrix<double> mat(3,3);
+         for (int iat=0; iat<n_atoms; iat++) {
+            mmdb::Atom *at = residue_p->GetAtom(iat);
+            if (! at->isTer()) {
+               mat(0,0) += (double(at->x) - x_mean) * (double(at->x) - x_mean);
+               mat(1,1) += (double(at->y) - y_mean) * (double(at->y) - y_mean);
+               mat(2,2) += (double(at->z) - z_mean) * (double(at->z) - z_mean);
+               mat(0,1) += (double(at->x) - x_mean) * (double(at->y) - y_mean);
+               mat(0,2) += (double(at->x) - x_mean) * (double(at->z) - z_mean);
+               mat(1,2) += (double(at->y) - y_mean) * (double(at->z) - z_mean);
+            }
+         }
+         mat(1,0) = mat(0,1);
+         mat(2,0) = mat(0,2);
+         mat(2,1) = mat(1,2);
+         std::tuple<double, double, double> eigens = coot::fast_eigens(mat, false);
+         // std::cout << "eigens: " << std::get<0>(eigens) << " " << std::get<1>(eigens) << " " << std::get<2>(eigens) << std::endl;
+         v.push_back(std::get<0>(eigens));
+         v.push_back(std::get<1>(eigens));
+         v.push_back(std::get<2>(eigens));
+      }
+   }
+   return v;
+}
+
+std::vector<double>
+molecules_container_t::get_eigenvalues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) {
+
+   std::vector<double> v;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
+      mmdb::Residue *r = molecules[imol].get_residue(residue_spec);
+      if (r) {
+         v = ::get_eigenvalues(r);
+      } else {
+         std::cout << "WARNING:: get_eigenvalues(): No residue " << chain_id << " " << res_no
+                   << " in molecule " << imol << std::endl;
+      }
+   }
+   return v;
 }
 
 

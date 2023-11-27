@@ -8,6 +8,8 @@
 
 ----
 
+GUI: Crash when "Modified" button is pressed in the "Open Coords" dialog
+
 GUI: Moorhen tutorial 4 is (shold be) nice for key-binding (flip and rotamer)
 
 GUI: What is "J" doing? Not auto-fit rotamer!
@@ -58,6 +60,9 @@ GUI: Rotate/Translate <fragment> doesn't work.
 
 GUI: No reaction to Aligment vs PIR (no PIR was loaded)
 
+Moorhen: Use dictionary_residue_restraints_t::write_cif() and then file_to_string()
+   to make a string dictionary for Martin. Add a test.
+
 Moorhen: rewrite ligand fitting to use a vector of threads, not the thread pool.
 * Done - sort of. Ligand geometry optimization has been removed. Seems fine.
 
@@ -98,9 +103,18 @@ Fun: flattening difference map peaks animation:
         Use those peaks for particle animation.
         Make a moorhen function for these.
 
+Science: Get the Cryo-EM servalcat difference map working
+
+Useful: multi-thread the rmsd calculation, so that the Coot points
+        calculation in cryo-EM maps is fast(er).
+
 Science: middle of blob for EM fitting, try 3908?
 
 Science: analytical gradients for Gaussian surfaces
+
+What was this?
+//  std::tuple<double, double, double> eigens = fast_eigens(mat, true);
+Now commented.
 
 ---- older issues ---
 

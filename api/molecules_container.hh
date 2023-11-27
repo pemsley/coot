@@ -374,6 +374,9 @@ public:
    //! @return 1 on successful closure and 0 on failure to close
    int close_molecule(int imol);
 
+   //! @return the eigenvalues of the atoms in the specified residue
+   std::vector<double> get_eigenvalues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
+
    //! @return the mesh of a unit solid cube at the origin
    coot::simple_mesh_t test_origin_cube() const;
 

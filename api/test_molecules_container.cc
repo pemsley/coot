@@ -1543,7 +1543,7 @@ int test_ligand_fitting_here(molecules_container_t &mc) {
             }
          }
       } else {
-         std::cout << "debug:: test_fit_ligand() failed to get model for ligand " << imol_ligand << std::endl;
+         std::cout << "debug:: test_ligand_fitting_here() failed to get model for ligand " << imol_ligand << std::endl;
       }
    }
    mc.close_molecule(imol);
@@ -1557,24 +1557,46 @@ int test_ligand_fitting_in_map(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
+   auto largest_eigenvalue = [] (const std::vector<double> &evs) {
+      double l = 0.0;
+      for (unsigned int i=0; i<evs.size(); i++)
+         if (evs[i] > l) l = evs[i];
+      return l;
+   };
+
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
    int imol_ligand = mc.get_monomer("GLC");
 
    if (mc.is_valid_model_molecule(imol)) {
       if (mc.is_valid_model_molecule(imol_ligand)) {
-         std::vector<int> solutions = mc.fit_ligand(imol, imol_map, imol_ligand, 1.0, 300, true);
+         std::vector<int> solutions = mc.fit_ligand(imol, imol_map, imol_ligand, 1.0, true, 30);
          std::cout << "found " << solutions.size() << " ligand fitting solutions" << std::endl;
-         if (solutions.size() > 0)
-            status = 1;
 
-         if (true) { // let's write out those solutions
-            std::vector<int>::const_iterator it;
-            for (it=solutions.begin(); it!=solutions.end(); ++it) {
-               std::string fn("Ligand-sol-" + coot::util::int_to_string(*it) + ".pdb");
-               mc.write_coordinates(*it, fn);
+         // check that these solutions have different eigen values (because they
+         // are different conformers)
+         std::vector<double> ligands_largest_eigenvector;
+         std::vector<int>::const_iterator it;
+         for (it=solutions.begin(); it!=solutions.end(); ++it) {
+            int imol_lig = *it;
+            if (false) { // let's write out those solutions
+               std::string fn("Ligand-sol-" + coot::util::int_to_string(imol_lig) + ".pdb");
+               mc.write_coordinates(imol_lig, fn);
             }
+            auto eigenvalues = mc.get_eigenvalues(imol_lig, "A", 1, "");
+            double f = largest_eigenvalue(eigenvalues);
+            ligands_largest_eigenvector.push_back(f);
          }
+
+         if (false)
+            for (unsigned int ii=0; ii<ligands_largest_eigenvector.size(); ii++)
+               std::cout << "Largest-ev: " << ii << " " << ligands_largest_eigenvector[ii] << std::endl;
+
+         coot::stats::single ss(ligands_largest_eigenvector);
+         double sd = std::sqrt(ss.variance());
+         std::cout << "EV sd " << sd << std::endl;
+         if (sd > 0.001)
+            status = 1;
       }
    }
 
