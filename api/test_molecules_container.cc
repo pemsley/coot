@@ -631,6 +631,110 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
    return status;
 }
 
+int test_rsr_using_multi_atom_cid(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // this can be a coot::utils function
+   //
+   auto get_n_diffs = [] (mmdb::Manager *mol, mmdb::Manager *mol_orig) {
+
+      int n_checked = 0;
+      int n_diffs = 0;
+      int imod = 1;
+      mmdb::Model *model_p_1 = mol->GetModel(imod);
+      if (model_p_1) {
+         mmdb::Model *model_p_2 = mol_orig->GetModel(imod);
+         if (model_p_2) {
+            int n_chains_1 = model_p_1->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains_1; ichain++) {
+               mmdb::Chain *chain_p_1 = model_p_1->GetChain(ichain);
+               int n_chains_2 = model_p_2->GetNumberOfChains();
+               for (int jchain=0; jchain<n_chains_2; jchain++) {
+                  mmdb::Chain *chain_p_2 = model_p_2->GetChain(jchain);
+                  int n_res_1 = chain_p_1->GetNumberOfResidues();
+                  int n_res_2 = chain_p_2->GetNumberOfResidues();
+
+                  for (int ires=0; ires<n_res_1; ires++) {
+                     mmdb::Residue *residue_p_1 = chain_p_1->GetResidue(ires);
+                     if (residue_p_1) {
+                        int seqnum_1 = residue_p_1->GetSeqNum();
+                        std::string ins_code_1 = residue_p_1->GetInsCode();
+
+                        for (int jres=0; jres<n_res_2; jres++) {
+                           mmdb::Residue *residue_p_2 = chain_p_2->GetResidue(jres);
+                           if (residue_p_2) {
+                              int seqnum_2 = residue_p_2->GetSeqNum();
+                              std::string ins_code_2 = residue_p_2->GetInsCode();
+
+                              if (seqnum_1 ==  seqnum_2) {
+                                 if (ins_code_1 == ins_code_2) {
+                                    std::string rn_1 = residue_p_1->GetResName();
+                                    std::string rn_2 = residue_p_2->GetResName();
+                                    if (rn_1 == rn_2) {
+
+                                       int n_atoms_1 = residue_p_1->GetNumberOfAtoms();
+                                       for (int iat=0; iat<n_atoms_1; iat++) {
+                                          mmdb::Atom *at_1 = residue_p_1->GetAtom(iat);
+                                          if (! at_1->isTer()) {
+                                             std::string atom_name_1(at_1->GetAtomName());
+                                             std::string alt_conf_1(at_1->altLoc);
+
+                                             int n_atoms_2 = residue_p_2->GetNumberOfAtoms();
+                                             for (int jat=0; jat<n_atoms_2; jat++) {
+                                                mmdb::Atom *at_2 = residue_p_2->GetAtom(jat);
+                                                if (! at_2->isTer()) {
+                                                   std::string atom_name_2(at_2->GetAtomName());
+                                                   std::string alt_conf_2(at_2->altLoc);
+                                                   if (atom_name_1 == atom_name_2) {
+                                                      if (alt_conf_1 == alt_conf_2) {
+                                                         n_checked++;
+                                                         float dx = at_1->x - at_2->x;
+                                                         float dy = at_1->y - at_2->y;
+                                                         float dz = at_1->z - at_2->z;
+                                                         if ((fabsf(dx) + fabsf(dy) + fabsf(dz)) > 0.01)
+                                                            n_diffs++;
+                                                      }
+                                                   }
+                                                }
+                                             }
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+      // std::cout << "n_diffs: " << n_diffs << " n_checked: " << n_checked << std::endl;
+      return n_diffs;
+   };
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
+   mc.set_imol_refinement_map(imol_map);
+   int n_cycles = 1000;
+   std::string mode = "SPHERE";
+   std::string multi_cid = "//A/10";
+   mmdb::Manager *mol = mc.get_mol(imol);
+   mmdb::Manager *mol_orig = coot::util::copy_molecule(mol);
+   mc.refine_residues_using_atom_cid(imol, multi_cid, mode, n_cycles);
+   int n_diffs_1 = get_n_diffs(mol, mol_orig);
+   multi_cid = "//A/10||//A/20";
+   mc.refine_residues_using_atom_cid(imol, multi_cid, mode, n_cycles);
+   int n_diffs_2 = get_n_diffs(mol, mol_orig);
+   if (n_diffs_2 > (n_diffs_1 + 10)) status = 1;
+
+   return status;
+}
+
+
 int test_add_terminal_residue(molecules_container_t &mc) {
 
    auto mmdb_to_cartesian = [] (mmdb::Atom *at) {
@@ -3960,7 +4064,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
+   // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
+
+   status += run_test(test_rsr_using_multi_atom_cid, "multi-atom-cid RSR",    mc);
 
    // status += run_test(test_residues_near_residues, "residues near residues",    mc);
 

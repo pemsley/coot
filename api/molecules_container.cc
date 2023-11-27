@@ -2449,8 +2449,11 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map)) {
-         coot::atom_spec_t spec = atom_cid_to_atom_spec(imol, cid);
-         status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode, n_cycles);
+         // coot::atom_spec_t spec = atom_cid_to_atom_spec(imol, cid);
+         // status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode, n_cycles);
+         std::vector<mmdb::Residue *> rv = molecules[imol].select_residues(cid, mode);
+         std::string alt_conf = "";
+         status = refine_direct(imol, rv, alt_conf, n_cycles);
       } else {
          std::cout << "WARNING:: " << __FUNCTION__ << " Not a valid map molecule " << imol_refinement_map << std::endl;
       }

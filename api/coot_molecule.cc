@@ -586,6 +586,46 @@ coot::molecule_t::select_residues(const residue_spec_t &residue_spec, const std:
    return rv;
 }
 
+//!
+std::vector<mmdb::Residue *>
+coot::molecule_t::select_residues(const std::string &multi_cids, const std::string &mode) const {
+
+   auto set_to_vec = [] (std::set<mmdb::Residue *> rs) {
+      std::vector<mmdb::Residue *> rv;
+      std::set<mmdb::Residue *>::const_iterator it;
+      for (it=rs.begin(); it!=rs.end(); ++it)
+         rv.push_back(*it);
+      return rv;
+   };
+
+   std::vector<mmdb::Residue *> rv;
+   std::set<mmdb::Residue *> rs;
+
+   std::vector<std::string> v = coot::util::split_string(multi_cids, "||");
+   if (! v.empty()) {
+      for (const auto &cid : v) {
+         int selHnd = atom_sel.mol->NewSelection(); // d
+         mmdb::Residue **SelResidues;
+         int nSelResidues = 0;
+         atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_OR);
+         atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+         for (int i=0; i<nSelResidues; i++) {
+            mmdb::Residue *residue_p = SelResidues[i];
+            coot::residue_spec_t residue_spec(residue_p);
+            std::vector<mmdb::Residue *> neighbs = select_residues(residue_spec, mode);
+            for (unsigned int j=0; j<neighbs.size(); j++) {
+               rs.insert(neighbs[j]);
+            }
+         }
+         atom_sel.mol->DeleteSelection(selHnd);
+      }
+   }
+
+   rv = set_to_vec(rs);
+   return rv;
+}
+
+
 //! resno_start and resno_end are inclusive
 std::vector<mmdb::Residue *>
 coot::molecule_t::select_residues(const std::string &chain_id, int resno_start, int resno_end) const {
@@ -2195,6 +2235,13 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
    for (const auto &r : rv)
       local_residues.push_back(std::make_pair(false, r));
+
+   if (false) { // debugging
+      std::cout << "----------------------------- local_residues " << local_residues.size() << " --------" << std::endl;
+      for (unsigned int i=0; i<local_residues.size(); i++) {
+         std::cout << "                 " << i << " " << local_residues[i].second << std::endl;
+      }
+   }
 
    make_backup("refine_direct");
    mmdb::Manager *mol = atom_sel.mol;
