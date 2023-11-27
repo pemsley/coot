@@ -2008,7 +2008,7 @@ coot::molecule_t::delete_chain_using_atom_cid(const std::string &cid) {
 }
 
 int
-coot::molecule_t::delete_literal_using_cid(const std::string &atom_selection_cid) {
+coot::molecule_t::delete_literal_using_cid(const std::string &atom_selection_cids) {
 
    // cid is an atom selection, e.g. containing a residue range
 
@@ -2018,7 +2018,10 @@ coot::molecule_t::delete_literal_using_cid(const std::string &atom_selection_cid
    mmdb::Atom **selection_atoms = 0;
    int n_selection_atoms = 0;
    int selHnd = atom_sel.mol->NewSelection(); // d
-   atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
+   std::vector<std::string> v = coot::util::split_string(atom_selection_cids, "||");
+   if (! v.empty())
+      for (const auto &cid : v)
+         atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
    atom_sel.mol->GetSelIndex(selHnd, selection_atoms, n_selection_atoms);
 
    if (selection_atoms) {
@@ -2030,7 +2033,7 @@ coot::molecule_t::delete_literal_using_cid(const std::string &atom_selection_cid
    }
 
    if (! atoms_to_be_deleted.empty()) {
-      std::string s = std::string("delete-literal-using-cid ") + atom_selection_cid;
+      std::string s = std::string("delete-literal-using-cid ") + atom_selection_cids;
       make_backup(s);
 
       for (unsigned int iat=0; iat<atoms_to_be_deleted.size(); iat++) {
