@@ -4894,8 +4894,8 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
          edit_chi_edit_type mode = EDIT_CHI;
          int ires = wrapped_create_edit_chi_angles_dialog(res_type, mode);
          if (ires > 0) {
-            std::cout << "Use the 1,2,3,4 keys to select rotamers, 0 for "
-                      << "normal rotation mode" << std::endl;
+            // std::cout << "Use the 1,2,3,4 keys to select rotamers, 0 for "
+            //           << "normal rotation mode" << std::endl;
             make_moving_atoms_graphics_object(imol, residue_asc);
 
             if (do_probe_dots_on_rotamers_and_chis_flag) {
@@ -4908,9 +4908,9 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
          graphics_draw();
       }
    } else {
-      std::cout << "This residue does not have chi angles." << std::endl;
+      std::cout << "WARNING:: This residue does not have chi angles." << std::endl;
       std::cout << "Missing dictionary, perhaps? " << std::endl;
-      std::string s = "This residue does not have assigned torsions/chi angles.\n";
+      std::string s = "WARNING:: This residue does not have assigned torsions/chi angles.\n";
       s += "Missing dictionary, perhaps?\n";
       info_dialog(s); // checks use_graphics_interface_flag
    }
@@ -6880,5 +6880,34 @@ void graphics_info_t::hide_vertical_validation_frame_if_appropriate() {
    if(should_hide) {
       GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
       gtk_widget_set_visible(pane, FALSE);
+   }
+}
+
+
+void
+graphics_info_t::update_scroll_wheel_map_on_molecule_close() {
+
+   int imol_start = scroll_wheel_map;
+
+   if (is_valid_map_molecule(imol_start)) {
+      // nothing need be done
+   } else {
+      bool changed = false; // to a higher number
+      int m = molecules.size() - 1;
+      for(int imol=m; imol>=0; imol--) {
+	 if (imol > imol_start) {
+	    if (is_valid_map_molecule(imol)) {
+	       scroll_wheel_map = imol;
+	       changed = true;
+	    }
+	 } else {
+	    if (! changed) {
+	       if (is_valid_map_molecule(imol))
+		  scroll_wheel_map = imol;
+	    }
+	 }
+      }
+      // nothing was satisfactory then.
+      scroll_wheel_map = -1;
    }
 }

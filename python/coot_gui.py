@@ -1206,11 +1206,17 @@ def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter,
     vbox.append(label)
     vbox.append(combobox)
     vbox.append(hbox_for_entry)
-    hbox_buttons.append(ok_button)
     hbox_buttons.append(cancel_button)
+    hbox_buttons.append(ok_button)
     hbox_for_entry.append(entry_label)
     hbox_for_entry.append(entry)
     entry.set_text(default_entry_text)
+
+    for button in [ok_button, cancel_button]:
+        button.set_margin_start(8)
+        button.set_margin_end(2)
+        button.set_margin_top(10)
+        button.set_margin_bottom(10)
 
     c_button = None
     if use_check_button:
@@ -1224,8 +1230,7 @@ def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter,
 
     # button callbacks
     ok_button.connect("clicked", on_ok_button_clicked, entry, combobox,
-                      callback_function,
-                      c_button, alternative_callback_function)
+                      callback_function, c_button, alternative_callback_function)
     cancel_button.connect("clicked", delete_event)
 
     window.show()
@@ -5514,15 +5519,15 @@ def add_module_cryo_em_gui():
             if active_atom:
                 imol  = active_atom[0]
                 ch_id = active_atom[1]
-                n_trials = 50000
-                coot.fit_chain_to_map_by_random_jiggle_and_blur(imol, ch_id, n_trials, 2, 400)
+                n_trials = 5000
+                coot.fit_chain_to_map_by_random_jiggle_and_blur(imol, ch_id, n_trials, 3.2, 320)
 
         def jiggle_fit_molecule_with_fourier_filtering_wrapper(_simple_action, _arg2):
             active_atom = coot.active_residue_py()
             if active_atom:
                 imol  = active_atom[0]
-                n_trials = 50000
-                coot.fit_molecule_to_map_by_random_jiggle_and_blur(imol, n_trials, 5, 400)
+                n_trials = 5000
+                coot.fit_molecule_to_map_by_random_jiggle_and_blur(imol, n_trials, 3.2, 320)
 
         def sharpen_blur_map_gui_wrapper(_simple_action, _arg2):
             coot_sharpen_blur.sharpen_blur_map_gui()
@@ -5556,8 +5561,7 @@ def add_module_cryo_em_gui():
                 "",
                 "Select PIR Alignment file",
                 lambda imol, chain_id, target_sequence_pif_file:
-                coot.run_clustalw_alignment(imol, chain_id,
-                                            target_sequence_pif_file))
+                coot.run_clustalw_alignment(imol, chain_id, target_sequence_pif_file))
 
         menu = attach_module_menu_button("Cryo-EM")
 
@@ -5585,9 +5589,10 @@ def add_module_cryo_em_gui():
 
         # where does this one belong?
 
-        add_action("Interactive Nudge Residues...",
-            "interactive_nudge",
-            lambda _simple_action, _arg2: interactive_nudge_func())
+        # 20231029-PE remove this for now - restore later
+        # add_action("Interactive Nudge Residues...",
+        #     "interactive_nudge",
+        #    lambda _simple_action, _arg2: interactive_nudge_func())
 
         add_action("Jiggle-fit This Chain - Simple", "jiggle_fit_chain_simple",
                    jiggle_fit_chain_simple_wrapper)
@@ -5623,6 +5628,9 @@ def add_module_cryo_em_gui():
         add_action("Enable Auto-Recontour Map Mode",
             "set_auto_recontour_map",
             lambda _simple_action, _arg2: coot.set_auto_recontour_map(1))
+        add_action("Solidify Maps",
+                   "solidify_maps",
+                   lambda _simple_action, _arg2: solidify_maps("all"))
 
 
 def add_module_ccp4_gui():

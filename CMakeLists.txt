@@ -18,6 +18,7 @@ find_package(PNG REQUIRED)
 
 # The problem with the RDKit package is that it requires Eigen, which is not in the Coot build system
 # OK, well I will add it now and then have to change the build script later.
+# 20231023-PE I have added Eigen3 to the build-it-3-3 script.
 find_package(RDKit CONFIG COMPONENTS RDGeneral REQUIRED)
 find_package(Boost COMPONENTS iostreams system python regex thread serialization REQUIRED)
 find_package(glm REQUIRED)

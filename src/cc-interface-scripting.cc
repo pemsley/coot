@@ -98,3 +98,23 @@ void set_light_position_py(int light_id, float x, float y, float z) {
    glFlush();
 }
 #endif
+
+
+//! \brief enable or diable sounds (coot needs to have been compiled with sounds of course)
+void set_use_sounds(bool state) {
+   graphics_info_t::use_sounds = state;
+}
+
+//! no sounds
+void curmudgeon_mode() {
+   graphics_info_t::use_sounds = false;
+}
+
+
+void halloween() {
+
+   // make a graphical object
+   graphics_info_t g;
+   g.pumpkin();
+
+}

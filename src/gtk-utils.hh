@@ -32,13 +32,13 @@ class ProgressBarPopUp {
 	GtkProgressBar* progress_bar;
 
 	public:
-	ProgressBarPopUp(const char* title, const char* description) noexcept;
+    ProgressBarPopUp(const std::string &title, const std::string &description) noexcept;
     ProgressBarPopUp(const ProgressBarPopUp&) = delete;
     ProgressBarPopUp(ProgressBarPopUp&&) noexcept;
-    
+
 	void pulse() noexcept;
 	void set_fraction(float frac) noexcept;
-	void set_text(const char* text) noexcept;
+        void set_text(const std::string &text) noexcept;
     /// The popup gets automatically closed upon deallocation
 	~ProgressBarPopUp();
 };
@@ -56,7 +56,7 @@ class ProgressNotifier {
 	/// This allows for reporting progress in a thread-safe way
 	void pulse() noexcept;
 	/// This allows for changing the label in a thread-safe way
-	void set_text(const char* text) noexcept;
+        void set_text(const std::string &text) noexcept;
 
 	~ProgressNotifier();
 

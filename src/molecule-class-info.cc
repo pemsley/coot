@@ -1821,15 +1821,18 @@ molecule_class_info_t::initialize_coordinate_things_on_read_molecule_internal(st
 //                 << bonds_colour_map_rotation << " for imol no " << imol_no << std::endl;
    }
 
-   if (! is_undo_or_redo) {
-      // std::cout << "DEBUG:: not an undo/redo!\n";
+   graphics_info_t g;
+   if (g.use_graphics_interface_flag) {
 
-      std::cout << "----------------------- initialize_coordinate_things_on_read_molecule_internal() calls "
-                << "new_coords_mol_in_display_control_widget() " << std::endl;
-      new_coords_mol_in_display_control_widget(); // uses draw_it
+      if (! is_undo_or_redo) {
+         // std::cout << "DEBUG:: not an undo/redo!\n";
+         // std::cout << "----------------------- initialize_coordinate_things_on_read_molecule_internal() calls "
+         //           << "new_coords_mol_in_display_control_widget() " << std::endl;
+         new_coords_mol_in_display_control_widget(); // uses draw_it
+      }
+      graphics_info_t::refresh_validation_graph_model_list();
+      graphics_info_t::refresh_ramachandran_plot_model_list();
    }
-   graphics_info_t::refresh_validation_graph_model_list();
-   graphics_info_t::refresh_ramachandran_plot_model_list();
 }
 
 void
@@ -3772,6 +3775,24 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
 }
 
 void
+molecule_class_info_t::make_colour_by_ncs_related_chains(bool goodsell_mode) {
+
+   std::set<int> no_bonds_to_these_atoms; // should this be passed?
+   Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atoms, draw_hydrogens_flag);
+
+   int model_number = 1;
+   std::vector<std::vector<mmdb::Chain *> > ncs_related_chains = coot::ncs_related_chains(atom_sel.mol, model_number);
+   bool change_c_only_flag = false;
+   int draw_mode = 1; // not used currently (for atoms-and-bond or just atoms only)
+   bonds.do_colour_by_ncs_related_chain_bonds(atom_sel, imol_no, ncs_related_chains, draw_mode, change_c_only_flag, goodsell_mode);
+   bonds_box = bonds.make_graphical_bonds();
+   bonds_box_type = coot::COLOUR_BY_CHAIN_GOODSELL;
+   model_representation_mode = Mesh::representation_mode_t::BALLS_NOT_BONDS;
+   make_glsl_bonds_type_checked(__FUNCTION__);
+
+}
+
+void
 molecule_class_info_t::make_colour_by_molecule_bonds(bool force_rebonding) {
 
    //bool force_rebonding?
@@ -3806,11 +3827,11 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    std::string caller_s("NULL");
    if (caller) caller_s = std::string(caller);
 
-   if (debug)
+   if (true)
       std::cout << "debug:: plain make_bonds_type_checked() --------start--------- called by "
                 << caller_s << "() with is_intermediate_atoms_molecule: " << is_intermediate_atoms_molecule
                 << std::endl;
-   if (debug)
+   if (true)
       std::cout << "--------- make_bonds_type_checked() called with bonds_box_type "
                 << bonds_box_type << " vs "
                 << "NORMAL_BONDS " << coot::NORMAL_BONDS << " "
@@ -3940,13 +3961,20 @@ molecule_class_info_t::make_colour_table() const {
 
    std::vector<glm::vec4> colour_table(bonds_box.num_colours, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
 
+   if (debug_colour_table) {
+      std::cout << "make_colour_table(): A bonds_box.n_consolidated_atom_centres "
+                << bonds_box.n_consolidated_atom_centres << std::endl;
+      std::cout << "make_colour_table(): A bonds_box has " << bonds_box.num_colours << " colours" << std::endl;
+      std::cout << "make_colour_table(): A colour_table has size " << colour_table.size() << std::endl;
+   }
+
    for (int icol=0; icol<bonds_box.num_colours; icol++) {
       if (bonds_box_type == coot::COLOUR_BY_RAINBOW_BONDS) {
          glm::vec4 col = get_bond_colour_by_colour_wheel_position(icol, coot::COLOUR_BY_RAINBOW_BONDS);
          std::cout << "rainbow " << icol << glm::to_string(col) << std::endl;
          colour_table[icol] = col;
       } else {
-         // this is the old way of dogin user-defined colours. Now we use
+         // this is the old way of doing user-defined colours. Now we use
          // set_user_defined_atom_colour_by_selection()
          if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS) {
             if (! graphics_info_t::user_defined_colours.empty()) {
@@ -3964,19 +3992,32 @@ molecule_class_info_t::make_colour_table() const {
             }
          } else {
             if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
+
                // goodsell colours start at 100. There are 2 colours per chain, so for A and be chains the
                // colour indices are 100, 101, 102, 103.
-               // std::cout << "goodsell mode " << icol << " " << bonds_box.bonds_[icol].num_lines << std::endl;
-               if (bonds_box.bonds_[icol].num_lines > 0) {
+               if (debug_colour_table)
+                   std::cout << "make_colour_table(): goodsell mode icol: " << icol << " n_bonds: "
+                   << bonds_box.bonds_[icol].num_lines << std::endl;
+               // if (bonds_box.bonds_[icol].num_lines > 0) { // we need this to work if there are only atoms
+               if (true) {
+                  // the first 100 colours don't count in Goodsell mode.
+                  // coot::colour_holder ch(0.8, 0.5, 0.6);
+                  // coot::colour_holder ch(0.8, 0.2, 0.1);
                   coot::colour_holder ch(0.8, 0.5, 0.6);
                   int ic = icol - 100;
                   bool is_C = !(ic %2);
                   int chain_index = ic/2;
+                  if (debug_colour_table)
+                     std::cout << "  icol " << icol << " ic " << ic << " is_C: " << is_C
+                               << " chain_index " << chain_index << std::endl;
                   float rotation_amount = gcwrs * static_cast<float>(chain_index);
                   if (is_C)
                      ch.make_pale(goodselliness);
                   ch.rotate_by(rotation_amount);
                   colour_table[icol] = colour_holder_to_glm(ch);
+                  if (debug_colour_table)
+                     std::cout << "make_colour_table(): col " << icol << " "
+                               << glm::to_string(colour_table[icol]) << std::endl;
                }
             } else {
                if (bonds_box_type == coot::COLOUR_BY_B_FACTOR_BONDS ||
@@ -4002,6 +4043,11 @@ molecule_class_info_t::make_colour_table() const {
          }
       }
    }
+
+   if (debug_colour_table)
+      std::cout << "------------ make_colour_table(): B colour_table has size " << colour_table.size()
+                << std::endl;
+
    // 20220303-PE why does this happen? (it happens when refining the newly imported 3GP ligand)
    // I guess the bonds_box for the remaining atoms (there are none of them) is incorrectly constructed.
    // FIXME later.
@@ -4011,6 +4057,8 @@ molecule_class_info_t::make_colour_table() const {
    //                              const std::set<int> &no_bonds_to_these_atoms)
    //
    if (bonds_box.n_consolidated_atom_centres > bonds_box.num_colours) {
+      std::cout << "WARNING:: make_colour_table() n_consolidated_atom_centres is " << bonds_box.n_consolidated_atom_centres
+                << " therefore resizing the colour table " << std::endl;
       colour_table = std::vector<glm::vec4>(bonds_box.n_consolidated_atom_centres, glm::vec4(0.6f, 0.0f, 0.6f, 1.0f));
    }
 
@@ -4023,6 +4071,10 @@ molecule_class_info_t::make_colour_table() const {
                        }
                     };
 
+   if (debug_colour_table)
+      std::cout << "------------ make_colour_table(): C colour_table has size " << colour_table.size()
+                << std::endl;
+
    if (is_intermediate_atoms_molecule) {
       // pastelize the colour table
       float degree = 0.5f;
@@ -4031,14 +4083,22 @@ molecule_class_info_t::make_colour_table() const {
       }
    }
 
+   if (debug_colour_table)
+      std::cout << "------------ make_colour_table(): D colour_table has size " << colour_table.size()
+                << std::endl;
+
    if (debug_colour_table) {
-      std::cout << "------------ colour table for bonds_box_type " << bonds_box_type << " --------------------" << std::endl;
+      std::cout << "------------ make_colour_table(): E colour table for bonds_box_type " << bonds_box_type
+                << " ---------" << std::endl;
+      std::cout << "------------ make_colour_table(): E colour_table has size " << colour_table.size()
+                << std::endl;
       for (unsigned int icol=0; icol<colour_table.size(); icol++) {
          graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[icol];
          int n_bonds = ll.num_lines;
          float s = colour_table[icol][0] + colour_table[icol][1] + colour_table[icol][2];
-         std::cout << "colour-table index " << std::setw(2) << icol << " n-bonds: " << std::setw(4) << n_bonds << " "
-                   << glm::to_string(colour_table[icol]) << " br: " << s << std::endl;
+         std::cout << "make_colour_table(): colour-table index " << std::setw(2) << icol << " n-bonds: "
+                   << std::setw(4) << n_bonds << " " << glm::to_string(colour_table[icol]) << " br: " << s
+                   << std::endl;
       }
    }
 
@@ -4260,7 +4320,7 @@ molecule_class_info_t::get_glm_colour_func(int idx_col, int bonds_box_type) {
 
 void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
-   if (false)
+   if (true)
       std::cout << "debug:: make_glsl_bonds_type_checked() called by " << caller << "()"
                 << " with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
                 << std::endl;
@@ -4274,7 +4334,7 @@ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
    graphics_info_t::attach_buffers(); // needed.
 
-   make_meshes_from_bonds_box_instanced_version(); // instanced meshes, that is. Not today.
+   make_meshes_from_bonds_box_instanced_version();
 
    // make_mesh_from_bonds_box(); // non-instanced version - add lots of vectors of vertices and triangles
                                //

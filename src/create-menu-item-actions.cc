@@ -23,31 +23,13 @@
 
 extern "C" { void load_tutorial_model_and_data(); }
 
+
 extern "C" G_MODULE_EXPORT
 void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
                                                 int        response) {
-
    if (response == GTK_RESPONSE_ACCEPT) {
-      GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
-      GFile *file   = gtk_file_chooser_get_file(chooser);
-      char *file_name = g_file_get_path(file);
-
-#if 0
-      GSList *files_list = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog));
-      while (files_list) {
-
-         const char *fnc = static_cast<const char *>(files_list->data);
-         if (fnc) {
-            std::string fn(fnc);
-            handle_read_draw_molecule_with_recentre(fn, 0);
-         }
-         files_list = g_slist_next(files_list);
-      }
-#endif
-
       bool move_molecule_here_flag = false;
       bool recentre_on_read_pdb_flag = true; // was false;
-
       const char *r = gtk_file_chooser_get_choice(GTK_FILE_CHOOSER(dialog), "recentering");
       if (r) {
          std::string sr(r);
@@ -57,22 +39,31 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
             move_molecule_here_flag = true;
       }
 
-      if (file_name) {
-         std::cout << "INFO: " << file_name << " move_molecule_here_flag: " << move_molecule_here_flag
-                   << " recentre_on_read_pdb_flag " << recentre_on_read_pdb_flag << std::endl;
-         if (move_molecule_here_flag) {
-            handle_read_draw_molecule_and_move_molecule_here(file_name);
-         } else {
-            if (recentre_on_read_pdb_flag)
-               handle_read_draw_molecule_with_recentre(file_name, 1);
-            else
-               handle_read_draw_molecule_with_recentre(file_name, 0); // no recentre
+      GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
+      GListModel *lm = gtk_file_chooser_get_files(chooser);
+      guint n_items = g_list_model_get_n_items (lm);
+      if (n_items > 0) {
+         for (unsigned int i=0; i<n_items; i++) {
+            gpointer item = g_list_model_get_item(lm, i);
+            // std::cout << "   " << i << " " << item << std::endl;
+            GFile *f = G_FILE(item);
+            char *file_name = g_file_get_path(f);
+            // std::cout << "          file_name " << file_name << std::endl;
+            if (file_name) {
+               if (move_molecule_here_flag) {
+                  handle_read_draw_molecule_and_move_molecule_here(file_name);
+               } else {
+                  if (recentre_on_read_pdb_flag)
+                     handle_read_draw_molecule_with_recentre(file_name, 1);
+                  else
+                     handle_read_draw_molecule_with_recentre(file_name, 0); // no recentre
+               }
+            }
          }
       }
    }
    gtk_window_close(GTK_WINDOW(dialog));
 }
-
 
 void on_dataset_filechooser_dialog_response_gtk4(GtkDialog *dialog,
                                                  int        response) {
@@ -134,6 +125,7 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                                    ("_Open"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
+   gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
 
    // void gtk_file_chooser_add_choice (GtkFileChooser* chooser,
    //                                   const char* id,
@@ -262,7 +254,6 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_file_filter_add_pattern(filterselect, "*.mrc");
    gtk_file_filter_add_pattern(filterselect, "*.mrc.gz");
    gtk_file_filter_add_pattern(filterselect, "*.map.gz");
-   gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
    set_transient_for_main_window(dialog);
    gtk_widget_set_visible(dialog, TRUE);

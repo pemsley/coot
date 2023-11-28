@@ -525,5 +525,7 @@ on_big_blob_button_clicked(GtkButton *button,
 
    clipper::Coord_orth *p = (clipper::Coord_orth *) user_data;
    set_rotation_centre(p->x(), p->y(), p->z());
+   graphics_info_t g;
+   g.graphics_grab_focus();
 } 
 

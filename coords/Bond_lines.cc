@@ -7909,8 +7909,105 @@ Bond_lines_container::do_colour_by_chain_bonds_internals_goodsell_mode(int imol,
 	 }
       }
    }
+}
+
+
+void
+Bond_lines_container::do_colour_by_ncs_related_chain_bonds(const atom_selection_container_t &asc,
+                                                           int imol,
+                                                           std::vector<std::vector<mmdb::Chain *> > ncs_related_chains,
+                                                           int draw_mode,
+                                                           bool change_c_only_flag, bool goodsell_mode) {
+
+   if (true) { // test draw mode
+      do_colour_by_ncs_related_chains_atoms_only(asc, imol, ncs_related_chains, change_c_only_flag, goodsell_mode);
+   }
 
 }
+
+
+void
+Bond_lines_container::do_colour_by_ncs_related_chains_atoms_only(const atom_selection_container_t &asc,
+                                                                 int imol,
+                                                                 std::vector<std::vector<mmdb::Chain *> > ncs_related_chains,
+                                                                 bool change_c_only_flag, bool goodsell_mode) {
+
+   // fill these
+   atom_centres.clear();
+   atom_centres_colour.clear(); // vector of ints
+
+   std::map<mmdb::Chain *, int> chain_colour_indices;
+
+   int icol = 0;
+   for (const auto &vv : ncs_related_chains) {
+      for (const auto &ch : vv) {
+         chain_colour_indices[ch] = icol;
+      }
+      icol++;
+   }
+   int icol_max = icol;
+
+   auto colour_for_chain = [&chain_colour_indices] (mmdb::Chain *chain_p) {
+      int icol = 0;
+      std::map<mmdb::Chain *, int>::const_iterator it = chain_colour_indices.find(chain_p);
+      if (it != chain_colour_indices.end())
+         icol = it->second;
+      return icol;
+   };
+
+   int udd_user_defined_atom_colour_index_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+
+   for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = asc.mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        int icol_base = colour_for_chain(chain_p);
+                        icol = icol_base * 2 + 100; // this is the way for Goodsell colours
+                        bool is_C = false; // only care about this if goodsell mode
+                        if (goodsell_mode)
+                           is_C = strncmp(at->element, " C", 2);
+                        bool is_H_flag = (is_hydrogen(std::string(at->element)));
+                        coot::Cartesian pos(at->x, at->y, at->z);
+                        graphical_bonds_atom_info_t gbai(pos, iat, is_H_flag);
+                        gbai.atom_p = at;
+                        bool make_fat_atom = false; // because atoms are rendered as BALLS_NOT_BONDS, they don't
+                                                    // need fattening here.
+                        gbai.set_radius_scale_for_atom(at, make_fat_atom);
+                        if (std::string(at->residue->GetResName()) == "HOH") gbai.is_water = true;
+                        if (goodsell_mode) {
+                           if (is_C) icol += 1; // pastel versions
+                        }
+                        bonds_size_colour_check(icol);
+
+                        // does UDD colour trump the NCS chain colour?
+                        int idx_col_udd;
+                        if (at->GetUDData(udd_user_defined_atom_colour_index_handle, idx_col_udd) == mmdb::UDDATA_Ok)
+                           icol = idx_col_udd;
+
+                        atom_centres.push_back(gbai);
+                        atom_centres_colour.push_back(icol);
+
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   // bonds.resize(icol_max); // needed?
+}
+
 
 
 
@@ -8317,6 +8414,7 @@ Bond_lines_container::add_atom_centres(int imol,
             coot::Cartesian pos(at->x, at->y, at->z);
             graphical_bonds_atom_info_t gbai(pos, i, is_H_flag);
 
+            // Fat atoms are for atom in residues with no dictionary
             bool make_fat_atom = false;
             if (! have_dict_for_this_type)
                if (atom_colour_type != coot::COLOUR_BY_ATOM_TYPE)
@@ -8327,7 +8425,7 @@ Bond_lines_container::add_atom_centres(int imol,
             if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
                if (is_H_flag)
                   gbai.radius_scale += 0.18; // otherwise too tiny. At 0.25 Garib said that
-            // the spheres were too big.
+                                             // the spheres were too big.
 
             // No small atoms (H) in COLOUR_BY_B_FACTOR or COLOUR_BY_OCCUPANCY
             // because the add_bond function doesn't take a "thin" flag
@@ -8488,8 +8586,8 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
                                             const std::vector<int> &colours) {
 
    if (false) {
-      std::cout << "In graphical_bonds_container::add_atom_centres() adding "
-                << centres.size() << " atoms" << std::endl;
+      std::cout << "+++++++++++++++++++++ In graphical_bonds_container::add_atom_centres() adding "
+                << centres.size() << " atom centres groups" << std::endl;
       for (unsigned int i=0; i<centres.size(); i++)
          std::cout << "Adding atom centre for atom " << centres[i].atom_p << std::endl;
    }
@@ -8512,16 +8610,17 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
    //
    int col_idx_max = 1;
    for (int i=0; i<n_atom_centres_; i++) {
+      // std::cout << "add_atom_centres(): checking colours i " << i << " colours[i] " << colours[i] << std::endl;
       if (colours[i] > col_idx_max) {
          col_idx_max = colours[i];
       }
    }
    col_idx_max += 1;
 
-   std::vector<unsigned int> counts(col_idx_max); // is this allowed?
-   for (int i=0; i<col_idx_max; i++) {
-      counts[i] = 0;
-   }
+   std::cout << "debug:: in graphical_bonds_atom_info_t::add_atom_centres() col_idx_max "
+             << col_idx_max << std::endl;
+
+   std::vector<unsigned int> counts(col_idx_max, 0);
 
    for (int i=0; i<n_atom_centres_; i++)
       counts[colours[i]]++;
@@ -8529,12 +8628,11 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
    consolidated_atom_centres = new graphical_bonds_points_list<graphical_bonds_atom_info_t>[col_idx_max];
    n_consolidated_atom_centres = col_idx_max;
 
-   for (int i=0; i<col_idx_max; i++) {
-      consolidated_atom_centres[i] = graphical_bonds_points_list<graphical_bonds_atom_info_t>(counts[i]);
+   std::cout << "debug:: in graphical_bonds_atom_info_t::add_atom_centres() n_consolidated_atom_centres "
+             << n_consolidated_atom_centres << std::endl;
 
-      for (unsigned int ii=0; ii<consolidated_atom_centres[i].num_points; ii++) {
-      }
-   }
+   for (int i=0; i<col_idx_max; i++)
+      consolidated_atom_centres[i] = graphical_bonds_points_list<graphical_bonds_atom_info_t>(counts[i]);
 
    for (int i=0; i<n_atom_centres_; i++) {
       consolidated_atom_centres[colours[i]].add_point(atom_centres_[i]);

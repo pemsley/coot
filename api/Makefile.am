@@ -8,6 +8,7 @@ AM_CPPFLAGS = \
 	$(CLIPPER_CXXFLAGS)                 \
 	$(MMDB_CXXFLAGS)                    \
 	$(PYTHON_CPPFLAGS)                  \
+	$(CAIRO_CFLAGS)                     \
 	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS) \
 	$(COOT_WINDOWS_CFLAGS)
 
@@ -23,7 +24,9 @@ add-terminal-residue.hh  interfaces.hh              moorhen-h-bonds.hh          
 atom-pull.hh             rigid-body-fit.hh          svg-store-key.hh                       \
 phi-psi-prob.hh          saved-strand-info.hh       simple-molecule.hh                     \
 generic-3d-lines.hh      cell.hh                    coot-simple-molecule.hh                \
-api-cell.hh              bond-colour.hh             make-instanced-graphical-bonds.hh
+api-cell.hh              bond-colour.hh             make-instanced-graphical-bonds.hh      \
+symmetry-info.hh         instancing.hh              merge-molecule-results-info-t.hh       \
+coot_molecule_bonds.hh   clipper-ccp4-map-file-wrapper.hh
 
 lib_LTLIBRARIES=libcoot-api.la
 
@@ -80,6 +83,8 @@ test_molecules_container_LDFLAGS = ./libcoot-api.la \
    $(CLIPPER_LIBS) $(MMDB_LIBS) 
 
 # ---------- pythonic ------------------
+
+EXTRA_DIST = coot-headless-api.i
 
 dist_python_PYTHON = coot_headless_api.py
 

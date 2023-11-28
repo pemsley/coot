@@ -14,7 +14,6 @@ void
 make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add to this
                                                const graphical_bonds_container &gbc,
                                                coot::api_bond_colour_t bonds_box_type, // remove these one day
-                                               int udd_handle_bonded_type,
                                                float base_atom_radius,
                                                float base_bond_radius,
                                                unsigned int num_subdivisions,
@@ -65,9 +64,14 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
          bool do_it = true;  // everything is spherical for the moment.
 
          if (do_it) {
+
+            // radius_scale is 2 for waters and 4 for metals
+            //
             float scale = at_info.radius_scale;
             float sar = scale * base_atom_radius;
-            if (sar > 2.0f) sar = 2.0f;
+            // 20231113-PE should I check for waters for this limit?
+            if (at_info.is_water)
+               if (sar > 0.65) sar = 0.65f;
             glm::vec3 sc(sar, sar, sar);
             glm::vec3 t(at->x, at->y, at->z);
             coot::instancing_data_type_A_t idA(t, col, sc);
@@ -85,7 +89,6 @@ void
 make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, // add to this
                                                    const graphical_bonds_container &gbc,
                                                    coot::api_bond_colour_t bonds_box_type,
-                                                   int udd_handle_bonded_type,
                                                    float atom_radius,
                                                    float bond_radius,
                                                    unsigned int num_subdivisions,
@@ -148,7 +151,8 @@ make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, //
          glm::mat4 ori(1.0); // 20230114-PE needs fixing.
          float scale = 1.0;
          if (at_info.is_hydrogen_atom) scale *= 0.5;
-         if (at_info.is_water) scale *= 3.33;
+         // 20231113-PE get rid
+         // if (at_info.is_water) scale *= 3.33;
          float sar = scale * atom_radius;
          glm::vec3 sc(sar, sar, sar);
          coot::instancing_data_type_B_t id(t, col, sc, ori);
@@ -407,9 +411,9 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
 
       const graphical_bonds_container &gbc = bonds_box; // alias because it's named like that in Mesh-from-graphical-bonds
 
-      make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type,
-                                                     atom_radius, bond_radius, num_subdivisions, colour_table);
-      make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type, atom_radius,
+      make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
+                                                     num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, atom_radius,
                                                          bond_radius, num_subdivisions, colour_table);
 
       make_instanced_graphical_bonds_bonds(m, gbc, bond_radius, n_slices, n_stacks, colour_table);
@@ -445,10 +449,11 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
       bonds_box_type = coot::api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS____BONDS;
       std::cout << "---------------  in get_bonds_mesh_instanced() E mode is " << mode << " bonds_box_type is " << int(bonds_box_type) << std::endl;
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
-      make_instanced_graphical_bonds_spherical_atoms(m, bonds_box, bonds_box_type, udd_handle_bonded_type,
-                                                     atom_radius, bond_radius, num_subdivisions, colour_table);
-      make_instanced_graphical_bonds_hemispherical_atoms(m, bonds_box, bonds_box_type, udd_handle_bonded_type, atom_radius,
-                                                         bond_radius, num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_spherical_atoms(m, bonds_box, bonds_box_type, atom_radius, bond_radius,
+                                                     num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_hemispherical_atoms(m, bonds_box, bonds_box_type,
+                                                         atom_radius, bond_radius,
+                                                         num_subdivisions, colour_table);
       make_instanced_graphical_bonds_bonds(m, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
       make_graphical_bonds_cis_peptides(m.markup, bonds_box);
    }
@@ -459,7 +464,7 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
 
 
 coot::instanced_mesh_t
-coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode, const std::string &atom_selection_cid,
+coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode, const std::string &multi_cids,
                                                          coot::protein_geometry *geom, bool against_a_dark_background,
                                                          float bond_radius, float atom_radius_to_bond_width_ratio,
                                                          int  num_subdivisions,
@@ -494,15 +499,23 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
 
    coot::instanced_mesh_t m;
 
-   int sel_hnd = atom_sel.mol->NewSelection(); // d
-   atom_sel.mol->Select(sel_hnd, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
-   mmdb::Manager *new_mol = util::create_mmdbmanager_from_atom_selection(atom_sel.mol, sel_hnd, false);
+   std::vector<std::string> v = coot::util::split_string(multi_cids, "||");
+
+   int udd_atom_selection = atom_sel.mol->NewSelection(); // d
+   if (! v.empty()) {
+      for (const auto &cid : v) {
+         atom_sel.mol->Select(udd_atom_selection, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
+      }
+   }
+
+   mmdb::Manager *new_mol = util::create_mmdbmanager_from_atom_selection(atom_sel.mol, udd_atom_selection, false);
    atom_selection_container_t atom_sel_ligand = make_asc(new_mol); // cleared up at end of function
-   atom_sel.mol->DeleteSelection(sel_hnd);
+   atom_sel.mol->DeleteSelection(udd_atom_selection);
 
    if (true) {
       unsigned int n_atoms = count_atoms_in_mol(new_mol);
-      std::cout << "debug:: there are " << n_atoms << " in the atom selection: " << atom_selection_cid << std::endl;
+      std::cout << "debug:: in get_bonds_mesh_for_selection_instanced() there are " << n_atoms
+                << " in the atom selection: " << multi_cids << std::endl;
    }
 
    apply_user_defined_atom_colour_selections(indexed_user_defined_colour_selection_cids,
@@ -544,10 +557,10 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
 
       auto gbc = bonds.make_graphical_bonds();
 
-      make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type,
-                                                     atom_radius, bond_radius, num_subdivisions, colour_table);
-      make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, udd_handle_bonded_type, atom_radius,
-                                                         bond_radius, num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
+                                                     num_subdivisions, colour_table);
+      make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
+                                                         num_subdivisions, colour_table);
 
       make_instanced_graphical_bonds_bonds(m, gbc, bond_radius, n_slices, n_stacks, colour_table);
 

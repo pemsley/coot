@@ -390,6 +390,8 @@ namespace coot {
 				clipper::RTop_frac rtop_frac,
 				std::vector<int> pre_shift_abc);
 
+   std::vector<std::vector<mmdb::Chain *> > ncs_related_chains(mmdb::Manager *mol, int model_number);
+
    class close_residues_from_different_molecules_t {
       // Interacting Residues: Return all residues of mol1, mol2 that
       // have atoms that are closer that dist to atoms of mol2/mol1.

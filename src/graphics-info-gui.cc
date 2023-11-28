@@ -328,7 +328,7 @@ graphics_info_t::add_status_bar_text(const std::string &text) {
       if (statusbar) {
 	 std::string sbt = text;
 
-         std::cout << "pushing statusbar text: " << sbt << std::endl;
+         // std::cout << "pushing statusbar text: " << sbt << std::endl;
          gtk_statusbar_push(GTK_STATUSBAR(statusbar), statusbar_context_id, sbt.c_str());
 
       } else {
@@ -420,23 +420,22 @@ graphics_info_t::set_directory_for_filechooser(GtkWidget *filechooser) const {
 }
 
 void
-graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
+graphics_info_t::set_file_for_save_filechooser(GtkWidget *filechooser) const {
 
    // just like set_directory_for_filechooser actually, but we give
    // it the full filename, not just the directory.
 
    int imol = save_imol;
-   if (imol >= 0 && imol < graphics_info_t::n_molecules()) {
-      std::string stripped_name =
-         graphics_info_t::molecules[imol].stripped_save_name_suggestion();
+   if (imol >= 0 && imol < n_molecules()) {
+      std::string stripped_name = molecules[imol].stripped_save_name_suggestion();
       std::string full_name = stripped_name;
 
-      if (graphics_info_t::directory_for_saving_for_filechooser != "") {
+      if (directory_for_saving_for_filechooser != "") {
 	full_name = directory_for_saving_for_filechooser + stripped_name;
       } else {
-	// if we have a directory in the fileselection path we take this
-	if (graphics_info_t::directory_for_saving_for_fileselection != "") {
-	  directory_for_saving_for_filechooser = graphics_info_t::directory_for_saving_for_fileselection;
+
+	// if we have a directory in the filechooser path we take this
+	if (directory_for_saving_for_filechooser != "") {
 
 	} else {
 	  // otherwise we make one
@@ -447,35 +446,33 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
 	}
       }
 
-      if (false)
-	 std::cout << "INFO:: Setting fileselection with file: " << full_name
+      if (true)
+	 std::cout << "DEBUG:: Setting filechooser with file: " << full_name
 		   << std::endl;
+
+      // https://docs.gtk.org/gtk3/method.FileChooser.set_current_name.html
+      //
+      // use gtk_file_chooser_set_current_name() if the file is "made up" e.g. "Untitled.doc"
+      // and use gtk_file_chooser_set_file() if the file exists.
 
       if (g_file_test(full_name.c_str(), G_FILE_TEST_EXISTS)) {
 
-#if (GTK_MAJOR_VERSION >= 4)
-         std::cout << "in set_file_for_save_filechooser() FIXME" << std::endl;
-#else
-         gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(fileselection), full_name.c_str());
-#endif
+         GFile *file = g_file_new_for_path(full_name.c_str());
+         GError *error = 0;
+         gtk_file_chooser_set_file(GTK_FILE_CHOOSER(filechooser), file, &error); // deprecated
+         g_object_unref(file);
 
-	 // we shouldnt need to call set_current_name and the filename
-	 // should be automatically set in the entry field, but this seems
-	 // to be buggy at least on gtk+-2.0 v. 1.20.13
-	 gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
-					   stripped_name.c_str());
       } else {
 
+         GFile *file_dir = g_file_new_for_path(directory_for_saving_for_filechooser.c_str());
+         GError *error = 0;
 
-#if (GTK_MAJOR_VERSION >= 4)
-         // 20220602-PE FIXME
-         std::cout << "in save_directory_for_saving_from_filechooser() FIXME" << std::endl;
-#else
-         gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
-                                      directory_for_saving_for_filechooser.c_str());
-         gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
-                                      stripped_name.c_str());
-#endif
+         // this is the right directory, but the dialog gives us a warning messge. Don't understand
+         // std::cout << "not using file dir for " << directory_for_saving_for_filechooser << std::endl;
+         // gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(filechooser), file_dir, &error);
+
+         gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(filechooser), stripped_name.c_str());
+         g_object_unref(file_dir);
       }
    }
 }
@@ -2508,7 +2505,7 @@ graphics_info_t::on_change_current_chi_button_clicked(GtkButton *button,
    edit_chi_edit_type mode = static_cast<edit_chi_edit_type> (i_mode);
 
    int i_bond = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "i_bond"));
-   std::cout << "on_change_current_chi_button_clicked "
+   std::cout << "DEBUG:: g.on_change_current_chi_button_clicked() "
 	     << g.edit_chi_current_chi << " mode " << mode
 	     << " i_bond " << i_bond << std::endl;
 
@@ -2538,64 +2535,6 @@ graphics_info_t::on_change_current_chi_button_entered(GtkButton *button,
    // g.setup_flash_bond_internal(ibond_user);
 
 }
-
-#if FIX_THE_KEY_PRESS_EVENTS
-// static
-void
-graphics_info_t::on_change_current_chi_motion_notify(GtkWidget *button, GdkEventMotion *event) {
-
-   graphics_info_t g;
-
-   int *ex = new int(event->x);
-   int *ey = new int(event->y);
-
-   int *old_x = (int *) g_object_get_data(G_OBJECT(button), "old-x");
-   int *old_y = (int *) g_object_get_data(G_OBJECT(button), "old-y");
-
-   int i_bond = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "i_bond"));
-   int i_mode = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "chi_edit_mode"));
-
-   edit_chi_edit_type mode = static_cast<edit_chi_edit_type> (i_mode);
-
-   if (false)
-      std::cout << "debug:: on_change_current_chi_motion_notify() "
-		<< " i_bond " << i_bond
-		<< " i_mode: " << i_mode
-		<< " mode " << mode << std::endl;
-
-   if (old_x && old_y) {
-      int delta_x = event->x - *old_x;
-      int delta_y = event->y - *old_y;
-      if (abs(delta_y) > abs(delta_x)) {
-	 if (abs(delta_y) < 20) {
-	    if (mode == EDIT_CHI)
-	       g.setup_flash_bond_using_moving_atom_internal(i_bond);
-	    if (mode == RESIDUE_PARTIAL_ALT_LOCS)
-	       g.setup_flash_bond(imol_residue_partial_alt_locs,
-				  residue_partial_alt_locs_spec,
-				  i_bond);
-	 }
-      }
-   } else {
-      // first time entered
-      if (mode == EDIT_CHI)
-	 g.setup_flash_bond_using_moving_atom_internal(i_bond);
-      if (mode == RESIDUE_PARTIAL_ALT_LOCS) {
-	 g.setup_flash_bond(imol_residue_partial_alt_locs,
-			    residue_partial_alt_locs_spec,
-			    i_bond);
-      }
-   }
-   // save current values for next movement
-
-   std::cout << "------------ on_change_current_chi_motion_notify() dont use pointers here silly billy"
-	     << std::endl;
-   g_object_set_data(G_OBJECT(button), "old-x", ex);
-   g_object_set_data(G_OBJECT(button), "old-y", ey);
-
-}
-#endif
-
 
 
 // Create a moving atoms molecule, consisting of the Ca(n), Ca(n+1) of
@@ -4406,6 +4345,7 @@ graphics_info_t::on_diff_map_peak_button_selection_toggled(GtkToggleButton  *but
       s += int_to_string(hd->ipeak);
       g.add_status_bar_text(s);
    }
+   g.graphics_grab_focus();
 }
 
 

@@ -488,7 +488,7 @@ coot::molecule_t::write_shelx_ins_file(const std::string &filename) const {
 
 
 std::vector<mmdb::Residue *>
-coot::molecule_t::select_residues(const residue_spec_t &residue_spec, const std::string &mode) const {
+coot::molecule_t::select_residues(const residue_spec_t &residue_spec, const std::string &mode_in) const {
 
    // why is this not in utils? Make it so.
 
@@ -518,6 +518,8 @@ coot::molecule_t::select_residues(const residue_spec_t &residue_spec, const std:
       return rv;
    };
 
+   std::string mode = mode_in;
+   if (mode == "LITERAL") mode = "SINGLE";
    std::vector<mmdb::Residue *> rv;
    mmdb::Manager *mol = atom_sel.mol;
    mmdb::Residue *residue_p = coot::util::get_residue(residue_spec, mol);
@@ -585,6 +587,46 @@ coot::molecule_t::select_residues(const residue_spec_t &residue_spec, const std:
 
    return rv;
 }
+
+//!
+std::vector<mmdb::Residue *>
+coot::molecule_t::select_residues(const std::string &multi_cids, const std::string &mode) const {
+
+   auto set_to_vec = [] (std::set<mmdb::Residue *> rs) {
+      std::vector<mmdb::Residue *> rv;
+      std::set<mmdb::Residue *>::const_iterator it;
+      for (it=rs.begin(); it!=rs.end(); ++it)
+         rv.push_back(*it);
+      return rv;
+   };
+
+   std::vector<mmdb::Residue *> rv;
+   std::set<mmdb::Residue *> rs;
+
+   std::vector<std::string> v = coot::util::split_string(multi_cids, "||");
+   if (! v.empty()) {
+      for (const auto &cid : v) {
+         int selHnd = atom_sel.mol->NewSelection(); // d
+         mmdb::Residue **SelResidues;
+         int nSelResidues = 0;
+         atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_OR);
+         atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+         for (int i=0; i<nSelResidues; i++) {
+            mmdb::Residue *residue_p = SelResidues[i];
+            coot::residue_spec_t residue_spec(residue_p);
+            std::vector<mmdb::Residue *> neighbs = select_residues(residue_spec, mode);
+            for (unsigned int j=0; j<neighbs.size(); j++) {
+               rs.insert(neighbs[j]);
+            }
+         }
+         atom_sel.mol->DeleteSelection(selHnd);
+      }
+   }
+
+   rv = set_to_vec(rs);
+   return rv;
+}
+
 
 //! resno_start and resno_end are inclusive
 std::vector<mmdb::Residue *>
@@ -2008,7 +2050,7 @@ coot::molecule_t::delete_chain_using_atom_cid(const std::string &cid) {
 }
 
 int
-coot::molecule_t::delete_literal_using_cid(const std::string &atom_selection_cid) {
+coot::molecule_t::delete_literal_using_cid(const std::string &atom_selection_cids) {
 
    // cid is an atom selection, e.g. containing a residue range
 
@@ -2018,7 +2060,10 @@ coot::molecule_t::delete_literal_using_cid(const std::string &atom_selection_cid
    mmdb::Atom **selection_atoms = 0;
    int n_selection_atoms = 0;
    int selHnd = atom_sel.mol->NewSelection(); // d
-   atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
+   std::vector<std::string> v = coot::util::split_string(atom_selection_cids, "||");
+   if (! v.empty())
+      for (const auto &cid : v)
+         atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
    atom_sel.mol->GetSelIndex(selHnd, selection_atoms, n_selection_atoms);
 
    if (selection_atoms) {
@@ -2030,7 +2075,7 @@ coot::molecule_t::delete_literal_using_cid(const std::string &atom_selection_cid
    }
 
    if (! atoms_to_be_deleted.empty()) {
-      std::string s = std::string("delete-literal-using-cid ") + atom_selection_cid;
+      std::string s = std::string("delete-literal-using-cid ") + atom_selection_cids;
       make_backup(s);
 
       for (unsigned int iat=0; iat<atoms_to_be_deleted.size(); iat++) {
@@ -2192,6 +2237,13 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
    for (const auto &r : rv)
       local_residues.push_back(std::make_pair(false, r));
+
+   if (false) { // debugging
+      std::cout << "----------------------------- local_residues " << local_residues.size() << " --------" << std::endl;
+      for (unsigned int i=0; i<local_residues.size(); i++) {
+         std::cout << "                 " << i << " " << local_residues[i].second << std::endl;
+      }
+   }
 
    make_backup("refine_direct");
    mmdb::Manager *mol = atom_sel.mol;
@@ -3357,6 +3409,29 @@ coot::molecule_t::get_chain_ids() const {
    return chain_ids;
 }
 
+//! Get the chains that are related by NCS:
+std::vector<std::vector<std::string> >
+coot::molecule_t::get_ncs_related_chains() const {
+
+   std::vector<std::vector<std::string> > v;
+   int model_number = 1;
+   std::vector<std::vector<mmdb::Chain *> > ncs_related_chains = coot::ncs_related_chains(atom_sel.mol, model_number);
+   std::cout << "found ncs_related_chains size " << ncs_related_chains.size() << std::endl;
+   for (const auto &vv : ncs_related_chains) {
+      std::cout << "vv size " << vv.size() << std::endl;
+      std::vector<std::string> vc;
+      for (const auto &c : vv) {
+         std::string chid = c->GetChainID();
+         std::cout << " " << chid;
+         vc.push_back(chid);
+      }
+      std::cout << std::endl;
+      v.push_back(vc);
+   }
+   return v;
+}
+
+
 
 #include "density-contour/gaussian-surface.hh"
 
@@ -4025,3 +4100,16 @@ coot::molecule_t::add_neighbor_residues_for_refinement_help(mmdb::Manager *mol) 
 
 // ------------------------------ put these functions in coot_molecule_refine.cc --------------
 
+
+//! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
+std::vector<coot::residue_spec_t>
+coot::molecule_t::residues_near_residue(const std::string &residue_cid, float dist) const {
+
+   std::vector<coot::residue_spec_t> v;
+   mmdb::Residue *residue_p = cid_to_residue(residue_cid);
+   if (residue_p) {
+      coot::residue_spec_t res_spec_in(residue_p);
+      v = coot::residues_near_residue(res_spec_in, atom_sel.mol, dist);
+   }
+   return v;
+}

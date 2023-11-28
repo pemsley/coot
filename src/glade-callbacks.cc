@@ -902,7 +902,6 @@ on_save_coords_dialog_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
       int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
       GtkWidget *chooser = coot_save_coords_chooser(); // uses builder
       g_object_set_data(G_OBJECT(chooser), "imol", GINT_TO_POINTER(imol));
-      set_file_for_save_filechooser(chooser);
       gtk_widget_set_visible(chooser, TRUE);
       set_transient_and_position(COOT_UNDEFINED_WINDOW, chooser);
 #endif
@@ -929,6 +928,8 @@ on_save_coords_dialog_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
       g_signal_connect(file_chooser_dialog, "response",
                        G_CALLBACK(on_save_coords_filechooser_dialog_response), NULL);
       gtk_widget_set_visible(file_chooser_dialog, TRUE);
+      set_file_for_save_filechooser(file_chooser_dialog);
+      add_filename_filter_button(file_chooser_dialog, COOT_SAVE_COORDS_FILE_SELECTION);
 
    }
    gtk_widget_set_visible(mol_selector_dialog, FALSE);

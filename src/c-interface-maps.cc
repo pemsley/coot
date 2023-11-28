@@ -2834,7 +2834,11 @@ void set_auto_updating_sfcalc_genmap(int imol_model,
                updating_model_molecule_parameters_t ummp(imol_model, imol_map_with_data_attached, imol_updating_difference_map);
                updating_model_molecule_parameters_t *u = new updating_model_molecule_parameters_t(ummp);
                GSourceFunc f = GSourceFunc(graphics_info_t::molecules[imol_updating_difference_map].watch_coordinates_updates);
-               g_timeout_add(400, f, u);
+               graphics_info_t g;
+               if (g.updating_maps_timeout_function_idx == UPDATING_MAPS_TIMEOUT_FUNCTION_IDX_UNSET)
+                  g.updating_maps_timeout_function_idx = g_timeout_add(400, f, u);
+               else
+                  info_dialog("WARNING:: No can do.\nAn updating maps has already been started");
             }
          }
       }

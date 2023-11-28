@@ -796,7 +796,7 @@ display_control_map_combo_box(const std::string &name, int imol) {
       gtk_check_button_set_group(GTK_CHECK_BUTTON(scroll_button), GTK_CHECK_BUTTON(scroll_group));
    g_object_set_data(G_OBJECT(scroll_button), "imol", GINT_TO_POINTER(imol));
 
-   std::cout << ":::::::::::::::: scroll wheel map " << graphics_info_t::scroll_wheel_map << std::endl;
+   // std::cout << ":::::::::::::::: scroll wheel map " << graphics_info_t::scroll_wheel_map << std::endl;
    // maybe scroll_wheel_map was not set yet? So set it now, for this map
    if (graphics_info_t::scroll_wheel_map == -1)
       graphics_info_t::scroll_wheel_map = imol;
@@ -1583,7 +1583,7 @@ create_splash_screen_window_for_file(const char *file_name) {
 
    GtkWidget *splash_screen_window = gtk_window_new();
    gtk_widget_set_name (splash_screen_window, "splash_screen_window");
-   std::string window_name = "GTK4 Coot " + std::string(VERSION);
+   std::string window_name = "Coot " + std::string(VERSION);
    gtk_window_set_title (GTK_WINDOW (splash_screen_window), _(window_name.c_str()));
 #if (GTK_MAJOR_VERSION >= 4)
    std::cout << "in create_splash_screen_window_for_file() set position " << std::endl;

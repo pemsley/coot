@@ -5,13 +5,16 @@
 
 //! return the new molecule number (or -1 on no atoms selected)
 int
-molecules_container_t::copy_fragment_using_cid(int imol, const std::string &cid) {
+molecules_container_t::copy_fragment_using_cid(int imol, const std::string &multi_cids) {
 
    int imol_new = -1;
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = get_mol(imol);
       int selHnd = mol->NewSelection(); // d
-      mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+      std::vector<std::string> v = coot::util::split_string(multi_cids, "||");
+      if (! v.empty())
+         for (const auto &cid : v)
+            mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
       mmdb::Manager *new_manager = coot::util::create_mmdbmanager_from_atom_selection(mol, selHnd);
       if (new_manager) {
          imol_new = molecules.size();
@@ -56,8 +59,10 @@ molecules_container_t::copy_fragment_for_refinement_using_cid(int imol, const st
          std::string new_name = "copy-fragment-from-molecule-" + std::to_string(imol);
          molecules.push_back(coot::molecule_t(asc, imol_new, new_name));
          auto &coot_mol = molecules[imol_new];
-         // add a new molecule of the neigbhoring residues internal to the new molecule
+         // add a new molecule of the neighboring residues internal to the new molecule
          coot_mol.add_neighbor_residues_for_refinement_help(mol);
+      } else {
+         std::cout << "WARNING:: copy_fragment_for_refinement_using_cid() new_manager was null" << std::endl;
       }
       mol->DeleteSelection(selHnd);
    }
@@ -333,9 +338,15 @@ molecules_container_t::replace_fragment(int imol_base, int imol_reference, const
    if (is_valid_model_molecule(imol_base)) {
       if (is_valid_model_molecule(imol_reference)) {
 
+         std::string multi_cids = atom_selection;
          mmdb::Manager *mol_ref = molecules[imol_reference].atom_sel.mol;
          int SelHnd = mol_ref->NewSelection(); // d
-         mol_ref->Select(SelHnd, mmdb::STYPE_ATOM, atom_selection.c_str(), mmdb::SKEY_NEW);
+         // 20231113-PE replace with multi-selection
+         // mol_ref->Select(SelHnd, mmdb::STYPE_ATOM, atom_selection.c_str(), mmdb::SKEY_NEW);
+         std::vector<std::string> v = coot::util::split_string(multi_cids, "||");
+         if (! v.empty())
+            for (const auto &cid : v)
+               mol_ref->Select(SelHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
          mmdb::Manager *mol_select = coot::util::create_mmdbmanager_from_atom_selection(mol_ref, SelHnd);
          atom_selection_container_t asc_moving = make_asc(mol_select);
          status = molecules[imol_base].replace_fragment(asc_moving);

@@ -396,13 +396,16 @@
 # 6.07 20220710 libffi fixes for python
 # 6.08 20220803-PE pygobject cleanups
 # 6.09 20220907-PE meson adjustment for compiling glib (what a pain)
-# 6.10 20240603-PE remove goocanvas
+# 6.10 20230603-PE remove goocanvas
+# 6.11 20241113-PE print out the script_version
 script_version=6.10
 
 
 
 echo ==================================================== add test for SWIG version
 echo ==================================================== add test for CMake version
+echo this is script version $script_version
+echo this is script version $script_version >&2
 
 
 # :: NOTE::
@@ -1983,7 +1986,6 @@ build_gsl=0
 # build_libjpeg=0
 # build_libpng=0
 # build_imlib=0
-# build_gtk_canvas=0
 build_python=
 build_pygobject=
 build_guile_gtk=
@@ -2710,6 +2712,8 @@ print('post ctypes test')
 EOF
    ) >  $HOSTLOGDIR/07-python.txt 2>&1
 
+   echo Python build done >&2
+
    (
    which pip3
    pip3 install --upgrade pip
@@ -2717,6 +2721,7 @@ EOF
    # pip3 install pygobject
    ) >  $HOSTLOGDIR/07a-pip-upgrade.txt 2>&1
 
+   echo Pip update done >&2
 else
     echo not building python:
 fi
@@ -2753,7 +2758,7 @@ meson --version
 if meson --version ; then
    echo we have meson
    v=$(meson --version)
-   if [[ $v < 0.61 ]] ; then
+   if [[ $v < 1.2.3 ]] ; then
       echo meson is too old, current version is $v
       build_meson=true
    else
@@ -2764,8 +2769,9 @@ else
 fi
 
 if $build_meson = true ; then
-   meson_version=0.61.2
+   meson_version=1.2.3
    echo BUILDING meson $meson_version:
+   echo BUILDING meson $meson_version: >&2
    (
    ${WGET} https://github.com/mesonbuild/meson/releases/download/$meson_version/meson-$meson_version.tar.gz
    tar xf ${AUTOBUILD_SOURCES}/meson-$meson_version.tar.gz
@@ -2822,7 +2828,8 @@ else
 fi
 
 if [ "$build_glib" = true ] ; then
-    echo BUILDING glib:
+    echo BUILDING glib $glib_version
+    echo BUILDING glib $glib_version >&2
     (
     # without this PKG_CONFIG_PATH jiggerypokery, libz is the wrong version i.e. is the 32 bit version (on hal)
     export -n PKG_CONFIG_PATH
@@ -2844,8 +2851,8 @@ if [ "$build_glib" = true ] ; then
 
     # find new versions here: https://gitlab.gnome.org/GNOME/glib/-/releases
     if [ ! -e ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz ] ; then
-       echo ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/2.72.3/glib-$glib_version.tar.gz
-       ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/2.72.3/glib-$glib_version.tar.gz
+       echo ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/$glib_version/glib-$glib_version.tar.gz
+       ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/$glib_version/glib-$glib_version.tar.gz
     fi
     echo tar xf ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz
     tar xf ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz
@@ -2860,7 +2867,7 @@ if [ "$build_glib" = true ] ; then
     export  CFLAGS=-I$install_top_dir/include
     # we install the libs in $install_top_dir (otherwise it would install in $install_top_dir/lib/x86_64-linux-gnu
     # and libtool would mess up and fail to properly link it (in Coot's compile)
-    if CC=gcc meson -Dprefix=$install_top_dir -Dlibdir=$install_top_dir/lib build ; then
+    if CC=gcc meson setup -Dprefix=$install_top_dir -Dlibdir=$install_top_dir/lib build ; then
        cd build
        ninja
        ninja install
@@ -2868,6 +2875,7 @@ if [ "$build_glib" = true ] ; then
     fi
     cd ..
     ) > $HOSTLOGDIR/07c2-glib.txt 2>&1
+    echo BUILDING glib $glib_version finished >&2
 else
     echo not building glib:
 fi
@@ -3516,6 +3524,7 @@ if [ true = true ] ; then
    if [ $skip_this = false ] ;  then
       numpy_version=1.19.4
       echo building numpy $numpy_version
+      echo building numpy $numpy_version >&2
       (
       echo building ========================= numpy ==============================
       # this needs fortran compiler gfortran
@@ -3554,6 +3563,7 @@ if [ true = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/17-a-numpy.txt 2>&1
+      echo building numpy $numpy_version finished >&2
    fi
 fi
 
@@ -3565,16 +3575,19 @@ eigen_version=3.3.9
 if [ -e $install_top_dir/include/eigen3 ] ; then
    echo eigen3 is installed
 else
+   echo building eigen $eigen_version
+   echo building eigen $eigen_version >&2
    (
    ${WGET} https://gitlab.com/libeigen/eigen/-/archive/$eigen_version/eigen-$eigen_version.tar.gz
    tar xf $AUTOBUILD_SOURCES/eigen-$eigen_version.tar.gz
 
    mkdir -p build-eigen
    cd build-eigen
-   cmake -DCMAKE_INSTALL_PREFIX=$AUTOBUILD_INSTALLED ../eigen-$eigen_version
+   cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ../eigen-$eigen_version
    make install
    cd -
    ) > $HOSTLOGDIR/17-b-eigen.txt 2>&1
+   echo building eigen finished >&2
 fi
 
 
@@ -3613,6 +3626,7 @@ if [ "$build_rdkit" = true ] ; then
    if [ $skip_this = false ] ;  then
 
       echo building rdkit $rdkit_version
+      echo building rdkit $rdkit_version >&2
       (
       echo building ========================= rdkit ==============================
 
@@ -3809,6 +3823,7 @@ if [ "$build_rdkit" = true ] ; then
       cd ..
       cd ..
       ) > $HOSTLOGDIR/18-rdkit.txt 2>&1
+      echo building rdkit done
    fi
 fi
 
@@ -4006,8 +4021,8 @@ if [ "$build_guile" = true ] ; then
    # echo guile skip_this $skip_this
 
    if [ $skip_this = false ] ; then
-      echo BUILDING guile: 2>& 1
       echo BUILDING guile:
+      echo BUILDING guile: >&2
       (
       echo ========================= build guile =================================
       if [ -e   $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz ] ; then
@@ -4034,7 +4049,10 @@ if [ "$build_guile" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/24-guile.txt 2>&1
+      echo BUILDING guile:
    fi
+else
+   echo not building guile:
 fi
 
 # ------------------------------------  template -------------------------------------
@@ -4048,12 +4066,16 @@ if [ "$build_template_thing" = true ] ; then
 
    # echo template skip_this $skip_this
 
+   template_version=1.2.3
+   server_for_template=https://thing
+
    if [ $skip_this = false ] ; then
       echo ========================= build template =================================
       if [ -e $AUTOBUILD_SOURCES/template-$template_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/template-$template_version.tar.gz
       else
-         exit
+         ${WGET} $server_for_template/template-$template_version.tar.gz
+         tar xf $AUTOBUILD_SOURCES/template-$template_version.tar.gz
       fi
       (
       cd template-$template_version
@@ -4081,6 +4103,7 @@ if [ "$build_g_wrap" = true ] ; then
 
    if [ $skip_this = false ] ; then
       echo BUILDING g-wrap:
+      echo BUILDING g-wrap: >&2
       (
       echo ========================= build g-wrap =================================
       if [ -e $AUTOBUILD_SOURCES/g-wrap-$g_wrap_version.tar.gz ] ; then
@@ -4104,7 +4127,10 @@ if [ "$build_g_wrap" = true ] ; then
          fi
       fi
       ) > $HOSTLOGDIR/25-g-wrap.txt 2>&1
+      echo BUILDING g-wrap finished >&2
    fi
+else
+   echo not building g_wrap:
 fi
 
 if [ "$build_guile_cairo" = true ] ; then
@@ -4117,6 +4143,7 @@ if [ "$build_guile_cairo" = true ] ; then
 
    if [ $skip_this = false ] ; then
       echo BUILDING guile-cairo
+      echo BUILDING guile-cairo >&2
       (
       echo ========================= build guile-cairo =================================
       if [ -e $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz ] ; then
@@ -4138,7 +4165,10 @@ if [ "$build_guile_cairo" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/26-guile-cairo.txt 2>&1
+      echo BUILDING guile-cairo finished >&2
    fi
+else
+   echo not building guile-cairo:
 fi
 
 # guile-lib
@@ -4171,7 +4201,7 @@ if [ "$build_guile_lib" = true ] ; then
    if [ $skip_this = false ] ; then
       echo ========================= build guile-lib =================================
       if [ -e $AUTOBUILD_SOURCES/guile-lib-$guile_lib_version.tar.gz ] ; then
-         tar xf $AUTOBUILD_SOURCES/template-$template_version.tar.gz
+         tar xf $AUTOBUILD_SOURCES/guile-lib-$guile_lib_version.tar.gz
       else
          exit
       fi
@@ -4193,6 +4223,8 @@ if [ "$build_guile_lib" = true ] ; then
       cd -
       ) > $HOSTLOGDIR/27-guile-lib.txt 2>&1
    fi
+else
+   echo not building guile-lib:
 fi
 
 
@@ -4210,6 +4242,8 @@ if [ "$build_guile_gnome_platform" = true ] ; then
    echo guile-gnome-platform skip_this $skip_this
 
    if [ $skip_this = false ] ; then
+      echo BUILDING gnome-gnome-platform
+      echo BUILDING gnome-gnome-platform >&2
       (
       echo ========================= build guile-gnome-platform =================================
       if [ -e $AUTOBUILD_SOURCES/guile-gnome-platform-$guile_gnome_platform_version.tar.gz ] ; then
@@ -4226,7 +4260,10 @@ if [ "$build_guile_gnome_platform" = true ] ; then
          fi
       fi
       ) > $HOSTLOGDIR/28-guile-gnome-platform.txt 2>&1
+      echo BUILDING gnome-gnome-platform finished
    fi
+else
+   echo not building guile-gnome-platform
 fi
 
 
@@ -4234,10 +4271,10 @@ fi
 ##########         Coot is now built from git repo                #############
 ###############################################################################
 #
-echo 222222222222222 Now Coot.....
+echo Now Coot..... >&2
 cd $start_dir
-date
-pwd
+date >&2
+pwd >&2
 
 if [ -e coot ] ; then
    (
@@ -4258,12 +4295,15 @@ if [ -e coot ] ; then
    #   rm ltmain.sh
    # fi
    echo 44444444444444444444444 done fetch and merge
+   echo 44444444444444444444444 done fetch and merge >&2
    rm -rf autom4te.cache
 
    echo 5555555555555555555555 bash autogen.sh
+   echo 5555555555555555555555 bash autogen.sh >&2
    echo bash autogen.sh
    bash autogen.sh
    echo 66666666666666666666 done bash autogen.sh
+   echo 66666666666666666666 done bash autogen.sh >&2
    cd -
    ) > $HOSTLOGDIR/30-coot-fetch-merge-autogen.txt 2>&1
 else
@@ -4293,7 +4333,7 @@ else
    fi
    LD_LIBRARY_PATH=$save_ld_library_path
    cd $save_dir
-   ) > $HOSTLOGDIR/30-clone-autogen 2>&1
+   ) > $HOSTLOGDIR/30-clone-autogen.txt 2>&1
 fi
 
 if test -n "$glib_installed" ; then
@@ -4309,7 +4349,7 @@ fi
 ###############################################################################
 #
 echo BUILDING coot
-echo BUILDING coot 2>& 1
+echo BUILDING coot >&2
 
 (
 

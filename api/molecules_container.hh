@@ -374,6 +374,9 @@ public:
    //! @return 1 on successful closure and 0 on failure to close
    int close_molecule(int imol);
 
+   //! @return the eigenvalues of the atoms in the specified residue
+   std::vector<double> get_eigenvalues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
+
    //! @return the mesh of a unit solid cube at the origin
    coot::simple_mesh_t test_origin_cube() const;
 
@@ -494,6 +497,9 @@ public:
 
    //! return the group for the give residue name
    std::string get_group_for_monomer(const std::string &residue_name) const;
+
+   //! write a PNG for the given compound_id. imol can be IMOL_ENC_ANY
+   void write_png(const std::string &compound_id, int imol, const std::string &file_name) const;
 
    //! write the coordinate to the give file name
    //! @return 1 on success and 0 on failure
@@ -660,6 +666,11 @@ public:
 
    //! @return vector of chain-ids for the given molecule
    std::vector<std::string> get_chains_in_model(int imol) const;
+
+   //! Get the chains that are related by NCS or molecular symmetry:
+   //! @return a vector of vector of chain ids, e.g. [[A,C], [B,D]] (for hemoglobin).
+   std::vector<std::vector<std::string> > get_ncs_related_chains(int imol) const;
+
    //! @return vector of single letter codes - in a pair with the given residue spec
    std::vector<std::pair<coot::residue_spec_t, std::string> > get_single_letter_codes_for_chain(int imol, const std::string &chain_id) const;
 
@@ -676,6 +687,9 @@ public:
    //! @return an object that has information about residues without dictionaries and residues with missing atom
    //! in the the specified molecule
    coot::util::missing_atom_info missing_atoms_info_raw(int imol);
+
+   //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
+   std::vector<coot::residue_spec_t> get_residues_near_residue(int imol, const std::string &residue_cid, float dist) const;
 
    //! superposition (using SSM)
    //!
@@ -745,7 +759,7 @@ public:
       std::string sigF_obs;
       //! R-Free column. There were not avaliable if the return value is empty
       std::string Rfree;
-      auto_read_mtz_info_t() {idx = -1;}
+      auto_read_mtz_info_t() {idx = -1; weights_used = false; }
       auto_read_mtz_info_t(int index, const std::string &F_in, const std::string &phi_in) :
          idx(index), F(F_in), phi(phi_in), weights_used(false) {}
       void set_fobs_sigfobs(const std::string &f, const std::string &s) {
@@ -780,6 +794,11 @@ public:
    //! create a new map that is blurred/sharpened
    //! @return the molecule index of the new map or -1 on failure or if `in_place_flag` was true.
    int sharpen_blur_map(int imol_map, float b_factor, bool in_place_flag);
+
+   //! create a new map that is blurred/sharpened and resampling.
+   //! Note that resampling can be slow, a resample_factor of 1.5 is about the limit of the trade of of prettiness for speed.
+   //! @return the molecule index of the new map or -1 on failure or if `in_place_flag` was true.
+   int sharpen_blur_map_with_resample(int imol_map, float b_factor, float resample_factor, bool in_place_flag);
 
    //! mask map by atom selection (note the argument order is reversed compared to the coot api).
    //!
@@ -1231,7 +1250,8 @@ public:
    //! typical values for `min_dist` is 2.3
    //! typical values for `max_dist` is 3.5
    //!
-   //! return a vector of atom specifiers
+   //! @return a vector of atom specifiers
+   //! Use the string_user_data of the spec for the button label
    std::vector <coot::atom_spec_t>
    find_water_baddies(int imol_model, int imol_map,
                       float b_factor_lim,
@@ -1327,9 +1347,15 @@ public:
    //! For trivial (i.e non-flexible) ligands you should instead use the jiggle-fit algorithm, which
    //! takes a fraction of a second. (That is the algorithm used for "Add Other Solvent Molecules" in Coot.)
    //!
-   //! @return a vector indices of molecules for the best fitting ligands to this blob.
+   //! @return a vector of indices of molecules for the best fitting ligands to this blob.
    std::vector<int> fit_ligand_right_here(int imol_protein, int imol_map, int imol_ligand, float x, float y, float z,
                                           float n_rmsd, bool use_conformers, unsigned int n_conformers);
+
+   //! Ligand Fitting
+   //!
+   //! @return a vector of indices of molecules for the best fitting ligands to this blob.
+   std::vector<int> fit_ligand(int imol_protein, int imol_map, int imol_ligand,
+                               float n_rmsd, bool use_conformers, unsigned int n_conformers);
 
    //! "Jiggle-Fit Ligand"
    //! if n_trials is 0, then a sensible default value will be used.

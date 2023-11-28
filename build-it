@@ -1616,6 +1616,8 @@ if test "$build_coot_prerelease" = 1 ; then
       coot_version=coot-0.9.8.6
       coot_version=coot-0.9.8.7
       coot_version=coot-0.9.8.8
+      coot_version=coot-0.9.8.9
+      coot_version=coot-0.9.8.91
       coot_version=coot-0.9.8.92
       echo NNX:: coot_version $coot_version
 

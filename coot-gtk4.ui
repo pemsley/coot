@@ -200,10 +200,6 @@
           <attribute name="label">Preferences...</attribute>
           <attribute name="action">app.show_preferences_action</attribute>
         </item>
-        <item>
-          <attribute name="label">Shader Preferences...</attribute>
-          <attribute name="action">app.show_shader_preferences_action</attribute>
-        </item>
         <submenu>
           <attribute name="label">Settings...</attribute>
 
@@ -722,7 +718,12 @@
         </section>
       </submenu>
 
+        <item>
+          <attribute name="label">Shader Settings...</attribute>
+          <attribute name="action">app.show_shader_preferences_action</attribute>
+        </item>
     </submenu>
+
     <submenu>
       <attribute name="label">Measures</attribute>
       <section>
@@ -753,6 +754,7 @@
         </item>
       </section>
     </submenu>
+
     <submenu>
       <attribute name="label">Validate</attribute>
       <section>
@@ -3898,8 +3900,10 @@ the Ctrl key when moving the mouse.</property>
       <object class="GtkBox">
         <property name="spacing">6</property>
         <property name="orientation">vertical</property>
-        <property name="margin-start">4</property>
-        <property name="margin-end">4</property>
+        <property name="margin-start">6</property>
+        <property name="margin-end">6</property>
+        <property name="margin-bottom">6</property>
+        <property name="margin-top">6</property>
 
         <child>
           <object class="GtkLabel">
@@ -3959,8 +3963,6 @@ the Ctrl key when moving the mouse.</property>
           </object>
         </child>
       </object>
-    </child>
-    <child type="titlebar">
     </child>
     <action-widgets>
       <action-widget response="-6">copy_fragment_cancel_button</action-widget>
@@ -7846,7 +7848,7 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_6">
+              <object class="GtkButton" id="vertical_toolbar_testbutton_6">
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">horizontal</property>
@@ -7866,7 +7868,7 @@ Do you want to continue?
                   </object>
                 </child>
                 <property name="can-focus">0</property>
-                <signal name="toggled" handler="on_model_toolbar_edit_chi_angles_togglebutton_toggled"/>
+                <signal name="clicked" handler="on_model_toolbar_edit_chi_angles_button_clicked"/>
               </object>
             </child>
             <child>
@@ -13466,6 +13468,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <child>
                   <object class="GtkButton" id="show_symmetry_molecule_control_button">
                     <property name="label" translatable="yes">Symmetry by Molecule...</property>
+                    <property name="visible">False</property>
                     <property name="margin-top">6</property>
                     <property name="margin-bottom">6</property>
                     <property name="margin-start">6</property>
@@ -15231,6 +15234,12 @@ Move a copy?</property>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
+                <property name="accelerator">quoteleft</property>
+                <property name="title" translatable="yes">Highlight Active Residue</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
                 <property name="accelerator">1</property>
                 <property name="title" translatable="yes">Clipping Front Expand</property>
               </object>
@@ -15282,7 +15291,7 @@ Move a copy?</property>
 
         <child>
           <object class="GtkShortcutsGroup">
-            <property name="title">Moving Around Functions</property>
+            <property name="title">Functions for Moving Around</property>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">space</property>
@@ -15368,6 +15377,18 @@ Move a copy?</property>
                 <property name="title" translatable="yes">Change Scroll-wheel map</property>
               </object>
             </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">bracketleft</property>
+                <property name="title" translatable="yes">Decrease Map Radius</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">bracketright</property>
+                <property name="title" translatable="yes">Increase Map Radius</property>
+              </object>
+            </child>
           </object>
         </child>
 
@@ -15427,18 +15448,6 @@ Move a copy?</property>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Shift&gt;E</property>
                 <property name="title" translatable="yes">Chain Refine</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">bracketleft</property>
-                <property name="title" translatable="yes">Decrease Map Radius</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">bracketright</property>
-                <property name="title" translatable="yes">Increase Map Radius</property>
               </object>
             </child>
           </object>
@@ -15521,4 +15530,3 @@ Move a copy?</property>
   </object>
 
 </interface>
-

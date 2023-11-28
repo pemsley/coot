@@ -500,6 +500,8 @@ enum { IN_STEREO_MONO = 0,
 #include "select-atom-info.hh"
 #include "gl-bits.hh"
 
+const guint UPDATING_MAPS_TIMEOUT_FUNCTION_IDX_UNSET = 99999999;
+
 class graphics_info_t {
 
    static int n_molecules_max;
@@ -1482,6 +1484,7 @@ public:
    // To which map is the mouse scroll wheel attached?
    //
    static int scroll_wheel_map;
+   void update_scroll_wheel_map_on_molecule_close();
 
    void contour_level_scroll_scrollable_map(int direction);
 
@@ -4697,7 +4700,7 @@ string   static std::string sessionid;
    static gboolean render(bool render_to_screendump_framebuffer_flag=false,
                           const std::string &output_file_name="coot-screendump.tga");
    static gboolean render_scene(); // like crows
-   enum { PASS_TYPE_STANDARD, PASS_TYPE_FOR_SHADOWS, PASS_TYPE_SSAO};
+   enum { PASS_TYPE_STANDARD, PASS_TYPE_GEN_SHADOW_MAP, PASS_TYPE_SSAO, PASS_TYPE_WITH_SHADOWS};
    static void render_scene_with_x_blur();
    static void render_scene_with_y_blur();
    static void render_scene_with_texture_combination_for_depth_blur();
@@ -4829,6 +4832,8 @@ string   static std::string sessionid;
    int rail_points_total() const;
 
    void updating_maps_update_the_coot_points_overlay();
+
+   static guint updating_maps_timeout_function_idx;
 
    // --------------------------------------------------------------------------------------
 
@@ -5282,6 +5287,11 @@ string   static std::string sessionid;
                                                                                                         // entry change callback
 
    static void add_shortcuts_to_window(GtkWidget *shortcuts_window);
+
+   static bool use_sounds; // default true
+
+   // add a pumpkin as a graphics object and draw it.
+   void pumpkin();
 
 };
 

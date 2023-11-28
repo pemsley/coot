@@ -663,6 +663,39 @@ molecules_container_t::get_group_for_monomer(const std::string &residue_name) co
    return s;
 }
 
+#include <GraphMol/MolDraw2D/MolDraw2DCairo.h>
+#include "lidia-core/rdkit-interface.hh"
+
+//! write a PNG for the given compound_id
+void
+molecules_container_t::write_png(const std::string &compound_id, int imol_enc,
+                                 const std::string &file_name) const {
+
+   // For now, let's use RDKit PNG depiction, not lidia-core/pyrogen
+
+   std::pair<short int, coot::dictionary_residue_restraints_t> r_p =
+      geom.get_monomer_restraints(compound_id, imol_enc);
+
+   std::cout << ":::::::::::::::::::::::::: r_p.first " << r_p.first << std::endl;
+   if (r_p.first) {
+      const auto &restraints = r_p.second;
+      std::pair<int, RDKit::RWMol> mol_pair = coot::rdkit_mol_with_2d_depiction(restraints);
+      std::cout << ":::::::::::::::::::::::::: mol_pair.first " << mol_pair.first << std::endl;
+      if (mol_pair.first >= 0) {
+         const auto &rdkit_mol(mol_pair.second);
+         RDKit::MolDraw2DCairo drawer(500, 500);
+         drawer.drawMolecule(rdkit_mol);
+         drawer.finishDrawing();
+         std::string dt = drawer.getDrawingText();
+         std::ofstream f(file_name.c_str());
+         f << dt;
+         f << "\n";
+         f.close();
+      }
+   }
+}
+
+
 
 // 20221030-PE nice to have one day
 // int
@@ -2446,11 +2479,26 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
    // std::cout << "starting refine_residues_using_atom_cid() with imol_refinement_map " << imol_refinement_map
    // << std::endl;
 
+   auto debug_selected_residues = [cid] (const std::vector<mmdb::Residue *> &rv) {
+      std::cout << "refine_residues_using_atom_cid(): selected these " << rv.size() << " residues "
+         " from cid: " << cid << std::endl;
+      std::vector<mmdb::Residue *>::const_iterator it;
+      for (it=rv.begin(); it!=rv.end(); ++it) {
+         std::cout << "   " << coot::residue_spec_t(*it) << std::endl;
+      }
+   };
+
+
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map)) {
-         coot::atom_spec_t spec = atom_cid_to_atom_spec(imol, cid);
-         status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode, n_cycles);
+         // coot::atom_spec_t spec = atom_cid_to_atom_spec(imol, cid);
+         // status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode, n_cycles);
+         std::vector<mmdb::Residue *> rv = molecules[imol].select_residues(cid, mode);
+
+         // debug_selected_residues(rv);
+         std::string alt_conf = "";
+         status = refine_direct(imol, rv, alt_conf, n_cycles);
       } else {
          std::cout << "WARNING:: " << __FUNCTION__ << " Not a valid map molecule " << imol_refinement_map << std::endl;
       }
@@ -4166,6 +4214,38 @@ molecules_container_t::sharpen_blur_map(int imol_map, float b_factor, bool in_pl
    return imol_new;
 }
 
+//! create a new map that is blurred/sharpened
+//! @return the molecule index of the new map or -1 on failure or if `in_place_flag` was true.
+int
+molecules_container_t::sharpen_blur_map_with_resample(int imol_map, float b_factor, float resample_factor, bool in_place_flag) {
+
+   int imol_new = -1;
+   if (is_valid_map_molecule(imol_map)) {
+      const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+      clipper::Xmap<float> xmap_new = coot::util::sharpen_blur_map_with_resample(xmap, b_factor, resample_factor);
+      if (in_place_flag) {
+         molecules[imol_map].xmap = xmap_new;
+      } else {
+         std::string name = molecules[imol_map].get_name();
+         if (b_factor < 0.0)
+            name += " Sharpen ";
+         else
+            name += " Blur ";
+         name += std::to_string(b_factor);
+         if (resample_factor < 0.999 || resample_factor > 1.001) {
+            name += " Resample ";
+            name += coot::util::float_to_string_using_dec_pl(resample_factor, 2);
+         }
+         imol_new = molecules.size();
+         coot::molecule_t cm(name, imol_new);
+         cm.xmap = xmap_new;
+         molecules.push_back(cm);
+      }
+   }
+   return imol_new;
+}
+
+
 
 
 //! Make a vector of maps that are split by chain-id of the input imol
@@ -4625,7 +4705,7 @@ molecules_container_t::find_water_baddies(int imol_model, int imol_map,
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map)) {
 
-         float map_sigma = molecules[imol_model].get_map_rmsd_approx();
+         float map_sigma = molecules[imol_map].get_map_rmsd_approx();
          v = coot::find_water_baddies_OR(molecules[imol_model].atom_sel,
                                          b_factor_lim,
                                          molecules[imol_map].xmap,
@@ -4652,3 +4732,32 @@ molecules_container_t::get_cif_file_name(const std::string &comp_id, int imol_en
    std::string fn = geom.get_cif_file_name(comp_id, imol_enc);
    return fn;
 }
+
+//! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
+std::vector<coot::residue_spec_t>
+molecules_container_t::get_residues_near_residue(int imol, const std::string &residue_cid, float dist) const {
+
+   std::vector<coot::residue_spec_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].residues_near_residue(residue_cid, dist);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+
+}
+
+
+//! Get the chains that are related by NCS:
+std::vector<std::vector<std::string> >
+molecules_container_t::get_ncs_related_chains(int imol) const {
+
+   std::vector<std::vector<std::string> > v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_ncs_related_chains();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}
+

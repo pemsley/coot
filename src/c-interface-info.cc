@@ -3750,7 +3750,13 @@ PyObject *cif_file_for_comp_id_py(const std::string &comp_id) {
 std::string SMILES_for_comp_id(const std::string &comp_id) {
 
    graphics_info_t g;
-   std::string s = g.Geom_p()->Get_SMILES_for_comp_id(comp_id); // can throw
+   std::string s;
+   try {
+      s = g.Geom_p()->Get_SMILES_for_comp_id(comp_id); // can throw
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
    return s;
 }
 

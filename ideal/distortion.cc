@@ -455,6 +455,8 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
 
    // 20221120-PE Does this still work?
 
+   // std::cout << "--- start omega_trans_distortions() " << std::endl;
+
    restraints_usage_flag = 1; // no angles or torsion or planes restraints to be made.
    std::vector<coot::atom_spec_t> fixed_atom_specs; // dummy
    init_shared_post(fixed_atom_specs); // sets udd_atom_index_handle, needed to make restraints
@@ -462,11 +464,11 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
    setup_gsl_vector_variables();  //initial positions in x array
    std::string chain_id("");
 
-   if (n_atoms > 0)
-      chain_id = atom[0]->GetChainID();
-   else
-      chain_id = "blank"; // shouldn't happen.
+   // Using 5tig.cif, this function is called with n_atoms == 0 at some stage.
+   if (n_atoms == 0) return coot::omega_distortion_info_container_t("blank", -1, -1);
 
+   // OK, go on...
+   chain_id = atom[0]->GetChainID();
    mmdb::Chain *chain_p = atom[0]->GetChain();
 
    // I think there will be need for some sort of scaling thing here.
@@ -618,7 +620,7 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
       }
    }
 
-   std::cout << "returning from omega_trans_distortions " << std::endl;
+   // std::cout << "returning from omega_trans_distortions " << std::endl;
    return dc;
 }
 
@@ -2251,8 +2253,7 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 
 
       // std::vector<double> eigens = mat.eigen(true);
-
-      std::tuple<double, double, double> eigens = fast_eigens(mat, true);
+      //  std::tuple<double, double, double> eigens = fast_eigens(mat, true);
 
       // Let's now extract the values of a,b,c normalize them
       std::vector<double> abcd(4);

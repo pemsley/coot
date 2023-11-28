@@ -531,6 +531,9 @@ namespace coot {
 
       std::vector<std::string> get_chain_ids() const;
 
+      //! Get the chains that are related by NCS:
+      std::vector<std::vector<std::string> > get_ncs_related_chains() const;
+
       // ----------------------- model bonds
 
       simple_mesh_t get_bonds_mesh(const std::string &mode, protein_geometry *geom,
@@ -700,6 +703,10 @@ namespace coot {
                                                                        ctpl::thread_pool &static_thread_pool);
 
       coot::instanced_mesh_t get_extra_restraints_mesh(int mode) const;
+
+      //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
+      std::vector<coot::residue_spec_t> residues_near_residue(const std::string &residue_cid, float dist) const;
+
 
       // ------------------------ model-changing functions
 
@@ -907,6 +914,8 @@ namespace coot {
       std::vector<mmdb::Residue *> select_residues(const residue_spec_t &spec, const std::string &mode) const;
       //! resno_start and resno_end are inclusive
       std::vector<mmdb::Residue *> select_residues(const std::string &chain_id, int resno_start, int resno_end) const;
+      //! 
+      std::vector<mmdb::Residue *> select_residues(const std::string &multi_cid, const std::string &mode) const;
 
       //! real space refinement
       int refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,

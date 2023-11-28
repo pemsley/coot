@@ -549,6 +549,8 @@ graphics_info_t::get_mvp_for_shadow_map(const glm::vec3 &light_direction_eye_spa
 
    glm::mat4 model_matrix = glm::mat4(1.0);
 
+   // 20231119-PE Calculate this from the extents of the displayed molecules? suggest_shadow_box_size() ?
+   //             Not every frame though. Hmm.
    float box_size = shadow_box_size; // user setable, default 66.
    if (box_size < 0.0) box_size = 120.0;
    glm::mat4 projection_matrix = glm::ortho(-box_size, box_size, -box_size, box_size, -box_size, box_size);
@@ -1021,7 +1023,7 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
                                             model_matrix, view_matrix, projection_matrix);
    }
 
-   if (pass_type == PASS_TYPE_FOR_SHADOWS) { // generating, not using - PASS_TYPE_GEN_SHADOW_MAP is a clearer name.
+   if (pass_type == PASS_TYPE_GEN_SHADOW_MAP) {
 
       // 20231011-PE have I used the right shader here?
       Shader &shader = shader_for_meshes_shadow_map;
@@ -1916,7 +1918,7 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    draw_atom_pull_restraints();
 
-   draw_meshed_generic_display_object_meshes(PASS_TYPE_STANDARD);
+   draw_meshed_generic_display_object_meshes(PASS_TYPE_WITH_SHADOWS);
 
    draw_molecules_other_meshes(PASS_TYPE_STANDARD);
 
@@ -2059,10 +2061,12 @@ graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot:
          coot::residue_spec_t res_spec(spec);
          mmdb::Residue *residue_p = molecules[imol].get_residue(res_spec);
          if (residue_p) {
-            // what about Mesh's make_graphical_bonds_bonds_bonds adn make_graphical_bonds_hemispherical_atoms
+            int bond_width = 10;
+            int model_number = residue_p->GetModelNum();
             molecular_mesh_generator_t mmg;
             std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > p =
-               mmg.get_molecular_triangles_mesh_for_active_residue(imol, mol, residue_p, Geom_p());
+               mmg.get_molecular_triangles_mesh_for_active_residue(imol, mol, model_number, residue_p, Geom_p(),
+                                                                   bond_width);
             mesh_for_outline_of_active_residue.clear();
             mesh_for_outline_of_active_residue.import(p);
             Material mat;
@@ -2108,16 +2112,23 @@ graphics_info_t::draw_unit_cells() {
 void
 graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_type) {
 
-   if (!generic_display_objects.empty()) {
+   // std::cout << "draw_meshed_generic_display_object_meshes() with pass_type " << pass_type << std::endl;
+
+   auto have_generic_display_objects_to_draw = [] () {
       bool generic_display_objects_to_draw = false;
-      for (unsigned int i=0; i<generic_display_objects.size(); i++) {
-         if (generic_display_objects[i].mesh.get_draw_this_mesh()) {
-            generic_display_objects_to_draw = true;
-            break;
+      if (!generic_display_objects.empty()) {
+         for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+            if (generic_display_objects[i].mesh.get_draw_this_mesh()) {
+               generic_display_objects_to_draw = true;
+               break;
+            }
          }
       }
+      return generic_display_objects_to_draw;
+   };
 
-      if (generic_display_objects_to_draw) {
+   if (pass_type == PASS_TYPE_STANDARD) {
+      if (have_generic_display_objects_to_draw()) {
          glm::mat4 model_rotation = get_model_rotation();
          glm::mat4 mvp = get_molecule_mvp();
          glm::vec4 bg_col(background_colour, 1.0);
@@ -2129,6 +2140,79 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
             generic_display_objects[i].mesh.draw(&shader_for_moleculestotriangles,
                                                  mvp, model_rotation, lights, eye_position, rc, opacity,
                                                  bg_col, wireframe_mode, false, show_just_shadows);
+         }
+      }
+   }
+
+   if (pass_type == PASS_TYPE_SSAO) {
+      if (have_generic_display_objects_to_draw()) {
+         glm::vec4 bg_col(background_colour, 1.0);
+         auto ccrc = RotationCentre();
+         glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+         bool do_orthographic_projection = ! perspective_projection_flag;
+         GtkAllocation allocation;
+         gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+         int w = allocation.width;
+         int h = allocation.height;
+         auto model_matrix = get_model_matrix();
+         auto view_matrix = get_view_matrix();
+         auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+         for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+            generic_display_objects[i].mesh.draw_for_ssao(&shader_for_meshes_for_ssao,
+                                                          model_matrix, view_matrix, projection_matrix);
+         }
+      }
+   }
+
+   if (pass_type == PASS_TYPE_GEN_SHADOW_MAP) {
+      if (have_generic_display_objects_to_draw()) {
+         int light_index = 0;
+         std::map<unsigned int, lights_info_t>::const_iterator it;
+         it = lights.find(light_index);
+         if (it != lights.end()) {
+            const auto &light = it->second;
+            graphics_info_t g;
+            glm::mat4 mvp_orthogonal = g.get_mvp_for_shadow_map(light.direction); // make this static?
+            glm::mat4 model_rotation = get_model_rotation();
+            glm::vec4 bg_col_v4(background_colour, 1.0f);
+            auto ccrc = RotationCentre();
+            glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+            glm::vec3 dummy_eye_position;
+            float opacity = 1.0;
+            bool do_depth_fog = false;
+            bool gl_lines_mode = false;
+            for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+               generic_display_objects[i].mesh.draw(&shader_for_meshes_shadow_map,
+                                                    mvp_orthogonal, model_rotation, lights, dummy_eye_position,
+                                                    rc, opacity, bg_col_v4, gl_lines_mode,
+                                                    do_depth_fog, show_just_shadows);
+            }
+         }
+      }
+   }
+
+   if (pass_type == PASS_TYPE_WITH_SHADOWS) {
+
+      // std::cout << "--------------------------- pass_type WITH SHADOWS!!!!!!!!!!!!!!!!!" << std::endl;
+      if (have_generic_display_objects_to_draw()) {
+         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 model_rotation = get_model_rotation();
+         glm::vec4 bg_col_v4(background_colour, 1.0f);
+         auto ccrc = RotationCentre();
+         glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+         glm::vec3 eye_position;
+         float opacity = 1.0;
+         bool do_depth_fog = false;
+         int light_index =  0;
+         glm::mat4 light_view_mvp = get_light_space_mvp(light_index);
+         bool show_just_shadows = false;
+
+         for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+            generic_display_objects[i].mesh.draw_with_shadows(&shader_for_meshes_with_shadows,
+                                                              mvp, model_rotation, lights, eye_position, opacity,
+                                                              bg_col_v4, do_depth_fog, light_view_mvp,
+                                                              shadow_depthMap_texture, shadow_strength, shadow_softness,
+                                                              show_just_shadows);
          }
       }
    }
@@ -2177,6 +2261,8 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
    // Yes, identity matrix
    // std::cout << "p: " << glm::to_string(p) << std::endl;
 
+   // 20231121-PE Hack for now:
+   if (pass_type == PASS_TYPE_WITH_SHADOWS) pass_type = PASS_TYPE_STANDARD;
 
    if (draw_meshes) { //local, debugging
       bool have_meshes_to_draw = false;
@@ -2234,7 +2320,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                                                 view_matrix,
                                                 projection_matrix);
                   }
-                  if (pass_type == PASS_TYPE_FOR_SHADOWS) { // i.e. generating the shadow map, not using it.
+                  if (pass_type == PASS_TYPE_GEN_SHADOW_MAP) { // i.e. generating the shadow map, not using it.
 
                      glm::vec3 dummy_eye_position;
                      bool gl_lines_mode = false;
@@ -4382,7 +4468,7 @@ graphics_info_t::render_3d_scene_with_shadows() {
 
    draw_pointer_distances_objects();
 
-   draw_extra_distance_restraints(PASS_TYPE_FOR_SHADOWS); // GM_restraints
+   draw_extra_distance_restraints(PASS_TYPE_WITH_SHADOWS); // GM_restraints. 20231121-PE is this the right pass type?
 
    draw_texture_meshes();
 
@@ -5841,6 +5927,9 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
    if (!moving_atoms_asc->mol)
       return;
 
+   // 20231121-PE HACK for now:
+   if (pass_type == PASS_TYPE_WITH_SHADOWS) pass_type = PASS_TYPE_STANDARD;
+
    if (! draw_it_for_moving_atoms_restraints_graphics_object_user_control) return;
 
    // std::cout << "draw_extra_distance_restraints() pass_type: " << pass_type << std::endl;
@@ -6640,13 +6729,14 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
 
    if (is_valid_map_molecule(imol_scroll)) {
       // use direction
-      if (direction == 1)
-         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
-      if (direction == -1)
-         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
+      if (direction ==  1) molecules[imol_scroll].pending_contour_level_change_count--;
+      if (direction == -1) molecules[imol_scroll].pending_contour_level_change_count++;
 
-      // std::cout << "INFO:: contour level for map " << imol_scroll << " is "
-      // << molecules[imol_scroll].contour_level << std::endl;
+      std::cout << "INFO:: contour level for map " << imol_scroll << " is "
+                << molecules[imol_scroll].contour_level
+                << " pending: " << molecules[imol_scroll].pending_contour_level_change_count
+                << std::endl;
+
       set_density_level_string(imol_scroll, molecules[imol_scroll].contour_level);
       display_density_level_this_image = 1;
 
@@ -6728,3 +6818,44 @@ graphics_info_t::unfullscreen() {
       g_error("%p is not a Gtk.Window !", window);
    }
 }
+
+#include "pumpkin.hh"
+ void
+    graphics_info_t::pumpkin() {
+
+    std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > p1 = ::pumpkin();
+    std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > p2 = ::pumpkin_stalk();
+    
+    glm::vec4 col_1(0.85, 0.45, 0.19, 1.0);
+    glm::vec4 col_2(0.35, 0.45, 0.19, 1.0);
+    attach_buffers();
+    std::vector<s_generic_vertex> v1(p1.first.size());
+    std::vector<s_generic_vertex> v2(p2.first.size());
+
+    coot::Cartesian scc = get_rotation_centre_cart();
+    glm::vec3 sc(scc.x(), scc.y(), scc.z());
+    for (unsigned int i=0; i<p1.first.size(); i++)
+       v1[i] = s_generic_vertex(2.0f * p1.first[i].pos + sc, p1.first[i].normal, col_1);
+    for (unsigned int i=0; i<p2.first.size(); i++)
+       v2[i] = s_generic_vertex(2.0f * p2.first[i].pos + sc, p2.first[i].normal, col_2);
+
+    // add v2 to v1
+    unsigned int idx_base = p1.first.size();
+    unsigned int idx_tri_base = p1.second.size();
+    v1.insert(v1.end(), v2.begin(), v2.end());
+    std::vector<g_triangle> triangles = p1.second;
+    triangles.insert(triangles.end(), p2.second.begin(), p2.second.end());
+    for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
+       triangles[i].rebase(idx_base);
+
+    Mesh m(v1, triangles);
+    m.set_name("Pumpkin");
+    Material material;
+    m.setup(material);
+    meshed_generic_display_object obj(m);
+
+    generic_display_objects.push_back(obj);
+
+    graphics_draw();
+
+ }

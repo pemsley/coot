@@ -60,6 +60,8 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
    }
    double x = drag_begin_x + drag_delta_x;
    double y = drag_begin_y + drag_delta_y;
+   double delta_delta_x = x - get_mouse_previous_position_x();
+   double delta_delta_y = y - get_mouse_previous_position_y();
    set_mouse_previous_position(x, y);
 
    if (in_moving_atoms_drag_atom_mode_flag) {
@@ -68,9 +70,7 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
          move_atom_pull_target_position(x, y);
       }
    } else {
-      int x_as_int = static_cast<int>(x);
-      int y_as_int = static_cast<int>(y);
-      rotate_chi(x_as_int, y_as_int);
+      rotate_chi(delta_delta_x, delta_delta_y);
    }
 }
 
@@ -165,10 +165,13 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
       } else {
          // zoom with chording. Check both because currently
          // APPLE has primary swapped.
-         if (modifier & GDK_BUTTON1_MASK) {
-            if (modifier & GDK_BUTTON3_MASK) {
-               do_view_zoom(drag_delta_x, drag_delta_y);
-            }
+         bool do_chorded_view_zoom = false;
+         if (modifier & GDK_BUTTON1_MASK)
+            if (modifier & GDK_BUTTON3_MASK)
+               do_chorded_view_zoom = true;
+
+         if (do_chorded_view_zoom) {
+            do_view_zoom(drag_delta_x, drag_delta_y);
          } else {
 
             bool trackpad_drag = false;
@@ -677,8 +680,9 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
    shift_is_pressed = (modifier & GDK_SHIFT_MASK);
 
    bool handled = false;
-   std::cout << "on_glarea_scrolled() control_is_pressed " << control_is_pressed
-             << " shift_is_pressed " << shift_is_pressed << std::endl;
+   if (false)
+      std::cout << "on_glarea_scrolled() control_is_pressed " << control_is_pressed
+                << " shift_is_pressed " << shift_is_pressed << std::endl;
 
    if (control_is_pressed) {
       if (shift_is_pressed) {

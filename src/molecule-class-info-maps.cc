@@ -2225,101 +2225,114 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          auto tp_1 = std::chrono::high_resolution_clock::now();
          bool check_only = false;
          done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap, check_only);
+
          auto tp_2 = std::chrono::high_resolution_clock::now();
          auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-         std::cout << "INFO:: map read " << d21 << " milliseconds" << std::endl;
+         std::cout << "INFO:: map read in " << d21 << " milliseconds" << std::endl;
 
          // Now set is_em_map_cached_flag and set the rotation centres.
          // I think that we only need set the is_em_map_cached_flag.
          //
          if (done) {
-            try {
-               clipper_map_file_wrapper file;
-               file.open_read(filename);
-               set_is_em_map(file); // sets is_em_map_cached_flag
-               em = is_em_map_cached_flag;
+            if (is_gzip) {
+               em = true;
+               is_em_map_cached_flag = true; // who else gzip map files?
                if (imol_no == 0) {
-                  clipper::Cell c = file.cell();
+                  clipper::Cell c = xmap.cell();
                   coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
                   graphics_info_t g;
+                  std::cout << "INFO:: setRotationCentre " << m << std::endl;
                   g.setRotationCentre(m);
                }
-            }
-            catch (const clipper::Message_base &exc) {
-               std::cout << "WARNING:: failed to open " << filename << std::endl;
-               bad_read = true;
-            }
-         }
-      }
-
-      if (! is_gzip) {
-
-         if (! done) {
-            std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
-            // clipper::CCP4MAPfile file;
-            clipper_map_file_wrapper file;
-            try {
-               file.open_read(filename);
-
-               em = set_is_em_map(file);
-
-               bool use_xmap = true; // not an nxmap
-               if (true) {
-
-                  clipper::Grid_sampling fgs = file.grid_sampling();
-
-                  clipper::Cell fcell = file.cell();
-                  double vol = fcell.volume();
-                  if (vol < 1.0) {
-                     std::cout << "WARNING:: non-sane unit cell volume " << vol << " - skip read"
-                               << std::endl;
-                     bad_read = true;
-                  } else {
-                     try {
-                        file.import_xmap(xmap);
-                     }
-                     catch (const clipper::Message_generic &exc) {
-                        std::cout << "WARNING:: failed to read " << filename
-                                  << " Bad ASU (inconsistant gridding?)." << std::endl;
-                        bad_read = true;
-                     }
+            } else {
+               try {
+                  clipper_map_file_wrapper file;
+                  file.open_read(filename);
+                  set_is_em_map(file); // sets is_em_map_cached_flag
+                  em = is_em_map_cached_flag;
+                  if (imol_no == 0) {
+                     clipper::Cell c = file.cell();
+                     coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
+                     graphics_info_t g;
+                     std::cout << "INFO:: setRotationCentre " << m << std::endl;
+                     g.setRotationCentre(m);
                   }
-               } else {
-
-                  // Should never happen.  Not yet.
-                  //
-                  std::cout << "=================== EM Map NXmap =================== " << std::endl;
-                  file.import_nxmap(nxmap);
-                  std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
                }
-            } catch (const clipper::Message_base &exc) {
-               std::cout << "WARNING:: failed to open " << filename << std::endl;
-               bad_read = true;
-            }
-
-            std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
-
-            if (em) {
-
-               // If this was the first map, recentre to the middle of the cell
-               //
-               if (imol_no == 0) {
-                  clipper::Cell c = file.cell();
-                  coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
-                  new_centre.first = true;
-                  new_centre.second = m;
-                  std::cout << "INFO:: map appears to be EM map."<< std::endl;
-               }
-               std::cout << "INFO:: closing CCP4 map: " << filename << std::endl;
-               file.close_read();
-
-               if (new_centre.first) {
-                  graphics_info_t g;
-                  g.setRotationCentre(new_centre.second);
+               catch (const clipper::Message_base &exc) {
+                  std::cout << "WARNING:: failed to open " << filename << std::endl;
+                  bad_read = true;
                }
             }
          }
       }
+
+
+      if (! done) {
+         std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
+         // clipper::CCP4MAPfile file;
+         clipper_map_file_wrapper file;
+         try {
+            file.open_read(filename);
+
+            em = set_is_em_map(file);
+
+            bool use_xmap = true; // not an nxmap
+            if (true) {
+
+               clipper::Grid_sampling fgs = file.grid_sampling();
+
+               clipper::Cell fcell = file.cell();
+               double vol = fcell.volume();
+               if (vol < 1.0) {
+                  std::cout << "WARNING:: non-sane unit cell volume " << vol << " - skip read"
+                            << std::endl;
+                  bad_read = true;
+               } else {
+                  try {
+                     file.import_xmap(xmap);
+                  }
+                  catch (const clipper::Message_generic &exc) {
+                     std::cout << "WARNING:: failed to read " << filename
+                               << " Bad ASU (inconsistant gridding?)." << std::endl;
+                     bad_read = true;
+                  }
+               }
+            } else {
+
+               // Should never happen.  Not yet.
+               //
+               std::cout << "=================== EM Map NXmap =================== " << std::endl;
+               file.import_nxmap(nxmap);
+               std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
+            }
+         } catch (const clipper::Message_base &exc) {
+            std::cout << "WARNING:: failed to open " << filename << std::endl;
+            bad_read = true;
+         }
+
+         std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
+
+         if (em) {
+
+            // If this was the first map, recentre to the middle of the cell
+            //
+            if (imol_no == 0) {
+               clipper::Cell c = file.cell();
+               coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
+               new_centre.first = true;
+               new_centre.second = m;
+               std::cout << "INFO:: map appears to be EM map."<< std::endl;
+            }
+            std::cout << "INFO:: closing CCP4 map: " << filename << std::endl;
+            file.close_read();
+
+            if (new_centre.first) {
+               graphics_info_t g;
+               g.setRotationCentre(new_centre.second);
+            }
+         }
+      }
+
    } else {
       std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
       clipper::CNSMAPfile file;
@@ -2365,7 +2378,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       if (em)
          contour_level = 4.5*sqrt(var);
 
-      std::cout << "-------------------------  em " << em << " contour_level " << contour_level << std::endl;
+      std::cout << "INFO:: ------  em " << em << " contour_level " << contour_level << std::endl;
 
       std::cout << "      Map extents: ..... "
 		<< xmap.grid_sampling().nu() << " "
@@ -2387,6 +2400,9 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    int stat = imol_no;
    if (bad_read)
       stat = -1;
+
+   // std::cout << "&&&&&&&&&&&&&&& mc::read_ccp4_map() bad_read " << bad_read << std::endl;
+   // std::cout << "&&&&&&&&&&&&&&& mc::read_ccp4_map() returns stat " << stat << std::endl;
    return stat;
 }
 

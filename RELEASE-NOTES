@@ -1,4 +1,141 @@
 
+----
+
+  Release 1.1.01
+
+  o BUG-FIX: Added an operator<() function for density_correlation_stats_info_t
+             to fix compilation issue.
+             [Yoshitaka Moriwaki]
+
+----
+
+  Release 1.1
+  
+18 months after the release of Coot 1 it's time for Coot 1.1
+
+Coot 1.1 is a major change beyond Coot 1. It has required a lot of
+writing and rewriting and has been the focus of my work since last year.
+
+Technically (but briefly) we have rewritten the GUI again so that it is
+now is based on GTK4 (Coot 1 used GTK3). This has meant a lot of rewiring
+under the hood so that things behave similar to before [1].
+
+Many things, that is. Not all things. There are a few important
+differences - they are for the better (although you may not initially
+think so).
+
+   o View rotation is on right-mouse (except on Mac).
+   o Functions are activate in "Select First" mode (that means bringing
+     the atom/residue/chain of interest to the centre of the screen)
+     and then choosing the function. This is more consistent with the
+     use of hot-key/key-bindings.
+   o Widget "focus" is different in GTK4 - I don't yet fully understand it
+     at the moment, so, in case Coot "forgets" to revert focus back to the
+     main graphics widget, there is a "Grab Focus" button in the horizontal
+     toolbar.
+   o Many of the menu items have been moved around. Now they are far more
+     likely to be where they will finally end up.
+   o "Modelling" (as we like to label it in the UK) has its own top-level.
+   o "Modules" is now also on the top-level instead of being in the
+     "Calculate" menu.
+
+Not everything made it:
+
+   o "Symmetry by Molecule" has been removed (for the moment).
+   o RCrane and the glycan builder have yet to be brought back to working
+     order.
+   o FLEV, QED breakouts and Chemical Feature Clusters are still missing.
+   o The PISA interface is missing.
+
+I am grateful for the contributions from Jakub Smulski for help with
+this over the last year and to Global Phasing for the funding. Martin
+Noble has written the ribbon and surface representation code.
+
+At the moment, the terminal output is a bit verbose with debugging output.
+That will be reduced or removed in due course.
+
+Although I've not tried it, I hope/expect that this Coot will run very
+sweetly on a M2 Pro MacBook Pro... "M2 good, M3 better" - I suppose?
+
+Binaries:
+
+   Binaries have always been issue with Coot. The problem is that a
+   project of the scale of Coot needs (at least) 3 people [2],
+     o one for the scientific developments/new algorithms and publications
+     o one for the development of the GUI (and graphics in the case of Coot)
+     o one for the deployment of binaries - it takes time to produce binaries
+       for numerous versions of numerous operating systems and the many
+       changing/improving dependencies (to me this feels like a constantly
+       changing, never complete jigsaw puzzle)
+   And, although I recognise its importance, I just keep dropping the ball
+   for the third one (is has little intrinsic pleasure for me and is
+   completely invisible career-wise).
+
+   Coot on "Linux":
+
+      There is a build-script, build-coot-3-3 that works for me, soup to
+      nuts on a modern Ubuntu system. Not so much on Fedora though. I will
+      try to help if you try this method and things go wrong. Python and
+      its add-ons are exquisitely tricky to build and is not well documented,
+      however [3].
+
+      https://raw.githubusercontent.com/pemsley/coot/main/build-it-3-3
+
+   Coot on macOS:
+
+      Some Mac users might like to consider using Homebrew. At some stage
+      I hope that
+         $ brew install coot
+      will (just) work. But that will involve input from by Yoshitaka
+      Moriwaki who is looking after Coot in Homebrew (that might take a
+      month or two).  Right now, Mac-using homebrew-using Coot
+      enthusiasts can follow issue 33 on github:
+      https://github.com/pemsley/coot/issues/33
+
+   Coot on "Windows":
+
+      Bernhard Lohkamp is the font of all wisdom when it comes to
+      WinCoot. He will let us know his schedule. (Within a month though,
+      that is my understanding.)
+
+   via CCP4:
+
+      In the coming weeks CCP4 will review Coot 1.1 and decide if it is
+      acceptable to be added to the suite. If approved, that is the path
+      of least effort for me and many users.
+
+What about 0.9.x?
+
+   I will maintain the back-end/libraries until April 2024, then I will
+   reassess. It's just too much trouble to change the GUI though.
+
+Future:
+
+   With such a massive change set [4], there are bound to be bugs, so I imagine
+   a flurry of patch releases in the forthcoming weeks.
+
+   With this bad boy [5] out the door and with Lucrezia Catapano coming
+   back on-line I can spend more time on Moorhen [6] and the Blender
+   interface - hooray!
+
+   If you've got this far and can get this Coot to run, I have added an Easter
+   Egg for today (I'll tell you what it is: coot.halloween()).
+
+[1] To give you an idea of the scope of this work (and the speed at which the
+    interface for Coot was implemented) look how long it takes to rewrite a
+    GUI:
+    https://fosspost.org/gtk-4-0-released/
+[2] According to a Basic COCOMO model I found, a project of this size is the
+    output that can be expected from a team of 300 working for 56 months (make
+    of that what you will)
+[3] https://www.bassi.io/articles/2022/12/02/on-pygobject
+[4] The patch to go from 0.9.8.92 to 1.1 is 850k lines
+[5] meanings 3 and 4 in the wiktionary
+[6] moorhen.org
+
+
+----
+
   Release 0.9.8.92
 
  o FEATURE: Added copy_from_ncs_master_to_specific_other_chains_py(). Now one can update

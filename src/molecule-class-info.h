@@ -144,7 +144,7 @@ namespace molecule_map_type {
 #include "fragment-info.hh"
 #include "atom-name-bits.hh"
 #include "rama-rota-score.hh"
-#include "merge-molecule-results-info-t.hh"
+#include "api/merge-molecule-results-info-t.hh"
 #include "density-results-container-t.hh"
 
 #include "Shader.hh"
@@ -552,18 +552,6 @@ class molecule_class_info_t {
    coot::colour_t dots_colour;
    bool dots_colour_set;
 
-   // return -1 on not found
-   int get_atom_index(mmdb::Atom *atom) {
-     int idx = -1;
-     if (has_model()) {
-       int ic = -1;
-       if (atom->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
-	 idx = ic;
-       }
-     }
-     return idx;
-   }
-
    // save the data used for the fourier, so that we can use it to
    // sharpen the map:
    // uncommenting the following line causes a crash in the multi-molecule
@@ -819,6 +807,22 @@ public:        //                      public
 					 std::string sigi_col,
 					 float map_sampling_rate);
 
+   // return -1 on not found
+   // 20231025-PE this is now public because it is used in
+   //             on_model_toolbar_edit_chi_angles_button_clicked().
+   //             That can be reworked if needed to use an api
+   //             that doesn't take an atom pointer.
+   int get_atom_index(mmdb::Atom *atom) {
+     int idx = -1;
+     if (has_model()) {
+       int ic = -1;
+       if (atom->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
+	 idx = ic;
+       }
+     }
+     return idx;
+   }
+
    atom_selection_container_t atom_sel;
 
    // Shall we draw anything for this molecule?
@@ -1017,6 +1021,7 @@ public:        //                      public
    void make_ca_plus_ligands_and_sidechains_bonds(coot::protein_geometry *pg);
    void make_colour_by_chain_bonds(bool rebonding_is_needed); // simple/usual interfce to below function
    void make_colour_by_chain_bonds(const std::set<int> &no_bonds_to_these_atoms, bool c_only_flag, bool goodsell_mode, bool rebonding_is_needed);
+   void make_colour_by_ncs_related_chains(bool goodsell_mode); // presume rebonding *is* needed.
    void make_colour_by_molecule_bonds(bool rebonding_is_needed);
    void bonds_no_waters_representation();
    void bonds_sec_struct_representation();

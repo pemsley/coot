@@ -550,7 +550,7 @@ void add_to_database(const std::vector<std::string> &command_strings);
 /*  ----------------------------------------------------------------------- */
 /*                         Merge Molecules                                  */
 /*  ----------------------------------------------------------------------- */
-#include "merge-molecule-results-info-t.hh"
+#include "api/merge-molecule-results-info-t.hh"
 // return the status and vector of chain-ids of the new chain ids.
 //
 std::pair<int, std::vector<merge_molecule_results_info_t> > merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol);
@@ -2292,5 +2292,13 @@ clipper::Spacegroup scm_symop_strings_to_space_group(SCM symop_string_list);
 #ifdef USE_PYTHON
 clipper::Spacegroup py_symop_strings_to_space_group(PyObject *symop_string_list);
 #endif
+
+//! \brief enable or diable sounds (coot needs to have been compiled with sounds of course)
+void set_use_sounds(bool state);
+
+//! no sounds
+void curmudgeon_mode();
+
+void halloween();
 
 #endif // CC_INTERFACE_HH

@@ -378,7 +378,7 @@ on_glarea_swipe(GtkEventControllerScroll *controller,
                 gpointer                  user_data) {
 
    graphics_info_t g;
-   std::cout << "swipe " << dx << " " << dy << std::endl;
+   // std::cout << "swipe " << dx << " " << dy << std::endl;
 
    GtkGestureSwipe *swipe_gesture; // how to get this?
    double vel_x;
@@ -649,9 +649,9 @@ new_startup_application_activate(GtkApplication *application,
    activate_data->application = application;
 
 #ifdef WINDOWS_MINGW
-   std::string window_name = "GTK4 WinCoot-" + std::string(VERSION);
+   std::string window_name = "WinCoot-" + std::string(VERSION);
 #else
-   std::string window_name = "GTK4 Coot-" + std::string(VERSION);
+   std::string window_name = "Coot-" + std::string(VERSION);
 #endif
    GtkWidget *app_window = gtk_application_window_new(application);
    gtk_window_set_application(GTK_WINDOW(app_window), application);
@@ -731,9 +731,9 @@ new_startup_application_activate(GtkApplication *application,
       if (coot::file_exists(preferences_ui_file_name))
          preferences_ui_file_name_full = preferences_ui_file_name;
       GtkBuilder *preferences_builder = gtk_builder_new();
-      std::cout << "::::::::::::::::::::::: reading " << preferences_ui_file_name_full << std::endl;
+      // std::cout << "::::::::::::::::::::::: reading " << preferences_ui_file_name_full << std::endl;
       status = gtk_builder_add_from_file(preferences_builder, preferences_ui_file_name_full.c_str(), &error);
-      std::cout << "::::::::::::::::::::::: done reading " << preferences_ui_file_name_full << std::endl;
+      // std::cout << "::::::::::::::::::::::: done reading " << preferences_ui_file_name_full << std::endl;
       if (status == FALSE) {
          std::cout << "ERROR:: Failure to read or parse " << preferences_ui_file_name_full << std::endl;
          std::cout << error->message << std::endl;
@@ -743,7 +743,10 @@ new_startup_application_activate(GtkApplication *application,
 
       python_init();
 
-      handle_command_line_data(activate_data->cld);
+      // 20231114-PE we can't handle the command line data until the graphics have started.
+      // so this should be in the realize() function for the graphics widget.
+      // handle_command_line_data(activate_data->cld);
+
       if (activate_data->cld.do_graphics)
          graphics_info.use_graphics_interface_flag = true;
 
@@ -783,8 +786,8 @@ new_startup_application_activate(GtkApplication *application,
       gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
       gtk_window_set_application(GTK_WINDOW(app_window), application);
 #ifdef __APPLE__
-      gtk_widget_set_size_request(gl_area, 600, 600); // Hmm
-      gtk_window_set_default_size(GTK_WINDOW(app_window), 900, 900);
+      gtk_widget_set_size_request(gl_area, 550, 550); // Hmm
+      gtk_window_set_default_size(GTK_WINDOW(app_window), 580, 580);
       gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
       gtk_widget_set_visible(app_window, TRUE);
       gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
@@ -809,10 +812,14 @@ new_startup_application_activate(GtkApplication *application,
 
       create_actions(application);
 
+      // again?
       setup_python_with_coot_modules(argc, argv);
 
       setup_gui_components();
       setup_go_to_residue_keyboarding_mode_entry_signals();
+
+      // now we are ready to show graphical objects made from reading files:
+      handle_command_line_data(activate_data->cld);
 
       // load_tutorial_model_and_data();
       delete activate_data;
@@ -823,11 +830,7 @@ new_startup_application_activate(GtkApplication *application,
          return G_SOURCE_REMOVE;
       }, splash_screen);
 
-#if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 74 || GLIB_MAJOR_VERSION > 2
-      g_idle_add_once((GSourceOnceFunc)[](gpointer user_data) { run_command_line_scripts(); }, nullptr);
-#else
-      std::cout << "WARNING:: Rebuild Coot against Glib >= 2.74. Won't run commandline scripts." << std::endl;
-#endif
+      g_idle_add([](gpointer user_data) { run_command_line_scripts(); return FALSE; }, nullptr);
       return G_SOURCE_REMOVE;
    }, activate_data);
 
@@ -901,8 +904,9 @@ int new_startup(int argc, char **argv) {
 
    load_css();
 
-   // GTK version
-   std::cout << "GTK " << GTK_MAJOR_VERSION << "." << GTK_MINOR_VERSION << "." << GTK_MICRO_VERSION << std::endl;
+   // Tell us the GTK version
+   std::cout << "INFO:: built with GTK " << GTK_MAJOR_VERSION << "." << GTK_MINOR_VERSION << "." << GTK_MICRO_VERSION
+             << std::endl;
 
    GtkWidget *splash_screen = new_startup_create_splash_screen_window();
    gtk_widget_set_visible(splash_screen, TRUE);

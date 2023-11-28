@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-AC_INIT([coot],[1.0.06-pre])
+AC_INIT([coot],[1.1.02])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -206,7 +206,14 @@ dnl    echo checking GUILE_VERSION: $GUILE_VERSION
 dnl    AC_SUBST(GUILE_VERSION)
 dnl fi
 
-GUILE_FLAGS
+AC_ARG_WITH([guile], AS_HELP_STRING([--with-guile]), with_guile=true, with_guile=false)
+if test "x$with_guile" = xtrue ; then
+   GUILE_FLAGS
+fi
+AM_CONDITIONAL(USE_GUILE, [test x$USE_GUILE = xuse_guile])
+
+
+
 if test "x$GUILE_CFLAGS" = x ; then
    :
 else
