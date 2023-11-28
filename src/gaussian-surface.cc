@@ -81,6 +81,10 @@ int gaussian_surface(int imol) {
 
       glm::vec4 col = colour_holder_to_glm(ch);
       std::string chain_id = chain_p->GetChainID();
+
+      // gaussian surface optional args:
+      // float sigma=4.4, float contour_level=4.0, float box_radius=5.0, float grid_scale=0.7);
+      //
       coot::gaussian_surface_t gauss_surf(mol, chain_id);
       coot::simple_mesh_t smesh = gauss_surf.get_surface();
       std::vector<s_generic_vertex> vertices(smesh.vertices.size());

@@ -105,16 +105,23 @@ Fun: flattening difference map peaks animation:
 
 Science: Get the Cryo-EM servalcat difference map working
 
+Science: analytical gradients for Gaussian surfaces
+
+Science: Make a exponential_approx function that uses a pre-calculated table
+         and use it to make smooth normals for the vertices of a gaussian surface.
+         Extra points for multi-threading.
+
 Useful: multi-thread the rmsd calculation, so that the Coot points
         calculation in cryo-EM maps is fast(er).
 
 Science: middle of blob for EM fitting, try 3908?
 
-Science: analytical gradients for Gaussian surfaces
-
 What was this?
 //  std::tuple<double, double, double> eigens = fast_eigens(mat, true);
 Now commented.
+it was in distortions.cc
+and removed in a33ff7e03c5f6665f9b7b3f4088451e6f97d5c73.
+Looks like I abandoned something interesting.
 
 ---- older issues ---
 
