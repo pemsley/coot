@@ -488,7 +488,7 @@ coot::molecule_t::write_shelx_ins_file(const std::string &filename) const {
 
 
 std::vector<mmdb::Residue *>
-coot::molecule_t::select_residues(const residue_spec_t &residue_spec, const std::string &mode) const {
+coot::molecule_t::select_residues(const residue_spec_t &residue_spec, const std::string &mode_in) const {
 
    // why is this not in utils? Make it so.
 
@@ -518,6 +518,8 @@ coot::molecule_t::select_residues(const residue_spec_t &residue_spec, const std:
       return rv;
    };
 
+   std::string mode = mode_in;
+   if (mode == "LITERAL") mode = "SINGLE";
    std::vector<mmdb::Residue *> rv;
    mmdb::Manager *mol = atom_sel.mol;
    mmdb::Residue *residue_p = coot::util::get_residue(residue_spec, mol);

@@ -720,16 +720,17 @@ int test_rsr_using_multi_atom_cid(molecules_container_t &mc) {
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
    mc.set_imol_refinement_map(imol_map);
    int n_cycles = 1000;
-   std::string mode = "SPHERE";
-   std::string multi_cid = "//A/10";
+   std::string mode = "SINGLE";
+   std::string multi_cid = "//A/10-12";
    mmdb::Manager *mol = mc.get_mol(imol);
    mmdb::Manager *mol_orig = coot::util::copy_molecule(mol);
    mc.refine_residues_using_atom_cid(imol, multi_cid, mode, n_cycles);
    int n_diffs_1 = get_n_diffs(mol, mol_orig);
-   multi_cid = "//A/10||//A/20";
+   multi_cid = "//A/10-12||//A/20-22";
    mc.refine_residues_using_atom_cid(imol, multi_cid, mode, n_cycles);
    int n_diffs_2 = get_n_diffs(mol, mol_orig);
    if (n_diffs_2 > (n_diffs_1 + 10)) status = 1;
+   std::cout << "n_diffs_1 " << n_diffs_1 << " n_diffs_2 " << n_diffs_2 << std::endl;
 
    return status;
 }
@@ -4067,6 +4068,7 @@ int main(int argc, char **argv) {
    // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
 
    status += run_test(test_rsr_using_multi_atom_cid, "multi-atom-cid RSR",    mc);
+   //status += run_test(test_rsr_using_atom_cid, "atom-cid RSR",    mc);
 
    // status += run_test(test_residues_near_residues, "residues near residues",    mc);
 

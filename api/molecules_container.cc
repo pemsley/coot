@@ -2446,12 +2446,24 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
    // std::cout << "starting refine_residues_using_atom_cid() with imol_refinement_map " << imol_refinement_map
    // << std::endl;
 
+   auto debug_selected_residues = [cid] (const std::vector<mmdb::Residue *> &rv) {
+      std::cout << "refine_residues_using_atom_cid(): selected these " << rv.size() << " residues "
+         " from cid: " << cid << std::endl;
+      std::vector<mmdb::Residue *>::const_iterator it;
+      for (it=rv.begin(); it!=rv.end(); ++it) {
+         std::cout << "   " << coot::residue_spec_t(*it) << std::endl;
+      }
+   };
+
+
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map)) {
          // coot::atom_spec_t spec = atom_cid_to_atom_spec(imol, cid);
          // status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode, n_cycles);
          std::vector<mmdb::Residue *> rv = molecules[imol].select_residues(cid, mode);
+
+         // debug_selected_residues(rv);
          std::string alt_conf = "";
          status = refine_direct(imol, rv, alt_conf, n_cycles);
       } else {
