@@ -663,6 +663,15 @@ molecules_container_t::get_group_for_monomer(const std::string &residue_name) co
    return s;
 }
 
+//! write a PNG for the given compound_id
+void
+molecules_container_t::write_png(const std::string &compound_id, const std::string &file_name) const {
+
+   // For now, let's use RDKit PNG depiction, not lidia-core/pyrogen
+
+}
+
+
 
 // 20221030-PE nice to have one day
 // int

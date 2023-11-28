@@ -303,6 +303,10 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
                      rmit.n_atoms += comp_atom(mmCIFLoop, imol_enc, true);
                   if (cat_name == "_pdbx_chem_comp_model_bond")
                      rmit.n_atoms += comp_bond(mmCIFLoop, imol_enc, true);
+
+                  // PDBe depection
+                  if (cat_name == "_pdbe_chem_comp_atom_depiction")
+                     pdbe_chem_comp_atom_depiction(mmCIFLoop, imol_enc);
                }
             }
             if (n_chiral) {
@@ -897,6 +901,53 @@ coot::protein_geometry::simple_mon_lib_chem_comp(mmdb::mmcif::PLoop mmCIFLoop, i
    }
    return comp_id;
 }
+
+void
+coot::protein_geometry::pdbe_chem_comp_atom_depiction(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
+
+   int ierr = 0;
+   std::vector<depiction_atom_t> dav;
+   std::set<std::string> comp_id_set;
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      std::string atom_id, element;
+      double model_Cartn_x, model_Cartn_y;
+      int pdbx_ordinal;
+      char *s = mmCIFLoop->GetString("comp_id", j, ierr);
+      if (s) {
+         std::string comp_id = std::string(s);
+         comp_id_set.insert(comp_id);
+      }
+      s = mmCIFLoop->GetString("atom_id", j, ierr);
+      if (s) {
+         atom_id = std::string(s);
+      }
+      s = mmCIFLoop->GetString("element", j, ierr);
+      if (s) {
+         element = std::string(s);
+      }
+      int ierr_x   = mmCIFLoop->GetReal(model_Cartn_x, "model_Cartn_x", j);
+      int ierr_y   = mmCIFLoop->GetReal(model_Cartn_y, "model_Cartn_x", j);
+      int ierr_ord = mmCIFLoop->GetInteger(pdbx_ordinal, "pdbx_ordinal", j);
+
+      if (ierr == 0 && ierr_x == 0 && ierr_y == 0 && ierr_ord == 0) {
+         depiction_atom_t da(atom_id, element, model_Cartn_x, model_Cartn_y, pdbx_ordinal);
+         dav.push_back(da);
+      }
+   }
+   if (! dav.empty()) {
+      if (comp_id_set.size() == 1) {
+         std::string comp_id = *comp_id_set.begin();
+         chem_comp_atom_depiction_t d(comp_id, dav);
+         int idx = get_monomer_restraints_index(comp_id, imol_enc, true);
+         if (idx >= 0) {
+            dict_res_restraints[idx].second.depiction = d;
+            std::cout << "debug:: pdbe_chem_comp_atom_depiction() added depiction of "
+                      << dav.size() << " atoms " << std::endl;
+         }
+      }
+   }
+}
+
 
 // is_from_pdbx_model_atom is a optional argument bool false default
 //

@@ -3938,6 +3938,21 @@ int test_ncs_chains(molecules_container_t &mc) {
    return status;
 }
 
+int test_pdbe_dictionary_depiction(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // this test doesn't have a good/correct success criterion.
+   // Just that the file is written. It is up to us to look at the image.
+
+   mc.import_cif_dictionary(reference_data("HEM.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY); // from Oliver Smart
+   mc.write_png("HEM", "HEM-depiction.png");
+
+   return status;
+}
+
+
 
 int test_template(molecules_container_t &mc) {
 
@@ -4065,9 +4080,12 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
+   status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction",    mc);
+
    // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
 
-   status += run_test(test_rsr_using_multi_atom_cid, "multi-atom-cid RSR",    mc);
+   // status += run_test(test_rsr_using_multi_atom_cid, "multi-atom-cid RSR",    mc);
+
    //status += run_test(test_rsr_using_atom_cid, "atom-cid RSR",    mc);
 
    // status += run_test(test_residues_near_residues, "residues near residues",    mc);

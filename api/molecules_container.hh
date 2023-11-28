@@ -498,6 +498,9 @@ public:
    //! return the group for the give residue name
    std::string get_group_for_monomer(const std::string &residue_name) const;
 
+   //! write a PNG for the given compound_id
+   void write_png(const std::string &compound_id, const std::string &file_name) const;
+
    //! write the coordinate to the give file name
    //! @return 1 on success and 0 on failure
    int write_coordinates(int imol, const std::string &file_name) const;
