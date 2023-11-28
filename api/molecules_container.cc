@@ -663,12 +663,36 @@ molecules_container_t::get_group_for_monomer(const std::string &residue_name) co
    return s;
 }
 
+#include <GraphMol/MolDraw2D/MolDraw2DCairo.h>
+#include "lidia-core/rdkit-interface.hh"
+
 //! write a PNG for the given compound_id
 void
-molecules_container_t::write_png(const std::string &compound_id, const std::string &file_name) const {
+molecules_container_t::write_png(const std::string &compound_id, int imol_enc,
+                                 const std::string &file_name) const {
 
    // For now, let's use RDKit PNG depiction, not lidia-core/pyrogen
 
+   std::pair<short int, coot::dictionary_residue_restraints_t> r_p =
+      geom.get_monomer_restraints(compound_id, imol_enc);
+
+   std::cout << ":::::::::::::::::::::::::: r_p.first " << r_p.first << std::endl;
+   if (r_p.first) {
+      const auto &restraints = r_p.second;
+      std::pair<int, RDKit::RWMol> mol_pair = coot::rdkit_mol_with_2d_depiction(restraints);
+      std::cout << ":::::::::::::::::::::::::: mol_pair.first " << mol_pair.first << std::endl;
+      if (mol_pair.first >= 0) {
+         const auto &rdkit_mol(mol_pair.second);
+         RDKit::MolDraw2DCairo drawer(500, 500);
+         drawer.drawMolecule(rdkit_mol);
+         drawer.finishDrawing();
+         std::string dt = drawer.getDrawingText();
+         std::ofstream f(file_name.c_str());
+         f << dt;
+         f << "\n";
+         f.close();
+      }
+   }
 }
 
 

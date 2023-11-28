@@ -49,6 +49,9 @@ namespace coot {
                                                                               // the dictionary if
                                                                               // you can.
 
+   // Fill a conformer with the 2D depiction if you can. The first is the conformer id, -1 means failure
+   std::pair<int, RDKit::RWMol> rdkit_mol_with_2d_depiction(const dictionary_residue_restraints_t &restraints);
+
    // this can return a molecule with 0 atoms (e.g. atom is a ZN and there is 1 atom in the dictionary -
    // so no bonded atoms - hence empty molecule is returned).
    //

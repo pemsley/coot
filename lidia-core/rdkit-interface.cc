@@ -889,6 +889,36 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
    return m;
 }
 
+// Fill a conformer with the 2D depiction if you can, else first is -1
+std::pair<int, RDKit::RWMol>
+coot::rdkit_mol_with_2d_depiction(const dictionary_residue_restraints_t &restraints) {
+
+   RDKit::RWMol mol = rdkit_mol(restraints);
+   if (restraints.depiction.empty()) {
+      return std::make_pair(-1, mol);
+   } else {
+      // happy path
+      RDKit::MolOps::removeHs(mol);
+      std::cout << "atom number compare " << mol.getNumAtoms() << " " << restraints.depiction.atoms.size()
+                << std::endl;
+      if (mol.getNumAtoms() == restraints.depiction.atoms.size()) {
+         RDKit::Conformer *conf = new RDKit::Conformer(mol.getNumAtoms());
+         conf->set3D(false);
+         for (unsigned int i=0; i<restraints.depiction.atoms.size(); i++) {
+            const auto &atom(restraints.depiction.atoms[i]);
+            RDGeom::Point3D pos(atom.x, atom.y, 0.0);
+            conf->setAtomPos(i, pos);
+         }
+         int iconf = mol.addConformer(conf);
+         std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHappy return " << iconf << std::endl;
+         return std::make_pair(iconf, mol);
+      } else {
+         return std::make_pair(-1, mol);
+      }
+   }
+}
+
+
 void
 coot::set_atom_chirality(RDKit::Atom *rdkit_at,
 			 mmdb::Atom *at,

@@ -8,6 +8,9 @@
 
 ----
 
+Graphics: Coot looks up when with multiple pulls on a atom pull restraint (with GM restraints on).
+          Or maybe it's multiple atom pull restraints? This will need some thought.
+
 GUI: Crash when "Modified" button is pressed in the "Open Coords" dialog
 
 GUI: Moorhen tutorial 4 is (shold be) nice for key-binding (flip and rotamer)

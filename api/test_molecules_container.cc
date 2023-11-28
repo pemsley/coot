@@ -1072,6 +1072,46 @@ int test_copy_fragment_using_cid(molecules_container_t &mc) {
    return status;
 }
 
+int test_copy_fragment_for_refinement_using_cid(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+   mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+   if (at_1) {
+      std::string cid = "//A/131-140";
+      int imol_new = mc.copy_fragment_for_refinement_using_cid(imol, cid);
+      if (mc.is_valid_model_molecule(imol_new)) {
+         std::vector<mmdb::Residue *> residues;
+         mmdb::Manager *mol = mc.get_mol(imol_new);
+         int imod = 1;
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     residues.push_back(residue_p);
+                  }
+               }
+            }
+         }
+         if (residues.size() == 10) {
+            coot::atom_spec_t atom_spec_2("A", 136, "", " O  ","");
+            mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec_2);
+            if (at_2)
+               status = 1;
+         }
+      }
+   }
+   return status;
+}
+
 int test_move_molecule_here(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -3947,7 +3987,7 @@ int test_pdbe_dictionary_depiction(molecules_container_t &mc) {
    // Just that the file is written. It is up to us to look at the image.
 
    mc.import_cif_dictionary(reference_data("HEM.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY); // from Oliver Smart
-   mc.write_png("HEM", "HEM-depiction.png");
+   mc.write_png("HEM", coot::protein_geometry::IMOL_ENC_ANY, "HEM-depiction.png");
 
    return status;
 }

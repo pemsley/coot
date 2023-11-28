@@ -8,6 +8,7 @@ AM_CPPFLAGS = \
 	$(CLIPPER_CXXFLAGS)                 \
 	$(MMDB_CXXFLAGS)                    \
 	$(PYTHON_CPPFLAGS)                  \
+	$(CAIRO_CFLAGS)                     \
 	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS) \
 	$(COOT_WINDOWS_CFLAGS)
 
