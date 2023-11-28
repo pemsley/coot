@@ -681,10 +681,11 @@ molecules_container_t::write_png(const std::string &compound_id, int imol_enc,
       const auto &restraints = r_p.second;
       std::pair<int, RDKit::RWMol> mol_pair = coot::rdkit_mol_with_2d_depiction(restraints);
       std::cout << ":::::::::::::::::::::::::: mol_pair.first " << mol_pair.first << std::endl;
-      if (mol_pair.first >= 0) {
+      int conf_id = mol_pair.first;
+      if (conf_id >= 0) {
          const auto &rdkit_mol(mol_pair.second);
          RDKit::MolDraw2DCairo drawer(500, 500);
-         drawer.drawMolecule(rdkit_mol);
+         drawer.drawMolecule(rdkit_mol, nullptr, nullptr, nullptr, conf_id);
          drawer.finishDrawing();
          std::string dt = drawer.getDrawingText();
          std::ofstream f(file_name.c_str());
