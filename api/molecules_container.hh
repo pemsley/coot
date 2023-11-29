@@ -501,6 +501,7 @@ public:
    std::string get_group_for_monomer(const std::string &residue_name) const;
 
    //! write a PNG for the given compound_id. imol can be IMOL_ENC_ANY
+   //! Currently this function does nothing (drawing is done with the not-allowed cairo)
    void write_png(const std::string &compound_id, int imol, const std::string &file_name) const;
 
    //! write the coordinate to the give file name

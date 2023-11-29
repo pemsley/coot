@@ -899,6 +899,7 @@ coot::rdkit_mol_with_2d_depiction(const dictionary_residue_restraints_t &restrai
    } else {
       // happy path
       RDKit::MolOps::removeHs(mol);
+      // Do we want a call to "PrepreMolForDrawing()" here?
       std::cout << "atom number compare " << mol.getNumAtoms() << " " << restraints.depiction.atoms.size()
                 << std::endl;
       if (mol.getNumAtoms() == restraints.depiction.atoms.size()) {
@@ -910,7 +911,7 @@ coot::rdkit_mol_with_2d_depiction(const dictionary_residue_restraints_t &restrai
             conf->setAtomPos(i, pos);
          }
          int iconf = mol.addConformer(conf);
-         std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHappy return " << iconf << std::endl;
+         std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHappy return iconf: " << iconf << std::endl;
          return std::make_pair(iconf, mol);
       } else {
          return std::make_pair(-1, mol);

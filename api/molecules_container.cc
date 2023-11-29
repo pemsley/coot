@@ -663,13 +663,18 @@ molecules_container_t::get_group_for_monomer(const std::string &residue_name) co
    return s;
 }
 
+
+#if 0 // 20231129-PE Cairo is not allowed.
 #include <GraphMol/MolDraw2D/MolDraw2DCairo.h>
 #include "lidia-core/rdkit-interface.hh"
+#endif
 
 //! write a PNG for the given compound_id
 void
 molecules_container_t::write_png(const std::string &compound_id, int imol_enc,
                                  const std::string &file_name) const {
+
+#if 0 // 20231129-PE Cairo is not allowed.
 
    // For now, let's use RDKit PNG depiction, not lidia-core/pyrogen
 
@@ -694,6 +699,7 @@ molecules_container_t::write_png(const std::string &compound_id, int imol_enc,
          f.close();
       }
    }
+#endif
 }
 
 
