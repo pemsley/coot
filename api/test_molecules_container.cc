@@ -3986,13 +3986,31 @@ int test_pdbe_dictionary_depiction(molecules_container_t &mc) {
    // this test doesn't have a good/correct success criterion.
    // Just that the file is written. It is up to us to look at the image.
 
-   mc.import_cif_dictionary(reference_data("HEM.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY); // from Oliver Smart
-   mc.write_png("HEM", coot::protein_geometry::IMOL_ENC_ANY, "HEM-depiction.png");
-
+   mc.import_cif_dictionary(reference_data("MOI.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY); // from Oliver Smart
+   mc.write_png("MOI", coot::protein_geometry::IMOL_ENC_ANY, "MOI-depiction.png");
+   if (coot::file_exists("MOI-depiction.png")) status = 1; // not a good test.
    return status;
 }
 
 
+int test_cif_writer(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mc.import_cif_dictionary(reference_data("HEM.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   std::string s1 = mc.get_cif_restraints_as_string("xHEMx", coot::protein_geometry::IMOL_ENC_ANY);
+   std::string s2 = mc.get_cif_restraints_as_string("HEM",   coot::protein_geometry::IMOL_ENC_ANY);
+   if (s1.length() == 0)
+      if (s2.length() > 10)
+         status = 1;
+   if (false) {
+      std::cout << "debug s2 length " << s2.length() << std::endl;
+      std::ofstream f("s2.out");
+      f << s2;
+      f.close();
+   }
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -4120,7 +4138,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction",    mc);
+   status += run_test(test_cif_writer, "mmCIF dictionary writer",    mc);
+
+   // status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction",    mc);
 
    // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
 

@@ -479,6 +479,8 @@ public:
    //! @return the dictionary read for the give residue type, return an empty string on failure
    //! to lookup the residue type
    std::string get_cif_file_name(const std::string &comp_id, int imol_enc) const;
+   //! @return a string that is the contents of a dictionary cif file
+   std::string get_cif_restraints_as_string(const std::string &comp_id, int imol_enc) const;
    //! get a monomer
    //! @return the new molecule index on success and -1 on failure
    int get_monomer(const std::string &monomer_name);

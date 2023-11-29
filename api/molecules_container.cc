@@ -4734,6 +4734,42 @@ molecules_container_t::get_cif_file_name(const std::string &comp_id, int imol_en
    return fn;
 }
 
+//! @return a string that is the contents of a dictionary cif file
+std::string
+molecules_container_t::get_cif_restraints_as_string(const std::string &comp_id, int imol_enc) const {
+
+   // make this a util function, or a class function at least
+   auto file_to_string = [] (const std::string &file_name) {
+      std::string s;
+      std::string line;
+      std::ifstream f(file_name.c_str());
+      if (!f) {
+         std::cout << "get_cif_restraints_as_string(): Failed to open " << file_name << std::endl;
+      } else {
+         while (std::getline(f, line)) {
+            s += line;
+            s += "\n";
+         }
+      }
+      return s;
+   };
+
+   std::string r;
+   std::pair<short int, coot::dictionary_residue_restraints_t> r_p =
+      geom.get_monomer_restraints(comp_id, imol_enc);
+
+   if (r_p.first) {
+      const auto &dict = r_p.second;
+      std::string fn("tmp.cif");
+      dict.write_cif(fn);
+      if (coot::file_exists(fn)) {
+         r = file_to_string(fn);
+      }
+   }
+   return r;
+}
+
+
 //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
 std::vector<coot::residue_spec_t>
 molecules_container_t::get_residues_near_residue(int imol, const std::string &residue_cid, float dist) const {
