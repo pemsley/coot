@@ -223,13 +223,16 @@ void
 on_model_toolbar_flip_peptide_button_clicked(GtkButton *button,
                                              gpointer   user_data) {
    graphics_info_t g;
-   auto active_atom = g.get_active_atom();
-   int imol = active_atom.first;
-   if (is_valid_model_molecule(imol)) {
-      auto &m = g.molecules[imol];
-      coot::atom_spec_t atom_spec(active_atom.second);
-      m.pepflip(atom_spec);
-      g.graphics_draw();
+   // we want the actual atom, not the CA of the residue
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = g.active_atom_spec_simple();
+   if (aa.first) {
+      int imol = aa.second.first;
+      if (is_valid_model_molecule(imol)) {
+         auto &m = g.molecules[imol];
+         coot::atom_spec_t atom_spec(aa.second.second);
+         m.pepflip(atom_spec);
+         g.graphics_draw();
+      }
    }
 }
 
