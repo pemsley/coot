@@ -6517,6 +6517,24 @@ graphics_info_t::setup_key_bindings() {
       return gboolean(TRUE);
    };
 
+   auto l44 = [] () {
+      graphics_info_t g;
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->mol) {
+            g.backrub_rotamer_intermediate_atoms();
+         }
+      } else {
+         std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+         int imol = aa.first;
+         if (is_valid_model_molecule(imol)) {
+            std::string alt_conf = aa.second->altLoc;
+            coot::residue_spec_t res_spec(coot::atom_spec_t(aa.second));
+            g.auto_fit_rotamer_ng(imol, res_spec, alt_conf);
+         }
+      }
+      return gboolean(TRUE);
+   };
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -6544,6 +6562,7 @@ graphics_info_t::setup_key_bindings() {
    // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_q,      key_bindings_t(l22, "Particles")));
    // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_y,      key_bindings_t(l24, "Add Terminal Residue")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_j,      key_bindings_t(l44, "Auto-fit Rotamer")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_k,      key_bindings_t(l25, "Fill Partial Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l28, "NCS Other Chain")));
