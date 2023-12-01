@@ -242,6 +242,14 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
                      }
                   }
 
+                  if (cat_name == "_gphl_chem_comp_info") {
+                     mmdb::mmcif::Struct *structure = data->GetStructure(cat_name.c_str());
+                     if (structure) {
+                        gphl_chem_comp_info(structure, imol_enc);
+                        handled = true;
+                     }
+                  }
+
                   if (! handled)   // this can happen if there is not an atom loop, e.g. dictionary
                                    // with one atom e.g. AM.cif (Americium ion)
                      std::cout << "WARNING:: in init_refmac_mon_lib() unhandled category \""
@@ -307,6 +315,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
                   // PDBe depection
                   if (cat_name == "_pdbe_chem_comp_atom_depiction")
                      pdbe_chem_comp_atom_depiction(mmCIFLoop, imol_enc);
+
                }
             }
             if (n_chiral) {
@@ -944,6 +953,60 @@ coot::protein_geometry::pdbe_chem_comp_atom_depiction(mmdb::mmcif::PLoop mmCIFLo
             std::cout << "debug:: pdbe_chem_comp_atom_depiction() added depiction of "
                       << dav.size() << " atoms " << std::endl;
          }
+      }
+   }
+}
+
+void
+coot::protein_geometry::gphl_chem_comp_info(mmdb::mmcif::PStruct structure, int imol_enc) {
+
+   gphl_chem_comp_info_t gphl_chem_comp_info;
+   std::vector<std::string> keys = {
+      "comp_id",
+      "arguments",
+      "run_date",
+      "grade2_version",
+      "grade2_date",
+      "rdkit_version",
+      "input_from",
+      "input_data",
+      "input_inchi",
+      "input_inchikey",
+      "input_inchi_match",
+      "rdkit_sanitization_problem",
+      "partial_charges_source",
+      "force_field",
+      "initial_energy",
+      "final_energy",
+      "mogul_version",
+      "mogul_data_libraries",
+      "csd_version",
+      "csd_python_api",
+      "coordinates_source",
+      "geometry_optimize_program",
+      "geometry_optimize_steps",
+      "geometry_optimize_initial_function",
+      "geometry_optimize_final_function",
+      "geometry_optimize_initial_rms_gradient",
+      "geometry_optimize_final_rms_gradient",
+      "geometry_optimize_initial_rms_bond_deviation",
+      "geometry_optimize_final_rms_bond_deviation",
+      "elapsed_seconds"};
+
+   int n_tags = structure->GetNofTags();
+   for (int itag=0; itag<n_tags; itag++) {
+      std::string tag   = structure->GetTag(itag);
+      std::string field = structure->GetField(itag);
+      gphl_chem_comp_info.add(tag, field);
+   }
+
+   int idx = gphl_chem_comp_info.get_index("comp_id");
+   if (idx >= 0) {
+      const std::string &comp_id = gphl_chem_comp_info[idx].second;
+      int idx_rest = get_monomer_restraints_index(comp_id, imol_enc, true);
+      if (idx_rest >= 0) {
+         dict_res_restraints[idx_rest].second.gphl_chem_comp_info = gphl_chem_comp_info;
+         std::cout << "debug:: adding a gphl info for " << comp_id << " of size " << gphl_chem_comp_info.info.size() << std::endl;
       }
    }
 }
