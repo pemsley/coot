@@ -670,3 +670,29 @@ on_dynamic_validation_include_missing_sidechains_checkbutton_toggled(GtkCheckBut
 }
 
 
+
+extern "C" G_MODULE_EXPORT
+void
+on_go_to_ligand_button_clicked(GtkButton *button,
+                               gpointer   user_data) {
+  go_to_ligand();
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_graphics_grab_focus_button_clicked (GtkButton       *button,
+                                       gpointer         user_data) {
+   graphics_info_t g;
+   g.graphics_grab_focus();
+}
+
+#include "cc-interface-graphics.hh"
+
+extern "C" G_MODULE_EXPORT
+void
+on_coot_points_button_clicked(GtkButton       *button,
+                              gpointer         user_data) {
+   show_coot_points_frame();
+}
+
