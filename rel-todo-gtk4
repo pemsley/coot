@@ -8,18 +8,20 @@
 
 ----
 
-Graphics: Coot looks up when with multiple pulls on a atom pull restraint (with GM restraints on).
+Graphics: Coot locks up when with multiple pulls on a atom pull restraint (with GM restraints on).
           Or maybe it's multiple atom pull restraints? This will need some thought.
+          Seems to need GM restraints
 
-GUI: Crash when "Modified" button is pressed in the "Open Coords" dialog
+GUI: when you close a molecule, check if it is one of the molecules being used for updating maps.
+     If it is, then turn off auto-updating maps.
 
-GUI: Moorhen tutorial 4 is (shold be) nice for key-binding (flip and rotamer)
+GUI: Fit loop seems to kill off Updating Maps.
 
-GUI: What is "J" doing? Not auto-fit rotamer!
+util: make valid_labels take string arguments
+
+GUI: LSQ fit dialog needs a clean-up.
 
 GUI: Where is pepflip Q in the key-bindings?
-
-GUI: Centre on a N in the mainchain "Flip peptide" flips the wrong peptide!
 
 GUI: Update the validation box when "flip peptide" button is pressed.
 
@@ -75,11 +77,13 @@ Moorhen: replace fragment: does it take the vertical bar?
          https://github.com/moorhen-coot/Moorhen/issues/13
 * Fixed?
 
-Moorhen: does get_bonds_mesh_instanced() take the vertical bar?
+Moorhen: does get_bonds_mesh_for_selection_instanced() take the vertical bar?
 * Fixed?
 
 Moorhen: Export input dictionary as string
          (perhaps write to a virtual file and then run file_to_string and return the result)
+
+Moorhen: what is the HB type of this atom?
 
 Find some Cryo-EM ligand for demo at the ligands meeting.
 * I found a couple so far.
@@ -1155,3 +1159,24 @@ What about coot --version?
 
 Colour rules (like Moorhen) need to be added to the Coot API.
 * Done
+
+
+GUI: Crash when "Modified" button is pressed in the "Open Coords" dialog
+     Bug in GTK 4.4
+
+GUI: Use trans peptide restraints toggle callback isn't working.
+* Done. There was no handler in the .ui file.
+
+Replace the B-chain with something with no problems in tutorial-modern.pdb
+* Done.
+
+GUI: What is "J" doing? Not auto-fit rotamer!
+* Fixed.
+
+GUI: Centre on a N in the mainchain "Flip peptide" flips the wrong peptide!
+* Fixed.
+
+GUI: Moorhen tutorial 4 is (should be) nice for key-binding (flip and rotamer). Try it.
+* Yes, it's very nice. Do something like it (create similar problems) for a different protein.
+  One with a ligand.
+
