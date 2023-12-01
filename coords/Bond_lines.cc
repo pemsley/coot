@@ -8617,8 +8617,9 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
    }
    col_idx_max += 1;
 
-   std::cout << "debug:: in graphical_bonds_atom_info_t::add_atom_centres() col_idx_max "
-             << col_idx_max << std::endl;
+   if (false)
+      std::cout << "debug:: in graphical_bonds_atom_info_t::add_atom_centres() col_idx_max "
+                << col_idx_max << std::endl;
 
    std::vector<unsigned int> counts(col_idx_max, 0);
 
@@ -8628,8 +8629,9 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
    consolidated_atom_centres = new graphical_bonds_points_list<graphical_bonds_atom_info_t>[col_idx_max];
    n_consolidated_atom_centres = col_idx_max;
 
-   std::cout << "debug:: in graphical_bonds_atom_info_t::add_atom_centres() n_consolidated_atom_centres "
-             << n_consolidated_atom_centres << std::endl;
+   if (false)
+      std::cout << "debug:: in graphical_bonds_atom_info_t::add_atom_centres() n_consolidated_atom_centres "
+                << n_consolidated_atom_centres << std::endl;
 
    for (int i=0; i<col_idx_max; i++)
       consolidated_atom_centres[i] = graphical_bonds_points_list<graphical_bonds_atom_info_t>(counts[i]);
