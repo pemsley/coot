@@ -1130,11 +1130,15 @@ extern "C" G_MODULE_EXPORT
 void
 on_refine_params_use_trans_peptide_restraints_checkbutton_toggled
                                         (GtkCheckButton *checkbutton,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
+
    if (gtk_check_button_get_active(checkbutton)) {
+      std::cout << "debug:: in on_refine_params_use_trans_peptide_restraints_checkbutton_toggled() "
+                << " active" << std::endl;
       set_use_trans_peptide_restraints(1);
    } else {
+      std::cout << "debug:: in on_refine_params_use_trans_peptide_restraints_checkbutton_toggled() "
+                << " inactive" << std::endl;
       set_use_trans_peptide_restraints(0);
    }
 }

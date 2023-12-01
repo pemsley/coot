@@ -566,8 +566,9 @@ molecule_class_info_t::fill_fobs_sigfobs() {
 
    // set original_fobs_sigfobs_filled when done
 
-   std::cout << "DEBUG:: in fill_fobs_sigfobs() with have_sensible_refmac_params "
-            << have_sensible_refmac_params << std::endl;
+   std::cout << "DEBUG:: in fill_fobs_sigfobs() with have_sensible_refmac_params: "
+             << have_sensible_refmac_params << " refmac_r_free_flag_sensible " << refmac_r_free_flag_sensible
+             << std::endl;
 
    if (have_sensible_refmac_params) {
 
@@ -1886,7 +1887,7 @@ molecule_class_info_t::set_refmac_save_state_commands(std::string mtz_file_name,
 						      std::string refmac_r_free_col,
 						      bool refmac_r_free_flag_sensible) {
 
-   have_sensible_refmac_params = 1;
+   have_sensible_refmac_params = true;
    save_state_command_strings_.clear();
    save_state_command_strings_.push_back("make-and-draw-map-with-refmac-params");
    save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(mtz_file_name)));
