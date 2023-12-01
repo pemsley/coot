@@ -926,7 +926,7 @@ coot::protein_geometry::pdbe_chem_comp_atom_depiction(mmdb::mmcif::PLoop mmCIFLo
          element = std::string(s);
       }
       int ierr_x   = mmCIFLoop->GetReal(model_Cartn_x, "model_Cartn_x", j);
-      int ierr_y   = mmCIFLoop->GetReal(model_Cartn_y, "model_Cartn_x", j);
+      int ierr_y   = mmCIFLoop->GetReal(model_Cartn_y, "model_Cartn_y", j);
       int ierr_ord = mmCIFLoop->GetInteger(pdbx_ordinal, "pdbx_ordinal", j);
 
       if (ierr == 0 && ierr_x == 0 && ierr_y == 0 && ierr_ord == 0) {
