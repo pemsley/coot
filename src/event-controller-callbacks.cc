@@ -608,12 +608,14 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
       return FALSE;
    };
 
+   // I like this function. It should be the callback of a button that gets added
+   // to the toolbar when you add Updating Maps.
    auto test_function = [coot_points_frame_callback] () {
       GtkWidget *frame = get_widget_from_builder("coot-points-frame");
       if (frame) {
          gtk_widget_set_visible(frame, TRUE);
          GSourceFunc cb = G_SOURCE_FUNC(coot_points_frame_callback);
-         g_timeout_add(3000, cb, nullptr);
+         g_timeout_add(4000, cb, nullptr);
       }
    };
 
@@ -630,11 +632,13 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
       std::cout << "on_glarea_key_controller_key_pressed() control_is_pressed " << control_is_pressed
                 << " shift_is_pressed " << shift_is_pressed << std::endl;
 
-   if (keyval == 101)
-      test_function();
+   // key-bindings for testing
+   //
+   // if (keyval == 101)  E
+   //    test_function();
 
-   if (keyval == 113)
-      load_tutorial_model_and_data_ec(); // ec: event-controller
+   // if (keyval == 113)  Q
+   //    load_tutorial_model_and_data_ec(); // ec: event-controller
 
    keyboard_key_t kbk(keyval, control_is_pressed);
    add_key_to_history(kbk);
