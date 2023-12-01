@@ -3098,8 +3098,10 @@ void unset_refine_params_dialog() {
 
 // We should allow labels that are simply "FWT" and "PHWT" without
 // dataset and xtal info.
-int valid_labels(const char *mtz_file_name, const char *f_col, const char *phi_col,
-		 const char *weight_col, int use_weights) {
+int valid_labels(const std::string &mtz_file_name, const std::string &f_col,
+		 const std::string &phi_col,
+		 const std::string &weight_col,
+		 bool use_weights) {
 
    int valid = 0;
 
