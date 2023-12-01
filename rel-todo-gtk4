@@ -17,11 +17,9 @@ GUI: when you close a molecule, check if it is one of the molecules being used f
 
 GUI: Fit loop seems to kill off Updating Maps.
 
-util: make valid_labels take string arguments
-
 GUI: LSQ fit dialog needs a clean-up.
 
-GUI: Where is pepflip Q in the key-bindings?
+GUI: Where is pepflip Q in the key-bindings?.
 
 GUI: Update the validation box when "flip peptide" button is pressed.
 
@@ -65,28 +63,10 @@ GUI: Rotate/Translate <fragment> doesn't work.
 
 GUI: No reaction to Aligment vs PIR (no PIR was loaded)
 
-Moorhen: Use dictionary_residue_restraints_t::write_cif() and then file_to_string()
-   to make a string dictionary for Martin. Add a test.
-
-Moorhen: rewrite ligand fitting to use a vector of threads, not the thread pool.
-* Done - sort of. Ligand geometry optimization has been removed. Seems fine.
-
-Moorhen: Export dictionary as string
-
-Moorhen: replace fragment: does it take the vertical bar?
-         https://github.com/moorhen-coot/Moorhen/issues/13
-* Fixed?
-
-Moorhen: does get_bonds_mesh_for_selection_instanced() take the vertical bar?
-* Fixed?
-
-Moorhen: Export input dictionary as string
-         (perhaps write to a virtual file and then run file_to_string and return the result)
+GUI: export test_function() in on_glarea_key_controller_key_pressed() so that it can be
+     used in a button that gets added to the toolbar when you add updating maps
 
 Moorhen: what is the HB type of this atom?
-
-Find some Cryo-EM ligand for demo at the ligands meeting.
-* I found a couple so far.
 
 Note: mmdb cif parser fails for 6eoj from the PDBe - display as CAs.
 * set_use_gemmi_as_model_molecule_parser(1) fixes it.
@@ -122,13 +102,6 @@ Useful: multi-thread the rmsd calculation, so that the Coot points
         calculation in cryo-EM maps is fast(er).
 
 Science: middle of blob for EM fitting, try 3908?
-
-What was this?
-//  std::tuple<double, double, double> eigens = fast_eigens(mat, true);
-Now commented.
-it was in distortions.cc
-and removed in a33ff7e03c5f6665f9b7b3f4088451e6f97d5c73.
-Looks like I abandoned something interesting.
 
 ---- older issues ---
 
@@ -1180,3 +1153,37 @@ GUI: Moorhen tutorial 4 is (should be) nice for key-binding (flip and rotamer). 
 * Yes, it's very nice. Do something like it (create similar problems) for a different protein.
   One with a ligand.
 
+util: make valid_labels take string arguments
+* Done.
+
+What was this?
+//  std::tuple<double, double, double> eigens = fast_eigens(mat, true);
+Now commented.
+it was in distortions.cc
+and removed in a33ff7e03c5f6665f9b7b3f4088451e6f97d5c73.
+Looks like I abandoned something interesting.
+* Done. It was needed.
+
+Moorhen: Use dictionary_residue_restraints_t::write_cif() and then file_to_string()
+   to make a string dictionary for Martin. Add a test.
+* Done.
+
+Moorhen: rewrite ligand fitting to use a vector of threads, not the thread pool.
+* Done - sort of. Ligand geometry optimization has been removed. Seems fine.
+
+Moorhen: Export dictionary as string
+* Done.
+
+Moorhen: replace fragment: does it take the vertical bar?
+         https://github.com/moorhen-coot/Moorhen/issues/13
+* Fixed?
+
+Moorhen: does get_bonds_mesh_for_selection_instanced() take the vertical bar?
+* Fixed?
+
+Moorhen: Export input dictionary as string
+         (perhaps write to a virtual file and then run file_to_string and return the result)
+* Done.
+
+Find some Cryo-EM ligand for demo at the ligands meeting.
+* I found a couple so far.
