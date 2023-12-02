@@ -69,6 +69,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
       catch (const std::runtime_error &e) {
          std::cout << "WARNING::" << e.what() << std::endl;
       }
+      graphics_info_t g;
+      g.graphics_grab_focus();
    };
 
 

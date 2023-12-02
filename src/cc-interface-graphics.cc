@@ -28,3 +28,22 @@ void do_smiles_to_simple_3d_overlay_frame() {
       gtk_widget_set_visible(frame, TRUE);
 
 }
+
+void show_coot_points_frame() {
+
+   auto coot_points_frame_callback = +[] (gpointer user_data) {
+      GtkWidget *frame = widget_from_builder("coot-points-frame");
+      if (frame) {
+         gtk_widget_set_visible(frame, FALSE);
+      }
+      return FALSE;
+   };
+
+   GtkWidget *frame = widget_from_builder("coot-points-frame");
+   if (frame) {
+      gtk_widget_set_visible(frame, TRUE);
+      GSourceFunc cb = G_SOURCE_FUNC(coot_points_frame_callback);
+      g_timeout_add(4000, cb, nullptr);
+   }
+
+}

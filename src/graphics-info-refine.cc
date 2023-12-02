@@ -139,7 +139,7 @@ graphics_info_t::updating_maps_update_the_coot_points_overlay() {
    if (frame) {
       gtk_widget_set_visible(frame, TRUE);
       GSourceFunc cb = G_SOURCE_FUNC(coot_points_frame_callback);
-      g_timeout_add(3500, cb, nullptr);
+      g_timeout_add(4000, cb, nullptr); // was 3500
    }
 
 }

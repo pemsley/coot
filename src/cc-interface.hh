@@ -243,6 +243,13 @@ std::vector<int> auto_read_make_and_draw_maps(const char *filename);
 std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &file_name);
 std::vector<int> auto_read_make_and_draw_maps_from_cns(const std::string &file_name);
 
+
+/*! \brief does the mtz file have the columms that we want it to have? */
+int valid_labels(const std::string &mtz_file_name, const std::string &f_col,
+		 const std::string &phi_col,
+		 const std::string &weight_col,
+		 bool use_weights_flag);
+
 /* ----- remove wiget functions from this header GTK-FIXME
 void add_map_colour_mol_menu_item(int imol, const std::string &name,
 				  GtkWidget *sub_menu, GtkSignalFunc callback);

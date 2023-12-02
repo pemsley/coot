@@ -326,6 +326,7 @@ coot::wligand::install_simple_wiggly_ligand(protein_geometry *pg,
 					    const minimol::molecule &ligand_in,
 					    int imol_ligand, int isample,
 					    bool optimize_geometry_flag) {
+
    coot::installed_wiggly_ligand_info_t l;
    short int istat = 0;
    std::string m = ""; 
@@ -487,7 +488,8 @@ coot::wligand::install_simple_wiggly_ligand(protein_geometry *pg,
 
 
    std::string alt_conf = "";
-   try { 
+   try {
+
       atom_tree_t tree(monomer_restraints.second, ligand_residue, alt_conf);
       // angles in degrees.
       tree.set_dihedral_multi(v);
@@ -589,7 +591,7 @@ coot::wligand::optimize_and_install_if_unique(const coot::minimol::residue &wigg
 #ifdef HAVE_GSL
       if (optimize_geometry_flag) { 
 	 coot::minimol::molecule reg_ligand = coot::regularize_minimol_molecule(wiggled_ligand, pg);
-	 if (is_unique_conformer(reg_ligand)) { 
+	 if (is_unique_conformer(reg_ligand)) {
 	    install_ligand(reg_ligand);
 	    if (fill_returned_molecules_vector_flag) {
 	       l.mol = reg_ligand;
@@ -597,7 +599,8 @@ coot::wligand::optimize_and_install_if_unique(const coot::minimol::residue &wigg
 	    } 
 	 }
       } else {
-	 if (is_unique_conformer(wiggled_ligand)) { 
+         bool is_unique_conf = is_unique_conformer(wiggled_ligand);
+	 if (is_unique_conf) {
 	    install_ligand(wiggled_ligand);
 	    if (fill_returned_molecules_vector_flag) { 
 	       l.mol = wiggled_ligand;

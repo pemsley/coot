@@ -62,6 +62,9 @@
 
 #include "metal-ligand.hh"
 
+#include "pdbe-chem-comp-atom-depiction.hh"
+#include "gphl-chem-comp-info.hh"
+
 namespace coot {
 
    std::string atom_id_mmdb_expand(const std::string &atomname);
@@ -792,6 +795,9 @@ namespace coot {
       std::vector   <dict_plane_restraint_t>   plane_restraint;
       std::vector   <dict_improper_dihedral_restraint_t>   improper_dihedral_restraint;
       pdbx_chem_comp_descriptor_container_t descriptors;
+      chem_comp_atom_depiction_t depiction;
+      gphl_chem_comp_info_t gphl_chem_comp_info;
+
       // Return 1 for hydrogen or deuterium, 0 for not found or not a hydrogen.
       bool is_hydrogen(const std::string &atom_name) const;
       bool is_hydrogen(unsigned int ) const; // the index of an atom in atom_info is passed.
@@ -1373,7 +1379,11 @@ namespace coot {
       void link_torsion(mmdb::mmcif::PLoop mmCIFLoop); 
       void link_plane  (mmdb::mmcif::PLoop mmCIFLoop);
       int  link_chiral  (mmdb::mmcif::PLoop mmCIFLoop); // return number of new chirals
-      void pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc); 
+      void pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+
+      void pdbe_chem_comp_atom_depiction(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+
+      void gphl_chem_comp_info(mmdb::mmcif::PStruct structure, int imol_enc);
 
       // return the comp id (so that later we can associate the file name with the comp_id).
       // 

@@ -374,6 +374,9 @@ public:
    //! @return 1 on successful closure and 0 on failure to close
    int close_molecule(int imol);
 
+   //! @return the eigenvalues of the atoms in the specified residue
+   std::vector<double> get_eigenvalues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
+
    //! @return the mesh of a unit solid cube at the origin
    coot::simple_mesh_t test_origin_cube() const;
 
@@ -476,6 +479,8 @@ public:
    //! @return the dictionary read for the give residue type, return an empty string on failure
    //! to lookup the residue type
    std::string get_cif_file_name(const std::string &comp_id, int imol_enc) const;
+   //! @return a string that is the contents of a dictionary cif file
+   std::string get_cif_restraints_as_string(const std::string &comp_id, int imol_enc) const;
    //! get a monomer
    //! @return the new molecule index on success and -1 on failure
    int get_monomer(const std::string &monomer_name);
@@ -494,6 +499,10 @@ public:
 
    //! return the group for the give residue name
    std::string get_group_for_monomer(const std::string &residue_name) const;
+
+   //! write a PNG for the given compound_id. imol can be IMOL_ENC_ANY
+   //! Currently this function does nothing (drawing is done with the not-allowed cairo)
+   void write_png(const std::string &compound_id, int imol, const std::string &file_name) const;
 
    //! write the coordinate to the give file name
    //! @return 1 on success and 0 on failure
@@ -1341,9 +1350,15 @@ public:
    //! For trivial (i.e non-flexible) ligands you should instead use the jiggle-fit algorithm, which
    //! takes a fraction of a second. (That is the algorithm used for "Add Other Solvent Molecules" in Coot.)
    //!
-   //! @return a vector indices of molecules for the best fitting ligands to this blob.
+   //! @return a vector of indices of molecules for the best fitting ligands to this blob.
    std::vector<int> fit_ligand_right_here(int imol_protein, int imol_map, int imol_ligand, float x, float y, float z,
                                           float n_rmsd, bool use_conformers, unsigned int n_conformers);
+
+   //! Ligand Fitting
+   //!
+   //! @return a vector of indices of molecules for the best fitting ligands to this blob.
+   std::vector<int> fit_ligand(int imol_protein, int imol_map, int imol_ligand,
+                               float n_rmsd, bool use_conformers, unsigned int n_conformers);
 
    //! "Jiggle-Fit Ligand"
    //! if n_trials is 0, then a sensible default value will be used.

@@ -664,6 +664,46 @@ molecules_container_t::get_group_for_monomer(const std::string &residue_name) co
 }
 
 
+#if 0 // 20231129-PE Cairo is not allowed.
+#include <GraphMol/MolDraw2D/MolDraw2DCairo.h>
+#include "lidia-core/rdkit-interface.hh"
+#endif
+
+//! write a PNG for the given compound_id
+void
+molecules_container_t::write_png(const std::string &compound_id, int imol_enc,
+                                 const std::string &file_name) const {
+
+#if 0 // 20231129-PE Cairo is not allowed.
+
+   // For now, let's use RDKit PNG depiction, not lidia-core/pyrogen
+
+   std::pair<short int, coot::dictionary_residue_restraints_t> r_p =
+      geom.get_monomer_restraints(compound_id, imol_enc);
+
+   std::cout << ":::::::::::::::::::::::::: r_p.first " << r_p.first << std::endl;
+   if (r_p.first) {
+      const auto &restraints = r_p.second;
+      std::pair<int, RDKit::RWMol> mol_pair = coot::rdkit_mol_with_2d_depiction(restraints);
+      std::cout << ":::::::::::::::::::::::::: mol_pair.first " << mol_pair.first << std::endl;
+      int conf_id = mol_pair.first;
+      if (conf_id >= 0) {
+         const auto &rdkit_mol(mol_pair.second);
+         RDKit::MolDraw2DCairo drawer(500, 500);
+         drawer.drawMolecule(rdkit_mol, nullptr, nullptr, nullptr, conf_id);
+         drawer.finishDrawing();
+         std::string dt = drawer.getDrawingText();
+         std::ofstream f(file_name.c_str());
+         f << dt;
+         f << "\n";
+         f.close();
+      }
+   }
+#endif
+}
+
+
+
 // 20221030-PE nice to have one day
 // int
 // molecules_container_t::get_monomer_molecule_by_network(const std::string &text) {
@@ -2446,11 +2486,26 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
    // std::cout << "starting refine_residues_using_atom_cid() with imol_refinement_map " << imol_refinement_map
    // << std::endl;
 
+   auto debug_selected_residues = [cid] (const std::vector<mmdb::Residue *> &rv) {
+      std::cout << "refine_residues_using_atom_cid(): selected these " << rv.size() << " residues "
+         " from cid: " << cid << std::endl;
+      std::vector<mmdb::Residue *>::const_iterator it;
+      for (it=rv.begin(); it!=rv.end(); ++it) {
+         std::cout << "   " << coot::residue_spec_t(*it) << std::endl;
+      }
+   };
+
+
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map)) {
-         coot::atom_spec_t spec = atom_cid_to_atom_spec(imol, cid);
-         status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode, n_cycles);
+         // coot::atom_spec_t spec = atom_cid_to_atom_spec(imol, cid);
+         // status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode, n_cycles);
+         std::vector<mmdb::Residue *> rv = molecules[imol].select_residues(cid, mode);
+
+         // debug_selected_residues(rv);
+         std::string alt_conf = "";
+         status = refine_direct(imol, rv, alt_conf, n_cycles);
       } else {
          std::cout << "WARNING:: " << __FUNCTION__ << " Not a valid map molecule " << imol_refinement_map << std::endl;
       }
@@ -4684,6 +4739,42 @@ molecules_container_t::get_cif_file_name(const std::string &comp_id, int imol_en
    std::string fn = geom.get_cif_file_name(comp_id, imol_enc);
    return fn;
 }
+
+//! @return a string that is the contents of a dictionary cif file
+std::string
+molecules_container_t::get_cif_restraints_as_string(const std::string &comp_id, int imol_enc) const {
+
+   // make this a util function, or a class function at least
+   auto file_to_string = [] (const std::string &file_name) {
+      std::string s;
+      std::string line;
+      std::ifstream f(file_name.c_str());
+      if (!f) {
+         std::cout << "get_cif_restraints_as_string(): Failed to open " << file_name << std::endl;
+      } else {
+         while (std::getline(f, line)) {
+            s += line;
+            s += "\n";
+         }
+      }
+      return s;
+   };
+
+   std::string r;
+   std::pair<short int, coot::dictionary_residue_restraints_t> r_p =
+      geom.get_monomer_restraints(comp_id, imol_enc);
+
+   if (r_p.first) {
+      const auto &dict = r_p.second;
+      std::string fn("tmp.cif");
+      dict.write_cif(fn);
+      if (coot::file_exists(fn)) {
+         r = file_to_string(fn);
+      }
+   }
+   return r;
+}
+
 
 //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
 std::vector<coot::residue_spec_t>

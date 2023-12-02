@@ -351,9 +351,9 @@ int read_mtz(const char *mtz_file_name,
 
 // return the new molecule number
 int make_and_draw_map(const char* mtz_file_name,
-         const char *f_col, const char *phi_col,
-         const char *weight_col, int use_weights,
-         int is_diff_map) {
+                      const char *f_col, const char *phi_col,
+                      const char *weight_col, int use_weights,
+                      int is_diff_map) {
 
    graphics_info_t g;
    int imol = -1; // failure initially.
@@ -370,56 +370,56 @@ int make_and_draw_map(const char* mtz_file_name,
    if (status != 0) {
       std::cout << "WARNING:: Can't find file " << mtz_file_name << std::endl;
       if (S_ISDIR(buf.st_mode)) {
-    std::cout << mtz_file_name << " is a directory! " << std::endl;
+         std::cout << mtz_file_name << " is a directory! " << std::endl;
       }
    } else {
 
-      if (0)
-    std::cout << "valid_labels(" << mtz_file_name << ","
-      << f_col << ","
-      << phi_col << ","
-      << weight_col << ","
-      << use_weights << ") returns "
-      << valid_labels(mtz_file_name, f_col, phi_col, weight_col, use_weights)
-      << std::endl;
+      if (false)
+         std::cout << "valid_labels(" << mtz_file_name << ","
+                   << f_col << ","
+                   << phi_col << ","
+                   << weight_col << ","
+                   << use_weights << ") returns "
+                   << valid_labels(mtz_file_name, f_col, phi_col, weight_col, use_weights)
+                   << std::endl;
 
       if (valid_labels(mtz_file_name, f_col, phi_col, weight_col, use_weights)) {
 
-    std::vector<std::string> command_strings;
-    command_strings.push_back("make-and-draw-map");
-    command_strings.push_back(single_quote(mtz_file_name));
-    command_strings.push_back(single_quote(f_col));
-    command_strings.push_back(single_quote(phi_col));
-    command_strings.push_back(single_quote(weight_col));
-    command_strings.push_back(graphics_info_t::int_to_string(use_weights));
-    command_strings.push_back(graphics_info_t::int_to_string(is_diff_map));
-    add_to_history(command_strings);
+         std::vector<std::string> command_strings;
+         command_strings.push_back("make-and-draw-map");
+         command_strings.push_back(single_quote(mtz_file_name));
+         command_strings.push_back(single_quote(f_col));
+         command_strings.push_back(single_quote(phi_col));
+         command_strings.push_back(single_quote(weight_col));
+         command_strings.push_back(graphics_info_t::int_to_string(use_weights));
+         command_strings.push_back(graphics_info_t::int_to_string(is_diff_map));
+         add_to_history(command_strings);
 
-    std::cout << "INFO:: making map from mtz filename " << mtz_file_name << std::endl;
-    imol = g.create_molecule();
-    std::string cwd = coot::util::current_working_dir();
-    g.molecules[imol].map_fill_from_mtz(std::string(mtz_file_name),
-        cwd,
-        f_col_str,
-        phi_col_str,
-        weight_col_str,
-        use_weights, is_diff_map,
-        graphics_info_t::map_sampling_rate);
-    // save the mtz file from where the map comes
-    g.molecules[imol].store_refmac_mtz_filename(std::string(mtz_file_name));
-    if (! is_diff_map)
-       g.scroll_wheel_map = imol;
-    graphics_draw();
-    g.activate_scroll_radio_button_in_display_manager(imol);
+         std::cout << "INFO:: making map from mtz filename " << mtz_file_name << std::endl;
+         imol = g.create_molecule();
+         std::string cwd = coot::util::current_working_dir();
+         g.molecules[imol].map_fill_from_mtz(std::string(mtz_file_name),
+                                             cwd,
+                                             f_col_str,
+                                             phi_col_str,
+                                             weight_col_str,
+                                             use_weights, is_diff_map,
+                                             graphics_info_t::map_sampling_rate);
+         // save the mtz file from where the map comes
+         g.molecules[imol].store_refmac_mtz_filename(std::string(mtz_file_name));
+         if (! is_diff_map)
+            g.scroll_wheel_map = imol;
+         graphics_draw();
+         g.activate_scroll_radio_button_in_display_manager(imol);
 
       } else {
-    std::cout << "WARNING:: label(s) not found in mtz file "
-      << mtz_file_name << " " << f_col_str << " "
-      <<  phi_col_str << " ";
-    if (use_weights)
-       std::cout << weight_col_str << std::endl;
-    else
-       std::cout << std::endl;
+         std::cout << "WARNING:: label(s) not found in mtz file "
+                   << mtz_file_name << " " << f_col_str << " "
+                   <<  phi_col_str << " ";
+         if (use_weights)
+            std::cout << weight_col_str << std::endl;
+         else
+            std::cout << std::endl;
       }
    }
    return imol; // possibly -1
@@ -497,19 +497,19 @@ int  make_and_draw_map_with_refmac_params(const char *mtz_file_name,
 
 // return imol, possibly -1;
 int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
-      const char *f_col,
-      const char *phi_col,
-      const char *weight_col,
-      int use_weights, int is_diff_map,
-      short int have_refmac_params,
-      const char *fobs_col,
-      const char *sigfobs_col,
-      const char *r_free_col,
-      short int sensible_r_free_col,
-      short int is_anomalous_flag,
-      short int use_reso_limits,
-      float low_reso_limit,
-      float high_reso_limit) {
+                                                   const char *f_col,
+                                                   const char *phi_col,
+                                                   const char *weight_col,
+                                                   int use_weights, int is_diff_map,
+                                                   short int have_refmac_params,
+                                                   const char *fobs_col,
+                                                   const char *sigfobs_col,
+                                                   const char *r_free_col,
+                                                   short int sensible_r_free_col,
+                                                   short int is_anomalous_flag,
+                                                   short int use_reso_limits,
+                                                   float low_reso_limit,
+                                                   float high_reso_limit) {
 
    graphics_info_t g;
    int imol = -1;
@@ -520,66 +520,66 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
    if (status != 0) {
       std::cout << "Error finding MTZ file " << mtz_file_name << std::endl;
       if (S_ISDIR(buf.st_mode)) {
-    std::cout << mtz_file_name << " is a directory! " << std::endl;
+         std::cout << mtz_file_name << " is a directory! " << std::endl;
       }
    } else {
       std::string map_type;
       if (is_diff_map)
-    map_type = "difference";
+         map_type = "difference";
       else
-    map_type = "conventional";
+         map_type = "conventional";
 
       std::string mtz_file_name_str = mtz_file_name;
 
       std::cout << "INFO:: making " << map_type << " map from MTZ filename "
-   << mtz_file_name_str << " using " << f_col << " "
-   << phi_col << std::endl;
+                << mtz_file_name_str << " using " << f_col << " "
+                << phi_col << std::endl;
 
       if (valid_labels(mtz_file_name, f_col, phi_col, weight_col, use_weights)) {
-    std::string weight_col_str("");
-    if (use_weights)
-       weight_col_str = std::string(weight_col);
-    imol = g.create_molecule();
-    float msr = graphics_info_t::map_sampling_rate;
-    std::string cwd = coot::util::current_working_dir();
-    g.molecules[imol].map_fill_from_mtz_with_reso_limits(mtz_file_name_str,
-         cwd,
-         std::string(f_col),
-         std::string(phi_col),
-         weight_col_str,
-         use_weights,
-         is_anomalous_flag,
-         is_diff_map,
-         use_reso_limits,
-         low_reso_limit,
-         high_reso_limit,
-         msr);
-    if (have_refmac_params) {
-       g.molecules[imol].store_refmac_params(std::string(mtz_file_name),
-     std::string(fobs_col),
-     std::string(sigfobs_col),
-     std::string(r_free_col),
-     sensible_r_free_col);
-       g.molecules[imol].set_refmac_save_state_commands(mtz_file_name, f_col, phi_col,
-        weight_col, use_weights, is_diff_map,
-        fobs_col, sigfobs_col,
-        r_free_col, sensible_r_free_col);
-    } else {
-      // save at least the mtz file from where the map comes
-      g.molecules[imol].store_refmac_mtz_filename(std::string(mtz_file_name));
-    }
+         std::string weight_col_str("");
+         if (use_weights)
+            weight_col_str = std::string(weight_col);
+         imol = g.create_molecule();
+         float msr = graphics_info_t::map_sampling_rate;
+         std::string cwd = coot::util::current_working_dir();
+         g.molecules[imol].map_fill_from_mtz_with_reso_limits(mtz_file_name_str,
+                                                              cwd,
+                                                              std::string(f_col),
+                                                              std::string(phi_col),
+                                                              weight_col_str,
+                                                              use_weights,
+                                                              is_anomalous_flag,
+                                                              is_diff_map,
+                                                              use_reso_limits,
+                                                              low_reso_limit,
+                                                              high_reso_limit,
+                                                              msr);
+         if (have_refmac_params) {
+            g.molecules[imol].store_refmac_params(std::string(mtz_file_name),
+                                                  std::string(fobs_col),
+                                                  std::string(sigfobs_col),
+                                                  std::string(r_free_col),
+                                                  sensible_r_free_col);
+            g.molecules[imol].set_refmac_save_state_commands(mtz_file_name, f_col, phi_col,
+                                                             weight_col, use_weights, is_diff_map,
+                                                             fobs_col, sigfobs_col,
+                                                             r_free_col, sensible_r_free_col);
+         } else {
+            // save at least the mtz file from where the map comes
+            g.molecules[imol].store_refmac_mtz_filename(std::string(mtz_file_name));
+         }
          if (! is_diff_map) {
-      g.scroll_wheel_map = imol;
-      g.activate_scroll_radio_button_in_display_manager(imol);
-    }
-    graphics_draw();
+            g.scroll_wheel_map = imol;
+            g.activate_scroll_radio_button_in_display_manager(imol);
+         }
+         graphics_draw();
       } else {
-    std::cout << "WARNING:: label(s) not found in MTZ file \""
-      << mtz_file_name << "\" \"" << f_col << "\" \""
-      <<  phi_col << "\" ";
-    if (use_weights)
-       std::cout << "\"" << weight_col << "\"";
-    std::cout << std::endl;
+         std::cout << "WARNING:: label(s) not found in MTZ file \""
+                   << mtz_file_name << "\" \"" << f_col << "\" \""
+                   <<  phi_col << "\" ";
+         if (use_weights)
+            std::cout << "\"" << weight_col << "\"";
+         std::cout << std::endl;
       }
    }
    if (imol != -1) {
@@ -591,19 +591,19 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
       std::string sigfobs_col_str;
       std::string r_free_col_str;
       if (weight_col)
-    weight_col_str = single_quote(weight_col);
+         weight_col_str = single_quote(weight_col);
       else
-    weight_col_str = single_quote("Weight:None-specified");
+         weight_col_str = single_quote("Weight:None-specified");
 
       if (! have_refmac_params) {
-    fobs_col_str    = single_quote("Fobs:None-specified");
-    sigfobs_col_str = single_quote("SigF:None-specified");
-    r_free_col_str  = single_quote("RFree:None-specified");
-    sensible_r_free_col = 0;
+         fobs_col_str    = single_quote("Fobs:None-specified");
+         sigfobs_col_str = single_quote("SigF:None-specified");
+         r_free_col_str  = single_quote("RFree:None-specified");
+         sensible_r_free_col = 0;
       } else {
-    fobs_col_str    = single_quote(fobs_col);
-    sigfobs_col_str = single_quote(sigfobs_col_str);
-    r_free_col_str  = single_quote(r_free_col);
+         fobs_col_str    = single_quote(fobs_col);
+         sigfobs_col_str = single_quote(sigfobs_col_str);
+         r_free_col_str  = single_quote(r_free_col);
       }
 
       std::vector<std::string> command_strings;
@@ -717,25 +717,60 @@ std::vector<int> auto_read_make_and_draw_maps_from_cns(const std::string &mtz_fi
 
 std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_file_name) {
 
-   auto read_mtz_local = [mtz_file_name] (const std::string &f, const std::string &phi, bool is_diff) {
-      
-	 int imol = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name.c_str(),
-								   f.c_str(),
-								   phi.c_str(),
-								   "",
-								   0,       //    use_weights
-								   is_diff, // is_diff_map,
-								   0,     //   short int have_refmac_params,
-								   "",    //   const char *fobs_col,
-								   "",    //   const char *sigfobs_col,
-								   "",    //   const char *r_free_col,
-								   0,     //   short int sensible_f_free_col,
-								   0,     //   short int is_anomalous_flag,
-								   0,     //   short int use_reso_limits,
-								   0,     //   float low_reso_limit,
-								   0);    //   float high_reso_limit
+   auto read_mtz_local = [mtz_file_name] (const std::string &f, const std::string &phi,
+                                          const coot::mtz_column_types_info_t &mtz_col_types,
+                                          bool is_diff) {
 
-         return imol;
+      std::string fobs_col;
+      std::string sig_fobs_col;
+      std::string r_free_col;
+      short int hrp = false; // have refmac params
+
+      std::cout << "*************************************** " << mtz_col_types.sigf_cols.size() << std::endl;
+
+      // is there Fobs data in that mtz file?
+      // c.f. block in auto_read_mtz() in api/molecules_container.cc
+
+      for (unsigned int i=0; i<mtz_col_types.f_cols.size(); i++) {
+         const std::string &f = mtz_col_types.f_cols[i].column_label;
+         // example f: "/2vtq/1/FP"
+         std::string  nd_f = coot::util::file_name_non_directory(f);
+         std::string dir_f = coot::util::file_name_directory(f);
+         for (unsigned int j=0; j<mtz_col_types.sigf_cols.size(); j++) {
+            const std::string &sf = mtz_col_types.sigf_cols[j].column_label;
+            std::string test_string = std::string(dir_f + std::string("SIG") + nd_f);
+            if (sf == test_string) {
+               // OK, can we find a R-free?
+               if (!mtz_col_types.r_free_cols.empty()) {
+                  fobs_col = f;
+                  sig_fobs_col = sf;
+                  r_free_col = mtz_col_types.r_free_cols[0].column_label;
+                  hrp = 1;
+               }
+            }
+         }
+      }
+
+      std::cout << "fobs and sig_fobs_col and r_free_cols " << fobs_col << " " << sig_fobs_col << " " << r_free_col
+                << std::endl;
+
+      int imol = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name.c_str(),
+                                                                f.c_str(),
+                                                                phi.c_str(),
+                                                                "",
+                                                                0,       //    use_weights
+                                                                is_diff, // is_diff_map,
+                                                                hrp,     //   short int have_refmac_params,
+                                                                fobs_col.c_str(),    //   const char *fobs_col,
+                                                                sig_fobs_col.c_str(),    //   const char *sigfobs_col,
+                                                                r_free_col.c_str(),    //   const char *r_free_col,
+                                                                hrp,   //   short int sensible_f_free_col,
+                                                                0,     //   short int is_anomalous_flag,
+                                                                0,     //   short int use_reso_limits,
+                                                                0,     //   float low_reso_limit,
+                                                                0);    //   float high_reso_limit
+
+      return imol;
    };
 
    int imol1 = -1;
@@ -759,20 +794,21 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
 
    std::vector<int> imols;
 
+   coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
+
    for (unsigned int i=0; i<auto_mtz_pairs.size(); i++) {
       const coot::mtz_column_trials_info_t &b = auto_mtz_pairs[i];
-      if (valid_labels(mtz_file_name.c_str(), b.f_col.c_str(), b.phi_col.c_str(), "", 0)) {
-         int imol = read_mtz_local(b.f_col.c_str(), b.phi_col.c_str(), b.is_diff_map);
+      if (valid_labels(mtz_file_name, b.f_col, b.phi_col, "", 0)) {
+         int imol = read_mtz_local(b.f_col, b.phi_col, r, b.is_diff_map);
 	 if (is_valid_map_molecule(imol))
 	    imols.push_back(imol);
       }
    }
 
    // 20221001-PE if there is one F and one PHI col, read that also (and it is not a difference map)
-   coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
    if (r.f_cols.size() == 1) {
       if (r.phi_cols.size() == 1) {
-         int imol = read_mtz_local(r.f_cols[0].column_label, r.phi_cols[0].column_label, false);
+         int imol = read_mtz_local(r.f_cols[0].column_label, r.phi_cols[0].column_label, r, false);
          imols.push_back(imol);
       }
    }
@@ -787,7 +823,7 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
 	    if (r.phi_cols[j].column_label == trial_phi_col) {
 	       std::string f_col   = r.f_cols[i].column_label;
 	       std::string phi_col = r.phi_cols[j].column_label;
-               int imol = read_mtz_local(f_col, phi_col, false);
+               int imol = read_mtz_local(f_col, phi_col, r, false);
                if (is_valid_map_molecule(imol))
                   imols.push_back(imol);
 	    }

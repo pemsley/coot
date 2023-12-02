@@ -3818,7 +3818,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds(bool force_rebonding) {
 void
 molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
-   bool debug = true;
+   bool debug = false;
 
    // Note caller can be 0 (e.g. with clang) - so be aware of that when debugging.
 
@@ -3827,11 +3827,11 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    std::string caller_s("NULL");
    if (caller) caller_s = std::string(caller);
 
-   if (true)
+   if (debug)
       std::cout << "debug:: plain make_bonds_type_checked() --------start--------- called by "
                 << caller_s << "() with is_intermediate_atoms_molecule: " << is_intermediate_atoms_molecule
                 << std::endl;
-   if (true)
+   if (debug)
       std::cout << "--------- make_bonds_type_checked() called with bonds_box_type "
                 << bonds_box_type << " vs "
                 << "NORMAL_BONDS " << coot::NORMAL_BONDS << " "
@@ -3855,7 +3855,8 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    std::set<int> dummy;
 
    if (bonds_box_type == coot::NORMAL_BONDS) {
-      std::cout << "debug:: plain make_bonds_type_checked() calls makebonds() with geom_p " << geom_p << std::endl;
+      if (debug)
+         std::cout << "debug:: plain make_bonds_type_checked() calls makebonds() with geom_p " << geom_p << std::endl;
       makebonds(geom_p, dummy);
    }
    if (bonds_box_type == coot::BONDS_NO_HYDROGENS)
@@ -4320,7 +4321,7 @@ molecule_class_info_t::get_glm_colour_func(int idx_col, int bonds_box_type) {
 
 void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
-   if (true)
+   if (false)
       std::cout << "debug:: make_glsl_bonds_type_checked() called by " << caller << "()"
                 << " with is_intermediate_atoms_molecule " << is_intermediate_atoms_molecule
                 << std::endl;
@@ -8185,8 +8186,6 @@ molecule_class_info_t::make_backup() { // changes history details
 
       if (env_var)
          backup_dir = env_var;
-
-      backup_dir = "";
 
       if (atom_sel.mol) {
          int dirstat = make_maybe_backup_dir(backup_dir);

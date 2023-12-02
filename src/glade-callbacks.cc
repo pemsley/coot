@@ -1130,11 +1130,15 @@ extern "C" G_MODULE_EXPORT
 void
 on_refine_params_use_trans_peptide_restraints_checkbutton_toggled
                                         (GtkCheckButton *checkbutton,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
+
    if (gtk_check_button_get_active(checkbutton)) {
+      std::cout << "debug:: in on_refine_params_use_trans_peptide_restraints_checkbutton_toggled() "
+                << " active" << std::endl;
       set_use_trans_peptide_restraints(1);
    } else {
+      std::cout << "debug:: in on_refine_params_use_trans_peptide_restraints_checkbutton_toggled() "
+                << " inactive" << std::endl;
       set_use_trans_peptide_restraints(0);
    }
 }
@@ -5696,23 +5700,6 @@ on_baton_build_set_params_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_go_to_ligand_button_clicked(GtkButton *button,
-                               gpointer   user_data) {
-  go_to_ligand();
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_graphics_grab_focus_button_clicked (GtkButton       *button,
-                                       gpointer         user_data) {
-   graphics_info_t g;
-   g.graphics_grab_focus();
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
 on_move_molecule_here_big_molecules_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
@@ -6790,6 +6777,10 @@ on_updating_maps_ok_button_clicked(GtkButton       *button,
 
    GtkWidget *dialog = widget_from_builder("updating_maps_dialog");
    gtk_widget_set_visible(dialog, FALSE);
+
+   GtkWidget *points_button = widget_from_builder("coot-points-button");
+   gtk_widget_set_visible(points_button, TRUE);
+
 }
 
 

@@ -1526,12 +1526,6 @@ PyObject *refmac_parameters_py(int imol);
 #endif	/* __cplusplus */
 
 
-/*! \brief does the mtz file have the columms that we want it to have? */
-int valid_labels(const char *mtz_file_name, const char *f_col,
-		 const char *phi_col,
-		 const char *weight_col,
-		 int use_weights);
-
 /*! \brief does the mtz file have phases? */
 /* We need to know if an mtz file has phases.  If it doesn't then we */
 /*  go down a (new 20060920) different path. */

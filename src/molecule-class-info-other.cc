@@ -733,6 +733,7 @@ molecule_class_info_t::set_residue_name(std::string chain_id, int res_no, std::s
 void
 molecule_class_info_t::pepflip(int atom_index) {
 
+   // std::cout << "-------------------- pepflip(atom_index) ---------"  << std::endl;
    const char *chain_id = atom_sel.atom_selection[atom_index]->residue->GetChainID();
    int resno = atom_sel.atom_selection[atom_index]->residue->seqNum;
    std::string atom_name = atom_sel.atom_selection[atom_index]->name;
@@ -757,7 +758,7 @@ molecule_class_info_t::pepflip_residue(const std::string &chain_id,
                                        const std::string &ins_code,
                                        const std::string &alt_conf) {
 
-   std::cout << "-------------------- pepflip_residue ---------"  << std::endl;
+   // std::cout << "-------------------- pepflip_residue() ---------"  << std::endl;
 
    make_backup(); // must do it here, no intermediate.
    int iresult = coot::pepflip(atom_sel.mol, chain_id, resno, ins_code, alt_conf);
@@ -773,6 +774,9 @@ molecule_class_info_t::pepflip_residue(const std::string &chain_id,
 
 void
 molecule_class_info_t::pepflip(const coot::atom_spec_t &spec) {
+
+   // std::cout << "-------------------- pepflip(spec) ---------"  << std::endl;
+   // std::cout << "debug:: spec: " << spec << std::endl;
    std::string alt_conf = spec.alt_conf;
    int res_no = spec.res_no;
    if (spec.atom_name == " N  ")

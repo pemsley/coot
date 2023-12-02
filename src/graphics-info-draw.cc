@@ -1023,7 +1023,7 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
                                             model_matrix, view_matrix, projection_matrix);
    }
 
-   if (pass_type == PASS_TYPE_FOR_SHADOWS) { // generating, not using - PASS_TYPE_GEN_SHADOW_MAP is a clearer name.
+   if (pass_type == PASS_TYPE_GEN_SHADOW_MAP) {
 
       // 20231011-PE have I used the right shader here?
       Shader &shader = shader_for_meshes_shadow_map;
@@ -1918,7 +1918,7 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    draw_atom_pull_restraints();
 
-   draw_meshed_generic_display_object_meshes(PASS_TYPE_STANDARD);
+   draw_meshed_generic_display_object_meshes(PASS_TYPE_WITH_SHADOWS);
 
    draw_molecules_other_meshes(PASS_TYPE_STANDARD);
 
@@ -2112,16 +2112,23 @@ graphics_info_t::draw_unit_cells() {
 void
 graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_type) {
 
-   if (!generic_display_objects.empty()) {
+   // std::cout << "draw_meshed_generic_display_object_meshes() with pass_type " << pass_type << std::endl;
+
+   auto have_generic_display_objects_to_draw = [] () {
       bool generic_display_objects_to_draw = false;
-      for (unsigned int i=0; i<generic_display_objects.size(); i++) {
-         if (generic_display_objects[i].mesh.get_draw_this_mesh()) {
-            generic_display_objects_to_draw = true;
-            break;
+      if (!generic_display_objects.empty()) {
+         for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+            if (generic_display_objects[i].mesh.get_draw_this_mesh()) {
+               generic_display_objects_to_draw = true;
+               break;
+            }
          }
       }
+      return generic_display_objects_to_draw;
+   };
 
-      if (generic_display_objects_to_draw) {
+   if (pass_type == PASS_TYPE_STANDARD) {
+      if (have_generic_display_objects_to_draw()) {
          glm::mat4 model_rotation = get_model_rotation();
          glm::mat4 mvp = get_molecule_mvp();
          glm::vec4 bg_col(background_colour, 1.0);
@@ -2133,6 +2140,79 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
             generic_display_objects[i].mesh.draw(&shader_for_moleculestotriangles,
                                                  mvp, model_rotation, lights, eye_position, rc, opacity,
                                                  bg_col, wireframe_mode, false, show_just_shadows);
+         }
+      }
+   }
+
+   if (pass_type == PASS_TYPE_SSAO) {
+      if (have_generic_display_objects_to_draw()) {
+         glm::vec4 bg_col(background_colour, 1.0);
+         auto ccrc = RotationCentre();
+         glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+         bool do_orthographic_projection = ! perspective_projection_flag;
+         GtkAllocation allocation;
+         gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+         int w = allocation.width;
+         int h = allocation.height;
+         auto model_matrix = get_model_matrix();
+         auto view_matrix = get_view_matrix();
+         auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+         for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+            generic_display_objects[i].mesh.draw_for_ssao(&shader_for_meshes_for_ssao,
+                                                          model_matrix, view_matrix, projection_matrix);
+         }
+      }
+   }
+
+   if (pass_type == PASS_TYPE_GEN_SHADOW_MAP) {
+      if (have_generic_display_objects_to_draw()) {
+         int light_index = 0;
+         std::map<unsigned int, lights_info_t>::const_iterator it;
+         it = lights.find(light_index);
+         if (it != lights.end()) {
+            const auto &light = it->second;
+            graphics_info_t g;
+            glm::mat4 mvp_orthogonal = g.get_mvp_for_shadow_map(light.direction); // make this static?
+            glm::mat4 model_rotation = get_model_rotation();
+            glm::vec4 bg_col_v4(background_colour, 1.0f);
+            auto ccrc = RotationCentre();
+            glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+            glm::vec3 dummy_eye_position;
+            float opacity = 1.0;
+            bool do_depth_fog = false;
+            bool gl_lines_mode = false;
+            for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+               generic_display_objects[i].mesh.draw(&shader_for_meshes_shadow_map,
+                                                    mvp_orthogonal, model_rotation, lights, dummy_eye_position,
+                                                    rc, opacity, bg_col_v4, gl_lines_mode,
+                                                    do_depth_fog, show_just_shadows);
+            }
+         }
+      }
+   }
+
+   if (pass_type == PASS_TYPE_WITH_SHADOWS) {
+
+      // std::cout << "--------------------------- pass_type WITH SHADOWS!!!!!!!!!!!!!!!!!" << std::endl;
+      if (have_generic_display_objects_to_draw()) {
+         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 model_rotation = get_model_rotation();
+         glm::vec4 bg_col_v4(background_colour, 1.0f);
+         auto ccrc = RotationCentre();
+         glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+         glm::vec3 eye_position;
+         float opacity = 1.0;
+         bool do_depth_fog = false;
+         int light_index =  0;
+         glm::mat4 light_view_mvp = get_light_space_mvp(light_index);
+         bool show_just_shadows = false;
+
+         for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+            generic_display_objects[i].mesh.draw_with_shadows(&shader_for_meshes_with_shadows,
+                                                              mvp, model_rotation, lights, eye_position, opacity,
+                                                              bg_col_v4, do_depth_fog, light_view_mvp,
+                                                              shadow_depthMap_texture, shadow_strength, shadow_softness,
+                                                              show_just_shadows);
          }
       }
    }
@@ -2181,6 +2261,8 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
    // Yes, identity matrix
    // std::cout << "p: " << glm::to_string(p) << std::endl;
 
+   // 20231121-PE Hack for now:
+   if (pass_type == PASS_TYPE_WITH_SHADOWS) pass_type = PASS_TYPE_STANDARD;
 
    if (draw_meshes) { //local, debugging
       bool have_meshes_to_draw = false;
@@ -2238,7 +2320,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                                                 view_matrix,
                                                 projection_matrix);
                   }
-                  if (pass_type == PASS_TYPE_FOR_SHADOWS) { // i.e. generating the shadow map, not using it.
+                  if (pass_type == PASS_TYPE_GEN_SHADOW_MAP) { // i.e. generating the shadow map, not using it.
 
                      glm::vec3 dummy_eye_position;
                      bool gl_lines_mode = false;
@@ -4386,7 +4468,7 @@ graphics_info_t::render_3d_scene_with_shadows() {
 
    draw_pointer_distances_objects();
 
-   draw_extra_distance_restraints(PASS_TYPE_FOR_SHADOWS); // GM_restraints
+   draw_extra_distance_restraints(PASS_TYPE_WITH_SHADOWS); // GM_restraints. 20231121-PE is this the right pass type?
 
    draw_texture_meshes();
 
@@ -5845,6 +5927,9 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
    if (!moving_atoms_asc->mol)
       return;
 
+   // 20231121-PE HACK for now:
+   if (pass_type == PASS_TYPE_WITH_SHADOWS) pass_type = PASS_TYPE_STANDARD;
+
    if (! draw_it_for_moving_atoms_restraints_graphics_object_user_control) return;
 
    // std::cout << "draw_extra_distance_restraints() pass_type: " << pass_type << std::endl;
@@ -6432,6 +6517,50 @@ graphics_info_t::setup_key_bindings() {
       return gboolean(TRUE);
    };
 
+   auto l44 = [] () {
+      graphics_info_t g;
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->mol) {
+            g.backrub_rotamer_intermediate_atoms();
+         }
+      } else {
+         std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+         int imol = aa.first;
+         if (is_valid_model_molecule(imol)) {
+            std::string alt_conf = aa.second->altLoc;
+            coot::residue_spec_t res_spec(coot::atom_spec_t(aa.second));
+            g.auto_fit_rotamer_ng(imol, res_spec, alt_conf);
+         }
+      }
+      return gboolean(TRUE);
+   };
+
+   auto l45 = [] () {
+
+      std::cout << "------------------- Here l45 start " << moving_atoms_asc << std::endl;
+      graphics_info_t g;
+      bool done = false;
+      // I need to be consistent about checking for moving_atoms_asc or moving_atoms_asc->mol
+      // being null to mean if moving atoms are being displayed.
+      // init() does a `new` for moving_atoms_asc.
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->mol) {
+            g.pepflip_intermediate_atoms();
+            done = true;
+         }
+      }
+
+      if (! done) {
+         std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+         int imol = pp.second.first;
+         if (is_valid_model_molecule(imol)) {
+            coot::atom_spec_t as(pp.second.second);
+            g.pepflip(imol, as);
+         }
+      }
+      return gboolean(TRUE);
+   };
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -6446,6 +6575,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_equal,  key_bindings_t(l8, "increase contour level")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_minus,  key_bindings_t(l7, "decrease contour level")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_p,      key_bindings_t(l9, "update go-to atom by position")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_q,      key_bindings_t(l45, "Pep-flip")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_n,      key_bindings_t(l10, "Zoom in")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_m,      key_bindings_t(l11, "Zoom out")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_w,      key_bindings_t(l12, "Move forward")));
@@ -6456,9 +6586,9 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Return, key_bindings_t(l18, "Accept Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_l,      key_bindings_t(l21, "Label/Unlabel Active Atom")));
-   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_q,      key_bindings_t(l22, "Particles")));
    // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_y,      key_bindings_t(l24, "Add Terminal Residue")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_j,      key_bindings_t(l44, "Auto-fit Rotamer")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_k,      key_bindings_t(l25, "Fill Partial Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l28, "NCS Other Chain")));
@@ -6644,13 +6774,14 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
 
    if (is_valid_map_molecule(imol_scroll)) {
       // use direction
-      if (direction == 1)
-         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
-      if (direction == -1)
-         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
+      if (direction ==  1) molecules[imol_scroll].pending_contour_level_change_count--;
+      if (direction == -1) molecules[imol_scroll].pending_contour_level_change_count++;
 
-      // std::cout << "INFO:: contour level for map " << imol_scroll << " is "
-      // << molecules[imol_scroll].contour_level << std::endl;
+      std::cout << "INFO:: contour level for map " << imol_scroll << " is "
+                << molecules[imol_scroll].contour_level
+                << " pending: " << molecules[imol_scroll].pending_contour_level_change_count
+                << std::endl;
+
       set_density_level_string(imol_scroll, molecules[imol_scroll].contour_level);
       display_density_level_this_image = 1;
 
