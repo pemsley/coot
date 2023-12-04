@@ -170,6 +170,8 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    if (true)
       std::cout << "DEBUG:: --- new_startup_on_glarea_resize() " <<  width << " " << height << std::endl;
 
+   std::cout << "int max " << INT_MAX << " " << std::sqrt(INT_MAX) << std::endl;
+
    graphics_info_t g;
    // for the GL widget, not the window.
    g.graphics_x_size = width;
@@ -229,11 +231,10 @@ void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
                                   GtkWidget      *area) {
    graphics_info_t g;
 
-#ifdef __APPLE__
-   g.on_glarea_drag_begin_secondary(gesture, x, y, area);
-#else
-   g.on_glarea_drag_begin_primary(gesture, x, y, area);
-#endif
+   if (g.using_trackpad)
+      g.on_glarea_drag_begin_secondary(gesture, x, y, area);
+   else
+      g.on_glarea_drag_begin_primary(gesture, x, y, area);
 }
 
 void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
@@ -243,12 +244,11 @@ void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
 
    graphics_info_t g;
 
-#ifdef __APPLE__
-   // Hack for mac. Needs more thought.
-   g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
-#else
-   g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
-#endif
+   if (g.using_trackpad)
+      // Hack for mac. Needs more thought.
+      g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
+   else
+      g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
 
 }
 
@@ -265,7 +265,6 @@ void on_glarea_drag_begin_secondary(GtkGestureDrag *gesture,
                                     double          x,
                                     double          y,
                                     GtkWidget      *area) {
-   // std::cout << "begin secondary" << std::endl;
    graphics_info_t g;
    g.on_glarea_drag_begin_secondary(gesture, x, y, area);
 }

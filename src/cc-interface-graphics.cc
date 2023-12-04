@@ -17,6 +17,10 @@ void unfullscreen() {
 
 }
 
+void set_use_trackpad(short int state) {
+   graphics_info_t::using_trackpad = state;
+}
+
 // maybe this function should have its own file?
 //
 //! \brief display the SMILES entry. This is the simple version - no dictionary

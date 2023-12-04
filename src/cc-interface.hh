@@ -1460,6 +1460,9 @@ void set_display_control_button_state(int imol, const std::string &button_type, 
 void fullscreen();
 void unfullscreen();
 
+//! set the flag for use of trackpad - this moves around the mouse bindings internally.
+void set_use_trackpad(short int state);
+
 /*  ----------------------------------------------------------------------- */
 /*                  Abstraction of New molecule by symmetry functions       */
 /*  ----------------------------------------------------------------------- */
