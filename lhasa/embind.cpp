@@ -19,34 +19,37 @@
 using namespace coot::ligand_editor_canvas;
 
 EMSCRIPTEN_BINDINGS(lhasa) {
-  function("remove_non_polar_hydrogens", &coot::layla::remove_non_polar_hydrogens);
+  // TODO: RDKit typedefinitions
+  // function("remove_non_polar_hydrogens", &coot::layla::remove_non_polar_hydrogens);
   function("append_from_smiles", &lhasa::append_from_smiles);
+  // TODO: RDKit typedefinitions
   // function("rdkit_mol_from_smiles", &lhasa::rdkit_mol_from_smiles);
+  // TODO: RDKit typedefinitions
   // function("rdkit_mol_to_smiles", &lhasa::rdkit_mol_to_smiles);
-  enum_<DisplayMode>("LhasaDisplayMode")
+  enum_<DisplayMode>("DisplayMode")
     .value("Standard", DisplayMode::Standard)
     .value("AtomIndices", DisplayMode::AtomIndices)
     .value("AtomNames", DisplayMode::AtomNames);
-  register_vector<impl::Renderer::DrawingCommand>("LhasaDrawingCommandVector");
-  class_<impl::Renderer>("LhasaRenderer")
+  register_vector<impl::Renderer::DrawingCommand>("DrawingCommandVector");
+  class_<impl::Renderer>("Renderer")
     .constructor<emscripten::val>()
     .function("get_commands", &impl::Renderer::get_commands);
-  value_object<impl::Renderer::Color>("LhasaColor")
+  value_object<impl::Renderer::Color>("Color")
     .field("r", &impl::Renderer::Color::r)
     .field("g", &impl::Renderer::Color::g)
     .field("b", &impl::Renderer::Color::b)
     .field("a", &impl::Renderer::Color::a);
-  value_object<impl::Renderer::BrushStyle>("LhasaBrushStyle")
+  value_object<impl::Renderer::BrushStyle>("BrushStyle")
     .field("color", &impl::Renderer::BrushStyle::color)
     .field("line_width", &impl::Renderer::BrushStyle::line_width);
   value_object<graphene_point_t>("GraphenePoint")
     .field("x", &graphene_point_t::x)
     .field("y", &graphene_point_t::y);
-  value_object<impl::Renderer::Line>("LhasaLine")
+  value_object<impl::Renderer::Line>("Line")
     .field("start", &impl::Renderer::Line::start)
     .field("end", &impl::Renderer::Line::end)
     .field("style", &impl::Renderer::Line::style);
-  value_object<impl::Renderer::Arc>("LhasaArc")
+  value_object<impl::Renderer::Arc>("Arc")
     .field("origin", &impl::Renderer::Arc::origin)
     .field("radius", &impl::Renderer::Arc::radius)
     .field("angle_one", &impl::Renderer::Arc::angle_one)
@@ -55,23 +58,23 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .field("fill_color", &impl::Renderer::Arc::fill_color)
     .field("has_stroke", &impl::Renderer::Arc::has_stroke)
     .field("stroke_style", &impl::Renderer::Arc::stroke_style);
-  class_<impl::Renderer::Path>("LhasaPath")
+  class_<impl::Renderer::Path>("Path")
     .property("fill_color", &impl::Renderer::Path::fill_color)
     .property("has_fill", &impl::Renderer::Path::has_fill)
     .property("stroke_style", &impl::Renderer::Path::stroke_style)
     .property("commands", &impl::Renderer::Path::commands);
-  enum_<impl::Renderer::TextPositioning>("LhasaTextPositioning")
+  enum_<impl::Renderer::TextPositioning>("TextPositioning")
     .value("Normal", impl::Renderer::TextPositioning::Normal)
     .value("Sub", impl::Renderer::TextPositioning::Sub)
     .value("Super", impl::Renderer::TextPositioning::Super);
-  class_<impl::Renderer::TextStyle>("LhasaTextStyle")
+  class_<impl::Renderer::TextStyle>("TextStyle")
     .property("positioning", &impl::Renderer::TextStyle::positioning)
     .property("weight", &impl::Renderer::TextStyle::weight)
     .property("size", &impl::Renderer::TextStyle::size)
     .property("color", &impl::Renderer::TextStyle::color)
     .property("specifies_color", &impl::Renderer::TextStyle::specifies_color)
     .constructor();
-  class_<impl::Renderer::TextSpan>("LhasaTextSpan")
+  class_<impl::Renderer::TextSpan>("TextSpan")
     .property("style", &impl::Renderer::TextSpan::style)
     .property("specifies_style", &impl::Renderer::TextSpan::specifies_style)
     .function("has_subspans", &impl::Renderer::TextSpan::has_subspans) 
@@ -79,16 +82,16 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("as_subspans", select_const(&impl::Renderer::TextSpan::as_subspans))
     .constructor<std::vector<impl::Renderer::TextSpan>>()
     .constructor();
-  register_vector<impl::Renderer::TextSpan>("LhasaTextSpanVector");
-  value_object<impl::Renderer::TextSize>("LhasaTextSize")
+  register_vector<impl::Renderer::TextSpan>("TextSpanVector");
+  value_object<impl::Renderer::TextSize>("TextSize")
     .field("width", &impl::Renderer::TextSize::width)
     .field("height", &impl::Renderer::TextSize::height);
-  class_<impl::Renderer::Text>("LhasaText")
+  class_<impl::Renderer::Text>("Text")
     .property("origin", &impl::Renderer::Text::origin)
     .property("style", &impl::Renderer::Text::style)
     .property("spans", &impl::Renderer::Text::spans)
     .constructor();
-  class_<impl::Renderer::DrawingCommand>("LhasaDrawingCommand")
+  class_<impl::Renderer::DrawingCommand>("DrawingCommand")
     .function("is_path", &impl::Renderer::DrawingCommand::is_path)
     .function("is_arc", &impl::Renderer::DrawingCommand::is_arc)
     .function("is_line", &impl::Renderer::DrawingCommand::is_line)
@@ -97,17 +100,17 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("as_arc", &impl::Renderer::DrawingCommand::as_arc)
     .function("as_line", &impl::Renderer::DrawingCommand::as_line)
     .function("as_text", &impl::Renderer::DrawingCommand::as_text);
-  class_<DeleteTool>("LhasaDeleteTool")
+  class_<DeleteTool>("DeleteTool")
     .constructor<>();
-  class_<ChargeModifier>("LhasaChargeModifier")
+  class_<ChargeModifier>("ChargeModifier")
     .constructor<>();
-  class_<GeometryModifier>("LhasaGeometryModifier")
+  class_<GeometryModifier>("GeometryModifier")
     .constructor<>();
-  class_<FormatTool>("LhasaFormatTool")
+  class_<FormatTool>("FormatTool")
     .constructor<>();
-  class_<RemoveHydrogensTool>("LhasaRemoveHydrogensTool")
+  class_<RemoveHydrogensTool>("RemoveHydrogensTool")
     .constructor<>();
-  enum_<ElementInsertion::Element>("LhasaElement")
+  enum_<ElementInsertion::Element>("Element")
     .value("C", ElementInsertion::Element::C)
     .value("N", ElementInsertion::Element::N)
     .value("O", ElementInsertion::Element::O)
@@ -118,7 +121,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .value("Cl", ElementInsertion::Element::Cl)
     .value("Br", ElementInsertion::Element::Br)
     .value("I", ElementInsertion::Element::I);
-  class_<ElementInsertion>("LhasaElementInsertion")
+  class_<ElementInsertion>("ElementInsertion")
     // Doesn't compile: https://github.com/emscripten-core/emscripten/issues/11274
     // .constructor([](std::string element){
     //   return ElementInsertion(element.c_str());
@@ -126,7 +129,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .constructor<ElementInsertion::Element>();
   // Workaround for constructor overload not being available:
   function("element_insertion_from_symbol", &lhasa::element_insertion_from_symbol);
-  enum_<StructureInsertion::Structure>("LhasaStructure")
+  enum_<StructureInsertion::Structure>("Structure")
     .value("CycloPropaneRing", StructureInsertion::Structure::CycloPropaneRing)
     .value("CycloButaneRing", StructureInsertion::Structure::CycloButaneRing)
     .value("CycloPentaneRing", StructureInsertion::Structure::CycloPentaneRing)
@@ -134,25 +137,25 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .value("BenzeneRing", StructureInsertion::Structure::BenzeneRing)
     .value("CycloHeptaneRing", StructureInsertion::Structure::CycloHeptaneRing)
     .value("CycloOctaneRing", StructureInsertion::Structure::CycloOctaneRing);
-  class_<StructureInsertion>("LhasaStructureInsertion")
+  class_<StructureInsertion>("StructureInsertion")
     .constructor<StructureInsertion::Structure>();
-  enum_<BondModifier::BondModifierMode>("LhasaBondModifierMode")
+  enum_<BondModifier::BondModifierMode>("BondModifierMode")
     .value("Single", BondModifier::BondModifierMode::Single)
     .value("Double", BondModifier::BondModifierMode::Double)
     .value("Triple", BondModifier::BondModifierMode::Triple);
-  class_<BondModifier>("LhasaBondModifier")
+  class_<BondModifier>("BondModifier")
     .constructor<BondModifier::BondModifierMode>();
-  enum_<TransformManager::Mode>("LhasaTransformMode")
+  enum_<TransformManager::Mode>("TransformMode")
     .value("Rotation", TransformManager::Mode::Rotation)
     .value("Translation", TransformManager::Mode::Translation);
-  class_<TransformTool>("LhasaTransformTool")
+  class_<TransformTool>("TransformTool")
     .constructor<TransformManager::Mode>();
-  enum_<FlipMode>("LhasaFlipMode")
+  enum_<FlipMode>("FlipMode")
     .value("Horizontal", FlipMode::Horizontal)
     .value("Vertical", FlipMode::Vertical);
-  class_<FlipTool>("LhasaFlipTool")
+  class_<FlipTool>("FlipTool")
     .constructor<FlipMode>();
-  class_<ActiveTool>("LhasaActiveTool")
+  class_<ActiveTool>("ActiveTool")
     // Embind doesn't currently support type-based overloads
     // so I needed a generic constructor from emscripten::val.
     // The code below does not compile.
@@ -166,16 +169,17 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     // }))
     .constructor<>();
   function("make_active_tool", &lhasa::make_active_tool);
-  value_object<CootLigandEditorCanvas::SizingInfo>("LhasaSizingInfo")
+  value_object<CootLigandEditorCanvas::SizingInfo>("SizingInfo")
     .field("requested_size", &CootLigandEditorCanvas::SizingInfo::requested_size);
-  enum_<CootLigandEditorCanvas::MeasurementDirection>("LhasaMeasurementDirection")
+  enum_<CootLigandEditorCanvas::MeasurementDirection>("MeasurementDirection")
     .value("HORIZONTAL", CootLigandEditorCanvas::MeasurementDirection::HORIZONTAL)
     .value("VERTICAL", CootLigandEditorCanvas::MeasurementDirection::VERTICAL);
-  class_<impl::WidgetCoreData>("LhasaImplWidgetCoreData");
-  class_<CootLigandEditorCanvas, base<impl::WidgetCoreData>>("LhasaCanvas")
+  class_<impl::WidgetCoreData>("ImplWidgetCoreData");
+  class_<CootLigandEditorCanvas, base<impl::WidgetCoreData>>("Canvas")
     .constructor<>()
     .function("set_active_tool", &CootLigandEditorCanvas::set_active_tool)
-    .function("append_molecule", &CootLigandEditorCanvas::append_molecule)
+    // TODO: RDKit typedefinitions
+    // .function("append_molecule", &CootLigandEditorCanvas::append_molecule)
     .function("set_scale", &CootLigandEditorCanvas::set_scale)
     .function("get_scale", &CootLigandEditorCanvas::get_scale)
     .function("undo_edition", &CootLigandEditorCanvas::undo)

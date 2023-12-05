@@ -1,9 +1,16 @@
 import { useState } from 'react'
 // import './_App.css'
 import './index.css';
+import { Lhasa } from './main.tsx'
 import * as d3 from "d3";
 
-function ToolButton(props) {
+class ToolButtonProps {
+  onClick: MouseEventHandler<HTMLDivElement> | undefined;
+  caption: string;
+  icon: string
+}
+
+function ToolButton(props:ToolButtonProps) {
   return (
     <div className="button tool_button" onClick={props.onClick}>
       {props.caption}
@@ -14,9 +21,7 @@ function ToolButton(props) {
 
 export function LhasaComponent() {
   const [lh, setLh] = useState(() => {
-    // todo: figure out how to use this
-    // return new Module.LhasaCanvas();
-    return 0;
+    return new Lhasa.Canvas();
   });
 
   // function switch_tool(tool) {

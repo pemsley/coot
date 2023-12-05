@@ -6,7 +6,9 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_FLAGS "-Wall -Wno-unused-command-line-argument -s USE_PTHREADS=1 -pthread -fwasm-exceptions -s ALLOW_MEMORY_GROWTH=1")
+
+# -Wno-unused-command-line-argument 
+set(CMAKE_CXX_FLAGS "-Wall --embind-emit-tsd lhasa.d.ts -s USE_PTHREADS=1 -pthread -fwasm-exceptions ")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 set(CMAKE_CXX_STANDARD 17)
@@ -57,7 +59,7 @@ target_sources(lh PRIVATE
 
 add_executable(lhasa embind.cpp embind.hpp)
 
-set_target_properties(lhasa PROPERTIES LINK_FLAGS "-s ENVIRONMENT=web,worker ")
+set_target_properties(lhasa PROPERTIES LINK_FLAGS " -s ENVIRONMENT=web,worker -s EXPORT_ES6=1 -s MODULARIZE=1 -s EXPORT_NAME='Lhasa' -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS")
 
 target_link_libraries(lhasa PRIVATE 
     RDKitDepictor 
