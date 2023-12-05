@@ -214,16 +214,20 @@ export function LhasaComponent() {
   const [st, setSt] = useState(() => {
     return {
       svg_node: null,
-      smiles: ''
+      smiles: [],
+      scale: 1.0
     };
   });
   const [lh, setLh] = useState(() => {
     const lh = new Lhasa.Canvas();
     lh.connect("queue_redraw", () => {
       const node = on_render(lh);
-      st.svg_node = node;
+      // st.svg_node = node;
       // console.log(st.svg_node);
-      setSt(st);
+      setSt({
+        ...st,
+        svg_node: node
+      });
     });
 
     const on_status_updated = function (status_text) {
@@ -436,7 +440,7 @@ export function LhasaComponent() {
           <div id="scale_panel" className="panel">
             <b>SCALE</b>
             <div id="scale_display">
-              {/* <!-- scale info goes here --> */}
+              {st.scale}
             </div>
             <div className="toolbar horizontal_toolbar horizontal_container">
               {/* <div className="button" onclick="javascript:{const sc = lh.get_scale(); lh.set_scale(sc-0.05);}"><b>-</b></div>
