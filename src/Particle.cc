@@ -57,7 +57,7 @@ particle_container_t::make_particles(unsigned int n_particles_per_burst,
    particles.reserve(n_particles_per_burst * positions.size());
 
    for (unsigned int ipos=0; ipos<positions.size(); ipos++) {
-      const glm::vec3 atom_position = positions[ipos];
+      const glm::vec3 &atom_position = positions[ipos];
       for (unsigned int i=0; i<n_particles_per_burst; i++) {
          float p0 = 2.0 * random() - 1.0;
          float p1 = 2.0 * random() - 1.0;
@@ -75,9 +75,10 @@ particle_container_t::make_particles(unsigned int n_particles_per_burst,
          glm::vec3 pos = sc_pos * pp;
          glm::vec3 vel = sc_vel * pp;
          glm::vec4 col(0.96, 0.26, 0.4, 1.0);
-         if (false)
-            std::cout << "Particle " << i << " " << glm::to_string(pos) << "\tvelocity "
-                      << glm::to_string(vel) << " \t" << glm::to_string(col) << std::endl;
+         if (true)
+            std::cout << "Position-idx " << ipos << " Particle " << i << " " << glm::to_string(pos)
+                      << "\tvelocity " << glm::to_string(vel) << " \t col: " << glm::to_string(col)
+                      << std::endl;
          Particle p(pos + atom_position, vel, col, 10.0f - 9.0f * random());
          float ccr = 0.2 + 0.9 * random();
          p.colour_change_rate = ccr;
@@ -85,6 +86,31 @@ particle_container_t::make_particles(unsigned int n_particles_per_burst,
       }
    }
 }
+
+void
+particle_container_t::make_gone_diego_particles(const std::vector<glm::vec3> &positions) {
+
+   // pass screen x and y uvs for better positions
+
+   // usually just 1 or 2
+   unsigned int n_particles_per_burst = 20;
+   for (unsigned int ipos=0; ipos<positions.size(); ipos++) {
+      const glm::vec3 &gone_diego_position = positions[ipos];
+      for (unsigned int i=0; i<n_particles_per_burst; i++) {
+         double alpha = static_cast<double>(i)/static_cast<double>(n_particles_per_burst);
+         double x = sin(alpha);
+         double y = cos(alpha);
+         // x and y should be aligned with the scren x and y axes
+         glm::vec3 pos(x,y,0.0);
+         glm::vec3 vel = -0.1 * pos;
+         glm::vec4 col(0.7, 0.6, 0.2, 1.0);
+         float life = 1.0;
+         Particle p(pos + gone_diego_position, vel, col, life);
+         particles.push_back(p);
+      }
+   }
+}
+
 
 // pass the time?
 void

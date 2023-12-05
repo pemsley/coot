@@ -1458,6 +1458,22 @@ graphics_info_t::draw_particles() {
          mesh_for_particles.draw_particles(&shader_for_particles, mvp, model_rotation);
       }
    }
+
+   std::cout << "debug:: draw_particles(): gone_diego_particles size " << gone_diego_particles.size() << std::endl;
+   if (! gone_diego_particles.empty()) {
+      for (unsigned int imesh=0; imesh<meshes_for_gone_diego_particles.size(); imesh++) {
+         Mesh &mesh_for_gone_diego_particles(meshes_for_gone_diego_particles[imesh]);
+         if (mesh_for_gone_diego_particles.have_instances()) {
+            glm::mat4 mvp = get_molecule_mvp();
+            glm::mat4 model_rotation = get_model_rotation();
+            std::cout << "debug:: draw_particles(): drawing gone diego particles! imesh: " << imesh << std::endl;
+            mesh_for_gone_diego_particles.draw_particles(&shader_for_particles, mvp, model_rotation);
+         } else {
+            std::cout << "draw_particles(): Ooops gone-diego imesh: " << imesh << " " << mesh_for_gone_diego_particles.name
+                      << " has no instances" << std::endl;
+         }
+      }
+   }
 }
 
 // static
@@ -4917,6 +4933,7 @@ graphics_info_t::setup_draw_for_particles() {
       if (err) std::cout << "Error:: setup_draw_for_particles() Post attach buffers err is "
                          << err << std::endl;
 
+      // 20231202-PE we don't need to use the shader, do we?
       shader_for_particles.Use();
 
       err = glGetError();
@@ -5186,15 +5203,14 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
                                                const std::vector<int> &v_1(it_1->second);
                                                std::vector<int>::const_iterator it_2;
                                                for (it_2=v_1.begin(); it_2!=v_1.end(); ++it_2) {
-                                                  std::cout << "debug *it_2 " << *it_2 << std::endl;
-                                                  int index_2 = *it_2;
+                                                  const int &index_2(*it_2);
                                                   // can I find that index_1, index_2 pair in the current set?
                                                   std::map<int, std::vector<int> >::const_iterator it_3 = current_round_nbc_baddies_atom_index_map.find(index_1);
                                                   if (it_3 == current_round_nbc_baddies_atom_index_map.end()) {
                                                      std::pair<int, int> p(index_1, index_2);
                                                      gone_atom_pairs.push_back(p);
                                                   } else {
-                                                     const std::vector<int> v_2(it_3->second);
+                                                     const std::vector<int> &v_2(it_3->second);
                                                      // so the first atom was there - what about the second atom?
                                                      std::vector<int>::const_iterator it_4 = std::find(v_2.begin(), v_2.end(), index_2);
                                                      if (it_4 == v_2.end()) {
@@ -5207,10 +5223,48 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
                                             return gone_atom_pairs;
                                          };
 
+   auto get_gone_nbc_baddie_positions = [] (const std::vector<std::pair<int, int> > &gone_atom_pairs,
+                                            mmdb::Atom **atom_selection, int n_selected_atoms) {
+      glm::vec3 y_screen = get_screen_y_uv();
+      std::vector<glm::vec3> positions;
+      std::vector<std::pair<int, int> >::const_iterator it;
+      for (it=gone_atom_pairs.begin(); it!=gone_atom_pairs.end(); ++it) {
+         const auto &pair(*it);
+         if (pair.first < n_selected_atoms) {
+            if (pair.second < n_selected_atoms) {
+               mmdb::Atom *at_1 = atom_selection[pair.first];
+               mmdb::Atom *at_2 = atom_selection[pair.second];
+               float x = 0.5 * (at_1->x + at_2->x);
+               float y = 0.5 * (at_1->y + at_2->y);
+               float z = 0.5 * (at_1->z + at_2->z);
+               positions.push_back(glm::vec3(x,y,z) + 0.84f * y_screen);
+            }
+         }
+      }
+      return positions;
+   };
+
+   auto get_gone_count = [] (const std::map<int, std::vector<int> > &nbc_baddies_atom_index_map) {
+      unsigned int n = 0;
+      std::map<int, std::vector<int> >::const_iterator it_1;
+      for (it_1=nbc_baddies_atom_index_map.begin(); it_1!=nbc_baddies_atom_index_map.end(); ++it_1) {
+         const std::vector<int> &v_1(it_1->second);
+         n += v_1.size();
+      }
+      return n;
+   };
+
+
 
    if (moving_atoms_asc) {
       if (moving_atoms_asc->mol) {
          coot::refinement_results_t &rr = saved_dragged_refinement_results;
+
+         if (false) {
+            unsigned int gone_count_prev = get_gone_count(previous_round_nbc_baddies_atom_index_map);
+            unsigned int gone_count_this = get_gone_count(rr.nbc_baddies_atom_index_map);
+            std::cout << "compare nbc sizes: " << gone_count_prev << " " << gone_count_this << std::endl;
+         }
 
          bad_nbc_atom_pair_marker_positions.clear();
          std::vector<coot::refinement_results_nbc_baddie_t> &baddies(rr.sorted_nbc_baddies);
@@ -5224,20 +5278,78 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
          if (! bad_nbc_atom_pair_marker_positions.empty())
             draw_bad_nbc_atom_pair_markers_flag = true;
 
-         if (false) {
+         if (true) { // gone diego particles
             std::vector<std::pair<int, int> > gone_atom_pairs = gone_contacts_from_nbc_baddies(rr);
-            for (unsigned int i=0; i<gone_atom_pairs.size(); i++) {
-               std::cout << "       gone " << gone_atom_pairs[i].first << " " << gone_atom_pairs[i].second << std::endl;
+            // std::cout << "debug:: gone_atoms_pair size " << gone_atom_pairs.size() << std::endl;
+            // for (unsigned int i=0; i<gone_atom_pairs.size(); i++)
+            // std::cout << "       gone " << gone_atom_pairs[i].first << " " << gone_atom_pairs[i].second << std::endl;
+
+            if (! gone_atom_pairs.empty()) {
+
+               std::vector<glm::vec3> gone_diego_positions = get_gone_nbc_baddie_positions(gone_atom_pairs,
+                                                                                           moving_atoms_asc->atom_selection,
+                                                                                           moving_atoms_asc->n_selected_atoms);
+               if (!gone_diego_positions.empty()) {
+                  setup_draw_for_particles_for_new_gone_diegos(gone_diego_positions);
+               }
             }
          }
+         // for next round
+         previous_round_nbc_baddies_atom_index_map = rr.nbc_baddies_atom_index_map;
       } else {
          bad_nbc_atom_pair_marker_positions.clear();
       }
    } else {
       bad_nbc_atom_pair_marker_positions.clear();
    }
-
 }
+
+// this should be called in the graphics setup
+ void
+    graphics_info_t::setup_draw_for_particles_for_gone_diegos() {
+
+    // I think that each gone diego should have its own mesh. Let's use just one for now.
+    //
+ }
+
+ void
+    graphics_info_t::setup_draw_for_particles_for_new_gone_diegos(const std::vector<glm::vec3> &positions) {
+
+    // usually only one
+
+    // gone_diego_particles and meshes_for_gone_diego_particles live and die together.
+    // formalise that.
+
+    std::cout << "setup_draw_for_particles_for_gone_diegos() of " << positions.size() << std::endl;
+
+    if (! positions.empty()) {
+
+       glm::vec3 screen_x_uv = get_screen_x_uv();
+       glm::vec3 screen_y_uv = get_screen_y_uv();
+
+       // positions are the new gone-diego positions
+       gone_diego_particles.push_back(particle_container_t());
+       particle_container_t &last_particles = gone_diego_particles.back();
+       unsigned int n_particles_per_burst = 13;
+       // last_particles.make_gone_diego_particles(positions); // screen x and y uvs would be good here.
+       last_particles.make_particles(n_particles_per_burst, positions);
+       meshes_for_gone_diego_particles.push_back(Mesh("gone-diego"));
+       Mesh &last_mesh = meshes_for_gone_diego_particles.back();
+       attach_buffers();
+       int n_instances = n_particles_per_burst * positions.size();
+       std::cout << "allocating space for n instances: " << n_instances << std::endl;
+       last_mesh.setup_vertex_and_instancing_buffers_for_particles(n_instances);
+       last_mesh.update_instancing_buffer_data_for_particles(last_particles);
+
+       if (! do_tick_gone_diegos) {
+          if (! tick_function_is_active()) {
+             int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+             idle_function_spin_rock_token = new_tick_id;
+          }
+          do_tick_gone_diegos = true;
+       }
+    }
+ }
 
 // static
 void
@@ -6567,6 +6679,7 @@ graphics_info_t::setup_key_bindings() {
    // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_d,      key_bindings_t(l1, "increase clipping")));
    kb_vec.push_back(std::make_pair(GDK_KEY_d, key_bindings_t(l13r, "step right")));
    kb_vec.push_back(std::make_pair(GDK_KEY_a, key_bindings_t(l13l, "step left")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_e,      key_bindings_t(l44, "Auto-fit Rotamer")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_f,      key_bindings_t(l2, "decrease clipping")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_g,      key_bindings_t(l5, "go to blob")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_h,      key_bindings_t(l36, "Triple Refine with Auto-accept")));
@@ -6588,7 +6701,6 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_l,      key_bindings_t(l21, "Label/Unlabel Active Atom")));
    // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_y,      key_bindings_t(l24, "Add Terminal Residue")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_j,      key_bindings_t(l44, "Auto-fit Rotamer")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_k,      key_bindings_t(l25, "Fill Partial Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l28, "NCS Other Chain")));

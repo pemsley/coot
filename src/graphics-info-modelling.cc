@@ -569,6 +569,11 @@ graphics_info_t::refinement_loop_threaded() {
       // coot::refinement_results_t rr = g.last_restraints->minimize(flags, spf, pr_chi_sqds);
       coot::refinement_results_t rr = g.last_restraints->minimize(imol_moving_atoms, flags,
 								  spf, pr_chi_sqds, *Geom_p());
+
+      // 20231202-PE previous_round_nbc_baddies_atom_index_map is set her so that it
+      // can be used in gone_contacts_from_nbc_baddies() in update_bad_nbc_atom_pair_marker_positions()
+      //
+      // previous_round_nbc_baddies_atom_index_map = rr.nbc_baddies_atom_index_map;
       saved_dragged_refinement_results = rr;
 
       if (false) {

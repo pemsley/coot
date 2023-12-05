@@ -80,6 +80,7 @@ public:
    unsigned int type; // from molecular triangles object type
    std::chrono::time_point<std::chrono::system_clock>  time_constructed;
    bool is_headless; // i.e. don't try to use OpenGL calls because we've been imported into python, blender or jupyter.
+   static std::string  _(int ierr);
 
    // Mesh() { init(); }
    Mesh(const std::string &name_in, const coot::simple_mesh_t& mesh);
@@ -377,7 +378,7 @@ public:
    void update_instancing_buffer_data_for_gravity_fall(float time, float floor_z=0.0f);
 
    // void setup_instancing_buffers(const particle_container_t &particles);
-   void setup_vertex_and_instancing_buffers_for_particles(unsigned int n_particles); // setup the buffer, don't add data
+   void setup_vertex_and_instancing_buffers_for_particles(unsigned int n_instances); // setup the buffer, don't add data
    void update_instancing_buffer_data_for_particles(const particle_container_t &particles);
 
    void set_draw_this_mesh(bool state); // only set true if there are vertices and triangles

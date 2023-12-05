@@ -1569,6 +1569,7 @@ bool graphics_info_t::do_tick_constant_draw = false; // was true: 20220606-PE ha
 bool graphics_info_t::do_tick_hydrogen_bonds_mesh = false;
 bool graphics_info_t::do_tick_happy_face_residue_markers = false;
 bool graphics_info_t::do_tick_outline_for_active_residue = false;
+bool graphics_info_t::do_tick_gone_diegos = false;
 int graphics_info_t::n_particles = 220;
 Mesh graphics_info_t::mesh_for_particles = Mesh("mesh for particles");
 particle_container_t graphics_info_t::particles;
@@ -1779,3 +1780,6 @@ coot::util::sfcalc_genmap_stats_t graphics_info_t::latest_sfcalc_stats;
 
 bool graphics_info_t::use_sounds = true;
 guint graphics_info_t::updating_maps_timeout_function_idx = UPDATING_MAPS_TIMEOUT_FUNCTION_IDX_UNSET;
+
+std::vector<particle_container_t> graphics_info_t::gone_diego_particles;
+std::vector<Mesh> graphics_info_t::meshes_for_gone_diego_particles;
