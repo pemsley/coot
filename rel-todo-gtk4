@@ -21,33 +21,103 @@ Bug:: Preferences Others Fonts - the Atom Label Radiobuttons are not correctly l
 Bug:: if rdkit has not been installed then it should fail in configure
 not when building lidia-core
 
-Look at the terminal output when using the Preferences dialog. Is it all needed?
+GUI: Look at the terminal output when using the Preferences dialog. Is it all needed?
 
-Symmetry by molecule: removed from UI. Buggy. Needs a fix.
+GUI: Symmetry by molecule: removed from UI. Buggy. Needs a fix.
 
-Does "Fetch PDB & Map using EDS" work with Updating maps?
+GUI: Does "Fetch PDB & Map using EDS" work with Updating maps?
+
+GUI: When I Open Coords I have a option to choose c oordinate files.
+     When I Auto-open MTZ I dont have a option to choose mtz files.
 
 Martin Moncrieffe: distance and angles on Mac.
+* Done.
 
-Cryo-EM module: Add Toggle switch for auto-recontour map
+GUI: Geman-McClure alpha refinement params box menu doesn't show the correct value.
+
+GUI: Update the validation box when "flip peptide" button is pressed.
+
+GUI: Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
+
+GUI:: Rotate/Translate <fragment> doesn't work.
+
+GUI: see a validation graph (geometry) with one chain (e.g. A chain fragment from tutorial-modern).
+     The residue labels were getting chopped in half.
+
+GUI: Renumber residue range on a molecule that is not the first molecule ::: 0.6
+
+GUI: Cryo-EM module: Add Toggle switch for auto-recontour map
+
+Graphics: Don't draw rama ball when intermediate atoms are from edit chi angles (and some
+   others presumably).
+
+Graphics: Try Quick save as on a mac and restore settings - the graphics window size is wrong.
+
+Graphics: Don't draw rama balls when intermediate atoms are from edit chi angles (and
+          some others presumably).
+
+Graphics: Rigid-body refine the tutorial A chain. It used to display an intermediate
+          atoms representation. What happens now and is that what you want?
+
+Graphics: I want to be able to click on the red spots in the "in window" Rama plot.
+
+Moorhen: what is the HB type of this atom?
 
 Moorhen: Export dictionary as string
+* Done.
 
 Moorhen: replace fragment: does it take the vertical bar?
-https://github.com/moorhen-coot/Moorhen/issues/13
+         https://github.com/moorhen-coot/Moorhen/issues/13
 
 Moorhen: does get_bonds_mesh_instanced() take the vertical bar?
 
 Moorhen: Export input dictionary as string (needs to store result of file-to-string)
 
-Find some Cryo-EM ligand for demo at the ligands meeting.
+Moorhen: Request: electrostatic surface. What happens when you put the chages
+         on a Gaussian surface?
+
+Libcootapi: Make the CMakefile install chapi
+
+Libcootapi: Make the CMakefile install findwaters and findligands
+
+Libcootapi: add lib for gesamt
+
+Fun: flattening difference map peaks animation:
+        find peak and negative peaks in the
+        current diff-map - previous diff-map difference map
+        Use those peaks for particle animation.
+        Make a moorhen function for these.
+
+Fun: Add pops.
+
+Science: Get the Cryo-EM servalcat difference map working
+
+Science: analytical gradients for Gaussian surfaces
+
+Science: Make a exponential_approx function that uses a pre-calculated table
+         and use it to make smooth normals for the vertices of a gaussian surface.
+         Extra points for multi-threading.
+
+Useful: multi-thread the rmsd calculation, so that the Coot points
+        calculation in cryo-EM maps is fast(er).
+
+Science: middle of blob for EM jiggle-fitting, try 3908?
+
+Science: "One button" post-jiggle fit "black box morph refine"
+   o Make GM restraints,
+   o blur
+   o set tight restraints alpha
+   o Refine
+   o Lessen GM restraint alpha
+   o Lessen blur
+   o Refine
+   Tricky thing is to find interesting cases.
+
+Useful: Find some Cryo-EM ligand for demo at the ligands meeting.
 * I found a couple so far.
 
 cif parser fail for 6eoj from the PDBe - display as CAs.
 * set_use_gemmi_as_model_parser_xxx(1) fixes it
-
-Don't draw rama ball when intermediate atoms are from edit chi angles (and some others
-presumably).
 
 Moorhen: Request: electrostatic surface.
 
@@ -59,21 +129,11 @@ Cryo-EM -> Mask Map by Chain for 7vvl.
 
 Quick save as should save the shader settings
 
-Try Quick save as on a mac and restore settings - the graphics window size is wrong.
-
 Rigid-body refine the tutorial A chain. It used to display an intermediate atoms
 representation. What happens now and is that what you want?
 
-Renumber residue range on a molecule that is not the first molecule ::: 0.6
-
 Fix the undo molecule chooser (have 2 molecules with edits)
 
-When I Open Coords I have a option to choose c oordinate files.
-When I Auto-open MTZ I dont have a option to choose mtz files.
-
-Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
-
-Rotate/Translate <fragment> doesn't work.
 
 ---- older issues ---
 
@@ -1098,3 +1158,14 @@ Moorhen:: check waters: change the return type so that there is a label or some 
 
 Rebuild RDKit, check that Eigen is pulled in correctly.
 * Done.
+
+GUI: Where is pepflip Q in the key-bindings?.
+* Done.
+
+GUI: "Use Trans-peptide restraints" button doesn't work (the button is on again
+    when the dialog is displayed again).
+* Done.
+
+GUI: --auto moorhen-tutorial-4.mtz doesn't auto-read the Fobs colums, so the
+     auto-updating maps doesn't work sadly.
+* Done
