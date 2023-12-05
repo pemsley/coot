@@ -3988,6 +3988,34 @@ int atom_index_first_atom_in_residue_with_altconf(int imol,
    return index;
 }
 
+/*! \brief return the minimum residue number for imol chain chain_id */
+int min_resno_in_chain(int imol, const char *chain_id) {
+
+   int res_no_min = 999997;
+   if (is_valid_model_molecule(imol)) {
+      auto p = graphics_info_t::molecules[imol].min_res_no_in_chain(chain_id);
+      if (p.first) {
+         res_no_min = p.second;
+      }
+   }
+   return res_no_min;
+
+}
+   
+/*! \brief return the maximum residue number for imol chain chain_id */
+int max_resno_in_chain(int imol, const char *chain_id) {
+
+   int res_no_max = -99999;
+   if (is_valid_model_molecule(imol)) {
+      auto p = graphics_info_t::molecules[imol].max_res_no_in_chain(chain_id);
+      if (p.first) {
+         res_no_max = p.second;
+      }
+   }
+   return res_no_max;
+}
+
+
 
 float median_temperature_factor(int imol) {
 

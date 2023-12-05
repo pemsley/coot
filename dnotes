@@ -11168,3 +11168,38 @@ ninja
 meson-logs/meson-log.txt says
 
    Dependency glib-2.0 found: NO found 2.66.8 but need: '>= 2.72.0'
+
+---
+Sun  3 Dec 00:12:03 GMT 2023
+
+From phind.com, Sound on a Mac:
+
+
+FILE* file = fopen("path_to_your_file.ogg", "rb");
+OggVorbis_File vf;
+ov_open(file, &vf, NULL, 0);
+
+    Decode the audio data: Use libogg to decode the audio data. This
+    will convert the raw audio data into a format that can be played
+    by the Audio Queue Services API:
+
+vorbis_info* vi = ov_info(&vf, -1);
+
+    Set up the Audio Queue: Use the Audio Queue Services API to set up
+    an audio queue. This will be used to play the decoded audio data:
+
+AudioQueueRef queue;
+AudioQueueNewOutput(&format, AudioCallback, this, NULL, 0, &queue);
+
+    Play the audio data: Use the Audio Queue Services API to play the
+    decoded audio data:
+
+AudioQueueStart(queue, NULL);
+
+    Clean up: When you're done playing the audio data, make sure to
+    clean up by closing the .ogg file and freeing any resources that
+    were allocated:
+
+ov_clear(&vf);
+fclose(file);
+

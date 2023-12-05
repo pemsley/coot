@@ -1909,11 +1909,17 @@ void replace_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
 
+   std::cout << "replace_residue_action() fill me! " << std::endl;
+
+   // use an overlay.
 }
 
 void rigid_body_fit_residue_ranges_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                           G_GNUC_UNUSED GVariant *parameter,
                                           G_GNUC_UNUSED gpointer user_data) {
+   
+   safe_python_command("import coot_gui");
+   safe_python_command("coot_gui.rigid_body_refine_residue_ranges_gui()");
 
 }
 

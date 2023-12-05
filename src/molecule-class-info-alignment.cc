@@ -29,6 +29,59 @@ molecule_class_info_t::max_res_no_in_chain(mmdb::Chain *chain_p) const {
    return std::pair<bool, int> (status, res_no_max);
 }
 
+std::pair<bool,int>
+molecule_class_info_t::max_res_no_in_chain(const std::string &chain_id) const {
+
+   bool status = false;
+   int res_no_max = -9999;
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::string chain_id_local = chain_p->GetChainID();
+         if (chain_id_local == chain_id) {
+            std::pair<bool, int> p = max_res_no_in_chain(chain_p);
+            status = p.first;
+            res_no_max = p.second;
+         }
+      }
+   }
+   return std::pair<bool, int> (status, res_no_max);
+}
+
+std::pair<bool,int>
+molecule_class_info_t::min_res_no_in_chain(const std::string &chain_id) const {
+
+   bool status = false;
+   int res_no_min = 99999;
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         std::string chain_id_local = chain_p->GetChainID();
+         if (chain_id_local == chain_id) {
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int res_no = residue_p->GetSeqNum();
+                  if (res_no < res_no_min) {
+                     res_no_min = res_no;
+                     status = true;
+                  }
+               }
+            }
+         }
+      }
+   }
+   return std::pair<bool, int> (status, res_no_min);
+}
+
+
 
 // apply the alignment
 void

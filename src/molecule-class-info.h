@@ -998,6 +998,8 @@ public:        //                      public
    //
    std::pair<bool,int> max_res_no_in_chain(mmdb::Chain *chain_p) const;
 
+   std::pair<bool,int> max_res_no_in_chain(const std::string &chain_id) const;
+   std::pair<bool,int> min_res_no_in_chain(const std::string &chain_id) const;
 
    void set_draw_hydrogens_state(int i) {
       if (draw_hydrogens_flag != i) {

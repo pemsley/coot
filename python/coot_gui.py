@@ -1870,6 +1870,7 @@ def generic_molecule_chooser(hbox, hint_text):
     combobox.add_attribute(renderer_text, "text", 1)
 
     label = Gtk.Label(label=hint_text)
+    # label.set_alignment(0, -1) # what's the new way?
 
     hbox.append(label)
     hbox.append(combobox)
@@ -4140,9 +4141,9 @@ def residue_range_gui(func, function_text, go_button_label):
         frame = Gtk.Frame()
         outside_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        text_1 = Gtk.Label(label="  Chain-ID:")
-        text_2 = Gtk.Label(label="  Resno Start:")
-        text_3 = Gtk.Label(label="  Resno End:")
+        text_1 = Gtk.Label(label="  Chain-ID: ")
+        text_2 = Gtk.Label(label="  Resno Start: ")
+        text_3 = Gtk.Label(label="  Resno End: ")
         entry_1 = Gtk.Entry()
         entry_2 = Gtk.Entry()
         entry_3 = Gtk.Entry()
@@ -4157,7 +4158,7 @@ def residue_range_gui(func, function_text, go_button_label):
         hbox.append(entry_3)
 
         outside_hbox.append(frame)
-        frame.add(hbox)
+        frame.set_child(hbox)
         outside_hbox.append(plus_button)
         outside_hbox.append(minus_button)
 
@@ -4209,12 +4210,12 @@ def residue_range_gui(func, function_text, go_button_label):
     #
     def fill_with_previous_range(range_info, vbox_info):
         print("fill_with_previous_range using", range_info)
-        entry_1 = vbox_info[1]
-        entry_2 = vbox_info[2]
-        entry_3 = vbox_info[3]
+        entry_1 =  vbox_info[1]
+        entry_2  = vbox_info[2]
+        entry_3  = vbox_info[3]
         chain_id = range_info[0]
-        resno_1 = range_info[1]
-        resno_2 = range_info[2]
+        resno_1  = range_info[1]
+        resno_2  = range_info[2]
 
         entry_1.set_text(chain_id)
         entry_2.set_text(str(resno_1))
@@ -4268,14 +4269,17 @@ def residue_range_gui(func, function_text, go_button_label):
         return False
 
     window = Gtk.Window()
+    window.set_title("Coot: Rigid Body Refine Residue Ranges")
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     residue_range_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     residue_range_widget_info = make_residue_range_frame(residue_range_vbox)
     hbox_buttons = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-    function_label = Gtk.Label(function_text)
+    function_label = Gtk.Label(label=function_text)
     cancel_button = Gtk.Button(label="  Cancel  ")
     go_button = Gtk.Button(label=go_button_label)
     h_sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
+    h_sep.set_margin_top(6)
+    h_sep.set_margin_bottom(6)
     # the first residue range
     outside_vbox_residue_range = residue_range_widget_info[0]
 
@@ -4284,21 +4288,43 @@ def residue_range_gui(func, function_text, go_button_label):
     # buttons
     hbox_buttons.append(cancel_button)
     hbox_buttons.append(go_button)
+    hbox_buttons.set_margin_start(8)
+    hbox_buttons.set_margin_end(8)
+    hbox_buttons.set_margin_top(6)
+    hbox_buttons.set_margin_bottom(6)
+    for w in cancel_button, go_button:
+        w.set_margin_start(8)
+        w.set_margin_end(8)
+        w.set_margin_top(2)
+        w.set_margin_bottom(2)
 
     # the vbox of residue ranges
     residue_range_vbox.append(outside_vbox_residue_range)
+
+    # main vbox
+    vbox.append(function_label)
+    combobox = generic_molecule_chooser(vbox, "Molecule for Ranges:")
+    combobox.set_margin_top(6)
+    combobox.set_margin_bottom(6)
+    combobox.set_margin_start(6)
+    combobox.set_margin_end(6)
+    vbox.append(residue_range_vbox)
+    vbox.append(h_sep)
+    vbox.append(hbox_buttons)
 
     if saved_residue_ranges:
         fill_residue_range_widgets_previous_data(saved_residue_ranges,
                                                  residue_range_widget_info,
                                                  residue_range_vbox)
-
-    # main vbox
-    vbox.append(function_label)
-    combobox = generic_molecule_chooser(vbox, "Molecule for Ranges:")
-    vbox.append(residue_range_vbox)
-    vbox.append(h_sep)
-    vbox.append(hbox_buttons)
+    else:
+        imol = combobox_to_molecule_number(combobox)
+        ch_ids = coot_utils.chain_ids(imol)
+        if ch_ids:
+            ch_id_0 = ch_ids[0]
+            rn_1 = coot.min_resno_in_chain(imol, ch_id_0)
+            rn_2 = coot.max_resno_in_chain(imol, ch_id_0)
+            range_info = [ch_id_0, rn_1, rn_2]
+            fill_with_previous_range(range_info, residue_range_widget_info)
 
     window.set_child(vbox)
     # vbox.set_border_width(6)
@@ -4498,6 +4524,8 @@ def solvent_ligands_gui():
     # window.show_all()
     window.show()
 
+def rigid_body_refine_residue_ranges_gui():
+    residue_range_gui(lambda imol, ls: coot.rigid_body_refine_by_residue_ranges_py(imol, ls), "Rigid Body Refine", "  Fit  ")
 
 # USER MODS gui
 #

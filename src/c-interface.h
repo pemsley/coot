@@ -2544,6 +2544,10 @@ int atom_index_first_atom_in_residue_with_altconf(int imol,
 						  int iresno,
 						  const char *ins_code,
 						  const char *alt_conf);
+/*! \brief return the minimum residue number for imol chain chain_id */
+int min_resno_in_chain(int imol, const char *chain_id);
+/*! \brief return the maximum residue number for imol chain chain_id */
+int max_resno_in_chain(int imol, const char *chain_id);
 /*! \brief return the median temperature factor for imol */
 float median_temperature_factor(int imol);
 /*! \brief return the average temperature factor for the atoms in imol */
