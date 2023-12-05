@@ -26,34 +26,34 @@ std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> lhasa::make_active_tool(
     std::string classname = tool["__proto__"]["constructor"]["name"].as<std::string>();
     // std::cout<< classname << '\n';
 
-    if(classname == "LhasaElementInsertion") {
+    if(classname == "ElementInsertion") {
         return std::make_unique<ActiveTool>(tool.as<ElementInsertion>());
     }
-    if(classname == "LhasaBondModifier") {
+    if(classname == "BondModifier") {
         return std::make_unique<ActiveTool>(tool.as<BondModifier>());
     }
-    if(classname == "LhasaTransformTool") {
+    if(classname == "TransformTool") {
         return std::make_unique<ActiveTool>(tool.as<TransformTool>());
     }
-    if(classname == "LhasaStructureInsertion") {
+    if(classname == "StructureInsertion") {
         return std::make_unique<ActiveTool>(tool.as<StructureInsertion>());
     }
-    if(classname == "LhasaFlipTool") {
+    if(classname == "FlipTool") {
         return std::make_unique<ActiveTool>(tool.as<FlipTool>());
     }
-    if(classname == "LhasaDeleteTool") {
+    if(classname == "DeleteTool") {
         return std::make_unique<ActiveTool>(tool.as<DeleteTool>());
     }
-    if(classname == "LhasaChargeModifier") {
+    if(classname == "ChargeModifier") {
         return std::make_unique<ActiveTool>(tool.as<ChargeModifier>());
     }
-    if(classname == "LhasaGeometryModifier") {
+    if(classname == "GeometryModifier") {
         return std::make_unique<ActiveTool>(tool.as<GeometryModifier>());
     }
-    if(classname == "LhasaFormatTool") {
+    if(classname == "FormatTool") {
         return std::make_unique<ActiveTool>(tool.as<FormatTool>());
     }
-    if(classname == "LhasaRemoveHydrogensTool") {
+    if(classname == "RemoveHydrogensTool") {
         return std::make_unique<ActiveTool>(tool.as<RemoveHydrogensTool>());
     }
 
