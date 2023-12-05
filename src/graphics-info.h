@@ -3451,6 +3451,10 @@ public:
    static Texture texture_for_anchored_atom_markers;
    static TextureMesh tmesh_for_anchored_atom_markers;
 
+   static std::vector<Mesh> meshes_for_gone_diego_particles;
+   static void setup_draw_for_particles_for_new_gone_diegos(const std::vector<glm::vec3> &positions);
+   static void setup_draw_for_particles_for_gone_diegos(); // unused atm
+   static std::vector<particle_container_t> gone_diego_particles;
 
    static bool draw_bad_nbc_atom_pair_markers_flag; // user can turn them off
    static void setup_draw_for_bad_nbc_atom_pair_markers();
@@ -5007,6 +5011,7 @@ string   static std::string sessionid;
    static bool do_tick_hydrogen_bonds_mesh;
    static bool do_tick_outline_for_active_residue;
    static bool do_tick_constant_draw;
+   static bool do_tick_gone_diegos;
 
    static void fullscreen();
    static void unfullscreen();

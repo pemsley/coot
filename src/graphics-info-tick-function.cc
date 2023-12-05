@@ -44,7 +44,8 @@ graphics_info_t::tick_function_is_active() {
        do_tick_constant_draw       ||
        do_tick_hydrogen_bonds_mesh ||
        do_tick_outline_for_active_residue ||
-       do_tick_happy_face_residue_markers)
+       do_tick_happy_face_residue_markers ||
+       do_tick_gone_diegos)
       return gboolean(TRUE);
    else
       return gboolean(FALSE);
@@ -66,7 +67,20 @@ graphics_info_t::glarea_tick_func(GtkWidget *widget,
          gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0])); // needed?
          // std::cout << "glarea_tick_func() calls update_particles() " << std::endl;
          graphics_info_t::particles.update_particles();
-         graphics_info_t::mesh_for_particles.update_instancing_buffer_data_for_particles(graphics_info_t::particles);
+         graphics_info_t::mesh_for_particles.update_instancing_buffer_data_for_particles(particles);
+      }
+   }
+
+   if (do_tick_gone_diegos) {
+      if (gone_diego_particles.empty()) {
+         do_tick_gone_diegos = false;
+      } else {
+         std::cout << "in glarea_tick_func() update the gone-diego particles here " << gone_diego_particles.size() << std::endl;
+         for (unsigned int ip=0; ip<graphics_info_t::gone_diego_particles.size(); ip++) {
+            gone_diego_particles[ip].update_particles();
+            // which mesh do you want to update, exactly?
+            // mesh_for_gone_diego_particles[ip].update_instancing_buffer_data_for_particles(gone_diego_particles);
+         }
       }
    }
 

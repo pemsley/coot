@@ -26,11 +26,11 @@ class particle_container_t {
 public:
    std::vector<Particle> particles;
    void make_particles(unsigned int n_particles, const std::vector<glm::vec3> &positions);
+   void make_gone_diego_particles(const std::vector<glm::vec3> &positions); // usually just 1 or 2
    void update_particles();
    void remove_old_particles();
-   void create_particle(const glm::vec3 &p);
    unsigned int size() const { return particles.size(); }
-   bool empty() const { return (particles.size() == 0); }
+   bool empty() const { return (particles.empty()); }
 
 };
 
