@@ -1356,7 +1356,7 @@ public:
 
    //! Ligand Fitting
    //!
-   //! @return a vector of indices of molecules for the best fitting ligands to this blob.
+   //! @return a vector of indices of molecules for the best fitting ligands each of the "possible ligand" blobs.
    std::vector<int> fit_ligand(int imol_protein, int imol_map, int imol_ligand,
                                float n_rmsd, bool use_conformers, unsigned int n_conformers);
 
