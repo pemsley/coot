@@ -215,54 +215,51 @@ export function LhasaComponent() {
     return {
       svg_node: null,
       smiles: [],
-      scale: 1.0
+      scale: 1.0,
+      status_text: ''
     };
   });
   const [lh, setLh] = useState(() => {
     const lh = new Lhasa.Canvas();
     lh.connect("queue_redraw", () => {
       const node = on_render(lh);
-      // st.svg_node = node;
-      // console.log(st.svg_node);
       setSt({
         ...st,
         svg_node: node
       });
     });
 
-    const on_status_updated = function (status_text) {
+    const on_status_updated = function (status_txt: string) {
       // For now
-      console.log("Status: " + status_text);
-      // const elem = document.getElementById("status_display");
-      // while (elem.firstChild) {
-      //   elem.removeChild(elem.lastChild);
-      // }
-      // elem.textContent = status_text;
+      console.log("Status: " + status_txt);
+      // todo: fix
+      setSt({
+        ...st,
+        status_text: status_txt
+      });
     };
     lh.connect("status_updated", on_status_updated);
     lh.connect("smiles_changed", function () {
       const smiles_raw = lh.get_smiles();
 
       const smiles_array = smiles_raw.split("\n");
-      //console.log("array: ", smiles_array);
-      //const smiles_array = smiles_raw.split("/\r?\n/");
-      // for(let i = 0; i < smiles_array.length; i++) {
-      //   const m_div = document.createElement("div");
-      //   m_div.innerHTML = smiles_array[i];
-      //   //m_div.textContent = smiles_array[i];
-      //   elem.append(m_div);
-      // }
+      console.log(smiles_array);
+      // todo: fix
+      setSt({
+        ...st,
+        smiles: smiles_array
+      });
     });
     lh.connect("molecule_deleted", function (mol_id) {
       console.log("Molecule with id " + mol_id + " has been deleted.");
     });
-    // lh.connect("scale_changed", function (new_scale) {
-    //   const elem = document.getElementById("scale_display");
-    //   while (elem.firstChild) {
-    //     elem.removeChild(elem.lastChild);
-    //   }
-    //   elem.textContent = '' + new_scale;
-    // });
+    lh.connect("scale_changed", function (new_scale) {
+      console.log('ns', new_scale);
+      setSt({
+        ...st,
+        scale: new_scale
+      });
+    });
     // const smiles_import_button = document.getElementById("smiles_import_button");
     // smiles_import_button.addEventListener("click", function (el) {
     //   const smiles_input = document.getElementById("smiles_input");
@@ -316,6 +313,7 @@ export function LhasaComponent() {
   });
   const chLh = (func: () => void) => {
     func();
+    // This probably does nothing
     setLh(lh);
   };
 
@@ -426,7 +424,7 @@ export function LhasaComponent() {
         </div>
         <div id="status_display_panel" className="panel">
           <span>▶</span>
-          <span id="status_display"></span>
+          <span id="status_display">{ st.status_text }</span>
         </div>
         <div id="invalid_molecules_panel" className="panel">
           {/* <input 
@@ -443,8 +441,8 @@ export function LhasaComponent() {
               {st.scale}
             </div>
             <div className="toolbar horizontal_toolbar horizontal_container">
-              {/* <div className="button" onclick="javascript:{const sc = lh.get_scale(); lh.set_scale(sc-0.05);}"><b>-</b></div>
-              <div className="button" onclick="javascript:{const sc = lh.get_scale(); lh.set_scale(sc+0.05);}"><b>+</b></div> */}
+              <div className="button" onClick={() => chLh(() => {const s = lh.get_scale(); lh.set_scale(s-0.05);})}><b>-</b></div>
+              <div className="button" onClick={() => chLh(() => {const s = lh.get_scale(); lh.set_scale(s+0.05);})}><b>+</b></div>
             </div>
           </div>
           <div id="display_mode_panel" className="panel">
@@ -456,13 +454,13 @@ export function LhasaComponent() {
           <div id="smiles_display_outer" className="panel">
             <b>SMILES</b>
             <div id="smiles_display">
-              {st.smiles}
+              {st.smiles.map(smiles => <div key={smiles}>{smiles}</div>)}
             </div>
           </div>
         </div>
         <div id="bottom_toolbar" className="horizontal_toolbar toolbar horizontal_container">
-          {/* <div className="button" onclick="javascript:lh.undo_edition()" >Undo</div>
-          <div className="button" onclick="javascript:lh.redo_edition()" >Redo</div> */}
+          <div className="button" onClick={() => chLh(() => lh.undo_edition())} >Undo</div>
+          <div className="button" onClick={() => chLh(() => lh.redo_edition())} >Redo</div>
           {/* <div style="flex-grow: 1;" className="horizontal_container toolbar">
             <input id="smiles_input"></input>
             <div className="button" id="smiles_import_button">Import SMILES</div>
