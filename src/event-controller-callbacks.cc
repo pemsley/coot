@@ -101,8 +101,6 @@ graphics_info_t::on_glarea_drag_end_primary(G_GNUC_UNUSED GtkGestureDrag *gestur
 void
 graphics_info_t::on_glarea_drag_begin_secondary(G_GNUC_UNUSED GtkGestureDrag *gesture, double x, double y, GtkWidget *gl_area) {
 
-   // 20220429-PE is this controller for left-mouse or right-mouse?
-
    SetMouseBegin(x,y);
    SetMouseClicked(x, y);
    mouse_x = x;
@@ -113,9 +111,10 @@ graphics_info_t::on_glarea_drag_begin_secondary(G_GNUC_UNUSED GtkGestureDrag *ge
    set_mouse_previous_position(x,y);
 
    bool trackpad_drag = false;
-#ifdef __APPLE__ // secondary is right-mouse on PC, trackpad on MacBook
-   trackpad_drag = true;
-#endif
+   if (using_trackpad) {
+      trackpad_drag = true;
+      check_if_in_range_defines();
+   }
    if (trackpad_drag) {
       bool was_a_double_click = false; // maybe set this correctly?
       bool handled = check_if_moving_atom_pull(was_a_double_click);
@@ -175,9 +174,8 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
          } else {
 
             bool trackpad_drag = false;
-#ifdef __APPLE__ // this is right-mouse on PC, trackpad on MacBook
-            trackpad_drag = true;
-#endif
+            if (using_trackpad)
+               trackpad_drag = true;
             bool handled = false;
             if (trackpad_drag) {
                if (in_moving_atoms_drag_atom_mode_flag) {
