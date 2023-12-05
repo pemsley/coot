@@ -14,12 +14,14 @@ C++ 17 and git for CCP4i2
 
 8 items
 
-Rewrite moorhen ligand fitting to use a vector of threads, not the thread pool.
-
 Bug:: Preferences Others Fonts - the Atom Label Radiobuttons are not correctly lit.
 
+Bug:: Missing GUI: Rigid-body fit Residue Ranges
+
+Bug:: Missing popup menu in Rigid-body fit toolbar button.
+
 Bug:: if rdkit has not been installed then it should fail in configure
-not when building lidia-core
+      not when building lidia-core
 
 GUI: Look at the terminal output when using the Preferences dialog. Is it all needed?
 
@@ -27,11 +29,8 @@ GUI: Symmetry by molecule: removed from UI. Buggy. Needs a fix.
 
 GUI: Does "Fetch PDB & Map using EDS" work with Updating maps?
 
-GUI: When I Open Coords I have a option to choose c oordinate files.
-     When I Auto-open MTZ I dont have a option to choose mtz files.
-
-Martin Moncrieffe: distance and angles on Mac.
-* Done.
+GUI: When I Open Coords I have a option to choose filter to coordinate files.
+     When I Auto-open MTZ I dont have a option to choose filter to mtz files.
 
 GUI: Geman-McClure alpha refinement params box menu doesn't show the correct value.
 
@@ -172,6 +171,9 @@ Where is Make Link? ::: 1.5
 * Not that Make Link via Acedrg also needs user-defined click click (or a rewrite).
 
 Colour rules (like Moorhen) need to be added to the Coot API.
+
+Rewrite moorhen ligand fitting to use a vector of threads, not the thread pool.
+* Low priority
 
 Pyrogen needs to work ::: 2
 
@@ -1169,3 +1171,7 @@ GUI: "Use Trans-peptide restraints" button doesn't work (the button is on again
 GUI: --auto moorhen-tutorial-4.mtz doesn't auto-read the Fobs colums, so the
      auto-updating maps doesn't work sadly.
 * Done
+
+Martin Moncrieffe: distance and angles on Mac.
+* Done.
+
