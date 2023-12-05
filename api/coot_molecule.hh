@@ -383,6 +383,8 @@ namespace coot {
          indexed_user_defined_colour_selection_cids_apply_to_non_carbon_atoms_also = true;
       }
 
+      static std::string file_to_string(const std::string &fn);
+
    public:
 
       // enum refine_residues_mode {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
@@ -522,6 +524,13 @@ namespace coot {
       int undo(); // 20221018-PE return status not yet useful
       int redo(); // likewise
       int write_coordinates(const std::string &file_name) const; // return 0 on OK, 1 on failure
+
+      //! @return a model molecule imol as a string. Return emtpy string on error
+      std::string molecule_to_PDB_string() const;
+
+      //! @return a model molecule imol as a string. Return emtpy string on error
+      std::string molecule_to_mmCIF_string() const;
+
       std::vector<atom_spec_t> get_fixed_atoms() const;
 
       std::vector<std::string> chains_in_model() const;

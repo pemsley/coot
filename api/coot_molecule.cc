@@ -1593,8 +1593,8 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
             mmdb::Manager *mol = atom_sel.mol;
             coot::backrub br(chain_id, res, prev_res, next_res, alt_conf, mol,
                              &xmap_in); // use a const pointer for the map
-            std::cout << "------------ done making a backrub" << std::endl;
-            std::cout << "------------ calling br.search()" << std::endl;
+            // std::cout << "------------ done making a backrub" << std::endl;
+            // std::cout << "------------ calling br.search()" << std::endl;
             std::pair<coot::minimol::molecule,float> m = br.search(restraints);
             std::vector<coot::atom_spec_t> baddie_waters = br.waters_for_deletion();
             score = m.second;
@@ -4097,6 +4097,52 @@ coot::molecule_t::add_neighbor_residues_for_refinement_help(mmdb::Manager *mol) 
    neighbouring_residues = map_of_sets_to_residue_vec(rnr);
 }
 
+// static
+std::string
+coot::molecule_t::file_to_string(const std::string &file_name) {
+
+   std::string s;
+   std::string line;
+   std::ifstream f(file_name.c_str());
+   if (!f) {
+      std::cout << "Failed to open " << file_name << std::endl;
+   } else {
+      while (std::getline(f, line)) {
+         s += line;
+         s += "\n";
+      }
+   }
+   return s;
+}
+
+
+//! @return a model molecule imol as a string. Return emtpy string on error
+std::string
+coot::molecule_t::molecule_to_PDB_string() const {
+
+
+   std::string s;
+
+   if (is_valid_model_molecule()) {
+      atom_sel.mol->WritePDBASCII("tmp.pdb");
+      s = file_to_string("tmp.pdb");
+   }
+
+   return s;
+
+}
+
+//! @return a model molecule imol as a string. Return emtpy string on error
+std::string
+coot::molecule_t::molecule_to_mmCIF_string() const {
+
+   std::string s;
+   if (is_valid_model_molecule()) {
+      atom_sel.mol->WriteCIFASCII("tmp.cif");
+      s = file_to_string("tmp.cif");
+   }
+   return s;
+}
 
 // ------------------------------ put these functions in coot_molecule_refine.cc --------------
 
@@ -4113,3 +4159,5 @@ coot::molecule_t::residues_near_residue(const std::string &residue_cid, float di
    }
    return v;
 }
+
+

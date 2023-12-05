@@ -4012,6 +4012,61 @@ int test_cif_writer(molecules_container_t &mc) {
    return status;
 }
 
+int test_pdb_as_string(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   std::string s1 = mc.molecule_to_PDB_string(imol);
+   mc.auto_fit_rotamer(imol, "A", 61, "", "", imol_map);
+   std::string s2 = mc.molecule_to_PDB_string(imol);
+
+   std::cout << "test_pdb_as_string(): lengths " << s1.length() << " " << s2.length() << std::endl;
+
+   if (s1.length() == s2.length()) status = 1;
+
+   if (false) {
+      std::ofstream f("test_pdb_as_string.pdb");
+      f << s2;
+      f.close();
+   }
+
+   return status;
+
+}
+
+int test_mmcif_as_string(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("2vtq.cif"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   std::string s1 = mc.molecule_to_mmCIF_string(imol);
+   mc.auto_fit_rotamer(imol, "A", 61, "", "", imol_map);
+   std::string s2 = mc.molecule_to_mmCIF_string(imol);
+
+   std::cout << "test_mmcif_as_string(): lengths " << s1.length() << " " << s2.length() << std::endl;
+
+   if (s1.length() == s2.length()) status = 1;
+
+   if (true) {
+      std::ofstream f1("test_mmcif_as_string_1.mmcif");
+      f1 << s1;
+      f1.close();
+      std::ofstream f2("test_mmcif_as_string_2.mmcif");
+      f2 << s2;
+      f2.close();
+   }
+
+   return status;
+
+}
+
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -4138,7 +4193,11 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_cif_writer, "mmCIF dictionary writer",    mc);
+   status += run_test(test_mmcif_as_string, "mmCIF as string",    mc);
+
+   // status += run_test(test_pdb_as_string, "PDB as string",    mc);
+
+   // status += run_test(test_cif_writer, "mmCIF dictionary writer",    mc);
 
    // status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction",    mc);
 

@@ -4804,3 +4804,29 @@ molecules_container_t::get_ncs_related_chains(int imol) const {
    return v;
 }
 
+
+//! @return the moldel molecule imol as a string. Return emtpy string on error
+std::string
+molecules_container_t::molecule_to_PDB_string(int imol) const {
+
+   std::string s;
+   if (is_valid_model_molecule(imol)) {
+      s = molecules[imol].molecule_to_PDB_string();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return s;
+}
+
+//! @return the moldel molecule imol as a string. Return emtpy string on error
+std::string
+molecules_container_t::molecule_to_mmCIF_string(int imol) const {
+
+   std::string s;
+   if (is_valid_model_molecule(imol)) {
+      s = molecules[imol].molecule_to_mmCIF_string();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return s;
+}

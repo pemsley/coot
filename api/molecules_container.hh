@@ -463,6 +463,12 @@ public:
    //! is already a model molecule
    void replace_molecule_by_model_from_file(int imol, const std::string &pdb_file_name);
 
+   //! @return the model molecule imol as a string. Return emtpy string on error
+   std::string molecule_to_PDB_string(int imol) const;
+
+   //! @return the model molecule imol as a string. Return emtpy string on error
+   std::string molecule_to_mmCIF_string(int imol) const;
+
    //! get the active atom given the screen centre
    //!
    //! ``displayed_model_molecules_list`` is a colon-separated list of molecules, *e.g.* "2:3:4"
