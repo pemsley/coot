@@ -956,6 +956,31 @@
     </section>
   </menu>
 
+  <menu id="rigid-body-fit-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Residue</attribute>
+        <attribute name="action">app.rigid_body_fit_residue_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Residue Range</attribute>
+        <attribute name="action">app.rigid_body_fit_residue_range_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Fragment</attribute>
+        <attribute name="action">app.rigid_body_fit_fragment_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Chain</attribute>
+        <attribute name="action">app.rigid_body_fit_chain_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Molecule</attribute>
+        <attribute name="action">app.rigid_body_fit_molecule_action</attribute>
+      </item>
+    </section>
+  </menu>
+
   <menu id="fixed-atoms-menu">
     <section>
       <item>
@@ -7768,30 +7793,29 @@ Do you want to continue?
                 <!-- <signal name="activate" handler="on_model_toolbar_fixed_atoms_menubutton_activated" swapped="no"/> -->
               </object>
             </child>
+
             <child>
-              <object class="GtkToggleButton" id="vertical_toolbar_testbutton_3">
+              <object class="GtkMenuButton" id="vertical_toolbar_rigid_body_menubutton">
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">horizontal</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-
                         <property name="icon-name">rigid-body</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkLabel">
-
                         <property name="label" translatable="yes">Rigid Body Fit</property>
                       </object>
                     </child>
                   </object>
                 </child>
                 <property name="can-focus">0</property>
-                <signal name="toggled" handler="on_model_toolbar_rigid_body_fit_togglebutton_toggled" swapped="no"/>
               </object>
             </child>
+
             <child>
               <object class="GtkMenuButton" id="rotate_translate_menubutton">
                 <child>

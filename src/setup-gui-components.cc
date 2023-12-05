@@ -21,6 +21,7 @@ inline GMenu* menu_from_builder(const std::string& m_name) {
 }
 
 void setup_menubuttons() {
+
    GtkWidget* add_module_menubutton = widget_from_builder("add_module_menubutton");
    GMenuModel *modules_menu = menu_model_from_builder("modules-menu");
    gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(add_module_menubutton), modules_menu);
@@ -41,6 +42,10 @@ void setup_menubuttons() {
    GtkWidget *rotate_translate_button = widget_from_builder("rotate_translate_menubutton");
    GMenuModel *rotate_translate_menu = menu_model_from_builder("rotate-translate-menu");
    gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(rotate_translate_button), rotate_translate_menu);
+
+   GtkWidget *rigid_body_button = widget_from_builder("vertical_toolbar_rigid_body_menubutton");
+   GMenuModel *rigid_body_menu = menu_model_from_builder("rigid-body-fit-menu");
+   gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(rigid_body_button), rigid_body_menu);
 
    // button (both of them, I suppose).
    auto add_typed_menu_to_mutate_menubutton = [] (const std::string &residue_type) {

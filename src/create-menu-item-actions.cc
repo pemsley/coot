@@ -3171,7 +3171,95 @@ rotate_translate_molecule(GSimpleAction *simple_action,
 }
 
 
+   // // Rigid-body Fit
+   // add_action("rigid_body_fit_residue",       rigid_body_fit_residue);
+   // add_action("rigid_body_fit_residue_range", rigid_body_fit_residue_range);
+   // add_action("rigid_body_fit_fragment",      rigid_body_fit_fragment);
+   // add_action("rigid_body_fit_chain",         rigid_body_fit_chain);
+   // add_action("rigid_body_fit_molecule",      rigid_body_fit_molecule);
 
+void
+rigid_body_fit_residue_action(GSimpleAction *simple_action,
+                              GVariant *parameter,
+                              gpointer user_data) {
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      const auto &atom_spec = pp.second.second;
+      int imol = pp.second.first;
+      std::string atom_selection = "//" + atom_spec.chain_id + "/" + std::to_string(atom_spec.res_no);
+      rigid_body_refine_by_atom_selection(imol, atom_selection.c_str());
+      graphics_draw();
+   }
+}
+
+void
+rigid_body_fit_residue_range_action(GSimpleAction *simple_action,
+                                    GVariant *parameter,
+                                    gpointer user_data) {
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      const auto &atom_spec = pp.second.second;
+      int imol = pp.second.first;
+      int res_no_1 = g.in_range_first_picked_atom.res_no;
+      int res_no_2 = g.in_range_second_picked_atom.res_no;
+      // std::cout << "debug:: ************ in_range_first_picked_atom "  << g.in_range_first_picked_atom  << std::endl;
+      // std::cout << "debug:: ************ in_range_second_picked_atom " << g.in_range_second_picked_atom << std::endl;
+      if (res_no_1 > res_no_2) std::swap(res_no_1, res_no_2);
+      std::string atom_selection = "//" + atom_spec.chain_id + "/" + std::to_string(res_no_1) + "-" + std::to_string(res_no_2);
+      rigid_body_refine_by_atom_selection(imol, atom_selection.c_str());
+      graphics_draw();
+   }
+}
+
+void
+rigid_body_fit_fragment_action(GSimpleAction *simple_action,
+                               GVariant *parameter,
+                               gpointer user_data) {
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      const auto &atom_spec = pp.second.second;
+      int imol = pp.second.first;
+
+      mmdb::Residue *residue_p  = g.molecules[imol].get_residue(coot::residue_spec_t(atom_spec));
+      if (residue_p) {
+
+         float close_dist_max = 2.0;
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         std::vector<mmdb::Residue *> residues = coot::simple_residue_tree(residue_p, mol, close_dist_max);
+         if (! residues.empty()) {
+
+            int res_no_1 =  99999;
+            int res_no_2 = -99999;
+            for (unsigned int i=0; i<residues.size(); i++) {
+               int rn = residues[i]->GetSeqNum();
+               if (rn < res_no_1) res_no_1 = rn;
+               if (rn > res_no_2) res_no_2 = rn;
+            }
+            std::string atom_selection = "//" + atom_spec.chain_id + "/" + std::to_string(res_no_1) + "-" + std::to_string(res_no_2);
+            rigid_body_refine_by_atom_selection(imol, atom_selection.c_str());
+            graphics_draw();
+         }
+      }
+   }
+}
+
+void
+rigid_body_fit_chain_action(GSimpleAction *simple_action,
+                            GVariant *parameter,
+                            gpointer user_data) {
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      const auto &atom_spec = pp.second.second;
+      int imol = pp.second.first;
+      std::string atom_selection = "//" + atom_spec.chain_id;
+      rigid_body_refine_by_atom_selection(imol, atom_selection.c_str());
+      graphics_draw();
+   }
+}
 
 void
 mutate_to_type(GSimpleAction *simple_action,
@@ -3539,6 +3627,13 @@ create_actions(GtkApplication *application) {
    add_action("rotate_translate_residue_range", rotate_translate_residue_range);
    add_action("rotate_translate_chain",         rotate_translate_chain);
    add_action("rotate_translate_molecule",      rotate_translate_molecule);
+
+   // Rigid-body Fit, molecule version is above already
+   add_action("rigid_body_fit_residue_action",       rigid_body_fit_residue_action);
+   add_action("rigid_body_fit_residue_range_action", rigid_body_fit_residue_range_action);
+   add_action("rigid_body_fit_fragment_action",      rigid_body_fit_fragment_action);
+   add_action("rigid_body_fit_chain_action",         rigid_body_fit_chain_action);
+   add_action("rigid_body_fit_molecule_action",      rigid_body_fit_molecule_action);
 
    // Mutate menu
    add_action_with_param("mutate_to_type", mutate_to_type);
