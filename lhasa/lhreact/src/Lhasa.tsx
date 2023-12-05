@@ -223,9 +223,11 @@ export function LhasaComponent() {
     const lh = new Lhasa.Canvas();
     lh.connect("queue_redraw", () => {
       const node = on_render(lh);
-      setSt({
-        ...st,
-        svg_node: node
+      setSt(pst =>{
+          return {
+          ...pst,
+          svg_node: node
+        };
       });
     });
 
@@ -233,9 +235,11 @@ export function LhasaComponent() {
       // For now
       console.log("Status: " + status_txt);
       // todo: fix
-      setSt({
-        ...st,
-        status_text: status_txt
+      setSt(pst =>{
+          return {
+          ...pst,
+          status_text: status_txt
+        };
       });
     };
     lh.connect("status_updated", on_status_updated);
@@ -245,9 +249,11 @@ export function LhasaComponent() {
       const smiles_array = smiles_raw.split("\n");
       console.log(smiles_array);
       // todo: fix
-      setSt({
-        ...st,
-        smiles: smiles_array
+      setSt(pst =>{
+          return {
+          ...pst,
+          smiles: smiles_array
+        };
       });
     });
     lh.connect("molecule_deleted", function (mol_id) {
@@ -255,9 +261,11 @@ export function LhasaComponent() {
     });
     lh.connect("scale_changed", function (new_scale) {
       console.log('ns', new_scale);
-      setSt({
-        ...st,
-        scale: new_scale
+      setSt(pst =>{
+          return {
+          ...pst,
+          scale: new_scale
+        };
       });
     });
     // const smiles_import_button = document.getElementById("smiles_import_button");
