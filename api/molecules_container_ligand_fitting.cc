@@ -208,7 +208,7 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
                mmdb::Manager *protein_mol = molecules[imol_protein].atom_sel.mol;
                wlig.mask_map(protein_mol, mask_waters_flag);
 
-               float ligand_acceptable_fit_fraction = 0.75;
+               float ligand_acceptable_fit_fraction = 0.85; // was 0.75
                int find_ligand_n_top_ligands = 10;
 
                wlig.find_clusters(n_rmsd);  // trashes the xmap
