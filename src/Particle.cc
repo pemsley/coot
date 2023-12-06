@@ -31,9 +31,9 @@ Particle::update_gone_diego_particle() {
    float v_scale = 0.08;
    glm::vec3 delta = v_scale * velocity;
    position += delta;
-   colour.w *= 0.9;
-   life -= 0.1; // starts around 10 or so
-   rotation += 0.5;
+   // colour.w *= 0.9;  I don't like fading, it make it look as if it's moving into the background
+   life -= 0.08; // starts around 10 or so
+   rotation += 1.4;
 }
 
 void
@@ -117,7 +117,7 @@ particle_container_t::make_gone_diego_particles(unsigned int n_particles_per_bur
          double sf = 0.5; // so that the ring of particles is about the same size as a diego.
          glm::vec3 pos = sf * x * screen_x_uv + sf * y * screen_y_uv;
          glm::vec3 vel = -2.0 * pos;
-         glm::vec4 col(0.7, 0.6, 0.2, 1.0);
+         glm::vec4 col(0.91, 0.78, 0.48, 1.0);
          float life = 1.5;
          Particle p(pos + gone_diego_position, vel, col, life);
          particles.push_back(p);
@@ -144,4 +144,17 @@ particle_container_t::update_gone_diego_particles() {
 
    // We don't call remove_old_particles(); here because we need to remove the mesh at the same time.
 
+}
+
+bool
+particle_container_t::have_particles_with_life() const {
+
+   bool status = false;
+   for (unsigned int i=0; i<particles.size(); i++) {
+      if (particles[i].life > 0.0) {
+         status = true;
+         break;
+      }
+   }
+   return status;
 }

@@ -70,6 +70,9 @@ Moorhen: what is the HB type of this atom?
 Moorhen: Export dictionary as string
 * Done.
 
+Moorhen: ligand fitting: check the ligand size to blob size. tutorial 1 ligand in the major
+         site - there is no conformation variability.
+
 Moorhen: replace fragment: does it take the vertical bar?
          https://github.com/moorhen-coot/Moorhen/issues/13
 

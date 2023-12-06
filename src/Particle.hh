@@ -36,6 +36,7 @@ public:
    void remove_old_particles();
    unsigned int size() const { return particles.size(); }
    bool empty() const { return (particles.empty()); }
+   bool have_particles_with_life() const;
 
 };
 

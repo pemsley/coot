@@ -60,6 +60,8 @@ Mesh::init() {
    buffer_id = 0; // not valid
    index_buffer_id = 0; // not valid
    debug_mode = false;
+   inst_colour_buffer_id = -1;
+   inst_model_translation_buffer_id = -1;
 
    std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
    time_constructed = now;
@@ -679,8 +681,6 @@ Mesh::setup_debugging_instancing_buffers() {
 void
 Mesh::delete_gl_buffers() {
 
-#if 0
-
    // 20230828-PE Because Mesh is copied around, this can be called many times if it is
    // called from the destructor. But deleting the GL buffers more than
    // once causes as crash.
@@ -698,13 +698,14 @@ Mesh::delete_gl_buffers() {
       glDeleteBuffers(1, &index_buffer_id);
 
       if (is_instanced) {
+         glDeleteBuffers(1, &inst_model_translation_buffer_id);
          glDeleteBuffers(1, &inst_colour_buffer_id);
-         glDeleteBuffers(1, &inst_rts_buffer_id);
+         if (is_instanced_with_rts_matrix)
+            glDeleteBuffers(1, &inst_rts_buffer_id);
       }
+      glDeleteVertexArrays(1, &vao);
+      vao = VAO_NOT_SET;
    }
-#else
-   std::cout << "Mesh::delete_gl_buffers() - no deletion" << std::endl;
-#endif
 
 }
 
@@ -742,7 +743,7 @@ Mesh::setup_buffers() {
    err = glGetError();
    if (err) {
       // 20220803-PE did you forget to attach_buffers() beforehand again?
-      std::cout << "GL ERROR:: Mesh::setup_buffers() on binding vao " << vao << " error " << err << std::endl;
+      std::cout << "GL ERROR:: Mesh::setup_buffers() on binding vao " << vao << " error " << _(err) << std::endl;
    }
 
    unsigned int n_vertices = vertices.size();
@@ -2621,7 +2622,7 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats) {
    GLenum err = glGetError();
    if (err)
       std::cout << "GL error Mesh::update_instancing_buffer_data() --start-- " << "binding vao " << vao
-                << " error " << err << std::endl;
+                << " error " << _(err) << std::endl;
 
    int n_mats =    mats.size();
    if (n_mats > n_instances_allocated) {
@@ -2662,7 +2663,7 @@ Mesh::update_instancing_buffer_data_standard(const std::vector<glm::mat4> &mats)
    err = glGetError();
    if (err)
       std::cout << "GL error Mesh::update_instancing_buffer_data_standard() A1 "
-                << "binding vao " << vao << " error " << err << std::endl;
+                << "binding vao " << vao << " error " << _(err) << std::endl;
    if (err == GL_INVALID_OPERATION)
       std::cout << "Because vao was not the name of a vertex array object previously returned from a call to glGenVertexArrays (or zero)"
                 << std::endl;
@@ -2782,7 +2783,7 @@ Mesh::update_instancing_buffer_data_for_extra_distance_restraints(const std::vec
    err = glGetError();
    if (err)
       std::cout << "GL error Mesh::update_instancing_buffer_data_standard() A1 "
-                << "binding vao " << vao << " error " << err << std::endl;
+                << "binding vao " << vao << " error " << _(err) << std::endl;
    if (err == GL_INVALID_OPERATION)
       std::cout << "Because vao was not the name of a vertex array object previously returned from a call to glGenVertexArrays (or zero)"
                 << std::endl;
@@ -2825,9 +2826,12 @@ Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &pa
       }
    }
 
+   is_instanced = true;
+   is_instanced_colours = true;
+
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() A0 "
-                      << "binding vao " << vao << " error " << err << std::endl;
+                      << "binding vao " << vao << " error " << _(err) << std::endl;
 
    if (vao == VAO_NOT_SET)
       std::cout << "GL ERROR:: You forgot to setup this Mesh " << name << std::endl;
@@ -2835,7 +2839,7 @@ Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &pa
    glBindVertexArray(vao);
    err = glGetError();
    if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() A1 "
-                      << "binding vao " << vao << std::endl;
+                      << "binding vao " << vao << " " << _(err) << std::endl;
 
    n_instances = particles.size();
    if (n_instances > n_instances_allocated) {

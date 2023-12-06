@@ -5273,8 +5273,8 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
             std::cout << "compare nbc sizes: " << gone_count_prev << " " << gone_count_this << std::endl;
          }
 
-         if (nbc_baddies_count_delta(previous_round_nbc_baddies_atom_index_map, rr.nbc_baddies_atom_index_map) > 1)
-            play_sound("diego-arrives");
+         // if (nbc_baddies_count_delta(previous_round_nbc_baddies_atom_index_map, rr.nbc_baddies_atom_index_map) > 1)
+         // play_sound("diego-arrives");
 
          bad_nbc_atom_pair_marker_positions.clear();
          std::vector<coot::refinement_results_nbc_baddie_t> &baddies(rr.sorted_nbc_baddies);

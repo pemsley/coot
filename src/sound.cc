@@ -133,7 +133,7 @@ void play_sound(const std::string &type) {
       if (type == "STARS")   play_sound_file("538553_3725923-lq-Sjonas88-Stars.ogg");
       if (type == "OOPS")    play_sound_file("538550_3725923-lq-Sjonas88-Deep-tone.ogg");
       if (type == "diego-gone-pop") play_sound_file("pop-dodrio-554022_1433422-lq.ogg");
-      if (type == "diego-arrives") play_sound_file("cdonahueucsd-337132_5955158-lq.ogg");
+      if (type == "diego-arrives")  play_sound_file("cdonahueucsd-337132_5955158-lq.ogg");
    }
 
 }

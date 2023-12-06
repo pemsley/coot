@@ -33,4 +33,7 @@ dist_cootsounds_DATA = \
       538550_3725923-lq-Sjonas88-Deep-tone.ogg \
       538551_3725923-lq-Sjonas88-3-select.ogg  \
       538553_3725923-lq-Sjonas88-Stars.ogg     \
-      538554_3725923-lq-Sjonas88-success.ogg
+      538554_3725923-lq-Sjonas88-success.ogg   \
+      cdonahueucsd-337132_5955158-lq.ogg \
+      pop-dodrio-554022_1433422-lq.ogg
+

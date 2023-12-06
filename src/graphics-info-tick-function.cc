@@ -76,16 +76,18 @@ graphics_info_t::glarea_tick_func(GtkWidget *widget,
          do_tick_gone_diegos = false;
       } else {
 
-         auto remover = [] (const meshed_particle_container_t &mp) {
-            auto &particles = mp.particle_container.particles;
-            bool still_alive = false;
-            std::vector<Particle>::const_iterator it;
-            for (it=particles.begin(); it!=particles.end(); ++it) {
-               if (it->life > 0.0) {
-                  still_alive = true;
-                  break;
-               }
+         for (unsigned int ip=0; ip<meshed_particles_for_gone_diegos.size(); ip++) {
+            // give back the GL buffers for meshes that will be removed
+            auto &particles = meshed_particles_for_gone_diegos[ip].particle_container;
+            auto &mesh      = meshed_particles_for_gone_diegos[ip].mesh;
+            if (particles.have_particles_with_life()) {
+            } else {
+               mesh.delete_gl_buffers();
             }
+         }
+
+         auto remover = [] (const meshed_particle_container_t &mp) {
+            bool still_alive = mp.particle_container.have_particles_with_life();
             return ! still_alive;
          };
 
