@@ -4138,8 +4138,12 @@ coot::molecule_t::molecule_to_mmCIF_string() const {
 
    std::string s;
    if (is_valid_model_molecule()) {
-      atom_sel.mol->WriteCIFASCII("tmp.cif");
+
+      mmdb::Manager *mol_copy = new mmdb::Manager;
+      mol_copy->Copy(atom_sel.mol, mmdb::MMDBFCM_All);
+      mol_copy->WriteCIFASCII("tmp.cif");
       s = file_to_string("tmp.cif");
+      delete mol_copy;
    }
    return s;
 }
