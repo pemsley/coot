@@ -1459,14 +1459,14 @@ graphics_info_t::draw_particles() {
       }
    }
 
-   std::cout << "debug:: draw_particles(): gone_diego_particles size " << meshed_particles_for_gone_diegos.size() << std::endl;
+   // std::cout << "debug:: draw_particles(): gone_diego_particles size " << meshed_particles_for_gone_diegos.size() << std::endl;
    if (! meshed_particles_for_gone_diegos.empty()) {
       for (unsigned int i=0; i<meshed_particles_for_gone_diegos.size(); i++) {
          Mesh &mesh(meshed_particles_for_gone_diegos[i].mesh);
          if (mesh.have_instances()) {
             glm::mat4 mvp = get_molecule_mvp();
             glm::mat4 model_rotation = get_model_rotation();
-            std::cout << "debug:: draw_particles(): drawing gone diego particles! imesh: " << i << std::endl;
+            // std::cout << "debug:: draw_particles(): drawing gone diego particles! imesh: " << i << std::endl;
             mesh.draw_particles(&shader_for_particles, mvp, model_rotation);
          } else {
             std::cout << "draw_particles(): Ooops gone-diego imesh: " << i << " " << mesh.name << " has no instances" << std::endl;
@@ -5180,6 +5180,8 @@ graphics_info_t::get_happy_face_residue_marker_positions() {
    return v;
 }
 
+#include "sound.hh"
+
 // static
 void
 graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
@@ -5253,7 +5255,13 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
       return n;
    };
 
-
+   auto nbc_baddies_count_delta = [get_gone_count] (const std::map<int, std::vector<int> > &nbc_baddies_atom_index_map_prev,
+                                                    const std::map<int, std::vector<int> > &nbc_baddies_atom_index_map_new) {
+      int n1 = get_gone_count(nbc_baddies_atom_index_map_prev); // it's just a count, not a gone count.
+      int n2 = get_gone_count(nbc_baddies_atom_index_map_new);
+      std::cout << "n1: " << n1 << " n2: " << n2 << std::endl;
+      return n2-n1;
+   };
 
    if (moving_atoms_asc) {
       if (moving_atoms_asc->mol) {
@@ -5264,6 +5272,9 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
             unsigned int gone_count_this = get_gone_count(rr.nbc_baddies_atom_index_map);
             std::cout << "compare nbc sizes: " << gone_count_prev << " " << gone_count_this << std::endl;
          }
+
+         if (nbc_baddies_count_delta(previous_round_nbc_baddies_atom_index_map, rr.nbc_baddies_atom_index_map) > 1)
+            play_sound("diego-arrives");
 
          bad_nbc_atom_pair_marker_positions.clear();
          std::vector<coot::refinement_results_nbc_baddie_t> &baddies(rr.sorted_nbc_baddies);
@@ -5316,6 +5327,8 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
 
     if (! positions.empty()) {
 
+       play_sound("diego-gone-pop");
+
        glm::vec3 screen_x_uv = get_screen_x_uv();
        glm::vec3 screen_y_uv = get_screen_y_uv();
 
@@ -5328,6 +5341,7 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
        unsigned int n_particles_per_burst = 10;
        int n_instances = n_particles_per_burst * positions.size();
        last_particles.make_gone_diego_particles(n_particles_per_burst, positions, screen_x_uv, screen_y_uv);
+       // last_mesh.setup_vertex_and_instancing_buffers_for_particles(n_instances, 8, 0.2);
        last_mesh.setup_vertex_and_instancing_buffers_for_particles(n_instances);
        last_mesh.update_instancing_buffer_data_for_particles(last_particles);
 
@@ -5446,8 +5460,6 @@ graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
        }
     }
  }
-
- #include "sound.hh"
 
  //static
  void

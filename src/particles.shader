@@ -30,15 +30,15 @@ void main() {
                   p1.x * sin_a + p1.y * cos_a, 0.0, 1.0);
 
    mat4 trans = transpose(view_rotation);
-   vec4 p3 = 0.1 * trans * p2;
+   vec4 p3 = trans * p2;
    vec4 p4 = p3 + vec4(sc_inst_trans * instance_translation, 0.0);
 
    gl_Position = mvp * p4;
    gl_Position = vec4(position, 1.0);
    gl_Position = mvp * vec4((position + instance_translation), 1.0);
 
-   vec4 p5 = vec4(0.0000000000000000001 * position, 0.0);
-   p5 = vec4(position, 1.0);
+   // vec4 p5 = vec4(0.0000000000000000001 * position, 0.0);
+   vec4 p5 = trans * vec4(position, 1.0);
    vec4 p6 = p5 + vec4(instance_translation, 0.0);
    gl_Position = mvp * p6;
 

@@ -1006,7 +1006,7 @@ Mesh::setup_vertex_and_instancing_buffers_for_particles(unsigned int n_instances
    // instanced colours - setup another buffer - extravagent.
    glGenBuffers(1, &inst_colour_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, n_instances_allocated * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
    glEnableVertexAttribArray(4);
    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Particle),
                          reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
@@ -1717,7 +1717,7 @@ Mesh::draw_extra_distance_restraint_instances(Shader *shader_p,
 void
 Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation) {
 
-   debug_mode = false;
+   debug_mode = false; // this is not the place for this.
 
    if (debug_mode)
       std::cout << "in draw_particles() with n_instances " << n_instances << " and n_triangles: "
@@ -1775,7 +1775,7 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &vi
    //
    float rotation_angle = 0.05f * static_cast<float>(particle_draw_count);
 
-   std::cout << "Mesh::draw_particles() sending rotation_angle " << rotation_angle << std::endl;
+   // std::cout << "Mesh::draw_particles() sending rotation_angle " << rotation_angle << std::endl;
    shader_p->set_float_for_uniform("rotation_angle", rotation_angle);
 
    glEnable(GL_BLEND);
@@ -2815,7 +2815,7 @@ Mesh::_(int err) {
 void
 Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &particles) {
 
-   if (true) {
+   if (false) {
       std::cout << "debug:: update_instancing_buffer_data_for_particles()" << std::endl;
       for (unsigned int i=0; i<particles.size(); i++) {
          std::cout << "    " << i << " "
@@ -2843,7 +2843,7 @@ Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &pa
       n_instances = n_instances_allocated;
    }
 
-   if (true)
+   if (false)
       std::cout << "DEBUG:: update_instancing_buffer_data_for_particles() transfering " << n_instances
                 << " particle/instances " << std::endl;
 
