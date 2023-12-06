@@ -910,8 +910,8 @@ coot::rdkit_mol_with_2d_depiction(const dictionary_residue_restraints_t &restrai
             RDGeom::Point3D pos(atom.x, atom.y, 0.0);
             conf->setAtomPos(i, pos);
          }
-         int iconf = mol.addConformer(conf);
-         std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHappy return iconf: " << iconf << std::endl;
+         int iconf = mol.addConformer(conf, true);
+         std::cout << "debug:: Happy return iconf: " << iconf << std::endl;
          return std::make_pair(iconf, mol);
       } else {
          return std::make_pair(-1, mol);
