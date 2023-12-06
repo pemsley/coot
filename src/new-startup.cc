@@ -110,7 +110,6 @@ new_startup_realize(GtkWidget *gl_area) {
    g.setup_draw_for_chiral_volume_outlier_markers();
    g.setup_draw_for_anchored_atom_markers_init();
    g.setup_lines_mesh_for_proportional_editing();
-   g.setup_draw_for_particles_for_gone_diegos();
    g.lines_mesh_for_hud_lines.set_name("lines mesh for fps graph");
    unsigned int frame_time_history_list_max_n_elements = 500;
    // +40 for base and grid lines

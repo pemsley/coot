@@ -1459,18 +1459,17 @@ graphics_info_t::draw_particles() {
       }
    }
 
-   std::cout << "debug:: draw_particles(): gone_diego_particles size " << gone_diego_particles.size() << std::endl;
-   if (! gone_diego_particles.empty()) {
-      for (unsigned int imesh=0; imesh<meshes_for_gone_diego_particles.size(); imesh++) {
-         Mesh &mesh_for_gone_diego_particles(meshes_for_gone_diego_particles[imesh]);
-         if (mesh_for_gone_diego_particles.have_instances()) {
+   std::cout << "debug:: draw_particles(): gone_diego_particles size " << meshed_particles_for_gone_diegos.size() << std::endl;
+   if (! meshed_particles_for_gone_diegos.empty()) {
+      for (unsigned int i=0; i<meshed_particles_for_gone_diegos.size(); i++) {
+         Mesh &mesh(meshed_particles_for_gone_diegos[i].mesh);
+         if (mesh.have_instances()) {
             glm::mat4 mvp = get_molecule_mvp();
             glm::mat4 model_rotation = get_model_rotation();
-            std::cout << "debug:: draw_particles(): drawing gone diego particles! imesh: " << imesh << std::endl;
-            mesh_for_gone_diego_particles.draw_particles(&shader_for_particles, mvp, model_rotation);
+            std::cout << "debug:: draw_particles(): drawing gone diego particles! imesh: " << i << std::endl;
+            mesh.draw_particles(&shader_for_particles, mvp, model_rotation);
          } else {
-            std::cout << "draw_particles(): Ooops gone-diego imesh: " << imesh << " " << mesh_for_gone_diego_particles.name
-                      << " has no instances" << std::endl;
+            std::cout << "draw_particles(): Ooops gone-diego imesh: " << i << " " << mesh.name << " has no instances" << std::endl;
          }
       }
    }
@@ -5304,13 +5303,6 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
    }
 }
 
-// this should be called in the graphics setup
- void
-    graphics_info_t::setup_draw_for_particles_for_gone_diegos() {
-
-    // I think that each gone diego should have its own mesh. Let's use just one for now.
-    //
- }
 
  void
     graphics_info_t::setup_draw_for_particles_for_new_gone_diegos(const std::vector<glm::vec3> &positions) {
@@ -5327,17 +5319,15 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
        glm::vec3 screen_x_uv = get_screen_x_uv();
        glm::vec3 screen_y_uv = get_screen_y_uv();
 
-       // positions are the new gone-diego positions
-       gone_diego_particles.push_back(particle_container_t());
-       particle_container_t &last_particles = gone_diego_particles.back();
-       unsigned int n_particles_per_burst = 13;
-       // last_particles.make_gone_diego_particles(positions); // screen x and y uvs would be good here.
-       last_particles.make_particles(n_particles_per_burst, positions);
-       meshes_for_gone_diego_particles.push_back(Mesh("gone-diego"));
-       Mesh &last_mesh = meshes_for_gone_diego_particles.back();
+       meshed_particle_container_t mp(Mesh("gone-diego"), particle_container_t());
+       meshed_particles_for_gone_diegos.push_back(mp);
+       particle_container_t &last_particles = meshed_particles_for_gone_diegos.back().particle_container;
+       Mesh &last_mesh                      = meshed_particles_for_gone_diegos.back().mesh;
+
        attach_buffers();
+       unsigned int n_particles_per_burst = 10;
        int n_instances = n_particles_per_burst * positions.size();
-       std::cout << "allocating space for n instances: " << n_instances << std::endl;
+       last_particles.make_gone_diego_particles(n_particles_per_burst, positions, screen_x_uv, screen_y_uv);
        last_mesh.setup_vertex_and_instancing_buffers_for_particles(n_instances);
        last_mesh.update_instancing_buffer_data_for_particles(last_particles);
 

@@ -19,6 +19,7 @@ public:
       opacity = 1.0f; rotation = 0.0f; }
    // update the position, velocity, colour and life
    void update();
+   void update_gone_diego_particle();
 };
 
 class particle_container_t {
@@ -26,8 +27,12 @@ class particle_container_t {
 public:
    std::vector<Particle> particles;
    void make_particles(unsigned int n_particles, const std::vector<glm::vec3> &positions);
-   void make_gone_diego_particles(const std::vector<glm::vec3> &positions); // usually just 1 or 2
+   void make_gone_diego_particles(unsigned int n_particles_per_burst,
+                                  const std::vector<glm::vec3> &positions,
+                                  const glm::vec3 &screen_x_uv,
+                                  const glm::vec3 &screen_y_uv); // usually just 1 or 2
    void update_particles();
+   void update_gone_diego_particles();
    void remove_old_particles();
    unsigned int size() const { return particles.size(); }
    bool empty() const { return (particles.empty()); }

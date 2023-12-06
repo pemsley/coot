@@ -613,6 +613,7 @@ libcootsumo_la_SOURCES = \
 	Mesh-from-graphical-bonds.cc     \
 	meshed-generic-display-object.hh \
 	meshed-generic-display-object.cc \
+	meshed-particle-container.hh     \
 	map-statistics.hh                \
 	model-composition-statistics.hh  \
 	model-molecule-meshes.hh         \

@@ -1775,6 +1775,7 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &vi
    //
    float rotation_angle = 0.05f * static_cast<float>(particle_draw_count);
 
+   std::cout << "Mesh::draw_particles() sending rotation_angle " << rotation_angle << std::endl;
    shader_p->set_float_for_uniform("rotation_angle", rotation_angle);
 
    glEnable(GL_BLEND);

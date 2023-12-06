@@ -26,6 +26,17 @@ Particle::update() {
 }
 
 void
+Particle::update_gone_diego_particle() {
+
+   float v_scale = 0.08;
+   glm::vec3 delta = v_scale * velocity;
+   position += delta;
+   colour.w *= 0.9;
+   life -= 0.1; // starts around 10 or so
+   rotation += 0.5;
+}
+
+void
 particle_container_t::remove_old_particles() {
 
    auto remover = [] (const Particle &p) {
@@ -88,23 +99,26 @@ particle_container_t::make_particles(unsigned int n_particles_per_burst,
 }
 
 void
-particle_container_t::make_gone_diego_particles(const std::vector<glm::vec3> &positions) {
+particle_container_t::make_gone_diego_particles(unsigned int n_particles_per_burst,
+                                                const std::vector<glm::vec3> &positions,
+                                                const glm::vec3 &screen_x_uv,
+                                                const glm::vec3 &screen_y_uv) {
 
    // pass screen x and y uvs for better positions
 
-   // usually just 1 or 2
-   unsigned int n_particles_per_burst = 20;
    for (unsigned int ipos=0; ipos<positions.size(); ipos++) {
       const glm::vec3 &gone_diego_position = positions[ipos];
       for (unsigned int i=0; i<n_particles_per_burst; i++) {
-         double alpha = static_cast<double>(i)/static_cast<double>(n_particles_per_burst);
+         double pi = 3.1415926;
+         double alpha = 2.0 * pi * static_cast<double>(i)/static_cast<double>(n_particles_per_burst);
          double x = sin(alpha);
          double y = cos(alpha);
          // x and y should be aligned with the scren x and y axes
-         glm::vec3 pos(x,y,0.0);
-         glm::vec3 vel = -0.1 * pos;
+         double sf = 0.5; // so that the ring of particles is about the same size as a diego.
+         glm::vec3 pos = sf * x * screen_x_uv + sf * y * screen_y_uv;
+         glm::vec3 vel = -2.0 * pos;
          glm::vec4 col(0.7, 0.6, 0.2, 1.0);
-         float life = 1.0;
+         float life = 1.5;
          Particle p(pos + gone_diego_position, vel, col, life);
          particles.push_back(p);
       }
@@ -120,4 +134,14 @@ particle_container_t::update_particles() {
       particles[i].update();
 
    remove_old_particles();
+}
+
+void
+particle_container_t::update_gone_diego_particles() {
+
+   for (unsigned int i=0; i<particles.size(); i++)
+      particles[i].update_gone_diego_particle();
+
+   // We don't call remove_old_particles(); here because we need to remove the mesh at the same time.
+
 }

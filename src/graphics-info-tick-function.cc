@@ -72,14 +72,37 @@ graphics_info_t::glarea_tick_func(GtkWidget *widget,
    }
 
    if (do_tick_gone_diegos) {
-      if (gone_diego_particles.empty()) {
+      if (meshed_particles_for_gone_diegos.empty()) {
          do_tick_gone_diegos = false;
       } else {
-         std::cout << "in glarea_tick_func() update the gone-diego particles here " << gone_diego_particles.size() << std::endl;
-         for (unsigned int ip=0; ip<graphics_info_t::gone_diego_particles.size(); ip++) {
-            gone_diego_particles[ip].update_particles();
-            // which mesh do you want to update, exactly?
-            // mesh_for_gone_diego_particles[ip].update_instancing_buffer_data_for_particles(gone_diego_particles);
+         std::cout << "in glarea_tick_func() update the gone-diego particles here " << meshed_particles_for_gone_diegos.size() << std::endl;
+
+         auto remover = [] (const meshed_particle_container_t &mp) {
+            auto &particles = mp.particle_container.particles;
+            bool still_alive = false;
+            std::vector<Particle>::const_iterator it;
+            std::cout << "remover: n_particles " << particles.size() << std::endl;
+            for (it=particles.begin(); it!=particles.end(); ++it) {
+               std::cout << "debug:: it->life " << it->life << std::endl;
+               if (it->life > 0.0) {
+                  still_alive = true;
+                  break;
+               }
+            }
+            return ! still_alive;
+         };
+
+         std::cout << "glarea_tick_func() pre  remove gone diego particles size " << meshed_particles_for_gone_diegos.size() << std::endl;
+         meshed_particles_for_gone_diegos.erase(std::remove_if(meshed_particles_for_gone_diegos.begin(),
+                                                                meshed_particles_for_gone_diegos.end(), remover),
+                                                meshed_particles_for_gone_diegos.end());
+         std::cout << "glarea_tick_func() post remove gone diego particles size " << meshed_particles_for_gone_diegos.size() << std::endl;
+
+         for (unsigned int ip=0; ip<meshed_particles_for_gone_diegos.size(); ip++) {
+            auto &particles = meshed_particles_for_gone_diegos[ip].particle_container;
+            auto &mesh      = meshed_particles_for_gone_diegos[ip].mesh;
+            particles.update_gone_diego_particles();
+            mesh.update_instancing_buffer_data_for_particles(particles);
          }
       }
    }

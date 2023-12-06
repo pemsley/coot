@@ -144,6 +144,7 @@
 #include "Instanced-Markup-Mesh.hh"
 #include "Model.hh"
 #include "boids.hh"
+#include "meshed-particle-container.hh"
 // #include "graphics-ligand-view.hh"
 #include "graphics-ligand-mesh-molecule.hh"
 #include "restraints-editor.hh"
@@ -3451,10 +3452,9 @@ public:
    static Texture texture_for_anchored_atom_markers;
    static TextureMesh tmesh_for_anchored_atom_markers;
 
-   static std::vector<Mesh> meshes_for_gone_diego_particles;
+   static std::vector<meshed_particle_container_t> meshed_particles_for_gone_diegos;
    static void setup_draw_for_particles_for_new_gone_diegos(const std::vector<glm::vec3> &positions);
    static void setup_draw_for_particles_for_gone_diegos(); // unused atm
-   static std::vector<particle_container_t> gone_diego_particles;
 
    static bool draw_bad_nbc_atom_pair_markers_flag; // user can turn them off
    static void setup_draw_for_bad_nbc_atom_pair_markers();
