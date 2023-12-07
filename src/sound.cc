@@ -5,8 +5,15 @@
 
 // This will need to be more clever in future
 #ifdef WITH_SOUND
+
 #include <vorbis/vorbisfile.h>
+#ifdef __APPLE__
+#include <AL/al.h>
+#include <AL/alc.h>
+#else
 #include <alsa/asoundlib.h>
+#endif
+
 #endif
 
 #include "utils/coot-utils.hh"
@@ -17,9 +24,52 @@
 std::atomic<unsigned int> n_sound_files_playing(0);
 
 void
+play_sound_file_macos(const std::string &file_name) {
+#ifdef WITH_SOUND
+#ifdef __APPLE__
+   auto play_sound_file_inner = [] (const std::string &file_name) {
+
+      ALuint source;
+      alGenSources(1, &source);
+
+      ALuint buffer;
+      alGenBuffers(1, &buffer);
+      FILE* file = fopen(file_name.c_str(), "rb");
+      OggVorbis_File ovf;
+      ov_open(file, &ovf, NULL, 0);
+      vorbis_info *vi = ov_info(&ovf, -1);
+
+      ALsizei size = vi->channels * vi->rate * 2;
+      ALshort* data = new ALshort[size];
+      int bitstream = 0;
+      ov_read(&ovf, (char*)data, size, 0, 2, 1, &bitstream);
+      alBufferData(buffer, AL_FORMAT_STEREO16, data, size, vi->rate);
+
+      // Play the sound
+      alSourcei(source, AL_BUFFER, buffer);
+      alSourcePlay(source);
+
+      ov_clear(&ovf);
+      fclose(file);
+   };
+
+   if (!coot::file_exists(file_name))
+      return;
+
+   std::thread t(play_sound_file_inner, file_name);
+   t.detach();
+#endif
+#endif
+
+}
+
+void
 play_sound_file(const std::string &file_name) {
 
 #ifdef WITH_SOUND
+
+#ifdef __APPLE__
+#else
 
    auto play_sound_file_inner = [] (const std::string &file_name) {
 
@@ -108,9 +158,10 @@ play_sound_file(const std::string &file_name) {
       }
    };
 
+
    std::string fn = file_name;
    if (coot::file_exists(fn)) {
-      // do nothing
+      // don't touch the path then
    } else {
       // try to find it in the installation
       std::string dir = coot::package_data_dir();
@@ -118,8 +169,14 @@ play_sound_file(const std::string &file_name) {
       fn = coot::util::append_dir_file(sounds_dir, fn);
    }
 
+#endif
+#ifdef __APPLE__
+   play_sound_file_macos(file_name);
+#else
    std::thread t(play_sound_file_inner, fn);
    t.detach();
+#endif
+
 #endif
 
 }

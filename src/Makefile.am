@@ -225,6 +225,7 @@ AM_CXXFLAGS = \
 	-DXDATADIR='"$(datadir)"'    \
 	-DCOOT_SYS_BUILD_TYPE='"$(COOT_SYS_BUILD_TYPE)"' \
 	-DCOOT_BUILD_INFO_STRING='"$(COOT_BUILD_INFO_STRING)"' \
+        $(OpenAL_CFLAGS)        \
 	$(USE_LIBCURL)          \
 	$(WITH_GUILE_CFLAGS)	\
 	$(GUILE_CFLAGS)		\
@@ -297,7 +298,7 @@ _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
 	   $(top_builddir)/pli/libcoot-pli.la                \
 	   $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
 	   $(top_builddir)/utils/libcoot-utils.la            \
-	   $(PYTHON_LIBS) $(CLIPPER_LIBS)
+	   $(OpenAL_LIBS) $(PYTHON_LIBS) $(CLIPPER_LIBS)
 
 
 if OS_WIN32

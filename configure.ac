@@ -407,7 +407,12 @@ if test "x$with_sound" = xfalse ; then
 else
    AC_MSG_RESULT(yes)
    PKG_CHECK_MODULES(VORBISFILE, [vorbisfile >= 1.2])
-   PKG_CHECK_MODULES(ALSA, [alsa >= 1.2])
+   if test "$some_test_for_linux" = true ; then
+      PKG_CHECK_MODULES(ALSA, [alsa >= 1.2])
+   else
+      # it's a mac then
+      PKG_CHECK_MODULES(OpenAL, [OpenAL >= 1.23])
+   fi
    # Use Core Audio on macOS. Consider PortAudio instead of using alsa directly.
    AC_SUBST(SOUND_FLAGS, -DWITH_SOUND)
 fi
