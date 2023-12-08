@@ -298,10 +298,13 @@ class molecules_container_t {
       read_standard_residues();
       interrupt_long_term_job = false;
       mmdb::InitMatType();
+      contouring_time = 0;
       // debug();
    }
 
    void debug() const;
+
+   double contouring_time;
 
 public:
 
@@ -1466,6 +1469,8 @@ public:
 
    //! get the stats for the long-term job (testing function)
    ltj_stats_t testing_interrogate_long_term_job() { return long_term_job_stats; }
+
+   double get_contouring_time() const { return contouring_time; }
 
 
    // -------------------------------- Other ---------------------------------------

@@ -1825,13 +1825,11 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
                                              float radius, float contour_level) {
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
-   auto tp_1 = std::chrono::high_resolution_clock::now();
    coot::simple_mesh_t mesh;
    try {
       if (is_valid_map_molecule(imol)) {
          clipper::Coord_orth position(position_x, position_y, position_z);
          if (updating_maps_info.maps_need_an_update) {
-            tp_1 = std::chrono::high_resolution_clock::now();
             update_updating_maps(updating_maps_info.imol_model);
          }
 
@@ -1843,14 +1841,8 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
    catch (...) {
       std::cout << "An error occured in " << __FUNCTION__<< "() - this should not happen " << std::endl;
    }
-   auto tp_2 = std::chrono::high_resolution_clock::now();
-   if (show_timings) {
-      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-      auto d20 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_0).count();
-      std::cout << "---------- timings: for get_map_contours_mesh(): : " << d10 << " " << d20 << " ms "
-                << "with " << d21 << " ms for sfc" << std::endl;
-   }
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   contouring_time = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
    return mesh;
 }
 

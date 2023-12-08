@@ -4114,6 +4114,29 @@ int test_mmcif_atom_selection(molecules_container_t &mc) {
    return status;
 }
 
+int test_contouring_timing(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      float contour_level = 0.12;
+
+      clipper::Coord_orth p(55, 10, 10);
+      for (unsigned int i=0; i<160; i++) {
+         float radius = i;
+         coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
+         double t = mc.get_contouring_time();
+         std::cout << "contouring time: " << i << " " << t << std::endl;
+         if (t > 10) status = true;
+      }
+   }
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -4240,7 +4263,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_mmcif_atom_selection, "mmCIF atom selection",    mc);
+   status += run_test(test_contouring_timing, "contouring timing",    mc);
+
+   // status += run_test(test_mmcif_atom_selection, "mmCIF atom selection",    mc);
 
    // status += run_test(test_mmcif_as_string, "mmCIF as string",    mc);
 
