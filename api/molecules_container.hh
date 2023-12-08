@@ -506,6 +506,10 @@ public:
    //! return the group for the give residue name
    std::string get_group_for_monomer(const std::string &residue_name) const;
 
+   //! @return the hb_type for the given atom. On failure return an empty string
+   // valid types are: "HB_UNASSIGNED" ,"HB_NEITHER", "HB_DONOR", "HB_ACCEPTOR", "HB_BOTH", "HB_HYDROGEN"
+   std::string get_hb_type(const std::string &compound_id, int imol_enc, const std::string &atom_name) const;
+
    //! write a PNG for the given compound_id. imol can be IMOL_ENC_ANY
    //! Currently this function does nothing (drawing is done with the not-allowed cairo)
    void write_png(const std::string &compound_id, int imol, const std::string &file_name) const;

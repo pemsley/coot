@@ -4830,3 +4830,20 @@ molecules_container_t::molecule_to_mmCIF_string(int imol) const {
    }
    return s;
 }
+
+
+//! return the hb_tye for the given atom. On failure return an empty string
+std::string
+molecules_container_t::get_hb_type(const std::string &compound_id, int imol_enc, const std::string &atom_name) const {
+
+   coot::hb_t hbt = geom.get_h_bond_type(atom_name, compound_id, imol_enc);
+   std::string hb;
+   if (hbt == coot::HB_UNASSIGNED) hb = "HB_UNASSIGNED";
+   if (hbt == coot::HB_NEITHER)    hb = "HB_NEITHER";
+   if (hbt == coot::HB_DONOR)      hb = "HB_DONOR";
+   if (hbt == coot::HB_ACCEPTOR)   hb = "HB_ACCEPTOR";
+   if (hbt == coot::HB_BOTH)       hb = "HB_BOTH";
+   if (hbt == coot::HB_HYDROGEN)   hb = "HB_HYDROGEN";
+   return hb;
+}
+
