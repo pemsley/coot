@@ -500,14 +500,14 @@ public:
    // 20221030-PE nice to have one day:
    // int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
 
-   //! return the group for the give list of residue names
+   //! @return the group for the given list of residue names.
    std::vector<std::string> get_groups_for_monomers(const std::vector<std::string> &residue_names) const;
 
-   //! return the group for the give residue name
+   //! @return the group for the given residue name.
    std::string get_group_for_monomer(const std::string &residue_name) const;
 
    //! @return the hb_type for the given atom. On failure return an empty string.
-   //! Valid types are: "HB_UNASSIGNED" ,"HB_NEITHER", "HB_DONOR", "HB_ACCEPTOR", "HB_BOTH", "HB_HYDROGEN"
+   //! Valid types are: "HB_UNASSIGNED" ,"HB_NEITHER", "HB_DONOR", "HB_ACCEPTOR", "HB_BOTH", "HB_HYDROGEN".
    std::string get_hb_type(const std::string &compound_id, int imol_enc, const std::string &atom_name) const;
 
    //! write a PNG for the given compound_id. imol can be IMOL_ENC_ANY
