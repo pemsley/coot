@@ -7108,8 +7108,8 @@ void post_scheme_scripting_window() {
 void
 run_command_line_scripts() {
 
-   // std::cout << "---------------------------------------- run_command_line_scripts() ----------------"
-   //           << std::endl;
+   std::cout << "---------------------------------------- run_command_line_scripts() ----------------"
+             << std::endl;
 
    if (graphics_info_t::command_line_scripts.size()) {
       std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts.size()
@@ -7143,10 +7143,10 @@ run_command_line_scripts() {
 
    graphics_info_t g;
    for (unsigned int i=0; i<graphics_info_t::command_line_accession_codes.size(); i++) {
-      std::cout << "get accession code " << graphics_info_t::command_line_accession_codes[i]
-                << std::endl;
+      std::cout << "run_command_line_scripts(): get accession code "
+                << graphics_info_t::command_line_accession_codes[i] << std::endl;
       std::vector<std::string> c;
-      c.push_back("get-eds-pdb-and-mtz");
+      c.push_back("get_ebi.get-eds-pdb-and-mtz");
       c.push_back(single_quote(graphics_info_t::command_line_accession_codes[i]));
 
 #ifdef USE_GUILE
@@ -7155,6 +7155,7 @@ run_command_line_scripts() {
 #else
 #ifdef USE_PYTHON
       std::string pc = g.state_command(c, graphics_info_t::USE_PYTHON_STATE_COMMANDS);
+      safe_python_command("import get_ebi");
       safe_python_command(pc.c_str());
 #endif
 #endif
