@@ -4065,7 +4065,54 @@ int test_mmcif_as_string(molecules_container_t &mc) {
 
 }
 
+int test_mmcif_atom_selection(molecules_container_t &mc) {
 
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   std::string fn = "1ej6-assembly1.cif";
+   std::cout << "reading " << fn << std::endl;
+   int imol = mc.read_pdb(reference_data(fn));
+   mmdb::Manager *mol = mc.get_mol(imol);
+   if (mol) {
+      int n_selected_atoms_1 = 0;
+      int n_selected_atoms_2 = 0;
+      int n_selected_atoms_3 = 0;
+      mmdb::Atom **selected_atoms_1 = 0;
+      mmdb::Atom **selected_atoms_2 = 0;
+      mmdb::Atom **selected_atoms_3 = 0;
+      int selHnd_1 = mol->NewSelection();
+      int selHnd_2 = mol->NewSelection();
+      int selHnd_3 = mol->NewSelection();
+      std::cout << "selecting //A" << std::endl;
+      mol->Select(selHnd_1, mmdb::STYPE_ATOM, "//A",     mmdb::SKEY_NEW);
+      std::cout << "selecting //A-1" << std::endl;
+      mol->Select(selHnd_2, mmdb::STYPE_ATOM, "//A-1",   mmdb::SKEY_NEW);
+      std::cout << "selecting //A-1,A" << std::endl;
+      mol->Select(selHnd_3, mmdb::STYPE_ATOM, "//A-1,A", mmdb::SKEY_NEW);
+      mol->GetSelIndex(selHnd_1, selected_atoms_1, n_selected_atoms_1);
+      mol->GetSelIndex(selHnd_2, selected_atoms_2, n_selected_atoms_2);
+      mol->GetSelIndex(selHnd_3, selected_atoms_3, n_selected_atoms_3);
+      std::cout << "n-selected " << n_selected_atoms_1 << " " << n_selected_atoms_2 << " " << n_selected_atoms_3
+                << std::endl;
+      // there should be nothing in A-1 selection that is in //A
+      unsigned int n_matcher = 0;
+      for (int i=0; i<n_selected_atoms_1; i++) {
+         if (i >= 100) break;
+         mmdb:: Atom *at_1 = selected_atoms_1[i];
+         for (int j=0; i<n_selected_atoms_2; j++) {
+            mmdb:: Atom *at_2 = selected_atoms_2[j];
+            if (at_1 == at_2) {
+               n_matcher++;
+               break;
+            }
+         }
+      }
+      std::cout << "Looked for 100 atoms and found " << n_matcher << " matchers" << std::endl;
+      if (n_matcher == 0) status = 1;
+   }
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -4193,7 +4240,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_mmcif_as_string, "mmCIF as string",    mc);
+   status += run_test(test_mmcif_atom_selection, "mmCIF atom selection",    mc);
+
+   // status += run_test(test_mmcif_as_string, "mmCIF as string",    mc);
 
    // status += run_test(test_pdb_as_string, "PDB as string",    mc);
 
