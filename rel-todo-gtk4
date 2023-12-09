@@ -14,17 +14,19 @@ C++ 17 and git for CCP4i2
 
 8 items
 
-Moorhen: Ligand fitting return a triple of the cluster index, the lgiand index and hteh nmolcule index.
-         Ligand with same position orientation with even without conformers!
+Moorhen: Ligand fitting return a triple of the cluster index, the ligand index and the molecule index.
+         Ligand solutions have the same position + orientation with even without conformers!
 
 Moorhen: Set a flag for contouring timers. Add them, store the result, and use the flag to get the times.
          Does the contouring write any output? If so, remove it.
 
+MMDB: Look at mmdb chain selection. Can you remove chain range?
+
+API: add rigid_body_fit_chain(imol, chain_id) to the moorhen and coot apis.
+
 Moorhen: Add a test for multi-threading. Normals of a Gaussian surface?
 
 Bug:: Preferences Others Fonts - the Atom Label Radiobuttons are not correctly lit.
-
-Bug:: Missing GUI: Rigid-body fit Residue Ranges
 
 Bug:: Missing popup menu in Rigid-body fit toolbar button.
 
@@ -33,6 +35,9 @@ Bug:: if rdkit has not been installed then it should fail in configure
 
 Bug:: the dialog for selection of column labels from an mtz file is broken,
       can't assign weights, can't assign Fobs.
+
+Bug:: Missing GUI: Rigid-body fit Residue Ranges
+* Done.
 
 GUI: Look at the terminal output when using the Preferences dialog. Is it all needed?
 
@@ -77,6 +82,9 @@ Graphics: Rigid-body refine the tutorial A chain. It used to display an intermed
 Graphics: I want to be able to click on the red spots in the "in window" Rama plot.
 
 Graphics/API: give user access to the Gaussian surface parameters.
+
+Graphics: I'd like to be able to move through/select rotamers in moving-atoms mode
+          [idea from TC video]
 
 Graphics/libcootapi: write a function to convert a simple mesh to a type-B instanced mesh with
           matrices from BIOMT records.
