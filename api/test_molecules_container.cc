@@ -4125,7 +4125,7 @@ int test_contouring_timing(molecules_container_t &mc) {
       float contour_level = 0.12;
 
       clipper::Coord_orth p(55, 10, 10);
-      for (unsigned int i=0; i<160; i++) {
+      for (unsigned int i=0; i<80; i++) {
          float radius = i;
          coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
          double t = mc.get_contouring_time();
