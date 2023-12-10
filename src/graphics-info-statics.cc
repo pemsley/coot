@@ -1789,3 +1789,4 @@ float graphics_info_t::gaussian_surface_sigma = 4.4;
 float graphics_info_t::gaussian_surface_contour_level = 4.0;
 float graphics_info_t::gaussian_surface_box_radius = 5.0;
 float graphics_info_t::gaussian_surface_grid_scale = 0.7;
+float graphics_info_t::gaussian_surface_fft_b_factor = 100.0;

@@ -3440,7 +3440,7 @@ coot::molecule_t::get_ncs_related_chains() const {
 //
 coot::simple_mesh_t
 coot::molecule_t::get_gaussian_surface(float sigma, float contour_level,
-                                       float box_radius, float grid_scale) const {
+                                       float box_radius, float grid_scale, float b_factor) const {
 
    auto colour_holder_to_glm = [] (const coot::colour_holder &ch) {
       return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
@@ -3455,7 +3455,7 @@ coot::molecule_t::get_gaussian_surface(float sigma, float contour_level,
 
       for (unsigned int i_ch=0; i_ch<chain_ids.size(); i_ch++) {
          const auto &chain_id = chain_ids[i_ch];
-         coot::gaussian_surface_t gauss_surf(mol, chain_id, sigma, contour_level, box_radius, grid_scale);
+         coot::gaussian_surface_t gauss_surf(mol, chain_id, sigma, contour_level, box_radius, grid_scale, b_factor);
          coot::simple_mesh_t gs_mesh = gauss_surf.get_surface();
          // if get_chain_ids() adds chain_ids in the same way as
          // fill_default_colour_rules then this will work:

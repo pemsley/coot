@@ -653,9 +653,12 @@ public:
    //! box_radius = 5.0
    //!
    //! grid_scale = 0.7
+   //!
+   //! b_factor = 100.0 (use 0.0 for no FFT-B-factor smoothing)
+   //!
    //! @return a simple mesh composed of a number of Gaussian surfaces (one for each chain)
    coot::simple_mesh_t get_gaussian_surface(int imol, float sigma, float contour_level,
-                                            float box_radius, float grid_scale) const;
+                                            float box_radius, float grid_scale, float b_factor) const;
 
    //! get chemical feaatures for the specified residue
    coot::simple_mesh_t get_chemical_features_mesh(int imol, const std::string &cid) const;
@@ -1488,7 +1491,7 @@ public:
                                                         const std::string &colour_sheme,
                                                         const std::string &style);
    PyObject *get_pythonic_gaussian_surface_mesh(int imol, float sigma, float contour_level,
-                                                float box_radius, float grid_scale);
+                                                float box_radius, float grid_scale, float fft_b_factor);
 
    //! @return a pair - the first of which (index 0) is the list of atoms, the second (index 1) is the list of bonds.
    //! An atom is a list:

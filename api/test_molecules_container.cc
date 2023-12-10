@@ -2304,7 +2304,8 @@ int test_gaussian_surface(molecules_container_t &mc) {
       float contour_level = 4.0;
       float box_radius = 5.0;
       float grid_scale = 0.7;
-      coot::simple_mesh_t mesh = mc.get_gaussian_surface(imol, sigma, contour_level, box_radius, grid_scale);
+      float b_factor = 20.0;
+      coot::simple_mesh_t mesh = mc.get_gaussian_surface(imol, sigma, contour_level, box_radius, grid_scale, b_factor);
       std::cout << "in test_gaussian_surface() " << mesh.vertices.size() << " " << mesh.triangles.size() << std::endl;
       if (mesh.vertices.size() > 0)
          if (mesh.triangles.size() > 0)
