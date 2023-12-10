@@ -26,6 +26,12 @@ void set_gaussian_surface_grid_scale(float s) {
    graphics_info_t::gaussian_surface_grid_scale = s;
 }
 
+//! \brief set the fft B-factor for gaussian surface. Use 0 for no B-factor (default 100)
+void set_gaussian_surface_fft_b_factor(float f) {
+   graphics_info_t::gaussian_surface_fft_b_factor = f;
+}
+
+
 
 int gaussian_surface(int imol) {
 
