@@ -1844,6 +1844,19 @@ void probe_radius_graph_close_callback( GtkWidget *button, GtkWidget *dialog);
 //!        there should be one day...
 int gaussian_surface(int imol);
 
+//! \brief set the sigma for gaussian surface
+void set_gaussian_surface_sigma(float s);
+
+//! \brief set the contour_level for gaussian surface
+void set_gaussian_surface_contour_level(float s);
+
+//! \brief set the box_radius for gaussian surface
+void set_gaussian_surface_box_radius(float s);
+
+//! \brief set the grid_scale for gaussian surface
+void set_gaussian_surface_grid_scale(float s);
+
+
 /* ------------------------------------------------------------------------- */
 /*                      LINKs                                                */
 /* ------------------------------------------------------------------------- */
