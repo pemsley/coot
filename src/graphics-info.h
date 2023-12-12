@@ -5294,6 +5294,12 @@ string   static std::string sessionid;
 
    static void add_shortcuts_to_window(GtkWidget *shortcuts_window);
 
+   static float gaussian_surface_sigma;
+   static float gaussian_surface_contour_level;
+   static float gaussian_surface_box_radius;
+   static float gaussian_surface_grid_scale;
+   static float gaussian_surface_fft_b_factor;
+
    static bool use_sounds; // default true
 
    // add a pumpkin as a graphics object and draw it.

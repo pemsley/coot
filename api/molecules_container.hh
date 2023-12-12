@@ -298,10 +298,13 @@ class molecules_container_t {
       read_standard_residues();
       interrupt_long_term_job = false;
       mmdb::InitMatType();
+      contouring_time = 0;
       // debug();
    }
 
    void debug() const;
+
+   double contouring_time;
 
 public:
 
@@ -500,11 +503,15 @@ public:
    // 20221030-PE nice to have one day:
    // int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
 
-   //! return the group for the give list of residue names
+   //! @return the group for the given list of residue names.
    std::vector<std::string> get_groups_for_monomers(const std::vector<std::string> &residue_names) const;
 
-   //! return the group for the give residue name
+   //! @return the group for the given residue name.
    std::string get_group_for_monomer(const std::string &residue_name) const;
+
+   //! @return the hb_type for the given atom. On failure return an empty string.
+   //! Valid types are: "HB_UNASSIGNED" ,"HB_NEITHER", "HB_DONOR", "HB_ACCEPTOR", "HB_BOTH", "HB_HYDROGEN".
+   std::string get_hb_type(const std::string &compound_id, int imol_enc, const std::string &atom_name) const;
 
    //! write a PNG for the given compound_id. imol can be IMOL_ENC_ANY
    //! Currently this function does nothing (drawing is done with the not-allowed cairo)
@@ -646,9 +653,12 @@ public:
    //! box_radius = 5.0
    //!
    //! grid_scale = 0.7
+   //!
+   //! b_factor = 100.0 (use 0.0 for no FFT-B-factor smoothing)
+   //!
    //! @return a simple mesh composed of a number of Gaussian surfaces (one for each chain)
    coot::simple_mesh_t get_gaussian_surface(int imol, float sigma, float contour_level,
-                                            float box_radius, float grid_scale) const;
+                                            float box_radius, float grid_scale, float b_factor) const;
 
    //! get chemical feaatures for the specified residue
    coot::simple_mesh_t get_chemical_features_mesh(int imol, const std::string &cid) const;
@@ -1463,6 +1473,8 @@ public:
    //! get the stats for the long-term job (testing function)
    ltj_stats_t testing_interrogate_long_term_job() { return long_term_job_stats; }
 
+   double get_contouring_time() const { return contouring_time; }
+
 
    // -------------------------------- Other ---------------------------------------
 
@@ -1479,7 +1491,7 @@ public:
                                                         const std::string &colour_sheme,
                                                         const std::string &style);
    PyObject *get_pythonic_gaussian_surface_mesh(int imol, float sigma, float contour_level,
-                                                float box_radius, float grid_scale);
+                                                float box_radius, float grid_scale, float fft_b_factor);
 
    //! @return a pair - the first of which (index 0) is the list of atoms, the second (index 1) is the list of bonds.
    //! An atom is a list:

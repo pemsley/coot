@@ -2304,7 +2304,8 @@ int test_gaussian_surface(molecules_container_t &mc) {
       float contour_level = 4.0;
       float box_radius = 5.0;
       float grid_scale = 0.7;
-      coot::simple_mesh_t mesh = mc.get_gaussian_surface(imol, sigma, contour_level, box_radius, grid_scale);
+      float b_factor = 20.0;
+      coot::simple_mesh_t mesh = mc.get_gaussian_surface(imol, sigma, contour_level, box_radius, grid_scale, b_factor);
       std::cout << "in test_gaussian_surface() " << mesh.vertices.size() << " " << mesh.triangles.size() << std::endl;
       if (mesh.vertices.size() > 0)
          if (mesh.triangles.size() > 0)
@@ -4065,7 +4066,77 @@ int test_mmcif_as_string(molecules_container_t &mc) {
 
 }
 
+int test_mmcif_atom_selection(molecules_container_t &mc) {
 
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   std::string fn = "1ej6-assembly1.cif";
+   std::cout << "reading " << fn << std::endl;
+   int imol = mc.read_pdb(reference_data(fn));
+   mmdb::Manager *mol = mc.get_mol(imol);
+   if (mol) {
+      int n_selected_atoms_1 = 0;
+      int n_selected_atoms_2 = 0;
+      int n_selected_atoms_3 = 0;
+      mmdb::Atom **selected_atoms_1 = 0;
+      mmdb::Atom **selected_atoms_2 = 0;
+      mmdb::Atom **selected_atoms_3 = 0;
+      int selHnd_1 = mol->NewSelection();
+      int selHnd_2 = mol->NewSelection();
+      int selHnd_3 = mol->NewSelection();
+      std::cout << "selecting //A" << std::endl;
+      mol->Select(selHnd_1, mmdb::STYPE_ATOM, "//A",     mmdb::SKEY_NEW);
+      std::cout << "selecting //A-1" << std::endl;
+      mol->Select(selHnd_2, mmdb::STYPE_ATOM, "//A-1",   mmdb::SKEY_NEW);
+      std::cout << "selecting //A-1,A" << std::endl;
+      mol->Select(selHnd_3, mmdb::STYPE_ATOM, "//A-1,A", mmdb::SKEY_NEW);
+      mol->GetSelIndex(selHnd_1, selected_atoms_1, n_selected_atoms_1);
+      mol->GetSelIndex(selHnd_2, selected_atoms_2, n_selected_atoms_2);
+      mol->GetSelIndex(selHnd_3, selected_atoms_3, n_selected_atoms_3);
+      std::cout << "n-selected " << n_selected_atoms_1 << " " << n_selected_atoms_2 << " " << n_selected_atoms_3
+                << std::endl;
+      // there should be nothing in A-1 selection that is in //A
+      unsigned int n_matcher = 0;
+      for (int i=0; i<n_selected_atoms_1; i++) {
+         if (i >= 100) break;
+         mmdb:: Atom *at_1 = selected_atoms_1[i];
+         for (int j=0; i<n_selected_atoms_2; j++) {
+            mmdb:: Atom *at_2 = selected_atoms_2[j];
+            if (at_1 == at_2) {
+               n_matcher++;
+               break;
+            }
+         }
+      }
+      std::cout << "Looked for 100 atoms and found " << n_matcher << " matchers" << std::endl;
+      if (n_matcher == 0) status = 1;
+   }
+   return status;
+}
+
+int test_contouring_timing(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      float contour_level = 0.12;
+
+      clipper::Coord_orth p(55, 10, 10);
+      for (unsigned int i=0; i<80; i++) {
+         float radius = i;
+         coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
+         double t = mc.get_contouring_time();
+         std::cout << "contouring time: " << i << " " << t << std::endl;
+         if (t > 10) status = true;
+      }
+   }
+
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -4193,7 +4264,11 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_mmcif_as_string, "mmCIF as string",    mc);
+   status += run_test(test_contouring_timing, "contouring timing",    mc);
+
+   // status += run_test(test_mmcif_atom_selection, "mmCIF atom selection",    mc);
+
+   // status += run_test(test_mmcif_as_string, "mmCIF as string",    mc);
 
    // status += run_test(test_pdb_as_string, "PDB as string",    mc);
 

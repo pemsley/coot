@@ -1,5 +1,6 @@
 
 #include <functional>
+#include <chrono>
 
 #include <clipper/core/nxmap.h>
 #include <clipper/core/xmap.h>
@@ -10,6 +11,7 @@
 #include "coot-utils/coot-map-utils.hh"
 #include "density-contour-triangles.hh"
 #include "CIsoSurface.h"
+#include "coot-utils/coot-map-utils.hh"
 
 coot::simple_mesh_t
 coot::gaussian_surface_t::get_surface() const {
@@ -21,7 +23,8 @@ coot::gaussian_surface_t::get_surface() const {
 
 void
 coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &chain_id,
-                                        float sigma_in, float contour_level_in, float box_radius_in, float grid_scale) {
+                                        float sigma_in, float contour_level_in, float box_radius_in, float grid_scale,
+                                        float fft_b_factor) {
 
    // these affect the smoothness/resolution of the surface
    //
@@ -33,6 +36,7 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
    float gs = 0.7; // bigger number means more finely sampled grid (bigger numbers are cubic slower)
    float contour_level = 4.0;
    double box_radius = 5.0; // try smaller values - or larger ones for bigger sigma
+   float b_factor = fft_b_factor;
 
    // 20230206-PE use the passed parameters
    sigma = sigma_in;
@@ -191,6 +195,9 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
       }
    }
 
+   if (b_factor > 0.0)
+      util::sharpen_blur_map(&xmap, b_factor);
+
    coot::Cartesian centre(10, 10, 10);
    // std::pair<bool, clipper::Coord_orth> cc = coot::centre_of_molecule(mol);
    // if (cc.first)
@@ -236,6 +243,53 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
       mesh.triangles.push_back(tri);
    }
 
+   normals_from_function_gradient(xmap, coords_base_glm); // changes the normal in the verties of the mesh
+
+}
+
+void
+coot::gaussian_surface_t::normals_from_function_gradient(const clipper::Xmap<float> &xmap,
+                                                         const glm::vec3 &coords_base_glm) {
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+   float delta = 0.92;
+   for (unsigned int i=0; i<mesh.vertices.size(); i++) {
+      const auto &pos = mesh.vertices[i].pos - coords_base_glm;
+      clipper::Coord_orth p_x_1(pos.x - delta, pos.y, pos.z);
+      clipper::Coord_orth p_x_2(pos.x + delta, pos.y, pos.z);
+      clipper::Coord_orth p_y_1(pos.x, pos.y - delta, pos.z);
+      clipper::Coord_orth p_y_2(pos.x, pos.y + delta, pos.z);
+      clipper::Coord_orth p_z_1(pos.x, pos.y, pos.z - delta);
+      clipper::Coord_orth p_z_2(pos.x, pos.y, pos.z + delta);
+      float f_x_1 = util::density_at_point(xmap, p_x_1);
+      float f_x_2 = util::density_at_point(xmap, p_x_2);
+      float f_y_1 = util::density_at_point(xmap, p_y_1);
+      float f_y_2 = util::density_at_point(xmap, p_y_2);
+      float f_z_1 = util::density_at_point(xmap, p_z_1);
+      float f_z_2 = util::density_at_point(xmap, p_z_2);
+      float f = util::density_at_point(xmap, clipper::Coord_orth(pos.x, pos.y, pos.z));
+      glm::vec3 grr(f_x_1 - f_x_2, f_y_1 - f_y_2, f_z_1 - f_z_2);
+      if (false)
+         std::cout << "pos " << pos.x << " " << pos.y << " " << pos.z << " "
+                   << "grr " << grr.x << " " << grr.y << " " << grr.z << " "
+                   << " f " << f << " "
+                   << "fx  " << f_x_1 << " " << f_x_2 << " "
+                   << "fy  " << f_y_1 << " " << f_y_2 << " "
+                   << "fz  " << f_z_1 << " " << f_z_2 << " "
+                   << std::endl;
+      if (grr.x != 0.0) {
+         if (grr.y != 0.0) {
+            if (grr.z != 0.0) {
+               glm::vec3 gr = glm::normalize(grr);
+               mesh.vertices[i].normal = gr;
+            }
+         }
+      }
+   }
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+
+   // std::cout << "normals_from_function_gradient(): time " << d10 << " ms " << std::endl;
 }
 
 void
@@ -307,9 +361,10 @@ coot::gaussian_surface_t::using_calc_density(mmdb::Manager *mol) {
 
 // optional args: float sigma=4.4, float contour_level=4.0, float box_radius=5.0, float grid_scale=0.7);
 coot::gaussian_surface_t::gaussian_surface_t(mmdb::Manager *mol, const std::string &chain_id,
-                                             float sigma, float contour_level, float box_radius, float grid_scale) {
+                                             float sigma, float contour_level, float box_radius, float grid_scale,
+                                             float b_factor) {
 
    // using_calc_density(mol);
-   using_an_xmap(mol, chain_id, sigma, contour_level, box_radius, grid_scale);
+   using_an_xmap(mol, chain_id, sigma, contour_level, box_radius, grid_scale, b_factor);
 
 }

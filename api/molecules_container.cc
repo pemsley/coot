@@ -1825,13 +1825,11 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
                                              float radius, float contour_level) {
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
-   auto tp_1 = std::chrono::high_resolution_clock::now();
    coot::simple_mesh_t mesh;
    try {
       if (is_valid_map_molecule(imol)) {
          clipper::Coord_orth position(position_x, position_y, position_z);
          if (updating_maps_info.maps_need_an_update) {
-            tp_1 = std::chrono::high_resolution_clock::now();
             update_updating_maps(updating_maps_info.imol_model);
          }
 
@@ -1843,14 +1841,8 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
    catch (...) {
       std::cout << "An error occured in " << __FUNCTION__<< "() - this should not happen " << std::endl;
    }
-   auto tp_2 = std::chrono::high_resolution_clock::now();
-   if (show_timings) {
-      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-      auto d20 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_0).count();
-      std::cout << "---------- timings: for get_map_contours_mesh(): : " << d10 << " " << d20 << " ms "
-                << "with " << d21 << " ms for sfc" << std::endl;
-   }
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   contouring_time = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
    return mesh;
 }
 
@@ -3889,11 +3881,11 @@ molecules_container_t::get_interesting_places(int imol, const std::string &mode)
 //! get Gaussian surface representation
 coot::simple_mesh_t
 molecules_container_t::get_gaussian_surface(int imol, float sigma, float contour_level,
-                                            float box_radius, float grid_scale) const {
+                                            float box_radius, float grid_scale, float fft_b_factor) const {
 
    coot::simple_mesh_t mesh;
    if (is_valid_model_molecule(imol)) {
-      mesh = molecules[imol].get_gaussian_surface(sigma, contour_level, box_radius, grid_scale);
+      mesh = molecules[imol].get_gaussian_surface(sigma, contour_level, box_radius, grid_scale, fft_b_factor);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -4830,3 +4822,20 @@ molecules_container_t::molecule_to_mmCIF_string(int imol) const {
    }
    return s;
 }
+
+
+//! return the hb_tye for the given atom. On failure return an empty string
+std::string
+molecules_container_t::get_hb_type(const std::string &compound_id, int imol_enc, const std::string &atom_name) const {
+
+   coot::hb_t hbt = geom.get_h_bond_type(atom_name, compound_id, imol_enc);
+   std::string hb;
+   if (hbt == coot::HB_UNASSIGNED) hb = "HB_UNASSIGNED";
+   if (hbt == coot::HB_NEITHER)    hb = "HB_NEITHER";
+   if (hbt == coot::HB_DONOR)      hb = "HB_DONOR";
+   if (hbt == coot::HB_ACCEPTOR)   hb = "HB_ACCEPTOR";
+   if (hbt == coot::HB_BOTH)       hb = "HB_BOTH";
+   if (hbt == coot::HB_HYDROGEN)   hb = "HB_HYDROGEN";
+   return hb;
+}
+

@@ -407,7 +407,8 @@ if test "x$with_sound" = xfalse ; then
 else
    AC_MSG_RESULT(yes)
    PKG_CHECK_MODULES(VORBISFILE, [vorbisfile >= 1.2])
-   if test "$some_test_for_linux" = true ; then
+   uname_s=$(uname -s) # should autoconf do this for us? If so, I can't see where it is stored
+   if test "$uname_s" = Linux ; then
       PKG_CHECK_MODULES(ALSA, [alsa >= 1.2])
    else
       # it's a mac then

@@ -889,7 +889,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
    return m;
 }
 
-// Fill a conformer with the 2D depiction if you can, else first is -1
+// Fill a conformer with the 2D depiction if you can with the first at the conformer id, else first is -1
 std::pair<int, RDKit::RWMol>
 coot::rdkit_mol_with_2d_depiction(const dictionary_residue_restraints_t &restraints) {
 

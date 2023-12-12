@@ -1784,3 +1784,9 @@ bool graphics_info_t::use_sounds = true;
 guint graphics_info_t::updating_maps_timeout_function_idx = UPDATING_MAPS_TIMEOUT_FUNCTION_IDX_UNSET;
 
 std::vector<meshed_particle_container_t> graphics_info_t::meshed_particles_for_gone_diegos;
+
+float graphics_info_t::gaussian_surface_sigma = 4.4;
+float graphics_info_t::gaussian_surface_contour_level = 4.0;
+float graphics_info_t::gaussian_surface_box_radius = 5.0;
+float graphics_info_t::gaussian_surface_grid_scale = 0.7;
+float graphics_info_t::gaussian_surface_fft_b_factor = 100.0;

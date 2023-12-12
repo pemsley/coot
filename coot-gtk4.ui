@@ -15456,7 +15456,7 @@ Move a copy?</property>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="accelerator">j</property>
+                <property name="accelerator">e</property>
                 <property name="title" translatable="yes">Auto-fit Rotamer</property>
               </object>
             </child>

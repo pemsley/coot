@@ -3102,15 +3102,24 @@ std::string pythonize_command_name(const std::string &s) {
    if (s == "run-refmac-by-filename") {
       ss = "refmac.run_refmac_by_filename";
    } else  {
-      ss = "coot." + ss; // hideous hack. presumes that all state script commands are in coot module
-                         // (most of them are, of course)
+
+      // 20231208-PE
+      std::cout << "************************* namespace this python command? " << ss << std::endl;
+      // ss = "coot." + ss; // hideous hack. presumes that all state script commands are in coot module
+                            // (most of them are, of course).
+                            // 20231208-PE Are they though? If the function is in the coot namespace,
+                            // why not just call the function directly?
    }
    return ss;
 }
 
-std::string schemize_command_name(const std::string &s) {
+std::string schemize_command_name(const std::string &s_in) {
 
    std::string ss;
+   std::string s(s_in);
+   if (s.length() > 5)
+      if (s.substr(0,5) == ".coot")
+         s.erase(0,5);
    for (unsigned int i=0; i<s.length(); i++) {
       if (s[i] == '_') {
          ss += '-';
