@@ -548,6 +548,10 @@
               <attribute name="action">app.background_dark_grey_action</attribute>
             </item>
             <item>
+              <attribute name="label">Semi-Dark Grey</attribute>
+              <attribute name="action">app.background_semi_dark_grey_action</attribute>
+            </item>
+            <item>
               <attribute name="label">Light Grey</attribute>
               <attribute name="action">app.background_light_grey_action</attribute>
             </item>

@@ -1657,6 +1657,15 @@ background_dark_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void
+background_semi_dark_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                 G_GNUC_UNUSED GVariant *parameter,
+                                 G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(0.207f,0.207f,0.207f);
+   graphics_info_t::graphics_draw();
+}
+
+void
 background_light_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
@@ -3530,10 +3539,11 @@ create_actions(GtkApplication *application) {
 
    // Draw
 
-   add_action(       "background_black_action",        background_black_action);
-   add_action(  "background_light_grey_action",   background_light_grey_action);
-   add_action(   "background_dark_grey_action",    background_dark_grey_action);
-   add_action(       "background_white_action",        background_white_action);
+   add_action(          "background_black_action",          background_black_action);
+   add_action(     "background_light_grey_action",     background_light_grey_action);
+   add_action(      "background_dark_grey_action",      background_dark_grey_action);
+   add_action("background_semi_dark_grey_action",  background_semi_dark_grey_action);
+   add_action(          "background_white_action",          background_white_action);
    add_action(    "display_only_active_action",     display_only_active_action);
    add_action(        "bond_parameters_action",         bond_parameters_action);
    add_action(           "bond_colours_action",            bond_colours_action);
