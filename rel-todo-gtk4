@@ -22,9 +22,19 @@ Moorhen: Set a flag for contouring timers. Add them, store the result, and use t
 
 MMDB: Look at mmdb chain selection. Can you remove chain range?
 
+Graphics: tap, tap tap, tap tap tap left-quote for residue, chain molecule
+
+GUI:: Validate -> Atom Overlaps doesn't work.
+
+GUI: Edit -> Settings -> Save current sisze and position doesnnpt work.
+
 API: add rigid_body_fit_chain(imol, chain_id) to the moorhen and coot apis.
 
+GUI: save the state and look at the resulting state file. The functions need "coot." module name
+
 Moorhen: Add a test for multi-threading. Normals of a Gaussian surface?
+
+Bug::? in moving atoms mode centre of 89A sidechain density press e for auto-fit rotamer - I get red rings. Why?
 
 Bug:: Preferences Others Fonts - the Atom Label Radiobuttons are not correctly lit.
 
@@ -65,6 +75,9 @@ GUI: Replace-residue is missing. Needs a UI. Make it an overlay.
 
 GUI: Needs a "Trackpad Mode" button in the UI. It should have a "save this mode" button also.
      Make it an overlay.
+
+GUI: copy fragment dialog doesn't make active the first molecule, but save coordinates does.
+     Do the same thing.
 
 GUI: Cryo-EM module: Add Toggle switch for auto-recontour map
 
