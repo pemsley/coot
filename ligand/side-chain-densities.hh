@@ -388,7 +388,8 @@ namespace coot {
 
    void get_fragment_by_fragment_scores(mmdb::Manager *mol,
                                         const fasta_multi &fam,
-                                        const clipper::Xmap<float> &xmap);
+                                        const clipper::Xmap<float> &xmap,
+                                        const std::string &results_table_file_name_prefix);
 
 
 }

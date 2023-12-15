@@ -2656,7 +2656,8 @@ coot::get_fragment_sequence_scores(mmdb::Manager *mol,
 void
 coot::get_fragment_by_fragment_scores(mmdb::Manager *mol,
                                       const fasta_multi &fam,
-                                      const clipper::Xmap<float> &xmap) {
+                                      const clipper::Xmap<float> &xmap,
+                                      const std::string &prfx) {
 
    auto residue_to_single_letter_code = [] (mmdb::Residue *residue_p) {
       char code = '-';
@@ -2686,6 +2687,7 @@ coot::get_fragment_by_fragment_scores(mmdb::Manager *mol,
    };
 
    auto get_count_delta = [residue_to_single_letter_code] (mmdb::Residue *residue_p, const std::vector<char> &types) {
+
       int plain_count = 0;
       int delta = 0;
       char assigned_type = residue_to_single_letter_code(residue_p);
@@ -2720,8 +2722,10 @@ coot::get_fragment_by_fragment_scores(mmdb::Manager *mol,
          delta = most_counts - second_most_counts;
       } else {
          if (counts_map.find(assigned_type) == counts_map.end()) {
-            // bizarre
-            delta = -9999;
+            // bizarre?
+            //std::cout << "How bizarre " << assigned_type << " not found in counts_map of size " << counts_map.size() << std::endl;
+            plain_count = 0;
+            delta = -most_counts;
          } else {
             plain_count = counts_map[assigned_type];
             delta = plain_count - most_counts;
@@ -2819,6 +2823,21 @@ coot::get_fragment_by_fragment_scores(mmdb::Manager *mol,
          for (unsigned int ii=0; ii<it->second.size(); ii++)
             std::cout << " " << it->second[ii];
       std::cout << std::endl;      
+   }
+
+   std::string results_table_file = prfx + ".tab";
+   if (true) {
+      std::ofstream f(results_table_file);
+      for (it=typed_residues.begin(); it!=typed_residues.end(); ++it) {
+         mmdb::Residue *residue_p = it->first;
+         const auto &vec = it->second;
+         coot::residue_spec_t rs(residue_p);
+         std::pair<int, int> count_delta = get_count_delta(residue_p, vec);
+         f << "   " << rs << " " << residue_p->GetResName() << " :";
+         f << " " << count_delta.first << " " << count_delta.second;
+         f << "\n";
+      }
+      f.close();
    }
 
 }

@@ -327,7 +327,8 @@ check_map_mean(const std::string &map_file_name) {
 void validate_chain(const std::string &map_file_name,
                     const std::string &pdb_file_name,
                     const std::string &chain_id,
-                    const std::string &multi_sequence_file_name) {
+                    const std::string &multi_sequence_file_name,
+                    const std::string &output_table_file_name_prefix) {
 
    clipper::CCP4MAPfile file;
    try {
@@ -339,7 +340,7 @@ void validate_chain(const std::string &map_file_name,
       if (asc.read_success) {
          coot::side_chain_densities scd;
          coot::fasta_multi fam(multi_sequence_file_name);
-         coot::get_fragment_by_fragment_scores(asc.mol, fam, xmap);
+         coot::get_fragment_by_fragment_scores(asc.mol, fam, xmap, output_table_file_name_prefix);
       }
    }
    catch (const clipper::Message_base &exc) {
@@ -392,19 +393,6 @@ int main(int argc, char **argv) {
    if (argc == 6) {
       std::string a1(argv[1]);
 
-      // We have a model and a sequence, we want to check that the residue types of the model fit the
-      // side-chain densities.
-      // This is done in fragments of size 21 (or so).
-      //
-      if (a1 == "validate-chain") {
-         std::cout << "---------- validate chain " << std::endl;
-         std::string map_file_name(argv[2]);
-         std::string pdb_file_name(argv[3]);
-         std::string chain_id(argv[4]);
-         std::string multi_sequence_file_name(argv[5]); // one sequence - or one sequence for each different chain
-         validate_chain(map_file_name, pdb_file_name, chain_id, multi_sequence_file_name);
-         done = true;
-      }
    }
 
    if (argc == 7) {
@@ -428,6 +416,21 @@ int main(int argc, char **argv) {
          catch (const std::runtime_error &rte) {
             std::cout << "" << rte.what() << std::endl;
          }
+         done = true;
+      }
+
+      // We have a model and a sequence, we want to check that the residue types of the model fit the
+      // side-chain densities.
+      // This is done in fragments of size 21 (or so).
+      //
+      if (a1 == "validate-chain") {
+         std::cout << "---------- validate chain " << std::endl;
+         std::string map_file_name(argv[2]);
+         std::string pdb_file_name(argv[3]);
+         std::string chain_id(argv[4]);
+         std::string multi_sequence_file_name(argv[5]); // one sequence - or one sequence for each different chain
+         std::string output_file_name_prefix(argv[6]);
+         validate_chain(map_file_name, pdb_file_name, chain_id, multi_sequence_file_name, output_file_name_prefix);
          done = true;
       }
    }
