@@ -1380,6 +1380,7 @@ public:
       int cluster_idx;  // the index of the cluster
       int ligand_idx;  // the ligand idx for a given cluster
       fit_ligand_info_t(int i, int c, int l) : imol(i), cluster_idx(c), ligand_idx(l) {}
+      fit_ligand_info_t() { imol = -1; cluster_idx = -1; ligand_idx = -1; }
    };
 
    std::vector<fit_ligand_info_t> fit_ligand(int imol_protein, int imol_map, int imol_ligand,
