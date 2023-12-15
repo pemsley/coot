@@ -1715,20 +1715,20 @@ int test_ligand_fitting_in_map(molecules_container_t &mc) {
 
    if (mc.is_valid_model_molecule(imol)) {
       if (mc.is_valid_model_molecule(imol_ligand)) {
-         std::vector<int> solutions = mc.fit_ligand(imol, imol_map, imol_ligand, 1.0, true, 30);
+         std::vector<molecules_container_t::fit_ligand_info_t> solutions = mc.fit_ligand(imol, imol_map, imol_ligand, 1.0, true, 30);
          std::cout << "found " << solutions.size() << " ligand fitting solutions" << std::endl;
 
          // check that these solutions have different eigen values (because they
          // are different conformers)
          std::vector<double> ligands_largest_eigenvector;
-         std::vector<int>::const_iterator it;
+         std::vector<molecules_container_t::fit_ligand_info_t>::const_iterator it;
          for (it=solutions.begin(); it!=solutions.end(); ++it) {
-            int imol_lig = *it;
+            const auto &fli(*it);
             if (false) { // let's write out those solutions
-               std::string fn("Ligand-sol-" + coot::util::int_to_string(imol_lig) + ".pdb");
-               mc.write_coordinates(imol_lig, fn);
+               std::string fn("Ligand-sol-" + coot::util::int_to_string(fli.imol) + ".pdb");
+               mc.write_coordinates(fli.imol, fn);
             }
-            auto eigenvalues = mc.get_eigenvalues(imol_lig, "A", 1, "");
+            auto eigenvalues = mc.get_eigenvalues(fli.imol, "A", 1, "");
             double f = largest_eigenvalue(eigenvalues);
             ligands_largest_eigenvector.push_back(f);
          }
@@ -4264,7 +4264,7 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_contouring_timing, "contouring timing",    mc);
+   // status += run_test(test_contouring_timing, "contouring timing",    mc);
 
    // status += run_test(test_mmcif_atom_selection, "mmCIF atom selection",    mc);
 
@@ -4276,7 +4276,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction",    mc);
 
-   // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
+   status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
 
    // status += run_test(test_rsr_using_multi_atom_cid, "multi-atom-cid RSR",    mc);
 
