@@ -56,7 +56,7 @@ namespace coot {
    //! (e.g. balls and sticks).
    class instanced_mesh_t {
    public:
-      instanced_mesh_t();
+      instanced_mesh_t() {};
       std::vector<instanced_geometry_t> geom;
       void add(const instanced_geometry_t &ig) { geom.push_back(ig); }
 
