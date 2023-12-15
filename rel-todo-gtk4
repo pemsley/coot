@@ -24,6 +24,8 @@ MMDB: Look at mmdb chain selection. Can you remove chain range?
 
 Graphics: tap, tap tap, tap tap tap left-quote for residue, chain molecule
 
+GUI/Graphics bug:: why are there no labels for 7dy0.cif? Also, it seems very laggy.
+
 GUI:: Validate -> Atom Overlaps doesn't work.
 
 GUI: Edit -> Settings -> Save current sisze and position doesnnpt work.
@@ -101,6 +103,8 @@ Graphics: I'd like to be able to move through/select rotamers in moving-atoms mo
 
 Graphics/libcootapi: write a function to convert a simple mesh to a type-B instanced mesh with
           matrices from BIOMT records.
+
+Graphics: Bug: 7dy0 all-atom B-factor - the colour range goes too far (into purple)
 
 Moorhen: what is the HB type of this atom?
 * Done.
