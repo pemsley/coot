@@ -14,6 +14,17 @@ C++ 17 and git for CCP4i2
 
 8 items
 
+libcootapi: return a double (ms) test_the_threading(int n_threads)
+
+libcootapi: Have a look at this when compiling with emscripten
+   #ifndef __NVCC__
+   #ifdef HAVE_BOOST
+   #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
+libcootapi: look at merging 7ZTVU (or whatever it was) into a cif file. Look at the output cif for
+   ligand: atom_site seq_id.
+   Merge a ligand with a long ligand name into a moelcule from a PDB file, then try to refine the ligand.
+
 Moorhen: Ligand fitting return a triple of the cluster index, the ligand index and the molecule index.
          Ligand solutions have the same position + orientation with even without conformers!
 
@@ -22,13 +33,13 @@ Moorhen: Set a flag for contouring timers. Add them, store the result, and use t
 
 MMDB: Look at mmdb chain selection. Can you remove chain range?
 
-Graphics: tap, tap tap, tap tap tap left-quote for residue, chain molecule
+Graphics: tap, tap tap, tap tap tap left-quote for residue, chain molecule.
 
 GUI/Graphics bug:: why are there no labels for 7dy0.cif? Also, it seems very laggy.
 
 GUI:: Validate -> Atom Overlaps doesn't work.
 
-GUI: Edit -> Settings -> Save current sisze and position doesnnpt work.
+GUI: Edit -> Settings -> Save current sisze and position doesn't work.
 
 API: add rigid_body_fit_chain(imol, chain_id) to the moorhen and coot apis.
 
@@ -85,6 +96,9 @@ GUI: Cryo-EM module: Add Toggle switch for auto-recontour map
 
 Graphics: Don't draw rama ball when intermediate atoms are from edit chi angles (and some
    others presumably).
+
+Graphics: Fast slide to new position on reading in a new molecule (there is a distance limit
+   that means there's a jump - don't use that for read_pdb()).
 
 Graphics: Try Quick save as on a mac and restore settings - the graphics window size is wrong.
 
