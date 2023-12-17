@@ -43,6 +43,11 @@ play_sound_file_macos(const std::string &file_name) {
 
    auto play_sound_file_inner = [_] (const std::string &file_name) {
 
+      ALCdevice *m_pDevice = alcOpenDevice(NULL);
+      alcCreateContext(m_pDevice, NULL);
+
+      std::cout << "debug:: m_pDevice is " << m_pDevice << std::endl;
+
       ALenum err = alGetError();
       if (err) std::cout << "AL ERROR:: play_sound_file_inner() A0 " << _(err) << std::endl;
       err = alGetError();
