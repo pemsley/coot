@@ -5,7 +5,7 @@ cd deps
 
 
 echo "Downloading RDKit source"
-rdkit_release="Release_2023_09_1"
+rdkit_release="Release_2023_09_3"
 curl -L https://github.com/rdkit/rdkit/archive/refs/tags/$rdkit_release.tar.gz -o "$rdkit_release.tar.gz"
 
 echo "Unpacking RDKit source"
