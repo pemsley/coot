@@ -4138,6 +4138,18 @@ int test_contouring_timing(molecules_container_t &mc) {
    return status;
 }
 
+int test_test_the_threading(molecules_container_t &mc) {
+
+   int status = 1; // no faiiure
+
+   for (unsigned int i=0; i<50; i++) {
+      double r = mc.test_the_threading(i);
+      std::cout << " test_threading: " << i << " " << r << std::endl;
+   }
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -4264,6 +4276,10 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
+   status += run_test(test_test_the_threading, "threading speed test",    mc);
+
+   // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
+
    // status += run_test(test_contouring_timing, "contouring timing",    mc);
 
    // status += run_test(test_mmcif_atom_selection, "mmCIF atom selection",    mc);
@@ -4275,8 +4291,6 @@ int main(int argc, char **argv) {
    // status += run_test(test_cif_writer, "mmCIF dictionary writer",    mc);
 
    // status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction",    mc);
-
-   status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
 
    // status += run_test(test_rsr_using_multi_atom_cid, "multi-atom-cid RSR",    mc);
 

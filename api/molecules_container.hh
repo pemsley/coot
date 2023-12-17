@@ -1483,8 +1483,11 @@ public:
    //! get the stats for the long-term job (testing function)
    ltj_stats_t testing_interrogate_long_term_job() { return long_term_job_stats; }
 
+   //! get the time for conntouring in miliseconds
    double get_contouring_time() const { return contouring_time; }
 
+   //! get the time to run test test function in miliseconds
+   double test_the_threading(int n_threads);
 
    // -------------------------------- Other ---------------------------------------
 
