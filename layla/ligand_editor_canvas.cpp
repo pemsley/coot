@@ -20,12 +20,9 @@
  */
 
 #include "ligand_editor_canvas.hpp"
-#include "cairo.h"
 #include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
-#include "pango/pango-font.h"
-#include "pango/pangocairo.h"
 #include <exception>
 #include <iterator>
 #include <utility>
@@ -33,7 +30,18 @@
 #include <vector>
 #include <memory>
 
+#ifndef __EMSCRIPTEN__
+#include <cairo.h>
+#include <pango/pango-font.h>
+#include <pango/pangocairo.h>
+#else
+// Lhasa-specific includes
+#endif
+
 using namespace coot::ligand_editor_canvas;
+
+// This can be safely omitted in Lhasa
+#ifndef __EMSCRIPTEN__
 
 /// Because of GObject's amazing macro system, 
 /// I can't use a "typedef" to denote that
@@ -46,8 +54,17 @@ struct _CootLigandEditorCanvas:  coot::ligand_editor_canvas::impl::CootLigandEdi
     friend void coot_ligand_editor_canvas_init_impl(CootLigandEditorCanvas* self);
     friend void coot_ligand_editor_canvas_dispose_impl(CootLigandEditorCanvas* self);
 };
+#endif
 
+// Constructor
+
+#ifndef __EMSCRIPTEN__
 void coot_ligand_editor_canvas_init_impl(CootLigandEditorCanvas* self) {
+#else // Lhasa code
+CootLigandEditorCanvas::CootLigandEditorCanvas() noexcept {
+    auto* self = this;
+#endif
+    g_debug("Instantiating CootLigandEditorCanvas.");
     self->active_tool = std::make_unique<ActiveTool>();
     self->active_tool->set_core_widget_data(static_cast<impl::CootLigandEditorCanvasPriv*>(self));
     self->molecules = std::make_unique<std::vector<CanvasMolecule>>();
@@ -60,13 +77,23 @@ void coot_ligand_editor_canvas_init_impl(CootLigandEditorCanvas* self) {
     self->state_stack_pos = -1;
 }
 
+// Destructor
+
+#ifndef __EMSCRIPTEN__
 void coot_ligand_editor_canvas_dispose_impl(CootLigandEditorCanvas* self) {
+#else // Lhasa code
+CootLigandEditorCanvas::~CootLigandEditorCanvas() noexcept {
+    auto* self = this;
+#endif
+    g_debug("De-instantiating CootLigandEditorCanvas.");
     self->molecules.reset(nullptr);
     self->active_tool.reset(nullptr);
     self->rdkit_molecules.reset(nullptr);
     self->state_stack.reset(nullptr);
 }
 
+
+#ifndef __EMSCRIPTEN__
 G_BEGIN_DECLS
 
 G_DEFINE_TYPE(CootLigandEditorCanvas, coot_ligand_editor_canvas, GTK_TYPE_WIDGET)
@@ -76,6 +103,9 @@ G_DEFINE_TYPE(CootLigandEditorCanvas, coot_ligand_editor_canvas, GTK_TYPE_WIDGET
 //     GObjectClass parent_class;
 // };
 
+#endif
+
+#ifndef __EMSCRIPTEN__
 void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapshot)
 {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(widget);
@@ -90,10 +120,22 @@ void coot_ligand_editor_canvas_snapshot (GtkWidget *widget, GtkSnapshot *snapsho
     impl::Renderer ren(cr,pango_layout);
     self->render(ren);
 }
+#else
+// Rendering in Lhasa is done via manually instantiating the renderer 
+// and calling the 'render()' method
+#endif
 
+#ifndef __EMSCRIPTEN__
 void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orientation, int for_size, int *minimum_size, int *natural_size, int *minimum_baseline, int *natural_baseline)
 {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(widget);
+#else
+CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEditorCanvas::MeasurementDirection orientation) const noexcept {
+    auto* self = this;
+    SizingInfo ret;
+    int* minimum_size = &ret.requested_size;
+    int* natural_size = &ret.requested_size;
+#endif
     graphene_rect_t bounding_rect_for_all;
     if(self->molecules->empty()) {
         graphene_rect_init(&bounding_rect_for_all, 0, 0, 0, 0);
@@ -105,28 +147,40 @@ void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orienta
         auto bounding_rect = a.get_on_screen_bounding_rect();
         graphene_rect_union(&bounding_rect_for_all, &bounding_rect, &bounding_rect_for_all);
     }
-    switch (orientation)
-    {
-    case GTK_ORIENTATION_HORIZONTAL:{
-         // For now:
-        *natural_size = bounding_rect_for_all.size.width;
-        *minimum_size = bounding_rect_for_all.size.width;
-        break;
+    switch (orientation) {
+        #ifndef __EMSCRIPTEN__
+        case GTK_ORIENTATION_HORIZONTAL:{
+        #else
+        case MeasurementDirection::HORIZONTAL:{
+        #endif
+            // For now:
+            *natural_size = bounding_rect_for_all.size.width;
+            *minimum_size = bounding_rect_for_all.size.width;
+            break;
+        }
+        #ifndef __EMSCRIPTEN__
+        case GTK_ORIENTATION_VERTICAL:{
+        #else
+        case MeasurementDirection::VERTICAL:{
+        #endif
+            // For now:
+            *natural_size = bounding_rect_for_all.size.height;
+            *minimum_size = bounding_rect_for_all.size.height;
+            break;
+        }
+        default:
+            break;
     }
-    case GTK_ORIENTATION_VERTICAL:{
-         // For now:
-        *natural_size = bounding_rect_for_all.size.height;
-        *minimum_size = bounding_rect_for_all.size.height;
-        break;
+    #ifdef __EMSCRIPTEN__
+    if(ret.requested_size == 0) {
+        g_warning("FIXME: Overriding zeroed 'requested_size' with 600.");
+        ret.requested_size = 600;
     }
-    default:
-        break;
-    }
-
-   
-
+    return ret;
+    #endif
 }
 
+#ifndef __EMSCRIPTEN__
 static void on_hover (
   GtkEventControllerMotion* controller,
   gdouble x,
@@ -135,8 +189,15 @@ static void on_hover (
 ) {
     GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(controller));
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+    bool alt_pressed = modifiers & GDK_ALT_MASK;
+    bool shift_pressed = modifiers & GDK_SHIFT_MASK;
+    bool control_pressed = modifiers & GDK_CONTROL_MASK;
 
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+#else
+void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
+    auto* self = this;
+#endif
 
     // Clear all highlights first
     for(auto& molecule: *self->molecules) {
@@ -144,8 +205,8 @@ static void on_hover (
     }
 
     if(self->active_tool->is_in_transform()) {
-        self->active_tool->update_transform_cursor_pos((int)x, (int)y, modifiers & GDK_ALT_MASK);
-        gtk_widget_queue_draw(GTK_WIDGET(self));
+        self->active_tool->update_transform_cursor_pos((int)x, (int)y, alt_pressed);
+        self->queue_redraw();
         return;
     }
 
@@ -186,25 +247,40 @@ static void on_hover (
             target.highlight_bond(bond.first_atom_idx, bond.second_atom_idx);
         }
     }
-    gtk_widget_queue_draw(GTK_WIDGET(self));
+    self->queue_redraw();
 }
 
+#ifndef __EMSCRIPTEN__
 static gboolean on_scroll(GtkEventControllerScroll* zoom_controller, gdouble dx, gdouble dy, gpointer user_data) {
     GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(zoom_controller));
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+    bool control_pressed = modifiers & GDK_CONTROL_MASK;
 
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
-
-    if (modifiers & GDK_CONTROL_MASK) {
+#else
+void CootLigandEditorCanvas::on_scroll(double dx, double dy, bool control_pressed) {
+    auto* self = this;
+#endif
+    if (control_pressed) {
+        #ifndef __EMSCRIPTEN__
         self->scale *= (1.f - dy / 20.f);
-        g_signal_emit(self,impl::scale_changed_signal,0,self->scale);
-        gtk_widget_queue_draw(GTK_WIDGET(self));
-        gtk_widget_queue_resize(GTK_WIDGET(self));
+        #else
+        g_info("DeltaY = %f", dy);
+        self->scale *= (1.f - dy / 200.f);
+        #endif
+        _LIGAND_EDITOR_SIGNAL_EMIT_ARG(self, scale_changed_signal,self->scale);
+        self->queue_redraw();
+        self->queue_resize();
+        #ifndef __EMSCRIPTEN__
         return TRUE;
+        #endif
     }
+    #ifndef __EMSCRIPTEN__
     return FALSE;
+    #endif
 }
 
+#ifndef __EMSCRIPTEN__
 static void
 on_left_click_released(
   GtkGestureClick* gesture_click,
@@ -216,16 +292,24 @@ on_left_click_released(
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
     GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(gesture_click));
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+    bool alt_pressed = modifiers & GDK_ALT_MASK;
+    bool shift_pressed = modifiers & GDK_SHIFT_MASK;
+    bool control_pressed = modifiers & GDK_CONTROL_MASK;
+#else
+void CootLigandEditorCanvas::on_left_click_released(double x, double y, bool alt_pressed, bool control_pressed, bool shift_pressed) {
+    auto* self = this;
+#endif
 
     if(self->active_tool->is_in_transform()) {
-        self->active_tool->end_transform(GDK_ALT_MASK & modifiers);
+        self->active_tool->end_transform(alt_pressed);
         return;
     }
 
     // `currently_created_bond` gets cleared here when appropriate
-    self->active_tool->on_release(GDK_CONTROL_MASK & modifiers, x, y, false);
+    self->active_tool->on_release(control_pressed, x, y, false);
 }
 
+#ifndef __EMSCRIPTEN__
 static void on_left_click(
   GtkGestureClick* gesture_click,
   gint n_press,
@@ -236,16 +320,23 @@ static void on_left_click(
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
     GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(gesture_click));
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+    bool alt_pressed = modifiers & GDK_ALT_MASK;
+    bool shift_pressed = modifiers & GDK_SHIFT_MASK;
+    bool control_pressed = modifiers & GDK_CONTROL_MASK;
+#else
+void CootLigandEditorCanvas::on_left_click(double x, double y, bool alt_pressed, bool control_pressed, bool shift_pressed) {
+    auto* self = this;
+#endif
 
-    if(GDK_ALT_MASK & modifiers) {
+    if(alt_pressed) {
         self->active_tool->begin_transform(x, y, TransformManager::Mode::Translation);
         return;
-    } else if(GDK_SHIFT_MASK & modifiers) {
+    } else if(shift_pressed) {
         self->active_tool->begin_transform(x, y, TransformManager::Mode::Rotation);
         return;
     }
 
-    self->active_tool->on_click(GDK_CONTROL_MASK & modifiers, x, y, false);
+    self->active_tool->on_click(control_pressed, x, y, false);
 
     if(self->active_tool->is_creating_bond()) {
         CurrentlyCreatedBond new_bond;
@@ -260,6 +351,7 @@ static void on_left_click(
     //gtk_gesture_set_state(GTK_GESTURE(gesture_click),GTK_EVENT_SEQUENCE_CLAIMED);
 }
 
+#ifndef __EMSCRIPTEN__
 static void
 on_right_click_released(
   GtkGestureClick* gesture_click,
@@ -271,10 +363,18 @@ on_right_click_released(
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
     GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(gesture_click));
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+    bool alt_pressed = modifiers & GDK_ALT_MASK;
+    bool shift_pressed = modifiers & GDK_SHIFT_MASK;
+    bool control_pressed = modifiers & GDK_CONTROL_MASK;
+#else
+void CootLigandEditorCanvas::on_right_click_released(double x, double y, bool alt_pressed, bool control_pressed, bool shift_pressed) {
+    auto* self = this;
+#endif
 
-    self->active_tool->on_release(GDK_CONTROL_MASK & modifiers, x, y, true);
+    self->active_tool->on_release(control_pressed, x, y, true);
 }
 
+#ifndef __EMSCRIPTEN__
 static void on_right_click(
   GtkGestureClick* gesture_click,
   gint n_press,
@@ -285,13 +385,19 @@ static void on_right_click(
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
     GdkEvent* event = gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(gesture_click));
     GdkModifierType modifiers = gdk_event_get_modifier_state(event);
+    bool alt_pressed = modifiers & GDK_ALT_MASK;
+    bool shift_pressed = modifiers & GDK_SHIFT_MASK;
+    bool control_pressed = modifiers & GDK_CONTROL_MASK;
+#else
+void CootLigandEditorCanvas::on_right_click(double x, double y, bool alt_pressed, bool control_pressed, bool shift_pressed) {
+    auto* self = this;
+#endif
 
-
-    self->active_tool->on_click(GDK_CONTROL_MASK & modifiers, x, y, true);
+    self->active_tool->on_click(control_pressed, x, y, true);
 }
 
 
-
+#ifndef __EMSCRIPTEN__
 static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
     // This is the primary constructor
     
@@ -322,9 +428,10 @@ static void coot_ligand_editor_canvas_init(CootLigandEditorCanvas* self) {
     gtk_widget_add_controller(GTK_WIDGET(self),GTK_EVENT_CONTROLLER(hover_controller));
     gtk_widget_add_controller(GTK_WIDGET(self), GTK_EVENT_CONTROLLER(zoom_controller));
 }
+#endif
 
 
-
+#ifndef __EMSCRIPTEN__
 static void coot_ligand_editor_canvas_dispose(GObject* _self) {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(_self);
     // GObject doesn't run C++ destructors
@@ -332,7 +439,9 @@ static void coot_ligand_editor_canvas_dispose(GObject* _self) {
     coot_ligand_editor_canvas_dispose_impl(self);
     G_OBJECT_CLASS(coot_ligand_editor_canvas_parent_class)->dispose(_self);
 }
+#endif
 
+#ifndef __EMSCRIPTEN__
 static void coot_ligand_editor_canvas_class_init(CootLigandEditorCanvasClass* klass) {
     // I think that this is a GObject class constructor that sets up the GObject class at runtime.
     impl::status_updated_signal = g_signal_new("status-updated",
@@ -383,21 +492,31 @@ static void coot_ligand_editor_canvas_class_init(CootLigandEditorCanvasClass* kl
     G_OBJECT_CLASS(klass)->dispose = coot_ligand_editor_canvas_dispose;
     
 }
+#endif
 
+#ifndef __EMSCRIPTEN__
 CootLigandEditorCanvas* 
 coot_ligand_editor_canvas_new()
 {
     return COOT_COOT_LIGAND_EDITOR_CANVAS(g_object_new (COOT_LIGAND_EDITOR_CANVAS_TYPE, NULL));
 }
+#else // Lhasa-specific code
+CootLigandEditorCanvas* 
+coot_ligand_editor_canvas_new()
+{
+    return new CootLigandEditorCanvas();
+}
+#endif
 
+#ifndef __EMSCRIPTEN__
 G_END_DECLS
-
+#endif
 
 void coot_ligand_editor_canvas_set_scale(CootLigandEditorCanvas* self, float display_scale) noexcept {
     self->scale = display_scale;
-    g_signal_emit(self,impl::scale_changed_signal,0,self->scale);
-    gtk_widget_queue_draw(GTK_WIDGET(self));
-    gtk_widget_queue_resize(GTK_WIDGET(self));
+    _LIGAND_EDITOR_SIGNAL_EMIT_ARG(self, scale_changed_signal,self->scale);
+    self->queue_redraw();
+    self->queue_resize();
 }
 
 float coot_ligand_editor_canvas_get_scale(CootLigandEditorCanvas* self) noexcept {
@@ -417,13 +536,20 @@ void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std
         self->begin_edition();
         self->molecules->push_back(CanvasMolecule(rdkit_mol));
         self->molecules->back().set_canvas_scale(self->scale);
+        #ifndef __EMSCRIPTEN__
         self->molecules->back().apply_canvas_translation(
             gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_HORIZONTAL) / 2.0, 
             gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_VERTICAL) / 2.0
         );
+        #else
+        self->molecules->back().apply_canvas_translation(
+            self->measure(CootLigandEditorCanvas::MeasurementDirection::HORIZONTAL).requested_size / 2.0, 
+            self->measure(CootLigandEditorCanvas::MeasurementDirection::VERTICAL).requested_size / 2.0
+        );
+        #endif
         self->rdkit_molecules->push_back(std::move(rdkit_mol));
         self->finalize_edition();
-        gtk_widget_queue_draw(GTK_WIDGET(self));
+        self->queue_redraw();
         self->update_status("Molecule inserted.");
     }catch(std::exception& e) {
         std::string msg = "2D representation could not be created: ";
@@ -437,14 +563,14 @@ void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std
 
 void coot_ligand_editor_canvas_undo_edition(CootLigandEditorCanvas* self) noexcept {
     self->undo_edition();
-    gtk_widget_queue_draw(GTK_WIDGET(self));
-    g_signal_emit((gpointer) self, impl::smiles_changed_signal, 0);
+    self->queue_redraw();
+    _LIGAND_EDITOR_SIGNAL_EMIT(self, smiles_changed_signal);
 }
 
 void coot_ligand_editor_canvas_redo_edition(CootLigandEditorCanvas* self) noexcept {
     self->redo_edition();
-    gtk_widget_queue_draw(GTK_WIDGET(self));
-    g_signal_emit((gpointer) self, impl::smiles_changed_signal, 0);
+    self->queue_redraw();
+    _LIGAND_EDITOR_SIGNAL_EMIT(self, smiles_changed_signal);
 }
 
 const RDKit::ROMol* coot_ligand_editor_canvas_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept {
@@ -474,7 +600,7 @@ DisplayMode coot_ligand_editor_canvas_get_display_mode(CootLigandEditorCanvas* s
 
 void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, DisplayMode value) noexcept {
     self->display_mode = value;
-    gtk_widget_queue_draw(GTK_WIDGET(self));
+    self->queue_redraw();
 }
 
 std::string coot_ligand_editor_canvas_get_smiles(CootLigandEditorCanvas* self) noexcept {
@@ -489,6 +615,7 @@ std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCa
     }
 }
 
+#ifndef __EMSCRIPTEN__
 void coot_ligand_editor_canvas_draw_on_cairo_surface(CootLigandEditorCanvas* self, cairo_t* cr) noexcept {
     PangoLayout* pango_layout = pango_cairo_create_layout(cr);
     PangoFontDescription* font_description = pango_font_description_new ();
@@ -500,6 +627,7 @@ void coot_ligand_editor_canvas_draw_on_cairo_surface(CootLigandEditorCanvas* sel
 
     pango_font_description_free(font_description);
 }
+#endif
 
 void coot_ligand_editor_canvas_clear_molecules(CootLigandEditorCanvas* self) noexcept {
     self->begin_edition();
@@ -507,5 +635,5 @@ void coot_ligand_editor_canvas_clear_molecules(CootLigandEditorCanvas* self) noe
     self->molecules->clear();
     self->finalize_edition();
     self->update_status("Molecules cleared.");
-    gtk_widget_queue_draw(GTK_WIDGET(self));
+    self->queue_redraw();
 }

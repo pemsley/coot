@@ -21,29 +21,45 @@
 
 #ifndef COOT_LIGAND_EDITOR_CANVAS_CORE_HPP
 #define COOT_LIGAND_EDITOR_CANVAS_CORE_HPP
-#include <gtk/gtk.h>
+
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
 #include <memory>
 #include <vector>
+#include "render.hpp"
 #include "model.hpp"
-#include "pango/pango-layout.h"
 #include "tools.hpp"
 
-// GObject declaration 
-G_BEGIN_DECLS   
+#ifndef __EMSCRIPTEN__
+    #include <gtk/gtk.h>
+    #include <pango/pango-layout.h>
 
-#define COOT_LIGAND_EDITOR_CANVAS_TYPE (coot_ligand_editor_canvas_get_type ())
-G_DECLARE_FINAL_TYPE  (CootLigandEditorCanvas, coot_ligand_editor_canvas, COOT, COOT_LIGAND_EDITOR_CANVAS, GtkWidget)
+    // GObject declaration 
+    G_BEGIN_DECLS   
 
-G_END_DECLS
+    #define COOT_LIGAND_EDITOR_CANVAS_TYPE (coot_ligand_editor_canvas_get_type ())
+    G_DECLARE_FINAL_TYPE  (CootLigandEditorCanvas, coot_ligand_editor_canvas, COOT, COOT_LIGAND_EDITOR_CANVAS, GtkWidget)
+
+    G_END_DECLS
+
+    #define _LIGAND_EDITOR_SIGNAL_EMIT(_instance_, _signal_name_) g_signal_emit((gpointer)(_instance_),impl::_signal_name_,0)
+    #define _LIGAND_EDITOR_SIGNAL_EMIT_ARG(_instance_, _signal_name_, ...) g_signal_emit((gpointer)(_instance_),impl::_signal_name_,0,__VA_ARGS__)
+#else // __EMSCRIPTEN__ defined
+    #include "../../lhasa/glog_replacement.hpp"
+    #include <sigc++-3.0/sigc++/sigc++.h>
+    #define _LIGAND_EDITOR_SIGNAL_EMIT(_instance_, _signal_name_) _instance_->_signal_name_.emit()
+    #define _LIGAND_EDITOR_SIGNAL_EMIT_ARG(_instance_, _signal_name_, ...) _instance_->_signal_name_.emit(__VA_ARGS__)
+#endif
+
 
 namespace coot::ligand_editor_canvas::impl {
 
+#ifndef __EMSCRIPTEN__
 inline guint status_updated_signal;
 inline guint scale_changed_signal;
 inline guint smiles_changed_signal;
 inline guint molecule_deleted_signal;
+#endif
 
 /// This is here as a workaround.
 /// 
@@ -56,7 +72,11 @@ inline guint molecule_deleted_signal;
 /// This is how you can use (multiple) inheritance while
 /// keeping the ABI happy.
 struct CootLigandEditorCanvasPrivBase {
+    #ifndef __EMSCRIPTEN__
     GtkWidget parent;
+    #else // __EMSCRIPTEN__ defined
+    // Lhasa-specific includes/definitions
+    #endif
 };
 
 
@@ -65,14 +85,6 @@ struct StateSnapshot {
     std::unique_ptr<std::vector<std::shared_ptr<RDKit::RWMol>>> rdkit_molecules;
 
     StateSnapshot(const WidgetCoreData& core_data);
-};
-
-struct Renderer {
-    cairo_t* cr;
-    PangoLayout* pango_layout;
-    /// Takes ownership of the pointers
-    Renderer(cairo_t*,PangoLayout*);
-    ~Renderer();
 };
 
 /// Used for widget's struct as a base class.
@@ -156,9 +168,14 @@ struct WidgetCoreData {
     void delete_molecule_with_idx(unsigned int idx) noexcept;
 
     /// Emits 'status-updated' signal.
-    void update_status(const gchar* status_text) const noexcept;
+    void update_status(const char* status_text) const noexcept;
 
     std::string build_smiles_string() const;
+
+    /// Abstraction over gtk_widget_queue_draw
+    void queue_redraw() const noexcept;
+    /// Abstraction over gtk_widget_queue_resize
+    void queue_resize() const noexcept;
 };
 
 /// This is the private struct for GObject
@@ -168,7 +185,80 @@ struct CootLigandEditorCanvasPriv : CootLigandEditorCanvasPrivBase, impl::Widget
 };
 
 
+} // namespace coot::ligand_editor_canvas::impl
 
+#ifdef __EMSCRIPTEN__
+
+//Forward declaration
+namespace emscripten {
+    struct val;
 }
+
+/// For Lhasa
+struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEditorCanvasPriv {
+
+    
+    sigc::signal<void(const char*)> status_updated_signal;
+    sigc::signal<void(float)> scale_changed_signal;
+    sigc::signal<void()> smiles_changed_signal;
+    sigc::signal<void(int)> molecule_deleted_signal;
+    // Lhasa-only signals (for JS handlers):
+    sigc::signal<void()> queue_redraw_signal;
+    sigc::signal<void()> queue_resize_signal;
+
+    public:
+
+    enum class MeasurementDirection :unsigned char {
+        HORIZONTAL = 0,
+        VERTICAL = 1
+    };
+
+    struct SizingInfo {
+        int requested_size;
+    };
+
+    // Implemented at 'ligand_editor_canvas.cpp'
+    CootLigandEditorCanvas() noexcept;
+    // Implemented at 'ligand_editor_canvas.cpp'
+    ~CootLigandEditorCanvas() noexcept;
+
+    void set_active_tool(std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> active_tool);
+    void append_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept;
+    void set_scale(float scale) noexcept;
+    float get_scale() noexcept;
+    void undo() noexcept;
+    void redo() noexcept;
+    // const RDKit::ROMol& get_rdkit_molecule(unsigned int index) noexcept;
+    unsigned int get_molecule_count() noexcept;
+    void set_allow_invalid_molecules(bool value) noexcept;
+    bool get_allow_invalid_molecules() noexcept;
+    coot::ligand_editor_canvas::DisplayMode get_display_mode() noexcept;
+    void set_display_mode(coot::ligand_editor_canvas::DisplayMode value) noexcept;
+    std::string get_smiles() noexcept;
+    std::string get_smiles_for_molecule(unsigned int molecule_idx) noexcept;
+    void clear_molecules() noexcept;
+
+    /// For connecting javascript handlers to signals
+    void connect(std::string signal_name, emscripten::val callback);
+
+    // Implemented at 'ligand_editor_canvas.cpp'
+    SizingInfo measure(MeasurementDirection orientation) const noexcept;
+    // Implemented at 'ligand_editor_canvas.cpp'
+    void on_hover(double x, double y, bool alt_pressed);
+    // Implemented at 'ligand_editor_canvas.cpp'
+    void on_scroll(double dx, double dy, bool control_pressed);
+    // Implemented at 'ligand_editor_canvas.cpp'
+    void on_left_click(double x, double y, bool alt_pressed, bool control_pressed, bool shift_pressed);
+    // Implemented at 'ligand_editor_canvas.cpp'
+    void on_left_click_released(double x, double y, bool alt_pressed, bool control_pressed, bool shift_pressed);
+    // Implemented at 'ligand_editor_canvas.cpp'
+    void on_right_click(double x, double y, bool alt_pressed, bool control_pressed, bool shift_pressed);
+    // Implemented at 'ligand_editor_canvas.cpp'
+    void on_right_click_released(double x, double y, bool alt_pressed, bool control_pressed, bool shift_pressed);
+
+
+};
+#endif
+
 
 #endif //#define COOT_LIGAND_EDITOR_CANVAS_CORE_HPP
