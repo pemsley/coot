@@ -86,9 +86,11 @@ void setup_symm_lib() {
 	 // and malleable, so const char * of a local variable is not
 	 // what we want at all.
 	 //
-	 //  We fire and forget, we don't want to change s.
+	 // We fire and forget, we don't want to change s.
 	 //
-	 char * s = new char[symstring.length() + 1];
+         int ll = symstring.length();
+	 char * s = new char[ll + 1];
+         s[ll] = 0;
 	 strcpy(s, symstring.c_str());
 	 putenv(s);
 	 // std::cout << "DEBUG:: SYMINFO set/not set? s is " << s <<std::endl;
