@@ -31,6 +31,46 @@ void set_gaussian_surface_fft_b_factor(float f) {
    graphics_info_t::gaussian_surface_fft_b_factor = f;
 }
 
+void set_gaussian_surface_chain_colour_mode(short int mode) {
+   // graphics_info_t::gaussian_surface_chain_colour_mode = mode;
+}
+
+#include "c-interface.h" // for first_coords_imol();
+
+void show_gaussian_surface_overlay() {
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   GtkWidget *w = widget_from_builder("gaussian_surface_frame");
+   GtkWidget *mol_chooser_combobox = widget_from_builder("gaussian_surface_molecule_chooser_combobox");
+   GtkWidget *e_sigma          = widget_from_builder("gaussian_surface_sigma_entry");
+   GtkWidget *e_radius         = widget_from_builder("gaussian_surface_radius_entry");
+   GtkWidget *e_contour_level  = widget_from_builder("gaussian_surface_contour_level_entry");
+   GtkWidget *e_b_factor       = widget_from_builder("gaussian_surface_b_factor_entry");
+   GtkWidget *e_chain_col_mode = widget_from_builder("gaussian_surface_chain_colour_entry");
+
+   gtk_editable_set_text(GTK_EDITABLE(e_sigma),         coot::util::float_to_string_using_dec_pl(graphics_info_t::gaussian_surface_sigma,         1).c_str());
+   gtk_editable_set_text(GTK_EDITABLE(e_radius),        coot::util::float_to_string_using_dec_pl(graphics_info_t::gaussian_surface_box_radius,    1).c_str());
+   gtk_editable_set_text(GTK_EDITABLE(e_contour_level), coot::util::float_to_string_using_dec_pl(graphics_info_t::gaussian_surface_contour_level, 2).c_str());
+   gtk_editable_set_text(GTK_EDITABLE(e_b_factor),      coot::util::float_to_string_using_dec_pl(graphics_info_t::gaussian_surface_fft_b_factor,  0).c_str());
+   gtk_editable_set_text(GTK_EDITABLE(e_chain_col_mode), std::to_string(graphics_info_t::gaussian_surface_chain_colour_mode).c_str());
+
+   graphics_info_t g;
+   int imol_active = first_coords_imol();
+   auto mv = get_model_molecule_vector();
+   g.fill_combobox_with_molecule_options(mol_chooser_combobox, NULL, imol_active,mv);
+
+   gtk_widget_set_visible(w, TRUE);
+
+}
 
 
 int gaussian_surface(int imol) {
@@ -93,7 +133,7 @@ int gaussian_surface(int imol) {
                                         mmdb::Chain  *chain_p,
                                         const std::vector<std::vector<mmdb::Chain *> > &ncs_chains,
                                         float sigma, float contour_level, float box_radius,
-                                        float grid_scale) {
+                                        float grid_scale, float b_factor) {
 
       coot::colour_holder ch(0.66, 0.44, 0.44);
       int chain_set_idx = -1;
@@ -114,7 +154,7 @@ int gaussian_surface(int imol) {
       // gaussian surface optional args:
       // float sigma=4.4, float contour_level=4.0, float box_radius=5.0, float grid_scale=0.7);
       //
-      coot::gaussian_surface_t gauss_surf(mol, chain_id, sigma, contour_level, box_radius, grid_scale);
+      coot::gaussian_surface_t gauss_surf(mol, chain_id, sigma, contour_level, box_radius, grid_scale, b_factor);
       coot::simple_mesh_t smesh = gauss_surf.get_surface();
       std::vector<s_generic_vertex> vertices(smesh.vertices.size());
       for (unsigned int i = 0; i < smesh.vertices.size(); i++) {
@@ -150,13 +190,14 @@ int gaussian_surface(int imol) {
          int n_chains = model_p->GetNumberOfChains();
          for (int ichain=0; ichain<n_chains; ichain++) {
             mmdb::Chain *chain_p = model_p->GetChain(ichain);
-            std::cout << "INFOO:: Calculating Gaussian surface for chain " << chain_p->GetChainID() << std::endl;
+            std::cout << "INFO:: Calculating Gaussian surface for chain " << chain_p->GetChainID() << std::endl;
             // float sigma=4.4, float contour_level=4.0, float box_radius=5.0, float grid_scale=0.7);
-            float sigma = graphics_info_t::gaussian_surface_sigma;
+            float sigma         = graphics_info_t::gaussian_surface_sigma;
             float contour_level = graphics_info_t::gaussian_surface_contour_level;
-            float box_radius = graphics_info_t::gaussian_surface_box_radius;
-            float grid_scale = graphics_info_t::gaussian_surface_grid_scale;
-            make_an_ncs_chain_surface(imol, mol, chain_p, ncs_chains, sigma, contour_level, box_radius, grid_scale);
+            float box_radius    = graphics_info_t::gaussian_surface_box_radius;
+            float grid_scale    = graphics_info_t::gaussian_surface_grid_scale;
+            float b_factor      = graphics_info_t::gaussian_surface_fft_b_factor;
+            make_an_ncs_chain_surface(imol, mol, chain_p, ncs_chains, sigma, contour_level, box_radius, grid_scale, b_factor);
          }
       }
       g.graphics_draw();
