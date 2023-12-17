@@ -258,6 +258,8 @@ dnl =========================== Boost =========================
 
 AX_BOOST_BASE(,,[AC_MSG_ERROR([No boost found])])
 
+AX_BOOST_THREAD
+
 # Boost-Python is needed for RDKit interface.
 # Actually, this should only be tested if enhanced-ligand-tools was passed - not all the time as
 # we currently have. And in that case, it should be

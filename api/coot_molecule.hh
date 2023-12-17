@@ -48,7 +48,11 @@
 // 2023-07-04-PE This is a hack. This should be configured - and the
 // various functions that depend on this being true should be
 // reworked so that they run without a thread pool.
-// #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+
+#ifdef HAVE_BOOST_THREAD // part of DEFS in Makefile
+#define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+#endif
+
 
 
 namespace coot {
