@@ -258,10 +258,12 @@ namespace coot {
          std::vector<std::pair<std::string, std::string> > sequence_residue_type_and_rotamer_name;
          std::string sequence_name;
          std::string true_sequence; // for testing/analysis
+         bool results_set;
          results_t() {
             offset = -1; // unset
             n_scored_residues = 0;
             sum_score = 0;
+            results_set = false;
          }
          results_t(const int &offset_in, const float &f, const unsigned int &n_scored_residues_in,
                    const std::string &running_sequence_in,
@@ -271,11 +273,13 @@ namespace coot {
                                                           n_scored_residues(n_scored_residues_in),
                                                           sequence(running_sequence_in),
                                                           sequence_name(gene_name_in),
-                                                          true_sequence(true_sequence_in) {}
+                                                          true_sequence(true_sequence_in) { results_set = true; }
       };
       std::map<std::string, std::vector<results_t> > results_container;
+      results_t get_best_results() const; //uses results_container
       void get_results_addition_lock();
       void release_results_addition_lock();
+      void print_results() const;
 
       void set_default_magic_numbers() {
          // magic numbers
@@ -381,6 +385,11 @@ namespace coot {
    get_fragment_sequence_scores(mmdb::Manager *mol,
                                 const fasta_multi &fam,
                                 const clipper::Xmap<float> &xmap);
+
+   void get_fragment_by_fragment_scores(mmdb::Manager *mol,
+                                        const fasta_multi &fam,
+                                        const clipper::Xmap<float> &xmap,
+                                        const std::string &results_table_file_name_prefix);
 
 
 }

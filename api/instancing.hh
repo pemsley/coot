@@ -16,6 +16,7 @@ namespace coot {
       glm::vec3 size;
       instancing_data_type_A_t(const glm::vec3 &position_in, const glm::vec4 &colour_in, const glm::vec3 &size_in) :
          position(position_in), colour(colour_in), size(size_in) {}
+      instancing_data_type_A_t() {}
    };
 
    //! class for B type instancing data - this _does_ contain an orientation matrix
@@ -28,6 +29,7 @@ namespace coot {
       glm::mat4 orientation; // 3 sets of vec3 in the shader. 20230114-PE not glm::mat4
       instancing_data_type_B_t(const glm::vec3 &position_in, const glm::vec4 &colour_in, const glm::vec3 &size_in, glm::mat4 &ori) :
          position(position_in), colour(colour_in), size(size_in), orientation(ori) {}
+      instancing_data_type_B_t() {}
    };
 
    //! instancing container for vertices, triangles and instancing data
@@ -54,6 +56,7 @@ namespace coot {
    //! (e.g. balls and sticks).
    class instanced_mesh_t {
    public:
+      instanced_mesh_t() {};
       std::vector<instanced_geometry_t> geom;
       void add(const instanced_geometry_t &ig) { geom.push_back(ig); }
 

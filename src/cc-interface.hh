@@ -1855,10 +1855,16 @@ void set_gaussian_surface_box_radius(float s);
 
 //! \brief set the grid_scale for gaussian surface (default 0.7)
 void set_gaussian_surface_grid_scale(float s);
-
 //! \brief set the fft B-factor for gaussian surface. Use 0 for no B-factor (default 100)
 void set_gaussian_surface_fft_b_factor(float f);
 
+//! \brief set the chain colour mode for Gaussian surfaces
+//! mode = 1 means each chain has its own colour
+//! mode = 2 means the chain colour is determined from NCS/molecular symmetry (so
+//!         that, in this mode, chains with the same sequence have the same colour
+void set_gaussian_surface_chain_colour_mode(short int mode);
+
+void show_gaussian_surface_overlay();
 
 /* ------------------------------------------------------------------------- */
 /*                      LINKs                                                */

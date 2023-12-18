@@ -582,6 +582,8 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
                                                   }
                                                };
 
+   std::cout << "------------- test_sequence() " << a_run_of_residues.size() << std::endl;
+
    std::vector<results_t> results;
    std::string gene_name = sequence_name;
    std::vector<std::string> parts = util::split_string_no_blanks(gene_name);
@@ -594,12 +596,16 @@ void coot::side_chain_densities::test_sequence(const std::vector<mmdb::Residue *
          mmdb::Residue *residue_p = a_run_of_residues[i];
          scored_residues[i] =
             std::pair<mmdb::Residue *, std::map<std::string, std::pair<std::string, double> > >(residue_p, likelihood_of_each_rotamer_at_this_residue(residue_p, xmap));
+         // std::cout << "i " << i << " " << scored_residues[i].first << std::endl;
       }
 
       // insta-fail when the protein sequence for test is shorter than the model.
+
       if (sequence.length() < a_run_of_residues.size()) return;
 
       std::string sequence_from_pdb_model = make_pdb_reference_sequence(a_run_of_residues);
+
+      print_slider_results = true;
 
       if (print_slider_results)
          std::cout << "----------------- slider ------------ " << std::endl;
@@ -2637,8 +2643,8 @@ coot::get_fragment_sequence_scores(mmdb::Manager *mol,
          auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
          auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
          std::cout << "TIMINGS:: get_fragment_sequence_scores() setup model: "
-                   << d10 << " setup likelihoods: " << d21 << " proc_theads: " << d32 << " consolidate: " << d43
-                   << " milliseconds" << std::endl;
+                   << d10 << " setup likelihoods: " << d21 << " proc_threads: " << d32
+                   << " consolidate: " << d43 << " milliseconds" << std::endl;
       }
       results_vec.push_back(std::make_pair(range, results));
    }
@@ -2646,6 +2652,230 @@ coot::get_fragment_sequence_scores(mmdb::Manager *mol,
    return results_vec; // results for each range/fragment
 }
 
+
+void
+coot::get_fragment_by_fragment_scores(mmdb::Manager *mol,
+                                      const fasta_multi &fam,
+                                      const clipper::Xmap<float> &xmap,
+                                      const std::string &prfx) {
+
+   auto residue_to_single_letter_code = [] (mmdb::Residue *residue_p) {
+      char code = '-';
+      std::string res_name = residue_p->GetResName();
+      if (res_name == "ALA") code = 'A';
+      if (res_name == "CYS") code = 'C';
+      if (res_name == "ASP") code = 'D';
+      if (res_name == "GLU") code = 'E';
+      if (res_name == "PHE") code = 'F';
+      if (res_name == "GLY") code = 'G';
+      if (res_name == "HIS") code = 'H';
+      if (res_name == "ILE") code = 'I';
+      if (res_name == "LYS") code = 'K';
+      if (res_name == "LEU") code = 'L';
+      if (res_name == "MET") code = 'M';
+      if (res_name == "MSE") code = 'M';
+      if (res_name == "ASN") code = 'N';
+      if (res_name == "PRO") code = 'P';
+      if (res_name == "GLN") code = 'Q';
+      if (res_name == "ARG") code = 'R';
+      if (res_name == "SER") code = 'S';
+      if (res_name == "THR") code = 'T';
+      if (res_name == "VAL") code = 'V';
+      if (res_name == "TRP") code = 'W';
+      if (res_name == "TYR") code = 'Y';
+      return code;
+   };
+
+   auto get_count_delta = [residue_to_single_letter_code] (mmdb::Residue *residue_p, const std::vector<char> &types) {
+
+      int plain_count = 0;
+      int delta = 0;
+      char assigned_type = residue_to_single_letter_code(residue_p);
+      std::map<char, unsigned int> counts_map;
+      for (unsigned int i=0; i<types.size(); i++) {
+         char t = types[i];
+         std::map<char, unsigned int>::iterator it = counts_map.find(t);
+         if (it == counts_map.end()) {
+            counts_map[types[i]] = 1;
+         } else {
+            it->second++;
+         }
+      }
+      char type_with_most_counts = '-';
+      unsigned int most_counts = 0;
+      std::map<char, unsigned int>::const_iterator it;
+      for (it=counts_map.begin(); it!=counts_map.end(); ++it) {
+         if (it->second > most_counts) {
+            type_with_most_counts = it->first;
+            most_counts = it->second;
+         }
+      }
+      if (type_with_most_counts == assigned_type) {
+         unsigned int second_most_counts = 0;
+         for (it=counts_map.begin(); it!=counts_map.end(); ++it) {
+            if (it->first != type_with_most_counts) {
+               if (it->second > second_most_counts) {
+                  second_most_counts = it->second;
+               }
+            }
+         }
+         delta = most_counts - second_most_counts;
+      } else {
+         if (counts_map.find(assigned_type) == counts_map.end()) {
+            // bizarre?
+            //std::cout << "How bizarre " << assigned_type << " not found in counts_map of size " << counts_map.size() << std::endl;
+            plain_count = 0;
+            delta = -most_counts;
+         } else {
+            plain_count = counts_map[assigned_type];
+            delta = plain_count - most_counts;
+         }
+      }
+      return std::make_pair(plain_count, delta);
+   };
+
+   unsigned int frag_size = 19;
+   std::string chain_id = "A";
+   coot::fragment_container_t fc = make_overlapping_fragments(mol, chain_id, frag_size);
+ 
+   std::cout << "get_fragment_sequence_scores() debug fragments" << std::endl;
+   fc.print_fragments();
+
+   unsigned int n_sequences = fam.size();
+   std::cout << "INFO:: number of sequences in sequence file: " << n_sequences << std::endl;
+
+   std::vector<std::pair<mmdb::Residue *, std::vector<char> > > typed_residues;
+
+   for (const auto &range : fc.ranges) {
+      std::cout << "::: new-range" << std::endl;
+      coot::side_chain_densities scd;
+      std::pair<std::string, std::vector<mmdb::Residue *> > a_run_of_residues =
+         scd.setup_test_sequence(mol, range.chain_id, range.start_res.res_no, range.end_res.res_no, xmap);
+      if (! a_run_of_residues.first.empty()) {
+         std::cout << "WARNING:: Failed to make a run of residue - due to missing atoms" << std::endl;
+         std::cout << a_run_of_residues.first << std::endl;
+      } else {
+         // happy path
+         scd.setup_likelihood_of_each_rotamer_at_every_residue(a_run_of_residues.second, xmap);
+
+         for (unsigned int idx=0; idx<n_sequences; idx++) {
+            std::string sequence = fam[idx].sequence;
+            // std::cout << "Input Sequence:\n" << sequence << std::endl;
+            const std::string &name = fam[idx].name;
+
+            // put this inside scd?
+            //
+            scd.test_sequence(a_run_of_residues.second, xmap, name, sequence);
+            scd.print_results();
+            side_chain_densities::results_t best_results = scd.get_best_results(); // for this run?
+            if (a_run_of_residues.second.size() == best_results.sequence.size()) {
+               for (unsigned int i=0; i<a_run_of_residues.second.size(); i++) {
+                  mmdb::Residue *residue_p = a_run_of_residues.second[i];
+
+                  // add that type to that residue. Add the residue if it is not in typed_residues
+                  char rt = best_results.sequence[i];
+                  bool done = false;
+                  std::vector<std::pair<mmdb::Residue *, std::vector<char> > >::iterator it;
+                  for (it=typed_residues.begin(); it!=typed_residues.end(); ++it) {
+                     if (it->first == residue_p) {
+                        it->second.push_back(rt);
+                        done = true;
+                        break;
+                     }
+                  }
+                  if (! done) {
+                     std::vector<char> v = {rt};
+                     std::pair<mmdb::Residue *, std::vector<char> > p = std::make_pair(residue_p, v);
+                     typed_residues.push_back(p);
+                  }
+               }
+            } else {
+               std::cout << "mismatch in get_fragment_sequence_scores() " << a_run_of_residues.second.size() << " "
+                         << best_results.sequence.size() << std::endl;
+            }
+         }
+      }
+      // break; // for testing.
+   }
+
+   // now print typed residues
+   if (false) {
+      std::vector<std::pair<mmdb::Residue *, std::vector<char> > >::const_iterator it;
+      for (it=typed_residues.begin(); it!=typed_residues.end(); ++it) {
+         coot::residue_spec_t rs(it->first);
+         std::cout << "   " << rs << ":";
+         for (unsigned int ii=0; ii<it->second.size(); ii++)
+            std::cout << " " << it->second[ii];
+         std::cout << std::endl;
+      }
+   }
+
+   // get the CD-BFRT scores
+   std::vector<std::pair<mmdb::Residue *, std::vector<char> > >::const_iterator it;
+   for (it=typed_residues.begin(); it!=typed_residues.end(); ++it) {
+      mmdb::Residue *residue_p = it->first;
+      const auto &vec = it->second;
+      coot::residue_spec_t rs(residue_p);
+      std::pair<int, int> count_delta = get_count_delta(residue_p, vec);
+      std::cout << "   " << rs << " " << residue_p->GetResName() << " :";
+      std::cout << " " << count_delta.first << " " << count_delta.second;
+      if (true)
+         for (unsigned int ii=0; ii<it->second.size(); ii++)
+            std::cout << " " << it->second[ii];
+      std::cout << std::endl;      
+   }
+
+   std::string results_table_file = prfx + ".tab";
+   if (true) {
+      std::ofstream f(results_table_file);
+      for (it=typed_residues.begin(); it!=typed_residues.end(); ++it) {
+         mmdb::Residue *residue_p = it->first;
+         const auto &vec = it->second;
+         coot::residue_spec_t rs(residue_p);
+         std::pair<int, int> count_delta = get_count_delta(residue_p, vec);
+         f << "   " << rs << " " << residue_p->GetResName() << " :";
+         f << " " << count_delta.first << " " << count_delta.second;
+         f << "\n";
+      }
+      f.close();
+   }
+
+}
+
+void
+coot::side_chain_densities::print_results() const {
+ 
+   std::map<std::string, std::vector<results_t> >::const_iterator it;
+   for (it=results_container.begin(); it!=results_container.end(); ++it) {
+      const std::string &key = it->first;
+      const auto &vec = it->second;
+      for (unsigned int i=0; i<vec.size(); i++) {
+         const auto &results = vec[i];
+         std::cout << key << " " << i << " " << results.sequence << " score: " << results.sum_score
+                   << " offset: " << results.offset << std::endl;
+      }
+   }
+}
+
+coot::side_chain_densities::results_t
+coot::side_chain_densities::get_best_results() const { //uses results_container
+
+   results_t r_best;
+   r_best.sum_score = -999999999999.9;
+
+   std::map<std::string, std::vector<results_t> >::const_iterator it;
+   for (it=results_container.begin(); it!=results_container.end(); ++it) {
+      const std::string &key = it->first;
+      const auto &vec = it->second;
+      for (unsigned int i=0; i<vec.size(); i++) {
+         const auto &results = vec[i];
+         if (results.sum_score > r_best.sum_score) {
+            r_best = results;
+         }
+      }
+   }
+   return r_best;
+}
 
 
 // do TRPs score higher than a VAL? Is that bad?

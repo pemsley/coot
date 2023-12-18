@@ -195,12 +195,16 @@ void test_sequence(int n_steps, float grid_box_radius,
                            const coot::fasta_multi &fam,
                            coot::side_chain_densities &scd) { // fill scd
 
-                          for(unsigned int idx=start_stop_pair.first; idx!=start_stop_pair.second; ++idx) {
-                             // the interface has changed.
-                             // scd.test_sequence(mol, chain_id, resno_start, resno_end, xmap, fam[idx].name, fam[idx].sequence);
-                          }
+      std::cout << "................... proc_threads() " << std::endl;
+
+      for(unsigned int idx=start_stop_pair.first; idx!=start_stop_pair.second; ++idx) {
+         // the interface has changed.
+         // scd.test_sequence(mol, chain_id, resno_start, resno_end, xmap, fam[idx].name, fam[idx].sequence);
+      }
                           
-                       };
+   };
+
+   std::cout << "------------------ test_sequence() --- start --- " << std::endl;
 
    coot::fasta_multi fam(multi_sequence_file_name);
    if (fam.size() > 0) {
@@ -237,6 +241,7 @@ void test_sequence(int n_steps, float grid_box_radius,
 #endif
 #if 1 // the single threaded way
 
+            std::cout << "single-threaded way calling get_fragment_sequence_scores()" << std::endl;
             coot::get_fragment_sequence_scores(asc.mol, fam, xmap);
 #endif
          }
@@ -319,6 +324,31 @@ check_map_mean(const std::string &map_file_name) {
 
 }
 
+void validate_chain(const std::string &map_file_name,
+                    const std::string &pdb_file_name,
+                    const std::string &chain_id,
+                    const std::string &multi_sequence_file_name,
+                    const std::string &output_table_file_name_prefix) {
+
+   clipper::CCP4MAPfile file;
+   try {
+      clipper::Xmap<float> xmap;
+      file.open_read(map_file_name);
+      file.import_xmap(xmap);
+
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, false);
+      if (asc.read_success) {
+         coot::side_chain_densities scd;
+         coot::fasta_multi fam(multi_sequence_file_name);
+         coot::get_fragment_by_fragment_scores(asc.mol, fam, xmap, output_table_file_name_prefix);
+      }
+   }
+   catch (const clipper::Message_base &exc) {
+      std::cout << "WARNING:: failed to open " << map_file_name << std::endl;
+   }
+
+}
+
 int main(int argc, char **argv) {
 
    bool done = false;
@@ -360,28 +390,48 @@ int main(int argc, char **argv) {
       }
    }
 
+   if (argc == 6) {
+      std::string a1(argv[1]);
+
+   }
+
    if (argc == 7) {
       std::string a1(argv[1]);
       if (a1 == "test-residue") {
-          // what are the probabilities that this residue is any of the rotamers
-          // using test.pdb and blurred-test.map
-          std::string map_file_name(argv[2]);
-          std::string pdb_file_name(argv[3]);
-          std::string chain_id(argv[4]);
-          std::string res_no_str(argv[5]);
-          std::string grid_points_file_name(argv[6]);
-          try {
-             int res_no = coot::util::string_to_int(res_no_str);
-             test_residue_vs_likelihoods(n_steps, grid_box_radius,
-     				    grid_points_file_name,
-	     			    map_file_name,
-		     		    pdb_file_name,
-			     	    chain_id, res_no);
-          }
-          catch (const std::runtime_error &rte) {
-             std::cout << "" << rte.what() << std::endl;
-          }
-          done = true;
+         // what are the probabilities that this residue is any of the rotamers
+         // using test.pdb and blurred-test.map
+         std::string map_file_name(argv[2]);
+         std::string pdb_file_name(argv[3]);
+         std::string chain_id(argv[4]);
+         std::string res_no_str(argv[5]);
+         std::string grid_points_file_name(argv[6]);
+         try {
+            int res_no = coot::util::string_to_int(res_no_str);
+            test_residue_vs_likelihoods(n_steps, grid_box_radius,
+                                        grid_points_file_name,
+                                        map_file_name,
+                                        pdb_file_name,
+                                        chain_id, res_no);
+         }
+         catch (const std::runtime_error &rte) {
+            std::cout << "" << rte.what() << std::endl;
+         }
+         done = true;
+      }
+
+      // We have a model and a sequence, we want to check that the residue types of the model fit the
+      // side-chain densities.
+      // This is done in fragments of size 21 (or so).
+      //
+      if (a1 == "validate-chain") {
+         std::cout << "---------- validate chain " << std::endl;
+         std::string map_file_name(argv[2]);
+         std::string pdb_file_name(argv[3]);
+         std::string chain_id(argv[4]);
+         std::string multi_sequence_file_name(argv[5]); // one sequence - or one sequence for each different chain
+         std::string output_file_name_prefix(argv[6]);
+         validate_chain(map_file_name, pdb_file_name, chain_id, multi_sequence_file_name, output_file_name_prefix);
+         done = true;
       }
    }
 

@@ -24,7 +24,7 @@ SYSTEM_INFO sysinfo;
 
 }
 
-// unsigned int coot::coot_n_threads = 0;
+// unsigned int coot::coot_n_threads = 0; // static
 
 unsigned int coot::get_max_number_of_threads() {
 
@@ -36,6 +36,7 @@ unsigned int coot::get_max_number_of_threads() {
    // is this initially set to 0 by the compiler?
    //
    if (coot_n_threads == 0) {
+      // coot_n_threads_cs is null then
       const char *e = getenv("COOT_N_THREADS");
       if (e) {
 	 try {
@@ -44,7 +45,7 @@ unsigned int coot::get_max_number_of_threads() {
 	    if (t >= 1024) t = n_threads_default;
 	    coot_n_threads = t;
 	 }
-	 catch (const std::runtime_error &e) {
+	 catch (const std::runtime_error &rte) {
 	    coot_n_threads = 1;
 	 }
       } else {
@@ -56,4 +57,10 @@ unsigned int coot::get_max_number_of_threads() {
       }
    }
    return coot_n_threads;
+}
+
+void
+coot::set_max_number_of_threads(unsigned int n) {
+
+   coot_n_threads = n;
 }

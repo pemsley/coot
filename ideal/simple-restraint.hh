@@ -38,7 +38,10 @@
 
 #ifndef __NVCC__
 #ifdef HAVE_BOOST
+
+#ifdef HAVE_BOOST_THREAD // part of DEFS in Makefile
 #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+#endif
 
 
 /*

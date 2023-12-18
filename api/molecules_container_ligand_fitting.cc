@@ -172,11 +172,11 @@ molecules_container_t::fit_to_map_by_random_jiggle(int imol, const coot::residue
 //! Ligand Fitting
 //!
 //! @return a vector of indices of molecules for the best fitting ligands to this blob.
-std::vector<int>
+std::vector<molecules_container_t::fit_ligand_info_t>
 molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligand,
                                   float n_rmsd, bool use_conformers, unsigned int n_conformers) {
 
-   std::vector<int> mol_list;
+   std::vector<fit_ligand_info_t> mol_list;
 
    if (is_valid_model_molecule(imol_protein)) {
       if (is_valid_model_molecule(imol_ligand)) {
@@ -221,7 +221,7 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
                coot::minimol::molecule m;
                for (int iclust=0; iclust<n_clusters; iclust++) {
 
-                  float frac_lim = 0.7;
+                  float frac_lim = 0.9;
                   float correl_frac_lim = 0.9;
                   bool find_ligand_multiple_solutions_per_cluster_flag = true;
 
@@ -253,7 +253,8 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
                         std::string name = "Fitted ligand " + res_name;
                         coot::molecule_t mm(asc, imol_in_hope, name);
                         molecules.push_back(mm);
-                        mol_list.push_back(imol_in_hope);
+                        fit_ligand_info_t fli(imol_in_hope, iclust, isol);
+                        mol_list.push_back(fli);
                      }
                   }
                }

@@ -1373,8 +1373,18 @@ public:
    //! Ligand Fitting
    //!
    //! @return a vector of indices of molecules for the best fitting ligands each of the "possible ligand" blobs.
-   std::vector<int> fit_ligand(int imol_protein, int imol_map, int imol_ligand,
-                               float n_rmsd, bool use_conformers, unsigned int n_conformers);
+
+   class fit_ligand_info_t {
+   public:
+      int imol; // the imol of the fitted ligand
+      int cluster_idx;  // the index of the cluster
+      int ligand_idx;  // the ligand idx for a given cluster
+      fit_ligand_info_t(int i, int c, int l) : imol(i), cluster_idx(c), ligand_idx(l) {}
+      fit_ligand_info_t() { imol = -1; cluster_idx = -1; ligand_idx = -1; }
+   };
+
+   std::vector<fit_ligand_info_t> fit_ligand(int imol_protein, int imol_map, int imol_ligand,
+                                             float n_rmsd, bool use_conformers, unsigned int n_conformers);
 
    //! "Jiggle-Fit Ligand"
    //! if n_trials is 0, then a sensible default value will be used.
@@ -1473,8 +1483,11 @@ public:
    //! get the stats for the long-term job (testing function)
    ltj_stats_t testing_interrogate_long_term_job() { return long_term_job_stats; }
 
+   //! get the time for conntouring in miliseconds
    double get_contouring_time() const { return contouring_time; }
 
+   //! get the time to run test test function in miliseconds
+   double test_the_threading(int n_threads);
 
    // -------------------------------- Other ---------------------------------------
 

@@ -4839,3 +4839,29 @@ molecules_container_t::get_hb_type(const std::string &compound_id, int imol_enc,
    return hb;
 }
 
+
+
+//! get the time to run test test function in miliseconds
+double
+molecules_container_t::test_the_threading(int n_threads) {
+
+   auto reference_data = [] (const std::string &file) {
+      char *env = getenv("MOORHEN_TEST_DATA_DIR");
+      if (env) {
+         std::string joined = coot::util::append_dir_file(env, file);
+         return joined;
+      } else {
+         return file;
+      }
+   };
+
+   int imol_map = read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   coot::set_max_number_of_threads(n_threads);
+   float radius = 50;
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+   coot::simple_mesh_t map_mesh = get_map_contours_mesh(imol_map, 55,10,10, radius, 0.12);
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   close_molecule(imol_map);
+   return d10;
+}

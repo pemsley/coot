@@ -73,3 +73,59 @@ coot::fragment_container_t::print_fragments() const {
    }
 
 }
+
+
+// "fragment" in this case means a run of residues of the given size. There will be lots of fragments
+// typically and they will be overlapping.
+//
+coot::fragment_container_t
+coot::make_overlapping_fragments(mmdb::Manager *mol, const std::string &chain_id, unsigned int fragment_length) {
+
+   coot::fragment_container_t fc;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (! model_p) return fc;
+
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      mmdb::Chain *chain_p = model_p->GetChain(ichain);
+      std::string chain_id_local(chain_p->GetChainID());
+      if (chain_id_local == chain_id) {
+         int n_res = chain_p->GetNumberOfResidues();
+         if (n_res > 0) {
+            for (int i_res=0; i_res<n_res; i_res++) {
+               mmdb::Residue *res = chain_p->GetResidue(i_res);
+               if (! res) continue;
+               mmdb::Residue *residue_start = res;
+               int resno_start = res->GetSeqNum();
+               int this_run_max = fragment_length;
+               if ((i_res + this_run_max) >= n_res) this_run_max = n_res - i_res - 1;
+               if (false)
+                  std::cout << "debug:: combi: " << i_res + this_run_max << " this_run_max " << this_run_max
+                            << " for n_res " << n_res << std::endl;
+               std::vector<mmdb::Residue *> residues_running;
+               residues_running.push_back(residue_start);
+               for (int j_res=1; j_res<this_run_max; j_res++) {
+                  mmdb::Residue *r = chain_p->GetResidue(i_res + j_res);
+                  if (r) {
+                     int resno_this = r->GetSeqNum();
+                     if ((resno_this - resno_start) == j_res) {
+                        residues_running.push_back(r);
+                     }
+                  }
+               }
+               if (false)
+                  std::cout << "debug:: residues_running size " << residues_running.size() << std::endl;
+               if (residues_running.size() > 10) { // or something
+                  fragment_container_t::fragment_range_t fr(chain_id,
+                                                            residue_spec_t(*residues_running.begin()),
+                                                            residue_spec_t( residues_running.back()));
+                  fc.add(fr);
+               }
+            }
+         }
+      }
+   }
+
+   return fc;
+}
