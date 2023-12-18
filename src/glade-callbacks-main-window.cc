@@ -717,11 +717,11 @@ on_gaussian_surface_ok_button_clicked(GtkButton       *button,
    std::cout << "read the gui - make the surface" << std::endl;
    GtkWidget *frame = widget_from_builder("gaussian_surface_frame");
    GtkWidget *mol_chooser_combobox = widget_from_builder("gaussian_surface_molecule_chooser_combobox");
-   GtkWidget *e_sigma            = widget_from_builder("gaussian_surface_sigma_entry");
-   GtkWidget *e_radius           = widget_from_builder("gaussian_surface_radius_entry");
-   GtkWidget *e_contour_level    = widget_from_builder("gaussian_surface_contour_level_entry");
-   GtkWidget *e_b_factor         = widget_from_builder("gaussian_surface_b_factor_entry");
-   GtkWidget *e_b_chain_col_mode = widget_from_builder("gaussian_surface_chain_colour_entry");
+   GtkWidget *e_sigma          = widget_from_builder("gaussian_surface_sigma_entry");
+   GtkWidget *e_radius         = widget_from_builder("gaussian_surface_radius_entry");
+   GtkWidget *e_contour_level  = widget_from_builder("gaussian_surface_contour_level_entry");
+   GtkWidget *e_b_factor       = widget_from_builder("gaussian_surface_b_factor_entry");
+   GtkWidget *e_chain_col_mode = widget_from_builder("gaussian_surface_chain_colour_entry");
 
    int imol = my_combobox_get_imol(GTK_COMBO_BOX(mol_chooser_combobox));
 
@@ -730,10 +730,12 @@ on_gaussian_surface_ok_button_clicked(GtkButton       *button,
       float radius = coot::util::string_to_float(gtk_editable_get_text(GTK_EDITABLE(e_radius)));
       float cl     = coot::util::string_to_float(gtk_editable_get_text(GTK_EDITABLE(e_contour_level)));
       float bf     = coot::util::string_to_float(gtk_editable_get_text(GTK_EDITABLE(e_b_factor)));
+      int cc_mode  = coot::util::string_to_int(gtk_editable_get_text(GTK_EDITABLE(e_chain_col_mode)));
       set_gaussian_surface_sigma(sigma);
       set_gaussian_surface_box_radius(radius);
       set_gaussian_surface_contour_level(cl);
       set_gaussian_surface_fft_b_factor(bf);
+      set_gaussian_surface_chain_colour_mode(cc_mode);
       gaussian_surface(imol);
    }
    catch (const std::runtime_error &e) {
