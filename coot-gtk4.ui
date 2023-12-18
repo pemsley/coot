@@ -653,6 +653,10 @@
           <!--   <attribute name="action">app.draw_central_atom_label_action</attribute> -->
           <!-- </item> -->
           <item>
+            <attribute name="label">Gaussian Surface...</attribute>
+            <attribute name="action">app.gaussian_surface_action</attribute>
+          </item>
+          <item>
             <attribute name="label">Go To Atom...</attribute>
             <attribute name="action">app.go_to_atom_action</attribute>
           </item>
