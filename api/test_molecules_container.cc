@@ -4013,6 +4013,19 @@ int test_cif_writer(molecules_container_t &mc) {
    return status;
 }
 
+int test_cif_gphl_chem_comp_info(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mc.import_cif_dictionary(reference_data("HEM.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   const auto &info = mc.get_gphl_chem_comp_info("HEM", coot::protein_geometry::IMOL_ENC_ANY);
+   if (info.size() > 6) status = 1;
+   for (unsigned int i=0; i<info.size(); i++) {
+      std::cout << "   " << i << " " << info[i].first << " " << info[i].second << std::endl;
+   }
+   return status;
+}
+
 int test_pdb_as_string(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -4276,7 +4289,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_test_the_threading, "threading speed test",    mc);
+   status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
+
+   // status += run_test(test_test_the_threading, "threading speed test",    mc);
 
    // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
 

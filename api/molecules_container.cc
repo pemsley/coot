@@ -678,7 +678,7 @@ molecules_container_t::write_png(const std::string &compound_id, int imol_enc,
 
    // For now, let's use RDKit PNG depiction, not lidia-core/pyrogen
 
-   std::pair<short int, coot::dictionary_residue_restraints_t> r_p =
+   std::pair<bool, coot::dictionary_residue_restraints_t> r_p =
       geom.get_monomer_restraints(compound_id, imol_enc);
 
    std::cout << ":::::::::::::::::::::::::: r_p.first " << r_p.first << std::endl;
@@ -4753,7 +4753,7 @@ molecules_container_t::get_cif_restraints_as_string(const std::string &comp_id, 
    };
 
    std::string r;
-   std::pair<short int, coot::dictionary_residue_restraints_t> r_p =
+   std::pair<bool, coot::dictionary_residue_restraints_t> r_p =
       geom.get_monomer_restraints(comp_id, imol_enc);
 
    if (r_p.first) {
@@ -4864,4 +4864,19 @@ molecules_container_t::test_the_threading(int n_threads) {
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
    close_molecule(imol_map);
    return d10;
+}
+
+
+//! @return a vector of string pairs that were part of a gphl_chem_comp_info.
+//!  return an empty vector on failure to find any such info.
+std::vector<std::pair<std::string, std::string> >
+molecules_container_t::get_gphl_chem_comp_info(const std::string &compound_id, int imol_enc) {
+
+   std::vector<std::pair<std::string, std::string> > v;
+   std::pair<bool, coot::dictionary_residue_restraints_t> r_p =
+      geom.get_monomer_restraints(compound_id, imol_enc);
+   if (r_p.first) {
+      v = r_p.second.gphl_chem_comp_info.info;
+   }
+   return v;
 }

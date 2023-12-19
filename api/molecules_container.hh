@@ -513,6 +513,10 @@ public:
    //! Valid types are: "HB_UNASSIGNED" ,"HB_NEITHER", "HB_DONOR", "HB_ACCEPTOR", "HB_BOTH", "HB_HYDROGEN".
    std::string get_hb_type(const std::string &compound_id, int imol_enc, const std::string &atom_name) const;
 
+   //! @return a vector of string pairs that were part of a gphl_chem_comp_info.
+   //!  return an empty vector on failure to find any such info.
+   std::vector<std::pair<std::string, std::string> > get_gphl_chem_comp_info(const std::string &compound_id, int imol_enc);
+
    //! write a PNG for the given compound_id. imol can be IMOL_ENC_ANY
    //! Currently this function does nothing (drawing is done with the not-allowed cairo)
    void write_png(const std::string &compound_id, int imol, const std::string &file_name) const;
@@ -1017,9 +1021,9 @@ public:
    //! @return the molecule centre
    coot::Cartesian get_molecule_centre(int imol) const;
 
-   //! copy a fragment
+   //! copy a fragment given the multi_cid selection string.
    //! @return the new molecule number (or -1 on no atoms selected)
-   int copy_fragment_using_cid(int imol, const std::string &cid);
+   int copy_fragment_using_cid(int imol, const std::string &multi_cid);
 
    //! copy a fragment - use this in preference to `copy_fragment_using_cid()` when copying
    //! a molecule fragment to make a molten zone for refinement.

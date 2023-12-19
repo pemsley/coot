@@ -19,6 +19,7 @@ libcootapi: Have a look at this when compiling with emscripten
 
 // This needs a look. When did I comment this out? And why?
 ligand/residue_by_phi_psi.hh:// #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+Can I use residue_by_phi_psi multi-threaded?
 
 libcootapi: look at merging 7ZTVU (or whatever it was) into a cif file. Look at the output cif for
    ligand: atom_site seq_id.
