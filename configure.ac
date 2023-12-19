@@ -349,18 +349,6 @@ AC_SUBST(MOLTRIANGLES_LIBS)
 
 AC_SUBST(COOT_BUILD_INFO_STRING)
 
-
-# #defines for SWIG:
-#
-# SWIG_FLAGS is something of a misnomer.  It actually defines
-# COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
-# correct callbacks in both GTK1 and GTK2 regimes.
-#
-# Use swig flags properly. Remove COOT_USE_GTK2_INTERFACE
-SWIG_FLAGS="-DSWIG -DCOOT_USE_GTK2_INTERFACE"
-AC_SUBST(SWIG_FLAGS)
-
-
 dnl check for guile modules www and gtk here.
 
 dnl check for GSL
