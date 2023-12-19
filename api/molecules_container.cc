@@ -4866,6 +4866,36 @@ molecules_container_t::test_the_threading(int n_threads) {
    return d10;
 }
 
+double
+molecules_container_t::test_launching_threads(unsigned int n_threads_per_batch, unsigned int n_batches) const {
+
+   auto sum = [] (unsigned int i, unsigned int j) {
+      return i+j;
+   };
+
+   if (n_threads_per_batch == 0) {
+      return 0;
+   } else {
+      if (n_batches == 0) {
+         return 0;
+      } else {
+         auto tp_0 = std::chrono::high_resolution_clock::now();
+         for (unsigned int i=0; i<n_batches; i++) {
+            std::vector<std::thread> threads;
+            for (unsigned int j=0; j<n_threads_per_batch; j++)
+               threads.push_back(std::thread(sum, i, j));
+            for (unsigned int j=0; j<n_threads_per_batch; j++)
+               threads[j].join();
+         }
+         auto tp_1 = std::chrono::high_resolution_clock::now();
+         auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+         double time_per_patch = d10/static_cast<double>(n_batches);
+         return time_per_patch;
+      }
+   }
+}
+
+
 
 //! @return a vector of string pairs that were part of a gphl_chem_comp_info.
 //!  return an empty vector on failure to find any such info.

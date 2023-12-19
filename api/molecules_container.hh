@@ -1500,6 +1500,9 @@ public:
    //! get the time to run test test function in miliseconds
    double test_the_threading(int n_threads);
 
+   //! @return the time per batch in microseconds
+   double test_launching_threads(unsigned int n_threads_per_batch, unsigned int n_batches) const;
+
    // -------------------------------- Other ---------------------------------------
 
 #ifdef SWIG

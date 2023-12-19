@@ -4163,6 +4163,18 @@ int test_test_the_threading(molecules_container_t &mc) {
    return status;
 }
 
+int test_thread_launching(molecules_container_t &mc) {
+
+   int status = 1; // no failure
+   for (unsigned int i=1; i<50; i++) {
+      for (unsigned int j=1; j<50; j++) {
+         double t = mc.test_launching_threads(j, i);
+         std::cout << " launching " << j << " " << i << " : " << t << " micro-seconds " << std::endl;
+      }
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -4289,7 +4301,9 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
+   status += run_test(test_thread_launching, "thread launching",    mc);
+
+   // status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
 
    // status += run_test(test_test_the_threading, "threading speed test",    mc);
 
