@@ -8,6 +8,14 @@
 
 ----
 
+ligand figures from the chem_comp_atom_depiction_t
+
+chain-id range test: Tweak ParseSelectionPath().
+
+Coot: Fix this in pyrogen Makefile:
+      SWIG_FLAGS = -DSWIG -DCOOT_USE_GTK2_INTERFACE
+      Is -DSWIG already on, because it's parsed by swig?
+
 libcootapi: return a double (ms) test_the_threading(int n_threads)
 * Done.
 
