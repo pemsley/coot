@@ -86,6 +86,13 @@ GUI: Update the validation box when "flip peptide" button is pressed.
 
 GUI: Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
 
+GUI: Ctrl-A, Ctrl-E in the python command line
+
+GUI: easier way to set default b-factor: set_default_temperature_factor_from_median()
+
+GUI: If python command fails, I want to somehow see that it failed.
+
+
 GUI:: Rotate/Translate <fragment> doesn't work.
 
 GUI: see a validation graph (geometry) with one chain (e.g. A chain fragment from tutorial-modern).
