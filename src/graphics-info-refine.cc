@@ -102,15 +102,16 @@ graphics_info_t::updating_maps_update_the_coot_points_overlay() {
       gtk_label_set_text(GTK_LABEL(label_3), "-----");
    } else {
       int d = rail_point_history.back().map_rail_points_delta;
-      if (d > 10)
+      int leeway = 15;
+      if (d > leeway)
          play_sound("SUCCESS");
-      if (d < -10)
+      if (d < -leeway)
          play_sound("OOPS");
       std::string plus;
       if (d > 0) plus = "+";
       std::string colour = "#dddddd";
-      if (d < 0) colour = "#ff3333";
-      if (d > 0) colour = "#33ff33";
+      if (d < -leeway) colour = "#ff3333";
+      if (d >  leeway) colour = "#33ff33";
       std::string l_1 = std::string("<span foreground='");
       l_1 += colour;
       l_1 += std::string("'>");
