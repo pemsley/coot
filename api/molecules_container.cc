@@ -4874,10 +4874,10 @@ molecules_container_t::test_launching_threads(unsigned int n_threads_per_batch, 
    };
 
    if (n_threads_per_batch == 0) {
-      return 0;
+      return -1.0;
    } else {
       if (n_batches == 0) {
-         return 0;
+         return -2.0;
       } else {
          auto tp_0 = std::chrono::high_resolution_clock::now();
          for (unsigned int i=0; i<n_batches; i++) {
