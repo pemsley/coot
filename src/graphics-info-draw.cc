@@ -5315,15 +5315,15 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
 }
 
 
- void
-    graphics_info_t::setup_draw_for_particles_for_new_gone_diegos(const std::vector<glm::vec3> &positions) {
+void
+graphics_info_t::setup_draw_for_particles_for_new_gone_diegos(const std::vector<glm::vec3> &positions) {
 
     // usually only one
 
     // gone_diego_particles and meshes_for_gone_diego_particles live and die together.
     // formalise that.
 
-    std::cout << "setup_draw_for_particles_for_gone_diegos() of " << positions.size() << std::endl;
+    // std::cout << "setup_draw_for_particles_for_gone_diegos() of " << positions.size() << std::endl;
 
     if (! positions.empty()) {
 
