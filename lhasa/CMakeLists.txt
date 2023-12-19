@@ -8,7 +8,10 @@ endif()
 
 
 # -Wno-unused-command-line-argument 
-set(CMAKE_CXX_FLAGS "-Wall --embind-emit-tsd lhasa.d.ts -s USE_PTHREADS=1 -pthread -fwasm-exceptions ")
+
+# Causes linker errors for Emscripten > 3.1.48. https://github.com/emscripten-core/emscripten/issues/20949
+set(CMAKE_CXX_FLAGS "-Wall --embind-emit-tsd lhasa.d.ts -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
+# set(CMAKE_CXX_FLAGS "-Wall -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 set(CMAKE_CXX_STANDARD 17)
