@@ -69,6 +69,8 @@ Bug:: the dialog for selection of column labels from an mtz file is broken,
 Bug:: Missing GUI: Rigid-body fit Residue Ranges
 * Done.
 
+Bug: 7adk peptide omega plot "" chain is empty. Presumably a libcootapi problem.
+
 GUI: Look at the terminal output when using the Preferences dialog. Is it all needed?
 
 GUI: Symmetry by molecule: removed from UI. Buggy. Needs a fix.
@@ -81,8 +83,16 @@ GUI: When I Open Coords I have a option to choose filter to coordinate files.
 GUI: Geman-McClure alpha refinement params box menu doesn't show the correct value.
 
 GUI: Update the validation box when "flip peptide" button is pressed.
+     Does the updating map update in this case?
 
 GUI: Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
+
+GUI: Ctrl-A, Ctrl-E in the python command line
+
+GUI: easier way to set default b-factor: set_default_temperature_factor_from_median()
+
+GUI: If python command fails, I want to somehow see that it failed.
+
 
 GUI:: Rotate/Translate <fragment> doesn't work.
 
@@ -94,7 +104,8 @@ GUI: Renumber residue range on a molecule that is not the first molecule ::: 0.6
 GUI: Replace-residue is missing. Needs a UI. Make it an overlay.
 
 GUI: Needs a "Trackpad Mode" button in the UI. It should have a "save this mode" button also.
-     Make it an overlay.
+
+GUI: Fetch Alphafold model that is closest to the sequence of this chain.
 
 GUI: copy fragment dialog doesn't make active the first molecule, but save coordinates does.
      Do the same thing.

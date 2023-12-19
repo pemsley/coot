@@ -11210,7 +11210,10 @@ Mon  4 Dec 2023 17:49:51 GMT
 
    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4987940/
 
+----
+Thu  7 Dec 2023 08:42:36 GMT
 
+   https://www.blopig.com/blog/2022/08/retrieving-alphafold-models-from-alphafolddb/
 ---
 Sun 17 Dec 19:18:31 GMT 2023
 
@@ -11223,3 +11226,4 @@ Sun 17 Dec 19:31:23 GMT 2023
 
    for random numbers: make a table of size 21247 (it's prime) and sample from
    that with a static unsigned int counter/index.
+
