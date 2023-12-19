@@ -48,9 +48,11 @@ namespace coot {
    // use env var COOT_N_THREADS (or fallback) to get the number of threads
    unsigned int get_max_number_of_threads();
    // sets this:
-   static unsigned int coot_n_threads;
+   static unsigned int coot_n_threads = 0;
    // using this:
    long get_number_of_threads_by_system_call();
+
+   void set_max_number_of_threads(unsigned int n_threads);
 
    // if you can try to get the directoy dir in this directory.
    // if not, try to make it in this directory.

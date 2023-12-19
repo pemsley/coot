@@ -25,15 +25,48 @@ std::atomic<unsigned int> n_sound_files_playing(0);
 
 void
 play_sound_file_macos(const std::string &file_name) {
+
 #ifdef WITH_SOUND
 #ifdef __APPLE__
-   auto play_sound_file_inner = [] (const std::string &file_name) {
 
+   std::cout << "play_sound_file_macos() " << file_name << std::endl;
+
+   auto _ = [] (ALenum err) {
+     std::string s = std::to_string(err);
+     if (err == AL_NO_ERROR)          s = "AL_NO_ERROR";
+     if (err == AL_INVALID_NAME)      s = "AL_INVALID_NAME";
+     if (err == AL_INVALID_ENUM)      s = "AL_INVALID_ENUM";
+     if (err == AL_INVALID_VALUE)     s = "AL_INVALID_VALUE";
+     if (err == AL_INVALID_OPERATION) s = "AL_INVALID_OPERATION";
+     return s;
+   };
+
+   auto play_sound_file_inner = [_] (const std::string &file_name) {
+
+      ALCdevice *m_pDevice = alcOpenDevice(NULL);
+      alcCreateContext(m_pDevice, NULL);
+
+      std::cout << "debug:: m_pDevice is " << m_pDevice << std::endl;
+
+      ALenum err = alGetError();
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() A0 " << _(err) << std::endl;
+      err = alGetError();
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() A1 " << _(err) << std::endl;
+      err = alGetError();
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() A2 " << _(err) << std::endl;
+      for (unsigned int i=0; i<10;i++) {
+         err = alGetError();
+         if (err) std::cout << "AL ERROR:: play_sound_file_inner() Ae " << i << " " << _(err) << std::endl;
+      }
       ALuint source;
       alGenSources(1, &source);
+      err = alGetError();
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() B1 " << _(err) << std::endl;
 
       ALuint buffer;
       alGenBuffers(1, &buffer);
+      err = alGetError();
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() B2 " << _(err) << std::endl;
       FILE* file = fopen(file_name.c_str(), "rb");
       OggVorbis_File ovf;
       ov_open(file, &ovf, NULL, 0);
@@ -43,20 +76,39 @@ play_sound_file_macos(const std::string &file_name) {
       ALshort* data = new ALshort[size];
       int bitstream = 0;
       ov_read(&ovf, (char*)data, size, 0, 2, 1, &bitstream);
+      err = alGetError();
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() C " << _(err) << std::endl;
       alBufferData(buffer, AL_FORMAT_STEREO16, data, size, vi->rate);
+      err = alGetError();
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() D " << _(err) << std::endl;
 
       // Play the sound
+      std::cout << "%%%%%%%%%%% play the sound " << file_name << std::endl;
       alSourcei(source, AL_BUFFER, buffer);
+      err = alGetError();
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() E " << _(err) << std::endl;
       alSourcePlay(source);
+      err = alGetError();
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() F " << _(err) << std::endl;
 
       ov_clear(&ovf);
       fclose(file);
    };
 
-   if (!coot::file_exists(file_name))
+   std::string fn = file_name;
+   if (coot::file_exists(fn)) {
+      // don't touch the path then
+   } else {
+      // try to find it in the installation
+      std::string dir = coot::package_data_dir();
+      std::string sounds_dir = coot::util::append_dir_dir(dir, "sounds");
+      fn = coot::util::append_dir_file(sounds_dir, fn);
+   }
+
+   if (!coot::file_exists(fn))
       return;
 
-   std::thread t(play_sound_file_inner, file_name);
+   std::thread t(play_sound_file_inner, fn);
    t.detach();
 #endif
 #endif
@@ -112,12 +164,14 @@ play_sound_file(const std::string &file_name) {
 
                   for(int i=0; i<ov_streams(&ovf); i++){
                      vorbis_info *vi=ov_info(&ovf,i);
-                     printf("    logical bitstream section %d information:\n", i+1);
-                     printf("        %ldHz %d channels bitrate %ldkbps serial number=%ld\n",
-                            vi->rate,vi->channels,ov_bitrate(&ovf,i)/1000,
-                            ov_serialnumber(&ovf,i));
-                     printf("        compressed length: %ld bytes ",(long)(ov_raw_total(&ovf,i)));
-                     printf(" play time: %lds\n",(long)ov_time_total(&ovf,i));
+                     if (false) {
+                        printf("    logical bitstream section %d information:\n", i+1);
+                        printf("        %ldHz %d channels bitrate %ldkbps serial number=%ld\n",
+                               vi->rate,vi->channels,ov_bitrate(&ovf,i)/1000,
+                               ov_serialnumber(&ovf,i));
+                        printf("        compressed length: %ld bytes ",(long)(ov_raw_total(&ovf,i)));
+                        printf(" play time: %lds\n",(long)ov_time_total(&ovf,i));
+                     }
 
                      int eof = 0;
                      char pcmout[4096];

@@ -691,7 +691,9 @@ Mesh::delete_gl_buffers() {
    } else {
       glBindVertexArray(vao);
       if (buffer_id != 0) { // 0 is not valid
-         std::cout << "delete_gl_buffers() deleting buffer_id " << buffer_id << std::endl;
+         // useful but noisy
+         if (false)
+            std::cout << "delete_gl_buffers() deleting buffer_id " << buffer_id << std::endl;
          glDeleteBuffers(1, &buffer_id);
          buffer_id = 0;
       }
@@ -962,7 +964,7 @@ Mesh::setup_instanced_octahemispheres(Shader *shader_p,
 void
 Mesh::setup_vertex_and_instancing_buffers_for_particles(unsigned int n_instances_in) {
 
-   bool debug = true;
+   bool debug = false;
 
    // we want to allocate space for n_particles instances, but until the particles
    // are created, and the particle bufffer data updated, we don't want to draw

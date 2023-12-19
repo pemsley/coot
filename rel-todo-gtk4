@@ -6,13 +6,24 @@
  - Validation Plots
  - Ramachandran Plot
 
- - Check QED is now part of RDKit.
-
-C++ 17 and git for CCP4i2
-
 ----
 
-8 items
+libcootapi: return a double (ms) test_the_threading(int n_threads)
+* Done.
+
+libcootapi: Have a look at this when compiling with emscripten
+   #ifndef __NVCC__
+   #ifdef HAVE_BOOST
+   #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+* Done.
+
+// This needs a look. When did I comment this out? And why?
+ligand/residue_by_phi_psi.hh:// #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+Can I use residue_by_phi_psi multi-threaded?
+
+libcootapi: look at merging 7ZTVU (or whatever it was) into a cif file. Look at the output cif for
+   ligand: atom_site seq_id.
+   Merge a ligand with a long ligand name into a moelcule from a PDB file, then try to refine the ligand.
 
 Moorhen: Ligand fitting return a triple of the cluster index, the ligand index and the molecule index.
          Ligand solutions have the same position + orientation with even without conformers!
@@ -22,15 +33,22 @@ Moorhen: Set a flag for contouring timers. Add them, store the result, and use t
 
 MMDB: Look at mmdb chain selection. Can you remove chain range?
 
-Graphics: tap, tap tap, tap tap tap left-quote for residue, chain molecule
+Graphics: tap, tap tap, tap tap tap left-quote for residue, chain molecule.
+
+Graphics: pdb4nia
+          coot.set_model_molecule_representation_style(0,1)
+          Mg atoms are massive (too big)
 
 GUI/Graphics bug:: why are there no labels for 7dy0.cif? Also, it seems very laggy.
 
+GUI/libcootapi: check that DNA is correctly mutate to DNA bases in the Mutate Residue Range gui (do non-gui
+    fixes in coot-refinement). Use pdb6pww P chain.
+
+GUI: Mutate Residue Range GUI: Match counts doesn't work correctly
+
 GUI:: Validate -> Atom Overlaps doesn't work.
 
-GUI: Edit -> Settings -> Save current sisze and position doesnnpt work.
-
-API: add rigid_body_fit_chain(imol, chain_id) to the moorhen and coot apis.
+GUI: Edit -> Settings -> Save current size and position doesn't work.
 
 GUI: save the state and look at the resulting state file. The functions need "coot." module name
 
@@ -51,6 +69,8 @@ Bug:: the dialog for selection of column labels from an mtz file is broken,
 Bug:: Missing GUI: Rigid-body fit Residue Ranges
 * Done.
 
+Bug: 7adk peptide omega plot "" chain is empty. Presumably a libcootapi problem.
+
 GUI: Look at the terminal output when using the Preferences dialog. Is it all needed?
 
 GUI: Symmetry by molecule: removed from UI. Buggy. Needs a fix.
@@ -63,8 +83,16 @@ GUI: When I Open Coords I have a option to choose filter to coordinate files.
 GUI: Geman-McClure alpha refinement params box menu doesn't show the correct value.
 
 GUI: Update the validation box when "flip peptide" button is pressed.
+     Does the updating map update in this case?
 
 GUI: Add a Cryo-EM menu item for solidify maps (currently in coot_gui.py). Don't use python.
+
+GUI: Ctrl-A, Ctrl-E in the python command line
+
+GUI: easier way to set default b-factor: set_default_temperature_factor_from_median()
+
+GUI: If python command fails, I want to somehow see that it failed.
+
 
 GUI:: Rotate/Translate <fragment> doesn't work.
 
@@ -76,7 +104,8 @@ GUI: Renumber residue range on a molecule that is not the first molecule ::: 0.6
 GUI: Replace-residue is missing. Needs a UI. Make it an overlay.
 
 GUI: Needs a "Trackpad Mode" button in the UI. It should have a "save this mode" button also.
-     Make it an overlay.
+
+GUI: Fetch Alphafold model that is closest to the sequence of this chain.
 
 GUI: copy fragment dialog doesn't make active the first molecule, but save coordinates does.
      Do the same thing.
@@ -85,6 +114,9 @@ GUI: Cryo-EM module: Add Toggle switch for auto-recontour map
 
 Graphics: Don't draw rama ball when intermediate atoms are from edit chi angles (and some
    others presumably).
+
+Graphics: Fast slide to new position on reading in a new molecule (there is a distance limit
+   that means there's a jump - don't use that for read_pdb()).
 
 Graphics: Try Quick save as on a mac and restore settings - the graphics window size is wrong.
 
@@ -105,6 +137,8 @@ Graphics/libcootapi: write a function to convert a simple mesh to a type-B insta
           matrices from BIOMT records.
 
 Graphics: Bug: 7dy0 all-atom B-factor - the colour range goes too far (into purple)
+
+API: add rigid_body_fit_chain(imol, chain_id) to the moorhen and coot apis.
 
 Moorhen: what is the HB type of this atom?
 * Done.
@@ -168,7 +202,7 @@ Useful: Find some Cryo-EM ligand for demo at the ligands meeting.
 cif parser fail for 6eoj from the PDBe - display as CAs.
 * set_use_gemmi_as_model_parser_xxx(1) fixes it
 
-Moorhen: Request: electrostatic surface.
+Moorhen: Request: electrostatic surface. Map electrstatic potention on to Gaussian surface.
 
 Make the CMakefile install chapi
 
