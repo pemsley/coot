@@ -1,4 +1,4 @@
-/* layla/utils.hpp
+/* lhasa/lhasa.hpp
  * 
  * Copyright 2023 by Global Phasing Ltd.
  * Author: Jakub Smulski
@@ -19,14 +19,23 @@
  * 02110-1301, USA
  */
 
-#ifndef LAYLA_UTILS_HPP
-#define LAYLA_UTILS_HPP
+#ifndef LHASA_HPP
+#define LHASA_HPP
 #include <rdkit/GraphMol/RWMol.h>
+#include <string>
+#include <memory>
+#include "../layla/ligand_editor_canvas.hpp"
+#include <emscripten/val.h>
 
-namespace coot::layla {
+namespace lhasa {
 
-void remove_non_polar_hydrogens(RDKit::RWMol& mol);
+std::unique_ptr<RDKit::RWMol> rdkit_mol_from_smiles(std::string smiles);
+void append_from_smiles(CootLigandEditorCanvas& canvas, std::string smiles);
+std::string rdkit_mol_to_smiles(RDKit::ROMol& mol);
+std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> make_active_tool(emscripten::val t);
+coot::ligand_editor_canvas::ElementInsertion element_insertion_from_symbol(std::string sym);
 
 }
 
-#endif //  LAYLA_UTILS_HPP
+
+#endif

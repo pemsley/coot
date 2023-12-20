@@ -21,12 +21,23 @@
 
 #ifndef COOT_LIGAND_EDITOR_CANVAS_MODEL_HPP
 #define COOT_LIGAND_EDITOR_CANVAS_MODEL_HPP
-#include <gtk/gtk.h>
 #include <memory>
 #include <vector>
 #include <variant>
 #include <optional>
 #include <rdkit/GraphMol/RWMol.h>
+// Forward declaration of types defined at "render.hpp"
+namespace coot::ligand_editor_canvas::impl {
+    struct Renderer;
+    class MoleculeRenderContext;
+}
+
+#ifndef __EMSCRIPTEN__
+#include <gtk/gtk.h>
+#else // __EMSCRIPTEN__ defined
+// Lhasa-specific includes/definitions
+#include <graphene.h>
+#endif
 
 namespace coot {
 namespace ligand_editor_canvas {
@@ -57,6 +68,9 @@ std::optional<DisplayMode> display_mode_from_string(const char*) noexcept;
 
 /// Drawing-friendly representation of RDKit molecule
 class CanvasMolecule {
+    // Rendering is done via a separate class 
+    // for the sake of code organization
+    friend class impl::MoleculeRenderContext;
     public:
     enum class AtomColor: unsigned char {
         /// Carbon and hydrogens
@@ -165,14 +179,10 @@ class CanvasMolecule {
     typedef std::optional<AtomOrBond> MaybeAtomOrBond;
     private:
 
-    static const float ATOM_HITBOX_RADIUS;
     static const float BOND_DISTANCE_BOUNDARY;
+    static const float ATOM_HITBOX_RADIUS;
     static const float BASE_SCALE_FACTOR;
     static const float BOND_LINE_SEPARATION;
-    static const float CENTERED_DOUBLE_BOND_LINE_SEPARATION;
-    static const float GEOMETRY_BOND_SPREAD_ANGLE;
-    static const float WAVY_BOND_ARC_LENGTH;
-    static const float GEOMETRY_BOND_DASH_SEPARATION;
 
     static BondType bond_type_from_rdkit(RDKit::Bond::BondType);
     static AtomColor atom_color_from_rdkit(const RDKit::Atom *) noexcept;
@@ -275,9 +285,8 @@ class CanvasMolecule {
     void perform_flip(FlipMode flip_mode);
     void rotate_by_angle(double radians);
 
-    /// Draws the molecule using the provided PangoLayout and cairo_t.
-    /// Caller owns the pointers.
-    void draw(cairo_t* cr, PangoLayout* pango_layout, DisplayMode display_mode) const noexcept;
+    /// Draws the molecule using the renderer
+    void draw(impl::Renderer& ren, DisplayMode display_mode) const noexcept;
 
     /// Checks if any object matches the click coordinates passed as arguments.
     /// Returns the thing that was clicked on (or nullopt if there's no match).
