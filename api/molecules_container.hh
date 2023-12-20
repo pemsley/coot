@@ -1503,6 +1503,9 @@ public:
    //! @return the time per batch in microseconds
    double test_launching_threads(unsigned int n_threads_per_batch, unsigned int n_batches) const;
 
+   //! @return time in microsections
+   double test_thread_pool_threads(unsigned int n_threads) const;
+
    // -------------------------------- Other ---------------------------------------
 
 #ifdef SWIG

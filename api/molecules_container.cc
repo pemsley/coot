@@ -4895,6 +4895,28 @@ molecules_container_t::test_launching_threads(unsigned int n_threads_per_batch, 
    }
 }
 
+//! @return time in microsections
+double
+molecules_container_t::test_thread_pool_threads(unsigned int n_threads) const {
+
+   auto sum = [] (unsigned int thread_index, unsigned int i, unsigned int j, std::atomic<unsigned int> &done_count_for_threads) {
+      done_count_for_threads++;
+      return i+j;
+   };
+
+   double t = 0;
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+   std::atomic<unsigned int> done_count_for_threads(0);
+
+   for (unsigned int i=0; i<n_threads; i++) {
+      static_thread_pool.push(sum, i, i, std::ref(done_count_for_threads));
+   }
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+   t = d10;
+   return t;
+
+}
 
 
 //! @return a vector of string pairs that were part of a gphl_chem_comp_info.
