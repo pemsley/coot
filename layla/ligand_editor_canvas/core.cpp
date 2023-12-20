@@ -20,20 +20,14 @@
  */
 
 #include "core.hpp"
+#include "../ligand_editor_canvas.hpp"
 #include <iterator>
+#ifdef __EMSCRIPTEN__
+#include <emscripten/val.h>
+#endif
 
 using namespace coot::ligand_editor_canvas;
 using namespace coot::ligand_editor_canvas::impl;
-
-Renderer::Renderer(cairo_t* cr, PangoLayout* pango_layout) {
-    this->cr = cr;
-    this->pango_layout = pango_layout;
-}
-
-Renderer::~Renderer() {
-    g_object_unref(this->pango_layout);
-    cairo_destroy(this->cr);
-}
 
 StateSnapshot::StateSnapshot(const WidgetCoreData& core_data) {
     this->molecules = std::make_unique<std::vector<CanvasMolecule>>(*core_data.molecules);
@@ -66,9 +60,13 @@ WidgetCoreData::MaybeAtomOrBondWithMolIdx WidgetCoreData::resolve_click(int x, i
     return std::nullopt;
 }
 
-void WidgetCoreData::update_status(const gchar* status_text) const noexcept {
+void WidgetCoreData::update_status(const char* status_text) const noexcept {
+    #ifndef __EMSCRIPTEN__
     auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
-    g_signal_emit((gpointer) widget_ptr, status_updated_signal, 0, status_text);
+    #else
+    auto* widget_ptr = static_cast<const ::CootLigandEditorCanvas*>(this);
+    #endif
+    _LIGAND_EDITOR_SIGNAL_EMIT_ARG(widget_ptr, status_updated_signal, status_text);
 }
 
 
@@ -169,10 +167,14 @@ void WidgetCoreData::finalize_edition() {
             this->state_stack->erase(this->state_stack->begin(), last_iter);
         }
 
+        this->queue_resize();
+        this->queue_redraw();
+        #ifndef __EMSCRIPTEN__
         auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
-        gtk_widget_queue_resize(GTK_WIDGET(widget_ptr));
-        gtk_widget_queue_draw(GTK_WIDGET(widget_ptr));
-        g_signal_emit((gpointer) widget_ptr, smiles_changed_signal, 0);
+        #else
+        auto* widget_ptr = static_cast<const ::CootLigandEditorCanvas*>(this);
+        #endif
+        _LIGAND_EDITOR_SIGNAL_EMIT(widget_ptr, smiles_changed_signal);
     }
 }
 
@@ -189,9 +191,15 @@ void WidgetCoreData::delete_molecule_with_idx(unsigned int idx) noexcept {
 
         this->finalize_edition();
         this->update_status("Molecule deleted.");
+
+        this->queue_redraw();
+
+        #ifndef __EMSCRIPTEN__
         auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
-        gtk_widget_queue_draw(GTK_WIDGET(widget_ptr));
-        g_signal_emit((gpointer) widget_ptr, impl::molecule_deleted_signal, 0, idx);
+        #else
+        auto* widget_ptr = static_cast<const ::CootLigandEditorCanvas*>(this);
+        #endif
+        _LIGAND_EDITOR_SIGNAL_EMIT_ARG(widget_ptr, molecule_deleted_signal, idx);
     }
 }
 
@@ -219,17 +227,131 @@ void WidgetCoreData::render(Renderer& ren) {
     if (this->molecules) {
         for(auto& drawn_molecule: *this->molecules) {
             drawn_molecule.set_canvas_scale(this->scale);
-            drawn_molecule.draw(ren.cr,ren.pango_layout,this->display_mode);
+            drawn_molecule.draw(ren,this->display_mode);
         }
     } else {
         g_error("Molecules vector not initialized!");
     }
     if(this->currently_created_bond.has_value()) {
         auto& bond = this->currently_created_bond.value();
-        cairo_set_line_width(ren.cr, 4.0);
-        cairo_set_source_rgb(ren.cr, 1.0, 0.5, 1.0);
-        cairo_move_to(ren.cr, bond.first_atom_x, bond.first_atom_y);
-        cairo_line_to(ren.cr, bond.second_atom_x, bond.second_atom_y);
-        cairo_stroke(ren.cr);
+        ren.set_line_width(4.0);
+        ren.set_source_rgb(1.0, 0.5, 1.0);
+        ren.move_to(bond.first_atom_x, bond.first_atom_y);
+        ren.line_to(bond.second_atom_x, bond.second_atom_y);
+        ren.stroke();
     }
 }
+
+void WidgetCoreData::queue_redraw() const noexcept {
+    #ifndef __EMSCRIPTEN__
+    auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
+    gtk_widget_queue_draw(GTK_WIDGET(widget_ptr));
+    #else
+    auto* widget_ptr = static_cast<const::CootLigandEditorCanvas*>(this);
+    _LIGAND_EDITOR_SIGNAL_EMIT(widget_ptr, queue_redraw_signal);
+    #endif
+}
+
+void WidgetCoreData::queue_resize() const noexcept {
+    #ifndef __EMSCRIPTEN__
+    auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
+    gtk_widget_queue_resize(GTK_WIDGET(widget_ptr));
+    #else
+    auto* widget_ptr = static_cast<const::CootLigandEditorCanvas*>(this);
+    _LIGAND_EDITOR_SIGNAL_EMIT(widget_ptr, queue_resize_signal);
+    #endif
+}
+
+#ifdef __EMSCRIPTEN__
+
+void CootLigandEditorCanvas::set_active_tool(std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> active_tool) {
+    coot_ligand_editor_canvas_set_active_tool(this, std::move(active_tool));
+}
+
+void CootLigandEditorCanvas::append_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
+    coot_ligand_editor_canvas_append_molecule(this, std::move(rdkit_mol));
+}
+
+void CootLigandEditorCanvas::set_scale(float scale) noexcept {
+    coot_ligand_editor_canvas_set_scale(this, scale);
+}
+
+float CootLigandEditorCanvas::get_scale() noexcept {
+    return coot_ligand_editor_canvas_get_scale(this);
+}
+
+void CootLigandEditorCanvas::undo() noexcept {
+    coot_ligand_editor_canvas_undo_edition(this);
+}
+
+void CootLigandEditorCanvas::redo() noexcept {
+    coot_ligand_editor_canvas_redo_edition(this);
+}
+
+// const RDKit::ROMol& CanvasMolecule::get_rdkit_molecule(unsigned int index) noexcept {
+//     RDKit::ROMol* coot_ligand_editor_canvas_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept;
+// }
+
+unsigned int CootLigandEditorCanvas::get_molecule_count() noexcept {
+    return coot_ligand_editor_canvas_get_molecule_count(this);
+}
+
+void CootLigandEditorCanvas::set_allow_invalid_molecules(bool value) noexcept {
+    coot_ligand_editor_canvas_set_allow_invalid_molecules(this, value);
+}
+
+bool CootLigandEditorCanvas::get_allow_invalid_molecules() noexcept {
+    return coot_ligand_editor_canvas_get_allow_invalid_molecules(this);
+}
+
+coot::ligand_editor_canvas::DisplayMode CootLigandEditorCanvas::get_display_mode() noexcept {
+    return coot_ligand_editor_canvas_get_display_mode(this);
+}
+
+void CootLigandEditorCanvas::set_display_mode(coot::ligand_editor_canvas::DisplayMode value) noexcept {
+    coot_ligand_editor_canvas_set_display_mode(this, value);
+}
+
+std::string CootLigandEditorCanvas::get_smiles() noexcept {
+    return coot_ligand_editor_canvas_get_smiles(this);
+}
+
+std::string CootLigandEditorCanvas::get_smiles_for_molecule(unsigned int molecule_idx) noexcept {
+    return coot_ligand_editor_canvas_get_smiles_for_molecule(this, molecule_idx);
+}
+
+void CootLigandEditorCanvas::clear_molecules() noexcept {
+    coot_ligand_editor_canvas_clear_molecules(this);
+}
+
+void CootLigandEditorCanvas::connect(std::string signal_name, emscripten::val callback) {
+
+    if(signal_name == "status_updated") {
+        status_updated_signal.connect([=](const char* new_status){
+            callback(std::string(new_status));
+        });
+    } else if(signal_name == "scale_changed") {
+        scale_changed_signal.connect([=](float new_scale){
+            callback(new_scale);
+        });
+    } else if(signal_name == "smiles_changed") {
+        smiles_changed_signal.connect([=](){
+            callback();
+        });
+    } else if(signal_name == "molecule_deleted") {
+        molecule_deleted_signal.connect([=](int molecule_idx){
+            callback(molecule_idx);
+        });
+    } else if(signal_name == "queue_redraw") {
+        queue_redraw_signal.connect([=](){
+            callback();
+        });
+    } else if(signal_name == "queue_resize") {
+        queue_resize_signal.connect([=](){
+            callback();
+        });
+    } else {
+        g_critical("No such signal!");
+    }
+}
+#endif // EMSCRIPTEN

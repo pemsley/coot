@@ -490,6 +490,7 @@ GCancellable* coot::layla::run_generator_request(GeneratorRequest request, CootL
         } else {
             gtk_label_set_text(task_data->dialog_status_label, "Operation completed successfully!");
             g_warning("Task finished successfully!");
+            
             auto filename = task_data->request->get_output_filename();
             if(task_data->request->generator == GeneratorRequest::Generator::Grade2) {
                 filename += ".restraints";    

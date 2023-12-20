@@ -1,4 +1,4 @@
-/* layla/utils.hpp
+/* lhasa/embind.hpp
  * 
  * Copyright 2023 by Global Phasing Ltd.
  * Author: Jakub Smulski
@@ -18,15 +18,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
  */
+#ifndef LHASA_EMBIND_HPP
+#define LHASA_EMBIND_HPP
+#include <emscripten/bind.h>
+using namespace emscripten;
 
-#ifndef LAYLA_UTILS_HPP
-#define LAYLA_UTILS_HPP
-#include <rdkit/GraphMol/RWMol.h>
-
-namespace coot::layla {
-
-void remove_non_polar_hydrogens(RDKit::RWMol& mol);
-
-}
-
-#endif //  LAYLA_UTILS_HPP
+#endif // LHASA_EMBIND_HPP

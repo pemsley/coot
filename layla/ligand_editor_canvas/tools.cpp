@@ -847,7 +847,6 @@ void StructureInsertion::on_blank_space_click(ClickContext& ctx, int x, int y) {
     g_debug("The click could not be resolved to any atom or bond.");
     if(ctx.widget_data.rdkit_molecules->empty()) {
         g_debug("There are no molecules. Structure insertion will therefore create a new one.");
-        auto* widget_ptr = static_cast<impl::CootLigandEditorCanvasPriv*>(&ctx.widget_data);
         auto rdkit_mol = std::make_shared<RDKit::RWMol>();
         rdkit_mol->addAtom(new RDKit::Atom(6),false,true);
         append_structure_to_atom(rdkit_mol.get(),0, false);
@@ -855,7 +854,16 @@ void StructureInsertion::on_blank_space_click(ClickContext& ctx, int x, int y) {
         // This function calls "begin_edition" and "finalize_edition", 
         // so we can't call "begin_edition" here above.
         RDKit::MolOps::sanitizeMol(*rdkit_mol);
+
+        #ifndef __EMSCRIPTEN__
+        auto* widget_ptr = static_cast<impl::CootLigandEditorCanvasPriv*>(&ctx.widget_data);
         coot_ligand_editor_canvas_append_molecule(COOT_COOT_LIGAND_EDITOR_CANVAS(widget_ptr), rdkit_mol);
+        #else // __EMSCRIPTEN__ defined
+        // Lhasa-specific includes/definitions
+        auto* widget_ptr = static_cast<::CootLigandEditorCanvas*>(&ctx.widget_data);
+        coot_ligand_editor_canvas_append_molecule(widget_ptr, rdkit_mol);
+        #endif
+        
         ctx.widget_data.update_status("New molecule created from carbon ring.");
         // todo: make sure that this is crash-safe vs edit/undo
     }
@@ -863,7 +871,7 @@ void StructureInsertion::on_blank_space_click(ClickContext& ctx, int x, int y) {
 
 bool RemoveHydrogensTool::on_molecule_click(MoleculeClickContext& ctx) {
     ctx.widget_data.begin_edition();
-    layla::remove_non_polar_hydrogens(ctx.rdkit_mol.get());
+    layla::remove_non_polar_hydrogens(*ctx.rdkit_mol);
     this->sanitize_molecule(ctx.widget_data, *ctx.rdkit_mol);
     ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
     ctx.widget_data.finalize_edition();

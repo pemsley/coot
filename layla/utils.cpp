@@ -27,10 +27,10 @@
 #include "../lhasa/glog_replacement.hpp"
 #endif
 
-void coot::layla::remove_non_polar_hydrogens(RDKit::RWMol* mol) {
+void coot::layla::remove_non_polar_hydrogens(RDKit::RWMol& mol) {
     std::vector<RDKit::Atom*> atoms_to_be_removed;
 
-    auto atoms = mol->atoms();
+    auto atoms = mol.atoms();
     for(RDKit::Atom* atom: atoms) {
         if(atom->getAtomicNum() == 1) {
             if(atom->getFormalCharge() == 0) {
@@ -40,9 +40,9 @@ void coot::layla::remove_non_polar_hydrogens(RDKit::RWMol* mol) {
     }
 
     for(RDKit::Atom* atom: atoms_to_be_removed) {
-        mol->removeAtom(atom);
+        mol.removeAtom(atom);
         try {
-            RDKit::MolOps::sanitizeMol(*mol);
+            RDKit::MolOps::sanitizeMol(mol);
         } catch (std::exception& e) {
             g_warning("Could not sanitize molecule while removing non-polar hydrogens: %s", e.what());
         }
