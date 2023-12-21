@@ -192,7 +192,8 @@ namespace coot {
       bool use_bespoke_grey_colour_for_carbon_atoms;
       colour_t bespoke_carbon_atoms_colour;
 
-      void update_map_triangles(float radius, Cartesian centre, float contour_level);
+      void update_map_triangles(float radius, Cartesian centre, float contour_level); // using vector of threads
+      void update_map_triangles_using_thread_pool(float radius, Cartesian centre, float contour_level, ctpl::thread_pool *thread_pool_p);
 
       short int is_em_map_cached_flag; // -1 mean unset (so set it, 0 means no, 1 means yes)
       short int is_em_map_cached_state(); // set is_em_map_cached_flag if not set
@@ -1009,7 +1010,8 @@ namespace coot {
       float get_suggested_initial_contour_level() const;
 
       // changes the internal map mesh holder (hence not const)
-      simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level);
+      simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level,
+                                          bool use_thread_pool, ctpl::thread_pool *thread_pool_p);
       simple_mesh_t get_map_contours_mesh_using_other_map_for_colours(const clipper::Coord_orth &position, float radius, float contour_level,
                                                                       const clipper::Xmap<float> &xmap);
 

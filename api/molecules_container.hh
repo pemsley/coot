@@ -304,6 +304,7 @@ class molecules_container_t {
 
    void debug() const;
 
+   bool map_is_contoured_using_thread_pool_flag;
    double contouring_time;
 
 public:
@@ -844,6 +845,9 @@ public:
    //! The next time a map mesh is requested, it will have this colour.
    //! This does not affect the colour of the difference maps.
    void set_map_colour(int imol, float r, float g, float b);
+
+   //! set the state of the mode of the threading in map contouring
+   void set_map_is_contoured_with_thread_pool(bool state);
 
    //! get the mesh for the map contours.
    //!
@@ -1496,6 +1500,9 @@ public:
 
    //! get the time for conntouring in miliseconds
    double get_contouring_time() const { return contouring_time; }
+
+   //! set the maximum number of threads in a thread pool
+   void set_max_number_of_threads_in_thread_pool(unsigned int n_threads);
 
    //! get the time to run test test function in miliseconds
    double test_the_threading(int n_threads);

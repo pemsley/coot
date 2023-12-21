@@ -97,6 +97,10 @@ coot::molecule_t::associate_data_mtz_file_with_map(const std::string &data_mtz_f
 
 
 void
+coot::molecule_t::update_map_triangles_using_thread_pool(float radius, coot::Cartesian centre, float contour_level, ctpl::thread_pool *thread_pool_p) {
+}
+
+void
 coot::molecule_t::update_map_triangles(float radius, coot::Cartesian centre, float contour_level) {
 
       // std::cout   << "DEBUG:: update_map_triangles() at center: " << centre << std::endl;
@@ -321,7 +325,8 @@ coot::molecule_t::clear_diff_map_draw_vecs() {
 }
 
 coot::simple_mesh_t
-coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level) {
+coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level,
+                                        bool use_thread_pool, ctpl::thread_pool *thread_pool_p) {
 
    // std::cout << "!!! ##### get_map_contours_mesh() for imol " << imol_no << std::endl;
 
@@ -332,7 +337,10 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
    coot::simple_mesh_t m; // initially status is good (1).
 
    coot::Cartesian p(position.x(), position.y(), position.z());
-   update_map_triangles(radius, p, contour_level);
+   if (use_thread_pool)
+      update_map_triangles_using_thread_pool(radius, p, contour_level, thread_pool_p);
+   else
+      update_map_triangles(radius, p, contour_level);
 
    // now convert the contents of the draw-vector sets to a simple_mesh_t.
 
