@@ -99,6 +99,11 @@ molecules_container_t::debug() const {
    }
 }
 
+void
+molecules_container_t::set_map_is_contoured_with_thread_pool(bool state) {
+   map_is_contoured_using_thread_pool_flag = state;
+}
+
 
 std::string
 molecules_container_t::get_molecule_name(int imol) const {
@@ -1833,7 +1838,7 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
             update_updating_maps(updating_maps_info.imol_model);
          }
 
-         mesh = molecules[imol].get_map_contours_mesh(position, radius, contour_level);
+         mesh = molecules[imol].get_map_contours_mesh(position, radius, contour_level, map_is_contoured_using_thread_pool_flag, &static_thread_pool);
       } else {
          std::cout << "WARNING:: get_map_contours_mesh() Not a valid map molecule " << imol << std::endl;
       }
@@ -4847,6 +4852,14 @@ molecules_container_t::get_hb_type(const std::string &compound_id, int imol_enc,
 }
 
 
+#include "utils/coot-utils.hh"
+
+//! set the maximum number of threads in a thread pool
+void
+molecules_container_t::set_max_number_of_threads_in_thread_pool(unsigned int n_threads) {
+   coot::set_max_number_of_threads(n_threads);
+   static_thread_pool.resize(n_threads);
+}
 
 //! get the time to run test test function in miliseconds
 double

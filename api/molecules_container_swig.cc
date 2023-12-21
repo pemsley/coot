@@ -146,7 +146,7 @@ molecules_container_t::get_pythonic_map_mesh(int imol, float x, float y, float z
    coot::simple_mesh_t mesh;
    clipper::Coord_orth pt(x,y,z);
    if (is_valid_map_molecule(imol)) {
-      mesh = molecules[imol].get_map_contours_mesh(pt, radius, contour_level);
+      mesh = molecules[imol].get_map_contours_mesh(pt, radius, contour_level, map_is_contoured_using_thread_pool_flag, &static_thread_pool);
    }
    return simple_mesh_to_pythonic_mesh(mesh, SINGLE_COLOUR);
 }
