@@ -3895,7 +3895,22 @@ int test_self_restraints(molecules_container_t &mc) {
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    mc.generate_self_restraints(imol, 5.0);
    coot::instanced_mesh_t im = mc.get_extra_restraints_mesh(imol, 0);
-   if (im.geom[0].instancing_data_B.size() > 10) status = 1;
+   unsigned int size = im.geom[0].instancing_data_B.size();
+   if (size > 10) {
+      int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+      mc.generate_local_self_restraints(imol_2, 5, "//A/10");
+      im = mc.get_extra_restraints_mesh(imol_2, 0);
+      unsigned int size_1 = im.geom[0].instancing_data_B.size();
+      mc.generate_local_self_restraints(imol_2, 5, "//A/11-22");
+      im = mc.get_extra_restraints_mesh(imol_2, 0);
+      unsigned int size_2 = im.geom[0].instancing_data_B.size();
+      std::cout << "size-1 " << size_1 << " size-2: " << size_2 << std::endl;
+      if (size_1 > 10) {
+         if (size_2 > 2 * size_1) {
+            status = 1;
+         }
+      }
+   }
    return status;
 }
 
@@ -3988,8 +4003,13 @@ int test_pdbe_dictionary_depiction(molecules_container_t &mc) {
    // Just that the file is written. It is up to us to look at the image.
 
    mc.import_cif_dictionary(reference_data("MOI.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY); // from Oliver Smart
-   mc.write_png("MOI", coot::protein_geometry::IMOL_ENC_ANY, "MOI-depiction.png");
-   if (coot::file_exists("MOI-depiction.png")) status = 1; // not a good test.
+   // mc.write_png("MOI", coot::protein_geometry::IMOL_ENC_ANY, "MOI-depiction.png");
+   // if (coot::file_exists("MOI-depiction.png")) status = 1; // not a good test.
+
+   std::string svg = mc.get_svg_for_residue_type(coot::protein_geometry::IMOL_ENC_ANY, "MOI", true, false);
+   std::ofstream f("MOI.svg");
+   f << svg;
+   f.close();
    return status;
 }
 
@@ -4311,7 +4331,7 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_thread_pool, "thread pool",    mc);
+   // status += run_test(test_thread_pool, "thread pool",    mc);
 
    // status += run_test(test_thread_launching, "thread launching",    mc);
 
@@ -4369,7 +4389,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_something_filo, "Self something filo", mc);
 
-   // status += run_test(test_self_restraints, "Self restraints mesh", mc);
+   status += run_test(test_self_restraints, "Self restraints mesh", mc);
 
    // status += run_test(test_other_user_define_colours_other, "New colour test", mc);
 

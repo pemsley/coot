@@ -979,6 +979,9 @@ namespace coot {
       void generate_local_self_restraints(float local_dist_max,
                                           const std::vector<coot::residue_spec_t> &residue_specs,
                                           const coot::protein_geometry &geom);
+      void generate_local_self_restraints(float local_dist_max,
+                                          const std::string &multi_selection_cid,
+                                          const coot::protein_geometry &geom);
       void generate_local_self_restraints(int selHnd, float local_dist_max,
                                           const coot::protein_geometry &geom);
 

@@ -4140,16 +4140,23 @@ molecules_container_t::generate_chain_self_restraints(int imol,
 //! `residue_cids" is a "||"-separated list of residues, e.g. "//A/12||//A/14||/B/56"
 void
 molecules_container_t::generate_local_self_restraints(int imol, float local_dist_max,
-                                                      const std::string & residue_cids) {
+                                                      const std::string &multi_selection_cid) {
+
+   std::string residue_cids = multi_selection_cid; // 20231220-PE old style, residue by residue
+   bool do_old_style = false;
    if (is_valid_model_molecule(imol)) {
-      std::vector<coot::residue_spec_t> residue_specs;
-      std::vector<std::string> parts = coot::util::split_string(residue_cids, "||");
-      for (const auto &part : parts) {
-         coot::residue_spec_t rs = residue_cid_to_residue_spec(imol, part);
-         if (! rs.empty())
-            residue_specs.push_back(rs);
+      if (do_old_style) {
+         std::vector<coot::residue_spec_t> residue_specs;
+         std::vector<std::string> parts = coot::util::split_string(residue_cids, "||");
+         for (const auto &part : parts) {
+            coot::residue_spec_t rs = residue_cid_to_residue_spec(imol, part);
+            if (! rs.empty())
+               residue_specs.push_back(rs);
+         }
+         molecules[imol].generate_local_self_restraints(local_dist_max, residue_specs, geom);
+      } else {
+         molecules[imol].generate_local_self_restraints(local_dist_max, multi_selection_cid, geom);
       }
-      molecules[imol].generate_local_self_restraints(local_dist_max, residue_specs, geom);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -4911,6 +4918,9 @@ molecules_container_t::test_thread_pool_threads(unsigned int n_threads) const {
    for (unsigned int i=0; i<n_threads; i++) {
       static_thread_pool.push(sum, i, i, std::ref(done_count_for_threads));
    }
+   while (done_count_for_threads < n_threads)
+      std::this_thread::sleep_for(std::chrono::nanoseconds(300));
+
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
    t = d10;

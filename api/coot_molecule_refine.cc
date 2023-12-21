@@ -45,6 +45,8 @@ coot::molecule_t::generate_chain_self_restraints(float local_dist_max,
    // atom_sel.mol->DeleteSelection(selHnd);
 }
 
+
+// 20231220-PE "Old" style - residue by residue (not ranges)
 void
 coot::molecule_t::generate_local_self_restraints(float local_dist_max,
                                                  const std::vector<coot::residue_spec_t> &residue_specs,
@@ -53,11 +55,43 @@ coot::molecule_t::generate_local_self_restraints(float local_dist_max,
    // Find all the contacts in chain_id that are less than or equal to local_dist_max
    // that are not bonded or related by an angle.
 
+   // should this selection be deleted here?
+   std::cout << "------------------ generate_local_self_restraints() old ---- " << std::endl;
+
    int selHnd = coot::specs_to_atom_selection(residue_specs, atom_sel.mol, 0);
    if (selHnd >= 0) {
       generate_local_self_restraints(selHnd, local_dist_max, geom);
    }
 }
+
+void
+coot::molecule_t::generate_local_self_restraints(float local_dist_max,
+                                                 const std::string &multi_selection_cid,
+                                                 const coot::protein_geometry &geom) {
+
+   std::cout << "*************************************************" << std::endl;
+
+   // should this selection be deleted at the end of this function?
+   //
+   int selHnd = atom_sel.mol->NewSelection();
+
+   std::vector<std::string> v = coot::util::split_string(multi_selection_cid, "||");
+   if (! v.empty()) {
+      for (const auto &cid : v) {
+         atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
+         if (true) { // debug
+            int nSelAtoms = 0;
+            mmdb::PPAtom SelAtom = 0;
+            atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
+            std::cout << "    " << cid << " n-selected-total: " << nSelAtoms << std::endl;
+         }
+      }
+      if (selHnd >= 0) {
+         generate_local_self_restraints(selHnd, local_dist_max, geom);
+      }
+   }
+}
+
 
 void
 coot::molecule_t::generate_local_self_restraints(int selHnd, float local_dist_max,
@@ -66,8 +100,8 @@ coot::molecule_t::generate_local_self_restraints(int selHnd, float local_dist_ma
    // clear what's already there - if anything
    extra_restraints.bond_restraints.clear();
 
-   int nSelAtoms;
-   mmdb::PPAtom SelAtom;
+   int nSelAtoms = 0;
+   mmdb::PPAtom SelAtom = 0;
    atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 
    // bonded_neighbours in this case, means bonded or angle-related
