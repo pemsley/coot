@@ -4012,10 +4012,14 @@ int test_pdbe_dictionary_depiction(molecules_container_t &mc) {
    // Just that the file is written. It is up to us to look at the image.
 
    mc.import_cif_dictionary(reference_data("MOI.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY); // from Oliver Smart
-   // mc.write_png("MOI", coot::protein_geometry::IMOL_ENC_ANY, "MOI-depiction.png");
+
+   mc.write_png("MOI", coot::protein_geometry::IMOL_ENC_ANY, "MOI-depiction.png");
+
    // if (coot::file_exists("MOI-depiction.png")) status = 1; // not a good test.
 
-   std::string svg = mc.get_svg_for_residue_type(coot::protein_geometry::IMOL_ENC_ANY, "MOI", true, false);
+   bool use_rdkit_rendering = true;
+   bool dark_background = false;
+   std::string svg = mc.get_svg_for_residue_type(coot::protein_geometry::IMOL_ENC_ANY, "MOI", use_rdkit_rendering, dark_background);
    std::ofstream f("MOI.svg");
    f << svg;
    f.close();
@@ -4340,9 +4344,11 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-      status += run_test(test_density_mesh,          "density mesh",             mc);
+   status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction", mc);
 
-      // status += run_test(test_thread_pool, "thread pool",    mc);
+   // status += run_test(test_density_mesh,          "density mesh",             mc);
+
+   // status += run_test(test_thread_pool, "thread pool",    mc);
 
    // status += run_test(test_thread_launching, "thread launching",    mc);
 

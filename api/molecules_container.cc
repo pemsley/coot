@@ -669,7 +669,7 @@ molecules_container_t::get_group_for_monomer(const std::string &residue_name) co
 }
 
 
-#if 0 // 20231129-PE Cairo is not allowed.
+#if RDKIT_HAS_CAIRO_SUPPORT // 20231129-PE Cairo is not allowed.
 #include <GraphMol/MolDraw2D/MolDraw2DCairo.h>
 #include "lidia-core/rdkit-interface.hh"
 #endif
@@ -679,7 +679,8 @@ void
 molecules_container_t::write_png(const std::string &compound_id, int imol_enc,
                                  const std::string &file_name) const {
 
-#if 0 // 20231129-PE Cairo is not allowed.
+#if RDKIT_HAS_CAIRO_SUPPORT // 20231129-PE Cairo is not allowed in Moorhen.
+                            // 20231221-PE but is in Coot.
 
    // For now, let's use RDKit PNG depiction, not lidia-core/pyrogen
 

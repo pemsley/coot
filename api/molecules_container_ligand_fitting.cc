@@ -420,25 +420,62 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
       if (mr.first) {
          try {
             const coot::dictionary_residue_restraints_t &restraints = mr.second;
-            RDKit::RWMol mol = coot::rdkit_mol(restraints);
-            // bool undelocalize_flag = true;
-            // used undelocalize_flag in RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest, "", undelocalize_flag);
-            // RDKit::RWMol mol_rw = coot::rdkit_mol_sanitized(r, imol, geom);
-            RDKit::MolOps::removeHs(mol);
-            RDKit::MolOps::Kekulize(mol);
-            int iconf = RDDepict::compute2DCoords(mol, NULL, true);
-            RDKit::Conformer &conf = mol.getConformer(iconf);
-            RDKit::WedgeMolBonds(mol, &conf);
-            if (use_rdkit_svg) {
-               std::stringstream ss;
-               RDKit::MolDraw2DSVG svg_drawer_ss(400, 400, ss);
-               svg_drawer_ss.drawMolecule(mol);
-               svg_drawer_ss.finishDrawing();
-               s = ss.str();
+            std::pair<int, RDKit::RWMol> mol_pair = coot::rdkit_mol_with_2d_depiction(restraints);
+            int conformer_id = mol_pair.first;
+
+            if (conformer_id == -1) { // there was no depiction in the restraints
+
+               RDKit::RWMol mol = coot::rdkit_mol(restraints);
+               // bool undelocalize_flag = true;
+               // used undelocalize_flag in RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest, "", undelocalize_flag);
+               // RDKit::RWMol mol_rw = coot::rdkit_mol_sanitized(r, imol, geom);
+               RDKit::MolOps::removeHs(mol);
+               RDKit::MolOps::Kekulize(mol);
+               int iconf = RDDepict::compute2DCoords(mol, NULL, true);
+               RDKit::Conformer &conf = mol.getConformer(iconf);
+               RDKit::WedgeMolBonds(mol, &conf);
+               if (use_rdkit_svg) {
+                  std::stringstream ss;
+                  RDKit::MolDraw2DSVG svg_drawer_ss(400, 400, ss);
+                  svg_drawer_ss.drawMolecule(mol);
+                  svg_drawer_ss.finishDrawing();
+                  s = ss.str();
+               } else {
+                  svg_molecule_t svg;
+                  svg.import_rdkit_mol(&mol, iconf);
+                  s = svg.render_to_svg_string(dark_bg_flag);
+                  ligand_svg_store[key] = s;
+               }
             } else {
-               svg_molecule_t svg;
-               svg.import_rdkit_mol(&mol, iconf);
-               s = svg.render_to_svg_string(dark_bg_flag);
+
+               // std::cout << "Use the depiction from the restraints ---------------------------- " << std::endl;
+
+               // there was a depiction in the restraints - use that.
+               auto &rdkit_mol(mol_pair.second);
+
+               if (use_rdkit_svg) {
+
+                  if (false) { // this resets the wedges, which we don't want to do
+                     RDKit::Conformer &conf = rdkit_mol.getConformer(conformer_id);
+                     RDKit::WedgeMolBonds(rdkit_mol, &conf);
+                  }
+                  std::stringstream ss;
+                  RDKit::MolDraw2DSVG svg_drawer_ss(400, 400, ss);
+                  // svg_drawer_ss.drawMolecule(rdkit_mol);
+                  svg_drawer_ss.drawMolecule(rdkit_mol, nullptr, nullptr, nullptr, conformer_id);
+                  std::string dt = svg_drawer_ss.getDrawingText();
+                  svg_drawer_ss.finishDrawing();
+                  s = ss.str();
+
+               } else {
+
+                  RDKit::Conformer &conf = rdkit_mol.getConformer(conformer_id);
+                  RDKit::WedgeMolBonds(rdkit_mol, &conf);
+                  svg_molecule_t svg;
+                  svg.import_rdkit_mol(&rdkit_mol, conformer_id);
+                  dark_bg_flag = false;
+                  s = svg.render_to_svg_string(dark_bg_flag);
+               }
                ligand_svg_store[key] = s;
             }
          }
