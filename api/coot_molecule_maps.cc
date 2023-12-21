@@ -98,6 +98,43 @@ coot::molecule_t::associate_data_mtz_file_with_map(const std::string &data_mtz_f
 
 void
 coot::molecule_t::update_map_triangles_using_thread_pool(float radius, coot::Cartesian centre, float contour_level, ctpl::thread_pool *thread_pool_p) {
+
+   auto local_gensurf_and_add_vecs_threaded_workpackage = [] (unsigned int thread_index,
+                                                              const clipper::Xmap<float> *xmap_p,
+                                                              float contour_level, float dy_radius,
+                                                              coot::Cartesian centre,
+                                                              int isample_step,
+                                                              int iream_start, int n_reams,
+                                                              bool is_em_map,
+                                                              std::vector<coot::density_contour_triangles_container_t> *draw_vector_sets_p,
+                                                              std::atomic<unsigned int> &done_count_for_threads) {
+
+      gensurf_and_add_vecs_threaded_workpackage(xmap_p, contour_level, dy_radius, centre, isample_step, iream_start, n_reams,
+                                                is_em_map, draw_vector_sets_p);
+      done_count_for_threads++;
+   };
+
+   if (!xmap.is_null()) {
+
+      bool is_em_map = false;
+      if (is_em_map_cached_state() == 1) {
+         is_em_map = true;
+      }
+
+      int isample_step = 1;
+      clear_draw_vecs();
+      int n_reams = coot::get_max_number_of_threads() - 1;
+      if (n_reams < 1) n_reams = 1;
+      std::atomic<unsigned int> done_count_for_threads(0);
+      for (int ii=0; ii<n_reams; ii++) {
+         thread_pool_p->push(local_gensurf_and_add_vecs_threaded_workpackage,
+                             &xmap, contour_level, radius, centre,
+                             isample_step, ii, n_reams, is_em_map,
+                             &draw_vector_sets, std::ref(done_count_for_threads));
+      }
+      while (done_count_for_threads < static_cast<unsigned int>(n_reams))
+         std::this_thread::sleep_for(std::chrono::microseconds(3));
+   }
 }
 
 void
@@ -337,10 +374,17 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
    coot::simple_mesh_t m; // initially status is good (1).
 
    coot::Cartesian p(position.x(), position.y(), position.z());
+
+   bool show_timings = true;
+   auto tp_0 = std::chrono::high_resolution_clock::now();
    if (use_thread_pool)
       update_map_triangles_using_thread_pool(radius, p, contour_level, thread_pool_p);
    else
       update_map_triangles(radius, p, contour_level);
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   if (show_timings)
+      std::cout << "Timings: map contouring " << d10 << " milliseconds" << std::endl;
 
    // now convert the contents of the draw-vector sets to a simple_mesh_t.
 
