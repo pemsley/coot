@@ -312,9 +312,12 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
                   if (cat_name == "_pdbx_chem_comp_model_bond")
                      rmit.n_atoms += comp_bond(mmCIFLoop, imol_enc, true);
 
-                  // PDBe depection
+                  // PDBe depiction
                   if (cat_name == "_pdbe_chem_comp_atom_depiction")
                      pdbe_chem_comp_atom_depiction(mmCIFLoop, imol_enc);
+
+                  if (cat_name == "_pdbx_chem_comp_description_generator")
+                     pdbx_chem_comp_description_generator(mmCIFLoop, imol_enc);
 
                }
             }
@@ -952,6 +955,41 @@ coot::protein_geometry::pdbe_chem_comp_atom_depiction(mmdb::mmcif::PLoop mmCIFLo
             dict_res_restraints[idx].second.depiction = d;
             std::cout << "debug:: pdbe_chem_comp_atom_depiction() added depiction of "
                       << dav.size() << " atoms " << std::endl;
+         }
+      }
+   }
+}
+
+void
+coot::protein_geometry::pdbx_chem_comp_description_generator(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
+
+   int ierr = 0;
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      std::string comp_id;
+      std::string program_name;
+      std::string program_version;
+      std::string descriptor;
+      char *s = mmCIFLoop->GetString("comp_id", j, ierr);
+      if (s) {
+         comp_id = std::string(s);
+      }
+      s = mmCIFLoop->GetString("program_name", j, ierr);
+      if (s) {
+         program_name = std::string(s);
+      }
+      s = mmCIFLoop->GetString("program_version", j, ierr);
+      if (s) {
+         program_version = std::string(s);
+      }
+      s = mmCIFLoop->GetString("descriptor", j, ierr);
+      if (s) {
+         descriptor = std::string(s);
+      }
+      if (ierr == 0) {
+         pdbx_chem_comp_description_generator_t dg(program_name, program_version, descriptor);
+         int idx = get_monomer_restraints_index(comp_id, imol_enc, true);
+         if (idx >= 0) {
+            dict_res_restraints[idx].second.description_generation = dg;
          }
       }
    }
