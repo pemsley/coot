@@ -398,7 +398,7 @@
 # 6.09 20220907-PE meson adjustment for compiling glib (what a pain)
 # 6.10 20230603-PE remove goocanvas
 # 6.11 20241113-PE print out the script_version
-script_version=6.10
+script_version=6.11
 
 
 
@@ -977,7 +977,6 @@ if test "$OS" = "Darwin" ; then
    if test "$processor" = "i386" ; then
       need_glib_getpwuid_fix=1
       need_glib_poll_fix=1
-      need_gtk_canvas_patch=1
    fi
    osversion=$(sw_vers -productVersion)
    systype=MacOSX-${osversion}-${processor}
