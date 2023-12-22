@@ -1498,13 +1498,13 @@ public:
    //! get the stats for the long-term job (testing function)
    ltj_stats_t testing_interrogate_long_term_job() { return long_term_job_stats; }
 
-   //! get the time for conntouring in miliseconds
+   //! get the time for conntouring in milliseconds
    double get_contouring_time() const { return contouring_time; }
 
    //! set the maximum number of threads in a thread pool
    void set_max_number_of_threads_in_thread_pool(unsigned int n_threads);
 
-   //! get the time to run test test function in miliseconds
+   //! get the time to run a test function in milliseconds
    double test_the_threading(int n_threads);
 
    //! @return the time per batch in microseconds
