@@ -4218,6 +4218,46 @@ int test_thread_pool(molecules_container_t &mc) {
    return status;
 }
 
+int test_long_name_ligand_cif_merge(molecules_container_t &mc) {
+
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("8a2q.cif"));
+   mc.import_cif_dictionary(reference_data("7ZTVU.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+
+   return status;
+}
+
+
+#include "gemmi/mmread.hpp"
+#include "gemmi/mmdb.hpp"
+
+int test_disappearing_ligand(molecules_container_t &mc) {
+
+   int status = 0;
+   // int imol = mc.read_pdb(reference_data("6ttq.cif")); // needs gemmi
+   int imol = mc.read_pdb(reference_data("8a2q.cif"));
+   mmdb::Manager *mol = mc.get_mol(imol);
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            std::cout << "    " << chain_p->GetChainID() << " " << n_res << " residues " << std::endl;
+         }
+      }
+   }
+   mc.import_cif_dictionary(reference_data("MOI.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   int imol_lig = mc.get_monomer("MOI");
+   std::string sl = std::to_string(imol_lig);
+   std::pair<int, std::vector<merge_molecule_results_info_t> > ss = mc.merge_molecules(imol, sl);
+   mc.write_coordinates(imol, "merged.cif");
+   gemmi::Structure st = gemmi::read_structure_file("merged.cif");
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -4344,7 +4384,11 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction", mc);
+   status += run_test(test_disappearing_ligand, "disappearning ligand", mc);
+
+   // status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
+
+   // status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction", mc);
 
    // status += run_test(test_density_mesh,          "density mesh",             mc);
 

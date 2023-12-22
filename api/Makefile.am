@@ -80,7 +80,7 @@ test_molecules_container_LDFLAGS = ./libcoot-api.la \
    $(top_builddir)/geometry/libcoot-geometry.la      \
    $(top_builddir)/coords/libcoot-coords.la	     \
    $(top_builddir)/utils/libcoot-utils.la            \
-   $(CLIPPER_LIBS) $(MMDB_LIBS) 
+   $(CLIPPER_LIBS) $(GEMMI_LIBS) $(MMDB_LIBS)
 
 # ---------- pythonic ------------------
 
