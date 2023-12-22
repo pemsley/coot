@@ -201,8 +201,13 @@ coot::molecule_t::write_coordinates(const std::string &file_name) const {
       if (coot::util::extension_is_for_shelx_coords(ext)) {
          write_shelx_ins_file(file_name);
       } else {
-         mmdb::byte bz = mmdb::io::GZM_NONE; // 20221018-PE  this should be used too
-         err = coot::write_coords_pdb(atom_sel.mol, file_name);
+         if (ext == ".cif") {
+            mmdb::byte bz = mmdb::io::GZM_NONE; // 20221018-PE  this should be used too
+            err = coot::write_coords_cif(atom_sel.mol, file_name);
+         } else {
+            mmdb::byte bz = mmdb::io::GZM_NONE; // 20221018-PE  this should be used too
+            err = coot::write_coords_pdb(atom_sel.mol, file_name);
+         }
       }
    }
    return err;
