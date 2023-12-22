@@ -1,6 +1,11 @@
 
 ----
 
+Is it a good idea for the wasm build from CCP4_WASM_BUILD/moorhen_build compiles test-molecules-container?
+
+libcootapi:
+  get rid of #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY in add-terminal-residue.cc
+
 libcootapi:
    //! generate GM self restraints for the given residues.
    //! `residue_cids" is a "||"-separated list of residues, e.g. "//A/12||//A/14||/B/56"
@@ -11,6 +16,8 @@ libcootapi:
 libcootapi: look at merging 7ZTVU (or whatever it was) into a cif file. Look at the output cif for
    ligand: atom_site seq_id.
    Merge a ligand with a long ligand name into a molecule from a PDB file, then try to refine the ligand.
+
+Nice to have: add a SSBOND to a PDB or cif and it does the check that the residues are there and adds the record.
 
 ligand figures from the chem_comp_atom_depiction_t
 
@@ -30,6 +37,8 @@ libcootapi: Have a look at this when compiling with emscripten
    #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 * Done.
 
+libcootapi: cif parsing: let's have the acedrg version of gphl_chem_comp_info
+
 // This needs a look. When did I comment this out? And why?
 ligand/residue_by_phi_psi.hh:// #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 Can I use residue_by_phi_psi multi-threaded?
@@ -47,6 +56,8 @@ Graphics: tap, tap tap, tap tap tap left-quote for residue, chain molecule.
 Graphics: pdb4nia
           coot.set_model_molecule_representation_style(0,1)
           Mg atoms are massive (too big)
+
+GUI: warn user if they have a PDB files and merge in a 5-char ligand. Likewise in Moorhen.
 
 GUI/Graphics bug:: why are there no labels for 7dy0.cif? Also, it seems very laggy.
 

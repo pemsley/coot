@@ -3981,7 +3981,8 @@ INFO::
      Make sure the release is called Release, not pre-release
    o change the version in configure.ac
    o Artists acknowledged in glade/aboutdialog?
-   o Use glade-2
+   o Currec the version in the about_dialog in the coot-gtk4.ui file
+   o Use []
         Change the splash screen
         Change the release name in the About dialog (aboutdialog) (not needed for bug fix)
         and copyright years.
