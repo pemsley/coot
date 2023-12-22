@@ -195,11 +195,6 @@ svg_bond_t::draw_double_in_ring_bond(const lig_build::pos_t &pos_1_in,
 
    s += make_bond_line_string(p1, p2, bond_colour);
 
-   if (dashed_inner) {
-      double dashlength = 0.015; // 0.01 is also fine
-      // cairo_set_dash(cr, &dashlength, 1, 0);
-      std::cout << "draw_double_in_ring_bond(): set dash inner here " << std::endl; // 20221130-PE 
-   }
    p1 = svg_molecule_t::mol_coords_to_svg_coords(p.first,  centre, scale);
    p2 = svg_molecule_t::mol_coords_to_svg_coords(p.second, centre, scale);
 
@@ -207,7 +202,11 @@ svg_bond_t::draw_double_in_ring_bond(const lig_build::pos_t &pos_1_in,
    // cairo_line_to(cr, p2.x, p2.y);
    // cairo_stroke(cr);
 
-   s += make_bond_line_string(p1, p2, bond_colour);
+   if (dashed_inner) {
+      s += make_dashed_bond_line_string(p1, p2, bond_colour);
+   } else {
+      s += make_bond_line_string(p1, p2, bond_colour);
+   }
 
    if (dashed_inner) {
       //cairo_set_dash(cr, NULL, 0, 0); // restore
@@ -366,6 +365,27 @@ svg_bond_t::make_bond_line_string(const lig_build::pos_t &p1, const lig_build::p
    return s;
 }
 
+std::string
+svg_bond_t::make_dashed_bond_line_string(const lig_build::pos_t &p1, const lig_build::pos_t &p2,
+                                         const std::string &bond_colour) const {
+
+   double sf = 400.0; // scale factor
+   std::string s;
+   s += "   <line x1=\"";
+   s += std::to_string(sf * p1.x);
+   s += "\" y1=\"";
+   s += std::to_string(sf * p1.y);
+   s += "\" x2=\"";
+   s += std::to_string(sf * p2.x);
+   s += "\" y2=\"";
+   s += std::to_string(sf * p2.y);
+   s += "\"";
+   s += " style=\"stroke:";
+   // s += "#202020";
+   s += bond_colour;
+   s += "; stroke-width:2; stroke-dasharray=\"10,10\"; fill:none; stroke-linecap:round;\" />\n";
+   return s;
+}
 
 std::string
 svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,

@@ -28,6 +28,8 @@ class svg_bond_t : public lig_build::bond_t {
                                                  double scale) const;
    std::string make_bond_line_string(const lig_build::pos_t &p1, const lig_build::pos_t &p2,
                                      const std::string &bond_colour) const;
+   std::string make_dashed_bond_line_string(const lig_build::pos_t &p1, const lig_build::pos_t &p2,
+                                            const std::string &bond_colour) const;
 public:
    svg_bond_t(int first, int second, lig_build::bond_t::bond_type_t type) :
       lig_build::bond_t(first, second, type) {}
