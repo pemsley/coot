@@ -734,9 +734,9 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
       // should these positions depend on the median_bond_length_?
 
       if (atom_id_info[i].text_pos_offset == lig_build::offset_text_t::UP)
-	 p.y -= 0.36 * scale * median_bond_length;
+	 p.y -= 0.4 * scale * median_bond_length; // was 0.36
       if (atom_id_info[i].text_pos_offset == lig_build::offset_text_t::DOWN)
-	 p.y += 0.36 * scale * median_bond_length;
+	 p.y += 0.4 * scale * median_bond_length; // was 0.36
 
       if (atom_id_info.size_hint == -1) {
 	 // cairo_set_font_size(cr, 0.44 * scale * 0.7 * median_bond_length);
@@ -783,7 +783,7 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
 	    // cairo_show_text(cr, txt.c_str());
 	    // cairo_stroke(cr);
 
-            // 20230215-PE upated
+            // 20230215-PE updated
             double x_fudge = -sf * 0.50 / 50.0;
             double y_fudge =  sf * 0.65 / 50.0;
 
