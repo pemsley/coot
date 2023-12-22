@@ -4384,11 +4384,11 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
    }
 
-   status += run_test(test_disappearing_ligand, "disappearning ligand", mc);
+   // status += run_test(test_disappearing_ligand, "disappearning ligand", mc);
 
    // status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
 
-   // status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction", mc);
+   status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction", mc);
 
    // status += run_test(test_density_mesh,          "density mesh",             mc);
 
