@@ -20,8 +20,10 @@ libcootapi: look at merging 7ZTVU (or whatever it was) into a cif file. Look at 
 Nice to have: add a SSBOND to a PDB or cif and it does the check that the residues are there and adds the record.
 
 ligand figures from the chem_comp_atom_depiction_t
+* Semi done, need to work in the Coot part also.
 
-chain-id range test: Tweak ParseSelectionPath().
+MMDB: Look at mmdb chain selection. Can you remove chain range?
+      chain-id range test: Tweak ParseSelectionPath().
 
 Coot: Fix this in pyrogen Makefile:
       SWIG_FLAGS = -DSWIG -DCOOT_USE_GTK2_INTERFACE
@@ -48,8 +50,7 @@ Moorhen: Ligand fitting return a triple of the cluster index, the ligand index a
 
 Moorhen: Set a flag for contouring timers. Add them, store the result, and use the flag to get the times.
          Does the contouring write any output? If so, remove it.
-
-MMDB: Look at mmdb chain selection. Can you remove chain range?
+* Done.
 
 Graphics: tap, tap tap, tap tap tap left-quote for residue, chain molecule.
 
