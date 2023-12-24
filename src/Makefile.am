@@ -425,6 +425,7 @@ libcootsumo_la_SOURCES = \
 	cc-interface.hh		 \
 	cc-interface-alignment.cc \
 	cc-interface-graphics.cc \
+	cc-interface-graphics.hh \
 	cc-interface-merge.cc    \
 	cc-interface-alignment.hh \
 	cc-interface-ncs.hh      \

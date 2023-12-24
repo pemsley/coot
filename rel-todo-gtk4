@@ -67,6 +67,8 @@ GUI/libcootapi: check that DNA is correctly mutate to DNA bases in the Mutate Re
 
 GUI: Mutate Residue Range GUI: Match counts doesn't work correctly
 
+GUI: Open Coords dialog, Move molecule here doesn't work.
+
 GUI:: Validate -> Atom Overlaps doesn't work.
 
 GUI: Edit -> Settings -> Save current size and position doesn't work.
@@ -218,6 +220,9 @@ Science: "One button" post-jiggle fit "black box morph refine"
    o Lessen blur
    o Refine
    Tricky thing is to find interesting cases.
+
+Science/Useful: Calculate the RSR contact dots only for atoms with in ~12 A (say) of the
+   centre of the screen.
 
 Useful: Find some Cryo-EM ligand for demo at the ligands meeting.
 * I found a couple so far.

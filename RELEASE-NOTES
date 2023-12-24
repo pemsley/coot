@@ -1,4 +1,40 @@
 
+  Release 1.1.03
+
+  o FEATURE: outline active residue on leftquote
+
+  o FEATURE: Shortcuts dialog
+
+  o FEATURE: Goodsell NCS colouring mode
+
+  o FEATURE: Improved Gaussian surfaces
+
+  o FEATURE: Generic objects are now part of SSAO and shadow framebuffers
+
+  o FEATURE: "Coot Points" added to updating difference maps
+
+  o FEATURE: Animate the removal of NBC outliers
+
+  o FEATURE: Semi-dark background mode
+
+  o CHANGE:  Layla updates
+
+  o BUG-FIX: command line arguments are now recognised
+
+  o BUG-FIX: Limit the radius of water atoms
+
+  o BUG-FIX: Fixup for rigid-body fit toolbar buttons
+
+  o BUG-FIX: Trackpad-mode no only for Mac
+
+  o BUG-FIX: Add handler for trans-peptide and planar peptide refinement checkbuttons
+
+----
+
+  Release 1.1.02
+
+  o BUG-FIX: Configuration of guile
+
 ----
 
   Release 1.1.01
