@@ -161,6 +161,8 @@ Graphics: I'd like to be able to move through/select rotamers in moving-atoms mo
 Graphics/libcootapi: write a function to convert a simple mesh to a type-B instanced mesh with
           matrices from BIOMT records.
 
+Graphics/GUI: Martin: Does the Rotate/translate work around the centre of the fragment?
+
 Graphics: Bug: 7dy0 all-atom B-factor - the colour range goes too far (into purple)
 
 API: add rigid_body_fit_chain(imol, chain_id) to the moorhen and coot apis.
