@@ -304,13 +304,25 @@ fi
 AC_ARG_WITH(rdkit-prefix, AS_HELP_STRING([--with-rdkit-prefix location of the RDKit package]),
             rdkit_prefix="$withval", rdkit_prefix=false)
 
+AC_SUBST(EMBEDDED_PYTHON_LIBS, "$PYTHON_LIBS")
+pl="$PYTHON_LIBS"
+
+case "${host_os}" in
+    *darwin* )
+      pl="-undefined dynamic_lookup"
+      # python libs for coot-bin executable (embedding Python) will need regular linking
+      # Fix that latter.
+      PYTHON_LIBS="-undefined dynamic_lookup"
+      ;;
+esac
+
 if test x$rdkit_prefix = xfalse ; then
    echo checking for RDKit in $prefix
    if test -x $prefix/include/rdkit ; then
       echo OK, good we found RDKit in $prefix
       rdkit_install_dir=$prefix
       RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
-      RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams -l$BOOST_PYTHON_LIB $PYTHON_LIBS"
+      RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams -l$BOOST_PYTHON_LIB $pl"
    else
       echo Configuration error. No, bad... we do not have necessary RDKIT
       exit 1
@@ -319,7 +331,7 @@ else
    rdkit_install_dir="$withval"
    # better RDKit linking I hope
    RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
-   RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams -l$BOOST_PYTHON_LIB $PYTHON_LIBS"
+   RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams -l$BOOST_PYTHON_LIB $pl"
 fi
 
 if test x$coot_enhanced_ligand_additions = xtrue ; then

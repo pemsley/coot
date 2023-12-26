@@ -334,7 +334,7 @@ coot_bin_LDADD =  \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/utils/libcoot-utils.la             \
-	$(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS) $(EPOXY_LIBS) $(PYTHON_LIBS)
+	$(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS) $(EPOXY_LIBS) $(EMBEDDED_PYTHON_LIBS)
 
 
 lib_LTLIBRARIES=libcootsumo.la
