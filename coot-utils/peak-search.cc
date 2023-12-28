@@ -498,7 +498,7 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
    std::sort(r.begin(), r.end(), compare_ps_peaks);
 
    std::vector<std::pair<clipper::Coord_orth, float> > rf = filter_peaks_by_closeness(r);
-   
+
    return rf;
 }
 
@@ -506,7 +506,7 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 
 std::vector<std::pair<clipper::Coord_orth, float> >
 coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
-                             mmdb::Manager *mol, 
+                             mmdb::Manager *mol,
                              float n_sigma,
                              int do_positive_levels_flag,
                              int also_negative_levels_flag,
