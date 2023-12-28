@@ -520,33 +520,33 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 		     // the on/off status if the add rep is not shown.
 		     //
 		     if (! molecules[i].add_reps[iar].show_it) {
-			active_strings.clear();
-			active_strings.push_back("coot");
-			active_strings.push_back("set-show-additional-representation");
-			active_strings.push_back(int_to_string(molecule_count));
-			active_strings.push_back(int_to_string(iar));
-			active_strings.push_back(int_to_string(0));
-			commands.push_back(state_command(active_strings, il));
+               active_strings.clear();
+               active_strings.push_back("coot");
+               active_strings.push_back("set-show-additional-representation");
+               active_strings.push_back(int_to_string(molecule_count));
+               active_strings.push_back(int_to_string(iar));
+               active_strings.push_back(int_to_string(0));
+               commands.push_back(state_command(active_strings, il));
 		     }
 		  }
 	       }
 
 	       // Is there a sequence associated with this model?
 	       if (molecules[i].input_sequence.size() > 0) {
-		  for (unsigned int iseq=0; iseq<molecules[i].input_sequence.size(); iseq++) {
-		     active_strings.clear();
-		     active_strings.push_back("coot");
-		     active_strings.push_back("assign-pir-sequence");
-		     active_strings.push_back(int_to_string(molecule_count));
-		     active_strings.push_back(single_quote(molecules[i].input_sequence[iseq].first));
-		     std::string title = molecules[i].dotted_chopped_name();
-		     title += " chain ";
-		     title += molecules[i].input_sequence[iseq].first;
-		     std::string pir_seq = coot::util::plain_text_to_pir(title,
-									 molecules[i].input_sequence[iseq].second, il);
-		     active_strings.push_back(single_quote(pir_seq));
-		     commands.push_back(state_command(active_strings, il));
-		  }
+               for (unsigned int iseq=0; iseq<molecules[i].input_sequence.size(); iseq++) {
+                  active_strings.clear();
+                  active_strings.push_back("coot");
+                  active_strings.push_back("assign-pir-sequence");
+                  active_strings.push_back(int_to_string(molecule_count));
+                  active_strings.push_back(single_quote(molecules[i].input_sequence[iseq].first));
+                  std::string title = molecules[i].dotted_chopped_name();
+                  title += " chain ";
+                  title += molecules[i].input_sequence[iseq].first;
+                  std::string pir_seq = coot::util::plain_text_to_pir(title,
+                                    molecules[i].input_sequence[iseq].second, il);
+                  active_strings.push_back(single_quote(pir_seq));
+                  commands.push_back(state_command(active_strings, il));
+               }
 	       }
 	    }
 
@@ -758,38 +758,38 @@ graphics_info_t::save_state_data_and_models(short int lang_flag) const {
    std::vector<std::string> v;
    for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].has_xmap() || molecules[i].has_nxmap() || molecules[i].has_model()) {
-	 // don't tell us that there are molecules in the state file
-	 // that can't be read from a file (i.e. if
-	 // save_state_command_strings() is blank).
-	 std::vector <std::string> command_strings =
-	    molecules[i].save_state_command_strings();
-	 if (command_strings.size() > 0) {
-	    std::string s = ";;molecule-info: ";
-	    s += molecules[i].name_for_display_manager();
-	    v.push_back(s);
-	 }
+         // don't tell us that there are molecules in the state file
+         // that can't be read from a file (i.e. if
+         // save_state_command_strings() is blank).
+         std::vector <std::string> command_strings =
+            molecules[i].save_state_command_strings();
+         if (command_strings.size() > 0) {
+            std::string s = ";;molecule-info: ";
+            s += molecules[i].name_for_display_manager();
+            v.push_back(s);
+         }
       }
    }
 
    // add the cif dictionaries:
    if (cif_dictionary_filename_vec->size() > 0) {
       for (unsigned int i=0; i<cif_dictionary_filename_vec->size(); i++) {
-	 std::string sd = ";;molecule-info: Dictionary: ";
-	 // sd += (*cif_dictionary_filename_vec)[i];
-	 std::string s = (*cif_dictionary_filename_vec)[i];
-	 std::string::size_type islash = s.find_last_of("/");
-	 if (islash != std::string::npos) {
-	    s = s.substr(islash+1, s.length());
-	 }
-	 sd += s;
-	 v.push_back(sd);
+         std::string sd = ";;molecule-info: Dictionary: ";
+         // sd += (*cif_dictionary_filename_vec)[i];
+         std::string s = (*cif_dictionary_filename_vec)[i];
+         std::string::size_type islash = s.find_last_of("/");
+         if (islash != std::string::npos) {
+            s = s.substr(islash+1, s.length());
+         }
+	      sd += s;
+	      v.push_back(sd);
       }
    }
 
    // add a hash at the start for python comments
    if (lang_flag == 2) {
       for (unsigned int i=0; i<v.size(); i++) {
-	 v[i] = "#" + v[i];
+	      v[i] = "#" + v[i];
       }
    }
    return v;
@@ -812,23 +812,23 @@ graphics_info_t::save_state_data_and_models(const std::string &filename,
    if (f) {
       std::string s;
       while (! f.eof()) {
-	 getline(f, s);
-	 // f >> s;
-	 std::string ss(s);
-	 // xstd::cout << ss << std::endl;
-	 std::string::size_type iprefix = ss.find(mol_prefix);
-	 if (iprefix != std::string::npos) {
-	    std::string::size_type ispace = ss.find(" ");
-	    if (ispace != std::string::npos) {
-	       std::string m = ss.substr(ispace);
-	       // std::cout << "found molecule :" << m << ":" << std::endl;
-	       v.push_back(m);
-	    } else {
-	       // std::cout << "no space found" << std::endl;
-	    }
-	 } else {
-	    // std::cout << "no prefix found" << std::endl;
-	 }
+         getline(f, s);
+         // f >> s;
+         std::string ss(s);
+         // xstd::cout << ss << std::endl;
+         std::string::size_type iprefix = ss.find(mol_prefix);
+         if (iprefix != std::string::npos) {
+            std::string::size_type ispace = ss.find(" ");
+            if (ispace != std::string::npos) {
+               std::string m = ss.substr(ispace);
+               // std::cout << "found molecule :" << m << ":" << std::endl;
+               v.push_back(m);
+            } else {
+               // std::cout << "no space found" << std::endl;
+            }
+         } else {
+            // std::cout << "no prefix found" << std::endl;
+         }
       }
    }
    f.close();
