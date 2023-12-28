@@ -619,7 +619,7 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
       // move sampled protein by this translation then:
       //
       clipper::Mat33<double> m_identity(1, 0, 0, 0, 1, 0, 0, 0, 1);
-      for (unsigned int i=0; i<sampled_protein_coords.size(); i++) { 
+      for (unsigned int i=0; i<sampled_protein_coords.size(); i++) {
          clipper::Coord_frac cell_shift(iprotein_trans[0],
                                         iprotein_trans[1],
                                         iprotein_trans[2]);
@@ -643,15 +643,14 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 std::vector<std::pair<clipper::Coord_orth, float> >
 coot::peak_search::filter_peaks_by_closeness(const std::vector<std::pair<clipper::Coord_orth, float> > &v) const {
 
-   
    std::vector<std::pair<clipper::Coord_orth, float> > nv;
 
-   if (max_closeness > 0) { 
+   if (max_closeness > 0) {
       for (unsigned int ipeak=0; ipeak<v.size(); ipeak++) {
          bool found_a_close_one = 0;
          for (unsigned int jpeak=0; jpeak<nv.size(); jpeak++) {
             double d = clipper::Coord_orth::length(v[ipeak].first, nv[jpeak].first);
-            if (d < max_closeness) { 
+            if (d < max_closeness) {
                found_a_close_one = 1;
                break;
             }
@@ -661,10 +660,10 @@ coot::peak_search::filter_peaks_by_closeness(const std::vector<std::pair<clipper
       }
    } else {
       nv = v;
-   } 
+   }
    // std::cout << "INFO:: peak filtering: npeaks: in: " << v.size() << " out: " << nv.size() << std::endl;
    return nv;
-} 
+}
 
 
 std::vector<clipper::Coord_orth>
@@ -680,7 +679,7 @@ coot::peak_search::make_sample_protein_coords(mmdb::Manager *mol, int every_n) c
    int atom_count = every_n;
 
    int imod = 1;
-      
+
    mmdb::Model *model_p = mol->GetModel(imod);
    mmdb::Chain *chain_p;
    // run over chains of the existing mol
@@ -693,12 +692,12 @@ coot::peak_search::make_sample_protein_coords(mmdb::Manager *mol, int every_n) c
       for (int ires=0; ires<nres; ires++) { 
          residue_p = chain_p->GetResidue(ires);
          int n_atoms = residue_p->GetNumberOfAtoms();
-         
+
          for (int iat=0; iat<n_atoms; iat++) {
-            if (atom_count == every_n) { 
+            if (atom_count == every_n) {
                at = residue_p->GetAtom(iat);
                r.push_back(clipper::Coord_orth(at->x, at->y, at->z));
-               atom_count = 0; 
+               atom_count = 0;
             }
             atom_count++;
          }
@@ -709,7 +708,7 @@ coot::peak_search::make_sample_protein_coords(mmdb::Manager *mol, int every_n) c
 
 const std::vector<int>
 coot::peak_search::find_protein_to_origin_translations(const std::vector<clipper::Coord_orth> &sampled_protein_coords, const clipper::Xmap<float> &xmap) const {
-   
+
    std::vector<int> r(3, 0);
    clipper::Coord_orth origin(0,0,0);
 
@@ -738,12 +737,12 @@ coot::peak_search::find_protein_to_origin_translations(const std::vector<clipper
          int start_cur_x = cur_x;
          int start_cur_y = cur_y;
          int start_cur_z = cur_z;
-         for (int x_shift = -1; x_shift<2; x_shift++) { 
-            for (int y_shift = -1; y_shift<2; y_shift++) { 
+         for (int x_shift = -1; x_shift<2; x_shift++) {
+            for (int y_shift = -1; y_shift<2; y_shift++) {
                for (int z_shift = -1; z_shift<2; z_shift++) {
                   clipper::Coord_frac cell_shift(start_cur_x + x_shift,
                                                  start_cur_y + y_shift,
-                                                 start_cur_z + z_shift); 
+                                                 start_cur_z + z_shift);
                   clipper::RTop_frac rtf(m_identity, cell_shift);
                   clipper::RTop_orth orthop = rtf.rtop_orth(xmap.cell());
                   clipper::Coord_orth t_point = centre.transform(orthop);
@@ -801,17 +800,17 @@ coot::peak_search::move_point_close_to_protein(const clipper::Coord_orth &pt,
    // protein really is.  The itrans is how we move the protein close
    // to the origin, so we need to apply the reverse of those shifts
    // when we make r.
-   
+
    int shift_range = 2; // was 1, changed 20091101, Kevin Keating bug (P212121).
-   clipper::Coord_orth r = pt; 
+   clipper::Coord_orth r = pt;
    int n = sampled_protein_coords.size();
    if (n > 0) {
       int nsyms = xmap.spacegroup().num_symops();
       clipper::Coord_frac cell_shift;
       double min_dist = 9999999999.9;
       for (int isym=0; isym<nsyms; isym++) {
-         for (int x_shift = -shift_range; x_shift<=shift_range; x_shift++) { 
-            for (int y_shift = -shift_range; y_shift<=shift_range; y_shift++) { 
+         for (int x_shift = -shift_range; x_shift<=shift_range; x_shift++) {
+            for (int y_shift = -shift_range; y_shift<=shift_range; y_shift++) {
                for (int z_shift = -shift_range; z_shift<=shift_range; z_shift++) {
                   cell_shift = clipper::Coord_frac(x_shift, y_shift, z_shift);
                   clipper::RTop_orth orthop =
@@ -838,7 +837,7 @@ coot::peak_search::move_point_close_to_protein(const clipper::Coord_orth &pt,
    r = r.transform(orthop);
    return r;
 }
- 
+
 
 double
 coot::peak_search::min_dist_to_protein(const clipper::Coord_orth &point,
@@ -847,7 +846,7 @@ coot::peak_search::min_dist_to_protein(const clipper::Coord_orth &point,
    double dist = 9999999.9;
    double this_dist;
    int n = sampled_protein_coords.size();
-   if (n > 0) { 
+   if (n > 0) {
       for (int i=0; i<n; i++) {
          this_dist = clipper::Coord_orth::length(point, sampled_protein_coords[i]);
          if (this_dist < dist)
@@ -855,7 +854,7 @@ coot::peak_search::min_dist_to_protein(const clipper::Coord_orth &point,
       }
    } else {
       dist = 0.0;
-   } 
+   }
    return dist;
 }
 
@@ -882,7 +881,7 @@ coot::peak_search::compare_ps_peaks_mri(const std::pair<clipper::Xmap<float>::Ma
    float b1 = b.second;
    return a1 > b1;
 }
-                                    
+
 
 // static
 bool
@@ -893,5 +892,5 @@ coot::peak_search::compare_ps_peaks_cg(const std::pair<clipper::Coord_grid, floa
    float b1 = b.second;
    return a1 > b1;
 }
-                                    
+
 
