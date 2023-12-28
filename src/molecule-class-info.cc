@@ -561,7 +561,9 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
       g.run_post_read_model_hook(imol_no);
 
       // save state strings
-      save_state_command_strings_.push_back("handle-read-draw-molecule");
+      // 20231228-PE hack in the "coot." for now and remove it later when
+      // writing a scheme script (not done ATM as far as I know).
+      save_state_command_strings_.push_back("coot.handle-read-draw-molecule");
       std::string f1 = coot::util::intelligent_debackslash(filename);
       std::string f2 = coot::util::relativise_file_name(f1, cwd);
       save_state_command_strings_.push_back(single_quote(f2));
@@ -9527,7 +9529,7 @@ molecule_class_info_t::set_map_colour_strings() const {
 
    std::vector<std::string> r;
 
-   r.push_back("set-last-map-colour");
+   r.push_back("coot.set-last-map-colour");
    r.push_back(graphics_info_t::float_to_string(map_colour.red));
    r.push_back(graphics_info_t::float_to_string(map_colour.green));
    r.push_back(graphics_info_t::float_to_string(map_colour.blue));
@@ -10122,7 +10124,7 @@ std::vector <std::string>
 molecule_class_info_t::get_map_contour_strings() const {
 
    std::vector <std::string> s;
-   s.push_back("set-last-map-contour-level");
+   s.push_back("coot.set-last-map-contour-level");
    char cs[100];
    snprintf(cs, 99, "%e", contour_level);
    s.push_back(cs);
@@ -10134,7 +10136,7 @@ std::vector <std::string>
 molecule_class_info_t::get_map_contour_sigma_step_strings() const {
 
    std::vector <std::string> s;
-   s.push_back("set-last-map-sigma-step");
+   s.push_back("coot.set-last-map-sigma-step");
    s.push_back(graphics_info_t::float_to_string(contour_sigma_step));
 
 //    s.push_back("set_contour_by_sigma_step_by_mol");

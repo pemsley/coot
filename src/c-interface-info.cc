@@ -3104,7 +3104,7 @@ std::string pythonize_command_name(const std::string &s) {
    } else  {
 
       // 20231208-PE
-      std::cout << "************************* namespace this python command? " << ss << std::endl;
+      // std::cout << "************************* namespace this python command? " << ss << std::endl;
       // ss = "coot." + ss; // hideous hack. presumes that all state script commands are in coot module
                             // (most of them are, of course).
                             // 20231208-PE Are they though? If the function is in the coot namespace,

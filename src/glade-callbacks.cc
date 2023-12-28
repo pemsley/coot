@@ -3851,7 +3851,7 @@ on_stereo_dialog_zalman_stereo_radiobutton_toggled
 extern "C" G_MODULE_EXPORT
 gboolean
 on_shader_settings_dialog_destroy(GtkWidget       *widget,
-                                                           gpointer         user_data) {
+                                  gpointer         user_data) {
 
    // this doesn't happen
    std::cout << "-------------- on_shader_settings_dialog_ destroy " << std::endl;

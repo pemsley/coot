@@ -81,136 +81,136 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
      switch (preference_type) {
 
      case PREFERENCES_FILE_CHOOSER:
-       commands.push_back(state_command("set-file-chooser-selector",
+       commands.push_back(state_command("coot", "set-file-chooser-selector",
 					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_FILE_OVERWRITE:
-       commands.push_back(state_command("set-file-chooser-overwrite",
+       commands.push_back(state_command("coot", "set-file-chooser-overwrite",
 					g.preferences_internal[i].ivalue1, il));
        break;
        
      case PREFERENCES_FILE_FILTER:
-       commands.push_back(state_command("set-filter-fileselection-filenames", 
+       commands.push_back(state_command("coot", "set-filter-fileselection-filenames", 
 					g.preferences_internal[i].ivalue1, il));
        break;
        
      case PREFERENCES_FILE_SORT_DATE:
        if (g.preferences_internal[i].ivalue1 == 1) {
-	 commands.push_back(state_command("set-sticky-sort-by-date", il));
+	 commands.push_back(state_command("coot", "set-sticky-sort-by-date", il));
        } else {
-	 commands.push_back(state_command("unset-sticky-sort-by-date", il));
+	 commands.push_back(state_command("coot", "unset-sticky-sort-by-date", il));
        }
        break;
        
      case PREFERENCES_ACCEPT_DIALOG_DOCKED:
-       commands.push_back(state_command("set-accept-reject-dialog-docked",
+       commands.push_back(state_command("coot", "set-accept-reject-dialog-docked",
 					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW:
-       commands.push_back(state_command("set-accept-reject-dialog-docked-show",
+       commands.push_back(state_command("coot", "set-accept-reject-dialog-docked-show",
 					g.preferences_internal[i].ivalue1, il));
        break;
        
      case PREFERENCES_IMMEDIATE_REPLACEMENT:
-       commands.push_back(state_command("set-refinement-immediate-replacement",
+       commands.push_back(state_command("coot", "set-refinement-immediate-replacement",
 					g.preferences_internal[i].ivalue1, il));
       break;
       
      case PREFERENCES_VT_SURFACE:
-       commands.push_back(state_command("vt-surface",
+       commands.push_back(state_command("coot", "vt-surface",
 					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_RECENTRE_PDB:
-       commands.push_back(state_command("set-recentre-on-read-pdb",
+       commands.push_back(state_command("coot", "set-recentre-on-read-pdb",
 					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_BONDS_THICKNESS:
-       commands.push_back(state_command("set-default-bond-thickness",
+       commands.push_back(state_command("coot", "set-default-bond-thickness",
 					g.preferences_internal[i].ivalue1, il));
        break;
        
      case PREFERENCES_BOND_COLOURS_MAP_ROTATION:
-       commands.push_back(state_command("set-colour-map-rotation-on-read-pdb",
+       commands.push_back(state_command("coot", "set-colour-map-rotation-on-read-pdb",
 					g.preferences_internal[i].fvalue1, il));
        break;
        
      case PREFERENCES_BOND_COLOUR_ROTATION_C_ONLY:
-       commands.push_back(state_command("set-colour-map-rotation-on-read-pdb-c-only-flag",
+       commands.push_back(state_command("coot", "set-colour-map-rotation-on-read-pdb-c-only-flag",
 					g.preferences_internal[i].ivalue1, il));
        break;
        
      case PREFERENCES_MAP_RADIUS:
-       commands.push_back(state_command("set-map-radius",
+       commands.push_back(state_command("coot", "set-map-radius",
 					 g.preferences_internal[i].fvalue1, il));
        break;
        
      case PREFERENCES_MAP_ISOLEVEL_INCREMENT:
-       commands.push_back(state_command("set-iso-level-increment",
+       commands.push_back(state_command("coot", "set-iso-level-increment",
 					 g.preferences_internal[i].fvalue1, il, v));
        break;
 
      case PREFERENCES_DIFF_MAP_ISOLEVEL_INCREMENT:
-       commands.push_back(state_command("set-diff-map-iso-level-increment",
+       commands.push_back(state_command("coot", "set-diff-map-iso-level-increment",
 					 g.preferences_internal[i].fvalue1, il, v));
        break;
 
      case PREFERENCES_MAP_SAMPLING_RATE:
-       commands.push_back(state_command("set-map-sampling-rate",
+       commands.push_back(state_command("coot", "set-map-sampling-rate",
 					 g.preferences_internal[i].fvalue1, il, v));
        break;
 
      case PREFERENCES_DYNAMIC_MAP_SAMPLING:
        if (g.preferences_internal[i].ivalue1 == 1) {
-	 commands.push_back(state_command("set-dynamic-map-sampling-on", il));
+	 commands.push_back(state_command("coot", "set-dynamic-map-sampling-on", il));
        } else {
-	 commands.push_back(state_command("set-dynamic-map-sampling-off", il));
+	 commands.push_back(state_command("coot", "set-dynamic-map-sampling-off", il));
        }
        break;
       
      case PREFERENCES_DYNAMIC_MAP_SIZE_DISPLAY:
        if (g.preferences_internal[i].ivalue1 == 1) {
-	 commands.push_back(state_command("set-dynamic-map-size-display-on", il));
+	 commands.push_back(state_command("coot", "set-dynamic-map-size-display-on", il));
        } else {
-	 commands.push_back(state_command("set-dynamic-map-size-display-off", il));
+	 commands.push_back(state_command("coot", "set-dynamic-map-size-display-off", il));
        }
        break;
 
      case PREFERENCES_SWAP_DIFF_MAP_COLOURS:
-       commands.push_back(state_command("set-swap-difference-map-colours",
+       commands.push_back(state_command("coot", "set-swap-difference-map-colours",
 					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_MAP_COLOURS_MAP_ROTATION:
-       commands.push_back(state_command("set-colour-map-rotation-for-map",
+       commands.push_back(state_command("coot", "set-colour-map-rotation-for-map",
 					g.preferences_internal[i].fvalue1, il));
        break;
 
      case PREFERENCES_SMOOTH_SCROLL:
-       commands.push_back(state_command("set-smooth-scroll-flag",
+       commands.push_back(state_command("coot", "set-smooth-scroll-flag",
 					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_SMOOTH_SCROLL_STEPS:
-       commands.push_back(state_command("set-smooth-scroll-steps",
+       commands.push_back(state_command("coot", "set-smooth-scroll-steps",
 					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_SMOOTH_SCROLL_LIMIT:
-       commands.push_back(state_command("set-smooth-scroll-limit",
+       commands.push_back(state_command("coot", "set-smooth-scroll-limit",
 					g.preferences_internal[i].fvalue1, il));
        break;
 
      case PREFERENCES_MAP_DRAG:
-       commands.push_back(state_command("set-active-map-drag-flag",
+       commands.push_back(state_command("coot", "set-active-map-drag-flag",
 					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_MARK_CIS_BAD:
-       commands.push_back(state_command("set-mark-cis-peptides-as-bad",
+       commands.push_back(state_command("coot", "set-mark-cis-peptides-as-bad",
 					g.preferences_internal[i].ivalue1, il));     
        break;
 
@@ -220,52 +220,40 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        fval3 = g.preferences_internal[i].fvalue3;  // blue
        if (fval1 < 0.01 && fval2 < 0.01 && fval3 < 0.01) {
 	 // black
-	 commands.push_back(state_command("set-background-colour", 0, 0, 0, il));
+	 commands.push_back(state_command("coot", "set-background-colour", 0, 0, 0, il));
        } else if (fval1 > 0.99 && fval2 > 0.99 && fval3 > 0.99) {
 	 // white
-	 commands.push_back(state_command("set-background-colour", 1, 1, 1, il));
+	 commands.push_back(state_command("coot", "set-background-colour", 1, 1, 1, il));
        } else {
 	  // other colour
 	  std::cout << "on save other colour: " << fval1 << " " << fval2 << " " << fval3
 		    << std::endl;
-	  commands.push_back(state_command("set-background-colour", fval1, fval2, fval3, il));
+	  commands.push_back(state_command("coot", "set-background-colour", fval1, fval2, fval3, il));
        }
        break;
 
      case PREFERENCES_ANTIALIAS:
-       commands.push_back(state_command("set-do-anti-aliasing",
+       commands.push_back(state_command("coot", "set-do-anti-aliasing",
 					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_CONSOLE_COMMANDS:
-       commands.push_back(state_command("set-console-display-commands-state",
+       commands.push_back(state_command("coot", "set-console-display-commands-state",
 					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_REFINEMENT_SPEED:
-       commands.push_back(state_command("set-dragged-refinement-steps-per-frame",
+       commands.push_back(state_command("coot", "set-dragged-refinement-steps-per-frame",
 					g.preferences_internal[i].ivalue1, il));
        break;
 
-     case PREFERENCES_TIPS:
-	if (g.preferences_internal[i].ivalue1 == 0) {
-	   if (il == 1) { // guile
-#ifdef USE_GUILE_GTK	   
-	      commands.push_back(state_command("no-coot-tips", il));
-#endif
-	   } else {
-	      commands.push_back(state_command("no-coot-tips", il));
-	   }
-	}
-	break;
-      
      case PREFERENCES_SPIN_SPEED:
-       commands.push_back(state_command("set-idle-function-rotate-angle",
+       commands.push_back(state_command("coot", "set-idle-function-rotate-angle",
 					g.preferences_internal[i].fvalue1, il));
        break;
       
      case PREFERENCES_FONT_SIZE:
-       commands.push_back(state_command("set-font-size",
+       commands.push_back(state_command("coot", "set-font-size",
 					g.preferences_internal[i].ivalue1, il));
        break;
       
@@ -276,50 +264,50 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        if (fval1 >= 0.999 && 
 	  fval2 >= 0.799 && fval2 <= 0.801 &&
 	  fval3 >= 0.799 && fval3 <= 0.801) {
-	  commands.push_back(state_command("set-font-colour", 1.0, 0.8, 0.8, il));
+	  commands.push_back(state_command("coot", "set-font-colour", 1.0, 0.8, 0.8, il));
        } else {
-	  commands.push_back(state_command("set-font-colour", fval1, fval2, fval3, il));
+	  commands.push_back(state_command("coot", "set-font-colour", fval1, fval2, fval3, il));
        }
        break;
 
      case PREFERENCES_PINK_POINTER:
-       commands.push_back(state_command("set-rotation-centre-size",
+       commands.push_back(state_command("coot", "set-rotation-centre-size",
 					g.preferences_internal[i].fvalue1, il));
        break;
       
      case PREFERENCES_MODEL_TOOLBAR_SHOW:
        if (g.preferences_internal[i].ivalue1 == 0) {
-	 commands.push_back(state_command("hide-modelling-toolbar", il));
+	 commands.push_back(state_command("coot", "hide-modelling-toolbar", il));
        } else {
-	 commands.push_back(state_command("show-modelling-toolbar", il));
+	 commands.push_back(state_command("coot", "show-modelling-toolbar", il));
        }
        break;
 
      case PREFERENCES_MODEL_TOOLBAR_POSITION:
-       commands.push_back(state_command("set-model-toolbar-docked-position",
+       commands.push_back(state_command("coot", "set-model-toolbar-docked-position",
 					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_MODEL_TOOLBAR_STYLE:
-       commands.push_back(state_command("set-model-toolbar-style",
+       commands.push_back(state_command("coot", "set-model-toolbar-style",
 					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_MODEL_TOOLBAR_ICONS:
        if (g.preferences_internal[i].ivalue2 == 1) {
-	 commands.push_back(state_command("show-model-toolbar-icon",
+	 commands.push_back(state_command("coot", "show-model-toolbar-icon",
 					  g.preferences_internal[i].ivalue1, il));
        } else {
-	 commands.push_back(state_command("hide-model-toolbar-icon",
+	 commands.push_back(state_command("coot", "hide-model-toolbar-icon",
 					  g.preferences_internal[i].ivalue1, il));
        }
        break;
 
      case PREFERENCES_MAIN_TOOLBAR_SHOW:
        if (g.preferences_internal[i].ivalue1 == 0) {
-	 commands.push_back(state_command("hide-main-toolbar", il));
+	 commands.push_back(state_command("coot", "hide-main-toolbar", il));
        } else {
-	 commands.push_back(state_command("show-main-toolbar", il));
+	 commands.push_back(state_command("coot", "show-main-toolbar", il));
        }
        break;
 
@@ -329,16 +317,16 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        //break;
 
      case PREFERENCES_MAIN_TOOLBAR_STYLE:
-       commands.push_back(state_command("set-main-toolbar-style",
+       commands.push_back(state_command("coot", "set-main-toolbar-style",
 					g.preferences_internal[i].ivalue1, il));
        break;
 
      case PREFERENCES_MAIN_TOOLBAR_ICONS:
          if (g.preferences_internal[i].ivalue2 == 1) {
-             commands.push_back(state_command("show-main-toolbar-icon",
+             commands.push_back(state_command("coot", "show-main-toolbar-icon",
                                               g.preferences_internal[i].ivalue1, il));
          } else {
-             commands.push_back(state_command("hide-main-toolbar-icon",
+             commands.push_back(state_command("coot", "hide-main-toolbar-icon",
                                               g.preferences_internal[i].ivalue1, il));
          }
          break;

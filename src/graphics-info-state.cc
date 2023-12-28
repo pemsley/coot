@@ -97,90 +97,96 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    //    commands.push_back(state_command("set-graphics-window-size", graphics_x_size, graphics_y_size, il));
    // }
 
-   commands.push_back(state_command("set-graphics-window-size", graphics_x_size, graphics_y_size, il));
+   int gxs = graphics_x_size;
+   int gys = graphics_y_size;
+#ifdef __APPLE__ // Retina display shenanigans.
+   gxs /= 2;
+   gys /= 2;
+#endif
+   commands.push_back(state_command("coot", "set-graphics-window-size", gxs, gys, il));
 
    // 20220702-PE don't save it if there are not sensible number (why are there not sensible numbers?
    //
    if (graphics_x_position > 0)
       if (graphics_y_position > 0)
-         commands.push_back(state_command("set-graphics-window-position",
+         commands.push_back(state_command("coot", "set-graphics-window-position",
                                           graphics_x_position, graphics_y_position, il));
 
    if (! main_window_title.empty())
-      commands.push_back(state_command("set-main-window-title", single_quote(main_window_title), il));
+      commands.push_back(state_command("coot", "set-main-window-title", single_quote(main_window_title), il));
 
 
    // now the positions of all the major dialogs:
    if (graphics_info_t::model_fit_refine_x_position > -1)
-      commands.push_back(state_command("set-model-fit-refine-dialog-position",
+      commands.push_back(state_command("coot", "set-model-fit-refine-dialog-position",
 				       model_fit_refine_x_position,
 				       model_fit_refine_y_position, il));
    if (graphics_info_t::display_manager_x_position > -1)
-      commands.push_back(state_command("set-display-control-dialog-position",
+      commands.push_back(state_command("coot", "set-display-control-dialog-position",
 				       display_manager_x_position,
 				       display_manager_y_position, il));
 
    if (graphics_info_t::go_to_atom_window_x_position > -1)
-      commands.push_back(state_command("set-go-to-atom-window-position",
+      commands.push_back(state_command("coot", "set-go-to-atom-window-position",
 				       go_to_atom_window_x_position,
 				       go_to_atom_window_y_position, il));
    if (graphics_info_t::delete_item_widget_x_position > -1)
-      commands.push_back(state_command("set-delete-dialog-position",
+      commands.push_back(state_command("coot", "set-delete-dialog-position",
 				       delete_item_widget_x_position,
 				       delete_item_widget_y_position, il));
    if (graphics_info_t::rotate_translate_x_position > -1)
-      commands.push_back(state_command("set-rotate-translate-dialog-position",
+      commands.push_back(state_command("coot", "set-rotate-translate-dialog-position",
 				       rotate_translate_x_position,
 				       rotate_translate_y_position, il));
    if (graphics_info_t::accept_reject_dialog_x_position > -1)
-      commands.push_back(state_command("set-accept-reject-dialog-position",
+      commands.push_back(state_command("coot", "set-accept-reject-dialog-position",
 				       accept_reject_dialog_x_position,
 				       accept_reject_dialog_y_position, il));
    if (graphics_info_t::ramachandran_plot_x_position > -1)
-      commands.push_back(state_command("set-ramachandran-plot-dialog-position",
+      commands.push_back(state_command("coot", "set-ramachandran-plot-dialog-position",
 				       ramachandran_plot_x_position,
 				       ramachandran_plot_y_position, il));
    if (graphics_info_t::edit_chi_angles_dialog_x_position > -1)
-      commands.push_back(state_command("set-edit-chi-angles-dialog-position",
+      commands.push_back(state_command("coot", "set-edit-chi-angles-dialog-position",
 				       edit_chi_angles_dialog_x_position,
 				       edit_chi_angles_dialog_y_position, il));
    if (graphics_info_t::rotamer_selection_dialog_x_position > -1)
-      commands.push_back(state_command("set-rotamer-selection-dialog-position",
+      commands.push_back(state_command("coot", "set-rotamer-selection-dialog-position",
 				       rotamer_selection_dialog_x_position,
 				       rotamer_selection_dialog_y_position, il));
 
    // Virtual trackball
    if (vt_surface_status() == 1)
-      commands.push_back(state_command("vt-surface", 1, il));
+      commands.push_back(state_command("coot", "vt-surface", 1, il));
    else
-      commands.push_back(state_command("vt-surface", 2, il));
+      commands.push_back(state_command("coot", "vt-surface", 2, il));
 
    if (sticky_sort_by_date)
-      commands.push_back(state_command("set-sticky-sort-by-date",il));
+      commands.push_back(state_command("coot", "set-sticky-sort-by-date", il));
 
-   commands.push_back(state_command("set-clipping-front", clipping_front, il));
-   commands.push_back(state_command("set-clipping-back",  clipping_back, il));
+   commands.push_back(state_command("coot", "set-clipping-front", clipping_front, il));
+   commands.push_back(state_command("coot", "set-clipping-back",  clipping_back, il));
 
-   commands.push_back(state_command("set-map-radius", box_radius_xray, il));
+   commands.push_back(state_command("coot", "set-map-radius", box_radius_xray, il));
 
-   commands.push_back(state_command("set-map-radius-em", box_radius_em, il));
+   commands.push_back(state_command("coot", "set-map-radius-em", box_radius_em, il));
 
    unsigned short int v = 4; // 4 dec pl. if float_to_string_using_dec_pl is fixed.
    // a "flag" to use a different function to generate the string from the float
-   commands.push_back(state_command("set-iso-level-increment", iso_level_increment, il, v));
-   commands.push_back(state_command("set-diff-map-iso-level-increment", diff_map_iso_level_increment, il, v));
+   commands.push_back(state_command("coot", "set-iso-level-increment", iso_level_increment, il, v));
+   commands.push_back(state_command("coot", "set-diff-map-iso-level-increment", diff_map_iso_level_increment, il, v));
 
 
-   commands.push_back(state_command("set-colour-map-rotation-on-read-pdb",
+   commands.push_back(state_command("coot", "set-colour-map-rotation-on-read-pdb",
 				    rotate_colour_map_on_read_pdb, il));
-   commands.push_back(state_command("set-colour-map-rotation-on-read-pdb-flag",
+   commands.push_back(state_command("coot", "set-colour-map-rotation-on-read-pdb-flag",
 				    rotate_colour_map_on_read_pdb_flag, il));
-   commands.push_back(state_command("set-colour-map-rotation-on-read-pdb-c-only-flag",
+   commands.push_back(state_command("coot", "set-colour-map-rotation-on-read-pdb-c-only-flag",
 				    rotate_colour_map_on_read_pdb_c_only_flag, il));
-   commands.push_back(state_command("set-swap-difference-map-colours",
+   commands.push_back(state_command("coot", "set-swap-difference-map-colours",
 				    swap_difference_map_colours, il));
 
-   commands.push_back(state_command("set-background-colour",
+   commands.push_back(state_command("coot", "set-background-colour",
 				    background_colour[0],
 				    background_colour[1],
 				    background_colour[2], il));
@@ -190,37 +196,37 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // commands.push_back(state_command("set-aniso-limit", show_aniso_atoms_radius_flag, il));
 
 
-   commands.push_back(state_command("set-symmetry-size", symmetry_search_radius, il));
-   commands.push_back(state_command("set-symmetry-colour-merge", float(symmetry_colour_merge_weight), il));
-   commands.push_back(state_command("set-symmetry-colour",
+   commands.push_back(state_command("coot", "set-symmetry-size", symmetry_search_radius, il));
+   commands.push_back(state_command("coot", "set-symmetry-colour-merge", float(symmetry_colour_merge_weight), il));
+   commands.push_back(state_command("coot", "set-symmetry-colour",
 				    symmetry_colour[0],
 				    symmetry_colour[1],
 				    symmetry_colour[2], il));
 
    // FIXME
    //    commands.push_back(state_command("set-symmetry-whole-chain", symmetry_whole_chain_flag, il));
-   commands.push_back(state_command("set-symmetry-atom-labels-expanded", symmetry_atom_labels_expanded_flag, il));
-   commands.push_back(state_command("set-active-map-drag-flag", active_map_drag_flag, il));
-   commands.push_back(state_command("set-show-aniso", show_aniso_atoms_flag, il));
-   commands.push_back(state_command("set-aniso-probability", show_aniso_atoms_probability, il));
-   commands.push_back(state_command("set-smooth-scroll-steps", smooth_scroll_n_steps, il));
-   commands.push_back(state_command("set-smooth-scroll-limit", smooth_scroll_limit, il));
-   commands.push_back(state_command("set-font-size", atom_label_font_size, il));
-   commands.push_back(state_command("set-rotation-centre-size", rotation_centre_cube_size, il));
-   commands.push_back(state_command("set-do-anti-aliasing", do_anti_aliasing_flag, il));
-   commands.push_back(state_command("set-default-bond-thickness", default_bond_width, il));
+   commands.push_back(state_command("coot", "set-symmetry-atom-labels-expanded", symmetry_atom_labels_expanded_flag, il));
+   commands.push_back(state_command("coot", "set-active-map-drag-flag", active_map_drag_flag, il));
+   commands.push_back(state_command("coot", "set-show-aniso", show_aniso_atoms_flag, il));
+   commands.push_back(state_command("coot", "set-aniso-probability", show_aniso_atoms_probability, il));
+   commands.push_back(state_command("coot", "set-smooth-scroll-steps", smooth_scroll_n_steps, il));
+   commands.push_back(state_command("coot", "set-smooth-scroll-limit", smooth_scroll_limit, il));
+   commands.push_back(state_command("coot", "set-font-size", atom_label_font_size, il));
+   commands.push_back(state_command("coot", "set-rotation-centre-size", rotation_centre_cube_size, il));
+   commands.push_back(state_command("coot", "set-do-anti-aliasing", do_anti_aliasing_flag, il));
+   commands.push_back(state_command("coot", "set-default-bond-thickness", default_bond_width, il));
 
    // cif dictionary
    if (cif_dictionary_filename_vec->size() > 0) {
       for (unsigned int i=0; i<cif_dictionary_filename_vec->size(); i++) {
-	 commands.push_back(state_command("read-cif-dictionary",
+	 commands.push_back(state_command("coot", "read-cif-dictionary",
 					  single_quote((*cif_dictionary_filename_vec)[i]), il));
       }
    }
 
    // Torsion restraints were set?
    if (do_torsion_restraints)
-      commands.push_back(state_command("set-refine-with-torsion-restraints", do_torsion_restraints, il));
+      commands.push_back(state_command("coot", "set-refine-with-torsion-restraints", do_torsion_restraints, il));
 
    // Backrub rotamers?
 
@@ -228,7 +234,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // << std::endl;
    //
    if (rotamer_search_mode == ROTAMERSEARCHLOWRES)
-      commands.push_back(state_command("set-rotamer-search-mode", ROTAMERSEARCHLOWRES, il));
+      commands.push_back(state_command("coot", "set-rotamer-search-mode", ROTAMERSEARCHLOWRES, il));
 
    std::vector <std::string> command_strings;
 
@@ -240,10 +246,14 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
    // map sampling rate
    if (map_sampling_rate != 1.5) { // only set it if it is not the default
-      command_strings.push_back("set-map-sampling-rate");
-      command_strings.push_back(float_to_string(map_sampling_rate));
-      commands.push_back(state_command(command_strings, il));
-      command_strings.clear();
+      // command_strings.push_back("set-map-sampling-rate");
+      // command_strings.push_back(float_to_string(map_sampling_rate));
+      // commands.push_back(state_command("coot", command_strings, il));
+      // command_strings.clear();
+      std::vector<coot::command_arg_t> command_args;
+      command_args.push_back(coot::command_arg_t(map_sampling_rate));
+      std::string sc = state_command("coot", "set-map-sampling-rate", command_args, il);
+      commands.push_back(sc);
    }
 
    // goto atom stuff?
@@ -271,75 +281,109 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 	    std::vector <std::string>  active_strings;
 	    // colour
 	    if (molecules[i].has_model()) {
-	       display_strings.clear();
-	       display_strings.push_back("set-molecule-bonds-colour-map-rotation");
-	       display_strings.push_back(int_to_string(molecule_count));
-	       display_strings.push_back(float_to_string(molecules[i].bonds_colour_map_rotation));
-	       commands.push_back(state_command(display_strings, il));
+	       // display_strings.clear();
+	       // display_strings.push_back("coot");
+	       // display_strings.push_back("set-molecule-bonds-colour-map-rotation");
+	       // display_strings.push_back(int_to_string(molecule_count));
+	       // display_strings.push_back(float_to_string(molecules[i].bonds_colour_map_rotation));
+	       // commands.push_back(state_command(display_strings, il));
+         std::vector<coot::command_arg_t> command_args;
+         command_args.push_back(coot::command_arg_t(molecule_count));
+         command_args.push_back(coot::command_arg_t(molecules[i].bonds_colour_map_rotation));
+         std::string sc = state_command("coot", "set-molecule-bonds-colour-map-rotation", command_args, il);
+         commands.push_back(sc);
 	    }
 	    if (molecules[i].has_model()) {
 	       if (! molecules[i].draw_it) {
-		  display_strings.clear();
-		  display_strings.push_back("set-mol-displayed");
-		  display_strings.push_back(int_to_string(molecule_count));
-		  display_strings.push_back(int_to_string(0));
-		  commands.push_back(state_command(display_strings, il));
+            // display_strings.clear();
+            // display_strings.push_back("coot");
+            // display_strings.push_back("set-mol-displayed");
+            // display_strings.push_back(int_to_string(molecule_count));
+            // display_strings.push_back(int_to_string(0));
+            // commands.push_back(state_command(display_strings, il));
+            std::vector<coot::command_arg_t> command_args;
+            command_args.push_back(coot::command_arg_t(molecule_count));
+            command_args.push_back(coot::command_arg_t(0));
+            std::string sc = state_command("coot", "set-mol-displayed", command_args, il);
+            commands.push_back(sc);
 	       }
 	       if (! molecules[i].atom_selection_is_pickable()) {
-		  active_strings.clear();
-		  active_strings.push_back("set-mol-active");
-		  active_strings.push_back(int_to_string(molecule_count));
-		  active_strings.push_back(int_to_string(0));
-		  commands.push_back(state_command(active_strings, il));
+            // active_strings.clear();
+            // display_strings.push_back("coot");
+            // active_strings.push_back("set-mol-active");
+            // active_strings.push_back(int_to_string(molecule_count));
+            // active_strings.push_back(int_to_string(0));
+            // commands.push_back(state_command(active_strings, il));
+            std::vector<coot::command_arg_t> command_args;
+            command_args.push_back(coot::command_arg_t(molecule_count));
+            command_args.push_back(coot::command_arg_t(0));
+            std::string sc = state_command("coot", "set-mol-active", command_args, il);
+            commands.push_back(sc);
 	       }
 
 	       if (molecules[i].get_bond_thickness() != default_bond_width) {
-		  display_strings.clear();
-		  display_strings.push_back("set-bond-thickness");
-		  display_strings.push_back(int_to_string(molecule_count));
-		  display_strings.push_back(int_to_string(molecules[i].get_bond_thickness()));
-		  commands.push_back(state_command(display_strings, il));
+            // display_strings.clear();
+            // display_strings.push_back("coot");
+            // display_strings.push_back("set-bond-thickness");
+            // display_strings.push_back(int_to_string(molecule_count));
+            // display_strings.push_back(int_to_string(molecules[i].get_bond_thickness()));
+            // commands.push_back(state_command(display_strings, il));
+            std::vector<coot::command_arg_t> command_args;
+            command_args.push_back(coot::command_arg_t(molecule_count));
+            command_args.push_back(coot::command_arg_t(molecules[i].get_bond_thickness()));
+            std::string sc = state_command("coot", "set-bond-thickness", command_args, il);
+            commands.push_back(sc);
 	       }
 
 	       // hydrogens?
 	       display_strings.clear();
-	       display_strings.push_back("set-draw-hydrogens");
-	       display_strings.push_back(int_to_string(molecule_count));
-	       display_strings.push_back(int_to_string(molecules[i].draw_hydrogens()));
-	       commands.push_back(state_command(display_strings, il));
+	      //  display_strings.push_back("coot");
+	      //  display_strings.push_back("set-draw-hydrogens");
+	      //  display_strings.push_back(int_to_string(molecule_count));
+	      //  display_strings.push_back(int_to_string(molecules[i].draw_hydrogens()));
+	      //  commands.push_back(state_command(display_strings, il));
+         std::vector<coot::command_arg_t> command_args;
+         command_args.push_back(coot::command_arg_t(molecule_count));
+         command_args.push_back(coot::command_arg_t(molecules[i].draw_hydrogens()));
+         std::string sc = state_command("coot", "set-draw-hydrogens", command_args, il);
+         commands.push_back(sc);
 
 	       // symmetry issues:
 	       if (molecules[i].symmetry_as_calphas) {
-		  // default would be not CAlphas
-		  active_strings.clear();
-		  active_strings.push_back("symmetry-as-calphas");
-		  active_strings.push_back(int_to_string(molecule_count));
-		  active_strings.push_back(int_to_string(1));
-		  commands.push_back(state_command(active_strings, il));
+               // default would be not CAlphas
+               active_strings.clear();
+               display_strings.push_back("coot");
+               active_strings.push_back("symmetry-as-calphas");
+               active_strings.push_back(int_to_string(molecule_count));
+               active_strings.push_back(int_to_string(1));
+               commands.push_back(state_command(active_strings, il));
 	       }
 	       if (!molecules[i].show_symmetry) {
-		  // default would be to show symmetry
-		  active_strings.clear();
-		  active_strings.push_back("set-show-symmetry-molecule");
-		  active_strings.push_back(int_to_string(molecule_count));
-		  active_strings.push_back(int_to_string(0));
-		  commands.push_back(state_command(active_strings, il));
+               // default would be to show symmetry
+               active_strings.clear();
+                     display_strings.push_back("coot");
+               active_strings.push_back("set-show-symmetry-molecule");
+               active_strings.push_back(int_to_string(molecule_count));
+               active_strings.push_back(int_to_string(0));
+               commands.push_back(state_command(active_strings, il));
 	       }
 	       if (molecules[i].symmetry_colour_by_symop_flag) {
-		  // default is not to colour by symop
-		  active_strings.clear();
-		  active_strings.push_back("set-symmetry-colour-by-symop");
-		  active_strings.push_back(int_to_string(molecule_count));
-		  active_strings.push_back(int_to_string(1));
-		  commands.push_back(state_command(active_strings, il));
+               // default is not to colour by symop
+               active_strings.clear();
+                     display_strings.push_back("coot");
+               active_strings.push_back("set-symmetry-colour-by-symop");
+               active_strings.push_back(int_to_string(molecule_count));
+               active_strings.push_back(int_to_string(1));
+               commands.push_back(state_command(active_strings, il));
 	       }
 	       if (molecules[i].symmetry_whole_chain_flag) {
-		  // default is not to colour by symop
-		  active_strings.clear();
-		  active_strings.push_back("set-symmetry-whole-chain");
-		  active_strings.push_back(int_to_string(molecule_count));
-		  active_strings.push_back(int_to_string(1));
-		  commands.push_back(state_command(active_strings, il));
+               // default is not to colour by symop
+               active_strings.clear();
+                     display_strings.push_back("coot");
+               active_strings.push_back("set-symmetry-whole-chain");
+               active_strings.push_back(int_to_string(molecule_count));
+               active_strings.push_back(int_to_string(1));
+               commands.push_back(state_command(active_strings, il));
 	       }
 
 // 	       std::cout << "molecules[i].Bonds_box_type() is "
@@ -347,68 +391,79 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 // 			 << std::endl;
 
 	       if (molecules[i].Bonds_box_type() != coot::NORMAL_BONDS) {
-		  if (molecules[i].Bonds_box_type() == coot::CA_BONDS) {
-		     active_strings.clear();
-		     active_strings.push_back("graphics-to-ca-representation");
-		     active_strings.push_back(int_to_string(molecule_count));
-		     commands.push_back(state_command(active_strings, il));
-		  }
+            if (molecules[i].Bonds_box_type() == coot::CA_BONDS) {
+               active_strings.clear();
+               display_strings.push_back("coot");
+               active_strings.push_back("graphics-to-ca-representation");
+               active_strings.push_back(int_to_string(molecule_count));
+               commands.push_back(state_command(active_strings, il));
+		      }
 		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_CHAIN_BONDS) {
 		     active_strings.clear();
+           display_strings.push_back("coot");
 		     active_strings.push_back("set-colour-by-chain");
 		     active_strings.push_back(int_to_string(molecule_count));
 		     commands.push_back(state_command(active_strings, il));
 		  }
 		  if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) {
 		     active_strings.clear();
+           display_strings.push_back("coot");
 		     active_strings.push_back("graphics-to-ca-plus-ligands-representation");
 		     active_strings.push_back(int_to_string(molecule_count));
 		     commands.push_back(state_command(active_strings, il));
 		  }
 		  if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS) {
 		     active_strings.clear();
+           display_strings.push_back("coot");
 		     active_strings.push_back("graphics-to-ca-plus-ligands-and-sidechains-representation");
 		     active_strings.push_back(int_to_string(molecule_count));
 		     commands.push_back(state_command(active_strings, il));
 		  }
 		  if (molecules[i].Bonds_box_type() == coot::BONDS_NO_WATERS) {
 		     active_strings.clear();
+	             display_strings.push_back("coot");
 		     active_strings.push_back("graphics-to-bonds-no-waters-representation");
 		     active_strings.push_back(int_to_string(molecule_count));
 		     commands.push_back(state_command(active_strings, il));
 		  }
 		  if (molecules[i].Bonds_box_type() == coot::BONDS_SEC_STRUCT_COLOUR) {
 		     active_strings.clear();
+	             display_strings.push_back("coot");
 		     active_strings.push_back("graphics-to-sec-struct-bonds-representation");
 		     active_strings.push_back(int_to_string(molecule_count));
 		     commands.push_back(state_command(active_strings, il));
 		  }
 		  if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR) {
 		     active_strings.clear();
+	             display_strings.push_back("coot");
 		     active_strings.push_back("graphics-to-ca-plus-ligands-sec-struct-representation");
 		     active_strings.push_back(int_to_string(molecule_count));
 		     commands.push_back(state_command(active_strings, il));
 		  }
 		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_MOLECULE_BONDS) {
 		     active_strings.clear();
+	             display_strings.push_back("coot");
 		     active_strings.push_back("set-colour-by-molecule");
 		     active_strings.push_back(int_to_string(molecule_count));
 		     commands.push_back(state_command(active_strings, il));
 		  }
 		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
 		     active_strings.clear();
+	             display_strings.push_back("coot");
 		     active_strings.push_back("graphics-to-rainbow-representation");
 		     active_strings.push_back(int_to_string(molecule_count));
 		     commands.push_back(state_command(active_strings, il));
 		  }
 		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_B_FACTOR_BONDS) {
 		     active_strings.clear();
+	             display_strings.push_back("coot");
 		     active_strings.push_back("graphics-to-b-factor-representation");
 		     active_strings.push_back(int_to_string(molecule_count));
 		     commands.push_back(state_command(active_strings, il));
 		  }
 		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_OCCUPANCY_BONDS) {
 		     active_strings.clear();
+	             display_strings.push_back("coot");
 		     active_strings.push_back("graphics-to-occupancy-representation");
 		     active_strings.push_back(int_to_string(molecule_count));
 		     commands.push_back(state_command(active_strings, il));
@@ -435,6 +490,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 		     active_strings.clear();
 		     if (molecules[i].add_reps[iar].atom_sel_info.type ==
 			 coot::atom_selection_info_t::BY_ATTRIBUTES) {
+			active_strings.push_back("coot");
 			active_strings.push_back("additional-representation-by-attributes");
 			active_strings.push_back(int_to_string(molecule_count));
 			active_strings.push_back(single_quote(molecules[i].add_reps[iar].atom_sel_info.chain_id));
@@ -449,6 +505,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 		     }
 		     if (molecules[i].add_reps[iar].atom_sel_info.type ==
 			 coot::atom_selection_info_t::BY_STRING) {
+			active_strings.push_back("coot");
 			active_strings.push_back("additional-representation-by-string");
 			active_strings.push_back(int_to_string(molecule_count));
 			active_strings.push_back(single_quote(molecules[i].add_reps[iar].atom_sel_info.atom_selection_str));
@@ -464,6 +521,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 		     //
 		     if (! molecules[i].add_reps[iar].show_it) {
 			active_strings.clear();
+			active_strings.push_back("coot");
 			active_strings.push_back("set-show-additional-representation");
 			active_strings.push_back(int_to_string(molecule_count));
 			active_strings.push_back(int_to_string(iar));
@@ -477,6 +535,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 	       if (molecules[i].input_sequence.size() > 0) {
 		  for (unsigned int iseq=0; iseq<molecules[i].input_sequence.size(); iseq++) {
 		     active_strings.clear();
+		     active_strings.push_back("coot");
 		     active_strings.push_back("assign-pir-sequence");
 		     active_strings.push_back(int_to_string(molecule_count));
 		     active_strings.push_back(single_quote(molecules[i].input_sequence[iseq].first));
@@ -498,6 +557,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 	       // map opacity
 	       float opacity = molecules[i].density_surface_opacity;
 	       command_strings.clear();
+	       command_strings.push_back("coot");
 	       command_strings.push_back("set-solid-density-surface-opacity");
 	       command_strings.push_back(int_to_string(molecule_count));
 	       command_strings.push_back(float_to_string(opacity));
@@ -508,34 +568,37 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 	       command_strings = molecules[i].get_map_contour_strings();
 	       commands.push_back(state_command(command_strings, il));
 	       if (molecules[i].contoured_by_sigma_p()) {
-		  command_strings = molecules[i].get_map_contour_sigma_step_strings();
-		  commands.push_back(state_command(command_strings, il));
-		  // std::cout << "######## here 2 " << std::endl;
-		  // for (unsigned int jj=0; jj<command_strings.size(); jj++)
-		  // std::cout << "          " << jj << " " << command_strings[jj] << std::endl;
+		         command_strings = molecules[i].get_map_contour_sigma_step_strings();
+		         commands.push_back(state_command(command_strings, il));
+		         // std::cout << "######## here 2 " << std::endl;
+		         // for (unsigned int jj=0; jj<command_strings.size(); jj++)
+		         // std::cout << "          " << jj << " " << command_strings[jj] << std::endl;
 	       }
 	       if (! molecules[i].is_displayed_p()) {
-		  display_strings.clear();
-		  display_strings.push_back("set-map-displayed");
-		  display_strings.push_back(int_to_string(molecule_count));
-		  display_strings.push_back(int_to_string(0));
-		  commands.push_back(state_command(display_strings, il));
+               display_strings.clear();
+               display_strings.push_back("coot");
+               display_strings.push_back("set-map-displayed");
+               display_strings.push_back(int_to_string(molecule_count));
+               display_strings.push_back(int_to_string(0));
+               commands.push_back(state_command(display_strings, il));
 	       }
 
 	       if (i == imol_refinement_map) {
-		  display_strings.clear();
-		  display_strings.push_back("set-imol-refinement-map");
-		  display_strings.push_back(int_to_string(molecule_count));
-		  commands.push_back(state_command(display_strings, il));
+               display_strings.clear();
+               display_strings.push_back("coot");
+               display_strings.push_back("set-imol-refinement-map");
+               display_strings.push_back(int_to_string(molecule_count));
+               commands.push_back(state_command(display_strings, il));
 	       }
 
 	       if (i == scroll_wheel_map) {
-		  // save for after maps have been read.
-		  scroll_wheel_map_for_state = molecule_count;
+   		  // save for after maps have been read.
+	   	  scroll_wheel_map_for_state = molecule_count;
 	       }
 	    }
 	    if (molecules[i].show_unit_cell_flag) {
 	       display_strings.clear();
+	       display_strings.push_back("coot");
 	       display_strings.push_back("set-show-unit-cell");
 	       display_strings.push_back(int_to_string(molecule_count));
 	       display_strings.push_back(int_to_string(1));
@@ -552,8 +615,8 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
    // rama restraints on?
    if (do_rama_restraints) {
-      commands.push_back(state_command("set-refine-ramachandran-torsion-angles", 1, il));
-      commands.push_back(state_command("set-refine-ramachandran-restraints-weight", rama_plot_restraints_weight, il));
+      commands.push_back(state_command("coot", "set-refine-ramachandran-torsion-angles", 1, il));
+      commands.push_back(state_command("coot", "set-refine-ramachandran-restraints-weight", rama_plot_restraints_weight, il));
    }
 
    // last things to do:
@@ -562,6 +625,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    //
    if (scroll_wheel_map_for_state != -1) {
       std::vector <std::string> display_strings;
+      display_strings.push_back("coot");
       display_strings.push_back("set-scroll-wheel-map");
       display_strings.push_back(int_to_string(scroll_wheel_map_for_state));
       commands.push_back(state_command(display_strings, il));
@@ -569,18 +633,17 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
    // was the default weight changed.  Whatever, just save the current
    // value already.
-   commands.push_back(state_command("set-matrix", geometry_vs_map_weight, il));
+   commands.push_back(state_command("coot", "set-matrix", geometry_vs_map_weight, il));
 
    // planar peptide restraints?
    bool ps = Geom_p()->planar_peptide_restraint_state();
    if (! ps)
-      commands.push_back(state_command("remove-planar-peptide-restraints", il));
+      commands.push_back(state_command("coot", "remove-planar-peptide-restraints", il));
 
 
    // environment distances?
    if (environment_show_distances) {
-      commands.push_back(state_command("set-show-environment-distances",
-				       int(1), il));
+      commands.push_back(state_command("coot", "set-show-environment-distances", int(1), il));
    }
 
    // distance geometry
@@ -605,15 +668,17 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
    // show symmetry.  Turn this on after molecules have been read so
    // that we don't get the error popup.
-   commands.push_back(state_command("set-show-symmetry-master", int(show_symmetry), il));
+   commands.push_back(state_command("coot", "set-show-symmetry-master", int(show_symmetry), il));
    // go to atom
    command_strings.resize(0);
+   command_strings.push_back("coot");
    command_strings.push_back("set-go-to-atom-molecule");
    command_strings.push_back(int_to_string(local_go_to_atom_mol));
    commands.push_back(state_command(command_strings, il));
 
    command_strings.resize(0);
    if (go_to_atom_residue_ != -9999) { // magic unset value
+      command_strings.push_back("coot");
       command_strings.push_back("set-go-to-atom-chain-residue-atom-name");
       command_strings.push_back(single_quote(go_to_atom_chain_));
       command_strings.push_back(int_to_string(go_to_atom_residue_));
@@ -625,8 +690,8 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // view things: rotation centre and zoom. Sanity check the zoom first.
    //
    //
-   commands.push_back(state_command("set-zoom", zoom, il));
-   commands.push_back(state_command("set-rotation-centre", X(), Y(), Z(), il));
+   commands.push_back(state_command("coot", "set-zoom", zoom, il));
+   commands.push_back(state_command("coot", "set-rotation-centre", X(), Y(), Z(), il));
 
    // the orientation
    //
@@ -636,6 +701,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       float j = view_quaternion[1];
       float k = view_quaternion[2];
       float l = view_quaternion[3];
+      command_strings.push_back("coot");
       command_strings.push_back("set-view-quaternion");
       command_strings.push_back(float_to_string_using_dec_pl(i, 5));
       command_strings.push_back(float_to_string_using_dec_pl(j, 5));
@@ -649,24 +715,24 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // in_side_by_side_stereo_mode is not used, Baah.
    if (display_mode == coot::SIDE_BY_SIDE_STEREO) {
       int stereo_display_mode = 0;
-      commands.push_back(state_command("side-by-side-stereo-mode", stereo_display_mode, il));
+      commands.push_back(state_command("coot", "side-by-side-stereo-mode", stereo_display_mode, il));
    }
    if (display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) {
       int stereo_display_mode = 1;
-      commands.push_back(state_command("side-by-side-stereo-mode", stereo_display_mode, il));
+      commands.push_back(state_command("coot", "side-by-side-stereo-mode", stereo_display_mode, il));
    }
    //
    if (stereo_mode_state() == 1)
-      commands.push_back(state_command("hardware-stereo-mode", il));
+      commands.push_back(state_command("coot", "hardware-stereo-mode", il));
 
 
    // dialogs
    if (model_fit_refine_dialog)
-      commands.push_back(state_command("post-model-fit-refine-dialog", il));
+      commands.push_back(state_command("coot", "post-model-fit-refine-dialog", il));
    if (go_to_atom_window)
-      commands.push_back(state_command("post-go-to-atom-window", il));
+      commands.push_back(state_command("coot", "post-go-to-atom-window", il));
    if (display_control_window_)
-      commands.push_back(state_command("post-display-control-window", il));
+      commands.push_back(state_command("coot", "post-display-control-window", il));
 
    short int istat = 0;
    if (! disable_state_script_writing) {
@@ -808,27 +874,27 @@ graphics_info_t::save_state() {
 }
 
 std::string
-graphics_info_t::state_command(const std::string &str,
+graphics_info_t::state_command(const std::string &name_space,
+                               const std::string &str,
 			       int i1,
 			       short int state_lang) const {
 
-   std::vector<std::string> command_strings;
-   command_strings.push_back(str);
-   command_strings.push_back(int_to_string(i1));
-   return state_command(command_strings,state_lang);
+   std::vector<coot::command_arg_t> command_args;
+   command_args.push_back(coot::command_arg_t(i1));
+   return state_command(name_space, str, command_args, state_lang);
 }
 
 std::string
-graphics_info_t::state_command(const std::string &str,
+graphics_info_t::state_command(const std::string &name_space,
+                               const std::string &str,
 			       int i1,
 			       int i2,
 			       short int state_lang) const {
 
-   std::vector<std::string> command_strings;
-   command_strings.push_back(str);
-   command_strings.push_back(int_to_string(i1));
-   command_strings.push_back(int_to_string(i2));
-   return state_command(command_strings,state_lang);
+   std::vector<coot::command_arg_t> command_args;
+   command_args.push_back(coot::command_arg_t(i1));
+   command_args.push_back(coot::command_arg_t(i2));
+   return state_command(name_space, str, command_args, state_lang);
 }
 
 std::string
@@ -836,10 +902,10 @@ graphics_info_t::state_command(const std::string &str,
 			       float f,
 			       short int state_lang) const {
 
-   std::vector<std::string> command_strings;
-   command_strings.push_back(str);
-   command_strings.push_back(float_to_string(f));
-   return state_command(command_strings,state_lang);
+   std::string name_space = "coot"; // this is a guess/hack!
+   std::vector<coot::command_arg_t> command_args;
+   command_args.push_back(coot::command_arg_t(f));
+   return state_command(name_space, str, command_args, state_lang);
 }
 
 std::string
@@ -848,89 +914,102 @@ graphics_info_t::state_command(const std::string &str,
 			       short int state_lang,
 			       short unsigned int t) const {
 
-   std::vector<std::string> command_strings;
-   command_strings.push_back(str);
-   command_strings.push_back(float_to_string_using_dec_pl(f,t));
-   return state_command(command_strings,state_lang);
+   std::string name_space = "coot"; // this is a guess/hack!
+   std::vector<coot::command_arg_t> command_args;
+   command_args.push_back(coot::command_arg_t(f));
+   return state_command(name_space, str, command_args, state_lang);
 }
 
 std::string
-graphics_info_t::state_command(const std::string &str,
+graphics_info_t::state_command(const std::string &name_space,
+                               const std::string &str,
 			       float f1,
 			       float f2,
 			       float f3,
 			       short int state_lang) const {
 
-   std::vector<std::string> command_strings;
-   command_strings.push_back(str);
-   command_strings.push_back(float_to_string(f1));
-   command_strings.push_back(float_to_string(f2));
-   command_strings.push_back(float_to_string(f3));
-   return state_command(command_strings,state_lang);
+   std::vector<coot::command_arg_t> command_args;
+   command_args.push_back(coot::command_arg_t(f1));
+   command_args.push_back(coot::command_arg_t(f2));
+   command_args.push_back(coot::command_arg_t(f3));
+   return state_command(name_space, str, command_args, state_lang);
 }
 
 
 std::string
-graphics_info_t::state_command(const std::string &str, short int state_lang) const {
+graphics_info_t::state_command(const std::string &name_space,
+                               const std::string &str, short int state_lang) const {
 
-   std::vector<std::string> command;
-   command.push_back(str);
-   return state_command(command,state_lang);
+   std::vector<coot::command_arg_t> command_args;
+   return state_command(name_space, str, command_args, state_lang);
 }
 
 // command arg interface
 std::string
-graphics_info_t::state_command(const std::string &str,
+graphics_info_t::state_command(const std::string &name_space,
+                               const std::string &cmd,
 			       const std::string &str2,
 			       short int state_lang) {
 
-   std::vector<std::string> command;
-   command.push_back(str);
-   command.push_back(str2);
-   return state_command(command,state_lang);
-
+   std::vector<coot::command_arg_t> command_args;
+   command_args.push_back(coot::command_arg_t(str2));
+   return state_command(name_space, cmd, command_args, state_lang);
 }
 
 
 std::string
 graphics_info_t::state_command(const std::vector<std::string> &strs,
-			       short int state_lang) const {
+			                      short int state_lang) const {
 
    std::string command = "";
 
    if (strs.size() > 0) {
       if (state_lang == coot::STATE_SCM) {
-	 command = "(";
-	 for (int i=0; i<(int(strs.size())-1); i++) {
-	    command += strs[i];
-	    command += " ";
-	 }
-	 command += strs.back();
-	 command += ")";
+	      command = "(";
+	      for (int i=0; i<(int(strs.size())-1); i++) {
+	         command += strs[i];
+	         command += " ";
+	      }
+	      command += strs.back();
+	      command += ")";
       }
 
       if (state_lang == coot::STATE_PYTHON) {
-	 if (strs.size() > 0) {
-	    command = pythonize_command_name(strs[0]);
-	    command += "(";
-            if (strs.size() > 2) {
-               // add args with commas after them
-               int n_strs_max = strs.size() -1;
-               for (int i=1; i<n_strs_max; i++) {
-                  command += strs[i];
-                  command += ", ";
+	      if (strs.size() > 0) {
+            if (strs[0] == "coot") {
+               command = "coot.";
+               command += pythonize_command_name(strs[1]);
+	            command += "(";
+               if (strs.size() > 2) {
+                  // add args with commas after them
+                  int n_strs_max = strs.size() -1;
+                  for (int i=2; i<n_strs_max; i++) {
+                     command += strs[i];
+                     command += ", ";
+                  }
+               }
+            } else {
+   	         command = pythonize_command_name(strs[0]);
+	            command += "(";
+               if (strs.size() > 2) {
+                  // add args with commas after them
+                  int n_strs_max = strs.size() -1;
+                  for (int i=1; i<n_strs_max; i++) {
+                     command += strs[i];
+                     command += ", ";
+                  }
                }
             }
             if (strs.size() > 1)
                command += strs.back();
             command +=  ")";
-	 }
+	      }
       }
    }
    return command;
 }
 
-// 20220828-PE Let's pass the module information
+// 20220828-PE Let's pass the module (aka "name_space") information
 std::string
 graphics_info_t::state_command(const std::string &module, const std::string &func_name,
                                const std::vector<coot::command_arg_t> &args, short int state_lang) const {
@@ -944,7 +1023,8 @@ graphics_info_t::state_command(const std::string &module, const std::string &fun
    if (state_lang == coot::STATE_PYTHON) {
       if (! module.empty())
          command = module + std::string(".");
-      command += func_name;
+      // command += func_name;
+      command += pythonize_command_name(func_name);
       command += "(";
       for (unsigned int i=0; i<args.size(); i++) {
          if (i == args.size() -1) {
@@ -1030,15 +1110,15 @@ graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &comman
 //
 short int
 graphics_info_t::write_state_c_mode(const std::vector<std::string> &commands,
-				    const std::string &filename) const {
+			                     	   const std::string &filename) const {
 
    short int istat = 0;
 
    FILE *file = fopen(filename.c_str(), "w");
    if (file) {
       for (unsigned int i=0; i<commands.size(); i++) {
-	 fputs(commands[i].c_str(), file);
-	 fputs("\n", file);
+	      fputs(commands[i].c_str(), file);
+	      fputs("\n", file);
       }
       istat = 1;
       fclose(file);

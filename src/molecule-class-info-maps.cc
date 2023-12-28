@@ -1687,11 +1687,12 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 
 	 // save state strings
 
+         // hack in the "coot." for now.
 	 std::string cwd = coot::util::current_working_dir();
 	 std::string f1  = coot::util::intelligent_debackslash(mtz_file_name);
 	 std::string f2  = coot::util::relativise_file_name(f1, cwd);
 	 if (have_sensible_refmac_params) {
-	    save_state_command_strings_.push_back("make-and-draw-map-with-refmac-params");
+	    save_state_command_strings_.push_back("coot.make-and-draw-map-with-refmac-params");
 	    save_state_command_strings_.push_back(single_quote(f2));
 	    save_state_command_strings_.push_back(single_quote(f_col));
 	    save_state_command_strings_.push_back(single_quote(phi_col));
@@ -1705,7 +1706,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	    save_state_command_strings_.push_back(g.int_to_string(refmac_r_free_flag_sensible));
 	 } else {
 	    if (save_use_reso_limits) {
-	       save_state_command_strings_.push_back("make-and-draw-map-with-reso-with-refmac-params");
+	       save_state_command_strings_.push_back("coot.make-and-draw-map-with-reso-with-refmac-params");
 	       save_state_command_strings_.push_back(single_quote(f2));
 	       save_state_command_strings_.push_back(single_quote(f_col));
 	       save_state_command_strings_.push_back(single_quote(phi_col));
@@ -1723,7 +1724,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	       save_state_command_strings_.push_back(g.float_to_string(high_reso_limit));
 	    } else {
 	       if (is_anomalous_flag) {
-		  save_state_command_strings_.push_back("make-and-draw-map-with-reso-with-refmac-params");
+		  save_state_command_strings_.push_back("coot.make-and-draw-map-with-reso-with-refmac-params");
 		  save_state_command_strings_.push_back(single_quote(f2));
 		  save_state_command_strings_.push_back(single_quote(f_col));
 		  save_state_command_strings_.push_back(single_quote(phi_col));
@@ -1741,7 +1742,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 		  save_state_command_strings_.push_back(g.float_to_string(1.2));
 	       } else {
 		  // bog standard.
-		  save_state_command_strings_.push_back("make-and-draw-map");
+		  save_state_command_strings_.push_back("coot.make-and-draw-map");
 		  save_state_command_strings_.push_back(single_quote(f2));
 		  save_state_command_strings_.push_back(single_quote(f_col));
 		  save_state_command_strings_.push_back(single_quote(phi_col));
@@ -1889,7 +1890,7 @@ molecule_class_info_t::set_refmac_save_state_commands(std::string mtz_file_name,
 
    have_sensible_refmac_params = true;
    save_state_command_strings_.clear();
-   save_state_command_strings_.push_back("make-and-draw-map-with-refmac-params");
+   save_state_command_strings_.push_back("coot.make-and-draw-map-with-refmac-params");
    save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(mtz_file_name)));
    save_state_command_strings_.push_back(single_quote(f_col));
    save_state_command_strings_.push_back(single_quote(phi_col));
