@@ -4203,7 +4203,7 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
          hd->pos = centres[i].first;
 
          g_signal_connect(G_OBJECT (radio_button), "toggled",
-                           G_CALLBACK(on_diff_map_peak_button_selection_toggled), hd);
+                          G_CALLBACK(on_diff_map_peak_button_selection_toggled), hd);
          gtk_box_append(GTK_BOX(button_vbox), radio_button);
 
       }
@@ -4220,6 +4220,7 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
       do_positive_level_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "do_positive_level_flag"));
       do_negative_level_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "do_negative_level_flag"));
       around_model_only_flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "around_model_only_flag"));
+      around_model_only_flag = false; // 20231228-PE this gets ignored currently
       char *n_sigma_cs = static_cast<char *>  (g_object_get_data(G_OBJECT(peaks_vbox), "n_sigma_str"));
       imol_map    = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "imol_map"));
       imol_coords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(peaks_vbox), "imol_model"));
@@ -4244,7 +4245,7 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
 
    GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
    gtk_widget_set_visible(pane_to_show,  TRUE);
-   
+
    GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
    int pos = gtk_paned_get_position(GTK_PANED(pane));
    if (pos < 300)
@@ -4260,6 +4261,7 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
    int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button_vbox), "imol_map"));
    if (is_valid_map_molecule(imol_map))
       map_sigma = molecules[imol_map].map_sigma();
+
    fill_difference_map_button_box_inner(button_vbox, centres, map_sigma);
 }
 

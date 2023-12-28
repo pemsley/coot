@@ -538,10 +538,12 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
                               return coords;
                            };
 
-   if (false) {
-      std::cout << "in get_peaks do_positive_levels_flag " << do_positive_levels_flag << std::endl;
+   only_around_protein_flag = false;
+
+   if (true) {
+      std::cout << "in get_peaks do_positive_levels_flag   " << do_positive_levels_flag << std::endl;
       std::cout << "in get_peaks also_negative_levels_flag " << also_negative_levels_flag << std::endl;
-      std::cout << "in get_peaks only_around_protein_flag " << only_around_protein_flag << std::endl;
+      std::cout << "in get_peaks only_around_protein_flag  " << only_around_protein_flag << std::endl;
    }
 
    std::vector<std::pair<clipper::Coord_orth, float> > peaks =
@@ -551,25 +553,32 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 
    std::vector<clipper::Coord_orth> sampled_protein_coords = make_sample_protein_coords(mol);
 
+   std::cout << "in get_peaks() sampled_protein_coords size " << sampled_protein_coords.size()
+             << std::endl;
+
+
    if (only_around_protein_flag) {
 
       sampled_protein_coords = sample_all_atoms();
-      // std::cout << "sampled_protein_coords size is " << sampled_protein_coords.size() << std::endl;
+      std::cout << "sampled_protein_coords size is " << sampled_protein_coords.size() << std::endl;
 
-      double max_dist = 4.0; // maybe a bit too much, actually!
-      max_dist = 6.5; // 20231004-PE for 1bl8
+      double max_dist_close_enough = 3.8; // 4.0 maybe a bit too much, actually!
+      double max_dist = 4.0; // 20231004-PE for 1bl8
       double max_dist_sqrd = max_dist * max_dist;
       unsigned int n_outside = 0;
+      unsigned int n_inside = 0;
       for (const auto &peak : peaks) {
          bool within_dist = false;
          for (const auto &atom_pos : sampled_protein_coords) {
             double dd = (atom_pos-peak.first).lengthsq();
             if (dd < max_dist_sqrd) {
                within_dist = true;
-               break;
+               if (dd < max_dist_close_enough * max_dist_close_enough)
+                  break;
             }
          }
          if (within_dist) {
+            n_inside++;
             r.push_back(peak);
          } else {
             n_outside++;
@@ -577,7 +586,7 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
       }
 
       std::cout << "INFO:: n_peaks outside of contact with protein (and thus ignored): "
-                << n_outside << std::endl;
+                << n_outside << " and " << n_inside << " inside " << std::endl;
 
    } else {
 
@@ -596,7 +605,7 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 
       // The unit cell translations to move the centre of the protein as
       // closs to the origin as possible.
-      // 
+      //
       std::vector<int> iprotein_trans =
          find_protein_to_origin_translations(sampled_protein_coords, xmap);
 
@@ -783,6 +792,9 @@ coot::peak_search::move_point_close_to_protein(const clipper::Coord_orth &pt,
                                                const std::vector<clipper::Coord_orth> &sampled_protein_coords,
                                                const std::vector<int> &itrans,
                                                const clipper::Xmap<float> &xmap) const {
+
+   // std::cout << "************ in move_point_close_to_protein samples protein coords size "
+   //   << sampled_protein_coords.size() << std::endl;
 
    // Recall that sampled_protein_coords have been moved close to the
    // origin, so when we make r, we need to move it back to where the
