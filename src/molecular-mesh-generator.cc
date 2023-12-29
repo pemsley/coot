@@ -1183,15 +1183,60 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
                                                                             int model_number,
                                                                             mmdb::Residue *residue_p,
                                                                             const coot::protein_geometry *geom_in,
-                                                                            int bond_width) {
+                                                                            int bond_width,
+                                                                            int selection_mode) {
+   //! selection_mode is one of 1: residue, 2: sphere, 3: big sphere, 4: chain
+
+   auto select_atoms_in_residues = [] (int selhnd, mmdb::Manager *mol,
+                                       const std::vector<mmdb::Residue *> &rs) {
+         // is there a faster way than this?
+         std::vector<mmdb::Residue * >::const_iterator it;
+         for (it=rs.begin(); it!=rs.end(); ++it) {
+            mmdb::Residue *r(*it);
+            mol->SelectAtoms(selhnd, 0, r->GetChainID(), r->GetSeqNum(), "*", r->GetSeqNum(), "*",
+                           "*", "*", "*", "*", mmdb::SKEY_OR);
+         }
+   };
+
+   auto construct_selection = [select_atoms_in_residues] (mmdb::Manager *mol, int selection_mode,
+                                  mmdb::Residue *residue_p) {
+      // c.f. coot::molecule_t::select_residues()
+      int selhnd = mol->NewSelection();
+      if (selection_mode == 1) { // residue
+         coot::residue_spec_t res_spec(residue_p);
+         res_spec.select_atoms(mol, selhnd, mmdb::SKEY_NEW);
+      }
+      if (selection_mode == 2) { // sphere
+         float radius = 4.2;
+         std::vector<mmdb::Residue * > rs = coot::residues_near_residue(residue_p, mol, radius);
+         rs.push_back(residue_p);
+         select_atoms_in_residues(selhnd, mol, rs);
+      }
+      if (selection_mode == 3) { // big sphere
+         float radius = 8.0; // matches select_residues() in api
+         std::vector<mmdb::Residue * > rs = coot::residues_near_residue(residue_p, mol, radius);
+         rs.push_back(residue_p);
+         select_atoms_in_residues(selhnd, mol, rs);
+      }
+      if (selection_mode == 4) { // chain
+         mmdb::Model *model_p = mol->GetModel(1);
+         if (model_p) {
+            mmdb::Chain *chain_p = residue_p->chain;
+            std::vector<mmdb::Residue * > rs = coot::util::residues_in_chain(chain_p);
+            select_atoms_in_residues(selhnd, mol, rs);
+         }
+      }
+      return selhnd;
+   };
 
    float atom_radius_scale_factor = 1.0; // this needs to be passed
 
    coot::residue_spec_t res_spec(residue_p); // pass the spec!
-   int selhnd = mol->NewSelection(); // d
-   res_spec.select_atoms(mol, selhnd, mmdb::SKEY_NEW);
-   atom_selection_container_t asc = make_asc(mol);
+   // int selhnd = mol->NewSelection(); // d
+   // res_spec.select_atoms(mol, selhnd, mmdb::SKEY_NEW);
    // replace asc innards with the atoms of the residue selection
+   atom_selection_container_t asc = make_asc(mol);
+   int selhnd = construct_selection(mol, selection_mode, residue_p); // selection is deleted below
    int n_selected_atoms = 0;
    mmdb::PAtom *atom_selection;
    mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
@@ -1333,7 +1378,6 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
    triangles.insert(triangles.end(), bond_bits.second.begin(), bond_bits.second.end());
    for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
       triangles[i].rebase(idx_base);
-   
 
    return std::make_pair(vertices, triangles);
 }

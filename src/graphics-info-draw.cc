@@ -2067,21 +2067,22 @@ graphics_info_t::draw_environment_graphics_object() {
 #include "molecular-mesh-generator.hh"
 
 void
-graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot::atom_spec_t &spec) {
+graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot::atom_spec_t &spec, int n_press) {
 
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = molecules[imol].atom_sel.mol;
       if (mol) {
          coot::residue_spec_t res_spec(spec);
          mmdb::Residue *residue_p = molecules[imol].get_residue(res_spec);
          if (residue_p) {
-            int bond_width = 10;
+            attach_buffers();
+            int bond_width = 9;
             int model_number = residue_p->GetModelNum();
             molecular_mesh_generator_t mmg;
             std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > p =
                mmg.get_molecular_triangles_mesh_for_active_residue(imol, mol, model_number, residue_p, Geom_p(),
-                                                                   bond_width);
+                                                                   bond_width, n_press);
             mesh_for_outline_of_active_residue.clear();
             mesh_for_outline_of_active_residue.import(p);
             Material mat;
@@ -6528,11 +6529,14 @@ graphics_info_t::setup_key_bindings() {
 
    auto l29 = [] () {
 
-      std::cout << "highlighting active residue" << std::endl;
       graphics_info_t g;
+      auto tp_now = std::chrono::high_resolution_clock::now();
+      int n_press = g.get_n_pressed_for_leftquote_tap(tp_now);
+      // std::cout << "highlighting active residue " << n_press << std::endl;
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       if (pp.first) {
-         g.update_mesh_for_outline_of_active_residue(pp.second.first, pp.second.second);
+         int imol = pp.second.first;
+         g.update_mesh_for_outline_of_active_residue(imol, pp.second.second, n_press);
          if (! tick_function_is_active()) {
             int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
          }
@@ -6984,7 +6988,7 @@ graphics_info_t::unfullscreen() {
 
     std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > p1 = ::pumpkin();
     std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > p2 = ::pumpkin_stalk();
-    
+
     glm::vec4 col_1(0.85, 0.45, 0.19, 1.0);
     glm::vec4 col_2(0.35, 0.45, 0.19, 1.0);
     attach_buffers();

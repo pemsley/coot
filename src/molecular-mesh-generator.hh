@@ -110,11 +110,13 @@ public:
                                 const std::string &colour_scheme,
                                 const std::string &style);
 
+   //! selection mode is one of 1: residue, 2: sphere, 3: big sphere, 4: chain
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
    get_molecular_triangles_mesh_for_active_residue(int imol, mmdb::Manager *mol, int model_number,
                                                    mmdb::Residue *residue_p,
                                                    const coot::protein_geometry *geom_in,
-                                                   int bond_width);
+                                                   int bond_width,
+                                                   int selection_mode);
 
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >

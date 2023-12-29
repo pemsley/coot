@@ -1681,6 +1681,9 @@ public:
    static void add_drag_refine_idle_function();
    static void remove_drag_refine_idle_function();
 
+   static std::vector<std::chrono::time_point<std::chrono::high_resolution_clock> > leftquote_press_times;
+   int get_n_pressed_for_leftquote_tap(std::chrono::time_point<std::chrono::high_resolution_clock> tp);
+
    static int drag_refine_refine_intermediate_atoms();
 
    static double refinement_drag_elasticity;
@@ -4936,7 +4939,7 @@ string   static std::string sessionid;
    void clear_hud_buttons(); // called by clear_up_moving_atoms_wrapper();
 
    static Mesh mesh_for_outline_of_active_residue;
-   void update_mesh_for_outline_of_active_residue(int imol, const coot::atom_spec_t &spec);
+   void update_mesh_for_outline_of_active_residue(int imol, const coot::atom_spec_t &spec, int n_press);
    static unsigned int outline_for_active_residue_frame_count;
 
    // Mesh mesh_for_particles("mesh-for-particles");

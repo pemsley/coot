@@ -6895,19 +6895,36 @@ graphics_info_t::update_scroll_wheel_map_on_molecule_close() {
       bool changed = false; // to a higher number
       int m = molecules.size() - 1;
       for(int imol=m; imol>=0; imol--) {
-	 if (imol > imol_start) {
-	    if (is_valid_map_molecule(imol)) {
-	       scroll_wheel_map = imol;
-	       changed = true;
-	    }
-	 } else {
-	    if (! changed) {
-	       if (is_valid_map_molecule(imol))
-		  scroll_wheel_map = imol;
-	    }
-	 }
+         if (imol > imol_start) {
+            if (is_valid_map_molecule(imol)) {
+               scroll_wheel_map = imol;
+               changed = true;
+            }
+         } else {
+            if (! changed) {
+               if (is_valid_map_molecule(imol))
+                  scroll_wheel_map = imol;
+            }
+         }
       }
       // nothing was satisfactory then.
       scroll_wheel_map = -1;
    }
+}
+
+int
+graphics_info_t::get_n_pressed_for_leftquote_tap(std::chrono::time_point<std::chrono::high_resolution_clock> tp) {
+
+   unsigned int s = leftquote_press_times.size();
+   unsigned int r = s % 4 + 1;
+   if (s != 0) {
+      auto tpl = leftquote_press_times.back();
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp - tpl).count();
+      if (d10 > 2000) {
+         leftquote_press_times.clear();
+         r = 1;
+      }
+   }
+   leftquote_press_times.push_back(tp);
+   return r;
 }

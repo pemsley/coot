@@ -367,7 +367,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
          bool handled = check_if_refinement_dialog_arrow_tab_was_clicked();
 
          GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
-         std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
+         // std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
          if (modifier == 8) { // "option" key on Mac (ALT on PC is 24)
             bool intermediate_atoms_only_flag = false;
             pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
@@ -379,7 +379,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
          } else { // not "option" modifier
 
             GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
-            std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
+            // std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
 
             if (modifier == 17) { // shift
 
