@@ -7004,3 +7004,22 @@ graphics_info_t::display_next_map() { // one at a time, all, none.
          molecules[imol_map].set_map_is_displayed(0);
    }
 }
+
+// static
+void
+graphics_info_t::toggle_display_of_last_model() {
+
+   int imol = -1;
+   int n_mols = n_molecules();
+   for (int i=0; i<n_mols; i++) {
+      if (is_valid_model_molecule(i))
+         imol = i;
+   }
+
+   if (imol > -1) {
+      if (molecules[imol].is_displayed_p())
+         molecules[imol].set_mol_is_displayed(0);
+      else
+         molecules[imol].set_mol_is_displayed(1);
+   }
+}

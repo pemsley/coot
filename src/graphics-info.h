@@ -1025,6 +1025,8 @@ public:
    // is displayed or undisplayed)
    static bool mol_displayed_toggle_do_redraw; // normally true
 
+   static void toggle_display_of_last_model();
+
    static bool is_valid_model_molecule(int imol) {
 
      bool v = 0;

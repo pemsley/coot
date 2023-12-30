@@ -6329,9 +6329,9 @@ graphics_info_t::setup_key_bindings() {
                        if (g.hud_button_info.size()) {
                           g.clear_hud_buttons(); g.accept_moving_atoms();
                        } else {
-                          
+
                           // Move the view - don't click the button
-                          
+
                           // g.reorienting_next_residue_mode = false; // hack
                           bool reorienting = graphics_info_t::reorienting_next_residue_mode;
                           if (reorienting) {
@@ -6588,6 +6588,12 @@ graphics_info_t::setup_key_bindings() {
       return gboolean(TRUE);
    };
 
+   auto l38 = [] () {
+      graphics_info_t g;
+      g.toggle_display_of_last_model();
+      return gboolean(TRUE);
+   };
+
    auto l40 = [] () {
       rsr_sphere_refine_plus();
       return gboolean(TRUE);
@@ -6717,8 +6723,9 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l28, "NCS Other Chain")));
 
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_R,      key_bindings_t(l40, "Sphere Refine")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_A,      key_bindings_t(l38, "Toggle Display of Last Model")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_E,      key_bindings_t(l40c, "Chain Refine")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_R,      key_bindings_t(l40, "Sphere Refine")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Q,      key_bindings_t(l37, "Display Next Map")));
 
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_space,  key_bindings_t(l18_space, "Accept Moving Atoms")));
