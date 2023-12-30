@@ -11228,3 +11228,8 @@ Sun 17 Dec 19:31:23 GMT 2023
    for random numbers: make a table of size 21247 (it's prime) and sample from
    that with a static unsigned int counter/index.
 
+---
+Fri 29 Dec 2023 23:25:32 GMT
+
+   This looks interesting
+   https://github.com/nmwsharp/geometry-central

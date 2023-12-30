@@ -15459,7 +15459,7 @@ Move a copy?</property>
       <object class="GtkShortcutsSection">
         <child>
           <object class="GtkShortcutsGroup">
-            <property name="title">View Functions</property>
+            <property name="title">View/Display Functions</property>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">l</property>
@@ -15518,6 +15518,12 @@ Move a copy?</property>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">i</property>
                 <property name="title" translatable="yes">Spin View</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;A</property>
+                <property name="title" translatable="yes">Toggle Display of Last Model</property>
               </object>
             </child>
           </object>
@@ -15609,6 +15615,12 @@ Move a copy?</property>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Shift&gt;W</property>
                 <property name="title" translatable="yes">Change Scroll-wheel map</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;Q</property>
+                <property name="title" translatable="yes">Display Next Map</property>
               </object>
             </child>
             <child>
