@@ -6582,6 +6582,12 @@ graphics_info_t::setup_key_bindings() {
                  return gboolean(TRUE);
               };
 
+   auto l37 = [] {
+      graphics_info_t g;
+      g.display_next_map(); // one at a time, all, none.
+      return gboolean(TRUE);
+   };
+
    auto l40 = [] () {
       rsr_sphere_refine_plus();
       return gboolean(TRUE);
@@ -6713,6 +6719,7 @@ graphics_info_t::setup_key_bindings() {
 
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_R,      key_bindings_t(l40, "Sphere Refine")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_E,      key_bindings_t(l40c, "Chain Refine")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Q,      key_bindings_t(l37, "Display Next Map")));
 
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_space,  key_bindings_t(l18_space, "Accept Moving Atoms")));
 

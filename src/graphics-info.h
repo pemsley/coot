@@ -4760,6 +4760,8 @@ string   static std::string sessionid;
 
    int blob_under_pointer_to_screen_centre();
 
+   void display_next_map(); // one at a time, all, none.
+
    // make this private when the glarea render function is moved into graphics_info_t
    //
    static molecule_class_info_t moving_atoms_molecule; // used as a container for glsl variables. public access
@@ -5102,7 +5104,7 @@ string   static std::string sessionid;
    static GLuint screen_AO_quad_vertex_array_id;
    static GLuint screen_AO_quad_VBO;
 
-   static unsigned int shadow_texture_multiplier; 
+   static unsigned int shadow_texture_multiplier;
    static unsigned int shadow_texture_width;  //  = 4 * 1024; // too big?      // derived from the above (n x 1024)
    static unsigned int shadow_texture_height; //  = 4 * 1024;
    void set_shadow_texture_resolution_multiplier(unsigned int m) {

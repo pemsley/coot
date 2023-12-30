@@ -6928,3 +6928,79 @@ graphics_info_t::get_n_pressed_for_leftquote_tap(std::chrono::time_point<std::ch
    leftquote_press_times.push_back(tp);
    return r;
 }
+
+void
+graphics_info_t::display_next_map() { // one at a time, all, none.
+
+   auto find_index = [] (const std::vector<int> &v, int item) {
+      int idx = -1;
+      for (size_t i = 0; i < v.size(); i++) {
+         if (v[i] == item) {
+            idx = i;
+            break;
+         }
+      }
+      return idx;
+   };
+
+   // one, all or none.
+   std::vector<int> maps_to_be_displayed;
+
+   std::vector<int> mm;
+   std::vector<int> dm;
+   int n_mol = molecules.size();
+   for (int imol=0; imol<n_mol; imol++) {
+      if (is_valid_map_molecule(imol)) {
+         mm.push_back(imol);
+         if (molecules[imol].is_displayed_p()) {
+            dm.push_back(imol);
+         }
+      }
+   }
+   if (mm.empty()) return;
+   int mm_size = mm.size();
+
+   if (mm.size() > 1) {
+      int idx = -1;
+      if (! dm.empty()) {
+         if (dm.back() == mm.back() && dm.size() == 1) {
+            // the last map was displayed, so now we turn off all maps
+         } else {
+            int imol_first = dm[0];
+            if (dm.size() > 1) {
+               maps_to_be_displayed.push_back(imol_first);
+            } else {
+               int idx_first = find_index(mm, imol_first);
+               if (idx_first != -1) {
+                  int next_index = idx_first + 1;
+                  if (next_index >= mm_size) {
+                     next_index = 0;
+                  }
+                  maps_to_be_displayed.push_back(mm[next_index]);
+               } else {
+                  // this cannot happen
+                  maps_to_be_displayed.push_back(mm[0]);
+               }
+            }
+         }
+      } else {
+         // none of them were displayed, now display all.
+         maps_to_be_displayed = mm;
+      }
+
+      for (int imol=0; imol<n_mol; imol++) {
+         if (std::find(maps_to_be_displayed.begin(), maps_to_be_displayed.end(), imol) == maps_to_be_displayed.end()) {
+            molecules[imol].set_map_is_displayed(0);
+         } else {
+            molecules[imol].set_map_is_displayed(1);
+         }
+      }
+   } else {
+      // toggle the display of the one displayed map
+      int imol_map = mm[0];
+      if (dm.empty())
+         molecules[imol_map].set_map_is_displayed(1);
+      else
+         molecules[imol_map].set_map_is_displayed(0);
+   }
+}
