@@ -8,6 +8,7 @@ Key-binding for "display/undisplay all maps"
 * Done - sort of. Shift Q
 
 Key-binding for "toggle display of last model"
+* Done - Shift A.
 
 Key-binding for "Advance scroll-wheel-map to next map" (have I done this?)
 * Yes. Shift W
@@ -63,6 +64,7 @@ Moorhen: Set a flag for contouring timers. Add them, store the result, and use t
 * Done.
 
 Graphics: tap, tap tap, tap tap tap left-quote for residue, chain molecule.
+* Done.
 
 Graphics: pdb4nia
           coot.set_model_molecule_representation_style(0,1)
