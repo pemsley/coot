@@ -34,7 +34,7 @@ std::vector<std::pair<clipper::Coord_orth, float>> coot::diff_diff_map_peaks(con
                }
             }
             if (is_peak) {
-               std::cout << ix.coord().format() << " d pos " << d << std::endl;
+               // std::cout << ix.coord().format() << " d pos " << d << std::endl;
                clipper::Coord_frac cf = ix.coord().coord_frac(m1.grid_sampling());
                clipper::Coord_orth co = cf.coord_orth(m1.cell());
                std::pair p = std::make_pair(co, d);
@@ -57,7 +57,7 @@ std::vector<std::pair<clipper::Coord_orth, float>> coot::diff_diff_map_peaks(con
                }
             }
             if (is_peak) {
-               std::cout << ix.coord().format() << " d neg " << d << std::endl;
+               // std::cout << ix.coord().format() << " d neg " << d << std::endl;
                clipper::Coord_frac cf = ix.coord().coord_frac(m1.grid_sampling());
                clipper::Coord_orth co = cf.coord_orth(m1.cell());
                std::pair p = std::make_pair(co, d);
