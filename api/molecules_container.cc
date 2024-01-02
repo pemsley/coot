@@ -669,7 +669,7 @@ molecules_container_t::get_group_for_monomer(const std::string &residue_name) co
 }
 
 
-#if RDKIT_HAS_CAIRO_SUPPORT // 20231129-PE Cairo is not allowed.
+#if RDKIT_HAS_CAIRO_SUPPORT // 20231129-PE Cairo is not allowed in Moorhen.
 #include <GraphMol/MolDraw2D/MolDraw2DCairo.h>
 #include "lidia-core/rdkit-interface.hh"
 #endif
@@ -2326,6 +2326,8 @@ molecules_container_t::sfcalc_genmap(int imol_model,
 }
 
 
+#include "coot-utils/diff-diff-map-peaks.hh"
+
 coot::util::sfcalc_genmap_stats_t
 molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                                                          int imol_map_2fofc,  // this map should have the data attached.
@@ -2376,7 +2378,17 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
 
                         clipper::Xmap<float> &xmap_2fofc = molecules[imol_map_2fofc].xmap;
                         clipper::Xmap<float> &xmap_fofc  = molecules[imol_map_fofc].xmap;
+                        molecules[imol_map_fofc].updating_maps_previous_difference_map = xmap_fofc;
                         stats = molecules[imol_model].sfcalc_genmaps_using_bulk_solvent(*fobs_data_p, *free_flag_p, &xmap_2fofc, &xmap_fofc);
+
+                        { // diff differenc map peaks
+                           float base_level = 0.2; // this might need to be computed from the rmsd.
+                           float radius = 20.0; // 20240102-PE is this used? I think not - delete the argument.
+                           const clipper::Xmap<float> &m1 = molecules[imol_map_fofc].updating_maps_previous_difference_map;
+                           const clipper::Xmap<float> &m2 = xmap_fofc;
+                           std::vector<std::pair<clipper::Coord_orth, float> > v1 = coot::diff_diff_map_peaks(m1, m2, base_level);
+                           molecules[imol_map_fofc].set_updating_maps_diff_diff_map_peaks(v1);
+                        }
 
                      } else {
                         std::cout << "ERROR:: null data pointer in graphics_info_t::sfcalc_genmaps_using_bulk_solvent() " << std::endl;
@@ -2394,6 +2406,24 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
    latest_sfcalc_stats = stats;
    return stats;
 }
+
+//! @return a vector the position where the differenc map has been flattened.
+//! The associated float value is the ammount that the map has been flattened.
+std::vector<std::pair<clipper::Coord_orth, float> >
+molecules_container_t::get_diff_diff_map_peaks(int imol_map_fofc,
+                                               float screen_centre_x, float screen_centre_y, float screen_centre_z) const {
+
+   clipper::Coord_orth screen_centre(screen_centre_x, screen_centre_y, screen_centre_z); // also, is this used in this function?
+   std::vector<std::pair<clipper::Coord_orth, float> > v;
+   if (is_valid_model_molecule(imol_map_fofc)) {
+      v = molecules[imol_map_fofc].get_updating_maps_diff_diff_map_peaks(screen_centre);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_map_fofc << std::endl;
+   }
+   return v;
+
+}
+
 
 int
 molecules_container_t::rail_points_total() const { // the sum of all the rail ponts accumulated

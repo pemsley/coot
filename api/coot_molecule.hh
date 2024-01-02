@@ -1009,6 +1009,15 @@ namespace coot {
       void set_map_is_difference_map(bool flag);
       bool is_difference_map_p() const;
 
+      // gets updated in sfcalc_genmaps_using_bulk_solvent
+      clipper::Xmap<float> updating_maps_previous_difference_map;
+      // these are in the asymmetric unit
+      std::vector<std::pair<clipper::Coord_orth, float> > updating_maps_diff_diff_map_peaks;
+      void set_updating_maps_diff_diff_map_peaks(const std::vector<std::pair<clipper::Coord_orth, float> > &v) {
+         updating_maps_diff_diff_map_peaks = v; }
+      //! does the peaks-move operation.
+      std::vector<std::pair<clipper::Coord_orth, float> > get_updating_maps_diff_diff_map_peaks(const clipper::Coord_orth &screen_centre) const;
+
       //! @return the suggested initial contour level. Return -1 on not-a-map
       float get_suggested_initial_contour_level() const;
 
@@ -1031,9 +1040,9 @@ namespace coot {
          float mean;
          //! variance
          float variance;
-         histogram_info_t() : base(-1), bin_width(-1) {}
+         histogram_info_t() : base(-1), bin_width(-1), mean(-1), variance(-1) {}
          histogram_info_t(float min_density, float bw, const std::vector<int> &c) :
-            base(min_density), bin_width(bw), counts(c) {}
+            base(min_density), bin_width(bw), counts(c), mean(-1), variance(-1)  {}
       };
 
       //! @return the map histogram
