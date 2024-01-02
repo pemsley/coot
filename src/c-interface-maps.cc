@@ -2897,7 +2897,7 @@ void set_auto_updating_sfcalc_genmaps(int imol_model, int imol_map_with_data_att
                   updating_model_molecule_parameters_t *u = new updating_model_molecule_parameters_t(ummp);
                   // notice that the trigger in this case is on the *model* (not the difference map as above)
                   GSourceFunc f = GSourceFunc(graphics_info_t::molecules[imol_model].updating_coordinates_updates_genmaps);
-                  g_timeout_add(1000, f, u);
+                  g_timeout_add(700, f, u);
                }
             }
          }

@@ -2907,7 +2907,7 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
       // function.
       if (n_non_hydrogens > 0) {
 	 score_card.set_n_ligand_atoms(n_non_hydrogens);
-	 if (true)
+	 if (false)
 	    std::cout << "fit fraction test: is " << n_positive_atoms << "/"
 		      << n_non_hydrogens << " ("
 		      << float(n_positive_atoms)/float(n_non_hydrogens)

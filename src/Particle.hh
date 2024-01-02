@@ -20,6 +20,7 @@ public:
    // update the position, velocity, colour and life
    void update();
    void update_gone_diego_particle();
+   void update_gone_diff_map_particle();
 };
 
 class particle_container_t {
@@ -31,12 +32,18 @@ public:
                                   const std::vector<glm::vec3> &positions,
                                   const glm::vec3 &screen_x_uv,
                                   const glm::vec3 &screen_y_uv); // usually just 1 or 2
+   void make_gone_diff_map_peaks_particles(unsigned int n_particles_per_burst,
+                                  const std::vector<std::pair<glm::vec3, float> > &positions,
+                                  const glm::vec3 &screen_x_uv,
+                                  const glm::vec3 &screen_y_uv); // usually just 1 or 2
    void update_particles();
    void update_gone_diego_particles();
+   void update_gone_diff_map_particles();
    void remove_old_particles();
    unsigned int size() const { return particles.size(); }
    bool empty() const { return (particles.empty()); }
    bool have_particles_with_life() const;
+   void clear() { particles.clear(); }
 
 };
 

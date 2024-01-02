@@ -37,6 +37,18 @@ Particle::update_gone_diego_particle() {
 }
 
 void
+Particle::update_gone_diff_map_particle() {
+
+   float v_scale = 0.18;
+   glm::vec3 delta = v_scale * velocity;
+   position += delta;
+   life -= 0.03; // starts around 10 or so
+   rotation += 0.01; // this number is not used in draw_particles(). Instead the
+                     // rotation is based on the number of times the particle
+                     // has been drawn. It *should* use this value.
+}
+
+void
 particle_container_t::remove_old_particles() {
 
    auto remover = [] (const Particle &p) {
@@ -49,7 +61,6 @@ particle_container_t::remove_old_particles() {
       if (particles[0].life <= 0.0)
          particles.clear();
    }
-      
 }
 
 float
@@ -125,6 +136,34 @@ particle_container_t::make_gone_diego_particles(unsigned int n_particles_per_bur
    }
 }
 
+void
+particle_container_t::make_gone_diff_map_peaks_particles(unsigned int n_particles_per_burst,
+                                                      const std::vector<std::pair<glm::vec3, float> > &positions,
+                                                      const glm::vec3 &screen_x_uv,
+                                                      const glm::vec3 &screen_y_uv) { // usually just 1 or 2
+
+   std::cout << "make_gone_diff_map_peaks_particles() n_particles_per_burst " << n_particles_per_burst
+             << std::endl;
+   for (unsigned int ipos=0; ipos<positions.size(); ipos++) {
+      const float &f = positions[ipos].second;
+      const glm::vec3 &pos_base = positions[ipos].first;
+      glm::vec4 col(0.2, 0.58, 0.2, 1.0);
+      if (f > 0.0) col = glm::vec4(0.6, 0.2, 0.2, 1.0);
+      for (unsigned int i=0; i<n_particles_per_burst; i++) {
+         double pi = 3.1415926;
+         double alpha = 2.0 * pi * static_cast<double>(i)/static_cast<double>(n_particles_per_burst);
+         double x = sin(alpha);
+         double y = cos(alpha);
+         double sf = 0.5;
+         glm::vec3 pos = sf * x * screen_x_uv + sf * y * screen_y_uv;
+         glm::vec3 vel = -0.3 * pos;
+         float life = 0.5;
+         Particle p(pos + pos_base, vel, col, life);
+         // std::cout << "i " << i << " alpha " << alpha << " col " << glm::to_string(col) << std::endl;
+         particles.push_back(p);
+      }
+   }
+}
 
 // pass the time?
 void
@@ -134,6 +173,13 @@ particle_container_t::update_particles() {
       particles[i].update();
 
    remove_old_particles();
+}
+
+void
+particle_container_t::update_gone_diff_map_particles() {
+
+   for (unsigned int i=0; i<particles.size(); i++)
+      particles[i].update_gone_diff_map_particle();
 }
 
 void

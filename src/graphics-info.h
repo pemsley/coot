@@ -3459,7 +3459,10 @@ public:
 
    static std::vector<meshed_particle_container_t> meshed_particles_for_gone_diegos;
    static void setup_draw_for_particles_for_new_gone_diegos(const std::vector<glm::vec3> &positions);
-   static void setup_draw_for_particles_for_gone_diegos(); // unused atm
+   // static void setup_draw_for_particles_for_gone_diegos(); // unused atm
+
+   static meshed_particle_container_t meshed_particles_for_gone_diff_map_peaks;
+   static void setup_draw_for_particles_for_gone_diff_map_peaks(const std::vector<std::pair<glm::vec3, float> > &positions);
 
    static bool draw_bad_nbc_atom_pair_markers_flag; // user can turn them off
    static void setup_draw_for_bad_nbc_atom_pair_markers();
@@ -5019,6 +5022,7 @@ string   static std::string sessionid;
    static bool do_tick_outline_for_active_residue;
    static bool do_tick_constant_draw;
    static bool do_tick_gone_diegos;
+   static bool do_tick_gone_diff_map_peaks;
 
    static void fullscreen();
    static void unfullscreen();

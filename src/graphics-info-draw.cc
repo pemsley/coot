@@ -1473,6 +1473,15 @@ graphics_info_t::draw_particles() {
          }
       }
    }
+
+   { // gone difference map peaks.
+      Mesh &mesh = meshed_particles_for_gone_diff_map_peaks.mesh;
+      if (mesh.have_instances()) {
+         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 model_rotation = get_model_rotation();
+         mesh.draw_particles(&shader_for_particles, mvp, model_rotation);
+      }
+   }
 }
 
 // static
@@ -5096,7 +5105,6 @@ graphics_info_t::setup_draw_for_anchored_atom_markers() {
          tmesh_for_anchored_atom_markers.update_instancing_buffer_data(positions);
       }
    }
-   
 }
 
 #include "coot-utils/fib-sphere.hh"
@@ -5174,7 +5182,7 @@ graphics_info_t::get_happy_face_residue_marker_positions() {
       }
    }
 
-   
+
    if (v.size() > max_happy_faces)
       std::cout << "error:: ------------------ too many happy faces" << std::endl;
 
@@ -5355,6 +5363,36 @@ graphics_info_t::setup_draw_for_particles_for_new_gone_diegos(const std::vector<
        }
     }
  }
+
+// static
+void
+graphics_info_t::setup_draw_for_particles_for_gone_diff_map_peaks(const std::vector<std::pair<glm::vec3, float> > &positions) {
+
+   // std::cout << "********* setup_draw_for_particles_for_gone_diff_map_peaks() " << positions.size() << std::endl;
+   play_sound("diff-map-peak-gone-pop");
+
+   glm::vec3 screen_x_uv = get_screen_x_uv();
+   glm::vec3 screen_y_uv = get_screen_y_uv();
+   particle_container_t &particles = meshed_particles_for_gone_diff_map_peaks.particle_container;
+   Mesh &mesh                      = meshed_particles_for_gone_diff_map_peaks.mesh;
+   attach_buffers();
+   unsigned int n_particles_per_burst = 5;
+   int n_instances = n_particles_per_burst * positions.size();
+   particles.make_gone_diff_map_peaks_particles(n_particles_per_burst, positions, screen_x_uv, screen_y_uv);
+   mesh.setup_vertex_and_instancing_buffers_for_particles(n_instances); // wrong polygon.
+   mesh.clear();
+   mesh.setup_camera_facing_polygon(8, 0.1, false, 0);
+   mesh.update_instancing_buffer_data_for_particles(particles);
+
+   if (! do_tick_gone_diff_map_peaks) {
+      if (! tick_function_is_active()) {
+         int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+         idle_function_spin_rock_token = new_tick_id;
+      }
+      do_tick_gone_diff_map_peaks = true;
+   }
+}
+
 
 // static
 void

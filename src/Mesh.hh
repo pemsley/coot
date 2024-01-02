@@ -253,7 +253,7 @@ public:
    void setup_camera_facing_outline();
    void setup_camera_facing_quad();
    void setup_camera_facing_hex();
-   void setup_camera_facing_polygon(unsigned int n_sides = 8, float scale=1.0);
+   void setup_camera_facing_polygon(unsigned int n_sides, float scale, bool do_stellation, float stellation_factor);
    void setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_in);
    void setup_extra_distance_restraint_cylinder(const Material &material_in); // make a cylinder for instancing
 

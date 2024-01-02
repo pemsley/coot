@@ -977,7 +977,7 @@ Mesh::setup_vertex_and_instancing_buffers_for_particles(unsigned int n_instances
    // glm::vec3 n(0,0,1);
    // glm::vec4 c(0.8, 0.4, 0.8, 0.8);
 
-   setup_camera_facing_polygon(5, 0.3); // calls setup_buffers() for the vertices and sets the VAO
+   setup_camera_facing_polygon(5, 0.3, true, 0.3); // calls setup_buffers() for the vertices and sets the VAO
 
    glBindVertexArray(vao);
    GLenum err = glGetError();
@@ -1777,7 +1777,6 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &vi
                       << " draw_particles() post view_rotation uniform 2 " << err << std::endl;
    //
    float rotation_angle = 0.05f * static_cast<float>(particle_draw_count);
-
    // std::cout << "Mesh::draw_particles() sending rotation_angle " << rotation_angle << std::endl;
    shader_p->set_float_for_uniform("rotation_angle", rotation_angle);
 
@@ -3084,9 +3083,7 @@ Mesh::setup_camera_facing_hex() {
 }
 
 void
-Mesh::setup_camera_facing_polygon(unsigned int n_sides, float scale) {
-
-   bool stellation = true; // pass this
+Mesh::setup_camera_facing_polygon(unsigned int n_sides, float scale, bool do_stellation, float stellation_factor) {
 
    float turn_per_step = 2.0f * M_PI / static_cast<float>(n_sides);
    glm::vec3 n(0,0,1);
@@ -3097,7 +3094,7 @@ Mesh::setup_camera_facing_polygon(unsigned int n_sides, float scale) {
    unsigned int idx_tri_base = triangles.size();
    vertices.push_back(s_generic_vertex(glm::vec3(0.0f, 0.0f, 0.0f), n, ccol));
 
-   if (stellation) {
+   if (do_stellation) {
       for (unsigned int i=0; i<n_sides; i++) {
          float a1 = static_cast<float>(i) * turn_per_step;
          float a2 = (static_cast<float>(i) + 0.5f) * turn_per_step;
@@ -3105,8 +3102,8 @@ Mesh::setup_camera_facing_polygon(unsigned int n_sides, float scale) {
          float c1 = cosf(a1);
          float s2 = sinf(a2);
          float c2 = cosf(a2);
-         glm::vec3 v1 = 1.0f * scale * glm::vec3(s1, c1, 0.0f);
-         glm::vec3 v2 = 0.3f * scale * glm::vec3(s2, c2, 0.0f);
+         glm::vec3 v1 =                     scale * glm::vec3(s1, c1, 0.0f);
+         glm::vec3 v2 = stellation_factor * scale * glm::vec3(s2, c2, 0.0f);
          vertices.push_back(s_generic_vertex(v1, n, col));
          vertices.push_back(s_generic_vertex(v2, n, col));
       }

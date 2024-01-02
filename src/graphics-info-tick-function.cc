@@ -45,7 +45,8 @@ graphics_info_t::tick_function_is_active() {
        do_tick_hydrogen_bonds_mesh ||
        do_tick_outline_for_active_residue ||
        do_tick_happy_face_residue_markers ||
-       do_tick_gone_diegos)
+       do_tick_gone_diegos ||
+       do_tick_gone_diff_map_peaks)
       return gboolean(TRUE);
    else
       return gboolean(FALSE);
@@ -101,6 +102,18 @@ graphics_info_t::glarea_tick_func(GtkWidget *widget,
             particles.update_gone_diego_particles();
             mesh.update_instancing_buffer_data_for_particles(particles);
          }
+      }
+   }
+
+   if (do_tick_gone_diff_map_peaks) {
+      // this could be tidied up
+      auto &particles = meshed_particles_for_gone_diff_map_peaks.particle_container;
+      auto &mesh      = meshed_particles_for_gone_diff_map_peaks.mesh;
+      meshed_particles_for_gone_diff_map_peaks.particle_container.update_gone_diff_map_particles();
+      meshed_particles_for_gone_diff_map_peaks.mesh.update_instancing_buffer_data_for_particles(particles);
+      if (! particles.have_particles_with_life()) {
+         particles.clear();
+         mesh.clear();
       }
    }
 

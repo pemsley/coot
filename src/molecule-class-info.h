@@ -3582,6 +3582,7 @@ void draw_map_molecule(bool draw_transparent_maps,
    static int watch_mtz(gpointer data); // return 0 to stop watching
    bool continue_watching_mtz;
    updating_map_params_t updating_map_previous;
+   clipper::Xmap<float> updating_map_previous_difference_map;
    int update_map_from_mtz_if_changed(const updating_map_params_t &rump);
    void update_self_from_file(const std::string &file_name);
    void update_self(const coot::mtz_to_map_info_t &mmi);
