@@ -142,8 +142,8 @@ particle_container_t::make_gone_diff_map_peaks_particles(unsigned int n_particle
                                                       const glm::vec3 &screen_x_uv,
                                                       const glm::vec3 &screen_y_uv) { // usually just 1 or 2
 
-   std::cout << "make_gone_diff_map_peaks_particles() n_particles_per_burst " << n_particles_per_burst
-             << std::endl;
+   // std::cout << "make_gone_diff_map_peaks_particles() n_particles_per_burst " << n_particles_per_burst
+   //           << std::endl;
    for (unsigned int ipos=0; ipos<positions.size(); ipos++) {
       const float &f = positions[ipos].second;
       const glm::vec3 &pos_base = positions[ipos].first;
