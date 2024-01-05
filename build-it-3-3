@@ -397,8 +397,9 @@
 # 6.08 20220803-PE pygobject cleanups
 # 6.09 20220907-PE meson adjustment for compiling glib (what a pain)
 # 6.10 20230603-PE remove goocanvas
-# 6.11 20241113-PE print out the script_version
-script_version=6.11
+# 6.11 20231113-PE print out the script_version
+# 6.12 20240105-PE link $HOME/data/greg-data for the testing step
+script_version=6.12
 
 
 
@@ -812,9 +813,16 @@ if test "$run_tests" = true ; then
 
    # the greg tests are where the coot source code was untarred.
    #
+   # if it's not there, then let's link it.
    if [ ! -d greg-tests ] ; then
       echo greg-tests dir missing in this directory:
       pwd
+      echo trying to link
+      if [ -d ~/data/greg-data ] ; then
+          ln -s ~/data/greg-data .
+      else
+          echo $HOME/data/greg-data data files are not in place
+      fi
       return 1
    fi
 
