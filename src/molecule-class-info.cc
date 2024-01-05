@@ -10752,7 +10752,7 @@ molecule_class_info_t::watch_coordinates_updates(gpointer data) {
                   float base_level = 0.2;
                   clipper::Coord_orth screen_centre(g.X(), g.Y(), g.Z());
                   auto diff_diff_map_peaks = coot::diff_diff_map_peaks(g.molecules[imol_diff_map].updating_map_previous_difference_map,
-                                                                       g.molecules[imol_diff_map].xmap, base_level, screen_centre, 0);
+                                                                       g.molecules[imol_diff_map].xmap, base_level);
                   clipper::Cell       cell       = g.molecules[imol_diff_map].xmap.cell();
                   clipper::Spacegroup spacegroup = g.molecules[imol_diff_map].xmap.spacegroup();
                   auto moved_peaks = coot::move_peaks_to_around_position(screen_centre, spacegroup, cell, diff_diff_map_peaks);

@@ -114,6 +114,7 @@ graphics_info_t::glarea_tick_func(GtkWidget *widget,
       if (! particles.have_particles_with_life()) {
          particles.clear();
          mesh.clear();
+         do_tick_gone_diff_map_peaks = false;
       }
    }
 

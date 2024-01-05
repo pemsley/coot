@@ -1386,3 +1386,16 @@ coot::molecule_t::get_map_histogram(unsigned int n_bins_in, float zoom_factor) c
    hi.variance = mv.variance;
    return hi;
 }
+
+#include "coot-utils/diff-diff-map-peaks.hh"
+
+std::vector<std::pair<clipper::Coord_orth, float> >
+coot::molecule_t::get_updating_maps_diff_diff_map_peaks(const clipper::Coord_orth &screen_centre) const {
+
+   clipper::Spacegroup sg = xmap.spacegroup();
+   clipper::Cell cell = xmap.cell();
+   std::vector<std::pair<clipper::Coord_orth, float> > v2 =
+      coot::move_peaks_to_around_position(screen_centre, sg, cell, updating_maps_diff_diff_map_peaks);
+
+   return v2;
+}
