@@ -4618,6 +4618,7 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
                   }
                }
             } else {
+
                if (! draw_diff_map_vector_sets.empty()) {
 
                   rtmi.density_colour.col.resize(3);
@@ -4628,7 +4629,8 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
                   for (std::size_t i=0; i<draw_diff_map_vector_sets.size(); i++) {
                      for (int j=0; j<draw_diff_map_vector_sets[i].size; j++) {
                         std::pair<coot::Cartesian, coot::Cartesian> p(draw_diff_map_vector_sets[i].data[j].getStart(),
-                                                                      draw_diff_map_vector_sets[i].data[j].getStart());
+                                                                      draw_diff_map_vector_sets[i].data[j].getFinish());
+                        rtmi.density_lines.push_back(p);
                      }
                   }
                }
