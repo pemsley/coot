@@ -1382,12 +1382,38 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
 std::vector<glm::vec4>
 coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
 
+   // make this function more generally available - make it a member function/friend using ostream
+   //
+   auto _ = [] (api_bond_colour_t bct) {
+      std::string s = std::to_string(int(bct));
+      if (bct == api_bond_colour_t::UNSET_TYPE)              s = "UNSET_TYPE";
+      if (bct == api_bond_colour_t::NORMAL_BONDS)            s = "NORMAL_BONDS";
+      if (bct == api_bond_colour_t::CA_BONDS)                s = "CA_BONDS";
+      if (bct == api_bond_colour_t::COLOUR_BY_CHAIN_BONDS  ) s = "COLOUR_BY_CHAIN_BONDS";
+      if (bct == api_bond_colour_t::CA_BONDS_PLUS_LIGANDS)   s = "CA_BONDS_PLUS_LIGANDS";
+      if (bct == api_bond_colour_t::BONDS_NO_WATERS)         s = "BONDS_NO_WATERS";
+      if (bct == api_bond_colour_t::BONDS_SEC_STRUCT_COLOUR) s = "BONDS_SEC_STRUCT_COLOUR";
+      if (bct == api_bond_colour_t::BONDS_NO_HYDROGENS)      s = "BONDS_NO_HYDROGENS";
+      if (bct == api_bond_colour_t::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR) s = "CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR";
+      if (bct == api_bond_colour_t::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) s = "CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR";
+      if (bct == api_bond_colour_t::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS) s = "CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS";
+      if (bct == api_bond_colour_t::COLOUR_BY_MOLECULE_BONDS)  s = "COLOUR_BY_MOLECULE_BONDS";
+      if (bct == api_bond_colour_t::COLOUR_BY_RAINBOW_BONDS)   s = "COLOUR_BY_RAINBOW_BONDS";
+      if (bct == api_bond_colour_t::COLOUR_BY_B_FACTOR_BONDS)  s = "COLOUR_BY_B_FACTOR_BONDS";
+      if (bct == api_bond_colour_t::COLOUR_BY_OCCUPANCY_BONDS) s = "COLOUR_BY_OCCUPANCY_BONDS";
+      if (bct == api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS____BONDS) s = "COLOUR_BY_USER_DEFINED_COLOURS____BONDS";
+      if (bct == api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS) s = "COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS";
+      if (bct == api_bond_colour_t::COLOUR_BY_CHAIN_GOODSELL) s = "COLOUR_BY_CHAIN_GOODSELL";
+
+      return s;
+   };
+
    bool is_intermediate_atoms_molecule = false; // make a class member
 
    bool debug_colour_table = true;
 
    if (debug_colour_table) {
-      std::cout << "........ in make_colour_table() A with bonds_box_type " << int(bonds_box_type) << std::endl;
+      std::cout << "........ in make_colour_table() A with bonds_box_type " << _(bonds_box_type) << std::endl;
       std::cout << "........ in make_colour_table() A with num_colours " << bonds_box.num_colours << std::endl;
       std::cout << "........ in make_colour_table() A with dark_bg_flag " << dark_bg_flag << std::endl;
    }
