@@ -95,13 +95,45 @@ void
 coot::molecule_t::apply_user_defined_atom_colour_selections(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
                                                             bool colour_applies_to_non_carbon_atoms_also,
                                                             mmdb::Manager *mol) {
-   if (! is_valid_model_molecule()) return;
 
-   if (indexed_residues_cids.empty()) return;
+   auto reset_udd_handle_values = [] (mmdb::Manager *mol, int udd_handle) {
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        int idx;
+                        int ierr = at->GetUDData(udd_handle, idx);
+                        // If it wasn't there already, there's no need to reset it.
+                        if (ierr == mmdb::UDDATA_Ok) {
+                           at->PutUDData(udd_handle, -1);
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   };
+
+   if (! is_valid_model_molecule()) return;
 
    int udd_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
    if (udd_handle == 0)
       udd_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+
+    // this should happen if the indexed_residues_cids is empty.
+   reset_udd_handle_values(mol, udd_handle);
+
+   if (indexed_residues_cids.empty()) return;
 
    for (unsigned int i=0; i<indexed_residues_cids.size(); i++) {
       const auto &rc = indexed_residues_cids[i];
@@ -120,7 +152,7 @@ coot::molecule_t::apply_user_defined_atom_colour_selections(const std::vector<st
             if (residue_p == nullptr) continue; // just in case.
 
 	    mmdb::Atom **residue_atoms = 0;
-	    int n_residue_atoms;
+	    int n_residue_atoms = 0;
 	    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (int iat=0; iat<n_residue_atoms; iat++) {
 	       mmdb::Atom *at = residue_atoms[iat];
