@@ -3917,6 +3917,7 @@ void close_molecule(int imol) {
    }
 
    g.clear_up_moving_atoms_maybe(imol);
+   g.update_scroll_wheel_map_on_molecule_close();
 
    graphics_draw();
    std::string cmd = "close-molecule";
