@@ -1,5 +1,5 @@
 
-#include "simple-mesh.hh"
+#include "../coot-utils/simple-mesh.hh"
 #include "tiny_gltf.h"
 
 // pass the name (that should be visible in blender?)

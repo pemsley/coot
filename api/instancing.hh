@@ -65,6 +65,8 @@ namespace coot {
 
       //! clear
       void clear() { geom.clear(); markup.clear(); }
+
+      void export_to_glTF(const std::string &file_name, bool use_binary_format) const;
    };
 
 }
