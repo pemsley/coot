@@ -184,6 +184,7 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    do_bonds_to_hydrogens = 1;
    b_factor_scale = 1.0;
    have_dictionary = 0;
+   geom = 0;
    for_GL_solid_model_rendering = 0;
    init();
    n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
