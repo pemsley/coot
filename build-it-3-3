@@ -3004,6 +3004,7 @@ if [ true ] ; then
 fi
 
 # https://pypi.org/project/PyGObject/#files
+# https://download.gnome.org/sources/pygobject
 pygobject_major_minor_version=3.29
 pygobject_major_minor_version=3.30
 pygobject_major_minor_version=3.36
@@ -3012,6 +3013,7 @@ pygobject_version=3.29.1
 pygobject_version=3.30.5
 pygobject_version=3.42.1
 # pygobject_version=3.42.2 add me to the extras place!
+# https://download.gnome.org/sources/pygobject/3.42/pygobject-3.42.2.tar.xz
 
 date
 pwd
