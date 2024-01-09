@@ -1511,7 +1511,10 @@ public:
    //! get the time for conntouring in milliseconds
    double get_contouring_time() const { return contouring_time; }
 
-   //! set the maximum number of threads in a thread pool
+   //! set the maximum number of threads for both the thread pool and the vector of threads
+   void set_max_number_of_threads(unsigned int n_threads);
+
+   //! deprecated name for the above function
    void set_max_number_of_threads_in_thread_pool(unsigned int n_threads);
 
    //! get the time to run a test function in milliseconds
