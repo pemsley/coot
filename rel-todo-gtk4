@@ -201,7 +201,7 @@ Moorhen: does get_bonds_mesh_instanced() take the vertical bar?
 
 Moorhen: Export input dictionary as string (needs to store result of file-to-string)
 
-Moorhen: Request: electrostatic surface. What happens when you put the chages
+Moorhen: Request: electrostatic surface. What happens when you put the charges
          on a Gaussian surface?
 
 Libcootapi: Make the CMakefile install chapi
@@ -252,8 +252,6 @@ cif parser fail for 6eoj from the PDBe - display as CAs.
 
 Moorhen: Request: electrostatic surface. Map electrstatic potention on to Gaussian surface.
 
-Make the CMakefile install chapi
-
 Reading cif file with --pdb ~/Desktop/ejd/thing.cif seems borked (no file in file browser)
 
 Cryo-EM -> Mask Map by Chain for 7vvl.
@@ -265,7 +263,7 @@ representation. What happens now and is that what you want?
 I want to add a notification where the "Coot Points" currently is.
 If it moved then tell me previous fit score and current fit score.
 
-Fix the undo molecule chooser (have 2 molecules with edits)
+GUI: Fix the undo molecule chooser (have 2 molecules with edits)
 
 
 ---- older issues ---
