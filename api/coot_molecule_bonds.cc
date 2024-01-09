@@ -95,13 +95,45 @@ void
 coot::molecule_t::apply_user_defined_atom_colour_selections(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
                                                             bool colour_applies_to_non_carbon_atoms_also,
                                                             mmdb::Manager *mol) {
-   if (! is_valid_model_molecule()) return;
 
-   if (indexed_residues_cids.empty()) return;
+   auto reset_udd_handle_values = [] (mmdb::Manager *mol, int udd_handle) {
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        int idx;
+                        int ierr = at->GetUDData(udd_handle, idx);
+                        // If it wasn't there already, there's no need to reset it.
+                        if (ierr == mmdb::UDDATA_Ok) {
+                           at->PutUDData(udd_handle, -1);
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   };
+
+   if (! is_valid_model_molecule()) return;
 
    int udd_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
    if (udd_handle == 0)
       udd_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+
+    // this should happen if the indexed_residues_cids is empty.
+   reset_udd_handle_values(mol, udd_handle);
+
+   if (indexed_residues_cids.empty()) return;
 
    for (unsigned int i=0; i<indexed_residues_cids.size(); i++) {
       const auto &rc = indexed_residues_cids[i];
@@ -120,7 +152,7 @@ coot::molecule_t::apply_user_defined_atom_colour_selections(const std::vector<st
             if (residue_p == nullptr) continue; // just in case.
 
 	    mmdb::Atom **residue_atoms = 0;
-	    int n_residue_atoms;
+	    int n_residue_atoms = 0;
 	    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (int iat=0; iat<n_residue_atoms; iat++) {
 	       mmdb::Atom *at = residue_atoms[iat];
@@ -1350,12 +1382,38 @@ coot::molecule_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dar
 std::vector<glm::vec4>
 coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
 
+   // make this function more generally available - make it a member function/friend using ostream
+   //
+   auto _ = [] (api_bond_colour_t bct) {
+      std::string s = std::to_string(int(bct));
+      if (bct == api_bond_colour_t::UNSET_TYPE)              s = "UNSET_TYPE";
+      if (bct == api_bond_colour_t::NORMAL_BONDS)            s = "NORMAL_BONDS";
+      if (bct == api_bond_colour_t::CA_BONDS)                s = "CA_BONDS";
+      if (bct == api_bond_colour_t::COLOUR_BY_CHAIN_BONDS  ) s = "COLOUR_BY_CHAIN_BONDS";
+      if (bct == api_bond_colour_t::CA_BONDS_PLUS_LIGANDS)   s = "CA_BONDS_PLUS_LIGANDS";
+      if (bct == api_bond_colour_t::BONDS_NO_WATERS)         s = "BONDS_NO_WATERS";
+      if (bct == api_bond_colour_t::BONDS_SEC_STRUCT_COLOUR) s = "BONDS_SEC_STRUCT_COLOUR";
+      if (bct == api_bond_colour_t::BONDS_NO_HYDROGENS)      s = "BONDS_NO_HYDROGENS";
+      if (bct == api_bond_colour_t::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR) s = "CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR";
+      if (bct == api_bond_colour_t::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) s = "CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR";
+      if (bct == api_bond_colour_t::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS) s = "CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS";
+      if (bct == api_bond_colour_t::COLOUR_BY_MOLECULE_BONDS)  s = "COLOUR_BY_MOLECULE_BONDS";
+      if (bct == api_bond_colour_t::COLOUR_BY_RAINBOW_BONDS)   s = "COLOUR_BY_RAINBOW_BONDS";
+      if (bct == api_bond_colour_t::COLOUR_BY_B_FACTOR_BONDS)  s = "COLOUR_BY_B_FACTOR_BONDS";
+      if (bct == api_bond_colour_t::COLOUR_BY_OCCUPANCY_BONDS) s = "COLOUR_BY_OCCUPANCY_BONDS";
+      if (bct == api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS____BONDS) s = "COLOUR_BY_USER_DEFINED_COLOURS____BONDS";
+      if (bct == api_bond_colour_t::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS) s = "COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS";
+      if (bct == api_bond_colour_t::COLOUR_BY_CHAIN_GOODSELL) s = "COLOUR_BY_CHAIN_GOODSELL";
+
+      return s;
+   };
+
    bool is_intermediate_atoms_molecule = false; // make a class member
 
    bool debug_colour_table = true;
 
    if (debug_colour_table) {
-      std::cout << "........ in make_colour_table() A with bonds_box_type " << int(bonds_box_type) << std::endl;
+      std::cout << "........ in make_colour_table() A with bonds_box_type " << _(bonds_box_type) << std::endl;
       std::cout << "........ in make_colour_table() A with num_colours " << bonds_box.num_colours << std::endl;
       std::cout << "........ in make_colour_table() A with dark_bg_flag " << dark_bg_flag << std::endl;
    }

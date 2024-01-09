@@ -239,10 +239,6 @@ PKG_CHECK_MODULES(GTK, gtk4 >= 4.4)
 
 PKG_CHECK_MODULES(EPOXY, epoxy >= 1.5)
 
-dnl =========================== GLFWw =========================
-
-PKG_CHECK_MODULES(GLFW3, glfw3 >= 3.0)
-
 dnl =========================== Python =========================
 
 AM_PATH_PYTHON([3.7])

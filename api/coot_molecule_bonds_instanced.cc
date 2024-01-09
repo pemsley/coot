@@ -542,16 +542,24 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       return m;
    }
 
-   bool change_c_only_flag =  true;
+   bool change_c_only_flag = true;
    bool goodsell_mode = false;
    bool do_rota_markup = false;
+   bonds_box_type = coot::api_bond_colour_t::COLOUR_BY_CHAIN_BONDS; // used in colour table?
    
    if (mode == "COLOUR-BY-CHAIN-AND-DICTIONARY") {
       Bond_lines_container bonds(geom, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag);
       bonds.do_colour_by_chain_bonds(atom_sel_ligand, false, imol_no, draw_hydrogen_atoms_flag,
                                      draw_missing_residue_loops, change_c_only_flag, goodsell_mode, do_rota_markup);
 
+      // 20240108-PE We need to fill the bonds box before making the colour table.
+      //             Why was this not here before?
+      bonds_box.clear_up();
+      bonds_box = bonds.make_graphical_bonds_no_thinning();
+
+      // std::cout << "------------------------------------- calling make_colour_table() " << std::endl;
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
+      // std::cout << "------------------------------------- done make_colour_table() " << std::endl;
 
       // print_colour_table("from get_bonds_mesh_for_selection_instanced()");
 

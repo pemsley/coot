@@ -3823,6 +3823,58 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
    return status;
 }
 
+int test_user_defined_bond_colours_v3(molecules_container_t &mc) {
+
+      // from Filo:
+
+      // const imol = molecules_container.read_pdb('./4ri2.pdb')
+      // let colourMap = new cootModule.MapIntFloat3()
+      // let indexedResiduesVec = new cootModule.VectorStringUInt_pair()
+      // colourMap.set(51, [0.627, 0.529, 0.400])
+      // indexedResiduesVec.push_back( { first: '//A', second: 51 })
+      // colourMap.set(52, [0.424, 0.627, 0.400])
+      // indexedResiduesVec.push_back( { first: '//B', second: 52 })
+      // colourMap.set(53, [0.957, 0.263, 0.212])
+      // indexedResiduesVec.push_back( { first: '//', second: 53 })
+      // molecules_container.set_user_defined_bond_colours(imol, colourMap)
+      // molecules_container.set_user_defined_atom_colour_by_selection(imol, indexedResiduesVec, applyColourToNonCarbonAtoms)
+      // const bonds = molecules_container.get_bonds_mesh_for_selection_instanced(imol, '//', 'COLOUR-BY-CHAIN-AND-DICTIONARY')
+
+   auto close_float = [] (float a, float b) {
+      return fabsf(a - b) < 0.001;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("pdb4ri2.ent"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      std::map<unsigned int, std::array<float, 3> > colour_map;
+      colour_map[51] = {0.627, 0.529, 0.400};
+      colour_map[52] = {0.424, 0.627, 0.400};
+      colour_map[53] = {0.957, 0.263, 0.212};
+      bool C_only = false;
+      std::vector<std::pair<std::string, unsigned int> > indexed_residues_cids;
+      indexed_residues_cids.push_back(std::make_pair("//A", 51));
+      indexed_residues_cids.push_back(std::make_pair("//B", 52));
+      indexed_residues_cids.push_back(std::make_pair("//",  53));
+      mc.set_user_defined_bond_colours(imol, colour_map);
+      mc.set_user_defined_atom_colour_by_selection(imol, indexed_residues_cids, C_only);
+      std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
+
+      // now test the colours:
+      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
+      auto &geom = bonds.geom;
+      auto &vb   = geom[1].instancing_data_B; // bonds
+      colour_analysis(bonds);
+   }
+
+   return status;
+}
+
+
+
 int test_is_em_map(molecules_container_t &mc) {
 
    auto close_float = [] (float a, float b) {
@@ -4388,7 +4440,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
 
-   status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction", mc);
+   // status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction", mc);
+
+   status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
 
    // status += run_test(test_density_mesh,          "density mesh",             mc);
 
