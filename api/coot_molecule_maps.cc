@@ -134,6 +134,19 @@ coot::molecule_t::update_map_triangles_using_thread_pool(float radius, coot::Car
       }
       while (done_count_for_threads < static_cast<unsigned int>(n_reams))
          std::this_thread::sleep_for(std::chrono::microseconds(3));
+
+      if (xmap_is_diff_map) {
+         clear_diff_map_draw_vecs();
+         done_count_for_threads = 0;
+         for (int ii=0; ii<n_reams; ii++) {
+            thread_pool_p->push(local_gensurf_and_add_vecs_threaded_workpackage,
+                                &xmap, -contour_level, radius, centre,
+                                isample_step, ii, n_reams, is_em_map,
+                                &draw_diff_map_vector_sets, std::ref(done_count_for_threads));
+         }
+         while (done_count_for_threads < static_cast<unsigned int>(n_reams))
+            std::this_thread::sleep_for(std::chrono::microseconds(3));
+      }
    }
 }
 
