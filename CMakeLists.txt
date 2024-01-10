@@ -1,3 +1,4 @@
+cmake_policy(SET CMP0048 NEW)
 project(coot)
 cmake_minimum_required(VERSION 3.13)
 
@@ -34,7 +35,9 @@ find_package(nanobind CONFIG REQUIRED)
 
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DANALYSE_REFINEMENT_TIMING -DVERSION="1.0.06-pre" -DPACKAGE_VERSION="1" -DHAVE_CXX_THREAD -DHAVE_BOOST -DHAVE_GSL -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
+add_definitions(-DANALYSE_REFINEMENT_TIMING -DVERSION="1.x-pre" -DPACKAGE_VERSION="1"
+  -DHAVE_CXX_THREAD -DHAVE_BOOST -DHAVE_BOOST_THREAD -DHAVE_GSL
+  -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
 #  pyrogen, compat, auxil, goograph, src ignored.
 
@@ -216,7 +219,6 @@ add_library(cootapi SHARED
             ${coot_src}/utils/logging.cc
             ${coot_src}/utils/pir-alignment.cc
             ${coot_src}/db-main/db-strands.cc
-            #${coot_src}/db-main/testdbmain.cc
             ${coot_src}/high-res/residue-distortions.cc
             ${coot_src}/high-res/coot-atom-graph.cc
             ${coot_src}/high-res/sequence-assignment.cc
@@ -224,13 +226,14 @@ add_library(cootapi SHARED
             #${coot_src}/protein_db/protein_db.cpp
             #${coot_src}/protein_db/protein_db_utils.cpp
             #${coot_src}/protein_db/rna_db.cpp
+            #${coot_src}/pli/specs.cc
             ${coot_src}/pli/flev-annotations.cc
             ${coot_src}/pli/protein-ligand-interactions.cc
             ${coot_src}/pli/pi-stacking.cc
             ${coot_src}/pli/sdf-interface.cc
-            #${coot_src}/pli/specs.cc
             ${coot_src}/coot-utils/merge-atom-selections.cc
             ${coot_src}/coot-utils/coot-least-squares.cc
+            ${coot_src}/coot-utils/diff-diff-map-peaks.cc
             ${coot_src}/coot-utils/shiftfield.cpp
             ${coot_src}/coot-utils/stack-and-pair.cc
             ${coot_src}/coot-utils/spherical-harmonics.cc
@@ -240,6 +243,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/lidia-core-functions.cc
             ${coot_src}/coot-utils/cablam-markup.cc
             ${coot_src}/coot-utils/fib-sphere.cc
+            ${coot_src}/coot-utils/find-water-baddies.cc
             ${coot_src}/coot-utils/atom-selection-container.cc
             ${coot_src}/coot-utils/blob-line.cc
             ${coot_src}/coot-utils/coot-coord-utils-glyco.cc

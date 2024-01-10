@@ -703,8 +703,6 @@ libcootsumo_la_SOURCES = \
 	startup-utils.hh         \
 	startup-utils.cc         \
 	startup-scripts.hh       \
-	stb_image.h              \
-	stb_image_write.h        \
 	startup-scripts.hh       \
 	tiny_gltf.h              \
 	testing.cc testing-2.cc  \

@@ -4,7 +4,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
-#include "stb_image.h"
+#include "../coot-utils/stb_image.h"
 #include "Texture.hh"
 
 #ifdef THIS_IS_HMT
