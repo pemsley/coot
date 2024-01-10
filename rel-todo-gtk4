@@ -158,6 +158,9 @@ GUI: Cryo-EM module: Add Toggle switch for auto-recontour map
 Graphics: Don't draw rama ball when intermediate atoms are from edit chi angles (and some
    others presumably).
 
+Graphics: Check that the Gaussian surface is being displayed before drawing it for the
+   SSAO frame-buffer.
+
 Graphics: Fast slide to new position on reading in a new molecule (there is a distance limit
    that means there's a jump - don't use that for read_pdb()).
 
@@ -185,8 +188,14 @@ Graphics: Bug: 7dy0 all-atom B-factor - the colour range goes too far (into purp
 
 API: add rigid_body_fit_chain(imol, chain_id) to the moorhen and coot apis.
 
+Moorhen: Change chain ID
+
+Moorhen: Renumber residue range.
+
 Moorhen: what is the HB type of this atom?
 * Done.
+
+Moorhen: colour by conservation (bond/atoms). How about surface?
 
 Moorhen: Export dictionary as string
 * Done.
@@ -209,6 +218,9 @@ Libcootapi: Make the CMakefile install chapi
 Libcootapi: Make the CMakefile install findwaters and findligands
 
 Libcootapi: add lib for gesamt
+
+Libcootapi: from ligands meeting: Note to self: pdb header information:
+        CAVEAT, from Gemmi to mmdb.
 
 Fun: flattening difference map peaks animation:
         find peak and negative peaks in the
