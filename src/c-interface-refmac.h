@@ -69,8 +69,12 @@
 
 BEGIN_C_DECLS
 
+#ifndef COOT_SCHEME_DIR
 #define COOT_SCHEME_DIR "COOT_SCHEME_DIR"
+#endif
+#ifndef COOT_PYTHON_DIR
 #define COOT_PYTHON_DIR "COOT_PYTHON_DIR"
+#endif
 
 /*  this is the option menu callback - does nothing. */
 int set_refmac_molecule(int imol); /* used by callback.c */

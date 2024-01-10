@@ -1,4 +1,20 @@
 
+  Release 0.9.8.93
+
+ o CHANGE:  Electrostatic surface removed from the UI
+
+ o CHANGE:  Clean-up for the residue selection in peptide omega analysis (don't draw
+            cis-peptides for residues that are not peptides)
+
+ o BUG-FIX: Fix erroneous mutation of DNA bases to RNA bases in mutate-residue-range
+            [Keitaro Yamashita]
+
+ o BUG-FIX: Add back the negative map contour levels into the input file for Raster3d
+
+ o BUG-FIX: Atom-name fix-up for "HH" in TYR - now TYR with hydrogen atoms can be refined.
+
+----
+
   Release 0.9.8.92
 
  o FEATURE: Added copy_from_ncs_master_to_specific_other_chains_py(). Now one can update
