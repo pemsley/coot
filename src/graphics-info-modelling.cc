@@ -1524,8 +1524,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
       std::vector<std::string> residue_types = coot::util::residue_types_in_residue_vec(residues);
       // use try_dynamic_add()
-      bool have_restraints = geom_p->have_dictionary_for_residue_types(residue_types, imol,
-								       cif_dictionary_read_number);
+      bool have_restraints = geom_p->have_restraints_dictionary_for_residue_types(residue_types, imol,
+                                                                                  cif_dictionary_read_number);
       cif_dictionary_read_number += residue_types.size();
 
       if (have_restraints) {

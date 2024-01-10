@@ -61,8 +61,8 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
       }
 
       // uses dynamic add
-      bool dict_status = geom_p->have_dictionary_for_residue_types(residue_types, imol,
-								   cif_dictionary_read_number);
+      bool dict_status = geom_p->have_restraints_dictionary_for_residue_types(residue_types, imol,
+                                                                              cif_dictionary_read_number);
 
       mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
       if (! moving_mol) {

@@ -1638,6 +1638,7 @@ namespace coot {
                          const std::string &protein_mono); // extra path to file
 
       // not const because we can do a dynamic add.
+      // 20240110-PE don't use this function - use get_monomer_restraints_index().
       int get_monomer_type_index(const std::string &monomer_type);
       std::string get_padded_name(const std::string &atom_id, const int &comp_id_index) const;
 
@@ -1876,6 +1877,14 @@ namespace coot {
                                             int read_number,
                                             bool try_autoload_if_needed=true);
 
+      // 20240110-PE I need to know if the residues have (bond) restraints - i.e. they
+      // can be refined. The above function is for drawing things.
+      // return false if there are no bond restraints
+      bool have_restraints_dictionary_for_residue_type(const std::string &monomer_type,
+                                            int imol_enc,
+                                            int read_number,
+                                            bool try_autoload_if_needed=true);
+
       // this is const because there is no dynamic add.
       //
       // if there is just an ccp4srs entry, then this returns false.
@@ -1894,6 +1903,11 @@ namespace coot {
                                              int imol_enc,
                                              int read_number);
 
+      // likewise not const.
+      // Return false if there are no bond restraints
+      bool have_restraints_dictionary_for_residue_types(const std::vector<std::string> &residue_types,
+                                                        int imol_enc,
+                                                        int read_number);
 
       // return a pair, overall status, and pair of residue names and
       // atom names that dont't match.

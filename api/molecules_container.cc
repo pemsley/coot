@@ -3344,7 +3344,7 @@ molecules_container_t::generate_molecule_and_refine(int imol,  // needed for UDD
 
       std::vector<std::string> residue_types = coot::util::residue_types_in_residue_vec(residues);
       // use try_dynamic_add()
-      bool have_restraints = geom.have_dictionary_for_residue_types(residue_types, imol, cif_dictionary_read_number);
+      bool have_restraints = geom.have_restraints_dictionary_for_residue_types(residue_types, imol, cif_dictionary_read_number);
       cif_dictionary_read_number += residue_types.size();
 
       if (have_restraints) {
@@ -3433,8 +3433,13 @@ molecules_container_t::generate_molecule_and_refine(int imol,  // needed for UDD
             }
          }
       } else {
+
          // we didn't have restraints for everything.
          //
+         // If we are in this state, we need to make that apparent to the calling function
+         rr.found_restraints_flag = false;
+         rr.info_text = "Missing or incomplete dictionaries";
+
          std::pair<int, std::vector<std::string> > icheck =
             check_dictionary_for_residue_restraints(imol, residues);
          if (icheck.first == 0) {

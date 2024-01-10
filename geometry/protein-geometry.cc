@@ -1209,7 +1209,7 @@ coot::protein_geometry::have_dictionary_for_residue_type_no_dynamic_add(const st
       }
    }
    return ifound;
-} 
+}
 
 
 bool
@@ -1227,6 +1227,32 @@ coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std:
    }
    return have_all;
 }
+
+// Return false if there are no bond restraints
+bool
+coot::protein_geometry::have_restraints_dictionary_for_residue_types(const std::vector<std::string> &residue_types,
+                                                                     int imol_enc,
+                                                                     int read_number) {
+
+   bool have_all = true;
+   for (unsigned int i=0; i<residue_types.size(); i++) {
+      const std::string &rt = residue_types[i];
+      int idx = get_monomer_restraints_index(rt, imol_enc, false);
+      if (idx != -1) {
+         const coot::dictionary_residue_restraints_t &restraints = dict_res_restraints[idx].second;
+         if (restraints.bond_restraint.empty()) {
+            have_all = false;
+            break;
+         }
+      } else {
+         have_all = false;
+         break;
+      }
+      read_number++;
+   }
+   return have_all;
+}
+
 
 // this is const because there is no dynamic add
 //

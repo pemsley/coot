@@ -1320,8 +1320,8 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 		     // have been read for the residues in this chain.
 		     // e.g. a single CLs residues in a chain.
 		     std::vector<std::string> res_types = coot::util::residue_types_in_chain(chain_p);
-		     bool hd = geom_p->have_dictionary_for_residue_types(res_types, imol,
-									 cif_dictionary_read_number);
+		     bool hd = geom_p->have_restraints_dictionary_for_residue_types(res_types, imol,
+                                                                                    cif_dictionary_read_number);
 		     cif_dictionary_read_number += res_types.size();
 		     if (! hd) {
 			if (use_graphics_interface_flag) {
