@@ -4885,12 +4885,19 @@ molecules_container_t::get_hb_type(const std::string &compound_id, int imol_enc,
 
 #include "utils/coot-utils.hh"
 
-//! set the maximum number of threads in a thread pool
+//! set the maximum number of threads in a thread pool and vector of threads
 void
-molecules_container_t::set_max_number_of_threads_in_thread_pool(unsigned int n_threads) {
+molecules_container_t::set_max_number_of_threads(unsigned int n_threads) {
    coot::set_max_number_of_threads(n_threads);
    static_thread_pool.resize(n_threads);
 }
+
+// call the above function
+void
+molecules_container_t::set_max_number_of_threads_in_thread_pool(unsigned int n_threads) {
+   set_max_number_of_threads(n_threads);
+}
+
 
 //! get the time to run test test function in miliseconds
 double
