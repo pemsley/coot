@@ -155,6 +155,8 @@ GUI: copy fragment dialog doesn't make active the first molecule, but save coord
 
 GUI: Cryo-EM module: Add Toggle switch for auto-recontour map
 
+GUI: Add curmudgeon-mode ("Particles and Textures Off") in Preferences dialog.
+
 Graphics: Don't draw rama ball when intermediate atoms are from edit chi angles (and some
    others presumably).
 
@@ -217,6 +219,10 @@ Fun: flattening difference map peaks animation:
         Make a moorhen function for these.
 
 Fun: Add pops.
+
+Science: Load JSG.cif from the RCSB and Get Monomer, run acedrg and load the the dictionary.
+     Some of the Hydrogen atoms get disconnected on regularization.
+     Why? (Note that the "Get Monomer" from the acedrg dictionary works OK - no flying Hydrogen atoms).
 
 Science: Get the Cryo-EM servalcat difference map working
 
@@ -296,11 +302,11 @@ Rob's problematic links
 
 startup with default map opacity.
 
-Jakub: sugar representation in RDKit and layla? (add it?)
+Jakub: sugar representation in RDKit and layla? (add it?) Tricky.
 
 Where is Make Link? ::: 1.5
 * Needs user-defined click click. Just do it in C++?
-* Not that Make Link via Acedrg also needs user-defined click click (or a rewrite).
+* Note that Make Link via Acedrg also needs user-defined click click (or a rewrite).
 
 Colour rules (like Moorhen) need to be added to the Coot API.
 
