@@ -5312,6 +5312,7 @@ string   static std::string sessionid;
    static float gaussian_surface_fft_b_factor;
    static short int gaussian_surface_chain_colour_mode;
 
+   static bool curmudgeon_mode; // default false, particles and faces
    static bool use_sounds; // default true
 
    // add a pumpkin as a graphics object and draw it.

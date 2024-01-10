@@ -108,6 +108,7 @@ void set_use_sounds(bool state) {
 //! no sounds
 void curmudgeon_mode() {
    graphics_info_t::use_sounds = false;
+   graphics_info_t::curmudgeon_mode = true;
 }
 
 

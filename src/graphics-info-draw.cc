@@ -1451,6 +1451,8 @@ graphics_info_t::draw_molecular_triangles() {
 void
 graphics_info_t::draw_particles() {
 
+   if (curmudgeon_mode) return;
+
    if (! particles.empty()) {
       if (mesh_for_particles.have_instances()) {
          glm::mat4 mvp = get_molecule_mvp();
@@ -1487,6 +1489,8 @@ graphics_info_t::draw_particles() {
 // static
 void
 graphics_info_t::draw_happy_face_residue_markers() {
+
+   if (curmudgeon_mode) return;
 
    // make it work (somewhat) like particles, but we are using a screen-facing
    // texture, not a bespoke screen-facing n-triangle polygon.
@@ -5418,6 +5422,8 @@ graphics_info_t::setup_draw_for_bad_nbc_atom_pair_markers() {
 // static
 void
 graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
+
+   if (curmudgeon_mode) return;
 
    if (draw_bad_nbc_atom_pair_markers_flag) {
       if (! bad_nbc_atom_pair_marker_positions.empty()) {
