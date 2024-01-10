@@ -97,7 +97,7 @@ particle_container_t::make_particles(unsigned int n_particles_per_burst,
          glm::vec3 pos = sc_pos * pp;
          glm::vec3 vel = sc_vel * pp;
          glm::vec4 col(0.96, 0.26, 0.4, 1.0);
-         if (true)
+         if (false)
             std::cout << "Position-idx " << ipos << " Particle " << i << " " << glm::to_string(pos)
                       << "\tvelocity " << glm::to_string(vel) << " \t col: " << glm::to_string(col)
                       << std::endl;

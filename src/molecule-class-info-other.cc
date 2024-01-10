@@ -4750,29 +4750,29 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
 	      if (! draw_vector_sets.empty()) {
 
 	         rtmi.density_colour.col.resize(3);
-            rtmi.density_colour.col[0] = map_colour.red;
-            rtmi.density_colour.col[1] = map_colour.green;
-            rtmi.density_colour.col[2] = map_colour.blue;
+                 rtmi.density_colour.col[0] = map_colour.red;
+                 rtmi.density_colour.col[1] = map_colour.green;
+                 rtmi.density_colour.col[2] = map_colour.blue;
 
-            for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
-               for (unsigned int j=0; j<draw_vector_sets[i].point_indices.size(); j++) {
-                  const clipper::Coord_orth &pt_1(draw_vector_sets[i].points[draw_vector_sets[i].point_indices[j].pointID[0]]);
-                  const clipper::Coord_orth &pt_2(draw_vector_sets[i].points[draw_vector_sets[i].point_indices[j].pointID[1]]);
-                  const clipper::Coord_orth &pt_3(draw_vector_sets[i].points[draw_vector_sets[i].point_indices[j].pointID[2]]);
-                  // I have to do a bit of jiggery pokery here - I don't know why.
-                  std::pair<coot::Cartesian, coot::Cartesian> p2;
-                  p2.first  = coot::Cartesian(pt_1);
-                  p2.second = coot::Cartesian(pt_2);
-                  rtmi.density_lines.push_back(p2);
-                  p2.first  = coot::Cartesian(pt_1);
-                  p2.second = coot::Cartesian(pt_3);
-                  rtmi.density_lines.push_back(p2);
-                  p2.first  = coot::Cartesian(pt_2);
-                  p2.second = coot::Cartesian(pt_3);
-                  rtmi.density_lines.push_back(p2);
-               }
-            }
-         }
+                 for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
+                    for (unsigned int j=0; j<draw_vector_sets[i].point_indices.size(); j++) {
+                       const clipper::Coord_orth &pt_1(draw_vector_sets[i].points[draw_vector_sets[i].point_indices[j].pointID[0]]);
+                       const clipper::Coord_orth &pt_2(draw_vector_sets[i].points[draw_vector_sets[i].point_indices[j].pointID[1]]);
+                       const clipper::Coord_orth &pt_3(draw_vector_sets[i].points[draw_vector_sets[i].point_indices[j].pointID[2]]);
+                       // I have to do a bit of jiggery pokery here - I don't know why.
+                       std::pair<coot::Cartesian, coot::Cartesian> p2;
+                       p2.first  = coot::Cartesian(pt_1);
+                       p2.second = coot::Cartesian(pt_2);
+                       rtmi.density_lines.push_back(p2);
+                       p2.first  = coot::Cartesian(pt_1);
+                       p2.second = coot::Cartesian(pt_3);
+                       rtmi.density_lines.push_back(p2);
+                       p2.first  = coot::Cartesian(pt_2);
+                       p2.second = coot::Cartesian(pt_3);
+                       rtmi.density_lines.push_back(p2);
+                    }
+                 }
+              }
            } else {
               if (! draw_diff_map_vector_sets.empty()) {
 

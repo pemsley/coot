@@ -2158,14 +2158,15 @@ coot::protein_geometry::get_group(mmdb::Residue *r) const {
 std::string
 coot::protein_geometry::get_group(const std::string &res_name_in) const {
    
-   bool found = 0;
+   bool found = false;
    std::string group;
    std::string res_name = res_name_in;
    if (res_name.length() > 3)
       res_name = res_name.substr(0,2);
-   for (unsigned int i=0; i<size(); i++) {
+   unsigned int s = size(); // fails if the protein_geometry pointer was not valid
+   for (unsigned int i=0; i<s; i++) {
       if (three_letter_code(i) == res_name) {
-	 found = 1;
+	 found = true;
 	 group = (*this)[i].second.residue_info.group;
 	 break;
       }
@@ -2173,7 +2174,7 @@ coot::protein_geometry::get_group(const std::string &res_name_in) const {
 
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) { 
       if (dict_res_restraints[i].second.residue_info.comp_id == res_name) {
-	 found = 1;
+	 found = true;
 	 group = dict_res_restraints[i].second.residue_info.group;
 	 break;
       }

@@ -212,7 +212,7 @@
   ;; mutated.
   ;; 
   (define (nucleotide-letter->3-letter-code letter)
-    (cond 
+    (cond
      ((not (char? letter)) #f)
      ((eq? letter #\a) "A")
      ((eq? letter #\c) "C")

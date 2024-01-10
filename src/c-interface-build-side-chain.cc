@@ -743,8 +743,7 @@ int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t r(chain_id, res_no, ins_code);
-      istate = graphics_info_t::molecules[imol].mutate_base(r, res_type,
-							    g.convert_to_v2_atom_names_flag);
+      istate = g.molecules[imol].mutate_base(r, res_type, g.convert_to_v2_atom_names_flag);
       graphics_draw();
    }
    std::string cmd = "mutate-base";

@@ -239,6 +239,7 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    b_factor_scale = 1.0;
    have_dictionary = 0;
    for_GL_solid_model_rendering = 1;
+   geom = 0;
    init();
    n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
    int model_number = 0; // all models
