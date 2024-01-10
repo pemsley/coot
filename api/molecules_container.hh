@@ -591,6 +591,12 @@ public:
                                                                  float bond_width, float atom_radius_to_bond_width_ratio,
                                                                  int smoothness_factor);
 
+   //! export map molecule as glTF
+   void export_map_molecule_as_gltf(int imol, const std::string &file_name) const;
+
+   //! export model molecule as glTF - This API will change - we want to specify surfaces and ribbons too.
+   void export_model_molecule_as_gltf(int imol, const std::string &file_name) const;
+
    //! return the colur table (for testing)
    std::vector<glm::vec4> get_colour_table(int imol, bool against_a_dark_background) const;
 

@@ -4310,6 +4310,60 @@ int test_disappearing_ligand(molecules_container_t &mc) {
    return status;
 }
 
+int test_gltf_export(molecules_container_t &mc) {
+
+   auto make_multi_cid = [] (const std::vector<coot::residue_spec_t> &neighbs) {
+
+      std::string multi_cid;
+      if (neighbs.size() == 1) {
+         multi_cid = "//" + neighbs[0].chain_id + "/" + std::to_string(neighbs[0].res_no);
+      }
+      if (neighbs.size() > 1) {
+         unsigned int m = neighbs.size() - 1;
+         for (unsigned int i=0; i<m; i++) {
+            const auto &n = neighbs[i];
+            std::string rs = "//" + n.chain_id + "/" + std::to_string(n.res_no);
+            multi_cid += rs;
+            multi_cid += "||";
+         }
+         multi_cid += "//" + neighbs.back().chain_id + "/" + std::to_string(neighbs.back().res_no);
+      }
+      return multi_cid;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("2vtq.cif"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   clipper::Coord_orth p(25, 4, 62);
+   float radius = 10;
+   float contour_level = 0.4;
+   std::cout << "-------------------------------------------------- map mesh " << std::endl;
+   coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
+   map_mesh.export_to_gltf("map-around-ligand.glb", true);
+
+   std::cout << "-------------------------------------------------- ligand mesh " << std::endl;
+
+   std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+   int imol_lig = mc.get_monomer("LZA");
+   int imol_frag = mc.copy_fragment_using_cid(imol, "//A/1299");
+   std::cout << "test_gltf_export() imol_frag " << imol_frag << std::endl;
+   coot::instanced_mesh_t im    = mc.get_bonds_mesh_instanced(imol_frag, mode, true, 0.1, 1.0, 1);
+   coot::simple_mesh_t sm_lig = coot::instanced_mesh_to_simple_mesh(im);
+   sm_lig.export_to_gltf("lig.glb", true);
+
+   std::cout << "-------------------------------------------------- neighbour mesh " << std::endl;
+   std::vector<coot::residue_spec_t> neighbs = mc.get_residues_near_residue(imol, "//A/1299", 4.2);
+   std::string multi_cid = make_multi_cid(neighbs);
+   mc.set_draw_missing_residue_loops(false);
+   coot::instanced_mesh_t im_neighbs = mc.get_bonds_mesh_for_selection_instanced(imol, multi_cid, mode, true, 0.15, 1.0, 1);
+   coot::simple_mesh_t sm_neighbs = coot::instanced_mesh_to_simple_mesh(im_neighbs);
+   sm_neighbs.export_to_gltf("neighbs.glb", true);
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -4442,7 +4496,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction", mc);
 
-   status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
+   // status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
+
+   status += run_test(test_gltf_export, "glTF export", mc);
 
    // status += run_test(test_density_mesh,          "density mesh",             mc);
 

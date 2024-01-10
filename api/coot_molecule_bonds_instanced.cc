@@ -515,7 +515,7 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
    if (true) {
       unsigned int n_atoms = count_atoms_in_mol(new_mol);
       std::cout << "debug:: in get_bonds_mesh_for_selection_instanced() there are " << n_atoms
-                << " in the atom selection: " << multi_cids << std::endl;
+                << " atoms in the atom selection: " << multi_cids << std::endl;
    }
 
    apply_user_defined_atom_colour_selections(indexed_user_defined_colour_selection_cids,

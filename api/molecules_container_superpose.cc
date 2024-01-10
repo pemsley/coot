@@ -3,7 +3,7 @@
 #include <iomanip>
 #include "molecules_container.hh"
 
-#include "json.hpp" // clever stuff from Niels Lohmann
+#include "../coot-utils/json.hpp" // clever stuff from Niels Lohmann
 using json = nlohmann::json;
 
 // 20230214-PE -------------- all of these function copied from graphics-info-superpose.cc.

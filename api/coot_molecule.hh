@@ -665,6 +665,12 @@ namespace coot {
          // make_bonds_type_checked("set_bespoke_carbon_atom_colour");
       }
 
+      //! export map molecule as glTF
+      void export_map_molecule_as_gltf(const std::string &file_name) const;
+
+      //! export model molecule as glTF - This API will change - we want to specify surfaces and ribbons too.
+      void export_model_molecule_as_gltf(const std::string &file_name) const;
+
       void set_show_symmetry(bool f) { show_symmetry = f;}
       bool get_show_symmetry() { return show_symmetry;}
       void transform_by(mmdb::mat44 SSMAlign_TMatrix);

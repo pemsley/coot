@@ -19,7 +19,7 @@ coot_molecule.hh	 make-a-dodec.hh	                                           \
 colour-functions.hh	 gensurf.hh		    validation-information.hh              \
 coot-colour.hh		 ghost-molecule-display.hh  residue-validation-information.hh      \
 molecules_container.hh	 ncs.hh			    geometry-graphs.hh                     \
-json.hpp 		 rama-plot-phi-psi.hh	    superpose-results.hh                   \
+	 		 rama-plot-phi-psi.hh	    superpose-results.hh                   \
 add-terminal-residue.hh  interfaces.hh              moorhen-h-bonds.hh                     \
 atom-pull.hh             rigid-body-fit.hh          svg-store-key.hh                       \
 phi-psi-prob.hh          saved-strand-info.hh       simple-molecule.hh                     \
@@ -38,7 +38,7 @@ molecules_container.cc       make-a-dodec.cc	                              molec
 phi-psi-prob.cc              coot_molecule_moltris.cc                         coot_molecule_replace_fragment.cc \
 coot_molecule_backup.cc      coot_molecule_bonds_instanced.cc                 molecules_container_mmrrcc.cc \
 coot_molecule_refine.cc      molecules_container_superpose.cc                 rigid-body-fit.cc \
-moorhen-h-bonds.cc           molecules_container_bucca_ml_growing.cc
+moorhen-h-bonds.cc           molecules_container_bucca_ml_growing.cc          instancing.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \

@@ -30,6 +30,7 @@ namespace coot {
                     const glm::vec4 &col_in) : pos(pos_in), normal(norm_in), color(col_in) {}
          explicit vnc_vertex(const vn_vertex &vn) :
             pos(vn.pos), normal(vn.normal), color(glm::vec4(0.5, 0.5, 0.5, 1.0)) {}
+         vnc_vertex(const vn_vertex &vn, const glm::vec4 &c) : pos(vn.pos), normal(vn.normal), color(c) {}
          vnc_vertex() {}
       };
 

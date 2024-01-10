@@ -4170,3 +4170,17 @@ coot::molecule_t::residues_near_residue(const std::string &residue_cid, float di
 }
 
 
+
+
+//! export map molecule as glTF
+void
+coot::molecule_t::export_map_molecule_as_gltf(const std::string &file_name) const {
+
+}
+
+//! export model molecule as glTF - This API will change - we want to specify surfaces and ribbons too.
+void
+coot::molecule_t::export_model_molecule_as_gltf(const std::string &file_name) const {
+
+}
+

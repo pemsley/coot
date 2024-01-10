@@ -4986,3 +4986,29 @@ molecules_container_t::get_gphl_chem_comp_info(const std::string &compound_id, i
    }
    return v;
 }
+
+
+//! export map molecule as glTF
+void
+molecules_container_t::export_map_molecule_as_gltf(int imol, const std::string &file_name) const {
+
+   if (is_valid_map_molecule(imol)) {
+      molecules[imol].export_map_molecule_as_gltf(file_name);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+
+}
+
+//! export model molecule as glTF - This API will change - we want to specify surfaces and ribbons too.
+void
+molecules_container_t::export_model_molecule_as_gltf(int imol, const std::string &file_name) const {
+
+   if (is_valid_map_molecule(imol)) {
+      molecules[imol].export_model_molecule_as_gltf(file_name);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
