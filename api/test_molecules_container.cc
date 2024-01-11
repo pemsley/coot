@@ -4364,6 +4364,24 @@ int test_gltf_export(molecules_container_t &mc) {
    return status;
 }
 
+int test_5char_ligand_merge(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   mc.import_cif_dictionary(reference_data("acedrg-7z-new.cif"), imol_enc);
+   int imol_lig = mc.get_monomer("7ZTVU");
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.merge_molecules(imol, std::to_string(imol_lig));
+      mc.write_coordinates(imol, "5-char-ligand-merged.cif");
+      status = 1;
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -4498,7 +4516,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
 
-   status += run_test(test_gltf_export, "glTF export", mc);
+   // status += run_test(test_gltf_export, "glTF export", mc);
+
+   status += run_test(test_5char_ligand_merge, "5-char ligand merge", mc);
 
    // status += run_test(test_density_mesh,          "density mesh",             mc);
 
