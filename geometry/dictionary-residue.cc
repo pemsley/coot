@@ -1253,6 +1253,8 @@ coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_f
 	 std::string ele = atom_info[iat].type_symbol; // element
 	 atom->SetCoordinates(p.x(), p.y(), p.z(), occ, b);
 	 atom->SetAtomName(atom_info[iat].atom_id_4c.c_str());
+         if (atom_info[iat].atom_id_4c.length() < 20)
+            strcpy(atom->label_atom_id, atom_info[iat].atom_id_4c.c_str());
 
 	 //	       Strange things happen when I use this...
 	 // 	       atom->SetAtomName(atom_index, -1,
@@ -1270,6 +1272,11 @@ coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_f
    if (atoms.size() > 0) {
       residue_p = new mmdb::Residue;
       residue_p->SetResID(residue_info.comp_id.c_str(), 1, "");
+      residue_p->label_seq_id = 1;
+      if (residue_info.comp_id.length() < 20) // see the typedef in mmdb_defs.h
+         strcpy(residue_p->label_comp_id, residue_info.comp_id.c_str());
+      strcpy(residue_p->label_asym_id, "A");
+
       for (unsigned int iat=0; iat<atoms.size(); iat++) 
 	 residue_p->AddAtom(atoms[iat]);
 
