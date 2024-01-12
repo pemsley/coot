@@ -280,6 +280,7 @@ class molecules_container_t {
 
    void init() {
 
+      use_gemmi = true;
       imol_refinement_map = -1;
       imol_difference_map = -1;
       geometry_init_standard(); // do this by default now
@@ -299,6 +300,7 @@ class molecules_container_t {
       interrupt_long_term_job = false;
       mmdb::InitMatType();
       contouring_time = 0;
+      make_backups_flag = true;
       // debug();
    }
 
@@ -325,6 +327,8 @@ public:
    //! I am not sure that this is needed - or will ever be.
    int imol_difference_map; // direct access
 
+   bool use_gemmi; // for mmcif and PDB parsing. 20240112-PE set to true by default in init()
+ 
    // -------------------------------- Basic Utilities -----------------------------------
    //! \name Basic Utilities
 
@@ -333,7 +337,7 @@ public:
    //! @return the backup-enabled state
    bool get_make_backups() const { return make_backups_flag; }
    //! the backup-enable state (raw public if needed/prefered)
-   inline static bool make_backups_flag = false; // does this need to be static?
+   bool make_backups_flag;
 
    //! @return the string of the contents of the given file-name.
    std::string file_name_to_string(const std::string &file_name) const;

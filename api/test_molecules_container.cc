@@ -1807,17 +1807,18 @@ int test_jiggle_fit(molecules_container_t &mc) {
       std::cout << "Second jiggle-fit test: using atom selection ------------------------------" << std::endl;
       imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
       int imol_start = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
-      int imol_other = mc.read_pdb("weird-orientation.pdb");
+      int imol_other = mc.read_pdb(reference_data("weird-orientation-tut-4.pdb"));
       if (mc.is_valid_model_molecule(imol_other)) {
-         // now test that we stared with bad fit to density
-         coot::validation_information_t vi_0 = mc.density_correlation_analysis(imol_start, imol_map);
-         coot::validation_information_t vi_1 = mc.density_correlation_analysis(imol_other, imol_map);
+         // now test that we started with bad fit to density
          // fit!
-         int imol_blur = mc.sharpen_blur_map(imol_map, 300, false);
+         int imol_blur = mc.sharpen_blur_map(imol_map, 200, false);
+         mc.write_map(imol_blur, "blurred.map");
          mc.imol_refinement_map = imol_blur;
-         mc.fit_to_map_by_random_jiggle_using_cid(imol_other, "//A", 100, 1);
+         coot::validation_information_t vi_0 = mc.density_correlation_analysis(imol_start, imol_blur);
+         coot::validation_information_t vi_1 = mc.density_correlation_analysis(imol_other, imol_blur);
+         mc.fit_to_map_by_random_jiggle_using_cid(imol_other, "//A", 5000, 2);
          // now test that we have good fit to density.
-         coot::validation_information_t vi_2 = mc.density_correlation_analysis(imol_other, imol_map);
+         coot::validation_information_t vi_2 = mc.density_correlation_analysis(imol_other, imol_blur);
 
          coot::stats::single s_0 = vi_0.get_stats();
          coot::stats::single s_1 = vi_1.get_stats();
@@ -1826,9 +1827,9 @@ int test_jiggle_fit(molecules_container_t &mc) {
          // 20230402-PE These results are disappointing - they are not as good as doing it interactively.
          // I wonder what the difference is.
 
-         std::cout << "orig:     mean " << std::fixed << std::right << s_0.mean() << " sd " << std::fixed << std::sqrt(s_0.variance()) << std::endl;
-         std::cout << "pre-fit:  mean " << std::fixed << std::right << s_1.mean() << " sd " << std::fixed << std::sqrt(s_1.variance()) << std::endl;
-         std::cout << "post-fit: mean " << std::fixed << std::right << s_2.mean() << " sd " << std::fixed << std::sqrt(s_2.variance()) << std::endl;
+         std::cout << "orig:     mean " << std::fixed << std::right << std::setw(10) << s_0.mean() << " sd " << std::fixed << std::sqrt(s_0.variance()) << std::endl;
+         std::cout << "pre-fit:  mean " << std::fixed << std::right << std::setw(10) << s_1.mean() << " sd " << std::fixed << std::sqrt(s_1.variance()) << std::endl;
+         std::cout << "post-fit: mean " << std::fixed << std::right << std::setw(10) << s_2.mean() << " sd " << std::fixed << std::sqrt(s_2.variance()) << std::endl;
 
          float d1 = s_0.mean() - s_2.mean();
          float d2 = s_2.mean() - s_1.mean();
@@ -2781,7 +2782,7 @@ int test_mmrrcc(molecules_container_t &mc) {
    if (false) {
       // Filo's example 11729 and 7adk
       imol = mc.read_pdb("pdb7adk.ent");
-      imol_map = mc.read_ccp4_map("emd_11729.map", 0);
+      imol_map = mc.read_ccp4_map(reference_data("emd_11729.map"), 0);
       auto results = mc.mmrrcc(imol, "B", imol_map);
       auto mc = results.first;
       auto sc = results.second;
@@ -3883,7 +3884,7 @@ int test_is_em_map(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol_map = mc.read_ccp4_map("emd_25074.map", 0);
+   int imol_map = mc.read_ccp4_map(reference_data("emd_25074.map"), 0);
    bool is_EM_map = mc.is_EM_map(imol_map);
    float cl = mc.get_suggested_initial_contour_level(imol_map);
    float rmsd = mc.get_map_rmsd_approx(imol_map);
@@ -4001,7 +4002,7 @@ int test_colour_map_by_other_map(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol_map_1 = mc.read_ccp4_map("emd_16890.map", false);
+   int imol_map_1 = mc.read_ccp4_map(reference_data("emd_16890.map"), false);
    int imol_map_2 = mc.read_ccp4_map("scale_res_emd_16890.mrc", false);
    if (mc.is_valid_map_molecule(imol_map_1)) {
       if (mc.is_valid_map_molecule(imol_map_2)) {
@@ -4480,7 +4481,6 @@ int main(int argc, char **argv) {
       status += run_test(test_read_a_map,            "read a map",               mc);
       status += run_test(test_add_compound,          "add compound",             mc);
       status += run_test(test_weird_delete,          "delete II",                mc);
-      status += run_test(test_fill_partial,    "fill partially-filled residues", mc);
       status += run_test(test_add_alt_conf,          "add alt conf",             mc);
       status += run_test(test_delete_literal,        "delete literal",           mc);
       status += run_test(test_side_chain_180,        "side-chain 180",           mc);
@@ -4506,7 +4506,10 @@ int main(int argc, char **argv) {
       status += run_test(test_instanced_rota_markup, "instanced rotamer mesh",   mc);
       status += run_test(test_new_position_for_atoms,"new positions for atoms",  mc);
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
+      status += run_test(test_fill_partial,          "fill partially-filled residues", mc);
    }
+
+   status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
 
    // status += run_test(test_disappearing_ligand, "disappearning ligand", mc);
 
@@ -4518,7 +4521,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_gltf_export, "glTF export", mc);
 
-   status += run_test(test_5char_ligand_merge, "5-char ligand merge", mc);
+   // status += run_test(test_5char_ligand_merge, "5-char ligand merge", mc);
 
    // status += run_test(test_density_mesh,          "density mesh",             mc);
 

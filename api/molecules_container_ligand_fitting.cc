@@ -282,7 +282,14 @@ molecules_container_t::fit_to_map_by_random_jiggle_using_cid(int imol, const std
       if (is_valid_map_molecule(imol_refinement_map)) {
          clipper::Xmap<float> &xmap = molecules[imol_refinement_map].xmap;
          float rmsd = molecules[imol_refinement_map].get_map_rmsd_approx();
-         status = molecules[imol].fit_to_map_by_random_jiggle_using_atom_selection(cid, xmap, rmsd, n_trials, translation_scale_factor);
+         float tf_1 = translation_scale_factor;
+         float tf_2 = 0.5 * translation_scale_factor;
+         float tf_3 = 0.25 * translation_scale_factor;
+         float tf_4 = 0.18 * translation_scale_factor;
+         status = molecules[imol].fit_to_map_by_random_jiggle_using_atom_selection(cid, xmap, rmsd, n_trials, tf_1);
+         status = molecules[imol].fit_to_map_by_random_jiggle_using_atom_selection(cid, xmap, rmsd, n_trials, tf_2);
+         status = molecules[imol].fit_to_map_by_random_jiggle_using_atom_selection(cid, xmap, rmsd, n_trials, tf_3);
+         status = molecules[imol].fit_to_map_by_random_jiggle_using_atom_selection(cid, xmap, rmsd, n_trials, tf_4);
       } else {
          std::cout << "ERROR:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_refinement_map << std::endl;
       }

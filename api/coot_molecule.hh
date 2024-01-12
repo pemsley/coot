@@ -141,6 +141,7 @@ namespace coot {
 
       modification_info_t modification_info;
 
+      bool use_gemmi; // true now
       int imol_no; // this molecule's index in the container vector
       int ligand_flip_number;
       std::string name;
@@ -341,6 +342,7 @@ namespace coot {
       // ====================== init ======================================
 
       void init() {
+         use_gemmi = true; // 20240112-PE  woohoo! Let the bugs flow!
          // set the imol before calling this function.
          ligand_flip_number = 0;
          bonds_box_type = api_bond_colour_t::UNSET_TYPE;

@@ -1035,6 +1035,8 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    std::vector<std::pair<clipper::RTop_orth, float> > trial_results(n_trials);
    bool do_multi_thread = false;
+
+// 20240112-PE This needs an update -  see top of file
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    int n_threads = coot::get_max_number_of_threads();
    if (n_threads > 0)
@@ -1042,6 +1044,7 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 #endif
 
    if (do_multi_thread) {
+
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
       ctpl::thread_pool thread_pool(n_threads);
       try {
@@ -1093,6 +1096,10 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
          std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
          coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
          coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
+         if (false) { // debug solutions
+            std::string jfn = "jiggled-" + std::to_string(itrial) + ".pdb";
+            jiggled_mol.write_file(jfn, 20.0);
+         }
          float this_score = density_scoring_function(jiggled_mol, atom_numbers, xmap_masked);
          std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
          trial_results[itrial] = p;

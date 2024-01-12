@@ -167,7 +167,8 @@ coot::molecule_t::restore_from_backup(int mod_index, const std::string &cwd) {
 
    std::string file_name = history_filename_vec[mod_index];
    // hostage to forture here?
-   atom_selection_container_t asc = get_atom_selection(file_name, false);
+   // bool use_gemmi = false; // 20240112-PE now use the class data item (which is usually true)
+   atom_selection_container_t asc = get_atom_selection(file_name, use_gemmi);
    if (asc.read_success) {
       save_info.set_modification_index(mod_index);
       atom_sel.clear_up();
@@ -183,7 +184,7 @@ coot::molecule_t::restore_from_backup(int mod_index, const std::string &cwd) {
 void
 coot::molecule_t::replace_molecule_by_model_from_file(const std::string &pdb_file_name) {
 
-   bool use_gemmi = false;
+   // bool use_gemmi = false; // 20240112-PE now use the class data item (which is usually true)
    atom_selection_container_t asc = get_atom_selection(pdb_file_name, use_gemmi, true, false);
    if (asc.read_success) {
       atom_sel.clear_up();

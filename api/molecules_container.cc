@@ -256,7 +256,7 @@ molecules_container_t::read_standard_residues() {
          // unresolved (linking related?) startup bug here:
          std::cout << "------------------ read_standard_residues() C map_sampling_rate " << map_sampling_rate << std::endl;
          std::cout << "------------------ read_standard_residues() C " << std::endl;
-         atom_selection_container_t t_asc = get_atom_selection(standard_file_name, false, true, false);
+         atom_selection_container_t t_asc = get_atom_selection(standard_file_name, true, true, false);
          std::cout << "------------------ read_standard_residues() D map_sampling_rate " << map_sampling_rate << std::endl;
          // std::cout << "------------------ read_standard_residues() D " << std::endl;
          // standard_residues_asc = t_asc; // Here's the problem
@@ -286,13 +286,13 @@ molecules_container_t::read_standard_residues() {
 
          }
 #endif
-         // std::cout << "------------------ read_standard_residues() E " << std::endl;
+
       }
    } else {
-      std::cout << "------------------ read_standard_residues() F " << env_var_filename << std::endl;
-      standard_residues_asc = get_atom_selection(env_var_filename, false, true, false);
+      bool use_gemmi = true;
+      standard_residues_asc = get_atom_selection(env_var_filename, use_gemmi, true, false);
    }
-   // std::cout << "------------------ read_standard_residues() done " << std::endl;
+
 }
 
 
@@ -555,7 +555,6 @@ int
 molecules_container_t::read_pdb(const std::string &file_name) {
 
    int status = -1;
-   bool use_gemmi = false;
    atom_selection_container_t asc = get_atom_selection(file_name, use_gemmi, true, false);
    if (asc.read_success) {
 
