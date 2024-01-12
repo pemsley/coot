@@ -343,18 +343,15 @@ main(int argc, char **argv) {
 	    }
 	 } else {
 	    clipper::Xmap<float> xmap;
-	    bool stat = coot::util::map_fill_from_mtz(&xmap,
-						      mtz_filename,
-						      f_col, phi_col, "", 
-						      use_weights, is_diff_map);
-
+            // why not just use the liand version of map_fill_from_mtz()?
+            // 20240112-PE Because we want fine sampling, I suppose.
+	    bool stat = coot::util::map_fill_from_mtz(&xmap, mtz_filename, f_col, phi_col, "", use_weights);
 	    if (! stat) {
 	       std::cout << "ERROR: in filling map from mtz file: " << mtz_filename
 			 << std::endl;
 	       exit(1);
 	    } else {
-	       clipper::Xmap<float> fine_xmap =
-		  coot::util::reinterp_map_fine_gridding(xmap);
+	       clipper::Xmap<float> fine_xmap = coot::util::reinterp_map_fine_gridding(xmap);
 	       lig.import_map_from(fine_xmap);
 	    } 
 	 }

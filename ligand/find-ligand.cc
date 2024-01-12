@@ -121,7 +121,8 @@ main(int argc, char **argv) {
 		<< " --samples nsamples"  << "\n     "
 		<< " --sampling-rate map-sampling-rate"  << "\n     "
 		<< " --dictionary cif-dictionary-name" << "\n     "
-		<< " --just-conformers"   << "\n     "
+		<< " --just-conformers (no fitting, just make conformers)"   << "\n     "
+		<< " --mmcif (output files in mmcif) "   << "\n     "
 		<< " --script script-file-name\n"
 		<< "   ligand-pdb-file-name(s)\n";
       std::cout << "     where pdbin is the protein (typically)\n"
@@ -159,6 +160,7 @@ main(int argc, char **argv) {
       float map_sampling_factor = 1.5;
       std::string map_sampling_factor_str;
       bool just_conformers_flag = false;
+      bool output_files_in_mmcif = false;
 
       // These hold the coordinates of a particular position.  The
       // bool is whether they were set in the input or not.  Only of
@@ -175,6 +177,7 @@ main(int argc, char **argv) {
 	 {"phi",           1, 0, 0},
 	 {"sigma",         1, 0, 0},
 	 {"absolute",      1, 0, 0},
+	 {"mmcif",         0, 0, 0},
 	 {"clusters",      1, 0, 0},
 	 {"samples",       1, 0, 0},
 	 {"dictionary",    1, 0, 0},
@@ -304,6 +307,11 @@ main(int argc, char **argv) {
 
                if (arg_str == "just-conformers") {
                   just_conformers_flag = true;
+                  n_used_args++;
+               }
+
+               if (arg_str == "mmcif") {
+                  output_files_in_mmcif = true;
                   n_used_args++;
                }
 
@@ -623,14 +631,19 @@ main(int argc, char **argv) {
 
 		  m = wlig.get_solution(isol, iclust);
 		  if (! m.is_empty()) {
-		     float bf = 30;
 		     mmdb::Manager *ligand_mol = m.pcmmdbmanager();
 		     coot::hetify_residues_as_needed(ligand_mol);
 
+                     std::string ext = ".pdb";
+                     if (output_files_in_mmcif) ext = ".cif";
+
 		     std::string file_name = "fitted-ligand-" +
 			coot::util::int_to_string(iclust) + std::string("-") + 
-			coot::util::int_to_string(isol) + std::string(".pdb");
-		     ligand_mol->WritePDBASCII(file_name.c_str());
+			coot::util::int_to_string(isol) + ext;
+                     if (output_files_in_mmcif)
+                        ligand_mol->WriteCIFASCII(file_name.c_str());
+                     else
+                        ligand_mol->WritePDBASCII(file_name.c_str());
 		  }
 	       }
 	    }
