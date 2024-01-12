@@ -28,6 +28,8 @@ libcootapi: look at merging 7ZTVU (or whatever it was) into a cif file. Look at 
    ligand: atom_site seq_id.
    Merge a ligand with a long ligand name into a molecule from a PDB file, then try to refine the ligand.
 
+findligands: try with 5-char ligand in 1cxq and write a cif. Eugene says that it fails.
+
 Nice to have: add a SSBOND to a PDB or cif and it does the check that the residues are there and adds the record.
 
 ligand figures from the chem_comp_atom_depiction_t
