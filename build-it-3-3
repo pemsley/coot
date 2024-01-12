@@ -2086,6 +2086,12 @@ python_version=python3.11
 pver=3.11.4
 python_version_extension=3.11 # extract this
 
+# for Blender 4 in 2024, we want Python 3.10.13, so uncomment the 3 lines below:
+# python_version=python3.10
+# pver=3.10.13
+# python_version_extension=3.10
+
+
 
 # for compatibility with gtk build system
 # use_python_version_3_8 is not yet set anywhere.
