@@ -1179,9 +1179,9 @@ which wget
 # This setting of the alias fails.  It works on the command line.
 # WGET="LD_LIBRARY_PATH=/usr/lib wget -N -P ${AUTOBUILD_SOURCES}"
 # WGETO="LD_LIBRARY_PATH=/usr/lib wget   -P ${AUTOBUILD_SOURCES}"
-WGET="wget -N -P ${AUTOBUILD_SOURCES}"
-WGETO="wget   -P ${AUTOBUILD_SOURCES}"
-WGETS="wget --no-check-certificate -N -P ${AUTOBUILD_SOURCES}"
+WGET="C:\msys64\usr/\bin\wget.exe -N -P ${AUTOBUILD_SOURCES}"
+WGETO="C:\msys64\usr/\bin\wget.exe   -P ${AUTOBUILD_SOURCES}"
+WGETS="C:\msys64\usr/\bin\wget.exe --no-check-certificate -N -P ${AUTOBUILD_SOURCES}"
 
 # latest version (without .tar.gz extension)
 coot_version=$fallback_coot_version
