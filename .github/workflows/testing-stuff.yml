@@ -48,6 +48,10 @@ jobs:
     steps:
     - name: test hello
       run: echo hello
+    - name: wget
+      uses: wei/wget@v1
+      with:
+        args: -O sample.html https://httpbin.org/html
     - uses: actions/checkout@v3
     - name: build
       run:  bash ./build-it-win
