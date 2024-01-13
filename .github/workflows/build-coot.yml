@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install system dependencies
-      run: sudo apt-get install patch m4 libtool cmake swig flex bixon gfortran autoconf automake libssl-dev libblas-dev libncurses5-dev libjpeg-dev libgtk4-dev
+      run: sudo apt-get install patch m4 libtool cmake swig flex bison gfortran autoconf automake libssl-dev libblas-dev libncurses5-dev libjpeg-dev libgtk-4-dev
     - name: build-with-build-it-3-3
       run: bash build-it-3-3
     - name: run configure
