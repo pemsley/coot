@@ -2295,6 +2295,7 @@ if test -n "$build_ccp4c" ; then
 else
     echo not building libccp4:
 fi
+
 #
 # mmdb
 #
@@ -2357,6 +2358,14 @@ fi
 else
    echo not building mmdb:
 fi
+
+
+#########################################################################
+#########################################################################
+# add an exit, for testing uploading the log files from a github workflow
+#########################################################################
+#########################################################################
+exit
 
 
 if test -n "$build_ssmlib" ; then
