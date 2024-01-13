@@ -25,7 +25,7 @@ jobs:
     - name: echo run configure
       run:  echo ./configure --prefix=/home/runner/install/coot-Linux-ubuntu-gtk4
     - name: run configure
-      run:  ./configure --prefix=/home/runner/install/coot-Linux-ubuntu-gtk4
+      run:  ./configure --prefix=/home/runner/install/coot-Linux-ubuntu-gtk4 PKG_CONFIG_PATH=/home/runner/install/coot-Linux-ubuntu-gtk4/lib64/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/pkgconfig
 
     - name: Upload build logs
       uses: actions/upload-artifact@v4

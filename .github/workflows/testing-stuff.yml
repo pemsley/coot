@@ -40,6 +40,10 @@ jobs:
     - name: Setup homebrew
       id: setup-homebrew
       uses: Homebrew/actions/setup-homebrew@master
+    - name: get coot.rb file
+      run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
+    - name: compile homebrew coot HEAD
+      run: brew install ./coot.rb --HEAD --verbose --debug --keep-tmp
 
   send-me-stuff-windows:
 
@@ -48,10 +52,6 @@ jobs:
     steps:
     - name: test hello
       run: echo hello
-    - name: wget
-      uses: wei/wget@v1
-      with:
-        args: -O sample.html https://httpbin.org/html
     - uses: actions/checkout@v3
     - name: build
       run:  bash ./build-it-win
