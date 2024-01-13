@@ -19,7 +19,7 @@ jobs:
       run: bash build-it-3-3
 
     - name: Upload build logs
-      uses: actions/upload-artifact
+      uses: actions/upload-artifact@v4
       with:
         name: build-logs-package
         path: $HOME/public_html
