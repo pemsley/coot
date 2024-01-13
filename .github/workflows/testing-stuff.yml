@@ -14,17 +14,19 @@ jobs:
     - name: Install system dependencies
       run:  sudo apt-get install libtool cmake libncurses5-dev libgtk-4-dev
     - name: make a dir
-      run:  mkdir -p $HOME/public_html
+      run:  mkdir -p /home/runner/public_html
     - name: run date
-      run:  date > $HOME/public_html/info
+      run:  date > /home/runner/public_html/info
     - name: run uname
       run:  uname -a >> $HOME/public_html/info
+
     - name: Upload the info file
       uses: actions/upload-artifact@v4
       with:
         name: info-file
-        path: $HOME/public_html
+        path: /home/runner/public_html
         retention-days: 2
+
     - name: Upload the files in .
       uses: actions/upload-artifact@v4
       with:
