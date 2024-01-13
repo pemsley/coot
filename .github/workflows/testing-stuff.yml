@@ -24,6 +24,8 @@ jobs:
       with:
         name: info-file
         path: $HOME/public_html
+        name: dot
+        path: .
         retention-days: 2
 
   send-me-stuff-macos:
@@ -42,3 +44,6 @@ jobs:
     steps:
     - name: test hello
       run: echo hello
+    - uses: actions/checkout@v3
+    - name: build
+    - run:  build-it-win
