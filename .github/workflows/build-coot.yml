@@ -27,7 +27,7 @@ jobs:
     - name: what in this directory qm
       run:  ls -lt
     - name: run configure
-      run:  ./configure --prefix=$HOME/autobuild/Linux-${HOST}-gtk4
+      run:  echo ./configure --prefix=$HOME/autobuild/Linux-${HOST}-gtk4
 
     - name: Upload build logs
       uses: actions/upload-artifact@v4
