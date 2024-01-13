@@ -1,6 +1,8 @@
 
 ----
 
+Let's see about privateer in Moorhen.
+
 Is it a good idea for the wasm build from CCP4_WASM_BUILD/moorhen_build compiles test-molecules-container?
 How do I use it?
 
@@ -28,7 +30,9 @@ libcootapi: look at merging 7ZTVU (or whatever it was) into a cif file. Look at 
    ligand: atom_site seq_id.
    Merge a ligand with a long ligand name into a molecule from a PDB file, then try to refine the ligand.
 
-findligands: try with 5-char ligand in 1cxq and write a cif. Eugene says that it fails.
+CMakefile/libcootapi: add findligands and findwaters to CMakeLists.txt - Charles
+
+findligands: try with 5-char ligand in 1cxq and write a cif. Eugene says that it fails. Does it?
 
 Nice to have: add a SSBOND to a PDB or cif and it does the check that the residues are there and adds the record.
 
@@ -264,8 +268,11 @@ Science: "One button" post-jiggle fit "black box morph refine"
 Science/Useful: Calculate the RSR contact dots only for atoms with in ~12 A (say) of the
    centre of the screen.
 
-Useful: Find some Cryo-EM ligand for demo at the ligands meeting.
-* I found a couple so far.
+Fix this in api/coot_molecule_maps.cc: Test N-threads in Moorhen:
+// 20221126-PE set this for now. When it is restored, jiggle_fit_multi_thread_func_1 and jiggle_fit_multi_thread_func_2
+// will need to be transfered.
+// It is set (not configured) in ideal/simple-restraint.hh
+#undef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 cif parser fail for 6eoj from the PDBe - display as CAs.
 * set_use_gemmi_as_model_parser_xxx(1) fixes it
