@@ -1566,10 +1566,11 @@ which wget
 # an old version) and libhogweed refers to a (now) non-existant
 # functions and the dynamic loading fails.
 # This setting of the alias fails.  It works on the command line.
+# -nv is means not-verbose (but not quiet)
 # WGET="LD_LIBRARY_PATH=/usr/lib wget -N -P ${AUTOBUILD_SOURCES}"
 # WGETO="LD_LIBRARY_PATH=/usr/lib wget   -P ${AUTOBUILD_SOURCES}"
-WGET="wget -N -P ${AUTOBUILD_SOURCES}"
-WGETO="wget   -P ${AUTOBUILD_SOURCES}"
+WGET="wget -nv -N -P ${AUTOBUILD_SOURCES}"
+WGETO="wget -nv  -P ${AUTOBUILD_SOURCES}"
 
 # latest version (without .tar.gz extension)
 coot_version=$fallback_coot_version
