@@ -1,0 +1,36 @@
+name: Testing Stuff
+
+on:
+  push:
+
+jobs:
+
+  send-me-stuff-ubuntu:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install system dependencies
+      run: sudo apt-get install libtool cmake libncurses5-dev libgtk-4-dev
+    - name make a file
+      run: mkdir -p $HOME/public_html && date > $HOME/public_html/info && uname -a >> $HOME/public_html/info
+    - name: Upload the info file
+      uses: actions/upload-artifact
+      with:
+        name: info-file
+        retention-days: 2
+
+  send-me-stuff-macos:
+
+    runs-on: macos-latest
+    steps:
+    - name: Setup homebrew
+      id: setup-homebrew
+      uses: Homebrew/actions/setup-homebrew
+
+  send-me-stuff-windows:
+
+    runs-on: windows-latest
+    - name: test hello
+      run: echo hello

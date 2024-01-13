@@ -14,8 +14,44 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install system dependencies
-      run: sudo apt-get install patch m4 libtool cmake swig flex bison gfortran autoconf automake libssl-dev libblas-dev libncurses5-dev libjpeg-dev libgtk-4-dev
+      run: sudo apt-get install libtool cmake libncurses5-dev libgtk-4-dev
     - name: build-with-build-it-3-3
       run: bash build-it-3-3
-    - name: run configure
-      run: ./configure
+
+    - name: Upload build logs
+      uses: actions/upload-artifact
+      with:
+        name: build-logs-package
+        path: $HOME/public_html
+        retention-days: 3
+
+    - name: Upload binaries
+      uses: actions/upload-artifact
+      with:
+        name: binaries-package
+        path: $HOME/autobuild/Linux-${HOST}-gtk4
+        retention-days: 3
+
+  build-macos:
+
+    runs-on: macos-latest
+
+    - name: Setup homebrew
+      id: setup-homebrew
+      uses: Homebrew/actions/setup-homebrew
+
+    - name: Cache Homebrew Bundler RubyGems
+      id: cache
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.set-up-homebrew.outputs.gems-path }}
+        key: ${{ runner.os }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
+        restore-keys: ${{ runner.os }}-rubygems-
+
+    - name: Install Homebrew Bundler RubyGems
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: brew install-bundler-gems
+
+   - name: build
+     run: echo do the build here.
+
