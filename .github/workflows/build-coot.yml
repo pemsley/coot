@@ -34,7 +34,7 @@ jobs:
       run:  echo ./configure --prefix=/home/runner/install/coot-Linux-ubuntu-gtk4
     - name: run configure
       # we echo done so that this returns a success status so that the logs are always uploaded
-      run:  ./configure --prefix=/home/runner/install/coot-Linux-ubuntu-gtk4 PKG_CONFIG_PATH=/home/runner/install/coot-Linux-ubuntu-gtk4/lib64/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/pkgconfig || echo done
+      run:  ./configure --prefix=/home/runner/install/coot-Linux-ubuntu-gtk4 --with-enhanced-ligand-tools --with-fftw-prefix=/home/runner/install/coot-Linux-ubuntu-gtk4 --with-boost=/home/runner/install/coot-Linux-ubuntu-gtk4 --with-gemmi=/home/runner/install/coot-Linux-ubuntu-gtk4 --with-boost-libdir=/home/runner/install/coot-Linux-ubuntu-gtk4/lib --with-backward --with-libdw --with-sound --disable-static SHELL=/bin/bash PYTHON=python3 PKG_CONFIG_PATH=/home/runner/install/coot-Linux-ubuntu-gtk4/lib64/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/pkgconfig || echo done
 
     - name: upload config.log
       uses: actions/upload-artifact@v4
