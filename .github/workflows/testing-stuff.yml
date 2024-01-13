@@ -44,6 +44,6 @@ jobs:
     steps:
     - name: test hello
       run: echo hello
-    - uses: actions/checkout@v3
-    - name: build
-    - run:  build-it-win
+    # - uses: actions/checkout@v3
+    # - name: build
+    # - run:  build-it-win
