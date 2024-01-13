@@ -4325,6 +4325,7 @@ echo Now Coot..... >&2
 cd $start_dir
 date >&2
 pwd >&2
+echo GITHUB_ACTIONS_BUILD $GITHUB_ACTIONS_BUILD >&2
 
 if [ -e coot ] ; then
    (
@@ -4363,6 +4364,7 @@ else
    save_dir=$(pwd)
    echo :::: $(pwd)
    echo cloning coot...
+   echo cloning coot... >&2
    echo :::: git clone https://github.com/pemsley/coot.git -b main
    echo save_ld_library_path=$LD_LIBRARY_PATH
    # reset LD_LIBRARY_PATH for now. Do we need it set from now on actually?
