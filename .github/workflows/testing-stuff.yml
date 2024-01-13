@@ -50,4 +50,4 @@ jobs:
       run: echo hello
     - uses: actions/checkout@v3
     - name: build
-      run:  build-it-win
+      run:  bash ./build-it-win
