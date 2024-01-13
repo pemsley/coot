@@ -4455,13 +4455,14 @@ int main(int argc, char **argv) {
       status += run_test(test_density_correlation_validation, "density correlation validation",          mc);
       status += run_test(test_pepflips_using_difference_map, "Pepflips from Difference Map",             mc);
       status += run_test(test_difference_map_contours, "difference map density mesh", mc);
+      status += run_test(test_rota_dodecs_mesh,      "rotamer dodecahedra mesh", mc);
       status += run_test(test_rsr_using_residue_range, "rsr using residue range", mc);
       status += run_test(test_copy_fragment_using_cid, "copy-fragment using cid", mc);
       status += run_test(test_no_dictionary_residues,  "no-dictionary residues", mc);
+      status += run_test(test_cis_trans,             "cis_trans conversion",     mc);
       status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
       status += run_test(test_auto_fit_rotamer_1,    "auto-fit rotamer",         mc);
       status += run_test(test_auto_fit_rotamer_2,    "auto-fit rotamer t2",      mc);
-      status += run_test(test_rota_dodecs_mesh,      "rotamer dodecahedra mesh", mc);
       status += run_test(test_delete_molecule,       "delete_moelcule",          mc);
       status += run_test(test_rama_balls_mesh,       "rama balls mesh",          mc);
       status += run_test(test_density_mesh,          "density mesh",             mc);
@@ -4475,7 +4476,6 @@ int main(int argc, char **argv) {
       status += run_test(test_rsr,                   "rsr",                      mc);
       status += run_test(test_jed_flip,              "JED Flip",                 mc);
       status += run_test(test_add_water,             "add waters",               mc);
-      status += run_test(test_cis_trans,             "cis_trans conversion",     mc);
       status += run_test(test_bonds_mesh,            "bonds mesh",               mc);
       status += run_test(test_eigen_flip,            "Eigen Flip",               mc);
       status += run_test(test_read_a_map,            "read a map",               mc);
@@ -4493,23 +4493,21 @@ int main(int argc, char **argv) {
       status += run_test(test_gaussian_surface,      "Gaussian surface",         mc);
       status += run_test(test_missing_atoms_info,    "missing atom info",        mc);
       status += run_test(test_move_molecule_here,    "move_molecule_here",       mc);
-      status += run_test(test_sequence_generator,    "Make a sequence string",   mc);
       status += run_test(test_rotamer_validation,    "rotamer validation",       mc);
       status += run_test(test_ligand_fitting_here,   "Ligand fitting here",      mc);
       status += run_test(test_ligand_contact_dots,   "ligand contact dots",      mc);
+      status += run_test(test_difference_map_peaks,  "Difference Map Peaks",     mc);
       status += run_test(test_rama_validation,       "rama validation 2",        mc); // for the plot, not the graph
       status += run_test(test_ramachandran_analysis, "ramachandran analysis",    mc); // for the graph, not the plot
-      status += run_test(test_difference_map_peaks,  "Difference Map Peaks",     mc);
       status += run_test(test_non_standard_residues, "non-standard residues",    mc);
       status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
       status += run_test(test_add_terminal_residue,  "add terminal residue",     mc);
+      status += run_test(test_sequence_generator,    "Make a sequence string",   mc);
       status += run_test(test_instanced_rota_markup, "instanced rotamer mesh",   mc);
       status += run_test(test_new_position_for_atoms,"new positions for atoms",  mc);
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
       status += run_test(test_fill_partial,          "fill partially-filled residues", mc);
    }
-
-   status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
 
    // status += run_test(test_disappearing_ligand, "disappearning ligand", mc);
 
