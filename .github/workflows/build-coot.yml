@@ -19,9 +19,7 @@ jobs:
         GITHUB_ACTIONS_BUILD: true
       env:
         LOGS: logs
-      env:
         AUTOBUILD_BUILD: autobuild/build
-      env:
         AUTOBUILD_INSTALLED: autobuild/installed
     - name: build-with-build-it-3-3
       run:  bash build-it-3-3
