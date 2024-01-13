@@ -15,16 +15,15 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install system dependencies
       run: sudo apt-get install cmake libncurses5-dev libgtk-4-dev
-      env:
-        GITHUB_ACTIONS_BUILD: true
-        AUTOBUILD_BUILD: autobuild/build
-        AUTOBUILD_INSTALLED: /home/runner/autobuild/Linux-coot-gtk4
     - name: where are we?
       run:  pwd
     - name: build-with-build-it-3-3
       run:  bash build-it-3-3
+      # the install dir is set specifically in build-it-3-3 when we in github actions
     - name: echo run configure
-      run:  echo ./configure --prefix=$HOME/autobuild/Linux-$(hostname)
+      run:  echo ./configure --prefix=/home/runner/install/coot-Linux-ubuntu-gtk4
+    - name: run configure
+      run:  ./configure --prefix=/home/runner/install/coot-Linux-ubuntu-gtk4
 
     - name: Upload build logs
       uses: actions/upload-artifact@v4
