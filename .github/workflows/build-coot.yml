@@ -17,7 +17,6 @@ jobs:
       run: sudo apt-get install cmake libncurses5-dev libgtk-4-dev
       env:
         GITHUB_ACTIONS_BUILD: true
-        LOGS: $HOME/logs
         AUTOBUILD_BUILD: autobuild/build
         AUTOBUILD_INSTALLED: autobuild/installed
     - name: build-with-build-it-3-3
@@ -33,7 +32,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: build-logs-package
-        path: logs
+        path: /home/runner/public_html
         retention-days: 3
 
     - name: Upload binaries

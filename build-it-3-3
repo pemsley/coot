@@ -948,10 +948,6 @@ fi
 PATH=$PATH:/usr/local/bin:/usr/sbin:/usr/bsd:/sbin:/usr/bin:/bin:
 PATH=$PATH:/etc:/usr/etc
 #
-export PATH
-echo PATH is now: $PATH
-echo LOGS is $LOGS
-echo AUTOBUILD_BUILD is $AUTOBUILD_BUILD
 
 # This is where the sources downloaded from network go:
 AUTOBUILD_SOURCES=${AUTOBUILD_BUILD}/sources
@@ -960,8 +956,15 @@ if (! test -d ${AUTOBUILD_SOURCES}) ; then
    mkdir -p ${AUTOBUILD_SOURCES}
 fi
 
+export PATH
+echo PATH is now: $PATH
+echo LOGS is $LOGS
+echo AUTOBUILD_SOURCES is $AUTOBUILD_SOURCES
+echo AUTOBUILD_BUILD is $AUTOBUILD_BUILD
+echo AUTOBUILD_INSTALLED is $AUTOBUILD_INSTALLED
 
 # now make the build logs directory
+echo mkdir -p $LOGS >&2
 mkdir -p $LOGS
 
 shared_static_flag="--disable-shared" # huh?
