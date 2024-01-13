@@ -33,7 +33,7 @@ jobs:
     steps:
     - name: Setup homebrew
       id: setup-homebrew
-      uses: Homebrew/actions/setup-homebrew
+      uses: Homebrew/actions/setup-homebrew@master
 
   send-me-stuff-windows:
 
