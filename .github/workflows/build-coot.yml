@@ -7,7 +7,7 @@ on:
     branches: [ "aside-main" ]
 
 jobs:
-  build:
+  build-ubuntu:
 
     runs-on: ubuntu-latest
 
@@ -36,6 +36,7 @@ jobs:
 
     runs-on: macos-latest
 
+    steps:
     - name: Setup homebrew
       id: setup-homebrew
       uses: Homebrew/actions/setup-homebrew
