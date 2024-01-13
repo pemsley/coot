@@ -19,6 +19,7 @@ jobs:
       uses: actions/cache@v3
       with:
          path: /home/runner/install/coot-Linux-ubuntu-gtk4
+         key: deps
 
     - name: Install system dependencies
       run: sudo apt-get install cmake libncurses5-dev libgtk-4-dev
