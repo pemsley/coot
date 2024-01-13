@@ -2255,7 +2255,8 @@ if test -n "$build_ccp4c" ; then
     # ${WGET} $extras_place/ccp4-libs-underlay-2.tar.gz
     # Dont need patch any more. Great!
     # ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/ccp4_library_utils.c.patch
-    ${WGET} ftp://ftp.ccp4.ac.uk/opensource/libccp4-$libccp4_version.tar.gz
+    # ${WGET} ftp://ftp.ccp4.ac.uk/opensource/libccp4-$libccp4_version.tar.gz
+    ${WGET} $extras_place/libccp4-$libccp4_version.tar.gz
     ( 
     date
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4-$libccp4_version.tar.gz | tar xf -
