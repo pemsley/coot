@@ -460,6 +460,11 @@ run_second_test=${run_second_test:=true}
 # Note that the directory name must NOT end in a /
 #
 AUTOBUILD_INSTALLED=${AUTOBUILD_INSTALLED:=${HOME}/autobuild/${OS}-${HOST}}
+if test x$GITHUB_ENV = x ; then
+   : # we are not in a hithub actions build
+else
+   AUTOBUILD_INSTALLED=$GITHUB_ENV/coot-Linux-ubuntu
+fi
 
 # or perhaps, for the adventurous:
 #AUTOBUILD_INSTALLED=$CCP4_MASTER
@@ -945,6 +950,7 @@ if test "$build_coot_prerelease" = 1 ; then
 else
    PATH=$AUTOBUILD_INSTALLED-$build_type/bin:$PATH
 fi
+   
 PATH=$PATH:/usr/local/bin:/usr/sbin:/usr/bsd:/sbin:/usr/bin:/bin:
 PATH=$PATH:/etc:/usr/etc
 #
