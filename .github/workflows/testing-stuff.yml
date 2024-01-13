@@ -24,7 +24,11 @@ jobs:
       with:
         name: info-file
         path: $HOME/public_html
-        name: dot
+        retention-days: 2
+    - name: Upload the files in .
+      uses: actions/upload-artifact@v4
+      with:
+        name: dot files
         path: .
         retention-days: 2
 
