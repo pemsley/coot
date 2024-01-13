@@ -950,6 +950,7 @@ PATH=$PATH:/etc:/usr/etc
 #
 export PATH
 echo PATH is now: $PATH
+echo LOGS is $LOGS
 echo AUTOBUILD_BUILD is $AUTOBUILD_BUILD
 
 # This is where the sources downloaded from network go:
