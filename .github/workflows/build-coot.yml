@@ -18,20 +18,18 @@ jobs:
       env:
         GITHUB_ACTIONS_BUILD: true
         AUTOBUILD_BUILD: autobuild/build
-        AUTOBUILD_INSTALLED: autobuild/installed
-    - name: build-with-build-it-3-3
-      run:  bash build-it-3-3
+        AUTOBUILD_INSTALLED: /home/runner/autobuild/Linux-coot-gtk4
     - name: where are we qm
       run:  pwd
-    - name: what in this directory qm
-      run:  ls -lt
-    - name: run configure
+    - name: build-with-build-it-3-3
+      run:  bash build-it-3-3
+    - name: echo run configure
       run:  echo ./configure --prefix=$HOME/autobuild/Linux-$(hostname)-gtk4
 
     - name: Upload build logs
       uses: actions/upload-artifact@v4
       with:
-        name: build-logs-package
+        name: build-logs-public-html-package
         path: /home/runner/public_html
         retention-days: 3
 
@@ -39,5 +37,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: binaries-package
-        path: autobuild/installed
+        path: /home/runner/autobuild/Linux-coot-gtk4
         retention-days: 3
