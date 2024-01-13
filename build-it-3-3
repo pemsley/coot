@@ -1159,7 +1159,6 @@ case $dist_name in
        gfortran
        autoconf
        automake
-       libglfw3-dev
        libssl-dev
        libblas-dev
        liblapack-dev
