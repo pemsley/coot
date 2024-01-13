@@ -14,9 +14,17 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install system dependencies
-      run: sudo apt-get install libtool cmake libncurses5-dev libgtk-4-dev
+      run: sudo apt-get install cmake libncurses5-dev libgtk-4-dev
+      env:
+        GITHUB_ACTIONS_BUILD: true
     - name: build-with-build-it-3-3
       run: bash build-it-3-3
+    - name: where are we qm
+      run: pwd
+    - name: what in this directory qm
+      run: ls -lt
+    - name run configure
+      run ./configure --prefix=$HOME/autobuild/Linux-${HOST}-gtk4
 
     - name: Upload build logs
       uses: actions/upload-artifact@v4

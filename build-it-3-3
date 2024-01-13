@@ -2455,7 +2455,7 @@ if test -n "$build_clipper" ; then
     clipper_version_dir=2.1
     ${WGET} $extras_place/clipper-$clipper_version.tar.gz
     ${WGET} $extras_place/clipper-configure-2.patch
-
+    echo BUILDING clipper $clipper_version >&2
     (
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
 
@@ -2548,6 +2548,7 @@ fi
 
 if true ; then
       echo BUILDING gemmi from git repo \(and installing GEMMI\)
+      echo BUILDING gemmi from git repo \(and installing GEMMI\) >&2
       (
           save_dir=$(pwd)
           cd $start_dir
@@ -2591,6 +2592,7 @@ fi
 
 if test "$build_readline" = true ; then
     echo BUILDING readline:
+    echo BUILDING readline: >&2
     readline_version=6.2
     readline_version=6.3
     ${WGET} https://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
@@ -2656,6 +2658,7 @@ fi
 
 if [ $skip_build = false ] ; then
       echo BUILDING libffi $libffi_version:
+      echo BUILDING libffi $libffi_version: >&2
       (
       ${WGET} https://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
@@ -2673,6 +2676,7 @@ fi
 #
 if test -n "$build_python" ; then
     echo BUILDING Python ${pver}:
+    echo BUILDING Python ${pver}: >&2
 
    echo ${WGET} http://www.python.org/ftp/python/$pver/Python-$pver.tgz
    # hacking in --no-check-certificate is not the right way to do it.
@@ -2727,6 +2731,7 @@ EOF
 
    echo Python build done >&2
 
+   echo Upgrading pip and installing pycairo and pygobject >&2
    (
    which pip3
    pip3 install --upgrade pip
@@ -2767,7 +2772,9 @@ echo testing to see if meson exists in path yet 2>&1
 echo which meson
 which meson
 echo meson --version
-meson --version
+which meson >&2
+echo meson --version >&2
+meson --version >&2
 if meson --version ; then
    echo we have meson
    v=$(meson --version)
@@ -2900,6 +2907,7 @@ fi
 
 if test "$build_gobject_introspection" = true ; then
    echo BUILDING gobject-introspection:
+   echo BUILDING gobject-introspection: >&2
    (
    # just for gobject-introspection - depends on our glib installation
    export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig
@@ -2973,6 +2981,7 @@ if test "$build_gobject_introspection" = true ; then
    export -n CC
    cd ..
    ) > $HOSTLOGDIR/07d-gobject-introspection.txt 2>&1
+   echo done gobject-introspection: >&2
 fi
 
 
@@ -2996,7 +3005,8 @@ if [ true ] ; then
       (
       if [ -e ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz ] ; then
          date
-         echo building pycairo
+         echo BUILDING pycairo
+         echo BUILDING pycairo >&2
          tar xf ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz
          cd pycairo-$pycairo_version
          python3 setup.py build
@@ -3033,6 +3043,7 @@ fi
 if [ $skip_build = false ] ; then
 
       echo BUILDING pygobject $pygobject_version:
+      echo BUILDING pygobject $pygobject_version: >&2
       (
       echo :::: PKG_CONFIG_PATH is $PKG_CONFIG_PATH
       ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
@@ -3063,6 +3074,7 @@ if [ $skip_build = false ] ; then
       else
          echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
       fi ) > $HOSTLOGDIR/07g-pygobject.txt 2>&1
+      echo done pygobject $pygobject_version: >&2
 else
    echo not building pygobject:
    echo not building pygobject: 2>&1
@@ -3089,12 +3101,13 @@ else
 fi
 
 if "$build_gmp" = true ; then
-    echo BUILDING gmp:
     # gmp_version=4.2.4
     # gmp_version=5.1.2
     # gmp_version=6.0.0a # it doesn't untar into this directory
     # gmp_version=5.1.3
     gmp_version=6.1.2
+    echo BUILDING gmp $gmp_version
+    echo BUILDING gmp $gmp_version >&2
     ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.bz2
     (date
      pwd
@@ -3109,6 +3122,7 @@ if "$build_gmp" = true ; then
        $MAKE install
     fi
     ) > $HOSTLOGDIR/08-pre-gmp.txt 2>&1
+    echo done gmp $gmp_version >&2
 else
     echo not building gmp:
 fi
@@ -3149,6 +3163,7 @@ fi
 
 if test -n "$build_libidn" ; then
    echo BUILDING libidn:
+   echo BUILDING libidn: >&2
 (
    # get libcurl from here:
    libidn_version=1.15
@@ -3176,6 +3191,7 @@ fi
 
 if test -n "$build_curl" ; then
    echo BUILDING curl:
+   echo BUILDING curl: >&2
 (
    # get libcurl from here:
    # libcurl_version=7.19.7
@@ -3238,36 +3254,38 @@ fi
 #
 
 if test -n "$build_gsl" ; then
-    echo BUILDING gsl:
-#
-# wget http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/gsl/gsl-1.5.tar.gz
-# wget http://ftp.gnu.org/gnu/gsl/gsl-1.6.tar.gz
-# if you change this, change needed_gsl_version above
-gsl_version=1.12
-gsl_version=1.15
-gsl_version=1.16
-gsl_version=2.7
-# ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
-# ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
-${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
-(
-date
-pwd
-gzip -dc ${AUTOBUILD_SOURCES}/gsl-$gsl_version.tar.gz | tar xf -
-cd gsl-$gsl_version
-./configure $generic_prefix
-$MAKE
-status=$?
-if [ "$status" != 0 ] ; then
-    echo ERROR:: GSL make failed.
-    exit 2
-else
-   echo 1 ---------------------------------------------------------------
-   echo '                                ' make install
-   echo 1 ----------------------------------------------------------------
-   $MAKE install
-fi
-) > $HOSTLOGDIR/15-gsl.txt 2>&1
+    # wget http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/gsl/gsl-1.5.tar.gz
+    # wget http://ftp.gnu.org/gnu/gsl/gsl-1.6.tar.gz
+    # if you change this, change needed_gsl_version above
+    gsl_version=1.12
+    gsl_version=1.15
+    gsl_version=1.16
+    gsl_version=2.7
+    echo BUILDING gsl $gsl_version
+    echo BUILDING gsl $gsl_version >&2
+    #
+    # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
+    # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
+    ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
+    (
+    date
+    pwd
+    gzip -dc ${AUTOBUILD_SOURCES}/gsl-$gsl_version.tar.gz | tar xf -
+    cd gsl-$gsl_version
+    ./configure $generic_prefix
+    $MAKE
+    status=$?
+    if [ "$status" != 0 ] ; then
+        echo ERROR:: GSL make failed.
+        exit 2
+    else
+       echo 1 --------------------------------------------------------------- 
+       echo '                                ' make install
+       echo 1 ----------------------------------------------------------------
+       $MAKE install
+    fi
+    ) > $HOSTLOGDIR/15-gsl.txt 2>&1
+    echo done gsl: >&2
 else
     echo not building gsl:
 fi
@@ -3298,6 +3316,7 @@ if [ "$build_boost" = true ] ; then
       boost_server_dir=1.74.0
       boost_server_dir=1.82.0
       echo BUILDING boost $boost_version :
+      echo BUILDING boost $boost_version >&2
       (
       echo building ========================= boost $boost_version =========================
 
@@ -3345,6 +3364,7 @@ if [ "$build_boost" = true ] ; then
            ./b2 address-model=$address_model cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
       cd -
       ) > $HOSTLOGDIR/16-boost.txt
+      echo done boost $boost_version >&2
    fi
 fi
 
@@ -3369,6 +3389,7 @@ else
       echo missing Raster3D tar file
 
    else
+      echo BUILDING raster3d $raster3d_version >&2
       (
        date
        pwd
@@ -3399,6 +3420,7 @@ else
        fi
 
       ) > $HOSTLOGDIR/15-libgd.txt 2>&1
+      echo done raster3d $raster3d_version >&2
 
       (
        date
@@ -3465,6 +3487,7 @@ if [ -e $install_top_dir/include/glm/glm.hpp ] ; then
    echo not building glm
 else
    echo BUILDING glm:
+   echo BUILDING glm: >&2
     glm_version=0.9.9.2
     ${WGET} $extras_place/glm-$glm_version.tar.gz
     (
@@ -3477,6 +3500,7 @@ else
        make install
     fi
     ) > $HOSTLOGDIR/17-glm.txt 2>&1
+   echo done glm: >&2
 fi
 
 
@@ -3489,6 +3513,7 @@ if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
     echo installation has pygobject
 else
     echo installing pygobject with pip3
+    echo installing pygobject with pip3 >&2
     (
     echo installing pygobject
     echo PKG_CONFIG_PATH $PKG_CONFIG_PATH
@@ -3496,6 +3521,7 @@ else
     pip3 install wheel
     pip3 install pygobject
     ) > $HOSTLOGDIR/17-pip-wheel-pygobject.txt 2>&1
+    echo done install pygobject with pip3 >&2
 fi
 
 
@@ -3524,6 +3550,7 @@ pip3 install --upgrade pip
 echo pip3 install cython
 pip3 install cython
 echo pip3 install nanobind
+echo pip3 install nanobind >&2
 pip3 install nanobind
 
 if [ true = true ] ; then
@@ -3538,8 +3565,8 @@ if [ true = true ] ; then
    fi
    if [ $skip_this = false ] ;  then
       numpy_version=1.19.4
-      echo building numpy $numpy_version
-      echo building numpy $numpy_version >&2
+      echo BUILDING numpy $numpy_version
+      echo BUILDING numpy $numpy_version >&2
       (
       echo building ========================= numpy ==============================
       # this needs fortran compiler gfortran
@@ -3590,8 +3617,8 @@ eigen_version=3.3.9
 if [ -e $install_top_dir/include/eigen3 ] ; then
    echo eigen3 is installed
 else
-   echo building eigen $eigen_version
-   echo building eigen $eigen_version >&2
+   echo BUILDING eigen $eigen_version
+   echo BUILDING eigen $eigen_version >&2
    (
    ${WGET} https://gitlab.com/libeigen/eigen/-/archive/$eigen_version/eigen-$eigen_version.tar.gz
    tar xf $AUTOBUILD_SOURCES/eigen-$eigen_version.tar.gz
@@ -3602,7 +3629,7 @@ else
    make install
    cd -
    ) > $HOSTLOGDIR/17-b-eigen.txt 2>&1
-   echo building eigen finished >&2
+   echo BUILDING eigen finished >&2
 fi
 
 
@@ -3640,8 +3667,8 @@ if [ "$build_rdkit" = true ] ; then
 
    if [ $skip_this = false ] ;  then
 
-      echo building rdkit $rdkit_version
-      echo building rdkit $rdkit_version >&2
+      echo BUILDING RDKit $rdkit_version
+      echo BUILDING RDKit $rdkit_version >&2
       (
       echo building ========================= rdkit ==============================
 
@@ -3838,10 +3865,11 @@ if [ "$build_rdkit" = true ] ; then
       cd ..
       cd ..
       ) > $HOSTLOGDIR/18-rdkit.txt 2>&1
-      echo building rdkit done
+      echo BUILDING rdkit finished
    fi
 fi
 
+echo installing python requests >&2
 python3 -m pip install requests
 
 
@@ -3900,6 +3928,7 @@ if [ "$build_libffi" = true ] ; then
    if [ $skip_this = false ] ; then
       (
       echo ========================= build libffi =================================
+      echo BUILDING libffi $libffi_version >&2
       if [ -e ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz ] ; then
          tar xf ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz
       else
@@ -3928,6 +3957,7 @@ if [ "$build_unistring" = true ] ; then
    echo libunistring skip_this $skip_this
 
    if [ $skip_this = false ] ; then
+      echo BUILDING libunistring $unistring_version >&2
       echo BUILDING libunistring:
       (
       echo ========================= build unistring =================================
@@ -3947,6 +3977,7 @@ if [ "$build_unistring" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/19-libubunistring.txt 2>&1
+      echo done libunistring $unistring_version >&2
    else
       echo not building libunistring
    fi
@@ -3966,6 +3997,7 @@ if [ "$build_gc" = true ] ; then
    if [ $skip_this = false ] ; then
       (
       echo BUILDING libatomic-ops:
+      echo BUILDING libatomic-ops: >&2
       if [ ! -e $AUTOBUILD_SOURCES/libatomic_ops-7.6.12.tar.gz ] ; then
          ${WGET} https://github.com/ivmai/libatomic_ops/releases/download/v7.6.12/libatomic_ops-7.6.12.tar.gz
       fi
@@ -3976,17 +4008,19 @@ if [ "$build_gc" = true ] ; then
       make install
       cd -
       ) > $HOSTLOGDIR/20-libatomic-ops.txt 2>&1
+      echo done libatomic-ops: >&2
    fi
 
    # echo gc skip_this $skip_this
 
    if [ $skip_this = false ] ; then
-      echo BUILDING gc:
-      (
       gc_version=7.2g
       gc_version_dir=7.2
       gc_version=7.6.12     # needs libatomic_ops. can we find a version that doesn't need that?
       gc_version_dir=7.6.12 # I guess not.
+      echo BUILDING gc:
+      echo BUILDING gc $gc_version >&2
+      (
       echo ========================= build gc =================================
       if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
          echo found gc source file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
@@ -4010,6 +4044,7 @@ if [ "$build_gc" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/21-gc.txt 2>&1
+      echo done gc $gc_version >&2
    else
       echo not building gc
    fi
@@ -4037,7 +4072,7 @@ if [ "$build_guile" = true ] ; then
 
    if [ $skip_this = false ] ; then
       echo BUILDING guile:
-      echo BUILDING guile: >&2
+      echo BUILDING guile $guile_version >&2
       (
       echo ========================= build guile =================================
       if [ -e   $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz ] ; then
@@ -4064,7 +4099,7 @@ if [ "$build_guile" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/24-guile.txt 2>&1
-      echo BUILDING guile:
+      echo done guile:
    fi
 else
    echo not building guile:

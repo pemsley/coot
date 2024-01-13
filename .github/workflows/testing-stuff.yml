@@ -12,9 +12,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install system dependencies
-      run: sudo apt-get install libtool cmake libncurses5-dev libgtk-4-dev
-    - name make a file
-      run: mkdir -p $HOME/public_html && date > $HOME/public_html/info && uname -a >> $HOME/public_html/info
+      run:  sudo apt-get install libtool cmake libncurses5-dev libgtk-4-dev
+    - name: make a dir
+      run:  mkdir -p $HOME/public_html
+    - name:
+      run:  date > $HOME/public_html/info
+    - name: run uname
+      run:  uname -a >> $HOME/public_html/info
     - name: Upload the info file
       uses: actions/upload-artifact
       with:
@@ -24,6 +28,7 @@ jobs:
   send-me-stuff-macos:
 
     runs-on: macos-latest
+
     steps:
     - name: Setup homebrew
       id: setup-homebrew
@@ -32,5 +37,7 @@ jobs:
   send-me-stuff-windows:
 
     runs-on: windows-latest
+
+    steps:
     - name: test hello
       run: echo hello
