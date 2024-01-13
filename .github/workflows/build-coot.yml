@@ -33,12 +33,12 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: build-logs-package
-        path: $HOME/public_html
+        path: logs
         retention-days: 3
 
     - name: Upload binaries
       uses: actions/upload-artifact@v4
       with:
         name: binaries-package
-        path: $HOME/autobuild/Linux-${HOST}-gtk4
+        path: autobuild/installed
         retention-days: 3
