@@ -37,5 +37,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: binaries-package
-        path: /home/runner/autobuild
+        path: /home/runner/install
         retention-days: 3

@@ -463,7 +463,7 @@ AUTOBUILD_INSTALLED=${AUTOBUILD_INSTALLED:=${HOME}/autobuild/${OS}-${HOST}}
 if test x$GITHUB_ENV = x ; then
    : # we are not in a hithub actions build
 else
-   AUTOBUILD_INSTALLED=$GITHUB_ENV/coot-Linux-ubuntu
+   AUTOBUILD_INSTALLED=$HOME/install/coot-Linux-ubuntu
 fi
 
 # or perhaps, for the adventurous:
