@@ -26,9 +26,11 @@ jobs:
       uses: Homebrew/actions/setup-homebrew@master
 
     - name: get coot.rb file
-      run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
-
+      # run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
+      # try this modified version for now:
+      run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot.rb
       # don't stall waiting for user input to resolve the failed patch
+
     - name: compile homebrew coot HEAD
       run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD --verbose --debug --keep-tmp
 
