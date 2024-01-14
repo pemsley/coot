@@ -1,5 +1,19 @@
 
 
+  Release 1.1.04
+
+  o FEATURE: Particle effects for done difference map peaks
+
+  o CHANGE:  Refinement cannot now proceed if there are no bond restraints
+
+  o BUG-FIX: change the linking of Python libraries on macOS [not user-visible]
+
+  o BUG-FIX: Add coot namespace to state save file
+
+  o BUG-FIX: Fix symmetry of difference map peaks
+
+----
+
   Release 1.1.03
 
   o FEATURE: outline active residue on leftquote

@@ -2546,6 +2546,8 @@ fi
 if true ; then
       echo BUILDING gemmi from git repo \(and installing GEMMI\)
       echo BUILDING gemmi from git repo \(and installing GEMMI\) >&2
+      echo we are here >&2
+      pwd >&2
       (
           save_dir=$(pwd)
           cd $start_dir
