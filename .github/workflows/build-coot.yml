@@ -22,7 +22,7 @@ jobs:
          key: deps
 
     - name: Install system dependencies
-      run: sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev
+      run: sudo apt-get install cmake libvorbisfile3 libdw-dev libncurses5-dev libgtk-4-dev
     - name: where are we?
       run:  pwd
     - name: build-with-build-it-3-3
