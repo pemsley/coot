@@ -2549,7 +2549,7 @@ if true ; then
       echo we are here >&2
       pwd >&2
       echo start_dir is $start_dir - lets see the contents: >&2
-      ls $save_dir >&2
+      ls $start_dir >&2
       (
           save_dir=$(pwd)
           cd $start_dir

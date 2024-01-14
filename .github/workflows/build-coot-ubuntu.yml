@@ -21,12 +21,19 @@ jobs:
          path: /home/runner/install/coot-Linux-ubuntu-gtk4
          key:  deps
 
-    - name: Cache gemmi
-      id:   Cache-gemmi
+    - name: Cache gemmi source
+      id:   Cache-gemmi-source
       uses: actions/cache@v3
       with:
          path: gemmi
-         key:  gemmi-cache
+         key:  gemmi-cache-source
+
+    - name: Cache gemmi build
+      id:   Cache-gemmi-build
+      uses: actions/cache@v3
+      with:
+         path: build-gemmi
+         key:  gemmi-cache-build
 
     - name: Install system dependencies
       run: sudo apt-get install cmake libvorbis-dev libdw-dev libncurses5-dev libgtk-4-dev libasound2-dev
