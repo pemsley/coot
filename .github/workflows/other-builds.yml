@@ -1,0 +1,43 @@
+name: Coot CI Other Builds
+
+on:
+  push:
+
+jobs:
+
+  build-for-macos:
+
+    runs-on: macos-latest
+
+    steps:
+
+    - name: Cache homebrew
+      id:   cache-homebrew
+      uses: actions/cache@v3
+      with:
+         path: /usr/local
+         key: usr_local_homebrew
+
+    - name: which brew?
+      run:  which brew
+
+    - name: Setup homebrew
+      id:   setup-homebrew
+      uses: Homebrew/actions/setup-homebrew@master
+
+    - name: get coot.rb file
+      run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
+
+      # don't stall waiting for user input to resolve the failed patch
+    - name: compile homebrew coot HEAD
+      run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD --verbose --debug --keep-tmp
+
+  build-for-windows:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: build
+      run:  bash ./build-it-win
+

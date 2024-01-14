@@ -3494,8 +3494,8 @@ pip3 install nanobind
 
 if [ true = true ] ; then
    skip_this=false
-   ls -alt $install_top_dir/lib/python$python_version/site-packages/numpy/lib/_version.py
-   if [ -e $install_top_dir/lib/python$python_version/site-packages/numpy/lib/_version.py ] ;  then
+   ls -alt $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py
+   if [ -e $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py ] ;  then
          echo numpy is found, skip
          skip_this=true
    else
@@ -4260,6 +4260,14 @@ fi
 ##########         Coot is now built from git repo                #############
 ###############################################################################
 #
+
+if test x$GITHUB_ENV = x ; then
+    : # we are not in a hithub actions build
+else
+    # stop here because we build coot outside of this script in github actions
+    exit
+fi
+
 echo Now Coot..... >&2
 cd $start_dir
 echo GITHUB_WORKSPACE is $GITHUB_WORKSPACE
