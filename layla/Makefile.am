@@ -57,7 +57,7 @@ libcoot_layla_la_LIBADD = $(top_builddir)/geometry/libcoot-geometry.la \
                           $(top_builddir)/lidia-core/libcoot-lidia-core.la \
                           $(top_builddir)/utils/libcoot-utils.la \
                           $(GTK_LIBS) $(GLIB_LIBS) \
-                          $(RDKIT_LIBS) \
+                          $(RDKIT_LIBS) $(CURL_LIBS) \
                           -lpthread
 
 libcoot_layla_la_LDFLAGS = $(SHARED_LDFLAGS)

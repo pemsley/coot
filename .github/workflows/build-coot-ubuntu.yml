@@ -42,7 +42,8 @@ jobs:
         --with-gemmi=/home/runner/install/coot-Linux-ubuntu-gtk4
         --with-boost-libdir=/home/runner/install/coot-Linux-ubuntu-gtk4/lib
         --with-backward --with-libdw --with-sound --disable-static
-        SHELL=/bin/bash PYTHON=python3
+        SHELL=/bin/bash
+        PYTHON=/home/runner/install/coot-Linux-ubuntu-gtk4/bin/python3
         PKG_CONFIG_PATH=/home/runner/install/coot-Linux-ubuntu-gtk4/lib64/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/x86_64-linux-gnu/pkgconfig
         || echo done
     - name: compile make install
