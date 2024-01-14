@@ -3494,8 +3494,8 @@ pip3 install nanobind
 
 if [ true = true ] ; then
    skip_this=false
-   ls -alt $install_top_dir/lib/python$python_version/site-packages/numpy/lib/_version.py
-   if [ -e $install_top_dir/lib/python$python_version/site-packages/numpy/lib/_version.py ] ;  then
+   ls -alt $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py
+   if [ -e $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py ] ;  then
          echo numpy is found, skip
          skip_this=true
    else
