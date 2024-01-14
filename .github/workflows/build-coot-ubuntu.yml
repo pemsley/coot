@@ -21,6 +21,13 @@ jobs:
          path: /home/runner/install/coot-Linux-ubuntu-gtk4
          key: deps
 
+    - name: Cache gemmi
+      id:   Cache-gemmi
+      uses: actions/cache@v3
+      with:
+         path: gemmi
+         key: gemi
+
     - name: Install system dependencies
       run: sudo apt-get install cmake libvorbis-dev libdw-dev libncurses5-dev libgtk-4-dev libasound2-dev
     - name: where are we?
@@ -68,7 +75,7 @@ jobs:
     - name: Upload binaries
       uses: actions/upload-artifact@v4
       with:
-        name: binaries-package
+        name: ubuntu-binaries-package
         path: /home/runner/install
         retention-days: 3
 
