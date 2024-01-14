@@ -1,4 +1,4 @@
-name: Coot CI macOS build
+name: Coot CI Windows
 
 on:
   push:
