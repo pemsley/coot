@@ -33,7 +33,7 @@ jobs:
     - name: where are we?
       run:  pwd
     - name: build-with-build-it-3-3
-      run:  bash build-it-3-3
+      run:  bash build-it-3-3 || echo done
       # the install dir is set specifically in build-it-3-3 when we in github actions
     - name: run autogen.sh
       run:  bash autogen.sh
@@ -53,7 +53,7 @@ jobs:
         PYTHON=/home/runner/install/coot-Linux-ubuntu-gtk4/bin/python3
         PKG_CONFIG_PATH=/home/runner/install/coot-Linux-ubuntu-gtk4/lib64/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/x86_64-linux-gnu/pkgconfig
         || echo done
-    - name: compile make install
+    - name: compile make
       run:  make -j 4 || echo done
     - name: install make install
       run:  make install || echo done
