@@ -54,8 +54,9 @@ jobs:
       uses: Homebrew/actions/setup-homebrew@master
     - name: get coot.rb file
       run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
+      # don't stall waiting for user input to resolve the failed patch
     - name: compile homebrew coot HEAD
-      run: brew install ./coot.rb --HEAD --verbose --debug --keep-tmp
+      run: NONINTERACTIVE=1 brew install ./coot.rb --HEAD --verbose --debug --keep-tmp
 
   send-me-stuff-windows:
 
