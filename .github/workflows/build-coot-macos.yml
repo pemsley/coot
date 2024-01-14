@@ -1,4 +1,4 @@
-name: Coot CI Other Builds
+name: Coot CI macOS
 
 on:
   push:
@@ -33,13 +33,3 @@ jobs:
 
     - name: compile homebrew coot HEAD
       run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD --verbose --debug --keep-tmp
-
-  build-for-windows:
-
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: build
-      run:  bash ./build-it-win
-
