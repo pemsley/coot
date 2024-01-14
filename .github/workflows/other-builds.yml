@@ -1,4 +1,4 @@
-name: Other Builds
+name: Coot CI Other Builds
 
 on:
   push:
