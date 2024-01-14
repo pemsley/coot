@@ -45,10 +45,10 @@ jobs:
         SHELL=/bin/bash PYTHON=python3
         PKG_CONFIG_PATH=/home/runner/install/coot-Linux-ubuntu-gtk4/lib64/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/x86_64-linux-gnu/pkgconfig
         || echo done
-    -name: compile: make install
-     run make -j 4 || echo done
-    -name: install: make install
-     run make install || echo done
+    - name: compile make install
+      run:  make -j 4 || echo done
+    - name: install make install
+      run:  make install || echo done
 
     - name: upload config.log
       uses: actions/upload-artifact@v4
