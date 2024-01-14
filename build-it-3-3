@@ -2726,7 +2726,7 @@ print('post ctypes test')
 EOF
    ) >  $HOSTLOGDIR/07-python.txt 2>&1
 
-   echo Python build done >&2
+   echo BUILDING Python $pver done >&2
 
    echo Upgrading pip and installing pycairo and pygobject >&2
    (
@@ -3544,7 +3544,7 @@ if [ true = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/17-a-numpy.txt 2>&1
-      echo building numpy $numpy_version finished >&2
+      echo BUILDING numpy $numpy_version finished >&2
    fi
 fi
 
