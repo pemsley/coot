@@ -30,8 +30,8 @@ jobs:
       # the install dir is set specifically in build-it-3-3 when we in github actions
     - name: run autogen.sh
       run:  bash autogen.sh
-    - name: echo run configure
-      run:  echo ./configure --prefix=/home/runner/install/coot-Linux-ubuntu-gtk4
+    - name: set-the-PATH
+      run:  echo /home/runner/install/coot-Linux-ubuntu-gtk4/bin >> $GITHUB_PATH
     - name: run configure
       # we echo done so that this returns a success status so that the logs are always uploaded
       run:  ./configure --prefix=/home/runner/install/coot-Linux-ubuntu-gtk4 --with-enhanced-ligand-tools --with-fftw-prefix=/home/runner/install/coot-Linux-ubuntu-gtk4 --with-boost=/home/runner/install/coot-Linux-ubuntu-gtk4 --with-gemmi=/home/runner/install/coot-Linux-ubuntu-gtk4 --with-boost-libdir=/home/runner/install/coot-Linux-ubuntu-gtk4/lib --with-backward --with-libdw --with-sound --disable-static SHELL=/bin/bash PYTHON=python3 PKG_CONFIG_PATH=/home/runner/install/coot-Linux-ubuntu-gtk4/lib64/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/x86_64-linux-gnu/pkgconfig || echo done
