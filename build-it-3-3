@@ -963,8 +963,6 @@ fi
 
 export PATH
 echo PATH is now: $PATH
-echo GITHUB_ACTIONS_BUILD $GITHUB_ACTIONS_BUILD >&2
-echo GITHUB_ACTIONS_BUILD $GITHUB_ACTIONS_BUILD
 echo LOGS is $LOGS
 echo AUTOBUILD_SOURCES is $AUTOBUILD_SOURCES
 echo AUTOBUILD_BUILD is $AUTOBUILD_BUILD
@@ -1868,19 +1866,6 @@ else
    build_freetype2=1
 fi
 
-# building PyGObject 3.36.1 requires glib 2.58.0 or later.
-# 2022-23-17-PE gobject-introspection-1.68 needs glib 2.58 or later
-
-needed_glib_version=2.58
-if pkg-config --atleast-version=$needed_glib_version glib ; then
-   # have glib
-   echo glib is up to date
-   build_glib=
-else
-   echo glib is not up to date, rebuild glib - maybe.
-   build_glib=true
-fi
-
 
 # we need to export this for net-http, because it doesn't set
 # variables from configure, we rely on a shell (environment) variable.
@@ -2009,7 +1994,6 @@ build_gsl=0
 build_python=
 build_pygobject=
 build_guile_gtk=
-build_glib=
 # build_readline=
 build_curl=
 build_libidn=
@@ -2850,69 +2834,9 @@ if [ $build_ninja = true ] ; then
    ) > $HOSTLOGDIR/07c1-ninja.txt 2>&1
 fi
 
-###############################################################################
-##########         glib before gobject-introspection              #############
-###############################################################################
-
-if [ -e $install_top_dir/include/glib-2.0 ] ; then
-    build_glib=false
-else
-    build_glib=true
-fi
-
-if [ "$build_glib" = true ] ; then
-    echo BUILDING glib $glib_version
-    echo BUILDING glib $glib_version >&2
-    (
-    # without this PKG_CONFIG_PATH jiggerypokery, libz is the wrong version i.e. is the 32 bit version (on hal)
-    export -n PKG_CONFIG_PATH
-    export PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
-    echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    echo $PKG_CONFIG_PATH
-    echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    which ninja
-    which meson
-    echo ninja --version
-    ninja --version
-    echo meson --version
-    meson --version
-    glib_version=2.64.3
-    glib_version=2.72.3 # doesn't have g_idle_add_once, it seems.
-    glib_version=2.74.4
-    echo the following is the result of: /bin/pkg-config --modversion libffi
-    /bin/pkg-config --modversion libffi
-
-    # find new versions here: https://gitlab.gnome.org/GNOME/glib/-/releases
-    if [ ! -e ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz ] ; then
-       echo ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/$glib_version/glib-$glib_version.tar.gz
-       ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/$glib_version/glib-$glib_version.tar.gz
-    fi
-    echo tar xf ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz
-    tar xf ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz
-    cd glib-$glib_version
-    # note to future self, when I build glib in the script then it uses a referenece to /usr/lib/libz.so
-    # (which is the 32 bit version). When I build it by hand (as it were) outside the script, using the same
-    # ninja and meson then it finds the *right* libz.so (/usr/lib64/libz.so). I don't have the time to
-    # find out why now, so I installed ninja from the "hand-built" build.
-    #
-    # meson can't find libffi on its own, so I will export the library here
-    export LDFLAGS=-L$install_top_dir/lib64
-    export  CFLAGS=-I$install_top_dir/include
-    # we install the libs in $install_top_dir (otherwise it would install in $install_top_dir/lib/x86_64-linux-gnu
-    # and libtool would mess up and fail to properly link it (in Coot's compile)
-    if CC=gcc meson setup -Dprefix=$install_top_dir -Dlibdir=$install_top_dir/lib build ; then
-       cd build
-       ninja
-       ninja install
-       cd -
-    fi
-    cd ..
-    ) > $HOSTLOGDIR/07c2-glib.txt 2>&1
-    echo BUILDING glib $glib_version finished >&2
-else
-    echo not building glib:
-fi
-
+# glib was removed because glib is a dependency of gtk-4 and we don't build gtk-4,
+# so if we want to use glib for other packages, we need to use the same glib that
+# gtk-4 used.
 
 ###############################################################################
 ##########         gobject-introspection                          #############
@@ -3330,13 +3254,15 @@ if [ "$build_boost" = true ] ; then
       boost_server_dir=1.82.0
       echo BUILDING boost $boost_version :
       echo BUILDING boost $boost_version >&2
-      (
-      echo building ========================= boost $boost_version =========================
 
       boost_home_url=https://dl.bintray.com/boostorg/release/$boost_server_dir/source # old
       boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/$boost_server_dir/source
       echo wgetting $boost_home_url/boost_$boost_version.tar.gz
       ${WGET} $boost_home_url/boost_$boost_version.tar.gz
+      echo fetch of $boost_home_url/boost_$boost_version.tar.gz complete.. compiling...
+
+      (
+      echo building ========================= boost $boost_version =========================
 
       gzip -dc ${AUTOBUILD_SOURCES}/boost_$boost_version.tar.gz | tar xf -
       cd boost_$boost_version
@@ -3568,8 +3494,8 @@ pip3 install nanobind
 
 if [ true = true ] ; then
    skip_this=false
-   ls -alt $install_top_dir/lib/$python_version/site-packages/numpy-*/numpy/lib/_version.py
-   if [ -e $install_top_dir/lib/$python_version/site-packages/numpy-*/numpy/lib/_version.py ] ;  then
+   ls -alt $install_top_dir/lib/python$python_version/site-packages/numpy/lib/_version.py
+   if [ -e $install_top_dir/lib/python$python_version/site-packages/numpy/lib/_version.py ] ;  then
          echo numpy is found, skip
          skip_this=true
    else
@@ -4336,13 +4262,14 @@ fi
 #
 echo Now Coot..... >&2
 cd $start_dir
+echo GITHUB_WORKSPACE is $GITHUB_WORKSPACE
 date >&2
 pwd >&2
-echo GITHUB_ACTIONS_BUILD $GITHUB_ACTIONS_BUILD >&2
 
 if [ -e coot ] ; then
    (
    echo CASE 1 coot directory exists
+   echo CASE 1 coot directory exists >&2
    pwd
    cd coot
    echo now in this dir:
@@ -4372,6 +4299,7 @@ if [ -e coot ] ; then
    ) > $HOSTLOGDIR/30-coot-fetch-merge-autogen.txt 2>&1
 else
    echo CASE 2 coot directory not exists in $(pwd)
+   echo CASE 2 coot directory not exists in $(pwd) >&2
 
    (
    save_dir=$(pwd)

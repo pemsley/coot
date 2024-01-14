@@ -39,6 +39,16 @@ jobs:
     runs-on: macos-latest
 
     steps:
+
+    - name: Cache homebrew
+      id: cache-homebrew
+      uses: actions/cache@v3
+      with:
+         path: /usr/local
+         key: usr-local-homebrew
+
+    - name: which brew?
+      run:  which brew
     - name: Setup homebrew
       id: setup-homebrew
       uses: Homebrew/actions/setup-homebrew@master
