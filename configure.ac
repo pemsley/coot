@@ -27,7 +27,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 
 
-AC_INIT([coot],[1.1.05])
+AC_INIT([coot],[1.1.06])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -55,8 +55,8 @@ GNOME_CXX_WARNINGS
 # m4_define([v_git_revision_count], m4_esyscmd([(git rev-list --count HEAD 2>/dev/null || echo 0) | tr -d '\n']))
 # m4_define([v_git_commit], m4_esyscmd([git rev-parse HEAD | tr -d '\n']))
 # autoconf and aclocal can be run outside of a git repo, so give the git command some protection and fallback
-m4_define([v_git_revision_count], m4_esyscmd([bash ./get-the-git-commit-count.sh]))
-m4_define([v_git_commit], m4_esyscmd([bash ./get-the-git-commit.sh]))
+m4_define([v_git_revision_count], m4_esyscmd([bash ./get-the-git-commit-count.sh | tr -d '\n']))
+m4_define([v_git_commit], m4_esyscmd([bash ./get-the-git-commit.sh | tr -d '\n']))
 
 #dnl m4_define([vxx_git_revision_count], m4_esyscmd([git rev-list --count HEAD]))
 # old gits can't use count with HEAD.

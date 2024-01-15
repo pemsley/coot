@@ -83,7 +83,9 @@ EXTRA_DIST = 		\
 	copyright-disclaimer.txt \
 	intltool-extract.in      \
 	intltool-merge.in        \
-	intltool-update.in 
+	intltool-update.in       \
+	get-the-git-commit-count.sh \
+	get-the-git-commit.sh
 
 # install-data-local:
 # 	@$(NORMAL_INSTALL)
