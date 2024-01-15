@@ -1,4 +1,4 @@
-name: Coot CI macOS
+name: Coot CI Homebrew macOS
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
 
     steps:
 
-    # I don't want to see Homebrew after coot has been installed
+    # I don't want to a cache of Homebrew after coot has been installed
     # - name: Cache homebrew
     #   id:   cache-homebrew
     #   uses: actions/cache@v3
@@ -19,18 +19,18 @@ jobs:
     #      path: /usr/local
     #      key: usr_local_homebrew
 
-    - name: which brew?
+    - name: Which brew?
       run:  which brew
 
     - name: Setup homebrew
       id:   setup-homebrew
       uses: Homebrew/actions/setup-homebrew@master
 
-    - name: get coot.rb file
+    - name: Get coot.rb file
       # run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
       # try this modified version for now:
       run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot.rb
       # don't stall waiting for user input to resolve the failed patch
 
-    - name: compile homebrew coot HEAD
+    - name: Compile Homebrew coot HEAD
       run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD --verbose --debug --keep-tmp
