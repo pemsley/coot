@@ -11,12 +11,13 @@ jobs:
 
     steps:
 
-    - name: Cache homebrew
-      id:   cache-homebrew
-      uses: actions/cache@v3
-      with:
-         path: /usr/local
-         key: usr_local_homebrew
+    # I don't want to see Homebrew after coot has been installed
+    # - name: Cache homebrew
+    #   id:   cache-homebrew
+    #   uses: actions/cache@v3
+    #   with:
+    #      path: /usr/local
+    #      key: usr_local_homebrew
 
     - name: which brew?
       run:  which brew
