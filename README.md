@@ -22,3 +22,4 @@ Blog
 
 ![Binary build Badge](https://github.com/pemsley/coot/actions/workflows/build-coot-macos.yml/badge.svg)
 
+![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=pemsley&show_icons=true&theme=default)
