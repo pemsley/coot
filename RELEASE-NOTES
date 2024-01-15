@@ -4,9 +4,8 @@
 
   o FEATURE: Particle effects for done difference map peaks
 
-  o CHANGE:  Refinement cannot now proceed if there are no bond restraints
-
-  o BUG-FIX: change the linking of Python libraries on macOS [not user-visible]
+  o CHANGE:  Refinement cannot now proceed if there are no bond restraints for any
+             of the refining residues
 
   o BUG-FIX: Add coot namespace to state save file
 
