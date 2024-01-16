@@ -46,12 +46,15 @@ jobs:
 
       - name: cd build-libcootapi
         run: cd build-libcootapi
-      
+
+      - name: Where are we 2?
+        run:  pwd
+
       - name: run cmake
         run: > 
             cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/coot-Linux-ubuntu-gtk4 
-            -Dnanobind_dir=/home/runner/install/install/coot-Linux-ubuntu-gtk4/lib/python3.11/site-packages/nanobind/cmake 
-            ..
+            -Dnanobind_dir=/home/runner/install/coot-Linux-ubuntu-gtk4/lib/python3.11/site-packages/nanobind/cmake ..
+        
       - name: make
         run: make -j 2
         
