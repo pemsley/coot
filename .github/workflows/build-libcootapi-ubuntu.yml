@@ -33,7 +33,8 @@ jobs:
           key:  coot-build-ubuntu-gemmi-cache-build
         
       - name: Install system dependencies
-        run: sudo apt-get install cmake libvorbis-dev libdw-dev libncurses5-dev libgtk-4-dev libasound2-dev
+        #run: sudo apt-get install cmake libvorbis-dev libdw-dev libncurses5-dev libgtk-4-dev libasound2-dev
+        run: sudo apt-get install cmake libdw-dev libncurses5-dev 
     
       - name: Where are we?
         run:  pwd
@@ -43,9 +44,6 @@ jobs:
       
       - name: create-build-directory-for-libcootapi
         run: mkdir build-libcootapi
-
-      - name: Where are we 2?
-        run:  pwd
 
       - name: set the path
         run: echo /home/runner/install/coot-Linux-ubuntu-gtk4/bin >> $GITHUB_PATH
@@ -62,3 +60,15 @@ jobs:
       - name: make
         run: cd build-libcootapi && make -j 2
         
+      - name: make install
+        run: cd build-libcootapi && make install
+
+      - name: test chapi
+        run: python3 -m chapi
+
+      - name: test 2 for chapi
+        run: python3 python-tests/test_chapi2.py
+
+        
+        
+
