@@ -40,4 +40,18 @@ jobs:
     
       - name: Run build-with-build-it-3-3
         run:  bash build-it-3-3 || echo done
-    
+      
+      - name: create-build-directory-for-libcootapi
+        run: mkdir build-libcootapi
+
+      - name: cd build-libcootapi
+        run: cd build-libcootapi
+      
+      - name: run cmake
+        run: > 
+            cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/coot-Linux-ubuntu-gtk4 
+            -Dnanobind_dir=/home/runner/install/install/coot-Linux-ubuntu-gtk4/lib/python3.11/site-packages/nanobind/cmake 
+            ..
+      - name: make
+        run: make 
+        
