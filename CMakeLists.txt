@@ -1,6 +1,6 @@
+cmake_minimum_required(VERSION 3.13)
 cmake_policy(SET CMP0048 NEW)
 project(coot)
-cmake_minimum_required(VERSION 3.13)
 find_package(PkgConfig)
 
 if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)

@@ -44,10 +44,14 @@ jobs:
       - name: create-build-directory-for-libcootapi
         run: mkdir build-libcootapi
 
-      
-
       - name: Where are we 2?
         run:  pwd
+
+      - name: set the path
+        run: echo /home/runner/install/coot-Linux-ubuntu-gtk4/bin >> $GITHUB_PATH
+
+      - name: install nanobind
+        run:  python3 -m pip install nanobind
 
       - name: run cmake
         run: > 
