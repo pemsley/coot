@@ -15,6 +15,7 @@ find_package(CCP4 REQUIRED mmdb2 ssm clipper-core clipper-mmdb clipper-ccp4 clip
 find_package(BLAS)
 find_package(GSL REQUIRED)
 find_package(PNG REQUIRED)
+find_package(GEMMI REQUIRED)
 
 # from Charles B.
 
@@ -136,6 +137,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/molecules_container_modelling.cc
             ${coot_src}/api/add-terminal-residue.cc
             ${coot_src}/api/interfaces.cc
+            ${coot_src}/api/instancing.cc
             ${coot_src}/api/colour-functions.cc
             ${coot_src}/api/coot-colour.cc
             ${coot_src}/api/coot_molecule.cc
@@ -235,6 +237,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/merge-atom-selections.cc
             ${coot_src}/coot-utils/coot-least-squares.cc
             ${coot_src}/coot-utils/diff-diff-map-peaks.cc
+            ${coot_src}/coot-utils/gltf-export.cc
             ${coot_src}/coot-utils/shiftfield.cpp
             ${coot_src}/coot-utils/stack-and-pair.cc
             ${coot_src}/coot-utils/spherical-harmonics.cc
@@ -472,11 +475,12 @@ set_target_properties(chapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST
 
 # I think Charles is right. *Coot* should have test-molecules-container, but this CMakeLists.txt file
 # is for python chapi, it shouldn't be making executables.
-# add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc ${coot_src}/api/filo-tests.cc)
 
-# target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR}/include ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS})
+add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc ${coot_src}/api/filo-tests.cc)
 
-# target_link_libraries(test-molecules-container PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSLBLAS_LIBRARY} ${PNG_LIBRARY})
+target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR}/include ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS})
+
+target_link_libraries(test-molecules-container PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSLBLAS_LIBRARY} ${PNG_LIBRARY} ${GEMMI_LIBRARY})
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/syminfo.lib
 DESTINATION ${CMAKE_INSTALL_PREFIX}/data)
