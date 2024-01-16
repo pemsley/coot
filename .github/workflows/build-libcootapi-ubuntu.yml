@@ -1,0 +1,43 @@
+name: libcootapi CI Ubuntu
+
+on: 
+  push:
+
+jobs:
+
+  build-libcootapi-for-ubuntu:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Cache coot dependencies
+        id: cache-coot-dependencies
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/install/coot-Linux-ubuntu-gtk4
+          key:  coot-deps-ubuntu
+
+      - name: Cache gemmi source
+        id:   Cache-gemmi-source
+        uses: actions/cache@v3
+        with:
+           path: gemmi
+           key:  coot-build-ubuntu-gemmi-cache-source
+
+      - name: Cache gemmi build
+        id:   Cache-gemmi-build
+        uses: actions/cache@v3
+        with:
+          path: build-gemmi
+          key:  coot-build-ubuntu-gemmi-cache-build
+        
+      - name: Install system dependencies
+        run: sudo apt-get install cmake libvorbis-dev libdw-dev libncurses5-dev libgtk-4-dev libasound2-dev
+    
+      - name: Where are we?
+        run:  pwd
+    
+      - name: Run build-with-build-it-3-3
+        run:  bash build-it-3-3 || echo done
+    
