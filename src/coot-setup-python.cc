@@ -62,7 +62,7 @@ void setup_python_basic(int argc, char **argv) {
 
 #else
 
-   wchar_t** _argv = static_cast<wchar_t **>(PyMem_Malloc(sizeof(wchar_t*)*argc));
+   wchar_t** _argv = static_cast<wchar_t **>(PyMem_RawMalloc(sizeof(wchar_t*)*argc));
    for (int i=0; i<argc; i++) {
       wchar_t* arg = Py_DecodeLocale(argv[i], NULL);
       _argv[i] = arg;
