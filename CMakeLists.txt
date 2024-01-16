@@ -15,7 +15,7 @@ find_package(CCP4 REQUIRED mmdb2 ssm clipper-core clipper-mmdb clipper-ccp4 clip
 find_package(BLAS)
 find_package(GSL REQUIRED)
 find_package(PNG REQUIRED)
-find_package(GEMMI REQUIRED)
+find_package(GEMMI REQUIRED)/home/runner/install/coot-Linux-ubuntu-gtk4 
 
 # from Charles B.
 
@@ -496,3 +496,5 @@ DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/rama-data)
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/metal/
 DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/data/metal)
+
+install(TARGETS chapi DESTINATION lib/python3.11/site-packages)
