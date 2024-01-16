@@ -4280,7 +4280,7 @@ int test_long_name_ligand_cif_merge(molecules_container_t &mc) {
    return status;
 }
 
-
+#ifdef USE_GEMMI
 #include "gemmi/mmread.hpp"
 #include "gemmi/mmdb.hpp"
 
@@ -4310,6 +4310,7 @@ int test_disappearing_ligand(molecules_container_t &mc) {
 
    return status;
 }
+#endif
 
 int test_gltf_export(molecules_container_t &mc) {
 
