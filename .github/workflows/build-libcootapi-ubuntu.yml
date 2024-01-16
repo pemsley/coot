@@ -53,5 +53,5 @@ jobs:
             -Dnanobind_dir=/home/runner/install/install/coot-Linux-ubuntu-gtk4/lib/python3.11/site-packages/nanobind/cmake 
             ..
       - name: make
-        run: make 
+        run: make -j 2
         
