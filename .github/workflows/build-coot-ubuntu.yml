@@ -12,13 +12,16 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: wget test data
-      run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/greg-data.tar.gz
+      run:  wget -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/greg-data.tar.gz
+
+    - name: Untar test data
+      run: cd src && tar xf ../greg-data.tar.gz && cd -
 
     - name: cache test data
       id: cache-coot-test-data
       uses: actions/cache@v3
       with:
-         path: greg-data
+         path: src/greg-data
          key:  coot-test-data
 
     - name: Cache coot dependencies
@@ -79,9 +82,6 @@ jobs:
     - name: Install with make install
       run:  make install || echo done
 
-    - name: Run the Unit Python Tests
-      run:  cd src && ./coot-bin --no-graphics --script ../python-tests/run_the_unit_tests.py && cd - || echo done
-
     - name: Upload config.log
       uses: actions/upload-artifact@v4
       with:
@@ -96,11 +96,16 @@ jobs:
         path: /home/runner/public_html
         retention-days: 3
 
+    - name: Does it run?
+      run:  ./coot-bin --no-graphics < /dev/null
+
+    - name: Run the Unit Python Tests
+      run:  cd src && ./coot-bin --no-graphics --script ../python-tests/run_the_unit_tests.py && cd -
+
     - name: Upload binaries
       uses: actions/upload-artifact@v4
       with:
         name: ubuntu-binaries-package
         path: /home/runner/install
         retention-days: 3
-
 
