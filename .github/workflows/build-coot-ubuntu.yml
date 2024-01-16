@@ -97,7 +97,7 @@ jobs:
         retention-days: 3
 
     - name: Does it run?
-      run:  ./coot-bin --no-graphics < /dev/null
+      run:  cd src && ./coot-bin --no-graphics < /dev/null && cd -
 
     - name: Run the Unit Python Tests
       run:  cd src && ./coot-bin --no-graphics --script ../python-tests/run_the_unit_tests.py && cd -
