@@ -221,6 +221,7 @@ NB_MODULE(chapi, m) {
     .def("set_make_backups",&molecules_container_t::set_make_backups)
     .def("get_chains_in_model",&molecules_container_t::get_chains_in_model)
     .def("get_residue_names_with_no_dictionary",&molecules_container_t::get_residue_names_with_no_dictionary)
+    .def("get_residues_near_residue",&molecules_container_t::get_residues_near_residue)
     .def("write_map",&molecules_container_t::write_map)
     .def("delete_atom",&molecules_container_t::delete_atom)
     .def("delete_atom_using_cid",&molecules_container_t::delete_atom_using_cid)
