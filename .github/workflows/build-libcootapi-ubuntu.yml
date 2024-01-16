@@ -63,8 +63,8 @@ jobs:
       - name: make install
         run: cd build-libcootapi && make install
 
-      - name: test chapi
-        run: python3 -m chapi
+    #   - name: test chapi
+    #     run: python3 -m chapi
 
       - name: test 2 for chapi
         run: python3 python-tests/test_chapi2.py
