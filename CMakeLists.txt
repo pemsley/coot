@@ -497,4 +497,6 @@ DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/rama-data)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/metal/
 DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/data/metal)
 
+install(TARGETS cootapi DESTINATION lib)
+
 install(TARGETS chapi DESTINATION lib/python3.11/site-packages)
