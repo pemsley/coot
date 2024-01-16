@@ -47,6 +47,8 @@ Coot: Fix this in pyrogen Makefile:
       Is -DSWIG already on, because it's parsed by swig?
 * Done.
 
+libcootapi: #include <GL/gl.h> in CXXSurface/CXXVCN.h - remove it if you can.
+
 libcootapi: return a double (ms) test_the_threading(int n_threads)
 * Done.
 
