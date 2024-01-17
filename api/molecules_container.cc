@@ -2415,10 +2415,10 @@ molecules_container_t::get_diff_diff_map_peaks(int imol_map_fofc,
 
    clipper::Coord_orth screen_centre(screen_centre_x, screen_centre_y, screen_centre_z); // also, is this used in this function?
    std::vector<std::pair<clipper::Coord_orth, float> > v;
-   if (is_valid_model_molecule(imol_map_fofc)) {
+   if (is_valid_map_molecule(imol_map_fofc)) {
       v = molecules[imol_map_fofc].get_updating_maps_diff_diff_map_peaks(screen_centre);
    } else {
-      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_map_fofc << std::endl;
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map_fofc << std::endl;
    }
    return v;
 
