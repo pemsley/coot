@@ -5008,7 +5008,7 @@ molecules_container_t::export_map_molecule_as_gltf(int imol, const std::string &
    if (is_valid_map_molecule(imol)) {
       molecules[imol].export_map_molecule_as_gltf(file_name);
    } else {
-      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol << std::endl;
    }
 
 
@@ -5018,7 +5018,7 @@ molecules_container_t::export_map_molecule_as_gltf(int imol, const std::string &
 void
 molecules_container_t::export_model_molecule_as_gltf(int imol, const std::string &file_name) const {
 
-   if (is_valid_map_molecule(imol)) {
+   if (is_valid_model_molecule(imol)) {
       molecules[imol].export_model_molecule_as_gltf(file_name);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
