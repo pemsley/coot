@@ -65,6 +65,7 @@ jobs:
       # we echo done so that this returns a success status so that the logs are always uploaded
       run: >
         ./configure --prefix=/home/runner/install/coot-Linux-ubuntu-gtk4
+        --enable-silent-rules
         --with-enhanced-ligand-tools
         --with-fftw-prefix=/home/runner/install/coot-Linux-ubuntu-gtk4
         --with-boost=/home/runner/install/coot-Linux-ubuntu-gtk4
