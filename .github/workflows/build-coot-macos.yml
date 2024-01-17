@@ -29,8 +29,8 @@ jobs:
     - name: Install Homebrew dependencies
       run:  >
          brew install boost boost-python3 brewsci/bio/clipper4coot
-                      brewsci/bio/gemmi brewsci/bio/raster3d
-                      brewsci/bio/ssm dwarfutils glib gmp gsl rdkit
+                      brewsci/bio/raster3d brewsci/bio/ssm
+                      dwarfutils glib gmp gsl rdkit
                       sqlite pygobject3
 
     - name: Get coot.rb file
