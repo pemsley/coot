@@ -2094,6 +2094,7 @@ molecules_container_t::delete_literal_using_cid(int imol, const std::string &cid
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       status = molecules[imol].delete_literal_using_cid(cid);
+      set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
