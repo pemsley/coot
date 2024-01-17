@@ -41,3 +41,7 @@ jobs:
 
     - name: Compile Homebrew coot HEAD
       run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD --verbose --debug --keep-tmp
+
+    - name: Does it run?
+      run: coot --no-graphics < /dev/null
+
