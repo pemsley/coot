@@ -1364,7 +1364,7 @@ public:
    //! @return a vector the position where the differenc map has been flattened.
    //! The associated float value is the ammount that the map has been flattened.
    //!
-   //! This is a light-weight fetch, the values have already been computed, heree
+   //! This is a light-weight fetch, the values have already been computed, here
    //! were are merely copying them.
    std::vector<std::pair<clipper::Coord_orth, float> > get_diff_diff_map_peaks(int imol_diff_map,
                                                                                float screen_centre_x,

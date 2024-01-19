@@ -2382,7 +2382,6 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
 
                         { // diff differenc map peaks
                            float base_level = 0.2; // this might need to be computed from the rmsd.
-                           float radius = 20.0; // 20240102-PE is this used? I think not - delete the argument.
                            const clipper::Xmap<float> &m1 = molecules[imol_map_fofc].updating_maps_previous_difference_map;
                            const clipper::Xmap<float> &m2 = xmap_fofc;
                            std::vector<std::pair<clipper::Coord_orth, float> > v1 = coot::diff_diff_map_peaks(m1, m2, base_level);
@@ -2414,7 +2413,7 @@ molecules_container_t::get_diff_diff_map_peaks(int imol_map_fofc,
 
    clipper::Coord_orth screen_centre(screen_centre_x, screen_centre_y, screen_centre_z); // also, is this used in this function?
    std::vector<std::pair<clipper::Coord_orth, float> > v;
-   if (is_valid_model_molecule(imol_map_fofc)) {
+   if (is_valid_map_molecule(imol_map_fofc)) {
       v = molecules[imol_map_fofc].get_updating_maps_diff_diff_map_peaks(screen_centre);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_map_fofc << std::endl;

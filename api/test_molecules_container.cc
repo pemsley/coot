@@ -225,6 +225,10 @@ int test_updating_maps(molecules_container_t &mc) {
    float gpt = mc.rail_points_total();
    std::cout << "###### RailPoints gained: " << new_rail_points << " rail points total " << gpt << std::endl;
 
+   std::vector<std::pair<clipper::Coord_orth, float> > ddmp = mc.get_diff_diff_map_peaks(imol_diff_map, 70, 50, 30);
+
+   std::cout << "test_updating_maps(): We got " << ddmp.size() << " difference map peaks" << std::endl;
+
    if (new_rail_points > 4.0)
       status = 1;
 
@@ -4509,6 +4513,8 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
       status += run_test(test_fill_partial,          "fill partially-filled residues", mc);
    }
+
+   status += run_test(test_updating_maps, "updating maps", mc);
 
    // status += run_test(test_disappearing_ligand, "disappearning ligand", mc);
 
