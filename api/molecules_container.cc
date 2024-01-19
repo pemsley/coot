@@ -2094,6 +2094,7 @@ molecules_container_t::delete_literal_using_cid(int imol, const std::string &cid
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       status = molecules[imol].delete_literal_using_cid(cid);
+      set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -2501,6 +2502,7 @@ molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, 
       if (is_valid_map_molecule(imol_refinement_map)) {
          const clipper::Xmap<float> &xmap = molecules[imol_refinement_map].xmap;
          molecules[imol].refine_direct(rv, alt_loc, xmap, map_weight, n_cycles, geom, refinement_is_quiet);
+         set_updating_maps_need_an_update(imol);
       }
    }
    return status;

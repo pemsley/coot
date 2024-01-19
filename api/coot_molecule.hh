@@ -342,7 +342,9 @@ namespace coot {
       // ====================== init ======================================
 
       void init() {
-         use_gemmi = true; // 20240112-PE  woohoo! Let the bugs flow!
+         // use_gemmi = true; // 20240112-PE  woohoo! Let the bugs flow!
+         // 20240118 Turns out the bugs flowed too much. Let's set this back to false.
+         use_gemmi = false;
          // set the imol before calling this function.
          ligand_flip_number = 0;
          bonds_box_type = api_bond_colour_t::UNSET_TYPE;

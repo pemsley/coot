@@ -26,6 +26,13 @@ jobs:
       id:   setup-homebrew
       uses: Homebrew/actions/setup-homebrew@master
 
+    - name: Install Homebrew dependencies
+      run:  >
+         brew install boost boost-python3 brewsci/bio/clipper4coot
+         brewsci/bio/raster3d brewsci/bio/ssm brewsci/bio/gemmi
+         dwarfutils glib gmp gsl rdkit
+         sqlite pygobject3
+
     - name: Get coot.rb file
       # run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
       # try this modified version for now:
@@ -34,3 +41,7 @@ jobs:
 
     - name: Compile Homebrew coot HEAD
       run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD --verbose --debug --keep-tmp
+
+    - name: Does it run?
+      run: coot --no-graphics < /dev/null
+
