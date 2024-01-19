@@ -1021,6 +1021,8 @@ namespace coot {
 
       bool is_EM_map() const;
 
+      float get_density_at_position(const clipper::Coord_orth &pos) const;
+
       // return -1.1 on not-a-map
       float get_map_rmsd_approx() const;
       int write_map(const std::string &file_name) const;

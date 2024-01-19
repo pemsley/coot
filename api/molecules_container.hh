@@ -1369,6 +1369,10 @@ public:
                                      int imol_updating_difference_map,
                                      int imol_map_with_data_attached);
 
+   //! get density at position
+   //! @return density value
+   float get_density_at_position(int imol_map, float x, float y, float z) const;
+
    //! @return a vector the position where the differenc map has been flattened.
    //! The associated float value is the ammount that the map has been flattened.
    //!

@@ -15,6 +15,17 @@ Key-binding for "toggle display of last model"
 Key-binding for "Advance scroll-wheel-map to next map" (have I done this?)
 * Yes. Shift W
 
+moorhen: reading a map often the default (first) contour level is too low.
+  the map of 8ox5. Lucrezia to investigate?
+
+moorhen atom selection for Mg was grey, not green as it should be.
+Even iwth non-carbon colouring it failed. Using custom rule (from the "+" button)
+
+moorhen: does the map masking take a multi-cid for the atom selection?
+
+SMILES: nitrobezen svg ligand rep - charge positionn size offset neeeds to be fixed.
+
+
 libcootapi:
   get rid of #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY in add-terminal-residue.cc
 

@@ -4351,14 +4351,14 @@ molecules_container_t::mask_map_by_atom_selection(int imol_coords, int imol_map,
          float map_mask_atom_radius = 1.5; // check
          lig.set_map_atom_mask_radius(map_mask_atom_radius);
 
-         // we do the atom selection in this function - that is a bit unusual
-
          int selectionhandle = molecules[imol_coords].atom_sel.mol->NewSelection();
          // molecules[imol_coords].atom_sel.mol->Select(selectionhandle, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
 
          std::vector<std::string> parts = coot::util::split_string(multi_cids, "||");
-         for (const auto &part : parts)
+         for (const auto &part : parts) {
+            std::cout << "-------------------------- selecting part: " << part << std::endl;
             molecules[imol_coords].atom_sel.mol->Select(selectionhandle, mmdb::STYPE_ATOM, part.c_str(), mmdb::SKEY_OR);
+         }
 
          lig.mask_map(molecules[imol_coords].atom_sel.mol, selectionhandle, invert_flag);
          imol_map_new = molecules.size();
@@ -4367,6 +4367,7 @@ molecules_container_t::mask_map_by_atom_selection(int imol_coords, int imol_map,
          bool is_em_map_flag = molecules[imol_map].is_EM_map();
          coot::molecule_t cm(new_name, imol_map_new, lig.masked_map(), is_em_map_flag);
          molecules.push_back(cm);
+         molecules[imol_coords].atom_sel.mol->DeleteSelection(selectionhandle);
       } else {
          std::cout << "WARNING:: molecule " << imol_map << " is not a valid map molecule"
                    << std::endl;
@@ -5039,5 +5040,21 @@ molecules_container_t::export_model_molecule_as_gltf(int imol,
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
+}
+
+
+//! get density at position
+//! @return density value
+float
+molecules_container_t::get_density_at_position(int imol_map, float x, float y, float z) const {
+
+   float f = -1;
+   if (is_valid_map_molecule(imol_map)) {
+      clipper::Coord_orth pt(x,y,z);
+      f = molecules[imol_map].get_density_at_position(pt);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;
+   }
+   return f;
 }
 

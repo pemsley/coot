@@ -4414,7 +4414,6 @@ int test_5char_ligand_merge(molecules_container_t &mc) {
    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
 
    int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
    mc.import_cif_dictionary(reference_data("acedrg-7z-new.cif"), imol_enc);
    int imol_lig = mc.get_monomer("7ZTVU");
    if (mc.is_valid_model_molecule(imol)) {
@@ -4425,6 +4424,42 @@ int test_5char_ligand_merge(molecules_container_t &mc) {
    return status;
 }
 
+int test_mask_atom_selection(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      int imol_masked = mc.mask_map_by_atom_selection(imol, imol_map, "//A/1-20||//A/50-70||//A/100-120", true);
+      mc.write_map(imol_masked, "multi-cid-masked.map");
+      // if the masking worked there will be zero density at the CA of residue 30.
+      mmdb::Manager *mol = mc.get_mol(imol);
+      int sel_hnd = mol->NewSelection();
+      mol->SelectAtoms(sel_hnd, 1, "A", 30, "", 30, "", "VAL", " CA ", "*", "");
+      mmdb::Atom **atom_selection = 0; // member data - cleared on destruction
+      int n_selected_atoms = 0;
+      mol->GetSelIndex(sel_hnd, atom_selection, n_selected_atoms);
+      std::cout << "------------- got n_selected_atoms " << n_selected_atoms << std::endl;
+      if (n_selected_atoms > 0) {
+         for (int i=0; i<n_selected_atoms; i++) {
+            mmdb::Atom *at = atom_selection[i];
+            clipper::Coord_orth pos(at->x, at->y, at->z);
+            std::cout << "in test_mask_atom_selection() found atom "
+                      << at->GetResName() << " " << at->GetSeqNum() << " "
+                      << ":" << at->GetAtomName() << ": " << pos.format() << std::endl;
+            float f = mc.get_density_at_position(imol_masked, at->x, at->y, at-> z);
+            if (f < 0.00001) {
+               status = 1;
+            }
+         }
+      }
+      mol->DeleteSelection(sel_hnd);
+   }
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -4552,7 +4587,9 @@ int main(int argc, char **argv) {
       status += run_test(test_fill_partial,          "fill partially-filled residues", mc);
    }
 
-   status += run_test(test_gltf_export_via_api, "gltf via api", mc);
+   status += run_test(test_mask_atom_selection, "mask atom selection", mc);
+
+   // status += run_test(test_gltf_export_via_api, "gltf via api", mc);
 
    // status += run_test(test_multi_ligand_ligands, "multi-ligand ligands", mc);
 
