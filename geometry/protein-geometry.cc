@@ -2304,11 +2304,13 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
    if (r) {
       for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
          const dictionary_residue_restraints_t &rest = dict_res_restraints[i].second;
-	 if (rest.residue_info.comp_id == comp_id) {
-	    residue_p = rest.GetResidue(idealised_flag, b_factor);
-            // debug_residue(residue_p);
-	    break;
-	 }
+         if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
+            if (rest.residue_info.comp_id == comp_id) {
+               residue_p = rest.GetResidue(idealised_flag, b_factor);
+               // debug_residue(residue_p);
+               break;
+            }
+         }
       }
    }
    return residue_p;
