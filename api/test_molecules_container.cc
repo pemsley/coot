@@ -4425,47 +4425,6 @@ int test_5char_ligand_merge(molecules_container_t &mc) {
    return status;
 }
 
-// don't commit or push this test!
-int test_multi_ligand_ligands(molecules_container_t &mc) {
-
-   starting_test(__FUNCTION__);
-   int status = 0;
-   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-
-   mc.import_cif_dictionary("lig-1.cif", imol_1);
-   mc.import_cif_dictionary("lig-2.cif", imol_2);
-
-   coot::protein_geometry &geom = mc.get_geom();
-
-   std::pair<bool, coot::dictionary_residue_restraints_t> lig1_pair = geom.get_monomer_restraints("LIG", imol_1);
-   std::pair<bool, coot::dictionary_residue_restraints_t> lig2_pair = geom.get_monomer_restraints("LIG", imol_2);
-   if (lig1_pair.first) {
-      if (lig2_pair.first) {
-         int imol_lig_1 = mc.get_monomer_from_dictionary("LIG", imol_1, true);
-         int imol_lig_2 = mc.get_monomer_from_dictionary("LIG", imol_2, true);
-         mc.write_coordinates(imol_lig_1, "LIG-from-protein-1.pdb");
-         mc.write_coordinates(imol_lig_2, "LIG-from-protein-2.pdb");
-         mmdb::Manager *mol = mc.get_mol(imol_lig_2);
-         mmdb::Residue *r = coot::util::get_first_residue(mol);
-         if (r) {
-            mmdb::Atom **residue_atoms = 0;
-            int n_residue_atoms = 0;
-            r->GetAtomTable(residue_atoms, n_residue_atoms);
-            for (int iat=0; iat<n_residue_atoms; iat++) {
-               mmdb::Atom *at = residue_atoms[iat];
-               if (! at->isTer()) {
-                  std::string ele(at->element);
-                  if (ele == " N")
-                     status = 1;
-               }
-            }
-         }
-      }
-   }
-   return status;
-
-}
 
 int test_template(molecules_container_t &mc) {
 
