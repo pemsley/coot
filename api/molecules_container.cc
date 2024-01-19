@@ -4340,7 +4340,7 @@ molecules_container_t::make_masked_maps_split_by_chain(int imol, int imol_map) {
 //!
 //! @return the index of the new map - or -1 on failure
 int
-molecules_container_t::mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &cid, bool invert_flag) {
+molecules_container_t::mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &multi_cids, bool invert_flag) {
 
    int imol_map_new = -1;
    if (is_valid_model_molecule(imol_coords)) {
@@ -4351,8 +4351,15 @@ molecules_container_t::mask_map_by_atom_selection(int imol_coords, int imol_map,
          float map_mask_atom_radius = 1.5; // check
          lig.set_map_atom_mask_radius(map_mask_atom_radius);
 
+         // we do the atom selection in this function - that is a bit unusual
+
          int selectionhandle = molecules[imol_coords].atom_sel.mol->NewSelection();
-         molecules[imol_coords].atom_sel.mol->Select(selectionhandle, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+         // molecules[imol_coords].atom_sel.mol->Select(selectionhandle, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+
+         std::vector<std::string> parts = coot::util::split_string(multi_cids, "||");
+         for (const auto &part : parts)
+            molecules[imol_coords].atom_sel.mol->Select(selectionhandle, mmdb::STYPE_ATOM, part.c_str(), mmdb::SKEY_OR);
+
          lig.mask_map(molecules[imol_coords].atom_sel.mol, selectionhandle, invert_flag);
          imol_map_new = molecules.size();
          std::string name = get_molecule_name(imol_map);
