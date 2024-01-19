@@ -596,10 +596,18 @@ public:
                                                                  int smoothness_factor);
 
    //! export map molecule as glTF
-   void export_map_molecule_as_gltf(int imol, const std::string &file_name) const;
+   //  (not const because maps might update?)
+   void export_map_molecule_as_gltf(int imol, float pos_x, float pos_y, float pos_z, float radius, float contour_level,
+                                    const std::string &file_name);
 
    //! export model molecule as glTF - This API will change - we want to specify surfaces and ribbons too.
-   void export_model_molecule_as_gltf(int imol, const std::string &file_name) const;
+   void export_model_molecule_as_gltf(int imol,
+                                      const std::string &selection_cid,
+                                      const std::string &mode,
+                                      bool against_a_dark_background,
+                                      float bonds_width, float atom_radius_to_bond_width_ratio, int smoothness_factor,
+                                      bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
+                                      const std::string &file_name);
 
    //! return the colur table (for testing)
    std::vector<glm::vec4> get_colour_table(int imol, bool against_a_dark_background) const;
@@ -1535,6 +1543,8 @@ public:
 
    //! @return time in microsections
    double test_thread_pool_threads(unsigned int n_threads) const;
+
+   coot::protein_geometry &get_geom() { return geom; }
 
    // -------------------------------- Other ---------------------------------------
 

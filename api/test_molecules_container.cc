@@ -4370,6 +4370,43 @@ int test_gltf_export(molecules_container_t &mc) {
    return status;
 }
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+int test_gltf_export_via_api(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("2vtq.cif"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   clipper::Coord_orth p(25, 4, 62);
+   float radius = 10;
+   float contour_level = 0.4;
+   std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+   int imol_lig = mc.get_monomer("LZA");
+   mc.export_map_molecule_as_gltf(imol_map, p.x(), p.y(), p.z(), radius, contour_level, "map-around-ligand.glb");
+   mc.export_model_molecule_as_gltf(imol, "//A/1299", mode, true, 0.2, 1.4, 2, true, true, "fat-ligand.glb");
+
+   struct stat buf_1;
+   int istat_1 = stat("map-around-ligand.glb", &buf_1);
+   if (istat_1 == 0) {
+      if (buf_1.st_size > 1000000) {
+
+         struct stat buf_2;
+         int istat_2 = stat("fat-ligand.glb", &buf_2);
+         if (istat_2 == 0) {
+            if (buf_2.st_size > 100000) {
+               status = 1;
+            }
+         }
+      }
+   }
+   return status;
+}
+
+
 int test_5char_ligand_merge(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -4386,6 +4423,48 @@ int test_5char_ligand_merge(molecules_container_t &mc) {
       status = 1;
    }
    return status;
+}
+
+// don't commit or push this test!
+int test_multi_ligand_ligands(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   mc.import_cif_dictionary("lig-1.cif", imol_1);
+   mc.import_cif_dictionary("lig-2.cif", imol_2);
+
+   coot::protein_geometry &geom = mc.get_geom();
+
+   std::pair<bool, coot::dictionary_residue_restraints_t> lig1_pair = geom.get_monomer_restraints("LIG", imol_1);
+   std::pair<bool, coot::dictionary_residue_restraints_t> lig2_pair = geom.get_monomer_restraints("LIG", imol_2);
+   if (lig1_pair.first) {
+      if (lig2_pair.first) {
+         int imol_lig_1 = mc.get_monomer_from_dictionary("LIG", imol_1, true);
+         int imol_lig_2 = mc.get_monomer_from_dictionary("LIG", imol_2, true);
+         mc.write_coordinates(imol_lig_1, "LIG-from-protein-1.pdb");
+         mc.write_coordinates(imol_lig_2, "LIG-from-protein-2.pdb");
+         mmdb::Manager *mol = mc.get_mol(imol_lig_2);
+         mmdb::Residue *r = coot::util::get_first_residue(mol);
+         if (r) {
+            mmdb::Atom **residue_atoms = 0;
+            int n_residue_atoms = 0;
+            r->GetAtomTable(residue_atoms, n_residue_atoms);
+            for (int iat=0; iat<n_residue_atoms; iat++) {
+               mmdb::Atom *at = residue_atoms[iat];
+               if (! at->isTer()) {
+                  std::string ele(at->element);
+                  if (ele == " N")
+                     status = 1;
+               }
+            }
+         }
+      }
+   }
+   return status;
+
 }
 
 int test_template(molecules_container_t &mc) {
@@ -4514,7 +4593,11 @@ int main(int argc, char **argv) {
       status += run_test(test_fill_partial,          "fill partially-filled residues", mc);
    }
 
-   status += run_test(test_updating_maps, "updating maps", mc);
+   status += run_test(test_gltf_export_via_api, "gltf via api", mc);
+
+   // status += run_test(test_multi_ligand_ligands, "multi-ligand ligands", mc);
+
+   // status += run_test(test_updating_maps, "updating maps", mc);
 
    // status += run_test(test_disappearing_ligand, "disappearning ligand", mc);
 

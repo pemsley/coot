@@ -4175,13 +4175,32 @@ coot::molecule_t::residues_near_residue(const std::string &residue_cid, float di
 
 //! export map molecule as glTF
 void
-coot::molecule_t::export_map_molecule_as_gltf(const std::string &file_name) const {
+coot::molecule_t::export_map_molecule_as_gltf(clipper::Coord_orth &p, float radius, float contour_level,
+                                              const std::string &file_name) {
+
+   coot::simple_mesh_t map_mesh = get_map_contours_mesh(p, radius, contour_level, false, nullptr);
+   bool as_binary = true; // test the extension of file_name
+   map_mesh.export_to_gltf(file_name, as_binary);
 
 }
 
 //! export model molecule as glTF - This API will change - we want to specify surfaces and ribbons too.
 void
-coot::molecule_t::export_model_molecule_as_gltf(const std::string &file_name) const {
+coot::molecule_t::export_model_molecule_as_gltf(const std::string &mode,
+                                                const std::string &selection_cid,
+                                                coot::protein_geometry *geom,
+                                                bool against_a_dark_background,
+                                                float bonds_width, float atom_radius_to_bond_width_ratio, int smoothness_factor,
+                                                bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
+                                                const std::string &file_name) {
+
+   instanced_mesh_t im = get_bonds_mesh_for_selection_instanced(mode, selection_cid, geom, against_a_dark_background,
+                                                                bonds_width, atom_radius_to_bond_width_ratio, smoothness_factor,
+                                                                draw_hydrogen_atoms_flag, draw_missing_residue_loops);
+
+   coot::simple_mesh_t sm = coot::instanced_mesh_to_simple_mesh(im);
+   bool as_binary = true; // test the extension of file_name
+   sm.export_to_gltf(file_name, as_binary);
 
 }
 

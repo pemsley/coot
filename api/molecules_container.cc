@@ -5002,10 +5002,12 @@ molecules_container_t::get_gphl_chem_comp_info(const std::string &compound_id, i
 
 //! export map molecule as glTF
 void
-molecules_container_t::export_map_molecule_as_gltf(int imol, const std::string &file_name) const {
+molecules_container_t::export_map_molecule_as_gltf(int imol, float pos_x, float pos_y, float pos_z, float radius, float contour_level,
+                                                   const std::string &file_name) {
 
    if (is_valid_map_molecule(imol)) {
-      molecules[imol].export_map_molecule_as_gltf(file_name);
+      clipper::Coord_orth pos(pos_x, pos_y, pos_z);
+      molecules[imol].export_map_molecule_as_gltf(pos, radius, contour_level, file_name);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -5015,10 +5017,18 @@ molecules_container_t::export_map_molecule_as_gltf(int imol, const std::string &
 
 //! export model molecule as glTF - This API will change - we want to specify surfaces and ribbons too.
 void
-molecules_container_t::export_model_molecule_as_gltf(int imol, const std::string &file_name) const {
+molecules_container_t::export_model_molecule_as_gltf(int imol,
+                                                     const std::string &selection_cid,
+                                                     const std::string &mode,
+                                                     bool against_a_dark_background,
+                                                     float bonds_width, float atom_radius_to_bond_width_ratio, int smoothness_factor,
+                                                     bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
+                                                     const std::string &file_name) {
 
-   if (is_valid_map_molecule(imol)) {
-      molecules[imol].export_model_molecule_as_gltf(file_name);
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].export_model_molecule_as_gltf(mode, selection_cid, &geom, against_a_dark_background,
+                                                    bonds_width, atom_radius_to_bond_width_ratio, smoothness_factor,
+                                                    draw_hydrogen_atoms_flag, draw_missing_residue_loops, file_name);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
