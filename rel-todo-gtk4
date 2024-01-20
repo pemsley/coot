@@ -5,6 +5,7 @@ Let's see about privateer in Moorhen.
 
 Is it a good idea for the wasm build from CCP4_WASM_BUILD/moorhen_build compiles test-molecules-container?
 How do I use it?
+* It might be a good idea, but it is not at all important.
 
 Key-binding for "display/undisplay all maps"
 * Done - sort of. Shift Q
@@ -16,16 +17,18 @@ Key-binding for "Advance scroll-wheel-map to next map" (have I done this?)
 * Yes. Shift W
 
 moorhen: reading a map often the default (first) contour level is too low.
-  the map of 8ox5. Lucrezia to investigate?
+e.g. the map of 8ox5. Lucrezia to investigate?
 
 moorhen: atom selection for Mg was grey, not green as it should be.
 Even with non-carbon colouring it failed. Using custom rule (from the "+" button)
+* Fixed.
 
 moorhen: does the map masking take a multi-cid for the atom selection?
 * It does not. Tested.
+* Fixed.
 
-SMILES: nitrobezen svg ligand rep - charge positionn size offset neeeds to be fixed.
-
+moorhen SMILES: nitrobezene svg ligand rep - charge position size offset of the + and - neeeds
+  to be fixed.
 
 libcootapi:
   get rid of #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY in add-terminal-residue.cc
@@ -52,7 +55,9 @@ ligand figures from the chem_comp_atom_depiction_t
 * Semi done, need to work in the Coot part also.
 
 MMDB: Look at mmdb chain selection. Can you remove chain range?
-      chain-id range test: Tweak ParseSelectionPath().
+      chain-id range test: Look at assembly cif for examples of chain-range-like chain-ids.
+      Use one of them for an atom selection test.
+      Tweak ParseSelectionPath().
 
 Coot: Fix this in pyrogen Makefile:
       SWIG_FLAGS = -DSWIG -DCOOT_USE_GTK2_INTERFACE
@@ -60,6 +65,7 @@ Coot: Fix this in pyrogen Makefile:
 * Done.
 
 libcootapi: #include <GL/gl.h> in CXXSurface/CXXVCN.h - remove it if you can.
+* I can. Done.
 
 libcootapi: return a double (ms) test_the_threading(int n_threads)
 * Done.
