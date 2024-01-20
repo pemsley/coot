@@ -1421,7 +1421,9 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
    std::vector<glm::vec4> colour_table;
    // std::cout << "................... in make_colour_table() HERE C " << bonds_box_type << std::endl;
    colour_table = std::vector<glm::vec4>(bonds_box.num_colours, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+   std::set<int> done_colours;
    for (int icol=0; icol<bonds_box.num_colours; icol++) {
+
       if (bonds_box_type == coot::api_bond_colour_t::COLOUR_BY_RAINBOW_BONDS) {
          glm::vec4 col = get_bond_colour_by_colour_wheel_position(icol, coot::api_bond_colour_t::COLOUR_BY_RAINBOW_BONDS);
          colour_table[icol] = col;
@@ -1431,6 +1433,7 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
          if (n_bonds > 0) {
             coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
             colour_table[icol] = cc.to_glm();
+            done_colours.insert(icol);
 
             // was there a user-defined bond colour that superceeds this for this colour index?
             if (! user_defined_bond_colours.empty()) {
@@ -1439,6 +1442,7 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
                if (it != user_defined_bond_colours.end()) {
                   auto glm_col = colour_holder_to_glm(it->second);
                   colour_table[icol] = glm_col;
+                  done_colours.insert(icol);
                } else {
                   std::cout << "debug:: user_defined_bond_colours has size " << user_defined_bond_colours.size()
                             << " index " << icol << " was not found in the user-defined bond colours"
@@ -1458,6 +1462,20 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
          }
       }
    }
+
+   // now add the colour for the atoms (if they have not been added)
+
+   if (bonds_box.n_atom_centres_ > 0) {
+      for (int i=0; i<bonds_box.n_atom_centres_; i++) {
+         int icol = bonds_box.atom_centres_colour_[i];
+         if (done_colours.find(icol) == done_colours.end()) {
+            // std::cout << "*********************** adding atom col (that has no bonds!) " << icol << std::endl;
+            coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
+            colour_table[icol] = cc.to_glm();
+         }
+      }
+   }
+
 
    if (debug_colour_table) {
       std::cout << "Here is the user-defined colour table:" << std::endl;
