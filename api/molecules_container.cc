@@ -4340,7 +4340,8 @@ molecules_container_t::make_masked_maps_split_by_chain(int imol, int imol_map) {
 //!
 //! @return the index of the new map - or -1 on failure
 int
-molecules_container_t::mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &multi_cids, bool invert_flag) {
+molecules_container_t::mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &multi_cids,
+                                                  float radius, bool invert_flag) {
 
    int imol_map_new = -1;
    if (is_valid_model_molecule(imol_coords)) {
@@ -4360,6 +4361,7 @@ molecules_container_t::mask_map_by_atom_selection(int imol_coords, int imol_map,
             molecules[imol_coords].atom_sel.mol->Select(selectionhandle, mmdb::STYPE_ATOM, part.c_str(), mmdb::SKEY_OR);
          }
 
+         if (radius > 0.0) lig.set_map_atom_mask_radius(radius);
          lig.mask_map(molecules[imol_coords].atom_sel.mol, selectionhandle, invert_flag);
          imol_map_new = molecules.size();
          std::string name = get_molecule_name(imol_map);

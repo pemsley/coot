@@ -844,12 +844,14 @@ public:
 
    //! mask map by atom selection (note the argument order is reversed compared to the coot api).
    //!
+   //! ``atom_radius`` is the atom radius (funnily enough). Use a negative number to mean "default".
+   //!
    //! the ``invert_flag`` changes the parts of the map that are masked, so to highlight the density
    //! for a ligand one would pass the ``cid`` for the ligand and invert_flag as true, so that the
    //! parts of the map that are not the ligand are suppressed.
    //!
    //! @return the index of the new map - or -1 on failure
-   int mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &cid, bool invert_flag);
+   int mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &cid, float atom_radius, bool invert_flag);
 
    //! generate a new map which is the hand-flipped version of the input map.
    //! @return the molecule index of the new map, or -1 on failure.

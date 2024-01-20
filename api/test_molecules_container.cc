@@ -4433,7 +4433,7 @@ int test_mask_atom_selection(molecules_container_t &mc) {
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
    if (mc.is_valid_model_molecule(imol)) {
-      int imol_masked = mc.mask_map_by_atom_selection(imol, imol_map, "//A/1-20||//A/50-70||//A/100-120", true);
+      int imol_masked = mc.mask_map_by_atom_selection(imol, imol_map, "//A/1-20||//A/50-70||//A/100-120", 4.0, true);
       mc.write_map(imol_masked, "multi-cid-masked.map");
       // if the masking worked there will be zero density at the CA of residue 30.
       mmdb::Manager *mol = mc.get_mol(imol);
