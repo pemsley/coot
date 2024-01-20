@@ -24,8 +24,16 @@ Even with non-carbon colouring it failed. Using custom rule (from the "+" button
 moorhen: does the map masking take a multi-cid for the atom selection?
 * It does not. Tested.
 
-SMILES: nitrobezen svg ligand rep - charge positionn size offset neeeds to be fixed.
+SMILES: nitrobenzene svg ligand rep - charge position size offset neeeds to be fixed.
 
+moorhen: search monomer library for ARG with methyl (for example)
+
+libcootapi: add a function to copy a map (and a model molecule I guess) for figure making.
+
+libcootapi: replace_molecule_by_model_from_file() should be passed the use_gemmi argument.
+            and remove use_gemmi from the coot_molecule class.
+
+libcootapi: See Filo pull request and write a c++ test-molecules-container test for gltf.
 
 libcootapi:
   get rid of #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY in add-terminal-residue.cc
