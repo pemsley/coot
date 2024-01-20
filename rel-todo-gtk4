@@ -64,6 +64,10 @@ Coot: Fix this in pyrogen Makefile:
       Is -DSWIG already on, because it's parsed by swig?
 * Done.
 
+libcootapi: dependencies clipper:
+   $ egrep ' -L=/' $prefix/lib/lib*.la
+   Nees fixing
+
 libcootapi: #include <GL/gl.h> in CXXSurface/CXXVCN.h - remove it if you can.
 * I can. Done.
 
