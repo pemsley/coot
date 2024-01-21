@@ -2417,7 +2417,7 @@ molecules_container_t::get_diff_diff_map_peaks(int imol_map_fofc,
    if (is_valid_map_molecule(imol_map_fofc)) {
       v = molecules[imol_map_fofc].get_updating_maps_diff_diff_map_peaks(screen_centre);
    } else {
-      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_map_fofc << std::endl;
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map_fofc << std::endl;
    }
    return v;
 
@@ -5019,7 +5019,7 @@ molecules_container_t::export_map_molecule_as_gltf(int imol, float pos_x, float 
       clipper::Coord_orth pos(pos_x, pos_y, pos_z);
       molecules[imol].export_map_molecule_as_gltf(pos, radius, contour_level, file_name);
    } else {
-      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol << std::endl;
    }
 
 
