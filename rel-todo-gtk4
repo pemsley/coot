@@ -103,6 +103,7 @@ Graphics: pdb4nia
 GUI: warn user if they have a PDB files and merge in a 5-char ligand. Likewise in Moorhen.
 
 GUI: Read in an mtz file (rnasa fails) and set this map is difference map - this gets ignored.
+* Done.
 
 GUI: Search Monomer Library dialog should be an overlay - Job for Jakub.
 
@@ -110,12 +111,13 @@ GUI/Graphics bug:: why are there no labels for 7dy0.cif? Also, it seems very lag
 
 GUI/libcootapi: check that DNA is correctly mutate to DNA bases in the Mutate Residue Range gui (do non-gui
     fixes in coot-refinement). Use pdb6pww P chain.
+* Done.
 
 GUI: Mutate Residue Range GUI: Match counts doesn't work correctly
 
 GUI: Open Coords dialog, Move molecule here doesn't work.
 
-GUI:: Validate -> Atom Overlaps doesn't work.
+GUI: Validate -> Atom Overlaps doesn't work.
 
 GUI: Edit -> Settings -> Save current size and position doesn't work.
 
