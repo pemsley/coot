@@ -477,8 +477,10 @@ void handle_column_label_make_fourier_v2(GtkWidget *column_label_window) {
    bool use_weights_flag       = false;
    bool is_difference_map_flag = false;
    bool limit_reso_flag = false;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(weights_checkbutton))) use_weights_flag = true;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(is_diff_map_checkbutton))) is_difference_map_flag = true;
+
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(weights_checkbutton)))     use_weights_flag       = true;
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(is_diff_map_checkbutton))) is_difference_map_flag = true;
+
    // GtkWidget *amplitudes_combobox = lookup_widget(column_label_window, "column_selector_amplitudes_combobox");
    // GtkWidget *phases_combobox     = lookup_widget(column_label_window, "column_selector_phases_combobox");
    // GtkWidget *weights_combobox    = lookup_widget(column_label_window, "column_selector_weights_combobox");

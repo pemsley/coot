@@ -3476,16 +3476,25 @@ the Ctrl key when moving the mouse.</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkWindow" id="column_label_window">
-    <property name="title" translatable="yes">Column Label Assignment</property>
+    <property name="title" translatable="yes">Coot: Column Label Assignment</property>
     <child>
       <object class="GtkBox" id="column_label_vbox">
         <property name="orientation">vertical</property>
+        <property name="margin-start">4</property>
+        <property name="margin-end">4</property>
+        <property name="margin-top">4</property>
+        <property name="margin-bottom">4</property>
         <child>
           <object class="GtkBox" id="hbox88">
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
             <child>
               <object class="GtkLabel" id="label177">
-                <property name="label" translatable="yes">                                        </property>
+                <property name="label" translatable="yes"></property>
                 <property name="justify">center</property>
               </object>
             </child>
@@ -3508,13 +3517,17 @@ the Ctrl key when moving the mouse.</property>
         <child>
           <object class="GtkBox" id="vbox3">
             <property name="orientation">vertical</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
             <child>
               <object class="GtkFrame" id="frame1">
                 <child>
                   <object class="GtkBox" id="hbox1">
                     <child>
                       <object class="GtkLabel" id="label2">
-                        <property name="label" translatable="yes">Amplitudes</property>
+                        <property name="label" translatable="yes"> Amplitudes </property>
                         <property name="justify">center</property>
                       </object>
                     </child>
@@ -3530,9 +3543,13 @@ the Ctrl key when moving the mouse.</property>
               <object class="GtkFrame" id="frame2">
                 <child>
                   <object class="GtkBox" id="hbox4">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkLabel" id="label3">
-                        <property name="label" translatable="yes">Phases</property>
+                        <property name="label" translatable="yes"> Phases </property>
                         <property name="justify">center</property>
                       </object>
                     </child>
@@ -3549,6 +3566,10 @@ the Ctrl key when moving the mouse.</property>
                 <child>
                   <object class="GtkBox" id="vbox28">
                     <property name="orientation">vertical</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkBox" id="hbox15">
                         <child>
@@ -3571,7 +3592,7 @@ the Ctrl key when moving the mouse.</property>
                         <property name="sensitive">0</property>
                         <child>
                           <object class="GtkLabel" id="label31">
-                            <property name="label" translatable="yes">Weights</property>
+                            <property name="label" translatable="yes">Weights </property>
                             <property name="justify">center</property>
                           </object>
                         </child>
@@ -3590,6 +3611,10 @@ the Ctrl key when moving the mouse.</property>
                 <child>
                   <object class="GtkBox" id="vbox113">
                     <property name="orientation">vertical</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkCheckButton" id="column_labels_use_resolution_limits_checkbutton">
                         <property name="label" translatable="yes">Use Resolution Limits</property>
@@ -3601,9 +3626,13 @@ the Ctrl key when moving the mouse.</property>
                     <child>
                       <object class="GtkBox" id="resolution_limits_hbox">
                         <property name="sensitive">0</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
                         <child>
                           <object class="GtkLabel" id="label175">
-                            <property name="label" translatable="yes">Low:</property>
+                            <property name="label" translatable="yes">Low: </property>
                             <property name="justify">center</property>
                           </object>
                         </child>
@@ -3622,7 +3651,7 @@ the Ctrl key when moving the mouse.</property>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label176">
-                            <property name="label" translatable="yes">High:</property>
+                            <property name="label" translatable="yes">High: </property>
                             <property name="justify">center</property>
                           </object>
                         </child>
@@ -3669,6 +3698,10 @@ the Ctrl key when moving the mouse.</property>
                 <child>
                   <object class="GtkBox" id="vbox79">
                     <property name="orientation">vertical</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <child>
                       <object class="GtkBox" id="hbox53">
                         <property name="spacing">26</property>
@@ -3687,6 +3720,10 @@ the Ctrl key when moving the mouse.</property>
                     <child>
                       <object class="GtkBox" id="hbox54">
                         <property name="spacing">4</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
                         <child>
                           <object class="GtkLabel" id="label106">
                             <property name="label" translatable="yes">Sig Fobs</property>
@@ -3722,10 +3759,19 @@ the Ctrl key when moving the mouse.</property>
         </child>
         <child>
           <object class="GtkBox" id="hbox3">
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <property name="homogeneous">1</property>
             <child>
               <object class="GtkButton" id="column_label_cancel_button">
                 <property name="label" translatable="yes">Cancel</property>
                 <property name="can-focus">1</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
                 <signal name="clicked" handler="on_column_label_cancel_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -3733,6 +3779,10 @@ the Ctrl key when moving the mouse.</property>
               <object class="GtkButton" id="column_label_ok_button">
                 <property name="label" translatable="yes">OK</property>
                 <property name="can-focus">1</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
                 <signal name="clicked" handler="on_column_label_ok_button_clicked" swapped="no"/>
               </object>
             </child>
@@ -3742,11 +3792,10 @@ the Ctrl key when moving the mouse.</property>
           <object class="GtkLabel" id="label8">
             <property name="label" translatable="yes">(Thinking, not crashing)</property>
             <property name="justify">center</property>
+            <property name="visible">False</property>
           </object>
         </child>
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
 
