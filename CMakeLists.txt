@@ -479,7 +479,19 @@ target_link_libraries(chapi PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBR
 # I think Charles is right. *Coot* should have test-molecules-container, but this CMakeLists.txt file
 # is for python chapi, it shouldn't be making executables.
 
+add_executable(findligand ${coot_src}/ligand/find-ligand.cc)
+
+add_executable(findwaters ${coot_src}/ligand/find-waters.cc)
+
 add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc ${coot_src}/api/filo-tests.cc)
+
+target_link_libraries(findligand PUBLIC cootapi)
+
+target_link_libraries(findwaters PUBLIC cootapi)
+
+target_include_directories(findligand PRIVATE ${coot_src})
+
+target_include_directories(findwaters PRIVATE ${coot_src})
 
 target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR}/include ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS})
 
