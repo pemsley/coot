@@ -1,6 +1,6 @@
+cmake_minimum_required(VERSION 3.13)
 cmake_policy(SET CMP0048 NEW)
 project(coot)
-cmake_minimum_required(VERSION 3.13)
 find_package(PkgConfig)
 
 if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -482,6 +482,10 @@ add_executable(test-molecules-container ${coot_src}/api/test_molecules_container
 target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR}/include ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS})
 
 target_link_libraries(test-molecules-container PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSLBLAS_LIBRARY} ${PNG_LIBRARY} ${GEMMI_LIBRARY})
+
+set_target_properties(chapi PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+
+set_target_properties(chapi PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/syminfo.lib
 DESTINATION ${CMAKE_INSTALL_PREFIX}/data)
