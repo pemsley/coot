@@ -29,6 +29,7 @@
 #include "read-sm-cif.hh"
 #include "coot-shelx.hh"
 #include "geometry/residue-and-atom-specs.hh"
+#include "compat/coot-sysdep.h"
 #include "lidia-core/lig-build.hh"
 #include "lidia-core/lbg-molfile.hh"
 #include "lidia-core-functions.hh"
