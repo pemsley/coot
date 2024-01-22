@@ -3512,7 +3512,7 @@ molecules_container_t::jed_flip(int imol, const std::string &atom_cid, bool inve
       coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, atom_cid);
       coot::residue_spec_t res_spec(atom_spec);
       std::string atom_name = atom_spec.atom_name;
-      std::string alt_conf = "";
+      std::string alt_conf  = atom_spec.alt_conf;
       message = molecules[imol].jed_flip(res_spec, atom_name, alt_conf, invert_selection, &geom);
       set_updating_maps_need_an_update(imol);
    } else {

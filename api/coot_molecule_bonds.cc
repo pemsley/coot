@@ -1410,7 +1410,7 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
 
    bool is_intermediate_atoms_molecule = false; // make a class member
 
-   bool debug_colour_table = true;
+   bool debug_colour_table = false;
 
    if (debug_colour_table) {
       std::cout << "........ in make_colour_table() A with bonds_box_type " << _(bonds_box_type) << std::endl;
@@ -1444,9 +1444,10 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
                   colour_table[icol] = glm_col;
                   done_colours.insert(icol);
                } else {
-                  std::cout << "debug:: user_defined_bond_colours has size " << user_defined_bond_colours.size()
-                            << " index " << icol << " was not found in the user-defined bond colours"
-                            << std::endl;
+                  if (false)
+                     std::cout << "debug:: user_defined_bond_colours has size " << user_defined_bond_colours.size()
+                               << " index " << icol << " was not found in the user-defined bond colours"
+                               << std::endl;
                }
             } else {
                // std::cout << "debug:: Sad! user_defined_bond_colours was empty" << std::endl;
