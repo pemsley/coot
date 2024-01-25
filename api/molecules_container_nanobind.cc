@@ -211,6 +211,8 @@ NB_MODULE(chapi, m) {
     .def("get_gaussian_surface",&molecules_container_t::get_gaussian_surface)
     .def("get_monomer_from_dictionary",&molecules_container_t::get_monomer_from_dictionary)
     .def("get_molecular_representation_mesh",&molecules_container_t::get_molecular_representation_mesh)
+    .def("get_use_gemmi",&molecules_container_t::get_use_gemmi)
+    .def("set_use_gemmi",&molecules_container_t::set_use_gemmi)
     .def("get_map_weight",&molecules_container_t::get_map_weight)
     .def("set_map_weight",&molecules_container_t::set_map_weight)
     .def("set_show_timings",&molecules_container_t::set_show_timings)
