@@ -3183,14 +3183,15 @@ if [ true = true ] ; then
       # https://github.com/pypa/setuptools/archive/v41.5.1.tar.gz
       # numpy source is now zip
       # ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.tar.gz
-      echo ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.zip
-      ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.zip
+      # ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.zip
+      ${WGET} https://github.com/numpy/numpy/archive/refs/tags/v$numpy_version.tar.gz
       #
-      if [ ! -e ${AUTOBUILD_SOURCES}/numpy-$numpy_version.zip ] ; then
+      if [ ! -e ${AUTOBUILD_SOURCES}/numpy-$numpy_version.tar.gz ] ; then
          exit
       fi
       # tar xf ${AUTOBUILD_SOURCES}/numpy-$numpy_version.tar.gz
-      unzip ${AUTOBUILD_SOURCES}/numpy-$numpy_version.zip
+      # unzip ${AUTOBUILD_SOURCES}/numpy-$numpy_version.zip
+      tar xf ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz
       cd numpy-$numpy_version/
       # we need to check that we have a fortran compiler, in this case gnu95
       #
