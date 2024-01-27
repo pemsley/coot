@@ -2553,7 +2553,6 @@ fi
 if true ; then
       echo BUILDING gemmi from git repo \(and installing GEMMI\)
       echo BUILDING gemmi from git repo \(and installing GEMMI\) >&2
-      echo we are here >&2
       pwd >&2
       echo start_dir is $start_dir
       (
@@ -2858,41 +2857,6 @@ fi
 ###############################################################################
 
 
-if [ -e $install_top_dir/include/gmp.h ] ; then
-    build_gmp=false
-else
-    build_gmp=true
-fi
-
-if "$build_gmp" = true ; then
-    # gmp_version=4.2.4
-    # gmp_version=5.1.2
-    # gmp_version=6.0.0a # it doesn't untar into this directory
-    # gmp_version=5.1.3
-    gmp_version=6.1.2
-    echo BUILDING gmp $gmp_version
-    echo BUILDING gmp $gmp_version >&2
-    ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.bz2
-    (date
-     pwd
-     tar xf ${AUTOBUILD_SOURCES}/gmp-$gmp_version.tar.bz2
-     cd gmp-$gmp_version
-     ./configure $generic_prefix
-     $MAKE
-    status=$?
-    if [ "$status" != 0 ] ; then
-       echo make of gmp failed
-    else
-       $MAKE install
-    fi
-    ) > $HOSTLOGDIR/08-pre-gmp.txt 2>&1
-    echo done gmp $gmp_version >&2
-else
-    echo not building gmp:
-fi
-
-
-
 if test -n "$build_libtool" ; then
     echo BUILDING libtool:
     # libtool_version=1.5.24
@@ -2954,16 +2918,16 @@ fi
 #
 
 if test -n "$build_curl" ; then
-   echo BUILDING curl:
-   echo BUILDING curl: >&2
-(
+   libcurl_version=7.65.3
+   libcurl_version_directory=7_65_3
+   echo BUILDING curl: $libcurl_version
+   echo BUILDING curl: $libcurl_version >&2
+   (
    # get libcurl from here:
    # libcurl_version=7.19.7
    # libcurl_version=7.25.0
    # libcurl_version=7.27.0
    # libcurl_version=7.32.0
-   libcurl_version=7.65.3
-   libcurl_version_directory=7_65_3
    # ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
    ${WGET} https://github.com/curl/curl/releases/download/curl-$libcurl_version_directory/curl-$libcurl_version.tar.gz
 
@@ -3004,7 +2968,9 @@ if test -n "$build_curl" ; then
       fi
    fi
 
-) > $HOSTLOGDIR/15-b-curl.txt 2>&1
+   ) > $HOSTLOGDIR/15-b-curl.txt 2>&1
+   echo donecurl: >&2
+
 else
     echo not building curl:
 fi
@@ -3505,6 +3471,7 @@ if [ "$build_rdkit" = true ] ; then
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
+               -DRDK_INSTALL_COMIC_FONTS=OFF \
                -DCatch2_DIR=$install_top_dir \
                 $tree_from_build
 
@@ -3517,6 +3484,7 @@ if [ "$build_rdkit" = true ] ; then
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
+               -DRDK_INSTALL_COMIC_FONTS=OFF \
                -DCatch2_DIR=$install_top_dir \
                 $tree_from_build ; then
 
@@ -3545,6 +3513,45 @@ python3 -m pip install requests
 if [ "$CHAPI_ONLY" = true ] ; then
    exit
 fi
+
+###############################################################################
+##########         gmp                                            #############
+###############################################################################
+
+
+if [ -e $install_top_dir/include/gmp.h ] ; then
+    build_gmp=false
+else
+    build_gmp=true
+fi
+
+if "$build_gmp" = true ; then
+    # gmp_version=4.2.4
+    # gmp_version=5.1.2
+    # gmp_version=6.0.0a # it doesn't untar into this directory
+    # gmp_version=5.1.3
+    gmp_version=6.1.2
+    echo BUILDING gmp $gmp_version
+    echo BUILDING gmp $gmp_version >&2
+    ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.bz2
+    (date
+     pwd
+     tar xf ${AUTOBUILD_SOURCES}/gmp-$gmp_version.tar.bz2
+     cd gmp-$gmp_version
+     ./configure $generic_prefix
+     $MAKE
+    status=$?
+    if [ "$status" != 0 ] ; then
+       echo make of gmp failed
+    else
+       $MAKE install
+    fi
+    ) > $HOSTLOGDIR/08-pre-gmp.txt 2>&1
+    echo done gmp $gmp_version >&2
+else
+    echo not building gmp:
+fi
+
 
 
 # glib was removed because glib is a dependency of gtk-4 and we don't build gtk-4,
