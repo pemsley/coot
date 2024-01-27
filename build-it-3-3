@@ -406,7 +406,6 @@ script_version=6.12
 echo ==================================================== add test for SWIG version
 echo ==================================================== add test for CMake version
 echo this is script version $script_version
-echo this is script version $script_version >&2
 
 
 # :: NOTE::
@@ -2084,9 +2083,11 @@ pver=3.11.4
 python_version_extension=3.11 # extract this
 
 # for Blender 4 in 2024, we want Python 3.10.13, so uncomment the 3 lines below:
-# python_version=python3.10
-# pver=3.10.13
-# python_version_extension=3.10
+if [ "$CHAPI_ONLY" = true ] ; then
+    python_version=python3.10
+    pver=3.10.13
+    python_version_extension=3.10
+fi
 
 
 
@@ -2279,6 +2280,7 @@ if test -n "$build_ccp4c" ; then
     # ${WGET} $extras_place/libccp4-6.4.0.tar.gz
     # ${WGET} ftp://ftp.ccp4.ac.uk/opensource/libccp4-$libccp4_version.tar.gz
     ${WGET} $extras_place/libccp4-$libccp4_version.tar.gz
+    echo BUILDING libccp4 $libccp4_version >&2
     (
     date
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4-$libccp4_version.tar.gz | tar xf -
@@ -2289,6 +2291,7 @@ if test -n "$build_ccp4c" ; then
        fi
     fi
     ) >  $HOSTLOGDIR/01-libccp4.txt 2>&1
+    echo done libccp4 $libccp4_version >&2
 else
     echo not building libccp4:
 fi
@@ -2328,6 +2331,7 @@ mmdb_version=2.0.22
 mmdb_server_dir=$extras_place
 echo ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
 ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
+echo BUILDING mmdb $mmdb_version >&2
 
 (
 date
@@ -2352,13 +2356,15 @@ if $MAKE ; then
    $MAKE install
 fi
 ) > $HOSTLOGDIR/02-mmdb.txt 2>&1
+echo done mmdb $mmdb_version >&2
 else
    echo not building mmdb:
 fi
 
 if test -n "$build_ssmlib" ; then
 
-   echo BUILDING SSM:
+   echo BUILDING SSM $ssm_version
+   echo BUILDING SSM $ssm_version >&2
 #
 # ssm_version=0.0-pre-2-ysbl
 ssm_version=1.4
@@ -2378,6 +2384,7 @@ if $MAKE ; then
    $MAKE install
 fi
 ) >  $HOSTLOGDIR/02-ssm.txt 2>&1
+echo done SSM $ssm_version >&2
 else
    echo not building ssm:
 fi
@@ -2837,189 +2844,6 @@ if [ $build_ninja = true ] ; then
    ) > $HOSTLOGDIR/07c1-ninja.txt 2>&1
 fi
 
-# glib was removed because glib is a dependency of gtk-4 and we don't build gtk-4,
-# so if we want to use glib for other packages, we need to use the same glib that
-# gtk-4 used.
-
-###############################################################################
-##########         gobject-introspection                          #############
-###############################################################################
-
-if test "$build_gobject_introspection" = true ; then
-   echo BUILDING gobject-introspection:
-   echo BUILDING gobject-introspection: >&2
-   (
-   # just for gobject-introspection - depends on our glib installation
-   export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig
-   export LD_LIBRARY_PATH=$install_top_dir/lib64:$install_top_dir/lib
-   date
-   echo BUILDING gobject-introspection:
-
-   echo environment variables
-   echo PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-   echo $PATH
-   echo PKG_CONFIG_PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-   echo $PKG_CONFIG_PATH
-   echo LD_LIBRARY_PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-   echo $LD_LIBRARY_PATH
-   which gcc
-   which g++
-   gcc --version
-
-   gobject_introspection_version=1.50.0
-   gobject_introspection_version=1.68.0
-   gobject_introspection_version=1.71.0
-   gobject_introspection_version=1.72.0
-   # 20220820-PE note to self: 1.73.0 is now avaliable
-   # https://download.gnome.org/sources/gobject-introspection/1.73/
-   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
-   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.68
-   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.71
-   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.72
-
-   ${WGET} $d/gobject-introspection-$gobject_introspection_version.tar.xz
-   tar xf ${AUTOBUILD_SOURCES}/gobject-introspection-$gobject_introspection_version.tar.xz
-   cd gobject-introspection-$gobject_introspection_version
-   # 1.68 (probably earlier) has moved on from configure. meson baby
-   # echo ./configure --prefix=$install_top_dir PYTHON=python3
-   # ./configure --prefix=$install_top_dir PYTHON=python3
-   # if $MAKE ; then
-   #   $MAKE install
-   # fi
-   echo PKG_CONFIG_PATH is...
-   echo $PKG_CONFIG_PATH
-
-   echo this is the result of /bin/pkg-config glib-2.0
-   /bin/pkg-config --modversion glib-2.0
-   /bin/pkg-config --cflags glib-2.0
-   /bin/pkg-config --libs glib-2.0
-
-   echo building in:
-   pwd
-
-   echo which meson
-   which meson
-   meson --version
-
-   export CC=gcc
-   # $install_top_dir/bin/meson is important, otherwise the wrong meson
-   # is used.
-   #
-   # if $install_top_dir/bin/meson -Dprefix=$install_top_dir build ; then
-   #
-   # BUT... if we don't build meson because we have a new enough meson
-   # in the path then $install_top_dir/bin/meson does not exist!
-   if meson -Dprefix=$install_top_dir build ; then
-      echo meson passed
-      cd build
-      ninja
-      ninja install
-      cd -
-   else
-      echo meson failed
-   fi
-   export -n CC
-   cd ..
-   ) > $HOSTLOGDIR/07d-gobject-introspection.txt 2>&1
-   echo done gobject-introspection: >&2
-fi
-
-
-sources_dir=${AUTOBUILD_SOURCES}
-
-
-# pycairo is a dependency of pygobject.  Is this gtk2 stuff?
-pycairo_version=1.17.0 #  check for a more recent version.
-skip_build=true
-if [ $test_for_already_installed_dependencies = true ] ; then
-   # check this file name.
-   #  $install_top_dir/lib/python$python_version_extension/site-packages/pycairo-1.17.0-py3.6-linux-x86_64.egg/cairo/_cairo.py
-   if [ -e $install_top_dir/lib/include/pycairo/py3cairo.h ] ; then
-      skip_build=true
-   fi
-fi
-
-if [ true ] ; then
-   if [ $skip_build = false ] ; then
-      ${WGET} https://github.com/pygobject/pycairo/releases/download/v1.17.0/pycairo-$pycairo_version.tar.gz
-      (
-      if [ -e ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz ] ; then
-         date
-         echo BUILDING pycairo
-         echo BUILDING pycairo >&2
-         tar xf ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz
-         cd pycairo-$pycairo_version
-         python3 setup.py build
-         python3 setup.py install
-         cd -
-      fi
-      ) > $HOSTLOGDIR/07f-pycairo.txt 2>&1
-   else
-      echo installation has pycairo
-   fi
-fi
-
-# https://pypi.org/project/PyGObject/#files
-# https://download.gnome.org/sources/pygobject
-pygobject_major_minor_version=3.29
-pygobject_major_minor_version=3.30
-pygobject_major_minor_version=3.36
-pygobject_major_minor_version=3.42
-pygobject_version=3.29.1
-pygobject_version=3.30.5
-pygobject_version=3.42.1
-# pygobject_version=3.42.2 add me to the extras place!
-# https://download.gnome.org/sources/pygobject/3.42/pygobject-3.42.2.tar.xz
-
-date
-pwd
-skip_build=false
-if [ $test_for_already_installed_dependencies = true ] ; then
-   if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
-      skip_build=true
-   fi
-fi
-
-if [ $skip_build = false ] ; then
-
-      echo BUILDING pygobject $pygobject_version:
-      echo BUILDING pygobject $pygobject_version: >&2
-      (
-      echo :::: PKG_CONFIG_PATH is $PKG_CONFIG_PATH
-      ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
-      echo ::: trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz
-      if [ -e ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz ] ; then
-         gzip -dc ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz | tar xf -
-         cd PyGObject-$pygobject_version
-         ### python setup.py build
-         ### python setup.py install
-         echo ::: which python3
-         which python3
-         echo ld_library_path $LD_LIBRARY_PATH
-         x=$LD_LIBRARY_PATH
-         # unset LD_LIBRARY_PATH # I want LD_LIBRARY_PATH so that libffi.so is found
-         echo :::: in directory $(pwd)
-         echo :::: building using meson -Dprefix=$install_top_dir build
-         if meson -Dprefix=$install_top_dir build ; then
-            echo :::: meson passed
-            cd build
-            echo :::: ninja
-            ninja
-            echo :::: ninja install
-            ninja install
-         else
-            echo :::: meson failed
-         fi
-         export LD_LIBRARY_PATH=$x
-      else
-         echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
-      fi ) > $HOSTLOGDIR/07g-pygobject.txt 2>&1
-      echo done pygobject $pygobject_version: >&2
-else
-   echo not building pygobject:
-   echo not building pygobject: 2>&1
-fi
-
 # Now we need:
 #  * guile
 #  * guile-www
@@ -3312,6 +3136,601 @@ fi
 
 
 
+
+###############################################################################
+##########         GLM                                            #############
+###############################################################################
+if [ -e $install_top_dir/include/glm/glm.hpp ] ; then
+   echo not building glm
+else
+   echo BUILDING glm:
+   echo BUILDING glm: >&2
+    glm_version=0.9.9.2
+    ${WGET} $extras_place/glm-$glm_version.tar.gz
+    (
+    date
+    pwd
+    gzip -dc ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz | tar xf -
+    cd glm-$glm_version
+    cmake . -DCMAKE_INSTALL_PREFIX=$install_top_dir
+    if $MAKE ; then
+       make install
+    fi
+    ) > $HOSTLOGDIR/17-glm.txt 2>&1
+   echo done glm: >&2
+fi
+
+
+###############################################################################
+##########         build numpy                                    #############
+###############################################################################
+
+# Let's stop at the beginning if we need a fortran compiler and don't have it.
+#
+if [ "$build_numpy" = true ] ; then
+   if gfortran --version > /dev/null ; then
+      echo found fortran compiler
+   else
+      echo fortran compiler not found.
+      exit 2
+   fi
+fi
+
+# numpy needs system libblas (and liblapack?) - it's not clear to
+# me how to build them otherwise.
+# sudo apt-get install libblas-dev liblapack-dev
+
+# cython
+echo pip3 install --upgrade pip
+pip3 install --upgrade pip
+echo pip3 install cython
+pip3 install cython
+echo pip3 install nanobind
+echo pip3 install nanobind >&2
+pip3 install nanobind
+echo pip3 install nanobind done >&2
+
+if [ true = true ] ; then
+   skip_this=false
+   ls -alt $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py
+   if [ -e $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py ] ;  then
+         echo numpy is found, skip
+         skip_this=true
+   else
+         echo numpy test file not found: $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py
+         echo numpy was not found - needs building
+   fi
+   if [ $skip_this = false ] ;  then
+      # numpy_version=1.19.4
+      # 20240127-PE Using 1.19.4 I am getting an error installing with Python 3.10 [errno #1].
+      # So let's try the latest numpy - 1.26.3
+      numpy_version=1.26.3
+      echo BUILDING numpy $numpy_version
+      echo BUILDING numpy $numpy_version >&2
+      (
+      echo building ========================= numpy ==============================
+      # this needs fortran compiler gfortran
+
+      # maybe get numpy from github?
+      # https://github.com/numpy/numpy/releases/download/v1.14.1/numpy-1.14.1.tar.gz
+      # numpy needset setuptools
+      # https://github.com/pypa/setuptools/archive/v41.5.1.tar.gz
+      # numpy source is now zip
+      # ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.tar.gz
+      ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.zip
+      #
+      if [ ! -e ${AUTOBUILD_SOURCES}/numpy-$numpy_version.zip ] ; then
+         exit
+      fi
+      # tar xf ${AUTOBUILD_SOURCES}/numpy-$numpy_version.tar.gz
+      unzip ${AUTOBUILD_SOURCES}/numpy-$numpy_version.zip
+      cd numpy-$numpy_version/
+      # we need to check that we have a fortran compiler, in this case gnu95
+      #
+      if gfortran --version ; then
+        echo found fortran compiler
+      else
+        echo fortran compiler not found.
+        exit 2
+      fi
+      which python3
+      # let's just try to install it using pip! Maybe that will do good things?
+      python3 -m pip install numpy
+      # OK, back to compiling...
+      python3 setup.py build --fcompiler=gfortran
+      python3 setup.py install
+      if [ ! $? ] ; then
+         echo something bad about numpy.
+         exit 2
+      fi
+      cd -
+      ) > $HOSTLOGDIR/17-a-numpy.txt 2>&1
+      echo BUILDING numpy $numpy_version finished >&2
+   fi
+fi
+
+# this is a hack for charybdis   - we need cmake version 3.1 or later
+export PATH=$HOME/cmake/bin:$PATH
+
+############################### eigen ##########################################
+
+eigen_version=3.3.9
+if [ -e $install_top_dir/include/eigen3 ] ; then
+   echo eigen3 is installed
+   echo eigen3 is installed >&2
+else
+   echo BUILDING eigen $eigen_version
+   echo BUILDING eigen $eigen_version >&2
+   (
+   ${WGET} https://gitlab.com/libeigen/eigen/-/archive/$eigen_version/eigen-$eigen_version.tar.gz
+   tar xf $AUTOBUILD_SOURCES/eigen-$eigen_version.tar.gz
+
+   mkdir -p build-eigen
+   cd build-eigen
+   cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ../eigen-$eigen_version
+   make install
+   cd -
+   ) > $HOSTLOGDIR/17-b-eigen.txt 2>&1
+   echo BUILDING eigen finished >&2
+fi
+
+############################### catch2 ##########################################
+# rdkit needs catch2 (C++ testing framework).
+
+if [ -e $install_top_dir/include/catch2/catch_config.hpp ] ; then
+    echo Catch2 is installed
+    echo Catch2 is installed >&2
+else
+   catch2_version=3.5.2
+   echo BUILDING catch2 catch2_version
+   ${WGET} https://github.com/catchorg/Catch2/archive/refs/tags/v$catch2_version.tar.gz
+   (
+   tar xf $AUTOBUILD_SOURCES/$catch2_version.tar.gz
+   cd Catch2-$catch2_version
+   meson setup -Dprefix=$install_top_dir build
+   cd build
+   ninja
+   ninja install
+   cd ..
+   cd ..
+   ) > $HOSTLOGDIR/17-c-catch2.txt 2>&1
+fi
+
+############################### rdkit ##########################################
+
+# we need to set rdkit_tar_size because the WGET doesn't skip the download if the
+# file exists. Amazon.
+#
+build_rdkit=true
+rdkit_version=2017_09_3
+rdkit_version=2019_09_1 # python 3
+rdkit_version=2018_09_2 # Atom pointer wrappers gone, needs coot Dec 2020 patch
+rdkit_version=2020_09_3
+rdkit_version=2023_03_1
+rdkit_version=2023_09_4
+# see https://github.com/rdkit/rdkit/releases
+rdkit_home=https://github.com/rdkit/rdkit/archive
+rdkit_tar_host_file_name=Release_$rdkit_version.tar.gz
+rdkit_tar_download_file_name=rdkit-Release_$rdkit_version.tar.gz
+rdkit_tar_size=54644792
+rdkit_tar_size=58598385 # 2020_09_3
+rdkit_tar_size=79454133 # 2023_03_1
+rdkit_tar_size=80212603 # 2023_09_4
+
+if [ "$build_rdkit" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      # this file is in 2018_09 but not in 2017_09
+      if [ -e $install_top_dir/include/rdkit/GraphMol/StereoGroup.h ] ;  then
+         echo not building rdkit:
+         skip_this=true
+      fi
+   fi
+
+   # hack
+   # skip_this=false
+
+   if [ $skip_this = false ] ;  then
+
+      echo BUILDING RDKit $rdkit_version
+      echo BUILDING RDKit $rdkit_version >&2
+      (
+      echo building ========================= rdkit ==============================
+
+      # at last we get to actually compile rdkit
+      export CC=gcc
+      export CXX=g++
+      RDKIT=$install_top_dir
+      RDBASE=$install_top_dir
+      CMAKE_INSTALL_PREFIX=$install_top_dir
+      export RDKIT
+      export RDBASE
+      export CMAKE_INSTALL_PREFIX
+
+      # shall we build from github rdkit?
+      github_rdkit=false
+
+      if [ $(uname) = Darwin ] ; then
+         echo LD_LIBRARY_FALLBACK_PATH  $LD_LIBRARY_FALLBACK_PATH
+	 # what is unexport in bash?
+         export LD_LIBRARY_PATH=
+      fi
+
+      echo ==================== LD_LIBRARY_PATH is $LD_LIBRARY_PATH
+
+      if [ "$github_rdkit" = true ] ; then
+         echo PATH A - pull
+         if [ ! -d rdkit-github/build ] ; then
+            mkdir -p rdkit-github/build
+         fi
+         echo pulling...
+         # cd rdkit-github/rdkit && git pull && cd -
+         cd rdkit-github/build
+         pwd
+         tree_from_build=../rdkit
+      else
+
+         # old wget $rdkit_home/$rdkit_tar_host_file_name -P ${AUTOBUILD_SOURCES} -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+         echo PATH B
+
+         # OK, So, AFAICS, -N doesn't work with this file. So check the size
+         get_the_rdkit_tar_file=true
+         echo testing for existance of ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+         if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name ] ; then
+            which stat
+            echo   found the file   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            echo stat --format=%s   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            stat --format=%s        ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            size=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name)
+            echo rdkit tar ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name size from stat: $size
+            if [ "$size" = $rdkit_tar_size ] ; then
+               get_the_rdkit_tar_file=false
+            fi
+         fi
+         echo here C with get_the_rdkit_tar_file $get_the_rdkit_tar_file
+
+         if [ $get_the_rdkit_tar_file = true ] ; then
+            echo $WGET $rdkit_home/$rdkit_tar_host_file_name -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            $WGET $rdkit_home/$rdkit_tar_host_file_name -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            do_rdkit_download=true
+            if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
+                echo here D
+                s=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name)
+                if [ "$s" = $rdkit_tar_size ] ; then
+                   do_rdkit_download=false
+                fi
+            fi
+            if [ $do_rdkit_download = true ] ; then
+               echo here E
+               echo $WGET $rdkit_home/$rdkit_tar_host_file_name
+               if ${WGET} $rdkit_home/$rdkit_tar_host_file_name ; then
+                  if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
+                     cp ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ${AUTOBUILD_SOURCES}/rdkit-$rdkit_tar_host_file_name
+                  else
+                     echo $rdkit_tar_host_file_name does not exist after download
+                  fi
+               fi
+            fi
+         fi
+
+         pwd
+         echo tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+         tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+         ls
+         if [ ! -e rdkit-Release_$rdkit_version ] ; then
+             echo RDKit untar dir not found: rdkit-Release_$rdkit_version
+             exit 2
+         fi
+         cd rdkit-Release_$rdkit_version
+         ${WGET} $extras_place/rdkit-maeparser.patch
+         pwd
+         echo patch -p0 < ${AUTOBUILD_SOURCES}/rdkit-maeparser.patch
+         patch -p0 < ${AUTOBUILD_SOURCES}/rdkit-maeparser.patch
+
+         mkdir -p build
+         cd build
+         pwd
+         tree_from_build=..
+      fi
+
+      # New (1.60) boost uses BOOST_PYTHON not Boost_PYTHON
+      #
+      echo which cmake
+      which cmake
+
+      # No help:  -DBoost_INCLUDE_DIR=$install_top_dir/include
+      # Cmake policy:	 -DMACOSX_RPATH=ON
+
+      # old verisons of boost (before 1.60?) can't find boost python
+      # with new (github Feb 2016) rdkit
+
+      # -DPYTHON_LIBRARY=$install_top_dir/lib/libpython2.7.$extension_type
+
+      # no help apparently
+      # -DBoost_EXTERNAL_OBJECTS=$install_top_dir/lib/libboost_python.$extension_type
+      # -DBoost_INCLUDE_DIR=$install_top_dir/include
+      #
+      #  -DBOOST_ROOT=$install_top_dir
+      # -DBoost_INCLUDE_DIR=$install_top_dir/include
+      #  -DBoost_LIBRARY_DIRS=$install_top_dir/lib
+      #  -DBoost_PYTHON_LIBRARY=$install_top_dir/lib/libboost_python.$extension_type
+      #  -DBoost_REGEX_LIBRARY=$install_top_dir/lib/libboost_regex.$extension_type
+
+
+      # catches correctly (no need to specify)
+      # 	 -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python2.7
+
+      if [ $(uname) = Darwin ] ; then
+         cmake_macosx_rpath=-DCMAKE_MACOSX_RPATH=ON
+      fi
+
+      # last time I looked, the include files of RDKit MolDraw2D were wrong.
+      # I had to hack in GraphMol/MolDraw2D into include/rdkit and copy the files
+      # there.
+
+      # -- Could NOT find InChI in system locations (missing:  INCHI_LIBRARY INCHI_INCLUDE_DIR)
+      # CMake Warning at External/INCHI-API/CMakeLists.txt:43 (message):
+      #   ** NO INCHI SOFTWARE FOUND
+      #
+      #   InChI support will be turned off.  If you want to add InChI support, please
+      #   follow the instructions inside $RDBASE/External/INCHI-API/README to
+      #   download a copy of InChI software and then rerun cmake.
+      #
+      # http://www.inchi-trust.org/download/105/INCHI-1-SRC.zip
+
+      # now libboost_python comes with an extended name: libboost_python27
+
+      libboost_python_ext=$python_version_extension
+      libboost_python_ext=
+      extension_type=so
+
+      if [ $(uname) = Darwin ] ; then
+         extension_type=dylib
+      fi
+
+      echo will configure with cmake like this:
+
+      # DBoost_PYTHON39_LIBRARY_RELEASE needs to be extracted?
+      # probblem: $install_top_dir/include/boost/python/detail/wrap_python.hpp:57:23: fatal error: pyconfig.h: No such file or directory
+      # solution: https://github.com/rdkit/rdkit/issues/3884
+      # -DPYTHON_INCLUDE_DIR=$PYROOT/include/python3.8
+      # -DBoost_PYTHON39_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so
+
+      echo cmake \
+               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
+               $cmake_macosx_rpath \
+               -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
+               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-x86_64-linux-gnu/libpython$python_version_extension.a \
+               -DCMAKE_INSTALL_PREFIX=$install_top_dir \
+               -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
+               -DRDK_BUILD_CAIRO_SUPPORT=ON \
+               -DRDK_INSTALL_INTREE=OFF \
+               -DCatch2_DIR=$install_top_dir \
+                $tree_from_build
+
+      if cmake  \
+               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
+               $cmake_macosx_rpath \
+               -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
+               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-x86_64-linux-gnu/libpython$python_version_extension.a \
+               -DCMAKE_INSTALL_PREFIX=$install_top_dir \
+               -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
+               -DRDK_BUILD_CAIRO_SUPPORT=ON \
+               -DRDK_INSTALL_INTREE=OFF \
+               -DCatch2_DIR=$install_top_dir \
+                $tree_from_build ; then
+
+         # it seems that make -j n fails to compile (race condition?)
+         # so use just plain make? (currently not fixed)
+         if $MAKE ; then
+            make install
+         else
+            echo problem making the RDKit.
+            exit 1
+         fi
+      else
+         echo problem configuring the RDKit.
+         exit 1
+      fi
+      cd ..
+      cd ..
+      ) > $HOSTLOGDIR/18-rdkit.txt 2>&1
+      echo BUILDING rdkit finished
+   fi
+fi
+
+echo installing python requests >&2
+python3 -m pip install requests
+
+if [ "$CHAPI_ONLY" = true ] ; then
+   exit
+fi
+
+
+# glib was removed because glib is a dependency of gtk-4 and we don't build gtk-4,
+# so if we want to use glib for other packages, we need to use the same glib that
+# gtk-4 used.
+
+###############################################################################
+##########         gobject-introspection                          #############
+###############################################################################
+
+if test "$build_gobject_introspection" = true ; then
+   echo BUILDING gobject-introspection:
+   echo BUILDING gobject-introspection: >&2
+   (
+   # just for gobject-introspection - depends on our glib installation
+   export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig
+   export LD_LIBRARY_PATH=$install_top_dir/lib64:$install_top_dir/lib
+   date
+   echo BUILDING gobject-introspection:
+
+   echo environment variables
+   echo PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   echo $PATH
+   echo PKG_CONFIG_PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   echo $PKG_CONFIG_PATH
+   echo LD_LIBRARY_PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   echo $LD_LIBRARY_PATH
+   which gcc
+   which g++
+   gcc --version
+
+   gobject_introspection_version=1.50.0
+   gobject_introspection_version=1.68.0
+   gobject_introspection_version=1.71.0
+   gobject_introspection_version=1.72.0
+   # 20220820-PE note to self: 1.73.0 is now avaliable
+   # https://download.gnome.org/sources/gobject-introspection/1.73/
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.68
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.71
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.72
+
+   ${WGET} $d/gobject-introspection-$gobject_introspection_version.tar.xz
+   tar xf ${AUTOBUILD_SOURCES}/gobject-introspection-$gobject_introspection_version.tar.xz
+   cd gobject-introspection-$gobject_introspection_version
+   # 1.68 (probably earlier) has moved on from configure. meson baby
+   # echo ./configure --prefix=$install_top_dir PYTHON=python3
+   # ./configure --prefix=$install_top_dir PYTHON=python3
+   # if $MAKE ; then
+   #   $MAKE install
+   # fi
+   echo PKG_CONFIG_PATH is...
+   echo $PKG_CONFIG_PATH
+
+   echo this is the result of /bin/pkg-config glib-2.0
+   /bin/pkg-config --modversion glib-2.0
+   /bin/pkg-config --cflags glib-2.0
+   /bin/pkg-config --libs glib-2.0
+
+   echo building in:
+   pwd
+
+   echo which meson
+   which meson
+   meson --version
+
+   export CC=gcc
+   # $install_top_dir/bin/meson is important, otherwise the wrong meson
+   # is used.
+   #
+   # if $install_top_dir/bin/meson -Dprefix=$install_top_dir build ; then
+   #
+   # BUT... if we don't build meson because we have a new enough meson
+   # in the path then $install_top_dir/bin/meson does not exist!
+   if meson -Dprefix=$install_top_dir build ; then
+      echo meson passed
+      cd build
+      ninja
+      ninja install
+      cd -
+   else
+      echo meson failed
+   fi
+   export -n CC
+   cd ..
+   ) > $HOSTLOGDIR/19-gobject-introspection.txt 2>&1
+   echo done gobject-introspection: >&2
+fi
+
+
+sources_dir=${AUTOBUILD_SOURCES}
+
+
+# pycairo is a dependency of pygobject.  Is this gtk2 stuff?
+pycairo_version=1.17.0 #  check for a more recent version.
+skip_build=true
+if [ $test_for_already_installed_dependencies = true ] ; then
+   # check this file name.
+   #  $install_top_dir/lib/python$python_version_extension/site-packages/pycairo-1.17.0-py3.6-linux-x86_64.egg/cairo/_cairo.py
+   if [ -e $install_top_dir/lib/include/pycairo/py3cairo.h ] ; then
+      skip_build=true
+   fi
+fi
+
+if [ true ] ; then
+   if [ $skip_build = false ] ; then
+      ${WGET} https://github.com/pygobject/pycairo/releases/download/v1.17.0/pycairo-$pycairo_version.tar.gz
+      (
+      if [ -e ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz ] ; then
+         date
+         echo BUILDING pycairo
+         echo BUILDING pycairo >&2
+         tar xf ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz
+         cd pycairo-$pycairo_version
+         python3 setup.py build
+         python3 setup.py install
+         cd -
+      fi
+      ) > $HOSTLOGDIR/07f-pycairo.txt 2>&1
+   else
+      echo installation has pycairo
+   fi
+fi
+
+# https://pypi.org/project/PyGObject/#files
+# https://download.gnome.org/sources/pygobject
+pygobject_major_minor_version=3.29
+pygobject_major_minor_version=3.30
+pygobject_major_minor_version=3.36
+pygobject_major_minor_version=3.42
+pygobject_version=3.29.1
+pygobject_version=3.30.5
+pygobject_version=3.42.1
+# pygobject_version=3.42.2 add me to the extras place!
+# https://download.gnome.org/sources/pygobject/3.42/pygobject-3.42.2.tar.xz
+
+date
+pwd
+skip_build=false
+if [ $test_for_already_installed_dependencies = true ] ; then
+   if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
+      skip_build=true
+   fi
+fi
+
+if [ $skip_build = false ] ; then
+
+      echo BUILDING pygobject $pygobject_version:
+      echo BUILDING pygobject $pygobject_version: >&2
+      (
+      echo :::: PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+      ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
+      echo ::: trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz
+      if [ -e ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz ] ; then
+         gzip -dc ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz | tar xf -
+         cd PyGObject-$pygobject_version
+         ### python setup.py build
+         ### python setup.py install
+         echo ::: which python3
+         which python3
+         echo ld_library_path $LD_LIBRARY_PATH
+         x=$LD_LIBRARY_PATH
+         # unset LD_LIBRARY_PATH # I want LD_LIBRARY_PATH so that libffi.so is found
+         echo :::: in directory $(pwd)
+         echo :::: building using meson -Dprefix=$install_top_dir build
+         if meson -Dprefix=$install_top_dir build ; then
+            echo :::: meson passed
+            cd build
+            echo :::: ninja
+            ninja
+            echo :::: ninja install
+            ninja install
+         else
+            echo :::: meson failed
+         fi
+         export LD_LIBRARY_PATH=$x
+      else
+         echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
+      fi ) > $HOSTLOGDIR/07g-pygobject.txt 2>&1
+      echo done pygobject $pygobject_version: >&2
+else
+   echo not building pygobject:
+   echo not building pygobject: 2>&1
+fi
+
+
 #################################################################
 # Raster3D
 #################################################################
@@ -3423,30 +3842,6 @@ fi
 
 
 ###############################################################################
-##########         GLM                                            #############
-###############################################################################
-if [ -e $install_top_dir/include/glm/glm.hpp ] ; then
-   echo not building glm
-else
-   echo BUILDING glm:
-   echo BUILDING glm: >&2
-    glm_version=0.9.9.2
-    ${WGET} $extras_place/glm-$glm_version.tar.gz
-    (
-    date
-    pwd
-    gzip -dc ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz | tar xf -
-    cd glm-$glm_version
-    cmake . -DCMAKE_INSTALL_PREFIX=$install_top_dir
-    if $MAKE ; then
-       make install
-    fi
-    ) > $HOSTLOGDIR/17-glm.txt 2>&1
-   echo done glm: >&2
-fi
-
-
-###############################################################################
 # pygobject
 ###############################################################################
 # this needs to find gobject-introspection-1.0 >= 1.46.0 (now 1.56.0 apparently)
@@ -3466,359 +3861,7 @@ else
     echo done install pygobject with pip3 >&2
 fi
 
-
-###############################################################################
-##########         build numpy                                    #############
-###############################################################################
-
-# Let's stop at the beginning if we need a fortran compiler and don't have it.
-#
-if [ "$build_numpy" = true ] ; then
-   if gfortran --version > /dev/null ; then
-      echo found fortran compiler
-   else
-      echo fortran compiler not found.
-      exit 2
-   fi
-fi
-
-# numpy needs system libblas (and liblapack?) - it's not clear to
-# me how to build them otherwise.
-# sudo apt-get install libblas-dev liblapack-dev
-
-# cython
-echo pip3 install --upgrade pip
-pip3 install --upgrade pip
-echo pip3 install cython
-pip3 install cython
-echo pip3 install nanobind
-echo pip3 install nanobind >&2
-pip3 install nanobind
-
-if [ true = true ] ; then
-   skip_this=false
-   ls -alt $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py
-   if [ -e $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py ] ;  then
-         echo numpy is found, skip
-         skip_this=true
-   else
-         echo not found: $install_top_dir/lib/$python_version/site-packages/numpy-*/numpy/lib/_version.py
-         echo numpy was not found - needs building
-   fi
-   if [ $skip_this = false ] ;  then
-      numpy_version=1.19.4
-      echo BUILDING numpy $numpy_version
-      echo BUILDING numpy $numpy_version >&2
-      (
-      echo building ========================= numpy ==============================
-      # this needs fortran compiler gfortran
-
-      # maybe get numpy from github?
-      # https://github.com/numpy/numpy/releases/download/v1.14.1/numpy-1.14.1.tar.gz
-      # numpy needset setuptools
-      # https://github.com/pypa/setuptools/archive/v41.5.1.tar.gz
-      # numpy source is now zip
-      # ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.tar.gz
-      ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.zip
-      #
-      if [ ! -e ${AUTOBUILD_SOURCES}/numpy-$numpy_version.zip ] ; then
-         exit
-      fi
-      # tar xf ${AUTOBUILD_SOURCES}/numpy-$numpy_version.tar.gz
-      unzip ${AUTOBUILD_SOURCES}/numpy-$numpy_version.zip
-      cd numpy-$numpy_version/
-      # we need to check that we have a fortran compiler, in this case gnu95
-      #
-      if gfortran --version ; then
-        echo found fortran compiler
-      else
-        echo fortran compiler not found.
-        exit 2
-      fi
-      which python3
-      # let's just try to install it using pip! Maybe that will do good things?
-      python3 -m pip install numpy
-      # OK, back to compiling...
-      python3 setup.py build --fcompiler=gfortran
-      python3 setup.py install
-      if [ ! $? ] ; then
-         echo something bad about numpy.
-         exit 2
-      fi
-      cd -
-      ) > $HOSTLOGDIR/17-a-numpy.txt 2>&1
-      echo BUILDING numpy $numpy_version finished >&2
-   fi
-fi
-
-# this is a hack for charybdis   - we need cmake version 3.1 or later
-export PATH=$HOME/cmake/bin:$PATH
-
-############################### eigen ##########################################
-eigen_version=3.3.9
-if [ -e $install_top_dir/include/eigen3 ] ; then
-   echo eigen3 is installed
-else
-   echo BUILDING eigen $eigen_version
-   echo BUILDING eigen $eigen_version >&2
-   (
-   ${WGET} https://gitlab.com/libeigen/eigen/-/archive/$eigen_version/eigen-$eigen_version.tar.gz
-   tar xf $AUTOBUILD_SOURCES/eigen-$eigen_version.tar.gz
-
-   mkdir -p build-eigen
-   cd build-eigen
-   cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ../eigen-$eigen_version
-   make install
-   cd -
-   ) > $HOSTLOGDIR/17-b-eigen.txt 2>&1
-   echo BUILDING eigen finished >&2
-fi
-
-
-############################### rdkit ##########################################
-
-# we need to set rdkit_tar_size because the WGET doesn't skip the download if the
-# file exists. Amazon.
-#
-build_rdkit=true
-rdkit_version=2017_09_3
-rdkit_version=2019_09_1 # python 3
-rdkit_version=2018_09_2 # Atom pointer wrappers gone, needs coot Dec 2020 patch
-rdkit_version=2020_09_3
-rdkit_version=2023_03_1
-rdkit_version=2023_09_4
-# see https://github.com/rdkit/rdkit/releases
-rdkit_home=https://github.com/rdkit/rdkit/archive
-rdkit_tar_host_file_name=Release_$rdkit_version.tar.gz
-rdkit_tar_download_file_name=rdkit-Release_$rdkit_version.tar.gz
-rdkit_tar_size=54644792
-rdkit_tar_size=58598385 # 2020_09_3
-rdkit_tar_size=79454133 # 2023_03_1
-rdkit_tar_size=80212603 # 2023_09_4
-
-if [ "$build_rdkit" = true ] ; then
-   skip_this=false
-   if [ "$test_for_already_installed_dependencies" = true ] ; then
-      # this file is in 2018_09 but not in 2017_09
-      if [ -e $install_top_dir/include/rdkit/GraphMol/StereoGroup.h ] ;  then
-         echo not building rdkit:
-         skip_this=true
-      fi
-   fi
-
-   # hack
-   # skip_this=false
-
-   if [ $skip_this = false ] ;  then
-
-      echo BUILDING RDKit $rdkit_version
-      echo BUILDING RDKit $rdkit_version >&2
-      (
-      echo building ========================= rdkit ==============================
-
-      # at last we get to actually compile rdkit
-      export CC=gcc
-      export CXX=g++
-      RDKIT=$install_top_dir
-      RDBASE=$install_top_dir
-      CMAKE_INSTALL_PREFIX=$install_top_dir
-      export RDKIT
-      export RDBASE
-      export CMAKE_INSTALL_PREFIX
-
-      # shall we build from github rdkit?
-      github_rdkit=false
-
-      if [ $(uname) = Darwin ] ; then
-         echo LD_LIBRARY_FALLBACK_PATH  $LD_LIBRARY_FALLBACK_PATH
-	 # what is unexport in bash?
-         export LD_LIBRARY_PATH=
-      fi
-
-      echo ==================== LD_LIBRARY_PATH is $LD_LIBRARY_PATH
-
-      if [ "$github_rdkit" = true ] ; then
-         echo PATH A - pull
-         if [ ! -d rdkit-github/build ] ; then
-            mkdir -p rdkit-github/build
-         fi
-         echo pulling...
-         # cd rdkit-github/rdkit && git pull && cd -
-         cd rdkit-github/build
-         pwd
-         tree_from_build=../rdkit
-      else
-
-         # old wget $rdkit_home/$rdkit_tar_host_file_name -P ${AUTOBUILD_SOURCES} -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-         echo PATH B
-
-         # OK, So, AFAICS, -N doesn't work with this file. So check the size
-         get_the_rdkit_tar_file=true
-         echo testing for existance of ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-         if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name ] ; then
-            which stat
-            echo   found the file   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-            echo stat --format=%s   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-            stat --format=%s        ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-            size=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name)
-            echo rdkit tar ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name size from stat: $size
-            if [ "$size" = $rdkit_tar_size ] ; then
-               get_the_rdkit_tar_file=false
-            fi
-         fi
-         echo here C with get_the_rdkit_tar_file $get_the_rdkit_tar_file
-
-         if [ $get_the_rdkit_tar_file = true ] ; then
-            $WGET $rdkit_home/$rdkit_tar_host_file_name -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-            do_rdkit_download=true
-            if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
-                s=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name)
-                if [ "$s" = $rdkit_tar_size ] ; then
-                   do_rdkit_download=false
-                fi
-            fi
-            if [ $do_rdkit_download = true ] ; then
-               echo $WGET $rdkit_home/$rdkit_tar_host_file_name
-               if ${WGET} $rdkit_home/$rdkit_tar_host_file_name ; then
-                  if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
-                     cp ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ${AUTOBUILD_SOURCES}/rdkit-$rdkit_tar_host_file_name
-                  else
-                     echo $rdkit_tar_host_file_name does not exist after download
-                  fi
-               fi
-            fi
-         fi
-
-         pwd
-         echo tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-         tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-         ls
-         if [ ! -e rdkit-Release_$rdkit_version ] ; then
-             echo RDKit untar dir not found: rdkit-Release_$rdkit_version
-             exit 2
-         fi
-         cd rdkit-Release_$rdkit_version
-         ${WGET} $extras_place/rdkit-maeparser.patch
-         pwd
-         echo patch -p0 < ${AUTOBUILD_SOURCES}/rdkit-maeparser.patch
-         patch -p0 < ${AUTOBUILD_SOURCES}/rdkit-maeparser.patch
-
-         mkdir -p build
-         cd build
-         pwd
-         tree_from_build=..
-      fi
-
-      # New (1.60) boost uses BOOST_PYTHON not Boost_PYTHON
-      #
-      echo which cmake
-      which cmake
-
-      # No help:  -DBoost_INCLUDE_DIR=$install_top_dir/include
-      # Cmake policy:	 -DMACOSX_RPATH=ON
-
-      # old verisons of boost (before 1.60?) can't find boost python
-      # with new (github Feb 2016) rdkit
-
-      # -DPYTHON_LIBRARY=$install_top_dir/lib/libpython2.7.$extension_type
-
-      # no help apparently
-      # -DBoost_EXTERNAL_OBJECTS=$install_top_dir/lib/libboost_python.$extension_type
-      # -DBoost_INCLUDE_DIR=$install_top_dir/include
-      #
-      #  -DBOOST_ROOT=$install_top_dir
-      # -DBoost_INCLUDE_DIR=$install_top_dir/include
-      #  -DBoost_LIBRARY_DIRS=$install_top_dir/lib
-      #  -DBoost_PYTHON_LIBRARY=$install_top_dir/lib/libboost_python.$extension_type
-      #  -DBoost_REGEX_LIBRARY=$install_top_dir/lib/libboost_regex.$extension_type
-
-
-      # catches correctly (no need to specify)
-      # 	 -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python2.7
-
-      if [ $(uname) = Darwin ] ; then
-         cmake_macosx_rpath=-DCMAKE_MACOSX_RPATH=ON
-      fi
-
-      # last time I looked, the include files of RDKit MolDraw2D were wrong.
-      # I had to hack in GraphMol/MolDraw2D into include/rdkit and copy the files
-      # there.
-
-      # -- Could NOT find InChI in system locations (missing:  INCHI_LIBRARY INCHI_INCLUDE_DIR)
-      # CMake Warning at External/INCHI-API/CMakeLists.txt:43 (message):
-      #   ** NO INCHI SOFTWARE FOUND
-      #
-      #   InChI support will be turned off.  If you want to add InChI support, please
-      #   follow the instructions inside $RDBASE/External/INCHI-API/README to
-      #   download a copy of InChI software and then rerun cmake.
-      #
-      # http://www.inchi-trust.org/download/105/INCHI-1-SRC.zip
-
-      # now libboost_python comes with an extended name: libboost_python27
-
-      libboost_python_ext=$python_version_extension
-      libboost_python_ext=
-      extension_type=so
-
-      if [ $(uname) = Darwin ] ; then
-         extension_type=dylib
-      fi
-
-      echo will configure with cmake like this:
-
-      # DBoost_PYTHON39_LIBRARY_RELEASE needs to be extracted?
-      # probblem: $install_top_dir/include/boost/python/detail/wrap_python.hpp:57:23: fatal error: pyconfig.h: No such file or directory
-      # solution: https://github.com/rdkit/rdkit/issues/3884
-      # -DPYTHON_INCLUDE_DIR=$PYROOT/include/python3.8
-      # -DBoost_PYTHON39_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so
-
-      echo cmake \
-               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
-               $cmake_macosx_rpath \
-               -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
-               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-x86_64-linux-gnu/libpython$python_version_extension.a \
-               -DCMAKE_INSTALL_PREFIX=$install_top_dir \
-               -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
-               -DRDK_BUILD_CAIRO_SUPPORT=ON \
-               -DRDK_INSTALL_INTREE=OFF \
-                $tree_from_build
-
-      if cmake  \
-               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
-               $cmake_macosx_rpath \
-               -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
-               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-x86_64-linux-gnu/libpython$python_version_extension.a \
-               -DCMAKE_INSTALL_PREFIX=$install_top_dir \
-               -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
-               -DRDK_BUILD_CAIRO_SUPPORT=ON \
-               -DRDK_INSTALL_INTREE=OFF \
-                $tree_from_build ; then
-
-         # it seems that make -j n fails to compile (race condition?)
-         # so use just plain make? (currently not fixed)
-         if $MAKE ; then
-            make install
-         else
-            echo problem making the RDKit.
-            exit 1
-         fi
-      else
-         echo problem configuring the RDKit.
-         exit 1
-      fi
-      cd ..
-      cd ..
-      ) > $HOSTLOGDIR/18-rdkit.txt 2>&1
-      echo BUILDING rdkit finished
-   fi
-fi
-
-echo installing python requests >&2
-python3 -m pip install requests
-
-
 # silicos-it's biscu-it (QED) is now part of RDKit main.
-
 
 ###############################################################################
 ##################### guile and friends #######################################
@@ -4727,3 +4770,37 @@ $publish_logs $LOGS
 
 echo finished.
 echo finished.>&2
+
+
+# [errno #1]
+# rocessing numpy/random/_sfc64.pyx
+# Traceback (most recent call last):
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 235, in <module>
+#     main()
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 231, in main
+#     find_process_files(root_dir)
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 222, in find_process_files
+#     process(root_dir, fromfile, tofile, function, hash_db)
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 188, in process
+#     processor_function(fromfile, tofile)
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 77, in process_pyx
+#     subprocess.check_call(
+#   File "/home/paule/autobuild/build-for-chapi-gtk4/lib/python3.10/subprocess.py", line 369, in check_call
+#     raise CalledProcessError(retcode, cmd)
+# subprocess.CalledProcessError: Command '['/home/paule/autobuild/build-for-chapi-gtk4/bin/python3', '-m', 'cython', '-3', '--fast-fail', '-o', '_sfc64.c', '_sfc64.pyx']' returned non-zero exit status 1.
+# Cythonizing sources
+# Traceback (most recent call last):
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/setup.py", line 508, in <module>
+#     setup_package()
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/setup.py", line 488, in setup_package
+#     generate_cython()
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/setup.py", line 285, in generate_cython
+#     raise RuntimeError("Running cythonize failed!")
+# RuntimeError: Running cythonize failed!
+# /home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/setup.py:67: RuntimeWarning: NumPy 1.19.4 may not yet support Python 3.10.
+#   warnings.warn(
+# Running from numpy source directory.
+# /home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py:73: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+#   required_version = LooseVersion('0.29.21')
+# /home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py:75: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+#   if LooseVersion(cython_version) < required_version:
