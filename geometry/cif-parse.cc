@@ -2174,7 +2174,8 @@ coot::protein_geometry::init_standard() {
          energy_cif_file_name = std::string(cmld) + "/ener_lib.cif";
       }
 
-      std::cout << "calling init_refmac_mon_lib() on" << mon_lib_cif << std::endl;
+      if (false)
+         std::cout << "calling init_refmac_mon_lib() on" << mon_lib_cif << std::endl;
       init_refmac_mon_lib(mon_lib_cif, protein_geometry::MON_LIB_LIST_CIF);
       // now the protein monomers:
       read_number = 1;
