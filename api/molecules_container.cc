@@ -234,7 +234,7 @@ molecules_container_t::read_standard_residues() {
       std::string dir = coot::package_data_dir();
       std::string standard_file_name = coot::util::append_dir_file(dir, "standard-residues.pdb");
 
-      std::cout << "------------------ read_standard_residues() B " << standard_file_name << std::endl;
+      // std::cout << "------------------ read_standard_residues() B " << standard_file_name << std::endl;
       struct stat buf;
       int status = stat(standard_file_name.c_str(), &buf);
       if (status != 0) { // standard-residues file was not found in
@@ -720,6 +720,12 @@ molecules_container_t::write_png(const std::string &compound_id, int imol_enc,
 
 int
 molecules_container_t::write_coordinates(int imol, const std::string &file_name) const {
+
+   if (true) {
+      mmdb::Manager *mol = get_mol(imol);
+      mol->WriteCIFASCII("write_coords_molecules_container_fn_start.cif");
+   }
+
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       status = molecules[imol].write_coordinates(file_name);
