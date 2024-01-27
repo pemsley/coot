@@ -1005,6 +1005,38 @@ int test_add_terminal_residue(molecules_container_t &mc) {
    return status;
 }
 
+// this was converted from Filo's test
+int test_add_terminal_residue_v2(molecules_container_t &molecules_container) {
+
+   int status = 0;
+   int coordMolNo = molecules_container.read_pdb("./5a3h.mmcif");
+   int mapMolNo = molecules_container.read_mtz("./5a3h_sigmaa.mtz", "FWT", "PHWT", "", false, false);
+   molecules_container.set_imol_refinement_map(mapMolNo);
+
+   int atom_count_1 = molecules_container.get_number_of_atoms(coordMolNo);
+   molecules_container.delete_using_cid(coordMolNo, "A/4-100/*", "LITERAL");
+   molecules_container.delete_using_cid(coordMolNo, "A/105-200/*", "LITERAL");
+   molecules_container.delete_using_cid(coordMolNo, "A/205-303/*", "LITERAL");
+   std::string mmcifString_1 = molecules_container.molecule_to_mmCIF_string(coordMolNo);
+   int atom_count_2 = molecules_container.get_number_of_atoms(coordMolNo);
+   molecules_container.write_coordinates(coordMolNo, "pre-addition.cif");
+   molecules_container.write_coordinates(coordMolNo, "pre-addition-2.cif");
+
+   int result = molecules_container.add_terminal_residue_directly_using_cid(coordMolNo, "A/104");
+   if (result == -1) {
+       std::cout << "test_add_terminal_residue_v2() fail: Result is -1" << std::endl;
+   }
+   int atom_count_3 = molecules_container.get_number_of_atoms(coordMolNo);
+   std::string mmcifString_2 = molecules_container.molecule_to_mmCIF_string(coordMolNo);
+   if (mmcifString_1 != mmcifString_2) {
+       std::cout << "Error: MMCIF Strings are not equal" << std::endl;
+   }
+
+   molecules_container.write_coordinates(coordMolNo, "post-addition.cif");
+   return status;
+
+}
+
 int test_delete_chain(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -4347,6 +4379,69 @@ int test_disappearing_ligand(molecules_container_t &mc) {
 }
 #endif
 
+int test_ligand_merge(molecules_container_t &mc) {
+
+   auto test_mmdb = [] () {
+      // int imol_2 = mc.read_pdb(reference_data("2vtq.cif"));
+      // mc.write_coordinates(imol_2, "2vtq-just-input-output.cif");
+      mmdb::Manager *mol = new mmdb::Manager;
+      mol->ReadCoorFile("2vtq.cif");
+      mol->WriteCIFASCII("2vtq-input-output-pure-mmdb.cif");
+      delete mol;
+   };
+
+   int status = 0;
+
+   test_mmdb();
+   int imol = mc.read_pdb(reference_data("2vtq-sans-ligand.cif"));
+   mc.write_coordinates(imol, "2vtq-sans-ligand-just-input-output.cif");
+   mmdb::Manager *mol = mc.get_mol(imol);
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            std::cout << "    " << chain_p->GetChainID() << " " << n_res << " residues " << std::endl;
+         }
+      }
+   }
+   mc.import_cif_dictionary(reference_data("MOI.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   int imol_lig = mc.get_monomer("MOI");
+   std::string sl = std::to_string(imol_lig);
+   std::pair<int, std::vector<merge_molecule_results_info_t> > ss = mc.merge_molecules(imol, sl);
+   mc.write_coordinates(imol, "2vtq-sans-ligand-with-merged-MOI.cif");
+
+   // we test that the output is sane by looking for an atom that has unset/default/"." for atom and element
+   // columns 3 and 4 (starting from 1).
+   std::string cif_for_testing = "2vtq-sans-ligand-just-input-output.cif";
+   cif_for_testing = "2vtq-sans-ligand-just-input-output.cif"; // it's not the merge, it's the writing.
+   if (coot::file_exists(cif_for_testing)) {
+      bool found_bogus_atom = false;
+      std::ifstream f(cif_for_testing.c_str());
+      if (f) {
+         std::string line;
+         while (std::getline(f, line)) {
+            std::vector<std::string> parts = coot::util::split_string_no_blanks(line);
+            if (parts.size() > 10) {
+               if (parts[0] == "ATOM") {
+                  if (parts[2] == ".") {
+                     if (parts[3] == ".") {
+                        std::cout << "found bogus null atom in cif output " << cif_for_testing << std::endl;
+                        found_bogus_atom = true;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      if (! found_bogus_atom) status = 1; // OK then I suppose
+   }
+   return status;
+}
+
+
 int test_gltf_export(molecules_container_t &mc) {
 
    auto make_multi_cid = [] (const std::vector<coot::residue_spec_t> &neighbs) {
@@ -4786,7 +4881,11 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_mask_atom_selection, "mask atom selection", mc);
 
-   status += run_test(test_instanced_bonds_mesh_v2, "test instanced bond selection v2", mc);
+   // status += run_test(test_instanced_bonds_mesh_v2, "test instanced bond selection v2", mc);
+
+   // status += run_test(test_ligand_merge, "test ligand merge", mc);
+
+   status += run_test(test_add_terminal_residue_v2, "test add terminal residue v2", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
