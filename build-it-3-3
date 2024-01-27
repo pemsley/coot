@@ -3183,6 +3183,7 @@ if [ true = true ] ; then
       # https://github.com/pypa/setuptools/archive/v41.5.1.tar.gz
       # numpy source is now zip
       # ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.tar.gz
+      echo ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.zip
       ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.zip
       #
       if [ ! -e ${AUTOBUILD_SOURCES}/numpy-$numpy_version.zip ] ; then
@@ -3251,7 +3252,7 @@ else
    echo BUILDING catch2 catch2_version
    ${WGET} https://github.com/catchorg/Catch2/archive/refs/tags/v$catch2_version.tar.gz
    (
-   tar xf $AUTOBUILD_SOURCES/$catch2_version.tar.gz
+   tar xf $AUTOBUILD_SOURCES/v$catch2_version.tar.gz
    cd Catch2-$catch2_version
    meson setup -Dprefix=$install_top_dir build
    cd build
