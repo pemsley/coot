@@ -42,6 +42,8 @@ Coot: Fix this in pyrogen Makefile:
       Is -DSWIG already on, because it's parsed by swig?
 * Done.
 
+libcootapi: what are the headers? Including Remark records?
+
 libcootapi:
    //! generate GM self restraints for the given residues.
    //! `residue_cids" is a "||"-separated list of residues, e.g. "//A/12||//A/14||/B/56"
@@ -93,6 +95,8 @@ libcootapi: Have a look at this when compiling with emscripten
    #ifdef HAVE_BOOST
    #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 * Done.
+
+libcootapi: Bring HOLE to the api - and possibly map carving.
 
 libcootapi: cif parsing: let's have the acedrg version of gphl_chem_comp_info
 
