@@ -43,10 +43,10 @@ jobs:
         run:  bash build-it-3-3 || echo done
       
       - name: create-build-directory-for-libcootapi
-        run: mkdir build-libcootapi
+        run:  mkdir build-libcootapi
 
       - name: set the path
-        run: echo /home/runner/install/coot-Linux-ubuntu-gtk4/bin >> $GITHUB_PATH
+        run:  echo /home/runner/install/coot-Linux-ubuntu-gtk4/bin >> $GITHUB_PATH
 
       - name: install nanobind
         run:  python3 -m pip install nanobind
@@ -58,16 +58,16 @@ jobs:
             -Dnanobind_DIR=/home/runner/install/coot-Linux-ubuntu-gtk4/lib/python3.11/site-packages/nanobind/cmake ..
         
       - name: make
-        run: cd build-libcootapi && make -j 2
+        run:  cd build-libcootapi && make -j 2
         
       - name: make install
-        run: cd build-libcootapi && make install
+        run:  cd build-libcootapi && make install
 
-    #   - name: test chapi
-    #     run: python3 -m chapi
+      - name: test chapi
+        run:  which python3 && python3 -m chapi
 
       - name: test 2 for chapi
-        run: python3 python-tests/test_chapi2.py
+        run:  which python3 && python3 python-tests/test_chapi2.py
 
 
         
