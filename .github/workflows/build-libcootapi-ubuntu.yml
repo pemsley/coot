@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       #- uses: actions/checkout@v4
       #- name: Cache coot dependencies
       #  id: cache-coot-dependencies
@@ -38,10 +39,9 @@ jobs:
       - name: Where are we?
         run:  pwd
 
-      - env:
-          CHAPI_ONLY: true
-    
       - name: Run build-with-build-it-3-3
+        env:
+          CHAPI_ONLY: true
         run:  bash build-it-3-3 || echo done
       
       - name: create-build-directory-for-libcootapi
