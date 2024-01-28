@@ -24,6 +24,8 @@ moorhen: does the map masking take a multi-cid for the atom selection?
 
 moorhen: search monomer library for ARG with methyl (for example)
 
+libcootapi: bundle the reference structures into the source code.
+
 libcootapi: add a function to copy a map (and a model molecule I guess) for figure making.
 
 libcootapi: replace_molecule_by_model_from_file() should be passed the use_gemmi argument.
