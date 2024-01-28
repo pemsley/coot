@@ -2233,10 +2233,12 @@ coot::molecule_t::get_fixed_atoms() const {
 
 int
 coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
-                                float map_weight, int n_cycles, const coot::protein_geometry &geom, bool refinement_is_quiet) {
+                                float map_weight, int n_cycles, const coot::protein_geometry &geom,
+                                bool do_rama_plot_restraints, float rama_plot_weight,
+                                bool do_torsion_restraints, float torsion_weight,
+                                bool refinement_is_quiet) {
 
    bool make_trans_peptide_restraints = true;
-   bool do_rama_plot_restraints = false;
 
    int status =  0;
    std::vector<coot::atom_spec_t> fixed_atom_specs;
@@ -2263,19 +2265,39 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    if (refinement_is_quiet)
       restraints.set_quiet_reporting();
 
-   // std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
+   if (do_rama_plot_restraints) {
+      restraints.set_rama_type(RAMA_TYPE_ZO);
+      restraints.set_rama_plot_weight(rama_plot_weight);
+   }
+
+   if (do_torsion_restraints) {
+      restraints.set_torsion_restraints_weight(torsion_weight);
+   }
+
+   restraints.set_map_weight(map_weight);
    restraints.add_map(map_weight);
-   restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-   flags = coot::TYPICAL_RESTRAINTS;
-   pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+
+   restraint_usage_Flags flags = TYPICAL_RESTRAINTS;
+   if (do_torsion_restraints) flags = TYPICAL_RESTRAINTS_WITH_TORSIONS;
+   pseudo_restraint_bond_type pseudos = NO_PSEUDO_BONDS;
 
    int n_threads = 4; // coot::get_max_number_of_threads();
    ctpl::thread_pool thread_pool(n_threads);
    restraints.thread_pool(&thread_pool, n_threads);
 
-   int imol = 0; // dummy
-   restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
-                              1.0, do_rama_plot_restraints, true, true, false, pseudos);
+   int imol = imol_no;
+   bool do_auto_helix_restraints = true;
+   bool do_auto_strand_restraints = false;
+   bool do_h_bond_restraints = false;
+   bool do_residue_internal_torsions = do_torsion_restraints;
+   restraints.make_restraints(imol, geom, flags,
+                              do_residue_internal_torsions,
+                              make_trans_peptide_restraints,
+                              rama_plot_weight, do_rama_plot_restraints,
+                              do_auto_helix_restraints,
+                              do_auto_strand_restraints,
+                              do_h_bond_restraints,
+                              pseudos);
    int nsteps_max = n_cycles;
    short int print_chi_sq_flag = 1;
    restraints.minimize(flags, nsteps_max, print_chi_sq_flag);

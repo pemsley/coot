@@ -119,6 +119,12 @@ class molecules_container_t {
    float map_weight;
    float geman_mcclure_alpha;
 
+   bool use_rama_plot_restraints;
+   float rama_plot_restraints_weight;
+
+   bool use_torsion_restraints;
+   float torsion_restraints_weight;
+
    static ctpl::thread_pool static_thread_pool; // does this need to be static?
    bool show_timings;
 
@@ -301,6 +307,13 @@ class molecules_container_t {
       mmdb::InitMatType();
       contouring_time = 0;
       make_backups_flag = true;
+
+      use_rama_plot_restraints = false;
+      rama_plot_restraints_weight = 1.0;
+
+      use_torsion_restraints = false;
+      torsion_restraints_weight = 1.0;
+
       // debug();
    }
 
@@ -334,7 +347,7 @@ public:
 
    //! get the state of using GEMMI for coordinates parsing
    bool get_use_gemmi() { return use_gemmi; }
- 
+
    // -------------------------------- Basic Utilities -----------------------------------
    //! \name Basic Utilities
 
@@ -1139,6 +1152,34 @@ public:
 
    //! clear target_position restraint if it is (or they are) close to their target position
    void turn_off_when_close_target_position_restraint(int imol);
+
+   //! turn on or off rama restraints
+   void set_use_rama_plot_restraints(bool state) { use_rama_plot_restraints = state; }
+
+   //! get the state of the rama plot restraints usage in refinement.
+   //! @return the state
+   bool get_use_rama_plot_restraints() const { return use_rama_plot_restraints; }
+
+   //! set the Ramachandran plot restraints weight
+   void set_rama_plot_restraints_weight(float f) { rama_plot_restraints_weight = f; }
+
+   //! get the Ramachandran plot restraints weight
+   //! @return the Ramachandran plot restraints weight
+   float get_rama_plot_restraints_weight() const { return rama_plot_restraints_weight; }
+
+   //! turn on or off torsion restraints
+   void set_use_torsion_restraints(bool state) { use_torsion_restraints = state; }
+
+   //! get the state of the rama plot restraints usage in refinement.
+   //! @return the state
+   bool get_use_torsion_restraints() const { return use_torsion_restraints; }
+
+   //! set the Ramachandran plot restraints weight
+   void set_torsion_restraints_weight(float f) { torsion_restraints_weight = f; }
+
+   //! get the Ramachandran plot restraints weight
+   //! @return the Ramachandran plot restraints weight
+   float get_torsion_restraints_weight() const { return torsion_restraints_weight; }
 
    //! initialise the refinement of (all of) molecule `imol_frag`
    void init_refinement_of_molecule_as_fragment_based_on_reference(int imol_frag, int imol_ref, int imol_map);
