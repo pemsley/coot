@@ -12,12 +12,13 @@ jobs:
     steps:
 
       - uses: actions/checkout@v4
-      # - name: Cache coot dependencies
-      #   id: cache-coot-dependencies
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: /home/runner/install/coot-Linux-ubuntu-gtk4
-      #     key:  coot-deps-ubuntu
+
+      - name: Cache coot dependencies
+        id: cache-coot-dependencies
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/install/coot-Linux-ubuntu-gtk4
+          key:  coot-deps-ubuntu
 
       - name: Cache gemmi source
         id:   Cache-gemmi-source
@@ -49,9 +50,6 @@ jobs:
 
       - name: set the path
         run:  echo /home/runner/install/coot-Linux-ubuntu-gtk4/bin >> $GITHUB_PATH
-
-      - name: install nanobind
-        run:  python3 -m pip install nanobind
 
       - name: run cmake
         run: > 
