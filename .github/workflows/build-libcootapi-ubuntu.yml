@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Cache coot dependencies
-        id: cache-coot-dependencies
-        uses: actions/cache@v4
-        with:
-          path: /home/runner/install/coot-Linux-ubuntu-gtk4
-          key:  coot-deps-ubuntu
+      #- uses: actions/checkout@v4
+      #- name: Cache coot dependencies
+      #  id: cache-coot-dependencies
+      #  uses: actions/cache@v4
+      #  with:
+      #    path: /home/runner/install/coot-Linux-ubuntu-gtk4
+      #    key:  coot-deps-ubuntu
 
       - name: Cache gemmi source
         id:   Cache-gemmi-source
@@ -33,11 +33,13 @@ jobs:
           key:  coot-build-ubuntu-gemmi-cache-build
         
       - name: Install system dependencies
-        run: sudo apt-get install cmake libvorbis-dev libdw-dev libncurses5-dev libgtk-4-dev libasound2-dev
-        #run: sudo apt-get install cmake libdw-dev libncurses5-dev 
+        run:  sudo apt-get install cmake libdw-dev libncurses5-dev
     
       - name: Where are we?
         run:  pwd
+
+      - env:
+          CHAPI_ONLY: true
     
       - name: Run build-with-build-it-3-3
         run:  bash build-it-3-3 || echo done
