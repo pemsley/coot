@@ -13,26 +13,26 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - name: Cache coot dependencies
-        id: cache-coot-dependencies-using-python-3-10
+      - name: Cache chapi dependencies
+        id:   Cache-chapi-dependencies-using-python-3-10
         uses: actions/cache@v4
         with:
-          path: /home/runner/install/coot-Linux-ubuntu-gtk4
-          key:  coot-deps-ubuntu-using-python-3-10
+          path: /home/runner/install/chapi-Linux-ubuntu-gtk4
+          key:  chapi-deps-ubuntu-using-python-3-10
 
       - name: Cache gemmi source
         id:   Cache-gemmi-source
         uses: actions/cache@v4
         with:
            path: gemmi
-           key:  coot-build-ubuntu-gemmi-cache-source
+           key:  chapi-build-ubuntu-gemmi-cache-source
 
       - name: Cache gemmi build
         id:   Cache-gemmi-build
         uses: actions/cache@v4
         with:
           path: build-gemmi
-          key:  coot-build-ubuntu-gemmi-cache-build
+          key:  chapi-build-ubuntu-gemmi-cache-build
         
       - name: Install system dependencies
         run:  sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev
@@ -72,7 +72,7 @@ jobs:
       - name: check linking 1
         run:  ldd /home/runner/install/coot-Linux-ubuntu-gtk4/lib/python3.10/site-packages/chapi.cpython-310-x86_64-linux-gnu.so
 
-      - name: test number 2 for chapi
+      - name: test with chapi-using script
         run:  which python3 && cat python-tests/test_chapi2.py && python3 python-tests/test_chapi2.py
 
 
