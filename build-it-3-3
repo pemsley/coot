@@ -460,9 +460,13 @@ run_second_test=${run_second_test:=true}
 #
 AUTOBUILD_INSTALLED=${AUTOBUILD_INSTALLED:=${HOME}/autobuild/${OS}-${HOST}}
 if test x$GITHUB_ENV = x ; then
-   : # we are not in a hithub actions build
+    : # we are not in a hithub actions build
 else
-   AUTOBUILD_INSTALLED=$HOME/install/coot-Linux-ubuntu
+    if [ "$CHAPI_ONLY" = true ] ; then
+        AUTOBUILD_INSTALLED=$HOME/install/chapi-Linux-ubuntu
+    else
+        AUTOBUILD_INSTALLED=$HOME/install/coot-Linux-ubuntu
+    fi
 fi
 
 # or perhaps, for the adventurous:
