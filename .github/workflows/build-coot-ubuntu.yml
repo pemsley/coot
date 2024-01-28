@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: wget test data
       run:  wget -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/greg-data.tar.gz
@@ -19,34 +19,34 @@ jobs:
 
     - name: cache test data
       id: cache-coot-test-data
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
          path: src/greg-data
          key:  coot-test-data
 
     - name: Cache coot dependencies
       id: cache-coot-dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
          path: /home/runner/install/coot-Linux-ubuntu-gtk4
          key:  coot-deps-ubuntu
 
     - name: Cache gemmi source
       id:   Cache-gemmi-source
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
          path: gemmi
          key:  coot-build-ubuntu-gemmi-cache-source
 
     - name: Cache gemmi build
       id:   Cache-gemmi-build
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
          path: build-gemmi
          key:  coot-build-ubuntu-gemmi-cache-build
 
     - name: Install system dependencies
-      run: sudo apt-get install cmake libvorbis-dev libdw-dev libncurses5-dev libgtk-4-dev libasound2-dev
+      run: sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev libvorbis-dev libasound2-dev
 
     - name: Where are we?
       run:  pwd
