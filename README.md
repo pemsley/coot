@@ -20,8 +20,10 @@ Badges
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3114/)
 
-![Binary build Badge](https://github.com/pemsley/coot/actions/workflows/build-coot-ubuntu.yml/badge.svg)
+![Ubuntu binary build badge](https://github.com/pemsley/coot/actions/workflows/build-coot-ubuntu.yml/badge.svg)
 
-![Binary build Badge](https://github.com/pemsley/coot/actions/workflows/build-coot-macos.yml/badge.svg)
+![chapi binary build badge](https://github.com/pemsley/coot/actions/workflows/build-libcootapi-ubuntu.yml/badge.svg)
+
+![macOS binary build badge](https://github.com/pemsley/coot/actions/workflows/build-coot-macos.yml/badge.svg)
 
 ![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=pemsley&show_icons=true&theme=default)
