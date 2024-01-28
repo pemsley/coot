@@ -69,10 +69,10 @@ jobs:
       - name: what site-packages files do we have?
         run:  find /home/runner/install/coot-Linux-ubuntu-gtk4/lib/python3.11/site-packages
 
-      - name: check linking 1:
+      - name: check linking 1
         run:  ldd /home/runner/install/coot-Linux-ubuntu-gtk4/lib/python3.11/site-packages/_coot_headless_api.so
 
-      - name: check linking 2:
+      - name: check linking 2
         run:  ldd /home/runner/install/coot-Linux-ubuntu-gtk4/lib/python3.11/site-packages/chapi.cpython-311-x86_64-linux-gnu.so
 
       - name: test number 2 for chapi
