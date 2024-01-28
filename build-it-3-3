@@ -3293,6 +3293,7 @@ if [ "$build_rdkit" = true ] ; then
       # this file is in 2018_09 but not in 2017_09
       if [ -e $install_top_dir/include/rdkit/GraphMol/StereoGroup.h ] ;  then
          echo not building rdkit:
+         echo not building rdkit: >&2
          skip_this=true
       fi
    fi
@@ -3511,8 +3512,17 @@ if [ "$build_rdkit" = true ] ; then
    fi
 fi
 
-echo installing python requests >&2
-python3 -m pip install requests
+if [ -e $install_top_dir/lib/$python_version/site-packages/requests ] ; then
+    echo python requests is installed
+    echo python requests is installed >&2
+else
+    echo installing python requests >&2
+    python3 -m pip install requests
+fi
+
+###############################################################################
+# exit here for the chapi build
+###############################################################################
 
 if [ "$CHAPI_ONLY" = true ] ; then
    exit
