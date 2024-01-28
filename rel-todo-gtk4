@@ -279,6 +279,11 @@ Libcootapi: add lib for gesamt
 Libcootapi: from ligands meeting: Note to self: pdb header information:
         CAVEAT, from Gemmi to mmdb.
 
+libcootapi: bring regularization to the api
+
+libcootapi: bring conformer generation to the api. Do energy minimization and discard the
+     high energy conformers
+
 Fun: flattening difference map peaks animation:
         find peak and negative peaks in the
         current diff-map - previous diff-map difference map

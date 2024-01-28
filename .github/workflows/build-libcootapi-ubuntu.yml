@@ -18,7 +18,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/install/coot-Linux-ubuntu-gtk4
-          key:  coot-deps-ubuntu
+          key:  coot-deps-ubuntu-using-python-3-10
 
       - name: Cache gemmi source
         id:   Cache-gemmi-source
