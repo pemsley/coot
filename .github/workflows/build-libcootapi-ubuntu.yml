@@ -10,65 +10,69 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Cache coot dependencies
-        id: cache-coot-dependencies
-        uses: actions/cache@v3
+
+      - uses: actions/checkout@v4
+
+      - name: Cache chapi dependencies
+        id:   Cache-chapi-dependencies-using-python-3-10
+        uses: actions/cache@v4
         with:
-          path: /home/runner/install/coot-Linux-ubuntu-gtk4
-          key:  coot-deps-ubuntu
+          path: /home/runner/install/chapi-Linux-ubuntu-gtk4
+          key:  chapi-deps-ubuntu-using-python-3-10
 
       - name: Cache gemmi source
         id:   Cache-gemmi-source
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
            path: gemmi
-           key:  coot-build-ubuntu-gemmi-cache-source
+           key:  chapi-build-ubuntu-gemmi-cache-source
 
       - name: Cache gemmi build
         id:   Cache-gemmi-build
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: build-gemmi
-          key:  coot-build-ubuntu-gemmi-cache-build
+          key:  chapi-build-ubuntu-gemmi-cache-build
         
       - name: Install system dependencies
-        run: sudo apt-get install cmake libvorbis-dev libdw-dev libncurses5-dev libgtk-4-dev libasound2-dev
-        #run: sudo apt-get install cmake libdw-dev libncurses5-dev 
+        run:  sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev
     
       - name: Where are we?
         run:  pwd
-    
+
       - name: Run build-with-build-it-3-3
+        env:
+          CHAPI_ONLY: true
         run:  bash build-it-3-3 || echo done
       
       - name: create-build-directory-for-libcootapi
-        run: mkdir build-libcootapi
+        run:  mkdir build-libcootapi
 
       - name: set the path
-        run: echo /home/runner/install/coot-Linux-ubuntu-gtk4/bin >> $GITHUB_PATH
-
-      - name: install nanobind
-        run:  python3 -m pip install nanobind
+        run:  echo /home/runner/install/chapi-Linux-ubuntu-gtk4/bin >> $GITHUB_PATH
 
       - name: run cmake
         run: > 
             cd build-libcootapi && 
-            cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/coot-Linux-ubuntu-gtk4 
-            -Dnanobind_DIR=/home/runner/install/coot-Linux-ubuntu-gtk4/lib/python3.11/site-packages/nanobind/cmake ..
+            cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu-gtk4 
+            -Dnanobind_DIR=/home/runner/install/chapi-Linux-ubuntu-gtk4/lib/python3.10/site-packages/nanobind/cmake ..
         
       - name: make
-        run: cd build-libcootapi && make -j 2
+        run:  cd build-libcootapi && make -j 4
         
       - name: make install
-        run: cd build-libcootapi && make install
+        run:  cd build-libcootapi && make install
 
-    #   - name: test chapi
-    #     run: python3 -m chapi
+      - name: test chapi
+        run:  which python3 && python3 --version
 
-      - name: test 2 for chapi
-        run: python3 python-tests/test_chapi2.py
+      - name: what site-packages files do we have?
+        run:  find /home/runner/install/chapi-Linux-ubuntu-gtk4/lib/python3.10/site-packages
 
+      - name: check linking 1
+        run:  ldd /home/runner/install/chapi-Linux-ubuntu-gtk4/lib/python3.10/site-packages/chapi.cpython-310-x86_64-linux-gnu.so
 
-        
+      - name: test with chapi-using script
+        run:  which python3 && cat python-tests/test_chapi2.py && python3 python-tests/test_chapi2.py
+
 

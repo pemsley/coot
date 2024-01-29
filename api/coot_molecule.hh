@@ -342,7 +342,9 @@ namespace coot {
       // ====================== init ======================================
 
       void init() {
-         use_gemmi = true; // 20240112-PE  woohoo! Let the bugs flow!
+         // use_gemmi = true; // 20240112-PE  woohoo! Let the bugs flow!
+         // 20240118 Turns out the bugs flowed too much. Let's set this back to false.
+         use_gemmi = false;
          // set the imol before calling this function.
          ligand_flip_number = 0;
          bonds_box_type = api_bond_colour_t::UNSET_TYPE;
@@ -527,6 +529,8 @@ namespace coot {
       // returns either the specified residue or null if not found
       mmdb::Residue *get_residue(const residue_spec_t &residue_spec) const;
 
+      std::string get_residue_name(const residue_spec_t &residue_spec) const;
+
       bool have_unsaved_changes() const { return modification_info.have_unsaved_changes(); }
       int undo(); // 20221018-PE return status not yet useful
       int redo(); // likewise
@@ -668,10 +672,18 @@ namespace coot {
       }
 
       //! export map molecule as glTF
-      void export_map_molecule_as_gltf(const std::string &file_name) const;
+      void export_map_molecule_as_gltf(clipper::Coord_orth &position,
+                                       float radius, float contour_level,
+                                       const std::string &file_name);
 
       //! export model molecule as glTF - This API will change - we want to specify surfaces and ribbons too.
-      void export_model_molecule_as_gltf(const std::string &file_name) const;
+      void export_model_molecule_as_gltf(const std::string &mode,
+                                         const std::string &selection_cid,
+                                         protein_geometry *geom,
+                                         bool against_a_dark_background,
+                                         float bonds_width, float atom_radius_to_bond_width_ratio, int smoothness_factor,
+                                         bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
+                                         const std::string &file_name);
 
       void set_show_symmetry(bool f) { show_symmetry = f;}
       bool get_show_symmetry() { return show_symmetry;}
@@ -941,7 +953,10 @@ namespace coot {
 
       //! real space refinement
       int refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
-                        float map_weight, int n_cycles, const coot::protein_geometry &geom, bool refinement_is_quiet);
+                        float map_weight, int n_cycles, const coot::protein_geometry &geom,
+                        bool do_rama_plot_restraints, float rama_plot_weight,
+                        bool do_torsion_restraints, float torsion_weight,
+                        bool refinement_is_quiet);
 
       void fix_atom_selection_during_refinement(const std::string &atom_selection_cid);
 
@@ -1010,6 +1025,8 @@ namespace coot {
       // ----------------------- map functions
 
       bool is_EM_map() const;
+
+      float get_density_at_position(const clipper::Coord_orth &pos) const;
 
       // return -1.1 on not-a-map
       float get_map_rmsd_approx() const;

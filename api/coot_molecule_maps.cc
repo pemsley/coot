@@ -1419,3 +1419,10 @@ coot::molecule_t::get_updating_maps_diff_diff_map_peaks(const clipper::Coord_ort
 
    return v2;
 }
+
+float
+coot::molecule_t::get_density_at_position(const clipper::Coord_orth &pos) const {
+
+   float f = util::density_at_point(xmap, pos);
+   return f;
+}

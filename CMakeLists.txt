@@ -16,6 +16,7 @@ find_package(BLAS)
 find_package(GSL REQUIRED)
 find_package(PNG REQUIRED)
 find_package(GEMMI REQUIRED)
+find_package(Threads REQUIRED)
 
 # from Charles B.
 
@@ -29,7 +30,7 @@ find_package(glm REQUIRED)
 
 # Charles wants 3.9 here, but if I change to 3.9 then it will not build for me
 # Hmm...
-find_package(Python 3.11
+find_package(Python 3.10
   REQUIRED COMPONENTS Interpreter Development.Module
   OPTIONAL_COMPONENTS Development.SABIModule)
 
@@ -41,7 +42,8 @@ add_definitions(-DANALYSE_REFINEMENT_TIMING -DVERSION="1.x-pre" -DPACKAGE_VERSIO
   -DHAVE_CXX_THREAD -DHAVE_BOOST -DHAVE_BOOST_THREAD -DHAVE_GSL
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
-#  pyrogen, compat, auxil, goograph, src ignored.
+#  pyrogen, auxil, goograph, src ignored.
+
 
 add_library(cootapi SHARED
             ${coot_src}/lidia-core/svg-molecule.cc
@@ -180,7 +182,6 @@ add_library(cootapi SHARED
             ${coot_src}/ideal/pepflip.cc
             ${coot_src}/ideal/parallel-planes.cc
             ${coot_src}/ideal/simple-restraint.cc
-            #${coot_src}/ideal/mini-rsr.cc
             ${coot_src}/ideal/ng.cc
             ${coot_src}/ideal/torsion-bonds.cc
             ${coot_src}/ideal/chi-squareds.cc
@@ -338,7 +339,6 @@ add_library(cootapi SHARED
             ${coot_src}/geometry/protein-donor-acceptors.cc
             ${coot_src}/geometry/intercept-3GP.cc
             ${coot_src}/build/CalphaBuild.cc
-            #${coot_src}/build/testcabuild.cc
             ${coot_src}/mini-mol/mini-mol-utils.cc
             ${coot_src}/mini-mol/mini-mol.cc
             ${coot_src}/mini-mol/atom-quads.cc
@@ -347,7 +347,6 @@ add_library(cootapi SHARED
             ${coot_src}/cootilus/nucleicacid_db.cpp
             ${coot_src}/cootilus/nautilus-join.cpp
             ${coot_src}/cootilus/nautilus-target.cpp
-            #${coot_src}/cootilus/nautilus-ss-find.cpp
             ${coot_src}/lidia-core/lbg-shared.cc
             ${coot_src}/lidia-core/cod-types.cc
             ${coot_src}/lidia-core/cod-atom-types.cc
@@ -365,10 +364,8 @@ add_library(cootapi SHARED
             ${coot_src}/angles/AngleInfo.cc
             ${coot_src}/ligand/dipole.cc
             ${coot_src}/ligand/chi-angles.cc
-            #${coot_src}/ligand/trace-2.cc
             ${coot_src}/ligand/monomer-utils.cc
             ${coot_src}/ligand/ligand-score-card.cc
-            #${coot_src}/ligand/multi-peptide.cc
             ${coot_src}/ligand/chi-angles-autogen.cc
             ${coot_src}/ligand/ligand.cc
             ${coot_src}/ligand/helix-placement.cc
@@ -389,7 +386,6 @@ add_library(cootapi SHARED
             ${coot_src}/ligand/richardson-rotamer.cc
             ${coot_src}/ligand/side-chain.cc
             ${coot_src}/ligand/rigid-body.cc
-            #${coot_src}/ligand/trace.cc
             ${coot_src}/ligand/smith-waterman.cc
             ${coot_src}/ligand/tube-finder.cc
             ${coot_src}/ligand/fast-ss-search.cc
@@ -445,15 +441,20 @@ add_library(cootapi SHARED
             ${coot_src}/buccaneer_ml_growing/protein_db.cpp
             ${coot_src}/buccaneer_ml_growing/simplex-lib.cpp
             ${coot_src}/buccaneer_ml_growing/simulate-lib.cpp
-)
+            )
+
+
+nanobind_add_module(chapi ${coot_src}/api/molecules_container_nanobind.cc)
 
 # use MMDB2_INCLUDE_DIR to find the RDKIT for now.
 target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR})
 
 # Charles adds Boost::iostreams Boost::filesystem Boost::system. I don't know why Boost::filesystem was added - I have removed it.
-target_link_libraries(cootapi PUBLIC ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${PNG_LIBRARY} Boost::iostreams Boost::system)
+target_link_libraries(cootapi PRIVATE ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${PNG_LIBRARY} Boost::iostreams Boost::system gemmi::gemmi_cpp)
 
 set_target_properties(cootapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI")
+
+set_target_properties(chapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000")
 
 # Charles adds this MSVC CXX compiler test
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -465,41 +466,57 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   target_link_libraries(cootapi PRIVATE netapi32.lib)
 endif()
 
-nanobind_add_module(chapi ${coot_src}/api/molecules_container_nanobind.cc)
+target_include_directories(chapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils 
+                                         ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl
+                                         ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR}
+                                         ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS}
+                                         ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS}
+                                         ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR})
 
-target_include_directories(chapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR})
+# target_link_libraries(chapi PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${PNG_LIBRARY})
 
-target_link_libraries(chapi PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${PNG_LIBRARY})
+add_executable(findligand ${coot_src}/ligand/find-ligand.cc)
 
-set_target_properties(chapi PROPERTIES COMPILE_FLAGS "-DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000")
+add_executable(findwaters ${coot_src}/ligand/find-waters.cc)
 
-# I think Charles is right. *Coot* should have test-molecules-container, but this CMakeLists.txt file
-# is for python chapi, it shouldn't be making executables.
+add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc ${coot_src}/api/filo-tests.cc)
 
-add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc ${coot_src}/api/filo-tests.cc ${coot_src}/api/lucrezia-tests.cc)
+target_link_libraries(chapi PUBLIC cootapi)
+
+target_include_directories(findligand PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src})
+
+target_include_directories(findwaters PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src})
+
+target_link_libraries(findligand PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Threads::Threads)
+
+target_link_libraries(findwaters PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY})
 
 target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR}/include ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS})
 
-target_link_libraries(test-molecules-container PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSLBLAS_LIBRARY} ${PNG_LIBRARY} ${GEMMI_LIBRARY})
+target_link_libraries(test-molecules-container PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSLBLAS_LIBRARY} ${PNG_LIBRARY} gemmi::gemmi_cpp)
+
+set_target_properties(cootapi PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+
+set_target_properties(cootapi PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 set_target_properties(chapi PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 set_target_properties(chapi PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/syminfo.lib
-DESTINATION ${CMAKE_INSTALL_PREFIX}/data)
+install(TARGETS cootapi)
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/standard-residues.pdb
-DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/standard-residues.pdb DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/pdb-templates/
-DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/syminfo.lib       DESTINATION ${CMAKE_INSTALL_PREFIX}/data)
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/rama-data/
-DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/rama-data)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/pdb-templates DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/metal/
-DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/data/metal)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/rama-data     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/metal    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/data)
+
+# this should depend on the python version, not be hard-wired - how do I do that?
+install(TARGETS chapi DESTINATION lib/python3.10/site-packages)
 
 install(TARGETS cootapi DESTINATION lib)
 

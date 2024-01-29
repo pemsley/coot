@@ -1284,6 +1284,17 @@ coot::molecule_t::get_residue(const coot::residue_spec_t &residue_spec) const {
 
 }
 
+std::string
+coot::molecule_t::get_residue_name(const residue_spec_t &residue_spec) const {
+
+   std::string n;
+   mmdb::Residue *r = coot::util::get_residue(residue_spec, atom_sel.mol);
+   if (r) n = r->GetResName();
+   return n;
+}
+
+
+
 std::pair<bool, coot::Cartesian>
 coot::molecule_t::get_HA_unit_vector(mmdb::Residue *r) const {
 
@@ -2233,10 +2244,12 @@ coot::molecule_t::get_fixed_atoms() const {
 
 int
 coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
-                                float map_weight, int n_cycles, const coot::protein_geometry &geom, bool refinement_is_quiet) {
+                                float map_weight, int n_cycles, const coot::protein_geometry &geom,
+                                bool do_rama_plot_restraints, float rama_plot_weight,
+                                bool do_torsion_restraints, float torsion_weight,
+                                bool refinement_is_quiet) {
 
    bool make_trans_peptide_restraints = true;
-   bool do_rama_plot_restraints = false;
 
    int status =  0;
    std::vector<coot::atom_spec_t> fixed_atom_specs;
@@ -2263,19 +2276,39 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    if (refinement_is_quiet)
       restraints.set_quiet_reporting();
 
-   // std::cout << "DEBUG:: using restraints with map_weight " << map_weight << std::endl;
+   if (do_rama_plot_restraints) {
+      restraints.set_rama_type(RAMA_TYPE_ZO);
+      restraints.set_rama_plot_weight(rama_plot_weight);
+   }
+
+   if (do_torsion_restraints) {
+      restraints.set_torsion_restraints_weight(torsion_weight);
+   }
+
+   restraints.set_map_weight(map_weight);
    restraints.add_map(map_weight);
-   restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-   flags = coot::TYPICAL_RESTRAINTS;
-   pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+
+   restraint_usage_Flags flags = TYPICAL_RESTRAINTS;
+   if (do_torsion_restraints) flags = TYPICAL_RESTRAINTS_WITH_TORSIONS;
+   pseudo_restraint_bond_type pseudos = NO_PSEUDO_BONDS;
 
    int n_threads = 4; // coot::get_max_number_of_threads();
    ctpl::thread_pool thread_pool(n_threads);
    restraints.thread_pool(&thread_pool, n_threads);
 
-   int imol = 0; // dummy
-   restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
-                              1.0, do_rama_plot_restraints, true, true, false, pseudos);
+   int imol = imol_no;
+   bool do_auto_helix_restraints = true;
+   bool do_auto_strand_restraints = false;
+   bool do_h_bond_restraints = false;
+   bool do_residue_internal_torsions = do_torsion_restraints;
+   restraints.make_restraints(imol, geom, flags,
+                              do_residue_internal_torsions,
+                              make_trans_peptide_restraints,
+                              rama_plot_weight, do_rama_plot_restraints,
+                              do_auto_helix_restraints,
+                              do_auto_strand_restraints,
+                              do_h_bond_restraints,
+                              pseudos);
    int nsteps_max = n_cycles;
    short int print_chi_sq_flag = 1;
    restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
@@ -4175,13 +4208,32 @@ coot::molecule_t::residues_near_residue(const std::string &residue_cid, float di
 
 //! export map molecule as glTF
 void
-coot::molecule_t::export_map_molecule_as_gltf(const std::string &file_name) const {
+coot::molecule_t::export_map_molecule_as_gltf(clipper::Coord_orth &p, float radius, float contour_level,
+                                              const std::string &file_name) {
+
+   coot::simple_mesh_t map_mesh = get_map_contours_mesh(p, radius, contour_level, false, nullptr);
+   bool as_binary = true; // test the extension of file_name
+   map_mesh.export_to_gltf(file_name, as_binary);
 
 }
 
 //! export model molecule as glTF - This API will change - we want to specify surfaces and ribbons too.
 void
-coot::molecule_t::export_model_molecule_as_gltf(const std::string &file_name) const {
+coot::molecule_t::export_model_molecule_as_gltf(const std::string &mode,
+                                                const std::string &selection_cid,
+                                                coot::protein_geometry *geom,
+                                                bool against_a_dark_background,
+                                                float bonds_width, float atom_radius_to_bond_width_ratio, int smoothness_factor,
+                                                bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
+                                                const std::string &file_name) {
+
+   instanced_mesh_t im = get_bonds_mesh_for_selection_instanced(mode, selection_cid, geom, against_a_dark_background,
+                                                                bonds_width, atom_radius_to_bond_width_ratio, smoothness_factor,
+                                                                draw_hydrogen_atoms_flag, draw_missing_residue_loops);
+
+   coot::simple_mesh_t sm = coot::instanced_mesh_to_simple_mesh(im);
+   bool as_binary = true; // test the extension of file_name
+   sm.export_to_gltf(file_name, as_binary);
 
 }
 

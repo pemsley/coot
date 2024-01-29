@@ -47,7 +47,7 @@ long get_number_of_threads_by_system_call()
 #endif
 #endif
 
-void CXXSurfaceMaker::generateArrays(std::vector<CXXVCN> &vcns, std::vector<CXXCoord<GLfloat>> &accessibles, std::vector<mmdb::Atom *> &atoms)
+void CXXSurfaceMaker::generateArrays(std::vector<CXXVCN> &vcns, std::vector<CXXCoord<float>> &accessibles, std::vector<mmdb::Atom *> &atoms)
 {
 }
 

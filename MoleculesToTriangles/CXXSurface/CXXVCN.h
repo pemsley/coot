@@ -10,17 +10,18 @@
 #define CXXVCN_h
 #include "CXXCoord.h"
 #include <stdio.h>
-#ifdef __APPLE_CC__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+// 20240120-PE Goodby openGL things.
+// #ifdef __APPLE_CC__
+// #include <OpenGL/gl.h>
+// #else
+// #include <GL/gl.h>
+// #endif
 
 class CXXVCN {
 public:
-    CXXCoord<GLfloat>vertex;
-    CXXCoord<GLfloat>color;
-    CXXCoord<GLfloat>normal;
+    CXXCoord<float>vertex;
+    CXXCoord<float>color;
+    CXXCoord<float>normal;
 };
 
 

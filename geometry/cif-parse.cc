@@ -2037,7 +2037,8 @@ coot::protein_geometry::init_standard() {
    std::string hardwired_default_place = util::append_dir_dir(pkg_data_dir, "lib");
    bool using_clibd_mon = false;
 
-   std::cout << "DEBUG:: init_standard(): hardwired_default_place: " << hardwired_default_place << std::endl;
+   if (debug)
+      std::cout << "DEBUG:: init_standard(): hardwired_default_place: " << hardwired_default_place << std::endl;
 
    std::string mon_lib_dir;
    short int env_dir_fails = 0;
@@ -2174,7 +2175,8 @@ coot::protein_geometry::init_standard() {
          energy_cif_file_name = std::string(cmld) + "/ener_lib.cif";
       }
 
-      std::cout << "calling init_refmac_mon_lib() on" << mon_lib_cif << std::endl;
+      if (false)
+         std::cout << "calling init_refmac_mon_lib() on" << mon_lib_cif << std::endl;
       init_refmac_mon_lib(mon_lib_cif, protein_geometry::MON_LIB_LIST_CIF);
       // now the protein monomers:
       read_number = 1;

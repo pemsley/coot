@@ -4588,7 +4588,7 @@ def setup_ccp4():
             CCP4_MASTER = os.path.abspath(os.path.join(ccp4_dir, os.pardir))
             # not all required I guess!? They should be set anyway
             ccp4_env_vars = {
-                "CCP4_SCR": ["C:\ccp4temp"],
+                "CCP4_SCR": [r"C:\ccp4temp"],
                 "CCP4I_TCLTK": [CCP4_MASTER, "TclTk84", "bin"],
                 "CBIN": [CCP4, "bin"],
                 "CLIB": [CCP4, "lib"],

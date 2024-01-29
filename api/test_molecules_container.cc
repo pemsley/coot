@@ -43,6 +43,137 @@ int test_utils(molecules_container_t &mc_in) {
    return status;
 }
 
+void colour_analysis(const coot::simple_mesh_t &mesh) {
+
+   auto is_near_colour = [] (const glm::vec4 &col_1, const glm::vec4 &col_2) {
+      float cf = 0.04;
+      if (std::fabs(col_2.r - col_1.r) < cf)
+         if (std::fabs(col_2.g - col_1.g) < cf)
+            if (std::fabs(col_2.b - col_1.b) < cf)
+               if (std::fabs(col_2.a - col_1.a) < cf)
+                  return true;
+      return false;
+   };
+
+   auto sorter = [] (const std::pair<glm::vec4, unsigned int> &p1,
+                     const std::pair<glm::vec4, unsigned int> &p2) {
+      if (p1.first[0] == p2.first[0]) {
+         return (p1.first[1] > p2.first[1]);
+      } else {
+         return (p1.first[0] > p2.first[0]);
+      }
+   };
+
+   std::vector<std::pair<glm::vec4, unsigned int> > colour_count;
+   for (unsigned int i=0; i<mesh.vertices.size(); i++) {
+      const auto &vertex = mesh.vertices[i];
+      const glm::vec4 &col = vertex.color;
+      bool found_col = false;
+      for (unsigned int j=0; j<colour_count.size(); j++) {
+         if (is_near_colour(col, colour_count[j].first)) {
+            colour_count[j].second ++;
+            found_col = true;
+            break;
+         }
+      }
+      if (! found_col) {
+         colour_count.push_back(std::make_pair(col, 1));
+      }
+   }
+
+   std::sort(colour_count.begin(), colour_count.end(), sorter);
+
+   std::cout << "INFO:: " << colour_count.size() << " colours" << std::endl;
+   for (unsigned int i=0; i<colour_count.size(); i++)
+      std::cout << "    " << glm::to_string(colour_count[i].first) << " "
+                << std::setw(7) << std::right << colour_count[i].second << std::endl;
+
+}
+
+void colour_analysis(const coot::instanced_mesh_t &mesh) {
+
+   auto is_near_colour = [] (const glm::vec4 &col_1, const glm::vec4 &col_2) {
+      float cf = 0.04;
+      if (std::fabs(col_2.r - col_1.r) < cf)
+         if (std::fabs(col_2.g - col_1.g) < cf)
+            if (std::fabs(col_2.b - col_1.b) < cf)
+               if (std::fabs(col_2.a - col_1.a) < cf)
+                  return true;
+      return false;
+   };
+
+   auto sorter = [] (const std::pair<glm::vec4, unsigned int> &p1,
+                     const std::pair<glm::vec4, unsigned int> &p2) {
+      if (p1.first[0] == p2.first[0]) {
+         return (p1.first[1] > p2.first[1]);
+      } else {
+         return (p1.first[0] > p2.first[0]);
+      }
+   };
+
+   std::vector<std::pair<glm::vec4, unsigned int> > colour_count;
+
+   for (unsigned int i=0; i<mesh.geom.size(); i++) {
+      const coot::instanced_geometry_t &ig = mesh.geom[i];
+      for (unsigned int jj=0; jj<ig.instancing_data_A.size(); jj++) {
+         const auto &col =  ig.instancing_data_A[jj].colour;
+         bool found_col = false;
+         for (unsigned int j=0; j<colour_count.size(); j++) {
+            if (is_near_colour(col, colour_count[j].first)) {
+               colour_count[j].second ++;
+               found_col = true;
+               break;
+            }
+         }
+         if (! found_col) {
+            colour_count.push_back(std::make_pair(col, 1));
+         }
+      }
+
+      for (unsigned int jj=0; jj<ig.instancing_data_B.size(); jj++) {
+         const auto &col =  ig.instancing_data_B[jj].colour;
+         bool found_col = false;
+         for (unsigned int j=0; j<colour_count.size(); j++) {
+            if (is_near_colour(col, colour_count[j].first)) {
+               colour_count[j].second ++;
+               found_col = true;
+               break;
+            }
+         }
+         if (! found_col) {
+            colour_count.push_back(std::make_pair(col, 1));
+         }
+      }
+
+   }
+
+
+   for (unsigned int i=0; i<mesh.markup.vertices.size(); i++) {
+      const auto &vertex = mesh.markup.vertices[i];
+      const glm::vec4 &col = vertex.color;
+      bool found_col = false;
+      for (unsigned int j=0; j<colour_count.size(); j++) {
+         if (is_near_colour(col, colour_count[j].first)) {
+            colour_count[j].second ++;
+            found_col = true;
+            break;
+         }
+      }
+      if (! found_col) {
+         colour_count.push_back(std::make_pair(col, 1));
+      }
+   }
+
+   std::sort(colour_count.begin(), colour_count.end(), sorter);
+
+   std::cout << "INFO:: " << colour_count.size() << " colours" << std::endl;
+   for (unsigned int i=0; i<colour_count.size(); i++)
+      std::cout << "    " << glm::to_string(colour_count[i].first) << " "
+                << std::setw(7) << std::right << colour_count[i].second << std::endl;
+
+
+}
+
 int test_auto_fit_rotamer_1(molecules_container_t &mc_in) {
 
    starting_test(__FUNCTION__);
@@ -224,6 +355,10 @@ int test_updating_maps(molecules_container_t &mc) {
    float new_rail_points = mc.calculate_new_rail_points();
    float gpt = mc.rail_points_total();
    std::cout << "###### RailPoints gained: " << new_rail_points << " rail points total " << gpt << std::endl;
+
+   std::vector<std::pair<clipper::Coord_orth, float> > ddmp = mc.get_diff_diff_map_peaks(imol_diff_map, 70, 50, 30);
+
+   std::cout << "test_updating_maps(): We got " << ddmp.size() << " difference map peaks" << std::endl;
 
    if (new_rail_points > 4.0)
       status = 1;
@@ -868,6 +1003,38 @@ int test_add_terminal_residue(molecules_container_t &mc) {
    mc.close_molecule(imol_map);
 
    return status;
+}
+
+// this was converted from Filo's test
+int test_add_terminal_residue_v2(molecules_container_t &molecules_container) {
+
+   int status = 0;
+   int coordMolNo = molecules_container.read_pdb("./5a3h.mmcif");
+   int mapMolNo = molecules_container.read_mtz("./5a3h_sigmaa.mtz", "FWT", "PHWT", "", false, false);
+   molecules_container.set_imol_refinement_map(mapMolNo);
+
+   int atom_count_1 = molecules_container.get_number_of_atoms(coordMolNo);
+   molecules_container.delete_using_cid(coordMolNo, "A/4-100/*", "LITERAL");
+   molecules_container.delete_using_cid(coordMolNo, "A/105-200/*", "LITERAL");
+   molecules_container.delete_using_cid(coordMolNo, "A/205-303/*", "LITERAL");
+   std::string mmcifString_1 = molecules_container.molecule_to_mmCIF_string(coordMolNo);
+   int atom_count_2 = molecules_container.get_number_of_atoms(coordMolNo);
+   molecules_container.write_coordinates(coordMolNo, "pre-addition.cif");
+   molecules_container.write_coordinates(coordMolNo, "pre-addition-2.cif");
+
+   int result = molecules_container.add_terminal_residue_directly_using_cid(coordMolNo, "A/104");
+   if (result == -1) {
+       std::cout << "test_add_terminal_residue_v2() fail: Result is -1" << std::endl;
+   }
+   int atom_count_3 = molecules_container.get_number_of_atoms(coordMolNo);
+   std::string mmcifString_2 = molecules_container.molecule_to_mmCIF_string(coordMolNo);
+   if (mmcifString_1 != mmcifString_2) {
+       std::cout << "Error: MMCIF Strings are not equal" << std::endl;
+   }
+
+   molecules_container.write_coordinates(coordMolNo, "post-addition.cif");
+   return status;
+
 }
 
 int test_delete_chain(molecules_container_t &mc) {
@@ -2374,6 +2541,37 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
    return status;
 }
 
+int test_instanced_bonds_mesh_v2(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("pdb8ox7.ent"));
+   std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+   std::string selection_cid = "//A/1301"; // "//A/1301||//A/456";
+
+   int imol_frag = mc.copy_fragment_using_cid(imol, selection_cid);
+   coot::instanced_mesh_t im_frag = mc.get_bonds_mesh_instanced(imol, mode, true, 0.2, 1.0, 2);
+   colour_analysis(im_frag);
+
+   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol_frag, selection_cid, mode, true, 0.2, 1.0, 2);
+   colour_analysis(im);
+
+   unsigned int n_geoms = im.geom.size();
+   for (unsigned int i=0; i<n_geoms; i++) {
+      for (unsigned int j=0; j<im.geom[i].instancing_data_A.size(); j++) {
+         const auto &item = im.geom[i].instancing_data_A[j];
+         const auto &col = item.colour;
+         // test that the colour is more (than a bit) more green than it is blue
+         // (because grey is the wrong colour, this is a useful test)
+         std::cout << "    atom selection (Mg) colour " << glm::to_string(col)  << std::endl;
+         if (col[1] > (col[2] + 0.2))
+            status = true;
+      }
+   }
+   return status;
+}
+
+
 int test_add_alt_conf(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -2842,6 +3040,15 @@ int test_auto_read_mtz(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
+
+   std::vector<molecules_container_t::auto_read_mtz_info_t> imol_maps_5a3h
+      = mc.auto_read_mtz(reference_data("5a3h_sigmaa.mtz"));
+
+   for (const auto &item : imol_maps_5a3h) {
+      std::cout << "auto-read: map-idx: " << item.idx << " Fobs: " << item.F_obs << " sigFobs: " << item.sigF_obs << " "
+                << "Rfree: " << item.Rfree << std::endl;
+   }
+
    std::vector<molecules_container_t::auto_read_mtz_info_t> imol_maps
       = mc.auto_read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"));
 
@@ -2866,7 +3073,7 @@ int test_auto_read_mtz(molecules_container_t &mc) {
                      }
                   }
                }
-               if (mtz_info.Rfree == "FREE") {
+               if (mtz_info.Rfree == "/HKL_base/HKL_base/FREE") {
                   // we are good.
                } else {
                   status = 0;
@@ -3396,137 +3603,6 @@ int test_bespoke_carbon_colour(molecules_container_t &mc) {
       }
    }
    return status;
-}
-
-void colour_analysis(const coot::simple_mesh_t &mesh) {
-
-   auto is_near_colour = [] (const glm::vec4 &col_1, const glm::vec4 &col_2) {
-      float cf = 0.04;
-      if (std::fabs(col_2.r - col_1.r) < cf)
-         if (std::fabs(col_2.g - col_1.g) < cf)
-            if (std::fabs(col_2.b - col_1.b) < cf)
-               if (std::fabs(col_2.a - col_1.a) < cf)
-                  return true;
-      return false;
-   };
-
-   auto sorter = [] (const std::pair<glm::vec4, unsigned int> &p1,
-                     const std::pair<glm::vec4, unsigned int> &p2) {
-      if (p1.first[0] == p2.first[0]) {
-         return (p1.first[1] > p2.first[1]);
-      } else {
-         return (p1.first[0] > p2.first[0]);
-      }
-   };
-
-   std::vector<std::pair<glm::vec4, unsigned int> > colour_count;
-   for (unsigned int i=0; i<mesh.vertices.size(); i++) {
-      const auto &vertex = mesh.vertices[i];
-      const glm::vec4 &col = vertex.color;
-      bool found_col = false;
-      for (unsigned int j=0; j<colour_count.size(); j++) {
-         if (is_near_colour(col, colour_count[j].first)) {
-            colour_count[j].second ++;
-            found_col = true;
-            break;
-         }
-      }
-      if (! found_col) {
-         colour_count.push_back(std::make_pair(col, 1));
-      }
-   }
-
-   std::sort(colour_count.begin(), colour_count.end(), sorter);
-
-   std::cout << "INFO:: " << colour_count.size() << " colours" << std::endl;
-   for (unsigned int i=0; i<colour_count.size(); i++)
-      std::cout << "    " << glm::to_string(colour_count[i].first) << " "
-                << std::setw(7) << std::right << colour_count[i].second << std::endl;
-
-}
-
-void colour_analysis(const coot::instanced_mesh_t &mesh) {
-
-   auto is_near_colour = [] (const glm::vec4 &col_1, const glm::vec4 &col_2) {
-      float cf = 0.04;
-      if (std::fabs(col_2.r - col_1.r) < cf)
-         if (std::fabs(col_2.g - col_1.g) < cf)
-            if (std::fabs(col_2.b - col_1.b) < cf)
-               if (std::fabs(col_2.a - col_1.a) < cf)
-                  return true;
-      return false;
-   };
-
-   auto sorter = [] (const std::pair<glm::vec4, unsigned int> &p1,
-                     const std::pair<glm::vec4, unsigned int> &p2) {
-      if (p1.first[0] == p2.first[0]) {
-         return (p1.first[1] > p2.first[1]);
-      } else {
-         return (p1.first[0] > p2.first[0]);
-      }
-   };
-
-   std::vector<std::pair<glm::vec4, unsigned int> > colour_count;
-
-   for (unsigned int i=0; i<mesh.geom.size(); i++) {
-      const coot::instanced_geometry_t &ig = mesh.geom[i];
-      for (unsigned int jj=0; jj<ig.instancing_data_A.size(); jj++) {
-         const auto &col =  ig.instancing_data_A[jj].colour;
-         bool found_col = false;
-         for (unsigned int j=0; j<colour_count.size(); j++) {
-            if (is_near_colour(col, colour_count[j].first)) {
-               colour_count[j].second ++;
-               found_col = true;
-               break;
-            }
-         }
-         if (! found_col) {
-            colour_count.push_back(std::make_pair(col, 1));
-         }
-      }
-
-      for (unsigned int jj=0; jj<ig.instancing_data_B.size(); jj++) {
-         const auto &col =  ig.instancing_data_B[jj].colour;
-         bool found_col = false;
-         for (unsigned int j=0; j<colour_count.size(); j++) {
-            if (is_near_colour(col, colour_count[j].first)) {
-               colour_count[j].second ++;
-               found_col = true;
-               break;
-            }
-         }
-         if (! found_col) {
-            colour_count.push_back(std::make_pair(col, 1));
-         }
-      }
-
-   }
-
-
-   for (unsigned int i=0; i<mesh.markup.vertices.size(); i++) {
-      const auto &vertex = mesh.markup.vertices[i];
-      const glm::vec4 &col = vertex.color;
-      bool found_col = false;
-      for (unsigned int j=0; j<colour_count.size(); j++) {
-         if (is_near_colour(col, colour_count[j].first)) {
-            colour_count[j].second ++;
-            found_col = true;
-            break;
-         }
-      }
-      if (! found_col) {
-         colour_count.push_back(std::make_pair(col, 1));
-      }
-   }
-
-   std::sort(colour_count.begin(), colour_count.end(), sorter);
-
-   std::cout << "INFO:: " << colour_count.size() << " colours" << std::endl;
-   for (unsigned int i=0; i<colour_count.size(); i++)
-      std::cout << "    " << glm::to_string(colour_count[i].first) << " "
-                << std::setw(7) << std::right << colour_count[i].second << std::endl;
-
-
 }
 
 
@@ -4312,6 +4388,69 @@ int test_disappearing_ligand(molecules_container_t &mc) {
 }
 #endif
 
+int test_ligand_merge(molecules_container_t &mc) {
+
+   auto test_mmdb = [] () {
+      // int imol_2 = mc.read_pdb(reference_data("2vtq.cif"));
+      // mc.write_coordinates(imol_2, "2vtq-just-input-output.cif");
+      mmdb::Manager *mol = new mmdb::Manager;
+      mol->ReadCoorFile("2vtq.cif");
+      mol->WriteCIFASCII("2vtq-input-output-pure-mmdb.cif");
+      delete mol;
+   };
+
+   int status = 0;
+
+   test_mmdb();
+   int imol = mc.read_pdb(reference_data("2vtq-sans-ligand.cif"));
+   mc.write_coordinates(imol, "2vtq-sans-ligand-just-input-output.cif");
+   mmdb::Manager *mol = mc.get_mol(imol);
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            std::cout << "    " << chain_p->GetChainID() << " " << n_res << " residues " << std::endl;
+         }
+      }
+   }
+   mc.import_cif_dictionary(reference_data("MOI.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   int imol_lig = mc.get_monomer("MOI");
+   std::string sl = std::to_string(imol_lig);
+   std::pair<int, std::vector<merge_molecule_results_info_t> > ss = mc.merge_molecules(imol, sl);
+   mc.write_coordinates(imol, "2vtq-sans-ligand-with-merged-MOI.cif");
+
+   // we test that the output is sane by looking for an atom that has unset/default/"." for atom and element
+   // columns 3 and 4 (starting from 1).
+   std::string cif_for_testing = "2vtq-sans-ligand-just-input-output.cif";
+   cif_for_testing = "2vtq-sans-ligand-just-input-output.cif"; // it's not the merge, it's the writing.
+   if (coot::file_exists(cif_for_testing)) {
+      bool found_bogus_atom = false;
+      std::ifstream f(cif_for_testing.c_str());
+      if (f) {
+         std::string line;
+         while (std::getline(f, line)) {
+            std::vector<std::string> parts = coot::util::split_string_no_blanks(line);
+            if (parts.size() > 10) {
+               if (parts[0] == "ATOM") {
+                  if (parts[2] == ".") {
+                     if (parts[3] == ".") {
+                        std::cout << "found bogus null atom in cif output " << cif_for_testing << std::endl;
+                        found_bogus_atom = true;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      if (! found_bogus_atom) status = 1; // OK then I suppose
+   }
+   return status;
+}
+
+
 int test_gltf_export(molecules_container_t &mc) {
 
    auto make_multi_cid = [] (const std::vector<coot::residue_spec_t> &neighbs) {
@@ -4366,6 +4505,43 @@ int test_gltf_export(molecules_container_t &mc) {
    return status;
 }
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+int test_gltf_export_via_api(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("2vtq.cif"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   clipper::Coord_orth p(25, 4, 62);
+   float radius = 10;
+   float contour_level = 0.4;
+   std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+   int imol_lig = mc.get_monomer("LZA");
+   mc.export_map_molecule_as_gltf(imol_map, p.x(), p.y(), p.z(), radius, contour_level, "map-around-ligand.glb");
+   mc.export_model_molecule_as_gltf(imol, "//A/1299", mode, true, 0.2, 1.4, 2, true, true, "fat-ligand.glb");
+
+   struct stat buf_1;
+   int istat_1 = stat("map-around-ligand.glb", &buf_1);
+   if (istat_1 == 0) {
+      if (buf_1.st_size > 1000000) {
+
+         struct stat buf_2;
+         int istat_2 = stat("fat-ligand.glb", &buf_2);
+         if (istat_2 == 0) {
+            if (buf_2.st_size > 100000) {
+               status = 1;
+            }
+         }
+      }
+   }
+   return status;
+}
+
+
 int test_5char_ligand_merge(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -4373,13 +4549,49 @@ int test_5char_ligand_merge(molecules_container_t &mc) {
    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
 
    int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
    mc.import_cif_dictionary(reference_data("acedrg-7z-new.cif"), imol_enc);
    int imol_lig = mc.get_monomer("7ZTVU");
    if (mc.is_valid_model_molecule(imol)) {
       mc.merge_molecules(imol, std::to_string(imol_lig));
       mc.write_coordinates(imol, "5-char-ligand-merged.cif");
       status = 1;
+   }
+   return status;
+}
+
+int test_mask_atom_selection(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      int imol_masked = mc.mask_map_by_atom_selection(imol, imol_map, "//A/1-20||//A/50-70||//A/100-120", 4.0, true);
+      mc.write_map(imol_masked, "multi-cid-masked.map");
+      // if the masking worked there will be zero density at the CA of residue 30.
+      mmdb::Manager *mol = mc.get_mol(imol);
+      int sel_hnd = mol->NewSelection();
+      mol->SelectAtoms(sel_hnd, 1, "A", 30, "", 30, "", "VAL", " CA ", "*", "");
+      mmdb::Atom **atom_selection = 0; // member data - cleared on destruction
+      int n_selected_atoms = 0;
+      mol->GetSelIndex(sel_hnd, atom_selection, n_selected_atoms);
+      std::cout << "------------- got n_selected_atoms " << n_selected_atoms << std::endl;
+      if (n_selected_atoms > 0) {
+         for (int i=0; i<n_selected_atoms; i++) {
+            mmdb::Atom *at = atom_selection[i];
+            clipper::Coord_orth pos(at->x, at->y, at->z);
+            std::cout << "in test_mask_atom_selection() found atom "
+                      << at->GetResName() << " " << at->GetSeqNum() << " "
+                      << ":" << at->GetAtomName() << ": " << pos.format() << std::endl;
+            float f = mc.get_density_at_position(imol_masked, at->x, at->y, at-> z);
+            if (f < 0.00001) {
+               status = 1;
+            }
+         }
+      }
+      mol->DeleteSelection(sel_hnd);
    }
    return status;
 }
@@ -4511,6 +4723,12 @@ int main(int argc, char **argv) {
    }
    status += run_test(test_multiligands_lig_bonding, "some multiligands bonding", mc);
 
+
+   // status += run_test(test_gltf_export_via_api, "gltf via api", mc);
+
+   // status += run_test(test_multi_ligand_ligands, "multi-ligand ligands", mc);
+
+   // status += run_test(test_updating_maps, "updating maps", mc);
 
    // status += run_test(test_disappearing_ligand, "disappearning ligand", mc);
 
@@ -4671,6 +4889,16 @@ int main(int argc, char **argv) {
    // status = run_test(test_rsr_using_residue_range, "test_rsr using residue range", mc);
 
    // status = run_test(test_bucca_ml_growing, "Bucca ML growing", mc);
+
+   // status += run_test(test_mask_atom_selection, "mask atom selection", mc);
+
+   // status += run_test(test_instanced_bonds_mesh_v2, "test instanced bond selection v2", mc);
+
+   // status += run_test(test_ligand_merge, "test ligand merge", mc);
+
+   // status += run_test(test_add_terminal_residue_v2, "test add terminal residue v2", mc);
+
+   status += run_test(test_auto_read_mtz, "test ------ ", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

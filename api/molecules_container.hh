@@ -119,6 +119,12 @@ class molecules_container_t {
    float map_weight;
    float geman_mcclure_alpha;
 
+   bool use_rama_plot_restraints;
+   float rama_plot_restraints_weight;
+
+   bool use_torsion_restraints;
+   float torsion_restraints_weight;
+
    static ctpl::thread_pool static_thread_pool; // does this need to be static?
    bool show_timings;
 
@@ -301,6 +307,13 @@ class molecules_container_t {
       mmdb::InitMatType();
       contouring_time = 0;
       make_backups_flag = true;
+
+      use_rama_plot_restraints = false;
+      rama_plot_restraints_weight = 1.0;
+
+      use_torsion_restraints = false;
+      torsion_restraints_weight = 1.0;
+
       // debug();
    }
 
@@ -328,7 +341,13 @@ public:
    int imol_difference_map; // direct access
 
    bool use_gemmi; // for mmcif and PDB parsing. 20240112-PE set to true by default in init()
- 
+
+   //! Set the state of using gemmi for coordinates parsing. The default is false.
+   void set_use_gemmi(bool state) { use_gemmi = state; }
+
+   //! get the state of using GEMMI for coordinates parsing
+   bool get_use_gemmi() { return use_gemmi; }
+
    // -------------------------------- Basic Utilities -----------------------------------
    //! \name Basic Utilities
 
@@ -599,10 +618,18 @@ public:
                                                                  int smoothness_factor);
 
    //! export map molecule as glTF
-   void export_map_molecule_as_gltf(int imol, const std::string &file_name) const;
+   //  (not const because maps might update?)
+   void export_map_molecule_as_gltf(int imol, float pos_x, float pos_y, float pos_z, float radius, float contour_level,
+                                    const std::string &file_name);
 
    //! export model molecule as glTF - This API will change - we want to specify surfaces and ribbons too.
-   void export_model_molecule_as_gltf(int imol, const std::string &file_name) const;
+   void export_model_molecule_as_gltf(int imol,
+                                      const std::string &selection_cid,
+                                      const std::string &mode,
+                                      bool against_a_dark_background,
+                                      float bonds_width, float atom_radius_to_bond_width_ratio, int smoothness_factor,
+                                      bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
+                                      const std::string &file_name);
 
    //! return the colur table (for testing)
    std::vector<glm::vec4> get_colour_table(int imol, bool against_a_dark_background) const;
@@ -713,6 +740,10 @@ public:
 
    //! @return a list of residue that don't have a dictionary
    std::vector<std::string> get_residue_names_with_no_dictionary(int imol) const;
+
+   //! get residue name
+   //! @return the residue name, return a blank string on residue not found.
+   std::string get_residue_name(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) const;
 
    //! @return an object that has information about residues without dictionaries and residues with missing atom
    //! in the the specified molecule
@@ -839,12 +870,14 @@ public:
 
    //! mask map by atom selection (note the argument order is reversed compared to the coot api).
    //!
+   //! ``atom_radius`` is the atom radius (funnily enough). Use a negative number to mean "default".
+   //!
    //! the ``invert_flag`` changes the parts of the map that are masked, so to highlight the density
    //! for a ligand one would pass the ``cid`` for the ligand and invert_flag as true, so that the
    //! parts of the map that are not the ligand are suppressed.
    //!
    //! @return the index of the new map - or -1 on failure
-   int mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &cid, bool invert_flag);
+   int mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &cid, float atom_radius, bool invert_flag);
 
    //! generate a new map which is the hand-flipped version of the input map.
    //! @return the molecule index of the new map, or -1 on failure.
@@ -1127,6 +1160,34 @@ public:
    //! clear target_position restraint if it is (or they are) close to their target position
    void turn_off_when_close_target_position_restraint(int imol);
 
+   //! turn on or off rama restraints
+   void set_use_rama_plot_restraints(bool state) { use_rama_plot_restraints = state; }
+
+   //! get the state of the rama plot restraints usage in refinement.
+   //! @return the state
+   bool get_use_rama_plot_restraints() const { return use_rama_plot_restraints; }
+
+   //! set the Ramachandran plot restraints weight
+   void set_rama_plot_restraints_weight(float f) { rama_plot_restraints_weight = f; }
+
+   //! get the Ramachandran plot restraints weight
+   //! @return the Ramachandran plot restraints weight
+   float get_rama_plot_restraints_weight() const { return rama_plot_restraints_weight; }
+
+   //! turn on or off torsion restraints
+   void set_use_torsion_restraints(bool state) { use_torsion_restraints = state; }
+
+   //! get the state of the rama plot restraints usage in refinement.
+   //! @return the state
+   bool get_use_torsion_restraints() const { return use_torsion_restraints; }
+
+   //! set the Ramachandran plot restraints weight
+   void set_torsion_restraints_weight(float f) { torsion_restraints_weight = f; }
+
+   //! get the Ramachandran plot restraints weight
+   //! @return the Ramachandran plot restraints weight
+   float get_torsion_restraints_weight() const { return torsion_restraints_weight; }
+
    //! initialise the refinement of (all of) molecule `imol_frag`
    void init_refinement_of_molecule_as_fragment_based_on_reference(int imol_frag, int imol_ref, int imol_map);
 
@@ -1364,10 +1425,14 @@ public:
                                      int imol_updating_difference_map,
                                      int imol_map_with_data_attached);
 
+   //! get density at position
+   //! @return density value
+   float get_density_at_position(int imol_map, float x, float y, float z) const;
+
    //! @return a vector the position where the differenc map has been flattened.
    //! The associated float value is the ammount that the map has been flattened.
    //!
-   //! This is a light-weight fetch, the values have already been computed, heree
+   //! This is a light-weight fetch, the values have already been computed, here
    //! were are merely copying them.
    std::vector<std::pair<clipper::Coord_orth, float> > get_diff_diff_map_peaks(int imol_diff_map,
                                                                                float screen_centre_x,
