@@ -266,6 +266,7 @@ NB_MODULE(chapi, m) {
     .def("density_fit_analysis",&molecules_container_t::density_fit_analysis)
     //Using allow_raw_pointers(). Perhaps suggests we need to do something different from exposing mmdb pointers to JS.
     .def("get_residue",&molecules_container_t::get_residue, nb::rv_policy::reference)
+    .def("get_residue_name",&molecules_container_t::get_residue_name)
     .def("get_atom",&molecules_container_t::get_atom, nb::rv_policy::reference)
     .def("flipPeptide_cid",   nb::overload_cast<int, const std::string&,      const std::string&>(&molecules_container_t::flip_peptide_using_cid))
     .def("flipPeptide",       nb::overload_cast<int, const coot::atom_spec_t&,const std::string&>(&molecules_container_t::flip_peptide))

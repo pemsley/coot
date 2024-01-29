@@ -1284,6 +1284,17 @@ coot::molecule_t::get_residue(const coot::residue_spec_t &residue_spec) const {
 
 }
 
+std::string
+coot::molecule_t::get_residue_name(const residue_spec_t &residue_spec) const {
+
+   std::string n;
+   mmdb::Residue *r = coot::util::get_residue(residue_spec, atom_sel.mol);
+   if (r) n = r->GetResName();
+   return n;
+}
+
+
+
 std::pair<bool, coot::Cartesian>
 coot::molecule_t::get_HA_unit_vector(mmdb::Residue *r) const {
 

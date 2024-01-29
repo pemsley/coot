@@ -5069,3 +5069,19 @@ molecules_container_t::get_density_at_position(int imol_map, float x, float y, f
    return f;
 }
 
+
+   //! get residue name
+std::string
+molecules_container_t::get_residue_name(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) const {
+
+   std::string n;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec(chain_id, res_no, ins_code);
+      n = molecules[imol].get_residue_name(res_spec);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return n;
+
+
+}

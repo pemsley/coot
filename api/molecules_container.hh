@@ -738,6 +738,10 @@ public:
    //! @return a list of residue that don't have a dictionary
    std::vector<std::string> get_residue_names_with_no_dictionary(int imol) const;
 
+   //! get residue name
+   //! @return the residue name, return a blank string on residue not found.
+   std::string get_residue_name(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) const;
+
    //! @return an object that has information about residues without dictionaries and residues with missing atom
    //! in the the specified molecule
    std::vector<coot::residue_spec_t> residues_with_missing_atoms(int imol);
