@@ -511,9 +511,9 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/syminfo.lib       DESTINATION ${CMAKE_
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/pdb-templates DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/rama-data     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/rama-data)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/rama-data     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/metal    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/data/metal)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/metal    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/data)
 
 # this should depend on the python version, not be hard-wired - how do I do that?
 install(TARGETS chapi DESTINATION lib/python3.10/site-packages)
