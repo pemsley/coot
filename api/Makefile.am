@@ -65,7 +65,7 @@ libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
 
 check_PROGRAMS = test-molecules-container
 
-test_molecules_container_SOURCES = test_molecules_container.cc filo-tests.cc
+test_molecules_container_SOURCES = test_molecules_container.cc filo-tests.cc lucrezia-tests.cc
 
 test_molecules_container_LDFLAGS = ./libcoot-api.la \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \
