@@ -26,6 +26,15 @@ moorhen: search monomer library for ARG with methyl (for example)
 
 libcootapi: bundle the reference structures into the source code.
 
+libcootapi: add label_seq_id etc for the residue added in add_terminal_residue
+
+libcootapi: add refinement control parameters to molecules_container,
+       torsion weight, rama weight, gm weight and whatever others.
+
+libcootapi: how do I turn on Rama refinement?
+
+libcootapi: work out the arguments for MT2 mesh as glTF.
+
 libcootapi: add a function to copy a map (and a model molecule I guess) for figure making.
 
 libcootapi: replace_molecule_by_model_from_file() should be passed the use_gemmi argument.
