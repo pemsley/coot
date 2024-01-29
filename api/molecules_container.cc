@@ -183,6 +183,7 @@ molecules_container_t::get_number_of_hydrogen_atoms(int imol) const {
 
 void
 molecules_container_t::set_draw_missing_residue_loops(bool state) {
+   std::cout << "****** in set_draw_missing_residue_loops() with state " << state << std::endl;
    draw_missing_residue_loops_flag = state;
 }
 
@@ -1730,7 +1731,7 @@ molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mod
                                                 float bond_width, float atom_radius_to_bond_width_ratio,
                                                 int smoothness_factor) {
 
-   //   std::cout << " ==================================== get_bonds_mesh_instanced() start" << std::endl;
+   std::cout << " ==================================== get_bonds_mesh_instanced() start" << std::endl;
 
    bool draw_hydrogen_atoms_flag = true; // pass this
 

@@ -4833,7 +4833,7 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
                   if (C_and_N_are_close)
                      loop_is_possible = false;
                }
-               
+
 
                if (loop_is_possible) {
 
@@ -4888,6 +4888,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 						float min_dist, float max_dist,
                                                 bool draw_missing_loops_flag,
                                                 int bond_colour_type) {
+
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
@@ -5741,7 +5742,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 					       coot::protein_geometry *pg,
 					       float min_dist,
 					       float max_dist,
-                                               bool draw_missing_loops_flag,
+                      bool draw_missing_loops_flag,
 					       bool do_bonds_to_hydrogens_in) {
 
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
@@ -5756,7 +5757,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 
 void
 Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_container_t SelAtom,
-							      int imol,
+							                                         int imol,
                                                               coot::protein_geometry *pg,
                                                               float min_dist_ca, float max_dist_ca,
                                                               float min_dist, float max_dist,
@@ -5770,7 +5771,7 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
    }
    //do_Ca_plus_ligands_bonds(SelAtom, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE);
    do_Ca_plus_ligands_and_sidechains_bonds(SelAtom, imol,
-					   pg, min_dist_ca, max_dist_ca, min_dist, max_dist,
+					                            pg, min_dist_ca, max_dist_ca, min_dist, max_dist,
                                            draw_missing_loops_flag,
                                            coot::COLOUR_BY_CHAIN, do_bonds_to_hydrogens);
 }
@@ -5781,9 +5782,12 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 					       coot::protein_geometry *pg,
 					       float min_dist,
 					       float max_dist,
-                                               bool draw_missing_loops_flag,
+                      bool draw_missing_loops_flag,
 					       int atom_colour_type,
 					       bool do_bonds_to_hydrogens_in) {
+
+   std::cout << "***************************** here in do_Ca_plus_ligands_bonds() with draw_missing_loops_flag"
+              << draw_missing_loops_flag << std::endl;
 
     if (false)
        std::cout << "---- in do_Ca_plus_ligands_bonds with atom_colour_type "
