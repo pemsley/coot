@@ -26,6 +26,10 @@ jobs:
       id:   setup-homebrew
       uses: Homebrew/actions/setup-homebrew@master
 
+    # from https://support.circleci.com/hc/en-us/articles/360043542933--Error-The-brew-link-step-did-not-complete-successfully-When-Installing-Python
+    - name: brew unlink python@2
+      run:  brew unlink python@2
+
     - name: Install Homebrew dependencies
       run:  >
          brew install boost boost-python3 brewsci/bio/clipper4coot
