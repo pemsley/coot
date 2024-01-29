@@ -3040,6 +3040,15 @@ int test_auto_read_mtz(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
+
+   std::vector<molecules_container_t::auto_read_mtz_info_t> imol_maps_5a3h
+      = mc.auto_read_mtz(reference_data("5a3h_sigmaa.mtz"));
+
+   for (const auto &item : imol_maps_5a3h) {
+      std::cout << "auto-read: map-idx: " << item.idx << " Fobs: " << item.F_obs << " sigFobs: " << item.sigF_obs << " "
+                << "Rfree: " << item.Rfree << std::endl;
+   }
+
    std::vector<molecules_container_t::auto_read_mtz_info_t> imol_maps
       = mc.auto_read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"));
 
@@ -3064,7 +3073,7 @@ int test_auto_read_mtz(molecules_container_t &mc) {
                      }
                   }
                }
-               if (mtz_info.Rfree == "FREE") {
+               if (mtz_info.Rfree == "/HKL_base/HKL_base/FREE") {
                   // we are good.
                } else {
                   status = 0;
@@ -4885,7 +4894,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_ligand_merge, "test ligand merge", mc);
 
-   status += run_test(test_add_terminal_residue_v2, "test add terminal residue v2", mc);
+   // status += run_test(test_add_terminal_residue_v2, "test add terminal residue v2", mc);
+
+   status += run_test(test_auto_read_mtz, "test ------ ", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
