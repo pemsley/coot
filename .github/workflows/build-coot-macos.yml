@@ -31,6 +31,9 @@ jobs:
     #   run:  brew unlink python@2
     # -> didn't work: Error: No such keg: /usr/local/Cellar/python@2
 
+    - name: Homebrew install python3
+      run:  brew install python@3.12
+
     - name: Install Homebrew dependencies
       run:  >
          brew install boost boost-python3 brewsci/bio/clipper4coot
