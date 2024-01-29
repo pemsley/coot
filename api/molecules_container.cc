@@ -982,8 +982,11 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
       const coot::mtz_column_trials_info_t &b = auto_mtz_pairs[i];
       if (valid_labels(mtz_file_name.c_str(), b.f_col.c_str(), b.phi_col.c_str(), "", 0)) {
          int imol = read_mtz(mtz_file_name, b.f_col, b.phi_col, "", 0, b.is_diff_map);
-	         if (is_valid_map_molecule(imol))
-	            mol_infos.push_back(auto_read_mtz_info_t(imol, b.f_col, b.phi_col));
+	      if (is_valid_map_molecule(imol)) {
+            auto_read_mtz_info_t armi(imol, b.f_col, b.phi_col);
+            add_Fobs(&armi, armi_fobs);
+	         mol_infos.push_back(armi);
+         }
       }
    }
 
