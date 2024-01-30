@@ -76,6 +76,17 @@ molecules_container_t::close_molecule(int imol) {
    return status;
 }
 
+//! delete the most recent/last molecule in the molecule vector
+void
+molecules_container_t::pop_back() {
+
+   if (! molecules.empty()) {
+      molecules.pop_back();
+   }
+}
+
+
+
 
 void
 molecules_container_t::debug() const {
