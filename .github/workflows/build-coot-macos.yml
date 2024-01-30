@@ -32,8 +32,10 @@ jobs:
     # -> didn't work: Error: No such keg: /usr/local/Cellar/python@2
 
     # this is not needed, it seems already installed?
-    - name: Homebrew install python3
-      run:  brew install python@3.12
+    # this is causing a conflic with azure-cli?
+    # I actually don't care which version of python is used at the moment.
+    # - name: Homebrew install python3
+    #   run:  brew install python@3.12
 
     - name: Install Homebrew dependencies
       run:  >
