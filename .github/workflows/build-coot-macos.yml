@@ -31,6 +31,7 @@ jobs:
     #   run:  brew unlink python@2
     # -> didn't work: Error: No such keg: /usr/local/Cellar/python@2
 
+    # this is not needed, it seems already installed?
     - name: Homebrew install python3
       run:  brew install python@3.12
 
@@ -38,7 +39,7 @@ jobs:
       run:  >
          brew install boost boost-python3 brewsci/bio/clipper4coot
          brewsci/bio/raster3d brewsci/bio/ssm brewsci/bio/gemmi
-         dwarfutils glib gmp gsl rdkit sqlite pygobject3
+         dwarfutils gsl rdkit pygobject3
 
     - name: Get coot.rb file
       # run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
