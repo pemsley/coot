@@ -383,6 +383,9 @@ public:
    //! they took to run. Setting this will write the time to taken (in milliseconds) to stdout.
    //! The default is `true`.
    void set_show_timings(bool s) { show_timings = s; }
+   coot::protein_geometry & get_geom() {
+      return geom;
+   }
 
    // -------------------------------- generic utils -----------------------------------
    //! \name Generic Utils
@@ -1601,8 +1604,12 @@ public:
    //! @return time in microsections
    double test_thread_pool_threads(unsigned int n_threads) const;
 
-   coot::protein_geometry &get_geom() { return geom; }
-
+   // get acces to protein geometry
+   coot::protein_geometry & get_geometry() {
+      return geom;
+   }
+   
+   
    // -------------------------------- Other ---------------------------------------
 
 #ifdef SWIG

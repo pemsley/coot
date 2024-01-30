@@ -479,7 +479,7 @@ add_executable(findligand ${coot_src}/ligand/find-ligand.cc)
 
 add_executable(findwaters ${coot_src}/ligand/find-waters.cc)
 
-add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc ${coot_src}/api/filo-tests.cc)
+add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc ${coot_src}/api/filo-tests.cc ${coot_src}/api/lucrezia-tests.cc)
 
 target_link_libraries(chapi PUBLIC cootapi)
 
@@ -517,3 +517,7 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/metal    DESTINATION ${CMAKE_
 
 # this should depend on the python version, not be hard-wired - how do I do that?
 install(TARGETS chapi DESTINATION lib/python3.10/site-packages)
+
+install(TARGETS cootapi DESTINATION lib)
+
+install(TARGETS chapi DESTINATION lib/python3.11/site-packages)

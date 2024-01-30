@@ -1346,13 +1346,17 @@ coot::protein_geometry::atoms_match_dictionary(mmdb::Residue *residue_p,
 	    for (unsigned int irestraint_atom_name=0; irestraint_atom_name<restraints.atom_info.size(); irestraint_atom_name++) {
 	       if (restraints.atom_info[irestraint_atom_name].atom_id_4c == residue_atom_name) {
 		  found = 1;
+        atom_name_vec.push_back(residue_atom_name);
+
 		  break;
 	       }
 	    }
 	 }
 	 if (! found) {
 	    if (residue_atom_name != " OXT") {
+         if (debug) std::cout << "here d" << std::endl;
                if (std::find(atom_name_vec.begin(), atom_name_vec.end(), residue_atom_name) == atom_name_vec.end()) {
+                  if (debug) std::cout << "here e" << std::endl;
                   atom_name_vec.push_back(residue_atom_name);
                }
                status = false;
@@ -2304,8 +2308,9 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
    if (r) {
       for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
          const dictionary_residue_restraints_t &rest = dict_res_restraints[i].second;
-         if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
-            if (rest.residue_info.comp_id == comp_id) {
+         if (rest.residue_info.comp_id == comp_id) {
+            int imol_for_dict = dict_res_restraints[i].first;
+            if (imol_for_dict == imol_enc) {
                residue_p = rest.GetResidue(idealised_flag, b_factor);
                // debug_residue(residue_p);
                break;

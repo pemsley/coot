@@ -4721,6 +4721,8 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
       status += run_test(test_fill_partial,          "fill partially-filled residues", mc);
    }
+   status += run_test(test_multiligands_lig_bonding, "some multiligands bonding", mc);
+
 
    // status += run_test(test_gltf_export_via_api, "gltf via api", mc);
 

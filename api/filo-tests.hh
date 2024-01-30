@@ -24,3 +24,10 @@
 #include "test-molecules-container.hh"
 
 int test_something_filo(molecules_container_t &mc);
+
+
+
+// lucrezia hijacking filo tests
+int test_multiligands_lig_bonding(molecules_container_t &mc);
+
+
