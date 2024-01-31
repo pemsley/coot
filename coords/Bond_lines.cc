@@ -301,9 +301,9 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
 // all-atom user-define colouring too
 //
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
-					   int imol,
+					                            int imol,
                                            const coot::protein_geometry *protein_geom,
-					   Bond_lines_container::bond_representation_type br_type) {
+					                            Bond_lines_container::bond_representation_type br_type) {
 
    // std::cout << "*************************** Bond_lines_container() constructor with geom and type " << br_type << std::endl;
 
@@ -326,11 +326,11 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    } else {
       if (br_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
          set_b_factor_colours(SelAtom.mol);
-	 try_set_b_factor_scale(SelAtom.mol);
-	 construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_B_FACTOR, 0, model_number, do_rama_markup);
+	      try_set_b_factor_scale(SelAtom.mol);
+	      construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_B_FACTOR, 0, model_number, do_rama_markup);
       } else {
-	 if (br_type == Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS) {
-	    construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_USER_DEFINED_COLOURS, 0, model_number, do_rama_markup);
+	      if (br_type == Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS) {
+	         construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_USER_DEFINED_COLOURS, 0, model_number, do_rama_markup);
          }
       }
    }
@@ -407,12 +407,12 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
    if (false) {
       std::cout << "Seeking contact: selection 1 " << std::endl;
       for (int ii=0; ii<n_selected_atoms_1; ii++)
-	 std::cout << "   " << ii << " " << atom_selection_1[ii] << " :"
-		   << atom_selection_1[ii]->isTer() << ":" << std::endl;
+	      std::cout << "   " << ii << " " << atom_selection_1[ii] << " :"
+		             << atom_selection_1[ii]->isTer() << ":" << std::endl;
       std::cout << "Seeking contact: selection 2 " << std::endl;
       for (int ii=0; ii<n_selected_atoms_2; ii++)
-	 std::cout << "   " << ii << " " << atom_selection_2[ii] << " :"
-		   << atom_selection_2[ii]->isTer() << ":" << std::endl;
+	      std::cout << "   " << ii << " " << atom_selection_2[ii] << " :"
+		             << atom_selection_2[ii]->isTer() << ":" << std::endl;
    }
 
    asc.mol->SeekContacts(atom_selection_1, n_selected_atoms_1,
@@ -828,14 +828,14 @@ Bond_lines_container::mark_atoms_as_bonded(mmdb::Atom *atom_p_1, mmdb::Atom *ato
 
 void
 Bond_lines_container::add_half_bonds(const coot::Cartesian &atom_1_pos,
-				     const coot::Cartesian &atom_2_pos,
-				     mmdb::Atom *at_1,
-				     mmdb::Atom *at_2,
+                                     const coot::Cartesian &atom_2_pos,
+                                     mmdb::Atom *at_1,
+                                     mmdb::Atom *at_2,
                                      graphics_line_t::cylinder_class_t cc,
-				     int model_number,
-				     int atom_index_1,
-				     int atom_index_2,
-				     int atom_colour_type,
+                                     int model_number,
+                                     int atom_index_1,
+                                     int atom_index_2,
+                                     int atom_colour_type,
                                      int udd_user_defined_atom_colour_index_handle,
                                      coot::my_atom_colour_map_t *atom_colour_map_p,
                                      bool add_begin_end_cap,
@@ -4482,10 +4482,10 @@ Bond_lines_container::addBond(int colour_index,
    //
    if (no_bonds_to_these_atoms.find(atom_index_1) != no_bonds_to_these_atoms.end()) {
       if (no_bonds_to_these_atoms.find(atom_index_2) != no_bonds_to_these_atoms.end()) {
-	 if (false)
-	    std::cout << "debug::: addBond() ducking out with " << atom_index_1 << " " << atom_index_2
+	      if (false)
+	         std::cout << "debug::: addBond() ducking out with " << atom_index_1 << " " << atom_index_2
                       << " set size: " << no_bonds_to_these_atoms.size() << std::endl;
-	 return;
+	      return;
       }
    }
 
@@ -6724,7 +6724,7 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
 
                                  // if (br.aromaticity == coot::dict_bond_restraint_t::AROMATIC)
                                     // std::cout << "double and aromatic and same-ele!" << std::endl;
-                              
+
                                  add_double_bond(imol, model_number, iat, jat, residue_atoms, n_residue_atoms,
                                                  atom_colour_type, atom_colour_map,
                                                  udd_atom_index_handle,
