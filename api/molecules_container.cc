@@ -2564,6 +2564,7 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
          // debug_selected_residues(rv);
          std::string alt_conf = "";
          status = refine_direct(imol, rv, alt_conf, n_cycles);
+         set_updating_maps_need_an_update(imol);
       } else {
          std::cout << "WARNING:: " << __FUNCTION__ << " Not a valid map molecule " << imol_refinement_map << std::endl;
       }
@@ -2605,6 +2606,7 @@ molecules_container_t::refine_residue_range(int imol, const std::string &chain_i
       if (! rv.empty()) {
          std::string alt_conf = "";
          status = refine_direct(imol, rv, alt_conf, n_cycles);
+         set_updating_maps_need_an_update(imol);
       } else {
          std::cout << "WARNING:: in refine_residues() - empty residues." << std::endl;
       }
