@@ -404,6 +404,9 @@ public:
    //! @return 1 on successful closure and 0 on failure to close
    int close_molecule(int imol);
 
+   //! delete the most recent/last molecule in the molecule vector
+   void pop_back();
+
    //! @return the eigenvalues of the atoms in the specified residue
    std::vector<double> get_eigenvalues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
