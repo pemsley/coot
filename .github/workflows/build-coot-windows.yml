@@ -1,7 +1,8 @@
 name: Coot CI Windows
 
 on:
-  push:
+   schedule:
+   - cron: "1 1 1,4 * *"
 
 jobs:
 
@@ -10,7 +11,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: build
       run:  bash ./build-it-win ; echo done
 
