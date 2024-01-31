@@ -655,83 +655,106 @@ int test_rsr(molecules_container_t &mc) {
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
-   // int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
-   // const std::string &alt_conf, coot::molecule_t::refine_residues_mode mode);
+   if (mc.is_valid_model_molecule(imol)) {
+      if (mc.is_valid_map_molecule(imol_map)) {
+         // int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
+         // const std::string &alt_conf, coot::molecule_t::refine_residues_mode mode);
 
-   mc.set_imol_refinement_map(imol_map);
+         mc.set_imol_refinement_map(imol_map);
 
-   std::string chain_id = "A";
-   int res_no = 14; // this residue is problematic in moorhen-tutorial-structure-number-1.pdb
-   std::string ins_code;
+         std::string chain_id = "A";
+         int res_no = 14; // this residue is problematic in moorhen-tutorial-structure-number-1.pdb
+         std::string ins_code;
 
-   coot::atom_spec_t atom_spec_N_1(chain_id, res_no, ins_code, " N  ","");
-   coot::atom_spec_t atom_spec_N_2(chain_id, res_no, ins_code, " CG2",""); // not a nitrogen atom
-   mmdb::Atom *at_n_1 = mc.get_atom(imol, atom_spec_N_1);
-   mmdb::Atom *at_n_2 = mc.get_atom(imol, atom_spec_N_2);
-   coot::Cartesian pt_n_1_pre = atom_to_cartesian(at_n_1);
-   coot::Cartesian pt_n_2_pre = atom_to_cartesian(at_n_2);
+         coot::atom_spec_t atom_spec_N_1(chain_id, res_no, ins_code, " N  ","");
+         coot::atom_spec_t atom_spec_N_2(chain_id, res_no, ins_code, " CG2",""); // not a nitrogen atom
+         mmdb::Atom *at_n_1 = mc.get_atom(imol, atom_spec_N_1);
+         mmdb::Atom *at_n_2 = mc.get_atom(imol, atom_spec_N_2);
+         coot::Cartesian pt_n_1_pre = atom_to_cartesian(at_n_1);
+         coot::Cartesian pt_n_2_pre = atom_to_cartesian(at_n_2);
 
-   int n_cycles = 1000;
-   std::string mode = "SPHERE";
-   mc.refine_residues(imol, "A", 14, "", "", mode, n_cycles);
-   coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
-   coot::Cartesian pt_n_2_post = atom_to_cartesian(at_n_2);
-   mc.write_coordinates(imol, "refined-with-big-sphere.pdb");
+         int n_cycles = 1000;
+         std::string mode = "SPHERE";
+         mc.refine_residues(imol, "A", 14, "", "", mode, n_cycles);
+         coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
+         coot::Cartesian pt_n_2_post = atom_to_cartesian(at_n_2);
+         mc.write_coordinates(imol, "refined-with-big-sphere.pdb");
 
-   double dd_n_1 = coot::Cartesian::lengthsq(pt_n_1_pre, pt_n_1_post);
-   double dd_n_2 = coot::Cartesian::lengthsq(pt_n_2_pre, pt_n_2_post);
-   double d_1 = std::sqrt(dd_n_1);
-   double d_2 = std::sqrt(dd_n_2);
+         double dd_n_1 = coot::Cartesian::lengthsq(pt_n_1_pre, pt_n_1_post);
+         double dd_n_2 = coot::Cartesian::lengthsq(pt_n_2_pre, pt_n_2_post);
+         double d_1 = std::sqrt(dd_n_1);
+         double d_2 = std::sqrt(dd_n_2);
 
-   std::cout << "debug:: rsr distances " << d_1 << " " << d_2 << std::endl;
+         std::cout << "debug:: rsr distances " << d_1 << " " << d_2 << std::endl;
 
-   if (d_1 > 0.1)
-      if (d_2 > 0.1)
-         status = true;
+         if (d_1 > 0.1)
+            if (d_2 > 0.1)
+               status = true;
+      }
+   }
 
    return status;
 }
 
-int test_rsr_using_atom_cid(molecules_container_t &mc) {
+int test_rsr_using_atom_cid(molecules_container_t &mc_in) {
 
    starting_test(__FUNCTION__);
    int status = 0;
 
+   molecules_container_t mc;
+
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
-   mc.set_imol_refinement_map(imol_map);
+   std::cout << "imol: " << imol << std::endl;
+   std::cout << "imol_map: " << imol_map << std::endl;
 
-   std::string chain_id = "A";
-   int res_no = 14; // this residue is problematic in moorhen-tutorial-structure-number-1.pdb
-   std::string ins_code;
+   if (mc.is_valid_model_molecule(imol)) {
+      if (mc.is_valid_map_molecule(imol_map)) {
 
-   std::string cid = "//A/14/CA";
+         std::cout << "calling set_imol_refinement_map with imol_map " << imol_map << std::endl;
+         mc.set_imol_refinement_map(imol_map);
+         std::cout << "debug:: A imol_refinement_map is now " << mc.imol_refinement_map << std::endl;
 
-   coot::atom_spec_t atom_spec_N_1(chain_id, res_no, ins_code, " N  ","");
-   coot::atom_spec_t atom_spec_N_2(chain_id, res_no, ins_code, " CG2",""); // not a nitrogen atom
-   mmdb::Atom *at_n_1 = mc.get_atom(imol, atom_spec_N_1);
-   mmdb::Atom *at_n_2 = mc.get_atom(imol, atom_spec_N_2);
-   coot::Cartesian pt_n_1_pre = atom_to_cartesian(at_n_1);
-   coot::Cartesian pt_n_2_pre = atom_to_cartesian(at_n_2);
+         std::string chain_id = "A";
+         int res_no = 14; // this residue is problematic in moorhen-tutorial-structure-number-1.pdb
+         std::string ins_code;
 
-   int n_cycles = 1000;
-   std::string mode = "SPHERE";
-   mc.refine_residues_using_atom_cid(imol, cid, mode, n_cycles);
-   coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
-   coot::Cartesian pt_n_2_post = atom_to_cartesian(at_n_2);
+         // std::string cid = "//A/14/CA";
+         std::string cid = "//A/187/CA";
 
-   double dd_n_1 = coot::Cartesian::lengthsq(pt_n_1_pre, pt_n_1_post);
-   double dd_n_2 = coot::Cartesian::lengthsq(pt_n_2_pre, pt_n_2_post);
-   double d_1 = std::sqrt(dd_n_1);
-   double d_2 = std::sqrt(dd_n_2);
+         coot::atom_spec_t atom_spec_N_1(chain_id, res_no, ins_code, " N  ","");
+         coot::atom_spec_t atom_spec_N_2(chain_id, res_no, ins_code, " CG2",""); // not a nitrogen atom
+         mmdb::Atom *at_n_1 = mc.get_atom(imol, atom_spec_N_1);
+         mmdb::Atom *at_n_2 = mc.get_atom(imol, atom_spec_N_2);
+         coot::Cartesian pt_n_1_pre = atom_to_cartesian(at_n_1);
+         coot::Cartesian pt_n_2_pre = atom_to_cartesian(at_n_2);
 
-   std::cout << "debug:: rsr distances " << d_1 << " " << d_2 << std::endl;
+         int n_cycles = 1000;
+         std::string mode = "SPHERE";
+         std::cout << "debug:: B imol_refinement_map is now " << mc.imol_refinement_map << std::endl;
+         float f = mc.get_map_weight();
+         std::cout << "debug:: map weight " << f << std::endl;
 
-   if (d_1 > 0.1)
-      if (d_2 > 0.1)
-         status = true;
+         mc.add_to_non_drawn_bonds(imol, cid);
+         mc.refine_residues_using_atom_cid(imol, cid, mode, n_cycles);
+         coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
+         coot::Cartesian pt_n_2_post = atom_to_cartesian(at_n_2);
 
+         double dd_n_1 = coot::Cartesian::lengthsq(pt_n_1_pre, pt_n_1_post);
+         double dd_n_2 = coot::Cartesian::lengthsq(pt_n_2_pre, pt_n_2_post);
+         double d_1 = std::sqrt(dd_n_1);
+         double d_2 = std::sqrt(dd_n_2);
+
+         std::cout << "debug:: rsr distances " << d_1 << " " << d_2 << std::endl;
+
+         if (d_1 > 0.1)
+            if (d_2 > 0.1)
+               status = true;
+
+         mc.clear_non_drawn_bonds(imol);
+      }
+   }
    return status;
 }
 
@@ -3745,6 +3768,8 @@ int test_dragged_atom_refinement(molecules_container_t &mc_in) {
 
          if (refine_status == GSL_CONTINUE) status = 1; // the atoms still are moving (a bit) (that's what I want
                                                         // for success of this test).
+
+         mc.pop_back(); // remove imol_new
       }
    }
    mc.close_molecule(imol);
@@ -4721,8 +4746,8 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
       status += run_test(test_fill_partial,          "fill partially-filled residues", mc);
    }
-   status += run_test(test_multiligands_lig_bonding, "some multiligands bonding", mc);
 
+   // status += run_test(test_multiligands_lig_bonding, "some multiligands bonding", mc);
 
    // status += run_test(test_gltf_export_via_api, "gltf via api", mc);
 
@@ -4898,7 +4923,13 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_add_terminal_residue_v2, "test add terminal residue v2", mc);
 
-   status += run_test(test_auto_read_mtz, "test ------ ", mc);
+   // status += run_test(test_auto_read_mtz, "test auto_read_mtz", mc);
+
+   // status += run_test(test_replace_fragment, "replace fragment",         mc);
+
+   // status += run_test(test_dragged_atom_refinement, "dragged atom refinement", mc);
+
+   status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

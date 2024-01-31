@@ -2535,6 +2535,11 @@ molecules_container_t::thread_for_refinement_loop_threaded() {
 int
 molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc, int n_cycles) {
 
+   if (false)
+      std::cout << "starting mc::refine_direct() with imol " << imol
+                << " and imol_refinement_map " << imol_refinement_map
+                << std::endl;
+
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map)) {
@@ -2552,8 +2557,9 @@ molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, 
 int
 molecules_container_t::refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode, int n_cycles) {
 
-   // std::cout << "starting refine_residues_using_atom_cid() with imol_refinement_map " << imol_refinement_map
-   // << std::endl;
+   std::cout << "starting refine_residues_using_atom_cid() with imol " << imol
+             << " and imol_refinement_map " << imol_refinement_map
+             << std::endl;
 
    auto debug_selected_residues = [cid] (const std::vector<mmdb::Residue *> &rv) {
       std::cout << "refine_residues_using_atom_cid(): selected these " << rv.size() << " residues "
@@ -2563,7 +2569,6 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
          std::cout << "   " << coot::residue_spec_t(*it) << std::endl;
       }
    };
-
 
    int status = 0;
    if (is_valid_model_molecule(imol)) {

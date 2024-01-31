@@ -180,6 +180,13 @@ coot::molecule_t::apply_user_defined_atom_colour_selections(const std::vector<st
 void
 coot::molecule_t::add_to_non_drawn_bonds(const std::string &atom_selection_cid) {
 
+   // std::cout << "******* add_to_non_drawn_bonds() called with atom_selection_cid " << atom_selection_cid << std::endl;
+
+   // add_to_non_drawn_bonds() works at the residue level, either all of the atoms of a residue
+   // are drawn or all of them are not.
+   // atom_selection_cid can specify an atom. In that case, all of the atoms of that residue should
+   // not be drawn.
+
    if (atom_sel.mol) {
       int atom_index_udd_handle = atom_sel.UDDAtomIndexHandle;
       int selHnd = atom_sel.mol->NewSelection(); // d
@@ -187,14 +194,32 @@ coot::molecule_t::add_to_non_drawn_bonds(const std::string &atom_selection_cid) 
       int nSelAtoms = 0;
       atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
       atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+      std::set<mmdb::Residue *> selected_residues;
       if (nSelAtoms > 0) {
          for(int iat=0; iat<nSelAtoms; iat++) {
-            mmdb::Atom *at = SelAtoms[iat];
-            int idx;
-            at->GetUDData(atom_index_udd_handle, idx);
-            no_bonds_to_these_atom_indices.insert(idx);
+            mmdb:: Atom *at = SelAtoms[iat];
+            selected_residues.insert(at->residue);
          }
       }
+
+      std::set<mmdb::Residue *>::const_iterator it;
+      for (it=selected_residues.begin(); it!=selected_residues.end(); ++it) {
+         mmdb::Residue *residue_p = *it;
+         mmdb::Atom **residue_atoms = 0;
+         int n_residue_atoms = 0;
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (! at->isTer()) {
+               int idx;
+               at->GetUDData(atom_index_udd_handle, idx);
+               no_bonds_to_these_atom_indices.insert(idx);
+               if (false)
+                  std::cout << "No-bonds-to-these-atoms " << coot::atom_spec_t(at) << "  " << idx << std::endl;
+            }
+         }
+      }
+
       atom_sel.mol->DeleteSelection(selHnd);
    }
    if (false)

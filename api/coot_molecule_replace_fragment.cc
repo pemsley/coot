@@ -90,10 +90,13 @@ coot::molecule_t::replace_fragment(atom_selection_container_t asc) {
                if (ref_index >= 0) {
                   if (moving_atom_matches(at, ref_index)) {
                      idx = ref_index; // yay.
+                     std::cout << "yay " << idx << std::endl;
                   }
                }
             }
          }
+
+         std::cout << "here in replace_fragment() with idx " << idx << " for " << coot::atom_spec_t(at) << std::endl;
 
          if (idx == -1) {
             idx = full_atom_spec_to_atom_index(coot::atom_spec_t(at));
