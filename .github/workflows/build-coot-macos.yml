@@ -26,16 +26,24 @@ jobs:
       id:   setup-homebrew
       uses: Homebrew/actions/setup-homebrew@master
 
+    - name: turn on analytics
+      run:  brew analytics on
+
     # from https://support.circleci.com/hc/en-us/articles/360043542933--Error-The-brew-link-step-did-not-complete-successfully-When-Installing-Python
     # - name: brew unlink python@2
     #   run:  brew unlink python@2
     # -> didn't work: Error: No such keg: /usr/local/Cellar/python@2
 
     # this is not needed, it seems already installed?
-    # this is causing a conflic with azure-cli?
+    # this is causing a conflict with azure-cli?
     # I actually don't care which version of python is used at the moment.
     # - name: Homebrew install python3
     #   run:  brew install python@3.12
+
+    - name: brew update
+      run:  |
+        brew update
+        brew upgrade
 
     - name: Install Homebrew dependencies
       run:  >
@@ -47,9 +55,9 @@ jobs:
       # run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
       # try this modified version for now:
       run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot.rb
-      # don't stall waiting for user input to resolve the failed patch
 
     - name: Compile Homebrew coot HEAD
+      # don't stall waiting for user input to resolve the failed patch
       run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD --verbose --debug --keep-tmp
 
     - name: Does it run?
