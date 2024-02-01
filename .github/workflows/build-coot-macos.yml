@@ -26,7 +26,7 @@ jobs:
       id:   setup-homebrew
       uses: Homebrew/actions/setup-homebrew@master
 
-    - name: turn on analytics
+    - name: turn on brew analytics
       run:  brew analytics on
 
     # from https://support.circleci.com/hc/en-us/articles/360043542933--Error-The-brew-link-step-did-not-complete-successfully-When-Installing-Python
@@ -39,6 +39,9 @@ jobs:
     # I actually don't care which version of python is used at the moment.
     # - name: Homebrew install python3
     #   run:  brew install python@3.12
+
+    - name: pre-update clean for homebrew
+      run:  rm '/usr/local/bin/2to3'
 
     - name: brew update
       run:  |
