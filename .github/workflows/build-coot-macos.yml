@@ -61,7 +61,7 @@ jobs:
 
     - name: Compile Homebrew coot HEAD
       # don't stall waiting for user input to resolve the failed patch
-      run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD --verbose --debug --keep-tmp
+      run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD
 
     - name: Does it run?
       run: coot --no-graphics < /dev/null
