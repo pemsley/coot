@@ -2414,8 +2414,8 @@ int test_replace_fragment(molecules_container_t &mc) {
                                                                        1, 0, 0,
                                                                        0, 1, 0,
                                                                        0, 0, 1,
-                                                                       0, 0, 0,
-                                                                       1, 2, 3);
+                                                                       0, 0, 0, // centre of rotation
+                                                                       1, 2, 3); // translation
          if (n_atoms_moved > 20) {
             mmdb::Atom *at_2 = mc.get_atom(imol_frag, atom_spec);
             coot::Cartesian atom_pos_2 = atom_to_cartesian(at_2);
@@ -4929,7 +4929,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_dragged_atom_refinement, "dragged atom refinement", mc);
 
-   status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
+   // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
+
+   status += run_test(test_replace_fragment,      "replace fragment",         mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
