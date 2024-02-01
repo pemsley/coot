@@ -186,6 +186,7 @@ coot::molecule_t::replace_fragment(atom_selection_container_t asc) {
 int
 coot::molecule_t::replace_fragment(mmdb::Manager *mol_ref, int old_atom_index_handle, int SelHnd) {
 
+   auto tp_0 = std::chrono::high_resolution_clock::now();
    int status = 0;
    mmdb::Atom **selection_atoms = 0;
    int n_selection_atoms = 0;
@@ -202,11 +203,15 @@ coot::molecule_t::replace_fragment(mmdb::Manager *mol_ref, int old_atom_index_ha
          at->x = at_frag->x;
          at->y = at_frag->y;
          at->z = at_frag->z;
+         status = 1; // at least one atom was found
       }
    }
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+
+   std::cout << "debug (new) replace_fragment() took " << d10 << " microseconds" << std::endl;
 
    return status;
 }
-
 
 
