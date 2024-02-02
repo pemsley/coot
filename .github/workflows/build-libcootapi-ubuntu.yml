@@ -28,10 +28,10 @@ jobs:
            key:  chapi-build-ubuntu-cache-test-data
 
       - name: download test data
-        run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
+        run:  wget -N https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
 
       - name: untar test data
-        run:  cd api && tar xvf ../test-molecule-container-test-data.tar.gz
+        run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data.tar.gz
 
       - name: Cache gemmi build
         id:   Cache-gemmi-build
@@ -82,7 +82,9 @@ jobs:
         run:  which python3 && cat python-tests/test_chapi2.py && python3 python-tests/test_chapi2.py
 
       - name: make test-molecules-container
-        run:  cd api && make test-molecules-container
+        run:  make test-molecules-container
 
       - name: run the test-molecules-container test
-        run:  cd api && ./test-molecules-container
+        env:
+          MOORHEN_TEST_DATA_DIR: test-data
+        run:  ./test-molecules-container
