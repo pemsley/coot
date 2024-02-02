@@ -81,7 +81,7 @@ jobs:
       - name: test with chapi-using script
         run:  which python3 && cat python-tests/test_chapi2.py && python3 python-tests/test_chapi2.py
 
-      = name: make test-molecules-container
+      - name: make test-molecules-container
         run:  cd api && make test-molecules-container
 
       - name: run the test-molecules-container test
