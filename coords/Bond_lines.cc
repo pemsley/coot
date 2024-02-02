@@ -992,19 +992,22 @@ Bond_lines_container::draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms
       coot::Cartesian p2(ring_atoms[jat]->x, ring_atoms[jat]->y, ring_atoms[jat]->z);
       std::string ele_1(at_1->element);
       std::string ele_2(at_2->element);
-      graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
       if (ele_1 == ele_2) {
          ring_atoms[iat]->GetUDData(udd_atom_index_handle, atom_1_index);
          ring_atoms[jat]->GetUDData(udd_atom_index_handle, atom_2_index);
          graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
          addBond(col, p1, p2, cc, imodel, atom_1_index, atom_2_index, false, false);
       } else {
+         ring_atoms[iat]->GetUDData(udd_atom_index_handle, atom_1_index);
+         ring_atoms[jat]->GetUDData(udd_atom_index_handle, atom_2_index);
+         graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
          add_half_bonds(p1, p2, at_1, at_2, cc, imodel, atom_1_index, atom_2_index,
                         atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p, false, false);
       }
    }
 
    for (unsigned int i=0; i<inner_doubles.size(); i++) {
+
       int iat_1 = inner_doubles[i].index2;
       int iat_2 = inner_doubles[i].index3;
       int iat_3 = inner_doubles[i].index4;
@@ -1039,7 +1042,7 @@ Bond_lines_container::draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms
       } else {
          bool add_end_cap = true;
          add_half_bonds(ip1, ip2, at_1, at_2, cc, imodel, atom_1_index, atom_2_index, atom_colour_type,
-                        udd_user_defined_atom_colour_index_handle, atom_colour_map_p, add_end_cap, add_end_cap);
+                         udd_user_defined_atom_colour_index_handle, atom_colour_map_p, add_end_cap, add_end_cap);
       }
    }
 
@@ -6207,20 +6210,22 @@ Bond_lines_container::draw_trp_ring_outer(mmdb::Residue *residue_p, int model_nu
    // we need a ring atom vector for each of the alt confs
    std::set<std::string> residue_alt_confs;
 
-   mmdb::Atom **residue_atoms = 0;
-   int n_residue_atoms = 0;
-   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-   for (int iat=0; iat<n_residue_atoms; iat++) {
-      mmdb::Atom *at = residue_atoms[iat];
-      if (! at->isTer()) {
-         std::string a(at->altLoc);
-         residue_alt_confs.insert(a);
+   { // don't shadow residue_atoms
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string a(at->altLoc);
+            residue_alt_confs.insert(a);
+         }
       }
    }
 
 
    std::set<std::string>::const_iterator it;
-   for(it=residue_alt_confs.begin(); it!=residue_alt_confs.end(); it++) {
+   for(it=residue_alt_confs.begin(); it!=residue_alt_confs.end(); ++it) {
       const std::string &alt_loc(*it);
       unsigned int n_found = 0;
       for (unsigned int i=0; i<trp_rings_atom_names.size(); i++) {
