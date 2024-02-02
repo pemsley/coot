@@ -1,6 +1,6 @@
 name: libcootapi CI Homebrew macOS
 
-on: 
+on:
   push:
 
 jobs:
@@ -42,7 +42,7 @@ jobs:
         env:
           CHAPI_ONLY: true
         run:  bash build-it-3-3 || echo done
-      
+
       - name: Upload build logs
         uses: actions/upload-artifact@v4
         with:
@@ -57,14 +57,14 @@ jobs:
         run:  echo /home/runner/install/chapi-Darwin-xxx-gtk4/bin >> $GITHUB_PATH
 
       - name: run cmake
-        run: > 
-            cd build-libcootapi && 
-            cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Darwin-xxx-gtk4 
+        run: >
+            cd build-libcootapi &&
+            cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Darwin-xxx-gtk4
             -Dnanobind_DIR=/home/runner/install/chapi-Darwin-xxx-gtk4/lib/python3.10/site-packages/nanobind/cmake ..
-        
+
       - name: make
         run:  cd build-libcootapi && make -j 4
-        
+
       - name: make install
         run:  cd build-libcootapi && make install
 
