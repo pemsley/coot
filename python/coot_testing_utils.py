@@ -20,9 +20,9 @@ print("===============================================================")
 
 import sys
 import unittest, os
-import coot
-import fitting
 import inspect
+import coot
+import coot_fitting
 
 global have_test_skip
 global skipped_tests
@@ -261,7 +261,7 @@ def residue_name_from_spec(imol, spec):
 #
 def get_residues_in_molecule_of_type(imol, residue_type):
 
-    return [x for x in fitting.fit_protein_make_specs(imol, 'all-chains') if residue_name_from_spec(imol, x) == residue_type]
+    return [x for x in coot_fitting.fit_protein_make_specs(imol, 'all-chains') if residue_name_from_spec(imol, x) == residue_type]
 
 # This takes 4 member specs, return True or False
 # 20230202-PE I don't like that idea, these days.
