@@ -28,7 +28,7 @@ jobs:
            key:  chapi-build-ubuntu-cache-test-data
 
       - name: download test data
-        run:  wget -N https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
+        run:  wget -N -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
 
       - name: untar test data
         run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data.tar.gz
@@ -85,9 +85,9 @@ jobs:
         run:  pwd && ls -lt
 
       - name: make test-molecules-container
-        run:  make test-molecules-container
+        run:  cd build-libcootapi && make test-molecules-container
 
       - name: run the test-molecules-container test
         env:
-          MOORHEN_TEST_DATA_DIR: test-data
-        run:  ./test-molecules-container
+          MOORHEN_TEST_DATA_DIR: ../test-data
+        run:  cd build-libcootapi && ./test-molecules-container
