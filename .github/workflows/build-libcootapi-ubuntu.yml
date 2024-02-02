@@ -81,6 +81,9 @@ jobs:
       - name: test with chapi-using script
         run:  which python3 && cat python-tests/test_chapi2.py && python3 python-tests/test_chapi2.py
 
+      - name: where are we?
+        run:  pwd && ls -lt
+
       - name: make test-molecules-container
         run:  make test-molecules-container
 
