@@ -2443,6 +2443,42 @@ int test_replace_fragment(molecules_container_t &mc) {
    return status;
 }
 
+int test_replace_large_fragment(molecules_container_t &mc) {
+
+   // speed test the replacement
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb("pdb8oie.ent");
+   int imol_map = mc.read_ccp4_map("emd_16890.map", false);
+   mc.import_cif_dictionary("CLF.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary("HCA.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary("S5Q.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary("ADP.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary( "MG.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary("AF3.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary("SF4.cif", coot::protein_geometry::IMOL_ENC_ANY);
+
+   int imol_new =  mc.copy_fragment_for_refinement_using_cid(imol, "/");
+   mc.init_refinement_of_molecule_as_fragment_based_on_reference(imol_new, imol, imol_map);
+
+   std::pair<int, coot::instanced_mesh_t> im_2 = mc.refine(imol_new, 20);
+   int refine_status = im_2.first;
+   if (refine_status == GSL_CONTINUE) {
+      std::pair<int, coot::instanced_mesh_t> im_3 = mc.refine(imol_new, 20);
+      refine_status = im_3.first;
+   }
+   if (refine_status == GSL_CONTINUE) {
+      std::pair<int, coot::instanced_mesh_t> im_4 = mc.refine(imol_new, 20);
+      refine_status = im_4.first;
+   }
+   mc.clear_refinement(imol);
+   mc.replace_fragment(imol, imol_new, "//");
+   status = 1;
+
+   return status;
+
+}
+
 int test_instanced_rota_markup(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -4931,7 +4967,7 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
 
-   status += run_test(test_replace_fragment,      "replace fragment",         mc);
+   status += run_test(test_replace_large_fragment,      "refine and replace large fragment",         mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
