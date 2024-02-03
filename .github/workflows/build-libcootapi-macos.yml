@@ -63,6 +63,12 @@ jobs:
           path: /Users/runner/public_html
           retention-days: 3
 
+      - name: what have we got? (where is nanobind?)
+        run:  >
+          ls /Users/runner/install/chapi-Darwin-macos-gtk4
+          ls /Users/runner/install/chapi-Darwin-macos-gtk4/lib
+          ls /Users/runner/install/chapi-Darwin-macos-gtk4/lib/python*/site-packages
+
       - name: create-build-directory-for-libcootapi
         run:  mkdir build-libcootapi
 
