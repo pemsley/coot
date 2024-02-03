@@ -42,8 +42,9 @@ jobs:
           rm '/usr/local/bin/pydoc3.11'
           rm '/usr/local/bin/python3'
           rm '/usr/local/bin/python3-config'
+          rm '/usr/local/bin/python3.11-config'
           rm '/usr/local/bin/python3.11'
-
+  
       - name: brew update
         run:  |
           brew update
