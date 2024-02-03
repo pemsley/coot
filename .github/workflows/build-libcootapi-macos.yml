@@ -67,18 +67,22 @@ jobs:
           retention-days: 3
 
       - name: what have we got? (where is nanobind?)
-        run:  >
+        run:  |
           ls /Users/runner/install/chapi-Darwin-macos-gtk4
           ls /Users/runner/install/chapi-Darwin-macos-gtk4/lib
-          ls /Users/runner/install/chapi-Darwin-macos-gtk4/lib/python*/site-packages
 
-      - name: create-build-directory-for-libcootapi
-        run:  mkdir build-libcootapi
+      - name: ls the new bin
+        run:  ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/bin
 
       - name: set the path
         run:  echo /Users/runner/install/chapi-Darwin-macos-gtk4/bin >> $GITHUB_PATH
 
+      - name: create-build-directory-for-libcootapi
+        run:  mkdir build-libcootapi
+
       - name: run cmake
+        env:
+          HOMEBREW_MAKE_JOBS: 4
         run: >
             cd build-libcootapi &&
             cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
