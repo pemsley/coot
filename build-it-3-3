@@ -2807,7 +2807,8 @@ if command -v meson --version ; then
           build_meson=false
        fi
     else
-    build_meson=true
+       build_meson=true
+    fi
 fi
 
 if $build_meson = true ; then
