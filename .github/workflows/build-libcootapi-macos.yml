@@ -69,8 +69,9 @@ jobs:
 
       - name: what have we got? (where is nanobind?)
         run:  |
-          ls /Users/runner/install/chapi-Darwin-macos-gtk4
-          ls /Users/runner/install/chapi-Darwin-macos-gtk4/lib
+          ls -l /Users/runner/install/chapi-Darwin-macos-gtk4
+          ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib
+          ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib/python3.10/site-packages
 
       - name: ls the new bin
         run:  ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/bin
