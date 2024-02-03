@@ -13,6 +13,9 @@ jobs:
 
       - uses: actions/checkout@v4
 
+      - name: where are we?
+        run:  pwd
+
       - name: Setup homebrew
         id:   setup-homebrew
         uses: Homebrew/actions/setup-homebrew@master
