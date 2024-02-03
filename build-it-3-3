@@ -3162,6 +3162,8 @@ fi
 # me how to build them otherwise.
 # sudo apt-get install libblas-dev liblapack-dev
 
+echo command -v pip3
+command -v pip3
 # cython
 echo pip3 install --upgrade pip
 pip3 install --upgrade pip
