@@ -463,7 +463,11 @@ if test x$GITHUB_ENV = x ; then
     : # we are not in a hithub actions build
 else
     if [ "$CHAPI_ONLY" = true ] ; then
-        AUTOBUILD_INSTALLED=$HOME/install/chapi-Linux-ubuntu
+        if [ $OS = Darwin]  ; then
+            AUTOBUILD_INSTALLED=$HOME/install/chapi-Darwin-macos
+        else
+            AUTOBUILD_INSTALLED=$HOME/install/chapi-Linux-ubuntu
+        fi
     else
         AUTOBUILD_INSTALLED=$HOME/install/coot-Linux-ubuntu
     fi

@@ -55,6 +55,9 @@ Coot: Fix this in pyrogen Makefile:
       Is -DSWIG already on, because it's parsed by swig?
 * Done.
 
+Coot: set_colour_by_chain(0) has missing name space in 0-coot.state.py
+   "coot" is being added to display_strings, not active_strings?
+
 libcootapi: what are the headers? Including Remark records?
 
 libcootapi:
