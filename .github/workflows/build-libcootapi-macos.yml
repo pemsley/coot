@@ -75,6 +75,9 @@ jobs:
       - name: ls the new bin
         run:  ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/bin
 
+      - name: find nanobind in /usr/local
+        run:  find /usr/local -name nanobind
+
       - name: set the path
         run:  echo /Users/runner/install/chapi-Darwin-macos-gtk4/bin >> $GITHUB_PATH
 
@@ -87,7 +90,7 @@ jobs:
         run: >
             cd build-libcootapi &&
             cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
-            -Dnanobind_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/python3.10/site-packages/nanobind/cmake ..
+            -Dnanobind_DIR=/usr/local/Cellar/python3.10/lib/site-packages/nanobind/cmake ..
 
       - name: make
         run:  cd build-libcootapi && make -j 4
