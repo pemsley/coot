@@ -463,7 +463,7 @@ if test x$GITHUB_ENV = x ; then
     : # we are not in a hithub actions build
 else
     if [ "$CHAPI_ONLY" = true ] ; then
-        if [ $OS = Darwin]  ; then
+        if [ $OS = Darwin ]  ; then
             AUTOBUILD_INSTALLED=$HOME/install/chapi-Darwin-macos
         else
             AUTOBUILD_INSTALLED=$HOME/install/chapi-Linux-ubuntu
@@ -508,24 +508,31 @@ build_coot_prerelease=${build_coot_prerelease:=1}
 # Suggested value: comment out this line
 specs=${specs:=$HOME/autobuild/build-scripts/${HOST}-specials}
 
+# if we are not in chapi mode, we ask
 # where has gtk been installed if this is Mac OS?
-if test "$OS" = "Darwin" ; then
-   if test -n "$gtk" ; then
-      if test -d "$gtk" ; then
-         : # pass, good
+# (this was from when gtk3 could be installed on macOS).
+# I should add /usr/local of course these days
+if test "$CHAPI_ONLY" = true ; then
+    :
+else
+   if test "$OS" = "Darwin" ; then
+      if test -n "$gtk" ; then
+         if test -d "$gtk" ; then
+            : # pass, good
+         else
+            echo gtk variable must point to the directory where gtk has been installed
+         fi
       else
-         echo gtk variable must point to the directory where gtk has been installed
-      fi
-   else
-      # gtk was not set, let's try to guess
-      testdir=$HOME/gtk/inst
-      if test -d $testdir ; then
-         gtk=$HOME/gtk/inst
-      else
-         echo this build script needs to know where gtk has been installed
-         echo \(at the moment\)
-         echo set gtk to point to the directory where gtk has been installed
-         exit 2
+         # gtk was not set, let's try to guess
+         testdir=$HOME/gtk/inst
+         if test -d $testdir ; then
+            gtk=$HOME/gtk/inst
+         else
+            echo this build script needs to know where gtk has been installed
+            echo \(at the moment\)
+            echo set gtk to point to the directory where gtk has been installed
+            exit 2
+         fi
       fi
    fi
 fi

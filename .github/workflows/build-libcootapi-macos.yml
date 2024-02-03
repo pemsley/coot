@@ -16,9 +16,9 @@ jobs:
       # Home on macOS is /Users/runner
       - name: where are we?
         run:  |
-          pwd 
-          cd 
-          pwd 
+          pwd
+          cd
+          pwd
 
       - name: Setup homebrew
         id:   setup-homebrew
@@ -33,13 +33,16 @@ jobs:
           rm '/usr/local/bin/2to3-3.11'
           rm '/usr/local/bin/2to3-3.12'
           rm '/usr/local/bin/idle3'
-          rm '/usr/local/bin/idle3.11'          
+          rm '/usr/local/bin/idle3.11'
           rm '/usr/local/bin/idle3.12'
           rm '/usr/local/bin/pydoc3.12'
           rm '/usr/local/bin/python3.12'
           rm '/usr/local/bin/python3.12-config'
           rm '/usr/local/bin/pydoc3'
           rm '/usr/local/bin/pydoc3.11'
+          rm '/usr/local/bin/python3'
+          rm '/usr/local/bin/python3-config'
+          rm '/usr/local/bin/python3.11'
 
       - name: brew update
         run:  |
