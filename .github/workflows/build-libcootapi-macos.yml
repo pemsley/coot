@@ -35,6 +35,7 @@ jobs:
           rm '/usr/local/bin/idle3'
           rm '/usr/local/bin/idle3.12'
           rm '/usr/local/bin/pydoc3.12'
+          rm '/usr/local/bin/python3.12'
 
       - name: brew update
         run:  |
