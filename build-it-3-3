@@ -2116,13 +2116,13 @@ if [ "$use_python_version_3_8" = true ] ;then
 fi
 
 
-#
+# 20240203-PE I don't want version 3.8.
 # but more modern pythons do not compile (at least on my mac)
 # 20201225-PE this needs checking
-if [ $OS = Darwin ] ; then
-   pver=3.6.5
-   pver=3.8.12
-fi
+# if [ $OS = Darwin ] ; then
+#    pver=3.6.5
+#    pver=3.8.12
+# fi
 
 
 # set build_pygobject here
@@ -2554,6 +2554,7 @@ if test -n "$build_clipper" ; then
 	echo clipper build failed, exiting
 	my_exit 2
     fi
+    echo done clipper >&2
 
 else
     echo not building clipper:
@@ -2599,6 +2600,7 @@ if true ; then
               make install
           fi
       ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
+      echo done gemmi
 fi
 
 
@@ -2788,25 +2790,25 @@ fi
 # we should have meson for pygobject, need version 0.46 or later
 # however, is this the way to install pygobject? Or is done with pip3?
 #
-echo testing to see if meson exists in path yet
-echo testing to see if meson exists in path yet 2>&1
-echo which meson
-which meson
-echo meson --version
-which meson >&2
-echo meson --version >&2
-meson --version >&2
-if meson --version ; then
-   echo we have meson
-   v=$(meson --version)
-   if [[ $v < 1.2.3 ]] ; then
-      echo meson is too old, current version is $v
-      build_meson=true
-   else
-      build_meson=false
-   fi
-else
-   build_meson=true
+build_meson=true
+if command -v meson --version ; then
+
+    echo meson --version
+    which meson >&2
+    echo meson --version >&2
+    meson --version >&2
+    if meson --version ; then
+        echo we have meson
+        v=$(meson --version)
+       if [[ $v < 1.2.3 ]] ; then
+          echo meson is too old, current version is $v
+          build_meson=true
+       else
+          build_meson=false
+       fi
+    else
+       build_meson=true
+    fi
 fi
 
 if $build_meson = true ; then
@@ -3161,6 +3163,8 @@ fi
 # me how to build them otherwise.
 # sudo apt-get install libblas-dev liblapack-dev
 
+echo command -v pip3
+command -v pip3
 # cython
 echo pip3 install --upgrade pip
 pip3 install --upgrade pip
