@@ -30,6 +30,7 @@
    "/home/paule/assimp/include"
 
    "/home/paule/python3/include/python3.9"
+   "/home/paule/autobuild/build-for-chapi-gtk4/lib/python3.10/site-packages/nanobind/include"
    "/home/paule/autobuild/Linux-penelope-gtk4-python/include"
 
    ;; from https://github.com/Wilfred/flycheck-pkg-config/issues/2
