@@ -44,7 +44,7 @@ jobs:
           rm '/usr/local/bin/python3-config'
           rm '/usr/local/bin/python3.12-config'
           rm '/usr/local/bin/python3.11-config'
-  
+
       - name: brew update
         run:  |
           brew update
@@ -73,14 +73,16 @@ jobs:
       - name: install nanobind
         run:  python3 -m pip install nanobind
 
-      - name: was nanobind installed?
-        run:  command -v nanobind
-
       - name: what have we got? (where is nanobind?)
         run:  |
           ls -l /Users/runner/install/chapi-Darwin-macos-gtk4
           ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib
           ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib/python3.10/site-packages
+          ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib/python3.11/site-packages
+          ls -l /usr/local/lib
+          ls -l /usr/local/lib/python3.10
+          ls -l /usr/local/lib/python3.11
+          ls -l /usr/local/lib/python3.11/site-packages
 
       - name: ls the new bin
         run:  ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/bin
