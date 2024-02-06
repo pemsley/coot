@@ -81,6 +81,9 @@ coot::molecule_t::replace_fragment(atom_selection_container_t asc) {
       int idx = -1;
       mmdb::Atom *at = asc.atom_selection[i];
 
+      std::cout << "debug:: in replace_fragment() with asc.UDDOldAtomIndexHandle "
+                << asc.UDDOldAtomIndexHandle << std::endl;
+
       if (! at->isTer()) {
          // can we find the atom with fast indexing?
          if (asc.UDDOldAtomIndexHandle >= 0) {
@@ -90,10 +93,13 @@ coot::molecule_t::replace_fragment(atom_selection_container_t asc) {
                if (ref_index >= 0) {
                   if (moving_atom_matches(at, ref_index)) {
                      idx = ref_index; // yay.
+                     std::cout << "yay " << idx << std::endl;
                   }
                }
             }
          }
+
+         std::cout << "here in replace_fragment() with idx " << idx << " for " << coot::atom_spec_t(at) << std::endl;
 
          if (idx == -1) {
             idx = full_atom_spec_to_atom_index(coot::atom_spec_t(at));
@@ -172,6 +178,40 @@ coot::molecule_t::replace_fragment(atom_selection_container_t asc) {
    //    update_symmetry();
    // make_bonds_type_checked();
    return 1;
+}
+
+
+// replace the atoms of SelHnd, which is a selection of mol_ref into this molecule.
+// Use old_atom_index_handle for fast indexing.
+int
+coot::molecule_t::replace_fragment(mmdb::Manager *mol_ref, int old_atom_index_handle, int SelHnd) {
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+   int status = 0;
+   mmdb::Atom **selection_atoms = 0;
+   int n_selection_atoms = 0;
+   mol_ref->GetSelIndex(SelHnd, selection_atoms, n_selection_atoms);
+
+   for (int i=0; i<n_selection_atoms; i++) {
+      mmdb:: Atom *at_frag = selection_atoms[i];
+      // std::cout << "replace this: " << atom_spec_t(at_frag) << std::endl;
+      int idx = -1;
+      int ierr = at_frag->GetUDData(old_atom_index_handle, idx);
+      if (ierr == mmdb::UDDATA_Ok) {
+         mmdb::Atom *at = atom_sel.atom_selection[idx];
+         // std::cout << "replacing position of " << atom_spec_t(at) << " from " << atom_spec_t(at_frag) << std::endl;
+         at->x = at_frag->x;
+         at->y = at_frag->y;
+         at->z = at_frag->z;
+         status = 1; // at least one atom was found
+      }
+   }
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+
+   std::cout << "debug (new) replace_fragment() took " << d10 << " microseconds" << std::endl;
+
+   return status;
 }
 
 

@@ -4209,7 +4209,7 @@ coot::util::create_mmdbmanager_from_atom_selection(mmdb::Manager *orig_mol,
       return coot::util::create_mmdbmanager_from_atom_selection_straight(orig_mol, SelectionHandle);
 }
 
-// ignore atom index transfer
+// 20240201-PE now atom index transfer is applied
 mmdb::Manager *
 coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_mol,
                                                             int SelectionHandle) {
@@ -4218,13 +4218,36 @@ coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_
 
    mmdb::Manager *atoms_mol = new mmdb::Manager;
 
-   mmdb::PPAtom atoms;
-   int n_selected_atoms;
+   int orig_atom_index_handle = orig_mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+   // std::cout << "orig_atom_index_handle: " << orig_atom_index_handle << std::endl;
+
+   // 20240201-PE used in api replace_fragment()
+   int transfered_atom_index_handle = atoms_mol->RegisterUDInteger(mmdb::UDR_ATOM, "transfer atom index");
 
    // the short version from Eugene. Is it going wrong for cifs? Maybe.
+   mmdb::PPAtom atoms = nullptr;
+   int n_selected_atoms = 0;
    orig_mol->GetSelIndex(SelectionHandle, atoms, n_selected_atoms);
-   for (int iatom=0; iatom<n_selected_atoms; iatom++)
-      atoms_mol->PutAtom(0, atoms[iatom], iatom+1);
+   for (int iatom=0; iatom<n_selected_atoms; iatom++) {
+      mmdb:: Atom *at = atoms[iatom];
+      int idx = -1;
+      int ierr = at->GetUDData(orig_atom_index_handle, idx);
+      if (ierr == mmdb::UDDATA_Ok) {
+         if (false)
+            std::cout << "atom " << coot::atom_spec_t(at) << " had atom index " << idx << std::endl;
+      } else {
+         std::cout << "wrong handle for UDD atom-index " << orig_atom_index_handle << std::endl;
+      }
+      int index = 0; // make a new atom at the nAtoms+1 position
+      int new_index = iatom + 1;
+      atoms_mol->PutAtom(index, at, iatom+1);
+      mmdb::Atom *atn = atoms_mol->GetAtomI(new_index);
+      // std::cout << " in atom " << atom_spec_t(at) << " new atoms: " << atom_spec_t(atn) << std::endl;
+      atn->PutUDData(transfered_atom_index_handle, idx);
+   }
+
+   // now call OrderAtoms()
+   // atoms_mol->OrderAtoms();
 
 #if 0
    orig_mol->GetSelIndex(SelectionHandle, atoms, n_selected_atoms);

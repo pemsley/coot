@@ -877,6 +877,10 @@ namespace coot {
       //! @return the success status
       int replace_fragment(atom_selection_container_t asc);
 
+      // replace the atoms of SelHnd, which is a selection of mol_ref into this molecule.
+      // Use old_atom_index_handle for fast indexing.
+      int replace_fragment(mmdb::Manager *mol_ref, int old_atom_index_handle, int SelHnd);
+
       //! a container class for information about changing rotamers
       class rotamer_change_info_t {
          public:

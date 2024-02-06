@@ -22,6 +22,8 @@ moorhen: does the map masking take a multi-cid for the atom selection?
 * It does not. Tested.
 * Fixed.
 
+moorhen: void atom in mmdb mmcif output.
+
 moorhen: search monomer library for ARG with methyl (for example)
 
 libcootapi: bundle the reference structures into the source code.
@@ -52,6 +54,9 @@ Coot: Fix this in pyrogen Makefile:
       SWIG_FLAGS = -DSWIG -DCOOT_USE_GTK2_INTERFACE
       Is -DSWIG already on, because it's parsed by swig?
 * Done.
+
+Coot: set_colour_by_chain(0) has missing name space in 0-coot.state.py
+   "coot" is being added to display_strings, not active_strings?
 
 libcootapi: what are the headers? Including Remark records?
 
@@ -254,6 +259,10 @@ Graphics: Bug: 7dy0 all-atom B-factor - the colour range goes too far (into purp
 
 API: add rigid_body_fit_chain(imol, chain_id) to the moorhen and coot apis.
 
+Moorhen: gzip the rota and rama data that is part of moorhen.data (wait for Stuart)
+
+Moorhen: gzip the starting (protein) cif files that make up moorhen.data (wait for Stuart)
+
 Moorhen: Change chain ID
 
 Moorhen: Renumber residue range.
@@ -278,6 +287,8 @@ Moorhen: Export input dictionary as string (needs to store result of file-to-str
 
 Moorhen: Request: electrostatic surface. What happens when you put the charges
          on a Gaussian surface?
+
+Coot and libcootapi: add a function to delete atoms by cid and another to delete alt-confs.
 
 Libcootapi: Make the CMakefile install chapi
 

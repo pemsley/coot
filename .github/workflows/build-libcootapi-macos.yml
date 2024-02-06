@@ -1,0 +1,110 @@
+name: libcootapi CI Homebrew macOS
+
+on:
+  push:
+
+jobs:
+
+  build-libcootapi-for-macos:
+
+    runs-on: macos-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      # Home on macOS is /Users/runner
+      - name: where are we?
+        run:  |
+          pwd
+          cd
+          pwd
+
+      - name: Setup homebrew
+        id:   setup-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: turn on brew analytics
+        run:  brew analytics on
+
+      - name: pre-update clean for homebrew
+        run:  |
+          rm '/usr/local/bin/2to3'
+          rm '/usr/local/bin/2to3-3.11'
+          rm '/usr/local/bin/2to3-3.12'
+          rm '/usr/local/bin/idle3'
+          rm '/usr/local/bin/idle3.11'
+          rm '/usr/local/bin/idle3.12'
+          rm '/usr/local/bin/pydoc3'
+          rm '/usr/local/bin/pydoc3.11'
+          rm '/usr/local/bin/pydoc3.12'
+          rm '/usr/local/bin/python3'
+          rm '/usr/local/bin/python3.11'
+          rm '/usr/local/bin/python3.12'
+          rm '/usr/local/bin/python3-config'
+          rm '/usr/local/bin/python3.12-config'
+          rm '/usr/local/bin/python3.11-config'
+
+      - name: brew update
+        run:  |
+          brew update
+          brew upgrade
+
+      - name: Install Homebrew dependencies
+        run:  >
+         brew install boost boost-python3 brewsci/bio/clipper4coot
+         brewsci/bio/ssm brewsci/bio/gemmi dwarfutils gsl rdkit
+
+      # - name: Run build-with-build-it-3-3
+      #   env:
+      #     CHAPI_ONLY: true
+      #   run:  bash build-it-3-3 || echo done
+
+      # - name: Upload build logs
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: build-logs-public-html-package
+      #     path: /Users/runner/public_html
+      #     retention-days: 3
+
+      - name: test python3
+        run:  which python3 && python3 --version
+
+      - name: install nanobind
+        run:  python3 -m pip install nanobind
+
+        # ls -l /Users/runner/install/chapi-Darwin-macos-gtk4
+        # ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib
+        # ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib/python3.10/site-packages
+        # ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib/python3.11/site-packages
+      - name: what have we got? (where is nanobind?)
+        run:  |
+          ls -l /usr/local/lib
+          ls -l /usr/local/lib/python3.11
+          ls -l /usr/local/lib/python3.11/site-packages
+
+      # - name: ls the new bin
+      #   run:  ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/bin
+
+      - name: find nanobind in /usr/local
+        run:  find /usr/local -name nanobind
+
+      # - name: set the path
+      #   run:  echo /Users/runner/install/chapi-Darwin-macos-gtk4/bin >> $GITHUB_PATH
+
+      - name: create-build-directory-for-libcootapi
+        run:  mkdir build-libcootapi
+
+      - name: run cmake
+        env:
+          HOMEBREW_MAKE_JOBS: 4
+        run: >
+            cd build-libcootapi &&
+            cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
+            -Dnanobind_DIR=/usr/local/lib/python3.10/site-packages/nanobind/cmake ..
+
+      - name: make
+        run:  cd build-libcootapi && make -j 4
+
+      - name: make install
+        run:  cd build-libcootapi && make install

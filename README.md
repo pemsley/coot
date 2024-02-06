@@ -9,7 +9,7 @@
 ![macOS binary build badge](https://github.com/pemsley/coot/actions/workflows/build-coot-macos.yml/badge.svg)
 
 *Coot* is a toolkit for Macromolecular Crystallography and
-model-building.  *Coot* uses widgets (with the gui builder glade),
+model-building.  *Coot* uses GTK widgets 
 mmdb, clipper, and OpenGL to provide interactive tools for model-building,
 refinement and validation.
 

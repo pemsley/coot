@@ -119,41 +119,41 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // now the positions of all the major dialogs:
    if (graphics_info_t::model_fit_refine_x_position > -1)
       commands.push_back(state_command("coot", "set-model-fit-refine-dialog-position",
-				       model_fit_refine_x_position,
-				       model_fit_refine_y_position, il));
+                                       model_fit_refine_x_position,
+                                       model_fit_refine_y_position, il));
    if (graphics_info_t::display_manager_x_position > -1)
       commands.push_back(state_command("coot", "set-display-control-dialog-position",
-				       display_manager_x_position,
-				       display_manager_y_position, il));
+                                       display_manager_x_position,
+                                       display_manager_y_position, il));
 
    if (graphics_info_t::go_to_atom_window_x_position > -1)
       commands.push_back(state_command("coot", "set-go-to-atom-window-position",
-				       go_to_atom_window_x_position,
-				       go_to_atom_window_y_position, il));
+                                       go_to_atom_window_x_position,
+                                       go_to_atom_window_y_position, il));
    if (graphics_info_t::delete_item_widget_x_position > -1)
       commands.push_back(state_command("coot", "set-delete-dialog-position",
-				       delete_item_widget_x_position,
-				       delete_item_widget_y_position, il));
+                                       delete_item_widget_x_position,
+                                       delete_item_widget_y_position, il));
    if (graphics_info_t::rotate_translate_x_position > -1)
       commands.push_back(state_command("coot", "set-rotate-translate-dialog-position",
-				       rotate_translate_x_position,
-				       rotate_translate_y_position, il));
+                                       rotate_translate_x_position,
+                                       rotate_translate_y_position, il));
    if (graphics_info_t::accept_reject_dialog_x_position > -1)
       commands.push_back(state_command("coot", "set-accept-reject-dialog-position",
-				       accept_reject_dialog_x_position,
-				       accept_reject_dialog_y_position, il));
+                                       accept_reject_dialog_x_position,
+                                       accept_reject_dialog_y_position, il));
    if (graphics_info_t::ramachandran_plot_x_position > -1)
       commands.push_back(state_command("coot", "set-ramachandran-plot-dialog-position",
-				       ramachandran_plot_x_position,
-				       ramachandran_plot_y_position, il));
+                                       ramachandran_plot_x_position,
+                                       ramachandran_plot_y_position, il));
    if (graphics_info_t::edit_chi_angles_dialog_x_position > -1)
       commands.push_back(state_command("coot", "set-edit-chi-angles-dialog-position",
-				       edit_chi_angles_dialog_x_position,
-				       edit_chi_angles_dialog_y_position, il));
+                                       edit_chi_angles_dialog_x_position,
+                                       edit_chi_angles_dialog_y_position, il));
    if (graphics_info_t::rotamer_selection_dialog_x_position > -1)
       commands.push_back(state_command("coot", "set-rotamer-selection-dialog-position",
-				       rotamer_selection_dialog_x_position,
-				       rotamer_selection_dialog_y_position, il));
+                                       rotamer_selection_dialog_x_position,
+                                       rotamer_selection_dialog_y_position, il));
 
    // Virtual trackball
    if (vt_surface_status() == 1)
@@ -178,18 +178,18 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
 
    commands.push_back(state_command("coot", "set-colour-map-rotation-on-read-pdb",
-				    rotate_colour_map_on_read_pdb, il));
+                                    rotate_colour_map_on_read_pdb, il));
    commands.push_back(state_command("coot", "set-colour-map-rotation-on-read-pdb-flag",
-				    rotate_colour_map_on_read_pdb_flag, il));
+                                    rotate_colour_map_on_read_pdb_flag, il));
    commands.push_back(state_command("coot", "set-colour-map-rotation-on-read-pdb-c-only-flag",
-				    rotate_colour_map_on_read_pdb_c_only_flag, il));
+                                    rotate_colour_map_on_read_pdb_c_only_flag, il));
    commands.push_back(state_command("coot", "set-swap-difference-map-colours",
-				    swap_difference_map_colours, il));
+                                    swap_difference_map_colours, il));
 
    commands.push_back(state_command("coot", "set-background-colour",
-				    background_colour[0],
-				    background_colour[1],
-				    background_colour[2], il));
+                                    background_colour[0],
+                                    background_colour[1],
+                                    background_colour[2], il));
 
    // set_density_size_from_widget (not from widget): box_size
    // show unit cell: per molecule (hmm)
@@ -199,9 +199,9 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    commands.push_back(state_command("coot", "set-symmetry-size", symmetry_search_radius, il));
    commands.push_back(state_command("coot", "set-symmetry-colour-merge", float(symmetry_colour_merge_weight), il));
    commands.push_back(state_command("coot", "set-symmetry-colour",
-				    symmetry_colour[0],
-				    symmetry_colour[1],
-				    symmetry_colour[2], il));
+                                    symmetry_colour[0],
+                                    symmetry_colour[1],
+                                    symmetry_colour[2], il));
 
    // FIXME
    //    commands.push_back(state_command("set-symmetry-whole-chain", symmetry_whole_chain_flag, il));
@@ -219,8 +219,8 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // cif dictionary
    if (cif_dictionary_filename_vec->size() > 0) {
       for (unsigned int i=0; i<cif_dictionary_filename_vec->size(); i++) {
-	 commands.push_back(state_command("coot", "read-cif-dictionary",
-					  single_quote((*cif_dictionary_filename_vec)[i]), il));
+         commands.push_back(state_command("coot", "read-cif-dictionary",
+                                          single_quote((*cif_dictionary_filename_vec)[i]), il));
       }
    }
 
@@ -273,343 +273,343 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    for (int i=0; i<n_molecules(); i++) {
       // NXMAP-FIXME
       if (molecules[i].has_xmap() || molecules[i].has_nxmap() || molecules[i].has_model()) {
-	 // i.e. it was not Closed...
-	 command_strings = molecules[i].save_state_command_strings();
-	 if (command_strings.size() > 0) {
-	    commands.push_back(state_command(command_strings, il));
-	    std::vector <std::string> display_strings;
-	    std::vector <std::string>  active_strings;
-	    // colour
-	    if (molecules[i].has_model()) {
-	       // display_strings.clear();
-	       // display_strings.push_back("coot");
-	       // display_strings.push_back("set-molecule-bonds-colour-map-rotation");
-	       // display_strings.push_back(int_to_string(molecule_count));
-	       // display_strings.push_back(float_to_string(molecules[i].bonds_colour_map_rotation));
-	       // commands.push_back(state_command(display_strings, il));
-         std::vector<coot::command_arg_t> command_args;
-         command_args.push_back(coot::command_arg_t(molecule_count));
-         command_args.push_back(coot::command_arg_t(molecules[i].bonds_colour_map_rotation));
-         std::string sc = state_command("coot", "set-molecule-bonds-colour-map-rotation", command_args, il);
-         commands.push_back(sc);
-	    }
-	    if (molecules[i].has_model()) {
-	       if (! molecules[i].draw_it) {
-            // display_strings.clear();
-            // display_strings.push_back("coot");
-            // display_strings.push_back("set-mol-displayed");
-            // display_strings.push_back(int_to_string(molecule_count));
-            // display_strings.push_back(int_to_string(0));
-            // commands.push_back(state_command(display_strings, il));
-            std::vector<coot::command_arg_t> command_args;
-            command_args.push_back(coot::command_arg_t(molecule_count));
-            command_args.push_back(coot::command_arg_t(0));
-            std::string sc = state_command("coot", "set-mol-displayed", command_args, il);
-            commands.push_back(sc);
-	       }
-	       if (! molecules[i].atom_selection_is_pickable()) {
-            // active_strings.clear();
-            // display_strings.push_back("coot");
-            // active_strings.push_back("set-mol-active");
-            // active_strings.push_back(int_to_string(molecule_count));
-            // active_strings.push_back(int_to_string(0));
-            // commands.push_back(state_command(active_strings, il));
-            std::vector<coot::command_arg_t> command_args;
-            command_args.push_back(coot::command_arg_t(molecule_count));
-            command_args.push_back(coot::command_arg_t(0));
-            std::string sc = state_command("coot", "set-mol-active", command_args, il);
-            commands.push_back(sc);
-	       }
+         // i.e. it was not Closed...
+         command_strings = molecules[i].save_state_command_strings();
+         if (command_strings.size() > 0) {
+            commands.push_back(state_command(command_strings, il));
+            std::vector <std::string> display_strings;
+            std::vector <std::string>  active_strings;
+            // colour
+            if (molecules[i].has_model()) {
+               // display_strings.clear();
+               // display_strings.push_back("coot");
+               // display_strings.push_back("set-molecule-bonds-colour-map-rotation");
+               // display_strings.push_back(int_to_string(molecule_count));
+               // display_strings.push_back(float_to_string(molecules[i].bonds_colour_map_rotation));
+               // commands.push_back(state_command(display_strings, il));
+               std::vector<coot::command_arg_t> command_args;
+               command_args.push_back(coot::command_arg_t(molecule_count));
+               command_args.push_back(coot::command_arg_t(molecules[i].bonds_colour_map_rotation));
+               std::string sc = state_command("coot", "set-molecule-bonds-colour-map-rotation", command_args, il);
+               commands.push_back(sc);
+            }
+            if (molecules[i].has_model()) {
+               if (! molecules[i].draw_it) {
+                  // display_strings.clear();
+                  // display_strings.push_back("coot");
+                  // display_strings.push_back("set-mol-displayed");
+                  // display_strings.push_back(int_to_string(molecule_count));
+                  // display_strings.push_back(int_to_string(0));
+                  // commands.push_back(state_command(display_strings, il));
+                  std::vector<coot::command_arg_t> command_args;
+                  command_args.push_back(coot::command_arg_t(molecule_count));
+                  command_args.push_back(coot::command_arg_t(0));
+                  std::string sc = state_command("coot", "set-mol-displayed", command_args, il);
+                  commands.push_back(sc);
+               }
+               if (! molecules[i].atom_selection_is_pickable()) {
+                  // active_strings.clear();
+                  // display_strings.push_back("coot");
+                  // active_strings.push_back("set-mol-active");
+                  // active_strings.push_back(int_to_string(molecule_count));
+                  // active_strings.push_back(int_to_string(0));
+                  // commands.push_back(state_command(active_strings, il));
+                  std::vector<coot::command_arg_t> command_args;
+                  command_args.push_back(coot::command_arg_t(molecule_count));
+                  command_args.push_back(coot::command_arg_t(0));
+                  std::string sc = state_command("coot", "set-mol-active", command_args, il);
+                  commands.push_back(sc);
+               }
 
-	       if (molecules[i].get_bond_thickness() != default_bond_width) {
-            // display_strings.clear();
-            // display_strings.push_back("coot");
-            // display_strings.push_back("set-bond-thickness");
-            // display_strings.push_back(int_to_string(molecule_count));
-            // display_strings.push_back(int_to_string(molecules[i].get_bond_thickness()));
-            // commands.push_back(state_command(display_strings, il));
-            std::vector<coot::command_arg_t> command_args;
-            command_args.push_back(coot::command_arg_t(molecule_count));
-            command_args.push_back(coot::command_arg_t(molecules[i].get_bond_thickness()));
-            std::string sc = state_command("coot", "set-bond-thickness", command_args, il);
-            commands.push_back(sc);
-	       }
+               if (molecules[i].get_bond_thickness() != default_bond_width) {
+                  // display_strings.clear();
+                  // display_strings.push_back("coot");
+                  // display_strings.push_back("set-bond-thickness");
+                  // display_strings.push_back(int_to_string(molecule_count));
+                  // display_strings.push_back(int_to_string(molecules[i].get_bond_thickness()));
+                  // commands.push_back(state_command(display_strings, il));
+                  std::vector<coot::command_arg_t> command_args;
+                  command_args.push_back(coot::command_arg_t(molecule_count));
+                  command_args.push_back(coot::command_arg_t(molecules[i].get_bond_thickness()));
+                  std::string sc = state_command("coot", "set-bond-thickness", command_args, il);
+                  commands.push_back(sc);
+               }
 
-	       // hydrogens?
-	       display_strings.clear();
-	      //  display_strings.push_back("coot");
-	      //  display_strings.push_back("set-draw-hydrogens");
-	      //  display_strings.push_back(int_to_string(molecule_count));
-	      //  display_strings.push_back(int_to_string(molecules[i].draw_hydrogens()));
-	      //  commands.push_back(state_command(display_strings, il));
-         std::vector<coot::command_arg_t> command_args;
-         command_args.push_back(coot::command_arg_t(molecule_count));
-         command_args.push_back(coot::command_arg_t(molecules[i].draw_hydrogens()));
-         std::string sc = state_command("coot", "set-draw-hydrogens", command_args, il);
-         commands.push_back(sc);
+               // hydrogens?
+               display_strings.clear();
+               //  display_strings.push_back("coot");
+               //  display_strings.push_back("set-draw-hydrogens");
+               //  display_strings.push_back(int_to_string(molecule_count));
+               //  display_strings.push_back(int_to_string(molecules[i].draw_hydrogens()));
+               //  commands.push_back(state_command(display_strings, il));
+               std::vector<coot::command_arg_t> command_args;
+               command_args.push_back(coot::command_arg_t(molecule_count));
+               command_args.push_back(coot::command_arg_t(molecules[i].draw_hydrogens()));
+               std::string sc = state_command("coot", "set-draw-hydrogens", command_args, il);
+               commands.push_back(sc);
 
-	       // symmetry issues:
-	       if (molecules[i].symmetry_as_calphas) {
-               // default would be not CAlphas
-               active_strings.clear();
-               display_strings.push_back("coot");
-               active_strings.push_back("symmetry-as-calphas");
-               active_strings.push_back(int_to_string(molecule_count));
-               active_strings.push_back(int_to_string(1));
-               commands.push_back(state_command(active_strings, il));
-	       }
-	       if (!molecules[i].show_symmetry) {
-               // default would be to show symmetry
-               active_strings.clear();
-                     display_strings.push_back("coot");
-               active_strings.push_back("set-show-symmetry-molecule");
-               active_strings.push_back(int_to_string(molecule_count));
-               active_strings.push_back(int_to_string(0));
-               commands.push_back(state_command(active_strings, il));
-	       }
-	       if (molecules[i].symmetry_colour_by_symop_flag) {
-               // default is not to colour by symop
-               active_strings.clear();
-                     display_strings.push_back("coot");
-               active_strings.push_back("set-symmetry-colour-by-symop");
-               active_strings.push_back(int_to_string(molecule_count));
-               active_strings.push_back(int_to_string(1));
-               commands.push_back(state_command(active_strings, il));
-	       }
-	       if (molecules[i].symmetry_whole_chain_flag) {
-               // default is not to colour by symop
-               active_strings.clear();
-                     display_strings.push_back("coot");
-               active_strings.push_back("set-symmetry-whole-chain");
-               active_strings.push_back(int_to_string(molecule_count));
-               active_strings.push_back(int_to_string(1));
-               commands.push_back(state_command(active_strings, il));
-	       }
-
-// 	       std::cout << "molecules[i].Bonds_box_type() is "
-// 			 << molecules[i].Bonds_box_type()
-// 			 << std::endl;
-
-	       if (molecules[i].Bonds_box_type() != coot::NORMAL_BONDS) {
-            if (molecules[i].Bonds_box_type() == coot::CA_BONDS) {
-               active_strings.clear();
-               display_strings.push_back("coot");
-               active_strings.push_back("graphics-to-ca-representation");
-               active_strings.push_back(int_to_string(molecule_count));
-               commands.push_back(state_command(active_strings, il));
-		      }
-		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_CHAIN_BONDS) {
-		     active_strings.clear();
-           display_strings.push_back("coot");
-		     active_strings.push_back("set-colour-by-chain");
-		     active_strings.push_back(int_to_string(molecule_count));
-		     commands.push_back(state_command(active_strings, il));
-		  }
-		  if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) {
-		     active_strings.clear();
-           display_strings.push_back("coot");
-		     active_strings.push_back("graphics-to-ca-plus-ligands-representation");
-		     active_strings.push_back(int_to_string(molecule_count));
-		     commands.push_back(state_command(active_strings, il));
-		  }
-		  if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS) {
-		     active_strings.clear();
-           display_strings.push_back("coot");
-		     active_strings.push_back("graphics-to-ca-plus-ligands-and-sidechains-representation");
-		     active_strings.push_back(int_to_string(molecule_count));
-		     commands.push_back(state_command(active_strings, il));
-		  }
-		  if (molecules[i].Bonds_box_type() == coot::BONDS_NO_WATERS) {
-		     active_strings.clear();
-	             display_strings.push_back("coot");
-		     active_strings.push_back("graphics-to-bonds-no-waters-representation");
-		     active_strings.push_back(int_to_string(molecule_count));
-		     commands.push_back(state_command(active_strings, il));
-		  }
-		  if (molecules[i].Bonds_box_type() == coot::BONDS_SEC_STRUCT_COLOUR) {
-		     active_strings.clear();
-	             display_strings.push_back("coot");
-		     active_strings.push_back("graphics-to-sec-struct-bonds-representation");
-		     active_strings.push_back(int_to_string(molecule_count));
-		     commands.push_back(state_command(active_strings, il));
-		  }
-		  if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR) {
-		     active_strings.clear();
-	             display_strings.push_back("coot");
-		     active_strings.push_back("graphics-to-ca-plus-ligands-sec-struct-representation");
-		     active_strings.push_back(int_to_string(molecule_count));
-		     commands.push_back(state_command(active_strings, il));
-		  }
-		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_MOLECULE_BONDS) {
-		     active_strings.clear();
-	             display_strings.push_back("coot");
-		     active_strings.push_back("set-colour-by-molecule");
-		     active_strings.push_back(int_to_string(molecule_count));
-		     commands.push_back(state_command(active_strings, il));
-		  }
-		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
-		     active_strings.clear();
-	             display_strings.push_back("coot");
-		     active_strings.push_back("graphics-to-rainbow-representation");
-		     active_strings.push_back(int_to_string(molecule_count));
-		     commands.push_back(state_command(active_strings, il));
-		  }
-		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_B_FACTOR_BONDS) {
-		     active_strings.clear();
-	             display_strings.push_back("coot");
-		     active_strings.push_back("graphics-to-b-factor-representation");
-		     active_strings.push_back(int_to_string(molecule_count));
-		     commands.push_back(state_command(active_strings, il));
-		  }
-		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_OCCUPANCY_BONDS) {
-		     active_strings.clear();
-	             display_strings.push_back("coot");
-		     active_strings.push_back("graphics-to-occupancy-representation");
-		     active_strings.push_back(int_to_string(molecule_count));
-		     commands.push_back(state_command(active_strings, il));
-		  }
-	       }
-
-	       // Additional Representations
-	       if (molecules[i].add_reps.size() > 0) {
-
-		  // First the "all" status for the additional representation of this molecule.
-		  // Ooops. This is not (yet) a separate state.  Currently, pressing the button
-		  // simply turns on (or off) all representations.  The display manager does not
-		  // save the state of this button (if it is off, closed and then openned then the
-		  // "all" button is not shown!)
-
-// 		  active_strings.clear();
-// 		  active_strings.push_back("set-show-all-additional-representations");
-// 		  active_strings.push_back(int_to_string(molecule_count));
-// 		  active_strings.push_back(int_to_string(0));
-// 		  commands.push_back(state_command(active_strings, il));
-
-
-		  for (unsigned int iar=0; iar<molecules[i].add_reps.size(); iar++) {
-		     active_strings.clear();
-		     if (molecules[i].add_reps[iar].atom_sel_info.type ==
-			 coot::atom_selection_info_t::BY_ATTRIBUTES) {
-			active_strings.push_back("coot");
-			active_strings.push_back("additional-representation-by-attributes");
-			active_strings.push_back(int_to_string(molecule_count));
-			active_strings.push_back(single_quote(molecules[i].add_reps[iar].atom_sel_info.chain_id));
-			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].atom_sel_info.resno_start));
-			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].atom_sel_info.resno_end));
-			active_strings.push_back( single_quote(molecules[i].add_reps[iar].atom_sel_info.ins_code));
-			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].representation_type));
-			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].bonds_box_type));
-			active_strings.push_back(float_to_string(molecules[i].add_reps[iar].bond_width));
-			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].draw_hydrogens_flag));
-			commands.push_back(state_command(active_strings, il));
-		     }
-		     if (molecules[i].add_reps[iar].atom_sel_info.type ==
-			 coot::atom_selection_info_t::BY_STRING) {
-			active_strings.push_back("coot");
-			active_strings.push_back("additional-representation-by-string");
-			active_strings.push_back(int_to_string(molecule_count));
-			active_strings.push_back(single_quote(molecules[i].add_reps[iar].atom_sel_info.atom_selection_str));
-			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].representation_type));
-			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].bonds_box_type));
-			active_strings.push_back(float_to_string(molecules[i].add_reps[iar].bond_width));
-			active_strings.push_back(int_to_string(molecules[i].add_reps[iar].draw_hydrogens_flag));
-			commands.push_back(state_command(active_strings, il));
-		     }
-
-		     // now save the on/off state of the add. rep.  Default is on, so only write out
-		     // the on/off status if the add rep is not shown.
-		     //
-		     if (! molecules[i].add_reps[iar].show_it) {
-               active_strings.clear();
-               active_strings.push_back("coot");
-               active_strings.push_back("set-show-additional-representation");
-               active_strings.push_back(int_to_string(molecule_count));
-               active_strings.push_back(int_to_string(iar));
-               active_strings.push_back(int_to_string(0));
-               commands.push_back(state_command(active_strings, il));
-		     }
-		  }
-	       }
-
-	       // Is there a sequence associated with this model?
-	       if (molecules[i].input_sequence.size() > 0) {
-               for (unsigned int iseq=0; iseq<molecules[i].input_sequence.size(); iseq++) {
+               // symmetry issues:
+               if (molecules[i].symmetry_as_calphas) {
+                  // default would be not CAlphas
                   active_strings.clear();
-                  active_strings.push_back("coot");
-                  active_strings.push_back("assign-pir-sequence");
+                  display_strings.push_back("coot");
+                  active_strings.push_back("symmetry-as-calphas");
                   active_strings.push_back(int_to_string(molecule_count));
-                  active_strings.push_back(single_quote(molecules[i].input_sequence[iseq].first));
-                  std::string title = molecules[i].dotted_chopped_name();
-                  title += " chain ";
-                  title += molecules[i].input_sequence[iseq].first;
-                  std::string pir_seq = coot::util::plain_text_to_pir(title,
-                                    molecules[i].input_sequence[iseq].second, il);
-                  active_strings.push_back(single_quote(pir_seq));
+                  active_strings.push_back(int_to_string(1));
                   commands.push_back(state_command(active_strings, il));
                }
-	       }
-	    }
+               if (!molecules[i].show_symmetry) {
+                  // default would be to show symmetry
+                  active_strings.clear();
+                  display_strings.push_back("coot");
+                  active_strings.push_back("set-show-symmetry-molecule");
+                  active_strings.push_back(int_to_string(molecule_count));
+                  active_strings.push_back(int_to_string(0));
+                  commands.push_back(state_command(active_strings, il));
+               }
+               if (molecules[i].symmetry_colour_by_symop_flag) {
+                  // default is not to colour by symop
+                  active_strings.clear();
+                  display_strings.push_back("coot");
+                  active_strings.push_back("set-symmetry-colour-by-symop");
+                  active_strings.push_back(int_to_string(molecule_count));
+                  active_strings.push_back(int_to_string(1));
+                  commands.push_back(state_command(active_strings, il));
+               }
+               if (molecules[i].symmetry_whole_chain_flag) {
+                  // default is not to colour by symop
+                  active_strings.clear();
+                  display_strings.push_back("coot");
+                  active_strings.push_back("set-symmetry-whole-chain");
+                  active_strings.push_back(int_to_string(molecule_count));
+                  active_strings.push_back(int_to_string(1));
+                  commands.push_back(state_command(active_strings, il));
+               }
 
-	    // Maps:
-	    //
-	    if (molecules[i].has_xmap()) {  // NXMAP-FIXME
+               //                std::cout << "molecules[i].Bonds_box_type() is "
+               //                          << molecules[i].Bonds_box_type()
+               //                          << std::endl;
 
-	       // map opacity
-	       float opacity = molecules[i].density_surface_opacity;
-	       command_strings.clear();
-	       command_strings.push_back("coot");
-	       command_strings.push_back("set-solid-density-surface-opacity");
-	       command_strings.push_back(int_to_string(molecule_count));
-	       command_strings.push_back(float_to_string(opacity));
-	       commands.push_back(state_command(command_strings, il));
+               if (molecules[i].Bonds_box_type() != coot::NORMAL_BONDS) {
+                  if (molecules[i].Bonds_box_type() == coot::CA_BONDS) {
+                     active_strings.clear();
+                     display_strings.push_back("coot");
+                     active_strings.push_back("graphics-to-ca-representation");
+                     active_strings.push_back(int_to_string(molecule_count));
+                     commands.push_back(state_command(active_strings, il));
+                  }
+                  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_CHAIN_BONDS) {
+                     active_strings.clear();
+                     display_strings.push_back("coot");
+                     active_strings.push_back("set-colour-by-chain");
+                     active_strings.push_back(int_to_string(molecule_count));
+                     commands.push_back(state_command(active_strings, il));
+                  }
+                  if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) {
+                     active_strings.clear();
+                     display_strings.push_back("coot");
+                     active_strings.push_back("graphics-to-ca-plus-ligands-representation");
+                     active_strings.push_back(int_to_string(molecule_count));
+                     commands.push_back(state_command(active_strings, il));
+                  }
+                  if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS) {
+                     active_strings.clear();
+                     display_strings.push_back("coot");
+                     active_strings.push_back("graphics-to-ca-plus-ligands-and-sidechains-representation");
+                     active_strings.push_back(int_to_string(molecule_count));
+                     commands.push_back(state_command(active_strings, il));
+                  }
+                  if (molecules[i].Bonds_box_type() == coot::BONDS_NO_WATERS) {
+                     active_strings.clear();
+                     display_strings.push_back("coot");
+                     active_strings.push_back("graphics-to-bonds-no-waters-representation");
+                     active_strings.push_back(int_to_string(molecule_count));
+                     commands.push_back(state_command(active_strings, il));
+                  }
+                  if (molecules[i].Bonds_box_type() == coot::BONDS_SEC_STRUCT_COLOUR) {
+                     active_strings.clear();
+                     display_strings.push_back("coot");
+                     active_strings.push_back("graphics-to-sec-struct-bonds-representation");
+                     active_strings.push_back(int_to_string(molecule_count));
+                     commands.push_back(state_command(active_strings, il));
+                  }
+                  if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR) {
+                     active_strings.clear();
+                     display_strings.push_back("coot");
+                     active_strings.push_back("graphics-to-ca-plus-ligands-sec-struct-representation");
+                     active_strings.push_back(int_to_string(molecule_count));
+                     commands.push_back(state_command(active_strings, il));
+                  }
+                  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_MOLECULE_BONDS) {
+                     active_strings.clear();
+                     display_strings.push_back("coot");
+                     active_strings.push_back("set-colour-by-molecule");
+                     active_strings.push_back(int_to_string(molecule_count));
+                     commands.push_back(state_command(active_strings, il));
+                  }
+                  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
+                     active_strings.clear();
+                     display_strings.push_back("coot");
+                     active_strings.push_back("graphics-to-rainbow-representation");
+                     active_strings.push_back(int_to_string(molecule_count));
+                     commands.push_back(state_command(active_strings, il));
+                  }
+                  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_B_FACTOR_BONDS) {
+                     active_strings.clear();
+                     display_strings.push_back("coot");
+                     active_strings.push_back("graphics-to-b-factor-representation");
+                     active_strings.push_back(int_to_string(molecule_count));
+                     commands.push_back(state_command(active_strings, il));
+                  }
+                  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_OCCUPANCY_BONDS) {
+                     active_strings.clear();
+                     display_strings.push_back("coot");
+                     active_strings.push_back("graphics-to-occupancy-representation");
+                     active_strings.push_back(int_to_string(molecule_count));
+                     commands.push_back(state_command(active_strings, il));
+                  }
+               }
 
-	       command_strings = molecules[i].set_map_colour_strings();
-	       commands.push_back(state_command(command_strings, il));
-	       command_strings = molecules[i].get_map_contour_strings();
-	       commands.push_back(state_command(command_strings, il));
-	       if (molecules[i].contoured_by_sigma_p()) {
-		         command_strings = molecules[i].get_map_contour_sigma_step_strings();
-		         commands.push_back(state_command(command_strings, il));
-		         // std::cout << "######## here 2 " << std::endl;
-		         // for (unsigned int jj=0; jj<command_strings.size(); jj++)
-		         // std::cout << "          " << jj << " " << command_strings[jj] << std::endl;
-	       }
-	       if (! molecules[i].is_displayed_p()) {
+               // Additional Representations
+               if (molecules[i].add_reps.size() > 0) {
+
+                  // First the "all" status for the additional representation of this molecule.
+                  // Ooops. This is not (yet) a separate state.  Currently, pressing the button
+                  // simply turns on (or off) all representations.  The display manager does not
+                  // save the state of this button (if it is off, closed and then openned then the
+                  // "all" button is not shown!)
+
+                  //                   active_strings.clear();
+                  //                   active_strings.push_back("set-show-all-additional-representations");
+                  //                   active_strings.push_back(int_to_string(molecule_count));
+                  //                   active_strings.push_back(int_to_string(0));
+                  //                   commands.push_back(state_command(active_strings, il));
+
+
+                  for (unsigned int iar=0; iar<molecules[i].add_reps.size(); iar++) {
+                     active_strings.clear();
+                     if (molecules[i].add_reps[iar].atom_sel_info.type ==
+                         coot::atom_selection_info_t::BY_ATTRIBUTES) {
+                        active_strings.push_back("coot");
+                        active_strings.push_back("additional-representation-by-attributes");
+                        active_strings.push_back(int_to_string(molecule_count));
+                        active_strings.push_back(single_quote(molecules[i].add_reps[iar].atom_sel_info.chain_id));
+                        active_strings.push_back(int_to_string(molecules[i].add_reps[iar].atom_sel_info.resno_start));
+                        active_strings.push_back(int_to_string(molecules[i].add_reps[iar].atom_sel_info.resno_end));
+                        active_strings.push_back( single_quote(molecules[i].add_reps[iar].atom_sel_info.ins_code));
+                        active_strings.push_back(int_to_string(molecules[i].add_reps[iar].representation_type));
+                        active_strings.push_back(int_to_string(molecules[i].add_reps[iar].bonds_box_type));
+                        active_strings.push_back(float_to_string(molecules[i].add_reps[iar].bond_width));
+                        active_strings.push_back(int_to_string(molecules[i].add_reps[iar].draw_hydrogens_flag));
+                        commands.push_back(state_command(active_strings, il));
+                     }
+                     if (molecules[i].add_reps[iar].atom_sel_info.type ==
+                         coot::atom_selection_info_t::BY_STRING) {
+                        active_strings.push_back("coot");
+                        active_strings.push_back("additional-representation-by-string");
+                        active_strings.push_back(int_to_string(molecule_count));
+                        active_strings.push_back(single_quote(molecules[i].add_reps[iar].atom_sel_info.atom_selection_str));
+                        active_strings.push_back(int_to_string(molecules[i].add_reps[iar].representation_type));
+                        active_strings.push_back(int_to_string(molecules[i].add_reps[iar].bonds_box_type));
+                        active_strings.push_back(float_to_string(molecules[i].add_reps[iar].bond_width));
+                        active_strings.push_back(int_to_string(molecules[i].add_reps[iar].draw_hydrogens_flag));
+                        commands.push_back(state_command(active_strings, il));
+                     }
+
+                     // now save the on/off state of the add. rep.  Default is on, so only write out
+                     // the on/off status if the add rep is not shown.
+                     //
+                     if (! molecules[i].add_reps[iar].show_it) {
+                        active_strings.clear();
+                        active_strings.push_back("coot");
+                        active_strings.push_back("set-show-additional-representation");
+                        active_strings.push_back(int_to_string(molecule_count));
+                        active_strings.push_back(int_to_string(iar));
+                        active_strings.push_back(int_to_string(0));
+                        commands.push_back(state_command(active_strings, il));
+                     }
+                  }
+               }
+
+               // Is there a sequence associated with this model?
+               if (molecules[i].input_sequence.size() > 0) {
+                  for (unsigned int iseq=0; iseq<molecules[i].input_sequence.size(); iseq++) {
+                     active_strings.clear();
+                     active_strings.push_back("coot");
+                     active_strings.push_back("assign-pir-sequence");
+                     active_strings.push_back(int_to_string(molecule_count));
+                     active_strings.push_back(single_quote(molecules[i].input_sequence[iseq].first));
+                     std::string title = molecules[i].dotted_chopped_name();
+                     title += " chain ";
+                     title += molecules[i].input_sequence[iseq].first;
+                     std::string pir_seq = coot::util::plain_text_to_pir(title,
+                                                                         molecules[i].input_sequence[iseq].second, il);
+                     active_strings.push_back(single_quote(pir_seq));
+                     commands.push_back(state_command(active_strings, il));
+                  }
+               }
+            }
+
+            // Maps:
+            //
+            if (molecules[i].has_xmap()) {  // NXMAP-FIXME
+
+               // map opacity
+               float opacity = molecules[i].density_surface_opacity;
+               command_strings.clear();
+               command_strings.push_back("coot");
+               command_strings.push_back("set-solid-density-surface-opacity");
+               command_strings.push_back(int_to_string(molecule_count));
+               command_strings.push_back(float_to_string(opacity));
+               commands.push_back(state_command(command_strings, il));
+
+               command_strings = molecules[i].set_map_colour_strings();
+               commands.push_back(state_command(command_strings, il));
+               command_strings = molecules[i].get_map_contour_strings();
+               commands.push_back(state_command(command_strings, il));
+               if (molecules[i].contoured_by_sigma_p()) {
+                  command_strings = molecules[i].get_map_contour_sigma_step_strings();
+                  commands.push_back(state_command(command_strings, il));
+                  // std::cout << "######## here 2 " << std::endl;
+                  // for (unsigned int jj=0; jj<command_strings.size(); jj++)
+                  // std::cout << "          " << jj << " " << command_strings[jj] << std::endl;
+               }
+               if (! molecules[i].is_displayed_p()) {
+                  display_strings.clear();
+                  display_strings.push_back("coot");
+                  display_strings.push_back("set-map-displayed");
+                  display_strings.push_back(int_to_string(molecule_count));
+                  display_strings.push_back(int_to_string(0));
+                  commands.push_back(state_command(display_strings, il));
+               }
+
+               if (i == imol_refinement_map) {
+                  display_strings.clear();
+                  display_strings.push_back("coot");
+                  display_strings.push_back("set-imol-refinement-map");
+                  display_strings.push_back(int_to_string(molecule_count));
+                  commands.push_back(state_command(display_strings, il));
+               }
+
+               if (i == scroll_wheel_map) {
+                  // save for after maps have been read.
+                  scroll_wheel_map_for_state = molecule_count;
+               }
+            }
+            if (molecules[i].show_unit_cell_flag) {
                display_strings.clear();
                display_strings.push_back("coot");
-               display_strings.push_back("set-map-displayed");
+               display_strings.push_back("set-show-unit-cell");
                display_strings.push_back(int_to_string(molecule_count));
-               display_strings.push_back(int_to_string(0));
+               display_strings.push_back(int_to_string(1));
                commands.push_back(state_command(display_strings, il));
-	       }
+            }
+         }
 
-	       if (i == imol_refinement_map) {
-               display_strings.clear();
-               display_strings.push_back("coot");
-               display_strings.push_back("set-imol-refinement-map");
-               display_strings.push_back(int_to_string(molecule_count));
-               commands.push_back(state_command(display_strings, il));
-	       }
+         if (i==go_to_atom_molecule_)
+            local_go_to_atom_mol = molecule_count;
 
-	       if (i == scroll_wheel_map) {
-   		  // save for after maps have been read.
-	   	  scroll_wheel_map_for_state = molecule_count;
-	       }
-	    }
-	    if (molecules[i].show_unit_cell_flag) {
-	       display_strings.clear();
-	       display_strings.push_back("coot");
-	       display_strings.push_back("set-show-unit-cell");
-	       display_strings.push_back(int_to_string(molecule_count));
-	       display_strings.push_back(int_to_string(1));
-	       commands.push_back(state_command(display_strings, il));
-	    }
-	 }
-
-	 if (i==go_to_atom_molecule_)
-	    local_go_to_atom_mol = molecule_count;
-
-	 molecule_count++;
+         molecule_count++;
       }
    }
 
@@ -650,19 +650,19 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    for (unsigned int idist=0; idist<measure_distance_object_vec.size(); idist++) {
       const coot::simple_distance_object_t &sdo = measure_distance_object_vec[idist];
       if (is_valid_model_molecule(sdo.imol_start)) {
-	 if (is_valid_model_molecule(sdo.imol_end)) {
-	    std::vector<std::string> s(9);
-	    s[0] = "add-geometry-distance";
-	    s[1] = coot::util::int_to_string(sdo.imol_start);
-	    s[2] = coot::util::float_to_string(sdo.start_pos.x());
-	    s[3] = coot::util::float_to_string(sdo.start_pos.y());
-	    s[4] = coot::util::float_to_string(sdo.start_pos.z());
-	    s[5] = coot::util::int_to_string(sdo.imol_end);
-	    s[6] = coot::util::float_to_string(sdo.end_pos.x());
-	    s[7] = coot::util::float_to_string(sdo.end_pos.y());
-	    s[8] = coot::util::float_to_string(sdo.end_pos.z());
-	    commands.push_back(state_command(s,il));
-	 }
+         if (is_valid_model_molecule(sdo.imol_end)) {
+            std::vector<std::string> s(9);
+            s[0] = "add-geometry-distance";
+            s[1] = coot::util::int_to_string(sdo.imol_start);
+            s[2] = coot::util::float_to_string(sdo.start_pos.x());
+            s[3] = coot::util::float_to_string(sdo.start_pos.y());
+            s[4] = coot::util::float_to_string(sdo.start_pos.z());
+            s[5] = coot::util::int_to_string(sdo.imol_end);
+            s[6] = coot::util::float_to_string(sdo.end_pos.x());
+            s[7] = coot::util::float_to_string(sdo.end_pos.y());
+            s[8] = coot::util::float_to_string(sdo.end_pos.z());
+            commands.push_back(state_command(s,il));
+         }
       }
    }
 

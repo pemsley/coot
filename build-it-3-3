@@ -463,7 +463,11 @@ if test x$GITHUB_ENV = x ; then
     : # we are not in a hithub actions build
 else
     if [ "$CHAPI_ONLY" = true ] ; then
-        AUTOBUILD_INSTALLED=$HOME/install/chapi-Linux-ubuntu
+        if [ $OS = Darwin ]  ; then
+            AUTOBUILD_INSTALLED=$HOME/install/chapi-Darwin-macos
+        else
+            AUTOBUILD_INSTALLED=$HOME/install/chapi-Linux-ubuntu
+        fi
     else
         AUTOBUILD_INSTALLED=$HOME/install/coot-Linux-ubuntu
     fi
@@ -504,24 +508,31 @@ build_coot_prerelease=${build_coot_prerelease:=1}
 # Suggested value: comment out this line
 specs=${specs:=$HOME/autobuild/build-scripts/${HOST}-specials}
 
+# if we are not in chapi mode, we ask
 # where has gtk been installed if this is Mac OS?
-if test "$OS" = "Darwin" ; then
-   if test -n "$gtk" ; then
-      if test -d "$gtk" ; then
-         : # pass, good
+# (this was from when gtk3 could be installed on macOS).
+# I should add /usr/local of course these days
+if test "$CHAPI_ONLY" = true ; then
+    :
+else
+   if test "$OS" = "Darwin" ; then
+      if test -n "$gtk" ; then
+         if test -d "$gtk" ; then
+            : # pass, good
+         else
+            echo gtk variable must point to the directory where gtk has been installed
+         fi
       else
-         echo gtk variable must point to the directory where gtk has been installed
-      fi
-   else
-      # gtk was not set, let's try to guess
-      testdir=$HOME/gtk/inst
-      if test -d $testdir ; then
-         gtk=$HOME/gtk/inst
-      else
-         echo this build script needs to know where gtk has been installed
-         echo \(at the moment\)
-         echo set gtk to point to the directory where gtk has been installed
-         exit 2
+         # gtk was not set, let's try to guess
+         testdir=$HOME/gtk/inst
+         if test -d $testdir ; then
+            gtk=$HOME/gtk/inst
+         else
+            echo this build script needs to know where gtk has been installed
+            echo \(at the moment\)
+            echo set gtk to point to the directory where gtk has been installed
+            exit 2
+         fi
       fi
    fi
 fi
@@ -2105,13 +2116,13 @@ if [ "$use_python_version_3_8" = true ] ;then
 fi
 
 
-#
+# 20240203-PE I don't want version 3.8.
 # but more modern pythons do not compile (at least on my mac)
 # 20201225-PE this needs checking
-if [ $OS = Darwin ] ; then
-   pver=3.6.5
-   pver=3.8.12
-fi
+# if [ $OS = Darwin ] ; then
+#    pver=3.6.5
+#    pver=3.8.12
+# fi
 
 
 # set build_pygobject here
@@ -2543,6 +2554,7 @@ if test -n "$build_clipper" ; then
 	echo clipper build failed, exiting
 	my_exit 2
     fi
+    echo done clipper >&2
 
 else
     echo not building clipper:
@@ -2588,6 +2600,7 @@ if true ; then
               make install
           fi
       ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
+      echo done gemmi
 fi
 
 
@@ -2777,25 +2790,25 @@ fi
 # we should have meson for pygobject, need version 0.46 or later
 # however, is this the way to install pygobject? Or is done with pip3?
 #
-echo testing to see if meson exists in path yet
-echo testing to see if meson exists in path yet 2>&1
-echo which meson
-which meson
-echo meson --version
-which meson >&2
-echo meson --version >&2
-meson --version >&2
-if meson --version ; then
-   echo we have meson
-   v=$(meson --version)
-   if [[ $v < 1.2.3 ]] ; then
-      echo meson is too old, current version is $v
-      build_meson=true
-   else
-      build_meson=false
-   fi
-else
-   build_meson=true
+build_meson=true
+if command -v meson --version ; then
+
+    echo meson --version
+    which meson >&2
+    echo meson --version >&2
+    meson --version >&2
+    if meson --version ; then
+        echo we have meson
+        v=$(meson --version)
+       if [[ $v < 1.2.3 ]] ; then
+          echo meson is too old, current version is $v
+          build_meson=true
+       else
+          build_meson=false
+       fi
+    else
+       build_meson=true
+    fi
 fi
 
 if $build_meson = true ; then
@@ -3150,6 +3163,8 @@ fi
 # me how to build them otherwise.
 # sudo apt-get install libblas-dev liblapack-dev
 
+echo command -v pip3
+command -v pip3
 # cython
 echo pip3 install --upgrade pip
 pip3 install --upgrade pip

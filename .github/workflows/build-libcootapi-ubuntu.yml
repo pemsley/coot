@@ -1,6 +1,6 @@
 name: libcootapi CI Ubuntu
 
-on: 
+on:
   push:
 
 jobs:
@@ -20,12 +20,18 @@ jobs:
           path: /home/runner/install/chapi-Linux-ubuntu-gtk4
           key:  chapi-deps-ubuntu-using-python-3-10
 
-      - name: Cache gemmi source
-        id:   Cache-gemmi-source
+      - name: Cache test data
+        id:   Cache-test-data
         uses: actions/cache@v4
         with:
-           path: gemmi
-           key:  chapi-build-ubuntu-gemmi-cache-source
+           path: test-molecule-container-test-data.tar.gz
+           key:  chapi-build-ubuntu-cache-test-data
+
+      - name: download test data
+        run:  wget -N -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
+
+      - name: untar test data
+        run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data.tar.gz
 
       - name: Cache gemmi build
         id:   Cache-gemmi-build
@@ -33,10 +39,10 @@ jobs:
         with:
           path: build-gemmi
           key:  chapi-build-ubuntu-gemmi-cache-build
-        
+
       - name: Install system dependencies
         run:  sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev
-    
+
       - name: Where are we?
         run:  pwd
 
@@ -44,7 +50,7 @@ jobs:
         env:
           CHAPI_ONLY: true
         run:  bash build-it-3-3 || echo done
-      
+
       - name: create-build-directory-for-libcootapi
         run:  mkdir build-libcootapi
 
@@ -52,14 +58,14 @@ jobs:
         run:  echo /home/runner/install/chapi-Linux-ubuntu-gtk4/bin >> $GITHUB_PATH
 
       - name: run cmake
-        run: > 
-            cd build-libcootapi && 
-            cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu-gtk4 
+        run: >
+            cd build-libcootapi &&
+            cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu-gtk4
             -Dnanobind_DIR=/home/runner/install/chapi-Linux-ubuntu-gtk4/lib/python3.10/site-packages/nanobind/cmake ..
-        
+
       - name: make
         run:  cd build-libcootapi && make -j 4
-        
+
       - name: make install
         run:  cd build-libcootapi && make install
 
@@ -75,4 +81,14 @@ jobs:
       - name: test with chapi-using script
         run:  which python3 && cat python-tests/test_chapi2.py && python3 python-tests/test_chapi2.py
 
+      - name: where are we?
+        run:  pwd && ls -lt
 
+      - name: make test-molecules-container
+        run:  cd build-libcootapi && make test-molecules-container
+
+      - name: run the test-molecules-container test
+        # this needs the monomer library
+        env:
+          MOORHEN_TEST_DATA_DIR: ../test-data
+        run:  cd build-libcootapi && echo ./test-molecules-container

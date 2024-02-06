@@ -871,23 +871,13 @@ void window_removed(GtkApplication* self,GtkWindow* window, gpointer user_data) 
 
 int do_no_graphics_mode(command_line_data& cld, int argc, char** argv) {
 
-   std::cout << "********************** Here A " << std::endl;
    handle_command_line_data(cld);
-   // Is this correct here like this?
-   // How is this supposed to behave exactly?
-   std::cout << "********************** Here C " << std::endl;
    setup_python_basic(argc, argv);
-   std::cout << "********************** Here D " << std::endl;
    setup_python_coot_module();
-   std::cout << "********************** Here E " << std::endl;
    setup_python_with_coot_modules(argc, argv);
-   std::cout << "********************** Here F " << std::endl;
    run_command_line_scripts();
-
-   std::cout << "********************** Here G " << std::endl;
    start_command_line_python_maybe(true, argc, argv);
 
-   std::cout << "********************** Here H " << std::endl;
    return 0;
 }
 

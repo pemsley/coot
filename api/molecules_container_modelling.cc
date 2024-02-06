@@ -15,10 +15,14 @@ molecules_container_t::copy_fragment_using_cid(int imol, const std::string &mult
       if (! v.empty())
          for (const auto &cid : v)
             mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
+      // replace_fragment() uses UDDOldAtomIndexHandle for fast indexing.
       mmdb::Manager *new_manager = coot::util::create_mmdbmanager_from_atom_selection(mol, selHnd);
       if (new_manager) {
+         int transfer_atom_index_handle = new_manager->GetUDDHandle(mmdb::UDR_ATOM, "transfer atom index");
+         // std::cout << "..... transfer_atom_index_handle A " << transfer_atom_index_handle << std::endl;
          imol_new = molecules.size();
          atom_selection_container_t asc = make_asc(new_manager);
+         asc.UDDOldAtomIndexHandle = transfer_atom_index_handle;
          std::string new_name = "copy-fragment-from-molecule-" + std::to_string(imol);
          molecules.push_back(coot::molecule_t(asc, imol_new, new_name));
       }
@@ -50,12 +54,16 @@ molecules_container_t::copy_fragment_for_refinement_using_cid(int imol, const st
          for (const auto &cid : v)
             mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
 
+      // replace_fragment() uses UDDOldAtomIndexHandle for fast indexing.
       mmdb::Manager *new_manager = coot::util::create_mmdbmanager_from_atom_selection(mol, selHnd);
       if (new_manager) {
 
+         int transfer_atom_index_handle = new_manager->GetUDDHandle(mmdb::UDR_ATOM, "transfer atom index");
+         std::cout << ".......................... transfer_atom_index_handle B " << transfer_atom_index_handle << std::endl;
          // create a new molecule
          imol_new = molecules.size();
          atom_selection_container_t asc = make_asc(new_manager);
+         asc.UDDOldAtomIndexHandle = transfer_atom_index_handle;
          std::string new_name = "copy-fragment-from-molecule-" + std::to_string(imol);
          molecules.push_back(coot::molecule_t(asc, imol_new, new_name));
          auto &coot_mol = molecules[imol_new];
@@ -340,6 +348,7 @@ molecules_container_t::replace_fragment(int imol_base, int imol_reference, const
 
          std::string multi_cids = atom_selection;
          mmdb::Manager *mol_ref = molecules[imol_reference].atom_sel.mol;
+         int old_atom_index_handle = molecules[imol_reference].atom_sel.UDDOldAtomIndexHandle;
          int SelHnd = mol_ref->NewSelection(); // d
          // 20231113-PE replace with multi-selection
          // mol_ref->Select(SelHnd, mmdb::STYPE_ATOM, atom_selection.c_str(), mmdb::SKEY_NEW);
@@ -347,11 +356,20 @@ molecules_container_t::replace_fragment(int imol_base, int imol_reference, const
          if (! v.empty())
             for (const auto &cid : v)
                mol_ref->Select(SelHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
+
+#if 0 // 20240201-PE replace by creating a new molecule        
          mmdb::Manager *mol_select = coot::util::create_mmdbmanager_from_atom_selection(mol_ref, SelHnd);
          atom_selection_container_t asc_moving = make_asc(mol_select);
          status = molecules[imol_base].replace_fragment(asc_moving);
+#endif
+
+         status = molecules[imol_base].replace_fragment(mol_ref, old_atom_index_handle, SelHnd);
+
          mol_ref->DeleteSelection(SelHnd);
+
+#if 0 // 20240201-PE now replaced
          asc_moving.clear_up(); // deletes mol_select
+#endif
          set_updating_maps_need_an_update(imol_base);
       } else {
          std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_reference << std::endl;
