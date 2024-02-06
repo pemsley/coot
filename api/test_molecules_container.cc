@@ -7,6 +7,10 @@
 #include "molecules_container.hh"
 #include "filo-tests.hh"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 void starting_test(const char *func) {
    std::cout << "Starting " << func << "()" << std::endl;
 }
@@ -1911,6 +1915,9 @@ int test_ligand_fitting_in_map(molecules_container_t &mc) {
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
    int imol_ligand = mc.get_monomer("GLC");
+   mc.write_coordinates(imol_ligand, "ligand.pdb");
+
+   mc.write_map(imol_map, "number-4.map");
 
    if (mc.is_valid_model_molecule(imol)) {
       if (mc.is_valid_model_molecule(imol_ligand)) {
@@ -1940,12 +1947,29 @@ int test_ligand_fitting_in_map(molecules_container_t &mc) {
          double sd = std::sqrt(ss.variance());
          std::cout << "EV sd " << sd << std::endl;
          if (sd > 0.001)
-            status = 1;
+            if (solutions.size()< 5)
+               status = 1;
       }
    }
 
    return status;
 
+}
+
+
+int test_write_map_is_sane(molecules_container_t &mc) {
+
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
+   mc.write_map(imol_map, "test_for_map.map");
+   struct stat buf_2;
+         int istat_2 = stat("test_for_map.map", &buf_2);
+         if (istat_2 == 0)
+            if (buf_2.st_size > 1000000)
+               status = 1;
+   return status;
 }
 
 
@@ -4566,9 +4590,6 @@ int test_gltf_export(molecules_container_t &mc) {
    return status;
 }
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 int test_gltf_export_via_api(molecules_container_t &mc) {
 
@@ -4967,7 +4988,13 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
 
-   status += run_test(test_replace_large_fragment,      "refine and replace large fragment",         mc);
+   // status += run_test(test_replace_large_fragment,      "refine and replace large fragment",         mc);
+
+   // status += run_test(test_auto_read_mtz, "test ------ ", mc);
+
+   // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
+
+   status += run_test(test_write_map_is_sane, "write map is sane",    mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
