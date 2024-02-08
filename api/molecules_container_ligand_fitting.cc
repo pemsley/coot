@@ -195,6 +195,7 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
                   // bool optim_geom = true;
                   bool optim_geom = false;
                   for (unsigned int i_conf=0; i_conf<n_conformers; i_conf++) {
+                     std::cout << "installing ligand " << i_conf << std::endl;
                      wlig.install_simple_wiggly_ligand(&geom, mmol, imol_ligand, i_conf, optim_geom);
                   }
                } else {
