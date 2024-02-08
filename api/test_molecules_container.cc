@@ -1912,36 +1912,50 @@ int test_ligand_fitting_in_map(molecules_container_t &mc) {
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
    int imol_ligand = mc.get_monomer("GLC");
 
+   mc.write_map(imol_map, "moorhen-test.map");
+
    if (mc.is_valid_model_molecule(imol)) {
       if (mc.is_valid_model_molecule(imol_ligand)) {
-         std::vector<molecules_container_t::fit_ligand_info_t> solutions = mc.fit_ligand(imol, imol_map, imol_ligand, 1.0, true, 30);
-         std::cout << "found " << solutions.size() << " ligand fitting solutions" << std::endl;
+         if (mc.is_valid_map_molecule(imol_map)) {
+            float n_rmsd = 1.0;
+            bool make_conformers = true;
+            unsigned int n_conformers = 8;
+            std::vector<molecules_container_t::fit_ligand_info_t> solutions =
+               mc.fit_ligand(imol, imol_map, imol_ligand, n_rmsd, make_conformers, n_conformers);
+            std::cout << "found " << solutions.size() << " ligand fitting solutions" << std::endl;
 
-         // check that these solutions have different eigen values (because they
-         // are different conformers)
-         std::vector<double> ligands_largest_eigenvector;
-         std::vector<molecules_container_t::fit_ligand_info_t>::const_iterator it;
-         for (it=solutions.begin(); it!=solutions.end(); ++it) {
-            const auto &fli(*it);
-            if (false) { // let's write out those solutions
-               std::string fn("Ligand-sol-" + coot::util::int_to_string(fli.imol) + ".pdb");
-               mc.write_coordinates(fli.imol, fn);
+            // check that these solutions have different eigen values (because they
+            // are different conformers)
+            std::vector<double> ligands_largest_eigenvector;
+            std::vector<molecules_container_t::fit_ligand_info_t>::const_iterator it;
+            for (it=solutions.begin(); it!=solutions.end(); ++it) {
+               const auto &fli(*it);
+               if (false) { // let's write out those solutions
+                  std::string fn("Ligand-sol-" + coot::util::int_to_string(fli.imol) + ".pdb");
+                  mc.write_coordinates(fli.imol, fn);
+               }
+               auto eigenvalues = mc.get_eigenvalues(fli.imol, "A", 1, "");
+               double f = largest_eigenvalue(eigenvalues);
+               ligands_largest_eigenvector.push_back(f);
             }
-            auto eigenvalues = mc.get_eigenvalues(fli.imol, "A", 1, "");
-            double f = largest_eigenvalue(eigenvalues);
-            ligands_largest_eigenvector.push_back(f);
+
+            if (false)
+               for (unsigned int ii=0; ii<ligands_largest_eigenvector.size(); ii++)
+                  std::cout << "Largest-ev: " << ii << " " << ligands_largest_eigenvector[ii] << std::endl;
+
+            coot::stats::single ss(ligands_largest_eigenvector);
+            double sd = std::sqrt(ss.variance());
+            std::cout << "EV sd " << sd << std::endl;
+            if (sd > 0.001)
+               status = 1;
+         } else {
+            std::cout << "Not a valid map molecule for moorhen-tutorial-map-number-4.mtz" << std::endl;
          }
-
-         if (false)
-            for (unsigned int ii=0; ii<ligands_largest_eigenvector.size(); ii++)
-               std::cout << "Largest-ev: " << ii << " " << ligands_largest_eigenvector[ii] << std::endl;
-
-         coot::stats::single ss(ligands_largest_eigenvector);
-         double sd = std::sqrt(ss.variance());
-         std::cout << "EV sd " << sd << std::endl;
-         if (sd > 0.001)
-            status = 1;
+      } else {
+         std::cout << "Not a valid model molecule for GLC get_monomer() " << std::endl;
       }
+   } else {
+      std::cout << "Not a valid molecule molecule for moorhen-tutorial-structure-number-4.pdb" << std::endl;
    }
 
    return status;
@@ -4449,6 +4463,9 @@ int test_disappearing_ligand(molecules_container_t &mc) {
 }
 #endif
 
+// 20240205-PE this is not a good name for this test. The failure is not in merging, the failure
+// is in writing out the cif file.
+//
 int test_ligand_merge(molecules_container_t &mc) {
 
    auto test_mmdb = [] () {
@@ -4813,8 +4830,6 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_test_the_threading, "threading speed test",    mc);
 
-   // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
-
    // status += run_test(test_contouring_timing, "contouring timing",    mc);
 
    // status += run_test(test_mmcif_atom_selection, "mmCIF atom selection",    mc);
@@ -4967,7 +4982,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
 
-   status += run_test(test_replace_large_fragment,      "refine and replace large fragment",         mc);
+   // status += run_test(test_replace_large_fragment,      "refine and replace large fragment",         mc);
+
+   status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
