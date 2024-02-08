@@ -1058,7 +1058,7 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
          std::cout << "::::: read_ccp4_map() returns false for is_basic_em_map_file() " << std::endl;
       }
    }
-   
+
 
    if (coot::util::is_basic_em_map_file(file_name)) {
 
@@ -1129,6 +1129,7 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
       } catch (const clipper::Message_base &exc) {
          std::cout << "WARNING:: failed to open " << file_name << std::endl;
          // bad_read = true;
+         imol = -3; // clipper error
       }
    }
    return imol;

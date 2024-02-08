@@ -1954,21 +1954,12 @@ int test_ligand_fitting_in_map(molecules_container_t &mc) {
             double sd = std::sqrt(ss.variance());
             std::cout << "EV sd " << sd << std::endl;
             if (sd > 0.001)
-               status = 1;
+                if (solutions.size()< 5)
+                   status = 1;
+
          } else {
             std::cout << "Not a valid map molecule for moorhen-tutorial-map-number-4.mtz" << std::endl;
          }
-
-         if (false)
-            for (unsigned int ii=0; ii<ligands_largest_eigenvector.size(); ii++)
-               std::cout << "Largest-ev: " << ii << " " << ligands_largest_eigenvector[ii] << std::endl;
-
-         coot::stats::single ss(ligands_largest_eigenvector);
-         double sd = std::sqrt(ss.variance());
-         std::cout << "EV sd " << sd << std::endl;
-         if (sd > 0.001)
-            if (solutions.size()< 5)
-               status = 1;
 
       } else {
          std::cout << "Not a valid model molecule for GLC get_monomer() " << std::endl;
