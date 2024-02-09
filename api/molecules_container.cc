@@ -1783,15 +1783,14 @@ molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mod
       im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, against_a_dark_background, bond_width, atom_radius_to_bond_width_ratio,
                                                     smoothness_factor, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
    } else {
-      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
    if (show_timings) {
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      // std::cout << "---------- timings: for get_bonds_mesh_instanced(): : " << d10 << " milliseconds " << std::endl;
+      std::cout << "---------- timings: for get_bonds_mesh_instanced(): : " << d10 << " milliseconds " << std::endl;
    }
 
-   // std::cout << " ==================================== get_bonds_mesh_instanced() done" << std::endl;
    return im;
 }
 
