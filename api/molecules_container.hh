@@ -455,6 +455,11 @@ public:
       }
    }
 
+   //! the caller has access to a compressed file that contains the rotamer probabilities.
+   //! libcootapi will fill the rotamer probabilities tables from this compressed data stream.
+   //! (placeholder only)
+   void accept_rotamer_probability_tables_compressed_data(const std::string &data_stream);
+
    // -------------------------------- backup and saving -----------------------------------
    //! \name Backup and Saving
 

@@ -5141,3 +5141,17 @@ molecules_container_t::get_molecule_diameter(int imol) const {
 
 }
 
+
+
+//! the caller has access to a compressed file that contains the rotamer probabilities.
+//! libcootapi will fill the rotamer probabilities tables from this compressed data stream.
+//! (placeholder only)
+void
+molecules_container_t::accept_rotamer_probability_tables_compressed_data(const std::string &data_stream) {
+
+   // now do something with that data stread - it need not be written to disk
+
+   // uncompress it first
+
+}
+

@@ -27,6 +27,7 @@ moorhen: void atom in mmdb mmcif output.
 moorhen: search monomer library for ARG with methyl (for example)
 
 libcootapi: estimate the molecule radius - using the distance between 1000 (say) random atom pairs.
+* Done.
 
 libcootapi: add a mc function to set_rotamer_tables_compressed_data()
 
