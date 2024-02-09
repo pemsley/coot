@@ -5125,3 +5125,20 @@ molecules_container_t::get_residue_name(int imol, const std::string &chain_id, i
 
 
 }
+
+
+//! @return an estimate of the diameter of the model molecule (-1 on failure)
+float
+molecules_container_t::get_molecule_diameter(int imol) const {
+
+   float r = -1;
+   if (is_valid_model_molecule(imol)) {
+      r = molecules[imol].get_molecule_diameter();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return r;
+
+
+}
+

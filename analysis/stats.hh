@@ -154,6 +154,19 @@ namespace coot {
 	    }
 	    return std::pair<double, double> (m,iqr);
 	 }
+
+         double get_ith_highest(unsigned int idx) const {
+	    std::vector<double> vv = v;
+	    std::sort(vv.begin(), vv.end()); // lowest at the top
+            std::reverse(vv.begin(), vv.end());
+            return vv[idx];
+         }
+         double get_ith_lowest(unsigned int idx) const {
+	    std::vector<double> vv = v;
+	    std::sort(vv.begin(), vv.end()); // lowest at the top
+            return vv[idx];
+         }
+
       };
 
       class pnorm {

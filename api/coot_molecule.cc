@@ -275,6 +275,19 @@ coot::molecule_t::get_number_of_hydrogen_atoms() const {
    return n;
 }
 
+#include "coot-utils/atom-selection-container.hh"
+
+float
+coot::molecule_t::get_molecule_diameter() const {
+
+   float f = -1;
+   if (atom_sel.mol) {
+      f = coot::get_molecule_diameter(atom_sel);
+   }
+   return f;
+}
+
+
 
 std::string
 coot::molecule_t::name_for_display_manager() const {

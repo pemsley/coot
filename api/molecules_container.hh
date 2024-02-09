@@ -729,6 +729,9 @@ public:
    //! @return the number of atoms in the specified model, or 0 on error
    unsigned int get_number_of_atoms(int imol) const;
 
+   //! @return an estimate of the diameter of the model molecule (-1 on failure)
+   float get_molecule_diameter(int imol) const;
+
    //! @return the number of hydrogen atoms in the specified model, or -1 on error
    int get_number_of_hydrogen_atoms(int imol) const;
 

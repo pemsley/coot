@@ -4707,6 +4707,28 @@ int test_mask_atom_selection(molecules_container_t &mc) {
    return status;
 }
 
+int test_molecule_diameter(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_3 = mc.get_monomer("GOL");
+   float d1 = mc.get_molecule_diameter(imol_1);
+   float d2 = mc.get_molecule_diameter(imol_2);
+   float d3 = mc.get_molecule_diameter(imol_3);
+   if (d1 > 30.0)
+      if (d1 < 300.0)
+         if (d2 > 30.0)
+            if (d2 < 300.0)
+               if (d3 > 3.0)
+                  if (d3 < 30.0)
+               status = 1;
+
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -5023,7 +5045,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_write_map_is_sane, "write map is sane",    mc);
 
-   status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
+   // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
+
+   status += run_test(test_molecule_diameter, "molecule diameter",    mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
