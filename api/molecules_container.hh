@@ -1486,12 +1486,25 @@ public:
       int imol; // the imol of the fitted ligand
       int cluster_idx;  // the index of the cluster
       int ligand_idx;  // the ligand idx for a given cluster
-      fit_ligand_info_t(int i, int c, int l) : imol(i), cluster_idx(c), ligand_idx(l) {}
-      fit_ligand_info_t() { imol = -1; cluster_idx = -1; ligand_idx = -1; }
+      float fitting_score;
+      float cluster_volume;
+      fit_ligand_info_t(int i, int c, int l) : imol(i), cluster_idx(c), ligand_idx(l) { fitting_score = -1.0; cluster_volume = -1.0;}
+      fit_ligand_info_t() { imol = -1; cluster_idx = -1; ligand_idx = -1; fitting_score = 1.0; cluster_volume = -1.0; }
+      //! @return the fitting score
+      float get_fitting_score() const { return fitting_score; }
+      float get_cluster_volume() const { return cluster_volume; }
    };
 
+   //! Fit ligand
+   //! @return a vector of interesting information about the fitted ligands
    std::vector<fit_ligand_info_t> fit_ligand(int imol_protein, int imol_map, int imol_ligand,
                                              float n_rmsd, bool use_conformers, unsigned int n_conformers);
+
+   //! Fit ligands (place-holder)
+   //! ``multi_ligand_molecule_number_list`` is a colon-separated list of molecules, *e.g.* "2:3:4"
+   //! @return an empty vector (at the moment)
+   std::vector<fit_ligand_info_t> fit_ligand_multi_ligand(int imol_protein, int imol_map, const std::string &multi_ligand_molecule_number_list,
+                                                          float n_rmsd, bool use_conformers, unsigned int n_conformers);
 
    //! "Jiggle-Fit Ligand"
    //! if n_trials is 0, then a sensible default value will be used.

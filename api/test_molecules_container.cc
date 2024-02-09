@@ -1917,10 +1917,6 @@ int test_ligand_fitting_in_map(molecules_container_t &mc) {
    int imol_ligand = mc.get_monomer("GLC");
    mc.write_coordinates(imol_ligand, "ligand.pdb");
 
-   mc.write_map(imol_map, "number-4.map");
-
-   mc.write_map(imol_map, "moorhen-test.map");
-
    if (mc.is_valid_model_molecule(imol)) {
       if (mc.is_valid_model_molecule(imol_ligand)) {
          if (mc.is_valid_map_molecule(imol_map)) {
@@ -1952,10 +1948,24 @@ int test_ligand_fitting_in_map(molecules_container_t &mc) {
 
             coot::stats::single ss(ligands_largest_eigenvector);
             double sd = std::sqrt(ss.variance());
-            std::cout << "EV sd " << sd << std::endl;
-            if (sd > 0.001)
-                if (solutions.size()< 5)
-                   status = 1;
+            std::cout << "Eigenvector size std. dev.: " << sd << std::endl;
+            if (sd > 0.001) {
+               if (solutions.size() < 5) {
+
+                  // tell me about the solutions:
+                  for (unsigned int i=0; i<solutions.size(); i++) {
+                     const auto &sol(solutions[i]);
+                     std::cout << "    Solution " << i << " : "
+                               << " volume " << sol.get_cluster_volume() << " "
+                               << sol.imol << " "
+                               << sol.cluster_idx << " "
+                               << sol.ligand_idx << " "
+                               << " correl " << sol.get_fitting_score() << " "
+                               << std::endl;
+                  }
+                  status = 1;
+               }
+            }
 
          } else {
             std::cout << "Not a valid map molecule for moorhen-tutorial-map-number-4.mtz" << std::endl;

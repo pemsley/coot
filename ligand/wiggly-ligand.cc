@@ -276,6 +276,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
    bool do_unique_conformer_test = false;
 
    if (thread_pool_p) {
+
       std::atomic<int> count(0);
 
       for (int isample=0; isample<n_samples; isample++) {
@@ -324,7 +325,8 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 coot::installed_wiggly_ligand_info_t
 coot::wligand::install_simple_wiggly_ligand(protein_geometry *pg,
 					    const minimol::molecule &ligand_in,
-					    int imol_ligand, int isample,
+					    int imol_ligand,
+                                            int isample,
 					    bool optimize_geometry_flag) {
 
    coot::installed_wiggly_ligand_info_t l;
@@ -337,9 +339,12 @@ coot::wligand::install_simple_wiggly_ligand(protein_geometry *pg,
 //    std::cout << "DEBUG:: in install_simple_wiggly_ligands: "
 // 	     << "get_monomer_type_from_mol returns :"
 // 	     << monomer_type << ":" << std::endl;
-   short int do_hydrogen_torsions_flag = 0;
+   bool do_hydrogen_torsions_flag = false;
+   int imol_enc = protein_geometry::IMOL_ENC_ANY;
+
    std::vector <coot::dict_torsion_restraint_t> m_torsions =
-      pg->get_monomer_torsions_from_geometry(monomer_type, do_hydrogen_torsions_flag);
+      pg->get_monomer_torsions_from_geometry(monomer_type, imol_enc, do_hydrogen_torsions_flag);
+
    std::pair<bool, dictionary_residue_restraints_t> monomer_restraints = 
       pg->get_monomer_restraints(monomer_type, imol_ligand);
 
@@ -413,7 +418,7 @@ coot::wligand::install_simple_wiggly_ligand(protein_geometry *pg,
    } 
 
    if (false)
-      std::cout << "This residue has " << m_torsions.size() << " defined non-H torsions "
+      std::cout << "DEBUG:: This residue has " << m_torsions.size() << " defined non-H torsions "
 	        << "of which " << n_non_const_torsionable << " are (non-const) rotatable and "
 	        << non_const_non_ring_torsions.size() << " are non-const and non-ring torsions"
 	        << std::endl;
@@ -466,7 +471,7 @@ coot::wligand::install_simple_wiggly_ligand(protein_geometry *pg,
 
    std::vector<float> torsion_set = get_torsions_by_random(non_const_non_ring_torsions);
 
-   if (debug_wiggly_ligands) { 
+   if (debug_wiggly_ligands) {
       for (unsigned int itor=0; itor<torsion_set.size(); itor++) { 
 	 std::cout << "   non-const-non-ring-tors: " << itor << " "
 		   << non_const_non_ring_torsions[itor] << " " << torsion_set[itor]
@@ -494,6 +499,8 @@ coot::wligand::install_simple_wiggly_ligand(protein_geometry *pg,
       // angles in degrees.
       tree.set_dihedral_multi(v);
       minimol::residue wiggled_ligand_residue = tree.GetResidue();
+
+      std::cout << "***************************** calling optimize_and_install_if_unique() " << std::endl;
       installed_wiggly_ligand_info_t wl =
 	 optimize_and_install_if_unique(wiggled_ligand_residue,
 					*pg, non_const_non_ring_torsions,
@@ -509,7 +516,7 @@ coot::wligand::install_simple_wiggly_ligand(protein_geometry *pg,
 	 std::vector<std::vector<int> > contact_indices =
 	    coot::util::get_contact_indices_from_restraints(r, pg, 1, add_reverse_contacts);
 
-	 if (0) 
+	 if (false) // debug
 	    for (unsigned int i=0; i<contact_indices.size(); i++) { 
 	       std::cout << "contacts " << i << " has " << contact_indices[i].size() << " contacts: ";
 	       for (unsigned int j=0; j<contact_indices[i].size(); j++) { 
@@ -535,7 +542,7 @@ coot::wligand::install_simple_wiggly_ligand(protein_geometry *pg,
 	 std::cout << "ERROR: in install_simple_wiggly_ligands() " << rte_inner.what() << std::endl;
       }
    }
-   
+
    return l;
 }
 
@@ -637,21 +644,27 @@ coot::wligand::is_unique_conformer(const coot::minimol::molecule &mol) const {
       if (initial_ligand.size() > 0) 
 	 unique = false;
    } else {
+      // std::cout << "initial_ligands size() " << initial_ligand.size() << std::endl;
       for (unsigned int i=0; i<initial_ligand.size(); i++) { 
 	 const minimol::residue &res_ref = initial_ligand[i][0].residues[1];
 	 double rmsd = res_ref.lsq_overlay_rmsd(res_in);
-	 //std::cout << "rmsd to  ref " << i << " is " << rmsd << std::endl;
+	 // std::cout << "   rmsd to ref " << i << " is " << rmsd << std::endl;
 	 if (rmsd < 0) {
 	    // problem
 	 } else {
 	    // we found something like this already
-	    if (rmsd < rmsd_crit) { 
+	    if (rmsd < rmsd_crit) {
+               // std::cout << "... not unique " << std::endl;
 	       unique = false;
 	       break;
 	    }
 	 } 
       }
    }
+
+   if (false)
+      if (unique)
+         std::cout << "... was unique " << std::endl;
 
    return unique;
 }
