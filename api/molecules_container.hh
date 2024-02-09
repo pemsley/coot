@@ -384,9 +384,8 @@ public:
    //! they took to run. Setting this will write the time to taken (in milliseconds) to stdout.
    //! The default is `true`.
    void set_show_timings(bool s) { show_timings = s; }
-   coot::protein_geometry & get_geom() {
-      return geom;
-   }
+
+   coot::protein_geometry & get_geom() { return geom; }
 
    // -------------------------------- generic utils -----------------------------------
    //! \name Generic Utils
