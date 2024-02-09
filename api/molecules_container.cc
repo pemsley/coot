@@ -5155,3 +5155,16 @@ molecules_container_t::accept_rotamer_probability_tables_compressed_data(const s
 
 }
 
+
+//! Interactive B-factor refinement (fun).
+//! "factor" might typically be say 0.9 or 1.1
+void
+molecules_container_t::multiply_residue_temperature_factors(int imol, const std::string &cid, float factor) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].multiply_residue_temperature_factors(cid, factor);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+}

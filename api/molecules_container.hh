@@ -1078,6 +1078,10 @@ public:
    //! @return 1 on a successful move, 0 on failure.
    int move_molecule_to_new_centre(int imol, float x, float y, float z);
 
+   //! Interactive B-factor refinement (fun).
+   //! "factor" might typically be say 0.9 or 1.1
+   void multiply_residue_temperature_factors(int imol, const std::string &cid, float factor);
+
    //! get molecule centre
    //! @return the molecule centre
    coot::Cartesian get_molecule_centre(int imol) const;

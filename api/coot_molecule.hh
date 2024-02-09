@@ -815,6 +815,10 @@ namespace coot {
                                                  clipper::Coord_orth &rotation_centre,
                                                  clipper::RTop_orth &rtop);
 
+      //! Interactive B-factor refinement (fun).
+      //! "factor" might typically be say 0.9 or 1.1
+      void multiply_residue_temperature_factors(const std::string &cid, float factor);
+
       //! @return 1 on a successful additions, 0 on failure.
       int add_hydrogen_atoms(protein_geometry *geom); // because of coot::reduce api - hmm.
 

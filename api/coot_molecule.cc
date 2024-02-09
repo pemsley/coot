@@ -58,7 +58,7 @@ coot::molecule_t::cid_to_atom(const std::string &cid) const {
    mmdb::Atom *atom_p = 0;
    if (atom_sel.mol) {
       int selHnd = atom_sel.mol->NewSelection(); // d
-      mmdb::Atom **SelAtoms;
+      mmdb::Atom **SelAtoms = nullptr;
       int nSelAtoms = 0;
       atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
       atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
@@ -4250,3 +4250,26 @@ coot::molecule_t::export_model_molecule_as_gltf(const std::string &mode,
 
 }
 
+//! Interactive B-factor refinement (fun).
+//! "factor" might typically be say 0.9 or 1.1
+void
+coot::molecule_t::multiply_residue_temperature_factors(const std::string &cid, float factor) {
+
+   if (atom_sel.mol) {
+      int selHnd = atom_sel.mol->NewSelection(); // d
+      mmdb::Atom **SelAtoms = nullptr;
+      int nSelAtoms = 0;
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+      atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+      if (nSelAtoms > 0) {
+         for (int i=0; i<nSelAtoms; i++) {
+            mmdb:: Atom *at = SelAtoms[i];
+            if (! at->isTer()) {
+               float new_B = at->tempFactor * factor;
+               at->tempFactor = new_B;
+            }
+         }
+      }
+      atom_sel.mol->DeleteSelection(selHnd);
+   }
+}

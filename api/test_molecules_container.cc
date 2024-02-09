@@ -4728,6 +4728,65 @@ int test_molecule_diameter(molecules_container_t &mc) {
    return status;
 }
 
+int test_B_factor_multiply(molecules_container_t &mc) {
+
+   auto close_float = [] (float a, float b) {
+      return fabsf(a - b) < 0.001;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.get_monomer("GOL");
+
+   std::cout << "test_B_factor_multiply imol " << imol << std::endl;
+
+   coot::residue_spec_t rs("A", 1, "");
+   mmdb::Residue *residue_p = mc.get_residue(imol, rs);
+   if (residue_p) {
+      std::vector<float> B_pre;
+      std::vector<float> B_post;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            B_pre.push_back(at->tempFactor);
+         }
+      }
+
+      mc.multiply_residue_temperature_factors(imol, "//", 2.0);
+
+      residue_p = mc.get_residue(imol, rs);
+      if (residue_p) {
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (! at->isTer()) {
+               B_post.push_back(at->tempFactor);
+            }
+         }
+      }
+
+      if (B_pre.size() > 12) {
+         if (B_pre.size() == B_post.size()) {
+            bool clean = true;
+            for (unsigned int iat=0; iat<B_pre.size(); iat++) {
+               if (close_float(B_pre[iat] * 2.0, B_post[iat])) {
+               } else {
+                  std::cout << "fail for iat " << iat << " " << B_pre[iat] << " " << B_post[iat] << std::endl;
+                  clean = false;
+               }
+            }
+            if (clean) status = 1;
+         }
+      }
+   }
+
+   return status;
+}
+
+
 
 int test_template(molecules_container_t &mc) {
 
@@ -5047,7 +5106,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
 
-   status += run_test(test_molecule_diameter, "molecule diameter",    mc);
+   // status += run_test(test_molecule_diameter, "molecule diameter",    mc);
+
+   status += run_test(test_B_factor_multiply, "B-factor multiply",    mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
