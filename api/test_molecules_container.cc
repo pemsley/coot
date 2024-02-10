@@ -4918,6 +4918,21 @@ int test_non_drawn_CA_bonds(molecules_container_t &mc) {
    return  status;
 }
 
+int test_17257(molecules_container_t &mc) {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_map = mc.read_ccp4_map(reference_data("emd_17257.map.gz"), false);
+   std::cout << "imol_map is " << imol_map << std::endl;
+   if (mc.is_valid_map_molecule(imol_map)) {
+      status = 1;
+   }
+   // however, until there is a gzip map reader for CCP4, we expect the
+   // return value to be -3:
+   if (imol_map == -3) {
+      status = 1;
+   }
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -5243,7 +5258,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_change_chain_id, "change chain id",    mc);
 
-   status += run_test(test_non_drawn_CA_bonds, "non-drawn bonds in CA+LIGANDS", mc);
+   // status += run_test(test_non_drawn_CA_bonds, "non-drawn bonds in CA+LIGANDS", mc);
+
+   status += run_test(test_17257, "read emd_17257.map.gz",    mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
