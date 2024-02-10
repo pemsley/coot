@@ -5260,7 +5260,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_non_drawn_CA_bonds, "non-drawn bonds in CA+LIGANDS", mc);
 
-   status += run_test(test_17257, "read emd_17257.map.gz",    mc);
+   // status += run_test(test_17257, "read emd_17257.map.gz",    mc);
+
+   status += run_test(test_get_diff_map_peasks, "get diff map peaks",    mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

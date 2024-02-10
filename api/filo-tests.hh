@@ -25,9 +25,5 @@
 
 int test_something_filo(molecules_container_t &mc);
 
-
-
-// lucrezia hijacking filo tests
-int test_multiligands_lig_bonding(molecules_container_t &mc);
-
+int test_get_diff_map_peasks(molecules_container_t &mc);
 
