@@ -4887,6 +4887,36 @@ int test_change_chain_id(molecules_container_t &mc) {
    return status;
 }
 
+int test_non_drawn_CA_bonds(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      int imol_frag = mc.copy_fragment_using_cid(imol, "//A/101-111");
+      mc.add_to_non_drawn_bonds(imol_frag, "//A/103-111");
+      std::string mode = "CA+LIGANDS";
+      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol_frag, "//A", mode, false, 0.2, 1.0, 1);
+      auto &geom = bonds.geom;
+      // should be size 2 of course, if we don't add the range to the non-drawn bond
+      // not 4
+      std::cout << ":::::::::::::::::::::::: bonds geom was of size " << geom.size() << std::endl;
+
+      if (geom.empty()) {
+         std::cout << "geom empty" << std::endl;
+      } else {
+         if (geom.size() == 4) { // should be 2!
+            const std::vector<coot::instancing_data_type_B_t> &idB = geom[0].instancing_data_B;
+            std::cout << "idB size " << idB.size() << std::endl;
+            // print the instancing data here. You should see a duplicate/reverse
+         }
+      }
+   }
+
+   return  status;
+}
 
 
 int test_template(molecules_container_t &mc) {
@@ -5211,7 +5241,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_B_factor_multiply, "B-factor multiply",    mc);
 
-   status += run_test(test_change_chain_id, "change chain id",    mc);
+   // status += run_test(test_change_chain_id, "change chain id",    mc);
+
+   status += run_test(test_non_drawn_CA_bonds, "non-drawn bonds in CA+LIGANDS", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

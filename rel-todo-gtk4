@@ -59,6 +59,8 @@ libcootapi:
 
 Coot: on ligand fitting, use conformers and get "no ligands selected" dialog
 
+Coot: colour-by-molecule has big atoms - why? Fix.
+
 Coot: Fitting ligands "Installing Ligand Conformers" dialog should be an overlay
 
 Coot: on fitting ligands, I get a dialog "WARNING:: No ligands were selected"

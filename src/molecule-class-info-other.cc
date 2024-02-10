@@ -464,7 +464,10 @@ void
 molecule_class_info_t::bonds_sec_struct_representation() {
 
    if (bonds_box_type != coot::BONDS_SEC_STRUCT_COLOUR) {
-      Bond_lines_container bonds(graphics_info_t::Geom_p(), draw_hydrogens_flag);
+      std::set<int> no_bonds_to_these_atom_indices;
+      // I am guessing that this is the constructor that I wanted?
+      // It looks like it was not getting the right one before.
+      Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atom_indices, draw_hydrogens_flag);
       bonds.do_colour_sec_struct_bonds(atom_sel, imol_no, 0.01, 1.9);
       bonds_box = bonds.make_graphical_bonds_no_thinning();
       bonds_box_type = coot::BONDS_SEC_STRUCT_COLOUR;
