@@ -147,6 +147,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot_molecule_bonds.cc
             ${coot_src}/api/coot_molecule_bonds_instanced.cc
             ${coot_src}/api/coot_molecule_maps.cc
+            ${coot_src}/api/coot_molecule_change_chain_id.cc
             ${coot_src}/api/moorhen-h-bonds.cc
             ${coot_src}/api/coot_molecule_moltris.cc
             ${coot_src}/api/phi-psi-prob.cc

@@ -4786,6 +4786,107 @@ int test_B_factor_multiply(molecules_container_t &mc) {
    return status;
 }
 
+int test_change_chain_id(molecules_container_t &mc) {
+
+   auto get_min_max_in_chain = [] (mmdb::Manager *mol, const std::string &chain_id_in) {
+
+      int min_res_no_J =  9999;
+      int max_res_no_J = -9999;
+
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               std::string chain_id(chain_p->GetChainID());
+               if (chain_id == chain_id_in) {
+                  int n_res = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<n_res; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        int res_no = residue_p->GetSeqNum();
+                        if (res_no < min_res_no_J) min_res_no_J = res_no;
+                        if (res_no > max_res_no_J) max_res_no_J = res_no;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return std::pair<int, int>(min_res_no_J, max_res_no_J);
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (!mc.is_valid_model_molecule(imol)) return 0;
+
+   std::pair<int, std::string> r_1 = mc.change_chain_id(imol, "A", "J", true, 38, 42); // non-existant
+   std::cout << "change_chain_id result-1: " << r_1.first << " \"" << r_1.second << "\"" << std::endl;
+   std::pair<int, std::string> r_2 = mc.change_chain_id(imol, "A", "J", true,  2, 22); // exists
+   std::cout << "change_chain_id result-2: " << r_2.first << " \"" << r_2.second << "\"" << std::endl;
+
+   int min_res_no_J = 9999;
+   int max_res_no_J = 0;
+
+   mmdb::Manager *mol = mc.get_mol(imol);
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            std::string chain_id(chain_p->GetChainID());
+            if (chain_id == "J") {
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int res_no = residue_p->GetSeqNum();
+                     if (res_no < min_res_no_J) min_res_no_J = res_no;
+                     if (res_no > max_res_no_J) max_res_no_J = res_no;
+                  }
+               }
+            }
+         }
+      }
+   }
+   std::cout << "min_res_no_J " << min_res_no_J << std::endl;
+   std::cout << "max_res_no_J " << max_res_no_J << std::endl;
+
+   // now it in again and try to change A to B. It should fail
+   imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   std::pair<int, std::string> r_3 = mc.change_chain_id(imol, "A", "B", false, -1, -1); // crash
+   std::cout << "change_chain_id result-3: " << r_3.first << " \"" << r_3.second << "\"" << std::endl;
+   // moving to the C chain is fine though
+   std::pair<int, std::string> r_4 = mc.change_chain_id(imol, "A", "C", false, -1, -1); // OK
+   std::cout << "change_chain_id result-4: " << r_4.first << " \"" << r_4.second << "\"" << std::endl;
+
+   mol = mc.get_mol(imol);
+   std::pair<int,int> C_min_max = get_min_max_in_chain(mol, "C");
+   std::cout << "C_min_max " << C_min_max.first << " " << C_min_max.second << std::endl;
+
+   if (r_1.first == 0) {
+      if (r_2.first == 1) {
+         if (min_res_no_J == 2) {
+            if (max_res_no_J == 22) {
+               if (r_3.first == 0) {
+                  if (r_4.first == 1) {
+                     if (C_min_max.first == 1) {
+                        if (C_min_max.second == 298) {
+                           status = 1;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return status;
+}
+
 
 
 int test_template(molecules_container_t &mc) {
@@ -5108,7 +5209,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_molecule_diameter, "molecule diameter",    mc);
 
-   status += run_test(test_B_factor_multiply, "B-factor multiply",    mc);
+   // status += run_test(test_B_factor_multiply, "B-factor multiply",    mc);
+
+   status += run_test(test_change_chain_id, "change chain id",    mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

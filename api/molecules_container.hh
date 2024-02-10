@@ -1147,6 +1147,16 @@ public:
    //! `multi_cids" is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
    int rigid_body_fit(int imol, const std::string &multi_cid, int imol_map);
 
+   //! change the chain id
+   //! @return -1 on a conflict
+   //! 1 on good.
+   //! 0 on did nothing
+   //! return also an information/error message
+   std::pair<int, std::string> change_chain_id(int imol, const std::string &from_chain_id,
+                                               const std::string &to_chain_id,
+                                               bool use_resno_range,
+                                               int start_resno, int end_resno);
+
    // -------------------------------- Coordinates Refinement ------------------------------
    //! \name Coordinates Refinement
 

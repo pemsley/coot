@@ -5168,3 +5168,25 @@ molecules_container_t::multiply_residue_temperature_factors(int imol, const std:
    }
 
 }
+
+
+//! change the chain id
+//! @return -1 on a conflict
+//! 1 on good.
+//! 0 on did nothing
+//! return also an information/error message
+std::pair<int, std::string>
+molecules_container_t::change_chain_id(int imol,
+                                       const std::string &from_chain_id,
+                                       const std::string &to_chain_id,
+                                       bool use_resno_range,
+                                       int start_resno, int end_resno) {
+
+   std::pair<int, std::string> status(0, "");
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].change_chain_id(from_chain_id, to_chain_id, use_resno_range, start_resno, end_resno);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}

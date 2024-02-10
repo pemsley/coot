@@ -4273,3 +4273,5 @@ coot::molecule_t::multiply_residue_temperature_factors(const std::string &cid, f
       atom_sel.mol->DeleteSelection(selHnd);
    }
 }
+
+

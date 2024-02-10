@@ -57,6 +57,8 @@
 
 namespace coot {
 
+   enum { RESIDUE_NUMBER_UNSET = -1111}; // from molecule-class-info
+
    class molecule_t {
 
       class molecule_save_info_t {
@@ -824,6 +826,25 @@ namespace coot {
 
       //! @return 1 on a successful additions, 0 on failure.
       int delete_hydrogen_atoms();
+
+      // change the chain id
+      // return -1 on a conflict
+      // 1 on good.
+      // 0 on did nothing
+      // return also an information/error message
+      std::pair<int, std::string> change_chain_id(const std::string &from_chain_id,
+                                                  const std::string &to_chain_id,
+                                                  bool use_resno_range,
+                                                  int start_resno, int end_resno);
+
+      // make these private
+      //
+      std::pair<int, std::string>
+      change_chain_id_with_residue_range(const std::string &from_chain_id,
+                                         const std::string &to_chain_id,
+                                         int start_resno,
+                                         int end_resno);
+      void change_chain_id_with_residue_range_helper_insert_or_add(mmdb::Chain *to_chain_p, mmdb::Residue *new_residue);
 
       //! a moved atom
       class moved_atom_t {
