@@ -831,38 +831,37 @@ molecules_container_t::valid_labels(const std::string &mtz_file_name, const std:
    for (unsigned int i=0; i<r.f_cols.size(); i++) {
       std::pair<std::string, std::string> p = coot::util::split_string_on_last_slash(r.f_cols[i].column_label);
       if (p.second.length() > 0)
-	 if (p.second == f_col_str) {
-	    have_f = 1;
-	    break;
-	 }
+         if (p.second == f_col_str) {
+            have_f = 1;
+            break;
+         }
    }
    for (unsigned int i=0; i<r.phi_cols.size(); i++) {
       std::pair<std::string, std::string> p = coot::util::split_string_on_last_slash(r.phi_cols[i].column_label);
       if (p.second.length() > 0)
-	 if (p.second == phi_col_str) {
-	    have_phi = 1;
-	    break;
-	 }
+	      if (p.second == phi_col_str) {
+	         have_phi = 1;
+	         break;
+	      }
    }
    if (use_weights) {
       for (unsigned int i=0; i<r.weight_cols.size(); i++) {
-	 std::pair<std::string, std::string> p = coot::util::split_string_on_last_slash(r.weight_cols[i].column_label);
-	 if (p.second.length() > 0)
-	    if (p.second == weight_col_str) {
-	       have_weight = 1;
-	       break;
-	    }
+	      std::pair<std::string, std::string> p = coot::util::split_string_on_last_slash(r.weight_cols[i].column_label);
+	      if (p.second.length() > 0)
+	         if (p.second == weight_col_str) {
+	            have_weight = 1;
+	            break;
+	         }
       }
    }
-
 
    // Now check the MTZ column labels that *do* have a slash
    if (r.f_cols.size() > 0) {
       for (unsigned int i=0; i< r.f_cols.size(); i++) {
-	 if (f_col_str == r.f_cols[i].column_label) {
-	    have_f = 1;
-	    break;
-	 }
+	      if (f_col_str == r.f_cols[i].column_label) {
+	         have_f = 1;
+	         break;
+	      }
       }
    } else {
       std::cout << "ERROR: no f_cols! " << std::endl;
@@ -1088,7 +1087,7 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
    }
 
    if (! done) {
-      // std::cout << "INFO:: attempting to read CCP4 map: " << file_name << std::endl;
+      std::cout << "INFO:: attempting to read CCP4 map: " << file_name << " via non-slurp method" << std::endl;
       // clipper::CCP4MAPfile file;
       clipper_map_file_wrapper w_file;
       try {
