@@ -29,6 +29,8 @@ moorhen: search monomer library for ARG with methyl (for example)
 libcootapi: estimate the molecule radius - using the distance between 1000 (say) random atom pairs.
 * Done.
 
+libcootapi: Add merge fragments (low priority)
+
 libcootapi: add a mc function to set_rotamer_tables_compressed_data()
 
 libcootapi: (?) bundle the reference structures into the source code.
