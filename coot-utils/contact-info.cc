@@ -6,6 +6,33 @@
 
 #include "map-index.hh"
 
+// these were in the header - very confusing
+coot::contact_info::contact_info(mmdb::Contact *con_in, int nc) {
+   for (int i=0; i<nc; i++) {
+      contacts.push_back(contacts_pair(con_in[i].id1, con_in[i].id2));
+   }
+}
+
+coot::contact_info::contact_info(mmdb::PPAtom atom_selection, mmdb::Contact *con_in, int nc) {
+
+   setup_atom_radii();
+   for (int i=0; i<nc; i++) {
+      mmdb::Atom *at_1 = atom_selection[con_in[i].id1];
+      mmdb::Atom *at_2 = atom_selection[con_in[i].id2];
+      std::string ele_1 = at_1->element;
+      std::string ele_2 = at_2->element;
+      mmdb::realtype dx = at_1->x - at_2->x;
+      mmdb::realtype dy = at_1->y - at_2->y;
+      mmdb::realtype dz = at_1->z - at_2->z;
+      mmdb::realtype dist_2 = dx*dx + dy*dy + dz*dz;
+      mmdb::realtype dist = sqrt(dist_2);
+      mmdb::realtype r1 = get_radius(ele_1);
+      mmdb::realtype r2 = get_radius(ele_2);
+      if (dist < (r1 + r2 + 0.1))
+         contacts.push_back(contacts_pair(con_in[i].id1, con_in[i].id2));
+   }
+}
+
 // This contact_info constructor does not take the alt conf(s) into
 // account.  That is becuase (in the current scenario) the alt conf
 // selection has already taken place before we get here.  If you want
@@ -20,8 +47,7 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
    // before messing about here, are you sure that you are looking at
    // the correct cif file for this residue?
 
-   std::pair<bool, coot::dictionary_residue_restraints_t> r = 
-      geom_p->get_monomer_restraints(monomer_type, imol);
+   std::pair<bool, coot::dictionary_residue_restraints_t> r = geom_p->get_monomer_restraints(monomer_type, imol);
 
    if (r.first) {
       std::map<std::string, map_index_t> name_map;
@@ -35,13 +61,54 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
          std::string n_2 = r.second.bond_restraint[ib].atom_id_2_4c();
          coot::map_index_t ind_1 = name_map[n_1];
          coot::map_index_t ind_2 = name_map[n_2];
-         if (ind_1.is_assigned() && ind_2.is_assigned()) { 
+         if (ind_1.is_assigned() && ind_2.is_assigned()) {
             contacts_pair p(ind_1.index(), ind_2.index());
             contacts.push_back(p);
          }
       }
    }
 }
+
+// 20240210-PE I read the comment above and am in the situation where the molecule (residue) in asc
+// is not alt-conf filtered, so this variant takes an alt-conf
+//
+coot::contact_info::contact_info(const atom_selection_container_t &asc,
+                                 const std::string &alt_conf,
+                                 const std::string &monomer_type,
+                                 int imol,
+                                 coot::protein_geometry *geom_p) {
+
+   // before messing about here, are you sure that you are looking at
+   // the correct cif file for this residue?
+
+   std::pair<bool, coot::dictionary_residue_restraints_t> r = 
+      geom_p->get_monomer_restraints(monomer_type, imol);
+
+   if (r.first) {
+      std::map<std::string, map_index_t> name_map;
+      for (int i=0; i<asc.n_selected_atoms; i++) {
+         std::string atom_name(asc.atom_selection[i]->name);
+         std::string atom_alt_conf(asc.atom_selection[i]->altLoc);
+         if (atom_alt_conf.empty() || atom_alt_conf == alt_conf) {
+            name_map[atom_name] = map_index_t(i);
+         }
+      }
+
+      for (unsigned int ib=0; ib<r.second.bond_restraint.size(); ib++) {
+         std::string n_1 = r.second.bond_restraint[ib].atom_id_1_4c();
+         std::string n_2 = r.second.bond_restraint[ib].atom_id_2_4c();
+         coot::map_index_t ind_1 = name_map[n_1];
+         coot::map_index_t ind_2 = name_map[n_2];
+         if (ind_1.is_assigned() && ind_2.is_assigned()) {
+            contacts_pair p(ind_1.index(), ind_2.index());
+            contacts.push_back(p);
+         }
+      }
+   }
+}
+
+
+
 
 // we can throw an exeption if any restraints are not found.
 //
@@ -222,7 +289,7 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
    
    // now the link bond restraints
    for (unsigned int ilb=0; ilb<link_bond_atoms.size(); ilb++) {
-      bool ifound = 0;
+      bool ifound = false;
       for (int i=0; i<asc.n_selected_atoms; i++) {
          if (asc.atom_selection[i] == link_bond_atoms[ilb].first) {
             for (int j=0; j<asc.n_selected_atoms; j++) {
@@ -230,7 +297,7 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
                   contacts_pair p(j, i);
                   // std::cout << "---- added link bond contact " << i << " " << j << std::endl;
                   contacts.push_back(p);
-                  ifound = 1;
+                  ifound = true;
                   break;
                }
             }
@@ -295,8 +362,22 @@ coot::getcontacts(const atom_selection_container_t &asc,
    if (ci.n_contacts() == 0)
       return coot::getcontacts(asc);
    return ci;
-   
-} 
+}
+
+// try to get the bonds/contacts from the dictionary.  If there are no
+// bonds, then fall back to the distance based search.
+coot::contact_info
+coot::getcontacts(const atom_selection_container_t &asc,
+                  const std::string &alt_conf,
+                  const std::string &monomer_type,
+                  int imol,
+                  coot::protein_geometry *geom_p) {
+
+   coot::contact_info ci(asc, alt_conf, monomer_type, imol, geom_p);
+   if (ci.n_contacts() == 0)
+      return coot::getcontacts(asc);
+   return ci;
+}
 
 
 
@@ -304,10 +385,10 @@ coot::contact_info
 coot::getcontacts(const atom_selection_container_t &asc) {
 
    // back here again, eh? :)
-   // 
+   //
    // Yep 20100518 :)
    // Yep 20100702
-   
+
    // std::cout << "DEBUG:: getcontacts() in mmdb-extras" << std::endl;
 
    mmdb::Contact *pscontact = NULL;
@@ -317,9 +398,9 @@ coot::getcontacts(const atom_selection_container_t &asc) {
    long i_contact_group = 1;
    mmdb::mat44 my_matt;
    mmdb::SymOps symm;
-   for (int i=0; i<4; i++) 
-      for (int j=0; j<4; j++) 
-         my_matt[i][j] = 0.0;      
+   for (int i=0; i<4; i++)
+      for (int j=0; j<4; j++)
+         my_matt[i][j] = 0.0;
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
    asc.mol->SeekContacts(asc.atom_selection, asc.n_selected_atoms,
@@ -332,11 +413,11 @@ coot::getcontacts(const atom_selection_container_t &asc) {
    coot::contact_info ci(asc.atom_selection, pscontact, n_contacts);
 
    // Now, do we need to handle MSE extra bonds?
-   // 
-   if (std::string(asc.atom_selection[0]->GetResName()) == "MSE") { 
+   //
+   if (std::string(asc.atom_selection[0]->GetResName()) == "MSE") {
       ci.add_MSE_Se_bonds(asc);
    }
-   
+
    delete [] pscontact;
    return ci;
 }
@@ -355,7 +436,7 @@ coot::contact_info::get_contact_indices() const {
       if (contacts[i].id2 > max_index)
          max_index = contacts[i].id2;
    }
-   if (max_index > 0) { 
+   if (max_index > 0) {
       v.resize(max_index+1);
       for (unsigned int i=0; i<contacts.size(); i++) {
          v[contacts[i].id1].push_back(contacts[i].id2);
@@ -371,7 +452,7 @@ coot::contact_info::get_contact_indices_with_reverse_contacts() const {
 
    std::vector<std::vector<int> > v = get_contact_indices();
 
-   for (unsigned int i=0; i<v.size(); i++) { 
+   for (unsigned int i=0; i<v.size(); i++) {
       for (unsigned int j=0; j<v[i].size(); j++) {
 
          // so we have i -> j, now add j -> i (if i is not already in

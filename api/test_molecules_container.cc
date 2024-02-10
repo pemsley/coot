@@ -1374,8 +1374,28 @@ int test_jed_flip(molecules_container_t &mc) {
       double d = std::sqrt(dd);
       std::cout << "test_jed_flip d " << d << std::endl;
       mc.write_coordinates(imol, "jed-flip.pdb");
-      if (d > 0.9)
-         status = true;
+      if (d > 0.9) {
+
+         // now test an altconf ligand
+         int imol_lig = mc.get_monomer("NUT");
+         mc.delete_hydrogen_atoms(imol_lig);
+         mc.add_alternative_conformation(imol_lig, "//A/1");
+         mc.write_coordinates(imol_lig, "NUT-with-alt-conf.pdb");
+         coot::atom_spec_t spun_atom_spec("A", 1, "", " C7 ", "A");
+         mmdb:: Atom *at_2 = mc.get_atom(imol_lig, spun_atom_spec);
+         if (at_2) {
+            coot::Cartesian atom_pos_3 = atom_to_cartesian(at_2);
+            mc.jed_flip(imol_lig, "//A/1/O1:A", false);
+            mc.write_coordinates(imol_lig, "NUT-with-alt-conf-and-jed-flip.pdb");
+            coot::Cartesian atom_pos_4 = atom_to_cartesian(at_2);
+            dd = coot::Cartesian::lengthsq(atom_pos_3, atom_pos_4);
+            d = std::sqrt(dd);
+            if (d > 2.0)
+               status = 1;
+         } else {
+            std::cout << "failed to select atom " << spun_atom_spec << std::endl;
+         }
+      }
    }
    return status;
 }
@@ -5262,7 +5282,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_17257, "read emd_17257.map.gz",    mc);
 
-   status += run_test(test_get_diff_map_peasks, "get diff map peaks",    mc);
+   // status += run_test(test_get_diff_map_peasks, "get diff map peaks",    mc);
+
+   status += run_test(test_jed_flip, "jed flip",    mc); // duplicate
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

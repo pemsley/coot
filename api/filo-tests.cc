@@ -63,7 +63,7 @@ int test_something_filo(molecules_container_t &mc) {
 }
 
 
-int test_get_diff_map_peasks(molecules_container_t &mc) {
+int test_get_diff_map_peaks(molecules_container_t &mc) {
 
    int status = 1;
 
@@ -79,7 +79,8 @@ int test_get_diff_map_peasks(molecules_container_t &mc) {
 
    mc.associate_data_mtz_file_with_map(mapMolNo, "./5a3h_sigmaa.mtz", "FP", "SIGFP", "FREE");
    mc.connect_updating_maps(coordMolNo, mapMolNo, mapMolNo, diffMapMolNo);
-   mc.sfcalc_genmaps_using_bulk_solvent(coordMolNo, mapMolNo, diffMapMolNo, mapMolNo);
+   // if sfcalc_genmaps_using_bulk_solvent() fails stats.r_factor is -1
+   coot::util::sfcalc_genmap_stats_t stats = mc.sfcalc_genmaps_using_bulk_solvent(coordMolNo, mapMolNo, diffMapMolNo, mapMolNo);
 
    mc.get_r_factor_stats();
    mc.get_map_contours_mesh(mapMolNo,  77.501,  45.049,  22.663,  13,  0.48);
