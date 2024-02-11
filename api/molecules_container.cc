@@ -2444,6 +2444,33 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
    return stats;
 }
 
+//! shift_field B-factor refinement
+//! @return success status
+bool
+molecules_container_t::shift_field_b_factor_refinement(int imol, int imol_with_data_attached) {
+
+   bool status = false;
+   int imol_map = imol_with_data_attached;
+   try {
+      if (is_valid_model_molecule(imol)) {
+         if (is_valid_map_molecule(imol_map)) {
+            molecules[imol_map].fill_fobs_sigfobs();
+            const clipper::HKL_data<clipper::data32::F_sigF> *fobs_data = molecules[imol_map].get_original_fobs_sigfobs();
+            const clipper::HKL_data<clipper::data32::Flag>  *rfree_flag = molecules[imol_map].get_original_rfree_flags();
+            std::cout << "debug:: fobs_data" << fobs_data << " rfree " << rfree_flag << std::endl;
+            if (fobs_data && rfree_flag) {
+               std::cout << "OK go with refinement of molecule " << imol << std::endl;
+               status = molecules[imol].shiftfield_b_factor_refinement(*fobs_data, *rfree_flag);
+            }
+         }
+      }
+   }
+   catch(const std::runtime_error& rte) {
+      std::cerr << rte.what() << '\n';
+   }
+   return status;
+}
+
 //! @return a vector the position where the difference map has been flattened.
 //! The associated float value is the ammount that the map has been flattened.
 std::vector<std::pair<clipper::Coord_orth, float> >

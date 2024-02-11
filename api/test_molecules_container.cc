@@ -4954,6 +4954,62 @@ int test_17257(molecules_container_t &mc) {
    return status;
 }
 
+int test_shiftfield_b_factor_refinement(molecules_container_t &mc) {
+
+   auto get_average_b_factor = [] (mmdb::Residue *residue_p) {
+      float sum = 0.0;
+      if (!residue_p) {
+         std::cout << "Null residue " << std::endl;
+         return 0.0f;
+      }
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      int count = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            sum += at->tempFactor;
+            count++;
+         }
+      }
+      return sum/static_cast<float>(count);
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   mc.set_imol_refinement_map(imol_map);
+   mc.associate_data_mtz_file_with_map(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "FP", "SIGFP", "FREE");
+
+   if (mc.is_valid_model_molecule(imol)) {
+      std::cout << "Here A" << std::endl;
+      std::cout << "Here B1" << std::endl;
+      coot::residue_spec_t res_spec_1("A", 10, "");
+      coot::residue_spec_t res_spec_2("A", 56, "");
+      std::cout << "Here B2" << std::endl;
+      mmdb::Residue *r_1 = mc.get_residue(imol, res_spec_1);
+      mmdb::Residue *r_2 = mc.get_residue(imol, res_spec_2);
+      // set up some weird B-factors on some atoms
+      float b_orig_1 = get_average_b_factor(r_1);
+      float b_orig_2 = get_average_b_factor(r_2);
+      mc.multiply_residue_temperature_factors(imol, "//A/3-13",  4.0);
+      mc.multiply_residue_temperature_factors(imol, "//A/53-59", 0.2);
+      float b_pre_1 = get_average_b_factor(r_1);
+      float b_pre_2 = get_average_b_factor(r_2);
+      std::cout << "Here C" << std::endl;
+      mc.shift_field_b_factor_refinement(imol, imol_map);
+      std::cout << "Here D" << std::endl;
+      float b_post_1 = get_average_b_factor(r_1);
+      float b_post_2 = get_average_b_factor(r_2);
+      std::cout << "B-factors " << b_pre_1 << " " << b_pre_2 << " post " << b_post_1 << " " << b_post_2 << std::endl;
+   }
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -5284,7 +5340,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_get_diff_map_peasks, "get diff map peaks",    mc);
 
-   status += run_test(test_jed_flip, "jed flip",    mc); // duplicate
+   // status += run_test(test_jed_flip, "jed flip",    mc); // duplicate
+
+   status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc); // duplicate
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

@@ -1453,6 +1453,11 @@ public:
                                      int imol_updating_difference_map,
                                      int imol_map_with_data_attached);
 
+   //! shift_field B-factor refinement. This function presumes that the Fobs,sigFobs
+   //! and RFree data have been filled in the `imol_map_with_data_attached` molecule.
+   //! @return success status
+   bool shift_field_b_factor_refinement(int imol, int imol_with_data_attached);
+
    //! get density at position
    //! @return density value
    float get_density_at_position(int imol_map, float x, float y, float z) const;

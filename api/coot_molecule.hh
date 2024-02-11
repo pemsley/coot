@@ -437,11 +437,13 @@ namespace coot {
       // ----------------------- structure factor stuff ------------------------------------------------------
 
       void fill_fobs_sigfobs(); // re-reads MTZ file (currently 20210816-PE)
+
       // used to be a const ref. Now return the whole thing!. Caller must call
       // fill_fobs_sigfobs() directly before using this function - meh, not a good API.
       // Return a *pointer* to the data so that we don't get this hideous non-reproducable
       // crash when we access this data item after the moelcule vector has been resized
       // 20210816-PE.
+      // CAUTION: this function can throw a std::runtime_error.
       clipper::HKL_data<clipper::data32::F_sigF> *get_original_fobs_sigfobs() const {
          if (!original_fobs_sigfobs_filled) {
             std::string m("Original Fobs/sigFobs is not filled");
@@ -987,6 +989,9 @@ namespace coot {
                         bool do_rama_plot_restraints, float rama_plot_weight,
                         bool do_torsion_restraints, float torsion_weight,
                         bool refinement_is_quiet);
+
+      bool shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &F_sigF,
+                                          const clipper::HKL_data<clipper::data32::Flag> &free_flag);
 
       void fix_atom_selection_during_refinement(const std::string &atom_selection_cid);
 
