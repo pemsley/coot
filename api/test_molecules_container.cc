@@ -1374,8 +1374,28 @@ int test_jed_flip(molecules_container_t &mc) {
       double d = std::sqrt(dd);
       std::cout << "test_jed_flip d " << d << std::endl;
       mc.write_coordinates(imol, "jed-flip.pdb");
-      if (d > 0.9)
-         status = true;
+      if (d > 0.9) {
+
+         // now test an altconf ligand
+         int imol_lig = mc.get_monomer("NUT");
+         mc.delete_hydrogen_atoms(imol_lig);
+         mc.add_alternative_conformation(imol_lig, "//A/1");
+         mc.write_coordinates(imol_lig, "NUT-with-alt-conf.pdb");
+         coot::atom_spec_t spun_atom_spec("A", 1, "", " C7 ", "A");
+         mmdb:: Atom *at_2 = mc.get_atom(imol_lig, spun_atom_spec);
+         if (at_2) {
+            coot::Cartesian atom_pos_3 = atom_to_cartesian(at_2);
+            mc.jed_flip(imol_lig, "//A/1/O1:A", false);
+            mc.write_coordinates(imol_lig, "NUT-with-alt-conf-and-jed-flip.pdb");
+            coot::Cartesian atom_pos_4 = atom_to_cartesian(at_2);
+            dd = coot::Cartesian::lengthsq(atom_pos_3, atom_pos_4);
+            d = std::sqrt(dd);
+            if (d > 2.0)
+               status = 1;
+         } else {
+            std::cout << "failed to select atom " << spun_atom_spec << std::endl;
+         }
+      }
    }
    return status;
 }
@@ -4887,6 +4907,37 @@ int test_change_chain_id(molecules_container_t &mc) {
    return status;
 }
 
+int test_non_drawn_CA_bonds(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      int imol_frag = mc.copy_fragment_using_cid(imol, "//A/101-111");
+      mc.add_to_non_drawn_bonds(imol_frag, "//A/103-111");
+      std::string mode = "CA+LIGANDS";
+      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol_frag, "//A", mode, false, 0.2, 1.0, 1);
+      auto &geom = bonds.geom;
+      // should be size 2 of course, if we don't add the range to the non-drawn bond
+      // not 4
+      std::cout << ":::::::::::::::::::::::: bonds geom was of size " << geom.size() << std::endl;
+
+      if (geom.empty()) {
+         std::cout << "geom empty" << std::endl;
+      } else {
+         if (geom.size() == 4) { // should be 2!
+            const std::vector<coot::instancing_data_type_B_t> &idB = geom[0].instancing_data_B;
+            std::cout << "idB size " << idB.size() << std::endl;
+            // print the instancing data here. You should see a duplicate/reverse
+         }
+      }
+   }
+
+   return  status;
+}
+
 int test_17257(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
@@ -5227,7 +5278,13 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_change_chain_id, "change chain id",    mc);
 
-   status += run_test(test_17257, "read emd_17257.map.gz",    mc);
+   // status += run_test(test_non_drawn_CA_bonds, "non-drawn bonds in CA+LIGANDS", mc);
+
+   // status += run_test(test_17257, "read emd_17257.map.gz",    mc);
+
+   // status += run_test(test_get_diff_map_peasks, "get diff map peaks",    mc);
+
+   status += run_test(test_jed_flip, "jed flip",    mc); // duplicate
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

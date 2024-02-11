@@ -407,7 +407,7 @@ molecules_container_t::update_updating_maps(int imol) {
                                                        updating_maps_info.imol_2fofc,
                                                        updating_maps_info.imol_fofc,
                                                        updating_maps_info.imol_with_data_info_attached);
-                  // sfcalc_genmaps_using_bulk_solvent() setts latest_sfcalc_stats
+                  // sfcalc_genmaps_using_bulk_solvent() sets latest_sfcalc_stats
                   updating_maps_info.maps_need_an_update = false;
                }
             }
@@ -2370,6 +2370,7 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                                                          int imol_map_2fofc,  // this map should have the data attached.
                                                          int imol_map_fofc,
                                                          int imol_with_data_info_attached) {
+
    coot::util::sfcalc_genmap_stats_t stats;
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map_2fofc)) {
@@ -2418,7 +2419,7 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                         molecules[imol_map_fofc].updating_maps_previous_difference_map = xmap_fofc;
                         stats = molecules[imol_model].sfcalc_genmaps_using_bulk_solvent(*fobs_data_p, *free_flag_p, &xmap_2fofc, &xmap_fofc);
 
-                        { // diff differenc map peaks
+                        { // diff difference map peaks
                            float base_level = 0.2; // this might need to be computed from the rmsd.
                            const clipper::Xmap<float> &m1 = molecules[imol_map_fofc].updating_maps_previous_difference_map;
                            const clipper::Xmap<float> &m2 = xmap_fofc;
@@ -2443,7 +2444,7 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
    return stats;
 }
 
-//! @return a vector the position where the differenc map has been flattened.
+//! @return a vector the position where the difference map has been flattened.
 //! The associated float value is the ammount that the map has been flattened.
 std::vector<std::pair<clipper::Coord_orth, float> >
 molecules_container_t::get_diff_diff_map_peaks(int imol_map_fofc,

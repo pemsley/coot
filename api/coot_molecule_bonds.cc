@@ -1637,7 +1637,8 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
    const std::set<int> &no_bonds_to_these_atoms = no_bonds_to_these_atom_indices;
 
    if (mode == "CA+LIGANDS") {
-      Bond_lines_container bonds(geom);
+      bool do_bonds_to_hydrogens = false;
+      Bond_lines_container bonds(geom, "dummy-CA-mode", no_bonds_to_these_atom_indices, do_bonds_to_hydrogens);
       float min_dist = 2.4;
       float max_dist = 4.7;
       bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom, min_dist, max_dist, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);

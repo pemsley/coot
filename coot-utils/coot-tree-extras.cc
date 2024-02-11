@@ -239,11 +239,13 @@ coot::atom_tree_t::fill_name_map(const std::string &altconf) {
    for (int iat=0; iat<n_residue_atoms; iat++) {
       std::string atom_name(residue_atoms[iat]->name);
       std::string atom_altl = residue_atoms[iat]->altLoc;
-      if (0)
-         std::cout << "debug:: comparing altconf of this atom :" << atom_altl
+      if (false)
+         std::cout << "debug:: in fill_name_map(): comparing altconf of this atom :" << atom_altl
                    << ": to (passed arg) :" << altconf << ": or blank" << std::endl; 
-      if (atom_altl == "" || atom_altl == altconf)
+      if (atom_altl == "" || atom_altl == altconf) {
+         // std::cout << "assigning " << atom_name << " map_index_t of " << iat << std::endl;
          name_to_index[atom_name] = map_index_t(iat);
+      }
    }
 }
 
@@ -332,8 +334,9 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts_by_atom_selection(const s
                                                                          mmdb::PPAtom residue_atoms,
                                                                          int n_atoms,
                                                                          int base_atom_index) {
-   bool r = 0;
-   bool debug = 0;
+
+   bool r = false;
+   bool debug = false;
    coot::atom_vertex av;
    atom_vertex_vec.resize(n_atoms);
    av.connection_type = coot::atom_vertex::START;
@@ -681,7 +684,7 @@ coot::atom_tree_t::get_unique_moving_atom_indices(const std::string &atom1,
 
    std::vector<coot::map_index_t> unique_moving_atoms;
 
-   bool debug = 0;
+   bool debug = false;
    // OK, so when the user clicks atom2 then atom1 (as the middle 2
    // atoms), then they implictly want the fragment revsersed,
    // relative to the atom order internally.  In that case, set
@@ -689,7 +692,7 @@ coot::atom_tree_t::get_unique_moving_atom_indices(const std::string &atom1,
    // reversed_flag flag *is* set, do the reversal (if both are set
    // they cancel each other out).  Now we do not pre-reverse the
    // indices in the calling function. The reverse is done here.
-   bool internal_reversed = 0;
+   bool internal_reversed = false;
 
    if (debug)
       std::cout << "rotate_about() " << atom1 << " " << atom2 << std::endl;

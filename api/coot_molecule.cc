@@ -2526,11 +2526,13 @@ coot::molecule_t::jed_flip_internal(coot::atom_tree_t &tree,
       if (interesting_torsions.size() > 1) {
          // select the best torsion based on fragment size.
          for (unsigned int i=0; i<interesting_torsions.size(); i++) {
+
             std::string atn_1 = interesting_torsions[i].atom_id_2_4c();
             std::string atn_2 = interesting_torsions[i].atom_id_3_4c();
             bool reverse = false; // dummy value
 
             std::pair<unsigned int, unsigned int> p = tree.fragment_sizes(atn_1, atn_2, reverse);
+
             if (p.first < best_fragment_size) {
                best_fragment_size = p.first;
                selected_idx = i;
@@ -2650,6 +2652,8 @@ coot::molecule_t::jed_flip(coot::residue_spec_t &spec,
          std::cout << "WARNING:: atom \"" << atom_name << "\" not found in residue " << std::endl;
       } else {
 
+         // std::cout << "OK, found clicked atom " << atom_spec_t(clicked_atom) << std::endl;
+
          // make_backup(); // backup is done by jed_flip_internal
 
          std::string monomer_type = residue->GetResName();
@@ -2689,9 +2693,18 @@ coot::molecule_t::jed_flip(coot::residue_spec_t &spec,
                   residue_asc.atom_selection = residue_atoms;
                   residue_asc.mol = 0;
 
-                  coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, imol_no, geom);
-                  std::vector<std::vector<int> > contact_indices =
-                     contact.get_contact_indices_with_reverse_contacts();
+                  coot::contact_info contact = coot::getcontacts(residue_asc, alt_conf, monomer_type, imol_no, geom);
+                  std::vector<std::vector<int> > contact_indices = contact.get_contact_indices_with_reverse_contacts();
+
+                    if (false) {
+                       std::cout << " debug:: =========== in jed_flip() contact indices ======= " << std::endl;
+                       for (unsigned int ic1 = 0; ic1 < contact_indices.size(); ic1++) {
+                          std::cout << "in jed_flip(): index " << ic1 << " : ";
+                          for (unsigned int ic2 = 0; ic2 < contact_indices[ic1].size(); ic2++)
+                             std::cout << contact_indices[ic1][ic2] << " ";
+                          std::cout << std::endl;
+                       }
+                    }
 
                   try {
                      coot::atom_tree_t tree(contact_indices, clicked_atom_idx, residue, alt_conf);
@@ -2702,7 +2715,7 @@ coot::molecule_t::jed_flip(coot::residue_spec_t &spec,
                      
                   }
                   catch (const std::runtime_error &rte) {
-                     std::cout << "RUNTIME ERROR:: " << rte.what() << " - giving up" << std::endl;
+                     std::cout << "ERROR:: run-time-error " << rte.what() << " - giving up" << std::endl;
                   }
                   // make_bonds_type_checked(__FUNCTION__);
                }

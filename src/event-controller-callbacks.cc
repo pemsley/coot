@@ -783,6 +783,11 @@ graphics_info_t::on_glarea_motion(G_GNUC_UNUSED GtkEventControllerMotion* contro
 void
 graphics_info_t::change_model_molecule_representation_mode(int up_or_down) {
 
+   auto debug_line = [] (const std::string &m) {
+      if (false)
+         std::cout << m << std::endl;
+   };
+
    // enum { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
    //        COLOUR_BY_CHAIN_BONDS=3,
    //        CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
@@ -861,54 +866,66 @@ graphics_info_t::change_model_molecule_representation_mode(int up_or_down) {
       if (up_or_down == -1) {
          if (bond_type == coot::NORMAL_BONDS) {
             // graphics_to_colour_by_chain(imol);
+            debug_line("A");
             bool force_rebonding = false;
             molecules[imol].make_colour_by_chain_bonds(force_rebonding);
          }
          if (bond_type == coot::COLOUR_BY_CHAIN_BONDS) {
             // graphics_to_colour_by_molecule(imol);
             bool force_rebonding = false;
+            debug_line("B");
             molecules[imol].make_colour_by_molecule_bonds(force_rebonding);
          }
          if (bond_type == coot::COLOUR_BY_MOLECULE_BONDS) {
             // graphics_to_ca_representation(imol);
             bool force_rebonding = false;
+            debug_line("C");
             molecules[imol].ca_representation(force_rebonding);
          }
          if (bond_type == coot::CA_BONDS) {
             // graphics_to_ca_plus_ligands_representation(imol);
+            debug_line("D");
             bool force_rebonding = false;
             molecules[imol].ca_plus_ligands_representation(Geom_p(), force_rebonding);
          }
          if (bond_type == coot::CA_BONDS_PLUS_LIGANDS) {
             // graphics_to_ca_plus_ligands_sec_struct_representation(imol);
+            debug_line("E");
             molecules[imol].ca_plus_ligands_sec_struct_representation(Geom_p());
          }
          if (bond_type == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR) {
             // graphics_to_rainbow_representation(imol);
+            debug_line("F");
             molecules[imol].ca_plus_ligands_rainbow_representation(Geom_p());
          }
          if (bond_type == coot::COLOUR_BY_RAINBOW_BONDS) {
             // graphics_to_sec_struct_bonds_representation(imol);
+            debug_line("G");
             molecules[imol].bonds_sec_struct_representation();
          }
          if (bond_type == coot::BONDS_SEC_STRUCT_COLOUR) {
             // graphics_to_bonds_no_waters_representation(imol);
+            debug_line("H");
             molecules[imol].bonds_no_waters_representation();
          }
          if (bond_type == coot::BONDS_NO_WATERS) {
             //graphics_to_b_factor_cas_representation(imol);
+            debug_line("I");
             molecules[imol].b_factor_representation_as_cas();
          }
          if (bond_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
             // graphics_to_b_factor_representation(imol);
+            debug_line("J");
             molecules[imol].b_factor_representation();
          }
          if (bond_type == coot::COLOUR_BY_B_FACTOR_BONDS) {
             // graphics_to_occupancy_representation(imol);
+            debug_line("K");
             molecules[imol].occupancy_representation();
          }
          if (bond_type == coot::COLOUR_BY_OCCUPANCY_BONDS) {
             // graphics_to_bonds_representation(imol);
+            debug_line("L");
             bool force_rebonding = false;
             molecules[imol].bond_representation(Geom_p(), force_rebonding);
          }

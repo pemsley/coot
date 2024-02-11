@@ -1414,6 +1414,9 @@ coot::molecule_t::get_updating_maps_diff_diff_map_peaks(const clipper::Coord_ort
 
    clipper::Spacegroup sg = xmap.spacegroup();
    clipper::Cell cell = xmap.cell();
+   if (false)
+      std::cout << "debug:: in get_updating_maps_diff_diff_map_peaks() updating_maps_diff_diff_map_peaks"
+                << " has size " << updating_maps_diff_diff_map_peaks.size() << std::endl;
    std::vector<std::pair<clipper::Coord_orth, float> > v2 =
       coot::move_peaks_to_around_position(screen_centre, sg, cell, updating_maps_diff_diff_map_peaks);
 

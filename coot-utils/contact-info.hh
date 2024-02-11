@@ -31,29 +31,9 @@ namespace coot {
 
   public:
     std::vector<contacts_pair> contacts;
-    contact_info(mmdb::Contact *con_in, int nc) {
-      for (int i=0; i<nc; i++) { 
-	contacts.push_back(contacts_pair(con_in[i].id1, con_in[i].id2));
-      }
-    }
-    contact_info(mmdb::PPAtom atom_selection, mmdb::Contact *con_in, int nc) {
-      setup_atom_radii();
-      for (int i=0; i<nc; i++) { 
-	mmdb::Atom *at_1 = atom_selection[con_in[i].id1];
-	mmdb::Atom *at_2 = atom_selection[con_in[i].id2];
-	std::string ele_1 = at_1->element;
-	std::string ele_2 = at_2->element;
-	mmdb::realtype dx = at_1->x - at_2->x;
-	mmdb::realtype dy = at_1->y - at_2->y;
-	mmdb::realtype dz = at_1->z - at_2->z;
-	mmdb::realtype dist_2 = dx*dx + dy*dy + dz*dz;
-	mmdb::realtype dist = sqrt(dist_2);
-	mmdb::realtype r1 = get_radius(ele_1);
-	mmdb::realtype r2 = get_radius(ele_2);
-	if (dist < (r1 + r2 + 0.1))
-	  contacts.push_back(contacts_pair(con_in[i].id1, con_in[i].id2));
-      }
-    }
+    contact_info(mmdb::Contact *con_in, int nc);
+    contact_info(mmdb::PPAtom atom_selection, mmdb::Contact *con_in, int nc);
+
     // This contact_info constructor does not take the alt conf(s) into
     // account.  That is becuase (in the current scenario) the alt conf
     // selection has already taken place before we get here.  If you want
@@ -61,6 +41,13 @@ namespace coot {
     // constructor.
     //
     contact_info(const atom_selection_container_t &asc,
+		 const std::string &monomer_type,
+		 int imol,
+		 protein_geometry *geom_p);
+
+    // as above, exect thid *does* take an alt-conf
+    contact_info(const atom_selection_container_t &asc,
+                 const std::string &alt_conf,
 		 const std::string &monomer_type,
 		 int imol,
 		 protein_geometry *geom_p);
@@ -105,6 +92,11 @@ namespace coot {
 
   contact_info getcontacts(const atom_selection_container_t &asc); 
   contact_info getcontacts(const atom_selection_container_t &asc, 
+			   const std::string &monomer_type, int imol,
+			   protein_geometry *geom_p);
+  // as above except we specify the alt-conf of the atoms in asc
+  contact_info getcontacts(const atom_selection_container_t &asc,
+                           const std::string &alt_conf,
 			   const std::string &monomer_type, int imol,
 			   protein_geometry *geom_p); 
 
