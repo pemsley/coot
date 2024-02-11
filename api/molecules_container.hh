@@ -1443,7 +1443,10 @@ public:
    //! Call this function after connecting maps for updating maps to set the initial R-factor
    //! and store the initial map flatness.
    //!
-   //! @return a class of interesting statistics
+   //! @return a class of interesting statistics.
+   //!
+   //! On failure to calculate SFS and generate the maps the returned r_factor
+   //! in the returned stats will be set to -1.
    coot::util::sfcalc_genmap_stats_t
    sfcalc_genmaps_using_bulk_solvent(int imol_model,
                                      int imol_2fofc_map,
