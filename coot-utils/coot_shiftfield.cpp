@@ -18,20 +18,28 @@ coot::shift_field_b_factor_refinement(const clipper::HKL_data< clipper::datatype
   int n_refln = 1000;
   int n_param = 10;
 
+  std::cout << "in coot::shift_field_b_factor_refinement A " << mol << std::endl;
+
   typedef clipper::HKL_data_base::HKL_reference_index HRI;
+  std::cout << "in coot::shift_field_b_factor_refinement B " << std::endl;
   clipper::Spacegroup spgr0 = fo0.spacegroup();
+  std::cout << "in coot::shift_field_b_factor_refinement C " << std::endl;
   clipper::Cell       cell  = fo0.cell();
   clipper::Resolution reso  = fo0.resolution();
   double rcyc = reso.limit();
+  std::cout << "in coot::shift_field_b_factor_refinement D " << std::endl;
 
   // get a list of all the atoms
   clipper::MMDBfile* mfile = static_cast<clipper::MMDBfile*>(mol);
+  std::cout << "in coot::shift_field_b_factor_refinement E " << std::endl;
   clipper::MiniMol mmol;
+  std::cout << "in coot::shift_field_b_factor_refinement F " << std::endl;
   mfile->import_minimol( mmol );
+  std::cout << "in coot::shift_field_b_factor_refinement G " << std::endl;
 
   for ( int cyc = 0; cyc < ncyc; cyc++ ) {
     double radcyc = radscl * rcyc;
-    std::cout << std::endl << "Cycle: " << cyc+1 << "  Resolution: " << rcyc << "  Radius: " << radcyc << std::endl;
+    std::cout << std::endl << "Shiftfield Cycle: " << cyc+1 << "  Resolution: " << rcyc << "  Radius: " << radcyc << std::endl;
 
     // truncate resolution
     clipper::Resolution rescyc( rcyc );
