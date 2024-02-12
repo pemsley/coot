@@ -4979,32 +4979,43 @@ int test_shiftfield_b_factor_refinement(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
+   mc.set_use_gemmi(false); // 20240211-PE crash if set_use_gemmi(true) (the default).
    int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
-   mc.set_imol_refinement_map(imol_map);
+   int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
    mc.associate_data_mtz_file_with_map(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "FP", "SIGFP", "FREE");
+   mc.set_imol_refinement_map(imol_map);
+
+   // int imol     = mc.read_pdb(reference_data("tutorial-modern.pdb"));
+   // int imol_map = mc.read_mtz(reference_data("rnasa-1.8-all_refmac1.mtz"), "FWT", "PHWT", "W", false, false);
+   // int imol_diff_map = mc.read_mtz(reference_data("rnasa-1.8-all_refmac1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
+   // mc.associate_data_mtz_file_with_map(imol_map, reference_data("rnasa-1.8-all_refmac1.mtz"), "FGMP18", "SIGFGMP18", "FreeR_flag");
+   // mc.set_imol_refinement_map(imol_map);
 
    if (mc.is_valid_model_molecule(imol)) {
-      std::cout << "Here A" << std::endl;
-      std::cout << "Here B1" << std::endl;
       coot::residue_spec_t res_spec_1("A", 10, "");
-      coot::residue_spec_t res_spec_2("A", 56, "");
-      std::cout << "Here B2" << std::endl;
+      coot::residue_spec_t res_spec_2("A", 66, "");
       mmdb::Residue *r_1 = mc.get_residue(imol, res_spec_1);
       mmdb::Residue *r_2 = mc.get_residue(imol, res_spec_2);
       // set up some weird B-factors on some atoms
       float b_orig_1 = get_average_b_factor(r_1);
       float b_orig_2 = get_average_b_factor(r_2);
-      mc.multiply_residue_temperature_factors(imol, "//A/3-13",  4.0);
-      mc.multiply_residue_temperature_factors(imol, "//A/53-59", 0.2);
+      mc.multiply_residue_temperature_factors(imol, "//A/3-13",  2.0);
+      mc.multiply_residue_temperature_factors(imol, "//A/63-69", 0.2);
       float b_pre_1 = get_average_b_factor(r_1);
       float b_pre_2 = get_average_b_factor(r_2);
-      std::cout << "Here C" << std::endl;
-      mc.shift_field_b_factor_refinement(imol, imol_map);
-      std::cout << "Here D" << std::endl;
-      float b_post_1 = get_average_b_factor(r_1);
-      float b_post_2 = get_average_b_factor(r_2);
-      std::cout << "B-factors " << b_pre_1 << " " << b_pre_2 << " post " << b_post_1 << " " << b_post_2 << std::endl;
+      bool shiftfield_status = mc.shift_field_b_factor_refinement(imol, imol_map);
+      if (shiftfield_status) {
+         auto stats = mc.sfcalc_genmaps_using_bulk_solvent(imol, imol_map, imol_diff_map, imol_map);
+         std::cout << "DEBUG:: in test_shiftfield_b_factor_refinement() with r-factor " << stats.r_factor << std::endl;
+         float b_post_1 = get_average_b_factor(r_1);
+         float b_post_2 = get_average_b_factor(r_2);
+         std::cout << "B-factors: orig " << b_orig_1 << " " << b_orig_2
+                   << " " << b_pre_1 << " " << b_pre_2 << " post " << b_post_1 << " " << b_post_2 << std::endl;
+         if (b_post_1 < 66.0)
+            if (b_post_2 > 12.0)
+               status = 1;
+      }
    }
    return status;
 }
