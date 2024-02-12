@@ -196,7 +196,7 @@ coot::molecule_t::add_to_non_drawn_bonds(const std::string &atom_selection_cid) 
          for (const auto &cid : v) {
             mmdb::Atom **SelAtoms;
             int nSelAtoms = 0;
-            atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+            atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
             atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
             if (nSelAtoms > 0) {
                for(int iat=0; iat<nSelAtoms; iat++) {
