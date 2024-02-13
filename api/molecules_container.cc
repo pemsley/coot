@@ -1763,6 +1763,17 @@ molecules_container_t::clear_non_drawn_bonds(int imol) {
    }
 }
 
+
+void
+molecules_container_t::print_non_drawn_bonds(int imol) const {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].print_non_drawn_bonds();
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
 //! @return an ``instanced_mesh_t``
 coot::instanced_mesh_t
 molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mode,

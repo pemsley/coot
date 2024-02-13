@@ -654,6 +654,8 @@ public:
    //! clear the set of non-drawn atoms (so that they can be displayed again)
    void clear_non_drawn_bonds(int imol);
 
+   void print_non_drawn_bonds(int imol) const;
+
    //! user-defined colour-index to colour
    void set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 3> > &colour_map);
 
@@ -672,7 +674,6 @@ public:
 
    //! delete the colour rules for the given molecule
    void delete_colour_rules(int imol);
-
    //! get the colour rules
    std::vector<std::pair<std::string, std::string> > get_colour_rules(int imol) const;
 

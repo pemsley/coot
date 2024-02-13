@@ -621,6 +621,8 @@ namespace coot {
 
       void clear_non_drawn_bonds() { no_bonds_to_these_atom_indices.clear(); }
 
+      void print_non_drawn_bonds() const;
+
       void fill_default_colour_rules(); // assign colours to chains.
 
       //! If any colour rule has been set for this molecule, then we will use these

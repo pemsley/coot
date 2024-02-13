@@ -190,13 +190,13 @@ coot::molecule_t::add_to_non_drawn_bonds(const std::string &atom_selection_cid) 
    if (atom_sel.mol) {
       int atom_index_udd_handle = atom_sel.UDDAtomIndexHandle;
       std::set<mmdb::Residue *> selected_residues;
-      int selHnd = atom_sel.mol->NewSelection(); // d
       std::vector<std::string> v = coot::util::split_string(atom_selection_cid, "||");
       if (! v.empty()) {
          for (const auto &cid : v) {
+            int selHnd = atom_sel.mol->NewSelection(); // d
             mmdb::Atom **SelAtoms;
             int nSelAtoms = 0;
-            atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
+            atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
             atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
             if (nSelAtoms > 0) {
                for(int iat=0; iat<nSelAtoms; iat++) {
@@ -204,13 +204,14 @@ coot::molecule_t::add_to_non_drawn_bonds(const std::string &atom_selection_cid) 
                   selected_residues.insert(at->residue);
                }
             }
+            atom_sel.mol->DeleteSelection(selHnd);
          }
       }
 
       std::set<mmdb::Residue *>::const_iterator it;
       for (it=selected_residues.begin(); it!=selected_residues.end(); ++it) {
          mmdb::Residue *residue_p = *it;
-         mmdb::Atom **residue_atoms = 0;
+         mmdb::Atom **residue_atoms = nullptr;
          int n_residue_atoms = 0;
          residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
          for (int iat=0; iat<n_residue_atoms; iat++) {
@@ -225,12 +226,30 @@ coot::molecule_t::add_to_non_drawn_bonds(const std::string &atom_selection_cid) 
          }
       }
 
-      atom_sel.mol->DeleteSelection(selHnd);
    }
    if (false)
       std::cout << "add_to_non_drawn_bonds() no_bonds_to_these_atom_indices now has size "
                 << no_bonds_to_these_atom_indices.size() << std::endl;
 }
+
+void
+coot::molecule_t::print_non_drawn_bonds() const {
+
+   std::set<int>::const_iterator it;
+   std::cout << "----------- no bonds to these atoms table: " << std::endl;
+   for (it=no_bonds_to_these_atom_indices.begin(); it!=no_bonds_to_these_atom_indices.end(); ++it) {
+      int i = *it;
+      if (i >= 0) {
+         if (i < atom_sel.n_selected_atoms) {
+            mmdb:: Atom *at = atom_sel.atom_selection[i];
+            std::cout << "  " << i << "  " << coot::atom_spec_t(at) << std::endl;
+         } else {
+            std::cout << "ERROR:: atom index " << i << " out of range" << std::endl;
+         }
+      }
+   }
+}
+
 
 
 // public - because currently making bonds is not done on molecule construction
