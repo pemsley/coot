@@ -7,6 +7,7 @@ AM_CPPFLAGS = \
 	$(LIBSSM_CXXFLAGS)                  \
 	$(CLIPPER_CXXFLAGS)                 \
 	$(MMDB_CXXFLAGS)                    \
+	$(GEMMI_CXXFLAGS)                   \
 	$(PYTHON_CPPFLAGS)                  \
 	$(CAIRO_CFLAGS)                     \
 	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS) \
