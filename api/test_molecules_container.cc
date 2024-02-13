@@ -3802,7 +3802,6 @@ int test_map_centre(molecules_container_t &mc) {
    std::cout << "in test_map_centre() imol_map is " << imol_map << std::endl;
    coot::util::map_molecule_centre_info_t mci = mc.get_map_molecule_centre(imol_map);
    std::cout << "new centre: " << mci.updated_centre.format() << std::endl;
-
    if (mci.success == true) {
       std::cout << "map centre success " << std::endl;
       if (mci.updated_centre.x() > 10.0)
@@ -5321,13 +5320,11 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_add_terminal_residue_v2, "test add terminal residue v2", mc);
 
-<<<<<<< HEAD
    // status += run_test(test_auto_read_mtz, "test ------ ", mc);
    // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
 
    status += run_test(test_write_map_is_sane, "write map is sane",    mc);
 
-=======
    // status += run_test(test_auto_read_mtz, "test auto_read_mtz", mc);
 
    // status += run_test(test_replace_fragment, "replace fragment",         mc);
