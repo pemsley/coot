@@ -26,7 +26,18 @@ moorhen: void atom in mmdb mmcif output.
 
 moorhen: search monomer library for ARG with methyl (for example)
 
-libcootapi: bundle the reference structures into the source code.
+libcootapi: estimate the molecule radius - using the distance between 1000 (say) random atom pairs.
+* Done.
+
+libcootapi: Add merge fragments (low priority)
+
+libcootapi: add a mc function to set_rotamer_tables_compressed_data()
+
+libcootapi: (?) bundle the reference structures into the source code.
+
+libcootapi: fix the oversized MG atoms in Goodsell mode 1ttt
+
+libcootapi: can set_user_defined_bond_colours be passed RGBA values?
 
 libcootapi: add label_seq_id etc for the residue added in add_terminal_residue
 
@@ -49,6 +60,14 @@ moorhen: SMILES: nitrobezene svg ligand rep - charge position size offset of the
 
 libcootapi:
   get rid of #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY in add-terminal-residue.cc
+
+Coot: on ligand fitting, use conformers and get "no ligands selected" dialog
+
+Coot: colour-by-molecule has big atoms - why? Fix.
+
+Coot: Fitting ligands "Installing Ligand Conformers" dialog should be an overlay
+
+Coot: on fitting ligands, I get a dialog "WARNING:: No ligands were selected"
 
 Coot: Fix this in pyrogen Makefile:
       SWIG_FLAGS = -DSWIG -DCOOT_USE_GTK2_INTERFACE

@@ -407,7 +407,7 @@ molecules_container_t::update_updating_maps(int imol) {
                                                        updating_maps_info.imol_2fofc,
                                                        updating_maps_info.imol_fofc,
                                                        updating_maps_info.imol_with_data_info_attached);
-                  // sfcalc_genmaps_using_bulk_solvent() setts latest_sfcalc_stats
+                  // sfcalc_genmaps_using_bulk_solvent() sets latest_sfcalc_stats
                   updating_maps_info.maps_need_an_update = false;
                }
             }
@@ -831,38 +831,37 @@ molecules_container_t::valid_labels(const std::string &mtz_file_name, const std:
    for (unsigned int i=0; i<r.f_cols.size(); i++) {
       std::pair<std::string, std::string> p = coot::util::split_string_on_last_slash(r.f_cols[i].column_label);
       if (p.second.length() > 0)
-	 if (p.second == f_col_str) {
-	    have_f = 1;
-	    break;
-	 }
+         if (p.second == f_col_str) {
+            have_f = 1;
+            break;
+         }
    }
    for (unsigned int i=0; i<r.phi_cols.size(); i++) {
       std::pair<std::string, std::string> p = coot::util::split_string_on_last_slash(r.phi_cols[i].column_label);
       if (p.second.length() > 0)
-	 if (p.second == phi_col_str) {
-	    have_phi = 1;
-	    break;
-	 }
+	      if (p.second == phi_col_str) {
+	         have_phi = 1;
+	         break;
+	      }
    }
    if (use_weights) {
       for (unsigned int i=0; i<r.weight_cols.size(); i++) {
-	 std::pair<std::string, std::string> p = coot::util::split_string_on_last_slash(r.weight_cols[i].column_label);
-	 if (p.second.length() > 0)
-	    if (p.second == weight_col_str) {
-	       have_weight = 1;
-	       break;
-	    }
+	      std::pair<std::string, std::string> p = coot::util::split_string_on_last_slash(r.weight_cols[i].column_label);
+	      if (p.second.length() > 0)
+	         if (p.second == weight_col_str) {
+	            have_weight = 1;
+	            break;
+	         }
       }
    }
-
 
    // Now check the MTZ column labels that *do* have a slash
    if (r.f_cols.size() > 0) {
       for (unsigned int i=0; i< r.f_cols.size(); i++) {
-	 if (f_col_str == r.f_cols[i].column_label) {
-	    have_f = 1;
-	    break;
-	 }
+	      if (f_col_str == r.f_cols[i].column_label) {
+	         have_f = 1;
+	         break;
+	      }
       }
    } else {
       std::cout << "ERROR: no f_cols! " << std::endl;
@@ -1058,7 +1057,7 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
          std::cout << "::::: read_ccp4_map() returns false for is_basic_em_map_file() " << std::endl;
       }
    }
-   
+
 
    if (coot::util::is_basic_em_map_file(file_name)) {
 
@@ -1078,15 +1077,17 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
       }
    }
 
-   short int em_status = molecules[imol].is_EM_map();
-   if (false) {
-      std::cout << "here with imol " << imol << " molecules size " << molecules.size() << std::endl;
-      std::cout << "here with imol " << imol << " done " << done << std::endl;
-      std::cout << "here with imol " << imol << " is_em_map:  " << em_status << std::endl;
+   if (true) {
+      if (is_valid_map_molecule(imol)) {
+         short int em_status = molecules[imol].is_EM_map();
+         std::cout << "here with imol " << imol << " molecules size " << molecules.size() << std::endl;
+         std::cout << "here with imol " << imol << " done " << done << std::endl;
+         std::cout << "here with imol " << imol << " is_em_map:  " << em_status << std::endl;
+      }
    }
 
    if (! done) {
-      // std::cout << "INFO:: attempting to read CCP4 map: " << file_name << std::endl;
+      std::cout << "INFO:: attempting to read CCP4 map: " << file_name << " via non-slurp method" << std::endl;
       // clipper::CCP4MAPfile file;
       clipper_map_file_wrapper w_file;
       try {
@@ -1129,6 +1130,7 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
       } catch (const clipper::Message_base &exc) {
          std::cout << "WARNING:: failed to open " << file_name << std::endl;
          // bad_read = true;
+         imol = -3; // clipper error
       }
    }
    return imol;
@@ -1761,6 +1763,17 @@ molecules_container_t::clear_non_drawn_bonds(int imol) {
    }
 }
 
+
+void
+molecules_container_t::print_non_drawn_bonds(int imol) const {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].print_non_drawn_bonds();
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
 //! @return an ``instanced_mesh_t``
 coot::instanced_mesh_t
 molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mode,
@@ -1782,15 +1795,14 @@ molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mod
       im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, against_a_dark_background, bond_width, atom_radius_to_bond_width_ratio,
                                                     smoothness_factor, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
    } else {
-      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
    if (show_timings) {
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      // std::cout << "---------- timings: for get_bonds_mesh_instanced(): : " << d10 << " milliseconds " << std::endl;
+      std::cout << "---------- timings: for get_bonds_mesh_instanced(): : " << d10 << " milliseconds " << std::endl;
    }
 
-   // std::cout << " ==================================== get_bonds_mesh_instanced() done" << std::endl;
    return im;
 }
 
@@ -2369,6 +2381,7 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                                                          int imol_map_2fofc,  // this map should have the data attached.
                                                          int imol_map_fofc,
                                                          int imol_with_data_info_attached) {
+
    coot::util::sfcalc_genmap_stats_t stats;
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map_2fofc)) {
@@ -2417,7 +2430,7 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                         molecules[imol_map_fofc].updating_maps_previous_difference_map = xmap_fofc;
                         stats = molecules[imol_model].sfcalc_genmaps_using_bulk_solvent(*fobs_data_p, *free_flag_p, &xmap_2fofc, &xmap_fofc);
 
-                        { // diff differenc map peaks
+                        { // diff difference map peaks
                            float base_level = 0.2; // this might need to be computed from the rmsd.
                            const clipper::Xmap<float> &m1 = molecules[imol_map_fofc].updating_maps_previous_difference_map;
                            const clipper::Xmap<float> &m2 = xmap_fofc;
@@ -2442,7 +2455,34 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
    return stats;
 }
 
-//! @return a vector the position where the differenc map has been flattened.
+//! shift_field B-factor refinement
+//! @return success status
+bool
+molecules_container_t::shift_field_b_factor_refinement(int imol, int imol_with_data_attached) {
+
+   bool status = false;
+   int imol_map = imol_with_data_attached;
+   try {
+      if (is_valid_model_molecule(imol)) {
+         if (is_valid_map_molecule(imol_map)) {
+            molecules[imol_map].fill_fobs_sigfobs();
+            const clipper::HKL_data<clipper::data32::F_sigF> *fobs_data = molecules[imol_map].get_original_fobs_sigfobs();
+            const clipper::HKL_data<clipper::data32::Flag>  *rfree_flag = molecules[imol_map].get_original_rfree_flags();
+            std::cout << "debug:: fobs_data" << fobs_data << " rfree " << rfree_flag << std::endl;
+            if (fobs_data && rfree_flag) {
+               std::cout << "OK go with refinement of molecule " << imol << std::endl;
+               status = molecules[imol].shiftfield_b_factor_refinement(*fobs_data, *rfree_flag);
+            }
+         }
+      }
+   }
+   catch(const std::runtime_error& rte) {
+      std::cerr << rte.what() << '\n';
+   }
+   return status;
+}
+
+//! @return a vector the position where the difference map has been flattened.
 //! The associated float value is the ammount that the map has been flattened.
 std::vector<std::pair<clipper::Coord_orth, float> >
 molecules_container_t::get_diff_diff_map_peaks(int imol_map_fofc,
@@ -5123,4 +5163,70 @@ molecules_container_t::get_residue_name(int imol, const std::string &chain_id, i
    return n;
 
 
+}
+
+
+//! @return an estimate of the diameter of the model molecule (-1 on failure)
+float
+molecules_container_t::get_molecule_diameter(int imol) const {
+
+   float r = -1;
+   if (is_valid_model_molecule(imol)) {
+      r = molecules[imol].get_molecule_diameter();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return r;
+
+
+}
+
+
+
+//! the caller has access to a compressed file that contains the rotamer probabilities.
+//! libcootapi will fill the rotamer probabilities tables from this compressed data stream.
+//! (placeholder only)
+void
+molecules_container_t::accept_rotamer_probability_tables_compressed_data(const std::string &data_stream) {
+
+   // now do something with that data stread - it need not be written to disk
+
+   // uncompress it first
+
+}
+
+
+//! Interactive B-factor refinement (fun).
+//! "factor" might typically be say 0.9 or 1.1
+void
+molecules_container_t::multiply_residue_temperature_factors(int imol, const std::string &cid, float factor) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].multiply_residue_temperature_factors(cid, factor);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+}
+
+
+//! change the chain id
+//! @return -1 on a conflict
+//! 1 on good.
+//! 0 on did nothing
+//! return also an information/error message
+std::pair<int, std::string>
+molecules_container_t::change_chain_id(int imol,
+                                       const std::string &from_chain_id,
+                                       const std::string &to_chain_id,
+                                       bool use_resno_range,
+                                       int start_resno, int end_resno) {
+
+   std::pair<int, std::string> status(0, "");
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].change_chain_id(from_chain_id, to_chain_id, use_resno_range, start_resno, end_resno);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
 }

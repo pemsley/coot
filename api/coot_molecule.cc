@@ -58,7 +58,7 @@ coot::molecule_t::cid_to_atom(const std::string &cid) const {
    mmdb::Atom *atom_p = 0;
    if (atom_sel.mol) {
       int selHnd = atom_sel.mol->NewSelection(); // d
-      mmdb::Atom **SelAtoms;
+      mmdb::Atom **SelAtoms = nullptr;
       int nSelAtoms = 0;
       atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
       atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
@@ -274,6 +274,19 @@ coot::molecule_t::get_number_of_hydrogen_atoms() const {
    }
    return n;
 }
+
+#include "coot-utils/atom-selection-container.hh"
+
+float
+coot::molecule_t::get_molecule_diameter() const {
+
+   float f = -1;
+   if (atom_sel.mol) {
+      f = coot::get_molecule_diameter(atom_sel);
+   }
+   return f;
+}
+
 
 
 std::string
@@ -2513,11 +2526,13 @@ coot::molecule_t::jed_flip_internal(coot::atom_tree_t &tree,
       if (interesting_torsions.size() > 1) {
          // select the best torsion based on fragment size.
          for (unsigned int i=0; i<interesting_torsions.size(); i++) {
+
             std::string atn_1 = interesting_torsions[i].atom_id_2_4c();
             std::string atn_2 = interesting_torsions[i].atom_id_3_4c();
             bool reverse = false; // dummy value
 
             std::pair<unsigned int, unsigned int> p = tree.fragment_sizes(atn_1, atn_2, reverse);
+
             if (p.first < best_fragment_size) {
                best_fragment_size = p.first;
                selected_idx = i;
@@ -2637,6 +2652,8 @@ coot::molecule_t::jed_flip(coot::residue_spec_t &spec,
          std::cout << "WARNING:: atom \"" << atom_name << "\" not found in residue " << std::endl;
       } else {
 
+         // std::cout << "OK, found clicked atom " << atom_spec_t(clicked_atom) << std::endl;
+
          // make_backup(); // backup is done by jed_flip_internal
 
          std::string monomer_type = residue->GetResName();
@@ -2676,9 +2693,18 @@ coot::molecule_t::jed_flip(coot::residue_spec_t &spec,
                   residue_asc.atom_selection = residue_atoms;
                   residue_asc.mol = 0;
 
-                  coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, imol_no, geom);
-                  std::vector<std::vector<int> > contact_indices =
-                     contact.get_contact_indices_with_reverse_contacts();
+                  coot::contact_info contact = coot::getcontacts(residue_asc, alt_conf, monomer_type, imol_no, geom);
+                  std::vector<std::vector<int> > contact_indices = contact.get_contact_indices_with_reverse_contacts();
+
+                    if (false) {
+                       std::cout << " debug:: =========== in jed_flip() contact indices ======= " << std::endl;
+                       for (unsigned int ic1 = 0; ic1 < contact_indices.size(); ic1++) {
+                          std::cout << "in jed_flip(): index " << ic1 << " : ";
+                          for (unsigned int ic2 = 0; ic2 < contact_indices[ic1].size(); ic2++)
+                             std::cout << contact_indices[ic1][ic2] << " ";
+                          std::cout << std::endl;
+                       }
+                    }
 
                   try {
                      coot::atom_tree_t tree(contact_indices, clicked_atom_idx, residue, alt_conf);
@@ -2689,7 +2715,7 @@ coot::molecule_t::jed_flip(coot::residue_spec_t &spec,
                      
                   }
                   catch (const std::runtime_error &rte) {
-                     std::cout << "RUNTIME ERROR:: " << rte.what() << " - giving up" << std::endl;
+                     std::cout << "ERROR:: run-time-error " << rte.what() << " - giving up" << std::endl;
                   }
                   // make_bonds_type_checked(__FUNCTION__);
                }
@@ -4236,4 +4262,29 @@ coot::molecule_t::export_model_molecule_as_gltf(const std::string &mode,
    sm.export_to_gltf(file_name, as_binary);
 
 }
+
+//! Interactive B-factor refinement (fun).
+//! "factor" might typically be say 0.9 or 1.1
+void
+coot::molecule_t::multiply_residue_temperature_factors(const std::string &cid, float factor) {
+
+   if (atom_sel.mol) {
+      int selHnd = atom_sel.mol->NewSelection(); // d
+      mmdb::Atom **SelAtoms = nullptr;
+      int nSelAtoms = 0;
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+      atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+      if (nSelAtoms > 0) {
+         for (int i=0; i<nSelAtoms; i++) {
+            mmdb:: Atom *at = SelAtoms[i];
+            if (! at->isTer()) {
+               float new_B = at->tempFactor * factor;
+               at->tempFactor = new_B;
+            }
+         }
+      }
+      atom_sel.mol->DeleteSelection(selHnd);
+   }
+}
+
 

@@ -879,7 +879,9 @@ coot::protein_geometry::get_monomer_torsions_from_geometry(const std::string &mo
       } else {
 	 // we don't want torsions that move Hydrogens
 	 int nt = dict_res_restraints[ii].second.torsion_restraint.size();
-	 for (int it=0; it<nt; it++) { 
+	 for (int it=0; it<nt; it++) {
+            // std::cout << "testing for hydrogen: this \"" << dict_res_restraints[ii].second << "\" and this \""
+            //           << dict_res_restraints[ii].second << std::endl;
 	    if (!dict_res_restraints[ii].second.is_hydrogen(dict_res_restraints[ii].second.torsion_restraint[it].atom_id_1())) {
 	       if (!dict_res_restraints[ii].second.is_hydrogen(dict_res_restraints[ii].second.torsion_restraint[it].atom_id_4())) {
 		  filtered_torsion_restraints.push_back(dict_res_restraints[ii].second.torsion_restraint[it]);

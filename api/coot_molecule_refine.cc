@@ -276,16 +276,12 @@ coot::molecule_t::add_parallel_plane_restraint(coot::residue_spec_t spec_1,
 
 }
 
-
-
 // which uses:
 std::vector<std::string>
 coot::molecule_t::nucelotide_residue_name_to_base_atom_names(const std::string &rn) const {
 
    std::vector<std::string> v;
-
    return v;
-      
 }
 
 
@@ -294,7 +290,6 @@ std::vector<std::string>
 coot::molecule_t::residue_name_to_plane_atom_names(const std::string &rn) const {
 
    std::vector<std::string> v;
-
    return v;
 }
 
@@ -323,4 +318,17 @@ coot::molecule_t::read_extra_restraints(const std::string &file_name) {
 }
 
 
+#include "coot-utils/coot_shiftfield.h"
 
+bool
+coot::molecule_t::shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                                 const clipper::HKL_data<clipper::data32::Flag> &free) {
+   bool status = false;
+   if (atom_sel.mol) {
+      int n_cycles = 3;
+      std::cout << "calling coot::shift_field_b_factor_refinement()" << std::endl;
+      coot::shift_field_b_factor_refinement(fobs, free, atom_sel.mol, n_cycles);
+      status = true;
+   }
+   return status;
+}

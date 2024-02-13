@@ -189,23 +189,29 @@ coot::molecule_t::add_to_non_drawn_bonds(const std::string &atom_selection_cid) 
 
    if (atom_sel.mol) {
       int atom_index_udd_handle = atom_sel.UDDAtomIndexHandle;
-      int selHnd = atom_sel.mol->NewSelection(); // d
-      mmdb::Atom **SelAtoms;
-      int nSelAtoms = 0;
-      atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
-      atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
       std::set<mmdb::Residue *> selected_residues;
-      if (nSelAtoms > 0) {
-         for(int iat=0; iat<nSelAtoms; iat++) {
-            mmdb:: Atom *at = SelAtoms[iat];
-            selected_residues.insert(at->residue);
+      std::vector<std::string> v = coot::util::split_string(atom_selection_cid, "||");
+      if (! v.empty()) {
+         for (const auto &cid : v) {
+            int selHnd = atom_sel.mol->NewSelection(); // d
+            mmdb::Atom **SelAtoms;
+            int nSelAtoms = 0;
+            atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+            atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+            if (nSelAtoms > 0) {
+               for(int iat=0; iat<nSelAtoms; iat++) {
+                  mmdb:: Atom *at = SelAtoms[iat];
+                  selected_residues.insert(at->residue);
+               }
+            }
+            atom_sel.mol->DeleteSelection(selHnd);
          }
       }
 
       std::set<mmdb::Residue *>::const_iterator it;
       for (it=selected_residues.begin(); it!=selected_residues.end(); ++it) {
          mmdb::Residue *residue_p = *it;
-         mmdb::Atom **residue_atoms = 0;
+         mmdb::Atom **residue_atoms = nullptr;
          int n_residue_atoms = 0;
          residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
          for (int iat=0; iat<n_residue_atoms; iat++) {
@@ -220,12 +226,30 @@ coot::molecule_t::add_to_non_drawn_bonds(const std::string &atom_selection_cid) 
          }
       }
 
-      atom_sel.mol->DeleteSelection(selHnd);
    }
    if (false)
       std::cout << "add_to_non_drawn_bonds() no_bonds_to_these_atom_indices now has size "
                 << no_bonds_to_these_atom_indices.size() << std::endl;
 }
+
+void
+coot::molecule_t::print_non_drawn_bonds() const {
+
+   std::set<int>::const_iterator it;
+   std::cout << "----------- no bonds to these atoms table: " << std::endl;
+   for (it=no_bonds_to_these_atom_indices.begin(); it!=no_bonds_to_these_atom_indices.end(); ++it) {
+      int i = *it;
+      if (i >= 0) {
+         if (i < atom_sel.n_selected_atoms) {
+            mmdb:: Atom *at = atom_sel.atom_selection[i];
+            std::cout << "  " << i << "  " << coot::atom_spec_t(at) << std::endl;
+         } else {
+            std::cout << "ERROR:: atom index " << i << " out of range" << std::endl;
+         }
+      }
+   }
+}
+
 
 
 // public - because currently making bonds is not done on molecule construction
@@ -1637,7 +1661,8 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
    const std::set<int> &no_bonds_to_these_atoms = no_bonds_to_these_atom_indices;
 
    if (mode == "CA+LIGANDS") {
-      Bond_lines_container bonds(geom);
+      bool do_bonds_to_hydrogens = false;
+      Bond_lines_container bonds(geom, "dummy-CA-mode", no_bonds_to_these_atom_indices, do_bonds_to_hydrogens);
       float min_dist = 2.4;
       float max_dist = 4.7;
       bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom, min_dist, max_dist, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);

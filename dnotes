@@ -11268,3 +11268,12 @@ Thu 25 Jan 2024 22:48:55 GMT
   https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7614227
   in Bendix style - rendered in Blender
 
+---
+Mon  5 Feb 15:41:05 GMT 2024
+
+If you want to change the molecule "key" to a vector of ints for restraints you will
+need to start here:
+
+   protein-geometry.hh
+1346       std::vector<std::pair<int, dictionary_residue_restraints_t> > dict_res_restraints;
+

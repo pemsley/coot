@@ -179,7 +179,7 @@ namespace coot {
 
 
       // make this private?
-      void fit_ligands_to_cluster(int ilig);
+      void fit_ligands_to_cluster(int ilig, unsigned int max_n_clusters);
 
       // clipper::RTop_orth ligand_transformation(int i_cluster) const; // old
       clipper::Coord_orth transform_ligand_atom(const clipper::Coord_orth &a_in,
@@ -329,7 +329,7 @@ namespace coot {
 
       // single entities for rigid body refinement do not need size
       // matching.  It only causes problems with grid sampling...
-      short int do_size_match_test;
+      bool do_size_match_test;
 
       // save the z cut off for waters
       float z_cut_off_in_save;
@@ -434,6 +434,7 @@ namespace coot {
 
       void output_centres();
       void print_cluster_details(bool print_grid_points_flag=false) const;
+      float get_cluster_volume(unsigned int iclust) const;
       clipper::Map_stats map_statistics();
 
       // a check for writability is made.

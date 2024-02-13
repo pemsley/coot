@@ -184,7 +184,8 @@ namespace coot {
           COLOUR_BY_CHAIN_GOODSELL_BONDS=21
    };
 
-   enum { RESIDUE_NUMBER_UNSET = -1111};
+   // this is now in api/coot_molecule.hh
+   // enum { RESIDUE_NUMBER_UNSET = -1111};
 
 
    // a helper class - provide filenames and status for dialog widget

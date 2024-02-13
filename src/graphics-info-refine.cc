@@ -7,7 +7,7 @@
 #include "sound.hh"
 
 /*! \brief shiftfield B-factor refinement */
-void 
+void
 graphics_info_t::shiftfield_b_factor_refinement(int imol) {
 
    int imol_map = Imol_Refinement_Map();

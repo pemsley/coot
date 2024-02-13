@@ -1374,8 +1374,28 @@ int test_jed_flip(molecules_container_t &mc) {
       double d = std::sqrt(dd);
       std::cout << "test_jed_flip d " << d << std::endl;
       mc.write_coordinates(imol, "jed-flip.pdb");
-      if (d > 0.9)
-         status = true;
+      if (d > 0.9) {
+
+         // now test an altconf ligand
+         int imol_lig = mc.get_monomer("NUT");
+         mc.delete_hydrogen_atoms(imol_lig);
+         mc.add_alternative_conformation(imol_lig, "//A/1");
+         mc.write_coordinates(imol_lig, "NUT-with-alt-conf.pdb");
+         coot::atom_spec_t spun_atom_spec("A", 1, "", " C7 ", "A");
+         mmdb:: Atom *at_2 = mc.get_atom(imol_lig, spun_atom_spec);
+         if (at_2) {
+            coot::Cartesian atom_pos_3 = atom_to_cartesian(at_2);
+            mc.jed_flip(imol_lig, "//A/1/O1:A", false);
+            mc.write_coordinates(imol_lig, "NUT-with-alt-conf-and-jed-flip.pdb");
+            coot::Cartesian atom_pos_4 = atom_to_cartesian(at_2);
+            dd = coot::Cartesian::lengthsq(atom_pos_3, atom_pos_4);
+            d = std::sqrt(dd);
+            if (d > 2.0)
+               status = 1;
+         } else {
+            std::cout << "failed to select atom " << spun_atom_spec << std::endl;
+         }
+      }
    }
    return status;
 }
@@ -1917,39 +1937,65 @@ int test_ligand_fitting_in_map(molecules_container_t &mc) {
    int imol_ligand = mc.get_monomer("GLC");
    mc.write_coordinates(imol_ligand, "ligand.pdb");
 
-   mc.write_map(imol_map, "number-4.map");
-
    if (mc.is_valid_model_molecule(imol)) {
       if (mc.is_valid_model_molecule(imol_ligand)) {
-         std::vector<molecules_container_t::fit_ligand_info_t> solutions = mc.fit_ligand(imol, imol_map, imol_ligand, 1.0, true, 30);
-         std::cout << "found " << solutions.size() << " ligand fitting solutions" << std::endl;
+         if (mc.is_valid_map_molecule(imol_map)) {
+            float n_rmsd = 1.0;
+            bool make_conformers = true;
+            unsigned int n_conformers = 8;
+            std::vector<molecules_container_t::fit_ligand_info_t> solutions =
+               mc.fit_ligand(imol, imol_map, imol_ligand, n_rmsd, make_conformers, n_conformers);
+            std::cout << "found " << solutions.size() << " ligand fitting solutions" << std::endl;
 
-         // check that these solutions have different eigen values (because they
-         // are different conformers)
-         std::vector<double> ligands_largest_eigenvector;
-         std::vector<molecules_container_t::fit_ligand_info_t>::const_iterator it;
-         for (it=solutions.begin(); it!=solutions.end(); ++it) {
-            const auto &fli(*it);
-            if (false) { // let's write out those solutions
-               std::string fn("Ligand-sol-" + coot::util::int_to_string(fli.imol) + ".pdb");
-               mc.write_coordinates(fli.imol, fn);
+            // check that these solutions have different eigen values (because they
+            // are different conformers)
+            std::vector<double> ligands_largest_eigenvector;
+            std::vector<molecules_container_t::fit_ligand_info_t>::const_iterator it;
+            for (it=solutions.begin(); it!=solutions.end(); ++it) {
+               const auto &fli(*it);
+               if (false) { // let's write out those solutions
+                  std::string fn("Ligand-sol-" + coot::util::int_to_string(fli.imol) + ".pdb");
+                  mc.write_coordinates(fli.imol, fn);
+               }
+               auto eigenvalues = mc.get_eigenvalues(fli.imol, "A", 1, "");
+               double f = largest_eigenvalue(eigenvalues);
+               ligands_largest_eigenvector.push_back(f);
             }
-            auto eigenvalues = mc.get_eigenvalues(fli.imol, "A", 1, "");
-            double f = largest_eigenvalue(eigenvalues);
-            ligands_largest_eigenvector.push_back(f);
+
+            if (false)
+               for (unsigned int ii=0; ii<ligands_largest_eigenvector.size(); ii++)
+                  std::cout << "Largest-ev: " << ii << " " << ligands_largest_eigenvector[ii] << std::endl;
+
+            coot::stats::single ss(ligands_largest_eigenvector);
+            double sd = std::sqrt(ss.variance());
+            std::cout << "Eigenvector size std. dev.: " << sd << std::endl;
+            if (sd > 0.001) {
+               if (solutions.size() < 5) {
+
+                  // tell me about the solutions:
+                  for (unsigned int i=0; i<solutions.size(); i++) {
+                     const auto &sol(solutions[i]);
+                     std::cout << "    Solution " << i << " : "
+                               << " volume " << sol.get_cluster_volume() << " "
+                               << sol.imol << " "
+                               << sol.cluster_idx << " "
+                               << sol.ligand_idx << " "
+                               << " correl " << sol.get_fitting_score() << " "
+                               << std::endl;
+                  }
+                  status = 1;
+               }
+            }
+
+         } else {
+            std::cout << "Not a valid map molecule for moorhen-tutorial-map-number-4.mtz" << std::endl;
          }
 
-         if (false)
-            for (unsigned int ii=0; ii<ligands_largest_eigenvector.size(); ii++)
-               std::cout << "Largest-ev: " << ii << " " << ligands_largest_eigenvector[ii] << std::endl;
-
-         coot::stats::single ss(ligands_largest_eigenvector);
-         double sd = std::sqrt(ss.variance());
-         std::cout << "EV sd " << sd << std::endl;
-         if (sd > 0.001)
-            if (solutions.size()< 5)
-               status = 1;
+      } else {
+         std::cout << "Not a valid model molecule for GLC get_monomer() " << std::endl;
       }
+   } else {
+      std::cout << "Not a valid molecule molecule for moorhen-tutorial-structure-number-4.pdb" << std::endl;
    }
 
    return status;
@@ -4473,6 +4519,9 @@ int test_disappearing_ligand(molecules_container_t &mc) {
 }
 #endif
 
+// 20240205-PE this is not a good name for this test. The failure is not in merging, the failure
+// is in writing out the cif file.
+//
 int test_ligand_merge(molecules_container_t &mc) {
 
    auto test_mmdb = [] () {
@@ -4678,6 +4727,300 @@ int test_mask_atom_selection(molecules_container_t &mc) {
    return status;
 }
 
+int test_molecule_diameter(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
+   int imol_3 = mc.get_monomer("GOL");
+   float d1 = mc.get_molecule_diameter(imol_1);
+   float d2 = mc.get_molecule_diameter(imol_2);
+   float d3 = mc.get_molecule_diameter(imol_3);
+   if (d1 > 30.0)
+      if (d1 < 300.0)
+         if (d2 > 30.0)
+            if (d2 < 300.0)
+               if (d3 > 3.0)
+                  if (d3 < 30.0)
+               status = 1;
+
+   return status;
+}
+
+int test_B_factor_multiply(molecules_container_t &mc) {
+
+   auto close_float = [] (float a, float b) {
+      return fabsf(a - b) < 0.001;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.get_monomer("GOL");
+
+   std::cout << "test_B_factor_multiply imol " << imol << std::endl;
+
+   coot::residue_spec_t rs("A", 1, "");
+   mmdb::Residue *residue_p = mc.get_residue(imol, rs);
+   if (residue_p) {
+      std::vector<float> B_pre;
+      std::vector<float> B_post;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            B_pre.push_back(at->tempFactor);
+         }
+      }
+
+      mc.multiply_residue_temperature_factors(imol, "//", 2.0);
+
+      residue_p = mc.get_residue(imol, rs);
+      if (residue_p) {
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (! at->isTer()) {
+               B_post.push_back(at->tempFactor);
+            }
+         }
+      }
+
+      if (B_pre.size() > 12) {
+         if (B_pre.size() == B_post.size()) {
+            bool clean = true;
+            for (unsigned int iat=0; iat<B_pre.size(); iat++) {
+               if (close_float(B_pre[iat] * 2.0, B_post[iat])) {
+               } else {
+                  std::cout << "fail for iat " << iat << " " << B_pre[iat] << " " << B_post[iat] << std::endl;
+                  clean = false;
+               }
+            }
+            if (clean) status = 1;
+         }
+      }
+   }
+
+   return status;
+}
+
+int test_change_chain_id(molecules_container_t &mc) {
+
+   auto get_min_max_in_chain = [] (mmdb::Manager *mol, const std::string &chain_id_in) {
+
+      int min_res_no_J =  9999;
+      int max_res_no_J = -9999;
+
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               std::string chain_id(chain_p->GetChainID());
+               if (chain_id == chain_id_in) {
+                  int n_res = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<n_res; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        int res_no = residue_p->GetSeqNum();
+                        if (res_no < min_res_no_J) min_res_no_J = res_no;
+                        if (res_no > max_res_no_J) max_res_no_J = res_no;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return std::pair<int, int>(min_res_no_J, max_res_no_J);
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (!mc.is_valid_model_molecule(imol)) return 0;
+
+   std::pair<int, std::string> r_1 = mc.change_chain_id(imol, "A", "J", true, 38, 42); // non-existant
+   std::cout << "change_chain_id result-1: " << r_1.first << " \"" << r_1.second << "\"" << std::endl;
+   std::pair<int, std::string> r_2 = mc.change_chain_id(imol, "A", "J", true,  2, 22); // exists
+   std::cout << "change_chain_id result-2: " << r_2.first << " \"" << r_2.second << "\"" << std::endl;
+
+   int min_res_no_J = 9999;
+   int max_res_no_J = 0;
+
+   mmdb::Manager *mol = mc.get_mol(imol);
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            std::string chain_id(chain_p->GetChainID());
+            if (chain_id == "J") {
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int res_no = residue_p->GetSeqNum();
+                     if (res_no < min_res_no_J) min_res_no_J = res_no;
+                     if (res_no > max_res_no_J) max_res_no_J = res_no;
+                  }
+               }
+            }
+         }
+      }
+   }
+   std::cout << "min_res_no_J " << min_res_no_J << std::endl;
+   std::cout << "max_res_no_J " << max_res_no_J << std::endl;
+
+   // now it in again and try to change A to B. It should fail
+   imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   std::pair<int, std::string> r_3 = mc.change_chain_id(imol, "A", "B", false, -1, -1); // crash
+   std::cout << "change_chain_id result-3: " << r_3.first << " \"" << r_3.second << "\"" << std::endl;
+   // moving to the C chain is fine though
+   std::pair<int, std::string> r_4 = mc.change_chain_id(imol, "A", "C", false, -1, -1); // OK
+   std::cout << "change_chain_id result-4: " << r_4.first << " \"" << r_4.second << "\"" << std::endl;
+
+   mol = mc.get_mol(imol);
+   std::pair<int,int> C_min_max = get_min_max_in_chain(mol, "C");
+   std::cout << "C_min_max " << C_min_max.first << " " << C_min_max.second << std::endl;
+
+   if (r_1.first == 0) {
+      if (r_2.first == 1) {
+         if (min_res_no_J == 2) {
+            if (max_res_no_J == 22) {
+               if (r_3.first == 0) {
+                  if (r_4.first == 1) {
+                     if (C_min_max.first == 1) {
+                        if (C_min_max.second == 298) {
+                           status = 1;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return status;
+}
+
+int test_non_drawn_CA_bonds(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   if (mc.is_valid_model_molecule(imol)) {
+      int imol_frag = mc.copy_fragment_using_cid(imol, "//A/101-111");
+      mc.add_to_non_drawn_bonds(imol_frag, "//A/103-111");
+      std::string mode = "CA+LIGANDS";
+      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol_frag, "//A", mode, false, 0.2, 1.0, 1);
+      auto &geom = bonds.geom;
+      // should be size 2 of course, if we don't add the range to the non-drawn bond
+      // not 4
+      std::cout << ":::::::::::::::::::::::: bonds geom was of size " << geom.size() << std::endl;
+
+      if (geom.empty()) {
+         std::cout << "geom empty" << std::endl;
+      } else {
+         if (geom.size() == 4) { // should be 2!
+            const std::vector<coot::instancing_data_type_B_t> &idB = geom[0].instancing_data_B;
+            std::cout << "idB size " << idB.size() << std::endl;
+            // print the instancing data here. You should see a duplicate/reverse
+         }
+      }
+   }
+
+   return  status;
+}
+
+int test_17257(molecules_container_t &mc) {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_map = mc.read_ccp4_map(reference_data("emd_17257.map.gz"), false);
+   std::cout << "imol_map is " << imol_map << std::endl;
+   if (mc.is_valid_map_molecule(imol_map)) {
+      status = 1;
+   }
+   // however, until there is a gzip map reader for CCP4, we expect the
+   // return value to be -3:
+   if (imol_map == -3) {
+      status = 1;
+   }
+   return status;
+}
+
+int test_shiftfield_b_factor_refinement(molecules_container_t &mc) {
+
+   auto get_average_b_factor = [] (mmdb::Residue *residue_p) {
+      float sum = 0.0;
+      if (!residue_p) {
+         std::cout << "Null residue " << std::endl;
+         return 0.0f;
+      }
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      int count = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            sum += at->tempFactor;
+            count++;
+         }
+      }
+      return sum/static_cast<float>(count);
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   mc.set_use_gemmi(false); // 20240211-PE crash if set_use_gemmi(true) (the default).
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
+   mc.associate_data_mtz_file_with_map(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "FP", "SIGFP", "FREE");
+   mc.set_imol_refinement_map(imol_map);
+
+   // int imol     = mc.read_pdb(reference_data("tutorial-modern.pdb"));
+   // int imol_map = mc.read_mtz(reference_data("rnasa-1.8-all_refmac1.mtz"), "FWT", "PHWT", "W", false, false);
+   // int imol_diff_map = mc.read_mtz(reference_data("rnasa-1.8-all_refmac1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
+   // mc.associate_data_mtz_file_with_map(imol_map, reference_data("rnasa-1.8-all_refmac1.mtz"), "FGMP18", "SIGFGMP18", "FreeR_flag");
+   // mc.set_imol_refinement_map(imol_map);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec_1("A", 10, "");
+      coot::residue_spec_t res_spec_2("A", 66, "");
+      mmdb::Residue *r_1 = mc.get_residue(imol, res_spec_1);
+      mmdb::Residue *r_2 = mc.get_residue(imol, res_spec_2);
+      // set up some weird B-factors on some atoms
+      float b_orig_1 = get_average_b_factor(r_1);
+      float b_orig_2 = get_average_b_factor(r_2);
+      mc.multiply_residue_temperature_factors(imol, "//A/3-13",  2.0);
+      mc.multiply_residue_temperature_factors(imol, "//A/63-69", 0.2);
+      float b_pre_1 = get_average_b_factor(r_1);
+      float b_pre_2 = get_average_b_factor(r_2);
+      bool shiftfield_status = mc.shift_field_b_factor_refinement(imol, imol_map);
+      if (shiftfield_status) {
+         auto stats = mc.sfcalc_genmaps_using_bulk_solvent(imol, imol_map, imol_diff_map, imol_map);
+         std::cout << "DEBUG:: in test_shiftfield_b_factor_refinement() with r-factor " << stats.r_factor << std::endl;
+         float b_post_1 = get_average_b_factor(r_1);
+         float b_post_2 = get_average_b_factor(r_2);
+         std::cout << "B-factors: orig " << b_orig_1 << " " << b_orig_2
+                   << " " << b_pre_1 << " " << b_pre_2 << " post " << b_post_1 << " " << b_post_2 << std::endl;
+         if (b_post_1 < 66.0)
+            if (b_post_2 > 12.0)
+               status = 1;
+      }
+   }
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -4803,10 +5146,7 @@ int main(int argc, char **argv) {
       status += run_test(test_molecular_representation, "molecular representation mesh", mc);
       status += run_test(test_fill_partial,          "fill partially-filled residues", mc);
    }
-<<<<<<< HEAD
-=======
 
->>>>>>> paul-main
    // status += run_test(test_multiligands_lig_bonding, "some multiligands bonding", mc);
 
    // status += run_test(test_gltf_export_via_api, "gltf via api", mc);
@@ -4836,8 +5176,6 @@ int main(int argc, char **argv) {
    // status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
 
    // status += run_test(test_test_the_threading, "threading speed test",    mc);
-
-   // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
 
    // status += run_test(test_contouring_timing, "contouring timing",    mc);
 
@@ -5005,7 +5343,27 @@ int main(int argc, char **argv) {
    // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
 
    status += run_test(test_write_map_is_sane, "write map is sane",    mc);
->>>>>>> paul-main
+
+   // status += run_test(test_write_map_is_sane, "write map is sane",    mc);
+
+   // status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
+
+   // status += run_test(test_molecule_diameter, "molecule diameter",    mc);
+
+   // status += run_test(test_B_factor_multiply, "B-factor multiply",    mc);
+
+   // status += run_test(test_change_chain_id, "change chain id",    mc);
+
+   // status += run_test(test_non_drawn_CA_bonds, "non-drawn bonds in CA+LIGANDS", mc);
+
+   // status += run_test(test_17257, "read emd_17257.map.gz",    mc);
+
+   // status += run_test(test_get_diff_map_peasks, "get diff map peaks",    mc);
+
+   // status += run_test(test_jed_flip, "jed flip",    mc); // duplicate
+
+   status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc); // duplicate
+
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

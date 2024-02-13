@@ -80,6 +80,7 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
                   // bool optim_geom = true;
                   bool optim_geom = false;
                   for (unsigned int i_conf=0; i_conf<n_conformers; i_conf++) {
+                     int imol_enc = coot::protein_geometry::IMOL_ENC_ANY; // pass this
                      wlig.install_simple_wiggly_ligand(&geom, mmol, imol_ligand, i_conf, optim_geom);
                   }
 
@@ -195,7 +196,7 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
                   // bool optim_geom = true;
                   bool optim_geom = false;
                   for (unsigned int i_conf=0; i_conf<n_conformers; i_conf++) {
-                     std::cout << "installing ligand " << i_conf << std::endl;
+                     // std::cout << "installing ligand " << i_conf << std::endl;
                      wlig.install_simple_wiggly_ligand(&geom, mmol, imol_ligand, i_conf, optim_geom);
                   }
                } else {
@@ -219,30 +220,54 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
                // now add in the solution ligands: 20231121-PE (What did I mean by this?)
                int n_clusters = wlig.n_clusters_final();
 
+               // debugging solutions
+               if (true) {
+                  float frac_lim = 0.9;
+                  float correl_frac_lim = 0.9;
+                  float tolerance = 20.0;
+                  for (int iclust=0; iclust<n_clusters; iclust++) {
+                     unsigned int n_ligands_for_cluster = wlig.n_ligands_for_cluster(iclust, frac_lim);
+                     if (true)
+                        n_ligands_for_cluster = 1;
+                     wlig.score_and_resort_using_correlation(iclust, n_ligands_for_cluster);
+                     wlig.limit_solutions(iclust, correl_frac_lim, n_ligands_for_cluster, tolerance, true);
+                     for (unsigned int isol=0; isol<n_ligands_for_cluster; isol++) {
+                        coot::minimol::molecule m = wlig.get_solution(isol, iclust);
+                        if (! m.is_empty()) {
+                           mmdb::Manager *ligand_mol = m.pcmmdbmanager();
+                           coot::hetify_residues_as_needed(ligand_mol);
+                           std::string file_name = "ligand-solution-" + std::to_string(iclust) + "-" + std::to_string(isol) + ".pdb";
+                           ligand_mol->WritePDBASCII(file_name.c_str());
+                           delete ligand_mol;
+                        }
+                     }
+                  }
+               }
+
                coot::minimol::molecule m;
                for (int iclust=0; iclust<n_clusters; iclust++) {
 
                   float frac_lim = 0.9;
                   float correl_frac_lim = 0.9;
                   bool find_ligand_multiple_solutions_per_cluster_flag = true;
+                  float cv = wlig.get_cluster_volume(iclust);
 
                   // nino-mode
-                  unsigned int nlc = wlig.n_ligands_for_cluster(iclust, frac_lim);
-                  wlig.score_and_resort_using_correlation(iclust, nlc);
+                  unsigned int n_ligands_for_cluster = wlig.n_ligands_for_cluster(iclust, frac_lim);
+                  wlig.score_and_resort_using_correlation(iclust, n_ligands_for_cluster);
 
-                  // false is the default case
                   if (find_ligand_multiple_solutions_per_cluster_flag == false) {
-                     nlc = 1;
+                     n_ligands_for_cluster = 1;
                      correl_frac_lim = 0.975;
                   }
 
-                  if (nlc > 12) nlc = 12; // arbitrary limit of max 12 solutions per cluster
+                  if (n_ligands_for_cluster > 12) n_ligands_for_cluster = 12; // arbitrary limit of max 12 solutions per cluster
                   float tolerance = 20.0;
                   // limit_solutions should be run only after a post-correlation sort.
                   //
-                  wlig.limit_solutions(iclust, correl_frac_lim, nlc, tolerance, true);
+                  wlig.limit_solutions(iclust, correl_frac_lim, n_ligands_for_cluster, tolerance, true);
 
-                  for (unsigned int isol=0; isol<nlc; isol++) {
+                  for (unsigned int isol=0; isol<n_ligands_for_cluster; isol++) {
                      m = wlig.get_solution(isol, iclust);
                      if (! m.is_empty()) {
                         // std::cout << "------------------ found a solution " << isol << " for iclust " << iclust << std::endl;
@@ -255,6 +280,10 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
                         coot::molecule_t mm(asc, imol_in_hope, name);
                         molecules.push_back(mm);
                         fit_ligand_info_t fli(imol_in_hope, iclust, isol);
+                        // set fli fitting score and cluster volume
+                        fli.cluster_volume = cv;
+                        coot::ligand_score_card lsc = wlig.get_solution_score(iclust, isol);
+                        fli.fitting_score = lsc.correlation.second;
                         mol_list.push_back(fli);
                      }
                   }
@@ -500,3 +529,18 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
 
    return s;
 }
+
+
+//! Fit ligands
+//! ``multi_ligand_molecule_number_list`` is a colon-separated list of molecules, *e.g.* "2:3:4"
+std::vector<molecules_container_t::fit_ligand_info_t>
+molecules_container_t::fit_ligand_multi_ligand(int imol_protein, int imol_map, const std::string &multi_ligand_molecule_number_list,
+                                               float n_rmsd, bool use_conformers, unsigned int n_conformers) {
+
+   std::vector<fit_ligand_info_t> v;
+   // now decode multi_ligand_molecule_number_list
+   std::vector<int> ligand_imols;
+
+   return v;
+}
+

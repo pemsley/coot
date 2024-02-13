@@ -57,6 +57,8 @@
 
 namespace coot {
 
+   enum { RESIDUE_NUMBER_UNSET = -1111}; // from molecule-class-info
+
    class molecule_t {
 
       class molecule_save_info_t {
@@ -435,11 +437,13 @@ namespace coot {
       // ----------------------- structure factor stuff ------------------------------------------------------
 
       void fill_fobs_sigfobs(); // re-reads MTZ file (currently 20210816-PE)
+
       // used to be a const ref. Now return the whole thing!. Caller must call
       // fill_fobs_sigfobs() directly before using this function - meh, not a good API.
       // Return a *pointer* to the data so that we don't get this hideous non-reproducable
       // crash when we access this data item after the moelcule vector has been resized
       // 20210816-PE.
+      // CAUTION: this function can throw a std::runtime_error.
       clipper::HKL_data<clipper::data32::F_sigF> *get_original_fobs_sigfobs() const {
          if (!original_fobs_sigfobs_filled) {
             std::string m("Original Fobs/sigFobs is not filled");
@@ -505,6 +509,7 @@ namespace coot {
       bool is_valid_map_molecule() const;
       unsigned int get_number_of_atoms() const;
       int get_number_of_hydrogen_atoms() const;
+      float get_molecule_diameter() const;
       mmdb::Residue *cid_to_residue(const std::string &cid) const;
       mmdb::Atom *cid_to_atom(const std::string &cid) const;
       std::pair<bool, residue_spec_t> cid_to_residue_spec(const std::string &cid) const;
@@ -615,6 +620,8 @@ namespace coot {
       void add_to_non_drawn_bonds(const std::string &atom_selection_cid);
 
       void clear_non_drawn_bonds() { no_bonds_to_these_atom_indices.clear(); }
+
+      void print_non_drawn_bonds() const;
 
       void fill_default_colour_rules(); // assign colours to chains.
 
@@ -814,11 +821,34 @@ namespace coot {
                                                  clipper::Coord_orth &rotation_centre,
                                                  clipper::RTop_orth &rtop);
 
+      //! Interactive B-factor refinement (fun).
+      //! "factor" might typically be say 0.9 or 1.1
+      void multiply_residue_temperature_factors(const std::string &cid, float factor);
+
       //! @return 1 on a successful additions, 0 on failure.
       int add_hydrogen_atoms(protein_geometry *geom); // because of coot::reduce api - hmm.
 
       //! @return 1 on a successful additions, 0 on failure.
       int delete_hydrogen_atoms();
+
+      // change the chain id
+      // return -1 on a conflict
+      // 1 on good.
+      // 0 on did nothing
+      // return also an information/error message
+      std::pair<int, std::string> change_chain_id(const std::string &from_chain_id,
+                                                  const std::string &to_chain_id,
+                                                  bool use_resno_range,
+                                                  int start_resno, int end_resno);
+
+      // make these private
+      //
+      std::pair<int, std::string>
+      change_chain_id_with_residue_range(const std::string &from_chain_id,
+                                         const std::string &to_chain_id,
+                                         int start_resno,
+                                         int end_resno);
+      void change_chain_id_with_residue_range_helper_insert_or_add(mmdb::Chain *to_chain_p, mmdb::Residue *new_residue);
 
       //! a moved atom
       class moved_atom_t {
@@ -961,6 +991,9 @@ namespace coot {
                         bool do_rama_plot_restraints, float rama_plot_weight,
                         bool do_torsion_restraints, float torsion_weight,
                         bool refinement_is_quiet);
+
+      bool shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &F_sigF,
+                                          const clipper::HKL_data<clipper::data32::Flag> &free_flag);
 
       void fix_atom_selection_during_refinement(const std::string &atom_selection_cid);
 

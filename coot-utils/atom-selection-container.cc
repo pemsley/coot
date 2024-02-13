@@ -910,3 +910,47 @@ atom_selection_container_t read_standard_residues() {
    return standard_residues_asc;
 }
 
+#include "analysis/stats.hh"
+
+// return an estimate of the molecule diameter
+float
+coot::get_molecule_diameter(const atom_selection_container_t &asc) {
+
+   float f = -1;
+
+   int n_max = asc.n_selected_atoms;
+
+   stats::single s;
+   for (unsigned int i=0; i<1000; i++) {
+      float f1 = coot::util::random_f();
+      float f2 = coot::util::random_f();
+      int ff_1 = static_cast<float>(n_max) * f1;
+      int ff_2 = static_cast<float>(n_max) * f2;
+      // std::cout << "f1 " << f1 << " f2 " << f2 << " ff_1 " << ff_1 << " ff_2 " << ff_2 << std::endl;
+      if (f1 < 1.0) {
+         if (f2 < 1.0) {
+            int idx_1 = static_cast<int>(ff_1);
+            int idx_2 = static_cast<int>(ff_2);
+            if (idx_1 != idx_2) {
+               mmdb:: Atom *at_1 = asc.atom_selection[idx_1];
+               mmdb:: Atom *at_2 = asc.atom_selection[idx_2];
+               float dx = at_2->x - at_1->x;
+               float dy = at_2->y - at_1->y;
+               float dz = at_2->z - at_1->z;
+               float dd = dx*dx + dy*dy + dz*dz;
+               float d = std::sqrt(dd);
+               s.add(d);
+            }
+         }
+      }
+   }
+
+   if (s.size() > 10) {
+      // std::cout << "info:: idx 10 highest " << s.get_ith_highest(10) << " idx 10 lowest " << s.get_ith_lowest(10) << std::endl;
+      f = s.get_ith_highest(10);
+   }
+
+   return f;
+
+}
+

@@ -10357,14 +10357,6 @@ density (too big to be waters):
     <child>
       <object class="GtkBox" id="dialog-vbox40">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="new_ligands_info_dialog_ok_button">
-                <property name="label" translatable="yes">  OK  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_new_ligands_info_dialog_ok_button_clicked" swapped="no"/>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="vbox103">
             <property name="orientation">vertical</property>
@@ -10377,12 +10369,26 @@ density (too big to be waters):
             <child>
               <object class="GtkLabel" id="label148">
                 <property name="label" translatable="yes">Use Display Manager and Goto Atom
-Molecule optionmenu to navigate these
+Molecule to navigate these
 new molecules</property>
-                <property name="justify">center</property>
+              <property name="justify">center</property>
+              <property name="margin-start">4</property>
+              <property name="margin-end">4</property>
+              <property name="margin-top">4</property>
+              <property name="margin-bottom">4</property>
               </object>
             </child>
           </object>
+        </child>
+         <child type="action">
+              <object class="GtkButton" id="new_ligands_info_dialog_ok_button">
+                <property name="label" translatable="yes">  OK  </property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <signal name="clicked" handler="on_new_ligands_info_dialog_ok_button_clicked" swapped="no"/>
+              </object>
         </child>
       </object>
     </child>
@@ -10392,6 +10398,7 @@ new molecules</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="no_bad_chiral_volumes_dialog">
     <property name="title" translatable="yes">Clean!</property>
     <child>

@@ -384,9 +384,8 @@ public:
    //! they took to run. Setting this will write the time to taken (in milliseconds) to stdout.
    //! The default is `true`.
    void set_show_timings(bool s) { show_timings = s; }
-   coot::protein_geometry & get_geom() {
-      return geom;
-   }
+
+   coot::protein_geometry & get_geom() { return geom; }
 
    // -------------------------------- generic utils -----------------------------------
    //! \name Generic Utils
@@ -455,6 +454,11 @@ public:
          rot_prob_tables.fill_tables(ignore_lys_and_arg_flag);
       }
    }
+
+   //! the caller has access to a compressed file that contains the rotamer probabilities.
+   //! libcootapi will fill the rotamer probabilities tables from this compressed data stream.
+   //! (placeholder only)
+   void accept_rotamer_probability_tables_compressed_data(const std::string &data_stream);
 
    // -------------------------------- backup and saving -----------------------------------
    //! \name Backup and Saving
@@ -650,6 +654,8 @@ public:
    //! clear the set of non-drawn atoms (so that they can be displayed again)
    void clear_non_drawn_bonds(int imol);
 
+   void print_non_drawn_bonds(int imol) const;
+
    //! user-defined colour-index to colour
    void set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 3> > &colour_map);
 
@@ -668,7 +674,6 @@ public:
 
    //! delete the colour rules for the given molecule
    void delete_colour_rules(int imol);
-
    //! get the colour rules
    std::vector<std::pair<std::string, std::string> > get_colour_rules(int imol) const;
 
@@ -728,6 +733,9 @@ public:
 
    //! @return the number of atoms in the specified model, or 0 on error
    unsigned int get_number_of_atoms(int imol) const;
+
+   //! @return an estimate of the diameter of the model molecule (-1 on failure)
+   float get_molecule_diameter(int imol) const;
 
    //! @return the number of hydrogen atoms in the specified model, or -1 on error
    int get_number_of_hydrogen_atoms(int imol) const;
@@ -1071,6 +1079,10 @@ public:
    //! @return 1 on a successful move, 0 on failure.
    int move_molecule_to_new_centre(int imol, float x, float y, float z);
 
+   //! Interactive B-factor refinement (fun).
+   //! "factor" might typically be say 0.9 or 1.1
+   void multiply_residue_temperature_factors(int imol, const std::string &cid, float factor);
+
    //! get molecule centre
    //! @return the molecule centre
    coot::Cartesian get_molecule_centre(int imol) const;
@@ -1135,6 +1147,16 @@ public:
    //!
    //! `multi_cids" is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
    int rigid_body_fit(int imol, const std::string &multi_cid, int imol_map);
+
+   //! change the chain id
+   //! @return -1 on a conflict
+   //! 1 on good.
+   //! 0 on did nothing
+   //! return also an information/error message
+   std::pair<int, std::string> change_chain_id(int imol, const std::string &from_chain_id,
+                                               const std::string &to_chain_id,
+                                               bool use_resno_range,
+                                               int start_resno, int end_resno);
 
    // -------------------------------- Coordinates Refinement ------------------------------
    //! \name Coordinates Refinement
@@ -1422,12 +1444,20 @@ public:
    //! Call this function after connecting maps for updating maps to set the initial R-factor
    //! and store the initial map flatness.
    //!
-   //! @return a class of interesting statistics
+   //! @return a class of interesting statistics.
+   //!
+   //! On failure to calculate SFS and generate the maps the returned r_factor
+   //! in the returned stats will be set to -1.
    coot::util::sfcalc_genmap_stats_t
    sfcalc_genmaps_using_bulk_solvent(int imol_model,
                                      int imol_2fofc_map,
                                      int imol_updating_difference_map,
                                      int imol_map_with_data_attached);
+
+   //! shift_field B-factor refinement. This function presumes that the Fobs,sigFobs
+   //! and RFree data have been filled in the `imol_map_with_data_attached` molecule.
+   //! @return success status
+   bool shift_field_b_factor_refinement(int imol, int imol_with_data_attached);
 
    //! get density at position
    //! @return density value
@@ -1486,12 +1516,25 @@ public:
       int imol; // the imol of the fitted ligand
       int cluster_idx;  // the index of the cluster
       int ligand_idx;  // the ligand idx for a given cluster
-      fit_ligand_info_t(int i, int c, int l) : imol(i), cluster_idx(c), ligand_idx(l) {}
-      fit_ligand_info_t() { imol = -1; cluster_idx = -1; ligand_idx = -1; }
+      float fitting_score;
+      float cluster_volume;
+      fit_ligand_info_t(int i, int c, int l) : imol(i), cluster_idx(c), ligand_idx(l) { fitting_score = -1.0; cluster_volume = -1.0;}
+      fit_ligand_info_t() { imol = -1; cluster_idx = -1; ligand_idx = -1; fitting_score = 1.0; cluster_volume = -1.0; }
+      //! @return the fitting score
+      float get_fitting_score() const { return fitting_score; }
+      float get_cluster_volume() const { return cluster_volume; }
    };
 
+   //! Fit ligand
+   //! @return a vector of interesting information about the fitted ligands
    std::vector<fit_ligand_info_t> fit_ligand(int imol_protein, int imol_map, int imol_ligand,
                                              float n_rmsd, bool use_conformers, unsigned int n_conformers);
+
+   //! Fit ligands (place-holder)
+   //! ``multi_ligand_molecule_number_list`` is a colon-separated list of molecules, *e.g.* "2:3:4"
+   //! @return an empty vector (at the moment)
+   std::vector<fit_ligand_info_t> fit_ligand_multi_ligand(int imol_protein, int imol_map, const std::string &multi_ligand_molecule_number_list,
+                                                          float n_rmsd, bool use_conformers, unsigned int n_conformers);
 
    //! "Jiggle-Fit Ligand"
    //! if n_trials is 0, then a sensible default value will be used.
