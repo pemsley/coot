@@ -177,7 +177,7 @@ int test_change_chain_id_1(molecules_container_t &molecules_container) {
    std::vector<std::string> original_chains;
    auto original_chains_vec = molecules_container.get_chains_in_model(coordMolNo);
    unsigned int original_chains_vec_size = original_chains_vec.size();
-   for (int i = 0; i < original_chains_vec_size; i++) {
+   for (unsigned int i = 0; i < original_chains_vec_size; i++) {
       const auto &chain_name = original_chains_vec.at(i);
       original_chains.push_back(chain_name);
    }

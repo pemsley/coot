@@ -2329,6 +2329,7 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    if (! refinement_is_quiet)
       gd.print();
    restraints.unset_fixed_during_refinement_udd();
+   status = 1;
 
    // save_info.new_modification("refine_direct");
 
