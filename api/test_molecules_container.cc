@@ -1942,7 +1942,7 @@ int test_ligand_fitting_in_map(molecules_container_t &mc) {
          if (mc.is_valid_map_molecule(imol_map)) {
             float n_rmsd = 1.0;
             bool make_conformers = true;
-            unsigned int n_conformers = 8;
+            unsigned int n_conformers = 80;
             std::vector<molecules_container_t::fit_ligand_info_t> solutions =
                mc.fit_ligand(imol, imol_map, imol_ligand, n_rmsd, make_conformers, n_conformers);
             std::cout << "found " << solutions.size() << " ligand fitting solutions" << std::endl;
@@ -2001,6 +2001,46 @@ int test_ligand_fitting_in_map(molecules_container_t &mc) {
    return status;
 
 }
+
+
+int test_ligand_fitting_in_map_LZA(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol_ligand = mc.get_monomer("LZA");
+
+   if (mc.is_valid_model_molecule(imol)) {
+      if (mc.is_valid_model_molecule(imol_ligand)) {
+         if (mc.is_valid_map_molecule(imol_map)) {
+            float n_rmsd = 1.0;
+            bool make_conformers = false;
+            unsigned int n_conformers = 8;
+            std::vector<molecules_container_t::fit_ligand_info_t> solutions =
+               mc.fit_ligand(imol, imol_map, imol_ligand, n_rmsd, make_conformers, n_conformers);
+            std::cout << "DEBUG:: in test_ligand_fitting_in_map_LZA(): found "
+                      << solutions.size() << " ligand fitting solutions" << std::endl;
+
+            // tell me about the solutions:
+            for (unsigned int i=0; i<solutions.size(); i++) {
+               const auto &sol(solutions[i]);
+               std::cout << "    LZA Solution " << i << " : "
+                         << " volume: " << sol.get_cluster_volume()
+                         << " imol: " << sol.imol
+                         << " cluster-idx: " << sol.cluster_idx
+                         << " ligand-idx: " << sol.ligand_idx
+                         << " correl: " << sol.get_fitting_score() << " " << std::endl;
+               std::string fn("Ligand-sol-" + coot::util::int_to_string(sol.imol) + ".pdb");
+               mc.write_coordinates(sol.imol, fn);
+            }
+         }
+      }
+   }
+   return status;
+}
+
 
 
 int test_write_map_is_sane(molecules_container_t &mc) {
@@ -4496,24 +4536,28 @@ int test_disappearing_ligand(molecules_container_t &mc) {
    int status = 0;
    // int imol = mc.read_pdb(reference_data("6ttq.cif")); // needs gemmi
    int imol = mc.read_pdb(reference_data("8a2q.cif"));
-   mmdb::Manager *mol = mc.get_mol(imol);
-   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-      mmdb::Model *model_p = mol->GetModel(imod);
-      if (model_p) {
-         int n_chains = model_p->GetNumberOfChains();
-         for (int ichain=0; ichain<n_chains; ichain++) {
-            mmdb::Chain *chain_p = model_p->GetChain(ichain);
-            int n_res = chain_p->GetNumberOfResidues();
-            std::cout << "    " << chain_p->GetChainID() << " " << n_res << " residues " << std::endl;
+   if (mc.is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = mc.get_mol(imol);
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               std::cout << "    " << chain_p->GetChainID() << " " << n_res << " residues " << std::endl;
+            }
          }
       }
+      mc.import_cif_dictionary(reference_data("MOI.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+      int imol_lig = mc.get_monomer("MOI");
+      std::string sl = std::to_string(imol_lig);
+      std::pair<int, std::vector<merge_molecule_results_info_t> > ss = mc.merge_molecules(imol, sl);
+      mc.write_coordinates(imol, "merged.cif");
+      gemmi::Structure st = gemmi::read_structure_file("merged.cif");
+   } else {
+      std::cout << "Failed to correctly read 8a2q.cif" << std::endl;
    }
-   mc.import_cif_dictionary(reference_data("MOI.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY);
-   int imol_lig = mc.get_monomer("MOI");
-   std::string sl = std::to_string(imol_lig);
-   std::pair<int, std::vector<merge_molecule_results_info_t> > ss = mc.merge_molecules(imol, sl);
-   mc.write_coordinates(imol, "merged.cif");
-   gemmi::Structure st = gemmi::read_structure_file("merged.cif");
 
    return status;
 }
@@ -5353,7 +5397,11 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_jed_flip, "jed flip",    mc); // duplicate
 
-   status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc); // duplicate
+   // status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc); // duplicate
+
+   // status += run_test(test_disappearing_ligand, "disappearning ligand", mc);
+
+   status += run_test(test_ligand_fitting_in_map_LZA, "Ligand fitting LZA",    mc); // duplicate
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
