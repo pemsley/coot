@@ -1848,20 +1848,17 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
    coot::ligand_score_card this_scorecard;
 
    // Just like the helix algorithm, we search all eigenvectors.
-   clipper::Mat33<double> no_rotation    ( 1,  0,  0,   0,  1,  0,   0, 0,  1);
-   clipper::Mat33<double> x_axis_rotation( 1,  0,  0,   0, -1,  0,   0, 0, -1);
-   clipper::Mat33<double> y_axis_rotation(-1,  0,  0,   0,  1,  0,   0, 0, -1);
-   clipper::Mat33<double> z_axis_rotation(-1,  0,  0,   0, -1,  0,   0, 0,  1);
+   clipper::Mat33<double> no_rotation    (1, 0,  0, 0, 1,  0, 0, 0, 1);
+   clipper::Mat33<double> y_axis_rotation(0, 0, -1, 0, 1,  0, 1, 0, 0);
+   clipper::Mat33<double> x_axis_rotation(1, 0,  0, 0, 0, -1, 0, 1, 0);
    clipper::RTop_orth no_rotation_op(no_rotation, clipper::Coord_orth(0,0,0));
    clipper::RTop_orth  y_axis_op(y_axis_rotation, clipper::Coord_orth(0,0,0));
    clipper::RTop_orth  x_axis_op(x_axis_rotation, clipper::Coord_orth(0,0,0));
-   clipper::RTop_orth  z_axis_op(z_axis_rotation, clipper::Coord_orth(0,0,0));
 
    std::vector<clipper::RTop_orth> eigen_orientations;
    eigen_orientations.push_back(no_rotation_op);
    eigen_orientations.push_back(y_axis_op);
    eigen_orientations.push_back(x_axis_op);
-   eigen_orientations.push_back(z_axis_op);
 
    std::atomic<bool> results_lock(false);
    auto get_results_lock = [&results_lock] () {
