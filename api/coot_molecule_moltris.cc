@@ -16,10 +16,7 @@
 //! Add a colour rule: eg. ("//A", "red")
 void
 coot::molecule_t::add_colour_rule(const std::string &selection, const std::string &colour_name) {
-
-
    colour_rules.push_back(std::make_pair(selection, colour_name));
-
 }
 
 
