@@ -5401,7 +5401,11 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_disappearing_ligand, "disappearning ligand", mc);
 
-   status += run_test(test_ligand_fitting_in_map_LZA, "Ligand fitting LZA",    mc); // duplicate
+   // status += run_test(test_ligand_fitting_in_map_LZA, "Ligand fitting LZA",    mc); // duplicate
+
+   // status += run_test(test_non_drawn_bond_multi_cid_2, "non-drawn bonds and multi CID selection mesh --second", mc);
+
+   status += run_test(test_change_chain_id_1,  "Test change chain ID --first", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

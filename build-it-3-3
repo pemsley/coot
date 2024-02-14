@@ -1003,7 +1003,8 @@ if test "$OS" = "Darwin" ; then
    update_config_guess_sub=1
    shared_static_flag="--disable-static"
    shared_lib_ext=dylib
-   need_readline_patch=1
+   # what happens if I do this?
+   # need_readline_patch=1
    # uname -a gives processor type in last field on Darwin
    processor=$(uname -a | awk '{print $(NF)}')
    need_gtk_imlib_libtool_fix=1
@@ -2618,6 +2619,7 @@ if test "$build_readline" = true ; then
     echo BUILDING readline: >&2
     readline_version=6.2
     readline_version=6.3
+    readline_version=8.2
     ${WGET} https://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
     ${WGET} $extras_place/readline-5.1.patch
     (
@@ -2626,8 +2628,11 @@ if test "$build_readline" = true ; then
     gzip -dc ${AUTOBUILD_SOURCES}/readline-$readline_version.tar.gz | tar xf -
     cd readline-$readline_version
     if test -n "$need_readline_patch" ; then
+       ls -l
        echo patching readline...
        # need a patch (for debian only) to add curses to the additional libs line
+       echo patch -p0 input-from ${AUTOBUILD_SOURCES}/readline-5.1.patch
+       ls -l ${AUTOBUILD_SOURCES}/readline-5.1.patch
        patch -p0 < ${AUTOBUILD_SOURCES}/readline-5.1.patch
     fi
     if [ "$dist_name" = debian ] ; then
@@ -2729,13 +2734,17 @@ if test -n "$build_python" ; then
    # this should be configured
    openssl_prefix=$HOME/ccp4/devtools/install
    openssl_prefix=/usr
+   if [ $OS = Darwin ] ; then
+       # in future, install openssl into $install_top_dir
+       openssl_prefix=$HOME/openssl
+   fi
    # note to self: We need ffi.h (and lib presumably) to build the ctypes module (libffi-devel)
    # (or I could include it in this build script) (I don't know if ctypes is important)
    # 20220227-PE ctypes is crucial for meson
-   echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
+   echo INFO:: ./configure $generic_prefix --with-pydebug --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
    #
    # do we also need to use --with-threads=dir?
-   if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
+   if ./configure $generic_prefix --with-pydebug --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
         echo INFO:: make install for python
@@ -3369,12 +3378,19 @@ if [ "$build_rdkit" = true ] ; then
          if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name ] ; then
             which stat
             echo   found the file   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-            echo stat --format=%s   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-            stat --format=%s        ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-            size=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name)
-            echo rdkit tar ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name size from stat: $size
+            if [ $OS = Darwin ] ; then
+                echo stat -f%z   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+                stat -f%z ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+                size=$(stat -f%z ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name)
+                echo rdkit tar ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name size from stat: $size
+            else
+                echo stat --format=%s   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+                stat --format=%s        ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+                size=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name)
+                echo rdkit tar ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name size from stat: $size
+            fi
             if [ "$size" = $rdkit_tar_size ] ; then
-               get_the_rdkit_tar_file=false
+                get_the_rdkit_tar_file=false
             fi
          fi
          echo here C with get_the_rdkit_tar_file $get_the_rdkit_tar_file
@@ -3385,7 +3401,11 @@ if [ "$build_rdkit" = true ] ; then
             do_rdkit_download=true
             if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
                 echo here D
-                s=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name)
+                if [ $OS = Darwin ] ; then
+                    s=$(stat -f%z ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name)
+                else
+                    s=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name)
+                fi
                 if [ "$s" = $rdkit_tar_size ] ; then
                    do_rdkit_download=false
                 fi
@@ -3487,6 +3507,7 @@ if [ "$build_rdkit" = true ] ; then
       # -DBoost_PYTHON39_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so
 
       echo cmake \
+               -DCMAKE_PREFIX_PATH=$install_top_dir \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
@@ -3500,6 +3521,7 @@ if [ "$build_rdkit" = true ] ; then
                 $tree_from_build
 
       if cmake  \
+               -DCMAKE_PREFIX_PATH=$install_top_dir \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \

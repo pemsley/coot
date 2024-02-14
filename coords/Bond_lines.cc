@@ -4456,6 +4456,10 @@ Bond_lines_container::Bond_lines_container(int col) {
    bonds.push_back(a);
 }
 
+// #ifdef USE_BACKWARD
+// #include <utils/backward.hpp>
+// #endif
+
 // these are all-molecule atom indices (or should be) - not residue atom indices
 void
 Bond_lines_container::addBond(int colour_index,
@@ -4469,10 +4473,17 @@ Bond_lines_container::addBond(int colour_index,
                               bool add_end_end_cap      // default arg
                               ) {
 
+// #ifdef USE_BACKWARD
+//             backward::StackTrace st;
+//             backward::Printer p;
+//             st.load_here(32);
+//             p.print(st);
+// #endif
+
    // Needs further investigation
 
    // if (no_bonds_to_these_atoms.size() > 0)
-   // std::cout << "debug in addBond() " << no_bonds_to_these_atoms.size() << std::endl;
+   // std::cout << "debug in addBond() " << no_bonds_to_these_atoms.size() << " " << atom_index_1 << " " << atom_index_2 << std::endl;
 
    // if the atom selection has the same size as no_bonds_to_these_atoms then we don't want
    // to draw any bonds
@@ -4851,8 +4862,8 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
                         const coot::CartesianPair &cp = lp.second[jj];
                         int col = GREY_BOND; // just grey, really.
                         graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-                        int iat_1 = -1;
-                        int iat_2 = -1;
+                        int iat_1 = -1111; // signifying a CA-loop
+                        int iat_2 = -1111;
                         addBond(col, cp.getStart(), cp.getFinish(), cc, imod, iat_1, iat_2, true, true);
                      }
 
@@ -6789,6 +6800,9 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
    // Monomer bonds.
 
    // std::cout << "in do_colour_by_dictionary_and_by_chain_bonds_carbons_only() " << std::endl;
+
+   // std::cout << "in do_colour_by_dictionary_and_by_chain_bonds_carbons_only non-drawn bonds size " 
+   //           << no_bonds_to_these_atoms.size() << std::endl;
 
    coot::my_atom_colour_map_t atom_colour_map; // colour map for chain indexing
    atom_colour_map.fill_chain_id_map(asc);

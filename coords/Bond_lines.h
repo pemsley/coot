@@ -665,6 +665,7 @@ public:
    }
 
    // Used by make_colour_by_chain_bonds() - and others in the future?
+   // Used by get_bonds_mesh_for_selection_instanced() in coot_molecule_bonds_instanced.cc
    //
    Bond_lines_container(coot::protein_geometry *protein_geom,
                         const std::set<int> &no_bonds_to_these_atoms_in,

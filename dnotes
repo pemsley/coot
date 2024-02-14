@@ -11277,3 +11277,10 @@ need to start here:
    protein-geometry.hh
 1346       std::vector<std::pair<int, dictionary_residue_restraints_t> > dict_res_restraints;
 
+---
+Tue 13 Feb 2024 08:26:15 GMT
+
+ Python on macOS
+ https://spin.atomicobject.com/compiling-python-openssl/
+
+
