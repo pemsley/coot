@@ -102,3 +102,34 @@ int test_get_diff_map_peaks(molecules_container_t &mc) {
    return status;
 
 }
+
+int test_non_drawn_bond_multi_cid_2(molecules_container_t &mc) {
+
+   // test.only("Test non-drawn bonds and multi CID selection mesh --second", () => {
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   mc.set_use_gemmi(false);
+   int coordMolNo = mc.read_pdb("./5a3h.pdb");
+   if (mc.is_valid_model_molecule(coordMolNo)) {
+      auto instanceMesh_1 = mc.get_bonds_mesh_for_selection_instanced(
+         coordMolNo, "//A/10-20||//A/25-30", "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1, 1, 1);
+
+      mc.add_to_non_drawn_bonds(coordMolNo, "//A/26-30");
+      auto instanceMesh_2 = mc.get_bonds_mesh_for_selection_instanced(
+         coordMolNo, "//A/10-20||//A/25-30", "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1, 1, 1);
+
+      // mc.print_non_drawn_bonds(coordMolNo);
+
+      // std::cout << "debug:: mesh sizes " << instanceMesh_1.geom[1].instancing_data_B.size() << " "
+      //                                    << instanceMesh_2.geom[1].instancing_data_B.size()<< std::endl;
+
+      if (instanceMesh_2.geom[1].instancing_data_B.size() != instanceMesh_1.geom[1].instancing_data_B.size())
+         status = 1;
+   } else {
+      std::cout << "Bad read for 5a3h.pdb" << std::endl;
+   }
+
+   return status;
+
+}

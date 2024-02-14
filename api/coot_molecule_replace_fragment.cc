@@ -81,8 +81,8 @@ coot::molecule_t::replace_fragment(atom_selection_container_t asc) {
       int idx = -1;
       mmdb::Atom *at = asc.atom_selection[i];
 
-      std::cout << "debug:: in replace_fragment() with asc.UDDOldAtomIndexHandle "
-                << asc.UDDOldAtomIndexHandle << std::endl;
+      // std::cout << "debug:: in replace_fragment() with asc.UDDOldAtomIndexHandle "
+      //           << asc.UDDOldAtomIndexHandle << std::endl;
 
       if (! at->isTer()) {
          // can we find the atom with fast indexing?

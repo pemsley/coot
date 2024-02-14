@@ -509,11 +509,14 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       }
    }
 
+   // this does atom index transfer
    mmdb::Manager *new_mol = util::create_mmdbmanager_from_atom_selection(atom_sel.mol, udd_atom_selection, false);
+   int transfer_atom_index_handle = new_mol->GetUDDHandle(mmdb::UDR_ATOM, "transfer atom index");
    atom_selection_container_t atom_sel_ligand = make_asc(new_mol); // cleared up at end of function
+   atom_sel_ligand.UDDAtomIndexHandle = transfer_atom_index_handle;
    atom_sel.mol->DeleteSelection(udd_atom_selection);
 
-   if (true) {
+   if (false) {
       unsigned int n_atoms = count_atoms_in_mol(new_mol);
       std::cout << "debug:: in get_bonds_mesh_for_selection_instanced() there are " << n_atoms
                 << " atoms in the atom selection: " << multi_cids << std::endl;
@@ -547,8 +550,9 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
    bool goodsell_mode = false;
    bool do_rota_markup = false;
    bonds_box_type = coot::api_bond_colour_t::COLOUR_BY_CHAIN_BONDS; // used in colour table?
-   
+
    if (mode == "COLOUR-BY-CHAIN-AND-DICTIONARY") {
+
       Bond_lines_container bonds(geom, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag);
       bonds.do_colour_by_chain_bonds(atom_sel_ligand, false, imol_no, draw_hydrogen_atoms_flag,
                                      draw_missing_residue_loops, change_c_only_flag, goodsell_mode,

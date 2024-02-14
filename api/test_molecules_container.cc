@@ -5353,7 +5353,9 @@ int main(int argc, char **argv) {
 
    // status += run_test(test_jed_flip, "jed flip",    mc); // duplicate
 
-   status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc); // duplicate
+   // status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc); // duplicate
+
+   status += run_test(test_non_drawn_bond_multi_cid_2, "non-drawn bonds and multi CID selection mesh --second", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
