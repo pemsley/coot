@@ -1322,11 +1322,15 @@ coot::ligand::calculate_cluster_centres_and_eigens() {
       cluster[i].eigenvalues = eigens;
    }
 
-//    for (int i=0; i<cluster.size(); i++) {
-//       std::cout << "cluster score, points, eigen trn " << i << " "
-// 		<< cluster[i].score << " " << cluster[i].map_grid.size()
-// 		<< " " << cluster[i].eigenvectors_and_centre.trn().format() << std::endl;
-//    }
+   if (true) {
+      for (unsigned int i=0; i<cluster.size(); i++) {
+         std::cout << "cluster score, n-grid-points, eigen, trn: " << i << " "
+                   << cluster[i].score << " " << cluster[i].map_grid.size()
+            //                   << " " << cluster[i].eigenvectors_and_centre.rot().format()
+                   << " " << cluster[i].eigenvectors_and_centre.trn().format()
+                   << std::endl;
+      }
+   }
 
 }
 
@@ -1848,9 +1852,9 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
    coot::ligand_score_card this_scorecard;
 
    // Just like the helix algorithm, we search all eigenvectors.
-   clipper::Mat33<double> no_rotation    ( 1,  0,  0,   0,  1,  0,   0, 0,  1);
-   clipper::Mat33<double> x_axis_rotation( 1,  0,  0,   0, -1,  0,   0, 0, -1);
-   clipper::Mat33<double> y_axis_rotation(-1,  0,  0,   0,  1,  0,   0, 0, -1);
+   clipper::Mat33<double> no_rotation    (1, 0,  0, 0, 1,  0, 0, 0, 1);
+   clipper::Mat33<double> y_axis_rotation(0, 0, -1, 0, 1,  0, 1, 0, 0);
+   clipper::Mat33<double> x_axis_rotation(1, 0,  0, 0, 0, -1, 0, 1, 0);
    clipper::Mat33<double> z_axis_rotation(-1,  0,  0,   0, -1,  0,   0, 0,  1);
    clipper::RTop_orth no_rotation_op(no_rotation, clipper::Coord_orth(0,0,0));
    clipper::RTop_orth  y_axis_op(y_axis_rotation, clipper::Coord_orth(0,0,0));
@@ -1896,7 +1900,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
    };
 
    auto transform_ligand_atom = [] (const clipper::Coord_orth &position,
-                                    const clipper::RTop_orth &cluster_rtop,
+                                    const clipper::RTop_orth &cluster_eigenvectors_and_centre_rtop,
                                     const clipper::Mat33<double> &initial_ligand_eigenvector,
                                     const clipper::Coord_orth &initial_ligand_model_centre,
                                     const clipper::Mat33<double> &origin_rotation) {
@@ -1906,7 +1910,13 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
                                    clipper::RTop_orth origin_rotation_op(origin_rotation, zero);
                                    clipper::Coord_orth a = position.transform(lopi);
                                    a = a.transform(origin_rotation_op);
-                                   a = a.transform(cluster_rtop);
+                                   if (true) {
+                                      clipper::RTop_orth synth_rtop(clipper::Mat33<double>::identity(),
+                                                                    cluster_eigenvectors_and_centre_rtop.trn());
+                                      a = a.transform(synth_rtop);
+                                   } else {
+                                      a = a.transform(cluster_eigenvectors_and_centre_rtop);
+                                   }
                                    return a;
                                 };
 
@@ -1930,8 +1940,9 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
                                                                          initial_ligand_eigenvector, initial_ligand_model_centre,
                                                                          eigen_orientation.rot());
 
-                             rigid_body_refine_ligand(&atoms_p, std::cref(xmap_masked), std::cref(xmap_pristine),
-                                                      rotation_component, gradient_scale); // ("rigid body") move atoms.
+                             // rigid_body_refine_ligand(&atoms_p, std::cref(xmap_masked), std::cref(xmap_pristine),
+                             // rotation_component, gradient_scale); // ("rigid body") move atoms.
+
                              float fit_fraction = 0.1;
                              ligand_score_card lsc = score_orientation(atoms_p, std::cref(xmap_pristine), fit_fraction);
                              lsc.set_ligand_number(ilig);
@@ -1974,6 +1985,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
 
          n_rot = 1; // 20240209-PE now that we have 4 n_eigen_oris, we don't need to test the rotations
                     // (because they are all the same solution)
+
          for (int i_eigen_ori=0; i_eigen_ori<n_eigen_oris; i_eigen_ori++) {
             for (int ior=0; ior<n_rot; ior++) {
                std::pair<minimol::molecule, ligand_score_card> scored_ligand =
@@ -1985,7 +1997,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
                                   std::cref(xmap_pristine),
                                   rotation_component, gradient_scale);
                get_results_lock();
-               if (debug)
+               if (true)
                   std::cout << "fit_ligands_to_cluster(): fit_ligand_to_cluster():"
                             << " i_clust " << iclust
                             << " i_eigen_ori " << i_eigen_ori << " ior " << ior
@@ -1993,6 +2005,11 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
                             << std::endl;
                results.push_back(scored_ligand);
                release_results_lock();
+               if (true) {
+                  std::string fn("fit-ligand-copy:" + std::to_string(ilig) + ":" +
+                                 std::to_string(i_eigen_ori) + ":" + std::to_string(ior) + ".pdb");
+                  scored_ligand.first.write_file(fn, 20.0);
+               }
             }
          }
       } else {
