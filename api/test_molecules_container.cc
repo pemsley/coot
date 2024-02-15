@@ -5064,6 +5064,30 @@ int test_shiftfield_b_factor_refinement(molecules_container_t &mc) {
    return status;
 }
 
+int test_split_model(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb("203d.pdb.gz");
+   std::vector<int> new_mol_indices = mc.split_multi_model_molecule(imol);
+   std::cout << "new_mol_indices was of size " << new_mol_indices.size() << std::endl;
+   if (new_mol_indices.size() == 40) {
+      unsigned int n_models = 0;
+      for (int i : new_mol_indices) {
+         mmdb::Manager *mol = mc.get_mol(i);
+         if (mol) {
+            mmdb::Model *model_p = mol->GetModel(1);
+            // std::cout << "MODEL 1 for molecule " << i << " " << model_p << std::endl;
+            if (model_p) n_models++;
+         }
+      }
+      if (n_models == 40) status = 1;
+   }
+
+   return status;
+}
+
 
 int test_template(molecules_container_t &mc) {
 
@@ -5300,6 +5324,8 @@ int main(int argc, char **argv) {
    status += run_test(test_non_drawn_CA_bonds, "non-drawn bonds in CA+LIGANDS", mc);
 
    status += run_test(test_change_chain_id_1, "change chain-id filo-1", mc);
+
+   status += run_test(test_split_model, "split model", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

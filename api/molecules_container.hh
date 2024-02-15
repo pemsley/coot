@@ -501,6 +501,10 @@ public:
    //! is already a model molecule
    void replace_molecule_by_model_from_file(int imol, const std::string &pdb_file_name);
 
+   //! split an NMR model into multiple models - all in MODEL 1.
+   //! @return the vector of new molecule indices.
+   std::vector<int> split_multi_model_molecule(int imol);
+
    //! @return the model molecule imol as a string. Return emtpy string on error
    std::string molecule_to_PDB_string(int imol) const;
 

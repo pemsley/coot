@@ -5231,3 +5231,27 @@ molecules_container_t::change_chain_id(int imol,
    }
    return status;
 }
+
+//! split an NMR model into multiple models - all in MODEL 1.
+//! @return the vector of new molecule indices.
+std::vector<int>
+molecules_container_t::split_multi_model_molecule(int imol) {
+
+   std::vector<int> v;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = get_mol(imol);
+      if (mol) {
+         std::vector<mmdb::Manager *> mv = coot::util::split_multi_model_molecule(mol);
+         for (unsigned int i=0; i<mv.size(); i++) {
+            auto asc = make_asc(mv[i]);
+            std::string name = "split-molecule" + std::to_string(i+1);
+            int idx = molecules.size();
+            molecules.push_back(coot::molecule_t(asc, idx, name));
+            v.push_back(idx);
+         }
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}
