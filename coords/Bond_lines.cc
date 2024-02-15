@@ -8418,9 +8418,13 @@ Bond_lines_container::add_atom_centres(int imol,
 
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
 
-      if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
+      mmdb::Atom *at = SelAtom.atom_selection[i];
+      int idx = -1;
+      at->GetUDData(SelAtom.UDDAtomIndexHandle, idx);
+      // std::cout << "at " << at << "  idx: " << idx << std::endl;
 
-         mmdb::Atom *at = SelAtom.atom_selection[i];
+      if (no_bonds_to_these_atoms.find(idx) == no_bonds_to_these_atoms.end()) {
+
          bool is_H_flag = false;
          std::string res_type(at->GetResName());
          bool have_dict_for_this_type = false;
@@ -8443,7 +8447,7 @@ Bond_lines_container::add_atom_centres(int imol,
             is_H_flag = true;
          if (do_bonds_to_hydrogens || (do_bonds_to_hydrogens == 0 && (!is_H_flag))) {
             coot::Cartesian pos(at->x, at->y, at->z);
-            graphical_bonds_atom_info_t gbai(pos, i, is_H_flag);
+            graphical_bonds_atom_info_t gbai(pos, idx, is_H_flag);
 
             // Fat atoms are for atom in residues with no dictionary
             bool make_fat_atom = false;
