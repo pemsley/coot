@@ -289,6 +289,7 @@ NB_MODULE(chapi, m) {
     .def("auto_fit_rotamer",&molecules_container_t::auto_fit_rotamer)
     .def("rigid_body_fit",&molecules_container_t::rigid_body_fit)
     .def("cis_trans_convert",&molecules_container_t::cis_trans_convert)
+    .def("split_multi_model_molecule",&molecules_container_t::split_multi_model_molecule)
     .def("set_draw_missing_residue_loops",&molecules_container_t::set_draw_missing_residue_loops)
     .def("get_map_contours_mesh",&molecules_container_t::get_map_contours_mesh)
     .def("geometry_init_standard",&molecules_container_t::geometry_init_standard)
