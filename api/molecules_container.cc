@@ -2470,14 +2470,14 @@ molecules_container_t::shift_field_b_factor_refinement(int imol, int imol_with_d
             const clipper::HKL_data<clipper::data32::Flag>  *rfree_flag = molecules[imol_map].get_original_rfree_flags();
             std::cout << "debug:: fobs_data" << fobs_data << " rfree " << rfree_flag << std::endl;
             if (fobs_data && rfree_flag) {
-               std::cout << "OK go with refinement of molecule " << imol << std::endl;
                status = molecules[imol].shiftfield_b_factor_refinement(*fobs_data, *rfree_flag);
+               set_updating_maps_need_an_update(imol);
             }
          }
       }
    }
    catch(const std::runtime_error& rte) {
-      std::cerr << rte.what() << '\n';
+      std::cout << rte.what() << '\n';
    }
    return status;
 }
@@ -5203,6 +5203,7 @@ molecules_container_t::multiply_residue_temperature_factors(int imol, const std:
 
    if (is_valid_model_molecule(imol)) {
       molecules[imol].multiply_residue_temperature_factors(cid, factor);
+      set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
