@@ -124,8 +124,21 @@ int test_non_drawn_bond_multi_cid_2(molecules_container_t &mc) {
       // std::cout << "debug:: mesh sizes " << instanceMesh_1.geom[1].instancing_data_B.size() << " "
       //                                    << instanceMesh_2.geom[1].instancing_data_B.size()<< std::endl;
 
-      if (instanceMesh_2.geom[1].instancing_data_B.size() != instanceMesh_1.geom[1].instancing_data_B.size())
-         status = 1;
+      std::cout << "debug:: A sizes "
+                << instanceMesh_1.geom[0].instancing_data_A.size() << " "
+                << instanceMesh_2.geom[0].instancing_data_A.size()<< std::endl;
+      std::cout << "debug:: B sizes "
+                << instanceMesh_1.geom[1].instancing_data_B.size() << " "
+                << instanceMesh_2.geom[1].instancing_data_B.size()<< std::endl;
+      if (instanceMesh_2.geom[1].instancing_data_B.size() < instanceMesh_1.geom[1].instancing_data_B.size()) {
+         if (instanceMesh_2.geom[0].instancing_data_A.size() < instanceMesh_1.geom[0].instancing_data_A.size()) {
+            status = 1;
+         } else {
+            std::cout << "bad A mesh size match" << std::endl;
+         }
+      } else {
+         std::cout << "bad B mesh size match" << std::endl;
+      }
    } else {
       std::cout << "Bad read for 5a3h.pdb" << std::endl;
    }

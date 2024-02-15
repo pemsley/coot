@@ -5315,17 +5315,16 @@ int main(int argc, char **argv) {
       status += run_test(test_17257, "read emd_17257.map.gz",    mc);
       status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
       status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc);
+      status += run_test(test_non_drawn_CA_bonds, "non-drawn bonds in CA+LIGANDS", mc);
+      status += run_test(test_change_chain_id_1, "change chain-id filo-1", mc);
+      status += run_test(test_split_model, "split model", mc);
 
       // Note to self:
       // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
 
    }
 
-   status += run_test(test_non_drawn_CA_bonds, "non-drawn bonds in CA+LIGANDS", mc);
-
-   status += run_test(test_change_chain_id_1, "change chain-id filo-1", mc);
-
-   status += run_test(test_split_model, "split model", mc);
+   status += run_test(test_non_drawn_bond_multi_cid_2, "non-drawn-bonds multi-cid 2", mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
