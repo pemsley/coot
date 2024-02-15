@@ -4511,15 +4511,20 @@ Bond_lines_container::addBond(int colour_index,
    coot::CartesianPair pair(start,end);
    int bonds_size = bonds.size();
    // std::cout << "in addBond()  colour_index " << colour_index << " bonds.size(): " << bonds.size() << std::endl;
-   if (colour_index >= bonds_size) {
-      bonds.resize(colour_index+1);
-      // std::cout << "in addBond() resizeing bonds to " << bonds.size() << std::endl;
-      bonds[colour_index].add_bond(pair, cc, add_begin_end_cap, add_end_end_cap, model_number,
-                                   atom_index_1, atom_index_2);
+
+   if (colour_index == -1) {
+      std::cout << "ERROR:: colour_index is -1!" << std::endl;
    } else {
-      // normal path
-      bonds[colour_index].add_bond(pair, cc, add_begin_end_cap, add_end_end_cap, model_number,
-                                   atom_index_1, atom_index_2);
+      if (colour_index >= bonds_size) {
+         bonds.resize(colour_index+1);
+         // std::cout << "in addBond() resizeing bonds to " << bonds.size() << std::endl;
+         bonds[colour_index].add_bond(pair, cc, add_begin_end_cap, add_end_end_cap, model_number,
+                                      atom_index_1, atom_index_2);
+      } else {
+         // normal path
+         bonds[colour_index].add_bond(pair, cc, add_begin_end_cap, add_end_end_cap, model_number,
+                                      atom_index_1, atom_index_2);
+      }
    }
 }
 
@@ -5461,6 +5466,11 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
    int idx_col_udd;
    if (at->GetUDData(udd_user_defined_atom_colour_index_handle, idx_col_udd) == mmdb::UDDATA_Ok) {
       // std::cout << "in atom_colour(): for atom " << at << " using user defined colour " << idx_col_udd << std::endl;
+
+      if (idx_col_udd == -1) { // -1 is a disaster, because bonds[col] is used downstream
+         std::cout << "DISASTER from bad index averted! " << coot::atom_spec_t(at) << std::endl;
+         idx_col_udd = 0;
+      }
       return idx_col_udd;
    }
 
