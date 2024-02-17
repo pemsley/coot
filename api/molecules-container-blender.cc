@@ -47,10 +47,10 @@ molecules_container_t::make_mesh_for_bonds_for_blender(int imol, const std::stri
 void
 molecules_container_t::make_mesh_for_molecular_representation_for_blender(int imol,
                                                                           const std::string &cid,
-                                                                          const std::string &style,
-                                                                          const std::string &colour_scheme) {
+                                                                          const std::string &colour_scheme,
+                                                                          const std::string &style) {
    if (is_valid_model_molecule(imol)) {
-      molecules[imol].make_mesh_for_molecular_representation_for_blender(cid, style, colour_scheme); // ribbons, etc
+      molecules[imol].make_mesh_for_molecular_representation_for_blender(cid, colour_scheme, style); // ribbons, etc
    }
 }
 

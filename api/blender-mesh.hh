@@ -18,6 +18,7 @@ namespace coot {
    };
 
    class blender_mesh_t {
+      static size_t make_colour_hash(const glm::vec4 &col);
    public:
       blender_mesh_t() {}
       explicit blender_mesh_t(const instanced_mesh_t &im);

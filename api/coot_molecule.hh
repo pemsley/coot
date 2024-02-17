@@ -1187,8 +1187,8 @@ namespace coot {
       void make_mesh_for_bonds_for_blender(const std::string &mode, protein_geometry *geom);
 
       void make_mesh_for_molecular_representation_for_blender(const std::string &cid,
-                                                              const std::string &style,
-                                                              const std::string &colour_scheme);
+                                                              const std::string &colour_scheme,
+                                                              const std::string &style);
 
       void make_mesh_for_map_contours_for_blender(Cartesian position, float contour_level, float radius);
 

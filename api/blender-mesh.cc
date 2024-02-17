@@ -7,45 +7,75 @@
 
 #include "blender-mesh.hh"
 
-coot::blender_mesh_t::blender_mesh_t(const coot::simple_mesh_t &im) {
+// static
+size_t
+coot::blender_mesh_t:: make_colour_hash(const glm::vec4 &col) {
 
-   std::cout << "blender mesh from simple mesh - to do later" << std::endl;
+   // Convert the components to integers and combine them
+   int r = static_cast<int>(col.r *  255);
+   int g = static_cast<int>(col.g *  255);
+   int b = static_cast<int>(col.b *  255);
+   int a = static_cast<int>(col.a *  255);
+
+   // Combine the components into a single integer
+   size_t combined = (r <<  24) | (g <<  16) | (b <<  8) | a;
+
+   // Use std::hash to create a hash from the combined integer
+   return std::hash<size_t>{}(combined);
+}
+
+
+coot::blender_mesh_t::blender_mesh_t(const coot::simple_mesh_t &mesh) {
+
+   auto colour_from_index_triple = [&mesh] (const g_triangle &tri) {
+      unsigned int idx = tri.point_id[0];
+      return mesh.vertices[idx].color;
+   };
+
+   std::map<size_t, int > colour_hash_map; // hash code to colour index
+
+   // colour table
+   for (unsigned int i=0; i<mesh.triangles.size(); i++) {
+      glm::vec4 col = colour_from_index_triple(mesh.triangles[i]);
+      size_t hash = make_colour_hash(col);
+      std::map<size_t, int >::const_iterator it = colour_hash_map.find(hash);
+      if (it == colour_hash_map.end()) {
+         int new_idx = colour_hash_map.size();
+         colour_hash_map[hash] = new_idx;
+         colour_table[new_idx] = col;
+      }
+   }
+
+   vertices.resize(mesh.vertices.size());
+   for (unsigned int i=0; i<mesh.vertices.size(); i++) {
+      vertices[i] = mesh.vertices[i].pos;
+   }
+
+   normals.resize(mesh.vertices.size());
+   for (unsigned int i=0; i<mesh.vertices.size(); i++) {
+      normals[i] = mesh.vertices[i].normal;
+   }
+
+   triangles.resize(mesh.triangles.size());
+   for (unsigned int i=0; i<mesh.triangles.size(); i++) {
+      glm::vec4 col = colour_from_index_triple(mesh.triangles[i]);
+      size_t hash = make_colour_hash(col);
+      int colour_index = colour_hash_map[hash]; // should always find
+      blender_triangle_t bt(mesh.triangles[i], colour_index);
+      triangles[i] = bt;
+   }
 
 }
 
 coot::blender_mesh_t::blender_mesh_t(const coot::instanced_mesh_t &im) {
 
-   // this is useful for simple mesh vertices
-   auto make_colour_hash_from_triple = [] (const glm::vec4 &c0, const glm::vec4 &c1, const glm::vec4 &c2) {
-      double rr = c0.r + 1290.0 * c1.r + 1290.0 * 1290.0 * c2.r;
-      double gg = c0.g + 1290.0 * c1.g + 1290.0 * 1290.0 * c2.g;
-      double bb = c0.b + 1290.0 * c1.b + 1290.0 * 1290.0 * c2.b;
-      double aa = c0.a + 1290.0 * c1.a + 1290.0 * 1290.0 * c2.a;
-      double ss = rr + 35.0 * gg + 35.0 * 35.0 * bb + 35.0 * 35.0 * 35.0 * aa;
-      long h = static_cast<long>(ss);
-      return h;
-   };
 
-   // used for instanced colours
-   auto make_colour_hash = [] (const glm::vec4 &col) {
-      // Convert the components to integers and combine them
-      int r = static_cast<int>(col.r *  255);
-      int g = static_cast<int>(col.g *  255);
-      int b = static_cast<int>(col.b *  255);
-      int a = static_cast<int>(col.a *  255);
-    
-      // Combine the components into a single integer
-      size_t combined = (r <<  24) | (g <<  16) | (b <<  8) | a;
-      
-      // Use std::hash to create a hash from the combined integer
-      return std::hash<size_t>{}(combined);
-   };
 
    std::map<size_t, int > colour_hash_map; // hash code to colour index
 
-   auto get_colour_index = [make_colour_hash] (const glm::vec4 &col,
-                                               std::map<size_t, int > *colour_hash_map_p,
-                                               std::map<int, glm::vec4> *colour_map_p) {
+   auto get_colour_index = [] (const glm::vec4 &col,
+                               std::map<size_t, int > *colour_hash_map_p,
+                               std::map<int, glm::vec4> *colour_map_p) {
       int idx = -1;
       size_t hash = make_colour_hash(col);
       std::map<size_t, int >::const_iterator it = colour_hash_map_p->find(hash);
@@ -139,6 +169,6 @@ coot::blender_mesh_t::blender_mesh_t(const coot::instanced_mesh_t &im) {
    // ------------------------------ simple mesh geometry -------------------------------
 
 
-   // ... fill later              
+   // ... fill later
 
 }

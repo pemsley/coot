@@ -29,8 +29,8 @@ coot::molecule_t::make_mesh_for_bonds_for_blender(const std::string &mode, prote
 
 void
 coot::molecule_t::make_mesh_for_molecular_representation_for_blender(const std::string &cid,
-                                                                     const std::string &style,
-                                                                     const std::string &colour_scheme) {
+                                                                     const std::string &colour_scheme,
+                                                                     const std::string &style) {
 
    simple_mesh_t mesh = get_molecular_representation_mesh(cid, colour_scheme, style);
 
@@ -103,7 +103,6 @@ coot::molecule_t::get_colour_table_for_blender() const {
             v[i*4+2] = 0.3;
             v[i*4+3] = 1.0;
          } else {
-            std::cout << "found colour i " << i << std::endl;
             v[i*4  ] = it->second.r;
             v[i*4+1] = it->second.g;
             v[i*4+2] = it->second.b;
