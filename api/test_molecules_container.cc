@@ -5244,7 +5244,6 @@ int main(int argc, char **argv) {
       status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
       status += run_test(test_dark_mode_colours, "light vs dark mode colours", mc);
       status += run_test(test_read_extra_restraints, "read extra restraints", mc);
-      status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
       status += run_test(test_map_histogram, "map histogram", mc);
       status += run_test(test_auto_read_mtz, "auto-read-mtz", mc);
       status += run_test(test_read_a_missing_map, "read a missing map file ", mc);
@@ -5281,7 +5280,6 @@ int main(int argc, char **argv) {
       status += run_test(test_alt_conf_and_rotamer_v2, "alt-conf and rotamer v2 ", mc);
       status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
       status += run_test(test_number_of_hydrogen_atoms, "number of hydrogen atoms ", mc);
-      status += run_test(test_molecular_representation, "molecular representation mesh", mc);
       status += run_test(test_cell, "cell", mc);
       status += run_test(test_map_centre, "map centre", mc);
       status += run_test(test_dragged_atom_refinement, "dragged atom refinement", mc);

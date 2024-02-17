@@ -1661,6 +1661,18 @@ public:
    }
    
    
+   // -------------------------------- Blender Interface ---------------------------------------
+
+   void make_mesh_for_map_contours_for_blender(int imol, float x, float y, float z, float level, float radius);
+   void make_mesh_for_bonds_for_blender(int imol, const std::string &mode);
+   void make_mesh_for_molecular_representation_for_blender(int imol,
+                                                           const std::string &cid,
+                                                           const std::string &colour_scheme,
+                                                           const std::string &style);
+   std::vector<float> get_colour_table_for_blender(int imol);
+   std::vector<float> get_vertices_for_blender(int imol);
+   std::vector<int>   get_triangles_for_blender(int imol);
+
    // -------------------------------- Other ---------------------------------------
 
 #ifdef SWIG

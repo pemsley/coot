@@ -353,6 +353,12 @@ NB_MODULE(chapi, m) {
     .def("get_map_molecule_centre",&molecules_container_t::get_map_molecule_centre)
     .def("get_cell",&molecules_container_t::get_cell)
     .def("get_residue_using_cid",&molecules_container_t::get_residue_using_cid)
+       .def("make_mesh_for_map_contours_for_blender", &molecules_container_t::make_mesh_for_map_contours_for_blender)
+       .def("make_mesh_for_molecular_representation_for_blender", &molecules_container_t::make_mesh_for_molecular_representation_for_blender)
+       .def("make_mesh_for_bonds_for_blender", &molecules_container_t::make_mesh_for_bonds_for_blender)
+       .def("get_colour_table_for_blender", &molecules_container_t::get_colour_table_for_blender)
+       .def("get_vertices_for_blender", &molecules_container_t::get_vertices_for_blender)
+       .def("get_triangles_for_blender", &molecules_container_t::get_triangles_for_blender)
     ;
     nb::class_<molecules_container_js, molecules_container_t>(m,"molecules_container_py")
     .def(nb::init<bool>())

@@ -132,10 +132,11 @@ add_library(cootapi SHARED
             ${coot_src}/MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/lfit.c
             ${coot_src}/api/rigid-body-fit.cc
+            ${coot_src}/api/blender-mesh.cc
+            ${coot_src}/api/molecules-container-blender.cc
             ${coot_src}/api//molecules_container_bucca_ml_growing.cc
             ${coot_src}/api/molecules_container_mmrrcc.cc
             ${coot_src}/api/molecules_container_superpose.cc
-            ${coot_src}/api/coot_molecule_validation.cc
             ${coot_src}/api/molecules_container_modelling.cc
             ${coot_src}/api/add-terminal-residue.cc
             ${coot_src}/api/interfaces.cc
@@ -148,13 +149,15 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot_molecule_bonds_instanced.cc
             ${coot_src}/api/coot_molecule_maps.cc
             ${coot_src}/api/coot_molecule_change_chain_id.cc
-            ${coot_src}/api/moorhen-h-bonds.cc
             ${coot_src}/api/coot_molecule_moltris.cc
-            ${coot_src}/api/phi-psi-prob.cc
-            ${coot_src}/api/molecules_container_ligand_fitting.cc
+            ${coot_src}/api/coot_molecule_validation.cc
             ${coot_src}/api/coot_molecule_merge_molecules.cc
             ${coot_src}/api/coot_molecule_refine.cc
             ${coot_src}/api/coot_molecule_replace_fragment.cc
+            ${coot_src}/api/coot-molecule-blender.cc
+            ${coot_src}/api/molecules_container_ligand_fitting.cc
+            ${coot_src}/api/phi-psi-prob.cc
+            ${coot_src}/api/moorhen-h-bonds.cc
             ${coot_src}/api/add-terminal-residue.cc
             ${coot_src}/api/molecules_container.cc
             ${coot_src}/api/molecules_container_bucca_ml_growing.cc
