@@ -1660,8 +1660,8 @@ public:
    coot::protein_geometry & get_geometry() {
       return geom;
    }
-   
-   
+
+
    // -------------------------------- Blender Interface ---------------------------------------
 
    void make_mesh_for_map_contours_for_blender(int imol, float x, float y, float z, float level, float radius);
