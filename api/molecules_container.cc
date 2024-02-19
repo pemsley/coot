@@ -5255,3 +5255,28 @@ molecules_container_t::split_multi_model_molecule(int imol) {
    }
    return v;
 }
+
+
+//! Fourier Shell Correlation (FSC) between maps
+//! @return a vector or pairs of graph points (resolution, correlation)
+std::vector<std::pair<double, double> >
+molecules_container_t::fourier_shell_correlation(int imol_map_1, int imol_map_2) const {
+
+   std::vector<std::pair<double, double> > v;
+
+   if (is_valid_map_molecule(imol_map_1)) {
+      if (is_valid_map_molecule(imol_map_2)) {
+         const clipper::Xmap<float> &xmap_1 = molecules[imol_map_1].xmap;
+         const clipper::Xmap<float> &xmap_2 = molecules[imol_map_2].xmap;
+         auto fsc = coot::util::fsc(xmap_1, xmap_2);
+         if (! fsc.empty()) {
+            v.resize(fsc.size());
+            for (unsigned int i=0; i<fsc.size(); i++) {
+               v[i].first  = fsc[i].first.invresolsq_limit();
+               v[i].second = fsc[i].second;
+            }
+         }
+      }
+   }
+   return v;
+}

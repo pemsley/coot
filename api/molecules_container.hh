@@ -1392,7 +1392,7 @@ public:
                       bool ignore_part_occ_contact_flag,
                       bool ignore_zero_occ_flag);
 
-   //! calculate the MMRRCC for the residues in the chain
+   //! Calculate the MMRRCC for the residues in the chain
    //! Multi Masked Residue Range Corellation Coefficient
 #ifdef SWIG
 #else
@@ -1411,6 +1411,11 @@ public:
                    const std::string &chain_id,
                    const clipper::Xmap<float> &xmap) const;
 #endif
+
+   //! Fourier Shell Correlation (FSC) between maps
+   //! @return a vector or pairs of graph points (resolution, correlation). The resolution is in inverse Angstroms squared.
+   //!  An empty list is returned on failure
+   std::vector<std::pair<double, double> > fourier_shell_correlation(int imol_map_1, int imol_map_2) const;
 
    // -------------------------------- Rail Points ------------------------------------------
    //! \name Rail Points!
@@ -1477,6 +1482,7 @@ public:
                                                                                float screen_centre_x,
                                                                                float screen_centre_y,
                                                                                float screen_centre_z) const;
+
 
    //! the stored data set file name
    std::string get_data_set_file_name(int imol) const;
