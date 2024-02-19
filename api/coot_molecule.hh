@@ -44,6 +44,7 @@
 #include "api-cell.hh" // 20230702-PE not needed in this file - remove it from here
 
 #include "bond-colour.hh"
+#include "blender-mesh.hh"
 
 // 2023-07-04-PE This is a hack. This should be configured - and the
 // various functions that depend on this being true should be
@@ -1173,6 +1174,23 @@ namespace coot {
 
       // the molecule is passed so that the peaks are placed around the protein
       std::vector<interesting_place_t> difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const;
+
+
+      // ---------------------------------- blender --------------------------------------
+
+      blender_mesh_t blender_mesh;
+      std::vector<float> get_vertices_for_blender() const;
+      std::vector<int> get_triangles_for_blender() const;
+      std::vector<float> get_colour_table_for_blender() const;
+
+      // pass other things here
+      void make_mesh_for_bonds_for_blender(const std::string &mode, protein_geometry *geom);
+
+      void make_mesh_for_molecular_representation_for_blender(const std::string &cid,
+                                                              const std::string &colour_scheme,
+                                                              const std::string &style);
+
+      void make_mesh_for_map_contours_for_blender(Cartesian position, float contour_level, float radius);
 
    };
 }

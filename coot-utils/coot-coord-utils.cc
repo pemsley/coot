@@ -9566,3 +9566,24 @@ coot::ncs_related_chains(mmdb::Manager *mol, int imod) {
    return v;
 
 }
+
+
+// split a NRM model into multiple models all with MODEL 1. 
+std::vector<mmdb::Manager *>
+coot::util::split_multi_model_molecule(mmdb::Manager *mol) {
+
+   std::vector<mmdb::Manager *> v;
+
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         mmdb::Model *new_model = new mmdb::Model;
+         mmdb::Manager *new_mol = new mmdb::Manager;
+         new_model->Copy(model_p);
+         new_mol->AddModel(new_model);
+         v.push_back(new_mol);
+      }
+   }
+
+   return v;
+}

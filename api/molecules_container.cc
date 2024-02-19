@@ -2470,14 +2470,14 @@ molecules_container_t::shift_field_b_factor_refinement(int imol, int imol_with_d
             const clipper::HKL_data<clipper::data32::Flag>  *rfree_flag = molecules[imol_map].get_original_rfree_flags();
             std::cout << "debug:: fobs_data" << fobs_data << " rfree " << rfree_flag << std::endl;
             if (fobs_data && rfree_flag) {
-               std::cout << "OK go with refinement of molecule " << imol << std::endl;
                status = molecules[imol].shiftfield_b_factor_refinement(*fobs_data, *rfree_flag);
+               set_updating_maps_need_an_update(imol);
             }
          }
       }
    }
    catch(const std::runtime_error& rte) {
-      std::cerr << rte.what() << '\n';
+      std::cout << rte.what() << '\n';
    }
    return status;
 }
@@ -5203,6 +5203,7 @@ molecules_container_t::multiply_residue_temperature_factors(int imol, const std:
 
    if (is_valid_model_molecule(imol)) {
       molecules[imol].multiply_residue_temperature_factors(cid, factor);
+      set_updating_maps_need_an_update(imol);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -5229,4 +5230,53 @@ molecules_container_t::change_chain_id(int imol,
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return status;
+}
+
+//! split an NMR model into multiple models - all in MODEL 1.
+//! @return the vector of new molecule indices.
+std::vector<int>
+molecules_container_t::split_multi_model_molecule(int imol) {
+
+   std::vector<int> v;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = get_mol(imol);
+      if (mol) {
+         std::vector<mmdb::Manager *> mv = coot::util::split_multi_model_molecule(mol);
+         for (unsigned int i=0; i<mv.size(); i++) {
+            auto asc = make_asc(mv[i]);
+            std::string name = "split-molecule" + std::to_string(i+1);
+            int idx = molecules.size();
+            molecules.push_back(coot::molecule_t(asc, idx, name));
+            v.push_back(idx);
+         }
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}
+
+
+//! Fourier Shell Correlation (FSC) between maps
+//! @return a vector or pairs of graph points (resolution, correlation)
+std::vector<std::pair<double, double> >
+molecules_container_t::fourier_shell_correlation(int imol_map_1, int imol_map_2) const {
+
+   std::vector<std::pair<double, double> > v;
+
+   if (is_valid_map_molecule(imol_map_1)) {
+      if (is_valid_map_molecule(imol_map_2)) {
+         const clipper::Xmap<float> &xmap_1 = molecules[imol_map_1].xmap;
+         const clipper::Xmap<float> &xmap_2 = molecules[imol_map_2].xmap;
+         auto fsc = coot::util::fsc(xmap_1, xmap_2);
+         if (! fsc.empty()) {
+            v.resize(fsc.size());
+            for (unsigned int i=0; i<fsc.size(); i++) {
+               v[i].first  = fsc[i].first.invresolsq_limit();
+               v[i].second = fsc[i].second;
+            }
+         }
+      }
+   }
+   return v;
 }

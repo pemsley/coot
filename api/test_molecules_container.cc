@@ -1943,7 +1943,7 @@ int test_ligand_fitting_in_map(molecules_container_t &mc) {
          if (mc.is_valid_map_molecule(imol_map)) {
             float n_rmsd = 1.0;
             bool make_conformers = true;
-            unsigned int n_conformers = 8;
+            unsigned int n_conformers = 80;
             std::vector<molecules_container_t::fit_ligand_info_t> solutions =
                mc.fit_ligand(imol, imol_map, imol_ligand, n_rmsd, make_conformers, n_conformers);
             std::cout << "found " << solutions.size() << " ligand fitting solutions" << std::endl;
@@ -2002,6 +2002,46 @@ int test_ligand_fitting_in_map(molecules_container_t &mc) {
    return status;
 
 }
+
+
+int test_ligand_fitting_in_map_LZA(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   int imol_ligand = mc.get_monomer("LZA");
+
+   if (mc.is_valid_model_molecule(imol)) {
+      if (mc.is_valid_model_molecule(imol_ligand)) {
+         if (mc.is_valid_map_molecule(imol_map)) {
+            float n_rmsd = 1.0;
+            bool make_conformers = false;
+            unsigned int n_conformers = 8;
+            std::vector<molecules_container_t::fit_ligand_info_t> solutions =
+               mc.fit_ligand(imol, imol_map, imol_ligand, n_rmsd, make_conformers, n_conformers);
+            std::cout << "DEBUG:: in test_ligand_fitting_in_map_LZA(): found "
+                      << solutions.size() << " ligand fitting solutions" << std::endl;
+
+            // tell me about the solutions:
+            for (unsigned int i=0; i<solutions.size(); i++) {
+               const auto &sol(solutions[i]);
+               std::cout << "    LZA Solution " << i << " : "
+                         << " volume: " << sol.get_cluster_volume()
+                         << " imol: " << sol.imol
+                         << " cluster-idx: " << sol.cluster_idx
+                         << " ligand-idx: " << sol.ligand_idx
+                         << " correl: " << sol.get_fitting_score() << " " << std::endl;
+               std::string fn("Ligand-sol-" + coot::util::int_to_string(sol.imol) + ".pdb");
+               mc.write_coordinates(sol.imol, fn);
+            }
+         }
+      }
+   }
+   return status;
+}
+
 
 
 int test_write_map_is_sane(molecules_container_t &mc) {
@@ -4496,24 +4536,28 @@ int test_disappearing_ligand(molecules_container_t &mc) {
    int status = 0;
    // int imol = mc.read_pdb(reference_data("6ttq.cif")); // needs gemmi
    int imol = mc.read_pdb(reference_data("8a2q.cif"));
-   mmdb::Manager *mol = mc.get_mol(imol);
-   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-      mmdb::Model *model_p = mol->GetModel(imod);
-      if (model_p) {
-         int n_chains = model_p->GetNumberOfChains();
-         for (int ichain=0; ichain<n_chains; ichain++) {
-            mmdb::Chain *chain_p = model_p->GetChain(ichain);
-            int n_res = chain_p->GetNumberOfResidues();
-            std::cout << "    " << chain_p->GetChainID() << " " << n_res << " residues " << std::endl;
+   if (mc.is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = mc.get_mol(imol);
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               std::cout << "    " << chain_p->GetChainID() << " " << n_res << " residues " << std::endl;
+            }
          }
       }
+      mc.import_cif_dictionary(reference_data("MOI.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+      int imol_lig = mc.get_monomer("MOI");
+      std::string sl = std::to_string(imol_lig);
+      std::pair<int, std::vector<merge_molecule_results_info_t> > ss = mc.merge_molecules(imol, sl);
+      mc.write_coordinates(imol, "merged.cif");
+      gemmi::Structure st = gemmi::read_structure_file("merged.cif");
+   } else {
+      std::cout << "Failed to correctly read 8a2q.cif" << std::endl;
    }
-   mc.import_cif_dictionary(reference_data("MOI.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY);
-   int imol_lig = mc.get_monomer("MOI");
-   std::string sl = std::to_string(imol_lig);
-   std::pair<int, std::vector<merge_molecule_results_info_t> > ss = mc.merge_molecules(imol, sl);
-   mc.write_coordinates(imol, "merged.cif");
-   gemmi::Structure st = gemmi::read_structure_file("merged.cif");
 
    return status;
 }
@@ -5020,6 +5064,30 @@ int test_shiftfield_b_factor_refinement(molecules_container_t &mc) {
    return status;
 }
 
+int test_split_model(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb("203d.pdb.gz");
+   std::vector<int> new_mol_indices = mc.split_multi_model_molecule(imol);
+   std::cout << "new_mol_indices was of size " << new_mol_indices.size() << std::endl;
+   if (new_mol_indices.size() == 40) {
+      unsigned int n_models = 0;
+      for (int i : new_mol_indices) {
+         mmdb::Manager *mol = mc.get_mol(i);
+         if (mol) {
+            mmdb::Model *model_p = mol->GetModel(1);
+            // std::cout << "MODEL 1 for molecule " << i << " " << model_p << std::endl;
+            if (model_p) n_models++;
+         }
+      }
+      if (n_models == 40) status = 1;
+   }
+
+   return status;
+}
+
 
 int test_template(molecules_container_t &mc) {
 
@@ -5176,7 +5244,6 @@ int main(int argc, char **argv) {
       status += run_test(test_jiggle_fit_params, "actually testing for goodness pr params", mc);
       status += run_test(test_dark_mode_colours, "light vs dark mode colours", mc);
       status += run_test(test_read_extra_restraints, "read extra restraints", mc);
-      status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
       status += run_test(test_map_histogram, "map histogram", mc);
       status += run_test(test_auto_read_mtz, "auto-read-mtz", mc);
       status += run_test(test_read_a_missing_map, "read a missing map file ", mc);
@@ -5200,35 +5267,30 @@ int main(int argc, char **argv) {
       status += run_test(test_mmrrcc, "MMRRCC", mc);
       status += run_test(test_auto_read_mtz, "auto-read MTZ", mc);
       status += run_test(test_instanced_bonds_mesh, "insta bonds mesh", mc);
-      status = run_test(test_utils, "utils", mc);
-      status = run_test(test_instanced_bonds_mesh, "instanced_bonds", mc);
-      status = run_test(test_svg, "svg string", mc);
-      status = run_test(test_superpose, "SSM superpose ", mc);
-      status = run_test(test_multi_colour_rules, "multi colour rules ", mc);
-      status = run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
-      status = run_test(test_add_terminal_residue, "add terminal residue", mc);
-      status = run_test(test_symmetry, "symmetry", mc);
+      status += run_test(test_utils, "utils", mc);
+      status += run_test(test_instanced_bonds_mesh, "instanced_bonds", mc);
+      status += run_test(test_svg, "svg string", mc);
+      status += run_test(test_superpose, "SSM superpose ", mc);
+      status += run_test(test_multi_colour_rules, "multi colour rules ", mc);
+      status += run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
+      status += run_test(test_add_terminal_residue, "add terminal residue", mc);
+      status += run_test(test_symmetry, "symmetry", mc);
       status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
-      status = run_test(test_set_rotamer, "set rotamer ", mc);
-      status = run_test(test_alt_conf_and_rotamer_v2, "alt-conf and rotamer v2 ", mc);
-      status = run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
-      status = run_test(test_number_of_hydrogen_atoms, "number of hydrogen atoms ", mc);
-      status += run_test(test_molecular_representation, "molecular representation mesh", mc);
+      status += run_test(test_set_rotamer, "set rotamer ", mc);
+      status += run_test(test_alt_conf_and_rotamer_v2, "alt-conf and rotamer v2 ", mc);
+      status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+      status += run_test(test_number_of_hydrogen_atoms, "number of hydrogen atoms ", mc);
       status += run_test(test_cell, "cell", mc);
       status += run_test(test_map_centre, "map centre", mc);
       status += run_test(test_dragged_atom_refinement, "dragged atom refinement", mc);
-      status = run_test(test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
-
-      // Note to self:
-      // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
-
-      status = run_test(test_replace_model_from_file, "replace model from file", mc);
-      status = run_test(test_user_defined_bond_colours, "user-defined bond colours", mc);
-      status = run_test(test_replace_map, "replace map from mtz", mc);
-      status = run_test(test_residue_name_group, "residue name group", mc);
-      status = run_test(test_superpose, "SSM superpose ", mc);
-      status = run_test(test_rsr_using_residue_range, "test_rsr using residue range", mc);
-      status = run_test(test_bucca_ml_growing, "Bucca ML growing", mc);
+      status += run_test(test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
+      status += run_test(test_replace_model_from_file, "replace model from file", mc);
+      status += run_test(test_user_defined_bond_colours, "user-defined bond colours", mc);
+      status += run_test(test_replace_map, "replace map from mtz", mc);
+      status += run_test(test_residue_name_group, "residue name group", mc);
+      status += run_test(test_superpose, "SSM superpose ", mc);
+      status += run_test(test_rsr_using_residue_range, "test_rsr using residue range", mc);
+      status += run_test(test_bucca_ml_growing, "Bucca ML growing", mc);
       status += run_test(test_mask_atom_selection, "mask atom selection", mc);
       status += run_test(test_instanced_bonds_mesh_v2, "test instanced bond selection v2", mc);
       status += run_test(test_ligand_merge, "test ligand merge", mc);
@@ -5248,13 +5310,20 @@ int main(int argc, char **argv) {
       status += run_test(test_molecule_diameter, "molecule diameter",    mc);
       status += run_test(test_B_factor_multiply, "B-factor multiply",    mc);
       status += run_test(test_change_chain_id, "change chain id",    mc);
-      status += run_test(test_non_drawn_CA_bonds, "non-drawn bonds in CA+LIGANDS", mc);
       status += run_test(test_17257, "read emd_17257.map.gz",    mc);
-      status += run_test(test_get_diff_map_peasks, "get diff map peaks",    mc);
+      status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
+      status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc);
+      status += run_test(test_non_drawn_CA_bonds, "non-drawn bonds in CA+LIGANDS", mc);
+      status += run_test(test_change_chain_id_1, "change chain-id filo-1", mc);
+      status += run_test(test_split_model, "split model", mc);
+
+      // Note to self:
+      // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
+
    }
 
-   status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc); // duplicate
-status
+   status += run_test(test_non_drawn_bond_multi_cid_2, "non-drawn-bonds multi-cid 2", mc);
+
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
 

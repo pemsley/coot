@@ -137,41 +137,48 @@ coot::molecule_t::apply_user_defined_atom_colour_selections(const std::vector<st
 
    for (unsigned int i=0; i<indexed_residues_cids.size(); i++) {
       const auto &rc = indexed_residues_cids[i];
-      const std::string &cid = rc.first;
-      int colour_index = rc.second; // change type
-      int selHnd = mol->NewSelection(); // d
+      const std::string &multi_cid = rc.first;
 
-      mmdb::Residue **SelResidues;
-      int nSelResidues = 0;
-      mol->Select(selHnd, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_NEW);
-      mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
-      // std::cout << "debug:: in apply_user_defined_atom_colour_selections() selected " << nSelResidues << " residues" << std::endl;
-      if (nSelResidues > 0) {
-         for(int ires=0; ires<nSelResidues; ires++) {
-            mmdb::Residue *residue_p = SelResidues[ires];
-            if (residue_p == nullptr) continue; // just in case.
+      std::vector<std::string> v = coot::util::split_string(multi_cid, "||");
+      if (! v.empty()) {
+         for (const auto &cid : v) {
 
-	    mmdb::Atom **residue_atoms = 0;
-	    int n_residue_atoms = 0;
-	    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-	    for (int iat=0; iat<n_residue_atoms; iat++) {
-	       mmdb::Atom *at = residue_atoms[iat];
-               std::string element(at->element);
-               if (element == " C" || colour_applies_to_non_carbon_atoms_also) {
-                  int ierr = at->PutUDData(udd_handle, colour_index);
-                  if (ierr != mmdb::UDDATA_Ok) {
-                     std::cout << "WARNING:: in set_user_defined_atom_colour_by_residue() problem setting udd on atom "
-                               << coot::atom_spec_t(at) << std::endl;
-                  } else {
-                     if (false)
-                        std::cout << "debug:: set_user_defined_atom_colour_by_residue() sets user-define atom colour index "
-                                  << "of atom " << coot::atom_spec_t(at) << "to " << colour_index << std::endl;
+            int colour_index = rc.second; // change type
+            int selHnd = mol->NewSelection(); // d
+
+            mmdb::Residue **SelResidues;
+            int nSelResidues = 0;
+            mol->Select(selHnd, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_NEW);
+            mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+            // std::cout << "debug:: in apply_user_defined_atom_colour_selections() selected " << nSelResidues << " residues" << std::endl;
+            if (nSelResidues > 0) {
+               for(int ires=0; ires<nSelResidues; ires++) {
+                  mmdb::Residue *residue_p = SelResidues[ires];
+                  if (residue_p == nullptr) continue; // just in case.
+
+                  mmdb::Atom **residue_atoms = 0;
+                  int n_residue_atoms = 0;
+                  residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+                  for (int iat=0; iat<n_residue_atoms; iat++) {
+                     mmdb::Atom *at = residue_atoms[iat];
+                     std::string element(at->element);
+                     if (element == " C" || colour_applies_to_non_carbon_atoms_also) {
+                        int ierr = at->PutUDData(udd_handle, colour_index);
+                        if (ierr != mmdb::UDDATA_Ok) {
+                           std::cout << "WARNING:: in set_user_defined_atom_colour_by_residue() problem setting udd on atom "
+                                     << coot::atom_spec_t(at) << std::endl;
+                        } else {
+                           if (false)
+                              std::cout << "debug:: set_user_defined_atom_colour_by_residue() sets user-define atom colour index "
+                                        << "of atom " << coot::atom_spec_t(at) << "to " << colour_index << std::endl;
+                        }
+                     }
                   }
                }
-	    }
+            }
+            mol->DeleteSelection(selHnd);
          }
       }
-      mol->DeleteSelection(selHnd);
    }
 }
 

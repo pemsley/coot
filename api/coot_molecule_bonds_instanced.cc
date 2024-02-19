@@ -19,6 +19,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                                                unsigned int num_subdivisions,
                                                const std::vector<glm::vec4> &colour_table) {
 
+
    // 20230114-PE
    // copied and edited from from src/Mesh-from-graphical-bonds-instanced.cc
 
@@ -66,9 +67,11 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
          if (do_it) {
 
             // radius_scale is 2 for waters and 4 for metals
-            //
+            // 20240218-PE base_atom_radius is typically 0.12 but can be 1.67 for "Goodsell" model.
+            // 4 * 1.67 is 6.68 and that is too big. So let's just add a limit to the size of sar
             float scale = at_info.radius_scale;
             float sar = scale * base_atom_radius;
+            if (sar > 2.2) sar = 2.2; // atom radius limit
             // 20231113-PE should I check for waters for this limit?
             if (at_info.is_water)
                if (sar > 0.65) sar = 0.65f;
@@ -76,6 +79,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
             glm::vec3 t(at->x, at->y, at->z);
             coot::instancing_data_type_A_t idA(t, col, sc);
             ig.instancing_data_A.push_back(idA);
+            // std::cout << "at: " << coot::atom_spec_t(at) << " scale: " << scale << " sar " << sar << " " << std::endl;
          }
       }
    }
@@ -509,11 +513,14 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       }
    }
 
+   // this does atom index transfer
    mmdb::Manager *new_mol = util::create_mmdbmanager_from_atom_selection(atom_sel.mol, udd_atom_selection, false);
+   int transfer_atom_index_handle = new_mol->GetUDDHandle(mmdb::UDR_ATOM, "transfer atom index");
    atom_selection_container_t atom_sel_ligand = make_asc(new_mol); // cleared up at end of function
+   atom_sel_ligand.UDDAtomIndexHandle = transfer_atom_index_handle;
    atom_sel.mol->DeleteSelection(udd_atom_selection);
 
-   if (true) {
+   if (false) {
       unsigned int n_atoms = count_atoms_in_mol(new_mol);
       std::cout << "debug:: in get_bonds_mesh_for_selection_instanced() there are " << n_atoms
                 << " atoms in the atom selection: " << multi_cids << std::endl;
@@ -547,8 +554,9 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
    bool goodsell_mode = false;
    bool do_rota_markup = false;
    bonds_box_type = coot::api_bond_colour_t::COLOUR_BY_CHAIN_BONDS; // used in colour table?
-   
+
    if (mode == "COLOUR-BY-CHAIN-AND-DICTIONARY") {
+
       Bond_lines_container bonds(geom, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag);
       bonds.do_colour_by_chain_bonds(atom_sel_ligand, false, imol_no, draw_hydrogen_atoms_flag,
                                      draw_missing_residue_loops, change_c_only_flag, goodsell_mode,
