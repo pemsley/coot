@@ -710,9 +710,10 @@ new_startup_application_activate(GtkApplication *application,
 
       std::string dir = coot::package_data_dir();
       // change "glade" to "ui" one day.
-      std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
+      // 20240218-PE today is that day!
+      std::string dir_ui = coot::util::append_dir_dir(dir, "ui");
       std::string ui_file_name = "coot-gtk4.ui";
-      std::string ui_file_full = coot::util::append_dir_file(dir_glade, ui_file_name);
+      std::string ui_file_full = coot::util::append_dir_file(dir_ui, ui_file_name);
       if (coot::file_exists(ui_file_name))
          ui_file_full = ui_file_name;
 
@@ -726,7 +727,7 @@ new_startup_application_activate(GtkApplication *application,
 
       // the preferences builder:
       std::string preferences_ui_file_name = "preferences-gtk4.ui";
-      std::string preferences_ui_file_name_full = coot::util::append_dir_file(dir_glade, preferences_ui_file_name);
+      std::string preferences_ui_file_name_full = coot::util::append_dir_file(dir_ui, preferences_ui_file_name);
       if (coot::file_exists(preferences_ui_file_name))
          preferences_ui_file_name_full = preferences_ui_file_name;
       GtkBuilder *preferences_builder = gtk_builder_new();

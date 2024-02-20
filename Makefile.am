@@ -46,7 +46,7 @@ else
         lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords \
 	density-contour skeleton high-res build MoleculesToTriangles pli buccaneer_ml_growing greg-tests \
 	python-tests cootilus fonts pyrogen data \
-	man rama-data doc glTF pixmaps textures sounds api layla validation-graphs src
+	man rama-data doc glTF pixmaps textures sounds api layla validation-graphs src ui
 endif
 endif
 
@@ -69,9 +69,7 @@ EXTRA_DIST = 		\
 	TODO 		\
 	count-loc 	\
 	a6.glade        \
-	coot-gtk4.ui    \
 	single-map-properties-dialog.glade \
-	syminfo.lib	\
 	colours.def	\
 	my.supp		\
 	guile.supp	\
@@ -117,11 +115,8 @@ EXTRA_DIST = 		\
 
 # packdatadir is xxx/share/coot
 subpkgdatadir = $(pkgdatadir)
-subpkgdata_DATA = standard-residues.pdb colours.def \
-	mtrix-to-ncs-matrix.awk syminfo.lib
+subpkgdata_DATA = standard-residues.pdb colours.def
 
-cootgladedir = $(pkgdatadir)/glade
-dist_cootglade_DATA = coot-gtk4.ui restraints-editor.ui preferences-gtk4.ui single-map-properties-dialog-gtk4.ui
 
 appdatadir = ${datarootdir}/appdata
 dist_appdata_DATA = coot.appdata.xml

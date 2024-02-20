@@ -19,6 +19,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                                                unsigned int num_subdivisions,
                                                const std::vector<glm::vec4> &colour_table) {
 
+
    // 20230114-PE
    // copied and edited from from src/Mesh-from-graphical-bonds-instanced.cc
 
@@ -66,9 +67,11 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
          if (do_it) {
 
             // radius_scale is 2 for waters and 4 for metals
-            //
+            // 20240218-PE base_atom_radius is typically 0.12 but can be 1.67 for "Goodsell" model.
+            // 4 * 1.67 is 6.68 and that is too big. So let's just add a limit to the size of sar
             float scale = at_info.radius_scale;
             float sar = scale * base_atom_radius;
+            if (sar > 2.2) sar = 2.2; // atom radius limit
             // 20231113-PE should I check for waters for this limit?
             if (at_info.is_water)
                if (sar > 0.65) sar = 0.65f;
@@ -76,6 +79,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
             glm::vec3 t(at->x, at->y, at->z);
             coot::instancing_data_type_A_t idA(t, col, sc);
             ig.instancing_data_A.push_back(idA);
+            // std::cout << "at: " << coot::atom_spec_t(at) << " scale: " << scale << " sar " << sar << " " << std::endl;
          }
       }
    }

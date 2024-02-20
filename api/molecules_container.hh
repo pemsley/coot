@@ -194,6 +194,7 @@ class molecules_container_t {
    static void all_atom_pulls_off();
    static void atom_pull_off(const coot::atom_spec_t &spec);
    static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
+
    std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::Residue *> > &local_residues) const;
 
    //! Real space refinement.
@@ -1391,7 +1392,7 @@ public:
                       bool ignore_part_occ_contact_flag,
                       bool ignore_zero_occ_flag);
 
-   //! calculate the MMRRCC for the residues in the chain
+   //! Calculate the MMRRCC for the residues in the chain
    //! Multi Masked Residue Range Corellation Coefficient
 #ifdef SWIG
 #else
@@ -1410,6 +1411,11 @@ public:
                    const std::string &chain_id,
                    const clipper::Xmap<float> &xmap) const;
 #endif
+
+   //! Fourier Shell Correlation (FSC) between maps
+   //! @return a vector or pairs of graph points (resolution, correlation). The resolution is in inverse Angstroms squared.
+   //!  An empty list is returned on failure
+   std::vector<std::pair<double, double> > fourier_shell_correlation(int imol_map_1, int imol_map_2) const;
 
    // -------------------------------- Rail Points ------------------------------------------
    //! \name Rail Points!
@@ -1476,6 +1482,7 @@ public:
                                                                                float screen_centre_x,
                                                                                float screen_centre_y,
                                                                                float screen_centre_z) const;
+
 
    //! the stored data set file name
    std::string get_data_set_file_name(int imol) const;
@@ -1659,8 +1666,20 @@ public:
    coot::protein_geometry & get_geometry() {
       return geom;
    }
-   
-   
+
+
+   // -------------------------------- Blender Interface ---------------------------------------
+
+   void make_mesh_for_map_contours_for_blender(int imol, float x, float y, float z, float level, float radius);
+   void make_mesh_for_bonds_for_blender(int imol, const std::string &mode);
+   void make_mesh_for_molecular_representation_for_blender(int imol,
+                                                           const std::string &cid,
+                                                           const std::string &colour_scheme,
+                                                           const std::string &style);
+   std::vector<float> get_colour_table_for_blender(int imol);
+   std::vector<float> get_vertices_for_blender(int imol);
+   std::vector<int>   get_triangles_for_blender(int imol);
+
    // -------------------------------- Other ---------------------------------------
 
 #ifdef SWIG

@@ -27,7 +27,7 @@ phi-psi-prob.hh          saved-strand-info.hh       simple-molecule.hh          
 generic-3d-lines.hh      cell.hh                    coot-simple-molecule.hh                \
 api-cell.hh              bond-colour.hh             make-instanced-graphical-bonds.hh      \
 symmetry-info.hh         instancing.hh              merge-molecule-results-info-t.hh       \
-coot_molecule_bonds.hh   clipper-ccp4-map-file-wrapper.hh
+coot_molecule_bonds.hh   clipper-ccp4-map-file-wrapper.hh blender-mesh.hh
 
 lib_LTLIBRARIES=libcoot-api.la
 
@@ -40,7 +40,8 @@ phi-psi-prob.cc              coot_molecule_moltris.cc                         co
 coot_molecule_backup.cc      coot_molecule_bonds_instanced.cc                 molecules_container_mmrrcc.cc \
 coot_molecule_refine.cc      molecules_container_superpose.cc                 rigid-body-fit.cc \
 moorhen-h-bonds.cc           molecules_container_bucca_ml_growing.cc          instancing.cc  \
-coot_molecule_change_chain_id.cc
+coot_molecule_change_chain_id.cc    \
+blender-mesh.cc              coot-molecule-blender.cc                         molecules-container-blender.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \
