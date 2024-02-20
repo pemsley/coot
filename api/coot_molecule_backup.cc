@@ -10,6 +10,8 @@
 std::string
 coot::molecule_t::make_backup(const std::string &modification_info_string) {
 
+   if (! really_do_backups) return "No-backups";
+
    std::string info_message; // non-empty on failture
    info_message = modification_info.make_backup(atom_sel.mol, modification_info_string);
    return info_message;

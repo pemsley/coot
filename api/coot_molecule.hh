@@ -152,6 +152,7 @@ namespace coot {
       ShelxIns shelxins;
 
       std::map<residue_spec_t, int> current_rotamer_map;
+      bool really_do_backups; // default true
 
       // private
       void makebonds(protein_geometry *geom, rotamer_probability_tables *rotamer_tables_p,
@@ -364,6 +365,7 @@ namespace coot {
          original_r_free_flags_p = nullptr;
          refmac_r_free_flag_sensible = false;
          use_bespoke_grey_colour_for_carbon_atoms = false;
+         really_do_backups = true;
 
          radial_map_colour_saturation = 0.5;
          radial_map_colour_invert_flag = false;
@@ -429,6 +431,10 @@ namespace coot {
       // ------------------------ close
 
       int close_yourself();
+
+      // --------------------- backups
+
+      void set_really_do_backups(bool state) { really_do_backups = state; }
 
       // ------------------------------- rsr utils
       // - add in the environment of this fragment molecule
