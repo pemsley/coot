@@ -1,6 +1,17 @@
 
 ----
 
+Install the ui files from a relative directory, not relative to phackage_data_dir()
+Likewise the standard residues.
+# no need. Just setenv COOT_DATA_DIR
+
+chapi: test refine_residues_using_atom_cid() with "sphere" - for Paul Bond, this causes a crash.
+
+libcootapi: turn_off_backups(imol). This needs some infrastucture work. Add something like
+   really_do_make_backups_flag to coot::molecule_t - and that is set by the above function call.
+
+libcootapi: add mini-rsr to the CMake build
+
 Is it a good idea for the wasm build from CCP4_WASM_BUILD/moorhen_build compiles test-molecules-container?
 How do I use it?
 * It might be a good idea, but it is not at all important.
