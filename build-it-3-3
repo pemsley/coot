@@ -399,6 +399,7 @@
 # 6.10 20230603-PE remove goocanvas
 # 6.11 20231113-PE print out the script_version
 # 6.12 20240105-PE link $HOME/data/greg-data for the testing step
+# 6.13 20240216-PE Install Darwin OpenSSL in $install_top_dir
 script_version=6.12
 
 
@@ -2735,8 +2736,7 @@ if test -n "$build_python" ; then
    openssl_prefix=$HOME/ccp4/devtools/install
    openssl_prefix=/usr
    if [ $OS = Darwin ] ; then
-       # in future, install openssl into $install_top_dir
-       openssl_prefix=$HOME/openssl
+       openssl_prefix=$install_top_dir
    fi
    # note to self: We need ffi.h (and lib presumably) to build the ctypes module (libffi-devel)
    # (or I could include it in this build script) (I don't know if ctypes is important)
