@@ -23,8 +23,10 @@ moorhen: does the map masking take a multi-cid for the atom selection?
 * Fixed.
 
 moorhen: void atom in mmdb mmcif output.
+* Stuart saw the problem in mmdb - not acted on yet.
 
 moorhen: search monomer library for ARG with methyl (for example)
+* This presumes that the monomer library names are available.
 
 libcootapi: estimate the molecule radius - using the distance between 1000 (say) random atom pairs.
 * Done.
@@ -62,6 +64,8 @@ libcootapi:
   get rid of #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY in add-terminal-residue.cc
 
 Coot: on ligand fitting, use conformers and get "no ligands selected" dialog
+
+Coot: Add "Scene Preset" -> Model Building, Figure Making
 
 Coot: colour-by-molecule has big atoms - why? Fix.
 
