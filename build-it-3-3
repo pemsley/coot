@@ -400,7 +400,8 @@
 # 6.11 20231113-PE print out the script_version
 # 6.12 20240105-PE link $HOME/data/greg-data for the testing step
 # 6.13 20240216-PE Install Darwin OpenSSL in $install_top_dir
-script_version=6.12
+# 6.14 20240220-PE Set the C++ flags for Catch2 (needed for macOS/clang) and build with CMake
+script_version=6.14
 
 
 
@@ -3066,11 +3067,12 @@ if [ "$build_boost" = true ] ; then
       boost_version=1_71_0
       boost_version=1_72_0
       boost_version=1_74_0
-      boost_version=1_82_0
+      boost_version=1_83_0
       boost_server_dir=1.72.0
       boost_server_dir=1.72.0
       boost_server_dir=1.74.0
       boost_server_dir=1.82.0
+      boost_server_dir=1.83.0
       echo BUILDING boost $boost_version :
       echo BUILDING boost $boost_version >&2
 
@@ -3285,13 +3287,26 @@ else
    (
    tar xf $AUTOBUILD_SOURCES/v$catch2_version.tar.gz
    cd Catch2-$catch2_version
-   meson setup -Dprefix=$install_top_dir build
+   # meson setup -Dcpp_std=c++17 -Dprefix=$install_top_dir build
+   # cd build
+   # ninja
+   # ninja install
+   # cd ..
+   mkdir build
    cd build
-   ninja
-   ninja install
+   cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ..
+   $MAKE && make install
    cd ..
    cd ..
    ) > $HOSTLOGDIR/17-c-catch2.txt 2>&1
+fi
+
+if [ -d $install_top_dir/include/catch2 ] ; then
+    echo OK, Catch2 is installed
+else
+    echo FAIL BUILDING Catch2
+    echo FAIL BUILDING Catch2 >&2
+    exit
 fi
 
 ############################### rdkit ##########################################
@@ -3493,9 +3508,11 @@ if [ "$build_rdkit" = true ] ; then
       libboost_python_ext=$python_version_extension
       libboost_python_ext=
       extension_type=so
+      python_arch=x86_64-linux-gnu
 
       if [ $(uname) = Darwin ] ; then
          extension_type=dylib
+         python_arch=darwin
       fi
 
       echo will configure with cmake like this:
@@ -3508,10 +3525,11 @@ if [ "$build_rdkit" = true ] ; then
 
       echo cmake \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
+               -DCatch2_DIR=$install_top_dir \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
-               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-x86_64-linux-gnu/libpython$python_version_extension.a \
+               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-$python_arch/libpython$python_version_extension.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
@@ -3522,10 +3540,11 @@ if [ "$build_rdkit" = true ] ; then
 
       if cmake  \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
+               -DCatch2_DIR=$install_top_dir \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
-               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-x86_64-linux-gnu/libpython$python_version_extension.a \
+               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-$python_arch/libpython$python_version_extension.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
