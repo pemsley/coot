@@ -1567,7 +1567,7 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
    bool debug_links = false;
 
    if (debug_links) {
-      std::cout << "####################### find_link_type_2022()   called with first_residue "
+      std::cout << "\n####################### find_link_type_2022() called with first_residue       "
                 << coot::residue_spec_t(first_residue)  << " " <<  first_residue->GetResName() << " and second residue "
                 << coot::residue_spec_t(second_residue) << " " << second_residue->GetResName() << std::endl;
    }
@@ -1589,10 +1589,11 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       if (group_2 == "D-SACCHARIDE") group_2 = "pyranose";
 
       if (debug_links)
-         std::cout << "comp_id_1 " << comp_id_1 << " group_1 " << group_1 << " comp_id_2 " << comp_id_2 << " group_2 " << group_2
+         std::cout << "   comp_id_1 " << comp_id_1 << " group_1 " << group_1
+                   << " comp_id_2 " << comp_id_2 << " group_2 " << group_2
                    << std::endl;
 
-      if (group_1 == "pyranose" || group_2 == "pyranose") { // does this link O-linked carbohydrates?
+      if (group_1 == "pyranose" && group_2 == "pyranose") { // does this link O-linked carbohydrates?
          std::string link_type_glyco;
          bool use_links_in_molecule = true;
          link_type_glyco = find_glycosidic_linkage_type(first_residue, second_residue, geom, use_links_in_molecule);
@@ -1612,8 +1613,8 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
          std::vector<coot::chem_link> link_infos_b = geom.matching_chem_links(comp_id_2, group_2, comp_id_1, group_1);
 
          if (debug_links) {
-            std::cout << "#################### found n-forward  links: " << link_infos_f.size() << std::endl;
-            std::cout << "#################### found n-backward links: " << link_infos_b.size() << std::endl;
+            std::cout << "   ###### found n-forward  links: " << link_infos_f.size() << std::endl;
+            std::cout << "   ###### found n-backward links: " << link_infos_b.size() << std::endl;
          }
 
          std::vector<std::pair<coot::chem_link, bool> > chem_links;
@@ -1667,8 +1668,8 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       }
 
       if (debug_links)
-         std::cout << "#################### find_link_type_2022() returns: " << link_type << " "
-                   << order_switch_was_needed << std::endl;
+         std::cout << "   .... find_link_type_2022() here A with link type: " << link_type
+                   << " and order_switch_was_needed: " << order_switch_was_needed << std::endl;
 
    }
 
@@ -1710,6 +1711,10 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
          }
       }
    }
+
+   if (debug_links)
+      std::cout << "####################### find_link_type_2022() returns \"" << link_type << "\""
+                << " order_switch: " << order_switch_was_needed << std::endl;
 
    return std::pair<std::string, bool> (link_type, order_switch_was_needed);
 }
