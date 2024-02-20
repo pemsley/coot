@@ -2,6 +2,7 @@ name: Coot CI Ubuntu
 
 on:
   push:
+  worflow_dispatch:
 
 jobs:
   build-ubuntu:
