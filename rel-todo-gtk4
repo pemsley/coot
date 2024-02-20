@@ -1,11 +1,25 @@
 
 ----
 
+
+Install the ui files from a relative directory, not relative to phackage_data_dir()
+Likewise the standard residues.
+# no need. Just setenv COOT_DATA_DIR
+
+chapi: test refine_residues_using_atom_cid() with "sphere" - for Paul Bond, this causes a crash.
+
+libcootapi: turn_off_backups(imol). This needs some infrastucture work. Add something like
+   really_do_make_backups_flag to coot::molecule_t - and that is set by the above function call.
+
+libcootapi: add mini-rsr to the CMake build
+
 libcootapi: fix the link problem from Andrey
 
 moorhen: void atom in mmdb mmcif output.
+* Stuart saw the problem in mmdb - not acted on yet.
 
 moorhen: search monomer library for ARG with methyl (for example)
+* This presumes that the monomer library names are available.
 
 libcootapi: bring regularization to the api
 
@@ -45,6 +59,8 @@ libcootapi:
   get rid of #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY in add-terminal-residue.cc
 
 Coot: on ligand fitting, use conformers and get "no ligands selected" dialog
+
+Coot: Add "Scene Preset" -> Model Building, Figure Making
 
 Coot: colour-by-molecule has big atoms - why? Fix.
 
