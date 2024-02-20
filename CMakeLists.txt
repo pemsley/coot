@@ -36,6 +36,13 @@ find_package(Python 3.10
 
 find_package(nanobind CONFIG REQUIRED)
 
+# From Charles
+if(WIN32)
+  string(REPLACE "\\" "/" Python_SITEARCH "${Python_SITEARCH}")
+  string(REPLACE "\\" "/" Python_SITELIB  "${Python_SITELIB}")
+endif(WIN32)
+
+
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(-DANALYSE_REFINEMENT_TIMING -DVERSION="1.x-pre" -DPACKAGE_VERSION="1"
@@ -116,12 +123,9 @@ add_library(cootapi SHARED
             ${coot_src}/MoleculesToTriangles/CXXClasses/PositionedEntity.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/Quaternion.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/Renderer.cpp
-            # ${coot_src}/MoleculesToTriangles/CXXClasses/RendererGL.cpp
-            # ${coot_src}/MoleculesToTriangles/CXXClasses/RendererGLSL.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/Representation.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/RepresentationInstance.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/RotatedTranslatedScaledEntity.cpp
-            # ${coot_src}/MoleculesToTriangles/CXXClasses/SceneSetup.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/SecondaryColorScheme.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/SolidColorRule.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/SpherePrimitive.cpp
@@ -473,13 +477,14 @@ target_include_directories(chapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_s
                                          ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS}
                                          ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR})
 
-# target_link_libraries(chapi PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${PNG_LIBRARY})
-
 add_executable(findligand ${coot_src}/ligand/find-ligand.cc)
 
 add_executable(findwaters ${coot_src}/ligand/find-waters.cc)
 
 add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc ${coot_src}/api/filo-tests.cc ${coot_src}/api/lucrezia-tests.cc)
+
+# remove this comment soon.
+# target_link_libraries(chapi PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${PNG_LIBRARY})
 
 target_link_libraries(chapi PUBLIC cootapi  ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY})
 
@@ -515,9 +520,7 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/rama-data     DESTINATION ${CMAKE_
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/metal    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/data)
 
-# this should depend on the python version, not be hard-wired - how do I do that?
-install(TARGETS chapi DESTINATION lib/python3.10/site-packages)
+# Thanks Charles B.
+install(TARGETS chapi DESTINATION ${Python_SITELIB})
 
 install(TARGETS cootapi DESTINATION lib)
-
-install(TARGETS chapi DESTINATION lib/python3.11/site-packages)
