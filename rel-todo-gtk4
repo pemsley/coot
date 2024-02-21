@@ -7,6 +7,7 @@ Likewise the standard residues.
 # no need. Just setenv COOT_DATA_DIR
 
 chapi: test refine_residues_using_atom_cid() with "sphere" - for Paul Bond, this causes a crash.
+* Can't reproduce in test-molecules-container.cc
 
 libcootapi: turn_off_backups(imol). This needs some infrastucture work. Add something like
    really_do_make_backups_flag to coot::molecule_t - and that is set by the above function call.
@@ -14,6 +15,7 @@ libcootapi: turn_off_backups(imol). This needs some infrastucture work. Add some
 libcootapi: add mini-rsr to the CMake build
 
 libcootapi: fix the link problem from Andrey
+* Hopefully done.
 
 moorhen: void atom in mmdb mmcif output.
 * Stuart saw the problem in mmdb - not acted on yet.

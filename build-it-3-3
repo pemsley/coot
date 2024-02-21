@@ -461,6 +461,7 @@ run_second_test=${run_second_test:=true}
 # Note that the directory name must NOT end in a /
 #
 AUTOBUILD_INSTALLED=${AUTOBUILD_INSTALLED:=${HOME}/autobuild/${OS}-${HOST}}
+
 if test x$GITHUB_ENV = x ; then
     : # we are not in a hithub actions build
 else
