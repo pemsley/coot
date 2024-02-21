@@ -5028,13 +5028,6 @@ int test_shiftfield_b_factor_refinement(molecules_container_t &mc) {
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
    int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
    mc.associate_data_mtz_file_with_map(imol_map, reference_data("moorhen-tutorial-map-number-1.mtz"), "FP", "SIGFP", "FREE");
-   mc.set_imol_refinement_map(imol_map);
-
-   // int imol     = mc.read_pdb(reference_data("tutorial-modern.pdb"));
-   // int imol_map = mc.read_mtz(reference_data("rnasa-1.8-all_refmac1.mtz"), "FWT", "PHWT", "W", false, false);
-   // int imol_diff_map = mc.read_mtz(reference_data("rnasa-1.8-all_refmac1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
-   // mc.associate_data_mtz_file_with_map(imol_map, reference_data("rnasa-1.8-all_refmac1.mtz"), "FGMP18", "SIGFGMP18", "FreeR_flag");
-   // mc.set_imol_refinement_map(imol_map);
 
    if (mc.is_valid_model_molecule(imol)) {
       coot::residue_spec_t res_spec_1("A", 10, "");
