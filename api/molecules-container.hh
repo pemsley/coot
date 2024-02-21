@@ -16,7 +16,7 @@
 
 #include "coords/Cartesian.h"
 #include "coords/ramachandran-container.hh"
-#include "coot_molecule.hh"
+#include "coot-molecule.hh"
 #include "coot-utils/coot-rama.hh"
 #include "coot-utils/coot-coord-extras.hh" // the missing atoms type
 #include "coot-utils/coot-map-utils.hh"
@@ -1141,10 +1141,10 @@ public:
    int cis_trans_convert(int imol, const std::string &atom_cid);
 
    //! replace a fragment
-   //! 
+   //!
    //! _i.e._ replace the atoms of ``imol_base`` by those of the atom selection ``atom_selection`` in ``imol_reference``
    //! (``imol_base`` is the molecule that is modified).
-   //! 
+   //!
    //! @return the success status
    int replace_fragment(int imol_base, int imol_reference, const std::string &atom_selection);
 

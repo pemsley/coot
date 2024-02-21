@@ -1,9 +1,9 @@
 
+#include <clipper/ccp4/ccp4_map_io.h> // debugging mapout
+
 #include "ligand/wligand.hh"
 
-#include "molecules_container.hh"
-
-#include <clipper/ccp4/ccp4_map_io.h> // debugging mapout
+#include "molecules-container.hh"
 
 // Give this ex-lambda function a home?
 std::string get_first_residue_name(mmdb::Manager *mol) {
@@ -48,7 +48,7 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
             coot::wligand wlig;
             wlig.set_verbose_reporting();
             wlig.set_debug_wiggly_ligands();
-            
+
             try {
                coot::minimol::molecule mmol(molecules[imol_ligand].atom_sel.mol);
                std::string res_name = get_first_residue_name(molecules[imol_ligand].atom_sel.mol);
@@ -100,7 +100,7 @@ molecules_container_t::fit_ligand_right_here(int imol_protein, int imol_map, int
 
                wlig.cluster_from_point(pt, n_rmsd);
                wlig.fit_ligands_to_clusters(1); // just this cluster.
-                  
+
                // now add in the solution ligands:
                int n_final_ligands = wlig.n_clusters_final();
 
@@ -543,4 +543,3 @@ molecules_container_t::fit_ligand_multi_ligand(int imol_protein, int imol_map, c
 
    return v;
 }
-

@@ -1,5 +1,5 @@
 
-#include "coot_molecule.hh"
+#include "coot-molecule.hh"
 
 #include <MoleculesToTriangles/CXXClasses/RendererGL.h>
 #include <MoleculesToTriangles/CXXClasses/Light.h>
@@ -252,7 +252,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
             mesh.add_submesh(submesh);
          }
       }
-      
+
       return mesh;
    };
 

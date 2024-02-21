@@ -989,7 +989,7 @@ namespace coot {
       std::vector<mmdb::Residue *> select_residues(const residue_spec_t &spec, const std::string &mode) const;
       //! resno_start and resno_end are inclusive
       std::vector<mmdb::Residue *> select_residues(const std::string &chain_id, int resno_start, int resno_end) const;
-      //! 
+      //! select residues given a multi-cid
       std::vector<mmdb::Residue *> select_residues(const std::string &multi_cid, const std::string &mode) const;
 
       //! real space refinement

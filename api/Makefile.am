@@ -27,20 +27,20 @@ phi-psi-prob.hh          saved-strand-info.hh       simple-molecule.hh          
 generic-3d-lines.hh      cell.hh                    coot-simple-molecule.hh                \
 api-cell.hh              bond-colour.hh             make-instanced-graphical-bonds.hh      \
 symmetry-info.hh         instancing.hh              merge-molecule-results-info-t.hh       \
-coot_molecule_bonds.hh   clipper-ccp4-map-file-wrapper.hh blender-mesh.hh
+coot_molecule-bonds.hh   clipper-ccp4-map-file-wrapper.hh blender-mesh.hh
 
 lib_LTLIBRARIES=libcoot-api.la
 
 libcoot_api_la_SOURCES = \
-coot_molecule.cc	     coot-colour.cc	     add-terminal-residue.cc  rama-plot-phi-psi.cc   \
-colour-functions.cc          coot_molecule_maps.cc                            coot_molecule_merge_molecules.cc \
-coot_molecule_bonds.cc	     coot_molecule_validation.cc                      molecules_container_modelling.cc \
-molecules_container.cc       make-a-dodec.cc	                              molecules_container_ligand_fitting.cc \
-phi-psi-prob.cc              coot_molecule_moltris.cc                         coot_molecule_replace_fragment.cc \
-coot_molecule_backup.cc      coot_molecule_bonds_instanced.cc                 molecules_container_mmrrcc.cc \
-coot_molecule_refine.cc      molecules_container_superpose.cc                 rigid-body-fit.cc \
-moorhen-h-bonds.cc           molecules_container_bucca_ml_growing.cc          instancing.cc  \
-coot_molecule_change_chain_id.cc    \
+coot-molecule.cc	     coot-colour.cc	     add-terminal-residue.cc  rama-plot-phi-psi.cc   \
+colour-functions.cc          coot-molecule-maps.cc                            coot-molecule-merge-molecules.cc \
+coot-molecule-bonds.cc	     coot-molecule-validation.cc                      molecules-container-modelling.cc \
+molecules-container.cc       make-a-dodec.cc	                              molecules-container-ligand-fitting.cc \
+phi-psi-prob.cc              coot-molecule-moltris.cc                         coot-molecule-replace-fragment.cc \
+coot-molecule-backup.cc      coot-molecule-bonds-instanced.cc                 molecules-container-mmrrcc.cc \
+coot-molecule-refine.cc      molecules-container-superpose.cc                 rigid-body-fit.cc \
+moorhen-h-bonds.cc           molecules-container-bucca-ml-growing.cc          instancing.cc  \
+coot-molecule-change-chain-id.cc    \
 blender-mesh.cc              coot-molecule-blender.cc                         molecules-container-blender.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
@@ -96,7 +96,7 @@ pyexec_LTLIBRARIES = _coot_headless_api.la
 wrap-coot-api.cc: coot-headless-api.i molecules_container.hh
 	swig -o $@ -python -c++ $<
 
-_coot_headless_api_la_SOURCES = wrap-coot-api.cc molecules_container_swig.cc
+_coot_headless_api_la_SOURCES = wrap-coot-api.cc molecules-container-swig.cc
 
 _coot_headless_api_la_CXXFLAGS = -DUSE_PYTHON -DSWIG
 

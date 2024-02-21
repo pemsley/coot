@@ -5,7 +5,7 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
 
-#include "molecules_container.hh"
+#include "molecules-container.hh"
 #include "buccaneer_ml_growing/ml-grow.h"
 #include "mini-mol/mini-mol-utils.hh"
 
@@ -41,11 +41,11 @@ class molecules_container_js : public molecules_container_t {
         explicit molecules_container_js(bool verbose=true) : molecules_container_t(verbose) {
         }
 
-        int writePDBASCII(int imol, const std::string &file_name) { 
+        int writePDBASCII(int imol, const std::string &file_name) {
             const char *fname_cp = file_name.c_str();
             return get_mol(imol)->WritePDBASCII(fname_cp);
         }
-        int writeCIFASCII(int imol, const std::string &file_name) { 
+        int writeCIFASCII(int imol, const std::string &file_name) {
             const char *fname_cp = file_name.c_str();
             return get_mol(imol)->WriteCIFASCII(fname_cp);
         }
@@ -55,7 +55,7 @@ class molecules_container_js : public molecules_container_t {
             clipperMap.open_write(file_name);
             clipperMap.export_xmap(xMap);
             return 0;
-        }        
+        }
 };
 
 NB_MODULE(chapi, m) {

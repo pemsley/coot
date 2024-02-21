@@ -1,5 +1,5 @@
 
-#include "coot_molecule.hh"
+#include "coot-molecule.hh"
 
 
 void

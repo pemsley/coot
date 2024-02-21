@@ -9,7 +9,7 @@
 #include "coot-utils/coot-coord-utils.hh"
 #include "density-contour/occlusion.hh"
 #include "density-contour/transfer-occlusions.hh"
-#include "coot_molecule.hh"
+#include "coot-molecule.hh"
 
 // 20221126-PE set this for now. When it is restored, jiggle_fit_multi_thread_func_1 and jiggle_fit_multi_thread_func_2
 // will need to be transfered.
@@ -1394,7 +1394,7 @@ coot::molecule_t::get_map_histogram(unsigned int n_bins_in, float zoom_factor) c
 
    std::vector<int> new_bins(n_bins_in, 0);
    for (unsigned int ibin=0; ibin<mv.bins.size(); ibin++) {
-      int new_index = ibin - count; 
+      int new_index = ibin - count;
       if (new_index >= 0) {
          if (new_index < static_cast<int>(n_bins_in))
             new_bins[new_index] = mv.bins[ibin];

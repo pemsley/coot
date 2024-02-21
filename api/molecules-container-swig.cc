@@ -3,7 +3,7 @@
 
 #include "Python.h"
 
-#include "molecules_container.hh"
+#include "molecules-container.hh"
 
 PyObject *
 molecules_container_t::simple_mesh_to_pythonic_mesh(const coot::simple_mesh_t &mesh, int mode) {
@@ -208,7 +208,7 @@ molecules_container_t::get_pythonic_simple_molecule(int imol, const std::string 
       PyList_SetItem(bond_py, 2, PyLong_FromLong(bond.bond_type));
       PyList_SetItem(bond_list, i, bond_py);
    }
-   
+
    PyList_SetItem(r, 0, atom_list);
    PyList_SetItem(r, 1, bond_list);
    return r;
@@ -216,5 +216,3 @@ molecules_container_t::get_pythonic_simple_molecule(int imol, const std::string 
 
 
 #endif // SWIG
-
-

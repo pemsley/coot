@@ -1,7 +1,7 @@
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/atom-selection-container.hh"
-#include "molecules_container.hh"
+#include "molecules-container.hh"
 
 //! return the new molecule number (or -1 on no atoms selected)
 int
@@ -160,7 +160,7 @@ molecules_container_t::merge_molecules(int imol, const std::string &list_of_othe
    int istat = 0;
    std::vector<merge_molecule_results_info_t> resulting_merge_info;
    if (is_valid_model_molecule(imol)) {
-      
+
       std::vector<atom_selection_container_t> atom_selections;
       std::vector<std::string> number_strings = coot::util::split_string(list_of_other_molecules, ":");
       for (const auto &item : number_strings) {
@@ -183,7 +183,7 @@ molecules_container_t::merge_molecules(int imol, std::vector<mmdb::Manager *> mo
    int istat = 0;
    std::vector<merge_molecule_results_info_t> resulting_merge_info;
    if (is_valid_model_molecule(imol)) {
-      
+
       std::vector<atom_selection_container_t> atom_selections;
       for (const auto &mol : mols) {
          atom_selection_container_t atom_sel = make_asc(mol);
@@ -255,7 +255,7 @@ molecules_container_t::add_compound(int imol, const std::string &tlc, int imol_d
          int n_chains = model_p->GetNumberOfChains();
          for (int ichain=0; ichain<n_chains; ichain++) {
             mmdb::Chain *chain_p = model_p->GetChain(ichain);
-            if (std::string(chain_p->GetChainID()) == chain_id) { 
+            if (std::string(chain_p->GetChainID()) == chain_id) {
                int n_res = chain_p->GetNumberOfResidues();
                for (int ires=0; ires<n_res; ires++) {
                   mmdb::Residue *residue_p = chain_p->GetResidue(ires);
@@ -334,10 +334,10 @@ molecules_container_t::add_compound(int imol, const std::string &tlc, int imol_d
 
 
 //! replace a fragment
-//! 
+//!
 //! _i.e._ replace the atoms of ``imol_base`` by those of the atom selection ``atom_selection`` in ``imol_reference``
 //! (``imol_base`` is the molecule that is modified).
-//! 
+//!
 //! @return the success status
 int
 molecules_container_t::replace_fragment(int imol_base, int imol_reference, const std::string &atom_selection) {
@@ -357,7 +357,7 @@ molecules_container_t::replace_fragment(int imol_base, int imol_reference, const
             for (const auto &cid : v)
                mol_ref->Select(SelHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
 
-#if 0 // 20240201-PE replace by creating a new molecule        
+#if 0 // 20240201-PE replace by creating a new molecule
          mmdb::Manager *mol_select = coot::util::create_mmdbmanager_from_atom_selection(mol_ref, SelHnd);
          atom_selection_container_t asc_moving = make_asc(mol_select);
          status = molecules[imol_base].replace_fragment(asc_moving);
@@ -402,4 +402,3 @@ molecules_container_t::rigid_body_fit(int imol, const std::string &multi_cid, in
 
 
 }
-

@@ -1,5 +1,5 @@
 
-#include "coot_molecule.hh"
+#include "coot-molecule.hh"
 
 // merge molecules
 // Return +1 as status of pair if we did indeed do a merge

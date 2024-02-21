@@ -1,5 +1,5 @@
 
-#include "coot_molecule.hh"
+#include "coot-molecule.hh"
 
 void
 coot::molecule_t::make_mesh_for_bonds_for_blender(const std::string &mode, protein_geometry *geom) {

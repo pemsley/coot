@@ -4,9 +4,9 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/ext.hpp>
 
-#include "coot_molecule.hh"
 #include "coot-utils/oct.hh"
 #include "coot-utils/cylinder.hh"
+#include "coot-molecule.hh"
 
 void
 coot::molecule_t::setup_cylinder_clashes(instanced_mesh_t &im, const atom_overlaps_dots_container_t &c,
@@ -561,4 +561,3 @@ coot::molecule_t::get_mesh_for_ligand_validation_vs_dictionary(const std::string
    }
    return obj;
 }
-

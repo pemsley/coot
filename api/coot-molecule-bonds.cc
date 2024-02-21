@@ -36,7 +36,7 @@
 #include "coot-utils/prideout-octasphere.hh"  // needed?
 #include "coot-utils/oct.hh"
 #include "coot-utils/cylinder.hh"
-#include "coot_molecule.hh"
+#include "coot-molecule.hh"
 
 // #include "molecular-mesh-generator.hh"
 
@@ -1005,7 +1005,7 @@ make_graphical_bonds_bonds(coot::simple_mesh_t &m,
 
    auto &vertices  = m.vertices;
    auto &triangles = m.triangles;
-   
+
    std::pair<glm::vec3, glm::vec3> pp(glm::vec3(0,0,0), glm::vec3(0,0,1));
 
    // ----------------------- add the vertices and triangles ----------------------

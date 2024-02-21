@@ -4,7 +4,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
-#include "molecules_container.hh"
+#include "molecules-container.hh"
 #include "filo-tests.hh"
 #include "lucrezia-tests.hh"
 
@@ -1616,7 +1616,7 @@ int test_transformation_for_atom_selection(molecules_container_t &mc) {
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    coot::atom_spec_t atom_spec("A", 20, "", " CA ", "");
-   
+
    //! get the atom position (function for testing)
    std::pair<bool, coot::Cartesian> pos = mc.get_atom_position(imol, atom_spec);
    if (pos.first) {
@@ -1651,7 +1651,7 @@ int test_new_position_for_atoms(molecules_container_t &mc) {
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    coot::atom_spec_t atom_spec("A", 20, "", " CA ", "");
-   
+
    //! get the atom position (function for testing)
    std::pair<bool, coot::Cartesian> pos = mc.get_atom_position(imol, atom_spec);
    if (pos.first) {
@@ -1685,7 +1685,7 @@ int test_new_position_for_atoms_in_residues(molecules_container_t &mc) {
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    coot::atom_spec_t atom_spec("A", 20, "", " CA ", "");
-   
+
    //! get the atom position (function for testing)
    std::pair<bool, coot::Cartesian> pos = mc.get_atom_position(imol, atom_spec);
    if (pos.first) {
@@ -1726,7 +1726,7 @@ int test_merge_molecules(molecules_container_t &mc) {
    mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
    mc.import_cif_dictionary("3GP.cif", coot::protein_geometry::IMOL_ENC_ANY);
    mc.import_cif_dictionary("NUT.cif", coot::protein_geometry::IMOL_ENC_ANY);
-  
+
    int imol_2 = mc.get_monomer_and_position_at("ATP", coot::protein_geometry::IMOL_ENC_ANY, 60, 50, 30);
    int imol_3 = mc.get_monomer_and_position_at("3GP", coot::protein_geometry::IMOL_ENC_ANY, 80, 55, 20);
    int imol_4 = mc.get_monomer_and_position_at("NUT", coot::protein_geometry::IMOL_ENC_ANY, 10, 15, 10);
@@ -2355,7 +2355,6 @@ int test_delete_literal(molecules_container_t &mc) {
    }
 
    // add another test here that it doesn't delete anything if the atom selection doesn't match
-   
    mc.close_molecule(imol);
    return status;
 }
@@ -2547,7 +2546,7 @@ int test_replace_fragment(molecules_container_t &mc) {
          } else {
             std::cout << "test_replace_fragment() n_atoms_moved " << n_atoms_moved << std::endl;
          }
-         
+
       }
    }
    mc.close_molecule(imol);
@@ -3692,7 +3691,6 @@ int test_alt_conf_and_rotamer_v2(molecules_container_t &mc) {
          std::cout << "In test_alt_conf_and_rotamer_v2() No atom found " << atom_spec_A << std::endl;
       }
 
-      
    }
 
    std::cout << "done test_alt_conf_and_rotamer_v2()" << std::endl;
@@ -4063,7 +4061,7 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
                         status = 1;
             }
          }
-         
+
       } else {
          status = 0;
       }
@@ -4175,7 +4173,7 @@ int test_other_user_define_colours_other(molecules_container_t &mc) {
          auto bonds_3 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
          auto &geom_1 = bonds_1.geom;
          auto &geom_3 = bonds_3.geom;
- 
+
          auto &vb_1 = geom_1[1].instancing_data_B;
          auto &vb_3 = geom_3[1].instancing_data_B;
 

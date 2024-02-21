@@ -66,8 +66,6 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/cmtz-interface.cc
             ${coot_src}/coot-utils/lidia-core-functions.cc
             ${coot_src}/coot-utils/atom-selection-container.cc
-            #${coot_src}/coot-utils/dictionary-atom-types.cc
-            #${coot_src}/coot-utils/cod-db-access.cc
             ${coot_src}/src/coot-hydrogens.cc
             ${coot_src}/src/cfc.cc
             ${coot_src}/MoleculesToTriangles/CXXSurface/CXXBall.cpp
@@ -137,34 +135,33 @@ add_library(cootapi SHARED
             ${coot_src}/MoleculesToTriangles/CXXClasses/lfit.c
             ${coot_src}/api/rigid-body-fit.cc
             ${coot_src}/api/blender-mesh.cc
-            ${coot_src}/api/molecules-container-blender.cc
-            ${coot_src}/api//molecules_container_bucca_ml_growing.cc
-            ${coot_src}/api/molecules_container_mmrrcc.cc
-            ${coot_src}/api/molecules_container_superpose.cc
-            ${coot_src}/api/molecules_container_modelling.cc
             ${coot_src}/api/add-terminal-residue.cc
             ${coot_src}/api/interfaces.cc
             ${coot_src}/api/instancing.cc
             ${coot_src}/api/colour-functions.cc
             ${coot_src}/api/coot-colour.cc
-            ${coot_src}/api/coot_molecule.cc
-            ${coot_src}/api/coot_molecule_backup.cc
-            ${coot_src}/api/coot_molecule_bonds.cc
-            ${coot_src}/api/coot_molecule_bonds_instanced.cc
-            ${coot_src}/api/coot_molecule_maps.cc
-            ${coot_src}/api/coot_molecule_change_chain_id.cc
-            ${coot_src}/api/coot_molecule_moltris.cc
-            ${coot_src}/api/coot_molecule_validation.cc
-            ${coot_src}/api/coot_molecule_merge_molecules.cc
-            ${coot_src}/api/coot_molecule_refine.cc
-            ${coot_src}/api/coot_molecule_replace_fragment.cc
+            ${coot_src}/api/coot-molecule.cc
+            ${coot_src}/api/coot-molecule-backup.cc
+            ${coot_src}/api/coot-molecule-bonds.cc
+            ${coot_src}/api/coot-molecule-bonds-instanced.cc
+            ${coot_src}/api/coot-molecule-maps.cc
+            ${coot_src}/api/coot-molecule-change-chain-id.cc
+            ${coot_src}/api/coot-molecule-moltris.cc
+            ${coot_src}/api/coot-molecule-validation.cc
+            ${coot_src}/api/coot-molecule-merge-molecules.cc
+            ${coot_src}/api/coot-molecule-refine.cc
+            ${coot_src}/api/coot-molecule-replace-fragment.cc
             ${coot_src}/api/coot-molecule-blender.cc
-            ${coot_src}/api/molecules_container_ligand_fitting.cc
+            ${coot_src}/api/molecules-container-blender.cc
+            ${coot_src}/api/molecules-container.cc
+            ${coot_src}/api/molecules-container-bucca-ml-growing.cc
+            ${coot_src}/api/molecules-container-mmrrcc.cc
+            ${coot_src}/api/molecules-container-superpose.cc
+            ${coot_src}/api/molecules-container-modelling.cc
+            ${coot_src}/api/molecules-container-ligand-fitting.cc
             ${coot_src}/api/phi-psi-prob.cc
             ${coot_src}/api/moorhen-h-bonds.cc
             ${coot_src}/api/add-terminal-residue.cc
-            ${coot_src}/api/molecules_container.cc
-            ${coot_src}/api/molecules_container_bucca_ml_growing.cc
             ${coot_src}/api/rama-plot-phi-psi.cc
             ${coot_src}/analysis/daca.cc
             ${coot_src}/analysis/kolmogorov.cc
@@ -452,7 +449,7 @@ add_library(cootapi SHARED
             )
 
 
-nanobind_add_module(chapi ${coot_src}/api/molecules_container_nanobind.cc)
+nanobind_add_module(chapi ${coot_src}/api/molecules-container-nanobind.cc)
 
 # use MMDB2_INCLUDE_DIR to find the RDKIT for now.
 target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR})
@@ -481,7 +478,7 @@ add_executable(findligand ${coot_src}/ligand/find-ligand.cc)
 
 add_executable(findwaters ${coot_src}/ligand/find-waters.cc)
 
-add_executable(test-molecules-container ${coot_src}/api/test_molecules_container.cc ${coot_src}/api/filo-tests.cc ${coot_src}/api/lucrezia-tests.cc)
+add_executable(test-molecules-container ${coot_src}/api/test-molecules-container.cc ${coot_src}/api/filo-tests.cc ${coot_src}/api/lucrezia-tests.cc)
 
 # remove this comment soon.
 # target_link_libraries(chapi PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${PNG_LIBRARY})

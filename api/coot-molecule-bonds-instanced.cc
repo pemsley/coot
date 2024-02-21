@@ -4,8 +4,8 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/ext.hpp>
 
-#include "coot_molecule.hh"
-#include "coot_molecule_bonds.hh"
+#include "coot-molecule.hh"
+#include "coot-molecule-bonds.hh"
 #include "coot-utils/oct.hh"
 #include "coot-utils/cylinder.hh"
 
@@ -43,7 +43,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
 
    // ----------------------- setup the instances ----------------------
 
-   int cts = colour_table.size(); // change type   
+   int cts = colour_table.size(); // changing type
    for (int icol=0; icol<gbc.n_consolidated_atom_centres; icol++) {
       // from src/Mesh-from-graphical-bonds-instanced.cc: glm::vec4 col = get_glm_colour_for_bonds_func(icol, bonds_box_type);
       glm::vec4 col(0.4, 0.4, 0.4, 1.0);
@@ -124,7 +124,7 @@ make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, //
                               };
 
    // ----------------------- setup the vertices and triangles ---------------------
-   
+
    std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octaphere_geom =
       tessellate_hemisphere_patch(num_subdivisions);
 
@@ -142,7 +142,7 @@ make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, //
    std::vector<glm::vec4> instanced_colours;
 
    glm::mat4 unit(1.0);
-   int cts = colour_table.size(); // change type   
+   int cts = colour_table.size(); // changing type
    for (int icol=0; icol<gbc.n_consolidated_atom_centres; icol++) {
       // glm::vec4 col = get_glm_colour_for_bonds_func(icol, bonds_box_type);
       glm::vec4 col(0.4, 0.4, 0.4, 1.0);
@@ -282,7 +282,7 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
    ig_10.triangles = c_10.triangles;
    ig_11.triangles = c_11.triangles;
 
-   int cts = colour_table.size(); // change type   
+   int cts = colour_table.size(); // changing type
    for (int icol=0; icol<gbc.num_colours; icol++) {
 
       glm::vec4 col(0.4, 0.4, 0.4, 1.0);
@@ -679,12 +679,12 @@ coot::molecule_t::get_extra_restraints_mesh(int mode) const {
                   if (width < 0.01) width = 0.01;
                   if (width > 0.08) width = 0.08;
 
-		  width *= 2.5;
+                  width *= 2.5;
 
                   glm::vec3 s(width, width, bl); // a function of delta_length?
                   glm::vec4 col = col_base + delta_length * glm::vec4(-0.8f, 0.8f, -0.8, 0.0f);
                   col = 0.8 * col; // calm down
-		  col.a = 1.0;
+                  col.a = 1.0;
                   return instancing_data_type_B_t(p, col, s, ori);
    };
 
