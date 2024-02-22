@@ -359,6 +359,7 @@ NB_MODULE(chapi, m) {
     .def("make_mesh_for_molecular_representation_for_blender", &molecules_container_t::make_mesh_for_molecular_representation_for_blender)
     .def("make_mesh_for_bonds_for_blender", &molecules_container_t::make_mesh_for_bonds_for_blender)
     .def("make_mesh_for_gaussian_surface_for_blender", &molecules_container_t::make_mesh_for_gaussian_surface_for_blender)
+    .def("make_mesh_for_goodsell_style_for_blender", &molecules_container_t::make_mesh_for_goodsell_style_for_blender)
     .def("get_colour_table_for_blender", &molecules_container_t::get_colour_table_for_blender)
     .def("get_vertices_for_blender", &molecules_container_t::get_vertices_for_blender)
     .def("get_triangles_for_blender", &molecules_container_t::get_triangles_for_blender)

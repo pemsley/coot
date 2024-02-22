@@ -77,3 +77,10 @@ molecules_container_t::make_mesh_for_gaussian_surface_for_blender(int imol,
       molecules[imol].make_mesh_for_gaussian_surface_for_blender(sigma, contour_level, box_radius, grid_scale, b_factor);
    }
 }
+
+void
+molecules_container_t::make_mesh_for_goodsell_style_for_blender(int imol) {
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].make_mesh_for_goodsell_style_for_blender(&geom);
+   }
+}

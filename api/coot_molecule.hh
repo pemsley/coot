@@ -567,6 +567,7 @@ namespace coot {
                                    int smoothness_factor,
                                    bool draw_hydrogen_atoms_flag,
                                    bool draw_missing_residue_loops);
+      simple_mesh_t get_goodsell_style_mesh(protein_geometry *geom_p);
 
       instanced_mesh_t get_bonds_mesh_instanced(const std::string &mode, protein_geometry *geom,
                                                 bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
@@ -1191,6 +1192,7 @@ namespace coot {
       void make_mesh_for_molecular_representation_for_blender(const std::string &cid,
                                                               const std::string &colour_scheme,
                                                               const std::string &style);
+      void make_mesh_for_goodsell_style_for_blender(protein_geometry *geom_p);
 
       void make_mesh_for_map_contours_for_blender(Cartesian position, float contour_level, float radius);
       void make_mesh_for_gaussian_surface_for_blender(float sigma, float contour_level, float box_radius, float grid_scale,float b_factor);

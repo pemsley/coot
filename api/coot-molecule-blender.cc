@@ -48,6 +48,14 @@ coot::molecule_t::make_mesh_for_map_contours_for_blender(Cartesian position, flo
    blender_mesh = std::move(bm);
 }
 
+void
+coot::molecule_t::make_mesh_for_goodsell_style_for_blender(coot::protein_geometry *geom_p) {
+   simple_mesh_t sm = get_goodsell_style_mesh(geom_p);
+   blender_mesh_t bm(sm);
+   blender_mesh = std::move(bm);
+}
+
+
 
 void
 coot::molecule_t::make_mesh_for_gaussian_surface_for_blender(float sigma, float contour_level, float box_radius, float grid_scale,float b_factor) {

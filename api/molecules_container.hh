@@ -1680,6 +1680,8 @@ public:
                                                            const std::string &style);
    void make_mesh_for_gaussian_surface_for_blender(int imol, float sigma, float contour_level, float box_radius, float grid_scale, float b_factor);
 
+   void make_mesh_for_goodsell_style_for_blender(int imol);
+
    std::vector<float> get_colour_table_for_blender(int imol);
    std::vector<float> get_vertices_for_blender(int imol);
    std::vector<int>   get_triangles_for_blender(int imol);
