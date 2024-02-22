@@ -1,6 +1,7 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/pair.h>
+#include <nanobind/stl/map.h>
 #include <nanobind/stl/vector.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
@@ -188,6 +189,7 @@ NB_MODULE(chapi, m) {
     ;
     nb::class_<molecules_container_t>(m,"molecules_container_t")
     .def(nb::init<bool>())
+    .def("fourier_shell_correlation",&molecules_container_t::fourier_shell_correlation)
     .def("clear_refinement",&molecules_container_t::clear_refinement)
     .def("clear_target_position_restraints",&molecules_container_t::clear_target_position_restraints)
     .def("add_target_position_restraint_and_refine",&molecules_container_t::add_target_position_restraint_and_refine)
