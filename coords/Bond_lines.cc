@@ -6427,9 +6427,10 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
 
 
    // std::cout << "in add_residue_monomer_bonds() goodsell_colour_mode: " << do_goodsell_colour_mode
-   // << " atom_colour_type " << atom_colour_type << std::endl;
+   //           << " atom_colour_type " << atom_colour_type << std::endl;
 
    bool is_het = false;
+   if (!geom) return;
 
    std::map<std::string, std::vector<mmdb::Residue *> >::const_iterator it;
    class atom_string_bits_t {

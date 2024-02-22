@@ -1671,11 +1671,17 @@ public:
    // -------------------------------- Blender Interface ---------------------------------------
 
    void make_mesh_for_map_contours_for_blender(int imol, float x, float y, float z, float level, float radius);
-   void make_mesh_for_bonds_for_blender(int imol, const std::string &mode);
+   void make_mesh_for_bonds_for_blender(int imol, const std::string &mode, bool against_a_dark_background,
+                                      float bond_width, float atom_radius_to_bond_width_ratio,
+                                      int smoothness_factor);
    void make_mesh_for_molecular_representation_for_blender(int imol,
                                                            const std::string &cid,
                                                            const std::string &colour_scheme,
                                                            const std::string &style);
+   void make_mesh_for_gaussian_surface_for_blender(int imol, float sigma, float contour_level, float box_radius, float grid_scale, float b_factor);
+
+   void make_mesh_for_goodsell_style_for_blender(int imol);
+
    std::vector<float> get_colour_table_for_blender(int imol);
    std::vector<float> get_vertices_for_blender(int imol);
    std::vector<int>   get_triangles_for_blender(int imol);

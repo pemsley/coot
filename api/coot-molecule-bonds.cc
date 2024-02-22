@@ -1591,6 +1591,45 @@ coot::molecule_t::print_colour_table(const std::string &l) const {
 
 }
 
+coot::simple_mesh_t
+coot::molecule_t::get_goodsell_style_mesh(coot::protein_geometry *geom_p) {
+
+   std::set<int> empty_set;
+   bool goodsell_mode = true;
+   // we tried this and it didn't work
+   // make_colour_by_chain_bonds(nullptr, empty_set, false, goodsell_mode, false, false, false, nullptr, false);
+
+   // so let's try this (copying and editing from make_colour_by_chain_bonds() in molecules-class-info.cc)
+   // protein_geometry *Geom_p = nullptr;
+   bool draw_hydrogen_atoms_flag = false;
+   bool do_rama_markup = false;
+   bool draw_missing_loops_flag = false;
+   Bond_lines_container bonds(geom_p, empty_set, draw_hydrogen_atoms_flag);
+
+   bool change_c_only_flag = false;
+   bonds.do_colour_by_chain_bonds(atom_sel, false, imol_no, draw_hydrogen_atoms_flag,
+                                  draw_missing_loops_flag,
+                                  change_c_only_flag, goodsell_mode, do_rama_markup);
+   bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty
+                                                         // stupid when it comes to thining.
+
+   bonds_box = bonds.make_graphical_bonds(); // make_graphical_bonds() is pretty
+                                             // stupid when it comes to thining.
+   // so now we have the bonds_box - let's make that into a mesh.
+   simple_mesh_t m;
+   // modify (and fill) the simple mesh m:
+   float bond_radius = 0.3;
+   int n_slices = 8;
+   int n_stacks = 2;
+   bool against_a_dark_background = false;
+   std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
+   make_graphical_bonds_bonds(m, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
+   // or maybe:
+   // make_graphical_bonds_spherical_atoms_with_vdw_radii(m, bonds_box, num_subdivisions, colour_table, *geom);
+   return m;
+
+}
+
 
 coot::simple_mesh_t
 coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry *geom,
