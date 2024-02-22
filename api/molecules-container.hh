@@ -408,6 +408,9 @@ public:
    //! delete the most recent/last molecule in the molecule vector
    void pop_back();
 
+   //! delete all molecules
+   void clear();
+
    //! @return the eigenvalues of the atoms in the specified residue
    std::vector<double> get_eigenvalues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
