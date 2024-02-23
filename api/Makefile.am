@@ -19,7 +19,7 @@ pkginclude_HEADERS = \
 coot-molecule.hh	 make-a-dodec.hh	                                           \
 colour-functions.hh	 gensurf.hh		    validation-information.hh              \
 coot-colour.hh		 ghost-molecule-display.hh  residue-validation-information.hh      \
-molecules_container.hh	 ncs.hh			    geometry-graphs.hh                     \
+molecules-container.hh	 ncs.hh			    geometry-graphs.hh                     \
 	 		 rama-plot-phi-psi.hh	    superpose-results.hh                   \
 add-terminal-residue.hh  interfaces.hh              moorhen-h-bonds.hh                     \
 atom-pull.hh             rigid-body-fit.hh          svg-store-key.hh                       \
@@ -68,7 +68,7 @@ libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
 
 check_PROGRAMS = test-molecules-container
 
-test_molecules_container_SOURCES = test_molecules_container.cc filo-tests.cc lucrezia-tests.cc
+test_molecules_container_SOURCES = test-molecules-container.cc filo-tests.cc lucrezia-tests.cc
 
 test_molecules_container_LDFLAGS = ./libcoot-api.la \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \

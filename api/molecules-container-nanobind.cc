@@ -355,6 +355,7 @@ NB_MODULE(chapi, m) {
     .def("get_map_molecule_centre",&molecules_container_t::get_map_molecule_centre)
     .def("get_cell",&molecules_container_t::get_cell)
     .def("get_residue_using_cid",&molecules_container_t::get_residue_using_cid)
+    .def("get_goodsell_style_mesh_instanced",&molecules_container_t::get_goodsell_style_mesh_instanced)
     .def("make_mesh_for_map_contours_for_blender", &molecules_container_t::make_mesh_for_map_contours_for_blender)
     .def("make_mesh_for_molecular_representation_for_blender", &molecules_container_t::make_mesh_for_molecular_representation_for_blender)
     .def("make_mesh_for_bonds_for_blender", &molecules_container_t::make_mesh_for_bonds_for_blender)

@@ -5312,7 +5312,8 @@ int main(int argc, char **argv) {
 
    }
 
-   status += run_test(test_non_drawn_bond_multi_cid_2, "non-drawn-bonds multi-cid 2", mc);
+   // status += run_test(test_non_drawn_bond_multi_cid_2, "non-drawn-bonds multi-cid 2", mc);
+   status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;

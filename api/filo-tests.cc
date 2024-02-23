@@ -65,11 +65,8 @@ int test_something_filo(molecules_container_t &mc) {
 
 int test_get_diff_map_peaks(molecules_container_t &mc) {
 
-   int status = 1;
-
    // this test needs a different mtz file. Come back later.
 
-#if 0
    starting_test(__FUNCTION__);
    int status = 0;
 
@@ -81,6 +78,8 @@ int test_get_diff_map_peaks(molecules_container_t &mc) {
    mc.connect_updating_maps(coordMolNo, mapMolNo, mapMolNo, diffMapMolNo);
    // if sfcalc_genmaps_using_bulk_solvent() fails stats.r_factor is -1
    coot::util::sfcalc_genmap_stats_t stats = mc.sfcalc_genmaps_using_bulk_solvent(coordMolNo, mapMolNo, diffMapMolNo, mapMolNo);
+
+   std::cout << "stats: r_factor " << stats.r_factor << std::endl;
 
    mc.get_r_factor_stats();
    mc.get_map_contours_mesh(mapMolNo,  77.501,  45.049,  22.663,  13,  0.48);
@@ -97,7 +96,6 @@ int test_get_diff_map_peaks(molecules_container_t &mc) {
    } else {
       std::cerr << "Test failed." << std::endl;
    }
-#endif
 
    return status;
 

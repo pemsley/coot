@@ -1574,7 +1574,7 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
 std::vector<glm::vec4>
 coot::molecule_t::make_colour_table_for_goodsell_style(float colour_wheel_rotation_step, float saturation, float goodselliness) const {
 
-   bool debug_colour_table = false;
+   bool debug_colour_table = true;
    float gcwrs = colour_wheel_rotation_step;
    std::vector<glm::vec4> colour_table;
    int icol_max = -1;
@@ -1616,7 +1616,9 @@ coot::molecule_t::make_colour_table_for_goodsell_style(float colour_wheel_rotati
       }
       std::map<int, unsigned int>::const_iterator it;
       for (it=col_set.begin(); it!=col_set.end(); ++it) {
-         std::cout << "   " << it->first << "  " << it->second << std::endl;
+         int idx = it->first;
+         std::cout << "   col-idx: " << it->first << "  counts: " << it->second << " "
+                   << glm::to_string(colour_table[idx]) << std::endl;
       }
 
    }
