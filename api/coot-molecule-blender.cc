@@ -49,8 +49,12 @@ coot::molecule_t::make_mesh_for_map_contours_for_blender(Cartesian position, flo
 }
 
 void
-coot::molecule_t::make_mesh_for_goodsell_style_for_blender(coot::protein_geometry *geom_p) {
-   simple_mesh_t sm = get_goodsell_style_mesh(geom_p);
+coot::molecule_t::make_mesh_for_goodsell_style_for_blender(coot::protein_geometry *geom_p,
+                                                           float colour_wheel_rotation_step,
+                                                           float saturation,
+                                                           float goodselliness) {
+
+   simple_mesh_t sm = get_goodsell_style_mesh(geom_p, colour_wheel_rotation_step, saturation, goodselliness);
    blender_mesh_t bm(sm);
    blender_mesh = std::move(bm);
 }

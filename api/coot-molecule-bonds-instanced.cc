@@ -759,3 +759,30 @@ coot::molecule_t::get_extra_restraints_mesh(int mode) const {
    }
    return im;
 }
+
+
+coot::instanced_mesh_t
+coot::molecule_t::get_goodsell_style_mesh_instanced(protein_geometry *geom_p, float colour_wheel_rotation_step,
+                                                    float saturation, float goodselliness) {
+
+   coot::instanced_mesh_t im;
+
+   std::set<int> empty_set;
+   bool goodsell_mode = true;
+
+   bool draw_hydrogen_atoms_flag = false;
+   bool do_rama_markup = false;
+   bool draw_missing_loops_flag = false;
+   Bond_lines_container bonds(geom_p, empty_set, draw_hydrogen_atoms_flag);
+
+   bool change_c_only_flag = false;
+   bonds_box_type = api_bond_colour_t::COLOUR_BY_CHAIN_GOODSELL;
+   bonds.do_colour_by_chain_bonds(atom_sel, false, imol_no, draw_hydrogen_atoms_flag,
+                                  draw_missing_loops_flag, change_c_only_flag, goodsell_mode, do_rama_markup);
+   bonds_box = bonds.make_graphical_bonds();
+   std::vector<glm::vec4> colour_table = make_colour_table_for_goodsell_style(colour_wheel_rotation_step, saturation, goodselliness);
+   unsigned int num_subdivisions = 3;
+   make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(im, bonds_box, num_subdivisions, colour_table, *geom_p);
+
+   return im;
+}

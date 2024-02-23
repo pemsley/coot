@@ -532,6 +532,8 @@ namespace coot {
 
       //! useful for debugging, perhaps
       std::vector<glm::vec4> make_colour_table(bool against_a_dark_background) const;
+      std::vector<glm::vec4> make_colour_table_for_goodsell_style(float colour_wheel_rotation_step,
+                                                                  float saturation, float goodselliness) const;
 
       // for debugging
       void print_colour_table(const std::string &debugging_label) const;
@@ -569,24 +571,33 @@ namespace coot {
       // ----------------------- model bonds
 
       simple_mesh_t get_bonds_mesh(const std::string &mode, protein_geometry *geom,
-                                   bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
+                                   bool against_a_dark_background,
+                                   float bonds_width, float atom_radius_to_bond_width_ratio,
                                    int smoothness_factor,
                                    bool draw_hydrogen_atoms_flag,
                                    bool draw_missing_residue_loops);
-      simple_mesh_t get_goodsell_style_mesh(protein_geometry *geom_p);
+
+      simple_mesh_t get_goodsell_style_mesh(protein_geometry *geom_p, float colour_wheel_rotation_step,
+                                            float saturation, float goodselliness);
 
       instanced_mesh_t get_bonds_mesh_instanced(const std::string &mode, protein_geometry *geom,
-                                                bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
+                                                bool against_a_dark_background,
+                                                float bonds_width, float atom_radius_to_bond_width_ratio,
                                                 int smoothness_factor,
                                                 bool draw_hydrogen_atoms_flag,
                                                 bool draw_missing_residue_loops);
 
       instanced_mesh_t get_bonds_mesh_for_selection_instanced(const std::string &mode, const std::string &selection_cid,
                                                               protein_geometry *geom,
-                                                              bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
+                                                              bool against_a_dark_background,
+                                                              float bonds_width, float atom_radius_to_bond_width_ratio,
                                                               int smoothness_factor,
                                                               bool draw_hydrogen_atoms_flag,
                                                               bool draw_missing_residue_loops);
+
+      instanced_mesh_t get_goodsell_style_mesh_instanced(protein_geometry *geom_p, float colour_wheel_rotation_step,
+                                                         float saturation, float goodselliness);
+
 
       // adding colours using the functions below add into user_defined_colours
       std::map<unsigned int, colour_holder> user_defined_bond_colours;
@@ -1198,7 +1209,11 @@ namespace coot {
       void make_mesh_for_molecular_representation_for_blender(const std::string &cid,
                                                               const std::string &colour_scheme,
                                                               const std::string &style);
-      void make_mesh_for_goodsell_style_for_blender(protein_geometry *geom_p);
+
+      void make_mesh_for_goodsell_style_for_blender(protein_geometry *geom_p,
+                                                    float colour_wheel_rotation_step,
+                                                    float saturation,
+                                                    float goodselliness);
 
       void make_mesh_for_map_contours_for_blender(Cartesian position, float contour_level, float radius);
       void make_mesh_for_gaussian_surface_for_blender(float sigma, float contour_level, float box_radius, float grid_scale,float b_factor);

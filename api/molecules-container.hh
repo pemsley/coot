@@ -633,6 +633,9 @@ public:
                                                                  float bond_width, float atom_radius_to_bond_width_ratio,
                                                                  int smoothness_factor);
 
+   coot::instanced_mesh_t get_goodsell_style_mesh_instanced(int imol, float colour_wheel_rotation_step,
+                                                            float saturation, float goodselliness);
+
    //! export map molecule as glTF
    //  (not const because maps might update?)
    void export_map_molecule_as_gltf(int imol, float pos_x, float pos_y, float pos_z, float radius, float contour_level,
@@ -1683,7 +1686,8 @@ public:
                                                            const std::string &style);
    void make_mesh_for_gaussian_surface_for_blender(int imol, float sigma, float contour_level, float box_radius, float grid_scale, float b_factor);
 
-   void make_mesh_for_goodsell_style_for_blender(int imol);
+   void make_mesh_for_goodsell_style_for_blender(int imol, float colour_wheel_rotation_step,
+                                                 float saturation, float goodselliness);
 
    std::vector<float> get_colour_table_for_blender(int imol);
    std::vector<float> get_vertices_for_blender(int imol);

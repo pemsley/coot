@@ -1837,6 +1837,21 @@ molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const st
    return im;
 }
 
+coot::instanced_mesh_t
+molecules_container_t::get_goodsell_style_mesh_instanced(int imol, float colour_wheel_rotation_step,
+                                                         float saturation, float goodselliness) {
+
+   coot::instanced_mesh_t im;
+   if (is_valid_model_molecule(imol)) {
+      im = molecules[imol].get_goodsell_style_mesh_instanced(&geom, colour_wheel_rotation_step, saturation, goodselliness);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return im;
+}
+
+
+
 //! return the colour table (for testing)
 std::vector<glm::vec4>
 molecules_container_t::get_colour_table(int imol, bool against_a_dark_background) const {

@@ -79,8 +79,9 @@ molecules_container_t::make_mesh_for_gaussian_surface_for_blender(int imol,
 }
 
 void
-molecules_container_t::make_mesh_for_goodsell_style_for_blender(int imol) {
+molecules_container_t::make_mesh_for_goodsell_style_for_blender(int imol, float colour_wheel_rotation_step,
+                                                                float saturation, float goodselliness) {
    if (is_valid_model_molecule(imol)) {
-      molecules[imol].make_mesh_for_goodsell_style_for_blender(&geom);
+      molecules[imol].make_mesh_for_goodsell_style_for_blender(&geom, colour_wheel_rotation_step, saturation, goodselliness);
    }
 }
