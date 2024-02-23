@@ -93,7 +93,7 @@ dist_python_PYTHON = coot_headless_api.py
 
 pyexec_LTLIBRARIES = _coot_headless_api.la
 
-wrap-coot-api.cc: coot-headless-api.i molecules_container.hh
+wrap-coot-api.cc: coot-headless-api.i molecules-container.hh
 	swig -o $@ -python -c++ $<
 
 _coot_headless_api_la_SOURCES = wrap-coot-api.cc molecules-container-swig.cc
