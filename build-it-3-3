@@ -401,7 +401,8 @@
 # 6.12 20240105-PE link $HOME/data/greg-data for the testing step
 # 6.13 20240216-PE Install Darwin OpenSSL in $install_top_dir
 # 6.14 20240220-PE Set the C++ flags for Catch2 (needed for macOS/clang) and build with CMake
-script_version=6.14
+# 6.15 20240220-PE OpenSSL and python apiflags and boost bjam updates
+script_version=6.15
 
 
 
@@ -2106,6 +2107,12 @@ if [ "$CHAPI_ONLY" = true ] ; then
     python_version=python3.10
     pver=3.10.13
     python_version_extension=3.10
+    python_abiflags=
+    if [ $OS = Darwin ] ; then
+       # how and why is this "d" added?
+       python_version_extension=3.10
+       python_abiflags=d
+    fi
 fi
 
 
@@ -2701,7 +2708,31 @@ if [ $skip_build = false ] ; then
       ) > $HOSTLOGDIR/07e-libffi.txt 2>&1
 fi
 
+build_openssl=false
+if [ $OS = Darwin ] ; then
+   if [ -e $install_top_dir/include/openssl ] ; then
+      echo OpenSSL is installed
+      build_openssl=false
+   else
+      build_openssl=true
+   fi
+fi
 
+if [ $build_openssl = true ] ; then
+    echo BUILDING OpenSSL
+    echo BUILDING OpenSSL >&2
+    (
+    openssl_version=3.2.1
+    ${WGET} https://github.com/openssl/openssl/releases/download/openssl-$openssl_version/openssl-$openssl_version.tar.gz
+    ls -alt ${AUTOBUILD_SOURCES}
+    tar xf ${AUTOBUILD_SOURCES}/openssl-$openssl_version.tar.gz
+    ls -alt
+    cd openssl-$openssl_version
+    ./Configure --prefix=$install_top_dir --openssldir=$install_top_dir  '-Wl,-rpath,$(LIBRPATH)'
+    $MAKE && make install
+    cd -
+    ) > $HOSTLOGDIR/07-f-openssl.txt 2>&1
+fi
 
 # python
 #
@@ -2762,6 +2793,18 @@ print(dir(ctypes))
 print('post ctypes test')
 EOF
    ) >  $HOSTLOGDIR/07-python.txt 2>&1
+
+   # we need this because boost configuration runs "python" - at least on my Mac
+   # (finding the correct python(3) doesn't seem to be a problem on the PC).
+   # The better way is to use cmd-or-prefix, it seems:
+   # https://www.phind.com/search?cache=z8ao21y6rh5grg4wezeybr06
+   # try this:
+   # add
+   # echo "using python :  3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
+   if [ -e $install_top_dir/bin/python3 ] ; then
+      echo linking python to python3
+      ln -s $install_top_dir/bin/python3 $install_top_dir/bin/python
+   fi
 
    echo BUILDING Python $pver done >&2
 
@@ -3105,9 +3148,10 @@ if [ "$build_boost" = true ] ; then
 
       address_model=64
       pwd
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu > bootstrap-command-save
-      ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
+      echo "using python : 3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu > bootstrap-command-save
+      ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
 
       # now edit the project-config.jam file using python line
 
@@ -3121,14 +3165,21 @@ if [ "$build_boost" = true ] ; then
 
       # bjam no longer exists
       # use -Wno-deprecated-declarations
-      echo ./b2 address-model=$address_model cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension -Wno-maybe-uninitialized -Wno-deprecated-declarations" install > b2-command-save
-           ./b2 address-model=$address_model cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
+      echo ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install > b2-command-save
+           ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
       cd -
       ) > $HOSTLOGDIR/16-boost.txt
       echo done boost $boost_version >&2
    fi
 fi
 
+if [ -e $install_top_dir/lib/libboost_python310.a ] ; then
+   echo libboost_python was installed
+else
+   echo libboost_python was not installed
+   echo libboost_python was not installed >&2
+   exit
+fi
 
 
 
@@ -3141,7 +3192,10 @@ else
    echo BUILDING glm:
    echo BUILDING glm: >&2
     glm_version=0.9.9.2
-    ${WGET} $extras_place/glm-$glm_version.tar.gz
+    glm_version=1.0.0
+    # ${WGET} $extras_place/glm-$glm_version.tar.gz
+    ${WGET} https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz
+    cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
     (
     date
     pwd
@@ -3527,10 +3581,10 @@ if [ "$build_rdkit" = true ] ; then
       echo cmake \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
                -DCatch2_DIR=$install_top_dir \
-               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
+               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
-               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-$python_arch/libpython$python_version_extension.a \
+               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}$python_abiflags-$python_arch/libpython$python_version_extension$python_abiflags.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
@@ -3542,10 +3596,10 @@ if [ "$build_rdkit" = true ] ; then
       if cmake  \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
                -DCatch2_DIR=$install_top_dir \
-               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
+               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
-               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-$python_arch/libpython$python_version_extension.a \
+               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}$python_abiflags-$python_arch/libpython$python_version_extension$python_abiflags.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
