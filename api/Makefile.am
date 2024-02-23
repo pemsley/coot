@@ -16,7 +16,7 @@ AM_CPPFLAGS = \
 pkgincludedir = $(includedir)/coot/api
 
 pkginclude_HEADERS = \
-coot_molecule.hh	 make-a-dodec.hh	                                           \
+coot-molecule.hh	 make-a-dodec.hh	                                           \
 colour-functions.hh	 gensurf.hh		    validation-information.hh              \
 coot-colour.hh		 ghost-molecule-display.hh  residue-validation-information.hh      \
 molecules_container.hh	 ncs.hh			    geometry-graphs.hh                     \
@@ -27,7 +27,7 @@ phi-psi-prob.hh          saved-strand-info.hh       simple-molecule.hh          
 generic-3d-lines.hh      cell.hh                    coot-simple-molecule.hh                \
 api-cell.hh              bond-colour.hh             make-instanced-graphical-bonds.hh      \
 symmetry-info.hh         instancing.hh              merge-molecule-results-info-t.hh       \
-coot_molecule-bonds.hh   clipper-ccp4-map-file-wrapper.hh blender-mesh.hh
+coot-molecule-bonds.hh   clipper-ccp4-map-file-wrapper.hh blender-mesh.hh
 
 lib_LTLIBRARIES=libcoot-api.la
 

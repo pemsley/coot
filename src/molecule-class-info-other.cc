@@ -87,6 +87,9 @@
 #include "ideal/pepflip.hh"
 #include "ligand/backrub-rotamer.hh"
 
+#include "api/coot-molecule.hh"  // pick up RESIDUE_NUMBER_UNSET (it used to be in molecule-class-info.h)
+                                 // I don't think that this is a good organization
+
 #include "coot-nomenclature.hh"
 
 // #include "GL/glu.h"
@@ -8200,8 +8203,6 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
 
 }
 
-#include "api/coot_molecule.hh"  // pick up RESIDUE_NUMBER_UNSET (it used to be in molecule-class-info.h)
-                                 // I don't think that this is a good organization
 
 void
 molecule_class_info_t::change_chain_id_with_residue_range_helper_insert_or_add(mmdb::Chain *to_chain_p, mmdb::Residue *new_residue) {
