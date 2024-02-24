@@ -40,8 +40,12 @@ jobs:
           path: build-gemmi
           key:  chapi-build-ubuntu-gemmi-cache-build
 
+      - name: Update apt-get
+        run:  sudo apt-get update
+
       - name: Install system dependencies
-        run:  sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev
+        # run:  sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev
+        run:  sudo apt-get install cmake libdw-dev libncurses5-dev
 
       - name: Where are we?
         run:  pwd
