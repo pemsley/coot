@@ -70,8 +70,14 @@ jobs:
       - name: test python3
         run:  which python3 && python3 --version
 
-      - name: install nanobind
-        run:  python3 -m pip install nanobind
+      # homebrew pip refuses to do this:
+      # - name: install nanobind
+      #   run:  python3 -m pip install nanobind
+      #
+      # so try using pip3 to a user-install of nanobind
+
+      - name: homebrew python-requests
+        run:  brew install python-requests
 
         # ls -l /Users/runner/install/chapi-Darwin-macos-gtk4
         # ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib
