@@ -30,6 +30,7 @@ find_package(glm REQUIRED)
 
 # Charles wants 3.9 here, but if I change to 3.9 then it will not build for me
 # Hmm...
+# What do I need to do here so that Charles can specify on the command line what the version of Python should be?
 find_package(Python 3.10
   REQUIRED COMPONENTS Interpreter Development.Module
   OPTIONAL_COMPONENTS Development.SABIModule)
