@@ -101,6 +101,9 @@ jobs:
       - name: create-build-directory-for-libcootapi
         run:  mkdir build-libcootapi
 
+      - name: patch out CCP4-package in CMakeLists.txt
+        run:  sed -i.backup -e 's/find_package.CCP4/#&/' CMakeLists.txt
+
       - name: run cmake
         env:
           HOMEBREW_MAKE_JOBS: 4
