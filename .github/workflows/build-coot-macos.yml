@@ -75,6 +75,9 @@ jobs:
          brewsci/bio/raster3d brewsci/bio/ssm brewsci/bio/gemmi
          dwarfutils gsl rdkit pygobject3
 
+    - name: Install Homebrew python-requests
+      run:  brew install python-requests
+
     - name: Get coot.rb file
       # run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
       # try this modified version for now:
