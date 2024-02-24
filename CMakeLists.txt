@@ -479,6 +479,8 @@ add_executable(findligand ${coot_src}/ligand/find-ligand.cc)
 
 add_executable(findwaters ${coot_src}/ligand/find-waters.cc)
 
+add_executable(coot-mini-rsr ${coot_src}/ideal/mini-rsr.cc)
+
 add_executable(test-molecules-container ${coot_src}/api/test-molecules-container.cc ${coot_src}/api/filo-tests.cc ${coot_src}/api/lucrezia-tests.cc)
 
 # remove this comment soon.
@@ -490,9 +492,13 @@ target_include_directories(findligand PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src})
 
 target_include_directories(findwaters PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src})
 
+target_include_directories(coot-mini-rsr PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src})
+
 target_link_libraries(findligand PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Threads::Threads)
 
 target_link_libraries(findwaters PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY})
+
+target_link_libraries(coot-mini-rsr PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Threads::Threads)
 
 target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR}/include ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${PNG_INCLUDE_DIR})
 
