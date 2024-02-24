@@ -2178,17 +2178,26 @@ std::pair<int, unsigned int>
 molecules_container_t::delete_using_cid(int imol, const std::string &cid, const std::string &scope) {
 
    std::pair<int, unsigned int> r(0,0);
-   if (scope == "ATOM")
+   if (scope == "ATOM") {
       r = delete_atom_using_cid(imol, cid);
-   if (scope == "RESIDUE")
+      set_updating_maps_need_an_update(imol);
+   }
+   if (scope == "RESIDUE") {
       r = delete_residue_atoms_using_cid(imol, cid);
-   if (scope == "CHAIN")
+      set_updating_maps_need_an_update(imol);
+   }
+   if (scope == "CHAIN") {
       r = delete_chain_using_cid(imol, cid);
-   if (scope == "LITERAL")
+      set_updating_maps_need_an_update(imol);
+   }
+   if (scope == "LITERAL") {
       r = delete_literal_using_cid(imol, cid);
+      set_updating_maps_need_an_update(imol);
+   }
    if (scope == "MOLECULE") {
       int status = close_molecule(imol);
       if (status == 1) r.first = 1;
+      set_updating_maps_need_an_update(imol);
    }
    return r;
 }
@@ -2452,10 +2461,13 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                         stats = molecules[imol_model].sfcalc_genmaps_using_bulk_solvent(*fobs_data_p, *free_flag_p, &xmap_2fofc, &xmap_fofc);
 
                         { // diff difference map peaks
-                           float base_level = 0.2; // this might need to be computed from the rmsd.
+                           float rmsd = get_map_rmsd_approx(imol_map_fofc);
+                           float base_level = 2.0 * rmsd;  // was 0.2 - this might need to be computed from the rmsd.
                            const clipper::Xmap<float> &m1 = molecules[imol_map_fofc].updating_maps_previous_difference_map;
                            const clipper::Xmap<float> &m2 = xmap_fofc;
                            std::vector<std::pair<clipper::Coord_orth, float> > v1 = coot::diff_diff_map_peaks(m1, m2, base_level);
+                           // std::cout << "***************************** got " << v1.size() << " diff diff map peaks.... "
+                           // << " using base level " << base_level << " with map rmsd " << rmsd << std::endl;
                            molecules[imol_map_fofc].set_updating_maps_diff_diff_map_peaks(v1);
                         }
 
