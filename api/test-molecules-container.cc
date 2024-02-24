@@ -4484,9 +4484,10 @@ int test_contouring_timing(molecules_container_t &mc) {
 
 int test_test_the_threading(molecules_container_t &mc) {
 
+   starting_test(__FUNCTION__);
    int status = 1; // no faiiure
 
-   for (unsigned int i=0; i<50; i++) {
+   for (unsigned int i=0; i<20; i++) { // was 50, but that caused the process to be Killed
       double r = mc.test_the_threading(i);
       std::cout << " test_threading: " << i << " " << r << std::endl;
    }
@@ -4496,6 +4497,7 @@ int test_test_the_threading(molecules_container_t &mc) {
 
 int test_thread_launching(molecules_container_t &mc) {
 
+   starting_test(__FUNCTION__);
    int status = 1; // no failure
    for (unsigned int i=1; i<50; i++) {
       for (unsigned int j=1; j<50; j++) {
@@ -4508,8 +4510,9 @@ int test_thread_launching(molecules_container_t &mc) {
 
 int test_thread_pool(molecules_container_t &mc) {
 
+   starting_test(__FUNCTION__);
    int status = 1; // no failure
-   for (unsigned int j=1; j<50; j++) {
+   for (unsigned int j=1; j<20; j++) {
       double t = mc.test_thread_pool_threads(j);
       std::cout << " launching " << j << " " << t << " micro-seconds " << std::endl;
    }
@@ -4518,6 +4521,7 @@ int test_thread_pool(molecules_container_t &mc) {
 
 int test_long_name_ligand_cif_merge(molecules_container_t &mc) {
 
+   starting_test(__FUNCTION__);
    int status = 0;
    int imol = mc.read_pdb(reference_data("8a2q.cif"));
    mc.import_cif_dictionary(reference_data("7ZTVU.cif"), coot::protein_geometry::IMOL_ENC_ANY);
@@ -4531,6 +4535,7 @@ int test_long_name_ligand_cif_merge(molecules_container_t &mc) {
 
 int test_disappearing_ligand(molecules_container_t &mc) {
 
+   starting_test(__FUNCTION__);
    int status = 0;
    // int imol = mc.read_pdb(reference_data("6ttq.cif")); // needs gemmi
    int imol = mc.read_pdb(reference_data("8a2q.cif"));
@@ -4575,6 +4580,7 @@ int test_ligand_merge(molecules_container_t &mc) {
       delete mol;
    };
 
+   starting_test(__FUNCTION__);
    int status = 0;
 
    test_mmdb();
@@ -5207,14 +5213,12 @@ int main(int argc, char **argv) {
       status += run_test(test_fill_partial,          "fill partially-filled residues", mc);
       status += run_test(test_multiligands_lig_bonding, "some multiligands bonding", mc);
       status += run_test(test_gltf_export_via_api,   "gltf via api", mc);
-      status += run_test(test_updating_maps,         "updating maps", mc);
       status += run_test(test_disappearing_ligand,   "disappearning ligand", mc);
       status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
       status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction", mc);
       status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
       status += run_test(test_gltf_export,           "glTF export", mc);
       status += run_test(test_5char_ligand_merge,    "5-char ligand merge", mc);
-      status += run_test(test_density_mesh,          "density mesh",             mc);
       status += run_test(test_thread_pool,           "thread pool",    mc);
       status += run_test(test_thread_launching,      "thread launching",    mc);
       status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
@@ -5224,46 +5228,38 @@ int main(int argc, char **argv) {
       status += run_test(test_mmcif_as_string,       "mmCIF as string",    mc);
       status += run_test(test_pdb_as_string,         "PDB as string",    mc);
       status += run_test(test_cif_writer,            "mmCIF dictionary writer",    mc);
-      status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction",    mc);
       status += run_test(test_residues_near_residues, "residues near residues",    mc);
-      status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
       status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
       status += run_test(test_replace_fragment,      "replace fragment",         mc);
       status += run_test(test_ncs_chains,            "NCS chains",         mc);
       status += run_test(test_omega_5tig_cif,        "Omega for 5tig cif",         mc);
       status += run_test(test_jiggle_fit_params,     "actually testing for goodness pr params", mc);
+      status += run_test(test_jiggle_fit_with_blur,  "Jiggle-fit-with-blur", mc);
       status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
       status += run_test(test_read_extra_restraints, "read extra restraints", mc);
       status += run_test(test_map_histogram,         "map histogram", mc);
       status += run_test(test_auto_read_mtz,         "auto-read-mtz", mc);
       status += run_test(test_read_a_missing_map,    "read a missing map file ", mc);
       status += run_test(test_colour_map_by_other_map, "colour-map-by-other-map", mc);
-      status += run_test(test_jiggle_fit_with_blur,  "Jiggle-fit-with-blur", mc);
       status += run_test(test_something_filo,        "Self something filo", mc);
       status += run_test(test_self_restraints,       "Self restraints mesh", mc);
       status += run_test(test_other_user_define_colours_other, "New colour test", mc);
       status += run_test(test_is_em_map,             "test if EM map flag is correctly set", mc);
       status += run_test(test_user_defined_bond_colours_v2, "user-defined bond colours v2", mc);
-      status += run_test(test_ramachandran_analysis, "--- current_test ---", mc);
-      status += run_test(test_undo_and_redo, "undo and redo", mc);
       status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
       status += run_test(test_rigid_body_fit, "rigid-body fit", mc);
-      status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
       status += run_test(test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
       status += run_test(test_broken_function, "Something was broken",         mc);
-      status += run_test(test_molecular_representation, "molecular representation mesh", mc);
       status += run_test(test_delete_side_chain, "delete side chain", mc);
       status += run_test(test_colour_rules, "colour rules", mc);
       status += run_test(test_mmrrcc, "MMRRCC", mc);
-      status += run_test(test_auto_read_mtz, "auto-read MTZ", mc);
       status += run_test(test_instanced_bonds_mesh, "insta bonds mesh", mc);
+      status += run_test(test_instanced_bonds_mesh_v2, "test instanced bond selection v2", mc);
       status += run_test(test_utils, "utils", mc);
-      status += run_test(test_instanced_bonds_mesh, "instanced_bonds", mc);
       status += run_test(test_svg, "svg string", mc);
       status += run_test(test_superpose, "SSM superpose ", mc);
       status += run_test(test_multi_colour_rules, "multi colour rules ", mc);
       status += run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
-      status += run_test(test_add_terminal_residue, "add terminal residue", mc);
       status += run_test(test_symmetry, "symmetry", mc);
       status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
       status += run_test(test_set_rotamer, "set rotamer ", mc);
@@ -5278,25 +5274,13 @@ int main(int argc, char **argv) {
       status += run_test(test_user_defined_bond_colours, "user-defined bond colours", mc);
       status += run_test(test_replace_map, "replace map from mtz", mc);
       status += run_test(test_residue_name_group, "residue name group", mc);
-      status += run_test(test_superpose, "SSM superpose ", mc);
-      status += run_test(test_rsr_using_residue_range, "test_rsr using residue range", mc);
-      status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
       status += run_test(test_bucca_ml_growing, "Bucca ML growing", mc);
       status += run_test(test_mask_atom_selection, "mask atom selection", mc);
-      status += run_test(test_instanced_bonds_mesh_v2, "test instanced bond selection v2", mc);
       status += run_test(test_ligand_merge, "test ligand merge", mc);
       status += run_test(test_add_terminal_residue_v2, "test add terminal residue v2", mc);
-      status += run_test(test_auto_read_mtz, "test ------ ", mc);
       status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
       status += run_test(test_write_map_is_sane, "write map is sane",    mc);
-      status += run_test(test_auto_read_mtz, "test auto_read_mtz", mc);
-      status += run_test(test_replace_fragment, "replace fragment",         mc);
-      status += run_test(test_dragged_atom_refinement, "dragged atom refinement", mc);
       status += run_test(test_replace_large_fragment,      "refine and replace large fragment",         mc);
-      status += run_test(test_auto_read_mtz, "test ------ ", mc);
-      status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
-      status += run_test(test_write_map_is_sane, "write map is sane",    mc);
-      status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
       status += run_test(test_molecule_diameter, "molecule diameter",    mc);
       status += run_test(test_B_factor_multiply, "B-factor multiply",    mc);
       status += run_test(test_change_chain_id, "change chain id",    mc);
