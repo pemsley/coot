@@ -739,7 +739,7 @@ molecules_container_t::write_png(const std::string &compound_id, int imol_enc,
 int
 molecules_container_t::write_coordinates(int imol, const std::string &file_name) const {
 
-   if (true) {
+   if (false) {
       mmdb::Manager *mol = get_mol(imol);
       mol->WriteCIFASCII("write_coords_molecules_container_fn_start.cif");
    }
@@ -2628,10 +2628,6 @@ molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, 
 int
 molecules_container_t::refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode, int n_cycles) {
 
-   std::cout << "starting refine_residues_using_atom_cid() with imol " << imol
-             << " and imol_refinement_map " << imol_refinement_map
-             << std::endl;
-
    auto debug_selected_residues = [cid] (const std::vector<mmdb::Residue *> &rv) {
       std::cout << "refine_residues_using_atom_cid(): selected these " << rv.size() << " residues "
          " from cid: " << cid << std::endl;
@@ -2641,6 +2637,11 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
       }
    };
 
+   if (false)
+      std::cout << "starting refine_residues_using_atom_cid() with imol " << imol
+                << " and imol_refinement_map " << imol_refinement_map
+                << std::endl;
+
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map)) {
@@ -2648,7 +2649,7 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
          // status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode, n_cycles);
          std::vector<mmdb::Residue *> rv = molecules[imol].select_residues(cid, mode);
 
-         // debug_selected_residues(rv);
+         debug_selected_residues(rv);
          std::string alt_conf = "";
          status = refine_direct(imol, rv, alt_conf, n_cycles);
          set_updating_maps_need_an_update(imol);

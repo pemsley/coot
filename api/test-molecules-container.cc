@@ -725,8 +725,8 @@ int test_rsr_using_atom_cid(molecules_container_t &mc_in) {
          int res_no = 14; // this residue is problematic in moorhen-tutorial-structure-number-1.pdb
          std::string ins_code;
 
-         // std::string cid = "//A/14/CA";
-         std::string cid = "//A/187/CA";
+         std::string cid = "//A/14/CA";
+         // std::string cid = "//A/187/CA";
 
          coot::atom_spec_t atom_spec_N_1(chain_id, res_no, ins_code, " N  ","");
          coot::atom_spec_t atom_spec_N_2(chain_id, res_no, ins_code, " CG2",""); // not a nitrogen atom
@@ -741,10 +741,13 @@ int test_rsr_using_atom_cid(molecules_container_t &mc_in) {
          float f = mc.get_map_weight();
          std::cout << "debug:: map weight " << f << std::endl;
 
+         mc.write_coordinates(imol, "pre-refine.pdb");
          mc.add_to_non_drawn_bonds(imol, cid);
-         mc.refine_residues_using_atom_cid(imol, cid, mode, n_cycles);
+         int refine_status = mc.refine_residues_using_atom_cid(imol, cid, mode, n_cycles);
+         std::cout << "debug:: refine_status " << refine_status << std::endl;
          coot::Cartesian pt_n_1_post = atom_to_cartesian(at_n_1);
          coot::Cartesian pt_n_2_post = atom_to_cartesian(at_n_2);
+         mc.write_coordinates(imol, "post-refine.pdb");
 
          double dd_n_1 = coot::Cartesian::lengthsq(pt_n_1_pre, pt_n_1_post);
          double dd_n_2 = coot::Cartesian::lengthsq(pt_n_2_pre, pt_n_2_post);
@@ -760,6 +763,8 @@ int test_rsr_using_atom_cid(molecules_container_t &mc_in) {
          mc.clear_non_drawn_bonds(imol);
       }
    }
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -5297,7 +5302,8 @@ int main(int argc, char **argv) {
    }
 
    // status += run_test(test_non_drawn_bond_multi_cid_2, "non-drawn-bonds multi-cid 2", mc);
-   status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
+   // status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
+   status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
