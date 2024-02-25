@@ -2101,18 +2101,15 @@ fi
 python_version=python3.11
 pver=3.11.4
 python_version_extension=3.11 # extract this
+python_abiflags=d # because we use --pydebug on the command line for Python configure
+python_version_squish=311
 
 # for Blender 4 in 2024, we want Python 3.10.13, so uncomment the 3 lines below:
 if [ "$CHAPI_ONLY" = true ] ; then
     python_version=python3.10
     pver=3.10.13
     python_version_extension=3.10
-    python_abiflags=
-    if [ $OS = Darwin ] ; then
-       # how and why is this "d" added?
-       python_version_extension=3.10
-       python_abiflags=d
-    fi
+    python_version_squish=310
 fi
 
 
@@ -2162,14 +2159,14 @@ else
    needed_gsl_version=1.16
    needed_gsl_version=2.7
 
-   # tmp value.  This uses awk.  It need not do.
-   # You can do the comparison with test.
-   build_gsl=`awk -v A=$gsl_version -v N=$needed_gsl_version 'BEGIN{x = ((A+0) != (N+0)) ; print x}'`
+   if [ -e $install_top_dir/include/gsl/gsl_version.h ] ; then
+       build_gsl=
+   fi
 
    echo system/installation has the GSL version $gsl_version
    echo build_gsl is $build_gsl
 
-   if [ $build_gsl = 1 ] ; then
+   if [ "$build_gsl" = 1 ] ; then
 	echo need to build GSL
         build_gsl=1
    else
@@ -2698,6 +2695,7 @@ if [ $skip_build = false ] ; then
       echo BUILDING libffi $libffi_version:
       echo BUILDING libffi $libffi_version: >&2
       (
+      unset LD_LIBRARY_PATH
       ${WGET} https://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
       cd libffi-$libffi_version
@@ -2707,6 +2705,9 @@ if [ $skip_build = false ] ; then
       fi
       ) > $HOSTLOGDIR/07e-libffi.txt 2>&1
 fi
+
+echo post libffi with LD_LIBRARY_PATH $LD_LIBRARY_PATH
+echo post libffi with LD_LIBRARY_PATH $LD_LIBRARY_PATH >&2
 
 build_openssl=false
 if [ $OS = Darwin ] ; then
@@ -2737,8 +2738,8 @@ fi
 # python
 #
 if test -n "$build_python" ; then
-    echo BUILDING Python ${pver}:
-    echo BUILDING Python ${pver}: >&2
+   echo BUILDING Python ${pver}:
+   echo BUILDING Python ${pver}: >&2
 
    echo ${WGET} http://www.python.org/ftp/python/$pver/Python-$pver.tgz
    # hacking in --no-check-certificate is not the right way to do it.
@@ -2751,6 +2752,12 @@ if test -n "$build_python" ; then
    (
    date
    echo building in: $PWD
+
+   unset LD_LIBRARY_PATH
+   # test raw awk
+   which awk
+   awk --version
+
    env
    gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
 
@@ -2763,7 +2770,7 @@ if test -n "$build_python" ; then
 
 
    # --with-ensurepip=install
-   # £ echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags
+   # echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags
    # /Users/pemsley/ccp4/devtools/install
    # this should be configured
    openssl_prefix=$HOME/ccp4/devtools/install
@@ -2936,6 +2943,7 @@ if test -n "$build_libtool" ; then
     (date
      pwd
      gzip -dc ${AUTOBUILD_SOURCES}/libtool-$libtool_version.tar.gz | tar xf -
+     unset LD_LIBRARY_PATH
      cd libtool-$libtool_version
      ./configure $generic_prefix
      $MAKE
@@ -2964,7 +2972,7 @@ if test -n "$build_libidn" ; then
    echo BUILDING libidn:
    echo BUILDING libidn: >&2
 (
-   # get libcurl from here:
+   unset LD_LIBRARY_PATH
    libidn_version=1.15
    libidn_version=2.2.0
    # ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
@@ -3007,6 +3015,8 @@ if test -n "$build_curl" ; then
 
    echo from tar file ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz
    echo building in: $PWD
+
+   unset LD_LIBRARY_PATH
 
    # libcurl has problems with putting the libraries ine right order when we specify
    # --with-libidn (it puts the libidn prefix libs at the end of its LDFLAGS and that
@@ -3071,6 +3081,7 @@ if test -n "$build_gsl" ; then
     (
     date
     pwd
+    unset LD_LIBRARY_PATH
     gzip -dc ${AUTOBUILD_SOURCES}/gsl-$gsl_version.tar.gz | tar xf -
     cd gsl-$gsl_version
     ./configure $generic_prefix
@@ -3173,11 +3184,11 @@ if [ "$build_boost" = true ] ; then
    fi
 fi
 
-if [ -e $install_top_dir/lib/libboost_python310.a ] ; then
-   echo libboost_python was installed
+if [ -e $install_top_dir/lib/libboost_python$python_version_squish.a ] ; then
+   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was installed
 else
-   echo libboost_python was not installed
-   echo libboost_python was not installed >&2
+   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was not installed
+   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was not installed >&2
    exit
 fi
 
@@ -3194,6 +3205,7 @@ else
     glm_version=0.9.9.2
     glm_version=1.0.0
     # ${WGET} $extras_place/glm-$glm_version.tar.gz
+    echo fetching https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz >&2
     ${WGET} https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz
     cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
     (
@@ -3269,6 +3281,7 @@ if [ true = true ] ; then
       # numpy source is now zip
       # ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.tar.gz
       # ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.zip
+      echo Fetching https://github.com/numpy/numpy/archive/refs/tags/v$numpy_version.tar.gz >&2
       ${WGET} https://github.com/numpy/numpy/archive/refs/tags/v$numpy_version.tar.gz
       #
       ls -l ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz
@@ -3640,6 +3653,7 @@ fi
 ###############################################################################
 
 if [ "$CHAPI_ONLY" = true ] ; then
+   echo done CHAPI_ONLY
    exit
 fi
 
