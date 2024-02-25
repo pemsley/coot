@@ -1,11 +1,11 @@
-name: libcootapi CI Homebrew macOS
+name: libcootapi CI build-it-3-3 macOS
 
 on:
   push:
 
 jobs:
 
-  build-libcootapi-for-macos:
+  build-libcootapi-for-macos-build-it-3-3-based:
 
     runs-on: macos-latest
 
