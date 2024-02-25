@@ -38,11 +38,12 @@ jobs:
     - name: patch out CCP4-package in CMakeLists.txt
       run:  sed -i.backup -e 's/find_package.CCP4/#&/' CMakeLists.txt
 
+    # CHAPI_ONLY installs Python version 3.10
     - name: run cmake
       run: >
           cd build-libcootapi &&
           cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
-          -Dnanobind_DIR=/usr/local/lib/python3.12/site-packages/nanobind/cmake ..
+          -Dnanobind_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/python3.10/site-packages/nanobind/cmake ..
 
     - name: make
       run:  cd build-libcootapi && make -j 4
