@@ -516,7 +516,7 @@ install(TARGETS cootapi)
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/standard-residues.pdb DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/syminfo.lib       DESTINATION ${CMAKE_INSTALL_PREFIX}/data)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/syminfo.lib       DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/data)
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/pdb-templates DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
 
