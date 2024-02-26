@@ -1251,8 +1251,9 @@ public:
    //! original molecule)
    void clear_refinement(int imol);
 
-   //! for debugging the refinement - write out some diagnositics - some might be useful
-   void set_refinement_is_verbose() { refinement_is_quiet = false; }
+   //! for debugging the refinement - write out some diagnositics - some might be useful.
+   //! API change 20240226 - this function now takes a boolean argument
+   void set_refinement_is_verbose(bool state) { refinement_is_quiet = !state; }
 
    //! set the refinement Geman-McClure alpha
    void set_refinement_geman_mcclure_alpha(float a) { geman_mcclure_alpha = a; }

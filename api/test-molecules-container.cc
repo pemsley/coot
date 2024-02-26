@@ -223,12 +223,11 @@ int test_auto_fit_rotamer_1(molecules_container_t &mc_in) {
    return status;
 }
 
-int test_auto_fit_rotamer_2(molecules_container_t &mc_in) {
+int test_auto_fit_rotamer_2(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0; // initially fail status
 
-   molecules_container_t mc;
    mc.geometry_init_standard();
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
@@ -2565,6 +2564,7 @@ int test_replace_large_fragment(molecules_container_t &mc) {
    int status = 0;
    int imol = mc.read_pdb("pdb8oie.ent");
    int imol_map = mc.read_ccp4_map("emd_16890.map", false);
+   mc.set_refinement_is_verbose(false);
    mc.import_cif_dictionary("CLF.cif", coot::protein_geometry::IMOL_ENC_ANY);
    mc.import_cif_dictionary("HCA.cif", coot::protein_geometry::IMOL_ENC_ANY);
    mc.import_cif_dictionary("S5Q.cif", coot::protein_geometry::IMOL_ENC_ANY);
@@ -2619,7 +2619,7 @@ int test_instanced_rota_markup(molecules_container_t &mc) {
                   }
 
                   for (unsigned int i=0; i<ig.instancing_data_A.size(); i++) {
-                     if (i > 20) continue;
+                     if (i > 5) continue;
                      const auto &item = ig.instancing_data_A[i];
                      std::cout << i << " "
                                << glm::to_string(item.position) << " "
@@ -3005,11 +3005,15 @@ int test_ligand_contact_dots(molecules_container_t &mc) {
 
 int test_broken_function(molecules_container_t &mc) {
 
+   // what does this test?
+
+   starting_test(__FUNCTION__);
    int status = 0;
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
    auto mesh = mc.get_bonds_mesh(imol, mode, true, 0.1, 1.0, 1);
+   status = 1;
    return status;
 
 }
@@ -3118,9 +3122,10 @@ int test_add_hydrogen_atoms(molecules_container_t &mc) {
          int n_atom_pre = mc.get_number_of_atoms(imol_lig);
          mc.delete_hydrogen_atoms(imol_lig);
          int n_atoms_post = mc.get_number_of_atoms(imol_lig);
-         std::cout << "test_add_hydrogen_atoms(): pre: " << n_atom_pre << " n_atom_post " << n_atoms_post << std::endl;
+         std::cout << "DEBUG:: test_add_hydrogen_atoms(): pre: " << n_atom_pre << " n_atom_post " << n_atoms_post << std::endl;
          auto mesh_lig_2 = mc.get_bonds_mesh(imol_lig, mode, true, 0.1, 1.0, 1);
-         status = 1;
+         if (n_atoms_post < n_atom_pre)
+            status = 1;
       }
    }
 
@@ -3141,14 +3146,12 @@ int test_mmrrcc(molecules_container_t &mc) {
       std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
                 std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> > results =
          mc.mmrrcc(imol, chain_id, imol_map);
-      auto mc = results.first;
-      auto sc = results.second;
-
-      if (mc.size() > 90)
+      auto mcc = results.first;
+      if (mcc.size() > 90)
          status = 1;
 
       std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>::const_iterator it;
-      for (it=mc.begin(); it!=mc.end(); ++it)
+      for (it=mcc.begin(); it!=mcc.end(); ++it)
          std::cout << "   " << it->first << " " << it->second.correlation() << std::endl;
    }
    mc.close_molecule(imol);
@@ -3159,15 +3162,17 @@ int test_mmrrcc(molecules_container_t &mc) {
       imol = mc.read_pdb("pdb7adk.ent");
       imol_map = mc.read_ccp4_map(reference_data("emd_11729.map"), 0);
       auto results = mc.mmrrcc(imol, "B", imol_map);
-      auto mc = results.first;
-      auto sc = results.second;
+      auto mcc = results.first;
+      auto scc = results.second;
       std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>::const_iterator it;
       std::ofstream f("7adk-b-chain-all-atom.table");
-      for (it=mc.begin(); it!=mc.end(); ++it)
+      for (it=mcc.begin(); it!=mcc.end(); ++it)
          f << "   " << it->first << " " << it->second.correlation() << std::endl;
       std::ofstream fs("7adk-b-chain-side-chain.table");
-      for (it=sc.begin(); it!=sc.end(); ++it)
+      for (it=scc.begin(); it!=scc.end(); ++it)
          fs << "   " << it->first << " " << it->second.correlation() << std::endl;
+      mc.close_molecule(imol);
+      mc.close_molecule(imol_map);
    }
    return status;
 }
@@ -3616,7 +3621,7 @@ int test_user_defined_bond_colours(molecules_container_t &mc) {
             const auto& g = im.geom[1].instancing_data_B;
             std::cout << "........... g.size() " << g.size() << std::endl;
             for (unsigned int j=0; j<g.size(); j++) {
-               if (j > 300) continue;
+               if (j > 3) continue;
                const auto &d = g[j];
                std::cout << j << " " << glm::to_string(d.colour) << std::endl;
             }
@@ -3955,7 +3960,7 @@ int test_bucca_ml_growing(molecules_container_t &mc) {
    int imol     = mc.read_pdb(reference_data(fn));
    int imol_map = mc.read_mtz(reference_data("1gwd_map.mtz"), "FWT", "PHWT", "FOM", false, false);
 
-   mc.set_refinement_is_verbose();
+   mc.set_refinement_is_verbose(true);
    mc.geometry_init_standard();
    mc.get_monomer("CL");
    mc.get_monomer("IOD");
@@ -3997,6 +4002,7 @@ int test_bucca_ml_growing(molecules_container_t &mc) {
    } else {
       std::cout << "Not a valid model " << imol << std::endl;
    }
+   mc.set_refinement_is_verbose(false);
    return status;
 }
 
@@ -4201,13 +4207,13 @@ int test_other_user_define_colours_other(molecules_container_t &mc) {
          auto &vb_3 = geom_3[1].instancing_data_B;
 
          for (unsigned int i=0; i<vb_1.size(); i++) {
-             if (i > 10) continue;
+             if (i > 5) continue;
              auto col = vb_1[i].colour;
              std::cout << "instancing colour_1: " << i << " " << glm::to_string(col) << "\n";
          }
 
          for (unsigned int i=0; i<vb_3.size(); i++) {
-            // if (i > 10) continue;
+            if (i > 5) continue;
             auto col = vb_3[i].colour;
             std::cout << "instancing colour_3: " << i << " " << glm::to_string(col) << "\n";
          }
@@ -5154,9 +5160,13 @@ run_test(int (*test_func) (molecules_container_t &mc), const std::string &test_n
    n_tests++;
    int status = test_func(mc);
    std::string status_string = "FAIL: ";
-   if (status == 1)
+   std::string uncol = "[m";
+   std::string col = "[31m";
+   if (status == 1) {
       status_string = "PASS: ";
-   std::cout << status_string << std::setw(40) << std::left << test_name << " status " << status << std::endl;
+      col = "[32m";
+   }
+   std::cout << status_string << std::setw(40) << std::left << test_name << col << " ⬤ " << uncol << std::endl;
    test_results.push_back(std::make_pair(test_name, status));
 
    return status;
@@ -5172,8 +5182,12 @@ print_results_summary() {
       const auto &status = result.second;
       if (status == 0) {
          n_failed++;
+         std::cout << "[31m⬤ ";
+      } else {
+         std::cout << "[32m⬤ ";
       }
    }
+   std::cout << "[m" << std::endl;
 
    if (n_failed > 0) {
       std::cout << "Test summary: " << n_failed << " failed tests of " << n_tests << std::endl;

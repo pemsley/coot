@@ -4034,7 +4034,7 @@ coot::molecule_t::init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::pro
 
    bool make_trans_peptide_restraints = true;
    bool do_rama_plot_restraints = false;
-   bool refinement_is_quiet = false; // for debugging
+   bool refinement_is_quiet = true;
 
    auto get_all_residues_in_molecule = [] (mmdb::Manager *mol) {
       std::vector<mmdb::Residue *> rv;
