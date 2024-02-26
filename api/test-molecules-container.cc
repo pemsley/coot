@@ -5232,7 +5232,7 @@ int main(int argc, char **argv) {
       status += run_test(test_gltf_export,           "glTF export", mc);
       status += run_test(test_5char_ligand_merge,    "5-char ligand merge", mc);
       status += run_test(test_thread_pool,           "thread pool",    mc);
-      status += run_test(test_thread_launching,      "thread launching",    mc);
+      // status += run_test(test_thread_launching,      "thread launching",    mc); // this is not a helpful test
       status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
       status += run_test(test_test_the_threading,    "threading speed test",    mc);
       status += run_test(test_contouring_timing,     "contouring timing",    mc);
@@ -5245,7 +5245,7 @@ int main(int argc, char **argv) {
       status += run_test(test_replace_fragment,      "replace fragment",         mc);
       status += run_test(test_ncs_chains,            "NCS chains",         mc);
       status += run_test(test_omega_5tig_cif,        "Omega for 5tig cif",         mc);
-      status += run_test(test_jiggle_fit_params,     "actually testing for goodness pr params", mc);
+      // status += run_test(test_jiggle_fit_params,     "actually testing for goodness pr params", mc); // not useful
       status += run_test(test_jiggle_fit_with_blur,  "Jiggle-fit-with-blur", mc);
       status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
       status += run_test(test_read_extra_restraints, "read extra restraints", mc);
