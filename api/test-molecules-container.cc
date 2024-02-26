@@ -3315,65 +3315,69 @@ int test_superpose(molecules_container_t &mc) {
 
    unsigned int n_pre = mc.get_number_of_molecules();
 
-   coot::atom_spec_t atom_spec_1("A", 227, "", " CA ","");
-   coot::atom_spec_t atom_spec_2("A", 256, "", " CA ","");
-   mmdb::Atom *at_1 = mc.get_atom(imol_1, atom_spec_1);
-   mmdb::Atom *at_2 = mc.get_atom(imol_2, atom_spec_2);
+   if (mc.is_valid_model_molecule(imol_1)) {
+      if (mc.is_valid_model_molecule(imol_2)) {
 
-   coot::Cartesian atom_pos_1 = atom_to_cartesian(at_1);
-   coot::Cartesian atom_pos_2 = atom_to_cartesian(at_2);
+         coot::atom_spec_t atom_spec_1("A", 227, "", " CA ","");
+         coot::atom_spec_t atom_spec_2("A", 256, "", " CA ","");
+         mmdb::Atom *at_1 = mc.get_atom(imol_1, atom_spec_1);
+         mmdb::Atom *at_2 = mc.get_atom(imol_2, atom_spec_2);
 
-   double dd = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_2);
-   double d1 = std::sqrt(dd);
-   std::cout << "test d1 " << d1 << std::endl;
+         coot::Cartesian atom_pos_1 = atom_to_cartesian(at_1);
+         coot::Cartesian atom_pos_2 = atom_to_cartesian(at_2);
 
-   // std::pair<std::string, std::string> ss_result_pair = mc.SSM_superpose(imol_1, "A", imol_2, "B");
-   superpose_results_t ss_results = mc.SSM_superpose(imol_1, "A", imol_2, "A");
+         double dd = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_2);
+         double d1 = std::sqrt(dd);
+         std::cout << "test d1 " << d1 << std::endl;
 
-   std::cout << "ss_result: info:\n" << ss_results.superpose_info << std::endl;
-   std::cout << "ss_result: alnR\n" << ss_results.alignment.first  << std::endl;
-   std::cout << "ss_result: alnM\n" << ss_results.alignment.second << std::endl;
+         // std::pair<std::string, std::string> ss_result_pair = mc.SSM_superpose(imol_1, "A", imol_2, "B");
+         superpose_results_t ss_results = mc.SSM_superpose(imol_1, "A", imol_2, "A");
 
-   if (false) {
-      for (unsigned int i=0; i<ss_results.alignment_info_vec.size(); i++) {
-         for (const auto &chain : ss_results.alignment_info_vec[i].cviv) {
-            for (const auto &res : chain.rviv) {
-               std::cout << res.residue_spec << " " << res.function_value << std::endl;
+         std::cout << "ss_result: info:\n" << ss_results.superpose_info << std::endl;
+         std::cout << "ss_result: alnR\n"  << ss_results.alignment.first  << std::endl;
+         std::cout << "ss_result: alnM\n"  << ss_results.alignment.second << std::endl;
+
+         if (false) {
+            for (unsigned int i=0; i<ss_results.alignment_info_vec.size(); i++) {
+               for (const auto &chain : ss_results.alignment_info_vec[i].cviv) {
+                  for (const auto &res : chain.rviv) {
+                     std::cout << res.residue_spec << " " << res.function_value << std::endl;
+                  }
+               }
             }
          }
+
+         if (true) {
+            const auto &pairs = ss_results.aligned_pairs;
+            for (unsigned int i=0; i<pairs.size(); i++) {
+               const auto &r1 = pairs[i].first;
+               const auto &r2 = pairs[i].second;
+               std::cout << "   " << r1.residue_spec << " " << r2.residue_spec << std::endl;
+            }
+         }
+
+         mc.write_coordinates(imol_2, "superposed.pdb");
+
+         mmdb::Atom *at_3 = mc.get_atom(imol_2, atom_spec_2);
+         mmdb::Atom *at_4 = mc.get_atom(imol_1, atom_spec_1);
+         coot::Cartesian atom_pos_3 = atom_to_cartesian(at_3);
+         coot::Cartesian atom_pos_4 = atom_to_cartesian(at_4);
+
+         dd = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_3);
+         double d2 = std::sqrt(dd);
+         std::cout << "test d2 " << d2 << std::endl;
+
+         unsigned int n_post = mc.get_number_of_molecules();
+         if (n_pre == n_post)
+            if (d1 > 50.0)
+               if (d2 < 1.0)
+                  status = 1;
+
+         std::cout << "debug:: n_mol_pre " << n_pre << " n_mol_post " << n_post << std::endl;
+         std::cout << "debug:: atom_pos_1 " << atom_pos_1 << " atom_pos_2 " << atom_pos_2
+                   << " atom_pos_3 " << atom_pos_3 << " atom_pos_4 " << atom_pos_4 << std::endl;
       }
    }
-
-   if (true) {
-      const auto &pairs = ss_results.aligned_pairs;
-      for (unsigned int i=0; i<pairs.size(); i++) {
-         const auto &r1 = pairs[i].first;
-         const auto &r2 = pairs[i].second;
-         std::cout << "   " << r1.residue_spec << " " << r2.residue_spec << std::endl;
-      }
-   }
-
-   mc.write_coordinates(imol_2, "superposed.pdb");
-
-   mmdb::Atom *at_3 = mc.get_atom(imol_2, atom_spec_2);
-   mmdb::Atom *at_4 = mc.get_atom(imol_1, atom_spec_1);
-   coot::Cartesian atom_pos_3 = atom_to_cartesian(at_3);
-   coot::Cartesian atom_pos_4 = atom_to_cartesian(at_4);
-
-   dd = coot::Cartesian::lengthsq(atom_pos_1, atom_pos_3);
-   double d2 = std::sqrt(dd);
-   std::cout << "test d2 " << d2 << std::endl;
-
-   unsigned int n_post = mc.get_number_of_molecules();
-   if (n_pre == n_post)
-      if (d1 > 50.0)
-         if (d2 < 1.0)
-            status = 1;
-
-   std::cout << "debug:: n_mol_pre " << n_pre << " n_mol_post " << n_post << std::endl;
-   std::cout << "debug:: atom_pos_1 " << atom_pos_1 << " atom_pos_2 " << atom_pos_2
-             << " atom_pos_3 " << atom_pos_3 << " atom_pos_4 " << atom_pos_4 << std::endl;
-
    return status;
 }
 
