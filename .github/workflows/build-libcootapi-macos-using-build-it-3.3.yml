@@ -27,7 +27,7 @@ jobs:
     - name: run build-it-3-3 in chapi mode
       env:
         CHAPI_ONLY: true
-      run: bash build-it-3-3.sh
+      run: bash build-it-3-3
 
     - name: create-build-directory-for-libcootapi
       run:  mkdir build-libcootapi
