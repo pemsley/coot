@@ -5153,6 +5153,13 @@ int main(int argc, char **argv) {
 
    molecules_container_t mc(false); // quiet
 
+   // now check that the monomer library was read OK
+   int imol = mc.get_monomer("ATP");
+   if (! mc.is_valid_model_molecule(imol)) {
+      std::cout << "Failed to read the monomer library" << std::endl;
+      exit(1);
+   }
+
    mc.fill_rotamer_probability_tables();
 
    if (! last_test_only) {
