@@ -101,5 +101,5 @@ jobs:
         # this needs the monomer library
         env:
           MOORHEN_TEST_DATA_DIR: ../test-data
-          COOT_REFMAC_LIB_DIR: /home/runner/monomers-ccp4-8.0.016
+          COOT_REFMAC_LIB_DIR: /home/runner/work/coot/coot/monomers-ccp4-8.0.016
         run:  cd build-libcootapi && ./test-molecules-container
