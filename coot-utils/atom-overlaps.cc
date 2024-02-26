@@ -115,7 +115,8 @@ coot::atom_overlaps_container_t::init() {
       std::pair<bool, dictionary_residue_restraints_t> d =
          geom_p->get_monomer_restraints(cres_name, protein_geometry::IMOL_ENC_ANY);
       if (! d.first) {
-         std::cout << "Failed to get dictionary for " << cres_name << std::endl;
+         std::cout << "WARNING:: (or ERROR::) in atom_overlaps_container_t::init() Failed to get dictionary for "
+                   << cres_name << std::endl;
       } else {
          // Happy path
          central_residue_dictionary = d.second;
@@ -1173,9 +1174,14 @@ coot::atom_overlaps_container_t::is_inside_another_ligand_atom(int idx,
 coot::atom_overlaps_dots_container_t
 coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) { // or residue
 
+   atom_overlaps_dots_container_t ao;
+   if (!have_dictionary) {
+      std::cout << "WARNING:: contact_dots_for_ligand() no dictionary " << std::endl;
+      return ao;
+   }
+
    bool add_vdw_dots = true; // pass this
 
-   atom_overlaps_dots_container_t ao;
    mmdb::realtype max_dist = 4.0; // max distance for an interaction
 
    bool excl_mc_flag = true; // exclude main-chain to main-chain interactions also
@@ -2379,6 +2385,9 @@ coot::atom_overlaps_container_t::add_residue_neighbour_index_to_neighbour_atoms(
 void
 coot::atom_overlaps_container_t::setup_env_residue_atoms_radii(int i_sel_hnd_env_atoms) {
 
+   if (!have_dictionary) {
+      std::cout << "setup_env_residue_atoms_radii() no dictionary " << std::endl;
+   }
    double r = 1.5;
    mmdb::Atom **env_residue_atoms = 0;
    int n_env_residue_atoms;
