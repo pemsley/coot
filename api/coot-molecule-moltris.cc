@@ -389,7 +389,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
                const clipper::Coord_map mapUnits(theClipperNXMap.coord_map(orthogonals));
                float potential = theClipperNXMap.interp<clipper::Interp_cubic>( mapUnits );
                // subSurfaceIter->setScalar(potentialHandle, i, potential);
-               std::cout << "potential: " << potential << std::endl;
+               // std::cout << "potential: " << potential << std::endl;  // 20240226-PE Quiet! (now that this test is run)
                set_vertex_colour(mesh.vertices[i], potential); // change ref
             }
 
