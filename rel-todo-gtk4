@@ -12,7 +12,10 @@ chapi: test refine_residues_using_atom_cid() with "sphere" - for Paul Bond, this
 libcootapi: turn_off_backups(imol). This needs some infrastucture work. Add something like
    really_do_make_backups_flag to coot::molecule_t - and that is set by the above function call.
 
+libcootapi: bus error on change_chain_id - reported by Filo, I think. Is on Moorhen Project board?
+
 libcootapi: add mini-rsr to the CMake build
+* Done
 
 libcootapi: fix the link problem from Andrey
 * Hopefully done.
@@ -60,9 +63,13 @@ moorhen: SMILES: nitrobezene svg ligand rep - charge position size offset of the
 libcootapi:
   get rid of #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY in add-terminal-residue.cc
 
+Coot: why didn't Fetch Molecule/Drug "Kisqali" work?
+
+Coot: does single-model-view work?
+
 Coot: on ligand fitting, use conformers and get "no ligands selected" dialog
 
-Coot: Add "Scene Preset" -> Model Building, Figure Making
+Coot: Add "Scene Preset" -> Model Building, Figure Making. Test Perspective also
 
 Coot: colour-by-molecule has big atoms - why? Fix.
 

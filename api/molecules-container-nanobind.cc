@@ -401,6 +401,10 @@ NB_MODULE(chapi, m) {
     ;
     nb::class_<molecules_container_t::fit_ligand_info_t>(m, "fit_ligand_info_t")
     .def_ro("imol", &molecules_container_t::fit_ligand_info_t::imol)
+    .def_ro("cluster_idx", &molecules_container_t::fit_ligand_info_t::cluster_idx)
+    .def_ro("ligand_idx", &molecules_container_t::fit_ligand_info_t::ligand_idx)
+    .def("get_fitting_score", &molecules_container_t::fit_ligand_info_t::get_fitting_score)
+    .def("get_cluster_volume", &molecules_container_t::fit_ligand_info_t::get_cluster_volume)
     ;
     nb::class_<coot::residue_spec_t>(m,"residue_spec_t")
     .def(nb::init<const std::string &, int, const std::string &>())
