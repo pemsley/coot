@@ -30,8 +30,9 @@ jobs:
       - name: download the monomer library
         run:  wget https://github.com/MonomerLibrary/monomers/archive/refs/tags/ccp4-8.0.016.tar.gz
 
+      # note that the data directory exists in the coot repo (which is where we are)
       - name: untar the monomer library
-        run:  pwd && mkdir data && cd data && tar xf ccp4-8.0.016.tar.gz && ln -s monomers-ccp4-8.0.016 monomers
+        run:  pwd && cd data && tar xf ccp4-8.0.016.tar.gz && ln -s monomers-ccp4-8.0.016 monomers
 
       - name: download test data
         run:  wget -N -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
