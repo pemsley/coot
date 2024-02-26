@@ -4598,48 +4598,50 @@ int test_ligand_merge(molecules_container_t &mc) {
    test_mmdb();
    int imol = mc.read_pdb(reference_data("2vtq-sans-ligand.cif"));
    mc.write_coordinates(imol, "2vtq-sans-ligand-just-input-output.cif");
-   mmdb::Manager *mol = mc.get_mol(imol);
-   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-      mmdb::Model *model_p = mol->GetModel(imod);
-      if (model_p) {
-         int n_chains = model_p->GetNumberOfChains();
-         for (int ichain=0; ichain<n_chains; ichain++) {
-            mmdb::Chain *chain_p = model_p->GetChain(ichain);
-            int n_res = chain_p->GetNumberOfResidues();
-            std::cout << "    " << chain_p->GetChainID() << " " << n_res << " residues " << std::endl;
+   if (mc.is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = mc.get_mol(imol);
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               std::cout << "    " << chain_p->GetChainID() << " " << n_res << " residues " << std::endl;
+            }
          }
       }
-   }
-   mc.import_cif_dictionary(reference_data("MOI.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY);
-   int imol_lig = mc.get_monomer("MOI");
-   std::string sl = std::to_string(imol_lig);
-   std::pair<int, std::vector<merge_molecule_results_info_t> > ss = mc.merge_molecules(imol, sl);
-   mc.write_coordinates(imol, "2vtq-sans-ligand-with-merged-MOI.cif");
+      mc.import_cif_dictionary(reference_data("MOI.restraints.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+      int imol_lig = mc.get_monomer("MOI");
+      std::string sl = std::to_string(imol_lig);
+      std::pair<int, std::vector<merge_molecule_results_info_t> > ss = mc.merge_molecules(imol, sl);
+      mc.write_coordinates(imol, "2vtq-sans-ligand-with-merged-MOI.cif");
 
-   // we test that the output is sane by looking for an atom that has unset/default/"." for atom and element
-   // columns 3 and 4 (starting from 1).
-   std::string cif_for_testing = "2vtq-sans-ligand-just-input-output.cif";
-   cif_for_testing = "2vtq-sans-ligand-just-input-output.cif"; // it's not the merge, it's the writing.
-   if (coot::file_exists(cif_for_testing)) {
-      bool found_bogus_atom = false;
-      std::ifstream f(cif_for_testing.c_str());
-      if (f) {
-         std::string line;
-         while (std::getline(f, line)) {
-            std::vector<std::string> parts = coot::util::split_string_no_blanks(line);
-            if (parts.size() > 10) {
-               if (parts[0] == "ATOM") {
-                  if (parts[2] == ".") {
-                     if (parts[3] == ".") {
-                        std::cout << "found bogus null atom in cif output " << cif_for_testing << std::endl;
-                        found_bogus_atom = true;
+      // we test that the output is sane by looking for an atom that has unset/default/"." for atom and element
+      // columns 3 and 4 (starting from 1).
+      std::string cif_for_testing = "2vtq-sans-ligand-just-input-output.cif";
+      cif_for_testing = "2vtq-sans-ligand-just-input-output.cif"; // it's not the merge, it's the writing.
+      if (coot::file_exists(cif_for_testing)) {
+         bool found_bogus_atom = false;
+         std::ifstream f(cif_for_testing.c_str());
+         if (f) {
+            std::string line;
+            while (std::getline(f, line)) {
+               std::vector<std::string> parts = coot::util::split_string_no_blanks(line);
+               if (parts.size() > 10) {
+                  if (parts[0] == "ATOM") {
+                     if (parts[2] == ".") {
+                        if (parts[3] == ".") {
+                           std::cout << "found bogus null atom in cif output " << cif_for_testing << std::endl;
+                           found_bogus_atom = true;
+                        }
                      }
                   }
                }
             }
          }
+         if (! found_bogus_atom) status = 1; // OK then I suppose
       }
-      if (! found_bogus_atom) status = 1; // OK then I suppose
    }
    return status;
 }
