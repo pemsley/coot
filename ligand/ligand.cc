@@ -1950,7 +1950,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
                              auto ligand = ligand_in;
                              std::vector<minimol::atom *> atoms_p = ligand.select_atoms_serial();
 
-                             if (true) {
+                             if (false) {
                                 for (unsigned int i=0; i<atoms_p.size(); i++) {
                                    std::cout << "fit_ligand_copy iat " << i << " " << atoms_p[i]
                                              << " " << *(atoms_p[i]) << std::endl;
