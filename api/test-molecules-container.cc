@@ -3080,14 +3080,17 @@ int test_colour_rules(molecules_container_t &mc) {
 
 int test_multi_colour_rules(molecules_container_t &mc) {
 
+   starting_test(__FUNCTION__);
    int status = 0;
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   std::string crs = "//A/1^#cc0000|//A/2^#cb0002|//A/3^#c00007";
-   mc.add_colour_rules_multi(imol, crs);
-   auto v = mc.get_colour_rules(imol);
-   if (v.size() == 4)
-      status = 1;
-   std::cout << "n colour rules " << v.size() << std::endl;
+   if (mc.is_valid_model_molecule(imol)) {
+      std::string crs = "//A/1^#cc0000|//A/2^#cb0002|//A/3^#c00007";
+      mc.add_colour_rules_multi(imol, crs);
+      auto v = mc.get_colour_rules(imol);
+      if (v.size() == 4)
+         status = 1;
+      std::cout << "n colour rules " << v.size() << std::endl;
+   }
    return status;
 }
 
@@ -3228,34 +3231,40 @@ int test_auto_read_mtz(molecules_container_t &mc) {
 
    // one of these (the last one) should be observed data without an imol
    if (imol_maps.size() == 3) {
-      float rmsd_0 = mc.get_map_rmsd_approx(imol_maps[0].idx);
-      float rmsd_1 = mc.get_map_rmsd_approx(imol_maps[1].idx);
-      std::cout << "test_auto_read_mtz() rmsds " << rmsd_0 << " " << rmsd_1 << std::endl;
-      if (rmsd_0 > 0.3) { // test that the FWT map is the first of the pair
-         if (rmsd_1 > 0.1) {
-            // what observed data did we find?
-            unsigned int n_fobs_found = 0;
-            for (unsigned int i=0; i<imol_maps.size(); i++) {
-               const auto &mtz_info = imol_maps[i];
-               if (! mtz_info.F_obs.empty()) {
-                  n_fobs_found++;
-                  if (! mtz_info.sigF_obs.empty()) {
-                     if (mtz_info.F_obs == "/2vtq/1/FP") {
-                        if (mtz_info.sigF_obs == "/2vtq/1/SIGFP") {
-                           status = 1;
+      int imol_idx_0 = imol_maps[0].idx;
+      int imol_idx_1 = imol_maps[1].idx;
+      float rmsd_0 = mc.get_map_rmsd_approx(imol_idx_0);
+      float rmsd_1 = mc.get_map_rmsd_approx(imol_idx_1);
+      if (mc.is_valid_map_molecule(imol_idx_0)) {
+         if (mc.is_valid_map_molecule(imol_idx_1)) {
+            std::cout << "test_auto_read_mtz() rmsds " << rmsd_0 << " " << rmsd_1 << std::endl;
+            if (rmsd_0 > 0.3) { // test that the FWT map is the first of the pair
+               if (rmsd_1 > 0.1) {
+                  // what observed data did we find?
+                  unsigned int n_fobs_found = 0;
+                  for (unsigned int i=0; i<imol_maps.size(); i++) {
+                     const auto &mtz_info = imol_maps[i];
+                     if (! mtz_info.F_obs.empty()) {
+                        n_fobs_found++;
+                        if (! mtz_info.sigF_obs.empty()) {
+                           if (mtz_info.F_obs == "/2vtq/1/FP") {
+                              if (mtz_info.sigF_obs == "/2vtq/1/SIGFP") {
+                                 status = 1;
+                              }
+                           }
                         }
                      }
+                     if (mtz_info.Rfree == "/HKL_base/HKL_base/FREE") {
+                        // we are good.
+                     } else {
+                        status = 0;
+                     }
+                  }
+                  if (n_fobs_found != 1) {
+                     std::cout << "Too many: " << n_fobs_found << std::endl;
+                     status = 0;
                   }
                }
-               if (mtz_info.Rfree == "/HKL_base/HKL_base/FREE") {
-                  // we are good.
-               } else {
-                  status = 0;
-               }
-            }
-            if (n_fobs_found != 1) {
-               std::cout << "Too many: " << n_fobs_found << std::endl;
-               status = 0;
             }
          }
       }
@@ -3308,6 +3317,7 @@ int test_svg(molecules_container_t &mc) {
 
 int test_superpose(molecules_container_t &mc) {
 
+   starting_test(__FUNCTION__);
    int status = 0;
 
    int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1-with-gap.pdb"));
@@ -3378,6 +3388,7 @@ int test_superpose(molecules_container_t &mc) {
                    << " atom_pos_3 " << atom_pos_3 << " atom_pos_4 " << atom_pos_4 << std::endl;
       }
    }
+   std::cout << "done superpose test" << std::endl;
    return status;
 }
 
@@ -5135,6 +5146,7 @@ int test_template(molecules_container_t &mc) {
 }
 
 int n_tests = 0;
+static std::vector<std::pair<std::string, int> > test_results;
 
 int
 run_test(int (*test_func) (molecules_container_t &mc), const std::string &test_name, molecules_container_t &mc) {
@@ -5145,8 +5157,37 @@ run_test(int (*test_func) (molecules_container_t &mc), const std::string &test_n
    if (status == 1)
       status_string = "PASS: ";
    std::cout << status_string << std::setw(40) << std::left << test_name << " status " << status << std::endl;
+   test_results.push_back(std::make_pair(test_name, status));
 
    return status;
+}
+
+void
+print_results_summary() {
+
+   std::cout << "n_tests: " << n_tests << std::endl;
+   unsigned int n_failed = 0;
+   // for (const auto &result[function_name, status] : test_results) { // structured binding
+   for (const auto &result : test_results) {
+      const auto &status = result.second;
+      if (status == 0) {
+         n_failed++;
+      }
+   }
+
+   if (n_failed > 0) {
+      std::cout << "Test summary: " << n_failed << " failed tests of " << n_tests << std::endl;
+      for (const auto &result : test_results) {
+         const auto &name   = result.first;
+         const auto &status = result.second;
+         if (status == 0) {
+            std::cout << "     " << name << std::endl;
+         }
+      }
+   } else {
+      std::cout << "Test summary: all " << n_tests << " tests passed "  << std::endl;
+   }
+
 }
 
 int main(int argc, char **argv) {
@@ -5228,13 +5269,13 @@ int main(int argc, char **argv) {
       status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
       status += run_test(test_add_terminal_residue,  "add terminal residue",     mc);
       status += run_test(test_sequence_generator,    "Make a sequence string",   mc);
-      status += run_test(test_instanced_rota_markup, "instanced rotamer mesh",   mc);
-      status += run_test(test_new_position_for_atoms,"new positions for atoms",  mc);
-      status += run_test(test_molecular_representation, "molecular representation mesh", mc);
-      status += run_test(test_fill_partial,          "fill partially-filled residues", mc);
-      status += run_test(test_multiligands_lig_bonding, "some multiligands bonding", mc);
-      status += run_test(test_gltf_export_via_api,   "gltf via api", mc);
-      status += run_test(test_disappearing_ligand,   "disappearning ligand", mc);
+      status += run_test(test_instanced_rota_markup, "Instanced rotamer mesh",   mc);
+      status += run_test(test_new_position_for_atoms,"New positions for atoms",  mc);
+      status += run_test(test_molecular_representation, "Molecular representation mesh", mc);
+      status += run_test(test_fill_partial,          "Fill partially-filled residues", mc);
+      status += run_test(test_multiligands_lig_bonding, "Some multiligands bonding", mc);
+      status += run_test(test_gltf_export_via_api,   "glTF via api", mc);
+      status += run_test(test_disappearing_ligand,   "Disappearing ligand", mc);
       status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
       status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction", mc);
       status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
@@ -5325,6 +5366,8 @@ int main(int argc, char **argv) {
 
    int all_tests_status = 1; // fail!
    if (status == n_tests) all_tests_status = 0;
+
+   print_results_summary();
 
    return all_tests_status;
 

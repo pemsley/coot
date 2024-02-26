@@ -255,8 +255,9 @@ int test_change_chain_id_1(molecules_container_t &molecules_container) {
    //    instanceMesh_1.geom.get(1).instancing_data_B.size()
    // )
 
-   if (instanceMesh_2.geom.at(1).instancing_data_B.size() == instanceMesh_1.geom.at(1).instancing_data_B.size())
-      status = 1;
+   if (instanceMesh_2.geom.size() > 1)
+      if (instanceMesh_2.geom.at(1).instancing_data_B.size() == instanceMesh_1.geom.at(1).instancing_data_B.size())
+         status = 1;
 
    return status;
 }
