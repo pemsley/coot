@@ -20,12 +20,9 @@ jobs:
          path: ~/autobuild
          key:  files-in-autobuild
 
-    # Home on macOS is /Users/runner
+    # Home on macOS is /Users/runner, we start in /Users/runner/work/coot/coot
     - name: where are we?
-      run:  |
-        pwd
-        cd
-        pwd
+      run: pwd
 
     - name: run build-it-3-3 in chapi mode
       env:
