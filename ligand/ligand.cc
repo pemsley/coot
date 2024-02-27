@@ -1963,8 +1963,8 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
                                                                          initial_ligand_eigenvector, initial_ligand_model_centre,
                                                                          eigen_orientation.rot());
 
-                             // rigid_body_refine_ligand(&atoms_p, std::cref(xmap_masked), std::cref(xmap_pristine),
-                             // rotation_component, gradient_scale); // ("rigid body") move atoms.
+                             rigid_body_refine_ligand(&atoms_p, std::cref(xmap_masked), std::cref(xmap_pristine),
+                                                      rotation_component, gradient_scale); // ("rigid body") move atoms.
 
                              float fit_fraction = 0.1;
                              ligand_score_card lsc = score_orientation(atoms_p, std::cref(xmap_pristine), fit_fraction);
