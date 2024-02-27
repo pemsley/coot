@@ -36,7 +36,7 @@
 #include "coot-utils/prideout-octasphere.hh"  // needed?
 #include "coot-utils/oct.hh"
 #include "coot-utils/cylinder.hh"
-#include "coot_molecule.hh"
+#include "coot-molecule.hh"
 
 // #include "molecular-mesh-generator.hh"
 
@@ -398,8 +398,6 @@ coot::molecule_t::make_bonds_type_checked(coot::protein_geometry *geom_p,
    // if (bonds_box_type == coot::CA_BONDS)
    //    make_ca_bonds();
    if (bonds_box_type == coot::api_bond_colour_t::COLOUR_BY_CHAIN_BONDS || bonds_box_type == coot::api_bond_colour_t::COLOUR_BY_CHAIN_GOODSELL) {
-      // Baah, we have to use the static in graphics_info_t here as it
-      // is not a per-molecule property.
       std::set<int> s;
       bool goodsell_mode = false;
       if (bonds_box_type == coot::api_bond_colour_t::COLOUR_BY_CHAIN_GOODSELL)
@@ -1005,7 +1003,7 @@ make_graphical_bonds_bonds(coot::simple_mesh_t &m,
 
    auto &vertices  = m.vertices;
    auto &triangles = m.triangles;
-   
+
    std::pair<glm::vec3, glm::vec3> pp(glm::vec3(0,0,0), glm::vec3(0,0,1));
 
    // ----------------------- add the vertices and triangles ----------------------
@@ -1573,6 +1571,61 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
    return colour_table;
 }
 
+std::vector<glm::vec4>
+coot::molecule_t::make_colour_table_for_goodsell_style(float colour_wheel_rotation_step, float saturation, float goodselliness) const {
+
+   bool debug_colour_table = true;
+   float gcwrs = colour_wheel_rotation_step;
+   std::vector<glm::vec4> colour_table;
+   int icol_max = -1;
+   for (int i=0; i<bonds_box.n_atom_centres_; i++) {
+      int icol = bonds_box.atom_centres_colour_[i];
+      if (icol > icol_max) {
+         icol_max = icol;
+      }
+   }
+   if (icol_max > -1) {
+      colour_table.resize(icol_max+1);
+      std::set<int> done_colours;
+      for (int i=0; i<bonds_box.n_atom_centres_; i++) {
+         int icol = bonds_box.atom_centres_colour_[i];
+         if (done_colours.find(icol) == done_colours.end()) {
+            // c.f. molecules-class-info.cc lines 4000 or so
+            coot::colour_holder ch(0.8, 0.5, 0.6);
+            int ic = icol - 100;
+            bool is_C = !(ic%2);
+            int chain_index =  ic/2;
+            float pastel_factor = 1.0/saturation;
+            ch.pastelize(pastel_factor);
+            float rotation_angle = gcwrs * static_cast<float>(chain_index);
+            ch.rotate_by(rotation_angle);
+            if (is_C) ch.make_pale(goodselliness);
+            colour_table[icol] = glm::vec4(ch.red, ch.green, ch.blue, 1.0);
+         }
+      }
+   }
+   if (debug_colour_table) {
+      std::map<int, unsigned int> col_set;
+      std::cout << "Here is the colour table " << std::endl;
+      for (int i=0; i<bonds_box.n_atom_centres_; i++) {
+         int icol = bonds_box.atom_centres_colour_[i];
+         if (col_set.find(icol) == col_set.end())
+            col_set[icol] = 1;
+         else
+            col_set[icol]++;
+      }
+      std::map<int, unsigned int>::const_iterator it;
+      for (it=col_set.begin(); it!=col_set.end(); ++it) {
+         int idx = it->first;
+         std::cout << "   col-idx: " << it->first << "  counts: " << it->second << " "
+                   << glm::to_string(colour_table[idx]) << std::endl;
+      }
+
+   }
+   return colour_table;
+
+}
+
 void
 coot::molecule_t::print_colour_table(const std::string &l) const {
 
@@ -1592,40 +1645,28 @@ coot::molecule_t::print_colour_table(const std::string &l) const {
 }
 
 coot::simple_mesh_t
-coot::molecule_t::get_goodsell_style_mesh(coot::protein_geometry *geom_p) {
+coot::molecule_t::get_goodsell_style_mesh(coot::protein_geometry *geom_p, float colour_wheel_rotation_step,
+                                          float saturation, float goodselliness) {
 
    std::set<int> empty_set;
    bool goodsell_mode = true;
-   // we tried this and it didn't work
-   // make_colour_by_chain_bonds(nullptr, empty_set, false, goodsell_mode, false, false, false, nullptr, false);
 
-   // so let's try this (copying and editing from make_colour_by_chain_bonds() in molecules-class-info.cc)
-   // protein_geometry *Geom_p = nullptr;
    bool draw_hydrogen_atoms_flag = false;
    bool do_rama_markup = false;
    bool draw_missing_loops_flag = false;
    Bond_lines_container bonds(geom_p, empty_set, draw_hydrogen_atoms_flag);
 
    bool change_c_only_flag = false;
+   bonds_box_type = api_bond_colour_t::COLOUR_BY_CHAIN_GOODSELL;
    bonds.do_colour_by_chain_bonds(atom_sel, false, imol_no, draw_hydrogen_atoms_flag,
-                                  draw_missing_loops_flag,
-                                  change_c_only_flag, goodsell_mode, do_rama_markup);
-   bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty
-                                                         // stupid when it comes to thining.
-
-   bonds_box = bonds.make_graphical_bonds(); // make_graphical_bonds() is pretty
-                                             // stupid when it comes to thining.
-   // so now we have the bonds_box - let's make that into a mesh.
+                                  draw_missing_loops_flag, change_c_only_flag, goodsell_mode, do_rama_markup);
+   bonds_box = bonds.make_graphical_bonds();
+   std::vector<glm::vec4> colour_table = make_colour_table_for_goodsell_style(colour_wheel_rotation_step, saturation, goodselliness);
+   // print_colour_table("--goodsell--");
+   unsigned int num_subdivisions = 3;
+   // no bonds in a goodsell mode representation
    simple_mesh_t m;
-   // modify (and fill) the simple mesh m:
-   float bond_radius = 0.3;
-   int n_slices = 8;
-   int n_stacks = 2;
-   bool against_a_dark_background = false;
-   std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
-   make_graphical_bonds_bonds(m, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
-   // or maybe:
-   // make_graphical_bonds_spherical_atoms_with_vdw_radii(m, bonds_box, num_subdivisions, colour_table, *geom);
+   make_graphical_bonds_spherical_atoms_with_vdw_radii(m, bonds_box, num_subdivisions, colour_table, *geom_p);
    return m;
 
 }

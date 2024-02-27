@@ -1,5 +1,5 @@
 
-#include "coot_molecule.hh"
+#include "coot-molecule.hh"
 
 
 void
@@ -68,8 +68,6 @@ void
 coot::molecule_t::generate_local_self_restraints(float local_dist_max,
                                                  const std::string &multi_selection_cid,
                                                  const coot::protein_geometry &geom) {
-
-   std::cout << "*************************************************" << std::endl;
 
    // should this selection be deleted at the end of this function?
    //
@@ -326,7 +324,6 @@ coot::molecule_t::shiftfield_b_factor_refinement(const clipper::HKL_data<clipper
    bool status = false;
    if (atom_sel.mol) {
       int n_cycles = 3;
-      std::cout << "calling coot::shift_field_b_factor_refinement()" << std::endl;
       coot::shift_field_b_factor_refinement(fobs, free, atom_sel.mol, n_cycles);
       status = true;
    }

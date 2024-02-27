@@ -9,11 +9,14 @@
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coords/mmdb.hh"
-#include "coot_molecule.hh"
+#include "coot-molecule.hh"
 #include "ideal/pepflip.hh"
 #include "rama-plot-phi-psi.hh"
 
 #include "pli/sdf-interface-for-export.hh"
+
+#include "add-terminal-residue.hh"
+#include "molecules-container.hh"
 
 bool
 coot::molecule_t::is_valid_model_molecule() const {
@@ -416,7 +419,7 @@ coot::molecule_t::get_save_molecule_filename(const std::string &dir) {
 
 #endif
 
-#if 0                                                      
+#if 0 // 20240221-PE this had a space reminder for me to look at it before commit
 void
 coot::molecule_t::save_history_file_name(const std::string &file) {
 
@@ -438,7 +441,7 @@ coot::molecule_t::save_history_file_name(const std::string &file) {
    }
 }
 
-#endif                                                                     
+#endif
 
 void
 coot::molecule_t::transform_by(mmdb::mat44 mat) {
@@ -1110,7 +1113,7 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
                   mmdb::Atom *mol_atom = atom_sel.atom_selection[idx];
                   bool is_movable_atom = movable_atom(mol_atom, replace_coords_with_zero_occ_flag);
                   if (is_movable_atom) {
-                     if (debug) { // debug  
+                     if (debug) { // debug
                         coot::Cartesian old_pos(mol_atom->x, mol_atom->y, mol_atom->z);
                         coot::Cartesian new_pos(atom->x, atom->y, atom->z);
                         double d = (new_pos - old_pos).amplitude();
@@ -2350,9 +2353,6 @@ coot::molecule_t::refine_using_last_restraints(int n_steps) {
    return rr.progress;
 }
 
-// move these up.
-#include "add-terminal-residue.hh"
-#include "molecules_container.hh"
 
 std::pair<int, std::string>
 coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, const std::string &new_res_type,
@@ -2713,7 +2713,7 @@ coot::molecule_t::jed_flip(coot::residue_spec_t &spec,
                      atom_sel.mol->FinishStructEdit();
 
                      // save_info.new_modification("jed_flip");
-                     
+
                   }
                   catch (const std::runtime_error &rte) {
                      std::cout << "ERROR:: run-time-error " << rte.what() << " - giving up" << std::endl;
@@ -4034,7 +4034,7 @@ coot::molecule_t::init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::pro
 
    bool make_trans_peptide_restraints = true;
    bool do_rama_plot_restraints = false;
-   bool refinement_is_quiet = false; // for debugging
+   bool refinement_is_quiet = true;
 
    auto get_all_residues_in_molecule = [] (mmdb::Manager *mol) {
       std::vector<mmdb::Residue *> rv;
@@ -4151,7 +4151,7 @@ coot::molecule_t::add_neighbor_residues_for_refinement_help(mmdb::Manager *mol) 
       }
       return neighb_residues;
    };
-      
+
    // now code to save the environment of the residues in the new fragment
    int selHnd_residues = mol->NewSelection(); // d
    mol->Select(selHnd_residues, mmdb::STYPE_RESIDUE, "//", mmdb::SKEY_NEW); // all residues. Maybe "/1/"?
@@ -4287,5 +4287,3 @@ coot::molecule_t::multiply_residue_temperature_factors(const std::string &cid, f
       atom_sel.mol->DeleteSelection(selHnd);
    }
 }
-
-

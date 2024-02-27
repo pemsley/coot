@@ -4,7 +4,7 @@
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 
-#include "molecules_container.hh"
+#include "molecules-container.hh"
 #include "ideal/pepflip.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
@@ -74,6 +74,12 @@ molecules_container_t::close_molecule(int imol) {
       }
    }
    return status;
+}
+
+void
+molecules_container_t::clear() {
+
+   molecules.clear();
 }
 
 //! delete the most recent/last molecule in the molecule vector
@@ -733,7 +739,7 @@ molecules_container_t::write_png(const std::string &compound_id, int imol_enc,
 int
 molecules_container_t::write_coordinates(int imol, const std::string &file_name) const {
 
-   if (true) {
+   if (false) {
       mmdb::Manager *mol = get_mol(imol);
       mol->WriteCIFASCII("write_coords_molecules_container_fn_start.cif");
    }
@@ -1831,6 +1837,21 @@ molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const st
    return im;
 }
 
+coot::instanced_mesh_t
+molecules_container_t::get_goodsell_style_mesh_instanced(int imol, float colour_wheel_rotation_step,
+                                                         float saturation, float goodselliness) {
+
+   coot::instanced_mesh_t im;
+   if (is_valid_model_molecule(imol)) {
+      im = molecules[imol].get_goodsell_style_mesh_instanced(&geom, colour_wheel_rotation_step, saturation, goodselliness);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return im;
+}
+
+
+
 //! return the colour table (for testing)
 std::vector<glm::vec4>
 molecules_container_t::get_colour_table(int imol, bool against_a_dark_background) const {
@@ -2157,17 +2178,26 @@ std::pair<int, unsigned int>
 molecules_container_t::delete_using_cid(int imol, const std::string &cid, const std::string &scope) {
 
    std::pair<int, unsigned int> r(0,0);
-   if (scope == "ATOM")
+   if (scope == "ATOM") {
       r = delete_atom_using_cid(imol, cid);
-   if (scope == "RESIDUE")
+      set_updating_maps_need_an_update(imol);
+   }
+   if (scope == "RESIDUE") {
       r = delete_residue_atoms_using_cid(imol, cid);
-   if (scope == "CHAIN")
+      set_updating_maps_need_an_update(imol);
+   }
+   if (scope == "CHAIN") {
       r = delete_chain_using_cid(imol, cid);
-   if (scope == "LITERAL")
+      set_updating_maps_need_an_update(imol);
+   }
+   if (scope == "LITERAL") {
       r = delete_literal_using_cid(imol, cid);
+      set_updating_maps_need_an_update(imol);
+   }
    if (scope == "MOLECULE") {
       int status = close_molecule(imol);
       if (status == 1) r.first = 1;
+      set_updating_maps_need_an_update(imol);
    }
    return r;
 }
@@ -2431,10 +2461,13 @@ molecules_container_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
                         stats = molecules[imol_model].sfcalc_genmaps_using_bulk_solvent(*fobs_data_p, *free_flag_p, &xmap_2fofc, &xmap_fofc);
 
                         { // diff difference map peaks
-                           float base_level = 0.2; // this might need to be computed from the rmsd.
+                           float rmsd = get_map_rmsd_approx(imol_map_fofc);
+                           float base_level = 2.0 * rmsd;  // was 0.2 - this might need to be computed from the rmsd.
                            const clipper::Xmap<float> &m1 = molecules[imol_map_fofc].updating_maps_previous_difference_map;
                            const clipper::Xmap<float> &m2 = xmap_fofc;
                            std::vector<std::pair<clipper::Coord_orth, float> > v1 = coot::diff_diff_map_peaks(m1, m2, base_level);
+                           // std::cout << "***************************** got " << v1.size() << " diff diff map peaks.... "
+                           // << " using base level " << base_level << " with map rmsd " << rmsd << std::endl;
                            molecules[imol_map_fofc].set_updating_maps_diff_diff_map_peaks(v1);
                         }
 
@@ -2595,10 +2628,6 @@ molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, 
 int
 molecules_container_t::refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode, int n_cycles) {
 
-   std::cout << "starting refine_residues_using_atom_cid() with imol " << imol
-             << " and imol_refinement_map " << imol_refinement_map
-             << std::endl;
-
    auto debug_selected_residues = [cid] (const std::vector<mmdb::Residue *> &rv) {
       std::cout << "refine_residues_using_atom_cid(): selected these " << rv.size() << " residues "
          " from cid: " << cid << std::endl;
@@ -2608,6 +2637,11 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
       }
    };
 
+   if (false)
+      std::cout << "starting refine_residues_using_atom_cid() with imol " << imol
+                << " and imol_refinement_map " << imol_refinement_map
+                << std::endl;
+
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map)) {
@@ -2615,7 +2649,7 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
          // status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode, n_cycles);
          std::vector<mmdb::Residue *> rv = molecules[imol].select_residues(cid, mode);
 
-         // debug_selected_residues(rv);
+         debug_selected_residues(rv);
          std::string alt_conf = "";
          status = refine_direct(imol, rv, alt_conf, n_cycles);
          set_updating_maps_need_an_update(imol);
@@ -4743,7 +4777,7 @@ molecules_container_t::get_extra_restraints_mesh(int imol, int mode) {
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
-   
+
    return m;
 }
 

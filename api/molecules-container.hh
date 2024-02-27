@@ -16,7 +16,7 @@
 
 #include "coords/Cartesian.h"
 #include "coords/ramachandran-container.hh"
-#include "coot_molecule.hh"
+#include "coot-molecule.hh"
 #include "coot-utils/coot-rama.hh"
 #include "coot-utils/coot-coord-extras.hh" // the missing atoms type
 #include "coot-utils/coot-map-utils.hh"
@@ -408,6 +408,9 @@ public:
    //! delete the most recent/last molecule in the molecule vector
    void pop_back();
 
+   //! delete all molecules
+   void clear();
+
    //! @return the eigenvalues of the atoms in the specified residue
    std::vector<double> get_eigenvalues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
@@ -629,6 +632,9 @@ public:
                                                                  bool against_a_dark_background,
                                                                  float bond_width, float atom_radius_to_bond_width_ratio,
                                                                  int smoothness_factor);
+
+   coot::instanced_mesh_t get_goodsell_style_mesh_instanced(int imol, float colour_wheel_rotation_step,
+                                                            float saturation, float goodselliness);
 
    //! export map molecule as glTF
    //  (not const because maps might update?)
@@ -1141,10 +1147,10 @@ public:
    int cis_trans_convert(int imol, const std::string &atom_cid);
 
    //! replace a fragment
-   //! 
+   //!
    //! _i.e._ replace the atoms of ``imol_base`` by those of the atom selection ``atom_selection`` in ``imol_reference``
    //! (``imol_base`` is the molecule that is modified).
-   //! 
+   //!
    //! @return the success status
    int replace_fragment(int imol_base, int imol_reference, const std::string &atom_selection);
 
@@ -1245,8 +1251,9 @@ public:
    //! original molecule)
    void clear_refinement(int imol);
 
-   //! for debugging the refinement - write out some diagnositics - some might be useful
-   void set_refinement_is_verbose() { refinement_is_quiet = false; }
+   //! for debugging the refinement - write out some diagnositics - some might be useful.
+   //! API change 20240226 - this function now takes a boolean argument
+   void set_refinement_is_verbose(bool state) { refinement_is_quiet = !state; }
 
    //! set the refinement Geman-McClure alpha
    void set_refinement_geman_mcclure_alpha(float a) { geman_mcclure_alpha = a; }
@@ -1680,7 +1687,8 @@ public:
                                                            const std::string &style);
    void make_mesh_for_gaussian_surface_for_blender(int imol, float sigma, float contour_level, float box_radius, float grid_scale, float b_factor);
 
-   void make_mesh_for_goodsell_style_for_blender(int imol);
+   void make_mesh_for_goodsell_style_for_blender(int imol, float colour_wheel_rotation_step,
+                                                 float saturation, float goodselliness);
 
    std::vector<float> get_colour_table_for_blender(int imol);
    std::vector<float> get_vertices_for_blender(int imol);

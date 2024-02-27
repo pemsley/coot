@@ -399,7 +399,10 @@
 # 6.10 20230603-PE remove goocanvas
 # 6.11 20231113-PE print out the script_version
 # 6.12 20240105-PE link $HOME/data/greg-data for the testing step
-script_version=6.12
+# 6.13 20240216-PE Install Darwin OpenSSL in $install_top_dir
+# 6.14 20240220-PE Set the C++ flags for Catch2 (needed for macOS/clang) and build with CMake
+# 6.15 20240220-PE OpenSSL and python apiflags and boost bjam updates
+script_version=6.15
 
 
 
@@ -459,6 +462,7 @@ run_second_test=${run_second_test:=true}
 # Note that the directory name must NOT end in a /
 #
 AUTOBUILD_INSTALLED=${AUTOBUILD_INSTALLED:=${HOME}/autobuild/${OS}-${HOST}}
+
 if test x$GITHUB_ENV = x ; then
     : # we are not in a hithub actions build
 else
@@ -2097,12 +2101,15 @@ fi
 python_version=python3.11
 pver=3.11.4
 python_version_extension=3.11 # extract this
+python_abiflags=d # because we use --pydebug on the command line for Python configure
+python_version_squish=311
 
 # for Blender 4 in 2024, we want Python 3.10.13, so uncomment the 3 lines below:
 if [ "$CHAPI_ONLY" = true ] ; then
     python_version=python3.10
     pver=3.10.13
     python_version_extension=3.10
+    python_version_squish=310
 fi
 
 
@@ -2152,14 +2159,14 @@ else
    needed_gsl_version=1.16
    needed_gsl_version=2.7
 
-   # tmp value.  This uses awk.  It need not do.
-   # You can do the comparison with test.
-   build_gsl=`awk -v A=$gsl_version -v N=$needed_gsl_version 'BEGIN{x = ((A+0) != (N+0)) ; print x}'`
+   if [ -e $install_top_dir/include/gsl/gsl_version.h ] ; then
+       build_gsl=
+   fi
 
    echo system/installation has the GSL version $gsl_version
    echo build_gsl is $build_gsl
 
-   if [ $build_gsl = 1 ] ; then
+   if [ "$build_gsl" = 1 ] ; then
 	echo need to build GSL
         build_gsl=1
    else
@@ -2688,6 +2695,7 @@ if [ $skip_build = false ] ; then
       echo BUILDING libffi $libffi_version:
       echo BUILDING libffi $libffi_version: >&2
       (
+      unset LD_LIBRARY_PATH
       ${WGET} https://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
       gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
       cd libffi-$libffi_version
@@ -2698,13 +2706,40 @@ if [ $skip_build = false ] ; then
       ) > $HOSTLOGDIR/07e-libffi.txt 2>&1
 fi
 
+echo post libffi with LD_LIBRARY_PATH $LD_LIBRARY_PATH
+echo post libffi with LD_LIBRARY_PATH $LD_LIBRARY_PATH >&2
 
+build_openssl=false
+if [ $OS = Darwin ] ; then
+   if [ -e $install_top_dir/include/openssl ] ; then
+      echo OpenSSL is installed
+      build_openssl=false
+   else
+      build_openssl=true
+   fi
+fi
+
+if [ $build_openssl = true ] ; then
+    echo BUILDING OpenSSL
+    echo BUILDING OpenSSL >&2
+    (
+    openssl_version=3.2.1
+    ${WGET} https://github.com/openssl/openssl/releases/download/openssl-$openssl_version/openssl-$openssl_version.tar.gz
+    ls -alt ${AUTOBUILD_SOURCES}
+    tar xf ${AUTOBUILD_SOURCES}/openssl-$openssl_version.tar.gz
+    ls -alt
+    cd openssl-$openssl_version
+    ./Configure --prefix=$install_top_dir --openssldir=$install_top_dir  '-Wl,-rpath,$(LIBRPATH)'
+    $MAKE && make install
+    cd -
+    ) > $HOSTLOGDIR/07-f-openssl.txt 2>&1
+fi
 
 # python
 #
 if test -n "$build_python" ; then
-    echo BUILDING Python ${pver}:
-    echo BUILDING Python ${pver}: >&2
+   echo BUILDING Python ${pver}:
+   echo BUILDING Python ${pver}: >&2
 
    echo ${WGET} http://www.python.org/ftp/python/$pver/Python-$pver.tgz
    # hacking in --no-check-certificate is not the right way to do it.
@@ -2717,6 +2752,12 @@ if test -n "$build_python" ; then
    (
    date
    echo building in: $PWD
+
+   unset LD_LIBRARY_PATH
+   # test raw awk
+   which awk
+   awk --version
+
    env
    gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
 
@@ -2729,14 +2770,13 @@ if test -n "$build_python" ; then
 
 
    # --with-ensurepip=install
-   # £ echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags
+   # echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags
    # /Users/pemsley/ccp4/devtools/install
    # this should be configured
    openssl_prefix=$HOME/ccp4/devtools/install
    openssl_prefix=/usr
    if [ $OS = Darwin ] ; then
-       # in future, install openssl into $install_top_dir
-       openssl_prefix=$HOME/openssl
+       openssl_prefix=$install_top_dir
    fi
    # note to self: We need ffi.h (and lib presumably) to build the ctypes module (libffi-devel)
    # (or I could include it in this build script) (I don't know if ctypes is important)
@@ -2760,6 +2800,18 @@ print(dir(ctypes))
 print('post ctypes test')
 EOF
    ) >  $HOSTLOGDIR/07-python.txt 2>&1
+
+   # we need this because boost configuration runs "python" - at least on my Mac
+   # (finding the correct python(3) doesn't seem to be a problem on the PC).
+   # The better way is to use cmd-or-prefix, it seems:
+   # https://www.phind.com/search?cache=z8ao21y6rh5grg4wezeybr06
+   # try this:
+   # add
+   # echo "using python :  3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
+   if [ -e $install_top_dir/bin/python3 ] ; then
+      echo linking python to python3
+      ln -s $install_top_dir/bin/python3 $install_top_dir/bin/python
+   fi
 
    echo BUILDING Python $pver done >&2
 
@@ -2891,6 +2943,7 @@ if test -n "$build_libtool" ; then
     (date
      pwd
      gzip -dc ${AUTOBUILD_SOURCES}/libtool-$libtool_version.tar.gz | tar xf -
+     unset LD_LIBRARY_PATH
      cd libtool-$libtool_version
      ./configure $generic_prefix
      $MAKE
@@ -2919,7 +2972,7 @@ if test -n "$build_libidn" ; then
    echo BUILDING libidn:
    echo BUILDING libidn: >&2
 (
-   # get libcurl from here:
+   unset LD_LIBRARY_PATH
    libidn_version=1.15
    libidn_version=2.2.0
    # ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
@@ -2962,6 +3015,8 @@ if test -n "$build_curl" ; then
 
    echo from tar file ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz
    echo building in: $PWD
+
+   unset LD_LIBRARY_PATH
 
    # libcurl has problems with putting the libraries ine right order when we specify
    # --with-libidn (it puts the libidn prefix libs at the end of its LDFLAGS and that
@@ -3026,6 +3081,7 @@ if test -n "$build_gsl" ; then
     (
     date
     pwd
+    unset LD_LIBRARY_PATH
     gzip -dc ${AUTOBUILD_SOURCES}/gsl-$gsl_version.tar.gz | tar xf -
     cd gsl-$gsl_version
     ./configure $generic_prefix
@@ -3066,11 +3122,12 @@ if [ "$build_boost" = true ] ; then
       boost_version=1_71_0
       boost_version=1_72_0
       boost_version=1_74_0
-      boost_version=1_82_0
+      boost_version=1_83_0
       boost_server_dir=1.72.0
       boost_server_dir=1.72.0
       boost_server_dir=1.74.0
       boost_server_dir=1.82.0
+      boost_server_dir=1.83.0
       echo BUILDING boost $boost_version :
       echo BUILDING boost $boost_version >&2
 
@@ -3102,9 +3159,10 @@ if [ "$build_boost" = true ] ; then
 
       address_model=64
       pwd
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu > bootstrap-command-save
-      ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
+      echo "using python : 3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu > bootstrap-command-save
+      ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
 
       # now edit the project-config.jam file using python line
 
@@ -3118,14 +3176,21 @@ if [ "$build_boost" = true ] ; then
 
       # bjam no longer exists
       # use -Wno-deprecated-declarations
-      echo ./b2 address-model=$address_model cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension -Wno-maybe-uninitialized -Wno-deprecated-declarations" install > b2-command-save
-           ./b2 address-model=$address_model cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
+      echo ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install > b2-command-save
+           ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
       cd -
       ) > $HOSTLOGDIR/16-boost.txt
       echo done boost $boost_version >&2
    fi
 fi
 
+if [ -e $install_top_dir/lib/libboost_python$python_version_squish.a ] ; then
+   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was installed
+else
+   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was not installed
+   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was not installed >&2
+   exit
+fi
 
 
 
@@ -3138,7 +3203,11 @@ else
    echo BUILDING glm:
    echo BUILDING glm: >&2
     glm_version=0.9.9.2
-    ${WGET} $extras_place/glm-$glm_version.tar.gz
+    glm_version=1.0.0
+    # ${WGET} $extras_place/glm-$glm_version.tar.gz
+    echo fetching https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz >&2
+    ${WGET} https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz
+    cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
     (
     date
     pwd
@@ -3212,6 +3281,7 @@ if [ true = true ] ; then
       # numpy source is now zip
       # ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.tar.gz
       # ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.zip
+      echo Fetching https://github.com/numpy/numpy/archive/refs/tags/v$numpy_version.tar.gz >&2
       ${WGET} https://github.com/numpy/numpy/archive/refs/tags/v$numpy_version.tar.gz
       #
       ls -l ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz
@@ -3285,13 +3355,26 @@ else
    (
    tar xf $AUTOBUILD_SOURCES/v$catch2_version.tar.gz
    cd Catch2-$catch2_version
-   meson setup -Dprefix=$install_top_dir build
+   # meson setup -Dcpp_std=c++17 -Dprefix=$install_top_dir build
+   # cd build
+   # ninja
+   # ninja install
+   # cd ..
+   mkdir build
    cd build
-   ninja
-   ninja install
+   cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ..
+   $MAKE && make install
    cd ..
    cd ..
    ) > $HOSTLOGDIR/17-c-catch2.txt 2>&1
+fi
+
+if [ -d $install_top_dir/include/catch2 ] ; then
+    echo OK, Catch2 is installed
+else
+    echo FAIL BUILDING Catch2
+    echo FAIL BUILDING Catch2 >&2
+    exit
 fi
 
 ############################### rdkit ##########################################
@@ -3493,9 +3576,11 @@ if [ "$build_rdkit" = true ] ; then
       libboost_python_ext=$python_version_extension
       libboost_python_ext=
       extension_type=so
+      python_arch=x86_64-linux-gnu
 
       if [ $(uname) = Darwin ] ; then
          extension_type=dylib
+         python_arch=darwin
       fi
 
       echo will configure with cmake like this:
@@ -3508,10 +3593,11 @@ if [ "$build_rdkit" = true ] ; then
 
       echo cmake \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
-               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
+               -DCatch2_DIR=$install_top_dir \
+               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
-               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-x86_64-linux-gnu/libpython$python_version_extension.a \
+               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}$python_abiflags-$python_arch/libpython$python_version_extension$python_abiflags.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
@@ -3522,10 +3608,11 @@ if [ "$build_rdkit" = true ] ; then
 
       if cmake  \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
-               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
+               -DCatch2_DIR=$install_top_dir \
+               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
-               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-x86_64-linux-gnu/libpython$python_version_extension.a \
+               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}$python_abiflags-$python_arch/libpython$python_version_extension$python_abiflags.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
@@ -3566,6 +3653,7 @@ fi
 ###############################################################################
 
 if [ "$CHAPI_ONLY" = true ] ; then
+   echo done CHAPI_ONLY
    exit
 fi
 

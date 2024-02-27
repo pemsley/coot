@@ -2059,6 +2059,7 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
          std::cout << "   " << specs[ilocal] << std::endl;
    }
 
+   std::cout << "here with specs.size() " << specs.size() << std::endl;
    for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++) {
 
       std::string res_name_selection  = "*";
@@ -2146,16 +2147,17 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
          }
 
          if (n_atoms == 0)
-         return stats;
+            return stats;
 
          // atom selection grid:
          //
          //
          std::pair<clipper::Coord_orth, clipper::Coord_orth> selection_extents = util::extents(mol, specs);
+
          if (debug)
-         std::cout << "INFO:: mol residue set extents: "
-         << selection_extents.first.format() << " to "
-         << selection_extents.second.format() << std::endl;
+            std::cout << "INFO:: mol residue set extents: "
+                      << selection_extents.first.format() << " to "
+                      << selection_extents.second.format() << std::endl;
 
          // double border = 4.1;
          double border = 3.1; // border is used to create selection_grid.

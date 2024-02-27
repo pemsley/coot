@@ -2,7 +2,7 @@
 %module coot_headless_api
 
 %{
-#include "molecules_container.hh"
+#include "molecules-container.hh"
 %}
 
 %include "std_string.i"
@@ -27,5 +27,5 @@ namespace std {
 
 %feature("autodoc", "1"); // add doc string for Intellisense (hopefully)
 
-%include "molecules_container.hh"
+%include "molecules-container.hh"
 

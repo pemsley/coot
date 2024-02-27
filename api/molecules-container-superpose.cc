@@ -1,7 +1,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include "molecules_container.hh"
+#include "molecules-container.hh"
 
 #include "../coot-utils/json.hpp" // clever stuff from Niels Lohmann
 using json = nlohmann::json;
@@ -372,7 +372,7 @@ molecules_container_t::map_secondary_structure_headers(ssm::Align *SSMAlign,
                         coot::residue_spec_t matched_atom_res_mov(atom_selection2[t_index]->GetResidue());
                         // if we find it in mov, save the ref!  Weird...
                         if (ref_start_res == matched_atom_res_mov) {
-                           std::cout << "found start " << ref_start_res << " -> " << matched_atom_res_ref 
+                           std::cout << "found start " << ref_start_res << " -> " << matched_atom_res_ref
                                      << " " << strand_p->sheetID << " " << strand_p->strandNo << std::endl;
                            save_matched_start_mov_res = matched_atom_res_ref;
                            // save_matched_start_mov_res.string_user_data = atom_selection2[t_index]->GetResName();

@@ -117,7 +117,7 @@ const double pi = M_PI;
 #include "molecular-mesh-generator.hh"
 #include "make-a-dodec.hh"
 
-#include "api/coot_molecule.hh" // the integration with api begins...
+#include "api/coot-molecule.hh" // the integration with api begins...
 
 #include "widget-from-builder.hh"
 

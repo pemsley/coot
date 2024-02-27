@@ -1,5 +1,5 @@
 
-#include "coot_molecule.hh"
+#include "coot-molecule.hh"
 
 // Change chain id
 // return -1 on a conflict
@@ -62,7 +62,7 @@ coot::molecule_t::change_chain_id(const std::string &from_chain_id,
          for (int imod=1; imod<=n_models; imod++) {
 
             mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-	    if (! model_p) continue;
+            if (! model_p) continue;
             // run over chains of the existing mol
             int nchains = model_p->GetNumberOfChains();
             if (nchains <= 0) {
@@ -70,7 +70,7 @@ coot::molecule_t::change_chain_id(const std::string &from_chain_id,
                          << std::endl;
             } else {
                for (int ichain=0; ichain<nchains; ichain++) {
-		  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
                   if (chain_p == NULL) {
                      // This should not be necessary. It seem to be a
                      // result of mmdb corruption elsewhere - possibly
@@ -93,7 +93,7 @@ coot::molecule_t::change_chain_id(const std::string &from_chain_id,
             for (int imod=1; imod<=n_models; imod++) {
 
                mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-	       if (! model_p) continue;
+               if (! model_p) continue;
                // run over chains of the existing mol
                int nchains = model_p->GetNumberOfChains();
                if (nchains <= 0) {
@@ -101,7 +101,7 @@ coot::molecule_t::change_chain_id(const std::string &from_chain_id,
                             << std::endl;
                } else {
                   for (int ichain=0; ichain<nchains; ichain++) {
-		     mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                     mmdb::Chain *chain_p = model_p->GetChain(ichain);
                      if (chain_p) {
                         std::string chain_id = chain_p->GetChainID();
                         if (from_chain_id == chain_id) {
@@ -199,7 +199,7 @@ coot::molecule_t::change_chain_id_with_residue_range(const std::string &from_cha
                    << std::endl;
       } else {
          for (int ichain=0; ichain<nchains; ichain++) {
-	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
             if (chain_p == NULL) {
                // This should not be necessary. It seem to be a
                // result of mmdb corruption elsewhere - possibly
@@ -231,14 +231,14 @@ coot::molecule_t::change_chain_id_with_residue_range(const std::string &from_cha
       for (int imod=1; imod<=n_models; imod++) {
 
          mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-	 if (! model_p) continue;
+         if (! model_p) continue;
          // run over chains of the existing mol
          int nchains = model_p->GetNumberOfChains();
          if (nchains <= 0) {
             std::cout << "bad nchains in molecule " << nchains << std::endl;
          } else {
             for (int ichain=0; ichain<nchains; ichain++) {
-	       mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
                if (chain_p) {
                   std::string chain_id = chain_p->GetChainID();
                   if (from_chain_id == chain_id) {
@@ -293,7 +293,7 @@ coot::molecule_t::change_chain_id_with_residue_range(const std::string &from_cha
       for (int imod=1; imod<=n_models; imod++) {
 
          mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-	 if (! model_p) continue;
+         if (! model_p) continue;
 
          // run over chains of the existing mol
          int nchains = model_p->GetNumberOfChains();
@@ -303,7 +303,7 @@ coot::molecule_t::change_chain_id_with_residue_range(const std::string &from_cha
                       << std::endl;
          } else {
             for (int ichain=0; ichain<nchains; ichain++) {
-	       mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
                if (chain_p) {
                   std::string chain_id = chain_p->GetChainID();
                   if (to_chain_id == chain_id) {
@@ -435,4 +435,3 @@ coot::molecule_t::change_chain_id_with_residue_range_helper_insert_or_add(mmdb::
       to_chain_p->AddResidue(new_residue);
    }
 }
-

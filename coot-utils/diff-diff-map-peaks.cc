@@ -4,11 +4,11 @@
 
 #include "diff-diff-map-peaks.hh"
 
-std::vector<std::pair<clipper::Coord_orth, float>> coot::diff_diff_map_peaks(const clipper::Xmap<float> &m1,
+std::vector<std::pair<clipper::Coord_orth, float> > coot::diff_diff_map_peaks(const clipper::Xmap<float> &m1,
                                                                              const clipper::Xmap<float> &m2,
                                                                              float base_level) {
-   std::vector<std::pair<clipper::Coord_orth, float> > v_plus;
-   std::vector<std::pair<clipper::Coord_orth, float> > v_neg;
+
+   std::vector<std::pair<clipper::Coord_orth, float> > v;
 
    clipper::Skeleton_basic::Neighbours neighb(m1, 0.25, 1.75); // 3x3x3 cube, not centre
 
@@ -35,8 +35,8 @@ std::vector<std::pair<clipper::Coord_orth, float>> coot::diff_diff_map_peaks(con
                // std::cout << ix.coord().format() << " d pos " << d << std::endl;
                clipper::Coord_frac cf = ix.coord().coord_frac(m1.grid_sampling());
                clipper::Coord_orth co = cf.coord_orth(m1.cell());
-               std::pair p = std::make_pair(co, d);
-               v_plus.push_back(p);
+               std::pair<clipper::Coord_orth, float> p = std::make_pair(co, d);
+               v.push_back(p);
             }
          }
       }
@@ -58,13 +58,13 @@ std::vector<std::pair<clipper::Coord_orth, float>> coot::diff_diff_map_peaks(con
                // std::cout << ix.coord().format() << " d neg " << d << std::endl;
                clipper::Coord_frac cf = ix.coord().coord_frac(m1.grid_sampling());
                clipper::Coord_orth co = cf.coord_orth(m1.cell());
-               std::pair p = std::make_pair(co, d);
-               v_plus.push_back(p);
+               std::pair<clipper::Coord_orth, float> p = std::make_pair(co, d);
+               v.push_back(p);
             }
          }
       }
    }
-   return v_plus;
+   return v;
 }
 
 #include "coot-coord-utils.hh"

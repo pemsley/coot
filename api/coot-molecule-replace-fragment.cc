@@ -1,6 +1,6 @@
 
 #include "geometry/residue-and-atom-specs.hh"
-#include "coot_molecule.hh"
+#include "coot-molecule.hh"
 
 // We need to find the serial number of the residue after the residue
 // we want to insert (i.e. the new residue will be inserted just
@@ -213,5 +213,3 @@ coot::molecule_t::replace_fragment(mmdb::Manager *mol_ref, int old_atom_index_ha
 
    return status;
 }
-
-

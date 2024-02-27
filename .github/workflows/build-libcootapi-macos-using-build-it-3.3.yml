@@ -1,0 +1,49 @@
+name: libcootapi CI build-it-3-3 macOS
+
+on:
+  push:
+
+jobs:
+
+  build-libcootapi-for-macos-build-it-3-3-based:
+
+    runs-on: macos-latest
+
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: cache autobuild
+      id: cache-autobuild
+      uses: actions/cache@v4
+      with:
+         path: ~/autobuild
+         key:  files-in-autobuild
+
+    # Home on macOS is /Users/runner, we start in /Users/runner/work/coot/coot
+    - name: where are we?
+      run: pwd
+
+    - name: run build-it-3-3 in chapi mode
+      env:
+        CHAPI_ONLY: true
+      run: bash build-it-3-3
+
+    - name: create-build-directory-for-libcootapi
+      run:  mkdir build-libcootapi
+
+    - name: patch out CCP4-package in CMakeLists.txt
+      run:  sed -i.backup -e 's/find_package.CCP4/#&/' CMakeLists.txt
+
+    # CHAPI_ONLY installs Python version 3.10
+    - name: run cmake
+      run: >
+          cd build-libcootapi &&
+          cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
+          -Dnanobind_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/python3.10/site-packages/nanobind/cmake ..
+
+    - name: make
+      run:  cd build-libcootapi && make -j 4
+
+    - name: make install
+      run:  cd build-libcootapi && make install

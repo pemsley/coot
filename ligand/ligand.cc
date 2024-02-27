@@ -836,7 +836,7 @@ void
 coot::ligand::find_clusters_internal(float z_cut_off_in,
 				     const std::vector <clipper::Coord_orth> &sampled_protein_coords) {
 
-   std::cout << "INFO:: find_clusters map_rms is " << map_rms << std::endl;
+   std::cout << "INFO:: in find_clusters_internal(): map_rms is " << map_rms << std::endl;
 
    if (xmap_masked_stats.first == 0) {
       clipper::Map_stats stats(xmap_cluster);
@@ -856,11 +856,15 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
    std::cout << " (mean " << xmap_masked_stats.second.first
 	     << " stdev: " << xmap_masked_stats.second.second << ")" << std::endl;
    std::cout << "INFO:: Blobs with volume larger than " << water_molecule_volume
-	     << " A^3 are too big to be considered waters." << std::endl;
+	     << " A^3 are too big to be considered as mere waters." << std::endl;
    std::cout << "INFO:: Using water to protein distance limits: "
 	     << water_to_protein_distance_lim_min << " "
 	     << water_to_protein_distance_lim_max << std::endl;
 
+
+   unsigned int min_grid_points_for_ligand = get_min_grid_points_for_a_ligand(xmap_pristine);
+   if (true)
+      std::cout << "min_number_of_grid_points for a ligand: " << min_grid_points_for_ligand << std::endl;
 
    clipper::Xmap_base::Map_reference_index ix;
    std::cout << "INFO:: Finding clusters...";
@@ -906,7 +910,7 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
 
 // 	    std::cout << "pushing back cluster " << n_clusters
 // 		      << mpc.score << " " << mpc.map_grid.size() << std::endl;
-	    if (mpc.map_grid.size() > 0) {
+	    if (mpc.map_grid.size() > min_grid_points_for_ligand) {
 	       cluster.push_back(mpc);
 	       n_clusters++;
 	    }
@@ -920,8 +924,8 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
    //    std::cout << "There were " << n_clusters << " clusters " << std::endl;
    std::sort(cluster.begin(), cluster.end(), compare_clusters);
 
-   if (verbose_reporting)
-      print_cluster_details(true);
+   if (true || verbose_reporting)                                   
+      print_cluster_details(false);
 }
 
 void
@@ -1249,6 +1253,8 @@ coot::ligand::move_ligand_centres_close_to_protein(const std::vector<clipper::Co
 
 }
 
+#include <iomanip>
+
 void
 coot::ligand::calculate_cluster_centres_and_eigens() {
 
@@ -1323,11 +1329,12 @@ coot::ligand::calculate_cluster_centres_and_eigens() {
    }
 
    if (true) {
-      for (unsigned int i=0; i<cluster.size(); i++) {
-         std::cout << "cluster score, n-grid-points, eigen, trn: " << i << " "
-                   << cluster[i].score << " " << cluster[i].map_grid.size()
-            //                   << " " << cluster[i].eigenvectors_and_centre.rot().format()
-                   << " " << cluster[i].eigenvectors_and_centre.trn().format()
+      for (unsigned int iclust=0; iclust<cluster.size(); iclust++) {
+         std::cout << "calculate_cluster_centres_and_eigens() cluster " << std::setw(2) << std::right << iclust << " score: "
+                   << std::setw(7) << std::setprecision(5) << cluster[iclust].score
+                   << " n-grid-points: " << std::setw(3) << std::right << cluster[iclust].map_grid.size()
+                   << " volume: " << std::setprecision(5) << get_cluster_volume(iclust)
+                   << " centre-trn: " << cluster[iclust].eigenvectors_and_centre.trn().format()
                    << std::endl;
       }
    }
@@ -1339,6 +1346,19 @@ coot::compare_clusters(const map_point_cluster &a,
 		       const map_point_cluster &b) {
 
    return (a.score > b.score);
+}
+
+unsigned int
+coot::ligand::get_min_grid_points_for_a_ligand(const clipper::Xmap<float> &xmap) const {
+
+   double cell_vol = xmap.cell().volume();
+   double n_grid_pts =
+      xmap.grid_sampling().nu() *
+      xmap.grid_sampling().nv() *
+      xmap.grid_sampling().nw();
+   double grid_point_vol = cell_vol/n_grid_pts;
+   double n_grids_for_water = 11.0/grid_point_vol;
+   return static_cast<int>(n_grids_for_water) + 1;
 }
 
 
@@ -1357,15 +1377,12 @@ coot::map_point_cluster::volume(const clipper::Xmap<float> &xmap_ref) const {
 void
 coot::ligand::print_cluster_details(bool show_grid_points) const {
 
-   int ncount = 0;
    int max_clusters = 10;
    if (cluster.size() < 10)
-      max_clusters = 10;
-   std::cout << "There are " << cluster.size() << " clusters\n";
-   std::cout << "Here are the top " << max_clusters << " clusters:\n";
-   for (unsigned int i=0; i<cluster.size(); i++) {
-      ncount++;
-      if (ncount == max_clusters) break;
+      max_clusters = cluster.size();
+   std::cout << "INFO:: print_cluster_details(): There are " << cluster.size() << " clusters\n";
+   std::cout << "INFO:: print_cluster_details(): Here are the top " << max_clusters << " clusters:\n";
+   for (int i=0; i<max_clusters; i++) {
 
       std::cout << "  Number: "  << i << " # grid points: "
 		<< cluster[i].map_grid.size() << " score: "
@@ -1845,7 +1862,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
 
    // for debugging
    write_orientation_solutions = 0;
-   bool debug = false;
+   const bool debug = true;
 
    minimol::molecule ior_holder;
 
@@ -1933,14 +1950,21 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
                              auto ligand = ligand_in;
                              std::vector<minimol::atom *> atoms_p = ligand.select_atoms_serial();
 
+                             if (false) {
+                                for (unsigned int i=0; i<atoms_p.size(); i++) {
+                                   std::cout << "fit_ligand_copy iat " << i << " " << atoms_p[i]
+                                             << " " << *(atoms_p[i]) << std::endl;
+                                }
+                             }
+
                              // First move the ligand to the site of the cluster:
                              for(unsigned int ii=0; ii<atoms_p.size(); ii++)
                                 atoms_p[ii]->pos = transform_ligand_atom(atoms_p[ii]->pos, cluster.eigenvectors_and_centre,
                                                                          initial_ligand_eigenvector, initial_ligand_model_centre,
                                                                          eigen_orientation.rot());
 
-                             // rigid_body_refine_ligand(&atoms_p, std::cref(xmap_masked), std::cref(xmap_pristine),
-                             // rotation_component, gradient_scale); // ("rigid body") move atoms.
+                             rigid_body_refine_ligand(&atoms_p, std::cref(xmap_masked), std::cref(xmap_pristine),
+                                                      rotation_component, gradient_scale); // ("rigid body") move atoms.
 
                              float fit_fraction = 0.1;
                              ligand_score_card lsc = score_orientation(atoms_p, std::cref(xmap_pristine), fit_fraction);
@@ -1967,6 +1991,23 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
                                                         bool dont_test_rotations,
                                                         bool debug,
                                                         std::vector<std::pair<minimol::molecule, ligand_score_card> > &results) {
+
+      if (true) {
+         std::string map_file_name_1 = "debug-fit_ligand_to_cluster() map_masked_"   + std::to_string(iclust) + "_" + std::to_string(ilig) + ".map";
+         std::string map_file_name_2 = "debug-fit_ligand_to_cluster() map_pristine_" + std::to_string(iclust) + "_" + std::to_string(ilig) + ".map";
+         {
+            clipper::CCP4MAPfile mapout;
+            mapout.open_write(map_file_name_1);
+            mapout.export_xmap(xmap_masked);
+            mapout.close_write();
+         }
+         {
+            clipper::CCP4MAPfile mapout;
+            mapout.open_write(map_file_name_2);
+            mapout.export_xmap(xmap_pristine);
+            mapout.close_write();
+         }
+      }
 
       if (!do_size_match_test || cluster_ligand_size_match(cluster, ligand, grid_vol)) {
          if (debug)
@@ -2048,12 +2089,33 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
    unsigned int n_batches = n_ligands / n_per_batch + 1;
    coot::split_indices(&indices, n_ligands, n_batches); // vec, n_items, n_threads
 
+
+   if (true) {
+      std::string map_file_name_1 = "debug-main map_masked_"   + std::to_string(iclust) + ".map";
+      std::string map_file_name_2 = "debug-main map_pristine_" + std::to_string(iclust) + ".map";
+      {
+         clipper::CCP4MAPfile mapout;
+         mapout.open_write(map_file_name_1);
+         mapout.export_xmap(xmap_masked);
+         mapout.close_write();
+      }
+      {
+         clipper::CCP4MAPfile mapout;
+         mapout.open_write(map_file_name_2);
+         mapout.export_xmap(xmap_pristine);
+         mapout.close_write();
+      }
+   }
+   
+
    for (unsigned int ii=0; ii<indices.size(); ii++) {
       const std::vector<unsigned int> &ligand_indices = indices[ii];
       std::vector<std::thread> threads;
       for (unsigned int jj=0; jj<ligand_indices.size(); jj++) {
          const unsigned int &ilig = ligand_indices[jj];
          const minimol::molecule &ligand = initial_ligand[ilig];
+
+#if COOT_USE_THREADS
          // std::cout << "   thread ilig " << ilig << " iclust " << iclust << std::endl;
          threads.push_back(std::thread(fit_ligand_to_cluster,
                                        ilig, iclust,
@@ -2072,12 +2134,31 @@ coot::ligand::fit_ligands_to_cluster(int iclust, unsigned int max_n_clusters) {
                                        dont_test_rotations,
                                        debug,
                                        std::ref(big_vector_of_results)));
+#else
+         fit_ligand_to_cluster(ilig, iclust, cluster[iclust], ligand,
+                               initial_ligand_eigenvectors[ilig],
+                               initial_ligand_model_centre[ilig],
+                               origin_rotations,
+                               eigen_orientations,
+                               xmap_masked,
+                               xmap_pristine,
+                               rotation_component,
+                               gradient_scale,
+                               grid_vol,
+                               do_size_match_test,
+                               dont_test_rotations,
+                               debug,
+                               big_vector_of_results);
+#endif
+         
       }
+#if COOT_USE_THREADS
       for (unsigned int jj=0; jj<ligand_indices.size(); jj++) {
          threads[jj].join();
          if (debug)
             std::cout << "  thread " << jj << " joined" << std::endl;
       }
+#endif
    }
 
    if (write_orientation_solutions) {
@@ -2159,6 +2240,15 @@ coot::ligand::compare_scored_ligands_using_correlation(const std::pair<coot::min
 }
 
 unsigned int
+coot::ligand::n_ligands_for_cluster(unsigned int iclust) const {
+
+   unsigned int n = 0;
+   if (iclust < final_ligand.size())
+      n = final_ligand[iclust].size();
+   return n;
+}
+
+unsigned int
 coot::ligand::n_ligands_for_cluster(unsigned int iclust,
 				    float frac_limit_of_peak_score) const {
 
@@ -2190,7 +2280,26 @@ coot::ligand::n_ligands_for_cluster(unsigned int iclust,
 void
 coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned int n_sol) {
 
-   bool debug = false;
+   const bool debug = true;
+
+   auto ligand_has_exploded = [] (const minimol::molecule &ligand_mol) {
+      bool state = false;
+      double max_dist_sq = 30.0 * 30.0;
+      std::vector<minimol::atom *> atoms =  ligand_mol.select_atoms_serial();
+      unsigned int n_atoms = atoms.size();
+      for (unsigned int i=0; i<n_atoms; i++) {
+         for (unsigned int j=i; j<n_atoms; j++) {
+            if (i == j) continue;
+            double dd = (atoms.at(i)->pos - atoms.at(j)->pos).lengthsq();
+            if (dd > max_dist_sq) {
+               double d = std::sqrt(dd);
+               // std::cout << "  exploded " << *atoms.at(i) << " " << *atoms.at(j) << "  " << d << std::endl;
+               state = true;
+            }
+         }
+      }
+      return state;
+   };
 
 //    #pragma omp parallel for
 //    for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
@@ -2200,56 +2309,80 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
 
    unsigned int n_ligs = final_ligand[iclust].size();
 
-
    if (debug)
       std::cout << "score_and_resort_using_correlation iclust: " << iclust << " n_ligs " << n_ligs
 		<< " n_sol " << n_sol << std::endl;
 
-//    #pragma omp parallel for
-   for (unsigned int i=0; i<n_ligs; i++) {
-      if (i < n_sol) {
+   if (n_ligs > 0) {
+      for (unsigned int i=0; i<n_ligs; i++) {
+         if (i < n_sol) {
 
-	 const minimol::molecule &lig_mol = final_ligand[iclust][i].first;
-	 mmdb::Manager *mol = lig_mol.pcmmdbmanager(); // d
-	 std::vector<residue_spec_t> specs;
-	 residue_spec_t spec(lig_mol[0].fragment_id,
-			     lig_mol[0].min_res_no(), "");
-	 specs.push_back(spec);
-	 short int mode = 0; // all atoms
-	 std::vector<residue_spec_t> neighb_specs; // Dummy value currently.
-	                                           // Don't count grid points of the spec residues
-	                                           // that are part of other residues in
-	                                           // the region.
+            std::cout << "debug:: requesting iclust " << iclust << " of final_ligand vector of size "
+                      << final_ligand.size() << std::endl;
+            std::cout << "debug:: requesting i " << i << " of final_ligand vector of size "
+                      << final_ligand[iclust].size() << std::endl;
 
-	 double c = util::map_to_model_correlation(mol, specs, neighb_specs,
-						   mode, 1.5, xmap_pristine);
-	 if (debug)
-	    std::cout << "----- in get_correl() constructed spec for i "
-		      << i << " " << spec
-		      << " which has correlation " << c << std::endl;
+            const minimol::molecule &lig_mol = final_ligand[iclust][i].first;
 
-	 std::pair<bool, double> p(true, c);
-	 final_ligand[iclust][i].second.correlation = p;
-	 delete mol;
+            if (debug) {
+               std::string fn = "ligand-mol:" + std::to_string(iclust) + std::string(":") + std::to_string(i) + std::string(".pdb");
+               lig_mol.write_file(fn, 22.2);
+            }
+
+            if (ligand_has_exploded(lig_mol)) {
+
+               std::pair<bool, double> p(false, -1);
+               final_ligand[iclust][i].second.correlation = p;
+
+            } else {
+
+               mmdb::Manager *mol = lig_mol.pcmmdbmanager(); // d
+               std::vector<residue_spec_t> specs;
+               residue_spec_t spec(lig_mol[0].fragment_id,
+                                   lig_mol[0].min_res_no(), "");
+               specs.push_back(spec);
+               short int mode = 0; // all atoms
+               std::vector<residue_spec_t> neighb_specs; // Dummy value currently.
+               // Don't count grid points of the spec residues
+               // that are part of other residues in
+               // the region.
+
+               mol->WritePDBASCII("score_and_resort_using_correlation_mol.pdb");
+
+               std::cout << "... calling map_to_model_correlation: " << std::endl;
+               double c = util::map_to_model_correlation(mol, specs, neighb_specs, mode, 1.5, xmap_pristine);
+               std::cout << "... done map_to_model_correlation: " << c << std::endl;
+
+               if (debug)
+                  std::cout << "----- in get_correl() constructed spec for i "
+                            << i << " " << spec
+                            << " which has correlation " << c << std::endl;
+
+               std::pair<bool, double> p(true, c);
+               final_ligand[iclust][i].second.correlation = p;
+               delete mol;
+            }
+         }
       }
+
+      std::sort(final_ligand[iclust].begin(),
+                final_ligand[iclust].end(),
+                compare_scored_ligands_using_correlation);
+      std::reverse(final_ligand[iclust].begin(),
+                   final_ligand[iclust].end());
    }
 
-   std::sort(final_ligand[iclust].begin(),
-	     final_ligand[iclust].end(),
-	     compare_scored_ligands_using_correlation);
-   std::reverse(final_ligand[iclust].begin(),
-		final_ligand[iclust].end());
-
-
    if (debug) {
-      std::cout << "INFO post-sort: ------------------ iclust: " << iclust
-		<<  " size: " << final_ligand[iclust].size()
-		<< " solutions for cluster "
-		<< iclust << " ------------- " << std::endl;
-      for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
-	 std::cout << "   post correl " << isol << " of "
-		   << final_ligand[iclust].size() << " "
-		   << final_ligand[iclust][isol].second << std::endl;
+      if (n_ligs > 0) {
+         std::cout << "INFO post-sort: ------------------ iclust: " << iclust
+                   <<  " size: " << final_ligand[iclust].size()
+                   << " solutions for cluster "
+                   << iclust << " ------------- " << std::endl;
+         for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
+            std::cout << "   post correl " << isol << " of "
+                      << final_ligand[iclust].size() << " "
+                      << final_ligand[iclust][isol].second << std::endl;
+      }
    }
 
 }

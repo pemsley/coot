@@ -2,13 +2,15 @@
 #include <sys/stat.h>
 
 #include "utils/coot-utils.hh"
-#include "coot_molecule.hh"
-#include "molecules_container.hh" // for the 
+#include "coot-molecule.hh"
+#include "molecules-container.hh"
 
 #include "coords/mmdb.hh" // for write_atom_selection_file()
 
 std::string
 coot::molecule_t::make_backup(const std::string &modification_info_string) {
+
+   if (! really_do_backups) return "No-backups";
 
    std::string info_message; // non-empty on failture
    info_message = modification_info.make_backup(atom_sel.mol, modification_info_string);
@@ -104,7 +106,7 @@ coot::molecule_t::modification_info_t::make_backup(mmdb::Manager *mol, const std
       // WriteCIFASCII() seems to duplicate the atoms (maybe related to aniso?)
       // So let's copy the molecule and throw away the copy, that way we don't
       // duplicate the atoms in the original molecule.
-      
+
       mmdb::Manager *mol_copy  = new mmdb::Manager;
       mol_copy->Copy(mol, mmdb::MMDBFCM_All);
       int ierr = mol_copy->WriteCIFASCII(fn.c_str());
@@ -217,8 +219,7 @@ coot::molecule_t::modification_info_t::redo() {
          modification_index = idx;
       }
    } else {
-      
+
    }
    return MMDBManager;
 }
-

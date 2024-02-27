@@ -152,6 +152,7 @@ namespace coot {
       ShelxIns shelxins;
 
       std::map<residue_spec_t, int> current_rotamer_map;
+      bool really_do_backups; // default true
 
       // private
       void makebonds(protein_geometry *geom, rotamer_probability_tables *rotamer_tables_p,
@@ -364,6 +365,7 @@ namespace coot {
          original_r_free_flags_p = nullptr;
          refmac_r_free_flag_sensible = false;
          use_bespoke_grey_colour_for_carbon_atoms = false;
+         really_do_backups = true;
 
          radial_map_colour_saturation = 0.5;
          radial_map_colour_invert_flag = false;
@@ -429,6 +431,10 @@ namespace coot {
       // ------------------------ close
 
       int close_yourself();
+
+      // --------------------- backups
+
+      void set_really_do_backups(bool state) { really_do_backups = state; }
 
       // ------------------------------- rsr utils
       // - add in the environment of this fragment molecule
@@ -526,6 +532,8 @@ namespace coot {
 
       //! useful for debugging, perhaps
       std::vector<glm::vec4> make_colour_table(bool against_a_dark_background) const;
+      std::vector<glm::vec4> make_colour_table_for_goodsell_style(float colour_wheel_rotation_step,
+                                                                  float saturation, float goodselliness) const;
 
       // for debugging
       void print_colour_table(const std::string &debugging_label) const;
@@ -563,24 +571,33 @@ namespace coot {
       // ----------------------- model bonds
 
       simple_mesh_t get_bonds_mesh(const std::string &mode, protein_geometry *geom,
-                                   bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
+                                   bool against_a_dark_background,
+                                   float bonds_width, float atom_radius_to_bond_width_ratio,
                                    int smoothness_factor,
                                    bool draw_hydrogen_atoms_flag,
                                    bool draw_missing_residue_loops);
-      simple_mesh_t get_goodsell_style_mesh(protein_geometry *geom_p);
+
+      simple_mesh_t get_goodsell_style_mesh(protein_geometry *geom_p, float colour_wheel_rotation_step,
+                                            float saturation, float goodselliness);
 
       instanced_mesh_t get_bonds_mesh_instanced(const std::string &mode, protein_geometry *geom,
-                                                bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
+                                                bool against_a_dark_background,
+                                                float bonds_width, float atom_radius_to_bond_width_ratio,
                                                 int smoothness_factor,
                                                 bool draw_hydrogen_atoms_flag,
                                                 bool draw_missing_residue_loops);
 
       instanced_mesh_t get_bonds_mesh_for_selection_instanced(const std::string &mode, const std::string &selection_cid,
                                                               protein_geometry *geom,
-                                                              bool against_a_dark_background, float bonds_width, float atom_radius_to_bond_width_ratio,
+                                                              bool against_a_dark_background,
+                                                              float bonds_width, float atom_radius_to_bond_width_ratio,
                                                               int smoothness_factor,
                                                               bool draw_hydrogen_atoms_flag,
                                                               bool draw_missing_residue_loops);
+
+      instanced_mesh_t get_goodsell_style_mesh_instanced(protein_geometry *geom_p, float colour_wheel_rotation_step,
+                                                         float saturation, float goodselliness);
+
 
       // adding colours using the functions below add into user_defined_colours
       std::map<unsigned int, colour_holder> user_defined_bond_colours;
@@ -984,7 +1001,7 @@ namespace coot {
       std::vector<mmdb::Residue *> select_residues(const residue_spec_t &spec, const std::string &mode) const;
       //! resno_start and resno_end are inclusive
       std::vector<mmdb::Residue *> select_residues(const std::string &chain_id, int resno_start, int resno_end) const;
-      //! 
+      //! select residues given a multi-cid
       std::vector<mmdb::Residue *> select_residues(const std::string &multi_cid, const std::string &mode) const;
 
       //! real space refinement
@@ -1192,7 +1209,11 @@ namespace coot {
       void make_mesh_for_molecular_representation_for_blender(const std::string &cid,
                                                               const std::string &colour_scheme,
                                                               const std::string &style);
-      void make_mesh_for_goodsell_style_for_blender(protein_geometry *geom_p);
+
+      void make_mesh_for_goodsell_style_for_blender(protein_geometry *geom_p,
+                                                    float colour_wheel_rotation_step,
+                                                    float saturation,
+                                                    float goodselliness);
 
       void make_mesh_for_map_contours_for_blender(Cartesian position, float contour_level, float radius);
       void make_mesh_for_gaussian_surface_for_blender(float sigma, float contour_level, float box_radius, float grid_scale,float b_factor);

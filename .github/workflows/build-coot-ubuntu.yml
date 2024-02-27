@@ -2,6 +2,7 @@ name: Coot CI Ubuntu
 
 on:
   push:
+  workflow_dispatch:
 
 jobs:
   build-ubuntu:
@@ -44,6 +45,9 @@ jobs:
       with:
          path: build-gemmi
          key:  coot-build-ubuntu-gemmi-cache-build
+
+    - name: Update apt-get
+      run:  sudo apt-get update
 
     - name: Install system dependencies
       run: sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev libvorbis-dev libasound2-dev
