@@ -522,6 +522,7 @@ auxil/vectors/Makefile
 lbg/Makefile
 src/Makefile
 src/coot
+ui/Makefile
 ])
 AC_OUTPUT
 

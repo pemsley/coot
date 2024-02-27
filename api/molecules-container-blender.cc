@@ -35,11 +35,13 @@ molecules_container_t::get_triangles_for_blender(int imol) {
 }
 
 void
-molecules_container_t::make_mesh_for_bonds_for_blender(int imol, const std::string &mode) {
+molecules_container_t::make_mesh_for_bonds_for_blender(int imol, const std::string &mode, bool against_a_dark_background,
+                                      float bond_width, float atom_radius_to_bond_width_ratio,
+                                      int smoothness_factor) {
 
    if (is_valid_model_molecule(imol)) {
       // pass other params later
-      molecules[imol].make_mesh_for_bonds_for_blender(mode, &geom); // bonds
+      molecules[imol].make_mesh_for_bonds_for_blender(mode, &geom, against_a_dark_background, bond_width, atom_radius_to_bond_width_ratio, smoothness_factor); // bonds
    }
 
 }
@@ -64,3 +66,21 @@ molecules_container_t::make_mesh_for_map_contours_for_blender(int imol, float x,
 
 }
 
+void
+molecules_container_t::make_mesh_for_gaussian_surface_for_blender(int imol,
+                                                      float sigma,
+                                                      float contour_level,
+                                                      float box_radius,
+                                                      float grid_scale,
+                                                      float b_factor) {
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].make_mesh_for_gaussian_surface_for_blender(sigma, contour_level, box_radius, grid_scale, b_factor);
+   }
+}
+
+void
+molecules_container_t::make_mesh_for_goodsell_style_for_blender(int imol) {
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].make_mesh_for_goodsell_style_for_blender(&geom);
+   }
+}

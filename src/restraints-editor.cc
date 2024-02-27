@@ -57,14 +57,15 @@ coot::restraints_editor::setup_builder() {
 
    builder = gtk_builder_new();
    std::string data_dir = package_data_dir();
-   std::string dir_glade = util::append_dir_dir(data_dir, "glade"); // rename this to ui one day
-   std::string glade_file_name = "restraints-editor.ui";
-   std::string glade_file_full = util::append_dir_file(dir_glade, glade_file_name);
-   if (file_exists(glade_file_name))
-      glade_file_full = glade_file_name;
+   // 20240218-PE glade to ui
+   std::string dir_ui = util::append_dir_dir(data_dir, "ui"); // rename this to ui one day
+   std::string ui_file_name = "restraints-editor.ui";
+   std::string ui_file_full = util::append_dir_file(dir_ui, ui_file_name);
+   if (file_exists(ui_file_name))
+      ui_file_full = ui_file_name;
 
    GError *error = NULL;
-   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
+   guint add_from_file_status = gtk_builder_add_from_file(builder, ui_file_full.c_str(), &error);
    if (add_from_file_status) {
       // fine
       dialog = widget_from_builder("restraints_editor_dialog");

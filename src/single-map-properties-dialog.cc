@@ -12,15 +12,16 @@ std::pair<GtkWidget *, GtkBuilder *> create_single_map_properties_dialog_gtk3() 
    GtkBuilder *builder = gtk_builder_new();
 
    std::string dir = coot::package_data_dir();
-   std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
+   // glade to ui
+   std::string dir_ui = coot::util::append_dir_dir(dir, "ui");
    // std::string glade_file_name = "single-map-properties-dialog.glade";
-   std::string glade_file_name = "single-map-properties-dialog-gtk4.ui";
-   std::string glade_file_full = coot::util::append_dir_file(dir_glade, glade_file_name);
-   if (coot::file_exists(glade_file_name))
-      glade_file_full = glade_file_name;
+   std::string ui_file_name = "single-map-properties-dialog-gtk4.ui";
+   std::string ui_file_full = coot::util::append_dir_file(dir_ui, ui_file_name);
+   if (coot::file_exists(ui_file_name))
+      ui_file_full = ui_file_name;
 
    GError *error = NULL;
-   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
+   guint add_from_file_status = gtk_builder_add_from_file(builder, ui_file_full.c_str(), &error);
 
    if (add_from_file_status) {
       single_map_properties_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "single_map_properties_dialog"));
@@ -28,7 +29,7 @@ std::pair<GtkWidget *, GtkBuilder *> create_single_map_properties_dialog_gtk3() 
    } else {
       std::cout << "ERROR:: create_single_map_properties_dialog_gtk3() failed to get builder file for single-map-properties dialog"
                 << std::endl;
-      std::cout << "ERROR:: " << glade_file_full << std::endl;
+      std::cout << "ERROR:: " << ui_file_full << std::endl;
       std::cout << "ERROR::" << error->message << std::endl;
    }
 

@@ -2,7 +2,9 @@
 #include "coot_molecule.hh"
 
 void
-coot::molecule_t::make_mesh_for_bonds_for_blender(const std::string &mode, protein_geometry *geom) {
+coot::molecule_t::make_mesh_for_bonds_for_blender(const std::string &mode, protein_geometry *geom, bool against_a_dark_background,
+                                      float bond_width, float atom_radius_to_bond_width_ratio,
+                                      int smoothness_factor) {
 
    // from the swig version:
    // PyList_SetItem(r_py, 0, vertices_py);
@@ -12,10 +14,6 @@ coot::molecule_t::make_mesh_for_bonds_for_blender(const std::string &mode, prote
    // where a tri_py is PyList_New(4);
    // with PyList_SetItem(tri_py, 3, PyLong_FromLong(colour_index));
 
-   bool against_a_dark_background = false;
-   float bond_width = 0.12;
-   float atom_radius_to_bond_width_ratio = 1.0;
-   int smoothness_factor = 1;
    bool draw_hydrogen_atoms_flag = true;
    bool draw_missing_loops_flag = true;
 
@@ -46,6 +44,23 @@ coot::molecule_t::make_mesh_for_map_contours_for_blender(Cartesian position, flo
    ctpl::thread_pool *thread_pool_p = nullptr; // pass this
    clipper::Coord_orth pos_co(position.x(), position.y(), position.z());
    simple_mesh_t sm = get_map_contours_mesh(pos_co, radius, contour_level, use_thread_pool, thread_pool_p);
+   blender_mesh_t bm(sm);
+   blender_mesh = std::move(bm);
+}
+
+void
+coot::molecule_t::make_mesh_for_goodsell_style_for_blender(coot::protein_geometry *geom_p) {
+   simple_mesh_t sm = get_goodsell_style_mesh(geom_p);
+   blender_mesh_t bm(sm);
+   blender_mesh = std::move(bm);
+}
+
+
+
+void
+coot::molecule_t::make_mesh_for_gaussian_surface_for_blender(float sigma, float contour_level, float box_radius, float grid_scale,float b_factor) {
+
+   simple_mesh_t sm = get_gaussian_surface(sigma, contour_level, box_radius, grid_scale, b_factor);
    blender_mesh_t bm(sm);
    blender_mesh = std::move(bm);
 }
