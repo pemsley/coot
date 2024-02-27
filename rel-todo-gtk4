@@ -9,6 +9,8 @@ Likewise the standard residues.
 chapi: test refine_residues_using_atom_cid() with "sphere" - for Paul Bond, this causes a crash.
 * Can't reproduce in test-molecules-container.cc
 
+libcootapi: can I make a nanobinding that returns a minmol residue, and another for atom?
+
 libcootapi: turn_off_backups(imol). This needs some infrastucture work. Add something like
    really_do_make_backups_flag to coot::molecule_t - and that is set by the above function call.
 
