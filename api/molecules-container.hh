@@ -316,6 +316,8 @@ public:
       use_torsion_restraints = false;
       torsion_restraints_weight = 1.0;
 
+      map_is_contoured_using_thread_pool_flag = false;
+
       // debug();
    }
 
