@@ -1457,7 +1457,7 @@ if make --version ; then
       fi
    fi
    if [ $OS = Darwin ] ; then
-      np=$(system_profiler SPHardwareDataType | awk '/Total Number/ { print $NF }')
+      np=$(system_profiler SPHardwareDataType | awk '/Total Number/ { print $5 }')
       MAKE="make -j$np"
    fi
 else
