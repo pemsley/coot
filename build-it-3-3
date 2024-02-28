@@ -402,7 +402,8 @@
 # 6.13 20240216-PE Install Darwin OpenSSL in $install_top_dir
 # 6.14 20240220-PE Set the C++ flags for Catch2 (needed for macOS/clang) and build with CMake
 # 6.15 20240220-PE OpenSSL and python apiflags and boost bjam updates
-script_version=6.15
+# 6.16 20240228-PE Add status of FFTW building
+script_version=6.16
 
 
 
@@ -2416,6 +2417,7 @@ fi
 # fftw
 if test -n "$build_fftw" ; then
     echo BUILDING fftw:
+    echo BUILDING fftw 2.1.5: >&2
 #
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/fftw-2.1.5.tar.gz
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/fftw-configure-stuff.tar.gz
@@ -2424,18 +2426,19 @@ if test -n "$build_fftw" ; then
 ${WGET} $extras_place/fftw-2.1.5.tar.gz
 # ${WGET} $extras_place/fftw-configure-stuff.tar.gz # Don't need
 
-(
-date
-pwd
-gzip -dc ${AUTOBUILD_SOURCES}/fftw-2.1.5.tar.gz | tar xf -
-# gzip -dc ${AUTOBUILD_SOURCES}/fftw-configure-stuff.tar.gz | tar xf - # don't need.
-cd fftw-2.1.5
-if ./configure $generic_prefix --enable-shared --enable-float ; then
-   if $MAKE ; then
-      $MAKE install
-   fi
-fi
-)  > $HOSTLOGDIR/03-fftw.txt 2>&1
+    (
+    date
+    pwd
+    gzip -dc ${AUTOBUILD_SOURCES}/fftw-2.1.5.tar.gz | tar xf -
+    # gzip -dc ${AUTOBUILD_SOURCES}/fftw-configure-stuff.tar.gz | tar xf - # don't need.
+    cd fftw-2.1.5
+    if ./configure $generic_prefix --enable-shared --enable-float ; then
+       if $MAKE ; then
+          $MAKE install
+       fi
+    fi
+    )  > $HOSTLOGDIR/03-fftw.txt 2>&1
+    echo done fftw >&2
 else
     echo not building fftw:
 fi
@@ -2815,7 +2818,7 @@ EOF
 
    echo BUILDING Python $pver done >&2
 
-   echo Upgrading pip and installing pycairo and pygobject >&2
+   echo Upgrading pip
    (
    which pip3
    pip3 install --upgrade pip
