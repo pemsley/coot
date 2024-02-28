@@ -122,7 +122,7 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
          if (fstat == 0) {
             FILE *fptr = fopen(file_name.c_str(), "rb");
             int st_size = s.st_size;
-            void *space = malloc(st_size+1);
+            char *space = new char[st_size+1];
             // Happy Path
             size_t st_size_2 = fread(space, st_size, 1, fptr);
             char *data = static_cast<char *>(space);
@@ -137,6 +137,7 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
             } else {
                std::cout << "WARNING:: bad read " << file_name << std::endl;
             }
+            delete [] space;
          }
       }
    } else {
@@ -475,7 +476,7 @@ int main(int argc, char **argv) {
             std::cout << "size " << st_size << " bytes" << std::endl;
             auto tp_2 = std::chrono::high_resolution_clock::now();
             FILE *fptr = fopen(file_name.c_str(), "rb");
-            void *space = malloc(st_size);
+            void *space = new void [st_size+1];
             auto tp_3 = std::chrono::high_resolution_clock::now();
             size_t st_size_2 = fread(space, st_size, 1, fptr);
             char *data = static_cast<char *>(space);
@@ -506,7 +507,7 @@ int main(int argc, char **argv) {
                   std::cout << "File " << file_name << " was not a map" << std::endl;
                }
             }
-            free(space);
+            delete [] space;
          } else {
             std::cout << "stat() failed for " << file_name << std::endl;
          }
