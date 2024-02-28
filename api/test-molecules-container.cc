@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 void starting_test(const char *func) {
-   std::cout << "Starting " << func << "()" << std::endl;
+   std::cout << "\nStarting " << func << "()" << std::endl;
 }
 
 // wrap with the directory for the test data.
@@ -220,6 +220,8 @@ int test_auto_fit_rotamer_1(molecules_container_t &mc_in) {
    } else {
       std::cout << "Non-valid model molecule " << imol << std::endl;
    }
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -257,6 +259,8 @@ int test_auto_fit_rotamer_2(molecules_container_t &mc) {
    } else {
       std::cout << "Non-valid model molecule " << imol << std::endl;
    }
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -367,6 +371,9 @@ int test_updating_maps(molecules_container_t &mc) {
    if (new_rail_points > 4.0)
       status = 1;
 
+   mc.close_molecule(imol_diff_map);
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
    return status;
 
 }
@@ -478,6 +485,8 @@ int test_undo_and_redo_2(molecules_container_t &mc) {
    } else {
       std::cout << "in test_undo_and_redo_2() failed to find atom " << std::endl;
    }
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -601,6 +610,7 @@ int test_density_mesh(molecules_container_t &mc) {
    unsigned int size_2 = map_mesh_2.vertices.size();
 
    std::cout << "compare sizes " << size_1 << " " << size_2 << std::endl;
+   mc.close_molecule(imol_map);
 
    return status;
 }
@@ -696,6 +706,7 @@ int test_rsr(molecules_container_t &mc) {
                status = true;
       }
    }
+   mc.close_molecule(imol_map);
 
    return status;
 }
@@ -804,6 +815,7 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
          if (d_N_2 > 0.08) // move a bit
             status = 1;
    mc.write_coordinates(imol, "post-refine-using-residue-range.pdb");
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -907,6 +919,7 @@ int test_rsr_using_multi_atom_cid(molecules_container_t &mc) {
    int n_diffs_2 = get_n_diffs(mol, mol_orig);
    if (n_diffs_2 > (n_diffs_1 + 10)) status = 1;
    std::cout << "n_diffs_1 " << n_diffs_1 << " n_diffs_2 " << n_diffs_2 << std::endl;
+   mc.close_molecule(imol_map);
 
    return status;
 }
@@ -1040,6 +1053,7 @@ int test_add_terminal_residue(molecules_container_t &mc) {
 // this was converted from Filo's test
 int test_add_terminal_residue_v2(molecules_container_t &molecules_container) {
 
+   starting_test(__FUNCTION__);
    int status = 0;
    int coordMolNo = molecules_container.read_pdb("./5a3h.mmcif");
    int mapMolNo = molecules_container.read_mtz("./5a3h_sigmaa.mtz", "FWT", "PHWT", "", false, false);
@@ -1065,6 +1079,7 @@ int test_add_terminal_residue_v2(molecules_container_t &molecules_container) {
    }
 
    molecules_container.write_coordinates(coordMolNo, "post-addition.cif");
+   molecules_container.close_molecule(mapMolNo);
    return status;
 
 }
@@ -1348,7 +1363,7 @@ int test_difference_map_contours(molecules_container_t &mc) {
    float radius = 10;
    float contour_level = 0.03;
    coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
-   std::cout << "DEBUG:: test_density_mesh(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
+   std::cout << "DEBUG:: test_difference_map_contoursh(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
              << " triangles" << std::endl;
 
    for (const auto &vertex : map_mesh.vertices) {
@@ -1357,6 +1372,7 @@ int test_difference_map_contours(molecules_container_t &mc) {
          if (vertex.color[0] > vertex.color[2])
             status = 1;
    }
+   mc.close_molecule(imol_map);
 
    return status;
 }
@@ -1553,6 +1569,7 @@ int test_difference_map_peaks(molecules_container_t &mc) {
             }
       }
    }
+   mc.close_molecule(imol_diff_map);
    return status;
 }
 
@@ -1577,6 +1594,7 @@ int test_pepflips_using_difference_map(molecules_container_t &mc) {
          mc.close_molecule(imol_diff_map);
       }
    }
+   mc.close_molecule(imol_diff_map);
    return status;
 }
 
@@ -1857,7 +1875,7 @@ int test_read_a_map(molecules_container_t &mc) {
       float contour_level = 0.013;
       coot::Cartesian p(88.25823211669922, 69.19033813476562, 89.1391372680664);
       coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
-      std::cout << "DEBUG:: test_density_mesh(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
+      std::cout << "DEBUG:: test_read_a_map(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
                 << " triangles" << std::endl;
 
       if (map_mesh.vertices.size() > 30000)
@@ -2056,10 +2074,11 @@ int test_write_map_is_sane(molecules_container_t &mc) {
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
    mc.write_map(imol_map, "test_for_map.map");
    struct stat buf_2;
-         int istat_2 = stat("test_for_map.map", &buf_2);
-         if (istat_2 == 0)
-            if (buf_2.st_size > 1000000)
-               status = 1;
+   int istat_2 = stat("test_for_map.map", &buf_2);
+   if (istat_2 == 0)
+      if (buf_2.st_size > 1000000)
+         status = 1;
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -2101,8 +2120,6 @@ int test_jiggle_fit(molecules_container_t &mc) {
    } else {
       std::cout << "ERROR: test_jiggle_fit() invalid model molecule " << imol << std::endl;
    }
-   mc.close_molecule(imol);
-   mc.close_molecule(imol_map);
 
    std::cout << "in test_jiggle_fit() A with status " << status   << std::endl;
 
@@ -2143,8 +2160,11 @@ int test_jiggle_fit(molecules_container_t &mc) {
             status = 1;
 
          mc.write_coordinates(imol_other, "jiggled.pdb");
+         mc.close_molecule(imol_blur);
       }
    }
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -2291,8 +2311,10 @@ int test_jiggle_fit_params(molecules_container_t &mc) {
             }
          }
       }
-
    }
+   mc.close_molecule(imol_1);
+   mc.close_molecule(imol_2);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -2454,6 +2476,7 @@ int test_non_standard_residues(molecules_container_t &mc) {
       }
    }
    mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -2589,6 +2612,8 @@ int test_replace_large_fragment(molecules_container_t &mc) {
    mc.clear_refinement(imol);
    mc.replace_fragment(imol, imol_new, "//");
    status = 1;
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
 
    return status;
 
@@ -2830,6 +2855,8 @@ int test_fill_partial(molecules_container_t &mc) {
          }
       }
    }
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -2890,6 +2917,11 @@ int test_editing_session_tutorial_1(molecules_container_t &mc) {
       if (stats_2.rail_points_total > 500)
          status = 1;
    }
+
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol_diff_map);
+
    return status;
 }
 
@@ -3172,8 +3204,9 @@ int test_mmrrcc(molecules_container_t &mc) {
       for (it=scc.begin(); it!=scc.end(); ++it)
          fs << "   " << it->first << " " << it->second.correlation() << std::endl;
       mc.close_molecule(imol);
-      mc.close_molecule(imol_map);
    }
+
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -3215,6 +3248,8 @@ int test_map_histogram(molecules_container_t &mc) {
    if (counts_1 > 10)
       if (counts_2 > 10) status = 1;
 
+   mc.close_molecule(imol_map_1);
+   mc.close_molecule(imol_map_2);
    return status;
 }
 
@@ -3717,6 +3752,7 @@ int test_alt_conf_and_rotamer_v2(molecules_container_t &mc) {
       }
 
    }
+   mc.close_molecule(imol_map);
 
    std::cout << "done test_alt_conf_and_rotamer_v2()" << std::endl;
    return status;
@@ -3857,6 +3893,7 @@ int test_cell(molecules_container_t &mc) {
 
    if (c1.a > 10) status = 1;
 
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -3874,6 +3911,7 @@ int test_map_centre(molecules_container_t &mc) {
       if (mci.updated_centre.x() > 10.0)
          status = 1;
    }
+   mc.close_molecule(imol_map);
 
    return status;
 }
@@ -3945,6 +3983,7 @@ int test_dragged_atom_refinement(molecules_container_t &mc_in) {
       }
    }
    mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -4003,6 +4042,8 @@ int test_bucca_ml_growing(molecules_container_t &mc) {
       std::cout << "Not a valid model " << imol << std::endl;
    }
    mc.set_refinement_is_verbose(false);
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -4174,7 +4215,7 @@ int test_is_em_map(molecules_container_t &mc) {
             status = 1;
       }
    }
-
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -4261,7 +4302,8 @@ int test_read_extra_restraints(molecules_container_t &mc) {
    coot::instanced_mesh_t im = mc.get_extra_restraints_mesh(imol_1, 0);
    if (! im.geom.empty()) {
       std::cout << "instancing_data_B size " << im.geom[0].instancing_data_B.size() << std::endl;
-      if (im.geom[0].instancing_data_B.size() > 10) status = 1;
+      if (im.geom[0].instancing_data_B.size() > 10)
+         status = 1;
    } else {
       std::cout << "ERROR:: im geom is empty" << std::endl;
    }
@@ -4289,6 +4331,8 @@ int test_colour_map_by_other_map(molecules_container_t &mc) {
          if (mesh.vertices.size() > 1000) status = true;
       }
    }
+   mc.close_molecule(imol_map_1);
+   mc.close_molecule(imol_map_2);
    return status;
 
 }
@@ -4406,6 +4450,8 @@ int test_pdb_as_string(molecules_container_t &mc) {
       f << s2;
       f.close();
    }
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
 
    return status;
 
@@ -4434,6 +4480,8 @@ int test_mmcif_as_string(molecules_container_t &mc) {
       f2 << s2;
       f2.close();
    }
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
 
    return status;
 
@@ -4447,7 +4495,7 @@ int test_mmcif_atom_selection(molecules_container_t &mc) {
    std::string fn = "1ej6-assembly1.cif";
    std::cout << "reading " << fn << std::endl;
    int imol = mc.read_pdb(reference_data(fn));
-   mmdb::Manager *mol = mc.get_mol(imol);
+   mmdb::Manager *mol = mc.get_mol(imol); // testing get_mol()
    if (mol) {
       int n_selected_atoms_1 = 0;
       int n_selected_atoms_2 = 0;
@@ -4482,9 +4530,13 @@ int test_mmcif_atom_selection(molecules_container_t &mc) {
             }
          }
       }
+      mol->DeleteSelection(selHnd_3);
+      mol->DeleteSelection(selHnd_2);
+      mol->DeleteSelection(selHnd_1);
       std::cout << "Looked for 100 atoms and found " << n_matcher << " matchers" << std::endl;
       if (n_matcher == 0) status = 1;
    }
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -4508,6 +4560,8 @@ int test_contouring_timing(molecules_container_t &mc) {
       }
    }
 
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -4597,6 +4651,8 @@ int test_disappearing_ligand(molecules_container_t &mc) {
 
 // 20240205-PE this is not a good name for this test. The failure is not in merging, the failure
 // is in writing out the cif file.
+//
+// The fix for this is to use gemmi for the output
 //
 int test_ligand_merge(molecules_container_t &mc) {
 
@@ -4715,6 +4771,9 @@ int test_gltf_export(molecules_container_t &mc) {
    coot::simple_mesh_t sm_neighbs = coot::instanced_mesh_to_simple_mesh(im_neighbs);
    sm_neighbs.export_to_gltf("neighbs.glb", true);
 
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
+
    return status;
 }
 
@@ -4748,6 +4807,8 @@ int test_gltf_export_via_api(molecules_container_t &mc) {
          }
       }
    }
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -4803,6 +4864,8 @@ int test_mask_atom_selection(molecules_container_t &mc) {
       }
       mol->DeleteSelection(sel_hnd);
    }
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -5006,10 +5069,11 @@ int test_non_drawn_CA_bonds(molecules_container_t &mc) {
       if (geom.empty()) {
          std::cout << "geom empty" << std::endl;
       } else {
-         if (geom.size() == 4) { // should be 2!
+         if (geom.size() == 1) {
             const std::vector<coot::instancing_data_type_B_t> &idB = geom[0].instancing_data_B;
             std::cout << "idB size " << idB.size() << std::endl;
             // print the instancing data here. You should see a duplicate/reverse
+            status = 1;
          }
       }
    }
@@ -5030,6 +5094,7 @@ int test_17257(molecules_container_t &mc) {
    if (imol_map == -3) {
       status = 1;
    }
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -5089,6 +5154,9 @@ int test_shiftfield_b_factor_refinement(molecules_container_t &mc) {
                status = 1;
       }
    }
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol_diff_map);
    return status;
 }
 
@@ -5148,16 +5216,26 @@ int test_template(molecules_container_t &mc) {
       }
    }
    mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
 int n_tests = 0;
 static std::vector<std::pair<std::string, int> > test_results;
 
+void
+write_test_name(const std::string &test_name) {
+
+   std::ofstream f(".current-test");
+   f << "\"" << test_name << "\"" << "\n";
+   f.close();
+}
+
 int
 run_test(int (*test_func) (molecules_container_t &mc), const std::string &test_name, molecules_container_t &mc) {
 
    n_tests++;
+   write_test_name(test_name);
    int status = test_func(mc);
    std::string status_string = "FAIL: ";
    std::string uncol = "[m";
@@ -5207,6 +5285,7 @@ print_results_summary() {
 int main(int argc, char **argv) {
 
    int status = 0;
+   write_test_name("---");
 
    bool last_test_only = false;
    if (argc > 1) {
