@@ -335,6 +335,8 @@ public:
       // std::cout << "in constructor map_sampling_rate: " << map_sampling_rate << std::endl;
    }
 
+   ~molecules_container_t();
+
    //! the refinement map - direct access. When refinement is performed, this is the map
    //! that will be used. Many (indeed most) of thesee functions explicity take a map. If the map
    //! is not known by the calling function then this map can be used as the map molecule index
@@ -367,6 +369,11 @@ public:
 
    //! @return the number of molecules
    unsigned int get_number_of_molecules() const { return molecules.size(); }
+
+   //! The adds a number of empty molecules to the internal vector of molecules
+   //! Note that his is not like `reserve` as it will increase the molecule index
+   //! of the next added molecule by `n_empty`.
+   void create_empty_molecules(unsigned int n_empty);
 
    //! set the map used for refinement and fitting
    void set_imol_refinement_map(int i) { imol_refinement_map = i; }
