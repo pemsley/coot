@@ -1346,6 +1346,18 @@ public:
    // Function is not const because it might change the protein_geometry geom.
    coot::simple_mesh_t get_mesh_for_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid);
 
+   //! not const because it can dynamically add dictionaries
+   coot::atom_overlaps_dots_container_t get_overlap_dots(int imol);
+
+   //! not const because it can dynamically add dictionaries
+   coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(int imol, const std::string &cid_ligand);
+
+   //! not const because it can dynamically add dictionaries
+   std::vector<coot::plain_atom_overlap_t> get_overlaps(int imol);
+
+   //! not const because it can dynamically add dictionaries
+   std::vector<coot::plain_atom_overlap_t> get_overlaps_for_ligand(int imol, const std::string &cid_ligand);
+
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation
 

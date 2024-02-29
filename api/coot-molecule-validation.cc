@@ -561,3 +561,84 @@ coot::molecule_t::get_mesh_for_ligand_validation_vs_dictionary(const std::string
    }
    return obj;
 }
+
+
+//! not const because it can dynamically add dictionaries
+std::vector<coot::plain_atom_overlap_t>
+coot::molecule_t::get_overlaps(protein_geometry *geom_p) {
+
+   std::vector<coot::plain_atom_overlap_t> v;
+   if (atom_sel.mol) {
+      bool ignore_water_contacts_flag = false;
+      atom_overlaps_container_t aoc(atom_sel.mol, geom_p, ignore_water_contacts_flag);
+      aoc.make_all_atom_overlaps();
+      auto vv = aoc.overlaps;
+      v.resize(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++) {
+         const auto &ao = vv[i];
+         plain_atom_overlap_t pao(ao.ligand_atom_index, atom_spec_t(ao.atom_1), atom_spec_t(ao.atom_2),
+                                  ao.overlap_volume, ao.r_1, ao.r_2, ao.is_h_bond);
+         v[i] = std::move(pao);
+      }
+   }
+   return v;
+
+}
+
+//! not const because it can dynamically add dictionaries
+std::vector<coot::plain_atom_overlap_t>
+coot::molecule_t::get_overlaps_for_ligand(const std::string &cid_ligand,
+                                          protein_geometry *geom_p) {
+   std::vector<coot::plain_atom_overlap_t> v;
+   mmdb::Residue *residue_ref_p = cid_to_residue(cid_ligand);
+   if (residue_ref_p) {
+      float radius = 4.5; // A
+      std::vector<mmdb::Residue *> rnr = coot::residues_near_residue(residue_ref_p, atom_sel.mol, radius);
+      atom_overlaps_container_t aoc(residue_ref_p, rnr, atom_sel.mol, geom_p);
+      aoc.make_overlaps();
+      auto vv = aoc.overlaps;
+      v.resize(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++) {
+         const auto &ao = vv[i];
+         plain_atom_overlap_t pao(ao.ligand_atom_index, atom_spec_t(ao.atom_1), atom_spec_t(ao.atom_2),
+                                  ao.overlap_volume, ao.r_1, ao.r_2, ao.is_h_bond);
+         v[i] = std::move(pao);
+      }
+   }
+   return v;
+
+}
+
+
+
+//! not const because it can dynamically add dictionaries
+coot::atom_overlaps_dots_container_t
+coot::molecule_t::get_overlap_dots(protein_geometry *geom_p) {
+
+   atom_overlaps_dots_container_t aodc;
+   if (atom_sel.mol) {
+      bool ignore_water_contacts_flag = false;
+      atom_overlaps_container_t aoc(atom_sel.mol, geom_p, ignore_water_contacts_flag);
+      aoc.make_all_atom_overlaps();
+      aodc = aoc.all_atom_contact_dots();
+   }
+   return aodc;
+}
+
+//! not const because it can dynamically add dictionaries
+coot::atom_overlaps_dots_container_t
+coot::molecule_t::get_overlap_dots_for_ligand(const std::string &cid_ligand,
+                                              protein_geometry *geom_p) {
+
+   atom_overlaps_dots_container_t aodc;
+   mmdb::Residue *residue_ref_p = cid_to_residue(cid_ligand);
+   if (residue_ref_p) {
+      float radius = 4.5; // A
+      std::vector<mmdb::Residue *> rnr = coot::residues_near_residue(residue_ref_p, atom_sel.mol, radius);
+      atom_overlaps_container_t aoc(residue_ref_p, rnr, atom_sel.mol, geom_p);
+      aoc.make_overlaps();
+      aodc = aoc.contact_dots_for_ligand();
+   }
+   return aodc;
+
+}

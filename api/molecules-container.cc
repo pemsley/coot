@@ -5334,3 +5334,58 @@ molecules_container_t::fourier_shell_correlation(int imol_map_1, int imol_map_2)
    }
    return v;
 }
+
+
+//! not const because it can dynamically add dictionaries
+coot::atom_overlaps_dots_container_t
+molecules_container_t::get_overlap_dots(int imol) {
+
+   coot::atom_overlaps_dots_container_t aodc;
+   if (is_valid_model_molecule(imol)) {
+      aodc = molecules[imol].get_overlap_dots(&geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return aodc;
+}
+
+//! not const because it can dynamically add dictionaries
+coot::atom_overlaps_dots_container_t
+molecules_container_t::get_overlap_dots_for_ligand(int imol, const std::string &cid_ligand) {
+
+   coot::atom_overlaps_dots_container_t aodc;
+   if (is_valid_model_molecule(imol)) {
+      aodc = molecules[imol].get_overlap_dots_for_ligand(cid_ligand, &geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return aodc;
+}
+
+
+
+//! not const because it can dynamically add dictionaries
+std::vector<coot::plain_atom_overlap_t>
+molecules_container_t::get_overlaps(int imol) {
+
+   std::vector<coot::plain_atom_overlap_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_overlaps(&geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}
+
+//! not const because it can dynamically add dictionaries
+std::vector<coot::plain_atom_overlap_t>
+molecules_container_t::get_overlaps_for_ligand(int imol, const std::string &cid_ligand) {
+
+   std::vector<coot::plain_atom_overlap_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_overlaps_for_ligand(cid_ligand, &geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}

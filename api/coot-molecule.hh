@@ -54,6 +54,7 @@
 #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif
 
+#include "plain-atom-overlap.hh"
 
 
 namespace coot {
@@ -338,6 +339,7 @@ namespace coot {
       geometric_distortions_from_mol(const atom_selection_container_t &asc, bool with_nbcs,
                                      coot::protein_geometry &geom,
                                      ctpl::thread_pool &static_thread_pool);
+
 
       // ====================== dragged refinement ======================================
 
@@ -767,6 +769,19 @@ namespace coot {
       //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
       std::vector<coot::residue_spec_t> residues_near_residue(const std::string &residue_cid, float dist) const;
 
+      //! not const because it can dynamically add dictionaries
+      std::vector<plain_atom_overlap_t> get_overlaps(protein_geometry *geom_p);
+
+      //! not const because it can dynamically add dictionaries
+      std::vector<plain_atom_overlap_t> get_overlaps_for_ligand(const std::string &cid_ligand,
+                                                                protein_geometry *geom_p);
+
+      //! not const because it can dynamically add dictionaries
+      coot::atom_overlaps_dots_container_t get_overlap_dots(protein_geometry *geom_p);
+
+      //! not const because it can dynamically add dictionaries
+      coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(const std::string &cid_ligand,
+                                                                       protein_geometry *geom_p);
 
       // ------------------------ model-changing functions
 
