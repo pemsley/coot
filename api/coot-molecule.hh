@@ -704,7 +704,7 @@ namespace coot {
                                        float radius, float contour_level,
                                        const std::string &file_name);
 
-      //! export model molecule as glTF - This API will change - we want to specify surfaces and ribbons too.
+      //! export model molecule as glTF - this is the bonds and atoms API
       void export_model_molecule_as_gltf(const std::string &mode,
                                          const std::string &selection_cid,
                                          protein_geometry *geom,
@@ -712,6 +712,12 @@ namespace coot {
                                          float bonds_width, float atom_radius_to_bond_width_ratio, int smoothness_factor,
                                          bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
                                          const std::string &file_name);
+
+      // this is the ribbons and surfaces API
+      void export_molecular_represenation_as_gltf(const std::string &atom_selection_cid,
+                                                  const std::string &colour_scheme,
+                                                  const std::string &style,
+                                                  const std::string &file_name);
 
       void set_show_symmetry(bool f) { show_symmetry = f;}
       bool get_show_symmetry() { return show_symmetry;}

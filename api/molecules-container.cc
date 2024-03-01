@@ -5186,6 +5186,19 @@ molecules_container_t::export_model_molecule_as_gltf(int imol,
    }
 }
 
+void
+molecules_container_t::export_molecular_represenation_as_gltf(int imol, const std::string &atom_selection_cid,
+                                                              const std::string &colour_scheme, const std::string &style,
+                                                              const std::string &file_name) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].export_molecular_represenation_as_gltf(atom_selection_cid, colour_scheme, style, file_name);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+
 
 //! get density at position
 //! @return density value

@@ -659,6 +659,10 @@ public:
                                       bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
                                       const std::string &file_name);
 
+   void export_molecular_represenation_as_gltf(int imol, const std::string &atom_selection_cid,
+                                               const std::string &colour_scheme, const std::string &style,
+                                               const std::string &file_name);
+
    //! return the colur table (for testing)
    std::vector<glm::vec4> get_colour_table(int imol, bool against_a_dark_background) const;
 
