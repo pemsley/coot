@@ -342,10 +342,10 @@ fi
 
 echo ENHANCED_LIGAND_TOOLS_CPPFLAGS $ENHANCED_LIGAND_TOOLS_CPPFLAGS
 
-AC_ARG_ENABLE(lidia-only, [  --enable-lidia-only build lidia only (not coot) ],
- lidia_only="yes",
- lidia_only="no")
-AM_CONDITIONAL([COND_LIDIA_ONLY], [test "$lidia_only" = yes])
+AC_ARG_ENABLE(layla-only, [  --enable-layla-only build layla only (not coot) ],
+ layla_only="yes",
+ layla_only="no")
+AM_CONDITIONAL([COND_LAYLA_ONLY], [test "$layla_only" = yes])
 
 AC_ARG_ENABLE(libcootapi-only, [  --enable-libcootapi-only build libcootapi only (not coot) ],
 [case "${enableval}" in

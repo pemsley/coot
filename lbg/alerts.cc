@@ -18,6 +18,7 @@
  * 02110-1301, USA
  */
 
+#ifdef HAVE_GOOCANVAS
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include "lbg.hh"
@@ -100,3 +101,4 @@ lbg_info_t::user_defined_alert_smarts() const {
 
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
+#endif // HAVE_GOOCANVAS

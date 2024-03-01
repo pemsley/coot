@@ -1,4 +1,5 @@
 
+#ifdef HAVE_GOOCANVAS
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // alerts from SilOS-it's biscu-it.
 //
@@ -155,3 +156,4 @@ lbg_info_t::alert_smarts() const {
 
 #endif
 
+#endif // HAVE_GOOCANVAS

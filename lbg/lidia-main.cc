@@ -159,7 +159,7 @@ main(int argc, char *argv[]) {
 int
 main(int argc, char *argv[]) {
 
-   std::cout << "No goo canvas at compile-time, no lidia " << std::endl;
+   std::cout << "No goocanvas at compile-time, no lidia " << std::endl;
    return 0;
 }
 
