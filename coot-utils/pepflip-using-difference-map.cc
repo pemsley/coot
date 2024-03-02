@@ -233,6 +233,7 @@ coot::pepflip_using_difference_map::make_random_other_pairs(int n_others) const 
             }
          }
       }
+      delete [] pscontact; // 20240302-PE fix memory leak
       mol->DeleteSelection(i_sel_hnd);
    }
    return v;
