@@ -6,6 +6,16 @@ Install the ui files from a relative directory, not relative to phackage_data_di
 Likewise the standard residues.
 # no need. Just setenv COOT_DATA_DIR
 
+Coot: edit_chi_angles_reverse_fragment_togglebutton is missing
+
+chapi: make overlap information available
+
+Coot: add a warning when trying to save a PDB file with a 5-char residue/ligand
+
+libcootapi: draw links from struct conn information in a mmdb::Manager.
+
+validate that the seqres record match the residue type. (Editing the seqres is another thing)
+
 chapi: test refine_residues_using_atom_cid() with "sphere" - for Paul Bond, this causes a crash.
 * Can't reproduce in test-molecules-container.cc
 
