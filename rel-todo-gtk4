@@ -1,6 +1,12 @@
 
 ----
 
+libcootapi: create_n_empty_molecules() so that molecules indexes match
+* Done.
+
+Add test data test-molecules-container 6gdg.cif emd_32143.map ATP.cif G37.cif 1phk-with-gap.pdb
+   moorhen-tutorial-structure-number-1-with-gap.pdb 203d.pdb.gz weird-orientation-tut-4.pdb
+* Done.
 
 Install the ui files from a relative directory, not relative to phackage_data_dir()
 Likewise the standard residues.
@@ -31,6 +37,8 @@ libcootapi: add mini-rsr to the CMake build
 
 libcootapi: fix the link problem from Andrey
 * Hopefully done.
+
+libcootapi: CMake should check for dw and elf
 
 moorhen: void atom in mmdb mmcif output.
 * Stuart saw the problem in mmdb - not acted on yet.
@@ -74,6 +82,11 @@ moorhen: SMILES: nitrobezene svg ligand rep - charge position size offset of the
 
 libcootapi:
   get rid of #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY in add-terminal-residue.cc
+
+
+Coot:
+  WARNING:: Error reading /home/paule/Projects/coot/git/coot-main/build-with-modern-gtk4/src/emd_32143.map
+  Read map /home/paule/Projects/coot/git/coot-main/build-with-modern-gtk4/src/emd_32143.map failed
 
 Coot: why didn't Fetch Molecule/Drug "Kisqali" work?
 

@@ -1,4 +1,5 @@
 
+#ifdef HAVE_GOOCANVAS
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include <boost/python.hpp>
@@ -143,3 +144,4 @@ get_qed(PyObject *silicos_it_qed_default_func, const RDKit::ROMol &rdkm) {
 
 #endif
 
+#endif // HAVE_GOOCANVAS

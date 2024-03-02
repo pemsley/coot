@@ -54,6 +54,7 @@
 #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif
 
+#include "plain-atom-overlap.hh"
 
 
 namespace coot {
@@ -338,6 +339,7 @@ namespace coot {
       geometric_distortions_from_mol(const atom_selection_container_t &asc, bool with_nbcs,
                                      coot::protein_geometry &geom,
                                      ctpl::thread_pool &static_thread_pool);
+
 
       // ====================== dragged refinement ======================================
 
@@ -702,7 +704,7 @@ namespace coot {
                                        float radius, float contour_level,
                                        const std::string &file_name);
 
-      //! export model molecule as glTF - This API will change - we want to specify surfaces and ribbons too.
+      //! export model molecule as glTF - this is the bonds and atoms API
       void export_model_molecule_as_gltf(const std::string &mode,
                                          const std::string &selection_cid,
                                          protein_geometry *geom,
@@ -710,6 +712,12 @@ namespace coot {
                                          float bonds_width, float atom_radius_to_bond_width_ratio, int smoothness_factor,
                                          bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
                                          const std::string &file_name);
+
+      // this is the ribbons and surfaces API
+      void export_molecular_represenation_as_gltf(const std::string &atom_selection_cid,
+                                                  const std::string &colour_scheme,
+                                                  const std::string &style,
+                                                  const std::string &file_name);
 
       void set_show_symmetry(bool f) { show_symmetry = f;}
       bool get_show_symmetry() { return show_symmetry;}
@@ -767,6 +775,19 @@ namespace coot {
       //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
       std::vector<coot::residue_spec_t> residues_near_residue(const std::string &residue_cid, float dist) const;
 
+      //! not const because it can dynamically add dictionaries
+      std::vector<plain_atom_overlap_t> get_overlaps(protein_geometry *geom_p);
+
+      //! not const because it can dynamically add dictionaries
+      std::vector<plain_atom_overlap_t> get_overlaps_for_ligand(const std::string &cid_ligand,
+                                                                protein_geometry *geom_p);
+
+      //! not const because it can dynamically add dictionaries
+      coot::atom_overlaps_dots_container_t get_overlap_dots(protein_geometry *geom_p);
+
+      //! not const because it can dynamically add dictionaries
+      coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(const std::string &cid_ligand,
+                                                                       protein_geometry *geom_p);
 
       // ------------------------ model-changing functions
 

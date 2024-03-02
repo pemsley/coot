@@ -205,7 +205,7 @@ class molecules_container_t {
    //! If n_cycles is negative, this means "refine to completion."
    //!
    //! @return success/progress status
-public:
+
    int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc, int n_cycles);
 
    double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
@@ -658,6 +658,10 @@ public:
                                       float bonds_width, float atom_radius_to_bond_width_ratio, int smoothness_factor,
                                       bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
                                       const std::string &file_name);
+
+   void export_molecular_represenation_as_gltf(int imol, const std::string &atom_selection_cid,
+                                               const std::string &colour_scheme, const std::string &style,
+                                               const std::string &file_name);
 
    //! return the colur table (for testing)
    std::vector<glm::vec4> get_colour_table(int imol, bool against_a_dark_background) const;
@@ -1345,6 +1349,18 @@ public:
    //! Less than 0.5 standard deviations is fully green.
    // Function is not const because it might change the protein_geometry geom.
    coot::simple_mesh_t get_mesh_for_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid);
+
+   //! not const because it can dynamically add dictionaries
+   coot::atom_overlaps_dots_container_t get_overlap_dots(int imol);
+
+   //! not const because it can dynamically add dictionaries
+   coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(int imol, const std::string &cid_ligand);
+
+   //! not const because it can dynamically add dictionaries
+   std::vector<coot::plain_atom_overlap_t> get_overlaps(int imol);
+
+   //! not const because it can dynamically add dictionaries
+   std::vector<coot::plain_atom_overlap_t> get_overlaps_for_ligand(int imol, const std::string &cid_ligand);
 
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation

@@ -5463,7 +5463,9 @@ int main(int argc, char **argv) {
       // status += run_test(test_non_drawn_bond_multi_cid_2, "non-drawn-bonds multi-cid 2", mc);
       // status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
       // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
-      status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
+      // status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
+      // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
+      status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
 
 
       if (status == n_tests) all_tests_status = 0;
@@ -5471,6 +5473,7 @@ int main(int argc, char **argv) {
       print_results_summary();
    }
 
+   std::this_thread::sleep_for(std::chrono::milliseconds(500));
    return all_tests_status;
 
 }

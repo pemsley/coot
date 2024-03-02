@@ -20,6 +20,7 @@
  * 02110-1301, USA
  */
 
+#ifdef HAVE_GOOCANVAS
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include <boost/python.hpp>
@@ -160,3 +161,4 @@ get_qed_ads(const std::vector<double> &properties, PyObject *pads, long idx) {
 
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
+#endif // HAVE_GOOCANVAS
