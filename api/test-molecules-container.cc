@@ -5184,6 +5184,42 @@ int test_split_model(molecules_container_t &mc) {
    return status;
 }
 
+int test_copy_molecule_memory_leak(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   mc.set_use_gemmi(false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   const unsigned int n_new_mols = 200;
+
+   if (mc.is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = mc.get_mol(imol);
+      std::vector<mmdb::Manager *> mol_copies;
+      for (unsigned int i=0; i<n_new_mols; i++) {
+         mmdb::Manager *mol_copy = coot::util::copy_molecule(mol);
+         mol_copies.push_back(mol_copy);
+      }
+      for (unsigned int i=0; i<n_new_mols; i++) {
+         delete mol_copies[i];
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+      // now create coot::molecule_t from that:
+      std::vector<int> new_molecule_vec;
+      for (unsigned int i=0; i<n_new_mols; i++) {
+         int imol_new = mc.copy_fragment_using_cid(imol, "/");
+         new_molecule_vec.push_back(imol_new);
+      }
+      for (unsigned int i=0; i<n_new_mols; i++) {
+         mc.close_molecule(new_molecule_vec[i]);
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      status = 1;
+   }
+   mc.close_molecule(imol);
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -5309,6 +5345,8 @@ int main(int argc, char **argv) {
       if (! mc.is_valid_model_molecule(imol)) {
          std::cout << "Failed to read the monomer library" << std::endl;
          exit(1);
+      } else {
+         mc.close_molecule(imol);
       }
 
       mc.fill_rotamer_probability_tables();
@@ -5465,7 +5503,8 @@ int main(int argc, char **argv) {
       // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
       // status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
       // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
-      status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
+      // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
+      status += run_test(test_copy_molecule_memory_leak,            "Copy Molecule Memory Leak", mc);
 
 
       if (status == n_tests) all_tests_status = 0;
