@@ -520,6 +520,7 @@ namespace coot {
       int get_number_of_hydrogen_atoms() const;
       float get_molecule_diameter() const;
       mmdb::Residue *cid_to_residue(const std::string &cid) const;
+      std::vector<mmdb::Residue *> cid_to_residues(const std::string &cid) const;
       mmdb::Atom *cid_to_atom(const std::string &cid) const;
       std::pair<bool, residue_spec_t> cid_to_residue_spec(const std::string &cid) const;
       std::pair<bool, atom_spec_t> cid_to_atom_spec(const std::string &cid) const;
@@ -1031,6 +1032,12 @@ namespace coot {
                         bool do_rama_plot_restraints, float rama_plot_weight,
                         bool do_torsion_restraints, float torsion_weight,
                         bool refinement_is_quiet);
+
+      int minimize(const std::string &atom_selection_cid,
+                   int n_cycles,
+                   bool do_rama_plot_restraints, float rama_plot_weight,
+                   bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet,
+                   coot::protein_geometry *geom_p);
 
       bool shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &F_sigF,
                                           const clipper::HKL_data<clipper::data32::Flag> &free_flag);

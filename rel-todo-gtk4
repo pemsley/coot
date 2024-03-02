@@ -58,6 +58,7 @@ libcootapi: how do I turn on Rama refinement?
 * Done.
 
 libcootapi: work out the arguments for MT2 mesh as glTF.
+* Done.
 
 libcootapi: add a function to copy a map (and a model molecule I guess) for figure making.
 
