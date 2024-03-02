@@ -37,6 +37,9 @@ find_package(Python 3.10
 
 find_package(nanobind CONFIG REQUIRED)
 
+find_library(libelf elf)
+find_library(libdwarf dw)
+
 # From Charles
 if(WIN32)
   string(REPLACE "\\" "/" Python_SITEARCH "${Python_SITEARCH}")
@@ -486,7 +489,7 @@ add_executable(test-molecules-container ${coot_src}/api/test-molecules-container
 # remove this comment soon.
 # target_link_libraries(chapi PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${PNG_LIBRARY})
 
-target_link_libraries(chapi PUBLIC cootapi  ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} dw elf)
+target_link_libraries(chapi PUBLIC cootapi  ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} ${libdwarf} ${libelf})
 
 target_include_directories(findligand PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src})
 
