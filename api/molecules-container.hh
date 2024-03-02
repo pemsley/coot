@@ -205,7 +205,7 @@ class molecules_container_t {
    //! If n_cycles is negative, this means "refine to completion."
    //!
    //! @return success/progress status
-public:
+
    int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc, int n_cycles);
 
    double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
