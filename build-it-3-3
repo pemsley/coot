@@ -2147,35 +2147,35 @@ fi
 # but does this compile cleanly on Mac OS X?  I've forgotten.
 # Perhaps we will need to be more clever and potentially use
 # the fink GSL if it is available.
-$install_top_dir/bin/gsl-config --prefix
-if test $? != 0 ; then
-   echo gsl should be built
-   build_gsl=1
+# 20240302-PE "fink"? Blimey.
+if test -e $install_top_dir/bin/gsl-config ; then
+    $install_top_dir/bin/gsl-config --prefix
+    if test $? != 0 ; then
+       echo gsl should be built
+       build_gsl=1
+    else
+        gsl_version=`gsl-config --version`
+
+        # if you change this, change also gsl_version below.
+        needed_gsl_version=1.11
+        needed_gsl_version=1.12
+        needed_gsl_version=1.15
+        needed_gsl_version=1.16
+        needed_gsl_version=2.7
+
+        if [ -e $install_top_dir/include/gsl/gsl_version.h ] ; then
+            build_gsl=
+        fi
+
+        echo installation has the GSL version $gsl_version
+        if [ "$build_gsl" = 1 ] ; then
+             echo need to build GSL
+        else
+             echo GSL is up to date
+        fi
+    fi
 else
-   gsl_version=`gsl-config --version`
-
-   # if you change this, change also gsl_version below.
-   needed_gsl_version=1.11
-   needed_gsl_version=1.12
-   needed_gsl_version=1.15
-   needed_gsl_version=1.16
-   needed_gsl_version=2.7
-
-   if [ -e $install_top_dir/include/gsl/gsl_version.h ] ; then
-       build_gsl=
-   fi
-
-   echo system/installation has the GSL version $gsl_version
-   echo build_gsl is $build_gsl
-
-   if [ "$build_gsl" = 1 ] ; then
-	echo need to build GSL
-        build_gsl=1
-   else
-	echo GSL is up to date
-	# set build_gsl to blank:
-	build_gsl=
-   fi
+    build_gsl=1
 fi
 
 
