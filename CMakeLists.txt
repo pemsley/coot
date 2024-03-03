@@ -495,7 +495,7 @@ target_include_directories(findligand PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src})
 
 target_include_directories(findwaters PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src})
 
-target_include_directories(coot-mini-rsr PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src})
+target_include_directories(coot-mini-rsr PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src} ${PNG_INCLUDE_DIR})
 
 target_link_libraries(findligand PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Threads::Threads)
 
