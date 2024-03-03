@@ -135,6 +135,37 @@ coot::molecule_t::cid_to_atom_spec(const std::string &cid) const {
    return std::make_pair(status, atom_spec);
 }
 
+std::vector<mmdb::Residue *>
+coot::molecule_t::cid_to_residues(const std::string &atom_selection_cids) const {
+
+   std::vector<mmdb::Residue *> v;
+   if (! atom_sel.mol) return v;
+
+   std::set<mmdb::Residue *> residue_set;
+   std::vector<std::string> cid_v = coot::util::split_string(atom_selection_cids, "||");
+   int selHnd = atom_sel.mol->NewSelection(); // d
+   if (! cid_v.empty()) {
+      int nSelResidues = 0;
+      mmdb::Residue **SelResidues = 0;
+      atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+      for (const auto &cid : cid_v) {
+         atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_OR);
+         atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+         for (int i=0; i<nSelResidues; i++) {
+            residue_set.insert(SelResidues[i]);
+         }
+      }
+   }
+
+   std::set<mmdb::Residue *>::const_iterator it;
+   v.reserve(residue_set.size()); // micro-optimization
+   for (it=residue_set.begin(); it!=residue_set.end(); ++it)
+      v.push_back(*it);
+
+   return v;
+}
+
+
 
 // restore from (previous) backup
 void

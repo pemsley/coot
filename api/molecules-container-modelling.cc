@@ -402,3 +402,25 @@ molecules_container_t::rigid_body_fit(int imol, const std::string &multi_cid, in
 
 
 }
+
+
+// minimize/optimize the geometry of the specified residue(s)
+// @return the success status 1 if the minimization was performed and 0 if it was not.
+int
+molecules_container_t::minimize_energy(int imol, const std::string &atom_selection_cid,
+                                       int n_cycles,
+                                       bool do_rama_plot_restraints, float rama_plot_weight,
+                                       bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet) {
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].minimize(atom_selection_cid, n_cycles,
+                                        do_rama_plot_restraints, rama_plot_weight,
+                                        do_torsion_restraints, torsion_weight,
+                                        refinement_is_quiet, &geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+
+
+}

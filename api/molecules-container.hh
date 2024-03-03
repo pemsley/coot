@@ -1198,6 +1198,15 @@ public:
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end, int n_cycles);
 
+   // minimize/optimize the geometry of the specified residue(s).
+   // If you pass n_cycles = 100 (or some such) then you can get the mesh for the partially optimized ligand/residues
+   // (like `refine_residues()` and `refine()`) is nice for animation.
+   // @return the success status 1 if the minimization was performed and 0 if it was not.
+   int minimize_energy(int imol, const std::string &atom_selection_cid,
+                       int n_cycles,
+                       bool do_rama_plot_restraints, float rama_plot_weight,
+                       bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet);
+
    //! fix atoms during refinement. Does nothing at the moment.
    void fix_atom_selection_during_refinement(int imol, const std::string &atom_selection_cid);
 

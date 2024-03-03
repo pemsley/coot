@@ -305,6 +305,7 @@ NB_MODULE(chapi, m) {
     .def("redo",&molecules_container_t::redo)
     .def("refine_residues_using_atom_cid",&molecules_container_t::refine_residues_using_atom_cid)
     .def("refine_residue_range",&molecules_container_t::refine_residue_range)
+    .def("minimize_energy",&molecules_container_t::minimize_energy)
     .def("contact_dots_for_ligand",&molecules_container_t::contact_dots_for_ligand)
     .def("all_molecule_contact_dots",&molecules_container_t::all_molecule_contact_dots)
     .def("get_chemical_features_mesh",&molecules_container_t::get_chemical_features_mesh)
