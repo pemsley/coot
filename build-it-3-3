@@ -403,7 +403,8 @@
 # 6.14 20240220-PE Set the C++ flags for Catch2 (needed for macOS/clang) and build with CMake
 # 6.15 20240220-PE OpenSSL and python apiflags and boost bjam updates
 # 6.16 20240228-PE Add status of FFTW building
-script_version=6.16
+# 6.17 20240229-PE Portentious day. Adding in gettext for libintl for python and rdkit
+script_version=6.17
 
 
 
@@ -2738,6 +2739,29 @@ if [ $build_openssl = true ] ; then
     ) > $HOSTLOGDIR/07-f-openssl.txt 2>&1
 fi
 
+# gettext provides -lintl - which is needed for python
+build_getttext=true
+if test -e $install_top_dir/include/libintl.h ; then
+    build_getttext=false
+fi
+
+if $build_getttext = true ; then
+    gettext_version=0.22.5
+    echo BUILDING gettext
+    echo BUILDING gettext $gettext_version >&2
+    (
+       ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gettext/gettext-$gettext_version.tar.gz
+       tar xf $AUTOBUILD_SOURCES/gettext-$gettext_version.tar.gz
+       cd gettext-$gettext_version
+       ./configure --prefix=$install_top_dir
+       $MAKE && make install
+       cd -
+    ) > $HOSTLOGDIR/07-g-getttext.txt 2>&1
+    echo done gettext >&2
+else
+    echo not building gettext >&2
+fi
+
 # python
 #
 if test -n "$build_python" ; then
@@ -2810,7 +2834,7 @@ EOF
    # https://www.phind.com/search?cache=z8ao21y6rh5grg4wezeybr06
    # try this:
    # add
-   # echo "using python :  3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
+   # echo "using python : 3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
    if [ -e $install_top_dir/bin/python3 ] ; then
       echo linking python to python3
       ln -s $install_top_dir/bin/python3 $install_top_dir/bin/python
@@ -3251,10 +3275,14 @@ echo pip3 install --upgrade pip
 pip3 install --upgrade pip
 echo pip3 install cython
 pip3 install cython
-echo pip3 install nanobind
-echo pip3 install nanobind >&2
-pip3 install nanobind
-echo pip3 install nanobind done >&2
+if test -d $install_top_dir/lib/$python_version/site-packages/nanobind ; then
+    :
+else
+    echo pip3 install nanobind
+    echo pip3 install nanobind >&2
+    pip3 install nanobind
+    echo pip3 install nanobind done >&2
+fi
 
 if [ true = true ] ; then
    skip_this=false
@@ -3594,9 +3622,20 @@ if [ "$build_rdkit" = true ] ; then
       # -DPYTHON_INCLUDE_DIR=$PYROOT/include/python3.8
       # -DBoost_PYTHON39_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so
 
+               # -DCMAKE_CXX_STANDARD_LIBRARIES="-lintl -dl"
+               # -DCMAKE_SHARED_LINKER_FLAGS="-lintl -dl"
+               # libpython is linking with /usr/local/opt/gettext/lib:
+               # otool -L ~/autobuild/build-chapi-gtk4/lib/libpython3.10d.dylib | grep libint
+	       # /usr/local/opt/gettext/lib/libintl.8.dylib (compatibility version 13.0.0, current version 13.0.0)
+
+               # no help
+               # -DCMAKE_C_STANDARD_LIBRARIES="-lintl -ldl -framework CoreFoundation" \
+
+
       echo cmake \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
                -DCatch2_DIR=$install_top_dir \
+               -DCMAKE_STATIC_LINKER_FLAGS="$install_top_dir/lib/libintl.a" \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
@@ -3612,6 +3651,7 @@ if [ "$build_rdkit" = true ] ; then
       if cmake  \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
                -DCatch2_DIR=$install_top_dir \
+               -DCMAKE_STATIC_LINKER_FLAGS="$install_top_dir/lib/libintl.a" \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
