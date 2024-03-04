@@ -1,6 +1,10 @@
 
 ----
 
+findwaters: can the output file be mmcif? - Eugene
+
+findligands: can the output file be mmcif? - Eugene
+
 libcootapi: create_n_empty_molecules() so that molecules indexes match
 * Done.
 
