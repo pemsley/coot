@@ -5178,7 +5178,10 @@ int test_split_model(molecules_container_t &mc) {
             if (model_p) n_models++;
          }
       }
+      std::cout << "DEBUG:: in test_split_model() n_models is " << n_models << std::endl;
       if (n_models == 40) status = 1;
+   } else {
+      std::cout << "DEBUG:: in test_split_model() new_models size was " << new_mol_indices.size() << std::endl;
    }
 
    return status;
@@ -5374,8 +5377,8 @@ int main(int argc, char **argv) {
          status += run_test(test_updating_maps,         "updating maps",            mc);
          status += run_test(test_delete_residue,        "delete residue",           mc);
          status += run_test(test_delete_chain,          "delete chain",             mc);
+         status += run_test(test_fill_partial,          "Fill partially-filled residues", mc);
          status += run_test(test_delete_atom,           "delete atom",              mc);
-         status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
          status += run_test(test_pepflips,              "pepflips",                 mc);
          status += run_test(test_mutate,                "mutate",                   mc);
          status += run_test(test_rsr,                   "rsr",                      mc);
@@ -5411,7 +5414,9 @@ int main(int argc, char **argv) {
          status += run_test(test_instanced_rota_markup, "Instanced rotamer mesh",   mc);
          status += run_test(test_new_position_for_atoms,"New positions for atoms",  mc);
          status += run_test(test_molecular_representation, "Molecular representation mesh", mc);
-         status += run_test(test_fill_partial,          "Fill partially-filled residues", mc);
+         status += run_test(test_rigid_body_fit,        "Rigid-body fit", mc);
+         status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
+         status += run_test(test_jiggle_fit_with_blur,  "Jiggle-fit-with-blur",     mc);
          status += run_test(test_multiligands_lig_bonding, "Some multiligands bonding", mc);
          status += run_test(test_gltf_export_via_api,   "glTF via api", mc);
          status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
@@ -5434,7 +5439,6 @@ int main(int argc, char **argv) {
          status += run_test(test_ncs_chains,            "NCS chains",         mc);
          status += run_test(test_omega_5tig_cif,        "Omega for 5tig cif",         mc);
          // status += run_test(test_jiggle_fit_params,     "actually testing for goodness pr params", mc); // not useful
-         status += run_test(test_jiggle_fit_with_blur,  "Jiggle-fit-with-blur", mc);
          status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
          status += run_test(test_read_extra_restraints, "read extra restraints", mc);
          status += run_test(test_map_histogram,         "map histogram", mc);
@@ -5447,7 +5451,6 @@ int main(int argc, char **argv) {
          status += run_test(test_is_em_map,             "test if EM map flag is correctly set", mc);
          status += run_test(test_user_defined_bond_colours_v2, "user-defined bond colours v2", mc);
          status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
-         status += run_test(test_rigid_body_fit, "rigid-body fit", mc);
          status += run_test(test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
          status += run_test(test_broken_function, "Something was broken",         mc);
          status += run_test(test_delete_side_chain, "delete side chain", mc);
