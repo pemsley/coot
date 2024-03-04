@@ -57,6 +57,7 @@ void show_usage(std::string pname) {
 	     << " --f f_col_label"
 	     << " --phi phi_col_label"
 	     << " --pdbout waters-filename"
+	     << " --cifout waters-filename"
 	     << " --sigma sigma-level"
 	     << " --min-dist min-dist-to-protein"
 	     << " --max-dist max-dist-to-protein"
@@ -106,6 +107,7 @@ main(int argc, char **argv) {
 	 {"f",      1, 0, 0},
 	 {"phi",    1, 0, 0},
 	 {"pdbout", 1, 0, 0},
+	 {"cifout", 1, 0, 0},
 	 {"sigma",  1, 0, 0},
 	 {"mapin",  1, 0, 0},
 	 {"min-dist",  1, 0, 0},
@@ -134,7 +136,10 @@ main(int argc, char **argv) {
 	       } 
 	       if (arg_str == "pdbout") { 
 		  output_pdb = coot_optarg;
-	       } 
+	       }
+	       if (arg_str == "cifout") {
+		  output_pdb = coot_optarg;
+	       }
 	       if (arg_str == "hklin") { 
 		  mtz_filename = coot_optarg;
 	       } 
