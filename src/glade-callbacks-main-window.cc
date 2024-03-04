@@ -313,9 +313,8 @@ on_model_toolbar_add_terminal_residue_button_clicked(GtkButton *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_add_alt_conf_toolbutton_clicked
-                                        (GtkToggleButton   *toolbutton,
-                                         gpointer         user_data) {
+on_model_toolbar_add_alt_conf_button_clicked(GtkButton *button,
+                                             gpointer   user_data) {
   altconf();
 }
 
@@ -324,17 +323,16 @@ on_model_toolbar_add_alt_conf_toolbutton_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_undo_button_clicked   (GtkButton       *button,
-                                                            gpointer         user_data) {
+on_model_toolbar_undo_button_clicked(GtkButton       *button,
+                                     gpointer         user_data) {
    apply_undo();
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_redo_button_clicked (GtkButton       *button,
-                                                         gpointer         user_data)
-{
+on_model_toolbar_redo_button_clicked(GtkButton       *button,
+                                     gpointer         user_data) {
   apply_redo();
 }
 

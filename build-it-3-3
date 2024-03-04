@@ -404,6 +404,7 @@
 # 6.15 20240220-PE OpenSSL and python apiflags and boost bjam updates
 # 6.16 20240228-PE Add status of FFTW building
 # 6.17 20240229-PE Portentious day. Adding in gettext for libintl for python and rdkit
+# 6.18 20240304-PE Remove the --pydebug from Python's configuration
 script_version=6.17
 
 
@@ -991,7 +992,6 @@ echo GITHUB_ENV $GITHUB_ENV
 echo GITHUB_WORKSPACE $GITHUB_WORKSPACE
 
 # now make the build logs directory
-echo mkdir -p $LOGS >&2
 mkdir -p $LOGS
 
 shared_static_flag="--disable-shared" # huh?
@@ -2085,8 +2085,7 @@ if [ "$gtk_pkg_config_status" = 0 ] ; then
 fi
 
 
-echo libtool test: looking for  ${install_top_dir}/include/ltdl.h
-ls  ${install_top_dir}/include/ltdl.h
+echo libtool test: looking for ${install_top_dir}/include/ltdl.h
 if test -e ${install_top_dir}/include/ltdl.h ; then
     echo installation has libtool
     build_libtool=
@@ -2103,7 +2102,8 @@ fi
 python_version=python3.11
 pver=3.11.4
 python_version_extension=3.11 # extract this
-python_abiflags=d # because we use --pydebug on the command line for Python configure
+# I think that for python to be compatible with Blender, we don't want the debug version
+# python_abiflags=d # because we use --with-pydebug on the command line for Python configure
 python_version_squish=311
 
 # for Blender 4 in 2024, we want Python 3.10.13, so uncomment the 3 lines below:
@@ -2579,11 +2579,11 @@ fi
 ###############################################################################
 
 if true ; then
-      echo BUILDING gemmi from git repo \(and installing GEMMI\)
-      echo BUILDING gemmi from git repo \(and installing GEMMI\) >&2
-      pwd >&2
-      echo start_dir is $start_dir
-      (
+    echo BUILDING gemmi from git repo \(and installing GEMMI\)
+    echo BUILDING gemmi from git repo \(and installing GEMMI\) >&2
+    pwd >&2
+    echo start_dir is $start_dir
+    (
           save_dir=$(pwd)
           cd $start_dir
           if [ -e gemmi ] ; then
@@ -2611,8 +2611,9 @@ if true ; then
           if $MAKE ; then
               make install
           fi
-      ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
-      echo done gemmi
+    ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
+    echo done gemmi
+    echo done gemmi >&2
 fi
 
 
@@ -2737,6 +2738,8 @@ if [ $build_openssl = true ] ; then
     $MAKE && make install
     cd -
     ) > $HOSTLOGDIR/07-f-openssl.txt 2>&1
+    echo done OpenSSL
+    echo done OpenSSL >&2
 fi
 
 # gettext provides -lintl - which is needed for python
@@ -2808,10 +2811,11 @@ if test -n "$build_python" ; then
    # note to self: We need ffi.h (and lib presumably) to build the ctypes module (libffi-devel)
    # (or I could include it in this build script) (I don't know if ctypes is important)
    # 20220227-PE ctypes is crucial for meson
-   echo INFO:: ./configure $generic_prefix --with-pydebug --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
+   # remove --with-pydebug for now because __PyNegativeRefcount promlem on trying to load this into Blender
+   echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
    #
    # do we also need to use --with-threads=dir?
-   if ./configure $generic_prefix --with-pydebug --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
+   if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
         echo INFO:: make install for python
