@@ -12494,7 +12494,7 @@ Sorry.
   <object class="GtkDialog" id="rotamer_selection_dialog">
     <property name="width-request">250</property>
     <property name="height-request">250</property>
-    <property name="title" translatable="yes">Select Rotamer</property>
+    <property name="title" translatable="yes">Coot: Select Rotamer</property>
     <child>
       <object class="GtkBox" id="dialog-vbox16">
         <property name="orientation">vertical</property>
