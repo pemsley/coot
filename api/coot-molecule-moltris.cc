@@ -393,6 +393,8 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
                set_vertex_colour(mesh.vertices[i], potential); // change ref
             }
 
+            delete theCreator;
+
          } else {
 
             std::shared_ptr<MolecularRepresentationInstance> molrepinst =
