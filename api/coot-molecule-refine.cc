@@ -216,6 +216,7 @@ coot::molecule_t::generate_local_self_restraints(int selHnd, float local_dist_ma
 	       }
 	    }
 	 }
+         delete [] pscontact;
       }
    }
 

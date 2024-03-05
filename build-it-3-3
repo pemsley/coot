@@ -2563,8 +2563,8 @@ if test -n "$build_clipper" ; then
 
     clipper_build_status=$?
     if [ $clipper_build_status != 0 ] ; then
-	echo clipper build failed, exiting
-	my_exit 2
+        echo clipper build failed, exiting
+        my_exit 2
     fi
     echo done clipper >&2
 
@@ -2586,30 +2586,41 @@ if true ; then
     (
           save_dir=$(pwd)
           cd $start_dir
+          needs_rebuild=false
           if [ -e gemmi ] ; then
               cd gemmi
-              git fetch
-              git merge
+              git remote update
+              git status -uno
+              needs_rebuild=false
+              if git status -uno | grep -q "branch is behind" ; then
+                  needs_rebuild=true
+                  git fetch
+                  git merge
+              fi
+              echo needs rebuild: $needs_rebuild
               cd -
           else
               git clone https://github.com/project-gemmi/gemmi.git
+              needs_rebuild=true
           fi
           # cd gemmi/include
           # note to self: fix this for Darwin - which has a crippled cp
           # cp -a -r gemmi $install_top_dir/include
           # cd -
           # cd $save_dir
-	  if [ -d build-gemmi ] ; then
- 	      :
-	  else
-              mkdir build-gemmi
-	  fi
-          cd build-gemmi
-	  pwd
-          # add -DUSE_PYTHON=1 here at some stage.
-          cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi
-          if $MAKE ; then
-              make install
+          if needs_rebuilds = true ; then
+              if [ -d build-gemmi ] ; then
+                  :
+              else
+                  mkdir build-gemmi
+              fi
+              cd build-gemmi
+              pwd
+              # add -DUSE_PYTHON=1 here at some stage.
+              cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi
+              if $MAKE ; then
+                  make install
+              fi
           fi
     ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
     echo done gemmi

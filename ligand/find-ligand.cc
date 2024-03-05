@@ -124,7 +124,7 @@ main(int argc, char **argv) {
 		<< " --just-conformers (no fitting, just make conformers)"   << "\n     "
 		<< " --mmcif (output files in mmcif) "   << "\n     "
 		<< " --script script-file-name\n"
-		<< "   ligand-pdb-file-name(s)\n";
+		<< "   ligand-coordinates-file-name(s)\n";
       std::cout << "     where pdbin is the protein (typically)\n"
 		<< "           nclust is the number of clusters to fit [default 10]\n"
 		<< "           sigma is the search level of the map (default 2.0)\n"

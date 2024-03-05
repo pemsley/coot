@@ -315,7 +315,19 @@ extern "C" G_MODULE_EXPORT
 void
 on_model_toolbar_add_alt_conf_button_clicked(GtkButton *button,
                                              gpointer   user_data) {
-  altconf();
+
+   // altconf(); 20240304-PE this was this old "dialog before atom pick" method
+
+   graphics_info_t g;
+   auto active_atom_pair = g.get_active_atom();
+   int imol = active_atom_pair.first;
+   if (is_valid_model_molecule(imol)) {
+      // split_residue_range(imol, add_alt_conf_atom_index, naii.atom_index);  // from graphics-info-defines
+      // For today, we will make this just a single residue.
+      const auto &active_atom = active_atom_pair.second;
+      coot::atom_spec_t aas(active_atom);
+      g.split_residue(imol, aas.chain_id, aas.res_no, aas.ins_code, aas.alt_conf);
+   }
 }
 
 
