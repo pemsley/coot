@@ -1,3 +1,0 @@
-
-#include "lbg-callbacks.cc"
-
