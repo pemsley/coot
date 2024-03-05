@@ -32,7 +32,7 @@
 // For reasons I don't understand, this should come near the top of
 // includes, otherwise we get RDKit dcgettext() include file problems.
 //
-#include "lbg/lbg.hh"
+// #include "lbg/lbg.hh"
 
 #include "c-interface-ligands.hh"
 #include "coords/mmdb-extras.h"
@@ -272,12 +272,14 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 	       coot::dots_representation_info_t dots;
 	       std::vector<std::pair<coot::atom_spec_t, float> > s_a_v = 
 		  dots.solvent_accessibilities(res_ref, filtered_residues);
-	       
+
+#if 0 // no longer do we use lbg. Put this lbg function in pli I guess
 	       // for the ligand environment residues:
 	       std::vector<coot::solvent_exposure_difference_helper_t> sed = 
 		  dots.solvent_exposure_differences(res_ref, filtered_residues);
-	       
-	       if (0)
+#endif
+
+	       if (false)
 		  for (unsigned int i=0; i<s_a_v.size(); i++)
 		     std::cout << "   " << i << " " << s_a_v[i].first << " "
 			       << s_a_v[i].second << std::endl;
