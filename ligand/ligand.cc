@@ -824,16 +824,20 @@ coot::ligand::set_default_b_factor(float f) {
 void
 coot::ligand::find_clusters(float z_cut_off_in) {
 
+   bool water_cluster_mode = true; // pass this?
+
    std::vector <clipper::Coord_orth> sampled_protein_coords =
       make_sample_protein_coords();
 
-   find_clusters_internal(z_cut_off_in, sampled_protein_coords);
+   // this means "don't apply a size limit to the clusters"
+   find_clusters_internal(z_cut_off_in, water_cluster_mode, sampled_protein_coords);
 
 }
 
 
 void
 coot::ligand::find_clusters_internal(float z_cut_off_in,
+                                     bool water_cluster_mode,
 				     const std::vector <clipper::Coord_orth> &sampled_protein_coords) {
 
    std::cout << "INFO:: in find_clusters_internal(): map_rms is " << map_rms << std::endl;
@@ -910,7 +914,7 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
 
 // 	    std::cout << "pushing back cluster " << n_clusters
 // 		      << mpc.score << " " << mpc.map_grid.size() << std::endl;
-	    if (mpc.map_grid.size() > min_grid_points_for_ligand) {
+	    if ((mpc.map_grid.size() > min_grid_points_for_ligand) || water_cluster_mode) {
 	       cluster.push_back(mpc);
 	       n_clusters++;
 	    }
@@ -921,10 +925,10 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
 
    calculate_cluster_centres_and_eigens();
    move_ligand_centres_close_to_protein(sampled_protein_coords);
-   //    std::cout << "There were " << n_clusters << " clusters " << std::endl;
+   std::cout << "DEBUG:: in find_clusters_internal() There were " << n_clusters << " clusters " << std::endl;
    std::sort(cluster.begin(), cluster.end(), compare_clusters);
 
-   if (true || verbose_reporting)                                   
+   if (verbose_reporting)
       print_cluster_details(false);
 }
 
@@ -1380,6 +1384,7 @@ coot::ligand::print_cluster_details(bool show_grid_points) const {
    int max_clusters = 10;
    if (cluster.size() < 10)
       max_clusters = cluster.size();
+   std::cout << "\n" << std::endl;
    std::cout << "INFO:: print_cluster_details(): There are " << cluster.size() << " clusters\n";
    std::cout << "INFO:: print_cluster_details(): Here are the top " << max_clusters << " clusters:\n";
    for (int i=0; i<max_clusters; i++) {
