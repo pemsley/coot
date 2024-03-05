@@ -1,7 +1,6 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/pair.h>
-#include <nanobind/stl/map.h>
 #include <nanobind/stl/vector.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
@@ -42,11 +41,11 @@ class molecules_container_js : public molecules_container_t {
         explicit molecules_container_js(bool verbose=true) : molecules_container_t(verbose) {
         }
 
-        int writePDBASCII(int imol, const std::string &file_name) {
+        int writePDBASCII(int imol, const std::string &file_name) { 
             const char *fname_cp = file_name.c_str();
             return get_mol(imol)->WritePDBASCII(fname_cp);
         }
-        int writeCIFASCII(int imol, const std::string &file_name) {
+        int writeCIFASCII(int imol, const std::string &file_name) { 
             const char *fname_cp = file_name.c_str();
             return get_mol(imol)->WriteCIFASCII(fname_cp);
         }
@@ -56,7 +55,7 @@ class molecules_container_js : public molecules_container_t {
             clipperMap.open_write(file_name);
             clipperMap.export_xmap(xMap);
             return 0;
-        }
+        }        
 };
 
 NB_MODULE(chapi, m) {
@@ -277,7 +276,6 @@ NB_MODULE(chapi, m) {
     .def("flipPeptide_cid",   nb::overload_cast<int, const std::string&,      const std::string&>(&molecules_container_t::flip_peptide_using_cid))
     .def("flip_hand",&molecules_container_t::flip_hand)
     .def("generate_chain_self_restraints",&molecules_container_t::generate_chain_self_restraints)
-    .def("generate_horizontal_ssm_sequence_alignment_string",&molecules_container_t::generate_horizontal_ssm_sequence_alignment_string)
     .def("generate_local_self_restraints",&molecules_container_t::generate_local_self_restraints)
     .def("generate_self_restraints",&molecules_container_t::generate_self_restraints)
     .def("geometry_init_standard",&molecules_container_t::geometry_init_standard)
@@ -324,7 +322,6 @@ NB_MODULE(chapi, m) {
     .def("get_group_for_monomer",&molecules_container_t::get_group_for_monomer)
     .def("get_groups_for_monomers",&molecules_container_t::get_groups_for_monomers)
     .def("get_hb_type",&molecules_container_t::get_hb_type)
-    .def("get_horizontal_ssm_sequence_alignment",&molecules_container_t::get_horizontal_ssm_sequence_alignment)
     .def("get_map_contours_mesh",&molecules_container_t::get_map_contours_mesh)
     .def("get_map_contours_mesh_using_other_map_for_colours",&molecules_container_t::get_map_contours_mesh_using_other_map_for_colours)
     .def("get_map_histogram",&molecules_container_t::get_map_histogram)
@@ -343,12 +340,6 @@ NB_MODULE(chapi, m) {
     .def("get_non_standard_residues_in_molecule",&molecules_container_t::get_non_standard_residues_in_molecule)
     .def("get_number_of_atoms",&molecules_container_t::get_number_of_atoms)
     .def("get_number_of_hydrogen_atoms",&molecules_container_t::get_number_of_hydrogen_atoms)
-    .def("get_pairs",&molecules_container_t::get_pairs)
-    .def("get_pythonic_bonds_mesh",&molecules_container_t::get_pythonic_bonds_mesh)
-    .def("get_pythonic_gaussian_surface_mesh",&molecules_container_t::get_pythonic_gaussian_surface_mesh)
-    .def("get_pythonic_map_mesh",&molecules_container_t::get_pythonic_map_mesh)
-    .def("get_pythonic_molecular_representation_mesh",&molecules_container_t::get_pythonic_molecular_representation_mesh)
-    .def("get_pythonic_simple_molecule",&molecules_container_t::get_pythonic_simple_molecule)
     .def("get_r_factor_stats",&molecules_container_t::get_r_factor_stats)
     .def("get_rama_plot_restraints_weight",&molecules_container_t::get_rama_plot_restraints_weight)
     .def("get_ramachandran_validation_markup_mesh",&molecules_container_t::get_ramachandran_validation_markup_mesh)
@@ -380,16 +371,12 @@ NB_MODULE(chapi, m) {
     .def("is_valid_map_molecule",&molecules_container_t::is_valid_map_molecule)
     .def("is_valid_model_molecule",&molecules_container_t::is_valid_model_molecule)
     .def("jed_flip",          nb::overload_cast<int, const std::string&, bool>           (&molecules_container_t::jed_flip))
-    .def("make_and_print_horizontal_ssm_sequence_alignment",&molecules_container_t::make_and_print_horizontal_ssm_sequence_alignment)
     .def("make_exportable_environment_bond_box",&molecules_container_t::make_exportable_environment_bond_box)
     .def("make_masked_maps_split_by_chain",&molecules_container_t::make_masked_maps_split_by_chain)
     .def("make_mesh_for_bonds_for_blender", &molecules_container_t::make_mesh_for_bonds_for_blender)
     .def("get_goodsell_style_mesh_instanced",&molecules_container_t::get_goodsell_style_mesh_instanced)
     .def("make_mesh_for_map_contours_for_blender", &molecules_container_t::make_mesh_for_map_contours_for_blender)
     .def("make_mesh_for_molecular_representation_for_blender", &molecules_container_t::make_mesh_for_molecular_representation_for_blender)
-    .def("make_rotamer_torsions",&molecules_container_t::make_rotamer_torsions)
-    .def("make_ssm_sequence_alignment_as_validation_information",&molecules_container_t::make_ssm_sequence_alignment_as_validation_information)
-    .def("map_secondary_structure_headers",&molecules_container_t::map_secondary_structure_headers)
     .def("mask_map_by_atom_selection",&molecules_container_t::mask_map_by_atom_selection)
     .def("merge_molecules", nb::overload_cast<int,const std::string &>(&molecules_container_t::merge_molecules))
     .def("missing_atoms_info_raw",&molecules_container_t::missing_atoms_info_raw)
@@ -408,10 +395,8 @@ NB_MODULE(chapi, m) {
     .def("phi_psi_probability",&molecules_container_t::phi_psi_probability)
     .def("pop_back",&molecules_container_t::pop_back)
     .def("print_colour_rules",&molecules_container_t::print_colour_rules)
-    .def("print_horizontal_ssm_sequence_alignment",&molecules_container_t::print_horizontal_ssm_sequence_alignment)
     .def("print_non_drawn_bonds",&molecules_container_t::print_non_drawn_bonds)
-    .def("print_ssm_sequence_alignment",&molecules_container_t::print_ssm_sequence_alignment)
-    .def("r_factor_stats",&molecules_container_t::r_factor_stats)
+    //.def("r_factor_stats",&molecules_container_t::r_factor_stats)
     .def("r_factor_stats_as_string",&molecules_container_t::r_factor_stats_as_string)
     .def("rail_points_total",&molecules_container_t::rail_points_total)
     .def("ramachandran_analysis",&molecules_container_t::ramachandran_analysis)
@@ -466,7 +451,6 @@ NB_MODULE(chapi, m) {
     .def("sharpen_blur_map_with_resample",&molecules_container_t::sharpen_blur_map_with_resample)
     .def("shift_field_b_factor_refinement",&molecules_container_t::shift_field_b_factor_refinement)
     .def("side_chain_180",    nb::overload_cast<int, const std::string&>                         (&molecules_container_t::side_chain_180))
-    .def("simple_mesh_to_pythonic_mesh",&molecules_container_t::simple_mesh_to_pythonic_mesh)
     .def("split_multi_model_molecule",&molecules_container_t::split_multi_model_molecule)
     .def("superpose_with_atom_selection",&molecules_container_t::superpose_with_atom_selection)
     .def("test_launching_threads",&molecules_container_t::test_launching_threads)
@@ -519,10 +503,6 @@ NB_MODULE(chapi, m) {
     ;
     nb::class_<molecules_container_t::fit_ligand_info_t>(m, "fit_ligand_info_t")
     .def_ro("imol", &molecules_container_t::fit_ligand_info_t::imol)
-    .def_ro("cluster_idx", &molecules_container_t::fit_ligand_info_t::cluster_idx)
-    .def_ro("ligand_idx", &molecules_container_t::fit_ligand_info_t::ligand_idx)
-    .def("get_fitting_score", &molecules_container_t::fit_ligand_info_t::get_fitting_score)
-    .def("get_cluster_volume", &molecules_container_t::fit_ligand_info_t::get_cluster_volume)
     ;
     nb::class_<coot::residue_spec_t>(m,"residue_spec_t")
     .def(nb::init<const std::string &, int, const std::string &>())
