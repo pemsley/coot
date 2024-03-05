@@ -27,6 +27,13 @@ jobs:
            path: test-molecule-container-test-data.tar.gz
            key:  chapi-build-ubuntu-cache-test-data
 
+      - name: download the monomer library
+        run:  wget -nv https://github.com/MonomerLibrary/monomers/archive/refs/tags/ccp4-8.0.016.tar.gz
+
+      # note that the data directory exists in the coot repo (which is where we are)
+      - name: untar the monomer library
+        run:  pwd && cd data && tar xf ../ccp4-8.0.016.tar.gz && ln -s monomers-ccp4-8.0.016 monomers
+
       - name: download test data
         run:  wget -N -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
 
@@ -40,8 +47,12 @@ jobs:
           path: build-gemmi
           key:  chapi-build-ubuntu-gemmi-cache-build
 
+      - name: Update apt-get
+        run:  sudo apt-get update
+
       - name: Install system dependencies
-        run:  sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev
+        # run:  sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev
+        run:  sudo apt-get install cmake libdw-dev libncurses5-dev
 
       - name: Where are we?
         run:  pwd
@@ -91,4 +102,6 @@ jobs:
         # this needs the monomer library
         env:
           MOORHEN_TEST_DATA_DIR: ../test-data
-        run:  cd build-libcootapi && echo ./test-molecules-container
+          COOT_REFMAC_LIB_DIR: /home/runner/work/coot/coot # "data/monomers" is added before "a/ATP.cif" (say)
+        #  at some stage use | egrep "^Starting|^FAIL|^PASS|^UN"
+        run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN"

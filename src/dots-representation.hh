@@ -29,7 +29,7 @@
 
 #include "Instanced-Markup-Mesh.hh"
 #include "coot-colour.hh"
-#include "lbg/solvent-exposure-difference.hh"
+// #include "lbg/solvent-exposure-difference.hh"
 #include "coot-utils/coot-coord-utils.hh"
 
 namespace coot { 
@@ -92,8 +92,10 @@ namespace coot {
       // 
       std::vector<std::pair<coot::atom_spec_t, float> >
       solvent_accessibilities(mmdb::Residue *res_ref, const std::vector<mmdb::Residue *> &residues) const;
-      std::vector<solvent_exposure_difference_helper_t>
-      solvent_exposure_differences(mmdb::Residue *res_ref, const std::vector<mmdb::Residue *> &residues) const;
+
+      // lbg code
+      // std::vector<solvent_exposure_difference_helper_t>
+      // solvent_exposure_differences(mmdb::Residue *res_ref, const std::vector<mmdb::Residue *> &residues) const;
 
    };
 

@@ -5965,12 +5965,13 @@ graphics_info_t::clear_diff_map_peaks() {
 void
 graphics_info_t::rotamer_dialog_neighbour_rotamer(int istep) {
 
-#ifndef EMSCRIPTEN
    graphics_info_t g;
-   if (g.rotamer_dialog) {
+
+   GtkWidget *rotamer_dialog = widget_from_builder("rotamer_selection_dialog");
+   if (rotamer_dialog) {
       // void *t  = (void *) (gtk_object_get_user_data(GTK_OBJECT(g.rotamer_dialog)));
       // std::cout << "user data: " << t << std::endl;
-      int n_rotamers = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(g.rotamer_dialog), "n_rotamers"));
+      int n_rotamers = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(rotamer_dialog), "n_rotamers"));
       // std::cout << "We find " << n_rotamers << " rotamers in the widget\n";
       GtkWidget *button;
       short int ifound_active_button = 0;
@@ -6015,7 +6016,7 @@ graphics_info_t::rotamer_dialog_neighbour_rotamer(int istep) {
          std::cout << "ERROR:: not active rotamer button found " << std::endl;
       }
    }
-#endif
+
 }
 
 void

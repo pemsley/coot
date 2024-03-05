@@ -254,7 +254,11 @@ namespace coot {
       // So that we only sample the coords once, not for every round
       // of water picking.
       void find_clusters_internal(float z_cutoff,
+                                  bool water_cluster_mode,
 				  const std::vector<clipper::Coord_orth> &sampled_protein_coords);
+
+      // exlude water-sized blobs
+      unsigned int get_min_grid_points_for_a_ligand(const clipper::Xmap<float> &xmap) const;
 
       // we use these in residue_by_phi_psi:
       //
@@ -490,6 +494,8 @@ namespace coot {
       // for a given cluster.
       //
       unsigned int n_clusters_final() const { return final_ligand.size(); }
+
+      unsigned int n_ligands_for_cluster(unsigned int iclust) const;
 
       // return the number of scored solutions with score of more than
       // frac_limit_of_peak_score (say, 0.5)

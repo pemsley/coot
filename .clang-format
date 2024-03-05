@@ -1,0 +1,7 @@
+BasedOnStyle: Google
+IndentWidth: 3
+
+NamespaceIndentation: All
+AccessModifierOffset: -3
+
+AlignAfterOpenBraket: Align

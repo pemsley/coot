@@ -1456,32 +1456,13 @@ Copyright 2023 Global Phasing Ltd.</property>
   </object>
 
   <object class="GtkDialog" id="add_alt_conf_dialog">
-    <property name="title" translatable="yes">Add Alternate Conformation</property>
-    <signal name="destroy" handler="on_add_alt_conf_dialog_destroy" swapped="no"/>
+    <property name="title" translatable="yes">Coot: Add Alternate Conformation</property>
     <child>
       <object class="GtkBox" id="dialog-vbox27">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox60">
-                <child>
-                  <object class="GtkButton" id="add_alt_conf_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">0</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_add_alt_conf_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="vbox89">
             <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkLabel" id="label120">
-                <property name="label" translatable="yes">Add Alternate Conformation</property>
-                <property name="justify">center</property>
-              </object>
-            </child>
             <child>
               <object class="GtkFrame" id="frame73">
                 <child>
@@ -1519,6 +1500,18 @@ Copyright 2023 Global Phasing Ltd.</property>
               </object>
             </child>
           </object>
+        </child>
+        <child>
+            <object class="GtkBox" id="hbox60">
+              <child>
+                <object class="GtkButton" id="add_alt_conf_cancel_button">
+                  <property name="label" translatable="yes">  Cancel  </property>
+                  <property name="can-focus">0</property>
+                  <property name="use-underline">1</property>
+                  <signal name="clicked" handler="on_add_alt_conf_cancel_button_clicked" swapped="no"/>
+                </object>
+              </child>
+            </object>
         </child>
       </object>
     </child>
@@ -4450,11 +4443,23 @@ that you wish to delete.               </property>
               <object class="GtkCheckButton" id="edit_chi_angles_add_hydrogen_torsions_checkbutton">
                 <property name="label" translatable="yes"> Use Hydrogen Atom Torsions</property>
                 <property name="active">0</property>
-                <property name="margin-top">6</property>
-                <property name="margin-bottom">6</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
                 <property name="margin-start">6</property>
                 <property name="margin-end">6</property>
                 <signal name="toggled" handler="on_edit_chi_angles_add_hydrogen_torsions_checkbutton_toggled" swapped="no"/>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkToggleButton" id="edit_chi_angles_reverse_fragment_togglebutton">
+                <property name="label" translatable="yes">Reverse Fragment</property>
+                <property name="active">0</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <signal name="toggled" handler="on_edit_chi_angles_reverse_fragment_togglebutton_toggled" swapped="no"/>
               </object>
             </child>
 
@@ -8261,6 +8266,28 @@ Do you want to continue?
                 </child>
                 <property name="can-focus">0</property>
                 <signal name="clicked" handler="on_model_toolbar_add_terminal_residue_button_clicked"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="add_alt_conf_button">
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">add-alt-conf</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Add Alt Conf</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <property name="can-focus">0</property>
+                <signal name="clicked" handler="on_model_toolbar_add_alt_conf_button_clicked"/>
               </object>
             </child>
             <child>
@@ -12467,7 +12494,7 @@ Sorry.
   <object class="GtkDialog" id="rotamer_selection_dialog">
     <property name="width-request">250</property>
     <property name="height-request">250</property>
-    <property name="title" translatable="yes">Select Rotamer</property>
+    <property name="title" translatable="yes">Coot: Select Rotamer</property>
     <child>
       <object class="GtkBox" id="dialog-vbox16">
         <property name="orientation">vertical</property>

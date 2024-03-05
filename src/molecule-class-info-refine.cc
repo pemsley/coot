@@ -710,6 +710,7 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
 	       }
 	    }
 	 }
+         delete [] pscontact;
       }
    }
 

@@ -7444,6 +7444,25 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
                                                             int atom_colour_type,
                                                             int draw_hydrogens_flag) {
 
+   auto _ = [] (int atom_colour_type) {
+      std::string s = std::to_string(atom_colour_type);
+
+      if (atom_colour_type == coot::COLOUR_BY_CHAIN)          s = "COLOUR_BY_CHAIN";
+      if (atom_colour_type == coot::COLOUR_BY_CHAIN_C_ONLY)   s = "COLOUR_BY_CHAIN_C_ONLY";
+      if (atom_colour_type == coot::COLOUR_BY_CHAIN_GOODSELL) s = "COLOUR_BY_CHAIN_GOODSELL";
+      if (atom_colour_type == coot::COLOUR_BY_ATOM_TYPE)      s = "COLOUR_BY_ATOM_TYPE";
+      if (atom_colour_type == coot::COLOUR_BY_SEC_STRUCT)     s = "COLOUR_BY_SEC_STRUCT";
+      if (atom_colour_type == coot::DISULFIDE_COLOUR)         s = "DISULFIDE_COLOUR";
+      if (atom_colour_type == coot::COLOUR_BY_MOLECULE)       s = "COLOUR_BY_MOLECULE";
+      if (atom_colour_type == coot::COLOUR_BY_RAINBOW)        s = "COLOUR_BY_RAINBOW";
+      if (atom_colour_type == coot::COLOUR_BY_OCCUPANCY)      s = "COLOUR_BY_OCCUPANCY";
+      if (atom_colour_type == coot::COLOUR_BY_B_FACTOR)       s = "COLOUR_BY_B_FACTOR";
+      if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)   s = "COLOUR_BY_USER_DEFINED_COLOURS";
+      if (atom_colour_type == coot::COLOUR_BY_HYDROPHOBIC_SIDE_CHAIN) s = "COLOUR_BY_HYDROPHOBIC_SIDE_CHAIN";
+
+      return s;
+   };
+
    // std::cout << "in do_colour_by_chain_bonds_carbons_only() atom_colour_type " << atom_colour_type << std::endl;
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
@@ -7716,7 +7735,7 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
    // atom_colour_type = coot::COLOUR_BY_CHAIN;
    // atom_colour_type == coot::COLOUR_BY_CHAIN_GOODSELL;
 
-   std::cout << "in " << __FUNCTION__ << " with atom_colour_type " << atom_colour_type << std::endl;
+   // std::cout << "DEBUG:: in " << __FUNCTION__ << " with atom_colour_type " << _(atom_colour_type) << std::endl;
    add_atom_centres(imol, asc, atom_colour_type, &atom_colour_map);
 
    int udd_fixed_during_refinement_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");

@@ -59,17 +59,15 @@ int test_something_filo(molecules_container_t &mc) {
       }
    }
    mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
 
 int test_get_diff_map_peaks(molecules_container_t &mc) {
 
-   int status = 1;
-
    // this test needs a different mtz file. Come back later.
 
-#if 0
    starting_test(__FUNCTION__);
    int status = 0;
 
@@ -78,26 +76,31 @@ int test_get_diff_map_peaks(molecules_container_t &mc) {
    int diffMapMolNo = mc.read_mtz("./5a3h_sigmaa.mtz", "DELFWT", "PHDELWT", "FOM", false, true);
 
    mc.associate_data_mtz_file_with_map(mapMolNo, "./5a3h_sigmaa.mtz", "FP", "SIGFP", "FREE");
+
    mc.connect_updating_maps(coordMolNo, mapMolNo, mapMolNo, diffMapMolNo);
    // if sfcalc_genmaps_using_bulk_solvent() fails stats.r_factor is -1
-   coot::util::sfcalc_genmap_stats_t stats = mc.sfcalc_genmaps_using_bulk_solvent(coordMolNo, mapMolNo, diffMapMolNo, mapMolNo);
 
-   mc.get_r_factor_stats();
+   coot::util::sfcalc_genmap_stats_t stats = mc.sfcalc_genmaps_using_bulk_solvent(coordMolNo, mapMolNo, diffMapMolNo, mapMolNo);
+   std::cout << "   stats 0 : r_factor " << stats.r_factor << std::endl;
+
+   molecules_container_t::r_factor_stats rfs_1 = mc.get_r_factor_stats();
+   std::cout << "   stats 1 : r_factor " << rfs_1.r_factor << std::endl;
    mc.get_map_contours_mesh(mapMolNo,  77.501,  45.049,  22.663,  13,  0.48);
 
    mc.delete_using_cid(coordMolNo, "/1/A/300/*", "LITERAL");
    mc.get_map_contours_mesh(mapMolNo,  77.501,  45.049,  22.663,  13,  0.48);
-   mc.get_r_factor_stats();
+   molecules_container_t::r_factor_stats rfs_2 = mc.get_r_factor_stats();
+   std::cout << "   stats 2 : r_factor " << rfs_2.r_factor << std::endl;
 
    auto diff_diff_map_peaks = mc.get_diff_diff_map_peaks(diffMapMolNo,  77.501,  45.049,  22.663);
 
    if (diff_diff_map_peaks.size() >  0) {
-      std::cout << "Test passed." << std::endl;
       status = 1;
-   } else {
-      std::cerr << "Test failed." << std::endl;
    }
-#endif
+
+   mc.close_molecule(coordMolNo);
+   mc.close_molecule(mapMolNo);
+   mc.close_molecule(diffMapMolNo);
 
    return status;
 
@@ -257,8 +260,9 @@ int test_change_chain_id_1(molecules_container_t &molecules_container) {
    //    instanceMesh_1.geom.get(1).instancing_data_B.size()
    // )
 
-   if (instanceMesh_2.geom.at(1).instancing_data_B.size() == instanceMesh_1.geom.at(1).instancing_data_B.size())
-      status = 1;
+   if (instanceMesh_2.geom.size() > 1)
+      if (instanceMesh_2.geom.at(1).instancing_data_B.size() == instanceMesh_1.geom.at(1).instancing_data_B.size())
+         status = 1;
 
    return status;
 }

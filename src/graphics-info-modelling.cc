@@ -4563,6 +4563,7 @@ graphics_info_t::execute_db_main_fragment(int imol, coot::residue_spec_t spec) {
 void
 graphics_info_t::do_rotamers(int atom_index, int imol) {
 
+   // Note to self: this function is not called when clicking on the "Rotamers" button in the interface.
 
    if (use_graphics_interface_flag) {
       // display the buttons for the rotamer options and display
@@ -4573,9 +4574,11 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
       // callbacks, so that we
       // can get the residue.
       rotamer_residue_imol = imol;
-      std::string altconf = molecules[imol].atom_sel.atom_selection[atom_index]->altLoc;
+      mmdb:: Atom *active_atom = molecules[imol].atom_sel.atom_selection[atom_index];
+      std::string altconf = active_atom->altLoc;
+      std::cout << "debug:: altconf " << altconf << " with length " << altconf.length() << std::endl;
       bool is_alt_conf_dialog = false;
-      if (altconf.length())
+      if (altconf.length() > 0)
          is_alt_conf_dialog = true;
 
 //       std::cout << "DEBUG:: in do_rotamers() atom_index is " << atom_index
@@ -4584,9 +4587,7 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
       // GtkWidget *dialog = create_rotamer_selection_dialog();
       GtkWidget *dialog = widget_from_builder("rotamer_selection_dialog");
       set_transient_and_position(COOT_ROTAMER_SELECTION_DIALOG, dialog);
-      rotamer_dialog = dialog;
       g_object_set_data(G_OBJECT(dialog), "imol", GINT_TO_POINTER(imol));
-
 
       // Test if this was an alt confed atom.
       // If it was, then we should set up the hscale.
@@ -4606,25 +4607,20 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
          g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(1));
 
       } else {
+
          // GtkWidget *frame = lookup_widget(dialog, "new_alt_conf_occ_frame");
          GtkWidget *frame = widget_from_builder("new_alt_conf_occ_frame");
          gtk_widget_set_visible(frame, FALSE);
          g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(0));
+         fill_rotamer_selection_buttons(dialog, active_atom, imol);
       }
-
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-      // 20220528-PE FIXME events
-#else
-      /* Events for widget must be set before X Window is created */
-      gtk_widget_set_events(GTK_WIDGET(dialog), GDK_KEY_PRESS_MASK);
-#endif
 
       /* Capture keypress events */
       //    rotamer_key_press_event is not defined (yet)
       //    gtk_signal_connect(GTK_OBJECT(window), "key_press_event",
       //                       GTK_SIGNAL_FUNC(rotamer_key_press_event), NULL);
       /* set focus to glarea widget - we need this to get key presses. */
-      std::cout << "Focus on the table " << std::endl;
+      // std::cout << "Focus on the table " << std::endl;
       // GTK_WIDGET_SET_FLAGS(dialog, GTK_CAN_FOCUS);
       gtk_widget_grab_focus(GTK_WIDGET(glareas[0])); // but set focus to the graphics.
 
@@ -4652,13 +4648,13 @@ graphics_info_t::do_rotamers(int imol, mmdb::Atom *active_atom) {
    rotamer_residue_imol = imol;
    rotamer_residue_atom_index = 0; // we don't know it.
    std::string altconf(active_atom->altLoc);
-   bool is_alt_conf_dialog = false;
+   bool is_alt_conf_dialog = false; // does the clicked atom have an alt conf?
    if (! altconf.empty()) is_alt_conf_dialog = true;
    rotamer_residue_atom_spec = coot::atom_spec_t(active_atom);
 
    GtkWidget *dialog = widget_from_builder("rotamer_selection_dialog");
    set_transient_and_position(COOT_ROTAMER_SELECTION_DIALOG, dialog);
-   rotamer_dialog = dialog; // Hmm... this doesn't look good.
+   // rotamer_dialog = dialog; // Hmm... this doesn't look good. // 20240304-PE removed.
    g_object_set_data(G_OBJECT(dialog), "imol", GINT_TO_POINTER(imol));
    if (is_alt_conf_dialog) {
 
@@ -4666,9 +4662,9 @@ graphics_info_t::do_rotamers(int imol, mmdb::Atom *active_atom) {
       GtkWidget *frame = widget_from_builder("new_alt_conf_occ_frame");
       gtk_widget_set_visible(frame, FALSE);
       g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(0));
-      fill_rotamer_selection_buttons(dialog, active_atom, imol);
-      generate_moving_atoms_from_rotamer(imol, rotamer_residue_atom_spec, 0); // passed and data member - not good design
    }
+   fill_rotamer_selection_buttons(dialog, active_atom, imol);
+   generate_moving_atoms_from_rotamer(imol, rotamer_residue_atom_spec, 0); // passed and data member - not good design
    gtk_widget_set_visible(dialog, TRUE);
 }
 

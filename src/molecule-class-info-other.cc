@@ -87,6 +87,9 @@
 #include "ideal/pepflip.hh"
 #include "ligand/backrub-rotamer.hh"
 
+#include "api/coot-molecule.hh"  // pick up RESIDUE_NUMBER_UNSET (it used to be in molecule-class-info.h)
+                                 // I don't think that this is a good organization
+
 #include "coot-nomenclature.hh"
 
 // #include "GL/glu.h"
@@ -235,7 +238,7 @@ coot::dots_representation_info_t::solvent_accessibilities(mmdb::Residue *res_ref
    return v;
 }
 
-
+#if 0
 std::vector<coot::solvent_exposure_difference_helper_t>
 coot::dots_representation_info_t::solvent_exposure_differences(mmdb::Residue *res_ref,
                                                                const std::vector<mmdb::Residue *> &near_residues) const {
@@ -299,6 +302,7 @@ coot::dots_representation_info_t::solvent_exposure_differences(mmdb::Residue *re
    }
    return v;
 }
+#endif
 
 
 
@@ -5221,6 +5225,7 @@ molecule_class_info_t::split_residue(int atom_index, int alt_conf_split_type) {
          short int use_residue_mol_flag = 0;
          if (is_from_shelx_ins_flag)
             use_residue_mol_flag = 1;
+
          split_residue_then_rotamer(res_copy, altconf, residue_alt_confs, residue_mol,
                                     use_residue_mol_flag);
 
@@ -5475,7 +5480,7 @@ molecule_class_info_t::split_residue_then_rotamer(mmdb::Residue *residue, const 
                                                   short int use_residue_mol_flag) {
 
 
-   mmdb::PResidue *SelResidues;
+   mmdb::PResidue *SelResidues = nullptr;
    std::string ch(residue->GetChainID());
 
    // alt_conf_split_type is a graphics_info_t static data member
@@ -5513,9 +5518,8 @@ molecule_class_info_t::split_residue_then_rotamer(mmdb::Residue *residue, const 
       mov_mol_asc = make_asc(mov_mol);
    }
 
-   mmdb::Atom *at;
    for (int i=0; i<mov_mol_asc.n_selected_atoms; i++) {
-      at = mov_mol_asc.atom_selection[i];
+      mmdb::Atom *at = mov_mol_asc.atom_selection[i];
       at->x += 0.1;
       strncpy(at->altLoc, new_altconf.c_str(), 2);
       // set the occupancy:
@@ -5545,7 +5549,10 @@ molecule_class_info_t::split_residue_then_rotamer(mmdb::Residue *residue, const 
 
       // std::cout << "DEBUG:: in split_residue_then_rotamer() " << std::endl;
       graphics_info_t g;
-      g.do_rotamers(atom_index, imol_no); // this imol, obviously.
+      // Use the other do_rotamers() function, because we can pass the atom, not the atom index
+      // g.do_rotamers(atom_index, imol_no); // this imol, obviously.
+      mmdb:: Atom *aa = atom_sel.atom_selection[atom_index];
+      g.do_rotamers(imol_no, aa); // this imol, obviously.
    } else {
       std::cout << "ERROR bad atom index in split_residue_then_rotamer: "
                 << atom_index << std::endl;
@@ -8200,8 +8207,6 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
 
 }
 
-#include "api/coot_molecule.hh"  // pick up RESIDUE_NUMBER_UNSET (it used to be in molecule-class-info.h)
-                                 // I don't think that this is a good organization
 
 void
 molecule_class_info_t::change_chain_id_with_residue_range_helper_insert_or_add(mmdb::Chain *to_chain_p, mmdb::Residue *new_residue) {
