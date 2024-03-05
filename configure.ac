@@ -518,7 +518,6 @@ auxil/rama/Makefile
 auxil/sec-str/Makefile
 auxil/strand-analysis/Makefile
 auxil/vectors/Makefile
-lbg/Makefile
 src/Makefile
 src/coot
 ui/Makefile
@@ -529,7 +528,6 @@ AC_OUTPUT
 # po/Makefile.in
 
 # 2022-10-28
-# lbg/Makefile
 # rcrane/Makefile
 # src/Makefile
 # src/coot
