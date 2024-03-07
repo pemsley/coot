@@ -2922,7 +2922,7 @@ Calculate a skeleton now?
 
                     <child>
                       <object class="GtkLabel" id="label138">
-                        <property name="label" translatable="yes">  with map sigma level less than:  </property>
+                        <property name="label" translatable="yes">  with map rmsd level less than:  </property>
                         <property name="justify">left</property>
                         <layout>
                           <property name="row">1</property>
@@ -5553,7 +5553,7 @@ Do you want to continue?
                         </child>
                         <child>
                           <object class="GtkLabel" id="label230">
-                            <property name="label" translatable="yes">  sigma    </property>
+                            <property name="label" translatable="yes">  r.m.s.d.    </property>
                             <property name="justify">center</property>
                             <property name="margin-start">4</property>
                             <property name="margin-end">4</property>
@@ -5563,7 +5563,7 @@ Do you want to continue?
                     </child>
                     <child type="label">
                       <object class="GtkLabel" id="label312">
-                        <property name="label" translatable="yes">Sigma Level</property>
+                        <property name="label" translatable="yes">r.m.s.d. Level</property>
                       </object>
                     </child>
                   </object>
@@ -10511,7 +10511,7 @@ in this molecule.</property>
 Perhaps there were no ligands to be found?
 
 Alternatively you could try to reduce the search
-sigma level or the acceptable fit fraction.</property>
+density level or the acceptable fit fraction.</property>
             <property name="justify">center</property>
           </object>
         </child>
