@@ -5,7 +5,7 @@ on:
 
 jobs:
 
-  build-libcootapi-for-macos:
+  build-libcootapi-for-macos-homebrew:
 
     runs-on: macos-latest
 
@@ -92,11 +92,27 @@ jobs:
       # - name: ls the new bin
       #   run:  ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/bin
 
-      - name: find nanobind in /usr/local
-        run:  find /usr/local -name nanobind
+      - name: download a Python
+        run:  wget -nv http://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz
 
-      # - name: set the path
-      #   run:  echo /Users/runner/install/chapi-Darwin-macos-gtk4/bin >> $GITHUB_PATH
+      - name: untar the Python
+        run:  tar xf Python-3.10.13.tar.gz
+
+      - name: configure, compile and install the Python
+        run:  >
+              cd Python-3.10.13 &&
+              ./configure --prefix=$HOME/install &&
+              make -j 4 &&
+              make install
+
+      - name: set the path
+        run:  echo /Users/runner/install/bin >> $GITHUB_PATH
+
+      - name: install nanobind
+        run:  pip3 install nanobind
+
+      - name: find nanobind in $HOME/install
+        run:  find $HOME/install -name nanobind
 
       - name: create-build-directory-for-libcootapi
         run:  mkdir build-libcootapi
@@ -105,15 +121,13 @@ jobs:
         run:  sed -i.backup -e 's/find_package.CCP4/#&/' CMakeLists.txt
 
       - name: run cmake
-        env:
-          HOMEBREW_MAKE_JOBS: 4
         run: >
             cd build-libcootapi &&
-            cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
+            echo cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
             -Dnanobind_DIR=/usr/local/lib/python3.12/site-packages/nanobind/cmake ..
 
       - name: make
-        run:  cd build-libcootapi && make -j 4
+        run:  cd build-libcootapi && echo make -j 4
 
       - name: make install
-        run:  cd build-libcootapi && make install
+        run:  cd build-libcootapi && echo make install
