@@ -17,7 +17,7 @@ jobs:
       id: cache-autobuild
       uses: actions/cache@v4
       with:
-         path: ~/autobuild
+         path: /Users/runner/autobuild
          key:  files-in-autobuild
 
     # Home on macOS is /Users/runner, we start in /Users/runner/work/coot/coot
@@ -48,6 +48,7 @@ jobs:
           cd build-libcootapi &&
           cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
           -DRDKit_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/cmake/rdkit
+          -DGEMMI_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/cmake/gemmi
           -Dnanobind_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/python3.10/site-packages/nanobind/cmake ..
 
     - name: make
