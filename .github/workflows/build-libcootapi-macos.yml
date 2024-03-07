@@ -96,7 +96,7 @@ jobs:
         run:  wget -nv http://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz
 
       - name: untar the Python
-        run:  tar xf Python-3.10.13.tar.gz
+        run:  tar xf Python-3.10.13.tgz
 
       - name: configure, compile and install the Python
         run:  >
