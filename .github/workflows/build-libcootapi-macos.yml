@@ -109,6 +109,7 @@ jobs:
         run: >
             cd build-libcootapi &&
             cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
+            -DENHANCED_LIGAND_TOOLS=TRUE
             -DGEMMI_DIR=/usr/local/lib/cmake/gemmi
             -DRDKit_DIR=/usr/local/lib/cmake/rdkit
             -Dnanobind_DIR=/Users/runner/install/lib/python3.10/site-packages/nanobind/cmake ..
