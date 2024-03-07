@@ -3252,6 +3252,9 @@ else
    echo BUILDING glm: >&2
     glm_version=0.9.9.2
     glm_version=1.0.0
+    glm_version=0.9.9.5
+    # The glm version is 0.9.9.5 because glm.pc was deleted after that.
+    # thanks sayurlinux.
     # ${WGET} $extras_place/glm-$glm_version.tar.gz
     echo fetching https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz >&2
     ${WGET} https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz
