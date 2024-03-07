@@ -52,7 +52,7 @@ jobs:
 
       - name: Install system dependencies
         # run:  sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev
-        run:  sudo apt-get install cmake libdw-dev libncurses5-dev
+        run:  sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev
 
       - name: Where are we?
         run:  pwd
