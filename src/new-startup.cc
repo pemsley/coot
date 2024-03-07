@@ -377,12 +377,15 @@ on_glarea_swipe(GtkEventControllerScroll *controller,
                 gpointer                  user_data) {
 
    graphics_info_t g;
-   // std::cout << "swipe " << dx << " " << dy << std::endl;
+   // swipes happend a lot - a click-and-drag seems to be a swipe
+   // std::cout << "------------------ swipe " << dx << " " << dy << std::endl;
 
    GtkGestureSwipe *swipe_gesture; // how to get this?
    double vel_x;
    double vel_y;
    // gboolean state = gtk_gesture_get_velocity(swipe_gesture, &vel_x, &vel_y);
+
+   g.using_trackpad = true;
 
 }
 
