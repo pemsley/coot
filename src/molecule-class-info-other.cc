@@ -238,7 +238,7 @@ coot::dots_representation_info_t::solvent_accessibilities(mmdb::Residue *res_ref
    return v;
 }
 
-
+#if 0
 std::vector<coot::solvent_exposure_difference_helper_t>
 coot::dots_representation_info_t::solvent_exposure_differences(mmdb::Residue *res_ref,
                                                                const std::vector<mmdb::Residue *> &near_residues) const {
@@ -302,6 +302,7 @@ coot::dots_representation_info_t::solvent_exposure_differences(mmdb::Residue *re
    }
    return v;
 }
+#endif
 
 
 

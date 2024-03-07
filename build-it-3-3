@@ -405,7 +405,8 @@
 # 6.16 20240228-PE Add status of FFTW building
 # 6.17 20240229-PE Portentious day. Adding in gettext for libintl for python and rdkit
 # 6.18 20240304-PE Remove the --pydebug from Python's configuration
-script_version=6.17
+# 6.19 20240306-PE Don't build gettext on anything other than Darwin
+script_version=6.18
 
 
 
@@ -2753,9 +2754,13 @@ if [ $build_openssl = true ] ; then
     echo done OpenSSL >&2
 fi
 
-# gettext provides -lintl - which is needed for python
+# gettext provides -lintl - which is needed for python on macOS
 build_getttext=true
-if test -e $install_top_dir/include/libintl.h ; then
+if test $OS = Darwin ; then
+    if test -e $install_top_dir/include/libintl.h ; then
+        build_getttext=false
+    fi
+else
     build_getttext=false
 fi
 
@@ -2764,13 +2769,14 @@ if $build_getttext = true ; then
     echo BUILDING gettext
     echo BUILDING gettext $gettext_version >&2
     (
-       ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gettext/gettext-$gettext_version.tar.gz
+     unset LD_LIBRARY_PATH # or otherwise UP in libreadline problems
+     ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gettext/gettext-$gettext_version.tar.gz
        tar xf $AUTOBUILD_SOURCES/gettext-$gettext_version.tar.gz
        cd gettext-$gettext_version
        ./configure --prefix=$install_top_dir
        $MAKE && make install
        cd -
-    ) > $HOSTLOGDIR/07-g-getttext.txt 2>&1
+    ) > $HOSTLOGDIR/07-g-gettext.txt 2>&1
     echo done gettext >&2
 else
     echo not building gettext >&2
@@ -3641,16 +3647,17 @@ if [ "$build_rdkit" = true ] ; then
                # -DCMAKE_SHARED_LINKER_FLAGS="-lintl -dl"
                # libpython is linking with /usr/local/opt/gettext/lib:
                # otool -L ~/autobuild/build-chapi-gtk4/lib/libpython3.10d.dylib | grep libint
-	       # /usr/local/opt/gettext/lib/libintl.8.dylib (compatibility version 13.0.0, current version 13.0.0)
+               # /usr/local/opt/gettext/lib/libintl.8.dylib (compatibility version 13.0.0, current version 13.0.0)
 
                # no help
                # -DCMAKE_C_STANDARD_LIBRARIES="-lintl -ldl -framework CoreFoundation" \
 
+               # remove to see if this fixes the non-Darwin build.
+               # -DCMAKE_STATIC_LINKER_FLAGS="$install_top_dir/lib/libintl.a"
 
       echo cmake \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
                -DCatch2_DIR=$install_top_dir \
-               -DCMAKE_STATIC_LINKER_FLAGS="$install_top_dir/lib/libintl.a" \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
@@ -3666,7 +3673,6 @@ if [ "$build_rdkit" = true ] ; then
       if cmake  \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
                -DCatch2_DIR=$install_top_dir \
-               -DCMAKE_STATIC_LINKER_FLAGS="$install_top_dir/lib/libintl.a" \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
@@ -3737,6 +3743,7 @@ if "$build_gmp" = true ; then
     ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.bz2
     (date
      pwd
+     unset LD_LIBRARY_PATH
      tar xf ${AUTOBUILD_SOURCES}/gmp-$gmp_version.tar.bz2
      cd gmp-$gmp_version
      ./configure $generic_prefix
@@ -4155,6 +4162,7 @@ if [ "$build_unistring" = true ] ; then
       echo BUILDING libunistring $unistring_version >&2
       echo BUILDING libunistring:
       (
+      unset LD_LIBRARY_PATH
       echo ========================= build unistring =================================
       if [ -e $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz
@@ -4191,6 +4199,7 @@ if [ "$build_gc" = true ] ; then
 
    if [ $skip_this = false ] ; then
       (
+      unset LD_LIBRARY_PATH
       echo BUILDING libatomic-ops:
       echo BUILDING libatomic-ops: >&2
       if [ ! -e $AUTOBUILD_SOURCES/libatomic_ops-7.6.12.tar.gz ] ; then

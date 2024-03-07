@@ -254,6 +254,7 @@ namespace coot {
       // So that we only sample the coords once, not for every round
       // of water picking.
       void find_clusters_internal(float z_cutoff,
+                                  bool water_cluster_mode,
 				  const std::vector<clipper::Coord_orth> &sampled_protein_coords);
 
       // exlude water-sized blobs
