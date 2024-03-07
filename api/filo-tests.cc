@@ -59,6 +59,7 @@ int test_something_filo(molecules_container_t &mc) {
       }
    }
    mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -96,6 +97,10 @@ int test_get_diff_map_peaks(molecules_container_t &mc) {
    if (diff_diff_map_peaks.size() >  0) {
       status = 1;
    }
+
+   mc.close_molecule(coordMolNo);
+   mc.close_molecule(mapMolNo);
+   mc.close_molecule(diffMapMolNo);
 
    return status;
 

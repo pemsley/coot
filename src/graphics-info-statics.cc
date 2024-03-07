@@ -580,7 +580,6 @@ int         graphics_info_t::go_to_atom_menu_label_n_chars_max = 40;
 GtkWidget *graphics_info_t::model_fit_refine_dialog = NULL;
 short int  graphics_info_t::model_fit_refine_dialog_was_sucked = 0;
 GtkWidget *graphics_info_t::residue_info_dialog = NULL;
-GtkWidget *graphics_info_t::rotamer_dialog = NULL;
 GtkWidget *graphics_info_t::difference_map_peaks_dialog = NULL;
 GtkWidget *graphics_info_t::checked_waters_baddies_dialog = NULL;
 

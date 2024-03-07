@@ -54,6 +54,7 @@
 #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif
 
+#include "plain-atom-overlap.hh"
 
 
 namespace coot {
@@ -339,6 +340,7 @@ namespace coot {
                                      coot::protein_geometry &geom,
                                      ctpl::thread_pool &static_thread_pool);
 
+
       // ====================== dragged refinement ======================================
 
       coot::restraints_container_t *last_restraints;
@@ -518,6 +520,7 @@ namespace coot {
       int get_number_of_hydrogen_atoms() const;
       float get_molecule_diameter() const;
       mmdb::Residue *cid_to_residue(const std::string &cid) const;
+      std::vector<mmdb::Residue *> cid_to_residues(const std::string &cid) const;
       mmdb::Atom *cid_to_atom(const std::string &cid) const;
       std::pair<bool, residue_spec_t> cid_to_residue_spec(const std::string &cid) const;
       std::pair<bool, atom_spec_t> cid_to_atom_spec(const std::string &cid) const;
@@ -702,7 +705,7 @@ namespace coot {
                                        float radius, float contour_level,
                                        const std::string &file_name);
 
-      //! export model molecule as glTF - This API will change - we want to specify surfaces and ribbons too.
+      //! export model molecule as glTF - this is the bonds and atoms API
       void export_model_molecule_as_gltf(const std::string &mode,
                                          const std::string &selection_cid,
                                          protein_geometry *geom,
@@ -710,6 +713,12 @@ namespace coot {
                                          float bonds_width, float atom_radius_to_bond_width_ratio, int smoothness_factor,
                                          bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
                                          const std::string &file_name);
+
+      // this is the ribbons and surfaces API
+      void export_molecular_represenation_as_gltf(const std::string &atom_selection_cid,
+                                                  const std::string &colour_scheme,
+                                                  const std::string &style,
+                                                  const std::string &file_name);
 
       void set_show_symmetry(bool f) { show_symmetry = f;}
       bool get_show_symmetry() { return show_symmetry;}
@@ -767,6 +776,19 @@ namespace coot {
       //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
       std::vector<coot::residue_spec_t> residues_near_residue(const std::string &residue_cid, float dist) const;
 
+      //! not const because it can dynamically add dictionaries
+      std::vector<plain_atom_overlap_t> get_overlaps(protein_geometry *geom_p);
+
+      //! not const because it can dynamically add dictionaries
+      std::vector<plain_atom_overlap_t> get_overlaps_for_ligand(const std::string &cid_ligand,
+                                                                protein_geometry *geom_p);
+
+      //! not const because it can dynamically add dictionaries
+      coot::atom_overlaps_dots_container_t get_overlap_dots(protein_geometry *geom_p);
+
+      //! not const because it can dynamically add dictionaries
+      coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(const std::string &cid_ligand,
+                                                                       protein_geometry *geom_p);
 
       // ------------------------ model-changing functions
 
@@ -1010,6 +1032,12 @@ namespace coot {
                         bool do_rama_plot_restraints, float rama_plot_weight,
                         bool do_torsion_restraints, float torsion_weight,
                         bool refinement_is_quiet);
+
+      int minimize(const std::string &atom_selection_cid,
+                   int n_cycles,
+                   bool do_rama_plot_restraints, float rama_plot_weight,
+                   bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet,
+                   coot::protein_geometry *geom_p);
 
       bool shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &F_sigF,
                                           const clipper::HKL_data<clipper::data32::Flag> &free_flag);

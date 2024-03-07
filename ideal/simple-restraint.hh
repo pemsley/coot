@@ -1161,6 +1161,7 @@ namespace coot {
       int n_atoms_limit_for_nbc; // the neighbours in non_bonded_contacts_atom_indices are only useful
                                  // for the moving atoms.
       mmdb::PPAtom atom;
+      bool atom_array_needs_to_be_deleted_at_end;
       bool model_has_hydrogen_atoms;
       std::vector<bool> atom_is_metal;
       std::vector<bool> atom_is_hydrogen;
@@ -1209,6 +1210,7 @@ namespace coot {
          mol = 0;
          n_atoms = 0;
          atom = 0;
+         atom_array_needs_to_be_deleted_at_end = false; // it's not allocated
          model_has_hydrogen_atoms = true;
          include_map_terms_flag = 0;
          have_oxt_flag = 0;

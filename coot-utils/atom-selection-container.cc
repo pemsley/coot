@@ -403,7 +403,8 @@ get_atom_selection(std::string pdb_name,
 
           fix_element_name_lengths(asc.mol); // should not be needed with new mmdb
           fix_away_atoms(asc);
-          fix_wrapped_names(asc);
+          // fix_wrapped_names(asc); // 20240302-PE remove this. Surely it's no longer needed
+                                     // (and it has a memory leak)
        }
     }
 

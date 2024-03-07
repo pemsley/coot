@@ -2557,7 +2557,7 @@ public:
    // dialog and the dialog will get sent :next rotamer:, :previous
    // rotamer: signals.
 
-   static GtkWidget *rotamer_dialog;
+   // static GtkWidget *rotamer_dialog; // 20240304-PE goodbye, these days, look it up.
 
    // And also for the difference map peaks dialog, which people want
    // to scroll through using . and ,

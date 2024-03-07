@@ -205,7 +205,7 @@ class molecules_container_t {
    //! If n_cycles is negative, this means "refine to completion."
    //!
    //! @return success/progress status
-public:
+
    int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc, int n_cycles);
 
    double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
@@ -291,6 +291,7 @@ public:
       use_gemmi = true;
       imol_refinement_map = -1;
       imol_difference_map = -1;
+      mmdb::InitMatType();
       geometry_init_standard(); // do this by default now
       refinement_immediate_replacement_flag = true; // 20221018-PE for WebAssembly for the moment
       imol_moving_atoms = -1;
@@ -306,7 +307,6 @@ public:
       draw_missing_residue_loops_flag = true;
       read_standard_residues();
       interrupt_long_term_job = false;
-      mmdb::InitMatType();
       contouring_time = 0;
       make_backups_flag = true;
 
@@ -315,6 +315,8 @@ public:
 
       use_torsion_restraints = false;
       torsion_restraints_weight = 1.0;
+
+      map_is_contoured_using_thread_pool_flag = false;
 
       // debug();
    }
@@ -332,6 +334,8 @@ public:
       init();
       // std::cout << "in constructor map_sampling_rate: " << map_sampling_rate << std::endl;
    }
+
+   ~molecules_container_t();
 
    //! the refinement map - direct access. When refinement is performed, this is the map
    //! that will be used. Many (indeed most) of thesee functions explicity take a map. If the map
@@ -365,6 +369,11 @@ public:
 
    //! @return the number of molecules
    unsigned int get_number_of_molecules() const { return molecules.size(); }
+
+   //! The adds a number of empty molecules to the internal vector of molecules
+   //! Note that his is not like `reserve` as it will increase the molecule index
+   //! of the next added molecule by `n_empty`.
+   void create_empty_molecules(unsigned int n_empty);
 
    //! set the map used for refinement and fitting
    void set_imol_refinement_map(int i) { imol_refinement_map = i; }
@@ -649,6 +658,10 @@ public:
                                       float bonds_width, float atom_radius_to_bond_width_ratio, int smoothness_factor,
                                       bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
                                       const std::string &file_name);
+
+   void export_molecular_represenation_as_gltf(int imol, const std::string &atom_selection_cid,
+                                               const std::string &colour_scheme, const std::string &style,
+                                               const std::string &file_name);
 
    //! return the colur table (for testing)
    std::vector<glm::vec4> get_colour_table(int imol, bool against_a_dark_background) const;
@@ -1185,6 +1198,15 @@ public:
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end, int n_cycles);
 
+   // minimize/optimize the geometry of the specified residue(s).
+   // If you pass n_cycles = 100 (or some such) then you can get the mesh for the partially optimized ligand/residues
+   // (like `refine_residues()` and `refine()`) is nice for animation.
+   // @return the success status 1 if the minimization was performed and 0 if it was not.
+   int minimize_energy(int imol, const std::string &atom_selection_cid,
+                       int n_cycles,
+                       bool do_rama_plot_restraints, float rama_plot_weight,
+                       bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet);
+
    //! fix atoms during refinement. Does nothing at the moment.
    void fix_atom_selection_during_refinement(int imol, const std::string &atom_selection_cid);
 
@@ -1336,6 +1358,18 @@ public:
    //! Less than 0.5 standard deviations is fully green.
    // Function is not const because it might change the protein_geometry geom.
    coot::simple_mesh_t get_mesh_for_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid);
+
+   //! not const because it can dynamically add dictionaries
+   coot::atom_overlaps_dots_container_t get_overlap_dots(int imol);
+
+   //! not const because it can dynamically add dictionaries
+   coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(int imol, const std::string &cid_ligand);
+
+   //! not const because it can dynamically add dictionaries
+   std::vector<coot::plain_atom_overlap_t> get_overlaps(int imol);
+
+   //! not const because it can dynamically add dictionaries
+   std::vector<coot::plain_atom_overlap_t> get_overlaps_for_ligand(int imol, const std::string &cid_ligand);
 
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation

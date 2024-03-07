@@ -216,6 +216,7 @@ coot::molecule_t::generate_local_self_restraints(int selHnd, float local_dist_ma
 	       }
 	    }
 	 }
+         delete [] pscontact;
       }
    }
 
@@ -326,6 +327,85 @@ coot::molecule_t::shiftfield_b_factor_refinement(const clipper::HKL_data<clipper
       int n_cycles = 3;
       coot::shift_field_b_factor_refinement(fobs, free, atom_sel.mol, n_cycles);
       status = true;
+   }
+   return status;
+}
+
+
+int
+coot::molecule_t::minimize(const std::string &atom_selection_cid,
+                           int n_cycles,
+                           bool do_rama_plot_restraints, float rama_plot_weight,
+                           bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet,
+                           coot::protein_geometry *geom_p) {
+
+   // c.f. refine_direct()
+
+   int status = 0;
+
+   std::vector<mmdb::Residue *> refining_residues = cid_to_residues(atom_selection_cid);
+
+   if (! refining_residues.empty()) {
+      make_backup("minimize");
+      mmdb::Manager *mol = atom_sel.mol;
+      std::vector<mmdb::Link> links;
+      std::vector<coot::atom_spec_t> fixed_atom_specs;
+      std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
+
+      for (const auto &r : refining_residues)
+         local_residues.push_back(std::make_pair(false, r));
+
+      // std::for_each(refining_residues.begin(), refining_residues.end(),
+      // [&](mmdb::Residue *r) { local_residues.push_back(std::make_pair(false, r)); });
+
+      coot::restraints_container_t restraints(local_residues,
+                                              links,
+                                              *geom_p,
+                                              mol,
+                                              fixed_atom_specs, &xmap);
+
+      if (refinement_is_quiet)
+         restraints.set_quiet_reporting();
+
+      if (do_rama_plot_restraints) {
+         restraints.set_rama_type(RAMA_TYPE_ZO);
+         restraints.set_rama_plot_weight(rama_plot_weight);
+      }
+
+      if (do_torsion_restraints) {
+         restraints.set_torsion_restraints_weight(torsion_weight);
+      }
+
+      restraint_usage_Flags flags = TYPICAL_RESTRAINTS;
+      if (do_torsion_restraints) flags = TYPICAL_RESTRAINTS_WITH_TORSIONS;
+      pseudo_restraint_bond_type pseudos = NO_PSEUDO_BONDS;
+
+      int n_threads = 4; // coot::get_max_number_of_threads();
+      ctpl::thread_pool thread_pool(n_threads);
+      restraints.thread_pool(&thread_pool, n_threads);
+
+      int imol = imol_no;
+      bool do_auto_helix_restraints = true;
+      bool do_auto_strand_restraints = false;
+      bool do_h_bond_restraints = false;
+      bool do_residue_internal_torsions = do_torsion_restraints;
+      bool make_trans_peptide_restraints = true;
+      restraints.make_restraints(imol, *geom_p, flags,
+                                 do_residue_internal_torsions,
+                                 make_trans_peptide_restraints,
+                                 rama_plot_weight, do_rama_plot_restraints,
+                                 do_auto_helix_restraints,
+                                 do_auto_strand_restraints,
+                                 do_h_bond_restraints,
+                                 pseudos);
+      int nsteps_max = n_cycles;
+      short int print_chi_sq_flag = 1;
+      restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
+      geometry_distortion_info_container_t gd = restraints.geometric_distortions();
+      if (! refinement_is_quiet)
+         gd.print();
+      restraints.unset_fixed_during_refinement_udd();
+      status = 1;
    }
    return status;
 }

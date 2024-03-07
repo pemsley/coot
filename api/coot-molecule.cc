@@ -135,6 +135,37 @@ coot::molecule_t::cid_to_atom_spec(const std::string &cid) const {
    return std::make_pair(status, atom_spec);
 }
 
+std::vector<mmdb::Residue *>
+coot::molecule_t::cid_to_residues(const std::string &atom_selection_cids) const {
+
+   std::vector<mmdb::Residue *> v;
+   if (! atom_sel.mol) return v;
+
+   std::set<mmdb::Residue *> residue_set;
+   std::vector<std::string> cid_v = coot::util::split_string(atom_selection_cids, "||");
+   int selHnd = atom_sel.mol->NewSelection(); // d
+   if (! cid_v.empty()) {
+      int nSelResidues = 0;
+      mmdb::Residue **SelResidues = 0;
+      atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+      for (const auto &cid : cid_v) {
+         atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_OR);
+         atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+         for (int i=0; i<nSelResidues; i++) {
+            residue_set.insert(SelResidues[i]);
+         }
+      }
+   }
+
+   std::set<mmdb::Residue *>::const_iterator it;
+   v.reserve(residue_set.size()); // micro-optimization
+   for (it=residue_set.begin(); it!=residue_set.end(); ++it)
+      v.push_back(*it);
+
+   return v;
+}
+
+
 
 // restore from (previous) backup
 void
@@ -4263,6 +4294,17 @@ coot::molecule_t::export_model_molecule_as_gltf(const std::string &mode,
    sm.export_to_gltf(file_name, as_binary);
 
 }
+
+void
+coot::molecule_t::export_molecular_represenation_as_gltf(const std::string &atom_selection_cid,
+                                                         const std::string &colour_scheme, const std::string &style,
+                                                         const std::string &file_name) {
+
+   coot::simple_mesh_t sm = get_molecular_representation_mesh(atom_selection_cid, colour_scheme, style);
+   bool as_binary = true; // test the extension of file_name
+   sm.export_to_gltf(file_name, as_binary);
+}
+
 
 //! Interactive B-factor refinement (fun).
 //! "factor" might typically be say 0.9 or 1.1

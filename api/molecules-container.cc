@@ -23,6 +23,11 @@ std::vector<atom_pull_info_t> molecules_container_t::atom_pulls;
 clipper::Xmap<float> *molecules_container_t::dummy_xmap = new clipper::Xmap<float>;
 //bool molecules_container_t::make_backups_flag = true;
 
+molecules_container_t::~molecules_container_t() {
+
+   standard_residues_asc.clear_up();
+}
+
 bool
 molecules_container_t::is_valid_model_molecule(int imol) const {
    bool status = false;
@@ -75,6 +80,21 @@ molecules_container_t::close_molecule(int imol) {
    }
    return status;
 }
+
+//! The adds a number of empty molecules to the internal vector of molecules
+//! Note that his is not like `reserve` as it will increase the molecule index
+//! of the next added molecule by `n_empty`.
+void
+molecules_container_t::create_empty_molecules(unsigned int n_empty) {
+
+   if (n_empty > 0) {
+      unsigned int n_start = molecules.size();
+      for (unsigned int i=0; i<n_empty; i++) {
+         molecules.push_back(coot::molecule_t("--empty--", n_start+i));
+      }
+   }
+}
+
 
 void
 molecules_container_t::clear() {
@@ -5166,6 +5186,19 @@ molecules_container_t::export_model_molecule_as_gltf(int imol,
    }
 }
 
+void
+molecules_container_t::export_molecular_represenation_as_gltf(int imol, const std::string &atom_selection_cid,
+                                                              const std::string &colour_scheme, const std::string &style,
+                                                              const std::string &file_name) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].export_molecular_represenation_as_gltf(atom_selection_cid, colour_scheme, style, file_name);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+
 
 //! get density at position
 //! @return density value
@@ -5311,6 +5344,61 @@ molecules_container_t::fourier_shell_correlation(int imol_map_1, int imol_map_2)
             }
          }
       }
+   }
+   return v;
+}
+
+
+//! not const because it can dynamically add dictionaries
+coot::atom_overlaps_dots_container_t
+molecules_container_t::get_overlap_dots(int imol) {
+
+   coot::atom_overlaps_dots_container_t aodc;
+   if (is_valid_model_molecule(imol)) {
+      aodc = molecules[imol].get_overlap_dots(&geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return aodc;
+}
+
+//! not const because it can dynamically add dictionaries
+coot::atom_overlaps_dots_container_t
+molecules_container_t::get_overlap_dots_for_ligand(int imol, const std::string &cid_ligand) {
+
+   coot::atom_overlaps_dots_container_t aodc;
+   if (is_valid_model_molecule(imol)) {
+      aodc = molecules[imol].get_overlap_dots_for_ligand(cid_ligand, &geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return aodc;
+}
+
+
+
+//! not const because it can dynamically add dictionaries
+std::vector<coot::plain_atom_overlap_t>
+molecules_container_t::get_overlaps(int imol) {
+
+   std::vector<coot::plain_atom_overlap_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_overlaps(&geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}
+
+//! not const because it can dynamically add dictionaries
+std::vector<coot::plain_atom_overlap_t>
+molecules_container_t::get_overlaps_for_ligand(int imol, const std::string &cid_ligand) {
+
+   std::vector<coot::plain_atom_overlap_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_overlaps_for_ligand(cid_ligand, &geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return v;
 }

@@ -32,7 +32,7 @@
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
 #endif
-#include "lbg/lbg.hh"
+// #include "lbg/lbg.hh"
 
 #include "lbg-interface.hh"
 #include "c-interface.h"

@@ -39,7 +39,7 @@
 #include <windows.h>
 #endif
 
-#include "lbg/lbg.hh" // it matters where this is - rdkit issues...
+// #include "lbg/lbg.hh" // it matters where this is - rdkit issues...
 
 #include "globjects.h" //includes gtk/gtk.h
 

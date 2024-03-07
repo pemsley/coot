@@ -1024,7 +1024,9 @@ coot::crankshaft::run_optimizer(float start_angles[],
   }
 
   gsl_multimin_fdfminimizer_free(s);
+  s = nullptr;
   gsl_vector_free(x);
+  x = nullptr;
   return sas;
 
 }

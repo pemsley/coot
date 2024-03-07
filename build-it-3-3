@@ -402,7 +402,10 @@
 # 6.13 20240216-PE Install Darwin OpenSSL in $install_top_dir
 # 6.14 20240220-PE Set the C++ flags for Catch2 (needed for macOS/clang) and build with CMake
 # 6.15 20240220-PE OpenSSL and python apiflags and boost bjam updates
-script_version=6.15
+# 6.16 20240228-PE Add status of FFTW building
+# 6.17 20240229-PE Portentious day. Adding in gettext for libintl for python and rdkit
+# 6.18 20240304-PE Remove the --pydebug from Python's configuration
+script_version=6.17
 
 
 
@@ -989,7 +992,6 @@ echo GITHUB_ENV $GITHUB_ENV
 echo GITHUB_WORKSPACE $GITHUB_WORKSPACE
 
 # now make the build logs directory
-echo mkdir -p $LOGS >&2
 mkdir -p $LOGS
 
 shared_static_flag="--disable-shared" # huh?
@@ -1456,7 +1458,7 @@ if make --version ; then
       fi
    fi
    if [ $OS = Darwin ] ; then
-      np=$(system_profiler SPHardwareDataType | awk '/Total Number/ { print $NF }')
+      np=$(system_profiler SPHardwareDataType | awk '/Total Number/ { print $5 }')
       MAKE="make -j$np"
    fi
 else
@@ -2083,8 +2085,7 @@ if [ "$gtk_pkg_config_status" = 0 ] ; then
 fi
 
 
-echo libtool test: looking for  ${install_top_dir}/include/ltdl.h
-ls  ${install_top_dir}/include/ltdl.h
+echo libtool test: looking for ${install_top_dir}/include/ltdl.h
 if test -e ${install_top_dir}/include/ltdl.h ; then
     echo installation has libtool
     build_libtool=
@@ -2101,7 +2102,8 @@ fi
 python_version=python3.11
 pver=3.11.4
 python_version_extension=3.11 # extract this
-python_abiflags=d # because we use --pydebug on the command line for Python configure
+# I think that for python to be compatible with Blender, we don't want the debug version
+# python_abiflags=d # because we use --with-pydebug on the command line for Python configure
 python_version_squish=311
 
 # for Blender 4 in 2024, we want Python 3.10.13, so uncomment the 3 lines below:
@@ -2145,35 +2147,35 @@ fi
 # but does this compile cleanly on Mac OS X?  I've forgotten.
 # Perhaps we will need to be more clever and potentially use
 # the fink GSL if it is available.
-$install_top_dir/bin/gsl-config --prefix
-if test $? != 0 ; then
-   echo gsl should be built
-   build_gsl=1
+# 20240302-PE "fink"? Blimey.
+if test -e $install_top_dir/bin/gsl-config ; then
+    $install_top_dir/bin/gsl-config --prefix
+    if test $? != 0 ; then
+       echo gsl should be built
+       build_gsl=1
+    else
+        gsl_version=`gsl-config --version`
+
+        # if you change this, change also gsl_version below.
+        needed_gsl_version=1.11
+        needed_gsl_version=1.12
+        needed_gsl_version=1.15
+        needed_gsl_version=1.16
+        needed_gsl_version=2.7
+
+        if [ -e $install_top_dir/include/gsl/gsl_version.h ] ; then
+            build_gsl=
+        fi
+
+        echo installation has the GSL version $gsl_version
+        if [ "$build_gsl" = 1 ] ; then
+             echo need to build GSL
+        else
+             echo GSL is up to date
+        fi
+    fi
 else
-   gsl_version=`gsl-config --version`
-
-   # if you change this, change also gsl_version below.
-   needed_gsl_version=1.11
-   needed_gsl_version=1.12
-   needed_gsl_version=1.15
-   needed_gsl_version=1.16
-   needed_gsl_version=2.7
-
-   if [ -e $install_top_dir/include/gsl/gsl_version.h ] ; then
-       build_gsl=
-   fi
-
-   echo system/installation has the GSL version $gsl_version
-   echo build_gsl is $build_gsl
-
-   if [ "$build_gsl" = 1 ] ; then
-	echo need to build GSL
-        build_gsl=1
-   else
-	echo GSL is up to date
-	# set build_gsl to blank:
-	build_gsl=
-   fi
+    build_gsl=1
 fi
 
 
@@ -2416,6 +2418,7 @@ fi
 # fftw
 if test -n "$build_fftw" ; then
     echo BUILDING fftw:
+    echo BUILDING fftw 2.1.5: >&2
 #
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/fftw-2.1.5.tar.gz
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/fftw-configure-stuff.tar.gz
@@ -2424,18 +2427,19 @@ if test -n "$build_fftw" ; then
 ${WGET} $extras_place/fftw-2.1.5.tar.gz
 # ${WGET} $extras_place/fftw-configure-stuff.tar.gz # Don't need
 
-(
-date
-pwd
-gzip -dc ${AUTOBUILD_SOURCES}/fftw-2.1.5.tar.gz | tar xf -
-# gzip -dc ${AUTOBUILD_SOURCES}/fftw-configure-stuff.tar.gz | tar xf - # don't need.
-cd fftw-2.1.5
-if ./configure $generic_prefix --enable-shared --enable-float ; then
-   if $MAKE ; then
-      $MAKE install
-   fi
-fi
-)  > $HOSTLOGDIR/03-fftw.txt 2>&1
+    (
+    date
+    pwd
+    gzip -dc ${AUTOBUILD_SOURCES}/fftw-2.1.5.tar.gz | tar xf -
+    # gzip -dc ${AUTOBUILD_SOURCES}/fftw-configure-stuff.tar.gz | tar xf - # don't need.
+    cd fftw-2.1.5
+    if ./configure $generic_prefix --enable-shared --enable-float ; then
+       if $MAKE ; then
+          $MAKE install
+       fi
+    fi
+    )  > $HOSTLOGDIR/03-fftw.txt 2>&1
+    echo done fftw >&2
 else
     echo not building fftw:
 fi
@@ -2559,8 +2563,8 @@ if test -n "$build_clipper" ; then
 
     clipper_build_status=$?
     if [ $clipper_build_status != 0 ] ; then
-	echo clipper build failed, exiting
-	my_exit 2
+        echo clipper build failed, exiting
+        my_exit 2
     fi
     echo done clipper >&2
 
@@ -2575,40 +2579,52 @@ fi
 ###############################################################################
 
 if true ; then
-      echo BUILDING gemmi from git repo \(and installing GEMMI\)
-      echo BUILDING gemmi from git repo \(and installing GEMMI\) >&2
-      pwd >&2
-      echo start_dir is $start_dir
-      (
+    echo BUILDING gemmi from git repo \(and installing GEMMI\)
+    echo BUILDING gemmi from git repo \(and installing GEMMI\) >&2
+    pwd >&2
+    echo start_dir is $start_dir
+    (
           save_dir=$(pwd)
           cd $start_dir
+          needs_rebuild=false
           if [ -e gemmi ] ; then
               cd gemmi
-              git fetch
-              git merge
+              git remote update
+              git status -uno
+              needs_rebuild=false
+              if git status -uno | grep -q "branch is behind" ; then
+                  needs_rebuild=true
+                  git fetch
+                  git merge
+              fi
+              echo needs rebuild: $needs_rebuild
               cd -
           else
               git clone https://github.com/project-gemmi/gemmi.git
+              needs_rebuild=true
           fi
           # cd gemmi/include
           # note to self: fix this for Darwin - which has a crippled cp
           # cp -a -r gemmi $install_top_dir/include
           # cd -
           # cd $save_dir
-	  if [ -d build-gemmi ] ; then
- 	      :
-	  else
-              mkdir build-gemmi
-	  fi
-          cd build-gemmi
-	  pwd
-          # add -DUSE_PYTHON=1 here at some stage.
-          cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi
-          if $MAKE ; then
-              make install
+          if needs_rebuilds = true ; then
+              if [ -d build-gemmi ] ; then
+                  :
+              else
+                  mkdir build-gemmi
+              fi
+              cd build-gemmi
+              pwd
+              # add -DUSE_PYTHON=1 here at some stage.
+              cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi
+              if $MAKE ; then
+                  make install
+              fi
           fi
-      ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
-      echo done gemmi
+    ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
+    echo done gemmi
+    echo done gemmi >&2
 fi
 
 
@@ -2733,6 +2749,31 @@ if [ $build_openssl = true ] ; then
     $MAKE && make install
     cd -
     ) > $HOSTLOGDIR/07-f-openssl.txt 2>&1
+    echo done OpenSSL
+    echo done OpenSSL >&2
+fi
+
+# gettext provides -lintl - which is needed for python
+build_getttext=true
+if test -e $install_top_dir/include/libintl.h ; then
+    build_getttext=false
+fi
+
+if $build_getttext = true ; then
+    gettext_version=0.22.5
+    echo BUILDING gettext
+    echo BUILDING gettext $gettext_version >&2
+    (
+       ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gettext/gettext-$gettext_version.tar.gz
+       tar xf $AUTOBUILD_SOURCES/gettext-$gettext_version.tar.gz
+       cd gettext-$gettext_version
+       ./configure --prefix=$install_top_dir
+       $MAKE && make install
+       cd -
+    ) > $HOSTLOGDIR/07-g-getttext.txt 2>&1
+    echo done gettext >&2
+else
+    echo not building gettext >&2
 fi
 
 # python
@@ -2781,10 +2822,11 @@ if test -n "$build_python" ; then
    # note to self: We need ffi.h (and lib presumably) to build the ctypes module (libffi-devel)
    # (or I could include it in this build script) (I don't know if ctypes is important)
    # 20220227-PE ctypes is crucial for meson
-   echo INFO:: ./configure $generic_prefix --with-pydebug --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
+   # remove --with-pydebug for now because __PyNegativeRefcount promlem on trying to load this into Blender
+   echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
    #
    # do we also need to use --with-threads=dir?
-   if ./configure $generic_prefix --with-pydebug --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
+   if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
         echo INFO:: make install for python
@@ -2807,7 +2849,7 @@ EOF
    # https://www.phind.com/search?cache=z8ao21y6rh5grg4wezeybr06
    # try this:
    # add
-   # echo "using python :  3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
+   # echo "using python : 3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
    if [ -e $install_top_dir/bin/python3 ] ; then
       echo linking python to python3
       ln -s $install_top_dir/bin/python3 $install_top_dir/bin/python
@@ -2815,7 +2857,7 @@ EOF
 
    echo BUILDING Python $pver done >&2
 
-   echo Upgrading pip and installing pycairo and pygobject >&2
+   echo Upgrading pip
    (
    which pip3
    pip3 install --upgrade pip
@@ -3248,10 +3290,14 @@ echo pip3 install --upgrade pip
 pip3 install --upgrade pip
 echo pip3 install cython
 pip3 install cython
-echo pip3 install nanobind
-echo pip3 install nanobind >&2
-pip3 install nanobind
-echo pip3 install nanobind done >&2
+if test -d $install_top_dir/lib/$python_version/site-packages/nanobind ; then
+    :
+else
+    echo pip3 install nanobind
+    echo pip3 install nanobind >&2
+    pip3 install nanobind
+    echo pip3 install nanobind done >&2
+fi
 
 if [ true = true ] ; then
    skip_this=false
@@ -3591,9 +3637,20 @@ if [ "$build_rdkit" = true ] ; then
       # -DPYTHON_INCLUDE_DIR=$PYROOT/include/python3.8
       # -DBoost_PYTHON39_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so
 
+               # -DCMAKE_CXX_STANDARD_LIBRARIES="-lintl -dl"
+               # -DCMAKE_SHARED_LINKER_FLAGS="-lintl -dl"
+               # libpython is linking with /usr/local/opt/gettext/lib:
+               # otool -L ~/autobuild/build-chapi-gtk4/lib/libpython3.10d.dylib | grep libint
+	       # /usr/local/opt/gettext/lib/libintl.8.dylib (compatibility version 13.0.0, current version 13.0.0)
+
+               # no help
+               # -DCMAKE_C_STANDARD_LIBRARIES="-lintl -ldl -framework CoreFoundation" \
+
+
       echo cmake \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
                -DCatch2_DIR=$install_top_dir \
+               -DCMAKE_STATIC_LINKER_FLAGS="$install_top_dir/lib/libintl.a" \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
@@ -3609,6 +3666,7 @@ if [ "$build_rdkit" = true ] ; then
       if cmake  \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
                -DCatch2_DIR=$install_top_dir \
+               -DCMAKE_STATIC_LINKER_FLAGS="$install_top_dir/lib/libintl.a" \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \

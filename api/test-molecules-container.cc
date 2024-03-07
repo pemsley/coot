@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 void starting_test(const char *func) {
-   std::cout << "Starting " << func << "()" << std::endl;
+   std::cout << "\nStarting " << func << "()" << std::endl;
 }
 
 // wrap with the directory for the test data.
@@ -220,6 +220,8 @@ int test_auto_fit_rotamer_1(molecules_container_t &mc_in) {
    } else {
       std::cout << "Non-valid model molecule " << imol << std::endl;
    }
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -257,6 +259,8 @@ int test_auto_fit_rotamer_2(molecules_container_t &mc) {
    } else {
       std::cout << "Non-valid model molecule " << imol << std::endl;
    }
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -367,6 +371,9 @@ int test_updating_maps(molecules_container_t &mc) {
    if (new_rail_points > 4.0)
       status = 1;
 
+   mc.close_molecule(imol_diff_map);
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
    return status;
 
 }
@@ -478,6 +485,8 @@ int test_undo_and_redo_2(molecules_container_t &mc) {
    } else {
       std::cout << "in test_undo_and_redo_2() failed to find atom " << std::endl;
    }
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -601,6 +610,7 @@ int test_density_mesh(molecules_container_t &mc) {
    unsigned int size_2 = map_mesh_2.vertices.size();
 
    std::cout << "compare sizes " << size_1 << " " << size_2 << std::endl;
+   mc.close_molecule(imol_map);
 
    return status;
 }
@@ -696,6 +706,7 @@ int test_rsr(molecules_container_t &mc) {
                status = true;
       }
    }
+   mc.close_molecule(imol_map);
 
    return status;
 }
@@ -804,6 +815,7 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
          if (d_N_2 > 0.08) // move a bit
             status = 1;
    mc.write_coordinates(imol, "post-refine-using-residue-range.pdb");
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -907,6 +919,7 @@ int test_rsr_using_multi_atom_cid(molecules_container_t &mc) {
    int n_diffs_2 = get_n_diffs(mol, mol_orig);
    if (n_diffs_2 > (n_diffs_1 + 10)) status = 1;
    std::cout << "n_diffs_1 " << n_diffs_1 << " n_diffs_2 " << n_diffs_2 << std::endl;
+   mc.close_molecule(imol_map);
 
    return status;
 }
@@ -1040,6 +1053,7 @@ int test_add_terminal_residue(molecules_container_t &mc) {
 // this was converted from Filo's test
 int test_add_terminal_residue_v2(molecules_container_t &molecules_container) {
 
+   starting_test(__FUNCTION__);
    int status = 0;
    int coordMolNo = molecules_container.read_pdb("./5a3h.mmcif");
    int mapMolNo = molecules_container.read_mtz("./5a3h_sigmaa.mtz", "FWT", "PHWT", "", false, false);
@@ -1065,6 +1079,7 @@ int test_add_terminal_residue_v2(molecules_container_t &molecules_container) {
    }
 
    molecules_container.write_coordinates(coordMolNo, "post-addition.cif");
+   molecules_container.close_molecule(mapMolNo);
    return status;
 
 }
@@ -1348,7 +1363,7 @@ int test_difference_map_contours(molecules_container_t &mc) {
    float radius = 10;
    float contour_level = 0.03;
    coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
-   std::cout << "DEBUG:: test_density_mesh(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
+   std::cout << "DEBUG:: test_difference_map_contoursh(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
              << " triangles" << std::endl;
 
    for (const auto &vertex : map_mesh.vertices) {
@@ -1357,6 +1372,7 @@ int test_difference_map_contours(molecules_container_t &mc) {
          if (vertex.color[0] > vertex.color[2])
             status = 1;
    }
+   mc.close_molecule(imol_map);
 
    return status;
 }
@@ -1553,6 +1569,7 @@ int test_difference_map_peaks(molecules_container_t &mc) {
             }
       }
    }
+   mc.close_molecule(imol_diff_map);
    return status;
 }
 
@@ -1577,6 +1594,7 @@ int test_pepflips_using_difference_map(molecules_container_t &mc) {
          mc.close_molecule(imol_diff_map);
       }
    }
+   mc.close_molecule(imol_diff_map);
    return status;
 }
 
@@ -1857,7 +1875,7 @@ int test_read_a_map(molecules_container_t &mc) {
       float contour_level = 0.013;
       coot::Cartesian p(88.25823211669922, 69.19033813476562, 89.1391372680664);
       coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
-      std::cout << "DEBUG:: test_density_mesh(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
+      std::cout << "DEBUG:: test_read_a_map(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
                 << " triangles" << std::endl;
 
       if (map_mesh.vertices.size() > 30000)
@@ -2056,10 +2074,11 @@ int test_write_map_is_sane(molecules_container_t &mc) {
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
    mc.write_map(imol_map, "test_for_map.map");
    struct stat buf_2;
-         int istat_2 = stat("test_for_map.map", &buf_2);
-         if (istat_2 == 0)
-            if (buf_2.st_size > 1000000)
-               status = 1;
+   int istat_2 = stat("test_for_map.map", &buf_2);
+   if (istat_2 == 0)
+      if (buf_2.st_size > 1000000)
+         status = 1;
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -2101,8 +2120,6 @@ int test_jiggle_fit(molecules_container_t &mc) {
    } else {
       std::cout << "ERROR: test_jiggle_fit() invalid model molecule " << imol << std::endl;
    }
-   mc.close_molecule(imol);
-   mc.close_molecule(imol_map);
 
    std::cout << "in test_jiggle_fit() A with status " << status   << std::endl;
 
@@ -2143,8 +2160,11 @@ int test_jiggle_fit(molecules_container_t &mc) {
             status = 1;
 
          mc.write_coordinates(imol_other, "jiggled.pdb");
+         mc.close_molecule(imol_blur);
       }
    }
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -2291,8 +2311,10 @@ int test_jiggle_fit_params(molecules_container_t &mc) {
             }
          }
       }
-
    }
+   mc.close_molecule(imol_1);
+   mc.close_molecule(imol_2);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -2454,6 +2476,7 @@ int test_non_standard_residues(molecules_container_t &mc) {
       }
    }
    mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -2589,6 +2612,8 @@ int test_replace_large_fragment(molecules_container_t &mc) {
    mc.clear_refinement(imol);
    mc.replace_fragment(imol, imol_new, "//");
    status = 1;
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
 
    return status;
 
@@ -2830,6 +2855,8 @@ int test_fill_partial(molecules_container_t &mc) {
          }
       }
    }
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -2890,6 +2917,11 @@ int test_editing_session_tutorial_1(molecules_container_t &mc) {
       if (stats_2.rail_points_total > 500)
          status = 1;
    }
+
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol_diff_map);
+
    return status;
 }
 
@@ -3172,8 +3204,9 @@ int test_mmrrcc(molecules_container_t &mc) {
       for (it=scc.begin(); it!=scc.end(); ++it)
          fs << "   " << it->first << " " << it->second.correlation() << std::endl;
       mc.close_molecule(imol);
-      mc.close_molecule(imol_map);
    }
+
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -3215,6 +3248,8 @@ int test_map_histogram(molecules_container_t &mc) {
    if (counts_1 > 10)
       if (counts_2 > 10) status = 1;
 
+   mc.close_molecule(imol_map_1);
+   mc.close_molecule(imol_map_2);
    return status;
 }
 
@@ -3717,6 +3752,7 @@ int test_alt_conf_and_rotamer_v2(molecules_container_t &mc) {
       }
 
    }
+   mc.close_molecule(imol_map);
 
    std::cout << "done test_alt_conf_and_rotamer_v2()" << std::endl;
    return status;
@@ -3857,6 +3893,7 @@ int test_cell(molecules_container_t &mc) {
 
    if (c1.a > 10) status = 1;
 
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -3874,6 +3911,7 @@ int test_map_centre(molecules_container_t &mc) {
       if (mci.updated_centre.x() > 10.0)
          status = 1;
    }
+   mc.close_molecule(imol_map);
 
    return status;
 }
@@ -3945,6 +3983,7 @@ int test_dragged_atom_refinement(molecules_container_t &mc_in) {
       }
    }
    mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -4003,6 +4042,8 @@ int test_bucca_ml_growing(molecules_container_t &mc) {
       std::cout << "Not a valid model " << imol << std::endl;
    }
    mc.set_refinement_is_verbose(false);
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -4174,7 +4215,7 @@ int test_is_em_map(molecules_container_t &mc) {
             status = 1;
       }
    }
-
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -4261,7 +4302,8 @@ int test_read_extra_restraints(molecules_container_t &mc) {
    coot::instanced_mesh_t im = mc.get_extra_restraints_mesh(imol_1, 0);
    if (! im.geom.empty()) {
       std::cout << "instancing_data_B size " << im.geom[0].instancing_data_B.size() << std::endl;
-      if (im.geom[0].instancing_data_B.size() > 10) status = 1;
+      if (im.geom[0].instancing_data_B.size() > 10)
+         status = 1;
    } else {
       std::cout << "ERROR:: im geom is empty" << std::endl;
    }
@@ -4289,6 +4331,8 @@ int test_colour_map_by_other_map(molecules_container_t &mc) {
          if (mesh.vertices.size() > 1000) status = true;
       }
    }
+   mc.close_molecule(imol_map_1);
+   mc.close_molecule(imol_map_2);
    return status;
 
 }
@@ -4406,6 +4450,8 @@ int test_pdb_as_string(molecules_container_t &mc) {
       f << s2;
       f.close();
    }
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
 
    return status;
 
@@ -4434,6 +4480,8 @@ int test_mmcif_as_string(molecules_container_t &mc) {
       f2 << s2;
       f2.close();
    }
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
 
    return status;
 
@@ -4447,7 +4495,7 @@ int test_mmcif_atom_selection(molecules_container_t &mc) {
    std::string fn = "1ej6-assembly1.cif";
    std::cout << "reading " << fn << std::endl;
    int imol = mc.read_pdb(reference_data(fn));
-   mmdb::Manager *mol = mc.get_mol(imol);
+   mmdb::Manager *mol = mc.get_mol(imol); // testing get_mol()
    if (mol) {
       int n_selected_atoms_1 = 0;
       int n_selected_atoms_2 = 0;
@@ -4482,9 +4530,13 @@ int test_mmcif_atom_selection(molecules_container_t &mc) {
             }
          }
       }
+      mol->DeleteSelection(selHnd_3);
+      mol->DeleteSelection(selHnd_2);
+      mol->DeleteSelection(selHnd_1);
       std::cout << "Looked for 100 atoms and found " << n_matcher << " matchers" << std::endl;
       if (n_matcher == 0) status = 1;
    }
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -4508,6 +4560,8 @@ int test_contouring_timing(molecules_container_t &mc) {
       }
    }
 
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -4597,6 +4651,8 @@ int test_disappearing_ligand(molecules_container_t &mc) {
 
 // 20240205-PE this is not a good name for this test. The failure is not in merging, the failure
 // is in writing out the cif file.
+//
+// The fix for this is to use gemmi for the output
 //
 int test_ligand_merge(molecules_container_t &mc) {
 
@@ -4715,6 +4771,9 @@ int test_gltf_export(molecules_container_t &mc) {
    coot::simple_mesh_t sm_neighbs = coot::instanced_mesh_to_simple_mesh(im_neighbs);
    sm_neighbs.export_to_gltf("neighbs.glb", true);
 
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
+
    return status;
 }
 
@@ -4748,6 +4807,8 @@ int test_gltf_export_via_api(molecules_container_t &mc) {
          }
       }
    }
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -4803,6 +4864,8 @@ int test_mask_atom_selection(molecules_container_t &mc) {
       }
       mol->DeleteSelection(sel_hnd);
    }
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -5006,10 +5069,11 @@ int test_non_drawn_CA_bonds(molecules_container_t &mc) {
       if (geom.empty()) {
          std::cout << "geom empty" << std::endl;
       } else {
-         if (geom.size() == 4) { // should be 2!
+         if (geom.size() == 1) {
             const std::vector<coot::instancing_data_type_B_t> &idB = geom[0].instancing_data_B;
             std::cout << "idB size " << idB.size() << std::endl;
             // print the instancing data here. You should see a duplicate/reverse
+            status = 1;
          }
       }
    }
@@ -5030,6 +5094,7 @@ int test_17257(molecules_container_t &mc) {
    if (imol_map == -3) {
       status = 1;
    }
+   mc.close_molecule(imol_map);
    return status;
 }
 
@@ -5089,6 +5154,9 @@ int test_shiftfield_b_factor_refinement(molecules_container_t &mc) {
                status = 1;
       }
    }
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol_diff_map);
    return status;
 }
 
@@ -5110,12 +5178,51 @@ int test_split_model(molecules_container_t &mc) {
             if (model_p) n_models++;
          }
       }
+      std::cout << "DEBUG:: in test_split_model() n_models is " << n_models << std::endl;
       if (n_models == 40) status = 1;
+   } else {
+      std::cout << "DEBUG:: in test_split_model() new_models size was " << new_mol_indices.size() << std::endl;
    }
 
    return status;
 }
 
+int test_copy_molecule_memory_leak(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   mc.set_use_gemmi(false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   const unsigned int n_new_mols = 200;
+
+   if (mc.is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = mc.get_mol(imol);
+      std::vector<mmdb::Manager *> mol_copies;
+      for (unsigned int i=0; i<n_new_mols; i++) {
+         mmdb::Manager *mol_copy = coot::util::copy_molecule(mol);
+         mol_copies.push_back(mol_copy);
+      }
+      for (unsigned int i=0; i<n_new_mols; i++) {
+         delete mol_copies[i];
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+      // now create coot::molecule_t from that:
+      std::vector<int> new_molecule_vec;
+      for (unsigned int i=0; i<n_new_mols; i++) {
+         int imol_new = mc.copy_fragment_using_cid(imol, "/");
+         new_molecule_vec.push_back(imol_new);
+      }
+      for (unsigned int i=0; i<n_new_mols; i++) {
+         mc.close_molecule(new_molecule_vec[i]);
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      status = 1;
+   }
+   mc.close_molecule(imol);
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -5148,16 +5255,26 @@ int test_template(molecules_container_t &mc) {
       }
    }
    mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
    return status;
 }
 
 int n_tests = 0;
 static std::vector<std::pair<std::string, int> > test_results;
 
+void
+write_test_name(const std::string &test_name) {
+
+   std::ofstream f(".current-test");
+   f << "\"" << test_name << "\"" << "\n";
+   f.close();
+}
+
 int
 run_test(int (*test_func) (molecules_container_t &mc), const std::string &test_name, molecules_container_t &mc) {
 
    n_tests++;
+   write_test_name(test_name);
    int status = test_func(mc);
    std::string status_string = "FAIL: ";
    std::string uncol = "[m";
@@ -5207,6 +5324,7 @@ print_results_summary() {
 int main(int argc, char **argv) {
 
    int status = 0;
+   write_test_name("---");
 
    bool last_test_only = false;
    if (argc > 1) {
@@ -5215,174 +5333,189 @@ int main(int argc, char **argv) {
          last_test_only = true;
    }
 
-   molecules_container_t mc(false); // quiet
-
-   // now check that the monomer library was read OK
-   int imol = mc.get_monomer("ATP");
-   if (! mc.is_valid_model_molecule(imol)) {
-      std::cout << "Failed to read the monomer library" << std::endl;
-      exit(1);
-   }
-
-   mc.fill_rotamer_probability_tables();
-
-   if (! last_test_only) {
-
-      status += run_test(test_new_position_for_atoms_in_residues, "new positions for atoms in residues", mc);
-      status += run_test(test_transformation_for_atom_selection, "transformation for atoms",             mc);
-      status += run_test(test_copy_fragment_using_residue_range, "copy-fragment using residue range",    mc);
-      status += run_test(test_density_correlation_validation, "density correlation validation",          mc);
-      status += run_test(test_pepflips_using_difference_map, "Pepflips from Difference Map",             mc);
-      status += run_test(test_difference_map_contours, "difference map density mesh", mc);
-      status += run_test(test_rota_dodecs_mesh,      "rotamer dodecahedra mesh", mc);
-      status += run_test(test_rsr_using_residue_range, "rsr using residue range", mc);
-      status += run_test(test_rsr_using_multi_atom_cid, "multi-atom-cid RSR",    mc);
-      status += run_test(test_copy_fragment_using_cid, "copy-fragment using cid", mc);
-      status += run_test(test_no_dictionary_residues,  "no-dictionary residues", mc);
-      status += run_test(test_cis_trans,             "cis_trans conversion",     mc);
-      status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
-      status += run_test(test_auto_fit_rotamer_1,    "auto-fit rotamer",         mc);
-      status += run_test(test_auto_fit_rotamer_2,    "auto-fit rotamer t2",      mc);
-      status += run_test(test_delete_molecule,       "delete_moelcule",          mc);
-      status += run_test(test_rama_balls_mesh,       "rama balls mesh",          mc);
-      status += run_test(test_density_mesh,          "density mesh",             mc);
-      status += run_test(test_updating_maps,         "updating maps",            mc);
-      status += run_test(test_delete_residue,        "delete residue",           mc);
-      status += run_test(test_delete_chain,          "delete chain",             mc);
-      status += run_test(test_delete_atom,           "delete atom",              mc);
-      status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
-      status += run_test(test_pepflips,              "pepflips",                 mc);
-      status += run_test(test_mutate,                "mutate",                   mc);
-      status += run_test(test_rsr,                   "rsr",                      mc);
-      status += run_test(test_jed_flip,              "JED Flip",                 mc);
-      status += run_test(test_add_water,             "add waters",               mc);
-      status += run_test(test_bonds_mesh,            "bonds mesh",               mc);
-      status += run_test(test_eigen_flip,            "Eigen Flip",               mc);
-      status += run_test(test_read_a_map,            "read a map",               mc);
-      status += run_test(test_add_compound,          "add compound",             mc);
-      status += run_test(test_weird_delete,          "delete II",                mc);
-      status += run_test(test_add_alt_conf,          "add alt conf",             mc);
-      status += run_test(test_delete_literal,        "delete literal",           mc);
-      status += run_test(test_side_chain_180,        "side-chain 180",           mc);
-      status += run_test(test_peptide_omega,         "peptide omega",            mc);
-      status += run_test(test_undo_and_redo,         "undo and redo",            mc);
-      status += run_test(test_undo_and_redo_2,       "undo/redo 2",              mc);
-      status += run_test(test_merge_molecules,       "merge molecules",          mc);
-      status += run_test(test_dictionary_bonds,      "dictionary bonds",         mc);
-      status += run_test(test_replace_fragment,      "replace fragment",         mc);
-      status += run_test(test_gaussian_surface,      "Gaussian surface",         mc);
-      status += run_test(test_missing_atoms_info,    "missing atom info",        mc);
-      status += run_test(test_move_molecule_here,    "move_molecule_here",       mc);
-      status += run_test(test_rotamer_validation,    "rotamer validation",       mc);
-      status += run_test(test_ligand_fitting_here,   "Ligand fitting here",      mc);
-      status += run_test(test_ligand_contact_dots,   "ligand contact dots",      mc);
-      status += run_test(test_difference_map_peaks,  "Difference Map Peaks",     mc);
-      status += run_test(test_rama_validation,       "rama validation 2",        mc); // for the plot, not the graph
-      status += run_test(test_ramachandran_analysis, "ramachandran analysis",    mc); // for the graph, not the plot
-      status += run_test(test_non_standard_residues, "non-standard residues",    mc);
-      status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
-      status += run_test(test_add_terminal_residue,  "add terminal residue",     mc);
-      status += run_test(test_sequence_generator,    "Make a sequence string",   mc);
-      status += run_test(test_instanced_rota_markup, "Instanced rotamer mesh",   mc);
-      status += run_test(test_new_position_for_atoms,"New positions for atoms",  mc);
-      status += run_test(test_molecular_representation, "Molecular representation mesh", mc);
-      status += run_test(test_fill_partial,          "Fill partially-filled residues", mc);
-      status += run_test(test_multiligands_lig_bonding, "Some multiligands bonding", mc);
-      status += run_test(test_gltf_export_via_api,   "glTF via api", mc);
-      status += run_test(test_disappearing_ligand,   "Disappearing ligand", mc);
-      status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
-      status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction", mc);
-      status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
-      status += run_test(test_gltf_export,           "glTF export", mc);
-      status += run_test(test_5char_ligand_merge,    "5-char ligand merge", mc);
-      status += run_test(test_thread_pool,           "thread pool",    mc);
-      // status += run_test(test_thread_launching,      "thread launching",    mc); // this is not a helpful test
-      status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
-      // status += run_test(test_test_the_threading,    "threading speed test",    mc); // not helpful
-      // status += run_test(test_contouring_timing,     "contouring timing",    mc); // not helpful
-      status += run_test(test_mmcif_atom_selection,  "mmCIF atom selection",    mc);
-      status += run_test(test_mmcif_as_string,       "mmCIF as string",    mc);
-      status += run_test(test_pdb_as_string,         "PDB as string",    mc);
-      status += run_test(test_cif_writer,            "mmCIF dictionary writer",    mc);
-      status += run_test(test_residues_near_residues, "residues near residues",    mc);
-      status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
-      status += run_test(test_replace_fragment,      "replace fragment",         mc);
-      status += run_test(test_ncs_chains,            "NCS chains",         mc);
-      status += run_test(test_omega_5tig_cif,        "Omega for 5tig cif",         mc);
-      // status += run_test(test_jiggle_fit_params,     "actually testing for goodness pr params", mc); // not useful
-      status += run_test(test_jiggle_fit_with_blur,  "Jiggle-fit-with-blur", mc);
-      status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
-      status += run_test(test_read_extra_restraints, "read extra restraints", mc);
-      status += run_test(test_map_histogram,         "map histogram", mc);
-      status += run_test(test_auto_read_mtz,         "auto-read-mtz", mc);
-      status += run_test(test_read_a_missing_map,    "read a missing map file ", mc);
-      status += run_test(test_colour_map_by_other_map, "colour-map-by-other-map", mc);
-      status += run_test(test_something_filo,        "Self something filo", mc);
-      status += run_test(test_self_restraints,       "Self restraints mesh", mc);
-      status += run_test(test_other_user_define_colours_other, "New colour test", mc);
-      status += run_test(test_is_em_map,             "test if EM map flag is correctly set", mc);
-      status += run_test(test_user_defined_bond_colours_v2, "user-defined bond colours v2", mc);
-      status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
-      status += run_test(test_rigid_body_fit, "rigid-body fit", mc);
-      status += run_test(test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
-      status += run_test(test_broken_function, "Something was broken",         mc);
-      status += run_test(test_delete_side_chain, "delete side chain", mc);
-      status += run_test(test_colour_rules, "colour rules", mc);
-      status += run_test(test_mmrrcc, "MMRRCC", mc);
-      status += run_test(test_instanced_bonds_mesh, "insta bonds mesh", mc);
-      status += run_test(test_instanced_bonds_mesh_v2, "test instanced bond selection v2", mc);
-      status += run_test(test_utils, "utils", mc);
-      status += run_test(test_svg, "svg string", mc);
-      status += run_test(test_superpose, "SSM superpose ", mc);
-      status += run_test(test_multi_colour_rules, "multi colour rules ", mc);
-      status += run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
-      status += run_test(test_symmetry, "symmetry", mc);
-      status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
-      status += run_test(test_set_rotamer, "set rotamer ", mc);
-      status += run_test(test_alt_conf_and_rotamer_v2, "alt-conf and rotamer v2 ", mc);
-      status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
-      status += run_test(test_number_of_hydrogen_atoms, "number of hydrogen atoms ", mc);
-      status += run_test(test_cell, "cell", mc);
-      status += run_test(test_map_centre, "map centre", mc);
-      status += run_test(test_dragged_atom_refinement, "dragged atom refinement", mc);
-      status += run_test(test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
-      status += run_test(test_replace_model_from_file, "replace model from file", mc);
-      status += run_test(test_user_defined_bond_colours, "user-defined bond colours", mc);
-      status += run_test(test_replace_map, "replace map from mtz", mc);
-      status += run_test(test_residue_name_group, "residue name group", mc);
-      status += run_test(test_bucca_ml_growing, "Bucca ML growing", mc);
-      status += run_test(test_mask_atom_selection, "mask atom selection", mc);
-      status += run_test(test_ligand_merge, "test ligand merge", mc);
-      status += run_test(test_add_terminal_residue_v2, "test add terminal residue v2", mc);
-      status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
-      status += run_test(test_write_map_is_sane, "write map is sane",    mc);
-      status += run_test(test_replace_large_fragment,      "refine and replace large fragment",         mc);
-      status += run_test(test_molecule_diameter, "molecule diameter",    mc);
-      status += run_test(test_B_factor_multiply, "B-factor multiply",    mc);
-      status += run_test(test_change_chain_id, "change chain id",    mc);
-      status += run_test(test_17257, "read emd_17257.map.gz",    mc);
-      status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
-      status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc);
-      status += run_test(test_non_drawn_CA_bonds, "non-drawn bonds in CA+LIGANDS", mc);
-      status += run_test(test_change_chain_id_1, "change chain-id filo-1", mc);
-      status += run_test(test_split_model, "split model", mc);
-
-      // Note to self:
-      // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
-
-   }
-
-   // status += run_test(test_non_drawn_bond_multi_cid_2, "non-drawn-bonds multi-cid 2", mc);
-   // status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
-   // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
-   status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
-
-
    int all_tests_status = 1; // fail!
-   if (status == n_tests) all_tests_status = 0;
 
-   print_results_summary();
+   {
+      // we use this scope so that molecule_container_t mc goes out of scope before
+      // the end of the program. Hopefully this can allow us to distinguish
+      // between memory consumed by the mc, and memory that we can no longer
+      // access (memory allocated but not deleted - e.g. Atom Selections)
+      //
+      molecules_container_t mc(false); // quiet
 
+      // now check that the monomer library was read OK
+      int imol = mc.get_monomer("ATP");
+      if (! mc.is_valid_model_molecule(imol)) {
+         std::cout << "Failed to read the monomer library" << std::endl;
+         exit(1);
+      } else {
+         mc.close_molecule(imol);
+      }
+
+      mc.fill_rotamer_probability_tables();
+
+      if (! last_test_only) {
+
+         status += run_test(test_new_position_for_atoms_in_residues, "new positions for atoms in residues", mc);
+         status += run_test(test_transformation_for_atom_selection, "transformation for atoms",             mc);
+         status += run_test(test_copy_fragment_using_residue_range, "copy-fragment using residue range",    mc);
+         status += run_test(test_density_correlation_validation, "density correlation validation",          mc);
+         status += run_test(test_pepflips_using_difference_map, "Pepflips from Difference Map",             mc);
+         status += run_test(test_difference_map_contours, "difference map density mesh", mc);
+         status += run_test(test_rota_dodecs_mesh,      "rotamer dodecahedra mesh", mc);
+         status += run_test(test_rsr_using_residue_range, "rsr using residue range", mc);
+         status += run_test(test_rsr_using_multi_atom_cid, "multi-atom-cid RSR",    mc);
+         status += run_test(test_copy_fragment_using_cid, "copy-fragment using cid", mc);
+         status += run_test(test_no_dictionary_residues,  "no-dictionary residues", mc);
+         status += run_test(test_cis_trans,             "cis_trans conversion",     mc);
+         status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
+         status += run_test(test_auto_fit_rotamer_1,    "auto-fit rotamer",         mc);
+         status += run_test(test_auto_fit_rotamer_2,    "auto-fit rotamer t2",      mc);
+         status += run_test(test_delete_molecule,       "delete_moelcule",          mc);
+         status += run_test(test_rama_balls_mesh,       "rama balls mesh",          mc);
+         status += run_test(test_density_mesh,          "density mesh",             mc);
+         status += run_test(test_updating_maps,         "updating maps",            mc);
+         status += run_test(test_delete_residue,        "delete residue",           mc);
+         status += run_test(test_delete_chain,          "delete chain",             mc);
+         status += run_test(test_fill_partial,          "Fill partially-filled residues", mc);
+         status += run_test(test_delete_atom,           "delete atom",              mc);
+         status += run_test(test_pepflips,              "pepflips",                 mc);
+         status += run_test(test_mutate,                "mutate",                   mc);
+         status += run_test(test_rsr,                   "rsr",                      mc);
+         status += run_test(test_jed_flip,              "JED Flip",                 mc);
+         status += run_test(test_add_water,             "add waters",               mc);
+         status += run_test(test_bonds_mesh,            "bonds mesh",               mc);
+         status += run_test(test_eigen_flip,            "Eigen Flip",               mc);
+         status += run_test(test_read_a_map,            "read a map",               mc);
+         status += run_test(test_add_compound,          "add compound",             mc);
+         status += run_test(test_weird_delete,          "delete II",                mc);
+         status += run_test(test_add_alt_conf,          "add alt conf",             mc);
+         status += run_test(test_delete_literal,        "delete literal",           mc);
+         status += run_test(test_side_chain_180,        "side-chain 180",           mc);
+         status += run_test(test_peptide_omega,         "peptide omega",            mc);
+         status += run_test(test_undo_and_redo,         "undo and redo",            mc);
+         status += run_test(test_undo_and_redo_2,       "undo/redo 2",              mc);
+         status += run_test(test_merge_molecules,       "merge molecules",          mc);
+         status += run_test(test_dictionary_bonds,      "dictionary bonds",         mc);
+         status += run_test(test_replace_fragment,      "replace fragment",         mc);
+         status += run_test(test_gaussian_surface,      "Gaussian surface",         mc);
+         status += run_test(test_missing_atoms_info,    "missing atom info",        mc);
+         status += run_test(test_move_molecule_here,    "move_molecule_here",       mc);
+         status += run_test(test_rotamer_validation,    "rotamer validation",       mc);
+         status += run_test(test_ligand_fitting_here,   "Ligand fitting here",      mc);
+         status += run_test(test_ligand_contact_dots,   "ligand contact dots",      mc);
+         status += run_test(test_difference_map_peaks,  "Difference Map Peaks",     mc);
+         status += run_test(test_rama_validation,       "rama validation 2",        mc); // for the plot, not the graph
+         status += run_test(test_ramachandran_analysis, "ramachandran analysis",    mc); // for the graph, not the plot
+         status += run_test(test_non_standard_residues, "non-standard residues",    mc);
+         status += run_test(test_import_cif_dictionary, "import cif dictionary",    mc);
+         status += run_test(test_add_terminal_residue,  "add terminal residue",     mc);
+         status += run_test(test_sequence_generator,    "Make a sequence string",   mc);
+         status += run_test(test_instanced_rota_markup, "Instanced rotamer mesh",   mc);
+         status += run_test(test_new_position_for_atoms,"New positions for atoms",  mc);
+         status += run_test(test_molecular_representation, "Molecular representation mesh", mc);
+         status += run_test(test_rigid_body_fit,        "Rigid-body fit", mc);
+         status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
+         status += run_test(test_jiggle_fit_with_blur,  "Jiggle-fit-with-blur",     mc);
+         status += run_test(test_multiligands_lig_bonding, "Some multiligands bonding", mc);
+         status += run_test(test_gltf_export_via_api,   "glTF via api", mc);
+         status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
+         status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction", mc);
+         status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
+         status += run_test(test_gltf_export,           "glTF export", mc);
+         status += run_test(test_5char_ligand_merge,    "5-char ligand merge", mc);
+         status += run_test(test_thread_pool,           "thread pool",    mc);
+         // status += run_test(test_thread_launching,      "thread launching",    mc); // this is not a helpful test
+         status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
+         // status += run_test(test_test_the_threading,    "threading speed test",    mc); // not helpful
+         // status += run_test(test_contouring_timing,     "contouring timing",    mc); // not helpful
+         status += run_test(test_mmcif_atom_selection,  "mmCIF atom selection",    mc);
+         status += run_test(test_mmcif_as_string,       "mmCIF as string",    mc);
+         status += run_test(test_pdb_as_string,         "PDB as string",    mc);
+         status += run_test(test_cif_writer,            "mmCIF dictionary writer",    mc);
+         status += run_test(test_residues_near_residues, "residues near residues",    mc);
+         status += run_test(test_electro_molecular_representation, "electro molecular representation mesh", mc);
+         status += run_test(test_replace_fragment,      "replace fragment",         mc);
+         status += run_test(test_ncs_chains,            "NCS chains",         mc);
+         status += run_test(test_omega_5tig_cif,        "Omega for 5tig cif",         mc);
+         // status += run_test(test_jiggle_fit_params,     "actually testing for goodness pr params", mc); // not useful
+         status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
+         status += run_test(test_read_extra_restraints, "read extra restraints", mc);
+         status += run_test(test_map_histogram,         "map histogram", mc);
+         status += run_test(test_auto_read_mtz,         "auto-read-mtz", mc);
+         status += run_test(test_read_a_missing_map,    "read a missing map file ", mc);
+         status += run_test(test_colour_map_by_other_map, "colour-map-by-other-map", mc);
+         status += run_test(test_something_filo,        "Self something filo", mc);
+         status += run_test(test_self_restraints,       "Self restraints mesh", mc);
+         status += run_test(test_other_user_define_colours_other, "New colour test", mc);
+         status += run_test(test_is_em_map,             "test if EM map flag is correctly set", mc);
+         status += run_test(test_user_defined_bond_colours_v2, "user-defined bond colours v2", mc);
+         status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
+         status += run_test(test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
+         status += run_test(test_broken_function, "Something was broken",         mc);
+         status += run_test(test_delete_side_chain, "delete side chain", mc);
+         status += run_test(test_colour_rules, "colour rules", mc);
+         status += run_test(test_mmrrcc, "MMRRCC", mc);
+         status += run_test(test_instanced_bonds_mesh, "insta bonds mesh", mc);
+         status += run_test(test_instanced_bonds_mesh_v2, "test instanced bond selection v2", mc);
+         status += run_test(test_utils, "utils", mc);
+         status += run_test(test_svg, "svg string", mc);
+         status += run_test(test_superpose, "SSM superpose ", mc);
+         status += run_test(test_multi_colour_rules, "multi colour rules ", mc);
+         status += run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
+         status += run_test(test_symmetry, "symmetry", mc);
+         status += run_test(test_add_hydrogen_atoms, "add hydrogen atoms", mc);
+         status += run_test(test_set_rotamer, "set rotamer ", mc);
+         status += run_test(test_alt_conf_and_rotamer_v2, "alt-conf and rotamer v2 ", mc);
+         status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+         status += run_test(test_number_of_hydrogen_atoms, "number of hydrogen atoms ", mc);
+         status += run_test(test_cell, "cell", mc);
+         status += run_test(test_map_centre, "map centre", mc);
+         status += run_test(test_dragged_atom_refinement, "dragged atom refinement", mc);
+         status += run_test(test_bespoke_carbon_colour, "bespoke carbon colours ", mc);
+         status += run_test(test_replace_model_from_file, "replace model from file", mc);
+         status += run_test(test_user_defined_bond_colours, "user-defined bond colours", mc);
+         status += run_test(test_replace_map, "replace map from mtz", mc);
+         status += run_test(test_residue_name_group, "residue name group", mc);
+         status += run_test(test_bucca_ml_growing, "Bucca ML growing", mc);
+         status += run_test(test_mask_atom_selection, "mask atom selection", mc);
+         status += run_test(test_ligand_merge, "test ligand merge", mc);
+         status += run_test(test_add_terminal_residue_v2, "test add terminal residue v2", mc);
+         status += run_test(test_ligand_fitting_in_map, "ligand fitting in map",    mc);
+         status += run_test(test_write_map_is_sane, "write map is sane",    mc);
+         status += run_test(test_replace_large_fragment,      "refine and replace large fragment",         mc);
+         status += run_test(test_molecule_diameter, "molecule diameter",    mc);
+         status += run_test(test_B_factor_multiply, "B-factor multiply",    mc);
+         status += run_test(test_change_chain_id, "change chain id",    mc);
+         status += run_test(test_17257, "read emd_17257.map.gz",    mc);
+         status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
+         status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc);
+         status += run_test(test_non_drawn_CA_bonds, "non-drawn bonds in CA+LIGANDS", mc);
+         status += run_test(test_change_chain_id_1, "change chain-id filo-1", mc);
+         status += run_test(test_split_model, "split model", mc);
+#ifdef USE_GEMMI
+         status += run_test(test_disappearing_ligand,   "Disappearing ligand", mc);
+#endif
+         // Note to self:
+         // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
+
+      }
+
+      // status += run_test(test_non_drawn_bond_multi_cid_2, "non-drawn-bonds multi-cid 2", mc);
+      // status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
+      // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
+      // status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
+      // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
+      // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
+      status += run_test(test_copy_molecule_memory_leak,            "Copy Molecule Memory Leak", mc);
+
+
+      if (status == n_tests) all_tests_status = 0;
+
+      print_results_summary();
+   }
+
+   std::this_thread::sleep_for(std::chrono::milliseconds(500));
    return all_tests_status;
 
 }
