@@ -36,6 +36,9 @@ jobs:
         path: /Users/runner/public_html
         retention-days: 3
 
+    - name: whats in /Users/runner/install/chapi-Darwin-macos-gtk4/lib
+      run:  find /Users/runner/install/chapi-Darwin-macos-gtk4/lib
+
     - name: create-build-directory-for-libcootapi
       run:  mkdir build-libcootapi
 
