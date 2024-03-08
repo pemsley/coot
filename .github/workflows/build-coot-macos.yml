@@ -5,7 +5,7 @@ on:
 
 jobs:
 
-  build-for-macos:
+  build-coot-for-macos:
 
     runs-on: macos-latest
 
@@ -87,7 +87,14 @@ jobs:
 
     - name: Compile Homebrew coot HEAD
       # don't stall waiting for user input to resolve the failed patch
-      run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD
+      run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD || true > $HOME/brew.log >&2
+
+    - name: Upload brew log
+      uses: actions/upload-artifact@v4
+      with:
+        name: brew-log-package
+        path: /home/runner/brew.log
+        retention-days: 3
 
     - name: Does it run?
       run: coot --no-graphics < /dev/null

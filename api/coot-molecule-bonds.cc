@@ -150,8 +150,8 @@ coot::molecule_t::apply_user_defined_atom_colour_selections(const std::vector<st
 
             mmdb::Atom **SelAtoms = nullptr;
             int nSelAtoms = 0;
-            atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
-            atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+            mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+            mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
             if (nSelAtoms > 0) {
                for(int iat=0; iat<nSelAtoms; iat++) {
                   mmdb:: Atom *at = SelAtoms[iat];
