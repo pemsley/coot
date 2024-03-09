@@ -4229,6 +4229,7 @@ if [ "$build_gc" = true ] ; then
       echo BUILDING gc $gc_version >&2
       (
       echo ========================= build gc =================================
+      unset LD_LIBRARY_PATH
       if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
          echo found gc source file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
