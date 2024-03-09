@@ -792,7 +792,7 @@ function my_exit {
    exit_arg=$1
    shift
    extra_args=$*
-   echo fail-build $extra_args > $LOGS/$build-status
+   # echo fail-build $extra_args > $LOGS/$build-status
    if [ -e $LOGS/$test-status ] ; then
       rm $LOGS/$test-status
    fi
@@ -1984,8 +1984,8 @@ echo ccp4_system_type $ccp4_system_type
 
 
 # clean up old test status:
-echo build-in-progress @`date +"%a_%d_%b_%H:%M"` > $LOGS/build-status
-echo waiting > $LOGS/test-status
+# echo build-in-progress @`date +"%a_%d_%b_%H:%M"` > $LOGS/build-status
+# echo waiting > $LOGS/test-status
 
 
 
@@ -2759,6 +2759,9 @@ build_getttext=true
 if test $OS = Darwin ; then
     if test -e $install_top_dir/include/libintl.h ; then
         build_getttext=false
+    else
+       echo where is libintl.h in $install_top_dir/include question-mark
+       ls $install_top_dir/include
     fi
 else
     build_getttext=false
@@ -4742,11 +4745,11 @@ fi
 coot_build_status=$?
 if [ $coot_build_status != 0 ] ; then
     echo coot build failed, exiting.
-    echo fail-build $coot_revision > $LOGS/build-status
+    # echo fail-build $coot_revision > $LOGS/build-status
     my_exit 2 $coot_revision
 else
     echo coot build was good.
-    echo pass-build $coot_revision > $LOGS/build-status
+    # echo pass-build $coot_revision > $LOGS/build-status
 fi
 echo done coot build.
 
