@@ -4282,6 +4282,7 @@ if [ "$build_guile" = true ] ; then
       echo BUILDING guile:
       echo BUILDING guile $guile_version >&2
       (
+      unset LD_LIBRARY_PATH
       echo ========================= build guile =================================
       if [ -e   $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz
