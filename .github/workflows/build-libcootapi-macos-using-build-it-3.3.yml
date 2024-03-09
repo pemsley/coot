@@ -33,8 +33,11 @@ jobs:
     - name: where are we?
       run: pwd
 
+    - name: what inclues have been built/cached
+      run:  ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/include
+
     - name: what libs have been built/cached
-      run:  ls -l /Users/runner/install/chapi-Darwin-macos-gtk4
+      run:  ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib
 
     - name: run build-it-3-3 in chapi mode
       env:
