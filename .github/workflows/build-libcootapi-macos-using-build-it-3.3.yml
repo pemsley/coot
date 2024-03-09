@@ -45,9 +45,6 @@ jobs:
         path: /Users/runner/public_html
         retention-days: 3
 
-    - name: whats in /Users/runner/install/chapi-Darwin-macos-gtk4/lib
-      run:  find /Users/runner/install/chapi-Darwin-macos-gtk4/lib
-
     - name: create-build-directory-for-libcootapi
       run:  mkdir build-libcootapi
 
@@ -61,7 +58,30 @@ jobs:
            cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
            -DRDKit_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/cmake/rdkit
            -DGEMMI_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/cmake/gemmi
+           -DSSM_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include \
+           -DCLIPPER-CORE_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libclipper-core.so \
+           -DCLIPPER-MMDB_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libclipper-mmdb.so \
+           -DCLIPPER-CCP4_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libclipper-ccp4.so \
+           -DCLIPPER-CONTRIB_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libclipper-contrib.so \
+           -DCLIPPER-MINIMOL_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libclipper-minimol.so \
+           -DCLIPPER-CIF_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libclipper-cif.so \
+           -DCLIPPER-CORE_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include \
+           -DCLIPPER-MMDB_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include \
+           -DCLIPPER-CCP4_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include \
+           -DCLIPPER-CIF_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include \
+           -DCLIPPER-MINIMOL_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include \
+           -DCLIPPER-CONTRIB_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include \
+           -DMMDB2_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libmmdb2.so \
+           -DMMDB2_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include \
+           -DSSM_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libssm.so \
            -Dnanobind_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/python3.10/site-packages/nanobind/cmake ..
+
+    - name: Upload CMakeCache.txt
+      uses: actions/upload-artifact@v4
+      with:
+        name: cmake-cache-package
+        path: /Users/runner/work/coot/coot/build-libcootapi
+        retention-days: 3
 
     - name: make
       run:  cd build-libcootapi && make -j 4
