@@ -9,16 +9,27 @@ def write_lines(lines, file_name):
         f.write(l)
     f.close()
 
-def insert_new_header(file_name, copyright_year, lines):
+def make_copyright_line(person, copyright_year):
 
-    copyright_line = " * Copyright " + copyright_year + " by Martin Noble, University of Oxford\n"
+    pp = ""
+    if person == "Martin": pp = "Martin Noble, University of Oxford"
+    if person == "Kevin":  pp = "Kevin Cowtan & University York"
+
+    line = " * Copyright " + copyright_year + " by " + pp + "\n"
+    return line
+
+def insert_new_header(person, file_name, copyright_year, lines):
+
+    copyright_line = make_copyright_line(person, copyright_year)
     file_line = " * " + file_name + "\n"
+    author_line = ""
+    if person == "Martin": author_line = " * Author: Martin Noble\n",
 
     new_lines = [ "/*\n",
                   file_line,
                   " *\n",
                   copyright_line,
-                  " * Author: Martin Noble\n",
+                  author_line,
                   " *\n",
                   " * This program is free software; you can redistribute it and/or modify\n",
                   " * it under the terms of the GNU General Public License as published by\n",
@@ -36,16 +47,20 @@ def insert_new_header(file_name, copyright_year, lines):
                   " * 02110-1301, USA\n",
                   " */\n" ]
 
-    for idx,new_line in enumerate(new_lines):
+    el = enumerate(new_lines)
+    for idx,new_line in el:
         lines.insert(idx, new_line)
 
 def get_copyright_year(line):
+
     y = ""
     parts = line.split()
     # now find the first part after "Copyright" that contains "20"
     idx_copyright = -1
     for idx,part in enumerate(parts):
         if part == "Copyright":
+            idx_copyright = idx
+        if part == "(C)":
             idx_copyright = idx
     if idx_copyright != -1:
         for idx,part in enumerate(parts):
@@ -58,6 +73,8 @@ def replace_lines(file_name, lines):
 
     done = False
 
+    # ---------------- Martin's code style
+
     raw_top_do_it = False
     if '#include ' in lines[0]: raw_top_do_it = True
     if '#define '  in lines[1]: raw_top_do_it = True
@@ -65,7 +82,7 @@ def replace_lines(file_name, lines):
     if '#ifndef '  in lines[0]: raw_top_do_it = True
 
     if raw_top_do_it:
-        insert_new_header(file_name, "2009", lines)
+        insert_new_header("Martin", file_name, "2009", lines)
         done = True
 
     for idx,line in enumerate(lines):
@@ -74,7 +91,7 @@ def replace_lines(file_name, lines):
             if line == " */\n":
                 for i in range(idx+1):
                     lines.pop(0)
-                insert_new_header(file_name, "2009", lines)
+                insert_new_header("Martin", file_name, "2009", lines)
                 done = True
 
     fparts = 0
@@ -89,9 +106,19 @@ def replace_lines(file_name, lines):
             if fparts == 3:
                 for i in range (idx+1):
                     lines.pop(0)
-                insert_new_header(file_name, copyright_year, lines)
+                insert_new_header("Martin", file_name, copyright_year, lines)
                 done = True
 
+    # ---------------- Kevin's code style
+
+    for idx,line in enumerate(lines):
+        if done: continue
+        if " (C) " in line: copyright_year = get_copyright_year(line)
+        if "York all rights reserved" in line:
+            lines.pop(idx)
+            lines.pop(idx-1)
+            insert_new_header("Kevin", file_name, copyright_year, lines)
+            done = True
 
 if len(sys.argv) > 1:
     fn = sys.argv[1]

@@ -5,7 +5,7 @@ if [ -z "$dir" ] ; then
     exit
 fi
 
-pass_overs="1h1s.pdb autogen.sh cd44A.pdb config.sub config.guess configure.ac ctpl_boost.h Makefile.am Makefile.in surface.h surface.cpp Simple.frag Simple.vert"
+pass_overs="1h1s.pdb autogen.sh cd44A.pdb config.sub config.guess configure.ac ctpl_boost.h Makefile.am Makefile.in surface.h surface.cpp Simple.frag Simple.vert nautilus_lib.pdb cootaneer-llk-2.40.dat protein.db"
 
 for source in $dir/*.* ;
 do
@@ -24,6 +24,7 @@ do
     if [ $fix_this = true ] ; then
         python3 license-header-replace.py $source
         if [ -e $source.new ] ; then
+            # diff $source $source.new
             mv $source.new $source
         fi
     else
