@@ -52,9 +52,9 @@ else()
 endif(APPLE)
 
 # From Charles
-if(WIN32)
-  string(REPLACE "\\" "/" Python_SITEARCH "${Python_SITEARCH}")
-  string(REPLACE "\\" "/" Python_SITELIB  "${Python_SITELIB}")
+if (WIN32)
+   string(REPLACE "\\" "/" Python_SITEARCH "${Python_SITEARCH}")
+   string(REPLACE "\\" "/" Python_SITELIB  "${Python_SITELIB}")
 endif(WIN32)
 
 
@@ -65,8 +65,9 @@ add_definitions(-DANALYSE_REFINEMENT_TIMING -DVERSION="1.x-pre" -DPACKAGE_VERSIO
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
 if (ENHANCED_LIGAND_TOOLS)
-    add_definitions(-DMAKE_ENHANCED_LIGAND_TOOLS)
-    message("INFO:: found ENHANCED_LIGAND_TOOLS!")
+   add_definitions(-DMAKE_ENHANCED_LIGAND_TOOLS)
+   message("INFO:: found ENHANCED_LIGAND_TOOLS setting - now requiring the RDKit")
+   find_package(RDKit CONFIG COMPONENTS RDGeneral REQUIRED)
 else()
     message("INFO:: not enabling ENHANCED_LIGAND_TOOLS")
 endif()
