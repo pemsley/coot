@@ -1,6 +1,28 @@
 
 ----
 
+libcootapi: make minimize_energy() return a mesh, like std::pair<int, coot::instanced_mesh_t> refine(int imol, int n_cycles)
+ does. And the GSL return status.
+
+libcootapi: nice to have position restraints for ligand+env minimization
+
+libcootapi: are backups being made by refine()?. If so, turn them off - maybe backup at start?
+
+libcootapi: pull bernhards repo for new ramas
+
+libcootapi: before Newcastle: torsion match ligand superposition
+
+libcootapi: the apply colour rules to non-carbon atoms need to happen on a per-colour-rule basis, not per molecule.
+  so that ligands can be set a different colour in Goodsel mode - and goodsel mode plays nicely with other colour rules.
+
+libcootapi fix the apply_user_defined_atom_colour_selections() so that it uses atoms, not residue selection.
+
+libcootapi: remove ligands and waters
+
+libcootapi: renumber residue range
+
+libcootapi: make an ensemble from a list of molecules
+
 findwaters: can the output file be mmcif? - Eugene
 
 findligands: can the output file be mmcif? - Eugene
@@ -423,7 +445,7 @@ Fix this in api/coot_molecule_maps.cc: Test N-threads in Moorhen:
 cif parser fail for 6eoj from the PDBe - display as CAs.
 * set_use_gemmi_as_model_parser_xxx(1) fixes it
 
-Moorhen: Request: electrostatic surface. Map electrstatic potention on to Gaussian surface.
+Moorhen: Request: electrostatic surface. Map electrostatic potention on to Gaussian surface.
 
 Reading cif file with --pdb ~/Desktop/ejd/thing.cif seems borked (no file in file browser)
 
