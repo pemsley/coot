@@ -193,13 +193,15 @@ int test_internal() {
 
    functions.push_back(named_func(test_segid_exchange, "test segid exchange"));
 
-   functions.push_back(named_func(test_ligand_fit_from_given_point, "test ligand from point"));
+   // not internal if we need  "libcheck_3GP-torsion-filtered.cif"; and "monomer-3GP.pdb"
+   // functions.push_back(named_func(test_ligand_fit_from_given_point, "test ligand from point"));
 
    functions.push_back(named_func(test_peaksearch_non_close_peaks,
 				  "test peak search non-close"));
 
    functions.push_back(named_func(test_symop_card, "test symop card"));
-   functions.push_back(named_func(test_rotate_around_vector, "test rotate round vector"));
+   // reads files from the file system (so not a self-test)
+   //   functions.push_back(named_func(test_rotate_around_vector, "test rotate round vector"));
    functions.push_back(named_func(test_ssm_sequence_formatting, "SSM sequence alignment output"));
    status = run_internal_tests(functions);
    return status;
@@ -378,6 +380,7 @@ int
 run_internal_tests(std::vector<named_func> functions) {
 
    int status = 1;
+   std::cout << "run_internal_tests() --------- we have " << functions.size() << " internal test functionns " << std::endl;
    for (unsigned int i_func=0; i_func<functions.size(); i_func++) {
       std::cout << "Entering test: " << functions[i_func].second << std::endl;
       try {
@@ -1627,12 +1630,12 @@ int test_ligand_conformer_torsion_angles() {
 int test_peaksearch_non_close_peaks() {
 
    clipper::Xmap<float> xmap;
-   std::string mtz_file_name;
-   mtz_file_name = getenv("HOME");
-   mtz_file_name += "/data/greg-data/rnasa-1.8-all_refmac1.mtz";
+   std::string dir = coot::package_data_dir();
+   std::string data_dir = coot::util::append_dir_dir(dir, "data");
+   std::string mtz_file_name = coot::util::append_dir_file(data_dir, "rnasa-1.8-all_refmac1.mtz");
+   std::cout << "mtz_file_name " << mtz_file_name << std::endl;
 
-   bool stat = coot::util::map_fill_from_mtz(&xmap, mtz_file_name,
-					     "FWT", "PHWT", "WT", 0, 0);
+   bool stat = coot::util::map_fill_from_mtz(&xmap, mtz_file_name, "FWT", "PHWT", "WT", false, 1.5, true, 1.5);
    if (!stat) {
       std::cout << "   ERROR:: Bad map fill from " << mtz_file_name << "\n";
       return 0;
@@ -1641,11 +1644,9 @@ int test_peaksearch_non_close_peaks() {
    double d_crit = 2.0; // don't return peaks that have a higher
 		       // (absolute) peak less than 4.0 A away.
 
-
    coot::peak_search ps(xmap);
    ps.set_max_closeness(d_crit);
-   std::vector<std::pair<clipper::Coord_orth, float> > peaks =
-      ps.get_peaks(xmap, 0.5, 1, 1);
+   std::vector<std::pair<clipper::Coord_orth, float> > peaks = ps.get_peaks(xmap, 0.5, 1, 1);
 
    if (peaks.size() < 20) {
       std::cout << "   Not enough peaks! " << peaks.size() << std::endl;
