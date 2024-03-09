@@ -1,6 +1,7 @@
 
 ----
 
+
 libcootapi: make minimize_energy() return a mesh, like std::pair<int, coot::instanced_mesh_t> refine(int imol, int n_cycles)
  does. And the GSL return status.
 
@@ -22,6 +23,8 @@ libcootapi: remove ligands and waters
 libcootapi: renumber residue range
 
 libcootapi: make an ensemble from a list of molecules
+
+look at every his in the PDB, look at the differnce map - looking for hydroyx prolines
 
 findwaters: can the output file be mmcif? - Eugene
 

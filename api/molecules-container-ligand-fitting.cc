@@ -447,7 +447,7 @@ std::string
 molecules_container_t::get_svg_for_residue_type(int imol, const std::string &comp_id,
                                                 bool use_rdkit_svg, bool dark_bg_flag) {
 
-   std::string s = "Needs-to-be-compiled-with-the-RDKit";
+   std::string s = "Needs-to-be-compiled-with-the-RDKit"; // gets changed to the correct string (hopefully)
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 

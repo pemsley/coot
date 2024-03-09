@@ -4232,6 +4232,7 @@ if [ "$build_gc" = true ] ; then
       echo BUILDING gc $gc_version >&2
       (
       echo ========================= build gc =================================
+      unset LD_LIBRARY_PATH
       if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
          echo found gc source file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
@@ -4284,6 +4285,7 @@ if [ "$build_guile" = true ] ; then
       echo BUILDING guile:
       echo BUILDING guile $guile_version >&2
       (
+      unset LD_LIBRARY_PATH
       echo ========================= build guile =================================
       if [ -e   $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz
