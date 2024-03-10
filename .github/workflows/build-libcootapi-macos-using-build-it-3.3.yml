@@ -13,35 +13,46 @@ jobs:
 
     - uses: actions/checkout@v4
 
-    - name: cache autobuild-sources
-      id: cache-autobuild-sources
+    - name: cache macos autobuild-sources
+      id: cache-macos-autobuild-sources
       uses: actions/cache@v4
       with:
          path: /Users/runner/autobuild/building/sources
-         key:  files-in-autobuild-sources
+         key:  macos-files-in-autobuild-sources
+
+    # we need gfortran for numpy. Homebrew is the way to install gfortran
+    - name: Setup homebrew
+      id:   setup-homebrew
+      uses: Homebrew/actions/setup-homebrew@master
+
+    - name: turn on brew analytics
+      run:  brew analytics on
+
+    - name: Install gfortran
+      run:  brew install gfortran
 
     - uses: actions/checkout@v4
 
-    - name: cache install-dir
-      id: cache-install-dir
+    - name: cache macos install-dir
+      id: cache-macos-install-dir
       uses: actions/cache@v4
       with:
          path: /Users/runner/install
-         key:  files-in-install-dir
+         key:  macos-files-in-install-dir
 
-    - name: Cache gemmi source
-      id:   Cache-gemmi-source
+    - name: Cache macos gemmi source
+      id:   Cache-macos-gemmi-source
       uses: actions/cache@v4
       with:
         path: gemmi
-        key:  coot-build-ubuntu-gemmi-cache-source
+        key:  coot-build-macos-gemmi-cache-source
 
-    - name: Cache gemmi build
-      id:   Cache-gemmi-build
+    - name: Cache macos gemmi build
+      id:   Cache-macos-gemmi-build
       uses: actions/cache@v4
       with:
         path: build-gemmi
-        key:  coot-build-ubuntu-gemmi-cache-build
+        key:  coot-build-macos-gemmi-cache-build
 
     # Home on macOS is /Users/runner, we start in /Users/runner/work/coot/coot
     - name: where are we?
