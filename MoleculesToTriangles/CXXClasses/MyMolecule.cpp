@@ -63,7 +63,7 @@ int MyMolecule::loadCoords( char *data, int length)
             int RC = mmdb->PutPDBString ( tokenBuffer );
         }
         else {
-            char formattedCard[256];
+            char formattedCard[256 + 7];
             if (!strncmp ("ATOM", tokenBuffer, 4)){
                 AtomCard atomCard;
                 
@@ -102,7 +102,7 @@ int MyMolecule::loadCoords( char *data, int length)
                 FormatPDBCard(atomCard, formattedCard, iDamminAtom++);
             }
             else {
-                sprintf(formattedCard, "REMARK %s", tokenBuffer);
+               snprintf(formattedCard, 256 + 7, "REMARK %s", tokenBuffer);
             }
             int RC = mmdb->PutPDBString ( formattedCard );
         }
