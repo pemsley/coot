@@ -85,15 +85,19 @@ jobs:
       # try this modified version for now:
       run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot.rb
 
+    # this doesn't work - currently a failure in compiling M2T
     - name: Compile Homebrew coot HEAD
       # don't stall waiting for user input to resolve the failed patch
       run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD || true > $HOME/brew.log >&2
+
+    - name: cat the brew log
+      run:  cat /Users/runner/Library/Logs/Homebrew/coot/*.make
 
     - name: Upload brew log
       uses: actions/upload-artifact@v4
       with:
         name: brew-log-package
-        path: /home/runner/brew.log
+        path: /Users/runner/Library/Logs/Homebrew/coot
         retention-days: 3
 
     - name: Does it run?

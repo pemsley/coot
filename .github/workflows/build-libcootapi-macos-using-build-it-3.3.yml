@@ -87,7 +87,7 @@ jobs:
     - name: run cmake
       run: >
            cd build-libcootapi &&
-           echo cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
+           cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
            -DRDKit_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/cmake/rdkit
            -DGEMMI_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/cmake/gemmi
            -DSSM_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include

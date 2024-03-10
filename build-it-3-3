@@ -3296,7 +3296,9 @@ Description: OpenGL Mathematics
 Version: @GLM_VERSION@
 Cflags: -I${includedir}' > cmake/glm.pc.in
     cat cmake/glm.pc.in
+    echo patch from ${AUTOBUILD_SOURCES}/glm-CMakeLists-for-glm.pc.patch
     patch < ${AUTOBUILD_SOURCES}/glm-CMakeLists-for-glm.pc.patch
+    echo cmake . -DCMAKE_INSTALL_PREFIX=$install_top_dir
     cmake . -DCMAKE_INSTALL_PREFIX=$install_top_dir
     if $MAKE ; then
        make install
