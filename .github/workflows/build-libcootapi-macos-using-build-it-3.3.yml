@@ -87,7 +87,7 @@ jobs:
     - name: run cmake
       run: >
            cd build-libcootapi &&
-           cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
+           echo cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
            -DRDKit_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/cmake/rdkit
            -DGEMMI_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/cmake/gemmi
            -DSSM_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include
@@ -118,7 +118,7 @@ jobs:
         retention-days: 3
 
     - name: make
-      run:  cd build-libcootapi && make -j 4
+      run:  cd build-libcootapi && echo make -j 4
 
     - name: make install
       run:  cd build-libcootapi && echo make install

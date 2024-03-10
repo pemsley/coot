@@ -3288,13 +3288,14 @@ else
     gzip -dc ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz | tar xf -
     cd glm-$glm_version
     # restore glm.pc
-    cat 'prefix=@CMAKE_INSTALL_PREFIX@
+    echo 'prefix=@CMAKE_INSTALL_PREFIX@
 includedir=${prefix}/include
 
 Name: GLM
 Description: OpenGL Mathematics
 Version: @GLM_VERSION@
 Cflags: -I${includedir}' > cmake/glm.pc.in
+    cat cmake/glm.pc.in
     patch < ${AUTOBUILD_SOURCES}/glm-CMakeLists-for-glm.pc.patch
     cmake . -DCMAKE_INSTALL_PREFIX=$install_top_dir
     if $MAKE ; then

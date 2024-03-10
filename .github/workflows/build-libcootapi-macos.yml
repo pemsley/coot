@@ -114,7 +114,16 @@ jobs:
             -DENHANCED_LIGAND_TOOLS=TRUE
             -DGEMMI_DIR=/usr/local/lib/cmake/gemmi
             -DRDKit_DIR=/usr/local/lib/cmake/rdkit
+            -DFFTW2_LIBRARY=/usr/local/lib/libfftw.dylib
+            -DRFFTW2_LIBRARY=/usr/local/lib/librfftw.dylib
             -Dnanobind_DIR=/Users/runner/install/lib/python3.10/site-packages/nanobind/cmake ..
+
+      - name: Upload CMakeCache.txt
+        uses: actions/upload-artifact@v4
+        with:
+            name: cmake-macos-homebrew-build-cache-package
+            path: /Users/runner/work/coot/coot/build-libcootapi
+            retention-days: 3
 
       - name: make
         run:  cd build-libcootapi && make -j 4
