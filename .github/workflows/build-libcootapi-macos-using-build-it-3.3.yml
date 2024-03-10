@@ -58,10 +58,10 @@ jobs:
     - name: where are we?
       run: pwd
 
-    - name: what includes have been built/cached
+    - name: what includes have been built/cached || true
       run:  ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/include
 
-    - name: what libs have been built/cached
+    - name: what libs have been built/cached || true
       run:  ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib
 
     - name: run build-it-3-3 in chapi mode
