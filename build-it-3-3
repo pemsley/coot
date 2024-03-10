@@ -1259,15 +1259,15 @@ case $dist_name in
 
 esac
 
-
+# 20240305 too noisy
 # give us some diagnostic shell information:
 # (what extra things did $specs give us?)
 #
-if [ "$use_proxy" = 1 ] ; then
-    echo no diagnostic variables, we are using a proxy.
-else
-    set
-fi
+# if [ "$use_proxy" = 1 ] ; then
+#  echo no diagnostic variables, we are using a proxy.
+# else
+#  set
+# fi
 
 # On 64 bit redhat 4, we (might) need to add X11 to the path for freeglut configure.
 #
@@ -3261,7 +3261,7 @@ fi
 ##########         GLM                                            #############
 ###############################################################################
 if [ -e $install_top_dir/include/glm/glm.hpp ] ; then
-   echo not building glm
+    echo not building glm
 else
     # The glm version is 0.9.9.5 because glm.pc was deleted after that.
     # thanks sayurlinux.
@@ -3279,11 +3279,21 @@ else
     echo fetching https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz >&2
     ${WGET} https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz
     cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
+    ${WGET} $extras_place/glm-CMakeLists-for-glm.pc.patch
     (
     date
     pwd
-    gzip -dc ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz | tar xf -
     cd glm-$glm_version
+    gzip -dc ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz | tar xf -
+    # restore glm.pc
+    cat 'prefix=@CMAKE_INSTALL_PREFIX@
+includedir=${prefix}/include
+
+Name: GLM
+Description: OpenGL Mathematics
+Version: @GLM_VERSION@
+Cflags: -I${includedir}' > cmake/glm.pc.in
+    patch < ${AUTOBUILD_SOURCES}/glm-CMakeLists-for-glm.pc.patch
     cmake . -DCMAKE_INSTALL_PREFIX=$install_top_dir
     if $MAKE ; then
        make install
