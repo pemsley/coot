@@ -3278,13 +3278,15 @@ else
     echo BUILDING glm $glm_version: >&2
     echo fetching https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz >&2
     ${WGET} https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz
+    echo cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
     cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
+    echo ${WGET} $extras_place/glm-CMakeLists-for-glm.pc.patch
     ${WGET} $extras_place/glm-CMakeLists-for-glm.pc.patch
     (
     date
     pwd
-    cd glm-$glm_version
     gzip -dc ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz | tar xf -
+    cd glm-$glm_version
     # restore glm.pc
     cat 'prefix=@CMAKE_INSTALL_PREFIX@
 includedir=${prefix}/include
@@ -3311,12 +3313,12 @@ fi
 # Let's stop at the beginning if we need a fortran compiler and don't have it.
 #
 if [ "$build_numpy" = true ] ; then
-   if gfortran --version > /dev/null ; then
-      echo found fortran compiler
-   else
-      echo fortran compiler not found.
-      exit 2
-   fi
+    if gfortran --version > /dev/null ; then
+        echo found fortran compiler
+    else
+        echo fortran compiler not found.
+        exit 2
+    fi
 fi
 
 # numpy needs system libblas (and liblapack?) - it's not clear to
