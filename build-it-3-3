@@ -2788,7 +2788,7 @@ if $build_getttext = true ; then
      ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gettext/gettext-$gettext_version.tar.gz
        tar xf $AUTOBUILD_SOURCES/gettext-$gettext_version.tar.gz
        cd gettext-$gettext_version
-       ./configure --prefix=$install_top_dir
+       ./configure --prefix=$install_top_dir --disable-java
        $MAKE && make install
        cd -
     ) > $HOSTLOGDIR/07-g-gettext.txt 2>&1
