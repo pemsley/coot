@@ -13,12 +13,12 @@ jobs:
 
     - uses: actions/checkout@v4
 
-    - name: cache autobuild
-      id: cache-autobuild
+    - name: cache autobuild-sources
+      id: cache-autobuild-sources
       uses: actions/cache@v4
       with:
-         path: /Users/runner/autobuild
-         key:  files-in-autobuild
+         path: /Users/runner/autobuild/building/sources
+         key:  files-in-autobuild-sources
 
     - uses: actions/checkout@v4
 
