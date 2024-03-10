@@ -3271,6 +3271,11 @@ else
     # The glm version is 0.9.9.5 because glm.pc was deleted after that.
     # thanks sayurlinux.
     # ${WGET} $extras_place/glm-$glm_version.tar.gz
+    # However, that fails to compile:
+    # In file included from /Users/runner/autobuild/building/Mac-1710037648402.local_2024-03-10__T03_03_05/glm-0.9.9.5/glm/gtc/random.hpp:82:
+    # /Users/runner/autobuild/building/Mac-1710037648402.local_2024-03-10__T03_03_05/glm-0.9.9.5/glm/gtc/random.inl:25:17: error: implicit conversion loses integer precision: 'int' to 'unsigned char' [-Werror,-Wimplicit-int-conversion]
+    # so let's try 0.9.8
+    glm_version=0.9.9.8
     echo fetching https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz >&2
     ${WGET} https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz
     cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
