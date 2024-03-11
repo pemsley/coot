@@ -406,21 +406,29 @@ molecules_container_t::rigid_body_fit(int imol, const std::string &multi_cid, in
 
 // minimize/optimize the geometry of the specified residue(s)
 // @return the success status 1 if the minimization was performed and 0 if it was not.
-int
+std::pair<int, coot::instanced_mesh_t>
 molecules_container_t::minimize_energy(int imol, const std::string &atom_selection_cid,
                                        int n_cycles,
                                        bool do_rama_plot_restraints, float rama_plot_weight,
                                        bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet) {
    int status = 0;
+   coot::instanced_mesh_t im;
    if (is_valid_model_molecule(imol)) {
       status = molecules[imol].minimize(atom_selection_cid, n_cycles,
                                         do_rama_plot_restraints, rama_plot_weight,
                                         do_torsion_restraints, torsion_weight,
                                         refinement_is_quiet, &geom);
+      std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
+      bool draw_hydrogen_atoms_flag = true; // use data member as we do for draw_missing_residue_loops_flag?
+      im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.12, 1.4, 1,
+                                                    draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
+
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
-   return status;
+
+   // use std::move() here?
+   return std::make_pair(status, im);;
 
 
 }

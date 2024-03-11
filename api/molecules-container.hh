@@ -1207,10 +1207,11 @@ public:
    // If you pass n_cycles = 100 (or some such) then you can get the mesh for the partially optimized ligand/residues
    // (like `refine_residues()` and `refine()`) is nice for animation.
    // @return the success status 1 if the minimization was performed and 0 if it was not.
-   int minimize_energy(int imol, const std::string &atom_selection_cid,
-                       int n_cycles,
-                       bool do_rama_plot_restraints, float rama_plot_weight,
-                       bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet);
+   std::pair<int, coot::instanced_mesh_t>
+   minimize_energy(int imol, const std::string &atom_selection_cid,
+                   int n_cycles,
+                   bool do_rama_plot_restraints, float rama_plot_weight,
+                   bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet);
 
    //! fix atoms during refinement. Does nothing at the moment.
    void fix_atom_selection_during_refinement(int imol, const std::string &atom_selection_cid);
