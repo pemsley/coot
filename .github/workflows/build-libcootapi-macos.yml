@@ -111,6 +111,7 @@ jobs:
         run: >
             cd build-libcootapi &&
             cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
+            -DCMAKE_PREFIX_PATH=/usr/local
             -DENHANCED_LIGAND_TOOLS=TRUE
             -DGEMMI_DIR=/usr/local/lib/cmake/gemmi
             -DRDKit_DIR=/usr/local/lib/cmake/rdkit

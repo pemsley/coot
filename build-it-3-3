@@ -3263,6 +3263,8 @@ fi
 if [ -e $install_top_dir/include/glm/glm.hpp ] ; then
     echo not building glm
 else
+    echo where is glm/include question-mark
+    ls $install_top_dir/include
     # The glm version is 0.9.9.5 because glm.pc was deleted after that.
     # thanks sayurlinux.
     # ${WGET} $extras_place/glm-$glm_version.tar.gz

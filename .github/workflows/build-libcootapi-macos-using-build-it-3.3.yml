@@ -127,9 +127,6 @@ jobs:
            -DCLIPPER-CORE_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include
            -DCLIPPER-MMDB_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include
            -DCLIPPER-CCP4_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include
-           -DCLIPPER-CIF_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include
-           -DCLIPPER-MINIMOL_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include
-           -DCLIPPER-CONTRIB_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include
            -DFFTW2_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libfftw.dylib
            -DRFFTW2_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/librfftw.dylib
            -DMMDB2_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libmmdb2.dylib
