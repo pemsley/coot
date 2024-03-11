@@ -31,6 +31,10 @@ jobs:
     - name: Install gfortran
       run:  brew install gfortran
 
+    # does this install gfortran then?
+    - name: brew reinstall gcc
+      run:  brew reinstall gcc
+
     - uses: actions/checkout@v4
 
     - name: cache macos install-dir
