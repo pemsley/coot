@@ -40,6 +40,26 @@ jobs:
          path: /Users/runner/install
          key:  macos-files-in-install-dir
 
+    - name: download the monomer library
+      run:  wget -nv https://github.com/MonomerLibrary/monomers/archive/refs/tags/ccp4-8.0.016.tar.gz
+
+    # note that the data directory exists in the coot repo (which is where we are)
+    - name: untar the monomer library
+      run:  pwd && cd data && tar xf ../ccp4-8.0.016.tar.gz && ln -s monomers-ccp4-8.0.016 monomers
+
+    - name: Cache test data tar
+      id: test-data-cache
+      uses: actions/cache@v4
+      with:
+        path: test-molecule-container-test-data.tar.gz
+        key: macos-test-data-cache
+
+    - name: download test data
+      run:  wget -N -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
+
+    - name: untar test data
+      run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data.tar.gz
+
     - name: Cache macos gemmi source
       id:   Cache-macos-gemmi-source
       uses: actions/cache@v4
@@ -122,4 +142,12 @@ jobs:
       run:  cd build-libcootapi && make -j 4
 
     - name: make install
-      run:  cd build-libcootapi && echo make install
+      run:  cd build-libcootapi && make install
+
+    - name: run the test-molecules-container test
+      # this needs the monomer library
+      env:
+          MOORHEN_TEST_DATA_DIR: ../test-data
+          COOT_REFMAC_LIB_DIR: /Users/runner/work/coot/coot # "data/monomers" is added before "a/ATP.cif" (say)
+      #  at some stage use | egrep "^Starting|^FAIL|^PASS|^UN"
+      run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN"
