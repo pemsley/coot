@@ -3314,7 +3314,7 @@ fi
 ##########         build numpy                                    #############
 ###############################################################################
 
-# Let's stop at the beginning if we need a fortran compiler and don't have it.
+# Let's stop if we need a fortran compiler and don't have it.
 #
 if [ "$build_numpy" = true ] ; then
     if gfortran --version > /dev/null ; then
@@ -3323,6 +3323,8 @@ if [ "$build_numpy" = true ] ; then
         echo fortran compiler not found.
         exit 2
     fi
+else
+   echo debug:: build_numpy was $build_numpy
 fi
 
 # numpy needs system libblas (and liblapack?) - it's not clear to
@@ -3347,7 +3349,7 @@ fi
 
 if [ true = true ] ; then
    skip_this=false
-   ls -alt $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py
+   # ls -alt $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py
    if [ -e $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py ] ;  then
          echo numpy is found, skip
          skip_this=true
@@ -3364,6 +3366,9 @@ if [ true = true ] ; then
       echo BUILDING numpy $numpy_version >&2
       (
       echo building ========================= numpy ==============================
+      echo this gfortran:
+      command -v gfortran
+      echo $PATH
       # this needs fortran compiler gfortran
 
       # maybe get numpy from github?
