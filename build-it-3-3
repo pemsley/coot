@@ -3263,6 +3263,8 @@ fi
 if [ -e $install_top_dir/include/glm/glm.hpp ] ; then
     echo not building glm
 else
+    echo where is glm/include question-mark
+    ls $install_top_dir/include
     # The glm version is 0.9.9.5 because glm.pc was deleted after that.
     # thanks sayurlinux.
     # ${WGET} $extras_place/glm-$glm_version.tar.gz
@@ -3274,6 +3276,7 @@ else
     glm_version=1.0.0
     glm_version=0.9.9.5
     glm_version=0.9.9.8
+    glm_version=1.0.0
     echo BUILDING glm $glm_version:
     echo BUILDING glm $glm_version: >&2
     echo fetching https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz >&2
@@ -3313,7 +3316,7 @@ fi
 ##########         build numpy                                    #############
 ###############################################################################
 
-# Let's stop at the beginning if we need a fortran compiler and don't have it.
+# Let's stop if we need a fortran compiler and don't have it.
 #
 if [ "$build_numpy" = true ] ; then
     if gfortran --version > /dev/null ; then
@@ -3322,6 +3325,8 @@ if [ "$build_numpy" = true ] ; then
         echo fortran compiler not found.
         exit 2
     fi
+else
+   echo debug:: build_numpy was $build_numpy
 fi
 
 # numpy needs system libblas (and liblapack?) - it's not clear to
@@ -3346,7 +3351,7 @@ fi
 
 if [ true = true ] ; then
    skip_this=false
-   ls -alt $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py
+   # ls -alt $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py
    if [ -e $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py ] ;  then
          echo numpy is found, skip
          skip_this=true
@@ -3363,6 +3368,9 @@ if [ true = true ] ; then
       echo BUILDING numpy $numpy_version >&2
       (
       echo building ========================= numpy ==============================
+      echo this gfortran:
+      command -v gfortran
+      echo $PATH
       # this needs fortran compiler gfortran
 
       # maybe get numpy from github?

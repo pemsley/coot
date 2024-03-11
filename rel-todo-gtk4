@@ -24,6 +24,10 @@ libcootapi: renumber residue range
 
 libcootapi: make an ensemble from a list of molecules
 
+M2T: /Users/runner/work/coot/coot/MoleculesToTriangles/CXXSurface/CXXSurface.cpp:356:5: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+/Users/runner/work/coot/coot/MoleculesToTriangles/CXXClasses/CompoundSelection.cpp:283:13: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+  And others.
+
 look at every his in the PDB, look at the differnce map - looking for hydroyx prolines
 
 findwaters: can the output file be mmcif? - Eugene

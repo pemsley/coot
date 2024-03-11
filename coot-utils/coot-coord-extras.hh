@@ -25,7 +25,7 @@
 
 #include <fstream>
 #include <map>
-#include "tree.hh" // Kasper Peeters tree
+// #include "tree.hh" // Kasper Peeters tree
 
 #include "coot-coord-utils.hh"
 #include "geometry/protein-geometry.hh"
@@ -38,9 +38,9 @@
 
 namespace coot {
 
-   namespace util { 
+   namespace util {
       // geom_p gets updated to include the residue restraints if necessary
-      // 
+      //
       std::pair<int, std::vector<std::string> >
       check_dictionary_for_residues(mmdb::PResidue *SelResidues, int nSelResidues,
 				    protein_geometry *geom_p, int read_number);
@@ -52,7 +52,7 @@ namespace coot {
       // some atom order dependency in mgtree that I don't understand.
       // Please fix (remove the necessity of depending on
       // regular_residue_flag) if you know how.
-      // 
+      //
       std::vector<std::vector<int> >
       get_contact_indices_from_restraints(mmdb::Residue *residue,
 					  protein_geometry *geom_p,
@@ -233,7 +233,7 @@ namespace coot {
    //
    // This can throw a std::runtime_error if we can't find the group
    // of the input residues (for example).
-   // 
+   //
    class beam_in_linked_residue {
       mmdb::Residue *residue_ref; // in user-defined molecule
       mmdb::Residue *template_res_ref;
@@ -242,7 +242,7 @@ namespace coot {
       std::string comp_id_new;
       protein_geometry *geom_p;
       std::string link_type;
-      
+
       bool have_template;
 
       // return success status (0 = fail).
@@ -268,7 +268,7 @@ namespace coot {
       void delete_atom(mmdb::Residue *res, const std::string &atom_name) const;
       std::string atom_id_mmdb_expand(const std::string &atom_id,
 				      const std::string &res_name,
-				      int imol) const; 
+				      int imol) const;
 
       // If the link is a BETA1-6 or an ALPHA1-6 then the linked
       // residue (and the O6 of the residue to which we are adding)
@@ -278,8 +278,8 @@ namespace coot {
       //
       // simply get the attached residue, don't handle the positioning
       // of the O6 on the residue to which we are adding.
-      mmdb::Residue *get_residue_raw() const; 
-      
+      mmdb::Residue *get_residue_raw() const;
+
    public:
       beam_in_linked_residue(mmdb::Residue *residue_ref,
 			     const std::string &link_type_in,
@@ -323,12 +323,12 @@ namespace coot {
       bool operator==(const linked_residue_t &test_lr) const {
 
 	 // should we test order switch here too?
-	 
+
 	 if (test_lr.link_type == link_type)
 	    if (test_lr.res_name() == res_name())
 	       return true;
 	    else
-	       return false; 
+	       return false;
 	 else
 	    return false;
       }
@@ -344,78 +344,6 @@ namespace coot {
 
    // use residues-near-residue to find linked residues
    std::vector<mmdb::Residue *> simple_residue_tree(mmdb::Residue *, mmdb::Manager *mol, float dist_max);
-
-   class glyco_tree_t {
-   public:
-      class residue_id_t {
-      public:
-	 enum prime_arm_flag_t { UNSET, PRIME, NON_PRIME };
-	 std::string res_type; // this is tested as empty to see if this object is filled
-	 std::string link_type;
-	 std::string parent_res_type;
-	 residue_spec_t parent_res_spec;
-	 unsigned int level;
-	 prime_arm_flag_t prime_arm_flag; // are we in the (4') arm?
-	 residue_id_t() {}
-	 residue_id_t(int level_in,
-		      prime_arm_flag_t prime_flag_in,
-		      const std::string &res_type_in,
-		      const std::string &link_type_in,
-		      const std::string &parent_res_type_in,
-		      const residue_spec_t &parent_res_spec_in) : res_type(res_type_in),
-								  link_type(link_type_in),
-								  parent_res_type(parent_res_type_in),
-								  parent_res_spec(parent_res_spec_in),
-								  level(level_in),
-								  prime_arm_flag(prime_flag_in) {}
-      };
-   private:
-      protein_geometry *geom_p;
-      std::vector<mmdb::Residue *> linked_residues;
-      tree<linked_residue_t> glyco_tree; // 20170503 the constructor now stores its own tree
-
-      bool is_pyranose(mmdb::Residue *r) const; 
-      tree<linked_residue_t> find_rooted_tree(mmdb::Residue *residue_root_p,
-					      const std::vector<mmdb::Residue *> &residues) const;
-      tree<linked_residue_t> find_ASN_rooted_tree(mmdb::Residue *residue_p,
-						  const std::vector<mmdb::Residue *> &residues) const;
-      tree<linked_residue_t> find_stand_alone_tree(const std::vector<mmdb::Residue *> &residues) const;
-      void compare_vs_allowed_trees(const tree<linked_residue_t> &tr) const;
-      bool compare_trees(const tree<linked_residue_t> &tree_for_testing,
-			 const tree<linked_residue_t> &tree_reference) const;
-      tree<linked_residue_t> oligomannose_tree() const;
-      tree<linked_residue_t>      complex_tree() const;
-      tree<linked_residue_t>       hybrid_tree() const;
-#ifndef SWIG
-      static bool residue_comparitor(mmdb::Residue *res1, mmdb::Residue *res2) {
-	 return (residue_spec_t(res1) < residue_spec_t(res2));
-      }
-#endif
-      void print(const tree<linked_residue_t> &glyco_tree) const;
-      std::vector<mmdb::Residue *> residues(const tree<linked_residue_t> &glyco_tree) const;
-      void output_internal_distances(mmdb::Residue *residue_p,
-				     mmdb::Residue *parent_residue_p,
-				     double dist_lim,
-				     std::ofstream &f) const;
-      // old, all-residue
-      void output_internal_distances(mmdb::Residue *residue_p,
-				     std::vector<mmdb::Residue *> residues,
-				     double dist_lim,
-				     std::ofstream &f) const;
-      residue_id_t::prime_arm_flag_t get_prime(mmdb::Residue *residue_p) const;
-      int get_level(mmdb::Residue *residue_p) const;
-
-   public:
-      glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol, protein_geometry *geom_p_in);
-      std::vector<mmdb::Residue *> residues(const coot::residue_spec_t &containing_res_spec) const;
-      void internal_distances(double dist_lim, const std::string &file_name) const;
-      residue_id_t get_id(mmdb::Residue *residue_p) const;
-      // for tree comparison
-      tree<linked_residue_t> get_glyco_tree() const { return glyco_tree; }
-      bool compare_trees(const tree<linked_residue_t> &tree_in) const;
-      std::vector<std::pair<coot::residue_spec_t, coot::residue_spec_t> > matched_pairs(const tree<linked_residue_t> &t_in) const;
-   };
-
 
    // This was moved from coot-coord-utils.hh because this now requires the protein_geometry
    // where the atoms are in cis peptides

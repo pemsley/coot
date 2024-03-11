@@ -107,13 +107,18 @@ jobs:
       - name: patch out CCP4-package in CMakeLists.txt
         run:  sed -i.backup -e 's/find_package.CCP4/#&/' CMakeLists.txt
 
+      - name: where is fftw?
+        run:  find /usr/local -name "*fftw*"
+
       - name: run cmake
         run: >
             cd build-libcootapi &&
             cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
+            -DCMAKE_PREFIX_PATH=/usr/local
             -DENHANCED_LIGAND_TOOLS=TRUE
             -DGEMMI_DIR=/usr/local/lib/cmake/gemmi
             -DRDKit_DIR=/usr/local/lib/cmake/rdkit
+            -DFFTW2_INCLUDE_DIRS=/usr/local/Cellar/clipper4coot/2.1.20180802_2/fftw2/include
             -DFFTW2_LIBRARY=/usr/local/lib/libfftw.dylib
             -DRFFTW2_LIBRARY=/usr/local/lib/librfftw.dylib
             -Dnanobind_DIR=/Users/runner/install/lib/python3.10/site-packages/nanobind/cmake ..
