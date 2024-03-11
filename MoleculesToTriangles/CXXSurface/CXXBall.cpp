@@ -90,7 +90,7 @@ int CXXBall::triangulateBalls(vector<const CXXBall*  > &ballPntrs,
         CXXSurface &ballSurface = ballSurfacesArray[i];
         if (!(i%100) || i==nBalls-1) {
 #if __APPLE__ && !defined _OPENMP
-            dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, NULL),^(void){
+            dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0),^(void){
                 cout << "Dealing with ball number " <<i <<endl;
             });
 #elif defined _OPENMP
