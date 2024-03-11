@@ -24,6 +24,7 @@
 #include <stdexcept>
 #include <iomanip>
 #include <algorithm> // for std::find
+#include <queue>
 
 #include "string.h"
 

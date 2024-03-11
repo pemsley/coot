@@ -25,6 +25,7 @@
 #include "compat/coot-sysdep.h"
 #include "utils/coot-utils.hh"
 #include "coot-coord-extras.hh"
+#include "glyco-tree.hh"
 
 
 // Note: this is a simple-minded hack.  The right way of doing this
