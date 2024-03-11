@@ -353,12 +353,12 @@ int CXXSurface::writeAsGrasp (string path)
     graspFile.putFortranData(buffer, 1, 64, CXXFortranFile::FortranCharData);
     
     //Number of vertices and triangles, grid, and the number 3.0
-    sprintf(buffer,"%8d%8zu%8d%8.5f                                ",
+    snprintf(buffer, 1000, "%8d%8zu%8d%8.5f                                ",
             int(vertices.size()), nTriangles, 65, 3.0);
     graspFile.putFortranData(buffer, 1, 64, CXXFortranFile::FortranCharData);
     
     // A line that seems to mention the origin
-    sprintf(buffer,"%8.3f%8.3f%8.3f                                        ",
+    snprintf(buffer, 1000, "%8.3f%8.3f%8.3f                                        ",
             0., 0., 0.);
     graspFile.putFortranData(buffer, 1, 64, CXXFortranFile::FortranCharData);
     

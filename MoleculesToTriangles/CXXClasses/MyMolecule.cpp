@@ -156,14 +156,14 @@ int MyMolecule::FormatPDBCard (AtomCard theAtom, char *card,int count){
     char token[200];
     
     strcpy (card,"ATOM  ");
-    sprintf (token,"%5d ", count + 1);
+    snprintf(token, 198, "%5d ", count + 1);
     strcat (card, token);
     strcat (card, theAtom.atname);
     strcat (card, theAtom.alt);
     strcat (card, theAtom.restype);
     strcat (card, theAtom.chainid);
     strcat (card, theAtom.resname);
-    sprintf(token,"    %8.3f%8.3f%8.3f%6.2f%6.2f               ",
+    snprintf(token, 198, "    %8.3f%8.3f%8.3f%6.2f%6.2f               ",
             theAtom.crd.xyz[0], theAtom.crd.xyz[1], theAtom.crd.xyz[2],
             theAtom.properties[0], theAtom.properties[1]);
     strcat (card, token);
