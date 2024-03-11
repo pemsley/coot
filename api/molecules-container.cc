@@ -100,6 +100,7 @@ void
 molecules_container_t::clear() {
 
    molecules.clear();
+   molecules.shrink_to_fit();
 }
 
 //! delete the most recent/last molecule in the molecule vector

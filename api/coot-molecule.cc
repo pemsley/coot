@@ -31,14 +31,14 @@ coot::molecule_t::is_valid_model_molecule() const {
 int
 coot::molecule_t::close_yourself() {
 
-   int status = 1;
+   int status = 0;
    if (is_valid_model_molecule()) {
       atom_sel.clear_up();
       status = 1;
    }
    if (is_valid_map_molecule()) {
       clipper::Xmap<float> xmap_empty;
-      xmap = xmap_empty;
+      std::swap(xmap, xmap_empty);
       status = 1;
    }
    return status;
