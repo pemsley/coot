@@ -84,11 +84,12 @@ jobs:
       run:  sed -i.backup -e 's/find_package.CCP4/#&/' CMakeLists.txt
 
     # CHAPI_ONLY installs Python version 3.10
+    # don't use RDKit ATM:
+    # -DRDKit_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/cmake/rdkit
     - name: run cmake
       run: >
            cd build-libcootapi &&
            cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
-           -DRDKit_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/cmake/rdkit
            -DGEMMI_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/cmake/gemmi
            -DSSM_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include
            -DCLIPPER-CORE_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libclipper-core.dylib
@@ -118,7 +119,7 @@ jobs:
         retention-days: 3
 
     - name: make
-      run:  cd build-libcootapi && echo make -j 4
+      run:  cd build-libcootapi && make -j 4
 
     - name: make install
       run:  cd build-libcootapi && echo make install
