@@ -32,8 +32,10 @@ jobs:
       run:  brew install gfortran
 
     # does this install gfortran then?
-    - name: brew reinstall gcc
-      run:  brew reinstall gcc
+    # - name: brew reinstall gcc
+    #   run:  brew reinstall gcc
+    # no, it doesn't - it fails on some Python error and breask the build.
+    # Annoying.
 
     - uses: actions/checkout@v4
 
