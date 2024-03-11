@@ -505,7 +505,12 @@ public:
    // -------------------------------- coordinates utils -----------------------------------
    //! \name Coordinates Utils
 
-   //! read a PDB file (or mmcif coordinates file, despite the name)
+   //! read a coordinates file (mmcif or PDB)
+   //! @return the new molecule index on success and -1 on failure
+   int read_coordinates(const std::string &file_name);
+
+   //! read a PDB file (or mmcif coordinates file, despite the name).
+   //! It does the same job as `read_coordinates` but has (perhaps) a more familiar name.
    //! @return the new molecule index on success and -1 on failure
    int read_pdb(const std::string &file_name);
 

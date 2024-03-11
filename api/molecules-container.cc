@@ -590,8 +590,10 @@ molecules_container_t::install_model(const coot::molecule_t &m) {
 }
 
 
+//! read a coordinates file (mmcif or PDB)
+//! @return the new molecule index on success and -1 on failure
 int
-molecules_container_t::read_pdb(const std::string &file_name) {
+molecules_container_t::read_coordinates(const std::string &file_name) {
 
    int status = -1;
    atom_selection_container_t asc = get_atom_selection(file_name, use_gemmi, true, false);
@@ -608,6 +610,13 @@ molecules_container_t::read_pdb(const std::string &file_name) {
                 << " for " << file_name << std::endl;
    }
    return status;
+}
+
+
+int
+molecules_container_t::read_pdb(const std::string &file_name) {
+
+   return read_coordinates(file_name);
 }
 
 //! read a PDB file (or mmcif coordinates file, despite the name) to
