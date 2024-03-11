@@ -3274,6 +3274,7 @@ else
     glm_version=1.0.0
     glm_version=0.9.9.5
     glm_version=0.9.9.8
+    glm_version=1.0.0
     echo BUILDING glm $glm_version:
     echo BUILDING glm $glm_version: >&2
     echo fetching https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz >&2
