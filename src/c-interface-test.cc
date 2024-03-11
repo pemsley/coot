@@ -94,6 +94,7 @@
 #include "utils/coot-utils.hh"
 #include "coot-utils/read-sm-cif.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/glyco-tree.hh"
 #include "coot-database.hh"
 #include "coot-fileselections.h"
 

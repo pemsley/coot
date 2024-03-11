@@ -52,6 +52,8 @@
 
 #include "ligand/rotamer.hh" // in ligand
 
+#include "coot-utils/glyco-tree.hh"
+
 #include "ligand/base-pairing.hh"
 #include "ideal/torsion-bonds.hh"
 
