@@ -5334,6 +5334,61 @@ molecules_container_t::split_multi_model_molecule(int imol) {
 }
 
 
+//! make a multi-model molecule given the input molecules
+//! ``model_molecules_list`` is a colon-separated list of molecules, *e.g.* "2:3:4"
+//! @return the new molecule index - -1 if no models were found in the ``model_molecules_list``
+int
+molecules_container_t::make_ensemble(const std::string &model_molecule_list) {
+
+   // make this be a member function.
+   // Add a test for valid model molecule when you do so
+   auto model_molecule_string_list_to_molecule_index_vec = [] (const std::string &model_molecule_list) {
+      std::vector<int> mols;
+      std::vector<std::string> number_strings = coot::util::split_string(model_molecule_list, ":");
+      for (const auto &item : number_strings) {
+         int idx = coot::util::string_to_int(item);
+         mols.push_back(idx);
+      }
+      return mols;
+   };
+
+   int imol_new = -1;
+   mmdb::Manager *mol_sumo = new mmdb::Manager;
+   std::vector<int> mols = model_molecule_string_list_to_molecule_index_vec(model_molecule_list);
+   unsigned int n_done = 0;
+   for (unsigned int i=0; i<mols.size(); i++) {
+      unsigned int idx = mols[i];
+      if (is_valid_model_molecule(idx)) {
+         mmdb::Manager *mol = molecules[idx].atom_sel.mol;
+         if (mol) {
+            for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+               mmdb::Model *model_p = mol->GetModel(imod);
+               mmdb::Model *new_model = new mmdb::Model;
+               new_model->Copy(model_p);
+               mol_sumo->AddModel(new_model);
+               n_done++;
+            }
+         }
+      }
+   }
+
+   if (n_done > 0) {
+
+      // now create a new molecule
+      std::string name = "Ensemble " + model_molecule_list;
+      imol_new = molecules.size();
+      atom_selection_container_t asc = make_asc(mol_sumo);
+      coot::molecule_t m(asc, imol_new, name);
+      molecules.push_back(m);
+
+   } else {
+      // clean up
+      delete mol_sumo;
+   }
+   return imol_new;
+}
+
+
 //! Fourier Shell Correlation (FSC) between maps
 //! @return a vector or pairs of graph points (resolution, correlation)
 std::vector<std::pair<double, double> >
