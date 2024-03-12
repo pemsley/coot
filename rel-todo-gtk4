@@ -12,7 +12,7 @@ libcootapi: are backups being made by refine()?. If so, turn them off - maybe ba
 
 libcootapi: pull bernhards repo for new ramas
 
-libcootapi: before Newcastle: torsion match ligand superposition
+libcootapi: before Newcastle: torsion match ligand and ligand graph-based superposition
 
 libcootapi: the apply colour rules to non-carbon atoms need to happen on a per-colour-rule basis, not per molecule.
   so that ligands can be set a different colour in Goodsel mode - and goodsel mode plays nicely with other colour rules.
@@ -28,8 +28,9 @@ libcootapi: make an ensemble from a list of molecules
 M2T: /Users/runner/work/coot/coot/MoleculesToTriangles/CXXSurface/CXXSurface.cpp:356:5: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
 /Users/runner/work/coot/coot/MoleculesToTriangles/CXXClasses/CompoundSelection.cpp:283:13: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
   And others.
+* Done.
 
-look at every his in the PDB, look at the differnce map - looking for hydroyx prolines
+look at every his in the PDB, look at the differnce map - looking for hydroxy prolines
 
 findwaters: can the output file be mmcif? - Eugene
 

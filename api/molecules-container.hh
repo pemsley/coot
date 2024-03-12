@@ -1370,6 +1370,15 @@ public:
    // Function is not const because it might change the protein_geometry geom.
    coot::simple_mesh_t get_mesh_for_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid);
 
+   //! match ligand torsions - return the success status
+   bool match_ligand_torsions(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
+
+   //! match ligand positions - return the success status
+   bool match_ligand_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
+
+   //! match ligand torsions and positions
+   bool match_ligand_torsions_and_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
+
    //! not const because it can dynamically add dictionaries
    coot::atom_overlaps_dots_container_t get_overlap_dots(int imol);
 

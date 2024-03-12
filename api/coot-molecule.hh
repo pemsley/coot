@@ -855,6 +855,14 @@ namespace coot {
                                     const std::string &atom_name,
                                     bool invert_selection);
 
+                                        // manipulate torsion angles of first residue in the molecule to
+      // match those of the passed (reference residue (from a different
+      // molecule, typically).
+      //
+      int match_torsions(mmdb::Residue *res_ref,
+                       const std::vector <coot::dict_torsion_restraint_t> &tr_ligand,
+                       const coot::protein_geometry &geom);
+
       coot::minimol::molecule eigen_flip_residue(const residue_spec_t &residue_spec);
 
       int apply_transformation_to_atom_selection(const std::string &atom_selection_cid,

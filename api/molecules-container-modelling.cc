@@ -430,5 +430,63 @@ molecules_container_t::minimize_energy(int imol, const std::string &atom_selecti
    // use std::move() here?
    return std::make_pair(status, im);;
 
+}
 
+
+//! match ligand torsions - return the success status
+bool
+molecules_container_t::match_ligand_torsions(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref) {
+   bool status = false;
+   if (is_valid_model_molecule(imol_ligand)) {
+      if (is_valid_model_molecule(imol_ref)) {
+         coot::residue_spec_t res_spec(chain_id_ref, resno_ref, "");
+         mmdb::Residue *res_reference = molecules[imol_ref].get_residue(res_spec);
+         if (res_reference) {
+            std::string res_name_ref_res(res_reference->GetResName());
+            std::pair<bool, coot::dictionary_residue_restraints_t> restraints_info =
+               geom.get_monomer_restraints(res_name_ref_res, imol_ref);
+            if (restraints_info.first) {
+               std::vector <coot::dict_torsion_restraint_t> tr_ref_res =
+                  geom.get_monomer_torsions_from_geometry(res_name_ref_res, 0);
+               molecules[imol_ligand].match_torsions(res_reference, tr_ref_res, geom);
+
+               // currently, this doesn't make sense, but it will when imol_ligand contains a whole protein
+               set_updating_maps_need_an_update(imol_ligand);
+            }
+         }
+      }
+   }
+   return status;
+}
+
+//! match ligand positions - return the success status
+bool
+molecules_container_t::match_ligand_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref) {
+   bool status = false;
+   if (is_valid_model_molecule(imol_ligand)) {
+      if (is_valid_model_molecule(imol_ref)) {
+         coot::residue_spec_t res_spec(chain_id_ref, resno_ref, "");
+         set_updating_maps_need_an_update(imol_ligand);
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_ligand << std::endl;
+   }
+   return status;
+}
+
+//! match ligand torsions and positions
+bool
+molecules_container_t::match_ligand_torsions_and_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref) {
+   bool status = false;
+   if (is_valid_model_molecule(imol_ligand)) {
+      if (is_valid_model_molecule(imol_ref)) {
+         coot::residue_spec_t res_spec(chain_id_ref, resno_ref, "");
+
+
+         set_updating_maps_need_an_update(imol_ligand);
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_ligand << std::endl;
+   }
+   return status;
 }
