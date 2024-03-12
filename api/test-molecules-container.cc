@@ -5165,7 +5165,7 @@ int test_split_model(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol = mc.read_pdb("203d.pdb.gz");
+   int imol = mc.read_pdb(reference_data("203d.pdb.gz"));
    std::vector<int> new_mol_indices = mc.split_multi_model_molecule(imol);
    std::cout << "new_mol_indices was of size " << new_mol_indices.size() << std::endl;
    if (new_mol_indices.size() == 40) {
@@ -5224,6 +5224,34 @@ int test_copy_molecule_memory_leak(molecules_container_t &mc) {
    return status;
 }
 
+int test_make_ensemble(molecules_container_t &mc) {
+
+   auto make_molecule_string_list = [] (const std::vector<int> &mols) {
+      std::string s;
+      for (unsigned int i=0; i<mols.size(); i++) {
+         s += std::to_string(mols[i]);
+         if (i<(mols.size()-1)) s += ":";
+      }
+      return s;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("203d.pdb"));
+   std::vector<int> new_mol_indices = mc.split_multi_model_molecule(imol);
+   std::cout << "new_mol_indices was of size " << new_mol_indices.size() << std::endl;
+   if (new_mol_indices.size() == 40) {
+      std::string s = make_molecule_string_list(new_mol_indices);
+      std::cout << "s: " << s << std::endl;
+      int imol_new = mc.make_ensemble(s);
+      if (mc.is_valid_model_molecule(imol_new)) {
+         status = 1;
+         mc.write_coordinates(imol_new, "ensemble.pdb");
+      }
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -5233,6 +5261,7 @@ int test_template(molecules_container_t &mc) {
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
    if (mc.is_valid_model_molecule(imol)) {
+      mc.set_use_gemmi(true);
       coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
@@ -5507,7 +5536,8 @@ int main(int argc, char **argv) {
       // status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
       // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
       // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
-      status += run_test(test_copy_molecule_memory_leak,            "Copy Molecule Memory Leak", mc);
+      // status += run_test(test_copy_molecule_memory_leak,            "Copy Molecule Memory Leak", mc);
+      status += run_test(test_make_ensemble,            "Make Ensemble", mc);
 
 
       if (status == n_tests) all_tests_status = 0;

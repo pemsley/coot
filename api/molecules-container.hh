@@ -523,6 +523,11 @@ public:
    //! @return the vector of new molecule indices.
    std::vector<int> split_multi_model_molecule(int imol);
 
+   //! make a multi-model molecule given the input molecules
+   //! ``model_molecules_list`` is a colon-separated list of molecules, *e.g.* "2:3:4"
+   //! @return the new molecule index - -1 if no models were found in the ``model_molecules_list``
+   int make_ensemble(const std::string &model_molecule_list);
+
    //! @return the model molecule imol as a string. Return emtpy string on error
    std::string molecule_to_PDB_string(int imol) const;
 
