@@ -550,3 +550,6 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/metal    DESTINATION ${CMAKE_
 install(TARGETS chapi DESTINATION ${Python_SITELIB})
 
 install(TARGETS cootapi DESTINATION lib)
+
+# thanks merkys
+set_target_properties(cootapi PROPERTIES SOVERSION 1.1)
