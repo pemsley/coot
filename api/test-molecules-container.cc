@@ -5252,6 +5252,109 @@ int test_make_ensemble(molecules_container_t &mc) {
    return status;
 }
 
+int test_ligand_torsions(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_lig = mc.read_pdb("LZA-wiggled.pdb");
+   int imol_ref = mc.get_monomer("LZA");
+
+   if (mc.is_valid_model_molecule(imol_lig)) {
+      if (mc.is_valid_model_molecule(imol_ref)) {
+
+         mc.match_ligand_torsions_and_position_using_cid(imol_lig, imol_ref, "//A/1");
+         mc.write_coordinates(imol_ref, "LZA-ref.pdb");
+         mc.write_coordinates(imol_lig, "LZA-unwiggled.pdb");
+
+         // now a different molecule:
+         mc.import_cif_dictionary("acedrg-LZB.cif", coot::protein_geometry::IMOL_ENC_ANY);
+         int imol_lzb = mc.get_monomer("LZB");
+         mc.match_ligand_torsions_and_position_using_cid(imol_lzb, imol_ref, "//A/1");
+         mc.write_coordinates(imol_lzb, "LZB-fit.pdb");
+
+         // test atom position difference here
+         mmdb::Atom *at_ref_F1 = mc.get_atom(imol_ref, coot::atom_spec_t("A", 1, "", " F19", ""));
+         mmdb::Atom *at_ref_F2 = mc.get_atom(imol_ref, coot::atom_spec_t("A", 1, "", " F24", ""));
+         mmdb::Atom *at_ref_N1 = mc.get_atom(imol_ref, coot::atom_spec_t("A", 1, "", " N11", ""));
+         mmdb::Atom *at_ref_N2 = mc.get_atom(imol_ref, coot::atom_spec_t("A", 1, "", " N6 ", ""));
+
+         mmdb::Atom *at_lza_F1 = mc.get_atom(imol_lig, coot::atom_spec_t("A", 1, "", " F19", ""));
+         mmdb::Atom *at_lza_F2 = mc.get_atom(imol_lig, coot::atom_spec_t("A", 1, "", " F24", ""));
+         mmdb::Atom *at_lza_N1 = mc.get_atom(imol_lig, coot::atom_spec_t("A", 1, "", " N11", ""));
+         mmdb::Atom *at_lza_N2 = mc.get_atom(imol_lig, coot::atom_spec_t("A", 1, "", " N6 ", ""));
+
+         mmdb::Atom *at_lzb_F1 = mc.get_atom(imol_lzb, coot::atom_spec_t("A", 1, "", " F1 ", ""));
+         mmdb::Atom *at_lzb_F2 = mc.get_atom(imol_lzb, coot::atom_spec_t("A", 1, "", " F2 ", ""));
+         mmdb::Atom *at_lzb_N1 = mc.get_atom(imol_lzb, coot::atom_spec_t("A", 1, "", " N4 ", ""));
+         mmdb::Atom *at_lzb_N2 = mc.get_atom(imol_lzb, coot::atom_spec_t("A", 1, "", " N1 ", ""));
+
+         std::cout << "at_ref_F1 " << at_ref_F1 << std::endl;
+         std::cout << "at_ref_F2 " << at_ref_F2 << std::endl;
+         std::cout << "at_ref_N1 " << at_ref_N1 << std::endl;
+         std::cout << "at_ref_N2 " << at_ref_N2 << std::endl;
+
+         std::cout << "at_lza_F1 " << at_lza_F1 << std::endl;
+         std::cout << "at_lza_F2 " << at_lza_F2 << std::endl;
+         std::cout << "at_lza_N1 " << at_lza_N1 << std::endl;
+         std::cout << "at_lza_N2 " << at_lza_N2 << std::endl;
+
+         std::cout << "at_lzb_F1 " << at_lzb_F1 << std::endl;
+         std::cout << "at_lzb_F2 " << at_lzb_F2 << std::endl;
+         std::cout << "at_lzb_N1 " << at_lzb_N1 << std::endl;
+         std::cout << "at_lzb_N2 " << at_lzb_N2 << std::endl;
+
+         clipper::Coord_orth pos_at_ref_F1 = coot::co(at_ref_F1);
+         clipper::Coord_orth pos_at_ref_F2 = coot::co(at_ref_F2);
+         clipper::Coord_orth pos_at_ref_N1 = coot::co(at_ref_N1);
+         clipper::Coord_orth pos_at_ref_N2 = coot::co(at_ref_N2);
+
+         clipper::Coord_orth pos_at_lza_F1 = coot::co(at_lza_F1);
+         clipper::Coord_orth pos_at_lza_F2 = coot::co(at_lza_F2);
+         clipper::Coord_orth pos_at_lza_N1 = coot::co(at_lza_N1);
+         clipper::Coord_orth pos_at_lza_N2 = coot::co(at_lza_N2);
+
+         clipper::Coord_orth pos_at_lzb_F1 = coot::co(at_lzb_F1);
+         clipper::Coord_orth pos_at_lzb_F2 = coot::co(at_lzb_F2);
+         clipper::Coord_orth pos_at_lzb_N1 = coot::co(at_lzb_N1);
+         clipper::Coord_orth pos_at_lzb_N2 = coot::co(at_lzb_N2);
+
+         double d_lza_F1 = std::sqrt((pos_at_lza_F1-pos_at_ref_F1).lengthsq());
+         double d_lza_F2 = std::sqrt((pos_at_lza_F2-pos_at_ref_F2).lengthsq());
+         double d_lza_N1 = std::sqrt((pos_at_lza_N1-pos_at_ref_N1).lengthsq());
+         double d_lza_N2 = std::sqrt((pos_at_lza_N2-pos_at_ref_N2).lengthsq());
+
+         double d_lzb_F1 = std::sqrt((pos_at_lzb_F1-pos_at_ref_F1).lengthsq());
+         double d_lzb_F2 = std::sqrt((pos_at_lzb_F2-pos_at_ref_F2).lengthsq());
+         double d_lzb_N1 = std::sqrt((pos_at_lzb_N1-pos_at_ref_N1).lengthsq());
+         double d_lzb_N2 = std::sqrt((pos_at_lzb_N2-pos_at_ref_N2).lengthsq());
+
+         // the piperidine rings don't superpose correctly sadly. so these number
+         // are bigger than I'd like them to be
+         //
+         double dc = 0.7;
+
+         std::cout << "d_lza_F1 " << d_lza_F1 << std::endl;
+         std::cout << "d_lza_F2 " << d_lza_F2 << std::endl;
+         std::cout << "d_lza_N1 " << d_lza_N1 << std::endl;
+         std::cout << "d_lza_N2 " << d_lza_N2 << std::endl;
+
+         std::cout << "d_lzb_F1 " << d_lzb_F1 << std::endl;
+         std::cout << "d_lzb_F2 " << d_lzb_F2 << std::endl;
+         std::cout << "d_lzb_N1 " << d_lzb_N1 << std::endl;
+         std::cout << "d_lzb_N2 " << d_lzb_N2 << std::endl;
+
+         if ((d_lza_F1 < dc) && (d_lza_F2 < dc))
+            if ((d_lza_N1 < dc) && (d_lza_N2 < dc))
+               if ((d_lzb_F1 < dc) && (d_lzb_F2 < dc))
+                  if ((d_lzb_N1 < dc) && (d_lzb_N2 < dc))
+                     status = 1;
+      }
+   }
+   return status;
+
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -5519,9 +5622,10 @@ int main(int argc, char **argv) {
          status += run_test(test_17257, "read emd_17257.map.gz",    mc);
          status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
          status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc);
-         status += run_test(test_non_drawn_CA_bonds, "non-drawn bonds in CA+LIGANDS", mc);
-         status += run_test(test_change_chain_id_1, "change chain-id filo-1", mc);
-         status += run_test(test_split_model, "split model", mc);
+         status += run_test(test_non_drawn_CA_bonds,       "non-drawn bonds in CA+LIGANDS", mc);
+         status += run_test(test_change_chain_id_1,        "change chain-id filo-1", mc);
+         status += run_test(test_split_model,              "Split model", mc);
+         status += run_test(test_make_ensemble,            "Make Ensemble", mc);
 #ifdef USE_GEMMI
          status += run_test(test_disappearing_ligand,   "Disappearing ligand", mc);
 #endif
@@ -5537,8 +5641,9 @@ int main(int argc, char **argv) {
       // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
       // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
       // status += run_test(test_copy_molecule_memory_leak,            "Copy Molecule Memory Leak", mc);
-      status += run_test(test_make_ensemble,            "Make Ensemble", mc);
+      // status += run_test(test_make_ensemble,            "Make Ensemble", mc);
 
+      status += run_test(test_ligand_torsions, "ligand torsions", mc);
 
       if (status == n_tests) all_tests_status = 0;
 

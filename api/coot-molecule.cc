@@ -4378,3 +4378,26 @@ coot::molecule_t::match_torsions(mmdb::Residue *res_reference,
    return n_torsions_moved;
 }
 
+
+
+void
+coot::molecule_t::transform_by(const clipper::RTop_orth &rtop, mmdb::Residue *residue_moving) {
+
+   mmdb::Atom **residue_atoms = nullptr;
+   int n_residue_atoms = 0;
+   residue_moving->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int iatom=0; iatom<n_residue_atoms; iatom++) {
+      clipper::Coord_orth p(residue_atoms[iatom]->x,
+                            residue_atoms[iatom]->y,
+                            residue_atoms[iatom]->z);
+      clipper::Coord_orth p2 = p.transform(rtop);
+      residue_atoms[iatom]->x = p2.x();
+      residue_atoms[iatom]->y = p2.y();
+      residue_atoms[iatom]->z = p2.z();
+   }
+
+   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+   atom_sel.mol->FinishStructEdit();
+
+}
+

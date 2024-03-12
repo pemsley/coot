@@ -219,6 +219,9 @@ class molecules_container_t {
 
    int install_model(const coot::molecule_t &m);
 
+   coot::graph_match_info_t overlap_ligands_internal(int imol_ligand, int imol_ref, const std::string &chain_id_ref,
+                                                     int resno_ref, bool apply_rtop_flag);
+
    superpose_results_t
    superpose_with_atom_selection(atom_selection_container_t asc_ref,
                                  atom_selection_container_t asc_mov,
@@ -1378,6 +1381,9 @@ public:
 
    //! match ligand torsions and positions
    bool match_ligand_torsions_and_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
+
+   //! match ligand torsions and positions, different api
+   bool match_ligand_torsions_and_position_using_cid(int imol_ligand, int imol_ref, const std::string &cid);
 
    //! not const because it can dynamically add dictionaries
    coot::atom_overlaps_dots_container_t get_overlap_dots(int imol);
