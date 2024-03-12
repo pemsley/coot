@@ -66,10 +66,10 @@ add_definitions(-DANALYSE_REFINEMENT_TIMING -DVERSION="1.x-pre" -DPACKAGE_VERSIO
 
 if (ENHANCED_LIGAND_TOOLS)
    add_definitions(-DMAKE_ENHANCED_LIGAND_TOOLS)
-   message("INFO:: found ENHANCED_LIGAND_TOOLS setting - now requiring the RDKit")
+   message("-- Found ENHANCED_LIGAND_TOOLS setting - now requiring the RDKit")
    find_package(RDKit CONFIG COMPONENTS RDGeneral REQUIRED)
 else()
-    message("INFO:: not enabling ENHANCED_LIGAND_TOOLS")
+    message("-- Note: MAKE_ENHANCED_LIGAND_TOOLS was not enabled")
 endif()
 
 #  pyrogen, auxil, goograph, src ignored.
