@@ -66,6 +66,8 @@ jobs:
 
     - name: brew update
       run:  |
+        brew uninstall kotlin
+        brew uninstall xcbeautify
         brew update
         brew upgrade
 

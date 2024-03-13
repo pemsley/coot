@@ -439,7 +439,6 @@ add_library(cootapi SHARED
             ${coot_src}/buccaneer_ml_growing/buccaneer-filter.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-find.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-grow.cpp
-            #${coot_src}/buccaneer_ml_growing/buccaneer-join.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-known.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-lib.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-link.cpp
@@ -451,8 +450,6 @@ add_library(cootapi SHARED
             ${coot_src}/buccaneer_ml_growing/buccaneer-sequence.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-tidy.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-util.cpp
-            #${coot_src}/buccaneer_ml_growing/cbuccaneer.cpp
-            #${coot_src}/buccaneer_ml_growing/cbuccaneerNN.cpp
             ${coot_src}/buccaneer_ml_growing/csequins.cpp
             ${coot_src}/buccaneer_ml_growing/k2c_activations.cpp
             ${coot_src}/buccaneer_ml_growing/k2c_convolution_layers.cpp
@@ -505,9 +502,6 @@ add_executable(coot-mini-rsr ${coot_src}/ideal/mini-rsr.cc)
 
 add_executable(test-molecules-container ${coot_src}/api/test-molecules-container.cc ${coot_src}/api/filo-tests.cc ${coot_src}/api/lucrezia-tests.cc)
 
-# remove this comment soon.
-# target_link_libraries(chapi PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${PNG_LIBRARY})
-
 target_link_libraries(chapi PUBLIC cootapi  ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} ${libdwarf} ${libelf})
 
 target_include_directories(findligand PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src})
@@ -536,15 +530,15 @@ set_target_properties(chapi PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 install(TARGETS cootapi)
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/standard-residues.pdb DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
+install(FILES standard-residues.pdb DESTINATION share/coot)
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/syminfo.lib       DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/data)
+install(FILES data/syminfo.lib      DESTINATION share/coot/data)
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/pdb-templates DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
+install(DIRECTORY pdb-templates     DESTINATION share/coot)
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/rama-data     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
+install(DIRECTORY rama-data         DESTINATION share/coot)
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/metal    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/data)
+install(DIRECTORY data/metal        DESTINATION share/coot/data)
 
 # Thanks Charles B.
 install(TARGETS chapi DESTINATION ${Python_SITELIB})

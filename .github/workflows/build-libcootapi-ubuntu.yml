@@ -112,3 +112,11 @@ jobs:
           COOT_REFMAC_LIB_DIR: /home/runner/work/coot/coot # "data/monomers" is added before "a/ATP.cif" (say)
         #  at some stage use | egrep "^Starting|^FAIL|^PASS|^UN"
         run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN"
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-libcootapi-chapi-binaries-package
+          path: /home/runner/install
+          retention-days: 3
+
