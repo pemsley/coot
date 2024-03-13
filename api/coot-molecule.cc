@@ -41,6 +41,7 @@ coot::molecule_t::close_yourself() {
       std::swap(xmap, xmap_empty);
       status = 1;
    }
+   is_closed_flag = true;
    return status;
 }
 

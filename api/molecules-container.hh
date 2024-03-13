@@ -417,6 +417,10 @@ public:
    //! @return 1 on successful closure and 0 on failure to close
    int close_molecule(int imol);
 
+   // delete the most recent/last closed molecule in the molecule vector, until the first
+   // non-closed molecule is found (working from the end)
+   void end_delete_closed_molecules();
+
    //! delete the most recent/last molecule in the molecule vector
    void pop_back();
 

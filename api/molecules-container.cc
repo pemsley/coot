@@ -112,7 +112,24 @@ molecules_container_t::pop_back() {
    }
 }
 
+// delete the most recent/last closed molecule in the molecule vector, until the first
+// non-closed molecule is found (working from the end)
+void
+molecules_container_t::end_delete_closed_molecules() {
 
+   if (! molecules.empty()) {
+      while (true) {
+         if (molecules.back().is_closed()) {
+            std::vector<coot::molecule_t>::iterator end_iter = molecules.end();
+            std::vector<coot::molecule_t>::iterator prev_iter = end_iter - 1;
+            molecules.erase(prev_iter);
+         } else {
+            break;
+         }
+         if (molecules.empty()) break;
+      }
+   }
+}
 
 
 void
@@ -195,7 +212,11 @@ void
 molecules_container_t::display_molecule_names_table() const {
 
    for (unsigned int imol=0; imol<molecules.size(); imol++) {
-      std::cout << imol << " " << std::setw(40) << molecules[imol].get_name() << std::endl;
+      if (molecules[imol].is_closed()) {
+         std::cout << imol << " ---closed---" << std::endl;
+      } else {
+         std::cout << imol << " " << std::setw(40) << molecules[imol].get_name() << std::endl;
+      }
    }
 }
 

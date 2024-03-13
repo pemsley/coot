@@ -5354,6 +5354,45 @@ int test_ligand_torsions(molecules_container_t &mc) {
 
 }
 
+int test_end_delete_closed_molecules(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_3 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_4 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_5 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_6 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_7 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_8 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+
+   int n_molecules_1 = mc.get_number_of_molecules();
+
+   mc.close_molecule(imol_8);
+   mc.close_molecule(imol_2);
+   mc.close_molecule(imol_6);
+   mc.close_molecule(imol_7);
+
+   mc.display_molecule_names_table();
+   mc.end_delete_closed_molecules();
+   mc.display_molecule_names_table();
+
+   int n_molecules_2 = mc.get_number_of_molecules();
+
+   if ((n_molecules_1 - n_molecules_2) == 3)
+      status = 1;
+
+   mc.close_molecule(imol_1);
+   mc.close_molecule(imol_3);
+   mc.close_molecule(imol_4);
+   mc.close_molecule(imol_5);
+
+   return status;
+}
+
+
 
 int test_template(molecules_container_t &mc) {
 
@@ -5642,8 +5681,8 @@ int main(int argc, char **argv) {
       // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
       // status += run_test(test_copy_molecule_memory_leak,            "Copy Molecule Memory Leak", mc);
       // status += run_test(test_make_ensemble,            "Make Ensemble", mc);
-
-      status += run_test(test_ligand_torsions, "ligand torsions", mc);
+      // status += run_test(test_ligand_torsions, "ligand torsions", mc);
+      status += run_test(test_end_delete_closed_molecules, "end delete close molecules", mc);
 
       if (status == n_tests) all_tests_status = 0;
 

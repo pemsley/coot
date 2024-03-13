@@ -147,6 +147,7 @@ namespace coot {
 
       bool use_gemmi; // true now
       int imol_no; // this molecule's index in the container vector
+      bool is_closed_flag;
       int ligand_flip_number;
       std::string name;
       bool is_from_shelx_ins_flag;
@@ -348,6 +349,7 @@ namespace coot {
       // ====================== init ======================================
 
       void init() {
+         is_closed_flag = false; // changed on close_yourself()
          // use_gemmi = true; // 20240112-PE  woohoo! Let the bugs flow!
          // 20240118 Turns out the bugs flowed too much. Let's set this back to false.
          use_gemmi = false;
@@ -433,6 +435,8 @@ namespace coot {
       // ------------------------ close
 
       int close_yourself();
+
+      bool is_closed() const { return is_closed_flag; }
 
       // --------------------- backups
 
