@@ -47,6 +47,7 @@ jobs:
 
       - name: brew update
         run:  |
+          brew uninstall kotlin
           brew update
           brew upgrade
 
