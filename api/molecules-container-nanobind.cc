@@ -350,6 +350,7 @@ NB_MODULE(chapi, m) {
     .def("replace_map_by_mtz_from_file",&molecules_container_t::replace_map_by_mtz_from_file)
     .def("replace_fragment",&molecules_container_t::replace_fragment)
     .def("sharpen_blur_map",&molecules_container_t::sharpen_blur_map)
+    .def("sharpen_blur_map_with_resample",&molecules_container_t::sharpen_blur_map_with_resample)
     .def("flip_hand",&molecules_container_t::flip_hand)
     .def("mask_map_by_atom_selection",&molecules_container_t::mask_map_by_atom_selection)
     .def("generate_self_restraints",&molecules_container_t::generate_self_restraints)
