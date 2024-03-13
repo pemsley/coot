@@ -2891,6 +2891,20 @@ else
     echo not building python:
 fi
 
+############ test python, exit on failure ##################
+
+$install_top_dir/bin/python3 <<EOF
+import ctypes
+print(dir(ctypes))
+EOF
+if [ $? = 0 ] ; then
+   echo Good Python
+else
+   echo Python not working
+   exit 2
+fi
+
+
 ###############################################################################
 ##########         meson before gobject-introspection             #############
 ###############################################################################
