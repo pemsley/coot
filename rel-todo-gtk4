@@ -1,7 +1,14 @@
 
 ----
 
-libcootapi: to release std::vector memory use std::swap on an empty map, not mere assignment
+Coot: Save Coords is not working again.  It works OK, on mac, so I think that
+   it's a GTK4 bug.
+
+Coot: "Close" button doesn't work in Restraints editor.
+
+libcootapi: change the SSM arg order to match ligand function: moving first.
+
+libcootapi: to release std::vector memory use std::swap on an empty vector, not mere assignment
 
 libcootapi: make minimize_energy() return a mesh, like std::pair<int, coot::instanced_mesh_t> refine(int imol, int n_cycles)
  does. And the GSL return status.
@@ -30,7 +37,7 @@ M2T: /Users/runner/work/coot/coot/MoleculesToTriangles/CXXSurface/CXXSurface.cpp
   And others.
 * Done.
 
-look at every his in the PDB, look at the differnce map - looking for hydroxy prolines
+look at every HIS in the PDB, look at the difference map - looking for hydroxy prolines
 
 findwaters: can the output file be mmcif? - Eugene
 
