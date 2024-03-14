@@ -4795,6 +4795,20 @@ int test_gltf_export(molecules_container_t &mc) {
    coot::simple_mesh_t sm_neighbs = coot::instanced_mesh_to_simple_mesh(im_neighbs);
    sm_neighbs.export_to_gltf("neighbs.glb", true);
 
+   struct stat buf_1;
+   int istat_1 = stat("lig.glb", &buf_1);
+   if (istat_1 == 0) {
+      if (buf_1.st_size > 100000) {
+         struct stat buf_2;
+         int istat_2 = stat("neighbs.glb", &buf_2);
+         if (istat_2 == 0) {
+            if (buf_2.st_size > 100000) {
+               status = 1;
+            }
+         }
+      }
+   }
+
    mc.close_molecule(imol_map);
    mc.close_molecule(imol);
 
@@ -5712,6 +5726,7 @@ int main(int argc, char **argv) {
       // status += run_test(test_superpose, "SSM superpose ", mc);
       //status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
       //status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
+      status += run_test(test_gltf_export,           "glTF export", mc);
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
       status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
 #endif
