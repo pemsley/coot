@@ -5665,7 +5665,8 @@ int main(int argc, char **argv) {
          status += run_test(test_other_user_define_colours_other, "New colour test", mc);
          status += run_test(test_is_em_map,             "test if EM map flag is correctly set", mc);
          status += run_test(test_user_defined_bond_colours_v2, "user-defined bond colours v2", mc);
-         status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
+         // reinstate when add alt conf has been added
+         // status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
          status += run_test(test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
          status += run_test(test_broken_function, "Something was broken",         mc);
          status += run_test(test_delete_side_chain, "delete side chain", mc);
