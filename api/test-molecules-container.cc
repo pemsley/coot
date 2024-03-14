@@ -4397,6 +4397,8 @@ int test_pdbe_dictionary_depiction(molecules_container_t &mc) {
    std::ofstream f("MOI.svg");
    f << svg;
    f.close();
+   if (svg.length() > 100)
+      status = 1;
    return status;
 }
 
@@ -5708,9 +5710,11 @@ int main(int argc, char **argv) {
       // status += run_test(test_make_ensemble,            "Make Ensemble", mc);
       // status += run_test(test_ligand_torsions, "ligand torsions", mc);
       // status += run_test(test_superpose, "SSM superpose ", mc);
-      // status += run_test(test_auto_read_mtz,         "auto-read-mtz", mc);
-      status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
-
+      //status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
+      //status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+      status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
+#endif
       if (status == n_tests) all_tests_status = 0;
 
       print_results_summary();
