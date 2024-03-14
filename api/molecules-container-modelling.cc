@@ -594,7 +594,7 @@ molecules_container_t::match_ligand_position(int imol_ligand, int imol_ref, cons
       if (is_valid_model_molecule(imol_ref)) {
          bool apply_rtop_flag = true;
          overlap_ligands_internal(imol_ligand, imol_ref, chain_id_ref, resno_ref, apply_rtop_flag);
-
+         status = true;
       }
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_ligand << std::endl;
@@ -609,7 +609,7 @@ molecules_container_t::match_ligand_torsions_and_position(int imol_ligand, int i
    if (is_valid_model_molecule(imol_ligand)) {
       if (is_valid_model_molecule(imol_ref)) {
          coot::residue_spec_t res_spec(chain_id_ref, resno_ref, "");
-         match_ligand_torsions(imol_ligand, imol_ref, chain_id_ref, resno_ref);
+         status = match_ligand_torsions(imol_ligand, imol_ref, chain_id_ref, resno_ref);
          match_ligand_position(imol_ligand, imol_ref, chain_id_ref, resno_ref);
          set_updating_maps_need_an_update(imol_ligand);
       }

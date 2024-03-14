@@ -1384,6 +1384,7 @@ public:
    bool match_ligand_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
 
    //! match ligand torsions and positions
+   //! @return the success status.
    bool match_ligand_torsions_and_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
 
    //! match ligand torsions and positions, different api
