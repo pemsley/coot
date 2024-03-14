@@ -4611,7 +4611,26 @@ int test_long_name_ligand_cif_merge(molecules_container_t &mc) {
    int status = 0;
    int imol = mc.read_pdb(reference_data("8a2q.cif"));
    mc.import_cif_dictionary(reference_data("7ZTVU.cif"), coot::protein_geometry::IMOL_ENC_ANY);
-
+   int imol_lig = mc.get_monomer("7ZTVU");
+   std::string sl = std::to_string(imol_lig);
+   std::pair<int, std::vector<merge_molecule_results_info_t> > ss = mc.merge_molecules(imol, sl);
+   mc.write_coordinates(imol, "8a2q-with-new-ligand.cif");
+   std::ifstream f("8a2q-with-new-ligand.cif");
+   std::string line;
+   std::string ss1("7ZTVU");
+   std::string ss2("7ZTVU");
+   std::string ss3("C10");
+   bool found_it = false;
+   while (std::getline(f, line)) {
+      if (line.find(ss1) != std::string::npos) {
+         if (line.find(ss2) != std::string::npos) {
+            if (line.find(ss3) != std::string::npos) {
+               found_it = true;
+            }
+         }
+      }
+   }
+   if (found_it) status = 1;
    return status;
 }
 
@@ -5688,7 +5707,8 @@ int main(int argc, char **argv) {
       // status += run_test(test_make_ensemble,            "Make Ensemble", mc);
       // status += run_test(test_ligand_torsions, "ligand torsions", mc);
       // status += run_test(test_superpose, "SSM superpose ", mc);
-      status += run_test(test_auto_read_mtz,         "auto-read-mtz", mc);
+      // status += run_test(test_auto_read_mtz,         "auto-read-mtz", mc);
+      status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
 
       if (status == n_tests) all_tests_status = 0;
 
