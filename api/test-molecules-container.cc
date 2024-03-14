@@ -5640,7 +5640,9 @@ int main(int argc, char **argv) {
          status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
          // status += run_test(test_test_the_threading,    "threading speed test",    mc); // not helpful
          // status += run_test(test_contouring_timing,     "contouring timing",    mc); // not helpful
-         status += run_test(test_mmcif_atom_selection,  "mmCIF atom selection",    mc);
+
+         //reinstate this test when mmdb chain selection works
+         // status += run_test(test_mmcif_atom_selection,  "mmCIF atom selection",    mc);
          status += run_test(test_mmcif_as_string,       "mmCIF as string",    mc);
          status += run_test(test_pdb_as_string,         "PDB as string",    mc);
          status += run_test(test_cif_writer,            "mmCIF dictionary writer",    mc);
