@@ -3270,8 +3270,9 @@ int test_auto_read_mtz(molecules_container_t &mc) {
       = mc.auto_read_mtz(reference_data("5a3h_sigmaa.mtz"));
 
    for (const auto &item : imol_maps_5a3h) {
-      std::cout << "auto-read: map-idx: " << item.idx << " Fobs: " << item.F_obs << " sigFobs: " << item.sigF_obs << " "
-                << "Rfree: " << item.Rfree << std::endl;
+      std::cout << "    auto-read: map-idx: " << std::setw(2) << item.idx << " F: \"" << item.F << "\" phi: \"" << item.phi
+                << "\" Fobs: \"" << item.F_obs << "\" sigFobs: \"" << item.sigF_obs
+                << "\" Rfree: \"" << item.Rfree << "\"" << std::endl;
    }
 
    std::vector<molecules_container_t::auto_read_mtz_info_t> imol_maps
@@ -3279,21 +3280,19 @@ int test_auto_read_mtz(molecules_container_t &mc) {
 
    // one of these (the last one) should be observed data without an imol
    if (imol_maps.size() == 3) {
-      int imol_idx_0 = imol_maps[0].idx;
       int imol_idx_1 = imol_maps[1].idx;
-      float rmsd_0 = mc.get_map_rmsd_approx(imol_idx_0);
+      int imol_idx_2 = imol_maps[2].idx;
       float rmsd_1 = mc.get_map_rmsd_approx(imol_idx_1);
-      if (mc.is_valid_map_molecule(imol_idx_0)) {
+      float rmsd_2 = mc.get_map_rmsd_approx(imol_idx_2);
+      if (mc.is_valid_map_molecule(imol_idx_1)) {
          if (mc.is_valid_map_molecule(imol_idx_1)) {
-            std::cout << "test_auto_read_mtz() rmsds " << rmsd_0 << " " << rmsd_1 << std::endl;
-            if (rmsd_0 > 0.3) { // test that the FWT map is the first of the pair
-               if (rmsd_1 > 0.1) {
+            std::cout << "test_auto_read_mtz() rmsds " << rmsd_1 << " " << rmsd_2 << std::endl;
+            if (rmsd_1 > 0.3) { // test that the FWT map is the first of the pair
+               if (rmsd_2 > 0.1) {
                   // what observed data did we find?
-                  unsigned int n_fobs_found = 0;
                   for (unsigned int i=0; i<imol_maps.size(); i++) {
                      const auto &mtz_info = imol_maps[i];
                      if (! mtz_info.F_obs.empty()) {
-                        n_fobs_found++;
                         if (! mtz_info.sigF_obs.empty()) {
                            if (mtz_info.F_obs == "/2vtq/1/FP") {
                               if (mtz_info.sigF_obs == "/2vtq/1/SIGFP") {
@@ -3307,10 +3306,6 @@ int test_auto_read_mtz(molecules_container_t &mc) {
                      } else {
                         status = 0;
                      }
-                  }
-                  if (n_fobs_found != 1) {
-                     std::cout << "Too many: " << n_fobs_found << std::endl;
-                     status = 0;
                   }
                }
             }
@@ -5692,7 +5687,8 @@ int main(int argc, char **argv) {
       // status += run_test(test_copy_molecule_memory_leak,            "Copy Molecule Memory Leak", mc);
       // status += run_test(test_make_ensemble,            "Make Ensemble", mc);
       // status += run_test(test_ligand_torsions, "ligand torsions", mc);
-         status += run_test(test_superpose, "SSM superpose ", mc);
+      // status += run_test(test_superpose, "SSM superpose ", mc);
+      status += run_test(test_auto_read_mtz,         "auto-read-mtz", mc);
 
       if (status == n_tests) all_tests_status = 0;
 

@@ -2279,7 +2279,7 @@ molecules_container_t::get_map_rmsd_approx(int imol) const {
    if (is_valid_map_molecule(imol)) {
       rmsd = molecules[imol].get_map_rmsd_approx();
    } else {
-      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol << std::endl;
    }
    return rmsd;
 }
