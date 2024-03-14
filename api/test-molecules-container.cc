@@ -5488,6 +5488,7 @@ print_results_summary() {
    std::cout << "n_tests: " << n_tests << std::endl;
    unsigned int n_failed = 0;
    // for (const auto &result[function_name, status] : test_results) { // structured binding
+   std::cout << "LIGHTS: ";
    for (const auto &result : test_results) {
       const auto &status = result.second;
       if (status == 0) {
@@ -5497,7 +5498,7 @@ print_results_summary() {
          std::cout << "[32m⬤ ";
       }
    }
-   std::cout << "[m" << std::endl;
+   std::cout << "[m  failures: " << n_failed << "/" << n_tests << std::endl;
 
    if (n_failed > 0) {
       std::cout << "Test summary: " << n_failed << " failed tests of " << n_tests << std::endl;
