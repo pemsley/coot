@@ -5632,7 +5632,6 @@ int main(int argc, char **argv) {
          status += run_test(test_multiligands_lig_bonding, "Some multiligands bonding", mc);
          status += run_test(test_gltf_export_via_api,   "glTF via api", mc);
          status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
-         status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction", mc);
          status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
          status += run_test(test_gltf_export,           "glTF export", mc);
          status += run_test(test_5char_ligand_merge,    "5-char ligand merge", mc);
@@ -5705,6 +5704,9 @@ int main(int argc, char **argv) {
          status += run_test(test_split_model,              "Split model", mc);
          status += run_test(test_make_ensemble,            "Make Ensemble", mc);
          status += run_test(test_end_delete_closed_molecules, "end delete close molecules", mc);
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+         status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
+#endif
 
 #ifdef USE_GEMMI
          status += run_test(test_disappearing_ligand,   "Disappearing ligand", mc);
@@ -5726,10 +5728,9 @@ int main(int argc, char **argv) {
       // status += run_test(test_superpose, "SSM superpose ", mc);
       //status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
       //status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
-      status += run_test(test_gltf_export,           "glTF export", mc);
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
-      status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
-#endif
+      //status += run_test(test_gltf_export,           "glTF export", mc);
+      status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
+
       if (status == n_tests) all_tests_status = 0;
 
       print_results_summary();
