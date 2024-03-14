@@ -34,6 +34,8 @@
 #include <vector>
 #include "named-rotamer-score.hh"
 
+#include "coot-utils/glyco-tree.hh"
+
 #include "cc-interface.hh"
 #include "graphics-info.h"
 

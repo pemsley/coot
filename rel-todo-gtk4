@@ -1,6 +1,54 @@
 
 ----
 
+libcootapi: add function for delete by B-factor or plddt - limit goes both ways
+
+libcootapi: check the return type/value of match_torsion_and_postion()
+* Done. It's not clever.
+
+libcootapi: non-carbon rules should be per rule not per molecule
+
+libcootapi: environ distances are not symmetry aware - they should be. Q: are they in Coot?
+
+libcootapi: /Users/pemsley/Projects/Moorhen/checkout/coot-1.0/api/add-terminal-residue.cc:9:9: warning: 'HAVE_BOOST_BASED_THREAD_POOL_LIBRARY' macro redefined [-Wmacro-redefined]
+
+libcootapi: delete all the molecules that are closed at the end of the list (delete, not close)
+* Done.
+
+libcootapi: to release std::vector memory use std::swap on an empty map, not mere assignment
+* Done
+
+libcootapi: make minimize_energy() return a mesh, like std::pair<int, coot::instanced_mesh_t> refine(int imol, int n_cycles)
+ does. And the GSL return status.
+* Done
+
+libcootapi: nice to have position restraints for ligand+env minimization
+
+libcootapi: are backups being made by refine()?. If so, turn them off - maybe backup at start?
+
+libcootapi: pull bernhards repo for new ramas
+
+libcootapi: before Newcastle: torsion match ligand and ligand graph-based superposition
+ * Done - but needs more work
+
+libcootapi: the apply colour rules to non-carbon atoms need to happen on a per-colour-rule basis, not per molecule.
+  so that ligands can be set a different colour in Goodsel mode - and goodsel mode plays nicely with other colour rules.
+
+libcootapi fix the apply_user_defined_atom_colour_selections() so that it uses atoms, not residue selection.
+
+libcootapi: remove ligands and waters
+
+libcootapi: renumber residue range
+
+libcootapi: make an ensemble from a list of molecules
+
+M2T: /Users/runner/work/coot/coot/MoleculesToTriangles/CXXSurface/CXXSurface.cpp:356:5: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+/Users/runner/work/coot/coot/MoleculesToTriangles/CXXClasses/CompoundSelection.cpp:283:13: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+  And others.
+* Done.
+
+look at every his in the PDB, look at the differnce map - looking for hydroxy prolines
+
 findwaters: can the output file be mmcif? - Eugene
 
 findligands: can the output file be mmcif? - Eugene
@@ -423,7 +471,7 @@ Fix this in api/coot_molecule_maps.cc: Test N-threads in Moorhen:
 cif parser fail for 6eoj from the PDBe - display as CAs.
 * set_use_gemmi_as_model_parser_xxx(1) fixes it
 
-Moorhen: Request: electrostatic surface. Map electrstatic potention on to Gaussian surface.
+Moorhen: Request: electrostatic surface. Map electrostatic potention on to Gaussian surface.
 
 Reading cif file with --pdb ~/Desktop/ejd/thing.cif seems borked (no file in file browser)
 

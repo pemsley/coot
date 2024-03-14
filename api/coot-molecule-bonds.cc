@@ -91,6 +91,8 @@ coot::molecule_t::store_user_defined_atom_colour_selections(const std::vector<st
 
 }
 
+// why is this passed a mol? If it should be passed a mol, this function should be marked as static.
+// Ah.. I note that I say "// mol in the following argument need not be this mol" in the calling function.
 void
 coot::molecule_t::apply_user_defined_atom_colour_selections(const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
                                                             bool colour_applies_to_non_carbon_atoms_also,
@@ -146,32 +148,23 @@ coot::molecule_t::apply_user_defined_atom_colour_selections(const std::vector<st
             int colour_index = rc.second; // change type
             int selHnd = mol->NewSelection(); // d
 
-            mmdb::Residue **SelResidues;
-            int nSelResidues = 0;
-            mol->Select(selHnd, mmdb::STYPE_RESIDUE, cid.c_str(), mmdb::SKEY_NEW);
-            mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
-            // std::cout << "debug:: in apply_user_defined_atom_colour_selections() selected " << nSelResidues << " residues" << std::endl;
-            if (nSelResidues > 0) {
-               for(int ires=0; ires<nSelResidues; ires++) {
-                  mmdb::Residue *residue_p = SelResidues[ires];
-                  if (residue_p == nullptr) continue; // just in case.
-
-                  mmdb::Atom **residue_atoms = 0;
-                  int n_residue_atoms = 0;
-                  residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-                  for (int iat=0; iat<n_residue_atoms; iat++) {
-                     mmdb::Atom *at = residue_atoms[iat];
-                     std::string element(at->element);
-                     if (element == " C" || colour_applies_to_non_carbon_atoms_also) {
-                        int ierr = at->PutUDData(udd_handle, colour_index);
-                        if (ierr != mmdb::UDDATA_Ok) {
-                           std::cout << "WARNING:: in set_user_defined_atom_colour_by_residue() problem setting udd on atom "
-                                     << coot::atom_spec_t(at) << std::endl;
-                        } else {
-                           if (false)
-                              std::cout << "debug:: set_user_defined_atom_colour_by_residue() sets user-define atom colour index "
-                                        << "of atom " << coot::atom_spec_t(at) << "to " << colour_index << std::endl;
-                        }
+            mmdb::Atom **SelAtoms = nullptr;
+            int nSelAtoms = 0;
+            mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+            mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+            if (nSelAtoms > 0) {
+               for(int iat=0; iat<nSelAtoms; iat++) {
+                  mmdb:: Atom *at = SelAtoms[iat];
+                  std::string element(at->element);
+                  if (element == " C" || colour_applies_to_non_carbon_atoms_also) {
+                     int ierr = at->PutUDData(udd_handle, colour_index);
+                     if (ierr != mmdb::UDDATA_Ok) {
+                        std::cout << "WARNING:: in set_user_defined_atom_colour_by_residue() problem setting udd on atom "
+                                  << coot::atom_spec_t(at) << std::endl;
+                     } else {
+                        if (false)
+                           std::cout << "debug:: set_user_defined_atom_colour_by_residue() sets user-define atom colour index "
+                                     << "of atom " << coot::atom_spec_t(at) << "to " << colour_index << std::endl;
                      }
                   }
                }
@@ -201,7 +194,7 @@ coot::molecule_t::add_to_non_drawn_bonds(const std::string &atom_selection_cid) 
       if (! v.empty()) {
          for (const auto &cid : v) {
             int selHnd = atom_sel.mol->NewSelection(); // d
-            mmdb::Atom **SelAtoms;
+            mmdb::Atom **SelAtoms = nullptr;
             int nSelAtoms = 0;
             atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
             atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);

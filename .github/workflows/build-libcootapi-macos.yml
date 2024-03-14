@@ -5,7 +5,7 @@ on:
 
 jobs:
 
-  build-libcootapi-for-macos-homebrew:
+  build-libcootapi-macos-using-homebrew-deps:
 
     runs-on: macos-latest
 
@@ -47,25 +47,17 @@ jobs:
 
       - name: brew update
         run:  |
+          brew uninstall kotlin
+          brew uninstall xcbeautify
           brew update
           brew upgrade
 
+      # gfortran is needed for numpy.
+      # numpy is needed for rdkit
       - name: Install Homebrew dependencies
         run:  >
          brew install boost boost-python3 brewsci/bio/clipper4coot
-         brewsci/bio/ssm brewsci/bio/gemmi dwarfutils gsl rdkit glm
-
-      # - name: Run build-with-build-it-3-3
-      #   env:
-      #     CHAPI_ONLY: true
-      #   run:  bash build-it-3-3 || echo done
-
-      # - name: Upload build logs
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: build-logs-public-html-package
-      #     path: /Users/runner/public_html
-      #     retention-days: 3
+         brewsci/bio/ssm brewsci/bio/gemmi dwarfutils gsl rdkit glm gfortran
 
       - name: test python3
         run:  which python3 && python3 --version
@@ -117,10 +109,14 @@ jobs:
       - name: patch out CCP4-package in CMakeLists.txt
         run:  sed -i.backup -e 's/find_package.CCP4/#&/' CMakeLists.txt
 
+      - name: where is fftw?
+        run:  find /usr/local -name "*fftw*"
+
       - name: run cmake
         run: >
             cd build-libcootapi &&
             cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
+            -DCMAKE_PREFIX_PATH=/usr/local
             -DENHANCED_LIGAND_TOOLS=TRUE
             -DGEMMI_DIR=/usr/local/lib/cmake/gemmi
             -DRDKit_DIR=/usr/local/lib/cmake/rdkit
@@ -129,9 +125,15 @@ jobs:
             -DRFFTW2_LIBRARY=/usr/local/lib/librfftw.dylib
             -Dnanobind_DIR=/Users/runner/install/lib/python3.10/site-packages/nanobind/cmake ..
 
+      - name: Upload CMakeCache.txt
+        uses: actions/upload-artifact@v4
+        with:
+            name: cmake-macos-homebrew-build-cache-package
+            path: /Users/runner/work/coot/coot/build-libcootapi
+            retention-days: 3
 
       - name: make
         run:  cd build-libcootapi && make -j 4
 
       - name: make install
-        run:  cd build-libcootapi && make install
+        run:  cd build-libcootapi && echo make install

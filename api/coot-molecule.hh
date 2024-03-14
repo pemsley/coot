@@ -147,6 +147,7 @@ namespace coot {
 
       bool use_gemmi; // true now
       int imol_no; // this molecule's index in the container vector
+      bool is_closed_flag;
       int ligand_flip_number;
       std::string name;
       bool is_from_shelx_ins_flag;
@@ -348,6 +349,7 @@ namespace coot {
       // ====================== init ======================================
 
       void init() {
+         is_closed_flag = false; // changed on close_yourself()
          // use_gemmi = true; // 20240112-PE  woohoo! Let the bugs flow!
          // 20240118 Turns out the bugs flowed too much. Let's set this back to false.
          use_gemmi = false;
@@ -433,6 +435,8 @@ namespace coot {
       // ------------------------ close
 
       int close_yourself();
+
+      bool is_closed() const { return is_closed_flag; }
 
       // --------------------- backups
 
@@ -723,6 +727,7 @@ namespace coot {
       void set_show_symmetry(bool f) { show_symmetry = f;}
       bool get_show_symmetry() { return show_symmetry;}
       void transform_by(mmdb::mat44 SSMAlign_TMatrix);
+      void transform_by(const clipper::RTop_orth &rtop, mmdb::Residue *res);
 
       symmetry_info_t get_symmetry(float symmetry_search_radius, const Cartesian &symm_centre) const;
 
@@ -854,6 +859,15 @@ namespace coot {
                                     const dict_torsion_restraint_t &torsion,
                                     const std::string &atom_name,
                                     bool invert_selection);
+
+      // manipulate the torsion angles of first residue in this molecule to
+      // match those of the passed (reference residue (from a different
+      // molecule, typically). This function presumes that this molecule
+      // contains just a ligand.
+      // @return the number of torsion angles changed
+      int match_torsions(mmdb::Residue *res_ref,
+                       const std::vector <coot::dict_torsion_restraint_t> &tr_ligand,
+                       const coot::protein_geometry &geom);
 
       coot::minimol::molecule eigen_flip_residue(const residue_spec_t &residue_spec);
 

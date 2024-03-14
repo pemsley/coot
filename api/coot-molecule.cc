@@ -31,16 +31,17 @@ coot::molecule_t::is_valid_model_molecule() const {
 int
 coot::molecule_t::close_yourself() {
 
-   int status = 1;
+   int status = 0;
    if (is_valid_model_molecule()) {
       atom_sel.clear_up();
       status = 1;
    }
    if (is_valid_map_molecule()) {
       clipper::Xmap<float> xmap_empty;
-      xmap = xmap_empty;
+      std::swap(xmap, xmap_empty);
       status = 1;
    }
+   is_closed_flag = true;
    return status;
 }
 
@@ -4329,3 +4330,75 @@ coot::molecule_t::multiply_residue_temperature_factors(const std::string &cid, f
       atom_sel.mol->DeleteSelection(selHnd);
    }
 }
+
+
+#include "coot-utils/coot-coord-extras.hh"
+
+// match those of the passed (reference residue (from a different
+// molecule, typically).
+//
+int
+coot::molecule_t::match_torsions(mmdb::Residue *res_reference,
+                              const std::vector <coot::dict_torsion_restraint_t> &tr_ref_res,
+                              const coot::protein_geometry &geom) {
+
+   int n_torsions_moved = 0;
+   make_backup("match_torsions");
+
+   mmdb::Residue *res_ligand = coot::util::get_first_residue(atom_sel.mol); // this could/should be replaced
+                                                                       // by something that allows
+                                                                       // any residue in the molecule
+                                                                       // to move to match the
+                                                                       // reference residue.
+
+   if (res_ligand) { // the local (moving) residue is xxx_ligand
+      std::string res_name_ligand(res_ligand->GetResName());
+      std::pair<bool, coot::dictionary_residue_restraints_t> ligand_restraints_info =
+         geom.get_monomer_restraints(res_name_ligand, imol_no);
+      if (ligand_restraints_info.first) {
+         std::vector <coot::dict_torsion_restraint_t> tr_ligand =
+            geom.get_monomer_torsions_from_geometry(res_name_ligand, imol_no, 0);
+         if (tr_ligand.size()) {
+
+            // find the matching torsion between res_ligand and res_reference and then
+            // set the torsions of res_ligand to match those of res_reference.
+            //
+            // moving the res_ligand
+            coot::match_torsions mt(res_ligand, res_reference, ligand_restraints_info.second);
+            n_torsions_moved = mt.match(tr_ligand, tr_ref_res);
+            atom_sel.mol->FinishStructEdit();
+         } else {
+            std::cout << "WARNING torsion restraints of ligand: size 0" << std::endl;
+         }
+      } else {
+         std::cout << "WARNING ligand_restraints_info.first failed " << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: null ligand residue (trying to get first) " << std::endl;
+   }
+   return n_torsions_moved;
+}
+
+
+
+void
+coot::molecule_t::transform_by(const clipper::RTop_orth &rtop, mmdb::Residue *residue_moving) {
+
+   mmdb::Atom **residue_atoms = nullptr;
+   int n_residue_atoms = 0;
+   residue_moving->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int iatom=0; iatom<n_residue_atoms; iatom++) {
+      clipper::Coord_orth p(residue_atoms[iatom]->x,
+                            residue_atoms[iatom]->y,
+                            residue_atoms[iatom]->z);
+      clipper::Coord_orth p2 = p.transform(rtop);
+      residue_atoms[iatom]->x = p2.x();
+      residue_atoms[iatom]->y = p2.y();
+      residue_atoms[iatom]->z = p2.z();
+   }
+
+   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+   atom_sel.mol->FinishStructEdit();
+
+}
+

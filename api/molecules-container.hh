@@ -219,6 +219,9 @@ class molecules_container_t {
 
    int install_model(const coot::molecule_t &m);
 
+   coot::graph_match_info_t overlap_ligands_internal(int imol_ligand, int imol_ref, const std::string &chain_id_ref,
+                                                     int resno_ref, bool apply_rtop_flag);
+
    superpose_results_t
    superpose_with_atom_selection(atom_selection_container_t asc_ref,
                                  atom_selection_container_t asc_mov,
@@ -414,6 +417,10 @@ public:
    //! @return 1 on successful closure and 0 on failure to close
    int close_molecule(int imol);
 
+   // delete the most recent/last closed molecule in the molecule vector, until the first
+   // non-closed molecule is found (working from the end)
+   void end_delete_closed_molecules();
+
    //! delete the most recent/last molecule in the molecule vector
    void pop_back();
 
@@ -505,7 +512,12 @@ public:
    // -------------------------------- coordinates utils -----------------------------------
    //! \name Coordinates Utils
 
-   //! read a PDB file (or mmcif coordinates file, despite the name)
+   //! read a coordinates file (mmcif or PDB)
+   //! @return the new molecule index on success and -1 on failure
+   int read_coordinates(const std::string &file_name);
+
+   //! read a PDB file (or mmcif coordinates file, despite the name).
+   //! It does the same job as `read_coordinates` but has (perhaps) a more familiar name.
    //! @return the new molecule index on success and -1 on failure
    int read_pdb(const std::string &file_name);
 
@@ -517,6 +529,11 @@ public:
    //! split an NMR model into multiple models - all in MODEL 1.
    //! @return the vector of new molecule indices.
    std::vector<int> split_multi_model_molecule(int imol);
+
+   //! make a multi-model molecule given the input molecules
+   //! ``model_molecules_list`` is a colon-separated list of molecules, *e.g.* "2:3:4"
+   //! @return the new molecule index - -1 if no models were found in the ``model_molecules_list``
+   int make_ensemble(const std::string &model_molecule_list);
 
    //! @return the model molecule imol as a string. Return emtpy string on error
    std::string molecule_to_PDB_string(int imol) const;
@@ -1202,10 +1219,11 @@ public:
    // If you pass n_cycles = 100 (or some such) then you can get the mesh for the partially optimized ligand/residues
    // (like `refine_residues()` and `refine()`) is nice for animation.
    // @return the success status 1 if the minimization was performed and 0 if it was not.
-   int minimize_energy(int imol, const std::string &atom_selection_cid,
-                       int n_cycles,
-                       bool do_rama_plot_restraints, float rama_plot_weight,
-                       bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet);
+   std::pair<int, coot::instanced_mesh_t>
+   minimize_energy(int imol, const std::string &atom_selection_cid,
+                   int n_cycles,
+                   bool do_rama_plot_restraints, float rama_plot_weight,
+                   bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet);
 
    //! fix atoms during refinement. Does nothing at the moment.
    void fix_atom_selection_during_refinement(int imol, const std::string &atom_selection_cid);
@@ -1358,6 +1376,19 @@ public:
    //! Less than 0.5 standard deviations is fully green.
    // Function is not const because it might change the protein_geometry geom.
    coot::simple_mesh_t get_mesh_for_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid);
+
+   //! match ligand torsions - return the success status
+   bool match_ligand_torsions(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
+
+   //! match ligand positions - return the success status
+   bool match_ligand_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
+
+   //! match ligand torsions and positions
+   //! @return the success status.
+   bool match_ligand_torsions_and_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
+
+   //! match ligand torsions and positions, different api
+   bool match_ligand_torsions_and_position_using_cid(int imol_ligand, int imol_ref, const std::string &cid);
 
    //! not const because it can dynamically add dictionaries
    coot::atom_overlaps_dots_container_t get_overlap_dots(int imol);

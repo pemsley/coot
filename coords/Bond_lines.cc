@@ -2493,7 +2493,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
                            std::string ele = non_Hydrogen_atoms[i]->element;
                            if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
-                               || ele == "Cl" || ele == "Br"  || ele == "MO" || ele == "AL"
+                               || ele == "Cl" || ele == "Br" || ele == "MO" || ele == "Mo" || ele == "AL"
                                || ele == "PT" || ele == "RU" || ele == " W"
                                || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG"
                                || ele == "PD" || ele == "PB" || ele == "AG") {
@@ -2727,7 +2727,9 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
    if (element == "HG")
       bond_limit = 2.4;
    if (element == "MO")
-      bond_limit = 2.3; // Oxygen to Molybdenum, guess from 8M0
+      bond_limit = 2.55; // was 0.23 Oxygen to Molybdenum, guess from 8M0
+   if (element == "Mo")
+      bond_limit = 2.55; // 4077716
    if (element == " I")
       bond_limit = 2.3; // C-I is 2.13 according to wikipedia
    float  bl2 = bond_limit * bond_limit;

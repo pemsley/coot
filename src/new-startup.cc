@@ -14,6 +14,10 @@
 #include "src/boot-python.hh"
 #include "layla/layla_embedded.hpp"
 
+#include "clipper/core/test_core.h"
+#include "clipper/contrib/test_contrib.h"
+#include "testing.hh" // for test_internal();
+
 void print_opengl_info();
 
 void init_framebuffers(GtkWidget *glarea) {
@@ -377,12 +381,15 @@ on_glarea_swipe(GtkEventControllerScroll *controller,
                 gpointer                  user_data) {
 
    graphics_info_t g;
-   // std::cout << "swipe " << dx << " " << dy << std::endl;
+   // swipes happend a lot - a click-and-drag seems to be a swipe
+   // std::cout << "------------------ swipe " << dx << " " << dy << std::endl;
 
    GtkGestureSwipe *swipe_gesture; // how to get this?
    double vel_x;
    double vel_y;
    // gboolean state = gtk_gesture_get_velocity(swipe_gesture, &vel_x, &vel_y);
+
+   g.using_trackpad = true;
 
 }
 
@@ -882,6 +889,35 @@ int do_no_graphics_mode(command_line_data& cld, int argc, char** argv) {
    return 0;
 }
 
+int
+do_self_tests() {
+
+   std::cout << "INFO:: Running internal self tests" << std::endl;
+   // return true on success
+   clipper::Test_core test_core;       bool result_core    = test_core();
+   clipper::Test_contrib test_contrib; bool result_contrib = test_contrib();
+   std::cout<<" INFO:: Test Clipper core   : "<<(result_core   ?"OK":"FAIL")<<std::endl;
+   std::cout<<" INFO:: Test Clipper contrib: "<<(result_contrib?"OK":"FAIL")<<std::endl;
+
+   // 20240309-PE I need tests
+   //   1: internal tests (that can use tutorial-modern and rnasa)
+   //   2: internal tests that use the monomer library
+   //   3: internal tests that use greg data
+   // executed by --self-test-internal, --self-test-monomer-library --self-test-greg-data.
+   // Currently I only have type 1:
+
+   // return 1 on success
+   int gis = test_internal();
+   int shell_exit_code = 1;
+   if (result_core)
+      if (result_contrib)
+         if (gis == 1)
+            shell_exit_code = 0;
+   return shell_exit_code;
+
+}
+
+
 int new_startup(int argc, char **argv) {
 
 #ifdef USE_LIBCURL
@@ -894,6 +930,9 @@ int new_startup(int argc, char **argv) {
    // check_reference_structures_dir();
 
    command_line_data cld = parse_command_line(argc, argv);
+
+   if (cld.run_internal_tests_and_exit)
+      return do_self_tests();
 
    if(!cld.do_graphics) {
       return do_no_graphics_mode(cld, argc, argv);

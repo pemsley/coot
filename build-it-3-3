@@ -405,7 +405,8 @@
 # 6.16 20240228-PE Add status of FFTW building
 # 6.17 20240229-PE Portentious day. Adding in gettext for libintl for python and rdkit
 # 6.18 20240304-PE Remove the --pydebug from Python's configuration
-script_version=6.17
+# 6.19 20240306-PE Don't build gettext on anything other than Darwin
+script_version=6.18
 
 
 
@@ -791,7 +792,7 @@ function my_exit {
    exit_arg=$1
    shift
    extra_args=$*
-   echo fail-build $extra_args > $LOGS/$build-status
+   # echo fail-build $extra_args > $LOGS/$build-status
    if [ -e $LOGS/$test-status ] ; then
       rm $LOGS/$test-status
    fi
@@ -1258,18 +1259,19 @@ case $dist_name in
 
 esac
 
-
+# 20240305 too noisy
 # give us some diagnostic shell information:
 # (what extra things did $specs give us?)
 #
-if [ "$use_proxy" = 1 ] ; then
-    echo no diagnostic variables, we are using a proxy.
-else
-    set
-fi
+# if [ "$use_proxy" = 1 ] ; then
+#  echo no diagnostic variables, we are using a proxy.
+# else
+#  set
+# fi
 
 # On 64 bit redhat 4, we (might) need to add X11 to the path for freeglut configure.
 #
+echo \n\n ============================================ start ============================
 echo INFO:: MACHTYPE is $MACHTYPE
 echo INFO:: systype is $systype
 if [ "$systype" = x86_64-rhel-4 ] ; then
@@ -1983,8 +1985,8 @@ echo ccp4_system_type $ccp4_system_type
 
 
 # clean up old test status:
-echo build-in-progress @`date +"%a_%d_%b_%H:%M"` > $LOGS/build-status
-echo waiting > $LOGS/test-status
+# echo build-in-progress @`date +"%a_%d_%b_%H:%M"` > $LOGS/build-status
+# echo waiting > $LOGS/test-status
 
 
 
@@ -2588,6 +2590,8 @@ if true ; then
           cd $start_dir
           needs_rebuild=false
           if [ -e gemmi ] ; then
+              pwd
+              echo path A
               cd gemmi
               git remote update
               git status -uno
@@ -2600,6 +2604,8 @@ if true ; then
               echo needs rebuild: $needs_rebuild
               cd -
           else
+              pwd
+              echo path B
               git clone https://github.com/project-gemmi/gemmi.git
               needs_rebuild=true
           fi
@@ -2608,7 +2614,9 @@ if true ; then
           # cp -a -r gemmi $install_top_dir/include
           # cd -
           # cd $save_dir
-          if needs_rebuilds = true ; then
+          echo gemmi needs rebuild: $needs_rebuild
+          echo gemmi needs rebuild: $needs_rebuild > $start_dir/gemmi-rebuild.txt
+          if $needs_rebuild = true ; then
               if [ -d build-gemmi ] ; then
                   :
               else
@@ -2623,6 +2631,7 @@ if true ; then
               fi
           fi
     ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
+    cat $start_dir/gemmi-rebuild.txt 2>&1
     echo done gemmi
     echo done gemmi >&2
 fi
@@ -2720,6 +2729,8 @@ if [ $skip_build = false ] ; then
          make install
       fi
       ) > $HOSTLOGDIR/07e-libffi.txt 2>&1
+else
+    echo not building libffi >&2
 fi
 
 echo post libffi with LD_LIBRARY_PATH $LD_LIBRARY_PATH
@@ -2753,9 +2764,18 @@ if [ $build_openssl = true ] ; then
     echo done OpenSSL >&2
 fi
 
-# gettext provides -lintl - which is needed for python
+# gettext provides -lintl - which is needed for python on macOS
 build_getttext=true
-if test -e $install_top_dir/include/libintl.h ; then
+if test $OS = Darwin ; then
+    if test -e $install_top_dir/include/libintl.h ; then
+        build_getttext=false
+    else
+        echo where is libintl.h in $install_top_dir/include question-mark
+        ls -l $install_top_dir/include
+        echo $install_top_dir/include/libintl.h does not exist - hence build_getttext $build_getttext
+    fi
+else
+    echo gettext: this is $OS, not Darwin
     build_getttext=false
 fi
 
@@ -2764,13 +2784,14 @@ if $build_getttext = true ; then
     echo BUILDING gettext
     echo BUILDING gettext $gettext_version >&2
     (
-       ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gettext/gettext-$gettext_version.tar.gz
+     unset LD_LIBRARY_PATH # or otherwise UP in libreadline problems
+     ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gettext/gettext-$gettext_version.tar.gz
        tar xf $AUTOBUILD_SOURCES/gettext-$gettext_version.tar.gz
        cd gettext-$gettext_version
-       ./configure --prefix=$install_top_dir
+       ./configure --prefix=$install_top_dir --disable-java
        $MAKE && make install
        cd -
-    ) > $HOSTLOGDIR/07-g-getttext.txt 2>&1
+    ) > $HOSTLOGDIR/07-g-gettext.txt 2>&1
     echo done gettext >&2
 else
     echo not building gettext >&2
@@ -2869,6 +2890,20 @@ EOF
 else
     echo not building python:
 fi
+
+############ test python, exit on failure ##################
+
+$install_top_dir/bin/python3 <<EOF
+import ctypes
+print(dir(ctypes))
+EOF
+if [ $? = 0 ] ; then
+   echo Good Python
+else
+   echo Python not working
+   exit 2
+fi
+
 
 ###############################################################################
 ##########         meson before gobject-introspection             #############
@@ -3240,26 +3275,53 @@ fi
 ##########         GLM                                            #############
 ###############################################################################
 if [ -e $install_top_dir/include/glm/glm.hpp ] ; then
-   echo not building glm
+    echo not building glm
 else
-   echo BUILDING glm:
-   echo BUILDING glm: >&2
+    echo where is glm/include question-mark
+    ls $install_top_dir/include
+    # The glm version is 0.9.9.5 because glm.pc was deleted after that.
+    # thanks sayurlinux.
+    # ${WGET} $extras_place/glm-$glm_version.tar.gz
+    # However, that fails to compile:
+    # In file included from /Users/runner/autobuild/building/Mac-1710037648402.local_2024-03-10__T03_03_05/glm-0.9.9.5/glm/gtc/random.hpp:82:
+    # /Users/runner/autobuild/building/Mac-1710037648402.local_2024-03-10__T03_03_05/glm-0.9.9.5/glm/gtc/random.inl:25:17: error: implicit conversion loses integer precision: 'int' to 'unsigned char' [-Werror,-Wimplicit-int-conversion]
+    # so let's try 0.9.8
     glm_version=0.9.9.2
     glm_version=1.0.0
-    # ${WGET} $extras_place/glm-$glm_version.tar.gz
+    glm_version=0.9.9.5
+    glm_version=0.9.9.8
+    glm_version=1.0.0
+    echo BUILDING glm $glm_version:
+    echo BUILDING glm $glm_version: >&2
     echo fetching https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz >&2
     ${WGET} https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz
+    echo cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
     cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
+    echo ${WGET} $extras_place/glm-CMakeLists-for-glm.pc.patch
+    ${WGET} $extras_place/glm-CMakeLists-for-glm.pc.patch
     (
     date
     pwd
     gzip -dc ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz | tar xf -
     cd glm-$glm_version
+    # restore glm.pc
+    echo 'prefix=@CMAKE_INSTALL_PREFIX@
+includedir=${prefix}/include
+
+Name: GLM
+Description: OpenGL Mathematics
+Version: @GLM_VERSION@
+Cflags: -I${includedir}' > cmake/glm.pc.in
+    cat cmake/glm.pc.in
+    echo patch from ${AUTOBUILD_SOURCES}/glm-CMakeLists-for-glm.pc.patch
+    patch < ${AUTOBUILD_SOURCES}/glm-CMakeLists-for-glm.pc.patch
+    echo cmake . -DCMAKE_INSTALL_PREFIX=$install_top_dir
     cmake . -DCMAKE_INSTALL_PREFIX=$install_top_dir
     if $MAKE ; then
        make install
     fi
     ) > $HOSTLOGDIR/17-glm.txt 2>&1
+   echo glm-build-sub-shell-status $? >&2
    echo done glm: >&2
 fi
 
@@ -3268,15 +3330,17 @@ fi
 ##########         build numpy                                    #############
 ###############################################################################
 
-# Let's stop at the beginning if we need a fortran compiler and don't have it.
+# Let's stop if we need a fortran compiler and don't have it.
 #
 if [ "$build_numpy" = true ] ; then
-   if gfortran --version > /dev/null ; then
-      echo found fortran compiler
-   else
-      echo fortran compiler not found.
-      exit 2
-   fi
+    if gfortran --version > /dev/null ; then
+        echo found fortran compiler
+    else
+        echo fortran compiler not found.
+        exit 2
+    fi
+else
+   echo debug:: build_numpy was $build_numpy
 fi
 
 # numpy needs system libblas (and liblapack?) - it's not clear to
@@ -3301,7 +3365,7 @@ fi
 
 if [ true = true ] ; then
    skip_this=false
-   ls -alt $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py
+   # ls -alt $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py
    if [ -e $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py ] ;  then
          echo numpy is found, skip
          skip_this=true
@@ -3318,6 +3382,9 @@ if [ true = true ] ; then
       echo BUILDING numpy $numpy_version >&2
       (
       echo building ========================= numpy ==============================
+      echo this gfortran:
+      command -v gfortran
+      echo $PATH
       # this needs fortran compiler gfortran
 
       # maybe get numpy from github?
@@ -3641,16 +3708,17 @@ if [ "$build_rdkit" = true ] ; then
                # -DCMAKE_SHARED_LINKER_FLAGS="-lintl -dl"
                # libpython is linking with /usr/local/opt/gettext/lib:
                # otool -L ~/autobuild/build-chapi-gtk4/lib/libpython3.10d.dylib | grep libint
-	       # /usr/local/opt/gettext/lib/libintl.8.dylib (compatibility version 13.0.0, current version 13.0.0)
+               # /usr/local/opt/gettext/lib/libintl.8.dylib (compatibility version 13.0.0, current version 13.0.0)
 
                # no help
                # -DCMAKE_C_STANDARD_LIBRARIES="-lintl -ldl -framework CoreFoundation" \
 
+               # remove to see if this fixes the non-Darwin build.
+               # -DCMAKE_STATIC_LINKER_FLAGS="$install_top_dir/lib/libintl.a"
 
       echo cmake \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
                -DCatch2_DIR=$install_top_dir \
-               -DCMAKE_STATIC_LINKER_FLAGS="$install_top_dir/lib/libintl.a" \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
@@ -3666,7 +3734,6 @@ if [ "$build_rdkit" = true ] ; then
       if cmake  \
                -DCMAKE_PREFIX_PATH=$install_top_dir \
                -DCatch2_DIR=$install_top_dir \
-               -DCMAKE_STATIC_LINKER_FLAGS="$install_top_dir/lib/libintl.a" \
                -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
@@ -3695,6 +3762,8 @@ if [ "$build_rdkit" = true ] ; then
       cd ..
       ) > $HOSTLOGDIR/18-rdkit.txt 2>&1
       echo BUILDING rdkit finished
+      echo BUILDING rdkit finished >&2
+      wc $HOSTLOGDIR/18-rdkit.txt >&2
    fi
 fi
 
@@ -3707,7 +3776,7 @@ else
 fi
 
 ###############################################################################
-# exit here for the chapi build
+# exit here for the chapi-dependencies build
 ###############################################################################
 
 if [ "$CHAPI_ONLY" = true ] ; then
@@ -3737,6 +3806,7 @@ if "$build_gmp" = true ; then
     ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.bz2
     (date
      pwd
+     unset LD_LIBRARY_PATH
      tar xf ${AUTOBUILD_SOURCES}/gmp-$gmp_version.tar.bz2
      cd gmp-$gmp_version
      ./configure $generic_prefix
@@ -4155,6 +4225,7 @@ if [ "$build_unistring" = true ] ; then
       echo BUILDING libunistring $unistring_version >&2
       echo BUILDING libunistring:
       (
+      unset LD_LIBRARY_PATH
       echo ========================= build unistring =================================
       if [ -e $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz
@@ -4191,6 +4262,7 @@ if [ "$build_gc" = true ] ; then
 
    if [ $skip_this = false ] ; then
       (
+      unset LD_LIBRARY_PATH
       echo BUILDING libatomic-ops:
       echo BUILDING libatomic-ops: >&2
       if [ ! -e $AUTOBUILD_SOURCES/libatomic_ops-7.6.12.tar.gz ] ; then
@@ -4217,6 +4289,7 @@ if [ "$build_gc" = true ] ; then
       echo BUILDING gc $gc_version >&2
       (
       echo ========================= build gc =================================
+      unset LD_LIBRARY_PATH
       if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
          echo found gc source file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
@@ -4269,6 +4342,7 @@ if [ "$build_guile" = true ] ; then
       echo BUILDING guile:
       echo BUILDING guile $guile_version >&2
       (
+      unset LD_LIBRARY_PATH
       echo ========================= build guile =================================
       if [ -e   $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz
@@ -4730,11 +4804,11 @@ fi
 coot_build_status=$?
 if [ $coot_build_status != 0 ] ; then
     echo coot build failed, exiting.
-    echo fail-build $coot_revision > $LOGS/build-status
+    # echo fail-build $coot_revision > $LOGS/build-status
     my_exit 2 $coot_revision
 else
     echo coot build was good.
-    echo pass-build $coot_revision > $LOGS/build-status
+    # echo pass-build $coot_revision > $LOGS/build-status
 fi
 echo done coot build.
 

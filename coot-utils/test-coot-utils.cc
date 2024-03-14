@@ -30,6 +30,7 @@
 #include "coot-coord-extras.hh"
 #include "lsq-improve.hh"
 #include "helix-analysis.hh"
+#include "glyco-tree.hh"
 
 
 class testing_data {

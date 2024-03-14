@@ -52,9 +52,9 @@ else()
 endif(APPLE)
 
 # From Charles
-if(WIN32)
-  string(REPLACE "\\" "/" Python_SITEARCH "${Python_SITEARCH}")
-  string(REPLACE "\\" "/" Python_SITELIB  "${Python_SITELIB}")
+if (WIN32)
+   string(REPLACE "\\" "/" Python_SITEARCH "${Python_SITEARCH}")
+   string(REPLACE "\\" "/" Python_SITELIB  "${Python_SITELIB}")
 endif(WIN32)
 
 
@@ -63,6 +63,14 @@ set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DANALYSE_REFINEMENT_TIMING -DVERSION="1.x-pre" -DPACKAGE_VERSION="1"
   -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI -DHAVE_BOOST_THREAD -DHAVE_GSL
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
+
+if (ENHANCED_LIGAND_TOOLS)
+   add_definitions(-DMAKE_ENHANCED_LIGAND_TOOLS)
+   message("-- Found ENHANCED_LIGAND_TOOLS setting - now requiring the RDKit")
+   find_package(RDKit CONFIG COMPONENTS RDGeneral REQUIRED)
+else()
+    message("-- Note: MAKE_ENHANCED_LIGAND_TOOLS was not enabled")
+endif()
 
 #  pyrogen, auxil, goograph, src ignored.
 
@@ -431,7 +439,6 @@ add_library(cootapi SHARED
             ${coot_src}/buccaneer_ml_growing/buccaneer-filter.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-find.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-grow.cpp
-            #${coot_src}/buccaneer_ml_growing/buccaneer-join.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-known.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-lib.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-link.cpp
@@ -443,8 +450,6 @@ add_library(cootapi SHARED
             ${coot_src}/buccaneer_ml_growing/buccaneer-sequence.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-tidy.cpp
             ${coot_src}/buccaneer_ml_growing/buccaneer-util.cpp
-            #${coot_src}/buccaneer_ml_growing/cbuccaneer.cpp
-            #${coot_src}/buccaneer_ml_growing/cbuccaneerNN.cpp
             ${coot_src}/buccaneer_ml_growing/csequins.cpp
             ${coot_src}/buccaneer_ml_growing/k2c_activations.cpp
             ${coot_src}/buccaneer_ml_growing/k2c_convolution_layers.cpp
@@ -467,10 +472,10 @@ add_library(cootapi SHARED
 nanobind_add_module(chapi ${coot_src}/api/molecules-container-nanobind.cc)
 
 # use MMDB2_INCLUDE_DIR to find the RDKIT for now.
-target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR})
+target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR} ${RDKit_INCLUDE_DIR})
 
 # Charles adds Boost::iostreams Boost::filesystem Boost::system. I don't know why Boost::filesystem was added - I have removed it.
-target_link_libraries(cootapi PRIVATE ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${PNG_LIBRARY} Boost::iostreams Boost::system gemmi::gemmi_cpp ${libdwarf} ${libelf})
+target_link_libraries(cootapi PRIVATE ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${RDKit_LIBRARY} ${PNG_LIBRARY} Boost::iostreams Boost::system gemmi::gemmi_cpp ${libdwarf} ${libelf})
 
 # Charles adds this MSVC CXX compiler test
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -496,9 +501,6 @@ add_executable(findwaters ${coot_src}/ligand/find-waters.cc)
 add_executable(coot-mini-rsr ${coot_src}/ideal/mini-rsr.cc)
 
 add_executable(test-molecules-container ${coot_src}/api/test-molecules-container.cc ${coot_src}/api/filo-tests.cc ${coot_src}/api/lucrezia-tests.cc)
-
-# remove this comment soon.
-# target_link_libraries(chapi PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${PNG_LIBRARY})
 
 target_link_libraries(chapi PUBLIC cootapi  ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} ${libdwarf} ${libelf})
 
@@ -528,17 +530,20 @@ set_target_properties(chapi PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 install(TARGETS cootapi)
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/standard-residues.pdb DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
+install(FILES standard-residues.pdb DESTINATION share/coot)
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/syminfo.lib       DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/data)
+install(FILES data/syminfo.lib      DESTINATION share/coot/data)
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/pdb-templates DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
+install(DIRECTORY pdb-templates     DESTINATION share/coot)
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/rama-data     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot)
+install(DIRECTORY rama-data         DESTINATION share/coot)
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/metal    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/coot/data)
+install(DIRECTORY data/metal        DESTINATION share/coot/data)
 
 # Thanks Charles B.
 install(TARGETS chapi DESTINATION ${Python_SITELIB})
 
 install(TARGETS cootapi DESTINATION lib)
+
+# thanks merkys
+set_target_properties(cootapi PROPERTIES SOVERSION 1.1)

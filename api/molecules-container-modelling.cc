@@ -406,21 +406,215 @@ molecules_container_t::rigid_body_fit(int imol, const std::string &multi_cid, in
 
 // minimize/optimize the geometry of the specified residue(s)
 // @return the success status 1 if the minimization was performed and 0 if it was not.
-int
+std::pair<int, coot::instanced_mesh_t>
 molecules_container_t::minimize_energy(int imol, const std::string &atom_selection_cid,
                                        int n_cycles,
                                        bool do_rama_plot_restraints, float rama_plot_weight,
                                        bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet) {
    int status = 0;
+   coot::instanced_mesh_t im;
    if (is_valid_model_molecule(imol)) {
       status = molecules[imol].minimize(atom_selection_cid, n_cycles,
                                         do_rama_plot_restraints, rama_plot_weight,
                                         do_torsion_restraints, torsion_weight,
                                         refinement_is_quiet, &geom);
+      std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
+      bool draw_hydrogen_atoms_flag = true; // use data member as we do for draw_missing_residue_loops_flag?
+      im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.12, 1.4, 1,
+                                                    draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
+
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
+
+   // use std::move() here?
+   return std::make_pair(status, im);;
+
+}
+
+
+coot::graph_match_info_t
+molecules_container_t::overlap_ligands_internal(int imol_ligand, int imol_ref, const std::string &chain_id_ref,
+                                                int resno_ref, bool apply_rtop_flag) {
+
+   coot::graph_match_info_t graph_info;
+
+   mmdb::Residue *residue_moving = 0;
+   mmdb::Residue *residue_reference = 0;
+
+   // running best ligands:
+   mmdb::Residue *best_residue_moving = nullptr;
+   double best_score = 99999999.9; // low score good.
+   clipper::RTop_orth best_rtop;
+
+
+   if (! is_valid_model_molecule(imol_ligand))
+      return graph_info;
+
+   if (! is_valid_model_molecule(imol_ref))
+      return graph_info;
+
+   mmdb::Manager *mol_moving = molecules[imol_ligand].atom_sel.mol;
+   mmdb::Manager *mol_ref    = molecules[imol_ref].atom_sel.mol;
+
+   for (int imod=1; imod<=mol_moving->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol_moving->GetModel(imod);
+      int nchains_moving = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains_moving; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int nres = chain_p->GetNumberOfResidues();
+         mmdb::PResidue residue_p;
+         for (int ires=0; ires<nres; ires++) {
+            residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               if (n_atoms > 0) {
+                  residue_moving = residue_p;
+                  break;
+               }
+            }
+         }
+         if (residue_moving)
+            break;
+      }
+
+      if (! residue_moving) {
+         std::cout << "Oops.  overlap_ligands_internal()): Failed to find moving residue" << std::endl;
+      } else {
+         int imodel_ref = 1;
+         mmdb::Model *model_ref_p = mol_ref->GetModel(imodel_ref);
+         mmdb::Chain *chain_p;
+         int nchains = model_ref_p->GetNumberOfChains();
+         for (int ichain=0; ichain<nchains; ichain++) {
+            chain_p = model_ref_p->GetChain(ichain);
+            if (std::string(chain_p->GetChainID()) == std::string(chain_id_ref)) {
+               int nres = chain_p->GetNumberOfResidues();
+               mmdb::PResidue residue_p;
+               for (int ires=0; ires<nres; ires++) {
+                  residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int seqnum = residue_p->GetSeqNum();
+                     if (seqnum == resno_ref) {
+                        residue_reference = residue_p;
+                        break;
+                     }
+                  }
+               }
+               if (residue_reference)
+                  break;
+            }
+         }
+
+         if (!residue_reference) {
+            std::cout << "Oops.  Failed to find reference residue" << std::endl;
+         } else {
+            bool match_hydrogens_also = 0;
+            coot::graph_match_info_t rtop_info =
+               coot::graph_match(residue_moving, residue_reference, apply_rtop_flag, match_hydrogens_also);
+            if (rtop_info.success) {
+               if (rtop_info.dist_score < best_score) { // low score good.
+                  best_score = rtop_info.dist_score;
+                  best_residue_moving = residue_moving;
+                  best_rtop = rtop_info.rtop;
+                  graph_info = rtop_info;
+               }
+            } else {
+               // std::cout << "Oops.  Match failed somehow" << std::endl;
+            }
+         }
+      }
+   }
+   if (apply_rtop_flag) {
+      if (best_residue_moving) {
+         // move just the best ligand:
+         molecules[imol_ligand].transform_by(best_rtop, best_residue_moving);
+         // delete everything except the best_residue_moving
+         // molecules[imol_ligand].delete_all_except_res(best_residue_moving);
+      }
+   }
+   return graph_info;
+}
+
+
+//! match ligand torsions and positions, different api
+bool
+molecules_container_t::match_ligand_torsions_and_position_using_cid(int imol_ligand, int imol_ref, const std::string &cid) {
+
+   bool status = false;
+   if (is_valid_model_molecule(imol_ligand)) {
+      if (is_valid_model_molecule(imol_ref)) {
+         std::pair<bool, coot::residue_spec_t> rs_pair = molecules[imol_ref].cid_to_residue_spec(cid);
+         if (rs_pair.first) {
+            status = match_ligand_torsions_and_position(imol_ligand, imol_ref, rs_pair.second.chain_id, rs_pair.second.res_no);
+         }
+      } else {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_ref << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_ligand << std::endl;
+   }
    return status;
 
+}
 
+//! match ligand torsions - return the success status
+bool
+molecules_container_t::match_ligand_torsions(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref) {
+
+   bool status = false;
+   if (is_valid_model_molecule(imol_ligand)) {
+      if (is_valid_model_molecule(imol_ref)) {
+         coot::residue_spec_t res_spec(chain_id_ref, resno_ref, "");
+         mmdb::Residue *res_reference = molecules[imol_ref].get_residue(res_spec);
+         if (res_reference) {
+            std::string res_name_ref_res(res_reference->GetResName());
+            std::pair<bool, coot::dictionary_residue_restraints_t> restraints_info =
+               geom.get_monomer_restraints(res_name_ref_res, imol_ref);
+            if (restraints_info.first) {
+               std::vector <coot::dict_torsion_restraint_t> tr_ref_res =
+                  geom.get_monomer_torsions_from_geometry(res_name_ref_res, 0);
+               int n_torsions_moved = molecules[imol_ligand].match_torsions(res_reference, tr_ref_res, geom);
+
+               if (n_torsions_moved > 0) status = true;
+
+               // currently, this doesn't make sense, but it will when imol_ligand contains a whole protein
+               set_updating_maps_need_an_update(imol_ligand);
+            }
+         }
+      }
+   }
+   return status;
+}
+
+//! match ligand positions - return the success status
+bool
+molecules_container_t::match_ligand_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref) {
+   bool status = false;
+   if (is_valid_model_molecule(imol_ligand)) {
+      if (is_valid_model_molecule(imol_ref)) {
+         bool apply_rtop_flag = true;
+         overlap_ligands_internal(imol_ligand, imol_ref, chain_id_ref, resno_ref, apply_rtop_flag);
+         status = true;
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_ligand << std::endl;
+   }
+   return status;
+}
+
+//! match ligand torsions and positions
+bool
+molecules_container_t::match_ligand_torsions_and_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref) {
+   bool status = false;
+   if (is_valid_model_molecule(imol_ligand)) {
+      if (is_valid_model_molecule(imol_ref)) {
+         coot::residue_spec_t res_spec(chain_id_ref, resno_ref, "");
+         status = match_ligand_torsions(imol_ligand, imol_ref, chain_id_ref, resno_ref);
+         match_ligand_position(imol_ligand, imol_ref, chain_id_ref, resno_ref);
+         set_updating_maps_need_an_update(imol_ligand);
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_ligand << std::endl;
+   }
+   return status;
 }
