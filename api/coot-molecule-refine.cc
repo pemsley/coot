@@ -400,12 +400,12 @@ coot::molecule_t::minimize(const std::string &atom_selection_cid,
                                  pseudos);
       int nsteps_max = n_cycles;
       short int print_chi_sq_flag = 1;
-      restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
+      coot::refinement_results_t rr = restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
       geometry_distortion_info_container_t gd = restraints.geometric_distortions();
       if (! refinement_is_quiet)
          gd.print();
       restraints.unset_fixed_during_refinement_udd();
-      status = 1;
+      status = rr.progress;
    }
    return status;
 }
