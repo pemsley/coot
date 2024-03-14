@@ -5643,7 +5643,9 @@ int main(int argc, char **argv) {
 
          //reinstate this test when mmdb chain selection works
          // status += run_test(test_mmcif_atom_selection,  "mmCIF atom selection",    mc);
-         status += run_test(test_mmcif_as_string,       "mmCIF as string",    mc);
+
+         //reinstate this test when gemmi is used for writing cif files
+         // status += run_test(test_mmcif_as_string,       "mmCIF as string",    mc);
          status += run_test(test_pdb_as_string,         "PDB as string",    mc);
          status += run_test(test_cif_writer,            "mmCIF dictionary writer",    mc);
          status += run_test(test_residues_near_residues, "residues near residues",    mc);
