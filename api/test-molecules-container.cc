@@ -175,9 +175,99 @@ void colour_analysis(const coot::instanced_mesh_t &mesh) {
    for (unsigned int i=0; i<colour_count.size(); i++)
       std::cout << "    " << glm::to_string(colour_count[i].first) << " "
                 << std::setw(7) << std::right << colour_count[i].second << std::endl;
-
-
 }
+
+class colour_analysis_row {
+public:
+   colour_analysis_row(const glm::vec4 &v4, unsigned int cc) : col(v4), count(cc) {};
+   glm::vec4 col;
+   unsigned int count;
+};
+
+std::vector<colour_analysis_row> get_colour_analysis(const coot::instanced_mesh_t &mesh) {
+
+   auto is_near_colour = [] (const glm::vec4 &col_1, const glm::vec4 &col_2) {
+      float cf = 0.04;
+      if (std::fabs(col_2.r - col_1.r) < cf)
+         if (std::fabs(col_2.g - col_1.g) < cf)
+            if (std::fabs(col_2.b - col_1.b) < cf)
+               if (std::fabs(col_2.a - col_1.a) < cf)
+                  return true;
+      return false;
+   };
+
+   auto sorter = [] (const colour_analysis_row &p1,
+                     const colour_analysis_row &p2) {
+      if (p1.col[0] == p2.col[0]) {
+         return (p1.col[1] > p2.col[1]);
+      } else {
+         return (p1.col[0] > p2.col[0]);
+      }
+   };
+
+   std::vector<colour_analysis_row> colour_count;
+
+   for (unsigned int i=0; i<mesh.geom.size(); i++) {
+      const coot::instanced_geometry_t &ig = mesh.geom[i];
+      for (unsigned int jj=0; jj<ig.instancing_data_A.size(); jj++) {
+         const auto &col =  ig.instancing_data_A[jj].colour;
+         bool found_col = false;
+         for (unsigned int j=0; j<colour_count.size(); j++) {
+            if (is_near_colour(col, colour_count[j].col)) {
+               colour_count[j].count ++;
+               found_col = true;
+               break;
+            }
+         }
+         if (! found_col) {
+            colour_count.push_back(colour_analysis_row(col, 1));
+         }
+      }
+
+      for (unsigned int jj=0; jj<ig.instancing_data_B.size(); jj++) {
+         const auto &col =  ig.instancing_data_B[jj].colour;
+         bool found_col = false;
+         for (unsigned int j=0; j<colour_count.size(); j++) {
+            if (is_near_colour(col, colour_count[j].col)) {
+               colour_count[j].count++;
+               found_col = true;
+               break;
+            }
+         }
+         if (! found_col) {
+            colour_count.push_back(colour_analysis_row(col, 1));
+         }
+      }
+
+   }
+
+
+   for (unsigned int i=0; i<mesh.markup.vertices.size(); i++) {
+      const auto &vertex = mesh.markup.vertices[i];
+      const glm::vec4 &col = vertex.color;
+      bool found_col = false;
+      for (unsigned int j=0; j<colour_count.size(); j++) {
+         if (is_near_colour(col, colour_count[j].col)) {
+            colour_count[j].count ++;
+            found_col = true;
+            break;
+         }
+      }
+      if (! found_col) {
+         colour_count.push_back(colour_analysis_row(col, 1));
+      }
+   }
+
+   std::sort(colour_count.begin(), colour_count.end(), sorter);
+
+   std::cout << "INFO:: " << colour_count.size() << " colours" << std::endl;
+   for (unsigned int i=0; i<colour_count.size(); i++)
+      std::cout << "    " << glm::to_string(colour_count[i].col) << " "
+                << std::setw(7) << std::right << colour_count[i].count << std::endl;
+
+   return colour_count;
+}
+
 
 int test_auto_fit_rotamer_1(molecules_container_t &mc_in) {
 
@@ -4235,7 +4325,7 @@ int test_is_em_map(molecules_container_t &mc) {
    return status;
 }
 
-int test_other_user_define_colours_other(molecules_container_t &mc) {
+int test_other_user_defined_colours_other(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
@@ -4253,9 +4343,9 @@ int test_other_user_define_colours_other(molecules_container_t &mc) {
          std::vector<std::pair<std::string, unsigned int> > indexed_cids;
          indexed_cids.push_back(std::make_pair("//A/1-5", 21));
          bool non_carbon_atoms_also_flag = false;
-         mc.set_user_defined_atom_colour_by_selection(imol, indexed_cids, non_carbon_atoms_also_flag);
          auto bonds_1 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
          auto bonds_2 = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
+         mc.set_user_defined_atom_colour_by_selection(imol, indexed_cids, non_carbon_atoms_also_flag);
          auto bonds_3 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
          auto &geom_1 = bonds_1.geom;
          auto &geom_3 = bonds_3.geom;
@@ -4274,6 +4364,12 @@ int test_other_user_define_colours_other(molecules_container_t &mc) {
             auto col = vb_3[i].colour;
             std::cout << "instancing colour_3: " << i << " " << glm::to_string(col) << "\n";
          }
+         std::vector<colour_analysis_row> ca_1 = get_colour_analysis(bonds_1);
+         std::vector<colour_analysis_row> ca_3 = get_colour_analysis(bonds_3);
+         // different vec indices because UD colour becomes the first colour
+         if (ca_3[4].count == (ca_1[3].count - 85))
+            status = 1;
+
       }
    }
    return status;
@@ -5689,7 +5785,7 @@ int main(int argc, char **argv) {
          status += run_test(test_colour_map_by_other_map, "colour-map-by-other-map", mc);
          status += run_test(test_something_filo,        "Self something filo", mc);
          status += run_test(test_self_restraints,       "Self restraints mesh", mc);
-         status += run_test(test_other_user_define_colours_other, "New colour test", mc);
+         status += run_test(test_other_user_defined_colours_other, "New colour test", mc);
          status += run_test(test_is_em_map,             "EM map flag is correctly set?", mc);
          status += run_test(test_user_defined_bond_colours_v2, "user-defined bond colours v2", mc);
          // reinstate when add alt conf has been added
@@ -5763,7 +5859,8 @@ int main(int argc, char **argv) {
       // status += run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
       // status += run_test(test_is_em_map,             "EM map flag is correctly set?", mc);
       // status += run_test(test_delete_side_chain, "delete side chain", mc);
-      status += run_test(test_multi_colour_rules, "multi colour rules ", mc);
+      // status += run_test(test_multi_colour_rules, "multi colour rules ", mc);
+      status += run_test(test_other_user_defined_colours_other, "New colour test", mc);
 
       if (status == n_tests) all_tests_status = 0;
 
