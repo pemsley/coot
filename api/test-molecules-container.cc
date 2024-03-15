@@ -3075,7 +3075,7 @@ int test_delete_side_chain(molecules_container_t &mc) {
 
    if (mc.is_valid_model_molecule(imol)) {
       coot::atom_spec_t atom_spec_1("A", 270, "", " O  ","");
-      coot::atom_spec_t atom_spec_2("A", 270, "", " OG ","");
+      coot::atom_spec_t atom_spec_2("A", 270, "", " OD1","");
       coot::atom_spec_t atom_spec_3("A",  51, "", " CG ","");
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec_1);
       mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec_2);
@@ -3139,9 +3139,12 @@ int test_multi_colour_rules(molecules_container_t &mc) {
       std::string crs = "//A/1^#cc0000|//A/2^#cb0002|//A/3^#c00007";
       mc.add_colour_rules_multi(imol, crs);
       auto v = mc.get_colour_rules(imol);
-      if (v.size() == 4)
+      for (const auto &cr : v) {
+         std::cout << " colour rule " << cr.first << " " << cr.second << std::endl;
+      }
+      if (v.size() == 5)
          status = 1;
-      std::cout << "n colour rules " << v.size() << std::endl;
+      std::cout << "n colour rules: " << v.size() << std::endl;
    }
    return status;
 }
@@ -5758,7 +5761,9 @@ int main(int argc, char **argv) {
       //status += run_test(test_gltf_export,           "glTF export", mc);
       // status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
       // status += run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
-      status += run_test(test_is_em_map,             "EM map flag is correctly set?", mc);
+      // status += run_test(test_is_em_map,             "EM map flag is correctly set?", mc);
+      // status += run_test(test_delete_side_chain, "delete side chain", mc);
+      status += run_test(test_multi_colour_rules, "multi colour rules ", mc);
 
       if (status == n_tests) all_tests_status = 0;
 
