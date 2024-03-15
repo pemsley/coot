@@ -47,8 +47,7 @@ public:
 };
 
 template <class InputIter, class Pred = Isalpha>
-class TokenIterator: public std::iterator<
-  std::input_iterator_tag,std::string,ptrdiff_t>{
+class TokenIterator {
   InputIter first;
   InputIter last;
   std::string word;
