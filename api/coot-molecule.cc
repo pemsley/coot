@@ -32,6 +32,9 @@ int
 coot::molecule_t::close_yourself() {
 
    int status = 0;
+   if (is_closed_flag)
+      return status;
+
    if (is_valid_model_molecule()) {
       atom_sel.clear_up();
       status = 1;

@@ -539,85 +539,91 @@ int test_output_link_distances_are_correct() {
 
 int test_alt_conf_rotamers() {
 
-   int status = 1;
+   int status = 0;
 
-   std::string filename = greg_test("tutorial-modern.pdb");
+   std::string dir = coot::package_data_dir();
+   std::string data_dir = coot::util::append_dir_dir(dir, "data");
+   std::string filename = coot::util::append_dir_file(data_dir, "tutorial-modern.pdb");
    atom_selection_container_t atom_sel = get_atom_selection(filename, false, true, true);
-   bool ifound = 0;
+   bool ifound = false;
 
    int imod = 1;
    if (atom_sel.read_success > 0) {
       mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-      mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 std::string chain_id = chain_p->GetChainID();
-	 if (chain_id == "B") {
-	    int nres = chain_p->GetNumberOfResidues();
-	    mmdb::PResidue residue_p;
-	    for (int ires=0; ires<nres; ires++) {
-	       residue_p = chain_p->GetResidue(ires);
-	       int resno = residue_p->GetSeqNum();
-	       if (resno == 72) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::string chain_id = chain_p->GetChainID();
+         if (chain_id == "B") {
+            int nres = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<nres; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               int resno = residue_p->GetSeqNum();
+               if (resno == 72) {
 
-		  ifound = 1;
-		  coot::primitive_chi_angles prim_chis(residue_p);
-		  std::vector<coot::alt_confed_chi_angles> chis = prim_chis.get_chi_angles();
-		  if (chis.size() != 2) {
-		     std::string mess = "chis.size() is ";
-		     mess += stringify(int(chis.size()));
-		     throw std::runtime_error(mess);
-		  }
+                  ifound = 1;
+                  coot::primitive_chi_angles prim_chis(residue_p);
+                  std::vector<coot::alt_confed_chi_angles> chis = prim_chis.get_chi_angles();
+                  std::cout << "chis.size() " << chis.size() << " (should be 2)" << std::endl;
+                  if (chis.size() != 2) {
+                     std::string mess = "chis.size() is ";
+                     mess += stringify(int(chis.size()));
+                     throw std::runtime_error(mess);
+                  }
 
-		  int n_rots_found = 0;
-		  for (unsigned int i_rot=0; i_rot<2; i_rot++) {
-// 		     std::cout << "DEBUG:: chi: " << chis[i_rot].alt_conf << " "
-// 			       << chis[i_rot].chi_angles[0].first  << " "
-// 			       << chis[i_rot].chi_angles[0].second << std::endl;
+                  int n_rots_found = 0;
+                  for (unsigned int i_rot=0; i_rot<2; i_rot++) {
+                     std::cout << "DEBUG:: i_rot " << i_rot << " chi: alt-conf: "
+                               << chis[i_rot].alt_conf << " chi-"
+                               << chis[i_rot].chi_angles[0].first  << ": "
+                               << chis[i_rot].chi_angles[0].second << std::endl;
 
-		     if (chis[i_rot].alt_conf == "A") {
-			float chi = chis[i_rot].chi_angles[0].second;
-			if (chi > 60.0)
-			   if (chi < 61.0)
-			      n_rots_found++;
-		     }
-		     if (chis[i_rot].alt_conf == "B") {
-			float chi = chis[i_rot].chi_angles[0].second;
-			if (chi > -75.0)
-			   if (chi < -74.0)
-			      n_rots_found++;
-		     }
-		  }
-		  if (n_rots_found != 2) {
-		     std::string mess = " found only ";
-		     mess += stringify(n_rots_found);
-		     mess += " rotamers ";
-		     throw std::runtime_error(mess);
-		  }
-	       }
+                     if (chis[i_rot].alt_conf == "A") {
+                        float chi = chis[i_rot].chi_angles[0].second;
+                        if (chi > 65.0)
+                           if (chi < 66.0)
+                              n_rots_found++;
+                     }
+                     if (chis[i_rot].alt_conf == "B") {
+                        float chi = chis[i_rot].chi_angles[0].second;
+                        if (chi > -145.0)
+                           if (chi < -144.0)
+                              n_rots_found++;
+                     }
+                  }
+                  if (n_rots_found != 2) {
+                     std::string mess = " found only ";
+                     mess += stringify(n_rots_found);
+                     mess += " rotamers ";
+                     throw std::runtime_error(mess);
+                  }
+               }
 
-	       if (resno == 80) {
-		  coot::primitive_chi_angles prim_chis(residue_p);
-		  std::vector<coot::alt_confed_chi_angles> chis = prim_chis.get_chi_angles();
-		  if (chis.size() != 1) {
-		     std::string mess = "chis.size() is ";
-		     mess += stringify(int(chis.size()));
-		     mess += " for resno ";
-		     mess += stringify(80);
-		     throw std::runtime_error(mess);
-		  }
-		  int n_rots_found = 0;
-		  if (chis[0].alt_conf == "") {
+               if (resno == 80) {
+                  coot::primitive_chi_angles prim_chis(residue_p);
+                  std::vector<coot::alt_confed_chi_angles> chis = prim_chis.get_chi_angles();
+                  std::cout << "For residue 80 chis size " << chis.size() << std::endl;
+                  if (chis.size() != 1) {
+                     std::string mess = "chis.size() is ";
+                     mess += stringify(int(chis.size()));
+                     mess += " for resno ";
+                     mess += stringify(80);
+                     throw std::runtime_error(mess);
+                  }
+                  int n_rots_found = 0;
+                  if (chis[0].alt_conf == "") {
 		     float chi_1 = chis[0].chi_angles[0].second;
 		     float chi_2 = chis[0].chi_angles[1].second;
-		     if (chi_1 > -58.0)
-			if (chi_1 < -57.0)
-			   if (chi_2 > 95.0)
-			      if (chi_2 < 96.0)
+                     std::cout << "  residue 80 chis: " << chi_1 << " " << chi_2 << std::endl;
+		     if (chi_1 > -57.0)
+			if (chi_1 < -56.0)
+			   if (chi_2 > -81.0)
+			      if (chi_2 < -80.0)
 			         n_rots_found++;
 		  }
-		  if (n_rots_found != 1) {
+		  if (n_rots_found == 1) {
+                     status = 1;
+                  } else {
 		     std::string mess = " Oops found ";
 		     mess += stringify(n_rots_found);
 		     mess += " rotamers ";
@@ -1053,8 +1059,11 @@ test_fragmemt_atom_selection() {
    // from wc, there are 64   atoms in that atom selection in tutorial-modern.pdb
    //          there are 1465 atoms in tutorial-modern.pdb
 
-   std::string f = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t asc = get_atom_selection(f, false, true, true);
+
+   std::string dir = coot::package_data_dir();
+   std::string data_dir = coot::util::append_dir_dir(dir, "data");
+   std::string filename = coot::util::append_dir_file(data_dir, "tutorial-modern.pdb");
+   atom_selection_container_t asc = get_atom_selection(filename, false, true, true);
 
    std::pair<coot::minimol::molecule, coot::minimol::molecule> p = 
       coot::make_mols_from_atom_selection_string(asc.mol, atom_selection_string,
@@ -1064,7 +1073,6 @@ test_fragmemt_atom_selection() {
    int n_initial = asc.n_selected_atoms;
    int n_1 = p.first.count_atoms();
    int n_2 = p.second.count_atoms();
-
 
    std::cout << "   n_initial: " << n_initial << "   n_1: " << n_1 << "   n_2: "
 	     << n_2 << std::endl;
@@ -1225,8 +1233,11 @@ test_add_atom() {
 
    int status = 0;
 
-   std::string f = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t asc = get_atom_selection(f, false, true, true);
+   std::string dir = coot::package_data_dir();
+   std::string data_dir = coot::util::append_dir_dir(dir, "data");
+   std::string filename = coot::util::append_dir_file(data_dir, "tutorial-modern.pdb");
+   atom_selection_container_t asc = get_atom_selection(filename, false, true, true);
+   if (! asc.mol) return 0; // fail
 
    int n_test_residues = 20;
    int pass_count = 0;
@@ -1398,7 +1409,9 @@ int test_segid_exchange() {
 
    int status = 0;
 
-   std::string filename = greg_test("tutorial-modern.pdb");
+   std::string dir = coot::package_data_dir();
+   std::string data_dir = coot::util::append_dir_dir(dir, "data");
+   std::string filename = coot::util::append_dir_file(data_dir, "tutorial-modern.pdb");
    atom_selection_container_t atom_sel = get_atom_selection(filename, false, true, true);
    bool ifound = 0;
 

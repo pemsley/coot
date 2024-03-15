@@ -786,35 +786,40 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
    mc.set_imol_refinement_map(imol_map);
 
-   coot::atom_spec_t atom_spec_N_1("A", 130, "", " N  ","");
-   coot::atom_spec_t atom_spec_N_2("A", 133, "", " N  ","");
-   coot::atom_spec_t atom_spec_N_3("A", 137, "", " N  ","");
-   mmdb::Atom *at_N_1 = mc.get_atom(imol, atom_spec_N_1);
-   mmdb::Atom *at_N_2 = mc.get_atom(imol, atom_spec_N_2);
-   mmdb::Atom *at_N_3 = mc.get_atom(imol, atom_spec_N_3);
-   coot::Cartesian atom_pos_N_1_1 = atom_to_cartesian(at_N_1);
-   coot::Cartesian atom_pos_N_2_1 = atom_to_cartesian(at_N_2);
-   coot::Cartesian atom_pos_N_3_1 = atom_to_cartesian(at_N_3);
-   float w = mc.get_map_weight();
-   // mc.set_map_weight(w * 100.0);
-   int n_cycles = 500;
-   mc.refine_residue_range(imol, "A", 131, 136, n_cycles);
-   mc.set_map_weight(w); // restore sanity.
-   coot::Cartesian atom_pos_N_1_2 = atom_to_cartesian(at_N_1);
-   coot::Cartesian atom_pos_N_2_2 = atom_to_cartesian(at_N_2);
-   coot::Cartesian atom_pos_N_3_2 = atom_to_cartesian(at_N_3);
-   double dd_N_1 = coot::Cartesian::lengthsq(atom_pos_N_1_1, atom_pos_N_1_2);
-   double dd_N_2 = coot::Cartesian::lengthsq(atom_pos_N_2_1, atom_pos_N_2_2);
-   double dd_N_3 = coot::Cartesian::lengthsq(atom_pos_N_3_1, atom_pos_N_3_2);
-   double d_N_1 =  std::sqrt(dd_N_1);
-   double d_N_2 =  std::sqrt(dd_N_2);
-   double d_N_3 =  std::sqrt(dd_N_3);
-   // std::cout << "ds: " << d_N_1 << " " << d_N_2 << " " << d_N_3 << std::endl;
-   if (d_N_1 < 0.0001)  // no move
-      if (d_N_3 < 0.0001) // no move
-         if (d_N_2 > 0.08) // move a bit
-            status = 1;
-   mc.write_coordinates(imol, "post-refine-using-residue-range.pdb");
+   if (mc.is_valid_model_molecule(imol)) {
+      if (mc.is_valid_map_molecule(imol_map)) {
+
+         coot::atom_spec_t atom_spec_N_1("A", 130, "", " N  ","");
+         coot::atom_spec_t atom_spec_N_2("A", 133, "", " N  ","");
+         coot::atom_spec_t atom_spec_N_3("A", 137, "", " N  ","");
+         mmdb::Atom *at_N_1 = mc.get_atom(imol, atom_spec_N_1);
+         mmdb::Atom *at_N_2 = mc.get_atom(imol, atom_spec_N_2);
+         mmdb::Atom *at_N_3 = mc.get_atom(imol, atom_spec_N_3);
+         coot::Cartesian atom_pos_N_1_1 = atom_to_cartesian(at_N_1);
+         coot::Cartesian atom_pos_N_2_1 = atom_to_cartesian(at_N_2);
+         coot::Cartesian atom_pos_N_3_1 = atom_to_cartesian(at_N_3);
+         float w = mc.get_map_weight();
+         // mc.set_map_weight(w * 100.0);
+         int n_cycles = 500;
+         mc.refine_residue_range(imol, "A", 131, 136, n_cycles);
+         mc.set_map_weight(w); // restore sanity.
+         coot::Cartesian atom_pos_N_1_2 = atom_to_cartesian(at_N_1);
+         coot::Cartesian atom_pos_N_2_2 = atom_to_cartesian(at_N_2);
+         coot::Cartesian atom_pos_N_3_2 = atom_to_cartesian(at_N_3);
+         double dd_N_1 = coot::Cartesian::lengthsq(atom_pos_N_1_1, atom_pos_N_1_2);
+         double dd_N_2 = coot::Cartesian::lengthsq(atom_pos_N_2_1, atom_pos_N_2_2);
+         double dd_N_3 = coot::Cartesian::lengthsq(atom_pos_N_3_1, atom_pos_N_3_2);
+         double d_N_1 =  std::sqrt(dd_N_1);
+         double d_N_2 =  std::sqrt(dd_N_2);
+         double d_N_3 =  std::sqrt(dd_N_3);
+         // std::cout << "ds: " << d_N_1 << " " << d_N_2 << " " << d_N_3 << std::endl;
+         if (d_N_1 < 0.0001)  // no move
+            if (d_N_3 < 0.0001) // no move
+               if (d_N_2 > 0.08) // move a bit
+                  status = 1;
+         mc.write_coordinates(imol, "post-refine-using-residue-range.pdb");
+      }
+   }
    mc.close_molecule(imol_map);
    return status;
 }
@@ -906,21 +911,24 @@ int test_rsr_using_multi_atom_cid(molecules_container_t &mc) {
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-4.mtz"), "FWT", "PHWT", "W", false, false);
-   mc.set_imol_refinement_map(imol_map);
-   int n_cycles = 1000;
-   std::string mode = "SINGLE";
-   std::string multi_cid = "//A/10-12";
-   mmdb::Manager *mol = mc.get_mol(imol);
-   mmdb::Manager *mol_orig = coot::util::copy_molecule(mol);
-   mc.refine_residues_using_atom_cid(imol, multi_cid, mode, n_cycles);
-   int n_diffs_1 = get_n_diffs(mol, mol_orig);
-   multi_cid = "//A/10-12||//A/20-22";
-   mc.refine_residues_using_atom_cid(imol, multi_cid, mode, n_cycles);
-   int n_diffs_2 = get_n_diffs(mol, mol_orig);
-   if (n_diffs_2 > (n_diffs_1 + 10)) status = 1;
-   std::cout << "n_diffs_1 " << n_diffs_1 << " n_diffs_2 " << n_diffs_2 << std::endl;
-   mc.close_molecule(imol_map);
-
+   if (mc.is_valid_model_molecule(imol)) {
+      if (mc.is_valid_map_molecule(imol_map)) {
+         mc.set_imol_refinement_map(imol_map);
+         int n_cycles = 1000;
+         std::string mode = "SINGLE";
+         std::string multi_cid = "//A/10-12";
+         mmdb::Manager *mol = mc.get_mol(imol);
+         mmdb::Manager *mol_orig = coot::util::copy_molecule(mol);
+         mc.refine_residues_using_atom_cid(imol, multi_cid, mode, n_cycles);
+         int n_diffs_1 = get_n_diffs(mol, mol_orig);
+         multi_cid = "//A/10-12||//A/20-22";
+         mc.refine_residues_using_atom_cid(imol, multi_cid, mode, n_cycles);
+         int n_diffs_2 = get_n_diffs(mol, mol_orig);
+         if (n_diffs_2 > (n_diffs_1 + 10)) status = 1;
+         std::cout << "n_diffs_1 " << n_diffs_1 << " n_diffs_2 " << n_diffs_2 << std::endl;
+         mc.close_molecule(imol_map);
+      }
+   }
    return status;
 }
 
@@ -5488,6 +5496,7 @@ print_results_summary() {
    std::cout << "n_tests: " << n_tests << std::endl;
    unsigned int n_failed = 0;
    // for (const auto &result[function_name, status] : test_results) { // structured binding
+   std::cout << "LIGHTS: ";
    for (const auto &result : test_results) {
       const auto &status = result.second;
       if (status == 0) {
@@ -5497,7 +5506,7 @@ print_results_summary() {
          std::cout << "[32m⬤ ";
       }
    }
-   std::cout << "[m" << std::endl;
+   std::cout << "[m  failures: " << n_failed << "/" << n_tests << std::endl;
 
    if (n_failed > 0) {
       std::cout << "Test summary: " << n_failed << " failed tests of " << n_tests << std::endl;

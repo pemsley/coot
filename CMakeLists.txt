@@ -44,7 +44,7 @@ find_package(Python 3.10
 
 find_package(nanobind CONFIG REQUIRED)
 
-# only via homebrew on macOS (not tried to compile them myself)
+# only via homebrew on macOS (not tried to compile them myself) - see below also though.
 if (APPLE)
 else()
    find_library(libelf elf)
@@ -70,6 +70,13 @@ if (ENHANCED_LIGAND_TOOLS)
    find_package(RDKit CONFIG COMPONENTS RDGeneral REQUIRED)
 else()
     message("-- Note: MAKE_ENHANCED_LIGAND_TOOLS was not enabled")
+endif()
+
+# we can be on Apple, and also have access to homebrew dwarf and elf - but this typically not the case
+if (ENABLE_DWARF_ELF)
+   find_library(libelf elf)
+   find_library(libdwarf dw)
+   message("-- Enabled dwarf and elf")
 endif()
 
 #  pyrogen, auxil, goograph, src ignored.

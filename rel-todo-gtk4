@@ -1,8 +1,9 @@
 
 ----
 
-Coot: Save Coords is not working again.  It works OK, on mac, so I think that
-   it's a GTK4 bug.
+
+Coot: Save Coords is not working again.
+* It works OK, on mac, so I think that it's a GTK4 bug.
 
 Coot: "Close" button doesn't work in Restraints editor.
 
@@ -10,8 +11,26 @@ libcootapi: change the SSM arg order to match ligand function: moving first.
 
 libcootapi: to release std::vector memory use std::swap on an empty vector, not mere assignment
 
+libcootapi: add function for delete by B-factor or plddt - limit goes both ways
+
+libcootapi: check the return type/value of match_torsion_and_postion()
+* Done. It's not clever.
+
+libcootapi: non-carbon rules should be per rule not per molecule
+
+libcootapi: environ distances are not symmetry aware - they should be. Q: are they in Coot?
+
+libcootapi: /Users/pemsley/Projects/Moorhen/checkout/coot-1.0/api/add-terminal-residue.cc:9:9: warning: 'HAVE_BOOST_BASED_THREAD_POOL_LIBRARY' macro redefined [-Wmacro-redefined]
+
+libcootapi: delete all the molecules that are closed at the end of the list (delete, not close)
+* Done.
+
+libcootapi: to release std::vector memory use std::swap on an empty map, not mere assignment
+* Done
+
 libcootapi: make minimize_energy() return a mesh, like std::pair<int, coot::instanced_mesh_t> refine(int imol, int n_cycles)
  does. And the GSL return status.
+* Done
 
 libcootapi: nice to have position restraints for ligand+env minimization
 
@@ -20,6 +39,7 @@ libcootapi: are backups being made by refine()?. If so, turn them off - maybe ba
 libcootapi: pull bernhards repo for new ramas
 
 libcootapi: before Newcastle: torsion match ligand and ligand graph-based superposition
+ * Done - but needs more work
 
 libcootapi: the apply colour rules to non-carbon atoms need to happen on a per-colour-rule basis, not per molecule.
   so that ligands can be set a different colour in Goodsel mode - and goodsel mode plays nicely with other colour rules.
