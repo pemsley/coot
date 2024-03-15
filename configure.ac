@@ -485,7 +485,6 @@ cootilus/Makefile
 greg-tests/Makefile
 python-tests/Makefile
 lidia-core/Makefile
-buccaneer_ml_growing/Makefile
 doc/Makefile
 validation-graphs/Makefile
 python/coot_load_modules.py

@@ -377,11 +377,12 @@ add_library(cootapi SHARED
             ${coot_src}/mini-mol/mini-mol-utils.cc
             ${coot_src}/mini-mol/mini-mol.cc
             ${coot_src}/mini-mol/atom-quads.cc
-            ${coot_src}/cootilus/nautilus-tools.cpp
             ${coot_src}/cootilus/cootilus-build.cpp
-            ${coot_src}/cootilus/nucleicacid_db.cpp
             ${coot_src}/cootilus/nautilus-join.cpp
+            ${coot_src}/cootilus/nautilus-ss-find.cpp
             ${coot_src}/cootilus/nautilus-target.cpp
+            ${coot_src}/cootilus/nautilus-tools.cpp
+            ${coot_src}/cootilus/nucleicacid_db.cpp
             ${coot_src}/lidia-core/lbg-shared.cc
             ${coot_src}/lidia-core/cod-types.cc
             ${coot_src}/lidia-core/cod-atom-types.cc
@@ -435,44 +436,6 @@ add_library(cootapi SHARED
             ${coot_src}/compat/getopt1.cc
             ${coot_src}/src/gl-matrix.cc
             ${coot_src}/ideal/write-png.cc
-            ${coot_src}/buccaneer_ml_growing/buccaneer-NN-Select.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-NN-build-cyc.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-NN-build.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-NN-features.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-NN-join.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-NN-model.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-build.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-correct.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-filter.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-find.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-grow.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-known.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-lib.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-link.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-merge.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-ncsbuild.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-prep.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-prot.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-prune.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-sequence.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-tidy.cpp
-            ${coot_src}/buccaneer_ml_growing/buccaneer-util.cpp
-            ${coot_src}/buccaneer_ml_growing/csequins.cpp
-            ${coot_src}/buccaneer_ml_growing/k2c_activations.cpp
-            ${coot_src}/buccaneer_ml_growing/k2c_convolution_layers.cpp
-            ${coot_src}/buccaneer_ml_growing/k2c_core_layers.cpp
-            ${coot_src}/buccaneer_ml_growing/k2c_embedding_layers.cpp
-            ${coot_src}/buccaneer_ml_growing/k2c_helper_functions.cpp
-            ${coot_src}/buccaneer_ml_growing/k2c_merge_layers.cpp
-            ${coot_src}/buccaneer_ml_growing/k2c_normalization_layers.cpp
-            ${coot_src}/buccaneer_ml_growing/k2c_pooling_layers.cpp
-            ${coot_src}/buccaneer_ml_growing/k2c_recurrent_layers.cpp
-            ${coot_src}/buccaneer_ml_growing/ml-grow-next.cpp
-            ${coot_src}/buccaneer_ml_growing/ml-grow-prev.cpp
-            ${coot_src}/buccaneer_ml_growing/ml-grow.cpp
-            ${coot_src}/buccaneer_ml_growing/protein_db.cpp
-            ${coot_src}/buccaneer_ml_growing/simplex-lib.cpp
-            ${coot_src}/buccaneer_ml_growing/simulate-lib.cpp
             )
 
 

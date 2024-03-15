@@ -47,7 +47,6 @@ libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \
    $(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la \
    $(top_builddir)/ligand/libcoot-ligand.la           \
-   $(top_builddir)/buccaneer_ml_growing/libcoot-ml-growing.la       \
    $(top_builddir)/pli/libcoot-pli.la                 \
    $(top_builddir)/ideal/libcoot-ideal.la             \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
