@@ -1,6 +1,7 @@
 
 ----
 
+libcootapi: remove static things in the molecules_container
 
 Coot: Save Coords is not working again.
 * It works OK, on mac, so I think that it's a GTK4 bug.
@@ -11,9 +12,12 @@ Coot: what does electrostactics give us now?
 
 For next week: local resolution display in Moorhen
 
+libcootapi: set_user_defined_atom_colour_by_selection() should not be given a vector of pairs,
+  it should be a vector of triples (trivial class) { selection_string, colour_index, Cs-only-flag }
+
 libcootapi: what happens when the ligands dont't match?
 
-libcootapi: put gesapt into the build (build-it-3-3)
+libcootapi: put gesamt into the build (build-it-3-3)
 
 libcootapi: change the SSM arg order to match ligand function: moving first.
 
