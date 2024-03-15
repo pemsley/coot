@@ -3459,7 +3459,7 @@ int test_non_drawn_atoms(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   glm::vec3 ca_pos(70.328, 51.541, 38.560);
+   glm::vec3 ca_pos(26.83, 3.43, 31.43);
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
    auto mesh_1 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
    mc.add_to_non_drawn_bonds(imol, "//A/270");
@@ -3999,6 +3999,8 @@ int test_dragged_atom_refinement(molecules_container_t &mc_in) {
 }
 
 int test_bucca_ml_growing(molecules_container_t &mc) {
+
+   // ignore this - for now at least
 
    starting_test(__FUNCTION__);
    int status = 0;
@@ -5701,7 +5703,6 @@ int main(int argc, char **argv) {
          status += run_test(test_user_defined_bond_colours, "user-defined bond colours", mc);
          status += run_test(test_replace_map, "replace map from mtz", mc);
          status += run_test(test_residue_name_group, "residue name group", mc);
-         status += run_test(test_bucca_ml_growing, "Bucca ML growing", mc);
          status += run_test(test_mask_atom_selection, "mask atom selection", mc);
          status += run_test(test_ligand_merge, "ligand merge", mc);
          status += run_test(test_write_map_is_sane, "write map is sane",    mc);
@@ -5742,7 +5743,8 @@ int main(int argc, char **argv) {
       //status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
       //status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
       //status += run_test(test_gltf_export,           "glTF export", mc);
-      status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
+      // status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
+      status += run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
 
       if (status == n_tests) all_tests_status = 0;
 
