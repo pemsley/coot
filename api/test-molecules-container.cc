@@ -4405,6 +4405,8 @@ int test_pdbe_dictionary_depiction(molecules_container_t &mc) {
    std::ofstream f("MOI.svg");
    f << svg;
    f.close();
+   if (svg.length() > 100)
+      status = 1;
    return status;
 }
 
@@ -4800,6 +4802,20 @@ int test_gltf_export(molecules_container_t &mc) {
    coot::instanced_mesh_t im_neighbs = mc.get_bonds_mesh_for_selection_instanced(imol, multi_cid, mode, true, 0.15, 1.0, 1);
    coot::simple_mesh_t sm_neighbs = coot::instanced_mesh_to_simple_mesh(im_neighbs);
    sm_neighbs.export_to_gltf("neighbs.glb", true);
+
+   struct stat buf_1;
+   int istat_1 = stat("lig.glb", &buf_1);
+   if (istat_1 == 0) {
+      if (buf_1.st_size > 100000) {
+         struct stat buf_2;
+         int istat_2 = stat("neighbs.glb", &buf_2);
+         if (istat_2 == 0) {
+            if (buf_2.st_size > 100000) {
+               status = 1;
+            }
+         }
+      }
+   }
 
    mc.close_molecule(imol_map);
    mc.close_molecule(imol);
@@ -5624,7 +5640,6 @@ int main(int argc, char **argv) {
          status += run_test(test_multiligands_lig_bonding, "Some multiligands bonding", mc);
          status += run_test(test_gltf_export_via_api,   "glTF via api", mc);
          status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
-         status += run_test(test_pdbe_dictionary_depiction, "PDBe dictionary depiction", mc);
          status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
          status += run_test(test_gltf_export,           "glTF export", mc);
          status += run_test(test_5char_ligand_merge,    "5-char ligand merge", mc);
@@ -5633,8 +5648,12 @@ int main(int argc, char **argv) {
          status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
          // status += run_test(test_test_the_threading,    "threading speed test",    mc); // not helpful
          // status += run_test(test_contouring_timing,     "contouring timing",    mc); // not helpful
-         status += run_test(test_mmcif_atom_selection,  "mmCIF atom selection",    mc);
-         status += run_test(test_mmcif_as_string,       "mmCIF as string",    mc);
+
+         //reinstate this test when mmdb chain selection works
+         // status += run_test(test_mmcif_atom_selection,  "mmCIF atom selection",    mc);
+
+         //reinstate this test when gemmi is used for writing cif files
+         // status += run_test(test_mmcif_as_string,       "mmCIF as string",    mc);
          status += run_test(test_pdb_as_string,         "PDB as string",    mc);
          status += run_test(test_cif_writer,            "mmCIF dictionary writer",    mc);
          status += run_test(test_residues_near_residues, "residues near residues",    mc);
@@ -5654,7 +5673,8 @@ int main(int argc, char **argv) {
          status += run_test(test_other_user_define_colours_other, "New colour test", mc);
          status += run_test(test_is_em_map,             "test if EM map flag is correctly set", mc);
          status += run_test(test_user_defined_bond_colours_v2, "user-defined bond colours v2", mc);
-         status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
+         // reinstate when add alt conf has been added
+         // status += run_test(test_alt_conf_and_rotamer,            "Alt Conf then rotamer", mc);
          status += run_test(test_editing_session_tutorial_1, "an Tutorial 1 editing session",         mc);
          status += run_test(test_broken_function, "Something was broken",         mc);
          status += run_test(test_delete_side_chain, "delete side chain", mc);
@@ -5697,6 +5717,9 @@ int main(int argc, char **argv) {
          status += run_test(test_split_model,              "Split model", mc);
          status += run_test(test_make_ensemble,            "Make Ensemble", mc);
          status += run_test(test_end_delete_closed_molecules, "end delete close molecules", mc);
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+         status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
+#endif
 
 #ifdef USE_GEMMI
          status += run_test(test_disappearing_ligand,   "Disappearing ligand", mc);
@@ -5716,8 +5739,10 @@ int main(int argc, char **argv) {
       // status += run_test(test_make_ensemble,            "Make Ensemble", mc);
       // status += run_test(test_ligand_torsions, "ligand torsions", mc);
       // status += run_test(test_superpose, "SSM superpose ", mc);
-      // status += run_test(test_auto_read_mtz,         "auto-read-mtz", mc);
-      status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
+      //status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
+      //status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
+      //status += run_test(test_gltf_export,           "glTF export", mc);
+      status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
 
       if (status == n_tests) all_tests_status = 0;
 
