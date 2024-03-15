@@ -260,7 +260,7 @@ std::vector<colour_analysis_row> get_colour_analysis(const coot::instanced_mesh_
 
    std::sort(colour_count.begin(), colour_count.end(), sorter);
 
-   std::cout << "INFO:: " << colour_count.size() << " colours" << std::endl;
+   std::cout << "INFO:: get_colour_analysis(): " << colour_count.size() << " colours" << std::endl;
    for (unsigned int i=0; i<colour_count.size(); i++)
       std::cout << "    " << glm::to_string(colour_count[i].col) << " "
                 << std::setw(7) << std::right << colour_count[i].count << std::endl;
@@ -4247,6 +4247,16 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
 
 int test_user_defined_bond_colours_v3(molecules_container_t &mc) {
 
+   auto is_near_colour = [] (const glm::vec4 &col_1, const std::array<float, 3> &col_2) {
+      float cf = 0.04;
+      if (std::fabs(col_2[0] - col_1.r) < cf)
+         if (std::fabs(col_2[1] - col_1.g) < cf)
+            if (std::fabs(col_2[2] - col_1.b) < cf)
+               return true;
+      return false;
+   };
+
+
       // from Filo:
 
       // const imol = molecules_container.read_pdb('./4ri2.pdb')
@@ -4288,8 +4298,23 @@ int test_user_defined_bond_colours_v3(molecules_container_t &mc) {
       // now test the colours:
       auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
       auto &geom = bonds.geom;
-      auto &vb   = geom[1].instancing_data_B; // bonds
-      colour_analysis(bonds);
+      auto ca = get_colour_analysis(bonds);
+
+      // colour 53 supercedes/replaces the others
+      //
+      bool col_51 = false;
+      bool col_52 = false;
+      bool col_53 = false;
+      for (unsigned int i=0; i<ca.size(); i++) {
+         const auto &ca_row = ca[i];
+         if (is_near_colour(ca_row.col, colour_map[51])) col_51 = true;
+         if (is_near_colour(ca_row.col, colour_map[52])) col_52 = true;
+         if (is_near_colour(ca_row.col, colour_map[53])) col_53 = true;
+      }
+      if (col_51 == false)
+         if (col_52 == false)
+            if (col_53 == true)
+               status = true;
    }
 
    return status;
@@ -4366,8 +4391,11 @@ int test_other_user_defined_colours_other(molecules_container_t &mc) {
          }
          std::vector<colour_analysis_row> ca_1 = get_colour_analysis(bonds_1);
          std::vector<colour_analysis_row> ca_3 = get_colour_analysis(bonds_3);
-         // different vec indices because UD colour becomes the first colour
-         if (ca_3[4].count == (ca_1[3].count - 85))
+         // different vec indices because UD colour becomes the first colour.
+         // This is weird. When run in "single test only" the indices need to
+         // be 4 and 3. It might have something to do with reading the ATP at the start.
+         //
+         if (ca_3[3].count == (ca_1[2].count - 85))
             status = 1;
 
       }
@@ -5628,13 +5656,18 @@ print_results_summary() {
    unsigned int n_failed = 0;
    // for (const auto &result[function_name, status] : test_results) { // structured binding
    std::cout << "LIGHTS: ";
+   unsigned int count = 0;
    for (const auto &result : test_results) {
+      count++;
       const auto &status = result.second;
       if (status == 0) {
          n_failed++;
          std::cout << "[31m⬤ ";
       } else {
          std::cout << "[32m⬤ ";
+      }
+      if (count%40 == 0) {
+         std::cout << "\n        ";
       }
    }
    std::cout << "[m  failures: " << n_failed << "/" << n_tests << std::endl;
@@ -5860,7 +5893,9 @@ int main(int argc, char **argv) {
       // status += run_test(test_is_em_map,             "EM map flag is correctly set?", mc);
       // status += run_test(test_delete_side_chain, "delete side chain", mc);
       // status += run_test(test_multi_colour_rules, "multi colour rules ", mc);
-      status += run_test(test_other_user_defined_colours_other, "New colour test", mc);
+      // status += run_test(test_other_user_defined_colours_other, "New colour test", mc);
+      // status += run_test(test_colour_rules, "colour rules", mc);
+      status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
 
       if (status == n_tests) all_tests_status = 0;
 
