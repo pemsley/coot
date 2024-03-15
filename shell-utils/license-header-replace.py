@@ -5,13 +5,16 @@ import os
 def write_lines(lines, file_name):
 
     f = open(file_name, "w")
-    for l in lines:
-        f.write(l)
+    try:
+        for l in lines:
+            f.write(l)
+    except TypeError as e:
+        print(e, "with l", l)
     f.close()
 
 def make_copyright_line(person, copyright_year):
 
-    pp = ""
+    pp = person
     if person == "Martin": pp = "Martin Noble, University of Oxford"
     if person == "Kevin":  pp = "Kevin Cowtan & University York"
 
@@ -22,7 +25,7 @@ def insert_new_header(person, file_name, copyright_year, lines):
 
     copyright_line = make_copyright_line(person, copyright_year)
     file_line = " * " + file_name + "\n"
-    author_line = ""
+    author_line = " * Author: " + person + "\n"
     if person == "Martin": author_line = " * Author: Martin Noble\n",
 
     new_lines = [ "/*\n",
@@ -67,7 +70,14 @@ def get_copyright_year(line):
             if idx > idx_copyright:
                 if "20" in part:
                     y = part
+    if "Created on" in line: y = parts[-1]
+
     return y
+
+def get_author(line):
+    parts = line.split()
+    author = parts[-2] + " " + parts[-1]
+    return author
 
 def replace_lines(file_name, lines):
 
@@ -75,50 +85,63 @@ def replace_lines(file_name, lines):
 
     # ---------------- Martin's code style
 
-    raw_top_do_it = False
-    if '#include ' in lines[0]: raw_top_do_it = True
-    if '#define '  in lines[1]: raw_top_do_it = True
-    if '#ifndef '  in lines[1]: raw_top_do_it = True
-    if '#ifndef '  in lines[0]: raw_top_do_it = True
+    if False:
+        raw_top_do_it = False
+        if '#include ' in lines[0]: raw_top_do_it = True
+        if '#define '  in lines[1]: raw_top_do_it = True
+        if '#ifndef '  in lines[1]: raw_top_do_it = True
+        if '#ifndef '  in lines[0]: raw_top_do_it = True
 
-    if raw_top_do_it:
-        insert_new_header("Martin", file_name, "2009", lines)
-        done = True
+        if raw_top_do_it:
+            insert_new_header("Martin", file_name, "2009", lines)
+            done = True
 
-    for idx,line in enumerate(lines):
-        if done: continue
-        if idx < 10:
-            if line == " */\n":
-                for i in range(idx+1):
-                    lines.pop(0)
-                insert_new_header("Martin", file_name, "2009", lines)
-                done = True
+        for idx,line in enumerate(lines):
+            if done: continue
+            if idx < 10:
+                if line == " */\n":
+                    for i in range(idx+1):
+                        lines.pop(0)
+                    insert_new_header("Martin", file_name, "2009", lines)
+                    done = True
 
-    fparts = 0
-    for idx,line in enumerate(lines):
-        if done: continue
-        if idx > 10: continue
-        if "//  MoleculesToTriangles"    in line: fparts += 1
-        if "//  Created by Martin Noble" in line: fparts += 1
-        if "//  Copyright "              in line: fparts += 1
-        if "Copyright" in line: copyright_year = get_copyright_year(line)
-        if line == "//\n":
-            if fparts == 3:
-                for i in range (idx+1):
-                    lines.pop(0)
-                insert_new_header("Martin", file_name, copyright_year, lines)
-                done = True
+        fparts = 0
+        for idx,line in enumerate(lines):
+            if done: continue
+            if idx > 10: continue
+            if "//  MoleculesToTriangles"    in line: fparts += 1
+            if "//  Created by Martin Noble" in line: fparts += 1
+            if "//  Copyright "              in line: fparts += 1
+            if "Copyright" in line: copyright_year = get_copyright_year(line)
+            if line == "//\n":
+                if fparts == 3:
+                    for i in range (idx+1):
+                        lines.pop(0)
+                    insert_new_header("Martin", file_name, copyright_year, lines)
+                    done = True
 
     # ---------------- Kevin's code style
 
+    copyright_year = ""
     for idx,line in enumerate(lines):
         if done: continue
-        if " (C) " in line: copyright_year = get_copyright_year(line)
+        if " (C) "        in line: copyright_year = get_copyright_year(line)
+        if " Copyright "  in line: copyright_year = get_copyright_year(line)
+        if " Created on:" in line: copyright_year = get_copyright_year(line)
+        if " Author: "    in line: author = get_author(line)
         if "York all rights reserved" in line:
             lines.pop(idx)
             lines.pop(idx-1)
-            insert_new_header("Kevin", file_name, copyright_year, lines)
+            insert_new_header("Kevin Cowtan", file_name, copyright_year, lines)
             done = True
+
+        if idx < 10:
+            if " */\n" in line:
+                if len(line) == 4:
+                    for i in range(idx+1):
+                        lines.pop(0)
+                    insert_new_header(author, file_name, copyright_year, lines)
+                    done = True
 
 if len(sys.argv) > 1:
     fn = sys.argv[1]

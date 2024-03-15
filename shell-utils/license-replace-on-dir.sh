@@ -5,7 +5,7 @@ if [ -z "$dir" ] ; then
     exit
 fi
 
-pass_overs="1h1s.pdb autogen.sh cd44A.pdb config.sub config.guess configure.ac ctpl_boost.h Makefile.am Makefile.in surface.h surface.cpp Simple.frag Simple.vert nautilus_lib.pdb cootaneer-llk-2.40.dat protein.db"
+pass_overs="1h1s.pdb autogen.sh cd44A.pdb config.sub config.guess configure.ac ctpl_boost.h Makefile.am Makefile.in surface.h surface.cpp Simple.frag Simple.vert nautilus_lib.pdb cootaneer-llk-2.40.dat protein.db k2c_activations.cpp k2c_convolution_layers.cpp k2c_core_layers.cpp k2c_embedding_layers.cpp k2c_helper_functions.cpp k2c_include.h k2c_merge_layers.cpp k2c_normalization_layers.cpp k2c_pooling_layers.cpp k2c_recurrent_layers.cpp k2c_tensor_include.h"
 
 for source in $dir/*.* ;
 do
