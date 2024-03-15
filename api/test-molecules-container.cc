@@ -5373,6 +5373,9 @@ int test_split_model(molecules_container_t &mc) {
       std::cout << "DEBUG:: in test_split_model() new_models size was " << new_mol_indices.size() << std::endl;
    }
 
+   for (const auto &idx : new_mol_indices)
+      mc.close_molecule(idx);
+
    return status;
 }
 
@@ -5437,7 +5440,12 @@ int test_make_ensemble(molecules_container_t &mc) {
          status = 1;
          mc.write_coordinates(imol_new, "ensemble.pdb");
       }
+      mc.close_molecule(imol_new);
    }
+   mc.close_molecule(imol);
+   for (const auto &idx : new_mol_indices)
+      mc.close_molecule(idx);
+   mc.end_delete_closed_molecules();
    return status;
 }
 
