@@ -7,7 +7,6 @@
 #include <nanobind/operators.h>
 
 #include "molecules-container.hh"
-#include "buccaneer_ml_growing/ml-grow.h"
 #include "mini-mol/mini-mol-utils.hh"
 
 #include "clipper/core/ramachandran.h"
