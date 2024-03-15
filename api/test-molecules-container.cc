@@ -4674,7 +4674,19 @@ int test_disappearing_ligand(molecules_container_t &mc) {
       std::string sl = std::to_string(imol_lig);
       std::pair<int, std::vector<merge_molecule_results_info_t> > ss = mc.merge_molecules(imol, sl);
       mc.write_coordinates(imol, "merged.cif");
-      gemmi::Structure st = gemmi::read_structure_file("merged.cif");
+      gemmi::Structure structure = gemmi::read_structure_file("merged.cif");
+      std::string target_residue_name = "MOI";
+      for (auto& model : structure.models) {
+         for (auto& chain : model.chains) {
+            for (auto& residue : chain.residues) {
+               if (residue.name == target_residue_name) {
+                    std::cout << "Found residue " << target_residue_name << " in chain " << chain.name << std::endl;
+                    status = 1;
+                    break;
+               }
+            }
+         }
+      }
    } else {
       std::cout << "Failed to correctly read 8a2q.cif" << std::endl;
    }
