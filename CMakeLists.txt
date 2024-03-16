@@ -95,9 +95,6 @@ add_library(cootapi SHARED
             ${coot_src}/lidia-core/rdkit-interface.cc
             ${coot_src}/lidia-core/bond-table-record-t.cc
             ${coot_src}/pli/pi-stacking.cc
-            ${coot_src}/coot-utils/cmtz-interface.cc
-            ${coot_src}/coot-utils/lidia-core-functions.cc
-            ${coot_src}/coot-utils/atom-selection-container.cc
             ${coot_src}/src/coot-hydrogens.cc
             ${coot_src}/src/cfc.cc
             ${coot_src}/MoleculesToTriangles/CXXSurface/CXXBall.cpp
@@ -244,21 +241,22 @@ add_library(cootapi SHARED
             ${coot_src}/ideal/process-dfs-in-range.cc
             ${coot_src}/ideal/zo-rama.cc
             ${coot_src}/tw/tw.cc
-            ${coot_src}/utils/colour-holder.cc
-            ${coot_src}/utils/radix.cc
-            ${coot_src}/utils/coot-utils.cc
-            ${coot_src}/utils/hsv-rgb.cc
-            ${coot_src}/utils/backward.cpp
             ${coot_src}/utils/align-utils.cc
-            ${coot_src}/utils/threads.cc
-            ${coot_src}/utils/coot-fasta.cc
-            ${coot_src}/utils/win-compat.cc
             ${coot_src}/utils/atomic-numbers.cc
-            ${coot_src}/utils/split-indices.cc
-            ${coot_src}/utils/gdk-keysyms.cc
+            ${coot_src}/utils/backward.cpp
+            ${coot_src}/utils/colour-holder.cc
+            ${coot_src}/utils/coot-fasta.cc
+            ${coot_src}/utils/coot-utils.cc
             ${coot_src}/utils/dodec.cc
-            ${coot_src}/utils/logging.cc
+            ${coot_src}/utils/radix.cc
+            ${coot_src}/utils/gdk-keysyms.cc
+            ${coot_src}/utils/hsv-rgb.cc
             ${coot_src}/utils/pir-alignment.cc
+            ${coot_src}/utils/setup-syminfo.cc
+            ${coot_src}/utils/split-indices.cc
+            ${coot_src}/utils/logging.cc
+            ${coot_src}/utils/threads.cc
+            ${coot_src}/utils/win-compat.cc
             ${coot_src}/db-main/db-strands.cc
             ${coot_src}/high-res/residue-distortions.cc
             ${coot_src}/high-res/coot-atom-graph.cc
@@ -272,6 +270,9 @@ add_library(cootapi SHARED
             ${coot_src}/pli/protein-ligand-interactions.cc
             ${coot_src}/pli/pi-stacking.cc
             ${coot_src}/pli/sdf-interface.cc
+            ${coot_src}/coot-utils/cmtz-interface.cc
+            ${coot_src}/coot-utils/lidia-core-functions.cc
+            ${coot_src}/coot-utils/atom-selection-container.cc
             ${coot_src}/coot-utils/merge-atom-selections.cc
             ${coot_src}/coot-utils/coot-least-squares.cc
             ${coot_src}/coot-utils/diff-diff-map-peaks.cc

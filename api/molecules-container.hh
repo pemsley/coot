@@ -21,6 +21,7 @@
 #include "coot-utils/coot-coord-extras.hh" // the missing atoms type
 #include "coot-utils/coot-map-utils.hh"
 #include "utils/coot-utils.hh"
+#include "utils/setup-syminfo.hh"
 #include "ideal/simple-restraint.hh" // needed?
 #include "atom-pull.hh"
 #include "validation-information.hh"
@@ -294,6 +295,7 @@ class molecules_container_t {
       use_gemmi = true;
       imol_refinement_map = -1;
       imol_difference_map = -1;
+      setup_syminfo();
       mmdb::InitMatType();
       geometry_init_standard(); // do this by default now
       refinement_immediate_replacement_flag = true; // 20221018-PE for WebAssembly for the moment

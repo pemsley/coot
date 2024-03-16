@@ -12,6 +12,8 @@ Coot: what does electrostactics give us now?
 
 For next week: local resolution display in Moorhen
 
+"thread fill sections" - is debugging I think - get rid of it.
+
 libcootapi: set_user_defined_atom_colour_by_selection() should not be given a vector of pairs,
   it should be a vector of triples (trivial class) { selection_string, colour_index, Cs-only-flag }
 
