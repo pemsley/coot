@@ -20,15 +20,6 @@ jobs:
           path: /home/runner/install/chapi-Linux-ubuntu-gtk4
           key:  chapi-deps-ubuntu-using-python-3-10
 
-      # I don't understand what is going wrong with the test data cache.
-      # Let's not use it for now
-      # - name: Cache test data tar file
-      #   id:   chapi-ubuntu-cache-test-data-tar-file
-      #   uses: actions/cache@v4
-      #   with:
-      #      path: test-molecule-container-test-data.tar.gz
-      #      key:  chapi-build-ubuntu-cache-test-data-tar-file
-
       - name: download the monomer library
         run:  wget -nv https://github.com/MonomerLibrary/monomers/archive/refs/tags/ccp4-8.0.016.tar.gz
 
@@ -40,15 +31,15 @@ jobs:
         id: test-data-cache
         uses: actions/cache@v4
         with:
-          path: test-molecule-container-test-data.tar.gz
+          path: test-molecule-container-test-data-20240316.tar.gz
           key: ubuntu-test-data-cache
 
       - name: download test data
         # run:  wget -N -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
-        run: if [ $(wget --spider -S https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz |& awk '/^Length/ { print $2 }') != $(wc -c test-molecule-container-test-data.tar.gz |& awk '{print $1}') ] ; then if [ -e test-molecule-container-test-data.tar.gz ] ; then rm test-molecule-container-test-data.tar.gz ; fi && wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz ; fi
+        run: if [ $(wget --spider -S https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data-20240316.tar.gz |& awk '/^Length/ { print $2 }') != $(wc -c test-molecule-container-test-data-20240316.tar.gz |& awk '{print $1}') ] ; then if [ -e test-molecule-container-test-data-20240316.tar.gz ] ; then rm test-molecule-container-test-data-20240316.tar.gz ; fi && wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data-20240316.tar.gz ; fi
 
       - name: untar test data
-        run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data.tar.gz
+        run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data-20240316.tar.gz
 
       - name: Cache gemmi build
         id:   Cache-gemmi-build
