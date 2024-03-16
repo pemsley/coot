@@ -4436,8 +4436,8 @@ int test_read_extra_restraints(molecules_container_t &mc) {
 
    int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_2 = mc.read_pdb(reference_data("3pzt.pdb"));
-   if (mc.is_valid_model_molecule(imol_1) {
-      if (mc.is_valid_model_molecule(imol_1) {
+   if (mc.is_valid_model_molecule(imol_1)) {
+      if (mc.is_valid_model_molecule(imol_1)) {
          mc.read_extra_restraints(imol_1, reference_data("moorhen-tutorial-structure-number-1-prosmart.txt"));
          coot::instanced_mesh_t im = mc.get_extra_restraints_mesh(imol_1, 0);
          if (! im.geom.empty()) {
