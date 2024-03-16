@@ -20,12 +20,14 @@ jobs:
           path: /home/runner/install/chapi-Linux-ubuntu-gtk4
           key:  chapi-deps-ubuntu-using-python-3-10
 
-      - name: Cache test data tar file
-        id:   chapi-ubuntu-cache-test-data-tar-file
-        uses: actions/cache@v4
-        with:
-           path: test-molecule-container-test-data.tar.gz
-           key:  chapi-build-ubuntu-cache-test-data-tar-file
+      # I don't understand what is going wrong with the test data cache.
+      # Let's not use it for now
+      # - name: Cache test data tar file
+      #   id:   chapi-ubuntu-cache-test-data-tar-file
+      #   uses: actions/cache@v4
+      #   with:
+      #      path: test-molecule-container-test-data.tar.gz
+      #      key:  chapi-build-ubuntu-cache-test-data-tar-file
 
       - name: download the monomer library
         run:  wget -nv https://github.com/MonomerLibrary/monomers/archive/refs/tags/ccp4-8.0.016.tar.gz
