@@ -73,9 +73,11 @@ else()
 endif()
 
 # we can be on Apple, and also have access to homebrew dwarf and elf - but this typically not the case
+# should this actually be ENABLE_BACKWARD? (util/backward.cpp is not conditionally compiled)
 if (ENABLE_DWARF_ELF)
    find_library(libelf elf)
    find_library(libdwarf dw)
+   add_definitions(-DBACKWARD_HAS_DW)
    message("-- Enabled dwarf and elf")
 endif()
 
