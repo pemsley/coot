@@ -5675,7 +5675,7 @@ print_results_summary() {
          std::cout << "[32m⬤ ";
       }
       if (count%40 == 0) {
-         std::cout << "\n        ";
+         std::cout << "\n,       ";
       }
    }
    std::cout << "[m  failures: " << n_failed << "/" << n_tests << std::endl;
@@ -5686,7 +5686,7 @@ print_results_summary() {
          const auto &name   = result.first;
          const auto &status = result.second;
          if (status == 0) {
-            std::cout << "     " << name << std::endl;
+            std::cout << "FAIL:   " << name << std::endl;
          }
       }
    } else {
