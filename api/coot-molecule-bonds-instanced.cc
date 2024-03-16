@@ -723,10 +723,10 @@ coot::molecule_t::get_extra_restraints_mesh(int mode) const {
                   auto idB = make_instancing_data(atom_index_udd_handle, at_1, at_2, r.bond_dist, r.esd, geman_mcclure_alpha, 1);
                   igeom.instancing_data_B.push_back(idB);
                } else {
-                  std::cout << "WARNING:: no atom found " << r.atom_2 << std::endl;
+                  std::cout << "WARNING:: get_exta_restraints_mesh(): no atom found 2: " << r.atom_2 << std::endl;
                }
             } else {
-               std::cout << "WARNING:: no atom found " << r.atom_1 << std::endl;
+               std::cout << "WARNING:: get_exta_restraints_mesh(): no atom found 1: " << r.atom_1 << std::endl;
             }
          }
          im.add(igeom);
@@ -748,10 +748,10 @@ coot::molecule_t::get_extra_restraints_mesh(int mode) const {
                   auto idB = make_instancing_data(atom_index_udd_handle, at_1, at_2, r.bond_dist, r.esd, geman_mcclure_alpha, 2);
                   igeom.instancing_data_B.push_back(idB);
                } else {
-                  std::cout << "WARNING:: no atom found " << r.atom_2 << std::endl;
+                  std::cout << "WARNING:: get_extra_restraints_mesh(): GM no atom found 2: " << r.atom_2 << std::endl;
                }
             } else {
-               std::cout << "WARNING:: no atom found " << r.atom_1 << std::endl;
+               std::cout << "WARNING:: get_extra_restraints_mesh(): GM no atom found 1: " << r.atom_1 << std::endl;
             }
          }
          im.add(igeom);

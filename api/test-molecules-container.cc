@@ -4436,14 +4436,18 @@ int test_read_extra_restraints(molecules_container_t &mc) {
 
    int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_2 = mc.read_pdb(reference_data("3pzt.pdb"));
-   mc.read_extra_restraints(imol_1, reference_data("moorhen-tutorial-structure-number-1-prosmart.txt"));
-   coot::instanced_mesh_t im = mc.get_extra_restraints_mesh(imol_1, 0);
-   if (! im.geom.empty()) {
-      std::cout << "instancing_data_B size " << im.geom[0].instancing_data_B.size() << std::endl;
-      if (im.geom[0].instancing_data_B.size() > 10)
-         status = 1;
-   } else {
-      std::cout << "ERROR:: im geom is empty" << std::endl;
+   if (mc.is_valid_model_molecule(imol_1) {
+      if (mc.is_valid_model_molecule(imol_1) {
+         mc.read_extra_restraints(imol_1, reference_data("moorhen-tutorial-structure-number-1-prosmart.txt"));
+         coot::instanced_mesh_t im = mc.get_extra_restraints_mesh(imol_1, 0);
+         if (! im.geom.empty()) {
+            std::cout << "instancing_data_B size " << im.geom[0].instancing_data_B.size() << std::endl;
+            if (im.geom[0].instancing_data_B.size() > 10)
+               status = 1;
+         } else {
+            std::cout << "ERROR:: im geom is empty" << std::endl;
+         }
+      }
    }
    return status;
 }
@@ -5891,9 +5895,9 @@ int main(int argc, char **argv) {
       // status += run_test(test_make_ensemble,            "Make Ensemble", mc);
       // status += run_test(test_ligand_torsions, "ligand torsions", mc);
       // status += run_test(test_superpose, "SSM superpose ", mc);
-      //status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
-      //status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
-      //status += run_test(test_gltf_export,           "glTF export", mc);
+      // status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
+      // status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
+      // status += run_test(test_gltf_export,           "glTF export", mc);
       // status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
       // status += run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
       // status += run_test(test_is_em_map,             "EM map flag is correctly set?", mc);
