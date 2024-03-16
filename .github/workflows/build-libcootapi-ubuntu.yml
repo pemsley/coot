@@ -43,7 +43,7 @@ jobs:
 
       - name: download test data
         # run:  wget -N -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
-        run: if [ $(wget --spider -S https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz |& awk '/^Length/ { print $2 }') != $(wc -c test-molecule-container-test-data.tar.gz |& awk '{print $1}') ] ; then rm test-molecule-container-test-data.tar.gz && wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz ; fi
+        run: if [ $(wget --spider -S https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz |& awk '/^Length/ { print $2 }') != $(wc -c test-molecule-container-test-data.tar.gz |& awk '{print $1}') ] ; then if [ -e test-molecule-container-test-data.tar.gz ] ; then rm test-molecule-container-test-data.tar.gz ; fi && wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz ; fi
 
       - name: untar test data
         run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data.tar.gz
