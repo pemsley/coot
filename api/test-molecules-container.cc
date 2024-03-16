@@ -1043,20 +1043,16 @@ int test_add_terminal_residue(molecules_container_t &mc) {
    bool part_one_done = false;
    coot::atom_spec_t atom_spec_in_new_residue("A", 284, "", " O  ","");
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec_in_new_residue);
-   std::cout << "Here 1 A" << std::endl;
    if (! at_1) { // it's not there to begin with
-      std::cout << "Here 1 B" << std::endl;
       mc.add_terminal_residue_directly(imol, "A", 285, "");
       mc.write_coordinates(imol, "test-add-terminal-residue-with-added-terminal-residue.pdb");
       mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec_in_new_residue);
       if (at_2) {
-         std::cout << "Here 1 C" << std::endl;
          // now test that it is there
          coot::Cartesian reference_pos(76.3, 59, 23);
          coot::Cartesian atom_pos = atom_to_cartesian(at_2);
          double dd = coot::Cartesian::lengthsq(reference_pos, atom_pos);
          double d = std::sqrt(dd);
-         std::cout << "debug d1 in test_add_terminal_residue " << d << std::endl;
          if (d < 1.0)
             part_one_done = true;
       } else {
@@ -1105,7 +1101,7 @@ int test_add_terminal_residue(molecules_container_t &mc) {
 
       double ddt = coot::Cartesian::lengthsq(pt_3, pt_4);
       double dt = std::sqrt(ddt);
-      std::cout << " distance between peptide atoms " << dt << std::endl;
+      std::cout << "DEBUG:: distance between peptide atoms " << dt << std::endl;
       coot::Cartesian mid_point = pt_3.mid_point(pt_4);
       std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
       auto mesh = mc.get_bonds_mesh(imol, mode, true, 0.1, 1.0, 1);
@@ -1134,10 +1130,12 @@ int test_add_terminal_residue(molecules_container_t &mc) {
          part_four_done = true;
    }
 
-   std::cout << "part_one_done "   << part_one_done   << std::endl;
-   std::cout << "part_two_done "   << part_two_done   << std::endl;
-   std::cout << "part_three_done " << part_three_done << std::endl;
-   std::cout << "part_four_done "  << part_four_done  << std::endl;
+   if (false) {
+      std::cout << "part_one_done "   << part_one_done   << std::endl;
+      std::cout << "part_two_done "   << part_two_done   << std::endl;
+      std::cout << "part_three_done " << part_three_done << std::endl;
+      std::cout << "part_four_done "  << part_four_done  << std::endl;
+   }
 
    if (part_one_done && part_two_done && part_three_done && part_four_done)
       status = 1;
@@ -5216,7 +5214,7 @@ int test_change_chain_id(molecules_container_t &mc) {
 
    mol = mc.get_mol(imol);
    std::pair<int,int> C_min_max = get_min_max_in_chain(mol, "C");
-   std::cout << "C_min_max " << C_min_max.first << " " << C_min_max.second << std::endl;
+   // std::cout << "C_min_max " << C_min_max.first << " " << C_min_max.second << std::endl;
 
    if (r_1.first == 0) {
       if (r_2.first == 1) {

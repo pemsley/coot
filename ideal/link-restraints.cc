@@ -1509,7 +1509,8 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
                                             const std::string &link_id,
                                             bool order_switch_flag) {
 
-      std::cout << "link_type_filter_general() for " << link_id << std::endl;
+      if (false)
+         std::cout << "link_type_filter_general() starting with link_id " << link_id << std::endl;
 
       double dist_crit = 3.0; // A
       std::string found_link; // fail initially.
@@ -1564,8 +1565,9 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
             }
          }
       }
-      std::cout << "link_type_filter_general() checking type " << link_id << " and returns \""
-                << found_link << "\"" << std::endl;
+      if (false)
+         std::cout << "link_type_filter_general() checking type " << link_id << " and returns \""
+                   << found_link << "\"" << std::endl;
       return found_link;
    };
 
