@@ -4986,12 +4986,16 @@ int test_gltf_export_via_api(molecules_container_t &mc) {
 
    struct stat buf_1;
    int istat_1 = stat("map-around-ligand.glb", &buf_1);
+   std::cout << "stat for buf_1: " << istat_1 << std::endl;
    if (istat_1 == 0) {
+      std::cout << "buf_1 size: " << buf_1.st_size << std::endl;
       if (buf_1.st_size > 1000000) {
 
          struct stat buf_2;
          int istat_2 = stat("fat-ligand.glb", &buf_2);
+         std::cout << "stat for buf_2: " << istat_2 << std::endl;
          if (istat_2 == 0) {
+            std::cout << "buf_2 size: " << buf_2.st_size << std::endl;
             if (buf_2.st_size > 100000) {
                status = 1;
             }
