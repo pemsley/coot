@@ -1768,6 +1768,7 @@ int test_transformation_for_atom_selection(molecules_container_t &mc) {
          }
       }
    }
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -1802,6 +1803,7 @@ int test_new_position_for_atoms(molecules_container_t &mc) {
             status = 1;
       }
    }
+   mc.close_molecule(imol);
    return status;
 }
 
@@ -1818,7 +1820,6 @@ int test_new_position_for_atoms_in_residues(molecules_container_t &mc) {
    if (pos.first) {
       coot::Cartesian pos_pre = pos.second;
 
-      std::vector<coot::molecule_t::moved_atom_t> moved_atom_positions;
       std::vector<std::string> atom_names = {" N  ", " CA ", " C  ", " O  ", " CB ", " CG1", " CG2"};
       std::vector<coot::molecule_t::moved_residue_t> moved_atoms_residue_vec;
       coot::molecule_t::moved_residue_t mr("A", 20, "");
@@ -1839,6 +1840,7 @@ int test_new_position_for_atoms_in_residues(molecules_container_t &mc) {
             status = 1;
       }
    }
+   mc.close_molecule(imol);
    return status;
 }
 

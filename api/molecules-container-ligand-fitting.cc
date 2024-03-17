@@ -236,7 +236,8 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
                int find_ligand_n_top_ligands = 10;
 
                std::cout << "ooooooooooooooooooooooooooooo find_clusters()" << std::endl;
-               wlig.find_clusters(n_rmsd);  // trashes the xmap
+               bool water_cluster_mode = false;
+               wlig.find_clusters(n_rmsd, water_cluster_mode);  // trashes the xmap
                std::cout << "ooooooooooooooooooooooooooooo set_acceptable_fit_fraction()" << std::endl;
                wlig.set_acceptable_fit_fraction(ligand_acceptable_fit_fraction);
                std::cout << "ooooooooooooooooooooooooooooo fit_ligands_to_clusters()" << std::endl;
