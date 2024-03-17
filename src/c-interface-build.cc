@@ -3321,7 +3321,6 @@ void trim_molecule_by_b_factor(int imol, float limit, short int keep_higher) {
 
    if (is_valid_model_molecule(imol)) {
       bool keep_higher_flag = keep_higher;
-      std::cout << "calling trim_molecule_by_b_factor() " << limit << " " << keep_higher_flag << std::endl;
       graphics_info_t::molecules[imol].trim_molecule_by_b_factor(limit, keep_higher_flag);
    } else {
       std::cout << "WARNING:: " << imol << " is not a valid model molecule" << std::endl;
