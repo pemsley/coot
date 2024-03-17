@@ -28,7 +28,7 @@ void setup_syminfo() {
       // using PKGDATADIR will work for those who compiler, not the
       // binary users:
       std::string standard_file_name = coot::package_data_dir();
-      standard_file_name += "/";
+      standard_file_name += "/data/";
       standard_file_name += "syminfo.lib";
 
       struct stat buf;
