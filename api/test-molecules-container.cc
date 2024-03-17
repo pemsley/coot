@@ -902,7 +902,7 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
          double d_N_1 =  std::sqrt(dd_N_1);
          double d_N_2 =  std::sqrt(dd_N_2);
          double d_N_3 =  std::sqrt(dd_N_3);
-         // std::cout << "ds: " << d_N_1 << " " << d_N_2 << " " << d_N_3 << std::endl;
+         std::cout << "DEBUG:: ds: " << d_N_1 << " " << d_N_2 << " " << d_N_3 << std::endl;
          if (d_N_1 < 0.0001)  // no move
             if (d_N_3 < 0.0001) // no move
                if (d_N_2 > 0.08) // move a bit
@@ -911,6 +911,7 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
       }
    }
    mc.close_molecule(imol_map);
+   mc.close_molecule(imol);
    return status;
 }
 
