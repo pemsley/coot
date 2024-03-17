@@ -889,7 +889,7 @@ int test_rsr_using_residue_range(molecules_container_t &mc) {
          coot::Cartesian atom_pos_N_2_1 = atom_to_cartesian(at_N_2);
          coot::Cartesian atom_pos_N_3_1 = atom_to_cartesian(at_N_3);
          float w = mc.get_map_weight();
-         // mc.set_map_weight(w * 100.0);
+         mc.set_map_weight(w * 10.0);
          int n_cycles = 500;
          mc.refine_residue_range(imol, "A", 131, 136, n_cycles);
          mc.set_map_weight(w); // restore sanity.
