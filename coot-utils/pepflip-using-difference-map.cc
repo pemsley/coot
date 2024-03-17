@@ -51,7 +51,7 @@ coot::pepflip_using_difference_map::get_suggested_flips(float n_sigma) const {
       if (delta > cut) {
          residue_spec_t spec(t.CA_this->residue);
          rv.push_back(spec);
-         std::cout << "INFO:: Adding pepflip: " << spec << " z: " << delta/sd << std::endl;
+         // std::cout << "INFO:: Adding pepflip: " << spec << " z: " << delta/sd << std::endl;
       }
    }
 
