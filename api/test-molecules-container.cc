@@ -1153,8 +1153,8 @@ int test_add_terminal_residue_v2(molecules_container_t &molecules_container) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int coordMolNo = molecules_container.read_pdb("./5a3h.mmcif");
-   int mapMolNo = molecules_container.read_mtz("./5a3h_sigmaa.mtz", "FWT", "PHWT", "", false, false);
+   int coordMolNo = molecules_container.read_pdb(reference_data("./5a3h.mmcif"));
+   int mapMolNo = molecules_container.read_mtz(reference_data("./5a3h_sigmaa.mtz"), "FWT", "PHWT", "", false, false);
    molecules_container.set_imol_refinement_map(mapMolNo);
 
    int atom_count_1 = molecules_container.get_number_of_atoms(coordMolNo);
@@ -2689,8 +2689,8 @@ int test_replace_large_fragment(molecules_container_t &mc) {
    // speed test the replacement
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol = mc.read_pdb("pdb8oie.ent");
-   int imol_map = mc.read_ccp4_map("emd_16890.map", false);
+   int imol = mc.read_pdb(reference_data("pdb8oie.ent"));
+   int imol_map = mc.read_ccp4_map(reference_data("emd_16890.map"), false);
    mc.set_refinement_is_verbose(false);
    mc.import_cif_dictionary("CLF.cif", coot::protein_geometry::IMOL_ENC_ANY);
    mc.import_cif_dictionary("HCA.cif", coot::protein_geometry::IMOL_ENC_ANY);
@@ -3298,7 +3298,7 @@ int test_mmrrcc(molecules_container_t &mc) {
 
    if (false) {
       // Filo's example 11729 and 7adk
-      imol = mc.read_pdb("pdb7adk.ent");
+      imol = mc.read_pdb(reference_data("pdb7adk.ent"));
       imol_map = mc.read_ccp4_map(reference_data("emd_11729.map"), 0);
       auto results = mc.mmrrcc(imol, "B", imol_map);
       auto mcc = results.first;
@@ -3582,7 +3582,7 @@ int test_rigid_body_fit(molecules_container_t &mc) {
    status = mc.rigid_body_fit(imol, multi_cids, imol_map);
 
    if (status == 1) {
-      int imol_lig = mc.read_pdb("misplaced-moorhen-tutorial-1-ligand.pdb");
+      int imol_lig = mc.read_pdb(reference_data("misplaced-moorhen-tutorial-1-ligand.pdb"));
       coot::validation_information_t vi_0 = mc.density_correlation_analysis(imol_lig, imol_map);
       status = mc.rigid_body_fit(imol_lig, "//A/301", imol_map);
       coot::validation_information_t vi_1 = mc.density_correlation_analysis(imol_lig, imol_map);
@@ -4461,7 +4461,7 @@ int test_colour_map_by_other_map(molecules_container_t &mc) {
    int status = 0;
 
    int imol_map_1 = mc.read_ccp4_map(reference_data("emd_16890.map"), false);
-   int imol_map_2 = mc.read_ccp4_map("scale_res_emd_16890.mrc", false);
+   int imol_map_2 = mc.read_ccp4_map(reference_data("scale_res_emd_16890.mrc"), false);
    if (mc.is_valid_map_molecule(imol_map_1)) {
       if (mc.is_valid_map_molecule(imol_map_2)) {
          coot::simple_mesh_t mesh = mc.get_map_contours_mesh_using_other_map_for_colours(imol_map_1, imol_map_2,
@@ -5455,7 +5455,7 @@ int test_ligand_torsions(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol_lig = mc.read_pdb("LZA-wiggled.pdb");
+   int imol_lig = mc.read_pdb(reference_data("LZA-wiggled.pdb"));
    int imol_ref = mc.get_monomer("LZA");
 
    if (mc.is_valid_model_molecule(imol_lig)) {
@@ -5466,7 +5466,7 @@ int test_ligand_torsions(molecules_container_t &mc) {
          mc.write_coordinates(imol_lig, "LZA-unwiggled.pdb");
 
          // now a different molecule:
-         mc.import_cif_dictionary("acedrg-LZB.cif", coot::protein_geometry::IMOL_ENC_ANY);
+         mc.import_cif_dictionary(reference_data("acedrg-LZB.cif"), coot::protein_geometry::IMOL_ENC_ANY);
          int imol_lzb = mc.get_monomer("LZB");
          mc.match_ligand_torsions_and_position_using_cid(imol_lzb, imol_ref, "//A/1");
          mc.write_coordinates(imol_lzb, "LZB-fit.pdb");

@@ -4,16 +4,14 @@
 int test_multiligands_lig_bonding(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol_paul_prot = mc.read_pdb("moorhen-tutorial-structure-number-1.pdb");
-   int imol_lucr_prot = mc.read_pdb("moorhen-tutorial-structure-number-2.pdb");
-   mc.import_cif_dictionary("00Z_for_prot1.cif", imol_paul_prot);
-   mc.import_cif_dictionary("00Z_for_prot2.cif", imol_lucr_prot);
+   int imol_paul_prot = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_lucr_prot = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-2.pdb"));
+   mc.import_cif_dictionary(reference_data("00Z_for_prot1.cif"), imol_paul_prot);
+   mc.import_cif_dictionary(reference_data("00Z_for_prot2.cif"), imol_lucr_prot);
    coot::protein_geometry &geom= mc.get_geometry();
    
-   std::pair<bool, coot::dictionary_residue_restraints_t> lig1_pair= 
-   geom.get_monomer_restraints("00Z", imol_paul_prot);
-   std::pair<bool, coot::dictionary_residue_restraints_t> lig2_pair= 
-   geom.get_monomer_restraints("00Z", imol_lucr_prot);
+   std::pair<bool, coot::dictionary_residue_restraints_t> lig1_pair = geom.get_monomer_restraints("00Z", imol_paul_prot);
+   std::pair<bool, coot::dictionary_residue_restraints_t> lig2_pair = geom.get_monomer_restraints("00Z", imol_lucr_prot);
    if (lig1_pair.first) {
       if (lig2_pair.first) {
          std::cout << "found both dictionaries\n";
