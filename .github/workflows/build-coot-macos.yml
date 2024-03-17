@@ -92,8 +92,8 @@ jobs:
       # don't stall waiting for user input to resolve the failed patch
       run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD || true > $HOME/brew.log >&2
 
-    - name: cat the brew log
-      run:  cat /Users/runner/Library/Logs/Homebrew/coot/*.make
+    # - name: cat the brew log
+    #   run:  cat /Users/runner/Library/Logs/Homebrew/coot/*.make
 
     - name: Upload brew log
       uses: actions/upload-artifact@v4
