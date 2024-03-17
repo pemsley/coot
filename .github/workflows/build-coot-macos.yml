@@ -83,9 +83,9 @@ jobs:
       run:  brew install python-requests
 
     - name: Get coot.rb file
-      # run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
       # try this modified version for now:
-      run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot.rb
+      # run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot.rb
+      run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
 
     # this doesn't work - currently a failure in compiling M2T
     - name: Compile Homebrew coot HEAD
