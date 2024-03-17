@@ -4010,7 +4010,7 @@ int test_map_centre(molecules_container_t &mc) {
    std::cout << "new centre: " << mci.updated_centre.format() << std::endl;
    if (mci.success == true) {
       std::cout << "map centre success " << std::endl;
-      if (mci.updated_centre.x() > 10.0)
+      if (mci.updated_centre.z() > 10.0)
          status = 1;
    }
    mc.close_molecule(imol_map);
