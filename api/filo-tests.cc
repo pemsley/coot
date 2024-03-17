@@ -70,11 +70,11 @@ int test_get_diff_map_peaks(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int coordMolNo   = mc.read_pdb("./5a3h.pdb");
-   int mapMolNo     = mc.read_mtz("./5a3h_sigmaa.mtz", "FWT",    "PHWT",    "FOM", false, false);
-   int diffMapMolNo = mc.read_mtz("./5a3h_sigmaa.mtz", "DELFWT", "PHDELWT", "FOM", false, true);
+   int coordMolNo   = mc.read_pdb(reference_data("5a3h.pdb"));
+   int mapMolNo     = mc.read_mtz(reference_data("5a3h_sigmaa.mtz"), "FWT",    "PHWT",    "FOM", false, false);
+   int diffMapMolNo = mc.read_mtz(reference_data("5a3h_sigmaa.mtz"), "DELFWT", "PHDELWT", "FOM", false, true);
 
-   mc.associate_data_mtz_file_with_map(mapMolNo, "./5a3h_sigmaa.mtz", "FP", "SIGFP", "FREE");
+   mc.associate_data_mtz_file_with_map(mapMolNo, reference_data("5a3h_sigmaa.mtz"), "FP", "SIGFP", "FREE");
 
    mc.connect_updating_maps(coordMolNo, mapMolNo, mapMolNo, diffMapMolNo);
    // if sfcalc_genmaps_using_bulk_solvent() fails stats.r_factor is -1
@@ -112,7 +112,7 @@ int test_non_drawn_bond_multi_cid_2(molecules_container_t &mc) {
    int status = 0;
 
    mc.set_use_gemmi(false);
-   int coordMolNo = mc.read_pdb("./5a3h.pdb");
+   int coordMolNo = mc.read_pdb(reference_data("5a3h.pdb"));
    if (mc.is_valid_model_molecule(coordMolNo)) {
       auto instanceMesh_1 = mc.get_bonds_mesh_for_selection_instanced(
          coordMolNo, "//A/10-20||//A/25-30", "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1, 1, 1);
@@ -157,7 +157,7 @@ int test_change_chain_id_1(molecules_container_t &molecules_container) {
    int status = 0;
 
    molecules_container.set_use_gemmi(false);
-   int coordMolNo = molecules_container.read_pdb("./5a3h.pdb");
+   int coordMolNo = molecules_container.read_pdb(reference_data("5a3h.pdb"));
    molecules_container.delete_colour_rules(coordMolNo);
 
    // let colourMap = new cootModule.MapIntFloat3();

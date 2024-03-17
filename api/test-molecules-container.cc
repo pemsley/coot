@@ -2692,13 +2692,13 @@ int test_replace_large_fragment(molecules_container_t &mc) {
    int imol = mc.read_pdb(reference_data("pdb8oie.ent"));
    int imol_map = mc.read_ccp4_map(reference_data("emd_16890.map"), false);
    mc.set_refinement_is_verbose(false);
-   mc.import_cif_dictionary("CLF.cif", coot::protein_geometry::IMOL_ENC_ANY);
-   mc.import_cif_dictionary("HCA.cif", coot::protein_geometry::IMOL_ENC_ANY);
-   mc.import_cif_dictionary("S5Q.cif", coot::protein_geometry::IMOL_ENC_ANY);
-   mc.import_cif_dictionary("ADP.cif", coot::protein_geometry::IMOL_ENC_ANY);
-   mc.import_cif_dictionary( "MG.cif", coot::protein_geometry::IMOL_ENC_ANY);
-   mc.import_cif_dictionary("AF3.cif", coot::protein_geometry::IMOL_ENC_ANY);
-   mc.import_cif_dictionary("SF4.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("CLF.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("HCA.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("S5Q.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("ADP.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data( "MG.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("AF3.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("SF4.cif"), coot::protein_geometry::IMOL_ENC_ANY);
 
    int imol_new =  mc.copy_fragment_for_refinement_using_cid(imol, "/");
    mc.init_refinement_of_molecule_as_fragment_based_on_reference(imol_new, imol, imol_map);
@@ -3714,7 +3714,7 @@ int test_replace_model_from_file(molecules_container_t &mc) {
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
          std::string rn_1 = at_1->GetResidue()->GetResName();
-         mc.replace_molecule_by_model_from_file(imol, "3pzt.pdb");
+         mc.replace_molecule_by_model_from_file(imol, reference_data("3pzt.pdb"));
          mmdb::Atom *at_2 = mc.get_atom(imol, atom_spec);
          if (at_2) {
             std::string rn_2 = at_2->GetResidue()->GetResName();
