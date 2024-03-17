@@ -19,12 +19,6 @@ jobs:
     #      path: /usr/local
     #      key: usr_local_homebrew
 
-    - name: download test data
-      run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
-
-    - name: untar test data
-      run:  tar xvf test-molecule-container-test-data.tar.gz
-
     - name: Which brew?
       run:  which brew
 
@@ -103,5 +97,5 @@ jobs:
         retention-days: 3
 
     - name: Does it run?
-      run: coot --no-graphics < /dev/null
+      run: /usr/local/bin/coot --no-graphics < /dev/null
 
