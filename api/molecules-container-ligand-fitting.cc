@@ -235,12 +235,8 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
                float ligand_acceptable_fit_fraction = 0.85; // was 0.75
                int find_ligand_n_top_ligands = 10;
 
-               std::cout << "ooooooooooooooooooooooooooooo find_clusters()" << std::endl;
-               bool water_cluster_mode = false;
-               wlig.find_clusters(n_rmsd, water_cluster_mode);  // trashes the xmap
-               std::cout << "ooooooooooooooooooooooooooooo set_acceptable_fit_fraction()" << std::endl;
+               wlig.find_clusters(n_rmsd);  // trashes the xmap
                wlig.set_acceptable_fit_fraction(ligand_acceptable_fit_fraction);
-               std::cout << "ooooooooooooooooooooooooooooo fit_ligands_to_clusters()" << std::endl;
                wlig.fit_ligands_to_clusters(find_ligand_n_top_ligands); // 10 clusters
 
                // now add in the solution ligands: 20231121-PE (What did I mean by this?)
@@ -250,8 +246,6 @@ molecules_container_t::fit_ligand(int imol_protein, int imol_map, int imol_ligan
                for (int iclust=0; iclust<n_clusters; iclust++) {
 
                   if (wlig.n_ligands_for_cluster(iclust) > 0) {
-
-                     std::cout << "ooooooooooooooooooooooooooooo making solution molecules for iclust " << iclust << std::endl;
 
                      float frac_lim = 0.9;
                      float correl_frac_lim = 0.9;

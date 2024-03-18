@@ -550,7 +550,7 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
       n_clusters = 0;
       cluster.clear();
       bool water_cluster_mode = true;
-      find_clusters_internal(z_cutoff, water_cluster_mode, sampled_protein_coords); // fill cluster
+      find_clusters_internal(z_cutoff, sampled_protein_coords); // fill cluster
       std::cout << "-------------------------------------------------" << std::endl;
 
       std::cout << "DEBUG:: found " << cluster.size()

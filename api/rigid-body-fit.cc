@@ -56,9 +56,8 @@ coot::api::rigid_body_fit(mmdb::Manager *mol, int udd_atom_selection_fitting_ato
 
    bool fill_masking_molecule_flag = true;
    coot::ligand lig;
-   std::pair<coot::minimol::molecule, coot::minimol::molecule> p = coot::make_mols_from_atom_selection(mol,
-                                                                                                       udd_atom_selection_fitting_atoms,
-                                                                                                       fill_masking_molecule_flag);
+   std::pair<coot::minimol::molecule, coot::minimol::molecule> p =
+      coot::make_mols_from_atom_selection(mol, udd_atom_selection_fitting_atoms, fill_masking_molecule_flag);
    const minimol::molecule &mol_without_moving_atoms = p.first;
    const minimol::molecule &mol_for_moving_atoms     = p.second;
 

@@ -43,18 +43,16 @@
 
 namespace coot {
 
-   //! @return a molecule of atoms (first) used to mask the map
-   //! (i.e. those not in the selection) and (second) a molecule of
-   //! atoms in the selection [strange but true]
+   // return a molecule of atoms (first) used to mask the map
+   // (i.e. those not in the selection) and (second) a molecule of
+   // atoms in the selection [strange but true]
    //
    std::pair<minimol::molecule, minimol::molecule>
-      make_mols_from_atom_selection_string(mmdb::Manager *mol,
-					   std::string atom_selection_string,
-					   bool fill_masking_molecule_flag);
+   make_mols_from_atom_selection_string(mmdb::Manager *mol,
+                                        std::string atom_selection_string,
+                                        bool fill_masking_molecule_flag);
 
-   //! As above, but send the UDD for the atom selection (type mmdb::STYPE_ATOM).
-   //! Note, unlike above however, the caller is control of the atom selection, we don't delete it here.
-   std::pair<minimol::molecule, minimol::molecule>
+   std::pair<coot::minimol::molecule, coot::minimol::molecule>
    make_mols_from_atom_selection(mmdb::Manager *mol,
                                  int udd_atom_selection_fitting_atoms,
                                  bool fill_masking_molecule_flag);
@@ -179,7 +177,7 @@ namespace coot {
 
 
       // make this private?
-      void fit_ligands_to_cluster(int ilig, unsigned int max_n_clusters);
+      void fit_ligands_to_cluster(int ilig);
 
       // clipper::RTop_orth ligand_transformation(int i_cluster) const; // old
       clipper::Coord_orth transform_ligand_atom(const clipper::Coord_orth &a_in,
@@ -254,11 +252,7 @@ namespace coot {
       // So that we only sample the coords once, not for every round
       // of water picking.
       void find_clusters_internal(float z_cutoff,
-                                  bool water_cluster_mode,
 				  const std::vector<clipper::Coord_orth> &sampled_protein_coords);
-
-      // exlude water-sized blobs
-      unsigned int get_min_grid_points_for_a_ligand(const clipper::Xmap<float> &xmap) const;
 
       // we use these in residue_by_phi_psi:
       //
@@ -333,7 +327,7 @@ namespace coot {
 
       // single entities for rigid body refinement do not need size
       // matching.  It only causes problems with grid sampling...
-      bool do_size_match_test;
+      short int do_size_match_test;
 
       // save the z cut off for waters
       float z_cut_off_in_save;
@@ -554,7 +548,9 @@ namespace coot {
       // a number between 0 (none) and 1.0 (all) atoms need to be
       // positive (initally set to 0.75)
       //
-      void set_acceptable_fit_fraction(float f) { fit_fraction = f; }
+      void set_acceptable_fit_fraction(float f) {
+         fit_fraction = f;
+      }
       //
 
       //
