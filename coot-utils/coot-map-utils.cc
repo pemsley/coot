@@ -2063,7 +2063,6 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
          std::cout << "   " << specs[ilocal] << std::endl;
    }
 
-   std::cout << "here with specs.size() " << specs.size() << std::endl;
    for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++) {
 
       std::string res_name_selection  = "*";

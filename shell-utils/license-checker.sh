@@ -18,8 +18,21 @@ do
         fi
     done
     if [ $check_this = true ] ; then
-       echo check this $file
-       :
+        extension="${file##*.}"
+        if [ "$extension" = ".png" ] ; then
+            check_this=false
+        fi
+        if [ "$extension" = ".tab" ] ; then
+            check_this=false
+        fi
+        if [ -d $file ] ; then
+           check_this=false
+        fi
+        if [ $check_this = true ] ; then
+            echo check this $file
+            head -20 $file | grep -i license
+            head -20 $file | grep -i copyright
+        fi
     else
        echo pass $file
     fi
