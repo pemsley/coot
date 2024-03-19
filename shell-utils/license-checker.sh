@@ -29,7 +29,7 @@ do
            check_this=false
         fi
         if [ $check_this = true ] ; then
-            echo check this $file
+            echo "" ----- $file
             head -20 $file | grep -i license
             head -20 $file | grep -i copyright
         fi

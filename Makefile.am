@@ -70,7 +70,6 @@ EXTRA_DIST = 		\
 	count-loc 	\
 	a6.glade        \
 	single-map-properties-dialog.glade \
-	colours.def	\
 	my.supp		\
 	guile.supp	\
 	windows/syminfo.lib	\

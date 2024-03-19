@@ -1,3 +1,4 @@
+#
 # Copyright 2007 The University of York
 # Author: Paul Emsley
 #
