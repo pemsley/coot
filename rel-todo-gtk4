@@ -1,6 +1,10 @@
 
 ----
 
+libcootapi: when generating conformers, throw away the conformes that hamve many nbs (dont do minimization)
+
+libcootapi: remove the sphere test when generating map contours.
+
 libcootapi: remove static things in the molecules_container
 
 Coot: Save Coords is not working again.
