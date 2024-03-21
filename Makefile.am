@@ -114,7 +114,7 @@ EXTRA_DIST = 		\
 
 # packdatadir is xxx/share/coot
 subpkgdatadir = $(pkgdatadir)
-subpkgdata_DATA = standard-residues.pdb colours.def
+subpkgdata_DATA = standard-residues.pdb
 
 
 appdatadir = ${datarootdir}/appdata
