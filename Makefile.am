@@ -70,7 +70,6 @@ EXTRA_DIST = 		\
 	count-loc 	\
 	a6.glade        \
 	single-map-properties-dialog.glade \
-	colours.def	\
 	my.supp		\
 	guile.supp	\
 	windows/syminfo.lib	\
@@ -115,7 +114,7 @@ EXTRA_DIST = 		\
 
 # packdatadir is xxx/share/coot
 subpkgdatadir = $(pkgdatadir)
-subpkgdata_DATA = standard-residues.pdb colours.def
+subpkgdata_DATA = standard-residues.pdb
 
 
 appdatadir = ${datarootdir}/appdata

@@ -30,8 +30,8 @@
 #include <fstream>
 
 #include <queue> // new fangled idea from Kevin (to do the flood
-		 // filling and keeping the ligand centres via
-		 // Coord_grids).
+                 // filling and keeping the ligand centres via
+                 // Coord_grids).
 
 #include <algorithm>
 
@@ -175,11 +175,11 @@ coot::ligand::ligand() {
    // component should be zero).
    //
    rotation_component[0] = clipper::RTop_orth(clipper::Mat33<double>(0,0,0,0,0,1,0,-1,0),
-					      clipper::Coord_frac(0,0,0));
+                                              clipper::Coord_frac(0,0,0));
    rotation_component[1] = clipper::RTop_orth(clipper::Mat33<double>(0,0,-1,0,0,0,1,0,0),
-					      clipper::Coord_frac(0,0,0));
+                                              clipper::Coord_frac(0,0,0));
    rotation_component[2] = clipper::RTop_orth(clipper::Mat33<double>(0,1,0,-1,0,0,0,0,0),
-					      clipper::Coord_frac(0,0,0));
+                                              clipper::Coord_frac(0,0,0));
 
    // gets set later, hopefully
    map_rms = -1.0;
@@ -191,8 +191,8 @@ coot::ligand::ligand() {
 //    if (fitted_ligand_vec.size() > 0) {
 //       // need to delete the ligand because of mmdb usage
 //       for (int i=0; i<fitted_ligand_vec.size(); i++) {
-// 	 std::cout << "destructing ligand " << i << std::endl;
-// 	 delete fitted_ligand_vec[i];
+//          std::cout << "destructing ligand " << i << std::endl;
+//          delete fitted_ligand_vec[i];
 //       }
 //    }
 // }
@@ -244,12 +244,12 @@ coot::ligand::import_map_from(const clipper::Xmap<float> &map_in, float rms_map_
 
 short int
 coot::ligand::map_fill_from_mtz(std::string mtz_file_name,
-				std::string f_col,
-				std::string phi_col,
-				std::string weight_col,
-				short int use_weights,
-				short int is_diff_map,
-				float map_sampling_rate) { // 1.5 default
+                                std::string f_col,
+                                std::string phi_col,
+                                std::string weight_col,
+                                short int use_weights,
+                                short int is_diff_map,
+                                float map_sampling_rate) { // 1.5 default
 
    std::cout << "............................. map_fill_from_mtz " << mtz_file_name << std::endl;
    clipper::HKL_info myhkl;
@@ -279,7 +279,7 @@ coot::ligand::map_fill_from_mtz(std::string mtz_file_name,
      std::cout << "We should use the weights: " << weight_col << std::endl;
 
      fphidata.compute(f_sigf_data, phi_fom_data,
-		      clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
+                      clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
 
   } else {
      clipper::String dataname = "/*/*/[" + f_col + " " + phi_col + "]";
@@ -290,9 +290,9 @@ coot::ligand::map_fill_from_mtz(std::string mtz_file_name,
 
   std::cout << "finding ASU unique map points..." << std::endl;
   clipper::Grid_sampling gs(myhkl.spacegroup(),
-			    myhkl.cell(),
-			    myhkl.resolution(),
-			    map_sampling_rate);
+                            myhkl.cell(),
+                            myhkl.resolution(),
+                            map_sampling_rate);
   xmap_pristine.init(myhkl.spacegroup(), myhkl.cell(), gs);
 
   std::cout << "Grid..." << std::string(xmap_pristine.grid_sampling().format()).c_str() << "\n";
@@ -336,14 +336,14 @@ coot::ligand::mask_map(mmdb::Manager *mol, short int mask_waters_flag) {
 
       std::string res_name (atoms[i]->residue->name);
       if (mask_waters_flag) {
-	 mask_around_coord(co, atom_radius);  // mask xmap_masked
+         mask_around_coord(co, atom_radius);  // mask xmap_masked
       } else {
-	 // don't mask waters
-	 if (res_name != "WAT" && res_name != "HOH" ) {
-// 	    std::cout << "DEBUG:: masking around " << co.format() << " "
-// 		      << atom_radius << std::endl;
-	    mask_around_coord(co,atom_radius);  // masks xmap_cluster (implicitly).
-	 }
+         // don't mask waters
+         if (res_name != "WAT" && res_name != "HOH" ) {
+//             std::cout << "DEBUG:: masking around " << co.format() << " "
+//                       << atom_radius << std::endl;
+            mask_around_coord(co,atom_radius);  // masks xmap_cluster (implicitly).
+         }
       }
    }
    xmap_masked = xmap_cluster;
@@ -352,8 +352,8 @@ coot::ligand::mask_map(mmdb::Manager *mol, short int mask_waters_flag) {
 
 void
 coot::ligand::mask_map(mmdb::Manager *mol,
-		       int SelectionHandle,
-		       short int invert_flag) {
+                       int SelectionHandle,
+                       short int invert_flag) {
    // if invert_flag is 0 put the map to 0
    // where the atoms are.  If 1, put map to
    // 0 where the atoms are not (e.g. ligand
@@ -366,10 +366,10 @@ coot::ligand::mask_map(mmdb::Manager *mol,
 
    if (invert_flag == 0) {
       for (int i=0; i<n_selected_atoms; i++) {
-	 clipper::Coord_orth co(atom_selection[i]->x,
-				atom_selection[i]->y,
-				atom_selection[i]->z);
-	 mask_around_coord(co, map_atom_mask_radius); // mask xmap_cluster
+         clipper::Coord_orth co(atom_selection[i]->x,
+                                atom_selection[i]->y,
+                                atom_selection[i]->z);
+         mask_around_coord(co, map_atom_mask_radius); // mask xmap_cluster
       }
 
    } else {
@@ -428,28 +428,28 @@ coot::ligand::mask_map(bool mask_waters_flag) {
    std::cout << "masking....";
    for (unsigned int ifrag=0; ifrag<protein_atoms.fragments.size(); ifrag++) {
       for (int ires=protein_atoms.fragments[ifrag].min_res_no();
-	   ires<=protein_atoms.fragments[ifrag].max_residue_number();
-	   ires++) {
-	 if (mask_waters_flag) {
+           ires<=protein_atoms.fragments[ifrag].max_residue_number();
+           ires++) {
+         if (mask_waters_flag) {
 
-	    // no special test needed
-	    for (unsigned int iatom=0;
-		 iatom<protein_atoms.fragments[ifrag][ires].atoms.size();
-		 iatom++) {
-	       mask_around_coord(protein_atoms[ifrag][ires][iatom].pos, atom_radius);
-	    }
+            // no special test needed
+            for (unsigned int iatom=0;
+                 iatom<protein_atoms.fragments[ifrag][ires].atoms.size();
+                 iatom++) {
+               mask_around_coord(protein_atoms[ifrag][ires][iatom].pos, atom_radius);
+            }
 
-	 } else {
-	    // we need to test if this residue is a water
-	    if (protein_atoms[ifrag][ires].name != "WAT" &&
-		protein_atoms[ifrag][ires].name != "HOH") {
-	       for (unsigned int iatom=0;
-		    iatom<protein_atoms.fragments[ifrag][ires].atoms.size();
-		    iatom++) {
-		  mask_around_coord(protein_atoms[ifrag][ires][iatom].pos, atom_radius);
-	       }
-	    }
-	 }
+         } else {
+            // we need to test if this residue is a water
+            if (protein_atoms[ifrag][ires].name != "WAT" &&
+                protein_atoms[ifrag][ires].name != "HOH") {
+               for (unsigned int iatom=0;
+                    iatom<protein_atoms.fragments[ifrag][ires].atoms.size();
+                    iatom++) {
+                  mask_around_coord(protein_atoms[ifrag][ires][iatom].pos, atom_radius);
+               }
+            }
+         }
       }
    }
    xmap_masked = xmap_cluster;
@@ -466,17 +466,17 @@ coot::ligand::mask_around_coord(const clipper::Coord_orth &co, float atom_radius
    clipper::Coord_frac cf = co.coord_frac(xmap_cluster.cell());
 
    clipper::Coord_frac box0(
-			    cf.u() - atom_radius/xmap_cluster.cell().descr().a(),
-			    cf.v() - atom_radius/xmap_cluster.cell().descr().b(),
-			    cf.w() - atom_radius/xmap_cluster.cell().descr().c());
+                            cf.u() - atom_radius/xmap_cluster.cell().descr().a(),
+                            cf.v() - atom_radius/xmap_cluster.cell().descr().b(),
+                            cf.w() - atom_radius/xmap_cluster.cell().descr().c());
 
    clipper::Coord_frac box1(
-			    cf.u() + atom_radius/xmap_cluster.cell().descr().a(),
-			    cf.v() + atom_radius/xmap_cluster.cell().descr().b(),
-			    cf.w() + atom_radius/xmap_cluster.cell().descr().c());
+                            cf.u() + atom_radius/xmap_cluster.cell().descr().a(),
+                            cf.v() + atom_radius/xmap_cluster.cell().descr().b(),
+                            cf.w() + atom_radius/xmap_cluster.cell().descr().c());
 
    clipper::Grid_map grid(box0.coord_grid(xmap_cluster.grid_sampling()),
-			  box1.coord_grid(xmap_cluster.grid_sampling()));
+                          box1.coord_grid(xmap_cluster.grid_sampling()));
 
    float atom_radius_sq = atom_radius * atom_radius;
    int nhit = 0;
@@ -485,19 +485,19 @@ coot::ligand::mask_around_coord(const clipper::Coord_orth &co, float atom_radius
    clipper::Xmap_base::Map_reference_coord ix( xmap_cluster, grid.min() ), iu, iv, iw;
    for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
       for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
-	 for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
-	    if ( (iw.coord().coord_frac(xmap_cluster.grid_sampling()).coord_orth(xmap_cluster.cell()) - co).lengthsq() < atom_radius_sq) {
- 	       // std::cout << "masked " << masked_map_val << " point at "
-	       // << iw.coord().coord_frac(xmap_masked.grid_sampling()).coord_orth(xmap_masked.cell()).format()
-	       // << " centre point: " << co.format() << " "
-	       //  			 << (iw.coord().coord_frac(xmap_masked.grid_sampling()).coord_orth(xmap_masked.cell()) - co).lengthsq()
-	       //  			 << std::endl;
-	       xmap_cluster[iw] = masked_map_val;
-	       nhit++;
-	    } else {
-	       nmiss++;
-	    }
-	 }
+         for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+            if ( (iw.coord().coord_frac(xmap_cluster.grid_sampling()).coord_orth(xmap_cluster.cell()) - co).lengthsq() < atom_radius_sq) {
+                // std::cout << "masked " << masked_map_val << " point at "
+               // << iw.coord().coord_frac(xmap_masked.grid_sampling()).coord_orth(xmap_masked.cell()).format()
+               // << " centre point: " << co.format() << " "
+               //                           << (iw.coord().coord_frac(xmap_masked.grid_sampling()).coord_orth(xmap_masked.cell()) - co).lengthsq()
+               //                           << std::endl;
+               xmap_cluster[iw] = masked_map_val;
+               nhit++;
+            } else {
+               nmiss++;
+            }
+         }
       }
    }
    //    std::cout << "nhit " << nhit << " nmiss " << nmiss << std::endl;
@@ -505,19 +505,19 @@ coot::ligand::mask_around_coord(const clipper::Coord_orth &co, float atom_radius
 
 void
 coot::ligand::mask_around_coord(const clipper::Coord_orth &co, float atom_radius,
-				clipper::Xmap<float> *xmap_p) {  // alter xmap_p
+                                clipper::Xmap<float> *xmap_p) {  // alter xmap_p
 
    clipper::Coord_frac cf = co.coord_frac(xmap_p->cell());
    clipper::Coord_frac box0(cf.u() - atom_radius/xmap_p->cell().descr().a(),
-			    cf.v() - atom_radius/xmap_p->cell().descr().b(),
-			    cf.w() - atom_radius/xmap_p->cell().descr().c());
+                            cf.v() - atom_radius/xmap_p->cell().descr().b(),
+                            cf.w() - atom_radius/xmap_p->cell().descr().c());
 
    clipper::Coord_frac box1(cf.u() + atom_radius/xmap_p->cell().descr().a(),
-			    cf.v() + atom_radius/xmap_p->cell().descr().b(),
-			    cf.w() + atom_radius/xmap_p->cell().descr().c());
+                            cf.v() + atom_radius/xmap_p->cell().descr().b(),
+                            cf.w() + atom_radius/xmap_p->cell().descr().c());
 
    clipper::Grid_map grid(box0.coord_grid(xmap_p->grid_sampling()),
-			  box1.coord_grid(xmap_p->grid_sampling()));
+                          box1.coord_grid(xmap_p->grid_sampling()));
 
    float atom_radius_sq = atom_radius * atom_radius;
    float masked_map_val = 0;
@@ -525,11 +525,11 @@ coot::ligand::mask_around_coord(const clipper::Coord_orth &co, float atom_radius
    clipper::Xmap_base::Map_reference_coord ix(*xmap_p, grid.min()), iu, iv, iw;
    for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
       for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
-	 for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
-	    if ( (iw.coord().coord_frac(xmap_p->grid_sampling()).coord_orth(xmap_p->cell()) - co).lengthsq() < atom_radius_sq) {
-	       (*xmap_p)[iw] = masked_map_val;
-	    }
-	 }
+         for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+            if ( (iw.coord().coord_frac(xmap_p->grid_sampling()).coord_orth(xmap_p->cell()) - co).lengthsq() < atom_radius_sq) {
+               (*xmap_p)[iw] = masked_map_val;
+            }
+         }
       }
    }
 }
@@ -537,19 +537,19 @@ coot::ligand::mask_around_coord(const clipper::Coord_orth &co, float atom_radius
 // Templete this.
 void
 coot::ligand::mask_around_coord(const clipper::Coord_orth &co, float atom_radius,
-				clipper::Xmap<int> *xmap_p) {  // alter xmap_p
+                                clipper::Xmap<int> *xmap_p) {  // alter xmap_p
 
    clipper::Coord_frac cf = co.coord_frac(xmap_p->cell());
    clipper::Coord_frac box0(cf.u() - atom_radius/xmap_p->cell().descr().a(),
-			    cf.v() - atom_radius/xmap_p->cell().descr().b(),
-			    cf.w() - atom_radius/xmap_p->cell().descr().c());
+                            cf.v() - atom_radius/xmap_p->cell().descr().b(),
+                            cf.w() - atom_radius/xmap_p->cell().descr().c());
 
    clipper::Coord_frac box1(cf.u() + atom_radius/xmap_p->cell().descr().a(),
-			    cf.v() + atom_radius/xmap_p->cell().descr().b(),
-			    cf.w() + atom_radius/xmap_p->cell().descr().c());
+                            cf.v() + atom_radius/xmap_p->cell().descr().b(),
+                            cf.w() + atom_radius/xmap_p->cell().descr().c());
 
    clipper::Grid_map grid(box0.coord_grid(xmap_p->grid_sampling()),
-			  box1.coord_grid(xmap_p->grid_sampling()));
+                          box1.coord_grid(xmap_p->grid_sampling()));
 
    float atom_radius_sq = atom_radius * atom_radius;
    int masked_map_val = 0;
@@ -557,11 +557,11 @@ coot::ligand::mask_around_coord(const clipper::Coord_orth &co, float atom_radius
    clipper::Xmap_base::Map_reference_coord ix(*xmap_p, grid.min()), iu, iv, iw;
    for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
       for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
-	 for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
-	    if ( (iw.coord().coord_frac(xmap_p->grid_sampling()).coord_orth(xmap_p->cell()) - co).lengthsq() < atom_radius_sq) {
-	       (*xmap_p)[iw] = masked_map_val;
-	    }
-	 }
+         for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+            if ( (iw.coord().coord_frac(xmap_p->grid_sampling()).coord_orth(xmap_p->cell()) - co).lengthsq() < atom_radius_sq) {
+               (*xmap_p)[iw] = masked_map_val;
+            }
+         }
       }
    }
 }
@@ -576,15 +576,15 @@ coot::ligand::make_selected_atoms(mmdb::PPAtom *atoms_p, mmdb::Manager *mol) {
 
    int selHnd = mol->NewSelection();
    mol->SelectAtoms (selHnd, 0, "*",
-		     mmdb::ANY_RES, // starting resno, an int
-		     "*", // any insertion code
-		     mmdb::ANY_RES, // ending resno
-		     "*", // ending insertion code
-		     "*", // any residue name
-		     "*", // atom name
-		     "*", // elements
-		     "*"  // alt loc.
-		     );
+                     mmdb::ANY_RES, // starting resno, an int
+                     "*", // any insertion code
+                     mmdb::ANY_RES, // ending resno
+                     "*", // ending insertion code
+                     "*", // any residue name
+                     "*", // atom name
+                     "*", // elements
+                     "*"  // alt loc.
+                     );
    int nSelAtoms;
    mol->GetSelIndex(selHnd, *atoms_p, nSelAtoms);
    return nSelAtoms;
@@ -611,8 +611,8 @@ void
 coot::ligand::calculate_gradient_scale() {
 
    double t = (xmap_pristine.cell().a()/xmap_pristine.grid_sampling().nu() +
-	       xmap_pristine.cell().c()/xmap_pristine.grid_sampling().nv() +
-	       xmap_pristine.cell().b()/xmap_pristine.grid_sampling().nw())/3.0;
+               xmap_pristine.cell().c()/xmap_pristine.grid_sampling().nv() +
+               xmap_pristine.cell().b()/xmap_pristine.grid_sampling().nw())/3.0;
 
    gradient_scale = 0.3*t*t;  // somewhat arbitary.
 
@@ -631,13 +631,13 @@ coot::ligand::map_statistics() {
    clipper::Map_stats stats(xmap_pristine);
 
    std::cout << "Map stats:          mean: " << stats.mean() << " and std dev: "
-	     << stats.std_dev() << std::endl;
+             << stats.std_dev() << std::endl;
 
    map_rms = stats.std_dev();
 
    clipper::Map_stats stats_pristine(xmap_pristine);
    std::cout << "Pristine Map stats: mean: " << stats_pristine.mean() << " and std dev: "
-	     << stats_pristine.std_dev() << std::endl;
+             << stats_pristine.std_dev() << std::endl;
 
    std::cout << "Grid sampling: " << xmap_pristine.grid_sampling().format() << std::endl;
    std::cout << "Cell:          " << xmap_pristine.cell().format() << std::endl;
@@ -675,14 +675,14 @@ coot::ligand::find_clusters_old(float z_cut_off_in) {
    cut_off = z_cut_off_in*stats.std_dev();
    std::cout << "Using density cut-off: " << cut_off << " sigma ";
    std::cout << " (mean " << stats.mean() << " stdev: " << stats.std_dev()
-	     << ")" << std::endl;
+             << ")" << std::endl;
    // xmap_cluster = xmap_pristine; // masked not clustered.
    clipper::Xmap_base::Map_reference_index ix;
    for (ix = xmap_pristine.first(); !ix.last(); ix.next()) {
       if (xmap_pristine[ix] > cut_off) {
-	 n_clusters++;
-	 cluster.push_back(map_point_cluster());
-	 trace_along(ix.coord(), neighb, n_clusters);
+         n_clusters++;
+         cluster.push_back(map_point_cluster());
+         trace_along(ix.coord(), neighb, n_clusters);
       }
    }
    calculate_cluster_centres_and_eigens();
@@ -717,12 +717,12 @@ coot::ligand::find_clusters_int(float z_cut_off_in) {
    cut_off = z_cut_off_in*stats.std_dev();
    std::cout << "Using density cut-off: " << cut_off;
    std::cout << " (mean " << stats.mean() << " stdev: " << stats.std_dev()
-	     << ")" << std::endl;
+             << ")" << std::endl;
    // xmap_cluster = xmap; // masked not clustered.
    clipper::Xmap<int> cluster_map;
    cluster_map.init(xmap_pristine.spacegroup(),
-		    xmap_pristine.cell(),
-		    xmap_pristine.grid_sampling());
+                    xmap_pristine.cell(),
+                    xmap_pristine.grid_sampling());
 
    clipper::Xmap_base::Map_reference_index ix;
    for (ix = cluster_map.first(); !ix.last(); ix.next()) {
@@ -732,8 +732,8 @@ coot::ligand::find_clusters_int(float z_cut_off_in) {
    int an_int = 1;
    for (ix = xmap_pristine.first(); !ix.last(); ix.next()) {
       if (xmap_pristine[ix] > cut_off) {
-	 cluster_map[ix] = an_int;
-	 an_int++;
+         cluster_map[ix] = an_int;
+         an_int++;
       }
    }
 
@@ -753,17 +753,17 @@ coot::ligand::find_clusters_int(float z_cut_off_in) {
    while(n_changed) {
       n_changed = 0;
       for (ix = cluster_map.first(); !ix.last(); ix.next()) {
-	 if (cluster_map[ix]) {
-	    c_g_start = ix.coord();
-	    for (int i=0; i<n_neighbs; i++) {
-	       c_g = c_g_start + neighb[i];
-	       v = cluster_map.get_data(c_g);
-	       if (v > cluster_map[ix]) {
-		  cluster_map[ix] = v;
-		  n_changed++;
-	       }
-	    }
-	 }
+         if (cluster_map[ix]) {
+            c_g_start = ix.coord();
+            for (int i=0; i<n_neighbs; i++) {
+               c_g = c_g_start + neighb[i];
+               v = cluster_map.get_data(c_g);
+               if (v > cluster_map[ix]) {
+                  cluster_map[ix] = v;
+                  n_changed++;
+               }
+            }
+         }
       }
       std::cout << "nchanged this round was " << n_changed << std::endl;
    }
@@ -832,7 +832,7 @@ coot::ligand::find_clusters(float z_cut_off_in) {
 
 void
 coot::ligand::find_clusters_internal(float z_cut_off_in,
-				     const std::vector <clipper::Coord_orth> &sampled_protein_coords) {
+                                     const std::vector <clipper::Coord_orth> &sampled_protein_coords) {
 
    std::cout << "INFO:: find_clusters map_rms is " << map_rms << std::endl;
 
@@ -848,16 +848,16 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
    cut_off = z_cut_off_in * map_rms; // map_rms is from the pristine map
 
    z_cut_off_in_save = z_cut_off_in; // used in water_fit when we call
-				     // this function again.
+                                     // this function again.
    std::cout << "INFO:: Using density cut-off: " << cut_off
-	     << " (" << z_cut_off_in << " sigma) ";
+             << " (" << z_cut_off_in << " sigma) ";
    std::cout << " (mean " << xmap_masked_stats.second.first
-	     << " stdev: " << xmap_masked_stats.second.second << ")" << std::endl;
+             << " stdev: " << xmap_masked_stats.second.second << ")" << std::endl;
    std::cout << "INFO:: Blobs with volume larger than " << water_molecule_volume
-	     << " A^3 are too big to be considered waters." << std::endl;
+             << " A^3 are too big to be considered waters." << std::endl;
    std::cout << "INFO:: Using water to protein distance limits: "
-	     << water_to_protein_distance_lim_min << " "
-	     << water_to_protein_distance_lim_max << std::endl;
+             << water_to_protein_distance_lim_min << " "
+             << water_to_protein_distance_lim_max << std::endl;
 
 
    clipper::Xmap_base::Map_reference_index ix;
@@ -865,7 +865,7 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
    std::cout.flush();
    clipper::Xmap<int> cluster_map;
    cluster_map.init(xmap_pristine.spacegroup(), xmap_pristine.cell(),
-		    xmap_pristine.grid_sampling());
+                    xmap_pristine.grid_sampling());
    for (ix = cluster_map.first(); !ix.last(); ix.next())
       cluster_map[ix] = 0;
 
@@ -874,41 +874,41 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
    clipper::Coord_grid c_g_start;
    for (ix = xmap_cluster.first(); !ix.last(); ix.next()) {
       if (xmap_cluster[ix] > cut_off) {
-	 if (! cluster_map[ix]) {
-	    coot::map_point_cluster mpc;
-	    c_g_start = ix.coord();
-// 	    mpc.map_grid.push_back(c_g_start);
-// 	    mpc.score += xmap.get_data(c_g_start);
-// 	    cluster_map.set_data(c_g_start, 1);
-	    q.push(c_g_start);
+         if (! cluster_map[ix]) {
+            coot::map_point_cluster mpc;
+            c_g_start = ix.coord();
+//             mpc.map_grid.push_back(c_g_start);
+//             mpc.score += xmap.get_data(c_g_start);
+//             cluster_map.set_data(c_g_start, 1);
+            q.push(c_g_start);
 
-	    //	    std::cout << "DEBUG:: q size: " << q.size() << std::endl;
-	    while (q.size()) {
-	       c_g_start = q.front();
-	       q.pop();
-	       for (int i=0; i<neighb.size(); i++) {
-		  c_g = c_g_start + neighb[i];
-		  if (xmap_cluster.get_data(c_g) > cut_off) {
-		     if (! cluster_map.get_data(c_g)) {
-// 			std::cout << "DEBUG:: cluster " << n_clusters
-// 				  << " pushing back " << c_g.format()
-// 				  << std::endl;
-			cluster_map.set_data(c_g, 1);
-			mpc.map_grid.push_back(c_g);
-			mpc.score += xmap_cluster.get_data(c_g);
-			q.push(c_g);
-		     }
-		  }
-	       }
-	    }
+            //            std::cout << "DEBUG:: q size: " << q.size() << std::endl;
+            while (q.size()) {
+               c_g_start = q.front();
+               q.pop();
+               for (int i=0; i<neighb.size(); i++) {
+                  c_g = c_g_start + neighb[i];
+                  if (xmap_cluster.get_data(c_g) > cut_off) {
+                     if (! cluster_map.get_data(c_g)) {
+//                         std::cout << "DEBUG:: cluster " << n_clusters
+//                                   << " pushing back " << c_g.format()
+//                                   << std::endl;
+                        cluster_map.set_data(c_g, 1);
+                        mpc.map_grid.push_back(c_g);
+                        mpc.score += xmap_cluster.get_data(c_g);
+                        q.push(c_g);
+                     }
+                  }
+               }
+            }
 
-// 	    std::cout << "pushing back cluster " << n_clusters
-// 		      << mpc.score << " " << mpc.map_grid.size() << std::endl;
-	    if (mpc.map_grid.size() > 0) {
-	       cluster.push_back(mpc);
-	       n_clusters++;
-	    }
-	 }
+//             std::cout << "pushing back cluster " << n_clusters
+//                       << mpc.score << " " << mpc.map_grid.size() << std::endl;
+            if (mpc.map_grid.size() > 0) {
+               cluster.push_back(mpc);
+               n_clusters++;
+            }
+         }
       }
    }
    std::cout << "done" << std::endl; // finding clusters.
@@ -924,7 +924,7 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
 
 void
 coot::ligand::cluster_from_point(clipper::Coord_orth pt,
-				 float z_cut_off_in) {
+                                 float z_cut_off_in) {
 
    // convert pt to a grid point first.
    clipper::Coord_frac a_cf   = pt.coord_frac(xmap_cluster.cell());
@@ -971,33 +971,33 @@ coot::ligand::cluster_from_point(clipper::Coord_orth pt,
       // to the queue already.
       clipper::Xmap<short int> neighbour_map; // cant use bools
       neighbour_map.init(xmap_pristine.spacegroup(), xmap_pristine.cell(),
-			 xmap_pristine.grid_sampling());
+                         xmap_pristine.grid_sampling());
       clipper::Xmap_base::Map_reference_index ix;
       for (ix = neighbour_map.first(); !ix.last(); ix.next())
-	 neighbour_map[ix] = 0;
+         neighbour_map[ix] = 0;
 
       q.push(a_grid);
 
       while (! found_site && (count < count_max)) {
-	 count++;
-	 c_g = q.front();
-	 q.pop();
-	 neighbour_map.set_data(c_g, 1); // mark as examined.
-	 d = xmap_cluster.get_data(c_g);
-	 if (d > density_crit) {
-	    c_g_start = c_g;
-	    found_site = 1;
-	 } else {
-	    for (int i=0; i<neighb.size(); i++) {
-	       if (neighbour_map.get_data(c_g + neighb[i]) == 0)
-		  q.push(c_g + neighb[i]);
-	    }
-	 }
+         count++;
+         c_g = q.front();
+         q.pop();
+         neighbour_map.set_data(c_g, 1); // mark as examined.
+         d = xmap_cluster.get_data(c_g);
+         if (d > density_crit) {
+            c_g_start = c_g;
+            found_site = 1;
+         } else {
+            for (int i=0; i<neighb.size(); i++) {
+               if (neighbour_map.get_data(c_g + neighb[i]) == 0)
+                  q.push(c_g + neighb[i]);
+            }
+         }
       }
       if (! found_site) {
-	 std::cout << "Hopeless - no ligand density cluster found"
-		   << std::endl;
-	 return;
+         std::cout << "Hopeless - no ligand density cluster found"
+                   << std::endl;
+         return;
       }
    }
 
@@ -1005,7 +1005,7 @@ coot::ligand::cluster_from_point(clipper::Coord_orth pt,
 
    clipper::Xmap<int> cluster_map;
    cluster_map.init(xmap_pristine.spacegroup(), xmap_pristine.cell(),
-		    xmap_pristine.grid_sampling());
+                    xmap_pristine.grid_sampling());
    clipper::Xmap_base::Map_reference_index ix;
    for (ix = cluster_map.first(); !ix.last(); ix.next())
       cluster_map[ix] = 0;
@@ -1016,15 +1016,15 @@ coot::ligand::cluster_from_point(clipper::Coord_orth pt,
       c_g_start = q2.front();
       q2.pop();
       for (int i=0; i<neighb.size(); i++) {
-	 c_g = c_g_start + neighb[i];
-	 if (xmap_cluster.get_data(c_g) > density_crit) {
-	    if (! cluster_map.get_data(c_g)) {
-	       cluster_map.set_data(c_g, 1);
-	       mpc.map_grid.push_back(c_g);
-	       mpc.score += xmap_cluster.get_data(c_g);
-	       q2.push(c_g);
-	    }
-	 }
+         c_g = c_g_start + neighb[i];
+         if (xmap_cluster.get_data(c_g) > density_crit) {
+            if (! cluster_map.get_data(c_g)) {
+               cluster_map.set_data(c_g, 1);
+               mpc.map_grid.push_back(c_g);
+               mpc.score += xmap_cluster.get_data(c_g);
+               q2.push(c_g);
+            }
+         }
       }
    }
    if (mpc.map_grid.size() > 0) {
@@ -1062,7 +1062,7 @@ coot::ligand::n_grid_limit_for_water_cluster() const {
 // cluster size maxes out, starts new.
 void
 coot::ligand::find_clusters_water_flood(float z_cut_off_in,
-					const std::vector <clipper::Coord_orth> &sampled_protein_coords) {
+                                        const std::vector <clipper::Coord_orth> &sampled_protein_coords) {
 
    if (xmap_masked_stats.first == 0) {
       clipper::Map_stats stats(xmap_cluster);
@@ -1077,12 +1077,12 @@ coot::ligand::find_clusters_water_flood(float z_cut_off_in,
    cut_off = z_cut_off_in*xmap_masked_stats.second.second;
    std::cout << "Using density cut-off: " << cut_off;
    std::cout << " (mean " << xmap_masked_stats.second.first << " stdev: "
-	     << xmap_masked_stats.second.second << ")" << std::endl;
+             << xmap_masked_stats.second.second << ")" << std::endl;
    clipper::Xmap_base::Map_reference_index ix;
    std::cout.flush();
    clipper::Xmap<int> cluster_map;
    cluster_map.init(xmap_pristine.spacegroup(), xmap_pristine.cell(),
-		    xmap_pristine.grid_sampling());
+                    xmap_pristine.grid_sampling());
    for (ix = cluster_map.first(); !ix.last(); ix.next())
       cluster_map[ix] = 0;
 
@@ -1093,32 +1093,32 @@ coot::ligand::find_clusters_water_flood(float z_cut_off_in,
 
    for (ix = xmap_cluster.first(); !ix.last(); ix.next()) {
       if (xmap_cluster[ix] > cut_off) {
-	 if (! cluster_map[ix]) {
-	    coot::map_point_cluster mpc;
-	    c_g_start = ix.coord();
-	    q.push(c_g_start);
+         if (! cluster_map[ix]) {
+            coot::map_point_cluster mpc;
+            c_g_start = ix.coord();
+            q.push(c_g_start);
 
-	    while (int(q.size()) && (int(mpc.map_grid.size()) < n_grids_crit)) {
-	       c_g_start = q.front();
-	       q.pop();
-	       for (int i=0; i<neighb.size(); i++) {
-		  c_g = c_g_start + neighb[i];
-		  if (xmap_cluster.get_data(c_g) > cut_off) {
-		     if (! cluster_map.get_data(c_g)) {
-			cluster_map.set_data(c_g, 1);
-			mpc.map_grid.push_back(c_g);
-			mpc.score += xmap_cluster.get_data(c_g);
-			q.push(c_g);
-		     }
-		  }
-	       }
-	    }
+            while (int(q.size()) && (int(mpc.map_grid.size()) < n_grids_crit)) {
+               c_g_start = q.front();
+               q.pop();
+               for (int i=0; i<neighb.size(); i++) {
+                  c_g = c_g_start + neighb[i];
+                  if (xmap_cluster.get_data(c_g) > cut_off) {
+                     if (! cluster_map.get_data(c_g)) {
+                        cluster_map.set_data(c_g, 1);
+                        mpc.map_grid.push_back(c_g);
+                        mpc.score += xmap_cluster.get_data(c_g);
+                        q.push(c_g);
+                     }
+                  }
+               }
+            }
 
-	    if (mpc.map_grid.size() > 0) {
-	       cluster.push_back(mpc);
-	       n_clusters++;
-	    }
-	 }
+            if (mpc.map_grid.size() > 0) {
+               cluster.push_back(mpc);
+               n_clusters++;
+            }
+         }
       }
    }
 
@@ -1145,7 +1145,7 @@ coot::ligand::find_centre_by_ligand(short int do_size_match_flag) {
 
    if (initial_ligand.size() != 1) {
       std::cout << "initial_ligand size() is " << initial_ligand.size()
-		<< " we expected to be of size 1" << std::endl;
+                << " we expected to be of size 1" << std::endl;
    } else {
 
       do_size_match_test = do_size_match_flag;
@@ -1209,22 +1209,22 @@ coot::ligand::make_sample_protein_coords() const {
       // doesn't get run (Mac).  putting maxresno and minresno here and the
       // loop runs and we find Marianne's error (20050114).  Code corrected.
 //       std::cout << "protein_mmdb has " << protein_atoms[ifrag].residues.size()
-// 		<< " residues in fragment " << ifrag << " with min res no: "
-// 		<< protein_atoms[ifrag].min_res_no() << " and max res no "
-// 		<< protein_atoms[ifrag].max_residue_number() << "\n";
+//                 << " residues in fragment " << ifrag << " with min res no: "
+//                 << protein_atoms[ifrag].min_res_no() << " and max res no "
+//                 << protein_atoms[ifrag].max_residue_number() << "\n";
       int maxresno = protein_atoms[ifrag].max_residue_number();
       int minresno = protein_atoms[ifrag].min_res_no();
       //       std::cout << minresno << " " << maxresno << std::endl;
       for(int ires=minresno; ires<=maxresno; ires++) {
-// 	 std::cout << "getting " << ires << " of "
-// 		   << protein_atoms[ifrag].max_residue_number() << "\n";
-	 for (unsigned int iat=0; iat<protein_atoms[ifrag][ires].atoms.size(); iat++) {
-	    atom_count++;
-	    if (atom_count == max_atom_loop_count) {
-	       atom_count = 0;
-	       sample.push_back(protein_atoms[ifrag][ires][iat].pos);
-	    }
-	 }
+//          std::cout << "getting " << ires << " of "
+//                    << protein_atoms[ifrag].max_residue_number() << "\n";
+         for (unsigned int iat=0; iat<protein_atoms[ifrag][ires].atoms.size(); iat++) {
+            atom_count++;
+            if (atom_count == max_atom_loop_count) {
+               atom_count = 0;
+               sample.push_back(protein_atoms[ifrag][ires][iat].pos);
+            }
+         }
       }
    }
    // std::cout << "returning sample of size: " << sample.size() << std::endl;
@@ -1241,8 +1241,8 @@ coot::ligand::move_ligand_centres_close_to_protein(const std::vector<clipper::Co
    int n = sampled_protein_coords.size();
    if (n > 0) {
       for (unsigned int i=0; i<cluster.size() ; i++)
-	 //move_ligand_sites_close_to_protein(i);
-	 move_ligand_site_close_to_protein_using_shape(i, sampled_protein_coords);
+         //move_ligand_sites_close_to_protein(i);
+         move_ligand_site_close_to_protein_using_shape(i, sampled_protein_coords);
    } // otherwise just leave them where they are in the asymmetric unit.
 
 }
@@ -1261,60 +1261,60 @@ coot::ligand::calculate_cluster_centres_and_eigens() {
    for (unsigned int i=0; i<cluster.size(); i++) {
       running_centre = clipper::Coord_orth(0.0, 0.0, 0.0);
       for (unsigned int j=0; j<cluster[i].map_grid.size(); j++) {
-	 cf = cluster[i].map_grid[j].coord_frac(xmap_pristine.grid_sampling());
-	 co = cf.coord_orth(xmap_pristine.cell());
-	 running_centre += co;
+         cf = cluster[i].map_grid[j].coord_frac(xmap_pristine.grid_sampling());
+         co = cf.coord_orth(xmap_pristine.cell());
+         running_centre += co;
       }
       scale = 1/double(cluster[i].map_grid.size()); // scale by number of
                                                     // points
       mean_pos =
-	 clipper::Coord_orth(running_centre.x() * scale,
-			     running_centre.y() * scale,
-			     running_centre.z() * scale);
+         clipper::Coord_orth(running_centre.x() * scale,
+                             running_centre.y() * scale,
+                             running_centre.z() * scale);
       // cluster[i].centre = mean_pos;
       diff_x = 0; diff_y = 0; diff_z = 0;
 
       //
       for (unsigned int j=0; j<cluster[i].map_grid.size(); j++) {
-	 cf = cluster[i].map_grid[j].coord_frac(xmap_pristine.grid_sampling());
-	 co = cf.coord_orth(xmap_pristine.cell());
-	 diff_pt = co - mean_pos;
-	 diff_x += diff_pt.x() * diff_pt.x();
-	 diff_y += diff_pt.y() * diff_pt.y();
-	 diff_z += diff_pt.z() * diff_pt.z();
+         cf = cluster[i].map_grid[j].coord_frac(xmap_pristine.grid_sampling());
+         co = cf.coord_orth(xmap_pristine.cell());
+         diff_pt = co - mean_pos;
+         diff_x += diff_pt.x() * diff_pt.x();
+         diff_y += diff_pt.y() * diff_pt.y();
+         diff_z += diff_pt.z() * diff_pt.z();
       }
       cluster[i].std_dev = clipper::Coord_orth(sqrt(diff_x*scale),
-					       sqrt(diff_y*scale),
-					       sqrt(diff_z*scale));
+                                               sqrt(diff_y*scale),
+                                               sqrt(diff_z*scale));
       // we need matrix, because Matrix (not Mat33) has eigen.
       clipper::Matrix<double> mat(3,3);
       for (int ii=0; ii<3; ii++)
-	 for (int jj=0; jj<3; jj++)
-	    mat(ii,jj) = 0.0;
+         for (int jj=0; jj<3; jj++)
+            mat(ii,jj) = 0.0;
 
       for (unsigned int j=0; j< cluster[i].map_grid.size(); j++) {
-	 cf = cluster[i].map_grid[j].coord_frac(xmap_pristine.grid_sampling());
-	 co = cf.coord_orth(xmap_pristine.cell());
-	 mat(0,0) += (co.x() - mean_pos.x()) * (co.x() - mean_pos.x());
-	 mat(0,1) += (co.x() - mean_pos.x()) * (co.y() - mean_pos.y());
-	 mat(0,2) += (co.x() - mean_pos.x()) * (co.z() - mean_pos.z());
-	 mat(1,0) += (co.y() - mean_pos.y()) * (co.x() - mean_pos.x());
-	 mat(1,1) += (co.y() - mean_pos.y()) * (co.y() - mean_pos.y());
-	 mat(1,2) += (co.y() - mean_pos.y()) * (co.z() - mean_pos.z());
-	 mat(2,0) += (co.z() - mean_pos.z()) * (co.x() - mean_pos.x());
-	 mat(2,1) += (co.z() - mean_pos.z()) * (co.y() - mean_pos.y());
-	 mat(2,2) += (co.z() - mean_pos.z()) * (co.z() - mean_pos.z());
+         cf = cluster[i].map_grid[j].coord_frac(xmap_pristine.grid_sampling());
+         co = cf.coord_orth(xmap_pristine.cell());
+         mat(0,0) += (co.x() - mean_pos.x()) * (co.x() - mean_pos.x());
+         mat(0,1) += (co.x() - mean_pos.x()) * (co.y() - mean_pos.y());
+         mat(0,2) += (co.x() - mean_pos.x()) * (co.z() - mean_pos.z());
+         mat(1,0) += (co.y() - mean_pos.y()) * (co.x() - mean_pos.x());
+         mat(1,1) += (co.y() - mean_pos.y()) * (co.y() - mean_pos.y());
+         mat(1,2) += (co.y() - mean_pos.y()) * (co.z() - mean_pos.z());
+         mat(2,0) += (co.z() - mean_pos.z()) * (co.x() - mean_pos.x());
+         mat(2,1) += (co.z() - mean_pos.z()) * (co.y() - mean_pos.y());
+         mat(2,2) += (co.z() - mean_pos.z()) * (co.z() - mean_pos.z());
       }
       std::vector<double> eigens = mat.eigen(true);
       // some jiggery pokery if the mat now has a negative determinant.
       clipper::Mat33<double> m33 = mat33(mat);
       double determinant = m33.det();
       if (determinant < 0) {
-	 // we need to swap the 1 and 2th rows [leave 0th row - the top]
-	 // std::cout << "DEBUG:: negative determinant in eigen matrix, swapping columns!\n";
-	 for (int q = 0; q < 3; q++ )
-	    clipper::Util::swap(m33(q, 1), m33(q, 2));
-	 clipper::Util::swap(eigens[1], eigens[2]);
+         // we need to swap the 1 and 2th rows [leave 0th row - the top]
+         // std::cout << "DEBUG:: negative determinant in eigen matrix, swapping columns!\n";
+         for (int q = 0; q < 3; q++ )
+            clipper::Util::swap(m33(q, 1), m33(q, 2));
+         clipper::Util::swap(eigens[1], eigens[2]);
       }
       cluster[i].eigenvectors_and_centre = clipper::RTop_orth(m33, mean_pos);
       cluster[i].eigenvalues = eigens;
@@ -1322,15 +1322,15 @@ coot::ligand::calculate_cluster_centres_and_eigens() {
 
 //    for (int i=0; i<cluster.size(); i++) {
 //       std::cout << "cluster score, points, eigen trn " << i << " "
-// 		<< cluster[i].score << " " << cluster[i].map_grid.size()
-// 		<< " " << cluster[i].eigenvectors_and_centre.trn().format() << std::endl;
+//                 << cluster[i].score << " " << cluster[i].map_grid.size()
+//                 << " " << cluster[i].eigenvectors_and_centre.trn().format() << std::endl;
 //    }
 
 }
 
 bool
 coot::compare_clusters(const map_point_cluster &a,
-		       const map_point_cluster &b) {
+                       const map_point_cluster &b) {
 
    return (a.score > b.score);
 }
@@ -1362,24 +1362,24 @@ coot::ligand::print_cluster_details(bool show_grid_points) const {
       if (ncount == max_clusters) break;
 
       std::cout << "  Number: "  << i << " # grid points: "
-		<< cluster[i].map_grid.size() << " score: "
-		<< cluster[i].score << "     \n"
-		<< cluster[i].eigenvectors_and_centre.format() << "   "
-		<< cluster[i].std_dev.format() << " eigenvalues: "
-		<< cluster[i].eigenvalues[0] << " "
-		<< cluster[i].eigenvalues[1] << " "
-		<< cluster[i].eigenvalues[2] << " "
-		<< std::endl;
+                << cluster[i].map_grid.size() << " score: "
+                << cluster[i].score << "     \n"
+                << cluster[i].eigenvectors_and_centre.format() << "   "
+                << cluster[i].std_dev.format() << " eigenvalues: "
+                << cluster[i].eigenvalues[0] << " "
+                << cluster[i].eigenvalues[1] << " "
+                << cluster[i].eigenvalues[2] << " "
+                << std::endl;
 
       if (show_grid_points) {
-	 clipper::Cell cell = xmap_pristine.cell();
-	 clipper::Grid_sampling gs = xmap_pristine.grid_sampling();
-	 for (unsigned int j=0; j<cluster[i].map_grid.size(); j++) {
-	    std::cout << "   "
-		      << cluster[i].map_grid[j].format() << " "
-		      << cluster[i].map_grid[j].coord_frac(gs).coord_orth(cell).format()
-		      << std::endl;
-	 }
+         clipper::Cell cell = xmap_pristine.cell();
+         clipper::Grid_sampling gs = xmap_pristine.grid_sampling();
+         for (unsigned int j=0; j<cluster[i].map_grid.size(); j++) {
+            std::cout << "   "
+                      << cluster[i].map_grid[j].format() << " "
+                      << cluster[i].map_grid[j].coord_frac(gs).coord_orth(cell).format()
+                      << std::endl;
+         }
       }
    }
 }
@@ -1408,16 +1408,16 @@ coot::ligand::output_centres() {
       std::cout << "Could not open " << "centres.list" << " for some reason\n";
    } else {
       for (unsigned int i=0; i<cluster.size(); i++) {
-	 cen_out << cluster[i].eigenvectors_and_centre.format()
-		 << std::endl;
+         cen_out << cluster[i].eigenvectors_and_centre.format()
+                 << std::endl;
       }
    }
 }
 
 void
 coot::ligand::trace_along(const clipper::Coord_grid &cg_start,
-			  const clipper::Skeleton_basic::Neighbours &neighb,
-			  int n_clusters) {
+                          const clipper::Skeleton_basic::Neighbours &neighb,
+                          int n_clusters) {
 
    cluster[n_clusters-1].score += xmap_cluster.get_data(cg_start);
    cluster[n_clusters-1].map_grid.push_back(cg_start);
@@ -1427,7 +1427,7 @@ coot::ligand::trace_along(const clipper::Coord_grid &cg_start,
    for(int i=0; i< neighb.size(); i++) {
       c_g = cg_start + neighb[i];
       if (xmap_cluster.get_data(c_g) > cut_off) {
-	 trace_along(c_g, neighb, n_clusters);
+         trace_along(c_g, neighb, n_clusters);
       }
    }
 }
@@ -1478,26 +1478,26 @@ coot::ligand::move_ligand_sites_close_to_protein(int i) {
    float min_dist = 999999999999.9;
    float t_dist;
    clipper::RTop_orth save_transformation(clipper::Mat33<double>(0,0,0,0,0,0,0,0,0),
-					  clipper::Coord_orth(0,0,0));
+                                          clipper::Coord_orth(0,0,0));
 
    int n = xmap_pristine.spacegroup().num_symops();
    clipper::Coord_frac cell_shift;
    for (int ii=0; ii<n; ii++) {
       for (int x_shift = -1; x_shift<2; x_shift++) {
-	 for (int y_shift = -1; y_shift<2; y_shift++) {
-	    for (int z_shift = -1; z_shift<2; z_shift++) {
+         for (int y_shift = -1; y_shift<2; y_shift++) {
+            for (int z_shift = -1; z_shift<2; z_shift++) {
 
-	       cell_shift = clipper::Coord_frac(x_shift, y_shift, z_shift);
-	       clipper::RTop_orth orthop = clipper::RTop_frac(xmap_pristine.spacegroup().symop(ii).rot(), xmap_pristine.spacegroup().symop(ii).trn() + cell_shift).rtop_orth(xmap_pristine.cell());
-	       t_point = point.transform(orthop);
-	       t_dist = clipper::Coord_orth::length(protein_centre,t_point);
-	       if (t_dist < min_dist) {
-		  s = t_point;
-		  min_dist = t_dist;
-		  save_transformation = orthop;
-	       }
-	    }
-	 }
+               cell_shift = clipper::Coord_frac(x_shift, y_shift, z_shift);
+               clipper::RTop_orth orthop = clipper::RTop_frac(xmap_pristine.spacegroup().symop(ii).rot(), xmap_pristine.spacegroup().symop(ii).trn() + cell_shift).rtop_orth(xmap_pristine.cell());
+               t_point = point.transform(orthop);
+               t_dist = clipper::Coord_orth::length(protein_centre,t_point);
+               if (t_dist < min_dist) {
+                  s = t_point;
+                  min_dist = t_dist;
+                  save_transformation = orthop;
+               }
+            }
+         }
       }
    }
 
@@ -1513,7 +1513,7 @@ coot::ligand::move_ligand_sites_close_to_protein(int i) {
 //
 void
 coot::ligand::move_ligand_site_close_to_protein_using_shape (int iclust,
-							     const std::vector<clipper::Coord_orth> &sampled_protein_coords) {
+                                                             const std::vector<clipper::Coord_orth> &sampled_protein_coords) {
 
    clipper::Coord_orth point(cluster[iclust].eigenvectors_and_centre.trn());
 
@@ -1523,7 +1523,7 @@ coot::ligand::move_ligand_site_close_to_protein_using_shape (int iclust,
    float min_dist = 999999999999.9;
    float t_dist;
    clipper::RTop_orth save_transformation(clipper::Mat33<double>(0,0,0,0,0,0,0,0,0),
-					  clipper::Coord_orth(0,0,0));  // was unset
+                                          clipper::Coord_orth(0,0,0));  // was unset
 
 
    int n_sampled = sampled_protein_coords.size();
@@ -1536,7 +1536,7 @@ coot::ligand::move_ligand_site_close_to_protein_using_shape (int iclust,
       vcrd+=sampled_protein_coords[i];
    }
    vcrd = 1.0/((float)sampled_protein_coords.size())*vcrd;
-   imat	  = (xmap_pristine.cell()).matrix_frac();
+   imat          = (xmap_pristine.cell()).matrix_frac();
    resvec = imat*vcrd;
    nn = floor(resvec[0]); mm = floor(resvec[1]); kk = floor(resvec[2]); //GEOM-CENTER INDICES
 ////END CODE
@@ -1545,22 +1545,22 @@ coot::ligand::move_ligand_site_close_to_protein_using_shape (int iclust,
       int n = xmap_pristine.spacegroup().num_symops();
       clipper::Coord_frac cell_shift;
       for (int isym=0; isym<n; isym++) {
-	 for (int x_shift = -1; x_shift<2; x_shift++) {
-	    for (int y_shift = -1; y_shift<2; y_shift++) {
-	       for (int z_shift = -1; z_shift<2; z_shift++) {
-		  cell_shift = clipper::Coord_frac(x_shift+nn, y_shift+mm, z_shift+kk);
-		  clipper::RTop_orth orthop = clipper::RTop_frac(xmap_pristine.spacegroup().symop(isym).rot(), xmap_pristine.spacegroup().symop(isym).trn() + cell_shift).rtop_orth(xmap_pristine.cell());
+         for (int x_shift = -1; x_shift<2; x_shift++) {
+            for (int y_shift = -1; y_shift<2; y_shift++) {
+               for (int z_shift = -1; z_shift<2; z_shift++) {
+                  cell_shift = clipper::Coord_frac(x_shift+nn, y_shift+mm, z_shift+kk);
+                  clipper::RTop_orth orthop = clipper::RTop_frac(xmap_pristine.spacegroup().symop(isym).rot(), xmap_pristine.spacegroup().symop(isym).trn() + cell_shift).rtop_orth(xmap_pristine.cell());
 
-		  t_point = point.transform(orthop);
-		  t_dist = min_dist_to_protein(t_point, sampled_protein_coords);
-		  if (t_dist < min_dist) {
-		     s = t_point;
-		     min_dist = t_dist;
-		     save_transformation = orthop;
-		  }
-	       }
-	    }
-	 }
+                  t_point = point.transform(orthop);
+                  t_dist = min_dist_to_protein(t_point, sampled_protein_coords);
+                  if (t_dist < min_dist) {
+                     s = t_point;
+                     min_dist = t_dist;
+                     save_transformation = orthop;
+                  }
+               }
+            }
+         }
       }
    }
    cluster[iclust].eigenvectors_and_centre = clipper::RTop_orth(save_transformation * cluster[iclust].eigenvectors_and_centre);
@@ -1569,16 +1569,16 @@ coot::ligand::move_ligand_site_close_to_protein_using_shape (int iclust,
 
 double
 coot::ligand::min_dist_to_protein(const clipper::Coord_orth &point,
-				  const std::vector<clipper::Coord_orth> &sampled_protein_coords) const {
+                                  const std::vector<clipper::Coord_orth> &sampled_protein_coords) const {
 
    double dist = 9999999.9;
    double this_dist;
    int n = sampled_protein_coords.size();
    if (n > 0) {
       for (int i=0; i<n; i++) {
-	 this_dist = clipper::Coord_orth::length(point, sampled_protein_coords[i]);
-	 if (this_dist < dist)
-	    dist = this_dist;
+         this_dist = clipper::Coord_orth::length(point, sampled_protein_coords[i]);
+         if (this_dist < dist)
+            dist = this_dist;
       }
    } else {
       dist = 0.0;
@@ -1611,24 +1611,24 @@ coot::ligand::make_pseudo_atoms() {
 //    for (unsigned int i=0; i<cluster.size(); i++) {
 
 //       if (cluster[i].map_grid.size() > 2) {
-// 	 atom.set_coord_orth(clipper::Coord_orth(cluster[i].eigenvectors_and_centre.trn()));
-// 	 atom.set_element(" C");
-// 	 atom.set_type(" CA ");
+//          atom.set_coord_orth(clipper::Coord_orth(cluster[i].eigenvectors_and_centre.trn()));
+//          atom.set_element(" C");
+//          atom.set_type(" CA ");
 
-// 	 // Matrix calculation stuff
-// 	 clipper::Mat33<double> diag; // diagonal eigenvalues
-// 	 diag = clipper::Mat33<double>::identity();
-// 	 for (int j=0; j<3; j++)
-// 	    diag(j,j) = 0.15*sqrt(cluster[i].eigenvalues[j]);
-// 	 clipper::Mat33<double> e = cluster[i].eigenvectors_and_centre.rot();
-// 	 clipper::Mat33<double> r = e * diag * e.transpose();
-// 	 //       std::cout << "r"    << std::endl <<    r.format() << std::endl;
-// 	 //       std::cout << "diag" << std::endl << diag.format() << std::endl;
-// 	 clipper::U_aniso_orth u(r(0,0),r(1,1),r(2,2),r(0,1),r(0,2),r(1,2));
-// 	 atom.set_u_aniso_orth(u);
-// 	 clipper::DBResidue r1 = c1.add_residue(residue);
-// 	 r1.set_seqnum(i+1);
-// 	 r1.add_atom(atom);
+//          // Matrix calculation stuff
+//          clipper::Mat33<double> diag; // diagonal eigenvalues
+//          diag = clipper::Mat33<double>::identity();
+//          for (int j=0; j<3; j++)
+//             diag(j,j) = 0.15*sqrt(cluster[i].eigenvalues[j]);
+//          clipper::Mat33<double> e = cluster[i].eigenvectors_and_centre.rot();
+//          clipper::Mat33<double> r = e * diag * e.transpose();
+//          //       std::cout << "r"    << std::endl <<    r.format() << std::endl;
+//          //       std::cout << "diag" << std::endl << diag.format() << std::endl;
+//          clipper::U_aniso_orth u(r(0,0),r(1,1),r(2,2),r(0,1),r(0,2),r(1,2));
+//          atom.set_u_aniso_orth(u);
+//          clipper::DBResidue r1 = c1.add_residue(residue);
+//          r1.set_seqnum(i+1);
+//          r1.add_atom(atom);
 //       }
 //    }
 //    mmdb.finalise_edit();
@@ -1644,7 +1644,7 @@ coot::ligand::mat33(const clipper::Matrix<double> &mat) const {
    clipper::Mat33<double> m;
    for (int i=0; i<3; i++) {
       for (int j=0; j<3; j++) {
-	 m(i,j) = mat(i,j);
+         m(i,j) = mat(i,j);
       }
    }
    return m;
@@ -1687,30 +1687,30 @@ coot::ligand::make_ligand_properties(int ilig) {
    }
    double scale = 1/double(atoms.size());
    clipper::Coord_orth mean_pos(running_centre.x() * scale,
-				running_centre.y() * scale,
-				running_centre.z() * scale);
+                                running_centre.y() * scale,
+                                running_centre.z() * scale);
 
 //    std::cout << "inital position comparison: "
-// 	     << initial_ligand_model_centre.format() << std::endl
-// 	     << mean_pos.format() << std::endl;
+//              << initial_ligand_model_centre.format() << std::endl
+//              << mean_pos.format() << std::endl;
 
    initial_ligand_model_centre[ilig] = mean_pos;
 
    clipper::Matrix<double> mat(3,3);
    for (int ii=0; ii<3; ii++)
       for (int jj=0; jj<3; jj++)
-	 mat(ii,jj) = 0.0;
+         mat(ii,jj) = 0.0;
    for (unsigned int i=0; i<atoms.size(); i++) {
       clipper::Coord_orth co = atoms[i]->pos;
-      	 mat(0,0) += (co.x() - mean_pos.x()) * (co.x() - mean_pos.x());
-	 mat(0,1) += (co.x() - mean_pos.x()) * (co.y() - mean_pos.y());
-	 mat(0,2) += (co.x() - mean_pos.x()) * (co.z() - mean_pos.z());
-	 mat(1,0) += (co.y() - mean_pos.y()) * (co.x() - mean_pos.x());
-	 mat(1,1) += (co.y() - mean_pos.y()) * (co.y() - mean_pos.y());
-	 mat(1,2) += (co.y() - mean_pos.y()) * (co.z() - mean_pos.z());
-	 mat(2,0) += (co.z() - mean_pos.z()) * (co.x() - mean_pos.x());
-	 mat(2,1) += (co.z() - mean_pos.z()) * (co.y() - mean_pos.y());
-	 mat(2,2) += (co.z() - mean_pos.z()) * (co.z() - mean_pos.z());
+               mat(0,0) += (co.x() - mean_pos.x()) * (co.x() - mean_pos.x());
+         mat(0,1) += (co.x() - mean_pos.x()) * (co.y() - mean_pos.y());
+         mat(0,2) += (co.x() - mean_pos.x()) * (co.z() - mean_pos.z());
+         mat(1,0) += (co.y() - mean_pos.y()) * (co.x() - mean_pos.x());
+         mat(1,1) += (co.y() - mean_pos.y()) * (co.y() - mean_pos.y());
+         mat(1,2) += (co.y() - mean_pos.y()) * (co.z() - mean_pos.z());
+         mat(2,0) += (co.z() - mean_pos.z()) * (co.x() - mean_pos.x());
+         mat(2,1) += (co.z() - mean_pos.z()) * (co.y() - mean_pos.y());
+         mat(2,2) += (co.z() - mean_pos.z()) * (co.z() - mean_pos.z());
    }
    // now using the class variable initial_ligand_eigenvectors
 
@@ -1727,14 +1727,14 @@ coot::ligand::make_ligand_properties(int ilig) {
 
    if (verbose_reporting) {
       std::cout << "ligand eigen values: "
-		<< initial_ligand_eigenvalues[ilig][0] << "  "
-		<< initial_ligand_eigenvalues[ilig][1] << "  "
-		<< initial_ligand_eigenvalues[ilig][2] << "  " << std::endl;
+                << initial_ligand_eigenvalues[ilig][0] << "  "
+                << initial_ligand_eigenvalues[ilig][1] << "  "
+                << initial_ligand_eigenvalues[ilig][2] << "  " << std::endl;
       std::cout << " ligand eigen vectors: " << std::endl
-		<< initial_ligand_eigenvectors[ilig].format() << std::endl;
+                << initial_ligand_eigenvectors[ilig].format() << std::endl;
    }
 //    std::cout << "DEBUG:: initial_ligand_eigenvectors[" << ilig << "] determinant "
-// 	     << initial_ligand_eigenvectors[ilig].det() << std::endl;
+//              << initial_ligand_eigenvectors[ilig].det() << std::endl;
 
 
 }
@@ -1785,7 +1785,7 @@ coot::ligand::install_ligand(const coot::minimol::molecule &ligand) {
    initial_ligand[ilig] = ligand;
    make_ligand_properties(ilig);
 //    std::cout << "DEBUG:: initial_ligand now of size: " << initial_ligand.size()
-// 	     << std::endl;
+//              << std::endl;
 }
 
 
@@ -1999,7 +1999,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
 
    if (false) {
       if (! initial_ligand.empty()) {
-	 std::vector<coot::minimol::atom *> atoms_p = initial_ligand[0].select_atoms_serial();
+         std::vector<coot::minimol::atom *> atoms_p = initial_ligand[0].select_atoms_serial();
          for (unsigned int iat=0; iat<atoms_p.size(); iat++) {
             const auto &atom = *(atoms_p[iat]);
             std::cout << "   inital ligand 0 " << atom.name << " " << atom.pos.format() << std::endl;
@@ -2061,10 +2061,10 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
 
 void
 coot::ligand::write_orientation_solution(unsigned int iclust,
-					 unsigned int ilig,
-					 unsigned int i_eigen_ori,
-					 unsigned int ior,
-					 const coot::minimol::molecule &mol) const {
+                                         unsigned int ilig,
+                                         unsigned int i_eigen_ori,
+                                         unsigned int ior,
+                                         const coot::minimol::molecule &mol) const {
 
    std::string ori_sol_file_name = "ori-sol-cluster:_";
    ori_sol_file_name += util::int_to_string(iclust);
@@ -2090,28 +2090,28 @@ void
 coot::ligand::sort_final_ligand(unsigned int iclust) {
 
    std::sort(final_ligand[iclust].begin(),
-	     final_ligand[iclust].end(),
-	     compare_scored_ligands);
+             final_ligand[iclust].end(),
+             compare_scored_ligands);
    // lowest score is now in 0th position
    std::reverse(final_ligand[iclust].begin(),
-		final_ligand[iclust].end());
+                final_ligand[iclust].end());
 
    if (false)
       for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
-	 std::cout << "post reverse: solution " << isol << " of " << final_ligand[iclust].size()
-		   << " " << final_ligand[iclust][isol].second << std::endl;
+         std::cout << "post reverse: solution " << isol << " of " << final_ligand[iclust].size()
+                   << " " << final_ligand[iclust][isol].second << std::endl;
 }
 
 // static
 bool
 coot::ligand::compare_scored_ligands(const std::pair<coot::minimol::molecule, ligand_score_card> &sl_1,
-				     const std::pair<coot::minimol::molecule, ligand_score_card> &sl_2) {
+                                     const std::pair<coot::minimol::molecule, ligand_score_card> &sl_2) {
    return (sl_1.second.get_score() < sl_2.second.get_score());
 }
 // static
 bool
 coot::ligand::compare_scored_ligands_using_correlation(const std::pair<coot::minimol::molecule, ligand_score_card> &sl_1,
-						       const std::pair<coot::minimol::molecule, ligand_score_card> &sl_2) {
+                                                       const std::pair<coot::minimol::molecule, ligand_score_card> &sl_2) {
 
 
    if (sl_1.second.correlation.first && sl_2.second.correlation.first)
@@ -2121,7 +2121,7 @@ coot::ligand::compare_scored_ligands_using_correlation(const std::pair<coot::min
 
 unsigned int
 coot::ligand::n_ligands_for_cluster(unsigned int iclust,
-				    float frac_limit_of_peak_score) const {
+                                    float frac_limit_of_peak_score) const {
 
    unsigned int n = 0;
    float top_score = -1;
@@ -2129,13 +2129,13 @@ coot::ligand::n_ligands_for_cluster(unsigned int iclust,
    if (final_ligand[iclust].size() > 0) {
       top_score = final_ligand[iclust][0].second.get_score();
       for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
-	 if (final_ligand[iclust][i].second.get_score() > frac_limit_of_peak_score * top_score)
-	    n++;
+         if (final_ligand[iclust][i].second.get_score() > frac_limit_of_peak_score * top_score)
+            n++;
       }
    }
    std::cout << "debug:: n_ligands_for_cluster() top_score " << top_score << " and "
-	     << n << " are decent out of " << final_ligand[iclust].size()
-	     << std::endl;
+             << n << " are decent out of " << final_ligand[iclust].size()
+             << std::endl;
    return n;
 }
 
@@ -2169,53 +2169,53 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
 
    if (debug)
       std::cout << "score_and_resort_using_correlation iclust: " << iclust << " n_ligs " << n_ligs
-		<< " n_sol " << n_sol << std::endl;
+                << " n_sol " << n_sol << std::endl;
 
 //    #pragma omp parallel for
    for (unsigned int i=0; i<n_ligs; i++) {
       if (i < n_sol) {
 
-	 const minimol::molecule &lig_mol = final_ligand[iclust][i].first;
-	 mmdb::Manager *mol = lig_mol.pcmmdbmanager(); // d
-	 std::vector<residue_spec_t> specs;
-	 residue_spec_t spec(lig_mol[0].fragment_id,
-			     lig_mol[0].min_res_no(), "");
-	 specs.push_back(spec);
-	 short int mode = 0; // all atoms
-	 std::vector<residue_spec_t> neighb_specs; // Dummy value currently.
-	                                           // Don't count grid points of the spec residues
-	                                           // that are part of other residues in
-	                                           // the region.
+         const minimol::molecule &lig_mol = final_ligand[iclust][i].first;
+         mmdb::Manager *mol = lig_mol.pcmmdbmanager(); // d
+         std::vector<residue_spec_t> specs;
+         residue_spec_t spec(lig_mol[0].fragment_id,
+                             lig_mol[0].min_res_no(), "");
+         specs.push_back(spec);
+         short int mode = 0; // all atoms
+         std::vector<residue_spec_t> neighb_specs; // Dummy value currently.
+                                                   // Don't count grid points of the spec residues
+                                                   // that are part of other residues in
+                                                   // the region.
 
-	 double c = util::map_to_model_correlation(mol, specs, neighb_specs,
-						   mode, 1.5, xmap_pristine);
-	 if (debug)
-	    std::cout << "----- in get_correl() constructed spec for i "
-		      << i << " " << spec
-		      << " which has correlation " << c << std::endl;
+         double c = util::map_to_model_correlation(mol, specs, neighb_specs,
+                                                   mode, 1.5, xmap_pristine);
+         if (debug)
+            std::cout << "----- in get_correl() constructed spec for i "
+                      << i << " " << spec
+                      << " which has correlation " << c << std::endl;
 
-	 std::pair<bool, double> p(true, c);
-	 final_ligand[iclust][i].second.correlation = p;
-	 delete mol;
+         std::pair<bool, double> p(true, c);
+         final_ligand[iclust][i].second.correlation = p;
+         delete mol;
       }
    }
 
    std::sort(final_ligand[iclust].begin(),
-	     final_ligand[iclust].end(),
-	     compare_scored_ligands_using_correlation);
+             final_ligand[iclust].end(),
+             compare_scored_ligands_using_correlation);
    std::reverse(final_ligand[iclust].begin(),
-		final_ligand[iclust].end());
+                final_ligand[iclust].end());
 
 
    if (debug) {
       std::cout << "INFO post-sort: ------------------ iclust: " << iclust
-		<<  " size: " << final_ligand[iclust].size()
-		<< " solutions for cluster "
-		<< iclust << " ------------- " << std::endl;
+                <<  " size: " << final_ligand[iclust].size()
+                << " solutions for cluster "
+                << iclust << " ------------- " << std::endl;
       for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
-	 std::cout << "   post correl " << isol << " of "
-		   << final_ligand[iclust].size() << " "
-		   << final_ligand[iclust][isol].second << std::endl;
+         std::cout << "   post correl " << isol << " of "
+                   << final_ligand[iclust].size() << " "
+                   << final_ligand[iclust][isol].second << std::endl;
    }
 
 }
@@ -2226,17 +2226,17 @@ coot::ligand::get_correl(const minimol::molecule &lig_mol) const {
    mmdb::Manager *mol = lig_mol.pcmmdbmanager();
    std::vector<residue_spec_t> specs;
    residue_spec_t spec(lig_mol[0].fragment_id,
-		       lig_mol[0].min_res_no(), "");
+                       lig_mol[0].min_res_no(), "");
    specs.push_back(spec);
    std::vector<residue_spec_t> neighb_specs; // Dummy (empty) value currently.
-	                                     // Don't count grid points of the spec residues
-	                                     // that are part of other residues in
-	                                     // the region.
+                                             // Don't count grid points of the spec residues
+                                             // that are part of other residues in
+                                             // the region.
    short int mode = 0; // all atoms
    double c = util::map_to_model_correlation(mol, specs, neighb_specs, mode, 1.5, xmap_pristine);
    if (0)
       std::cout << "----- in get_correl() constructed spec " << spec
-		<< " which has correlation " << c << std::endl;
+                << " which has correlation " << c << std::endl;
    delete mol;
    return c;
 }
@@ -2244,35 +2244,35 @@ coot::ligand::get_correl(const minimol::molecule &lig_mol) const {
 // this should only be run post-sort (post-correlation sort)
 void
 coot::ligand::limit_solutions(unsigned int iclust,
-			      float frac_max_correl_lim,
-			      int max_n_solutions,
-			      float tolerance,
-			      bool filter_by_torsion_match) { // false
+                              float frac_max_correl_lim,
+                              int max_n_solutions,
+                              float tolerance,
+                              bool filter_by_torsion_match) { // false
 
    bool debug = false;
    if (final_ligand[iclust].size()) {
       float min_correl = final_ligand[iclust][0].second.correlation.second * frac_max_correl_lim;
       if (debug)
-	 std::cout << "INFO:: ..... in limit_solutions() min_correl is " << min_correl << std::endl;
+         std::cout << "INFO:: ..... in limit_solutions() min_correl is " << min_correl << std::endl;
       final_ligand[iclust].erase(std::remove_if(final_ligand[iclust].begin(),
-						final_ligand[iclust].end(),
-						scored_ligand_eraser(min_correl)),
-				 final_ligand[iclust].end());
+                                                final_ligand[iclust].end(),
+                                                scored_ligand_eraser(min_correl)),
+                                 final_ligand[iclust].end());
    }
 
    if (filter_by_torsion_match) {
       // make a vector of final solution mmdb::Residues:
       std::vector<std::pair<mmdb::Residue *, mmdb::Manager *>  >
-	 final_solution_residues(final_ligand[iclust].size());
+         final_solution_residues(final_ligand[iclust].size());
       for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
-	 mmdb::Manager *mol = get_solution(iclust, i).pcmmdbmanager();
-	 if (mol) {
-	    mmdb::Residue *r = util::get_first_residue(mol);
-	    if (r) {
-	       std::pair<mmdb::Residue *, mmdb::Manager *> p(r, mol);
-	       final_solution_residues[i] = p;
-	    }
-	 }
+         mmdb::Manager *mol = get_solution(iclust, i).pcmmdbmanager();
+         if (mol) {
+            mmdb::Residue *r = util::get_first_residue(mol);
+            if (r) {
+               std::pair<mmdb::Residue *, mmdb::Manager *> p(r, mol);
+               final_solution_residues[i] = p;
+            }
+         }
       }
 
       // now we have the vector, let's test for similar
@@ -2280,9 +2280,9 @@ coot::ligand::limit_solutions(unsigned int iclust,
 
    if (debug)
       for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
-	 std::cout << "limit solutions: " << isol << " of "
-		   << final_ligand[iclust].size() << " "
-		   << final_ligand[iclust][isol].second << std::endl;
+         std::cout << "limit solutions: " << isol << " of "
+                   << final_ligand[iclust].size() << " "
+                   << final_ligand[iclust][isol].second << std::endl;
 }
 
 
@@ -2316,13 +2316,13 @@ coot::ligand::similar_eigen_values(int iclust, int ilig) const {
    std::cout << "comparing eigens: " << std::endl;
    for (int ii=0; ii<3; ii++) {
       std::cout << initial_ligand_eigenvalues[ilig][ii] << " "
-		<< sqrt(cluster[iclust].eigenvalues[ii]) << std::endl;
+                << sqrt(cluster[iclust].eigenvalues[ii]) << std::endl;
    }
 
    for (int ii=0; ii<3; ii++) {
       if (initial_ligand_eigenvalues[ilig][ii] > (1.0+fac)*sqrt(cluster[iclust].eigenvalues[ii]) ||
-	  initial_ligand_eigenvalues[ilig][ii] < (1.0-fac)*sqrt(cluster[iclust].eigenvalues[ii])) {
-	 return 0;
+          initial_ligand_eigenvalues[ilig][ii] < (1.0-fac)*sqrt(cluster[iclust].eigenvalues[ii])) {
+         return 0;
       }
    }
    std::cout << std::endl;
@@ -2354,12 +2354,12 @@ coot::ligand::get_first_residue_name(const coot::minimol::molecule &mol) const {
 
    for (unsigned int ifrag=0; ifrag<mol.fragments.size(); ifrag++) {
       for (int ires=mol.fragments[ifrag].min_res_no(); ires<=mol.fragments[ifrag].max_residue_number(); ires++) {
-	 name = mol[ifrag][ires].name;
-	 if (name != "")
-	    break;
+         name = mol[ifrag][ires].name;
+         if (name != "")
+            break;
       }
       if (name != "")
-	 break;
+         break;
    }
    return name;
 }
@@ -2385,13 +2385,13 @@ coot::ligand::cluster_ligand_size_match(int iclust, int ilig) {
    float cluster_vol = grid_vol * cluster[iclust].map_grid.size();
 
 //     std::cout << "INFO: grid_vol " << grid_vol << " cluster_vol "
-// 	      << cluster_vol << std::endl;
+//               << cluster_vol << std::endl;
 
    std::vector<minimol::atom *> atoms = initial_ligand[ilig].select_atoms_serial();
    int n_lig_atoms = 0;
    for (unsigned int i=0; i<atoms.size(); i++) {
       if (atoms[i]->element != " H") {
-	 n_lig_atoms++;
+         n_lig_atoms++;
       }
    }
 
@@ -2399,8 +2399,8 @@ coot::ligand::cluster_ligand_size_match(int iclust, int ilig) {
    float ligand_vol = (4.0*3.14159/3.0)*1.78*float(n_lig_atoms);
 
 //     std::cout << "cluster_ligand_size_match: "
-//  	     << cluster[iclust].map_grid.size()
-//  	     << " " << cluster_vol << " vs " << ligand_vol << std::endl;
+//               << cluster[iclust].map_grid.size()
+//               << " " << cluster_vol << " vs " << ligand_vol << std::endl;
 
    // Check whether ligand_vol and cluster_vol are "more or less" the
    // same.  Realise that ligand_vol is quite possible to be bigger
@@ -2408,7 +2408,7 @@ coot::ligand::cluster_ligand_size_match(int iclust, int ilig) {
    // level for a matching ligand.
    //
    if ( (ligand_vol/cluster_vol) < 7.0 &&  // limit for big ligand vs small density
-	(ligand_vol/cluster_vol) > 0.8 )  // limit for small ligand vs bit density
+        (ligand_vol/cluster_vol) > 0.8 )  // limit for small ligand vs bit density
       {
       return 1;
    } else {
@@ -2434,12 +2434,12 @@ coot::ligand::fit_ligand_copy(int iclust, int ilig, int ior) {
       fitted_ligand_vec[ilig].resize(iclust + 1);
    }
    fitted_ligand_vec[ilig][iclust] = initial_ligand[ilig]; // Oh joy!  The relief is
-				         	           // ... substantial.
+                                                            // ... substantial.
 
    std::vector<minimol::atom *> atoms_p = fitted_ligand_vec[ilig][iclust].select_atoms_serial();
 
 //    std::cout << "DEBUG:: There are "<< atoms_p.size() << " atoms in "
-// 	     << "atoms_p in fit_ligand_copy" << std::endl;
+//              << "atoms_p in fit_ligand_copy" << std::endl;
 
    // First move the ligand to the site of the cluster:
    for(unsigned int ii=0; ii<atoms_p.size(); ii++) {
@@ -2479,7 +2479,7 @@ coot::ligand::fit_ligand_copy(int iclust, int ilig, int ior, const clipper::RTop
       fitted_ligand_vec[ilig].resize(iclust + 1);
    }
    fitted_ligand_vec[ilig][iclust] = initial_ligand[ilig]; // Oh joy!  The relief is
-				         	           // ... substantial.
+                                                            // ... substantial.
 
    std::vector<minimol::atom *> atoms_p = fitted_ligand_vec[ilig][iclust].select_atoms_serial();
 
@@ -2515,31 +2515,31 @@ coot::ligand::fit_ligand_copy(int iclust, int ilig, int ior, const clipper::RTop
 //
 clipper::Coord_orth
 coot::ligand::transform_ligand_atom(const clipper::Coord_orth &a_in,
-				    int ilig, int iclust, int ior) const {
+                                    int ilig, int iclust, int ior) const {
 
    return transform_ligand_atom(a_in, ilig,
-				cluster[iclust].eigenvectors_and_centre,
-				ior);
+                                cluster[iclust].eigenvectors_and_centre,
+                                ior);
 }
 
 clipper::Coord_orth
 coot::ligand::transform_ligand_atom(const clipper::Coord_orth &a_in,
-				    int ilig, const clipper::RTop_orth &cluster_rtop, int ior) const {
+                                    int ilig, const clipper::RTop_orth &cluster_rtop, int ior) const {
 
    clipper::Coord_orth a;
 
    clipper::RTop_orth ligand_op(initial_ligand_eigenvectors[ilig],
-				initial_ligand_model_centre[ilig]);
+                                initial_ligand_model_centre[ilig]);
 
    clipper::RTop_orth lopi = clipper::RTop_orth (ligand_op.inverse());
 
    clipper::RTop_orth origin_rotate_op = clipper::RTop_orth(origin_rotations[ior],
-							    clipper::Coord_orth(0,0,0));
+                                                            clipper::Coord_orth(0,0,0));
 
 //    std::cout << std::endl << std::endl << std::endl;
 //    std::cout << "ligand_op"    << std::endl << ligand_op.format() << std::endl;
 //    std::cout << "eigen_centre" << std::endl
-// 	     << cluster[i].eigenvectors_and_centre.format() << std::endl;
+//              << cluster[i].eigenvectors_and_centre.format() << std::endl;
 
    a = a_in.transform(lopi); // move to origin
    a = a.transform(origin_rotate_op); // rotate round origin
@@ -2562,23 +2562,23 @@ coot::ligand::transform_ligand_atom(const clipper::Coord_orth &a_in,
 //
 clipper::Coord_orth
 coot::ligand::transform_ligand_atom(const clipper::Coord_orth &a_in,
-				    int ilig, int iclust, int ior,
-				    const clipper::RTop_orth &eigen_ori) const {
+                                    int ilig, int iclust, int ior,
+                                    const clipper::RTop_orth &eigen_ori) const {
 
    clipper::Coord_orth a;
 
    clipper::RTop_orth ligand_op(initial_ligand_eigenvectors[ilig],
-				initial_ligand_model_centre[ilig]);
+                                initial_ligand_model_centre[ilig]);
 
    clipper::RTop_orth lopi = clipper::RTop_orth (ligand_op.inverse());
 
    clipper::RTop_orth origin_rotate_op = clipper::RTop_orth(origin_rotations[ior],
-							    clipper::Coord_orth(0,0,0));
+                                                            clipper::Coord_orth(0,0,0));
 
 //    std::cout << std::endl << std::endl << std::endl;
 //    std::cout << "ligand_op"    << std::endl << ligand_op.format() << std::endl;
 //    std::cout << "eigen_centre" << std::endl
-// 	     << cluster[i].eigenvectors_and_centre.format() << std::endl;
+//              << cluster[i].eigenvectors_and_centre.format() << std::endl;
 
    a = a_in.transform(lopi); // move to origin
    a = a.transform(eigen_ori);
@@ -2613,7 +2613,7 @@ coot::ligand::transform_ligand_atom(const clipper::Coord_orth &a_in,
 // static
 void
 coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
-				       const clipper::Xmap<float> &xmap_fitting,
+                                       const clipper::Xmap<float> &xmap_fitting,
                                        const clipper::Xmap<float> &xmap_pristine,
                                        const clipper::RTop_orth rotation_component[3],
                                        float gradient_scale) {
@@ -2634,8 +2634,8 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
                                };
 
    auto apply_angles_to_ligand = [] (const clipper::Vec3<double> &angles ,
-				     const clipper::Coord_orth &mean_pos,
-				     const std::vector<minimol::atom *> *atoms_p) {
+                                     const clipper::Coord_orth &mean_pos,
+                                     const std::vector<minimol::atom *> *atoms_p) {
 
                                     double scale_factor = 1.0;
                                     unsigned int n_atoms = atoms_p->size();
@@ -2666,27 +2666,27 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
 
 
    while ((iround < round_max) &&
-	  ((move_by_length > 0.002) || (angle_sum > 0.002))) {
+          ((move_by_length > 0.002) || (angle_sum > 0.002))) {
 
       clipper::Coord_orth midpoint(0,0,0);
       float ff = 0.1; // doesn't matter, we don't want warning messages
 
       if (debug)
-	 std::cout << "---------------------  start of the rigid body round " << iround << "\n"
-		   << "   score is " << score_orientation(*atoms_p, xmap_fitting, ff) << std::endl;
+         std::cout << "---------------------  start of the rigid body round " << iround << "\n"
+                   << "   score is " << score_orientation(*atoms_p, xmap_fitting, ff) << std::endl;
 
       for (unsigned int ii=0; ii<atoms_p->size(); ii++) {
-	 midpoint += (*atoms_p)[ii]->pos;
+         midpoint += (*atoms_p)[ii]->pos;
       }
 
       double scale = 1.0/double(atoms_p->size());
       clipper::Coord_orth mean_pos = clipper::Coord_orth(midpoint.x() * scale,
-							 midpoint.y() * scale,
-							 midpoint.z() * scale);
+                                                         midpoint.y() * scale,
+                                                         midpoint.z() * scale);
 
       if (debug)
-	 std::cout << "   iround " << iround << " real mean pos mid point in rigid_body: point 0"
-		   << mean_pos.format() << std::endl;
+         std::cout << "   iround " << iround << " real mean pos mid point in rigid_body: point 0"
+                   << mean_pos.format() << std::endl;
 
       // Get the average gradient in orthogonal x, y, z directions:
       //
@@ -2696,76 +2696,76 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
       std::vector<clipper::Grad_orth<float> > grad_vec(n_atoms);
       float dv, sum_dx = 0, sum_dy = 0, sum_dz = 0;
       for (int ii=0; ii<n_atoms; ii++) {
-	 const clipper::Coord_orth &atom_pos = (*atoms_p)[ii]->pos;
-	 clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap_pristine.cell());
-	 clipper::Coord_map  atom_pos_map = atom_pos_frc.coord_map(xmap_pristine.grid_sampling());
-	 clipper::Interp_cubic::interp_grad(xmap_fitting, atom_pos_map, dv, grad);
-	 grad_frac = grad.grad_frac(xmap_pristine.grid_sampling());
-	 grad_orth = grad_frac.grad_orth(xmap_pristine.cell());
-	 // std::cout << "gradients: " << grad_orth.format() << std::endl;
-	 sum_dx += grad_orth.dx();
-	 sum_dy += grad_orth.dy();
-	 sum_dz += grad_orth.dz();
-	 grad_vec[ii] = grad_orth;
+         const clipper::Coord_orth &atom_pos = (*atoms_p)[ii]->pos;
+         clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap_pristine.cell());
+         clipper::Coord_map  atom_pos_map = atom_pos_frc.coord_map(xmap_pristine.grid_sampling());
+         clipper::Interp_cubic::interp_grad(xmap_fitting, atom_pos_map, dv, grad);
+         grad_frac = grad.grad_frac(xmap_pristine.grid_sampling());
+         grad_orth = grad_frac.grad_orth(xmap_pristine.cell());
+         // std::cout << "gradients: " << grad_orth.format() << std::endl;
+         sum_dx += grad_orth.dx();
+         sum_dy += grad_orth.dy();
+         sum_dz += grad_orth.dz();
+         grad_vec[ii] = grad_orth;
       }
       double datfrac = 1.0/double (n_atoms);
       clipper::Grad_orth<float> av_grad(sum_dx * datfrac,
-					sum_dy * datfrac,
-					sum_dz * datfrac);
+                                        sum_dy * datfrac,
+                                        sum_dz * datfrac);
 
       clipper::Coord_orth moved_by = clipper::Coord_orth(gradient_scale*av_grad.dx(),
-							 gradient_scale*av_grad.dy(),
-							 gradient_scale*av_grad.dz());
+                                                         gradient_scale*av_grad.dy(),
+                                                         gradient_scale*av_grad.dz());
 
       if (debug)
-	 std::cout << "   iround " << iround << " moving by " << moved_by.format() << std::endl;
+         std::cout << "   iround " << iround << " moving by " << moved_by.format() << std::endl;
 
       clipper::Vec3<double> angles;
       bool angles_are_valid = false;
       if (atoms_p->size() > 1) {
-	 angles = get_rigid_body_angle_components(*atoms_p, mean_pos, grad_vec,
+         angles = get_rigid_body_angle_components(*atoms_p, mean_pos, grad_vec,
                                                   rotation_component, gradient_scale);
-	 angles_are_valid = true;
+         angles_are_valid = true;
       }
 
       move_by_length = sqrt(moved_by.lengthsq());
 
       if (debug) {
-	 std::cout << "   iround " << iround << " " << move_by_length
-		   << " " << moved_by.x()
-		   << " " << moved_by.y()
-		   << " " << moved_by.z() << "\n";
-	 std::cout << "      mean pos in rigid body refine ligand: point 1 "
-		   << mean_pos.format() << std::endl;
-	 std::cout << "      moved by: " <<  moved_by.format() << std::endl;
-	 std::cout << "      mean by function: "
-		   << mean_ligand_position(*atoms_p).format() << std::endl;
+         std::cout << "   iround " << iround << " " << move_by_length
+                   << " " << moved_by.x()
+                   << " " << moved_by.y()
+                   << " " << moved_by.z() << "\n";
+         std::cout << "      mean pos in rigid body refine ligand: point 1 "
+                   << mean_pos.format() << std::endl;
+         std::cout << "      moved by: " <<  moved_by.format() << std::endl;
+         std::cout << "      mean by function: "
+                   << mean_ligand_position(*atoms_p).format() << std::endl;
       }
 
       mean_pos += moved_by;
       for (int ii=0; ii<n_atoms; ii++)
-	 (*atoms_p)[ii]->pos += moved_by;
+         (*atoms_p)[ii]->pos += moved_by;
 
       // Consider moving the generation (not application) of the
       // angles above the application of the translations.
       //
       if (debug)
-	 std::cout << "   iround " << iround << " Now to apply the angles: "
-		   << clipper::Util::rad2d(angles[0]) << " "
-		   << clipper::Util::rad2d(angles[1]) << " "
-		   << clipper::Util::rad2d(angles[2]) << std::endl;
+         std::cout << "   iround " << iround << " Now to apply the angles: "
+                   << clipper::Util::rad2d(angles[0]) << " "
+                   << clipper::Util::rad2d(angles[1]) << " "
+                   << clipper::Util::rad2d(angles[2]) << std::endl;
 
       if (angles_are_valid) {
-	 apply_angles_to_ligand(angles,mean_pos, atoms_p);
+         apply_angles_to_ligand(angles,mean_pos, atoms_p);
 
-	 // set angle_sum for next round
-	 angle_sum = 0.0;
-	 angle_sum += fabs(clipper::Util::rad2d(angles[0]));
-	 angle_sum += fabs(clipper::Util::rad2d(angles[1]));
-	 angle_sum += fabs(clipper::Util::rad2d(angles[2]));
-	 if (debug)
-	    std::cout << "   iround " << iround << " moved: " << move_by_length
-		      << " angle_sum: " << angle_sum << std::endl;
+         // set angle_sum for next round
+         angle_sum = 0.0;
+         angle_sum += fabs(clipper::Util::rad2d(angles[0]));
+         angle_sum += fabs(clipper::Util::rad2d(angles[1]));
+         angle_sum += fabs(clipper::Util::rad2d(angles[2]));
+         if (debug)
+            std::cout << "   iround " << iround << " moved: " << move_by_length
+                      << " angle_sum: " << angle_sum << std::endl;
       }
 
       iround++;
@@ -2779,13 +2779,13 @@ coot::ligand::mean_ligand_position(const std::vector<minimol::atom *> &atoms) co
 
    clipper::Coord_orth p(0,0,0);
    for (unsigned int ii=0; ii<atoms.size(); ii++) {
-	   p += atoms[ii]->pos;
+           p += atoms[ii]->pos;
    }
 
    double scale = 1/double(atoms.size());
    clipper::Coord_orth a(p.x() * scale,
-		   	 p.y() * scale,
-		   	 p.z() * scale);
+                            p.y() * scale,
+                            p.z() * scale);
 
    return a;
 }
@@ -2797,8 +2797,8 @@ coot::ligand::mean_ligand_position(const std::vector<minimol::atom *> &atoms) co
 //
 clipper::Vec3<double>
 coot::ligand::get_rigid_body_angle_components(const std::vector<minimol::atom *> &atoms,
-					      const clipper::Coord_orth &mean_pos,
-					      const std::vector<clipper::Grad_orth<float> > &grad_vec,
+                                              const clipper::Coord_orth &mean_pos,
+                                              const std::vector<clipper::Grad_orth<float> > &grad_vec,
                                               const clipper::RTop_orth rotation_component[3],
                                               float gradient_scale) {
 
@@ -2837,17 +2837,17 @@ coot::ligand::get_rigid_body_angle_components(const std::vector<minimol::atom *>
    for (unsigned int ii=0; ii<atoms.size(); ii++) {
       V = atoms[ii]->pos - mean_pos; // vector from centre to atom
       clipper::Coord_orth grad(grad_vec[ii].dx(),
-			       grad_vec[ii].dy(),
-			       grad_vec[ii].dz());
+                               grad_vec[ii].dy(),
+                               grad_vec[ii].dz());
       for (int ir=0; ir<3; ir++) {  // rotation axis
-	 Vp[ir] = V.transform(rotation_component[ir]);
-	 Vp_rms_sum[ir] += Vp[ir].lengthsq();
-	 dot_prod[ir] = clipper::Coord_orth::dot(grad,Vp[ir]);
-	 sum_grad[ir] += dot_prod[ir];
-	 if (debug)
-	    std::cout << "   iat: " << ii << " V(ec) " << V.format()
-		      << " grad: " << grad.format() << " * " << Vp[ir].format() << " is "
-		      << dot_prod[ir] << " now sum_grad[" << ir << "] = " << sum_grad[ir] << std::endl;
+         Vp[ir] = V.transform(rotation_component[ir]);
+         Vp_rms_sum[ir] += Vp[ir].lengthsq();
+         dot_prod[ir] = clipper::Coord_orth::dot(grad,Vp[ir]);
+         sum_grad[ir] += dot_prod[ir];
+         if (debug)
+            std::cout << "   iat: " << ii << " V(ec) " << V.format()
+                      << " grad: " << grad.format() << " * " << Vp[ir].format() << " is "
+                      << dot_prod[ir] << " now sum_grad[" << ir << "] = " << sum_grad[ir] << std::endl;
       }
    }
 
@@ -2862,11 +2862,11 @@ coot::ligand::get_rigid_body_angle_components(const std::vector<minimol::atom *>
       a[ir] = gradient_scale * 0.1 * sum_grad[ir]/(Vp_av_len[ir] * sqrt(static_cast<double>(atoms.size())));
 
       if (debug) {
-	 std::cout << "  a[" << ir << "] is " << sum_grad[ir] << "/" << Vp_av_len[ir] << "/sqrt("
-		   << atoms.size() << ") = " << a[ir] << "     " << a[ir] * 57.3 << " degrees " << std::endl;
- 	 std::cout << "Vp_av_len[" << ir << "] is " << Vp_av_len[ir] << "    and sum_grad["
- 		   << ir << "] is " << sum_grad[ir] << "  ";
- 	 std::cout << "  a[" << ir << "] is " << a[ir]*57.3 << " degrees " << std::endl;
+         std::cout << "  a[" << ir << "] is " << sum_grad[ir] << "/" << Vp_av_len[ir] << "/sqrt("
+                   << atoms.size() << ") = " << a[ir] << "     " << a[ir] * 57.3 << " degrees " << std::endl;
+          std::cout << "Vp_av_len[" << ir << "] is " << Vp_av_len[ir] << "    and sum_grad["
+                    << ir << "] is " << sum_grad[ir] << "  ";
+          std::cout << "  a[" << ir << "] is " << a[ir]*57.3 << " degrees " << std::endl;
       }
    }
 
@@ -2875,8 +2875,8 @@ coot::ligand::get_rigid_body_angle_components(const std::vector<minimol::atom *>
 
 void
 coot::ligand::apply_angles_to_ligand(const clipper::Vec3<double> &angles ,
-				     const std::vector<minimol::atom *> *atoms_p,
-				     const clipper::Coord_orth &mean_pos) {
+                                     const std::vector<minimol::atom *> *atoms_p,
+                                     const clipper::Coord_orth &mean_pos) {
 
    double sin_t;
    double cos_t;
@@ -2912,9 +2912,9 @@ coot::ligand::apply_angles_to_ligand(const clipper::Vec3<double> &angles ,
 // static
 coot::ligand_score_card
 coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
-				const clipper::Xmap<float> &xmap_fitting,
+                                const clipper::Xmap<float> &xmap_fitting,
                                 float fit_fraction,
-				bool use_linear_interpolation) {
+                                bool use_linear_interpolation) {
 
    coot::ligand_score_card score_card;
    int n_positive_atoms = 0;
@@ -2925,16 +2925,16 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
       const clipper::Coord_orth &atom_pos = atoms[ii]->pos;
       clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap_fitting.cell());
       if (!atoms[ii]->is_hydrogen_p()) {
-	 // float dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
-	 float dv = 0;
-	 if (use_linear_interpolation)
-	    dv = xmap_fitting.interp<clipper::Interp_linear>(atom_pos_frc);
-	 else
-	    dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc); // faster and accurate enough
-	 score_card.add(dv * atoms[ii]->occupancy);
-	 n_non_hydrogens++;
-	 if (dv > 0)
-	    n_positive_atoms++;
+         // float dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
+         float dv = 0;
+         if (use_linear_interpolation)
+            dv = xmap_fitting.interp<clipper::Interp_linear>(atom_pos_frc);
+         else
+            dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc); // faster and accurate enough
+         score_card.add(dv * atoms[ii]->occupancy);
+         n_non_hydrogens++;
+         if (dv > 0)
+            n_positive_atoms++;
       }
    }
 
@@ -2942,38 +2942,38 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
       // fit_fraction is initially 0.75, but can be changed by an public member
       // function.
       if (n_non_hydrogens > 0) {
-	 score_card.set_n_ligand_atoms(n_non_hydrogens);
-	 if (0)
-	    std::cout << "fit fraction test: is " << n_positive_atoms << "/"
-		      << n_non_hydrogens << " ("
-		      << float(n_positive_atoms)/float(n_non_hydrogens)
-		      << ") < " << fit_fraction << std::endl;
-	 if (float(n_positive_atoms)/float(n_non_hydrogens) >= fit_fraction ) { // arbitary
-	    score_card.many_atoms_fit = 1; // consider using a member function
-	    score_card.score_per_atom = score_card.get_score()/float(n_non_hydrogens);
-	 } else {
+         score_card.set_n_ligand_atoms(n_non_hydrogens);
+         if (0)
+            std::cout << "fit fraction test: is " << n_positive_atoms << "/"
+                      << n_non_hydrogens << " ("
+                      << float(n_positive_atoms)/float(n_non_hydrogens)
+                      << ") < " << fit_fraction << std::endl;
+         if (float(n_positive_atoms)/float(n_non_hydrogens) >= fit_fraction ) { // arbitary
+            score_card.many_atoms_fit = 1; // consider using a member function
+            score_card.score_per_atom = score_card.get_score()/float(n_non_hydrogens);
+         } else {
             if (false) // too noisy
                std::cout << "WARNING:: badly fitting atoms, failing fit_fraction test "
                          << n_positive_atoms << " / " << n_non_hydrogens << " vs " << fit_fraction
                          << std::endl;
-	 }
+         }
       } else {
-	 // Pathalogical case.  No non-hydrogens in ligand.  This code
-	 // should never realistically be run...
-	 score_card.many_atoms_fit = 0;
-	 score_card.score_per_atom = -1.0;
+         // Pathalogical case.  No non-hydrogens in ligand.  This code
+         // should never realistically be run...
+         score_card.many_atoms_fit = 0;
+         score_card.score_per_atom = -1.0;
       }
 
 //       std::cout << "for score card score: "  << score_card.score << std::endl;
 //       for (int i=0; i< atoms.size(); i++) {
 
-// 	 clipper::Coord_orth atom_pos(atoms[i]->pos.x(),
-// 				      atoms[i]->pos.y(),
-// 				      atoms[i]->pos.z());
-// 	 clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap.cell());
-// 	 dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
+//          clipper::Coord_orth atom_pos(atoms[i]->pos.x(),
+//                                       atoms[i]->pos.y(),
+//                                       atoms[i]->pos.z());
+//          clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap.cell());
+//          dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
 
-// 	 std::cout << i << " " << " " << atom_pos.format() << " " << dv << std::endl;
+//          std::cout << i << " " << " " << atom_pos.format() << " " << dv << std::endl;
 //       }
    }
    return score_card;
@@ -2981,7 +2981,7 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
 
 float
 coot::ligand::score_position(const clipper::Coord_orth &atom_pos,
-			     const clipper::Xmap<float> &xmap_fitting) const {
+                             const clipper::Xmap<float> &xmap_fitting) const {
 
    clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap_fitting.cell());
    return xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
