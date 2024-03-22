@@ -40,7 +40,7 @@ phi-psi-prob.cc              coot-molecule-moltris.cc                         co
 coot-molecule-backup.cc      coot-molecule-bonds-instanced.cc                 molecules-container-mmrrcc.cc \
 coot-molecule-refine.cc      molecules-container-superpose.cc                 rigid-body-fit.cc \
 moorhen-h-bonds.cc           molecules-container-bucca-ml-growing.cc          instancing.cc  \
-coot-molecule-change-chain-id.cc    \
+molecules-container-maps.cc  coot-molecule-change-chain-id.cc    \
 blender-mesh.cc              coot-molecule-blender.cc                         molecules-container-blender.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \

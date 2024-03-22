@@ -1083,6 +1083,28 @@ coot::util::average_map(const std::vector<std::pair<clipper::Xmap<float>, float>
    return rmap;
 }
 
+// like above, but modify the map, don't return a new one. Also this presumes that the maps haave the same gridding
+void
+coot::util::regen_weighted_map(clipper::Xmap<float> *xmap_in,
+                              const std::vector<std::pair<clipper::Xmap<float> *, float> > &maps_and_scales_vec) {
+
+   if (!maps_and_scales_vec.empty()) {
+      for (unsigned int imap=0; imap<maps_and_scales_vec.size(); imap++) {
+         const clipper::Xmap<float> &xmap = *maps_and_scales_vec[imap].first;
+         const float &sf                  = maps_and_scales_vec[imap].second;
+         clipper::Xmap_base::Map_reference_index ix;
+         for (ix = xmap_in->first(); !ix.last(); ix.next()) {
+            if (imap == 0) {
+               (*xmap_in)[ix] = xmap[ix] *sf;
+            } else {
+               (*xmap_in)[ix] += xmap[ix] *sf;
+            }
+         }
+      }
+   }
+}
+
+
 // like above, but variance, scales are ignored.
 //
 clipper::Xmap<float>

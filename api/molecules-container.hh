@@ -982,6 +982,17 @@ public:
 
    std::string r_factor_stats_as_string(const r_factor_stats &rfs) const;
 
+   // This function does no normalisztion of the scales,
+   // presuming that they are pre-normalized.
+   // @return the index of the new map, or -1 on failure.
+   int average_map(const std::string &imol_maps, std::vector<float> &scales);
+
+   // This function does no normalisztion of the scales, presuming that they are pre-normalized.
+   // The number of maps in imol_maps should match the size of the scale vector. If not, nothing
+   // will happen and False will be returned.
+   // @return success status
+   bool regen_map(int imol_map, const std::string &imol_maps, const std::vector<float> &scales);
+
    // -------------------------------- coordinates modelling -------------------------------
    //! \name Coordinates Modelling
 
