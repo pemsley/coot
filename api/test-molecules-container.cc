@@ -3293,8 +3293,9 @@ int test_mmrrcc(molecules_container_t &mc) {
          status = 1;
 
       std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>::const_iterator it;
-      for (it=mcc.begin(); it!=mcc.end(); ++it)
-         std::cout << "   " << it->first << " " << it->second.correlation() << std::endl;
+      if (false) // remove noise
+         for (it=mcc.begin(); it!=mcc.end(); ++it)
+            std::cout << "   " << it->first << " " << it->second.correlation() << std::endl;
    }
    mc.close_molecule(imol);
 
@@ -4472,7 +4473,7 @@ int test_colour_map_by_other_map(molecules_container_t &mc) {
                                                                                          100, 0.16,
                                                                                          0.3, 0.9, false);
          std::cout << "test: mesh v and t: " << mesh.vandt() << std::endl;
-         colour_analysis(mesh);
+         // colour_analysis(mesh);
          if (mesh.vertices.size() > 1000) status = true;
       }
    }
@@ -5895,31 +5896,34 @@ int main(int argc, char **argv) {
 
       }
 
-      // status += run_test(test_non_drawn_bond_multi_cid_2, "non-drawn-bonds multi-cid 2", mc);
-      // status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
-      // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
-      // status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
-      // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
-      // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
-      // status += run_test(test_copy_molecule_memory_leak,            "Copy Molecule Memory Leak", mc);
-      // status += run_test(test_make_ensemble,            "Make Ensemble", mc);
-      // status += run_test(test_ligand_torsions, "ligand torsions", mc);
-      // status += run_test(test_superpose, "SSM superpose ", mc);
-      // status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
-      // status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
-      // status += run_test(test_gltf_export,           "glTF export", mc);
-      // status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
-      // status += run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
-      // status += run_test(test_is_em_map,             "EM map flag is correctly set?", mc);
-      // status += run_test(test_delete_side_chain, "delete side chain", mc);
-      // status += run_test(test_multi_colour_rules, "multi colour rules ", mc);
-      // status += run_test(test_other_user_defined_colours_other, "New colour test", mc);
-      // status += run_test(test_colour_rules, "colour rules", mc);
-      status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
+      {
+         // status += run_test(test_non_drawn_bond_multi_cid_2, "non-drawn-bonds multi-cid 2", mc);
+         // status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
+         // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
+         // status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
+         // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
+         // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
+         // status += run_test(test_copy_molecule_memory_leak,            "Copy Molecule Memory Leak", mc);
+         // status += run_test(test_make_ensemble,            "Make Ensemble", mc);
+         // status += run_test(test_ligand_torsions, "ligand torsions", mc);
+         // status += run_test(test_superpose, "SSM superpose ", mc);
+         // status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
+         // status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
+         // status += run_test(test_gltf_export,           "glTF export", mc);
+         // status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
+         // status += run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
+         // status += run_test(test_is_em_map,             "EM map flag is correctly set?", mc);
+         // status += run_test(test_delete_side_chain, "delete side chain", mc);
+         // status += run_test(test_multi_colour_rules, "multi colour rules ", mc);
+         // status += run_test(test_other_user_defined_colours_other, "New colour test", mc);
+         // status += run_test(test_colour_rules, "colour rules", mc);
+         // status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
+         status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
 
-      if (status == n_tests) all_tests_status = 0;
+         if (status == n_tests) all_tests_status = 0;
 
-      print_results_summary();
+         print_results_summary();
+      }
    }
 
    std::this_thread::sleep_for(std::chrono::milliseconds(500));
