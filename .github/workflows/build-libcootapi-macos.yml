@@ -20,6 +20,13 @@ jobs:
           cd
           pwd
 
+      - name: cache macos libcootapi build homebrew
+        id: cache-macos-libcootapi-homebrew
+        uses: actions/cache@v4
+        with:
+          path: /usr/local
+          key:  macos-libcootapi-homebrew-build-homebrew-cache
+
       - name: Setup homebrew
         id:   setup-homebrew
         uses: Homebrew/actions/setup-homebrew@master

@@ -67,18 +67,18 @@ jobs:
       run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data.tar.gz
 
     - name: Cache macos gemmi source
-      id:   Cache-macos-gemmi-source
+      id:   Cache-libcootapi-macos-gemmi-source
       uses: actions/cache@v4
       with:
         path: gemmi
-        key:  coot-build-macos-gemmi-cache-source
+        key:  build-macos-libcootapi-build-it-3-3-based-gemmi-cache-source
 
     - name: Cache macos gemmi build
-      id:   Cache-macos-gemmi-build
+      id:   Cache-libcootapi-macos-gemmi-build
       uses: actions/cache@v4
       with:
         path: build-gemmi
-        key:  coot-build-macos-gemmi-cache-build
+        key:  build-macos-libcootapi-build-it-3-3-based-gemmi-cache-build
 
     # Home on macOS is /Users/runner, we start in /Users/runner/work/coot/coot
     - name: where are we?
