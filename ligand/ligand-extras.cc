@@ -553,8 +553,8 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
       find_clusters_internal(z_cutoff, sampled_protein_coords); // fill cluster
       std::cout << "-------------------------------------------------" << std::endl;
 
-      std::cout << "DEBUG:: found " << cluster.size()
-                << " clusters at " << z_cutoff << "z cut. " << z_cutoff << std::endl;
+      // std::cout << "DEBUG:: found " << cluster.size()
+      // << " clusters at " << z_cutoff << "z cut. " << z_cutoff << std::endl;
 
       std::list<coot::map_point_cluster> cluster_list;
       // convert from a vector to a list:
@@ -573,8 +573,8 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
 //          std::vector<std::list<coot::map_point_cluster>::const_iterator> iterator_remove_list;
          std::vector<std::list<coot::map_point_cluster>::iterator> iterator_remove_list;
 
-         std::cout << "DEBUG:: round " << iround << " cluster list size: "
-                   << cluster_list.size() << "\n";
+         // std::cout << "DEBUG:: round " << iround << " cluster list size: "
+         // << cluster_list.size() << "\n";
 
          for (it=cluster_list.begin(); it!=cluster_list.end(); ++it) {
 
@@ -582,7 +582,7 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
             const auto &map_point_cluster(*it);
             bool cluster_is_possible_water_flag = cluster_is_possible_water(map_point_cluster);
 
-            if (true) {
+            if (false) {
                std::cout << "     do_cluster_size_check_flag " << do_cluster_size_check_flag << std::endl;
                std::cout << "     cluster_is_possible_water  " << cluster_is_possible_water_flag << std::endl;
                std::cout << "     do_cluster_size_check_flag " << do_cluster_size_check_flag << std::endl;
