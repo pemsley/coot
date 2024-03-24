@@ -86,7 +86,7 @@ coot::ligand::cluster_is_possible_water(const coot::map_point_cluster &mpc) cons
    float grid_vol = vol/ngrid;
    float n_grid_lim = water_molecule_volume/grid_vol; // 15 is 4/3 Pi r^3: with r=1.53
 
-   std::cout << "   comparing " <<  mpc.map_grid.size() << " " << n_grid_lim << std::endl;
+   // std::cout << "   comparing " <<  mpc.map_grid.size() << " " << n_grid_lim << std::endl;
    if (mpc.map_grid.size() < n_grid_lim) {
       return 1;
    } else {
