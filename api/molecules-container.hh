@@ -523,6 +523,9 @@ public:
    //! @return the new molecule index on success and -1 on failure
    int read_pdb(const std::string &file_name);
 
+   //! print the secondary structure information to standard out
+   void print_secondary_structure_info(int imol) const;
+
    //! read a PDB file (or mmcif coordinates file, despite the name) to
    //! replace the current molecule. This will only work if the molecules
    //! is already a model molecule

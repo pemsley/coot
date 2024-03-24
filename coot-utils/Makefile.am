@@ -44,7 +44,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
         atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh simple-mesh.hh vertex.hh g_triangle.hh \
 	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh cmtz-interface.hh mtz-column-auto-read.hh \
 	pugixml.hpp pugiconfig.hpp find-water-baddies.hh voidp-buffer.hh parse-pisa.hh diff-diff-map-peaks.hh tiny_gltf.h json.hpp \
-	stb_image.h stb_image_write.h glyco-tree.hh
+	stb_image.h stb_image_write.h glyco-tree.hh positron.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -78,7 +78,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp fib-sphere.cc polar-atoms.cc \
 	3d-texture.cc merge-molecules.cc fragment-container.cc mutate.cc merge-C-and-N-terminii.cc \
 	cylinder.cc cylinder-with-rotation-translation.cc oct.cc prideout-octasphere.cc simple-mesh.cc \
-	shapes.cc cmtz-interface.cc pugixml.cpp parse-pisa.cc gltf-export.cc
+	shapes.cc cmtz-interface.cc pugixml.cpp parse-pisa.cc gltf-export.cc positron.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la

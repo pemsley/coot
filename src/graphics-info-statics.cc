@@ -1795,3 +1795,5 @@ float graphics_info_t::gaussian_surface_box_radius = 5.0;
 float graphics_info_t::gaussian_surface_grid_scale = 0.7;
 float graphics_info_t::gaussian_surface_fft_b_factor = 100.0;
 short int graphics_info_t::gaussian_surface_chain_colour_mode = 1; // 1 for "by chain" , 2 for "by NCS"
+
+std::vector<coot::positron_metadata_t> graphics_info_t::positron_metadata;

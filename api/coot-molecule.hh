@@ -545,6 +545,9 @@ namespace coot {
       // for debugging
       void print_colour_table(const std::string &debugging_label) const;
 
+      // print_secondary_structure_info
+      void print_secondary_structure_info() const;
+
       // returns either the specified atom or null if not found
       mmdb::Atom *get_atom(const atom_spec_t &atom_spec) const;
       // returns either the specified residue or null if not found

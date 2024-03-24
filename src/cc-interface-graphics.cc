@@ -51,3 +51,11 @@ void show_coot_points_frame() {
    }
 
 }
+
+#include "coot-utils/positron.hh"
+
+void
+read_positron_metadata(const std::string &z_data, const std::string &s_data) {
+
+   coot::read_positron_metadata(&graphics_info_t::positron_metadata, z_data, s_data);
+}

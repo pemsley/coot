@@ -326,6 +326,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/strand-fragments.cc
             ${coot_src}/coot-utils/bonded-atoms.cc
             ${coot_src}/coot-utils/fragment-container.cc
+            ${coot_src}/coot-utils/positron.cc
             ${coot_src}/coot-utils/maps-spherical.cc
             ${coot_src}/coot-utils/peak-search.cc
             ${coot_src}/coot-utils/xmap-stats.cc

@@ -4405,3 +4405,15 @@ coot::molecule_t::transform_by(const clipper::RTop_orth &rtop, mmdb::Residue *re
 
 }
 
+
+void
+coot::molecule_t::print_secondary_structure_info() const {
+
+   for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+         coot::util::print_secondary_structure_info(model_p);
+      }
+   }
+
+}

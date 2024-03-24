@@ -1965,27 +1965,27 @@ int average_map_py(PyObject *map_number_and_scales) {
       PyObject *number_and_scale = PyList_GetItem(map_number_and_scales, i);
       int ns = PyObject_Length(number_and_scale);
       if (ns == 2) {
-	 PyObject *map_number_py = PyList_GetItem(number_and_scale, 0);
-	 PyObject *map_scale_py  = PyList_GetItem(number_and_scale, 1);
-	 if (PyLong_Check(map_number_py)) {
-	   if (PyFloat_Check(map_scale_py) || PyLong_Check(map_scale_py)) {
-	       int map_number = PyLong_AsLong(map_number_py);
-	       if (is_valid_map_molecule(map_number)) {
-		  float scale = PyFloat_AsDouble(map_scale_py);
-		  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
-		  maps_and_scales_vec.push_back(p);
-		  is_em_flag = graphics_info_t::molecules[map_number].is_EM_map();
-	       } else {
-		  std::cout << "Invalid map number " << map_number << std::endl;
-	       }
-	    } else {
-	     std::cout << "Bad scale " << PyUnicode_AsUTF8String(display_python(map_scale_py))   // FIXME
-	     		 << std::endl;
-	    }
-	 } else {
-	   std::cout << "Bad map number " << PyUnicode_AsUTF8String(display_python(map_number_py))  // FIXME
-	         << std::endl;
-	 }
+         PyObject *map_number_py = PyList_GetItem(number_and_scale, 0);
+         PyObject *map_scale_py  = PyList_GetItem(number_and_scale, 1);
+         if (PyLong_Check(map_number_py)) {
+           if (PyFloat_Check(map_scale_py) || PyLong_Check(map_scale_py)) {
+               int map_number = PyLong_AsLong(map_number_py);
+               if (is_valid_map_molecule(map_number)) {
+                  float scale = PyFloat_AsDouble(map_scale_py);
+                  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
+                  maps_and_scales_vec.push_back(p);
+                  is_em_flag = graphics_info_t::molecules[map_number].is_EM_map();
+               } else {
+                  std::cout << "Invalid map number " << map_number << std::endl;
+               }
+            } else {
+             std::cout << "Bad scale " << PyUnicode_AsUTF8String(display_python(map_scale_py))   // FIXME
+                              << std::endl;
+            }
+         } else {
+           std::cout << "Bad map number " << PyUnicode_AsUTF8String(display_python(map_number_py))  // FIXME
+                 << std::endl;
+         }
       }
    }
    if (maps_and_scales_vec.size() > 0) {
@@ -2001,6 +2001,143 @@ int average_map_py(PyObject *map_number_and_scales) {
 #endif
 
 
+
+#ifdef USE_PYTHON
+/*! \brief Somewhat similar to the above function, except in this
+case we overwrite the imol_map and we also presume that the
+grid sampling of the contributing maps match. This makes it
+much faster to generate than an average map.
+*/
+void regen_map(int imol_map, PyObject *map_number_and_scales) {
+
+   auto pyobject_to_map_index_and_scale_vec = [] (PyObject *map_number_and_scales) {
+      std::vector<std::pair<int, float> > map_indices_and_scales_vec;
+      int n = PyObject_Length(map_number_and_scales);
+      for (int i=0; i<n; i++) {
+         PyObject *number_and_scale = PyList_GetItem(map_number_and_scales, i);
+         int ns = PyObject_Length(number_and_scale);
+         if (ns == 2) {
+            PyObject *map_number_py = PyList_GetItem(number_and_scale, 0);
+            PyObject *map_scale_py  = PyList_GetItem(number_and_scale, 1);
+            if (PyLong_Check(map_number_py)) {
+               if (PyFloat_Check(map_scale_py) || PyLong_Check(map_scale_py)) {
+                  int map_number = PyLong_AsLong(map_number_py);
+                  if (is_valid_map_molecule(map_number)) {
+                     float scale = PyFloat_AsDouble(map_scale_py);
+                     std::pair<int, float> p(map_number, scale);
+                     map_indices_and_scales_vec.push_back(p);
+                  } else {
+                     std::cout << "Invalid map number " << map_number << std::endl;
+                  }
+               } else {
+                  std::cout << "Bad scale " << PyUnicode_AsUTF8String(display_python(map_scale_py))   // FIXME
+                            << std::endl;
+               }
+            } else {
+               std::cout << "Bad map number " << PyUnicode_AsUTF8String(display_python(map_number_py))  // FIXME
+                         << std::endl;
+            }
+         }
+      }
+      return map_indices_and_scales_vec;
+   };
+
+   bool status = false;
+   if (is_valid_map_molecule(imol_map)) {
+
+      std::vector<std::pair<int, float> > map_indices_and_scales_vec =
+         pyobject_to_map_index_and_scale_vec(map_number_and_scales);
+
+      std::vector<std::pair<clipper::Xmap<float> *, float> > maps_and_scales_vec;
+
+      graphics_info_t g;
+      for (unsigned int i=0; i<map_indices_and_scales_vec.size(); i++) {
+         int idx = map_indices_and_scales_vec[i].first;
+         float w = map_indices_and_scales_vec[i].second;
+         if (is_valid_map_molecule(idx)) {
+            maps_and_scales_vec.push_back(std::make_pair(&g.molecules[idx].xmap, w));
+         }
+      }
+      if (! maps_and_scales_vec.empty()) {
+         coot::util::regen_weighted_map(&g.molecules[imol_map].xmap, maps_and_scales_vec);
+         status = true;
+      }
+   }
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *positron_pathway(PyObject *map_molecule_list_py, PyObject *pathway_points_py) {
+
+   // e.g.
+   //  2,-4
+   //  1,-3
+   //  0,-2
+   // -1,-1.4
+   // -2,-0.3
+   // -3, 0.8
+   // -4, 2
+   // -5, 3
+
+   auto make_map = [] (const coot::positron_metadata_t &md,
+                       const std::vector<int> &map_index_vec) {
+
+      int imol = -1;
+      if (md.params.size() == map_index_vec.size()) {
+         PyObject *o = PyList_New(md.params.size());
+         for (unsigned int i=0; i<md.params.size(); i++) {
+            PyObject *item_py = PyList_New(2);
+            PyList_SetItem(item_py, 0, PyLong_FromLong(map_index_vec[i]));
+            PyList_SetItem(item_py, 1, PyFloat_FromDouble(md.params[i]));
+            PyList_SetItem(o, i, item_py);
+         }
+         imol = average_map_py(o);
+      }
+      return imol;
+   };
+
+   float default_contour_level = 0.01;
+
+   std::vector<int> new_map_index_list;
+   if (PyList_Check(map_molecule_list_py)) {
+      if (PyList_Check(pathway_points_py)) {
+         int lmml = PyObject_Length(map_molecule_list_py);
+         std::vector<int> map_index_list;
+         for (int i=0; i<lmml; i++) {
+            int ii = PyLong_AsLong(PyList_GetItem(map_molecule_list_py, i));
+            map_index_list.push_back(ii);
+         }
+         if (map_index_list.size() == 6) { // the size of the params
+            int l = PyObject_Length(pathway_points_py);
+            for (int i=0; i<l; i++) {
+               PyObject *x_y_point_py = PyList_GetItem(pathway_points_py, i);
+               PyObject *x_py = PyList_GetItem(x_y_point_py, 0);
+               PyObject *y_py = PyList_GetItem(x_y_point_py, 1);
+               double x = PyFloat_AsDouble(x_py);
+               double y = PyFloat_AsDouble(y_py);
+               int idx_close = coot::get_closest_positron_metadata_point(graphics_info_t::positron_metadata, x, y);
+               std::cout << "----------- i " << i << " idx_close " << idx_close << std::endl;
+               if (idx_close != -1) {
+                  coot::positron_metadata_t pmdi = graphics_info_t::positron_metadata[idx_close];
+                  int imol_map_new = make_map(pmdi, map_index_list);
+                  if (imol_map_new != -1) {
+                     set_contour_level_absolute(imol_map_new, default_contour_level);
+                     new_map_index_list.push_back(imol_map_new);
+                  }
+               }
+            }
+         }
+      }
+   }
+   // convert new_map_index_list to a python list
+   PyObject *new_map_index_list_py = PyList_New(new_map_index_list.size());
+   for (unsigned int i=0; i<new_map_index_list.size(); i++) {
+      PyObject *o = PyLong_FromLong(new_map_index_list[i]);
+      PyList_SetItem(new_map_index_list_py, i, o);
+   }
+   return new_map_index_list_py;
+}
+#endif
 
 
 /*  ----------------------------------------------------------------------- */
@@ -3102,4 +3239,3 @@ int analyse_map_point_density_change_py(PyObject *map_number_list_py, int imol_m
    }
 }
 #endif
-

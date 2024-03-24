@@ -616,9 +616,32 @@ molecules_container_t::install_model(const coot::molecule_t &m) {
 int
 molecules_container_t::read_coordinates(const std::string &file_name) {
 
+   auto print_the_SSE = [] (mmdb::Manager *mol) {
+
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               mmdb::byte sse = residue_p->SSE;
+               int sse_int = sse;
+               std::string rn = residue_p->GetResName();
+               std::cout << "   " << coot::residue_spec_t(residue_p) << " " << rn << " " << sse_int << std::endl;
+            }
+         }
+      }
+   };
+
    int status = -1;
    atom_selection_container_t asc = get_atom_selection(file_name, use_gemmi, true, false);
    if (asc.read_success) {
+
+      // print_the_SSE(asc.mol); make the function print_the_SSE() available in the API. It may be
+      // useful there.
 
       // 20221011-PE this constructor doesn't call make_bonds().
       int imol = molecules.size();
@@ -5487,4 +5510,14 @@ molecules_container_t::get_overlaps_for_ligand(int imol, const std::string &cid_
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return v;
+}
+
+void
+molecules_container_t::print_secondary_structure_info(int imol) const {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].print_secondary_structure_info();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
 }

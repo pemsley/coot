@@ -1302,15 +1302,15 @@ int export_map_fragment_to_plain_file(int imol, float x, float y, float z, float
    a colon-separated string of symmetry operators.
 */
 int transform_map_raw(int imol,
-		      double r00, double r01, double r02,
-		      double r10, double r11, double r12,
-		      double r20, double r21, double r22,
-		      double t0, double t1, double t2,
-		      double pt0, double pt1, double pt2,
-		      double box_half_size,
-		      const char *ref_space_group,
-		      double cell_a, double cell_b, double cell_c,
-		      double alpha, double beta, double gamma);
+                      double r00, double r01, double r02,
+                      double r10, double r11, double r12,
+                      double r20, double r21, double r22,
+                      double t0, double t1, double t2,
+                      double pt0, double pt1, double pt2,
+                      double box_half_size,
+                      const char *ref_space_group,
+                      double cell_a, double cell_b, double cell_c,
+                      double alpha, double beta, double gamma);
 
 
 /*! \brief make a difference map, taking map_scale * imap2 from imap1,
@@ -1345,6 +1345,13 @@ int average_map_scm(SCM map_number_and_scales);
   grid as the first (valid) map.  Return -1 on failure to make an
   averaged map, otherwise return the new map molecule number. */
 int average_map_py(PyObject *map_number_and_scales);
+
+/*! \brief Somewhat similar to the above function, except in this
+case we overwrite the imol_map and we also presume that the
+grid sampling of the contributing maps match. This makes it
+much faster to generate than an average map.
+*/
+void regen_map(int imol_map, PyObject *map_number_and_scales);
 #endif /* USE_PYTHON */
 #endif /* c++ */
 

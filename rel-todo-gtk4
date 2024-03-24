@@ -1,11 +1,24 @@
 
 ----
 
+Coot: make the function get_number_of_molecules(), as an alias maybe.
+
+libcootapi: in protein_geometry add a function something like
+   duplicate_dictionary_for_other_molecule(int idx_rest, int imol_other)
+   so that dictionaries assigned to a particular molecule can be used by other molecules (e.g. in dragged refinement).
+   The molecules_container api will be duplicate_dictionary_for_other_molecule(comp_id, imol_current, imol_other)
+
 libcootapi: when generating conformers, throw away the conformes that hamve many nbs (dont do minimization)
+
+libcootapi: move secondary structure header info int SSEs of residue (does this function exist already?)
 
 libcootapi: remove the sphere test when generating map contours.
 
 libcootapi: remove static things in the molecules_container
+
+libcootapi: make auto-fit-rotamer work without a map (if it doesn't already)
+
+libcootapi: hydrogen bonds to a residue?
 
 Coot: Save Coords is not working again.
 * It works OK, on mac, so I think that it's a GTK4 bug.

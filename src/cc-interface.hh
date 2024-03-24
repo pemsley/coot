@@ -2333,4 +2333,10 @@ void curmudgeon_mode();
 
 void halloween();
 
+void read_positron_metadata(const std::string &z_data, const std::string &table);
+
+#ifdef USE_PYTHON
+PyObject *positron_pathway(PyObject *map_molecule_list_py, PyObject *pathway_points_py);
+#endif
+
 #endif // CC_INTERFACE_HH

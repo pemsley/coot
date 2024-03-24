@@ -81,6 +81,7 @@
 #include "db-main/db-main.hh"
 #include "build/CalphaBuild.hh"
 #include "ideal/simple-restraint.hh"
+#include "coot-utils/positron.hh"
 
 // #ifdef DO_GEOMETRY_GRAPHS
 // #include "test-validation"
@@ -985,6 +986,8 @@ public:
    static bool prefer_python;
 
    static bool do_expose_swap_buffers_flag;
+
+   static std::vector<coot::positron_metadata_t> positron_metadata;
 
 #ifdef USE_GUILE
    static bool scm_boot_guile_booted; // false until my_wrap_scm_boot_guile() has been run

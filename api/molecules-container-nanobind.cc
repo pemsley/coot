@@ -322,6 +322,7 @@ NB_MODULE(chapi, m) {
     .def("non_standard_residue_types_in_model",&molecules_container_t::non_standard_residue_types_in_model)
     .def("pepflips_using_difference_map",&molecules_container_t::pepflips_using_difference_map)
     .def("peptide_omega_analysis",&molecules_container_t::peptide_omega_analysis)
+    .def("print_secondary_structure_info",&molecules_container_t::print_secondary_structure_info)
     .def("rail_points_total",&molecules_container_t::rail_points_total)
     .def("ramachandran_analysis",&molecules_container_t::ramachandran_analysis)
     .def("ramachandran_validation",&molecules_container_t::ramachandran_validation)
