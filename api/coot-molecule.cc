@@ -1175,7 +1175,7 @@ coot::molecule_t::replace_coords(const atom_selection_container_t &asc,
          }
       }
    }
-   std::cout << "INFO:: replace_coords: " << n_atom << " atoms updated." << std::endl;
+   // std::cout << "INFO:: replace_coords: " << n_atom << " atoms updated." << std::endl;
 
    // have_unsaved_changes_flag = 1;
    // save_info.new_modification("replace_coords()");

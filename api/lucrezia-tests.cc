@@ -15,8 +15,8 @@ int test_multiligands_lig_bonding(molecules_container_t &mc) {
    if (lig1_pair.first) {
       if (lig2_pair.first) {
          std::cout << "found both dictionaries\n";
-         std::cout << "     " << lig1_pair.second << std::endl;
-         std::cout << "     " << lig2_pair.second << std::endl;
+         // std::cout << "     " << lig1_pair.second << std::endl;
+         // std::cout << "     " << lig2_pair.second << std::endl;
          int imol_lig1= mc.get_monomer_from_dictionary("00Z", imol_paul_prot, true);
          int imol_lig2= mc.get_monomer_from_dictionary("00Z", imol_lucr_prot, true);
          mc.write_coordinates(imol_lig1, "00Z_from_dict_for_paul_prot.pdb");
@@ -31,7 +31,7 @@ int test_multiligands_lig_bonding(molecules_container_t &mc) {
          std::pair<bool, coot::dictionary_residue_restraints_t> pair = geom.get_monomer_restraints("00Z", imol_lucr_prot);
          if (pair.first) {
             coot::dictionary_residue_restraints_t restraints = pair.second; 
-            std::cout << "xxxxxxx" << restraints << std::endl;
+            // std::cout << "xxxxxxx" << restraints << std::endl;
             coot:: residue_spec_t res_spec("B", 1, "");
             mmdb::Residue *res = mc.get_residue(imol_lucr_prot, res_spec);
             if (res) {
@@ -40,30 +40,21 @@ int test_multiligands_lig_bonding(molecules_container_t &mc) {
                 res->GetAtomTable(atoms, natoms);
                 for(int iat = 0; iat < natoms; iat++) {
                     mmdb::Atom *at = atoms[iat];
-                    std::cout << "  " << iat << "  " << at->GetAtomName() << std::endl;
+                    // std::cout << "  " << iat << "  " << at->GetAtomName() << std::endl;
                 } 
                 std::pair<bool, std::vector<std::string> >
                 matchers = geom.atoms_match_dictionary(res, check_hydrogens_too_flag, apply_bond_distance_check, restraints); 
                 if (matchers.first) {
-                    std::cout << "found " << matchers.second.size() << " matchers" << std::endl; 
-                    if (matchers.second.size() == 15) status = 1;
+                   // std::cout << "found " << matchers.second.size() << " matchers" << std::endl;
+                   if (matchers.second.size() == 15) status = 1;
                 } else {
-                    std::cout << "invalid match" << std::endl;
+                   std::cout << "invalid match" << std::endl;
                 }
-            
             } else {
-                std::cout << "failed to find " << res_spec << "in molecule" << imol_lucr_prot << std::endl; 
+               std::cout << "failed to find " << res_spec << "in molecule" << imol_lucr_prot << std::endl;
             }
-            
          }
-         
-        
-       
-
       }
-
    }
-
-   
    return status;
 }
