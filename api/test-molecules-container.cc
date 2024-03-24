@@ -3015,7 +3015,7 @@ int test_editing_session_tutorial_1(molecules_container_t &mc) {
       std::cout << "stats_1: " << mc.r_factor_stats_as_string(stats_1) << std::endl;
 
       // debugging
-      mc.display_molecule_names_table();
+      // mc.display_molecule_names_table();
       mc.add_waters(imol, imol_map);
 
       map_mesh = mc.get_map_contours_mesh(imol_map, 40,40,40, 6, 0.8);
@@ -5920,7 +5920,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_colour_rules, "colour rules", mc);
          // status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
          // status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
-         status += run_test(test_read_extra_restraints, "read extra restraints", mc);
+         // status += run_test(test_read_extra_restraints, "read extra restraints", mc);
+         status += run_test(test_mmrrcc, "MMRRCC", mc);
 
          if (status == n_tests) all_tests_status = 0;
 

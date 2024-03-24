@@ -25,13 +25,13 @@ molecules_container_t::mmrrcc_internal(const atom_selection_container_t &asc,
       const coot::residue_spec_t &rs(it->first);
       const coot::util::density_correlation_stats_info_t &stats(it->second);
       // std::cout << "mmrrcc:: all-atom-stats " << rs << " " << stats.correlation() << " from " << stats.n << " points ";
-      std::cout << std::endl;
+      // std::cout << std::endl;
    }
    for (it=residue_stats.second.begin(); it!=residue_stats.second.end(); ++it) {
       const coot::residue_spec_t &rs(it->first);
       const coot::util::density_correlation_stats_info_t &stats(it->second);
       // std::cout << "mmrrcc:: side-chain-stats " << rs << " " << stats.correlation() << " from " << stats.n << " points ";
-      std::cout << std::endl;
+      // std::cout << std::endl;
    }
    if (! residue_stats.second.empty()) {
       for (it=residue_stats.first.begin(); it!=residue_stats.first.end(); ++it) {
