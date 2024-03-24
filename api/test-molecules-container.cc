@@ -4438,10 +4438,11 @@ int test_read_extra_restraints(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
    int imol_2 = mc.read_pdb(reference_data("3pzt.pdb"));
    if (mc.is_valid_model_molecule(imol_1)) {
-      if (mc.is_valid_model_molecule(imol_1)) {
+      if (mc.is_valid_model_molecule(imol_2)) {
+         // it's actually for moleecule 4 (1 was renamed to 4)
          mc.read_extra_restraints(imol_1, reference_data("moorhen-tutorial-structure-number-1-prosmart.txt"));
          coot::instanced_mesh_t im = mc.get_extra_restraints_mesh(imol_1, 0);
          if (! im.geom.empty()) {
@@ -5918,7 +5919,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_other_user_defined_colours_other, "New colour test", mc);
          // status += run_test(test_colour_rules, "colour rules", mc);
          // status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
-         status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+         // status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+         status += run_test(test_read_extra_restraints, "read extra restraints", mc);
 
          if (status == n_tests) all_tests_status = 0;
 
