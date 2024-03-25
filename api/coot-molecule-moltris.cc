@@ -12,6 +12,9 @@
 #include <MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.h>
 #include <MoleculesToTriangles/CXXClasses/BallsPrimitive.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+
 
 //! Add a colour rule: eg. ("//A", "red")
 void
