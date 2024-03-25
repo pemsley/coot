@@ -24,8 +24,8 @@
 #define RepresentationInstance_H
 #include <memory>
 
-#define GLM_ENABLE_EXPERIMENTAL // # for norm things (needed?)
-#include <glm/ext.hpp>
+// #define GLM_ENABLE_EXPERIMENTAL // # for norm things (needed?)
+// #include <glm/ext.hpp>
 
 #include "RotatedTranslatedScaledEntity.h"
 
