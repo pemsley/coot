@@ -853,9 +853,11 @@ coot::reduce::add_2_sp3_hydrogens(const std::string &H_at_name_1,
             if (verbose_output) {
                std::cout << "Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
                          << " alt-conf \"" << alt_confs[i] << "\"" << std::endl;
-               std::cout << "Fail to add " << H_at_name_1 << " " << H_at_name_2 << " at_1: " << at_1 << std::endl;
-               std::cout << "            " << H_at_name_1 << " " << H_at_name_2 << " at_2: " << at_2 << std::endl;
-               std::cout << "            " << H_at_name_1 << " " << H_at_name_2 << " at_3: " << at_3 << std::endl;
+               if (false) { // 20240325-PE useful for debugging - but normally it's noise
+                  std::cout << "Fail to add " << H_at_name_1 << " " << H_at_name_2 << " at_1: " << at_1 << std::endl;
+                  std::cout << "            " << H_at_name_1 << " " << H_at_name_2 << " at_2: " << at_2 << std::endl;
+                  std::cout << "            " << H_at_name_1 << " " << H_at_name_2 << " at_3: " << at_3 << std::endl;
+               }
             }
          }
       }
@@ -961,9 +963,11 @@ coot::reduce::add_aromatic_hydrogen(const std::string &H_at_name,
          std::cout << "Fail Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
                    << " alt-conf \"" << alt_confs[i] << "\""
                    << " failed in add_aromatic_hydrogen " << std::endl;
-         std::cout << "Fail to add " << neighb_at_name_1 << " at_1: " << at_n_1 << std::endl;
-         std::cout << "            " << neighb_at_name_2 << " at_2: " << at_n_2 << std::endl;
-         std::cout << "            " << neighb_at_name_3 << " at_3: " << at_n_3 << std::endl;
+         if (false) { // 20240325-PE useful for debugging - but normally it's noise
+            std::cout << "Fail to add " << neighb_at_name_1 << " at_1: " << at_n_1 << std::endl;
+            std::cout << "            " << neighb_at_name_2 << " at_2: " << at_n_2 << std::endl;
+            std::cout << "            " << neighb_at_name_3 << " at_3: " << at_n_3 << std::endl;
+         }
       }
    }
 }
@@ -1009,9 +1013,11 @@ coot::reduce::add_amino_hydrogens(const std::string &H_at_name_1,
          std::cout << "Fail Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
                    << " alt-conf \"" << alt_confs[i] << "\""
                    << " failed in add_amino_hydrogens" << std::endl;
-         std::cout << "Fail to add " << at_name_1 << " at_1: " << at_name_1 << " " << at_n_1 << std::endl;
-         std::cout << "            " << at_name_2 << " at_2: " << at_name_2 << " " << at_n_2 << std::endl;
-         std::cout << "            " << at_name_3 << " at_3: " << at_name_3 << " " << at_n_3 << std::endl;
+         if (false) { // 20240325-PE useful for debugging - but normally it's noise
+            std::cout << "Fail to add " << at_name_1 << " at_1: " << at_name_1 << " " << at_n_1 << std::endl;
+            std::cout << "            " << at_name_2 << " at_2: " << at_name_2 << " " << at_n_2 << std::endl;
+            std::cout << "            " << at_name_3 << " at_3: " << at_name_3 << " " << at_n_3 << std::endl;
+         }
       }
    }
 }
@@ -1060,9 +1066,12 @@ coot::reduce::add_guanidinium_hydrogens(mmdb::Residue *residue_p) {
          std::cout << "Fail Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
                    << " alt-conf \"" << alt_confs[i] << "\""
                    << " failed in add_guanidinium_hydrogens " << std::endl;
-         std::cout << "Fail to add guanidinium-H " << " CD " << " at_1: " << at_n_1 << std::endl;
-         std::cout << "                          " << " NE " << " at_2: " << at_n_2 << std::endl;
-         std::cout << "                          " << " CZ " << " at_3: " << at_n_3 << std::endl;
+
+         if (false) { // 20240325-PE useful for debugging - but normally it's noise
+            std::cout << "Fail to add guanidinium-H " << " CD " << " at_1: " << at_n_1 << std::endl;
+            std::cout << "                          " << " NE " << " at_2: " << at_n_2 << std::endl;
+            std::cout << "                          " << " CZ " << " at_3: " << at_n_3 << std::endl;
+         }
       }
 
       // HH[12][12]
