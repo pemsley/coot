@@ -132,8 +132,8 @@ jobs:
            -DMMDB2_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libmmdb2.dylib
            -DMMDB2_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include
            -DSSM_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libssm.dylib
-           -D_Python_EXECUTABLE=/Users/runner/install/chapi-Darwin-macos-gtk4/bin/python3.10
-           -D_Python_INCLUDE_DIR=Users/runner/install/chapi-Darwin-macos-gtk4/include/python3.10
+           -DPYTHON_EXECUTABLE:FILEPATH=/Users/runner/install/chapi-Darwin-macos-gtk4/bin/python3.10
+           -DPYTHON_INCLUDE_DIR:FILEPATH=/Users/runner/install/chapi-Darwin-macos-gtk4/include/python3.10
            -Dnanobind_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/python3.10/site-packages/nanobind/cmake ..
 
     - name: Upload CMakeCache.txt
