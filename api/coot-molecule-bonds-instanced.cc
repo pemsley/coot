@@ -1,8 +1,8 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>  // to_string()
 #include <glm/gtx/rotate_vector.hpp>
-#include <glm/ext.hpp>
 
 #include "coot-molecule.hh"
 #include "coot-molecule-bonds.hh"
@@ -679,12 +679,12 @@ coot::molecule_t::get_extra_restraints_mesh(int mode) const {
                   if (width < 0.01) width = 0.01;
                   if (width > 0.08) width = 0.08;
 
-                  width *= 2.5;
+                  width *= 2.5f;
 
                   glm::vec3 s(width, width, bl); // a function of delta_length?
-                  glm::vec4 col = col_base + delta_length * glm::vec4(-0.8f, 0.8f, -0.8, 0.0f);
-                  col = 0.8 * col; // calm down
-                  col.a = 1.0;
+                  glm::vec4 col = col_base + static_cast<float>(delta_length) * glm::vec4(-0.8f, 0.8f, -0.8f, 0.0f);
+                  col = 0.8f * col; // calm down
+                  col.a = 1.0f;
                   return instancing_data_type_B_t(p, col, s, ori);
    };
 
