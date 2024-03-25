@@ -78,16 +78,6 @@ jobs:
       - name: homebrew python-requests
         run:  brew install python-requests
 
-        # ls -l /Users/runner/install/chapi-Darwin-macos-gtk4
-        # ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib
-        # ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib/python3.10/site-packages
-        # ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib/python3.11/site-packages
-      - name: what have we got? (where is nanobind?)
-        run:  |
-          ls -l /usr/local/lib
-          ls -l /usr/local/lib/python3.11
-          ls -l /usr/local/lib/python3.11/site-packages
-
       - name: download a Python
         run:  wget -nv http://www.python.org/ftp/python/3.10.13/Python-3.10.13.tgz
 
@@ -116,9 +106,6 @@ jobs:
       - name: patch out CCP4-package in CMakeLists.txt
         run:  sed -i.backup -e 's/find_package.CCP4/#&/' CMakeLists.txt
 
-      - name: where is fftw?
-        run:  find /usr/local -name "*fftw*"
-
       - name: run cmake
         run: >
             cd build-libcootapi &&
@@ -128,8 +115,8 @@ jobs:
             -DGEMMI_DIR=/usr/local/lib/cmake/gemmi
             -DRDKit_DIR=/usr/local/lib/cmake/rdkit
             -DFFTW2_INCLUDE_DIRS=/usr/local/Cellar/clipper4coot/2.1.20180802_2/fftw2/include
-            -DFFTW2_LIBRARY=/usr/local/lib/libfftw.dylib
-            -DRFFTW2_LIBRARY=/usr/local/lib/librfftw.dylib
+            -DFFTW2_LIBRARY=/usr/local/Cellar/clipper4coot/2.1.20180802_2/fftw2/lib/libfftw.dylib
+            -DRFFTW2_LIBRARY=/usr/local/Cellar/clipper4coot/2.1.20180802_2/fftw2/lib/librfftw.dylib
             -Dnanobind_DIR=/Users/runner/install/lib/python3.10/site-packages/nanobind/cmake ..
 
       - name: Upload CMakeCache.txt
