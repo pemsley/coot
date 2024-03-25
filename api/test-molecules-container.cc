@@ -3877,12 +3877,12 @@ int test_moorhen_h_bonds(molecules_container_t &mc) {
    bool mcdonald_and_thornton = true;
    mc.add_hydrogen_atoms(imol); // no hydrogen bonds found without hydrogens in the model
    const std::string &cid_str = "//A/270";
+
    std::vector<moorhen::h_bond> h_bonds = mc.get_h_bonds(imol, cid_str, mcdonald_and_thornton);
 
    std::cout << "INFO:: in test_moorhen_h_bonds() we got " << h_bonds.size() << " H-bonds" << std::endl;
    for (unsigned int i=0; i<h_bonds.size(); i++) {
-      std::cout << " "
-                << h_bonds[i].donor.chain    << " " << h_bonds[i].donor.res_no    << " " << h_bonds[i].donor.name
+      std::cout << "  "                             << h_bonds[i].donor.res_no    << " " << h_bonds[i].donor.name
                 << h_bonds[i].acceptor.chain << " " << h_bonds[i].acceptor.res_no << " " << h_bonds[i].acceptor.name
                 << std::endl;
    }
@@ -5898,30 +5898,7 @@ int main(int argc, char **argv) {
       }
 
       {
-         // status += run_test(test_non_drawn_bond_multi_cid_2, "non-drawn-bonds multi-cid 2", mc);
-         // status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
-         // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
-         // status += run_test(test_dark_mode_colours,     "light vs dark mode colours", mc);
-         // status += run_test(test_rsr_using_atom_cid,    "rsr using atom cid",       mc);
-         // status += run_test(test_jiggle_fit,            "Jiggle-fit",               mc);
-         // status += run_test(test_copy_molecule_memory_leak,            "Copy Molecule Memory Leak", mc);
-         // status += run_test(test_make_ensemble,            "Make Ensemble", mc);
-         // status += run_test(test_ligand_torsions, "ligand torsions", mc);
-         // status += run_test(test_superpose, "SSM superpose ", mc);
-         // status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
-         // status += run_test(test_long_name_ligand_cif_merge, "Long-name ligand cif merge", mc);
-         // status += run_test(test_gltf_export,           "glTF export", mc);
-         // status += run_test(test_cif_gphl_chem_comp_info, "extracting gphl info",    mc);
-         // status += run_test(test_non_drawn_atoms, "non-drawn atoms", mc);
-         // status += run_test(test_is_em_map,             "EM map flag is correctly set?", mc);
-         // status += run_test(test_delete_side_chain, "delete side chain", mc);
-         // status += run_test(test_multi_colour_rules, "multi colour rules ", mc);
-         // status += run_test(test_other_user_defined_colours_other, "New colour test", mc);
-         // status += run_test(test_colour_rules, "colour rules", mc);
-         // status += run_test(test_user_defined_bond_colours_v3, "user-defined colours v3", mc);
-         // status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
-         // status += run_test(test_read_extra_restraints, "read extra restraints", mc);
-         status += run_test(test_mmrrcc, "MMRRCC", mc);
+         status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
 
          if (status == n_tests) all_tests_status = 0;
 
