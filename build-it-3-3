@@ -407,7 +407,8 @@
 # 6.17 20240229-PE Portentious day. Adding in gettext for libintl for python and rdkit
 # 6.18 20240304-PE Remove the --pydebug from Python's configuration
 # 6.19 20240306-PE Don't build gettext on anything other than Darwin
-script_version=6.18
+# 6.20 20240326-PE Add cairo
+script_version=6.20
 
 
 
@@ -2635,6 +2636,27 @@ if true ; then
     cat $start_dir/gemmi-rebuild.txt 2>&1
     echo done gemmi
     echo done gemmi >&2
+fi
+
+
+#######################################################################
+# Cairo - needed for RKit molecule drawing - which can be used by chapi
+#######################################################################
+# 20240326-PE
+cairo_version=1.18.0
+if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
+    echo installation has cairo
+else
+    ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
+    tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
+    cd cairo-$cairo_version
+    mkdir build
+    cd build
+    meson -Dprefix=$install_top_dir ..
+    ninja
+    ninja install
+    cd ..
+    cd ..
 fi
 
 
