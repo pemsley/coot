@@ -9,7 +9,7 @@
 #include <memory>
 
 // GLM
-#include <glm/ext.hpp>
+// #include <glm/ext.hpp>
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
 #include <glm/gtx/string_cast.hpp>  // to_string()
 #include <glm/gtx/rotate_vector.hpp> // for orientation

@@ -1,7 +1,7 @@
 
 #include "analysis/stats.hh"
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
-#include <glm/ext.hpp>
+// #include <glm/ext.hpp>
 #include <glm/gtx/string_cast.hpp>  // to_string()
 
 #include <iostream>

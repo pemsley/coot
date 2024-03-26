@@ -6,7 +6,7 @@
 #include <random>
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/ext.hpp>
+// #include <glm/ext.hpp>
 #include <glm/gtx/string_cast.hpp>
 
 #define ENABLE_NLS // 20220606-PE fixes weird dcgettext() compiler errors

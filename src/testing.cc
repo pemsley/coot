@@ -282,7 +282,9 @@ int test_phi_psi_values() {
    return status;
 }
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/string_cast.hpp>  // to_string()
 
 int test_quaternion_exchange() {
 

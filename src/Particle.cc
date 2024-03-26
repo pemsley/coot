@@ -125,9 +125,9 @@ particle_container_t::make_gone_diego_particles(unsigned int n_particles_per_bur
          double x = sin(alpha);
          double y = cos(alpha);
          // x and y should be aligned with the scren x and y axes
-         double sf = 0.5; // so that the ring of particles is about the same size as a diego.
-         glm::vec3 pos = sf * x * screen_x_uv + sf * y * screen_y_uv;
-         glm::vec3 vel = -2.0 * pos;
+         float sf = 0.5f; // so that the ring of particles is about the same size as a diego.
+         glm::vec3 pos = sf * static_cast<float>(x) * screen_x_uv + sf * static_cast<float>(y) * screen_y_uv;
+         glm::vec3 vel = -2.0f * pos;
          glm::vec4 col(0.91, 0.78, 0.48, 1.0);
          float life = 1.5;
          Particle p(pos + gone_diego_position, vel, col, life);
@@ -154,9 +154,9 @@ particle_container_t::make_gone_diff_map_peaks_particles(unsigned int n_particle
          double alpha = 2.0 * pi * static_cast<double>(i)/static_cast<double>(n_particles_per_burst);
          double x = sin(alpha);
          double y = cos(alpha);
-         double sf = 0.5;
-         glm::vec3 pos = sf * x * screen_x_uv + sf * y * screen_y_uv;
-         glm::vec3 vel = -0.3 * pos;
+         float sf = 0.5f;
+         glm::vec3 pos = sf * static_cast<float>(x) * screen_x_uv + sf * static_cast<float>(y) * screen_y_uv;
+         glm::vec3 vel = -0.3f * pos;
          float life = 0.5;
          Particle p(pos + pos_base, vel, col, life);
          // std::cout << "i " << i << " alpha " << alpha << " col " << glm::to_string(col) << std::endl;

@@ -3,7 +3,7 @@
 #endif // USE_PYTHON
 
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
-#include <glm/ext.hpp>
+// #include <glm/ext.hpp> // 20240326-PE
 #include <glm/gtx/string_cast.hpp>  // to_string()
 
 #include <iostream>

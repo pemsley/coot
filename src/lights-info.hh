@@ -3,7 +3,7 @@
 #ifndef LIGHTS_INFO_T_HH
 #define LIGHTS_INFO_T_HH
 
-#include <glm/ext.hpp>
+// #include <glm/ext.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp>
 

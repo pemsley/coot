@@ -494,11 +494,11 @@ graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_
             const lig_build::offset_text_t &offset = atom_id_info.offsets[i];
             std::string label = offset.text;
             glm::vec2 pos(-0.61, -0.61);
-            pos += 0.05 * pos_t_to_glm(atom.atom_position);
+            pos += 0.05f * pos_t_to_glm(atom.atom_position);
             if (offset.text_pos_offset == lig_build::offset_text_t::UP)
-               pos.y += 0.03;
+               pos.y += 0.03f;
             if (offset.text_pos_offset == lig_build::offset_text_t::DOWN)
-               pos.y -= 0.03;
+               pos.y -= 0.03f;
             if (offset.subscript)   pos.y -= 0.012;
             if (offset.superscript) pos.y += 0.012;
             pos.x += 0.03 * 0.08 * offset.tweak.x;

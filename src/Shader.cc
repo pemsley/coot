@@ -8,6 +8,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()
+#include <glm/gtc/type_ptr.hpp>  // for value_ptr() 20240326-PE
 
 #include "Shader.hh"
 

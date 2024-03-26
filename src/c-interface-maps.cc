@@ -23,6 +23,9 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp> // for to_string()
+
 #include "compat/coot-sysdep.h"
 
 // for stat()

@@ -2,7 +2,7 @@
 #ifndef COOT_MATERIAL_HH
 #define COOT_MATERIAL_HH
 
-#include <glm/ext.hpp>
+#include <glm/glm.hpp>
 
 class Material {
 public:

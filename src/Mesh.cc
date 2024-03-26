@@ -5,6 +5,8 @@
 #include <set>
 #include <chrono>
 
+
+
 // Having this up here...
 #include <mmdb2/mmdb_manager.h>
 // Fixes this:
@@ -26,6 +28,7 @@
 #include <glm/gtx/string_cast.hpp>  // to_string()
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
+#include <glm/gtc/type_ptr.hpp>  // for value_ptr() 20240326-PE
 
 #include "coot-utils/oct.hh"
 #include "coot-utils/cylinder.hh"

@@ -3,7 +3,7 @@
 #define PARTICLE_HH
 
 #include <vector>
-#include <glm/ext.hpp>
+#include <glm/glm.hpp>
 
 class Particle {
 public:

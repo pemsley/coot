@@ -3,7 +3,7 @@
 #include <fstream>
 #include <map>
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/ext.hpp>
+// #include <glm/ext.hpp>
 #include "pumpkin.hh"
 
 std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > pumpkin() {

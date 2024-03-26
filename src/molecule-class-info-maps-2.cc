@@ -21,7 +21,7 @@
  */
 
 #define GLM_ENABLE_EXPERIMENTAL // # for to_string
-#include <glm/ext.hpp>
+// #include <glm/ext.hpp>
 
 #include "molecule-class-info.h"
 

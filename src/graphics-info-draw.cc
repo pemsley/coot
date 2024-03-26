@@ -6,9 +6,10 @@
 #include "compat/coot-sysdep.h"
 
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
-#include <glm/ext.hpp>
+// #include <glm/ext.hpp>
 #include <glm/gtx/string_cast.hpp>  // to_string()
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtc/type_ptr.hpp>  // for value_ptr() 20240326-PE
 
 #include <iostream>
 #include <iomanip>
@@ -4892,7 +4893,7 @@ graphics_info_t::translate_in_screen_x(float step_size) {
    // The step size is good when were zoomed in but too big when we are zoomed out.
 
    glm::vec3 screen_x_uv = get_screen_x_uv();
-   glm::vec3 step = 0.005 * step_size * zoom * screen_x_uv;
+   glm::vec3 step = 0.005f * step_size * zoom * screen_x_uv;
    add_to_rotation_centre(step);
 }
 
@@ -5128,7 +5129,7 @@ graphics_info_t::get_happy_face_residue_marker_positions() {
       glm::vec3 sc = get_rotation_centre();
       std::vector<clipper::Coord_orth> cv = coot::fibonacci_sphere(80);
       for (auto p : cv)
-         v.push_back(sc + 5.0 * clipper_to_glm(p));
+         v.push_back(sc + 5.0f * clipper_to_glm(p));
    } else {
 
       // This is just a bit of fun... actually, I will need to ask something like
@@ -6059,7 +6060,7 @@ graphics_info_t::make_extra_distance_restraints_objects() {
       // for colouring, limit the delta_length)
       if (delta_length >  1.0) delta_length =  1.0;
       if (delta_length < -1.0) delta_length = -1.0;
-      glm::vec4 colour = colour_base + delta_length * glm::vec4(-0.8f, 0.8f, -0.8, 0.0f);
+      glm::vec4 colour = colour_base + static_cast<float>(delta_length) * glm::vec4(-0.8f, 0.8f, -0.8f, 0.0f);
       edrmid.colour = 0.8f * colour;
       extra_distance_restraints_markup_data.push_back(edrmid);
    }

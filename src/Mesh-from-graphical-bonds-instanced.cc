@@ -25,7 +25,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()
 #include <glm/gtx/rotate_vector.hpp>
-#include <glm/ext.hpp>
+// #include <glm/ext.hpp>
 
 #include "coot-utils/cylinder.hh"
 #include "coot-utils/oct.hh"

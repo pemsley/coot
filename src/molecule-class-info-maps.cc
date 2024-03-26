@@ -47,6 +47,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()
+#include <glm/gtc/type_ptr.hpp>  // for value_ptr() 20240326-PE
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
@@ -1151,7 +1152,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
             sum += vertices[tri_con.point_indices[i].pointID[0]].pos;
             sum += vertices[tri_con.point_indices[i].pointID[1]].pos;
             sum += vertices[tri_con.point_indices[i].pointID[2]].pos;
-            glm::vec3 mid_point = 0.333333 * sum;
+            glm::vec3 mid_point = 0.333333f * sum;
 
             // now map triangles (used for sorting)
             int idx = map_triangle_centres.size();
@@ -1185,7 +1186,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
             sum += vertices[tri_con.point_indices[i].pointID[0]].pos;
             sum += vertices[tri_con.point_indices[i].pointID[1]].pos;
             sum += vertices[tri_con.point_indices[i].pointID[2]].pos;
-            glm::vec3 mid_point = 0.333333 * sum;
+            glm::vec3 mid_point = 0.333333f * sum;
 
             // now map triangles (used for sorting)
             int idx = map_triangle_centres.size();

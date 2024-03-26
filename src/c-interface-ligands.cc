@@ -3477,7 +3477,7 @@ double get_ligand_percentile(std::string metric_name, double metric_value, short
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()
 #include <glm/gtx/rotate_vector.hpp>
-#include <glm/ext.hpp>
+// #include <glm/ext.hpp> // 20240326-PE
 #include <time.h>
 #include "glarea_tick_function.hh"
 
