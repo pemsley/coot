@@ -175,4 +175,4 @@ jobs:
         env:
           MOORHEN_TEST_DATA_DIR: ../test-data
           COOT_REFMAC_LIB_DIR: /Users/runner/work/coot/coot # "data/monomers" is added before "a/ATP.cif" (say)
-          run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
+        run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
