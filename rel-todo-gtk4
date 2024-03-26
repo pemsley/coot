@@ -3,6 +3,12 @@
 
 Coot: make the function get_number_of_molecules(), as an alias maybe.
 
+Coot: Add to Draw menu "Activate Scene Preset" Figure making or Model-building
+
+Coot: Ribbons mode needs to (an option?) to add ligands 6zxa.cif
+
+Coot: check that a Gaussian chain surface should be displayed before using it in the SSAO image.
+
 libcootapi: in protein_geometry add a function something like
    duplicate_dictionary_for_other_molecule(int idx_rest, int imol_other)
    so that dictionaries assigned to a particular molecule can be used by other molecules (e.g. in dragged refinement).
