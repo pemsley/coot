@@ -125,6 +125,8 @@ jobs:
             -DCLIPPER-CORE_INCLUDE_DIR=/usr/local/Cellar/clipper4coot/2.1.20180802_2/include
             -DCLIPPER-MMDB_INCLUDE_DIR=/usr/local/Cellar/clipper4coot/2.1.20180802_2/include
             -DCLIPPER-CCP4_INCLUDE_DIR=/usr/local/Cellar/clipper4coot/2.1.20180802_2/include
+            -DMMDB2_LIBRARY=/usr/local/lib/libmmdb2.dylib
+            -DMMDB2_INCLUDE_DIR=/usr/local/include
             -DFFTW2_INCLUDE_DIRS=/usr/local/Cellar/clipper4coot/2.1.20180802_2/fftw2/include
             -DFFTW2_LIBRARY=/usr/local/Cellar/clipper4coot/2.1.20180802_2/fftw2/lib/libfftw.dylib
             -DRFFTW2_LIBRARY=/usr/local/Cellar/clipper4coot/2.1.20180802_2/fftw2/lib/librfftw.dylib
