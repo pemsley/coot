@@ -2086,15 +2086,21 @@ PyObject *positron_pathway(PyObject *map_molecule_list_py, PyObject *pathway_poi
                        const std::vector<int> &map_index_vec) {
 
       int imol = -1;
-      if (md.params.size() == map_index_vec.size()) {
-         PyObject *o = PyList_New(md.params.size());
-         for (unsigned int i=0; i<md.params.size(); i++) {
-            PyObject *item_py = PyList_New(2);
-            PyList_SetItem(item_py, 0, PyLong_FromLong(map_index_vec[i]));
-            PyList_SetItem(item_py, 1, PyFloat_FromDouble(md.params[i]));
-            PyList_SetItem(o, i, item_py);
+      if (! md.params.empty()) {
+         if (md.params.size() == map_index_vec.size()) {
+            PyObject *o = PyList_New(md.params.size());
+            for (unsigned int i=0; i<md.params.size(); i++) {
+               PyObject *item_py = PyList_New(2);
+               PyList_SetItem(item_py, 0, PyLong_FromLong(map_index_vec[i]));
+               PyList_SetItem(item_py, 1, PyFloat_FromDouble(md.params[i]));
+               PyList_SetItem(o, i, item_py);
+            }
+            // imol = average_map_py(o);  // cubic interpolation
+            int imol_first = map_index_vec[0];
+            imol = copy_molecule(imol_first);
+            // regen_map needs a C++ api (regen_map_internal, maybe)
+            regen_map(imol, o);
          }
-         imol = average_map_py(o);
       }
       return imol;
    };
