@@ -188,6 +188,7 @@ NB_MODULE(chapi, m) {
     ;
     nb::class_<molecules_container_t>(m,"molecules_container_t")
     .def(nb::init<bool>())
+    .def("M2T_updateFloatParameter",&molecules_container_t::M2T_updateFloatParameter)
     .def("SSM_superpose",&molecules_container_t::SSM_superpose)
     .def("add_alternative_conformation",&molecules_container_t::add_alternative_conformation)
     .def("add_colour_rule",&molecules_container_t::add_colour_rule)
