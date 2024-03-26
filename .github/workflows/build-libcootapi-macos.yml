@@ -27,6 +27,26 @@ jobs:
           path: /usr/local
           key:  macos-libcootapi-homebrew-build-homebrew-cache
 
+      - name: download the monomer library
+        run:  wget -nv https://github.com/MonomerLibrary/monomers/archive/refs/tags/ccp4-8.0.016.tar.gz
+
+      # note that the data directory exists in the coot repo (which is where we are)
+      - name: untar the monomer library
+        run:  pwd && cd data && tar xf ../ccp4-8.0.016.tar.gz && ln -s monomers-ccp4-8.0.016 monomers
+
+      - name: Cache test data tar
+        id: macos-libcootapi-test-data-cache
+        uses: actions/cache@v4
+        with:
+          path: test-molecule-container-test-data.tar.gz
+          key: macos-libcootapi-test-data-cache
+
+      - name: download test data
+        run:  wget -N -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
+
+      - name: untar test data
+        run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data.tar.gz
+
       - name: Setup homebrew
         id:   setup-homebrew
         uses: Homebrew/actions/setup-homebrew@master
@@ -149,3 +169,10 @@ jobs:
 
       - name: make install
         run:  cd build-libcootapi && echo make install
+
+      - name: run the test-molecules-container test
+        # this needs the monomer library
+        env:
+          MOORHEN_TEST_DATA_DIR: ../test-data
+          COOT_REFMAC_LIB_DIR: /Users/runner/work/coot/coot # "data/monomers" is added before "a/ATP.cif" (say)
+          run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
