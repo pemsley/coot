@@ -168,7 +168,7 @@ jobs:
         run:  cd build-libcootapi && make -j 4 VERBOSE=1
 
       - name: make install
-        run:  cd build-libcootapi && echo make install
+        run:  cd build-libcootapi && make install
 
       - name: run the test-molecules-container test
         # this needs the monomer library
