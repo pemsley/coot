@@ -283,24 +283,21 @@ molecules_container_t::testing_stop_long_term_job() {
 void
 molecules_container_t::read_standard_residues() {
 
-   // std::cout << "------------------ read_standard_residues() start " << std::endl;
-
    std::string standard_env_dir = "COOT_STANDARD_RESIDUES";
 
    const char *env_var_filename = getenv(standard_env_dir.c_str());
    if (! env_var_filename) {
 
-      // std::cout << "------------------ read_standard_residues() A " << std::endl;
       std::string dir = coot::package_data_dir();
       std::string standard_file_name = coot::util::append_dir_file(dir, "standard-residues.pdb");
 
-      // std::cout << "------------------ read_standard_residues() B " << standard_file_name << std::endl;
+      std::cout << "------------------ read_standard_residues() B " << standard_file_name << std::endl;
       struct stat buf;
       int status = stat(standard_file_name.c_str(), &buf);
       if (status != 0) { // standard-residues file was not found in
                          // default location either...
-         std::cout << "WARNING: Can't find standard residues file in the "
-                   << "default location \n";
+         std::cout << "WARNING:: default location: " << standard_file_name << std::endl;
+         std::cout << "WARNING:: Can't find standard residues file in the default location \n";
          std::cout << "         and environment variable for standard residues ";
          std::cout << standard_env_dir << "\n";
          std::cout << "         is not set.";
