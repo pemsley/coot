@@ -408,7 +408,8 @@
 # 6.18 20240304-PE Remove the --pydebug from Python's configuration
 # 6.19 20240306-PE Don't build gettext on anything other than Darwin
 # 6.20 20240326-PE Add cairo
-script_version=6.20
+# 6.21 20240327-PE Reposition the cairo build (after ninja)
+script_version=6.21
 
 
 
@@ -2639,26 +2640,6 @@ if true ; then
 fi
 
 
-#######################################################################
-# Cairo - needed for RKit molecule drawing - which can be used by chapi
-#######################################################################
-# 20240326-PE
-cairo_version=1.18.0
-if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
-    echo installation has cairo
-else
-    ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
-    tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
-    cd cairo-$cairo_version
-    mkdir build
-    cd build
-    meson -Dprefix=$install_top_dir ..
-    ninja
-    ninja install
-    cd ..
-    cd ..
-fi
-
 
 #######################################################################
 # readline is a dependency of python and guile
@@ -2788,21 +2769,21 @@ if [ $build_openssl = true ] ; then
 fi
 
 # gettext provides -lintl - which is needed for python on macOS
-build_getttext=true
+build_gettext=true
 if test $OS = Darwin ; then
     if test -e $install_top_dir/include/libintl.h ; then
-        build_getttext=false
+        build_gettext=false
     else
         echo where is libintl.h in $install_top_dir/include question-mark
         ls -l $install_top_dir/include
-        echo $install_top_dir/include/libintl.h does not exist - hence build_getttext $build_getttext
+        echo $install_top_dir/include/libintl.h does not exist - hence build_gettext $build_gettext
     fi
 else
     echo gettext: this is $OS, not Darwin
-    build_getttext=false
+    build_gettext=false
 fi
 
-if $build_getttext = true ; then
+if $build_gettext = true ; then
     gettext_version=0.22.5
     echo BUILDING gettext
     echo BUILDING gettext $gettext_version >&2
@@ -2866,7 +2847,7 @@ if test -n "$build_python" ; then
    # note to self: We need ffi.h (and lib presumably) to build the ctypes module (libffi-devel)
    # (or I could include it in this build script) (I don't know if ctypes is important)
    # 20220227-PE ctypes is crucial for meson
-   # remove --with-pydebug for now because __PyNegativeRefcount promlem on trying to load this into Blender
+   # remove --with-pydebug for now because __PyNegativeRefcount problem on trying to load this into Blender
    echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
    #
    # do we also need to use --with-threads=dir?
@@ -3019,6 +3000,29 @@ if [ $build_ninja = true ] ; then
    fi
    cd -
    ) > $HOSTLOGDIR/07c1-ninja.txt 2>&1
+fi
+
+#######################################################################
+# Cairo - needed for RKit molecule drawing - which can be used by chapi
+#######################################################################
+# 20240326-PE
+# This needs to be built after ninja and meson have been installed.
+cairo_version=1.18.0
+if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
+    echo installation has cairo
+else
+    (
+    ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
+    tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
+    cd cairo-$cairo_version
+    mkdir build
+    cd build
+    meson -Dprefix=$install_top_dir ..
+    ninja
+    ninja install
+    cd ..
+    cd ..
+    ) > $HOSTLOGDIR/08-cairo.txt 2>&1
 fi
 
 # Now we need:
