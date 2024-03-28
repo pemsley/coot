@@ -2639,63 +2639,6 @@ if true ; then
 fi
 
 
-# cairo depends on pixman. So let's install that too.
-if test -e $install_top_dir/include/pixman-1/pixman.h ; then
-    echo installation has pixman
-else
-    pixman_version=0.43.4
-    echo BUILDING: pixman $pixman_version
-    echo BUILDING: pixman $pixman_version >&2
-    (
-    ${WGET} https://www.cairographics.org/releases/pixman-$pixman_version.tar.gz
-    tar xf $AUTOBUILD_SOURCES/pixman-$pixman_version.tar.gz
-    cd pixman-$pixman_version
-    pwd
-    mkdir build
-    cd build
-    # put /usr/lib64 at the front of PKG_CONFIG_PATH so that meson
-    # picks up the correct version of libpng
-    export PKG_CONFIG_PATH=/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
-    echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
-    echo meson setup -Dprefix=$install_top_dir ..
-    meson setup -Dprefix=$install_top_dir ..
-    ninja
-    ninja install
-    ) > $HOSTLOGDIR/06-pixman.txt
-fi
-
-#######################################################################
-# Cairo - needed for RKit molecule drawing - which can be used by chapi
-#######################################################################
-# 20240326-PE
-cairo_version=1.18.0
-cairo_version=1.16.0 # not meson/ninja
-if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
-    echo installation has cairo
-else
-    echo BUILDING: cairo $cairo_version
-    echo BUILDING: cairo $cairo_version >&2
-    (
-    ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
-    tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
-    cd cairo-$cairo_version
-    pwd
-    # meson/ninja
-       # mkdir build
-       # cd build
-       # meson -Dprefix=$install_top_dir ..
-       # ninja
-       # ninja install
-       # cd ..
-       # cd ..
-    # standard
-    ./configure --prefix=$install_top_dir
-    if $MAKE ; then
-        make install
-    fi
-    ) > $HOSTLOGDIR/07-cairo.txt 2>&1
-fi
-
 
 #######################################################################
 # readline is a dependency of python and guile
@@ -3058,35 +3001,68 @@ if [ $build_ninja = true ] ; then
    ) > $HOSTLOGDIR/15-ninja.txt 2>&1
 fi
 
+
+
+#######################################################################
+# Pixman
+#######################################################################
+# cairo depends on pixman. So let's install that too.
+if test -e $install_top_dir/include/pixman-1/pixman.h ; then
+    echo installation has pixman
+else
+    pixman_version=0.43.4
+    echo BUILDING: pixman $pixman_version
+    echo BUILDING: pixman $pixman_version >&2
+    (
+    ${WGET} https://www.cairographics.org/releases/pixman-$pixman_version.tar.gz
+    tar xf $AUTOBUILD_SOURCES/pixman-$pixman_version.tar.gz
+    cd pixman-$pixman_version
+    pwd
+    mkdir build
+    cd build
+    # put /usr/lib64 at the front of PKG_CONFIG_PATH so that meson
+    # picks up the correct version of libpng
+    export PKG_CONFIG_PATH=/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
+    echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+    echo meson setup -Dprefix=$install_top_dir ..
+    meson setup -Dprefix=$install_top_dir ..
+    ninja
+    ninja install
+    ) > $HOSTLOGDIR/16-a-pixman.txt
+fi
+
 #######################################################################
 # Cairo - needed for RKit molecule drawing - which can be used by chapi
 #######################################################################
 # 20240326-PE
-# This needs to be built after ninja and meson have been installed.
 cairo_version=1.18.0
+cairo_version=1.16.0 # not meson/ninja
 if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
     echo installation has cairo
 else
+    echo BUILDING: cairo $cairo_version
+    echo BUILDING: cairo $cairo_version >&2
     (
     ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
     tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
     cd cairo-$cairo_version
-    mkdir build
-    cd build
-    meson -Dprefix=$install_top_dir ..
-    ninja
-    ninja install
-    cd ..
-    cd ..
-    ) > $HOSTLOGDIR/16-cairo.txt 2>&1
+    pwd
+    # meson/ninja
+       # mkdir build
+       # cd build
+       # meson -Dprefix=$install_top_dir ..
+       # ninja
+       # ninja install
+       # cd ..
+       # cd ..
+    # standard
+    ./configure --prefix=$install_top_dir
+    if $MAKE ; then
+        make install
+    fi
+    ) > $HOSTLOGDIR/16-b-cairo.txt 2>&1
 fi
 
-# Now we need:
-#  * guile
-#  * guile-www
-#  * guile-gtk
-#  * guile-gui
-#  * gsl
 
 
 
