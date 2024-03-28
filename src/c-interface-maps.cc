@@ -2105,7 +2105,7 @@ PyObject *positron_pathway(PyObject *map_molecule_list_py, PyObject *pathway_poi
       return imol;
    };
 
-   float default_contour_level = 0.01;
+   float default_contour_level = 0.02;
 
    std::vector<int> new_map_index_list;
    if (PyList_Check(map_molecule_list_py)) {
