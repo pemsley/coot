@@ -2632,31 +2632,68 @@ if true ; then
                   make install
               fi
           fi
-    ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
+    ) > $HOSTLOGDIR/05-gemmi.txt 2>&1
     cat $start_dir/gemmi-rebuild.txt 2>&1
     echo done gemmi
     echo done gemmi >&2
 fi
 
 
+# cairo depends on pixman. So let's install that too.
+if test -e $install_top_dir/include/pixman-1/pixman.h ; then
+    echo installation has pixman
+else
+    pixman_version=0.43.4
+    echo BUILDING: pixman $pixman_version
+    echo BUILDING: pixman $pixman_version >&2
+    (
+    ${WGET} https://www.cairographics.org/releases/pixman-$pixman_version.tar.gz
+    tar xf $AUTOBUILD_SOURCES/pixman-$pixman_version.tar.gz
+    cd pixman-$pixman_version
+    pwd
+    mkdir build
+    cd build
+    # put /usr/lib64 at the front of PKG_CONFIG_PATH so that meson
+    # picks up the correct version of libpng
+    export PKG_CONFIG_PATH=/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
+    echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+    echo meson setup -Dprefix=$install_top_dir ..
+    meson setup -Dprefix=$install_top_dir ..
+    ninja
+    ninja install
+    ) > $HOSTLOGDIR/06-pixman.txt
+fi
+
 #######################################################################
 # Cairo - needed for RKit molecule drawing - which can be used by chapi
 #######################################################################
 # 20240326-PE
 cairo_version=1.18.0
+cairo_version=1.16.0 # not meson/ninja
 if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
     echo installation has cairo
 else
+    echo BUILDING: cairo $cairo_version
+    echo BUILDING: cairo $cairo_version >&2
+    (
     ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
     tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
     cd cairo-$cairo_version
-    mkdir build
-    cd build
-    meson -Dprefix=$install_top_dir ..
-    ninja
-    ninja install
-    cd ..
-    cd ..
+    pwd
+    # meson/ninja
+       # mkdir build
+       # cd build
+       # meson -Dprefix=$install_top_dir ..
+       # ninja
+       # ninja install
+       # cd ..
+       # cd ..
+    # standard
+    ./configure --prefix=$install_top_dir
+    if $MAKE ; then
+        make install
+    fi
+    ) > $HOSTLOGDIR/07-cairo.txt 2>&1
 fi
 
 
@@ -2704,7 +2741,7 @@ if test "$build_readline" = true ; then
     else
        echo make of readline failed
     fi
-    ) > $HOSTLOGDIR/10-pre-readline.txt 2>&1
+    ) > $HOSTLOGDIR/08-readline.txt 2>&1
 else
     echo not building readline:
 fi
@@ -2751,7 +2788,7 @@ if [ $skip_build = false ] ; then
       if $MAKE ; then
          make install
       fi
-      ) > $HOSTLOGDIR/07e-libffi.txt 2>&1
+      ) > $HOSTLOGDIR/09-libffi.txt 2>&1
 else
     echo not building libffi >&2
 fi
@@ -2814,7 +2851,7 @@ if $build_getttext = true ; then
        ./configure --prefix=$install_top_dir --disable-java
        $MAKE && make install
        cd -
-    ) > $HOSTLOGDIR/07-g-gettext.txt 2>&1
+  f  ) > $HOSTLOGDIR/10-gettext.txt 2>&1
     echo done gettext >&2
 else
     echo not building gettext >&2
@@ -2885,7 +2922,7 @@ import ctypes
 print(dir(ctypes))
 print('post ctypes test')
 EOF
-   ) >  $HOSTLOGDIR/07-python.txt 2>&1
+   ) >  $HOSTLOGDIR/11-python.txt 2>&1
 
    # we need this because boost configuration runs "python" - at least on my Mac
    # (finding the correct python(3) doesn't seem to be a problem on the PC).
@@ -2907,7 +2944,7 @@ EOF
    pip3 install --upgrade pip
    # pip3 install pycairo
    # pip3 install pygobject
-   ) >  $HOSTLOGDIR/07a-pip-upgrade.txt 2>&1
+   ) >  $HOSTLOGDIR/12-pip-upgrade.txt 2>&1
 
    echo Pip update done >&2
 else
@@ -2987,7 +3024,7 @@ if $build_meson = true ; then
    which meson
    echo meson --version
    meson --version
-   ) > $HOSTLOGDIR/07b-meson.txt 2>&1
+   ) > $HOSTLOGDIR/13-meson.txt 2>&1
 else
    echo not building meson:
 fi
@@ -3018,7 +3055,7 @@ if [ $build_ninja = true ] ; then
       echo configure/boostrap of ninja failed - what a surprise.
    fi
    cd -
-   ) > $HOSTLOGDIR/07c1-ninja.txt 2>&1
+   ) > $HOSTLOGDIR/14-ninja.txt 2>&1
 fi
 
 # Now we need:
@@ -3053,7 +3090,7 @@ if test -n "$build_libtool" ; then
     else
        $MAKE install
     fi
-    ) > $HOSTLOGDIR/09-pre-libtool.txt 2>&1
+    ) > $HOSTLOGDIR/15-pre-libtool.txt 2>&1
 else
     echo not building libtool:
 fi
@@ -3085,7 +3122,7 @@ if test -n "$build_libidn" ; then
    if $MAKE ; then
       $MAKE install
    fi
-) > $HOSTLOGDIR/15-a-libidn2.txt 2>&1
+) > $HOSTLOGDIR/16-libidn2.txt 2>&1
 else
     echo not building libidn2:
 fi
@@ -3149,7 +3186,7 @@ if test -n "$build_curl" ; then
       fi
    fi
 
-   ) > $HOSTLOGDIR/15-b-curl.txt 2>&1
+   ) > $HOSTLOGDIR/17-curl.txt 2>&1
    echo donecurl: >&2
 
 else
@@ -3196,7 +3233,7 @@ if test -n "$build_gsl" ; then
        echo 1 ----------------------------------------------------------------
        $MAKE install
     fi
-    ) > $HOSTLOGDIR/15-gsl.txt 2>&1
+    ) > $HOSTLOGDIR/18-gsl.txt 2>&1
     echo done gsl: >&2
 else
     echo not building gsl:
@@ -3279,7 +3316,7 @@ if [ "$build_boost" = true ] ; then
       echo ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install > b2-command-save
            ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
       cd -
-      ) > $HOSTLOGDIR/16-boost.txt
+      ) > $HOSTLOGDIR/19-boost.txt
       echo done boost $boost_version >&2
    fi
 fi
@@ -3343,7 +3380,7 @@ Cflags: -I${includedir}' > cmake/glm.pc.in
     if $MAKE ; then
        make install
     fi
-    ) > $HOSTLOGDIR/17-glm.txt 2>&1
+    ) > $HOSTLOGDIR/20-glm.txt 2>&1
    echo glm-build-sub-shell-status $? >&2
    echo done glm: >&2
 fi
@@ -3448,7 +3485,7 @@ if [ true = true ] ; then
          exit 2
       fi
       cd -
-      ) > $HOSTLOGDIR/17-a-numpy.txt 2>&1
+      ) > $HOSTLOGDIR/21-numpy.txt 2>&1
       echo BUILDING numpy $numpy_version finished >&2
    fi
 fi
@@ -3852,6 +3889,32 @@ fi
 # so if we want to use glib for other packages, we need to use the same glib that
 # gtk-4 used.
 
+# we need python3 to have packaging
+python3 -m pip install packaging
+
+###### pcre2 is needed for glib. glib is compiled by gobject-introspection
+###### (that doesn't seem good). Let's install pcre2 and see what happens
+
+if test -e $install_top_dir/include/pcre2.h ; then
+    echo installation has pcre2
+    echo installation has bcre2 >&2
+else
+   pcre2_version=10.43
+   echo building pcre2 $pcre2_version
+   echo building pcre2 $pcre2_version >&2
+   (
+   d=https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$pcre2_version
+   ${WGET} $d/pcre2-$pcre2_version.tar.gz
+   tar xf $AUTOBUILD_SOURCES/pcre2-$pcre2_version.tar.gz
+   cd pcre2-$pcre2_version
+   ./configure --prefix=$install_top_dir
+   if $MAKE ; then
+       make install
+   fi
+   cd -
+   ) > $HOSTLOGDIR/09-pcre2.txt 2>&1
+fi
+
 ###############################################################################
 ##########         gobject-introspection                          #############
 ###############################################################################
@@ -3881,12 +3944,16 @@ if test "$build_gobject_introspection" = true ; then
    gobject_introspection_version=1.68.0
    gobject_introspection_version=1.71.0
    gobject_introspection_version=1.72.0
+   gobject_introspection_version=1.80.0
+   gobject_introspection_version_stub=1.80
    # 20220820-PE note to self: 1.73.0 is now avaliable
    # https://download.gnome.org/sources/gobject-introspection/1.73/
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.68
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.71
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.72
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.72
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/$gobject_introspection_version_stub
 
    ${WGET} $d/gobject-introspection-$gobject_introspection_version.tar.xz
    tar xf ${AUTOBUILD_SOURCES}/gobject-introspection-$gobject_introspection_version.tar.xz
@@ -3931,7 +3998,7 @@ if test "$build_gobject_introspection" = true ; then
    fi
    export -n CC
    cd ..
-   ) > $HOSTLOGDIR/19-gobject-introspection.txt 2>&1
+   ) > $HOSTLOGDIR/10-gobject-introspection.txt 2>&1
    echo done gobject-introspection: >&2
 fi
 
@@ -3997,6 +4064,7 @@ if [ $skip_build = false ] ; then
       echo BUILDING pygobject $pygobject_version: >&2
       (
       echo :::: PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+      unset LD_LIBRARY_PATH
       ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
       echo ::: trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz
       if [ -e ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz ] ; then
@@ -4011,7 +4079,7 @@ if [ $skip_build = false ] ; then
          # unset LD_LIBRARY_PATH # I want LD_LIBRARY_PATH so that libffi.so is found
          echo :::: in directory $(pwd)
          echo :::: building using meson -Dprefix=$install_top_dir build
-         if meson -Dprefix=$install_top_dir build ; then
+         if meson setup -Dprefix=$install_top_dir build ; then
             echo :::: meson passed
             cd build
             echo :::: ninja
@@ -4304,17 +4372,23 @@ if [ "$build_gc" = true ] ; then
    # echo gc skip_this $skip_this
 
    if [ $skip_this = false ] ; then
+      echo Here AAAAAAAAAAAAAAAAAAA
       gc_version=7.2g
       gc_version_dir=7.2
       gc_version=7.6.12     # needs libatomic_ops. can we find a version that doesn't need that?
       gc_version_dir=7.6.12 # I guess not.
-      echo BUILDING gc:
-      echo BUILDING gc $gc_version >&2
+      gc_version=8.2.4
+      gc_version_dir=8.2.4
+      echo AAAAAAAAAAAAAAAAAA BUILDING: gc
+      echo AAAAAAAAAAAAAAAAAA BUILDING: gc $gc_version >&2
       (
       echo ========================= build gc =================================
       unset LD_LIBRARY_PATH
+      echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
       if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
+         echo Here A
          echo found gc source file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
+         echo Here B
          tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          echo tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
       else
@@ -4326,9 +4400,12 @@ if [ "$build_gc" = true ] ; then
             echo download failed for http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
          fi
       fi
+      echo Here C
       cd gc-$gc_version_dir
+      pwd
       echo ./configure --prefix=$install_top_dir
-      if ./configure --prefix=$install_top_dir  ; then
+      echo Here D
+      if ./configure --prefix=$install_top_dir ; then
          if $MAKE ; then
             make install
          fi
