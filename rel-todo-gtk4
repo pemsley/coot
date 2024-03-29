@@ -9,6 +9,8 @@ Coot: Ribbons mode needs to (an option?) to add ligands 6zxa.cif
 
 Coot: check that a Gaussian chain surface should be displayed before using it in the SSAO image.
 
+libcootapi: what do we need to get flev working?
+
 libcootapi: in protein_geometry add a function something like
    duplicate_dictionary_for_other_molecule(int idx_rest, int imol_other)
    so that dictionaries assigned to a particular molecule can be used by other molecules (e.g. in dragged refinement).
@@ -53,6 +55,8 @@ libcootapi: change the SSM arg order to match ligand function: moving first.
 libcootapi: to release std::vector memory use std::swap on an empty vector, not mere assignment
 
 libcootapi: add function for delete by B-factor or plddt - limit goes both ways
+
+libcootapi: bring in transpose map by lsq superposition
 
 libcootapi: check the return type/value of match_torsion_and_postion()
 * Done. It's not clever.
