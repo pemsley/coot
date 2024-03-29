@@ -125,3 +125,49 @@ coot::density_contour_triangles_container_t::calculate_normals() {
       // something here.
    }
 }
+
+#include <chrono>
+#include "coot-utils/coot-map-utils.hh"
+
+// use the function gradient
+void
+coot::density_contour_triangles_container_t::calculate_normals_for_vertices(const clipper::Xmap<float> &xmap) {
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+   float delta = 0.03;
+   for (unsigned int i=0; i<points.size(); i++) {
+      const auto &pos = points[i];
+      clipper::Coord_orth p_x_1(pos.x() - delta, pos.y(), pos.z());
+      clipper::Coord_orth p_x_2(pos.x() + delta, pos.y(), pos.z());
+      clipper::Coord_orth p_y_1(pos.x(), pos.y() - delta, pos.z());
+      clipper::Coord_orth p_y_2(pos.x(), pos.y() + delta, pos.z());
+      clipper::Coord_orth p_z_1(pos.x(), pos.y(), pos.z() - delta);
+      clipper::Coord_orth p_z_2(pos.x(), pos.y(), pos.z() + delta);
+      float f_x_1 = util::density_at_point(xmap, p_x_1);
+      float f_x_2 = util::density_at_point(xmap, p_x_2);
+      float f_y_1 = util::density_at_point(xmap, p_y_1);
+      float f_y_2 = util::density_at_point(xmap, p_y_2);
+      float f_z_1 = util::density_at_point(xmap, p_z_1);
+      float f_z_2 = util::density_at_point(xmap, p_z_2);
+      clipper::Coord_orth grr(f_x_1 - f_x_2, f_y_1 - f_y_2, f_z_1 - f_z_2);
+      clipper::Coord_orth gr(grr.unit());
+      if (false) {
+         float f = util::density_at_point(xmap, pos);
+         const auto &n = normals[i];
+         std::cout << "pos " << pos.x() << " " << pos.y() << " " << pos.z() << " "
+                   << "grr " << grr.x() << " " << grr.y() << " " << grr.z() << " "
+                   << "normal " << n.x() << " " << n.y() << " " << n.z() << " "
+                   << "gr  " <<  gr.x() << " " <<  gr.y() << " " <<  gr.z() << " "
+                   << " f " << f << " "
+                   << "fx  " << f_x_1 << " " << f_x_2 << " "
+                   << "fy  " << f_y_1 << " " << f_y_2 << " "
+                   << "fz  " << f_z_1 << " " << f_z_2 << " "
+                   << std::endl;
+      }
+      normals[i] = gr;
+   }
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+
+   std::cout << "normals_from_function_gradient(): time " << d10 << " ms " << std::endl;
+}

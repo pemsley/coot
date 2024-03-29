@@ -1044,8 +1044,12 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
       }
    }
 
-   tri_con.calculate_normals();
-   // tri_con.remove_small_triangles(); // all very interesting, but not the way to do it.
+   if (true) // add user control
+      tri_con.calculate_normals();
+   else
+      tri_con.calculate_normals_for_vertices(crystal_map);
+
+      // tri_con.remove_small_triangles(); // all very interesting, but not the way to do it.
                                         // We need to merge and remove after all the
                                         // sections have been calculated.
 

@@ -5,6 +5,7 @@
 #include <map>
 
 #include <clipper/core/coords.h>
+#include <clipper/core/xmap.h>
 #include "geometry/residue-and-atom-specs.hh"
 
 struct POINT3DID {
@@ -47,6 +48,7 @@ namespace coot {
       void depth_sort(const clipper::Coord_orth &back_plane_point,
                       const clipper::Coord_orth &front_plane_point);
       void calculate_normals(); // average normals on shared points
+      void calculate_normals_for_vertices(const clipper::Xmap<float> &xmap); // 20240328-PE function gradient at vertex
       void remove_small_triangles();
       bool empty() const { return (points.empty()); }
       void clear() {

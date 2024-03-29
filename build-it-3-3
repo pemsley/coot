@@ -2320,7 +2320,7 @@ if test -n "$build_ccp4c" ; then
           $MAKE install
        fi
     fi
-    ) >  $HOSTLOGDIR/01-libccp4.txt 2>&1
+    ) > $HOSTLOGDIR/01-libccp4.txt 2>&1
     echo done libccp4 $libccp4_version >&2
 else
     echo not building libccp4:
@@ -2357,66 +2357,65 @@ mmdb_version=2.0.16
 mmdb_version=2.0.19
 mmdb_version=2.0.20
 mmdb_version=2.0.22
-# mmdb_server_dir=ftp://ftp.ccp4.ac.uk/opensource
-mmdb_server_dir=$extras_place
-echo ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
-${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
-echo BUILDING mmdb $mmdb_version >&2
-
-(
-date
-gzip -dc ${AUTOBUILD_SOURCES}/mmdb2-$mmdb_version.tar.gz | tar xf -
-echo gzip -dc ${AUTOBUILD_SOURCES}/mmdb2-$mmdb_version.tar.gz
-cd  mmdb2-$mmdb_version
-pwd
-# patch to read long lines in a cif file
-# 20091110 this patch is not available, above says that it is badly formed.
-#   Needs fixing.
-# add the following 2 touches because centos 4.6 jackal gives LIBTOOL
-# problems on `make'.
-# if configure.in newer than aclocal.m4 -> rebuild aclocal.m4
-# if aclocal.m4 newer than Makefile.in -> rebuild Makfile.in
-# mmdb 1.21 has configure.in newer than aclocal.m4 for some reason.
-# must make sure that next version does not.
-# touch aclocal.m4
-# sleep 2
-# touch Makefile.in
-./configure $generic_prefix --enable-shared --disable-static
-if $MAKE ; then
-   $MAKE install
-fi
-) > $HOSTLOGDIR/02-mmdb.txt 2>&1
-echo done mmdb $mmdb_version >&2
+    # mmdb_server_dir=ftp://ftp.ccp4.ac.uk/opensource
+    mmdb_server_dir=$extras_place
+    echo ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
+    ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
+    echo BUILDING mmdb $mmdb_version >&2
+    (
+    date
+    gzip -dc ${AUTOBUILD_SOURCES}/mmdb2-$mmdb_version.tar.gz | tar xf -
+    echo gzip -dc ${AUTOBUILD_SOURCES}/mmdb2-$mmdb_version.tar.gz
+    cd  mmdb2-$mmdb_version
+    pwd
+    # patch to read long lines in a cif file
+    # 20091110 this patch is not available, above says that it is badly formed.
+    #   Needs fixing.
+    # add the following 2 touches because centos 4.6 jackal gives LIBTOOL
+    # problems on `make'.
+    # if configure.in newer than aclocal.m4 -> rebuild aclocal.m4
+    # if aclocal.m4 newer than Makefile.in -> rebuild Makfile.in
+    # mmdb 1.21 has configure.in newer than aclocal.m4 for some reason.
+    # must make sure that next version does not.
+    # touch aclocal.m4
+    # sleep 2
+    # touch Makefile.in
+    ./configure $generic_prefix --enable-shared --disable-static
+    if $MAKE ; then
+       make install
+    fi
+    ) > $HOSTLOGDIR/02-mmdb.txt 2>&1
+    echo done mmdb $mmdb_version >&2
 else
-   echo not building mmdb:
+    echo not building mmdb:
 fi
 
 if test -n "$build_ssmlib" ; then
 
-   echo BUILDING SSM $ssm_version
-   echo BUILDING SSM $ssm_version >&2
-#
-# ssm_version=0.0-pre-2-ysbl
-ssm_version=1.4
-#${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
-#${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
-# ${WGET} $extras_place/SSMlib-$ssmlib_version.tar.gz
-# ${WGET} ftp://ftp.ccp4.ac.uk/opensource/ssm-1.3.tar.bz2
-# ${WGET} ftp://ftp.ccp4.ac.uk/opensource/ssm-1.3.tar.bz2
-${WGET} $extras_place/ssm-$ssm_version.tar.gz
-(
-date
-# gzip -dc ${AUTOBUILD_SOURCES}/ssm-1.3.tar.bz2 | tar xf -
-tar xf ${AUTOBUILD_SOURCES}/ssm-$ssm_version.tar.gz
-cd ssm-$ssm_version
-./configure $generic_prefix  --enable-shared --disable-static CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib
-if $MAKE ; then
-   $MAKE install
-fi
-) >  $HOSTLOGDIR/02-ssm.txt 2>&1
-echo done SSM $ssm_version >&2
+    echo BUILDING SSM $ssm_version
+    echo BUILDING SSM $ssm_version >&2
+    #
+    # ssm_version=0.0-pre-2-ysbl
+    ssm_version=1.4
+    #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
+    #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
+    # ${WGET} $extras_place/SSMlib-$ssmlib_version.tar.gz
+    # ${WGET} ftp://ftp.ccp4.ac.uk/opensource/ssm-1.3.tar.bz2
+    # ${WGET} ftp://ftp.ccp4.ac.uk/opensource/ssm-1.3.tar.bz2
+    ${WGET} $extras_place/ssm-$ssm_version.tar.gz
+    (
+    date
+    # gzip -dc ${AUTOBUILD_SOURCES}/ssm-1.3.tar.bz2 | tar xf -
+    tar xf ${AUTOBUILD_SOURCES}/ssm-$ssm_version.tar.gz
+    cd ssm-$ssm_version
+    ./configure $generic_prefix --enable-shared --disable-static CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib
+    if $MAKE ; then
+       $MAKE install
+    fi
+    ) >  $HOSTLOGDIR/02-ssm.txt 2>&1
+    echo done SSM $ssm_version >&2
 else
-   echo not building ssm:
+    echo not building ssm:
 fi
 
 
@@ -2633,7 +2632,7 @@ if true ; then
                   make install
               fi
           fi
-    ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
+    ) > $HOSTLOGDIR/05-gemmi.txt 2>&1
     cat $start_dir/gemmi-rebuild.txt 2>&1
     echo done gemmi
     echo done gemmi >&2
@@ -2685,7 +2684,7 @@ if test "$build_readline" = true ; then
     else
        echo make of readline failed
     fi
-    ) > $HOSTLOGDIR/10-pre-readline.txt 2>&1
+    ) > $HOSTLOGDIR/08-readline.txt 2>&1
 else
     echo not building readline:
 fi
@@ -2721,18 +2720,18 @@ if [ $test_for_already_installed_dependencies = true ] ; then
 fi
 
 if [ $skip_build = false ] ; then
-      echo BUILDING libffi $libffi_version:
-      echo BUILDING libffi $libffi_version: >&2
-      (
-      unset LD_LIBRARY_PATH
-      ${WGET} https://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
-      gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
-      cd libffi-$libffi_version
-      ./configure $generic_prefix
-      if $MAKE ; then
-         make install
-      fi
-      ) > $HOSTLOGDIR/07e-libffi.txt 2>&1
+    echo BUILDING libffi $libffi_version:
+    echo BUILDING libffi $libffi_version: >&2
+    (
+    unset LD_LIBRARY_PATH
+    ${WGET} https://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
+    gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
+    cd libffi-$libffi_version
+    ./configure $generic_prefix
+    if $MAKE ; then
+        make install
+    fi
+    ) > $HOSTLOGDIR/09-libffi.txt 2>&1
 else
     echo not building libffi >&2
 fi
@@ -2763,7 +2762,7 @@ if [ $build_openssl = true ] ; then
     ./Configure --prefix=$install_top_dir --openssldir=$install_top_dir  '-Wl,-rpath,$(LIBRPATH)'
     $MAKE && make install
     cd -
-    ) > $HOSTLOGDIR/07-f-openssl.txt 2>&1
+    ) > $HOSTLOGDIR/10-openssl.txt 2>&1
     echo done OpenSSL
     echo done OpenSSL >&2
 fi
@@ -2795,7 +2794,7 @@ if $build_gettext = true ; then
        ./configure --prefix=$install_top_dir --disable-java
        $MAKE && make install
        cd -
-    ) > $HOSTLOGDIR/07-g-gettext.txt 2>&1
+    ) > $HOSTLOGDIR/11-gettext.txt 2>&1
     echo done gettext >&2
 else
     echo not building gettext >&2
@@ -2866,7 +2865,7 @@ import ctypes
 print(dir(ctypes))
 print('post ctypes test')
 EOF
-   ) >  $HOSTLOGDIR/07-python.txt 2>&1
+   ) >  $HOSTLOGDIR/12-python.txt 2>&1
 
    # we need this because boost configuration runs "python" - at least on my Mac
    # (finding the correct python(3) doesn't seem to be a problem on the PC).
@@ -2888,7 +2887,7 @@ EOF
    pip3 install --upgrade pip
    # pip3 install pycairo
    # pip3 install pygobject
-   ) >  $HOSTLOGDIR/07a-pip-upgrade.txt 2>&1
+   ) >  $HOSTLOGDIR/13-pip-upgrade.txt 2>&1
 
    echo Pip update done >&2
 else
@@ -2968,7 +2967,7 @@ if $build_meson = true ; then
    which meson
    echo meson --version
    meson --version
-   ) > $HOSTLOGDIR/07b-meson.txt 2>&1
+   ) > $HOSTLOGDIR/14-meson.txt 2>&1
 else
    echo not building meson:
 fi
@@ -2999,38 +2998,71 @@ if [ $build_ninja = true ] ; then
       echo configure/boostrap of ninja failed - what a surprise.
    fi
    cd -
-   ) > $HOSTLOGDIR/07c1-ninja.txt 2>&1
+   ) > $HOSTLOGDIR/15-ninja.txt 2>&1
+fi
+
+
+
+#######################################################################
+# Pixman
+#######################################################################
+# cairo depends on pixman. So let's install that too.
+if test -e $install_top_dir/include/pixman-1/pixman.h ; then
+    echo installation has pixman
+else
+    pixman_version=0.43.4
+    echo BUILDING: pixman $pixman_version
+    echo BUILDING: pixman $pixman_version >&2
+    (
+    ${WGET} https://www.cairographics.org/releases/pixman-$pixman_version.tar.gz
+    tar xf $AUTOBUILD_SOURCES/pixman-$pixman_version.tar.gz
+    cd pixman-$pixman_version
+    pwd
+    mkdir build
+    cd build
+    # put /usr/lib64 at the front of PKG_CONFIG_PATH so that meson
+    # picks up the correct version of libpng
+    export PKG_CONFIG_PATH=/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
+    echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+    echo meson setup -Dprefix=$install_top_dir ..
+    meson setup -Dprefix=$install_top_dir ..
+    ninja
+    ninja install
+    ) > $HOSTLOGDIR/16-a-pixman.txt
 fi
 
 #######################################################################
 # Cairo - needed for RKit molecule drawing - which can be used by chapi
 #######################################################################
 # 20240326-PE
-# This needs to be built after ninja and meson have been installed.
 cairo_version=1.18.0
+cairo_version=1.16.0 # not meson/ninja
 if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
     echo installation has cairo
 else
+    echo BUILDING: cairo $cairo_version
+    echo BUILDING: cairo $cairo_version >&2
     (
     ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
     tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
     cd cairo-$cairo_version
-    mkdir build
-    cd build
-    meson -Dprefix=$install_top_dir ..
-    ninja
-    ninja install
-    cd ..
-    cd ..
-    ) > $HOSTLOGDIR/08-cairo.txt 2>&1
+    pwd
+    # meson/ninja
+       # mkdir build
+       # cd build
+       # meson -Dprefix=$install_top_dir ..
+       # ninja
+       # ninja install
+       # cd ..
+       # cd ..
+    # standard
+    ./configure --prefix=$install_top_dir
+    if $MAKE ; then
+        make install
+    fi
+    ) > $HOSTLOGDIR/16-b-cairo.txt 2>&1
 fi
 
-# Now we need:
-#  * guile
-#  * guile-www
-#  * guile-gtk
-#  * guile-gui
-#  * gsl
 
 
 
@@ -3057,7 +3089,7 @@ if test -n "$build_libtool" ; then
     else
        $MAKE install
     fi
-    ) > $HOSTLOGDIR/09-pre-libtool.txt 2>&1
+    ) > $HOSTLOGDIR/17-libtool.txt 2>&1
 else
     echo not building libtool:
 fi
@@ -3073,23 +3105,23 @@ fi
 # scratch for coot install.
 
 if test -n "$build_libidn" ; then
-   echo BUILDING libidn:
-   echo BUILDING libidn: >&2
-(
-   unset LD_LIBRARY_PATH
-   libidn_version=1.15
-   libidn_version=2.2.0
-   # ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
-   ${WGET} https://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn2-$libidn_version.tar.gz
+    echo BUILDING libidn:
+    echo BUILDING libidn: >&2
+    (
+    unset LD_LIBRARY_PATH
+    libidn_version=1.15
+    libidn_version=2.2.0
+    # ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
+    ${WGET} https://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn2-$libidn_version.tar.gz
 
-   gzip -dc ${AUTOBUILD_SOURCES}/libidn2-$libidn_version.tar.gz | tar xf -
-   cd libidn2-$libidn_version
+    gzip -dc ${AUTOBUILD_SOURCES}/libidn2-$libidn_version.tar.gz | tar xf -
+    cd libidn2-$libidn_version
 
-   ./configure  $generic_prefix
-   if $MAKE ; then
-      $MAKE install
-   fi
-) > $HOSTLOGDIR/15-a-libidn2.txt 2>&1
+    ./configure  $generic_prefix
+    if $MAKE ; then
+       $MAKE install
+    fi
+    ) > $HOSTLOGDIR/18-libidn2.txt 2>&1
 else
     echo not building libidn2:
 fi
@@ -3153,7 +3185,7 @@ if test -n "$build_curl" ; then
       fi
    fi
 
-   ) > $HOSTLOGDIR/15-b-curl.txt 2>&1
+   ) > $HOSTLOGDIR/19-curl.txt 2>&1
    echo donecurl: >&2
 
 else
@@ -3200,7 +3232,7 @@ if test -n "$build_gsl" ; then
        echo 1 ----------------------------------------------------------------
        $MAKE install
     fi
-    ) > $HOSTLOGDIR/15-gsl.txt 2>&1
+    ) > $HOSTLOGDIR/20-gsl.txt 2>&1
     echo done gsl: >&2
 else
     echo not building gsl:
@@ -3283,7 +3315,7 @@ if [ "$build_boost" = true ] ; then
       echo ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install > b2-command-save
            ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
       cd -
-      ) > $HOSTLOGDIR/16-boost.txt
+      ) > $HOSTLOGDIR/21-boost.txt
       echo done boost $boost_version >&2
    fi
 fi
@@ -3347,7 +3379,7 @@ Cflags: -I${includedir}' > cmake/glm.pc.in
     if $MAKE ; then
        make install
     fi
-    ) > $HOSTLOGDIR/17-glm.txt 2>&1
+    ) > $HOSTLOGDIR/22-glm.txt 2>&1
    echo glm-build-sub-shell-status $? >&2
    echo done glm: >&2
 fi
@@ -3452,7 +3484,7 @@ if [ true = true ] ; then
          exit 2
       fi
       cd -
-      ) > $HOSTLOGDIR/17-a-numpy.txt 2>&1
+      ) > $HOSTLOGDIR/23-numpy.txt 2>&1
       echo BUILDING numpy $numpy_version finished >&2
    fi
 fi
@@ -3478,7 +3510,7 @@ else
    cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ../eigen-$eigen_version
    make install
    cd -
-   ) > $HOSTLOGDIR/17-b-eigen.txt 2>&1
+   ) > $HOSTLOGDIR/24-eigen.txt 2>&1
    echo BUILDING eigen finished >&2
 fi
 
@@ -3506,7 +3538,7 @@ else
    $MAKE && make install
    cd ..
    cd ..
-   ) > $HOSTLOGDIR/17-c-catch2.txt 2>&1
+   ) > $HOSTLOGDIR/25-catch2.txt 2>&1
 fi
 
 if [ -d $install_top_dir/include/catch2 ] ; then
@@ -3787,10 +3819,10 @@ if [ "$build_rdkit" = true ] ; then
       fi
       cd ..
       cd ..
-      ) > $HOSTLOGDIR/18-rdkit.txt 2>&1
+      ) > $HOSTLOGDIR/26-rdkit.txt 2>&1
       echo BUILDING rdkit finished
       echo BUILDING rdkit finished >&2
-      wc $HOSTLOGDIR/18-rdkit.txt >&2
+      wc $HOSTLOGDIR/26-rdkit.txt >&2
    fi
 fi
 
@@ -3844,7 +3876,7 @@ if "$build_gmp" = true ; then
     else
        $MAKE install
     fi
-    ) > $HOSTLOGDIR/08-pre-gmp.txt 2>&1
+    ) > $HOSTLOGDIR/27-gmp.txt 2>&1
     echo done gmp $gmp_version >&2
 else
     echo not building gmp:
@@ -3855,6 +3887,32 @@ fi
 # glib was removed because glib is a dependency of gtk-4 and we don't build gtk-4,
 # so if we want to use glib for other packages, we need to use the same glib that
 # gtk-4 used.
+
+# we need python3 to have packaging
+python3 -m pip install packaging
+
+###### pcre2 is needed for glib. glib is compiled by gobject-introspection
+###### (that doesn't seem good). Let's install pcre2 and see what happens
+
+if test -e $install_top_dir/include/pcre2.h ; then
+    echo installation has pcre2
+    echo installation has bcre2 >&2
+else
+   pcre2_version=10.43
+   echo building pcre2 $pcre2_version
+   echo building pcre2 $pcre2_version >&2
+   (
+   d=https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$pcre2_version
+   ${WGET} $d/pcre2-$pcre2_version.tar.gz
+   tar xf $AUTOBUILD_SOURCES/pcre2-$pcre2_version.tar.gz
+   cd pcre2-$pcre2_version
+   ./configure --prefix=$install_top_dir
+   if $MAKE ; then
+       make install
+   fi
+   cd -
+   ) > $HOSTLOGDIR/28-pcre2.txt 2>&1
+fi
 
 ###############################################################################
 ##########         gobject-introspection                          #############
@@ -3885,12 +3943,16 @@ if test "$build_gobject_introspection" = true ; then
    gobject_introspection_version=1.68.0
    gobject_introspection_version=1.71.0
    gobject_introspection_version=1.72.0
+   gobject_introspection_version=1.80.0
+   gobject_introspection_version_stub=1.80
    # 20220820-PE note to self: 1.73.0 is now avaliable
    # https://download.gnome.org/sources/gobject-introspection/1.73/
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.68
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.71
    d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.72
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.72
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/$gobject_introspection_version_stub
 
    ${WGET} $d/gobject-introspection-$gobject_introspection_version.tar.xz
    tar xf ${AUTOBUILD_SOURCES}/gobject-introspection-$gobject_introspection_version.tar.xz
@@ -3935,7 +3997,7 @@ if test "$build_gobject_introspection" = true ; then
    fi
    export -n CC
    cd ..
-   ) > $HOSTLOGDIR/19-gobject-introspection.txt 2>&1
+   ) > $HOSTLOGDIR/29-gobject-introspection.txt 2>&1
    echo done gobject-introspection: >&2
 fi
 
@@ -3968,7 +4030,7 @@ if [ true ] ; then
          python3 setup.py install
          cd -
       fi
-      ) > $HOSTLOGDIR/07f-pycairo.txt 2>&1
+      ) > $HOSTLOGDIR/30-pycairo.txt 2>&1
    else
       echo installation has pycairo
    fi
@@ -4001,6 +4063,7 @@ if [ $skip_build = false ] ; then
       echo BUILDING pygobject $pygobject_version: >&2
       (
       echo :::: PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+      unset LD_LIBRARY_PATH
       ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
       echo ::: trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz
       if [ -e ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz ] ; then
@@ -4015,7 +4078,7 @@ if [ $skip_build = false ] ; then
          # unset LD_LIBRARY_PATH # I want LD_LIBRARY_PATH so that libffi.so is found
          echo :::: in directory $(pwd)
          echo :::: building using meson -Dprefix=$install_top_dir build
-         if meson -Dprefix=$install_top_dir build ; then
+         if meson setup -Dprefix=$install_top_dir build ; then
             echo :::: meson passed
             cd build
             echo :::: ninja
@@ -4028,7 +4091,7 @@ if [ $skip_build = false ] ; then
          export LD_LIBRARY_PATH=$x
       else
          echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
-      fi ) > $HOSTLOGDIR/07g-pygobject.txt 2>&1
+      fi ) > $HOSTLOGDIR/31-pygobject.txt 2>&1
       echo done pygobject $pygobject_version: >&2
 else
    echo not building pygobject:
@@ -4085,7 +4148,7 @@ else
           echo /usr/include/gd.h exists - skip libgd build
        fi
 
-      ) > $HOSTLOGDIR/15-libgd.txt 2>&1
+      ) > $HOSTLOGDIR/32-libgd.txt 2>&1
       echo done raster3d $raster3d_version >&2
 
       (
@@ -4141,7 +4204,7 @@ else
        else
           echo $install_top_dir/bin/render already exists, no build
        fi
-       ) > $HOSTLOGDIR/15-raster3d.txt 2>&1
+       ) > $HOSTLOGDIR/33-raster3d.txt 2>&1
    fi
 fi
 
@@ -4162,7 +4225,7 @@ else
     which pip3
     pip3 install wheel
     pip3 install pygobject
-    ) > $HOSTLOGDIR/17-pip-wheel-pygobject.txt 2>&1
+    ) > $HOSTLOGDIR/34-pip-wheel-pygobject.txt 2>&1
     echo done install pygobject with pip3 >&2
 fi
 
@@ -4234,7 +4297,7 @@ if [ "$build_libffi" = true ] ; then
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/18-ffi.txt 2>&1
+      ) > $HOSTLOGDIR/35-ffi.txt 2>&1
    fi
 fi
 
@@ -4269,7 +4332,7 @@ if [ "$build_unistring" = true ] ; then
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/19-libubunistring.txt 2>&1
+      ) > $HOSTLOGDIR/36-libubunistring.txt 2>&1
       echo done libunistring $unistring_version >&2
    else
       echo not building libunistring
@@ -4301,24 +4364,30 @@ if [ "$build_gc" = true ] ; then
       $MAKE
       make install
       cd -
-      ) > $HOSTLOGDIR/20-libatomic-ops.txt 2>&1
+      ) > $HOSTLOGDIR/37-libatomic-ops.txt 2>&1
       echo done libatomic-ops: >&2
    fi
 
    # echo gc skip_this $skip_this
 
    if [ $skip_this = false ] ; then
+      echo Here AAAAAAAAAAAAAAAAAAA
       gc_version=7.2g
       gc_version_dir=7.2
       gc_version=7.6.12     # needs libatomic_ops. can we find a version that doesn't need that?
       gc_version_dir=7.6.12 # I guess not.
-      echo BUILDING gc:
-      echo BUILDING gc $gc_version >&2
+      gc_version=8.2.4
+      gc_version_dir=8.2.4
+      echo AAAAAAAAAAAAAAAAAA BUILDING: gc
+      echo AAAAAAAAAAAAAAAAAA BUILDING: gc $gc_version >&2
       (
       echo ========================= build gc =================================
       unset LD_LIBRARY_PATH
+      echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
       if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
+         echo Here A
          echo found gc source file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
+         echo Here B
          tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          echo tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
       else
@@ -4330,15 +4399,18 @@ if [ "$build_gc" = true ] ; then
             echo download failed for http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
          fi
       fi
+      echo Here C
       cd gc-$gc_version_dir
+      pwd
       echo ./configure --prefix=$install_top_dir
-      if ./configure --prefix=$install_top_dir  ; then
+      echo Here D
+      if ./configure --prefix=$install_top_dir ; then
          if $MAKE ; then
             make install
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/21-gc.txt 2>&1
+      ) > $HOSTLOGDIR/38-gc.txt 2>&1
       echo done gc $gc_version >&2
    else
       echo not building gc
@@ -4394,7 +4466,7 @@ if [ "$build_guile" = true ] ; then
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/24-guile.txt 2>&1
+      ) > $HOSTLOGDIR/39-guile.txt 2>&1
       echo done guile:
    fi
 else
@@ -4472,7 +4544,7 @@ if [ "$build_g_wrap" = true ] ; then
             make install
          fi
       fi
-      ) > $HOSTLOGDIR/25-g-wrap.txt 2>&1
+      ) > $HOSTLOGDIR/40-g-wrap.txt 2>&1
       echo BUILDING g-wrap finished >&2
    fi
 else
@@ -4510,7 +4582,7 @@ if [ "$build_guile_cairo" = true ] ; then
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/26-guile-cairo.txt 2>&1
+      ) > $HOSTLOGDIR/41-guile-cairo.txt 2>&1
       echo BUILDING guile-cairo finished >&2
    fi
 else
@@ -4567,7 +4639,7 @@ if [ "$build_guile_lib" = true ] ; then
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/27-guile-lib.txt 2>&1
+      ) > $HOSTLOGDIR/42-guile-lib.txt 2>&1
    fi
 else
    echo not building guile-lib:
@@ -4605,7 +4677,7 @@ if [ "$build_guile_gnome_platform" = true ] ; then
             make install
          fi
       fi
-      ) > $HOSTLOGDIR/28-guile-gnome-platform.txt 2>&1
+      ) > $HOSTLOGDIR/43-guile-gnome-platform.txt 2>&1
       echo BUILDING gnome-gnome-platform finished
    fi
 else
@@ -4661,7 +4733,7 @@ if [ -e coot ] ; then
    echo 66666666666666666666 done bash autogen.sh
    echo 66666666666666666666 done bash autogen.sh >&2
    cd -
-   ) > $HOSTLOGDIR/30-coot-fetch-merge-autogen.txt 2>&1
+   ) > $HOSTLOGDIR/50-coot-fetch-merge-autogen.txt 2>&1
 else
    echo CASE 2 coot directory not exists in $(pwd)
    echo CASE 2 coot directory not exists in $(pwd) >&2
@@ -4691,7 +4763,7 @@ else
    fi
    LD_LIBRARY_PATH=$save_ld_library_path
    cd $save_dir
-   ) > $HOSTLOGDIR/30-clone-autogen.txt 2>&1
+   ) > $HOSTLOGDIR/50-clone-autogen.txt 2>&1
 fi
 
 if test -n "$glib_installed" ; then
@@ -4821,7 +4893,7 @@ else
    # fi
 fi
 
-) > $HOSTLOGDIR/30-coot.txt 2>&1
+) > $HOSTLOGDIR/50-coot.txt 2>&1
 
 #         --with-gsl-prefix=$install_top_dir \
 #        --with-glib-prefix=$install_top_dir \
