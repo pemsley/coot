@@ -1902,6 +1902,17 @@ int handle_drag_and_drop_string(const std::string &uri);
 
 
 /* ------------------------------------------------------------------------- */
+/*                      Map Display Control                                  */
+/* ------------------------------------------------------------------------- */
+
+/*! \name  Map Display Control */
+// \{
+//! \brief undisplay all maps except the given one
+void undisplay_all_maps_except(int imol_map);
+// \}
+
+
+/* ------------------------------------------------------------------------- */
 /*                      Map Contours                                         */
 /* ------------------------------------------------------------------------- */
 
