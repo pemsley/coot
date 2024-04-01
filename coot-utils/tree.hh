@@ -1,4 +1,3 @@
-
 //	STL-like templated tree class.
 //
 // Copyright (C) 2001-2011 Kasper Peeters <kasper@phi-sci.com>
