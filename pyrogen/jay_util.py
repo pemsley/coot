@@ -1,4 +1,6 @@
-# from Jay, stackoverflow.com
+# from Jay, stackoverflow.com 2012
+#
+# CC BY-SA 3.0 license
 #
 def which(program):
     import os
