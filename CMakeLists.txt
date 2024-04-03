@@ -236,7 +236,6 @@ add_library(cootapi SHARED
             ${coot_src}/ideal/lograma.cpp
             ${coot_src}/ideal/process-dfs-in-range.cc
             ${coot_src}/ideal/zo-rama.cc
-            ${coot_src}/tw/tw.cc
             ${coot_src}/utils/align-utils.cc
             ${coot_src}/utils/atomic-numbers.cc
             ${coot_src}/utils/backward.cpp
