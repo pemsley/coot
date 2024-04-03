@@ -9,6 +9,8 @@ Coot: Ribbons mode needs to (an option?) to add ligands 6zxa.cif
 
 Coot: check that a Gaussian chain surface should be displayed before using it in the SSAO image.
 
+Coot: for sound, look at tw/cootsound.c
+
 libcootapi: what do we need to get flev working?
 
 libcootapi: in protein_geometry add a function something like
