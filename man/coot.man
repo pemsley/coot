@@ -50,10 +50,6 @@ coot \- macromolecular modeling
 .I <python/scheme script file-name>
 .B ]
 .br
-.B [\-\-ccp4\-project 
-.I <directory-name>
-.B ]
-.br
 .B [\-\-dictionary 
 .I <mmCIF/pdbx dictionary file-name>
 .B ]
@@ -66,24 +62,11 @@ coot \- macromolecular modeling
 .I <wwPDB comp-id>
 .B ]
 .br
-.B [\-\-title  
-.I title    
-.B ]
-.br
-.B [\-\-port  
-.I port     
-.B ]
-.B [\-\-hostname|--host
-.I hostname  
-.B ]
-.br
 .B [\-\-splash\-screen
 .I <alternate splash screen>
 .B ]
 .br
 .B [\-\-help]     
-.br
-.B [\-\-em]
 .br
 .B [\-\-python]
 .br
@@ -95,19 +78,11 @@ coot \- macromolecular modeling
 .br
 .B [\-\-no\-splash\-screen]
 .br
-.B [\-\-stereo]
-.br
-.B [\-\-side\-by\-side]
-.br
-.B [\-\-zalman\-stereo]
-.br
 .B [\-\-version]
 .br
 .B [\-\-version\-full]
 .br
 .B [\-\-no\-guano]
-.br
-.B [\-\-small\-screen]
 .br
 .B [\-\-self\-test]
 
