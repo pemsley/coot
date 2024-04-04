@@ -26,7 +26,7 @@ def insert_new_header(person, file_name, copyright_year, lines):
     copyright_line = make_copyright_line(person, copyright_year)
     file_line = " * " + file_name + "\n"
     author_line = " * Author: " + person + "\n"
-    if person == "Martin": author_line = " * Author: Martin Noble\n",
+    if person == "Martin": author_line = " * Author: Martin Noble\n"
 
     new_lines = [ "/*\n",
                   file_line,
@@ -34,9 +34,11 @@ def insert_new_header(person, file_name, copyright_year, lines):
                   copyright_line,
                   author_line,
                   " *\n",
+                  " * This file is part of Coot\n",
+                  " *\n",
                   " * This program is free software; you can redistribute it and/or modify\n",
-                  " * it under the terms of the GNU General Public License as published by\n",
-                  " * the Free Software Foundation; either version 3 of the License, or (at\n",
+                  " * it under the terms of the GNU Lesser General Public License as published\n",
+                  " * by the Free Software Foundation; either version 3 of the License, or (at\n",
                   " * your option) any later version.\n",
                   " *\n",
                   " * This program is distributed in the hope that it will be useful, but\n",
@@ -85,7 +87,7 @@ def replace_lines(file_name, lines):
 
     # ---------------- Martin's code style
 
-    if False:
+    if True:
         raw_top_do_it = False
         if '#include ' in lines[0]: raw_top_do_it = True
         if '#define '  in lines[1]: raw_top_do_it = True
@@ -122,26 +124,27 @@ def replace_lines(file_name, lines):
 
     # ---------------- Kevin's code style
 
-    copyright_year = ""
-    for idx,line in enumerate(lines):
-        if done: continue
-        if " (C) "        in line: copyright_year = get_copyright_year(line)
-        if " Copyright "  in line: copyright_year = get_copyright_year(line)
-        if " Created on:" in line: copyright_year = get_copyright_year(line)
-        if " Author: "    in line: author = get_author(line)
-        if "York all rights reserved" in line:
-            lines.pop(idx)
-            lines.pop(idx-1)
-            insert_new_header("Kevin Cowtan", file_name, copyright_year, lines)
-            done = True
+    if False:
+        copyright_year = ""
+        for idx,line in enumerate(lines):
+            if done: continue
+            if " (C) "        in line: copyright_year = get_copyright_year(line)
+            if " Copyright "  in line: copyright_year = get_copyright_year(line)
+            if " Created on:" in line: copyright_year = get_copyright_year(line)
+            if " Author: "    in line: author = get_author(line)
+            if "York all rights reserved" in line:
+                lines.pop(idx)
+                lines.pop(idx-1)
+                insert_new_header("Kevin Cowtan", file_name, copyright_year, lines)
+                done = True
 
-        if idx < 10:
-            if " */\n" in line:
-                if len(line) == 4:
-                    for i in range(idx+1):
-                        lines.pop(0)
-                    insert_new_header(author, file_name, copyright_year, lines)
-                    done = True
+            if idx < 10:
+                if " */\n" in line:
+                    if len(line) == 4:
+                        for i in range(idx+1):
+                            lines.pop(0)
+                        insert_new_header(author, file_name, copyright_year, lines)
+                        done = True
 
 if len(sys.argv) > 1:
     fn = sys.argv[1]
