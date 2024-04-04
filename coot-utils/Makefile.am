@@ -167,12 +167,13 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-spherical glyco-torsions test-tt-morph test-coot-probe test-chem-feat \
 		 test-cod-atom-types dictionary-atom-types cod-db-access \
 		 test-5-residue-fragments test-diff-diff-map-peaks \
-		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa
+		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
+		 test-coot-utils
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
 
-bin_PROGRAMS = mmrrcc test-coot-utils
+bin_PROGRAMS = mmrrcc
 
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc

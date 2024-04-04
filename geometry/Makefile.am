@@ -65,8 +65,7 @@ check_PROGRAMS = test-geometry test-read-components test-ccp4srs \
 	coot-make-shelx-restraints         \
 	coot-dictionary-bond-distributions
 
-bin_PROGRAMS = \
-	coot-available-comp-id
+# bin_PROGRAMS = coot-available-comp-id
 
 test_geometry_SOURCES = test-geometry.cc
 
@@ -99,9 +98,9 @@ coot_make_shelx_restraints_LDADD = ./libcoot-geometry.la \
         $(top_builddir)/utils/libcoot-utils.la           \
         $(CLIPPER_LIBS)
 
-coot_available_comp_id_SOURCES = available-comp-id.cc
+# coot_available_comp_id_SOURCES = available-comp-id.cc
 
-coot_available_comp_id_LDADD = ./libcoot-geometry.la \
-        $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-        $(top_builddir)/utils/libcoot-utils.la
+# coot_available_comp_id_LDADD = ./libcoot-geometry.la \
+#         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
+#         $(top_builddir)/utils/libcoot-utils.la
 
