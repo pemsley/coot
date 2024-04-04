@@ -9930,7 +9930,6 @@ molecule_class_info_t::set_coot_save_index(const std::string &filename) {
 void
 molecule_class_info_t::transform_by(mmdb::mat44 mat) {
 
-#ifdef HAVE_GSL
    if (has_model()) {
       clipper::Coord_orth co;
       clipper::Coord_orth trans_pos;
@@ -9964,7 +9963,7 @@ molecule_class_info_t::transform_by(mmdb::mat44 mat) {
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked(__FUNCTION__);
    }
-#endif // HAVE_GSL
+
 }
 
 

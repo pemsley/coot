@@ -20,9 +20,6 @@
  */
 
 
-// we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL
-
 #include "simple-restraint.hh"
 
 double
@@ -100,5 +97,3 @@ void coot::my_df_start_pos (const gsl_vector *v,
       }
    }
 }
-
-#endif // HAVE_GSL

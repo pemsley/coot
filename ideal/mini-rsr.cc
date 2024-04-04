@@ -260,10 +260,6 @@ execute_crankshaft(const coot::residue_spec_t &rs, int n_peptides, const clipper
 int
 main(int argc, char **argv) {
 
-#ifndef HAVE_GSL
-   std::cout << "We don't have GSL, this program does nothing" << std::endl;
-#else
-   
    std::string dict_filename;
    coot::protein_geometry geom;
 
@@ -560,7 +556,6 @@ main(int argc, char **argv) {
       }
    }
 
-#endif // HAVE_GSL
    return 0; 
 }
 

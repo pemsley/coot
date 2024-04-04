@@ -284,9 +284,6 @@ parse_command_line(int argc, char ** argv ) {
 #ifdef HAVE_GOOCANVAS
 			   enableds.push_back("Goocanvas");
 #endif
-#ifdef HAVE_GSL
-			   enableds.push_back("GSL");
-#endif
 #ifdef USE_GEMMI
             enableds.push_back("GEMMI");
 #endif

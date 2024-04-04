@@ -236,8 +236,6 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
 
-#ifdef HAVE_GSL
-
    int imol = imol_for_atoms;
    imol_moving_atoms = imol_for_atoms;  // for use when we accept the
 			      // regularization and want to copy the
@@ -370,7 +368,6 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	 rr = refine_residues_vec(imol_for_atoms, residues, altconf, mol);
    }
 
-#endif // HAVE_GSL
    return rr;
 }
 
@@ -1288,8 +1285,6 @@ graphics_info_t::make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::R
 }
 
 
-#ifdef  HAVE_GSL
-
 // return the state of having found restraints.
 bool
 graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Residue *> > &local_residues,
@@ -1464,7 +1459,6 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 
    return found_restraints_flag;
 }
-#endif // HAVE_GSL
 
 
 // simple mmdb::Residue * interface to refinement.  20081216
@@ -1479,8 +1473,6 @@ graphics_info_t::generate_molecule_and_refine(int imol,
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
-
-#ifdef HAVE_GSL
 
    if (is_valid_map_molecule(Imol_Refinement_Map()) || (! use_map_flag)) {
       // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
@@ -1632,12 +1624,6 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
    return rr;
 
-#else
-
-   std::cout << "Cannot refine without compilation with GSL" << std::endl;
-   return coot::refinement_results_t(0, 0, "");
-
-#endif
 }
 
 #include "coot-utils/atom-tools.hh"
@@ -5671,8 +5657,6 @@ graphics_info_t::do_interactive_probe() const {
 void
 graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 
-#ifdef HAVE_GSL
-
    if (moving_atoms_asc) {
       if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE ||
 	  moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) { // needed?
@@ -5787,7 +5771,6 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 	 }
       }
    }
-#endif // HAVE_GSL
 }
 
 

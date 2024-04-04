@@ -877,8 +877,6 @@ graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff
 void
 graphics_info_t::do_post_drag_refinement_maybe() {
 
-#ifdef HAVE_GSL
-
    // std::cout << "Here in do_post_drag_refinement_maybe() with last_restraints_size() "
    // << last_restraints_size() << std::endl;
 
@@ -888,7 +886,6 @@ graphics_info_t::do_post_drag_refinement_maybe() {
        std::cout << "DEBUG:: not doing refinement - no restraints." << std::endl;
     }
 
-#endif // HAVE_GSL
 }
 
 

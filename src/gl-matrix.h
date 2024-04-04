@@ -26,9 +26,7 @@
 
 enum { TRANSPOSE }; 
 
-#ifdef HAVE_GSL
-#include "gsl/gsl_linalg.h"
-#endif
+#include <gsl/gsl_linalg.h>
 
 #include <clipper/core/coords.h>
 #include "coords/Cartesian.h"

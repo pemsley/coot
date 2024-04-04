@@ -38,14 +38,10 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
    int retprog = -1;
 
-#ifdef HAVE_GSL
-
    thread_for_refinement_loop_threaded();
 
    //    g.run_post_intermediate_atoms_moved_hook_maybe();  // put this somewhere else
    //   (after the refinement has finished.)
-
-#endif // HAVE_GSL
 
    return retprog;
 }

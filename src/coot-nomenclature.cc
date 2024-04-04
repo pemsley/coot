@@ -143,7 +143,6 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 				 // 					<< " for restraint: " << irestr << " :" 
 				 // 					<<  chiral_restraint.atom_id_c_4c() << ":\n";
 
-#ifdef HAVE_GSL			      
 				 std::vector<std::pair<short int, coot::atom_spec_t> > c = 
 				    coot::is_inverted_chiral_atom_p(chiral_restraint, residue_p);
 				 for (unsigned int ibad=0; ibad<c.size(); ibad++) { 
@@ -192,7 +191,6 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 				       }
 				    }
 				 }
-#endif // HAVE_GSL			      
 			      }
 			   }
 			}
@@ -214,7 +212,6 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 							       " CG ", " CB ", " CD1", " CD2",
 							       volume_sign);
 			   
-#ifdef HAVE_GSL			
 			   std::vector<std::pair<short int, coot::atom_spec_t> > c = 
 			      coot::is_inverted_chiral_atom_p(synthetic_restraint,
 							      residue_p);
@@ -273,7 +270,6 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 				 }
 			      }
 			   }
-#endif // HAVE_GSL			
 			}
 		     }
 		  }

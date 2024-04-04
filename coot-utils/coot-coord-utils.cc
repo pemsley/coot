@@ -28,10 +28,8 @@
 
 #include <string.h> // for strcpy
 
-#ifdef HAVE_GSL
 #include <gsl/gsl_cdf.h>
 #include <gsl/gsl_statistics_double.h>
-#endif // HAVE_GSL
 
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
@@ -1046,7 +1044,6 @@ coot::util::qq_plot_t::qq_norm() {
    
    std::vector<std::pair<double, double> > v;
 
-#ifdef HAVE_GSL   
    std::sort(data.begin(), data.end());
    size_t stride = 1;
    std::vector<double> sorted_data(data.size());
@@ -1086,7 +1083,6 @@ coot::util::qq_plot_t::qq_norm() {
    std::cout << "debug:: qs: mean " << qs_data.mean << " sd " <<  qs_data.sd  << std::endl;
    std::cout << "debug:: sd: mean " << sd.mean << " sd " <<  sd.sd  << std::endl;
    
-#endif // HAVE_GSL   
    return v;
 }
 

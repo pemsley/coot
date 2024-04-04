@@ -27,12 +27,7 @@
 #include <algorithm>
 #include <thread>
 
-#ifndef HAVE_GSL
-#define HAVE_GSL // flycheck needs this - otherwise it doesn't properly parse simple-restraint.hh
-#endif
-
 #include "simple-restraint.hh"
-
 
 mmdb::Atom *
 coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, clipper::Coord_orth pos) {

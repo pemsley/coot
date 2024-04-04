@@ -19,8 +19,6 @@
  */
 
 
-// we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL
 #include <stdexcept>
 
 #include "simple-restraint.hh"
@@ -225,5 +223,3 @@ coot::restraints_container_t::add_extra_angle_restraints(const extra_restraints_
       }
    }
 }
-
-#endif // HAVE_GSL

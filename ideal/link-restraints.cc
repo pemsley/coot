@@ -22,9 +22,6 @@
  */
 
 
-// we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL
-
 #include "compat/coot-sysdep.h"
 
 #include "simple-restraint.hh"
@@ -2063,6 +2060,3 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 
    return n_plane;
 }
-
-#endif // HAVE_GSL
-

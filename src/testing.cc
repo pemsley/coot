@@ -52,10 +52,7 @@
 #include "ligand/ligand.hh"
 #include "ligand/chi-angles.hh"
 
-#ifdef HAVE_GSL
-#else
 #include "utils/coot-utils.hh" // usually include from simple-restraint.hh
-#endif
 
 #include "coot-utils/coot-rama.hh"
 #include "coot-utils/coot-shelx.hh"
@@ -722,7 +719,6 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 					   bool use_flanking_residues,
 					   bool output_numerical_gradients) {
 
-#ifdef HAVE_GSL
    long t0 = 0; // glutGet(GLUT_ELAPSED_TIME);
 
    // now refine a bit of structure:
@@ -825,7 +821,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
    float seconds = float(t1-t0)/1000.0;
    std::cout << "refinement_took " << seconds << " seconds" << std::endl;
    return res_sel;
-#endif // HAVE_GSL
+
 }
 
 int test_ramachandran_probabilities() {
@@ -950,7 +946,6 @@ int test_ramachandran_probabilities() {
 int kdc_torsion_test() {
   int r = 1;
 
-#ifdef HAVE_GSL
   clipper::Coord_orth co1, co2, co3, co4;
   std::vector<double> params(12);
   const int n1(5), n2(7);
@@ -1045,7 +1040,7 @@ int kdc_torsion_test() {
 	      r = 0;
 	   }
      }
-#endif // HAVE_GSL
+
   return r;
 }
 

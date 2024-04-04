@@ -2200,8 +2200,6 @@ graphics_info_t::clear_up_moving_atoms() {
                             // OK, so let the test be on moving_atoms_asc->mol
                             // moving_atoms_asc is set in init()
 
-#ifdef HAVE_GSL
-
    if (last_restraints) {
       last_restraints->clear();
       delete last_restraints;
@@ -2210,9 +2208,6 @@ graphics_info_t::clear_up_moving_atoms() {
    }
 
    release_restraints_lock(__FUNCTION__); // refinement ended and cleared up.
-
-#endif // HAVE_GSL
-
 
    moving_atoms_lock  = false;
 

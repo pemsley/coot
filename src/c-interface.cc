@@ -4388,11 +4388,8 @@ skel_greer_off() {
 
 void test_fragment() {
 
-#ifdef HAVE_GSL
    graphics_info_t g;
    g.rotamer_graphs(0);
-
-#endif // HAVE_GSL
 }
 
 // we redefine TRUE here somewhere...

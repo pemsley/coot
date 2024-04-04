@@ -22,8 +22,6 @@
 #ifndef REGULARIZE_MINIMOL_HH
 #define REGULARIZE_MINIMOL_HH
 
-#ifdef HAVE_GSL
-
 #include "simple-restraint.hh"
 #include "mini-mol/mini-mol.hh"
 
@@ -45,6 +43,5 @@ namespace coot {
 
 }
 
-#endif // HAVE_GSL
 #endif // REGULARIZE_MINIMOL_HH
 

@@ -24,9 +24,6 @@
 #include <string.h> // for strcmp
 
 
-// we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL
-
 
 // #include <fstream>
 // #include <algorithm> // for sort
@@ -537,6 +534,3 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
    }
    return bpc;
 }
-
-
-#endif // HAVE_GSL

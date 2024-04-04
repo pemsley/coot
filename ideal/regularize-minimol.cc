@@ -19,8 +19,6 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
-#ifdef HAVE_GSL
-
 #include "regularize-minimol.hh"
 #include "simple-restraint.hh"
 
@@ -209,7 +207,3 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
    return m;
 
 }
-
-
-
-#endif // HAVE_GSL

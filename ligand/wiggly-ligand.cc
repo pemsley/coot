@@ -595,7 +595,6 @@ coot::wligand::optimize_and_install_if_unique(const coot::minimol::residue &wigg
 	 wiggled_ligand.write_file(filename, default_b_factor);
       }
       
-#ifdef HAVE_GSL
       if (optimize_geometry_flag) { 
 	 coot::minimol::molecule reg_ligand = coot::regularize_minimol_molecule(wiggled_ligand, pg);
 	 if (is_unique_conformer(reg_ligand)) {
@@ -615,13 +614,6 @@ coot::wligand::optimize_and_install_if_unique(const coot::minimol::residue &wigg
 	    }
 	 }
       }
-#else
-      install_ligand(wiggled_ligand);
-      if (fill_returned_molecules_vector_flag) { 
-	 l.mol = ligand_in;
-	 return l;
-      }
-#endif
    }
    catch (const std::runtime_error &rte) {
       std::cout << "ERROR:: optimize_and_install() " << rte.what() << std::endl;

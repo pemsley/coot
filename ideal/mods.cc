@@ -23,11 +23,6 @@
 
 #include <string.h> // for strcmp
 
-
-// we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL
-
-
 #include <fstream>
 #include <algorithm> // for sort
 #include <stdexcept>
@@ -449,5 +444,3 @@ coot::restraints_container_t::mod_plane_delete(const coot::chem_mod_plane &mod_p
       }
    }
 }
-
-#endif // HAVE_GSL

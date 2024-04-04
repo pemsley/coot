@@ -34,9 +34,6 @@
 #include "coot-coord-utils.hh"
 #include "coot-coord-extras.hh" // torsionable-bonds
 
-#ifdef HAVE_GSL
-// return status success (something moved = 1) or error/failure (0)
-//
 int
 coot::util::fit_to_map_by_simplex_rigid(mmdb::PPAtom atom_selection,
 					int n_selected_atoms,
@@ -230,8 +227,6 @@ coot::util::my_f_simplex_rigid_internal (const gsl_vector *v,
 
    return score;
 }
-
-#endif // HAVE_GSL
 
 float
 coot::util::z_weighted_density_at_point(const clipper::Coord_orth &pt,

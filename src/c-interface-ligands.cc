@@ -1027,7 +1027,6 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
 	    label += g.int_to_string(isol);
 	    g.molecules[g_mol].install_model(g_mol, asc, g.Geom_p(), label, 1);
 	    g.molecules[g_mol].assign_hetatms();
-#ifdef HAVE_GSL
 	    if (g.find_ligand_do_real_space_refine_state()) {
 	       set_imol_refinement_map(g.find_ligand_map_mol());
  	       int previous_state = refinement_immediate_replacement_state();
@@ -1036,8 +1035,6 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
  	       accept_regularizement();
  	       g.refinement_immediate_replacement_flag = previous_state;
 	    }
-
-#endif // HAVE_GSL
 	    solutions.push_back(g_mol);
 	    n_new_ligand++;
 	    if (g.go_to_atom_window){

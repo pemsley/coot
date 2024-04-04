@@ -23,9 +23,7 @@
 #include "clipper/core/coords.h"
 #include "clipper/core/xmap.h"
 #include <mmdb2/mmdb_manager.h>
-#ifdef HAVE_GSL
 #include "gsl/gsl_multimin.h"
-#endif // HAVE_GSL
 #include "clipper/core/nxmap.h"
 #include "mini-mol/mini-mol.hh"
 #include "geometry/protein-geometry.hh"
@@ -40,8 +38,6 @@ namespace coot {
    make_map_reference_index_start_stops(const clipper::NXmap<float> &nxmap, int n_threads);
 
    namespace util { 
-
-#ifdef HAVE_GSL
 
       class simplex_param_t {
       public:
@@ -131,8 +127,6 @@ namespace coot {
       clipper::RTop_orth make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
 							 float annealing_factor);
 
-
-#endif // HAVE_GSL      
 
       class fffear_search {
 	 int fill_nxmap     (mmdb::Manager *mol, int SelectionHandle,

@@ -21,9 +21,6 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
-// we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL
-
 #include <string.h> // for strcmp
 
 #include <fstream>
@@ -2493,5 +2490,3 @@ coot::distortion_score_2_planes(const std::vector<std::pair<int, double> > &atom
    info.distortion_score = 0.25 * sum_devi / (restraint_sigma * restraint_sigma);
    return info;
 }
-
-#endif // HAVE_GSL

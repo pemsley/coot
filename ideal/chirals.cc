@@ -24,9 +24,6 @@
 #include <string.h> // for strcmp
 
 
-// we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL
-
 #include <algorithm> // for sort
 #include <stdexcept>
 
@@ -184,8 +181,6 @@ coot::inverted_chiral_volumes(int imol,
    int restraints_status = 1;
    std::vector<std::string> unknown_types_vec; 
 
-#ifdef HAVE_GSL
-   
    int n_models = mol->GetNumberOfModels();
    for (int imod=1; imod<=n_models; imod++) { 
       
@@ -265,7 +260,6 @@ coot::inverted_chiral_volumes(int imol,
 	 }
       }
    }
-#endif //  HAVE_GSL
    std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> > pair(unknown_types_vec, v);
    return pair;
 }
@@ -798,6 +792,3 @@ coot::distorted_chiral_volumes(int imol, mmdb::Manager *mol, protein_geometry *g
    }
    return std::make_pair(missing_types, d_specs);
 }
-
-
-#endif // GSL

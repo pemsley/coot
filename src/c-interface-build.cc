@@ -4230,7 +4230,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 	 coot::minimol::zone_info_t zi = si.mol[0].zone_info();
 	 if (zi.is_simple_zone) {
 	    int save_rirf = g.refinement_immediate_replacement_flag;
-#ifdef HAVE_GSL
+
 	    coot::pseudo_restraint_bond_type save_pseudos = g.pseudo_bonds_type;
 	    g.pseudo_bonds_type = coot::STRAND_PSEUDO_BONDS;
 	    g.refinement_immediate_replacement_flag = 1;
@@ -4238,7 +4238,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 				   zi.resno_2, "", "", 0);
 	    accept_regularizement();
 	    g.pseudo_bonds_type = save_pseudos;
-#endif // HAVE_GSL
+
 	    g.refinement_immediate_replacement_flag = save_rirf;
 	 }
       } else {
@@ -4756,8 +4756,6 @@ int rigid_body_fit_with_residue_ranges(int imol,
 
 void set_secondary_structure_restraints_type(int itype) {
 
-#ifdef HAVE_GSL
-
    // Remember that Rama restraints are not secondary structure restraints.
 
    if (itype == 0)
@@ -4767,18 +4765,13 @@ void set_secondary_structure_restraints_type(int itype) {
    if (itype == 2)
       graphics_info_t::pseudo_bonds_type = coot::STRAND_PSEUDO_BONDS;
 
-#endif // HAVE_GSL
 }
 
 /*! \brief return the secondary structure restraints type */
 int secondary_structure_restraints_type() {
 
    // cast a pseudo_restraint_bond_type to an int
-#ifdef HAVE_GSL
    return graphics_info_t::pseudo_bonds_type;
-#else
-   return 0;
-#endif // HAVE_GSL
 }
 
 

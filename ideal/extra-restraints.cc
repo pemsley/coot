@@ -21,8 +21,6 @@
  */
 
 
-// we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL
 #include <stdexcept>
 #include <algorithm>
 #include <fstream>
@@ -1384,5 +1382,3 @@ coot::extra_restraints_t::write_interpolated_models(mmdb::Manager *mol_running,
       mol_running->WritePDBASCII(file_name.c_str());
    }
 }
-
-#endif // HAVE_GSL

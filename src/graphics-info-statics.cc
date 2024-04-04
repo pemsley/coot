@@ -1137,14 +1137,12 @@ double    graphics_info_t::refinement_drag_elasticity = 0.25;
 
 // save the restraints:
 //
-#ifdef HAVE_GSL
 coot::restraints_container_t *graphics_info_t::last_restraints = 0;
 // 20220504-PE so that I can check for cleared/removed non-bonded contact baddies
 std::map<int, std::vector<int> > graphics_info_t::previous_round_nbc_baddies_atom_index_map;
 
 // clipper::Xmap<float> blank_dummy_xmap;
 // ref version: coot::restraints_container_t(blank_dummy_xmap);
-#endif // HAVE_GSL
 //
 //
 bool graphics_info_t::draw_zero_occ_spots_flag = true; // on by default
@@ -1305,10 +1303,8 @@ float graphics_info_t::fffear_angular_resolution = 15.0; // degrees
 // move molecule here
 int graphics_info_t::move_molecule_here_molecule_number = -1;
 
-#ifdef HAVE_GSL
 // pseudo bond for sec str restraints
 coot::pseudo_restraint_bond_type graphics_info_t::pseudo_bonds_type = coot::NO_PSEUDO_BONDS;
-#endif // HAVE_GSL
 
 
 // MYSQL database

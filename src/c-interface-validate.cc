@@ -626,7 +626,6 @@ void free_geometry_graph(GtkWidget *dialog) {
 
    std::cout << "GTK-FIXME ------------ free_geometry_graph() " << std::endl;
 #if 0
-#ifdef HAVE_GSL
 
    if (dialog) {
       GtkWidget *w = widget_from_builder("geometry_graph_canvas");
@@ -649,7 +648,7 @@ void free_geometry_graph(GtkWidget *dialog) {
 
       }
    }
-#endif // HAVE_GSL
+
 #endif
 }
 
@@ -658,59 +657,8 @@ void unset_geometry_graph(GtkWidget *dialog) {  /* set the graphics info
 						 that we on longer try
 						 to update the
 						 widget*/
-#ifdef HAVE_GSL
-#ifdef HAVE_GOOCANVAS
 
-   int imol;
-   if (dialog) {
-      GtkWidget *w = widget_from_builder("geometry_graph_canvas");
-      if (w) {
-	 GObject *obj = G_OBJECT(w);
-         void *o = g_object_get_data(obj, "graphs");
-	 if (!o) {
-
-	    std::cout << "ERROR:: NULL graphs in unset_geometry_graph() FIXME\n";
-
-	 } else {
-
-            coot::geometry_graphs *graphs = static_cast<coot::geometry_graphs *>(o);
-	    imol = graphs->Imol();
-
-	    if (is_valid_model_molecule(imol)) {
-#ifdef DO_GEOMETRY_GRAPHS
-	       coot::set_validation_graph(imol, graphs->Graph_Type(), NULL);
-#endif
-
-// Old style array of molecules code
-// 	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_GEOMETRY) {
-// 		  g.geometry_graph[imol] = NULL;
-// 	       }
-// 	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_B_FACTOR) {
-// 		  g.b_factor_variance_graph[imol] = NULL;
-// 	       }
-// 	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_OMEGA_DISTORTION) {
-// 		  g.omega_distortion_graph[imol] = NULL;
-// 	       }
-// 	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_ROTAMER) {
-// 		  g.rotamer_graph[imol] = NULL;
-// 	       }
-// 	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_DENSITY_FIT) {
-// 		  g.residue_density_fit_graph[imol] = NULL;
-// 	       }
-// 	       if (graphs->Graph_Type() == coot::GEOMETRY_GRAPH_NCS_DIFFS) {
-// 		  g.ncs_diffs_graph[imol] = NULL;
-// 	       }
-
-	    }
-	 }
-      } else {
-	 std::cout << "Failed to find w in unset_geometry_graph\n";
-      }
-   }
-   // std::cout << "Done unset_geometry_graph\n";
-
-#endif // HAVE_GOOCANVAS
-#endif // HAVE_GSL
+   // kill this off
 }
 
 

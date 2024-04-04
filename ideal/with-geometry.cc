@@ -78,9 +78,6 @@ fill_residues(const std::string &chain_id, int resno_start, int resno_end, mmdb:
 int
 main(int argc, char **argv) {
 
-#ifndef HAVE_GSL
-   std::cout << "We don't have GSL, this program does nothing" << std::endl;
-#else 
    coot::protein_geometry geom;
 
    if (argc < 2) {
@@ -193,8 +190,6 @@ main(int argc, char **argv) {
 
       }
    }
-
-#endif // HAVE_GSL
 
    return 0; 
 } 

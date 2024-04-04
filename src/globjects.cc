@@ -898,7 +898,6 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 
 		  // multi atom move
 
-#ifdef HAVE_GSL
 		  if (info.last_restraints_size() > 0) {
 
                     info.move_atom_pull_target_position(x_as_int, y_as_int);
@@ -913,7 +912,6 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 								     y_as_int);
 		     }
 		  }
-#endif // HAVE_GSL
 	       }
 
 	    } else {

@@ -24,7 +24,6 @@
  */
 
 
-#ifdef HAVE_GSL
 #ifdef HAVE_CXX_THREAD
 
 #include <thread>
@@ -1761,4 +1760,3 @@ coot::process_dfs_rama(const coot::simple_restraint &rama_restraint,
 }
 
 #endif // threads
-#endif // HAVE_GSL

@@ -249,60 +249,6 @@ GL_matrix::get() const {
 }
 
 
-#ifndef HAVE_GSL
-// Given a symmetric positive definate matrix,
-// return the lower triangular matrix by LU decomposition.
-//
-std::pair<bool, GL_matrix>
-GL_matrix::cholesky() const {
-
-   //
-   GL_matrix l; // identity
-
-   // I am not sure about this indexing - it may be the other
-   // way round... yes, it looks like it is.. (eff). 
-   // 
-   // l_{11} = mat[0]   l_{12} = mat[1]   l_{13} = mat[2]
-   // l_{21} = mat[4]   l_{22} = mat[5]   l_{23} = mat[6]
-   // l_{31} = mat[8]   l_{32} = mat[9]   l_{33} = mat[10]
-   //
-
-   l.mat[0] = cholesky_diag    (l, 1);
-   l.mat[4] = cholesky_non_diag(l, 2, 1);
-   l.mat[8] = cholesky_non_diag(l, 3, 1);
-   l.mat[1] = 0; // cholesky_non_diag(l, 1,2);
-   l.mat[5] = cholesky_diag(l, 2);
-   l.mat[9] = cholesky_non_diag(l, 3, 2);
-   l.mat[2] = 0; // cholesky_non_diag(l, 1, 3);
-   l.mat[6] = 0; // cholesky_non_diag(l, 2, 3);
-   l.mat[10]= cholesky_diag(l, 3);
-
-//    l.mat[0] = cholesky_diag    (l, 1);
-//    l.mat[1] = cholesky_non_diag(l, 1,2);
-//    l.mat[2] = cholesky_non_diag(l, 1,3);
-
-//    l.mat[4] = cholesky_non_diag(l, 2,1);
-//    l.mat[5] = cholesky_diag(l, 2);
-//    l.mat[6] = cholesky_non_diag(l, 2,3);
-
-//    l.mat[8] = cholesky_non_diag(l, 3,1);
-//    l.mat[9] = cholesky_non_diag(l, 3,2);
-//    l.mat[10]= cholesky_diag(l, 3);
-
-
-   // fix up the other half of the triangular matrix.
-
-   // and the 4th column:
-   l.mat[ 3] = 0;
-   l.mat[ 7] = 0;
-   l.mat[11] = 0;
-   l.mat[15] = 1; 
-
-   return std::pair<bool,GL_matrix> (1, l); 
-}
-
-// Use the GSL for cholesky then:
-#else 
 std::pair<bool,GL_matrix>
 GL_matrix::cholesky() const {
 
@@ -352,17 +298,14 @@ GL_matrix::cholesky() const {
 						      gsl_matrix_get(&m.matrix, 2, 2)));
    }
 } 
-#endif // GSL for Cholesky
 
 
-#ifdef HAVE_GSL
 void my_aniso_error_handler (const char * reason,
 			     const char * file,
 			     int line,
 			     int gsl_errno) {
    std::cout << "Non-positive definite anisotropic atom!" << std::endl;
 }
-#endif // HAVE_GSL
 
 
 // move these functions into the header file so that they

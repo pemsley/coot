@@ -23,9 +23,6 @@
 
 // #define ANALYSE_REFINEMENT_TIMING
 
-// we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL
-
 #include <string.h> // for strcmp
 
 #ifdef HAVE_CXX_THREAD
@@ -1872,5 +1869,3 @@ coot::restraints_container_t::electron_density_gradient_at_point(const clipper::
    clipper::Grad_frac<double> grad_frac = grad.grad_frac(xmap_p->grid_sampling());
    return grad_frac.grad_orth(xmap_p->cell());
 } 
-
-#endif // HAVE_GSL

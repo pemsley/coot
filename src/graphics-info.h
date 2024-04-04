@@ -754,7 +754,7 @@ class graphics_info_t {
    static void    add_moving_atoms_dragged_atom_index(int idx);
    // make unset_moving_atoms_currently_dragged_atom_index() public
 
-#ifdef HAVE_GSL
+
    static coot::restraints_container_t *last_restraints;
    // the mode flag is public:
    // 20220504-PE so that I can check for cleared/removed non-bonded contact baddies
@@ -769,7 +769,6 @@ class graphics_info_t {
 			     coot::restraint_usage_Flags flags,
 			     bool use_map_flag,
 			     const clipper::Xmap<float> *xmap_p);
-#endif // HAVE_GSL
 
    // which uses the following...
 #ifdef USE_GUILE
@@ -3539,7 +3538,7 @@ public:
    static short int have_fixed_points_sheared_drag_flag;
    void set_fixed_points_for_sheared_drag();
    void do_post_drag_refinement_maybe();
-#ifdef  HAVE_GSL
+
    int last_restraints_size() const {
       // It's OK to call this when there are no restraints - e.g. we move by rotate/translate
       // rather than during a refinement.
@@ -3549,7 +3548,7 @@ public:
        return last_restraints->size();
      }
    }
-#endif // HAVE_GSL
+
    static int dragged_refinement_steps_per_frame;
    static short int dragged_refinement_refine_per_frame_flag;
    static bool refinement_move_atoms_with_zero_occupancy_flag;
@@ -4193,10 +4192,8 @@ public:
    // -- PHENIX support
    static std::string external_refinement_program_button_label;
 
-#ifdef HAVE_GSL
    // ---- pseudo bond for sec str restraints
    static coot::pseudo_restraint_bond_type pseudo_bonds_type;
-#endif // HAVE_GSL
 
 
    // ---- a debugging thing for user to give me feedback
