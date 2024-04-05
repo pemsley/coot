@@ -25,5 +25,5 @@ Badges
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3114/)
 
-[comment]: <> (this should not be on the coot github page)
-[comment]: <> (![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=pemsley&show_icons=true&theme=default))
+[//]: # (this should not be on the coot github page)
+[//]: # (![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=pemsley&show_icons=true&theme=default))
