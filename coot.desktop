@@ -2,7 +2,7 @@
 Type=Application
 Name=Coot
 Comment=Macromolecular model builder
-Exec=coot
+Exec=coot %f
 Icon=coot
 Terminal=true
 Categories=Science;Chemistry;
