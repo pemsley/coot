@@ -225,13 +225,23 @@ else
    AC_SUBST(COOT_USE_GUILE)
 fi
 
-
 dnl =========================== GSL ================================
 
-dnl test for GSL
-# min_gsl_version=1.3
-AX_PATH_GSL([1.3],[COOT_GSL_FLAGS=-DHAVE_GSL],[COOT_GSL_FLAGS=""])
-AC_SUBST(COOT_GSL_FLAGS)
+PKG_CHECK_MODULES([gsl], [gsl])
+
+save_libs="$LIBS"
+LIBS="$gsl_LIBS"
+save_cflags="$CFLAGS"
+CFLAGS="$gsl_CFLAGS"
+AC_CHECK_LIB([m],[cos])
+AC_CHECK_LIB([gslcblas],[cblas_dgemm])
+AC_CHECK_LIB([gsl],[gsl_blas_dgemm])
+LIBS="$save_libs"
+CFLAGS="$save_cflags"
+
+# I don't understand how this test works
+# AX_PATH_GSL(GSL_VERSION, [], [AC_MSG_ERROR(could not find required version of GSL)])
+
 
 dnl =========================== GLM ================================
 
@@ -371,11 +381,6 @@ AC_SUBST(MOLTRIANGLES_LIBS)
 AC_SUBST(COOT_BUILD_INFO_STRING)
 
 dnl check for guile modules www and gtk here.
-
-dnl check for GSL
-dnl AC_CHECK_LIB(m,main)
-dnl AC_CHECK_LIB(gslcblas,main)
-dnl AC_CHECK_LIB(gsl,main)
 
 # gemmi doesn't have a pkgconfig file. Frustrating.
 AC_ARG_WITH([gemmi], AS_HELP_STRING([--with-gemmi location of the GEMMI package]), with_gemmi="$withval", with_gemmi=false)

@@ -40,8 +40,8 @@ AM_CPPFLAGS = \
         $(BOOST_CPPFLAGS)   \
 	$(MMDB_CXXFLAGS)
 
-AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS) $(COOT_WINDOWS_CFLAGS) \
-     $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_GSL_FLAGS) $(LIBPNG_CFLAGS) $(RDKIT_CXXFLAGS)
+AM_CXXFLAGS = $(gsl_CFLAGS) $(COOT_WINDOWS_CFLAGS) \
+     $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(LIBPNG_CFLAGS) $(RDKIT_CXXFLAGS)
 
 AM_LDFLAGS = $(MMDB_LIBS) $(CLIPPER_LIBS) $(GLS_LIBS)
 
@@ -71,7 +71,7 @@ libcoot_ideal_la_LIBADD =                 \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la        \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la    \
    $(top_builddir)/utils/libcoot-utils.la              \
-   $(MMDB_LIBS) $(CLIPPER_LIBS) $(GSL_LIBS) $(LIBPNG_LIBS) -lm
+   $(MMDB_LIBS) $(CLIPPER_LIBS) $(gsl_LIBS) $(LIBPNG_LIBS) -lm
 
 
 libcoot_ideal_la_SOURCES = simple-restraint.cc make-restraints.cc ng.cc chi-squareds.cc \
@@ -168,7 +168,7 @@ mini_rsr_bin_LDADD =  \
         $(top_builddir)/compat/libcoot-compat.la           \
 	$(GLOB_LIBS) \
 	$(RDKIT_LIBS) \
-        $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) -lpthread
+        $(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS) -lpthread
 
 #test_indexing_LDADD = \
 #        ./libcoot-ideal.la                                \

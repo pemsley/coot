@@ -5,8 +5,6 @@ lib_LTLIBRARIES=libcoot-layla.la
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)         \
-	$(COOT_GSL_FLAGS)	\
-	$(GSL_CFLAGS)		\
 	$(CLIPPER_CXXFLAGS)     \
 	$(RDKIT_CXXFLAGS)       \
         $(BOOST_CPPFLAGS)       \

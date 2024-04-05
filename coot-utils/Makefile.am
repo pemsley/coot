@@ -55,13 +55,13 @@ AM_CPPFLAGS = \
 	$(CLIPPER_CXXFLAGS) 		\
 	$(GEMMI_CXXFLAGS)               \
 	$(MMDB_CXXFLAGS) 		\
-	$(GSL_CFLAGS)			\
+	$(gsl_CFLAGS)			\
 	$(WITH_GUILE_CFLAGS)		\
 	$(RDKIT_CXXFLAGS) 		\
 	$(BOOST_CPPFLAGS) 		\
 	$(WITH_PYTHON_CFLAGS)
 
-AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(COOT_WINDOWS_CFLAGS) \
+AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS) \
 	-DPKGDATADIR='"$(pkgdatadir)"'
 
 
@@ -94,7 +94,7 @@ libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/utils/libcoot-utils.la           \
     $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
     $(CLIPPER_LIBS) $(GEMMI_LIBS) $(MMDB_LIBS) \
-    $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) -lpthread
+    $(gsl_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) -lpthread
 
 libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -140,7 +140,7 @@ libcoot_map_utils_la_LIBADD = \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la \
    $(top_builddir)/geometry/libcoot-geometry.la \
    $(top_builddir)/utils/libcoot-utils.la \
-   $(CLIPPER_LIBS) $(GSL_LIBS) -lpthread -lz
+   $(CLIPPER_LIBS) $(gsl_LIBS) -lpthread -lz
 
 libcoot_map_utils_la_LDFLAGS = \
    $(SHARED_LDFLAGS) -lpthread
@@ -157,7 +157,7 @@ libcoot_map_heavy_la_LIBADD = \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la \
    $(top_builddir)/utils/libcoot-utils.la \
-   $(CLIPPER_LIBS) $(GSL_LIBS) -lpthread
+   $(CLIPPER_LIBS) $(gsl_LIBS) -lpthread
 
 libcoot_map_heavy_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -281,7 +281,7 @@ test_elastic_LDADD   = ./libcoot-coord-utils.la      \
 	$(GLOB_LIBS) $(MMDB_LIBS)
 
 test_spherical_SOURCES = test-spherical.cc
-test_spherical_LDADD   = ./libcoot-coord-utils.la $(CLIPPER_LIBS) $(GSL_LIBS)
+test_spherical_LDADD   = ./libcoot-coord-utils.la $(CLIPPER_LIBS) $(gsl_LIBS)
 
 glyco_torsions_SOURCES = test-glyco-torsions.cc
 glyco_torsions_LDADD   = ./libcoot-coord-utils.la    \

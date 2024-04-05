@@ -25,7 +25,7 @@ pkginclude_HEADERS = high-res.hh coot-atom-graph.hh coot-node-info.hh \
 pkgincludedir = $(includedir)/coot/high-res
 
 
-AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS)
+AM_CXXFLAGS = $(gsl_CFLAGS)
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)   \

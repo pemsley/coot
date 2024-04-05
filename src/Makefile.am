@@ -236,7 +236,7 @@ AM_CXXFLAGS = \
 	$(PYTHON_CPPFLAGS)	\
 	$(PYTHON_CFLAGS)	\
 	$(COOT_WINDOWS_CFLAGS)	\
-	$(COOT_GSL_FLAGS) $(OPENMP_CFLAGS)
+	$(OPENMP_CFLAGS)
 
 
 if USE_BACKWARD
@@ -263,7 +263,7 @@ AM_CPPFLAGS = \
 	$(LIBSSM_CXXFLAGS)		\
 	$(MMDB_CXXFLAGS)		\
 	$(CCP4SRS_CXXFLAGS)		\
-	$(GSL_CFLAGS)			\
+	$(gsl_CFLAGS)			\
 	$(CLIPPER_CXXFLAGS)		\
 	$(PYGTK_CFLAGS)                 \
 	$(GLOB_CFLAGS)                  \
@@ -827,7 +827,7 @@ libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
 		$(GUILE_LDFLAGS)      \
 		$(GLOB_LIBS)	      \
 		$(EPOXY_LIBS)         \
-		$(GSL_LIBS) -lblas    \
+		$(gsl_LIBS) -lblas    \
 		$(MYSQL_LIBS)	      \
 		$(CURL_LIBS)	      \
 	  	$(RDKIT_LIBS)	      \
@@ -853,7 +853,7 @@ test_cholesky_LDADD =	\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
 	$(top_builddir)/utils/libcoot-utils.la            \
         $(RDKIT_LIBS) \
-	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS)
 
 # testmap_SOURCES = testmap.cc xmap-interface.cc
 # testmap_LDADD = $(COOT_EXTRA_LIBS) $(SURFACE_LIB) $(CLIPPER_LIBS)
@@ -908,5 +908,5 @@ coot_density_score_by_residue_bin_LDADD  =	\
         $(RDKIT_LIBS) 		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)		\
-	$(GSL_LIBS)
+	$(gsl_LIBS)
 

@@ -25,8 +25,7 @@ EXTRA_DIST = Makefile.simple read-dunbrack.awk side-chain-data.tar.gz
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)         \
-	$(COOT_GSL_FLAGS)	\
-	$(GSL_CFLAGS)		\
+	$(gsl_CFLAGS)		\
 	$(CLIPPER_CXXFLAGS)     \
 	$(RDKIT_CXXFLAGS)       \
         $(BOOST_CPPFLAGS)       \
@@ -73,7 +72,7 @@ libcoot_ligand_la_LIBADD = \
    $(top_builddir)/coot-utils/libcoot-map-utils.la    \
    $(top_builddir)/analysis/libcoot-analysis.la	      \
    $(top_builddir)/utils/libcoot-utils.la             \
-   $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) -lpthread
+   $(CLIPPER_LIBS) $(MMDB_LIBS) $(SQLITE3_LIBS) $(gsl_LIBS) $(RDKIT_LIBS) -lpthread
 
 libcoot_ligand_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -285,7 +284,7 @@ test_fffear_in_coot_LDADD = \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
 	$(top_builddir)/compat/libcoot-compat.la           \
-	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS)
 
 # testwlig_SOURCES = testwlig.cc
 #	-L$(top_builddir)/high-res     -lcoot-high-res    
@@ -313,7 +312,7 @@ findligand_bin_LDADD = \
 	$(top_builddir)/compat/libcoot-compat.la           \
         $(GLOB_LIBS) \
         $(RDKIT_LIBS) \
-	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS)
 
 # 	$(top_builddir)/coords/libcoot-coords.la
 
@@ -335,7 +334,7 @@ findwaters_bin_LDADD = \
 	$(top_builddir)/compat/libcoot-compat.la           \
         $(GLOB_LIBS) \
         $(RDKIT_LIBS) \
-	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS)
 
 #testwlig_LDADD = -L. -lcoot-ligand      \
 #	-L../mini-mol -lcoot-mini-mol    \

@@ -23,8 +23,6 @@ AM_CPPFLAGS = \
 	-DUSE_PYTHON \
 	-I$(top_srcdir) \
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
-	$(COOT_GSL_FLAGS)		\
-	$(GSL_CFLAGS)			\
 	$(CLIPPER_CXXFLAGS)             \
 	$(MMDB_CXXFLAGS) \
 	$(PYTHON_CPPFLAGS)  \
