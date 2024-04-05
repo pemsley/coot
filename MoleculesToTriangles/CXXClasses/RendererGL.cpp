@@ -173,18 +173,6 @@ std::shared_ptr<Renderer> RendererGL::create()
 }
 
 
-
-#define RendererType RendererGL
-
-/*
- *  RendererImplementations.h
- *  AesopCD
- *
- *  Created by Martin Noble on 08/11/2010.
- *  Copyright 2010 __MyCompanyName__. All rights reserved.
- *
- */
-
 void RendererType::setupCamera(Camera *camera){
 #ifdef DEBUG_MINE
     std::cout << "In setupCamera\n";
