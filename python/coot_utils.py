@@ -2743,10 +2743,11 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 atom_list_2 = purine_to_pyrimidine_set
 
         for atom_name_1, atom_name_2 in zip(atom_list_1, atom_list_2):
-            coot.add_lsq_atom_pair_py(chain_id_ref, res_no_ref, ins_code_ref, atom_name_1, "",
-                                      chain_id_mov, res_no_mov, ins_code_mov, atom_name_2, "")
+            atom_spec_r = [chain_id_ref, res_no_ref, ins_code_ref, atom_name_1, ""]
+            atom_spec_m = [chain_id_mov, res_no_mov, ins_code_mov, atom_name_2, ""]
+            coot.add_lsq_atom_pair_py(atom_spec_r, atom_spec_m)
 
-        coot.apply_lsq_matches(imol_ref, imol_mov)
+        coot.apply_lsq_matches_py(imol_ref, imol_mov)
         
     # get_monomer_and_dictionary, now we check to see if we have a
     # molecule already loaded that matches this residue, if we have,
@@ -2793,7 +2794,7 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
 
             # 20200412-PE-merge-complexity:
             if is_nucleotide(imol, chain_id_in, resno):
-                if coot.residue_exists_qm(imol, chain_id_in, resno-1, ""):
+                if residue_exists_qm(imol, chain_id_in, resno-1, ""):
                     coot.delete_atom(imol_ligand, "A", 1, "", " OP3", "")
 
             if (is_nucleotide(imol_ligand, "A", 1) and
