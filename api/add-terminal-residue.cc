@@ -28,8 +28,6 @@
 #include "coot-utils/coot-coord-utils.hh"
 #include "ligand/residue_by_phi_psi.hh"
 
-#define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-
 // We need to find the serial number of the residue after the residue
 // we want to insert (i.e. the new residue will be inserted just
 // before the residue whose serial number we return).
