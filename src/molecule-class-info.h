@@ -979,8 +979,8 @@ public:        //                      public
    // found.
    //
    mmdb::Residue *get_residue(const std::string &chain_id,
-			 int reso,
-			 const std::string &insertion_code) const;
+                              int reso,
+                              const std::string &insertion_code) const;
 
    // Return a copy of the pointer (only).  Return NULL on residue not
    // found.

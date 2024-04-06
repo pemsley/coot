@@ -24,6 +24,9 @@
  *
  */
 
+#include <string>
+
 /// @brief  Performs startup initialization of dialogs, etc.
 void setup_gui_components();
 
+void add_typed_menu_to_mutate_menubutton(const std::string &action_type, const std::string &residue_type);

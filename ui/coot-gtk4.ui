@@ -1089,28 +1089,28 @@
   <menu id="mutate-nucleic-acid-menu">
     <section>
       <item>
-        <attribute name="label" translatable="no">Adanine (A)</attribute>
-        <attribute name="action">app.mutate_to_type</attribute>
+        <attribute name="label" translatable="no">Adenine (A)</attribute>
+        <attribute name="action">app.mutate_base_to_type</attribute>
         <attribute name="target">A</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Guanine (G)</attribute>
-        <attribute name="action">app.mutate_to_type</attribute>
+        <attribute name="action">app.mutate_base_to_type</attribute>
         <attribute name="target">G</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Cytosine (C)</attribute>
-        <attribute name="action">app.mutate_to_type</attribute>
+        <attribute name="action">app.mutate_base_to_type</attribute>
         <attribute name="target">C</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Thymine (T)</attribute>
-        <attribute name="action">app.mutate_to_type</attribute>
+        <attribute name="action">app.mutate_base_to_type</attribute>
         <attribute name="target">T</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Uracil (U)</attribute>
-        <attribute name="action">app.mutate_to_type</attribute>
+        <attribute name="action">app.mutate_base_to_type</attribute>
         <attribute name="target">U</attribute>
       </item>
     </section>
@@ -6440,6 +6440,16 @@ Do you want to continue?
                 </object>
               </child>
 
+              <child>
+                <object class="GtkMenuButton" id="simple_mutate_menubutton">
+                  <property name="label" translatable="yes">Mutate</property>
+                  <property name="tooltip-text">Mutate Residue at the centre of the screen</property>
+                  <property name="can-focus">0</property>
+                  <property name="margin-start">6</property>
+                  <property name="visible">False</property>
+                </object>
+              </child>
+
             </object>
           </child>
           <child>
@@ -8211,7 +8221,7 @@ Do you want to continue?
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">mutate</property>
+                        <property name="icon-name">mutate-auto-fit</property>
                       </object>
                     </child>
                     <child>
@@ -8226,14 +8236,14 @@ Do you want to continue?
               </object>
             </child>
             <child>
-              <object class="GtkMenuButton" id="simple_mutate_menubutton">
+              <object class="GtkButton" id="simple_mutate_button">
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">horizontal</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkImage">
-                        <property name="icon-name">mutate-auto-fit</property>
+                        <property name="icon-name">mutate</property>
                       </object>
                     </child>
                     <child>
@@ -8244,6 +8254,7 @@ Do you want to continue?
                   </object>
                 </child>
                 <property name="can-focus">0</property>
+                <signal name="clicked" handler="on_simple_mutate_button_clicked"/>
               </object>
             </child>
             <child>

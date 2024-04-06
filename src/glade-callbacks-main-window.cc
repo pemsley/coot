@@ -274,13 +274,54 @@ on_model_toolbar_side_chain_180_button_clicked(GtkButton *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_model_toolbar_mutate_and_autofit_menubutton_activate
-                                        (GtkMenuButton *menubutton,
-                                        gpointer         user_data) {
+on_model_toolbar_mutate_and_autofit_menubutton_activate(GtkMenuButton *menubutton,
+                                                        gpointer       user_data) {
 
    // this function seems not to be called on menu button click. Hmmm.
    std::cout << "on_model_toolbar_mutate_and_autofit_menubutton_active "
              << " select the right menu for mutate_and_autofit_menubutton here" << std::endl;
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_simple_mutate_menubutton_activate(GtkMenuButton *menubutton,
+                                     gpointer       user_data) {
+
+   // "activate" happens when the popover menu is shown. That is not what we want.
+
+   std::cout << "on_simple_mutate_menubutton_activate "
+             << " select the right menu for mutate_and_autofit_menubutton here" << std::endl;
+}
+
+#include "setup-gui-components.hh"
+
+// try again with just a button
+
+extern "C" G_MODULE_EXPORT
+void
+on_simple_mutate_button_clicked(GtkButton *button,
+                                gpointer   user_data) {
+
+   GtkWidget *menu_button = widget_from_builder("simple_mutate_menubutton");
+   if (menu_button) {
+      graphics_info_t g;
+      auto active_atom = g.get_active_atom();
+      int imol = active_atom.first;
+      if (is_valid_model_molecule(imol)) {
+         gtk_widget_set_visible(menu_button, TRUE);
+         mmdb::Atom *atom = active_atom.second;
+         mmdb::Residue *residue_p = atom->residue;
+         if (residue_p) {
+            if (coot::util::is_nucleotide_by_dict(residue_p, *g.Geom_p())) {
+               add_typed_menu_to_mutate_menubutton("SIMPLE", "NUCLEIC-ACID");
+            } else {
+               add_typed_menu_to_mutate_menubutton("SIMPLE", "PROTEIN");
+            }
+            g_signal_emit_by_name(menu_button, "activate", NULL);
+         }
+      }
+   }
 }
 
 

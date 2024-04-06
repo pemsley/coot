@@ -140,7 +140,7 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
                 << std::endl;
 
    // get the standard orientation residue for this residue type
-   mmdb::PPResidue     SelResidue;
+   mmdb::PPResidue SelResidue;
    int nSelResidues;
 
    if (g.standard_residues_asc.n_selected_atoms == 0) {
@@ -157,8 +157,11 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
       }
    }
 
+   // std::cout << "--------------------- searching for type " << residue_type << " in standard residues mol "
+   // << g.standard_residues_asc.mol << std::endl;
+
    int selHnd = g.standard_residues_asc.mol->NewSelection(); // deleted at end.
-   g.standard_residues_asc.mol->Select ( selHnd,mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
+   g.standard_residues_asc.mol->Select (selHnd,mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 					 "*", // Chain(s) it's "A" in this case.
 					 mmdb::ANY_RES,"*",  // starting res
 					 mmdb::ANY_RES,"*",  // ending res
@@ -167,14 +170,18 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
 					 "*",  // Residue must contain this Element?
 					 "*",  // altLocs
 					 mmdb::SKEY_NEW // selection key
-					 );
+                                        );
 
    g.standard_residues_asc.mol->GetSelIndex ( selHnd, SelResidue,nSelResidues );
 
    if (nSelResidues != 1) {
+
       std::cout << "ERROR:: This should never happen - ";
-      std::cout << "badness in mutate standard residue selection\n";
+      std::cout << "badness in mci:mutate() standard residue selection\n";
+
    } else {
+
+      // get_ori_to_this_res() is for orienting a peptide based on the main-chain atoms.
 
       std::map<std::string, clipper::RTop_orth> rtops =
          coot::util::get_ori_to_this_res(res); // the passed res.
@@ -189,7 +196,7 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
          // (usually, just one of course).
          std::map<std::string, clipper::RTop_orth>::const_iterator it;
 
-         for (it=rtops.begin(); it!=rtops.end(); it++) {
+         for (it=rtops.begin(); it!=rtops.end(); ++it) {
             bool whole_res = true;
             bool embed_in_new_chain = false; // I think
             mmdb::Residue *std_residue = coot::deep_copy_this_residue_old_style(SelResidue[0], "", whole_res,
@@ -1107,22 +1114,22 @@ molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::st
       // modern names input, need to convert to old name to
       // extract.
       if (this_residue_is_DNA) {
-         if (type == "A") refmac_nuc_type = "Ad";
-         if (type == "G") refmac_nuc_type = "Gd";
-         if (type == "T") refmac_nuc_type = "Td";
-         if (type == "U") refmac_nuc_type = "Ud";
-         if (type == "C") refmac_nuc_type = "Cd";
+         if (type == "A") refmac_nuc_type = "DA";
+         if (type == "G") refmac_nuc_type = "DG";
+         if (type == "T") refmac_nuc_type = "DT";
+         if (type == "U") refmac_nuc_type = "DU";
+         if (type == "C") refmac_nuc_type = "DC";
       } else {
-         if (type == "A") refmac_nuc_type = "Ar";
-         if (type == "G") refmac_nuc_type = "Gr";
-         if (type == "T") refmac_nuc_type = "Tr";
-         if (type == "U") refmac_nuc_type = "Ur";
-         if (type == "C") refmac_nuc_type = "Cr";
+         if (type == "A") refmac_nuc_type = "A";
+         if (type == "G") refmac_nuc_type = "G";
+         if (type == "T") refmac_nuc_type = "T";
+         if (type == "U") refmac_nuc_type = "U";
+         if (type == "C") refmac_nuc_type = "C";
       }
-      if (type == "DA")	 refmac_nuc_type = "Ad";
-      if (type == "DG")	 refmac_nuc_type = "Gd";
-      if (type == "DT")	 refmac_nuc_type = "Td";
-      if (type == "DC")	 refmac_nuc_type = "Cd";
+      if (type == "DA")	 refmac_nuc_type = "DA";
+      if (type == "DG")	 refmac_nuc_type = "DG";
+      if (type == "DT")	 refmac_nuc_type = "TD";
+      if (type == "DC")	 refmac_nuc_type = "DC";
    }
 
    if (atom_sel.n_selected_atoms > 0) {
@@ -1179,6 +1186,7 @@ molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::st
       atom_sel = make_asc(atom_sel.mol);
       make_bonds_type_checked();
    }
+   std::cout << "--------------------------------- done mutate_base() --------------------------" << std::endl;
    return istat;
 }
 
@@ -1514,6 +1522,8 @@ molecule_class_info_t::apply_sequence(int imol_map, mmdb::Manager *poly_ala_mol,
 				      int resno_offset,
 				      const coot::protein_geometry &pg) {
 
+   std::cout << "--------------------------------- apply_sequence() --------------------------" << std::endl;
+
    int istat = 0;
    short int have_changes = 0;
    std::vector<coot::residue_spec_t> r_del;
@@ -1557,7 +1567,7 @@ molecule_class_info_t::apply_sequence(int imol_map, mmdb::Manager *poly_ala_mol,
 	    std::string res_type = coot::util:: single_letter_to_3_letter_code(best_seq[ichar]);
 	    if (res_type != "") {
 	       have_changes = 1;
-	       std::cout << "Mutating to " << res_type << " at " << ichar << std::endl;
+	       std::cout << "Mutating to type " << res_type << " at " << ichar << std::endl;
 	       mmdb::Residue *std_res = get_standard_residue_instance(res_type);
 	       if (std_res) {
 		  // Get res in poly_ala_mol

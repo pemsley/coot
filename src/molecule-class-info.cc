@@ -8763,7 +8763,7 @@ molecule_class_info_t::get_standard_residue_instance(const std::string &residue_
 
      if (nSelResidues != 1) {
        std::cout << "This should never happen - ";
-       std::cout << "badness in get_standard_residue_instance, we selected " << nSelResidues
+       std::cout << "badness in mci::get_standard_residue_instance(), we selected " << nSelResidues
                  << " residues looking for residues of type :" << residue_type << ":\n";
      } else {
        bool embed_in_chain_flag = true; // I think. Is this the one time where we *do* want embedding?
