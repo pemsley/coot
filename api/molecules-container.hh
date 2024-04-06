@@ -407,6 +407,8 @@ public:
 
    //! @return the name of the molecule
    std::string get_molecule_name(int imol) const;
+   //! set the molecule name
+   void set_molecule_name(int imol, const std::string &new_name);
    //! debugging function: display the table of molecule and names
    void display_molecule_names_table() const;
    //! @return is this a valid model?

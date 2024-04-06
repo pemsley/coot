@@ -170,6 +170,16 @@ molecules_container_t::get_molecule_name(int imol) const {
    return std::string("");
 }
 
+//! set the molecule name
+void
+molecules_container_t::set_molecule_name(int imol, const std::string &new_name) {
+
+   if (is_valid_map_molecule(imol))
+      molecules[imol].set_molecule_name(new_name);
+   if (is_valid_model_molecule(imol))
+      molecules[imol].set_molecule_name(new_name);
+}
+
 api::cell_t
 molecules_container_t::get_cell(int imol) const {
 

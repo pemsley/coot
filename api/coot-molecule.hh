@@ -542,6 +542,7 @@ namespace coot {
       void replace_molecule_by_model_from_file(const std::string &pdb_file_name);
 
       std::string get_name() const { return name; }
+      void set_molecule_name(const std::string &n) { name = n; };
       int get_molecule_index() const { return imol_no; }
       // void set_molecule_index(int idx) { imol_no = idx; } // 20221011-PE needed?
       bool is_valid_model_molecule() const;
