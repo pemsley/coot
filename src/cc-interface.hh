@@ -360,6 +360,22 @@ int handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag);
 int handle_read_emdb_data(const std::string &dir_name);
 //! \}
 
+#ifdef SWIG
+#else
+
+// non-SWIGable functions:
+
+/*! \brief
+We overwrite the imol_map and we also presume that the
+grid sampling of the contributing maps match. This makes it
+much faster to generate than an average map.
+*/
+void regen_map_internal(int imol_map, const std::vector<std::pair<int, float> > &weighted_map_indices);
+
+// As above, but also create a new map
+int make_weighted_map_simple_internal(const std::vector<std::pair<int, float> > &weighted_map_indices);
+#endif
+
 // maybe we need to spefify_other things like the colour table.
 void
 colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring);
@@ -878,8 +894,10 @@ void add_hydrogens_from_file(int imol, std::string pdb_with_Hs_file_name);
 //! \brief add hydrogen atoms to the specified residue
 void add_hydrogen_atoms_to_residue(int imol, std::string chain_id, int res_no, std::string ins_code);
 
+#ifdef USE_PYTHON
 //! \brief add hydrogen atoms to the specified residue
 void add_hydrogen_atoms_to_residue_py(int imol, PyObject *residue_spec_py);
+#endif
 
 /* Here the Python code for ATOM INFO */
 

@@ -1351,7 +1351,7 @@ case we overwrite the imol_map and we also presume that the
 grid sampling of the contributing maps match. This makes it
 much faster to generate than an average map.
 */
-void regen_map(int imol_map, PyObject *map_number_and_scales);
+void regen_map_py(int imol_map, PyObject *map_number_and_scales);
 #endif /* USE_PYTHON */
 #endif /* c++ */
 

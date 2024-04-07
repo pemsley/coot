@@ -2011,7 +2011,7 @@ case we overwrite the imol_map and we also presume that the
 grid sampling of the contributing maps match. This makes it
 much faster to generate than an average map.
 */
-void regen_map(int imol_map, PyObject *map_number_and_scales) {
+void regen_map_internal_py(int imol_map, PyObject *map_number_and_scales) {
 
    auto pyobject_to_map_index_and_scale_vec = [] (PyObject *map_number_and_scales) {
       std::vector<std::pair<int, float> > map_indices_and_scales_vec;
@@ -2069,6 +2069,38 @@ void regen_map(int imol_map, PyObject *map_number_and_scales) {
 }
 #endif
 
+/*! \brief
+We overwrite the imol_map and we also presume that the
+grid sampling of the contributing maps match. This makes it
+much faster to generate than an average map.
+*/
+void regen_map_internal(int imol_map, const std::vector<std::pair<int, float> > &weighted_map_indices) {
+
+   if (!weighted_map_indices.empty()) {
+      graphics_info_t g;
+      std::vector<std::pair<clipper::Xmap<float> *, float> > maps_and_scales_vec;
+      for (unsigned int i=0; i<weighted_map_indices.size(); i++) {
+         int idx = weighted_map_indices[i].first;
+         float w = weighted_map_indices[i].second;
+         std::pair<clipper::Xmap<float> *, float> p(&g.molecules[idx].xmap, w);
+         maps_and_scales_vec.push_back(p);
+      }
+      coot::util::regen_weighted_map(&g.molecules[imol_map].xmap, maps_and_scales_vec);
+   }
+}
+
+int make_weighted_map_simple_internal(const std::vector<std::pair<int, float> > &weighted_map_indices) {
+
+   int imol = -1;
+
+   if (!weighted_map_indices.empty()) {
+      int imol_first = weighted_map_indices[0].first;
+      imol = copy_molecule(imol_first);
+      regen_map_internal(imol, weighted_map_indices);
+   }
+   return imol;
+}
+
 #ifdef USE_PYTHON
 PyObject *positron_pathway(PyObject *map_molecule_list_py, PyObject *pathway_points_py) {
 
@@ -2098,8 +2130,8 @@ PyObject *positron_pathway(PyObject *map_molecule_list_py, PyObject *pathway_poi
             // imol = average_map_py(o);  // cubic interpolation
             int imol_first = map_index_vec[0];
             imol = copy_molecule(imol_first);
-            // regen_map needs a C++ api (regen_map_internal, maybe)
-            regen_map(imol, o);
+            // Use the new regen_map_internal()
+            regen_map_internal_py(imol, o);
          }
       }
       return imol;

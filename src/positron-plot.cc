@@ -30,7 +30,16 @@
 #include <glib-2.0/glib.h>
 #include <cairo/cairo.h>
 #include "coot-utils/positron.hh"
+#include "cc-interface.hh"
+#include "c-interface.h" // set contour level
 
+class positron_plot_user_click_info_t {
+public:
+   positron_plot_user_click_info_t() : x(-1),  y(-1), map_index(-1) {}
+   positron_plot_user_click_info_t(double xx, double yy, int idx) : x(xx),  y(yy), map_index(idx) {}
+   double x, y; // in canvas coordinates (so 0-512)
+   int map_index; // the index of the resulting map
+};
 
 class plot_data_t {
    void set_cm_tropical() {
@@ -65,8 +74,10 @@ class plot_data_t {
    double min_v, max_v;
    int window_size_x, window_size_y;
    coot::positron_metadata_container_t mdc;
-   std::vector<std::pair<double, double> > user_clicks;
+   std::vector<positron_plot_user_click_info_t> user_clicks;
    double colour_scale_factor; // this can be user-setable.
+   float default_contour_level;
+   std::vector<int> basis_set_map_list;
    std::vector<GdkRGBA> cm_expanded;
    std::vector<GdkRGBA> cm_tropical;
    std::vector<GdkRGBA> expand_colour_map(const std::vector<GdkRGBA> &cm_in, unsigned int n_bins) {
@@ -101,6 +112,7 @@ class plot_data_t {
       drawing_area = nullptr;
       cairo = nullptr;
       image_surface = nullptr;
+      default_contour_level = 0.02;
    }
    void cleanup() {
       if (image_surface)
@@ -128,23 +140,48 @@ class plot_data_t {
       return std::make_pair(-7.0, 6.0);
    }
 
-   void add_user_clicked_point(double x, double y) {
-      user_clicks.push_back(std::make_pair(x,y));
+   std::pair<double, double>
+   canvas_coords_to_positron_coords(double cx, double cy) {
+
+      double f_x = cx/static_cast<double>(window_size_x);
+      double f_y = cy/static_cast<double>(window_size_y);
+      std::pair<double, double> z(min_v + f_x * (max_v-min_v),
+                                  min_v + f_y * (max_v-min_v));
+      return z;
    }
 
-   void add_user_clicked_point(cairo_t *cr, double x, double y) {
-      if (drawing_area) {
-         std::cout << "add_user_clicked_point() B " << x << " " << y << " drawing_area: " << drawing_area << std::endl;
-         GdkRGBA color;
-         color.red   = 0.8;
-         color.green = 0.2;
-         color.blue  = 0.2;
-         color.alpha = 1.0;
-         gdk_cairo_set_source_rgba(cr, &color);
-         cairo_arc(cr, x, y, 23.0 , 0.0, 2.0 * G_PI);
-         cairo_fill(cr);
-         gtk_widget_queue_draw(drawing_area);
+   // not every user-click results in a map.
+   unsigned int add_user_clicked_point(double x, double y) {
+      std::cout << "user_click " << x << " " << y << std::endl;
+      int imol_map_new = make_map(x,y);
+      positron_plot_user_click_info_t puci(x,y,imol_map_new);
+      user_clicks.push_back(puci);
+      return user_clicks.size() - 1; // the index of the just-added point
+   }
+
+   void remove_last_user_click() {
+      user_clicks.pop_back();
+   }
+
+   std::vector<std::pair<int, float> > make_weighted_map_indices(const coot::positron_metadata_t &pmdi) const {
+      std::vector<std::pair<int, float> > v;
+      return v;
+   };
+
+   int make_map(double x, double y) {
+      int imol_map_new = -1;
+      std::pair<float, float> p(x, y);
+      std::cout << "in make_map() we have x and y " << x << " " << y << std::endl;
+      int idx_close = mdc.get_closest_positron_metadata_point(p);
+      if (idx_close != -1) {
+         coot::positron_metadata_t pmdi = mdc.metadata[idx_close];
+         std::vector<std::pair<int, float> > weighted_map_indices = make_weighted_map_indices(pmdi);
+         imol_map_new = make_weighted_map_simple_internal(weighted_map_indices);
+         if (imol_map_new != -1) {
+            set_contour_level_absolute(imol_map_new, default_contour_level);
+         }
       }
+      return imol_map_new;
    }
 
    void fill_plot_data_from_positron_metadata(const std::string &fn1, const std::string &fn2) {
@@ -257,8 +294,9 @@ void on_draw(GtkDrawingArea *area,
              MIN (width, height) / 10.0,
              0, 2 * G_PI);
 
-   std::cout << "------------- on_draw(): test cairo_arc " << width/2.0 << " " << height/2.0
-             << " " << MIN(width, height) / 10.0 << std::endl;
+   if (false)
+      std::cout << "------------- on_draw(): test cairo_arc " << width/2.0 << " " << height/2.0
+                << " " << MIN(width, height) / 10.0 << std::endl;
 
    gtk_widget_get_color(GTK_WIDGET(area), &color);
    gdk_cairo_set_source_rgba(cr, &color);
@@ -290,11 +328,10 @@ void on_draw(GtkDrawingArea *area,
       }
    }
    if (true) {
-      std::cout << "on_draw() here with image_surface " << pdp->image_surface << std::endl;
       if (pdp->image_surface) {
          int w = cairo_image_surface_get_width(pdp->image_surface);
          int h = cairo_image_surface_get_height(pdp->image_surface);
-         std::cout << "on_draw() image_surface w h " << w << " " << h << std::endl;
+         // std::cout << "on_draw() image_surface w h " << w << " " << h << std::endl;
          cairo_set_source_surface(cr, pdp->image_surface, 0,0);
          cairo_paint(cr);
       } else {
@@ -302,14 +339,21 @@ void on_draw(GtkDrawingArea *area,
       }
    }
    if (true) {
-      color.red   = 0.2;
-      color.green = 0.2;
-      color.blue  = 0.6;
       color.alpha = 1.0;
       for (unsigned int i=0; i<pdp->user_clicks.size(); i++) {
-         double di = pdp->user_clicks[i].first;
-         double dj = pdp->user_clicks[i].second;
-         std::cout << "drawing user_click " << i << " " << di << " " << dj << std::endl;
+         double di = pdp->user_clicks[i].x;
+         double dj = pdp->user_clicks[i].y;
+         int imol = pdp->user_clicks[i].map_index;
+         // std::cout << "drawing user_click " << i << " " << di << " " << dj << std::endl;
+         if (imol == -1) {
+            color.red   = 0.8;
+            color.green = 0.8;
+            color.blue  = 0.8;
+         } else {
+            color.red   = 0.2;
+            color.green = 0.3;
+            color.blue  = 0.5;
+         }
          cairo_arc(cr, di, dj, 6.75, 0.0, 2.0 * G_PI);
          gdk_cairo_set_source_rgba(cr, &color);
          cairo_fill(cr);
@@ -381,7 +425,6 @@ void on_positron_plot_drag_end_primary(GtkGestureDrag *gesture,
 }
 
 
-
 void
 on_positron_plot_click(GtkGestureClick* click_gesture,
                        gint n_press,
@@ -389,25 +432,22 @@ on_positron_plot_click(GtkGestureClick* click_gesture,
                        gdouble y,
                        gpointer user_data) {
 
-   std::cout << "click! " << x << " " << y << " " << n_press << std::endl;
-   // undo this:
-   // gpointer user_data = static_cast<void *>(plot_data_p);
+   // std::cout << "click! " << x << " " << y << " " << n_press << std::endl;
 
    plot_data_t *plot_data_p = static_cast<plot_data_t *>(user_data);
    const auto &plot_data(*plot_data_p);
 
    // make this a member function
    double f_x = static_cast<float>(x)/static_cast<float>(plot_data.window_size_x);
-   double f_y = static_cast<float>(x)/static_cast<float>(plot_data.window_size_y);
+   double f_y = static_cast<float>(y)/static_cast<float>(plot_data.window_size_y);
    std::pair<float, float> z(plot_data.min_v + f_x * (plot_data.max_v-plot_data.min_v),
                              plot_data.min_v + f_y * (plot_data.max_v-plot_data.min_v));
-   int idx = plot_data.mdc.get_closest_positron_metadata_point(z); // -1 on failure
-   std::cout << "idx: " << idx << std::endl;
+   int idx_particle = plot_data.mdc.get_closest_positron_metadata_point(z); // -1 on failure
+   std::cout << "idx_particle: " << idx_particle << std::endl;
 
-   plot_data_p->add_user_clicked_point(x, y);
+   unsigned int idx = plot_data_p->add_user_clicked_point(x, y);
 
-   if (plot_data_p->cairo)
-      plot_data_p->add_user_clicked_point(plot_data.cairo, x, y);
+   gtk_widget_queue_draw(plot_data.drawing_area);
 }
 
 #include "utils/coot-utils.hh"
@@ -417,7 +457,12 @@ void
 on_positron_map_undo_button_clicked(GtkButton *button,
                                     gpointer   user_data) {
 
-   std::cout << "undo that map " << std::endl;
+   void *obj = g_object_get_data(G_OBJECT(button), "plot-data");
+   plot_data_t *plot_data_p = static_cast<plot_data_t *>(obj);
+
+   plot_data_p->remove_last_user_click();
+   gtk_widget_queue_draw(plot_data_p->drawing_area);
+
 }
 
 extern "C" G_MODULE_EXPORT
@@ -442,6 +487,8 @@ int main(int argc, char *argv[]) {
    // GtkWidget *window = gtk_window_new();
    // gtk_window_set_title(GTK_WINDOW(window), "Coot-Positron 2D Array Plot");
 
+   // Make this a function (but calling function exits)
+   //
    GtkBuilder *builder = gtk_builder_new();
    std::string ui_file_name = "positron.ui";
    std::string dir = coot::package_data_dir();
@@ -460,7 +507,7 @@ int main(int argc, char *argv[]) {
    GtkWidget *dialog = widget_from_builder("positron-dialog", builder);
 
    int plot_window_x_size = 512;
-   int plot_window_y_size = 620;
+   int plot_window_y_size = 660;
    gtk_window_set_default_size(GTK_WINDOW(dialog), plot_window_x_size, plot_window_y_size);
 
    // GtkWidget *drawing_area = gtk_drawing_area_new();
@@ -483,6 +530,9 @@ int main(int argc, char *argv[]) {
    unsigned char *image_data = new unsigned char[512*512*4]; // something something stride.
    cairo_surface_t *surface = plot_data_p->make_image_from_plot_data(image_data);
    plot_data_p->image_surface = surface;
+
+   GtkWidget *undo_button = widget_from_builder("positron_map_undo_button", builder);
+   g_object_set_data(G_OBJECT(undo_button), "plot-data", plot_data_p);
 
    gpointer user_data = static_cast<void *>(plot_data_p);
    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), on_draw, user_data, NULL);
