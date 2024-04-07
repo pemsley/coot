@@ -195,7 +195,7 @@ class plot_data_t {
             image_data[idx+2] = c_r; // red
             image_data[idx+3] = 255; // ignored?
 
-            if (true)
+            if (false)
                if (f > 0.2)
                   std::cout << f << " " << ix << " " << iy << " col "
                             << c_r << " " << c_g << " " << c_b << " image-data: "
@@ -210,7 +210,7 @@ class plot_data_t {
       cairo_surface_t *surface = cairo_image_surface_create_for_data(image_data, CAIRO_FORMAT_RGB24, 512, 512, 512*4);
 
       if (cairo_surface_status(surface) == CAIRO_STATUS_SUCCESS) {
-         std::cout << "########### cairo_surface_status() success " << std::endl;
+         // std::cout << "########### cairo_surface_status() success " << std::endl;
       } else {
          std::cout << "########### cairo_surface_status() fail " << std::endl;
       }
@@ -301,17 +301,19 @@ void on_draw(GtkDrawingArea *area,
          std::cout << "on_draw(): null surface " << std::endl;
       }
    }
-   color.red   = 0.2;
-   color.green = 0.2;
-   color.blue  = 0.6;
-   color.alpha = 1.0;
-   for (unsigned int i=0; i<pdp->user_clicks.size(); i++) {
-      double di = pdp->user_clicks[i].first;
-      double dj = pdp->user_clicks[i].second;
-      std::cout << "drawing user_click " << i << " " << di << " " << dj << std::endl;
-      cairo_arc(cr, di, dj, 6.75, 0.0, 2.0 * G_PI);
-      gdk_cairo_set_source_rgba(cr, &color);
-      cairo_fill(cr);
+   if (true) {
+      color.red   = 0.2;
+      color.green = 0.2;
+      color.blue  = 0.6;
+      color.alpha = 1.0;
+      for (unsigned int i=0; i<pdp->user_clicks.size(); i++) {
+         double di = pdp->user_clicks[i].first;
+         double dj = pdp->user_clicks[i].second;
+         std::cout << "drawing user_click " << i << " " << di << " " << dj << std::endl;
+         cairo_arc(cr, di, dj, 6.75, 0.0, 2.0 * G_PI);
+         gdk_cairo_set_source_rgba(cr, &color);
+         cairo_fill(cr);
+      }
    }
 }
 
@@ -408,8 +410,28 @@ on_positron_plot_click(GtkGestureClick* click_gesture,
       plot_data_p->add_user_clicked_point(plot_data.cairo, x, y);
 }
 
+#include "utils/coot-utils.hh"
+
+extern "C" G_MODULE_EXPORT
+void
+on_positron_map_undo_button_clicked(GtkButton *button,
+                                    gpointer   user_data) {
+
+   std::cout << "undo that map " << std::endl;
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_positron_interpolate_selected_button_clicked(GtkButton *button,
+                                                gpointer   user_data) {
+   std::cout << "interpolate selected " << std::endl;
+}
 
 
+GtkWidget *widget_from_builder(const std::string &w_name, GtkBuilder *builder) {
+   GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(GTK_BUILDER(builder), w_name.c_str()));
+   return  w;
+}
 
 int main(int argc, char *argv[]) {
 
@@ -417,13 +439,32 @@ int main(int argc, char *argv[]) {
 
    GtkApplication *app = gtk_application_new ("org.emsley.coot", (GApplicationFlags) (G_APPLICATION_NON_UNIQUE));
 
-   GtkWidget *window = gtk_window_new();
-   gtk_window_set_title(GTK_WINDOW(window), "Coot-Positron 2D Array Plot");
-   int plot_window_x_size = 512;
-   int plot_window_y_size = 700;
-   gtk_window_set_default_size(GTK_WINDOW(window), plot_window_x_size, plot_window_y_size);
+   // GtkWidget *window = gtk_window_new();
+   // gtk_window_set_title(GTK_WINDOW(window), "Coot-Positron 2D Array Plot");
 
-   GtkWidget *drawing_area = gtk_drawing_area_new();
+   GtkBuilder *builder = gtk_builder_new();
+   std::string ui_file_name = "positron.ui";
+   std::string dir = coot::package_data_dir();
+   std::string dir_ui = coot::util::append_dir_dir(dir, "ui");
+   std::string ui_file_full = coot::util::append_dir_file(dir_ui, ui_file_name);
+   if (coot::file_exists(ui_file_name))
+      ui_file_full = ui_file_name;
+   GError* error = NULL;
+   gboolean status = gtk_builder_add_from_file(builder, ui_file_full.c_str(), &error);
+   if (status == FALSE) {
+      std::cout << "ERROR:: Failure to read or parse " << ui_file_full << std::endl;
+      std::cout << error->message << std::endl;
+      exit(0);
+   }
+
+   GtkWidget *dialog = widget_from_builder("positron-dialog", builder);
+
+   int plot_window_x_size = 512;
+   int plot_window_y_size = 620;
+   gtk_window_set_default_size(GTK_WINDOW(dialog), plot_window_x_size, plot_window_y_size);
+
+   // GtkWidget *drawing_area = gtk_drawing_area_new();
+   GtkWidget *drawing_area = widget_from_builder("positron_drawing_area", builder);
    gtk_drawing_area_set_content_width( GTK_DRAWING_AREA(drawing_area), 512);
    gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(drawing_area), 512);
 
@@ -446,8 +487,8 @@ int main(int argc, char *argv[]) {
    gpointer user_data = static_cast<void *>(plot_data_p);
    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), on_draw, user_data, NULL);
 
-   gtk_window_set_child(GTK_WINDOW(window), drawing_area);
-   gtk_widget_set_visible(window, TRUE);
+   // gtk_window_set_child(GTK_WINDOW(window), drawing_area);
+   gtk_widget_set_visible(dialog, TRUE);
 
    GtkGesture *drag_controller_primary = gtk_gesture_drag_new();
    gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_primary), GDK_BUTTON_PRIMARY);
@@ -463,8 +504,8 @@ int main(int argc, char *argv[]) {
    application_activate_data *activate_data = new application_activate_data(argc, argv);
    g_signal_connect(app, "activate", G_CALLBACK(positron_plot_application_activate), activate_data);
 
-   int status = g_application_run(G_APPLICATION(app), 1, argv);
-   std::cout << "g_application_run returns with status " << status << std::endl;
+   int status_run = g_application_run(G_APPLICATION(app), 1, argv);
+   std::cout << "g_application_run returns with status " << status_run << std::endl;
 
    return status;
 }
