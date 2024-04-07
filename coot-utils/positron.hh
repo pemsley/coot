@@ -47,6 +47,19 @@ namespace coot {
    // If we fail to find a close point, then return -1.
    int get_closest_positron_metadata_point(const std::vector<positron_metadata_t> &positron_metadata, float x, float y);
 
+   class positron_metadata_container_t {
+   public:
+      positron_metadata_container_t() {}
+      explicit positron_metadata_container_t(const std::vector<positron_metadata_t> &positron_metadata) : metadata(positron_metadata) {}
+      std::vector<positron_metadata_t> metadata;
+      // Currently we use limit of 0.1 in both x and y.
+      // If we fail to find a close point, then return -1.
+      int get_closest_positron_metadata_point(const std::pair<float, float> &z) const {
+         return coot::get_closest_positron_metadata_point(metadata, z.first, z.second);
+      }
+      size_t size() const { return metadata.size(); }
+   };
+
 }
 
 #endif // COOT_POSITRON_HH

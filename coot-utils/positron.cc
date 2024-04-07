@@ -86,8 +86,9 @@ coot::get_closest_positron_metadata_point(const std::vector<positron_metadata_t>
    float lim = 0.2;
    float closest_sqrd = lim;
 
-   // std::cout << "HERE we are in get_closest_positron_metadata_point() with metadata size " << positron_metadata.size()
-   // << " and test position " << x << " "  << y << std::endl;
+   if (false)
+      std::cout << "HERE we are in get_closest_positron_metadata_point() with metadata size " << positron_metadata.size()
+                << " and test position " << x << " "  << y << std::endl;
 
    for (unsigned int i=0; i<positron_metadata.size(); i++) {
       const auto &md(positron_metadata[i]);
