@@ -191,7 +191,9 @@ class plot_data_t {
          std::vector<std::pair<int, float> > weighted_map_indices = make_weighted_map_indices(pmdi);
          imol_map_new = make_weighted_map_simple_internal(weighted_map_indices);
          if (imol_map_new != -1) {
+            std::string name = "Particle " + std::to_string(idx_close);
             set_contour_level_absolute(imol_map_new, default_contour_level);
+            set_molecule_name(imol_map_new, name.c_str());
          }
       } else {
          std::cout << "No map created for this click" << std::endl;

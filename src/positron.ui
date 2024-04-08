@@ -7,6 +7,7 @@
       <object class="GtkBox" id="vbox_positron_1">
         <property name="orientation">vertical</property>
         <property name="spacing">4</property>
+
         <child>
           <object class="GtkDrawingArea" id="positron_drawing_area">
             <property name="margin-start">4</property>
@@ -47,6 +48,82 @@
                 <signal name="clicked" handler="on_positron_interpolate_selected_button_clicked" swapped="no"/>
               </object>
             </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes"> at </property>
+                <property name="justify">center</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkEntry" id="positron_steps_per_click_entry">
+                <property name="width-request">5</property>
+                <property name="can-focus">1</property>
+                <property name="text">10</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes"> Particle Maps/Click</property>
+                <property name="justify">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="box_positron_4">
+            <property name="orientation">horizontal</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+
+            <child>
+              <object class="GtkButton" id="positron_animate_single_pass_button">
+                <property name="label" translatable="yes">Single Pass</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes">  Animate</property>
+                <property name="justify">center</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkSwitch" id="positron_animate_switch">
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes"> Time-step (ms): </property>
+                <property name="justify">center</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSpinButton" id="positron_animate_time_step_spinbutton">
+                <property name="text">100</property>
+                <property name="margin-start">2</property>
+                <property name="margin-end">2</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkToggleButton" id="positron_animate_continuous_with_reverse_togglebutton">
+                <property name="label" translatable="yes">Reverse</property>
+                <property name="can-focus">1</property>
+                <property name="active">0</property>
+                <property name="margin-start">2</property>
+                <property name="margin-end">2</property>
+              </object>
+            </child>
+
           </object>
         </child>
       </object>
