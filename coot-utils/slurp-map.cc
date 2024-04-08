@@ -100,7 +100,7 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
          *((char *)buff.get() + read_pos) = 0;
          char *data = reinterpret_cast< char *>(buff.get());
          status = slurp_parse_xmap_data(data, xmap_p, check_only); // fill xmap
-         std::cout << "**** slurp_parse_xmap_data() returns with status " << status << std::endl;
+         std::cout << "DEBUG:: slurp_parse_xmap_data() returns with status " << status << std::endl;
       }
       return status;
    };
@@ -113,9 +113,8 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
       if (ext == ".gz") is_gzip = true;
 
       if (is_gzip) {
-
+         // this can fail (at the moment) if the axes are not in X,Y,Z order
          status = slurp_fill_xmap_from_gz_map_file(file_name, xmap_p, check_only);
-
       } else {
          // 20231006-PE as it used to be.
          struct stat s;
@@ -123,7 +122,7 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
          if (fstat == 0) {
             FILE *fptr = fopen(file_name.c_str(), "rb");
             int st_size = s.st_size;
-            void *space = malloc(st_size+1);
+            char *space = new char[st_size+1];
             // Happy Path
             size_t st_size_2 = fread(space, st_size, 1, fptr);
             char *data = static_cast<char *>(space);
@@ -138,14 +137,14 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
             } else {
                std::cout << "WARNING:: bad read " << file_name << std::endl;
             }
+            delete [] space;
          }
       }
    } else {
       std::cout << "WARNING:: file does not exist " << file_name << std::endl;
    }
 
-   std::cout << "debug:: ***************** slurp_fill_xmap_from_map_file() returning "
-             << status << std::endl;
+   std::cout << "DEBUG:: slurp_fill_xmap_from_map_file() returning " << status << std::endl;
    return status;
 }
 
@@ -156,8 +155,8 @@ bool
 coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
                                   bool check_only) {
 
-   bool debug = false;
-   bool print_labels = false;
+   bool debug = true;
+   bool print_labels = true;
 
    bool status = false; // return this
    int n_rows = -1;
@@ -228,8 +227,12 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
          if (map_sec == 3)
             is_simple_x_y_z_order = true;
 
-   if (! is_simple_x_y_z_order)
+   if (! is_simple_x_y_z_order) {
+      if (debug)
+         std::cout << "DEBUG:: Not simple X,Y,Z axis order - returning from slurp_parse_xmap_data() now "
+                   << std::endl;
       return false;
+   }
 
    float dmin = 0.0, dmax = 0.0, dmean = 0.0;
    dmax  = *reinterpret_cast<float *>(data+76);
@@ -330,7 +333,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
                                 int *axis_order_xyz,
                                 const char *map_data,
                                 std::atomic<bool> &print_lock) {
-                               
+
                                int offset = start_stop_section_index.first * n_rows * n_cols;
                                int crs[3];  // col,row,sec coordinate
                                clipper::Xmap<float>::Map_reference_coord mrc(*xmap);
@@ -374,7 +377,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
                                      }
                                   }
                                }
-                               
+
                                if (false) { // debugging
                                   bool unlocked = false;
                                   while (! print_lock.compare_exchange_weak(unlocked, true)) {
@@ -438,6 +441,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
 
    if (debug)
       std::cout << "DEBUG:: coot::util::slurp_parse_xmap_data(): returning status " << status << std::endl;
+
    // std::cout << "^^^^^^^^^^^^^^^^ slurp_parse_xmap_data() done, returning " << status << std::endl;
    return status;
 }
@@ -472,7 +476,7 @@ int main(int argc, char **argv) {
             std::cout << "size " << st_size << " bytes" << std::endl;
             auto tp_2 = std::chrono::high_resolution_clock::now();
             FILE *fptr = fopen(file_name.c_str(), "rb");
-            void *space = malloc(st_size);
+            void *space = new void [st_size+1];
             auto tp_3 = std::chrono::high_resolution_clock::now();
             size_t st_size_2 = fread(space, st_size, 1, fptr);
             char *data = static_cast<char *>(space);
@@ -503,7 +507,7 @@ int main(int argc, char **argv) {
                   std::cout << "File " << file_name << " was not a map" << std::endl;
                }
             }
-            free(space);
+            delete [] space;
          } else {
             std::cout << "stat() failed for " << file_name << std::endl;
          }

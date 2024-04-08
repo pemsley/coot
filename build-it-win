@@ -1179,9 +1179,9 @@ which wget
 # This setting of the alias fails.  It works on the command line.
 # WGET="LD_LIBRARY_PATH=/usr/lib wget -N -P ${AUTOBUILD_SOURCES}"
 # WGETO="LD_LIBRARY_PATH=/usr/lib wget   -P ${AUTOBUILD_SOURCES}"
-WGET="wget -N -P ${AUTOBUILD_SOURCES}"
-WGETO="wget   -P ${AUTOBUILD_SOURCES}"
-WGETS="wget --no-check-certificate -N -P ${AUTOBUILD_SOURCES}"
+WGET="C:\msys64\usr/\bin\wget.exe  -nv -N -P ${AUTOBUILD_SOURCES}"
+WGETO="C:\msys64\usr/\bin\wget.exe -nv    -P ${AUTOBUILD_SOURCES}"
+WGETS="C:\msys64\usr/\bin\wget.exe --no-check-certificate -N -P ${AUTOBUILD_SOURCES}"
 
 # latest version (without .tar.gz extension)
 coot_version=$fallback_coot_version
@@ -2255,7 +2255,8 @@ if test -n "$build_ccp4c" ; then
     # ${WGET} $extras_place/ccp4-libs-underlay-2.tar.gz
     # Dont need patch any more. Great!
     # ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/ccp4_library_utils.c.patch
-    ${WGET} ftp://ftp.ccp4.ac.uk/opensource/libccp4-$libccp4_version.tar.gz
+    # ${WGET} ftp://ftp.ccp4.ac.uk/opensource/libccp4-$libccp4_version.tar.gz
+    ${WGET} $extras_place/libccp4-$libccp4_version.tar.gz
     ( 
     date
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4-$libccp4_version.tar.gz | tar xf -
@@ -2296,7 +2297,10 @@ mmdb_version=2.0.5
 mmdb_version=2.0.11
 mmdb_version=2.0.16
 mmdb_version=2.0.19
+mmdb_version=2.0.20
+mmdb_version=2.0.22
 #mmdb_server_dir=ftp://ftp.ccp4.ac.uk/opensource
+mmdb_server_dir=$win_extras_place
 mmdb_server_dir=$extras_place
 echo ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
 ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz

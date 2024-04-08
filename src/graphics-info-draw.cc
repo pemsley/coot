@@ -1,3 +1,28 @@
+/*
+ * src/graphics-info-draw.cc
+ *
+ * Copyright 2020 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
+ */
 
 #ifdef USE_PYTHON
 #include <Python.h>
@@ -6,9 +31,10 @@
 #include "compat/coot-sysdep.h"
 
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
-#include <glm/ext.hpp>
+// #include <glm/ext.hpp>
 #include <glm/gtx/string_cast.hpp>  // to_string()
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtc/type_ptr.hpp>  // for value_ptr() 20240326-PE
 
 #include <iostream>
 #include <iomanip>
@@ -1451,6 +1477,8 @@ graphics_info_t::draw_molecular_triangles() {
 void
 graphics_info_t::draw_particles() {
 
+   if (curmudgeon_mode) return;
+
    if (! particles.empty()) {
       if (mesh_for_particles.have_instances()) {
          glm::mat4 mvp = get_molecule_mvp();
@@ -1473,11 +1501,22 @@ graphics_info_t::draw_particles() {
          }
       }
    }
+
+   { // gone difference map peaks.
+      Mesh &mesh = meshed_particles_for_gone_diff_map_peaks.mesh;
+      if (mesh.have_instances()) {
+         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 model_rotation = get_model_rotation();
+         mesh.draw_particles(&shader_for_particles, mvp, model_rotation);
+      }
+   }
 }
 
 // static
 void
 graphics_info_t::draw_happy_face_residue_markers() {
+
+   if (curmudgeon_mode) return;
 
    // make it work (somewhat) like particles, but we are using a screen-facing
    // texture, not a bespoke screen-facing n-triangle polygon.
@@ -2067,21 +2106,22 @@ graphics_info_t::draw_environment_graphics_object() {
 #include "molecular-mesh-generator.hh"
 
 void
-graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot::atom_spec_t &spec) {
+graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot::atom_spec_t &spec, int n_press) {
 
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = molecules[imol].atom_sel.mol;
       if (mol) {
          coot::residue_spec_t res_spec(spec);
          mmdb::Residue *residue_p = molecules[imol].get_residue(res_spec);
          if (residue_p) {
-            int bond_width = 10;
+            attach_buffers();
+            int bond_width = 9;
             int model_number = residue_p->GetModelNum();
             molecular_mesh_generator_t mmg;
             std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > p =
                mmg.get_molecular_triangles_mesh_for_active_residue(imol, mol, model_number, residue_p, Geom_p(),
-                                                                   bond_width);
+                                                                   bond_width, n_press);
             mesh_for_outline_of_active_residue.clear();
             mesh_for_outline_of_active_residue.import(p);
             Material mat;
@@ -4878,7 +4918,7 @@ graphics_info_t::translate_in_screen_x(float step_size) {
    // The step size is good when were zoomed in but too big when we are zoomed out.
 
    glm::vec3 screen_x_uv = get_screen_x_uv();
-   glm::vec3 step = 0.005 * step_size * zoom * screen_x_uv;
+   glm::vec3 step = 0.005f * step_size * zoom * screen_x_uv;
    add_to_rotation_centre(step);
 }
 
@@ -5095,7 +5135,6 @@ graphics_info_t::setup_draw_for_anchored_atom_markers() {
          tmesh_for_anchored_atom_markers.update_instancing_buffer_data(positions);
       }
    }
-   
 }
 
 #include "coot-utils/fib-sphere.hh"
@@ -5115,7 +5154,7 @@ graphics_info_t::get_happy_face_residue_marker_positions() {
       glm::vec3 sc = get_rotation_centre();
       std::vector<clipper::Coord_orth> cv = coot::fibonacci_sphere(80);
       for (auto p : cv)
-         v.push_back(sc + 5.0 * clipper_to_glm(p));
+         v.push_back(sc + 5.0f * clipper_to_glm(p));
    } else {
 
       // This is just a bit of fun... actually, I will need to ask something like
@@ -5173,7 +5212,7 @@ graphics_info_t::get_happy_face_residue_marker_positions() {
       }
    }
 
-   
+
    if (v.size() > max_happy_faces)
       std::cout << "error:: ------------------ too many happy faces" << std::endl;
 
@@ -5357,6 +5396,36 @@ graphics_info_t::setup_draw_for_particles_for_new_gone_diegos(const std::vector<
 
 // static
 void
+graphics_info_t::setup_draw_for_particles_for_gone_diff_map_peaks(const std::vector<std::pair<glm::vec3, float> > &positions) {
+
+   // std::cout << "********* setup_draw_for_particles_for_gone_diff_map_peaks() " << positions.size() << std::endl;
+   play_sound("diff-map-peak-gone-pop");
+
+   glm::vec3 screen_x_uv = get_screen_x_uv();
+   glm::vec3 screen_y_uv = get_screen_y_uv();
+   particle_container_t &particles = meshed_particles_for_gone_diff_map_peaks.particle_container;
+   Mesh &mesh                      = meshed_particles_for_gone_diff_map_peaks.mesh;
+   attach_buffers();
+   unsigned int n_particles_per_burst = 5;
+   int n_instances = n_particles_per_burst * positions.size();
+   particles.make_gone_diff_map_peaks_particles(n_particles_per_burst, positions, screen_x_uv, screen_y_uv);
+   mesh.setup_vertex_and_instancing_buffers_for_particles(n_instances); // wrong polygon.
+   mesh.clear();
+   mesh.setup_camera_facing_polygon(8, 0.1, false, 0);
+   mesh.update_instancing_buffer_data_for_particles(particles);
+
+   if (! do_tick_gone_diff_map_peaks) {
+      if (! tick_function_is_active()) {
+         int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+         idle_function_spin_rock_token = new_tick_id;
+      }
+      do_tick_gone_diff_map_peaks = true;
+   }
+}
+
+
+// static
+void
 graphics_info_t::setup_draw_for_bad_nbc_atom_pair_markers() {
 
    // 20221005-PE this causes an error on startup (like hud buttons and hud geometry bars)
@@ -5379,6 +5448,8 @@ graphics_info_t::setup_draw_for_bad_nbc_atom_pair_markers() {
 // static
 void
 graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
+
+   if (curmudgeon_mode) return;
 
    if (draw_bad_nbc_atom_pair_markers_flag) {
       if (! bad_nbc_atom_pair_marker_positions.empty()) {
@@ -6014,7 +6085,7 @@ graphics_info_t::make_extra_distance_restraints_objects() {
       // for colouring, limit the delta_length)
       if (delta_length >  1.0) delta_length =  1.0;
       if (delta_length < -1.0) delta_length = -1.0;
-      glm::vec4 colour = colour_base + delta_length * glm::vec4(-0.8f, 0.8f, -0.8, 0.0f);
+      glm::vec4 colour = colour_base + static_cast<float>(delta_length) * glm::vec4(-0.8f, 0.8f, -0.8f, 0.0f);
       edrmid.colour = 0.8f * colour;
       extra_distance_restraints_markup_data.push_back(edrmid);
    }
@@ -6328,9 +6399,9 @@ graphics_info_t::setup_key_bindings() {
                        if (g.hud_button_info.size()) {
                           g.clear_hud_buttons(); g.accept_moving_atoms();
                        } else {
-                          
+
                           // Move the view - don't click the button
-                          
+
                           // g.reorienting_next_residue_mode = false; // hack
                           bool reorienting = graphics_info_t::reorienting_next_residue_mode;
                           if (reorienting) {
@@ -6528,11 +6599,14 @@ graphics_info_t::setup_key_bindings() {
 
    auto l29 = [] () {
 
-      std::cout << "highlighting active residue" << std::endl;
       graphics_info_t g;
+      auto tp_now = std::chrono::high_resolution_clock::now();
+      int n_press = g.get_n_pressed_for_leftquote_tap(tp_now);
+      // std::cout << "highlighting active residue " << n_press << std::endl;
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       if (pp.first) {
-         g.update_mesh_for_outline_of_active_residue(pp.second.first, pp.second.second);
+         int imol = pp.second.first;
+         g.update_mesh_for_outline_of_active_residue(imol, pp.second.second, n_press);
          if (! tick_function_is_active()) {
             int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
          }
@@ -6577,6 +6651,18 @@ graphics_info_t::setup_key_bindings() {
                  g.triple_refine_auto_accept();
                  return gboolean(TRUE);
               };
+
+   auto l37 = [] {
+      graphics_info_t g;
+      g.display_next_map(); // one at a time, all, none.
+      return gboolean(TRUE);
+   };
+
+   auto l38 = [] () {
+      graphics_info_t g;
+      g.toggle_display_of_last_model();
+      return gboolean(TRUE);
+   };
 
    auto l40 = [] () {
       rsr_sphere_refine_plus();
@@ -6707,8 +6793,10 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l28, "NCS Other Chain")));
 
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_R,      key_bindings_t(l40, "Sphere Refine")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_A,      key_bindings_t(l38, "Toggle Display of Last Model")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_E,      key_bindings_t(l40c, "Chain Refine")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_R,      key_bindings_t(l40, "Sphere Refine")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Q,      key_bindings_t(l37, "Display Next Map")));
 
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_space,  key_bindings_t(l18_space, "Accept Moving Atoms")));
 
@@ -6984,7 +7072,7 @@ graphics_info_t::unfullscreen() {
 
     std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > p1 = ::pumpkin();
     std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > p2 = ::pumpkin_stalk();
-    
+
     glm::vec4 col_1(0.85, 0.45, 0.19, 1.0);
     glm::vec4 col_2(0.35, 0.45, 0.19, 1.0);
     attach_buffers();

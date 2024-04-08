@@ -1,0 +1,101 @@
+name: Coot CI Homebrew macOS
+
+on:
+  push:
+
+jobs:
+
+  build-coot-for-macos:
+
+    runs-on: macos-latest
+
+    steps:
+
+    # I don't want to a cache Homebrew after coot has been installed
+    # - name: Cache homebrew
+    #   id:   cache-homebrew
+    #   uses: actions/cache@v3
+    #   with:
+    #      path: /usr/local
+    #      key: usr_local_homebrew
+
+    - name: Which brew?
+      run:  which brew
+
+    - name: Setup homebrew
+      id:   setup-homebrew
+      uses: Homebrew/actions/setup-homebrew@master
+
+    - name: turn on brew analytics
+      run:  brew analytics on
+
+    # from https://support.circleci.com/hc/en-us/articles/360043542933--Error-The-brew-link-step-did-not-complete-successfully-When-Installing-Python
+    # - name: brew unlink python@2
+    #   run:  brew unlink python@2
+    # -> didn't work: Error: No such keg: /usr/local/Cellar/python@2
+
+    # this is not needed, it seems already installed?
+    # this is causing a conflict with azure-cli?
+    # I actually don't care which version of python is used at the moment.
+    # - name: Homebrew install python3
+    #   run:  brew install python@3.12
+
+    - name: pre-update clean for homebrew
+      run:  |
+          rm '/usr/local/bin/2to3'
+          rm '/usr/local/bin/2to3-3.11'
+          rm '/usr/local/bin/2to3-3.12'
+          rm '/usr/local/bin/idle3'
+          rm '/usr/local/bin/idle3.11'
+          rm '/usr/local/bin/idle3.12'
+          rm '/usr/local/bin/pydoc3.12'
+          rm '/usr/local/bin/python3.12'
+          rm '/usr/local/bin/python3.12-config'
+          rm '/usr/local/bin/pydoc3'
+          rm '/usr/local/bin/pydoc3.11'
+          rm '/usr/local/bin/python3'
+          rm '/usr/local/bin/python3-config'
+          rm '/usr/local/bin/python3.11-config'
+          rm '/usr/local/bin/python3.11'
+
+    - name: brew update
+      run:  |
+        brew uninstall kotlin
+        brew uninstall xcbeautify
+        brew update
+        brew upgrade
+
+    # I don't think that glfw is needed now (it is in the coot.rb file though)
+    - name: Install Homebrew dependencies
+      run:  >
+         brew install boost boost-python3 brewsci/bio/clipper4coot
+         brewsci/bio/raster3d brewsci/bio/ssm brewsci/bio/gemmi
+         dwarfutils gsl rdkit pygobject3 gtk4 glm automake gmp glfw
+         py3cairo pygobject3
+
+    - name: Install Homebrew python-requests
+      run:  brew install python-requests
+
+    - name: Get coot.rb file
+      # try this modified version for now:
+      # run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot.rb
+      run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
+
+    # this doesn't work - currently a failure in compiling M2T
+    - name: Compile Homebrew coot HEAD
+      # don't stall waiting for user input to resolve the failed patch
+      run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD || true > $HOME/brew.log >&2
+
+    # - name: cat the brew log
+    #   run:  cat /Users/runner/Library/Logs/Homebrew/coot/*.make
+
+    - name: Upload brew log
+      uses: actions/upload-artifact@v4
+      with:
+        name: brew-log-package
+        path: /Users/runner/Library/Logs/Homebrew/coot
+        retention-days: 3
+
+    - name: Does it run?
+      run: /usr/local/bin/coot --no-graphics < /dev/null
+

@@ -1,3 +1,28 @@
+/*
+ * coot-utils/mutate.cc
+ *
+ * Copyright 2021 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
+ */
 
 #include <string.h> // bleugh
 #include "compat/coot-sysdep.h"
@@ -166,7 +191,7 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
    adenine.push_back(" N7 ");
    adenine.push_back(" C5 ");
    adenine.push_back(" C4 ");
-   // 
+   //
    adenine.push_back(" N1 ");
    adenine.push_back(" C2 ");
    adenine.push_back(" N3 ");
@@ -271,37 +296,28 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
    std::string mol_base_name = residue->GetResName();
    std::string std_base_name = std_base->GetResName();
 
-   if (mol_base_name == "Ar" || mol_base_name == "Ad" ||
-       mol_base_name == "Gr" || mol_base_name == "Gd" ||
-       mol_base_name == "G"  || mol_base_name == "DG" ||
-       mol_base_name == "A"  || mol_base_name == "DA" ) {
+   if (mol_base_name == "A" || mol_base_name == "DA" ||
+       mol_base_name == "G" || mol_base_name == "DG") {
       mol_base_is_purine = 1;
       mol_base_is_pyrimidine = 0;
    }
 
-   if (mol_base_name == "Cr" || mol_base_name == "Cd" ||
-       mol_base_name == "Ur" || mol_base_name == "Ud" ||
-       mol_base_name == "Tr" || mol_base_name == "Td" ||
-       mol_base_name == "U"  || mol_base_name == "DT" ||
-       mol_base_name == "Ur" || mol_base_name == "T"  ||
-       mol_base_name == "DC" || mol_base_name == "C") {
+   if (mol_base_name == "C"  || mol_base_name == "DC" ||
+       mol_base_name == "U"  || mol_base_name == "DU" ||
+       mol_base_name == "T"  || mol_base_name == "DT") {
       mol_base_is_pyrimidine = 1;
       mol_base_is_purine = 0;
    }
 
-   if (std_base_name == "Ar" || std_base_name == "Ad" ||
-       std_base_name == "Gr" || std_base_name == "Gd" ||
-       std_base_name == "G"  || std_base_name == "DG" ||
-       std_base_name == "A"  || std_base_name == "DA" ) {
+   if (std_base_name == "A" || std_base_name == "DA" ||
+       std_base_name == "G" || std_base_name == "DG") {
       std_base_is_purine = 1;
       std_base_is_pyrimidine = 0;
    }
 
-   if (std_base_name == "Cr" || std_base_name == "Cd" ||
-       std_base_name == "Tr" || std_base_name == "Td" ||
-       std_base_name == "Ur" || std_base_name == "Ud" ||
-       std_base_name == "U"  || std_base_name == "DT" ||
-       std_base_name == "T"  || std_base_name == "DC") { 
+   if (std_base_name == "C" || std_base_name == "DC" ||
+       std_base_name == "T" || std_base_name == "DT" ||
+       std_base_name == "U" || std_base_name == "DU") {
       std_base_is_pyrimidine = 1;
       std_base_is_purine = 0;
    }
@@ -418,10 +434,9 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
             double sum_dist2 = 0.0;
             double mind =  999999999.9;
             double maxd = -999999999.9;
-            double d;
             for (unsigned int i=0; i<refrce_atom_positions.size(); i++) {
-               d = clipper::Coord_orth::length(refrce_atom_positions[i],
-                                               clipper::Coord_orth(moving_atom_positions[i].transform(rtop)));
+               double d = clipper::Coord_orth::length(refrce_atom_positions[i],
+                                                      clipper::Coord_orth(moving_atom_positions[i].transform(rtop)));
                sum_dist  += d;
                sum_dist2 += d*d;
                if (d>maxd)
@@ -443,16 +458,6 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
             // names we what to add or delete?
             // 
             std::vector<std::string> mol_base_atom_names;
-            if (mol_base_name == "Ar" || mol_base_name == "Ad")
-               mol_base_atom_names = adenine;
-            if (mol_base_name == "Gr" || mol_base_name == "Gd")
-               mol_base_atom_names = guanine;
-            if (mol_base_name == "Cr" || mol_base_name == "Cd")
-               mol_base_atom_names = cytosine;
-            if (mol_base_name == "Tr" || mol_base_name == "Td")
-               mol_base_atom_names = thymine;
-            if (mol_base_name == "Ur" || mol_base_name == "Ud")
-               mol_base_atom_names = uracil;
 
             // new names 
             if (mol_base_name == "A" || mol_base_name == "DA")
@@ -472,17 +477,6 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
             } else {
                
                std::vector<std::string> std_base_atom_names;
-
-               if (std_base_name == "Ar" || std_base_name == "Ad")
-                  std_base_atom_names = adenine;
-               if (std_base_name == "Gr" || std_base_name == "Gd")
-                  std_base_atom_names = guanine;
-               if (std_base_name == "Cr" || std_base_name == "Cd")
-                  std_base_atom_names = cytosine;
-               if (std_base_name == "Tr" || std_base_name == "Td")
-                  std_base_atom_names = thymine;
-               if (std_base_name == "Ur" || std_base_name == "Ud")
-                  std_base_atom_names = uracil;
 
                // new names
                if (std_base_name == "A" || std_base_name == "DA")
@@ -561,7 +555,7 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
                                         << std::endl;
                            at->SetCoordinates(pt.x(), pt.y(), pt.z(), 1.0, b_factor);
                            std::string new_atom_name = std_base_atoms[i]->name;
-                           if (std_base_name == "Td")
+                           if (std_base_name == "DT")
                               if (new_atom_name == " C5M")
                                  if (! use_old_style_naming)
                                     new_atom_name = " C7 ";
@@ -583,16 +577,15 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
                      } 
                   }
             
-
                    std::string new_base_name =
                       coot::util::convert_base_name(std_base_name, use_old_style_naming);
                   residue->SetResName(new_base_name.c_str());
                   residue->TrimAtomTable();
 
-
                   if (need_a_ter) {
                      mmdb::Atom *at = new mmdb::Atom;
                      at->MakeTer();
+                     // ... and then I don't add it.
                      residue->TrimAtomTable();
                   }
                }

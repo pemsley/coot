@@ -36,14 +36,14 @@ namespace coot {
    class instanced_geometry_t {
    public:
       //! vertices (containing positions and normals)
-      std::vector<coot::api::vn_vertex> vertices;
+      std::vector<api::vn_vertex> vertices;
       //! triangle indices
       std::vector<g_triangle> triangles;
       std::string name;
 
       instanced_geometry_t() {}
       explicit instanced_geometry_t(const std::string &n) : name(n) {};
-      instanced_geometry_t(const std::vector<coot::api::vn_vertex> &v, const std::vector<g_triangle> &t) :
+      instanced_geometry_t(const std::vector<api::vn_vertex> &v, const std::vector<g_triangle> &t) :
          vertices(v), triangles(t) {}
 
       //! a vector of type A instancing
@@ -65,7 +65,13 @@ namespace coot {
 
       //! clear
       void clear() { geom.clear(); markup.clear(); }
+
+      void export_to_glTF(const std::string &file_name, bool use_binary_format) const;
    };
+
+   // convert for export. A better exporter would preserve the instancing (but each ball colour
+   // would need it's own reference I think) - the instancing is the orientation matrix (only).
+   simple_mesh_t instanced_mesh_to_simple_mesh(const instanced_mesh_t &im);
 
 }
 

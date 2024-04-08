@@ -86,6 +86,7 @@ coot::ligand::cluster_is_possible_water(const coot::map_point_cluster &mpc) cons
    float grid_vol = vol/ngrid;
    float n_grid_lim = water_molecule_volume/grid_vol; // 15 is 4/3 Pi r^3: with r=1.53
 
+   // std::cout << "   comparing " <<  mpc.map_grid.size() << " " << n_grid_lim << std::endl;
    if (mpc.map_grid.size() < n_grid_lim) {
       return 1;
    } else {
@@ -548,16 +549,18 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
       // << std::endl;
       n_clusters = 0;
       cluster.clear();
+      bool water_cluster_mode = true;
       find_clusters_internal(z_cutoff, sampled_protein_coords); // fill cluster
       std::cout << "-------------------------------------------------" << std::endl;
+
       // std::cout << "DEBUG:: found " << cluster.size()
-      // << " clusters at " << z_cutoff << "z cut." << std::endl;
+      // << " clusters at " << z_cutoff << "z cut. " << z_cutoff << std::endl;
 
       std::list<coot::map_point_cluster> cluster_list;
       // convert from a vector to a list:
-      for (unsigned int ic=0; ic<cluster.size(); ic++) {
+      for (unsigned int ic=0; ic<cluster.size(); ic++)
          cluster_list.push_back(cluster[ic]);
-      }
+
 
       for(int iround = 0; iround < n_cycle; iround++) {
 //          // useful debugging
@@ -569,13 +572,23 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
          std::list<coot::map_point_cluster>::iterator it;
 //          std::vector<std::list<coot::map_point_cluster>::const_iterator> iterator_remove_list;
          std::vector<std::list<coot::map_point_cluster>::iterator> iterator_remove_list;
-         //         std::cout << "DEBUG:: round " << iround << " cluster list size: "
+
+         // std::cout << "DEBUG:: round " << iround << " cluster list size: "
          // << cluster_list.size() << "\n";
+
          for (it=cluster_list.begin(); it!=cluster_list.end(); ++it) {
 
             clipper::Coord_orth cl_centre(it->eigenvectors_and_centre.trn());
-            if ((do_cluster_size_check_flag && cluster_is_possible_water(*it))
-                || do_cluster_size_check_flag == 0) {
+            const auto &map_point_cluster(*it);
+            bool cluster_is_possible_water_flag = cluster_is_possible_water(map_point_cluster);
+
+            if (false) {
+               std::cout << "     do_cluster_size_check_flag " << do_cluster_size_check_flag << std::endl;
+               std::cout << "     cluster_is_possible_water  " << cluster_is_possible_water_flag << std::endl;
+               std::cout << "     do_cluster_size_check_flag " << do_cluster_size_check_flag << std::endl;
+            }
+
+            if ((do_cluster_size_check_flag && cluster_is_possible_water_flag) || do_cluster_size_check_flag == 0) {
 
                clipper::Coord_orth new_centre = move_atom_to_peak(cl_centre, xmap_cluster);
                short int chem_sensible = water_pos_is_chemically_sensible(new_centre, water_list);
@@ -599,8 +612,7 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
 
             } else {
                if (iround == 0) {
-                  std::cout << "INFO:: cluster at " << cl_centre.format()
-                            << " is too big to be water\n";
+                  std::cout << "INFO:: cluster at " << cl_centre.format() << " is too big to be water\n";
                   double cl_vol = it->volume(xmap_pristine);
                   std::pair<clipper::Coord_orth, double> p(cl_centre, cl_vol);
                   blobs.push_back(p);
@@ -615,6 +627,8 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
    }
    if (write_raw_waters)
       write_waters(raw_water_list, "raw-ligand-waters-peaksearch-results.pdb");
+
+   std::cout << "DEBUG:: in water_fit_internal() returning water_list of size " << water_list.size() << std::endl;
 
    // user can get to these via big_blobs() member function
    keep_blobs = blobs;

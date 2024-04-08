@@ -112,9 +112,13 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
      fft_reso = clipper::Resolution(1.0/sqrt(fphidata.invresolsq_range().max()));
   }
 
+  std::cout << "FFT Reso..." << fft_reso.invresolsq_limit() << "\n";
+  std::cout << "Sampling rate..." << sampling_rate << "\n";
   clipper::Grid_sampling gs(myhkl.spacegroup(), myhkl.cell(), fft_reso, sampling_rate);
+  std::cout << "Grid..." << gs.format() << "\n";
+  std::cout << "Cell..." << myhkl.cell().format() << "\n";
+  std::cout << "Spacegroup..." << myhkl.spacegroup().symbol_hm() << "\n";
   xmap->init( myhkl.spacegroup(), myhkl.cell(), gs);
-  // std::cout << "Grid..." << xmap->grid_sampling().format() << "\n";
   // std::cout << "doing fft..." << std::endl;
   xmap->fft_from( fphidata );                  // generate map
   // std::cout << "done fft..." << std::endl;
@@ -1078,6 +1082,28 @@ coot::util::average_map(const std::vector<std::pair<clipper::Xmap<float>, float>
    }
    return rmap;
 }
+
+// like above, but modify the map, don't return a new one. Also this presumes that the maps haave the same gridding
+void
+coot::util::regen_weighted_map(clipper::Xmap<float> *xmap_in,
+                              const std::vector<std::pair<clipper::Xmap<float> *, float> > &maps_and_scales_vec) {
+
+   if (!maps_and_scales_vec.empty()) {
+      for (unsigned int imap=0; imap<maps_and_scales_vec.size(); imap++) {
+         const clipper::Xmap<float> &xmap = *maps_and_scales_vec[imap].first;
+         const float &sf                  = maps_and_scales_vec[imap].second;
+         clipper::Xmap_base::Map_reference_index ix;
+         for (ix = xmap_in->first(); !ix.last(); ix.next()) {
+            if (imap == 0) {
+               (*xmap_in)[ix] = xmap[ix] *sf;
+            } else {
+               (*xmap_in)[ix] += xmap[ix] *sf;
+            }
+         }
+      }
+   }
+}
+
 
 // like above, but variance, scales are ignored.
 //
@@ -2146,16 +2172,17 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
          }
 
          if (n_atoms == 0)
-         return stats;
+            return stats;
 
          // atom selection grid:
          //
          //
          std::pair<clipper::Coord_orth, clipper::Coord_orth> selection_extents = util::extents(mol, specs);
+
          if (debug)
-         std::cout << "INFO:: mol residue set extents: "
-         << selection_extents.first.format() << " to "
-         << selection_extents.second.format() << std::endl;
+            std::cout << "INFO:: mol residue set extents: "
+                      << selection_extents.first.format() << " to "
+                      << selection_extents.second.format() << std::endl;
 
          // double border = 4.1;
          double border = 3.1; // border is used to create selection_grid.

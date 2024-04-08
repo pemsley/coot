@@ -7,19 +7,19 @@
  * Copyright 2014, 2016 by Medical Research Council
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
  * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 // we need the functions:
@@ -898,7 +898,6 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 
 		  // multi atom move
 
-#ifdef HAVE_GSL
 		  if (info.last_restraints_size() > 0) {
 
                     info.move_atom_pull_target_position(x_as_int, y_as_int);
@@ -913,7 +912,6 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 								     y_as_int);
 		     }
 		  }
-#endif // HAVE_GSL
 	       }
 
 	    } else {

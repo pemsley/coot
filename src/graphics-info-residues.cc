@@ -4,23 +4,26 @@
  * Copyright 2015, 2016 by Medical Research Council
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
  * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
 #if defined (USE_PYTHON)
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>  // to_string()
 
 #include "compat/coot-sysdep.h"
 
@@ -61,8 +64,8 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
       }
 
       // uses dynamic add
-      bool dict_status = geom_p->have_dictionary_for_residue_types(residue_types, imol,
-								   cif_dictionary_read_number);
+      bool dict_status = geom_p->have_restraints_dictionary_for_residue_types(residue_types, imol,
+                                                                              cif_dictionary_read_number);
 
       mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
       if (! moving_mol) {

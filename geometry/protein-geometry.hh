@@ -6,19 +6,19 @@
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 #ifndef PROTEIN_GEOMETRY_HH
@@ -64,6 +64,7 @@
 
 #include "pdbe-chem-comp-atom-depiction.hh"
 #include "gphl-chem-comp-info.hh"
+#include "pdbx-chem-comp-description-generator.hh"
 
 namespace coot {
 
@@ -795,6 +796,7 @@ namespace coot {
       std::vector   <dict_plane_restraint_t>   plane_restraint;
       std::vector   <dict_improper_dihedral_restraint_t>   improper_dihedral_restraint;
       pdbx_chem_comp_descriptor_container_t descriptors;
+      pdbx_chem_comp_description_generator_t description_generation;
       chem_comp_atom_depiction_t depiction;
       gphl_chem_comp_info_t gphl_chem_comp_info;
 
@@ -1383,6 +1385,8 @@ namespace coot {
 
       void pdbe_chem_comp_atom_depiction(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
 
+      void pdbx_chem_comp_description_generator(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+
       void gphl_chem_comp_info(mmdb::mmcif::PStruct structure, int imol_enc);
 
       // return the comp id (so that later we can associate the file name with the comp_id).
@@ -1634,6 +1638,7 @@ namespace coot {
                          const std::string &protein_mono); // extra path to file
 
       // not const because we can do a dynamic add.
+      // 20240110-PE don't use this function - use get_monomer_restraints_index().
       int get_monomer_type_index(const std::string &monomer_type);
       std::string get_padded_name(const std::string &atom_id, const int &comp_id_index) const;
 
@@ -1872,6 +1877,14 @@ namespace coot {
                                             int read_number,
                                             bool try_autoload_if_needed=true);
 
+      // 20240110-PE I need to know if the residues have (bond) restraints - i.e. they
+      // can be refined. The above function is for drawing things.
+      // return false if there are no bond restraints
+      bool have_restraints_dictionary_for_residue_type(const std::string &monomer_type,
+                                            int imol_enc,
+                                            int read_number,
+                                            bool try_autoload_if_needed=true);
+
       // this is const because there is no dynamic add.
       //
       // if there is just an ccp4srs entry, then this returns false.
@@ -1890,6 +1903,11 @@ namespace coot {
                                              int imol_enc,
                                              int read_number);
 
+      // likewise not const.
+      // Return false if there are no bond restraints
+      bool have_restraints_dictionary_for_residue_types(const std::vector<std::string> &residue_types,
+                                                        int imol_enc,
+                                                        int read_number);
 
       // return a pair, overall status, and pair of residue names and
       // atom names that dont't match.

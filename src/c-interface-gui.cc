@@ -8,19 +8,19 @@
  * Author: Bernhard Lohkamp
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 #ifdef USE_PYTHON
@@ -296,13 +296,6 @@ void show_remarks_browswer() {
    }
 }
 
-void
-set_graphics_rotamer_dialog(GtkWidget *w) {
-   graphics_info_t::rotamer_dialog = w;
-}
-
-
-
 // To be used to (typically) get the menu item text label from chain
 // option menus (rather than the ugly/broken casting of
 // GtkPositionType data.  A wrapper to a static graphics_info_t
@@ -477,8 +470,10 @@ void handle_column_label_make_fourier_v2(GtkWidget *column_label_window) {
    bool use_weights_flag       = false;
    bool is_difference_map_flag = false;
    bool limit_reso_flag = false;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(weights_checkbutton))) use_weights_flag = true;
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(is_diff_map_checkbutton))) is_difference_map_flag = true;
+
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(weights_checkbutton)))     use_weights_flag       = true;
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(is_diff_map_checkbutton))) is_difference_map_flag = true;
+
    // GtkWidget *amplitudes_combobox = lookup_widget(column_label_window, "column_selector_amplitudes_combobox");
    // GtkWidget *phases_combobox     = lookup_widget(column_label_window, "column_selector_phases_combobox");
    // GtkWidget *weights_combobox    = lookup_widget(column_label_window, "column_selector_weights_combobox");

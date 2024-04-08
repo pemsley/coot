@@ -4,19 +4,19 @@
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 #ifdef USE_PYTHON
@@ -57,14 +57,15 @@ coot::restraints_editor::setup_builder() {
 
    builder = gtk_builder_new();
    std::string data_dir = package_data_dir();
-   std::string dir_glade = util::append_dir_dir(data_dir, "glade"); // rename this to ui one day
-   std::string glade_file_name = "restraints-editor.ui";
-   std::string glade_file_full = util::append_dir_file(dir_glade, glade_file_name);
-   if (file_exists(glade_file_name))
-      glade_file_full = glade_file_name;
+   // 20240218-PE glade to ui
+   std::string dir_ui = util::append_dir_dir(data_dir, "ui"); // rename this to ui one day
+   std::string ui_file_name = "restraints-editor.ui";
+   std::string ui_file_full = util::append_dir_file(dir_ui, ui_file_name);
+   if (file_exists(ui_file_name))
+      ui_file_full = ui_file_name;
 
    GError *error = NULL;
-   guint add_from_file_status = gtk_builder_add_from_file(builder, glade_file_full.c_str(), &error);
+   guint add_from_file_status = gtk_builder_add_from_file(builder, ui_file_full.c_str(), &error);
    if (add_from_file_status) {
       // fine
       dialog = widget_from_builder("restraints_editor_dialog");

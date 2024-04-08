@@ -13,10 +13,11 @@ coot::phi_psi_prob_t::phi_psi_prob_t(const coot::util::phi_psi_t &pp, const coot
 
    // Use the right version of clipper!
 
-   // if (phi_psi.residue_name() == "ILE" || phi_psi.residue_name() == "VAL" ) rama = &rc.rama_ileval;
-   // if (phi_psi.is_pre_pro())
-   // if (phi_psi.residue_name() != "GLY")
-   // rama = &rc.rama_pre_pro;
+   if (phi_psi.residue_name() == "ILE" || phi_psi.residue_name() == "VAL" )
+      rama = &rc.rama_ileval;
+   if (phi_psi.is_pre_pro())
+      if (phi_psi.residue_name() != "GLY")
+         rama = &rc.rama_pre_pro;
 
    probability = rama->probability(clipper::Util::d2rad(phi_psi.phi()),
                                    clipper::Util::d2rad(phi_psi.psi()));

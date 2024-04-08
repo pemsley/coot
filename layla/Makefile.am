@@ -5,8 +5,6 @@ lib_LTLIBRARIES=libcoot-layla.la
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)         \
-	$(COOT_GSL_FLAGS)	\
-	$(GSL_CFLAGS)		\
 	$(CLIPPER_CXXFLAGS)     \
 	$(RDKIT_CXXFLAGS)       \
         $(BOOST_CPPFLAGS)       \
@@ -57,7 +55,7 @@ libcoot_layla_la_LIBADD = $(top_builddir)/geometry/libcoot-geometry.la \
                           $(top_builddir)/lidia-core/libcoot-lidia-core.la \
                           $(top_builddir)/utils/libcoot-utils.la \
                           $(GTK_LIBS) $(GLIB_LIBS) \
-                          $(RDKIT_LIBS) \
+                          $(RDKIT_LIBS) $(CURL_LIBS) \
                           -lpthread
 
 libcoot_layla_la_LDFLAGS = $(SHARED_LDFLAGS)

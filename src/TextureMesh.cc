@@ -1,3 +1,28 @@
+/*
+ * src/TextureMesh.cc
+ *
+ * Copyright 2020 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
+ */
 
 #ifdef USE_PYTHON
 #include "Python.h"
@@ -7,7 +32,10 @@
 #include <iomanip>
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/ext.hpp>
+// #include <glm/ext.hpp> // 20240326-PE
+#include <glm/gtx/string_cast.hpp> // for to_string()
+#include <glm/gtc/type_ptr.hpp>  // for value_ptr() 20240326-PE
+
 
 #include "ft-character.hh"
 #include "TextureMesh.hh"
@@ -910,11 +938,11 @@ TextureMesh::update_instancing_buffer_data_for_happy_faces(const std::vector<glm
                                    float f1 = static_cast<float>(draw_count_in)/static_cast<float>(draw_count_max);
                                    float f2 = f1 * f1 * 2.5f;
                                    glm::vec3 f_uv = f2 * screen_y_uv;
-                                   glm::vec3 tp = glm::normalize(glm::vec3(0.1, 0.2, 0.3));
+                                   glm::vec3 tp = glm::normalize(glm::vec3(0.1f, 0.2f, 0.3f));
                                    glm::vec3 cp_1 = glm::cross(screen_y_uv, tp);
                                    glm::vec3 cp_2 = glm::cross(screen_y_uv, cp_1);
                                    float phase = 0.1 * static_cast<float>(index);
-                                   f_uv += 0.9 * sinf(9.0 * f1 + phase) * cp_2;
+                                   f_uv += 0.9f * sinf(9.0f * f1 + phase) * cp_2;
                                    return f_uv;
                                 };
 

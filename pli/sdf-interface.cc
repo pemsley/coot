@@ -19,9 +19,7 @@
  * 02110-1301, USA
  */
 
-#if defined (USE_PYTHON)
-#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
-#endif
+// 20240120-PE This is not the place for Python usage
 
 // We need this high so that dcgettext() so we don't get expected unqualified-id before 'const'
 // errors when we read libintl from rdkit-interface.hh

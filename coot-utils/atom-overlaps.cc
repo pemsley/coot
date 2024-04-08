@@ -115,7 +115,8 @@ coot::atom_overlaps_container_t::init() {
       std::pair<bool, dictionary_residue_restraints_t> d =
          geom_p->get_monomer_restraints(cres_name, protein_geometry::IMOL_ENC_ANY);
       if (! d.first) {
-         std::cout << "Failed to get dictionary for " << cres_name << std::endl;
+         std::cout << "WARNING:: (or ERROR::) in atom_overlaps_container_t::init() Failed to get dictionary for "
+                   << cres_name << std::endl;
       } else {
          // Happy path
          central_residue_dictionary = d.second;
@@ -837,6 +838,10 @@ coot::atom_overlaps_container_t::h_bond_info_t::h_bond_info_t(mmdb::Atom *ligand
    if (ligand_atom->GetUDData(udd_h_bond_type_handle, hb_1) == mmdb::UDDATA_Ok) {
       if (env_atom->GetUDData(udd_h_bond_type_handle, hb_2) == mmdb::UDDATA_Ok) {
 
+         if (false) // 20240325-PE used to help debug the error message below (not an error, I now think)
+            std::cout << "INFO::  h_bond_info_t() env_atom->GetUDData(udd_h_bond_type_handle, hb_2) worked with handle "
+                      << udd_h_bond_type_handle << " ligand-atom: " << coot::atom_spec_t(ligand_atom) << " env_atom: "
+                      << env_atom << " " << coot::atom_spec_t(env_atom) << std::endl;
 #if 0
 	if (ligand_atom->GetSeqNum() == 901 || env_atom->GetSeqNum() == 901) {
 	  std::cout << "h_bond_info_t constructor " << atom_spec_t(ligand_atom)   << " "
@@ -877,8 +882,12 @@ coot::atom_overlaps_container_t::h_bond_info_t::h_bond_info_t(mmdb::Atom *ligand
          }
       } else {
          // something to do with failure to add udd_h_bond_type_handle for env_atoms from multiple MODELs?
-         std::cout << "ERROR:: h_bond_info_t() env_atom->GetUDData(udd_h_bond_type_handle, hb_2) failed with handle "
-                   << udd_h_bond_type_handle << " " << env_atom << std::endl;
+
+         // 20240325-PE I no longer think this is an error - it's just that the UDData was not set for this atom.
+         if (false)
+            std::cout << "ERROR:: h_bond_info_t() env_atom->GetUDData(udd_h_bond_type_handle, hb_2) failed with handle "
+                      << udd_h_bond_type_handle << " ligand-atom: " << coot::atom_spec_t(ligand_atom) << " env_atom: "
+                      << env_atom << " " << coot::atom_spec_t(env_atom) << std::endl;
       }
 
       if (is_h_bond_donor_and_acceptor == false) {
@@ -1173,9 +1182,14 @@ coot::atom_overlaps_container_t::is_inside_another_ligand_atom(int idx,
 coot::atom_overlaps_dots_container_t
 coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) { // or residue
 
+   atom_overlaps_dots_container_t ao;
+   if (!have_dictionary) {
+      std::cout << "WARNING:: contact_dots_for_ligand() no dictionary " << std::endl;
+      return ao;
+   }
+
    bool add_vdw_dots = true; // pass this
 
-   atom_overlaps_dots_container_t ao;
    mmdb::realtype max_dist = 4.0; // max distance for an interaction
 
    bool excl_mc_flag = true; // exclude main-chain to main-chain interactions also
@@ -1192,7 +1206,7 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
       for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
       mmdb::Atom **ligand_residue_atoms = 0;
-      int n_ligand_residue_atoms;
+      int n_ligand_residue_atoms = 0;
       res_central->GetAtomTable(ligand_residue_atoms, n_ligand_residue_atoms);
 
       std::vector<residue_spec_t> env_residue_specs(neighbours.size());
@@ -1204,7 +1218,7 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
       int i_sel_hnd_env_atoms = specs_to_atom_selection(env_residue_specs, mol, mask_mode);
 
       mmdb::Atom **env_residue_atoms = 0;
-      int n_env_residue_atoms;
+      int n_env_residue_atoms = 0;
       mol->GetSelIndex(i_sel_hnd_env_atoms, env_residue_atoms, n_env_residue_atoms);
       setup_env_residue_atoms_radii(i_sel_hnd_env_atoms);
 
@@ -2379,6 +2393,9 @@ coot::atom_overlaps_container_t::add_residue_neighbour_index_to_neighbour_atoms(
 void
 coot::atom_overlaps_container_t::setup_env_residue_atoms_radii(int i_sel_hnd_env_atoms) {
 
+   if (!have_dictionary) {
+      std::cout << "setup_env_residue_atoms_radii() no dictionary " << std::endl;
+   }
    double r = 1.5;
    mmdb::Atom **env_residue_atoms = 0;
    int n_env_residue_atoms;

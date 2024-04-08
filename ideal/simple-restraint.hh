@@ -7,19 +7,19 @@
  * Author: Paul Emsley
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 #ifndef HAVE_SIMPLE_RESTRAINT_HH
@@ -1161,6 +1161,7 @@ namespace coot {
       int n_atoms_limit_for_nbc; // the neighbours in non_bonded_contacts_atom_indices are only useful
                                  // for the moving atoms.
       mmdb::PPAtom atom;
+      bool atom_array_needs_to_be_deleted_at_end;
       bool model_has_hydrogen_atoms;
       std::vector<bool> atom_is_metal;
       std::vector<bool> atom_is_hydrogen;
@@ -1209,6 +1210,7 @@ namespace coot {
          mol = 0;
          n_atoms = 0;
          atom = 0;
+         atom_array_needs_to_be_deleted_at_end = false; // it's not allocated
          model_has_hydrogen_atoms = true;
          include_map_terms_flag = 0;
          have_oxt_flag = 0;

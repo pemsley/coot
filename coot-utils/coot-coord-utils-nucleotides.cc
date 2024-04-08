@@ -393,68 +393,68 @@ coot::util::canonical_base_name(const std::string &res_name_in, base_t rna_or_dn
 
    if (rna_or_dna == coot::RNA) {
       if (res_name_in == "C")
-         return "Cr";
+         return "C";
       if (res_name_in == "A")
-         return "Ar";
+         return "A";
       if (res_name_in == "G")
-         return "Gr";
+         return "G";
       if (res_name_in == "T")
-         return "Tr";
+         return "T";
       if (res_name_in == "U")
-         return "Ur";
+         return "U";
       if (res_name_in == "Cr")
-         return "Cr";
+         return "C";
       if (res_name_in == "Ar")
-         return "Ar";
+         return "A";
       if (res_name_in == "Gr")
-         return "Gr";
+         return "G";
       if (res_name_in == "Tr")
-         return "Tr";
+         return "T";
       if (res_name_in == "Ur")
-         return "Ur";
+         return "U";
       if (res_name_in == "Cd")
-         return "Cr";
+         return "C";
       if (res_name_in == "Ad")
-         return "Ar";
+         return "A";
       if (res_name_in == "Gd")
-         return "Gr";
+         return "G";
       if (res_name_in == "Td")
-         return "Tr";
+         return "T";
       if (res_name_in == "Ud")
-         return "Ur";
+         return "U";
    }
    
    if (rna_or_dna == coot::DNA) {
       if (res_name_in == "C")
-         return "Cd";
+         return "DC";
       if (res_name_in == "A")
-         return "Ad";
+         return "DA";
       if (res_name_in == "G")
-         return "Gd";
+         return "DG";
       if (res_name_in == "T")
-         return "Td";
+         return "DT";
       if (res_name_in == "U")
-         return "Ud";
+         return "DU";
       if (res_name_in == "Cd")
-         return "Cd";
+         return "DC";
       if (res_name_in == "Ad")
-         return "Ad";
+         return "DA";
       if (res_name_in == "Gd")
-         return "Gd";
+         return "DG";
       if (res_name_in == "Td")
-         return "Td";
+         return "DT";
       if (res_name_in == "Ud")
-         return "Ud";
+         return "DU";
       if (res_name_in == "Cr")
-         return "Cd";
+         return "DC";
       if (res_name_in == "Ar")
-         return "Ad";
+         return "DA";
       if (res_name_in == "Gr")
-         return "Gd";
+         return "DG";
       if (res_name_in == "Tr")
-         return "Td";
+         return "DT";
       if (res_name_in == "Ur")
-         return "Ud";
+         return "DU";
    }
 
    return "";

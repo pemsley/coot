@@ -1,12 +1,281 @@
 
-## --- Big Ticket Items that are not listed here ---
-
- - RDKit
- - Ligand Builder
- - Validation Plots
- - Ramachandran Plot
-
 ----
+
+Coot: make the function get_number_of_molecules(), as an alias maybe.
+
+Coot: Add to Draw menu "Activate Scene Preset" Figure making or Model-building
+
+Coot: Ribbons mode needs to (an option?) to add ligands 6zxa.cif
+
+Coot: check that a Gaussian chain surface should be displayed before using it in the SSAO image.
+
+Coot: for sound, look at tw/cootsound.c
+
+libcootapi: what do we need to get flev working?
+
+libcootapi: in protein_geometry add a function something like
+   duplicate_dictionary_for_other_molecule(int idx_rest, int imol_other)
+   so that dictionaries assigned to a particular molecule can be used by other molecules (e.g. in dragged refinement).
+   The molecules_container api will be duplicate_dictionary_for_other_molecule(comp_id, imol_current, imol_other)
+
+libcootapi: when generating conformers, throw away the conformes that hamve many nbs (dont do minimization)
+
+libcootapi: move secondary structure header info int SSEs of residue (does this function exist already?)
+
+libcootapi: remove the sphere test when generating map contours.
+
+libcootapi: remove static things in the molecules_container
+
+libcootapi: make auto-fit-rotamer work without a map (if it doesn't already)
+
+libcootapi: hydrogen bonds to a residue?
+
+Coot: Save Coords is not working again.
+* It works OK, on mac, so I think that it's a GTK4 bug.
+
+Coot: "Close" button doesn't work in Restraints editor.
+
+Coot: look at the 2b0m flavin ligand interactions - diego where it looks like a hydrogen bond.
+
+Coot: (refinement) martin maly bug: transpose map by lsq superpose failed.
+
+Coot: what does electrostactics give us now?
+
+For next week: local resolution display in Moorhen
+
+"thread fill sections" - is debugging I think - get rid of it.
+
+libcootapi: set_user_defined_atom_colour_by_selection() should not be given a vector of pairs,
+  it should be a vector of triples (trivial class) { selection_string, colour_index, Cs-only-flag }
+
+libcootapi: what happens when the ligands dont't match?
+
+libcootapi: put gesamt into the build (build-it-3-3)
+
+libcootapi: change the SSM arg order to match ligand function: moving first.
+
+libcootapi: to release std::vector memory use std::swap on an empty vector, not mere assignment
+
+libcootapi: add function for delete by B-factor or plddt - limit goes both ways
+
+libcootapi: bring in transpose map by lsq superposition
+
+libcootapi: check the return type/value of match_torsion_and_postion()
+* Done. It's not clever.
+
+libcootapi: non-carbon rules should be per rule not per molecule
+
+libcootapi: environ distances are not symmetry aware - they should be. Q: are they in Coot?
+
+libcootapi: /Users/pemsley/Projects/Moorhen/checkout/coot-1.0/api/add-terminal-residue.cc:9:9: warning: 'HAVE_BOOST_BASED_THREAD_POOL_LIBRARY' macro redefined [-Wmacro-redefined]
+
+libcootapi: delete all the molecules that are closed at the end of the list (delete, not close)
+* Done.
+
+libcootapi: to release std::vector memory use std::swap on an empty map, not mere assignment
+* Done
+
+libcootapi: make minimize_energy() return a mesh, like std::pair<int, coot::instanced_mesh_t> refine(int imol, int n_cycles)
+ does. And the GSL return status.
+* Done
+
+libcootapi: nice to have position restraints for ligand+env minimization
+
+libcootapi: are backups being made by refine()?. If so, turn them off - maybe backup at start?
+
+libcootapi: pull bernhards repo for new ramas
+
+libcootapi: before Newcastle: torsion match ligand and ligand graph-based superposition
+ * Done - but needs more work
+
+libcootapi: the apply colour rules to non-carbon atoms need to happen on a per-colour-rule basis, not per molecule.
+  so that ligands can be set a different colour in Goodsel mode - and goodsel mode plays nicely with other colour rules.
+
+libcootapi fix the apply_user_defined_atom_colour_selections() so that it uses atoms, not residue selection.
+
+libcootapi: remove ligands and waters
+
+libcootapi: renumber residue range
+
+libcootapi: make an ensemble from a list of molecules
+
+M2T: /Users/runner/work/coot/coot/MoleculesToTriangles/CXXSurface/CXXSurface.cpp:356:5: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+/Users/runner/work/coot/coot/MoleculesToTriangles/CXXClasses/CompoundSelection.cpp:283:13: warning: 'sprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use snprintf(3) instead. [-Wdeprecated-declarations]
+  And others.
+* Done.
+
+look at every HIS in the PDB, look at the difference map - looking for hydroxy prolines
+
+findwaters: can the output file be mmcif? - Eugene
+
+findligands: can the output file be mmcif? - Eugene
+
+libcootapi: create_n_empty_molecules() so that molecules indexes match
+* Done.
+
+libcootapi: draw bonds from struct_conn info.
+
+mmdb: add SSBOND information into a struct_conn object - read and write.
+
+Add test data test-molecules-container 6gdg.cif emd_32143.map ATP.cif G37.cif 1phk-with-gap.pdb
+   moorhen-tutorial-structure-number-1-with-gap.pdb 203d.pdb.gz weird-orientation-tut-4.pdb
+* Done.
+
+Install the ui files from a relative directory, not relative to phackage_data_dir()
+Likewise the standard residues.
+# no need. Just setenv COOT_DATA_DIR
+
+Coot: edit_chi_angles_reverse_fragment_togglebutton is missing
+* Done.
+
+Coot: environment distances (when turned on) are shown when sliding (to the next water), but
+not when jumping.
+
+chapi: make overlap information available
+
+Coot: add a warning when trying to save a PDB file with a 5-char residue/ligand
+
+libcootapi: draw links from struct conn information in a mmdb::Manager.
+
+validate that the seqres record match the residue type. (Editing the seqres is another thing)
+
+chapi: test refine_residues_using_atom_cid() with "sphere" - for Paul Bond, this causes a crash.
+* Can't reproduce in test-molecules-container.cc
+
+libcootapi: can I make a nanobinding that returns a minmol residue, and another for atom?
+
+libcootapi: turn_off_backups(imol). This needs some infrastucture work. Add something like
+   really_do_make_backups_flag to coot::molecule_t - and that is set by the above function call.
+
+libcootapi: bus error on change_chain_id - reported by Filo, I think. Is on Moorhen Project board?
+
+libcootapi: add mini-rsr to the CMake build
+* Done
+
+libcootapi: fix the link problem from Andrey
+* Hopefully done.
+
+libcootapi: CMake should check for dw and elf
+
+moorhen: void atom in mmdb mmcif output.
+* Stuart saw the problem in mmdb - not acted on yet.
+
+moorhen: search monomer library for ARG with methyl (for example)
+* This presumes that the monomer library names are available.
+
+libcootapi: bring regularization to the api
+
+libcootapi: add a mc function to set_rotamer_tables_compressed_data()
+* Needed? Why not read a file, like read_ccp4_map() does?
+
+libcootapi: (?) bundle the reference structures into the source code.
+
+libcootapi: fix the oversized MG atoms in Goodsell mode 1ttt
+* Done.
+
+libcootapi: can set_user_defined_bond_colours be passed RGBA values?
+* Seems not. Why not though?
+
+libcootapi: add label_seq_id etc for the residue added in add_terminal_residue
+
+libcootapi: add refinement control parameters to molecules_container,
+       torsion weight, rama weight, gm weight and whatever others.
+
+libcootapi: how do I turn on Rama refinement?
+* Done.
+
+libcootapi: work out the arguments for MT2 mesh as glTF.
+* Done.
+
+libcootapi: add a function to copy a map (and a model molecule I guess) for figure making.
+
+libcootapi: replace_molecule_by_model_from_file() should be passed the use_gemmi argument.
+            and remove use_gemmi from the coot_molecule class.
+
+libcootapi: See Filo pull request and write a c++ test-molecules-container test for gltf.
+* Done.
+
+moorhen: SMILES: nitrobezene svg ligand rep - charge position size offset of the + and - neeeds
+  to be fixed.
+
+libcootapi:
+  get rid of #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY in add-terminal-residue.cc
+
+
+Coot:
+  WARNING:: Error reading /home/paule/Projects/coot/git/coot-main/build-with-modern-gtk4/src/emd_32143.map
+  Read map /home/paule/Projects/coot/git/coot-main/build-with-modern-gtk4/src/emd_32143.map failed
+
+Coot: why didn't Fetch Molecule/Drug "Kisqali" work?
+
+Coot: on a rainy day: remove the static GtkWidget *dialogs.
+
+Coot: check the spin speed in Edit Chi Angles on a trackpad.
+
+Coot: does single-model-view work?
+
+Coot: on ligand fitting, use conformers and get "no ligands selected" dialog
+
+Coot: Add "Scene Preset" -> Model Building, Figure Making. Test Perspective also
+
+Coot: colour-by-molecule has big atoms - why? Fix.
+
+Coot: Fitting ligands "Installing Ligand Conformers" dialog should be an overlay
+
+Coot: on fitting ligands, I get a dialog "WARNING:: No ligands were selected"
+
+Coot: Fix this in pyrogen Makefile:
+      SWIG_FLAGS = -DSWIG -DCOOT_USE_GTK2_INTERFACE
+      Is -DSWIG already on, because it's parsed by swig?
+* Done.
+
+Coot: set_colour_by_chain(0) has missing name space in 0-coot.state.py
+   "coot" is being added to display_strings, not active_strings?
+
+libcootapi: what are the headers? Including Remark records?
+
+libcootapi:
+   //! generate GM self restraints for the given residues.
+   //! `residue_cids" is a "||"-separated list of residues, e.g. "//A/12||//A/14||/B/56"
+   void generate_local_self_restraints(int imol, float local_dist_max,
+                                       const std::string &residue_cids);
+   Make this use "normal" multi-cids
+* Done, I think.
+
+moorhen: reading a map often the default (first) contour level is too low.
+e.g. the map of 8ox5. Lucrezia to investigate?
+
+moorhen SMILES: nitrobezene svg ligand rep - charge position size offset of the + and - neeeds
+  to be fixed.
+
+libcootapi:
+  get rid of #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY in add-terminal-residue.cc
+
+libcootapi: look at merging 7ZTVU (or whatever it was) into a cif file. Look at the output cif for
+   ligand: atom_site seq_id.
+   Merge a ligand with a long ligand name into a molecule from a PDB file, then try to refine the ligand.
+
+CMakefile/libcootapi: add findligands and findwaters to CMakeLists.txt - Charles
+
+findligands: try with 5-char ligand in 1cxq and write a cif. Eugene says that it fails. Does it?
+
+Nice to have: add a SSBOND to a PDB or cif and it does the check that the residues are there and adds the record.
+
+ligand figures from the chem_comp_atom_depiction_t
+* Semi done, need to work in the Coot part also.
+
+MMDB: Look at mmdb chain selection. Can you remove chain range?
+      chain-id range test: Look at assembly cif for examples of chain-range-like chain-ids.
+      Use one of them for an atom selection test.
+      Tweak ParseSelectionPath().
+
+libcootapi: dependencies clipper:
+   $ egrep ' -L=/' $prefix/lib/lib*.la
+   Needs fixing. Configuring and building clipper solo, the la files do not show this problem.
+   But they do from the build-it-3-3 script? (needs testing from fresh).
+
+libcootapi: #include <GL/gl.h> in CXXSurface/CXXVCN.h - remove it if you can.
+* I can. Done.
 
 libcootapi: return a double (ms) test_the_threading(int n_threads)
 * Done.
@@ -17,40 +286,54 @@ libcootapi: Have a look at this when compiling with emscripten
    #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 * Done.
 
+libcootapi: Bring HOLE to the api - and possibly map carving.
+
+libcootapi: cif parsing: let's have the acedrg version of gphl_chem_comp_info
+
 // This needs a look. When did I comment this out? And why?
 ligand/residue_by_phi_psi.hh:// #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 Can I use residue_by_phi_psi multi-threaded?
-
-libcootapi: look at merging 7ZTVU (or whatever it was) into a cif file. Look at the output cif for
-   ligand: atom_site seq_id.
-   Merge a ligand with a long ligand name into a moelcule from a PDB file, then try to refine the ligand.
 
 Moorhen: Ligand fitting return a triple of the cluster index, the ligand index and the molecule index.
          Ligand solutions have the same position + orientation with even without conformers!
 
 Moorhen: Set a flag for contouring timers. Add them, store the result, and use the flag to get the times.
          Does the contouring write any output? If so, remove it.
-
-MMDB: Look at mmdb chain selection. Can you remove chain range?
+* Done.
 
 Graphics: tap, tap tap, tap tap tap left-quote for residue, chain molecule.
+* Done.
 
 Graphics: pdb4nia
           coot.set_model_molecule_representation_style(0,1)
           Mg atoms are massive (too big)
+* Done.
+
+GUI: Open Coords dialog, Move molecule here doesn't work.
+
+GUI: add_alt_conf_py(0, "A", 1, "", "", 1) goes interactive. It should just add.
+
+GUI: Read in an mtz file (rnasa fails) and set this map is difference map - this gets ignored.
+* Done.
+
+GUI: Search Monomer Library dialog should be an overlay - Job for Jakub.
 
 GUI/Graphics bug:: why are there no labels for 7dy0.cif? Also, it seems very laggy.
 
 GUI/libcootapi: check that DNA is correctly mutate to DNA bases in the Mutate Residue Range gui (do non-gui
     fixes in coot-refinement). Use pdb6pww P chain.
+* Done.
 
 GUI: Mutate Residue Range GUI: Match counts doesn't work correctly
 
-GUI:: Validate -> Atom Overlaps doesn't work.
+GUI: Validate -> Atom Overlaps doesn't work.
+Yeah it does.
 
 GUI: Edit -> Settings -> Save current size and position doesn't work.
 
 GUI: save the state and look at the resulting state file. The functions need "coot." module name
+
+GUI: warn user if they have a PDB files and merge in a 5-char ligand. Likewise in Moorhen.
 
 Moorhen: Add a test for multi-threading. Normals of a Gaussian surface?
 
@@ -73,6 +356,11 @@ Bug: 7adk peptide omega plot "" chain is empty. Presumably a libcootapi problem.
 
 GUI: Look at the terminal output when using the Preferences dialog. Is it all needed?
 
+GUI: Difference map peaks are appeaing in the wrong asymmetric unit (it should be
+     around the protein, but it seems not).
+
+GUI: Zoom does not change on Playing Views.
+
 GUI: Symmetry by molecule: removed from UI. Buggy. Needs a fix.
 
 GUI: Does "Fetch PDB & Map using EDS" work with Updating maps?
@@ -93,8 +381,7 @@ GUI: easier way to set default b-factor: set_default_temperature_factor_from_med
 
 GUI: If python command fails, I want to somehow see that it failed.
 
-
-GUI:: Rotate/Translate <fragment> doesn't work.
+GUI: Rotate/Translate <fragment> doesn't work.
 
 GUI: see a validation graph (geometry) with one chain (e.g. A chain fragment from tutorial-modern).
      The residue labels were getting chopped in half.
@@ -112,8 +399,13 @@ GUI: copy fragment dialog doesn't make active the first molecule, but save coord
 
 GUI: Cryo-EM module: Add Toggle switch for auto-recontour map
 
+GUI: Add curmudgeon-mode ("Particles and Textures Off") in Preferences dialog.
+
 Graphics: Don't draw rama ball when intermediate atoms are from edit chi angles (and some
    others presumably).
+
+Graphics: Check that the Gaussian surface is being displayed before drawing it for the
+   SSAO frame-buffer.
 
 Graphics: Fast slide to new position on reading in a new molecule (there is a distance limit
    that means there's a jump - don't use that for read_pdb()).
@@ -136,12 +428,24 @@ Graphics: I'd like to be able to move through/select rotamers in moving-atoms mo
 Graphics/libcootapi: write a function to convert a simple mesh to a type-B instanced mesh with
           matrices from BIOMT records.
 
+Graphics/GUI: Martin: Does the Rotate/translate work around the centre of the fragment?
+
 Graphics: Bug: 7dy0 all-atom B-factor - the colour range goes too far (into purple)
 
 API: add rigid_body_fit_chain(imol, chain_id) to the moorhen and coot apis.
 
+Moorhen: gzip the rota and rama data that is part of moorhen.data (wait for Stuart)
+
+Moorhen: gzip the starting (protein) cif files that make up moorhen.data (wait for Stuart)
+
+Moorhen: Change chain ID
+
+Moorhen: Renumber residue range.
+
 Moorhen: what is the HB type of this atom?
 * Done.
+
+Moorhen: colour by conservation (bond/atoms). How about surface?
 
 Moorhen: Export dictionary as string
 * Done.
@@ -156,14 +460,26 @@ Moorhen: does get_bonds_mesh_instanced() take the vertical bar?
 
 Moorhen: Export input dictionary as string (needs to store result of file-to-string)
 
-Moorhen: Request: electrostatic surface. What happens when you put the chages
+Moorhen: Request: electrostatic surface. What happens when you put the charges
          on a Gaussian surface?
 
+Coot and libcootapi: add a function to delete atoms by cid and another to delete alt-confs.
+
+libcootapi: Add merge fragments (low priority)
+
 Libcootapi: Make the CMakefile install chapi
+* Done
 
 Libcootapi: Make the CMakefile install findwaters and findligands
+* Done.
 
 Libcootapi: add lib for gesamt
+
+Libcootapi: from ligands meeting: Note to self: pdb header information:
+        CAVEAT, from Gemmi to mmdb.
+
+libcootapi: bring conformer generation to the api. Do energy minimization and discard the
+     high energy conformers
 
 Fun: flattening difference map peaks animation:
         find peak and negative peaks in the
@@ -172,6 +488,10 @@ Fun: flattening difference map peaks animation:
         Make a moorhen function for these.
 
 Fun: Add pops.
+
+Science: Load JSG.cif from the RCSB and Get Monomer, run acedrg and load the the dictionary.
+     Some of the Hydrogen atoms get disconnected on regularization.
+     Why? (Note that the "Get Monomer" from the acedrg dictionary works OK - no flying Hydrogen atoms).
 
 Science: Get the Cryo-EM servalcat difference map working
 
@@ -196,26 +516,32 @@ Science: "One button" post-jiggle fit "black box morph refine"
    o Refine
    Tricky thing is to find interesting cases.
 
-Useful: Find some Cryo-EM ligand for demo at the ligands meeting.
-* I found a couple so far.
+Science/Useful: Calculate the RSR contact dots only for atoms with in ~12 A (say) of the
+   centre of the screen.
+
+Fix this in api/coot_molecule_maps.cc: Test N-threads in Moorhen:
+// 20221126-PE set this for now. When it is restored, jiggle_fit_multi_thread_func_1 and jiggle_fit_multi_thread_func_2
+// will need to be transfered.
+// It is set (not configured) in ideal/simple-restraint.hh
+#undef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 cif parser fail for 6eoj from the PDBe - display as CAs.
 * set_use_gemmi_as_model_parser_xxx(1) fixes it
 
-Moorhen: Request: electrostatic surface. Map electrstatic potention on to Gaussian surface.
-
-Make the CMakefile install chapi
+Moorhen: Request: electrostatic surface. Map electrostatic potention on to Gaussian surface.
 
 Reading cif file with --pdb ~/Desktop/ejd/thing.cif seems borked (no file in file browser)
 
 Cryo-EM -> Mask Map by Chain for 7vvl.
 
-Quick save as should save the shader settings
+GUI: Quick save as should save the shader settings
 
-Rigid-body refine the tutorial A chain. It used to display an intermediate atoms
+GUI: Rigid-body refine the tutorial A chain. It used to display an intermediate atoms
 representation. What happens now and is that what you want?
+I want to add a notification where the "Coot Points" currently is.
+If it moved then tell me previous fit score and current fit score.
 
-Fix the undo molecule chooser (have 2 molecules with edits)
+GUI: Fix the undo molecule chooser (have 2 molecules with edits)
 
 
 ---- older issues ---
@@ -248,11 +574,11 @@ Rob's problematic links
 
 startup with default map opacity.
 
-Jakub: sugar representation in RDKit and layla? (add it?)
+Jakub: sugar representation in RDKit and layla? (add it?) Tricky.
 
 Where is Make Link? ::: 1.5
 * Needs user-defined click click. Just do it in C++?
-* Not that Make Link via Acedrg also needs user-defined click click (or a rewrite).
+* Note that Make Link via Acedrg also needs user-defined click click (or a rewrite).
 
 Colour rules (like Moorhen) need to be added to the Coot API.
 
@@ -1259,3 +1585,26 @@ GUI: --auto moorhen-tutorial-4.mtz doesn't auto-read the Fobs colums, so the
 Martin Moncrieffe: distance and angles on Mac.
 * Done.
 
+libcootapi: estimate the molecule radius - using the distance between 1000 (say) random atom pairs.
+* Done.
+
+Is it a good idea for the wasm build from CCP4_WASM_BUILD/moorhen_build compiles test-molecules-container?
+How do I use it?
+* It might be a good idea, but it is not at all important.
+
+Key-binding for "display/undisplay all maps"
+* Done - sort of. Shift Q
+
+Key-binding for "toggle display of last model"
+* Done - Shift A.
+
+Key-binding for "Advance scroll-wheel-map to next map" (have I done this?)
+* Yes. Shift W
+
+moorhen: atom selection for Mg was grey, not green as it should be.
+Even with non-carbon colouring it failed. Using custom rule (from the "+" button)
+* Fixed.
+
+moorhen: does the map masking take a multi-cid for the atom selection?
+* It does not. Tested.
+* Fixed.

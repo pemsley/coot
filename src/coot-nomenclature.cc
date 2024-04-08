@@ -5,19 +5,19 @@
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 
@@ -143,7 +143,6 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 				 // 					<< " for restraint: " << irestr << " :" 
 				 // 					<<  chiral_restraint.atom_id_c_4c() << ":\n";
 
-#ifdef HAVE_GSL			      
 				 std::vector<std::pair<short int, coot::atom_spec_t> > c = 
 				    coot::is_inverted_chiral_atom_p(chiral_restraint, residue_p);
 				 for (unsigned int ibad=0; ibad<c.size(); ibad++) { 
@@ -192,7 +191,6 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 				       }
 				    }
 				 }
-#endif // HAVE_GSL			      
 			      }
 			   }
 			}
@@ -214,7 +212,6 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 							       " CG ", " CB ", " CD1", " CD2",
 							       volume_sign);
 			   
-#ifdef HAVE_GSL			
 			   std::vector<std::pair<short int, coot::atom_spec_t> > c = 
 			      coot::is_inverted_chiral_atom_p(synthetic_restraint,
 							      residue_p);
@@ -273,7 +270,6 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 				 }
 			      }
 			   }
-#endif // HAVE_GSL			
 			}
 		     }
 		  }

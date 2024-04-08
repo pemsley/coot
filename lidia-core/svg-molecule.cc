@@ -1,3 +1,28 @@
+/*
+ * lidia-core/svg-molecule.cc
+ *
+ * Copyright 2022 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ */
+
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
@@ -195,11 +220,6 @@ svg_bond_t::draw_double_in_ring_bond(const lig_build::pos_t &pos_1_in,
 
    s += make_bond_line_string(p1, p2, bond_colour);
 
-   if (dashed_inner) {
-      double dashlength = 0.015; // 0.01 is also fine
-      // cairo_set_dash(cr, &dashlength, 1, 0);
-      std::cout << "draw_double_in_ring_bond(): set dash inner here " << std::endl; // 20221130-PE 
-   }
    p1 = svg_molecule_t::mol_coords_to_svg_coords(p.first,  centre, scale);
    p2 = svg_molecule_t::mol_coords_to_svg_coords(p.second, centre, scale);
 
@@ -207,7 +227,11 @@ svg_bond_t::draw_double_in_ring_bond(const lig_build::pos_t &pos_1_in,
    // cairo_line_to(cr, p2.x, p2.y);
    // cairo_stroke(cr);
 
-   s += make_bond_line_string(p1, p2, bond_colour);
+   if (dashed_inner) {
+      s += make_dashed_bond_line_string(p1, p2, bond_colour);
+   } else {
+      s += make_bond_line_string(p1, p2, bond_colour);
+   }
 
    if (dashed_inner) {
       //cairo_set_dash(cr, NULL, 0, 0); // restore
@@ -366,6 +390,27 @@ svg_bond_t::make_bond_line_string(const lig_build::pos_t &p1, const lig_build::p
    return s;
 }
 
+std::string
+svg_bond_t::make_dashed_bond_line_string(const lig_build::pos_t &p1, const lig_build::pos_t &p2,
+                                         const std::string &bond_colour) const {
+
+   double sf = 400.0; // scale factor
+   std::string s;
+   s += "   <line x1=\"";
+   s += std::to_string(sf * p1.x);
+   s += "\" y1=\"";
+   s += std::to_string(sf * p1.y);
+   s += "\" x2=\"";
+   s += std::to_string(sf * p2.x);
+   s += "\" y2=\"";
+   s += std::to_string(sf * p2.y);
+   s += "\"";
+   s += " style=\"stroke:";
+   // s += "#202020";
+   s += bond_colour;
+   s += "; stroke-width:2; stroke-dasharray=\"10,10\"; fill:none; stroke-linecap:round;\" />\n";
+   return s;
+}
 
 std::string
 svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
@@ -714,9 +759,9 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
       // should these positions depend on the median_bond_length_?
 
       if (atom_id_info[i].text_pos_offset == lig_build::offset_text_t::UP)
-	 p.y -= 0.36 * scale * median_bond_length;
+	 p.y -= 0.4 * scale * median_bond_length; // was 0.36
       if (atom_id_info[i].text_pos_offset == lig_build::offset_text_t::DOWN)
-	 p.y += 0.36 * scale * median_bond_length;
+	 p.y += 0.4 * scale * median_bond_length; // was 0.36
 
       if (atom_id_info.size_hint == -1) {
 	 // cairo_set_font_size(cr, 0.44 * scale * 0.7 * median_bond_length);
@@ -763,7 +808,7 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
 	    // cairo_show_text(cr, txt.c_str());
 	    // cairo_stroke(cr);
 
-            // 20230215-PE upated
+            // 20230215-PE updated
             double x_fudge = -sf * 0.50 / 50.0;
             double y_fudge =  sf * 0.65 / 50.0;
 

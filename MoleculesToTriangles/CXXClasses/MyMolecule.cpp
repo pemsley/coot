@@ -1,10 +1,25 @@
 /*
- *  MyMolecule.cpp
- *  MMDBRibbons
+ * MoleculesToTriangles/CXXClasses/MyMolecule.cpp
  *
- *  Created by Martin Noble on 17/07/2008.
- *  Copyright 2008 LMB, Oxford University. All rights reserved.
+ * Copyright 2009 by Martin Noble, University of Oxford
+ * Author: Martin Noble
  *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
  */
 
 #include <string>
@@ -50,7 +65,7 @@ int MyMolecule::loadCoords( char *data, int length)
             int RC = mmdb->PutPDBString ( tokenBuffer );
         }
         else {
-            char formattedCard[256];
+            char formattedCard[256 + 7];
             if (!strncmp ("ATOM", tokenBuffer, 4)){
                 AtomCard atomCard;
                 
@@ -89,7 +104,7 @@ int MyMolecule::loadCoords( char *data, int length)
                 FormatPDBCard(atomCard, formattedCard, iDamminAtom++);
             }
             else {
-                sprintf(formattedCard, "REMARK %s", tokenBuffer);
+               snprintf(formattedCard, 256 + 7, "REMARK %s", tokenBuffer);
             }
             int RC = mmdb->PutPDBString ( formattedCard );
         }
@@ -143,14 +158,14 @@ int MyMolecule::FormatPDBCard (AtomCard theAtom, char *card,int count){
     char token[200];
     
     strcpy (card,"ATOM  ");
-    sprintf (token,"%5d ", count + 1);
+    snprintf(token, 198, "%5d ", count + 1);
     strcat (card, token);
     strcat (card, theAtom.atname);
     strcat (card, theAtom.alt);
     strcat (card, theAtom.restype);
     strcat (card, theAtom.chainid);
     strcat (card, theAtom.resname);
-    sprintf(token,"    %8.3f%8.3f%8.3f%6.2f%6.2f               ",
+    snprintf(token, 198, "    %8.3f%8.3f%8.3f%6.2f%6.2f               ",
             theAtom.crd.xyz[0], theAtom.crd.xyz[1], theAtom.crd.xyz[2],
             theAtom.properties[0], theAtom.properties[1]);
     strcat (card, token);

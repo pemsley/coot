@@ -118,10 +118,12 @@ public:
    void clear_up() {
       if (read_success)
          if (SelectionHandle)
-            mol->DeleteSelection(SelectionHandle);
+            if (mol)
+               mol->DeleteSelection(SelectionHandle);
       delete mol;
       atom_selection = 0;
       mol = 0;
+      read_success = 0;
    }
 
    //! Delete atom selection - do this before modifying the internal mol
@@ -129,6 +131,7 @@ public:
       mol->DeleteSelection(SelectionHandle);
       n_selected_atoms = 0;
       atom_selection = 0;
+      // SelectionHandle = -1;  crash on first test in test-moleculess-container
    }
 
    // sets UDDOldAtomIndexHandle
@@ -206,7 +209,11 @@ int fix_wrapped_names(atom_selection_container_t asc);
 namespace coot { 
    bool is_hydrogen(const std::string &ele);
    bool is_deuterium(const std::string &ele);
+
+   // return an estimate of the molecule diameter
+   float get_molecule_diameter(const atom_selection_container_t &asc);
 }
+
 
 void debug_atom_selection_container(atom_selection_container_t asc);
 

@@ -1,3 +1,28 @@
+/*
+ * src/graphics-info-intermediate.cc
+ *
+ * Copyright 2015 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
+ */
 
 #ifdef USE_PYTHON
 #include "Python.h"
@@ -13,14 +38,10 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
    int retprog = -1;
 
-#ifdef HAVE_GSL
-
    thread_for_refinement_loop_threaded();
 
    //    g.run_post_intermediate_atoms_moved_hook_maybe();  // put this somewhere else
    //   (after the refinement has finished.)
-
-#endif // HAVE_GSL
 
    return retprog;
 }

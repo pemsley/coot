@@ -1,0 +1,116 @@
+name: Coot CI Ubuntu
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-ubuntu:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: wget test data
+      run:  wget -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/greg-data.tar.gz
+
+    - name: Untar test data
+      run: cd src && tar xf ../greg-data.tar.gz && cd -
+
+    - name: cache test data
+      id: cache-coot-test-data
+      uses: actions/cache@v4
+      with:
+         path: src/greg-data
+         key:  coot-test-data
+
+    - name: Cache coot dependencies
+      id: cache-coot-dependencies
+      uses: actions/cache@v4
+      with:
+         path: /home/runner/install/coot-Linux-ubuntu-gtk4
+         key:  coot-deps-ubuntu
+
+    - name: Cache gemmi source
+      id:   Cache-gemmi-source
+      uses: actions/cache@v4
+      with:
+         path: gemmi
+         key:  coot-build-ubuntu-gemmi-cache-source
+
+    - name: Cache gemmi build
+      id:   Cache-gemmi-build
+      uses: actions/cache@v4
+      with:
+         path: build-gemmi
+         key:  coot-build-ubuntu-gemmi-cache-build
+
+    - name: Update apt-get
+      run:  sudo apt-get update
+
+    - name: Install system dependencies
+      run: sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev libvorbis-dev libasound2-dev
+
+    - name: Where are we?
+      run:  pwd
+
+    - name: Run build-with-build-it-3-3
+      run:  bash build-it-3-3 || echo done
+
+    - name: Run autogen.sh
+      run:  bash autogen.sh
+
+    - name: Set the PATH
+      # the install dir is set specifically in build-it-3-3 when we in github actions
+      run:  echo /home/runner/install/coot-Linux-ubuntu-gtk4/bin >> $GITHUB_PATH
+
+    - name: Run configure
+      # we echo done so that this returns a success status so that the logs are always uploaded
+      run: >
+        ./configure --prefix=/home/runner/install/coot-Linux-ubuntu-gtk4
+        --enable-silent-rules
+        --with-enhanced-ligand-tools
+        --with-fftw-prefix=/home/runner/install/coot-Linux-ubuntu-gtk4
+        --with-boost=/home/runner/install/coot-Linux-ubuntu-gtk4
+        --with-gemmi=/home/runner/install/coot-Linux-ubuntu-gtk4
+        --with-boost-libdir=/home/runner/install/coot-Linux-ubuntu-gtk4/lib
+        --with-backward --with-libdw --with-sound --disable-static
+        SHELL=/bin/bash
+        PYTHON=/home/runner/install/coot-Linux-ubuntu-gtk4/bin/python3
+        PKG_CONFIG_PATH=/home/runner/install/coot-Linux-ubuntu-gtk4/lib64/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/x86_64-linux-gnu/pkgconfig
+        || echo done
+
+    - name: Compile with make
+      run:  make -j 4 || echo done
+
+    - name: Install with make install
+      run:  make install || echo done
+
+    - name: Upload config.log
+      uses: actions/upload-artifact@v4
+      with:
+        name: upload-config-log-package
+        path: ./config.log
+        retention-days: 3
+
+    - name: Upload build logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-logs-public-html-package
+        path: /home/runner/public_html
+        retention-days: 3
+
+    - name: Does it run?
+      run:  cd src && ./coot-bin --no-graphics < /dev/null && cd -
+
+    - name: Run the Unit Python Tests
+      run:  cd src && ./coot-bin --no-graphics --script ../python-tests/run_the_unit_tests.py && cd -
+
+    - name: Upload binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: ubuntu-binaries-package
+        path: /home/runner/install
+        retention-days: 3
+

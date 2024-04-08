@@ -6,19 +6,19 @@
  * Copyright 2014, 2015, 2016 by Medical Research Council
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 /* svn $Id: c-interface.h 1458 2007-01-26 20:20:18Z emsley $ */
@@ -1302,15 +1302,15 @@ int export_map_fragment_to_plain_file(int imol, float x, float y, float z, float
    a colon-separated string of symmetry operators.
 */
 int transform_map_raw(int imol,
-		      double r00, double r01, double r02,
-		      double r10, double r11, double r12,
-		      double r20, double r21, double r22,
-		      double t0, double t1, double t2,
-		      double pt0, double pt1, double pt2,
-		      double box_half_size,
-		      const char *ref_space_group,
-		      double cell_a, double cell_b, double cell_c,
-		      double alpha, double beta, double gamma);
+                      double r00, double r01, double r02,
+                      double r10, double r11, double r12,
+                      double r20, double r21, double r22,
+                      double t0, double t1, double t2,
+                      double pt0, double pt1, double pt2,
+                      double box_half_size,
+                      const char *ref_space_group,
+                      double cell_a, double cell_b, double cell_c,
+                      double alpha, double beta, double gamma);
 
 
 /*! \brief make a difference map, taking map_scale * imap2 from imap1,
@@ -1345,6 +1345,13 @@ int average_map_scm(SCM map_number_and_scales);
   grid as the first (valid) map.  Return -1 on failure to make an
   averaged map, otherwise return the new map molecule number. */
 int average_map_py(PyObject *map_number_and_scales);
+
+/*! \brief Somewhat similar to the above function, except in this
+case we overwrite the imol_map and we also presume that the
+grid sampling of the contributing maps match. This makes it
+much faster to generate than an average map.
+*/
+void regen_map_py(int imol_map, PyObject *map_number_and_scales);
 #endif /* USE_PYTHON */
 #endif /* c++ */
 

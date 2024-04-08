@@ -4,19 +4,21 @@
 # Author: Paul Emsley
 # 
 # This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or (at
+# it under the terms of the GNU Lesser General Public License as published
+# by the Free Software Foundation; either version 3 of the License, or (at
 # your option) any later version.
 # 
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
+# Lesser General Public License for more details.
 # 
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA
+# You should have received a copies of the GNU General Public License and
+# the GNU Lesser General Public License along with this program; if not,
+# write to the Free Software Foundation, Inc., 51 Franklin Street,
+# Fifth Floor, Boston, MA, 02110-1301, USA.
+# See http://www.gnu.org/licenses/
+
 
 lib_LTLIBRARIES=libcoot-geometry.la
 
@@ -25,7 +27,9 @@ EXTRA_DIST = notes Makefile.simple
 pkginclude_HEADERS =  protein-geometry.hh read-sbase.hh lbg-graph.hh srs-interface.hh \
    dict-utils.hh dict-mismatches.hh energy-lib.hh match-results.hh hb-types.hh main-chain.hh \
    residue-and-atom-specs.hh chem_mods.hh mol-utils.hh mol-utils-2.hh bonded-quad.hh hydrophobic.hh \
-   metal-ligand.hh
+   metal-ligand.hh pdbe-chem-comp-atom-depiction.hh pdbx-chem-comp-description-generator.hh \
+   gphl-chem-comp-info.hh
+
 
 pkgincludedir = $(includedir)/coot/geometry
 
@@ -61,8 +65,7 @@ check_PROGRAMS = test-geometry test-read-components test-ccp4srs \
 	coot-make-shelx-restraints         \
 	coot-dictionary-bond-distributions
 
-bin_PROGRAMS = \
-	coot-available-comp-id
+# bin_PROGRAMS = coot-available-comp-id
 
 test_geometry_SOURCES = test-geometry.cc
 
@@ -95,9 +98,9 @@ coot_make_shelx_restraints_LDADD = ./libcoot-geometry.la \
         $(top_builddir)/utils/libcoot-utils.la           \
         $(CLIPPER_LIBS)
 
-coot_available_comp_id_SOURCES = available-comp-id.cc
+# coot_available_comp_id_SOURCES = available-comp-id.cc
 
-coot_available_comp_id_LDADD = ./libcoot-geometry.la \
-        $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-        $(top_builddir)/utils/libcoot-utils.la
+# coot_available_comp_id_LDADD = ./libcoot-geometry.la \
+#         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
+#         $(top_builddir)/utils/libcoot-utils.la
 

@@ -253,30 +253,7 @@ coot::match_restraints_to_amino_acids(const coot::dictionary_residue_restraints_
 
 void
 coot::test_ccp4srs_usage(const coot::dictionary_residue_restraints_t &restraints) {
-
-#ifdef HAVE_CCP4SRS
-   if (true) {
-
-      // don't do this bit for production - it's a test crash for the
-      // coot libs
-      
-      protein_geometry pg;
-      double local_search_similarity = 0.96;
-      int n_atoms = 10;
-      int status = pg.init_ccp4srs("nothing");
-      std::cout << "INFO:: CCP4SRS init status: " << status << std::endl;
-      if (status == ccp4srs::CCP4SRS_Ok) { 
-	 mmdb::math::Graph *graph = restraints.make_graph(true);
-	 if (! graph) {
-	    std::cout << "Null graph " << std::endl;
-	 } else { 
-	    std::vector<coot::match_results_t> v =
-	       pg.compare_vs_ccp4srs(graph, local_search_similarity, n_atoms, -1, -1, false);
-	    std::cout << "got " << v.size() << " SRS matches " << std::endl;
-	 } 
-      }
-   }
-#endif // HAVE_CCP4SRS
+   // nope
 } 
 
 

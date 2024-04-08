@@ -1,3 +1,28 @@
+/*
+ * src/setup-gui-components.cc
+ *
+ * Copyright 2022 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
+ */
 #include <map>
 #include <gtk/gtk.h>
 #include "graphics-info.h"
@@ -19,6 +44,34 @@ inline GMenu* menu_from_builder(const std::string& m_name) {
    GMenu *m = G_MENU(graphics_info_t::get_gobject_from_builder(m_name));
    return m;
 }
+
+// button (both of them, I suppose).
+void
+add_typed_menu_to_mutate_menubutton(const std::string &action_type, const std::string &residue_type) {
+
+   // should I (do I need to) remove the menu model that is already attachedk to the menu button?
+
+   if (action_type == "AUTOFIT") {
+      GtkWidget *mutate_menubutton = widget_from_builder("mutate_and_autofit_menubutton");
+      if (residue_type == "PROTEIN") {
+         GMenuModel *mutate_menu = menu_model_from_builder("mutate-protein-menu");
+         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
+      }
+   }
+
+   if (action_type == "SIMPLE") {
+      GtkWidget *mutate_menubutton = widget_from_builder("simple_mutate_menubutton");
+      if (residue_type == "PROTEIN") {
+         GMenuModel *mutate_menu = menu_model_from_builder("mutate-protein-menu");
+         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
+      }
+      if (residue_type == "NUCLEIC-ACID") {
+         GMenuModel *mutate_menu = menu_model_from_builder("mutate-nucleic-acid-menu");
+         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
+      }
+   }
+}
+
 
 void setup_menubuttons() {
 
@@ -47,28 +100,7 @@ void setup_menubuttons() {
    GMenuModel *rigid_body_menu = menu_model_from_builder("rigid-body-fit-menu");
    gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(rigid_body_button), rigid_body_menu);
 
-   // button (both of them, I suppose).
-   auto add_typed_menu_to_mutate_menubutton = [] (const std::string &residue_type) {
-      if (residue_type == "PROTEIN") {
-         GtkWidget *mutate_menubutton = widget_from_builder("simple_mutate_menubutton");
-         GMenuModel *mutate_menu = menu_model_from_builder("mutate-protein-menu");
-         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
-
-         mutate_menubutton = widget_from_builder("mutate_and_autofit_menubutton");
-         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
-      }
-      if (residue_type == "NUCLEIC-ACID") {
-         GtkWidget *mutate_menubutton = widget_from_builder("simple_mutate_menubutton");
-         GMenuModel *mutate_menu = menu_model_from_builder("mutate-nucleic-acid-menu");
-         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
-
-         mutate_menubutton = widget_from_builder("mutate_and_autofit_menubutton");
-         gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(mutate_menubutton), mutate_menu);
-      }
-   };
-
-
-   add_typed_menu_to_mutate_menubutton("PROTEIN");
+   add_typed_menu_to_mutate_menubutton("AUTOFIT", "PROTEIN");
 }
 
 void setup_mutate_residue_range_dialog() {

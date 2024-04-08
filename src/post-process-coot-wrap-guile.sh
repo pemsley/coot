@@ -1,5 +1,4 @@
 
-
 if [ -z "$BASH_VERSINFO" ] ; then
     echo wrong shell
     exit 1

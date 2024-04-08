@@ -6,19 +6,19 @@
  * Copyright 2014, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 #include <string.h>
@@ -879,7 +879,9 @@ coot::protein_geometry::get_monomer_torsions_from_geometry(const std::string &mo
       } else {
 	 // we don't want torsions that move Hydrogens
 	 int nt = dict_res_restraints[ii].second.torsion_restraint.size();
-	 for (int it=0; it<nt; it++) { 
+	 for (int it=0; it<nt; it++) {
+            // std::cout << "testing for hydrogen: this \"" << dict_res_restraints[ii].second << "\" and this \""
+            //           << dict_res_restraints[ii].second << std::endl;
 	    if (!dict_res_restraints[ii].second.is_hydrogen(dict_res_restraints[ii].second.torsion_restraint[it].atom_id_1())) {
 	       if (!dict_res_restraints[ii].second.is_hydrogen(dict_res_restraints[ii].second.torsion_restraint[it].atom_id_4())) {
 		  filtered_torsion_restraints.push_back(dict_res_restraints[ii].second.torsion_restraint[it]);
@@ -1209,7 +1211,7 @@ coot::protein_geometry::have_dictionary_for_residue_type_no_dynamic_add(const st
       }
    }
    return ifound;
-} 
+}
 
 
 bool
@@ -1227,6 +1229,32 @@ coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std:
    }
    return have_all;
 }
+
+// Return false if there are no bond restraints
+bool
+coot::protein_geometry::have_restraints_dictionary_for_residue_types(const std::vector<std::string> &residue_types,
+                                                                     int imol_enc,
+                                                                     int read_number) {
+
+   bool have_all = true;
+   for (unsigned int i=0; i<residue_types.size(); i++) {
+      const std::string &rt = residue_types[i];
+      int idx = get_monomer_restraints_index(rt, imol_enc, false);
+      if (idx != -1) {
+         const coot::dictionary_residue_restraints_t &restraints = dict_res_restraints[idx].second;
+         if (restraints.bond_restraint.empty()) {
+            have_all = false;
+            break;
+         }
+      } else {
+         have_all = false;
+         break;
+      }
+      read_number++;
+   }
+   return have_all;
+}
+
 
 // this is const because there is no dynamic add
 //
@@ -1320,13 +1348,17 @@ coot::protein_geometry::atoms_match_dictionary(mmdb::Residue *residue_p,
 	    for (unsigned int irestraint_atom_name=0; irestraint_atom_name<restraints.atom_info.size(); irestraint_atom_name++) {
 	       if (restraints.atom_info[irestraint_atom_name].atom_id_4c == residue_atom_name) {
 		  found = 1;
+        atom_name_vec.push_back(residue_atom_name);
+
 		  break;
 	       }
 	    }
 	 }
 	 if (! found) {
 	    if (residue_atom_name != " OXT") {
+         if (debug) std::cout << "here d" << std::endl;
                if (std::find(atom_name_vec.begin(), atom_name_vec.end(), residue_atom_name) == atom_name_vec.end()) {
+                  if (debug) std::cout << "here e" << std::endl;
                   atom_name_vec.push_back(residue_atom_name);
                }
                status = false;
@@ -2158,14 +2190,15 @@ coot::protein_geometry::get_group(mmdb::Residue *r) const {
 std::string
 coot::protein_geometry::get_group(const std::string &res_name_in) const {
    
-   bool found = 0;
+   bool found = false;
    std::string group;
    std::string res_name = res_name_in;
    if (res_name.length() > 3)
       res_name = res_name.substr(0,2);
-   for (unsigned int i=0; i<size(); i++) {
+   unsigned int s = size(); // fails if the protein_geometry pointer was not valid
+   for (unsigned int i=0; i<s; i++) {
       if (three_letter_code(i) == res_name) {
-	 found = 1;
+	 found = true;
 	 group = (*this)[i].second.residue_info.group;
 	 break;
       }
@@ -2173,7 +2206,7 @@ coot::protein_geometry::get_group(const std::string &res_name_in) const {
 
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) { 
       if (dict_res_restraints[i].second.residue_info.comp_id == res_name) {
-	 found = 1;
+	 found = true;
 	 group = dict_res_restraints[i].second.residue_info.group;
 	 break;
       }
@@ -2277,11 +2310,14 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
    if (r) {
       for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
          const dictionary_residue_restraints_t &rest = dict_res_restraints[i].second;
-	 if (rest.residue_info.comp_id == comp_id) {
-	    residue_p = rest.GetResidue(idealised_flag, b_factor);
-            // debug_residue(residue_p);
-	    break;
-	 }
+         if (rest.residue_info.comp_id == comp_id) {
+            int imol_for_dict = dict_res_restraints[i].first;
+            if (imol_for_dict == imol_enc) {
+               residue_p = rest.GetResidue(idealised_flag, b_factor);
+               // debug_residue(residue_p);
+               break;
+            }
+         }
       }
    }
    return residue_p;

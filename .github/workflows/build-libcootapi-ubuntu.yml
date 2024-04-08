@@ -1,0 +1,107 @@
+name: libcootapi CI Ubuntu
+
+on:
+  push:
+
+jobs:
+
+  build-libcootapi-for-ubuntu:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Cache chapi dependencies
+        id:   Cache-chapi-dependencies-using-python-3-10
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/install/chapi-Linux-ubuntu-gtk4
+          key:  chapi-deps-ubuntu-using-python-3-10
+
+      - name: download the monomer library
+        run:  wget -nv https://github.com/MonomerLibrary/monomers/archive/refs/tags/ccp4-8.0.016.tar.gz
+
+      # note that the data directory exists in the coot repo (which is where we are)
+      - name: untar the monomer library
+        run:  pwd && cd data && tar xf ../ccp4-8.0.016.tar.gz && ln -s monomers-ccp4-8.0.016 monomers
+
+      - name: Cache test data tar
+        id: test-data-cache
+        uses: actions/cache@v4
+        with:
+          path: test-molecule-container-test-data-20240316.tar.gz
+          key: ubuntu-test-data-cache
+
+      - name: download test data
+        # run:  wget -N -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
+        run: if [ $(wget --spider -S https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data-20240316.tar.gz |& awk '/^Length/ { print $2 }') != $(wc -c test-molecule-container-test-data-20240316.tar.gz |& awk '{print $1}') ] ; then if [ -e test-molecule-container-test-data-20240316.tar.gz ] ; then rm test-molecule-container-test-data-20240316.tar.gz ; fi && wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data-20240316.tar.gz ; fi
+
+      - name: untar test data
+        run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data-20240316.tar.gz
+
+      - name: Cache gemmi build
+        id:   Cache-gemmi-build
+        uses: actions/cache@v4
+        with:
+          path: build-gemmi
+          key:  chapi-build-ubuntu-gemmi-cache-build
+
+      - name: Update apt-get
+        run:  sudo apt-get update
+
+      - name: Install system dependencies
+        # run:  sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev
+        run:  sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev
+
+      - name: Where are we?
+        run:  pwd
+
+      - name: Run build-with-build-it-3-3
+        env:
+          CHAPI_ONLY: true
+        run:  bash build-it-3-3 || echo done
+
+      - name: create-build-directory-for-libcootapi
+        run:  mkdir build-libcootapi
+
+      - name: set the path
+        run:  echo /home/runner/install/chapi-Linux-ubuntu-gtk4/bin >> $GITHUB_PATH
+
+      - name: run cmake
+        run: >
+            cd build-libcootapi &&
+            cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu-gtk4
+            -Dnanobind_DIR=/home/runner/install/chapi-Linux-ubuntu-gtk4/lib/python3.10/site-packages/nanobind/cmake ..
+
+      - name: make
+        run:  cd build-libcootapi && make -j 4
+
+      - name: make install
+        run:  cd build-libcootapi && make install
+
+      - name: test with chapi-using script
+        run:  which python3 && cat python-tests/test_chapi2.py && python3 python-tests/test_chapi2.py
+
+      - name: where are we?
+        run:  pwd && ls -lt
+
+      - name: make test-molecules-container
+        run:  cd build-libcootapi && make test-molecules-container
+
+      - name: run the test-molecules-container test
+        # this needs the monomer library
+        env:
+          MOORHEN_TEST_DATA_DIR: ../test-data
+          COOT_REFMAC_LIB_DIR: /home/runner/work/coot/coot # "data/monomers" is added before "a/ATP.cif" (say)
+        # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
+        run:  cd build-libcootapi && ./test-molecules-container
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-libcootapi-chapi-binaries-package
+          path: /home/runner/install
+          retention-days: 3
+

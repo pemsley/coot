@@ -312,9 +312,16 @@ namespace coot {
       clipper::Xmap<float>
       average_map(const std::vector<std::pair<clipper::Xmap<float>, float> > &maps_and_scales_vec);
 
+
       // like above, but variance
       clipper::Xmap<float> variance_map(const std::vector<std::pair<clipper::Xmap<float>, float> > &maps_and_scales_vec);
 
+      // Similar to average_map() but modify the map, don't return a new one
+      // Also this function presumes that the maps have the same gridding (which makes it faster)
+      //
+      void
+      regen_weighted_map(clipper::Xmap<float> *xmap_in,
+                         const std::vector<std::pair<clipper::Xmap<float> *, float> > &maps_and_scales_vec);
 
       // Spin the torsioned atom round the rotatable bond and find the
       // orientation (in degrees) from the current position that is in

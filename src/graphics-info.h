@@ -9,19 +9,19 @@
  * Author: Paul Emsley
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 // -*-c++-*-
@@ -81,6 +81,7 @@
 #include "db-main/db-main.hh"
 #include "build/CalphaBuild.hh"
 #include "ideal/simple-restraint.hh"
+#include "coot-utils/positron.hh"
 
 // #ifdef DO_GEOMETRY_GRAPHS
 // #include "test-validation"
@@ -670,13 +671,13 @@ class graphics_info_t {
    static short int state_language; // a bit-tested variable, 1 = scheme,
                                     // 2 = python, 3 = both.
 
-   std::string state_command(const std::string &str,                 short int state_lang) const;
-   std::string state_command(const std::string &str, int i,          short int state_lang) const;
-   std::string state_command(const std::string &str, int i1, int i2, short int state_lang) const;
+   std::string state_command(const std::string &name_space, const std::string &str,                 short int state_lang) const;
+   std::string state_command(const std::string &name_space, const std::string &str, int i,          short int state_lang) const;
+   std::string state_command(const std::string &name_space, const std::string &str, int i1, int i2, short int state_lang) const;
    std::string state_command(const std::string &str, float f,        short int state_lang) const;
    std::string state_command(const std::string &str, float f,        short int state_lang, short unsigned int v) const;
-   std::string state_command(const std::string &str, float f1, float f2, float f3, short int state_lang) const;
-   std::string state_command(const std::string &str, const std::string &str2, short int state_lang);
+   std::string state_command(const std::string &name_space, const std::string &str, float f1, float f2, float f3, short int state_lang) const;
+   std::string state_command(const std::string &name_space, const std::string &str, const std::string &str2, short int state_lang);
 
    // baton stuff
    static coot::Cartesian baton_root;
@@ -753,7 +754,7 @@ class graphics_info_t {
    static void    add_moving_atoms_dragged_atom_index(int idx);
    // make unset_moving_atoms_currently_dragged_atom_index() public
 
-#ifdef HAVE_GSL
+
    static coot::restraints_container_t *last_restraints;
    // the mode flag is public:
    // 20220504-PE so that I can check for cleared/removed non-bonded contact baddies
@@ -768,7 +769,6 @@ class graphics_info_t {
 			     coot::restraint_usage_Flags flags,
 			     bool use_map_flag,
 			     const clipper::Xmap<float> *xmap_p);
-#endif // HAVE_GSL
 
    // which uses the following...
 #ifdef USE_GUILE
@@ -986,6 +986,8 @@ public:
 
    static bool do_expose_swap_buffers_flag;
 
+   static std::vector<coot::positron_metadata_t> positron_metadata;
+
 #ifdef USE_GUILE
    static bool scm_boot_guile_booted; // false until my_wrap_scm_boot_guile() has been run
 #endif
@@ -1024,6 +1026,8 @@ public:
    // sometimes (when we have 100s of molecules, we don't want to redraw when a molecule
    // is displayed or undisplayed)
    static bool mol_displayed_toggle_do_redraw; // normally true
+
+   static void toggle_display_of_last_model();
 
    static bool is_valid_model_molecule(int imol) {
 
@@ -1680,6 +1684,9 @@ public:
    static gint drag_refine_idle_function(GtkWidget *widget);
    static void add_drag_refine_idle_function();
    static void remove_drag_refine_idle_function();
+
+   static std::vector<std::chrono::time_point<std::chrono::high_resolution_clock> > leftquote_press_times;
+   int get_n_pressed_for_leftquote_tap(std::chrono::time_point<std::chrono::high_resolution_clock> tp);
 
    static int drag_refine_refine_intermediate_atoms();
 
@@ -2552,7 +2559,7 @@ public:
    // dialog and the dialog will get sent :next rotamer:, :previous
    // rotamer: signals.
 
-   static GtkWidget *rotamer_dialog;
+   // static GtkWidget *rotamer_dialog; // 20240304-PE goodbye, these days, look it up.
 
    // And also for the difference map peaks dialog, which people want
    // to scroll through using . and ,
@@ -3454,7 +3461,10 @@ public:
 
    static std::vector<meshed_particle_container_t> meshed_particles_for_gone_diegos;
    static void setup_draw_for_particles_for_new_gone_diegos(const std::vector<glm::vec3> &positions);
-   static void setup_draw_for_particles_for_gone_diegos(); // unused atm
+   // static void setup_draw_for_particles_for_gone_diegos(); // unused atm
+
+   static meshed_particle_container_t meshed_particles_for_gone_diff_map_peaks;
+   static void setup_draw_for_particles_for_gone_diff_map_peaks(const std::vector<std::pair<glm::vec3, float> > &positions);
 
    static bool draw_bad_nbc_atom_pair_markers_flag; // user can turn them off
    static void setup_draw_for_bad_nbc_atom_pair_markers();
@@ -3528,7 +3538,7 @@ public:
    static short int have_fixed_points_sheared_drag_flag;
    void set_fixed_points_for_sheared_drag();
    void do_post_drag_refinement_maybe();
-#ifdef  HAVE_GSL
+
    int last_restraints_size() const {
       // It's OK to call this when there are no restraints - e.g. we move by rotate/translate
       // rather than during a refinement.
@@ -3538,7 +3548,7 @@ public:
        return last_restraints->size();
      }
    }
-#endif // HAVE_GSL
+
    static int dragged_refinement_steps_per_frame;
    static short int dragged_refinement_refine_per_frame_flag;
    static bool refinement_move_atoms_with_zero_occupancy_flag;
@@ -4182,10 +4192,8 @@ public:
    // -- PHENIX support
    static std::string external_refinement_program_button_label;
 
-#ifdef HAVE_GSL
    // ---- pseudo bond for sec str restraints
    static coot::pseudo_restraint_bond_type pseudo_bonds_type;
-#endif // HAVE_GSL
 
 
    // ---- a debugging thing for user to give me feedback
@@ -4757,6 +4765,8 @@ string   static std::string sessionid;
 
    int blob_under_pointer_to_screen_centre();
 
+   void display_next_map(); // one at a time, all, none.
+
    // make this private when the glarea render function is moved into graphics_info_t
    //
    static molecule_class_info_t moving_atoms_molecule; // used as a container for glsl variables. public access
@@ -4936,7 +4946,7 @@ string   static std::string sessionid;
    void clear_hud_buttons(); // called by clear_up_moving_atoms_wrapper();
 
    static Mesh mesh_for_outline_of_active_residue;
-   void update_mesh_for_outline_of_active_residue(int imol, const coot::atom_spec_t &spec);
+   void update_mesh_for_outline_of_active_residue(int imol, const coot::atom_spec_t &spec, int n_press);
    static unsigned int outline_for_active_residue_frame_count;
 
    // Mesh mesh_for_particles("mesh-for-particles");
@@ -5012,6 +5022,7 @@ string   static std::string sessionid;
    static bool do_tick_outline_for_active_residue;
    static bool do_tick_constant_draw;
    static bool do_tick_gone_diegos;
+   static bool do_tick_gone_diff_map_peaks;
 
    static void fullscreen();
    static void unfullscreen();
@@ -5099,7 +5110,7 @@ string   static std::string sessionid;
    static GLuint screen_AO_quad_vertex_array_id;
    static GLuint screen_AO_quad_VBO;
 
-   static unsigned int shadow_texture_multiplier; 
+   static unsigned int shadow_texture_multiplier;
    static unsigned int shadow_texture_width;  //  = 4 * 1024; // too big?      // derived from the above (n x 1024)
    static unsigned int shadow_texture_height; //  = 4 * 1024;
    void set_shadow_texture_resolution_multiplier(unsigned int m) {
@@ -5301,6 +5312,7 @@ string   static std::string sessionid;
    static float gaussian_surface_fft_b_factor;
    static short int gaussian_surface_chain_colour_mode;
 
+   static bool curmudgeon_mode; // default false, particles and faces
    static bool use_sounds; // default true
 
    // add a pumpkin as a graphics object and draw it.

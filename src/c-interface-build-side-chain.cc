@@ -9,19 +9,19 @@
  * Copyright 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 #ifdef USE_PYTHON
@@ -743,8 +743,7 @@ int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t r(chain_id, res_no, ins_code);
-      istate = graphics_info_t::molecules[imol].mutate_base(r, res_type,
-							    g.convert_to_v2_atom_names_flag);
+      istate = g.molecules[imol].mutate_base(r, res_type, g.convert_to_v2_atom_names_flag);
       graphics_draw();
    }
    std::string cmd = "mutate-base";

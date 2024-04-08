@@ -4,19 +4,19 @@
  * Copyright 2015
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 #if !defined _MSC_VER
@@ -82,6 +82,8 @@ print_help(std::string cmd) {
              << "[--kleywegt (to make kleywegt, autoamtically for multiple selections, chains)]\n"
              << "[--edit (edit mode, currently debug only)]\n"
              << "[--psiaxis (change psi axis to -120 to 240)]\n"
+             << "[--levelpreferred levelin] (default: " << coot::rama_plot::default_level_prefered << ")\n"
+             << "[--levelallowed levelin] (default: " << coot::rama_plot::default_level_allowed << ")\n"
              << "[--help (this help)]\n"
              << "\n";
    std::cout << "     where pdbin is the protein and pdbin2 a second one for a Kleywegt plot.\n";
@@ -106,10 +108,14 @@ main(int argc, char *argv[]) {
    int is_kleywegt_plot_flag = 0;
    int psi_axis_option = coot::rama_plot::PSI_CLASSIC;
    float block_size = 2;
+//   float level_prefered = 0.02;
+   float level_prefered = coot::rama_plot::default_level_prefered;
+   float level_allowed = coot::rama_plot::default_level_allowed;
+   float gamma = 0;
    bool do_help = false;
    bool print_bg = false;
 
-   const char *optstr = "i:s:j:t:c:d:e:b:kphx";
+   const char *optstr = "i:s:j:t:c:d:e:b:l:m:g:kphx";
    struct option long_options[] = {
    {"pdbin", 1, 0, 0},
    {"selection", 1, 0, 0},
@@ -119,6 +125,8 @@ main(int argc, char *argv[]) {
    {"chain2", 1, 0, 0},
    {"edit", 1, 0, 0},   // BL Note:: maybe there should be an edit selection
    {"blocksize", 1, 0, 0},
+   {"levelpreferred", 1, 0, 0},
+   {"levelallowed", 1, 0, 0},
    {"kleywegt", 0, 0, 0},
    {"psiaxis", 0, 0, 0},
    {"help", 0, 0, 0},
@@ -168,6 +176,14 @@ main(int argc, char *argv[]) {
             }
             if (arg_str == "blocksize") {
                block_size = coot::util::string_to_float(coot_optarg);
+               n_used_args += 2;
+            }
+            if (arg_str == "levelpreferred") {
+               level_prefered = coot::util::string_to_float(coot_optarg);
+               n_used_args += 2;
+            }
+            if (arg_str == "levelallowed") {
+               level_allowed = coot::util::string_to_float(coot_optarg);
                n_used_args += 2;
             }
          } else {
@@ -233,6 +249,16 @@ main(int argc, char *argv[]) {
          n_used_args += 2;
          break;
 
+      case 'l':
+         level_prefered = coot::util::string_to_float(coot_optarg);
+         n_used_args += 2;
+         break;
+
+      case 'm':
+         level_allowed = coot::util::string_to_float(coot_optarg);
+         n_used_args += 2;
+         break;
+
       case 'k':
          is_kleywegt_plot_flag = 1;
          n_used_args++;
@@ -249,12 +275,19 @@ main(int argc, char *argv[]) {
          do_help = true;
          break;
 
+      // Secret options
       // This is used to make background images
       case 'x':
+         std::cout << "Making bg images... " << std::endl;
          print_help(argv[0]);
          n_used_args++;
          print_bg = true;
          do_help = false;
+         break;
+
+      case 'g':
+         gamma = coot::util::string_to_float(coot_optarg);
+         n_used_args += 2;
          break;
 
       case '?':
@@ -294,8 +327,6 @@ main(int argc, char *argv[]) {
 
       gtk_init (&argc, &argv);
 
-      float level_prefered = 0.02;
-      float level_allowed = 0.002;
       int imol = 0; // dummy for now
       int imol2 = 0;
 
@@ -420,6 +451,9 @@ main(int argc, char *argv[]) {
          }
 
          rama->set_stand_alone();
+         if (gamma) {
+            rama->set_gamma_correction(gamma);
+         }
          rama->init(imol,
                     pdb_file_name,
                     level_prefered,
@@ -471,6 +505,7 @@ main(int argc, char *argv[]) {
 
             if (rama) {
                if (print_bg) {
+                  std::cout<<"BL INFO:: now make bg images with levels " << level_prefered << " " << level_allowed << " and block " << block_size << std::endl;
                   rama->make_bg_images();
                }
             }
@@ -488,8 +523,6 @@ main(int argc, char *argv[]) {
 
       gtk_init(&argc, &argv);
    }
-
-   std::cout << "BL DBEUG:: returning now n_used_args" << n_used_args <<std::endl;
 
    return 0;
 

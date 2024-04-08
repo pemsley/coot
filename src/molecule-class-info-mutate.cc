@@ -6,19 +6,19 @@
  * Copyright 2013, 2014 by Medical Research Council
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 #ifdef USE_PYTHON
@@ -140,7 +140,7 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
                 << std::endl;
 
    // get the standard orientation residue for this residue type
-   mmdb::PPResidue     SelResidue;
+   mmdb::PPResidue SelResidue;
    int nSelResidues;
 
    if (g.standard_residues_asc.n_selected_atoms == 0) {
@@ -157,8 +157,11 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
       }
    }
 
+   // std::cout << "--------------------- searching for type " << residue_type << " in standard residues mol "
+   // << g.standard_residues_asc.mol << std::endl;
+
    int selHnd = g.standard_residues_asc.mol->NewSelection(); // deleted at end.
-   g.standard_residues_asc.mol->Select ( selHnd,mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
+   g.standard_residues_asc.mol->Select (selHnd,mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 					 "*", // Chain(s) it's "A" in this case.
 					 mmdb::ANY_RES,"*",  // starting res
 					 mmdb::ANY_RES,"*",  // ending res
@@ -167,14 +170,18 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
 					 "*",  // Residue must contain this Element?
 					 "*",  // altLocs
 					 mmdb::SKEY_NEW // selection key
-					 );
+                                        );
 
    g.standard_residues_asc.mol->GetSelIndex ( selHnd, SelResidue,nSelResidues );
 
    if (nSelResidues != 1) {
+
       std::cout << "ERROR:: This should never happen - ";
-      std::cout << "badness in mutate standard residue selection\n";
+      std::cout << "badness in mci:mutate() standard residue selection\n";
+
    } else {
+
+      // get_ori_to_this_res() is for orienting a peptide based on the main-chain atoms.
 
       std::map<std::string, clipper::RTop_orth> rtops =
          coot::util::get_ori_to_this_res(res); // the passed res.
@@ -189,7 +196,7 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
          // (usually, just one of course).
          std::map<std::string, clipper::RTop_orth>::const_iterator it;
 
-         for (it=rtops.begin(); it!=rtops.end(); it++) {
+         for (it=rtops.begin(); it!=rtops.end(); ++it) {
             bool whole_res = true;
             bool embed_in_new_chain = false; // I think
             mmdb::Residue *std_residue = coot::deep_copy_this_residue_old_style(SelResidue[0], "", whole_res,
@@ -1088,46 +1095,41 @@ molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::st
 
    int istat=0;
 
+   bool this_residue_is_DNA = false;
+   std::string this_residue_res_name = get_residue_name(res_spec);
+   if (this_residue_res_name == "DA" || this_residue_res_name == "DG" ||
+       this_residue_res_name == "DC" || this_residue_res_name == "DT" ||
+       this_residue_res_name == "D3" || this_residue_res_name == "DI" ||
+       this_residue_res_name == "DN" || this_residue_res_name == "DU")
+      this_residue_is_DNA = true;
+
    // refmac_nuc_type is the type of the residue that we extract from
    // the standard residues molecule.
    //
    std::string refmac_nuc_type = type;
    // we match the requested residue type to the residue type that is
    // in the standard residues file.
-   if (use_old_style_naming) {
-      if (refmac_nuc_type.length() == 1) {
-	 if (refmac_nuc_type == "A")
-	    refmac_nuc_type = "Ad";
-	 if (refmac_nuc_type == "G")
-	    refmac_nuc_type = "Gr";
-	 if (refmac_nuc_type == "C")
-	    refmac_nuc_type = "Cd";
-	 if (refmac_nuc_type == "T")
-	    refmac_nuc_type = "Td";
-	 if (refmac_nuc_type == "U")
-	    refmac_nuc_type = "Ur";
-      }
-   } else {
+
+   {
       // modern names input, need to convert to old name to
       // extract.
-      if (type == "A")
-	 refmac_nuc_type = "Ar";
-      if (type == "G")
-	 refmac_nuc_type = "Gr";
-      if (type == "T")
-	 refmac_nuc_type = "Tr";
-      if (type == "U")
-	 refmac_nuc_type = "Ur";
-      if (type == "C")
-	 refmac_nuc_type = "Cr";
-      if (type == "DA")
-	 refmac_nuc_type = "Ad";
-      if (type == "DG")
-	 refmac_nuc_type = "Gd";
-      if (type == "DT")
-	 refmac_nuc_type = "Td";
-      if (type == "DC")
-	 refmac_nuc_type = "Cd";
+      if (this_residue_is_DNA) {
+         if (type == "A") refmac_nuc_type = "DA";
+         if (type == "G") refmac_nuc_type = "DG";
+         if (type == "T") refmac_nuc_type = "DT";
+         if (type == "U") refmac_nuc_type = "DU";
+         if (type == "C") refmac_nuc_type = "DC";
+      } else {
+         if (type == "A") refmac_nuc_type = "A";
+         if (type == "G") refmac_nuc_type = "G";
+         if (type == "T") refmac_nuc_type = "T";
+         if (type == "U") refmac_nuc_type = "U";
+         if (type == "C") refmac_nuc_type = "C";
+      }
+      if (type == "DA")	 refmac_nuc_type = "DA";
+      if (type == "DG")	 refmac_nuc_type = "DG";
+      if (type == "DT")	 refmac_nuc_type = "TD";
+      if (type == "DC")	 refmac_nuc_type = "DC";
    }
 
    if (atom_sel.n_selected_atoms > 0) {
@@ -1157,13 +1159,12 @@ molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::st
 
 			      // Found the residue (nucleotide in this case):
 
-			      mmdb::Residue *std_base =
-				 get_standard_residue_instance(refmac_nuc_type);
+			      mmdb::Residue *std_base = get_standard_residue_instance(refmac_nuc_type);
 			      if (std_base) {
 				 mutate_base_internal(residue_p, std_base, use_old_style_naming);
 				 istat = 1;
 			      } else {
-				 std::cout << "Oops - can't find standard residue for type "
+				 std::cout << "WARNING:: Oops - can't find standard residue for type "
 					   << type << std::endl;
 			      }
 			   }
@@ -1185,6 +1186,7 @@ molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::st
       atom_sel = make_asc(atom_sel.mol);
       make_bonds_type_checked();
    }
+   std::cout << "--------------------------------- done mutate_base() --------------------------" << std::endl;
    return istat;
 }
 
@@ -1520,6 +1522,8 @@ molecule_class_info_t::apply_sequence(int imol_map, mmdb::Manager *poly_ala_mol,
 				      int resno_offset,
 				      const coot::protein_geometry &pg) {
 
+   std::cout << "--------------------------------- apply_sequence() --------------------------" << std::endl;
+
    int istat = 0;
    short int have_changes = 0;
    std::vector<coot::residue_spec_t> r_del;
@@ -1563,7 +1567,7 @@ molecule_class_info_t::apply_sequence(int imol_map, mmdb::Manager *poly_ala_mol,
 	    std::string res_type = coot::util:: single_letter_to_3_letter_code(best_seq[ichar]);
 	    if (res_type != "") {
 	       have_changes = 1;
-	       std::cout << "Mutating to " << res_type << " at " << ichar << std::endl;
+	       std::cout << "Mutating to type " << res_type << " at " << ichar << std::endl;
 	       mmdb::Residue *std_res = get_standard_residue_instance(res_type);
 	       if (std_res) {
 		  // Get res in poly_ala_mol

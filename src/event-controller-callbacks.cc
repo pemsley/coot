@@ -1,3 +1,31 @@
+/*
+ * src/event-controller-callbacks.cc
+ *
+ * Copyright 2022 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
+ */
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp> // for to_string()
 
 #include "event-controller-callbacks.hh"
 #include "graphics-info.h"
@@ -367,7 +395,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
          bool handled = check_if_refinement_dialog_arrow_tab_was_clicked();
 
          GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
-         std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
+         // std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
          if (modifier == 8) { // "option" key on Mac (ALT on PC is 24)
             bool intermediate_atoms_only_flag = false;
             pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
@@ -379,7 +407,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
          } else { // not "option" modifier
 
             GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
-            std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
+            // std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
 
             if (modifier == 17) { // shift
 
@@ -783,6 +811,11 @@ graphics_info_t::on_glarea_motion(G_GNUC_UNUSED GtkEventControllerMotion* contro
 void
 graphics_info_t::change_model_molecule_representation_mode(int up_or_down) {
 
+   auto debug_line = [] (const std::string &m) {
+      if (false)
+         std::cout << m << std::endl;
+   };
+
    // enum { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
    //        COLOUR_BY_CHAIN_BONDS=3,
    //        CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
@@ -861,54 +894,66 @@ graphics_info_t::change_model_molecule_representation_mode(int up_or_down) {
       if (up_or_down == -1) {
          if (bond_type == coot::NORMAL_BONDS) {
             // graphics_to_colour_by_chain(imol);
+            debug_line("A");
             bool force_rebonding = false;
             molecules[imol].make_colour_by_chain_bonds(force_rebonding);
          }
          if (bond_type == coot::COLOUR_BY_CHAIN_BONDS) {
             // graphics_to_colour_by_molecule(imol);
             bool force_rebonding = false;
+            debug_line("B");
             molecules[imol].make_colour_by_molecule_bonds(force_rebonding);
          }
          if (bond_type == coot::COLOUR_BY_MOLECULE_BONDS) {
             // graphics_to_ca_representation(imol);
             bool force_rebonding = false;
+            debug_line("C");
             molecules[imol].ca_representation(force_rebonding);
          }
          if (bond_type == coot::CA_BONDS) {
             // graphics_to_ca_plus_ligands_representation(imol);
+            debug_line("D");
             bool force_rebonding = false;
             molecules[imol].ca_plus_ligands_representation(Geom_p(), force_rebonding);
          }
          if (bond_type == coot::CA_BONDS_PLUS_LIGANDS) {
             // graphics_to_ca_plus_ligands_sec_struct_representation(imol);
+            debug_line("E");
             molecules[imol].ca_plus_ligands_sec_struct_representation(Geom_p());
          }
          if (bond_type == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR) {
             // graphics_to_rainbow_representation(imol);
+            debug_line("F");
             molecules[imol].ca_plus_ligands_rainbow_representation(Geom_p());
          }
          if (bond_type == coot::COLOUR_BY_RAINBOW_BONDS) {
             // graphics_to_sec_struct_bonds_representation(imol);
+            debug_line("G");
             molecules[imol].bonds_sec_struct_representation();
          }
          if (bond_type == coot::BONDS_SEC_STRUCT_COLOUR) {
             // graphics_to_bonds_no_waters_representation(imol);
+            debug_line("H");
             molecules[imol].bonds_no_waters_representation();
          }
          if (bond_type == coot::BONDS_NO_WATERS) {
             //graphics_to_b_factor_cas_representation(imol);
+            debug_line("I");
             molecules[imol].b_factor_representation_as_cas();
          }
          if (bond_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
             // graphics_to_b_factor_representation(imol);
+            debug_line("J");
             molecules[imol].b_factor_representation();
          }
          if (bond_type == coot::COLOUR_BY_B_FACTOR_BONDS) {
             // graphics_to_occupancy_representation(imol);
+            debug_line("K");
             molecules[imol].occupancy_representation();
          }
          if (bond_type == coot::COLOUR_BY_OCCUPANCY_BONDS) {
             // graphics_to_bonds_representation(imol);
+            debug_line("L");
             bool force_rebonding = false;
             molecules[imol].bond_representation(Geom_p(), force_rebonding);
          }

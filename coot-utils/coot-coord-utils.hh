@@ -1044,6 +1044,9 @@ namespace coot {
       mmdb::Manager *create_mmdbmanager_from_residue_specs(const std::vector<residue_spec_t> &r1,
 							  mmdb::Manager *mol);
 
+      // split a NRM model into multiple models all with MODEL 1. 
+      std::vector<mmdb::Manager *> split_multi_model_molecule(mmdb::Manager *mol);
+
       void add_copy_of_atom(mmdb::Manager *mol, mmdb::Atom *atom);
 
       // Important for bonding in refinement.

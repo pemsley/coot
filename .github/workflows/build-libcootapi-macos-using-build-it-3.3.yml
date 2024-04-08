@@ -1,0 +1,164 @@
+name: libcootapi CI build-it-3-3 macOS
+
+on:
+  push:
+
+jobs:
+
+  build-libcootapi-for-macos-build-it-3-3-based:
+
+    runs-on: macos-latest
+
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: cache macos autobuild-sources
+      id: cache-macos-autobuild-sources
+      uses: actions/cache@v4
+      with:
+         path: /Users/runner/autobuild/building/sources
+         key:  macos-files-in-autobuild-sources
+
+    # we need gfortran for numpy. Homebrew is the way to install gfortran
+    - name: Setup homebrew
+      id:   setup-homebrew
+      uses: Homebrew/actions/setup-homebrew@master
+
+    - name: turn on brew analytics
+      run:  brew analytics on
+
+    - name: Install gfortran
+      run:  brew install gfortran
+
+    # does this install gfortran then?
+    # - name: brew reinstall gcc
+    #   run:  brew reinstall gcc
+    # no, it doesn't - it fails on some Python error and breask the build.
+    # Annoying.
+
+    - uses: actions/checkout@v4
+
+    - name: cache macos install-dir
+      id: cache-macos-install-dir
+      uses: actions/cache@v4
+      with:
+         path: /Users/runner/install
+         key:  macos-files-in-install-dir
+
+    - name: download the monomer library
+      run:  wget -nv https://github.com/MonomerLibrary/monomers/archive/refs/tags/ccp4-8.0.016.tar.gz
+
+    # note that the data directory exists in the coot repo (which is where we are)
+    - name: untar the monomer library
+      run:  pwd && cd data && tar xf ../ccp4-8.0.016.tar.gz && ln -s monomers-ccp4-8.0.016 monomers
+
+    - name: Cache test data tar
+      id: macos-libcootapi-test-data-cache
+      uses: actions/cache@v4
+      with:
+        path: test-molecule-container-test-data.tar.gz
+        key: macos-libcootapi-test-data-cache
+
+    - name: download test data
+      run:  wget -N -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
+
+    - name: untar test data
+      run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data.tar.gz
+
+    - name: Cache macos gemmi source
+      id:   Cache-libcootapi-macos-gemmi-source
+      uses: actions/cache@v4
+      with:
+        path: gemmi
+        key:  build-macos-libcootapi-build-it-3-3-based-gemmi-cache-source
+
+    - name: Cache macos gemmi build
+      id:   Cache-libcootapi-macos-gemmi-build
+      uses: actions/cache@v4
+      with:
+        path: build-gemmi
+        key:  build-macos-libcootapi-build-it-3-3-based-gemmi-cache-build
+
+    # Home on macOS is /Users/runner, we start in /Users/runner/work/coot/coot
+    - name: where are we?
+      run: pwd
+
+    # without a cache, these fail
+    #  - name: what includes have been built/cached || true
+    #    run:  ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/include
+
+    #  - name: what libs have been built/cached || true
+    #    run:  ls -l /Users/runner/install/chapi-Darwin-macos-gtk4/lib
+
+    - name: run build-it-3-3 in chapi mode
+      env:
+        CHAPI_ONLY: true
+      run: bash build-it-3-3
+
+    - name: Upload build logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-logs-public-html-package
+        path: /Users/runner/public_html
+        retention-days: 3
+
+    - name: create-build-directory-for-libcootapi
+      run:  mkdir build-libcootapi
+
+    - name: patch out CCP4-package in CMakeLists.txt
+      run:  sed -i.backup -e 's/find_package.CCP4/#&/' CMakeLists.txt
+
+    # CHAPI_ONLY installs Python version 3.10
+    # don't use RDKit ATM:
+    # -DRDKit_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/cmake/rdkit
+    - name: run cmake
+      run: >
+           cd build-libcootapi &&
+           cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
+           -DGEMMI_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/cmake/gemmi
+           -DSSM_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include
+           -DCLIPPER-CORE_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libclipper-core.dylib
+           -DCLIPPER-MMDB_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libclipper-mmdb.dylib
+           -DCLIPPER-CCP4_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libclipper-ccp4.dylib
+           -DCLIPPER-CONTRIB_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libclipper-contrib.dylib
+           -DCLIPPER-MINIMOL_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libclipper-minimol.dylib
+           -DCLIPPER-CIF_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libclipper-cif.dylib
+           -DCLIPPER-CORE_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include
+           -DCLIPPER-MMDB_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include
+           -DCLIPPER-CCP4_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include
+           -DFFTW2_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libfftw.dylib
+           -DRFFTW2_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/librfftw.dylib
+           -DMMDB2_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libmmdb2.dylib
+           -DMMDB2_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include
+           -DSSM_LIBRARY=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/libssm.dylib
+           -DPython_EXECUTABLE=/Users/runner/install/chapi-Darwin-macos-gtk4/bin/python3.10
+           -DPython_INCLUDE_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/include/python3.10
+           -Dnanobind_DIR=/Users/runner/install/chapi-Darwin-macos-gtk4/lib/python3.10/site-packages/nanobind/cmake ..
+
+    - name: Upload CMakeCache.txt
+      uses: actions/upload-artifact@v4
+      with:
+        name: cmake-cache-package
+        path: /Users/runner/work/coot/coot/build-libcootapi
+        retention-days: 3
+
+    - name: make
+      run:  cd build-libcootapi && make -j 4
+
+    - name: make install
+      run:  cd build-libcootapi && make install
+
+    - name: run the test-molecules-container test
+      # this needs the monomer library
+      env:
+          MOORHEN_TEST_DATA_DIR: ../test-data
+          COOT_REFMAC_LIB_DIR: /Users/runner/work/coot/coot # "data/monomers" is added before "a/ATP.cif" (say)
+      run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
+
+    - name: Upload binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-build-it-3-3-libcootapi-chapi-binaries-package
+        path: /Users/runner/install
+        retention-days: 3

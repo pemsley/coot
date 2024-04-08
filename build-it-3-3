@@ -6,7 +6,8 @@
 # Copyright 2009, 2010, 2011, 2012 by The University of York
 # Copyright 2012 by Paul Emsley
 # Copyright 2012, 2013, 2014, 2015, 2016 by Medical Reserch Council
-# Copyright 2014, 2015, 2016 by Medical Research Council
+# Copyright 2014, 2015, 2016, 2017, 2018 by Medical Reserch Council
+# Copyright 2019, 2020, 2021, 2022, 2023, 2024 by Medical Research Council
 # Author: Paul Emsley
 #
 # This program is free software; you can redistribute it and/or modify
@@ -397,15 +398,24 @@
 # 6.08 20220803-PE pygobject cleanups
 # 6.09 20220907-PE meson adjustment for compiling glib (what a pain)
 # 6.10 20230603-PE remove goocanvas
-# 6.11 20241113-PE print out the script_version
-script_version=6.10
+# 6.11 20231113-PE print out the script_version
+# 6.12 20240105-PE link $HOME/data/greg-data for the testing step
+# 6.13 20240216-PE Install Darwin OpenSSL in $install_top_dir
+# 6.14 20240220-PE Set the C++ flags for Catch2 (needed for macOS/clang) and build with CMake
+# 6.15 20240220-PE OpenSSL and python apiflags and boost bjam updates
+# 6.16 20240228-PE Add status of FFTW building
+# 6.17 20240229-PE Portentious day. Adding in gettext for libintl for python and rdkit
+# 6.18 20240304-PE Remove the --pydebug from Python's configuration
+# 6.19 20240306-PE Don't build gettext on anything other than Darwin
+# 6.20 20240326-PE Add cairo
+# 6.21 20240327-PE Reposition the cairo build (after ninja)
+script_version=6.21
 
 
 
 echo ==================================================== add test for SWIG version
 echo ==================================================== add test for CMake version
 echo this is script version $script_version
-echo this is script version $script_version >&2
 
 
 # :: NOTE::
@@ -460,6 +470,20 @@ run_second_test=${run_second_test:=true}
 #
 AUTOBUILD_INSTALLED=${AUTOBUILD_INSTALLED:=${HOME}/autobuild/${OS}-${HOST}}
 
+if test x$GITHUB_ENV = x ; then
+    : # we are not in a hithub actions build
+else
+    if [ "$CHAPI_ONLY" = true ] ; then
+        if [ $OS = Darwin ]  ; then
+            AUTOBUILD_INSTALLED=$HOME/install/chapi-Darwin-macos
+        else
+            AUTOBUILD_INSTALLED=$HOME/install/chapi-Linux-ubuntu
+        fi
+    else
+        AUTOBUILD_INSTALLED=$HOME/install/coot-Linux-ubuntu
+    fi
+fi
+
 # or perhaps, for the adventurous:
 #AUTOBUILD_INSTALLED=$CCP4_MASTER
 
@@ -495,24 +519,31 @@ build_coot_prerelease=${build_coot_prerelease:=1}
 # Suggested value: comment out this line
 specs=${specs:=$HOME/autobuild/build-scripts/${HOST}-specials}
 
+# if we are not in chapi mode, we ask
 # where has gtk been installed if this is Mac OS?
-if test "$OS" = "Darwin" ; then
-   if test -n "$gtk" ; then
-      if test -d "$gtk" ; then
-         : # pass, good
+# (this was from when gtk3 could be installed on macOS).
+# I should add /usr/local of course these days
+if test "$CHAPI_ONLY" = true ; then
+    :
+else
+   if test "$OS" = "Darwin" ; then
+      if test -n "$gtk" ; then
+         if test -d "$gtk" ; then
+            : # pass, good
+         else
+            echo gtk variable must point to the directory where gtk has been installed
+         fi
       else
-         echo gtk variable must point to the directory where gtk has been installed
-      fi
-   else
-      # gtk was not set, let's try to guess
-      testdir=$HOME/gtk/inst
-      if test -d $testdir ; then
-         gtk=$HOME/gtk/inst
-      else
-         echo this build script needs to know where gtk has been installed
-         echo \(at the moment\)
-         echo set gtk to point to the directory where gtk has been installed
-         exit 2
+         # gtk was not set, let's try to guess
+         testdir=$HOME/gtk/inst
+         if test -d $testdir ; then
+            gtk=$HOME/gtk/inst
+         else
+            echo this build script needs to know where gtk has been installed
+            echo \(at the moment\)
+            echo set gtk to point to the directory where gtk has been installed
+            exit 2
+         fi
       fi
    fi
 fi
@@ -764,7 +795,7 @@ function my_exit {
    exit_arg=$1
    shift
    extra_args=$*
-   echo fail-build $extra_args > $LOGS/$build-status
+   # echo fail-build $extra_args > $LOGS/$build-status
    if [ -e $LOGS/$test-status ] ; then
       rm $LOGS/$test-status
    fi
@@ -812,9 +843,16 @@ if test "$run_tests" = true ; then
 
    # the greg tests are where the coot source code was untarred.
    #
+   # if it's not there, then let's link it.
    if [ ! -d greg-tests ] ; then
       echo greg-tests dir missing in this directory:
       pwd
+      echo trying to link
+      if [ -d ~/data/greg-data ] ; then
+          ln -s ~/data/greg-data .
+      else
+          echo $HOME/data/greg-data data files are not in place
+      fi
       return 1
    fi
 
@@ -937,20 +975,25 @@ if test "$build_coot_prerelease" = 1 ; then
 else
    PATH=$AUTOBUILD_INSTALLED-$build_type/bin:$PATH
 fi
+   
 PATH=$PATH:/usr/local/bin:/usr/sbin:/usr/bsd:/sbin:/usr/bin:/bin:
 PATH=$PATH:/etc:/usr/etc
 #
-export PATH
-echo PATH is now: $PATH
-echo AUTOBUILD_BUILD is $AUTOBUILD_BUILD
 
 # This is where the sources downloaded from network go:
 AUTOBUILD_SOURCES=${AUTOBUILD_BUILD}/sources
-echo AUTOBUILD_SOURCES is $AUTOBUILD_SOURCES
 if (! test -d ${AUTOBUILD_SOURCES}) ; then
    mkdir -p ${AUTOBUILD_SOURCES}
 fi
 
+export PATH
+echo PATH is now: $PATH
+echo LOGS is $LOGS
+echo AUTOBUILD_SOURCES is $AUTOBUILD_SOURCES
+echo AUTOBUILD_BUILD is $AUTOBUILD_BUILD
+echo AUTOBUILD_INSTALLED is $AUTOBUILD_INSTALLED
+echo GITHUB_ENV $GITHUB_ENV
+echo GITHUB_WORKSPACE $GITHUB_WORKSPACE
 
 # now make the build logs directory
 mkdir -p $LOGS
@@ -970,14 +1013,14 @@ if test "$OS" = "Darwin" ; then
    update_config_guess_sub=1
    shared_static_flag="--disable-static"
    shared_lib_ext=dylib
-   need_readline_patch=1
+   # what happens if I do this?
+   # need_readline_patch=1
    # uname -a gives processor type in last field on Darwin
    processor=$(uname -a | awk '{print $(NF)}')
    need_gtk_imlib_libtool_fix=1
    if test "$processor" = "i386" ; then
       need_glib_getpwuid_fix=1
       need_glib_poll_fix=1
-      need_gtk_canvas_patch=1
    fi
    osversion=$(sw_vers -productVersion)
    systype=MacOSX-${osversion}-${processor}
@@ -1152,7 +1195,6 @@ case $dist_name in
        gfortran
        autoconf
        automake
-       libglfw3-dev
        libssl-dev
        libblas-dev
        liblapack-dev
@@ -1220,18 +1262,19 @@ case $dist_name in
 
 esac
 
-
+# 20240305 too noisy
 # give us some diagnostic shell information:
 # (what extra things did $specs give us?)
 #
-if [ "$use_proxy" = 1 ] ; then
-    echo no diagnostic variables, we are using a proxy.
-else
-    set
-fi
+# if [ "$use_proxy" = 1 ] ; then
+#  echo no diagnostic variables, we are using a proxy.
+# else
+#  set
+# fi
 
 # On 64 bit redhat 4, we (might) need to add X11 to the path for freeglut configure.
 #
+echo \n\n ============================================ start ============================
 echo INFO:: MACHTYPE is $MACHTYPE
 echo INFO:: systype is $systype
 if [ "$systype" = x86_64-rhel-4 ] ; then
@@ -1420,7 +1463,7 @@ if make --version ; then
       fi
    fi
    if [ $OS = Darwin ] ; then
-      np=$(system_profiler SPHardwareDataType | awk '/Total Number/ { print $NF }')
+      np=$(system_profiler SPHardwareDataType | awk '/Total Number/ { print $5 }')
       MAKE="make -j$np"
    fi
 else
@@ -1560,10 +1603,11 @@ which wget
 # an old version) and libhogweed refers to a (now) non-existant
 # functions and the dynamic loading fails.
 # This setting of the alias fails.  It works on the command line.
+# -nv is means not-verbose (but not quiet)
 # WGET="LD_LIBRARY_PATH=/usr/lib wget -N -P ${AUTOBUILD_SOURCES}"
 # WGETO="LD_LIBRARY_PATH=/usr/lib wget   -P ${AUTOBUILD_SOURCES}"
-WGET="wget -N -P ${AUTOBUILD_SOURCES}"
-WGETO="wget   -P ${AUTOBUILD_SOURCES}"
+WGET="wget -nv -N -P ${AUTOBUILD_SOURCES}"
+WGETO="wget -nv  -P ${AUTOBUILD_SOURCES}"
 
 # latest version (without .tar.gz extension)
 coot_version=$fallback_coot_version
@@ -1848,19 +1892,6 @@ else
    build_freetype2=1
 fi
 
-# building PyGObject 3.36.1 requires glib 2.58.0 or later.
-# 2022-23-17-PE gobject-introspection-1.68 needs glib 2.58 or later
-
-needed_glib_version=2.58
-if pkg-config --atleast-version=$needed_glib_version glib ; then
-   # have glib
-   echo glib is up to date
-   build_glib=
-else
-   echo glib is not up to date, rebuild glib - maybe.
-   build_glib=true
-fi
-
 
 # we need to export this for net-http, because it doesn't set
 # variables from configure, we rely on a shell (environment) variable.
@@ -1957,8 +1988,8 @@ echo ccp4_system_type $ccp4_system_type
 
 
 # clean up old test status:
-echo build-in-progress @`date +"%a_%d_%b_%H:%M"` > $LOGS/build-status
-echo waiting > $LOGS/test-status
+# echo build-in-progress @`date +"%a_%d_%b_%H:%M"` > $LOGS/build-status
+# echo waiting > $LOGS/test-status
 
 
 
@@ -1989,7 +2020,6 @@ build_gsl=0
 build_python=
 build_pygobject=
 build_guile_gtk=
-build_glib=
 # build_readline=
 build_curl=
 build_libidn=
@@ -2060,8 +2090,7 @@ if [ "$gtk_pkg_config_status" = 0 ] ; then
 fi
 
 
-echo libtool test: looking for  ${install_top_dir}/include/ltdl.h
-ls  ${install_top_dir}/include/ltdl.h
+echo libtool test: looking for ${install_top_dir}/include/ltdl.h
 if test -e ${install_top_dir}/include/ltdl.h ; then
     echo installation has libtool
     build_libtool=
@@ -2078,6 +2107,18 @@ fi
 python_version=python3.11
 pver=3.11.4
 python_version_extension=3.11 # extract this
+# I think that for python to be compatible with Blender, we don't want the debug version
+# python_abiflags=d # because we use --with-pydebug on the command line for Python configure
+python_version_squish=311
+
+# for Blender 4 in 2024, we want Python 3.10.13, so uncomment the 3 lines below:
+if [ "$CHAPI_ONLY" = true ] ; then
+    python_version=python3.10
+    pver=3.10.13
+    python_version_extension=3.10
+    python_version_squish=310
+fi
+
 
 
 # for compatibility with gtk build system
@@ -2090,13 +2131,13 @@ if [ "$use_python_version_3_8" = true ] ;then
 fi
 
 
-#
+# 20240203-PE I don't want version 3.8.
 # but more modern pythons do not compile (at least on my mac)
 # 20201225-PE this needs checking
-if [ $OS = Darwin ] ; then
-   pver=3.6.5
-   pver=3.8.12
-fi
+# if [ $OS = Darwin ] ; then
+#    pver=3.6.5
+#    pver=3.8.12
+# fi
 
 
 # set build_pygobject here
@@ -2111,35 +2152,35 @@ fi
 # but does this compile cleanly on Mac OS X?  I've forgotten.
 # Perhaps we will need to be more clever and potentially use
 # the fink GSL if it is available.
-$install_top_dir/bin/gsl-config --prefix
-if test $? != 0 ; then
-   echo gsl should be built
-   build_gsl=1
+# 20240302-PE "fink"? Blimey.
+if test -e $install_top_dir/bin/gsl-config ; then
+    $install_top_dir/bin/gsl-config --prefix
+    if test $? != 0 ; then
+       echo gsl should be built
+       build_gsl=1
+    else
+        gsl_version=`gsl-config --version`
+
+        # if you change this, change also gsl_version below.
+        needed_gsl_version=1.11
+        needed_gsl_version=1.12
+        needed_gsl_version=1.15
+        needed_gsl_version=1.16
+        needed_gsl_version=2.7
+
+        if [ -e $install_top_dir/include/gsl/gsl_version.h ] ; then
+            build_gsl=
+        fi
+
+        echo installation has the GSL version $gsl_version
+        if [ "$build_gsl" = 1 ] ; then
+             echo need to build GSL
+        else
+             echo GSL is up to date
+        fi
+    fi
 else
-   gsl_version=`gsl-config --version`
-
-   # if you change this, change also gsl_version below.
-   needed_gsl_version=1.11
-   needed_gsl_version=1.12
-   needed_gsl_version=1.15
-   needed_gsl_version=1.16
-   needed_gsl_version=2.7
-
-   # tmp value.  This uses awk.  It need not do.
-   # You can do the comparison with test.
-   build_gsl=`awk -v A=$gsl_version -v N=$needed_gsl_version 'BEGIN{x = ((A+0) != (N+0)) ; print x}'`
-
-   echo system/installation has the GSL version $gsl_version
-   echo build_gsl is $build_gsl
-
-   if [ $build_gsl = 1 ] ; then
-	echo need to build GSL
-        build_gsl=1
-   else
-	echo GSL is up to date
-	# set build_gsl to blank:
-	build_gsl=
-   fi
+    build_gsl=1
 fi
 
 
@@ -2269,6 +2310,7 @@ if test -n "$build_ccp4c" ; then
     # ${WGET} $extras_place/libccp4-6.4.0.tar.gz
     # ${WGET} ftp://ftp.ccp4.ac.uk/opensource/libccp4-$libccp4_version.tar.gz
     ${WGET} $extras_place/libccp4-$libccp4_version.tar.gz
+    echo BUILDING libccp4 $libccp4_version >&2
     (
     date
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4-$libccp4_version.tar.gz | tar xf -
@@ -2278,10 +2320,12 @@ if test -n "$build_ccp4c" ; then
           $MAKE install
        fi
     fi
-    ) >  $HOSTLOGDIR/01-libccp4.txt 2>&1
+    ) > $HOSTLOGDIR/01-libccp4.txt 2>&1
+    echo done libccp4 $libccp4_version >&2
 else
     echo not building libccp4:
 fi
+
 #
 # mmdb
 #
@@ -2313,69 +2357,72 @@ mmdb_version=2.0.16
 mmdb_version=2.0.19
 mmdb_version=2.0.20
 mmdb_version=2.0.22
-# mmdb_server_dir=ftp://ftp.ccp4.ac.uk/opensource
-mmdb_server_dir=$extras_place
-echo ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
-${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
-
-(
-date
-gzip -dc ${AUTOBUILD_SOURCES}/mmdb2-$mmdb_version.tar.gz | tar xf -
-echo gzip -dc ${AUTOBUILD_SOURCES}/mmdb2-$mmdb_version.tar.gz
-cd  mmdb2-$mmdb_version
-pwd
-# patch to read long lines in a cif file
-# 20091110 this patch is not available, above says that it is badly formed.
-#   Needs fixing.
-# add the following 2 touches because centos 4.6 jackal gives LIBTOOL
-# problems on `make'.
-# if configure.in newer than aclocal.m4 -> rebuild aclocal.m4
-# if aclocal.m4 newer than Makefile.in -> rebuild Makfile.in
-# mmdb 1.21 has configure.in newer than aclocal.m4 for some reason.
-# must make sure that next version does not.
-# touch aclocal.m4
-# sleep 2
-# touch Makefile.in
-./configure $generic_prefix --enable-shared --disable-static
-if $MAKE ; then
-   $MAKE install
-fi
-) > $HOSTLOGDIR/02-mmdb.txt 2>&1
+    # mmdb_server_dir=ftp://ftp.ccp4.ac.uk/opensource
+    mmdb_server_dir=$extras_place
+    echo ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
+    ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
+    echo BUILDING mmdb $mmdb_version >&2
+    (
+    date
+    gzip -dc ${AUTOBUILD_SOURCES}/mmdb2-$mmdb_version.tar.gz | tar xf -
+    echo gzip -dc ${AUTOBUILD_SOURCES}/mmdb2-$mmdb_version.tar.gz
+    cd  mmdb2-$mmdb_version
+    pwd
+    # patch to read long lines in a cif file
+    # 20091110 this patch is not available, above says that it is badly formed.
+    #   Needs fixing.
+    # add the following 2 touches because centos 4.6 jackal gives LIBTOOL
+    # problems on `make'.
+    # if configure.in newer than aclocal.m4 -> rebuild aclocal.m4
+    # if aclocal.m4 newer than Makefile.in -> rebuild Makfile.in
+    # mmdb 1.21 has configure.in newer than aclocal.m4 for some reason.
+    # must make sure that next version does not.
+    # touch aclocal.m4
+    # sleep 2
+    # touch Makefile.in
+    ./configure $generic_prefix --enable-shared --disable-static
+    if $MAKE ; then
+       make install
+    fi
+    ) > $HOSTLOGDIR/02-mmdb.txt 2>&1
+    echo done mmdb $mmdb_version >&2
 else
-   echo not building mmdb:
+    echo not building mmdb:
 fi
-
 
 if test -n "$build_ssmlib" ; then
 
-   echo BUILDING SSM:
-#
-# ssm_version=0.0-pre-2-ysbl
-ssm_version=1.4
-#${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
-#${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
-# ${WGET} $extras_place/SSMlib-$ssmlib_version.tar.gz
-# ${WGET} ftp://ftp.ccp4.ac.uk/opensource/ssm-1.3.tar.bz2
-# ${WGET} ftp://ftp.ccp4.ac.uk/opensource/ssm-1.3.tar.bz2
-${WGET} $extras_place/ssm-$ssm_version.tar.gz
-(
-date
-# gzip -dc ${AUTOBUILD_SOURCES}/ssm-1.3.tar.bz2 | tar xf -
-tar xf ${AUTOBUILD_SOURCES}/ssm-$ssm_version.tar.gz
-cd ssm-$ssm_version
-./configure $generic_prefix  --enable-shared --disable-static CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib
-if $MAKE ; then
-   $MAKE install
-fi
-) >  $HOSTLOGDIR/02-ssm.txt 2>&1
+    echo BUILDING SSM $ssm_version
+    echo BUILDING SSM $ssm_version >&2
+    #
+    # ssm_version=0.0-pre-2-ysbl
+    ssm_version=1.4
+    #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
+    #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
+    # ${WGET} $extras_place/SSMlib-$ssmlib_version.tar.gz
+    # ${WGET} ftp://ftp.ccp4.ac.uk/opensource/ssm-1.3.tar.bz2
+    # ${WGET} ftp://ftp.ccp4.ac.uk/opensource/ssm-1.3.tar.bz2
+    ${WGET} $extras_place/ssm-$ssm_version.tar.gz
+    (
+    date
+    # gzip -dc ${AUTOBUILD_SOURCES}/ssm-1.3.tar.bz2 | tar xf -
+    tar xf ${AUTOBUILD_SOURCES}/ssm-$ssm_version.tar.gz
+    cd ssm-$ssm_version
+    ./configure $generic_prefix --enable-shared --disable-static CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib
+    if $MAKE ; then
+       $MAKE install
+    fi
+    ) >  $HOSTLOGDIR/02-ssm.txt 2>&1
+    echo done SSM $ssm_version >&2
 else
-   echo not building ssm:
+    echo not building ssm:
 fi
 
 
 # fftw
 if test -n "$build_fftw" ; then
     echo BUILDING fftw:
+    echo BUILDING fftw 2.1.5: >&2
 #
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/fftw-2.1.5.tar.gz
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/fftw-configure-stuff.tar.gz
@@ -2384,18 +2431,19 @@ if test -n "$build_fftw" ; then
 ${WGET} $extras_place/fftw-2.1.5.tar.gz
 # ${WGET} $extras_place/fftw-configure-stuff.tar.gz # Don't need
 
-(
-date
-pwd
-gzip -dc ${AUTOBUILD_SOURCES}/fftw-2.1.5.tar.gz | tar xf -
-# gzip -dc ${AUTOBUILD_SOURCES}/fftw-configure-stuff.tar.gz | tar xf - # don't need.
-cd fftw-2.1.5
-if ./configure $generic_prefix --enable-shared --enable-float ; then
-   if $MAKE ; then
-      $MAKE install
-   fi
-fi
-)  > $HOSTLOGDIR/03-fftw.txt 2>&1
+    (
+    date
+    pwd
+    gzip -dc ${AUTOBUILD_SOURCES}/fftw-2.1.5.tar.gz | tar xf -
+    # gzip -dc ${AUTOBUILD_SOURCES}/fftw-configure-stuff.tar.gz | tar xf - # don't need.
+    cd fftw-2.1.5
+    if ./configure $generic_prefix --enable-shared --enable-float ; then
+       if $MAKE ; then
+          $MAKE install
+       fi
+    fi
+    )  > $HOSTLOGDIR/03-fftw.txt 2>&1
+    echo done fftw >&2
 else
     echo not building fftw:
 fi
@@ -2442,7 +2490,7 @@ if test -n "$build_clipper" ; then
     clipper_version_dir=2.1
     ${WGET} $extras_place/clipper-$clipper_version.tar.gz
     ${WGET} $extras_place/clipper-configure-2.patch
-
+    echo BUILDING clipper $clipper_version >&2
     (
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
 
@@ -2519,9 +2567,10 @@ if test -n "$build_clipper" ; then
 
     clipper_build_status=$?
     if [ $clipper_build_status != 0 ] ; then
-	echo clipper build failed, exiting
-	my_exit 2
+        echo clipper build failed, exiting
+        my_exit 2
     fi
+    echo done clipper >&2
 
 else
     echo not building clipper:
@@ -2534,37 +2583,61 @@ fi
 ###############################################################################
 
 if true ; then
-      echo BUILDING gemmi from git repo \(and installing GEMMI\)
-      (
+    echo BUILDING gemmi from git repo \(and installing GEMMI\)
+    echo BUILDING gemmi from git repo \(and installing GEMMI\) >&2
+    pwd >&2
+    echo start_dir is $start_dir
+    (
           save_dir=$(pwd)
           cd $start_dir
+          needs_rebuild=false
           if [ -e gemmi ] ; then
+              pwd
+              echo path A
               cd gemmi
-              git fetch
-              git merge
+              git remote update
+              git status -uno
+              needs_rebuild=false
+              if git status -uno | grep -q "branch is behind" ; then
+                  needs_rebuild=true
+                  git fetch
+                  git merge
+              fi
+              echo needs rebuild: $needs_rebuild
               cd -
           else
+              pwd
+              echo path B
               git clone https://github.com/project-gemmi/gemmi.git
+              needs_rebuild=true
           fi
           # cd gemmi/include
           # note to self: fix this for Darwin - which has a crippled cp
           # cp -a -r gemmi $install_top_dir/include
           # cd -
           # cd $save_dir
-	  if [ -d build-gemmi ] ; then
- 	      :
-	  else
-              mkdir build-gemmi
-	  fi
-          cd build-gemmi
-	  pwd
-          # add -DUSE_PYTHON=1 here at some stage.
-          cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi
-          if $MAKE ; then
-              make install
+          echo gemmi needs rebuild: $needs_rebuild
+          echo gemmi needs rebuild: $needs_rebuild > $start_dir/gemmi-rebuild.txt
+          if $needs_rebuild = true ; then
+              if [ -d build-gemmi ] ; then
+                  :
+              else
+                  mkdir build-gemmi
+              fi
+              cd build-gemmi
+              pwd
+              # add -DUSE_PYTHON=1 here at some stage.
+              cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi
+              if $MAKE ; then
+                  make install
+              fi
           fi
-      ) > $HOSTLOGDIR/27-gemmi.txt 2>&1
+    ) > $HOSTLOGDIR/05-gemmi.txt 2>&1
+    cat $start_dir/gemmi-rebuild.txt 2>&1
+    echo done gemmi
+    echo done gemmi >&2
 fi
+
 
 
 #######################################################################
@@ -2578,8 +2651,10 @@ fi
 
 if test "$build_readline" = true ; then
     echo BUILDING readline:
+    echo BUILDING readline: >&2
     readline_version=6.2
     readline_version=6.3
+    readline_version=8.2
     ${WGET} https://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
     ${WGET} $extras_place/readline-5.1.patch
     (
@@ -2588,8 +2663,11 @@ if test "$build_readline" = true ; then
     gzip -dc ${AUTOBUILD_SOURCES}/readline-$readline_version.tar.gz | tar xf -
     cd readline-$readline_version
     if test -n "$need_readline_patch" ; then
+       ls -l
        echo patching readline...
        # need a patch (for debian only) to add curses to the additional libs line
+       echo patch -p0 input-from ${AUTOBUILD_SOURCES}/readline-5.1.patch
+       ls -l ${AUTOBUILD_SOURCES}/readline-5.1.patch
        patch -p0 < ${AUTOBUILD_SOURCES}/readline-5.1.patch
     fi
     if [ "$dist_name" = debian ] ; then
@@ -2606,7 +2684,7 @@ if test "$build_readline" = true ; then
     else
        echo make of readline failed
     fi
-    ) > $HOSTLOGDIR/10-pre-readline.txt 2>&1
+    ) > $HOSTLOGDIR/08-readline.txt 2>&1
 else
     echo not building readline:
 fi
@@ -2642,24 +2720,91 @@ if [ $test_for_already_installed_dependencies = true ] ; then
 fi
 
 if [ $skip_build = false ] ; then
-      echo BUILDING libffi $libffi_version:
-      (
-      ${WGET} https://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
-      gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
-      cd libffi-$libffi_version
-      ./configure $generic_prefix
-      if $MAKE ; then
-         make install
-      fi
-      ) > $HOSTLOGDIR/07e-libffi.txt 2>&1
+    echo BUILDING libffi $libffi_version:
+    echo BUILDING libffi $libffi_version: >&2
+    (
+    unset LD_LIBRARY_PATH
+    ${WGET} https://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
+    gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
+    cd libffi-$libffi_version
+    ./configure $generic_prefix
+    if $MAKE ; then
+        make install
+    fi
+    ) > $HOSTLOGDIR/09-libffi.txt 2>&1
+else
+    echo not building libffi >&2
 fi
 
+echo post libffi with LD_LIBRARY_PATH $LD_LIBRARY_PATH
+echo post libffi with LD_LIBRARY_PATH $LD_LIBRARY_PATH >&2
 
+build_openssl=false
+if [ $OS = Darwin ] ; then
+   if [ -e $install_top_dir/include/openssl ] ; then
+      echo OpenSSL is installed
+      build_openssl=false
+   else
+      build_openssl=true
+   fi
+fi
+
+if [ $build_openssl = true ] ; then
+    echo BUILDING OpenSSL
+    echo BUILDING OpenSSL >&2
+    (
+    openssl_version=3.2.1
+    ${WGET} https://github.com/openssl/openssl/releases/download/openssl-$openssl_version/openssl-$openssl_version.tar.gz
+    ls -alt ${AUTOBUILD_SOURCES}
+    tar xf ${AUTOBUILD_SOURCES}/openssl-$openssl_version.tar.gz
+    ls -alt
+    cd openssl-$openssl_version
+    ./Configure --prefix=$install_top_dir --openssldir=$install_top_dir  '-Wl,-rpath,$(LIBRPATH)'
+    $MAKE && make install
+    cd -
+    ) > $HOSTLOGDIR/10-openssl.txt 2>&1
+    echo done OpenSSL
+    echo done OpenSSL >&2
+fi
+
+# gettext provides -lintl - which is needed for python on macOS
+build_gettext=true
+if test $OS = Darwin ; then
+    if test -e $install_top_dir/include/libintl.h ; then
+        build_gettext=false
+    else
+        echo where is libintl.h in $install_top_dir/include question-mark
+        ls -l $install_top_dir/include
+        echo $install_top_dir/include/libintl.h does not exist - hence build_gettext $build_gettext
+    fi
+else
+    echo gettext: this is $OS, not Darwin
+    build_gettext=false
+fi
+
+if $build_gettext = true ; then
+    gettext_version=0.22.5
+    echo BUILDING gettext
+    echo BUILDING gettext $gettext_version >&2
+    (
+     unset LD_LIBRARY_PATH # or otherwise UP in libreadline problems
+     ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gettext/gettext-$gettext_version.tar.gz
+       tar xf $AUTOBUILD_SOURCES/gettext-$gettext_version.tar.gz
+       cd gettext-$gettext_version
+       ./configure --prefix=$install_top_dir --disable-java
+       $MAKE && make install
+       cd -
+    ) > $HOSTLOGDIR/11-gettext.txt 2>&1
+    echo done gettext >&2
+else
+    echo not building gettext >&2
+fi
 
 # python
 #
 if test -n "$build_python" ; then
-    echo BUILDING Python ${pver}:
+   echo BUILDING Python ${pver}:
+   echo BUILDING Python ${pver}: >&2
 
    echo ${WGET} http://www.python.org/ftp/python/$pver/Python-$pver.tgz
    # hacking in --no-check-certificate is not the right way to do it.
@@ -2672,6 +2817,12 @@ if test -n "$build_python" ; then
    (
    date
    echo building in: $PWD
+
+   unset LD_LIBRARY_PATH
+   # test raw awk
+   which awk
+   awk --version
+
    env
    gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
 
@@ -2684,14 +2835,18 @@ if test -n "$build_python" ; then
 
 
    # --with-ensurepip=install
-   # £ echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags
+   # echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags
    # /Users/pemsley/ccp4/devtools/install
    # this should be configured
    openssl_prefix=$HOME/ccp4/devtools/install
    openssl_prefix=/usr
+   if [ $OS = Darwin ] ; then
+       openssl_prefix=$install_top_dir
+   fi
    # note to self: We need ffi.h (and lib presumably) to build the ctypes module (libffi-devel)
    # (or I could include it in this build script) (I don't know if ctypes is important)
    # 20220227-PE ctypes is crucial for meson
+   # remove --with-pydebug for now because __PyNegativeRefcount problem on trying to load this into Blender
    echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
    #
    # do we also need to use --with-threads=dir?
@@ -2710,21 +2865,48 @@ import ctypes
 print(dir(ctypes))
 print('post ctypes test')
 EOF
-   ) >  $HOSTLOGDIR/07-python.txt 2>&1
+   ) >  $HOSTLOGDIR/12-python.txt 2>&1
 
-   echo Python build done >&2
+   # we need this because boost configuration runs "python" - at least on my Mac
+   # (finding the correct python(3) doesn't seem to be a problem on the PC).
+   # The better way is to use cmd-or-prefix, it seems:
+   # https://www.phind.com/search?cache=z8ao21y6rh5grg4wezeybr06
+   # try this:
+   # add
+   # echo "using python : 3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
+   if [ -e $install_top_dir/bin/python3 ] ; then
+      echo linking python to python3
+      ln -s $install_top_dir/bin/python3 $install_top_dir/bin/python
+   fi
 
+   echo BUILDING Python $pver done >&2
+
+   echo Upgrading pip
    (
    which pip3
    pip3 install --upgrade pip
    # pip3 install pycairo
    # pip3 install pygobject
-   ) >  $HOSTLOGDIR/07a-pip-upgrade.txt 2>&1
+   ) >  $HOSTLOGDIR/13-pip-upgrade.txt 2>&1
 
    echo Pip update done >&2
 else
     echo not building python:
 fi
+
+############ test python, exit on failure ##################
+
+$install_top_dir/bin/python3 <<EOF
+import ctypes
+print(dir(ctypes))
+EOF
+if [ $? = 0 ] ; then
+   echo Good Python
+else
+   echo Python not working
+   exit 2
+fi
+
 
 ###############################################################################
 ##########         meson before gobject-introspection             #############
@@ -2749,23 +2931,25 @@ fi
 # we should have meson for pygobject, need version 0.46 or later
 # however, is this the way to install pygobject? Or is done with pip3?
 #
-echo testing to see if meson exists in path yet
-echo testing to see if meson exists in path yet 2>&1
-echo which meson
-which meson
-echo meson --version
-meson --version
-if meson --version ; then
-   echo we have meson
-   v=$(meson --version)
-   if [[ $v < 1.2.3 ]] ; then
-      echo meson is too old, current version is $v
-      build_meson=true
-   else
-      build_meson=false
-   fi
-else
-   build_meson=true
+build_meson=true
+if command -v meson --version ; then
+
+    echo meson --version
+    which meson >&2
+    echo meson --version >&2
+    meson --version >&2
+    if meson --version ; then
+        echo we have meson
+        v=$(meson --version)
+       if [[ $v < 1.2.3 ]] ; then
+          echo meson is too old, current version is $v
+          build_meson=true
+       else
+          build_meson=false
+       fi
+    else
+       build_meson=true
+    fi
 fi
 
 if $build_meson = true ; then
@@ -2783,7 +2967,7 @@ if $build_meson = true ; then
    which meson
    echo meson --version
    meson --version
-   ) > $HOSTLOGDIR/07b-meson.txt 2>&1
+   ) > $HOSTLOGDIR/14-meson.txt 2>&1
 else
    echo not building meson:
 fi
@@ -2814,290 +2998,77 @@ if [ $build_ninja = true ] ; then
       echo configure/boostrap of ninja failed - what a surprise.
    fi
    cd -
-   ) > $HOSTLOGDIR/07c1-ninja.txt 2>&1
+   ) > $HOSTLOGDIR/15-ninja.txt 2>&1
 fi
 
-###############################################################################
-##########         glib before gobject-introspection              #############
-###############################################################################
 
-if [ -e $install_top_dir/include/glib-2.0 ] ; then
-    build_glib=false
+
+#######################################################################
+# Pixman
+#######################################################################
+# cairo depends on pixman. So let's install that too.
+if test -e $install_top_dir/include/pixman-1/pixman.h ; then
+    echo installation has pixman
 else
-    build_glib=true
-fi
-
-if [ "$build_glib" = true ] ; then
-    echo BUILDING glib $glib_version
-    echo BUILDING glib $glib_version >&2
+    pixman_version=0.43.4
+    echo BUILDING: pixman $pixman_version
+    echo BUILDING: pixman $pixman_version >&2
     (
-    # without this PKG_CONFIG_PATH jiggerypokery, libz is the wrong version i.e. is the 32 bit version (on hal)
-    export -n PKG_CONFIG_PATH
-    export PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
-    echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    echo $PKG_CONFIG_PATH
-    echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    which ninja
-    which meson
-    echo ninja --version
-    ninja --version
-    echo meson --version
-    meson --version
-    glib_version=2.64.3
-    glib_version=2.72.3 # doesn't have g_idle_add_once, it seems.
-    glib_version=2.74.4
-    echo the following is the result of: /bin/pkg-config --modversion libffi
-    /bin/pkg-config --modversion libffi
+    ${WGET} https://www.cairographics.org/releases/pixman-$pixman_version.tar.gz
+    tar xf $AUTOBUILD_SOURCES/pixman-$pixman_version.tar.gz
+    cd pixman-$pixman_version
+    pwd
+    mkdir build
+    cd build
+    # put /usr/lib64 at the front of PKG_CONFIG_PATH so that meson
+    # picks up the correct version of libpng
+    export PKG_CONFIG_PATH=/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
+    echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+    echo meson setup -Dprefix=$install_top_dir ..
+    meson setup -Dprefix=$install_top_dir ..
+    ninja
+    ninja install
+    ) > $HOSTLOGDIR/16-a-pixman.txt
+fi
 
-    # find new versions here: https://gitlab.gnome.org/GNOME/glib/-/releases
-    if [ ! -e ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz ] ; then
-       echo ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/$glib_version/glib-$glib_version.tar.gz
-       ${WGET} --no-check-certificate https://gitlab.gnome.org/GNOME/glib/-/archive/$glib_version/glib-$glib_version.tar.gz
-    fi
-    echo tar xf ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz
-    tar xf ${AUTOBUILD_SOURCES}/glib-$glib_version.tar.gz
-    cd glib-$glib_version
-    # note to future self, when I build glib in the script then it uses a referenece to /usr/lib/libz.so
-    # (which is the 32 bit version). When I build it by hand (as it were) outside the script, using the same
-    # ninja and meson then it finds the *right* libz.so (/usr/lib64/libz.so). I don't have the time to
-    # find out why now, so I installed ninja from the "hand-built" build.
-    #
-    # meson can't find libffi on its own, so I will export the library here
-    export LDFLAGS=-L$install_top_dir/lib64
-    export  CFLAGS=-I$install_top_dir/include
-    # we install the libs in $install_top_dir (otherwise it would install in $install_top_dir/lib/x86_64-linux-gnu
-    # and libtool would mess up and fail to properly link it (in Coot's compile)
-    if CC=gcc meson setup -Dprefix=$install_top_dir -Dlibdir=$install_top_dir/lib build ; then
-       cd build
-       ninja
-       ninja install
-       cd -
-    fi
-    cd ..
-    ) > $HOSTLOGDIR/07c2-glib.txt 2>&1
-    echo BUILDING glib $glib_version finished >&2
+#######################################################################
+# Cairo - needed for RKit molecule drawing - which can be used by chapi
+#######################################################################
+# 20240326-PE
+cairo_version=1.18.0
+cairo_version=1.16.0 # not meson/ninja
+if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
+    echo installation has cairo
 else
-    echo not building glib:
+    echo BUILDING: cairo $cairo_version
+    echo BUILDING: cairo $cairo_version >&2
+    (
+    ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
+    tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
+    cd cairo-$cairo_version
+    pwd
+    # meson/ninja
+       # mkdir build
+       # cd build
+       # meson -Dprefix=$install_top_dir ..
+       # ninja
+       # ninja install
+       # cd ..
+       # cd ..
+    # standard
+    ./configure --prefix=$install_top_dir
+    if $MAKE ; then
+        make install
+    fi
+    ) > $HOSTLOGDIR/16-b-cairo.txt 2>&1
 fi
 
-
-###############################################################################
-##########         gobject-introspection                          #############
-###############################################################################
-
-if test "$build_gobject_introspection" = true ; then
-   echo BUILDING gobject-introspection:
-   (
-   # just for gobject-introspection - depends on our glib installation
-   export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig
-   export LD_LIBRARY_PATH=$install_top_dir/lib64:$install_top_dir/lib
-   date
-   echo BUILDING gobject-introspection:
-
-   echo environment variables
-   echo PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-   echo $PATH
-   echo PKG_CONFIG_PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-   echo $PKG_CONFIG_PATH
-   echo LD_LIBRARY_PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-   echo $LD_LIBRARY_PATH
-   which gcc
-   which g++
-   gcc --version
-
-   gobject_introspection_version=1.50.0
-   gobject_introspection_version=1.68.0
-   gobject_introspection_version=1.71.0
-   gobject_introspection_version=1.72.0
-   # 20220820-PE note to self: 1.73.0 is now avaliable
-   # https://download.gnome.org/sources/gobject-introspection/1.73/
-   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
-   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.68
-   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.71
-   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.72
-
-   ${WGET} $d/gobject-introspection-$gobject_introspection_version.tar.xz
-   tar xf ${AUTOBUILD_SOURCES}/gobject-introspection-$gobject_introspection_version.tar.xz
-   cd gobject-introspection-$gobject_introspection_version
-   # 1.68 (probably earlier) has moved on from configure. meson baby
-   # echo ./configure --prefix=$install_top_dir PYTHON=python3
-   # ./configure --prefix=$install_top_dir PYTHON=python3
-   # if $MAKE ; then
-   #   $MAKE install
-   # fi
-   echo PKG_CONFIG_PATH is...
-   echo $PKG_CONFIG_PATH
-
-   echo this is the result of /bin/pkg-config glib-2.0
-   /bin/pkg-config --modversion glib-2.0
-   /bin/pkg-config --cflags glib-2.0
-   /bin/pkg-config --libs glib-2.0
-
-   echo building in:
-   pwd
-
-   echo which meson
-   which meson
-   meson --version
-
-   export CC=gcc
-   # $install_top_dir/bin/meson is important, otherwise the wrong meson
-   # is used.
-   #
-   # if $install_top_dir/bin/meson -Dprefix=$install_top_dir build ; then
-   #
-   # BUT... if we don't build meson because we have a new enough meson
-   # in the path then $install_top_dir/bin/meson does not exist!
-   if meson -Dprefix=$install_top_dir build ; then
-      echo meson passed
-      cd build
-      ninja
-      ninja install
-      cd -
-   else
-      echo meson failed
-   fi
-   export -n CC
-   cd ..
-   ) > $HOSTLOGDIR/07d-gobject-introspection.txt 2>&1
-fi
-
-
-sources_dir=${AUTOBUILD_SOURCES}
-
-
-# pycairo is a dependency of pygobject.  Is this gtk2 stuff?
-pycairo_version=1.17.0 #  check for a more recent version.
-skip_build=true
-if [ $test_for_already_installed_dependencies = true ] ; then
-   # check this file name.
-   #  $install_top_dir/lib/python$python_version_extension/site-packages/pycairo-1.17.0-py3.6-linux-x86_64.egg/cairo/_cairo.py
-   if [ -e $install_top_dir/lib/include/pycairo/py3cairo.h ] ; then
-      skip_build=true
-   fi
-fi
-
-if [ true ] ; then
-   if [ $skip_build = false ] ; then
-      ${WGET} https://github.com/pygobject/pycairo/releases/download/v1.17.0/pycairo-$pycairo_version.tar.gz
-      (
-      if [ -e ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz ] ; then
-         date
-         echo building pycairo
-         tar xf ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz
-         cd pycairo-$pycairo_version
-         python3 setup.py build
-         python3 setup.py install
-         cd -
-      fi
-      ) > $HOSTLOGDIR/07f-pycairo.txt 2>&1
-   else
-      echo installation has pycairo
-   fi
-fi
-
-# https://pypi.org/project/PyGObject/#files
-pygobject_major_minor_version=3.29
-pygobject_major_minor_version=3.30
-pygobject_major_minor_version=3.36
-pygobject_major_minor_version=3.42
-pygobject_version=3.29.1
-pygobject_version=3.30.5
-pygobject_version=3.42.1
-# pygobject_version=3.42.2 add me to the extras place!
-
-date
-pwd
-skip_build=false
-if [ $test_for_already_installed_dependencies = true ] ; then
-   if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
-      skip_build=true
-   fi
-fi
-
-if [ $skip_build = false ] ; then
-
-      echo BUILDING pygobject $pygobject_version:
-      (
-      echo :::: PKG_CONFIG_PATH is $PKG_CONFIG_PATH
-      ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
-      echo ::: trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz
-      if [ -e ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz ] ; then
-         gzip -dc ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz | tar xf -
-         cd PyGObject-$pygobject_version
-         ### python setup.py build
-         ### python setup.py install
-         echo ::: which python3
-         which python3
-         echo ld_library_path $LD_LIBRARY_PATH
-         x=$LD_LIBRARY_PATH
-         # unset LD_LIBRARY_PATH # I want LD_LIBRARY_PATH so that libffi.so is found
-         echo :::: in directory $(pwd)
-         echo :::: building using meson -Dprefix=$install_top_dir build
-         if meson -Dprefix=$install_top_dir build ; then
-            echo :::: meson passed
-            cd build
-            echo :::: ninja
-            ninja
-            echo :::: ninja install
-            ninja install
-         else
-            echo :::: meson failed
-         fi
-         export LD_LIBRARY_PATH=$x
-      else
-         echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
-      fi ) > $HOSTLOGDIR/07g-pygobject.txt 2>&1
-else
-   echo not building pygobject:
-   echo not building pygobject: 2>&1
-fi
-
-# Now we need:
-#  * guile
-#  * guile-www
-#  * guile-gtk
-#  * guile-gui
-#  * gsl
 
 
 
 ###############################################################################
 ##########         build guile and friends                        #############
 ###############################################################################
-
-
-if [ -e $install_top_dir/include/gmp.h ] ; then
-    build_gmp=false
-else
-    build_gmp=true
-fi
-
-if "$build_gmp" = true ; then
-    echo BUILDING gmp:
-    # gmp_version=4.2.4
-    # gmp_version=5.1.2
-    # gmp_version=6.0.0a # it doesn't untar into this directory
-    # gmp_version=5.1.3
-    gmp_version=6.1.2
-    ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.bz2
-    (date
-     pwd
-     tar xf ${AUTOBUILD_SOURCES}/gmp-$gmp_version.tar.bz2
-     cd gmp-$gmp_version
-     ./configure $generic_prefix
-     $MAKE
-    status=$?
-    if [ "$status" != 0 ] ; then
-       echo make of gmp failed
-    else
-       $MAKE install
-    fi
-    ) > $HOSTLOGDIR/08-pre-gmp.txt 2>&1
-else
-    echo not building gmp:
-fi
-
 
 
 if test -n "$build_libtool" ; then
@@ -3108,6 +3079,7 @@ if test -n "$build_libtool" ; then
     (date
      pwd
      gzip -dc ${AUTOBUILD_SOURCES}/libtool-$libtool_version.tar.gz | tar xf -
+     unset LD_LIBRARY_PATH
      cd libtool-$libtool_version
      ./configure $generic_prefix
      $MAKE
@@ -3117,7 +3089,7 @@ if test -n "$build_libtool" ; then
     else
        $MAKE install
     fi
-    ) > $HOSTLOGDIR/09-pre-libtool.txt 2>&1
+    ) > $HOSTLOGDIR/17-libtool.txt 2>&1
 else
     echo not building libtool:
 fi
@@ -3133,22 +3105,23 @@ fi
 # scratch for coot install.
 
 if test -n "$build_libidn" ; then
-   echo BUILDING libidn:
-(
-   # get libcurl from here:
-   libidn_version=1.15
-   libidn_version=2.2.0
-   # ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
-   ${WGET} https://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn2-$libidn_version.tar.gz
+    echo BUILDING libidn:
+    echo BUILDING libidn: >&2
+    (
+    unset LD_LIBRARY_PATH
+    libidn_version=1.15
+    libidn_version=2.2.0
+    # ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
+    ${WGET} https://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn2-$libidn_version.tar.gz
 
-   gzip -dc ${AUTOBUILD_SOURCES}/libidn2-$libidn_version.tar.gz | tar xf -
-   cd libidn2-$libidn_version
+    gzip -dc ${AUTOBUILD_SOURCES}/libidn2-$libidn_version.tar.gz | tar xf -
+    cd libidn2-$libidn_version
 
-   ./configure  $generic_prefix
-   if $MAKE ; then
-      $MAKE install
-   fi
-) > $HOSTLOGDIR/15-a-libidn2.txt 2>&1
+    ./configure  $generic_prefix
+    if $MAKE ; then
+       $MAKE install
+    fi
+    ) > $HOSTLOGDIR/18-libidn2.txt 2>&1
 else
     echo not building libidn2:
 fi
@@ -3160,15 +3133,16 @@ fi
 #
 
 if test -n "$build_curl" ; then
-   echo BUILDING curl:
-(
+   libcurl_version=7.65.3
+   libcurl_version_directory=7_65_3
+   echo BUILDING curl: $libcurl_version
+   echo BUILDING curl: $libcurl_version >&2
+   (
    # get libcurl from here:
    # libcurl_version=7.19.7
    # libcurl_version=7.25.0
    # libcurl_version=7.27.0
    # libcurl_version=7.32.0
-   libcurl_version=7.65.3
-   libcurl_version_directory=7_65_3
    # ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
    ${WGET} https://github.com/curl/curl/releases/download/curl-$libcurl_version_directory/curl-$libcurl_version.tar.gz
 
@@ -3177,6 +3151,8 @@ if test -n "$build_curl" ; then
 
    echo from tar file ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz
    echo building in: $PWD
+
+   unset LD_LIBRARY_PATH
 
    # libcurl has problems with putting the libraries ine right order when we specify
    # --with-libidn (it puts the libidn prefix libs at the end of its LDFLAGS and that
@@ -3209,7 +3185,9 @@ if test -n "$build_curl" ; then
       fi
    fi
 
-) > $HOSTLOGDIR/15-b-curl.txt 2>&1
+   ) > $HOSTLOGDIR/19-curl.txt 2>&1
+   echo donecurl: >&2
+
 else
     echo not building curl:
 fi
@@ -3223,36 +3201,39 @@ fi
 #
 
 if test -n "$build_gsl" ; then
-    echo BUILDING gsl:
-#
-# wget http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/gsl/gsl-1.5.tar.gz
-# wget http://ftp.gnu.org/gnu/gsl/gsl-1.6.tar.gz
-# if you change this, change needed_gsl_version above
-gsl_version=1.12
-gsl_version=1.15
-gsl_version=1.16
-gsl_version=2.7
-# ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
-# ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
-${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
-(
-date
-pwd
-gzip -dc ${AUTOBUILD_SOURCES}/gsl-$gsl_version.tar.gz | tar xf -
-cd gsl-$gsl_version
-./configure $generic_prefix
-$MAKE
-status=$?
-if [ "$status" != 0 ] ; then
-    echo ERROR:: GSL make failed.
-    exit 2
-else
-   echo 1 ---------------------------------------------------------------
-   echo '                                ' make install
-   echo 1 ----------------------------------------------------------------
-   $MAKE install
-fi
-) > $HOSTLOGDIR/15-gsl.txt 2>&1
+    # wget http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/gsl/gsl-1.5.tar.gz
+    # wget http://ftp.gnu.org/gnu/gsl/gsl-1.6.tar.gz
+    # if you change this, change needed_gsl_version above
+    gsl_version=1.12
+    gsl_version=1.15
+    gsl_version=1.16
+    gsl_version=2.7
+    echo BUILDING gsl $gsl_version
+    echo BUILDING gsl $gsl_version >&2
+    #
+    # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
+    # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
+    ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
+    (
+    date
+    pwd
+    unset LD_LIBRARY_PATH
+    gzip -dc ${AUTOBUILD_SOURCES}/gsl-$gsl_version.tar.gz | tar xf -
+    cd gsl-$gsl_version
+    ./configure $generic_prefix
+    $MAKE
+    status=$?
+    if [ "$status" != 0 ] ; then
+        echo ERROR:: GSL make failed.
+        exit 2
+    else
+       echo 1 --------------------------------------------------------------- 
+       echo '                                ' make install
+       echo 1 ----------------------------------------------------------------
+       $MAKE install
+    fi
+    ) > $HOSTLOGDIR/20-gsl.txt 2>&1
+    echo done gsl: >&2
 else
     echo not building gsl:
 fi
@@ -3277,19 +3258,23 @@ if [ "$build_boost" = true ] ; then
       boost_version=1_71_0
       boost_version=1_72_0
       boost_version=1_74_0
-      boost_version=1_82_0
+      boost_version=1_83_0
       boost_server_dir=1.72.0
       boost_server_dir=1.72.0
       boost_server_dir=1.74.0
       boost_server_dir=1.82.0
+      boost_server_dir=1.83.0
       echo BUILDING boost $boost_version :
-      (
-      echo building ========================= boost $boost_version =========================
+      echo BUILDING boost $boost_version >&2
 
       boost_home_url=https://dl.bintray.com/boostorg/release/$boost_server_dir/source # old
       boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/$boost_server_dir/source
       echo wgetting $boost_home_url/boost_$boost_version.tar.gz
       ${WGET} $boost_home_url/boost_$boost_version.tar.gz
+      echo fetch of $boost_home_url/boost_$boost_version.tar.gz complete.. compiling...
+
+      (
+      echo building ========================= boost $boost_version =========================
 
       gzip -dc ${AUTOBUILD_SOURCES}/boost_$boost_version.tar.gz | tar xf -
       cd boost_$boost_version
@@ -3310,9 +3295,10 @@ if [ "$build_boost" = true ] ; then
 
       address_model=64
       pwd
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu > bootstrap-command-save
-      ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
+      echo "using python : 3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu > bootstrap-command-save
+      ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
 
       # now edit the project-config.jam file using python line
 
@@ -3326,161 +3312,76 @@ if [ "$build_boost" = true ] ; then
 
       # bjam no longer exists
       # use -Wno-deprecated-declarations
-      echo ./b2 address-model=$address_model cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension -Wno-maybe-uninitialized -Wno-deprecated-declarations" install > b2-command-save
-           ./b2 address-model=$address_model cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
+      echo ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install > b2-command-save
+           ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
       cd -
-      ) > $HOSTLOGDIR/16-boost.txt
+      ) > $HOSTLOGDIR/21-boost.txt
+      echo done boost $boost_version >&2
    fi
 fi
 
-
-
-#################################################################
-# Raster3D
-#################################################################
-#
-
-if [ -e $install_top_dir/bin/render ] ; then
-   echo not building Raster3D render
+if [ -e $install_top_dir/lib/libboost_python$python_version_squish.a ] ; then
+   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was installed
 else
-
-   raster3d_version=3.0-3
-   raster3d_version=3.0-7
-   # raster3d depends on libgd to make png images
-   ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
-
-   if [ ! -e ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz ] ; then
-
-      echo missing Raster3D tar file
-
-   else
-      (
-       date
-       pwd
-
-       #
-       # build libgd
-       #
-
-       if [ true ] ; then
-          echo checking for existance of $install_top_dir/include/gd.h
-          if [ ! -e $install_top_dir/include/gd.h ] ; then
-              echo get and build libgd...
-   	      # Amazon file names too long, so force output name with -O
-              ${WGET} https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz -O ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz
-	      gzip -dc ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz | tar xf -
-   	      cd libgd-2.1.1
-              # don't use /bin/sh as shell to run libtool (on Ubuntu it's a problem)
-	      bash ./configure --prefix=$install_top_dir SHELL=/bin/bash
-	      if $MAKE ; then
-	         make install
-	      fi
-	      cd -
-          else
-              echo $install_top_dir/include/gd.h exists - skip libgd build
-          fi
-       else
-          echo /usr/include/gd.h exists - skip libgd build
-       fi
-
-      ) > $HOSTLOGDIR/15-libgd.txt 2>&1
-
-      (
-       date
-       pwd
-       # build render
-       #
-       system_has_libgd=false
-       if [ -e /usr/include/gd.h ] ; then
-          system_has_libgd=true
-       fi
-       if [ ! -e $install_top_dir/bin/render ] ; then
-          # now build it.
-          gzip -dc ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz | tar xf -
-          cd Raster3D_$raster3d_version
-
-          pwd
-          echo make linux
-          make linux # FIXME for Darwin
-
-          # compiling libgd so that render links against it depend on libjpeg-turbo-devel
-          # having been installed.  i.e. /usr/lib/libjpeg.so should exist
-
-          # add the gd support directory
-          #
-          system_has_libgd=false
-          if [ -e /usr/include/gd.h ] ; then
-             system_has_libgd=true
-          fi
-          echo system_has_libgd: $system_has_libgd
-          if [ "$system_has_libgd" = false ] ; then
-             sed -ibackup \
-                -e "s?=.-lgd?=  -L$install_top_dir/lib -lgd?" \
-                -e "s?=.-DGD_SUPPORT?=  -DGD_SUPPORT -I$install_top_dir/include?" \
-                -e 's/  TDEFS =.*/  TDEFS =/' \
-                -e 's/  TLIBS =.*/  TLIBS =/' \
-             Makefile.incl
-          fi
-
-          # race condition? list.mod
-          echo make render
-          if make render ; then
-             echo make prefix=$install_top_dir install
-             make prefix=$install_top_dir install
-             # did that work?  I doubt it. Let's do it by hand
-             if [ ! -e $install_top_dir/bin/render ] ; then
-                cp render $install_top_dir/bin/
-             fi
-          else
-             echo make render failed
-          fi
-          cd -
-       else
-          echo $install_top_dir/bin/render already exists, no build
-       fi
-       ) > $HOSTLOGDIR/15-raster3d.txt 2>&1
-   fi
+   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was not installed
+   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was not installed >&2
+   exit
 fi
+
 
 
 ###############################################################################
 ##########         GLM                                            #############
 ###############################################################################
 if [ -e $install_top_dir/include/glm/glm.hpp ] ; then
-   echo not building glm
+    echo not building glm
 else
-   echo BUILDING glm:
+    echo where is glm/include question-mark
+    ls $install_top_dir/include
+    # The glm version is 0.9.9.5 because glm.pc was deleted after that.
+    # thanks sayurlinux.
+    # ${WGET} $extras_place/glm-$glm_version.tar.gz
+    # However, that fails to compile:
+    # In file included from /Users/runner/autobuild/building/Mac-1710037648402.local_2024-03-10__T03_03_05/glm-0.9.9.5/glm/gtc/random.hpp:82:
+    # /Users/runner/autobuild/building/Mac-1710037648402.local_2024-03-10__T03_03_05/glm-0.9.9.5/glm/gtc/random.inl:25:17: error: implicit conversion loses integer precision: 'int' to 'unsigned char' [-Werror,-Wimplicit-int-conversion]
+    # so let's try 0.9.8
     glm_version=0.9.9.2
-    ${WGET} $extras_place/glm-$glm_version.tar.gz
+    glm_version=1.0.0
+    glm_version=0.9.9.5
+    glm_version=0.9.9.8
+    glm_version=1.0.0
+    echo BUILDING glm $glm_version:
+    echo BUILDING glm $glm_version: >&2
+    echo fetching https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz >&2
+    ${WGET} https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz
+    echo cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
+    cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
+    echo ${WGET} $extras_place/glm-CMakeLists-for-glm.pc.patch
+    ${WGET} $extras_place/glm-CMakeLists-for-glm.pc.patch
     (
     date
     pwd
     gzip -dc ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz | tar xf -
     cd glm-$glm_version
+    # restore glm.pc
+    echo 'prefix=@CMAKE_INSTALL_PREFIX@
+includedir=${prefix}/include
+
+Name: GLM
+Description: OpenGL Mathematics
+Version: @GLM_VERSION@
+Cflags: -I${includedir}' > cmake/glm.pc.in
+    cat cmake/glm.pc.in
+    echo patch from ${AUTOBUILD_SOURCES}/glm-CMakeLists-for-glm.pc.patch
+    patch < ${AUTOBUILD_SOURCES}/glm-CMakeLists-for-glm.pc.patch
+    echo cmake . -DCMAKE_INSTALL_PREFIX=$install_top_dir
     cmake . -DCMAKE_INSTALL_PREFIX=$install_top_dir
     if $MAKE ; then
        make install
     fi
-    ) > $HOSTLOGDIR/17-glm.txt 2>&1
-fi
-
-
-###############################################################################
-# pygobject
-###############################################################################
-# this needs to find gobject-introspection-1.0 >= 1.46.0 (now 1.56.0 apparently)
-# and it does if PKG_CONFIG_PATH is set correctly
-if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
-    echo installation has pygobject
-else
-    echo installing pygobject with pip3
-    (
-    echo installing pygobject
-    echo PKG_CONFIG_PATH $PKG_CONFIG_PATH
-    which pip3
-    pip3 install wheel
-    pip3 install pygobject
-    ) > $HOSTLOGDIR/17-pip-wheel-pygobject.txt 2>&1
+    ) > $HOSTLOGDIR/22-glm.txt 2>&1
+   echo glm-build-sub-shell-status $? >&2
+   echo done glm: >&2
 fi
 
 
@@ -3488,45 +3389,61 @@ fi
 ##########         build numpy                                    #############
 ###############################################################################
 
-# Let's stop at the beginning if we need a fortran compiler and don't have it.
+# Let's stop if we need a fortran compiler and don't have it.
 #
 if [ "$build_numpy" = true ] ; then
-   if gfortran --version > /dev/null ; then
-      echo found fortran compiler
-   else
-      echo fortran compiler not found.
-      exit 2
-   fi
+    if gfortran --version > /dev/null ; then
+        echo found fortran compiler
+    else
+        echo fortran compiler not found.
+        exit 2
+    fi
+else
+   echo debug:: build_numpy was $build_numpy
 fi
 
 # numpy needs system libblas (and liblapack?) - it's not clear to
 # me how to build them otherwise.
 # sudo apt-get install libblas-dev liblapack-dev
 
+echo command -v pip3
+command -v pip3
 # cython
 echo pip3 install --upgrade pip
 pip3 install --upgrade pip
 echo pip3 install cython
 pip3 install cython
-echo pip3 install nanobind
-pip3 install nanobind
+if test -d $install_top_dir/lib/$python_version/site-packages/nanobind ; then
+    :
+else
+    echo pip3 install nanobind
+    echo pip3 install nanobind >&2
+    pip3 install nanobind
+    echo pip3 install nanobind done >&2
+fi
 
 if [ true = true ] ; then
    skip_this=false
-   ls -alt $install_top_dir/lib/$python_version/site-packages/numpy-*/numpy/lib/_version.py
-   if [ -e $install_top_dir/lib/$python_version/site-packages/numpy-*/numpy/lib/_version.py ] ;  then
+   # ls -alt $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py
+   if [ -e $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py ] ;  then
          echo numpy is found, skip
          skip_this=true
    else
-         echo not found: $install_top_dir/lib/$python_version/site-packages/numpy-*/numpy/lib/_version.py
+         echo numpy test file not found: $install_top_dir/lib/$python_version/site-packages/numpy/lib/_version.py
          echo numpy was not found - needs building
    fi
    if [ $skip_this = false ] ;  then
-      numpy_version=1.19.4
-      echo building numpy $numpy_version
-      echo building numpy $numpy_version >&2
+      # numpy_version=1.19.4
+      # 20240127-PE Using 1.19.4 I am getting an error installing with Python 3.10 [errno #1].
+      # So let's try the latest numpy - 1.26.3
+      numpy_version=1.26.3
+      echo BUILDING numpy $numpy_version
+      echo BUILDING numpy $numpy_version >&2
       (
       echo building ========================= numpy ==============================
+      echo this gfortran:
+      command -v gfortran
+      echo $PATH
       # this needs fortran compiler gfortran
 
       # maybe get numpy from github?
@@ -3535,13 +3452,18 @@ if [ true = true ] ; then
       # https://github.com/pypa/setuptools/archive/v41.5.1.tar.gz
       # numpy source is now zip
       # ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.tar.gz
-      ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.zip
+      # ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.zip
+      echo Fetching https://github.com/numpy/numpy/archive/refs/tags/v$numpy_version.tar.gz >&2
+      ${WGET} https://github.com/numpy/numpy/archive/refs/tags/v$numpy_version.tar.gz
       #
-      if [ ! -e ${AUTOBUILD_SOURCES}/numpy-$numpy_version.zip ] ; then
+      ls -l ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz
+      if [ ! -e ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz ] ; then
+         echo ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz not found - exit build
          exit
       fi
-      # tar xf ${AUTOBUILD_SOURCES}/numpy-$numpy_version.tar.gz
-      unzip ${AUTOBUILD_SOURCES}/numpy-$numpy_version.zip
+      ls -l ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz
+      echo tar xf ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz
+      tar xf ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz
       cd numpy-$numpy_version/
       # we need to check that we have a fortran compiler, in this case gnu95
       #
@@ -3562,8 +3484,8 @@ if [ true = true ] ; then
          exit 2
       fi
       cd -
-      ) > $HOSTLOGDIR/17-a-numpy.txt 2>&1
-      echo building numpy $numpy_version finished >&2
+      ) > $HOSTLOGDIR/23-numpy.txt 2>&1
+      echo BUILDING numpy $numpy_version finished >&2
    fi
 fi
 
@@ -3571,12 +3493,14 @@ fi
 export PATH=$HOME/cmake/bin:$PATH
 
 ############################### eigen ##########################################
+
 eigen_version=3.3.9
 if [ -e $install_top_dir/include/eigen3 ] ; then
    echo eigen3 is installed
+   echo eigen3 is installed >&2
 else
-   echo building eigen $eigen_version
-   echo building eigen $eigen_version >&2
+   echo BUILDING eigen $eigen_version
+   echo BUILDING eigen $eigen_version >&2
    (
    ${WGET} https://gitlab.com/libeigen/eigen/-/archive/$eigen_version/eigen-$eigen_version.tar.gz
    tar xf $AUTOBUILD_SOURCES/eigen-$eigen_version.tar.gz
@@ -3586,10 +3510,44 @@ else
    cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ../eigen-$eigen_version
    make install
    cd -
-   ) > $HOSTLOGDIR/17-b-eigen.txt 2>&1
-   echo building eigen finished >&2
+   ) > $HOSTLOGDIR/24-eigen.txt 2>&1
+   echo BUILDING eigen finished >&2
 fi
 
+############################### catch2 ##########################################
+# rdkit needs catch2 (C++ testing framework).
+
+if [ -e $install_top_dir/include/catch2/catch_config.hpp ] ; then
+    echo Catch2 is installed
+    echo Catch2 is installed >&2
+else
+   catch2_version=3.5.2
+   echo BUILDING catch2 catch2_version
+   ${WGET} https://github.com/catchorg/Catch2/archive/refs/tags/v$catch2_version.tar.gz
+   (
+   tar xf $AUTOBUILD_SOURCES/v$catch2_version.tar.gz
+   cd Catch2-$catch2_version
+   # meson setup -Dcpp_std=c++17 -Dprefix=$install_top_dir build
+   # cd build
+   # ninja
+   # ninja install
+   # cd ..
+   mkdir build
+   cd build
+   cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ..
+   $MAKE && make install
+   cd ..
+   cd ..
+   ) > $HOSTLOGDIR/25-catch2.txt 2>&1
+fi
+
+if [ -d $install_top_dir/include/catch2 ] ; then
+    echo OK, Catch2 is installed
+else
+    echo FAIL BUILDING Catch2
+    echo FAIL BUILDING Catch2 >&2
+    exit
+fi
 
 ############################### rdkit ##########################################
 
@@ -3602,6 +3560,7 @@ rdkit_version=2019_09_1 # python 3
 rdkit_version=2018_09_2 # Atom pointer wrappers gone, needs coot Dec 2020 patch
 rdkit_version=2020_09_3
 rdkit_version=2023_03_1
+rdkit_version=2023_09_4
 # see https://github.com/rdkit/rdkit/releases
 rdkit_home=https://github.com/rdkit/rdkit/archive
 rdkit_tar_host_file_name=Release_$rdkit_version.tar.gz
@@ -3609,6 +3568,7 @@ rdkit_tar_download_file_name=rdkit-Release_$rdkit_version.tar.gz
 rdkit_tar_size=54644792
 rdkit_tar_size=58598385 # 2020_09_3
 rdkit_tar_size=79454133 # 2023_03_1
+rdkit_tar_size=80212603 # 2023_09_4
 
 if [ "$build_rdkit" = true ] ; then
    skip_this=false
@@ -3616,6 +3576,7 @@ if [ "$build_rdkit" = true ] ; then
       # this file is in 2018_09 but not in 2017_09
       if [ -e $install_top_dir/include/rdkit/GraphMol/StereoGroup.h ] ;  then
          echo not building rdkit:
+         echo not building rdkit: >&2
          skip_this=true
       fi
    fi
@@ -3625,8 +3586,8 @@ if [ "$build_rdkit" = true ] ; then
 
    if [ $skip_this = false ] ;  then
 
-      echo building rdkit $rdkit_version
-      echo building rdkit $rdkit_version >&2
+      echo BUILDING RDKit $rdkit_version
+      echo BUILDING RDKit $rdkit_version >&2
       (
       echo building ========================= rdkit ==============================
 
@@ -3672,26 +3633,40 @@ if [ "$build_rdkit" = true ] ; then
          if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name ] ; then
             which stat
             echo   found the file   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-            echo stat --format=%s   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-            stat --format=%s        ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-            size=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name)
-            echo rdkit tar ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name size from stat: $size
+            if [ $OS = Darwin ] ; then
+                echo stat -f%z   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+                stat -f%z ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+                size=$(stat -f%z ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name)
+                echo rdkit tar ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name size from stat: $size
+            else
+                echo stat --format=%s   ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+                stat --format=%s        ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+                size=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name)
+                echo rdkit tar ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name size from stat: $size
+            fi
             if [ "$size" = $rdkit_tar_size ] ; then
-               get_the_rdkit_tar_file=false
+                get_the_rdkit_tar_file=false
             fi
          fi
          echo here C with get_the_rdkit_tar_file $get_the_rdkit_tar_file
 
          if [ $get_the_rdkit_tar_file = true ] ; then
+            echo $WGET $rdkit_home/$rdkit_tar_host_file_name -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
             $WGET $rdkit_home/$rdkit_tar_host_file_name -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
             do_rdkit_download=true
             if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
-                s=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name)
+                echo here D
+                if [ $OS = Darwin ] ; then
+                    s=$(stat -f%z ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name)
+                else
+                    s=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name)
+                fi
                 if [ "$s" = $rdkit_tar_size ] ; then
                    do_rdkit_download=false
                 fi
             fi
             if [ $do_rdkit_download = true ] ; then
+               echo here E
                echo $WGET $rdkit_home/$rdkit_tar_host_file_name
                if ${WGET} $rdkit_home/$rdkit_tar_host_file_name ; then
                   if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
@@ -3773,9 +3748,11 @@ if [ "$build_rdkit" = true ] ; then
       libboost_python_ext=$python_version_extension
       libboost_python_ext=
       extension_type=so
+      python_arch=x86_64-linux-gnu
 
       if [ $(uname) = Darwin ] ; then
          extension_type=dylib
+         python_arch=darwin
       fi
 
       echo will configure with cmake like this:
@@ -3786,26 +3763,46 @@ if [ "$build_rdkit" = true ] ; then
       # -DPYTHON_INCLUDE_DIR=$PYROOT/include/python3.8
       # -DBoost_PYTHON39_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so
 
+               # -DCMAKE_CXX_STANDARD_LIBRARIES="-lintl -dl"
+               # -DCMAKE_SHARED_LINKER_FLAGS="-lintl -dl"
+               # libpython is linking with /usr/local/opt/gettext/lib:
+               # otool -L ~/autobuild/build-chapi-gtk4/lib/libpython3.10d.dylib | grep libint
+               # /usr/local/opt/gettext/lib/libintl.8.dylib (compatibility version 13.0.0, current version 13.0.0)
+
+               # no help
+               # -DCMAKE_C_STANDARD_LIBRARIES="-lintl -ldl -framework CoreFoundation" \
+
+               # remove to see if this fixes the non-Darwin build.
+               # -DCMAKE_STATIC_LINKER_FLAGS="$install_top_dir/lib/libintl.a"
+
       echo cmake \
-               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
+               -DCMAKE_PREFIX_PATH=$install_top_dir \
+               -DCatch2_DIR=$install_top_dir \
+               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
-               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-x86_64-linux-gnu/libpython$python_version_extension.a \
+               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}$python_abiflags-$python_arch/libpython$python_version_extension$python_abiflags.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
+               -DRDK_INSTALL_COMIC_FONTS=OFF \
+               -DCatch2_DIR=$install_top_dir \
                 $tree_from_build
 
       if cmake  \
-               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension \
+               -DCMAKE_PREFIX_PATH=$install_top_dir \
+               -DCatch2_DIR=$install_top_dir \
+               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python$python_version_extension$python_abiflags \
                $cmake_macosx_rpath \
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
-               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}-x86_64-linux-gnu/libpython$python_version_extension.a \
+               -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}$python_abiflags-$python_arch/libpython$python_version_extension$python_abiflags.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
+               -DRDK_INSTALL_COMIC_FONTS=OFF \
+               -DCatch2_DIR=$install_top_dir \
                 $tree_from_build ; then
 
          # it seems that make -j n fails to compile (race condition?)
@@ -3822,16 +3819,417 @@ if [ "$build_rdkit" = true ] ; then
       fi
       cd ..
       cd ..
-      ) > $HOSTLOGDIR/18-rdkit.txt 2>&1
-      echo building rdkit done
+      ) > $HOSTLOGDIR/26-rdkit.txt 2>&1
+      echo BUILDING rdkit finished
+      echo BUILDING rdkit finished >&2
+      wc $HOSTLOGDIR/26-rdkit.txt >&2
    fi
 fi
 
-python3 -m pip install requests
+if [ -e $install_top_dir/lib/$python_version/site-packages/requests ] ; then
+    echo python requests is installed
+    echo python requests is installed >&2
+else
+    echo installing python requests >&2
+    python3 -m pip install requests
+fi
 
+###############################################################################
+# exit here for the chapi-dependencies build
+###############################################################################
+
+if [ "$CHAPI_ONLY" = true ] ; then
+   echo done CHAPI_ONLY
+   exit
+fi
+
+###############################################################################
+##########         gmp                                            #############
+###############################################################################
+
+
+if [ -e $install_top_dir/include/gmp.h ] ; then
+    build_gmp=false
+else
+    build_gmp=true
+fi
+
+if "$build_gmp" = true ; then
+    # gmp_version=4.2.4
+    # gmp_version=5.1.2
+    # gmp_version=6.0.0a # it doesn't untar into this directory
+    # gmp_version=5.1.3
+    gmp_version=6.1.2
+    echo BUILDING gmp $gmp_version
+    echo BUILDING gmp $gmp_version >&2
+    ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.bz2
+    (date
+     pwd
+     unset LD_LIBRARY_PATH
+     tar xf ${AUTOBUILD_SOURCES}/gmp-$gmp_version.tar.bz2
+     cd gmp-$gmp_version
+     ./configure $generic_prefix
+     $MAKE
+    status=$?
+    if [ "$status" != 0 ] ; then
+       echo make of gmp failed
+    else
+       $MAKE install
+    fi
+    ) > $HOSTLOGDIR/27-gmp.txt 2>&1
+    echo done gmp $gmp_version >&2
+else
+    echo not building gmp:
+fi
+
+
+
+# glib was removed because glib is a dependency of gtk-4 and we don't build gtk-4,
+# so if we want to use glib for other packages, we need to use the same glib that
+# gtk-4 used.
+
+# we need python3 to have packaging
+python3 -m pip install packaging
+
+###### pcre2 is needed for glib. glib is compiled by gobject-introspection
+###### (that doesn't seem good). Let's install pcre2 and see what happens
+
+if test -e $install_top_dir/include/pcre2.h ; then
+    echo installation has pcre2
+    echo installation has bcre2 >&2
+else
+   pcre2_version=10.43
+   echo building pcre2 $pcre2_version
+   echo building pcre2 $pcre2_version >&2
+   (
+   d=https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$pcre2_version
+   ${WGET} $d/pcre2-$pcre2_version.tar.gz
+   tar xf $AUTOBUILD_SOURCES/pcre2-$pcre2_version.tar.gz
+   cd pcre2-$pcre2_version
+   ./configure --prefix=$install_top_dir
+   if $MAKE ; then
+       make install
+   fi
+   cd -
+   ) > $HOSTLOGDIR/28-pcre2.txt 2>&1
+fi
+
+###############################################################################
+##########         gobject-introspection                          #############
+###############################################################################
+
+if test "$build_gobject_introspection" = true ; then
+   echo BUILDING gobject-introspection:
+   echo BUILDING gobject-introspection: >&2
+   (
+   # just for gobject-introspection - depends on our glib installation
+   export PKG_CONFIG_PATH=$install_top_dir/lib64/pkgconfig:$install_top_dir/lib/pkgconfig
+   export LD_LIBRARY_PATH=$install_top_dir/lib64:$install_top_dir/lib
+   date
+   echo BUILDING gobject-introspection:
+
+   echo environment variables
+   echo PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   echo $PATH
+   echo PKG_CONFIG_PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   echo $PKG_CONFIG_PATH
+   echo LD_LIBRARY_PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   echo $LD_LIBRARY_PATH
+   which gcc
+   which g++
+   gcc --version
+
+   gobject_introspection_version=1.50.0
+   gobject_introspection_version=1.68.0
+   gobject_introspection_version=1.71.0
+   gobject_introspection_version=1.72.0
+   gobject_introspection_version=1.80.0
+   gobject_introspection_version_stub=1.80
+   # 20220820-PE note to self: 1.73.0 is now avaliable
+   # https://download.gnome.org/sources/gobject-introspection/1.73/
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.50
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.68
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.71
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.72
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/1.72
+   d=http://ftp.acc.umu.se/pub/GNOME/sources/gobject-introspection/$gobject_introspection_version_stub
+
+   ${WGET} $d/gobject-introspection-$gobject_introspection_version.tar.xz
+   tar xf ${AUTOBUILD_SOURCES}/gobject-introspection-$gobject_introspection_version.tar.xz
+   cd gobject-introspection-$gobject_introspection_version
+   # 1.68 (probably earlier) has moved on from configure. meson baby
+   # echo ./configure --prefix=$install_top_dir PYTHON=python3
+   # ./configure --prefix=$install_top_dir PYTHON=python3
+   # if $MAKE ; then
+   #   $MAKE install
+   # fi
+   echo PKG_CONFIG_PATH is...
+   echo $PKG_CONFIG_PATH
+
+   echo this is the result of /bin/pkg-config glib-2.0
+   /bin/pkg-config --modversion glib-2.0
+   /bin/pkg-config --cflags glib-2.0
+   /bin/pkg-config --libs glib-2.0
+
+   echo building in:
+   pwd
+
+   echo which meson
+   which meson
+   meson --version
+
+   export CC=gcc
+   # $install_top_dir/bin/meson is important, otherwise the wrong meson
+   # is used.
+   #
+   # if $install_top_dir/bin/meson -Dprefix=$install_top_dir build ; then
+   #
+   # BUT... if we don't build meson because we have a new enough meson
+   # in the path then $install_top_dir/bin/meson does not exist!
+   if meson -Dprefix=$install_top_dir build ; then
+      echo meson passed
+      cd build
+      ninja
+      ninja install
+      cd -
+   else
+      echo meson failed
+   fi
+   export -n CC
+   cd ..
+   ) > $HOSTLOGDIR/29-gobject-introspection.txt 2>&1
+   echo done gobject-introspection: >&2
+fi
+
+
+sources_dir=${AUTOBUILD_SOURCES}
+
+
+# pycairo is a dependency of pygobject.  Is this gtk2 stuff?
+pycairo_version=1.17.0 #  check for a more recent version.
+skip_build=true
+if [ $test_for_already_installed_dependencies = true ] ; then
+   # check this file name.
+   #  $install_top_dir/lib/python$python_version_extension/site-packages/pycairo-1.17.0-py3.6-linux-x86_64.egg/cairo/_cairo.py
+   if [ -e $install_top_dir/lib/include/pycairo/py3cairo.h ] ; then
+      skip_build=true
+   fi
+fi
+
+if [ true ] ; then
+   if [ $skip_build = false ] ; then
+      ${WGET} https://github.com/pygobject/pycairo/releases/download/v1.17.0/pycairo-$pycairo_version.tar.gz
+      (
+      if [ -e ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz ] ; then
+         date
+         echo BUILDING pycairo
+         echo BUILDING pycairo >&2
+         tar xf ${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.tar.gz
+         cd pycairo-$pycairo_version
+         python3 setup.py build
+         python3 setup.py install
+         cd -
+      fi
+      ) > $HOSTLOGDIR/30-pycairo.txt 2>&1
+   else
+      echo installation has pycairo
+   fi
+fi
+
+# https://pypi.org/project/PyGObject/#files
+# https://download.gnome.org/sources/pygobject
+pygobject_major_minor_version=3.29
+pygobject_major_minor_version=3.30
+pygobject_major_minor_version=3.36
+pygobject_major_minor_version=3.42
+pygobject_version=3.29.1
+pygobject_version=3.30.5
+pygobject_version=3.42.1
+# pygobject_version=3.42.2 add me to the extras place!
+# https://download.gnome.org/sources/pygobject/3.42/pygobject-3.42.2.tar.xz
+
+date
+pwd
+skip_build=false
+if [ $test_for_already_installed_dependencies = true ] ; then
+   if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
+      skip_build=true
+   fi
+fi
+
+if [ $skip_build = false ] ; then
+
+      echo BUILDING pygobject $pygobject_version:
+      echo BUILDING pygobject $pygobject_version: >&2
+      (
+      echo :::: PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+      unset LD_LIBRARY_PATH
+      ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
+      echo ::: trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz
+      if [ -e ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz ] ; then
+         gzip -dc ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz | tar xf -
+         cd PyGObject-$pygobject_version
+         ### python setup.py build
+         ### python setup.py install
+         echo ::: which python3
+         which python3
+         echo ld_library_path $LD_LIBRARY_PATH
+         x=$LD_LIBRARY_PATH
+         # unset LD_LIBRARY_PATH # I want LD_LIBRARY_PATH so that libffi.so is found
+         echo :::: in directory $(pwd)
+         echo :::: building using meson -Dprefix=$install_top_dir build
+         if meson setup -Dprefix=$install_top_dir build ; then
+            echo :::: meson passed
+            cd build
+            echo :::: ninja
+            ninja
+            echo :::: ninja install
+            ninja install
+         else
+            echo :::: meson failed
+         fi
+         export LD_LIBRARY_PATH=$x
+      else
+         echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
+      fi ) > $HOSTLOGDIR/31-pygobject.txt 2>&1
+      echo done pygobject $pygobject_version: >&2
+else
+   echo not building pygobject:
+   echo not building pygobject: 2>&1
+fi
+
+
+#################################################################
+# Raster3D
+#################################################################
+#
+
+if [ -e $install_top_dir/bin/render ] ; then
+   echo not building Raster3D render
+else
+
+   raster3d_version=3.0-3
+   raster3d_version=3.0-7
+   # raster3d depends on libgd to make png images
+   ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
+
+   if [ ! -e ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz ] ; then
+
+      echo missing Raster3D tar file
+
+   else
+      echo BUILDING raster3d $raster3d_version >&2
+      (
+       date
+       pwd
+
+       #
+       # build libgd
+       #
+
+       if [ true ] ; then
+          echo checking for existance of $install_top_dir/include/gd.h
+          if [ ! -e $install_top_dir/include/gd.h ] ; then
+              echo get and build libgd...
+   	      # Amazon file names too long, so force output name with -O
+              ${WGET} https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz -O ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz
+	      gzip -dc ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz | tar xf -
+   	      cd libgd-2.1.1
+              # don't use /bin/sh as shell to run libtool (on Ubuntu it's a problem)
+	      bash ./configure --prefix=$install_top_dir SHELL=/bin/bash
+	      if $MAKE ; then
+	         make install
+	      fi
+	      cd -
+          else
+              echo $install_top_dir/include/gd.h exists - skip libgd build
+          fi
+       else
+          echo /usr/include/gd.h exists - skip libgd build
+       fi
+
+      ) > $HOSTLOGDIR/32-libgd.txt 2>&1
+      echo done raster3d $raster3d_version >&2
+
+      (
+       date
+       pwd
+       # build render
+       #
+       system_has_libgd=false
+       if [ -e /usr/include/gd.h ] ; then
+          system_has_libgd=true
+       fi
+       if [ ! -e $install_top_dir/bin/render ] ; then
+          # now build it.
+          gzip -dc ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz | tar xf -
+          cd Raster3D_$raster3d_version
+
+          pwd
+          echo make linux
+          make linux # FIXME for Darwin
+
+          # compiling libgd so that render links against it depend on libjpeg-turbo-devel
+          # having been installed.  i.e. /usr/lib/libjpeg.so should exist
+
+          # add the gd support directory
+          #
+          system_has_libgd=false
+          if [ -e /usr/include/gd.h ] ; then
+             system_has_libgd=true
+          fi
+          echo system_has_libgd: $system_has_libgd
+          if [ "$system_has_libgd" = false ] ; then
+             sed -ibackup \
+                -e "s?=.-lgd?=  -L$install_top_dir/lib -lgd?" \
+                -e "s?=.-DGD_SUPPORT?=  -DGD_SUPPORT -I$install_top_dir/include?" \
+                -e 's/  TDEFS =.*/  TDEFS =/' \
+                -e 's/  TLIBS =.*/  TLIBS =/' \
+             Makefile.incl
+          fi
+
+          # race condition? list.mod
+          echo make render
+          if make render ; then
+             echo make prefix=$install_top_dir install
+             make prefix=$install_top_dir install
+             # did that work?  I doubt it. Let's do it by hand
+             if [ ! -e $install_top_dir/bin/render ] ; then
+                cp render $install_top_dir/bin/
+             fi
+          else
+             echo make render failed
+          fi
+          cd -
+       else
+          echo $install_top_dir/bin/render already exists, no build
+       fi
+       ) > $HOSTLOGDIR/33-raster3d.txt 2>&1
+   fi
+fi
+
+
+###############################################################################
+# pygobject
+###############################################################################
+# this needs to find gobject-introspection-1.0 >= 1.46.0 (now 1.56.0 apparently)
+# and it does if PKG_CONFIG_PATH is set correctly
+if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
+    echo installation has pygobject
+else
+    echo installing pygobject with pip3
+    echo installing pygobject with pip3 >&2
+    (
+    echo installing pygobject
+    echo PKG_CONFIG_PATH $PKG_CONFIG_PATH
+    which pip3
+    pip3 install wheel
+    pip3 install pygobject
+    ) > $HOSTLOGDIR/34-pip-wheel-pygobject.txt 2>&1
+    echo done install pygobject with pip3 >&2
+fi
 
 # silicos-it's biscu-it (QED) is now part of RDKit main.
-
 
 ###############################################################################
 ##################### guile and friends #######################################
@@ -3885,6 +4283,7 @@ if [ "$build_libffi" = true ] ; then
    if [ $skip_this = false ] ; then
       (
       echo ========================= build libffi =================================
+      echo BUILDING libffi $libffi_version >&2
       if [ -e ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz ] ; then
          tar xf ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz
       else
@@ -3898,7 +4297,7 @@ if [ "$build_libffi" = true ] ; then
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/18-ffi.txt 2>&1
+      ) > $HOSTLOGDIR/35-ffi.txt 2>&1
    fi
 fi
 
@@ -3913,8 +4312,10 @@ if [ "$build_unistring" = true ] ; then
    echo libunistring skip_this $skip_this
 
    if [ $skip_this = false ] ; then
+      echo BUILDING libunistring $unistring_version >&2
       echo BUILDING libunistring:
       (
+      unset LD_LIBRARY_PATH
       echo ========================= build unistring =================================
       if [ -e $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz
@@ -3931,7 +4332,8 @@ if [ "$build_unistring" = true ] ; then
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/19-libubunistring.txt 2>&1
+      ) > $HOSTLOGDIR/36-libubunistring.txt 2>&1
+      echo done libunistring $unistring_version >&2
    else
       echo not building libunistring
    fi
@@ -3950,7 +4352,9 @@ if [ "$build_gc" = true ] ; then
 
    if [ $skip_this = false ] ; then
       (
+      unset LD_LIBRARY_PATH
       echo BUILDING libatomic-ops:
+      echo BUILDING libatomic-ops: >&2
       if [ ! -e $AUTOBUILD_SOURCES/libatomic_ops-7.6.12.tar.gz ] ; then
          ${WGET} https://github.com/ivmai/libatomic_ops/releases/download/v7.6.12/libatomic_ops-7.6.12.tar.gz
       fi
@@ -3960,21 +4364,30 @@ if [ "$build_gc" = true ] ; then
       $MAKE
       make install
       cd -
-      ) > $HOSTLOGDIR/20-libatomic-ops.txt 2>&1
+      ) > $HOSTLOGDIR/37-libatomic-ops.txt 2>&1
+      echo done libatomic-ops: >&2
    fi
 
    # echo gc skip_this $skip_this
 
    if [ $skip_this = false ] ; then
-      echo BUILDING gc:
-      (
+      echo Here AAAAAAAAAAAAAAAAAAA
       gc_version=7.2g
       gc_version_dir=7.2
       gc_version=7.6.12     # needs libatomic_ops. can we find a version that doesn't need that?
       gc_version_dir=7.6.12 # I guess not.
+      gc_version=8.2.4
+      gc_version_dir=8.2.4
+      echo AAAAAAAAAAAAAAAAAA BUILDING: gc
+      echo AAAAAAAAAAAAAAAAAA BUILDING: gc $gc_version >&2
+      (
       echo ========================= build gc =================================
+      unset LD_LIBRARY_PATH
+      echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
       if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
+         echo Here A
          echo found gc source file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
+         echo Here B
          tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          echo tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
       else
@@ -3986,15 +4399,19 @@ if [ "$build_gc" = true ] ; then
             echo download failed for http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
          fi
       fi
+      echo Here C
       cd gc-$gc_version_dir
+      pwd
       echo ./configure --prefix=$install_top_dir
-      if ./configure --prefix=$install_top_dir  ; then
+      echo Here D
+      if ./configure --prefix=$install_top_dir ; then
          if $MAKE ; then
             make install
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/21-gc.txt 2>&1
+      ) > $HOSTLOGDIR/38-gc.txt 2>&1
+      echo done gc $gc_version >&2
    else
       echo not building gc
    fi
@@ -4022,8 +4439,9 @@ if [ "$build_guile" = true ] ; then
 
    if [ $skip_this = false ] ; then
       echo BUILDING guile:
-      echo BUILDING guile: >&2
+      echo BUILDING guile $guile_version >&2
       (
+      unset LD_LIBRARY_PATH
       echo ========================= build guile =================================
       if [ -e   $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-$guile_version.tar.xz
@@ -4048,8 +4466,8 @@ if [ "$build_guile" = true ] ; then
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/24-guile.txt 2>&1
-      echo BUILDING guile:
+      ) > $HOSTLOGDIR/39-guile.txt 2>&1
+      echo done guile:
    fi
 else
    echo not building guile:
@@ -4126,7 +4544,7 @@ if [ "$build_g_wrap" = true ] ; then
             make install
          fi
       fi
-      ) > $HOSTLOGDIR/25-g-wrap.txt 2>&1
+      ) > $HOSTLOGDIR/40-g-wrap.txt 2>&1
       echo BUILDING g-wrap finished >&2
    fi
 else
@@ -4164,7 +4582,7 @@ if [ "$build_guile_cairo" = true ] ; then
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/26-guile-cairo.txt 2>&1
+      ) > $HOSTLOGDIR/41-guile-cairo.txt 2>&1
       echo BUILDING guile-cairo finished >&2
    fi
 else
@@ -4221,7 +4639,7 @@ if [ "$build_guile_lib" = true ] ; then
          fi
       fi
       cd -
-      ) > $HOSTLOGDIR/27-guile-lib.txt 2>&1
+      ) > $HOSTLOGDIR/42-guile-lib.txt 2>&1
    fi
 else
    echo not building guile-lib:
@@ -4259,7 +4677,7 @@ if [ "$build_guile_gnome_platform" = true ] ; then
             make install
          fi
       fi
-      ) > $HOSTLOGDIR/28-guile-gnome-platform.txt 2>&1
+      ) > $HOSTLOGDIR/43-guile-gnome-platform.txt 2>&1
       echo BUILDING gnome-gnome-platform finished
    fi
 else
@@ -4271,14 +4689,24 @@ fi
 ##########         Coot is now built from git repo                #############
 ###############################################################################
 #
+
+if test x$GITHUB_ENV = x ; then
+    : # we are not in a hithub actions build
+else
+    # stop here because we build coot outside of this script in github actions
+    exit
+fi
+
 echo Now Coot..... >&2
 cd $start_dir
+echo GITHUB_WORKSPACE is $GITHUB_WORKSPACE
 date >&2
 pwd >&2
 
 if [ -e coot ] ; then
    (
    echo CASE 1 coot directory exists
+   echo CASE 1 coot directory exists >&2
    pwd
    cd coot
    echo now in this dir:
@@ -4305,14 +4733,16 @@ if [ -e coot ] ; then
    echo 66666666666666666666 done bash autogen.sh
    echo 66666666666666666666 done bash autogen.sh >&2
    cd -
-   ) > $HOSTLOGDIR/30-coot-fetch-merge-autogen.txt 2>&1
+   ) > $HOSTLOGDIR/50-coot-fetch-merge-autogen.txt 2>&1
 else
    echo CASE 2 coot directory not exists in $(pwd)
+   echo CASE 2 coot directory not exists in $(pwd) >&2
 
    (
    save_dir=$(pwd)
    echo :::: $(pwd)
    echo cloning coot...
+   echo cloning coot... >&2
    echo :::: git clone https://github.com/pemsley/coot.git -b main
    echo save_ld_library_path=$LD_LIBRARY_PATH
    # reset LD_LIBRARY_PATH for now. Do we need it set from now on actually?
@@ -4333,7 +4763,7 @@ else
    fi
    LD_LIBRARY_PATH=$save_ld_library_path
    cd $save_dir
-   ) > $HOSTLOGDIR/30-clone-autogen.txt 2>&1
+   ) > $HOSTLOGDIR/50-clone-autogen.txt 2>&1
 fi
 
 if test -n "$glib_installed" ; then
@@ -4463,7 +4893,7 @@ else
    # fi
 fi
 
-) > $HOSTLOGDIR/30-coot.txt 2>&1
+) > $HOSTLOGDIR/50-coot.txt 2>&1
 
 #         --with-gsl-prefix=$install_top_dir \
 #        --with-glib-prefix=$install_top_dir \
@@ -4473,11 +4903,11 @@ fi
 coot_build_status=$?
 if [ $coot_build_status != 0 ] ; then
     echo coot build failed, exiting.
-    echo fail-build $coot_revision > $LOGS/build-status
+    # echo fail-build $coot_revision > $LOGS/build-status
     my_exit 2 $coot_revision
 else
     echo coot build was good.
-    echo pass-build $coot_revision > $LOGS/build-status
+    # echo pass-build $coot_revision > $LOGS/build-status
 fi
 echo done coot build.
 
@@ -4721,3 +5151,37 @@ $publish_logs $LOGS
 
 echo finished.
 echo finished.>&2
+
+
+# [errno #1]
+# rocessing numpy/random/_sfc64.pyx
+# Traceback (most recent call last):
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 235, in <module>
+#     main()
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 231, in main
+#     find_process_files(root_dir)
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 222, in find_process_files
+#     process(root_dir, fromfile, tofile, function, hash_db)
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 188, in process
+#     processor_function(fromfile, tofile)
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 77, in process_pyx
+#     subprocess.check_call(
+#   File "/home/paule/autobuild/build-for-chapi-gtk4/lib/python3.10/subprocess.py", line 369, in check_call
+#     raise CalledProcessError(retcode, cmd)
+# subprocess.CalledProcessError: Command '['/home/paule/autobuild/build-for-chapi-gtk4/bin/python3', '-m', 'cython', '-3', '--fast-fail', '-o', '_sfc64.c', '_sfc64.pyx']' returned non-zero exit status 1.
+# Cythonizing sources
+# Traceback (most recent call last):
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/setup.py", line 508, in <module>
+#     setup_package()
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/setup.py", line 488, in setup_package
+#     generate_cython()
+#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/setup.py", line 285, in generate_cython
+#     raise RuntimeError("Running cythonize failed!")
+# RuntimeError: Running cythonize failed!
+# /home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/setup.py:67: RuntimeWarning: NumPy 1.19.4 may not yet support Python 3.10.
+#   warnings.warn(
+# Running from numpy source directory.
+# /home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py:73: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+#   required_version = LooseVersion('0.29.21')
+# /home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py:75: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+#   if LooseVersion(cython_version) < required_version:

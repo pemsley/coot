@@ -1,9 +1,119 @@
-// Clipper app to perform shift field refinement
-/* Copyright 2018 Kevin Cowtan & University of York all rights reserved */
+/*
+ * coot-utils/coot_shiftfield.cpp
+ *
+ * Copyright 2018 by Kevin Cowtan & The University of York
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
+ */
 
 
 #include "coot_shiftfield.h"
 #include "shiftfield.h"
+
+void
+test_import_minimol(clipper::MMDBfile* mfile, clipper::MiniMol& minimol, const int hnd ) {
+
+   // clear the model
+   minimol = clipper::MiniMol( mfile->spacegroup(), mfile->cell() );
+
+   // make atom, residue, chain selections
+   int h_atm = mfile->NewSelection();
+   int h_res = mfile->NewSelection();
+   int h_chn = mfile->NewSelection();
+   int h_mod = mfile->NewSelection();
+   if ( hnd < 0 ) {
+      mfile->SelectAtoms( h_atm, 0, 0, ::mmdb::SKEY_NEW );
+   } else {
+      mfile->Select( h_atm, ::mmdb::STYPE_ATOM, hnd, ::mmdb::SKEY_NEW );
+   }
+   mfile->Select( h_res, ::mmdb::STYPE_RESIDUE, h_atm, ::mmdb::SKEY_NEW );
+   mfile->Select( h_chn, ::mmdb::STYPE_CHAIN,   h_atm, ::mmdb::SKEY_NEW );
+   mfile->Select( h_mod, ::mmdb::STYPE_MODEL,   h_atm, ::mmdb::SKEY_NEW );
+
+   std::cout << "debug:: h_atm " << h_atm << " h_res " << h_res << " h_chn " << h_chn << " h_mod " << h_mod << std::endl;
+
+   // now import objects
+   char txt[256];
+   clipper::MModel& mol = minimol.model();
+   mmdb::Model *p_mod = mfile->GetModel(1);
+   if ( p_mod != NULL ) {
+      for ( int c = 0; c < p_mod->GetNumberOfChains(); c++ ) {
+         mmdb::Chain *p_chn = p_mod->GetChain(c);
+         if ( p_chn != NULL ) if ( p_chn->isInSelection( h_chn ) ) {
+               // import the chain
+               clipper::MPolymer pol;
+               for ( int r = 0; r < p_chn->GetNumberOfResidues(); r++ ) {
+                  mmdb::Residue *p_res = p_chn->GetResidue(r);
+                  if ( p_chn != NULL ) if ( p_res->isInSelection( h_res ) ) {
+                        // import the residue
+                        clipper::MMonomer mon;
+                        for ( int a = 0; a < p_res->GetNumberOfAtoms(); a++ ) {
+                           mmdb::Atom *p_atm = p_res->GetAtom(a);
+                           if ( p_atm != NULL ) if ( p_atm->isInSelection( h_atm ) )
+                                                   if ( !p_atm->Ter ) {
+                                                      // import the atom
+                                                      clipper::MAtom atm( clipper::Atom::null() );
+                                                      atm.set_name( p_atm->GetAtomName(), p_atm->altLoc );
+                                                      atm.set_element( p_atm->element );
+                                                      if ( p_atm->WhatIsSet & ::mmdb::ASET_Coordinates )
+                                                         atm.set_coord_orth(clipper::Coord_orth( p_atm->x, p_atm->y, p_atm->z ) );
+                                                      if ( p_atm->WhatIsSet & ::mmdb::ASET_Occupancy )
+                                                         atm.set_occupancy( p_atm->occupancy );
+                                                      if ( p_atm->WhatIsSet & ::mmdb::ASET_tempFactor )
+                                                         atm.set_u_iso( clipper::Util::b2u( p_atm->tempFactor ) );
+                                                      if ( p_atm->WhatIsSet & ::mmdb::ASET_Anis_tFac )
+                                                         atm.set_u_aniso_orth(
+                                                                              clipper::U_aniso_orth( p_atm->u11, p_atm->u22, p_atm->u33,
+                                                                                                     p_atm->u12, p_atm->u13, p_atm->u23 ) );
+                                                      p_atm->GetAtomID( txt );
+                                                      atm.set_property("CID",clipper::Property<clipper::String>(clipper::String(txt)));
+                                                      if ( p_atm->altLoc[0] != '\0' )
+                                                         atm.set_property("AltConf",
+                                                                          clipper::Property<clipper::String>(clipper::String(p_atm->altLoc)));
+                                                      mon.insert( atm );  // store the atom
+                                                   }
+                        }
+                        mon.set_seqnum( p_res->GetSeqNum(), clipper::String(p_res->GetInsCode()) );
+                        mon.set_type( p_res->GetResName() );
+                        p_res->GetResidueID( txt );
+                        mon.set_property("CID",clipper::Property<clipper::String>(clipper::String(txt)));
+                        pol.insert( mon );  // store the residue
+                     }
+               }
+               pol.set_id( p_chn->GetChainID() );
+               p_chn->GetChainID( txt );
+               pol.set_property("CID",clipper::Property<clipper::String>(clipper::String(txt)));
+               mol.insert( pol );  // store the chain
+            }
+      }
+      p_mod->GetModelID( txt );
+      mol.set_property("CID",clipper::Property<clipper::String>(clipper::String(txt)));
+   }
+
+   // clean up
+   mfile->DeleteSelection( h_atm );
+   mfile->DeleteSelection( h_res );
+   mfile->DeleteSelection( h_chn );
+   mfile->DeleteSelection( h_mod );
+}
+
 
 
 // update the temperature-factors of the atoms in mol
@@ -27,11 +137,14 @@ coot::shift_field_b_factor_refinement(const clipper::HKL_data< clipper::datatype
   // get a list of all the atoms
   clipper::MMDBfile* mfile = static_cast<clipper::MMDBfile*>(mol);
   clipper::MiniMol mmol;
+
+  // Either of these cause a crash when the molecule is imported using gemmi
+  // test_import_minimol(mfile, mmol, -1);
   mfile->import_minimol( mmol );
 
   for ( int cyc = 0; cyc < ncyc; cyc++ ) {
     double radcyc = radscl * rcyc;
-    std::cout << std::endl << "Cycle: " << cyc+1 << "  Resolution: " << rcyc << "  Radius: " << radcyc << std::endl;
+    std::cout << std::endl << "Shiftfield Cycle: " << cyc+1 << "  Resolution: " << rcyc << "  Radius: " << radcyc << std::endl;
 
     // truncate resolution
     clipper::Resolution rescyc( rcyc );

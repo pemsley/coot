@@ -6,19 +6,21 @@
  * Author: Paul Emsley
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
  */
 
 
@@ -638,7 +640,13 @@ public:
 
    // Used by various CA-mode bonds
    //
-   explicit Bond_lines_container(coot::protein_geometry *protein_geom, bool do_bonds_to_hydrogens_in=true) {
+   explicit Bond_lines_container(coot::protein_geometry *protein_geom,
+                                 std::string dummy_flag_for_CA_mode,  // 20240210-PE this makes this constructor different to the next one
+                                                                      // now that we want no_bonds_to_these_atoms to be used in CA mode
+                                 const std::set<int> &no_bonds_to_these_atoms_in,
+                                 bool do_bonds_to_hydrogens_in=true) :
+      no_bonds_to_these_atoms(no_bonds_to_these_atoms_in) {
+
       init();
       verbose_reporting = false;
       do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
@@ -659,6 +667,7 @@ public:
    }
 
    // Used by make_colour_by_chain_bonds() - and others in the future?
+   // Used by get_bonds_mesh_for_selection_instanced() in coot_molecule_bonds_instanced.cc
    //
    Bond_lines_container(coot::protein_geometry *protein_geom,
                         const std::set<int> &no_bonds_to_these_atoms_in,

@@ -9,19 +9,19 @@
  * Copyright 2013, 2014, 2015, 2016 by Medical Research Council
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 #ifdef USE_PYTHON
@@ -3321,7 +3321,6 @@ void trim_molecule_by_b_factor(int imol, float limit, short int keep_higher) {
 
    if (is_valid_model_molecule(imol)) {
       bool keep_higher_flag = keep_higher;
-      std::cout << "calling trim_molecule_by_b_factor() " << limit << " " << keep_higher_flag << std::endl;
       graphics_info_t::molecules[imol].trim_molecule_by_b_factor(limit, keep_higher_flag);
    } else {
       std::cout << "WARNING:: " << imol << " is not a valid model molecule" << std::endl;
@@ -4231,7 +4230,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 	 coot::minimol::zone_info_t zi = si.mol[0].zone_info();
 	 if (zi.is_simple_zone) {
 	    int save_rirf = g.refinement_immediate_replacement_flag;
-#ifdef HAVE_GSL
+
 	    coot::pseudo_restraint_bond_type save_pseudos = g.pseudo_bonds_type;
 	    g.pseudo_bonds_type = coot::STRAND_PSEUDO_BONDS;
 	    g.refinement_immediate_replacement_flag = 1;
@@ -4239,7 +4238,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 				   zi.resno_2, "", "", 0);
 	    accept_regularizement();
 	    g.pseudo_bonds_type = save_pseudos;
-#endif // HAVE_GSL
+
 	    g.refinement_immediate_replacement_flag = save_rirf;
 	 }
       } else {
@@ -4757,8 +4756,6 @@ int rigid_body_fit_with_residue_ranges(int imol,
 
 void set_secondary_structure_restraints_type(int itype) {
 
-#ifdef HAVE_GSL
-
    // Remember that Rama restraints are not secondary structure restraints.
 
    if (itype == 0)
@@ -4768,18 +4765,13 @@ void set_secondary_structure_restraints_type(int itype) {
    if (itype == 2)
       graphics_info_t::pseudo_bonds_type = coot::STRAND_PSEUDO_BONDS;
 
-#endif // HAVE_GSL
 }
 
 /*! \brief return the secondary structure restraints type */
 int secondary_structure_restraints_type() {
 
    // cast a pseudo_restraint_bond_type to an int
-#ifdef HAVE_GSL
    return graphics_info_t::pseudo_bonds_type;
-#else
-   return 0;
-#endif // HAVE_GSL
 }
 
 

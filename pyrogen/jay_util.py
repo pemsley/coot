@@ -1,4 +1,8 @@
-# from Jay, stackoverflow.com
+# from Jay, stackoverflow.com 2009
+#
+# CC BY-SA 2.5 license
+#
+# https://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
 #
 def which(program):
     import os

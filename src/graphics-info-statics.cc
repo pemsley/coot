@@ -1,3 +1,28 @@
+/*
+ * src/graphics-info-statics.cc
+ *
+ * Copyright 2019 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
+ */
 
 #ifdef USE_PYTHON
 #include "Python.h"
@@ -461,6 +486,8 @@ double graphics_info_t::idle_function_rock_amplitude_scale_factor = 1.0;
 double graphics_info_t::idle_function_rock_freq_scale_factor = 1.0;
 double graphics_info_t::idle_function_rock_angle_previous = 0;
 
+std::vector<std::chrono::time_point<std::chrono::high_resolution_clock> > graphics_info_t::leftquote_press_times;
+
 #ifdef USE_PYTHON
 // Hamish python
 std::string graphics_info_t::python_draw_function_string;
@@ -578,7 +605,6 @@ int         graphics_info_t::go_to_atom_menu_label_n_chars_max = 40;
 GtkWidget *graphics_info_t::model_fit_refine_dialog = NULL;
 short int  graphics_info_t::model_fit_refine_dialog_was_sucked = 0;
 GtkWidget *graphics_info_t::residue_info_dialog = NULL;
-GtkWidget *graphics_info_t::rotamer_dialog = NULL;
 GtkWidget *graphics_info_t::difference_map_peaks_dialog = NULL;
 GtkWidget *graphics_info_t::checked_waters_baddies_dialog = NULL;
 
@@ -1111,14 +1137,12 @@ double    graphics_info_t::refinement_drag_elasticity = 0.25;
 
 // save the restraints:
 //
-#ifdef HAVE_GSL
 coot::restraints_container_t *graphics_info_t::last_restraints = 0;
 // 20220504-PE so that I can check for cleared/removed non-bonded contact baddies
 std::map<int, std::vector<int> > graphics_info_t::previous_round_nbc_baddies_atom_index_map;
 
 // clipper::Xmap<float> blank_dummy_xmap;
 // ref version: coot::restraints_container_t(blank_dummy_xmap);
-#endif // HAVE_GSL
 //
 //
 bool graphics_info_t::draw_zero_occ_spots_flag = true; // on by default
@@ -1279,10 +1303,8 @@ float graphics_info_t::fffear_angular_resolution = 15.0; // degrees
 // move molecule here
 int graphics_info_t::move_molecule_here_molecule_number = -1;
 
-#ifdef HAVE_GSL
 // pseudo bond for sec str restraints
 coot::pseudo_restraint_bond_type graphics_info_t::pseudo_bonds_type = coot::NO_PSEUDO_BONDS;
-#endif // HAVE_GSL
 
 
 // MYSQL database
@@ -1572,6 +1594,7 @@ bool graphics_info_t::do_tick_hydrogen_bonds_mesh = false;
 bool graphics_info_t::do_tick_happy_face_residue_markers = false;
 bool graphics_info_t::do_tick_outline_for_active_residue = false;
 bool graphics_info_t::do_tick_gone_diegos = false;
+bool graphics_info_t::do_tick_gone_diff_map_peaks = false;
 int graphics_info_t::n_particles = 220;
 Mesh graphics_info_t::mesh_for_particles = Mesh("mesh for particles");
 particle_container_t graphics_info_t::particles;
@@ -1780,10 +1803,12 @@ int graphics_info_t::updating_maps_imol_diff_map = -1;
 std::vector<api::rail_points_t> graphics_info_t::rail_point_history;
 coot::util::sfcalc_genmap_stats_t graphics_info_t::latest_sfcalc_stats;
 
+bool graphics_info_t::curmudgeon_mode = false;
 bool graphics_info_t::use_sounds = true;
 guint graphics_info_t::updating_maps_timeout_function_idx = UPDATING_MAPS_TIMEOUT_FUNCTION_IDX_UNSET;
 
 std::vector<meshed_particle_container_t> graphics_info_t::meshed_particles_for_gone_diegos;
+meshed_particle_container_t graphics_info_t::meshed_particles_for_gone_diff_map_peaks(Mesh("gone diff map peaks"), particle_container_t());
 
 float graphics_info_t::gaussian_surface_sigma = 4.4;
 float graphics_info_t::gaussian_surface_contour_level = 4.0;
@@ -1791,3 +1816,5 @@ float graphics_info_t::gaussian_surface_box_radius = 5.0;
 float graphics_info_t::gaussian_surface_grid_scale = 0.7;
 float graphics_info_t::gaussian_surface_fft_b_factor = 100.0;
 short int graphics_info_t::gaussian_surface_chain_colour_mode = 1; // 1 for "by chain" , 2 for "by NCS"
+
+std::vector<coot::positron_metadata_t> graphics_info_t::positron_metadata;

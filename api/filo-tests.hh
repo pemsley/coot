@@ -20,7 +20,14 @@
 * 02110-1301, USA
 */
 
-#include "molecules_container.hh"
+#include "molecules-container.hh"
 #include "test-molecules-container.hh"
 
 int test_something_filo(molecules_container_t &mc);
+
+int test_get_diff_map_peaks(molecules_container_t &mc);
+
+int test_non_drawn_bond_multi_cid_2(molecules_container_t &mc);
+
+int test_change_chain_id_1(molecules_container_t &molecules_container);
+

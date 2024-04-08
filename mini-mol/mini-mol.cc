@@ -536,7 +536,12 @@ coot::minimol::molecule::write_file(std::string pdb_filename, float atoms_b_fact
    // std::cout << "\nDEBUG:: write_file " << pdb_filename << std::endl;
    mmdb::PManager newmol = pcmmdbmanager();
 
-   int ierr = newmol->WritePDBASCII(pdb_filename.c_str());
+   std::string ext = util::file_name_extension(pdb_filename);
+   int ierr = -1;
+   if (ext == ".cif")
+      ierr = newmol->WriteCIFASCII(pdb_filename.c_str());
+   else
+      ierr = newmol->WritePDBASCII(pdb_filename.c_str());
    // std::cout << "DEBUG:: write_file " << pdb_filename << " done\n " << std::endl;
    delete newmol;
    return ierr;
@@ -639,7 +644,12 @@ coot::minimol::residue::make_residue() const {
 
    mmdb::Residue *residue_p = new mmdb::Residue();
    residue_p->SetResID(name.c_str(), seqnum, ins_code.c_str());
-   
+   // cif bits:
+   residue_p->label_seq_id = 1;
+   if (name.length() < 20) // see the typedef in mmdb_defs.h
+      strcpy(residue_p->label_comp_id, name.c_str());
+   strcpy(residue_p->label_asym_id, "A");
+
    for (unsigned int iat=0; iat<atoms.size(); iat++) { 
       mmdb::Atom *atom_p = new mmdb::Atom; 
       atom_p->SetCoordinates(atoms[iat].pos.x(),
@@ -648,6 +658,9 @@ coot::minimol::residue::make_residue() const {
 			     atoms[iat].occupancy,
 			     atoms[iat].temperature_factor);
       atom_p->SetAtomName(atoms[iat].name.c_str());
+      // cif bits
+      if (atoms[iat].name.length() < 20)
+         strcpy(atom_p->label_atom_id, atoms[iat].name.c_str());
       strncpy(atom_p->element, atoms[iat].element.c_str(),3);
       strncpy(atom_p->altLoc, atoms[iat].altLoc.c_str(), 2);
       int i_add = residue_p->AddAtom(atom_p);

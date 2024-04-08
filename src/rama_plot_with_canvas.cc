@@ -6,19 +6,19 @@
  * Copyright 2013, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 
@@ -37,6 +37,7 @@
 #include <iostream>
 #include <algorithm>
 #include <sys/stat.h>
+#include <cmath>
 
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
@@ -65,6 +66,10 @@
 
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
+
+
+float coot::rama_plot::default_level_prefered = 0.02;
+float coot::rama_plot::default_level_allowed = 0.0005;
 
 void
 coot::rama_plot::init(int imol_in, const std::string &mol_name_in, float level_prefered, float level_allowed,
@@ -438,7 +443,6 @@ coot::rama_plot::init_internal(const std::string &mol_name,
        level_prefered != current_level_prefered) {
       current_level_allowed = level_allowed;
       current_level_prefered = level_prefered;
-
    }
 
    if (!current_bg) {
@@ -553,11 +557,14 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
    
    // Lovell et al. 2003, 50, 437 Protein Structure, Function and Genetics values:
    rama_threshold_preferred = 0.02; 
-   rama_threshold_allowed = 0.002;
+   rama_threshold_allowed = 0.0005;
    
    //clipper defaults: 0.01 0.0005
 
    rama.set_thresholds(level_prefered, level_allowed);
+   // do we need this?
+   rama_threshold_preferred = level_prefered;
+   rama_threshold_allowed = level_allowed;
    //
 
    r_gly.init(clipper::Ramachandran::Gly2);
@@ -671,12 +678,12 @@ coot::rama_plot::setup_background(bool blocks, bool isolines, bool print_image) 
    bg_non_gly_pro_pre_pro_ileval = goo_canvas_group_new(root, NULL);
 
    // if default we use images otherwise we make blocks
-
    if (!print_image) {
       // use a pre-made rama picture if we have standard settings,
       // otherwise make a block background to specifications
-      if (fabs(rama_threshold_preferred - 0.02) < 0.000001 &&
-          fabs(rama_threshold_allowed - 0.002) < 0.000001 &&
+      if (fabs(rama_threshold_preferred - default_level_prefered) < 0.000001 &&
+          fabs(rama_threshold_allowed - default_level_allowed) < 0.000001 &&
+          fabs(step - 2.) < 0.000001 &&
           psi_axis_mode == PSI_CLASSIC)
       {
 
@@ -690,14 +697,9 @@ coot::rama_plot::setup_background(bool blocks, bool isolines, bool print_image) 
       }
    }
 
-   // 20220315-PE it's good if take_bg_image is 0 here (no errors)
-
-   if (take_bg_image > 0) {
-
-      // bg not loaded from image, so lets make the "classic" way
-
-      // sad face path
-      std::cout << "rama_plot::setup_background() PATH E" << std::endl;
+   // no bg done, so lets make the "classic" way
+   // take_bg_image is 0 for making it from a png.
+   if (take_bg_image) {
       // do at least one:
       if (! blocks && ! isolines)
          blocks = 1;
@@ -744,6 +746,8 @@ coot::rama_plot::get_intermediate_bg_colour(guint start_colour[4],
    static guint new_colour[4];
    float x;
    guint rgba_bg;
+   float y;
+   float z;
 
    x = (probability - prob_min) / (prob_max - prob_min);
 
@@ -754,12 +758,14 @@ coot::rama_plot::get_intermediate_bg_colour(guint start_colour[4],
       else
          new_colour[i] = (int)((1. - x) * (float)start_colour[i] +
                                x * (float)end_colour[i]);
+      y = new_colour[i]/255.;
+      new_colour[i] = (int) (255. * pow(y, gamma_correction));
    }
+
 
    // do some byte shift
    rgba_bg = (new_colour[0] << 24) + (new_colour[1] << 16) +
          (new_colour[2] << 8) + new_colour[3];
-
    return rgba_bg;
 }
 
@@ -868,14 +874,15 @@ coot::rama_plot::make_background(const clipper::Ramachandran rama_type,
                                           "line-width",0.5,
                                           NULL);
             }
-
          }
       }
    }
-
 }
 
 
+#ifdef HAVE_GOOCANVAS
+
+// returns 0 on success; 1 on failure
 int
 coot::rama_plot::make_background_from_image(const clipper::Ramachandran rama_type,
                                             GooCanvasItem *bg_group,
@@ -912,6 +919,7 @@ coot::rama_plot::make_background_from_image(const clipper::Ramachandran rama_typ
 
    return ret; // return 0 on success (no failure)
 }
+#endif
 
 
 void
@@ -1156,8 +1164,8 @@ coot::rama_plot::make_isolines(const clipper::Ramachandran rama_type, GooCanvasI
                                                 x1,y1,
                                                 x2,y2,
 //                                                "stroke-color", "black",
-                                                "stroke-color", "grey60",
-                                                "line-width", 0.5,
+                                                "stroke-color", "grey30",
+                                                "line-width", line_width,
                                                 NULL);
          }
       }

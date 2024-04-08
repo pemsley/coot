@@ -1,0 +1,8 @@
+
+v0=$(git rev-parse > /dev/null 2>&1 && git ls-files --others --exclude-standard)
+if [ -z "$v0" ] ; then
+   vv=""
+else
+   vv1=$(git ls-files --others --exclude-standard | wc -l)
+   echo ' '$vv1
+fi

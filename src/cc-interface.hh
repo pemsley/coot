@@ -6,17 +6,17 @@
  * Copyright 2015 by Medical Research Council
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
  * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
@@ -359,6 +359,22 @@ int handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag);
 /*! \brief this reads a EMDB bundle - I don't think they exist any more */
 int handle_read_emdb_data(const std::string &dir_name);
 //! \}
+
+#ifdef SWIG
+#else
+
+// non-SWIGable functions:
+
+/*! \brief
+We overwrite the imol_map and we also presume that the
+grid sampling of the contributing maps match. This makes it
+much faster to generate than an average map.
+*/
+void regen_map_internal(int imol_map, const std::vector<std::pair<int, float> > &weighted_map_indices);
+
+// As above, but also create a new map
+int make_weighted_map_simple_internal(const std::vector<std::pair<int, float> > &weighted_map_indices);
+#endif
 
 // maybe we need to spefify_other things like the colour table.
 void
@@ -878,8 +894,10 @@ void add_hydrogens_from_file(int imol, std::string pdb_with_Hs_file_name);
 //! \brief add hydrogen atoms to the specified residue
 void add_hydrogen_atoms_to_residue(int imol, std::string chain_id, int res_no, std::string ins_code);
 
+#ifdef USE_PYTHON
 //! \brief add hydrogen atoms to the specified residue
 void add_hydrogen_atoms_to_residue_py(int imol, PyObject *residue_spec_py);
+#endif
 
 /* Here the Python code for ATOM INFO */
 
@@ -1902,6 +1920,17 @@ int handle_drag_and_drop_string(const std::string &uri);
 
 
 /* ------------------------------------------------------------------------- */
+/*                      Map Display Control                                  */
+/* ------------------------------------------------------------------------- */
+
+/*! \name  Map Display Control */
+// \{
+//! \brief undisplay all maps except the given one
+void undisplay_all_maps_except(int imol_map);
+// \}
+
+
+/* ------------------------------------------------------------------------- */
 /*                      Map Contours                                         */
 /* ------------------------------------------------------------------------- */
 
@@ -2332,5 +2361,22 @@ void set_use_sounds(bool state);
 void curmudgeon_mode();
 
 void halloween();
+
+void read_positron_metadata(const std::string &z_data, const std::string &table);
+
+#ifdef USE_PYTHON
+PyObject *positron_pathway(PyObject *map_molecule_list_py, PyObject *pathway_points_py);
+#endif
+
+#ifdef USE_PYTHON
+void positron_plot_py(const std::string &fn_z_csv, const std::string &fn_s_csv,
+                      PyObject *base_map_index_list);
+#endif
+
+#ifdef SWIG
+#else
+void positron_plot_internal(const std::string &fn_z_csv, const std::string &fn_s_csv,
+                            const std::vector<int> &base_map_index_list);
+#endif
 
 #endif // CC_INTERFACE_HH

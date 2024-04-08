@@ -1,3 +1,28 @@
+/*
+ * src/graphics-info-refine.cc
+ *
+ * Copyright 2020 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
+ */
 
 #ifdef USE_PYTHON
 #include <Python.h>
@@ -7,7 +32,7 @@
 #include "sound.hh"
 
 /*! \brief shiftfield B-factor refinement */
-void 
+void
 graphics_info_t::shiftfield_b_factor_refinement(int imol) {
 
    int imol_map = Imol_Refinement_Map();
@@ -102,15 +127,16 @@ graphics_info_t::updating_maps_update_the_coot_points_overlay() {
       gtk_label_set_text(GTK_LABEL(label_3), "-----");
    } else {
       int d = rail_point_history.back().map_rail_points_delta;
-      if (d > 10)
+      int leeway = 15;
+      if (d > leeway)
          play_sound("SUCCESS");
-      if (d < -10)
+      if (d < -leeway)
          play_sound("OOPS");
       std::string plus;
       if (d > 0) plus = "+";
       std::string colour = "#dddddd";
-      if (d < 0) colour = "#ff3333";
-      if (d > 0) colour = "#33ff33";
+      if (d < -leeway) colour = "#ff3333";
+      if (d >  leeway) colour = "#33ff33";
       std::string l_1 = std::string("<span foreground='");
       l_1 += colour;
       l_1 += std::string("'>");

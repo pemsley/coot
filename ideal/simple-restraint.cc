@@ -6,19 +6,19 @@
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 // #define ANALYSE_REFINEMENT_TIMING
@@ -112,6 +112,14 @@ coot::restraints_container_t::~restraints_container_t() {
 
    unset_fixed_during_refinement_udd();
 
+   // 20240228-PE If the restraints_container_t is closed/finished with before the refinement
+   // has terminated (i.e. continue_status == GSL_CONTINUE), then free_delete_reset()
+   // doesn't get called. So call it now.
+   // Fixes memory leak.
+   //
+   // 20240229-PE Nope. This causes a crash is test_peptide_omega()
+   // free_delete_reset();
+
    if (from_residue_vector) {
       if (atom) {
 	 // this is constructed manually.
@@ -131,6 +139,18 @@ coot::restraints_container_t::~restraints_container_t() {
          // restraints containers.
 	 // delete [] atom;
 	 // atom = NULL;
+
+         // 20240228-PE another memory leak: atom
+         // It seems to me at the moment that atom can be assigned in the constructor
+         // in which case, we don't want to delete it.
+         // Or it can be assigned in init_from_residue_vec(), in which case, we do
+         // want to delete it (atom_array_needs_to_be_deleted_at_end is set there)
+
+         if (atom_array_needs_to_be_deleted_at_end) {
+            delete [] atom;
+            atom = nullptr;
+         }
+
       }
    } else {
       // member data item mmdb::PPAtom atom is constructed by an
@@ -1000,6 +1020,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    for (unsigned int i=0; i<all_residues.size(); i++)
       n_atoms += all_residues[i]->GetNumberOfAtoms();
    atom = new mmdb::PAtom[n_atoms];
+   atom_array_needs_to_be_deleted_at_end = true;
    int atom_index = 0;
    for (unsigned int i=0; i<all_residues.size(); i++) {
       mmdb::PPAtom residue_atoms = 0;
@@ -1291,10 +1312,14 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags, int n_
 void
 coot::restraints_container_t::setup_minimize() {
 
-   if (m_s)
+   if (m_s) {
       gsl_multimin_fdfminimizer_free(m_s);
-   if (x)
+      m_s = nullptr;
+   }
+   if (x) {
       gsl_vector_free(x);
+      x = nullptr;
+   }
 
    // T = gsl_multimin_fdfminimizer_conjugate_fr; // not as good as pr
    // T = gsl_multimin_fdfminimizer_steepest_descent; // pathetic
@@ -1679,7 +1704,8 @@ coot::restraints_container_t::free_delete_reset()  {
 
    if (false)
       std::cout << "DEBUG:: ---- free/delete/reset m_s and x" << std::endl;
-   gsl_multimin_fdfminimizer_free(m_s);
+   if (m_s)
+      gsl_multimin_fdfminimizer_free(m_s);
    gsl_vector_free(x);
    m_s = 0;
    x = 0;

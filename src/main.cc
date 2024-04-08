@@ -5,19 +5,19 @@
  * Copyright 2014, 2015 by Medical Research Council
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 #include <gtk/gtk.h>
@@ -71,8 +71,6 @@
 // #include "coords/mmdb.h"
 // #include "coords/mmdb-crystal.h"
 
-#include "clipper/core/test_core.h"
-#include "clipper/contrib/test_contrib.h"
 
 #include "utils/coot-utils.hh"
 #include "coords/Cartesian.h"
@@ -117,8 +115,6 @@
 #include "change-dir.hh"
 #include "curlew.hh"
 
-#include "testing.hh" // for test_internal();
-
 #include "scm-boot-guile.hh"
 
 #include "widget-headers.hh" // put these somewhere else? better name? -------- GTK-FIME
@@ -138,27 +134,6 @@ windows_set_error_mode() {
 }
 
 
-
-
-int
-do_self_tests() {
-
-   std::cout << "INFO:: Running internal self tests" << std::endl;
-   // return true on success
-   clipper::Test_core test_core;       bool result_core    = test_core();
-   clipper::Test_contrib test_contrib; bool result_contrib = test_contrib();
-   std::cout<<" INFO:: Test Clipper core   : "<<(result_core   ?"OK":"FAIL")<<std::endl;
-   std::cout<<" INFO:: Test Clipper contrib: "<<(result_contrib?"OK":"FAIL")<<std::endl;
-   // return 1 on success
-   int gis = test_internal();
-   int shell_exit_code = 1;
-   if (result_core)
-      if (result_contrib)
-         if (gis == 1)
-            shell_exit_code = 0;
-   return shell_exit_code;
-
-}
 
 
 #include "widget-from-builder.hh"

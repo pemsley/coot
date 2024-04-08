@@ -6,24 +6,21 @@
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
-
-// we don't want to compile anything if we don't have gsl
-#ifdef HAVE_GSL
 
 #include "compat/coot-sysdep.h"
 
@@ -1509,7 +1506,8 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
                                             const std::string &link_id,
                                             bool order_switch_flag) {
 
-      std::cout << "link_type_filter_general() for " << link_id << std::endl;
+      if (false)
+         std::cout << "link_type_filter_general() starting with link_id " << link_id << std::endl;
 
       double dist_crit = 3.0; // A
       std::string found_link; // fail initially.
@@ -1564,15 +1562,16 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
             }
          }
       }
-      std::cout << "link_type_filter_general() checking type " << link_id << " and returns \""
-                << found_link << "\"" << std::endl;
+      if (false)
+         std::cout << "link_type_filter_general() checking type " << link_id << " and returns \""
+                   << found_link << "\"" << std::endl;
       return found_link;
    };
 
    bool debug_links = false;
 
    if (debug_links) {
-      std::cout << "####################### find_link_type_2022()   called with first_residue "
+      std::cout << "\n####################### find_link_type_2022() called with first_residue       "
                 << coot::residue_spec_t(first_residue)  << " " <<  first_residue->GetResName() << " and second residue "
                 << coot::residue_spec_t(second_residue) << " " << second_residue->GetResName() << std::endl;
    }
@@ -1594,10 +1593,11 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       if (group_2 == "D-SACCHARIDE") group_2 = "pyranose";
 
       if (debug_links)
-         std::cout << "comp_id_1 " << comp_id_1 << " group_1 " << group_1 << " comp_id_2 " << comp_id_2 << " group_2 " << group_2
+         std::cout << "   comp_id_1 " << comp_id_1 << " group_1 " << group_1
+                   << " comp_id_2 " << comp_id_2 << " group_2 " << group_2
                    << std::endl;
 
-      if (group_1 == "pyranose" || group_2 == "pyranose") { // does this link O-linked carbohydrates?
+      if (group_1 == "pyranose" && group_2 == "pyranose") { // does this link O-linked carbohydrates?
          std::string link_type_glyco;
          bool use_links_in_molecule = true;
          link_type_glyco = find_glycosidic_linkage_type(first_residue, second_residue, geom, use_links_in_molecule);
@@ -1617,8 +1617,8 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
          std::vector<coot::chem_link> link_infos_b = geom.matching_chem_links(comp_id_2, group_2, comp_id_1, group_1);
 
          if (debug_links) {
-            std::cout << "#################### found n-forward  links: " << link_infos_f.size() << std::endl;
-            std::cout << "#################### found n-backward links: " << link_infos_b.size() << std::endl;
+            std::cout << "   ###### found n-forward  links: " << link_infos_f.size() << std::endl;
+            std::cout << "   ###### found n-backward links: " << link_infos_b.size() << std::endl;
          }
 
          std::vector<std::pair<coot::chem_link, bool> > chem_links;
@@ -1672,8 +1672,8 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       }
 
       if (debug_links)
-         std::cout << "#################### find_link_type_2022() returns: " << link_type << " "
-                   << order_switch_was_needed << std::endl;
+         std::cout << "   .... find_link_type_2022() here A with link type: " << link_type
+                   << " and order_switch_was_needed: " << order_switch_was_needed << std::endl;
 
    }
 
@@ -1715,6 +1715,10 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
          }
       }
    }
+
+   if (debug_links)
+      std::cout << "####################### find_link_type_2022() returns \"" << link_type << "\""
+                << " order_switch: " << order_switch_was_needed << std::endl;
 
    return std::pair<std::string, bool> (link_type, order_switch_was_needed);
 }
@@ -2056,6 +2060,3 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 
    return n_plane;
 }
-
-#endif // HAVE_GSL
-

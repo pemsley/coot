@@ -1,3 +1,28 @@
+/*
+ * src/new-startup.cc
+ *
+ * Copyright 2022 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
+ */
 
 #include <iostream>
 #include <string>
@@ -13,6 +38,10 @@
 #include "c-interface-preferences.h"
 #include "src/boot-python.hh"
 #include "layla/layla_embedded.hpp"
+
+#include "clipper/core/test_core.h"
+#include "clipper/contrib/test_contrib.h"
+#include "testing.hh" // for test_internal();
 
 void print_opengl_info();
 
@@ -377,12 +406,15 @@ on_glarea_swipe(GtkEventControllerScroll *controller,
                 gpointer                  user_data) {
 
    graphics_info_t g;
-   // std::cout << "swipe " << dx << " " << dy << std::endl;
+   // swipes happend a lot - a click-and-drag seems to be a swipe
+   // std::cout << "------------------ swipe " << dx << " " << dy << std::endl;
 
    GtkGestureSwipe *swipe_gesture; // how to get this?
    double vel_x;
    double vel_y;
    // gboolean state = gtk_gesture_get_velocity(swipe_gesture, &vel_x, &vel_y);
+
+   g.using_trackpad = true;
 
 }
 
@@ -710,9 +742,10 @@ new_startup_application_activate(GtkApplication *application,
 
       std::string dir = coot::package_data_dir();
       // change "glade" to "ui" one day.
-      std::string dir_glade = coot::util::append_dir_dir(dir, "glade");
+      // 20240218-PE today is that day!
+      std::string dir_ui = coot::util::append_dir_dir(dir, "ui");
       std::string ui_file_name = "coot-gtk4.ui";
-      std::string ui_file_full = coot::util::append_dir_file(dir_glade, ui_file_name);
+      std::string ui_file_full = coot::util::append_dir_file(dir_ui, ui_file_name);
       if (coot::file_exists(ui_file_name))
          ui_file_full = ui_file_name;
 
@@ -726,7 +759,7 @@ new_startup_application_activate(GtkApplication *application,
 
       // the preferences builder:
       std::string preferences_ui_file_name = "preferences-gtk4.ui";
-      std::string preferences_ui_file_name_full = coot::util::append_dir_file(dir_glade, preferences_ui_file_name);
+      std::string preferences_ui_file_name_full = coot::util::append_dir_file(dir_ui, preferences_ui_file_name);
       if (coot::file_exists(preferences_ui_file_name))
          preferences_ui_file_name_full = preferences_ui_file_name;
       GtkBuilder *preferences_builder = gtk_builder_new();
@@ -870,17 +903,45 @@ void window_removed(GtkApplication* self,GtkWindow* window, gpointer user_data) 
 }
 
 int do_no_graphics_mode(command_line_data& cld, int argc, char** argv) {
-   handle_command_line_data(cld);
-   // Is this correct here like this?
-   // How is this supposed to behave exactly?
-   run_command_line_scripts();
 
+   handle_command_line_data(cld);
    setup_python_basic(argc, argv);
    setup_python_coot_module();
    setup_python_with_coot_modules(argc, argv);
+   run_command_line_scripts();
    start_command_line_python_maybe(true, argc, argv);
+
    return 0;
 }
+
+int
+do_self_tests() {
+
+   std::cout << "INFO:: Running internal self tests" << std::endl;
+   // return true on success
+   clipper::Test_core test_core;       bool result_core    = test_core();
+   clipper::Test_contrib test_contrib; bool result_contrib = test_contrib();
+   std::cout<<" INFO:: Test Clipper core   : "<<(result_core   ?"OK":"FAIL")<<std::endl;
+   std::cout<<" INFO:: Test Clipper contrib: "<<(result_contrib?"OK":"FAIL")<<std::endl;
+
+   // 20240309-PE I need tests
+   //   1: internal tests (that can use tutorial-modern and rnasa)
+   //   2: internal tests that use the monomer library
+   //   3: internal tests that use greg data
+   // executed by --self-test-internal, --self-test-monomer-library --self-test-greg-data.
+   // Currently I only have type 1:
+
+   // return 1 on success
+   int gis = test_internal();
+   int shell_exit_code = 1;
+   if (result_core)
+      if (result_contrib)
+         if (gis == 1)
+            shell_exit_code = 0;
+   return shell_exit_code;
+
+}
+
 
 int new_startup(int argc, char **argv) {
 
@@ -894,6 +955,9 @@ int new_startup(int argc, char **argv) {
    // check_reference_structures_dir();
 
    command_line_data cld = parse_command_line(argc, argv);
+
+   if (cld.run_internal_tests_and_exit)
+      return do_self_tests();
 
    if(!cld.do_graphics) {
       return do_no_graphics_mode(cld, argc, argv);

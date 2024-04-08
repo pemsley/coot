@@ -5,19 +5,19 @@
  * Copyright 2014, 2015, 2016 by Medical Research Council
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 
@@ -2200,8 +2200,6 @@ graphics_info_t::clear_up_moving_atoms() {
                             // OK, so let the test be on moving_atoms_asc->mol
                             // moving_atoms_asc is set in init()
 
-#ifdef HAVE_GSL
-
    if (last_restraints) {
       last_restraints->clear();
       delete last_restraints;
@@ -2210,9 +2208,6 @@ graphics_info_t::clear_up_moving_atoms() {
    }
 
    release_restraints_lock(__FUNCTION__); // refinement ended and cleared up.
-
-#endif // HAVE_GSL
-
 
    moving_atoms_lock  = false;
 
@@ -5965,12 +5960,13 @@ graphics_info_t::clear_diff_map_peaks() {
 void
 graphics_info_t::rotamer_dialog_neighbour_rotamer(int istep) {
 
-#ifndef EMSCRIPTEN
    graphics_info_t g;
-   if (g.rotamer_dialog) {
+
+   GtkWidget *rotamer_dialog = widget_from_builder("rotamer_selection_dialog");
+   if (rotamer_dialog) {
       // void *t  = (void *) (gtk_object_get_user_data(GTK_OBJECT(g.rotamer_dialog)));
       // std::cout << "user data: " << t << std::endl;
-      int n_rotamers = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(g.rotamer_dialog), "n_rotamers"));
+      int n_rotamers = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(rotamer_dialog), "n_rotamers"));
       // std::cout << "We find " << n_rotamers << " rotamers in the widget\n";
       GtkWidget *button;
       short int ifound_active_button = 0;
@@ -6015,7 +6011,7 @@ graphics_info_t::rotamer_dialog_neighbour_rotamer(int istep) {
          std::cout << "ERROR:: not active rotamer button found " << std::endl;
       }
    }
-#endif
+
 }
 
 void
@@ -6895,19 +6891,131 @@ graphics_info_t::update_scroll_wheel_map_on_molecule_close() {
       bool changed = false; // to a higher number
       int m = molecules.size() - 1;
       for(int imol=m; imol>=0; imol--) {
-	 if (imol > imol_start) {
-	    if (is_valid_map_molecule(imol)) {
-	       scroll_wheel_map = imol;
-	       changed = true;
-	    }
-	 } else {
-	    if (! changed) {
-	       if (is_valid_map_molecule(imol))
-		  scroll_wheel_map = imol;
-	    }
-	 }
+         if (imol > imol_start) {
+            if (is_valid_map_molecule(imol)) {
+               scroll_wheel_map = imol;
+               changed = true;
+            }
+         } else {
+            if (! changed) {
+               if (is_valid_map_molecule(imol))
+                  scroll_wheel_map = imol;
+            }
+         }
       }
       // nothing was satisfactory then.
       scroll_wheel_map = -1;
+   }
+}
+
+int
+graphics_info_t::get_n_pressed_for_leftquote_tap(std::chrono::time_point<std::chrono::high_resolution_clock> tp) {
+
+   unsigned int s = leftquote_press_times.size();
+   unsigned int r = s % 4 + 1;
+   if (s != 0) {
+      auto tpl = leftquote_press_times.back();
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp - tpl).count();
+      if (d10 > 2000) {
+         leftquote_press_times.clear();
+         r = 1;
+      }
+   }
+   leftquote_press_times.push_back(tp);
+   return r;
+}
+
+void
+graphics_info_t::display_next_map() { // one at a time, all, none.
+
+   auto find_index = [] (const std::vector<int> &v, int item) {
+      int idx = -1;
+      for (size_t i = 0; i < v.size(); i++) {
+         if (v[i] == item) {
+            idx = i;
+            break;
+         }
+      }
+      return idx;
+   };
+
+   // one, all or none.
+   std::vector<int> maps_to_be_displayed;
+
+   std::vector<int> mm;
+   std::vector<int> dm;
+   int n_mol = molecules.size();
+   for (int imol=0; imol<n_mol; imol++) {
+      if (is_valid_map_molecule(imol)) {
+         mm.push_back(imol);
+         if (molecules[imol].is_displayed_p()) {
+            dm.push_back(imol);
+         }
+      }
+   }
+   if (mm.empty()) return;
+   int mm_size = mm.size();
+
+   if (mm.size() > 1) {
+      int idx = -1;
+      if (! dm.empty()) {
+         if (dm.back() == mm.back() && dm.size() == 1) {
+            // the last map was displayed, so now we turn off all maps
+         } else {
+            int imol_first = dm[0];
+            if (dm.size() > 1) {
+               maps_to_be_displayed.push_back(imol_first);
+            } else {
+               int idx_first = find_index(mm, imol_first);
+               if (idx_first != -1) {
+                  int next_index = idx_first + 1;
+                  if (next_index >= mm_size) {
+                     next_index = 0;
+                  }
+                  maps_to_be_displayed.push_back(mm[next_index]);
+               } else {
+                  // this cannot happen
+                  maps_to_be_displayed.push_back(mm[0]);
+               }
+            }
+         }
+      } else {
+         // none of them were displayed, now display all.
+         maps_to_be_displayed = mm;
+      }
+
+      for (int imol=0; imol<n_mol; imol++) {
+         if (std::find(maps_to_be_displayed.begin(), maps_to_be_displayed.end(), imol) == maps_to_be_displayed.end()) {
+            molecules[imol].set_map_is_displayed(0);
+         } else {
+            molecules[imol].set_map_is_displayed(1);
+         }
+      }
+   } else {
+      // toggle the display of the one displayed map
+      int imol_map = mm[0];
+      if (dm.empty())
+         molecules[imol_map].set_map_is_displayed(1);
+      else
+         molecules[imol_map].set_map_is_displayed(0);
+   }
+}
+
+// static
+void
+graphics_info_t::toggle_display_of_last_model() {
+
+   int imol = -1;
+   int n_mols = n_molecules();
+   for (int i=0; i<n_mols; i++) {
+      if (is_valid_model_molecule(i))
+         imol = i;
+   }
+
+   if (imol > -1) {
+      if (molecules[imol].is_displayed_p())
+         molecules[imol].set_mol_is_displayed(0);
+      else
+         molecules[imol].set_mol_is_displayed(1);
    }
 }

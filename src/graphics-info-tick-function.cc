@@ -1,9 +1,34 @@
+/*
+ * src/graphics-info-tick-function.cc
+ *
+ * Copyright 2023 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
+ */
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif // USE_PYTHON
 
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
-#include <glm/ext.hpp>
+// #include <glm/ext.hpp> // 20240326-PE
 #include <glm/gtx/string_cast.hpp>  // to_string()
 
 #include <iostream>
@@ -45,7 +70,8 @@ graphics_info_t::tick_function_is_active() {
        do_tick_hydrogen_bonds_mesh ||
        do_tick_outline_for_active_residue ||
        do_tick_happy_face_residue_markers ||
-       do_tick_gone_diegos)
+       do_tick_gone_diegos ||
+       do_tick_gone_diff_map_peaks)
       return gboolean(TRUE);
    else
       return gboolean(FALSE);
@@ -101,6 +127,19 @@ graphics_info_t::glarea_tick_func(GtkWidget *widget,
             particles.update_gone_diego_particles();
             mesh.update_instancing_buffer_data_for_particles(particles);
          }
+      }
+   }
+
+   if (do_tick_gone_diff_map_peaks) {
+      // this could be tidied up
+      auto &particles = meshed_particles_for_gone_diff_map_peaks.particle_container;
+      auto &mesh      = meshed_particles_for_gone_diff_map_peaks.mesh;
+      meshed_particles_for_gone_diff_map_peaks.particle_container.update_gone_diff_map_particles();
+      meshed_particles_for_gone_diff_map_peaks.mesh.update_instancing_buffer_data_for_particles(particles);
+      if (! particles.have_particles_with_life()) {
+         particles.clear();
+         mesh.clear();
+         do_tick_gone_diff_map_peaks = false;
       }
    }
 

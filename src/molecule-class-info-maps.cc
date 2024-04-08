@@ -8,19 +8,19 @@
  * Author: Paul Emsley
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 #ifdef USE_PYTHON
@@ -47,6 +47,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()
+#include <glm/gtc/type_ptr.hpp>  // for value_ptr() 20240326-PE
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
@@ -1151,7 +1152,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
             sum += vertices[tri_con.point_indices[i].pointID[0]].pos;
             sum += vertices[tri_con.point_indices[i].pointID[1]].pos;
             sum += vertices[tri_con.point_indices[i].pointID[2]].pos;
-            glm::vec3 mid_point = 0.333333 * sum;
+            glm::vec3 mid_point = 0.333333f * sum;
 
             // now map triangles (used for sorting)
             int idx = map_triangle_centres.size();
@@ -1185,7 +1186,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
             sum += vertices[tri_con.point_indices[i].pointID[0]].pos;
             sum += vertices[tri_con.point_indices[i].pointID[1]].pos;
             sum += vertices[tri_con.point_indices[i].pointID[2]].pos;
-            glm::vec3 mid_point = 0.333333 * sum;
+            glm::vec3 mid_point = 0.333333f * sum;
 
             // now map triangles (used for sorting)
             int idx = map_triangle_centres.size();
@@ -1687,11 +1688,12 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 
 	 // save state strings
 
+         // hack in the "coot." for now.
 	 std::string cwd = coot::util::current_working_dir();
 	 std::string f1  = coot::util::intelligent_debackslash(mtz_file_name);
 	 std::string f2  = coot::util::relativise_file_name(f1, cwd);
 	 if (have_sensible_refmac_params) {
-	    save_state_command_strings_.push_back("make-and-draw-map-with-refmac-params");
+	    save_state_command_strings_.push_back("coot.make-and-draw-map-with-refmac-params");
 	    save_state_command_strings_.push_back(single_quote(f2));
 	    save_state_command_strings_.push_back(single_quote(f_col));
 	    save_state_command_strings_.push_back(single_quote(phi_col));
@@ -1705,7 +1707,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	    save_state_command_strings_.push_back(g.int_to_string(refmac_r_free_flag_sensible));
 	 } else {
 	    if (save_use_reso_limits) {
-	       save_state_command_strings_.push_back("make-and-draw-map-with-reso-with-refmac-params");
+	       save_state_command_strings_.push_back("coot.make-and-draw-map-with-reso-with-refmac-params");
 	       save_state_command_strings_.push_back(single_quote(f2));
 	       save_state_command_strings_.push_back(single_quote(f_col));
 	       save_state_command_strings_.push_back(single_quote(phi_col));
@@ -1723,7 +1725,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	       save_state_command_strings_.push_back(g.float_to_string(high_reso_limit));
 	    } else {
 	       if (is_anomalous_flag) {
-		  save_state_command_strings_.push_back("make-and-draw-map-with-reso-with-refmac-params");
+		  save_state_command_strings_.push_back("coot.make-and-draw-map-with-reso-with-refmac-params");
 		  save_state_command_strings_.push_back(single_quote(f2));
 		  save_state_command_strings_.push_back(single_quote(f_col));
 		  save_state_command_strings_.push_back(single_quote(phi_col));
@@ -1741,7 +1743,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 		  save_state_command_strings_.push_back(g.float_to_string(1.2));
 	       } else {
 		  // bog standard.
-		  save_state_command_strings_.push_back("make-and-draw-map");
+		  save_state_command_strings_.push_back("coot.make-and-draw-map");
 		  save_state_command_strings_.push_back(single_quote(f2));
 		  save_state_command_strings_.push_back(single_quote(f_col));
 		  save_state_command_strings_.push_back(single_quote(phi_col));
@@ -1889,7 +1891,7 @@ molecule_class_info_t::set_refmac_save_state_commands(std::string mtz_file_name,
 
    have_sensible_refmac_params = true;
    save_state_command_strings_.clear();
-   save_state_command_strings_.push_back("make-and-draw-map-with-refmac-params");
+   save_state_command_strings_.push_back("coot.make-and-draw-map-with-refmac-params");
    save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(mtz_file_name)));
    save_state_command_strings_.push_back(single_quote(f_col));
    save_state_command_strings_.push_back(single_quote(phi_col));
@@ -3633,16 +3635,11 @@ molecule_class_info_t::density_at_point(const clipper::Coord_orth &co) const {
       return -1000.0;
    } else {
 
-#ifdef HAVE_GSL
       float dv;
       clipper::Coord_frac af = co.coord_frac(xmap.cell());
       clipper::Coord_map  am = af.coord_map(xmap.grid_sampling());
       clipper::Interp_linear::interp(xmap, am, dv);
       return dv;
-#else
-      printf("no GSL so no density at point - remake \n");
-      return -1000.0;
-#endif // HAVE_GSL
    }
 }
 // Return status, was the contour level changed?  In that way, we

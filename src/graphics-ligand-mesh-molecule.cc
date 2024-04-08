@@ -1,3 +1,28 @@
+/*
+ * src/graphics-ligand-mesh-molecule.cc
+ *
+ * Copyright 2020 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
+ */
 
 #include <iostream>
 
@@ -494,11 +519,11 @@ graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_
             const lig_build::offset_text_t &offset = atom_id_info.offsets[i];
             std::string label = offset.text;
             glm::vec2 pos(-0.61, -0.61);
-            pos += 0.05 * pos_t_to_glm(atom.atom_position);
+            pos += 0.05f * pos_t_to_glm(atom.atom_position);
             if (offset.text_pos_offset == lig_build::offset_text_t::UP)
-               pos.y += 0.03;
+               pos.y += 0.03f;
             if (offset.text_pos_offset == lig_build::offset_text_t::DOWN)
-               pos.y -= 0.03;
+               pos.y -= 0.03f;
             if (offset.subscript)   pos.y -= 0.012;
             if (offset.superscript) pos.y += 0.012;
             pos.x += 0.03 * 0.08 * offset.tweak.x;

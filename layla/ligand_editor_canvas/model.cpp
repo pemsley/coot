@@ -658,7 +658,7 @@ void CanvasMolecule::shorten_double_bonds() {
             auto first_bonds_iter = this->bond_map.find(bond->first_atom_idx);
             if(first_bonds_iter != this->bond_map.end()) {
                 // Going over bonds of the first atom in the currently evaluated bond
-                for(const auto i: first_bonds_iter->second) {
+                for(const auto &i: first_bonds_iter->second) {
                     if(i->first_atom_idx == bond->first_atom_idx) {
                         if(i->second_atom_idx == bond->second_atom_idx) {
                             // We're looking at the 'bond' itself. We must skip it.
@@ -677,7 +677,7 @@ void CanvasMolecule::shorten_double_bonds() {
             auto second_bonds_iter = this->bond_map.find(bond->second_atom_idx);
             if(second_bonds_iter != this->bond_map.end()) {
                 // Going over bonds of the second atom in the currently evaluated bond
-                for(const auto i: second_bonds_iter->second) {
+                for(const auto &i: second_bonds_iter->second) {
                     if(i->first_atom_idx == bond->second_atom_idx) {
                         // i's first atom is bond's second, so we need to flip the sign of the bond vectors
                         // so that we can correctly compute the angle between them.

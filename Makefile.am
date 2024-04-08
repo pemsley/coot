@@ -31,22 +31,22 @@ ACLOCAL_AMFLAGS=-I macros
 
 # also: coords depends on ligand because now we do rotamer markup.
 #       so ligand functions must not use coot::Cartesian
-if COND_LIDIA_ONLY
-   SUBDIRS = compat utils protein_db mini-mol geometry lidia-core coot-utils lbg
+if COND_LAYLA_ONLY
+   SUBDIRS = compat utils protein_db mini-mol geometry lidia-core coot-utils layla
 else
 if COND_LIBCOOTAPI_ONLY
    SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-mol geometry  \
         lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords \
 	density-contour skeleton  high-res build MoleculesToTriangles pli \
-	python-tests cootilus fonts pyrogen lbg data buccaneer_ml_growing \
+	python-tests cootilus fonts pyrogen data \
 	man rama-data glTF pixmaps textures api
 else
    # rcrane is not included yet.
    SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-mol geometry  \
         lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords \
-	density-contour skeleton high-res build MoleculesToTriangles pli buccaneer_ml_growing greg-tests \
+	density-contour skeleton high-res build MoleculesToTriangles pli greg-tests \
 	python-tests cootilus fonts pyrogen data \
-	man rama-data doc glTF pixmaps textures sounds api layla validation-graphs src
+	man rama-data doc glTF pixmaps textures sounds api layla validation-graphs src ui
 endif
 endif
 
@@ -69,10 +69,7 @@ EXTRA_DIST = 		\
 	TODO 		\
 	count-loc 	\
 	a6.glade        \
-	coot-gtk4.ui    \
 	single-map-properties-dialog.glade \
-	syminfo.lib	\
-	colours.def	\
 	my.supp		\
 	guile.supp	\
 	windows/syminfo.lib	\
@@ -83,7 +80,9 @@ EXTRA_DIST = 		\
 	copyright-disclaimer.txt \
 	intltool-extract.in      \
 	intltool-merge.in        \
-	intltool-update.in 
+	intltool-update.in       \
+	get-the-git-commit-count.sh \
+	get-the-git-commit.sh
 
 # install-data-local:
 # 	@$(NORMAL_INSTALL)
@@ -115,11 +114,8 @@ EXTRA_DIST = 		\
 
 # packdatadir is xxx/share/coot
 subpkgdatadir = $(pkgdatadir)
-subpkgdata_DATA = standard-residues.pdb colours.def \
-	mtrix-to-ncs-matrix.awk syminfo.lib
+subpkgdata_DATA = standard-residues.pdb
 
-cootgladedir = $(pkgdatadir)/glade
-dist_cootglade_DATA = coot-gtk4.ui restraints-editor.ui preferences-gtk4.ui single-map-properties-dialog-gtk4.ui
 
 appdatadir = ${datarootdir}/appdata
 dist_appdata_DATA = coot.appdata.xml

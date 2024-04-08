@@ -1,3 +1,28 @@
+/*
+ * src/molecule-class-info.h
+ *
+ * Copyright 2007 by University of York
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
+ */
 // -*-c++-*- ; emacs directive
 /* src/molecule-class-info.h
  *
@@ -7,19 +32,19 @@
  * Copyright 2013, 2014, 2015 by Medical Research Council
  *
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 
@@ -184,7 +209,8 @@ namespace coot {
           COLOUR_BY_CHAIN_GOODSELL_BONDS=21
    };
 
-   enum { RESIDUE_NUMBER_UNSET = -1111};
+   // this is now in api/coot_molecule.hh
+   // enum { RESIDUE_NUMBER_UNSET = -1111};
 
 
    // a helper class - provide filenames and status for dialog widget
@@ -953,8 +979,8 @@ public:        //                      public
    // found.
    //
    mmdb::Residue *get_residue(const std::string &chain_id,
-			 int reso,
-			 const std::string &insertion_code) const;
+                              int reso,
+                              const std::string &insertion_code) const;
 
    // Return a copy of the pointer (only).  Return NULL on residue not
    // found.
@@ -3582,6 +3608,7 @@ void draw_map_molecule(bool draw_transparent_maps,
    static int watch_mtz(gpointer data); // return 0 to stop watching
    bool continue_watching_mtz;
    updating_map_params_t updating_map_previous;
+   clipper::Xmap<float> updating_map_previous_difference_map;
    int update_map_from_mtz_if_changed(const updating_map_params_t &rump);
    void update_self_from_file(const std::string &file_name);
    void update_self(const coot::mtz_to_map_info_t &mmi);

@@ -51,8 +51,12 @@ m4_ifset([LT_INIT],
 GNOME_COMPILE_WARNINGS
 GNOME_CXX_WARNINGS
 
-m4_define([v_git_revision_count], m4_esyscmd([(git rev-list --count HEAD 2>/dev/null || echo 0) | tr -d '\n']))
-m4_define([v_git_commit], m4_esyscmd([git rev-parse HEAD | tr -d '\n']))
+# m4_define([v_git_revision_count], m4_esyscmd([(git rev-list --count HEAD 2>/dev/null || echo 0) | tr -d '\n']))
+# m4_define([v_git_commit], m4_esyscmd([git rev-parse HEAD | tr -d '\n']))
+# autoconf and aclocal can be run outside of a git repo, so give the git command some protection and fallback
+m4_define([v_git_revision_count], m4_esyscmd([bash ./get-the-git-commit-count.sh | tr -d '\n']))
+m4_define([v_git_commit], m4_esyscmd([bash ./get-the-git-commit.sh | tr -d '\n']))
+
 #dnl m4_define([vxx_git_revision_count], m4_esyscmd([git rev-list --count HEAD]))
 # old gits can't use count with HEAD.
 # we need to make the src and pyrogen directories if they do not exist
@@ -221,13 +225,23 @@ else
    AC_SUBST(COOT_USE_GUILE)
 fi
 
-
 dnl =========================== GSL ================================
 
-dnl test for GSL
-# min_gsl_version=1.3
-AX_PATH_GSL([1.3],[COOT_GSL_FLAGS=-DHAVE_GSL],[COOT_GSL_FLAGS=""])
-AC_SUBST(COOT_GSL_FLAGS)
+PKG_CHECK_MODULES([gsl], [gsl])
+
+save_libs="$LIBS"
+LIBS="$gsl_LIBS"
+save_cflags="$CFLAGS"
+CFLAGS="$gsl_CFLAGS"
+AC_CHECK_LIB([m],[cos])
+AC_CHECK_LIB([gslcblas],[cblas_dgemm])
+AC_CHECK_LIB([gsl],[gsl_blas_dgemm])
+LIBS="$save_libs"
+CFLAGS="$save_cflags"
+
+# I don't understand how this test works
+# AX_PATH_GSL(GSL_VERSION, [], [AC_MSG_ERROR(could not find required version of GSL)])
+
 
 dnl =========================== GLM ================================
 
@@ -238,10 +252,6 @@ dnl =========================== GTK ===========================
 PKG_CHECK_MODULES(GTK, gtk4 >= 4.4)
 
 PKG_CHECK_MODULES(EPOXY, epoxy >= 1.5)
-
-dnl =========================== GLFWw =========================
-
-PKG_CHECK_MODULES(GLFW3, glfw3 >= 3.0)
 
 dnl =========================== Python =========================
 
@@ -304,13 +314,34 @@ fi
 AC_ARG_WITH(rdkit-prefix, AS_HELP_STRING([--with-rdkit-prefix location of the RDKit package]),
             rdkit_prefix="$withval", rdkit_prefix=false)
 
+AC_SUBST(EMBEDDED_PYTHON_LIBS, "$PYTHON_LIBS")
+pl="$PYTHON_LIBS"
+
+case "${host_os}" in
+    *darwin* )
+      pl="-undefined dynamic_lookup"
+      # python libs for coot-bin executable (embedding Python) will need regular linking
+      # Fix that latter.
+      PYTHON_LIBS="-undefined dynamic_lookup"
+      ;;
+esac
+
 if test x$rdkit_prefix = xfalse ; then
-   :
+   echo checking for RDKit in $prefix
+   if test -x $prefix/include/rdkit ; then
+      echo OK, good we found RDKit in $prefix
+      rdkit_install_dir=$prefix
+      RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
+      RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams"
+   else
+      echo Configuration error. No, bad... we do not have necessary RDKIT
+      exit 1
+   fi
 else
    rdkit_install_dir="$withval"
    # better RDKit linking I hope
    RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
-   RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams -l$BOOST_PYTHON_LIB $PYTHON_LIBS"
+   RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams"
 fi
 
 if test x$coot_enhanced_ligand_additions = xtrue ; then
@@ -321,10 +352,10 @@ fi
 
 echo ENHANCED_LIGAND_TOOLS_CPPFLAGS $ENHANCED_LIGAND_TOOLS_CPPFLAGS
 
-AC_ARG_ENABLE(lidia-only, [  --enable-lidia-only build lidia only (not coot) ],
- lidia_only="yes",
- lidia_only="no")
-AM_CONDITIONAL([COND_LIDIA_ONLY], [test "$lidia_only" = yes])
+AC_ARG_ENABLE(layla-only, [  --enable-layla-only build layla only (not coot) ],
+ layla_only="yes",
+ layla_only="no")
+AM_CONDITIONAL([COND_LAYLA_ONLY], [test "$layla_only" = yes])
 
 AC_ARG_ENABLE(libcootapi-only, [  --enable-libcootapi-only build libcootapi only (not coot) ],
 [case "${enableval}" in
@@ -349,24 +380,7 @@ AC_SUBST(MOLTRIANGLES_LIBS)
 
 AC_SUBST(COOT_BUILD_INFO_STRING)
 
-
-# #defines for SWIG:
-#
-# SWIG_FLAGS is something of a misnomer.  It actually defines
-# COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
-# correct callbacks in both GTK1 and GTK2 regimes.
-#
-# Use swig flags properly. Remove COOT_USE_GTK2_INTERFACE
-SWIG_FLAGS="-DSWIG -DCOOT_USE_GTK2_INTERFACE"
-AC_SUBST(SWIG_FLAGS)
-
-
 dnl check for guile modules www and gtk here.
-
-dnl check for GSL
-dnl AC_CHECK_LIB(m,main)
-dnl AC_CHECK_LIB(gslcblas,main)
-dnl AC_CHECK_LIB(gsl,main)
 
 # gemmi doesn't have a pkgconfig file. Frustrating.
 AC_ARG_WITH([gemmi], AS_HELP_STRING([--with-gemmi location of the GEMMI package]), with_gemmi="$withval", with_gemmi=false)
@@ -419,7 +433,6 @@ else
    # Use Core Audio on macOS. Consider PortAudio instead of using alsa directly.
    AC_SUBST(SOUND_FLAGS, -DWITH_SOUND)
 fi
-
 
 AM_WITH_MYSQL_DATABASE
 
@@ -477,7 +490,6 @@ cootilus/Makefile
 greg-tests/Makefile
 python-tests/Makefile
 lidia-core/Makefile
-buccaneer_ml_growing/Makefile
 doc/Makefile
 validation-graphs/Makefile
 python/coot_load_modules.py
@@ -510,9 +522,9 @@ auxil/rama/Makefile
 auxil/sec-str/Makefile
 auxil/strand-analysis/Makefile
 auxil/vectors/Makefile
-lbg/Makefile
 src/Makefile
 src/coot
+ui/Makefile
 ])
 AC_OUTPUT
 
@@ -520,7 +532,6 @@ AC_OUTPUT
 # po/Makefile.in
 
 # 2022-10-28
-# lbg/Makefile
 # rcrane/Makefile
 # src/Makefile
 # src/coot

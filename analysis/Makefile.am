@@ -1,15 +1,35 @@
+# Makefile.am
+# 
+# Copyright 2007 The University of York
+# Author: Paul Emsley
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or (at
+# your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA
+
+## Process this file with automake to produce Makefile.in
+
 
 lib_LTLIBRARIES=libcoot-analysis.la
 
 pkginclude_HEADERS=bfkurt.hh mogul-interface.hh stats.hh daca.hh rna-backbone.hh
 pkgincludedir = $(includedir)/coot/analysis
 
-# CXXFLAGS =	$(COOT_GSL_FLAGS)
-
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
-	$(CLIPPER_CXXFLAGS)		\
-	$(COOT_GSL_FLAGS) $(GSL_CFLAGS)	\
+	$(CLIPPER_CXXFLAGS) \
+	$(gsl_CFLAGS)	\
 	$(MMDB_CXXFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc kolmogorov.hh kolmogorov.cc stats.cc \
@@ -25,7 +45,7 @@ libcoot_analysis_la_LIBADD = \
    $(top_builddir)/geometry/libcoot-geometry.la      \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la      \
    $(top_builddir)/utils/libcoot-utils.la            \
-   $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS)
+   $(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS) $(RDKIT_LIBS)
 
 libcoot_analysis_la_LDFLAGS = $(SHARED_LDFLAGS)
 

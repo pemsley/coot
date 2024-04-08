@@ -6,19 +6,19 @@
  * Copyright 2014, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or (at
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * Lesser General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
- * 02110-1301, USA
+ * You should have received a copy of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
 #include <string.h>
@@ -312,9 +312,12 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
                   if (cat_name == "_pdbx_chem_comp_model_bond")
                      rmit.n_atoms += comp_bond(mmCIFLoop, imol_enc, true);
 
-                  // PDBe depection
+                  // PDBe depiction
                   if (cat_name == "_pdbe_chem_comp_atom_depiction")
                      pdbe_chem_comp_atom_depiction(mmCIFLoop, imol_enc);
+
+                  if (cat_name == "_pdbx_chem_comp_description_generator")
+                     pdbx_chem_comp_description_generator(mmCIFLoop, imol_enc);
 
                }
             }
@@ -952,6 +955,41 @@ coot::protein_geometry::pdbe_chem_comp_atom_depiction(mmdb::mmcif::PLoop mmCIFLo
             dict_res_restraints[idx].second.depiction = d;
             std::cout << "debug:: pdbe_chem_comp_atom_depiction() added depiction of "
                       << dav.size() << " atoms " << std::endl;
+         }
+      }
+   }
+}
+
+void
+coot::protein_geometry::pdbx_chem_comp_description_generator(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
+
+   int ierr = 0;
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      std::string comp_id;
+      std::string program_name;
+      std::string program_version;
+      std::string descriptor;
+      char *s = mmCIFLoop->GetString("comp_id", j, ierr);
+      if (s) {
+         comp_id = std::string(s);
+      }
+      s = mmCIFLoop->GetString("program_name", j, ierr);
+      if (s) {
+         program_name = std::string(s);
+      }
+      s = mmCIFLoop->GetString("program_version", j, ierr);
+      if (s) {
+         program_version = std::string(s);
+      }
+      s = mmCIFLoop->GetString("descriptor", j, ierr);
+      if (s) {
+         descriptor = std::string(s);
+      }
+      if (ierr == 0) {
+         pdbx_chem_comp_description_generator_t dg(program_name, program_version, descriptor);
+         int idx = get_monomer_restraints_index(comp_id, imol_enc, true);
+         if (idx >= 0) {
+            dict_res_restraints[idx].second.description_generation = dg;
          }
       }
    }
@@ -1999,7 +2037,8 @@ coot::protein_geometry::init_standard() {
    std::string hardwired_default_place = util::append_dir_dir(pkg_data_dir, "lib");
    bool using_clibd_mon = false;
 
-   std::cout << "DEBUG:: init_standard(): hardwired_default_place: " << hardwired_default_place << std::endl;
+   if (debug)
+      std::cout << "DEBUG:: init_standard(): hardwired_default_place: " << hardwired_default_place << std::endl;
 
    std::string mon_lib_dir;
    short int env_dir_fails = 0;
@@ -2136,7 +2175,8 @@ coot::protein_geometry::init_standard() {
          energy_cif_file_name = std::string(cmld) + "/ener_lib.cif";
       }
 
-      std::cout << "calling init_refmac_mon_lib() on" << mon_lib_cif << std::endl;
+      if (false)
+         std::cout << "calling init_refmac_mon_lib() on" << mon_lib_cif << std::endl;
       init_refmac_mon_lib(mon_lib_cif, protein_geometry::MON_LIB_LIST_CIF);
       // now the protein monomers:
       read_number = 1;

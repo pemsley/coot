@@ -583,7 +583,6 @@ coot::mogul_item::matches_indices(const std::vector<int> &indices) const {
 } 
 
 
-#ifdef HAVE_GSL
 #include <stdio.h>
 #include <math.h>
 #include <gsl/gsl_errno.h>
@@ -591,12 +590,9 @@ coot::mogul_item::matches_indices(const std::vector<int> &indices) const {
 
 #define REAL(z,i) ((z)[2*(i)])
 #define IMAG(z,i) ((z)[2*(i)+1])
-#endif 
 
 void 
 coot::mogul_item::ft_model_torsion_distribution() {
-
-#ifdef HAVE_GSL
 
    int i;
    const int n = 36;
@@ -672,7 +668,6 @@ coot::mogul_item::ft_model_torsion_distribution() {
    gsl_fft_complex_wavetable_free (wavetable);
    gsl_fft_complex_workspace_free (workspace);
 
-#endif    
 }
 
 void

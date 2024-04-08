@@ -1,3 +1,28 @@
+/*
+ * lidia-core/svg-molecule.hh
+ *
+ * Copyright 2022 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ */
+
 #ifndef SVG_MOLECULE_HH
 #define SVG_MOLECULE_HH
 
@@ -28,6 +53,8 @@ class svg_bond_t : public lig_build::bond_t {
                                                  double scale) const;
    std::string make_bond_line_string(const lig_build::pos_t &p1, const lig_build::pos_t &p2,
                                      const std::string &bond_colour) const;
+   std::string make_dashed_bond_line_string(const lig_build::pos_t &p1, const lig_build::pos_t &p2,
+                                            const std::string &bond_colour) const;
 public:
    svg_bond_t(int first, int second, lig_build::bond_t::bond_type_t type) :
       lig_build::bond_t(first, second, type) {}

@@ -4,20 +4,20 @@
 # Author: Paul Emsley
 # 
 # This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or (at
+# it under the terms of the GNU Lesser General Public License as published
+# by the Free Software Foundation; either version 3 of the License, or (at
 # your option) any later version.
 # 
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
+# Lesser General Public License for more details.
 # 
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA
-
+# You should have received a copies of the GNU General Public License and
+# the GNU Lesser General Public License along with this program; if not,
+# write to the Free Software Foundation, Inc., 51 Franklin Street,
+# Fifth Floor, Boston, MA, 02110-1301, USA.
+# See http://www.gnu.org/licenses/
 
 
 # should be set by autoconf
@@ -40,8 +40,8 @@ AM_CPPFLAGS = \
         $(BOOST_CPPFLAGS)   \
 	$(MMDB_CXXFLAGS)
 
-AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS) $(COOT_WINDOWS_CFLAGS) \
-     $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_GSL_FLAGS) $(LIBPNG_CFLAGS) $(RDKIT_CXXFLAGS)
+AM_CXXFLAGS = $(gsl_CFLAGS) $(COOT_WINDOWS_CFLAGS) \
+     $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(LIBPNG_CFLAGS) $(RDKIT_CXXFLAGS)
 
 AM_LDFLAGS = $(MMDB_LIBS) $(CLIPPER_LIBS) $(GLS_LIBS)
 
@@ -71,7 +71,7 @@ libcoot_ideal_la_LIBADD =                 \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la        \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la    \
    $(top_builddir)/utils/libcoot-utils.la              \
-   $(MMDB_LIBS) $(CLIPPER_LIBS) $(GSL_LIBS) $(LIBPNG_LIBS) -lm
+   $(MMDB_LIBS) $(CLIPPER_LIBS) $(gsl_LIBS) $(LIBPNG_LIBS) -lm
 
 
 libcoot_ideal_la_SOURCES = simple-restraint.cc make-restraints.cc ng.cc chi-squareds.cc \
@@ -168,7 +168,7 @@ mini_rsr_bin_LDADD =  \
         $(top_builddir)/compat/libcoot-compat.la           \
 	$(GLOB_LIBS) \
 	$(RDKIT_LIBS) \
-        $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) -lpthread
+        $(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS) -lpthread
 
 #test_indexing_LDADD = \
 #        ./libcoot-ideal.la                                \

@@ -1,4 +1,29 @@
-//
+/*
+ * ideal/ng.cc
+ * 
+ * Copyright 2019 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ */
+
+
 #include <iomanip>
 
 #include "compat/coot-sysdep.h"
@@ -1078,13 +1103,20 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
    //
    int n_extra_restraints = 0;
    for (std::size_t i=0; i<n_threads; i++)
-      n_extra_restraints += nbc_restraints.size();
+      n_extra_restraints += nbc_restraints[i].size();
    restraints_vec.reserve(restraints_vec.size() + n_extra_restraints);
-   // do I want to use std::move here?
-   for (std::size_t i=0; i<n_threads; i++)
-      // restraints_vec.insert(restraints_vec.end(), nbc_restraints[i].begin(), nbc_restraints[i].end());
-      std::move(nbc_restraints[i].begin(), nbc_restraints[i].end(), std::back_inserter(restraints_vec));
 
+   // do I want to use std::move here?
+   // for (std::size_t i=0; i<n_threads; i++)
+   // // restraints_vec.insert(restraints_vec.end(), nbc_restraints[i].begin(), nbc_restraints[i].end());
+   // std::move(nbc_restraints[i].begin(), nbc_restraints[i].end(), std::back_inserter(restraints_vec));
+
+   for (std::size_t i=0; i<n_threads; i++) {
+      restraints_vec.insert(restraints_vec.end(),
+                            std::make_move_iterator(nbc_restraints[i].begin()),
+                            std::make_move_iterator(nbc_restraints[i].end()));
+      nbc_restraints[i].erase(nbc_restraints[i].begin(), nbc_restraints[i].end());
+   }
 
    auto tp_6 = std::chrono::high_resolution_clock::now();
    auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
@@ -1411,7 +1443,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
                               << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << " "
                               << dist_min <<  "\n";
 
-                        n_nbc_restraints++;
+         n_nbc_restraints++;
          r.n_atoms_from_all_restraints = n_atoms; // for debugging crash in non-bonded contact
                                                   // restraints
          r.restraints_index = size(); // likewise

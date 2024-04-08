@@ -45,7 +45,7 @@ libMoleculesToTrianglesCXXClasses_la_LIBADD=$(MoleculesToTrianglesCXXSurface_LIB
 # otherincludedir = $(top_srcdir)/MoleculesToTriangles/CXXClasses
 # other
 include_HEADERS = Quaternion.hpp Vector.hpp Vector2.hpp Vector3.hpp \
-   AtomPropertyRampColorRule.h 	DirectedPositionedEntity.h		RendererImplementations.h       \
+   AtomPropertyRampColorRule.h 	DirectedPositionedEntity.h	    \
    BallsPrimitive.h		DiscreteSegment.h			Representation.h                \
    BondsPrimitive.h		DisplayPrimitive.h			RepresentationInstance.h        \
    BoxSectionPrimitive.h	GLIndexType.h				RotatedTranslatedScaledEntity.h \
