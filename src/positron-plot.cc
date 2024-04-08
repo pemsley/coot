@@ -35,10 +35,10 @@
 
 class positron_plot_user_click_info_t {
 public:
-   positron_plot_user_click_info_t() : x(-1),  y(-1), map_index(-1) {}
-   positron_plot_user_click_info_t(double xx, double yy, int idx) : x(xx),  y(yy), map_index(idx) {}
+   positron_plot_user_click_info_t() : x(-1),  y(-1), imol_map(-1) {}
+   positron_plot_user_click_info_t(double xx, double yy, int idx) : x(xx),  y(yy), imol_map(idx) {}
    double x, y; // in canvas coordinates (so 0-512)
-   int map_index; // the index of the resulting map
+   int imol_map; // the index of the resulting map
 };
 
 class plot_data_t {
@@ -140,18 +140,19 @@ class plot_data_t {
       return std::make_pair(-7.0, 6.0);
    }
 
-   std::pair<double, double>
-   canvas_coords_to_positron_coords(double cx, double cy) {
+   // positron data is stored as floats
+   std::pair<float, float>
+   canvas_coords_to_positron_coords(double cx, double cy) const {
 
       double f_x = cx/static_cast<double>(window_size_x);
       double f_y = cy/static_cast<double>(window_size_y);
-      std::pair<double, double> z(min_v + f_x * (max_v-min_v),
-                                  min_v + f_y * (max_v-min_v));
+      std::pair<float, float> z(min_v + f_x * (max_v-min_v),
+                                min_v + f_y * (max_v-min_v));
       return z;
    }
 
    // not every user-click results in a map.
-   unsigned int add_user_clicked_point(double x, double y) {
+   unsigned int add_user_clicked_point_and_make_map(double x, double y) {
       std::cout << "user_click " << x << " " << y << std::endl;
       int imol_map_new = make_map(x,y);
       positron_plot_user_click_info_t puci(x,y,imol_map_new);
@@ -160,19 +161,31 @@ class plot_data_t {
    }
 
    void remove_last_user_click() {
+      positron_plot_user_click_info_t puci = user_clicks.back();
+      close_molecule(puci.imol_map);
       user_clicks.pop_back();
    }
 
    std::vector<std::pair<int, float> > make_weighted_map_indices(const coot::positron_metadata_t &pmdi) const {
       std::vector<std::pair<int, float> > v;
+      if (pmdi.params.size() == basis_set_map_list.size()) {
+         for (unsigned int i=0; i<pmdi.params.size(); i++) {
+            std::pair<int, float> p(basis_set_map_list[i], pmdi.params[i]);
+            v.push_back(p);
+         }
+      }
       return v;
    };
 
+   // x and y are canvas coords
    int make_map(double x, double y) {
       int imol_map_new = -1;
-      std::pair<float, float> p(x, y);
-      std::cout << "in make_map() we have x and y " << x << " " << y << std::endl;
-      int idx_close = mdc.get_closest_positron_metadata_point(p);
+      std::cout << "in make_map() we have canvas coords: x and y " << x << " " << y << std::endl;
+      std::pair<float, float> z = canvas_coords_to_positron_coords(x, y);
+      std::cout << "in make_map() we have z " << z.first << " " << z.second << std::endl;
+      std::cout << "in make_map() we have meta data mdc size " << mdc.size() << std::endl;
+      int idx_close = mdc.get_closest_positron_metadata_point(z);
+      std::cout << "idx_close: " << idx_close << std::endl;
       if (idx_close != -1) {
          coot::positron_metadata_t pmdi = mdc.metadata[idx_close];
          std::vector<std::pair<int, float> > weighted_map_indices = make_weighted_map_indices(pmdi);
@@ -180,6 +193,8 @@ class plot_data_t {
          if (imol_map_new != -1) {
             set_contour_level_absolute(imol_map_new, default_contour_level);
          }
+      } else {
+         std::cout << "No map created for this click" << std::endl;
       }
       return imol_map_new;
    }
@@ -343,7 +358,7 @@ void on_draw(GtkDrawingArea *area,
       for (unsigned int i=0; i<pdp->user_clicks.size(); i++) {
          double di = pdp->user_clicks[i].x;
          double dj = pdp->user_clicks[i].y;
-         int imol = pdp->user_clicks[i].map_index;
+         int imol = pdp->user_clicks[i].imol_map;
          // std::cout << "drawing user_click " << i << " " << di << " " << dj << std::endl;
          if (imol == -1) {
             color.red   = 0.8;
@@ -438,14 +453,14 @@ on_positron_plot_click(GtkGestureClick* click_gesture,
    const auto &plot_data(*plot_data_p);
 
    // make this a member function
-   double f_x = static_cast<float>(x)/static_cast<float>(plot_data.window_size_x);
-   double f_y = static_cast<float>(y)/static_cast<float>(plot_data.window_size_y);
-   std::pair<float, float> z(plot_data.min_v + f_x * (plot_data.max_v-plot_data.min_v),
-                             plot_data.min_v + f_y * (plot_data.max_v-plot_data.min_v));
-   int idx_particle = plot_data.mdc.get_closest_positron_metadata_point(z); // -1 on failure
-   std::cout << "idx_particle: " << idx_particle << std::endl;
+   // double f_x = static_cast<float>(x)/static_cast<float>(plot_data.window_size_x);
+   // ndouble f_y = static_cast<float>(y)/static_cast<float>(plot_data.window_size_y);
+   // std::pair<float, float> z(plot_data.min_v + f_x * (plot_data.max_v-plot_data.min_v),
+   //                           plot_data.min_v + f_y * (plot_data.max_v-plot_data.min_v));
 
-   unsigned int idx = plot_data_p->add_user_clicked_point(x, y);
+   unsigned int user_click_idx = plot_data_p->add_user_clicked_point_and_make_map(x, y);
+   std::cout << "user-click idx " << user_click_idx
+             << " new map index: " << plot_data_p->user_clicks[user_click_idx].imol_map << std::endl;
 
    gtk_widget_queue_draw(plot_data.drawing_area);
 }
@@ -473,10 +488,16 @@ on_positron_interpolate_selected_button_clicked(GtkButton *button,
 }
 
 
+#ifdef STANDALONE_POSITRON_PLOT
 GtkWidget *widget_from_builder(const std::string &w_name, GtkBuilder *builder) {
    GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(GTK_BUILDER(builder), w_name.c_str()));
    return  w;
 }
+#else
+GtkWidget *widget_from_builder(const std::string &w_name, GtkBuilder *builder);
+#endif
+
+#ifdef STANDALONE_POSITRON_PLOT
 
 int main(int argc, char *argv[]) {
 
@@ -559,3 +580,83 @@ int main(int argc, char *argv[]) {
 
    return status;
 }
+
+#endif
+
+void positron_plot_internal(const std::string &fn_z_csv, const std::string &fn_s_cvs,
+                            const std::vector<int> &base_map_index_list) {
+
+   GtkBuilder *builder = gtk_builder_new();
+   std::string ui_file_name = "positron.ui";
+   std::string dir = coot::package_data_dir();
+   std::string dir_ui = coot::util::append_dir_dir(dir, "ui");
+   std::string ui_file_full = coot::util::append_dir_file(dir_ui, ui_file_name);
+   if (coot::file_exists(ui_file_name))
+      ui_file_full = ui_file_name;
+   GError* error = NULL;
+   gboolean status = gtk_builder_add_from_file(builder, ui_file_full.c_str(), &error);
+   if (status == FALSE) {
+      std::cout << "ERROR:: Failure to read or parse " << ui_file_full << std::endl;
+      std::cout << error->message << std::endl;
+      exit(0);
+   }
+
+   GtkWidget *dialog = widget_from_builder("positron-dialog", builder);
+
+   int plot_window_x_size = 512;
+   int plot_window_y_size = 660;
+   gtk_window_set_default_size(GTK_WINDOW(dialog), plot_window_x_size, plot_window_y_size);
+
+   // GtkWidget *drawing_area = gtk_drawing_area_new();
+   GtkWidget *drawing_area = widget_from_builder("positron_drawing_area", builder);
+   gtk_drawing_area_set_content_width( GTK_DRAWING_AREA(drawing_area), 512);
+   gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(drawing_area), 512);
+
+   plot_data_t *plot_data_p = new plot_data_t;
+   plot_data_p->set_window_size(plot_window_x_size, plot_window_y_size);
+   plot_data_p->set_drawing_area(drawing_area);
+   plot_data_p->basis_set_map_list = base_map_index_list;
+
+   plot_data_p->fill_plot_data_from_positron_metadata(fn_z_csv, fn_s_cvs);
+   unsigned char *image_data = new unsigned char[512*512*4]; // something something stride.
+   cairo_surface_t *surface = plot_data_p->make_image_from_plot_data(image_data);
+   plot_data_p->image_surface = surface;
+
+   GtkWidget *undo_button = widget_from_builder("positron_map_undo_button", builder);
+   g_object_set_data(G_OBJECT(undo_button), "plot-data", plot_data_p);
+
+   gpointer user_data = static_cast<void *>(plot_data_p);
+   gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), on_draw, user_data, NULL);
+
+   // gtk_window_set_child(GTK_WINDOW(window), drawing_area);
+   gtk_widget_set_visible(dialog, TRUE);
+
+   GtkGesture *drag_controller_primary = gtk_gesture_drag_new();
+   gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_primary), GDK_BUTTON_PRIMARY);
+   gtk_widget_add_controller(GTK_WIDGET(drawing_area), GTK_EVENT_CONTROLLER(drag_controller_primary));
+   g_signal_connect(drag_controller_primary, "drag-begin",  G_CALLBACK(on_positron_plot_drag_begin_primary),  user_data);
+   g_signal_connect(drag_controller_primary, "drag-update", G_CALLBACK(on_positron_plot_drag_update_primary), user_data);
+   g_signal_connect(drag_controller_primary, "drag-end",    G_CALLBACK(on_positron_plot_drag_end_primary),    user_data);
+
+   GtkGesture *click_controller = gtk_gesture_click_new();
+   gtk_widget_add_controller(GTK_WIDGET(drawing_area), GTK_EVENT_CONTROLLER(click_controller));
+   g_signal_connect(click_controller, "pressed",  G_CALLBACK(on_positron_plot_click), user_data);
+
+}
+
+#ifdef USE_PYTHON
+void positron_plot_py(const std::string &fn_z_csv, const std::string &fn_s_csv,
+                      PyObject *base_map_index_list) {
+
+   std::vector<int> v;
+   if (PyList_Check(base_map_index_list)) {
+      long l = PyObject_Length(base_map_index_list);
+      for (long i=0; i<l; i++) {
+         PyObject *o = PyList_GetItem(base_map_index_list, i);
+         long idx = PyLong_AsLong(o);
+         v.push_back(idx);
+      }
+   }
+   positron_plot_internal(fn_z_csv, fn_s_csv, v);
+}
+#endif

@@ -2368,4 +2368,15 @@ void read_positron_metadata(const std::string &z_data, const std::string &table)
 PyObject *positron_pathway(PyObject *map_molecule_list_py, PyObject *pathway_points_py);
 #endif
 
+#ifdef USE_PYTHON
+void positron_plot_py(const std::string &fn_z_csv, const std::string &fn_s_csv,
+                      PyObject *base_map_index_list);
+#endif
+
+#ifdef SWIG
+#else
+void positron_plot_internal(const std::string &fn_z_csv, const std::string &fn_s_csv,
+                            const std::vector<int> &base_map_index_list);
+#endif
+
 #endif // CC_INTERFACE_HH

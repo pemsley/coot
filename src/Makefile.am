@@ -657,6 +657,8 @@ libcootsumo_la_SOURCES = \
 	pisa-interface.hh	 \
 	pick.hh pick.cc	 \
 	positioned-widgets.h     \
+	positron-plot.hh         \
+	positron-plot.cc         \
 	pre-load.hh              \
 	probe-clash-score.cc     \
 	probe-clash-score.hh     \

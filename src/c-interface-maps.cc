@@ -2011,7 +2011,7 @@ case we overwrite the imol_map and we also presume that the
 grid sampling of the contributing maps match. This makes it
 much faster to generate than an average map.
 */
-void regen_map_internal_py(int imol_map, PyObject *map_number_and_scales) {
+void regen_map_py(int imol_map, PyObject *map_number_and_scales) {
 
    auto pyobject_to_map_index_and_scale_vec = [] (PyObject *map_number_and_scales) {
       std::vector<std::pair<int, float> > map_indices_and_scales_vec;
@@ -2131,7 +2131,7 @@ PyObject *positron_pathway(PyObject *map_molecule_list_py, PyObject *pathway_poi
             int imol_first = map_index_vec[0];
             imol = copy_molecule(imol_first);
             // Use the new regen_map_internal()
-            regen_map_internal_py(imol, o);
+            regen_map_py(imol, o);
          }
       }
       return imol;
@@ -2179,6 +2179,7 @@ PyObject *positron_pathway(PyObject *map_molecule_list_py, PyObject *pathway_poi
    return new_map_index_list_py;
 }
 #endif
+
 
 
 /*  ----------------------------------------------------------------------- */
