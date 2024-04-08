@@ -2077,8 +2077,6 @@ molecule_class_info_t::update_mol_in_display_control_widget() const {
 //              << *imol_no_ptr << std::endl;
    std::string dmn = name_for_display_manager();
 
-   std::cout << "------------------ in mci::update_mol_in_display_control_widget() A dmn is " << dmn << std::endl;
-
    update_name_in_display_control_molecule_combo_box(imol_no, dmn.c_str()); // because it's in gtk-manual.h - Fix later.
                                                               // note that display_control_map_combo_box() uses a string
 }
