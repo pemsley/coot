@@ -84,6 +84,8 @@ class plot_data_t {
    int animate_function_user_clicks_index;
    double colour_scale_factor; // this can be user-setable.
    float default_contour_level;
+   int timeout_function_handle;
+   bool stop_animation_flag;
    std::vector<int> basis_set_map_list;
    std::vector<GdkRGBA> cm_expanded;
    std::vector<GdkRGBA> cm_tropical;
@@ -126,6 +128,8 @@ class plot_data_t {
       animate_function_user_clicks_index = -1;
       map_colour = {0.7, 0.7, 0.8};
       animate_direction = animate_direction_t::FORWARDS;
+      stop_animation_flag = false;
+      timeout_function_handle = -1;
    }
    void cleanup() {
       if (image_surface)
@@ -182,6 +186,8 @@ class plot_data_t {
          close_molecule(puci.imol_map);
          user_clicks.pop_back();
       }
+      if (user_clicks.empty())
+         animate_function_user_clicks_index = -1;
    }
 
    void clear() {
@@ -191,6 +197,9 @@ class plot_data_t {
             close_molecule(imol_map);
       }
       user_clicks.clear();
+      animate_function_user_clicks_index = -1;
+      if (animate_switch)
+         gtk_switch_set_active(GTK_SWITCH(animate_switch), FALSE);
    }
 
    std::vector<std::pair<int, float> > make_weighted_map_indices(const coot::positron_metadata_t &pmdi) const {
@@ -323,7 +332,19 @@ class plot_data_t {
       return 50;
    }
 
+   void stop_animation() {
+      stop_animation_flag = true;
+   }
+
    int animate_timeout_func_inner(int continuous_mode) {
+
+      // std::cout << "animate_timeout_func_inner() --- start ---" << std::endl;
+
+      if (stop_animation_flag) {
+         stop_animation_flag = false; // reset
+         animate_function_user_clicks_index = -1; // ready to run again.
+         return 0;
+      }
 
       if (user_clicks.size() < 2) return 0;
 
@@ -405,9 +426,10 @@ class plot_data_t {
       int time_step = get_time_step_from_spinbutton();
       if (animate_function_user_clicks_index == -1) {
          animate_function_user_clicks_index = 0;
-         g_timeout_add(time_step, GSourceFunc(single_pass_animate_timeout_func), this);
+         int tof = g_timeout_add(time_step, GSourceFunc(single_pass_animate_timeout_func), this);
+         timeout_function_handle = tof;
       } else {
-         std::cout << "active animamaton trap " << std::endl;
+         std::cout << "active animation trap single-pass " << animate_function_user_clicks_index << std::endl;
       }
    }
 
@@ -415,9 +437,10 @@ class plot_data_t {
       int time_step = get_time_step_from_spinbutton();
       if (animate_function_user_clicks_index == -1) {
          animate_function_user_clicks_index = 0;
-         g_timeout_add(time_step, GSourceFunc(continuous_animation_timeout_func), this);
+         int tof = g_timeout_add(time_step, GSourceFunc(continuous_animation_timeout_func), this);
+         timeout_function_handle = tof;
       } else {
-         std::cout << "active animamaton trap " << std::endl;
+         std::cout << "active animation trap continuous " << animate_function_user_clicks_index << std::endl;
       }
    }
 
@@ -655,8 +678,15 @@ on_positron_animate_switch_activate(GtkSwitch *sw, gpointer user_data) {
 
    void *obj = g_object_get_data(G_OBJECT(sw), "plot-data");
    plot_data_t *plot_data_p = static_cast<plot_data_t *>(obj);
-   if (plot_data_p)
-      plot_data_p->continuous_animation();
+   if (plot_data_p) {
+      if (gtk_switch_get_active(sw)) {
+         std::cout << ".... start continuous animation" << std::endl;
+         plot_data_p->continuous_animation();
+      } else {
+         plot_data_p->stop_animation();
+         std::cout << ".... stop animation" << std::endl;
+      }
+   }
 }
 
 
