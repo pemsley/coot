@@ -2231,6 +2231,27 @@ screenshot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
     check_for_dark_blue_density(); /* give a dialog if density it too dark (blue) */
 }
 
+void
+scene_preset_model_building_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                   G_GNUC_UNUSED GVariant *parameter,
+                                   G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   g.clipping_front = 1.0;
+   g.clipping_back  = 1.0;
+   g.graphics_draw();
+}
+
+void
+scene_preset_figure_making_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                  G_GNUC_UNUSED GVariant *parameter,
+                                  G_GNUC_UNUSED gpointer user_data) {
+   graphics_info_t g;
+   g.clipping_front = 4.5;
+   g.clipping_back  = 1.3;
+   g.graphics_draw();
+
+}
 
 
 void
@@ -3645,6 +3666,9 @@ create_actions(GtkApplication *application) {
    add_action("ribbons_colour_by_secondary_structure_action", ribbons_colour_by_secondary_structure_action);
 
    add_action( "toggle_display_frames_per_second_action", toggle_display_frames_per_second_action);
+
+   add_action("scene_preset_model_building_action", scene_preset_model_building_action);
+   add_action("scene_preset_figure_making_action",  scene_preset_figure_making_action);
 
    // Measures
 

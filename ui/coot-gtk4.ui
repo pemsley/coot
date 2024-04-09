@@ -730,6 +730,19 @@
           <attribute name="label">Shader Settings...</attribute>
           <attribute name="action">app.show_shader_preferences_action</attribute>
         </item>
+
+        <submenu>
+          <attribute name="label">Scene Presets...</attribute>
+          <item>
+            <attribute name="label">Model-Building Mode</attribute>
+            <attribute name="action">app.scene_preset_model_building_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Figure-Making Mode</attribute>
+            <attribute name="action">app.scene_preset_figure_making_action</attribute>
+          </item>
+        </submenu>
+
     </submenu>
 
     <submenu>

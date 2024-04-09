@@ -509,6 +509,8 @@ graphics_info_t::adjust_clipping(float d) {
       clipping_front = clipping_front * (1.0 + d);
       clipping_back  = clipping_back  * (1.0 + d);
 
+      // std::cout << "now clipping_front" << clipping_front << " clipping_back " << clipping_back << std::endl;
+
    } else {
 
       // --- perspective ---
@@ -570,6 +572,7 @@ graphics_info_t::increase_clipping_front() {
       float d = 0.05;
       clipping_front = clipping_front * (1.0 - d);
    }
+   // std::cout << "in increase_clipping_front() clipping_fron now " << clipping_front << std::endl;
 
    graphics_draw();
 }
@@ -580,11 +583,12 @@ graphics_info_t::increase_clipping_back() {
    if (perspective_projection_flag) {
       float szfp_start = screen_z_far_perspective;
       screen_z_far_perspective *= 1.02;
-      std::cout << "increase_clipping_back() was " << szfp_start << " now " << screen_z_far_perspective << std::endl;
+      // std::cout << "increase_clipping_back() was " << szfp_start << " now " << screen_z_far_perspective << std::endl;
    } else {
       float d = 0.05;
       clipping_back = clipping_back * (1.0 + d);
    }
+   // std::cout << "in increase_clipping_back() clipping_back now " << clipping_back << std::endl;
    graphics_draw();
 }
 
@@ -605,6 +609,7 @@ graphics_info_t::decrease_clipping_front() {
    } else {
       float d = 0.05;
       clipping_front = clipping_front * (1.0 + d);
+      // std::cout << "in decrease_clipping_front() clipping_front now " << clipping_front << std::endl;
    }
    graphics_draw();
 }
@@ -625,6 +630,7 @@ graphics_info_t::decrease_clipping_back() {
       float d = 0.05;
       clipping_back = clipping_back * (1.0 - d);
    }
+   // std::cout << "in decrease_clipping_ack() clipping_back now " << clipping_back << std::endl;
    graphics_draw();
 }
 
