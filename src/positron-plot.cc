@@ -68,6 +68,7 @@ class plot_data_t {
    public:
    plot_data_t() { init(); }
    GtkWidget *drawing_area;
+   GtkWidget *animate_switch;
    GtkWidget *animate_spin_button;
    GtkWidget *animate_reverse_button;
    enum class animate_direction_t { FORWARDS, BACKWARDS};
@@ -116,6 +117,7 @@ class plot_data_t {
       cm_expanded = expand_colour_map(cm_tropical, 100);
       colour_scale_factor = 0.08;
       drawing_area = nullptr;
+      animate_switch = nullptr;
       animate_spin_button = nullptr;
       animate_reverse_button = nullptr;
       cairo = nullptr;
@@ -136,6 +138,7 @@ class plot_data_t {
    void set_drawing_area(GtkWidget *da) { drawing_area = da; }
    void set_spin_button(GtkWidget *sb) { animate_spin_button = sb; }
    void set_reverse_button(GtkWidget *rb) { animate_reverse_button = rb; }
+   void set_animate_switch(GtkWidget *s) { animate_switch = s; }
    void fill_plot_data(const std::string &plot_data_file_name) {
       if (g_file_test(plot_data_file_name.c_str(), G_FILE_TEST_IS_REGULAR)) {
          std::ifstream f(plot_data_file_name);
@@ -320,10 +323,15 @@ class plot_data_t {
       return 50;
    }
 
-   int single_pass_animate_timeout_func_inner() {
+   int animate_timeout_func_inner(int continuous_mode) {
+
+      if (user_clicks.size() < 2) return 0;
 
       const auto &uc = user_clicks[animate_function_user_clicks_index];
       int imol_map = uc.imol_map;
+      int final_ending_value = 0;
+      if (continuous_mode) final_ending_value = 1; // there is no end
+
       if (false)
          std::cout << "--------- animate_function_user_clicks_index " << animate_function_user_clicks_index
                    << " user-clicks size(): " << user_clicks.size()
@@ -343,30 +351,54 @@ class plot_data_t {
             }
          } else {
             animate_function_user_clicks_index--;
-            if (animate_function_user_clicks_index == -1) {
-               animate_direction = animate_direction_t::FORWARDS;
-               return 0;
+            if (final_ending_value == 0) {
+               if (animate_function_user_clicks_index == -1) {
+                  animate_direction = animate_direction_t::FORWARDS;
+                  return final_ending_value;
+               } else {
+                  return 1;
+               }
             } else {
-               return 1;
+               if (animate_function_user_clicks_index == -1) {
+                  animate_direction = animate_direction_t::FORWARDS;
+                  animate_function_user_clicks_index = 0; // correct out of bounds
+               }
+               return final_ending_value;
             }
          }
       } else {
          animate_function_user_clicks_index++;
          if (animate_function_user_clicks_index == uc_size) {
             animate_function_user_clicks_index = -1;  // so that we can start another animation
+            if (final_ending_value == 1)
+               animate_function_user_clicks_index = 0; // correct out of bouunds
             animate_direction = animate_direction_t::FORWARDS;
-            return 0;
+            return final_ending_value;
          } else {
             return 1; // keep going
          }
       }
-      return 0; // belt and braces
+      return final_ending_value;
+   }
+
+   int single_pass_animate_timeout_func_inner() {
+      return animate_timeout_func_inner(0);
    }
 
    static int single_pass_animate_timeout_func(gpointer user_data) {
 
       plot_data_t *plot_data_p = static_cast<plot_data_t *>(user_data);
       return plot_data_p->single_pass_animate_timeout_func_inner();
+   }
+
+   int continuous_animation_timeout_func_inner() {
+      return animate_timeout_func_inner(1);
+   }
+
+   static int continuous_animation_timeout_func(gpointer user_data) {
+
+      plot_data_t *plot_data_p = static_cast<plot_data_t *>(user_data);
+      return plot_data_p->continuous_animation_timeout_func_inner();
    }
 
    void single_pass_animate() {
@@ -377,8 +409,18 @@ class plot_data_t {
       } else {
          std::cout << "active animamaton trap " << std::endl;
       }
-
    }
+
+   void continuous_animation() {
+      int time_step = get_time_step_from_spinbutton();
+      if (animate_function_user_clicks_index == -1) {
+         animate_function_user_clicks_index = 0;
+         g_timeout_add(time_step, GSourceFunc(continuous_animation_timeout_func), this);
+      } else {
+         std::cout << "active animamaton trap " << std::endl;
+      }
+   }
+
 };
 
 void on_draw_positron_plot(GtkDrawingArea *area,
@@ -605,6 +647,18 @@ on_positron_animate_single_pass_button_clicked(GtkButton *button,
       plot_data_p->single_pass_animate();
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_positron_animate_switch_activate(GtkSwitch *sw, gpointer user_data) {
+
+   std::cout << "switch activate! " << std::endl;
+
+   void *obj = g_object_get_data(G_OBJECT(sw), "plot-data");
+   plot_data_t *plot_data_p = static_cast<plot_data_t *>(obj);
+   if (plot_data_p)
+      plot_data_p->continuous_animation();
+}
+
 
 #ifdef STANDALONE_POSITRON_PLOT
 GtkWidget *widget_from_builder(const std::string &w_name, GtkBuilder *builder) {
@@ -665,8 +719,9 @@ void positron_plot_internal(const std::string &fn_z_csv, const std::string &fn_s
    gtk_window_set_default_size(GTK_WINDOW(dialog), plot_window_x_size, plot_window_y_size);
 
    // GtkWidget *drawing_area = gtk_drawing_area_new();
-   GtkWidget *drawing_area   = widget_from_builder("positron_drawing_area",                      builder);
    GtkWidget *spin_button    = widget_from_builder("positron_animate_time_step_spinbutton",      builder);
+   GtkWidget *drawing_area   = widget_from_builder("positron_drawing_area",                      builder);
+   GtkWidget *animate_switch = widget_from_builder("positron_animate_switch",                    builder);
    GtkWidget *reverse_button = widget_from_builder("positron_animate_with_reverse_togglebutton", builder);
    gtk_drawing_area_set_content_width( GTK_DRAWING_AREA(drawing_area), 512);
    gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(drawing_area), 512);
@@ -679,6 +734,7 @@ void positron_plot_internal(const std::string &fn_z_csv, const std::string &fn_s
    plot_data_p->set_drawing_area(drawing_area);
    plot_data_p->set_spin_button(spin_button);
    plot_data_p->set_reverse_button(reverse_button);
+   plot_data_p->set_animate_switch(animate_switch);
    plot_data_p->basis_set_map_list = base_map_index_list;
    plot_data_p->default_contour_level = 0.03;
 
@@ -693,6 +749,7 @@ void positron_plot_internal(const std::string &fn_z_csv, const std::string &fn_s
    g_object_set_data(G_OBJECT(undo_button),        "plot-data", plot_data_p);
    g_object_set_data(G_OBJECT(clear_button),       "plot-data", plot_data_p);
    g_object_set_data(G_OBJECT(single_pass_button), "plot-data", plot_data_p);
+   g_object_set_data(G_OBJECT(animate_switch),     "plot-data", plot_data_p);
 
    gpointer user_data = static_cast<void *>(plot_data_p);
    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), on_draw_positron_plot, user_data, NULL);

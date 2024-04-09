@@ -108,6 +108,7 @@
 
             <child>
               <object class="GtkSwitch" id="positron_animate_switch">
+                <signal name="notify::active" handler="on_positron_animate_switch_activate"/>
               </object>
             </child>
 
