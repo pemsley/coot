@@ -2478,7 +2478,8 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
    initialize_map_things_on_read_molecule(name_in, false, false, false); // not a diff_map
 
    bool ipz = graphics_info_t::ignore_pseudo_zeros_for_map_stats;
-   mean_and_variance<float> mv = map_density_distribution(xmap, 40, true, ipz);
+   bool write_output_flag = false;
+   mean_and_variance<float> mv = map_density_distribution(xmap, 40, write_output_flag, ipz);
 
    float mean = mv.mean;
    float var = mv.variance;

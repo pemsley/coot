@@ -220,12 +220,14 @@ class plot_data_t {
    // x and y are canvas coords
    int make_map(double x, double y) {
       int imol_map_new = -1;
-      std::cout << "in make_map() we have canvas coords: x and y " << x << " " << y << std::endl;
       std::pair<float, float> z = canvas_coords_to_positron_coords(x, y);
-      std::cout << "in make_map() we have z " << z.first << " " << z.second << std::endl;
-      std::cout << "in make_map() we have meta data mdc size " << mdc.size() << std::endl;
       int idx_close = mdc.get_closest_positron_metadata_point(z);
-      std::cout << "idx_close: " << idx_close << std::endl;
+      if (false) {
+         std::cout << "in make_map() we have canvas coords: x and y " << x << " " << y << std::endl;
+         std::cout << "in make_map() we have z " << z.first << " " << z.second << std::endl;
+         std::cout << "in make_map() we have meta data mdc size " << mdc.size() << std::endl;
+         std::cout << "in make_map() we have idx_close: " << idx_close << std::endl;
+      }
       if (idx_close != -1) {
          coot::positron_metadata_t pmdi = mdc.metadata[idx_close];
          std::vector<std::pair<int, float> > weighted_map_indices = make_weighted_map_indices(pmdi);
@@ -486,7 +488,7 @@ class plot_data_t {
                float yy = user_click_this.y + (user_click_next.y - user_click_this.y) * f_in_range;
                std::pair<float, float> z = canvas_coords_to_positron_coords(xx, yy);
                int idx_close = mdc.get_closest_positron_metadata_point(z);
-               std::cout << "xx " << xx  << " yy " << yy << " idx_close " << idx_close << std::endl;
+               // std::cout << "xx " << xx  << " yy " << yy << " idx_close " << idx_close << std::endl;
                if (idx_close != -1) {
                   int imol_map = make_map(xx, yy); // in canvas coords
                   if (imol_map != -1) {
@@ -738,8 +740,6 @@ on_positron_animate_single_pass_button_clicked(GtkButton *button,
 extern "C" G_MODULE_EXPORT
 void
 on_positron_animate_switch_activate(GtkSwitch *sw, gpointer user_data) {
-
-   std::cout << "switch activate! " << std::endl;
 
    void *obj = g_object_get_data(G_OBJECT(sw), "plot-data");
    plot_data_t *plot_data_p = static_cast<plot_data_t *>(obj);
