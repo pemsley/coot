@@ -68,6 +68,7 @@ class plot_data_t {
    public:
    plot_data_t() { init(); }
    GtkWidget *drawing_area;
+   GtkWidget *interpolation_entry;
    GtkWidget *animate_switch;
    GtkWidget *animate_spin_button;
    GtkWidget *animate_reverse_button;
@@ -119,6 +120,7 @@ class plot_data_t {
       cm_expanded = expand_colour_map(cm_tropical, 100);
       colour_scale_factor = 0.08;
       drawing_area = nullptr;
+      interpolation_entry = nullptr;
       animate_switch = nullptr;
       animate_spin_button = nullptr;
       animate_reverse_button = nullptr;
@@ -143,6 +145,8 @@ class plot_data_t {
    void set_spin_button(GtkWidget *sb) { animate_spin_button = sb; }
    void set_reverse_button(GtkWidget *rb) { animate_reverse_button = rb; }
    void set_animate_switch(GtkWidget *s) { animate_switch = s; }
+   void set_interpolation_entry(GtkWidget *e) { interpolation_entry = e; }
+
    void fill_plot_data(const std::string &plot_data_file_name) {
       if (g_file_test(plot_data_file_name.c_str(), G_FILE_TEST_IS_REGULAR)) {
          std::ifstream f(plot_data_file_name);
@@ -444,6 +448,60 @@ class plot_data_t {
       }
    }
 
+   int get_n_interpolation_points() const {
+      const char *t = gtk_editable_get_text(GTK_EDITABLE(interpolation_entry));
+      if (t) {
+         std::string s(t);
+         try {
+            int rv = coot::util::string_to_int(s);
+            return rv;
+         }
+         catch (const std::runtime_error &e) {
+            std::cout << "WARNING::" << e.what() << std::endl;
+         }
+      }
+      return 10;
+   }
+
+   void interpolate_clicks() {
+
+      int n_interpolation_points = get_n_interpolation_points();
+
+      if (user_clicks.size() * n_interpolation_points > 200) {
+         std::cout << "Too many maps " << std::endl;
+         return;
+      }
+
+      if (user_clicks.size() > 1) {
+         std::vector<positron_plot_user_click_info_t> new_user_clicks;
+         unsigned int lim = user_clicks.size() - 1;
+         for (unsigned int i=0; i<lim; i++) {
+            unsigned int idx_this = i;
+            unsigned int idx_next = i+1;
+            const auto &user_click_this = user_clicks[idx_this];
+            const auto &user_click_next = user_clicks[idx_next];
+            for (int j=0; j<n_interpolation_points; j++) {
+               float f_in_range = static_cast<float>(j)/static_cast<float>(n_interpolation_points);
+               float xx = user_click_this.x + (user_click_next.x - user_click_this.x) * f_in_range;
+               float yy = user_click_this.y + (user_click_next.y - user_click_this.y) * f_in_range;
+               std::pair<float, float> z = canvas_coords_to_positron_coords(xx, yy);
+               int idx_close = mdc.get_closest_positron_metadata_point(z);
+               std::cout << "xx " << xx  << " yy " << yy << " idx_close " << idx_close << std::endl;
+               if (idx_close != -1) {
+                  int imol_map = make_map(xx, yy); // in canvas coords
+                  if (imol_map != -1) {
+                     positron_plot_user_click_info_t nuc(xx, yy, imol_map);
+                     new_user_clicks.push_back(nuc);
+                  }
+               }
+            }
+         }
+         new_user_clicks.push_back(user_clicks.back()); // add the very end point
+         user_clicks = new_user_clicks;
+         gtk_widget_queue_draw(drawing_area);
+      }
+   }
+
 };
 
 void on_draw_positron_plot(GtkDrawingArea *area,
@@ -654,9 +712,16 @@ on_positron_map_clear_button_clicked(GtkButton *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_positron_interpolate_selected_button_clicked(GtkButton *button,
-                                                gpointer   user_data) {
-   std::cout << "interpolate selected " << std::endl;
+on_positron_interpolate_button_clicked(GtkButton *button,
+                                       gpointer   user_data) {
+
+   std::cout << "------------- button clicked " << std::endl;
+
+   void *obj = g_object_get_data(G_OBJECT(button), "plot-data");
+   plot_data_t *plot_data_p = static_cast<plot_data_t *>(obj);
+   if (plot_data_p)
+      plot_data_p->interpolate_clicks();
+
 }
 
 extern "C" G_MODULE_EXPORT
@@ -753,6 +818,7 @@ void positron_plot_internal(const std::string &fn_z_csv, const std::string &fn_s
    GtkWidget *drawing_area   = widget_from_builder("positron_drawing_area",                      builder);
    GtkWidget *animate_switch = widget_from_builder("positron_animate_switch",                    builder);
    GtkWidget *reverse_button = widget_from_builder("positron_animate_with_reverse_togglebutton", builder);
+   GtkWidget *interpolation_entry = widget_from_builder("positron_interpolate_steps_per_click_entry", builder);
    gtk_drawing_area_set_content_width( GTK_DRAWING_AREA(drawing_area), 512);
    gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(drawing_area), 512);
 
@@ -765,6 +831,7 @@ void positron_plot_internal(const std::string &fn_z_csv, const std::string &fn_s
    plot_data_p->set_spin_button(spin_button);
    plot_data_p->set_reverse_button(reverse_button);
    plot_data_p->set_animate_switch(animate_switch);
+   plot_data_p->set_interpolation_entry(interpolation_entry);
    plot_data_p->basis_set_map_list = base_map_index_list;
    plot_data_p->default_contour_level = 0.03;
 
@@ -776,10 +843,12 @@ void positron_plot_internal(const std::string &fn_z_csv, const std::string &fn_s
    GtkWidget *undo_button        = widget_from_builder("positron_map_undo_button",  builder);
    GtkWidget *clear_button       = widget_from_builder("positron_map_clear_button", builder);
    GtkWidget *single_pass_button = widget_from_builder("positron_animate_single_pass_button", builder);
+   GtkWidget *interpolate_button = widget_from_builder("positron_interpolate_button", builder);
    g_object_set_data(G_OBJECT(undo_button),        "plot-data", plot_data_p);
    g_object_set_data(G_OBJECT(clear_button),       "plot-data", plot_data_p);
-   g_object_set_data(G_OBJECT(single_pass_button), "plot-data", plot_data_p);
    g_object_set_data(G_OBJECT(animate_switch),     "plot-data", plot_data_p);
+   g_object_set_data(G_OBJECT(single_pass_button), "plot-data", plot_data_p);
+   g_object_set_data(G_OBJECT(interpolate_button), "plot-data", plot_data_p);
 
    gpointer user_data = static_cast<void *>(plot_data_p);
    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), on_draw_positron_plot, user_data, NULL);
