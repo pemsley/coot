@@ -10764,7 +10764,7 @@ Sat 13 Aug 08:42:27 BST 2022
    GtkWidget *item_widget = gtk_widget_get_first_child(box);
    while (item_widget) {
       if (some_test) {
-         some assignment
+         some assignment;
       }
       item_widget = gtk_widget_get_next_sibling(item_widget);
    };

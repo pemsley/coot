@@ -11,6 +11,9 @@ Coot: check that a Gaussian chain surface should be displayed before using it in
 
 Coot: for sound, look at tw/cootsound.c
 
+Coot: write a script that reads a map and undisplays it (positron). Now open the Display Manager.
+   The map "Display" checkbuttons are on.
+
 libcootapi: what do we need to get flev working?
 
 libcootapi: in protein_geometry add a function something like
