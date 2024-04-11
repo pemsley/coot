@@ -65,6 +65,7 @@ void CoordSpline::DialASpline(double t, const std::vector<double> &a,  const std
           work[i][0] = p[i][0];
           work[i][1] = p[i][1];
           work[i][2] = p[i][2];
+          work[i][3] = p[i][3];
         }
         for (j=1; j<=Cn; j++) {
             for (i=lo; i<=hi-j; i++) {
@@ -72,6 +73,7 @@ void CoordSpline::DialASpline(double t, const std::vector<double> &a,  const std
                 work[i][0] = t0*work[i][0] + t1*work[i+1][0];
                 work[i][1] = t0*work[i][1] + t1*work[i+1][1];
                 work[i][2] = t0*work[i][2] + t1*work[i+1][2];
+                work[i][3] = t0*work[i][3] + t1*work[i+1][3];
             }
         }
         h = 1+Cn-drop;
@@ -81,6 +83,7 @@ void CoordSpline::DialASpline(double t, const std::vector<double> &a,  const std
           work[i][0] = p[i][0];
           work[i][1] = p[i][1];
           work[i][2] = p[i][2];
+          work[i][3] = p[i][3];
         }
         if (h<0) h = 0;
     }
@@ -91,11 +94,13 @@ void CoordSpline::DialASpline(double t, const std::vector<double> &a,  const std
             work[lo+i+1][0] = t0*work[lo+i][0] + t1*work[lo+i+1][0];
             work[lo+i+1][1] = t0*work[lo+i][1] + t1*work[lo+i+1][1];
             work[lo+i+1][2] = t0*work[lo+i][2] + t1*work[lo+i+1][2];
+            work[lo+i+1][3] = t0*work[lo+i][3] + t1*work[lo+i+1][3];
         }
     }
     output[idx][0] = work[lo+h][0];
     output[idx][1] = work[lo+h][1];
     output[idx][2] = work[lo+h][2];
+    output[idx][3] = work[lo+h][3];
 }
 
 /*** lincrvtest.c ***/
