@@ -27,8 +27,11 @@ texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int s
 
    clipper::Cell cell = xmap.cell();
    clipper::Grid_sampling gs = xmap.grid_sampling();
-   std::cout << "mini_texture_t  constructor: "  << gs.format() << std::endl;
-   image_data.resize(gs.nu() * gs.nv());
+   int new_size = gs.nu() * gs.nv();
+   std::cout << "texture_as_floats_t constructor: "  << gs.format()
+             << " image data new size " << new_size << std::endl;
+   image_data.resize(new_size);
+   int image_data_size = image_data.size();
 
    x_size = cell.a();
    y_size = cell.b();
@@ -37,7 +40,6 @@ texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int s
    float z_frac = section_index / gs.nw();
    z_position = z_frac * cell.c();
    
-
    clipper::Coord_grid cg_0(0,0,section_index);
    clipper::Coord_grid cg_1(gs.nu()-1, gs.nv()-1, section_index);
    clipper::Grid_map grid(cg_0, cg_1);
@@ -54,8 +56,12 @@ texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int s
             float f_in_range = (f-data_value_for_bottom)/f_range;
             if (f_in_range < 0.0) f_in_range = 0.0;
             if (f_in_range > 1.0) f_in_range = 1.0;
-            int idx = 4 * (c_v + nv * c_u);
-            image_data[idx] = f_in_range;
+            int idx = c_v + nv * c_u;
+            if (idx > image_data_size) {
+               std::cout << "ERROR:: image data index out of range " << idx << " " << image_data_size << std::endl;
+            } else {
+               image_data[idx] = f_in_range;
+            }
             c_w++;
          }
          c_v++;

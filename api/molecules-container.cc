@@ -5540,4 +5540,3 @@ molecules_container_t::get_map_section_texture(int imol, int section_index, int 
 
 }
 
-

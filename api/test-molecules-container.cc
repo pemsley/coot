@@ -5603,6 +5603,37 @@ int test_end_delete_closed_molecules(molecules_container_t &mc) {
    return status;
 }
 
+int test_texture_as_floats(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   texture_as_floats_t tf = mc.get_map_section_texture(imol_map, 6, 0);
+
+   std::cout << " image data size " << tf.image_data.size() << std::endl;
+
+   if (tf.x_size > 10.0) {
+      if (tf.y_size > 10.0) {
+         if (tf.image_data.size() > 10000) {
+            for (unsigned int i=0; i<15000; i+=1000) {
+               // std::cout << "   " << i << " " << tf.image_data[i] << std::endl;
+               if (tf.image_data[i] > 0.5)
+                  status = 1;
+            }
+            for (unsigned int i=0; i<15000; i+=1000) {
+               // std::cout << "   " << i << " " << tf.image_data[i] << std::endl;
+               if (tf.image_data[i] > 1,0)
+                  status = 0;
+            }
+         }
+      }
+   }
+
+   return status;
+}
+
 
 
 int test_template(molecules_container_t &mc) {
@@ -5898,7 +5929,8 @@ int main(int argc, char **argv) {
       }
 
       {
-         status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+         // status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+         status += run_test(test_texture_as_floats, "Texture as Floats ", mc);
 
          if (status == n_tests) all_tests_status = 0;
 
