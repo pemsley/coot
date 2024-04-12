@@ -27,6 +27,7 @@
 #include "validation-information.hh"
 #include "superpose-results.hh"
 #include "coot-utils/simple-mesh.hh"
+#include "coot-utils/texture-as-floats.hh"
 #include "phi-psi-prob.hh"
 #include "instancing.hh"
 #include "coot-colour.hh" // put this in utils
@@ -512,6 +513,12 @@ public:
 
    //! @return a vector of non-standard residues (so that they can be used for auxiliary dictionary import)
    std::vector<std::string> non_standard_residue_types_in_model(int imol) const;
+
+   //
+   // rdkit_mol_wrapper_t get_rdkit_mol_wrapper(int imol, const std::string &cid);
+
+   // to be eaten by C++ only
+   // RDKit::ROMol *get_rdkit_mol_wrapper(int imol, const std::string &cid);
 
    // -------------------------------- coordinates utils -----------------------------------
    //! \name Coordinates Utils
@@ -1685,6 +1692,8 @@ public:
    //! @return a vector of residue specifiers for the ligand residues - the residue name is encoded
    //! in the `string_user_data` data item of the residue specifier
    std::vector<coot::residue_spec_t> get_non_standard_residues_in_molecule(int imol) const;
+
+   texture_as_floats_t get_map_section_texture(int imol, int section_id, int axis) const;
 
    // -------------------------------- Testing -------------------------------------
    //! \name Testing functions

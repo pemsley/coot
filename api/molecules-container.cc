@@ -5528,3 +5528,16 @@ molecules_container_t::print_secondary_structure_info(int imol) const {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
 }
+
+texture_as_floats_t
+molecules_container_t::get_map_section_texture(int imol, int section_index, int axis) const {
+
+   texture_as_floats_t t;
+   if (is_valid_map_molecule(imol)) {
+       t = molecules[imol].get_map_section_texture(section_index, axis);
+   }
+   return t;
+
+}
+
+

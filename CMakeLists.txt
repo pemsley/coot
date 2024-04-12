@@ -287,6 +287,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/coot-coord-utils-glyco.cc
             ${coot_src}/coot-utils/coot-coord-utils.cc
             ${coot_src}/coot-utils/merge-molecules.cc
+            ${coot_src}/coot-utils/texture-as-floats.cc
             ${coot_src}/coot-utils/coot-coord-extras.cc
             ${coot_src}/coot-utils/water-coordination.cc
             ${coot_src}/coot-utils/bonded-pairs.cc

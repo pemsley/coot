@@ -39,6 +39,7 @@
 #include "coot-utils/coot-rama.hh"
 #include "coot-utils/sfcalc-genmap.hh"
 #include "coot-utils/atom-tree.hh"
+#include "coot-utils/texture-as-floats.hh"
 #include "geometry/residue-and-atom-specs.hh"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
@@ -1264,6 +1265,8 @@ namespace coot {
 
       // the molecule is passed so that the peaks are placed around the protein
       std::vector<interesting_place_t> difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const;
+
+      texture_as_floats_t get_map_section_texture(int section_index, int axis) const;
 
 
       // ---------------------------------- blender --------------------------------------

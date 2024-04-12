@@ -1453,3 +1453,11 @@ coot::molecule_t::get_density_at_position(const clipper::Coord_orth &pos) const 
    float f = util::density_at_point(xmap, pos);
    return f;
 }
+
+texture_as_floats_t
+coot::molecule_t:: get_map_section_texture(int section_index, int axis) const {
+
+   texture_as_floats_t t(xmap, section_index);
+   return t;
+}
+
