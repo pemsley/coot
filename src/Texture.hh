@@ -33,7 +33,8 @@
 
 #include <glm/glm.hpp>
 
-#include "mini-texture.hh"
+#include "coot-utils/mini-texture.hh"
+
 class Texture {
 
    std::string default_directory;

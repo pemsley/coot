@@ -619,8 +619,6 @@ libcootsumo_la_SOURCES = \
 	meshed-generic-display-object.hh \
 	meshed-generic-display-object.cc \
 	meshed-particle-container.hh     \
-	mini-texture.hh \
-	mini-texture.cc \
 	model-composition-statistics.hh  \
 	model-molecule-meshes.hh         \
 	model-molecule-meshes.cc         \

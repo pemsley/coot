@@ -3,7 +3,7 @@
 #include <clipper/ccp4/ccp4_map_io.h>
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-map-heavy.hh"
-#include "mini-texture.hh"
+#include "coot-utils/mini-texture.hh"
 #include "graphics-info.h"
 
 void tomo_section(int imol, int section_index, int axis_id);
