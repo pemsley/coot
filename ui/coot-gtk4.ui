@@ -6462,9 +6462,9 @@ Do you want to continue?
                   <property name="visible">False</property>
                 </object>
               </child>
-
             </object>
           </child>
+
           <child>
             <object class="GtkBox" id="main_window_toolbar_hbox_end">
               <property name="orientation">horizontal</property>
@@ -6616,7 +6616,6 @@ Do you want to continue?
                                     </child>
                                   </object>
                                 </child>
-                                
 
                                 <child>
                                   <object class="GtkBox" id="dynamic_validation_vbox">
@@ -6691,6 +6690,7 @@ Do you want to continue?
                 </child>
 
                 <!-- container for the GTKGLArea -->
+
                 <child>
                   <object class="GtkPaned" id="main_window_graphics_validation_graphs_vs_graphics_pane">
                     <property name="position">660</property>
@@ -6713,9 +6713,31 @@ Do you want to continue?
                             </child>
 
                             <child>
-                              <object class="GtkBox" id="main_window_graphics_hbox">
-                                <property name="orientation">horizontal</property>
-                                <!-- This is where the GTKGLArea is placed at runtime -->
+                              <object class="GtkBox" id="graphics_and_tomo_slider_vbox">
+                                <property name="orientation">vertical</property>
+
+                                <child>
+                                  <object class="GtkBox" id="main_window_graphics_hbox">
+                                    <property name="orientation">horizontal</property>
+                                    <!-- This is where the GTKGLArea is placed at runtime -->
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkBox" id="tomo_slider_vbox">
+                                    <property name="orientation">vertical</property>
+
+                                    <child>
+                                      <object class="GtkScale" id="tomo_scale">
+                                        <property name="margin-start">10</property>
+                                        <property name="margin-end">10</property>
+                                        <property name="round-digits">1</property>
+                                      </object>
+                                    </child>
+
+                                  </object>
+                                </child>
+
                               </object>
                             </child>
 
@@ -6725,35 +6747,36 @@ Do you want to continue?
                       </object>
                     </child>
 
-                  <child>
-                    <object class="GtkFrame" id="main_window_validation_graph_frame">
-                      <!-- <property name="halign">fill</property> -->
-                      <!-- <property name="valign">end</property> -->
-                      <property name="hexpand">True</property>
-                      <property name="vexpand">True</property>
-                      <property name="visible">False</property>
-                      <property name="margin-bottom">5</property>
-                      <property name="margin-end">5</property>
-                      <property name="margin-start">5</property>
-                      <property name="margin-top">5</property>
 
-                      <child>
-                        <object class="GtkScrolledWindow">
-                          <property name="hexpand">True</property>
-                          <property name="vexpand">True</property>
-                          <child>
-                            <object class="GtkBox" id="main_window_validation_graph_box">
-                              <property name="orientation">vertical</property>
-                              <property name="hexpand">True</property>
-                              <property name="vexpand">True</property>
-                              <property name="spacing">5</property>
-                            </object>
-                          </child>
-                        </object>
-                      </child>
+                    <child>
+                      <object class="GtkFrame" id="main_window_validation_graph_frame">
+                        <!-- <property name="halign">fill</property> -->
+                        <!-- <property name="valign">end</property> -->
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
+                        <property name="visible">False</property>
+                        <property name="margin-bottom">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-top">5</property>
 
-                    </object>
-                  </child>
+                        <child>
+                          <object class="GtkScrolledWindow">
+                            <property name="hexpand">True</property>
+                            <property name="vexpand">True</property>
+                            <child>
+                              <object class="GtkBox" id="main_window_validation_graph_box">
+                                <property name="orientation">vertical</property>
+                                <property name="hexpand">True</property>
+                                <property name="vexpand">True</property>
+                                <property name="spacing">5</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
+                      </object>
+                    </child>
 
                   </object>
                 </child>

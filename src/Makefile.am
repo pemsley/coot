@@ -606,6 +606,7 @@ libcootsumo_la_SOURCES = \
 	ligand-check.hh          \
 	Model.cc Model.hh        \
 	make-a-dodec.cc make-a-dodec.hh \
+	map-statistics.hh               \
 	matrix-utils.hh          \
 	matrix-utils.cc          \
 	map-statistics.hh        \
@@ -618,7 +619,8 @@ libcootsumo_la_SOURCES = \
 	meshed-generic-display-object.hh \
 	meshed-generic-display-object.cc \
 	meshed-particle-container.hh     \
-	map-statistics.hh                \
+	mini-texture.hh \
+	mini-texture.cc \
 	model-composition-statistics.hh  \
 	model-molecule-meshes.hh         \
 	model-molecule-meshes.cc         \
@@ -714,6 +716,7 @@ libcootsumo_la_SOURCES = \
 	testing.hh               \
 	Texture.cc Texture.hh    \
 	TextureMesh.cc TextureMesh.hh \
+	tomo-tools.cc \
 	trackball.c trackball.h  \
 	triangle-extras.h        \
 	user-mods.hh user-mods.cc\

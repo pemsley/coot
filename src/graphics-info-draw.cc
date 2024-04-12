@@ -1578,7 +1578,18 @@ graphics_info_t::draw_texture_meshes() {
          if (! tm.textures.empty()) {
             // std::cout << "Binding and drawing the texture mesh" << std::endl;
 
-            std::cout << "............ get crow texture drawing code" << std::endl;
+            // std::cout << "............ get crow texture drawing code" << std::endl;
+
+            bool do_depth_fog = true;
+            int idx_start = tm.textures.size() - 1;
+            for (int idx_texture=idx_start; idx_texture>=0; idx_texture--) {
+               const auto &texture = tm.textures[idx_texture];
+               if (false)
+                  std::cout << "binding texture " << idx_texture << " to unit " << texture.unit << std::endl;
+               tm.textures[idx_texture].texture.Bind(texture.unit);
+            }
+            tm.draw(&shader, mvp, model_rotation, lights, eye_position, bg_col, do_depth_fog);
+
 #if 0
             //
             // 20211018-PE it matters that these get called in the right order!

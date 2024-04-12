@@ -88,6 +88,45 @@ Texture::Texture(int image_width_in, int image_height_in, const std::vector<glm:
    colour_bar(image_width_in, image_height_in, colours, n_ticks);
 }
 
+Texture::Texture(const mini_texture_t &mt) {
+
+   auto _ = [] (int err) {
+      std::string s = std::to_string(err);
+      if (err == GL_INVALID_ENUM)      s = "GL_INVALID_ENUM";
+      if (err == GL_INVALID_OPERATION) s = "GL_INVALID_OPERATION";
+      if (err == GL_INVALID_VALUE)     s = "GL_INVALID_VALUE";
+      return s;
+   };
+
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: Texture::Texture(mt) A " << _(err) << "\n";
+
+   glGenTextures(1, &m_texture_handle);
+   glBindTexture(GL_TEXTURE_2D, m_texture_handle);
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Texture::Texture(mt) C " << _(err) << "\n";
+
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Texture::Texture(mt) E " << _(err) << "\n";
+
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Texture::Texture(mt) G " << _(err) << "\n";
+
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mt.width, mt.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, mt.image_data);
+
+   err = glGetError();
+   if (err) std::cout << "GL ERROR:: Texture::Texture(mt) H " << _(err)
+                      << " w and h " << mt.width << " " << mt.height << std::endl;
+
+}
+
 // Don't draw ticks if n_ticks < 2.
 void
 Texture::colour_bar(int image_width_in, int image_height_in, const std::vector<glm::vec4> &colours, unsigned int n_ticks) {

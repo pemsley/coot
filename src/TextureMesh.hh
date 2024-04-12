@@ -57,8 +57,17 @@ public:
    std::string name;
    // std::string sampler_name; // e.g. "base_texture", sampler is now in Texture::type
    GLuint unit;
-   TextureInfoType(const Texture &t, const std::string &n) :
-      texture(t), name(n) {}
+   // TextureInfoType(const Texture &t, const std::string &n) : texture(t), name(n) {}
+   TextureInfoType(const Texture &t, const std::string &n) {
+      GLenum err = glGetError();
+      if (err) std::cout << "GL ERROR:: TextureInfoType() A " << (err) << "\n";
+      texture = t;
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: TextureInfoType() B " << (err) << "\n";
+      name = n;
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: TextureInfoType() C " << (err) << "\n";
+   }
 };
 
 class TextureMesh {
@@ -80,6 +89,7 @@ class TextureMesh {
    // The opacity will be a uniform.
    unsigned int draw_count; // so that I can animate the happy faces depending on the draw_count
    unsigned int inst_positions_id;
+   static std::string _(int err);
 
 public:
    TextureMesh() : vao(VAO_NOT_SET), index_buffer_id(VAO_NOT_SET), draw_this_mesh(true) {

@@ -4780,3 +4780,51 @@ graphics_info_t::add_shortcuts_to_window(GtkWidget *shortcuts_window) {
 #endif
 
 }
+
+
+// gui stuff
+void
+graphics_info_t::tomo_section(int imol, int section_index) {
+
+   auto _ = [] (int err) {
+      std::string s = std::to_string(err);
+      if (err == GL_INVALID_ENUM)      s = "GL_INVALID_ENUM";
+      if (err == GL_INVALID_OPERATION) s = "GL_INVALID_OPERATION";
+      if (err == GL_INVALID_VALUE)     s = "GL_INVALID_VALUE";
+      return s;
+   };
+
+   if (is_valid_map_molecule(imol)) {
+
+      const auto &xmap = molecules[imol].xmap;
+
+      texture_meshes.clear();
+      mini_texture_t m(xmap, section_index); // 128 for 11729
+      clipper::Cell cell = xmap.cell();
+      float x_len = cell.a();
+      float y_len = cell.b();
+
+      attach_buffers();
+      GLenum err = glGetError();
+      if (err) std::cout << "GL ERROR:: tomo_section() A " << _(err) << "\n";
+      Texture t(m);
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: tomo_section() B " << _(err) << "\n";
+      TextureInfoType ti(t, "mini-texture");
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: tomo_section() C " << _(err) << "\n";
+      ti.unit = 0; // what is this?
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: tomo_section() D " << _(err) << "\n";
+      TextureMesh tm("mini-texture mesh");
+      tm.add_texture(ti);
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: tomo_section() E " << _(err) << "\n";
+      tm.setup_camera_facing_quad(x_len * 0.5, y_len * 0.5, 0, 0); // vertices -x, +x, -y, +y
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: tomo_section() F " << _(err) << "\n";
+      texture_meshes.push_back(tm);
+
+      graphics_draw();
+   };
+}

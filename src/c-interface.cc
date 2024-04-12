@@ -2092,13 +2092,16 @@ set_density_size_em_from_widget(const char *text) {
          std::string ss(text);
          float f = coot::util::string_to_float(ss);
          if (f > 0.0) {
-            if (f < 1999.9) {
+            // example tomo is 21000x16000x3000
+            if (f < 19999.9) {
                graphics_info_t g;
                g.box_radius_em = f;
                for (int ii=0; ii<g.n_molecules(); ii++) {
                   if (is_valid_map_molecule(ii))
                      g.molecules[ii].update_map(true);
                }
+            } else {
+               std::cout << "over the limit: " << f << std::endl;
             }
          }
       }

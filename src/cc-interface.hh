@@ -2362,6 +2362,9 @@ void curmudgeon_mode();
 
 void halloween();
 
+void setup_tomo_slider(int imol);
+void tomo_section(int imol, int section_index, int axis_id);
+
 void read_positron_metadata(const std::string &z_data, const std::string &table);
 
 #ifdef USE_PYTHON

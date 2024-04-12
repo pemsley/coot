@@ -5318,6 +5318,9 @@ string   static std::string sessionid;
    // add a pumpkin as a graphics object and draw it.
    void pumpkin();
 
+   // gui stuff
+   void tomo_section(int imol, int section_id);
+
 };
 
 
