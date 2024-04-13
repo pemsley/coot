@@ -1426,6 +1426,7 @@ public:        //                      public
    clipper::Xmap<int> xskel_cowtan;
    short int xskel_is_filled;
 
+   void reverse_map();
 
    //
    void update_map_colour_menu_maybe(int imol);

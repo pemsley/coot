@@ -2362,8 +2362,15 @@ void curmudgeon_mode();
 
 void halloween();
 
-void setup_tomo_slider(int imol);
-void tomo_section(int imol, int section_index, int axis_id);
+//! return the section index (the middle section currently)
+int setup_tomo_slider(int imol);
+void tomo_section_view(int imol, int axis_id);
+void set_tomo_section_view_section(int imol, int section_index);
+
+//! negative becomes positive and positive becomes negative.
+//! Apply an offset so that most of the map is above zero.
+//!
+void reverse_map(int imol_map);
 
 void read_positron_metadata(const std::string &z_data, const std::string &table);
 

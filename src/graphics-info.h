@@ -5319,7 +5319,7 @@ string   static std::string sessionid;
    void pumpkin();
 
    // gui stuff
-   void tomo_section(int imol, int section_id);
+   void set_tomo_section_view_section(int imol, int section_index);
 
 };
 

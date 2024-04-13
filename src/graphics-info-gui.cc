@@ -4784,7 +4784,7 @@ graphics_info_t::add_shortcuts_to_window(GtkWidget *shortcuts_window) {
 
 // gui stuff
 void
-graphics_info_t::tomo_section(int imol, int section_index) {
+graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
 
    auto _ = [] (int err) {
       std::string s = std::to_string(err);
@@ -4794,15 +4794,30 @@ graphics_info_t::tomo_section(int imol, int section_index) {
       return s;
    };
 
+   bool use_z_translation = true;
+
    if (is_valid_map_molecule(imol)) {
 
+      // auto tp_start = std::chrono::high_resolution_clock::now();
       const auto &xmap = molecules[imol].xmap;
 
+      float mean =   molecules[imol].map_mean();
+      float std_dev = molecules[imol].map_sigma();
+      float data_value_for_top    = mean + 2.5f * std_dev;
+      float data_value_for_bottom = mean - std_dev;
+
+      // maybe I should replace the texture rather than delete all and create a new one.
       texture_meshes.clear();
-      mini_texture_t m(xmap, section_index); // 128 for 11729
-      clipper::Cell cell = xmap.cell();
-      float x_len = cell.a();
-      float y_len = cell.b();
+
+      // auto tp_1 = std::chrono::high_resolution_clock::now();
+      mini_texture_t m(xmap, section_index, data_value_for_bottom, data_value_for_top); // 128 for 11729
+      // auto tp_2 = std::chrono::high_resolution_clock::now();
+
+      float x_len = m.x_size;
+      float y_len = m.y_size;
+      float z_pos = 0.0f;
+
+      if (use_z_translation) z_pos = m.z_position;
 
       attach_buffers();
       GLenum err = glGetError();
@@ -4820,10 +4835,18 @@ graphics_info_t::tomo_section(int imol, int section_index) {
       tm.add_texture(ti);
       err = glGetError();
       if (err) std::cout << "GL ERROR:: tomo_section() E " << _(err) << "\n";
-      tm.setup_camera_facing_quad(x_len * 0.5, y_len * 0.5, 0, 0); // vertices -x, +x, -y, +y
+      tm.setup_tomo_quad(x_len, y_len, z_pos);
+      // auto tp_2 = std::chrono::high_resolution_clock::now();
       err = glGetError();
       if (err) std::cout << "GL ERROR:: tomo_section() F " << _(err) << "\n";
       texture_meshes.push_back(tm);
+      m.clear();
+
+      // auto tp_now = std::chrono::high_resolution_clock::now();
+      // auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - tp_start);
+      // auto td    = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1);
+      // std::cout << "graphics_info_t::tomo_section() all  " << delta.count() << " ms" << std::endl;
+      // std::cout << "graphics_info_t::tomo_section() test " <<    td.count() << " ms" << std::endl;
 
       graphics_draw();
    };

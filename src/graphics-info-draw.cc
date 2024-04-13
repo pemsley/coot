@@ -400,7 +400,7 @@ graphics_info_t::mouse_zoom(double delta_x_drag, double delta_y_drag) {
    double fy = 1.0 + delta_y/300.0;
    if (fx > 0.0) graphics_info_t::zoom /= fx;
    if (fy > 0.0) graphics_info_t::zoom /= fy;
-   if (false)
+   if (true)
       std::cout << "zooming with perspective_projection_flag "
                 << graphics_info_t::perspective_projection_flag
                 << " " << graphics_info_t::zoom << std::endl;
@@ -1588,7 +1588,10 @@ graphics_info_t::draw_texture_meshes() {
                   std::cout << "binding texture " << idx_texture << " to unit " << texture.unit << std::endl;
                tm.textures[idx_texture].texture.Bind(texture.unit);
             }
+            glEnable(GL_BLEND);
+            // we need some user control over the map section opacity
             tm.draw(&shader, mvp, model_rotation, lights, eye_position, bg_col, do_depth_fog);
+            glDisable(GL_BLEND);
 
 #if 0
             //
@@ -1905,7 +1908,6 @@ graphics_info_t::draw_molecules_with_shadows() {
 
             glEnable(GL_BLEND);
             // good idea to not use shadows on atom labels?
-
             // 20220226-PE not here.
             // draw_molecule_atom_labels(m, mvp, model_rotation_matrix);
          }

@@ -346,6 +346,11 @@ namespace coot {
       clipper::Xmap<float> reinterp_map(const clipper::Xmap<float> &xmap_in,
 					const clipper::Xmap<float> &reference_xmap);
 
+      // negative becomes positive and positive becomes negative.
+      // Apply an offset so that most of the map is above zero.
+      //
+      void reverse_map(clipper::Xmap<float> *xmap_p);
+
       class map_fragment_info_t {
 	 // sans recentre at origin
 	 void init(const clipper::Xmap<float> &xmap,

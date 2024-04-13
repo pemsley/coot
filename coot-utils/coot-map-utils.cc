@@ -4619,3 +4619,22 @@ coot::util::analyse_map_point_density_change(const std::vector<std::pair<clipper
    return resulting_map;
 
 }
+
+
+// negative becomes positive and positive becomes negative.
+// Apply an offset so that most of the map is above zero.
+//
+void
+coot::util::reverse_map(clipper::Xmap<float> *xmap_p) {
+
+   // 20240413-PE do I really want to add a base?
+   clipper::Xmap<float> &xmap(*xmap_p);
+   std::pair<float, float> mv = mean_and_variance(xmap);
+   float base = mv.first - 2.5f * mv.second;
+
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap.first(); !ix.last(); ix.next() ) {
+      float f = xmap[ix];
+      xmap[ix] = -f - base;
+   }
+}

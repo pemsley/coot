@@ -37,7 +37,7 @@ texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int s
    y_size = cell.b();
    if (section_index >= gs.nw()) section_index = gs.nw() -1;
    if (section_index < 0) section_index = 0;
-   float z_frac = section_index / gs.nw();
+   float z_frac = static_cast<float>(section_index) / static_cast<float>(gs.nw());
    z_position = z_frac * cell.c();
    
    clipper::Coord_grid cg_0(0,0,section_index);
@@ -57,7 +57,7 @@ texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int s
             if (f_in_range < 0.0) f_in_range = 0.0;
             if (f_in_range > 1.0) f_in_range = 1.0;
             int idx = c_v + nv * c_u;
-            if (idx > image_data_size) {
+            if (idx >= image_data_size) {
                std::cout << "ERROR:: image data index out of range " << idx << " " << image_data_size << std::endl;
             } else {
                image_data[idx] = f_in_range;

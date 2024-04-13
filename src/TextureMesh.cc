@@ -93,6 +93,31 @@ TextureMesh::setup_camera_facing_quad(float scale_x, float scale_y, float offset
 }
 
 void
+TextureMesh::setup_tomo_quad(float scale_x, float scale_y, float z_pos) {
+
+  draw_this_mesh = true;
+
+   glm::vec3 n(0,0,1);
+   glm::vec4 col(1.0, 1.0, 1.0, 1.0);
+
+   vertices.clear();
+   triangles.clear();
+
+   // the indexing might well be wrong here - I'm sort of guessing
+   vertices.push_back(TextureMeshVertex(glm::vec3(0.0f,    0.0f,    z_pos), n, col, glm::vec2(0,0)));
+   vertices.push_back(TextureMeshVertex(glm::vec3(scale_x, 0.0f,    z_pos), n, col, glm::vec2(0,1)));
+   vertices.push_back(TextureMeshVertex(glm::vec3(scale_x, scale_y, z_pos), n, col, glm::vec2(1,1)));
+   vertices.push_back(TextureMeshVertex(glm::vec3(0.0f,    scale_y, z_pos), n, col, glm::vec2(1,0)));
+
+   triangles.push_back(g_triangle(0,1,2));
+   triangles.push_back(g_triangle(2,3,0));
+
+   setup_buffers();
+
+}
+
+
+void
 TextureMesh::set_colour(const glm::vec4 &col_in) {
 
    for (unsigned int i=0; i<vertices.size(); i++) {

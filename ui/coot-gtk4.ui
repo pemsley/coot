@@ -6715,6 +6715,7 @@ Do you want to continue?
                             <child>
                               <object class="GtkBox" id="graphics_and_tomo_slider_vbox">
                                 <property name="orientation">vertical</property>
+                                <property name="visible">False</property>
 
                                 <child>
                                   <object class="GtkBox" id="main_window_graphics_hbox">
@@ -6732,6 +6733,7 @@ Do you want to continue?
                                         <property name="margin-start">10</property>
                                         <property name="margin-end">10</property>
                                         <property name="round-digits">1</property>
+                                        <property name="can_focus">False</property>
                                       </object>
                                     </child>
 

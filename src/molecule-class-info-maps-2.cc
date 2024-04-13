@@ -901,3 +901,14 @@ molecule_class_info_t::recolour_ribbon_by_map(const clipper::Xmap<float> &xmap, 
 
 
 }
+
+
+void
+molecule_class_info_t::reverse_map() {
+
+   if (has_xmap()) {
+      coot::util::reverse_map(&xmap);
+      update_map_internal();
+   }
+
+}

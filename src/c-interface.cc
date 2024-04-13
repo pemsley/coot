@@ -3146,8 +3146,8 @@ get_show_unit_cell(int imol) {
 void
 set_show_unit_cell(int imol, short int state) {
 
-   if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].show_unit_cell_flag = state;
+   if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_show_unit_cell(state);
    }
 
    graphics_draw();
