@@ -183,9 +183,9 @@ graphics_info_t::get_front_and_back_for_pick() const {
 }
 
 bool
-graphics_info_t::tomo_pick(double x, double y, gint n_press) {
+graphics_info_t::tomo_pick(double x, double y, gint n_press, bool shift_is_pressed) {
 
-   bool state = false;
+   bool state = true; // unless we miss the box (currently not tested)
    std::pair<coot::Cartesian, coot::Cartesian> front_and_back = get_front_and_back_for_pick();
 
    // let front F, back B:
@@ -202,14 +202,16 @@ graphics_info_t::tomo_pick(double x, double y, gint n_press) {
    float t = (P_z - front.z())/delta.z();
    coot::Cartesian pick_point = front + delta * t;
    clipper::Coord_orth pt(pick_point.x(), pick_point.y(), pick_point.z());
-   std::cout << "pt: " << pt.format() << std::endl;
+   // std::cout << "pt: " << pt.format() << std::endl;
    coot::colour_holder ch(0.3, 0.3, 0.9);
    std::string object_name =  "TomoPick " + std::to_string(tomo_view_info.section_index);
    int object_number = generic_object_index(object_name);
+   std::cout << "in tomo_pick A with object_number " << object_number << std::endl;
    if (object_number == -1)
       object_number = new_generic_object_number(object_name);
+   std::cout << "in tomo_pick B with object_number " << object_number << std::endl;
 
-   to_generic_object_add_point_internal(object_number, "blue", ch, 3000.0, pt);
+   to_generic_object_add_point_internal(object_number, "dummy", ch, 3000.0, pt);
    set_display_generic_object(object_number, 1);
 
    return state;

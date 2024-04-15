@@ -408,7 +408,7 @@ on_glarea_swipe(GtkGestureSwipe *controller,
    graphics_info_t g;
    // swipes happend a lot - a click-and-drag seems to be a swipe
 
-   std::cout << "------------------ swipe " << vel_x << " " << vel_y << std::endl;
+   // std::cout << "------------------ swipe " << vel_x << " " << vel_y << std::endl;
 
    // 20240414-PE no, because click-drag-release is a swipe.
    // g.using_trackpad = true;

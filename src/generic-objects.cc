@@ -510,19 +510,10 @@ int generic_object_is_displayed_p(int object_number) {
 
 int new_generic_object_number(const std::string &name_string) {
 
+   std::cout << "--------------- new_generic_object_number() " << name_string << std::endl;
+
    graphics_info_t g;
    int n_new = g.new_generic_object_number(name_string);
-
-   if (g.generic_objects_dialog) {
-      GtkWidget *grid = widget_from_builder("generic_objects_dialog_grid"); // changed 20211020-PE
-      if (grid) {
-         const meshed_generic_display_object &gdo = g.generic_display_objects[n_new];
-         generic_objects_dialog_grid_add_object_internal(gdo,
-                                                         g.generic_objects_dialog,
-                                                         grid,
-                                                         n_new);
-      }
-   }
    return n_new;
 }
 
@@ -536,7 +527,7 @@ int new_generic_object_number_for_molecule(const std::string &name, int imol) {
 
 
 // return the index of the object with name name, if not, return -1;
-// 
+//
 int generic_object_index(const std::string &name) {
 
    return graphics_info_t::generic_object_index(name);
@@ -545,7 +536,7 @@ int generic_object_index(const std::string &name) {
 
 // OLD code passing back a const char (yeuch)
 //
-// /*! \brief what is the name of generic object number obj_number? 
+// /*! \brief what is the name of generic object number obj_number?
 
 // return 0 (NULL) #f  on obj_number not available */
 // const char *generic_object_name(int obj_number) {

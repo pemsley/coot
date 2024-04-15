@@ -79,8 +79,6 @@ graphics_info_t::on_glarea_drag_begin_primary(GtkGestureDrag *gesture, double x,
 void
 graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double drag_delta_x, double drag_delta_y, GtkWidget *gl_area) {
 
-   std::cout << "on_glarea_drag_update_primary() " << std::endl;
-
    // Ctrl left-mouse means pan
    GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(gesture));
    bool control_is_pressed = (modifier & GDK_CONTROL_MASK);
@@ -345,7 +343,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
          handled = TRUE;
          g.graphics_draw(); // unhighlight the arrow
       }
-      if (true)
+      if (false)
          std::cout << "debug:: check_if_refinement_dialog_arrow_tab_was_clicked() returns " << handled << std::endl;
       return gboolean(handled);
    };
@@ -393,7 +391,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
       if (n_press == 1) {
 
-         std::cout << "##################### on_glarea_click() 1 click " << std::endl;
+         // std::cout << "##################### on_glarea_click() 1 click " << std::endl;
 
          bool handled = check_if_refinement_dialog_arrow_tab_was_clicked();
 
@@ -412,25 +410,26 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
             GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
             // std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
 
-            if (modifier == 17) { // shift
+            if (tomo_picker_flag) {
 
-               bool intermediate_atoms_only_flag = false;
-               pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
-               if (naii.success) {
-                  int imol = naii.imol;
-                  mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[naii.atom_index];
-                  molecules[imol].add_to_labelled_atom_list(naii.atom_index);
-                  graphics_draw();
-                  handled = true;
-               }
+               bool shift_is_pressed = (modifier & GDK_SHIFT_MASK);
+               std::cout << "here in tomo-pick path with shift_is_pressed " << shift_is_pressed << std::endl;
+               handled = tomo_pick(x,y, n_press, shift_is_pressed);
 
             } else {
 
-               if (tomo_picker_flag) {
+               if (modifier == 17) { // shift
 
-                  handled = tomo_pick(x,y, n_press);
+                  bool intermediate_atoms_only_flag = false;
+                  pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+                  if (naii.success) {
+                     int imol = naii.imol;
+                     mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[naii.atom_index];
+                     molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                     graphics_draw();
+                     handled = true;
+                  }
 
-                  // if we pick then set handled = true
                } else {
 
                   std::cout << "Here with in_range_define " << in_range_define << std::endl;
