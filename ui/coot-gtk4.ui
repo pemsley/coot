@@ -6715,7 +6715,6 @@ Do you want to continue?
                             <child>
                               <object class="GtkBox" id="graphics_and_tomo_slider_vbox">
                                 <property name="orientation">vertical</property>
-                                <property name="visible">False</property>
 
                                 <child>
                                   <object class="GtkBox" id="main_window_graphics_hbox">
@@ -6727,6 +6726,7 @@ Do you want to continue?
                                 <child>
                                   <object class="GtkBox" id="tomo_slider_vbox">
                                     <property name="orientation">vertical</property>
+                                    <property name="visible">False</property>
 
                                     <child>
                                       <object class="GtkScale" id="tomo_scale">
