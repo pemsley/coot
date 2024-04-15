@@ -46,6 +46,13 @@ jobs:
          path: build-gemmi
          key:  coot-build-ubuntu-gemmi-cache-build
 
+    - name: download the monomer library
+      run:  wget -nv https://github.com/MonomerLibrary/monomers/archive/refs/tags/ccp4-8.0.016.tar.gz
+
+    # note that the data directory exists in the coot repo (which is where we are)
+    - name: untar the monomer library
+      run:  pwd && cd data && tar xf ../ccp4-8.0.016.tar.gz && ln -s monomers-ccp4-8.0.016 monomers
+
     - name: Update apt-get
       run:  sudo apt-get update
 
@@ -102,9 +109,13 @@ jobs:
         retention-days: 3
 
     - name: Does it run?
+      env:
+        COOT_REFMAC_LIB_DIR: /home/runner/work/coot/coot # "data/monomers" is added before "a/ATP.cif" (say)
       run:  cd src && ./coot-bin --no-graphics < /dev/null && cd -
 
     - name: Run the Unit Python Tests
+      env:
+        COOT_REFMAC_LIB_DIR: /home/runner/work/coot/coot
       run:  cd src && ./coot-bin --no-graphics --script ../python-tests/run_the_unit_tests.py && cd -
 
     - name: Upload binaries

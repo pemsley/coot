@@ -115,10 +115,11 @@ handle_command_line_data(command_line_data cld) {
 
    // coordinates
 
-   std::cout << "DEBUG:: in handle_command_line_data() ------------------------------------" << std::endl;
-   std::cout << "DEBUG:: in handle_command_line_data here are the coordinates files " << std::endl;
-   for (unsigned int i=0; i< cld.coords.size(); i++) {
-      std::cout << "           " << cld.coords[i] << std::endl;
+   if (false) {
+      std::cout << "DEBUG:: in handle_command_line_data() ------------------------------------" << std::endl;
+      std::cout << "DEBUG:: in handle_command_line_data here are the coordinates files " << std::endl;
+      for (unsigned int i=0; i< cld.coords.size(); i++)
+         std::cout << "           " << cld.coords[i] << std::endl;
    }
 
    for (unsigned int i=0; i< cld.coords.size(); i++) {

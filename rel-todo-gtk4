@@ -1,9 +1,13 @@
 
 ----
 
+Coot: (refinement) martin maly bug: transpose map by lsq superpose failed.
+      Bring the lsq map function to libcootapi and chapi
+
 Coot: make the function get_number_of_molecules(), as an alias maybe.
 
 Coot: Add to Draw menu "Activate Scene Preset" Figure making or Model-building
+* Done. Good.
 
 Coot: Ribbons mode needs to (an option?) to add ligands 6zxa.cif
 
@@ -15,6 +19,10 @@ Coot: write a script that reads a map and undisplays it (positron). Now open the
    The map "Display" checkbuttons are on.
 
 libcootapi: what do we need to get flev working?
+
+libcootapi: give me tautomers of this molecule/ligand.
+
+chapi: what about bringing servalcat into the chapi installation? And to build-it-3-3?
 
 libcootapi: in protein_geometry add a function something like
    duplicate_dictionary_for_other_molecule(int idx_rest, int imol_other)
@@ -39,8 +47,6 @@ Coot: Save Coords is not working again.
 Coot: "Close" button doesn't work in Restraints editor.
 
 Coot: look at the 2b0m flavin ligand interactions - diego where it looks like a hydrogen bond.
-
-Coot: (refinement) martin maly bug: transpose map by lsq superpose failed.
 
 Coot: what does electrostactics give us now?
 
