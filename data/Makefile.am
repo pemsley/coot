@@ -19,8 +19,10 @@ cootdatadir = $(pkgdatadir)/data
 
 SUBDIRS = rama-coeffs cho-models cho-acedrg metal
 
-dist_cootdata_DATA = tutorial-modern.pdb rnasa-1.8-all_refmac1.mtz ligands.db 
+# putting syminfo.lib into the data subdirectory matches the installation from CMakeLists.txt
+# and where the code expects it to be
+dist_cootdata_DATA = tutorial-modern.pdb rnasa-1.8-all_refmac1.mtz ligands.db syminfo.lib
 
-subpkgdatadir = $(pkgdatadir)
-subpkgdata_DATA = syminfo.lib
+# subpkgdatadir = $(pkgdatadir)
+# subpkgdata_DATA = syminfo.lib
 
