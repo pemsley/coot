@@ -40,10 +40,11 @@ class CoordSpline {
     };
     FCXXCoord  coordForXEquals(const float xVal) {
         int idx = int((xVal+1.0)/ctlPts.size() * spline.size()-1);
-        if(idx<0)
+        int spline_size = spline.size();
+        if (idx < 0)
             idx = 0;
-        if(idx>=spline.size())
-            idx = spline.size()-1;
+        if (idx >= spline_size)
+            idx = spline_size -1;
         return spline[idx];
     }
     void clearSpline(){
