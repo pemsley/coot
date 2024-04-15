@@ -200,6 +200,11 @@ int number_of_generic_objects();
   generic display objects */
 void generic_object_info(); 
 
+#ifdef USE_PYTHON
+/*! \brief get generic display objects */
+PyObject *get_generic_object_info(int obj_number);
+#endif /* USE_PYTHON */
+
 /*! \brief does generic display object number obj_no have things to
   display? (predicate name)
 

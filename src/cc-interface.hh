@@ -2367,6 +2367,12 @@ int setup_tomo_slider(int imol);
 void tomo_section_view(int imol, int axis_id);
 void set_tomo_section_view_section(int imol, int section_index);
 
+void set_tomo_picker_mode_is_active(short int state);
+
+#ifdef USE_PYTHON
+void tomo_map_analysis(int imol_map, PyObject *spot_positions);
+#endif
+
 //! negative becomes positive and positive becomes negative.
 //! Apply an offset so that most of the map is above zero.
 //!

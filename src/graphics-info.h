@@ -82,6 +82,7 @@
 #include "build/CalphaBuild.hh"
 #include "ideal/simple-restraint.hh"
 #include "coot-utils/positron.hh"
+#include "api/cell.hh"
 
 // #ifdef DO_GEOMETRY_GRAPHS
 // #include "test-validation"
@@ -1944,6 +1945,8 @@ public:
 
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick() const;
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const;
+
+   bool tomo_pick(double x, double y, gint n_press);
 
    // map skeletonization level (and (different widget) boxsize).
    //
@@ -5318,8 +5321,21 @@ string   static std::string sessionid;
    // add a pumpkin as a graphics object and draw it.
    void pumpkin();
 
-   // gui stuff
+   // tomogram stuff
    void set_tomo_section_view_section(int imol, int section_index);
+   static bool tomo_picker_flag;
+   class tomo_view_info_t {
+      public:
+      tomo_view_info_t() : imol(-1), section_index(-1), axis(-1) {}
+      tomo_view_info_t(int imol, coot::Cell c, int section, int axis_in) :
+         imol(imol), cell(c), section_index(section), axis(axis_in) {}
+      int imol;
+      coot::Cell cell;
+      int section_index;
+      int axis;
+      float get_P_z() { return cell.c * static_cast<float>(section_index)/static_cast<float>(molecules[imol].xmap.grid_sampling().nw()); }
+   };
+   static tomo_view_info_t tomo_view_info;
 
 };
 

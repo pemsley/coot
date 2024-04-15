@@ -99,9 +99,13 @@ meshed_generic_display_object::add_point(const coot::colour_holder &colour_in,
    // unsigned int num_subdivisions = 1;
    float radius = 0.03 * size_in; // changing the scaling is fun
    glm::vec4 col(colour_in.red, colour_in.green, colour_in.blue, 1.0);
-   glm::vec3 position = coord_orth_to_glm(coords_in);
+   object_info_t oi; // 20240414-PE I need to add an oi for other object types too.
+   oi.position = coords_in;
+   oi.colour = colour_in;
+   info.push_back(oi);
+   glm::vec3 position_glm = coord_orth_to_glm(coords_in);
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
-      oct = wrapped_make_octasphere(num_subdivisions, position, radius, col);
+      oct = wrapped_make_octasphere(num_subdivisions, position_glm, radius, col);
    mesh.import(oct);
 
 }

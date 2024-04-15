@@ -758,6 +758,44 @@ void generic_object_info() {
    }
 }
 
+#ifdef USE_PYTHON
+/*! \brief get generic display objects */
+PyObject *get_generic_object_info(int obj_number) {
+
+   PyObject *o = Py_None;
+   graphics_info_t g;
+   int n_obs = g.generic_display_objects.size();
+   if (obj_number < n_obs) {
+      if (obj_number >= 0) {
+
+         const auto &info = g.generic_display_objects[obj_number].info;
+         o = PyList_New(info.size());
+         for (unsigned int i=0; i<info.size(); i++) {
+
+            PyObject *d = PyDict_New();
+            PyObject *colour_py = PyList_New(3);
+            const auto &col = info[i].colour;
+            PyList_SetItem(colour_py, 0, PyFloat_FromDouble(static_cast<double>(col.red)));
+            PyList_SetItem(colour_py, 1, PyFloat_FromDouble(static_cast<double>(col.green)));
+            PyList_SetItem(colour_py, 2, PyFloat_FromDouble(static_cast<double>(col.blue)));
+            PyDict_SetItemString(d, "colour", colour_py);
+            const auto &pos = info[i].position;
+            PyObject *position_py = PyList_New(3);
+            PyList_SetItem(position_py, 0, PyFloat_FromDouble(pos.x()));
+            PyList_SetItem(position_py, 1, PyFloat_FromDouble(pos.y()));
+            PyList_SetItem(position_py, 2, PyFloat_FromDouble(pos.z()));
+            PyDict_SetItemString(d, "position", position_py);
+
+            PyList_SetItem(o, i, d);
+         }
+      }
+   }
+   return o;
+
+}
+#endif /* USE_PYTHON */
+
+
 // generic object obj_no has things to display?
 // Return 0 or 1.
 //

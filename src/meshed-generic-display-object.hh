@@ -157,6 +157,13 @@ public:
       clipper::Coord_orth position;
       coot::colour_holder col;
    };
+
+   class object_info_t {
+   public:
+      coot::colour_holder colour;
+      clipper::Coord_orth position;
+   };
+
    enum {UNDEFINED = -1, INTERMEDIATE_ATOMS=-9};
    meshed_generic_display_object() : mesh(Mesh("init_meshed_generic_display_object-A"))
       { imol = UNDEFINED; wireframe_mode = false; }
@@ -176,6 +183,9 @@ public:
    bool is_valid_imol() { return imol != INTERMEDIATE_ATOMS && imol != UNDEFINED; }
    bool is_intermediate_atoms_object() const { return imol == INTERMEDIATE_ATOMS; }
    Mesh mesh;
+   std::vector<object_info_t> info; // a place to store the positions and colours
+                                    // so that they can be retrieved in a python function
+                                    // get_generic_object_info()
 
    bool wireframe_mode;
    void attach_to_intermediate_atoms() { imol = INTERMEDIATE_ATOMS; }

@@ -1818,3 +1818,6 @@ float graphics_info_t::gaussian_surface_fft_b_factor = 100.0;
 short int graphics_info_t::gaussian_surface_chain_colour_mode = 1; // 1 for "by chain" , 2 for "by NCS"
 
 std::vector<coot::positron_metadata_t> graphics_info_t::positron_metadata;
+
+bool graphics_info_t::tomo_picker_flag = false;
+graphics_info_t::tomo_view_info_t graphics_info_t::tomo_view_info;

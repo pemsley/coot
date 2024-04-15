@@ -4800,8 +4800,12 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
 
       // auto tp_start = std::chrono::high_resolution_clock::now();
       const auto &xmap = molecules[imol].xmap;
+      clipper::Cell c_cell = xmap.cell();
+      coot::Cell cell(c_cell.a(), c_cell.b(), c_cell.c(), c_cell.alpha(), c_cell.beta(), c_cell.gamma());
+      int axis = 0; // for now
+      tomo_view_info = tomo_view_info_t(imol, cell, section_index, axis);
 
-      float mean =   molecules[imol].map_mean();
+      float mean =    molecules[imol].map_mean();
       float std_dev = molecules[imol].map_sigma();
       float data_value_for_top    = mean + 2.5f * std_dev;
       float data_value_for_bottom = mean - std_dev;

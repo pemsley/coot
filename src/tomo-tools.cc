@@ -3,6 +3,7 @@
 
 #include <clipper/ccp4/ccp4_map_io.h>
 #include "utils/coot-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-map-heavy.hh"
 #include "coot-utils/mini-texture.hh"
 #include "graphics-info.h"
@@ -57,6 +58,9 @@ int setup_tomo_slider(int imol) {
       int mid_section = n_sections/2;
       section = mid_section;
 
+      GtkWidget *toolbar_vbox = widget_from_builder("main_window_vbox_inner");
+      gtk_widget_set_visible(toolbar_vbox, FALSE);
+
       GtkWidget *tomo_box = widget_from_builder("tomo_slider_vbox");
       GtkWidget *scale = widget_from_builder("tomo_scale");
       gtk_widget_set_visible(tomo_box, TRUE);
@@ -98,6 +102,74 @@ void tomo_section_view(int imol, int section_index) {
    // auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - tp_start);
 
 }
+
+void set_tomo_picker_mode_is_active(short int state) {
+
+   graphics_info_t::tomo_picker_flag = state;
+
+}
+
+
+#ifdef USE_PYTHON
+void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
+
+   auto do_stats = [] (unsigned int point_index,
+                       const clipper::Coord_orth &pt,
+                       const clipper::Xmap<float> &xmap) {
+      double delta_size = 10.0;
+      for (int ix=-50; ix<50; ix++) {
+         for (int iy=-5; iy<5; iy++) {
+            double dix = static_cast<double>(ix);
+            double diy = static_cast<double>(iy);
+            clipper::Coord_orth p = pt + clipper::Coord_orth(dix * delta_size, diy * delta_size, 0.0);
+            float f = coot::util::density_at_point(xmap, p);
+            std::cout << "map-point " << point_index << " " << ix << " "
+                      << dix * delta_size << " " << diy * delta_size << " "
+                      << p.x() << " " << p.y() << " " << p.z() << " value: " << f << std::endl;
+         }
+      }
+   };
+
+   std::vector<clipper::Coord_orth> positions;
+   if (PyList_Check(spot_positions)) {
+      long l = PyObject_Length(spot_positions);
+      for (unsigned int i=0; i<l; i++) {
+         PyObject *item = PyList_GetItem(spot_positions, i);
+         if (PyDict_Check(item)) {
+            // std::cout << "found a dict " << item << std::endl;
+            PyObject *pos_item = PyDict_GetItemString(item, "position"); // a borrowed reference
+            if (PyList_Check(pos_item)) {
+               long lpi = PyObject_Length(pos_item);
+               if (lpi == 3) {
+                  double x = PyFloat_AsDouble(PyList_GetItem(pos_item, 0));
+                  double y = PyFloat_AsDouble(PyList_GetItem(pos_item, 1));
+                  double z = PyFloat_AsDouble(PyList_GetItem(pos_item, 2));
+                  clipper::Coord_orth p(x,y,z);
+                  positions.push_back(p);
+               }
+            }
+         }
+      }
+   }
+
+   if (positions.empty()) {
+      std::cout << "no positions " << std::endl;
+   } else {
+
+      graphics_info_t g;
+      if (g.is_valid_map_molecule(imol_map)) {
+         const auto &xmap = g.molecules[imol_map].xmap;
+         for (unsigned int i=0; i<positions.size(); i++) {
+            const auto &position = positions[i];
+            std::cout << "pos " << i << " " << position.format() << std::endl;
+            do_stats(i, position, xmap);
+         }
+      }
+   }
+
+}
+#endif
+
 
 #ifdef STANDALONE
 int main(int argc, char **argv) {

@@ -52,6 +52,7 @@
 #include "molecule-class-info.h"
 #include "globjects.h"
 #include "cc-interface.hh" // for status bar text
+#include "c-interface-generic-objects.h" // for tomo_pick
 
 // this should be in graphics_info_t also.
 pick_info
@@ -179,6 +180,39 @@ graphics_info_t::get_front_and_back_for_pick() const {
    coot::Cartesian  back(worldPos_b.x * w_scale_b, worldPos_b.y * w_scale_b, worldPos_b.z * w_scale_b);
 
    return std::pair<coot::Cartesian, coot::Cartesian>(front, back);
+}
+
+bool
+graphics_info_t::tomo_pick(double x, double y, gint n_press) {
+
+   bool state = false;
+   std::pair<coot::Cartesian, coot::Cartesian> front_and_back = get_front_and_back_for_pick();
+
+   // let front F, back B:
+   // delta = (B - F).uv()
+   // equation of pick vector: F + t * delta because Ax + By + Cz = D and we know A and B are 0 and C is 1
+   // For a pick on a z-section: P_z = F_z + t * delta_z
+   // t = (P_z - F_z)/delta_z
+   // x,y,z = F + t * delta
+
+   float P_z = tomo_view_info.get_P_z();
+   coot::Cartesian &front = front_and_back.first;
+   coot::Cartesian &back  = front_and_back.second;
+   coot::Cartesian delta = back - front;
+   float t = (P_z - front.z())/delta.z();
+   coot::Cartesian pick_point = front + delta * t;
+   clipper::Coord_orth pt(pick_point.x(), pick_point.y(), pick_point.z());
+   std::cout << "pt: " << pt.format() << std::endl;
+   coot::colour_holder ch(0.3, 0.3, 0.9);
+   std::string object_name =  "TomoPick " + std::to_string(tomo_view_info.section_index);
+   int object_number = generic_object_index(object_name);
+   if (object_number == -1)
+      object_number = new_generic_object_number(object_name);
+
+   to_generic_object_add_point_internal(object_number, "blue", ch, 3000.0, pt);
+   set_display_generic_object(object_number, 1);
+
+   return state;
 }
 
 // Put these in graphics_info_t. Move this function into graphics-info-pick.cc
