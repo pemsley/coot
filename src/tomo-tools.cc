@@ -130,6 +130,42 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
       }
    };
 
+   auto map_scan = [] (const std::map<int, double> &offset_values_map, const clipper::Xmap<float> &xmap, int section_index) {
+
+      clipper::Grid_sampling gs = xmap.grid_sampling();
+      clipper::Coord_grid cg_0(0,0,section_index);
+      clipper::Coord_grid cg_1(gs.nu()-1, gs.nv()-1, section_index);
+      clipper::Grid_map grid(cg_0, cg_1);
+      clipper::Xmap_base::Map_reference_coord ix( xmap, grid.min()), iu, iv, iw;
+      int nv = gs.nv();
+      int nu = gs.nu();
+
+      for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+         for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+            for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+               const float &f = xmap[iw];
+               clipper::Coord_grid cg = iw.coord();
+               clipper::Coord_frac cf = cg.coord_frac(xmap.grid_sampling());
+               clipper::Coord_orth co = cf.coord_orth(xmap.cell());
+               int delta_size_i = 10;
+               double delta_size_d = 10.0; // same
+               float s = 0.0f;
+               for (int iix=-50; iix<50; iix++) {
+                  for (int iiy=-5; iiy<5; iiy++) {
+                     double dix = static_cast<double>(iix);
+                     double diy = static_cast<double>(iiy);
+                     clipper::Coord_orth p = co + clipper::Coord_orth(dix * delta_size_d, diy * delta_size_d, 0.0);
+                     float f_pt = coot::util::density_at_point(xmap, p);
+                     float d = fabsf(f_pt-static_cast<float>(offset_values_map.at(iix*delta_size_i)));
+                     s += d;
+                  }
+               }
+               std::cout << "pos" << co.x() << " " << co.y() << " " << co.z() << " score " << s << std::endl;
+            }
+         }
+      }
+   };
+
    std::vector<clipper::Coord_orth> positions;
    if (PyList_Check(spot_positions)) {
       long l = PyObject_Length(spot_positions);
@@ -163,6 +199,28 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
             const auto &position = positions[i];
             std::cout << "pos " << i << " " << position.format() << std::endl;
             do_stats(i, position, xmap);
+         }
+
+         std::string averaged_spot_tab = "averaged-spots.tab";
+         if (coot::file_exists(averaged_spot_tab)) {
+            std::ifstream f(averaged_spot_tab);
+            if (f) {
+               std::map<int, double> offset_values_map;
+               std::string line;
+               while(std::getline(f, line)) {
+                  std::vector<float> row;
+                  std::stringstream ss(line);
+                  int x_offset = -9999;
+                  double val = -9999;
+                  ss >> x_offset;
+                  ss >> val;
+                  offset_values_map[x_offset] = val;
+               }
+               int section_index = 62;
+               map_scan(offset_values_map, xmap, section_index);
+            }
+         } else {
+            std::cout << "WARNING:: missing files " << averaged_spot_tab << std::endl;
          }
       }
    }
