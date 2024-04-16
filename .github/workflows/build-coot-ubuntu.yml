@@ -116,6 +116,7 @@ jobs:
     - name: Run the Unit Python Tests
       env:
         COOT_REFMAC_LIB_DIR: /home/runner/work/coot/coot
+        COOT_TEST_DATA_DIR:  ../src/greg-data
       run:  cd python-tests && ../src/coot-bin --no-graphics --script run_the_unit_tests.py && cd -
 
     - name: Upload binaries
