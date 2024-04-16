@@ -23,7 +23,7 @@ import unittest
 import os
 import coot
 import coot_utils
-import ncs # coot.ncs one day
+import coot_ncs # coot.ncs one day
 import coot_testing_utils
 
 
@@ -156,7 +156,7 @@ class TestNCSFunctions(unittest.TestCase):
         self.assertTrue(coot_utils.valid_model_molecule_qm(imol))
 
         coot.mutate(imol, "A", 50, "", "ASP")
-        ncs.skip_to_next_ncs_chain("forward")     # generate the ghosts
+        coot_ncs.skip_to_next_ncs_chain("forward")     # generate the ghosts
 
         coot.copy_residue_range_from_ncs_master_to_others(imol, "A", 50, 50)
 
@@ -186,7 +186,7 @@ class TestNCSFunctions(unittest.TestCase):
         coot.ncs_control_change_ncs_master_to_chain_id(imol, "B")
         coot.make_ncs_ghosts_maybe(imol)
         ncs_ghost_chains_1 = coot_utils.ncs_chain_ids(imol)
-        ncs.manual_ncs_ghosts(imol, 220, 230, ["B", "A", "C", "D"])
+        coot_ncs.manual_ncs_ghosts(imol, 220, 230, ["B", "A", "C", "D"])
         ncs_ghost_chains_2 = coot_utils.ncs_chain_ids(imol)
 
         print("   NCS ghost chain IDs pre:  ", ncs_ghost_chains_1)
