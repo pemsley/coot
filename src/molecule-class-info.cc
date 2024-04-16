@@ -4332,6 +4332,8 @@ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
    if (false)
       std::cout << "debug:: ---- in make_glsl_bonds_type_checked() --- start ---" << std::endl;
 
+   // Add no-graphics protection
+   if (!graphics_info_t::use_graphics_interface_flag) return;
 
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: in make_glsl_bonds_type_checked() -- start A --\n";
