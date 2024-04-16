@@ -26,9 +26,6 @@ remember that anything free comes with no guarantee.
 #define FALSE 0
 #define BIG (1.0e12)
 
-#define min(a,b) (((a) < (b)) ? (a) : (b))
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-
 #include "NRStuff.h"
 
 /****** lincrv.c ******/
@@ -42,7 +39,7 @@ remember that anything free comes with no guarantee.
     n+1 of them are provided. The work array must have room for n+1 points.
  */
 
-void CoordSpline::DialASpline(double t, const std::vector<double> &a,  const std::vector<FCXXCoord> &p, int Cn, int interp, std::vector<FCXXCoord> &output, const int idx, std::vector<FCXXCoord> &work)
+void CoordSpline::DialASpline(float t, const std::vector<float> &a,  const std::vector<FCXXCoord> &p, int Cn, int interp, std::vector<FCXXCoord> &output, const int idx, std::vector<FCXXCoord> &work)
 {
     int i, j, k, h, lo, hi;
 
@@ -69,7 +66,7 @@ void CoordSpline::DialASpline(double t, const std::vector<double> &a,  const std
         }
         for (j=1; j<=Cn; j++) {
             for (i=lo; i<=hi-j; i++) {
-                double t0=(a[i+j]-t)/(a[i+j]-a[i]), t1=1-t0;
+                float t0=(a[i+j]-t)/(a[i+j]-a[i]), t1=1-t0;
                 work[i][0] = t0*work[i][0] + t1*work[i+1][0];
                 work[i][1] = t0*work[i][1] + t1*work[i+1][1];
                 work[i][2] = t0*work[i][2] + t1*work[i+1][2];
@@ -90,7 +87,7 @@ void CoordSpline::DialASpline(double t, const std::vector<double> &a,  const std
     for (j=0; j<h; j++) {
         int tmp = 1+Cn-j;
         for (i=h-1; i>=j; i--) {
-            double t0=(a[lo+i+tmp]-t)/(a[lo+i+tmp]-a[lo+i]), t1=1-t0;
+            float t0=(a[lo+i+tmp]-t)/(a[lo+i+tmp]-a[lo+i]), t1=1-t0;
             work[lo+i+1][0] = t0*work[lo+i][0] + t1*work[lo+i+1][0];
             work[lo+i+1][1] = t0*work[lo+i][1] + t1*work[lo+i+1][1];
             work[lo+i+1][2] = t0*work[lo+i][2] + t1*work[lo+i+1][2];
@@ -107,18 +104,18 @@ void CoordSpline::DialASpline(double t, const std::vector<double> &a,  const std
 
 std::vector <FCXXCoord> CoordSpline::SplineCurve(const std::vector<FCXXCoord> &ctlPts, int nsteps, int Cn, int iinterp){
    unsigned int i;
-   std::vector<double> knots;
-   double t;
-   double maxx = -BIG;
-   double minx = BIG;
-   double maxy = -BIG;
-   double miny = BIG;
-   double maxz = -BIG;
-   double minz = BIG;
-   double maxt = -BIG;
-   double mint = BIG;
-   double tstep;
-   double knotstep;
+   std::vector<float> knots;
+   float t;
+   float maxx = -BIG;
+   float minx = BIG;
+   float maxy = -BIG;
+   float miny = BIG;
+   float maxz = -BIG;
+   float minz = BIG;
+   float maxt = -BIG;
+   float mint = BIG;
+   float tstep;
+   float knotstep;
 
    FCXXCoord outputi;
    int interp;
@@ -130,33 +127,33 @@ std::vector <FCXXCoord> CoordSpline::SplineCurve(const std::vector<FCXXCoord> &c
    }
 
    for(i=0;i<ctlPts.size();i++){
-     minx = min(ctlPts[i][0],minx);
-     maxx = max(ctlPts[i][0],maxx);
+     minx = std::min(ctlPts[i][0],minx);
+     maxx = std::max(ctlPts[i][0],maxx);
    }
 
    for(i=0;i<ctlPts.size();i++){
-     miny = min(ctlPts[i][1],miny);
-     maxy = max(ctlPts[i][1],maxy);
+     miny = std::min(ctlPts[i][1],miny);
+     maxy = std::max(ctlPts[i][1],maxy);
    }
 
    for(i=0;i<ctlPts.size();i++){
-     minz = min(ctlPts[i][2],minz);
-     maxz = max(ctlPts[i][2],maxz);
+     minz = std::min(ctlPts[i][2],minz);
+     maxz = std::max(ctlPts[i][2],maxz);
    }
 
    mint = minx;
-   mint = min(mint,miny);
-   mint = min(mint,minz);
+   mint = std::min(mint,miny);
+   mint = std::min(mint,minz);
 
    maxt = maxx;
-   maxt = max(maxt,maxy);
-   maxt = max(maxt,maxz);
+   maxt = std::max(maxt,maxy);
+   maxt = std::max(maxt,maxz);
 
-   tstep = (maxt-mint)/double(nsteps-1);
+   tstep = (maxt-mint)/float(nsteps-1);
    knotstep = (maxt-mint)/(ctlPts.size()-1);
 
    for(i=0;i<ctlPts.size();i++)
-     knots.push_back(mint + (double)i*knotstep);
+     knots.push_back(mint + (float)i*knotstep);
    knots.push_back(tstep);
 
    std::vector<FCXXCoord> output(nsteps);
