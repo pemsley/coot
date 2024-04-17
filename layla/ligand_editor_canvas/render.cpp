@@ -626,8 +626,9 @@ void MoleculeRenderContext::draw_atoms() {
 
 void MoleculeRenderContext::process_atom_highlight(const Atom& atom) {
     if(atom.highlighted) {
-        //ren.move_to(atom.x * scale_factor + x_offset + ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
         ren.new_sub_path();
+        // Go to the center of the atom
+        //ren.move_to(atom.x * scale_factor + x_offset + CanvasMolecule::ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
         ren.set_source_rgb(0.0, 1.0, 0.5);
         ren.arc(atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset, CanvasMolecule::ATOM_HITBOX_RADIUS, 0, M_PI * 2.0);
         ren.stroke_preserve();
