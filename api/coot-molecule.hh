@@ -1268,6 +1268,10 @@ namespace coot {
 
       texture_as_floats_t get_map_section_texture(int section_index, int axis) const;
 
+      //! @return the number of section in the map along the give axis.
+      //! (0 for X-axis, 1 for y-axis, 2 for Z-axis).
+      //! return -1 on failure.
+      int get_number_of_map_sections(int axis_id) const;
 
       // ---------------------------------- blender --------------------------------------
 
