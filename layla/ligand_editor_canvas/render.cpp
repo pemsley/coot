@@ -176,6 +176,9 @@ void Renderer::arc(double x, double y, double radius, double angle_one, double a
     arc.radius = radius;
     arc.angle_one = angle_one;
     arc.angle_two = angle_two;
+    arc.has_fill = false; // todo
+    arc.has_stroke = true; // todo?
+    arc.stroke_style = this->style;
     auto* structure_ptr = *this->drawing_structure_stack.rbegin();
     structure_ptr->push_back(DrawingCommand{arc});
     #endif
