@@ -5638,7 +5638,7 @@ int test_n_map_sections(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
-   int imol_map = mc.read_ccp4_map("emd_16890.map", false);
+   int imol_map = mc.read_ccp4_map(reference_data("emd_16890.map"), false);
 
    int n = mc.get_number_of_map_sections(imol_map, 2);
 
