@@ -457,6 +457,8 @@ public:
    glm::vec3 previous_eye_position; // for testing if we need to sort the triangles
    void sort_map_triangles(const glm::vec3 &eye_position);
 
+   void remove_last_subobject(unsigned int n_vertices, unsigned int n_triangles);
+
    // export suitable for Blender - just the vertices.
    std::vector<glm::vec3> just_vertices() const;
 

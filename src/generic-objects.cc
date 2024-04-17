@@ -214,6 +214,12 @@ void to_generic_object_add_point_internal(int object_number,
 }
 
 
+void from_generic_object_remove_last_item(int object_number) {
+
+   graphics_info_t::from_generic_object_remove_last_item(object_number);
+}
+
+
 void to_generic_object_add_dodecahedron(int object_number,
                                         const char *colour_name,
                                         float radius,

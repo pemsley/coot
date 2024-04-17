@@ -3792,3 +3792,9 @@ Mesh::invert_normals() { // flip normals
 
 }
 
+void
+Mesh::remove_last_subobject(unsigned int n_vertices, unsigned int n_triangles) {
+
+   if (triangles.size() >= n_triangles)
+      triangles.erase(triangles.end() - n_triangles, triangles.end());
+}

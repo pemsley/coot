@@ -106,6 +106,8 @@ meshed_generic_display_object::add_point(const coot::colour_holder &colour_in,
    glm::vec3 position_glm = coord_orth_to_glm(coords_in);
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
       oct = wrapped_make_octasphere(num_subdivisions, position_glm, radius, col);
+   std::cout << "::add_point adding " << oct.first.size() << " " << oct.second.size() << " vertices and triangles "
+             << std::endl;
    mesh.import(oct);
 
 }
@@ -720,3 +722,13 @@ colour_values_from_colour_name(const std::string &c) {
    return colour;
 }
 
+// remove from info vector and remove 182 triangles from the mesh (that's a bit of a hack)
+void
+meshed_generic_display_object::remove_last_object() {
+
+   if (! info.empty()) {
+      info.pop_back();
+   }
+
+   mesh.remove_last_subobject(74, 128);
+}

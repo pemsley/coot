@@ -233,6 +233,9 @@ public:
                                   const clipper::Coord_orth &pos);
    void add_arc(const arc_t &arc);
    void add_torus(const torus_t &torus);
+
+   void remove_last_object(); // remove from info vector and remove 182 triangles from the mesh (that's a bit of a hack)
+
    void raster3d(std::ofstream &render_stream) const;
 
 };
