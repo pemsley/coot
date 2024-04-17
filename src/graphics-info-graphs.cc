@@ -951,6 +951,8 @@ graphics_info_t::update_validation(int imol_changed_model) {
 void
 graphics_info_t::update_validation_graphs(int imol_changed_model) {
 
+   if (! use_graphics_interface_flag) return;
+
    // imol has change (e.g. a rotamer or RSR) and now I want to update the graphs
    // for that molecule if they are displayed.
 
