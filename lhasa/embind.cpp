@@ -82,7 +82,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   class_<impl::Renderer::Path>("Path")
     .property("fill_color", &impl::Renderer::Path::fill_color)
     .property("has_fill", &impl::Renderer::Path::has_fill)
-    .property("stroke_style", &impl::Renderer::Path::stroke_style)
+    // .property("stroke_style", &impl::Renderer::Path::stroke_style)
     .property("commands", &impl::Renderer::Path::commands);
   enum_<impl::Renderer::TextPositioning>("TextPositioning")
     .value("Normal", impl::Renderer::TextPositioning::Normal)

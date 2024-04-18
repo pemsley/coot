@@ -147,6 +147,9 @@ void Renderer::move_to(double x, double y) {
     #ifndef __EMSCRIPTEN__
     cairo_move_to(cr, x, y);
     #else // __EMSCRIPTEN__ defined
+    // Should it always do this?
+    // Cairo docs say so.
+    this->new_sub_path();
     this->position.x = x;
     this->position.y = y;
     #endif

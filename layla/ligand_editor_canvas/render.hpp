@@ -147,8 +147,9 @@ struct Renderer {
         std::vector<DrawingCommand> commands;
         Color fill_color;
         bool has_fill;
-        // this needs work. Do we need a boolean here?
-        BrushStyle stroke_style;
+        // We leave stroke up to the individual components
+        // // this needs work. Do we need a boolean here?
+        // BrushStyle stroke_style;
     };
 
     struct DrawingCommand {
