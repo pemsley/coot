@@ -250,7 +250,7 @@ void Renderer::close_path() {
     // 2. Close the sub-path
     auto stack_iter = this->drawing_structure_stack.rbegin();
     // We're getting to the structure inside of which the current path lives.
-    auto mother_structure_iter = ++stack_iter;
+    /*auto mother_structure_iter =*/ ++stack_iter;
       if(stack_iter == this->drawing_structure_stack.rend()) {
         g_error("close_path() called with less than 2 elements in the stack. "
         "Corrupted Renderer state.");
