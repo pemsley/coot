@@ -5652,11 +5652,13 @@ int test_rdkit_mol(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
    mc.import_cif_dictionary(reference_data("ATP.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
    RDKit::RWMol m = mc.get_rdkit_mol("ATP", coot::protein_geometry::IMOL_ENC_ANY);
    std::string smiles = RDKit::MolToSmiles(m);
    std::cout << smiles << std::endl;
    if (smiles == "[H]O[C@@]1([H])[C@@]([H])(O[H])[C@]([H])(n2c([H])nc3c(N([H])[H])nc([H])nc32)O[C@]1([H])C([H])([H])OP(~O)(~O)OP(~O)(~O)O[P+](~O)(~O)~O") status = 1;
    if (smiles == "[H]O[C@]1([H])[C@@]([H])(O[H])[C@@]([H])(C([H])([H])OP(=O)([O-])OP(=O)([O-])OP(=O)([O-])[O-])O[C@]1([H])n1c([H])nc2c(N([H])[H])nc([H])nc21") status = 1;
+#endif
    return status;
 }
 
