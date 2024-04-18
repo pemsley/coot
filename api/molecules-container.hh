@@ -1702,7 +1702,7 @@ public:
    //! @return the number of section in the map along the give axis.
    //! (0 for X-axis, 1 for y-axis, 2 for Z-axis).
    //! return -1 on failure.
-   int get_number_of_section(int imol_map, int axis_id);
+   int get_number_of_sections(int imol_map, int axis_id);
 
    texture_as_floats_t get_map_section_texture(int imol, int section_id, int axis) const;
 
