@@ -78,6 +78,10 @@ const Renderer::Path& Renderer::DrawingCommand::as_path() const {
     return std::get<Renderer::Path>(this->content);
 }
 
+Renderer::Path& Renderer::DrawingCommand::as_path() {
+    return std::get<Renderer::Path>(this->content);
+}
+
 const Renderer::Arc& Renderer::DrawingCommand::as_arc() const {
     return std::get<Renderer::Arc>(this->content);
 }
@@ -227,11 +231,11 @@ void Renderer::close_path() {
     #ifndef __EMSCRIPTEN__
     cairo_close_path(cr);
     #else // __EMSCRIPTEN__ defined
-    #warning TODO: close_path() for Lhasa
     if(!this->currently_created_path) {
         // No path to be closed.
         return;
     }
+    #warning TODO: close_path() for Lhasa
 
     #endif
 }
@@ -240,10 +244,15 @@ void Renderer::new_sub_path() {
     #ifndef __EMSCRIPTEN__
     cairo_new_sub_path(cr);
     #else // __EMSCRIPTEN__ defined
-    #warning TODO: new_sub_path() for Lhasa
     if(this->currently_created_path) {
-
-        //this->drawing_structure_stack.push_back();
+        // Allocate new sub path
+        Path new_path;
+        new_path.has_fill = false;
+        auto* structure_ptr = *this->drawing_structure_stack.rbegin();
+        structure_ptr->push_back(DrawingCommand{new_path});
+        Path* new_path_ptr = &structure_ptr->back().as_path();
+        // Overwrite the pointer
+        this->currently_created_path = new_path_ptr;
     } else {
         this->new_path();
     }

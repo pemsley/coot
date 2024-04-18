@@ -125,7 +125,7 @@ struct Renderer {
     // WIP
     /// A non-owned pointer to the path (or sub-path)
     /// currently being created. Set to null if we're at the root
-    std::vector<DrawingCommand>* currently_created_path;
+    Path* currently_created_path;
     // WIP
     /// Only non-owned pointers go here, such as 
     /// pointer to `drawing_commands` or 
@@ -166,6 +166,7 @@ struct Renderer {
         bool is_text();
 
         const Path& as_path() const;
+        Path& as_path();
         const Arc& as_arc() const;
         const Line& as_line() const;
         const Text& as_text() const;
