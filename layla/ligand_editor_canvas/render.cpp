@@ -87,6 +87,10 @@ const Renderer::Arc& Renderer::DrawingCommand::as_arc() const {
     return std::get<Renderer::Arc>(this->content);
 }
 
+Renderer::Arc& Renderer::DrawingCommand::as_arc_mut() {
+    return std::get<Renderer::Arc>(this->content);
+}
+
 const Renderer::Line& Renderer::DrawingCommand::as_line() const {
     return std::get<Renderer::Line>(this->content);
 }
@@ -205,7 +209,28 @@ void Renderer::fill() {
     #ifndef __EMSCRIPTEN__
     cairo_fill(cr);
     #else // __EMSCRIPTEN__ defined
-    #warning TODO: fill() for Lhasa
+    // Fill closes all opened subpaths I guess?
+    // Is that what the cairo docs mean?
+    while(this->currently_created_path) {
+        this->close_path_inner();
+    }
+    auto* structure_ptr = *this->drawing_structure_stack.rbegin();
+    if(structure_ptr->empty()) {
+        g_warning("fill() called with an empty path.");
+        return;
+    }
+    auto& last_el = structure_ptr->back();
+    if(last_el.is_path()) {
+        auto& this_path = last_el.as_path_mut();
+        this_path.has_fill = true;
+        this_path.fill_color = this->style.color;
+    } else if(last_el.is_arc()) {
+        auto& this_arc = last_el.as_arc_mut();
+        this_arc.has_fill = true;
+        this_arc.fill_color = this->style.color;
+    } else {
+        g_warning("fill() called on either text or a line (both cannot be filled)");
+    }
     #endif
 }
 
@@ -214,6 +239,10 @@ void Renderer::stroke() {
     cairo_stroke(cr);
     #else // __EMSCRIPTEN__ defined
     #warning TODO: stroke() for Lhasa
+    // dummy
+    while(this->currently_created_path) {
+        this->close_path_inner();
+    }
     #endif
 }
 
@@ -237,17 +266,13 @@ void Renderer::new_path() {
     #endif
 }
 
-void Renderer::close_path() {
-    #ifndef __EMSCRIPTEN__
-    cairo_close_path(cr);
-    #else // __EMSCRIPTEN__ defined
-    if(!this->currently_created_path) {
-        // No path to be closed.
-        return;
-    }
-    // 1. Add a line to the beginning of the path
-    Path& cpath = *this->currently_created_path;
-    this->line_to(cpath.initial_point.x, cpath.initial_point.y);
+#ifdef __EMSCRIPTEN__
+void Renderer::close_path_inner() {
+    // This check is not needed in the inner function
+    // if(!this->currently_created_path) {
+    //     // No path to be closed.
+    //     return;
+    // }
     // 2. Close the sub-path
     auto stack_iter = this->drawing_structure_stack.rbegin();
     // We're getting to the structure inside of which the current path lives.
@@ -283,6 +308,21 @@ void Renderer::close_path() {
     //
     // Now, I don't exactly now what that means for me.
     // 
+}
+#endif
+
+void Renderer::close_path() {
+    #ifndef __EMSCRIPTEN__
+    cairo_close_path(cr);
+    #else // __EMSCRIPTEN__ defined
+    if(!this->currently_created_path) {
+        // No path to be closed.
+        return;
+    }
+    // 1. Add a line to the beginning of the path
+    Path& cpath = *this->currently_created_path;
+    this->line_to(cpath.initial_point.x, cpath.initial_point.y);
+    this->close_path_inner();
     #endif
 }
 

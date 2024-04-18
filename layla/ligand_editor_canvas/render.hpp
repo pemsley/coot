@@ -132,10 +132,12 @@ struct Renderer {
     /// to a path already allocated on top of it.
     std::vector<std::vector<DrawingCommand>*> drawing_structure_stack;
 
-    public:
     /// Initialize new Path structure
     Path create_new_path() const;
+    /// Does not add the finishing line
+    void close_path_inner();
 
+    public:
     struct Line {
         graphene_point_t start, end;
         BrushStyle style;
@@ -171,6 +173,7 @@ struct Renderer {
         const Path& as_path() const;
         Path& as_path_mut();
         const Arc& as_arc() const;
+        Arc& as_arc_mut();
         const Line& as_line() const;
         const Text& as_text() const;
     };
