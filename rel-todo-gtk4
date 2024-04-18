@@ -1,6 +1,8 @@
 
 ----
 
+Coot:: In the display manager "atom selection from x" should be "atom selection //D from x"
+
 Coot: (refinement) martin maly bug: transpose map by lsq superpose failed.
       Bring the lsq map function to libcootapi and chapi
 
