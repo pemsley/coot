@@ -1795,6 +1795,8 @@ namespace coot {
                                                        const std::string &atom_name,
                                                        int imol_enc) const;
 
+      bool copy_monomer_restraints(const std::string &monomer_type, int imol_enc_current, int imol_enc_new);
+
       // Return success status in first (0 is fail) and the second is
       // a whole residue's restraints so that we can use it to test if
       // an atom is a hydrogen.  Must have a full entry (not minimal
