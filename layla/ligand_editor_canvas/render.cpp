@@ -259,7 +259,7 @@ void Renderer::new_path() {
     cairo_new_path(cr);
     #else // __EMSCRIPTEN__ defined
     if(this->currently_created_path) {
-        this->close_path();
+        this->close_path_inner();
     }
     // According to the docs
     // this is all what the function is supposed to do
