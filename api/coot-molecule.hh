@@ -831,9 +831,11 @@ namespace coot {
       coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(const std::string &cid_ligand,
                                                                        protein_geometry *geom_p);
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
       //! if the ligand cid specifies more than one residue, only the first is returned.
       //! @return nullptr on error or failure to specify a ligand.
       RDKit::ROMol *rdkit_mol(const std::string &ligand_cid);
+#endif
 
       // ------------------------ model-changing functions
 
