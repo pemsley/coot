@@ -169,7 +169,7 @@ struct Renderer {
         bool is_text() const;
 
         const Path& as_path() const;
-        Path& as_path();
+        Path& as_path_mut();
         const Arc& as_arc() const;
         const Line& as_line() const;
         const Text& as_text() const;

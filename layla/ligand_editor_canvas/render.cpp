@@ -78,7 +78,7 @@ const Renderer::Path& Renderer::DrawingCommand::as_path() const {
     return std::get<Renderer::Path>(this->content);
 }
 
-Renderer::Path& Renderer::DrawingCommand::as_path() {
+Renderer::Path& Renderer::DrawingCommand::as_path_mut() {
     return std::get<Renderer::Path>(this->content);
 }
 
@@ -267,7 +267,7 @@ void Renderer::close_path() {
         if(!last_el.is_path()) {
             g_error("Internal Renderer error: Mother structure of a subpath should be itself a path.");
         }
-        this->currently_created_path = &last_el.as_path();
+        this->currently_created_path = &last_el.as_path_mut();
     }
     // Pop the current path from the stack after we've updated 'currently_created_path'.
     this->drawing_structure_stack.pop_back();
@@ -293,7 +293,7 @@ void Renderer::new_sub_path() {
         Path new_path = this->create_new_path();
         auto* structure_ptr = *this->drawing_structure_stack.rbegin();
         structure_ptr->push_back(DrawingCommand{new_path});
-        Path* new_path_ptr = &structure_ptr->back().as_path();
+        Path* new_path_ptr = &structure_ptr->back().as_path_mut();
         // Overwrite the pointer
         this->currently_created_path = new_path_ptr;
     // } else {
