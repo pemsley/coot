@@ -156,7 +156,8 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
                                                  double drag_delta_x, double drag_delta_y,
                                                  GtkWidget *gl_area) {
 
-   std::cout << "on_glarea_drag_update_secondary() " << std::endl;
+   if (false)
+      std::cout << "on_glarea_drag_update_secondary() " << std::endl;
 
    auto do_view_zoom = [] (double drag_delta_x, double drag_delta_y) {
       mouse_zoom(drag_delta_x, drag_delta_y);
