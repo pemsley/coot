@@ -232,6 +232,11 @@ void Renderer::new_sub_path() {
     cairo_new_sub_path(cr);
     #else // __EMSCRIPTEN__ defined
     #warning TODO: new_sub_path() for Lhasa
+    if(this->currently_created_path) {
+
+    } else {
+        this->new_path();
+    }
     #endif
 }
 
