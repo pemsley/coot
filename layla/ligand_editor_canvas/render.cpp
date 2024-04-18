@@ -298,6 +298,7 @@ void Renderer::new_sub_path() {
         Path* new_path_ptr = &structure_ptr->back().as_path_mut();
         // Overwrite the pointer
         this->currently_created_path = new_path_ptr;
+        this->drawing_structure_stack.push_back(&new_path_ptr->commands);
     // } else {
     //     this->new_path();
     // }
