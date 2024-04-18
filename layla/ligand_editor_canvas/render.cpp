@@ -219,11 +219,11 @@ void Renderer::new_path() {
     #ifndef __EMSCRIPTEN__
     cairo_new_path(cr);
     #else // __EMSCRIPTEN__ defined
-    #warning TODO: new_path() for Lhasa
     if(this->currently_created_path) {
         this->close_path();
     }
-
+    // According to the docs
+    // this is all what the function is supposed to do
     #endif
 }
 
