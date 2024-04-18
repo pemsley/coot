@@ -56,6 +56,7 @@ Renderer::Renderer(emscripten::val text_measurement_function) {
     this->style.color.b = 0.f;
     this->style.color.a = 1.f;
     this->drawing_structure_stack.push_back(&this->drawing_commands);
+    this->currently_created_path = nullptr;
 }
 
 bool Renderer::DrawingCommand::is_path() const {
@@ -252,7 +253,8 @@ void Renderer::close_path() {
     // We're getting to the structure inside of which the current path lives.
     /*auto mother_structure_iter =*/ ++stack_iter;
       if(stack_iter == this->drawing_structure_stack.rend()) {
-        g_error("close_path() called with less than 2 elements in the stack. "
+        g_error("close_path() called with less than 2 elements in the stack "
+        "but 'currently_created_path' is present. "
         "Corrupted Renderer state.");
     }
     // We need to know if mother_structure is another path
