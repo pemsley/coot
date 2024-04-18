@@ -400,7 +400,7 @@ graphics_info_t::mouse_zoom(double delta_x_drag, double delta_y_drag) {
    double fy = 1.0 + delta_y/300.0;
    if (fx > 0.0) graphics_info_t::zoom /= fx;
    if (fy > 0.0) graphics_info_t::zoom /= fy;
-   if (true)
+   if (false)
       std::cout << "zooming with perspective_projection_flag "
                 << graphics_info_t::perspective_projection_flag
                 << " " << graphics_info_t::zoom << std::endl;
