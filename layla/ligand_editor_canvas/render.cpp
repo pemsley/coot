@@ -216,6 +216,10 @@ void Renderer::new_path() {
     cairo_new_path(cr);
     #else // __EMSCRIPTEN__ defined
     #warning TODO: new_path() for Lhasa
+    if(this->currently_created_path) {
+        this->close_path();
+    }
+
     #endif
 }
 
@@ -224,6 +228,11 @@ void Renderer::close_path() {
     cairo_close_path(cr);
     #else // __EMSCRIPTEN__ defined
     #warning TODO: close_path() for Lhasa
+    if(!this->currently_created_path) {
+        // No path to be closed.
+        return;
+    }
+
     #endif
 }
 
@@ -234,6 +243,7 @@ void Renderer::new_sub_path() {
     #warning TODO: new_sub_path() for Lhasa
     if(this->currently_created_path) {
 
+        //this->drawing_structure_stack.push_back();
     } else {
         this->new_path();
     }

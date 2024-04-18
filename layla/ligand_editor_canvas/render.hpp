@@ -123,8 +123,13 @@ struct Renderer {
     std::vector<DrawingCommand> drawing_commands;
     emscripten::val text_measurement_function;
     // WIP
-    std::unique_ptr<std::vector<DrawingCommand>> currently_created_path;
+    /// A non-owned pointer to the path (or sub-path)
+    /// currently being created. Set to null if we're at the root
+    std::vector<DrawingCommand>* currently_created_path;
     // WIP
+    /// Only non-owned pointers go here, such as 
+    /// pointer to `drawing_commands` or 
+    /// to a path already allocated on top of it.
     std::vector<std::vector<DrawingCommand>*> drawing_structure_stack;
 
     public:
