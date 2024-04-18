@@ -514,11 +514,13 @@ public:
    //! @return a vector of non-standard residues (so that they can be used for auxiliary dictionary import)
    std::vector<std::string> non_standard_residue_types_in_model(int imol) const;
 
-   //
-   // rdkit_mol_wrapper_t get_rdkit_mol_wrapper(int imol, const std::string &cid);
-
-   // to be eaten by C++ only
-   // RDKit::ROMol *get_rdkit_mol_wrapper(int imol, const std::string &cid);
+#ifdef SWIG
+#else
+   //! Result to be eaten by C++ only.
+   //! Extract ligand restraints from the dictionary store and make an rdkit molecule
+   //! @return a null pointer on failure.
+   RDKit::RWMol get_rdkit_mol(const std::string &residue_name, int imol_enc);
+#endif
 
    // -------------------------------- coordinates utils -----------------------------------
    //! \name Coordinates Utils

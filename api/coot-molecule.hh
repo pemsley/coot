@@ -31,6 +31,7 @@
 #include <atomic>
 #include <array>
 
+
 #include "compat/coot-sysdep.h"
 
 #include <clipper/core/xmap.h>
@@ -43,6 +44,7 @@
 #include "geometry/residue-and-atom-specs.hh"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
+#include "lidia-core/rdkit-interface.hh"
 #include "ideal/simple-restraint.hh"
 #include "ideal/extra-restraints.hh"
 #include "coot-utils/simple-mesh.hh"
@@ -825,6 +827,10 @@ namespace coot {
       //! not const because it can dynamically add dictionaries
       coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(const std::string &cid_ligand,
                                                                        protein_geometry *geom_p);
+
+      //! if the ligand cid specifies more than one residue, only the first is returned.
+      //! @return nullptr on error or failure to specify a ligand.
+      RDKit::ROMol *rdkit_mol(const std::string &ligand_cid);
 
       // ------------------------ model-changing functions
 

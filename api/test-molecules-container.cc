@@ -5647,6 +5647,19 @@ int test_n_map_sections(molecules_container_t &mc) {
    return status;
 }
 
+int test_rdkit_mol(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mc.import_cif_dictionary(reference_data("ATP.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   RDKit::RWMol m = mc.get_rdkit_mol("ATP", coot::protein_geometry::IMOL_ENC_ANY);
+   std::string smiles = RDKit::MolToSmiles(m);
+   std::cout << smiles << std::endl;
+   if (smiles == "[H]O[C@@]1([H])[C@@]([H])(O[H])[C@]([H])(n2c([H])nc3c(N([H])[H])nc([H])nc32)O[C@]1([H])C([H])([H])OP(~O)(~O)OP(~O)(~O)O[P+](~O)(~O)~O") status = 1;
+   if (smiles == "[H]O[C@]1([H])[C@@]([H])(O[H])[C@@]([H])(C([H])([H])OP(=O)([O-])OP(=O)([O-])OP(=O)([O-])[O-])O[C@]1([H])n1c([H])nc2c(N([H])[H])nc([H])nc21") status = 1;
+   return status;
+}
+
 
 int test_template(molecules_container_t &mc) {
 
@@ -5928,6 +5941,9 @@ int main(int argc, char **argv) {
          status += run_test(test_split_model,              "Split model", mc);
          status += run_test(test_make_ensemble,            "Make Ensemble", mc);
          status += run_test(test_end_delete_closed_molecules, "end delete close molecules", mc);
+         status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+         status += run_test(test_texture_as_floats, "Texture as Floats ", mc);
+         status += run_test(test_n_map_sections, "N map sections ", mc);
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
          status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
 #endif
@@ -5941,9 +5957,9 @@ int main(int argc, char **argv) {
       }
 
       {
-         // status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
-         // status += run_test(test_texture_as_floats, "Texture as Floats ", mc);
-         status += run_test(test_n_map_sections, "N map sections ", mc);
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+         status += run_test(test_rdkit_mol, "RDKit mol", mc);
+#endif
 
          if (status == n_tests) all_tests_status = 0;
 
