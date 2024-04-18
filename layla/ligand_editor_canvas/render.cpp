@@ -273,17 +273,38 @@ void Renderer::close_path_inner() {
     //     // No path to be closed.
     //     return;
     // }
-    // 2. Close the sub-path
     auto stack_iter = this->drawing_structure_stack.rbegin();
-    // We're getting to the structure inside of which the current path lives.
-    /*auto mother_structure_iter =*/ ++stack_iter;
-      if(stack_iter == this->drawing_structure_stack.rend()) {
+    auto& our_path_commands = *(*stack_iter);
+    // 2. Close the sub-path
+    // 2.1. We're getting to the structure inside of which the current path lives.
+    auto mother_structure_iter = ++stack_iter;
+    if(mother_structure_iter == this->drawing_structure_stack.rend()) {
         g_error("close_path() called with less than 2 elements in the stack "
         "but 'currently_created_path' is present. "
         "Corrupted Renderer state.");
     }
-    // We need to know if mother_structure is another path
-    // or maybe it's the root of the stack.
+    // 2.2. Make sure we don't wrap everything with
+    // single-element paths or empty paths
+    auto mother_structure_commands = *(*mother_structure_iter);
+    if(our_path_commands.empty()) {
+        g_warning("close_path_inner() has to discard an empty path.");
+        // Invalidates 'our_path_commands'
+        mother_structure_commands.pop_back();
+    }
+    if(our_path_commands.size() == 1) {
+        // Hard to avoid this copy
+        auto our_path_commands_copied = our_path_commands;
+        // Invalidates 'our_path_commands'
+        mother_structure_commands.pop_back();
+        mother_structure_commands.insert(
+            mother_structure_commands.end(), 
+            std::make_move_iterator(our_path_commands_copied.begin()),
+            std::make_move_iterator(our_path_commands_copied.end())
+        );
+    }
+    // 2.3. We need to know if mother_structure is another path
+    // or maybe it's the root of the stack
+    // in order to update the 'currently_created_path' pointer.
     stack_iter++;
     if(stack_iter == this->drawing_structure_stack.rend()) {
         // It's the root.
@@ -296,7 +317,8 @@ void Renderer::close_path_inner() {
         }
         this->currently_created_path = &last_el.as_path_mut();
     }
-    // Pop the current path from the stack after we've updated 'currently_created_path'.
+    // 2.4. Pop the current path from the stack after we've updated 'currently_created_path'.
+    // Invalidates all variables which came form 'stack_iter'
     this->drawing_structure_stack.pop_back();
 
     // 3. 
