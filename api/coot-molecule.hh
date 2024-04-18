@@ -44,11 +44,14 @@
 #include "geometry/residue-and-atom-specs.hh"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
-#include "lidia-core/rdkit-interface.hh"
 #include "ideal/simple-restraint.hh"
 #include "ideal/extra-restraints.hh"
 #include "coot-utils/simple-mesh.hh"
 #include "ghost-molecule-display.hh"
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "lidia-core/rdkit-interface.hh"
+#endif
 
 #include "density-contour/CIsoSurface.h"
 #include "gensurf.hh"

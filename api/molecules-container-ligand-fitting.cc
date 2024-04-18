@@ -29,6 +29,7 @@ std::string get_first_residue_name(mmdb::Manager *mol) {
    return res_name;
 }
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // Another ligand but non-ligand-fitting function:
 RDKit::RWMol
 molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_enc) {
@@ -46,9 +47,9 @@ molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_e
    catch (const std::runtime_error &rte) {
       std::cout << rte.what() << std::endl;
    }
-
    return m;
 }
+#endif
 
 
 //! Ligand Fit

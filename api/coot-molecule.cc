@@ -4444,6 +4444,7 @@ coot::molecule_t::print_secondary_structure_info() const {
 
 }
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 //! if the ligand cid specifies more than one residue, only the first is returned.
 //! @return nullptr on error or failure to specify a ligand.
 RDKit::ROMol *
@@ -4453,3 +4454,5 @@ coot::molecule_t::rdkit_mol(const std::string &ligand_cid) {
    mmdb::Residue *residue_p = cid_to_residue(ligand_cid);
    return mol;
 }
+#endif
+

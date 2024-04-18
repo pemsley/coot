@@ -516,10 +516,12 @@ public:
 
 #ifdef SWIG
 #else
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
    //! Result to be eaten by C++ only.
    //! Extract ligand restraints from the dictionary store and make an rdkit molecule
    //! @return a null pointer on failure.
    RDKit::RWMol get_rdkit_mol(const std::string &residue_name, int imol_enc);
+#endif
 #endif
 
    // -------------------------------- coordinates utils -----------------------------------
