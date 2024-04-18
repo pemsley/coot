@@ -133,6 +133,8 @@ struct Renderer {
     std::vector<std::vector<DrawingCommand>*> drawing_structure_stack;
 
     public:
+    /// Initialize new Path structure
+    Path create_new_path() const;
 
     struct Line {
         graphene_point_t start, end;
@@ -149,6 +151,7 @@ struct Renderer {
     };
 
     struct Path {
+        graphene_point_t initial_point;
         std::vector<DrawingCommand> commands;
         Color fill_color;
         bool has_fill;
@@ -160,10 +163,10 @@ struct Renderer {
     struct DrawingCommand {
         std::variant<Line, Arc, Path, Text> content;
 
-        bool is_path();
-        bool is_arc();
-        bool is_line();
-        bool is_text();
+        bool is_path() const;
+        bool is_arc() const;
+        bool is_line() const;
+        bool is_text() const;
 
         const Path& as_path() const;
         Path& as_path();

@@ -58,19 +58,19 @@ Renderer::Renderer(emscripten::val text_measurement_function) {
     this->drawing_structure_stack.push_back(&this->drawing_commands);
 }
 
-bool Renderer::DrawingCommand::is_path() {
+bool Renderer::DrawingCommand::is_path() const {
     return std::holds_alternative<Renderer::Path>(this->content);
 }
 
-bool Renderer::DrawingCommand::is_arc() {
+bool Renderer::DrawingCommand::is_arc() const {
     return std::holds_alternative<Renderer::Arc>(this->content);
 }
 
-bool Renderer::DrawingCommand::is_line() {
+bool Renderer::DrawingCommand::is_line() const {
     return std::holds_alternative<Renderer::Line>(this->content);
 }
 
-bool Renderer::DrawingCommand::is_text() {
+bool Renderer::DrawingCommand::is_text() const {
     return std::holds_alternative<Renderer::Text>(this->content);
 }
 
@@ -96,6 +96,13 @@ const Renderer::Text& Renderer::DrawingCommand::as_text() const {
 
 std::vector<Renderer::DrawingCommand> Renderer::get_commands() const {
     return this->drawing_commands;
+}
+
+Renderer::Path Renderer::create_new_path() const {
+    Path ret;
+    ret.has_fill = false;
+    ret.initial_point = this->position;
+    return ret;
 }
 
 #endif // Emscripten defined
@@ -151,11 +158,11 @@ void Renderer::move_to(double x, double y) {
     #ifndef __EMSCRIPTEN__
     cairo_move_to(cr, x, y);
     #else // __EMSCRIPTEN__ defined
+    this->position.x = x;
+    this->position.y = y;
     // Should it always do this?
     // Cairo docs say so.
     this->new_sub_path();
-    this->position.x = x;
-    this->position.y = y;
     #endif
 }
 
@@ -168,8 +175,10 @@ void Renderer::line_to(double x, double y) {
     line.start = this->position;
     line.end.x = x;
     line.end.y = y;
+    graphene_point_t final_pos = line.end;
     auto* structure_ptr = *this->drawing_structure_stack.rbegin();
     structure_ptr->push_back(DrawingCommand{line});
+    this->position = final_pos;
     #endif
 }
 
@@ -235,8 +244,43 @@ void Renderer::close_path() {
         // No path to be closed.
         return;
     }
-    #warning TODO: close_path() for Lhasa
+    // 1. Add a line to the beginning of the path
+    Path& cpath = *this->currently_created_path;
+    this->line_to(cpath.initial_point.x, cpath.initial_point.y);
+    // 2. Close the sub-path
+    auto stack_iter = this->drawing_structure_stack.rbegin();
+    // We're getting to the structure inside of which the current path lives.
+    auto mother_structure_iter = ++stack_iter;
+      if(stack_iter == this->drawing_structure_stack.rend()) {
+        g_error("close_path() called with less than 2 elements in the stack. "
+        "Corrupted Renderer state.");
+    }
+    // We need to know if mother_structure is another path
+    // or maybe it's the root of the stack.
+    stack_iter++;
+    if(stack_iter == this->drawing_structure_stack.rend()) {
+        // It's the root.
+        this->currently_created_path = nullptr;
+    } else {
+        // Mother structure is another path.
+        auto& last_el = (*stack_iter)->back();
+        if(!last_el.is_path()) {
+            g_error("Internal Renderer error: Mother structure of a subpath should be itself a path.");
+        }
+        this->currently_created_path = &last_el.as_path();
+    }
+    // Pop the current path from the stack after we've updated 'currently_created_path'.
+    this->drawing_structure_stack.pop_back();
 
+    // 3. 
+    // To quote the docs:
+    // "The behavior of cairo_close_path() is distinct from simply calling cairo_line_to() 
+    // with the equivalent coordinate in the case of stroking. When a closed sub-path is stroked, 
+    // there are no caps on the ends of the sub-path. Instead, there is a line join connecting 
+    // the final and initial segments of the sub-path."
+    //
+    // Now, I don't exactly now what that means for me.
+    // 
     #endif
 }
 
@@ -244,18 +288,17 @@ void Renderer::new_sub_path() {
     #ifndef __EMSCRIPTEN__
     cairo_new_sub_path(cr);
     #else // __EMSCRIPTEN__ defined
-    if(this->currently_created_path) {
+    //if(this->currently_created_path) {
         // Allocate new sub path
-        Path new_path;
-        new_path.has_fill = false;
+        Path new_path = this->create_new_path();
         auto* structure_ptr = *this->drawing_structure_stack.rbegin();
         structure_ptr->push_back(DrawingCommand{new_path});
         Path* new_path_ptr = &structure_ptr->back().as_path();
         // Overwrite the pointer
         this->currently_created_path = new_path_ptr;
-    } else {
-        this->new_path();
-    }
+    // } else {
+    //     this->new_path();
+    // }
     #endif
 }
 
