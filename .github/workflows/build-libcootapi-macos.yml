@@ -159,7 +159,7 @@ jobs:
 
       # what do we know about RDKit?
       - name: cat CMakeCache.txt
-        run:  cat CMakeCache.txt
+        run:  cd build-libcootapi && cat CMakeCache.txt
 
       - name: Upload CMakeCache.txt
         uses: actions/upload-artifact@v4
