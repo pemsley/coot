@@ -186,33 +186,44 @@ bool
 graphics_info_t::tomo_pick(double x, double y, gint n_press, bool shift_is_pressed) {
 
    bool state = true; // unless we miss the box (currently not tested)
-   std::pair<coot::Cartesian, coot::Cartesian> front_and_back = get_front_and_back_for_pick();
 
-   // let front F, back B:
-   // delta = (B - F).uv()
-   // equation of pick vector: F + t * delta because Ax + By + Cz = D and we know A and B are 0 and C is 1
-   // For a pick on a z-section: P_z = F_z + t * delta_z
-   // t = (P_z - F_z)/delta_z
-   // x,y,z = F + t * delta
+   if (shift_is_pressed) {
 
-   float P_z = tomo_view_info.get_P_z();
-   coot::Cartesian &front = front_and_back.first;
-   coot::Cartesian &back  = front_and_back.second;
-   coot::Cartesian delta = back - front;
-   float t = (P_z - front.z())/delta.z();
-   coot::Cartesian pick_point = front + delta * t;
-   clipper::Coord_orth pt(pick_point.x(), pick_point.y(), pick_point.z());
-   // std::cout << "pt: " << pt.format() << std::endl;
-   coot::colour_holder ch(0.3, 0.3, 0.9);
-   std::string object_name =  "TomoPick " + std::to_string(tomo_view_info.section_index);
-   int object_number = generic_object_index(object_name);
-   std::cout << "in tomo_pick A with object_number " << object_number << std::endl;
-   if (object_number == -1)
-      object_number = new_generic_object_number(object_name);
-   std::cout << "in tomo_pick B with object_number " << object_number << std::endl;
+      std::string object_name =  "TomoPick " + std::to_string(tomo_view_info.section_index);
+      int object_number = generic_object_index(object_name);
+      from_generic_object_remove_last_item(object_number);
 
-   to_generic_object_add_point_internal(object_number, "dummy", ch, 3000.0, pt);
-   set_display_generic_object(object_number, 1);
+   } else {
+
+      // normal path
+
+      // let front F, back B:
+      // delta = (B - F).uv()
+      // equation of pick vector: F + t * delta because Ax + By + Cz = D and we know A and B are 0 and C is 1
+      // For a pick on a z-section: P_z = F_z + t * delta_z
+      // t = (P_z - F_z)/delta_z
+      // x,y,z = F + t * delta
+
+      std::pair<coot::Cartesian, coot::Cartesian> front_and_back = get_front_and_back_for_pick();
+      float P_z = tomo_view_info.get_P_z();
+      coot::Cartesian &front = front_and_back.first;
+      coot::Cartesian &back  = front_and_back.second;
+      coot::Cartesian delta = back - front;
+      float t = (P_z - front.z())/delta.z();
+      coot::Cartesian pick_point = front + delta * t;
+      clipper::Coord_orth pt(pick_point.x(), pick_point.y(), pick_point.z());
+      // std::cout << "pt: " << pt.format() << std::endl;
+      coot::colour_holder ch(0.3, 0.3, 0.9);
+      std::string object_name =  "TomoPick " + std::to_string(tomo_view_info.section_index);
+      int object_number = generic_object_index(object_name);
+      std::cout << "in tomo_pick A with object_number " << object_number << std::endl;
+      if (object_number == -1)
+         object_number = new_generic_object_number(object_name);
+      std::cout << "in tomo_pick B with object_number " << object_number << std::endl;
+
+      to_generic_object_add_point_internal(object_number, "dummy", ch, 3000.0, pt);
+      set_display_generic_object(object_number, 1);
+   }
 
    return state;
 }

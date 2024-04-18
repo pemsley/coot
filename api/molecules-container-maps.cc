@@ -89,3 +89,28 @@ molecules_container_t::regen_map(int imol_map, const std::string &imol_maps_stri
 
    return status;
 }
+
+texture_as_floats_t
+molecules_container_t::get_map_section_texture(int imol, int section_index, int axis) const {
+
+   texture_as_floats_t t;
+   if (is_valid_map_molecule(imol)) {
+       t = molecules[imol].get_map_section_texture(section_index, axis);
+   }
+   return t;
+}
+
+//! @return the number of section in the map along the give axis.
+//! (0 for X-axis, 1 for y-axis, 2 for Z-axis).
+//! return -1 on failure.
+int
+molecules_container_t::get_number_of_map_sections(int imol_map, int axis_id) const {
+
+   int n = -1;
+   if (is_valid_map_molecule(imol_map)) {
+      n = molecules[imol_map].get_number_of_map_sections(axis_id);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_map << std::endl;
+   }
+   return n;
+}

@@ -4097,6 +4097,7 @@ public:
 
    static GtkWidget *generic_objects_dialog;
    static std::vector<meshed_generic_display_object> generic_display_objects;
+   static void from_generic_object_remove_last_item(int object_number);
 
    static void set_display_generic_object_simple(int object_number, short int istate) {
       std::cout << "in set_display_generic_object_simple " << object_number << " " << istate << std::endl;

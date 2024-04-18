@@ -101,6 +101,8 @@ void to_generic_object_add_point_internal(int object_number,
 				 const clipper::Coord_orth &pt);
 #endif // SWIG
 
+void from_generic_object_remove_last_item(int object_number);
+
 /*! \brief add point to generic object object_number */
 void to_generic_object_add_arc(int object_number, 
 			       const char *colour,

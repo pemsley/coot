@@ -366,6 +366,8 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
          bool handled = false;
 
+         std::cout << "########## double-click!" << std::endl;
+
          if (in_moving_atoms_drag_atom_mode_flag) {
             if (last_restraints_size() > 0) {
                handled = check_if_moving_atom_pull(true); // passing was-a-double-click
@@ -413,7 +415,6 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
             if (tomo_picker_flag) {
 
                bool shift_is_pressed = (modifier & GDK_SHIFT_MASK);
-               std::cout << "here in tomo-pick path with shift_is_pressed " << shift_is_pressed << std::endl;
                handled = tomo_pick(x,y, n_press, shift_is_pressed);
 
             } else {

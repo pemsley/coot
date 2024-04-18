@@ -3257,6 +3257,22 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
 }
 #endif
 
+// static
+void
+graphics_info_t::from_generic_object_remove_last_item(int object_number) {
+
+   if (! use_graphics_interface_flag) return;
+
+   int ngos = generic_display_objects.size();
+   if (object_number >= 0) {
+      if (object_number < ngos) {
+         generic_display_objects[object_number].remove_last_object();
+      }
+   }
+   graphics_draw();
+}
+
+
 
 void
 graphics_info_t::add_label(const std::string &l, const glm::vec3 &p, const glm::vec4 &c) {

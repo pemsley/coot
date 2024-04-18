@@ -1693,7 +1693,17 @@ public:
    //! in the `string_user_data` data item of the residue specifier
    std::vector<coot::residue_spec_t> get_non_standard_residues_in_molecule(int imol) const;
 
+   //! @return the number of section in the map along the give axis.
+   //! (0 for X-axis, 1 for y-axis, 2 for Z-axis).
+   //! return -1 on failure.
+   int get_number_of_section(int imol_map, int axis_id);
+
    texture_as_floats_t get_map_section_texture(int imol, int section_id, int axis) const;
+
+   //! @return the number of section in the map along the give axis.
+   //! (0 for X-axis, 1 for y-axis, 2 for Z-axis).
+   //! return -1 on failure.
+   int get_number_of_map_sections(int imol_map, int axis_id) const;
 
    // -------------------------------- Testing -------------------------------------
    //! \name Testing functions

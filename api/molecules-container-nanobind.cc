@@ -279,6 +279,7 @@ NB_MODULE(chapi, m) {
     .def("get_monomer_and_position_at",&molecules_container_t::get_monomer_and_position_at)
     .def("get_monomer_from_dictionary",&molecules_container_t::get_monomer_from_dictionary)
     .def("get_number_of_molecules",&molecules_container_t::get_number_of_molecules)
+    .def("get_number_of_map_sections",&molecules_container_t::get_number_of_map_sections)
     .def("get_r_factor_stats",&molecules_container_t::get_r_factor_stats)
     .def("get_rama_plot_restraints_weight",&molecules_container_t::get_rama_plot_restraints_weight)
     .def("get_ramachandran_validation_markup_mesh",&molecules_container_t::get_ramachandran_validation_markup_mesh)
