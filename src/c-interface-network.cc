@@ -675,7 +675,7 @@ void fetch_emdb_map(const std::string &emd_accession_code) {
 int fetch_cod_entry(const std::string &cod_code) {
 
    int imol = -1;
-   std::string url = "http://www.crystallography.net/cod/" + cod_code + ".cif?CODSESSION=fromCoot";
+   std::string url = "https://www.crystallography.net/cod/" + cod_code + ".cif";
    std::cout << "url: " << url << std::endl;
    std::string download_dir = "coot-download";
    download_dir = coot::get_directory(download_dir.c_str());
