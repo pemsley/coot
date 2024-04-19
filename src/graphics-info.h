@@ -4100,7 +4100,7 @@ public:
    static void from_generic_object_remove_last_item(int object_number);
 
    static void set_display_generic_object_simple(int object_number, short int istate) {
-      std::cout << "in set_display_generic_object_simple " << object_number << " " << istate << std::endl;
+      // std::cout << "in set_display_generic_object_simple " << object_number << " " << istate << std::endl;
       graphics_info_t g;
       if (object_number >= 0) {
          if (object_number < int(g.generic_display_objects.size())) {
@@ -4119,7 +4119,7 @@ public:
    on_generic_objects_dialog_object_check_button_toggled(GtkButton       *button,
                                                          gpointer         user_data) {
 
-      std::cout << "in on_generic_objects_dialog_object_check_button_toggled() " << std::endl;
+      // std::cout << "in on_generic_objects_dialog_object_check_button_toggled() " << std::endl;
       int generic_object_number = GPOINTER_TO_INT(user_data);
       int state = 0;
       if (gtk_check_button_get_active(GTK_CHECK_BUTTON(button)))
@@ -4133,7 +4133,7 @@ public:
                                                         GtkWidget *grid,
                                                         int io) {
 
-      std::cout << "generic_objects_dialog_grid_add_object_internal() --- start --- " << std::endl;
+      // std::cout << "generic_objects_dialog_grid_add_object_internal() --- start --- " << std::endl;
 
       if (! gdo.mesh.is_closed()) {
          std::cout << "generic_objects_dialog_grid_add_object_internal() no-closed " << io << std::endl;
@@ -4162,7 +4162,6 @@ public:
                           G_CALLBACK(on_generic_objects_dialog_object_check_button_toggled),
                           GINT_TO_POINTER(io));
 
-         std::cout << "generic_objects_dialog_grid_add_object_internal() AAAA " << std::endl;
          gtk_widget_set_visible (label, TRUE);
          gtk_widget_set_visible (checkbutton, TRUE);
 
@@ -4170,16 +4169,13 @@ public:
 
    }
    int new_generic_object_number(const std::string &name) {
-      std::cout << "in new_generic_object_number() --- start ---" << std::endl;
       Mesh mesh(name);
       meshed_generic_display_object meshed(mesh);
       generic_display_objects.push_back(meshed);
       int n_new = generic_display_objects.size() - 1;
       if (use_graphics_interface_flag) {
          GtkWidget *grid = widget_from_builder("generic_objects_dialog_grid"); // changed 20211020-PE
-         std::cout << "in new_generic_object_number() AAAAAAAA" << std::endl;
          if (grid) {
-            std::cout << "in new_generic_object_number() BBBBB" << std::endl;
             const meshed_generic_display_object &gdo = generic_display_objects[n_new];
             generic_objects_dialog_grid_add_object_internal(gdo,
                                                             generic_objects_dialog,

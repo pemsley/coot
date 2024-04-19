@@ -2349,6 +2349,8 @@ Mesh::draw_for_ssao(Shader *shader_p,
       std::cout << "debug:: start Mesh::draw_for_ssao() this mesh: " << name << " with shader " << shader_p->name
                 << std::endl;
 
+   if (! draw_this_mesh) return;
+
    if (! shader_p) return; // if we don't want this mesh to be drawn a null shader is passed
 
    unsigned int n_triangles = triangles.size();
