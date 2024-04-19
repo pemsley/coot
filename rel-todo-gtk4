@@ -1,24 +1,16 @@
 
 ----
 
-Coot:: In the display manager "atom selection from x" should be "atom selection //D from x"
+Coot: Pull in Bernhard's Rama plots
 
 Coot: (refinement) martin maly bug: transpose map by lsq superpose failed.
       Bring the lsq map function to libcootapi and chapi
 
-Coot: make the function get_number_of_molecules(), as an alias maybe.
-
-Coot: Add to Draw menu "Activate Scene Preset" Figure making or Model-building
-* Done. Good.
-
-Coot: Ribbons mode needs to (an option?) to add ligands 6zxa.cif
-
-Coot: check that a Gaussian chain surface should be displayed before using it in the SSAO image.
+Coot: Ribbons mode needs (an option?) to add ligands 6zxa.cif
 
 Coot: for sound, look at tw/cootsound.c
 
-Coot: write a script that reads a map and undisplays it (positron). Now open the Display Manager.
-   The map "Display" checkbuttons are on.
+Test ligand fitting of fitligand binary. Using conformation variation and not.
 
 libcootapi: what do we need to get flev working?
 
@@ -31,7 +23,7 @@ libcootapi: in protein_geometry add a function something like
    so that dictionaries assigned to a particular molecule can be used by other molecules (e.g. in dragged refinement).
    The molecules_container api will be duplicate_dictionary_for_other_molecule(comp_id, imol_current, imol_other)
 
-libcootapi: when generating conformers, throw away the conformes that hamve many nbs (dont do minimization)
+libcootapi: when generating conformers, throw away the conformers that hamve many nbs (dont do minimization)
 
 libcootapi: move secondary structure header info int SSEs of residue (does this function exist already?)
 
@@ -1619,3 +1611,19 @@ Even with non-carbon colouring it failed. Using custom rule (from the "+" button
 moorhen: does the map masking take a multi-cid for the atom selection?
 * It does not. Tested.
 * Fixed.
+
+Coot:: In the display manager "atom selection from x" should be "atom selection //D from x"
+* Done.
+
+Coot: make the function get_number_of_molecules(), as an alias maybe.
+* Done.
+
+Coot: Add to Draw menu "Activate Scene Preset" Figure making or Model-building
+* Done. Good.
+
+Coot: write a script that reads a map and undisplays it (positron). Now open the Display Manager.
+   The map "Display" checkbuttons are on.
+*Done.
+
+Coot: check that a Gaussian chain surface should be displayed before using it in the SSAO image.
+*Done.
