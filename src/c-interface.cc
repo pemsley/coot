@@ -5980,11 +5980,12 @@ void set_mol_displayed(int imol, int state) {
 
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].set_mol_is_displayed(state);
-      if (g.display_control_window())
-	 set_display_control_button_state(imol, "Displayed", state);
-      if (g.mol_displayed_toggle_do_redraw)
+      int current_state = graphics_info_t::molecules[imol].get_mol_is_displayed();
+      if (current_state != state) {
+         graphics_info_t::molecules[imol].set_mol_is_displayed(state);
+         set_display_control_button_state(imol, "Displayed", state);
          graphics_draw();
+      }
    } else {
       std::cout << "not valid molecule" << std::endl;
    }

@@ -853,8 +853,7 @@ public:        //                      public
 
    // Shall we draw anything for this molecule?
    //
-   int draw_it; // used by Molecule Display control, toggled using
-	                  // toggle fuctions.
+   int draw_it; // used by Molecule Display control, toggled using toggle fuctions.
    bool draw_model_molecule_as_lines; // default false
    void set_draw_model_molecule_as_lines(bool state); // redo the bonding if state is different
    bool draw_it_for_map;
@@ -871,6 +870,8 @@ public:        //                      public
       }
       set_mol_triangles_is_displayed(state);
    }
+
+   int get_mol_is_displayed() const { return draw_it; }
 
    void set_mol_is_active(int state) {
       if (atom_sel.n_selected_atoms > 0)
