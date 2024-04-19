@@ -5624,7 +5624,7 @@ int test_texture_as_floats(molecules_container_t &mc) {
             }
             for (unsigned int i=0; i<15000; i+=1000) {
                // std::cout << "   " << i << " " << tf.image_data[i] << std::endl;
-               if (tf.image_data[i] > 1,0)
+               if (tf.image_data[i] > 1.0)
                   status = 0;
             }
          }
