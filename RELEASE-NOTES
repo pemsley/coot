@@ -1,4 +1,19 @@
 
+  Release 1.1.08-pre
+
+   o FEATURE: Scene Presets added to the Draw menu
+
+   o CHANGE: "Mutate" is now a button so that it can now be
+     used to mutate RNA and DNA.
+
+   o BUG-FIX: mutate_by_overlap() fixed [thanks Simon Vecchioni]
+
+   o BUG-FIX: The "Generic Display Objects" dialog now dynamically
+      updates (no need to close it an open it again to see new
+      generic display objects).
+
+----
+
   Release 1.1.07
 
   No user-visible changes
