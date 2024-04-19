@@ -4923,7 +4923,9 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 							    SelectionHandle);
 
       if (mol) {
-	 std::string name = "atom selection from ";
+	 std::string name = "Atom selection ";
+         name += atom_selection_str;
+         name += " from ";
 	 name += graphics_info_t::molecules[imol_orig].name_for_display_manager();
 	 atom_selection_container_t asc = make_asc(mol);
 	 if (asc.n_selected_atoms > 0){
