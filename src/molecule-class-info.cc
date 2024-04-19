@@ -523,7 +523,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
          //
          if (bonds_box_type == coot::UNSET_TYPE)
             bonds_box_type = coot::NORMAL_BONDS;
-         std::cout << "debug:: ---- handle_read_draw_molecule() calls make_bonds_type_checked()" << std::endl;
+         // std::cout << "debug:: ---- handle_read_draw_molecule() calls make_bonds_type_checked()" << std::endl;
          make_bonds_type_checked(__FUNCTION__);
       }
 
@@ -6775,42 +6775,43 @@ molecule_class_info_t::close_yourself() {
    // delete from display manager combo box
    //
    graphics_info_t g;
-   GtkWidget *display_control_window = widget_from_builder("display_control_window_glade");
-   if (display_control_window) {
-      if (was_map) {
-         GtkWidget *map_vbox = widget_from_builder("display_map_vbox");
-         if (GTK_IS_BOX(map_vbox)) {
-            GtkWidget *item_widget = gtk_widget_get_first_child(map_vbox);
-            while (item_widget) {
-               GtkWidget *next_item = gtk_widget_get_next_sibling(item_widget);
-               int imol_this = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
-               if (imol_this == imol_no) {
-                  gtk_box_remove(GTK_BOX(map_vbox), item_widget);
-               }
-               item_widget = next_item;
-            };
+   if (g.use_graphics_interface_flag) {
+      GtkWidget *display_control_window = widget_from_builder("display_control_window_glade");
+      if (display_control_window) {
+         if (was_map) {
+            GtkWidget *map_vbox = widget_from_builder("display_map_vbox");
+            if (GTK_IS_BOX(map_vbox)) {
+               GtkWidget *item_widget = gtk_widget_get_first_child(map_vbox);
+               while (item_widget) {
+                  GtkWidget *next_item = gtk_widget_get_next_sibling(item_widget);
+                  int imol_this = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
+                  if (imol_this == imol_no) {
+                     gtk_box_remove(GTK_BOX(map_vbox), item_widget);
+                  }
+                  item_widget = next_item;
+               };
+            }
+         }
+
+         if (was_coords) {
+            GtkWidget *coords_vbox = widget_from_builder("display_molecule_vbox");
+            if (GTK_IS_BOX(coords_vbox)) {
+               std::cout << "in close_yourself() fix container B foreach" << std::endl;
+
+               GtkWidget *item_widget = gtk_widget_get_first_child(coords_vbox);
+               while (item_widget) {
+                  GtkWidget *next_item = gtk_widget_get_next_sibling(item_widget);
+                  int imol_this = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
+                  if (imol_this == imol_no) {
+                     gtk_box_remove(GTK_BOX(coords_vbox), item_widget);
+                  }
+                  item_widget = next_item;
+               };
+            }
          }
       }
-
-      if (was_coords) {
-         GtkWidget *coords_vbox = widget_from_builder("display_molecule_vbox");
-         if (GTK_IS_BOX(coords_vbox)) {
-            std::cout << "in close_yourself() fix container B foreach" << std::endl;
-
-            GtkWidget *item_widget = gtk_widget_get_first_child(coords_vbox);
-            while (item_widget) {
-               GtkWidget *next_item = gtk_widget_get_next_sibling(item_widget);
-               int imol_this = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
-               if (imol_this == imol_no) {
-                  gtk_box_remove(GTK_BOX(coords_vbox), item_widget);
-               }
-               item_widget = next_item;
-            };
-         }
-      }
+      graphics_info_t::refresh_validation_graph_model_list();
    }
-
-   graphics_info_t::refresh_validation_graph_model_list();
 
    if (was_coords) {
       atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);

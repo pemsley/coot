@@ -938,6 +938,8 @@ graphics_info_t::update_validation(int imol_changed_model) {
 
    // 20230910-PE, well, we only want to update the validation if it was already being displayed.
 
+   if (! use_graphics_interface_flag) return;
+
    update_validation_graphs(imol_changed_model);
    update_ramachandran_plot(imol_changed_model);
    update_dynamic_validation_for_molecule(imol_changed_model); // maybe.
