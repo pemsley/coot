@@ -3894,6 +3894,11 @@ GtkWidget *main_window() {
    return graphics_info_t::get_main_window();
 }
 
+int get_number_of_molecules() {
+   return graphics_info_t::n_molecules();
+}
+
+
 int graphics_n_molecules() {
    return graphics_info_t::n_molecules();
 }
