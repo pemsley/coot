@@ -577,6 +577,8 @@ public:
    std::string get_cif_file_name(const std::string &comp_id, int imol_enc) const;
    //! @return a string that is the contents of a dictionary cif file
    std::string get_cif_restraints_as_string(const std::string &comp_id, int imol_enc) const;
+   //! copy the dictionary that is specific for imol_current so that it can be used with imol_new
+   bool copy_dictionary(const std::string &monomer_name, int imol_current, int imol_new);
    //! get a monomer
    //! @return the new molecule index on success and -1 on failure
    int get_monomer(const std::string &monomer_name);
@@ -1697,6 +1699,8 @@ public:
    //! in the `string_user_data` data item of the residue specifier
    std::vector<coot::residue_spec_t> get_non_standard_residues_in_molecule(int imol) const;
 
+   //! @return a texture_as_floats_t object for the given section
+   //! On failure, the image_data vector is empty.
    texture_as_floats_t get_map_section_texture(int imol, int section_id, int axis) const;
 
    //! @return the number of section in the map along the give axis.

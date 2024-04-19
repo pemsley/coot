@@ -157,6 +157,10 @@ jobs:
             -DRFFTW2_LIBRARY=/usr/local/Cellar/clipper4coot/2.1.20180802_2/fftw2/lib/librfftw.dylib
             -Dnanobind_DIR=/Users/runner/install/lib/python3.10/site-packages/nanobind/cmake ..
 
+      # what do we know about RDKit?
+      - name: cat CMakeCache.txt
+        run:  cd build-libcootapi && cat CMakeCache.txt
+
       - name: Upload CMakeCache.txt
         uses: actions/upload-artifact@v4
         with:

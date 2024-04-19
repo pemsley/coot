@@ -5529,3 +5529,12 @@ molecules_container_t::print_secondary_structure_info(int imol) const {
    }
 }
 
+
+//! copy the dictionary that is specific for imol_current so that it can be used with imol_new
+bool
+molecules_container_t::copy_dictionary(const std::string &monomer_name, int imol_current, int imol_new) {
+
+   bool status = geom.copy_monomer_restraints(monomer_name, imol_current, imol_new);
+   return status;
+
+}
