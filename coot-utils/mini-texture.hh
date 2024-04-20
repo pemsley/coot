@@ -8,7 +8,8 @@ class mini_texture_t {
    mini_texture_t(int w, int h, unsigned char *d) :
       width(w), height(h), x_size(0), y_size(0), z_position(0), image_data(d),
       data_value_for_top_of_range(0), data_value_for_bottom_of_range(0) {}
-   mini_texture_t(const clipper::Xmap<float> &xmap, int section_index,
+   // 0 is for X-sections, 1 is for Y-sections and 2 is for Z-sections
+   mini_texture_t(const clipper::Xmap<float> &xmap, int section_index, int axis,
                   float data_value_for_bottom, float data_value_for_top);
    ~mini_texture_t();
    void clear(); // delets image_data

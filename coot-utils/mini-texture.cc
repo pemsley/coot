@@ -3,7 +3,8 @@
 #include "coot-utils/coot-map-utils.hh"
 #include "mini-texture.hh"
 
-mini_texture_t::mini_texture_t(const clipper::Xmap<float> &xmap, int section_index,
+mini_texture_t::mini_texture_t(const clipper::Xmap<float> &xmap,
+                               int section_index, int axis,
                                float data_value_for_bottom, float data_value_for_top) {
 
    auto tp_start = std::chrono::high_resolution_clock::now();
@@ -30,6 +31,8 @@ mini_texture_t::mini_texture_t(const clipper::Xmap<float> &xmap, int section_ind
 
    clipper::Coord_grid cg_0(0,0,section_index);
    clipper::Coord_grid cg_1(gs.nu()-1, gs.nv()-1, section_index);
+   if (axis == 0) cg_1 = clipper::Coord_grid(section_index, gs.nv()-1, gs.nw()-1); // X
+   if (axis == 1) cg_1 = clipper::Coord_grid(gs.nu()-1, section_index, gs.nw()-1); // Y
    clipper::Grid_map grid(cg_0, cg_1);
    clipper::Xmap_base::Map_reference_coord ix( xmap, grid.min()), iu, iv, iw;
    int nv = gs.nv();

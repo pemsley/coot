@@ -217,6 +217,14 @@ class plot_data_t {
       return v;
    };
 
+   void set_contour_level(float l) {
+      for (unsigned int i=0; i<user_clicks.size(); i++) {
+         int imol_map = user_clicks[i].imol_map;
+         if (is_valid_map_molecule(imol_map))
+            set_contour_level_absolute(imol_map, l);
+      }
+   }
+
    // x and y are canvas coords
    int make_map(double x, double y) {
       int imol_map_new = -1;
@@ -539,7 +547,6 @@ void on_draw_positron_plot(GtkDrawingArea *area,
 
    plot_data_t *pdp = static_cast<plot_data_t *>(user_data);
    pdp->cairo = cr;
-   std::cout << "---------------- starting with plot_data_p " << pdp << std::endl;
 
    const plot_data_t &plot_data(*pdp);
    float colour_scale_factor = plot_data.colour_scale_factor;
@@ -717,8 +724,6 @@ void
 on_positron_interpolate_button_clicked(GtkButton *button,
                                        gpointer   user_data) {
 
-   std::cout << "------------- button clicked " << std::endl;
-
    void *obj = g_object_get_data(G_OBJECT(button), "plot-data");
    plot_data_t *plot_data_p = static_cast<plot_data_t *>(obj);
    if (plot_data_p)
@@ -754,6 +759,24 @@ on_positron_animate_switch_activate(GtkSwitch *sw, gpointer user_data) {
    }
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_positron_contour_level_entry_activate(GtkEntry *entry, gpointer user_data) {
+
+   std::string ss = gtk_editable_get_text(GTK_EDITABLE(entry));
+   try {
+      float f = coot::util::string_to_float(ss);
+      void *obj = g_object_get_data(G_OBJECT(entry), "plot-data");
+      plot_data_t *plot_data_p = static_cast<plot_data_t *>(obj);
+      if (plot_data_p) {
+         plot_data_p->set_contour_level(f);
+      }
+   }
+   catch (const std::runtime_error &rte) {
+      std::cout << rte.what() << std::endl;
+   }
+
+}
 
 #ifdef STANDALONE_POSITRON_PLOT
 GtkWidget *widget_from_builder(const std::string &w_name, GtkBuilder *builder) {
@@ -840,15 +863,20 @@ void positron_plot_internal(const std::string &fn_z_csv, const std::string &fn_s
    cairo_surface_t *surface = plot_data_p->make_image_from_plot_data(image_data);
    plot_data_p->image_surface = surface;
 
-   GtkWidget *undo_button        = widget_from_builder("positron_map_undo_button",  builder);
-   GtkWidget *clear_button       = widget_from_builder("positron_map_clear_button", builder);
-   GtkWidget *single_pass_button = widget_from_builder("positron_animate_single_pass_button", builder);
-   GtkWidget *interpolate_button = widget_from_builder("positron_interpolate_button", builder);
-   g_object_set_data(G_OBJECT(undo_button),        "plot-data", plot_data_p);
-   g_object_set_data(G_OBJECT(clear_button),       "plot-data", plot_data_p);
-   g_object_set_data(G_OBJECT(animate_switch),     "plot-data", plot_data_p);
-   g_object_set_data(G_OBJECT(single_pass_button), "plot-data", plot_data_p);
-   g_object_set_data(G_OBJECT(interpolate_button), "plot-data", plot_data_p);
+   GtkWidget *undo_button         = widget_from_builder("positron_map_undo_button",     builder);
+   GtkWidget *clear_button        = widget_from_builder("positron_map_clear_button",    builder);
+   GtkWidget *single_pass_button  = widget_from_builder("positron_animate_single_pass_button", builder);
+   GtkWidget *interpolate_button  = widget_from_builder("positron_interpolate_button",  builder);
+   GtkWidget *contour_level_entry = widget_from_builder("positron_contour_level_entry", builder);
+   g_object_set_data(G_OBJECT(undo_button),         "plot-data", plot_data_p);
+   g_object_set_data(G_OBJECT(clear_button),        "plot-data", plot_data_p);
+   g_object_set_data(G_OBJECT(animate_switch),      "plot-data", plot_data_p);
+   g_object_set_data(G_OBJECT(single_pass_button),  "plot-data", plot_data_p);
+   g_object_set_data(G_OBJECT(interpolate_button),  "plot-data", plot_data_p);
+   g_object_set_data(G_OBJECT(contour_level_entry), "plot-data", plot_data_p);
+
+   std::string contour_level_string = coot::util::float_to_string_using_dec_pl(plot_data_p->default_contour_level, 2);
+   gtk_editable_set_text(GTK_EDITABLE(contour_level_entry), contour_level_string.c_str());
 
    gpointer user_data = static_cast<void *>(plot_data_p);
    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), on_draw_positron_plot, user_data, NULL);
