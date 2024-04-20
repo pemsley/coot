@@ -68,6 +68,7 @@ class TestRNAGhostsFunctions(unittest.TestCase):
 
         # main body
         rna_mol = coot.ideal_nucleic_acid("RNA", "A", 0, "GACUCUAG")
+
         copy_rna_mol = coot.copy_molecule(rna_mol)
 
         # move the view over a bit so we can see the atoms being jiggled

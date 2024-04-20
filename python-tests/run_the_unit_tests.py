@@ -43,7 +43,7 @@ suite = unittest.TestSuite()
 test_list = [TestPdbMtzFunctions, TestShelxFunctions, TestLigandFunctions, TestRNAGhostsFunctions,
              TestSSMFunctions, TestNCSFunctions, TestUtilsFunctions, TestInternalFunctions]
 
-# test_list = [TestPdbMtzFunctions]
+# test_list = [TestRNAGhostsFunctions]
 
 for test in test_list:
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(test))
