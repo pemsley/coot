@@ -51,6 +51,3 @@ for test in test_list:
 log = StreamIO(sys.stderr, sys.stdout)
 
 result = unittest.TextTestRunner(stream=log, verbosity=2).run(suite)
-
-
-exit(0)
