@@ -43,6 +43,20 @@
                 <signal name="clicked" handler="on_positron_map_clear_button_clicked" swapped="no"/>
               </object>
             </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes">Contour Level </property>
+                <property name="justify">center</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkEntry" id="positron_contour_level_entry">
+                <property name="width-request">20</property>
+                <property name="max-width-chars">6</property>
+                <property name="text">1111</property>
+                <signal name="activate" handler="on_positron_contour_level_entry_activate"/>
+              </object>
+            </child>
           </object>
         </child>
         <child>
@@ -69,7 +83,6 @@
               <object class="GtkEntry" id="positron_interpolate_steps_per_click_entry">
                 <property name="width-request">20</property>
                 <property name="max-width-chars">6</property>
-                <property name="can-focus">1</property>
                 <property name="text">10</property>
               </object>
             </child>

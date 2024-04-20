@@ -88,7 +88,7 @@ void graphics_info_t::refresh_validation_graph_model_list() {
 
    g_debug("refresh_validation_graph_model_list() called.");
 
-   std::cout << "----------------------- refresh_validation_graph_model_list --------- " << std::endl;
+   // std::cout << "-------------- refresh_validation_graph_model_list ------- " << std::endl;
 
    gtk_tree_model_foreach(
                           GTK_TREE_MODEL(validation_graph_model_list),
@@ -117,10 +117,13 @@ void graphics_info_t::refresh_validation_graph_model_list() {
    // if (model is no longer on the list) {
    // 	// destroy all opened validation graphs (via calls to destroy_validation_graph())
    // }
-   if (!is_valid_model_molecule(active_validation_graph_model_idx)) {
-      std::cout << "TODO:: in refresh_validation_graph_model_list() Destroy graphs for model "
-                << active_validation_graph_model_idx << " here..." << std::endl;
-      // destroy_validation_graph(coot::validation_graph_type type);
+
+   if (idx_active != -1) {
+      if (!is_valid_model_molecule(active_validation_graph_model_idx)) {
+         std::cout << "TODO:: in refresh_validation_graph_model_list() Destroy graphs for model "
+                   << active_validation_graph_model_idx << " here..." << std::endl;
+         // destroy_validation_graph(coot::validation_graph_type type);
+      }
    }
 }
 

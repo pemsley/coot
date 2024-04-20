@@ -2,7 +2,7 @@
 #include "coot-map-utils.hh"
 #include "texture-as-floats.hh"
 
-texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int section_index) {
+texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int section_index, int axis) {
 
    // Things we need to fill:
    // int width;
@@ -42,6 +42,10 @@ texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int s
    
    clipper::Coord_grid cg_0(0,0,section_index);
    clipper::Coord_grid cg_1(gs.nu()-1, gs.nv()-1, section_index);
+ 
+   if (axis == 0) cg_1 = clipper::Coord_grid(section_index, gs.nv()-1, gs.nw()-1); // X
+   if (axis == 1) cg_1 = clipper::Coord_grid(gs.nu()-1, section_index, gs.nw()-1); // Y
+
    clipper::Grid_map grid(cg_0, cg_1);
    clipper::Xmap_base::Map_reference_coord ix( xmap, grid.min()), iu, iv, iw;
    int nv = gs.nv();

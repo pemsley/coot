@@ -6628,7 +6628,7 @@ graphics_info_t::sfcalc_genmap(int imol_model,
 void
 graphics_info_t::delete_pointers_to_map_in_other_molecules(int imol_map) {
 
-   std::cout << "---------------------------------------- delete_pointers_to_map_in_other_molecules " << imol_map << std::endl;
+   // std::cout << "---------------------------------------- delete_pointers_to_map_in_other_molecules " << imol_map << std::endl;
 
    if (is_valid_map_molecule(imol_map)) { // it is at the moment, not for long though!
       clipper::Xmap<float> *xmap_p = &molecules[imol_map].xmap;

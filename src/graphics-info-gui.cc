@@ -4802,9 +4802,9 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
 
       // auto tp_start = std::chrono::high_resolution_clock::now();
       const auto &xmap = molecules[imol].xmap;
+      int axis = 2; // for now
       clipper::Cell c_cell = xmap.cell();
       coot::Cell cell(c_cell.a(), c_cell.b(), c_cell.c(), c_cell.alpha(), c_cell.beta(), c_cell.gamma());
-      int axis = 0; // for now
       tomo_view_info = tomo_view_info_t(imol, cell, section_index, axis);
 
       float mean =    molecules[imol].map_mean();
@@ -4816,7 +4816,7 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
       texture_meshes.clear();
 
       // auto tp_1 = std::chrono::high_resolution_clock::now();
-      mini_texture_t m(xmap, section_index, data_value_for_bottom, data_value_for_top); // 128 for 11729
+      mini_texture_t m(xmap, section_index, axis, data_value_for_bottom, data_value_for_top); // 128 for 11729
       // auto tp_2 = std::chrono::high_resolution_clock::now();
 
       float x_len = m.x_size;

@@ -3544,12 +3544,14 @@ void close_molecule(int imol) {
       // and close the graphics ligand view if it was a residue of this molecule
       g.close_graphics_ligand_view_for_mol(imol);
    }
-   int go_to_atom_imol_new = g.update_go_to_atom_molecule_on_go_to_atom_molecule_deleted();
-   if (graphics_info_t::go_to_atom_window) {
-      // std::cout << ".....re fill go to atom window here" << std::endl;
-      if (imol == old_go_to_atom_molecule) {
-	 g.update_go_to_atom_window_on_other_molecule_chosen(go_to_atom_imol_new);
-	 g.update_go_to_atom_window_on_changed_mol(go_to_atom_imol_new);
+   if (! was_map) {
+      int go_to_atom_imol_new = g.update_go_to_atom_molecule_on_go_to_atom_molecule_deleted();
+      if (graphics_info_t::go_to_atom_window) {
+         // std::cout << ".....re fill go to atom window here" << std::endl;
+         if (imol == old_go_to_atom_molecule) {
+	    g.update_go_to_atom_window_on_other_molecule_chosen(go_to_atom_imol_new);
+	    g.update_go_to_atom_window_on_changed_mol(go_to_atom_imol_new);
+         }
       }
    }
 
