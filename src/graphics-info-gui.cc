@@ -199,6 +199,8 @@ graphics_info_t::info_dialog_and_text(const std::string &s, bool use_markup) {
 void
 graphics_info_t::info_dialog_alignment(coot::chain_mutation_info_container_t mutation_info) const {
 
+   if (! use_graphics_interface_flag) return;
+
    std::string s = mutation_info.alignment_string;
 
    info_dialog(s); // get trashed by markup text

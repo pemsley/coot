@@ -938,6 +938,8 @@ graphics_info_t::update_validation(int imol_changed_model) {
 
    // 20230910-PE, well, we only want to update the validation if it was already being displayed.
 
+   if (! use_graphics_interface_flag) return;
+
    update_validation_graphs(imol_changed_model);
    update_ramachandran_plot(imol_changed_model);
    update_dynamic_validation_for_molecule(imol_changed_model); // maybe.
@@ -1633,12 +1635,94 @@ graphics_info_t::omega_distortions_from_mol(const atom_selection_container_t &as
    return om_dist;
 }
 
+// 20240420-PE this return value can be exported to python rather than displayed internally
 coot::rotamer_graphs_info_t
 graphics_info_t::rotamer_graphs(int imol) {
 
-   coot::rotamer_graphs_info_t info; // return value
+   coot::rotamer_graphs_info_t info;
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     std::string alt_conf = ""; // fix this lazyness one day
+                     coot::rotamer_probability_info_t d_score =
+                        get_rotamer_probability(residue_p, alt_conf, mol, rotamer_lowest_probability, 1);
+                     int this_resno = residue_p->GetSeqNum();
+                     std::string this_inscode = residue_p->GetInsCode();
+                     std::string chain_id = residue_p->GetChainID();
+                     std::string str = std::to_string(this_resno);
+                     str += chain_id;
+                     str += " ";
+                     str += residue_p->name;
+                     str += " ";
+                     double distortion = 0.0;
+                     switch (d_score.state) {
+
+                     case 1: {
+                        // On reflection we don't want found
+                        // rotamers with low probabilities to be
+                        // marked (nearly as or more) bad than not
+                        // found rotamers:
+                        distortion = 100.0 * rotamer_distortion_scale/d_score.probability;
+                        distortion = distortion > 100.0 ? 100.0 : distortion;
+                        str += " ";
+                        str += d_score.rotamer_name;
+                        str += " ";
+                        str += "Probability: ";
+                        str += float_to_string(d_score.probability);
+                        str += "%";
+                        coot::graph_rotamer_info_t ri(chain_id, this_resno, this_inscode, d_score.probability, d_score.rotamer_name);
+                        info.info.push_back(ri);
+                        break;
+                     }
+
+                     case 0: {
+                        distortion = 100.0;
+                        str += "Missing Atoms";
+                        coot::graph_rotamer_info_t ri(chain_id, this_resno, this_inscode, 0.0, "Missing Atoms");
+                        info.info.push_back(ri);
+                        break;
+                     }
+
+                     case -1: {
+                        distortion = 100.0;
+                        coot::graph_rotamer_info_t ri(chain_id, this_resno, this_inscode, 0.0, "Rotamer not recognised");
+                        info.info.push_back(ri);
+                        str += "Rotamer not recognised";
+                        break;
+                     }
+
+                     case -2: {  // don't plot a block for this one.
+                        distortion = 0.0;
+                        break;
+                     }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return info;
+}
+
 
 #ifdef HAVE_GOOCANVAS
+
+coot::rotamer_graphs_info_t
+graphics_info_t::old_rotamer_graphs(int imol) {
+
+   coot::rotamer_graphs_info_t info; // return value
 
    if (imol >= 0) {
       if (imol < n_molecules()) {
@@ -1782,9 +1866,9 @@ graphics_info_t::rotamer_graphs(int imol) {
 	 }
       }
    }
-#endif // HAVE_GOOCANVAS
    return info;
 }
+#endif // HAVE_GOOCANVAS
 
 #ifdef HAVE_GOOCANVAS
 std::vector<coot::geometry_graph_block_info_generic>

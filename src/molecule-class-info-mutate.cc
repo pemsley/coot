@@ -1111,8 +1111,8 @@ molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::st
    // in the standard residues file.
 
    {
-      // modern names input, need to convert to old name to
-      // extract.
+      // modern names input,
+
       if (this_residue_is_DNA) {
          if (type == "A") refmac_nuc_type = "DA";
          if (type == "G") refmac_nuc_type = "DG";
@@ -1128,7 +1128,7 @@ molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::st
       }
       if (type == "DA")	 refmac_nuc_type = "DA";
       if (type == "DG")	 refmac_nuc_type = "DG";
-      if (type == "DT")	 refmac_nuc_type = "TD";
+      if (type == "DT")	 refmac_nuc_type = "DT";
       if (type == "DC")	 refmac_nuc_type = "DC";
    }
 
@@ -1186,7 +1186,7 @@ molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::st
       atom_sel = make_asc(atom_sel.mol);
       make_bonds_type_checked();
    }
-   std::cout << "--------------------------------- done mutate_base() --------------------------" << std::endl;
+   // std::cout << "--------------------------------- done mci::mutate_base() --------------------------" << std::endl;
    return istat;
 }
 

@@ -383,7 +383,7 @@ graphics_info_t::mutate_chain(int imol, const std::string &chain_id,
 	       molecules[imol].align_and_mutate(chain_id, coot::fasta(seq), renumber_residues_flag,
 						alignment_wgap, alignment_wspace);
 
-	    info_dialog_alignment(mutation_info);
+	    info_dialog_alignment(mutation_info); // protected
 
 	    if (do_auto_fit_flag) {
 	       int imol_map = Imol_Refinement_Map();

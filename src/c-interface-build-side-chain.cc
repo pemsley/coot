@@ -739,11 +739,13 @@ mutate(int imol, const char *chain_id, int ires, const char *inscode,  const cha
 
 // return success status.
 int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code, const char *res_type) {
+
    int istate = 0;
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t r(chain_id, res_no, ins_code);
-      istate = g.molecules[imol].mutate_base(r, res_type, g.convert_to_v2_atom_names_flag);
+      bool use_old_style_naming = false;
+      istate = g.molecules[imol].mutate_base(r, res_type, use_old_style_naming);
       graphics_draw();
    }
    std::string cmd = "mutate-base";
@@ -1079,6 +1081,7 @@ void do_base_mutation(const char *type) {
 	    } else {
 	       cbn = coot::util::canonical_base_name(type, coot::RNA);
 	    }
+
 	    if (cbn != "") {
 	       bool old = g.convert_to_v2_atom_names_flag;
 	       coot::residue_spec_t res_spec(r);

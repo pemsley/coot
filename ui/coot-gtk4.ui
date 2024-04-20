@@ -4166,7 +4166,7 @@ that you wish to delete.               </property>
   <object class="GtkWindow" id="display_control_window_glade">
     <property name="width-request">420</property>
     <property name="height-request">380</property>
-    <property name="title" translatable="yes">Display Manager</property>
+    <property name="title" translatable="yes">Coot: Display Manager</property>
     <property name="default-width">700</property>
     <property name="hide-on-close">True</property>
     <child>

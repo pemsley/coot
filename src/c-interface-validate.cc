@@ -706,7 +706,7 @@ PyObject *rotamer_graphs_py(int imol) {
 
    graphics_info_t g;
    coot::rotamer_graphs_info_t results = g.rotamer_graphs(imol);
-   if (results.info.size() > 0) {
+   if (! results.info.empty()) {
       r = PyList_New(results.info.size());
       for (int ir=int(results.info.size()-1); ir>=0; ir--) {
 	 PyObject *ele = PyList_New(5);

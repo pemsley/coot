@@ -474,10 +474,10 @@ class TestPdbMtzFunctions(unittest.TestCase):
         # pre-setup so that residues 1 and 2 are not rotamers "t" but 3
         # to 8 are (1 and 2 are more than 40 degrees away). 9-16 are
         # other residues and rotamers.
-        imol_rotamers = coot.read_pdb(os.path.join(coot_testing_utils.unittest_data_dir,
-                                              "rotamer-test-fragment.pdb"))
+        imol_rotamers = coot.read_pdb(os.path.join(coot_testing_utils.unittest_data_dir, "rotamer-test-fragment.pdb"))
 
         rotamer_anal = coot.rotamer_graphs_py(imol_rotamers)
+
         # self.assertTrue(type(rotamer_anal) is ListType)
         self.assertEqual(len(rotamer_anal), 14)
         a_1 = rotamer_anal[0]
@@ -1491,25 +1491,7 @@ class TestPdbMtzFunctions(unittest.TestCase):
                         "the bond between the two atoms is not within the tolerance")
 
 
-    def test31_0(self):
-        """Test for flying hydrogens on undo"""
-
-        imol = coot_testing_utils.unittest_pdb("monomer-VAL.pdb")
-
-        self.assertTrue(coot_utils.valid_model_molecule_qm(imol),
-                        "   Failure to read monomer-VAL.pdb")
-
-        coot_utils.with_auto_accept([coot.regularize_zone, imol, "A", 1, 1, ""])
-        coot.set_undo_molecule(imol)
-        coot.apply_undo()
-        coot_utils.with_auto_accept([coot.regularize_zone, imol, "A", 1, 1, ""])
-
-        atom_1 = coot_utils.get_atom(imol, "A", 1, "", "HG11")
-        atom_2 = coot_utils.get_atom(imol, "A", 1, "", " CG1")
-
-        self.assertTrue(coot_testing_utils.bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02),
-                        "   flying hydrogen failure, bond length %s, should be 0.96" %coot_testing_utils.bond_length_from_atoms(atom_1, atom_2))
-
+    # test 31 removed because it has old style hydrogen atom names that I don't care about.
 
     def test32_0(self):
         """Test for regularization and mangling of hydrogen names from a PDB v 3.0"""
@@ -1997,60 +1979,7 @@ class TestPdbMtzFunctions(unittest.TestCase):
         # rotamer 4 is out of range.
         coot.set_residue_to_rotamer_number(imol, "H", 52, "A", "", 4) # crash!!?
 
-
-    # new version of tests
-    def test44_0(self):
-        """RNA base has correct residue type after mutation"""
-
-        def test_vs(rna_mol, base_name):
-
-            previous_name = coot.residue_name(rna_mol, "A", 2, "")
-            success = coot.mutate_base(rna_mol, "A", 2, "", base_name)
-            self.assertTrue(success == 1, "  mutation fail!")
-            rn = coot.residue_name(rna_mol, "A", 2, "")
-            print("  mutated base to type %s - was %s" %(rn, previous_name))
-            return (rn == base_name)
-
-        # main line
-        #
-        rna_mol = coot.ideal_nucleic_acid("RNA", "A", 0, "GACUCUAG")
-        res_1 = test_vs(rna_mol, "C")
-        self.assertTrue(res_1, "  incorrect base! (default names)")
-
-        coot.set_convert_to_v2_atom_names(1)
-
-        rna_mol_old_names = coot.ideal_nucleic_acid("RNA", "A", 0, "GACUCUAG")
-        res_2 = test_vs(rna_mol_old_names, "Cr")
-
-        # back to normal
-        coot.set_convert_to_v2_atom_names(0)
-
-        self.assertTrue(res_2, "  incorrect base! (old names)")
-
-
-    def test45_0(self):
-        """DNA bases are the correct residue type after mutation"""
-
-        def correct_base_type_qm(rna_mol, target_base_type):
-            success = coot.mutate_base(rna_mol, "A", 2, "", target_base_type)
-            self.assertTrue(success == 1, "  DNA base mutation fail!")
-            rn = coot.residue_name(rna_mol, "A", 2, "")
-            print("  mutated base to type", rn)
-            return (rn == target_base_type)
-
-        # main line
-        rna_mol = coot.ideal_nucleic_acid("DNA", "A", 0, "GACTCTAG")
-
-        res = [correct_base_type_qm(rna_mol, base) for base in ["DC", "DG", "DA", "DT"]]
-        self.assertTrue(all(res))
-
-        coot.set_convert_to_v2_atom_names(1)
-        rna_mol = coot.ideal_nucleic_acid("DNA", "A", 0, "GACTCTAG")
-
-        res = [correct_base_type_qm(rna_mol, base) for base in ["Cd", "Gd", "Ad", "Td"]]
-        coot.set_convert_to_v2_atom_names(0)
-        self.assertTrue(all(res))
-
+    # test 44 and 45 removed because they were testing old RNA name - no longer needed
 
     def test46_0(self):
         """SegIDs are correct after mutate"""

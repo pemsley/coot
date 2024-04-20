@@ -3894,6 +3894,11 @@ GtkWidget *main_window() {
    return graphics_info_t::get_main_window();
 }
 
+int get_number_of_molecules() {
+   return graphics_info_t::n_molecules();
+}
+
+
 int graphics_n_molecules() {
    return graphics_info_t::n_molecules();
 }
@@ -5910,12 +5915,13 @@ set_display_control_button_state(int imol, const std::string &button_type, int s
       std::cout << "start: set_display_control_button_state() imol " << imol << " type " << button_type
                 << " new_state: " << state << std::endl;
 
+   if (! graphics_info_t::use_graphics_interface_flag) return;
+
    if (is_valid_model_molecule(imol)) {
 
       GtkWidget *display_control_vbox = nullptr;
       if (is_valid_model_molecule(imol))
          display_control_vbox = widget_from_builder("display_molecule_vbox");
-
 
       if (GTK_IS_BOX(display_control_vbox)) {
 
@@ -5975,11 +5981,13 @@ void set_mol_displayed(int imol, int state) {
 
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].set_mol_is_displayed(state);
-      if (g.display_control_window())
-	 set_display_control_button_state(imol, "Displayed", state);
-      if (g.mol_displayed_toggle_do_redraw)
+      int current_state = graphics_info_t::molecules[imol].get_mol_is_displayed();
+      if (current_state != state) {
+         graphics_info_t::molecules[imol].set_mol_is_displayed(state);
+         if (g.use_graphics_interface_flag)
+            set_display_control_button_state(imol, "Displayed", state);
          graphics_draw();
+      }
    } else {
       std::cout << "not valid molecule" << std::endl;
    }
@@ -6005,8 +6013,7 @@ void set_mol_active(int imol, int state) {
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].set_mol_is_active(state);
-      if (g.display_control_window())
-	 set_display_control_button_state(imol, "Active", state);
+      set_display_control_button_state(imol, "Active", state);
       // graphics_draw(); // was this needed?
    } else {
       std::cout << "not valid molecule" << std::endl;

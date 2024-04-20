@@ -82,6 +82,9 @@ jobs:
         run:  cd build-libcootapi && make install
 
       - name: test with chapi-using script
+        env:
+          MOORHEN_TEST_DATA_DIR: test-data
+          COOT_REFMAC_LIB_DIR: /home/runner/work/coot/coot # "data/monomers" is added before "a/ATP.cif" (say)
         run:  which python3 && cat python-tests/test_chapi2.py && python3 python-tests/test_chapi2.py
 
       - name: where are we?

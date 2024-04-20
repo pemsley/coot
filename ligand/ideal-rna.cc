@@ -59,20 +59,20 @@ coot::ideal_rna::make_molecule() {
    }
 
    if (form_ == "B") { 
-      ur = get_standard_residue_instance("Gd", standard_residues);
+      ur = get_standard_residue_instance("DG", standard_residues);
 
 
       if (! is_dna_flag) {
 	 // Add a O2' to RNA
 	 // 
-	 std::string new_atom_name = " O2*";
+	 std::string new_atom_name = " O2'";
 	 std::vector<std::string> at; // reference atom names
 	 add_o2_prime(ur);
       }
       form_flag = B_FORM;
    } else {
       form_flag = A_FORM;
-      ur = get_standard_residue_instance("Gr", standard_residues);
+      ur = get_standard_residue_instance("G", standard_residues);
       if (is_dna_flag) {
 	 delete_o2_prime(ur);
       }
@@ -87,8 +87,7 @@ coot::ideal_rna::make_molecule() {
       model_p->AddChain(sense_chain_p);
 
       clipper::Mat33<double> antisense_base_mat(1, 0, 0, 0, -1, 0, 0, 0, -1);
-      clipper::RTop_orth antisense_base_rtop(antisense_base_mat,
-					     clipper::Coord_orth(0,0,0));
+      clipper::RTop_orth antisense_base_rtop(antisense_base_mat, clipper::Coord_orth(0,0,0));
       mmdb::Residue *antisense_ref = coot::util::deep_copy_this_residue(ur);
       // now transform antisense base to the right place:
       coot::util::transform_atoms(antisense_ref, antisense_base_rtop);
@@ -169,7 +168,8 @@ void
 coot::ideal_rna::fix_up_residue_and_atom_names(mmdb::Residue *residue_p, bool is_dna_flag) { 
 
    std::string res_name = residue_p->GetResName();
-   std::string new_name = residue_name_old_to_new(res_name, is_dna_flag);
+   std::string new_name = res_name; // residue_name_old_to_new(res_name, is_dna_flag); no longer needed
+
    residue_p->SetResName(new_name.c_str());
 
    mmdb::PPAtom residue_atoms = 0;
@@ -184,11 +184,9 @@ coot::ideal_rna::fix_up_residue_and_atom_names(mmdb::Residue *residue_p, bool is
 	    at->SetAtomName(atom_name.c_str());
 	 }
 
-	 if (atom_name == " O1P") 
-	    at->SetAtomName(" OP1");
-	 if (atom_name == " O2P") 
-	    at->SetAtomName(" OP2");
-      } 
+	 if (atom_name == " O1P") at->SetAtomName(" OP1");
+	 if (atom_name == " O2P") at->SetAtomName(" OP2");
+      }
    }
 
    // fix the atom name C5M->C7 on a T in DNA [Grr, !@#$!@#$% PDB...]
@@ -304,7 +302,7 @@ coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type_i
    // standard residues file), "Ar", "Ad"
    // 
    std::string residue_name = residue_name_from_type(residue_type_in);
-   // std::cout << "in :" << residue_type_in << ": out :" << residue_name << ":" << std::endl;
+   std::cout << "get_standard_residue_instance(): in :" << residue_type_in << ": out :" << residue_name << ":" << std::endl;
 
    mmdb::Residue *std_residue = 0;
    int selHnd = standard_residues->NewSelection();
@@ -324,9 +322,8 @@ coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type_i
    
    if (nSelResidues != 1) {
       std::cout << "This should never happen - ";
-      std::cout << "badness in get_standard_residue_instance, we selected "
-		<< nSelResidues
-		<< " residues looking for residues of type :"
+      std::cout << "badness in ideal_rna::get_standard_residue_instance(), we selected "
+		<< nSelResidues << " residues looking for residues of type :"
 		<< residue_name << ": from :" << residue_type_in << ":\n";
    } else {
       std_residue = coot::util::deep_copy_this_residue(SelResidue[0]);
@@ -341,6 +338,8 @@ coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type_i
 std::string
 coot::ideal_rna::residue_name_from_type(const std::string &residue_type_in) const {
 
+   // 20240420-PE this need a rethink.
+
    std::string r = "A";
 
    if (use_standard_refmac_names) {
@@ -350,21 +349,21 @@ coot::ideal_rna::residue_name_from_type(const std::string &residue_type_in) cons
 	 if (residue_type_in[1] == 'r'|| residue_type_in[1] == 'd')
 	    return residue_type_in;
       if (residue_type_in == "A")
-	 return "Ar";
+	 return "A";
       if (residue_type_in == "G")
-	 return "Gr";
+	 return "G";
       if (residue_type_in == "C")
-	 return "Cr";
+	 return "C";
       if (residue_type_in == "U")
-	 return "Ur";
+	 return "U";
       if (residue_type_in == "DA")
-	 return "Ad";
+	 return "DA";
       if (residue_type_in == "DG")
-	 return "Gd";
+	 return "DG";
       if (residue_type_in == "DC")
-	 return "Cd";
+	 return "DC";
       if (residue_type_in == "DT")
-	 return "Td";
+	 return "DT";
    }
    return r;
 }
