@@ -40,7 +40,7 @@
 #include "utils/colour-holder.hh"
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#include <MoleculesToTriangles/CXXClasses/RendererGL.h>
+//  #include <MoleculesToTriangles/CXXClasses/RendererGL.h>
 #include <MoleculesToTriangles/CXXClasses/Light.h>
 #include <MoleculesToTriangles/CXXClasses/Camera.h>
 #include <MoleculesToTriangles/CXXClasses/SceneSetup.h>

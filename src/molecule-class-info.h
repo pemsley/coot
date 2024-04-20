@@ -81,7 +81,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#include <MoleculesToTriangles/CXXClasses/RendererGL.h>
+// #include <MoleculesToTriangles/CXXClasses/RendererGL.h>
 #include <MoleculesToTriangles/CXXClasses/Light.h>
 #include <MoleculesToTriangles/CXXClasses/Camera.h>
 // #include <CXXClasses/CameraPort.h>
