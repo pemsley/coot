@@ -360,10 +360,10 @@ PyObject *molecule_name_stub_py(int imol, int include_path_flag) {
 
 void set_molecule_name(int imol, const char *new_name) {
 
-   if (is_valid_model_molecule(imol) ||
-       is_valid_map_molecule(imol)) { 
+   if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
       graphics_info_t::molecules[imol].set_name(new_name);
-   } 
+   }
+
 }
 
 void set_show_graphics_ligand_view(int state) {

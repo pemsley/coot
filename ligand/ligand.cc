@@ -1875,6 +1875,12 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
                                                                          initial_ligand_eigenvector, initial_ligand_model_centre,
                                                                          eigen_orientation.rot());
 
+                             if (false) {
+                                for(unsigned int ii=0; ii<atoms_p.size(); ii++)
+                                   std::cout << "lf: ilig " << ilig << " post-transform_ligand_atom " << ii << atoms_p[ii]->name << " "
+                                             << atoms_p[ii]->pos.format() << std::endl;
+                             }
+
                              rigid_body_refine_ligand(&atoms_p, std::cref(xmap_masked), std::cref(xmap_pristine),
                                                       rotation_component, gradient_scale); // ("rigid body") move atoms.
                              float fit_fraction = 0.1;
