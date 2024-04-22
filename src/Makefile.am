@@ -306,7 +306,7 @@ _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
 
 if OS_WIN32
 # no more libexec for windows
-bin_PROGRAMS     = coot-bin coot-density-score-by-residue-bin
+bin_PROGRAMS     = Coot coot-density-score-by-residue-bin
 else
 libexec_PROGRAMS = Coot coot-density-score-by-residue-bin
 bin_PROGRAMS = 
@@ -658,7 +658,6 @@ libcootsumo_la_SOURCES = \
 	pisa-interface.hh	 \
 	pick.hh pick.cc	 \
 	positioned-widgets.h     \
-	positron-plot.hh         \
 	positron-plot.cc         \
 	pre-load.hh              \
 	probe-clash-score.cc     \
@@ -806,7 +805,7 @@ endif
 
 # coot_bin_LDFLAGS = -static -lstdc++
 #
-coot_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
+Coot_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 
 # coot_bin_CXXFLAGS=-Wl,--export-dynamic -dynamiclib
 #  -Wl,-undefined -Wl,dynamic_lookup
