@@ -308,7 +308,7 @@ if OS_WIN32
 # no more libexec for windows
 bin_PROGRAMS     = coot-bin coot-density-score-by-residue-bin
 else
-libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin
+libexec_PROGRAMS = Coot coot-density-score-by-residue-bin
 bin_PROGRAMS = 
 endif
 
@@ -319,7 +319,7 @@ check_PROGRAMS = test-coot-align test-cholesky
 #	fix-nomenclature.cc    \
 #	coot-nomenclature.cc
 
-coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
+Coot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
         glade-callbacks-preferences.cc glade-callbacks-shader-settings.cc \
         new-startup.cc \
         setup-gui-components.cc \
@@ -329,7 +329,7 @@ coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
 
 # is it a good idea to move functions from coot-bin dependencies into libcootsumo?
 # e.g. atoms_with_zero_occupancy()?
-coot_bin_LDADD =  \
+Coot_LDADD =  \
 	libcootsumo.la                                     \
 	$(top_builddir)/layla/libcoot-layla.la             \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
