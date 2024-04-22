@@ -3633,9 +3633,9 @@ def fetch_drug_via_wikipedia(drug_name_in):
         xml = requests.get(url, stream=True)
         xml_tree = ElementTree.fromstring(xml.content)
         return xml_tree
-    
+
     xml_tree = get_xml_from_wikipedia(drug_name)
-        
+
     redirected_drug_name = get_redirected_drug_name(xml_tree)
     print("redirected_drug_name", redirected_drug_name)
     if redirected_drug_name:

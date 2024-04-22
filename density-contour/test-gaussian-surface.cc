@@ -23,7 +23,6 @@
  * See http://www.gnu.org/licenses/
  */
 
-cc
 #include <iostream>
 #include <string>
 #include "gaussian-surface.hh"

@@ -53,7 +53,7 @@ public:
    Texture(int image_width, int image_height, const std::vector<glm::vec4> &colours); // colour bar
    Texture(int image_width, int image_height, const std::vector<glm::vec4> &colours, unsigned int n_ticks); // colour bar with n_ticks tick marks. n_ticks should be at least 2
    ~Texture(); // don't close
-   explicit Texture(const mini_texture_t &mt);
+   explicit Texture(const mini_texture_t &mt, const std::string &name_in);
    type_t type;
    bool reversed_normals;
    GLuint m_texture_handle; // make this private after this testing              

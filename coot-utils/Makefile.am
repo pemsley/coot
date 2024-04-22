@@ -332,7 +332,7 @@ test_5_residue_fragments_LDADD = \
 
 test_diff_diff_map_peaks_SOURCES = test-diff-diff-map-peaks.cc
 
-test_diff_diff_map_peaks_LDADD = libcoot-map-utils.la libcoot-coord-utils.la $(EMBEDDED_PYTHON_LIBS)
+test_diff_diff_map_peaks_LDADD = libcoot-map-utils.la libcoot-coord-utils.la $(CLIPPER_LIBS) $(EMBEDDED_PYTHON_LIBS)
 
 dictionary_atom_types_SOURCES = dictionary-atom-types.cc
 

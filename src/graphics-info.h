@@ -4148,8 +4148,12 @@ public:
          // set the names of these widgets so that they can be
          // looked up and toggled/hidden dynamically.
 
-         g_object_set_data(G_OBJECT(dialog), toggle_button_name.c_str(), checkbutton);
-         g_object_set_data(G_OBJECT(dialog), label_name.c_str(), label);
+         if (dialog) {
+            g_object_set_data(G_OBJECT(dialog), toggle_button_name.c_str(), checkbutton);
+            g_object_set_data(G_OBJECT(dialog), label_name.c_str(), label);
+         } else {
+            std::cout << "WARNING:: null dialog in generic_objects_dialog_grid_add_object_internal()" << std::endl;
+         }
 
          // grid child left top width height
          gtk_grid_attach (GTK_GRID (grid), label,       0, io, 1, 1);
@@ -4176,6 +4180,8 @@ public:
       if (use_graphics_interface_flag) {
          GtkWidget *grid = widget_from_builder("generic_objects_dialog_grid"); // changed 20211020-PE
          if (grid) {
+            // 20240420-PE the class variable generic_objects_dialog needs to be removed
+            GtkWidget *generic_objects_dialog = widget_from_builder("generic_objects_dialog");
             const meshed_generic_display_object &gdo = generic_display_objects[n_new];
             generic_objects_dialog_grid_add_object_internal(gdo,
                                                             generic_objects_dialog,

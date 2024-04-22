@@ -1593,7 +1593,8 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
       if (group_2 == "D-SACCHARIDE") group_2 = "pyranose";
 
       if (debug_links)
-         std::cout << "   comp_id_1 " << comp_id_1 << " group_1 " << group_1
+         std::cout << "  "
+                   << " comp_id_1 " << comp_id_1 << " group_1 " << group_1
                    << " comp_id_2 " << comp_id_2 << " group_2 " << group_2
                    << std::endl;
 

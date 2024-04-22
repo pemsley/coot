@@ -3,6 +3,9 @@
 
 Coot: Pull in Bernhard's Rama plots
 
+Coot: Why do we need requests? Can't it be done by libcurl or internal python module urllib?
+      See fetch_drug_via_wikipedia() in coot_utils.
+
 Coot: (refinement) martin maly bug: transpose map by lsq superpose failed.
       Bring the lsq map function to libcootapi and chapi
 

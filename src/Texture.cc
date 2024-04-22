@@ -88,7 +88,7 @@ Texture::Texture(int image_width_in, int image_height_in, const std::vector<glm:
    colour_bar(image_width_in, image_height_in, colours, n_ticks);
 }
 
-Texture::Texture(const mini_texture_t &mt) {
+Texture::Texture(const mini_texture_t &mt, const std::string &name_in) {
 
    auto _ = [] (int err) {
       std::string s = std::to_string(err);
@@ -97,6 +97,8 @@ Texture::Texture(const mini_texture_t &mt) {
       if (err == GL_INVALID_VALUE)     s = "GL_INVALID_VALUE";
       return s;
    };
+
+   file_name = name_in; // it's not a file
 
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: Texture::Texture(mt) A " << _(err) << "\n";

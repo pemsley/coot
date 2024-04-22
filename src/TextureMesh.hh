@@ -114,7 +114,9 @@ public:
    bool have_instances() const { return is_instanced; }
    void setup_tbn(unsigned int n_vertices); // tangent bitangent normal, pass the n_vertices for validation of indices.
    void setup_camera_facing_quad(float scale_x, float scale_y, float offset_x, float offset_y);
-   void setup_tomo_quad(float x_scale, float y_scale, float z_pos);
+   // for the Z section x-offset_y and y_offset should be zero
+   // but for the other sections they need to be offset so the layout looks pretty.
+   void setup_tomo_quad(float x_scale, float y_scale, float x_offset, float y_offset,float z_pos);
    void setup_buffers();
    void set_colour(const glm::vec4 &col_in);
    void setup_instancing_buffers(unsigned int n_happy_faces_max); // setup the buffer, don't add data
