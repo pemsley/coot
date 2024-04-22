@@ -3981,7 +3981,7 @@ INFO::
      Make sure the release is called Release, not pre-release
    o change the version in configure.ac
    o Artists acknowledged in glade/aboutdialog?
-   o Currec the version in the about_dialog in the coot-gtk4.ui file
+   o Correct the version in the about_dialog in the coot-gtk4.ui file
    o Use []
         Change the splash screen
         Change the release name in the About dialog (aboutdialog) (not needed for bug fix)
@@ -4004,7 +4004,6 @@ INFO::
         configure and make check
    o git status # what did you forget to add?
    o are the shaders up to date?
-   o Is the glade file up to date? (header-bars)
    o git commit -a
    o git tag Release-0.x.y
    o git push origin Release-0.x.y  # publish the tag
