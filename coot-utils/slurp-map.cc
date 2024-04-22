@@ -332,6 +332,8 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
    // mrc.set_coord() is slow - it can be multi-threaded.
    // much faster than using conventional map loading though.
 
+   // 20240421-PE this crashes with tomogram emd_43330
+
    auto fill_map_sections = [data_size] (std::pair<unsigned int, unsigned int> start_stop_section_index,
                                 clipper::Xmap<float> *xmap,
                                 int n_secs, int n_rows, int n_cols,
@@ -339,6 +341,15 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
                                 int *axis_order_xyz,
                                 const char *map_data,
                                 std::atomic<bool> &print_lock) {
+
+
+      // 20240421-PE Note to self: how about trying to get something like this to work? (c.f. mini-texture.cc)
+      //    clipper::Coord_grid cg_0(0,0, section_start);
+      //    clipper::Coord_grid cg_1(gs.nu()-1, gs.nv()-1, section_stop-1);
+      //    for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+      //       for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+      //          for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+      //             xmap[iw] = f;
 
                                int offset = start_stop_section_index.first * n_rows * n_cols;
                                int crs[3];  // col,row,sec coordinate
