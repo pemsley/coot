@@ -1714,6 +1714,8 @@
 ;;
 ;; Remember, that now the about-pt is the "to" point, i.e. the maps are brought from 
 ;; somewhere else and generated about the about-pt.
+;;
+;; @return the molecule number of the newly-created transformed map
 ;; 
 (define (transform-map-using-lsq-matrix imol-ref ref-chain ref-resno-start ref-resno-end imol-mov mov-chain mov-resno-start mov-resno-end imol-map about-pt radius)
 
@@ -1736,7 +1738,13 @@
 			       cell-params space-group imol-ref)))
 	  message) ;; fix syntax
 	(let ((rtop (apply-lsq-matches imol-ref imol-mov)))
-	  (transform-map imol-map (car rtop) (car (cdr rtop)) about-pt radius space-group cell-params)))))
+          (format #t "####### rtop ~s~%" rtop)
+          (if (list? rtop)
+              (begin
+	        (transform-map imol-map (car rtop) (car (cdr rtop)) about-pt radius space-group cell-params))
+              (begin
+                (info-dialog "Failed to make the transformation matrix - check your chain-ids and residue ranges")
+                -1)))))) ; invalid map
 
 
 ;; Add molecular symmetry to a model molecule - the rotation is an n-fold rotation
