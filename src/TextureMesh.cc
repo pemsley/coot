@@ -93,7 +93,7 @@ TextureMesh::setup_camera_facing_quad(float scale_x, float scale_y, float offset
 }
 
 void
-TextureMesh::setup_tomo_quad(float scale_x, float scale_y, float z_pos) {
+TextureMesh::setup_tomo_quad(float scale_x, float scale_y, float x_offset, float y_offset, float z_pos) {
 
   draw_this_mesh = true;
 
@@ -103,11 +103,11 @@ TextureMesh::setup_tomo_quad(float scale_x, float scale_y, float z_pos) {
    vertices.clear();
    triangles.clear();
 
-   // the indexing might well be wrong here - I'm sort of guessing
-   vertices.push_back(TextureMeshVertex(glm::vec3(0.0f,    0.0f,    z_pos), n, col, glm::vec2(0,0)));
-   vertices.push_back(TextureMeshVertex(glm::vec3(scale_x, 0.0f,    z_pos), n, col, glm::vec2(0,1)));
-   vertices.push_back(TextureMeshVertex(glm::vec3(scale_x, scale_y, z_pos), n, col, glm::vec2(1,1)));
-   vertices.push_back(TextureMeshVertex(glm::vec3(0.0f,    scale_y, z_pos), n, col, glm::vec2(1,0)));
+   // the indexing might well be wrong here
+   vertices.push_back(TextureMeshVertex(glm::vec3(x_offset,           y_offset,           z_pos), n, col, glm::vec2(0,0)));
+   vertices.push_back(TextureMeshVertex(glm::vec3(x_offset + scale_x, y_offset,           z_pos), n, col, glm::vec2(0,1)));
+   vertices.push_back(TextureMeshVertex(glm::vec3(x_offset + scale_x, y_offset + scale_y, z_pos), n, col, glm::vec2(1,1)));
+   vertices.push_back(TextureMeshVertex(glm::vec3(x_offset,           y_offset + scale_y, z_pos), n, col, glm::vec2(1,0)));
 
    triangles.push_back(g_triangle(0,1,2));
    triangles.push_back(g_triangle(2,3,0));

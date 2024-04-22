@@ -4784,7 +4784,9 @@ graphics_info_t::add_shortcuts_to_window(GtkWidget *shortcuts_window) {
 }
 
 
-// gui stuff
+// gui stuff = this is the function that is called when the slider changes
+// g_object_get_data() is used to extract the imol
+//
 void
 graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
 
@@ -4797,6 +4799,7 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
    };
 
    bool use_z_translation = true;
+   bool do_X_and_Y_sections = true;
 
    if (is_valid_map_molecule(imol)) {
 
@@ -4805,54 +4808,93 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
       int axis = 2; // for now
       clipper::Cell c_cell = xmap.cell();
       coot::Cell cell(c_cell.a(), c_cell.b(), c_cell.c(), c_cell.alpha(), c_cell.beta(), c_cell.gamma());
+      clipper::Grid_sampling gs = xmap.grid_sampling();
       tomo_view_info = tomo_view_info_t(imol, cell, section_index, axis);
 
       float mean =    molecules[imol].map_mean();
       float std_dev = molecules[imol].map_sigma();
       float data_value_for_top    = mean + 2.5f * std_dev;
-      float data_value_for_bottom = mean - std_dev;
+      float data_value_for_bottom = mean - 1.5f * std_dev;
 
       // maybe I should replace the texture rather than delete all and create a new one.
       texture_meshes.clear();
 
       // auto tp_1 = std::chrono::high_resolution_clock::now();
-      mini_texture_t m(xmap, section_index, axis, data_value_for_bottom, data_value_for_top); // 128 for 11729
       // auto tp_2 = std::chrono::high_resolution_clock::now();
 
-      float x_len = m.x_size;
-      float y_len = m.y_size;
-      float z_pos = 0.0f;
 
-      if (use_z_translation) z_pos = m.z_position;
+      if (true) {
+         mini_texture_t m(xmap, section_index, axis, data_value_for_bottom, data_value_for_top); // 128 for 11729
+         float x_len = m.x_size;
+         float y_len = m.y_size;
+         float z_pos = 0.0f;
+         if (use_z_translation) z_pos = m.z_position;
 
-      attach_buffers();
-      GLenum err = glGetError();
-      if (err) std::cout << "GL ERROR:: tomo_section() A " << _(err) << "\n";
-      Texture t(m);
-      err = glGetError();
-      if (err) std::cout << "GL ERROR:: tomo_section() B " << _(err) << "\n";
-      TextureInfoType ti(t, "mini-texture");
-      err = glGetError();
-      if (err) std::cout << "GL ERROR:: tomo_section() C " << _(err) << "\n";
-      ti.unit = 0; // what is this?
-      err = glGetError();
-      if (err) std::cout << "GL ERROR:: tomo_section() D " << _(err) << "\n";
-      TextureMesh tm("mini-texture mesh");
-      tm.add_texture(ti);
-      err = glGetError();
-      if (err) std::cout << "GL ERROR:: tomo_section() E " << _(err) << "\n";
-      tm.setup_tomo_quad(x_len, y_len, z_pos);
-      // auto tp_2 = std::chrono::high_resolution_clock::now();
-      err = glGetError();
-      if (err) std::cout << "GL ERROR:: tomo_section() F " << _(err) << "\n";
-      texture_meshes.push_back(tm);
-      m.clear();
+         attach_buffers();
+         GLenum err = glGetError();
+         if (err) std::cout << "GL ERROR:: tomo_section() A " << _(err) << "\n";
+         Texture t(m, "mini-texture Z-section");
+         err = glGetError();
+         if (err) std::cout << "GL ERROR:: tomo_section() B " << _(err) << "\n";
+         TextureInfoType ti(t, "mini-texture");
+         err = glGetError();
+         if (err) std::cout << "GL ERROR:: tomo_section() C " << _(err) << "\n";
+         ti.unit = 0; // what is this?
+         err = glGetError();
+         if (err) std::cout << "GL ERROR:: tomo_section() D " << _(err) << "\n";
+         TextureMesh tm("mini-texture mesh");
+         tm.add_texture(ti);
+         err = glGetError();
+         if (err) std::cout << "GL ERROR:: tomo_section() E " << _(err) << "\n";
+         tm.setup_tomo_quad(x_len, y_len, 0.0f, 0.0f, z_pos);
+         // auto tp_2 = std::chrono::high_resolution_clock::now();
+         err = glGetError();
+         if (err) std::cout << "GL ERROR:: tomo_section() F " << _(err) << "\n";
+         texture_meshes.push_back(tm);
+         m.clear();
+      }
 
       // auto tp_now = std::chrono::high_resolution_clock::now();
       // auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - tp_start);
       // auto td    = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1);
       // std::cout << "graphics_info_t::tomo_section() all  " << delta.count() << " ms" << std::endl;
       // std::cout << "graphics_info_t::tomo_section() test " <<    td.count() << " ms" << std::endl;
+
+      if (do_X_and_Y_sections) {
+         attach_buffers();
+         int section_index_X = gs.nu()/2;
+         int section_index_Y = gs.nv()/2;
+         section_index_X = section_index;
+         section_index_Y = section_index;
+         mini_texture_t m_x(xmap, section_index_X, 0, data_value_for_bottom, data_value_for_top);
+         mini_texture_t m_y(xmap, section_index_Y, 1, data_value_for_bottom, data_value_for_top);
+
+         Texture t_x(m_x, "mini-texture X-section");
+         Texture t_y(m_y, "mini-texture Y-section");
+
+         TextureMesh tm_x("Tomo texture-mesh X-section");
+         TextureMesh tm_y("Tomo texture-mesh Y-section");
+         TextureInfoType ti_x(t_x, "Tomo texture X section");
+         TextureInfoType ti_y(t_y, "Tomo texture Y section");
+         ti_x.unit = 0;
+         ti_y.unit = 0;
+         tm_x.add_texture(ti_x);
+         tm_y.add_texture(ti_y);
+
+         float offset_x_X_section = - c_cell.c() - c_cell.a() * 0.15f;
+         float offset_y_X_section = 0.0f;
+         float offset_x_Y_section = 0.0f;
+         float offset_y_Y_section = c_cell.b() + c_cell.b() * 0.1f;
+
+         tm_x.setup_tomo_quad(m_x.x_size, m_x.y_size, offset_x_X_section, offset_y_X_section, m_x.z_position);
+         tm_y.setup_tomo_quad(m_y.x_size, m_y.y_size, offset_x_Y_section, offset_y_Y_section, m_y.z_position);
+
+         texture_meshes.push_back(tm_x);
+         texture_meshes.push_back(tm_y);
+
+         m_x.clear();
+         // m_y.clear();
+      }
 
       graphics_draw();
    };

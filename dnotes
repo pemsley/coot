@@ -11324,4 +11324,17 @@ Fri  8 Mar 2024 03:54:36 GMT
 ---
 Fri 12 Apr 14:57:48 BST 2024
 
-   emd_43331.map: a tomogram too big for clipper
+   emd_43330.map
+   emd_43331.map: a tomogram too big for clipper (are they related?)
+
+---
+Sun 21 Apr 15:55:19 BST 2024
+
+   It would be nice to have a python console/terminal
+   Consider also nbterm:
+
+   https://blog.jupyter.org/nbterm-jupyter-notebooks-in-the-terminal-6a2b55d08b70
+
+   and Textualize:
+
+   https://github.com/Textualize/textual
