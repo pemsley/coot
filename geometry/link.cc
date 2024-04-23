@@ -474,7 +474,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 
    // Fixup needed for PDBv3
 
-   bool debug = true;
+   bool debug = false;
    double critical_dist = 2.4; // A, less than that and Coot should
 			       // try to make the bond.
                                // 20170505: changed to 2.4, was 3.0.
@@ -594,10 +594,11 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 	       if (std::string(close[i].at1->GetResName()) == "SIA") {
 		  if (close[i].distance < smallest_link_dist) {
 		     coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-3");
-		     std::cout << "   glyco_chiral ALPHA2-3 "
-			       << close[i].at1->GetResName() << " "
-			       << close[i].at2->GetResName() << " "
-			       << glyco_chiral_quad.chiral_volume() << std::endl;
+                     if (debug)
+                        std::cout << "   glyco_chiral ALPHA2-3 "
+                                  << close[i].at1->GetResName() << " "
+                                  << close[i].at2->GetResName() << " "
+                                  << glyco_chiral_quad.chiral_volume() << std::endl;
 		     if (glyco_chiral_quad.chiral_volume() > 0.0) {
 			smallest_link_dist = close[i].distance;
 			link_type = "ALPHA2-3";
@@ -611,10 +612,11 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 	       if (std::string(close[i].at1->GetResName()) == "SIA") {
 		  if (close[i].distance < smallest_link_dist) {
 		     coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-6");
-		     std::cout << "   glyco_chiral ALPHA2-6 "
-			       << close[i].at1->GetResName() << " "
-			       << close[i].at2->GetResName() << " "
-			       << glyco_chiral_quad.chiral_volume() << std::endl;
+                     if (debug)
+                        std::cout << "   glyco_chiral ALPHA2-6 "
+                                  << close[i].at1->GetResName() << " "
+                                  << close[i].at2->GetResName() << " "
+                                  << glyco_chiral_quad.chiral_volume() << std::endl;
                      // 20221212-PE I changed this test to be negative - it was positive
                      // But for the 4byh test, it needs to be negative.
 		     if (glyco_chiral_quad.chiral_volume() < 0.0) {
@@ -630,7 +632,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {
 		  coot::atom_quad glyco_chiral_quad(first, second, "BETA1-6");
-		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
+		  if (glyco_chiral_quad.chiral_volume() < 0.0) {
 		     smallest_link_dist = close[i].distance;
 		     link_type = "BETA1-6";
 		  }
@@ -661,10 +663,11 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 	       if (std::string(close[i].at1->GetResName()) == "SIA") { 
 		  if (close[i].distance < smallest_link_dist) {
 		     coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-3");
-		     std::cout << "   glyco_chiral ALPHA2-3 "
-			       << close[i].at1->GetResName() << " "
-			       << close[i].at2->GetResName() << " "
-			       << glyco_chiral_quad.chiral_volume() << std::endl;
+                     if (debug)
+                        std::cout << "   glyco_chiral ALPHA2-3 "
+                                  << close[i].at1->GetResName() << " "
+                                  << close[i].at2->GetResName() << " "
+                                  << glyco_chiral_quad.chiral_volume() << std::endl;
 		     if (glyco_chiral_quad.chiral_volume() < 0.0) { 
 			smallest_link_dist = close[i].distance;
 			link_type = "ALPHA2-3";
@@ -686,7 +689,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {
 		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA1-6");
-		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
+		  if (glyco_chiral_quad.chiral_volume() > 0.0) {
 		     smallest_link_dist = close[i].distance;
 		     link_type = "ALPHA1-6";
 		  }
