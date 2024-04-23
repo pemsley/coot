@@ -277,7 +277,9 @@ void Renderer::close_path_inner() {
     auto& our_path_commands = *(*stack_iter);
     // 2. Close the sub-path
     // 2.1. We're getting to the structure inside of which the current path lives.
-    auto mother_structure_iter = ++stack_iter;
+    stack_iter++;
+    auto mother_structure_iter = stack_iter;
+    auto mother_structure_commands = *(*mother_structure_iter);
     if(mother_structure_iter == this->drawing_structure_stack.rend()) {
         g_error("close_path() called with less than 2 elements in the stack "
         "but 'currently_created_path' is present. "
@@ -285,22 +287,54 @@ void Renderer::close_path_inner() {
     }
     // 2.2. Make sure we don't wrap everything with
     // single-element paths or empty paths
-    auto mother_structure_commands = *(*mother_structure_iter);
+    std::function<std::string(const std::vector<DrawingCommand> &cmds)> print_cmdlist = [&print_cmdlist](const std::vector<DrawingCommand> &cmds){
+        std::string ret = "[";
+        for(const auto& i: cmds) {
+            if(i.is_path()) {
+                ret += "Path:{"+print_cmdlist(i.as_path().commands)+"}";
+            } else if(i.is_arc()) {
+                ret += "Arc";
+            } else if(i.is_line()) {
+                ret += "Line";
+            } else if(i.is_text()) {
+                ret += "Text";
+            } else {
+                ret += "Something";
+            }
+            ret+= ",";
+        }
+        ret += "]";
+        return ret;
+    };
+    std::string debug_str = print_cmdlist(our_path_commands);
+    g_info("size=%zu; %s", our_path_commands.size(), debug_str.c_str());
+    
     if(our_path_commands.empty()) {
         g_warning("close_path_inner() has to discard an empty path.");
         // Invalidates 'our_path_commands'
         mother_structure_commands.pop_back();
     }
     if(our_path_commands.size() == 1) {
+        g_debug("Trying to avoid a single-element path");
         // Hard to avoid this copy
         auto our_path_commands_copied = our_path_commands;
         // Invalidates 'our_path_commands'
+        if(mother_structure_commands.empty()) {
+            g_error("Mother structure empty");
+        }
+        if(!mother_structure_commands.back().is_path()) {
+            g_error("Mother structure's last element is not a path");
+        }
+        g_debug("our_size %zu", our_path_commands_copied.size());
+        g_debug("m_size before %zu", mother_structure_commands.size());
         mother_structure_commands.pop_back();
+        g_debug("m_size after %zu", mother_structure_commands.size());
         mother_structure_commands.insert(
             mother_structure_commands.end(), 
             std::make_move_iterator(our_path_commands_copied.begin()),
             std::make_move_iterator(our_path_commands_copied.end())
         );
+        g_debug("m_size aftermove %zu", mother_structure_commands.size());
     }
     // 2.3. We need to know if mother_structure is another path
     // or maybe it's the root of the stack
@@ -308,9 +342,11 @@ void Renderer::close_path_inner() {
     stack_iter++;
     if(stack_iter == this->drawing_structure_stack.rend()) {
         // It's the root.
+        g_debug("Mother_struct is root");
         this->currently_created_path = nullptr;
     } else {
         // Mother structure is another path.
+        g_debug("Mother_struct is a subpath");
         auto& last_el = (*stack_iter)->back();
         if(!last_el.is_path()) {
             g_error("Internal Renderer error: Mother structure of a subpath should be itself a path.");
