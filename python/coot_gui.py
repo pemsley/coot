@@ -5389,7 +5389,7 @@ def refmac_multi_sharpen_gui():
 
 def auto_assign_sequence_from_map():
 
-    active_atom = coot.active_residue()
+    active_atom = coot.active_residue_py()
     # get these from the current fragment
     imol  = active_atom[0]
     ch_id = active_atom[1]
@@ -5404,7 +5404,7 @@ def auto_assign_sequence_from_map():
     coot.set_rotamer_search_mode(coot.ROTAMERSEARCHLOWRES)
     coot.mutate_residue_range(imol, ch_id, resno_start, resno_end, new_sequence)
     fitting.backrub_rotamers_for_chain(imol, ch_id)
-    coot.refine_residues(imol, fragment_residues)  # 20230501-PE should this be refine_residues_py()?
+    coot.refine_residues_py(imol, fragment_residues)  # 20230501-PE should this be refine_residues_py()?
 
 
 # ;; Associate the contents of a PIR file with a molecule.  Select file from a GUI.
