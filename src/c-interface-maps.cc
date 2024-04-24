@@ -729,10 +729,10 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
       std::string r_free_col;
       short int hrp = false; // have refmac params
 
-      std::cout << "*************************************** " << mtz_col_types.sigf_cols.size() << std::endl;
-
       // is there Fobs data in that mtz file?
       // c.f. block in auto_read_mtz() in api/molecules_container.cc
+
+      // std::cout << "debug:: in read_mtz_local() f: \"" << f << "\" phi: \"" << phi << "\"" << std::endl;
 
       for (unsigned int i=0; i<mtz_col_types.f_cols.size(); i++) {
          const std::string &f = mtz_col_types.f_cols[i].column_label;
@@ -754,8 +754,8 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
          }
       }
 
-      std::cout << "fobs and sig_fobs_col and r_free_cols " << fobs_col << " " << sig_fobs_col << " " << r_free_col
-                << std::endl;
+      // std::cout << "debug:: in read_mtz_local() fobs and sig_fobs_col and r_free_cols "
+      //           << fobs_col << " " << sig_fobs_col << " " << r_free_col << std::endl;
 
       int imol = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name.c_str(),
                                                                 f.c_str(),

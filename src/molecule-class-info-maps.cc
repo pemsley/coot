@@ -1498,6 +1498,12 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 							  float map_sampling_rate,
                                                           bool updating_existing_map_flag) {
 
+   bool debug = false;
+
+   if (debug) {
+      std::cout << "mci::map_fill_from_mtz_with_reso_limits() " << mtz_file_name << " " << f_col << " " << phi_col << std::endl;
+   }
+
    graphics_info_t g;
 
    // save for potential phase recombination in refmac later
@@ -1551,6 +1557,12 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 
    // If use weights, use both strings, else just use the first
    std::pair<std::string, std::string> p = make_import_datanames(f_col, phi_col, weight_col, use_weights);
+
+   if (debug) {
+      std::cout << "::::::::::::::::::::::::: dataname: " << std::endl;
+      std::cout << "       " << p.first << std::endl;
+      std::cout << "       " << p.second << std::endl;
+   }
 
    if (p.first.length() == 0) { // mechanism to signal an error
       std::cout << "ERROR:: fill_map.. - There was a column label error.\n";
