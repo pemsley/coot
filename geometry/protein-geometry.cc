@@ -545,7 +545,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
    //
    if (is_non_auto_load_ligand(resname)) {
       std::cout << "INFO:: comp-id: " << resname
-		<< " is marked for non-autoloading - stopping now "
+		<< " is marked for non-autoloading - stopping dynamic_add() now "
 		<< std::endl;
       return success;
    }
