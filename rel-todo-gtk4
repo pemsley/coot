@@ -2,6 +2,11 @@
 ----
 
 Coot: Pull in Bernhard's Rama plots
+* Done.
+
+libcootapi: import gltf (from Mol*, say!)
+
+Coot: upate molecule when input model file have updates?
 
 Coot: Why do we need requests? Can't it be done by libcurl or internal python module urllib?
       See fetch_drug_via_wikipedia() in coot_utils.
