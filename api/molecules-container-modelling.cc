@@ -59,7 +59,6 @@ molecules_container_t::copy_fragment_for_refinement_using_cid(int imol, const st
       if (new_manager) {
 
          int transfer_atom_index_handle = new_manager->GetUDDHandle(mmdb::UDR_ATOM, "transfer atom index");
-         std::cout << ".......................... transfer_atom_index_handle B " << transfer_atom_index_handle << std::endl;
          // create a new molecule
          imol_new = molecules.size();
          atom_selection_container_t asc = make_asc(new_manager);
