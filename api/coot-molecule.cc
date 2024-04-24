@@ -4144,8 +4144,7 @@ coot::molecule_t::init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::pro
    unsigned int n_threads = 8;
    last_restraints->thread_pool(thread_pool, n_threads);
 
-   int imol = 0; // dummy
-   last_restraints->make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
+   last_restraints->make_restraints(imol_no, geom, flags, 1, make_trans_peptide_restraints,
                                     1.0, do_rama_plot_restraints, true, true, false, pseudos);
 
    if (last_restraints->size() == 0) {
