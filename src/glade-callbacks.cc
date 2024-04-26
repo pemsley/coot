@@ -5762,7 +5762,6 @@ on_map_opacity_hscale_value_changed(GtkRange        *range,
 
 
   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(range), "imol"));
-   std::cout << "on_map_opacity_hscale_value_changed() " << imol << " " << range << std::endl;
 
   GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
   float fvalue = 0.01 * gtk_adjustment_get_value(adjustment);
