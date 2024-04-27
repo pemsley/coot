@@ -3232,9 +3232,9 @@ graphics_info_t::execute_add_terminal_residue(int imol,
       int resno_added = -1; // was unset
 
       if (terminus_type == "not-terminal-residue") {
-	 std::string s = "That residue was not at a terminus";
-	 std::cout << s << std::endl;
-	 add_status_bar_text(s);
+	      std::string s = "That residue was not at a terminus";
+	      std::cout << s << std::endl;
+	      add_status_bar_text(s);
       } else {
 
 	 imol_moving_atoms = imol;

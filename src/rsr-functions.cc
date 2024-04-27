@@ -281,10 +281,10 @@ void rsr_refine_all_atoms() {
 
          // add a fix for all chains - needs reworking.
 
-         mmdb::Chain *chain_p = at->residue->chain;
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
          std::string alt_conf = at->altLoc;
          coot::residue_spec_t rspec(atom_spec);
-         std::vector<mmdb::Residue *> residues = coot::util::residues_in_chain(chain_p);
+         std::vector<mmdb::Residue *> residues = coot::util::residues_in_molecule(mol);
          std::vector<coot::residue_spec_t> v;
          for (unsigned int i=0; i<residues.size(); i++) {
             coot::residue_spec_t spec(residues[i]);

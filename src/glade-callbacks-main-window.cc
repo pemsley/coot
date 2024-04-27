@@ -333,18 +333,21 @@ on_model_toolbar_add_terminal_residue_button_clicked(GtkButton *button,
    graphics_info_t g;
    auto active_atom = g.get_active_atom();
    int imol = active_atom.first;
-   std::cout << "on_model_toolbar_add_terminal_residue_button_clicked 1" << std::endl;
    if (is_valid_model_molecule(imol)) {
-      std::cout << "on_model_toolbar_add_terminal_residue_button_clicked 2" << std::endl;
       mmdb::Residue *residue_p = active_atom.second->residue;
       coot::atom_spec_t atom_spec(active_atom.second);
       std::string chain_id = atom_spec.chain_id;
-      coot::residue_spec_t residue_spec(atom_spec);
-      std::string new_type = "ALA";
       mmdb::Atom *atom = active_atom.second;
       std::string terminus_type = g.molecules[imol].get_term_type(atom);
-      g.execute_add_terminal_residue(imol, terminus_type, residue_p,
-                                     chain_id, new_type, true);
+
+      if (coot::util::is_nucleotide_by_dict_dynamic_add(residue_p, g.Geom_p())) {
+         std::cout << "add nucleotide" << std::endl;
+         g.execute_simple_nucleotide_addition(imol, terminus_type, residue_p, chain_id);
+      } else {
+         coot::residue_spec_t residue_spec(atom_spec);
+         std::string new_type = "ALA";
+         g.execute_add_terminal_residue(imol, terminus_type, residue_p, chain_id, new_type, true);
+      }
    }
 
 }
