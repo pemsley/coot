@@ -409,7 +409,8 @@
 # 6.19 20240306-PE Don't build gettext on anything other than Darwin
 # 6.20 20240326-PE Add cairo
 # 6.21 20240327-PE Reposition the cairo build (after ninja)
-script_version=6.21
+# 6.22 20240427-PE Fix-ups for building on fedora (partial)
+script_version=6.22
 
 
 
@@ -1086,18 +1087,26 @@ if test $OS = Linux ; then
 
    if [ -e /bin/rpm ] ; then
       if rpm -a ; then
-         for i in fedora-release redhat-release redhat-release-workstation centos-release sl-release openSUSE-release ; do
-           dist=`rpm -q --qf '%{name}' ${i}`
-           echo  dist is $dist
-           dist=`rpm -q --qf '%{name}' ${i}`
-           if test $? = 0 ; then
-              dist_name=$(echo ${dist} | sed -e 's/\-release//g' -e 's/\-workstation//g')
-              dist_ver=$(rpm -q --qf '%{version}' ${i})
-              break
-           else
-              dist_name='unknown'
-           fi
-         done
+         if test -e /etc/os-release ; then
+             dist_name=$(grep ^ID /etc/os-release | sed -e 's/ID=//')
+             dist_ver=$(grep ^VERSION_ID /etc/os-release | sed -e 's/VERSION_ID=//')
+         else
+             for i in fedora-release redhat-release redhat-release-workstation centos-release sl-release openSUSE-release ; do
+                 rpm -q --qf '%{name}' ${i}
+                 dist=`rpm -q --qf '%{name}' ${i}`
+                 echo  dist is $dist
+                 dist=`rpm -q --qf '%{name}' ${i}`
+                 if test $? = 0 ; then
+                     echo passes with dist $dist
+                     dist_name=$(echo ${dist} | sed -e 's/\-release//g' -e 's/\-workstation//g')
+                     dist_ver=$(rpm -q --qf '%{version}' ${i})
+                     break
+                 else
+                   echo does not pass
+                   dist_name='unknown'
+               fi
+            done
+        fi
       else
          dist_name='unknown'
       fi
@@ -1137,6 +1146,7 @@ if test $OS = Linux ; then
 
     * )
       if test -r /etc/issue; then
+        echo this fallback case............
         dist_name=$(awk 'NR==1{print tolower($1)}' /etc/issue)
         if [ "$dist_name" = "debian" ] ; then
            dist_ver=$(awk  'NR==1{x=tolower($2); y=tolower($3); gsub("/","-",x); gsub("/","-",y); print x "-" y}' /etc/issue)
@@ -1151,6 +1161,8 @@ if test $OS = Linux ; then
   esac
 fi
 
+echo dist_name $dist_name
+echo systype $systype
 
 if test $OS = IRIX64 ; then
    osversion=`uname -r`
@@ -2747,6 +2759,14 @@ if [ $OS = Darwin ] ; then
    else
       build_openssl=true
    fi
+else
+   if test "$dist_name" = fedora ; then
+       if [ -e $install_top_dir/include/openssl ] ; then
+           build_openssl=false
+       else
+           build_openssl=true
+       fi
+   fi
 fi
 
 if [ $build_openssl = true ] ; then
@@ -2838,24 +2858,50 @@ if test -n "$build_python" ; then
    # echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags
    # /Users/pemsley/ccp4/devtools/install
    # this should be configured
-   openssl_prefix=$HOME/ccp4/devtools/install
-   openssl_prefix=/usr
-   if [ $OS = Darwin ] ; then
-       openssl_prefix=$install_top_dir
-   fi
    # note to self: We need ffi.h (and lib presumably) to build the ctypes module (libffi-devel)
    # (or I could include it in this build script) (I don't know if ctypes is important)
    # 20220227-PE ctypes is crucial for meson
    # remove --with-pydebug for now because __PyNegativeRefcount problem on trying to load this into Blender
-   echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
    #
    # do we also need to use --with-threads=dir?
-   if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
-     echo INFO:: make for python
-     if $MAKE ; then
-        echo INFO:: make install for python
-        $MAKE install
-     fi
+   if test "$dist_name" = fedora ; then
+       python_install_top_dir=$install_top_dir
+       python_install_top_dir=$HOME/building-python
+       python_install_top_dir=$HOME/building-python-tt
+       ssl_top_dir=$HOME/building-python
+       ffi_top_dir=$HOME/building-python
+       # INFO:: ./configure --prefix=/home/pemsley/autobuild/Linux-emsley-vm-fedora-2.lmb.internal-gtk4 \
+       #                    --with-ensurepip=install --enable-shared --with-openssl=/usr \
+       #                    CFLAGS=-I/home/pemsley/autobuild/Linux-emsley-vm-fedora-2.lmb.internal-gtk4/lib/libffi-3.2.1/include \
+       #                    LIBS=-L/home/pemsley/autobuild/Linux-emsley-vm-fedora-2.lmb.internal-gtk4/lib64 \
+       #                    LDFLAGS=-Wl,--rpath=/home/pemsley/autobuild/Linux-emsley-vm-fedora-2.lmb.internal-gtk4/lib
+       echo ./configure --prefix="$python_install_top_dir" --with-ensurepip=install --enable-shared \
+                --with-openssl="$ssl_top_dir" \
+                LIBS=-L$install_top_dir/lib64 LDFLAGS="-Wl,--rpath=$install_top_dir/lib"
+       if ./configure --prefix="$python_install_top_dir" --with-ensurepip=install --enable-shared \
+                --with-openssl="$ssl_top_dir" \
+                LIBS=-L$install_top_dir/lib64 LDFLAGS="-Wl,--rpath=$install_top_dir/lib" ; then
+           echo INFO:: make for python
+           if $MAKE ; then
+              echo INFO:: make install for python
+              $MAKE install
+           fi
+       fi
+   else
+       openssl_prefix=/usr
+       if [ $OS = Darwin ] ; then
+           openssl_prefix=$install_top_dir
+       fi
+       echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix \
+            CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
+       if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix \
+                      CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
+           echo INFO:: make for python
+           if $MAKE ; then
+              echo INFO:: make install for python
+              $MAKE install
+           fi
+       fi
    fi
    # test it
    echo test cypes in the new python
