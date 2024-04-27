@@ -3860,6 +3860,10 @@ if [ "$build_rdkit" = true ] ; then
                -DCatch2_DIR=$install_top_dir \
                 $tree_from_build ; then
 
+
+         # now patch rapidjson document.h
+         sed -i.backup -e 's/const SizeType length/SizeType length/' ../External/rapidjson-1.1.0/include/rapidjson/document.h
+
          # it seems that make -j n fails to compile (race condition?)
          # so use just plain make? (currently not fixed)
          if $MAKE ; then
@@ -3880,6 +3884,7 @@ if [ "$build_rdkit" = true ] ; then
       wc $HOSTLOGDIR/26-rdkit.txt >&2
    fi
 fi
+
 
 if [ -e $install_top_dir/lib/$python_version/site-packages/requests ] ; then
     echo python requests is installed
