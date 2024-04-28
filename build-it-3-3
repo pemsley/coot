@@ -2922,10 +2922,13 @@ EOF
    # echo "using python : 3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
    if [ -e $install_top_dir/bin/python3 ] ; then
       echo linking python to python3
+      if [ -e $install_top_dir/bin/python ] ; then
+          rm $install_top_dir/bin/python
+      fi
       ln -s $install_top_dir/bin/python3 $install_top_dir/bin/python
    fi
 
-   echo BUILDING Python $pver done >&2
+   echo BUILDING: Python $pver done >&2
 
    echo Upgrading pip
    (
@@ -2937,7 +2940,8 @@ EOF
 
    echo Pip update done >&2
 else
-    echo not building python:
+    echo not building python
+    echo not building python >&2
 fi
 
 ############ test python, exit on failure ##################
@@ -3151,8 +3155,8 @@ fi
 # scratch for coot install.
 
 if test -n "$build_libidn" ; then
-    echo BUILDING libidn:
-    echo BUILDING libidn: >&2
+    echo BUILDING: libidn:
+    echo BUILDING: libidn: >&2
     (
     unset LD_LIBRARY_PATH
     libidn_version=1.15
@@ -3232,7 +3236,7 @@ if test -n "$build_curl" ; then
    fi
 
    ) > $HOSTLOGDIR/19-curl.txt 2>&1
-   echo donecurl: >&2
+   echo BUILDING: done curl: >&2
 
 else
     echo not building curl:
@@ -3254,8 +3258,8 @@ if test -n "$build_gsl" ; then
     gsl_version=1.15
     gsl_version=1.16
     gsl_version=2.7
-    echo BUILDING gsl $gsl_version
-    echo BUILDING gsl $gsl_version >&2
+    echo BUILDING: gsl $gsl_version
+    echo BUILDING: gsl $gsl_version >&2
     #
     # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
     # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
@@ -3279,7 +3283,7 @@ if test -n "$build_gsl" ; then
        $MAKE install
     fi
     ) > $HOSTLOGDIR/20-gsl.txt 2>&1
-    echo done gsl: >&2
+    echo BUILDING: done gsl >&2
 else
     echo not building gsl:
 fi
@@ -3398,7 +3402,7 @@ else
     glm_version=1.0.0
     echo BUILDING glm $glm_version:
     echo BUILDING glm $glm_version: >&2
-    echo fetching https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz >&2
+    # echo fetching https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz >&2
     ${WGET} https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz
     echo cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
     cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
@@ -3426,7 +3430,7 @@ Cflags: -I${includedir}' > cmake/glm.pc.in
        make install
     fi
     ) > $HOSTLOGDIR/22-glm.txt 2>&1
-   echo glm-build-sub-shell-status $? >&2
+   echo INFO:: glm-build-sub-shell-status $? >&2
    echo done glm: >&2
 fi
 
@@ -3632,8 +3636,8 @@ if [ "$build_rdkit" = true ] ; then
 
    if [ $skip_this = false ] ;  then
 
-      echo BUILDING RDKit $rdkit_version
-      echo BUILDING RDKit $rdkit_version >&2
+      echo BUILDING: RDKit $rdkit_version
+      echo BUILDING: RDKit $rdkit_version >&2
       (
       echo building ========================= rdkit ==============================
 
