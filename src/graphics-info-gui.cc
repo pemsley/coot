@@ -4886,6 +4886,8 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
          float offset_x_Y_section = 0.0f;
          float offset_y_Y_section = c_cell.b() + c_cell.b() * 0.1f;
 
+         offset_x_X_section -= c_cell.b() * 0.8f;
+
          tm_x.setup_tomo_quad(m_x.x_size, m_x.y_size, offset_x_X_section, offset_y_X_section, m_x.z_position);
          tm_y.setup_tomo_quad(m_y.x_size, m_y.y_size, offset_x_Y_section, offset_y_Y_section, m_y.z_position);
 

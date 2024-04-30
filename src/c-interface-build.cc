@@ -37,7 +37,7 @@
 #include <string>
 #include <algorithm>
 
-#define HAVE_CIF  // will become unnessary at some stage.
+#define HAVE_CIF  // will become unnecessary at some stage.
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
@@ -6124,4 +6124,97 @@ void res_tracer(int imol_map, const std::string &pir_file_name) {
    g_timeout_add(500, watching_timeout_func, watch_data_p);
 
    t.detach();
+}
+
+
+// not sure where this function should live...
+
+void to_generic_object_add_mesh(int object_number, PyObject *mesh_py) {
+   // a mesh has 2 elements
+   // 0: list of vncs
+   // 1: list of triangles
+   // easily translated to a Mesh
+   if (PyList_Check(mesh_py)) {
+      long l = PyObject_Length(mesh_py);
+      if (l == 2) {
+         PyObject *vnc_list = PyList_GetItem(mesh_py, 0);
+         PyObject *triangles_list = PyList_GetItem(mesh_py, 1);
+         long lv = PyObject_Length(vnc_list);
+         long lt = PyObject_Length(triangles_list);
+
+         std::vector<s_generic_vertex> vertices;
+         std::vector<g_triangle> triangles;
+
+         for (long i=0; i<lv; i++) {
+            PyObject *vnc = PyList_GetItem(vnc_list, i);
+            if (PyList_Check(vnc)) {
+               long l_vnc = PyObject_Length(vnc);
+               if (l_vnc == 3) {
+                  PyObject *vertex = PyList_GetItem(vnc, 0);
+                  PyObject *normal = PyList_GetItem(vnc, 1);
+                  PyObject *colour = PyList_GetItem(vnc, 2);
+                  long l_vert = PyObject_Length(vertex);
+                  long l_norm = PyObject_Length(normal);
+                  long l_col  = PyObject_Length(colour);
+                  if (l_vert == 3) {
+                     if (l_norm == 3) {
+                        if (l_col == 4) {
+                           double x = PyFloat_AsDouble(PyList_GetItem(vertex, 0));
+                           double y = PyFloat_AsDouble(PyList_GetItem(vertex, 1));
+                           double z = PyFloat_AsDouble(PyList_GetItem(vertex, 2));
+
+                           double n1 = PyFloat_AsDouble(PyList_GetItem(normal, 0));
+                           double n2 = PyFloat_AsDouble(PyList_GetItem(normal, 1));
+                           double n3 = PyFloat_AsDouble(PyList_GetItem(normal, 2));
+
+                           double c0 = PyFloat_AsDouble(PyList_GetItem(colour, 0));
+                           double c1 = PyFloat_AsDouble(PyList_GetItem(colour, 1));
+                           double c2 = PyFloat_AsDouble(PyList_GetItem(colour, 2));
+                           double c3 = PyFloat_AsDouble(PyList_GetItem(colour, 3));
+
+                           glm::vec3 pos(x,y,z);
+                           glm::vec3 n(n1, n2, n3);
+                           glm::vec4 c(c0, c1, c2, c3);
+                           s_generic_vertex v(pos, n, c);
+                           vertices.push_back(v);
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         for (long i=0; i<lt; i++) {
+            PyObject *tri = PyList_GetItem(triangles_list, i);
+            if (PyList_Check(tri)) {
+               long l_tri = PyObject_Length(tri);
+               if (l_tri == 3) {
+                  int t0 = PyLong_AsLong(PyList_GetItem(tri, 0));
+                  int t1 = PyLong_AsLong(PyList_GetItem(tri, 1));
+                  int t2 = PyLong_AsLong(PyList_GetItem(tri, 2));
+                  if (t0 < vertices.size()) {
+                     if (t1 < vertices.size()) {
+                        if (t2 < vertices.size()) {
+                           g_triangle t(t0, t1, t2);
+                           triangles.push_back(t);
+                        }
+                     }
+                  }
+               }
+            }
+         }
+
+         std::cout << "Debug:: to_generoric_object_add_mesh() found "
+                   << vertices.size() << " vertices and " << triangles.size() << " triangles\n";
+         if (! vertices.empty()) {
+            if (! triangles.empty()) {
+               Mesh m(vertices, triangles);
+               m.setup_buffers();
+               meshed_generic_display_object o(m);
+               graphics_info_t g;
+               g.attach_buffers();
+               g.generic_display_objects.push_back(o);
+            }
+         }
+      }
+   }
 }

@@ -778,7 +778,7 @@ void
 graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
    GLenum err = glGetError();
-   if (err) std::cout << "GL ERROR:: gtk3_draw_map_molecules() -- start -- " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: g.draw_map_molecules() -- start -- " << err << std::endl;
 
    // run through this molecule loop twice - for opaque then transparent maps
    // first, a block that decides if we need to do anything.
