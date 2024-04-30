@@ -178,6 +178,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot-molecule-blender.cc
             ${coot_src}/api/molecules-container-blender.cc
             ${coot_src}/api/molecules-container.cc
+            ${coot_src}/api/molecules-container-gltf.cc
             ${coot_src}/api/molecules-container-bucca-ml-growing.cc
             ${coot_src}/api/molecules-container-maps.cc
             ${coot_src}/api/molecules-container-mmrrcc.cc

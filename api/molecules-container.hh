@@ -1708,6 +1708,11 @@ public:
    //! return -1 on failure.
    int get_number_of_map_sections(int imol_map, int axis_id) const;
 
+   // -------------------------------- Others -------------------------------------
+   //! \name Other Features
+
+   coot::simple_mesh_t make_mesh_from_gltf_file(const std::string &file_name);
+
    // -------------------------------- Testing -------------------------------------
    //! \name Testing functions
 

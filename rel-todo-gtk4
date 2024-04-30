@@ -32,7 +32,12 @@ Coot: for sound, look at tw/cootsound.c
 Coot: on the command line, coot --dict thing.cif should give a molecule, not just read in the cif
       if there are no coordinates arguments.
 
-Layla: I want the ability to change charge and bond orders.
+Coot: add a means to say that P1 maps can have symmetry:
+   https://github.com/pemsley/coot/issues/67
+
+Layla: Garib: I want the ability to change charge and bond orders.
+    Also: See this: http://rdkit.blogspot.com/2019/11/introducing-new-rdkit-javascript.html
+    which points to this: https://rdkit.org/rdkitjs/beta/demo.html
 
 Test ligand fitting of fitligand binary. Using conformation variation and not.
 

@@ -365,6 +365,10 @@ AC_ARG_ENABLE(libcootapi-only, [  --enable-libcootapi-only build libcootapi only
 esac],[libcootapi_only=false])
 AM_CONDITIONAL([COND_LIBCOOTAPI_ONLY], [test "$libcootapi_only" = true])
 
+AC_ARG_ENABLE(relocatable, [  --relocatable try to make the binaries work independent of the installation directory],
+   relocatable=yes, relocatable=no)
+AM_CONDITIONAL([RELOCATABLE_BINARIES], [test "$relocatable" =  yes])
+
 # echo testingA libcootapi_only is $libcootapi_only
 # echo testingA COND_LIBCOOTAPI_ONLY is $COOT_LIBCOOTAPI_ONLY
 # echo testingB lidia_only is $lidia_only
