@@ -38,6 +38,7 @@ mini_texture_t::mini_texture_t(const clipper::Xmap<float> &xmap,
    data_value_for_bottom_of_range = data_value_for_bottom;
 
    float f_range = data_value_for_top - data_value_for_bottom;
+   const float inv_f_range = 1.0/f_range; // because we divide by the f_range;
 
    clipper::Grid_sampling gs = xmap.grid_sampling();
    // std::cout << "mini_texture_t  constructor: "  << gs.format() << std::endl;
@@ -77,7 +78,7 @@ mini_texture_t::mini_texture_t(const clipper::Xmap<float> &xmap,
    if (axis == 0) {
       cg_0 = clipper::Coord_grid(section_index, 0, 0);
       cg_1 = clipper::Coord_grid(section_index, gs.nv()-1, gs.nw()-1); // X
-      x_size = cell.c();
+      x_size = cell.b();
       y_size = cell.b();
    }
    if (axis == 1) {
@@ -92,7 +93,7 @@ mini_texture_t::mini_texture_t(const clipper::Xmap<float> &xmap,
    int nv = gs.nv();
    int nw = gs.nw();
 
-   if (false)
+   if (true)
       std::cout << "here with axis " << axis << " "
                 << " grid " << grid.format() << " from " << cg_0.format() << " " << cg_1.format() << std::endl;
 
@@ -105,16 +106,19 @@ mini_texture_t::mini_texture_t(const clipper::Xmap<float> &xmap,
          int c_w = 0;
          for (iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w()) {
             const float &f = xmap[iw];
-            float f_in_range = (f-data_value_for_bottom)/f_range;
+            float f_in_range = (f-data_value_for_bottom) * inv_f_range;
             if (f_in_range < 0.0) f_in_range = 0.0;
             if (f_in_range > 1.0) f_in_range = 1.0;
             int img_x_coord = -1;
             int img_y_coord = -1;
-            int img_n_rows = -1;
+            int img_n_rows  = -1;
             if (axis == 0) { img_x_coord = c_v; img_y_coord = c_w; img_n_rows = nw; }
             if (axis == 1) { img_x_coord = c_u; img_y_coord = c_w; img_n_rows = nw; }
             if (axis == 2) { img_x_coord = c_u; img_y_coord = c_v; img_n_rows = nv; }
             int idx = 4 * (img_y_coord + img_n_rows * img_x_coord);
+            if (axis == 0) {
+               std::cout << "debug:: " << c_v << " " << c_w << " " << idx/4 << std::endl;
+            }
             if (idx >= image_data_size) {
                std::cout << "mini_texture_t(): out of index " << idx << " " << image_data_size
                          << " for axis " << axis << " coords " << img_x_coord << " " << img_y_coord << " row " << img_n_rows << "\n";
@@ -126,8 +130,16 @@ mini_texture_t::mini_texture_t(const clipper::Xmap<float> &xmap,
                image_data[idx+3] = 255;
                // if (image_data[idx] > 200) { std::cout << idx << std::endl;}
                // std::cout << idx << " " << iw.coord().format() << " " << f << " " << f_in_range << "\n";
-               if (false) {
-                  for (int ii=0; ii<4; ii++) image_data[idx+ii] = 255;
+               if (axis == 110) {
+                  // for (int ii=0; ii<4; ii++) image_data[idx+ii] = 255;
+                  float f_1 = static_cast<float>(c_u)/static_cast<float>(gs.nu());
+                  float f_2 = static_cast<float>(c_v)/static_cast<float>(gs.nv());
+                  float f_3 = static_cast<float>(c_w)/static_cast<float>(gs.nw());
+                  f_1 = z_frac;
+                  image_data[idx]   = static_cast<unsigned char>(255 * f_1);
+                  image_data[idx+1] = static_cast<unsigned char>(255 * f_2);
+                  image_data[idx+2] = static_cast<unsigned char>(255 * f_3);
+                  image_data[idx+3] = static_cast<unsigned char>(255);
                }
             }
             c_w++;
@@ -137,9 +149,11 @@ mini_texture_t::mini_texture_t(const clipper::Xmap<float> &xmap,
       c_u++;
    }
 
-   if (axis == 0) { width = gs.nw(); height = gs.nv(); }
+   if (axis == 0) { width = gs.nw(); height = gs.nv(); } // correct for index colour
    if (axis == 1) { width = gs.nw(); height = gs.nv(); }
    if (axis == 2) { width = gs.nv(); height = gs.nu(); }
+
+   if (axis == 0) { std::cout << "################## x section " << section_index << " width " << width << " height " << height << std::endl;}
 
    if (false) {
       auto tp_post_grid = std::chrono::high_resolution_clock::now();
