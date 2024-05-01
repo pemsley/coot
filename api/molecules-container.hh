@@ -1699,9 +1699,12 @@ public:
    //! in the `string_user_data` data item of the residue specifier
    std::vector<coot::residue_spec_t> get_non_standard_residues_in_molecule(int imol) const;
 
+   //! The new arguments, `data_value_for_top`, `data_value_for_bottom` should be pre-calculated (don't
+   //! calculate them for every call to this function).
    //! @return a texture_as_floats_t object for the given section
    //! On failure, the image_data vector is empty.
-   texture_as_floats_t get_map_section_texture(int imol, int section_id, int axis) const;
+   texture_as_floats_t get_map_section_texture(int imol, int section_id, int axis,
+                                               float data_value_for_bottom, float data_value_for_top) const;
 
    //! @return the number of section in the map along the give axis.
    //! (0 for X-axis, 1 for y-axis, 2 for Z-axis).

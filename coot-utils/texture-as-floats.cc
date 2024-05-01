@@ -27,7 +27,8 @@
 #include "coot-map-utils.hh"
 #include "texture-as-floats.hh"
 
-texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int section_index, int axis) {
+texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int section_index, int axis,
+                                         float data_value_for_bottom, float data_value_for_top) {
 
    // Things we need to fill:
    // int width;
@@ -37,18 +38,19 @@ texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int s
    // float z_position;
    // std::vector<float> image_data;
 
-   std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
-   float mean = mv.first;
-   float std_dev = std::sqrt(mv.second);
+   // std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
+   // float mean = mv.first;
+   // float std_dev = std::sqrt(mv.second);
 
    // colour map info needs to be passed
    // for now we will do grey-scale
-   float data_value_for_top    =  4.0;  // full white
-   float data_value_for_bottom = -1.0;  // full black
+   // float data_value_for_top    =  4.0;  // full white
+   // float data_value_for_bottom = -1.0;  // full black
 
-   data_value_for_top    = mean + 2.5f * std_dev;
-   data_value_for_bottom = mean - std_dev;
+   // data_value_for_top    = mean + 2.5f * std_dev;
+   // data_value_for_bottom = mean - std_dev;
    float f_range = data_value_for_top - data_value_for_bottom;
+   const float inv_f_range = 1.0/f_range; // because we divide by the f_range;
 
    clipper::Cell cell = xmap.cell();
    clipper::Grid_sampling gs = xmap.grid_sampling();
@@ -64,10 +66,10 @@ texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int s
    if (section_index < 0) section_index = 0;
    float z_frac = static_cast<float>(section_index) / static_cast<float>(gs.nw());
    z_position = z_frac * cell.c();
-   
+
    clipper::Coord_grid cg_0(0,0,section_index);
    clipper::Coord_grid cg_1(gs.nu()-1, gs.nv()-1, section_index);
- 
+
    if (axis == 0) cg_1 = clipper::Coord_grid(section_index, gs.nv()-1, gs.nw()-1); // X
    if (axis == 1) cg_1 = clipper::Coord_grid(gs.nu()-1, section_index, gs.nw()-1); // Y
 
@@ -82,7 +84,7 @@ texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int s
          int c_w = 0;
          for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
             const float &f = xmap[iw];
-            float f_in_range = (f-data_value_for_bottom)/f_range;
+            float f_in_range = (f-data_value_for_bottom) * inv_f_range;
             if (f_in_range < 0.0) f_in_range = 0.0;
             if (f_in_range > 1.0) f_in_range = 1.0;
             int idx = c_v + nv * c_u;

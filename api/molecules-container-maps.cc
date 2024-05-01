@@ -116,11 +116,12 @@ molecules_container_t::regen_map(int imol_map, const std::string &imol_maps_stri
 }
 
 texture_as_floats_t
-molecules_container_t::get_map_section_texture(int imol, int section_index, int axis) const {
+molecules_container_t::get_map_section_texture(int imol, int section_index, int axis,
+                                               float data_value_for_bottom, float data_value_for_top) const {
 
    texture_as_floats_t t;
    if (is_valid_map_molecule(imol)) {
-       t = molecules[imol].get_map_section_texture(section_index, axis);
+       t = molecules[imol].get_map_section_texture(section_index, axis, data_value_for_bottom, data_value_for_top);
    }
    return t;
 }
