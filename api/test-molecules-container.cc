@@ -5610,7 +5610,7 @@ int test_texture_as_floats(molecules_container_t &mc) {
 
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
-   texture_as_floats_t tf = mc.get_map_section_texture(imol_map, 6, 0);
+   texture_as_floats_t tf = mc.get_map_section_texture(imol_map, 6, 0, -0.1, 0.2);
 
    std::cout << " image data size " << tf.image_data.size() << std::endl;
 
