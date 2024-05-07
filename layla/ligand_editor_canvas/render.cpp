@@ -63,14 +63,6 @@ bool Renderer::DrawingCommand::is_path() const {
     return std::holds_alternative<Renderer::Path>(this->content);
 }
 
-bool Renderer::DrawingCommand::is_arc() const {
-    return std::holds_alternative<Renderer::Arc>(this->content);
-}
-
-bool Renderer::DrawingCommand::is_line() const {
-    return std::holds_alternative<Renderer::Line>(this->content);
-}
-
 bool Renderer::DrawingCommand::is_text() const {
     return std::holds_alternative<Renderer::Text>(this->content);
 }
@@ -81,18 +73,6 @@ const Renderer::Path& Renderer::DrawingCommand::as_path() const {
 
 Renderer::Path& Renderer::DrawingCommand::as_path_mut() {
     return std::get<Renderer::Path>(this->content);
-}
-
-const Renderer::Arc& Renderer::DrawingCommand::as_arc() const {
-    return std::get<Renderer::Arc>(this->content);
-}
-
-Renderer::Arc& Renderer::DrawingCommand::as_arc_mut() {
-    return std::get<Renderer::Arc>(this->content);
-}
-
-const Renderer::Line& Renderer::DrawingCommand::as_line() const {
-    return std::get<Renderer::Line>(this->content);
 }
 
 const Renderer::Text& Renderer::DrawingCommand::as_text() const {

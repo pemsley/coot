@@ -111,6 +111,7 @@ struct Renderer {
     #else // __EMSCRIPTEN__ defined
     //       Lhasa-specific includes/definitions
     struct Path;
+    struct PathElement;
     struct DrawingCommand;
     struct BrushStyle {
         Color color;
@@ -146,35 +147,35 @@ struct Renderer {
     struct Arc {
         graphene_point_t origin;
         double radius, angle_one, angle_two;
-        bool has_fill;
+        // bool has_fill;
+        // Color fill_color;
+        // bool has_stroke;
+        // BrushStyle stroke_style;
+    };
+
+    struct PathElement {
+        std::variant<Line, Arc> content;
+
+        // todo: functions
+    };
+    struct Path {
+        graphene_point_t initial_point;
+        std::vector<PathElement> commands;
         Color fill_color;
+        bool has_fill;
+        // this needs work. Do we need a boolean here?
         bool has_stroke;
         BrushStyle stroke_style;
     };
 
-    struct Path {
-        graphene_point_t initial_point;
-        std::vector<DrawingCommand> commands;
-        Color fill_color;
-        bool has_fill;
-        // We leave stroke up to the individual components
-        // // this needs work. Do we need a boolean here?
-        // BrushStyle stroke_style;
-    };
-
     struct DrawingCommand {
-        std::variant<Line, Arc, Path, Text> content;
+        std::variant<Path, Text> content;
 
         bool is_path() const;
-        bool is_arc() const;
-        bool is_line() const;
         bool is_text() const;
 
         const Path& as_path() const;
         Path& as_path_mut();
-        const Arc& as_arc() const;
-        Arc& as_arc_mut();
-        const Line& as_line() const;
         const Text& as_text() const;
     };
 

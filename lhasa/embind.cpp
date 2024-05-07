@@ -74,15 +74,18 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .field("origin", &impl::Renderer::Arc::origin)
     .field("radius", &impl::Renderer::Arc::radius)
     .field("angle_one", &impl::Renderer::Arc::angle_one)
-    .field("angle_two", &impl::Renderer::Arc::angle_two)
-    .field("has_fill", &impl::Renderer::Arc::has_fill)
-    .field("fill_color", &impl::Renderer::Arc::fill_color)
-    .field("has_stroke", &impl::Renderer::Arc::has_stroke)
-    .field("stroke_style", &impl::Renderer::Arc::stroke_style);
+    .field("angle_two", &impl::Renderer::Arc::angle_two);
+    // .field("has_fill", &impl::Renderer::Arc::has_fill)
+    // .field("fill_color", &impl::Renderer::Arc::fill_color)
+    // .field("has_stroke", &impl::Renderer::Arc::has_stroke)
+    // .field("stroke_style", &impl::Renderer::Arc::stroke_style);
+  class_<impl::Renderer::PathElement>("PathElement")
+    ;
   class_<impl::Renderer::Path>("Path")
     .property("fill_color", &impl::Renderer::Path::fill_color)
     .property("has_fill", &impl::Renderer::Path::has_fill)
-    // .property("stroke_style", &impl::Renderer::Path::stroke_style)
+    .property("stroke_style", &impl::Renderer::Path::stroke_style)
+    .property("has_stroke", &impl::Renderer::Path::has_stroke)
     .property("commands", &impl::Renderer::Path::commands);
   enum_<impl::Renderer::TextPositioning>("TextPositioning")
     .value("Normal", impl::Renderer::TextPositioning::Normal)
@@ -114,12 +117,12 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .constructor();
   class_<impl::Renderer::DrawingCommand>("DrawingCommand")
     .function("is_path", &impl::Renderer::DrawingCommand::is_path)
-    .function("is_arc", &impl::Renderer::DrawingCommand::is_arc)
-    .function("is_line", &impl::Renderer::DrawingCommand::is_line)
-    .function("is_text", &impl::Renderer::DrawingCommand::is_text)
     .function("as_path", &impl::Renderer::DrawingCommand::as_path)
-    .function("as_arc", &impl::Renderer::DrawingCommand::as_arc)
-    .function("as_line", &impl::Renderer::DrawingCommand::as_line)
+    // .function("is_arc", &impl::Renderer::DrawingCommand::is_arc)
+    // .function("as_arc", &impl::Renderer::DrawingCommand::as_arc)
+    // .function("as_line", &impl::Renderer::DrawingCommand::as_line)
+    // .function("is_line", &impl::Renderer::DrawingCommand::is_line)
+    .function("is_text", &impl::Renderer::DrawingCommand::is_text)
     .function("as_text", &impl::Renderer::DrawingCommand::as_text);
   class_<DeleteTool>("DeleteTool")
     .constructor<>();
