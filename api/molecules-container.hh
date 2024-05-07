@@ -917,6 +917,8 @@ public:
    //! write a map. This function was be renamed from ``writeMap``
    //! @return 1 on a successful write, return 0 on failure.
    int write_map(int imol, const std::string &file_name) const;
+   //! @return the mean of the map or -1 is `imol_map` is not a map molecule index
+   float get_map_mean(int imol) const;
    //! @return the map rmsd (epsilon testing is not used). -1 is returned if `imol_map` is not a map molecule index.
    float get_map_rmsd_approx(int imol_map) const;
 

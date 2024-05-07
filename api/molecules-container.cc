@@ -2328,6 +2328,18 @@ molecules_container_t::non_standard_residue_types_in_model(int imol) const {
    return v;
 }
 
+//! @return the mean of the map or -1 is `imol_map` is not a map molecule index
+float
+molecules_container_t::get_map_mean(int imol) const {
+   float m = -1.1;
+   if (is_valid_map_molecule(imol)) {
+      m = molecules[imol].get_map_mean();
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid map molecule " << imol << std::endl;
+   }
+   return m;
+}
+
 float
 molecules_container_t::get_map_rmsd_approx(int imol) const {
    float rmsd = -1.1;

@@ -663,6 +663,18 @@ coot::molecule_t::difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const {
 
 #include "coot-utils/xmap-stats.hh"
 
+// map functions, return -1.0 on not-a-map
+float
+coot::molecule_t::get_map_mean() const {
+
+   bool ignore_pseudo_zeros_for_map_stats = false; // set this to true for an EM map
+   bool ipz = ignore_pseudo_zeros_for_map_stats;
+   mean_and_variance<float> mv = map_density_distribution(xmap, 20, false, ipz);
+   float m = mv.mean;
+   return m;
+
+}
+
 // map functions, return -1.1 on not-a-map
 float
 coot::molecule_t::get_map_rmsd_approx() const {
