@@ -4813,8 +4813,8 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
 
       float mean =    molecules[imol].map_mean();
       float std_dev = molecules[imol].map_sigma();
-      float data_value_for_top    = mean + 2.5f * std_dev;
-      float data_value_for_bottom = mean - 1.5f * std_dev;
+      float data_value_for_top    = mean + 3.5f * std_dev; // was  2.5
+      float data_value_for_bottom = mean - 2.0f * std_dev; // was -1.5
 
       // maybe I should replace the texture rather than delete all and create a new one.
       texture_meshes.clear();
@@ -4829,6 +4829,8 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
          float y_len = m.y_size;
          float z_pos = 0.0f;
          if (use_z_translation) z_pos = m.z_position;
+
+         // std::cout << "Z-section x_len " << x_len << " y_len " << y_len << std::endl;
 
          attach_buffers();
          GLenum err = glGetError();
@@ -4846,7 +4848,7 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
          tm.add_texture(ti);
          err = glGetError();
          if (err) std::cout << "GL ERROR:: tomo_section() E " << _(err) << "\n";
-         tm.setup_tomo_quad(x_len, y_len, 0.0f, 0.0f, z_pos);
+         tm.setup_tomo_quad(x_len, y_len, 0.0f, 0.0f, z_pos, false);
          // auto tp_2 = std::chrono::high_resolution_clock::now();
          err = glGetError();
          if (err) std::cout << "GL ERROR:: tomo_section() F " << _(err) << "\n";
@@ -4862,6 +4864,7 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
 
       if (do_X_and_Y_sections) {
          attach_buffers();
+         // section index is now a mess.
          int section_index_X = gs.nu()/2;
          int section_index_Y = gs.nv()/2;
          section_index_X = section_index;
@@ -4881,21 +4884,18 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
          tm_x.add_texture(ti_x);
          tm_y.add_texture(ti_y);
 
-         float offset_x_X_section = - c_cell.c() - c_cell.a() * 0.15f;
+         float offset_x_X_section = - c_cell.c() - c_cell.a() * 0.05f;
          float offset_y_X_section = 0.0f;
          float offset_x_Y_section = 0.0f;
          float offset_y_Y_section = c_cell.b() + c_cell.b() * 0.1f;
 
-         offset_x_X_section -= c_cell.b() * 0.8f;
-
-         tm_x.setup_tomo_quad(m_x.x_size, m_x.y_size, offset_x_X_section, offset_y_X_section, m_x.z_position);
-         tm_y.setup_tomo_quad(m_y.x_size, m_y.y_size, offset_x_Y_section, offset_y_Y_section, m_y.z_position);
+         tm_x.setup_tomo_quad(m_x.x_size, m_x.y_size, offset_x_X_section, offset_y_X_section, m_x.z_position, true);
+         tm_y.setup_tomo_quad(m_y.x_size, m_y.y_size, offset_x_Y_section, offset_y_Y_section, m_y.z_position, false);
 
          texture_meshes.push_back(tm_x);
          texture_meshes.push_back(tm_y);
-
          m_x.clear();
-         // m_y.clear();
+         m_y.clear();
       }
 
       graphics_draw();
