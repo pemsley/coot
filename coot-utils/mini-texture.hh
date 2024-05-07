@@ -28,6 +28,7 @@
 #define COOT_SRC_MINI_TEXTURE_HH
 
 #include <clipper/core/xmap.h>
+#include "texture-as-floats.hh"
 
 class mini_texture_t {
    public:
@@ -37,8 +38,9 @@ class mini_texture_t {
    // 0 is for X-sections, 1 is for Y-sections and 2 is for Z-sections
    mini_texture_t(const clipper::Xmap<float> &xmap, int section_index, int axis,
                   float data_value_for_bottom, float data_value_for_top);
+   mini_texture_t(const texture_as_floats_t &taf, float data_value_for_bot, float data_value_for_top);
    ~mini_texture_t();
-   void clear(); // delets image_data
+   void clear(); // deletes image_data
    int width;
    int height;
    float x_size;

@@ -35,6 +35,8 @@ class texture_as_floats_t {
    //! axis_id is 0 for X-sections, 1 for Y-sections and 2 for Z-sections
    texture_as_floats_t(const clipper::Xmap<float> &xmap, int section_index, int axis_id,
                        float data_value_for_bottom, float data_value_for_top);
+   texture_as_floats_t(int w, int h, const std::vector<float> &id, float x_size, float y_size, float z_pos) :
+                       width(w), height(h), x_size(x_size), y_size(y_size), z_position(z_pos), image_data(id) {}
    int width;
    int height;
    float x_size;

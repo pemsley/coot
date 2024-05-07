@@ -30,6 +30,7 @@
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-map-heavy.hh"
+#include "coot-utils/texture-as-floats.hh"
 #include "coot-utils/mini-texture.hh"
 #include "graphics-info.h"
 
@@ -134,6 +135,7 @@ void set_tomo_picker_mode_is_active(short int state) {
 
 }
 
+#include "analysis/stats.hh"
 
 #ifdef USE_PYTHON
 void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
@@ -148,9 +150,10 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
             double diy = static_cast<double>(iy);
             clipper::Coord_orth p = pt + clipper::Coord_orth(dix * delta_size, diy * delta_size, 0.0);
             float f = coot::util::density_at_point(xmap, p);
-            std::cout << "map-point " << point_index << " " << ix << " "
-                      << dix * delta_size << " " << diy * delta_size << " "
-                      << p.x() << " " << p.y() << " " << p.z() << " value: " << f << std::endl;
+            if (false)
+               std::cout << "map-point " << point_index << " " << ix << " "
+                         << dix * delta_size << " " << diy * delta_size << " "
+                         << p.x() << " " << p.y() << " " << p.z() << " value: " << f << std::endl;
          }
       }
    };
@@ -164,10 +167,22 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
       clipper::Xmap_base::Map_reference_coord ix( xmap, grid.min()), iu, iv, iw;
       int nv = gs.nv();
       int nu = gs.nu();
+      clipper::Cell cell = xmap.cell();
+      float x_size = cell.a();
+      float y_size = cell.b();
 
+      // now make the data for a mini-texture - this is the thing we return
+      unsigned int nunv = nu * nv;
+      std::vector<float> tafd(nunv, 0);
+      int c_u = 0;
       for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+         int c_v = 0;
          for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+            int c_w = 0;
             for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+               // for Z-sections (c.f. mini-texture.cc)
+               int img_x_coord = c_u; int img_y_coord = c_v; int img_n_rows = nv;
+               int idx = (img_y_coord + img_n_rows * img_x_coord);
                clipper::Coord_grid cg = iw.coord();
                clipper::Coord_frac cf = cg.coord_frac(xmap.grid_sampling());
                clipper::Coord_orth co = cf.coord_orth(xmap.cell());
@@ -188,10 +203,20 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
                      s += ad;
                   }
                }
-               std::cout << "pos " << co.x() << " " << co.y() << " " << co.z() << " score " << s << " sum_d: " << sum_d << std::endl;
+               // std::cout << "pos " << co.x() << " " << co.y() << " " << co.z() << " score " << s << " sum_d: " << sum_d << std::endl;
+               tafd[idx] == s;
             }
          }
       }
+      float z_pos = cell.c() * 2.0;
+      texture_as_floats_t texture_as_floats(nu, nv, tafd, x_size, y_size, z_pos);
+      std::vector<double> tafdd(tafd.size());
+      for (unsigned int i=0; i< tafd.size(); i++) {tafdd[i] = tafd[i]; }
+      coot::stats::single s(tafdd);
+      float value_for_bottom = s.mean() - 2.0 * std::sqrt(s.variance());
+      float value_for_top    = s.mean() + 3.0 * std::sqrt(s.variance());
+      mini_texture_t mini_texture(texture_as_floats, value_for_bottom, value_for_top);
+      return mini_texture;
    };
 
    std::vector<clipper::Coord_orth> positions;
@@ -253,7 +278,7 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
          }
       }
 
-      if (true) {
+      if (false) {
          graphics_info_t g;
          if (g.is_valid_map_molecule(imol_map)) {
             const auto &xmap = g.molecules[imol_map].xmap;
@@ -279,7 +304,14 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
                      offset_values_map[x_offset] = val;
                   }
                   int section_index = 62;
-                  map_scan(offset_values_map, xmap, section_index);
+                  mini_texture_t mt = map_scan(offset_values_map, xmap, section_index);
+                  Texture t(mt, "mini-texture scores");
+                  TextureMesh tm("min-texture scores texture-mesh");
+                  TextureInfoType ti(t, "mini-texture scores info-type");
+                  ti.unit = 0;
+                  tm.add_texture(ti);
+                  graphics_info_t g;
+                  g.texture_meshes.push_back(tm);
                }
             } else {
                std::cout << "WARNING:: missing files " << averaged_spot_tab << std::endl;
