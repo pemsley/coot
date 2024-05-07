@@ -107,10 +107,10 @@ TextureMesh::setup_tomo_quad(float scale_x, float scale_y, float x_offset, float
    // the logic/indexing might well be wrong here - fix in future
 
    if (texture_x_y_swap_flag) {
-      vertices.push_back(TextureMeshVertex(glm::vec3(x_offset,           y_offset + scale_y, z_pos), n, col, glm::vec2(0,0)));
-      vertices.push_back(TextureMeshVertex(glm::vec3(x_offset + scale_x, y_offset + scale_y, z_pos), n, col, glm::vec2(1,0)));
-      vertices.push_back(TextureMeshVertex(glm::vec3(x_offset + scale_x, y_offset, z_pos), n, col, glm::vec2(1,1)));
-      vertices.push_back(TextureMeshVertex(glm::vec3(x_offset,           y_offset, z_pos), n, col, glm::vec2(0,1)));
+      vertices.push_back(TextureMeshVertex(glm::vec3(x_offset,           y_offset + scale_y, z_pos), n, col, glm::vec2(0,1)));
+      vertices.push_back(TextureMeshVertex(glm::vec3(x_offset + scale_x, y_offset + scale_y, z_pos), n, col, glm::vec2(1,1)));
+      vertices.push_back(TextureMeshVertex(glm::vec3(x_offset + scale_x, y_offset, z_pos), n, col, glm::vec2(1,0)));
+      vertices.push_back(TextureMeshVertex(glm::vec3(x_offset,           y_offset, z_pos), n, col, glm::vec2(0,0)));
    } else {
       vertices.push_back(TextureMeshVertex(glm::vec3(x_offset,           y_offset,           z_pos), n, col, glm::vec2(0,0)));
       vertices.push_back(TextureMeshVertex(glm::vec3(x_offset + scale_x, y_offset,           z_pos), n, col, glm::vec2(0,1)));
