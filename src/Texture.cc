@@ -115,8 +115,13 @@ Texture::Texture(const mini_texture_t &mt, const std::string &name_in) {
    err = glGetError();
    if (err) std::cout << "GL ERROR:: Texture::Texture(mt) E " << _(err) << "\n";
 
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+   if (true) {
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   } else {
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+   }
 
    err = glGetError();
    if (err) std::cout << "GL ERROR:: Texture::Texture(mt) G " << _(err) << "\n";
