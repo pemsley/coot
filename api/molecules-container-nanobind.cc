@@ -251,6 +251,7 @@ NB_MODULE(chapi, m) {
     .def("geometry_init_standard",&molecules_container_t::geometry_init_standard)
     .def("get_active_atom",&molecules_container_t::get_active_atom)
     .def("get_atom",&molecules_container_t::get_atom, nb::rv_policy::reference)
+    .def("get_atom_using_cid",&molecules_container_t::get_atom_using_cid, nb::rv_policy::reference)
     .def("get_bonds_mesh",&molecules_container_t::get_bonds_mesh)
     .def("get_bonds_mesh_for_selection_instanced",&molecules_container_t::get_bonds_mesh_for_selection_instanced)
     .def("get_bonds_mesh_instanced",&molecules_container_t::get_bonds_mesh_instanced)
