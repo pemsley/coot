@@ -1,12 +1,25 @@
 
 ----
 
+turn on rotamer restraints, turn on torsion restraints - has the trans restraints restraints been removed?
+
 Coot: Pull in Bernhard's Rama plots
 * Done.
 
+"I didn't merge the SO4" - more than once in the tutorial
+
+Don't allow FLEV if the protein doesn't have hydrogen atoms.
+
+Moorhen: Add search monomer library.
+
 libcootapi: import gltf (from Mol*, say!)
 
+ligand fitting tutorial - turn aroundd the tail of the fish so that it is the wrong way
+adn look for environment distances - the O-O interaction should not be purple!
+
 Coot: update molecule when input model file have updates?
+
+Coot: generic objects are not drawn with depth fog
 
 Coot: Why do we need requests? Can't it be done by libcurl or internal python module urllib?
       See fetch_drug_via_wikipedia() in coot_utils.
