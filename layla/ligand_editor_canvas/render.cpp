@@ -251,19 +251,8 @@ void Renderer::stroke() {
     cairo_stroke(cr);
     #else // __EMSCRIPTEN__ defined
     #warning TODO: stroke() for Lhasa
-    // This is a dummy
-    auto& last_el = this->drawing_commands.back();
-    // if(structure_ptr->empty()) {
-    //     g_warning("fill() called with an empty path.");
-    //     return;
-    // }
-    if(last_el.is_path()) {
-        auto& this_path = last_el.as_path_mut();
-        this_path.has_stroke = true;
-        this_path.stroke_style = this->style;
-    } else {
-        g_warning("stroke() called on a text (cannot be filled)");
-    }
+    this->stroke_preserve();
+    this->new_path();
     #endif
 }
 
@@ -272,6 +261,17 @@ void Renderer::stroke_preserve() {
     cairo_stroke_preserve(cr);
     #else // __EMSCRIPTEN__ defined
     #warning TODO: stroke_preserve() for Lhasa
+    auto* path = this->top_path_if_exists();
+    if(!path) {
+        g_warning("stroke() called without a path.");
+        return;
+    }
+    // if(structure_ptr->empty()) {
+    //     g_warning("fill() called with an empty path.");
+    //     return;
+    // }
+    path->has_stroke = true;
+    path->stroke_style = this->style;
     #endif
 }
 
@@ -293,6 +293,7 @@ void Renderer::close_path_inner() {
  
     // 2. Close the sub-path
     if(this->top_path_if_exists()) {
+        // Technically, just creating new path, means that the previous one is done with.
         this->drawing_commands.push_back({this->create_new_path()});
     }
 
