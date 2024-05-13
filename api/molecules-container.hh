@@ -1716,7 +1716,11 @@ public:
    // -------------------------------- Others -------------------------------------
    //! \name Other Features
 
+   //! @return a `simple_mesh_t` from the give file.
    coot::simple_mesh_t make_mesh_from_gltf_file(const std::string &file_name);
+
+   //! @return a string of a png
+   std::string pae_png(const std::string &pae_file_name) const;
 
    // -------------------------------- Testing -------------------------------------
    //! \name Testing functions

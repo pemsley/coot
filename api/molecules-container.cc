@@ -5575,3 +5575,15 @@ molecules_container_t::copy_dictionary(const std::string &monomer_name, int imol
    return status;
 
 }
+
+
+#include "coot-utils/pae.hh"
+//! @return a string of a png
+std::string
+molecules_container_t::pae_png(const std::string &pae_file_name) const {
+
+   int n_pixels = 600;
+   pae_t pae(pae_file_name, n_pixels);
+   return pae.get_image();
+
+}

@@ -299,6 +299,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/helix-like.cc
             ${coot_src}/coot-utils/polar-atoms.cc
             ${coot_src}/coot-utils/plane-utils.cc
+            ${coot_src}/coot-utils/pae.cc
             ${coot_src}/coot-utils/coot-tree-extras.cc
             ${coot_src}/coot-utils/coot-map-heavy.cc
             ${coot_src}/coot-utils/jed-flip.cc
