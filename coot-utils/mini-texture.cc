@@ -179,6 +179,7 @@ mini_texture_t::mini_texture_t(const texture_as_floats_t &taf, float data_value_
    height = taf.height;
    x_size = taf.x_size;
    y_size = taf.y_size;
+   z_position = 0.0;
    data_value_for_bottom_of_range = data_value_for_bot;
    data_value_for_top_of_range = data_value_for_top;
 
@@ -188,7 +189,7 @@ mini_texture_t::mini_texture_t(const texture_as_floats_t &taf, float data_value_
    float f_range = data_value_for_top - data_value_for_bot;
    const float inv_f_range = 1.0/f_range; // because we divide by the f_range;
 
-   int image_data_size = 4 * width * height;
+   size_t image_data_size = 4 * width * height;
    image_data = new unsigned char[image_data_size];
    for (size_t i = 0; i < image_data_size; i += 4) {
       const float &f = taf.image_data[i/4];

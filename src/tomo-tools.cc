@@ -25,6 +25,7 @@
  */
 
 #include <chrono>
+#include <iomanip>
 
 #include <clipper/ccp4/ccp4_map_io.h>
 #include "utils/coot-utils.hh"
@@ -160,13 +161,15 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
 
    class profile_t {
       public:
-      profile_t() { width = -1; height = -1; }
-      profile_t(int w, int h) : width(w), height(h) { mean_and_var.resize(w*h);}
+      profile_t() { n_pixels_per_half_edge = -1; width = -1; height = -1; }
+      profile_t(int half_width_n_pixels_in, int w, int h) : n_pixels_per_half_edge(half_width_n_pixels_in), width(w), height(h) {
+         mean_and_var.resize(w*h);}
+      int n_pixels_per_half_edge;
       int width;
       int height;
       std::vector<std::pair<float, float> > mean_and_var;
       void set_value(int w, int h, const float &f) { mean_and_var[width * w + h].first = f; }
-      float get(int w, int h) const { return mean_and_var[width * w + h].first; }
+      float get(int iw, int ih) const { return mean_and_var[width * (iw + n_pixels_per_half_edge) + ih + n_pixels_per_half_edge].first; }
       void add_profile(const profile_t &other) {
          int size = width * height;
          for (int i=0; i<size; i++) {
@@ -176,20 +179,36 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
       }
    };
 
-   auto print_profile = [] (const profile_t &prof) {
-      float s = 10000.0;
-      for (int iw=0; iw<prof.width; iw++) {
-         for (int ih=0; ih<prof.width; ih++) {
-            float ff = s * (prof.get(iw, ih) + 0.0002);
-            int ii = static_cast<int>(ff);
-            if (ii<0) {
-               std::cout << "- ";
-            } else {
-               if (ii>9) ii = 9;
-               std::cout << ii << " ";
+   // make this a member function of the above class
+   auto print_profile = [] (const profile_t &prof, bool as_single_digits) {
+
+      int n = prof.n_pixels_per_half_edge;
+      if (as_single_digits) {
+
+         float sf = 22.0; // scale factor
+         float offset = +0.15;
+
+         for (int iw=-n; iw<=n; iw++) {
+            for (int ih=-n; ih<=n; ih++) {
+               float ff = sf * (prof.get(iw, ih) + offset);
+               int ii = static_cast<int>(ff);
+               if (ii<0) {
+                  std::cout << "- ";
+               } else {
+                  if (ii>9) ii = 9;
+                  std::cout << ii << " ";
+               }
             }
+            std::cout << "\n";
          }
-         std::cout << "\n";
+      } else {
+         for (int iw=-n; iw<=n; iw++) {
+            for (int ih=-n; ih<=n; ih++) {
+               float ff = prof.get(iw, ih);
+               std::cout << std::fixed << std::setw(6) << std::setprecision(3) << ff << " ";
+            }
+            std::cout << "\n";
+         }
       }
    };
 
@@ -238,8 +257,8 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
                      s += ad;
                   }
                }
-               // std::cout << "pos " << co.x() << " " << co.y() << " " << co.z() << " score " << s << " sum_d: " << sum_d << std::endl;
-               tafd[idx] == s;
+               std::cout << "pos " << co.x() << " " << co.y() << " " << co.z() << " score " << s << " sum_d: " << sum_d << std::endl;
+               tafd[idx] = s;
             }
          }
       }
@@ -268,7 +287,7 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
       // clipper::Interp_nearest::interp(xmap, a_cm, dv);
 
       int n_pixels = 2 * n_pixels_per_half_edge + 1;
-      profile_t profile(n_pixels, n_pixels);
+      profile_t profile(n_pixels_per_half_edge, n_pixels, n_pixels);
       clipper::Coord_grid cg_centre = orth_to_grid(co, xmap);
       clipper::Coord_grid cg_0 = cg_centre + clipper::Coord_grid(-n_pixels_per_half_edge, -n_pixels_per_half_edge, 0);
       clipper::Coord_grid cg_1 = cg_centre + clipper::Coord_grid( n_pixels_per_half_edge,  n_pixels_per_half_edge, 0);
@@ -291,26 +310,94 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
       return profile;
    };
 
-   auto generate_average_profile = [get_profile] (const std::vector<clipper::Coord_orth> &positions,
+   auto generate_average_profile = [get_profile, print_profile] (const std::vector<clipper::Coord_orth> &positions,
                                                  const clipper::Xmap<float> &xmap,
                                                  int section_index,
                                                  int n_pixels_per_half_edge) {
       int n_pixels = 2 * n_pixels_per_half_edge + 1;
-      profile_t av_prof(n_pixels, n_pixels);
-      profile_t sum_profile(n_pixels, n_pixels);
+      profile_t av_prof(n_pixels_per_half_edge, n_pixels, n_pixels);
+      profile_t sum_profile(n_pixels_per_half_edge, n_pixels, n_pixels);
       for (unsigned int i=0; i<positions.size(); i++) {
          const auto &p = positions[i];
          auto patch_profile = get_profile(p, section_index, xmap, n_pixels_per_half_edge);
          sum_profile.add_profile(patch_profile);
+         if (false) {
+            std::cout << "----------- pixed point profile " << i << std::endl;
+            print_profile(patch_profile, false);
+         }
       }
 
+      // std::cout << "---------------- sum profile " << std::endl;
+      // print_profile(sum_profile, false);
+
       // now fill the values in av_profile
-      int size = n_pixels * n_pixels;
-      for (int i=0; i<size; i++) {
-         av_prof.mean_and_var[i].first = sum_profile.mean_and_var[i].first / float(size);
+      int n_pixels_sq = av_prof.mean_and_var.size();
+      int n_position = positions.size();
+      // std::cout << "####### compare n_pixels: " << n_pixels << " " << n_pixels_sq << std::endl;
+      for (int i=0; i<n_pixels_sq; i++) {
+         av_prof.mean_and_var[i].first = sum_profile.mean_and_var[i].first / static_cast<float>(n_position);
       }
       return av_prof;
    };
+
+   auto score_each_pixel = [] (const profile_t &av_profile, const clipper::Xmap<float> &xmap, int section_index) {
+
+      int hw = av_profile.n_pixels_per_half_edge;
+      int n_pixels = hw * 2 + 1;
+      clipper::Grid_sampling gs = xmap.grid_sampling();
+      texture_as_floats_t results_texture(gs.nu(), gs.nv(), xmap.cell().a(), xmap.cell().b());
+      clipper::Coord_grid cg_0(0,0,section_index);
+      clipper::Coord_grid cg_1(gs.nu()-1, gs.nv()-1, section_index);
+      clipper::Grid_map grid(cg_0, cg_1);
+      clipper::Xmap_base::Map_reference_coord ix(xmap, grid.min()), iu, iv, iw;
+
+      int c_u = 0;
+      for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+         // if (c_u >= 300) continue;
+         int c_v = 0;
+         for (iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+            for (iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+
+               clipper::Coord_grid cgi_0(iw.coord().u()-hw, iw.coord().v()-hw, iw.coord().w());
+               clipper::Coord_grid cgi_1(iw.coord().u()+hw, iw.coord().v()+hw, iw.coord().w());
+               clipper::Grid_map grid_inner(cgi_0, cgi_1);
+
+               float delta_sum = 0.0;
+               clipper::Xmap_base::Map_reference_coord iix(xmap, grid_inner.min()), iiu, iiv, iiw;
+               int x_profile = -av_profile.n_pixels_per_half_edge;
+               for (iiu = iix; iiu.coord().u() <= grid_inner.max().u(); iiu.next_u() ) {
+                  int y_profile = -av_profile.n_pixels_per_half_edge;
+                  for (iiv = iiu; iiv.coord().v() <= grid_inner.max().v(); iiv.next_v() ) {
+                     for (iiw = iiv; iiw.coord().w() <= grid_inner.max().w(); iiw.next_w() ) {
+                        float f = xmap[iiw];
+                        if (false)
+                           std::cout << "inner f " << f
+                                     << " x_profile " << x_profile << " y_profile " << y_profile
+                                     << " profile_value " << av_profile.get(x_profile, y_profile) << std::endl;
+                        float delta = f-av_profile.get(x_profile, y_profile);
+                        delta_sum += fabsf(delta);
+                     }
+                     y_profile++;
+                  }
+                  x_profile++;
+               }
+               int idx = c_v * gs.nu() + c_u;
+               results_texture.image_data[idx] = delta_sum;
+               if (true)
+                  std::cout << "set-image-data "  << " idx " << idx << " size: " << results_texture.image_data.size()
+                            << " c_u " << c_u << " c_v " << c_v << " delta_sum " << delta_sum << std::endl;
+
+            }
+            c_v++;
+         }
+         std::cout << "done strip c_u " << c_u << std::endl;
+         c_u++;
+      }
+      return results_texture;
+   };
+
+   // ------------------------------------------------------------------------------------------------------
+   // ------------------------------------------------------------------------------------------------------
 
    std::vector<clipper::Coord_orth> positions;
    if (PyList_Check(spot_positions)) {
@@ -349,8 +436,6 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
             clipper::Coord_grid cg_1(gs.nu()-1, gs.nv()-1, section_index);
             clipper::Grid_map grid(cg_0, cg_1);
             clipper::Xmap_base::Map_reference_coord ix( xmap, grid.min()), iu, iv, iw;
-            int nv = gs.nv();
-            int nu = gs.nu();
 
             int count = 0;
             for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
@@ -362,7 +447,8 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
                      const float &f = xmap[iw];
                      count++;
                      if (count == 100) {
-                        std::cout << "selected xyz " << co.x() << " " << co.y() << " " << co.z() << " " << f << std::endl;
+                        std::cout << "selected xyz " << co.x() << " " << co.y() << " " << co.z()
+                                  << " " << f << std::endl;
                         count = 0;
                      }
                   }
@@ -403,7 +489,6 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
                   TextureInfoType ti(t, "mini-texture scores info-type");
                   ti.unit = 0;
                   tm.add_texture(ti);
-                  graphics_info_t g;
                   g.texture_meshes.push_back(tm);
                }
             } else {
@@ -415,13 +500,41 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
       if (true) {
          graphics_info_t g;
          const auto &xmap = g.molecules[imol_map].xmap;
+         g.attach_buffers();
          // generate average profile from positions
          int section_index = 62;
-         int n_pixels_per_half_edge = 18;
+         int n_pixels_per_half_edge = 8;
          profile_t av_profile = generate_average_profile(positions, xmap, section_index, n_pixels_per_half_edge);
-         print_profile(av_profile);
+         std::cout << "------------------ average profile ----- " << std::endl;
+         print_profile(av_profile, false);
+         std::cout << "------------------ average profile ----- " << std::endl;
+         print_profile(av_profile, true);
+         texture_as_floats_t results_texture = score_each_pixel(av_profile, xmap, section_index);
+         // these 7 lines, converting from floats texture to mini-texture are common
+         std::vector<double> tafdd(results_texture.image_data.size());
+         for (unsigned int i=0; i< results_texture.image_data.size(); i++) {tafdd[i] = results_texture.image_data[i]; }
+         coot::stats::single s(tafdd);
+         float value_for_bottom = 0.0; // minimum possible value
+         float value_for_top    = s.mean() + 1.0 * std::sqrt(s.variance());
+         mini_texture_t mt(results_texture, value_for_bottom, value_for_top);
+         std::cout << "mini-texture mt " << mt.x_size << " " << mt.y_size
+                   << " mean " << s.mean() << " sd: " << std::sqrt(s.variance())
+                   << " data range: " << value_for_bottom << " " << value_for_top << std::endl;
+         //
+         Texture t(mt, "mini-texture pixel scores");
+         TextureMesh tm("min-texture pixel scores texture-mesh");
+         TextureInfoType ti(t, "mini-texture pixel scores info-type");
+         ti.unit = 0;
+         tm.add_texture(ti);
+         float z_pos = 5000.0;
+         tm.setup_tomo_quad(mt.x_size, mt.y_size, 0, 0, z_pos, true);
+         g.texture_meshes.push_back(tm);
+         mt.clear();
+         g.graphics_draw();
+         std::cout << "tomo map analysis done!" << std::endl;
       }
    }
+   std::cout << "returning from tomo_map_analysis() " << std::endl;
 
 }
 #endif

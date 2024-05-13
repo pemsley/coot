@@ -199,7 +199,7 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    if (true)
       std::cout << "DEBUG:: --- new_startup_on_glarea_resize() " <<  width << " " << height << std::endl;
 
-   std::cout << "int max " << INT_MAX << " " << std::sqrt(INT_MAX) << std::endl;
+   // std::cout << "resize(): int max " << INT_MAX << " " << std::sqrt(INT_MAX) << std::endl;
 
    graphics_info_t g;
    // for the GL widget, not the window.

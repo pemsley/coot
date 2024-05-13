@@ -37,6 +37,10 @@ class texture_as_floats_t {
                        float data_value_for_bottom, float data_value_for_top);
    texture_as_floats_t(int w, int h, const std::vector<float> &id, float x_size, float y_size, float z_pos) :
                        width(w), height(h), x_size(x_size), y_size(y_size), z_position(z_pos), image_data(id) {}
+   texture_as_floats_t(int w, int h, float x_size, float y_size) : width(w), height(h), x_size(x_size), y_size(y_size) {
+      z_position = 0.0;
+      image_data.resize(w * h, 0.0);
+   }
    int width;
    int height;
    float x_size;

@@ -4816,8 +4816,21 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
       float data_value_for_top    = mean + 3.5f * std_dev; // was  2.5
       float data_value_for_bottom = mean - 2.0f * std_dev; // was -1.5
 
+      if (false) {
+         std::cout << "-------- current texture-meshes: " << std::endl;
+         for (const auto &tm : texture_meshes)
+            std::cout << "    " << tm.get_name() << std::endl;
+      }
+
       // maybe I should replace the texture rather than delete all and create a new one.
-      texture_meshes.clear();
+      // texture_meshes.clear();
+
+      auto eraser = [] (const TextureMesh &tm) {
+         return (tm.get_name().find("-section") != std::string::npos);
+      };
+
+      texture_meshes.erase(std::remove_if(texture_meshes.begin(), texture_meshes.end(), eraser),
+                           texture_meshes.end());
 
       // auto tp_1 = std::chrono::high_resolution_clock::now();
       // auto tp_2 = std::chrono::high_resolution_clock::now();
@@ -4838,13 +4851,13 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
          Texture t(m, "mini-texture Z-section");
          err = glGetError();
          if (err) std::cout << "GL ERROR:: tomo_section() B " << _(err) << "\n";
-         TextureInfoType ti(t, "mini-texture");
+         TextureInfoType ti(t, "mini-texture Z-section");
          err = glGetError();
          if (err) std::cout << "GL ERROR:: tomo_section() C " << _(err) << "\n";
          ti.unit = 0; // what is this?
          err = glGetError();
          if (err) std::cout << "GL ERROR:: tomo_section() D " << _(err) << "\n";
-         TextureMesh tm("mini-texture mesh");
+         TextureMesh tm("Tomo texture-mesh Z-section");
          tm.add_texture(ti);
          err = glGetError();
          if (err) std::cout << "GL ERROR:: tomo_section() E " << _(err) << "\n";
@@ -4896,6 +4909,9 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
          texture_meshes.push_back(tm_y);
          m_x.clear();
          m_y.clear();
+
+         GLenum err = glGetError();
+         if (err) std::cout << "GL ERROR:: set_tomo_section_view_section() G " << _(err) << "\n";
       }
 
       graphics_draw();
