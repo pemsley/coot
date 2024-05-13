@@ -311,7 +311,7 @@ class plot_data_t {
       }
 
       int stride = cairo_format_stride_for_width(CAIRO_FORMAT_RGB24, 512);
-      std::cout << "stride: " << stride << std::endl;
+      // std::cout << "stride: " << stride << std::endl;
       cairo_surface_t *surface = cairo_image_surface_create_for_data(image_data, CAIRO_FORMAT_RGB24, 512, 512, 512*4);
 
       if (cairo_surface_status(surface) == CAIRO_STATUS_SUCCESS) {
