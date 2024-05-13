@@ -3,7 +3,9 @@
 #include <fstream>
 #include "utils/coot-utils.hh"
 #include "pae.hh"
+#if RDKIT_HAS_CAIRO_SUPPORT // acutally just a test for CAIRO availability
 #include <cairo.h>
+#endif
 #include "json.hpp"
 using json = nlohmann::json;
 
@@ -82,6 +84,8 @@ pae_t::get_max_value(const std::vector<std::vector<int> > &pae_vecs) const {
 
 std::string
 pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
+
+#ifdef RDKIT_HAS_CAIRO_SUPPORT
 
    auto text_png_as_string_png_writer = [] (void *closure, const unsigned char *data, unsigned int length) {
       std::string *s_ptr = static_cast<std::string *>(closure);
@@ -176,6 +180,8 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
       cairo_move_to(cr, 150, 680);
       cairo_show_text(cr, "Expected position error (Ångströms)");
 
+      // actual tick marks would be good here.
+
       // tick labels - x axis
       unsigned int tick_res_no = 0;
       while (tick_res_no < n_residues) {
@@ -250,5 +256,11 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
       std::cout << "########### cairo_surface_status() fail " << std::endl;
    }
    return s;
+
+#else
+
+   return "no-cairo";
+
+#endif
 
 }
