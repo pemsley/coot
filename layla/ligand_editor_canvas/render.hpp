@@ -141,7 +141,7 @@ struct Renderer {
     public:
     struct Line {
         graphene_point_t start, end;
-        BrushStyle style;
+        // BrushStyle style;
     };
 
     struct Arc {
@@ -157,10 +157,16 @@ struct Renderer {
         std::variant<Line, Arc> content;
 
         // todo: functions
+        bool is_line() const;
+        bool is_arc() const;
+
+        const Line& as_line() const;
+        const Arc& as_arc() const;
+
     };
     struct Path {
         graphene_point_t initial_point;
-        std::vector<PathElement> commands;
+        std::vector<PathElement> elements;
         Color fill_color;
         bool has_fill;
         // this needs work. Do we need a boolean here?

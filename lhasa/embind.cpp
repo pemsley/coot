@@ -68,8 +68,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .field("y", &graphene_point_t::y);
   value_object<impl::Renderer::Line>("Line")
     .field("start", &impl::Renderer::Line::start)
-    .field("end", &impl::Renderer::Line::end)
-    .field("style", &impl::Renderer::Line::style);
+    .field("end", &impl::Renderer::Line::end);
+    // .field("style", &impl::Renderer::Line::style);
   value_object<impl::Renderer::Arc>("Arc")
     .field("origin", &impl::Renderer::Arc::origin)
     .field("radius", &impl::Renderer::Arc::radius)
@@ -80,7 +80,10 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     // .field("has_stroke", &impl::Renderer::Arc::has_stroke)
     // .field("stroke_style", &impl::Renderer::Arc::stroke_style);
   class_<impl::Renderer::PathElement>("PathElement")
-    ;
+    .function("is_arc", &impl::Renderer::PathElement::is_arc)
+    .function("as_arc", &impl::Renderer::PathElement::as_arc)
+    .function("as_line", &impl::Renderer::PathElement::as_line)
+    .function("is_line", &impl::Renderer::PathElement::is_line);
   class_<impl::Renderer::Path>("Path")
     .property("fill_color", &impl::Renderer::Path::fill_color)
     .property("has_fill", &impl::Renderer::Path::has_fill)
