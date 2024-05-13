@@ -5582,8 +5582,15 @@ molecules_container_t::copy_dictionary(const std::string &monomer_name, int imol
 std::string
 molecules_container_t::pae_png(const std::string &pae_file_name) const {
 
+// This test acts the way we want it to, but it's not a good name
+// something like "HAVE_CAIRO" would be prefered.
+//
+#if RDKIT_HAS_CAIRO_SUPPORT // Cairo is not allowed in Moorhen.
    int n_pixels = 600;
    pae_t pae(pae_file_name, n_pixels);
    return pae.get_image();
+#else
+   return "no-cairo";
+#endif
 
 }
