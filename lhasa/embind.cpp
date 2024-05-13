@@ -90,7 +90,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .property("has_fill", &impl::Renderer::Path::has_fill)
     .property("stroke_style", &impl::Renderer::Path::stroke_style)
     .property("has_stroke", &impl::Renderer::Path::has_stroke)
-    .property("get_elements", &impl::Renderer::Path::get_elements);
+    .function("get_elements", &impl::Renderer::Path::get_elements);
   enum_<impl::Renderer::TextPositioning>("TextPositioning")
     .value("Normal", impl::Renderer::TextPositioning::Normal)
     .value("Sub", impl::Renderer::TextPositioning::Sub)

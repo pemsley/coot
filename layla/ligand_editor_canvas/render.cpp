@@ -207,8 +207,7 @@ void Renderer::arc(double x, double y, double radius, double angle_one, double a
     arc.radius = radius;
     arc.angle_one = angle_one;
     arc.angle_two = angle_two;
-    #warning TODO: New arc()
-    //structure_ptr->push_back(DrawingCommand{arc});
+    this->currently_created_path().elements.push_back({arc});
     #endif
 }
 
