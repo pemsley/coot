@@ -158,7 +158,7 @@ const std::vector<Renderer::TextSpan>& Renderer::TextSpan::as_subspans() const {
     return std::get<std::vector<TextSpan>>(this->content);
 }
 
-Renderer::Path& Renderer::currently_created_path() {
+Renderer::Path& Renderer::top_path() {
     if(this->drawing_commands.empty()) {
         this->drawing_commands.push_back({this->create_new_path()});
     }
@@ -168,6 +168,18 @@ Renderer::Path& Renderer::currently_created_path() {
     } else {
         this->drawing_commands.push_back({this->create_new_path()});
         return this->drawing_commands.back().as_path_mut();
+    }
+}
+
+Renderer::Path* Renderer::top_path_if_exists() {
+    if(this->drawing_commands.empty()) {
+        return nullptr;
+    }
+    auto& last_el = this->drawing_commands.back();
+    if(last_el.is_path()) {
+        return &last_el.as_path_mut();
+    } else {
+        return nullptr;
     }
 }
 
@@ -192,7 +204,7 @@ void Renderer::line_to(double x, double y) {
     line.end.x = x;
     line.end.y = y;
     graphene_point_t final_pos = line.end;
-    this->currently_created_path().elements.push_back({line});
+    this->top_path().elements.push_back({line});
     this->position = final_pos;
     #endif
 }
@@ -207,7 +219,7 @@ void Renderer::arc(double x, double y, double radius, double angle_one, double a
     arc.radius = radius;
     arc.angle_one = angle_one;
     arc.angle_two = angle_two;
-    this->currently_created_path().elements.push_back({arc});
+    this->top_path().elements.push_back({arc});
     #endif
 }
 
@@ -250,7 +262,7 @@ void Renderer::stroke() {
         this_path.has_stroke = true;
         this_path.stroke_style = this->style;
     } else {
-        g_warning("stroke() called a text (cannot be filled)");
+        g_warning("stroke() called on a text (cannot be filled)");
     }
     #endif
 }
@@ -266,27 +278,23 @@ void Renderer::stroke_preserve() {
 void Renderer::new_path() {
     #ifndef __EMSCRIPTEN__
     cairo_new_path(cr);
-    // #else // __EMSCRIPTEN__ defined
-    // if(this->currently_created_path) {
-    //     this->close_path_inner();
-    // }
-    // // According to the docs
-    // // this is all what the function is supposed to do
-    #warning TODO: new_path() for Lhasa
+    #else // __EMSCRIPTEN__ defined
+    if(this->top_path_if_exists()) {
+        this->close_path_inner();
+    }
+    // According to the docs
+    // this is all what the function is supposed to do
     #endif
 }
 
 #ifdef __EMSCRIPTEN__
 void Renderer::close_path_inner() {
     #warning TODO: close_path_inner() for Lhasa
-    // This check is not needed in the inner function
-    // if(!this->currently_created_path) {
-    //     // No path to be closed.
-    //     return;
-    // }
  
     // 2. Close the sub-path
-  
+    if(this->top_path_if_exists()) {
+        this->drawing_commands.push_back({this->create_new_path()});
+    }
 
     // 3. 
     // To quote the docs:
@@ -305,14 +313,10 @@ void Renderer::close_path() {
     cairo_close_path(cr);
     #else // __EMSCRIPTEN__ defined
     #warning TODO: close_path() for Lhasa
-    // if(!this->currently_created_path) {
-    //     // No path to be closed.
-    //     return;
-    // }
     // // 1. Add a line to the beginning of the path
     // Path& cpath = *this->currently_created_path;
     // this->line_to(cpath.initial_point.x, cpath.initial_point.y);
-    // this->close_path_inner();
+    this->close_path_inner();
     #endif
 }
 
@@ -321,18 +325,9 @@ void Renderer::new_sub_path() {
     cairo_new_sub_path(cr);
     #else // __EMSCRIPTEN__ defined
     #warning TODO: new_sub_path() for Lhasa
-    // //if(this->currently_created_path) {
-    //     // Allocate new sub path
-    //     Path new_path = this->create_new_path();
-    //     auto* structure_ptr = *this->drawing_structure_stack.rbegin();
-    //     structure_ptr->push_back(DrawingCommand{new_path});
-    //     Path* new_path_ptr = &structure_ptr->back().as_path_mut();
-    //     // Overwrite the pointer
-    //     this->currently_created_path = new_path_ptr;
-    //     this->drawing_structure_stack.push_back(&new_path_ptr->commands);
-    // // } else {
-    // //     this->new_path();
-    // // }
+    // Currently a no-op. Should it not be?
+    // // Currently there is no distiction. Should there be?
+    // this->new_path();
     #endif
 }
 

@@ -127,7 +127,12 @@ struct Renderer {
     /// If the last command is a path,
     /// returns a mutable reference to it.
     /// If not, it creates a new path
-    Path& currently_created_path();
+    Path& top_path();
+
+    /// If the last command is a path,
+    /// returns a pointer to it.
+    /// Otherwise nullptr
+    Path* top_path_if_exists();
 
     /// Initialize new Path structure
     Path create_new_path() const;
