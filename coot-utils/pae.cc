@@ -75,26 +75,28 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
       return CAIRO_STATUS_SUCCESS;
    };
 
+   int n_pixels_for_pae_image = n_pixels - 100;
+
    std::string s;
-   unsigned char *image_data = new unsigned char[n_pixels*n_pixels*4];
+   unsigned char *image_data = new unsigned char[n_pixels_for_pae_image*n_pixels_for_pae_image*4];
    // pre-colour with dark purple
-   for (unsigned int i=0; i<n_pixels; i++) {
-      for (unsigned int j=0; j<n_pixels; j++) {
-         image_data[4*(i*n_pixels+j)]   = 70;
-         image_data[4*(i*n_pixels+j)+1] = 0;
-         image_data[4*(i*n_pixels+j)+2] = 70;
-         image_data[4*(i*n_pixels+j)+3] = 255;
+   for (unsigned int i=0; i<n_pixels_for_pae_image; i++) {
+      for (unsigned int j=0; j<n_pixels_for_pae_image; j++) {
+         image_data[4*(i*n_pixels_for_pae_image+j)]   = 70;
+         image_data[4*(i*n_pixels_for_pae_image+j)+1] = 0;
+         image_data[4*(i*n_pixels_for_pae_image+j)+2] = 70;
+         image_data[4*(i*n_pixels_for_pae_image+j)+3] = 255;
       }
    }
 
    unsigned int n_residues = pae_vecs.size();
 
    float max_value = 32.0;
-   for (unsigned int i=0; i<n_pixels; i++) {
-      for (unsigned int j=0; j<n_pixels; j++) {
-         int idx = 4*(i*n_pixels+j);
-         float f_x = static_cast<float>(i)/static_cast<float>(n_pixels);
-         float f_y = static_cast<float>(j)/static_cast<float>(n_pixels);
+   for (unsigned int i=0; i<n_pixels_for_pae_image; i++) {
+      for (unsigned int j=0; j<n_pixels_for_pae_image; j++) {
+         int idx = 4*(i*n_pixels_for_pae_image+j);
+         float f_x = static_cast<float>(i)/static_cast<float>(n_pixels_for_pae_image);
+         float f_y = static_cast<float>(j)/static_cast<float>(n_pixels_for_pae_image);
          int i_res_index = static_cast<int>(f_x * static_cast<float>(n_residues));
          int j_res_index = static_cast<int>(f_y * static_cast<float>(n_residues));
          float f = static_cast<float>(pae_vecs[i_res_index][j_res_index])/max_value;
@@ -102,28 +104,68 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
          unsigned char  g_col = static_cast<unsigned char>(170.0 * f) + 85;
          if (rb_col < 0)   rb_col = 0;
          if (rb_col > 255) rb_col = 255;
-         if (g_col < 0)   g_col = 0;
-         if (g_col > 255) g_col = 255;
+         if (g_col < 0)    g_col = 0;
+         if (g_col > 255)  g_col = 255;
          image_data[idx]   = rb_col;
          image_data[idx+1] = g_col;
          image_data[idx+2] = rb_col;
       }
    }
-   std::cout << "done setting image data" << std::endl;
 
    cairo_t *cr;
-   cairo_surface_t *surface = cairo_image_surface_create_for_data(image_data, CAIRO_FORMAT_RGB24, n_pixels, n_pixels, n_pixels*4);
-   cr = cairo_create(surface);
-   cairo_set_source_rgb(cr, 0,0,0.5);
+   cairo_surface_t *pae_img_surface = cairo_image_surface_create_for_data(image_data, CAIRO_FORMAT_RGB24,
+                                                                   n_pixels_for_pae_image, n_pixels_for_pae_image,
+                                                                   n_pixels_for_pae_image*4);
+   cairo_surface_t *base_surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, n_pixels, n_pixels);
 
-   if (cairo_surface_status(surface) == CAIRO_STATUS_SUCCESS) {
-      std::cout << "########### cairo_surface_status() success " << std::endl;
-      int w = cairo_image_surface_get_width(surface);
-      int h = cairo_image_surface_get_height(surface);
-      // std::cout << "on_draw_positron_plot() image_surface w h " << w << " " << h << std::endl;
-      cairo_set_source_surface(cr, surface, 0,0);
+   cr = cairo_create(base_surface);
+   cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
+   cairo_paint(cr);
+
+   if (cairo_surface_status(base_surface) == CAIRO_STATUS_SUCCESS) {
+      // std::cout << "### cairo_surface_status() success " << std::endl;
+      cairo_set_source_surface(cr, pae_img_surface, 80, 20);
       cairo_paint(cr);
-      cairo_surface_write_to_png_stream(surface, text_png_as_string_png_writer,
+
+      // draw a box around the pae plot
+      cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+      cairo_rectangle(cr, 80, 20, n_pixels_for_pae_image, n_pixels_for_pae_image); // x, y, width, height
+      cairo_stroke(cr);
+
+      // "scored residue" label
+      cairo_set_font_size(cr, 20);
+      cairo_move_to(cr, 260, 580);
+      cairo_show_text(cr, "Scored Residue");
+
+      // "aligned residue" label
+      cairo_move_to(cr, 30, 320);
+      cairo_save(cr);
+      cairo_rotate(cr, - M_PI / 2.0); //
+      cairo_show_text(cr, "Aligned Residue");
+      cairo_restore(cr);
+
+      // tick labels - x axis
+      int tick_res_no = 0;
+      while (tick_res_no < n_residues) {
+         int x = 80 + tick_res_no;
+         cairo_move_to(cr, x, 550);
+         std::string text = std::to_string(tick_res_no);
+         cairo_show_text(cr, text.c_str());
+         tick_res_no += 100;
+      }
+
+      // tick labels - y axis
+      tick_res_no = 0;
+      while (tick_res_no < n_residues) {
+         int y = 30 + tick_res_no;
+         cairo_move_to(cr, 40, y);
+         std::string text = std::to_string(tick_res_no);
+         cairo_show_text(cr, text.c_str());
+         tick_res_no += 100;
+      }
+
+      // output
+      cairo_surface_write_to_png_stream(base_surface, text_png_as_string_png_writer,
                                         reinterpret_cast<void *>(&s));
 
    } else {
