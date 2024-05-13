@@ -123,15 +123,6 @@ struct Renderer {
     graphene_point_t position;
     std::vector<DrawingCommand> drawing_commands;
     emscripten::val text_measurement_function;
-    // WIP
-    /// A non-owned pointer to the path (or sub-path)
-    /// currently being created. Set to null if we're at the root
-    Path* currently_created_path;
-    // WIP
-    /// Only non-owned pointers go here, such as 
-    /// pointer to `drawing_commands` or 
-    /// to a path already allocated on top of it.
-    std::vector<std::vector<DrawingCommand>*> drawing_structure_stack;
 
     /// Initialize new Path structure
     Path create_new_path() const;
@@ -172,6 +163,8 @@ struct Renderer {
         // this needs work. Do we need a boolean here?
         bool has_stroke;
         BrushStyle stroke_style;
+
+        const std::vector<PathElement>& get_elements() const;
     };
 
     struct DrawingCommand {

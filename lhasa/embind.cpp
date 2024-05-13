@@ -52,6 +52,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .value("AtomIndices", DisplayMode::AtomIndices)
     .value("AtomNames", DisplayMode::AtomNames);
   register_vector<impl::Renderer::DrawingCommand>("DrawingCommandVector");
+  register_vector<impl::Renderer::PathElement>("PathElementVector");
   class_<impl::Renderer>("Renderer")
     .constructor<emscripten::val>()
     .function("get_commands", &impl::Renderer::get_commands);
@@ -89,7 +90,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .property("has_fill", &impl::Renderer::Path::has_fill)
     .property("stroke_style", &impl::Renderer::Path::stroke_style)
     .property("has_stroke", &impl::Renderer::Path::has_stroke)
-    .property("commands", &impl::Renderer::Path::commands);
+    .property("get_elements", &impl::Renderer::Path::get_elements);
   enum_<impl::Renderer::TextPositioning>("TextPositioning")
     .value("Normal", impl::Renderer::TextPositioning::Normal)
     .value("Sub", impl::Renderer::TextPositioning::Sub)
