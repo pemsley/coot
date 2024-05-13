@@ -158,6 +158,19 @@ const std::vector<Renderer::TextSpan>& Renderer::TextSpan::as_subspans() const {
     return std::get<std::vector<TextSpan>>(this->content);
 }
 
+Renderer::Path& Renderer::currently_created_path() {
+    if(this->drawing_commands.empty()) {
+        this->drawing_commands.push_back({this->create_new_path()});
+    }
+    auto& last_el = this->drawing_commands.back();
+    if(last_el.is_path()) {
+        return last_el.as_path_mut();
+    } else {
+        this->drawing_commands.push_back({this->create_new_path()});
+        return this->drawing_commands.back().as_path_mut();
+    }
+}
+
 void Renderer::move_to(double x, double y) {
     #ifndef __EMSCRIPTEN__
     cairo_move_to(cr, x, y);
@@ -179,8 +192,7 @@ void Renderer::line_to(double x, double y) {
     line.end.x = x;
     line.end.y = y;
     graphene_point_t final_pos = line.end;
-    #warning TODO: New line_to()
-    //structure_ptr->push_back(DrawingCommand{line});
+    this->currently_created_path().elements.push_back({line});
     this->position = final_pos;
     #endif
 }

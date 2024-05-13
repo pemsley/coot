@@ -124,6 +124,11 @@ struct Renderer {
     std::vector<DrawingCommand> drawing_commands;
     emscripten::val text_measurement_function;
 
+    /// If the last command is a path,
+    /// returns a mutable reference to it.
+    /// If not, it creates a new path
+    Path& currently_created_path();
+
     /// Initialize new Path structure
     Path create_new_path() const;
     /// Does not add the finishing line
