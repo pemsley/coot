@@ -216,7 +216,7 @@ void Renderer::fill() {
     cairo_fill(cr);
     #else // __EMSCRIPTEN__ defined
     // Fill closes all opened subpaths I guess?
-    // Is that what the cairo docs mean?
+    // Should I do anything with it?
     #warning TODO: Fix fill() for the new design
 
     auto& last_el = this->drawing_commands.back();
@@ -239,6 +239,19 @@ void Renderer::stroke() {
     cairo_stroke(cr);
     #else // __EMSCRIPTEN__ defined
     #warning TODO: stroke() for Lhasa
+    // This is a dummy
+    auto& last_el = this->drawing_commands.back();
+    // if(structure_ptr->empty()) {
+    //     g_warning("fill() called with an empty path.");
+    //     return;
+    // }
+    if(last_el.is_path()) {
+        auto& this_path = last_el.as_path_mut();
+        this_path.has_stroke = true;
+        this_path.stroke_style = this->style;
+    } else {
+        g_warning("stroke() called a text (cannot be filled)");
+    }
     #endif
 }
 
