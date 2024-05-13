@@ -162,7 +162,7 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
       cairo_set_font_size(cr, offset_y);
 
       // "scored residue" label
-      cairo_move_to(cr, 260, 580);
+      cairo_move_to(cr, 260, 573);
       cairo_show_text(cr, "Scored Residue");
 
       // "aligned residue" label
@@ -183,7 +183,7 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
          float pixel_for_tick_res_no = static_cast<float>(n_pixels_for_pae_image) * f;
          int x = offset_x + static_cast<int>(pixel_for_tick_res_no);
          int x_tweak = -20;
-         if (tick_res_no == 0) x_tweak = -10;
+         if (tick_res_no == 0) x_tweak = -5;
          x += x_tweak;
          cairo_move_to(cr, x, 545);
          std::string text = std::to_string(tick_res_no);
@@ -198,7 +198,9 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
          float pixel_for_tick_res_no = static_cast<float>(n_pixels_for_pae_image) * f;
          int y = offset_y + static_cast<int>(pixel_for_tick_res_no);
          y += 8; // so that the middle of the label text is at the tick position (rather than the bottom)
-         cairo_move_to(cr, offset_x-42.0, y);
+         double text_width = 42.0;
+         if (tick_res_no == 0) text_width = 18.0;
+         cairo_move_to(cr, offset_x-text_width, y);
          std::string text = std::to_string(tick_res_no);
          cairo_show_text(cr, text.c_str());
          tick_res_no += 100;
