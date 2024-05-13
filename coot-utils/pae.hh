@@ -1,5 +1,6 @@
 
 #include <string>
+#include <vector>
 
 class pae_t {
    std::string file_to_string(const std::string &file_name) const;

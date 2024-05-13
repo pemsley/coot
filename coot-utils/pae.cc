@@ -80,8 +80,8 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
    std::string s;
    unsigned char *image_data = new unsigned char[n_pixels_for_pae_image*n_pixels_for_pae_image*4];
    // pre-colour with dark purple
-   for (unsigned int i=0; i<n_pixels_for_pae_image; i++) {
-      for (unsigned int j=0; j<n_pixels_for_pae_image; j++) {
+   for (int i=0; i<n_pixels_for_pae_image; i++) {
+      for (int j=0; j<n_pixels_for_pae_image; j++) {
          image_data[4*(i*n_pixels_for_pae_image+j)]   = 70;
          image_data[4*(i*n_pixels_for_pae_image+j)+1] = 0;
          image_data[4*(i*n_pixels_for_pae_image+j)+2] = 70;
@@ -92,8 +92,8 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
    unsigned int n_residues = pae_vecs.size();
 
    float max_value = 32.0;
-   for (unsigned int i=0; i<n_pixels_for_pae_image; i++) {
-      for (unsigned int j=0; j<n_pixels_for_pae_image; j++) {
+   for (int i=0; i<n_pixels_for_pae_image; i++) {
+      for (int j=0; j<n_pixels_for_pae_image; j++) {
          int idx = 4*(i*n_pixels_for_pae_image+j);
          float f_x = static_cast<float>(i)/static_cast<float>(n_pixels_for_pae_image);
          float f_y = static_cast<float>(j)/static_cast<float>(n_pixels_for_pae_image);
@@ -123,31 +123,38 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
    cairo_paint(cr);
 
    if (cairo_surface_status(base_surface) == CAIRO_STATUS_SUCCESS) {
+
+      // move the PAE graph in the base image
+      int offset_x = 80;
+      int offset_y = 20;
+
       // std::cout << "### cairo_surface_status() success " << std::endl;
       cairo_set_source_surface(cr, pae_img_surface, 80, 20);
       cairo_paint(cr);
 
       // draw a box around the pae plot
       cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
-      cairo_rectangle(cr, 80, 20, n_pixels_for_pae_image, n_pixels_for_pae_image); // x, y, width, height
+      cairo_rectangle(cr, offset_x, offset_y, n_pixels_for_pae_image, n_pixels_for_pae_image); // x, y, width, height
       cairo_stroke(cr);
 
       // "scored residue" label
-      cairo_set_font_size(cr, 20);
+      cairo_set_font_size(cr, offset_y);
       cairo_move_to(cr, 260, 580);
       cairo_show_text(cr, "Scored Residue");
 
       // "aligned residue" label
-      cairo_move_to(cr, 30, 320);
+      cairo_move_to(cr, 26, 360);
       cairo_save(cr);
       cairo_rotate(cr, - M_PI / 2.0); //
       cairo_show_text(cr, "Aligned Residue");
       cairo_restore(cr);
 
       // tick labels - x axis
-      int tick_res_no = 0;
+      unsigned int tick_res_no = 0;
       while (tick_res_no < n_residues) {
-         int x = 80 + tick_res_no;
+         float f = static_cast<float>(tick_res_no) / static_cast<float>(n_residues);
+         float pixel_for_tick_res_no = static_cast<float>(n_pixels_for_pae_image) * f;
+         int x = offset_x + static_cast<int>(pixel_for_tick_res_no);
          cairo_move_to(cr, x, 550);
          std::string text = std::to_string(tick_res_no);
          cairo_show_text(cr, text.c_str());
@@ -157,8 +164,11 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
       // tick labels - y axis
       tick_res_no = 0;
       while (tick_res_no < n_residues) {
-         int y = 30 + tick_res_no;
-         cairo_move_to(cr, 40, y);
+         float f = static_cast<float>(tick_res_no) / static_cast<float>(n_residues);
+         float pixel_for_tick_res_no = static_cast<float>(n_pixels_for_pae_image) * f;
+         int y = offset_y + static_cast<int>(pixel_for_tick_res_no);
+         y += 8; // so that the middle of the label text is at the tick position (rather than the bottom)
+         cairo_move_to(cr, offset_x-42.0, y);
          std::string text = std::to_string(tick_res_no);
          cairo_show_text(cr, text.c_str());
          tick_res_no += 100;
