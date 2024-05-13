@@ -168,6 +168,9 @@ struct Renderer {
     struct Path {
         graphene_point_t initial_point;
         std::vector<PathElement> elements;
+        // WIP
+        bool closed;
+
         Color fill_color;
         bool has_fill;
         // this needs work. Do we need a boolean here?
