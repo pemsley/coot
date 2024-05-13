@@ -103,6 +103,7 @@ Renderer::Path Renderer::create_new_path() const {
     Path ret;
     ret.has_fill = false;
     ret.initial_point = this->position;
+    ret.has_stroke = false;
     return ret;
 }
 
@@ -172,13 +173,13 @@ void Renderer::line_to(double x, double y) {
     cairo_line_to(cr, x, y);
     #else // __EMSCRIPTEN__ defined
     Line line;
-    line.style = this->style;
     line.start = this->position;
     line.end.x = x;
     line.end.y = y;
     graphene_point_t final_pos = line.end;
     auto* structure_ptr = *this->drawing_structure_stack.rbegin();
-    structure_ptr->push_back(DrawingCommand{line});
+    #warning TODO: New line_to()
+    //structure_ptr->push_back(DrawingCommand{line});
     this->position = final_pos;
     #endif
 }
@@ -193,11 +194,9 @@ void Renderer::arc(double x, double y, double radius, double angle_one, double a
     arc.radius = radius;
     arc.angle_one = angle_one;
     arc.angle_two = angle_two;
-    arc.has_fill = false; // todo
-    arc.has_stroke = true; // todo?
-    arc.stroke_style = this->style;
     auto* structure_ptr = *this->drawing_structure_stack.rbegin();
-    structure_ptr->push_back(DrawingCommand{arc});
+    #warning TODO: New arc()
+    //structure_ptr->push_back(DrawingCommand{arc});
     #endif
 }
 
@@ -208,6 +207,7 @@ void Renderer::fill() {
     // Fill closes all opened subpaths I guess?
     // Is that what the cairo docs mean?
     while(this->currently_created_path) {
+        #warning TODO: Fix fill() for the new design
         this->close_path_inner();
     }
     auto* structure_ptr = *this->drawing_structure_stack.rbegin();
@@ -220,12 +220,8 @@ void Renderer::fill() {
         auto& this_path = last_el.as_path_mut();
         this_path.has_fill = true;
         this_path.fill_color = this->style.color;
-    } else if(last_el.is_arc()) {
-        auto& this_arc = last_el.as_arc_mut();
-        this_arc.has_fill = true;
-        this_arc.fill_color = this->style.color;
     } else {
-        g_warning("fill() called on either text or a line (both cannot be filled)");
+        g_warning("fill() called a text (cannot be filled)");
     }
     #endif
 }
@@ -283,27 +279,6 @@ void Renderer::close_path_inner() {
     }
     // 2.2. Make sure we don't wrap everything with
     // single-element paths or empty paths
-    std::function<std::string(const std::vector<DrawingCommand> &cmds)> print_cmdlist = [&print_cmdlist](const std::vector<DrawingCommand> &cmds){
-        std::string ret = "[";
-        for(const auto& i: cmds) {
-            if(i.is_path()) {
-                ret += "Path:{"+print_cmdlist(i.as_path().commands)+"}";
-            } else if(i.is_arc()) {
-                ret += "Arc";
-            } else if(i.is_line()) {
-                ret += "Line";
-            } else if(i.is_text()) {
-                ret += "Text";
-            } else {
-                ret += "Something";
-            }
-            ret+= ",";
-        }
-        ret += "]";
-        return ret;
-    };
-    std::string debug_str = print_cmdlist(our_path_commands);
-    g_info("size=%zu; %s", our_path_commands.size(), debug_str.c_str());
     
     if(our_path_commands.empty()) {
         g_warning("close_path_inner() has to discard an empty path.");
