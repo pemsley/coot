@@ -1,7 +1,11 @@
 
 ----
 
-turn on rotamer restraints, turn on torsion restraints - has the trans restraints restraints been removed?
+Coot Bug: turn on rotamer restraints, turn on torsion restraints - has the trans restraints restraints been removed?
+
+Coot: add something so that I can look down the axes - particularly z.
+
+Coot: I want a slider to scrub through the map molecules in positron interface.
 
 Coot: Pull in Bernhard's Rama plots
 * Done.
@@ -17,9 +21,15 @@ libcootapi: import gltf (from Mol*, say!)
 ligand fitting tutorial - turn aroundd the tail of the fish so that it is the wrong way
 adn look for environment distances - the O-O interaction should not be purple!
 
-Coot: update molecule when input model file have updates?
-
 Coot: generic objects are not drawn with depth fog
+
+Coot: update molecule when input model file have updates?
+   set_update_model_when_file_updates() - only for unmodified models of course.
+
+libcootapi: search monomer library names - needs to pull the mon_lib_list.cif - or the new version of this
+   non-proirity.
+
+mmdb: atom selection with alt conformer - write a test and fix mmdb.
 
 Coot: Why do we need requests? Can't it be done by libcurl or internal python module urllib?
       See fetch_drug_via_wikipedia() in coot_utils.

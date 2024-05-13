@@ -6786,6 +6786,14 @@ int main(int argc, char **argv) {
    // also see erase/remove_if usage in morph_fit_uncrunch().
 
 
+Here is a more simple example:
+
+      auto eraser = [] (const TextureMesh &tm) {
+         return (tm.get_name().find("-section") != std::string::npos);
+      };
+      texture_meshes.erase(std::remove_if(texture_meshes.begin(), texture_meshes.end(), eraser),
+                           texture_meshes.end());
+
 ---
 Tue Jul  3 17:14:08 BST 2012
 
