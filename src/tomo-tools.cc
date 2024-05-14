@@ -383,7 +383,7 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
                }
                int idx = c_v * gs.nu() + c_u;
                results_texture.image_data[idx] = delta_sum;
-               if (true)
+               if (false)
                   std::cout << "set-image-data "  << " idx " << idx << " size: " << results_texture.image_data.size()
                             << " c_u " << c_u << " c_v " << c_v << " delta_sum " << delta_sum << std::endl;
 
