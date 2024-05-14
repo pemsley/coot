@@ -701,6 +701,23 @@ graphics_info_t::update_view_quaternion(int glarea_width, int glarea_height,
       tb_quat = glm::conjugate(tb_quat);
       auto prod = tb_quat * view_quaternion;
       view_quaternion = glm::normalize(prod);
+      // starting down z: view quaternion quat( 0.999986, { 0.003957,  0.002008, 0.002724})
+      // rotate above around screen z 180: view quaternion quat(0.000280, {0.003231, 0.006105, 0.999976})
+      // rotate above around screen y 180: view quaternion quat(-0.001343, {-0.999951, -0.006849, 0.006969})
+      // rotate above aournd screen z 180: view quaternion quat(0.008224, {-0.003389, 0.999938, 0.006631})
+
+      // down x: view quaternion quat(0.499870, {-0.501352, 0.497861, 0.500910})
+      // rotate screen z 180: view quaternion quat(-0.502290, {-0.498534, -0.498968, 0.500200})
+      // rotate screen y 180: view quaternion quat(0.497855, {0.505183, -0.492305, 0.504545})
+      // rotate screen z 180: view quaternion quat(0.503984, {-0.497813, -0.503251, -0.494895})
+
+      // down y: view quaternion quat(0.001501, {0.007544, -0.707126, -0.707045})
+      // rotate screen z: view quaternion quat(0.707459, {0.706673, 0.010734, 0.000401})
+      // rotate screen y: view quaternion quat(-0.005150, {0.003813, -0.709497, 0.704679})
+      // rotate screen z: view quaternion quat(-0.705722, {0.708459, 0.005714, -0.002985})
+
+      if (false)
+         std::cout << "view quaternion " << glm::to_string(view_quaternion) << std::endl;
    }
    mouse_x = current_mouse_x;
    mouse_y = current_mouse_y;
