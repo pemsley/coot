@@ -655,6 +655,11 @@ NB_MODULE(chapi, m) {
        .def_ro("aligned_pairs",      &superpose_results_t::aligned_pairs)
     ;
 
+    nb::class_<lsq_results_t>(m, "lsq_results_t")
+      .def_ro("rotation_matrix", &lsq_results_t::rotation_matrix)
+      .def_ro("translation",     &lsq_results_t::translation)
+   ;
+
     nb::class_<moorhen::h_bond>(m,"h_bond")
         .def_ro("hb_hydrogen",&moorhen::h_bond::hb_hydrogen)
         .def_ro("donor",&moorhen::h_bond::donor)
