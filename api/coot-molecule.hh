@@ -764,6 +764,7 @@ namespace coot {
       bool get_show_symmetry() { return show_symmetry;}
       void transform_by(mmdb::mat44 SSMAlign_TMatrix);
       void transform_by(const clipper::RTop_orth &rtop, mmdb::Residue *res);
+      void transform_by(const clipper::RTop_orth &rtop);
 
       symmetry_info_t get_symmetry(float symmetry_search_radius, const Cartesian &symm_centre) const;
 

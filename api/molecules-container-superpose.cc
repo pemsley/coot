@@ -801,3 +801,79 @@ molecules_container_t::make_ssm_sequence_alignment_as_validation_information(ssm
    return vi;
 }
 #endif
+
+// should these functions have their own file?
+
+//! superpose using LSQ - setup the matches
+void
+molecules_container_t::add_lsq_superpose_match(const std::string &chain_id_ref, int res_no_ref_start, int res_no_ref_end,
+                                               const std::string &chain_id_mov, int res_no_mov_start, int res_no_mov_end,
+                                               int match_type) {
+
+   coot::lsq_range_match_info_t m(res_no_ref_start, res_no_ref_end,
+                                  chain_id_ref,
+                                  res_no_mov_start, res_no_mov_end,
+                                  chain_id_mov, match_type);
+
+   lsq_matchers.push_back(m);
+}
+
+void molecules_container_t::clear_lsq_matches() {
+   lsq_matchers.clear();
+}
+
+//! superpose using LSQ - generate the transformation matrix
+void
+molecules_container_t::lsq_superpose(int imol_ref, int imol_mov) {
+
+   if (is_valid_model_molecule(imol_ref)) {
+      if (is_valid_model_molecule(imol_mov)) {
+         std::pair<short int, clipper::RTop_orth> rtop_info = get_lsq_matrix_internal(imol_ref, imol_mov);
+         if (rtop_info.first) {
+            molecules[imol_mov].transform_by(rtop_info.second);
+         }
+      }
+   }
+
+}
+
+
+//! superpose using LSQ - generate the transformation matrix
+std::pair<short int, clipper::RTop_orth>
+molecules_container_t::get_lsq_matrix_internal(int imol_ref, int imol_mov) const {
+
+   std::pair<short int, clipper::RTop_orth> rtop_info;
+   rtop_info.first = 0; // fail at start.
+   clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
+   clipper::Coord_orth pt_dum(0,0,0);
+   clipper::RTop_orth rtop_r(m_dum, pt_dum);
+
+   if (is_valid_model_molecule(imol_ref)) {
+      if (is_valid_model_molecule(imol_mov)) {
+         mmdb::Manager *mol_ref = molecules[imol_ref].atom_sel.mol;
+         mmdb::Manager *mol_mov = molecules[imol_mov].atom_sel.mol;
+         rtop_info = coot::util::get_lsq_matrix(mol_ref, mol_mov, lsq_matchers, 1, false);
+      }
+   }
+   return rtop_info;
+}
+
+//! superpose using LSQ - generate the transformation matrix
+lsq_results_t
+molecules_container_t::get_lsq_matrix(int imol_ref, int imol_mov) const {
+
+   lsq_results_t results;
+   std::pair<short int, clipper::RTop_orth> rtop_info = get_lsq_matrix_internal(imol_ref, imol_mov);
+   if (rtop_info.first) {
+      const auto &rtop = rtop_info.second;
+      results.rotation_matrix.resize(9);
+      results.translation.resize(3);
+      auto &r = results.rotation_matrix;
+      auto &t = results.translation;
+      r[0] = rtop.rot()(0,0); r[1] = rtop.rot()(0,1); r[2] = rtop.rot()(0,2);
+      r[3] = rtop.rot()(1,0); r[4] = rtop.rot()(1,1); r[5] = rtop.rot()(1,2);
+      r[6] = rtop.rot()(2,0); r[7] = rtop.rot()(2,1); r[8] = rtop.rot()(2,2);
+      t[0] = rtop.trn()[0]; t[1] = rtop.trn()[1]; t[2] = rtop.trn()[2];
+   }
+   return results;
+}

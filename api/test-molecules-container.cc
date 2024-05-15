@@ -5663,6 +5663,37 @@ int test_rdkit_mol(molecules_container_t &mc) {
 }
 
 
+
+int test_lsq_superpose(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   mc.clear_lsq_matches();
+   mc.add_lsq_superpose_match("A", 185, 195, "A", 105, 115, 1);
+   auto tm = mc.get_lsq_matrix(imol_1, imol_2);
+   mc.lsq_superpose(imol_1, imol_2);
+   for(unsigned int i=0; i<tm.rotation_matrix.size(); i++)
+      std::cout << " " << tm.rotation_matrix[i];
+   std::cout << std::endl;
+   for(unsigned int i=0; i<tm.translation.size(); i++)
+      std::cout << " " << tm.translation[i];
+   std::cout << std::endl;
+   mc.write_coordinates(imol_2, "superposed.pdb");
+   mmdb::Atom *at_1 = mc.get_atom(imol_1, coot::atom_spec_t("A", 190, "", " CA ", ""));
+   mmdb::Atom *at_2 = mc.get_atom(imol_2, coot::atom_spec_t("A", 110, "", " CA ", ""));
+   clipper::Coord_orth co_1 = coot::co(at_1);
+   clipper::Coord_orth co_2 = coot::co(at_2);
+   double d2 = (co_2-co_1).lengthsq();
+   double d = std::sqrt(d2);
+   std::cout << "d " << d << std::endl;
+   if (d < 0.32)
+      status = 1;
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -5948,6 +5979,7 @@ int main(int argc, char **argv) {
          status += run_test(test_n_map_sections, "N map sections ", mc);
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
          status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
+         status += run_test(test_rdkit_mol, "RDKit mol", mc);
 #endif
 
 #ifdef USE_GEMMI
@@ -5960,9 +5992,8 @@ int main(int argc, char **argv) {
 
       {
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-         status += run_test(test_rdkit_mol, "RDKit mol", mc);
 #endif
-
+         status += run_test(test_lsq_superpose, "LSQ superpose", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

@@ -26,6 +26,7 @@
 #include "atom-pull.hh"
 #include "validation-information.hh"
 #include "superpose-results.hh"
+#include "lsq-results.hh"
 #include "coot-utils/simple-mesh.hh"
 #include "coot-utils/texture-as-floats.hh"
 #include "phi-psi-prob.hh"
@@ -839,6 +840,26 @@ public:
    // std::pair<std::string, std::string>
    superpose_results_t SSM_superpose(int imol_ref, const std::string &chain_id_ref,
                                      int imol_mov, const std::string &chain_id_mov);
+
+   //! superpose using LSQ - setup the matches
+   //! @params `match_type` 0: all, 1: main, 2: CAs
+   void add_lsq_superpose_match(const std::string &chain_id_ref, int res_no_ref_start, int res_no_ref_end,
+                                const std::string &chain_id_mov, int res_no_mov_start, int res_no_mov_end,
+                                int match_type);
+
+   //! clear any existing lsq matchers
+   void clear_lsq_matches();
+
+   std::vector<coot::lsq_range_match_info_t> lsq_matchers;
+
+   //! apply the superposition using LSQ
+   void lsq_superpose(int imol_ref, int imol_mov);
+
+   //! return the transformation matrix in a simple class - dont apply it to the coordinates
+   lsq_results_t get_lsq_matrix(int imol_ref, int imol_mov) const;
+
+   //! make this private
+   std::pair<short int, clipper::RTop_orth> get_lsq_matrix_internal(int imol_ref, int imol_mov) const;
 
    //! symmetry
    //! now comes in a simple container that also includes the cell

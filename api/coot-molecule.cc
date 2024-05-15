@@ -4432,6 +4432,37 @@ coot::molecule_t::transform_by(const clipper::RTop_orth &rtop, mmdb::Residue *re
 
 
 void
+coot::molecule_t::transform_by(const clipper::RTop_orth &rtop) {
+
+   for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        clipper::Coord_orth pos = coot::co(at);
+                        clipper::Coord_orth p2 = pos.transform(rtop);
+                        at->x = p2.x();
+                        at->y = p2.y();
+                        at->z = p2.z();
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}
+
+void
 coot::molecule_t::print_secondary_structure_info() const {
 
    for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
