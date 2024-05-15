@@ -5994,6 +5994,8 @@ int main(int argc, char **argv) {
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #endif
          status += run_test(test_lsq_superpose, "LSQ superpose", mc);
+         status += run_test(test_change_rotamer, "Change Rotamer (Filo)", mc);
+
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

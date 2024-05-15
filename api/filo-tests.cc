@@ -265,3 +265,42 @@ int test_change_chain_id_1(molecules_container_t &molecules_container) {
 
    return status;
 }
+
+
+int test_change_rotamer(molecules_container_t &molecules_container) {
+
+   starting_test(__FUNCTION__);
+
+   int status = 0;
+   int imol_molecule = molecules_container.read_pdb(reference_data("5a3h.pdb"));
+
+   // Create a fragment and change rotamer
+   int imol_fragment = molecules_container.copy_fragment_using_cid(imol_molecule, "//A/179");
+   molecules_container.change_to_next_rotamer(imol_fragment, "//A/179", "");
+
+   // Get the OG atom for that new rotamer (still in the fragment)
+   auto resSpec = coot::residue_spec_t("A", 179, "");
+   auto res_fragment = molecules_container.get_residue(imol_fragment, resSpec);
+   auto atom_fragment = res_fragment->GetAtom(5);
+
+   // Replace fragment back into the molecule and get new OG atom
+   molecules_container.replace_fragment(imol_molecule, imol_fragment, "//A/179");
+   auto res_new = molecules_container.get_residue(imol_molecule, resSpec);
+   auto atom_new = res_new->GetAtom(5);
+
+   std::cout << "atom_fragment pos: " << atom_fragment->x << " " << atom_fragment->y << " " << atom_fragment->z << std::endl;
+   std::cout << "atom_new pos:      " << atom_new->x      << " " << atom_new->y      << " " << atom_new->z      << std::endl;
+
+   // This fails...
+   // expect(atom_new.x).toBe(atom_fragment.x)
+   // expect(atom_new.y).toBe(atom_fragment.y)
+   // expect(atom_new.z).toBe(atom_fragment.z)
+
+   clipper::Coord_orth co_1 = coot::co(atom_fragment);
+   clipper::Coord_orth co_2 = coot::co(atom_new);
+   double d2 = (co_2-co_1).lengthsq();
+   double d = std::sqrt(d2);
+   if (d < 0.0001) status = 1;
+
+   return status;
+ }

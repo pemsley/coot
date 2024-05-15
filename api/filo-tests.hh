@@ -31,3 +31,4 @@ int test_non_drawn_bond_multi_cid_2(molecules_container_t &mc);
 
 int test_change_chain_id_1(molecules_container_t &molecules_container);
 
+int test_change_rotamer(molecules_container_t &molecules_container);
