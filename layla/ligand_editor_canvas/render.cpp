@@ -106,6 +106,7 @@ Renderer::Path Renderer::create_new_path() const {
     ret.has_fill = false;
     ret.initial_point = this->position;
     ret.has_stroke = false;
+    ret.closed = false;
     return ret;
 }
 
@@ -227,22 +228,21 @@ void Renderer::fill() {
     #ifndef __EMSCRIPTEN__
     cairo_fill(cr);
     #else // __EMSCRIPTEN__ defined
-    // Fill closes all opened subpaths I guess?
-    // Should I do anything with it?
-    #warning TODO: Fix fill() for the new design
-
-    auto& last_el = this->drawing_commands.back();
-    // if(structure_ptr->empty()) {
-    //     g_warning("fill() called with an empty path.");
-    //     return;
-    // }
-    if(last_el.is_path()) {
-        auto& this_path = last_el.as_path_mut();
-        this_path.has_fill = true;
-        this_path.fill_color = this->style.color;
-    } else {
-        g_warning("fill() called a text (cannot be filled)");
+    auto* path = this->top_path_if_exists();
+    if(!path) {
+        g_warning("fill() called without a path.");
+        return;
     }
+    if(path->elements.empty()) {
+        g_warning("fill() called with an empty path.");
+        //return;
+    }
+    // Fill closes all opened subpaths I guess?
+    path->closed = true;
+    // Should I do anything else with it?
+
+    path->has_fill = true;
+    path->fill_color = this->style.color;
     #endif
 }
 
@@ -260,16 +260,15 @@ void Renderer::stroke_preserve() {
     #ifndef __EMSCRIPTEN__
     cairo_stroke_preserve(cr);
     #else // __EMSCRIPTEN__ defined
-    #warning TODO: stroke_preserve() for Lhasa
     auto* path = this->top_path_if_exists();
     if(!path) {
         g_warning("stroke() called without a path.");
         return;
     }
-    // if(structure_ptr->empty()) {
-    //     g_warning("fill() called with an empty path.");
-    //     return;
-    // }
+    if(path->elements.empty()) {
+        g_warning("stroke() called with an empty path.");
+        //return;
+    }
     path->has_stroke = true;
     path->stroke_style = this->style;
     #endif
