@@ -288,12 +288,15 @@ void Renderer::new_path() {
 
 #ifdef __EMSCRIPTEN__
 void Renderer::close_path_inner() {
-    #warning TODO: close_path_inner() for Lhasa
- 
     // 2. Close the sub-path
-    if(this->top_path_if_exists()) {
-        // Technically, just creating new path, means that the previous one is done with.
-        this->drawing_commands.push_back({this->create_new_path()});
+    auto* path = this->top_path_if_exists();
+    if(path) {
+        if(!path->closed) {
+            path->closed = true;
+        } else {
+            // Technically, just creating new path, means that the previous one is done with.
+            this->drawing_commands.push_back({this->create_new_path()});
+        }
     }
 
     // 3. 
@@ -314,9 +317,13 @@ void Renderer::close_path() {
     #else // __EMSCRIPTEN__ defined
     #warning TODO: close_path() for Lhasa
     // // 1. Add a line to the beginning of the path
-    // Path& cpath = *this->currently_created_path;
-    // this->line_to(cpath.initial_point.x, cpath.initial_point.y);
-    this->close_path_inner();
+    auto* path = this->top_path_if_exists();
+    if(path) {
+        if(!path->closed) {
+            this->line_to(path->initial_point.x, path->initial_point.y);
+        }
+        this->close_path_inner();
+    }
     #endif
 }
 
