@@ -165,11 +165,13 @@ Renderer::Path& Renderer::top_path() {
     }
     auto& last_el = this->drawing_commands.back();
     if(last_el.is_path()) {
-        return last_el.as_path_mut();
-    } else {
-        this->drawing_commands.push_back({this->create_new_path()});
-        return this->drawing_commands.back().as_path_mut();
+        const auto& pth = last_el.as_path();
+        if(!pth.closed) {
+            return last_el.as_path_mut();
+        }
     }
+    this->drawing_commands.push_back({this->create_new_path()});
+    return this->drawing_commands.back().as_path_mut();
 }
 
 Renderer::Path* Renderer::top_path_if_exists() {
@@ -278,11 +280,17 @@ void Renderer::new_path() {
     #ifndef __EMSCRIPTEN__
     cairo_new_path(cr);
     #else // __EMSCRIPTEN__ defined
-    if(this->top_path_if_exists()) {
-        this->close_path_inner();
+    auto* path = this->top_path_if_exists();
+    if(path) {
+        if(!path->closed) {
+            // Reset the path
+            *path = this->create_new_path();
+        } else {
+            // Actually creates another new path
+            this->close_path_inner();
+        }
     }
-    // According to the docs
-    // this is all what the function is supposed to do
+    // Is this really what the function ought to do?
     #endif
 }
 
@@ -331,10 +339,19 @@ void Renderer::new_sub_path() {
     #ifndef __EMSCRIPTEN__
     cairo_new_sub_path(cr);
     #else // __EMSCRIPTEN__ defined
-    #warning TODO: new_sub_path() for Lhasa
-    // Currently a no-op. Should it not be?
-    // // Currently there is no distiction. Should there be?
-    // this->new_path();
+    auto* path = this->top_path_if_exists();
+    if(!path) {
+        this->drawing_commands.push_back({this->create_new_path()});
+        return;
+    }
+    if(path->closed) {
+        this->drawing_commands.push_back({this->create_new_path()});
+    }
+    // Without this step, this would leave any non-closed paths as is.
+    // Not sure if this is how we want it.
+    if(!path->closed) {
+        this->close_path_inner();
+    }
     #endif
 }
 

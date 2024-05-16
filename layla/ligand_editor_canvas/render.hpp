@@ -124,12 +124,12 @@ struct Renderer {
     std::vector<DrawingCommand> drawing_commands;
     emscripten::val text_measurement_function;
 
-    /// If the last command is a path,
+    /// If the last command is a non-closed path,
     /// returns a mutable reference to it.
-    /// If not, it creates a new path
+    /// If not, it creates a new path.
     Path& top_path();
 
-    /// If the last command is a path,
+    /// If the last command is a path (may be closed),
     /// returns a pointer to it.
     /// Otherwise nullptr
     Path* top_path_if_exists();
