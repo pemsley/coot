@@ -252,7 +252,6 @@ void Renderer::stroke() {
     #ifndef __EMSCRIPTEN__
     cairo_stroke(cr);
     #else // __EMSCRIPTEN__ defined
-    #warning TODO: stroke() for Lhasa
     this->stroke_preserve();
     this->new_path();
     #endif
@@ -282,13 +281,13 @@ void Renderer::new_path() {
     #else // __EMSCRIPTEN__ defined
     auto* path = this->top_path_if_exists();
     if(path) {
-        if(!path->closed) {
-            // Reset the path
-            *path = this->create_new_path();
-        } else {
+        // if(!path->closed) {
+        //     // Reset the path
+        //     *path = this->create_new_path();
+        // } else {
             // Actually creates another new path
             this->close_path_inner();
-        }
+        // }
     }
     // Is this really what the function ought to do?
     #endif
@@ -323,7 +322,6 @@ void Renderer::close_path() {
     #ifndef __EMSCRIPTEN__
     cairo_close_path(cr);
     #else // __EMSCRIPTEN__ defined
-    #warning TODO: close_path() for Lhasa
     // // 1. Add a line to the beginning of the path
     auto* path = this->top_path_if_exists();
     if(path) {
@@ -340,18 +338,14 @@ void Renderer::new_sub_path() {
     cairo_new_sub_path(cr);
     #else // __EMSCRIPTEN__ defined
     auto* path = this->top_path_if_exists();
-    if(!path) {
-        this->drawing_commands.push_back({this->create_new_path()});
-        return;
+    // I'm not sure if that's what the function is supposed to do.
+    if(path) {
+        if(!path->closed) {
+            path->closed = true;
+        }
     }
-    if(path->closed) {
-        this->drawing_commands.push_back({this->create_new_path()});
-    }
-    // Without this step, this would leave any non-closed paths as is.
-    // Not sure if this is how we want it.
-    if(!path->closed) {
-        this->close_path_inner();
-    }
+    this->drawing_commands.push_back({this->create_new_path()});
+
     #endif
 }
 
