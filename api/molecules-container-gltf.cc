@@ -2,6 +2,34 @@
 #include "coot-utils/tiny_gltf.h"
 
 #include "molecules-container.hh"
+#include "coot-utils/oct.hh"
+#include "coot-utils/vertex.hh"
+
+//! @params `n_divisions` is a number divisble by 2, at least 4 (typically 16)
+//! @return a unit-vector end-cap octohemisphere mesh
+coot::simple_mesh_t
+molecules_container_t::get_octahemisphere(unsigned int n_slices) const {
+
+   coot::simple_mesh_t m;
+   unsigned int num_subdivisions = 3;
+   if (n_slices == 1) num_subdivisions = 4;
+   if (n_slices == 2) num_subdivisions = 8;
+   if (n_slices == 4) num_subdivisions = 32;
+
+   std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > h = tessellate_hemisphere_patch(num_subdivisions);
+   const auto &hemisphere_vertices = h.first;
+   std::vector<coot::api::vnc_vertex> vertices(hemisphere_vertices.size());
+   const std::vector<g_triangle> &triangles = h.second;
+   glm::vec4 c(0.5f, 0.5f, 0.5f, 1.0f);
+   for (unsigned int i=0; i<hemisphere_vertices.size(); i++) {
+      const auto &p = hemisphere_vertices[i];
+      const auto &n = hemisphere_vertices[i];
+      vertices[i] = coot::api::vnc_vertex(p, n, c);
+   }
+   m = coot::simple_mesh_t(vertices, triangles);
+   return m;
+}
+
 
 coot::simple_mesh_t
 molecules_container_t::make_mesh_from_gltf_file(const std::string &file_name_in) {

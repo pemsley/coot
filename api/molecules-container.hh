@@ -1745,6 +1745,10 @@ public:
    //! @return a `simple_mesh_t` from the give file.
    coot::simple_mesh_t make_mesh_from_gltf_file(const std::string &file_name);
 
+   //! @params `n_divisions` is a number divisble by 2, at least 4 (typically 16)
+   //! @return a unit-vector end-cap octohemisphere mesh
+   coot::simple_mesh_t get_octahemisphere(unsigned int n_divisions) const;
+
    //! @return a string of a png
    std::string pae_png(const std::string &pae_file_name) const;
 
