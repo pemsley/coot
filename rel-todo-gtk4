@@ -1,6 +1,10 @@
 
 ----
 
+libcootapi add_colour_rule(): needs to parse #aabbccaa as a colour
+
+libcootapi: header info? a map/dictionary of info? Title at least.
+
 Coot Bug: turn on rotamer restraints, turn on torsion restraints - has the trans restraints restraints been removed?
 
 Coot: add something so that I can look down the axes - particularly z.

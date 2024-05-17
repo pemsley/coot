@@ -41,7 +41,7 @@ coot-molecule.hh	 make-a-dodec.hh	                                           \
 colour-functions.hh	 gensurf.hh		    validation-information.hh              \
 coot-colour.hh		 ghost-molecule-display.hh  residue-validation-information.hh      \
 molecules-container.hh	 ncs.hh			    geometry-graphs.hh                     \
-	 		 rama-plot-phi-psi.hh	    superpose-results.hh                   \
+header-info.hh 		 rama-plot-phi-psi.hh	    superpose-results.hh                   \
 add-terminal-residue.hh  interfaces.hh              moorhen-h-bonds.hh                     \
 atom-pull.hh             rigid-body-fit.hh          svg-store-key.hh                       \
 phi-psi-prob.hh          saved-strand-info.hh       simple-molecule.hh                     \

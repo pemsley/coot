@@ -1778,6 +1778,22 @@ molecules_container_t::get_residue_using_cid(int imol, const std::string &cid) c
    return residue_p;
 }
 
+//! get header info.
+//! @return an object with header info. Sparce at the moment.
+moorhen::header_info_t
+molecules_container_t::get_header_info(int imol) const {
+
+   moorhen::header_info_t header;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+      if (mol) {
+
+      }
+   }
+   return header;
+}
+
+
 
 int
 molecules_container_t::move_molecule_to_new_centre(int imol, float x, float y, float z) {

@@ -35,6 +35,7 @@
 #include "saved-strand-info.hh"
 #include "svg-store-key.hh"
 #include "moorhen-h-bonds.hh"
+#include "header-info.hh"
 
 //! the container of molecules. The class for all **libcootapi** functions.
 class molecules_container_t {
@@ -403,6 +404,10 @@ public:
    void set_show_timings(bool s) { show_timings = s; }
 
    coot::protein_geometry & get_geom() { return geom; }
+
+   //! get header info.
+   //! @return an object with header info. Sparce at the moment.
+   moorhen::header_info_t get_header_info(int imol) const;
 
    // -------------------------------- generic utils -----------------------------------
    //! \name Generic Utils
