@@ -5694,6 +5694,17 @@ int test_lsq_superpose(molecules_container_t &mc) {
    return status;
 }
 
+int test_alpha_in_colour_holder(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   std::string col = "#aabbccdd";
+   coot::colour_holder ch(col);
+   std::cout << "alpha: " << ch.alpha << std::endl;
+   int status = 0;
+   if (ch.alpha > 0.7 && ch.alpha < 0.9) status = 1;
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -5993,8 +6004,9 @@ int main(int argc, char **argv) {
       {
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #endif
-         status += run_test(test_lsq_superpose, "LSQ superpose", mc);
-         status += run_test(test_change_rotamer, "Change Rotamer (Filo)", mc);
+         // status += run_test(test_lsq_superpose, "LSQ superpose", mc);
+         // status += run_test(test_change_rotamer, "Change Rotamer (Filo)", mc);
+         status += run_test(test_alpha_in_colour_holder, "Alpha value in colour holder", mc);
 
          if (status == n_tests) all_tests_status = 0;
 

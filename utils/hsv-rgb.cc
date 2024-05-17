@@ -170,68 +170,6 @@ coot::colour_holder::make_pale(float degree) {
 }
 
 
-// 
-coot::colour_holder::colour_holder(const std::string &hex_colour_string) { 
-
-   // fallback
-   red = 0.5;
-   green = 0.5;
-   blue = 0.5;
-
-   if (hex_colour_string.length() == 7) {
-      if (hex_colour_string[0] == '#') {
-	 std::string p_1 = hex_colour_string.substr(1,2);
-	 std::string p_2 = hex_colour_string.substr(3,2);
-	 std::string p_3 = hex_colour_string.substr(5,2);
-	 int i_1, i_2, i_3;   
-	 std::stringstream ss1;
-	 std::stringstream ss2;
-	 std::stringstream ss3;
-	 ss1 << std::hex << p_1;
-	 ss1 >> i_1;
-	 ss2 << std::hex << p_2;
-	 ss2 >> i_2;
-	 ss3 << std::hex << p_3;
-	 ss3 >> i_3;
-	 red   = float(i_1)/255;
-	 green = float(i_2)/255;
-	 blue  = float(i_3)/255;
-// debug	 
-// 	 std::cout << "colour_holder hexstring " << hex_colour_string
-// 		   << "  p_1  :" << p_1 << ": "
-// 		   << "  p_2  :" << p_2 << ": "
-// 		   << "  p_3  :" << p_3 << ": "
-// 		   << " -> "
-// 		   << i_1 << " " << i_2 << " " << i_3 << std::endl;
-      } 
-   } 
-}
-
-// // dum is a holder for a colour map selection.
-// // 
-coot::colour_holder::colour_holder(double value, double min_z, double max_z,
-                                   bool use_deuteranomaly_mode,
-				   const std::string &dum) {
-
-   // Given a min, max range of 0,1
-   // If value ~0, we want ~green
-   // if value ~1, we want ~red
-
-   float this_z = value;
-   float range = max_z - min_z;
-   float f = (this_z-min_z)/range;
-   if (f > 1.0) f = 1.0;
-   if (f < 0.0) f = 0.0;
-
-   blue = 0.25 - (f-0.5)*(f-0.5);
-   red = powf(f, 0.2);
-   green = powf(1.0-f, 0.2);
-
-   if (use_deuteranomaly_mode) {
-      blue = f;
-   }
-
-}
 
 void
 coot::colour_holder::scale_intensity(float f) {
