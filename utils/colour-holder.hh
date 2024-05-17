@@ -38,10 +38,16 @@ namespace coot {
       float blue;
       float alpha;
       colour_holder(const float &r, const float &g, const float &b) {
-	 red = r;
+	 red   = r;
 	 green = g;
-	 blue = b;
+	 blue  = b;
          alpha = 1.0f;
+      }
+      colour_holder(const float &r, const float &g, const float &b, const float &a) {
+	 red   = r;
+	 green = g;
+	 blue  = b;
+         alpha = a;
       }
       // this constructor is needed because colour_holder can be used in a vector.
       colour_holder() {

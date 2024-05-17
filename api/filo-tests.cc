@@ -163,12 +163,12 @@ int test_change_chain_id_1(molecules_container_t &molecules_container) {
    // let colourMap = new cootModule.MapIntFloat3();
    // let indexedResiduesVec = new cootModule.VectorStringUInt_pair();
 
-   std::map<unsigned int, std::array<float, 3> > colourMap;
+   std::map<unsigned int, std::array<float, 4> > colourMap;
    std::vector<std::pair<std::string, unsigned int> > indexedResiduesVec;
 
-   std::vector<std::pair<std::string, std::array<float, 3> > > colours = {
-      std::make_pair("//A", std::array<float,3>({1, 0, 0})),
-      std::make_pair("//B", std::array<float,3>({0, 0, 1}))};
+   std::vector<std::pair<std::string, std::array<float, 4> > > colours = {
+      std::make_pair("//A", std::array<float,4>({1, 0, 0, 1})),
+      std::make_pair("//B", std::array<float,4>({0, 0, 1, 1}))};
 
    // colours.forEach((colour, index) => {
    //    colourMap.set(index + 51, colour.rgb)
@@ -219,7 +219,7 @@ int test_change_chain_id_1(molecules_container_t &molecules_container) {
    // let colourMap_2 = new cootModule.MapIntFloat3()
    // let indexedResiduesVec_2 = new cootModule.VectorStringUInt_pair()
 
-   std::map<unsigned int, std::array<float, 3> > colourMap_2;
+   std::map<unsigned int, std::array<float, 4> > colourMap_2;
    std::vector<std::pair<std::string, unsigned int> > indexedResiduesVec_2;
 
    // const colours_2 = [
@@ -228,9 +228,9 @@ int test_change_chain_id_1(molecules_container_t &molecules_container) {
    //    //{ cid: "//X", rgb: [0, 1, 0] }   ----> IF I COMMENT THIS OUT I GET BUS ERROR
    // ]
 
-   std::vector<std::pair<std::string, std::array<float, 3> > > colours_2 = {
-      std::make_pair("//A", std::array<float,3>({1, 0, 0})),
-      std::make_pair("//B", std::array<float,3>({0, 0, 1}))
+   std::vector<std::pair<std::string, std::array<float, 4> > > colours_2 = {
+      std::make_pair("//A", std::array<float,4>({1, 0, 0, 1})),
+      std::make_pair("//B", std::array<float,4>({0, 0, 1, 1}))
    };
 
    // colours_2.forEach((colour, index) => {

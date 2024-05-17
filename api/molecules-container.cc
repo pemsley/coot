@@ -1991,7 +1991,7 @@ molecules_container_t::get_colour_table(int imol, bool against_a_dark_background
 
 //! user-defined colour-index to colour
 void
-molecules_container_t::set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 3> > &colour_map) {
+molecules_container_t::set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 4> > &colour_map) {
 
    if (is_valid_model_molecule(imol)) {
       molecules[imol].set_user_defined_bond_colours(colour_map);

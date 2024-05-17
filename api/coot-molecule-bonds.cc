@@ -56,15 +56,15 @@ coot::molecule_t::set_base_colour_for_bonds(float r, float g, float b) {
 
 //! user-defined colour-index to colour
 void
-coot::molecule_t::set_user_defined_bond_colours(const std::map<unsigned int, std::array<float, 3> > &colour_map) {
+coot::molecule_t::set_user_defined_bond_colours(const std::map<unsigned int, std::array<float, 4> > &colour_map) {
 
    // Fill user_defined_bond_colours
 
-   std::map<unsigned int, std::array<float, 3> >::const_iterator it;
+   std::map<unsigned int, std::array<float, 4> >::const_iterator it;
    for (it=colour_map.begin(); it!=colour_map.end(); ++it) {
       unsigned int idx = it->first;
       const auto &col = it->second;
-      colour_holder ch(col[0], col[1], col[2]);
+      colour_holder ch(col[0], col[1], col[2], col[3]);
       // std::cout << "   " << idx << " " << ch << std::endl;
       user_defined_bond_colours[idx] = ch;
    }

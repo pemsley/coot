@@ -724,7 +724,7 @@ public:
    void print_non_drawn_bonds(int imol) const;
 
    //! user-defined colour-index to colour
-   void set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 3> > &colour_map);
+   void set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 4> > &colour_map);
 
    //! set the user-defined residue selections (CIDs) to colour index
    void set_user_defined_atom_colour_by_selection(int imol, const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
