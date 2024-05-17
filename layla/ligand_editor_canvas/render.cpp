@@ -110,6 +110,33 @@ Renderer::Path Renderer::create_new_path() const {
     return ret;
 }
 
+Renderer::Path& Renderer::top_path() {
+    if(this->drawing_commands.empty()) {
+        this->drawing_commands.push_back({this->create_new_path()});
+    }
+    auto& last_el = this->drawing_commands.back();
+    if(last_el.is_path()) {
+        const auto& pth = last_el.as_path();
+        if(!pth.closed) {
+            return last_el.as_path_mut();
+        }
+    }
+    this->drawing_commands.push_back({this->create_new_path()});
+    return this->drawing_commands.back().as_path_mut();
+}
+
+Renderer::Path* Renderer::top_path_if_exists() {
+    if(this->drawing_commands.empty()) {
+        return nullptr;
+    }
+    auto& last_el = this->drawing_commands.back();
+    if(last_el.is_path()) {
+        return &last_el.as_path_mut();
+    } else {
+        return nullptr;
+    }
+}
+
 #endif // Emscripten defined
 
 Renderer::TextStyle::TextStyle() {
@@ -157,33 +184,6 @@ const std::string& Renderer::TextSpan::as_caption() const {
 
 const std::vector<Renderer::TextSpan>& Renderer::TextSpan::as_subspans() const {
     return std::get<std::vector<TextSpan>>(this->content);
-}
-
-Renderer::Path& Renderer::top_path() {
-    if(this->drawing_commands.empty()) {
-        this->drawing_commands.push_back({this->create_new_path()});
-    }
-    auto& last_el = this->drawing_commands.back();
-    if(last_el.is_path()) {
-        const auto& pth = last_el.as_path();
-        if(!pth.closed) {
-            return last_el.as_path_mut();
-        }
-    }
-    this->drawing_commands.push_back({this->create_new_path()});
-    return this->drawing_commands.back().as_path_mut();
-}
-
-Renderer::Path* Renderer::top_path_if_exists() {
-    if(this->drawing_commands.empty()) {
-        return nullptr;
-    }
-    auto& last_el = this->drawing_commands.back();
-    if(last_el.is_path()) {
-        return &last_el.as_path_mut();
-    } else {
-        return nullptr;
-    }
 }
 
 void Renderer::move_to(double x, double y) {

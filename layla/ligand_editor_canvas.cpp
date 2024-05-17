@@ -172,6 +172,7 @@ CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEdi
             break;
     }
     #ifdef __EMSCRIPTEN__
+    g_info("MEASURE CALLED");
     if(ret.requested_size == 0) {
         g_warning("FIXME: Overriding zeroed 'requested_size' with 600.");
         ret.requested_size = 600;
