@@ -823,7 +823,11 @@ void
 edit_replace_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
-     do_edit_replace_residue();
+
+   GtkWidget *frame = widget_from_builder("replace_residue_frame");
+   GtkWidget *entry = widget_from_builder("replace_residue_entry");
+   gtk_widget_grab_focus(entry);
+   gtk_widget_set_visible(frame, TRUE);
 }
 
 void
