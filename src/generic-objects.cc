@@ -184,6 +184,49 @@ void to_generic_object_add_point(int object_number,
 
 }
 
+// point_info_list_py is a list of [colour, point_width, x, y, z]
+void to_generic_object_add_points(int object_number, PyObject *point_info_list_py) {
+
+   graphics_info_t g;
+   if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
+      if (PyList_Check(point_info_list_py)) {
+         long ll = PyObject_Length(point_info_list_py);
+         g.attach_buffers();
+         std::vector<meshed_generic_display_object::point_info_t> piv;
+         unsigned int num_subdivisions = 2;
+         for (long l=0; l<ll; l++) {
+            PyObject *item_py = PyList_GetItem(point_info_list_py, l);
+            if (PyList_Check(item_py)) {
+               long l_item = PyObject_Length(item_py);
+               if (l_item == 5) {
+                  PyObject *colour_py = PyList_GetItem(item_py, 0);
+                  PyObject *width_py  = PyList_GetItem(item_py, 1);
+                  PyObject *x_py      = PyList_GetItem(item_py, 2);
+                  PyObject *y_py      = PyList_GetItem(item_py, 3);
+                  PyObject *z_py      = PyList_GetItem(item_py, 4);
+                  std::string col = PyBytes_AS_STRING(PyUnicode_AsUTF8String(colour_py));
+                  double w = PyFloat_AsDouble(width_py);
+                  double x = PyFloat_AsDouble(x_py);
+                  double y = PyFloat_AsDouble(y_py);
+                  double z = PyFloat_AsDouble(z_py);
+                  int wi = static_cast<int>(w);
+                  clipper::Coord_orth pt(x,y,z);
+                  // use a constructor here
+                  coot::colour_holder ch = coot::colour_holder_from_colour_name(col);
+                  meshed_generic_display_object::point_info_t pi(ch, pt, wi);
+                  piv.push_back(pi);
+               } else {
+                  std::cout << "wrong item length in to_generic_object_add_points() " << std::endl;
+               }
+            }
+         }
+         g.generic_display_objects[object_number].add_points(piv, num_subdivisions);
+         g.generic_display_objects[object_number].mesh.setup_buffers(); // needed?
+      }
+   }
+}
+
+
 void to_generic_object_add_point_internal(int object_number,
                                           const std::string &colour_name,
                                           const coot::colour_holder &colour,

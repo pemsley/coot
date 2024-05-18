@@ -164,6 +164,15 @@ public:
       clipper::Coord_orth position;
    };
 
+   // for multi-add points
+   class point_info_t {
+   public:
+      point_info_t(const coot::colour_holder &ch, const clipper::Coord_orth &p, int w) : colour(ch), position(p), width(w) {}
+      coot::colour_holder colour;
+      clipper::Coord_orth position;
+      int width;
+   };
+
    enum {UNDEFINED = -1, INTERMEDIATE_ATOMS=-9};
    meshed_generic_display_object() : mesh(Mesh("init_meshed_generic_display_object-A"))
       { imol = UNDEFINED; wireframe_mode = false; }
@@ -223,6 +232,7 @@ public:
                   const int &size_in,
                   const clipper::Coord_orth &coords_in,
                   unsigned int num_subdivisions);
+   void add_points(std::vector<point_info_t> &pos, unsigned int num_subdivisions);
    void add_dodecahedron(const coot::colour_holder &colour_in,
                          const std::string &colour_name,
                          double radius, const clipper::Coord_orth &pos);
