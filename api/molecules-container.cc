@@ -92,6 +92,17 @@ molecules_container_t::is_a_difference_map(int imol) const {
 }
 
 
+//! create an empty molecule
+//! @return the index of the new molecule
+int
+molecules_container_t::new_molecule(const std::string &name) {
+
+   int n_mol = molecules.size();
+   molecules.push_back(coot::molecule_t(name, n_mol));
+   return n_mol;
+}
+
+
 int
 molecules_container_t::close_molecule(int imol) {
 

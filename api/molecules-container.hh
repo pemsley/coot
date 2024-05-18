@@ -424,6 +424,11 @@ public:
    bool is_valid_map_molecule(int imol_map) const;
    //! @return is this a difference map?
    bool is_a_difference_map(int imol_map) const;
+
+   //! create an empty molecule
+   //! @return the index of the new molecule
+   int new_molecule(const std::string &name);
+
    //! close the molecule (and delete dynamically allocated memory)
    //! @return 1 on successful closure and 0 on failure to close
    int close_molecule(int imol);
