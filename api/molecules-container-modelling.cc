@@ -19,12 +19,18 @@ molecules_container_t::copy_fragment_using_cid(int imol, const std::string &mult
       mmdb::Manager *new_manager = coot::util::create_mmdbmanager_from_atom_selection(mol, selHnd);
       if (new_manager) {
          int transfer_atom_index_handle = new_manager->GetUDDHandle(mmdb::UDR_ATOM, "transfer atom index");
+
          // std::cout << "..... transfer_atom_index_handle A " << transfer_atom_index_handle << std::endl;
+
          imol_new = molecules.size();
          atom_selection_container_t asc = make_asc(new_manager);
          asc.UDDOldAtomIndexHandle = transfer_atom_index_handle;
          std::string new_name = "copy-fragment-from-molecule-" + std::to_string(imol);
          molecules.push_back(coot::molecule_t(asc, imol_new, new_name));
+         if (false)
+            std::cout << "debug:: in mc::copy_fragment_using_cid(): the UDDOldAtomIndexHandle for molecule " << imol_new
+                      << " is " << molecules[imol_new].atom_sel.UDDOldAtomIndexHandle << std::endl;
+
       }
       mol->DeleteSelection(selHnd);
    } else {
@@ -291,7 +297,7 @@ molecules_container_t::add_compound(int imol, const std::string &tlc, int imol_d
                   std::vector<mmdb::Manager *> mols = { mol };
                   auto merge_results = merge_molecules(imol, mols);
 
-                  std::cout << "llllllllllllllllllllllllll in add_compound() with merge_results size "
+                  std::cout << "debug:: in add_compound() with merge_results size "
                             << merge_results.first << " "
                             << merge_results.second.size() << std::endl;
 

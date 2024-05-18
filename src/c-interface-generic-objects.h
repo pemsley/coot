@@ -93,6 +93,12 @@ void to_generic_object_add_point(int object_number,
 				 float from_y1,
 				 float from_z1);
 
+#ifdef USE_PYTHON
+// point_info_list_py is a list of [colour, point_width, x, y, z]
+void to_generic_object_add_points(int object_number, PyObject *point_info_list_py);
+#endif
+
+
 #ifndef SWIG
 void to_generic_object_add_point_internal(int object_number,
 				 const std::string &colour_name, // needed for indexing objects by colour

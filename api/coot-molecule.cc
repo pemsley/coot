@@ -3825,7 +3825,9 @@ coot::molecule_t::get_symmetry(float symmetry_search_radius, const coot::Cartesi
 coot::molecule_t::rotamer_change_info_t
 coot::molecule_t::change_to_next_rotamer(const coot::residue_spec_t &res_spec, const std::string &alt_conf,
                                          const coot::protein_geometry &pg) {
-   return change_rotamer_number(res_spec, alt_conf, 1, pg);
+
+   auto crni = change_rotamer_number(res_spec, alt_conf, 1, pg);
+   return crni;
 }
 
 //
@@ -3894,6 +3896,7 @@ coot::molecule_t::change_rotamer_number(const coot::residue_spec_t &res_spec, co
             rci.rank = rotamer_number;
             rci.name = rotamers[rotamer_number].rotamer_name();
             rci.richardson_probability = rotamers[rotamer_number].Probability_rich();
+
          }
       } else {
          std::cout << "WARNING:: change_rotamer_number() Failed to get monomer restraints for " << res_type << std::endl;
@@ -3943,11 +3946,14 @@ coot::molecule_t::set_residue_to_rotamer_move_atoms(mmdb::Residue *res, mmdb::Re
       }
    }
 
-   if (i_done) {
-      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-      atom_sel.mol->FinishStructEdit();
-      atom_sel = make_asc(atom_sel.mol);
-   }
+   // 20240516-PE I aom only moving atoms - so I don't need any of this:
+   // (it destroys atom_sel and atom_sel.UDDOldAtomIndexHandle)
+   //
+   // if (i_done) {
+      // atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      // atom_sel.mol->FinishStructEdit();
+      // atom_sel = make_asc(atom_sel.mol);
+   // }
    return i_done;
 }
 

@@ -92,6 +92,17 @@ molecules_container_t::is_a_difference_map(int imol) const {
 }
 
 
+//! create an empty molecule
+//! @return the index of the new molecule
+int
+molecules_container_t::new_molecule(const std::string &name) {
+
+   int n_mol = molecules.size();
+   molecules.push_back(coot::molecule_t(name, n_mol));
+   return n_mol;
+}
+
+
 int
 molecules_container_t::close_molecule(int imol) {
 
@@ -1778,6 +1789,22 @@ molecules_container_t::get_residue_using_cid(int imol, const std::string &cid) c
    return residue_p;
 }
 
+//! get header info.
+//! @return an object with header info. Sparce at the moment.
+moorhen::header_info_t
+molecules_container_t::get_header_info(int imol) const {
+
+   moorhen::header_info_t header;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+      if (mol) {
+
+      }
+   }
+   return header;
+}
+
+
 
 int
 molecules_container_t::move_molecule_to_new_centre(int imol, float x, float y, float z) {
@@ -1975,7 +2002,7 @@ molecules_container_t::get_colour_table(int imol, bool against_a_dark_background
 
 //! user-defined colour-index to colour
 void
-molecules_container_t::set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 3> > &colour_map) {
+molecules_container_t::set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 4> > &colour_map) {
 
    if (is_valid_model_molecule(imol)) {
       molecules[imol].set_user_defined_bond_colours(colour_map);

@@ -35,6 +35,7 @@
 #include "saved-strand-info.hh"
 #include "svg-store-key.hh"
 #include "moorhen-h-bonds.hh"
+#include "header-info.hh"
 
 //! the container of molecules. The class for all **libcootapi** functions.
 class molecules_container_t {
@@ -404,6 +405,10 @@ public:
 
    coot::protein_geometry & get_geom() { return geom; }
 
+   //! get header info.
+   //! @return an object with header info. Sparce at the moment.
+   moorhen::header_info_t get_header_info(int imol) const;
+
    // -------------------------------- generic utils -----------------------------------
    //! \name Generic Utils
 
@@ -419,6 +424,11 @@ public:
    bool is_valid_map_molecule(int imol_map) const;
    //! @return is this a difference map?
    bool is_a_difference_map(int imol_map) const;
+
+   //! create an empty molecule
+   //! @return the index of the new molecule
+   int new_molecule(const std::string &name);
+
    //! close the molecule (and delete dynamically allocated memory)
    //! @return 1 on successful closure and 0 on failure to close
    int close_molecule(int imol);
@@ -719,7 +729,7 @@ public:
    void print_non_drawn_bonds(int imol) const;
 
    //! user-defined colour-index to colour
-   void set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 3> > &colour_map);
+   void set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 4> > &colour_map);
 
    //! set the user-defined residue selections (CIDs) to colour index
    void set_user_defined_atom_colour_by_selection(int imol, const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
@@ -1739,6 +1749,10 @@ public:
 
    //! @return a `simple_mesh_t` from the give file.
    coot::simple_mesh_t make_mesh_from_gltf_file(const std::string &file_name);
+
+   //! @params `n_divisions` is a number divisble by 2, at least 4 (typically 16)
+   //! @return a unit-vector end-cap octohemisphere mesh
+   coot::simple_mesh_t get_octahemisphere(unsigned int n_divisions) const;
 
    //! @return a string of a png
    std::string pae_png(const std::string &pae_file_name) const;

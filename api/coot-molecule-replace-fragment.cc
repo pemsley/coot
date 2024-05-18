@@ -106,7 +106,7 @@ coot::molecule_t::replace_fragment(atom_selection_container_t asc) {
       mmdb::Atom *at = asc.atom_selection[i];
 
       // std::cout << "debug:: in replace_fragment() with asc.UDDOldAtomIndexHandle "
-      //           << asc.UDDOldAtomIndexHandle << std::endl;
+      //           << asc.UDDOldAtomIndexHandle << " " << coot::atom_spec_t(at) << std::endl;
 
       if (! at->isTer()) {
          // can we find the atom with fast indexing?
@@ -218,7 +218,7 @@ coot::molecule_t::replace_fragment(mmdb::Manager *mol_ref, int old_atom_index_ha
 
    for (int i=0; i<n_selection_atoms; i++) {
       mmdb:: Atom *at_frag = selection_atoms[i];
-      // std::cout << "replace this: " << atom_spec_t(at_frag) << std::endl;
+      // std::cout << "### replace this: " << atom_spec_t(at_frag) << std::endl;
       int idx = -1;
       int ierr = at_frag->GetUDData(old_atom_index_handle, idx);
       if (ierr == mmdb::UDDATA_Ok) {
@@ -228,12 +228,14 @@ coot::molecule_t::replace_fragment(mmdb::Manager *mol_ref, int old_atom_index_ha
          at->y = at_frag->y;
          at->z = at_frag->z;
          status = 1; // at least one atom was found
+      } else {
+         std::cout << "GetUDData() failed for " << coot::atom_spec_t(at_frag) << " " << old_atom_index_handle << std::endl;
       }
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
 
-   std::cout << "debug (new) replace_fragment() took " << d10 << " microseconds" << std::endl;
+   // std::cout << "debug (new) replace_fragment() took " << d10 << " microseconds" << std::endl;
 
    return status;
 }

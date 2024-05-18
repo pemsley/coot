@@ -437,6 +437,12 @@ namespace coot {
 
    public:
 
+      // ---------------------------------------------------------------------------------------------------------------
+      // ---------------------------------------------------------------------------------------------------------------
+      //                                 public
+      // ---------------------------------------------------------------------------------------------------------------
+      // ---------------------------------------------------------------------------------------------------------------
+
       // enum refine_residues_mode {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
 
       atom_selection_container_t atom_sel;
@@ -653,7 +659,7 @@ namespace coot {
       //! user-defined colour-index to colour
       //! (internallly, this converts the `colour_map` to the above vector of colour holders, so it's probably a good idea
       //! if the colour (index) keys are less than 200 or so.
-      void set_user_defined_bond_colours(const std::map<unsigned int, std::array<float, 3> > &colour_map);
+      void set_user_defined_bond_colours(const std::map<unsigned int, std::array<float, 4> > &colour_map);
 
       //! user-defined atom selection to colour index.
       // make this static?

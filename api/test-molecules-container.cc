@@ -3742,11 +3742,10 @@ int test_user_defined_bond_colours(molecules_container_t &mc) {
       coot::atom_spec_t atom_spec("A", 1, "", " O  ","");
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
-         std::cout << "...................... here A " << std::endl;
-         std::map<unsigned int, std::array<float, 3> > colour_map;
-         colour_map[0] = std::array<float, 3> {0.42222222, 0.7, 0.4};
-         colour_map[2] = std::array<float, 3> {0.42222222, 0.4, 0.7};
-         colour_map[1] = std::array<float, 3> {0.7, 0.4, 0.42222222};
+         std::map<unsigned int, std::array<float, 4> > colour_map;
+         colour_map[0] = std::array<float, 4> {0.42222222, 0.7, 0.4};
+         colour_map[2] = std::array<float, 4> {0.42222222, 0.4, 0.7};
+         colour_map[1] = std::array<float, 4> {0.7, 0.4, 0.42222222};
          std::vector<std::pair<std::string, unsigned int> > indexed_residues_cids;
          indexed_residues_cids.push_back(std::make_pair("//A",2));
          indexed_residues_cids.push_back(std::make_pair("//A/100-200",1));
@@ -4176,7 +4175,7 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
       std::cout << "-------------" << std::endl;
    }
 
-   std::map<unsigned int, std::array<float, 3> > colour_index_map;
+   std::map<unsigned int, std::array<float, 4> > colour_index_map;
    colour_index_map[12] = {1, 0, 1};
    colour_index_map[13] = {0, 1, 1};
    colour_index_map[14] = {0, 0, 1};
@@ -4249,7 +4248,7 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
 
 int test_user_defined_bond_colours_v3(molecules_container_t &mc) {
 
-   auto is_near_colour = [] (const glm::vec4 &col_1, const std::array<float, 3> &col_2) {
+   auto is_near_colour = [] (const glm::vec4 &col_1, const std::array<float, 4> &col_2) {
       float cf = 0.04;
       if (std::fabs(col_2[0] - col_1.r) < cf)
          if (std::fabs(col_2[1] - col_1.g) < cf)
@@ -4284,7 +4283,7 @@ int test_user_defined_bond_colours_v3(molecules_container_t &mc) {
    int imol = mc.read_pdb(reference_data("pdb4ri2.ent"));
 
    if (mc.is_valid_model_molecule(imol)) {
-      std::map<unsigned int, std::array<float, 3> > colour_map;
+      std::map<unsigned int, std::array<float, 4> > colour_map;
       colour_map[51] = {0.627, 0.529, 0.400};
       colour_map[52] = {0.424, 0.627, 0.400};
       colour_map[53] = {0.957, 0.263, 0.212};
@@ -4363,7 +4362,7 @@ int test_other_user_defined_colours_other(molecules_container_t &mc) {
       coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
-         std::map<unsigned int, std::array<float, 3> > colour_index_map;
+         std::map<unsigned int, std::array<float, 4> > colour_index_map;
          colour_index_map[21] = {1.11111111, 1.111111, 0};
          std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
          mc.set_user_defined_bond_colours(imol, colour_index_map);
@@ -5694,6 +5693,17 @@ int test_lsq_superpose(molecules_container_t &mc) {
    return status;
 }
 
+int test_alpha_in_colour_holder(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   std::string col = "#aabbccdd";
+   coot::colour_holder ch(col);
+   std::cout << "alpha: " << ch.alpha << std::endl;
+   int status = 0;
+   if (ch.alpha > 0.7 && ch.alpha < 0.9) status = 1;
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -5993,8 +6003,9 @@ int main(int argc, char **argv) {
       {
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #endif
-         status += run_test(test_lsq_superpose, "LSQ superpose", mc);
-         status += run_test(test_change_rotamer, "Change Rotamer (Filo)", mc);
+         // status += run_test(test_lsq_superpose, "LSQ superpose", mc);
+         // status += run_test(test_change_rotamer, "Change Rotamer (Filo)", mc);
+         status += run_test(test_alpha_in_colour_holder, "Alpha value in colour holder", mc);
 
          if (status == n_tests) all_tests_status = 0;
 

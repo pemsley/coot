@@ -36,22 +36,37 @@ namespace coot {
       float red;
       float green;
       float blue;
+      float alpha;
       colour_holder(const float &r, const float &g, const float &b) {
-	 red = r;
+	 red   = r;
 	 green = g;
-	 blue = b;
+	 blue  = b;
+         alpha = 1.0f;
+      }
+      colour_holder(const float &r, const float &g, const float &b, const float &a) {
+	 red   = r;
+	 green = g;
+	 blue  = b;
+         alpha = a;
       }
       // this constructor is needed because colour_holder can be used in a vector.
       colour_holder() {
 	 red = 0.5;
 	 green = 0.5;
 	 blue = 0.5;
+         alpha = 1.0f;
       }
       explicit colour_holder(const std::vector<float> &c_in) {
 	 if (c_in.size() == 3) {
 	    red   = c_in[0];
 	    green = c_in[1];
 	    blue  = c_in[2];
+	 }
+	 if (c_in.size() == 4) {
+	    red   = c_in[0];
+	    green = c_in[1];
+	    blue  = c_in[2];
+	    alpha = c_in[3];
 	 }
       }
       explicit colour_holder(const std::string &hex_colour_string);
