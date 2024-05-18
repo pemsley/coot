@@ -1,6 +1,11 @@
 
 ----
 
+Coot: we have meshed_generic_display_object::add_point(). We want meshed_generic_display_object::add_points()
+  Say for example the bendy helices project - many points means coot is slow to start up.
+
+Coot: What do I need to do for each of FLEV, CFC and QED? Do it soon.
+
 Coot Bug: turn on rotamer restraints, turn on torsion restraints - has the trans restraints restraints been removed?
 
 Coot: add something so that I can look down the axes - particularly z.
