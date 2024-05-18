@@ -43,6 +43,9 @@ namespace moorhen {
    class header_info_t {
    public:
       std::string title;
+      std::vector<std::string> journal_lines;
+      std::vector<std::string> author_lines;
+      std::vector<std::string> compound_lines;
       std::vector<helix_t> helix_info;
       header_info_t() {}
    };
