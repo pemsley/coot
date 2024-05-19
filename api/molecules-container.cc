@@ -33,10 +33,11 @@
 #include "ideal/pepflip.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/secondary-structure-headers.hh"
+#include "coot-utils/oct.hh"
 
 #include "coords/Bond_lines.h"
-
-#include "coot-utils/oct.hh"
+#include "coords/mmdb.hh"
 
 // statics
 std::atomic<bool> molecules_container_t::restraints_lock(false);
@@ -1789,16 +1790,91 @@ molecules_container_t::get_residue_using_cid(int imol, const std::string &cid) c
    return residue_p;
 }
 
+
 //! get header info.
 //! @return an object with header info. Sparce at the moment.
 moorhen::header_info_t
 molecules_container_t::get_header_info(int imol) const {
 
+   auto get_author_info = [] (mmdb::Manager *mol) {
+
+      std::vector<std::string> author_lines;
+      access_mol *am = static_cast<access_mol *>(mol);
+      const mmdb::Title *tt = am->GetTitle();
+      mmdb::Title *ttmp = const_cast<mmdb::Title *>(tt);
+      access_title *at = static_cast<access_title *> (ttmp);
+      mmdb::TitleContainer *author_container = at->GetAuthor();
+      unsigned int al = author_container->Length();
+      for (unsigned int i=0; i<al; i++) {
+         mmdb::Author *a_line = mmdb::PAuthor(author_container->GetContainerClass(i));
+         if (a_line) {
+            std::string line(a_line->Line);
+            author_lines.push_back(line);
+         }
+      }
+      return author_lines;
+   };
+
+   auto get_journal_info = [] (mmdb::Manager *mol) {
+
+      std::vector<std::string> journal_lines;
+      access_mol *am = static_cast<access_mol *>(mol);
+
+      const mmdb::Title *tt = am->GetTitle();
+      mmdb::Title *ttmp = const_cast<mmdb::Title *>(tt);
+      access_title *at = static_cast<access_title *> (ttmp);
+      mmdb::TitleContainer *journal_container = at->GetJournal();
+      unsigned int al = journal_container->Length();
+      for (unsigned int i=0; i<al; i++) {
+         mmdb::Journal *j_line = mmdb::PJournal(journal_container->GetContainerClass(i));
+         if (j_line) {
+            std::string line(j_line->Line);
+            journal_lines.push_back(line);
+         }
+      }
+      return journal_lines;
+   };
+
+   bool screen_output = false;
    moorhen::header_info_t header;
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = molecules[imol].atom_sel.mol;
       if (mol) {
 
+         std::string title = coot::get_title(mol);
+         std::vector<std::string> compound_lines = coot::get_compound_lines(mol);
+         std::vector<std::string>   author_lines = get_author_info(mol);
+         std::vector<std::string>  journal_lines = get_journal_info(mol);
+
+         header.compound_lines = compound_lines;
+         header.author_lines   = author_lines;
+         header.journal_lines  = journal_lines;
+
+         coot::secondary_structure_header_records sshr(mol, false);
+         mmdb::Model *model_p = mol->GetModel(1);
+         if (model_p) {
+            coot::util::print_secondary_structure_info(model_p);
+            int nhelix = model_p->GetNumberOfHelices();
+            int nsheet = model_p->GetNumberOfSheets();
+            std::cout << "INFO:: There are " << nhelix << " helices and " << nsheet << " sheets\n";
+            for (int ih=1; ih<=nhelix; ih++) {
+               mmdb:: Helix *helix_p = model_p->GetHelix(ih);
+               if (helix_p) {
+                  if (screen_output)
+                     std::cout << helix_p->serNum      << " " << helix_p->helixID    << " "
+                               << helix_p->initChainID << " " << helix_p->initSeqNum << " "
+                               << helix_p->endChainID  << " " << helix_p->endSeqNum  << " "
+                               << helix_p->length      << " " << helix_p->comment    << std::endl;
+                  moorhen::helix_t helix(helix_p->serNum, helix_p->helixID,
+                                         helix_p->initResName, helix_p->initChainID, helix_p->initSeqNum, helix_p->initICode,
+                                         helix_p->endResName,  helix_p->endChainID,  helix_p->endSeqNum,  helix_p->endICode,
+                                         helix_p->helixClass, helix_p->comment, helix_p->length);
+                  header.helix_info.push_back(helix);
+               } else {
+                  std::cout << "ERROR: no helix!?" << std::endl;
+               }
+            }
+         }
       }
    }
    return header;

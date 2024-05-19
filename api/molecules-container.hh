@@ -356,7 +356,7 @@ public:
 
    bool use_gemmi; // for mmcif and PDB parsing. 20240112-PE set to true by default in init()
 
-   //! Set the state of using gemmi for coordinates parsing. The default is false.
+   //! Set the state of using gemmi for coordinates parsing. The default is true.
    void set_use_gemmi(bool state) { use_gemmi = state; }
 
    //! get the state of using GEMMI for coordinates parsing

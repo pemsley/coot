@@ -1,4 +1,6 @@
 
+#include <gtk/gtk.h>
+#include <mmdb2/mmdb_manager.h>
 
 void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox);
 

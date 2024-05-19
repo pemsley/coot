@@ -269,6 +269,7 @@ NB_MODULE(chapi, m) {
     .def("get_group_for_monomer",&molecules_container_t::get_group_for_monomer)
     .def("get_groups_for_monomers",&molecules_container_t::get_groups_for_monomers)
     .def("get_hb_type",&molecules_container_t::get_hb_type)
+    .def("get_header_info",&molecules_container_t::get_header_info)
     // .def("get_h_bonds",&molecules_container_t::get_h_bonds)
     // .def("get_interesting_places",&molecules_container_t::get_interesting_places)
     .def("get_lsq_matrix",&molecules_container_t::get_lsq_matrix)
@@ -636,6 +637,29 @@ NB_MODULE(chapi, m) {
     //    .def_ro("normals",   &coot::blender_mesh_t::normals)
     //    .def_ro("triangles", &coot::blender_mesh_t::triangles)
     // ;
+    nb::class_<moorhen::helix_t>(m,"helix_t")
+       .def_ro("serNum", &moorhen::helix_t::serNum)
+       .def_ro("helixID", &moorhen::helix_t::helixID)
+       .def_ro("initResName", &moorhen::helix_t::initResName)
+       .def_ro("initChainID", &moorhen::helix_t::initChainID)
+       .def_ro("initSeqNum", &moorhen::helix_t::initSeqNum)
+       .def_ro("initICode", &moorhen::helix_t::initICode)
+       .def_ro("endResName", &moorhen::helix_t::endResName)
+       .def_ro("endChainID", &moorhen::helix_t::endChainID)
+       .def_ro("endSeqNum", &moorhen::helix_t::endSeqNum)
+       .def_ro("endICode", &moorhen::helix_t::endICode)
+       .def_ro("helixClass", &moorhen::helix_t::helixClass)
+       .def_ro("comment", &moorhen::helix_t::comment)
+       .def_ro("length", &moorhen::helix_t::length)
+       ;
+
+    nb::class_<moorhen::header_info_t>(m,"header_info_t")
+       .def_ro("title", &moorhen::header_info_t::title)
+       .def_ro("author_lines", &moorhen::header_info_t::author_lines)
+       .def_ro("journal_lines", &moorhen::header_info_t::journal_lines)
+       .def_ro("compound_lines", &moorhen::header_info_t::compound_lines)
+       .def_ro("helix_info", &moorhen::header_info_t::helix_info)
+       ;
 
     nb::class_<coot::util::density_correlation_stats_info_t>(m,"density_correlation_stats_info_t")
     .def_ro("n",          &coot::util::density_correlation_stats_info_t::n)
