@@ -4374,7 +4374,6 @@ def solvent_ligands_gui():
                 if not coot_utils.molecule_has_hydrogens(imol):
                     coot.delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
             if (coot_utils.valid_map_molecule_qm(coot.imol_refinement_map())):
-                print("========  jiggling!  ======== ")
 
                 coot.merge_molecules_py([imol_ligand], imol)
 
@@ -4391,23 +4390,17 @@ def solvent_ligands_gui():
                 #
                 active_atom = coot.active_residue_py()
                 aa_chain_id = active_atom[1]
-                aa_res_no = active_atom[2]
-                coot.fit_to_map_by_random_jiggle(imol, aa_chain_id, aa_res_no, "",
-                                            random_jiggle_n_trials, 1.0)
+                aa_res_no   = active_atom[2]
+                coot.fit_to_map_by_random_jiggle(imol, aa_chain_id, aa_res_no, "", random_jiggle_n_trials, 1.0)
+                coot.close_molecule(imol_ligand)
 
                 # if we use refine_residues, that will take note of residues
                 # near this residue and make non-bonded contacts
                 # (whereas refine_zone will not).
                 #
                 # coot_utils.with_auto_accept([refine_zone, imol, aa_chain_id, aa_res_no, 1, ""])
-                coot_utils.with_auto_accept(
-                    [coot.refine_residues_py, imol, [[aa_chain_id, aa_res_no, ""]]])
+                coot_utils.with_auto_accept([coot.refine_residues_py, imol, [[aa_chain_id, aa_res_no, ""]]])
 
-            else:
-                print("======== not jiggling - no map ======== ")
-            if coot_utils.valid_model_molecule_qm(imol):
-                coot.set_mol_active(imol_ligand, 0)
-                coot.set_mol_displayed(imol_ligand, 0)
 
     # add a button for a 3-letter-code to the scrolled vbox that runs
     # add-ligand-func when clicked.

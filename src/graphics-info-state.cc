@@ -392,7 +392,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
                if (molecules[i].Bonds_box_type() != coot::NORMAL_BONDS) {
                   if (molecules[i].Bonds_box_type() == coot::CA_BONDS) {
-                     std::string sc = state_command("coot", "graphics-to--ca-representation", molecule_count, il);
+                     std::string sc = state_command("coot", "graphics-to-ca-representation", molecule_count, il);
                      commands.push_back(sc);
                   }
                   if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_CHAIN_BONDS) {
