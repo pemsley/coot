@@ -1,40 +1,59 @@
 
 ----
 
+Coot: do_edit_replace_residue() get rid of the python/scripting
+* Done.
+
+Coot: state file user-input dictionary in state file:
+    coot.read_cif_dictionary('"/Users/pemsley/Desktop/thierry/TST.cif"')
+* Done.
+
+Coot: no coot prefix in map saved in status file coot.handle_read_ccp4_map
+* Done.
+
 Coot: we have meshed_generic_display_object::add_point(). We want meshed_generic_display_object::add_points()
   Say for example the bendy helices project - many points means coot is slow to start up.
-*Done.
-
-Coot: What do I need to do for each of FLEV, CFC and QED? Do it soon.
+* Done.
 
 libcootapi: rdkit mol needs to be a shared pointer.
 
-libcootapi: add BOND-BY-DISTANCE to the api.
+Coot: What do I need to do for each of FLEV, CFC and QED? Do it soon.
+   QED:  make the RDKit mol a shared pointer.
+         Jakub to do the rest. I will edit the ui to provide progress bars.
+   FLEV: Does this need to be in Layla? I think not, in fact. Goocanvas stuff will
+         need to be converted to Cairo. And I can display the cairo surface like I do
+         in the positron interface.
+   CFC:  Needs a C++ clustering algorithm. Before I used Gaussian mixture model - maybe that will do.
+         Needs to be available in Moorhen.
 
-maybe libcootapi function: is everything here bonded correctly?
+libcootapi: add BOND-BY-DISTANCE to the api.  maybe libcootapi function: is everything here bonded correctly?
 
 libcootapi add_colour_rule(): needs to parse #aabbccaa as a colour
+* Done.
 
 libcootapi: header info? a map/dictionary of info? Title at least.
+* Done.
 
-Coot Bug: turn on rotamer restraints, turn on torsion restraints - has the trans restraints restraints been removed?
+Coot Bug: turn on rotamer restraints, turn on torsion restraints - has the trans restraints been removed?
 
 Coot: add something so that I can look down the axes - particularly z.
 
 Coot: I want a slider to scrub through the map molecules in positron interface.
+      It would be good if this scubbed the fitted models too (models need to be fitted firsst - haha)
 
 Coot: Pull in Bernhard's Rama plots
 * Done.
 
-"I didn't merge the SO4" - more than once in the tutorial
+"I didn't merge the SO4" - more than once in the tutorial - delete it after you've jiggle fitted it.
+* Done.
 
 Don't allow FLEV if the protein doesn't have hydrogen atoms.
 
 Moorhen: Add search monomer library.
 
-libcootapi: import gltf (from Mol*, say!)
+libcootapi: import glTF (from Mol*, say!)
 
-ligand fitting tutorial - turn aroundd the tail of the fish so that it is the wrong way
+ligand fitting tutorial - turn around the tail of the fish so that it is the wrong way
 adn look for environment distances - the O-O interaction should not be purple!
 
 Coot: generic objects are not drawn with depth fog
