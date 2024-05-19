@@ -2405,7 +2405,9 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
 
       // save state strings
-      save_state_command_strings_.push_back("handle-read-ccp4-map");
+      // c.f. std::string sc = state_command("coot", "set-draw-hydrogens", command_args, il);
+      save_state_command_strings_.push_back("coot");
+      save_state_command_strings_.push_back("handle-read-ccp4-map"); // maybe problems in scheme state script in future
       save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(filename)));
       save_state_command_strings_.push_back(graphics_info_t::int_to_string(is_diff_map_flag));
 

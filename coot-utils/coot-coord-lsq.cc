@@ -124,7 +124,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
    amc_at_names.push_back(" N  ");
    amc_at_names.push_back(" O  ");
    amc_at_names.push_back(" C  ");
-   
+
    // Set up the nucleotide main chain atom names
    std::vector<std::string> nmc_at_names;
    nmc_at_names.push_back(" P  ");
@@ -277,6 +277,10 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
                                << " in this moving residue " << ires_matcher
                                << std::endl;
                   } else {
+                     if (false)
+                        std::cout << "Found match "
+                                  << atom_spec_t(at1) << " to "
+                                  << atom_spec_t(at2) << std::endl;
                      v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
                      v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
                   }
