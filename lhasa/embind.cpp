@@ -70,16 +70,11 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   value_object<impl::Renderer::Line>("Line")
     .field("start", &impl::Renderer::Line::start)
     .field("end", &impl::Renderer::Line::end);
-    // .field("style", &impl::Renderer::Line::style);
   value_object<impl::Renderer::Arc>("Arc")
     .field("origin", &impl::Renderer::Arc::origin)
     .field("radius", &impl::Renderer::Arc::radius)
     .field("angle_one", &impl::Renderer::Arc::angle_one)
     .field("angle_two", &impl::Renderer::Arc::angle_two);
-    // .field("has_fill", &impl::Renderer::Arc::has_fill)
-    // .field("fill_color", &impl::Renderer::Arc::fill_color)
-    // .field("has_stroke", &impl::Renderer::Arc::has_stroke)
-    // .field("stroke_style", &impl::Renderer::Arc::stroke_style);
   class_<impl::Renderer::PathElement>("PathElement")
     .function("is_arc", &impl::Renderer::PathElement::is_arc)
     .function("as_arc", &impl::Renderer::PathElement::as_arc)
@@ -122,10 +117,6 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   class_<impl::Renderer::DrawingCommand>("DrawingCommand")
     .function("is_path", &impl::Renderer::DrawingCommand::is_path)
     .function("as_path", &impl::Renderer::DrawingCommand::as_path)
-    // .function("is_arc", &impl::Renderer::DrawingCommand::is_arc)
-    // .function("as_arc", &impl::Renderer::DrawingCommand::as_arc)
-    // .function("as_line", &impl::Renderer::DrawingCommand::as_line)
-    // .function("is_line", &impl::Renderer::DrawingCommand::is_line)
     .function("is_text", &impl::Renderer::DrawingCommand::is_text)
     .function("as_text", &impl::Renderer::DrawingCommand::as_text);
   class_<DeleteTool>("DeleteTool")
