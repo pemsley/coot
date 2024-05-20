@@ -27,6 +27,9 @@
 #ifndef SECONDARY_STRUCTURE_HEADERS_HH
 #define SECONDARY_STRUCTURE_HEADERS_HH
 
+#include <vector>
+#include <string>
+
 #include <cstdio>
 #include <string.h>
 
@@ -36,7 +39,7 @@ namespace coot {
 
    class access_model : public mmdb::Model {
    public:
-      access_model(mmdb::Model model_in) : mmdb::Model(model_in) { }
+      explicit access_model(mmdb::Model model_in) : mmdb::Model(model_in) {}
       void add_sheets(mmdb::Sheets *sheets_in) {
 	 sheets.nSheets = sheets_in->nSheets;
 	 sheets.sheet   = sheets_in->sheet;
@@ -111,13 +114,14 @@ namespace coot {
 	 std::string r(1,c);
          return r;
       }
-      std::string helix_index_to_helix_id(unsigned int idx) {
-	 // C++-11:
-	 // return std::to_string(idx);
+      std::string helix_index_to_helix_id(int idx) {
 	 // old style C++
-	 char buff[20];
-	 std::snprintf(buff, 5, "%d", idx+1);
-	 return std::string(buff);
+	 // char buff[20];
+	 // std::snprintf(buff, 5, "%d", idx+1);
+	 // return std::string(buff);
+         //
+	 // C++-11:
+	 return std::to_string(idx);
       }
 
    public:

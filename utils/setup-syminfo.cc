@@ -26,10 +26,14 @@
 
 #include "coot-utils.hh"
 #include "setup-syminfo.hh"
+#ifdef _MSC_VER
+  // bypass on Windows - thank you Charles Ballard
+#else
 // for stat()
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#endif
 
 void setup_syminfo() {
 

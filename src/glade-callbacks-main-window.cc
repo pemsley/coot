@@ -333,18 +333,21 @@ on_model_toolbar_add_terminal_residue_button_clicked(GtkButton *button,
    graphics_info_t g;
    auto active_atom = g.get_active_atom();
    int imol = active_atom.first;
-   std::cout << "on_model_toolbar_add_terminal_residue_button_clicked 1" << std::endl;
    if (is_valid_model_molecule(imol)) {
-      std::cout << "on_model_toolbar_add_terminal_residue_button_clicked 2" << std::endl;
       mmdb::Residue *residue_p = active_atom.second->residue;
       coot::atom_spec_t atom_spec(active_atom.second);
       std::string chain_id = atom_spec.chain_id;
-      coot::residue_spec_t residue_spec(atom_spec);
-      std::string new_type = "ALA";
       mmdb::Atom *atom = active_atom.second;
       std::string terminus_type = g.molecules[imol].get_term_type(atom);
-      g.execute_add_terminal_residue(imol, terminus_type, residue_p,
-                                     chain_id, new_type, true);
+
+      if (coot::util::is_nucleotide_by_dict_dynamic_add(residue_p, g.Geom_p())) {
+         std::cout << "add nucleotide" << std::endl;
+         g.execute_simple_nucleotide_addition(imol, terminus_type, residue_p, chain_id);
+      } else {
+         coot::residue_spec_t residue_spec(atom_spec);
+         std::string new_type = "ALA";
+         g.execute_add_terminal_residue(imol, terminus_type, residue_p, chain_id, new_type, true);
+      }
    }
 
 }
@@ -652,6 +655,51 @@ void on_generic_overlay_frame_cancel_button_clicked(GtkButton       *button,
    } else {
       g_error("ERROR:: in on_generic_overlay_frame_cancel_button_clicked() 'user_data' is NULL. Cannot hide overlay frame.");
    }
+}
+
+// 20240518-PE this is the only function in this file that uses python. Hmm.
+// So rewrite mutate_by_overlap() into C++ (non-trivial)
+//
+#include "cc-interface-scripting.hh"
+
+extern "C" G_MODULE_EXPORT
+void on_replace_residue_ok_button_clicked(GtkButton *button,
+                                          gpointer user_data) {
+
+   GtkWidget *frame = widget_from_builder("replace_residue_frame");
+   GtkWidget *entry = widget_from_builder("replace_residue_entry");
+   std::string new_type = gtk_editable_get_text(GTK_EDITABLE(entry));
+
+   graphics_info_t g;
+   std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+   int imol = aa.first;
+   if (is_valid_model_molecule(imol)) {
+      std::string aa_chain_id = aa.second->GetChainID();
+      int aa_res_no = aa.second->GetSeqNum();
+      // bleugh - pythonic
+      std::string cmd = "import coot_utils\ncoot_utils.mutate_by_overlap(";
+      cmd += std::to_string(imol);
+      cmd += ", ";
+      cmd += single_quote(aa_chain_id);
+      cmd += ", ";
+      cmd += std::to_string(aa_res_no);
+      cmd += ", ";
+      cmd += single_quote(new_type);
+      cmd += ")";
+      std::cout << "python_command: " << cmd << std::endl;
+      safe_python_command(cmd);
+   }
+   gtk_widget_set_visible(frame, FALSE);
+
+}
+
+extern "C" G_MODULE_EXPORT
+void on_replace_residue_cancel_button_clicked(GtkButton *button,
+                                              gpointer user_data) {
+
+   GtkWidget *frame = widget_from_builder("replace_widget_frame");
+   gtk_widget_set_visible(frame, FALSE);
+
 }
 
 #include "c-interface-ligands.hh"

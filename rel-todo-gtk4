@@ -1,24 +1,116 @@
 
 ----
 
-Coot: make the function get_number_of_molecules(), as an alias maybe.
+Coot: do_edit_replace_residue() get rid of the python/scripting
+* Done.
 
-Coot: Add to Draw menu "Activate Scene Preset" Figure making or Model-building
+Coot: state file user-input dictionary in state file:
+    coot.read_cif_dictionary('"/Users/pemsley/Desktop/thierry/TST.cif"')
+* Done.
 
-Coot: Ribbons mode needs to (an option?) to add ligands 6zxa.cif
+Coot: no coot prefix in map saved in status file coot.handle_read_ccp4_map
+* Done.
 
-Coot: check that a Gaussian chain surface should be displayed before using it in the SSAO image.
+Coot: we have meshed_generic_display_object::add_point(). We want meshed_generic_display_object::add_points()
+  Say for example the bendy helices project - many points means coot is slow to start up.
+* Done.
+
+libcootapi: rdkit mol needs to be a shared pointer.
+
+Coot: What do I need to do for each of FLEV, CFC and QED? Do it soon.
+   QED:  make the RDKit mol a shared pointer.
+         Jakub to do the rest. I will edit the ui to provide progress bars.
+   FLEV: Does this need to be in Layla? I think not, in fact. Goocanvas stuff will
+         need to be converted to Cairo. And I can display the cairo surface like I do
+         in the positron interface.
+   CFC:  Needs a C++ clustering algorithm. Before I used Gaussian mixture model - maybe that will do.
+         Needs to be available in Moorhen.
+
+libcootapi: add BOND-BY-DISTANCE to the api. maybe libcootapi function: is everything here bonded correctly?
+
+libcootapi add_colour_rule(): needs to parse #aabbccaa as a colour
+* Done.
+
+libcootapi: header info? a map/dictionary of info? Title at least.
+* Done.
+
+Coot Bug: turn on rotamer restraints, turn on torsion restraints - has the trans restraints been removed?
+
+Coot: add something so that I can look down the axes - particularly z.
+
+Coot: I want a slider to scrub through the map molecules in positron interface.
+      It would be good if this scubbed the fitted models too (models need to be fitted firsst - haha)
+
+Coot: Pull in Bernhard's Rama plots
+* Done.
+
+"I didn't merge the SO4" - more than once in the tutorial - delete it after you've jiggle fitted it.
+* Done.
+
+Don't allow FLEV if the protein doesn't have hydrogen atoms.
+
+Moorhen: Add search monomer library.
+
+libcootapi: import glTF (from Mol*, say!)
+
+ligand fitting tutorial - turn around the tail of the fish so that it is the wrong way
+adn look for environment distances - the O-O interaction should not be purple!
+
+Coot: generic objects are not drawn with depth fog
+
+Coot: update molecule when input model file have updates?
+   set_update_model_when_file_updates() - only for unmodified models of course.
+
+libcootapi: search monomer library names - needs to pull the mon_lib_list.cif - or the new version of this
+   non-proirity.
+
+mmdb: atom selection with alt conformer - write a test and fix mmdb.
+
+Coot: Why do we need requests? Can't it be done by libcurl or internal python module urllib?
+      See fetch_drug_via_wikipedia() in coot_utils.
+
+Coot: rsr_refine_all_atoms() only refines the chain
+* Done.
+
+Coot: (refinement) martin maly bug: transpose map by lsq superpose failed.
+      Bring the lsq map function to libcootapi and chapi
+* Done
+
+Coot: I want to be able to add a DNA base to the end of a fragment, with or without density.
+      (Restore functionality).
+* Done.
+
+Coot: 4qpq: It is making DNA base pair restraints as I hoped?
+* Seems so from the behaviour, but I don't see it in the terminal
+
+Coot: Ribbons mode needs (an option?) to add ligands 6zxa.cif
 
 Coot: for sound, look at tw/cootsound.c
 
+Coot: on the command line, coot --dict thing.cif should give a molecule, not just read in the cif
+      if there are no coordinates arguments.
+
+Coot: add a means to say that P1 maps can have symmetry:
+   https://github.com/pemsley/coot/issues/67
+
+Layla: Garib: I want the ability to change charge and bond orders.
+    Also: See this: http://rdkit.blogspot.com/2019/11/introducing-new-rdkit-javascript.html
+    which points to this: https://rdkit.org/rdkitjs/beta/demo.html
+
+Test ligand fitting of fitligand binary. Using conformation variation and not.
+
 libcootapi: what do we need to get flev working?
+
+libcootapi: give me tautomers of this molecule/ligand.
+
+chapi: what about bringing servalcat into the chapi installation? And to build-it-3-3?
 
 libcootapi: in protein_geometry add a function something like
    duplicate_dictionary_for_other_molecule(int idx_rest, int imol_other)
    so that dictionaries assigned to a particular molecule can be used by other molecules (e.g. in dragged refinement).
    The molecules_container api will be duplicate_dictionary_for_other_molecule(comp_id, imol_current, imol_other)
 
-libcootapi: when generating conformers, throw away the conformes that hamve many nbs (dont do minimization)
+libcootapi: when generating conformers, throw away the conformers that hamve many nbs (dont do minimization)
 
 libcootapi: move secondary structure header info int SSEs of residue (does this function exist already?)
 
@@ -36,8 +128,6 @@ Coot: Save Coords is not working again.
 Coot: "Close" button doesn't work in Restraints editor.
 
 Coot: look at the 2b0m flavin ligand interactions - diego where it looks like a hydrogen bond.
-
-Coot: (refinement) martin maly bug: transpose map by lsq superpose failed.
 
 Coot: what does electrostactics give us now?
 
@@ -1608,3 +1698,19 @@ Even with non-carbon colouring it failed. Using custom rule (from the "+" button
 moorhen: does the map masking take a multi-cid for the atom selection?
 * It does not. Tested.
 * Fixed.
+
+Coot:: In the display manager "atom selection from x" should be "atom selection //D from x"
+* Done.
+
+Coot: make the function get_number_of_molecules(), as an alias maybe.
+* Done.
+
+Coot: Add to Draw menu "Activate Scene Preset" Figure making or Model-building
+* Done. Good.
+
+Coot: write a script that reads a map and undisplays it (positron). Now open the Display Manager.
+   The map "Display" checkbuttons are on.
+*Done.
+
+Coot: check that a Gaussian chain surface should be displayed before using it in the SSAO image.
+*Done.

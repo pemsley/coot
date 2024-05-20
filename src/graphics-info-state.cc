@@ -219,8 +219,8 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // cif dictionary
    if (cif_dictionary_filename_vec->size() > 0) {
       for (unsigned int i=0; i<cif_dictionary_filename_vec->size(); i++) {
-         commands.push_back(state_command("coot", "read-cif-dictionary",
-                                          single_quote((*cif_dictionary_filename_vec)[i]), il));
+         auto fn = (*cif_dictionary_filename_vec)[i];
+         commands.push_back(state_command("coot", "read-cif-dictionary", fn, il));
       }
    }
 
@@ -392,81 +392,48 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
                if (molecules[i].Bonds_box_type() != coot::NORMAL_BONDS) {
                   if (molecules[i].Bonds_box_type() == coot::CA_BONDS) {
-                     active_strings.clear();
-                     display_strings.push_back("coot");
-                     active_strings.push_back("graphics-to-ca-representation");
-                     active_strings.push_back(int_to_string(molecule_count));
-                     commands.push_back(state_command(active_strings, il));
+                     std::string sc = state_command("coot", "graphics-to-ca-representation", molecule_count, il);
+                     commands.push_back(sc);
                   }
                   if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_CHAIN_BONDS) {
-                     active_strings.clear();
-                     display_strings.push_back("coot");
-                     active_strings.push_back("set-colour-by-chain");
-                     active_strings.push_back(int_to_string(molecule_count));
-                     commands.push_back(state_command(active_strings, il));
+                     std::string sc = state_command("coot", "set-colour-by-chain", molecule_count, il);
+                     commands.push_back(sc);
                   }
                   if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) {
-                     active_strings.clear();
-                     display_strings.push_back("coot");
-                     active_strings.push_back("graphics-to-ca-plus-ligands-representation");
-                     active_strings.push_back(int_to_string(molecule_count));
-                     commands.push_back(state_command(active_strings, il));
+                     std::string sc = state_command("coot", "graphics-to-ca-plus-ligands-representation", molecule_count, il);
+                     commands.push_back(sc);
                   }
                   if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS) {
-                     active_strings.clear();
-                     display_strings.push_back("coot");
-                     active_strings.push_back("graphics-to-ca-plus-ligands-and-sidechains-representation");
-                     active_strings.push_back(int_to_string(molecule_count));
-                     commands.push_back(state_command(active_strings, il));
+                     std::string sc = state_command("coot", "graphics-to-ca-plus-ligands-and-sidechains-representation", molecule_count, il);
+                     commands.push_back(sc);
                   }
                   if (molecules[i].Bonds_box_type() == coot::BONDS_NO_WATERS) {
-                     active_strings.clear();
-                     display_strings.push_back("coot");
-                     active_strings.push_back("graphics-to-bonds-no-waters-representation");
-                     active_strings.push_back(int_to_string(molecule_count));
-                     commands.push_back(state_command(active_strings, il));
+                     std::string sc = state_command("coot", "graphics-to-bonds-no-waters-representation", molecule_count, il);
+                     commands.push_back(sc);
                   }
                   if (molecules[i].Bonds_box_type() == coot::BONDS_SEC_STRUCT_COLOUR) {
-                     active_strings.clear();
-                     display_strings.push_back("coot");
-                     active_strings.push_back("graphics-to-sec-struct-bonds-representation");
-                     active_strings.push_back(int_to_string(molecule_count));
-                     commands.push_back(state_command(active_strings, il));
+                     std::string sc = state_command("coot", "graphics-to-sec-struct-bonds-representation", molecule_count, il);
+                     commands.push_back(sc);
                   }
                   if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR) {
-                     active_strings.clear();
-                     display_strings.push_back("coot");
-                     active_strings.push_back("graphics-to-ca-plus-ligands-sec-struct-representation");
-                     active_strings.push_back(int_to_string(molecule_count));
-                     commands.push_back(state_command(active_strings, il));
+                     std::string sc = state_command("coot", "graphics-to-ca-plus-ligands-sec-struct-representation", molecule_count, il);
+                     commands.push_back(sc);
                   }
                   if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_MOLECULE_BONDS) {
-                     active_strings.clear();
-                     display_strings.push_back("coot");
-                     active_strings.push_back("set-colour-by-molecule");
-                     active_strings.push_back(int_to_string(molecule_count));
-                     commands.push_back(state_command(active_strings, il));
+                     std::string sc = state_command("coot", "set-colour-by-molecule", molecule_count, il);
+                     commands.push_back(sc);
                   }
                   if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
-                     active_strings.clear();
-                     display_strings.push_back("coot");
-                     active_strings.push_back("graphics-to-rainbow-representation");
-                     active_strings.push_back(int_to_string(molecule_count));
-                     commands.push_back(state_command(active_strings, il));
+                     std::string sc = state_command("coot", "graphics-to-rainbow-representation", molecule_count, il);
+                     commands.push_back(sc);
                   }
                   if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_B_FACTOR_BONDS) {
-                     active_strings.clear();
-                     display_strings.push_back("coot");
-                     active_strings.push_back("graphics-to-b-factor-representation");
-                     active_strings.push_back(int_to_string(molecule_count));
-                     commands.push_back(state_command(active_strings, il));
+                     std::string sc = state_command("coot", "graphics-to-b-factor-representation", molecule_count, il);
+                     commands.push_back(sc);
                   }
                   if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_OCCUPANCY_BONDS) {
-                     active_strings.clear();
-                     display_strings.push_back("coot");
-                     active_strings.push_back("graphics-to-occupancy-representation");
-                     active_strings.push_back(int_to_string(molecule_count));
-                     commands.push_back(state_command(active_strings, il));
+                     std::string sc = state_command("coot", "graphics-to-occupancy-representation", molecule_count, il);
+                     commands.push_back(sc);
                   }
                }
 
@@ -476,7 +443,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
                   // First the "all" status for the additional representation of this molecule.
                   // Ooops. This is not (yet) a separate state.  Currently, pressing the button
                   // simply turns on (or off) all representations.  The display manager does not
-                  // save the state of this button (if it is off, closed and then openned then the
+                  // save the state of this button (if it is off, closed and then opened then the
                   // "all" button is not shown!)
 
                   //                   active_strings.clear();

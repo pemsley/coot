@@ -1,0 +1,110 @@
+.\" Copyright 2016 by Medical Research Council
+.\"
+.\" %%%LICENSE_START(GPLv3+_DOC_FULL)
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 3 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, see
+.\" <http://www.gnu.org/licenses/>.
+.\" %%%LICENSE_END
+
+.TH COOT 1
+
+.SH NAME
+pyrogen \- A crystallographic dictionary restraints generating tool
+
+.SH SYNOPSIS
+.B pyrogen [OPTIONS]
+.I file-or-SMILES
+
+.SH OPTIONS
+.B -h, --help
+show this help message and exit
+
+.B  -c FILE, --mmcif=FILE
+Make restraints from input mmcif FILE
+
+.B  -m FILE, --mol=FILE
+Make restraints from input sdf/mol FILE
+
+.B  -r COMP_ID, --residue-type=COMP_ID
+Create restraints for this type. Default is LIG
+
+.B  -4, --quartet-planes
+Use 4-atom plane restraints, forces --quartet-hydrogens
+
+.B  -H, --quartet-hydrogens
+Use 4-atom hydrogen plane restraints
+
+.B  -b, --no-shift-hydrogen-atoms
+Stop addition or deletion of Hydrogen atoms for formally-charged atoms
+
+.B  -n, --no-mogul
+Don't run CSD Mogul to update bond and angle restraints
+
+.B  -N COMPOUND_NAME, --name=COMPOUND_NAME
+Compound name
+
+.B  -S, --smiles
+Write the SMILES for the input molecule
+
+.B  -t, --tautomers
+Show SMILES for tautomers, don't generate restraints
+
+.B  -T MOGUL_DIR, --tmp-directory=MOGUL_DIR
+Directory into which the tmp files (e.g. for mogul) are written
+
+.B  -d OUTPUT_DIR, --directory=OUTPUT_DIR
+Directory into which the output files (e.g. mmCIF and PDB) are written
+
+.B  -o OUTPUT_POSTFIX, --output-postfix=OUTPUT_POSTFIX
+String to add to output file names, default is "pyrogen"
+
+.B  -p, --picture         Additionally output a chemical diagram PNG
+
+.B  -P, --preserve-input-coordinates
+Preserve the inputput coordinates (if possible)
+
+.B  -v, --version
+Print version information
+
+.B  -a, --no-match-vs-reference-dictionaries
+Don't match atom names vs. dictionary molecules (default False)
+
+.B  -R DICT_FILES_FOR_NAMES_MATCH, --reference-dictionary-files=DICT_FILES_FOR_NAMES_MATCH
+Try to match the atom names of the output molecule to this dictionary in these files (comma-separated list)
+
+.B  -C COMP_ID_LIST_FOR_NAMES_MATCH, --reference-dictionary-comp-ids=COMP_ID_LIST_FOR_NAMES_MATCH
+Try to match the atom names of the output molecule to these comp-ids (comma-separated list)
+
+.B  -w, --wwPDB
+Fetch the wwPDB ligand definition and use that
+
+.B  -f FETCH
+(Just) fetch from the PDBe the CCD entry for the given compound-id
+
+.B  -q, --quiet
+print less messages
+
+
+.SH DESCRIPTION
+
+Pyrogen is a command-line tool for the generation of crystallographic dictionary restraints.
+
+Pyrogen is based on the RDKit.
+
+.SH AUTHOR
+Paul Emsley

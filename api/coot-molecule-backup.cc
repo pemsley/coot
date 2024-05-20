@@ -156,8 +156,9 @@ coot::molecule_t::modification_info_t::make_backup(mmdb::Manager *mol, const std
       save_info.push_back(save_info_t(fn, modification_info_string));
    }
    modification_index = save_info.size();
-   std::cout << "INFO:: make_backup(): \"" << modification_info_string << "\" modification_index is now "
-             << modification_index << std::endl;
+   if (false)
+      std::cout << "INFO:: make_backup(): \"" << modification_info_string << "\" modification_index is now "
+                << modification_index << std::endl;
 
    return message;
 

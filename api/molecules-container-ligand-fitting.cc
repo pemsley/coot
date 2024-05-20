@@ -29,6 +29,29 @@ std::string get_first_residue_name(mmdb::Manager *mol) {
    return res_name;
 }
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+// Another ligand but non-ligand-fitting function:
+RDKit::RWMol
+molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_enc) {
+
+   RDKit::RWMol m;
+
+   try {
+      std::pair<bool, coot::dictionary_residue_restraints_t> r_p =
+         geom.get_monomer_restraints(residue_name, imol_enc);
+      if (r_p.first) {
+         const auto &restraints = r_p.second;
+         m = coot::rdkit_mol(restraints);
+      }
+   }
+   catch (const std::runtime_error &rte) {
+      std::cout << rte.what() << std::endl;
+   }
+   return m;
+}
+#endif
+
+
 //! Ligand Fit
 //! @return a vector or the best fitting ligands to this blob.
 //! I am not yet clear what extra cut-offs and flags need to be added here.

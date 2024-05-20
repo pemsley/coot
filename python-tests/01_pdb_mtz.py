@@ -26,7 +26,7 @@ import unittest
 import os
 import numbers
 # import begin
-import fitting
+import coot_fitting
 # and test that gobject is in place
 #import gobject
 
@@ -2458,7 +2458,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         # There should be only one residue with that residue type and it
         # should be A37.
         #
-        specs = fitting.fit_protein_make_specs(imol, 'all-chains')
+        specs = coot_fitting.fit_protein_make_specs(imol, 'all-chains')
         residue_with_name = coot.get_residues_in_molecule_of_type(imol, "FRE")
 
         self.assertTrue(len(residue_with_name) == 1)
@@ -2469,7 +2469,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         """fit_protein_make_specs makes all specs"""
 
         imol = begin.unittest_pdb("tutorial-modern.pdb")
-        specs = fitting.fit_protein_make_specs(imol, 'all-chains')
+        specs = coot_fitting.fit_protein_make_specs(imol, 'all-chains')
         print("   specs:", len(specs), specs)
         self.assertTrue(len(specs) == 189)
 

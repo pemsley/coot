@@ -3742,11 +3742,10 @@ int test_user_defined_bond_colours(molecules_container_t &mc) {
       coot::atom_spec_t atom_spec("A", 1, "", " O  ","");
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
-         std::cout << "...................... here A " << std::endl;
-         std::map<unsigned int, std::array<float, 3> > colour_map;
-         colour_map[0] = std::array<float, 3> {0.42222222, 0.7, 0.4};
-         colour_map[2] = std::array<float, 3> {0.42222222, 0.4, 0.7};
-         colour_map[1] = std::array<float, 3> {0.7, 0.4, 0.42222222};
+         std::map<unsigned int, std::array<float, 4> > colour_map;
+         colour_map[0] = std::array<float, 4> {0.42222222, 0.7, 0.4};
+         colour_map[2] = std::array<float, 4> {0.42222222, 0.4, 0.7};
+         colour_map[1] = std::array<float, 4> {0.7, 0.4, 0.42222222};
          std::vector<std::pair<std::string, unsigned int> > indexed_residues_cids;
          indexed_residues_cids.push_back(std::make_pair("//A",2));
          indexed_residues_cids.push_back(std::make_pair("//A/100-200",1));
@@ -4176,7 +4175,7 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
       std::cout << "-------------" << std::endl;
    }
 
-   std::map<unsigned int, std::array<float, 3> > colour_index_map;
+   std::map<unsigned int, std::array<float, 4> > colour_index_map;
    colour_index_map[12] = {1, 0, 1};
    colour_index_map[13] = {0, 1, 1};
    colour_index_map[14] = {0, 0, 1};
@@ -4249,7 +4248,7 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
 
 int test_user_defined_bond_colours_v3(molecules_container_t &mc) {
 
-   auto is_near_colour = [] (const glm::vec4 &col_1, const std::array<float, 3> &col_2) {
+   auto is_near_colour = [] (const glm::vec4 &col_1, const std::array<float, 4> &col_2) {
       float cf = 0.04;
       if (std::fabs(col_2[0] - col_1.r) < cf)
          if (std::fabs(col_2[1] - col_1.g) < cf)
@@ -4284,7 +4283,7 @@ int test_user_defined_bond_colours_v3(molecules_container_t &mc) {
    int imol = mc.read_pdb(reference_data("pdb4ri2.ent"));
 
    if (mc.is_valid_model_molecule(imol)) {
-      std::map<unsigned int, std::array<float, 3> > colour_map;
+      std::map<unsigned int, std::array<float, 4> > colour_map;
       colour_map[51] = {0.627, 0.529, 0.400};
       colour_map[52] = {0.424, 0.627, 0.400};
       colour_map[53] = {0.957, 0.263, 0.212};
@@ -4363,7 +4362,7 @@ int test_other_user_defined_colours_other(molecules_container_t &mc) {
       coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
-         std::map<unsigned int, std::array<float, 3> > colour_index_map;
+         std::map<unsigned int, std::array<float, 4> > colour_index_map;
          colour_index_map[21] = {1.11111111, 1.111111, 0};
          std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
          mc.set_user_defined_bond_colours(imol, colour_index_map);
@@ -5603,7 +5602,107 @@ int test_end_delete_closed_molecules(molecules_container_t &mc) {
    return status;
 }
 
+int test_texture_as_floats(molecules_container_t &mc) {
 
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   texture_as_floats_t tf = mc.get_map_section_texture(imol_map, 6, 0, -0.1, 0.2);
+
+   std::cout << " image data size " << tf.image_data.size() << std::endl;
+
+   if (tf.x_size > 10.0) {
+      if (tf.y_size > 10.0) {
+         if (tf.image_data.size() > 10000) {
+            for (unsigned int i=0; i<15000; i+=1000) {
+               // std::cout << "   " << i << " " << tf.image_data[i] << std::endl;
+               if (tf.image_data[i] > 0.5)
+                  status = 1;
+            }
+            for (unsigned int i=0; i<15000; i+=1000) {
+               // std::cout << "   " << i << " " << tf.image_data[i] << std::endl;
+               if (tf.image_data[i] > 1.0)
+                  status = 0;
+            }
+         }
+      }
+   }
+
+   return status;
+}
+
+int test_n_map_sections(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_map = mc.read_ccp4_map(reference_data("emd_16890.map"), false);
+
+   int n = mc.get_number_of_map_sections(imol_map, 2);
+
+   if (n == 380) status = 1;
+
+   return status;
+}
+
+int test_rdkit_mol(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mc.import_cif_dictionary(reference_data("ATP.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   RDKit::RWMol m = mc.get_rdkit_mol("ATP", coot::protein_geometry::IMOL_ENC_ANY);
+   std::string smiles = RDKit::MolToSmiles(m);
+   std::cout << smiles << std::endl;
+   if (smiles == "[H]O[C@@]1([H])[C@@]([H])(O[H])[C@]([H])(n2c([H])nc3c(N([H])[H])nc([H])nc32)O[C@]1([H])C([H])([H])OP(~O)(~O)OP(~O)(~O)O[P+](~O)(~O)~O") status = 1;
+   if (smiles == "[H]O[C@]1([H])[C@@]([H])(O[H])[C@@]([H])(C([H])([H])OP(=O)([O-])OP(=O)([O-])OP(=O)([O-])[O-])O[C@]1([H])n1c([H])nc2c(N([H])[H])nc([H])nc21") status = 1;
+#endif
+   return status;
+}
+
+
+
+int test_lsq_superpose(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   mc.clear_lsq_matches();
+   mc.add_lsq_superpose_match("A", 185, 195, "A", 105, 115, 1);
+   auto tm = mc.get_lsq_matrix(imol_1, imol_2);
+   mc.lsq_superpose(imol_1, imol_2);
+   for(unsigned int i=0; i<tm.rotation_matrix.size(); i++)
+      std::cout << " " << tm.rotation_matrix[i];
+   std::cout << std::endl;
+   for(unsigned int i=0; i<tm.translation.size(); i++)
+      std::cout << " " << tm.translation[i];
+   std::cout << std::endl;
+   mc.write_coordinates(imol_2, "superposed.pdb");
+   mmdb::Atom *at_1 = mc.get_atom(imol_1, coot::atom_spec_t("A", 190, "", " CA ", ""));
+   mmdb::Atom *at_2 = mc.get_atom(imol_2, coot::atom_spec_t("A", 110, "", " CA ", ""));
+   clipper::Coord_orth co_1 = coot::co(at_1);
+   clipper::Coord_orth co_2 = coot::co(at_2);
+   double d2 = (co_2-co_1).lengthsq();
+   double d = std::sqrt(d2);
+   std::cout << "d " << d << std::endl;
+   if (d < 0.32)
+      status = 1;
+   return status;
+}
+
+int test_alpha_in_colour_holder(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   std::string col = "#aabbccdd";
+   coot::colour_holder ch(col);
+   std::cout << "alpha: " << ch.alpha << std::endl;
+   int status = 0;
+   if (ch.alpha > 0.7 && ch.alpha < 0.9) status = 1;
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -5885,8 +5984,12 @@ int main(int argc, char **argv) {
          status += run_test(test_split_model,              "Split model", mc);
          status += run_test(test_make_ensemble,            "Make Ensemble", mc);
          status += run_test(test_end_delete_closed_molecules, "end delete close molecules", mc);
+         status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+         status += run_test(test_texture_as_floats, "Texture as Floats ", mc);
+         status += run_test(test_n_map_sections, "N map sections ", mc);
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
          status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
+         status += run_test(test_rdkit_mol, "RDKit mol", mc);
 #endif
 
 #ifdef USE_GEMMI
@@ -5898,7 +6001,11 @@ int main(int argc, char **argv) {
       }
 
       {
-         status += run_test(test_moorhen_h_bonds, "moorhen H-bonds ", mc);
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#endif
+         // status += run_test(test_lsq_superpose, "LSQ superpose", mc);
+         // status += run_test(test_change_rotamer, "Change Rotamer (Filo)", mc);
+         status += run_test(test_alpha_in_colour_holder, "Alpha value in colour holder", mc);
 
          if (status == n_tests) all_tests_status = 0;
 

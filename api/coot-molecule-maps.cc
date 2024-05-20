@@ -663,6 +663,18 @@ coot::molecule_t::difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const {
 
 #include "coot-utils/xmap-stats.hh"
 
+// map functions, return -1.0 on not-a-map
+float
+coot::molecule_t::get_map_mean() const {
+
+   bool ignore_pseudo_zeros_for_map_stats = false; // set this to true for an EM map
+   bool ipz = ignore_pseudo_zeros_for_map_stats;
+   mean_and_variance<float> mv = map_density_distribution(xmap, 20, false, ipz);
+   float m = mv.mean;
+   return m;
+
+}
+
 // map functions, return -1.1 on not-a-map
 float
 coot::molecule_t::get_map_rmsd_approx() const {
@@ -1452,4 +1464,30 @@ coot::molecule_t::get_density_at_position(const clipper::Coord_orth &pos) const 
 
    float f = util::density_at_point(xmap, pos);
    return f;
+}
+
+texture_as_floats_t
+coot::molecule_t:: get_map_section_texture(int section_index, int axis,
+                                           float data_value_for_bottom,
+                                           float data_value_for_top) const {
+
+   texture_as_floats_t t(xmap, section_index, axis, data_value_for_bottom, data_value_for_top);
+   return t;
+}
+
+
+//! @return the number of section in the map along the give axis.
+//! (0 for X-axis, 1 for y-axis, 2 for Z-axis).
+//! return -1 on failure.
+int
+coot::molecule_t::get_number_of_map_sections(int axis_id) const {
+
+   int n = -1;
+   if (! xmap.is_null()) {
+      clipper::Grid_sampling gs = xmap.grid_sampling();
+      if (axis_id == 0) n = gs.nu();
+      if (axis_id == 1) n = gs.nv();
+      if (axis_id == 2) n = gs.nw();
+   }
+   return n;
 }

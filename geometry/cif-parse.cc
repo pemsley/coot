@@ -2079,64 +2079,64 @@ coot::protein_geometry::init_standard() {
       s = getenv("CLIBD_MON");
       if (s) {
 
-              std::string ss(s); // might have trailing "/"
-              ss = coot::util::remove_trailing_slash(ss);
-              if (! is_dir_or_link(ss)) {
-                 env_dir_fails = 1;
-              } else {
-                 env_dir_fails = 0;
+         std::string ss(s); // might have trailing "/"
+         ss = coot::util::remove_trailing_slash(ss);
+         if (! is_dir_or_link(ss)) {
+            env_dir_fails = 1;
+         } else {
+            env_dir_fails = 0;
             if (verbose_mode)
                std::cout << "INFO:: Using Standard CCP4 Refmac dictionary from"
                          << " CLIBD_MON: " << s << std::endl;
-                 mon_lib_dir = s;
-                 using_clibd_mon = true;
-                 // strip any trailing / from mon_lib_dir
-                 if (mon_lib_dir.length() > 0) {
-                    if (mon_lib_dir.at(mon_lib_dir.length()-1) == '/')
-                            mon_lib_dir = mon_lib_dir.substr(0,mon_lib_dir.length()-1);
-                 }
-              }
+            mon_lib_dir = s;
+            using_clibd_mon = true;
+            // strip any trailing / from mon_lib_dir
+            if (mon_lib_dir.length() > 0) {
+               if (mon_lib_dir.at(mon_lib_dir.length()-1) == '/')
+                  mon_lib_dir = mon_lib_dir.substr(0,mon_lib_dir.length()-1);
+            }
+         }
       }
 
       if (!s || env_dir_fails) {
-              // Next, try CCP4_LIB
+         // Next, try CCP4_LIB
 
-              s = getenv("CCP4_LIB");
-              if (s) {
+         s = getenv("CCP4_LIB");
+         if (s) {
             if (verbose_mode)
                std::cout << "INFO:: Using Standard CCP4 Refmac dictionary: "
                          << s << std::endl;
-                 mon_lib_dir = s;
+            mon_lib_dir = s;
 
          } else {
 
-                 // OK, CCP4 failed to give us a dictionary, now try the
-                 // version that comes with Coot:
+            // OK, CCP4 failed to give us a dictionary, now try the
+            // version that comes with Coot:
 
-                 if (is_dir_or_link(hardwired_default_place)) {
-                    mon_lib_dir = hardwired_default_place;
-                 } else {
+            if (is_dir_or_link(hardwired_default_place)) {
+               mon_lib_dir = hardwired_default_place;
+            } else {
 
-                    // OK, let's look for $COOT_PREFIX/share/coot/lib (as you
-                    // would with the binary distros)
+               // OK, let's look for $COOT_PREFIX/share/coot/lib (as you
+               // would with the binary distros)
 
-                    s = getenv("COOT_PREFIX");
-                    if (s) {
-                            std::string lib_dir = util::append_dir_dir(s, "share");
-                            lib_dir = util::append_dir_dir(lib_dir, "coot");
-                            lib_dir = util::append_dir_dir(lib_dir, "lib");
-                            if (is_dir_or_link(lib_dir)) {
-                               mon_lib_dir = lib_dir;
-                            } else {
-                               std::cout << "WARNING:: COOT_PREFIX set, but no dictionary lib found\n";
-                            }
-                    } else {
-                            std::cout << "WARNING:: COOT_PREFIX not set, all attempts to "
-                                           << "find dictionary lib failed\n";
+               s = getenv("COOT_PREFIX");
+               if (s) {
+                  std::string lib_dir = util::append_dir_dir(s, "share");
+                  lib_dir = util::append_dir_dir(lib_dir, "coot");
+                  lib_dir = util::append_dir_dir(lib_dir, "lib");
+                  if (is_dir_or_link(lib_dir)) {
+                     mon_lib_dir = lib_dir;
+                  } else {
+                     std::cout << "WARNING:: COOT_PREFIX set, but no dictionary lib found\n";
+                  }
+               } else {
+                  std::cout << "WARNING:: COOT_PREFIX not set, all attempts to "
+                            << "find dictionary lib failed\n";
                   mon_lib_dir.clear();
-                    }
-                 }
-              }
+               }
+            }
+         }
       }
    }
 
@@ -2149,15 +2149,15 @@ coot::protein_geometry::init_standard() {
       // contains the linkages:
       filename += "/data/monomers/list/mon_lib_list.cif";
       if (using_clibd_mon) {
-              filename = util::remove_trailing_slash(mon_lib_dir);
-              filename += "/list/mon_lib_list.cif";
+         filename = util::remove_trailing_slash(mon_lib_dir);
+         filename += "/list/mon_lib_list.cif";
       }
       // now check that that file is there:
       if (! is_regular_file(filename)) {
-              std::cout << "ERROR: dictionary " << filename << " is not a regular file"
-                             << std::endl;
+         std::cout << "ERROR: dictionary " << filename << " is not a regular file"
+                   << std::endl;
       } else {
-              // OK
+         // OK
       }
 
       // setting up CCP4 sets mon_lib_cif to
@@ -2184,7 +2184,7 @@ coot::protein_geometry::init_standard() {
       for (unsigned int i=0; i<protein_mono.size(); i++) {
          std::string monomer_cif_file = protein_mono[i];
          if (!cmld && !using_clibd_mon) {
-                 monomer_cif_file = "data/monomers/" + monomer_cif_file;
+            monomer_cif_file = "data/monomers/" + monomer_cif_file;
          }
          refmac_monomer(mon_lib_dir, monomer_cif_file); // update read_number too :)
       }
@@ -2200,12 +2200,12 @@ coot::protein_geometry::init_standard() {
 }
 
 
-int 
+int
 coot::protein_geometry::refmac_monomer(const std::string &dir, // dir
-				       const std::string &protein_mono) { // extra path to file
-   
+                                       const std::string &protein_mono) { // extra path to file
+
    int imol_enc = IMOL_ENC_ANY; // maybe pass this?
-   
+
    std::string filename = util::append_dir_file(dir, protein_mono);
    if (is_regular_file(filename)) {
       init_refmac_mon_lib(filename, read_number, imol_enc);

@@ -620,6 +620,14 @@ int reset_view();
   map molecules combined) that are currently in coot
 
   @return the number of molecules (closed molecules are not counted) */
+int get_number_of_molecules();
+
+/*! \brief As above, return the number of molecules (coordinates molecules and
+  map molecules combined) that are currently in coot.
+
+  This is the old name for the function.
+
+  @return the number of molecules (closed molecules are not counted) */
 int graphics_n_molecules();
 
 /* return either 1 (yes, there is at least one hydrogen) or 0 (no
@@ -3887,7 +3895,6 @@ void clear_last_measure_distance();
 
 void  do_edit_copy_molecule();
 void  do_edit_copy_fragment();
-void  do_edit_replace_residue();
 void  do_edit_replace_fragment();
 
 /* \} */

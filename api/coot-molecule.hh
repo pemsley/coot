@@ -31,6 +31,7 @@
 #include <atomic>
 #include <array>
 
+
 #include "compat/coot-sysdep.h"
 
 #include <clipper/core/xmap.h>
@@ -39,6 +40,7 @@
 #include "coot-utils/coot-rama.hh"
 #include "coot-utils/sfcalc-genmap.hh"
 #include "coot-utils/atom-tree.hh"
+#include "coot-utils/texture-as-floats.hh"
 #include "geometry/residue-and-atom-specs.hh"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
@@ -46,6 +48,10 @@
 #include "ideal/extra-restraints.hh"
 #include "coot-utils/simple-mesh.hh"
 #include "ghost-molecule-display.hh"
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "lidia-core/rdkit-interface.hh"
+#endif
 
 #include "density-contour/CIsoSurface.h"
 #include "gensurf.hh"
@@ -431,6 +437,12 @@ namespace coot {
 
    public:
 
+      // ---------------------------------------------------------------------------------------------------------------
+      // ---------------------------------------------------------------------------------------------------------------
+      //                                 public
+      // ---------------------------------------------------------------------------------------------------------------
+      // ---------------------------------------------------------------------------------------------------------------
+
       // enum refine_residues_mode {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
 
       atom_selection_container_t atom_sel;
@@ -647,7 +659,7 @@ namespace coot {
       //! user-defined colour-index to colour
       //! (internallly, this converts the `colour_map` to the above vector of colour holders, so it's probably a good idea
       //! if the colour (index) keys are less than 200 or so.
-      void set_user_defined_bond_colours(const std::map<unsigned int, std::array<float, 3> > &colour_map);
+      void set_user_defined_bond_colours(const std::map<unsigned int, std::array<float, 4> > &colour_map);
 
       //! user-defined atom selection to colour index.
       // make this static?
@@ -758,6 +770,7 @@ namespace coot {
       bool get_show_symmetry() { return show_symmetry;}
       void transform_by(mmdb::mat44 SSMAlign_TMatrix);
       void transform_by(const clipper::RTop_orth &rtop, mmdb::Residue *res);
+      void transform_by(const clipper::RTop_orth &rtop);
 
       symmetry_info_t get_symmetry(float symmetry_search_radius, const Cartesian &symm_centre) const;
 
@@ -824,6 +837,12 @@ namespace coot {
       //! not const because it can dynamically add dictionaries
       coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(const std::string &cid_ligand,
                                                                        protein_geometry *geom_p);
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+      //! if the ligand cid specifies more than one residue, only the first is returned.
+      //! @return nullptr on error or failure to specify a ligand.
+      RDKit::ROMol *rdkit_mol(const std::string &ligand_cid);
+#endif
 
       // ------------------------ model-changing functions
 
@@ -1156,6 +1175,8 @@ namespace coot {
 
       float get_density_at_position(const clipper::Coord_orth &pos) const;
 
+      // return -1.0 on not-a-map
+      float get_map_mean() const;
       // return -1.1 on not-a-map
       float get_map_rmsd_approx() const;
       int write_map(const std::string &file_name) const;
@@ -1265,6 +1286,13 @@ namespace coot {
       // the molecule is passed so that the peaks are placed around the protein
       std::vector<interesting_place_t> difference_map_peaks(mmdb::Manager *mol, float n_rmsd) const;
 
+      texture_as_floats_t get_map_section_texture(int section_index, int axis,
+                                                  float data_value_for_bottom, float data_value_for_top) const;
+
+      //! @return the number of section in the map along the give axis.
+      //! (0 for X-axis, 1 for y-axis, 2 for Z-axis).
+      //! return -1 on failure.
+      int get_number_of_map_sections(int axis_id) const;
 
       // ---------------------------------- blender --------------------------------------
 

@@ -66,63 +66,142 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
                               short int use_reso_limit_high,
                               float sampling_rate) {
 
-  if (!file_exists(mtz_file_name))
+
+   auto make_import_datanames = [] (const std::string &f_col_in,
+                                                      const std::string &phi_col_in,
+                                                      const std::string &weight_col_in,
+                                                      int use_weights) {
+
+      // Return a pair.
+      //
+      // If first string of length 0 on error to construct dataname(s).
+      //
+      //       std::pair<std::string, std::string>
+      //
+      // If use_weights return 2 strings, else set something useful only for pair.first
+
+      std::string f_col = f_col_in;
+      std::string phi_col = phi_col_in;
+      std::string weight_col = weight_col_in;
+
+#ifdef WINDOWS_MINGW
+      std::string::size_type islash_f   = coot::util::intelligent_debackslash(  f_col).find_last_of("/");
+      std::string::size_type islash_phi = coot::util::intelligent_debackslash(phi_col).find_last_of("/");
+#else
+      std::string::size_type islash_f   =      f_col.find_last_of("/");
+      std::string::size_type islash_phi =    phi_col.find_last_of("/");
+#endif // MINGW
+
+      short int label_error = 0;
+
+      if (islash_f != std::string::npos) {
+         // f_col is of form e.g. xxx/yyy/FWT
+         if (f_col.length() > islash_f)
+            f_col = f_col.substr(islash_f+1);
+         else
+            label_error = 1;
+      }
+
+      if (islash_phi != std::string::npos) {
+         // phi_col is of form e.g. xxx/yyy/PHWT
+         if (phi_col.length() > islash_phi)
+            phi_col = phi_col.substr(islash_phi+1);
+         else
+            label_error = 1;
+      }
+
+      if (use_weights) {
+#ifdef WINDOWS_MINGW
+         std::string::size_type islash_fom = coot::util::intelligent_debackslash(weight_col).find_last_of("/");
+#else
+         std::string::size_type islash_fom = weight_col.find_last_of("/");
+#endif
+         if (islash_fom != std::string::npos) {
+            // weight_col is of form e.g. xxx/yyy/WT
+            if (weight_col.length() > islash_fom)
+               weight_col = weight_col.substr(islash_fom+1);
+            else
+               label_error = 1;
+         }
+      }
+
+      std::pair<std::string, std::string> p("", "");
+
+      if (!label_error) {
+         std::string no_xtal_dataset_prefix= "/*/*/";
+         if (use_weights) {
+            p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " +      f_col + "]";
+            p.second = no_xtal_dataset_prefix + "[" + phi_col + " " + weight_col + "]";
+         } else {
+            p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " + phi_col + "]";
+         }
+      }
+      return p;
+   };
+
+   if (!file_exists(mtz_file_name))
       return 0;
 
-  clipper::HKL_info myhkl;
-  clipper::MTZdataset myset;
-  clipper::MTZcrystal myxtl;
+   clipper::HKL_info myhkl;
+   clipper::MTZdataset myset;
+   clipper::MTZcrystal myxtl;
 
-  // std::cout << "reading mtz file..." << std::endl;
-  clipper::CCP4MTZfile mtzin;
-  mtzin.open_read( mtz_file_name );       // open new file
-  mtzin.import_hkl_info( myhkl );         // read sg, cell, reso, hkls
-  clipper::HKL_data< clipper::datatypes::F_sigF<float> >   f_sigf_data(myhkl, myxtl);
-  clipper::HKL_data< clipper::datatypes::Phi_fom<float> > phi_fom_data(myhkl, myxtl);
-  clipper::HKL_data< clipper::datatypes::F_phi<float> >       fphidata(myhkl, myxtl);
+   // std::cout << "reading mtz file..." << std::endl;
+   clipper::CCP4MTZfile mtzin;
+   mtzin.open_read( mtz_file_name );       // open new file
+   mtzin.import_hkl_info( myhkl );         // read sg, cell, reso, hkls
+   clipper::HKL_data< clipper::datatypes::F_sigF<float> >   f_sigf_data(myhkl, myxtl);
+   clipper::HKL_data< clipper::datatypes::Phi_fom<float> > phi_fom_data(myhkl, myxtl);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> >       fphidata(myhkl, myxtl);
 
+   // If use weights, use both strings, else just use the first
+   std::pair<std::string, std::string> datanames = make_import_datanames(f_col, phi_col, weight_col, use_weights);
 
-  if ( use_weights ) {
-     clipper::String dataname = "/*/*/[" + f_col + " " + f_col + "]";
-     std::cout << dataname << "\n";
-     mtzin.import_hkl_data(  f_sigf_data, myset, myxtl, dataname );
-     dataname = "/*/*/[" + phi_col + " " + weight_col + "]";
-     std::cout << dataname << "\n";
-     mtzin.import_hkl_data( phi_fom_data, myset, myxtl, dataname );
-     mtzin.close_read();
-     // std::cout << "We should use the weights: " << weight_col << std::endl;
+   std::cout << ":::::::::::::::::::::: datanames:" << std::endl;
+   std::cout << "                      " << datanames.first << std::endl;
+   std::cout << "                      " << datanames.second << std::endl;
 
-     fphidata.compute(f_sigf_data, phi_fom_data,
-                      clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
+   if (use_weights) {
+      std::string dataname = datanames.first;
+      mtzin.import_hkl_data(  f_sigf_data, myset, myxtl, dataname );
+      dataname = datanames.second;
+      mtzin.import_hkl_data( phi_fom_data, myset, myxtl, dataname );
+      mtzin.close_read();
+      // std::cout << "We should use the weights: " << weight_col << std::endl;
 
-  } else {
-     clipper::String dataname = "/*/*/[" + f_col + " " + phi_col + "]";
-     mtzin.import_hkl_data(     fphidata, myset, myxtl, dataname );
-     mtzin.close_read();
-  }
-  // std::cout << "Number of reflections: " << myhkl.num_reflections() << "\n";
-  // std::cout << "finding ASU unique map points..." << std::endl;
+      fphidata.compute(f_sigf_data, phi_fom_data,
+                       clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
 
-  clipper::Resolution fft_reso;
-  if (use_reso_limit_high) {
-     clipper::Resolution user_resolution(reso_limit_high);
-     fft_reso = user_resolution;
-     coot::util::filter_by_resolution(&fphidata, 99999.0, reso_limit_high);
-  } else {
-     fft_reso = clipper::Resolution(1.0/sqrt(fphidata.invresolsq_range().max()));
-  }
+   } else {
 
-  std::cout << "FFT Reso..." << fft_reso.invresolsq_limit() << "\n";
-  std::cout << "Sampling rate..." << sampling_rate << "\n";
-  clipper::Grid_sampling gs(myhkl.spacegroup(), myhkl.cell(), fft_reso, sampling_rate);
-  std::cout << "Grid..." << gs.format() << "\n";
-  std::cout << "Cell..." << myhkl.cell().format() << "\n";
-  std::cout << "Spacegroup..." << myhkl.spacegroup().symbol_hm() << "\n";
-  xmap->init( myhkl.spacegroup(), myhkl.cell(), gs);
-  // std::cout << "doing fft..." << std::endl;
-  xmap->fft_from( fphidata );                  // generate map
-  // std::cout << "done fft..." << std::endl;
-  return 1;
+      clipper::String dataname = datanames.first;
+      mtzin.import_hkl_data(fphidata, myset, myxtl, dataname);
+      mtzin.close_read();
+
+   }
+   // std::cout << "Number of reflections: " << myhkl.num_reflections() << "\n";
+   // std::cout << "finding ASU unique map points..." << std::endl;
+
+   clipper::Resolution fft_reso;
+   if (use_reso_limit_high) {
+      clipper::Resolution user_resolution(reso_limit_high);
+      fft_reso = user_resolution;
+      coot::util::filter_by_resolution(&fphidata, 99999.0, reso_limit_high);
+   } else {
+      fft_reso = clipper::Resolution(1.0/sqrt(fphidata.invresolsq_range().max()));
+   }
+
+   std::cout << "FFT Reso..." << fft_reso.invresolsq_limit() << "\n";
+   std::cout << "Sampling rate..." << sampling_rate << "\n";
+   clipper::Grid_sampling gs(myhkl.spacegroup(), myhkl.cell(), fft_reso, sampling_rate);
+   std::cout << "Grid..." << gs.format() << "\n";
+   std::cout << "Cell..." << myhkl.cell().format() << "\n";
+   std::cout << "Spacegroup..." << myhkl.spacegroup().symbol_hm() << "\n";
+   xmap->init( myhkl.spacegroup(), myhkl.cell(), gs);
+   // std::cout << "doing fft..." << std::endl;
+   xmap->fft_from( fphidata );                  // generate map
+   // std::cout << "done fft..." << std::endl;
+   return 1;
 }
 
 // Return a map that is a copy of the given map with interpolation,
@@ -4618,4 +4697,23 @@ coot::util::analyse_map_point_density_change(const std::vector<std::pair<clipper
    resulting_map = make_linear_fit_map();
    return resulting_map;
 
+}
+
+
+// negative becomes positive and positive becomes negative.
+// Apply an offset so that most of the map is above zero.
+//
+void
+coot::util::reverse_map(clipper::Xmap<float> *xmap_p) {
+
+   // 20240413-PE do I really want to add a base?
+   clipper::Xmap<float> &xmap(*xmap_p);
+   std::pair<float, float> mv = mean_and_variance(xmap);
+   float base = mv.first - 2.5f * mv.second;
+
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap.first(); !ix.last(); ix.next() ) {
+      float f = xmap[ix];
+      xmap[ix] = -f - base;
+   }
 }

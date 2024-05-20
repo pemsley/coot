@@ -55,14 +55,14 @@
 /*                  Generic Objects                                         */
 /*  ----------------------------------------------------------------------- */
 void to_generic_object_add_line(int object_number,
-				const char *colour_name,
-				int line_width,
-				float from_x1, 
-				float from_y1, 
-				float from_z1, 
-				float to_x2, 
-				float to_y2, 
-				float to_z2) {
+                                const char *colour_name,
+                                int line_width,
+                                float from_x1,
+                                float from_y1,
+                                float from_z1,
+                                float to_x2,
+                                float to_y2,
+                                float to_z2) {
 
    clipper::Coord_orth x1(from_x1, from_y1, from_z1);
    clipper::Coord_orth x2(to_x2, to_y2, to_z2);
@@ -71,7 +71,6 @@ void to_generic_object_add_line(int object_number,
    std::pair<clipper::Coord_orth, clipper::Coord_orth> coords(x1, x2);
 
    std::string c(colour_name);
-   coot::colour_holder colour = colour_values_from_colour_name(c);
    if (object_number >= 0) {
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       unsigned int object_number_u(object_number);
@@ -134,36 +133,36 @@ void to_generic_object_add_cylinder(int object_number,
 
 
 /*! \brief add line to generic object object_number */
-void to_generic_object_add_dashed_line(int object_number, 
-				       const char *colour,
-				       int line_width,
-				       float dash_density,
-				       float from_x1, 
-				       float from_y1, 
-				       float from_z1, 
-				       float to_x2, 
-				       float to_y2, 
-				       float to_z2) {
+void to_generic_object_add_dashed_line(int object_number,
+                                       const char *colour,
+                                       int line_width,
+                                       float dash_density,
+                                       float from_x1,
+                                       float from_y1,
+                                       float from_z1,
+                                       float to_x2,
+                                       float to_y2,
+                                       float to_z2) {
 
    clipper::Coord_orth p_start(from_x1, from_y1, from_z1);
    clipper::Coord_orth p_end(to_x2, to_y2, to_z2);
    float ll = clipper::Coord_orth::length(p_start, p_end);
    int n_dashes = int(dash_density * ll);
    bool visible = 1;
-   
+
    for (int idash=0; idash<(n_dashes-1); idash++) {
-      if (visible) { 
-	 float fracs = float(idash)/float(n_dashes);
-	 float fracn = float(idash+1)/float(n_dashes);
-	 clipper::Coord_orth p1 = p_start + fracs * (p_end - p_start);
-	 clipper::Coord_orth p2 = p_start + fracn * (p_end - p_start);
-	 to_generic_object_add_line(object_number, colour, line_width,
-				    p1.x(), p1.y(), p1.z(), 
-				    p2.x(), p2.y(), p2.z());
+      if (visible) {
+         float fracs = float(idash)/float(n_dashes);
+         float fracn = float(idash+1)/float(n_dashes);
+         clipper::Coord_orth p1 = p_start + fracs * (p_end - p_start);
+         clipper::Coord_orth p2 = p_start + fracn * (p_end - p_start);
+         to_generic_object_add_line(object_number, colour, line_width,
+                                    p1.x(), p1.y(), p1.z(),
+                                    p2.x(), p2.y(), p2.z());
       }
       visible = !visible;
    }
-} 
+}
 
 
 
@@ -184,6 +183,49 @@ void to_generic_object_add_point(int object_number,
    to_generic_object_add_point_internal(object_number, colour_name, colour, point_width, pt);
 
 }
+
+// point_info_list_py is a list of [colour, point_width, x, y, z]
+void to_generic_object_add_points(int object_number, PyObject *point_info_list_py) {
+
+   graphics_info_t g;
+   if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
+      if (PyList_Check(point_info_list_py)) {
+         long ll = PyObject_Length(point_info_list_py);
+         g.attach_buffers();
+         std::vector<meshed_generic_display_object::point_info_t> piv;
+         unsigned int num_subdivisions = 2;
+         for (long l=0; l<ll; l++) {
+            PyObject *item_py = PyList_GetItem(point_info_list_py, l);
+            if (PyList_Check(item_py)) {
+               long l_item = PyObject_Length(item_py);
+               if (l_item == 5) {
+                  PyObject *colour_py = PyList_GetItem(item_py, 0);
+                  PyObject *width_py  = PyList_GetItem(item_py, 1);
+                  PyObject *x_py      = PyList_GetItem(item_py, 2);
+                  PyObject *y_py      = PyList_GetItem(item_py, 3);
+                  PyObject *z_py      = PyList_GetItem(item_py, 4);
+                  std::string col = PyBytes_AS_STRING(PyUnicode_AsUTF8String(colour_py));
+                  double w = PyFloat_AsDouble(width_py);
+                  double x = PyFloat_AsDouble(x_py);
+                  double y = PyFloat_AsDouble(y_py);
+                  double z = PyFloat_AsDouble(z_py);
+                  int wi = static_cast<int>(w);
+                  clipper::Coord_orth pt(x,y,z);
+                  // use a constructor here
+                  coot::colour_holder ch = coot::colour_holder_from_colour_name(col);
+                  meshed_generic_display_object::point_info_t pi(ch, pt, wi);
+                  piv.push_back(pi);
+               } else {
+                  std::cout << "wrong item length in to_generic_object_add_points() " << std::endl;
+               }
+            }
+         }
+         g.generic_display_objects[object_number].add_points(piv, num_subdivisions);
+         g.generic_display_objects[object_number].mesh.setup_buffers(); // needed?
+      }
+   }
+}
+
 
 void to_generic_object_add_point_internal(int object_number,
                                           const std::string &colour_name,
@@ -215,6 +257,12 @@ void to_generic_object_add_point_internal(int object_number,
 }
 
 
+void from_generic_object_remove_last_item(int object_number) {
+
+   graphics_info_t::from_generic_object_remove_last_item(object_number);
+}
+
+
 void to_generic_object_add_dodecahedron(int object_number,
                                         const char *colour_name,
                                         float radius,
@@ -234,17 +282,17 @@ void to_generic_object_add_dodecahedron(int object_number,
 
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
-		<< object_number << std::endl;
+                << object_number << std::endl;
    }
 }
 
 void to_generic_object_add_pentakis_dodecahedron(int object_number,
-						 const char *colour_name,
-						 float stellation_factor,
-						 float radius,
-						 float x,
-						 float y,
-						 float z) {
+                                                 const char *colour_name,
+                                                 float stellation_factor,
+                                                 float radius,
+                                                 float x,
+                                                 float y,
+                                                 float z) {
 
    graphics_info_t g;
    clipper::Coord_orth x1(x, y, z);
@@ -418,6 +466,7 @@ to_generic_object_add_arrow(int object_number,
 }
 
 
+
 void to_generic_object_add_display_list_handle(int object_number, int display_list_id) {
 
    // we can't do this now
@@ -510,19 +559,10 @@ int generic_object_is_displayed_p(int object_number) {
 
 int new_generic_object_number(const std::string &name_string) {
 
+   std::cout << "--------------- new_generic_object_number() " << name_string << std::endl;
+
    graphics_info_t g;
    int n_new = g.new_generic_object_number(name_string);
-
-   if (g.generic_objects_dialog) {
-      GtkWidget *grid = widget_from_builder("generic_objects_dialog_grid"); // changed 20211020-PE
-      if (grid) {
-         const meshed_generic_display_object &gdo = g.generic_display_objects[n_new];
-         generic_objects_dialog_grid_add_object_internal(gdo,
-                                                         g.generic_objects_dialog,
-                                                         grid,
-                                                         n_new);
-      }
-   }
    return n_new;
 }
 
@@ -536,7 +576,7 @@ int new_generic_object_number_for_molecule(const std::string &name, int imol) {
 
 
 // return the index of the object with name name, if not, return -1;
-// 
+//
 int generic_object_index(const std::string &name) {
 
    return graphics_info_t::generic_object_index(name);
@@ -545,7 +585,7 @@ int generic_object_index(const std::string &name) {
 
 // OLD code passing back a const char (yeuch)
 //
-// /*! \brief what is the name of generic object number obj_number? 
+// /*! \brief what is the name of generic object number obj_number?
 
 // return 0 (NULL) #f  on obj_number not available */
 // const char *generic_object_name(int obj_number) {
@@ -744,19 +784,57 @@ void generic_object_info() {
    std::cout << "There are " << n_obs << " generic objects\n";
    if (n_obs > 0) {
       for (unsigned int i=0; i<n_obs; i++) {
-	 std::string display_str(":Displayed:");
-	 if (! g.generic_display_objects[i].mesh.get_draw_this_mesh())
-	    display_str = ":Not Displayed:";
-	 std::string closed_str(":Closed:");
-	 if (! g.generic_display_objects[i].mesh.this_mesh_is_closed) // Hmm.
-	    closed_str = ":Not Closed:";
-	 std::cout << " # " << i << " \"" << g.generic_display_objects[i].mesh.name << "\" "
-		   << display_str << " " << closed_str << std::endl;
+         std::string display_str(":Displayed:");
+         if (! g.generic_display_objects[i].mesh.get_draw_this_mesh())
+            display_str = ":Not Displayed:";
+         std::string closed_str(":Closed:");
+         if (! g.generic_display_objects[i].mesh.this_mesh_is_closed) // Hmm.
+            closed_str = ":Not Closed:";
+         std::cout << " # " << i << " \"" << g.generic_display_objects[i].mesh.name << "\" "
+                   << display_str << " " << closed_str << std::endl;
       }
    } else {
       std::cout << "No Generic Display Objects" << std::endl;
    }
 }
+
+#ifdef USE_PYTHON
+/*! \brief get generic display objects */
+PyObject *get_generic_object_info(int obj_number) {
+
+   PyObject *o = Py_None;
+   graphics_info_t g;
+   int n_obs = g.generic_display_objects.size();
+   if (obj_number < n_obs) {
+      if (obj_number >= 0) {
+
+         const auto &info = g.generic_display_objects[obj_number].info;
+         o = PyList_New(info.size());
+         for (unsigned int i=0; i<info.size(); i++) {
+
+            PyObject *d = PyDict_New();
+            PyObject *colour_py = PyList_New(3);
+            const auto &col = info[i].colour;
+            PyList_SetItem(colour_py, 0, PyFloat_FromDouble(static_cast<double>(col.red)));
+            PyList_SetItem(colour_py, 1, PyFloat_FromDouble(static_cast<double>(col.green)));
+            PyList_SetItem(colour_py, 2, PyFloat_FromDouble(static_cast<double>(col.blue)));
+            PyDict_SetItemString(d, "colour", colour_py);
+            const auto &pos = info[i].position;
+            PyObject *position_py = PyList_New(3);
+            PyList_SetItem(position_py, 0, PyFloat_FromDouble(pos.x()));
+            PyList_SetItem(position_py, 1, PyFloat_FromDouble(pos.y()));
+            PyList_SetItem(position_py, 2, PyFloat_FromDouble(pos.z()));
+            PyDict_SetItemString(d, "position", position_py);
+
+            PyList_SetItem(o, i, d);
+         }
+      }
+   }
+   return o;
+
+}
+#endif /* USE_PYTHON */
+
 
 // generic object obj_no has things to display?
 // Return 0 or 1.
@@ -767,10 +845,10 @@ short int generic_object_has_objects_p(int object_number) {
    graphics_info_t g;
    if ((object_number >=0) && (object_number < int(g.generic_display_objects.size()))) {
       if (true) // some test here?
-	 r = 1;
+         r = 1;
    } else {
       std::cout << "WARNING:: object_number in generic_display_objects "
-		<< object_number << std::endl;
+                << object_number << std::endl;
    }
    return r;
 }
@@ -786,89 +864,89 @@ void handle_read_draw_probe_dots(const char *dots_file) {
 
       FILE* dots = fopen(dots_file, "r" );
       if ( dots == NULL ) {
-	 std::cout << "handle_read_draw_probe_dots  - Could not read: "
-		   << dots_file << std::endl;
-	 // fclose(dots);
+         std::cout << "handle_read_draw_probe_dots  - Could not read: "
+                   << dots_file << std::endl;
+         // fclose(dots);
       } else {
 
-	 // clear up what probe contacts/overlaps we already have:
-	 std::vector<std::string> deletable_names;
-	 deletable_names.push_back("wide contact");
-	 deletable_names.push_back("close contact");
-	 deletable_names.push_back("small overlap");
-	 deletable_names.push_back("bad overlap");
-	 deletable_names.push_back("H-bonds");
-	 unsigned int nobjs = graphics_info_t::generic_display_objects.size();
-	 for (unsigned int i=0; i< nobjs; i++) {
-	    for (unsigned int d=0; d<deletable_names.size(); d++) {
-	       if (graphics_info_t::generic_display_objects[i].mesh.name == deletable_names[d]) {
-		  // close_generic_object(i); // empty it, really
+         // clear up what probe contacts/overlaps we already have:
+         std::vector<std::string> deletable_names;
+         deletable_names.push_back("wide contact");
+         deletable_names.push_back("close contact");
+         deletable_names.push_back("small overlap");
+         deletable_names.push_back("bad overlap");
+         deletable_names.push_back("H-bonds");
+         unsigned int nobjs = graphics_info_t::generic_display_objects.size();
+         for (unsigned int i=0; i< nobjs; i++) {
+            for (unsigned int d=0; d<deletable_names.size(); d++) {
+               if (graphics_info_t::generic_display_objects[i].mesh.name == deletable_names[d]) {
+                  // close_generic_object(i); // empty it, really
                   graphics_info_t::generic_display_objects.clear();
-	       }
-	    }
-	 }
-	 int n_lines = 0;
-	 int n_points = 0;
-	 std::string current_colour = "blue"; // should be reset.
-	 std::string current_name   = "Unassigned";
-	 int obj_no = number_of_generic_objects();
-	 char line[240];
-	 char s[240];
-	 char s1[240];
-	 char s2[240];
-	 char s3[240];
-	 float x1, x2, x3, x4, x5, x6;
-	 while ( fgets( line, 240, dots ) != NULL ) {
-	    if (sscanf(line, "# %s %s %s", s1, s2, s3)) {
-	       std::string st1, st2, st3;
-	       st1 = s1;
-	       st2 = s2;
-	       st3 = s3;
-	       // a comment line, what type of dots are we looking at?
-	       // std::cout << "# line --- " << line << std::endl;
-	       clipper::String contact_line(s);
-	       std::vector<std::string> vs;
-	       vs.push_back(st1);
-	       vs.push_back(st2);
-	       vs.push_back(st3);
-	       int n_bits = 3;
+               }
+            }
+         }
+         int n_lines = 0;
+         int n_points = 0;
+         std::string current_colour = "blue"; // should be reset.
+         std::string current_name   = "Unassigned";
+         int obj_no = number_of_generic_objects();
+         char line[240];
+         char s[240];
+         char s1[240];
+         char s2[240];
+         char s3[240];
+         float x1, x2, x3, x4, x5, x6;
+         while ( fgets( line, 240, dots ) != NULL ) {
+            if (sscanf(line, "# %s %s %s", s1, s2, s3)) {
+               std::string st1, st2, st3;
+               st1 = s1;
+               st2 = s2;
+               st3 = s3;
+               // a comment line, what type of dots are we looking at?
+               // std::cout << "# line --- " << line << std::endl;
+               clipper::String contact_line(s);
+               std::vector<std::string> vs;
+               vs.push_back(st1);
+               vs.push_back(st2);
+               vs.push_back(st3);
+               int n_bits = 3;
 
-	       std::pair<short int, std::string> p = is_interesting_dots_object_next_p(vs);
-	       if (p.first) {
-		  if (p.second != current_name) {
-		     int maybe_old_object = generic_object_index(p.second.c_str());
-		     if (maybe_old_object > -1) {
-			obj_no = maybe_old_object;
-		     } else {
-			obj_no = new_generic_object_number(p.second.c_str());
-		     }
-		     // non-member function usage, so that we don't do the redraw.
-		     graphics_info_t::generic_display_objects[obj_no].mesh.set_draw_this_mesh(true);
-		     graphics_info_t::generic_display_objects[obj_no].mesh.this_mesh_is_closed = false;
-		     current_name = p.second;
-		  }
-	       }
+               std::pair<short int, std::string> p = is_interesting_dots_object_next_p(vs);
+               if (p.first) {
+                  if (p.second != current_name) {
+                     int maybe_old_object = generic_object_index(p.second.c_str());
+                     if (maybe_old_object > -1) {
+                        obj_no = maybe_old_object;
+                     } else {
+                        obj_no = new_generic_object_number(p.second.c_str());
+                     }
+                     // non-member function usage, so that we don't do the redraw.
+                     graphics_info_t::generic_display_objects[obj_no].mesh.set_draw_this_mesh(true);
+                     graphics_info_t::generic_display_objects[obj_no].mesh.this_mesh_is_closed = false;
+                     current_name = p.second;
+                  }
+               }
 
-	    } else {
-	       if (sscanf(line, "%f %f %f %f %f %f %s", &x1, &x2, &x3, &x4, &x5, &x6, s)) {
-		  current_colour = s;
-		  float length2 = pow((x1-x4),2) + pow((x2-x5),2) + pow((x3-x6),2);
-		  if (length2 > 0.1) {
-		     n_lines++;
-		     to_generic_object_add_line(obj_no, current_colour.c_str(), 3,
-						x1, x2, x3, x4, x5, x6);
-		  } else {
-		     n_points++;
-		     to_generic_object_add_point(obj_no, current_colour.c_str(), 2,
-						 x1, x2, x3);
-		  }
-	       } else {
-		  if (strlen(line) > 0)
-		     std::cout << ":" << line << ": failed to scan" << std::endl;
-	       }
-	    }
-	 }
-	 // std::cout << "INFO:: added " << n_lines << " lines and " << n_points << " points\n";
+            } else {
+               if (sscanf(line, "%f %f %f %f %f %f %s", &x1, &x2, &x3, &x4, &x5, &x6, s)) {
+                  current_colour = s;
+                  float length2 = pow((x1-x4),2) + pow((x2-x5),2) + pow((x3-x6),2);
+                  if (length2 > 0.1) {
+                     n_lines++;
+                     to_generic_object_add_line(obj_no, current_colour.c_str(), 3,
+                                                x1, x2, x3, x4, x5, x6);
+                  } else {
+                     n_points++;
+                     to_generic_object_add_point(obj_no, current_colour.c_str(), 2,
+                                                 x1, x2, x3);
+                  }
+               } else {
+                  if (strlen(line) > 0)
+                     std::cout << ":" << line << ": failed to scan" << std::endl;
+               }
+            }
+         }
+         // std::cout << "INFO:: added " << n_lines << " lines and " << n_points << " points\n";
       }
       fclose(dots);
    }
@@ -876,7 +954,7 @@ void handle_read_draw_probe_dots(const char *dots_file) {
 
 
 void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
-					     int show_clash_gui_flag) {
+                                             int show_clash_gui_flag) {
 
    std::cout << "in handle_read_draw_probe_dots_unformatted() " << std::endl;
 
@@ -887,60 +965,60 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
    //bool hybrid_36_enabled_probe_flag = 0; // old style
 
    graphics_info_t g; // we use meshed_generic_display_objects now
-   
+
    if (dots_file) {
 
       FILE* dots = fopen(dots_file, "r" );
       if ( dots == NULL ) {
-	 std::cout << "handle_read_draw_probe_dots  - Could not read: "
-		   << dots_file << std::endl;
-	 // fclose(dots);
+         std::cout << "handle_read_draw_probe_dots  - Could not read: "
+                   << dots_file << std::endl;
+         // fclose(dots);
       } else {
 
-	 // clear up what probe contacts/overlaps we already have:
-	 std::vector<std::string> deletable_names;
-	 deletable_names.push_back("wide contact");
-	 deletable_names.push_back("close contact");
-	 deletable_names.push_back("small overlap");
-	 deletable_names.push_back("bad overlap");
-	 deletable_names.push_back("H-bonds");
-	 int nobjs = graphics_info_t::generic_display_objects.size();
-	 for (int i=0; i< nobjs; i++) {
-	    for (unsigned int d=0; d<deletable_names.size(); d++) {
-	       if (graphics_info_t::generic_display_objects[i].mesh.name == deletable_names[d]) {
-		  // close_generic_object(i); // empty it, really
+         // clear up what probe contacts/overlaps we already have:
+         std::vector<std::string> deletable_names;
+         deletable_names.push_back("wide contact");
+         deletable_names.push_back("close contact");
+         deletable_names.push_back("small overlap");
+         deletable_names.push_back("bad overlap");
+         deletable_names.push_back("H-bonds");
+         int nobjs = graphics_info_t::generic_display_objects.size();
+         for (int i=0; i< nobjs; i++) {
+            for (unsigned int d=0; d<deletable_names.size(); d++) {
+               if (graphics_info_t::generic_display_objects[i].mesh.name == deletable_names[d]) {
+                  // close_generic_object(i); // empty it, really
                   graphics_info_t::generic_display_objects[i].clear();
-	       }
-	    }
-	 }
+               }
+            }
+         }
 
-	 int n_input_lines = 0;
-	 int n_lines = 0;
-	 int n_points = 0;
-	 std::string current_colour = "blue"; // should be reset.
-	 int obj_no = number_of_generic_objects();
+         int n_input_lines = 0;
+         int n_lines = 0;
+         int n_points = 0;
+         std::string current_colour = "blue"; // should be reset.
+         int obj_no = number_of_generic_objects();
 
-	 int imol_source, imol_target;
-	 float gap1, factor3, gap2, factor4, factor5, factor6;
-	 char line[240];
-	 char c_type[20];
-	 char atom_id1[30];
-	 char atom_id2[30];
-	 char contact_type1[200];
-	 char contact_type2[3];
-	 float x1, x2, x3, x4, x5, x6;
-	 std::string current_contact_type = "none";
-	 int dot_size = 2; // 3 for hydrogen bonds
+         int imol_source, imol_target;
+         float gap1, factor3, gap2, factor4, factor5, factor6;
+         char line[240];
+         char c_type[20];
+         char atom_id1[30];
+         char atom_id2[30];
+         char contact_type1[200];
+         char contact_type2[3];
+         float x1, x2, x3, x4, x5, x6;
+         std::string current_contact_type = "none";
+         int dot_size = 2; // 3 for hydrogen bonds
 
-	 // null string arrays
-	 for (int i=0; i<20; i++) c_type[i] = 0;
-	 for (int i=0; i<30; i++) atom_id1[i] = 0;
-	 for (int i=0; i<30; i++) atom_id2[i] = 0;
-	 std::string current_useful_name;
+         // null string arrays
+         for (int i=0; i<20; i++) c_type[i] = 0;
+         for (int i=0; i<30; i++) atom_id1[i] = 0;
+         for (int i=0; i<30; i++) atom_id2[i] = 0;
+         std::string current_useful_name;
 
-	 std::string scan_line = ":%d->%d:%2c:%15c:%15c:%f:%f:%f:%f:%f:%f:%f:%s";
-	 if (hybrid_36_enabled_probe_flag) 
-	    scan_line = ":%d->%d:%2c:%16c:%16c:%f:%f:%f:%f:%f:%f:%f:%s";
+         std::string scan_line = ":%d->%d:%2c:%15c:%15c:%f:%f:%f:%f:%f:%f:%f:%s";
+         if (hybrid_36_enabled_probe_flag)
+            scan_line = ":%d->%d:%2c:%16c:%16c:%f:%f:%f:%f:%f:%f:%f:%s";
 
          std::set<int> mgdos_needing_a_setup;
 
@@ -962,118 +1040,118 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
          colour_map["magenta"   ] = ::colour_values_from_colour_name("magenta");
          colour_map["royalblue" ] = ::colour_values_from_colour_name("royalblue");
 
-	 while ( fgets( line, 240, dots ) != NULL ) {
-	    n_input_lines++;
-	    for (int i=0; i<3; i++) contact_type1[i] = 0;
-	    for (int i=0; i<3; i++) contact_type2[i] = 0;
+         while ( fgets( line, 240, dots ) != NULL ) {
+            n_input_lines++;
+            for (int i=0; i<3; i++) contact_type1[i] = 0;
+            for (int i=0; i<3; i++) contact_type2[i] = 0;
 
 
-	    if (sscanf(line,
-		       scan_line.c_str(),
-		       &imol_source, &imol_target, c_type, atom_id1, atom_id2,
-		       &gap1, &gap2, &x1, &x2, &x3, &factor3, &factor4,
-		       contact_type1)) {
+            if (sscanf(line,
+                       scan_line.c_str(),
+                       &imol_source, &imol_target, c_type, atom_id1, atom_id2,
+                       &gap1, &gap2, &x1, &x2, &x3, &factor3, &factor4,
+                       contact_type1)) {
 
-	       if (strlen(contact_type1) > 2) {
-		  int colon_count = 0;
-		  int offset = 0; 
+               if (strlen(contact_type1) > 2) {
+                  int colon_count = 0;
+                  int offset = 0;
 
-		  // std::cout << "colon search |" << contact_type1 << std::endl;
-		  for (int i=0; i<10; i++) {
-		     if (contact_type1[i] == ':')
-			colon_count++;
-		     if (colon_count == 2) {
-			offset = i + 1;
-			break;
-		     }
-		  }
+                  // std::cout << "colon search |" << contact_type1 << std::endl;
+                  for (int i=0; i<10; i++) {
+                     if (contact_type1[i] == ':')
+                        colon_count++;
+                     if (colon_count == 2) {
+                        offset = i + 1;
+                        break;
+                     }
+                  }
 
-		  if (offset > 0) { 
-		     // std::cout << "scanning |" << contact_type1+offset << std::endl;
-		     
-		     if (sscanf((contact_type1+offset), "%f:%f:%f:%f:%f", 
-				&x4, &x5, &x6, &factor5, &factor6)) {
-			
-			std::string atom_id_1_str(atom_id1);
-			std::string atom_id_2_str(atom_id2);
-			std::string contact_type(c_type);
-			
-//  			std::cout << "\"" << contact_type << "\"..\"" << atom_id_1_str
-// 				  << "\"..to..\""
-//  				  << atom_id_2_str << "\" " << gap1 << " " << gap2
-// 				  << " (" << x1 << "," << x2 << "," << x3 << ")"
-//  				  << " (" << x4 << "," << x5 << "," << x6 << ")"
-//  				  << "\n";
-//  			std::cout << "\"" << contact_type << "\"..\"" << atom_id_1_str
-//  				  << "\"..to..\""
-//  				  << atom_id_2_str << "\" " << gap1 << " " << gap2
-//  				  << " (" << x1 << "," << x2 << "," << x3 << ")"
-//  				  << " (" << x4 << "," << x5 << "," << x6 << ")"
-//  				  << "\n";
-	    
-			// assign the colour and dot size
-			if (contact_type == "hb") { 
-			   current_colour = "greentint";
-			   dot_size = 3;
-			} else {
-			   dot_size = 2;
-			   current_colour = "hotpink";
-			   if (gap2> -0.4) current_colour = "red";
-			   if (gap2> -0.3) current_colour = "orange";
-			   if (gap2> -0.2) current_colour = "yellow";
-			   if (gap2> -0.1) current_colour = "yellowtint";
-			   if (gap2>  0.0) current_colour = "green";
-			   if (gap2> 0.15) current_colour = "sea";
-			   if (gap2> 0.25) current_colour = "sky";
-			   if (gap2> 0.35) current_colour = "blue";
-			}
+                  if (offset > 0) {
+                     // std::cout << "scanning |" << contact_type1+offset << std::endl;
 
-			// do we need a new object?
-			if (contact_type != current_contact_type) {
+                     if (sscanf((contact_type1+offset), "%f:%f:%f:%f:%f",
+                                &x4, &x5, &x6, &factor5, &factor6)) {
+
+                        std::string atom_id_1_str(atom_id1);
+                        std::string atom_id_2_str(atom_id2);
+                        std::string contact_type(c_type);
+
+                        //                          std::cout << "\"" << contact_type << "\"..\"" << atom_id_1_str
+//                                   << "\"..to..\""
+//                                    << atom_id_2_str << "\" " << gap1 << " " << gap2
+//                                   << " (" << x1 << "," << x2 << "," << x3 << ")"
+//                                    << " (" << x4 << "," << x5 << "," << x6 << ")"
+//                                    << "\n";
+//                          std::cout << "\"" << contact_type << "\"..\"" << atom_id_1_str
+//                                    << "\"..to..\""
+//                                    << atom_id_2_str << "\" " << gap1 << " " << gap2
+//                                    << " (" << x1 << "," << x2 << "," << x3 << ")"
+//                                    << " (" << x4 << "," << x5 << "," << x6 << ")"
+//                                    << "\n";
+
+                        // assign the colour and dot size
+                        if (contact_type == "hb") {
+                           current_colour = "greentint";
+                           dot_size = 3;
+                        } else {
+                           dot_size = 2;
+                           current_colour = "hotpink";
+                           if (gap2> -0.4) current_colour = "red";
+                           if (gap2> -0.3) current_colour = "orange";
+                           if (gap2> -0.2) current_colour = "yellow";
+                           if (gap2> -0.1) current_colour = "yellowtint";
+                           if (gap2>  0.0) current_colour = "green";
+                           if (gap2> 0.15) current_colour = "sea";
+                           if (gap2> 0.25) current_colour = "sky";
+                           if (gap2> 0.35) current_colour = "blue";
+                        }
+
+                        // do we need a new object?
+                        if (contact_type != current_contact_type) {
 
                            // indexing into
                            // static std::vector<meshed_generic_display_object> generic_display_objects;
 
-			   current_useful_name = probe_dots_short_contact_name_to_expanded_name(contact_type);
-			   // do we have an object of that name already?
-			   int maybe_old_object = generic_object_index(current_useful_name.c_str());
-			   current_contact_type = contact_type;
+                           current_useful_name = probe_dots_short_contact_name_to_expanded_name(contact_type);
+                           // do we have an object of that name already?
+                           int maybe_old_object = generic_object_index(current_useful_name.c_str());
+                           current_contact_type = contact_type;
 
-			   if (maybe_old_object > -1) {
-			      obj_no = maybe_old_object;
-			   } else { 
-			      obj_no = new_generic_object_number(current_useful_name.c_str());
-			      // std::cout << "changing type to " << contact_type << std::endl;
-			   }
-			   // non-member function usage, so that we don't do the redraw.
-			   graphics_info_t::generic_display_objects[obj_no].mesh.set_draw_this_mesh(true);
-			   graphics_info_t::generic_display_objects[obj_no].mesh.this_mesh_is_closed = false;
-			}
+                           if (maybe_old_object > -1) {
+                              obj_no = maybe_old_object;
+                           } else {
+                              obj_no = new_generic_object_number(current_useful_name.c_str());
+                              // std::cout << "changing type to " << contact_type << std::endl;
+                           }
+                           // non-member function usage, so that we don't do the redraw.
+                           graphics_info_t::generic_display_objects[obj_no].mesh.set_draw_this_mesh(true);
+                           graphics_info_t::generic_display_objects[obj_no].mesh.this_mesh_is_closed = false;
+                        }
 
-			float length2 = pow((x1-x4),2) + pow((x2-x5),2) + pow((x3-x6),2);
+                        float length2 = pow((x1-x4),2) + pow((x2-x5),2) + pow((x3-x6),2);
 
 #if 0 // ------------------------ old method for reference ---------------------------------------------------------------
                         if (length2 > 0.04) {
 
-			   // hydrogen bonds are not drawn as spikes,
-			   // they should be drawn as pillow surfaces.
-			   if (contact_type == "hb") {
-			      to_generic_object_add_point(obj_no, current_colour.c_str(),
-							  dot_size * dot_size_scale_factor,
-							  x1, x2, x3);
-			      to_generic_object_add_point(obj_no, current_colour.c_str(),
-							  dot_size * dot_size_scale_factor,
-							  x4, x5, x6);
-			   } else { 
-			      n_lines++;
-			      to_generic_object_add_line(obj_no, current_colour.c_str(), 3 * dot_size_scale_factor,
-							 x1, x2, x3, x4, x5, x6);
-			   }
-			} else {
-			   n_points++;
-			   to_generic_object_add_point(obj_no, current_colour.c_str(), dot_size * dot_size_scale_factor,
-						       x1, x2, x3);
-			}
+                           // hydrogen bonds are not drawn as spikes,
+                           // they should be drawn as pillow surfaces.
+                           if (contact_type == "hb") {
+                              to_generic_object_add_point(obj_no, current_colour.c_str(),
+                                                          dot_size * dot_size_scale_factor,
+                                                          x1, x2, x3);
+                              to_generic_object_add_point(obj_no, current_colour.c_str(),
+                                                          dot_size * dot_size_scale_factor,
+                                                          x4, x5, x6);
+                           } else {
+                              n_lines++;
+                              to_generic_object_add_line(obj_no, current_colour.c_str(), 3 * dot_size_scale_factor,
+                                                         x1, x2, x3, x4, x5, x6);
+                           }
+                        } else {
+                           n_points++;
+                           to_generic_object_add_point(obj_no, current_colour.c_str(), dot_size * dot_size_scale_factor,
+                                                       x1, x2, x3);
+                        }
 #endif // ------------------------ old method for reference ---------------------------------------------------------------
 
 // ------------------------ new method ---------------------------------------------------------------
@@ -1103,69 +1181,69 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
                         }
 // ------------------------ end new method ---------------------------------------------------------------
 
-			if (length2 > 5) {
-			   // a really long
-			   std::cout << "DEBUG:: long line at line number "
-				     << n_input_lines
-				     << "  (" << x1 << "," << x2 << "," << x3 << ")"
-				     << "  (" << x4 << "," << x5 << "," << x6 << ")"
-				     << std::endl;
-			   std::cout << line;
-			}
+                        if (length2 > 5) {
+                           // a really long
+                           std::cout << "DEBUG:: long line at line number "
+                                     << n_input_lines
+                                     << "  (" << x1 << "," << x2 << "," << x3 << ")"
+                                     << "  (" << x4 << "," << x5 << "," << x6 << ")"
+                                     << std::endl;
+                           std::cout << line;
+                        }
 
-			if (gap2 < -0.42) {
-			   // it's a bad contact.  Add the 1st clash atom to the list of bad clashes.
-		  
-			   std::string chain_id = atom_id_1_str.substr(0,2);
-			   std::string atom_name = atom_id_1_str.substr(11,4);
-			   std::string insertion_code = atom_id_1_str.substr(6,1);
-			   std::string altconf = atom_id_1_str.substr(15,1);
-			   if (altconf == " ")
-			      altconf = "";
-		     
-			   int resno = atoi(atom_id_1_str.substr(2,4).c_str());
+                        if (gap2 < -0.42) {
+                           // it's a bad contact.  Add the 1st clash atom to the list of bad clashes.
 
-			   // std::cout << "   makes atom " << chain_id << ":" << resno << ":"
-			   // << insertion_code << ":" << atom_name << ":"
-			   // << altconf << ":" << "\n";
-			   
-			   coot::atom_spec_t at_spec(chain_id, resno, insertion_code, atom_name, altconf);
+                           std::string chain_id = atom_id_1_str.substr(0,2);
+                           std::string atom_name = atom_id_1_str.substr(11,4);
+                           std::string insertion_code = atom_id_1_str.substr(6,1);
+                           std::string altconf = atom_id_1_str.substr(15,1);
+                           if (altconf == " ")
+                              altconf = "";
+
+                           int resno = atoi(atom_id_1_str.substr(2,4).c_str());
+
+                           // std::cout << "   makes atom " << chain_id << ":" << resno << ":"
+                           // << insertion_code << ":" << atom_name << ":"
+                           // << altconf << ":" << "\n";
+
+                           coot::atom_spec_t at_spec(chain_id, resno, insertion_code, atom_name, altconf);
 
                            // 20211020-PE Wow this is very Old School way of adding to a set of atom specs
                            // (clash_atoms).
                            // The gui that uses clash atoms has been removed for the moment
-			   bool ifound = false;
-			   for (unsigned int ic=0; ic<clash_atoms.size(); ic++) {
-			      if (resno == clash_atoms[ic].res_no) {
-				 if (insertion_code == clash_atoms[ic].ins_code) {
-				    if (altconf == clash_atoms[ic].alt_conf) {
-				       if (chain_id == clash_atoms[ic].chain_id) {
+                           bool ifound = false;
+                           for (unsigned int ic=0; ic<clash_atoms.size(); ic++) {
+                              if (resno == clash_atoms[ic].res_no) {
+                                 if (insertion_code == clash_atoms[ic].ins_code) {
+                                    if (altconf == clash_atoms[ic].alt_conf) {
+                                       if (chain_id == clash_atoms[ic].chain_id) {
 
-					  // we are intested in bad (low) gaps
-					  if (gap2 < clash_atoms[ic].float_user_data)
-					     clash_atoms[ic].float_user_data = gap2;
-				 
-					  ifound = true;
-					  break;
-				       }
-				    }
-				 }
-			      }
-			   }
-			   if (ifound == false) {
-			      at_spec.int_user_data = imol;
-			      at_spec.float_user_data = gap2;
-			      at_spec.string_user_data = current_useful_name;
-			      // don't put hydrogen bonds in the bad contact list
-			      if (contact_type != "hb") 
-				 clash_atoms.push_back(at_spec);
-			   }
-			} 
-		     }
-		  }
-	       }
-	    }
-	 }
+                                          // we are intested in bad (low) gaps
+                                          if (gap2 < clash_atoms[ic].float_user_data)
+                                             clash_atoms[ic].float_user_data = gap2;
+
+                                          ifound = true;
+                                          break;
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                           if (ifound == false) {
+                              at_spec.int_user_data = imol;
+                              at_spec.float_user_data = gap2;
+                              at_spec.string_user_data = current_useful_name;
+                              // don't put hydrogen bonds in the bad contact list
+                              if (contact_type != "hb")
+                                 clash_atoms.push_back(at_spec);
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
          // setup the meshed_generic_display_objects that need a setup
          Material material;
          material.do_specularity = true;
@@ -1182,13 +1260,13 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
             }
          }
 
-	 if (show_clash_gui_flag) {
-	    if (graphics_info_t::use_graphics_interface_flag) {
-		if (show_clash_gui_flag == 2) {
+         if (show_clash_gui_flag) {
+            if (graphics_info_t::use_graphics_interface_flag) {
+                if (show_clash_gui_flag == 2) {
                    // something here.
-		}
-	    }
-	 }
+                }
+            }
+         }
          fclose(dots);
       }
    }

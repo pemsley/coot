@@ -199,7 +199,7 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    if (true)
       std::cout << "DEBUG:: --- new_startup_on_glarea_resize() " <<  width << " " << height << std::endl;
 
-   std::cout << "int max " << INT_MAX << " " << std::sqrt(INT_MAX) << std::endl;
+   // std::cout << "resize(): int max " << INT_MAX << " " << std::sqrt(INT_MAX) << std::endl;
 
    graphics_info_t g;
    // for the GL widget, not the window.
@@ -400,21 +400,18 @@ on_glarea_scrolled(GtkEventControllerScroll *controller,
 }
 
 void
-on_glarea_swipe(GtkEventControllerScroll *controller,
-                double                    dx,
-                double                    dy,
-                gpointer                  user_data) {
+on_glarea_swipe(GtkGestureSwipe *controller,
+                double           vel_x,
+                double           vel_y,
+                gpointer         user_data) {
 
    graphics_info_t g;
    // swipes happend a lot - a click-and-drag seems to be a swipe
-   // std::cout << "------------------ swipe " << dx << " " << dy << std::endl;
 
-   GtkGestureSwipe *swipe_gesture; // how to get this?
-   double vel_x;
-   double vel_y;
-   // gboolean state = gtk_gesture_get_velocity(swipe_gesture, &vel_x, &vel_y);
+   // std::cout << "------------------ swipe " << vel_x << " " << vel_y << std::endl;
 
-   g.using_trackpad = true;
+   // 20240414-PE no, because click-drag-release is a swipe.
+   // g.using_trackpad = true;
 
 }
 

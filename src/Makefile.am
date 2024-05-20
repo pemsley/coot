@@ -175,6 +175,7 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/lbg-interface.hh   \
                          $(top_srcdir)/src/c-interface-refine.hh \
                          $(top_srcdir)/src/c-interface-ligands-swig.hh \
+                         $(top_srcdir)/src/c-interface-generic-objects.h \
                          $(top_srcdir)/src/cfc.hh \
                          $(top_srcdir)/src/curlew.h \
                          $(top_srcdir)/src/curlew.hh \
@@ -243,6 +244,12 @@ if USE_BACKWARD
    BACKWARD_FLAGS=-DUSE_BACKWARD
 endif
 
+if RELOCATABLE_BINARIES
+    # make coot from coot.in
+else
+    # make coot from coot_bin
+endif
+
 # SWIG_FLAGS is something of a misnomer.  It actually defines
 # COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
 # correct callbacks in both GTK1 and GTK2 regimes.
@@ -305,9 +312,9 @@ _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
 
 if OS_WIN32
 # no more libexec for windows
-bin_PROGRAMS     = coot-bin coot-density-score-by-residue-bin
+bin_PROGRAMS     = Coot coot-density-score-by-residue-bin
 else
-libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin
+libexec_PROGRAMS = Coot coot-density-score-by-residue-bin
 bin_PROGRAMS = 
 endif
 
@@ -318,7 +325,7 @@ check_PROGRAMS = test-coot-align test-cholesky
 #	fix-nomenclature.cc    \
 #	coot-nomenclature.cc
 
-coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
+Coot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
         glade-callbacks-preferences.cc glade-callbacks-shader-settings.cc \
         new-startup.cc \
         setup-gui-components.cc \
@@ -328,7 +335,7 @@ coot_bin_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
 
 # is it a good idea to move functions from coot-bin dependencies into libcootsumo?
 # e.g. atoms_with_zero_occupancy()?
-coot_bin_LDADD =  \
+Coot_LDADD =  \
 	libcootsumo.la                                     \
 	$(top_builddir)/layla/libcoot-layla.la             \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
@@ -606,6 +613,7 @@ libcootsumo_la_SOURCES = \
 	ligand-check.hh          \
 	Model.cc Model.hh        \
 	make-a-dodec.cc make-a-dodec.hh \
+	map-statistics.hh               \
 	matrix-utils.hh          \
 	matrix-utils.cc          \
 	map-statistics.hh        \
@@ -618,7 +626,6 @@ libcootsumo_la_SOURCES = \
 	meshed-generic-display-object.hh \
 	meshed-generic-display-object.cc \
 	meshed-particle-container.hh     \
-	map-statistics.hh                \
 	model-composition-statistics.hh  \
 	model-molecule-meshes.hh         \
 	model-molecule-meshes.cc         \
@@ -657,7 +664,6 @@ libcootsumo_la_SOURCES = \
 	pisa-interface.hh	 \
 	pick.hh pick.cc	 \
 	positioned-widgets.h     \
-	positron-plot.hh         \
 	positron-plot.cc         \
 	pre-load.hh              \
 	probe-clash-score.cc     \
@@ -714,6 +720,7 @@ libcootsumo_la_SOURCES = \
 	testing.hh               \
 	Texture.cc Texture.hh    \
 	TextureMesh.cc TextureMesh.hh \
+	tomo-tools.cc \
 	trackball.c trackball.h  \
 	triangle-extras.h        \
 	user-mods.hh user-mods.cc\
@@ -804,7 +811,7 @@ endif
 
 # coot_bin_LDFLAGS = -static -lstdc++
 #
-coot_bin_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
+Coot_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 
 # coot_bin_CXXFLAGS=-Wl,--export-dynamic -dynamiclib
 #  -Wl,-undefined -Wl,dynamic_lookup

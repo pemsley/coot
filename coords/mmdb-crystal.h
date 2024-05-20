@@ -29,7 +29,7 @@
 #include "Cartesian.h" // uncommented so that r899 compiles for Bill. Strange.
 #include "coot-utils/atom-selection-container.hh"
 
-namespace coot { 
+namespace coot {
    class coot_v4 {
    public:
       std::vector<float> v4;
@@ -76,7 +76,7 @@ namespace coot {
 std::ostream & operator<<(std::ostream &s, const coot::coot_mat44 &m);
 
 //! A class for symmetry operators
-class symm_trans_t { 
+class symm_trans_t {
 
    int symm_no, x_shift_, y_shift_, z_shift_;
 
@@ -103,7 +103,7 @@ class symm_trans_t {
       x_shift_ += xs;
       y_shift_ += ys;
       z_shift_ += zs;
-   } 
+   }
 
    //! @return true if this symmetry operator is the identity matrix
    bool is_identity();
@@ -123,13 +123,13 @@ class symm_trans_t {
 
 //! class for the cell translation for generation/application of symmery-related molecules
 //!
-class Cell_Translation { 
+class Cell_Translation {
 
- public: 
+ public:
 
    //! unit cell steps
-   int us, vs, ws; 
-   
+   int us, vs, ws;
+
    //! constructor
    Cell_Translation() {us=0; vs=0; ws=0;}
    //! constructor
@@ -143,9 +143,9 @@ std::string to_string(const std::pair<symm_trans_t, Cell_Translation> &sts);
 
 
 
-class molecule_extents_t { 
+class molecule_extents_t {
 
-   // coordinates of the most limiting atoms in the faces. 
+   // coordinates of the most limiting atoms in the faces.
    //
    coot::Cartesian front, back, left, right, top, bottom, centre;
    // front, back, minimum and maximum in z;
@@ -175,25 +175,25 @@ class molecule_extents_t {
    // expansion_size is typically the symmetry radius
    molecule_extents_t(atom_selection_container_t, float expansion_size);
    ~molecule_extents_t();
-   coot::Cartesian get_front() const; 
-   coot::Cartesian get_back()  const; 
-   coot::Cartesian get_left() const; 
-   coot::Cartesian get_right()  const; 
-   coot::Cartesian get_top() const; 
-   coot::Cartesian get_bottom()  const; 
+   coot::Cartesian get_front() const;
+   coot::Cartesian get_back() const;
+   coot::Cartesian get_left() const;
+   coot::Cartesian get_right() const;
+   coot::Cartesian get_top() const;
+   coot::Cartesian get_bottom() const;
 
-   Cell_Translation 
+   Cell_Translation
       coord_to_unit_cell_translations(coot::Cartesian point,
-				      atom_selection_container_t AtomSel) const; 
+				      atom_selection_container_t AtomSel) const;
 
    // Return vector size 0 when there is no symmetry
    // (GetNumberOfSymOps returns 0)
-   // 
+   //
    std::vector<std::pair<symm_trans_t, Cell_Translation> >
    which_boxes(coot::Cartesian point,
 	       atom_selection_container_t AtomSel,
 	       int shift_search_size = 1) const;
-   
+
    std::vector<std::pair<int, symm_trans_t> >
    which_strict_ncs(const coot::Cartesian &centre_pt,
 		    atom_selection_container_t &AtomSel,
@@ -217,9 +217,9 @@ class molecule_extents_t {
 
 
 
-// Let's use symmetry in a properly OO manner, rather than the fortran 
+// Let's use symmetry in a properly OO manner, rather than the fortran
 // way that I dislike.  Hide all that here.
-// 
+//
 class SymmMatrix {
 
    double mat[4][4];
@@ -245,19 +245,19 @@ class SymmMatrix {
 mmdb::PPAtom translated_atoms(atom_selection_container_t AtomSel,
 			 symm_trans_t symm_trans);
 
-coot::Cartesian translate_atom(atom_selection_container_t AtomSel, 
-			 int i, 
+coot::Cartesian translate_atom(atom_selection_container_t AtomSel,
+			 int i,
 			 symm_trans_t symm_trans);
 
-coot::Cartesian translate_atom_with_pre_shift(atom_selection_container_t AtomSel, 
-					      int i, 
+coot::Cartesian translate_atom_with_pre_shift(atom_selection_container_t AtomSel,
+					      int i,
 					      const std::pair<symm_trans_t, Cell_Translation> &symm_trans);
 
 // Tinker with asc (actually, internally, the mmdb::CMMDBCryst of asc)
-// 
+//
 // Return 1 on success, 0 on failure.
-int set_mmdb_cell_and_symm(atom_selection_container_t asc, 
+int set_mmdb_cell_and_symm(atom_selection_container_t asc,
 			   std::pair<std::vector<float>, std::string> cell_spgr);
-			   
+
 
 #endif // MMDB_CRYSTAL

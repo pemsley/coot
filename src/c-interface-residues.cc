@@ -164,7 +164,6 @@ print_glyco_tree(int imol, const std::string &chain_id, int res_no, const std::s
 	    g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
 
 	 coot::glyco_tree_t t(r, mol, g.Geom_p());
-
       } 
    } 
 } 

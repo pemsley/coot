@@ -1498,6 +1498,12 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 							  float map_sampling_rate,
                                                           bool updating_existing_map_flag) {
 
+   bool debug = false;
+
+   if (debug) {
+      std::cout << "mci::map_fill_from_mtz_with_reso_limits() " << mtz_file_name << " " << f_col << " " << phi_col << std::endl;
+   }
+
    graphics_info_t g;
 
    // save for potential phase recombination in refmac later
@@ -1551,6 +1557,12 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 
    // If use weights, use both strings, else just use the first
    std::pair<std::string, std::string> p = make_import_datanames(f_col, phi_col, weight_col, use_weights);
+
+   if (debug) {
+      std::cout << "::::::::::::::::::::::::: dataname: " << std::endl;
+      std::cout << "       " << p.first << std::endl;
+      std::cout << "       " << p.second << std::endl;
+   }
 
    if (p.first.length() == 0) { // mechanism to signal an error
       std::cout << "ERROR:: fill_map.. - There was a column label error.\n";
@@ -2393,7 +2405,9 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
 
       // save state strings
-      save_state_command_strings_.push_back("handle-read-ccp4-map");
+      // c.f. std::string sc = state_command("coot", "set-draw-hydrogens", command_args, il);
+      save_state_command_strings_.push_back("coot");
+      save_state_command_strings_.push_back("handle-read-ccp4-map"); // maybe problems in scheme state script in future
       save_state_command_strings_.push_back(single_quote(coot::util::intelligent_debackslash(filename)));
       save_state_command_strings_.push_back(graphics_info_t::int_to_string(is_diff_map_flag));
 
@@ -2478,7 +2492,8 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
    initialize_map_things_on_read_molecule(name_in, false, false, false); // not a diff_map
 
    bool ipz = graphics_info_t::ignore_pseudo_zeros_for_map_stats;
-   mean_and_variance<float> mv = map_density_distribution(xmap, 40, true, ipz);
+   bool write_output_flag = false;
+   mean_and_variance<float> mv = map_density_distribution(xmap, 40, write_output_flag, ipz);
 
    float mean = mv.mean;
    float var = mv.variance;

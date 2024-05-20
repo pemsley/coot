@@ -163,12 +163,12 @@ int test_change_chain_id_1(molecules_container_t &molecules_container) {
    // let colourMap = new cootModule.MapIntFloat3();
    // let indexedResiduesVec = new cootModule.VectorStringUInt_pair();
 
-   std::map<unsigned int, std::array<float, 3> > colourMap;
+   std::map<unsigned int, std::array<float, 4> > colourMap;
    std::vector<std::pair<std::string, unsigned int> > indexedResiduesVec;
 
-   std::vector<std::pair<std::string, std::array<float, 3> > > colours = {
-      std::make_pair("//A", std::array<float,3>({1, 0, 0})),
-      std::make_pair("//B", std::array<float,3>({0, 0, 1}))};
+   std::vector<std::pair<std::string, std::array<float, 4> > > colours = {
+      std::make_pair("//A", std::array<float,4>({1, 0, 0, 1})),
+      std::make_pair("//B", std::array<float,4>({0, 0, 1, 1}))};
 
    // colours.forEach((colour, index) => {
    //    colourMap.set(index + 51, colour.rgb)
@@ -219,7 +219,7 @@ int test_change_chain_id_1(molecules_container_t &molecules_container) {
    // let colourMap_2 = new cootModule.MapIntFloat3()
    // let indexedResiduesVec_2 = new cootModule.VectorStringUInt_pair()
 
-   std::map<unsigned int, std::array<float, 3> > colourMap_2;
+   std::map<unsigned int, std::array<float, 4> > colourMap_2;
    std::vector<std::pair<std::string, unsigned int> > indexedResiduesVec_2;
 
    // const colours_2 = [
@@ -228,9 +228,9 @@ int test_change_chain_id_1(molecules_container_t &molecules_container) {
    //    //{ cid: "//X", rgb: [0, 1, 0] }   ----> IF I COMMENT THIS OUT I GET BUS ERROR
    // ]
 
-   std::vector<std::pair<std::string, std::array<float, 3> > > colours_2 = {
-      std::make_pair("//A", std::array<float,3>({1, 0, 0})),
-      std::make_pair("//B", std::array<float,3>({0, 0, 1}))
+   std::vector<std::pair<std::string, std::array<float, 4> > > colours_2 = {
+      std::make_pair("//A", std::array<float,4>({1, 0, 0, 1})),
+      std::make_pair("//B", std::array<float,4>({0, 0, 1, 1}))
    };
 
    // colours_2.forEach((colour, index) => {
@@ -265,3 +265,50 @@ int test_change_chain_id_1(molecules_container_t &molecules_container) {
 
    return status;
 }
+
+
+int test_change_rotamer(molecules_container_t &molecules_container) {
+
+
+   starting_test(__FUNCTION__);
+
+   int status = 0;
+   int imol_molecule = molecules_container.read_pdb(reference_data("5a3h.pdb"));
+
+   // Create a fragment and change rotamer
+   int imol_fragment = molecules_container.copy_fragment_using_cid(imol_molecule, "//A/179");
+
+   auto change_info = molecules_container.change_to_next_rotamer(imol_fragment, "//A/179", "");
+
+   std::cout << "change_info: rank " << change_info.rank << std::endl;
+   std::cout << "change_info: name " << change_info.name << std::endl;
+   std::cout << "change_info: richardson_probability " << change_info.richardson_probability << std::endl;
+   std::cout << "change_info: status " << change_info.status << std::endl;
+
+   // Get the OG atom for that new rotamer (still in the fragment)
+   auto resSpec = coot::residue_spec_t("A", 179, "");
+   mmdb::Residue *res_fragment = molecules_container.get_residue(imol_fragment, resSpec);
+   mmdb::Atom *atom_fragment = res_fragment->GetAtom(5);
+
+   // Replace fragment back into the molecule and get new OG atom
+   int status_replace = molecules_container.replace_fragment(imol_molecule, imol_fragment, "//A/179");
+   std::cout << "replace_fragment() status " << status_replace << std::endl;
+   mmdb::Residue *res_new = molecules_container.get_residue(imol_molecule, resSpec);
+   mmdb::Atom *atom_new = res_new->GetAtom(5);
+
+   std::cout << "atom_fragment pos: " << atom_fragment->x << " " << atom_fragment->y << " " << atom_fragment->z << std::endl;
+   std::cout << "atom_new pos:      " << atom_new->x      << " " << atom_new->y      << " " << atom_new->z      << std::endl;
+
+   // This fails...
+   // expect(atom_new.x).toBe(atom_fragment.x)
+   // expect(atom_new.y).toBe(atom_fragment.y)
+   // expect(atom_new.z).toBe(atom_fragment.z)
+
+   clipper::Coord_orth co_1 = coot::co(atom_fragment);
+   clipper::Coord_orth co_2 = coot::co(atom_new);
+   double d2 = (co_2-co_1).lengthsq();
+   double d = std::sqrt(d2);
+   if (d < 0.0001) status = 1;
+
+   return status;
+ }

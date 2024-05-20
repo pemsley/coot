@@ -3544,12 +3544,14 @@ void close_molecule(int imol) {
       // and close the graphics ligand view if it was a residue of this molecule
       g.close_graphics_ligand_view_for_mol(imol);
    }
-   int go_to_atom_imol_new = g.update_go_to_atom_molecule_on_go_to_atom_molecule_deleted();
-   if (graphics_info_t::go_to_atom_window) {
-      // std::cout << ".....re fill go to atom window here" << std::endl;
-      if (imol == old_go_to_atom_molecule) {
-	 g.update_go_to_atom_window_on_other_molecule_chosen(go_to_atom_imol_new);
-	 g.update_go_to_atom_window_on_changed_mol(go_to_atom_imol_new);
+   if (! was_map) {
+      int go_to_atom_imol_new = g.update_go_to_atom_molecule_on_go_to_atom_molecule_deleted();
+      if (graphics_info_t::go_to_atom_window) {
+         // std::cout << ".....re fill go to atom window here" << std::endl;
+         if (imol == old_go_to_atom_molecule) {
+	    g.update_go_to_atom_window_on_other_molecule_chosen(go_to_atom_imol_new);
+	    g.update_go_to_atom_window_on_changed_mol(go_to_atom_imol_new);
+         }
       }
    }
 
@@ -5444,19 +5446,6 @@ void handle_go_to_residue_keyboarding_mode(const char *text) {
 }
 
 
-
-void
-on_generic_objects_dialog_object_check_button_toggled(GtkButton       *button,
-						       gpointer         user_data)
-{
-
-   int generic_object_number = GPOINTER_TO_INT(user_data);
-   int state = 0;
-   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(button)))
-      state = 1;
-   set_display_generic_object(generic_object_number, state);
-}
-
 void
 on_instanced_mesh_generic_objects_dialog_object_check_button_toggled(GtkCheckButton *button,
                                                                      gpointer user_data) {
@@ -5480,44 +5469,6 @@ on_instanced_mesh_generic_objects_dialog_object_check_button_toggled(GtkCheckBut
    }
 }
 
-void
-generic_objects_dialog_grid_add_object_internal(const meshed_generic_display_object &gdo,
-                                                GtkWidget *dialog,
-                                                GtkWidget *grid,
-                                                int io) {
-
-   if (! gdo.mesh.is_closed()) {
-      GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (("Display"));
-      std::string label_str = gdo.mesh.name;
-      GtkWidget *label = gtk_label_new(label_str.c_str());
-
-      std::string stub = "generic_object_" + std::to_string(io);
-      std::string toggle_button_name = stub + "_toggle_button";
-      std::string label_name = stub + "_label";
-
-      // set the names of these widgets so that they can be
-      // looked up and toggled/hidden dynamically.
-
-      g_object_set_data(G_OBJECT(dialog), toggle_button_name.c_str(), checkbutton);
-      g_object_set_data(G_OBJECT(dialog), label_name.c_str(), label);
-
-      // grid child left top width height
-      gtk_grid_attach (GTK_GRID (grid), label,       0, io, 1, 1);
-      gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, io, 1, 1);
-
-      if (gdo.mesh.get_draw_this_mesh())
-	 gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
-
-      g_signal_connect(G_OBJECT(checkbutton), "toggled",
-		       G_CALLBACK(on_generic_objects_dialog_object_check_button_toggled),
-		       GINT_TO_POINTER(io));
-
-      gtk_widget_set_visible (label, TRUE);
-      gtk_widget_set_visible (checkbutton, TRUE);
-
-   }
-
-}
 
 void
 generic_objects_dialog_grid_add_object_for_molecule_internal(int imol,
@@ -5596,7 +5547,7 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
       for (unsigned int io=0; io<n_objs; io++) {
 	 const meshed_generic_display_object &gdo = g.generic_display_objects.at(io);
          if (! gdo.mesh.is_closed()) {
-            generic_objects_dialog_grid_add_object_internal(gdo, dialog, grid, io);
+            g.generic_objects_dialog_grid_add_object_internal(gdo, dialog, grid, io);
             io_count++;
          }
       }
@@ -5631,10 +5582,10 @@ int add_generic_display_object(const meshed_generic_display_object &gdo) {
       if (table) {
          // auto resize now
 	 // gtk_table_resize(GTK_TABLE(table), n_objs+1, 2);
-	 generic_objects_dialog_grid_add_object_internal(gdo,
-                                                         g.generic_objects_dialog,
-                                                         table,
-                                                         n_objs);
+	 g.generic_objects_dialog_grid_add_object_internal(gdo,
+                                                           g.generic_objects_dialog,
+                                                           table,
+                                                           n_objs);
       }
    }
    return n_objs;

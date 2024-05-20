@@ -3825,7 +3825,9 @@ coot::molecule_t::get_symmetry(float symmetry_search_radius, const coot::Cartesi
 coot::molecule_t::rotamer_change_info_t
 coot::molecule_t::change_to_next_rotamer(const coot::residue_spec_t &res_spec, const std::string &alt_conf,
                                          const coot::protein_geometry &pg) {
-   return change_rotamer_number(res_spec, alt_conf, 1, pg);
+
+   auto crni = change_rotamer_number(res_spec, alt_conf, 1, pg);
+   return crni;
 }
 
 //
@@ -3894,6 +3896,7 @@ coot::molecule_t::change_rotamer_number(const coot::residue_spec_t &res_spec, co
             rci.rank = rotamer_number;
             rci.name = rotamers[rotamer_number].rotamer_name();
             rci.richardson_probability = rotamers[rotamer_number].Probability_rich();
+
          }
       } else {
          std::cout << "WARNING:: change_rotamer_number() Failed to get monomer restraints for " << res_type << std::endl;
@@ -3943,11 +3946,14 @@ coot::molecule_t::set_residue_to_rotamer_move_atoms(mmdb::Residue *res, mmdb::Re
       }
    }
 
-   if (i_done) {
-      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-      atom_sel.mol->FinishStructEdit();
-      atom_sel = make_asc(atom_sel.mol);
-   }
+   // 20240516-PE I aom only moving atoms - so I don't need any of this:
+   // (it destroys atom_sel and atom_sel.UDDOldAtomIndexHandle)
+   //
+   // if (i_done) {
+      // atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      // atom_sel.mol->FinishStructEdit();
+      // atom_sel = make_asc(atom_sel.mol);
+   // }
    return i_done;
 }
 
@@ -4144,8 +4150,7 @@ coot::molecule_t::init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::pro
    unsigned int n_threads = 8;
    last_restraints->thread_pool(thread_pool, n_threads);
 
-   int imol = 0; // dummy
-   last_restraints->make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
+   last_restraints->make_restraints(imol_no, geom, flags, 1, make_trans_peptide_restraints,
                                     1.0, do_rama_plot_restraints, true, true, false, pseudos);
 
    if (last_restraints->size() == 0) {
@@ -4433,6 +4438,37 @@ coot::molecule_t::transform_by(const clipper::RTop_orth &rtop, mmdb::Residue *re
 
 
 void
+coot::molecule_t::transform_by(const clipper::RTop_orth &rtop) {
+
+   for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        clipper::Coord_orth pos = coot::co(at);
+                        clipper::Coord_orth p2 = pos.transform(rtop);
+                        at->x = p2.x();
+                        at->y = p2.y();
+                        at->z = p2.z();
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}
+
+void
 coot::molecule_t::print_secondary_structure_info() const {
 
    for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
@@ -4443,3 +4479,16 @@ coot::molecule_t::print_secondary_structure_info() const {
    }
 
 }
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+//! if the ligand cid specifies more than one residue, only the first is returned.
+//! @return nullptr on error or failure to specify a ligand.
+RDKit::ROMol *
+coot::molecule_t::rdkit_mol(const std::string &ligand_cid) {
+
+   RDKit::ROMol *mol = nullptr;
+   mmdb::Residue *residue_p = cid_to_residue(ligand_cid);
+   return mol;
+}
+#endif
+

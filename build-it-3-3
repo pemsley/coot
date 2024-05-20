@@ -409,7 +409,8 @@
 # 6.19 20240306-PE Don't build gettext on anything other than Darwin
 # 6.20 20240326-PE Add cairo
 # 6.21 20240327-PE Reposition the cairo build (after ninja)
-script_version=6.21
+# 6.22 20240427-PE Fix-ups for building on fedora (partial)
+script_version=6.22
 
 
 
@@ -1086,18 +1087,26 @@ if test $OS = Linux ; then
 
    if [ -e /bin/rpm ] ; then
       if rpm -a ; then
-         for i in fedora-release redhat-release redhat-release-workstation centos-release sl-release openSUSE-release ; do
-           dist=`rpm -q --qf '%{name}' ${i}`
-           echo  dist is $dist
-           dist=`rpm -q --qf '%{name}' ${i}`
-           if test $? = 0 ; then
-              dist_name=$(echo ${dist} | sed -e 's/\-release//g' -e 's/\-workstation//g')
-              dist_ver=$(rpm -q --qf '%{version}' ${i})
-              break
-           else
-              dist_name='unknown'
-           fi
-         done
+         if test -e /etc/os-release ; then
+             dist_name=$(grep ^ID /etc/os-release | sed -e 's/ID=//')
+             dist_ver=$(grep ^VERSION_ID /etc/os-release | sed -e 's/VERSION_ID=//')
+         else
+             for i in fedora-release redhat-release redhat-release-workstation centos-release sl-release openSUSE-release ; do
+                 rpm -q --qf '%{name}' ${i}
+                 dist=`rpm -q --qf '%{name}' ${i}`
+                 echo  dist is $dist
+                 dist=`rpm -q --qf '%{name}' ${i}`
+                 if test $? = 0 ; then
+                     echo passes with dist $dist
+                     dist_name=$(echo ${dist} | sed -e 's/\-release//g' -e 's/\-workstation//g')
+                     dist_ver=$(rpm -q --qf '%{version}' ${i})
+                     break
+                 else
+                   echo does not pass
+                   dist_name='unknown'
+               fi
+            done
+        fi
       else
          dist_name='unknown'
       fi
@@ -1137,6 +1146,7 @@ if test $OS = Linux ; then
 
     * )
       if test -r /etc/issue; then
+        echo this fallback case............
         dist_name=$(awk 'NR==1{print tolower($1)}' /etc/issue)
         if [ "$dist_name" = "debian" ] ; then
            dist_ver=$(awk  'NR==1{x=tolower($2); y=tolower($3); gsub("/","-",x); gsub("/","-",y); print x "-" y}' /etc/issue)
@@ -1151,6 +1161,8 @@ if test $OS = Linux ; then
   esac
 fi
 
+echo dist_name $dist_name
+echo systype $systype
 
 if test $OS = IRIX64 ; then
    osversion=`uname -r`
@@ -2710,12 +2722,11 @@ libffi_version=3.2.1
 # libffi_version=3.4.3 is available now 20231021-PE
 skip_build=false
 if [ $test_for_already_installed_dependencies = true ] ; then
-      echo ffi build - testing existance $install_top_dir/lib/libffi-$libffi_version/include/fffi.h
-      if [ -e $install_top_dir/lib/libffi-$libffi_version/include/ffi.h ] ; then
+      if [ -e $install_top_dir/include/ffi.h ] ; then
          skip_build=true
          echo installation has libffi
       else
-         echo $install_top_dir/lib/libffi-$libffi_version/include does not exist
+         echo $install_top_dir/include/ffi.h does not exist
       fi
 fi
 
@@ -2724,13 +2735,20 @@ if [ $skip_build = false ] ; then
     echo BUILDING libffi $libffi_version: >&2
     (
     unset LD_LIBRARY_PATH
-    ${WGET} https://sourceware.org/pub/libffi/libffi-$libffi_version.tar.gz
-    gzip -dc ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz | tar xf -
-    cd libffi-$libffi_version
-    ./configure $generic_prefix
-    if $MAKE ; then
-        make install
-    fi
+
+    pwd
+    echo ${WGET} https://github.com/libffi/libffi/archive/refs/heads/master.zip
+    ${WGET} https://github.com/libffi/libffi/archive/refs/heads/master.zip
+    ls -l
+    mv ${AUTOBUILD_SOURCES}/master.zip ${AUTOBUILD_SOURCES}/libffi-master.zip
+    unzip ${AUTOBUILD_SOURCES}/libffi-master.zip
+    cd libffi-master
+    bash autogen.sh
+    ./configure --prefix="$install_top_dir"
+    make -j 4
+    make install
+    cd -
+
     ) > $HOSTLOGDIR/09-libffi.txt 2>&1
 else
     echo not building libffi >&2
@@ -2746,6 +2764,14 @@ if [ $OS = Darwin ] ; then
       build_openssl=false
    else
       build_openssl=true
+   fi
+else
+   if test "$dist_name" = fedora ; then
+       if [ -e $install_top_dir/include/openssl ] ; then
+           build_openssl=false
+       else
+           build_openssl=true
+       fi
    fi
 fi
 
@@ -2838,24 +2864,52 @@ if test -n "$build_python" ; then
    # echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags
    # /Users/pemsley/ccp4/devtools/install
    # this should be configured
-   openssl_prefix=$HOME/ccp4/devtools/install
-   openssl_prefix=/usr
-   if [ $OS = Darwin ] ; then
-       openssl_prefix=$install_top_dir
-   fi
    # note to self: We need ffi.h (and lib presumably) to build the ctypes module (libffi-devel)
    # (or I could include it in this build script) (I don't know if ctypes is important)
    # 20220227-PE ctypes is crucial for meson
    # remove --with-pydebug for now because __PyNegativeRefcount problem on trying to load this into Blender
-   echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
    #
    # do we also need to use --with-threads=dir?
-   if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
-     echo INFO:: make for python
-     if $MAKE ; then
-        echo INFO:: make install for python
-        $MAKE install
-     fi
+   if test "$dist_name" = fedora ; then
+       python_install_top_dir=$HOME/building-python
+       python_install_top_dir=$HOME/building-python-tt
+       python_install_top_dir=$install_top_dir
+       ssl_top_dir=$HOME/building-python
+       ffi_top_dir=$HOME/building-python
+       ssl_top_dir=$install_top_dir
+       ffi_top_dir=$install_top_dir
+       # INFO:: ./configure --prefix=/home/pemsley/autobuild/Linux-emsley-vm-fedora-2.lmb.internal-gtk4 \
+       #                    --with-ensurepip=install --enable-shared --with-openssl=/usr \
+       #                    CFLAGS=-I/home/pemsley/autobuild/Linux-emsley-vm-fedora-2.lmb.internal-gtk4/lib/libffi-3.2.1/include \
+       #                    LIBS=-L/home/pemsley/autobuild/Linux-emsley-vm-fedora-2.lmb.internal-gtk4/lib64 \
+       #                    LDFLAGS=-Wl,--rpath=/home/pemsley/autobuild/Linux-emsley-vm-fedora-2.lmb.internal-gtk4/lib
+       echo ./configure --prefix="$python_install_top_dir" --with-ensurepip=install --enable-shared \
+                --with-openssl="$ssl_top_dir" \
+                LIBS=-L$install_top_dir/lib64 LDFLAGS="-Wl,--rpath=$install_top_dir/lib"
+       if ./configure --prefix="$python_install_top_dir" --with-ensurepip=install --enable-shared \
+                --with-openssl="$ssl_top_dir" \
+                LIBS=-L$install_top_dir/lib64 LDFLAGS="-Wl,--rpath=$install_top_dir/lib" ; then
+           echo INFO:: make for python
+           if $MAKE ; then
+              echo INFO:: make install for python
+              $MAKE install
+           fi
+       fi
+   else
+       openssl_prefix=/usr
+       if [ $OS = Darwin ] ; then
+           openssl_prefix=$install_top_dir
+       fi
+       echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix \
+            CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
+       if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix \
+                      CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
+           echo INFO:: make for python
+           if $MAKE ; then
+              echo INFO:: make install for python
+              $MAKE install
+           fi
+       fi
    fi
    # test it
    echo test cypes in the new python
@@ -2876,10 +2930,13 @@ EOF
    # echo "using python : 3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
    if [ -e $install_top_dir/bin/python3 ] ; then
       echo linking python to python3
+      if [ -e $install_top_dir/bin/python ] ; then
+          rm $install_top_dir/bin/python
+      fi
       ln -s $install_top_dir/bin/python3 $install_top_dir/bin/python
    fi
 
-   echo BUILDING Python $pver done >&2
+   echo BUILDING: Python $pver done >&2
 
    echo Upgrading pip
    (
@@ -2891,7 +2948,8 @@ EOF
 
    echo Pip update done >&2
 else
-    echo not building python:
+    echo not building python
+    echo not building python >&2
 fi
 
 ############ test python, exit on failure ##################
@@ -3043,6 +3101,7 @@ else
     echo BUILDING: cairo $cairo_version
     echo BUILDING: cairo $cairo_version >&2
     (
+    unset LD_LIBRARY_PATH
     ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
     tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
     cd cairo-$cairo_version
@@ -3105,8 +3164,8 @@ fi
 # scratch for coot install.
 
 if test -n "$build_libidn" ; then
-    echo BUILDING libidn:
-    echo BUILDING libidn: >&2
+    echo BUILDING: libidn:
+    echo BUILDING: libidn: >&2
     (
     unset LD_LIBRARY_PATH
     libidn_version=1.15
@@ -3186,7 +3245,7 @@ if test -n "$build_curl" ; then
    fi
 
    ) > $HOSTLOGDIR/19-curl.txt 2>&1
-   echo donecurl: >&2
+   echo BUILDING: done curl: >&2
 
 else
     echo not building curl:
@@ -3208,8 +3267,8 @@ if test -n "$build_gsl" ; then
     gsl_version=1.15
     gsl_version=1.16
     gsl_version=2.7
-    echo BUILDING gsl $gsl_version
-    echo BUILDING gsl $gsl_version >&2
+    echo BUILDING: gsl $gsl_version
+    echo BUILDING: gsl $gsl_version >&2
     #
     # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
     # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
@@ -3233,7 +3292,7 @@ if test -n "$build_gsl" ; then
        $MAKE install
     fi
     ) > $HOSTLOGDIR/20-gsl.txt 2>&1
-    echo done gsl: >&2
+    echo BUILDING: done gsl >&2
 else
     echo not building gsl:
 fi
@@ -3352,7 +3411,7 @@ else
     glm_version=1.0.0
     echo BUILDING glm $glm_version:
     echo BUILDING glm $glm_version: >&2
-    echo fetching https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz >&2
+    # echo fetching https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz >&2
     ${WGET} https://github.com/g-truc/glm/archive/refs/tags/$glm_version.tar.gz
     echo cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
     cp ${AUTOBUILD_SOURCES}/$glm_version.tar.gz ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz
@@ -3380,7 +3439,7 @@ Cflags: -I${includedir}' > cmake/glm.pc.in
        make install
     fi
     ) > $HOSTLOGDIR/22-glm.txt 2>&1
-   echo glm-build-sub-shell-status $? >&2
+   echo INFO:: glm-build-sub-shell-status $? >&2
    echo done glm: >&2
 fi
 
@@ -3586,8 +3645,8 @@ if [ "$build_rdkit" = true ] ; then
 
    if [ $skip_this = false ] ;  then
 
-      echo BUILDING RDKit $rdkit_version
-      echo BUILDING RDKit $rdkit_version >&2
+      echo BUILDING: RDKit $rdkit_version
+      echo BUILDING: RDKit $rdkit_version >&2
       (
       echo building ========================= rdkit ==============================
 
@@ -3805,6 +3864,10 @@ if [ "$build_rdkit" = true ] ; then
                -DCatch2_DIR=$install_top_dir \
                 $tree_from_build ; then
 
+
+         # now patch rapidjson document.h
+         sed -i.backup -e 's/const SizeType length/SizeType length/' ../External/rapidjson-1.1.0/include/rapidjson/document.h
+
          # it seems that make -j n fails to compile (race condition?)
          # so use just plain make? (currently not fixed)
          if $MAKE ; then
@@ -3825,6 +3888,7 @@ if [ "$build_rdkit" = true ] ; then
       wc $HOSTLOGDIR/26-rdkit.txt >&2
    fi
 fi
+
 
 if [ -e $install_top_dir/lib/$python_version/site-packages/requests ] ; then
     echo python requests is installed
@@ -3899,9 +3963,10 @@ if test -e $install_top_dir/include/pcre2.h ; then
     echo installation has bcre2 >&2
 else
    pcre2_version=10.43
-   echo building pcre2 $pcre2_version
-   echo building pcre2 $pcre2_version >&2
+   echo BUILDING: pcre2 $pcre2_version
+   echo BUILDING: pcre2 $pcre2_version >&2
    (
+   unset LD_LIBRARY_PATH
    d=https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$pcre2_version
    ${WGET} $d/pcre2-$pcre2_version.tar.gz
    tar xf $AUTOBUILD_SOURCES/pcre2-$pcre2_version.tar.gz
@@ -4098,116 +4163,9 @@ else
    echo not building pygobject: 2>&1
 fi
 
-
-#################################################################
-# Raster3D
-#################################################################
-#
-
-if [ -e $install_top_dir/bin/render ] ; then
-   echo not building Raster3D render
-else
-
-   raster3d_version=3.0-3
-   raster3d_version=3.0-7
-   # raster3d depends on libgd to make png images
-   ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
-
-   if [ ! -e ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz ] ; then
-
-      echo missing Raster3D tar file
-
-   else
-      echo BUILDING raster3d $raster3d_version >&2
-      (
-       date
-       pwd
-
-       #
-       # build libgd
-       #
-
-       if [ true ] ; then
-          echo checking for existance of $install_top_dir/include/gd.h
-          if [ ! -e $install_top_dir/include/gd.h ] ; then
-              echo get and build libgd...
-   	      # Amazon file names too long, so force output name with -O
-              ${WGET} https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz -O ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz
-	      gzip -dc ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz | tar xf -
-   	      cd libgd-2.1.1
-              # don't use /bin/sh as shell to run libtool (on Ubuntu it's a problem)
-	      bash ./configure --prefix=$install_top_dir SHELL=/bin/bash
-	      if $MAKE ; then
-	         make install
-	      fi
-	      cd -
-          else
-              echo $install_top_dir/include/gd.h exists - skip libgd build
-          fi
-       else
-          echo /usr/include/gd.h exists - skip libgd build
-       fi
-
-      ) > $HOSTLOGDIR/32-libgd.txt 2>&1
-      echo done raster3d $raster3d_version >&2
-
-      (
-       date
-       pwd
-       # build render
-       #
-       system_has_libgd=false
-       if [ -e /usr/include/gd.h ] ; then
-          system_has_libgd=true
-       fi
-       if [ ! -e $install_top_dir/bin/render ] ; then
-          # now build it.
-          gzip -dc ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz | tar xf -
-          cd Raster3D_$raster3d_version
-
-          pwd
-          echo make linux
-          make linux # FIXME for Darwin
-
-          # compiling libgd so that render links against it depend on libjpeg-turbo-devel
-          # having been installed.  i.e. /usr/lib/libjpeg.so should exist
-
-          # add the gd support directory
-          #
-          system_has_libgd=false
-          if [ -e /usr/include/gd.h ] ; then
-             system_has_libgd=true
-          fi
-          echo system_has_libgd: $system_has_libgd
-          if [ "$system_has_libgd" = false ] ; then
-             sed -ibackup \
-                -e "s?=.-lgd?=  -L$install_top_dir/lib -lgd?" \
-                -e "s?=.-DGD_SUPPORT?=  -DGD_SUPPORT -I$install_top_dir/include?" \
-                -e 's/  TDEFS =.*/  TDEFS =/' \
-                -e 's/  TLIBS =.*/  TLIBS =/' \
-             Makefile.incl
-          fi
-
-          # race condition? list.mod
-          echo make render
-          if make render ; then
-             echo make prefix=$install_top_dir install
-             make prefix=$install_top_dir install
-             # did that work?  I doubt it. Let's do it by hand
-             if [ ! -e $install_top_dir/bin/render ] ; then
-                cp render $install_top_dir/bin/
-             fi
-          else
-             echo make render failed
-          fi
-          cd -
-       else
-          echo $install_top_dir/bin/render already exists, no build
-       fi
-       ) > $HOSTLOGDIR/33-raster3d.txt 2>&1
-   fi
-fi
-
+# restore Raster3D here at some stage
+# When you do, make it work with transparent density and ribbons/surfaces
+# (look up how to send the triangles)
 
 ###############################################################################
 # pygobject
@@ -4351,10 +4309,10 @@ if [ "$build_gc" = true ] ; then
    fi
 
    if [ $skip_this = false ] ; then
-      (
-      unset LD_LIBRARY_PATH
       echo BUILDING libatomic-ops:
       echo BUILDING libatomic-ops: >&2
+      (
+      unset LD_LIBRARY_PATH
       if [ ! -e $AUTOBUILD_SOURCES/libatomic_ops-7.6.12.tar.gz ] ; then
          ${WGET} https://github.com/ivmai/libatomic_ops/releases/download/v7.6.12/libatomic_ops-7.6.12.tar.gz
       fi
@@ -4365,21 +4323,20 @@ if [ "$build_gc" = true ] ; then
       make install
       cd -
       ) > $HOSTLOGDIR/37-libatomic-ops.txt 2>&1
-      echo done libatomic-ops: >&2
+      echo BUILDING: done libatomic-ops: >&2
    fi
 
    # echo gc skip_this $skip_this
 
    if [ $skip_this = false ] ; then
-      echo Here AAAAAAAAAAAAAAAAAAA
       gc_version=7.2g
       gc_version_dir=7.2
       gc_version=7.6.12     # needs libatomic_ops. can we find a version that doesn't need that?
       gc_version_dir=7.6.12 # I guess not.
       gc_version=8.2.4
       gc_version_dir=8.2.4
-      echo AAAAAAAAAAAAAAAAAA BUILDING: gc
-      echo AAAAAAAAAAAAAAAAAA BUILDING: gc $gc_version >&2
+      echo BUILDING: gc
+      echo BUILDING: gc $gc_version >&2
       (
       echo ========================= build gc =================================
       unset LD_LIBRARY_PATH
@@ -4392,7 +4349,11 @@ if [ "$build_gc" = true ] ; then
          echo tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
       else
          echo no file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
+         echo ${WGET} http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
          ${WGET} http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
+         # this file is double-gzipped!
+         mv $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz.gz
+         gunzip $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz.gz
          if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
             tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          else
@@ -4411,7 +4372,7 @@ if [ "$build_gc" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/38-gc.txt 2>&1
-      echo done gc $gc_version >&2
+      echo BUILDING: done gc $gc_version >&2
    else
       echo not building gc
    fi
@@ -4520,9 +4481,10 @@ if [ "$build_g_wrap" = true ] ; then
    # echo g-wrap skip_this $skip_this
 
    if [ $skip_this = false ] ; then
-      echo BUILDING g-wrap:
-      echo BUILDING g-wrap: >&2
+      echo BUILDING: g-wrap:
+      echo BUILDING: g-wrap $g_wrap_version >&2
       (
+      unset LD_LIBRARY_PATH
       echo ========================= build g-wrap =================================
       if [ -e $AUTOBUILD_SOURCES/g-wrap-$g_wrap_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/g-wrap-$g_wrap_version.tar.gz
@@ -4545,10 +4507,10 @@ if [ "$build_g_wrap" = true ] ; then
          fi
       fi
       ) > $HOSTLOGDIR/40-g-wrap.txt 2>&1
-      echo BUILDING g-wrap finished >&2
+      echo BUILDING: g-wrap done >&2
    fi
 else
-   echo not building g_wrap:
+   echo not building g_wrap
 fi
 
 if [ "$build_guile_cairo" = true ] ; then
@@ -4560,9 +4522,10 @@ if [ "$build_guile_cairo" = true ] ; then
    fi
 
    if [ $skip_this = false ] ; then
-      echo BUILDING guile-cairo
-      echo BUILDING guile-cairo >&2
+      echo BUILDING guile-cairo:
+      echo BUILDING guile-cairo $guile_cairo_version >&2
       (
+      unset LD_LIBRARY_PATH
       echo ========================= build guile-cairo =================================
       if [ -e $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-cairo-$guile_cairo_version.tar.gz
@@ -4583,7 +4546,7 @@ if [ "$build_guile_cairo" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/41-guile-cairo.txt 2>&1
-      echo BUILDING guile-cairo finished >&2
+      echo BUILDING: guile-cairo done >&2
    fi
 else
    echo not building guile-cairo:
@@ -4660,9 +4623,10 @@ if [ "$build_guile_gnome_platform" = true ] ; then
    echo guile-gnome-platform skip_this $skip_this
 
    if [ $skip_this = false ] ; then
-      echo BUILDING gnome-gnome-platform
-      echo BUILDING gnome-gnome-platform >&2
+      echo BUILDING: gnome-gnome-platform
+      echo BUILDING: gnome-gnome-platform $guile_gnome_platform_version >&2
       (
+      unset LD_LIBRARY_PATH
       echo ========================= build guile-gnome-platform =================================
       if [ -e $AUTOBUILD_SOURCES/guile-gnome-platform-$guile_gnome_platform_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-gnome-platform-$guile_gnome_platform_version.tar.gz
@@ -4704,9 +4668,9 @@ date >&2
 pwd >&2
 
 if [ -e coot ] ; then
-   (
    echo CASE 1 coot directory exists
    echo CASE 1 coot directory exists >&2
+   (
    pwd
    cd coot
    echo now in this dir:
@@ -4722,22 +4686,16 @@ if [ -e coot ] ; then
    # if [ -e ltmain.sh ] ; then
    #   rm ltmain.sh
    # fi
-   echo 44444444444444444444444 done fetch and merge
-   echo 44444444444444444444444 done fetch and merge >&2
    rm -rf autom4te.cache
 
-   echo 5555555555555555555555 bash autogen.sh
-   echo 5555555555555555555555 bash autogen.sh >&2
    echo bash autogen.sh
    bash autogen.sh
-   echo 66666666666666666666 done bash autogen.sh
-   echo 66666666666666666666 done bash autogen.sh >&2
    cd -
    ) > $HOSTLOGDIR/50-coot-fetch-merge-autogen.txt 2>&1
+   echo  BUILDING: done merge
 else
    echo CASE 2 coot directory not exists in $(pwd)
    echo CASE 2 coot directory not exists in $(pwd) >&2
-
    (
    save_dir=$(pwd)
    echo :::: $(pwd)
@@ -4764,6 +4722,7 @@ else
    LD_LIBRARY_PATH=$save_ld_library_path
    cd $save_dir
    ) > $HOSTLOGDIR/50-clone-autogen.txt 2>&1
+   echo  BUILDING: done checkout
 fi
 
 if test -n "$glib_installed" ; then
@@ -4778,8 +4737,8 @@ fi
 ##########         build Coot                                     #############
 ###############################################################################
 #
-echo BUILDING coot
-echo BUILDING coot >&2
+echo BUILDING: coot
+echo BUILDING: coot >&2
 
 (
 
@@ -4815,6 +4774,7 @@ cd build-coot
 
 
 export LD_LIBRARY_PATH=$install_top_dir/lib64
+unset LD_LIBRARY_PATH
 
 echo From git repo now
 echo building in: $PWD
@@ -4831,11 +4791,21 @@ echo PKG_CONFIG_PATH: $PKG_CONFIG_PATH
 
 echo 33333
 # 20220707-PE does this improve thie linking (get pass the problem with g_module_open_full)?
-export LD_LIBRARY_PATH=$install_top_dir/lib
+# We get checking dynamic linker characteristics... awk: symbol lookup error: /home/pemsley/autobuild/Linux-emsley-vm-fedora-2.lmb.internal-gtk4/lib/libreadline.so.8: undefined symbol: UP
+# on fedora if LD_LIBRARY_PATH is set
+if [ "$dist_name" = fedora ] ;  then
+    :
+else
+    export LD_LIBRARY_PATH=$install_top_dir/lib
+fi
 
 # add this when then are compiling and RDKIT is compiling
 
 # if compiling with sound on ubuntu libvorbis-dev libasound2-dev
+
+echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::
+echo LD_LIBRARY_PATH $LD_LIBRARY_PATH
+echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 echo bash ../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
@@ -4894,6 +4864,7 @@ else
 fi
 
 ) > $HOSTLOGDIR/50-coot.txt 2>&1
+
 
 #         --with-gsl-prefix=$install_top_dir \
 #        --with-glib-prefix=$install_top_dir \
@@ -5153,35 +5124,3 @@ echo finished.
 echo finished.>&2
 
 
-# [errno #1]
-# rocessing numpy/random/_sfc64.pyx
-# Traceback (most recent call last):
-#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 235, in <module>
-#     main()
-#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 231, in main
-#     find_process_files(root_dir)
-#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 222, in find_process_files
-#     process(root_dir, fromfile, tofile, function, hash_db)
-#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 188, in process
-#     processor_function(fromfile, tofile)
-#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py", line 77, in process_pyx
-#     subprocess.check_call(
-#   File "/home/paule/autobuild/build-for-chapi-gtk4/lib/python3.10/subprocess.py", line 369, in check_call
-#     raise CalledProcessError(retcode, cmd)
-# subprocess.CalledProcessError: Command '['/home/paule/autobuild/build-for-chapi-gtk4/bin/python3', '-m', 'cython', '-3', '--fast-fail', '-o', '_sfc64.c', '_sfc64.pyx']' returned non-zero exit status 1.
-# Cythonizing sources
-# Traceback (most recent call last):
-#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/setup.py", line 508, in <module>
-#     setup_package()
-#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/setup.py", line 488, in setup_package
-#     generate_cython()
-#   File "/home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/setup.py", line 285, in generate_cython
-#     raise RuntimeError("Running cythonize failed!")
-# RuntimeError: Running cythonize failed!
-# /home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/setup.py:67: RuntimeWarning: NumPy 1.19.4 may not yet support Python 3.10.
-#   warnings.warn(
-# Running from numpy source directory.
-# /home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py:73: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
-#   required_version = LooseVersion('0.29.21')
-# /home/paule/autobuild/building/penelope_2024-01-27__T15_24_31/numpy-1.19.4/tools/cythonize.py:75: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
-#   if LooseVersion(cython_version) < required_version:

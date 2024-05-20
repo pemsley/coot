@@ -730,6 +730,19 @@
           <attribute name="label">Shader Settings...</attribute>
           <attribute name="action">app.show_shader_preferences_action</attribute>
         </item>
+
+        <submenu>
+          <attribute name="label">Scene Presets...</attribute>
+          <item>
+            <attribute name="label">Model-Building Mode</attribute>
+            <attribute name="action">app.scene_preset_model_building_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Figure-Making Mode</attribute>
+            <attribute name="action">app.scene_preset_figure_making_action</attribute>
+          </item>
+        </submenu>
+
     </submenu>
 
     <submenu>
@@ -1271,7 +1284,7 @@ Copyright 2023 Global Phasing Ltd.</property>
     <property name="license-type">lgpl-3-0</property>
     <property name="logo-icon-name">coot</property>
     <property name="program-name">Coot</property>
-    <property name="version">1.1.03</property>
+    <property name="version">1.1.08</property>
     <property name="website">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot</property>
     <property name="website-label">The Coot Website</property>
   </object>
@@ -4153,7 +4166,7 @@ that you wish to delete.               </property>
   <object class="GtkWindow" id="display_control_window_glade">
     <property name="width-request">420</property>
     <property name="height-request">380</property>
-    <property name="title" translatable="yes">Display Manager</property>
+    <property name="title" translatable="yes">Coot: Display Manager</property>
     <property name="default-width">700</property>
     <property name="hide-on-close">True</property>
     <child>
@@ -6449,9 +6462,9 @@ Do you want to continue?
                   <property name="visible">False</property>
                 </object>
               </child>
-
             </object>
           </child>
+
           <child>
             <object class="GtkBox" id="main_window_toolbar_hbox_end">
               <property name="orientation">horizontal</property>
@@ -6603,7 +6616,6 @@ Do you want to continue?
                                     </child>
                                   </object>
                                 </child>
-                                
 
                                 <child>
                                   <object class="GtkBox" id="dynamic_validation_vbox">
@@ -6678,6 +6690,7 @@ Do you want to continue?
                 </child>
 
                 <!-- container for the GTKGLArea -->
+
                 <child>
                   <object class="GtkPaned" id="main_window_graphics_validation_graphs_vs_graphics_pane">
                     <property name="position">660</property>
@@ -6700,9 +6713,33 @@ Do you want to continue?
                             </child>
 
                             <child>
-                              <object class="GtkBox" id="main_window_graphics_hbox">
-                                <property name="orientation">horizontal</property>
-                                <!-- This is where the GTKGLArea is placed at runtime -->
+                              <object class="GtkBox" id="graphics_and_tomo_slider_vbox">
+                                <property name="orientation">vertical</property>
+
+                                <child>
+                                  <object class="GtkBox" id="main_window_graphics_hbox">
+                                    <property name="orientation">horizontal</property>
+                                    <!-- This is where the GTKGLArea is placed at runtime -->
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkBox" id="tomo_slider_vbox">
+                                    <property name="orientation">vertical</property>
+                                    <property name="visible">False</property>
+
+                                    <child>
+                                      <object class="GtkScale" id="tomo_scale">
+                                        <property name="margin-start">10</property>
+                                        <property name="margin-end">10</property>
+                                        <property name="round-digits">1</property>
+                                        <property name="can_focus">False</property>
+                                      </object>
+                                    </child>
+
+                                  </object>
+                                </child>
+
                               </object>
                             </child>
 
@@ -6712,39 +6749,98 @@ Do you want to continue?
                       </object>
                     </child>
 
-                  <child>
-                    <object class="GtkFrame" id="main_window_validation_graph_frame">
-                      <!-- <property name="halign">fill</property> -->
-                      <!-- <property name="valign">end</property> -->
-                      <property name="hexpand">True</property>
-                      <property name="vexpand">True</property>
-                      <property name="visible">False</property>
-                      <property name="margin-bottom">5</property>
-                      <property name="margin-end">5</property>
-                      <property name="margin-start">5</property>
-                      <property name="margin-top">5</property>
 
-                      <child>
-                        <object class="GtkScrolledWindow">
-                          <property name="hexpand">True</property>
-                          <property name="vexpand">True</property>
-                          <child>
-                            <object class="GtkBox" id="main_window_validation_graph_box">
-                              <property name="orientation">vertical</property>
-                              <property name="hexpand">True</property>
-                              <property name="vexpand">True</property>
-                              <property name="spacing">5</property>
-                            </object>
-                          </child>
-                        </object>
-                      </child>
+                    <child>
+                      <object class="GtkFrame" id="main_window_validation_graph_frame">
+                        <!-- <property name="halign">fill</property> -->
+                        <!-- <property name="valign">end</property> -->
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
+                        <property name="visible">False</property>
+                        <property name="margin-bottom">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-top">5</property>
 
-                    </object>
-                  </child>
+                        <child>
+                          <object class="GtkScrolledWindow">
+                            <property name="hexpand">True</property>
+                            <property name="vexpand">True</property>
+                            <child>
+                              <object class="GtkBox" id="main_window_validation_graph_box">
+                                <property name="orientation">vertical</property>
+                                <property name="hexpand">True</property>
+                                <property name="vexpand">True</property>
+                                <property name="spacing">5</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
+                      </object>
+                    </child>
 
                   </object>
                 </child>
 
+              </object>
+            </child>
+
+
+            <child type="overlay">
+              <object class="GtkFrame" id="replace_residue_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkBox">
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label">New Residue Type</property>
+                            <property name="margin-end">5</property>
+                            <property name="margin-start">5</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="replace_residue_entry">
+                            <property name="can-focus">1</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkFrame" id="replace_residue_buttons_frame">
+                        <child>
+                          <object class="GtkBox">
+                            <property name="homogeneous">True</property>
+                            <property name="spacing">5</property>
+                            <child>
+                              <object class="GtkButton" id="replace_residue_cancel_button">
+                                <property name="label">Cancel</property>
+                                <signal name="clicked" handler="on_replace_residue_cancel_button_clicked" swapped="no" object="get_monomer_frame"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="replace_residue_ok_button">
+                                <property name="label">OK</property>
+                                <signal name="clicked" handler="on_replace_residue_ok_button_clicked"/>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
 

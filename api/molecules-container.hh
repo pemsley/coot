@@ -26,13 +26,16 @@
 #include "atom-pull.hh"
 #include "validation-information.hh"
 #include "superpose-results.hh"
+#include "lsq-results.hh"
 #include "coot-utils/simple-mesh.hh"
+#include "coot-utils/texture-as-floats.hh"
 #include "phi-psi-prob.hh"
 #include "instancing.hh"
 #include "coot-colour.hh" // put this in utils
 #include "saved-strand-info.hh"
 #include "svg-store-key.hh"
 #include "moorhen-h-bonds.hh"
+#include "header-info.hh"
 
 //! the container of molecules. The class for all **libcootapi** functions.
 class molecules_container_t {
@@ -353,7 +356,7 @@ public:
 
    bool use_gemmi; // for mmcif and PDB parsing. 20240112-PE set to true by default in init()
 
-   //! Set the state of using gemmi for coordinates parsing. The default is false.
+   //! Set the state of using gemmi for coordinates parsing. The default is true.
    void set_use_gemmi(bool state) { use_gemmi = state; }
 
    //! get the state of using GEMMI for coordinates parsing
@@ -402,6 +405,10 @@ public:
 
    coot::protein_geometry & get_geom() { return geom; }
 
+   //! get header info.
+   //! @return an object with header info. Sparce at the moment.
+   moorhen::header_info_t get_header_info(int imol) const;
+
    // -------------------------------- generic utils -----------------------------------
    //! \name Generic Utils
 
@@ -417,6 +424,11 @@ public:
    bool is_valid_map_molecule(int imol_map) const;
    //! @return is this a difference map?
    bool is_a_difference_map(int imol_map) const;
+
+   //! create an empty molecule
+   //! @return the index of the new molecule
+   int new_molecule(const std::string &name);
+
    //! close the molecule (and delete dynamically allocated memory)
    //! @return 1 on successful closure and 0 on failure to close
    int close_molecule(int imol);
@@ -513,6 +525,16 @@ public:
    //! @return a vector of non-standard residues (so that they can be used for auxiliary dictionary import)
    std::vector<std::string> non_standard_residue_types_in_model(int imol) const;
 
+#ifdef SWIG
+#else
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   //! Result to be eaten by C++ only.
+   //! Extract ligand restraints from the dictionary store and make an rdkit molecule
+   //! @return a null pointer on failure.
+   RDKit::RWMol get_rdkit_mol(const std::string &residue_name, int imol_enc);
+#endif
+#endif
+
    // -------------------------------- coordinates utils -----------------------------------
    //! \name Coordinates Utils
 
@@ -566,6 +588,8 @@ public:
    std::string get_cif_file_name(const std::string &comp_id, int imol_enc) const;
    //! @return a string that is the contents of a dictionary cif file
    std::string get_cif_restraints_as_string(const std::string &comp_id, int imol_enc) const;
+   //! copy the dictionary that is specific for imol_current so that it can be used with imol_new
+   bool copy_dictionary(const std::string &monomer_name, int imol_current, int imol_new);
    //! get a monomer
    //! @return the new molecule index on success and -1 on failure
    int get_monomer(const std::string &monomer_name);
@@ -705,7 +729,7 @@ public:
    void print_non_drawn_bonds(int imol) const;
 
    //! user-defined colour-index to colour
-   void set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 3> > &colour_map);
+   void set_user_defined_bond_colours(int imol, const std::map<unsigned int, std::array<float, 4> > &colour_map);
 
    //! set the user-defined residue selections (CIDs) to colour index
    void set_user_defined_atom_colour_by_selection(int imol, const std::vector<std::pair<std::string, unsigned int> > &indexed_residues_cids,
@@ -827,6 +851,26 @@ public:
    superpose_results_t SSM_superpose(int imol_ref, const std::string &chain_id_ref,
                                      int imol_mov, const std::string &chain_id_mov);
 
+   //! superpose using LSQ - setup the matches
+   //! @params `match_type` 0: all, 1: main, 2: CAs
+   void add_lsq_superpose_match(const std::string &chain_id_ref, int res_no_ref_start, int res_no_ref_end,
+                                const std::string &chain_id_mov, int res_no_mov_start, int res_no_mov_end,
+                                int match_type);
+
+   //! clear any existing lsq matchers
+   void clear_lsq_matches();
+
+   std::vector<coot::lsq_range_match_info_t> lsq_matchers;
+
+   //! apply the superposition using LSQ
+   void lsq_superpose(int imol_ref, int imol_mov);
+
+   //! return the transformation matrix in a simple class - dont apply it to the coordinates
+   lsq_results_t get_lsq_matrix(int imol_ref, int imol_mov) const;
+
+   //! make this private
+   std::pair<short int, clipper::RTop_orth> get_lsq_matrix_internal(int imol_ref, int imol_mov) const;
+
    //! symmetry
    //! now comes in a simple container that also includes the cell
    coot::symmetry_info_t
@@ -904,6 +948,8 @@ public:
    //! write a map. This function was be renamed from ``writeMap``
    //! @return 1 on a successful write, return 0 on failure.
    int write_map(int imol, const std::string &file_name) const;
+   //! @return the mean of the map or -1 is `imol_map` is not a map molecule index
+   float get_map_mean(int imol) const;
    //! @return the map rmsd (epsilon testing is not used). -1 is returned if `imol_map` is not a map molecule index.
    float get_map_rmsd_approx(int imol_map) const;
 
@@ -1685,6 +1731,31 @@ public:
    //! @return a vector of residue specifiers for the ligand residues - the residue name is encoded
    //! in the `string_user_data` data item of the residue specifier
    std::vector<coot::residue_spec_t> get_non_standard_residues_in_molecule(int imol) const;
+
+   //! The new arguments, `data_value_for_top`, `data_value_for_bottom` should be pre-calculated (don't
+   //! calculate them for every call to this function).
+   //! @return a texture_as_floats_t object for the given section
+   //! On failure, the image_data vector is empty.
+   texture_as_floats_t get_map_section_texture(int imol, int section_id, int axis,
+                                               float data_value_for_bottom, float data_value_for_top) const;
+
+   //! @return the number of section in the map along the give axis.
+   //! (0 for X-axis, 1 for y-axis, 2 for Z-axis).
+   //! return -1 on failure.
+   int get_number_of_map_sections(int imol_map, int axis_id) const;
+
+   // -------------------------------- Others -------------------------------------
+   //! \name Other Features
+
+   //! @return a `simple_mesh_t` from the give file.
+   coot::simple_mesh_t make_mesh_from_gltf_file(const std::string &file_name);
+
+   //! @params `n_divisions` is a number divisble by 2, at least 4 (typically 16)
+   //! @return a unit-vector end-cap octohemisphere mesh
+   coot::simple_mesh_t get_octahemisphere(unsigned int n_divisions) const;
+
+   //! @return a string of a png
+   std::string pae_png(const std::string &pae_file_name) const;
 
    // -------------------------------- Testing -------------------------------------
    //! \name Testing functions

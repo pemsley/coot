@@ -778,7 +778,7 @@ void
 graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
    GLenum err = glGetError();
-   if (err) std::cout << "GL ERROR:: gtk3_draw_map_molecules() -- start -- " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: g.draw_map_molecules() -- start -- " << err << std::endl;
 
    // run through this molecule loop twice - for opaque then transparent maps
    // first, a block that decides if we need to do anything.
@@ -1578,7 +1578,21 @@ graphics_info_t::draw_texture_meshes() {
          if (! tm.textures.empty()) {
             // std::cout << "Binding and drawing the texture mesh" << std::endl;
 
-            std::cout << "............ get crow texture drawing code" << std::endl;
+            // std::cout << "............ get crow texture drawing code" << std::endl;
+
+            bool do_depth_fog = true;
+            int idx_start = tm.textures.size() - 1;
+            for (int idx_texture=idx_start; idx_texture>=0; idx_texture--) {
+               const auto &texture = tm.textures[idx_texture];
+               if (false)
+                  std::cout << "binding texture " << idx_texture << " to unit " << texture.unit << std::endl;
+               tm.textures[idx_texture].texture.Bind(texture.unit);
+            }
+            glEnable(GL_BLEND);
+            // we need some user control over the map section opacity
+            tm.draw(&shader, mvp, model_rotation, lights, eye_position, bg_col, do_depth_fog);
+            glDisable(GL_BLEND);
+
 #if 0
             //
             // 20211018-PE it matters that these get called in the right order!
@@ -1894,7 +1908,6 @@ graphics_info_t::draw_molecules_with_shadows() {
 
             glEnable(GL_BLEND);
             // good idea to not use shadows on atom labels?
-
             // 20220226-PE not here.
             // draw_molecule_atom_labels(m, mvp, model_rotation_matrix);
          }

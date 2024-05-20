@@ -339,36 +339,19 @@ void remarks_browser_fill_author_info(mmdb::Manager *mol, GtkWidget *vbox) {
    // std::cout << "---------------- have " << author_lines.size() << " author lines" << std::endl;
    if (author_lines.size() > 0) {
       GtkWidget *frame = gtk_frame_new("Author");
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
       gtk_box_append(GTK_BOX(vbox), frame);
-#else
-      gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
-#endif
       gtk_widget_set_visible(frame, TRUE);
 
       GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
       GtkWidget *text_view = gtk_text_view_new();
-#if (GTK_MAJOR_VERSION == 4)
-#else
-      gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
-					   GTK_TEXT_WINDOW_RIGHT, 10);
-#endif
+
       gtk_widget_set_size_request(GTK_WIDGET(text_view), 400, -1);
       gtk_frame_set_child(GTK_FRAME(frame), GTK_WIDGET(text_view));
       gtk_widget_set_visible(GTK_WIDGET(text_view), TRUE);
       gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
       gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 
-#if (GTK_MAJOR_VERSION == 3 && GTK_MINOR_VERSION == 94) || (GTK_MAJOR_VERSION == 4)
-       // 20220528-PE FIXME color
        GdkRGBA colour;
-#else
-       GdkColor colour;
-       colour.red   = 63535;
-       colour.green = 59535;
-       colour.blue  = 53535;
-       colour.pixel = 65535;
-#endif
 
       // see CSS comment above
       // gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);

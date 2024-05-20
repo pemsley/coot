@@ -53,9 +53,8 @@ int main(int argc, char **argv) {
 
       clipper::Coord_orth screen_centre(10,11,12);
       float base_level = 0.2; //
-      float radius = 20;
       std::vector<std::pair<clipper::Coord_orth, float> > map_peaks =
-         coot::diff_diff_map_peaks(m1, m2, base_level, screen_centre, radius);
+         coot::diff_diff_map_peaks(m1, m2, base_level);
 
       std::cout << "Found " << map_peaks.size() << " peaks" << std::endl;
       for (size_t i = 0; i < map_peaks.size(); i++) {

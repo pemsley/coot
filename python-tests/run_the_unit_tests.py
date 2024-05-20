@@ -5,10 +5,13 @@ import coot
 import coot_utils
 import coot_testing_utils
 
+import sys
+sys.path.append(".")
+sys.path.append("../../coot/python-tests")
+
 from TestPdbMtzFunctions    import *
 from TestShelxFunctions     import *
 from TestLigandFunctions    import *
-from TestCootaneerFunctions import *
 from TestRNAGhostsFunctions import *
 from TestSSMFunctions       import *
 from TestNCSFunctions       import *
@@ -37,9 +40,10 @@ class StreamIO:
 
 
 suite = unittest.TestSuite()
-test_list = [TestPdbMtzFunctions, TestShelxFunctions, TestLigandFunctions, TestCootaneerFunctions,
-             TestRNAGhostsFunctions, TestSSMFunctions, TestNCSFunctions, TestUtilsFunctions, TestInternalFunctions]
-# test_list = [TestLigandFunctions]
+test_list = [TestPdbMtzFunctions, TestShelxFunctions, TestLigandFunctions, TestRNAGhostsFunctions,
+             TestSSMFunctions, TestNCSFunctions, TestUtilsFunctions, TestInternalFunctions]
+
+# test_list = [TestRNAGhostsFunctions]
 
 for test in test_list:
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(test))

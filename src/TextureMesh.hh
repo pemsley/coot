@@ -57,8 +57,17 @@ public:
    std::string name;
    // std::string sampler_name; // e.g. "base_texture", sampler is now in Texture::type
    GLuint unit;
-   TextureInfoType(const Texture &t, const std::string &n) :
-      texture(t), name(n) {}
+   // TextureInfoType(const Texture &t, const std::string &n) : texture(t), name(n) {}
+   TextureInfoType(const Texture &t, const std::string &n) {
+      GLenum err = glGetError();
+      if (err) std::cout << "GL ERROR:: TextureInfoType() A " << (err) << "\n";
+      texture = t;
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: TextureInfoType() B " << (err) << "\n";
+      name = n;
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: TextureInfoType() C " << (err) << "\n";
+   }
 };
 
 class TextureMesh {
@@ -80,6 +89,7 @@ class TextureMesh {
    // The opacity will be a uniform.
    unsigned int draw_count; // so that I can animate the happy faces depending on the draw_count
    unsigned int inst_positions_id;
+   static std::string _(int err);
 
 public:
    TextureMesh() : vao(VAO_NOT_SET), index_buffer_id(VAO_NOT_SET), draw_this_mesh(true) {
@@ -104,6 +114,9 @@ public:
    bool have_instances() const { return is_instanced; }
    void setup_tbn(unsigned int n_vertices); // tangent bitangent normal, pass the n_vertices for validation of indices.
    void setup_camera_facing_quad(float scale_x, float scale_y, float offset_x, float offset_y);
+   // for the Z section x-offset_y and y_offset should be zero
+   // but for the other sections they need to be offset so the layout looks pretty.
+   void setup_tomo_quad(float x_scale, float y_scale, float x_offset, float y_offset,float z_pos, bool texture_x_y_swap_flag);
    void setup_buffers();
    void set_colour(const glm::vec4 &col_in);
    void setup_instancing_buffers(unsigned int n_happy_faces_max); // setup the buffer, don't add data

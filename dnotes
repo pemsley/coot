@@ -3981,7 +3981,7 @@ INFO::
      Make sure the release is called Release, not pre-release
    o change the version in configure.ac
    o Artists acknowledged in glade/aboutdialog?
-   o Currec the version in the about_dialog in the coot-gtk4.ui file
+   o Correct the version in the about_dialog in the coot-gtk4.ui file
    o Use []
         Change the splash screen
         Change the release name in the About dialog (aboutdialog) (not needed for bug fix)
@@ -4004,7 +4004,6 @@ INFO::
         configure and make check
    o git status # what did you forget to add?
    o are the shaders up to date?
-   o Is the glade file up to date? (header-bars)
    o git commit -a
    o git tag Release-0.x.y
    o git push origin Release-0.x.y  # publish the tag
@@ -6786,6 +6785,14 @@ int main(int argc, char **argv) {
 
    // also see erase/remove_if usage in morph_fit_uncrunch().
 
+
+Here is a more simple example:
+
+      auto eraser = [] (const TextureMesh &tm) {
+         return (tm.get_name().find("-section") != std::string::npos);
+      };
+      texture_meshes.erase(std::remove_if(texture_meshes.begin(), texture_meshes.end(), eraser),
+                           texture_meshes.end());
 
 ---
 Tue Jul  3 17:14:08 BST 2012
@@ -10764,7 +10771,7 @@ Sat 13 Aug 08:42:27 BST 2022
    GtkWidget *item_widget = gtk_widget_get_first_child(box);
    while (item_widget) {
       if (some_test) {
-         some assignment
+         some assignment;
       }
       item_widget = gtk_widget_get_next_sibling(item_widget);
    };
@@ -11320,3 +11327,28 @@ Fri  8 Mar 2024 03:54:36 GMT
 
   Time resolved cryo-EM
   https://www.biorxiv.org/content/10.1101/2023.03.20.533387v2
+
+---
+Fri 12 Apr 14:57:48 BST 2024
+
+   emd_43330.map
+   emd_43331.map: a tomogram too big for clipper (are they related?)
+
+---
+Sun 21 Apr 15:55:19 BST 2024
+
+   It would be nice to have a python console/terminal
+   Consider also nbterm:
+
+   https://blog.jupyter.org/nbterm-jupyter-notebooks-in-the-terminal-6a2b55d08b70
+
+   and Textualize:
+
+   https://github.com/Textualize/textual
+
+---
+Wed  8 May 2024 21:58:43 PDT
+
+   Helix middle relative based on residue 2.
+   [2.7933435440063477, 3.245997428894043, 2.19431734085083]
+

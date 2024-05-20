@@ -7,6 +7,7 @@
       <object class="GtkBox" id="vbox_positron_1">
         <property name="orientation">vertical</property>
         <property name="spacing">4</property>
+
         <child>
           <object class="GtkDrawingArea" id="positron_drawing_area">
             <property name="margin-start">4</property>
@@ -32,21 +33,123 @@
                 <signal name="clicked" handler="on_positron_map_undo_button_clicked" swapped="no"/>
               </object>
             </child>
+            <child>
+              <object class="GtkButton" id="positron_map_clear_button">
+                <property name="label">Clear</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <signal name="clicked" handler="on_positron_map_clear_button_clicked" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes">Contour Level </property>
+                <property name="justify">center</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkEntry" id="positron_contour_level_entry">
+                <property name="width-request">20</property>
+                <property name="max-width-chars">6</property>
+                <property name="text">1111</property>
+                <signal name="activate" handler="on_positron_contour_level_entry_activate"/>
+              </object>
+            </child>
           </object>
         </child>
         <child>
           <object class="GtkBox" id="box_positron_3">
             <property name="orientation">horizontal</property>
             <child>
-              <object class="GtkButton" id="positron_interpolate_selected_button">
-                <property name="label">Interpolate Selected</property>
+              <object class="GtkButton" id="positron_interpolate_button">
+                <property name="label">Interpolate Path</property>
                 <property name="margin-start">4</property>
                 <property name="margin-end">4</property>
                 <property name="margin-top">4</property>
                 <property name="margin-bottom">4</property>
-                <signal name="clicked" handler="on_positron_interpolate_selected_button_clicked" swapped="no"/>
+                <signal name="clicked" handler="on_positron_interpolate_button_clicked" swapped="no"/>
               </object>
             </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes"> at </property>
+                <property name="justify">center</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkEntry" id="positron_interpolate_steps_per_click_entry">
+                <property name="width-request">20</property>
+                <property name="max-width-chars">6</property>
+                <property name="text">10</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes"> Particle Maps/Click</property>
+                <property name="justify">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="box_positron_4">
+            <property name="orientation">horizontal</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+
+            <child>
+              <object class="GtkButton" id="positron_animate_single_pass_button">
+                <property name="label" translatable="yes">Single Pass</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <signal name="clicked" handler="on_positron_animate_single_pass_button_clicked"/>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes">  Animate</property>
+                <property name="justify">center</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkSwitch" id="positron_animate_switch">
+                <signal name="notify::active" handler="on_positron_animate_switch_activate"/>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes"> Time-step (ms): </property>
+                <property name="justify">center</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSpinButton" id="positron_animate_time_step_spinbutton">
+                <property name="text">100</property>
+                <property name="margin-start">2</property>
+                <property name="margin-end">2</property>
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkToggleButton" id="positron_animate_with_reverse_togglebutton">
+                <property name="label" translatable="yes">Reverse</property>
+                <property name="can-focus">1</property>
+                <property name="active">0</property>
+                <property name="margin-start">2</property>
+                <property name="margin-end">2</property>
+              </object>
+            </child>
+
           </object>
         </child>
       </object>

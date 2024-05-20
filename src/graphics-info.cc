@@ -3257,6 +3257,22 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
 }
 #endif
 
+// static
+void
+graphics_info_t::from_generic_object_remove_last_item(int object_number) {
+
+   if (! use_graphics_interface_flag) return;
+
+   int ngos = generic_display_objects.size();
+   if (object_number >= 0) {
+      if (object_number < ngos) {
+         generic_display_objects[object_number].remove_last_object();
+      }
+   }
+   graphics_draw();
+}
+
+
 
 void
 graphics_info_t::add_label(const std::string &l, const glm::vec3 &p, const glm::vec4 &c) {
@@ -6612,7 +6628,7 @@ graphics_info_t::sfcalc_genmap(int imol_model,
 void
 graphics_info_t::delete_pointers_to_map_in_other_molecules(int imol_map) {
 
-   std::cout << "---------------------------------------- delete_pointers_to_map_in_other_molecules " << imol_map << std::endl;
+   // std::cout << "---------------------------------------- delete_pointers_to_map_in_other_molecules " << imol_map << std::endl;
 
    if (is_valid_map_molecule(imol_map)) { // it is at the moment, not for long though!
       clipper::Xmap<float> *xmap_p = &molecules[imol_map].xmap;

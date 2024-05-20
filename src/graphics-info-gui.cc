@@ -199,6 +199,8 @@ graphics_info_t::info_dialog_and_text(const std::string &s, bool use_markup) {
 void
 graphics_info_t::info_dialog_alignment(coot::chain_mutation_info_container_t mutation_info) const {
 
+   if (! use_graphics_interface_flag) return;
+
    std::string s = mutation_info.alignment_string;
 
    info_dialog(s); // get trashed by markup text
@@ -4779,4 +4781,139 @@ graphics_info_t::add_shortcuts_to_window(GtkWidget *shortcuts_window) {
    }
 #endif
 
+}
+
+
+// gui stuff = this is the function that is called when the slider changes
+// g_object_get_data() is used to extract the imol
+//
+void
+graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
+
+   auto _ = [] (int err) {
+      std::string s = std::to_string(err);
+      if (err == GL_INVALID_ENUM)      s = "GL_INVALID_ENUM";
+      if (err == GL_INVALID_OPERATION) s = "GL_INVALID_OPERATION";
+      if (err == GL_INVALID_VALUE)     s = "GL_INVALID_VALUE";
+      return s;
+   };
+
+   bool use_z_translation = true;
+   bool do_X_and_Y_sections = true;
+
+   if (is_valid_map_molecule(imol)) {
+
+      // auto tp_start = std::chrono::high_resolution_clock::now();
+      const auto &xmap = molecules[imol].xmap;
+      int axis = 2; // for now
+      clipper::Cell c_cell = xmap.cell();
+      coot::Cell cell(c_cell.a(), c_cell.b(), c_cell.c(), c_cell.alpha(), c_cell.beta(), c_cell.gamma());
+      clipper::Grid_sampling gs = xmap.grid_sampling();
+      tomo_view_info = tomo_view_info_t(imol, cell, section_index, axis);
+
+      float mean =    molecules[imol].map_mean();
+      float std_dev = molecules[imol].map_sigma();
+      float data_value_for_top    = mean + 3.5f * std_dev; // was  2.5
+      float data_value_for_bottom = mean - 2.0f * std_dev; // was -1.5
+
+      if (false) {
+         std::cout << "-------- current texture-meshes: " << std::endl;
+         for (const auto &tm : texture_meshes)
+            std::cout << "    " << tm.get_name() << std::endl;
+      }
+
+      // maybe I should replace the texture rather than delete all and create a new one.
+      // texture_meshes.clear();
+
+      auto eraser = [] (const TextureMesh &tm) {
+         return (tm.get_name().find("-section") != std::string::npos);
+      };
+
+      texture_meshes.erase(std::remove_if(texture_meshes.begin(), texture_meshes.end(), eraser),
+                           texture_meshes.end());
+
+      // auto tp_1 = std::chrono::high_resolution_clock::now();
+      // auto tp_2 = std::chrono::high_resolution_clock::now();
+
+
+      if (true) {
+         mini_texture_t m(xmap, section_index, axis, data_value_for_bottom, data_value_for_top); // 128 for 11729
+         float x_len = m.x_size;
+         float y_len = m.y_size;
+         float z_pos = 0.0f;
+         if (use_z_translation) z_pos = m.z_position;
+
+         // std::cout << "Z-section x_len " << x_len << " y_len " << y_len << std::endl;
+
+         attach_buffers();
+         GLenum err = glGetError();
+         if (err) std::cout << "GL ERROR:: tomo_section() A " << _(err) << "\n";
+         Texture t(m, "mini-texture Z-section");
+         err = glGetError();
+         if (err) std::cout << "GL ERROR:: tomo_section() B " << _(err) << "\n";
+         TextureInfoType ti(t, "mini-texture Z-section");
+         err = glGetError();
+         if (err) std::cout << "GL ERROR:: tomo_section() C " << _(err) << "\n";
+         ti.unit = 0; // what is this?
+         err = glGetError();
+         if (err) std::cout << "GL ERROR:: tomo_section() D " << _(err) << "\n";
+         TextureMesh tm("Tomo texture-mesh Z-section");
+         tm.add_texture(ti);
+         err = glGetError();
+         if (err) std::cout << "GL ERROR:: tomo_section() E " << _(err) << "\n";
+         tm.setup_tomo_quad(x_len, y_len, 0.0f, 0.0f, z_pos, false);
+         // auto tp_2 = std::chrono::high_resolution_clock::now();
+         err = glGetError();
+         if (err) std::cout << "GL ERROR:: tomo_section() F " << _(err) << "\n";
+         texture_meshes.push_back(tm);
+         m.clear();
+      }
+
+      // auto tp_now = std::chrono::high_resolution_clock::now();
+      // auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - tp_start);
+      // auto td    = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1);
+      // std::cout << "graphics_info_t::tomo_section() all  " << delta.count() << " ms" << std::endl;
+      // std::cout << "graphics_info_t::tomo_section() test " <<    td.count() << " ms" << std::endl;
+
+      if (do_X_and_Y_sections) {
+         attach_buffers();
+         // section index is now a mess.
+         int section_index_X = gs.nu()/2;
+         int section_index_Y = gs.nv()/2;
+         section_index_X = section_index;
+         section_index_Y = section_index;
+         mini_texture_t m_x(xmap, section_index_X, 0, data_value_for_bottom, data_value_for_top);
+         mini_texture_t m_y(xmap, section_index_Y, 1, data_value_for_bottom, data_value_for_top);
+
+         Texture t_x(m_x, "mini-texture X-section");
+         Texture t_y(m_y, "mini-texture Y-section");
+
+         TextureMesh tm_x("Tomo texture-mesh X-section");
+         TextureMesh tm_y("Tomo texture-mesh Y-section");
+         TextureInfoType ti_x(t_x, "Tomo texture X section");
+         TextureInfoType ti_y(t_y, "Tomo texture Y section");
+         ti_x.unit = 0;
+         ti_y.unit = 0;
+         tm_x.add_texture(ti_x);
+         tm_y.add_texture(ti_y);
+
+         float offset_x_X_section = - c_cell.c() - c_cell.a() * 0.05f;
+         float offset_y_X_section = 0.0f;
+         float offset_x_Y_section = 0.0f;
+         float offset_y_Y_section = c_cell.b() + c_cell.b() * 0.1f;
+
+         tm_x.setup_tomo_quad(m_x.x_size, m_x.y_size, offset_x_X_section, offset_y_X_section, m_x.z_position, true);
+         tm_y.setup_tomo_quad(m_y.x_size, m_y.y_size, offset_x_Y_section, offset_y_Y_section, m_y.z_position, false);
+
+         texture_meshes.push_back(tm_x);
+         texture_meshes.push_back(tm_y);
+         m_x.clear();
+         m_y.clear();
+
+         GLenum err = glGetError();
+         if (err) std::cout << "GL ERROR:: set_tomo_section_view_section() G " << _(err) << "\n";
+      }
+
+      graphics_draw();
+   };
 }

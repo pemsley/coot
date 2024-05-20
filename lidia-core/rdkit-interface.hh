@@ -67,7 +67,6 @@ namespace coot {
 			   mmdb::Residue *residue_p,
 			   const coot::dictionary_residue_restraints_t &restraints);
    void set_atom_chirality(RDKit::Atom *rdkit_at, const dict_atom &dict_atom);
-   
 
    // tinker with mol
    void set_3d_conformer_state(RDKit::RWMol *mol); // hack the setting of 3D state, seems not to

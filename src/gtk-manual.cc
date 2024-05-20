@@ -495,6 +495,8 @@ void display_control_molecule_combo_box(const std::string &name, int imol,
    gtk_editable_set_text(GTK_EDITABLE(entry), name.c_str());
    gtk_widget_set_visible(entry, TRUE);
    gtk_box_append(GTK_BOX(hbox), entry);
+   std::string widget_name = "display_model_entry" + std::to_string(imol);
+   gtk_widget_set_name(entry, widget_name.c_str());
 
    // 3: "Display" checkbutton
    GtkWidget *display_checkbutton = gtk_check_button_new_with_label("Display");
@@ -592,11 +594,11 @@ void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
    std::string widget_name = "add_rep_all_on_check_button_";
    widget_name += coot::util::int_to_string(imol_no);
    g_object_set_data_full (G_OBJECT (display_control_window_glade),
-			     widget_name.c_str(),
-			     all_on_check_button, NULL);
+                           widget_name.c_str(),
+                           all_on_check_button, NULL);
    g_signal_connect(G_OBJECT (all_on_check_button),  "toggled",
-		      G_CALLBACK (on_add_rep_all_on_check_button_toggled),
-		      GINT_TO_POINTER(imol_no));
+                    G_CALLBACK (on_add_rep_all_on_check_button_toggled),
+                    GINT_TO_POINTER(imol_no));
 
    // set the name so that it can be looked up.
    widget_name = "add_rep_display_control_frame_vbox_";
@@ -615,8 +617,8 @@ void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
 
 
 void
-on_add_rep_all_on_check_button_toggled   (GtkToggleButton       *button,
-					  gpointer         user_data) {
+on_add_rep_all_on_check_button_toggled(GtkToggleButton    *button,
+                                       gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
    if (gtk_toggle_button_get_active(button)) {
@@ -628,44 +630,61 @@ on_add_rep_all_on_check_button_toggled   (GtkToggleButton       *button,
    }
 }
 
+GtkWidget *molecule_index_to_display_manager_entry(int imol) {
 
-void
-update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
-						  const gchar *display_name,
-						  int n) {
-  int i;
-  char entry_name[1024];
-  GtkWidget *entry;
-  gchar *tmp_name;
-  int imol = n;
+   // see also set_display_control_button_state()
 
-  for (i=0; i<1024; i++)
-     entry_name[i]= 0;
-  if (is_valid_map_molecule(imol)) {
-     memcpy(entry_name, "display_map_entry_", 18);
-  } else {
-     memcpy(entry_name, "display_mol_entry_", 18);
-  }
-  tmp_name = entry_name + strlen(entry_name);
-  snprintf(tmp_name, 4, "%-d", imol);
+   auto get_inner_entry = [] (const std::string &widget_name, GtkWidget *vbox) {
+      GtkWidget *entry = nullptr;
+      GtkWidget *item_widget = gtk_widget_get_first_child(vbox);
+      while (item_widget) {
 
-/*   printf("debug:: molecule number (dereferenced): %d\n", *n); */
-/*   printf("debug:: pointer string: %s\n", tmp_name); */
-/*   printf("debug:: searching for entry name %s\n", entry_name); */
-  // entry = lookup_widget(display_control_window_glade, entry_name);
+         GtkWidget *item_widget_inner = gtk_widget_get_first_child(item_widget);
+         while (item_widget_inner) {
 
-  //  entry = widget_from_builder(entry_name);
+            const char *wn = gtk_widget_get_name(item_widget_inner);
+            if (wn) {
+               // std::cout << "got widget_name " << wn << std::endl;
+               std::string wns(wn);
+               if (widget_name == wns) {
+                  entry = item_widget_inner;
+                  break;
+               }
+            }
+            item_widget_inner = gtk_widget_get_next_sibling(item_widget_inner);
+         }
+         item_widget = gtk_widget_get_next_sibling(item_widget);
+      };
+      return entry;
+   };
 
-  entry = 0;
-  std::cout << "FIXME:: update_name_in_display_control_molecule_combo_box() do a proper lookup of entry here "
-            << entry_name << std::endl;
+   GtkWidget *entry = nullptr;
+   std::string idx_part = std::to_string(imol);
 
-  if (entry)
-     gtk_editable_set_text(GTK_EDITABLE(entry), display_name);
+   if (is_valid_map_molecule(imol)) {
+      std::string widget_name = "display_map_entry_" + idx_part;
+      GtkWidget *vbox = widget_from_builder("display_map_vbox");
+      entry = get_inner_entry(widget_name, vbox);
+   }
 
+   if (is_valid_model_molecule(imol)) {
+      std::string widget_name = "display_model_entry_" + idx_part;
+      GtkWidget *vbox = widget_from_builder("display_molecule_vbox");
+      entry = get_inner_entry(widget_name, vbox);
+   }
+
+   return entry;
 }
 
+// we are using const char * here because update_name_in_display_control_molecule_combo_box is
+// declared in gtk-manual.h. Sort that out another day.
+void
+update_name_in_display_control_molecule_combo_box(int imol, const char *display_name) {
 
+   GtkWidget *entry = molecule_index_to_display_manager_entry(imol);
+   if (entry)
+      gtk_editable_set_text(GTK_EDITABLE(entry), display_name);
+}
 
 void
 render_as_bonds_button_select(int imol) {
@@ -777,6 +796,8 @@ display_control_map_combo_box(const std::string &name, int imol) {
    gtk_editable_set_text(GTK_EDITABLE(entry), name.c_str());
    gtk_widget_set_visible(entry, TRUE);
    gtk_box_append(GTK_BOX(hbox), entry);
+   std::string widget_name = "display_map_entry_" + std::to_string(imol);
+   gtk_widget_set_name(entry, widget_name.c_str());
 
    // 3: "Display" checkbutton
    GtkWidget *display_checkbutton = gtk_check_button_new_with_label("Display");

@@ -461,6 +461,16 @@ void setup_curlew_banner() {
     gtk_picture_set_filename(GTK_PICTURE(curlew_banner), banner_filepath.c_str());
 }
 
+
+// put this in a header
+void tomo_scale_adjustment_changed(GtkAdjustment *adj, gpointer user_data);
+
+void setup_tomo_widgets() {
+   GtkWidget *scale = widget_from_builder("tomo_scale");
+   GtkAdjustment *adjustment_current = gtk_range_get_adjustment(GTK_RANGE(scale));
+   g_signal_connect(G_OBJECT(adjustment_current), "value_changed", G_CALLBACK(tomo_scale_adjustment_changed), NULL);
+}
+
 void setup_gui_components() {
 
    g_info("Initializing UI components...");
@@ -472,6 +482,7 @@ void setup_gui_components() {
    setup_accession_code_frame();
    setup_python_scripting_entry();
    setup_curlew_banner();
+   setup_tomo_widgets();
    attach_css_style_class_to_overlays();
    set_vertical_toolbar_internal_alignment();
    g_info("Done initializing UI components.");

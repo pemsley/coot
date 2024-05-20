@@ -68,14 +68,9 @@ EXTRA_DIST = 		\
 	missing 	\
 	TODO 		\
 	count-loc 	\
-	a6.glade        \
-	single-map-properties-dialog.glade \
-	my.supp		\
-	guile.supp	\
 	windows/syminfo.lib	\
 	fix-cif-loops.awk       \
 	ifdef-for-create-aboutdialog.awk \
-	mtrix-to-ncs-matrix.awk  \
 	RELEASE-NOTES	         \
 	copyright-disclaimer.txt \
 	intltool-extract.in      \

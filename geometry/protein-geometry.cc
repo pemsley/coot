@@ -545,7 +545,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
    //
    if (is_non_auto_load_ligand(resname)) {
       std::cout << "INFO:: comp-id: " << resname
-		<< " is marked for non-autoloading - stopping now "
+		<< " is marked for non-autoloading - stopping dynamic_add() now "
 		<< std::endl;
       return success;
    }
@@ -1495,6 +1495,22 @@ coot::protein_geometry::get_monomer_name(const std::string &comp_id, int imol_en
 } 
 
 
+
+bool
+coot::protein_geometry::copy_monomer_restraints(const std::string &monomer_type, int imol_enc_current, int imol_enc_new) {
+
+   bool status = false;
+   std::pair<bool, coot::dictionary_residue_restraints_t> r =
+      get_monomer_restraints_internal(monomer_type, imol_enc_current, false);
+
+   if (r.first) {
+      status = true;
+      dict_res_restraints.push_back(std::make_pair(imol_enc_new, r.second));
+   }
+
+   return status;
+
+}
 
 
 // Try comparing vs the comp_id first, if that fails compare the

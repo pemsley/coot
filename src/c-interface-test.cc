@@ -442,7 +442,7 @@ int test_function(int i, int j) {
 // Martin's MoleculeToTriangles
 //
 //
-#include <MoleculesToTriangles/CXXClasses/RendererGL.h>
+// #include <MoleculesToTriangles/CXXClasses/RendererGL.h>
 #include <MoleculesToTriangles/CXXClasses/Light.h>
 #include <MoleculesToTriangles/CXXClasses/Camera.h>
 // #include <CXXClasses/CameraPort.h>

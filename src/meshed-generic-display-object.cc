@@ -99,10 +99,32 @@ meshed_generic_display_object::add_point(const coot::colour_holder &colour_in,
    // unsigned int num_subdivisions = 1;
    float radius = 0.03 * size_in; // changing the scaling is fun
    glm::vec4 col(colour_in.red, colour_in.green, colour_in.blue, 1.0);
-   glm::vec3 position = coord_orth_to_glm(coords_in);
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
-      oct = wrapped_make_octasphere(num_subdivisions, position, radius, col);
+   object_info_t oi; // 20240414-PE I need to add an oi for other object types too.
+   oi.position = coords_in;
+   oi.colour = colour_in;
+   info.push_back(oi);
+   glm::vec3 position_glm = coord_orth_to_glm(coords_in);
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > oct =
+       wrapped_make_octasphere(num_subdivisions, position_glm, radius, col);
+   if (false)
+      std::cout << "::add_point adding " << oct.first.size() << " " << oct.second.size()
+                << " vertices and triangles " << std::endl;
    mesh.import(oct);
+
+}
+
+void
+meshed_generic_display_object::add_points(std::vector<point_info_t> &piv, unsigned int num_subdivisions) {
+
+   for (unsigned int i=0; i<piv.size(); i++) {
+      const auto &pi = piv[i];
+      glm::vec3 position_glm = coord_orth_to_glm(pi.position);
+      float radius = 0.03 * static_cast<float>(pi.width);
+      glm::vec4 col = colour_holder_to_glm(pi.colour);
+      std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > oct =
+         wrapped_make_octasphere(num_subdivisions, position_glm, radius, col);
+      mesh.import(oct);
+   }
 
 }
 
@@ -716,3 +738,13 @@ colour_values_from_colour_name(const std::string &c) {
    return colour;
 }
 
+// remove from info vector and remove 182 triangles from the mesh (that's a bit of a hack)
+void
+meshed_generic_display_object::remove_last_object() {
+
+   if (! info.empty()) {
+      info.pop_back();
+   }
+
+   mesh.remove_last_subobject(74, 128);
+}

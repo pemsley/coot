@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-AC_INIT([coot],[1.x-pre])
+AC_INIT([coot],[1.1.08])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -364,6 +364,10 @@ AC_ARG_ENABLE(libcootapi-only, [  --enable-libcootapi-only build libcootapi only
   *) AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
 esac],[libcootapi_only=false])
 AM_CONDITIONAL([COND_LIBCOOTAPI_ONLY], [test "$libcootapi_only" = true])
+
+AC_ARG_ENABLE(relocatable, [  --relocatable try to make the binaries work independent of the installation directory],
+   relocatable=yes, relocatable=no)
+AM_CONDITIONAL([RELOCATABLE_BINARIES], [test "$relocatable" =  yes])
 
 # echo testingA libcootapi_only is $libcootapi_only
 # echo testingA COND_LIBCOOTAPI_ONLY is $COOT_LIBCOOTAPI_ONLY

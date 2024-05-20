@@ -68,15 +68,25 @@ class plot_data_t {
    public:
    plot_data_t() { init(); }
    GtkWidget *drawing_area;
+   GtkWidget *interpolation_entry;
+   GtkWidget *animate_switch;
+   GtkWidget *animate_spin_button;
+   GtkWidget *animate_reverse_button;
+   enum class animate_direction_t { FORWARDS, BACKWARDS};
+   animate_direction_t animate_direction;
    cairo_t *cairo;
    cairo_surface_t *image_surface;
    double data[512][512];
    double min_v, max_v;
    int window_size_x, window_size_y;
+   std::vector<float> map_colour;
    coot::positron_metadata_container_t mdc;
    std::vector<positron_plot_user_click_info_t> user_clicks;
+   int animate_function_user_clicks_index;
    double colour_scale_factor; // this can be user-setable.
    float default_contour_level;
+   int timeout_function_handle;
+   bool stop_animation_flag;
    std::vector<int> basis_set_map_list;
    std::vector<GdkRGBA> cm_expanded;
    std::vector<GdkRGBA> cm_tropical;
@@ -110,9 +120,18 @@ class plot_data_t {
       cm_expanded = expand_colour_map(cm_tropical, 100);
       colour_scale_factor = 0.08;
       drawing_area = nullptr;
+      interpolation_entry = nullptr;
+      animate_switch = nullptr;
+      animate_spin_button = nullptr;
+      animate_reverse_button = nullptr;
       cairo = nullptr;
       image_surface = nullptr;
       default_contour_level = 0.02;
+      animate_function_user_clicks_index = -1;
+      map_colour = {0.7, 0.7, 0.8};
+      animate_direction = animate_direction_t::FORWARDS;
+      stop_animation_flag = false;
+      timeout_function_handle = -1;
    }
    void cleanup() {
       if (image_surface)
@@ -123,6 +142,11 @@ class plot_data_t {
       window_size_y = y;
    }
    void set_drawing_area(GtkWidget *da) { drawing_area = da; }
+   void set_spin_button(GtkWidget *sb) { animate_spin_button = sb; }
+   void set_reverse_button(GtkWidget *rb) { animate_reverse_button = rb; }
+   void set_animate_switch(GtkWidget *s) { animate_switch = s; }
+   void set_interpolation_entry(GtkWidget *e) { interpolation_entry = e; }
+
    void fill_plot_data(const std::string &plot_data_file_name) {
       if (g_file_test(plot_data_file_name.c_str(), G_FILE_TEST_IS_REGULAR)) {
          std::ifstream f(plot_data_file_name);
@@ -161,9 +185,25 @@ class plot_data_t {
    }
 
    void remove_last_user_click() {
-      positron_plot_user_click_info_t puci = user_clicks.back();
-      close_molecule(puci.imol_map);
-      user_clicks.pop_back();
+      if (! user_clicks.empty()) {
+         positron_plot_user_click_info_t puci = user_clicks.back();
+         close_molecule(puci.imol_map);
+         user_clicks.pop_back();
+      }
+      if (user_clicks.empty())
+         animate_function_user_clicks_index = -1;
+   }
+
+   void clear() {
+      for (unsigned int i=0; i<user_clicks.size(); i++) {
+         int imol_map = user_clicks[i].imol_map;
+         if (is_valid_map_molecule(imol_map))
+            close_molecule(imol_map);
+      }
+      user_clicks.clear();
+      animate_function_user_clicks_index = -1;
+      if (animate_switch)
+         gtk_switch_set_active(GTK_SWITCH(animate_switch), FALSE);
    }
 
    std::vector<std::pair<int, float> > make_weighted_map_indices(const coot::positron_metadata_t &pmdi) const {
@@ -177,21 +217,34 @@ class plot_data_t {
       return v;
    };
 
+   void set_contour_level(float l) {
+      for (unsigned int i=0; i<user_clicks.size(); i++) {
+         int imol_map = user_clicks[i].imol_map;
+         if (is_valid_map_molecule(imol_map))
+            set_contour_level_absolute(imol_map, l);
+      }
+   }
+
    // x and y are canvas coords
    int make_map(double x, double y) {
       int imol_map_new = -1;
-      std::cout << "in make_map() we have canvas coords: x and y " << x << " " << y << std::endl;
       std::pair<float, float> z = canvas_coords_to_positron_coords(x, y);
-      std::cout << "in make_map() we have z " << z.first << " " << z.second << std::endl;
-      std::cout << "in make_map() we have meta data mdc size " << mdc.size() << std::endl;
       int idx_close = mdc.get_closest_positron_metadata_point(z);
-      std::cout << "idx_close: " << idx_close << std::endl;
+      if (false) {
+         std::cout << "in make_map() we have canvas coords: x and y " << x << " " << y << std::endl;
+         std::cout << "in make_map() we have z " << z.first << " " << z.second << std::endl;
+         std::cout << "in make_map() we have meta data mdc size " << mdc.size() << std::endl;
+         std::cout << "in make_map() we have idx_close: " << idx_close << std::endl;
+      }
       if (idx_close != -1) {
          coot::positron_metadata_t pmdi = mdc.metadata[idx_close];
          std::vector<std::pair<int, float> > weighted_map_indices = make_weighted_map_indices(pmdi);
          imol_map_new = make_weighted_map_simple_internal(weighted_map_indices);
          if (imol_map_new != -1) {
+            std::string name = "Particle " + std::to_string(idx_close);
+            set_map_colour(imol_map_new, map_colour[0], map_colour[1], map_colour[2]);
             set_contour_level_absolute(imol_map_new, default_contour_level);
+            set_molecule_name(imol_map_new, name.c_str());
          }
       } else {
          std::cout << "No map created for this click" << std::endl;
@@ -258,7 +311,7 @@ class plot_data_t {
       }
 
       int stride = cairo_format_stride_for_width(CAIRO_FORMAT_RGB24, 512);
-      std::cout << "stride: " << stride << std::endl;
+      // std::cout << "stride: " << stride << std::endl;
       cairo_surface_t *surface = cairo_image_surface_create_for_data(image_data, CAIRO_FORMAT_RGB24, 512, 512, 512*4);
 
       if (cairo_surface_status(surface) == CAIRO_STATUS_SUCCESS) {
@@ -286,13 +339,186 @@ class plot_data_t {
       GdkRGBA r = cm_expanded[idx];
       return r;
    }
+
+   int get_time_step_from_spinbutton() {
+      if (animate_spin_button) // animate_time_step_spin_button
+         return gtk_spin_button_get_value(GTK_SPIN_BUTTON(animate_spin_button));
+      return 50;
+   }
+
+   void stop_animation() {
+      stop_animation_flag = true;
+   }
+
+   int animate_timeout_func_inner(int continuous_mode) {
+
+      // std::cout << "animate_timeout_func_inner() --- start ---" << std::endl;
+
+      if (stop_animation_flag) {
+         stop_animation_flag = false; // reset
+         animate_function_user_clicks_index = -1; // ready to run again.
+         return 0;
+      }
+
+      if (user_clicks.size() < 2) return 0;
+
+      const auto &uc = user_clicks[animate_function_user_clicks_index];
+      int imol_map = uc.imol_map;
+      int final_ending_value = 0;
+      if (continuous_mode) final_ending_value = 1; // there is no end
+
+      if (false)
+         std::cout << "--------- animate_function_user_clicks_index " << animate_function_user_clicks_index
+                   << " user-clicks size(): " << user_clicks.size()
+                   << " dir " << static_cast<int>(animate_direction) << " display-only-map " << imol_map
+                   << std::endl;
+      undisplay_all_maps_except(imol_map);
+      int uc_size = user_clicks.size();
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(animate_reverse_button))) {
+         if (animate_direction == animate_direction_t::FORWARDS) {
+            animate_function_user_clicks_index++;
+            if (animate_function_user_clicks_index == uc_size) {
+               animate_function_user_clicks_index--;
+               animate_direction = animate_direction_t::BACKWARDS;
+               return 1;
+            } else {
+               return 1;
+            }
+         } else {
+            animate_function_user_clicks_index--;
+            if (final_ending_value == 0) {
+               if (animate_function_user_clicks_index == -1) {
+                  animate_direction = animate_direction_t::FORWARDS;
+                  return final_ending_value;
+               } else {
+                  return 1;
+               }
+            } else {
+               if (animate_function_user_clicks_index == -1) {
+                  animate_direction = animate_direction_t::FORWARDS;
+                  animate_function_user_clicks_index = 0; // correct out of bounds
+               }
+               return final_ending_value;
+            }
+         }
+      } else {
+         animate_function_user_clicks_index++;
+         if (animate_function_user_clicks_index == uc_size) {
+            animate_function_user_clicks_index = -1;  // so that we can start another animation
+            if (final_ending_value == 1)
+               animate_function_user_clicks_index = 0; // correct out of bouunds
+            animate_direction = animate_direction_t::FORWARDS;
+            return final_ending_value;
+         } else {
+            return 1; // keep going
+         }
+      }
+      return final_ending_value;
+   }
+
+   int single_pass_animate_timeout_func_inner() {
+      return animate_timeout_func_inner(0);
+   }
+
+   static int single_pass_animate_timeout_func(gpointer user_data) {
+
+      plot_data_t *plot_data_p = static_cast<plot_data_t *>(user_data);
+      return plot_data_p->single_pass_animate_timeout_func_inner();
+   }
+
+   int continuous_animation_timeout_func_inner() {
+      return animate_timeout_func_inner(1);
+   }
+
+   static int continuous_animation_timeout_func(gpointer user_data) {
+
+      plot_data_t *plot_data_p = static_cast<plot_data_t *>(user_data);
+      return plot_data_p->continuous_animation_timeout_func_inner();
+   }
+
+   void single_pass_animate() {
+      int time_step = get_time_step_from_spinbutton();
+      if (animate_function_user_clicks_index == -1) {
+         animate_function_user_clicks_index = 0;
+         int tof = g_timeout_add(time_step, GSourceFunc(single_pass_animate_timeout_func), this);
+         timeout_function_handle = tof;
+      } else {
+         std::cout << "active animation trap single-pass " << animate_function_user_clicks_index << std::endl;
+      }
+   }
+
+   void continuous_animation() {
+      int time_step = get_time_step_from_spinbutton();
+      if (animate_function_user_clicks_index == -1) {
+         animate_function_user_clicks_index = 0;
+         int tof = g_timeout_add(time_step, GSourceFunc(continuous_animation_timeout_func), this);
+         timeout_function_handle = tof;
+      } else {
+         std::cout << "active animation trap continuous " << animate_function_user_clicks_index << std::endl;
+      }
+   }
+
+   int get_n_interpolation_points() const {
+      const char *t = gtk_editable_get_text(GTK_EDITABLE(interpolation_entry));
+      if (t) {
+         std::string s(t);
+         try {
+            int rv = coot::util::string_to_int(s);
+            return rv;
+         }
+         catch (const std::runtime_error &e) {
+            std::cout << "WARNING::" << e.what() << std::endl;
+         }
+      }
+      return 10;
+   }
+
+   void interpolate_clicks() {
+
+      int n_interpolation_points = get_n_interpolation_points();
+
+      if (user_clicks.size() * n_interpolation_points > 200) {
+         std::cout << "Too many maps " << std::endl;
+         return;
+      }
+
+      if (user_clicks.size() > 1) {
+         std::vector<positron_plot_user_click_info_t> new_user_clicks;
+         unsigned int lim = user_clicks.size() - 1;
+         for (unsigned int i=0; i<lim; i++) {
+            unsigned int idx_this = i;
+            unsigned int idx_next = i+1;
+            const auto &user_click_this = user_clicks[idx_this];
+            const auto &user_click_next = user_clicks[idx_next];
+            for (int j=0; j<n_interpolation_points; j++) {
+               float f_in_range = static_cast<float>(j)/static_cast<float>(n_interpolation_points);
+               float xx = user_click_this.x + (user_click_next.x - user_click_this.x) * f_in_range;
+               float yy = user_click_this.y + (user_click_next.y - user_click_this.y) * f_in_range;
+               std::pair<float, float> z = canvas_coords_to_positron_coords(xx, yy);
+               int idx_close = mdc.get_closest_positron_metadata_point(z);
+               // std::cout << "xx " << xx  << " yy " << yy << " idx_close " << idx_close << std::endl;
+               if (idx_close != -1) {
+                  int imol_map = make_map(xx, yy); // in canvas coords
+                  if (imol_map != -1) {
+                     positron_plot_user_click_info_t nuc(xx, yy, imol_map);
+                     new_user_clicks.push_back(nuc);
+                  }
+               }
+            }
+         }
+         new_user_clicks.push_back(user_clicks.back()); // add the very end point
+         user_clicks = new_user_clicks;
+         gtk_widget_queue_draw(drawing_area);
+      }
+   }
+
 };
 
-void on_draw(GtkDrawingArea *area,
-             cairo_t        *cr,
-             int             width,
-             int             height,
-             gpointer        user_data) {
+void on_draw_positron_plot(GtkDrawingArea *area,
+                           cairo_t        *cr,
+                           int             width,
+                           int             height,
+                           gpointer        user_data) {
 
    auto function_value_to_color = [] (double fv, const plot_data_t &plot_data, GdkRGBA *c) {
          c->red   = 1.0 - fv;
@@ -310,10 +536,12 @@ void on_draw(GtkDrawingArea *area,
              0, 2 * G_PI);
 
    if (false)
-      std::cout << "------------- on_draw(): test cairo_arc " << width/2.0 << " " << height/2.0
+      std::cout << "------------- on_draw_positron_plot(): test cairo_arc " << width/2.0 << " " << height/2.0
                 << " " << MIN(width, height) / 10.0 << std::endl;
 
+#if GTK_MINOR_VERSION >= 10
    gtk_widget_get_color(GTK_WIDGET(area), &color);
+#endif
    gdk_cairo_set_source_rgba(cr, &color);
    cairo_fill(cr);
 
@@ -346,11 +574,11 @@ void on_draw(GtkDrawingArea *area,
       if (pdp->image_surface) {
          int w = cairo_image_surface_get_width(pdp->image_surface);
          int h = cairo_image_surface_get_height(pdp->image_surface);
-         // std::cout << "on_draw() image_surface w h " << w << " " << h << std::endl;
+         // std::cout << "on_draw_positron_plot() image_surface w h " << w << " " << h << std::endl;
          cairo_set_source_surface(cr, pdp->image_surface, 0,0);
          cairo_paint(cr);
       } else {
-         std::cout << "on_draw(): null surface " << std::endl;
+         std::cout << "on_draw_positron_plot(): null surface " << std::endl;
       }
    }
    if (true) {
@@ -477,16 +705,78 @@ on_positron_map_undo_button_clicked(GtkButton *button,
 
    plot_data_p->remove_last_user_click();
    gtk_widget_queue_draw(plot_data_p->drawing_area);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_positron_map_clear_button_clicked(GtkButton *button,
+                                     gpointer   user_data) {
+
+   void *obj = g_object_get_data(G_OBJECT(button), "plot-data");
+   plot_data_t *plot_data_p = static_cast<plot_data_t *>(obj);
+
+   plot_data_p->clear();
+   gtk_widget_queue_draw(plot_data_p->drawing_area);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_positron_interpolate_button_clicked(GtkButton *button,
+                                       gpointer   user_data) {
+
+   void *obj = g_object_get_data(G_OBJECT(button), "plot-data");
+   plot_data_t *plot_data_p = static_cast<plot_data_t *>(obj);
+   if (plot_data_p)
+      plot_data_p->interpolate_clicks();
 
 }
 
 extern "C" G_MODULE_EXPORT
 void
-on_positron_interpolate_selected_button_clicked(GtkButton *button,
-                                                gpointer   user_data) {
-   std::cout << "interpolate selected " << std::endl;
+on_positron_animate_single_pass_button_clicked(GtkButton *button,
+                                               gpointer   user_data) {
+
+   void *obj = g_object_get_data(G_OBJECT(button), "plot-data");
+   plot_data_t *plot_data_p = static_cast<plot_data_t *>(obj);
+   if (plot_data_p)
+      plot_data_p->single_pass_animate();
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_positron_animate_switch_activate(GtkSwitch *sw, gpointer user_data) {
+
+   void *obj = g_object_get_data(G_OBJECT(sw), "plot-data");
+   plot_data_t *plot_data_p = static_cast<plot_data_t *>(obj);
+   if (plot_data_p) {
+      if (gtk_switch_get_active(sw)) {
+         std::cout << ".... start continuous animation" << std::endl;
+         plot_data_p->continuous_animation();
+      } else {
+         plot_data_p->stop_animation();
+         std::cout << ".... stop animation" << std::endl;
+      }
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_positron_contour_level_entry_activate(GtkEntry *entry, gpointer user_data) {
+
+   std::string ss = gtk_editable_get_text(GTK_EDITABLE(entry));
+   try {
+      float f = coot::util::string_to_float(ss);
+      void *obj = g_object_get_data(G_OBJECT(entry), "plot-data");
+      plot_data_t *plot_data_p = static_cast<plot_data_t *>(obj);
+      if (plot_data_p) {
+         plot_data_p->set_contour_level(f);
+      }
+   }
+   catch (const std::runtime_error &rte) {
+      std::cout << rte.what() << std::endl;
+   }
+
+}
 
 #ifdef STANDALONE_POSITRON_PLOT
 GtkWidget *widget_from_builder(const std::string &w_name, GtkBuilder *builder) {
@@ -508,69 +798,8 @@ int main(int argc, char *argv[]) {
    // GtkWidget *window = gtk_window_new();
    // gtk_window_set_title(GTK_WINDOW(window), "Coot-Positron 2D Array Plot");
 
-   // Make this a function (but calling function exits)
-   //
-   GtkBuilder *builder = gtk_builder_new();
-   std::string ui_file_name = "positron.ui";
-   std::string dir = coot::package_data_dir();
-   std::string dir_ui = coot::util::append_dir_dir(dir, "ui");
-   std::string ui_file_full = coot::util::append_dir_file(dir_ui, ui_file_name);
-   if (coot::file_exists(ui_file_name))
-      ui_file_full = ui_file_name;
-   GError* error = NULL;
-   gboolean status = gtk_builder_add_from_file(builder, ui_file_full.c_str(), &error);
-   if (status == FALSE) {
-      std::cout << "ERROR:: Failure to read or parse " << ui_file_full << std::endl;
-      std::cout << error->message << std::endl;
-      exit(0);
-   }
-
-   GtkWidget *dialog = widget_from_builder("positron-dialog", builder);
-
-   int plot_window_x_size = 512;
-   int plot_window_y_size = 660;
-   gtk_window_set_default_size(GTK_WINDOW(dialog), plot_window_x_size, plot_window_y_size);
-
-   // GtkWidget *drawing_area = gtk_drawing_area_new();
-   GtkWidget *drawing_area = widget_from_builder("positron_drawing_area", builder);
-   gtk_drawing_area_set_content_width( GTK_DRAWING_AREA(drawing_area), 512);
-   gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(drawing_area), 512);
-
-   plot_data_t *plot_data_p = new plot_data_t;
-   plot_data_p->set_window_size(plot_window_x_size, plot_window_y_size);
-   plot_data_p->set_drawing_area(drawing_area);
-
-   // std::string plot_data_file_name = "plot.data";
-   //      if (argc > 1)
-   // plot_data_file_name = argv[1];
-   // plot_data_p->fill_plot_data(plot_data_file_name);
-
-   std::string fn1 = "metadata_z.csv";
-   std::string fn2 = "metadata_s.csv";
-   plot_data_p->fill_plot_data_from_positron_metadata(fn1, fn2);
-   unsigned char *image_data = new unsigned char[512*512*4]; // something something stride.
-   cairo_surface_t *surface = plot_data_p->make_image_from_plot_data(image_data);
-   plot_data_p->image_surface = surface;
-
-   GtkWidget *undo_button = widget_from_builder("positron_map_undo_button", builder);
-   g_object_set_data(G_OBJECT(undo_button), "plot-data", plot_data_p);
-
-   gpointer user_data = static_cast<void *>(plot_data_p);
-   gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), on_draw, user_data, NULL);
-
-   // gtk_window_set_child(GTK_WINDOW(window), drawing_area);
-   gtk_widget_set_visible(dialog, TRUE);
-
-   GtkGesture *drag_controller_primary = gtk_gesture_drag_new();
-   gtk_gesture_single_set_button(GTK_GESTURE_SINGLE(drag_controller_primary), GDK_BUTTON_PRIMARY);
-   gtk_widget_add_controller(GTK_WIDGET(drawing_area), GTK_EVENT_CONTROLLER(drag_controller_primary));
-   g_signal_connect(drag_controller_primary, "drag-begin",  G_CALLBACK(on_positron_plot_drag_begin_primary),  user_data);
-   g_signal_connect(drag_controller_primary, "drag-update", G_CALLBACK(on_positron_plot_drag_update_primary), user_data);
-   g_signal_connect(drag_controller_primary, "drag-end",    G_CALLBACK(on_positron_plot_drag_end_primary),    user_data);
-
-   GtkGesture *click_controller = gtk_gesture_click_new();
-   gtk_widget_add_controller(GTK_WIDGET(drawing_area), GTK_EVENT_CONTROLLER(click_controller));
-   g_signal_connect(click_controller, "pressed",  G_CALLBACK(on_positron_plot_click), user_data);
+   const std::vector<int> base_map_index_list; // fill this
+   positron_plot_internal("metadata_z.csv", "metadata_s.csv", base_map_index_list);
 
    application_activate_data *activate_data = new application_activate_data(argc, argv);
    g_signal_connect(app, "activate", G_CALLBACK(positron_plot_application_activate), activate_data);
@@ -608,25 +837,49 @@ void positron_plot_internal(const std::string &fn_z_csv, const std::string &fn_s
    gtk_window_set_default_size(GTK_WINDOW(dialog), plot_window_x_size, plot_window_y_size);
 
    // GtkWidget *drawing_area = gtk_drawing_area_new();
-   GtkWidget *drawing_area = widget_from_builder("positron_drawing_area", builder);
+   GtkWidget *spin_button    = widget_from_builder("positron_animate_time_step_spinbutton",      builder);
+   GtkWidget *drawing_area   = widget_from_builder("positron_drawing_area",                      builder);
+   GtkWidget *animate_switch = widget_from_builder("positron_animate_switch",                    builder);
+   GtkWidget *reverse_button = widget_from_builder("positron_animate_with_reverse_togglebutton", builder);
+   GtkWidget *interpolation_entry = widget_from_builder("positron_interpolate_steps_per_click_entry", builder);
    gtk_drawing_area_set_content_width( GTK_DRAWING_AREA(drawing_area), 512);
    gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(drawing_area), 512);
+
+   GtkAdjustment *adjustment = gtk_adjustment_new (50.0, 0.0, 250.0, 1.0, 5.0, 0.0);
+   gtk_spin_button_set_adjustment(GTK_SPIN_BUTTON(spin_button), adjustment);
 
    plot_data_t *plot_data_p = new plot_data_t;
    plot_data_p->set_window_size(plot_window_x_size, plot_window_y_size);
    plot_data_p->set_drawing_area(drawing_area);
+   plot_data_p->set_spin_button(spin_button);
+   plot_data_p->set_reverse_button(reverse_button);
+   plot_data_p->set_animate_switch(animate_switch);
+   plot_data_p->set_interpolation_entry(interpolation_entry);
    plot_data_p->basis_set_map_list = base_map_index_list;
+   plot_data_p->default_contour_level = 0.03;
 
    plot_data_p->fill_plot_data_from_positron_metadata(fn_z_csv, fn_s_cvs);
    unsigned char *image_data = new unsigned char[512*512*4]; // something something stride.
    cairo_surface_t *surface = plot_data_p->make_image_from_plot_data(image_data);
    plot_data_p->image_surface = surface;
 
-   GtkWidget *undo_button = widget_from_builder("positron_map_undo_button", builder);
-   g_object_set_data(G_OBJECT(undo_button), "plot-data", plot_data_p);
+   GtkWidget *undo_button         = widget_from_builder("positron_map_undo_button",     builder);
+   GtkWidget *clear_button        = widget_from_builder("positron_map_clear_button",    builder);
+   GtkWidget *single_pass_button  = widget_from_builder("positron_animate_single_pass_button", builder);
+   GtkWidget *interpolate_button  = widget_from_builder("positron_interpolate_button",  builder);
+   GtkWidget *contour_level_entry = widget_from_builder("positron_contour_level_entry", builder);
+   g_object_set_data(G_OBJECT(undo_button),         "plot-data", plot_data_p);
+   g_object_set_data(G_OBJECT(clear_button),        "plot-data", plot_data_p);
+   g_object_set_data(G_OBJECT(animate_switch),      "plot-data", plot_data_p);
+   g_object_set_data(G_OBJECT(single_pass_button),  "plot-data", plot_data_p);
+   g_object_set_data(G_OBJECT(interpolate_button),  "plot-data", plot_data_p);
+   g_object_set_data(G_OBJECT(contour_level_entry), "plot-data", plot_data_p);
+
+   std::string contour_level_string = coot::util::float_to_string_using_dec_pl(plot_data_p->default_contour_level, 2);
+   gtk_editable_set_text(GTK_EDITABLE(contour_level_entry), contour_level_string.c_str());
 
    gpointer user_data = static_cast<void *>(plot_data_p);
-   gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), on_draw, user_data, NULL);
+   gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), on_draw_positron_plot, user_data, NULL);
 
    // gtk_window_set_child(GTK_WINDOW(window), drawing_area);
    gtk_widget_set_visible(dialog, TRUE);

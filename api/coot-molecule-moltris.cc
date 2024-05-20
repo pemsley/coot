@@ -27,7 +27,7 @@
 
 #include "coot-molecule.hh"
 
-#include <MoleculesToTriangles/CXXClasses/RendererGL.h>
+// #include <MoleculesToTriangles/CXXClasses/RendererGL.h>
 #include <MoleculesToTriangles/CXXClasses/Light.h>
 #include <MoleculesToTriangles/CXXClasses/Camera.h>
 #include <MoleculesToTriangles/CXXClasses/SceneSetup.h>

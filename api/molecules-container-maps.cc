@@ -1,3 +1,28 @@
+/*
+ * api/molecules-container-maps.cc
+ *
+ * Copyright 2020 by Medical Research Council
+ * Author: Paul Emsley
+ *
+ * This file is part of Coot
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copies of the GNU General Public License and
+ * the GNU Lesser General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street,
+ * Fifth Floor, Boston, MA, 02110-1301, USA.
+ * See http://www.gnu.org/licenses/
+ *
+ */
 
 #include "molecules-container.hh"
 
@@ -88,4 +113,30 @@ molecules_container_t::regen_map(int imol_map, const std::string &imol_maps_stri
    }
 
    return status;
+}
+
+texture_as_floats_t
+molecules_container_t::get_map_section_texture(int imol, int section_index, int axis,
+                                               float data_value_for_bottom, float data_value_for_top) const {
+
+   texture_as_floats_t t;
+   if (is_valid_map_molecule(imol)) {
+       t = molecules[imol].get_map_section_texture(section_index, axis, data_value_for_bottom, data_value_for_top);
+   }
+   return t;
+}
+
+//! @return the number of section in the map along the give axis.
+//! (0 for X-axis, 1 for y-axis, 2 for Z-axis).
+//! return -1 on failure.
+int
+molecules_container_t::get_number_of_map_sections(int imol_map, int axis_id) const {
+
+   int n = -1;
+   if (is_valid_map_molecule(imol_map)) {
+      n = molecules[imol_map].get_number_of_map_sections(axis_id);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_map << std::endl;
+   }
+   return n;
 }

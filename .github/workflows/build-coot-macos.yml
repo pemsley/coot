@@ -97,5 +97,5 @@ jobs:
         retention-days: 3
 
     - name: Does it run?
-      run: /usr/local/bin/coot --no-graphics < /dev/null
+      run: /opt/homebrew/bin/coot --no-graphics < /dev/null
 
