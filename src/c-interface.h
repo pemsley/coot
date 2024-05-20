@@ -3895,7 +3895,6 @@ void clear_last_measure_distance();
 
 void  do_edit_copy_molecule();
 void  do_edit_copy_fragment();
-void  do_edit_replace_residue();
 void  do_edit_replace_fragment();
 
 /* \} */

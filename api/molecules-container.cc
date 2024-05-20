@@ -822,11 +822,9 @@ molecules_container_t::write_png(const std::string &compound_id, int imol_enc,
    std::pair<bool, coot::dictionary_residue_restraints_t> r_p =
       geom.get_monomer_restraints(compound_id, imol_enc);
 
-   std::cout << ":::::::::::::::::::::::::: r_p.first " << r_p.first << std::endl;
    if (r_p.first) {
       const auto &restraints = r_p.second;
       std::pair<int, RDKit::RWMol> mol_pair = coot::rdkit_mol_with_2d_depiction(restraints);
-      std::cout << ":::::::::::::::::::::::::: mol_pair.first " << mol_pair.first << std::endl;
       int conf_id = mol_pair.first;
       if (conf_id >= 0) {
          const auto &rdkit_mol(mol_pair.second);

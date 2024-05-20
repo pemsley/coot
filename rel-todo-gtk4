@@ -26,7 +26,7 @@ Coot: What do I need to do for each of FLEV, CFC and QED? Do it soon.
    CFC:  Needs a C++ clustering algorithm. Before I used Gaussian mixture model - maybe that will do.
          Needs to be available in Moorhen.
 
-libcootapi: add BOND-BY-DISTANCE to the api.  maybe libcootapi function: is everything here bonded correctly?
+libcootapi: add BOND-BY-DISTANCE to the api. maybe libcootapi function: is everything here bonded correctly?
 
 libcootapi add_colour_rule(): needs to parse #aabbccaa as a colour
 * Done.
