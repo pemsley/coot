@@ -55,20 +55,10 @@ Renderer::Renderer(emscripten::val text_measurement_function) {
     this->style.color.g = 0.f;
     this->style.color.b = 0.f;
     this->style.color.a = 1.f;
-    this->drawing_structure_stack.push_back(&this->drawing_commands);
-    this->currently_created_path = nullptr;
 }
 
 bool Renderer::DrawingCommand::is_path() const {
     return std::holds_alternative<Renderer::Path>(this->content);
-}
-
-bool Renderer::DrawingCommand::is_arc() const {
-    return std::holds_alternative<Renderer::Arc>(this->content);
-}
-
-bool Renderer::DrawingCommand::is_line() const {
-    return std::holds_alternative<Renderer::Line>(this->content);
 }
 
 bool Renderer::DrawingCommand::is_text() const {
@@ -83,31 +73,68 @@ Renderer::Path& Renderer::DrawingCommand::as_path_mut() {
     return std::get<Renderer::Path>(this->content);
 }
 
-const Renderer::Arc& Renderer::DrawingCommand::as_arc() const {
-    return std::get<Renderer::Arc>(this->content);
+const Renderer::Text& Renderer::DrawingCommand::as_text() const {
+    return std::get<Renderer::Text>(this->content);
 }
 
-Renderer::Arc& Renderer::DrawingCommand::as_arc_mut() {
-    return std::get<Renderer::Arc>(this->content);
-}
-
-const Renderer::Line& Renderer::DrawingCommand::as_line() const {
+const Renderer::Line& Renderer::PathElement::as_line() const {
     return std::get<Renderer::Line>(this->content);
 }
 
-const Renderer::Text& Renderer::DrawingCommand::as_text() const {
-    return std::get<Renderer::Text>(this->content);
+const Renderer::Arc& Renderer::PathElement::as_arc() const {
+    return std::get<Renderer::Arc>(this->content);
+}
+
+bool Renderer::PathElement::is_line() const {
+    return std::holds_alternative<Renderer::Line>(this->content);
+}
+
+bool Renderer::PathElement::is_arc() const {
+    return std::holds_alternative<Renderer::Arc>(this->content);
 }
 
 std::vector<Renderer::DrawingCommand> Renderer::get_commands() const {
     return this->drawing_commands;
 }
 
+const std::vector<Renderer::PathElement>& Renderer::Path::get_elements() const {
+    return this->elements;
+}
+
 Renderer::Path Renderer::create_new_path() const {
     Path ret;
     ret.has_fill = false;
     ret.initial_point = this->position;
+    ret.has_stroke = false;
+    ret.closed = false;
     return ret;
+}
+
+Renderer::Path& Renderer::top_path() {
+    if(this->drawing_commands.empty()) {
+        this->drawing_commands.push_back({this->create_new_path()});
+    }
+    auto& last_el = this->drawing_commands.back();
+    if(last_el.is_path()) {
+        const auto& pth = last_el.as_path();
+        if(!pth.closed) {
+            return last_el.as_path_mut();
+        }
+    }
+    this->drawing_commands.push_back({this->create_new_path()});
+    return this->drawing_commands.back().as_path_mut();
+}
+
+Renderer::Path* Renderer::top_path_if_exists() {
+    if(this->drawing_commands.empty()) {
+        return nullptr;
+    }
+    auto& last_el = this->drawing_commands.back();
+    if(last_el.is_path()) {
+        return &last_el.as_path_mut();
+    } else {
+        return nullptr;
+    }
 }
 
 #endif // Emscripten defined
@@ -176,13 +203,11 @@ void Renderer::line_to(double x, double y) {
     cairo_line_to(cr, x, y);
     #else // __EMSCRIPTEN__ defined
     Line line;
-    line.style = this->style;
     line.start = this->position;
     line.end.x = x;
     line.end.y = y;
     graphene_point_t final_pos = line.end;
-    auto* structure_ptr = *this->drawing_structure_stack.rbegin();
-    structure_ptr->push_back(DrawingCommand{line});
+    this->top_path().elements.push_back({line});
     this->position = final_pos;
     #endif
 }
@@ -197,11 +222,7 @@ void Renderer::arc(double x, double y, double radius, double angle_one, double a
     arc.radius = radius;
     arc.angle_one = angle_one;
     arc.angle_two = angle_two;
-    arc.has_fill = false; // todo
-    arc.has_stroke = true; // todo?
-    arc.stroke_style = this->style;
-    auto* structure_ptr = *this->drawing_structure_stack.rbegin();
-    structure_ptr->push_back(DrawingCommand{arc});
+    this->top_path().elements.push_back({arc});
     #endif
 }
 
@@ -209,28 +230,21 @@ void Renderer::fill() {
     #ifndef __EMSCRIPTEN__
     cairo_fill(cr);
     #else // __EMSCRIPTEN__ defined
-    // Fill closes all opened subpaths I guess?
-    // Is that what the cairo docs mean?
-    while(this->currently_created_path) {
-        this->close_path_inner();
-    }
-    auto* structure_ptr = *this->drawing_structure_stack.rbegin();
-    if(structure_ptr->empty()) {
-        g_warning("fill() called with an empty path.");
+    auto* path = this->top_path_if_exists();
+    if(!path) {
+        g_warning("fill() called without a path.");
         return;
     }
-    auto& last_el = structure_ptr->back();
-    if(last_el.is_path()) {
-        auto& this_path = last_el.as_path_mut();
-        this_path.has_fill = true;
-        this_path.fill_color = this->style.color;
-    } else if(last_el.is_arc()) {
-        auto& this_arc = last_el.as_arc_mut();
-        this_arc.has_fill = true;
-        this_arc.fill_color = this->style.color;
-    } else {
-        g_warning("fill() called on either text or a line (both cannot be filled)");
+    if(path->elements.empty()) {
+        g_warning("fill() called with an empty path.");
+        //return;
     }
+    // Fill closes all opened subpaths I guess?
+    path->closed = true;
+    // Should I do anything else with it?
+
+    path->has_fill = true;
+    path->fill_color = this->style.color;
     #endif
 }
 
@@ -238,11 +252,8 @@ void Renderer::stroke() {
     #ifndef __EMSCRIPTEN__
     cairo_stroke(cr);
     #else // __EMSCRIPTEN__ defined
-    #warning TODO: stroke() for Lhasa
-    // dummy
-    while(this->currently_created_path) {
-        this->close_path_inner();
-    }
+    this->stroke_preserve();
+    this->new_path();
     #endif
 }
 
@@ -250,7 +261,17 @@ void Renderer::stroke_preserve() {
     #ifndef __EMSCRIPTEN__
     cairo_stroke_preserve(cr);
     #else // __EMSCRIPTEN__ defined
-    #warning TODO: stroke_preserve() for Lhasa
+    auto* path = this->top_path_if_exists();
+    if(!path) {
+        g_warning("stroke() called without a path.");
+        return;
+    }
+    if(path->elements.empty()) {
+        g_warning("stroke() called with an empty path.");
+        //return;
+    }
+    path->has_stroke = true;
+    path->stroke_style = this->style;
     #endif
 }
 
@@ -258,104 +279,32 @@ void Renderer::new_path() {
     #ifndef __EMSCRIPTEN__
     cairo_new_path(cr);
     #else // __EMSCRIPTEN__ defined
-    if(this->currently_created_path) {
-        this->close_path_inner();
+    auto* path = this->top_path_if_exists();
+    if(path) {
+        // if(!path->closed) {
+        //     // Reset the path
+        //     *path = this->create_new_path();
+        // } else {
+            // Actually creates another new path
+            this->close_path_inner();
+        // }
     }
-    // According to the docs
-    // this is all what the function is supposed to do
+    // Is this really what the function ought to do?
     #endif
 }
 
 #ifdef __EMSCRIPTEN__
 void Renderer::close_path_inner() {
-    // This check is not needed in the inner function
-    // if(!this->currently_created_path) {
-    //     // No path to be closed.
-    //     return;
-    // }
-    auto stack_iter = this->drawing_structure_stack.rbegin();
-    auto& our_path_commands = *(*stack_iter);
     // 2. Close the sub-path
-    // 2.1. We're getting to the structure inside of which the current path lives.
-    stack_iter++;
-    auto mother_structure_iter = stack_iter;
-    auto mother_structure_commands = *(*mother_structure_iter);
-    if(mother_structure_iter == this->drawing_structure_stack.rend()) {
-        g_error("close_path() called with less than 2 elements in the stack "
-        "but 'currently_created_path' is present. "
-        "Corrupted Renderer state.");
-    }
-    // 2.2. Make sure we don't wrap everything with
-    // single-element paths or empty paths
-    std::function<std::string(const std::vector<DrawingCommand> &cmds)> print_cmdlist = [&print_cmdlist](const std::vector<DrawingCommand> &cmds){
-        std::string ret = "[";
-        for(const auto& i: cmds) {
-            if(i.is_path()) {
-                ret += "Path:{"+print_cmdlist(i.as_path().commands)+"}";
-            } else if(i.is_arc()) {
-                ret += "Arc";
-            } else if(i.is_line()) {
-                ret += "Line";
-            } else if(i.is_text()) {
-                ret += "Text";
-            } else {
-                ret += "Something";
-            }
-            ret+= ",";
+    auto* path = this->top_path_if_exists();
+    if(path) {
+        if(!path->closed) {
+            path->closed = true;
+        } else {
+            // Technically, just creating new path, means that the previous one is done with.
+            this->drawing_commands.push_back({this->create_new_path()});
         }
-        ret += "]";
-        return ret;
-    };
-    std::string debug_str = print_cmdlist(our_path_commands);
-    g_info("size=%zu; %s", our_path_commands.size(), debug_str.c_str());
-    
-    if(our_path_commands.empty()) {
-        g_warning("close_path_inner() has to discard an empty path.");
-        // Invalidates 'our_path_commands'
-        mother_structure_commands.pop_back();
     }
-    if(our_path_commands.size() == 1) {
-        g_debug("Trying to avoid a single-element path");
-        // Hard to avoid this copy
-        auto our_path_commands_copied = our_path_commands;
-        // Invalidates 'our_path_commands'
-        if(mother_structure_commands.empty()) {
-            g_error("Mother structure empty");
-        }
-        if(!mother_structure_commands.back().is_path()) {
-            g_error("Mother structure's last element is not a path");
-        }
-        g_debug("our_size %zu", our_path_commands_copied.size());
-        g_debug("m_size before %zu", mother_structure_commands.size());
-        mother_structure_commands.pop_back();
-        g_debug("m_size after %zu", mother_structure_commands.size());
-        mother_structure_commands.insert(
-            mother_structure_commands.end(), 
-            std::make_move_iterator(our_path_commands_copied.begin()),
-            std::make_move_iterator(our_path_commands_copied.end())
-        );
-        g_debug("m_size aftermove %zu", mother_structure_commands.size());
-    }
-    // 2.3. We need to know if mother_structure is another path
-    // or maybe it's the root of the stack
-    // in order to update the 'currently_created_path' pointer.
-    stack_iter++;
-    if(stack_iter == this->drawing_structure_stack.rend()) {
-        // It's the root.
-        g_debug("Mother_struct is root");
-        this->currently_created_path = nullptr;
-    } else {
-        // Mother structure is another path.
-        g_debug("Mother_struct is a subpath");
-        auto& last_el = (*stack_iter)->back();
-        if(!last_el.is_path()) {
-            g_error("Internal Renderer error: Mother structure of a subpath should be itself a path.");
-        }
-        this->currently_created_path = &last_el.as_path_mut();
-    }
-    // 2.4. Pop the current path from the stack after we've updated 'currently_created_path'.
-    // Invalidates all variables which came form 'stack_iter'
-    this->drawing_structure_stack.pop_back();
 
     // 3. 
     // To quote the docs:
@@ -373,14 +322,14 @@ void Renderer::close_path() {
     #ifndef __EMSCRIPTEN__
     cairo_close_path(cr);
     #else // __EMSCRIPTEN__ defined
-    if(!this->currently_created_path) {
-        // No path to be closed.
-        return;
+    // // 1. Add a line to the beginning of the path
+    auto* path = this->top_path_if_exists();
+    if(path) {
+        if(!path->closed) {
+            this->line_to(path->initial_point.x, path->initial_point.y);
+        }
+        this->close_path_inner();
     }
-    // 1. Add a line to the beginning of the path
-    Path& cpath = *this->currently_created_path;
-    this->line_to(cpath.initial_point.x, cpath.initial_point.y);
-    this->close_path_inner();
     #endif
 }
 
@@ -388,18 +337,15 @@ void Renderer::new_sub_path() {
     #ifndef __EMSCRIPTEN__
     cairo_new_sub_path(cr);
     #else // __EMSCRIPTEN__ defined
-    //if(this->currently_created_path) {
-        // Allocate new sub path
-        Path new_path = this->create_new_path();
-        auto* structure_ptr = *this->drawing_structure_stack.rbegin();
-        structure_ptr->push_back(DrawingCommand{new_path});
-        Path* new_path_ptr = &structure_ptr->back().as_path_mut();
-        // Overwrite the pointer
-        this->currently_created_path = new_path_ptr;
-        this->drawing_structure_stack.push_back(&new_path_ptr->commands);
-    // } else {
-    //     this->new_path();
-    // }
+    auto* path = this->top_path_if_exists();
+    // I'm not sure if that's what the function is supposed to do.
+    if(path) {
+        if(!path->closed) {
+            path->closed = true;
+        }
+    }
+    this->drawing_commands.push_back({this->create_new_path()});
+
     #endif
 }
 
@@ -568,8 +514,7 @@ void Renderer::show_text(const Renderer::TextSpan& text_span) {
         // text.style
     }
     text.origin = this->position;
-    auto* structure_ptr = *this->drawing_structure_stack.rbegin();
-    structure_ptr->push_back(DrawingCommand{text});
+    this->drawing_commands.push_back(DrawingCommand{text});
     #endif
 }
 

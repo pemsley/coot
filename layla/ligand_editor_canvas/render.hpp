@@ -111,6 +111,7 @@ struct Renderer {
     #else // __EMSCRIPTEN__ defined
     //       Lhasa-specific includes/definitions
     struct Path;
+    struct PathElement;
     struct DrawingCommand;
     struct BrushStyle {
         Color color;
@@ -122,15 +123,16 @@ struct Renderer {
     graphene_point_t position;
     std::vector<DrawingCommand> drawing_commands;
     emscripten::val text_measurement_function;
-    // WIP
-    /// A non-owned pointer to the path (or sub-path)
-    /// currently being created. Set to null if we're at the root
-    Path* currently_created_path;
-    // WIP
-    /// Only non-owned pointers go here, such as 
-    /// pointer to `drawing_commands` or 
-    /// to a path already allocated on top of it.
-    std::vector<std::vector<DrawingCommand>*> drawing_structure_stack;
+
+    /// If the last command is a non-closed path,
+    /// returns a mutable reference to it.
+    /// If not, it creates a new path.
+    Path& top_path();
+
+    /// If the last command is a path (may be closed),
+    /// returns a pointer to it.
+    /// Otherwise nullptr
+    Path* top_path_if_exists();
 
     /// Initialize new Path structure
     Path create_new_path() const;
@@ -140,41 +142,52 @@ struct Renderer {
     public:
     struct Line {
         graphene_point_t start, end;
-        BrushStyle style;
+        // BrushStyle style;
     };
 
     struct Arc {
         graphene_point_t origin;
         double radius, angle_one, angle_two;
-        bool has_fill;
-        Color fill_color;
-        bool has_stroke;
-        BrushStyle stroke_style;
-    };
-
-    struct Path {
-        graphene_point_t initial_point;
-        std::vector<DrawingCommand> commands;
-        Color fill_color;
-        bool has_fill;
-        // We leave stroke up to the individual components
-        // // this needs work. Do we need a boolean here?
+        // bool has_fill;
+        // Color fill_color;
+        // bool has_stroke;
         // BrushStyle stroke_style;
     };
 
+    struct PathElement {
+        std::variant<Line, Arc> content;
+
+        // todo: functions
+        bool is_line() const;
+        bool is_arc() const;
+
+        const Line& as_line() const;
+        const Arc& as_arc() const;
+
+    };
+    struct Path {
+        graphene_point_t initial_point;
+        std::vector<PathElement> elements;
+        // WIP
+        bool closed;
+
+        Color fill_color;
+        bool has_fill;
+        // this needs work. Do we need a boolean here?
+        bool has_stroke;
+        BrushStyle stroke_style;
+
+        const std::vector<PathElement>& get_elements() const;
+    };
+
     struct DrawingCommand {
-        std::variant<Line, Arc, Path, Text> content;
+        std::variant<Path, Text> content;
 
         bool is_path() const;
-        bool is_arc() const;
-        bool is_line() const;
         bool is_text() const;
 
         const Path& as_path() const;
         Path& as_path_mut();
-        const Arc& as_arc() const;
-        Arc& as_arc_mut();
-        const Line& as_line() const;
         const Text& as_text() const;
     };
 

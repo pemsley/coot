@@ -331,10 +331,10 @@ void CanvasMolecule::draw(impl::Renderer& ren, DisplayMode display_mode) const n
 CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
     this->rdkit_molecule = std::move(rdkit_mol);
     this->cached_atom_coordinate_map = std::nullopt;
+    this->bounding_atom_coords = std::make_pair(RDGeom::Point2D(0,0),RDGeom::Point2D(0,0));
     this->lower_from_rdkit(true);
     this->x_canvas_translation = 0;
     this->y_canvas_translation = 0;
-    this->bounding_atom_coords = std::make_pair(RDGeom::Point2D(0,0),RDGeom::Point2D(0,0));
 }
 
 void CanvasMolecule::update_source_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
