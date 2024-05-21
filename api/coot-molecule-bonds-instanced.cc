@@ -45,6 +45,11 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                                                unsigned int num_subdivisions,
                                                const std::vector<glm::vec4> &colour_table) {
 
+   if (false) { //20240521-PE debugging transparency
+      for (const auto &c : colour_table) {
+         std::cout << "colour-table " << glm::to_string(c) << std::endl;
+      }
+   }
 
    // 20230114-PE
    // copied and edited from from src/Mesh-from-graphical-bonds-instanced.cc

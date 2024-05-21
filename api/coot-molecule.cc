@@ -1347,7 +1347,7 @@ coot::molecule_t::get_atom(const coot::atom_spec_t &atom_spec) const {
 
 glm::vec4
 coot::molecule_t::colour_holder_to_glm(const coot::colour_holder &ch) const {
-   return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
+   return glm::vec4(ch.red, ch.green, ch.blue, ch.alpha);
 }
 
 #include "utils/dodec.hh"

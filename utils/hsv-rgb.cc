@@ -214,7 +214,7 @@ coot::colour_holder::rotate_by(float angle) {
 std::ostream&
 coot::operator<< (std::ostream& s, const coot::colour_holder &ch) {
 
-   s << "colour{" << std::fixed << std::setprecision(3) << ch.red << " " << ch.green << " " << ch.blue
+   s << "colour{" << std::fixed << std::setprecision(3) << ch.red << " " << ch.green << " " << ch.blue << " " << ch.alpha
      << "}";
    return s;
 } 
