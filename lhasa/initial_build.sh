@@ -23,6 +23,110 @@ echo "Installing in ${INSTALL_DIR}"
 mkdir -p ${INSTALL_DIR}
 mkdir -p ${BUILD_DIR}
 
+source EMSCRIPTEN_CONFIG
+
+if [ x"$1" = x"--64bit" ]; then
+   MEMORY64=1
+   shift
+   MODULES=$*
+elif [ x"$1" = x"--clear" ]; then
+   shift
+   CLEAR_MODULES=$*
+else
+   MODULES=$*
+fi
+
+# Only big stuff goes here
+if [ x"$CLEAR_MODULES" = x"" ]; then
+    :
+else
+    for mod in $CLEAR_MODULES; do
+        case $mod in
+           boost) echo "Clear boost"
+               rm -rf ${BUILD_DIR}/boost
+               rm -rf ${INSTALL_DIR}/include/boost
+               ;;
+           rdkit) echo "Clear rdkit"
+               rm -rf ${BUILD_DIR}/rdkit_build
+               rm -rf ${INSTALL_DIR}/include/rdkit
+               ;;
+        esac
+        done
+    exit
+fi
+
+# Create an empty file silly.c and then compile it with USE_ZLIB and USE_LIBPNG to force emsdk to get zlib/png.
+echo "Attempting to get emsdk zlib/png ports"
+echo
+echo "" > silly.c
+emcc silly.c -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_FREETYPE=1 -pthread -sMEMORY64=1 -Wno-experimental
+emcc silly.c -s USE_ZLIB=1 -s USE_LIBPNG=1 -s USE_FREETYPE=1 -pthread
+rm -f silly.c
+rm -f a.out.js
+rm -f a.out.wasm
+rm -f a.out.worker.js
+
+if test x"${MEMORY64}" = x"1"; then
+    echo "#####################################################"
+    echo "Building ** 64-bit ** (large memory) version of Lhasa"
+    echo "#####################################################"
+    echo
+    LHASA_CMAKE_FLAGS="-sMEMORY64=1 -pthread"
+else
+    echo "######################################"
+    echo "Building ** 32-bit ** version of Lhasa"
+    echo "######################################"
+    echo
+    LHASA_CMAKE_FLAGS="-pthread"
+fi
+
+BUILD_BOOST=false
+BUILD_RDKIT=false
+BUILD_GRAPHENE=false
+BUILD_LIBSIGCPP=false
+
+
+if test -d ${INSTALL_DIR}/include/boost; then
+    true
+else
+    BUILD_BOOST=true
+fi
+
+if test -d ${INSTALL_DIR}/include/rdkit; then
+    true
+else
+    BUILD_RDKIT=true
+fi
+
+if test -d ${INSTALL_DIR}/include/graphene-1.0; then
+    true
+else
+    BUILD_GRAPHENE=true
+fi
+
+if test -d ${INSTALL_DIR}/include/sigc++-3.0; then
+    true
+else
+    BUILD_LIBSIGCPP=true
+fi
+
+# Only big stuff goes here
+for mod in $MODULES; do
+    case $mod in
+       boost) echo "Force build boost"
+       BUILD_BOOST=true
+       ;;
+       rdkit) echo "Force build rdkit"
+       BUILD_RDKIT=true
+       ;;
+    esac
+done
+
+
+echo "BUILD_BOOST     " $BUILD_BOOST
+echo "BUILD_RDKIT     " $BUILD_RDKIT
+echo "BUILD_GRAPHENE  " $BUILD_GRAPHENE
+echo "BUILD_LIBSIGCPP " $BUILD_LIBSIGCPP
 
 #Boost (has to be built in source tree as far as I am aware)
 cd ${SOURCE_DIR}/deps/boost
