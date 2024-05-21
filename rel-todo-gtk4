@@ -1,6 +1,16 @@
 
 ----
 
+Coot: 1: add a button for "difference map" in map reading dialog.
+
+Coot: 2: merge Jakub pull request
+
+Coot: 3: fix the build to make coot-bin again but MacCoot on macOS.
+
+libcootapi: try the other slurped map filling algorithm.
+
+Coot: NCS jumping doesn't work. Test with 4ole - Andrey
+
 Coot: do_edit_replace_residue() get rid of the python/scripting
 * Done.
 
@@ -15,7 +25,9 @@ Coot: we have meshed_generic_display_object::add_point(). We want meshed_generic
   Say for example the bendy helices project - many points means coot is slow to start up.
 * Done.
 
-libcootapi: rdkit mol needs to be a shared pointer.
+libcootapi: Molecule2Triangles: the bases are inside-out relative to the ribbon.
+
+moorhen: 8hcl F chain negetive numbers for residue range doesn't work it seems?
 
 Coot: What do I need to do for each of FLEV, CFC and QED? Do it soon.
    QED:  make the RDKit mol a shared pointer.
