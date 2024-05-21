@@ -6855,6 +6855,20 @@ graphics_info_t::setup_key_bindings() {
    std::pair<keyboard_key_t, key_bindings_t> p3(keyboard_key_t(GDK_KEY_y, true), redo_key_binding);
    kb_vec.push_back(p3);
 
+   auto lc_res_info = []() {
+      // this blob was copied from residue_info_action() - it could be refactored
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      if (pp.first) {
+         int imol = pp.second.first;
+         coot::residue_spec_t res_spec(pp.second.second);
+         output_residue_info_dialog(imol, res_spec);
+      }
+      return gboolean(TRUE);
+   };
+   key_bindings_t residue_info_key_binding(lc_res_info, "Residue Info");
+   std::pair<keyboard_key_t, key_bindings_t> p_res_info(keyboard_key_t(GDK_KEY_i, true), residue_info_key_binding);
+   kb_vec.push_back(p_res_info);
+
    auto ldr = [] () {
                  graphics_info_t g;
                  std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
