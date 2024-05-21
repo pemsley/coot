@@ -5,7 +5,7 @@ cd deps
 
 
 echo "Downloading RDKit source"
-rdkit_release="Release_2023_09_3"
+rdkit_release="Release_2024_03_2"
 curl -L https://github.com/rdkit/rdkit/archive/refs/tags/$rdkit_release.tar.gz -o "$rdkit_release.tar.gz"
 
 echo "Unpacking RDKit source"
@@ -44,10 +44,10 @@ rm -f a.out.wasm
 # curl -L https://unpkg.com/@rdkit/rdkit/Code/MinimalLib/dist/RDKit_minimal.js -o web_example/RDKit_minimal.js
 
 echo "Checking out boost"
-curl -L https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2 -o boost_1_83_0.tar.bz2
-tar xf boost_1_83_0.tar.bz2
+curl -L https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_84_0.tar.bz2 -o boost_1_84_0.tar.bz2
+tar xf boost_1_84_0.tar.bz2
 
-ln -s boost_1_83_0 boost
+ln -s boost_1_84_0 boost
 ln -s "rdkit-$rdkit_release" rdkit
 
 
