@@ -44,7 +44,7 @@ rm -f a.out.wasm
 # curl -L https://unpkg.com/@rdkit/rdkit/Code/MinimalLib/dist/RDKit_minimal.js -o web_example/RDKit_minimal.js
 
 echo "Checking out boost"
-curl -L https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_84_0.tar.bz2 -o boost_1_84_0.tar.bz2
+curl -L https://boostorg.jfrog.io/artifactory/main/release/1.84.0/source/boost_1_84_0.tar.bz2 -o boost_1_84_0.tar.bz2
 tar xf boost_1_84_0.tar.bz2
 
 ln -s boost_1_84_0 boost
