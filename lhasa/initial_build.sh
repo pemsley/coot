@@ -233,7 +233,7 @@ fi
 
 # Libsigc++
 if [ $BUILD_LIBSIGCPP = true ]; then
-    pushd ${SOURCE_DIR}/deps/libsigcplusplus-$libsigcpp_release/
+    pushd ${SOURCE_DIR}/checkout/libsigcplusplus-$libsigcpp_release/
     meson setup ${BUILD_DIR}/libsigcplusplus_build \
         --prefix=${INSTALL_DIR} \
         --libdir=lib \
