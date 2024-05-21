@@ -1,0 +1,7 @@
+#!/bin/bash
+
+rdkit_release="Release_2024_03_2"
+# graphene
+# sigc++
+# gemmi_release="v0.6.4"
+boost_release="1.84.0"
