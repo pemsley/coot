@@ -33,7 +33,7 @@ Note: The private types, functions, attributes and members are listed here, but 
 are not, for the most part, useful for exporting. Which is not to rule out that there
 may be *something* there that could usefully be declared as public.
 
-.. doxygenfile:: molecules_container.hh
+.. doxygenfile:: molecules-container.hh
    :project: libcootapi
 
 
