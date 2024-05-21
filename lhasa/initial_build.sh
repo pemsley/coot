@@ -6,10 +6,15 @@ else
     SOURCE_DIR=`dirname -- "$( readlink -f -- "$0"; )"`
 fi
 
+
+if [ x`uname -s` = x"Darwin" ]; then
+    NUMPROCS=`sysctl -n hw.ncpu`
+else
+    NUMPROCS=`nproc --all`
+fi
+
 BUILD_DIR=${PWD}/build
 INSTALL_DIR=${PWD}/prefix
-
-NUMPROCS=`nproc --all`
 
 echo "Sources are in ${SOURCE_DIR}"
 echo "Building in ${BUILD_DIR}"
