@@ -240,8 +240,10 @@ if [ $BUILD_LIBSIGCPP = true ]; then
         --cross-file=$MESON_CROSS \
         --default-library=static \
         -Dc_link_args="-pthread $LHASA_CMAKE_FLAGS" \
+        -Dcpp_link_args="-pthread $LHASA_CMAKE_FLAGS" \
         -Dcpp_args="-s USE_PTHREADS=1 $LHASA_CMAKE_FLAGS" \
-        --buildtype=release && \
+        --buildtype=release \
+        -Dbuild-tests=false && \
         meson install -C ${BUILD_DIR}/libsigcplusplus_build
         popd
     
