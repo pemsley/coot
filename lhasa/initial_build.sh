@@ -13,7 +13,7 @@ else
     NUMPROCS=`nproc --all`
 fi
 
-source VERSIONS
+source ./VERSIONS
 
 BUILD_DIR=${PWD}/build
 INSTALL_DIR=${PWD}/prefix
@@ -25,7 +25,7 @@ echo "Installing in ${INSTALL_DIR}"
 mkdir -p ${INSTALL_DIR}
 mkdir -p ${BUILD_DIR}
 
-source EMSCRIPTEN_CONFIG
+source ./EMSCRIPTEN_CONFIG
 
 if [ x"$1" = x"--64bit" ]; then
    MEMORY64=1
