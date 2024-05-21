@@ -13,6 +13,8 @@ else
     NUMPROCS=`nproc --all`
 fi
 
+source VERSIONS
+
 BUILD_DIR=${PWD}/build
 INSTALL_DIR=${PWD}/prefix
 
@@ -128,29 +130,19 @@ echo "BUILD_RDKIT     " $BUILD_RDKIT
 echo "BUILD_GRAPHENE  " $BUILD_GRAPHENE
 echo "BUILD_LIBSIGCPP " $BUILD_LIBSIGCPP
 
-#Boost (has to be built in source tree as far as I am aware)
-cd ${SOURCE_DIR}/deps/boost
-./bootstrap.sh --with-libraries=serialization,regex,chrono,date_time,filesystem,iostreams,program_options,thread,math,random,system &&\
-./b2 toolset=emscripten link=static variant=release threading=single runtime-link=static thread system filesystem regex serialization chrono date_time program_options random -j ${NUMPROCS} &&\
-./b2 toolset=emscripten link=static variant=release threading=single runtime-link=static install --prefix=${INSTALL_DIR}
-cd ${BUILD_DIR}
-
-emar q ${INSTALL_DIR}/lib/libboost_chrono.a ${INSTALL_DIR}/lib/libboost_chrono.bc
-emar q ${INSTALL_DIR}/lib/libboost_date_time.a ${INSTALL_DIR}/lib/libboost_date_time.bc
-emar q ${INSTALL_DIR}/lib/libboost_filesystem.a ${INSTALL_DIR}/lib/libboost_filesystem.bc
-emar q ${INSTALL_DIR}/lib/libboost_iostreams.a ${INSTALL_DIR}/lib/libboost_iostreams.bc
-emar q ${INSTALL_DIR}/lib/libboost_math_c99.a ${INSTALL_DIR}/lib/libboost_math_c99.bc
-emar q ${INSTALL_DIR}/lib/libboost_math_c99f.a ${INSTALL_DIR}/lib/libboost_math_c99f.bc
-emar q ${INSTALL_DIR}/lib/libboost_math_c99l.a ${INSTALL_DIR}/lib/libboost_math_c99l.bc
-emar q ${INSTALL_DIR}/lib/libboost_math_tr1.a ${INSTALL_DIR}/lib/libboost_math_tr1.bc
-emar q ${INSTALL_DIR}/lib/libboost_math_tr1f.a ${INSTALL_DIR}/lib/libboost_math_tr1f.bc
-emar q ${INSTALL_DIR}/lib/libboost_math_tr1l.a ${INSTALL_DIR}/lib/libboost_math_tr1l.bc
-emar q ${INSTALL_DIR}/lib/libboost_program_options.a ${INSTALL_DIR}/lib/libboost_program_options.bc
-emar q ${INSTALL_DIR}/lib/libboost_random.a ${INSTALL_DIR}/lib/libboost_random.bc
-emar q ${INSTALL_DIR}/lib/libboost_regex.a ${INSTALL_DIR}/lib/libboost_regex.bc
-emar q ${INSTALL_DIR}/lib/libboost_serialization.a ${INSTALL_DIR}/lib/libboost_serialization.bc
-emar q ${INSTALL_DIR}/lib/libboost_system.a ${INSTALL_DIR}/lib/libboost_system.bc
-emar q ${INSTALL_DIR}/lib/libboost_wserialization.a ${INSTALL_DIR}/lib/libboost_wserialization.bc
+#Boost
+#boost with cmake
+if [ $BUILD_BOOST = true ]; then
+    mkdir -p ${BUILD_DIR}/boost
+    cd ${BUILD_DIR}/boost
+    emcmake cmake -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}" \
+                  -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS}" \
+                  -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+                  ${SOURCE_DIR}/checkout/boost-$boost_release \
+                  -DBOOST_EXCLUDE_LIBRARIES="context;fiber;fiber_numa;asio;log;coroutine;cobalt;nowide"
+    emmake make -j ${NUMPROCS}
+    emmake make install
+fi
 
 #RDKit
 mkdir -p ${BUILD_DIR}/rdkit_build
