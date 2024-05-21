@@ -173,15 +173,18 @@ if [ $BUILD_RDKIT = true ]; then
     emmake make install
 fi
 
-cd ${BUILD_DIR}
+
+# Setup for meson
+if [ $BUILD_LIBSIGCPP = true ] || [ $BUILD_GRAPHENE = true ]; then
+    cd ${BUILD_DIR}
 
 
-export CHOST="wasm32-unknown-linux"
-export ax_cv_c_float_words_bigendian=no
+    export CHOST="wasm32-unknown-linux"
+    export ax_cv_c_float_words_bigendian=no
 
-export MESON_CROSS="${BUILD_DIR}/emscripten-crossfile.meson"
+    export MESON_CROSS="${BUILD_DIR}/emscripten-crossfile.meson"
 
-cat > "${BUILD_DIR}/emscripten-crossfile.meson" <<END
+    cat > "${BUILD_DIR}/emscripten-crossfile.meson" <<END
 [binaries]
 c = 'emcc'
 cpp = 'em++'
@@ -209,29 +212,37 @@ cpu = 'wasm32'
 endian = 'little'
 END
 
-export EM_PKG_CONFIG_PATH=${INSTALL_DIR}/lib/pkgconfig/
-export PKG_CONFIG_PATH=${INSTALL_DIR}/lib/pkgconfig/
-export EM_PKG_CONFIG_LIBDIR=${INSTALL_DIR}/lib/
-export PKG_CONFIG_LIBDIR=${INSTALL_DIR}/lib/
+    export EM_PKG_CONFIG_PATH=${INSTALL_DIR}/lib/pkgconfig/
+    export PKG_CONFIG_PATH=${INSTALL_DIR}/lib/pkgconfig/
+    export EM_PKG_CONFIG_LIBDIR=${INSTALL_DIR}/lib/
+    export PKG_CONFIG_LIBDIR=${INSTALL_DIR}/lib/
+fi
 
 # Graphene
-cd ${SOURCE_DIR}/deps/graphene-1.10.8/
-CFLAGS="-s USE_PTHREADS" LDFLAGS=" -lpthread" meson setup ${BUILD_DIR}/graphene_build \
-    --prefix=${INSTALL_DIR} \
-    --cross-file=$MESON_CROSS \
-    --default-library=static \
-    --buildtype=release \
-    -Dtests=false && \
-    meson install -C ${BUILD_DIR}/graphene_build
+if [ $BUILD_GRAPHENE = true ]; then
+    pushd ${SOURCE_DIR}/checkout/graphene-$graphene_release/
+    CFLAGS="-s USE_PTHREADS $LHASA_CMAKE_FLAGS" LDFLAGS=" -lpthread $LHASA_CMAKE_FLAGS" meson setup ${BUILD_DIR}/graphene_build \
+        --prefix=${INSTALL_DIR} \
+        --cross-file=$MESON_CROSS \
+        --default-library=static \
+        --buildtype=release \
+        -Dtests=false && \
+        meson install -C ${BUILD_DIR}/graphene_build
+        popd
+fi
 
 # Libsigc++
-cd ${SOURCE_DIR}/deps/libsigcplusplus-3.6.0/
-meson setup ${BUILD_DIR}/libsigcplusplus_build \
-    --prefix=${INSTALL_DIR} \
-    --libdir=lib \
-    --cross-file=$MESON_CROSS \
-    --default-library=static \
-    -Dc_link_args='-pthread' \
-    -Dcpp_args='-s USE_PTHREADS=1 -pthread' \
-    --buildtype=release && \
-    meson install -C ${BUILD_DIR}/libsigcplusplus_build
+if [ $BUILD_LIBSIGCPP = true ]; then
+    pushd ${SOURCE_DIR}/deps/libsigcplusplus-$libsigcpp_release/
+    meson setup ${BUILD_DIR}/libsigcplusplus_build \
+        --prefix=${INSTALL_DIR} \
+        --libdir=lib \
+        --cross-file=$MESON_CROSS \
+        --default-library=static \
+        -Dc_link_args="-pthread $LHASA_CMAKE_FLAGS" \
+        -Dcpp_args="-s USE_PTHREADS=1 $LHASA_CMAKE_FLAGS" \
+        --buildtype=release && \
+        meson install -C ${BUILD_DIR}/libsigcplusplus_build
+        popd
+    
+fi
