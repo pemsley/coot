@@ -149,7 +149,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .constructor<ElementInsertion::Element>();
   // Workaround for constructor overload not being available:
   function("element_insertion_from_symbol", &lhasa::element_insertion_from_symbol);
-  enum_<StructureInsertion::Structure>("Structure")
+  // I had to rename it to "LhasaStructure" due to name clash in Moorhen
+  enum_<StructureInsertion::Structure>("LhasaStructure")
     .value("CycloPropaneRing", StructureInsertion::Structure::CycloPropaneRing)
     .value("CycloButaneRing", StructureInsertion::Structure::CycloButaneRing)
     .value("CycloPentaneRing", StructureInsertion::Structure::CycloPentaneRing)
