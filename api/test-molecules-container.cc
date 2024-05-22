@@ -48,7 +48,8 @@ int test_utils(molecules_container_t &mc_in) {
    return status;
 }
 
-void colour_analysis(const coot::simple_mesh_t &mesh) {
+std::vector<std::pair<glm::vec4, unsigned int> >
+colour_analysis(const coot::simple_mesh_t &mesh) {
 
    auto is_near_colour = [] (const glm::vec4 &col_1, const glm::vec4 &col_2) {
       float cf = 0.04;
@@ -93,9 +94,11 @@ void colour_analysis(const coot::simple_mesh_t &mesh) {
       std::cout << "    " << glm::to_string(colour_count[i].first) << " "
                 << std::setw(7) << std::right << colour_count[i].second << std::endl;
 
+   return colour_count;
 }
 
-void colour_analysis(const coot::instanced_mesh_t &mesh) {
+std::vector<std::pair<glm::vec4, unsigned int> >
+colour_analysis(const coot::instanced_mesh_t &mesh) {
 
    auto is_near_colour = [] (const glm::vec4 &col_1, const glm::vec4 &col_2) {
       float cf = 0.04;
@@ -152,7 +155,6 @@ void colour_analysis(const coot::instanced_mesh_t &mesh) {
 
    }
 
-
    for (unsigned int i=0; i<mesh.markup.vertices.size(); i++) {
       const auto &vertex = mesh.markup.vertices[i];
       const glm::vec4 &col = vertex.color;
@@ -175,6 +177,8 @@ void colour_analysis(const coot::instanced_mesh_t &mesh) {
    for (unsigned int i=0; i<colour_count.size(); i++)
       std::cout << "    " << glm::to_string(colour_count[i].first) << " "
                 << std::setw(7) << std::right << colour_count[i].second << std::endl;
+
+   return colour_count;
 }
 
 class colour_analysis_row {
@@ -3743,9 +3747,9 @@ int test_user_defined_bond_colours(molecules_container_t &mc) {
       mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
       if (at_1) {
          std::map<unsigned int, std::array<float, 4> > colour_map;
-         colour_map[0] = std::array<float, 4> {0.42222222, 0.7, 0.4};
-         colour_map[2] = std::array<float, 4> {0.42222222, 0.4, 0.7};
-         colour_map[1] = std::array<float, 4> {0.7, 0.4, 0.42222222};
+         colour_map[0] = std::array<float, 4> {0.42222222, 0.7, 0.4, 1.0};
+         colour_map[2] = std::array<float, 4> {0.42222222, 0.4, 0.7, 1.0};
+         colour_map[1] = std::array<float, 4> {0.7, 0.4, 0.42222222, 1.0};
          std::vector<std::pair<std::string, unsigned int> > indexed_residues_cids;
          indexed_residues_cids.push_back(std::make_pair("//A",2));
          indexed_residues_cids.push_back(std::make_pair("//A/100-200",1));
@@ -5700,7 +5704,30 @@ int test_alpha_in_colour_holder(molecules_container_t &mc) {
    coot::colour_holder ch(col);
    std::cout << "alpha: " << ch.alpha << std::endl;
    int status = 0;
-   if (ch.alpha > 0.7 && ch.alpha < 0.9) status = 1;
+   if (ch.alpha > 0.7 && ch.alpha < 0.9) {
+
+      std::vector<std::pair<std::string, unsigned int> > indexed_residues_cids;
+      std::map<unsigned int, std::array<float, 4> > colour_map;
+      colour_map[0] = std::array<float, 4> {0.42222222, 0.7, 0.4, 0.5};
+      colour_map[2] = std::array<float, 4> {0.42222222, 0.4, 0.7, 0.5};
+      colour_map[1] = std::array<float, 4> {0.7, 0.4, 0.42222222, 0.5};
+      indexed_residues_cids.push_back(std::make_pair("//A",2));
+      indexed_residues_cids.push_back(std::make_pair("//A/100-200",1));
+      indexed_residues_cids.push_back(std::make_pair("//A/130-150",0));
+      int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+      mc.set_user_defined_bond_colours(imol_1, colour_map);
+      mc.set_user_defined_atom_colour_by_selection(imol_1, indexed_residues_cids, true);
+      std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
+      auto mesh = mc.get_bonds_mesh_instanced(imol_1, mode, true,  0.2, 1.0, 1);
+      std::vector<std::pair<glm::vec4, unsigned int> > colour_count = colour_analysis(mesh);
+      unsigned int n_transparent = 0;
+      for(const auto &cc : colour_count) {
+         if (cc.first[3] < 0.6)
+            n_transparent += cc.second;
+      }
+      std::cout << "................. n_transparent " << n_transparent << std::endl;
+      if (n_transparent > 5000) status = 1;
+   }
    return status;
 }
 

@@ -1484,6 +1484,7 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
 
             // was there a user-defined bond colour that superceeds this for this colour index?
             if (! user_defined_bond_colours.empty()) {
+
                std::map<unsigned int, colour_holder>::const_iterator it;
                it = user_defined_bond_colours.find(icol);
                if (it != user_defined_bond_colours.end()) {
@@ -1497,7 +1498,8 @@ coot::molecule_t::make_colour_table(bool dark_bg_flag) const {
                                << std::endl;
                }
             } else {
-               // std::cout << "debug:: Sad! user_defined_bond_colours was empty" << std::endl;
+               if (debug_colour_table)
+                  std::cout << "debug:: Sad! user_defined_bond_colours was empty" << std::endl;
             }
 
             if (debug_colour_table) { // debugging colours

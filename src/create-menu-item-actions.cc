@@ -128,6 +128,9 @@ void on_map_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       GFile *file = gtk_file_chooser_get_file(chooser);
       char *file_name = g_file_get_path(file);
       int is_diff_map_flag = 0; // needs fixing obviously... FIXME
+      const char *response_id_cstr = gtk_file_chooser_get_choice(GTK_FILE_CHOOSER(dialog), "is-diff-map");
+      std::string response_id(response_id_cstr);
+      if (response_id == "true") is_diff_map_flag = 1; // typically is "false"
       handle_read_ccp4_map(file_name, is_diff_map_flag);
    }
    gtk_window_close(GTK_WINDOW(dialog));
@@ -271,6 +274,10 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                                    ("_Open"),
                                                    GTK_RESPONSE_ACCEPT,
                                                    NULL);
+
+   const gchar *labels[]  = {NULL};
+   const gchar *options[] = {NULL};
+   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "is-diff-map", "Is Difference Map", NULL, NULL);
 
    g_signal_connect(dialog, "response", G_CALLBACK(on_map_filechooser_dialog_response_gtk4), NULL);
 

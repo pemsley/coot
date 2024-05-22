@@ -36,7 +36,11 @@ You can change the speed that moving the mouse spins the view:
   - **Preferences** &rarr; "Mouse Sensitivity" &rarr; 0.4 (# for example)
   - Click off the Preferences dialog to make the dialog disappear.
 
-  - Similarly, you can change the thickness of the map lines if you wish.
+  - Likewise one can change the sensitivity of the zoom using the "Mouse wheel zoom sensitivity" slider.
+    I find a value of around 7 to 8 to be more useful than the default.
+
+  - Similarly, you can change the thickness of the map lines if you wish using "Map contour settings..."
+
   - Use "[" and "]" on the keyboard to adjust the radius of the density.
   - Ctrl middle-mouse scroll to change the contour level (one step at time seems good to me).
 
@@ -45,20 +49,11 @@ You can change the speed that moving the mouse spins the view:
 Our job is to fix and amend the protein model in a way that is consistent with the data. Let's first look
 at the Ramachandran plot:
 
-## Maps and Models
+## Models
 
-  - Click on the **Right side tab**
-
-_Moorhen display a drawer with "Models and Maps", "Validation Tools" and "Console"_
-
-  - Click on the **Models and Maps** tab
-
-_Moorhen expands the tab to display additional information_.
-
-Initially the background of the drawer is semi-transparent,
-
-  - Put your cursor over the drawer (and the draw will become opaque).
-
+   - Click on the **Models** button
+You will see buttons for various representation styles for the model.
+   - Click on the **Sequences** accordian button
 You will see a sequence viewer - let's use that to move around the structure. Click on a few letters (that represent the residues in the protein). Notice that the map density mesh is redrawn around the new centre.
 
 See the grey rectangle over the sequence numbers?
@@ -74,22 +69,27 @@ Notice that there are "No ligands." We will add one later.
 
 For higher-end computers we can use a smoother representation of the bonds and atoms.
 
- - [Optional] Click on the gear icon, click on the "Bond Settings" and change the "Smoothness" to **Nice**.
+ - [Optional] Click on the gear icon in the vertical toolbar
+ - click on the "Bond Settings" and change the "Smoothness" to **Nice**.
 
-Below the card for the protein, you will see the cards for the maps (the 2Fo-Fc-style map has a blue icon and the difference map has an icon with red and green). You can use the sliders there to adjust the contour level. It's a bit high at the moment, so click or slide the slider for the 2Fo-Fc map so that the level is about 0.443 or thereabouts. Set the difference map to a level of around 0.534.
-(I find that clicking (click and release) on the slider to be monre convenient than trying to "slide" the slider using click and drag).
+ - Use the **X** icon to close the **Models** dialog.
 
-  - Shut the draw and then you can also use Ctrl scroll-wheel scroll to change the contour level
+## Maps
+   - Click on the **Maps** button
+
+The 2Fo-Fc-style map has a blue icon and the difference map has an icon with red and green. You can use the sliders there to adjust the contour level. Click or slide the slider for the 2Fo-Fc map so that the level is about 0.42 (1.40 rmsd) or thereabouts. Set the difference map to a level of around 0.53 (3.6 rmsd) (if it isn't already).
+
+  - Close the dialog and then you can also use _Ctrl scroll-wheel scroll_ to change the contour level.
 
 ## Validation Tools
 
-  - Open the drawer
+  - Open the **Validation** window
 
-  - Click on the **Validation tools** tab
-
-  - Choose **Ramachandran Plot** in the **Tool** option menu
+  - Choose **Ramachandran Plot**
 
 _Moorhen shows the Ramachandran Plot for the "A" chain of this protein_
+
+   - You can resize the dialog for a better view of the plot.
 
 You will see that there are several interesting red spots.
 
@@ -97,64 +97,64 @@ You will see that there are several interesting red spots.
 
 _Moorhen will put residue A180 at the centre of the screen_
 
-Take a look at the region... (You can slide the drawer closed for a better look).
+Take a look at the region...
 
-Hmmm... the carbonyl oxygen atoms are a bit close... Are there any other Ramachandran outliers in the area?
+Hmmm... the carbonyl oxygen atoms are a bit close to each other. Are there any other Ramachandran outliers in the area?
 
-   - To measure the distance between atoms, hold M and click on an atom, then (with "M" still pressed) click
-     on another atom.
+   - To measure the distance between atoms, hold M and click on an atom, then (with "M" still pressed) click on another atom.
 
-   - In the drawer, click on **Models and maps**,
-   - then click on the **Rama** box for this protein model.
+2.26 A is too close.
 
-_Moorhen displays Ramachandran balls that represent the probability of those phi, psi angles for that residue_
+  - To undisplay the distance, press "C".
+
+   - Click on **Models**,
+   - then click on the **Rama Balls** button for this protein model.
+
+_Moorhen displays Ramachandran balls that uses colour to represent the probability of those phi, psi angles for that residue_
 
 Residue A180 has a red ball and just upstream at A178 the LYS has a orange ball. Maybe both of these can be improved.
 
-Notice that there is a green blob close to the N of A180. Maybe it would be better that were fitted by the carbonyl of the peptide. Let's try that:
+Notice that there is a green blob close to the N of A180. Maybe it would be better if that blob were fitted by the carbonyl of the peptide. So let's try that:
 
 ## Flipping a Peptide
 
- - Along the bottom there is a tool drawer than can be expanded - do so.
+ - Click middle-mouse the N atom of residue A 180
+ - Click right-mouse on an atom in the peptide (O atom of 179)
 
-_Moorhen displays a toolbar with icons for modelling (with which you may already be familiar if you have used Coot)_
+_Moorhen displays a grid with icons for modelling (with which you may already be familiar if you have used Coot)_
 
 As you move the mouse over the icons in the toolbar, you will see a tooltip for that icon.
 
   - To flip the peptide you want to use the "Flip Peptide" button. Click it.
 
-_A red box appears around the icon to let you know that "Flip Peptide" is the active tool_
-
-  - Now click on the peptide of A179. Use the Atom Navigator (top right) to find it.
-  
-  
-  (Moorhen uses transparent golden balls to let you know which will be the picked atom or residue when you left-click to pick it.)
 
 _Moorhen flips the Peptide and the Ramachandran ball for that residues turns green_
 
-Yay. Progress. Let's see if we can do the same for residue A178.
+Yay. Progress. Let's see if we can do the same for peptide bond bettwen A177 and A178.
 
--  Click on the "Flip Peptide" button again and click on the carbonyl oxygen atom of A177.
+- Click right-mouse over a peptide and then
+- Click on the "Flip Peptide" button again and click on the carbonyl oxygen atom of A177.
 
 _Moorhen flips the peptide and the Ramachandran ball for 177 turrns green_
 
 More progress. Good stuff.
 
-  - Look at the Ramachandran Plot in the draw. Notice that the red spots for the problematic residues have disappeared.
+  - Look at the Ramachandran Plot again. Notice that the red spots for the problematic residues have disappeared.
 
 **Navigation tip**: Use the middle mouse button click over an atom to put the centre of the residue at the centre of the screen. Use Alt left mouse to put the clicked atom at the centre of the screen.
 
 ## Real Space Refinement
 
-  - Click on the "Refine Residues" button and choose "Sphere" in the option menu. Click on an atom in residue A178.
+  - Right click on an atom in residue A179
+  - Click on the "Refine Residues" button (the icon is a target).
 
-_Moorhen refines the sphere of residues_
+_Moorhen refines residues along the chain_
 
-Now the local backbone fits quite nicely into the blue map.
+Now the local backbone fits quite nicely into the blue map (but the Rama balls may not be completely green).
 
 ## Connect the Maps: Updating Maps
 
-Wouldn't it be nice though, if the difference map updated, so that if you add atoms to green blobs or removed them from red blobs then those blobs would disappear?
+Wouldn't it be nice though, if the difference map updated when you add atoms to green blobs or removed them from red blobs. A good correction of the model would then make those blobs disappear.
 
 Let's try that:
 
@@ -166,7 +166,7 @@ _Moorhen will display a "toast" top left informing you of the current R-factor a
 
 ## Difference Map Peaks
 
-In the drawer, the currently active tool in the Validation option menu is the **Ramachandran Plot**
+In the **Validation** dialog, the active tool in the Validation option menu is the **Ramachandran Plot**
 
  - Let's change that to **Difference Map Peaks**.
 

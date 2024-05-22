@@ -1,6 +1,14 @@
 
 ----
 
+Coot: 1: add a button for "difference map" in map reading dialog.
+
+Coot: 2: merge Jakub pull request
+
+Coot: 3: fix the build to make coot-bin again but MacCoot on macOS.
+
+libcootapi: try the other slurped map filling algorithm.
+
 Coot libs: "thread fill sections" - is debugging I think - get rid of it. But try the
    new method first.
 
@@ -18,6 +26,8 @@ Coot: look at the 2b0m flavin ligand interactions - diego where it looks like a 
 
 Coot: "Close" button doesn't work in Restraints editor.
 
+Coot: NCS jumping doesn't work. Test with 4ole - Andrey
+
 Coot: do_edit_replace_residue() get rid of the python/scripting
 * Done.
 
@@ -31,6 +41,10 @@ Coot: no coot prefix in map saved in status file coot.handle_read_ccp4_map
 Coot: we have meshed_generic_display_object::add_point(). We want meshed_generic_display_object::add_points()
   Say for example the bendy helices project - many points means coot is slow to start up.
 * Done.
+
+libcootapi: Molecule2Triangles: the bases are inside-out relative to the ribbon.
+
+moorhen: 8hcl F chain negative numbers for residue range doesn't work it seems?
 
 Coot: What do I need to do for each of FLEV, CFC and QED? Do it soon.
 

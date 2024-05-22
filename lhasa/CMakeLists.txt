@@ -9,9 +9,11 @@ endif()
 
 # -Wno-unused-command-line-argument 
 
-# Causes linker errors for Emscripten > 3.1.48. https://github.com/emscripten-core/emscripten/issues/20949
-set(CMAKE_CXX_FLAGS "-Wall --embind-emit-tsd lhasa.d.ts -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
-# set(CMAKE_CXX_FLAGS "-Wall -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
+if(MEMORY64 EQUAL "1")
+  set(CMAKE_CXX_FLAGS "-Wall -sMEMORY64=1 --embind-emit-tsd lhasa.d.ts -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
+else()
+  set(CMAKE_CXX_FLAGS "-Wall --embind-emit-tsd lhasa.d.ts -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
+endif()
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 set(CMAKE_CXX_STANDARD 17)
@@ -30,6 +32,10 @@ set(ENV{PKG_CONFIG_LIBDIR} ${CMAKE_INSTALL_PREFIX}/lib/)
 
 if("${EMSCRIPTEN_VERSION}" VERSION_GREATER 3.1.26)
   add_link_options(-sDEFAULT_PTHREAD_STACK_SIZE=2MB -sSTACK_SIZE=5MB)
+endif()
+
+if(MEMORY64 EQUAL "1")
+  add_link_options(-sMEMORY64=1)
 endif()
 
 add_link_options(-lembind -fwasm-exceptions)
