@@ -1,6 +1,23 @@
 
 ----
 
+Coot libs: "thread fill sections" - is debugging I think - get rid of it. But try the
+   new method first.
+
+Coot: what did Oleg say about AlphaFold3 PAE?
+
+Coot Bug: turn on rotamer restraints, turn on torsion restraints - has the trans restraints been removed?
+   (noticed in refinement branch)
+
+Coot: add something so that I can look down the axes - particularly z.
+
+Coot: add a means to say that P1 maps can have symmetry:
+   https://github.com/pemsley/coot/issues/67
+
+Coot: look at the 2b0m flavin ligand interactions - diego where it looks like a hydrogen bond.
+
+Coot: "Close" button doesn't work in Restraints editor.
+
 Coot: do_edit_replace_residue() get rid of the python/scripting
 * Done.
 
@@ -15,9 +32,8 @@ Coot: we have meshed_generic_display_object::add_point(). We want meshed_generic
   Say for example the bendy helices project - many points means coot is slow to start up.
 * Done.
 
-libcootapi: rdkit mol needs to be a shared pointer.
-
 Coot: What do I need to do for each of FLEV, CFC and QED? Do it soon.
+
    QED:  make the RDKit mol a shared pointer.
          Jakub to do the rest. I will edit the ui to provide progress bars.
    FLEV: Does this need to be in Layla? I think not, in fact. Goocanvas stuff will
@@ -26,7 +42,9 @@ Coot: What do I need to do for each of FLEV, CFC and QED? Do it soon.
    CFC:  Needs a C++ clustering algorithm. Before I used Gaussian mixture model - maybe that will do.
          Needs to be available in Moorhen.
 
-libcootapi: add BOND-BY-DISTANCE to the api. maybe libcootapi function: is everything here bonded correctly?
+libcootapi: disconnect updating maps.
+
+libcootapi: Use BOND-BY-DISTANCE when bond-by-dictionary-and-chain fails.
 
 libcootapi add_colour_rule(): needs to parse #aabbccaa as a colour
 * Done.
@@ -34,35 +52,26 @@ libcootapi add_colour_rule(): needs to parse #aabbccaa as a colour
 libcootapi: header info? a map/dictionary of info? Title at least.
 * Done.
 
-Coot Bug: turn on rotamer restraints, turn on torsion restraints - has the trans restraints been removed?
-
-Coot: add something so that I can look down the axes - particularly z.
-
-Coot: I want a slider to scrub through the map molecules in positron interface.
-      It would be good if this scubbed the fitted models too (models need to be fitted firsst - haha)
-
 Coot: Pull in Bernhard's Rama plots
 * Done.
 
 "I didn't merge the SO4" - more than once in the tutorial - delete it after you've jiggle fitted it.
 * Done.
 
-Don't allow FLEV if the protein doesn't have hydrogen atoms.
+Coot: I want a slider to scrub through the map molecules in positron interface.
+      It would be good if this scubbed the fitted models too (models need to be fitted firsst - haha)
 
-Moorhen: Add search monomer library.
+Don't allow FLEV if the protein doesn't have hydrogen atoms. Provide a button to do it.
 
 libcootapi: import glTF (from Mol*, say!)
 
 ligand fitting tutorial - turn around the tail of the fish so that it is the wrong way
-adn look for environment distances - the O-O interaction should not be purple!
+and look at the environment distances - the O-O interaction should not be purple!
 
 Coot: generic objects are not drawn with depth fog
 
 Coot: update molecule when input model file have updates?
    set_update_model_when_file_updates() - only for unmodified models of course.
-
-libcootapi: search monomer library names - needs to pull the mon_lib_list.cif - or the new version of this
-   non-proirity.
 
 mmdb: atom selection with alt conformer - write a test and fix mmdb.
 
@@ -90,9 +99,6 @@ Coot: for sound, look at tw/cootsound.c
 Coot: on the command line, coot --dict thing.cif should give a molecule, not just read in the cif
       if there are no coordinates arguments.
 
-Coot: add a means to say that P1 maps can have symmetry:
-   https://github.com/pemsley/coot/issues/67
-
 Layla: Garib: I want the ability to change charge and bond orders.
     Also: See this: http://rdkit.blogspot.com/2019/11/introducing-new-rdkit-javascript.html
     which points to this: https://rdkit.org/rdkitjs/beta/demo.html
@@ -110,35 +116,31 @@ libcootapi: in protein_geometry add a function something like
    so that dictionaries assigned to a particular molecule can be used by other molecules (e.g. in dragged refinement).
    The molecules_container api will be duplicate_dictionary_for_other_molecule(comp_id, imol_current, imol_other)
 
-libcootapi: when generating conformers, throw away the conformers that hamve many nbs (dont do minimization)
+libcootapi: when generating conformers, throw away the conformers that have many nbcs (don't do minimization)
 
 libcootapi: move secondary structure header info int SSEs of residue (does this function exist already?)
 
-libcootapi: remove the sphere test when generating map contours.
+libcootapi: remove the sphere test when generating map contours
+ - Why?
+ - Would it be faster to trim them afterwards?
 
 libcootapi: remove static things in the molecules_container
 
 libcootapi: make auto-fit-rotamer work without a map (if it doesn't already)
 
-libcootapi: hydrogen bonds to a residue?
+libcootapi: hydrogen bonds and other interactions to a residue?
 
 Coot: Save Coords is not working again.
 * It works OK, on mac, so I think that it's a GTK4 bug.
 
-Coot: "Close" button doesn't work in Restraints editor.
-
-Coot: look at the 2b0m flavin ligand interactions - diego where it looks like a hydrogen bond.
-
-Coot: what does electrostactics give us now?
+Coot: what does electrostatics give us now?
 
 For next week: local resolution display in Moorhen
-
-"thread fill sections" - is debugging I think - get rid of it.
 
 libcootapi: set_user_defined_atom_colour_by_selection() should not be given a vector of pairs,
   it should be a vector of triples (trivial class) { selection_string, colour_index, Cs-only-flag }
 
-libcootapi: what happens when the ligands dont't match?
+libcootapi: what happens when the ligands don't match?
 
 libcootapi: put gesamt into the build (build-it-3-3)
 
@@ -172,8 +174,6 @@ libcootapi: make minimize_energy() return a mesh, like std::pair<int, coot::inst
 libcootapi: nice to have position restraints for ligand+env minimization
 
 libcootapi: are backups being made by refine()?. If so, turn them off - maybe backup at start?
-
-libcootapi: pull bernhards repo for new ramas
 
 libcootapi: before Newcastle: torsion match ligand and ligand graph-based superposition
  * Done - but needs more work
@@ -211,7 +211,7 @@ Add test data test-molecules-container 6gdg.cif emd_32143.map ATP.cif G37.cif 1p
    moorhen-tutorial-structure-number-1-with-gap.pdb 203d.pdb.gz weird-orientation-tut-4.pdb
 * Done.
 
-Install the ui files from a relative directory, not relative to phackage_data_dir()
+Install the ui files from a relative directory, not relative to package_data_dir()
 Likewise the standard residues.
 # no need. Just setenv COOT_DATA_DIR
 
