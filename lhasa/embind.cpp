@@ -129,7 +129,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .constructor<>();
   class_<RemoveHydrogensTool>("RemoveHydrogensTool")
     .constructor<>();
-  enum_<ElementInsertion::Element>("Element")
+  // I had to rename it to "LhasaElement" due to name clash in Moorhen
+  enum_<ElementInsertion::Element>("LhasaElement")
     .value("C", ElementInsertion::Element::C)
     .value("N", ElementInsertion::Element::N)
     .value("O", ElementInsertion::Element::O)
