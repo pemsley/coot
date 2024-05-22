@@ -91,7 +91,7 @@ public:
       }
    }
    FCXXCoord normal() const {
-         return FCXXCoord(abcd[0], abcd[1], abcd[2]);
+         return FCXXCoord(-abcd[0], -abcd[1], -abcd[2]);
    }
 };
 
