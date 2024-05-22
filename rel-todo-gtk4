@@ -73,7 +73,7 @@ Coot: Pull in Bernhard's Rama plots
 * Done.
 
 Coot: I want a slider to scrub through the map molecules in positron interface.
-      It would be good if this scubbed the fitted models too (models need to be fitted firsst - haha)
+      It would be good if this scrubbed the fitted models too (models need to be fitted first - haha)
 
 Don't allow FLEV if the protein doesn't have hydrogen atoms. Provide a button to do it.
 
@@ -246,9 +246,9 @@ validate that the seqres record match the residue type. (Editing the seqres is a
 chapi: test refine_residues_using_atom_cid() with "sphere" - for Paul Bond, this causes a crash.
 * Can't reproduce in test-molecules-container.cc
 
-libcootapi: can I make a nanobinding that returns a minmol residue, and another for atom?
+libcootapi: can I make a nanobinding that returns a minimol residue, and another for atom?
 
-libcootapi: turn_off_backups(imol). This needs some infrastucture work. Add something like
+libcootapi: turn_off_backups(imol). This needs some infrastructure work. Add something like
    really_do_make_backups_flag to coot::molecule_t - and that is set by the above function call.
 
 libcootapi: bus error on change_chain_id - reported by Filo, I think. Is on Moorhen Project board?
@@ -296,10 +296,10 @@ libcootapi: add a function to copy a map (and a model molecule I guess) for figu
 libcootapi: replace_molecule_by_model_from_file() should be passed the use_gemmi argument.
             and remove use_gemmi from the coot_molecule class.
 
-libcootapi: See Filo pull request and write a c++ test-molecules-container test for gltf.
+libcootapi: See Filo pull request and write a c++ test-molecules-container test for glTF.
 * Done.
 
-moorhen: SMILES: nitrobezene svg ligand rep - charge position size offset of the + and - neeeds
+moorhen: SMILES: nitrobezene svg ligand rep - charge position size offset of the + and - needs
   to be fixed.
 
 libcootapi:
@@ -349,7 +349,7 @@ libcootapi:
 moorhen: reading a map often the default (first) contour level is too low.
 e.g. the map of 8ox5. Lucrezia to investigate?
 
-moorhen SMILES: nitrobezene svg ligand rep - charge position size offset of the + and - neeeds
+moorhen SMILES: nitrobezene svg ligand rep - charge position size offset of the + and - needs
   to be fixed.
 
 libcootapi:
