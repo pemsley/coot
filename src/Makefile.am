@@ -314,8 +314,13 @@ if OS_WIN32
 # no more libexec for windows
 bin_PROGRAMS     = Coot coot-density-score-by-residue-bin
 else
+if OS_DARWIN
+libexec_PROGRAMS = MacCoot coot-density-score-by-residue-bin
+bin_PROGRAMS = 
+else
 libexec_PROGRAMS = Coot coot-density-score-by-residue-bin
 bin_PROGRAMS = 
+endif
 endif
 
 dist_bin_SCRIPTS = coot coot-density-score-by-residue
@@ -325,7 +330,8 @@ check_PROGRAMS = test-coot-align test-cholesky
 #	fix-nomenclature.cc    \
 #	coot-nomenclature.cc
 
-Coot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
+if OS_DARWIN
+MacCoot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
         glade-callbacks-preferences.cc glade-callbacks-shader-settings.cc \
         new-startup.cc \
         setup-gui-components.cc \
@@ -333,8 +339,29 @@ Coot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
 	create-menu-item-actions.cc \
 	create-menu-item-actions.hh
 
+else
+Coot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
+        glade-callbacks-preferences.cc glade-callbacks-shader-settings.cc \
+        new-startup.cc \
+        setup-gui-components.cc \
+        setup-gui-components.hh \
+	create-menu-item-actions.cc \
+	create-menu-item-actions.hh
+endif
+
 # is it a good idea to move functions from coot-bin dependencies into libcootsumo?
 # e.g. atoms_with_zero_occupancy()?
+if OS_DARWIN
+MacCoot_LDADD =  \
+	libcootsumo.la                                     \
+	$(top_builddir)/layla/libcoot-layla.la             \
+	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+	$(top_builddir)/geometry/libcoot-geometry.la       \
+	$(top_builddir)/utils/libcoot-utils.la             \
+	$(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS) $(EPOXY_LIBS) $(EMBEDDED_PYTHON_LIBS)
+else
 Coot_LDADD =  \
 	libcootsumo.la                                     \
 	$(top_builddir)/layla/libcoot-layla.la             \
@@ -344,6 +371,7 @@ Coot_LDADD =  \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/utils/libcoot-utils.la             \
 	$(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS) $(EPOXY_LIBS) $(EMBEDDED_PYTHON_LIBS)
+endif
 
 
 lib_LTLIBRARIES=libcootsumo.la
@@ -811,7 +839,11 @@ endif
 
 # coot_bin_LDFLAGS = -static -lstdc++
 #
+if OS_DARWIN
+MacCoot_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
+else
 Coot_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
+endif
 
 # coot_bin_CXXFLAGS=-Wl,--export-dynamic -dynamiclib
 #  -Wl,-undefined -Wl,dynamic_lookup

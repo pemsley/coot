@@ -64,17 +64,20 @@ python_major=$(python3 -c 'import sys ; parts = sys.version.split(".") ; major =
 python_minor=$(python3 -c 'import sys ; parts = sys.version.split(".") ; major = parts[0]; minor = parts[1] ; print("{}".format(minor))')
 python_major_minor=$(python3 -c 'import sys ; parts = sys.version.split(".") ; major = parts[0]; minor = parts[1] ; print("{}{}".format(major, minor))')
 
-# we need this for movable/slim directory usage
-if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then
-   # BL says:: is there some better cleverness possible?!
-   # I could use (if we have new bash)
-   # if [[ $systype == MINGW* ]] ; then
-   coot_bin=$COOT_PREFIX/bin/Coot
-   PYTHONHOME=$COOT_PREFIX/python$python_major_minor
-   PATH=$PATH:$PYTHONHOME
-else
+# this may need some tweaking
+#
+if [ "$systype" = "MINGW32_NT" ] ; then
    coot_bin=$COOT_PREFIX/libexec/Coot
    PYTHONHOME=$COOT_PREFIX
+   PATH=$PATH:$PYTHONHOME
+else
+   if [ "$systype" = Darwin ] ; then
+      coot_bin=$COOT_PREFIX/libexec/MacCoot
+      PYTHONHOME=$COOT_PREFIX/python$python_major_minor
+   else
+      coot_bin=$COOT_PREFIX/libexec/Coot
+      PYTHONHOME=$COOT_PREFIX/python$python_major_minor
+   fi
 fi
 
 

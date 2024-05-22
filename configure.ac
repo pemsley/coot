@@ -106,6 +106,8 @@ dnl So, let's check GLIB here, should be harmless.
 dnl
 PKG_CHECK_MODULES([GLIB], [glib-2.0])
 
+uname_s=$(uname -s)
+AM_CONDITIONAL([OS_DARWIN], [test x$uname_s = xDarwin ])
 
 dnl test for WINDOWS_MINGW
 AM_MINGW_WINDOWS
