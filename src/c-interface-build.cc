@@ -6218,3 +6218,16 @@ void to_generic_object_add_mesh(int object_number, PyObject *mesh_py) {
       }
    }
 }
+
+
+void generic_object_mesh_calculate_normals(int object_number) {
+
+   graphics_info_t g;
+   unsigned int object_number_u(object_number);
+   if (object_number >= 0) {
+      if (object_number_u < g.generic_display_objects.size()) {
+         g.generic_display_objects[object_number].mesh.calculate_normals();
+      }
+   }
+
+}

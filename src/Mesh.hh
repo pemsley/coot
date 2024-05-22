@@ -453,6 +453,7 @@ public:
    void apply_scale(float scale_factor);  // scale the positions in the vertices
    void apply_transformation(const glm::mat4 &m);  // transform the positions in the vertices
    void invert_normals(); // flip normals
+   void calculate_normals(); // and set the GL buffers
    std::vector<std::pair<int, map_triangle_t> >  map_triangle_centres;
    glm::vec3 previous_eye_position; // for testing if we need to sort the triangles
    void sort_map_triangles(const glm::vec3 &eye_position);

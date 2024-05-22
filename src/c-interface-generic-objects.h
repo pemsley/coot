@@ -166,6 +166,8 @@ void to_generic_object_add_pentakis_dodecahedron(int object_number,
 void to_generic_object_add_mesh(int object_number, PyObject *mesh_py);
 #endif
 
+void generic_object_mesh_calculate_normals(int object_number);
+
 /*! \brief add a display list handle generic object */
 void to_generic_object_add_display_list_handle(int object_number, int display_list_id); 
 
