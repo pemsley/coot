@@ -945,7 +945,7 @@ std::shared_ptr<SolidColorRule> SolidColorRule::colorRuleForSelectionAndName(std
         FCXXCoord color = knownColors[_name];
         return colorRuleForSelectionAndColor(sel, color);
     } else {
-        if (_name.length() == 7) {
+        if (_name.length() == 7 || _name.length() == 9) {
             if (_name[0] == '#') {
                 FCXXCoord col = SolidColorRule::colorHexToColor(_name);
                 return colorRuleForSelectionAndColor(sel, col);
@@ -993,8 +993,21 @@ FCXXCoord SolidColorRule::colorHexToColor(const std::string &_name) {
                 ss >> icol;
                 result[i] = static_cast<float> (icol)/255.0;
             }
+            result[3] = 1.0;
         }
     }
+    else if (_name.length() == 9) {
+        if (_name[0] == '#') {
+            for (std::size_t i=0; i<4; i++) {
+                std::stringstream ss;
+                int icol;
+                ss << std::hex << _name.substr(i*2+1,2);
+                ss >> icol;
+                result[i] = static_cast<float> (icol)/255.0;
+            }
+        }
+    }
+    //std::cout << "Colour " << result[0] << ' ' << result[1] << ' ' << result[2] << ' ' << result[3] << '\n';
     return result;
 }
 

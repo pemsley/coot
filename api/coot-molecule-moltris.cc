@@ -261,10 +261,10 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
                   gv.normal[i] = vcn.normal[i];
                   gv.color[i]  = 0.0037f * vcn.color[i];
                }
+               gv.color[3] = 0.0037f * vcn.color[3];
                if ((gv.color[0] + gv.color[1] + gv.color[2]) > 10.0) {
                   gv.color *= 0.00392; // /255
                }
-               gv.color[3] = 1.0;
             }
 
             auto indexArray = surface.getIndexArray();
