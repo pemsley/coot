@@ -6203,11 +6203,12 @@ void to_generic_object_add_mesh(int object_number, PyObject *mesh_py) {
             }
          }
 
-         std::cout << "Debug:: to_generoric_object_add_mesh() found "
+         std::cout << "Debug:: to_generic_object_add_mesh() found "
                    << vertices.size() << " vertices and " << triangles.size() << " triangles\n";
          if (! vertices.empty()) {
             if (! triangles.empty()) {
                Mesh m(vertices, triangles);
+               m.set_material_specularity(1,64);
                m.setup_buffers();
                meshed_generic_display_object o(m);
                graphics_info_t g;
