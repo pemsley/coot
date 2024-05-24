@@ -157,9 +157,11 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
    // If use weights, use both strings, else just use the first
    std::pair<std::string, std::string> datanames = make_import_datanames(f_col, phi_col, weight_col, use_weights);
 
-   std::cout << ":::::::::::::::::::::: datanames:" << std::endl;
-   std::cout << "                      " << datanames.first << std::endl;
-   std::cout << "                      " << datanames.second << std::endl;
+   if (false) {
+      std::cout << ":::::::::::::::::::::: datanames:" << std::endl;
+      std::cout << "                      " << datanames.first << std::endl;
+      std::cout << "                      " << datanames.second << std::endl;
+   }
 
    if (use_weights) {
       std::string dataname = datanames.first;

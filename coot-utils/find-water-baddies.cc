@@ -114,6 +114,9 @@ coot::find_water_baddies_OR(atom_selection_container_t atom_sel,
 
                            if (! at->isTer()) {
 
+                              if (false)
+                                 std::cout << "found water atom " << coot::atom_spec_t(at) << std::endl;
+
                               // density check:
                               if (map_in_sigma > 0.0) { // it *should* be!
                                  clipper::Coord_orth a(at->x, at->y, at->z);
@@ -145,9 +148,8 @@ coot::find_water_baddies_OR(atom_selection_container_t atom_sel,
                                  // (ignoring things means less marked atoms)
                                  if (ignore_part_occ_contact_flag == 0) {
 
-                                    // we do want mark tha  atom as a baddie if ignore-Zero-Occ is off (0)
-                                    //
-                                    if (ignore_zero_occ_flag == false || at->occupancy < 0.01) {
+                                    if (ignore_zero_occ_flag == false || at->occupancy > 0.01) {
+
                                        double dist_to_atoms_min = 99999;
                                        double dc_sqrd = dist_to_atoms_min * dist_to_atoms_min;
                                        double d_sqrd_min = 999999999;
@@ -202,6 +204,8 @@ coot::find_water_baddies_OR(atom_selection_container_t atom_sel,
          }
       }
    }
+
+   std::cout << "marked_for_display size() " << marked_for_display.size() << std::endl;
 
    for (unsigned int i=0; i<marked_for_display.size(); i++) {
       std::string s = "B fac: ";
