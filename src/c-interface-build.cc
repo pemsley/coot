@@ -6191,9 +6191,10 @@ void to_generic_object_add_mesh(int object_number, PyObject *mesh_py) {
                   int t0 = PyLong_AsLong(PyList_GetItem(tri, 0));
                   int t1 = PyLong_AsLong(PyList_GetItem(tri, 1));
                   int t2 = PyLong_AsLong(PyList_GetItem(tri, 2));
-                  if (t0 < vertices.size()) {
-                     if (t1 < vertices.size()) {
-                        if (t2 < vertices.size()) {
+                  int vertices_size = vertices.size();
+                  if (t0 < vertices_size) {
+                     if (t1 < vertices_size) {
+                        if (t2 < vertices_size) {
                            g_triangle t(t0, t1, t2);
                            triangles.push_back(t);
                         }
