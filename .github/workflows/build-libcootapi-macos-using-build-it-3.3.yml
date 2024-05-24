@@ -7,7 +7,8 @@ jobs:
 
   build-libcootapi-for-macos-build-it-3-3-based:
 
-    runs-on: macos-latest
+    # runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
 
