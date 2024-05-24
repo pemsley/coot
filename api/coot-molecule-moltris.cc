@@ -46,17 +46,7 @@
 void
 coot::molecule_t::add_colour_rule(const std::string &selection, const std::string &colour_name) {
 
-   bool replaced = false;
-
-   for (unsigned int i=0; i<colour_rules.size(); i++) {
-      const std::string &rule_selection = colour_rules[i].first;
-      if (selection == rule_selection) {
-         colour_rules[i].second = colour_name;
-         replaced = true;
-      }
-   }
-   if (! replaced)
-      colour_rules.push_back(std::make_pair(selection, colour_name));
+   colour_rules.push_back(std::make_pair(selection, colour_name));
 }
 
 
