@@ -334,6 +334,53 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
 
    // 20240421-PE this crashes with tomogram emd_43330
 
+   auto fill_map_sections_by_grid = [data_size] (std::pair<unsigned int, unsigned int> start_stop_section_index,
+                                clipper::Xmap<float> *xmap,
+                                int n_secs, int n_rows, int n_cols,
+                                int nx_start, int ny_start, int nz_start,
+                                int *axis_order_xyz,
+                                const char *map_data,
+                                std::atomic<bool> &print_lock) {
+
+      // 20240421-PE Note to self: how about trying to get something like this to work? (c.f. mini-texture.cc)
+
+      unsigned int section_start = start_stop_section_index.first;
+      unsigned int section_stop  = start_stop_section_index.second;
+      clipper::Grid_sampling gs = xmap->grid_sampling();
+      clipper::Coord_grid cg_0(0,0, section_start);
+      clipper::Coord_grid cg_1(gs.nu()-1, gs.nv()-1, section_stop-1);
+      clipper::Grid_map grid(cg_0, cg_1);
+      clipper::Xmap_base::Map_reference_coord ix(*xmap, grid.min()), iu, iv, iw;
+      unsigned int offset = section_start * n_rows * n_cols;
+      unsigned int c_u = 0;
+      for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+         unsigned int c_v = 0;
+         for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+            unsigned int c_w = 0;
+            for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+               unsigned int grid_offset = c_u * gs.nu() * gs.nv() + c_v * gs.nv() + c_w;
+               const float f = *reinterpret_cast<const float *>(map_data + 4 * offset + 4 * grid_offset);
+
+               if (true) { // debugging
+                  bool unlocked = false;
+                  while (! print_lock.compare_exchange_weak(unlocked, true)) {
+                     std::this_thread::sleep_for(std::chrono::microseconds(1));
+                     unlocked = false;
+                  }
+                  std::cout << " " << iw.coord().format() << " " << f << std::endl;
+                  print_lock = false;
+               }
+
+               (*xmap)[iw] = f;
+               c_w++;
+            }
+            c_v++;
+         }
+         c_u++;
+      }
+   };
+
+
    auto fill_map_sections = [data_size] (std::pair<unsigned int, unsigned int> start_stop_section_index,
                                 clipper::Xmap<float> *xmap,
                                 int n_secs, int n_rows, int n_cols,
@@ -342,14 +389,6 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
                                 const char *map_data,
                                 std::atomic<bool> &print_lock) {
 
-
-      // 20240421-PE Note to self: how about trying to get something like this to work? (c.f. mini-texture.cc)
-      //    clipper::Coord_grid cg_0(0,0, section_start);
-      //    clipper::Coord_grid cg_1(gs.nu()-1, gs.nv()-1, section_stop-1);
-      //    for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
-      //       for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
-      //          for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
-      //             xmap[iw] = f;
 
                                int offset = start_stop_section_index.first * n_rows * n_cols;
                                int crs[3];  // col,row,sec coordinate
@@ -442,7 +481,8 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
          for (auto air : airs) {
             if (debug)
                std::cout << "DEBUG:: thread fill sections " << air.first << " to " << air.second << std::endl;
-            threads.push_back(std::thread(fill_map_sections, air, &xmap, n_secs, n_rows, n_cols, nx_start, ny_start, nz_start,
+            threads.push_back(std::thread(fill_map_sections, air, &xmap, n_secs, n_rows, n_cols,
+                                          nx_start, ny_start, nz_start,
                                           axis_order_xyz, map_data, std::ref(print_lock)));
          }
          for (std::size_t i=0; i<airs.size(); i++)
