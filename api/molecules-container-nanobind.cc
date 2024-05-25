@@ -335,6 +335,7 @@ NB_MODULE(chapi, m) {
     .def("rail_points_total",&molecules_container_t::rail_points_total)
     .def("ramachandran_analysis",&molecules_container_t::ramachandran_analysis)
     .def("ramachandran_validation",&molecules_container_t::ramachandran_validation)
+    .def("read_coordinates",&molecules_container_t::read_coordinates)
     .def("read_ccp4_map",&molecules_container_t::read_ccp4_map)
     .def("read_mtz",&molecules_container_t::read_mtz)
     .def("read_pdb",&molecules_container_t::read_pdb)
