@@ -3570,7 +3570,7 @@ coot::molecule_t::get_gaussian_surface(float sigma, float contour_level,
                                        float box_radius, float grid_scale, float b_factor) const {
 
    auto colour_holder_to_glm = [] (const coot::colour_holder &ch) {
-      return glm::vec4(ch.red, ch.green, ch.blue, 1.0f);
+      return glm::vec4(ch.red, ch.green, ch.blue, ch.alpha);
    };
 
    coot::simple_mesh_t mesh;
@@ -3584,13 +3584,21 @@ coot::molecule_t::get_gaussian_surface(float sigma, float contour_level,
          const auto &chain_id = chain_ids[i_ch];
          coot::gaussian_surface_t gauss_surf(mol, chain_id, sigma, contour_level, box_radius, grid_scale, b_factor);
          coot::simple_mesh_t gs_mesh = gauss_surf.get_surface();
-         // if get_chain_ids() adds chain_ids in the same way as
-         // fill_default_colour_rules then this will work:
-         if (i_ch < colour_rules.size()) {
-            const std::string &colour = colour_rules[i_ch].second;
-            coot::colour_holder ch(colour); // this is a hex string.
-            glm::vec4 col = colour_holder_to_glm(ch);
-            gs_mesh.change_colour(col);
+
+         // do we have a colour rule to change the colour of that surface?
+         //
+         // This is hacky because in general colour rules are for selection (even down to the atom)
+         // but here we are interested only in colour rules that apply to just a chain
+         // So... I am looking only for colour rules that are for this chain
+         //
+         for (unsigned int icr=0; icr<colour_rules.size(); icr++) {
+            const std::string &colour_rule_cid = colour_rules[icr].first;
+            const std::string &colour          = colour_rules[icr].second;
+            if (std::string("//" + chain_id) == colour_rule_cid) {
+               coot::colour_holder ch(colour);
+               glm::vec4 col = colour_holder_to_glm(ch);
+               gs_mesh.change_colour(col);
+            }
          }
          mesh.add_submesh(gs_mesh);
       }

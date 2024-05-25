@@ -338,7 +338,6 @@ molecules_container_t::read_standard_residues() {
       std::string dir = coot::package_data_dir();
       std::string standard_file_name = coot::util::append_dir_file(dir, "standard-residues.pdb");
 
-      std::cout << "------------------ read_standard_residues() B " << standard_file_name << std::endl;
       struct stat buf;
       int status = stat(standard_file_name.c_str(), &buf);
       if (status != 0) { // standard-residues file was not found in
@@ -3868,10 +3867,6 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
 
    int n_waters_added = -1;
    int ligand_water_n_cycles = 3;
-   float ligand_water_to_protein_distance_lim_max = 3.4;
-   float ligand_water_to_protein_distance_lim_min = 2.4;
-   float ligand_water_variance_limit = 0.1;
-   float sigma_cut_off = 1.75; // max moorhen points for tutorial 1.
 
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map)) {
@@ -3894,9 +3889,9 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
          lig.set_variance_limit(ligand_water_variance_limit);
          lig.mask_map(molecules[imol_model].atom_sel.mol, mask_waters_flag);
          // lig.output_map("masked-for-waters.map");
-         std::cout << "debug:: add_waters(): using n-sigma cut off " << sigma_cut_off << std::endl;
+         std::cout << "debug:: add_waters(): using n-sigma cut off " << ligand_water_sigma_cut_off << std::endl;
 
-         lig.water_fit(sigma_cut_off, n_cycles);
+         lig.water_fit(ligand_water_sigma_cut_off, n_cycles);
 
          coot::minimol::molecule water_mol = lig.water_mol();
          molecules[imol_model].insert_waters_into_molecule(water_mol);
@@ -5112,6 +5107,8 @@ molecules_container_t::find_water_baddies(int imol_model, int imol_map,
                                          min_dist, max_dist,
                                          ignore_part_occ_contact_flag,
                                          ignore_zero_occ_flag);
+
+         std::cout << "........... find_water_baddies_OR() returned " << v.size() << " water baddies " << std::endl;
       } else {
          std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_model << std::endl;
       }

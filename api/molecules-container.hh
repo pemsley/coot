@@ -291,6 +291,12 @@ class molecules_container_t {
    int valid_labels(const std::string &mtz_file_name, const std::string &f_col, const std::string &phi_col,
                     const std::string &weight_col, int use_weights) const;
 
+   // water fitting
+   float ligand_water_to_protein_distance_lim_max;
+   float ligand_water_to_protein_distance_lim_min;
+   float ligand_water_variance_limit;
+   float ligand_water_sigma_cut_off;
+
    // --------------------- init --------------------------
 
    void init() {
@@ -325,6 +331,11 @@ class molecules_container_t {
       torsion_restraints_weight = 1.0;
 
       map_is_contoured_using_thread_pool_flag = false;
+
+      ligand_water_to_protein_distance_lim_max = 3.4;
+      ligand_water_to_protein_distance_lim_min = 2.4;
+      ligand_water_variance_limit = 0.1;
+      ligand_water_sigma_cut_off = 1.75; // max moorhen points for tutorial 1.
 
       // debug();
    }
@@ -1126,6 +1137,26 @@ public:
 
    //! buccaneer building, called by the above
    int add_terminal_residue_directly_using_bucca_ml_growing(int imol, const coot::residue_spec_t &spec);
+
+   //! parameter for `add_waters()` default  2.4
+   void set_add_waters_water_to_protein_distace_lim_min(float d) {
+      ligand_water_to_protein_distance_lim_min = d;
+   }
+
+   //! parameter for `add_waters()` default 3.4
+   void set_add_waters_water_to_protein_distace_lim_max(float d) {
+      ligand_water_to_protein_distance_lim_max = d;
+   }
+
+   //! parameter for `add_waters()` - default 0.1
+   void set_add_waters_variance_limit(float d) {
+      ligand_water_variance_limit = d;
+   }
+
+   //! parameter for `add_waters()` - default 1.75
+   void set_add_waters_sigma_cutoff(float d) {
+      ligand_water_sigma_cut_off = d;
+   }
 
    //! add waters, updating imol_model (of course)
    //! @return the number of waters added on a success, -1 on failure.

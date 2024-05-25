@@ -2792,7 +2792,9 @@ int test_gaussian_surface(molecules_container_t &mc) {
       float box_radius = 5.0;
       float grid_scale = 0.7;
       float b_factor = 20.0;
+      mc.add_colour_rule(imol, "//A", "#66666666");
       coot::simple_mesh_t mesh = mc.get_gaussian_surface(imol, sigma, contour_level, box_radius, grid_scale, b_factor);
+      auto colours = colour_analysis(mesh);
       std::cout << "in test_gaussian_surface() " << mesh.vertices.size() << " " << mesh.triangles.size() << std::endl;
       if (mesh.vertices.size() > 0)
          if (mesh.triangles.size() > 0)
@@ -6032,7 +6034,8 @@ int main(int argc, char **argv) {
 #endif
          // status += run_test(test_lsq_superpose, "LSQ superpose", mc);
          // status += run_test(test_change_rotamer, "Change Rotamer (Filo)", mc);
-         status += run_test(test_alpha_in_colour_holder, "Alpha value in colour holder", mc);
+         // status += run_test(test_alpha_in_colour_holder, "Alpha value in colour holder", mc);
+         status += run_test(test_gaussian_surface, "Gaussian surface", mc);
 
          if (status == n_tests) all_tests_status = 0;
 
