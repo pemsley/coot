@@ -5037,7 +5037,7 @@ graphics_info_t::place_typed_atom_at_pointer(const std::string &type) {
    if (! is_valid_model_molecule(imol)) {
       // try to find one
       // imol = get_latest_model_molecule(); 20230519-PE
-      // 20230519-PE that's not good - let's try somethign else.
+      // 20230519-PE that's not good - let's try something else.
       imol = get_biggest_model_molecule();
    }
 
