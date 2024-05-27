@@ -117,7 +117,7 @@ jobs:
     - name: Does it run?
       env:
         COOT_REFMAC_LIB_DIR: /home/runner/work/coot/coot # "data/monomers" is added before "a/ATP.cif" (say)
-      run:  cd src && ./Coot --no-graphics < /dev/null && cd -
+      run:  cd src && ./coot --no-graphics < /dev/null && cd -
 
     - name: Run the Unit Python Tests
       env:
