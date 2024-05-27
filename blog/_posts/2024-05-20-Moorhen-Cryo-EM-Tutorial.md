@@ -120,6 +120,10 @@ A dialog will appear at the middle top
 
 ![Moorhen Selection Panel]({{"../../../images/moorhen-selection-panel.png"}})
 
+<p align='center'>
+   <img alt='' src='../../../images/moorhen-selection-panel.png' width=200/>
+</p>
+
   - Click on the "Refine" icon (top left)
   - Moorhen refines the nanobody
   - Accept the modification
