@@ -117,13 +117,13 @@ jobs:
     - name: Does it run?
       env:
         COOT_REFMAC_LIB_DIR: /home/runner/work/coot/coot # "data/monomers" is added before "a/ATP.cif" (say)
-      run:  cd src && ./coot --no-graphics < /dev/null && cd -
+      run:  cd src && ./coot-bin --no-graphics < /dev/null && cd -
 
     - name: Run the Unit Python Tests
       env:
         COOT_REFMAC_LIB_DIR: /home/runner/work/coot/coot
         COOT_TEST_DATA_DIR:  ../src/greg-data
-      run:  cd python-tests && ../src/coot --no-graphics --script run_the_unit_tests.py && cd -
+      run:  cd python-tests && ../src/coot-bin --no-graphics --script run_the_unit_tests.py && cd -
 
     - name: Upload binaries
       uses: actions/upload-artifact@v4
