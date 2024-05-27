@@ -127,6 +127,8 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type) {
 
    // This is the function that draws clash spike capped cylinders
 
+   // std::cout << "draw_generic_objects() " << pass_type << std::endl;
+
    if (! generic_display_objects.empty()) {
 
       glm::vec3 eye_position = get_world_space_eye_position();
@@ -137,6 +139,8 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type) {
       shader = shader_for_meshes_with_shadows;
 
       glDisable(GL_BLEND);
+      // consider
+      // glEnable(GL_BLEND);
 
       bool do_depth_fog = true;
       for (unsigned int i=0; i<generic_display_objects.size(); i++) {

@@ -503,7 +503,7 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
          g.attach_buffers();
          // generate average profile from positions
          int section_index = 62;
-         int n_pixels_per_half_edge = 8;
+         int n_pixels_per_half_edge = 6;
          profile_t av_profile = generate_average_profile(positions, xmap, section_index, n_pixels_per_half_edge);
          std::cout << "------------------ average profile ----- " << std::endl;
          print_profile(av_profile, false);
@@ -538,6 +538,140 @@ void tomo_map_analysis(int imol_map, PyObject *spot_positions) {
 
 }
 #endif
+
+
+void
+tomo_map_analysis_2(int imol_map, PyObject *spot_positions) {
+
+   auto column_scan = [] (const clipper::Coord_orth &co, unsigned int n_pixels_half_width,
+                          const clipper::Xmap<float> &xmap) {
+
+      clipper::Coord_frac cf = co.coord_frac(xmap.cell());
+      clipper::Coord_grid cg = cf.coord_grid(xmap.grid_sampling());
+      std::cout << "coord_orth " << co.format() << " coord_map " << cg.format() << std::endl;
+      unsigned int n_pixels_in_score_box      = (2 * n_pixels_half_width + 1) * (2 * n_pixels_half_width + 1);
+      unsigned int n_pixels_in_background_box = (4 * n_pixels_half_width + 1) * (4 * n_pixels_half_width + 1) - n_pixels_in_score_box;
+      std::map<int, unsigned int> n_pixels_bg_count;
+      int u_mid = cg.u();
+      int v_mid = cg.v();
+      int u_start = cg.u() - 2 * n_pixels_half_width;
+      int v_start = cg.v() - 2 * n_pixels_half_width;
+      int u_end   = cg.u() + 2 * n_pixels_half_width;
+      int v_end   = cg.v() + 2 * n_pixels_half_width;
+      clipper::Coord_grid cg_0(u_start, v_start, 0);
+      clipper::Coord_grid cg_1(u_end, v_end, xmap.grid_sampling().nw()-1);
+      clipper::Grid_map grid(cg_0, cg_1);
+      std::map<int, float> section_score_sum_f;
+      std::map<int, float> section_score_sum_ff;
+      std::map<int, float> section_background_sum_f;
+      std::map<int, float> section_background_sum_ff;
+      clipper::Xmap_base::Map_reference_coord ix(xmap, grid.min()), iu, iv, iw;
+      for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+         for (iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+            for (iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+               const float &f = xmap[iw];
+               int u = iw.coord().u();
+               int v = iw.coord().v();
+               int w = iw.coord().w();
+               // std::cout << "u " << u << " " << u_mid << " v " << v << " " << v_mid << std::endl;
+               if ((abs(u-u_mid) <= n_pixels_half_width) && abs(v-v_mid) <= n_pixels_half_width) {
+                  std::map<int, float>::const_iterator it = section_score_sum_f.find(w);
+                  if (it != section_score_sum_f.end()) {
+                     section_score_sum_f[w]  += f;
+                     section_score_sum_ff[w] += f*f;
+                  } else {
+                     section_score_sum_f[w]  = f;
+                     section_score_sum_ff[w] = f*f;
+                  }
+               } else {
+                  std::map<int, float>::const_iterator it = section_background_sum_f.find(w);
+                  if (it != section_background_sum_f.end()) {
+                     section_background_sum_f[w]  += f;
+                     section_background_sum_ff[w] += f*f;
+                     n_pixels_bg_count[w] += 1;
+                  } else {
+                     section_background_sum_f[w]  = f;
+                     section_background_sum_ff[w] = f*f;
+                     n_pixels_bg_count[w] = 1;
+                  }
+               }
+            }
+         }
+      }
+
+      float r = static_cast<float>(n_pixels_in_score_box)/static_cast<float>(n_pixels_in_background_box);
+      std::map<int, float>::const_iterator it;
+      for (it=section_score_sum_f.begin(); it != section_score_sum_f.end(); ++it) {
+         const int &section_index = it->first;
+         // std::cout << "n_pixels_bg_count for section_index " << section_index << " " << n_pixels_bg_count[section_index]
+         //          << " c.f. " << n_pixels_in_background_box << std::endl;
+         float background_score_raw = section_background_sum_f[section_index];
+         float scaled_background_score = background_score_raw * r;
+         float delta = it->second - scaled_background_score;
+         float mean_bg = background_score_raw/static_cast<float>(n_pixels_in_background_box);
+         float var = section_background_sum_ff[section_index]/static_cast<float>(n_pixels_in_background_box) - mean_bg * mean_bg;
+         float zz = delta*delta/var;
+         float z = std::sqrt(zz);
+         if (false)
+            std::cout << "section-score " << cg.u() << " " << cg.v() << " " << it->first << " " << it->second
+                     << " " << background_score_raw << " mean_bg " << mean_bg << " sum-ff: " << section_background_sum_ff[section_index]
+                     << " var " << var << std::endl;
+         if (true)
+            std::cout << "section-score " << cg.u() << " " << cg.v() << " " << it->first << " " << it->second
+                     << " " << background_score_raw << " scaled-bg " << scaled_background_score
+                     << " delta " << delta << " zz " << zz << " nz " << delta/z << std::endl;
+      }
+   };
+
+   // this block was copied from above
+   std::vector<clipper::Coord_orth> positions;
+   if (PyList_Check(spot_positions)) {
+      long l = PyObject_Length(spot_positions);
+      for (unsigned int i=0; i<l; i++) {
+         PyObject *item = PyList_GetItem(spot_positions, i);
+         if (PyDict_Check(item)) {
+            // std::cout << "found a dict " << item << std::endl;
+            PyObject *pos_item = PyDict_GetItemString(item, "position"); // a borrowed reference
+            if (PyList_Check(pos_item)) {
+               long lpi = PyObject_Length(pos_item);
+               if (lpi == 3) {
+                  double x = PyFloat_AsDouble(PyList_GetItem(pos_item, 0));
+                  double y = PyFloat_AsDouble(PyList_GetItem(pos_item, 1));
+                  double z = PyFloat_AsDouble(PyList_GetItem(pos_item, 2));
+                  clipper::Coord_orth p(x,y,z);
+                  positions.push_back(p);
+               }
+            }
+         }
+      }
+   }
+   // now positions is filled
+
+   graphics_info_t g;
+   std::vector<meshed_generic_display_object::point_info_t> piv;
+   unsigned int num_subdivisions = 2;
+   std::string col = "#30302044";
+   coot::colour_holder ch = coot::colour_holder_from_colour_name(col);
+   int wi = 8000;
+   int object_number = g.new_generic_object_number("Picked Points");
+   for (size_t i = 0; i < positions.size(); i++) {
+      meshed_generic_display_object::point_info_t pi(ch, positions[i], wi);
+      piv.push_back(pi);
+      // to_generic_object_add_point_internal(object_number, "dummy", ch, 3000.0, positions[i]);
+   }
+   g.generic_display_objects[object_number].add_points(piv, num_subdivisions);
+   g.generic_display_objects[object_number].mesh.setup_buffers();
+   g.set_display_generic_object_simple(object_number, 1);
+
+
+   if (g.is_valid_map_molecule(imol_map)) {
+      unsigned int n_pixels_half_width = 6;
+      const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+      for (const auto &position : positions) {
+         column_scan(position, n_pixels_half_width, xmap);
+      }
+   }
+}
 
 
 #ifdef STANDALONE
