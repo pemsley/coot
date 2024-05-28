@@ -293,19 +293,19 @@ int MolecularRepresentation::drawBondsAsNewSticks()
     std::shared_ptr<SticksPrimitive>sticks(new SticksPrimitive());
     sticks->setColorScheme(colorScheme);
     sticks->setMmdb(myMolecule->getMmdb());
-    
+
     for (int iAtom = 1; iAtom <= myMolecule->getMmdb()->GetNumberOfAtoms(); iAtom++){
         mmdb::Atom* atom1 = myMolecule->getMmdb()->GetAtomI(iAtom);
-        
+
         if (atom1->isInSelection(selHnd)){
             int nBondedAtoms;
             mmdb::AtomBond * bondedAtoms;
             atom1->GetBonds(bondedAtoms, nBondedAtoms);
             for (int iOtherAtom = 0; iOtherAtom < nBondedAtoms; iOtherAtom++){
                 mmdb::Atom* atom2 = bondedAtoms[iOtherAtom].atom;
-                if (atom2->GetIndex()>iAtom && 
+                if (atom2->GetIndex()>iAtom &&
                     atom2->isInSelection(selHnd)){
-                    
+
                     //Nasty kludge here...MMDB's MakeBonds screws up where there are multiple conformations
                     if (!strcmp(atom1->altLoc,"") &&
                         !strcmp(atom2->altLoc,"")) {
@@ -322,7 +322,7 @@ int MolecularRepresentation::drawBondsAsNewSticks()
                             nBonds++;
                         }
                     }
-                    
+
                     if (nBonds%1000 == 0) {
                         displayPrimitives.push_back(sticks);
                         sticks = std::shared_ptr<SticksPrimitive>(new SticksPrimitive());
@@ -337,8 +337,7 @@ int MolecularRepresentation::drawBondsAsNewSticks()
         displayPrimitives.push_back(sticks);
     }
     mmdb->DeleteSelection(selHnd);
-	
-    return 0;		
+    return 0;
 }
 
 int MolecularRepresentation::drawDishyBases()
@@ -352,36 +351,36 @@ int MolecularRepresentation::drawDishyBases()
     FCXXCoord xAxis (1., 0., 0., 0.);
     FCXXCoord yAxis (0., 1., 0., 0.);
     FCXXCoord zAxis (0., 0., 1., 0.);
-    
+
     std::shared_ptr<BallsPrimitive>balls(new BallsPrimitive());
 
     shared_ptr<CylindersPrimitive>cylinder(new CylindersPrimitive());
     cylinder->setAngularSampling(intParameters["cylindersStyleAngularSampling"]);
-    
+
     float cylinderRadius = floatParameters[std::string("cylindersStyleCylinderRadius")];
     float ballRadius = floatParameters[std::string("cylindersStyleBallRadius")];
-  
+
     auto dbContainerIter = dishy_bases_chain_map.begin();
     std::map<std::shared_ptr<ColorRule>,int>handles = colorScheme->prepareForMMDB(mmdb);
-    
+
     for (; dbContainerIter!=dishy_bases_chain_map.end();dbContainerIter++){
         auto dbCont = dbContainerIter->second;
         auto dishyBaseIter = (dbContainerIter->second).bases.begin();
         for (; dishyBaseIter != (dbContainerIter->second).bases.end(); ++dishyBaseIter){
-            
+
             auto atom1 = dishyBaseIter->ribose_atoms[1];
             FCXXCoord atom1Color =  colorScheme->colorForAtom(atom1, handles);
-            
+
             balls->addBall(dishyBaseIter->centre, atom1Color, dishyBaseIter->radius, dishyBaseIter->normal, 0.14*dishyBaseIter->radius);
-            
+
             if (balls->getBalls().size()%100 == 0){
                 displayPrimitives.push_back(balls);
                 balls = std::shared_ptr<BallsPrimitive>(new BallsPrimitive);
             }
-            
+
             auto flatFanPrimitive = std::shared_ptr<FlatFanPrimitive>(new FlatFanPrimitive(dishyBaseIter->ribose_atoms, atom1Color));
             displayPrimitives.push_back(flatFanPrimitive);
-            
+
             auto riboseAtomIter = dishyBaseIter->ribose_atoms.begin();
             for (; riboseAtomIter!= dishyBaseIter->ribose_atoms.end(); ++ riboseAtomIter){
                 FCXXCoord coord((*riboseAtomIter)->x, (*riboseAtomIter)->y, (*riboseAtomIter)->z);
@@ -421,6 +420,11 @@ int MolecularRepresentation::drawDishyBases()
     mmdb->DeleteSelection(selHnd);
 
     return 0;
+}
+
+int MolecularRepresentation::drawStickBases() {
+
+   return 0;
 }
 
 int MolecularRepresentation::drawRibbon()
@@ -469,7 +473,7 @@ int MolecularRepresentation::drawRibbon()
             else currentSSE = const_cast<mmdb::Atom*>(calpha)->GetResidue()->SSE;
             //std::cout << const_cast<mmdb::Atom*>(calpha)->GetResidue()->GetResidueNo() <<":"<<currentSSE<<std::endl;
             if (currentSSE == mmdb::SSE_Bulge) currentSSE = mmdb::SSE_Strand;
-            
+
             int nextSSE = mmdb::SSE_None;
             if (iCalpha < segment.nCalphas()-1){
                 auto nextResidue = segment.calpha(iCalpha+1)->GetResidue();
@@ -491,11 +495,11 @@ int MolecularRepresentation::drawRibbon()
                 }
             }
             color = colorScheme->colorForAtom(calpha, handles);
-            
+
             int endSubdivision = ((iCalpha == (segment.nCalphas()-1))?subdivisionsPerCalpha/2:subdivisionsPerCalpha);
             int startSubdivision = ((iCalpha == 0) ? (subdivisionsPerCalpha/2):0);
             float xVal = 0.;
-            
+
             for (int i=startSubdivision; i<endSubdivision; i++){
                 //for (int i=0; i<subdivisionsPerCalpha; i++){
                 xVal = (iCalpha + (i*stepPerSubdivision)) - 0.5;
@@ -627,9 +631,9 @@ int MolecularRepresentation::drawRibbon()
     }
     colorScheme->freeSelectionHandles(mmdb, handles);
     mmdb->DeleteSelection(selHnd);
-	
+
     return 0;
-}   
+}
 
 int MolecularRepresentation::drawCalphas()
 {
@@ -656,12 +660,12 @@ int MolecularRepresentation::drawCalphas()
         }
     }
     bonds->evaluateGLPrimitives(handles);
-    
+
     colorScheme->freeSelectionHandles(mmdb, handles);
     mmdb->DeleteSelection(selHnd);
-    
+
     return 0;
-}    
+}
 
 int MolecularRepresentation::drawMolecularSurface()
 {
@@ -671,26 +675,26 @@ int MolecularRepresentation::drawMolecularSurface()
 int MolecularRepresentation::drawSurfaceOfKind(int surfaceKind)
 {
     //return 0;
-    
+
     mmdb::Manager *mmdb = myMolecule->getMmdb();
 	//selection->describe();
 	selHnd = selection->handleInMMDB(mmdb);
 	std::map<std::shared_ptr<ColorRule>,int>handles = colorScheme->prepareForMMDB(mmdb);
-    
-    //If we are limited to short int for indexes, we wil have to chop this surfaace
-    //into bite-sized chunks    
+
+    //If we are limited to short int for indexes, we wil have to chop this surface
+    //into bite-sized chunks
     mmdb::Atom** SelAtoms;
     int nAtoms;
-    
+
     int chunkSize = 1000000;
     if (sizeof(GLIndexType) == sizeof(short)) chunkSize = 100;
     mmdb->GetSelIndex(selHnd, SelAtoms, nAtoms);
     int iAtom = 0;
     int chunkHndl = mmdb->NewSelection();
-    
+
     float probeRadius = floatParameters["surfaceStyleProbeRadius"];
     float radiusMultiplier = floatParameters["ballsStyleRadiusMultiplier"];
-    
+
     for (; iAtom<nAtoms; iAtom++){
         mmdb->SelectAtom(chunkHndl, SelAtoms[iAtom], mmdb::SKEY_OR);
         if ((iAtom+1)%chunkSize == 0){ 
@@ -703,7 +707,7 @@ int MolecularRepresentation::drawSurfaceOfKind(int surfaceKind)
             chunkHndl = mmdb->NewSelection();
         }
         if (redrawProgressCallback){
-            redrawProgressCallback(redrawProgressCallbackUserInfo, (float)iAtom / (float)nAtoms);   
+            redrawProgressCallback(redrawProgressCallbackUserInfo, (float)iAtom / (float)nAtoms);
         }
 
     }
@@ -714,10 +718,10 @@ int MolecularRepresentation::drawSurfaceOfKind(int surfaceKind)
         }
         mmdb->DeleteSelection(chunkHndl);
     }
-    
+
     colorScheme->freeSelectionHandles(mmdb, handles);
     mmdb->DeleteSelection(selHnd);
-    
+
     return 0;
 }
 
@@ -754,7 +758,7 @@ void MolecularRepresentation::colorByPotential(std::string chargingAtomString, s
     auto theClipperNXMap = theCreator->coerceToClipperMap(cell);
     // Now bring the surface and the map together
     double coords[4];
-    
+
     //Create a color ramp rule
     AtomPropertyRampColorRule rampRule;
     rampRule.setStartRGB(FCXXCoord (1.,0.,0.,1.));
@@ -762,7 +766,7 @@ void MolecularRepresentation::colorByPotential(std::string chargingAtomString, s
     rampRule.setMiddleRGB(FCXXCoord (1.,1.,1.,1.));
     rampRule.setEndRGB(FCXXCoord (0.,0.,1.,1.));
     rampRule.setEndValue( 0.5);
-    
+
     auto primitivePntr = getDisplayPrimitives().begin();
     for (; primitivePntr != getDisplayPrimitives().end(); ++primitivePntr){
         if (VertexColorNormalPrimitive *p = dynamic_cast<VertexColorNormalPrimitive *>(primitivePntr->get())){
