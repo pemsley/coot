@@ -1326,6 +1326,14 @@ int transform_map_raw(int imol,
   Return -1 on failure. */
 int difference_map(int imol1, int imol2, float map_scale);
 
+/*! \brief by default, maps that are P1 and have 90 degree angles
+           are considered as maps without symmetry (i.e. EM maps).
+           In some cases though P1 maps do/should have symmetry -
+           and this is the means by you can tell Coot that.
+    @param state 1 turns on map symmetry
+*/
+void set_map_has_symmetry(int imol, int state);
+
 /*! \brief make a new map (a copy of map_no) that is in the cell,
   spacegroup and gridding of the map in reference_map_no.
 

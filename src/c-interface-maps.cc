@@ -1006,6 +1006,25 @@ void set_default_initial_contour_level_for_difference_map(float n_sigma) {
 }
 
 
+/*! \brief by default, maps that are P1 and have 90 degree angles
+           are considered as maps without symmetry (i.e. EM maps).
+           In some cases though P1 maps do/should have symmetry -
+           and this is the means by you can tell Coot that.
+    @param state 1 turns on map symmetry
+*/
+void set_map_has_symmetry(int imol, int state) {
+
+   if (is_valid_map_molecule(imol)) {
+      bool is_em_map = true;
+      if (state) is_em_map = false;
+      // graphics_info_t::molecules[imol].is_em_map_cached_flag = is_em_map;
+      graphics_info_t::molecules[imol].set_map_has_symmetry(is_em_map);
+   }
+
+}
+
+
+
 
 
 void set_map_line_width(int w) {
