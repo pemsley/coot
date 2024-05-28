@@ -118,10 +118,8 @@ To refine this domain/chain:
 You will see that the nanobody is now highlighted with green bonds and atoms.
 A dialog will appear at the middle top
 
-![Moorhen Selection Panel]({{"../../../images/moorhen-selection-panel.png"}})
-
 <p align='center'>
-   <img alt='' src='../../../images/moorhen-selection-panel.png' width=200/>
+   <img alt='' src='../../../images/moorhen-selection-panel.png' width=360/>
 </p>
 
   - Click on the "Refine" icon (top left)
