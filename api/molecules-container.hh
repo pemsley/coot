@@ -1139,12 +1139,12 @@ public:
    int add_terminal_residue_directly_using_bucca_ml_growing(int imol, const coot::residue_spec_t &spec);
 
    //! parameter for `add_waters()` default  2.4
-   void set_add_waters_water_to_protein_distace_lim_min(float d) {
+   void set_add_waters_water_to_protein_distance_lim_min(float d) {
       ligand_water_to_protein_distance_lim_min = d;
    }
 
    //! parameter for `add_waters()` default 3.4
-   void set_add_waters_water_to_protein_distace_lim_max(float d) {
+   void set_add_waters_water_to_protein_distance_lim_max(float d) {
       ligand_water_to_protein_distance_lim_max = d;
    }
 
@@ -1525,6 +1525,10 @@ public:
    //! peptide omega validation information
    //! @returns a `coot::validation_information_t`
    coot::validation_information_t peptide_omega_analysis(int imol_model) const;
+
+   //! get the median temperature factor for the model
+   //! @return a negative number on failure.
+   float get_median_temperature_factor(int imol) const;
 
    //! get interesting places (does not work yet)
    //! @return a vector of `coot::validation_information_t`

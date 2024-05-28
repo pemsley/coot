@@ -5692,3 +5692,20 @@ molecules_container_t::pae_png(const std::string &pae_file_name) const {
 #endif
 
 }
+
+
+//! get the median temperature factor for the model
+//! @return a negative number on failure.
+float
+molecules_container_t::get_median_temperature_factor(int imol) const {
+
+   float b_factor = -1.1;
+   if (is_valid_model_molecule(imol)) {
+      b_factor = molecules[imol].get_median_temperature_factor();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return b_factor;
+}
+
+

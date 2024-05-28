@@ -4500,3 +4500,13 @@ coot::molecule_t::rdkit_mol(const std::string &ligand_cid) {
 }
 #endif
 
+
+//! get the median temperature factor for the model
+//! @return a negative number on failure.
+float
+coot::molecule_t::get_median_temperature_factor() const {
+
+   float b = coot::util::median_temperature_factor(atom_sel.atom_selection, atom_sel.n_selected_atoms, 2.0, 2222.2, false, false);
+   return b;
+
+}

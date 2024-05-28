@@ -470,6 +470,8 @@ namespace coot {
                                             99999.9, 0.0, false, false);
       }
 
+      float get_median_temperature_factor() const;
+
       // ------------------------ close
 
       int close_yourself();
