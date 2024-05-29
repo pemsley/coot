@@ -276,11 +276,11 @@ int MolecularRepresentation::drawHydrogenBonds()
     if (nDots%100 != 0) {
         displayPrimitives.push_back(balls);
     }
-    
+
     mmdb->DeleteSelection(selHnd);
     colorScheme->freeSelectionHandles(mmdb, handles);
-    
-    return 0;		
+
+    return 0;
 }
 
 int MolecularRepresentation::drawBondsAsNewSticks()
@@ -288,7 +288,7 @@ int MolecularRepresentation::drawBondsAsNewSticks()
     mmdb::Manager *mmdb = myMolecule->getMmdb();
 	//selection->describe();
 	selHnd = selection->handleInMMDB(mmdb);
-    
+
     int nBonds = 0;
     std::shared_ptr<SticksPrimitive>sticks(new SticksPrimitive());
     sticks->setColorScheme(colorScheme);
@@ -424,6 +424,94 @@ int MolecularRepresentation::drawDishyBases()
 
 int MolecularRepresentation::drawStickBases() {
 
+   auto is_nucleic_acid = [] (const std::string &base_name) {
+      if (base_name == "G") return true;
+      if (base_name == "A") return true;
+      if (base_name == "T") return true;
+      if (base_name == "C") return true;
+      if (base_name == "U") return true;
+      if (base_name == "DG") return true;
+      if (base_name == "DA") return true;
+      if (base_name == "DC") return true;
+      if (base_name == "DT") return true;
+      // others
+      return false;
+   };
+
+   auto get_atom_name_pair = [] (const std::string &base_name) {
+      if (base_name == "DG" || base_name == "DA" || base_name == "G" || base_name == "A")
+         return std::pair<std::string, std::string> (" C3'", " N1 ");
+      if (base_name == "DT" || base_name == "U")
+         return std::pair<std::string, std::string> (" C3'", " O4 ");
+      if (base_name == "DC" || base_name == "C")
+         return std::pair<std::string, std::string> (" C3'", " N4 ");
+      return std::pair<std::string, std::string> ("", "");
+   };
+
+   mmdb::Manager *mmdb = myMolecule->getMmdb();
+   shared_ptr<CylindersPrimitive>cylinder(new CylindersPrimitive());
+   cylinder->setAngularSampling(intParameters["cylindersStyleAngularSampling"]);
+   float cylinderRadius = floatParameters[std::string("cylindersStyleCylinderRadius")];
+   std::map<std::shared_ptr<ColorRule>,int>handles = colorScheme->prepareForMMDB(mmdb);
+   float ballRadius = floatParameters[std::string("cylindersStyleBallRadius")];
+   std::shared_ptr<BallsPrimitive>balls(new BallsPrimitive());
+
+   {
+      for(int imod = 1; imod<=mmdb->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mmdb->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     if (residue_p->isDNARNA()) {
+                        std::string base_name(residue_p->GetResName());
+                        if (is_nucleic_acid(base_name)) {
+
+                           std::pair<std::string, std::string> atom_name_pair = get_atom_name_pair(base_name);
+                           const std::string atom_name_1 = atom_name_pair.first;
+                           const std::string atom_name_2 = atom_name_pair.second;
+                           mmdb::Atom *atom_1 = nullptr;
+                           mmdb::Atom *atom_2 = nullptr;
+
+                           // iterate over all alt-confs in the residue
+                           // (which I am not doing at the moment)
+
+                           mmdb::PPAtom residue_atoms = nullptr;
+                           int nResidueAtoms = 0;
+                           residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
+                           for(int i = 0; i < nResidueAtoms; i++) {
+                              mmdb::Atom *at = residue_atoms[i];
+                              std::string atom_name(at->GetAtomName());
+                              if (! atom_1)
+                                 if (atom_name == atom_name_1)
+                                    atom_1 = at;
+                              if (! atom_2)
+                                 if (atom_name == atom_name_2)
+                                    atom_2 = at;
+                           }
+                           if (atom_1 && atom_2) {
+                              FCXXCoord atom1Color = colorScheme->colorForAtom(atom_1, handles);
+                              FCXXCoord atom2Color = colorScheme->colorForAtom(atom_2, handles);
+                              cylinder->addHalfAtomBond(atom_1, atom1Color, atom_2, atom2Color, cylinderRadius);
+                              FCXXCoord atom1Coord(atom_2->x,atom_2->y, atom_2->z);
+                              balls->addBall(atom1Coord, atom1Color, ballRadius);
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   displayPrimitives.push_back(cylinder);
+   displayPrimitives.push_back(balls);
+   colorScheme->freeSelectionHandles(mmdb, handles);
    return 0;
 }
 
@@ -599,13 +687,13 @@ int MolecularRepresentation::drawRibbon()
                 }
             }
             lastSSE = currentSSE;
-            
+
             //Add an extra segment to delimit the end of a residue
             xVal += stepPerSubdivision;
             FCXXCoord coord = segment.coordFor(xVal);
             FCXXCoord normalOne = segment.normalOneFor(xVal);
             FCXXCoord normalTwo = segment.normalTwoFor(xVal);
-            
+
             float radiusOne;
             float radiusTwo;
             radiusOne = radiusOneNone;
@@ -625,7 +713,7 @@ int MolecularRepresentation::drawRibbon()
             CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOne, radiusTwo, calpha);
             if (currentSSE == mmdb::SSE_Strand) currentBoxSection->addPoint(cylinderPoint);
             else currentCylinder->addPoint(cylinderPoint);
-        }        
+        }
         if (currentSSE == mmdb::SSE_Strand) displayPrimitives.push_back(currentBoxSection);
         else if (currentSSE != -32767) displayPrimitives.push_back(currentCylinder);
     }
@@ -641,17 +729,17 @@ int MolecularRepresentation::drawCalphas()
 	//selection->describe();
 	selHnd = selection->handleInMMDB(mmdb);
     std::map<std::shared_ptr<ColorRule>,int>handles = colorScheme->prepareForMMDB(mmdb);
-    
+
     std::vector<DiscreteSegment *> segments;
     myMolecule->identifySegments(segments, selHnd);
-    
+
     std::shared_ptr<BondsPrimitive>bonds(new BondsPrimitive());
     bonds->setColorScheme(colorScheme);
     displayPrimitives.push_back(bonds);
-    
+
     for (int iSegment = 0; iSegment < segments.size(); iSegment++){
         DiscreteSegment &segment = *(segments[iSegment]);
-        
+
         for (int i=0; i<(segment.nCalphas()-1); i++){
             mmdb::Atom* atom1 = segment.calpha(i);
             mmdb::Atom* atom2 = segment.calpha(i+1);

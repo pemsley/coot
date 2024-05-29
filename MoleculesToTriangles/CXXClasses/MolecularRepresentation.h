@@ -154,10 +154,10 @@ public:
 				drawVdWSurface();
 			}
                         else if (renderStyle == "DishyBases"){
-                            drawDishyBases();
+                                drawDishyBases();
                         }
                         else if (renderStyle == "StickBases"){
-                            drawStickBases();
+                                drawStickBases();
                         }
 			else if (renderStyle == "AccessibleSurface"){
 				drawAccessibleSurface();
