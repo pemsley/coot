@@ -112,13 +112,13 @@ public:
    // and triangles fan from ribose_centre to 0,1,2,3,4,0
    // Draw a stick from ribose_atoms[1] to 1/3 of the way to
    // centre.
+   FCXXCoord centre;
+   FCXXCoord normal;
+   double radius;
    std::vector<mmdb::Atom *> ribose_atoms; // in a particular order: (O4', C1', C2', C3', C4')
    FCXXCoord ribose_centre;
    int idx;
-   FCXXCoord normal;
-   FCXXCoord centre;
-   double radius;
-    static std::vector<std::pair<int, int> >bondingPattern;
+   static std::vector<std::pair<int, int> >bondingPattern;
 };
 
 // one of these for every segment

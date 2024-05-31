@@ -2480,6 +2480,16 @@ molecule_class_info_t::is_em_map_cached_state() {
    return is_em_map_cached_flag;
 }
 
+// user-setting over-ride internal rules for P1&909090 means EM
+void 
+molecule_class_info_t::set_map_has_symmetry(bool is_em_map) {
+
+   is_em_map_cached_flag = is_em_map;
+   update_map_internal();
+
+}
+
+
 
 void
 molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::string name_in, bool is_em_map_flag_in) {

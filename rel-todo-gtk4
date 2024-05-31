@@ -1,11 +1,27 @@
 
 ----
 
+chapi.__version__ should be a thing (Martin)
+set_ligand_water_to_protein_distance_limits() needs to added to nanobinds
+water baddies is missing from nanobindings too.
+add user-control over level for deleting waters.
+add_waters should return the waters that havve been added.
+what is the b-factor of the added waters?
+What about the b-factor variation of added waters that Coot now does?
+  - That B-factor is applied, it seems.
+
+Coot: https://github.com/pemsley/coot/issues/138
+
+Coot: Get servalcat working - and difference maps - so it can be
+   added to the Trieste talk.
+
 Coot: 1: add a button for "difference map" in map reading dialog.
 
 Coot: 2: merge Jakub pull request
 
 Coot: 3: fix the build to make coot-bin again but MacCoot on macOS.
+
+Coot: 4: add material manipulation api for mesh of generic objects
 
 libcootapi: try the other slurped map filling algorithm.
 

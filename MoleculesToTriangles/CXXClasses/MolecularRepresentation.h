@@ -92,16 +92,17 @@ public:
     };
     int drawCalphas();
     int drawRibbon();
-	int drawSpheres();
-	int drawBondsAsSticks();
-	int drawBondsAsNewSticks();
-	int drawBondsAsCylinders();
-	int drawSurfaceOfKind(int surfaceKind);
-	int drawMolecularSurface();
-	int drawVdWSurface();
-	int drawAccessibleSurface();
-	int drawHydrogenBonds();
+    int drawSpheres();
+    int drawBondsAsSticks();
+    int drawBondsAsNewSticks();
+    int drawBondsAsCylinders();
+    int drawSurfaceOfKind(int surfaceKind);
+    int drawMolecularSurface();
+    int drawVdWSurface();
+    int drawAccessibleSurface();
+    int drawHydrogenBonds();
     int drawDishyBases();
+    int drawStickBases();
     
     void renderWithRenderer(Renderer *renderer);
 	
@@ -152,9 +153,12 @@ public:
 			else if (renderStyle == "VdWSurface"){
 				drawVdWSurface();
 			}
-            else if (renderStyle == "DishyBases"){
-                drawDishyBases();
-            }
+                        else if (renderStyle == "DishyBases"){
+                                drawDishyBases();
+                        }
+                        else if (renderStyle == "StickBases"){
+                                drawStickBases();
+                        }
 			else if (renderStyle == "AccessibleSurface"){
 				drawAccessibleSurface();
 			}

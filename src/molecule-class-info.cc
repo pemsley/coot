@@ -7499,9 +7499,11 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
             ok_to_add = false;
 
          if (! ok_to_add) {
-            std::cout << "WARNING:: new atom addition blocked by nearby atom" << std::endl;
             graphics_info_t g;
-            g.add_status_bar_text("WARNING:: new atom addition blocked by nearby atom");
+            std::string s = "WARNING:: new atom addition blocked by nearby atom";
+            std::cout << s << std::endl;
+            g.add_status_bar_text(s);
+            message = s;
          } else {
 
             if (w) {
@@ -7519,25 +7521,31 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
                res_p->seqNum = wresno;
                res_p->AddAtom(atom_p);
                w->AddResidue(res_p);
-               std::cout << atom_p << " added to molecule" << std::endl;
+               std::cout << "DEBUG:: " << atom_p << " added to molecule" << std::endl;
                atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
                atom_sel.mol->FinishStructEdit();
+               coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
                atom_sel = make_asc(atom_sel.mol);
                have_unsaved_changes_flag = 1;
                make_bonds_type_checked(__FUNCTION__);
+               status = true;
 
             } else {
                // There was no water chain
                res_p->AddAtom(atom_p);
-               std::cout << atom_p << " added to molecule (and new chain)" << std::endl;
+               std::cout << "DEBUG:: " << atom_p << " in new chain added to molecule (and new chain)" << std::endl;
                if (!pre_existing_chain_flag) {
                   chain_p->SetChainID(mol_chain_id.second.c_str());
-                  atom_sel.mol->GetModel(1)->AddChain(chain_p);
+                  mmdb::Model *model_p = atom_sel.mol->GetModel(1);
+                  if (model_p)
+                     model_p->AddChain(chain_p);
                }
                res_p->seqNum = 1; // start of a new chain.
                chain_p->AddResidue(res_p);
                atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
                atom_sel.mol->FinishStructEdit();
+               // removed replacement of the atom_sel
+               coot::util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
                atom_sel = make_asc(atom_sel.mol);
                have_unsaved_changes_flag = 1;
                make_bonds_type_checked(__FUNCTION__);
@@ -7548,9 +7556,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 
          // Not water
          std::string element = "";
-
          if (mol_chain_id.first || pre_existing_chain_flag) {
-
             if (bits.filled) {
 
                bits.SetAtom(atom_p, res_p);

@@ -1352,7 +1352,7 @@ change_chain_id_by_widget(GtkWidget *w) {
    int from_resno = -9999;
    int to_resno   = -9999;
 
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(residue_range_yes_radiobutton))) {
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(residue_range_yes_radiobutton))) {
       use_res_range_flag = true;
       std::pair<short int, int> p1 = int_from_entry(residue_range_from_entry);
       std::pair<short int, int> p2 = int_from_entry(residue_range_to_entry);

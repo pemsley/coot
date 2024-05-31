@@ -4315,28 +4315,26 @@ on_on_line_documentation_ok_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_change_chain_residue_range_no_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-
+on_change_chain_residue_range_no_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                     gpointer        user_data) {
 
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_change_chain_residue_range_yes_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data) {
+on_change_chain_residue_range_yes_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                      gpointer        user_data) {
 
-   // GtkWidget *hbox = widget_from_builder("change_chain_id_residue_range_hbox");
    GtkWidget *hbox = widget_from_builder("change_chain_id_residue_range_hbox");
 
-   if (gtk_toggle_button_get_active(togglebutton))
+   if (gtk_check_button_get_active(checkbutton)) {
       gtk_widget_set_sensitive(hbox, TRUE);
-   else
+      std::cout << "residue range hbox sensitive TRUE" << std::endl;
+   } else {
       gtk_widget_set_sensitive(hbox, FALSE);
+      std::cout << "residue range hbox sensitive FALSE" << std::endl;
+   }
 }
 
 

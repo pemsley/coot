@@ -129,7 +129,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .constructor<>();
   class_<RemoveHydrogensTool>("RemoveHydrogensTool")
     .constructor<>();
-  enum_<ElementInsertion::Element>("Element")
+  // I had to rename it to "LhasaElement" due to name clash in Moorhen
+  enum_<ElementInsertion::Element>("LhasaElement")
     .value("C", ElementInsertion::Element::C)
     .value("N", ElementInsertion::Element::N)
     .value("O", ElementInsertion::Element::O)
@@ -148,7 +149,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .constructor<ElementInsertion::Element>();
   // Workaround for constructor overload not being available:
   function("element_insertion_from_symbol", &lhasa::element_insertion_from_symbol);
-  enum_<StructureInsertion::Structure>("Structure")
+  // I had to rename it to "LhasaStructure" due to name clash in Moorhen
+  enum_<StructureInsertion::Structure>("LhasaStructure")
     .value("CycloPropaneRing", StructureInsertion::Structure::CycloPropaneRing)
     .value("CycloButaneRing", StructureInsertion::Structure::CycloButaneRing)
     .value("CycloPentaneRing", StructureInsertion::Structure::CycloPentaneRing)

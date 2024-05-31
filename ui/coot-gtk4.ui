@@ -2622,8 +2622,8 @@ Calculate a skeleton now?
                             <child>
                               <object class="GtkCheckButton" id="change_chain_residue_range_no_radiobutton">
                                 <property name="label" translatable="yes">Whole Chain</property>
+                                <property name="active">1</property>
                                 <property name="can-focus">1</property>
-                                <property name="use-underline">1</property>
                                 <signal name="toggled" handler="on_change_chain_residue_range_no_radiobutton_toggled" swapped="no"/>
                               </object>
                             </child>
@@ -2635,7 +2635,6 @@ Calculate a skeleton now?
                               <object class="GtkCheckButton" id="change_chain_residue_range_yes_radiobutton">
                                 <property name="label" translatable="yes">Use Residue Range</property>
                                 <property name="can-focus">1</property>
-                                <property name="use-underline">1</property>
                                 <property name="group">change_chain_residue_range_no_radiobutton</property>
                                 <signal name="toggled" handler="on_change_chain_residue_range_yes_radiobutton_toggled" swapped="no"/>
                               </object>

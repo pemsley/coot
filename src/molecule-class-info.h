@@ -3535,6 +3535,9 @@ void draw_map_molecule(bool draw_transparent_maps,
    short int is_em_map_cached_flag; // -1 mean unset (so set it, 0 means no, 1 means yes)
    short int is_em_map_cached_state(); // set is_em_map_cached_flag if not set
 
+   // user-setting over-ride internal rules for P1&909090 means EM
+   void set_map_has_symmetry(bool is_em_map);
+
    void residue_partial_alt_locs_split_residue(coot::residue_spec_t spec,
 					       int i_bond,
 					       double theta,  // degrees

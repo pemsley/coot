@@ -2371,6 +2371,7 @@ void set_tomo_picker_mode_is_active(short int state);
 
 #ifdef USE_PYTHON
 void tomo_map_analysis(int imol_map, PyObject *spot_positions);
+void tomo_map_analysis_2(int imol_map, PyObject *spot_positions);
 #endif
 
 //! negative becomes positive and positive becomes negative.

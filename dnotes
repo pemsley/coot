@@ -11364,3 +11364,38 @@ Crystal structure of SARS-CoV-2 NSP3 Macrodomain in complex with ASAP-0013385-00
 7H0H 7H0I 7H0J 7H0K 7H0L 7H0M 7H0N 7H0O 7H0P 7H0Q 7H0R 7H0S 7H0T 7H0U 7H0V 7H0W 7H0X 7H0Y
 7H0Z 7H10 7H11 7H12 7H13 7H14 7H15 7H16 7H17 7H18 7H19 7H1A 7H1B 7H1C 7H1D 7H1E 7H1F 7H1G
 
+
+---
+Sun 26 May 2024 18:12:44 BST
+
+   how did I miss this?
+   https://link.springer.com/article/10.1186/s13321-020-00429-4
+   https://durrantlab.pitt.edu/autogrow4/
+
+
+---
+Sun 26 May 2024 22:02:51 BST
+
+   https://buildd.debian.org/status/package.php?p=coot
+
+   coot on armel needs to be linked with libatomic
+
+ libtool: compile:  g++ -DPACKAGE_NAME=\"coot\" -DPACKAGE_TARNAME=\"coot\" -DPACKAGE_VERSION=\"1.x-pre\" "-DPACKAGE_STRING=\"coot 1.x-pre\"" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DPACKAGE=\"coot\" -DVERSION=\"1.x-pre\" -DHAVE_STDIO_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_STRINGS_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_UNISTD_H=1 -DSTDC_HEADERS=1 -DHAVE_DLFCN_H=1 -DLT_OBJDIR=\".libs/\" -DHAVE_OPENMP=1 -DHAVE_CXX11=1 -DHAVE_CXX_THREAD=1 -DHAVE_PYTHON=\"3.11\" "-DHAVE_BOOST=/**/" "-DHAVE_BOOST_THREAD=/**/" "-DHAVE_BOOST_PYTHON=/**/" -I. -I.. -DMAKE_ENHANCED_LIGAND_TOOLS -DCLIPPER_HAS_TOP8000 -I/usr/lib/i386-linux-gnu/include -DUSE_GEMMI=1 -DMMDB_HAS_LINK_DISTANCE -I/usr/include -I/usr/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT -pthread -I/usr/include -DUSE_PYTHON -Wdate-time -D_FORTIFY_SOURCE=2 -DHAVE_GSL -DPKGDATADIR=\"/usr/share/coot\" -g -O2 -ffile-prefix-map=/<<PKGBUILDDIR>>=. -fstack-protector-strong -Wformat -Werror=format-security -Wall -Wno-unused -std=c++17 -c atom-selection-container.cc  -fPIC -DPIC -o .libs/atom-selection-container.o
+In file included from /usr/include/gemmi/model.hpp:18,
+                 from /usr/include/gemmi/chemcomp_xyz.hpp:12,
+                 from /usr/include/gemmi/mmread.hpp:8,
+                 from atom-selection-container.cc:38:
+/usr/include/gemmi/elem.hpp: In function ‘double gemmi::molecular_weight(El)’:
+/usr/include/gemmi/elem.hpp:100:50: error: static assertion failed: Hmm
+  100 |   static_assert(weights[static_cast<int>(El::D)] == 2.0141, "Hmm");
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~
+/usr/include/gemmi/elem.hpp:100:50: note: the comparison reduces to ‘(2.01410000000000000142e+0l == 2.0140999999999999999e+0l)’
+/usr/include/gemmi/elem.hpp: In function ‘float gemmi::covalent_radius(El)’:
+/usr/include/gemmi/elem.hpp:141:48: error: static assertion failed: Hmm
+  141 |   static_assert(radii[static_cast<int>(El::D)] == 0.31f, "Hmm");
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+/usr/include/gemmi/elem.hpp:141:48: note: the comparison reduces to ‘(3.10000002384185791016e-1l == 3.10000000000000000002e-1l)’
+/usr/include/gemmi/elem.hpp: In function ‘float gemmi::vdw_radius(El)’:
+/usr/include/gemmi/elem.hpp:186:48: error: static assertion failed: Hmm
+  186 |   static_assert(radii[static_cast<int>(El::D)] == 1.2f, "Hmm");
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~

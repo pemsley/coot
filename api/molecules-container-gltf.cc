@@ -12,9 +12,10 @@ molecules_container_t::get_octahemisphere(unsigned int n_slices) const {
 
    coot::simple_mesh_t m;
    unsigned int num_subdivisions = 3;
-   if (n_slices == 1) num_subdivisions = 4;
-   if (n_slices == 2) num_subdivisions = 8;
-   if (n_slices == 4) num_subdivisions = 32;
+   if (n_slices ==  4) num_subdivisions = 1;
+   if (n_slices ==  8) num_subdivisions = 2;
+   if (n_slices == 16) num_subdivisions = 3;
+   if (n_slices == 32) num_subdivisions = 4;
 
    std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > h = tessellate_hemisphere_patch(num_subdivisions);
    const auto &hemisphere_vertices = h.first;
