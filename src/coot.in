@@ -1,4 +1,5 @@
 
 prefix=@prefix@
+export SYMINFO=$prefix/share/coot/syminfo.lib
 exec_prefix=@exec_prefix@
 @libexecdir@/@COOT_BINARY_NAME@ "$@"
