@@ -2451,7 +2451,7 @@ molecule_class_info_t::set_is_em_map(const clipper_map_file_wrapper &file) {
    } else {
       is_em_map_cached_flag = 0;
    }
-   return false; // not a useful return values, because flag can have 3 values
+   return false; // not a useful return value, because flag can have 3 values
 }
 
 bool
