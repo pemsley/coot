@@ -9,21 +9,31 @@ add_waters should return the waters that havve been added.
 what is the b-factor of the added waters?
 What about the b-factor variation of added waters that Coot now does?
   - That B-factor is applied, it seems.
+* Done.
+
+libcootapi: add a function to add an atom at a particular position.
 
 Coot: https://github.com/pemsley/coot/issues/138
+* Done.
+
+Coot: shadows don't work on Ribbons/M2T objects
 
 Coot: Get servalcat working - and difference maps - so it can be
    added to the Trieste talk.
 
 Coot: 1: add a button for "difference map" in map reading dialog.
+* Done.
 
 Coot: 2: merge Jakub pull request
+* Done.
 
 Coot: 3: fix the build to make coot-bin again but MacCoot on macOS.
+* Done.
 
 Coot: 4: add material manipulation api for mesh of generic objects
 
 libcootapi: try the other slurped map filling algorithm.
+* I tried - couldn't get it to work.
 
 Coot libs: "thread fill sections" - is debugging I think - get rid of it. But try the
    new method first.
@@ -59,6 +69,7 @@ Coot: we have meshed_generic_display_object::add_point(). We want meshed_generic
 * Done.
 
 libcootapi: Molecule2Triangles: the bases are inside-out relative to the ribbon.
+* Done.
 
 moorhen: 8hcl F chain negative numbers for residue range doesn't work it seems?
 
