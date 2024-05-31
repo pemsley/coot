@@ -2,11 +2,15 @@
 ----
 
 chapi.__version__ should be a thing (Martin)
-set_ligand_water_to_protein_distance_limits() needs to added to nanobinds
+* Don't see how
+set_ligand_water_to_protein_distance_limits() needs to added to nanobindings
+* Done.
 water baddies is missing from nanobindings too.
+* Done.
 add user-control over level for deleting waters.
-add_waters should return the waters that havve been added.
-what is the b-factor of the added waters?
+* Done.
+add_waters should return the waters that have been added.
+* Meh - OK.
 What about the b-factor variation of added waters that Coot now does?
   - That B-factor is applied, it seems.
 * Done.
@@ -20,6 +24,18 @@ Coot: shadows don't work on Ribbons/M2T objects
 
 Coot: Get servalcat working - and difference maps - so it can be
    added to the Trieste talk.
+
+libcootapi: Reverse the order of the colour rule check for gaussian surfaces.
+   Don't overwrite the colour rules when they get added (reverse the recent change)
+   String matching the colour rule is not good - what about the rule
+   "//A,B" "red"?
+
+Oxygens and nitrogens should be made transparent if the colour rule (selection) would
+make them transparent if it could.
+
+Getters for M2T_updateFloatParameter and M2T_updateIntParameter
+  What things can be set? Post in pumble.
+* Done.
 
 Coot: 1: add a button for "difference map" in map reading dialog.
 * Done.
