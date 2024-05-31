@@ -1,0 +1,224 @@
+#!/bin/bash
+# -*-shell-script-*-
+# coot wrapper script
+# Copyright 2004, 2005, 2006, 2007 University of York
+
+# 20091210 /bin/sh changed to /bin/bash, because /bin/sh is dash on ubuntu and
+# it doesn't do functions.  Pathetic.
+
+# Magic (eh?).  Stops bash doing the word spliting expansion on the
+# command line arguments.
+#
+# Note: setting IFS in a dash script causes problems (it splits on ts
+# and ns! (disaster)).
+#
+# now that we use "$@", we don't need this, I think
+# if [ -n "$BASH" ] ; then
+#    IFS=$'\t\n'
+# fi
+
+# you will want to redefine this if you are ccp4
+PYTHON=@PYTHON@
+
+
+function check_for_no_graphics {
+
+    r=0
+    for arg in "$@"
+    do
+      echo $arg
+      if [ "$arg" == --no-graphics ] ; then
+         r=1
+         break
+      fi
+    done
+    return $r
+}
+
+
+current_exe_dir=$(dirname $0)
+systype=$(uname)
+
+#if we don't have readlink then some jiggery pokery. Modern macs have readlink.
+if [ $systype = Darwin ] ; then
+    # ht: https://stackoverflow.com/a/246128
+    SOURCE=${BASH_SOURCE[0]}
+    while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+       DIR=$(cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd)
+       SOURCE=$(readlink "$SOURCE")
+       [[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+    done
+    COOT_BIN_PREFIX=$(cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd)
+    COOT_PREFIX=$(dirname $COOT_BIN_PREFIX)
+    echo Darwin:COOT_PREFIX is $COOT_PREFIX
+
+else
+    unlinked_exe=$(readlink -f $0)
+    unlinked_exe_dir=$(dirname $unlinked_exe)
+    COOT_PREFIX=$(dirname $unlinked_exe_dir)
+fi
+
+
+
+python_major=$(python3 -c 'import sys ; parts = sys.version.split(".") ; major = parts[0]; minor = parts[1] ; print("{}".format(major))')
+python_minor=$(python3 -c 'import sys ; parts = sys.version.split(".") ; major = parts[0]; minor = parts[1] ; print("{}".format(minor))')
+python_major_minor=$(python3 -c 'import sys ; parts = sys.version.split(".") ; major = parts[0]; minor = parts[1] ; print("{}{}".format(major, minor))')
+
+# this may need some tweaking
+#
+if [ "$systype" = "MINGW32_NT" ] ; then
+   coot_bin=$COOT_PREFIX/libexec/Coot
+   PYTHONHOME=$COOT_PREFIX
+   PATH=$PATH:$PYTHONHOME
+else
+   if [ "$systype" = Darwin ] ; then
+      coot_bin=$COOT_PREFIX/libexec/MacCoot
+      PYTHONHOME=$COOT_PREFIX/python$python_major_minor
+   else
+      coot_bin=$COOT_PREFIX/libexec/Coot
+      PYTHONHOME=$COOT_PREFIX/python$python_major_minor
+   fi
+fi
+
+
+# unlimit coredumpsize:
+# ulimit -c unlimited
+
+
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# If the COOT_PREFIX is correct, then these should not need modification
+# i.e.  nothing below here need be changed.
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+#
+prefix=$COOT_PREFIX
+PATH=$COOT_PREFIX/bin:$PATH
+
+SYMINFO=$COOT_PREFIX/share/coot/syminfo.lib
+COOT_SCHEME_DIR=$COOT_PREFIX/share/coot/scheme
+if [ -z $CLIBD_MON ] ; then
+ # echo debug:: CLIBD_MON not set, using COOT_REFMAC_LIB_DIR
+ COOT_REFMAC_LIB_DIR=$COOT_PREFIX/share/coot/lib
+ export COOT_REFMAC_LIB_DIR
+fi
+COOT_STANDARD_RESIDUES=$COOT_PREFIX/share/coot/standard-residues.pdb
+# COOT_PIXMAPS_DIR=$COOT_PREFIX/share/coot/glade/pixmaps
+COOT_DATA_DIR=$COOT_PREFIX/share/coot
+COOT_RESOURCES_FILE=$COOT_PREFIX/share/coot/cootrc
+COOT_REF_STRUCTS=$COOT_PREFIX/share/coot/reference-structures
+
+# Added 20090429 - take this out when trying internationalization.
+LANG=C
+LC_ALL=C
+LC_NUMERIC=C
+export LANG
+export LC_ALL
+export LC_NUMERIC
+
+export GUILE_WARN_DEPRECATED=no
+GUILE_LOAD_PATH=$COOT_PREFIX/share/guile/2.2:$COOT_PREFIX/share/guile/site:$COOT_PREFIX/share/guile-gnome-2/gnome
+
+# echo GUILE_LOAD_PATH is now $GUILE_LOAD_PATH
+GUILE_BIN=guile
+if [ -e $COOT_PREFIX/bin/guile ] ; then
+    GUILE_BIN=$COOT_PREFIX/bin/guile
+fi
+if [ -e $COOT_PREFIX/libexec/guile ] ; then
+    GUILE_BIN=$COOT_PREFIX/libexec/guile
+fi
+
+if [ $systype = Linux ] ; then
+   if [ -z "$LD_LIBRARY_PATH" ] ;  then
+       LD_LIBRARY_PATH=$COOT_PREFIX/lib
+   else
+       LD_LIBRARY_PATH=$COOT_PREFIX/lib:${LD_LIBRARY_PATH}
+   fi
+fi
+
+if [ $systype = Darwin ] ; then
+   if [ -z "$DYLD_FALLBACK_LIBRARY_PATH" ] ;  then
+       DYLD_FALLBACK_LIBRARY_PATH=$COOT_PREFIX/lib
+   else
+       DYLD_FALLBACK_LIBRARY_PATH=$COOT_PREFIX/lib:${DYLD_FALLBACK_LIBRARY_PATH}
+   fi
+   if [ -z "$LTDL_LIBRARY_PATH" ] ;  then
+       LTDL_LIBRARY_PATH=$COOT_PREFIX/lib
+   else
+       OLD_LTDL_LIBRARY_PATH=${LTDL_LIBRARY_PATH}
+       LTDL_LIBRARY_PATH=$COOT_PREFIX/lib:${LTDL_LIBRARY_PATH}
+   fi
+fi
+
+if [ -z "$GI_TYPELIB_PATH" ] ; then
+    if [ -e  /usr/lib/x86_64-linux-gnu/girepository-1.0 ] ; then
+        export GI_TYPELIB_PATH=/usr/lib/x86_64-linux-gnu/girepository-1.0
+    fi
+fi
+
+export SYMINFO
+export COOT_PREFIX
+export COOT_STANDARD_RESIDUES
+# export COOT_REFMAC_LIB_DIR
+export COOT_PYTHON_DIR
+# export PYTHONPATH
+# This is likely no longer necessary and it breaks python when using python installed in the system
+# export PYTHONHOME
+export COOT_SCHEME_DIR
+export COOT_REF_STRUCTS
+export COOT_RESOURCES_FILE
+export COOT_PIXMAPS_DIR
+export COOT_DATA_DIR
+export GUILE_LOAD_PATH
+export DYLD_FALLBACK_LIBRARY_PATH
+export LTDL_LIBRARY_PATH
+export LD_LIBRARY_PATH
+export LD_LIBRARYN32_PATH
+
+
+if [ "$1" = --check-libs ] ; then
+   if [ $systype = Darwin ] ; then
+      otool -L $coot_bin
+   else
+      ldd -r $coot_bin
+   fi
+else
+
+   for arg in "$@" ;
+   do
+       if [ "$arg" = --ccp4-mode ] ; then
+           ccp4_mode=true
+       fi
+       if [ "$arg" = --ccp4 ] ; then
+           ccp4_mode=true
+       fi
+       if [ "$arg" = --disable-libtool-hack ] ; then
+           LTDL_LIBRARY_PATH=$OLD_LTDL_LIBRARY_PATH
+       fi
+   done
+
+   # which rsvg-convert
+   # otool -L $HOME/bin/rsvg-convert
+
+   # this doesn't fix the svg icon/library problem
+   # export DYLD_FALLBACK_LIBRARY_PATH=/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib:/Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib
+   # install librsvg: that fixes the svg icon/library problem
+
+   # normal path
+   # "Use $@ to stop word splitting" from Ben Eisenbraun.
+   if [ -z "$ccp4_mode" ] ; then
+       # echo ::: DYLD_FALLBACK_LIBRARY_PATH is $DYLD_FALLBACK_LIBRARY_PATH
+       $coot_bin "$@"
+       status=$?
+   else
+       shift
+       libdir=lib # lib64?
+       coot_py_dir=$COOT_PREFIX/$libdir/python@PYTHON_VERSION@/site-packages/coot
+       $PYTHON $coot_py_dir/coot_output_to_window.py "$@"
+       status=$?
+   fi
+   if [ $status != 0 ] ; then
+      echo Coot crashed.
+   fi
+   exit $status
+fi

@@ -244,11 +244,6 @@ if USE_BACKWARD
    BACKWARD_FLAGS=-DUSE_BACKWARD
 endif
 
-if RELOCATABLE_BINARIES
-    # make coot from coot.in
-else
-    # make coot from coot_bin
-endif
 
 # SWIG_FLAGS is something of a misnomer.  It actually defines
 # COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
