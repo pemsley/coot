@@ -143,7 +143,7 @@ coot::molecule_t::M2T_updateFloatParameter(const std::string &param_name, float 
    bool done = false;
    for (unsigned int i=0; i<M2T_float_params.size(); i++) {
       if (param_name == M2T_float_params[i].first) {
-         M2T_float_params[i].first = value;
+         M2T_float_params[i].second = value;
          done = true;
          break;
       }
@@ -160,7 +160,7 @@ coot::molecule_t::M2T_updateIntParameter(const std::string &param_name, int valu
    bool done = false;
    for (unsigned int i=0; i<M2T_int_params.size(); i++) {
       if (param_name == M2T_int_params[i].first) {
-         M2T_int_params[i].first = value;
+         M2T_int_params[i].second = value;
          done = true;
          break;
       }
