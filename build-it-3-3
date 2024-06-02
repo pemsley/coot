@@ -1088,7 +1088,7 @@ if test $OS = Linux ; then
    if [ -e /bin/rpm ] ; then
       if rpm -a ; then
          if test -e /etc/os-release ; then
-             dist_name=$(grep ^ID /etc/os-release | sed -e 's/ID=//')
+             dist_name=$(grep ^ID= /etc/os-release | sed -e 's/ID=//')
              dist_ver=$(grep ^VERSION_ID /etc/os-release | sed -e 's/VERSION_ID=//')
          else
              for i in fedora-release redhat-release redhat-release-workstation centos-release sl-release openSUSE-release ; do
@@ -1134,7 +1134,7 @@ if test $OS = Linux ; then
     esac
     ;;
 
-    fedora | centos | openSUSE )
+    fedora | centos | openSUSE | rocky)
       systype=${architecture}-${dist_name}-${dist_ver}
     ;;
 
@@ -2766,6 +2766,7 @@ if [ $OS = Darwin ] ; then
       build_openssl=true
    fi
 else
+   # what about rocky here also?
    if test "$dist_name" = fedora ; then
        if [ -e $install_top_dir/include/openssl ] ; then
            build_openssl=false
