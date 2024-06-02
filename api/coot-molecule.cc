@@ -3594,7 +3594,10 @@ coot::molecule_t::get_gaussian_surface(float sigma, float contour_level,
          for (unsigned int icr=0; icr<colour_rules.size(); icr++) {
             const std::string &colour_rule_cid = colour_rules[icr].first;
             const std::string &colour          = colour_rules[icr].second;
-            if (std::string("//" + chain_id) == colour_rule_cid) {
+            if (std::string("//" + chain_id) == colour_rule_cid ||
+                colour_rule_cid == "/"    ||
+                colour_rule_cid == "//"   ||
+                colour_rule_cid == "/*/*/*/*") {
                coot::colour_holder ch(colour);
                glm::vec4 col = colour_holder_to_glm(ch);
                gs_mesh.change_colour(col);
