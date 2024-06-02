@@ -96,6 +96,9 @@ jobs:
         path: /Users/runner/Library/Logs/Homebrew/coot
         retention-days: 3
 
+    - name: ls the executable
+      run: ls -lt /opt/homebrew/bin
+
     - name: Does it run?
       run: /opt/homebrew/bin/coot --no-graphics < /dev/null
 
