@@ -21,19 +21,20 @@
 #ifndef LBG_SHARED_HH
 #define LBG_SHARED_HH
 
-namespace coot {
+#include <iostream>
 
+namespace coot {
 
    class bash_distance_t {
    public:
       double dist;
       bool limited;
       bash_distance_t() {
-	 limited = 0;
+	 limited = false;
 	 dist = -1;
       }
-      bash_distance_t(double d) {
-	 limited = 1;
+      explicit bash_distance_t(const double &d) {
+	 limited = true;
 	 dist = d;
       }
       bool unlimited() const {

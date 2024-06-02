@@ -61,7 +61,7 @@ namespace coot {
 
    // the reference_residue is the flat residue
    void write_ligand_atom_accessibilities(const std::vector<std::pair<coot::atom_spec_t, float> > &sav,
-					  const coot::flev_attached_hydrogens_t &attached_hydrogens,
+					  const pli::flev_attached_hydrogens_t &attached_hydrogens,
 					  mmdb::Residue *reference_residue);
 
    void ligand_check_percentiles_dialog(residue_spec_t spec,

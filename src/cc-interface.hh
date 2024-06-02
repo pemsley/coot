@@ -1393,7 +1393,7 @@ std::vector<int> ligand_search_make_conformers_internal();
 /*  ----------------------------------------------------------------------- */
 //                  animated ligand interactions
 /*  ----------------------------------------------------------------------- */
-void add_animated_ligand_interaction(int imol, const coot::fle_ligand_bond_t &lb);
+void add_animated_ligand_interaction(int imol, const pli::fle_ligand_bond_t &lb);
 
 
 /*  ----------------------------------------------------------------------- */

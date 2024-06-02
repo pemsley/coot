@@ -24,25 +24,25 @@
 // Use coot::h_bonds class to generate ligands.  We do that by creating a synthetic
 // temporary  molecule and atom selections.
 //
-std::vector<coot::fle_ligand_bond_t>
-coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
-			   const std::vector<mmdb::Residue *> &residues,
-			   mmdb::Manager *mol,
-			   const std::map<std::string, std::string> &name_map,
-			   const coot::protein_geometry &geom,
-			   float water_dist_max,
-			   float h_bond_dist_max) {
+std::vector<pli::fle_ligand_bond_t>
+pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
+                          const std::vector<mmdb::Residue *> &residues,
+                          mmdb::Manager *mol,
+                          const std::map<std::string, std::string> &name_map,
+                          const coot::protein_geometry &geom,
+                          float water_dist_max,
+                          float h_bond_dist_max) {
 
-   std::vector<coot::fle_ligand_bond_t> v; // returned value
+   std::vector<fle_ligand_bond_t> v; // returned value
    bool debug = true;
 
    if (debug) {
       std::cout << "::::::::::::::::::::: get_fle_ligand_bonds() inputs: " << std::endl;
-      std::cout << "::::::::: ligand_res: " << ligand_res << " " << residue_spec_t(ligand_res) <<
+      std::cout << "::::::::: ligand_res: " << ligand_res << " " << coot::residue_spec_t(ligand_res) <<
 	 std::endl;
       std::cout << "::::::::: n residues: " << residues.size() << std::endl;
       for (unsigned int ires=0; ires<residues.size(); ires++)
-	 std::cout << ":::::::::      residue: " << ires << " " << residue_spec_t(residues[ires])
+	 std::cout << ":::::::::      residue: " << ires << " " << coot::residue_spec_t(residues[ires])
 		   << std::endl;
       std::cout << "::::::::: mol: " << mol << std::endl;
       std::cout << "::::::::: name map size: " << name_map.size() << std::endl;
@@ -157,7 +157,7 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	    //
 	    // coot::fle_ligand_bond_t bond(ligand_atom_name, bond_type, hbonds[i].dist, res_spec);
 	    //
-	    coot::fle_ligand_bond_t bond(coot::atom_spec_t(ligand_atom),
+	    fle_ligand_bond_t bond(coot::atom_spec_t(ligand_atom),
 					 coot::atom_spec_t(env_residue_atom), 
 					 bond_type,
 					 hbonds[i].dist+explict_H_bond_fudge_factor, is_bond_to_water);
@@ -179,11 +179,11 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 
       // by distance and by LINK
 
-      std::vector<coot::fle_ligand_bond_t> covalent_bonds_d =
+      std::vector<fle_ligand_bond_t> covalent_bonds_d =
 	 get_covalent_bonds_by_distance(m.second, SelHnd_lig, SelHnd_all, ligand_spec, geom);
-      std::vector<coot::fle_ligand_bond_t> covalent_bonds_l =
+      std::vector<fle_ligand_bond_t> covalent_bonds_l =
 	 get_covalent_bonds_by_links(ligand_res, mol);
-      std::vector<coot::fle_ligand_bond_t> covalent_bonds = covalent_bonds_d;
+      std::vector<fle_ligand_bond_t> covalent_bonds = covalent_bonds_d;
       // now add in bonds if they are not in there already
       for (unsigned int i=0; i<covalent_bonds_l.size(); i++)
 	 if (std::find(covalent_bonds_d.begin(), covalent_bonds_d.end(), covalent_bonds_l[i])
@@ -199,7 +199,7 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
       //   metal bonds 
       // -----------------------
 
-      std::vector<coot::fle_ligand_bond_t> metal_bonds = get_metal_bonds(ligand_res, residues);
+      std::vector<fle_ligand_bond_t> metal_bonds = get_metal_bonds(ligand_res, residues);
       for (unsigned int i=0; i<metal_bonds.size(); i++)
 	 v.push_back(metal_bonds[i]);
 
@@ -231,18 +231,18 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 
 
 
-std::vector<coot::fle_ligand_bond_t>
-coot::get_covalent_bonds_by_distance(mmdb::Manager *mol,
-				     int SelHnd_lig,
-				     int SelHnd_all,
-				     const residue_spec_t &ligand_spec,
-				     const protein_geometry &geom) {
+std::vector<pli::fle_ligand_bond_t>
+pli::get_covalent_bonds_by_distance(mmdb::Manager *mol,
+                                    int SelHnd_lig,
+                                    int SelHnd_all,
+                                    const coot::residue_spec_t &ligand_spec,
+                                    const coot::protein_geometry &geom) {
 
    // 20101016, hydrogens don't make covalent bonds between ligands
    // and protein (or residues to residues in general) - so these get
    // filtered out.
    
-   std::vector<coot::fle_ligand_bond_t> v;
+   std::vector<fle_ligand_bond_t> v;
    int SelHnd_local = mol->NewSelection();
    mol->SelectAtoms(SelHnd_local, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
    mol->Select(SelHnd_local, mmdb::STYPE_ATOM, 0, ligand_spec.chain_id.c_str(),
@@ -321,10 +321,10 @@ coot::get_covalent_bonds_by_distance(mmdb::Manager *mol,
 		     if (std::find(contacting_pairs_vec.begin(), contacting_pairs_vec.end(), pair) ==
 			 contacting_pairs_vec.end()) {
 			contacting_pairs_vec.push_back(pair);
-			int bond_type = coot::fle_ligand_bond_t::BOND_COVALENT;
-			coot::fle_ligand_bond_t bond(coot::atom_spec_t(at_1), // ligand
-						     coot::atom_spec_t(at_2), // env residue
-						     bond_type, d, false);
+			int bond_type = fle_ligand_bond_t::BOND_COVALENT;
+			fle_ligand_bond_t bond(coot::atom_spec_t(at_1), // ligand
+                                               coot::atom_spec_t(at_2), // env residue
+                                               bond_type, d, false);
 			v.push_back(bond);
 		     }
 		  }
@@ -338,11 +338,11 @@ coot::get_covalent_bonds_by_distance(mmdb::Manager *mol,
    return v;
 }
 
-std::vector<coot::fle_ligand_bond_t>
-coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
+std::vector<pli::fle_ligand_bond_t>
+pli::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 				  mmdb::Manager *mol) {
 
-   std::vector<coot::fle_ligand_bond_t> v;
+   std::vector<fle_ligand_bond_t> v;
 
    std::string residue_ligand_chain_id;
    int residue_ligand_res_no;
@@ -366,7 +366,7 @@ coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 	       if (residue_ligand_chain_id == link->chainID1) {
 		  if (residue_ligand_res_no == link->seqNum1) {
 		     if (residue_ligand_ins_code == link->insCode1) {
-			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link, model_p);
+			std::pair<coot::atom_spec_t, coot::atom_spec_t> linked_atoms = coot::link_atoms(link, model_p);
 			mmdb::Atom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
 			mmdb::Atom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
 			if (at_1 && at_2) {
@@ -378,7 +378,7 @@ coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 			      if (alt_conf_1 != alt_conf_2)
 				 continue;
 
-			   double dist = distance(at_1, at_2);
+			   double dist = coot::distance(at_1, at_2);
 			   fle_ligand_bond_t b(linked_atoms.first, linked_atoms.second,
 					       fle_ligand_bond_t::BOND_COVALENT,
 					       dist, false);
@@ -392,7 +392,7 @@ coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 	       if (residue_ligand_chain_id == link->chainID2) {
 		  if (residue_ligand_res_no == link->seqNum2) {
 		     if (residue_ligand_ins_code == link->insCode2) {
-			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link, model_p);
+			std::pair<coot::atom_spec_t, coot::atom_spec_t> linked_atoms = coot::link_atoms(link, model_p);
 			mmdb::Atom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
 			mmdb::Atom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
 			if (at_1 && at_2) { 
@@ -404,7 +404,7 @@ coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 			      if (alt_conf_1 != alt_conf_2)
 				 continue;
 
-			   double dist = distance(at_1, at_2);
+			   double dist = coot::distance(at_1, at_2);
 			   fle_ligand_bond_t b(linked_atoms.second, linked_atoms.first,
 					       fle_ligand_bond_t::BOND_COVALENT,
 					       dist, false);
@@ -421,16 +421,15 @@ coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 }
 
 
-std::vector<coot::fle_ligand_bond_t>
-coot::get_metal_bonds(mmdb::Residue *ligand_residue, const std::vector<mmdb::Residue *> &residues) {
+std::vector<pli::fle_ligand_bond_t>
+pli::get_metal_bonds(mmdb::Residue *ligand_residue, const std::vector<mmdb::Residue *> &residues) {
 
    // a non-Hydrogen, non-Carbon ligand atom, that is.
    double max_dist_metal_to_ligand_atom = 3.5; // pass this parameter?
    
-   std::vector<coot::fle_ligand_bond_t> v;
+   std::vector<fle_ligand_bond_t> v;
 
    double best_dist_sqrd = max_dist_metal_to_ligand_atom * max_dist_metal_to_ligand_atom;
-   std::string ligand_atom_name; // goes with best_dist_sqrd
    mmdb::Atom *ligand_atom = NULL;
    mmdb::Atom *env_residue_atom = NULL;
    
@@ -438,7 +437,7 @@ coot::get_metal_bonds(mmdb::Residue *ligand_residue, const std::vector<mmdb::Res
    int n_ligand_residue_atoms;
    ligand_residue->GetAtomTable(ligand_residue_atoms, n_ligand_residue_atoms);
    for (unsigned int i=0; i<residues.size(); i++) { 
-      if (coot::is_a_metal(residues[i])) {
+      if (is_a_metal(residues[i])) {
 	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 residues[i]->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -472,10 +471,10 @@ coot::get_metal_bonds(mmdb::Residue *ligand_residue, const std::vector<mmdb::Res
 	    }
 	 }
 	 if (best_dist_sqrd < max_dist_metal_to_ligand_atom * max_dist_metal_to_ligand_atom) {
-	    coot::fle_ligand_bond_t bond(atom_spec_t(ligand_atom),
-					 atom_spec_t(env_residue_atom),
- 					 coot::fle_ligand_bond_t::METAL_CONTACT_BOND,
- 					 sqrt(best_dist_sqrd), false);
+	    fle_ligand_bond_t bond(coot::atom_spec_t(ligand_atom),
+                                   coot::atom_spec_t(env_residue_atom),
+                                   fle_ligand_bond_t::METAL_CONTACT_BOND,
+                                   sqrt(best_dist_sqrd), false);
 	    v.push_back(bond);
 	 }
       }
@@ -488,7 +487,7 @@ coot::get_metal_bonds(mmdb::Residue *ligand_residue, const std::vector<mmdb::Res
 // should be in coot-utils perhaps?
 //
 bool
-coot::is_a_metal(mmdb::Residue *res) {
+pli::is_a_metal(mmdb::Residue *res) {
 
    bool r = 0;
    std::string res_name = res->GetResName();
@@ -497,8 +496,6 @@ coot::is_a_metal(mmdb::Residue *res) {
    if (res_name == "CA")
       return 1;
    if (res_name == "MN")
-      return 1;
-   if (res_name == "FE")
       return 1;
    if (res_name == "FE")
       return 1;
@@ -530,15 +527,15 @@ coot::is_a_metal(mmdb::Residue *res) {
 
 
 // consider where a peptide is the ligand
-std::vector<coot::fle_ligand_bond_t>
-coot::protein_ligand_interactions(mmdb::Residue *ligand_residue_p, mmdb::Manager *mol,
-				  coot::protein_geometry *geom_p,
-				  float h_bond_dist_max) {
+std::vector<pli::fle_ligand_bond_t>
+pli::protein_ligand_interactions(mmdb::Residue *ligand_residue_p, mmdb::Manager *mol,
+                                 coot::protein_geometry *geom_p,
+                                 float h_bond_dist_max) {
 
    float water_dist_max = 3.6; // pass this
    float residues_near_radius = 5.0; // pass this
 
-   residue_spec_t spec(ligand_residue_p);
+   coot::residue_spec_t spec(ligand_residue_p);
 
    int SelHnd_all = mol->NewSelection(); // d
    int SelHnd_lig = mol->NewSelection(); // d
@@ -561,9 +558,9 @@ coot::protein_ligand_interactions(mmdb::Residue *ligand_residue_p, mmdb::Manager
    std::pair<bool, int> status = hb.check_hb_status(SelHnd_lig, mol, *geom_p);
    if (! status.first)
       std::cout << "WARNING:: no HB status on atoms of ligand\n";
-   std::vector<h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig,
-							     SelHnd_all,
-							     mol, *geom_p, h_bond_dist_max);
+   std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig,
+                                                                   SelHnd_all,
+                                                                   mol, *geom_p, h_bond_dist_max);
 
    for (unsigned int i=0; i<hbonds.size(); i++) {
       if (true)
@@ -594,7 +591,7 @@ coot::protein_ligand_interactions(mmdb::Residue *ligand_residue_p, mmdb::Manager
 // return 100 if no other contact found (strange!)
 // 
 double
-coot::find_water_protein_length(mmdb::Residue *ligand_residue, mmdb::Manager *mol) {
+pli::find_water_protein_length(mmdb::Residue *ligand_residue, mmdb::Manager *mol) {
 
    double dist = 100;
 
@@ -604,7 +601,6 @@ coot::find_water_protein_length(mmdb::Residue *ligand_residue, mmdb::Manager *mo
    mmdb::PPAtom ligand_residue_atoms = 0;
    int n_ligand_residue_atoms;
    ligand_residue->GetAtomTable(ligand_residue_atoms, n_ligand_residue_atoms);
-
 
    int imod = 1;
    mmdb::Model *model_p = mol->GetModel(imod);

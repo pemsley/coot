@@ -3327,7 +3327,7 @@ void draw_map_molecule(bool draw_transparent_maps,
    // --------- Pretty (hopefully) animated ligand interactions -----------
 
    std::vector<coot::animated_ligand_interactions_t> animated_ligand_interactions_vec;
-   void add_animated_ligand_interaction(const  coot::fle_ligand_bond_t &lb);
+   void add_animated_ligand_interaction(const  pli::fle_ligand_bond_t &lb);
 
    void draw_animated_ligand_interactions(const gl_context_info_t &gl,
 					  const long &start_time) const;

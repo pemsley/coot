@@ -299,20 +299,20 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 
 	       // using new (20100522) h_bond class (based on geometry)
 	       //
- 	       std::vector<coot::fle_ligand_bond_t> bonds_to_ligand = 
- 		  coot::get_fle_ligand_bonds(res_ref, filtered_residues, mol,
- 					     name_map, *geom_p,
+	       std::vector<pli::fle_ligand_bond_t> bonds_to_ligand =
+		  pli::get_fle_ligand_bonds(res_ref, filtered_residues, mol,
+					     name_map, *geom_p,
 					     graphics_info_t::fle_water_dist_max,
 					     graphics_info_t::fle_h_bond_dist_max);
 
 	       add_animated_ligand_interactions(imol, bonds_to_ligand);
 
-	       if (1) 
+	       if (true)
 		  std::cout << "Found ================== " << bonds_to_ligand.size()
 			    << " ==================== bonds to ligand " << std::endl;
 
 	       if (filtered_residues.size()) {
-		  std::vector<coot::fle_residues_helper_t> centres(filtered_residues.size());
+		  std::vector<pli::fle_residues_helper_t> centres(filtered_residues.size());
 		  for (unsigned int ires=0; ires<filtered_residues.size(); ires++) { 
 		     mmdb::Residue *res_copy = coot::util::deep_copy_this_residue(filtered_residues[ires]);
 		     std::string res_name = filtered_residues[ires]->GetResName();
@@ -323,7 +323,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 			if (0) 
 			   std::cout << "DEBUG:: creating fle_centre with centre "
 				     << c.second.format() << std::endl;
-			coot::fle_residues_helper_t fle_centre(c.second,
+			pli::fle_residues_helper_t fle_centre(c.second,
 							       coot::residue_spec_t(filtered_residues[ires]),
 							       res_name);
 			centres[ires] = fle_centre;
@@ -345,14 +345,14 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 
 		     // ----------- residue infos ----------
 		     // 
-		     coot::pi_stacking_container_t pi_stack_info(p.second, filtered_residues, res_ref);
+		     pli::pi_stacking_container_t pi_stack_info(p.second, filtered_residues, res_ref);
 
 #ifdef VERY_OLD_FLEV_FUNCTIONS		     
 		     write_fle_centres(centres, bonds_to_ligand, sed, pi_stack_info, flat_res);
 #endif		     
 		     // ----------- ligand atom infos ------
 		     // 
-		     coot::flev_attached_hydrogens_t ah(p.second);
+		     pli::flev_attached_hydrogens_t ah(p.second);
 		     ah.cannonballs(res_ref, prodrg_output_3d_pdb_file_name, p.second);
 		     ah.distances_to_protein(res_ref, mol);
 		     write_ligand_atom_accessibilities(s_a_v, ah, flat_res);
@@ -371,7 +371,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 		     lig_build::molfile_molecule_t m;
 		     m.read(prodrg_output_flat_mol_file_name);
 
-		     std::vector<coot::fle_residues_helper_t> res_centres =
+		     std::vector<pli::fle_residues_helper_t> res_centres =
 			coot::get_flev_residue_centres(res_ref,
 						       mol, // mol_for_res_ref,
 						       filtered_residues,
@@ -508,8 +508,8 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 
 	       // assign atom names
 	       if (int(rdkm.getNumAtoms()) < res_ref->GetNumberOfAtoms()) {
-		  std::cout << "WARNING:: failure to construct rdkit molecule " << rdkm.getNumAtoms() << " vs " << res_ref->GetNumberOfAtoms()
-	                    << std::endl;
+		  std::cout << "WARNING:: failure to construct rdkit molecule " << rdkm.getNumAtoms()
+                            << " vs " << res_ref->GetNumberOfAtoms() << std::endl;
 	       } else {
 		  mmdb::PPAtom residue_atoms = 0;
 		  int n_residue_atoms;
@@ -691,7 +691,7 @@ coot::make_add_reps_for_near_residues(std::vector<mmdb::Residue *> filtered_resi
 
 void
 coot::add_animated_ligand_interactions(int imol,
-				       const std::vector<coot::fle_ligand_bond_t> &ligand_bonds) {
+				       const std::vector<pli::fle_ligand_bond_t> &ligand_bonds) {
 
    for (unsigned int i=0; i<ligand_bonds.size(); i++) {
       // std::cout << "Here....  adding animated ligand interaction " << i << std::endl;
@@ -702,7 +702,7 @@ coot::add_animated_ligand_interactions(int imol,
 
 
 std::ostream &
-coot::operator<<(std::ostream &s, fle_residues_helper_t fler) {
+coot::operator<<(std::ostream &s, pli::fle_residues_helper_t fler) {
 
    s << fler.is_set;
    if (fler.is_set) {
@@ -713,13 +713,13 @@ coot::operator<<(std::ostream &s, fle_residues_helper_t fler) {
 }
 
 
-std::vector<coot::fle_residues_helper_t>
+std::vector<pli::fle_residues_helper_t>
 coot::get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,
 			       mmdb::Manager *mol_containing_residue_ligand, 
 			       std::vector<mmdb::Residue *> residues,
 			       mmdb::Manager *flat_mol) {
 
-   std::vector<coot::fle_residues_helper_t> centres;
+   std::vector<pli::fle_residues_helper_t> centres;
 
    if (flat_mol) { 
 
@@ -747,9 +747,9 @@ coot::get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,
 	    std::pair<bool, clipper::Coord_orth> c =
 	       coot::util::get_residue_centre(res_copy);
 	    if (c.first) {
-	       coot::fle_residues_helper_t fle_centre(c.second,
-						      coot::residue_spec_t(residues[ires]),
-						      res_name);
+	       pli::fle_residues_helper_t fle_centre(c.second,
+                                                     coot::residue_spec_t(residues[ires]),
+                                                     res_name);
 
 	       // Setting the interaction position to the residue
 	       // centre is a hack.  What we need to be is the middle
@@ -982,7 +982,7 @@ coot::write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 // the reference_residue is the flat residue
 void
 coot::write_ligand_atom_accessibilities(const std::vector<std::pair<coot::atom_spec_t, float> > &sav,
-					const coot::flev_attached_hydrogens_t &attached_hydrogens,
+					const pli::flev_attached_hydrogens_t &attached_hydrogens,
 					mmdb::Residue *reference_residue) {
 
    // for each of the atoms in reference_residue, find the spec in sav
@@ -1798,6 +1798,8 @@ clipper::Coord_orth
 coot::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(mmdb::Atom *lig_at, mmdb::Atom *H_at, // not H_at
 							     mmdb::Residue *ligand_residue,
 							     const coot::protein_geometry &geom) const {
+
+   clipper::Coord_orth ba;
    int imol = 0; // FIXME needs checking
    std::string res_name(lig_at->residue->GetResName());
    std::pair<bool, dictionary_residue_restraints_t> p = 
@@ -1848,12 +1850,11 @@ coot::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(mmdb::Atom *lig_at,
 	 m += " found in dictionary for ";
 	 m += res_name;
 	 throw std::runtime_error(m);
-      } else {
-	 // good
-	 return clipper::Coord_orth(bonded_atom->x, bonded_atom->y, bonded_atom->z);
       }
+      // good
+      ba = clipper::Coord_orth(bonded_atom->x, bonded_atom->y, bonded_atom->z);
    }
-
+   return ba;
 }
 
 

@@ -31,13 +31,23 @@ AM_CPPFLAGS = \
 
 lib_LTLIBRARIES=libcoot-pli.la
 
+check_PROGRAMS = test-flev
+
+test_flev_SOURCES = test-flev.cc
+
+test_flev_LDADD = \
+   ./libcoot-pli.la \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+   $(top_builddir)/geometry/libcoot-geometry.la
+
 # put specs into a python-loving environment when we need access to coot-pli from python
 
 # remove (python-using) specs from coot-pli
 libcoot_pli_la_SOURCES = protein-ligand-interactions.cc flev-annotations.cc pi-stacking.cc \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
-	sdf-interface.cc
+	sdf-interface.cc         \
+	flev.cc flev-attached-hydrogens.cc
 
 libcoot_pli_la_LIBADD = $(top_builddir)/coot-utils/libcoot-coord-utils.la \
                         $(top_builddir)/geometry/libcoot-geometry.la      \
@@ -48,6 +58,6 @@ libcoot_pli_la_LIBADD = $(top_builddir)/coot-utils/libcoot-coord-utils.la \
 libcoot_pli_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 pkginclude_HEADERS = flev-annotations.hh protein-ligand-interactions.hh pi-stacking.hh specs.hh \
-	sdf-interface.hh sdf-internal.hh sdf-interface-for-export.hh
+	sdf-interface.hh sdf-internal.hh sdf-interface-for-export.hh flev.hh
 
 pkgincludedir = $(includedir)/coot/pli
