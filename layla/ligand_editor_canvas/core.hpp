@@ -24,6 +24,7 @@
 
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
+#include <rdkit/GraphMol/MolPickler.h>
 #include <memory>
 #include <vector>
 #include "render.hpp"
@@ -236,6 +237,7 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     void set_display_mode(coot::ligand_editor_canvas::DisplayMode value) noexcept;
     std::string get_smiles() noexcept;
     std::string get_smiles_for_molecule(unsigned int molecule_idx) noexcept;
+    std::string get_pickled_molecule(unsigned int molecule_idx) noexcept;
     void clear_molecules() noexcept;
 
     /// For connecting javascript handlers to signals
