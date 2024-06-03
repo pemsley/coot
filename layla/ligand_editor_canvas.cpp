@@ -615,6 +615,14 @@ std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCa
     }
 }
 
+std::string coot_ligand_editor_canvas_get_pickled_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
+    std::string ret = "";
+    if(molecule_idx < self->rdkit_molecules->size()) {
+        RDKit::MolPickler::pickleMol(*(*self->rdkit_molecules)[molecule_idx].get(), ret);
+    }
+    return ret;
+}
+
 #ifndef __EMSCRIPTEN__
 void coot_ligand_editor_canvas_draw_on_cairo_surface(CootLigandEditorCanvas* self, cairo_t* cr) noexcept {
     PangoLayout* pango_layout = pango_cairo_create_layout(cr);
