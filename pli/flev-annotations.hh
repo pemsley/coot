@@ -98,7 +98,7 @@ namespace pli {
       
       
    public:
-      flev_attached_hydrogens_t(const coot::dictionary_residue_restraints_t &restraints);
+      explicit flev_attached_hydrogens_t(const coot::dictionary_residue_restraints_t &restraints);
 
       std::vector<named_torsion_t> named_torsions;
       

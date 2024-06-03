@@ -47,12 +47,13 @@ libcoot_pli_la_SOURCES = protein-ligand-interactions.cc flev-annotations.cc pi-s
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	sdf-interface.cc         \
-	flev.cc flev-attached-hydrogens.cc
+	flev.cc flev-attached-hydrogens.cc dots-representation-info.cc
 
-libcoot_pli_la_LIBADD = $(top_builddir)/coot-utils/libcoot-coord-utils.la \
-                        $(top_builddir)/geometry/libcoot-geometry.la      \
-                        $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
-                        $(CLIPPER_LIBS) $(MMDB_LIBS)                      \
+libcoot_pli_la_LIBADD = $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+			$(top_builddir)/coot-utils/libcoot-coord-extras.la \
+                        $(top_builddir)/geometry/libcoot-geometry.la       \
+                        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+                        $(CLIPPER_LIBS) $(MMDB_LIBS)                       \
                         $(RDKIT_LIBS) $(BOOST_LDFLAGS)
 
 libcoot_pli_la_LDFLAGS = $(SHARED_LDFLAGS)

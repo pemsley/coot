@@ -227,3 +227,70 @@ pli::flev_attached_hydrogens_t::get_radius(const std::string &ele) const {
       radius = 1.8;
    return radius;
 }
+
+// find an atom (the atom, perhaps) bonded to lig_at that is not H_at.
+// Return its position.
+//
+// Can throw a std::runtime_error if not found.
+//
+clipper::Coord_orth
+pli::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(mmdb::Atom *lig_at, mmdb::Atom *H_at, // not H_at
+                                                            mmdb::Residue *ligand_residue,
+                                                            const coot::protein_geometry &geom) const {
+   int imol = 0; // FIXME needs checking
+   std::string res_name(lig_at->residue->GetResName());
+   std::pair<bool, coot::dictionary_residue_restraints_t> p =
+      geom.get_monomer_restraints_at_least_minimal(res_name, imol);
+
+   if (! p.first) {
+      std::string m = "No monomer type ";
+      m += res_name;
+      m += " found in dictionary";
+      throw std::runtime_error(m);
+   } else {
+      mmdb::Atom *bonded_atom = NULL;
+      std::string bonded_atom_name;
+      std::string lig_at_name = lig_at->name;
+      std::string H_at_name = H_at->name;
+      for (unsigned int ibond=0; ibond<p.second.bond_restraint.size(); ibond++) {
+         std::string atom_name_1 = p.second.bond_restraint[ibond].atom_id_1_4c();
+         std::string atom_name_2 = p.second.bond_restraint[ibond].atom_id_2_4c();
+         if (atom_name_1 == lig_at_name) {
+            if (atom_name_2 != H_at_name) {
+               bonded_atom_name = atom_name_2;
+               break;
+            }
+         }
+         if (atom_name_2 == lig_at_name) {
+            if (atom_name_1 != H_at_name) {
+               bonded_atom_name = atom_name_1;
+               break;
+            }
+         }
+      }
+      if (bonded_atom_name != "") {
+         mmdb::PPAtom residue_atoms = 0;
+         int n_residue_atoms;
+         ligand_residue->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int iat=0; iat<n_residue_atoms ; iat++) {
+            std::string atom_name = residue_atoms[iat]->name;
+            if (atom_name == bonded_atom_name) {
+               bonded_atom = residue_atoms[iat];
+               break;
+            }
+         }
+      }
+
+      if (! bonded_atom) {
+         std::string m = "No atom bonded to ";
+         m += lig_at_name;
+         m += " found in dictionary for ";
+         m += res_name;
+         throw std::runtime_error(m);
+      } else {
+         // good
+         return clipper::Coord_orth(bonded_atom->x, bonded_atom->y, bonded_atom->z);
+      }
+   }
+
+}
