@@ -43,10 +43,15 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   // TODO: RDKit typedefinitions
   // function("remove_non_polar_hydrogens", &coot::layla::remove_non_polar_hydrogens);
   function("append_from_smiles", &lhasa::append_from_smiles);
+  function("append_from_pickle", &lhasa::append_from_pickle);
   // TODO: RDKit typedefinitions
   // function("rdkit_mol_from_smiles", &lhasa::rdkit_mol_from_smiles);
   // TODO: RDKit typedefinitions
   // function("rdkit_mol_to_smiles", &lhasa::rdkit_mol_to_smiles);
+  // TODO: RDKit typedefinitions
+  // function("rdkit_mol_from_pickle", &lhasa::rdkit_mol_from_pickle);
+  // TODO: RDKit typedefinitions
+  // function("rdkit_mol_to_pickle", &lhasa::rdkit_mol_to_pickle);
   enum_<DisplayMode>("DisplayMode")
     .value("Standard", DisplayMode::Standard)
     .value("AtomIndices", DisplayMode::AtomIndices)
@@ -212,6 +217,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("set_display_mode", &CootLigandEditorCanvas::set_display_mode)
     .function("get_smiles", &CootLigandEditorCanvas::get_smiles)
     .function("get_smiles_for_molecule", &CootLigandEditorCanvas::get_smiles_for_molecule)
+    .function("get_pickled_molecule", &CootLigandEditorCanvas::get_pickled_molecule)
     .function("clear_molecules", &CootLigandEditorCanvas::clear_molecules)
     .function("on_hover", &CootLigandEditorCanvas::on_hover)
     .function("on_scroll", &CootLigandEditorCanvas::on_scroll)

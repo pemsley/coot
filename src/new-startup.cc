@@ -676,10 +676,11 @@ new_startup_application_activate(GtkApplication *application,
 
    activate_data->application = application;
 
+   std::string version = "1.x"; // use std::string(VERSION)?
 #ifdef WINDOWS_MINGW
-   std::string window_name = "WinCoot-" + std::string(VERSION);
+   std::string window_name = "WinCoot-" + version;
 #else
-   std::string window_name = "Coot-" + std::string(VERSION);
+   std::string window_name = "Coot-" + version;
 #endif
    GtkWidget *app_window = gtk_application_window_new(application);
    gtk_window_set_application(GTK_WINDOW(app_window), application);

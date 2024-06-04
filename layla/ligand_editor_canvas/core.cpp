@@ -320,6 +320,10 @@ std::string CootLigandEditorCanvas::get_smiles_for_molecule(unsigned int molecul
     return coot_ligand_editor_canvas_get_smiles_for_molecule(this, molecule_idx);
 }
 
+std::string CootLigandEditorCanvas::get_pickled_molecule(unsigned int molecule_idx) noexcept {
+    return coot_ligand_editor_canvas_get_pickled_molecule(this, molecule_idx);
+}
+
 void CootLigandEditorCanvas::clear_molecules() noexcept {
     coot_ligand_editor_canvas_clear_molecules(this);
 }

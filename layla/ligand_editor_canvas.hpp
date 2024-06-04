@@ -61,6 +61,7 @@ void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, co
 
 std::string coot_ligand_editor_canvas_get_smiles(CootLigandEditorCanvas* self) noexcept;
 std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept;
+std::string coot_ligand_editor_canvas_get_pickled_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept;
 
 #ifndef __EMSCRIPTEN__
 /// Takes ownership of the pointer

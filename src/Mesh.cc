@@ -3807,9 +3807,12 @@ Mesh::calculate_normals() {
       glm::vec3 d2 = v2 - v0;
       glm::vec3 c = glm::cross(d1, d2);
       glm::vec3 n = -glm::normalize(c);
-      normal_map[triangle.point_id[0]].push_back(n);
-      normal_map[triangle.point_id[1]].push_back(n);
-      normal_map[triangle.point_id[2]].push_back(n);
+      bool b = glm::any(glm::isnan(n));
+      if (!b) {
+         normal_map[triangle.point_id[0]].push_back(n);
+         normal_map[triangle.point_id[1]].push_back(n);
+         normal_map[triangle.point_id[2]].push_back(n);
+      }
    }
    std::map<unsigned int, std::vector<glm::vec3> >::const_iterator it;
    for (it=normal_map.begin(); it!=normal_map.end(); ++it) {
@@ -3820,6 +3823,7 @@ Mesh::calculate_normals() {
          sum += vecs[j];
       float fact = 1.0f/static_cast<float>(vecs.size());
       glm::vec3 av_norm = sum *= fact;
+      std::cout << glm::to_string(av_norm) << "\n";
       vertices[idx].normal = av_norm;
    }
    setup_buffers();
