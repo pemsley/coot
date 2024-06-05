@@ -27,6 +27,8 @@
 
 
 // Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
+#ifndef RD_MOLPICKLE_H
+
 #ifdef VERSION
 #define __COOT_VERSION_VALUE VERSION
 #undef VERSION
@@ -38,6 +40,8 @@
 #define VERSION __COOT_VERSION_VALUE
 #undef __COOT_VERSION_VALUE
 #endif
+
+#endif //RD_MOLPICKLE_H
 
 #include <memory>
 #include <vector>
