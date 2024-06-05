@@ -168,6 +168,10 @@ graphene_rect_t CanvasMolecule::get_on_screen_bounding_rect() const noexcept {
     return ret;
 }
 
+std::optional<CanvasMolecule::QEDInfo> CanvasMolecule::get_qed_info() const noexcept {
+    return this->qed_info;
+}
+
 
 void CanvasMolecule::perform_flip(FlipMode flip_mode) {
     for(auto& atom: this->cached_atom_coordinate_map.value()) {

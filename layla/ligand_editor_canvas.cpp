@@ -487,6 +487,18 @@ static void coot_ligand_editor_canvas_class_init(CootLigandEditorCanvasClass* kl
         G_TYPE_NONE /* return_type */,
         0     /* n_params */
     );
+    impl::qed_info_updated_signal = g_signal_new("qed-info-updated",
+        G_TYPE_FROM_CLASS (klass),
+        (GSignalFlags) (G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS),
+        0 /* class offset.Subclass cannot override the class handler (default handler). */,
+        NULL /* accumulator */,
+        NULL /* accumulator data */,
+        NULL /* C marshaller. g_cclosure_marshal_generic() will be used */,
+        G_TYPE_NONE /* return_type */,
+        2     /* n_params */,
+        G_TYPE_INT,
+        G_TYPE_POINTER
+    );
     GTK_WIDGET_CLASS(klass)->snapshot = coot_ligand_editor_canvas_snapshot;
     GTK_WIDGET_CLASS(klass)->measure = coot_ligand_editor_canvas_measure;
     G_OBJECT_CLASS(klass)->dispose = coot_ligand_editor_canvas_dispose;
@@ -564,13 +576,13 @@ void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std
 void coot_ligand_editor_canvas_undo_edition(CootLigandEditorCanvas* self) noexcept {
     self->undo_edition();
     self->queue_redraw();
-    _LIGAND_EDITOR_SIGNAL_EMIT(self, smiles_changed_signal);
+    self->emit_mutation_signals();
 }
 
 void coot_ligand_editor_canvas_redo_edition(CootLigandEditorCanvas* self) noexcept {
     self->redo_edition();
     self->queue_redraw();
-    _LIGAND_EDITOR_SIGNAL_EMIT(self, smiles_changed_signal);
+    self->emit_mutation_signals();
 }
 
 const RDKit::ROMol* coot_ligand_editor_canvas_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept {

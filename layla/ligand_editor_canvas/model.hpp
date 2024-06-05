@@ -184,7 +184,7 @@ class CanvasMolecule {
         unsigned int number_of_alerts;
         double molecular_weight;
         /// Hydrophobicity
-        double logp;
+        double alogp;
         double molecular_polar_surface_area;
         
     };
@@ -300,6 +300,7 @@ class CanvasMolecule {
     std::pair<float,float> get_on_screen_coords(float x, float y) const noexcept;
     std::optional<std::pair<float,float>> get_on_screen_coords_of_atom(unsigned int atom_idx) const noexcept;
     graphene_rect_t get_on_screen_bounding_rect() const noexcept;
+    std::optional<QEDInfo> get_qed_info() const noexcept;
     void perform_flip(FlipMode flip_mode);
     void rotate_by_angle(double radians);
 

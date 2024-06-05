@@ -153,6 +153,10 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
         gtk_text_buffer_set_text(buf,smiles.c_str(),-1);
     }), smiles_display);
 
+    g_signal_connect(canvas, "qed-info-updated", G_CALLBACK(+[](CootLigandEditorCanvas* self, unsigned int molecule_id, ligand_editor_canvas::CanvasMolecule::QEDInfo const* qed_info, gpointer user_data){
+        // todo
+    }), nullptr);
+
     gtk_scrolled_window_set_child(viewport, GTK_WIDGET(canvas));
     coot::layla::initialize_global_instance(canvas,GTK_WINDOW(win),GTK_LABEL(status_label));
     setup_actions(coot::layla::global_instance, win, builder);
