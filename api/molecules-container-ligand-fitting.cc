@@ -51,6 +51,24 @@ molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_e
 }
 #endif
 
+#include <GraphMol/MolPickler.h>
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+std::string
+molecules_container_t::get_rdkit_mol_pickle(const std::string &residue_name, int imol_enc) {
+
+   RDKIT_GRAPHMOL_EXPORT RDKit::MolPickler mp;
+   std::string pickle_string;
+   RDKit::RWMol mol = get_rdkit_mol(residue_name, imol_enc);
+   mp.pickleMol(mol, pickle_string);
+
+   std::ofstream f("test-mol.pickle");
+   f << pickle_string;
+   f.close();
+   return pickle_string;
+}
+#endif
+
 
 //! Ligand Fit
 //! @return a vector or the best fitting ligands to this blob.
