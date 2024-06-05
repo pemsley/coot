@@ -77,6 +77,7 @@ public:
         updateIntParameter  ("ribbonStyleAxialSampling",6);
         updateIntParameter  ("cylindersStyleAngularSampling",6);
         updateFloatParameter("cylindersStyleCylinderRadius",0.2);
+        updateIntParameter  ("dishStyleAngularSampling",32);
         updateFloatParameter("cylindersStyleBallRadius",0.2);        
         updateFloatParameter("surfaceStyleProbeRadius",1.4);
         updateFloatParameter("ballsStyleRadiusMultiplier",1.);
