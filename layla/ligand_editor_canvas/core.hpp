@@ -25,24 +25,6 @@
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
 
-
-// Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
-#ifndef RD_MOLPICKLE_H
-
-#ifdef VERSION
-#define __COOT_VERSION_VALUE VERSION
-#undef VERSION
-#endif
-
-#include <rdkit/GraphMol/MolPickler.h>
-
-#ifdef __COOT_VERSION_VALUE
-#define VERSION __COOT_VERSION_VALUE
-#undef __COOT_VERSION_VALUE
-#endif
-
-#endif //RD_MOLPICKLE_H
-
 #include <memory>
 #include <vector>
 #include "render.hpp"
