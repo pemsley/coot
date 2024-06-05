@@ -121,7 +121,7 @@ meshed_generic_display_object::add_points(std::vector<point_info_t> &piv, unsign
       glm::vec3 position_glm = coord_orth_to_glm(pi.position);
       float radius = 0.03 * static_cast<float>(pi.width);
       glm::vec4 col = colour_holder_to_glm(pi.colour);
-      std::cout << "in add_points() with colour " << glm::to_string(col) << std::endl;
+      // std::cout << "in add_points() with colour " << glm::to_string(col) << std::endl;
       std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > oct =
          wrapped_make_octasphere(num_subdivisions, position_glm, radius, col);
       mesh.import(oct);

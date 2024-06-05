@@ -11399,3 +11399,20 @@ In file included from /usr/include/gemmi/model.hpp:18,
 /usr/include/gemmi/elem.hpp:186:48: error: static assertion failed: Hmm
   186 |   static_assert(radii[static_cast<int>(El::D)] == 1.2f, "Hmm");
       |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~
+
+
+---
+Fri 31 May 23:47:08 BST 2024
+
+#include <GraphMol/MolPickler.h>
+
+   auto test_pickle = [] (const RDKit::RWMol &mol) {
+      std::cout << "pickle mol" << std::endl;
+      RDKIT_GRAPHMOL_EXPORT RDKit::MolPickler mp;
+      std::string pickle_string;
+      mp.pickleMol(mol, pickle_string);
+
+      std::ofstream f("test-mol.pickle");
+      f << pickle_string;
+      f.close();
+   };

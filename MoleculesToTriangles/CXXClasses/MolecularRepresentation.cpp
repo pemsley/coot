@@ -355,7 +355,7 @@ int MolecularRepresentation::drawDishyBases()
     std::shared_ptr<BallsPrimitive>balls(new BallsPrimitive());
 
     shared_ptr<CylindersPrimitive>cylinder(new CylindersPrimitive());
-    cylinder->setAngularSampling(intParameters["cylindersStyleAngularSampling"]);
+    cylinder->setAngularSampling(intParameters["dishStyleAngularSampling"]);
 
     float cylinderRadius = floatParameters[std::string("cylindersStyleCylinderRadius")];
     float ballRadius = floatParameters[std::string("cylindersStyleBallRadius")];
