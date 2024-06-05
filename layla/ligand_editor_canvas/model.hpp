@@ -175,6 +175,19 @@ class CanvasMolecule {
 
         float get_length() const noexcept;
     };
+
+    struct QEDInfo {
+        unsigned int number_of_hydrogen_bond_acceptors;
+        unsigned int number_of_hydrogen_bond_donors;
+        unsigned int number_of_rotatable_bonds;
+        unsigned int number_of_aromatic_rings;
+        unsigned int number_of_alerts;
+        double molecular_weight;
+        /// Hydrophobicity
+        double logp;
+        double molecular_polar_surface_area;
+        
+    };
     typedef std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond> AtomOrBond;
     typedef std::optional<AtomOrBond> MaybeAtomOrBond;
     private:
@@ -219,6 +232,9 @@ class CanvasMolecule {
     /// Used for various lookups: while drawing, in the lowering process itself, etc.
     std::map<unsigned int,std::vector<std::shared_ptr<Bond>>> bond_map;
 
+    /// QED info is updated while lowering from RDKit.
+    std::optional<QEDInfo> qed_info;
+
 
     /// Computes the scale used for drawing
     /// And interfacing with screen coordinates
@@ -246,6 +262,8 @@ class CanvasMolecule {
     ///
     /// Part of the lowering process.
     void shorten_double_bonds();
+
+    void update_qed_info();
 
     public:
 

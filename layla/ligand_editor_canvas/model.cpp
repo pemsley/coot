@@ -912,6 +912,15 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after) {
     if (sanitize_after) {
         RDKit::MolOps::sanitizeMol(*this->rdkit_molecule);
     }
+
+    // QED update
+    this->update_qed_info();
+}
+
+void CanvasMolecule::update_qed_info() {
+    
+    // todo: fill QED info
+    this->qed_info;
 }
 
 void CanvasMolecule::highlight_atom(int atom_idx) {
