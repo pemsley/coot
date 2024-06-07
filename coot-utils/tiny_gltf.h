@@ -1465,7 +1465,6 @@ class TinyGLTF {
 
 #endif  // TINY_GLTF_H_
 
-#define TINYGLTF_IMPLEMENTATION
 #if defined(TINYGLTF_IMPLEMENTATION) || defined(__INTELLISENSE__)
 #include <algorithm>
 //#include <cassert>
