@@ -51,9 +51,27 @@ molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_e
 }
 #endif
 
-#include <GraphMol/MolPickler.h>
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+// Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
+#ifndef RD_MOLPICKLE_H
+
+#ifdef VERSION
+#define __COOT_VERSION_VALUE VERSION
+#undef VERSION
+#endif
+
+#include <GraphMol/MolPickler.h>
+
+#ifdef __COOT_VERSION_VALUE
+#define VERSION __COOT_VERSION_VALUE
+#undef __COOT_VERSION_VALUE
+#endif
+
+#endif //RD_MOLPICKLE_H
+
+
 std::string
 molecules_container_t::get_rdkit_mol_pickle(const std::string &residue_name, int imol_enc) {
 
