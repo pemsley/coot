@@ -43,7 +43,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   // TODO: RDKit typedefinitions
   // function("remove_non_polar_hydrogens", &coot::layla::remove_non_polar_hydrogens);
   function("append_from_smiles", &lhasa::append_from_smiles);
-  function("append_from_pickle", &lhasa::append_from_pickle);
+  function("append_from_pickle_base64", &lhasa::append_from_pickle_base64);
   // TODO: RDKit typedefinitions
   // function("rdkit_mol_from_smiles", &lhasa::rdkit_mol_from_smiles);
   // TODO: RDKit typedefinitions

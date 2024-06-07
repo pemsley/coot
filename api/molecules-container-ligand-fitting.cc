@@ -5,6 +5,8 @@
 
 #include "molecules-container.hh"
 
+#include "../coot-utils/tiny_gltf.h"
+
 // Give this ex-lambda function a home?
 std::string get_first_residue_name(mmdb::Manager *mol) {
 
@@ -80,10 +82,10 @@ molecules_container_t::get_rdkit_mol_pickle(const std::string &residue_name, int
    RDKit::RWMol mol = get_rdkit_mol(residue_name, imol_enc);
    mp.pickleMol(mol, pickle_string);
 
-   std::ofstream f("test-mol.pickle");
-   f << pickle_string;
-   f.close();
-   return pickle_string;
+   return tinygltf::base64_encode((const unsigned char*)pickle_string.c_str(), pickle_string.size());
+   // std::ofstream f("test-mol.pickle");
+   // f << pickle_string;
+   // f.close();
 }
 #endif
 
