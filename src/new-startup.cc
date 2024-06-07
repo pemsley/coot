@@ -228,6 +228,10 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 GtkWidget *new_startup_create_glarea_widget() {
 
    GtkWidget *gl_area = gtk_gl_area_new();
+   
+   // Disable OpenGL ES
+   gtk_gl_area_set_allowed_apis(GTK_GL_AREA(gl_area), GDK_GL_API_GL);
+
    g_signal_connect(gl_area, "realize",   G_CALLBACK(new_startup_realize),   NULL);
    g_signal_connect(gl_area, "unrealize", G_CALLBACK(new_startup_unrealize), NULL);
    g_signal_connect(gl_area, "render",    G_CALLBACK(new_startup_on_glarea_render),  NULL);
