@@ -6973,7 +6973,7 @@ Bond_lines_container::add_polymer_bonds_generic(const atom_selection_container_t
                                                 int draw_hydrogens_flag,
                                                 const std::string &res_1_atom_name, // in "res1"
                                                 const std::string &res_2_atom_name, // in "res2"
-                                                bool linking_het_groups,
+                                                bool allow_het_group_linking,
                                                 bool do_goodsell_colour_mode) {
 
    int udd_user_defined_atom_colour_index_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
@@ -7013,11 +7013,11 @@ Bond_lines_container::add_polymer_bonds_generic(const atom_selection_container_t
                                     int res_no_delta = residue_next_p->GetSeqNum() - residue_this_p->GetSeqNum();
                                     bool do_it = true;
 
-                                    if (at_1->Het && ! linking_het_groups) do_it = false;
-                                    if (at_2->Het && ! linking_het_groups) do_it = false;
+                                    if (at_1->Het && ! allow_het_group_linking) do_it = false;
+                                    if (at_2->Het && ! allow_het_group_linking) do_it = false;
 
                                     if (do_it) {
-                                       if (res_no_delta > 1 || (at_1->Het && linking_het_groups)) {
+                                       if (res_no_delta > 1 || (at_1->Het && allow_het_group_linking)) {
                                           float dd = coot::Cartesian::lengthsq(atom_1_pos, atom_2_pos);
                                           if (dd > 9.0)
                                              do_it = false;
@@ -7065,8 +7065,11 @@ Bond_lines_container::add_peptide_bonds(const atom_selection_container_t &asc,
                                         int draw_hydrogens_flag,
                                         bool do_goodsell_colour_mode) {
 
+   bool allow_het_group_linking = true; // 20240519-PE was false. Thierry Fischmann Marc Elsliger complained.
+                                        // In the same week - even though this code was written 4 years ago.
+                                        // Funny.
    add_polymer_bonds_generic(asc, atom_colour_type, atom_colour_map_p,
-                             draw_hydrogens_flag, " C  ", " N  ", false,
+                             draw_hydrogens_flag, " C  ", " N  ", allow_het_group_linking,
                              do_goodsell_colour_mode);
 
 }

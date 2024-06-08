@@ -220,6 +220,18 @@ Future:
 [6] moorhen.org
 
 ----
+  Release 0.9.8.94
+
+  o CHANGE: Add a more informative message on failure to generate rtop in
+      transform-map-using-lsq-matrix [Martin Maly]
+
+  o CHANGE: The pyranose link restraints logic has changed - hopefully more
+      accurate now [Andrey Lebedev]
+
+  o BUG-FIX: the logic of the glyco-tree glyco chiral test for ALPHA1-6 and
+     BETA1-6 has been reversed (i.e. corrected) [Markus Meier]
+
+---
 
   Release 0.9.8.93
 

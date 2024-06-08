@@ -661,6 +661,8 @@ coot::operator<<(std::ostream &o, const linked_residue_t &lr) {
 coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
                                  coot::protein_geometry *geom_p_in) {
 
+   bool debug = false;
+
    float dist_crit = 3.0; // A
 
    if (residue_p) { 
@@ -692,16 +694,18 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
 
       bool have_ASN_rooted_tree = false;
 
-      if (false) // debugging
+      if (debug) // debugging
          std::cout << "INFO:: " << linked_residues.size() << " glycan/ASN residues" << std::endl;
 
       for (unsigned int ires=0; ires<linked_residues.size(); ires++) {
          std::string residue_name(linked_residues[ires]->name);
+         // std::cout << "   " << ires << " " << residue_name << std::endl;
          if (residue_name == "ASN") {
             if (false)
                std::cout << "... replacing glyco_tree based on " << residue_spec_t(linked_residues[ires])
                          << std::endl;
             tree<linked_residue_t>  glyco_tree_new = find_ASN_rooted_tree(linked_residues[ires], linked_residues);
+            //  std::cout << "ASN-rooted tree size " << glyco_tree_new.size() << std::endl;
             if (glyco_tree_new.size() > glyco_tree.size()) {
                glyco_tree = glyco_tree_new;
                have_ASN_rooted_tree = true;
@@ -771,9 +775,9 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
          done_residues[i] = std::pair<bool, mmdb::Residue *>(0, residues[i]);
       }
    }
-  
+
    while (something_added) {
-      something_added = false; 
+      something_added = false;
       for (unsigned int ires=0; ires<done_residues.size(); ires++) {
 
          if (! done_residues[ires].first) { 
@@ -828,7 +832,7 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
       }
    }
    if (glyco_tree.size() > 1) {
-      if (debug) {
+      if (true) {
          std::cout << "find_rooted_tree returns tree:" << std::endl;
          print(glyco_tree);
       }
