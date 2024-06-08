@@ -1,6 +1,32 @@
 
 ----
 
+
+Add a function: Are the ligands consistent with the ligand dictionary (has atoms that are not in the dictionary)
+PAE svg without cairo? So that we can pass the fractions throught the sequence.
+
+Check email for build-script updates/fixes
+
+Get reflections for COD accesion codes and make a map.
+
+Make a test: check the M2T returned mesh for alpha less than one (when it should be 1)
+
+Can layla read and write dictionary cif files?
+
+Header information from gemmi to mmdb for api header_info
+
+libcootapi/moorhen: Get the title, journal, authors from the cif file by transfering the info
+   from gemmi structure to mmdb manager. Then do secondary structure.
+   Put this in its own file coot-utils/gemmi-convert.cc
+
+Hydrogen bond Bug: 7h76 ligand B206 : pink (H-bond) between ligand O and A8 O should not be allowed
+by geometry (it goes backwards) or chemistry (they are both acceptors). Is this in Coot too?
+
+libcootapi MoleculesToTriangles:
+  o No secondary structure (worms)
+  o Input secondary structure
+  o Calculate secondary structure
+
 chapi.__version__ should be a thing (Martin)
 * Don't see how
 set_ligand_water_to_protein_distance_limits() needs to added to nanobindings
@@ -17,18 +43,21 @@ What about the b-factor variation of added waters that Coot now does?
 
 libcootapi: add a function to add an atom at a particular position.
 
+despeckle tomograms:
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10336597/
+
 Coot: https://github.com/pemsley/coot/issues/138
 * Done.
 
 Coot: shadows don't work on Ribbons/M2T objects
 
-Coot: Get servalcat working - and difference maps - so it can be
-   added to the Trieste talk.
+Coot: Get servalcat working - and difference maps - so it can be added to the Trieste talk.
 
 libcootapi: Reverse the order of the colour rule check for gaussian surfaces.
    Don't overwrite the colour rules when they get added (reverse the recent change)
    String matching the colour rule is not good - what about the rule
    "//A,B" "red"?
+* Done/sorted for now.
 
 Oxygens and nitrogens should be made transparent if the colour rule (selection) would
 make them transparent if it could.
@@ -91,8 +120,7 @@ moorhen: 8hcl F chain negative numbers for residue range doesn't work it seems?
 
 Coot: What do I need to do for each of FLEV, CFC and QED? Do it soon.
 
-   QED:  make the RDKit mol a shared pointer.
-         Jakub to do the rest. I will edit the ui to provide progress bars.
+   QED:  ..?
    FLEV: Does this need to be in Layla? I think not, in fact. Goocanvas stuff will
          need to be converted to Cairo. And I can display the cairo surface like I do
          in the positron interface.
