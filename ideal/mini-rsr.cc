@@ -194,6 +194,7 @@ fill_residues_all_atoms(mmdb::Manager *mol) {
 void
 print_version() {
 
+   std::string VERSION("VERSION"); // FIXME
    std::cout << "coot-mini-rsr version " << VERSION << std::endl;
 
 }
