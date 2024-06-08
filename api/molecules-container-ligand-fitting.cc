@@ -42,6 +42,8 @@ molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_e
       if (r_p.first) {
          const auto &restraints = r_p.second;
          m = coot::rdkit_mol(restraints);
+         std::string prop_string = "ligand-from-dictionary-" + residue_name + "-" + std::to_string(imol_enc);
+         m.setProp("moorhen-id", prop_string);
       }
    }
    catch (const std::runtime_error &rte) {
