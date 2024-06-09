@@ -53,6 +53,7 @@ molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_e
 }
 #endif
 
+#undef VERSION
 #include <GraphMol/MolPickler.h>
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
