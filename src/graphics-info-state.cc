@@ -32,6 +32,7 @@
 #include <algorithm>
 
 #include <gtk/gtk.h>
+#include "utils/xdg-base.hh"
 #include "interface.h"
 #include "globjects.h" // for GRAPHICS_WINDOW_X_START_SIZE and Y
 #include "graphics-info.h"
@@ -809,35 +810,19 @@ graphics_info_t::save_state() {
 
    int r = 0;
 
-   // 20140410:
-   //
-   // This is a mess (but better than it was yesterday).  This needs a
-   // re-think about when the state file is written (and when
-   // run_state_file_status is set/unset).
+   coot::xdg_t xdg;
 
-   //    std::cout << "in save_state() run_state_file_status was " << run_state_file_status
-   // << std::endl;
-
-   if (run_state_file_status) {
-      short int il = coot::SCHEME_SCRIPT;
+   short int il = coot::SCHEME_SCRIPT;
 #ifdef USE_GUILE
-      if (1) { // was state_file_was_run_flag
-	 r = save_state_file(save_state_file_name, il);
-      } else {
-	 // std::cout << "state_file_was_run_flag was false" << std::endl;
-      }
+   std::filesystem::path path = xdg.state_home.append(save_state_file_name);
+   r = save_state_file(path.string(), il);
 #endif // USE_GUILE
 
-#ifdef USE_PYTHON
-      il = coot::PYTHON_SCRIPT;
-      // BL says:: grrr. This was a baddy using state_file_was_run_flag
-      // here. No idea what writing a state file has to do with running one.
-      if (1)
-	 r = save_state_file("0-coot.state.py", il);
-#endif // USE_PYTHON
-      return r;
-   }
-   return 0;
+   il = coot::PYTHON_SCRIPT;
+   // get_state_home() creates the directory if needed
+   std::filesystem::path path = xdg.get_state_home().append("0-coot.state.py");
+   r = save_state_file(path.string(), il);
+   return r;
 }
 
 std::string
@@ -1013,7 +998,7 @@ graphics_info_t::state_command(const std::string &module, const std::string &fun
 //
 short int
 graphics_info_t::write_state(const std::vector<std::string> &commands,
-			     const std::string &filename) const {
+			                    const std::string &filename) const {
 
    bool do_c_mode = false; // it's 2020 - Mac problems have gone away?
 
@@ -1034,7 +1019,7 @@ graphics_info_t::write_state(const std::vector<std::string> &commands,
 //
 short int
 graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &commands,
-					  const std::string &filename) const {
+					                           const std::string &filename) const {
 
    short int istat = 1;
 
@@ -1043,7 +1028,7 @@ graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &comman
 
    if (f) {
       for (unsigned int i=0; i<commands.size(); i++) {
-	 f << commands[i] << "\n";
+	      f << commands[i] << "\n";
          // std::cout << "write_state_fstream_mode() " << commands[i] << std::endl;
       }
       f.flush();  // fixes valgrind problem?
@@ -1066,7 +1051,7 @@ graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &comman
 
    } else {
       std::cout << "WARNING: couldn't write to state file " << filename
-		<< std::endl;
+		          << std::endl;
       istat = 0;
    }
    return istat;
