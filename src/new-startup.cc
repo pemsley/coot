@@ -841,7 +841,6 @@ new_startup_application_activate(GtkApplication *application,
 
       create_actions(application);
 
-      // again?
       setup_python_with_coot_modules(argc, argv);
 
       setup_gui_components();
