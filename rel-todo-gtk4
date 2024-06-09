@@ -1,19 +1,19 @@
 
 ----
 
-
 Add a function: Are the ligands consistent with the ligand dictionary (has atoms that are not in the dictionary)
-PAE svg without cairo? So that we can pass the fractions throught the sequence.
+
+PAE svg without cairo? So that we can pass the fractions-through-the-sequence.
 
 Check email for build-script updates/fixes
 
-Get reflections for COD accesion codes and make a map.
-
-Make a test: check the M2T returned mesh for alpha less than one (when it should be 1)
+Unfix all atoms doesn't work.
 
 Can layla read and write dictionary cif files?
 
 Header information from gemmi to mmdb for api header_info
+
+Get reflections for COD accesion codes and make a map.
 
 libcootapi/moorhen: Get the title, journal, authors from the cif file by transfering the info
    from gemmi structure to mmdb manager. Then do secondary structure.
@@ -26,6 +26,8 @@ libcootapi MoleculesToTriangles:
   o No secondary structure (worms)
   o Input secondary structure
   o Calculate secondary structure
+
+when starting graphics on Mac: use 1508 x 1364, rather than the current narrow values.
 
 chapi.__version__ should be a thing (Martin)
 * Don't see how
@@ -443,6 +445,8 @@ MMDB: Look at mmdb chain selection. Can you remove chain range?
       chain-id range test: Look at assembly cif for examples of chain-range-like chain-ids.
       Use one of them for an atom selection test.
       Tweak ParseSelectionPath().
+
+For Moorhen and Coot screenshots: OccuPy for 8p5e/17449
 
 libcootapi: dependencies clipper:
    $ egrep ' -L=/' $prefix/lib/lib*.la
