@@ -24,6 +24,9 @@
 #include <rdkit/GraphMol/MolPickler.h>
 #include "glog_replacement.hpp"
 
+#define TINYGLTF_IMPLEMENTATION
+#include "../coot-utils/tiny_gltf.h"
+
 std::unique_ptr<RDKit::RWMol> lhasa::rdkit_mol_from_smiles(std::string smiles) {
     std::unique_ptr<RDKit::RWMol> ret(RDKit::SmilesToMol(smiles));
     return ret;

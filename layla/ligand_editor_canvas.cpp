@@ -30,8 +30,15 @@
 #include <vector>
 #include <memory>
 
-#define TINYGLTF_IMPLEMENTATION
-#include "../coot-utils/tiny_gltf.h"
+
+// This must not be here because it will cause a linker error (in Moorhen)
+// #define TINYGLTF_IMPLEMENTATION
+// #include "../coot-utils/tiny_gltf.h"
+// ..and so we have to do a forward declaration
+namespace tinygltf {
+    std::string base64_encode(unsigned char const *bytes_to_encode, unsigned int in_len);
+    std::string base64_decode(std::string const &encoded_string);
+}
 
 // Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
 #ifndef RD_MOLPICKLE_H
