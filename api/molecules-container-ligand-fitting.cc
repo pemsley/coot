@@ -75,7 +75,7 @@ molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_e
 
 
 std::string
-molecules_container_t::get_rdkit_mol_pickle(const std::string &residue_name, int imol_enc) {
+molecules_container_t::get_rdkit_mol_pickle_base64(const std::string &residue_name, int imol_enc) {
 
    RDKIT_GRAPHMOL_EXPORT RDKit::MolPickler mp;
    std::string pickle_string;
