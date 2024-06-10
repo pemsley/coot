@@ -130,7 +130,7 @@ void try_load_dot_coot_and_preferences() {
                                return false;
                             };
 
-   // python versionn in coot-setup-python.cc
+   // python version in coot-setup-python.cc
 
    bool run_startup_scripts_flag = run_startup_scripts_state();
 
@@ -183,18 +183,6 @@ void try_load_dot_coot_and_preferences() {
          // update preferences
          make_preferences_internal();
 
-	 // Now ~/.coot
-
-#if 0 // 20220507-PE old code, when coot was a file. Can be deleted when startup code works properly
-	 std::string fn = coot::util::append_dir_file(directory, ".coot");
-	 if (coot::file_exists(fn)) {
-            if (file_is_directory(fn)) {
-               std::cout << "INFO:: Not Loading ~/.coot - it's a directory " << std::endl;
-            } else {
-               scm_c_primitive_load(fn.c_str());
-            }
-	 }
-#endif
       }
    }
 }
