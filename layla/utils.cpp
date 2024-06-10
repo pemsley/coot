@@ -30,6 +30,9 @@
 void coot::layla::remove_non_polar_hydrogens(RDKit::RWMol& mol) {
     std::vector<RDKit::Atom*> atoms_to_be_removed;
 
+    
+    // RDKit::MolOps::removeHs()
+
     auto atoms = mol.atoms();
     for(RDKit::Atom* atom: atoms) {
         if(atom->getAtomicNum() == 1) {
