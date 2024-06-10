@@ -1,4 +1,10 @@
 
+  Release 0.9.8.95
+
+  o BUG-FIX: allow bonding of het residue in polymer bonds
+
+---
+
   Release 0.9.8.94
 
   o CHANGE: Add a more informative message on failure to generate rtop in
