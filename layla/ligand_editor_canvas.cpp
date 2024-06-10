@@ -557,6 +557,11 @@ void coot_ligand_editor_canvas_set_active_tool(CootLigandEditorCanvas* self, std
 }
 
 void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
+    if(rdkit_mol->getNumAtoms() == 0) {
+        self->update_status("Attempted to add an empty molecule!");
+        g_warning("Attempted to add an empty molecule!");
+        return;
+    }
     try {
         g_debug("Appending new molecule to the widget...");
         // Might throw if the constructor fails.
