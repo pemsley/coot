@@ -23,7 +23,7 @@
 #include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
 #include <rdkit/GraphMol/MolPickler.h>
 #include "glog_replacement.hpp"
-#include "../coot-utils/base64.hh"
+#include "../coot-utils/tiny_gltf.h"
 
 std::unique_ptr<RDKit::RWMol> lhasa::rdkit_mol_from_smiles(std::string smiles) {
     std::unique_ptr<RDKit::RWMol> ret(RDKit::SmilesToMol(smiles));
@@ -47,7 +47,7 @@ void lhasa::append_from_smiles(CootLigandEditorCanvas& canvas, std::string smile
 }
 
 void lhasa::append_from_pickle_base64(CootLigandEditorCanvas& canvas, std::string base64_pickle_string) {
-    std::string pickle_string = base64_decode(base64_pickle_string);
+    std::string pickle_string = tinygltf::base64_decode(base64_pickle_string);
     canvas.append_molecule(rdkit_mol_from_pickle(pickle_string));
 }
 
