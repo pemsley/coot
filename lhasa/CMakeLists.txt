@@ -10,9 +10,9 @@ endif()
 # -Wno-unused-command-line-argument 
 
 if(MEMORY64 EQUAL "1")
-  set(CMAKE_CXX_FLAGS "-Wall -sMEMORY64=1 --embind-emit-tsd lhasa.d.ts -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
+  set(CMAKE_CXX_FLAGS "-DLHASA_STANDALONE -Wall -sMEMORY64=1 --embind-emit-tsd lhasa.d.ts -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
 else()
-  set(CMAKE_CXX_FLAGS "-Wall --embind-emit-tsd lhasa.d.ts -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
+  set(CMAKE_CXX_FLAGS "-DLHASA_STANDALONE -Wall --embind-emit-tsd lhasa.d.ts -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
 endif()
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
