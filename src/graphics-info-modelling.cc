@@ -1712,7 +1712,7 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 			     local_moving_atoms_asc.n_selected_atoms);
 
 
-   if (true) {
+   if (false) {
       std::cout << "returning an atom selection for all moving atoms "
 		<< local_moving_atoms_asc.n_selected_atoms << " atoms "
 		<< std::endl;

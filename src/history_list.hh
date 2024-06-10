@@ -29,6 +29,7 @@
 #include <fstream>
 #include <algorithm>
 #include <iostream>
+#include "utils/xdg-base.hh"
 
 namespace coot {
 
@@ -49,6 +50,10 @@ namespace coot {
       int index;
       std::string command_history_file_name;
       command_history_t() : index(0), command_history_file_name(std::string(".coot_python_commands")) {
+         read_history();
+      }
+      explicit command_history_t(xdg_t xdg) : index(0),
+                                              command_history_file_name(xdg.get_state_home().append(".coot_python_commands")) {
          read_history();
       }
 

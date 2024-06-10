@@ -6708,25 +6708,30 @@ graphics_info_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
    return stats;
 }
 
+#include "utils/xdg-base.hh"
+
 void
 graphics_info_t::quick_save() {
 
    std::cout << "Quick Save!" << std::endl;
 
-   for (int imol=0; imol<n_molecules(); imol++) {
+   for (int imol=0; imol<n_molecules(); imol++)
       molecules[imol].quick_save();
-   }
 
    short int il = coot::SCRIPT_UNSET;
 
+   xdg_t xdg;
+   std::filesystem::path path;
 #ifdef USE_GUILE
    il = coot::SCHEME_SCRIPT;
-   save_state_file(save_state_file_name.c_str(), il);
+   path = xdg.get_state_home().append(save_state_file_name);
+   save_state_file(path.string(), il);
 #endif
 
 #ifdef USE_PYTHON
    il = coot::PYTHON_SCRIPT;
-   save_state_file("0-coot.state.py", il);
+   path = xdg.get_state_home().append("0-coot.state.py");
+   save_state_file(path.string(), il);
 #endif
 
    add_status_bar_text("Quick Saved");
