@@ -472,61 +472,50 @@ on_preferences_map_dynamic_sampling_checkbutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_dynamic_size_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_DYNAMIC_MAP_SIZE_DISPLAY, 1);
-    set_dynamic_map_size_display_on();
-  } else {
-    preferences_internal_change_value_int(PREFERENCES_DYNAMIC_MAP_SIZE_DISPLAY, 0);
-    set_dynamic_map_size_display_off();
-  }
-
+on_preferences_map_dynamic_size_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                    gpointer         user_data) {
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_DYNAMIC_MAP_SIZE_DISPLAY, 1);
+      set_dynamic_map_size_display_on();
+   } else {
+      preferences_internal_change_value_int(PREFERENCES_DYNAMIC_MAP_SIZE_DISPLAY, 0);
+      set_dynamic_map_size_display_off();
+   }
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_diff_map_colours_coot_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_SWAP_DIFF_MAP_COLOURS, 0);
-    set_swap_difference_map_colours(0);
-  }
-
+on_preferences_diff_map_colours_coot_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                         gpointer        user_data) {
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_SWAP_DIFF_MAP_COLOURS, 0);
+      set_swap_difference_map_colours(0);
+   }
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_diff_map_colours_o_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_SWAP_DIFF_MAP_COLOURS, 1);
-    set_swap_difference_map_colours(1);
-  }
-
+on_preferences_diff_map_colours_o_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                      gpointer         user_data) {
+   if (gtk_check_button_get_active(checkbutton)) {
+      preferences_internal_change_value_int(PREFERENCES_SWAP_DIFF_MAP_COLOURS, 1);
+      set_swap_difference_map_colours(1);
+   }
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_map_colours_hscale_value_changed
-                                        (GtkRange        *range,
-                                        gpointer         user_data)
-{
-  GtkAdjustment *adjustment;
-  float fvalue;
-  adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
-  fvalue = gtk_adjustment_get_value(adjustment);
-  preferences_internal_change_value_float(PREFERENCES_MAP_COLOURS_MAP_ROTATION, fvalue);
-  set_colour_map_rotation_for_map(fvalue);
+on_preferences_map_colours_hscale_value_changed(GtkRange        *range,
+                                                gpointer         user_data) {
+   GtkAdjustment *adjustment;
+   float fvalue;
+   adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
+   fvalue = gtk_adjustment_get_value(adjustment);
+   preferences_internal_change_value_float(PREFERENCES_MAP_COLOURS_MAP_ROTATION, fvalue);
+   set_colour_map_rotation_for_map(fvalue);
 }
 
 
@@ -537,7 +526,6 @@ on_preferences_smooth_scroll_on_radiobutton_toggled(GtkCheckButton *checkbutton,
 
    if (gtk_check_button_get_active(checkbutton)) {
       preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL, 1);
-      std::cout << "EPH smooth scroll 1 " << std::endl;
       set_smooth_scroll_flag(1);
    }
 }
@@ -550,7 +538,6 @@ on_preferences_smooth_scroll_off_radiobutton_toggled(GtkCheckButton *checkbutton
 
    if (gtk_check_button_get_active(checkbutton)) {
       preferences_internal_change_value_int(PREFERENCES_SMOOTH_SCROLL, 0);
-      std::cout << "EPH smooth scroll 0 " << std::endl;
       set_smooth_scroll_flag(0);
   }
 
@@ -646,7 +633,6 @@ on_preferences_map_drag_on_radiobutton_toggled(GtkCheckButton *checkbutton,
 
    if (gtk_check_button_get_active(checkbutton)) {
       preferences_internal_change_value_int(PREFERENCES_MAP_DRAG, 1);
-      std::cout << "set_active_map_drag_flag 1 " << std::endl;
       set_active_map_drag_flag(1);
    }
 
@@ -659,40 +645,11 @@ on_preferences_map_drag_off_radiobutton_toggled(GtkCheckButton *checkbutton,
                                                 gpointer         user_data) {
 
    if (gtk_check_button_get_active(checkbutton)) {
-    preferences_internal_change_value_int(PREFERENCES_MAP_DRAG, 0);
-    set_active_map_drag_flag(0);
-      std::cout << "set_active_map_drag_flag 0 " << std::endl;
-  }
-
+      preferences_internal_change_value_int(PREFERENCES_MAP_DRAG, 0);
+      set_active_map_drag_flag(0);
+   }
 }
 
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_antialias_on_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_ANTIALIAS, 1);
-    set_do_anti_aliasing(1);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_antialias_off_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_ANTIALIAS, 0);
-    set_do_anti_aliasing(0);
-  }
-
-}
 
 
 extern "C" G_MODULE_EXPORT
@@ -704,7 +661,6 @@ on_preferences_hid_spherical_radiobutton_toggled(GtkCheckButton *checkbutton,
       preferences_internal_change_value_int(PREFERENCES_VT_SURFACE, 2);
       vt_surface(2);
    }
-
 }
 
 
@@ -1243,171 +1199,6 @@ on_preferences_bond_width_combobox_changed
   set_default_bond_thickness(val);
 }
 
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_model_toolbar_show_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    show_modelling_toolbar();
-    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_SHOW, 1);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_model_toolbar_right_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    set_model_toolbar_docked_position(0);
-    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 0);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_model_toolbar_left_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    set_model_toolbar_docked_position(1);
-    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 1);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_model_toolbar_top_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    set_model_toolbar_docked_position(2);
-    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 2);
-  }
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_model_toolbar_bottom_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    set_model_toolbar_docked_position(3);
-    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 3);
-  }
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_model_toolbar_hide_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    hide_modelling_toolbar();
-    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_SHOW, 0);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_model_toolbar_main_icons_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_model_toolbar_all_icons_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_model_toolbar_style_icons_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_STYLE, 1);
-    set_model_toolbar_style(1);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_model_toolbar_style_both_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_STYLE, 2);
-    set_model_toolbar_style(2);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_model_toolbar_style_text_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_STYLE, 3);
-    set_model_toolbar_style(3);
-  }
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_model_toolbar_show_icon_all_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  show_model_toolbar_all_icons();
-
-}
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_model_toolbar_show_icon_selection_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  show_model_toolbar_main_icons();
-
-}
 
 extern "C" G_MODULE_EXPORT
 void

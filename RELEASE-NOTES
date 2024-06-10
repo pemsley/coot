@@ -1,15 +1,15 @@
 
   Release 1.1.09
 
-  o FEATURE: tomo_section_view() function added to the api
-
-  o FEATURE: Coot is now a (mostly) compliant XDG Base directory application
+  o FEATURE: Coot is now a (mostly) XDG Base Directory-compliant application
              [guano-be-gone]
+
+  o FEATURE: tomo_section_view() function added to the api
 
   o FEATURE: to_generic_object_add_points() added to the api (so that many point
              can now be added quickly)
 
-  o FEATURE: generic_object_mesh_calculate_normals() function added to the API
+  o FEATURE: generic_object_mesh_calculate_normals() function added to the API.
              This averages winding-based normals for shared vertices.
 
   o CHANGE:  In "configure" relocatable bianries are no longer enabled by default.

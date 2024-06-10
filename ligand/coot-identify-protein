@@ -65,5 +65,5 @@ export DYLD_LIBRARY_PATH
 export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
-$COOT_PREFIX/libexec/identify-protein-bin $*
+$COOT_PREFIX/libexec/coot-identify-protein-bin "$@"
 

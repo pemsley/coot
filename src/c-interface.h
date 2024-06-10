@@ -254,9 +254,6 @@ void export_map_gui(short int export_map_fragment);
 function added for Lothar Esser */
 void set_main_window_title(const char *s);
 
-/*! function to show or hide the vertical modelling toolbar */
-void set_show_modelling_toolbar(short int state);
-
 /* \} */
 
 /*  -------------------------------------------------------------------- */
@@ -913,29 +910,11 @@ void set_show_origin_marker(int istate);
 /*! \brief return the origin marker shown? state */
 int  show_origin_marker_state();
 
-/*! \brief hide the vertical modelling toolbar in the GTK2 version */
-void hide_modelling_toolbar();
-/*! \brief show the vertical modelling toolbar in the GTK2 version
-  (the toolbar is shown by default) */
-void show_modelling_toolbar();
-
 /*! \brief hide the horizontal main toolbar in the GTK2 version */
 void hide_main_toolbar();
 /*! \brief show the horizontal main toolbar in the GTK2 version
   (the toolbar is shown by default) */
 void show_main_toolbar();
-
-/*! \brief show all available icons in the modelling toolbar (same as MFR dialog) */
-void show_model_toolbar_all_icons();
-/*! \brief show only a selection of icons in the modelling toolbar */
-void show_model_toolbar_main_icons();
-
-/*! \brief reattach the modelling toolbar to the last attached position */
-void reattach_modelling_toolbar();
-
-/*! \brief to swap sides of the Model/Fit/Refine toolbar
-  0 (default) is right, 1 is left, 2 is top, 3 is bottom */
-void set_model_toolbar_docked_position(int state);
 
 /*! \brief reparent the Model/Fit/Refine dialog so that it becomes
   part of the main window, next to the GL graphics context */
@@ -958,9 +937,6 @@ void set_accept_reject_dialog_docked_show(int state);
 /*! \brief what is the accept/reject dialog docked show state? */
 int accept_reject_dialog_docked_show_state();
 
-/* functions for the refinement toolbar style */
-void set_model_toolbar_style(int state);
-int model_toolbar_style_state();
 
 /* functions for the main toolbar style */
 void set_main_toolbar_style(int state);

@@ -128,8 +128,9 @@ graphics_info_t::get_gobject_from_builder(const std::string &w_name) { // use gt
 GtkWidget *
 graphics_info_t::get_widget_from_preferences_builder(const std::string &w_name) { // use gtkbuilder to do new-style lookup_widget();
 
-   std::cout << "debug:: in get_widget_from_preferences_builder() using builder " << preferences_gtkbuilder
-             << " to lookup " << w_name << std::endl;
+   if (false)
+      std::cout << "debug:: in get_widget_from_preferences_builder() using builder " << preferences_gtkbuilder
+                << " to lookup " << w_name << std::endl;
    GtkWidget *w = GTK_WIDGET(gtk_builder_get_object(preferences_gtkbuilder, w_name.c_str()));
    return w;
 }

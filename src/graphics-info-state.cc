@@ -971,7 +971,10 @@ graphics_info_t::state_command(const std::string &module, const std::string &fun
    std::string command;
 
    if (state_lang == coot::STATE_SCM) {
-      std::cout << "WARNING/ERROR:: missing new style state_command for scheme " << func_name << std::endl;
+
+      // 20240610-PE remove this for now
+      if (false)
+         std::cout << "WARNING/ERROR:: missing new style state_command for scheme " << func_name << std::endl;
    }
 
    if (state_lang == coot::STATE_PYTHON) {

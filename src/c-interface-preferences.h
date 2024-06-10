@@ -69,12 +69,8 @@ void preferences_internal_change_value_float3(int preference_type,
 void show_model_toolbar_icon(int pos);
 void hide_model_toolbar_icon(int pos);
 
-void update_model_toolbar_icons_menu();
-
 void show_main_toolbar_icon(int pos);
 void hide_main_toolbar_icon(int pos);
-void update_main_toolbar_icons_menu();
-void update_toolbar_icons_menu(int toolbar_index);
 
 int preferences_internal_font_own_colour_flag();
 
