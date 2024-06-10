@@ -59,7 +59,7 @@
 // #define STB_IMAGE_IMPLEMENTATION
 // #define STB_IMAGE_WRITE_IMPLEMENTATION
 
-#include "tiny_gltf.h"
+#include "coot-utils/tiny_gltf.h"
 
 
 // for the moment make the scales explict, when fixed make the scales default

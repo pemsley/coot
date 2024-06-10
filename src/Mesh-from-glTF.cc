@@ -33,7 +33,7 @@
 
 
 // #define TINYGLTF_NOEXCEPTION // optional. disable exception handling.
-#include "tiny_gltf.h"
+#include "coot-utils/tiny_gltf.h"
 
 #include <iostream>
 #include <iomanip>

@@ -737,7 +737,6 @@ libcootsumo_la_SOURCES = \
 	startup-utils.cc         \
 	startup-scripts.hh       \
 	startup-scripts.hh       \
-	tiny_gltf.h              \
 	testing.cc testing-2.cc  \
 	testing-data.hh          \
 	testing.hh               \
