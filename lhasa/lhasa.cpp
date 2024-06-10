@@ -24,15 +24,6 @@
 #include <rdkit/GraphMol/MolPickler.h>
 #include "glog_replacement.hpp"
 
-// This must not be here because it will cause a linker error
-// #define TINYGLTF_IMPLEMENTATION
-// #include "../coot-utils/tiny_gltf.h"
-// ..and so we have to do a forward declaration
-namespace tinygltf {
-    std::string base64_encode(unsigned char const *bytes_to_encode, unsigned int in_len);
-    std::string base64_decode(std::string const &encoded_string);
-}
-
 std::unique_ptr<RDKit::RWMol> lhasa::rdkit_mol_from_smiles(std::string smiles) {
     std::unique_ptr<RDKit::RWMol> ret(RDKit::SmilesToMol(smiles));
     return ret;
