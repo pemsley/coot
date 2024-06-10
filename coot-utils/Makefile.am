@@ -175,8 +175,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
 
-bin_PROGRAMS = mmrrcc
-
+bin_PROGRAMS = coot-mmrrcc
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
 
@@ -190,8 +189,8 @@ bin_PROGRAMS = mmrrcc
 
 
 # Why do I need to add lidia-core here? It's already added to libcoot-coord-utils.
-mmrrcc_SOURCES = mmrrcc.cc
-mmrrcc_LDADD = ./libcoot-map-utils.la \
+coot_mmrrcc_SOURCES = mmrrcc.cc
+coot_mmrrcc_LDADD = ./libcoot-map-utils.la \
 	./libcoot-coord-utils.la                         \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/geometry/libcoot-geometry.la     \
