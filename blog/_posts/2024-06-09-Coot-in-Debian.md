@@ -16,4 +16,4 @@ sudo apt install coot
 
 Thanks to Alex Mycko and Andrius Merkys.
 
-Here is the (build-matrix)[https://buildd.debian.org/status/package.php?p=coot]
+Here is the [build-matrix](https://buildd.debian.org/status/package.php?p=coot)
