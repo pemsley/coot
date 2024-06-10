@@ -17,7 +17,7 @@ libMoleculesToTrianglesCXXSurface_la_SOURCES=CXXCircle.cpp CXXCircleNode.cpp \
 	CXXCreator.cpp CXXSpace.cpp CXXFFTSolventMap.cpp CXXChargeTable.cpp CXXException.cpp \
 	CXXUtils.cpp CXXBall.cpp CXXSurfaceMaker.cpp
 
-libMoleculesToTrianglesCXXSurface_la_LIBADD = $(CLIPPER_LIBS) $(MMDB_LIBS)
+libMoleculesToTrianglesCXXSurface_la_LIBADD = $(CLIPPER_LIBS) $(FFTW2_LIBS) $(MMDB_LIBS)
 
 libMoleculesToTrianglesCXXSurface_la_LDFLAGS=$(SHARED_LDFLAGS)
 
