@@ -238,6 +238,7 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     std::string get_smiles() noexcept;
     std::string get_smiles_for_molecule(unsigned int molecule_idx) noexcept;
     std::string get_pickled_molecule(unsigned int molecule_idx) noexcept;
+    std::string get_pickled_molecule_base64(unsigned int molecule_idx) noexcept;
     void clear_molecules() noexcept;
 
     /// For connecting javascript handlers to signals

@@ -324,6 +324,10 @@ std::string CootLigandEditorCanvas::get_pickled_molecule(unsigned int molecule_i
     return coot_ligand_editor_canvas_get_pickled_molecule(this, molecule_idx);
 }
 
+std::string CootLigandEditorCanvas::get_pickled_molecule_base64(unsigned int molecule_idx) noexcept {
+    return coot_ligand_editor_canvas_get_pickled_molecule_base64(this, molecule_idx);
+}
+
 void CootLigandEditorCanvas::clear_molecules() noexcept {
     coot_ligand_editor_canvas_clear_molecules(this);
 }

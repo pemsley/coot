@@ -218,6 +218,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("get_smiles", &CootLigandEditorCanvas::get_smiles)
     .function("get_smiles_for_molecule", &CootLigandEditorCanvas::get_smiles_for_molecule)
     .function("get_pickled_molecule", &CootLigandEditorCanvas::get_pickled_molecule)
+    .function("get_pickled_molecule_base64", &CootLigandEditorCanvas::get_pickled_molecule_base64)
     .function("clear_molecules", &CootLigandEditorCanvas::clear_molecules)
     .function("on_hover", &CootLigandEditorCanvas::on_hover)
     .function("on_scroll", &CootLigandEditorCanvas::on_scroll)

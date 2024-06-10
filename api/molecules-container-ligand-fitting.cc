@@ -5,6 +5,7 @@
 
 #include "molecules-container.hh"
 
+#define TINYGLTF_IMPLEMENTATION
 #include "../coot-utils/tiny_gltf.h"
 
 // Give this ex-lambda function a home?

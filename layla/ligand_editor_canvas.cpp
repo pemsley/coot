@@ -30,6 +30,8 @@
 #include <vector>
 #include <memory>
 
+#define TINYGLTF_IMPLEMENTATION
+#include "../coot-utils/tiny_gltf.h"
 
 // Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
 #ifndef RD_MOLPICKLE_H
@@ -639,6 +641,11 @@ std::string coot_ligand_editor_canvas_get_pickled_molecule(CootLigandEditorCanva
         RDKit::MolPickler::pickleMol(*(*self->rdkit_molecules)[molecule_idx].get(), ret);
     }
     return ret;
+}
+
+std::string coot_ligand_editor_canvas_get_pickled_molecule_base64(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
+    std::string raw = coot_ligand_editor_canvas_get_pickled_molecule(self, molecule_idx);
+    return tinygltf::base64_encode((const unsigned char*) raw.c_str(), raw.size());
 }
 
 #ifndef __EMSCRIPTEN__
