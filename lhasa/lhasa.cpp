@@ -23,7 +23,7 @@
 #include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
 #include <rdkit/GraphMol/MolPickler.h>
 #include "glog_replacement.hpp"
-#include "../coot-utils/base64-encode-decode.hh"
+#include "../utils/base64-encode-decode.hh"
 
 
 std::unique_ptr<RDKit::RWMol> lhasa::rdkit_mol_from_smiles(std::string smiles) {

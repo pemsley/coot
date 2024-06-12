@@ -5,7 +5,7 @@
 
 #include "molecules-container.hh"
 
-#include "../coot-utils/base64-encode-decode.hh"
+#include "../utils/base64-encode-decode.hh"
 
 // Give this ex-lambda function a home?
 std::string get_first_residue_name(mmdb::Manager *mol) {
