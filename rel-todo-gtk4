@@ -7,6 +7,8 @@ PAE svg without cairo? So that we can pass the fractions-through-the-sequence.
 
 Check email for build-script updates/fixes
 
+Put the reference PDB files in the coot repo.
+
 Unfix all atoms doesn't work.
 
 Can layla read and write dictionary cif files?

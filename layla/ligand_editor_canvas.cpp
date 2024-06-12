@@ -31,7 +31,7 @@
 #include <memory>
 
 
-#include "coot-utils/base64-encode-decode.hh"
+#include "utils/base64-encode-decode.hh"
 
 // Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
 #ifndef RD_MOLPICKLE_H
