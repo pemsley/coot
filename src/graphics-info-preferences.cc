@@ -226,8 +226,9 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
 	 commands.push_back(state_command("coot", "set-background-colour", 1, 1, 1, il));
        } else {
 	  // other colour
-	  std::cout << "on save other colour: " << fval1 << " " << fval2 << " " << fval3
-		    << std::endl;
+          if (false)
+             std::cout << "on save other colour: " << fval1 << " " << fval2 << " " << fval3
+                       << std::endl;
 	  commands.push_back(state_command("coot", "set-background-colour", fval1, fval2, fval3, il));
        }
        break;

@@ -810,17 +810,19 @@ graphics_info_t::save_state() {
 
    int r = 0;
 
-   coot::xdg_t xdg;
+   xdg_t xdg;
+   std::filesystem::path path;
 
    short int il = coot::SCHEME_SCRIPT;
 #ifdef USE_GUILE
-   std::filesystem::path path = xdg.state_home.append(save_state_file_name);
+   path = xdg.get_state_home().append(save_state_file_name);
+
    r = save_state_file(path.string(), il);
 #endif // USE_GUILE
 
    il = coot::PYTHON_SCRIPT;
    // get_state_home() creates the directory if needed
-   std::filesystem::path path = xdg.get_state_home().append("0-coot.state.py");
+   path = xdg.get_state_home().append("0-coot.state.py");
    r = save_state_file(path.string(), il);
    return r;
 }
@@ -969,7 +971,10 @@ graphics_info_t::state_command(const std::string &module, const std::string &fun
    std::string command;
 
    if (state_lang == coot::STATE_SCM) {
-      std::cout << "WARNING/ERROR:: missing new style state_command for scheme " << func_name << std::endl;
+
+      // 20240610-PE remove this for now
+      if (false)
+         std::cout << "WARNING/ERROR:: missing new style state_command for scheme " << func_name << std::endl;
    }
 
    if (state_lang == coot::STATE_PYTHON) {
@@ -1143,6 +1148,7 @@ graphics_info_t::add_history_command(const std::vector<std::string> &command_str
 int
 graphics_info_t::save_history() const {
 
+   xdg_t xdg;
    int istate = 0;
    std::string history_file_name("0-coot-history");
    std::vector<std::vector<std::string> > raw_command_strings = history_list.history_list();
@@ -1150,15 +1156,17 @@ graphics_info_t::save_history() const {
    if (python_history) {
       for (unsigned int i=0; i<raw_command_strings.size(); i++)
 	 languaged_commands.push_back(pythonize_command_strings(raw_command_strings[i]));
-      std::string file = history_file_name + ".py";
-      istate =  write_state(languaged_commands, file);
+      std::string file_name = history_file_name + ".py";
+      std::string history_file_path = xdg.get_state_home().append(file_name).string();
+      istate =  write_state(languaged_commands, history_file_path);
    }
    if (guile_history) {
       languaged_commands.resize(0);
       for (unsigned int i=0; i<raw_command_strings.size(); i++)
 	 languaged_commands.push_back(schemize_command_strings(raw_command_strings[i]));
-      std::string file = history_file_name + ".scm";
-      istate =  write_state(languaged_commands, file);
+      std::string file_name = history_file_name + ".scm";
+      std::string history_file_path = xdg.get_state_home().append(file_name).string();
+      istate =  write_state(languaged_commands, history_file_path);
    }
    return istate;
 }

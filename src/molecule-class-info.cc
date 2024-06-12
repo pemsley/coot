@@ -3908,7 +3908,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS)
       user_defined_colours_representation(g.Geom_p(), false, g.draw_missing_loops_flag); // hack,
 
-   bonds_box.debug();
+   if (debug) bonds_box.debug();
 
    // bleugh. But if we don't do this here, where *do* we do it?
    // Should the glci be passed to make_bonds_type_checked()?  Urgh.
@@ -4605,8 +4605,8 @@ void
 molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices,
                                                const char *caller) {
 
-   std::cout << "debug:: ---- in make_bonds_type_checked() --- start ---" << std::endl;
-
+   if (false)
+      std::cout << "debug:: ---- in make_bonds_type_checked() --- start ---" << std::endl;
 
    if (false) {
       std::string caller_s = "NULL";
@@ -4859,9 +4859,10 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 
    // make things redraw fast - this is a hack for morph-and-refine.
 
-   std::cout << "here with extra_restraints_representation.bond_restraints size "
-             << extra_restraints.bond_restraints.size() << " " << draw_it_for_extra_restraints
-             << std::endl;
+   if (false)
+      std::cout << "here with extra_restraints_representation.bond_restraints size "
+                << extra_restraints.bond_restraints.size() << " " << draw_it_for_extra_restraints
+                << std::endl;
 
    // I want  to update them even if they are not drawn, I think.
    // if (! draw_it_for_extra_restraints || ! draw_it)
@@ -8165,6 +8166,8 @@ molecule_class_info_t::make_maybe_backup_dir(const std::string &backup_dir) cons
    return coot::util::create_directory(backup_dir);
 }
 
+#include "utils/xdg-base.hh"
+
 // Ignore return value.
 //
 // If successful, increase history_index and if not in a backup
@@ -8175,7 +8178,9 @@ molecule_class_info_t::make_backup() { // changes history details
 
    graphics_info_t g;
    if (backup_this_molecule) {
-      std::string backup_dir("coot-backup");
+      xdg_t xdg;
+      std::string coot_backup_dir = xdg.get_cache_home().append("coot-backup").string();
+      std::string backup_dir(coot_backup_dir);
 
       //shall we use the environment variable instead?
       char *env_var = getenv("COOT_BACKUP_DIR");

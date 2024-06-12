@@ -1,4 +1,45 @@
 
+  Release 1.1.09
+
+  o FEATURE: Coot is now a (mostly) XDG Base Directory-compliant application
+             [guano-be-gone]
+
+  o FEATURE: tomo_section_view() function added to the api
+
+  o FEATURE: to_generic_object_add_points() added to the api (so that many point
+             can now be added quickly)
+
+  o FEATURE: generic_object_mesh_calculate_normals() function added to the API.
+             This averages winding-based normals for shared vertices.
+
+  o CHANGE:  In "configure" relocatable bianries are no longer enabled by default.
+             Use --enable-relocatable-binaries to turn them on if needed.
+
+  o CHANGE:  rework logic of the glyco chiral test for BETA1-6 and ALPHA1-6 links
+             [Markus Meier]
+
+  o CHANGE:  "Replace Residue" now works as an overlay
+
+  o CHANGE:  Allow bonding of HET-groups in polymer bonds
+
+  o CHANGE:  mmrrcc renamed to coot-mmrrcc
+
+  o CHANGE:  The ligand/solvent molecule is now closed after being added with
+             jiggle-fit
+
+  o CHANGE:  Add a key-binding for "Residue Info" (Ctrl-I)
+
+  o CHANGE:  Executable name changed from "coot-bin" to MacCoot on macOS
+
+  o BUG-FIX: Fix Change Chain ID GUI (thanks Simon Vecchioni)
+
+  o BUG-FIX: "Add Terminal Residue" now works for RNA and DNA
+
+  o BUG-FIX: Fix all-atom refinement mode
+
+----
+
+
   Release 1.1.08
 
   o FEATURE: Scene Presets added to the Draw menu

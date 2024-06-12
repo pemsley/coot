@@ -2,6 +2,8 @@
 
 Based on the Webkit style
 
+C++ codes files end in ".cc", header files end in ".hh" - lowercase file names prefered.
+
 Spaces not tabs (never tabs)
 
 Line length limit: 128 characters
