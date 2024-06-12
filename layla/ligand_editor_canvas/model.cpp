@@ -168,6 +168,10 @@ graphene_rect_t CanvasMolecule::get_on_screen_bounding_rect() const noexcept {
     return ret;
 }
 
+std::optional<CanvasMolecule::QEDInfo> CanvasMolecule::get_qed_info() const noexcept {
+    return this->qed_info;
+}
+
 
 void CanvasMolecule::perform_flip(FlipMode flip_mode) {
     for(auto& atom: this->cached_atom_coordinate_map.value()) {
@@ -912,6 +916,15 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after) {
     if (sanitize_after) {
         RDKit::MolOps::sanitizeMol(*this->rdkit_molecule);
     }
+
+    // QED update
+    this->update_qed_info();
+}
+
+void CanvasMolecule::update_qed_info() {
+    
+    // todo: fill QED info
+    this->qed_info;
 }
 
 void CanvasMolecule::highlight_atom(int atom_idx) {

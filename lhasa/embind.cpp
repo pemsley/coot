@@ -200,6 +200,15 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   enum_<CootLigandEditorCanvas::MeasurementDirection>("MeasurementDirection")
     .value("HORIZONTAL", CootLigandEditorCanvas::MeasurementDirection::HORIZONTAL)
     .value("VERTICAL", CootLigandEditorCanvas::MeasurementDirection::VERTICAL);
+  value_object<CanvasMolecule::QEDInfo>("QEDInfo")
+    .field("number_of_hydrogen_bond_acceptors", &CanvasMolecule::QEDInfo::number_of_hydrogen_bond_acceptors)
+    .field("number_of_hydrogen_bond_donors",&CanvasMolecule::QEDInfo:: number_of_hydrogen_bond_donors)
+    .field("number_of_rotatable_bonds", &CanvasMolecule::QEDInfo::number_of_rotatable_bonds)
+    .field("number_of_aromatic_rings", &CanvasMolecule::QEDInfo::number_of_aromatic_rings)
+    .field("number_of_alerts", &CanvasMolecule::QEDInfo::number_of_alerts)
+    .field("molecular_weight", &CanvasMolecule::QEDInfo::molecular_weight)
+    .field("alogp", &CanvasMolecule::QEDInfo::alogp)
+    .field("molecular_polar_surface_area", &CanvasMolecule::QEDInfo::molecular_polar_surface_area);
   class_<impl::WidgetCoreData>("ImplWidgetCoreData");
   class_<CootLigandEditorCanvas, base<impl::WidgetCoreData>>("Canvas")
     .constructor<>()
