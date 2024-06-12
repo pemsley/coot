@@ -31,14 +31,7 @@
 #include <memory>
 
 
-// This must not be here because it will cause a linker error (in Moorhen)
-// #define TINYGLTF_IMPLEMENTATION
-// #include "../coot-utils/tiny_gltf.h"
-// ..and so we have to do a forward declaration
-namespace tinygltf {
-    std::string base64_encode(unsigned char const *bytes_to_encode, unsigned int in_len);
-    std::string base64_decode(std::string const &encoded_string);
-}
+#include "coot-utils/base64-encode-decode.hh"
 
 // Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
 #ifndef RD_MOLPICKLE_H
@@ -657,7 +650,7 @@ std::string coot_ligand_editor_canvas_get_pickled_molecule(CootLigandEditorCanva
 
 std::string coot_ligand_editor_canvas_get_pickled_molecule_base64(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
     std::string raw = coot_ligand_editor_canvas_get_pickled_molecule(self, molecule_idx);
-    return tinygltf::base64_encode((const unsigned char*) raw.c_str(), raw.size());
+    return moorhen_base64::base64_encode((const unsigned char*) raw.c_str(), raw.size());
 }
 
 #ifndef __EMSCRIPTEN__
