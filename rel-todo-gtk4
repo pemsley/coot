@@ -1,6 +1,14 @@
 
 ----
 
+Screenshot png
+
+Use 2DT dictionary for link and refinement - George.
+
+How to set the step size for mouse scroll?
+
+Check Curlew uses XDG base correctly.
+
 Add a function: Are the ligands consistent with the ligand dictionary (has atoms that are not in the dictionary)
 
 PAE svg without cairo? So that we can pass the fractions-through-the-sequence.
