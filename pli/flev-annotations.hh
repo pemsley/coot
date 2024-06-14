@@ -27,9 +27,10 @@
 #include "geometry/residue-and-atom-specs.hh"
 #include "lidia-core/lbg-shared.hh" // bash_distance_t
 
-
 namespace pli {
       
+   enum { H_IS_RIDING, H_IS_ROTATABLE }; // shared between named_torsion_t and flev_attached_hydrogens_t.
+
    // we need to map (the hydrogens torsions) between ideal prodrg
    // ligand atoms and the atoms in the residue/ligand of interest
    // (the reference ligand).

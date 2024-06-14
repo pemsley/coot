@@ -56,8 +56,6 @@ namespace coot {
    get_cannonball_vectors(mmdb::Residue *ligand_res_3d,
 			  const coot::dictionary_residue_restraints_t &monomer_restraints);
 
-   enum { H_IS_RIDING, H_IS_ROTATABLE }; // shared between named_torsion_t and flev_attached_hydrogens_t.
-
 
    // the reference_residue is the flat residue
    void write_ligand_atom_accessibilities(const std::vector<std::pair<coot::atom_spec_t, float> > &sav,

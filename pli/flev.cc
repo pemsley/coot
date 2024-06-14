@@ -516,11 +516,13 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
 
                   std::vector<int> add_reps_vec;
 
+#if 0 // 20240614-PE linking problems! - unresolved operator<<().
                   if (true) {
                      for (unsigned int ic=0; ic<res_centres.size(); ic++)
                         std::cout << "   " << ic << "  " << res_centres[ic]
                                   << std::endl;
                   }
+#endif
 
                   // ----------- residue infos ----------
                   //
@@ -1183,6 +1185,184 @@ flev_t::ligand_grid::canvas_pos_to_grid_pos(const lig_build::pos_t &pos) const {
    return std::pair<int, int> (ix, iy);
 }
 
+
+lig_build::pos_t
+flev_t::ligand_grid::to_canvas_pos(const double &ii, const double &jj) const {
+
+   lig_build::pos_t p(ii*scale_fac, jj*scale_fac);
+   p += top_left;
+   return p;
+}
+
+void
+flev_t::ligand_grid::avoid_ring_centres(const std::vector<std::vector<std::string> > &ring_atoms_list,
+                                        const lig_build::molecule_t<svg_atom_t, svg_bond_t> &mol) {
+
+   // For the substitution contour we blob in a circle of radius
+   // 1/(2*sin(180/n_ring_atoms)) bond lengths.
+   
+   for (unsigned int iring=0; iring<ring_atoms_list.size(); iring++) {
+      try { 
+	 lig_build::pos_t centre = mol.get_ring_centre(ring_atoms_list[iring]);
+	 int n_atoms = ring_atoms_list[iring].size();
+	 // just in case we get here with n_atoms = 1 for some reason...
+	 if (n_atoms < 3) n_atoms = 3;
+	 
+	 double radius = 1/(2*sin(M_PI/double(n_atoms))) * 1.5; // in "A" or close
+	 // std::cout << "avoid_ring_centres() adding ring centre at " << centre
+	 // << " n_atoms: " << n_atoms << " radius " << radius << std::endl;
+	 add_for_accessibility(radius, centre);
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "Opps - failed to find ring centre for ring atom name "
+		   << iring << std::endl;
+      }
+   }
+}
+
+void
+flev_t::ligand_grid::show_contour(float contour_level) {
+
+   std::vector<lig_build::atom_ring_centre_info_t> dummy_unlimited_atoms;
+   std::vector<std::vector<std::string> > dummy_ring_atom_names;   
+   show_contour(contour_level, dummy_unlimited_atoms, dummy_ring_atom_names);
+}
+
+void
+flev_t::ligand_grid::show_contour(float contour_level,
+                                  const std::vector<lig_build::atom_ring_centre_info_t> &unlimited_atoms,
+                                  const std::vector<std::vector<std::string> > &ring_atoms_list) {
+
+
+   // GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", "#880000", NULL);
+
+   bool debug = false;
+   int ii=0;
+   int jj=0;
+
+   // fill the ring centre vector, if the unlimited atom have ring centres
+   std::vector<std::pair<bool, lig_build::pos_t> > ring_centres(unlimited_atoms.size());
+   for (unsigned int i=0; i<unlimited_atoms.size(); i++) { 
+      try {
+	 lig_build::pos_t p;
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << rte.what() << std::endl;
+      } 
+   }
+
+   std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> > line_fragments;
+
+   grid_index_t grid_index_prev(0,0);
+
+   for (int ix=0; ix<x_size(); ix+=1) {
+      for (int iy=0; iy<y_size(); iy+=1) {
+	 int ms_type = square_type(ix, iy, contour_level);
+
+	 grid_index_t grid_index(ix,iy);
+
+	 if ((ms_type != MS_NO_CROSSING) && (ms_type != MS_NO_SQUARE)) { 
+	    contour_fragment cf(ms_type, contour_level,
+                                grid_index_prev,
+                                grid_index,
+                                *this); // sign of bad architecture
+
+	    if (cf.coords.size() == 1) {
+
+	       if (debug)
+		  std::cout << "plot contour ("
+			    << cf.get_coords(ix, iy, 0).first << " "
+			    << cf.get_coords(ix, iy, 0).second << ") to ("
+			    << cf.get_coords(ix, iy, 1).first << " "
+			    << cf.get_coords(ix, iy, 1).second << ")" << std::endl;
+			
+	       std::pair<double, double> xy_1 = cf.get_coords(ix, iy, 0);
+	       std::pair<double, double> xy_2 = cf.get_coords(ix, iy, 1);
+	       lig_build::pos_t pos_1 = to_canvas_pos(xy_1.first, xy_1.second);
+	       lig_build::pos_t pos_2 = to_canvas_pos(xy_2.first, xy_2.second);
+
+	       lig_build::pos_t p1 = to_canvas_pos(cf.get_coords(ix, iy, 0).first,
+						   cf.get_coords(ix, iy, 0).second);
+	       lig_build::pos_t p2 = to_canvas_pos(cf.get_coords(ix, iy, 1).first,
+						   cf.get_coords(ix, iy, 1).second);
+	       std::pair<lig_build::pos_t, lig_build::pos_t> fragment_pair(p1, p2);
+
+	       // Now filter out this fragment pair if it is too close
+	       // to an unlimited_atom_positions
+	       bool plot_it = 1;
+	       double dist_crit = 4.0 * LIGAND_TO_CANVAS_SCALE_FACTOR;
+
+	       
+	       for (unsigned int i=0; i<unlimited_atoms.size(); i++) { 
+// 		  lig_build::pos_t p = to_canvas_pos(unlimited_atom_positions[i].x,
+// 						     unlimited_atom_positions[i].y);
+		  
+		  lig_build::pos_t p = unlimited_atoms[i].atom.atom_position;
+
+		  // if this atom has a ring centre, use the ring
+		  // centre to atom vector to unplot vectors only in a
+		  // particular direction.
+		  // 
+		  if ((p - p1).lengthsq() < (dist_crit * dist_crit)) {
+		     if (1) { // for debugging
+			if (unlimited_atoms[i].has_ring_centre_flag) {
+			   // std::cout << " atom " << i << " has ring_centre ";
+			   lig_build::pos_t d_1 =
+			      unlimited_atoms[i].ring_centre - unlimited_atoms[i].atom.atom_position;
+			   lig_build::pos_t d_2 = unlimited_atoms[i].atom.atom_position - p1;
+			   double cos_theta =
+			      lig_build::pos_t::dot(d_1, d_2)/(d_1.length()*d_2.length());
+			   // std::cout << " cos_theta " << cos_theta << " for unlimited atom " << i << std::endl;
+			   if (cos_theta > 0.3) { // only cut in the "forwards" direction
+
+// 			      std::cout << " cutting by ring-centred unlimited atom " << i << " "
+// 				 << unlimited_atoms[i].atom.get_atom_name()
+// 					<< std::endl;
+			      
+			      plot_it = 0;
+			      break;
+			   }
+			   // std::cout << std::endl;
+			
+			} else {
+			   plot_it = 0;
+//  			   std::cout << " cutting by unlimited atom " << i << " "
+//  				     << unlimited_atoms[i].atom.get_atom_name()
+//  				     << std::endl;
+			   break;
+			}
+		     }
+		  }
+		  
+	       } // end unlimited atoms loop
+
+	       if (plot_it)
+		  line_fragments.push_back(fragment_pair);
+	    } 
+	 }
+      }
+   }
+
+   std::vector<std::vector<lig_build::pos_t> > contour_lines = make_contour_lines(line_fragments);
+
+   plot_contour_lines(contour_lines);
+
+#if 0
+   // check the orientation of the canvas
+   if (0) { 
+      lig_build::pos_t grid_ori = to_canvas_pos(0.0, 0.0);
+      goo_canvas_rect_new (group,
+			   grid_ori.x, grid_ori.y, 5.0, 5.0,
+			   "line-width", 1.0, // in show_contour()
+			   "stroke-color", "green",
+			   "fill_color", "blue",
+			   NULL);
+   }
+#endif
+} 
+
+
+
 double
 flev_t::ligand_grid::substitution_value(double r_squared, double bash_dist) const {
 
@@ -1227,3 +1407,618 @@ flev_t::ligand_grid::substitution_value(double r_squared, double bash_dist) cons
       }
    }
 }
+
+
+std::vector<std::vector<lig_build::pos_t> >
+flev_t::ligand_grid::make_contour_lines(const std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> > &line_fragments) const {
+
+   // Look for neighboring cells so that a continuous line fragment is
+   // generated. That is fine for closed contours, but this handled
+   // badly contour line fragments that go over the edge, they will be
+   // split into several line fragment - depending on which fragment
+   // is picked first.
+   //
+   // Perhaps the last items in the line_frag_queue should be (any)
+   // points that are on the edge of the grid - because they are the
+   // best starting place for dealing with contour line fragments that
+   // go over the edge.  If you do this, then the input arg
+   // line_fragments should carry with it info about this line
+   // fragment being on an edge (generated in show_contour())..
+   //
+   
+   std::vector<std::vector<lig_build::pos_t> > v; // returned item.
+
+   std::deque<std::pair<lig_build::pos_t, lig_build::pos_t> > line_frag_queue;
+   for (unsigned int i=0; i<line_fragments.size(); i++)
+      line_frag_queue.push_back(line_fragments[i]);
+
+   while (!line_frag_queue.empty()) {
+
+      // start a new line fragment
+      // 
+      std::vector<lig_build::pos_t> working_points;
+      std::pair<lig_build::pos_t, lig_build::pos_t> start_frag = line_frag_queue.back();
+      working_points.push_back(start_frag.first);
+      working_points.push_back(start_frag.second);
+      line_frag_queue.pop_back();
+      bool line_fragment_terminated = 0;
+
+      while (! line_fragment_terminated) { 
+	 // Is there a fragment in line_frag_queue that has a start that
+	 // is working_points.back()?
+	 //
+	 bool found = 0;
+	 std::deque<std::pair<lig_build::pos_t, lig_build::pos_t> >::iterator it;
+	 for (it=line_frag_queue.begin(); it!=line_frag_queue.end(); ++it) { 
+	    if (it->first.near_point(working_points.back(), 0.1)) {
+	       working_points.push_back(it->second);
+	       line_frag_queue.erase(it);
+	       found = 1;
+	       break;
+	    }
+	 }
+	 if (! found)
+	    line_fragment_terminated = 1;
+      }
+
+      v.push_back(working_points);
+   }
+   
+   return v;
+} 
+
+void
+flev_t::ligand_grid::plot_contour_lines(const std::vector<std::vector<lig_build::pos_t> > &contour_lines) {
+
+#if 0
+   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color",
+						// "#111111", not so dark
+						"#777777",
+						NULL);
+   GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 1.5, 2.5);
+
+   for (unsigned int i=0; i<contour_lines.size(); i++) { 
+      for (int j=0; j<int(contour_lines[i].size()-1); j++) {
+	 
+	 goo_canvas_polyline_new_line(group,
+				      contour_lines[i][j].x,
+				      contour_lines[i][j].y,
+				      contour_lines[i][j+1].x,
+				      contour_lines[i][j+1].y,
+				      "line_width", 1.0,
+				      "line-dash", dash,
+				      NULL);
+	 
+      }
+   }
+   goo_canvas_line_dash_unref(dash);
+#endif
+   
+}
+
+flev_t::contour_fragment::contour_fragment(int ms_type,
+                                           const float &contour_level, 
+                                           const grid_index_t &grid_index_prev,
+                                           const grid_index_t &grid_index,
+                                           const ligand_grid &grid) {
+
+   int ii_next = grid_index_t::INVALID_INDEX;
+   int jj_next = grid_index_t::INVALID_INDEX;
+
+   float v00 = grid.get(grid_index.i(),   grid_index.j());
+   float v01 = grid.get(grid_index.i(),   grid_index.j()+1);
+   float v10 = grid.get(grid_index.i()+1, grid_index.j());
+   float v11 = grid.get(grid_index.i()+1, grid_index.j()+1);
+
+   float frac_x1 = -1; 
+   float frac_y1 = -1;
+   float frac_x2 = -1;  // for hideous valley
+   float frac_y2 = -1;
+
+   contour_fragment::coordinates c1(0.0, X_AXIS_LOW);
+   contour_fragment::coordinates c2(Y_AXIS_LOW, 0.0);
+   cp_t p(c1,c2);
+   
+   switch (ms_type) {
+
+   case ligand_grid::MS_UP_0_0:
+   case ligand_grid::MS_UP_0_1_and_1_0_and_1_1:
+
+      frac_x1 = (v00-contour_level)/(v00-v10);
+      frac_y1 = (v00-contour_level)/(v00-v01);
+      c1 = contour_fragment::coordinates(frac_x1, X_AXIS_LOW);
+      c2 = contour_fragment::coordinates(Y_AXIS_LOW, frac_y1);
+      p = cp_t(c1,c2);
+      coords.push_back(p);
+      break;
+
+   case ligand_grid::MS_UP_0_1:
+   case ligand_grid::MS_UP_0_0_and_1_0_and_1_1:
+      
+      // these look fine
+      // std::cout << " ----- case MS_UP_0,1 " << std::endl;
+      frac_y1 = (v00 - contour_level)/(v00-v01);
+      frac_x2 = (v01 - contour_level)/(v01-v11);
+      c1 = contour_fragment::coordinates(Y_AXIS_LOW, frac_y1);
+      c2 = contour_fragment::coordinates(frac_x2, X_AXIS_HIGH);
+      p = cp_t(c1,c2);
+      coords.push_back(p);
+      break;
+
+      
+   case ligand_grid::MS_UP_1_0:
+   case ligand_grid::MS_UP_0_0_and_0_1_and_1_1:
+      
+      // std::cout << " ----- case MS_UP_1,0 " << std::endl;
+      frac_x1 = (contour_level - v00)/(v10-v00);
+      frac_y1 = (contour_level - v10)/(v11-v10);
+      c1 = contour_fragment::coordinates(frac_x1, X_AXIS_LOW);
+      c2 = contour_fragment::coordinates(Y_AXIS_HIGH, frac_y1);
+      p = cp_t(c1,c2);
+      coords.push_back(p);
+      break;
+
+      
+      
+   case ligand_grid::MS_UP_1_1:
+   case ligand_grid::MS_UP_0_0_and_0_1_and_1_0:
+
+      // std::cout << " ----- case MS_UP_1,1 " << std::endl;
+      frac_x1 = (v01-contour_level)/(v01-v11);
+      frac_y1 = (v10-contour_level)/(v10-v11);
+      c1 = contour_fragment::coordinates(frac_x1, X_AXIS_HIGH);
+      c2 = contour_fragment::coordinates(Y_AXIS_HIGH, frac_y1);
+      p = cp_t(c1,c2);
+      coords.push_back(p);
+      break;
+
+   case ligand_grid::MS_UP_0_0_and_0_1:
+   case ligand_grid::MS_UP_1_0_and_1_1:
+      
+      // std::cout << " ----- case MS_UP_0,0 and 0,1 " << std::endl;
+      frac_x1 = (v00-contour_level)/(v00-v10);
+      frac_x2 = (v01-contour_level)/(v01-v11);
+      c1 = contour_fragment::coordinates(frac_x1, X_AXIS_LOW);
+      c2 = contour_fragment::coordinates(frac_x2, X_AXIS_HIGH);
+      p = cp_t(c1,c2);
+      coords.push_back(p);
+      break;
+
+   case ligand_grid::MS_UP_0_0_and_1_0:
+   case ligand_grid::MS_UP_0_1_and_1_1:
+      
+      // std::cout << " ----- case MS_UP_0,0 and 1,0 " << std::endl;
+      frac_y1 = (v00-contour_level)/(v00-v01);
+      frac_y2 = (v10-contour_level)/(v10-v11);
+      c1 = contour_fragment::coordinates(Y_AXIS_LOW,  frac_y1);
+      c2 = contour_fragment::coordinates(Y_AXIS_HIGH, frac_y2);
+      p = cp_t(c1,c2);
+      coords.push_back(p);
+      break;
+      
+
+   default:
+      std::cout << "ERROR:: unhandled square type: " << ms_type << std::endl;
+
+   } 
+
+}
+
+
+// for marching squares, ii and jj are the indices of the bottom left-hand side.
+int 
+flev_t::ligand_grid::square_type(int ii, int jj, float contour_level) const {
+
+   int square_type = ligand_grid::MS_NO_SQUARE;
+   if ((ii+1) >= x_size_) {
+      return ligand_grid::MS_NO_SQUARE;
+   } else { 
+      if ((jj+1) >= y_size_) {
+	 return ligand_grid::MS_NO_SQUARE;
+      } else {
+	 float v00 = get(ii, jj);
+	 float v01 = get(ii, jj+1);
+	 float v10 = get(ii+1, jj);
+	 float v11 = get(ii+1, jj+1);
+	 if (v00 > contour_level) { 
+	    if (v01 > contour_level) { 
+	       if (v10 > contour_level) { 
+		  if (v11 > contour_level) {
+		     return ligand_grid::MS_NO_CROSSING;
+		  }
+	       }
+	    }
+	 }
+	 if (v00 < contour_level) { 
+	    if (v01 < contour_level) { 
+	       if (v10 < contour_level) { 
+		  if (v11 < contour_level) {
+		     return ligand_grid::MS_NO_CROSSING;
+		  }
+	       }
+	    }
+	 }
+
+	 // OK, so it is not either of the trivial cases (no
+	 // crossing), there are 14 other variants.
+	 // 
+	 if (v00 < contour_level) { 
+	    if (v01 < contour_level) { 
+	       if (v10 < contour_level) { 
+		  if (v11 < contour_level) {
+		     return ligand_grid::MS_NO_CROSSING;
+		  } else {
+		     return ligand_grid::MS_UP_1_1;
+		  }
+	       } else {
+		  if (v11 < contour_level) {
+		     return ligand_grid::MS_UP_1_0;
+		  } else {
+		     return ligand_grid::MS_UP_1_0_and_1_1;
+		  }
+	       }
+	    } else {
+
+	       // 0,1 is up
+	       
+	       if (v10 < contour_level) { 
+		  if (v11 < contour_level) {
+		     return ligand_grid::MS_UP_0_1;
+		  } else {
+		     return ligand_grid::MS_UP_0_1_and_1_1;
+		  }
+	       } else {
+		  if (v11 < contour_level) {
+		     return ligand_grid::MS_UP_0_1_and_1_0;      // hideous valley
+		  } else {
+		     return ligand_grid::MS_UP_0_1_and_1_0_and_1_1; // (only 0,0 down)
+		  }
+	       }
+	    }
+	 } else {
+
+	    // 0,0 is up
+	    
+	    if (v01 < contour_level) { 
+	       if (v10 < contour_level) { 
+		  if (v11 < contour_level) {
+		     return ligand_grid::MS_UP_0_0;
+		  } else {
+		     return ligand_grid::MS_UP_0_0_and_1_1; // another hideous valley
+		  }
+	       } else {
+		  // 1,0 is up
+		  if (v11 < contour_level) {
+		     return ligand_grid::MS_UP_0_0_and_1_0;
+		  } else {
+		     return ligand_grid::MS_UP_0_0_and_1_0_and_1_1; // 0,1 is down
+		  }
+	       }
+	    } else {
+
+	       // 0,1 is up
+	       
+	       if (v10 < contour_level) { 
+		  if (v11 < contour_level) {
+		     return ligand_grid::MS_UP_0_0_and_0_1;
+		  } else {
+		     return ligand_grid::MS_UP_0_0_and_0_1_and_1_1; // 1,0 is down
+		  }
+	       } else {
+		  // if we get here, this test must pass.
+		  if (v11 < contour_level) {
+		     return ligand_grid::MS_UP_0_0_and_0_1_and_1_0; // only 1,1 is down
+		  }
+	       }
+	    }
+	 } 
+      }
+   }
+   return square_type;
+}
+
+
+// Return the fill colour and the stroke colour.
+// 
+std::pair<std::string, std::string>
+flev_t::get_residue_circle_colour(const std::string &residue_type) const {
+
+   std::string fill_colour = "";
+   std::string stroke_colour = "#111111";
+
+   std::string grease = "#ccffbb";
+   std::string purple = "#eeccee";
+   std::string red    = "#cc0000";
+   std::string blue   = "#0000cc";
+   std::string metalic_grey = "#d9d9d9";
+
+   if (residue_type == "ALA")
+      fill_colour = grease;
+   if (residue_type == "TRP")
+      fill_colour = grease;
+   if (residue_type == "PHE")
+      fill_colour = grease;
+   if (residue_type == "LEU")
+      fill_colour = grease;
+   if (residue_type == "PRO")
+      fill_colour = grease;
+   if (residue_type == "ILE")
+      fill_colour = grease;
+   if (residue_type == "VAL")
+      fill_colour = grease;
+   if (residue_type == "MET")
+      fill_colour = grease;
+   if (residue_type == "MSE")
+      fill_colour = grease;
+
+   if (residue_type == "GLY")
+      fill_colour = purple;
+   if (residue_type == "ASP")
+      fill_colour = purple;
+   if (residue_type == "ASN")
+      fill_colour = purple;
+   if (residue_type == "CYS")
+      fill_colour = purple;
+   if (residue_type == "GLN")
+      fill_colour = purple;
+   if (residue_type == "GLU")
+      fill_colour = purple;
+   if (residue_type == "HIS")
+      fill_colour = purple;
+   if (residue_type == "LYS")
+      fill_colour = purple;
+   if (residue_type == "LYS")
+      fill_colour = purple;
+   if (residue_type == "ARG")
+      fill_colour = purple;
+   if (residue_type == "SER")
+      fill_colour = purple;
+   if (residue_type == "THR")
+      fill_colour = purple;
+   if (residue_type == "TYR")
+      fill_colour = purple;
+   if (residue_type == "HOH")
+      fill_colour = "white";
+
+   if (residue_type == "ASP")
+      stroke_colour = red;
+   if (residue_type == "GLU")
+      stroke_colour = red;
+   if (residue_type == "LYS")
+      stroke_colour = blue;
+   if (residue_type == "ARG")
+      stroke_colour = blue;
+   if (residue_type == "HIS")
+      stroke_colour = blue;
+
+   // Bases
+   if (residue_type == "U")  fill_colour = purple;
+   if (residue_type == "T")  fill_colour = purple;
+   if (residue_type == "C")  fill_colour = purple;
+   if (residue_type == "A")  fill_colour = purple;
+   if (residue_type == "G")  fill_colour = purple;
+   if (residue_type == "DT")  fill_colour = purple;
+   if (residue_type == "DC")  fill_colour = purple;
+   if (residue_type == "DA")  fill_colour = purple;
+   if (residue_type == "DG")  fill_colour = purple;
+   
+
+   // metals
+   if (residue_type == "ZN") 
+      fill_colour = metalic_grey;
+   if (residue_type == "MG")
+      fill_colour = metalic_grey;
+   if (residue_type == "NA")
+      fill_colour = metalic_grey;
+   if (residue_type == "CA")
+      fill_colour = metalic_grey;
+   if (residue_type == "K")
+      fill_colour = metalic_grey;
+	 
+   return std::pair<std::string, std::string> (fill_colour, stroke_colour);
+}
+
+
+
+// if you don't have add_rep_handles, then pass a vector or size 0.
+// 
+void
+flev_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circles,
+                             const std::vector<int> &add_rep_handles) {
+
+   double max_dist_water_to_ligand_atom  = 3.3; // don't draw waters that are far from ligand
+   double max_dist_water_to_protein_atom = 3.3; // don't draw waters that are not somehow 
+                                                // attached to the protein.
+
+   bool draw_flev_annotations_flag = true; // is this a class member now?
+
+   if (draw_flev_annotations_flag) { 
+      bool draw_solvent_exposures = 1;
+      try { 
+	 lig_build::pos_t ligand_centre = mol.get_ligand_centre();
+	 // GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+
+	 if (draw_solvent_exposures)
+	    for (unsigned int i=0; i<l_residue_circles.size(); i++)
+	       draw_solvent_exposure_circle(l_residue_circles[i], ligand_centre);
+
+	 for (unsigned int i=0; i<l_residue_circles.size(); i++) {
+	    lig_build::pos_t pos = l_residue_circles[i].pos;
+	    int add_rep_handle = -1; // default, no handle
+	    if (add_rep_handles.size() == l_residue_circles.size())
+	       add_rep_handle = add_rep_handles[i];
+
+	    draw_residue_circle_top_layer(l_residue_circles[i], ligand_centre, add_rep_handle);
+	 }
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "WARNING:: draw_residue_circles: " << rte.what() << std::endl;
+      }
+   }
+}
+
+#include "utils/coot-utils.hh"
+
+// if you don't have an add_rep_handle, then pass -1 (something negative)
+// 
+void
+flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
+                                      const lig_build::pos_t &ligand_centre,
+                                      int add_rep_handle) {
+
+
+   if (0)
+      std::cout << "   adding cirles " << residue_circle.residue_type
+		<< " at init pos " << residue_circle.pos << " and canvas_drag_offset "
+                << std::endl;
+
+   lig_build::pos_t circle_pos = residue_circle.pos;
+      
+   // GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+
+   //GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", "#111111", NULL);
+
+   // don't draw waters that don't have bonds to the ligand (or the
+   // bonds to the ligand atoms are too long, or the water is too far
+   // from any protein atom).
+   //
+   if (residue_circle.residue_type == "HOH") {
+      if (residue_circle.bonds_to_ligand.size() == 0) {
+	 return;
+      }
+   }
+
+   // Capitalise the residue type (takes less space than upper case).
+   std::string rt = residue_circle.residue_type.substr(0,1);
+   rt += coot::util::downcase(residue_circle.residue_type.substr(1));
+   
+   // correct that if we are looking at dna: DA, DT, DC, DG
+   if (residue_circle.residue_type == "DA" ||
+       residue_circle.residue_type == "DT" || 
+       residue_circle.residue_type == "DC" || 
+       residue_circle.residue_type == "DG") {
+      rt = "d";
+      rt += residue_circle.residue_type.substr(1);
+   } 
+
+   // fill colour and stroke colour of the residue circle
+   std::pair<std::string, std::string> col = get_residue_circle_colour(residue_circle.residue_type);
+   double line_width = 1.0;
+   if (col.second != "#111111") // needs checking, FIXME
+      line_width = 3.0;
+
+   // GooCanvasItem *circle = NULL;
+   // GooCanvasItem *text_1 = NULL;
+   // GooCanvasItem *text_2 = NULL;
+   
+
+   if (col.first != "") {
+      // circle = goo_canvas_ellipse_new(group,
+      //   			      circle_pos.x, circle_pos.y,
+      //   			      standard_residue_circle_radius,
+      //   			      standard_residue_circle_radius,
+      //   			      "line_width", line_width,
+      //   			      "fill-color",   col.first.c_str(),
+      //   			      "stroke-color", col.second.c_str(),
+      //   			      NULL);
+   } else {
+      // circle = goo_canvas_ellipse_new(group,
+      //   			      circle_pos.x, circle_pos.y,
+      //   			      standard_residue_circle_radius,
+      //   			      standard_residue_circle_radius,
+      //   			      "line_width", line_width,
+      //   			      "stroke-color", col.second.c_str(),
+      //   			      NULL);
+   }
+   
+   // text_1 = goo_canvas_text_new(group, rt.c_str(),
+   //      			circle_pos.x, circle_pos.y-6, -1,
+   //      			GOO_CANVAS_ANCHOR_CENTER,
+   //      			"font", "Sans 9",
+   //      			"fill_color", "#111111",
+   //      			NULL);
+
+   // text_2 = goo_canvas_text_new(group, residue_circle.residue_label.c_str(),
+   //      			circle_pos.x, circle_pos.y+6.5, -1,
+   //      			GOO_CANVAS_ANCHOR_CENTER,
+   //      			"font", "Sans 7",
+   //      			"fill_color", "#111111",
+   //      			NULL);
+
+   // if (circle && text_1 && text_2) {
+   //    // so that if a residue is clicked on (or moused over or
+   //    // whatever, then the target_item has some interesting attached
+   //    // data for use in the callback)
+   //    coot::residue_spec_t *sp_p_1 = new coot::residue_spec_t(residue_circle.spec);
+   //    coot::residue_spec_t *sp_p_2 = new coot::residue_spec_t(residue_circle.spec);
+   //    coot::residue_spec_t *sp_p_3 = new coot::residue_spec_t(residue_circle.spec);
+   //    sp_p_1->int_user_data = imol;
+   //    sp_p_2->int_user_data = imol;
+   //    sp_p_3->int_user_data = imol;
+   //    g_object_set_data_full(G_OBJECT(circle), "spec", sp_p_1, g_free);
+   //    g_object_set_data_full(G_OBJECT(text_1), "spec", sp_p_2, g_free);
+   //    g_object_set_data_full(G_OBJECT(text_2), "spec", sp_p_3, g_free);
+   //    int *add_rep_handle_p_1 = new int(add_rep_handle);
+   //    int *add_rep_handle_p_2 = new int(add_rep_handle);
+   //    int *add_rep_handle_p_3 = new int(add_rep_handle);
+   //    g_object_set_data_full(G_OBJECT(circle), "add_rep_handle", add_rep_handle_p_1, g_free);
+   //    g_object_set_data_full(G_OBJECT(text_1), "add_rep_handle", add_rep_handle_p_2, g_free);
+   //    g_object_set_data_full(G_OBJECT(text_2), "add_rep_handle", add_rep_handle_p_3, g_free);
+   // }
+
+}
+
+
+// solvent exposure difference of the residue due to ligand binding
+void 
+flev_t::draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
+                                     const lig_build::pos_t &ligand_centre) {
+
+   if (residue_circle.residue_type != "HOH") { 
+      if (residue_circle.se_diff_set()) {
+	 std::pair<double, double> se_pair = residue_circle.solvent_exposures();
+	 double radius_extra = (se_pair.second - se_pair.first) * 19;  // was 18, was 14, was 22.
+	 if (radius_extra > 0) {
+	    lig_build::pos_t to_lig_centre_uv = (ligand_centre - residue_circle.pos).unit_vector();
+	    lig_build::pos_t se_circle_centre = residue_circle.pos - to_lig_centre_uv * radius_extra;
+
+	    std::string fill_colour = get_residue_solvent_exposure_fill_colour(radius_extra);
+	    double r = standard_residue_circle_radius + radius_extra;
+
+	    // GooCanvasItem *circle = goo_canvas_ellipse_new(group,
+	    //     					   se_circle_centre.x, se_circle_centre.y,
+	    //     					   r, r,
+	    //     					   "line_width", 0.0,
+	    //     					   "fill-color", fill_colour.c_str(),
+	    //     					   NULL);
+	 }
+      }
+   } 
+}
+
+std::string
+flev_t::get_residue_solvent_exposure_fill_colour(double r) const {
+
+   std::string colour = "#8080ff";
+   double step = 0.7;
+   if (r > step)
+      colour = "#e0e0ff";
+   if (r > step * 2)
+      colour = "#d8d8ff";
+   if (r > step * 3)
+      colour = "#d0d0ff";
+   if (r > step * 4)
+      colour = "#c0c8ff";
+   if (r > step * 5)
+      colour = "#b0c0ff";
+   if (r > step * 6)
+      colour = "#a0b8ff";
+   if (r > step * 7)
+      colour = "#90b0ff";
+   if (r > step * 8)
+      colour = "#80a8ff";
+   if (r > step * 9)
+      colour = "#70a0ff";
+
+   return colour;
+} 
