@@ -53,7 +53,7 @@ endif(WIN32)
 
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DANALYSE_REFINEMENT_TIMING -DVERSION="1.x-pre" -DPACKAGE_VERSION="1"
+add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1"
   -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI -DHAVE_BOOST_THREAD -DHAVE_GSL
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
@@ -238,6 +238,7 @@ add_library(cootapi SHARED
             ${coot_src}/ideal/process-dfs-in-range.cc
             ${coot_src}/ideal/zo-rama.cc
             ${coot_src}/utils/align-utils.cc
+            ${coot_src}/utils/base64-encode-decode.cc
             ${coot_src}/utils/atomic-numbers.cc
             ${coot_src}/utils/backward.cpp
             ${coot_src}/utils/colour-holder.cc

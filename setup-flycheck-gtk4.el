@@ -10,8 +10,10 @@
 (setq flycheck-gcc-definitions   (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "HAVE_BOOST=1" "HAVE_BOOST_BASED_THREAD_POOL_LIBRARY=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1"))
 (setq flycheck-clang-definitions (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "HAVE_BOOST=1" "HAVE_BOOST_BASED_THREAD_POOL_LIBRARY=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1"))
 
-(setq flycheck-gcc-args   "-Wno-unknown-pragmas")
-(setq flycheck-clang-args "-Wno-unknown-pragmas")
+(setq flycheck-gcc-args   '("-Wno-unknown-pragmas" "-std=c++17"))
+(setq flycheck-clang-args '("-Wno-unknown-pragmas" "-std=c++17"))
+(setq flycheck-gcc-language-standard   "c++17")
+(setq flycheck-clang-language-standard "c++17")
 
 (setq build-path-list
   (list

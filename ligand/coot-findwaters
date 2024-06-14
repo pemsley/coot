@@ -1,20 +1,19 @@
 #!/bin/sh
 # -*-shell-script-*-
-# coot wrapper script 
+# coot wrapper script
 # Copyright 2004, 2005, 2006 Paul Emsley, University of York
 
 #
 current_exe_dir=`dirname $0`
 echo current_exe_dir is $current_exe_dir
 
-if [ $current_exe_dir = . ] ; then 
+if [ $current_exe_dir = . ] ; then
   COOT_PREFIX=`dirname $PWD`
-else 
+else
   COOT_PREFIX=`dirname "$current_exe_dir"`
 fi
 
 # echo COOT_PREFIX is $COOT_PREFIX
-
 
 
 # ----------------------------------------------------------------------------
@@ -23,7 +22,7 @@ fi
 # i.e.  nothing below here need be changed.
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
-# 
+#
 prefix=$COOT_PREFIX
 PATH=$COOT_PREFIX/bin:$PATH
 
@@ -46,7 +45,7 @@ GUILE_LOAD_PATH=\
 $COOT_PREFIX/share/guile/1.6:$COOT_PREFIX/share/guile:$COOT_PREFIX/share/guile/gtk-1.2:$COOT_PREFIX/share/guile/gui:$COOT_PREFIX/share/guile/www:$COOT_PREFIX/share/guile/site
 GUILE_WARN_DEPRECATED=no
 
-if [ -n "$LOCAL_GUILE_LOAD_PATH_EXTRAS" ] ; then 
+if [ -n "$LOCAL_GUILE_LOAD_PATH_EXTRAS" ] ; then
     GUILE_LOAD_PATH=${LOCAL_GUILE_LOAD_PATH_EXTRAS}:$GUILE_LOAD_PATH
 fi
 
@@ -54,27 +53,26 @@ fi
 
 systype=`uname`
 
-if [ $systype = Linux ] ; then 
+if [ $systype = Linux ] ; then
    if [ -z "$LD_LIBRARY_PATH" ] ;  then
-	LD_LIBRARY_PATH=$COOT_PREFIX/lib
-   else 
-	LD_LIBRARY_PATH=$COOT_PREFIX/lib:${LD_LIBRARY_PATH}
+       LD_LIBRARY_PATH=$COOT_PREFIX/lib
+   else
+       LD_LIBRARY_PATH=$COOT_PREFIX/lib:${LD_LIBRARY_PATH}
    fi
 fi
 
 # some (Intel, I supose) Mac users may need to change
 # DYLD_LIBRARY_PATH to DYLD_FALLBACK_LIBRARY_PATH, if running into
-#  problems with Framwork jpeg libraries (don't forget the export 
+#  problems with Framwork jpeg libraries (don't forget the export
 # at the end too).
 #
-if [ $systype = Darwin ] ; then 
+if [ $systype = Darwin ] ; then
    if [ -z "$DYLD_LIBRARY_PATH" ] ;  then
-	DYLD_LIBRARY_PATH=$COOT_PREFIX/lib
-   else 
-	DYLD_LIBRARY_PATH=$COOT_PREFIX/lib:${DYLD_LIBRARY_PATH}
+       DYLD_LIBRARY_PATH=$COOT_PREFIX/lib
+   else
+       DYLD_LIBRARY_PATH=$COOT_PREFIX/lib:${DYLD_LIBRARY_PATH}
    fi
 fi
-
 
 export SYMINFO
 export COOT_PREFIX
@@ -91,4 +89,4 @@ export DYLD_LIBRARY_PATH
 export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
-$COOT_PREFIX/libexec/findligand-bin $*
+$COOT_PREFIX/libexec/coot-findwaters-bin $*

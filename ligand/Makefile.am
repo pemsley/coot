@@ -128,8 +128,8 @@ check_PROGRAMS = test-fffear-in-coot test-trace ligand-percentiles  \
 
 # removed for now wrong build order: test-side-chain-densities
 
-findligand_bin_SOURCES = find-ligand.cc
-findwaters_bin_SOURCES = find-waters.cc
+coot_findligand_bin_SOURCES = find-ligand.cc
+coot_findwaters_bin_SOURCES = find-waters.cc
 
 test_tube_finder_SOURCES = test-tube-finder.cc
 test_tube_finder_LDADD = ./libcoot-ligand.la          \
@@ -150,9 +150,9 @@ res_tracer_LDADD = ./libcoot-res-tracer.la            \
    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 if OS_WIN32
-bin_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
+bin_PROGRAMS = coot-findligand-bin coot-findwaters-bin coot-make-ligands-db
 else
-libexec_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db identify-protein-bin
+libexec_PROGRAMS = coot-findligand-bin coot-findwaters-bin coot-make-ligands-db coot-identify-protein-bin
 endif
 
 test_trace_SOURCES = test-trace.cc
@@ -181,13 +181,14 @@ coot_make_ligands_db_LDADD = ./libcoot-ligand.la \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
         $(top_builddir)/analysis/libcoot-analysis.la	   \
-	$(top_builddir)/compat/libcoot-compat.la
+	$(top_builddir)/compat/libcoot-compat.la           \
+        $(RDKIT_LIBS)
 
-identify_protein_bin_SOURCES = identify-protein.cc
+coot_identify_protein_bin_SOURCES = identify-protein.cc
 
 
 # Why do I need to add lidia-core here? It's already added to libcoot-coord-utils.
-identify_protein_bin_LDADD = ./libcoot-ligand.la           \
+coot_identify_protein_bin_LDADD = ./libcoot-ligand.la      \
 	$(top_builddir)/ideal/libcoot-ideal.la             \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
@@ -195,7 +196,6 @@ identify_protein_bin_LDADD = ./libcoot-ligand.la           \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/utils/libcoot-utils.la             \
         $(CLIPPER_LIBS) $(MMDB_LIBS)
-
 
 
 ligand_percentiles_SOURCES = ligand-percentiles.cc
@@ -294,7 +294,7 @@ test_fffear_in_coot_LDADD = \
 
 #	$(top_builddir)/coords/libcoot-coords.la
 
-findligand_bin_LDADD = \
+coot_findligand_bin_LDADD = \
 	./libcoot-ligand.la                                \
 	$(top_builddir)/ideal/libcoot-ideal.la             \
         $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
@@ -316,7 +316,7 @@ findligand_bin_LDADD = \
 
 # 	$(top_builddir)/coords/libcoot-coords.la
 
-findwaters_bin_LDADD = \
+coot_findwaters_bin_LDADD = \
 	./libcoot-ligand.la                                \
 	$(top_builddir)/ideal/libcoot-ideal.la             \
         $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
@@ -348,7 +348,7 @@ findwaters_bin_LDADD = \
 
 # testori_SOURCES = testori.cc
 
-dist_bin_SCRIPTS = findwaters findligand coot-identify-protein
+dist_bin_SCRIPTS = coot-findwaters coot-findligand coot-identify-protein
 
 #testdunbrack_SOURCES = testdunbrack.cc
 

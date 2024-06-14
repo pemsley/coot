@@ -1,3 +1,6 @@
+#ifndef COOT_ALIGN_UTIL_HH
+#define COOT_ALIGN_UTIL_HH
+
 /*
  * utils/align-utils.hh
  *
@@ -29,3 +32,5 @@ namespace coot {
 				 const std::string &target); // strings with - in them
 
 }
+
+#endif // COOT_ALIGN_UTIL_HH

@@ -64,6 +64,8 @@ target_sources(lh PRIVATE
   ../layla/ligand_editor_canvas/tools.cpp
   ../layla/ligand_editor_canvas/render.hpp
   ../layla/ligand_editor_canvas/render.cpp
+  ../utils/base64-encode-decode.hh
+  ../utils/base64-encode-decode.cc
 )
 
 add_executable(lhasa embind.cpp embind.hpp)

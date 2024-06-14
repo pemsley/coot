@@ -1735,27 +1735,6 @@ set_main_window_title(const char *s) {
    }
 }
 
-/*! function to show or hide the vertical modelling toolbar */
-void set_show_modelling_toolbar(short int state) {
-
-   if (graphics_info_t::use_graphics_interface_flag) {
-      std::string wn = "model_fit_refine_toolbar_handlebox";
-      wn = "main_window_model_fit_dialog_frame"; // gtkbuilder name
-
-      // GtkWidget *w = lookup_widget(graphics_info_t::get_main_window(), n.c_str());
-      GtkWidget *w = widget_from_builder(wn);
-      if (w) {
-         if (state == 0) {
-            gtk_widget_set_visible(w, FALSE);
-         } else {
-            gtk_widget_set_visible(w, TRUE);
-         }
-      } else {
-         std::cout << "ERROR:: widget with name " << wn << " not found" << std::endl;
-      }
-   }
-}
-
 
 
 
@@ -7113,8 +7092,9 @@ void post_scheme_scripting_window() {
 void
 run_command_line_scripts() {
 
-   std::cout << "---------------------------------------- run_command_line_scripts() ----------------"
-             << std::endl;
+   if (false)
+      std::cout << "--------------------- run_command_line_scripts() ----------------"
+                << std::endl;
 
    if (graphics_info_t::command_line_scripts.size()) {
       std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts.size()

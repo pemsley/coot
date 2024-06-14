@@ -349,23 +349,29 @@ endif
 if OS_DARWIN
 MacCoot_LDADD =  \
 	libcootsumo.la                                     \
+	$(top_builddir)/density-contour/libcoot-isosurface.la  	\
 	$(top_builddir)/layla/libcoot-layla.la             \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la	   \
+	$(top_builddir)/coords/libcoot-coords.la	   \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/utils/libcoot-utils.la             \
-	$(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS) $(EPOXY_LIBS) $(EMBEDDED_PYTHON_LIBS)
+	$(CLIPPER_LIBS) $(CURL_LIBS) $(GUILE_LDFLAGS) $(GTK_LIBS) $(EPOXY_LIBS) $(EMBEDDED_PYTHON_LIBS)
 else
 Coot_LDADD =  \
 	libcootsumo.la                                     \
+	$(top_builddir)/density-contour/libcoot-isosurface.la  	\
 	$(top_builddir)/layla/libcoot-layla.la             \
+	$(top_builddir)/coot-utils/libcoot-map-utils.la	   \
+	$(top_builddir)/coords/libcoot-coords.la	   \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/utils/libcoot-utils.la             \
-	$(CLIPPER_LIBS) $(CURL_LIBS) $(GTK_LIBS) $(EPOXY_LIBS) $(EMBEDDED_PYTHON_LIBS)
+	$(CLIPPER_LIBS) $(CURL_LIBS) $(GUILE_LDFLAGS) $(GTK_LIBS) $(EPOXY_LIBS) $(EMBEDDED_PYTHON_LIBS)
 endif
 
 
@@ -737,7 +743,6 @@ libcootsumo_la_SOURCES = \
 	startup-utils.cc         \
 	startup-scripts.hh       \
 	startup-scripts.hh       \
-	tiny_gltf.h              \
 	testing.cc testing-2.cc  \
 	testing-data.hh          \
 	testing.hh               \

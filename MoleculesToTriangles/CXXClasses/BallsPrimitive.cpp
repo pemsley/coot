@@ -32,8 +32,9 @@
 
 void BallsPrimitive::generateArrays()
 {
-    oglPolyhedron *poly = oglPolyhedron::dodecaHedron4();
-    
+    // oglPolyhedron *poly = oglPolyhedron::dodecaHedron4();
+    oglPolyhedron *poly = oglPolyhedron::dodecaHedron16();
+
     unsigned long requestedVertices = balls.size() * ((Polyhedron *)poly)->nVertices();
     unsigned long requestedIndices = 3 * balls.size() * ((Polyhedron *)poly)->nFaces();
     vertexColorNormalArray = new VertexColorNormal[requestedVertices];

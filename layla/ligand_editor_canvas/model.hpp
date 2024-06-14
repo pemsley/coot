@@ -68,7 +68,7 @@ std::optional<DisplayMode> display_mode_from_string(const char*) noexcept;
 
 /// Drawing-friendly representation of RDKit molecule
 class CanvasMolecule {
-    // Rendering is done via a separate class 
+    // Rendering is done via a separate class
     // for the sake of code organization
     friend class impl::MoleculeRenderContext;
     public:
@@ -91,12 +91,12 @@ class CanvasMolecule {
         DarkBlue
         // are there more colors?
     };
-    
-    struct Atom {
+
+   struct Atom {
         std::string symbol;
         std::optional<std::string> name;
-        
-        /// Appendix represents optional elements that appear after atom's symbol,
+
+      /// Appendix represents optional elements that appear after atom's symbol,
         /// e.g. charge, hydrogens
         struct Appendix {
             /// Ionization
@@ -146,14 +146,14 @@ class CanvasMolecule {
     struct Bond {
         BondType type;
         BondGeometry geometry;
-        /// Set for double bonds. 
+        /// Set for double bonds.
         /// It's the proportion of the bond's original length
-        /// by which the parallel segment of the bond 
+        /// by which the parallel segment of the bond
         /// has to be shortend from the "first" side.
         std::optional<float> first_shortening_proportion;
-        /// Set for double bonds. 
+        /// Set for double bonds.
         /// It's the proportion of the bond's original length
-        /// by which the parallel segment of the bond 
+        /// by which the parallel segment of the bond
         /// has to be shortend from the "second" side.
         std::optional<float> second_shortening_proportion;
         /// For double bonds
@@ -174,6 +174,19 @@ class CanvasMolecule {
         std::pair<float,float> get_vector() const noexcept;
 
         float get_length() const noexcept;
+    };
+
+    struct QEDInfo {
+        unsigned int number_of_hydrogen_bond_acceptors;
+        unsigned int number_of_hydrogen_bond_donors;
+        unsigned int number_of_rotatable_bonds;
+        unsigned int number_of_aromatic_rings;
+        unsigned int number_of_alerts;
+        double molecular_weight;
+        /// Hydrophobicity
+        double alogp;
+        double molecular_polar_surface_area;
+
     };
     typedef std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond> AtomOrBond;
     typedef std::optional<AtomOrBond> MaybeAtomOrBond;
@@ -210,7 +223,7 @@ class CanvasMolecule {
 
     /// Coordinate map built in the previous call
     /// to `compute_molecule_geometry()`
-    /// stored for reference to maintain alignment 
+    /// stored for reference to maintain alignment
     /// when recomputing molecule geometry
     std::optional<RDGeom::INT_POINT2D_MAP> cached_atom_coordinate_map;
 
@@ -219,13 +232,16 @@ class CanvasMolecule {
     /// Used for various lookups: while drawing, in the lowering process itself, etc.
     std::map<unsigned int,std::vector<std::shared_ptr<Bond>>> bond_map;
 
+    /// QED info is updated while lowering from RDKit.
+    std::optional<QEDInfo> qed_info;
+
 
     /// Computes the scale used for drawing
     /// And interfacing with screen coordinates
     float get_scale() const noexcept;
 
     /// Uses RDDepict to get molecule depiction & geometry info
-    /// 
+    ///
     /// Part of the lowering process.
     RDGeom::INT_POINT2D_MAP compute_molecule_geometry() const;
 
@@ -240,12 +256,14 @@ class CanvasMolecule {
     /// Part of the lowering process.
     void process_alignment_in_rings();
 
-    /// Computes length proportions by which 
+    /// Computes length proportions by which
     /// the parallel segments of double bonds have to be shortened
     /// to main aesthetic proportions.
     ///
     /// Part of the lowering process.
     void shorten_double_bonds();
+
+    void update_qed_info();
 
     public:
 
@@ -259,12 +277,12 @@ class CanvasMolecule {
 
     /// Clears the drawing-friendly 2D representation data
     /// and re-creates it from the internal RDKit::RWMol
-    /// 
+    ///
     /// If `sanitize_after` is true, the molecule will get sanitized
     /// after lowering
     void lower_from_rdkit(bool sanitize_after);
 
-    /// Clears `cached_atom_coordinate_map`, 
+    /// Clears `cached_atom_coordinate_map`,
     /// forcing the subsequent call to `compute_molecule_geometry()`
     /// to determine the shape of the molecule from scratch.
     ///
@@ -274,7 +292,7 @@ class CanvasMolecule {
     /// Updates the `cached_atom_coordinate_map` after an atom has been removed
     /// in such a way as to prevent the cached molecule geometry from being broken
     void update_cached_atom_coordinate_map_after_atom_removal(unsigned int removed_atom_idx);
-    
+
     /// Sets the scale for drawing
     void set_canvas_scale(float scale);
 
@@ -282,6 +300,7 @@ class CanvasMolecule {
     std::pair<float,float> get_on_screen_coords(float x, float y) const noexcept;
     std::optional<std::pair<float,float>> get_on_screen_coords_of_atom(unsigned int atom_idx) const noexcept;
     graphene_rect_t get_on_screen_bounding_rect() const noexcept;
+    std::optional<QEDInfo> get_qed_info() const noexcept;
     void perform_flip(FlipMode flip_mode);
     void rotate_by_angle(double radians);
 
@@ -293,7 +312,7 @@ class CanvasMolecule {
     MaybeAtomOrBond resolve_click(int x, int y) const noexcept;
 
     void highlight_atom(int atom_idx);
-    void highlight_bond(int atom_a, int atom_b); 
+    void highlight_bond(int atom_a, int atom_b);
     void clear_highlights();
 
     static RDKit::Bond::BondType bond_type_to_rdkit(BondType) noexcept;

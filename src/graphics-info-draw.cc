@@ -4788,7 +4788,7 @@ graphics_info_t::render_scene_with_texture_combination_for_depth_blur() {
 void
 graphics_info_t::reset_frame_buffers(int window_width, int window_height) {
 
-   if (true)
+   if (false)
       std::cout << "DEBUG:: reset_frame_buffers() " << window_width << " " << window_height
                 << " use_framebuffers: " << use_framebuffers << std::endl;
 
@@ -4801,7 +4801,7 @@ graphics_info_t::reset_frame_buffers(int window_width, int window_height) {
 
       // width  = width;
       // height = height;
-      if (true)
+      if (false)
          std::cout << "debug:: reset_frame_buffers() with sf " << sf << " "
                    << window_width << " x " << window_height << std::endl;
 
@@ -4997,7 +4997,7 @@ graphics_info_t::setup_draw_for_particles() {
       std::cout << "setup_draw_for_particles(): done making " << n_particles << " particles "
                 << " for " << positions.size() << " positions" << std::endl;
 
-      gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed? 20240610-PE, yes, I think so.
       mesh_for_particles.setup_vertex_and_instancing_buffers_for_particles(particles.size());
       mesh_for_particles.update_instancing_buffer_data_for_particles(particles);
       glUseProgram(0);

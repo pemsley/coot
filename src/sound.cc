@@ -150,6 +150,8 @@ play_sound_file(const std::string &file_name) {
 
    auto play_sound_file_inner = [] (const std::string &file_name) {
 
+      bool debug = false;
+
       FILE *f = fopen(file_name.c_str(), "r");
       if (!f) {
          std::cout << "DEBUG:: test_sound(): File " << file_name << " could not be found." << std::endl;
@@ -164,7 +166,8 @@ play_sound_file(const std::string &file_name) {
             if (true) {
                n_sound_files_playing++;
                std::string ss = "n_sound_files_playing: " + std::to_string(n_sound_files_playing) + "\n";
-               std::cout << ss << std::endl;
+               if (debug)
+                  std::cout << ss << std::endl;
                if(!ov_seekable(&ovf)) {
                   std::cout << "Failed to Vorbis Seek " << file_name << std::endl;
                } else {
@@ -185,7 +188,8 @@ play_sound_file(const std::string &file_name) {
                   }
 
                   long tt = ov_time_total(&ovf, -1);
-                  std::cout << "OggVorbis total time for " << file_name << " " << tt << std::endl;
+                  if (debug)
+                     std::cout << "OggVorbis total time for " << file_name << " " << tt << std::endl;
 
                   for(int i=0; i<ov_streams(&ovf); i++){
                      vorbis_info *vi=ov_info(&ovf,i);
@@ -228,7 +232,8 @@ play_sound_file(const std::string &file_name) {
                }
             }
             std::string ss = "reducing n_sound_files_playing\n";
-            std::cout << ss << std::endl;
+            if (false)
+               std::cout << ss << std::endl;
             n_sound_files_playing--;
          }
          fclose(f);

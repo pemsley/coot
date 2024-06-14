@@ -69,6 +69,23 @@ void WidgetCoreData::update_status(const char* status_text) const noexcept {
     _LIGAND_EDITOR_SIGNAL_EMIT_ARG(widget_ptr, status_updated_signal, status_text);
 }
 
+void WidgetCoreData::emit_mutation_signals() const noexcept {
+    #ifndef __EMSCRIPTEN__
+    auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
+    #else
+    auto* widget_ptr = static_cast<const ::CootLigandEditorCanvas*>(this);
+    #endif
+    _LIGAND_EDITOR_SIGNAL_EMIT(widget_ptr, smiles_changed_signal);
+    const auto* molecules_vec = this->molecules.get();
+    for(unsigned int id = 0; id < molecules_vec->size(); id++) {
+        auto qed_info = molecules_vec->at(id).get_qed_info();
+        if(qed_info.has_value()) {
+            auto qed_info_value = qed_info.value();
+            _LIGAND_EDITOR_SIGNAL_EMIT_ARG(widget_ptr, qed_info_updated_signal, id, &qed_info_value);
+        }
+    }
+}
+
 
 void WidgetCoreData::undo_edition() {
     if(this->state_stack->size() > this->state_stack_pos + 1) {
@@ -169,12 +186,7 @@ void WidgetCoreData::finalize_edition() {
 
         this->queue_resize();
         this->queue_redraw();
-        #ifndef __EMSCRIPTEN__
-        auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
-        #else
-        auto* widget_ptr = static_cast<const ::CootLigandEditorCanvas*>(this);
-        #endif
-        _LIGAND_EDITOR_SIGNAL_EMIT(widget_ptr, smiles_changed_signal);
+        this->emit_mutation_signals();
     }
 }
 
@@ -324,6 +336,10 @@ std::string CootLigandEditorCanvas::get_pickled_molecule(unsigned int molecule_i
     return coot_ligand_editor_canvas_get_pickled_molecule(this, molecule_idx);
 }
 
+std::string CootLigandEditorCanvas::get_pickled_molecule_base64(unsigned int molecule_idx) noexcept {
+    return coot_ligand_editor_canvas_get_pickled_molecule_base64(this, molecule_idx);
+}
+
 void CootLigandEditorCanvas::clear_molecules() noexcept {
     coot_ligand_editor_canvas_clear_molecules(this);
 }
@@ -345,6 +361,10 @@ void CootLigandEditorCanvas::connect(std::string signal_name, emscripten::val ca
     } else if(signal_name == "molecule_deleted") {
         molecule_deleted_signal.connect([=](int molecule_idx){
             callback(molecule_idx);
+        });
+    } else if(signal_name == "qed_info_updated") {
+        qed_info_updated_signal.connect([=](int molecule_idx, coot::ligand_editor_canvas::CanvasMolecule::QEDInfo* const qed_info){
+            callback(molecule_idx, qed_info);
         });
     } else if(signal_name == "queue_redraw") {
         queue_redraw_signal.connect([=](){

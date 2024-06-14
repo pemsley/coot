@@ -43,7 +43,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   // TODO: RDKit typedefinitions
   // function("remove_non_polar_hydrogens", &coot::layla::remove_non_polar_hydrogens);
   function("append_from_smiles", &lhasa::append_from_smiles);
-  function("append_from_pickle", &lhasa::append_from_pickle);
+  function("append_from_pickle_base64", &lhasa::append_from_pickle_base64);
   // TODO: RDKit typedefinitions
   // function("rdkit_mol_from_smiles", &lhasa::rdkit_mol_from_smiles);
   // TODO: RDKit typedefinitions
@@ -200,6 +200,15 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   enum_<CootLigandEditorCanvas::MeasurementDirection>("MeasurementDirection")
     .value("HORIZONTAL", CootLigandEditorCanvas::MeasurementDirection::HORIZONTAL)
     .value("VERTICAL", CootLigandEditorCanvas::MeasurementDirection::VERTICAL);
+  value_object<CanvasMolecule::QEDInfo>("QEDInfo")
+    .field("number_of_hydrogen_bond_acceptors", &CanvasMolecule::QEDInfo::number_of_hydrogen_bond_acceptors)
+    .field("number_of_hydrogen_bond_donors",&CanvasMolecule::QEDInfo:: number_of_hydrogen_bond_donors)
+    .field("number_of_rotatable_bonds", &CanvasMolecule::QEDInfo::number_of_rotatable_bonds)
+    .field("number_of_aromatic_rings", &CanvasMolecule::QEDInfo::number_of_aromatic_rings)
+    .field("number_of_alerts", &CanvasMolecule::QEDInfo::number_of_alerts)
+    .field("molecular_weight", &CanvasMolecule::QEDInfo::molecular_weight)
+    .field("alogp", &CanvasMolecule::QEDInfo::alogp)
+    .field("molecular_polar_surface_area", &CanvasMolecule::QEDInfo::molecular_polar_surface_area);
   class_<impl::WidgetCoreData>("ImplWidgetCoreData");
   class_<CootLigandEditorCanvas, base<impl::WidgetCoreData>>("Canvas")
     .constructor<>()
@@ -218,6 +227,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("get_smiles", &CootLigandEditorCanvas::get_smiles)
     .function("get_smiles_for_molecule", &CootLigandEditorCanvas::get_smiles_for_molecule)
     .function("get_pickled_molecule", &CootLigandEditorCanvas::get_pickled_molecule)
+    .function("get_pickled_molecule_base64", &CootLigandEditorCanvas::get_pickled_molecule_base64)
     .function("clear_molecules", &CootLigandEditorCanvas::clear_molecules)
     .function("on_hover", &CootLigandEditorCanvas::on_hover)
     .function("on_scroll", &CootLigandEditorCanvas::on_scroll)

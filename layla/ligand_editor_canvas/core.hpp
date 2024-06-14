@@ -25,20 +25,6 @@
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
 
-
-// Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
-#ifdef VERSION
-#define __COOT_VERSION_VALUE VERSION
-#undef VERSION
-#endif
-
-#include <rdkit/GraphMol/MolPickler.h>
-
-#ifdef __COOT_VERSION_VALUE
-#define VERSION __COOT_VERSION_VALUE
-#undef __COOT_VERSION_VALUE
-#endif
-
 #include <memory>
 #include <vector>
 #include "render.hpp"
@@ -74,6 +60,7 @@ inline guint status_updated_signal;
 inline guint scale_changed_signal;
 inline guint smiles_changed_signal;
 inline guint molecule_deleted_signal;
+inline guint qed_info_updated_signal;
 #endif
 
 /// This is here as a workaround.
@@ -185,6 +172,9 @@ struct WidgetCoreData {
     /// Emits 'status-updated' signal.
     void update_status(const char* status_text) const noexcept;
 
+    /// Emits the 'smiles-changed' and 'qed-info-updated' signal
+    void emit_mutation_signals() const noexcept;
+
     std::string build_smiles_string() const;
 
     /// Abstraction over gtk_widget_queue_draw
@@ -217,6 +207,7 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     sigc::signal<void(float)> scale_changed_signal;
     sigc::signal<void()> smiles_changed_signal;
     sigc::signal<void(int)> molecule_deleted_signal;
+    sigc::signal<void(int, coot::ligand_editor_canvas::CanvasMolecule::QEDInfo* const)> qed_info_updated_signal;
     // Lhasa-only signals (for JS handlers):
     sigc::signal<void()> queue_redraw_signal;
     sigc::signal<void()> queue_resize_signal;
@@ -252,6 +243,7 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     std::string get_smiles() noexcept;
     std::string get_smiles_for_molecule(unsigned int molecule_idx) noexcept;
     std::string get_pickled_molecule(unsigned int molecule_idx) noexcept;
+    std::string get_pickled_molecule_base64(unsigned int molecule_idx) noexcept;
     void clear_molecules() noexcept;
 
     /// For connecting javascript handlers to signals

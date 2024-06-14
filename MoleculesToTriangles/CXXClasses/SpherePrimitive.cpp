@@ -43,11 +43,11 @@ FCXXCoord &SpherePrimitive::centre()
 
 void SpherePrimitive::renderWithRenderer(std::shared_ptr<Renderer> renderer)
 {
-	oglPolyhedron *polyhedron = oglPolyhedron::dodecaHedron16();
-    polyhedron->setRadius(_radius);
-    polyhedron->setCentre(_centre);
-    polyhedron->setColor(_color);
-	polyhedron->renderWithRenderer(renderer);
+   oglPolyhedron *polyhedron = oglPolyhedron::dodecaHedron16();
+   polyhedron->setRadius(_radius);
+   polyhedron->setCentre(_centre);
+   polyhedron->setColor(_color);
+   polyhedron->renderWithRenderer(renderer);
 }
 
 void SpherePrimitive::generateArrays() {

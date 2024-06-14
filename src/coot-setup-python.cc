@@ -219,15 +219,14 @@ void setup_python_with_coot_modules(int argc, char **argv) {
 
 void
 setup_python_classes() {
-#ifdef USE_PYTHON
 
   init_pathology_data();
-
-#endif
 
 }
 
 void try_load_dot_coot_py_and_python_scripts(const std::string &home_directory) {
+
+   // this function is not being called AFAICS
 
    std::cout << "--------------- try_load_dot_coot_py_and_python_scripts from "
              << home_directory << " " << graphics_info_t::run_startup_scripts_flag << std::endl;

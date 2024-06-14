@@ -30,6 +30,25 @@
 #include <vector>
 #include <memory>
 
+#include "../utils/base64-encode-decode.hh"
+
+// Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
+#ifndef RD_MOLPICKLE_H
+
+#ifdef VERSION
+#define __COOT_VERSION_VALUE VERSION
+#undef VERSION
+#endif
+
+#include <rdkit/GraphMol/MolPickler.h>
+
+#ifdef __COOT_VERSION_VALUE
+#define VERSION __COOT_VERSION_VALUE
+#undef __COOT_VERSION_VALUE
+#endif
+
+#endif //RD_MOLPICKLE_H
+
 #ifndef __EMSCRIPTEN__
 #include <cairo.h>
 #include <pango/pango-font.h>
@@ -487,6 +506,18 @@ static void coot_ligand_editor_canvas_class_init(CootLigandEditorCanvasClass* kl
         G_TYPE_NONE /* return_type */,
         0     /* n_params */
     );
+    impl::qed_info_updated_signal = g_signal_new("qed-info-updated",
+        G_TYPE_FROM_CLASS (klass),
+        (GSignalFlags) (G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS),
+        0 /* class offset.Subclass cannot override the class handler (default handler). */,
+        NULL /* accumulator */,
+        NULL /* accumulator data */,
+        NULL /* C marshaller. g_cclosure_marshal_generic() will be used */,
+        G_TYPE_NONE /* return_type */,
+        2     /* n_params */,
+        G_TYPE_INT,
+        G_TYPE_POINTER
+    );
     GTK_WIDGET_CLASS(klass)->snapshot = coot_ligand_editor_canvas_snapshot;
     GTK_WIDGET_CLASS(klass)->measure = coot_ligand_editor_canvas_measure;
     G_OBJECT_CLASS(klass)->dispose = coot_ligand_editor_canvas_dispose;
@@ -530,6 +561,11 @@ void coot_ligand_editor_canvas_set_active_tool(CootLigandEditorCanvas* self, std
 }
 
 void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
+    if(rdkit_mol->getNumAtoms() == 0) {
+        self->update_status("Attempted to add an empty molecule!");
+        g_warning("Attempted to add an empty molecule!");
+        return;
+    }
     try {
         g_debug("Appending new molecule to the widget...");
         // Might throw if the constructor fails.
@@ -564,13 +600,13 @@ void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std
 void coot_ligand_editor_canvas_undo_edition(CootLigandEditorCanvas* self) noexcept {
     self->undo_edition();
     self->queue_redraw();
-    _LIGAND_EDITOR_SIGNAL_EMIT(self, smiles_changed_signal);
+    self->emit_mutation_signals();
 }
 
 void coot_ligand_editor_canvas_redo_edition(CootLigandEditorCanvas* self) noexcept {
     self->redo_edition();
     self->queue_redraw();
-    _LIGAND_EDITOR_SIGNAL_EMIT(self, smiles_changed_signal);
+    self->emit_mutation_signals();
 }
 
 const RDKit::ROMol* coot_ligand_editor_canvas_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept {
@@ -621,6 +657,11 @@ std::string coot_ligand_editor_canvas_get_pickled_molecule(CootLigandEditorCanva
         RDKit::MolPickler::pickleMol(*(*self->rdkit_molecules)[molecule_idx].get(), ret);
     }
     return ret;
+}
+
+std::string coot_ligand_editor_canvas_get_pickled_molecule_base64(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
+    std::string raw = coot_ligand_editor_canvas_get_pickled_molecule(self, molecule_idx);
+    return moorhen_base64::base64_encode((const unsigned char*) raw.c_str(), raw.size());
 }
 
 #ifndef __EMSCRIPTEN__

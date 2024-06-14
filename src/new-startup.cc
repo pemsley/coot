@@ -29,6 +29,11 @@
 #include <gtk/gtk.h>
 #include <epoxy/gl.h>
 
+#include <clipper/core/test_core.h>
+#include <clipper/contrib/test_contrib.h>
+
+#include "utils/xdg-base.hh"
+
 #include "graphics-info.h"
 #include "create-menu-item-actions.hh"
 #include "setup-gui-components.hh"
@@ -36,11 +41,9 @@
 #include "utils/coot-utils.hh"
 #include "command-line.hh"
 #include "c-interface-preferences.h"
-#include "src/boot-python.hh"
+#include "boot-python.hh"
 #include "layla/layla_embedded.hpp"
 
-#include "clipper/core/test_core.h"
-#include "clipper/contrib/test_contrib.h"
 #include "testing.hh" // for test_internal();
 
 void print_opengl_info();
@@ -228,6 +231,12 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 GtkWidget *new_startup_create_glarea_widget() {
 
    GtkWidget *gl_area = gtk_gl_area_new();
+
+#if GTK_MINOR_VERSION >= 12
+   // Disable OpenGL ES
+   gtk_gl_area_set_allowed_apis(GTK_GL_AREA(gl_area), GDK_GL_API_GL);
+#endif
+
    g_signal_connect(gl_area, "realize",   G_CALLBACK(new_startup_realize),   NULL);
    g_signal_connect(gl_area, "unrealize", G_CALLBACK(new_startup_unrealize), NULL);
    g_signal_connect(gl_area, "render",    G_CALLBACK(new_startup_on_glarea_render),  NULL);
@@ -588,6 +597,48 @@ void setup_go_to_residue_keyboarding_mode_entry_signals() {
    }
 }
 
+// maybe this function can be in a better home.
+void
+handle_start_scripts() {
+
+   // 20240609-PE note to self scm_c_primitive_load() fails with a crash because we
+   // have not done the scm_boot_guile() call (g_application_run() is called where
+   // scm_boot_guile() should be called. I don't know what to do).
+
+   xdg_t xdg;
+   std::vector<std::filesystem::path> scripts;
+#ifdef USE_GUILE
+   scripts = xdg.get_scheme_config_scripts();
+   for (const auto &script : scripts) {
+      std::cout << "Load scheme config script " << script.c_str() << " (ignored)" << std::endl;
+      // scm_c_primitive_load(script.c_str());
+   }
+#endif
+   scripts = xdg.get_python_config_scripts();
+   for (const auto &script : scripts) {
+      std::cout << "Load python config script " << script.c_str() << std::endl;
+      run_python_script(script.c_str());
+   }
+#ifdef USE_GUILE
+   if (graphics_info_t::run_startup_scripts_flag) {
+      if (graphics_info_t::run_state_file_status) {
+         std::pair<bool, std::filesystem::path> script = xdg.get_scheme_state_script();
+         if (script.first) {
+            // scm_c_primitive_load(script.second.c_str());
+         }
+      }
+   }
+#endif
+   if (graphics_info_t::run_startup_scripts_flag) {
+      if (graphics_info_t::run_state_file_status) {
+         std::pair<bool, std::filesystem::path> script = xdg.get_python_state_script();
+         if (script.first) {
+            run_python_script(script.second.c_str());
+         }
+      }
+   }
+}
+
 
 GtkWidget *
 create_local_picture(const std::string &local_filename) {
@@ -676,11 +727,10 @@ new_startup_application_activate(GtkApplication *application,
 
    activate_data->application = application;
 
-   std::string version = "1.x"; // use std::string(VERSION)?
 #ifdef WINDOWS_MINGW
-   std::string window_name = "WinCoot-" + version;
+   std::string window_name = "WinCoot-" + std::string(VERSION);
 #else
-   std::string window_name = "Coot-" + version;
+   std::string window_name = "Coot-" + std::string(VERSION);
 #endif
    GtkWidget *app_window = gtk_application_window_new(application);
    gtk_window_set_application(GTK_WINDOW(app_window), application);
@@ -842,11 +892,12 @@ new_startup_application_activate(GtkApplication *application,
 
       create_actions(application);
 
-      // again?
       setup_python_with_coot_modules(argc, argv);
 
       setup_gui_components();
       setup_go_to_residue_keyboarding_mode_entry_signals();
+
+      handle_start_scripts(); // what used to be in ~/.coot/*.py
 
       // now we are ready to show graphical objects made from reading files:
       handle_command_line_data(activate_data->cld);

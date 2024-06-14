@@ -5,6 +5,8 @@
 
 #include "molecules-container.hh"
 
+#include "../utils/base64-encode-decode.hh"
+
 // Give this ex-lambda function a home?
 std::string get_first_residue_name(mmdb::Manager *mol) {
 
@@ -42,12 +44,50 @@ molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_e
       if (r_p.first) {
          const auto &restraints = r_p.second;
          m = coot::rdkit_mol(restraints);
+         std::string prop_string = "ligand-from-dictionary-" + residue_name + "-" + std::to_string(imol_enc);
+         m.setProp("moorhen-id", prop_string);
       }
    }
    catch (const std::runtime_error &rte) {
       std::cout << rte.what() << std::endl;
    }
    return m;
+}
+#endif
+
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+// Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
+#ifndef RD_MOLPICKLE_H
+
+#ifdef VERSION
+#define __COOT_VERSION_VALUE VERSION
+#undef VERSION
+#endif
+
+#include <GraphMol/MolPickler.h>
+
+#ifdef __COOT_VERSION_VALUE
+#define VERSION __COOT_VERSION_VALUE
+#undef __COOT_VERSION_VALUE
+#endif
+
+#endif //RD_MOLPICKLE_H
+
+
+std::string
+molecules_container_t::get_rdkit_mol_pickle_base64(const std::string &residue_name, int imol_enc) {
+
+   RDKIT_GRAPHMOL_EXPORT RDKit::MolPickler mp;
+   std::string pickle_string;
+   RDKit::RWMol mol = get_rdkit_mol(residue_name, imol_enc);
+   mp.pickleMol(mol, pickle_string);
+
+   return moorhen_base64::base64_encode((const unsigned char*)pickle_string.c_str(), pickle_string.size());
+   // std::ofstream f("test-mol.pickle");
+   // f << pickle_string;
+   // f.close();
 }
 #endif
 

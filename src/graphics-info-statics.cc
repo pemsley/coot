@@ -28,6 +28,7 @@
 #include "Python.h"
 #endif
 
+#include "utils/xdg-base.hh"
 #include "graphics-info.h"
 #include "rotate-translate-modes.hh"
 #include "rotamer-search-modes.hh"
@@ -1664,7 +1665,8 @@ bool           graphics_info_t::draw_background_image_flag = false; // uses "bac
 
 float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 0.0; // we don't see it initially.
 
-coot::command_history_t graphics_info_t::command_history;
+xdg_t xdg;
+coot::command_history_t graphics_info_t::command_history = coot::command_history_t(xdg);
 
 std::vector<Instanced_Markup_Mesh> graphics_info_t::instanced_meshes;
 
