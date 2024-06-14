@@ -54,28 +54,8 @@ jobs:
       - name: turn on brew analytics
         run:  brew analytics on
 
-      - name: pre-update clean for homebrew
-        run:  |
-          rm '/usr/local/bin/2to3'
-          rm '/usr/local/bin/2to3-3.11'
-          rm '/usr/local/bin/2to3-3.12'
-          rm '/usr/local/bin/idle3'
-          rm '/usr/local/bin/idle3.11'
-          rm '/usr/local/bin/idle3.12'
-          rm '/usr/local/bin/pydoc3'
-          rm '/usr/local/bin/pydoc3.11'
-          rm '/usr/local/bin/pydoc3.12'
-          rm '/usr/local/bin/python3'
-          rm '/usr/local/bin/python3.11'
-          rm '/usr/local/bin/python3.12'
-          rm '/usr/local/bin/python3-config'
-          rm '/usr/local/bin/python3.12-config'
-          rm '/usr/local/bin/python3.11-config'
-
       - name: brew update
         run:  |
-          brew uninstall kotlin
-          brew uninstall xcbeautify
           brew update
           brew upgrade
 
