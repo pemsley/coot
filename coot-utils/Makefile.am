@@ -170,7 +170,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-cod-atom-types dictionary-atom-types cod-db-access \
 		 test-5-residue-fragments test-diff-diff-map-peaks \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
-		 test-coot-utils test-pae
+		 test-coot-utils test-pae test-q-score
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -333,6 +333,10 @@ test_5_residue_fragments_LDADD = \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) \
 	$(RDKIT_LIBS)
+
+test_q_score_SOURCES = test-q-score.cc
+
+test_q_score_LDADD = libcoot-map-utils.la libcoot-coord-utils.la
 
 test_diff_diff_map_peaks_SOURCES = test-diff-diff-map-peaks.cc
 
