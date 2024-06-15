@@ -111,6 +111,7 @@ coot::dots_representation_info_t::get_colour(const std::string &ele) const {
 
 // 20111123 modern usage
 //
+// 20240614-PE "modern" - haha. Now this class has moved into pli
 void
 coot::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
                                            mmdb::Manager *mol_exclude,
