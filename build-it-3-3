@@ -3354,7 +3354,8 @@ if [ "$build_boost" = true ] ; then
 
       address_model=64
       pwd
-      echo "using python : 3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
+      # echo "using python : 3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
+      echo "using python : $python_version_extension : $install_top_dir/bin/python3 ;" > user-config.jam
       echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
       echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu > bootstrap-command-save
       ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
