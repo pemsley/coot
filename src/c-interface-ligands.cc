@@ -1945,7 +1945,7 @@ PyObject *comp_id_to_name_py(const char *comp_id) {
 /*  ----------------------------------------------------------------------- */
 //                  animated ligand interactions
 /*  ----------------------------------------------------------------------- */
-void add_animated_ligand_interaction(int imol, const coot::fle_ligand_bond_t &lb) {
+void add_animated_ligand_interaction(int imol, const pli::fle_ligand_bond_t &lb) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].add_animated_ligand_interaction(lb);

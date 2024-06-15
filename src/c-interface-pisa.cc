@@ -891,11 +891,13 @@ add_generic_object_bond(int imol1, int imol2,
 }
 
 
+#include "pli/dots-representation-info.hh"
 
 void pisa_clear_interfaces() {
    
 
 }
+
 
 
 // If you want to do something with transparent surfaces in the
@@ -953,8 +955,8 @@ make_complementary_dotted_surfaces(int imol_1, int imol_2,
 
          gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-	 coot::dots_representation_info_t d1(frag_mol_1, frag_mol_2);
-	 coot::dots_representation_info_t d2(frag_mol_2, frag_mol_1);
+	 pli::dots_representation_info_t d1(frag_mol_1, frag_mol_2);
+	 pli::dots_representation_info_t d2(frag_mol_2, frag_mol_1);
 
 	 graphics_info_t::molecules[imol_1].add_dots(d1);
 	 graphics_info_t::molecules[imol_2].add_dots(d2);

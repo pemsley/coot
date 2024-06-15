@@ -206,7 +206,7 @@ int fix_wrapped_names(atom_selection_container_t asc);
 // #include "lidia-core/lbg-molfile.hh"
 // #include "lidia-core/lig-build.hh"
 
-namespace coot { 
+namespace coot {
    bool is_hydrogen(const std::string &ele);
    bool is_deuterium(const std::string &ele);
 

@@ -1086,7 +1086,7 @@ namespace lig_build {
 
    public:
       molecule_t() {
-	 have_cached_bond_ring_centres_flag = false;
+         have_cached_bond_ring_centres_flag = false;
       }
       std::vector<Ta> atoms;
       std::vector<Tb> bonds;
@@ -1095,9 +1095,28 @@ namespace lig_build {
 
       // Return new atom index (int) and whether or not the atom was
       // added (1) or returned the index of an extant atom (0).
-      // 
+      //
       virtual std::pair<bool, int> add_atom(const Ta &at) {
-	 return checked_add(at);
+         return checked_add(at);
+      }
+
+      // can throw a std::runtime_error exception
+      lig_build::pos_t get_atom_canvas_position(const std::string &atom_name) const {
+         lig_build::pos_t p;
+         for (unsigned int i=0; i<atoms.size(); i++) {
+            if (atoms[i].get_atom_name() == atom_name) {
+               p = atoms[i].atom_position;
+               return p;
+            }
+         }
+
+         // failed to find it then...
+         std::string mess = "No atom name \"";
+         mess += atom_name;
+         mess += "\" found in ligand";
+         throw std::runtime_error(mess);
+         return p;
+
       }
 
       // Add a bond. But only add a bond if there is not already a
@@ -1105,58 +1124,58 @@ namespace lig_build {
       //
       // In that case, return -1, otherwise return the index of the
       // newly added bond.
-      // 
+      //
       int add_bond(const Tb &bond) {
-	 
-	 bool matches_indices = 0;
-	 for (unsigned int i=0; i<bonds.size(); i++) { 
-	    if (bonds[i].matches_indices(bond)) {
-	       matches_indices = 1;
-	       break;
-	    }
-	 }
-	 if (! matches_indices) { 
-	    bonds.push_back(bond);
-	    return bonds.size() -1;
-	 } else {
-	    return -1;
-	 } 
+
+         bool matches_indices = 0;
+         for (unsigned int i=0; i<bonds.size(); i++) {
+            if (bonds[i].matches_indices(bond)) {
+               matches_indices = 1;
+               break;
+            }
+         }
+         if (! matches_indices) {
+            bonds.push_back(bond);
+            return bonds.size() -1;
+         } else {
+            return -1;
+         }
       }
       bool is_empty() const {
-	 bool status = 1;
-	 if (atoms.size())
-	    status = 0;
-	 if (bonds.size())
-	    status = 0;
-	 return status;
+         bool status = 1;
+         if (atoms.size())
+            status = 0;
+         if (bonds.size())
+            status = 0;
+         return status;
       }
       void clear() {
-	 atoms.clear();
-	 bonds.clear();
+         atoms.clear();
+         bonds.clear();
       }
 
       std::pair<bool, std::vector<unsigned int> >
       found_self_through_bonds(unsigned int atom_index_start,
-			       unsigned int atom_index_other) const {
-	 std::vector<unsigned int> empty_no_pass_atoms;
-	 empty_no_pass_atoms.push_back(atom_index_start);
-	 std::pair<bool, std::vector<unsigned int> > r =
-	    find_bonded_atoms_with_no_pass(atom_index_start, atom_index_start,
-					   atom_index_other, empty_no_pass_atoms,
-					   MAX_SEARCH_DEPTH);
-	 return r;
+                               unsigned int atom_index_other) const {
+         std::vector<unsigned int> empty_no_pass_atoms;
+         empty_no_pass_atoms.push_back(atom_index_start);
+         std::pair<bool, std::vector<unsigned int> > r =
+            find_bonded_atoms_with_no_pass(atom_index_start, atom_index_start,
+                                           atom_index_other, empty_no_pass_atoms,
+                                           MAX_SEARCH_DEPTH);
+         return r;
       }
 
       // use like find_bonded_atoms_with_no_pass
       std::vector<std::set<unsigned int> > rings_including_atom(unsigned int atom_index_start,
-								unsigned int atom_index_other) const {
+                                                                unsigned int atom_index_other) const {
 
          std::set<unsigned int> empty_no_pass_atoms;
          empty_no_pass_atoms.insert(atom_index_start);
          // use like find_bonded_atoms_with_no_pass
          std::vector<std::set<unsigned int> > v =
-	    find_rings_including_atom_internal(atom_index_start, atom_index_start,
-             	                               atom_index_other, empty_no_pass_atoms, MAX_SEARCH_DEPTH);
+            find_rings_including_atom_internal(atom_index_start, atom_index_start,
+                                                    atom_index_other, empty_no_pass_atoms, MAX_SEARCH_DEPTH);
          return v;
       }
 
@@ -1167,21 +1186,21 @@ namespace lig_build {
          empty_no_pass_atoms.insert(atom_index_start);
          // use like find_bonded_atoms_with_no_pass
          std::vector<std::set<unsigned int> > v =
-	    find_rings_including_atom_simple_internal(atom_index_start, atom_index_start,
-						      empty_no_pass_atoms, MAX_SEARCH_DEPTH);
+            find_rings_including_atom_simple_internal(atom_index_start, atom_index_start,
+                                                      empty_no_pass_atoms, MAX_SEARCH_DEPTH);
          return v;
       }
 
       bool in_ring_p(unsigned int atom_index) const {
-	 bool in_ring = false;
-	 std::vector<std::set<unsigned int> > v = rings_including_atom(atom_index);
-	 for (unsigned int i=0; i<v.size(); i++) {
-	    if (v[i].find(atom_index) != v[i].end()) {
-	       in_ring = true;
-	       break;
-	    }
-	 }
-	 return in_ring;
+         bool in_ring = false;
+         std::vector<std::set<unsigned int> > v = rings_including_atom(atom_index);
+         for (unsigned int i=0; i<v.size(); i++) {
+            if (v[i].find(atom_index) != v[i].end()) {
+               in_ring = true;
+               break;
+            }
+         }
+         return in_ring;
       }
 
       // return a vector of bond indices

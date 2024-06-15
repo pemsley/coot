@@ -1,3 +1,4 @@
+
 /*
    base64.cpp and base64.h
 
@@ -43,8 +44,7 @@ namespace moorhen_base64 {
       return (isalnum(c) || (c == '+') || (c == '/'));
    }
 
-   std::string base64_encode(unsigned char const *bytes_to_encode,
-                             unsigned int in_len);
+   std::string base64_encode(unsigned char const *bytes_to_encode, unsigned int in_len);
 
    std::string base64_decode(std::string const &encoded_string);
 }
