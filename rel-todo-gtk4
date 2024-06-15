@@ -9,6 +9,8 @@ How to set the step size for mouse scroll?
 
 Check Curlew uses XDG base correctly.
 
+Write a patch for clipper "no symmetry lookup" for grid coords
+
 Add a function: Are the ligands consistent with the ligand dictionary (has atoms that are not in the dictionary)
 
 PAE svg without cairo? So that we can pass the fractions-through-the-sequence.
