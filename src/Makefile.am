@@ -349,6 +349,7 @@ endif
 if OS_DARWIN
 MacCoot_LDADD =  \
 	libcootsumo.la                                     \
+	$(top_builddir)/pli/libcoot-pli.la                 \
 	$(top_builddir)/density-contour/libcoot-isosurface.la  	\
 	$(top_builddir)/layla/libcoot-layla.la             \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la	   \
@@ -362,6 +363,7 @@ MacCoot_LDADD =  \
 else
 Coot_LDADD =  \
 	libcootsumo.la                                     \
+	$(top_builddir)/pli/libcoot-pli.la                 \
 	$(top_builddir)/density-contour/libcoot-isosurface.la  	\
 	$(top_builddir)/layla/libcoot-layla.la             \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la	   \
