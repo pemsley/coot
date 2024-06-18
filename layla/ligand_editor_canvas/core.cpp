@@ -44,8 +44,13 @@ StateSnapshot::StateSnapshot(const WidgetCoreData& core_data) {
     this->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>(std::move(copied_rdkit_molecules));
 }
 
+#ifdef __EMSCRIPTEN__
+const unsigned int WidgetCoreData::MAX_STATE_STACK_LENGTH = 20;
+const unsigned int WidgetCoreData::STATE_STACK_TRIM_BATCH_SIZE = 5;
+#else
 const unsigned int WidgetCoreData::MAX_STATE_STACK_LENGTH = 100;
 const unsigned int WidgetCoreData::STATE_STACK_TRIM_BATCH_SIZE = 30;
+#endif
 
 WidgetCoreData::MaybeAtomOrBondWithMolIdx WidgetCoreData::resolve_click(int x, int y) const noexcept {
     const auto* molecules_vec = this->molecules.get();
