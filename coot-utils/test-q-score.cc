@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
             q_score.close();
             auto tp_1 = std::chrono::high_resolution_clock::now();
             auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-            std::cout << "# Timing " << d10 << " milliseconnds" << std::endl;
+            std::cout << "# Timing " << d10 << " milliseconds" << std::endl;
          }
       }
       catch (const clipper::Message_base &exc) {

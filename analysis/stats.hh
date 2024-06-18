@@ -36,7 +36,7 @@ namespace coot {
 
       // 1-d data
       class single {
-	 
+
 	 // double cached_kurtosis;
 	 // bool have_cached_kurtosis;
 
@@ -61,7 +61,7 @@ namespace coot {
 
 	 double mean() const {
 	    double m = 0;
-	    if (v.size() ) { 
+	    if (! v.empty() ) {
                double sum = 0;
 	       for (unsigned int i=0; i<v.size(); i++)
 		  sum += v[i];
@@ -72,10 +72,10 @@ namespace coot {
 
 	 double variance() const {
 	    double var = 0;
-	    if (v.size() ) { 
+	    if (! v.empty() ) {
                double sum = 0;
                double sum_sq = 0;
-	       for (unsigned int i=0; i<v.size(); i++) { 
+	       for (unsigned int i=0; i<v.size(); i++) {
 		  sum += v[i];
 		  sum_sq += v[i] * v[i];
 	       }

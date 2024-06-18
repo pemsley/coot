@@ -336,7 +336,12 @@ test_5_residue_fragments_LDADD = \
 
 test_q_score_SOURCES = test-q-score.cc
 
-test_q_score_LDADD = libcoot-map-utils.la libcoot-coord-utils.la
+test_q_score_LDADD = libcoot-map-utils.la \
+                     libcoot-coord-utils.la \
+                     $(top_builddir)/geometry/libcoot-geometry.la \
+                     $(top_builddir)/analysis/libcoot-analysis.la \
+                     $(top_builddir)/utils/libcoot-utils.la \
+                     $(CLIPPER_LIBS)
 
 test_diff_diff_map_peaks_SOURCES = test-diff-diff-map-peaks.cc
 
