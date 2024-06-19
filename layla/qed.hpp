@@ -85,6 +85,7 @@ class QED {
     /// Indexed via QEDPropName enum
     static const std::vector<ADSparameter> adsParameters;
 
+    public:
     /// Calculates the properties that are required to calculate the QED descriptor.
     static QEDproperties properties(const ::RDKit::ROMol& mol);
     /// Calculate the weighted sum of ADS mapped properties
