@@ -4,6 +4,7 @@
 
 // #include <rdkit/GraphMol/GraphMol.h>
 #include <rdkit/GraphMol/MolOps.h>
+#include <rdkit/GraphMol/Substruct/SubstructMatch.h>
 #include <rdkit/GraphMol/ChemTransforms/ChemTransforms.h>
 // #include <rdkit/GraphMol/FileParsers/MolSupplier.h>
 // #include <rdkit/GraphMol/FileParsers/MolWriters.h>
@@ -125,6 +126,23 @@ double QED::ads(double x, const ADSparameter& p) noexcept {
 
 QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     auto mol = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::MolOps::removeHs(mol_raw));
+
+    auto has_substruct_match = [](const ::RDKit::ROMol& mol, const ::RDKit::ROMol& pattern){
+        ::RDKit::MatchVectType _res;
+        return ::RDKit::SubstructMatch(mol, pattern, _res);
+    };
+
+    auto get_hba = [&mol, has_substruct_match](){
+        unsigned int ret = 0;
+        for(const auto& pattern: Acceptors) {
+            if(has_substruct_match(*mol, *pattern)) {
+                std::vector<::RDKit::MatchVectType> _matches;
+                auto num_of_matches = ::RDKit::SubstructMatch(*mol, *pattern, _matches);
+                ret += num_of_matches;
+            }
+        }
+        return ret;
+    };
     auto get_arom = [&mol](){
         auto rmol = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::deleteSubstructs(*mol, *AliphaticRings));
         /// Replaces Chem.GetSSSR
@@ -132,18 +150,27 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
         ::RDKit::MolOps::findSSSR(*rmol, rings);
         return rings.size();
     };
+    auto get_alerts = [&mol, has_substruct_match](){
+        unsigned int ret = 0;
+        for(const auto& alert: StructuralAlerts) {
+            if(has_substruct_match(*mol, *alert)) {
+                ret += 1;
+            }
+        }
+        return ret;
+    };
 
     auto qedProperties = QEDproperties({
         ::RDKit::Descriptors::calcAMW(*mol),// MW=rdmd._CalcMolWt(mol),
         ::RDKit::Descriptors::calcClogP(*mol), // ALOGP=Crippen.MolLogP(mol),
-        0,// HBA=sum(
+        static_cast<double>(get_hba()),// HBA=sum(
         // len(mol.GetSubstructMatches(pattern)) for pattern in Acceptors
         // if mol.HasSubstructMatch(pattern)),
         static_cast<double>(::RDKit::Descriptors::calcNumHBD(*mol)),// HBD=rdmd.CalcNumHBD(mol),
         ::RDKit::Descriptors::calcTPSA(*mol),// PSA=MolSurf.TPSA(mol),
         static_cast<double>(::RDKit::Descriptors::calcNumRotatableBonds(*mol, ::RDKit::Descriptors::Strict)),// ROTB=rdmd.CalcNumRotatableBonds(mol, rdmd.NumRotatableBondsOptions.Strict),
         static_cast<double>(get_arom()),// AROM=len(Chem.GetSSSR(Chem.DeleteSubstructs(Chem.Mol(mol), AliphaticRings))),
-        0// ALERTS=sum(1 for alert in StructuralAlerts if mol.HasSubstructMatch(alert)),
+        static_cast<double>(get_alerts())// ALERTS=sum(1 for alert in StructuralAlerts if mol.HasSubstructMatch(alert)),
     });
     // The replacement
     // AROM=Lipinski.NumAromaticRings(mol),
