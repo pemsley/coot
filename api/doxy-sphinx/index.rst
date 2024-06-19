@@ -79,7 +79,7 @@ Superposition
 Molecule Internals
 ==================
 
-.. doxygenfile:: coot_molecule.hh
+.. doxygenfile:: coot-molecule.hh
       :project: libcootapi
 
 
