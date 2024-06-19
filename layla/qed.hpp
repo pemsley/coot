@@ -34,7 +34,6 @@
 #define LAYLA_QED_HPP
 #include <memory>
 #include <vector>
-#include <map>
 #include <optional>
 // #include <rdkit/GraphMol/GraphMol.h>
 #include <rdkit/GraphMol/RWMol.h>
@@ -48,29 +47,41 @@
 
 namespace coot::layla::RDKit {
 
-
-struct QEDproperties {
-    double MW;
-    double ALOGP;
-    double HBA;
-    double HBD;
-    double PSA;
-    double ROTB;
-    double AROM;
-    double ALERTS;
-};
-
-struct ADSparameter {
-    double A;
-    double B;
-    double C;
-    double D;
-    double E;
-    double F;
-    double DMAX;
-};
-
 class QED {
+    public:
+    struct QEDproperties {
+        double MW;
+        double ALOGP;
+        double HBA;
+        double HBD;
+        double PSA;
+        double ROTB;
+        double AROM;
+        double ALERTS;
+    };
+
+    enum class QEDPropName : std::size_t {
+        MW = 0,
+        ALOGP,
+        HBA,
+        HBD,
+        PSA,
+        ROTB,
+        AROM,
+        ALERTS
+    };
+
+    struct ADSparameter {
+        double A;
+        double B;
+        double C;
+        double D;
+        double E;
+        double F;
+        double DMAX;
+    };
+
+    private:
     static const QEDproperties WEIGHT_MAX;
     static const QEDproperties WEIGHT_MEAN;
     static const QEDproperties WEIGHT_NONE;
@@ -79,8 +90,8 @@ class QED {
 
     static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> Acceptors;
     static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> StructuralAlerts;
-    // TODO: Convert to lookup table
-    static const std::map<std::string, ADSparameter> adsParameters;
+    /// Indexed via QEDPropName enum
+    static const std::vector<ADSparameter> adsParameters;
 
     /// Calculates the properties that are required to calculate the QED descriptor.
     static QEDproperties properties(const ::RDKit::ROMol& mol);

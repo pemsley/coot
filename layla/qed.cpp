@@ -1,5 +1,6 @@
 #include "qed.hpp"
 #include <cmath>
+#include <type_traits>
 
 namespace coot::layla::RDKit {
 
@@ -63,45 +64,45 @@ namespace impl {
         return ret;
     }
 
-    double QEDproperties_sum(const QEDproperties& props) {
+    double QEDproperties_sum(const QED::QEDproperties& props) {
         return props.MW + props.ALOGP + props.HBA + props.HBD + props.PSA + props.ROTB + props.AROM + props.ALERTS;
     }
   
 }
 
-const QEDproperties QED::WEIGHT_MAX = QEDproperties({0.50, 0.25, 0.00, 0.50, 0.00, 0.50, 0.25, 1.00});
-const QEDproperties QED::WEIGHT_MEAN = QEDproperties({0.66, 0.46, 0.05, 0.61, 0.06, 0.65, 0.48, 0.95});
-const QEDproperties QED::WEIGHT_NONE = QEDproperties({1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00});
+const QED::QEDproperties QED::WEIGHT_MAX = QEDproperties({0.50, 0.25, 0.00, 0.50, 0.00, 0.50, 0.25, 1.00});
+const QED::QEDproperties QED::WEIGHT_MEAN = QEDproperties({0.66, 0.46, 0.05, 0.61, 0.06, 0.65, 0.48, 0.95});
+const QED::QEDproperties QED::WEIGHT_NONE = QEDproperties({1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00});
 
 const std::unique_ptr<const ::RDKit::ROMol> QED::AliphaticRings = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::SmartsToMol("[$([A;R][!a])]"));
 
 const std::vector<std::unique_ptr<const ::RDKit::ROMol>> QED::Acceptors = impl::make_acceptors();
 const std::vector<std::unique_ptr<const ::RDKit::ROMol>> QED::StructuralAlerts = impl::make_structural_alerts();
-const std::map<std::string, ADSparameter> QED::adsParameters = {
-{"MW",
+const std::vector<QED::ADSparameter> QED::adsParameters = {
+// {"MW",
   ADSparameter({2.817065973, 392.5754953, 290.7489764, 2.419764353, 49.22325677,
-               65.37051707, 104.9805561})},
-{"ALOGP",
+               65.37051707, 104.9805561}),
+// {"ALOGP",
   ADSparameter({3.172690585, 137.8624751, 2.534937431, 4.581497897, 0.822739154,
-               0.576295591, 131.3186604})},
-{"HBA",
+               0.576295591, 131.3186604}),
+// {"HBA",
   ADSparameter({2.948620388, 160.4605972, 3.615294657, 4.435986202, 0.290141953,
-               1.300669958, 148.7763046})},
-{"HBD",
+               1.300669958, 148.7763046}),
+// {"HBD",
   ADSparameter({1.618662227, 1010.051101, 0.985094388, 0.000000001, 0.713820843,
-               0.920922555, 258.1632616})},
-{"PSA",
+               0.920922555, 258.1632616}),
+// {"PSA",
   ADSparameter({1.876861559, 125.2232657, 62.90773554, 87.83366614, 12.01999824,
-               28.51324732, 104.5686167})},
-{"ROTB",
+               28.51324732, 104.5686167}),
+// {"ROTB",
   ADSparameter({0.010000000, 272.4121427, 2.558379970, 1.565547684, 1.271567166,
-               2.758063707, 105.4420403})},
-{"AROM",
+               2.758063707, 105.4420403}),
+// {"AROM",
   ADSparameter({3.217788970, 957.7374108, 2.274627939, 0.000000001, 1.317690384,
-               0.375760881, 312.3372610})},
-{"ALERTS",
+               0.375760881, 312.3372610}),
+// {"ALERTS",
   ADSparameter({0.010000000, 1199.094025, -0.09002883, 0.000000001, 0.185904477,
-               0.875193782, 417.7253140})}
+               0.875193782, 417.7253140})
 };
 
 double QED::ads(double x, const ADSparameter& p) {
@@ -111,7 +112,7 @@ double QED::ads(double x, const ADSparameter& p) {
     return dx / p.DMAX;
 }
 
-QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
+QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     auto mol = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::MolOps::removeHs(mol_raw));
     auto qedProperties = QEDproperties(
         // MW=rdmd._CalcMolWt(mol),
@@ -136,18 +137,19 @@ QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
 
 
 double QED::qed(const ::RDKit::ROMol& mol, QEDproperties w, std::optional<QEDproperties> qedPropertiesOpt) {
+    typedef std::underlying_type<QEDPropName>::type utype;
     QEDproperties qedProperties = qedPropertiesOpt.value_or(properties(mol));
 
     double t;
-    t  = qedProperties.MW * log(ads(qedProperties.MW, adsParameters.at("MW")));
-    t += qedProperties.ALOGP * log(ads(qedProperties.ALOGP, adsParameters.at("ALOGP")));
-    t += qedProperties.HBA * log(ads(qedProperties.HBA, adsParameters.at("HBA")));
-    t += qedProperties.HBD * log(ads(qedProperties.HBD, adsParameters.at("HBD")));
-    t += qedProperties.PSA * log(ads(qedProperties.PSA, adsParameters.at("PSA")));
-    t += qedProperties.ROTB * log(ads(qedProperties.ROTB, adsParameters.at("ROTB")));
-    t += qedProperties.AROM * log(ads(qedProperties.AROM, adsParameters.at("AROM")));
-    t += qedProperties.ALERTS * log(ads(qedProperties.ALERTS, adsParameters.at("ALERTS")));
-    
+    t  = qedProperties.MW * log(ads(qedProperties.MW, adsParameters[static_cast<utype>(QEDPropName::MW)]));
+    t += qedProperties.ALOGP * log(ads(qedProperties.ALOGP, adsParameters[static_cast<utype>(QEDPropName::ALOGP)]));
+    t += qedProperties.HBA * log(ads(qedProperties.HBA, adsParameters[static_cast<utype>(QEDPropName::HBA)]));
+    t += qedProperties.HBD * log(ads(qedProperties.HBD, adsParameters[static_cast<utype>(QEDPropName::HBD)]));
+    t += qedProperties.PSA * log(ads(qedProperties.PSA, adsParameters[static_cast<utype>(QEDPropName::PSA)]));
+    t += qedProperties.ROTB * log(ads(qedProperties.ROTB, adsParameters[static_cast<utype>(QEDPropName::ROTB)]));
+    t += qedProperties.AROM * log(ads(qedProperties.AROM, adsParameters[static_cast<utype>(QEDPropName::AROM)]));
+    t += qedProperties.ALERTS * log(ads(qedProperties.ALERTS, adsParameters[static_cast<utype>(QEDPropName::ALERTS)]));
+
     return exp(t / impl::QEDproperties_sum(w));
 }
 
