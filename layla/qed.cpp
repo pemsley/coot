@@ -2,6 +2,16 @@
 #include <cmath>
 #include <type_traits>
 
+// #include <rdkit/GraphMol/GraphMol.h>
+#include <rdkit/GraphMol/MolOps.h>
+// #include <rdkit/GraphMol/FileParsers/MolSupplier.h>
+// #include <rdkit/GraphMol/FileParsers/MolWriters.h>
+#include <rdkit/GraphMol/SmilesParse/SmilesParse.h>
+#include <rdkit/GraphMol/Descriptors/MolDescriptors.h>
+#include <rdkit/GraphMol/Descriptors/Crippen.h>
+#include <rdkit/GraphMol/Descriptors/MolSurf.h>
+#include <rdkit/GraphMol/Descriptors/Lipinski.h>
+
 namespace coot::layla::RDKit {
 
 namespace impl {
@@ -115,14 +125,14 @@ double QED::ads(double x, const ADSparameter& p) noexcept {
 QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     auto mol = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::MolOps::removeHs(mol_raw));
     auto qedProperties = QEDproperties({
-        0,// MW=rdmd._CalcMolWt(mol),
-        ::RDKit::Descriptors::calcClogP(*mol) // ALOGP=Crippen.MolLogP(mol),
+        ::RDKit::Descriptors::calcAMW(*mol),// MW=rdmd._CalcMolWt(mol),
+        ::RDKit::Descriptors::calcClogP(*mol), // ALOGP=Crippen.MolLogP(mol),
         0,// HBA=sum(
         // len(mol.GetSubstructMatches(pattern)) for pattern in Acceptors
         // if mol.HasSubstructMatch(pattern)),
-        0,// HBD=rdmd.CalcNumHBD(mol),
-        0,// PSA=MolSurf.TPSA(mol),
-        0,// ROTB=rdmd.CalcNumRotatableBonds(mol, rdmd.NumRotatableBondsOptions.Strict),
+        static_cast<double>(::RDKit::Descriptors::calcNumHBD(*mol)),// HBD=rdmd.CalcNumHBD(mol),
+        ::RDKit::Descriptors::calcTPSA(*mol),// PSA=MolSurf.TPSA(mol),
+        static_cast<double>(::RDKit::Descriptors::calcNumRotatableBonds(*mol, ::RDKit::Descriptors::Strict)),// ROTB=rdmd.CalcNumRotatableBonds(mol, rdmd.NumRotatableBondsOptions.Strict),
         0,// AROM=len(Chem.GetSSSR(Chem.DeleteSubstructs(Chem.Mol(mol), AliphaticRings))),
         0// ALERTS=sum(1 for alert in StructuralAlerts if mol.HasSubstructMatch(alert)),
     });

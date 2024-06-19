@@ -35,15 +35,7 @@
 #include <memory>
 #include <vector>
 #include <optional>
-// #include <rdkit/GraphMol/GraphMol.h>
 #include <rdkit/GraphMol/RWMol.h>
-#include <rdkit/GraphMol/MolOps.h>
-// #include <rdkit/GraphMol/FileParsers/MolSupplier.h>
-// #include <rdkit/GraphMol/FileParsers/MolWriters.h>
-#include <rdkit/GraphMol/SmilesParse/SmilesParse.h>
-#include <rdkit/GraphMol/Descriptors/Crippen.h>
-#include <rdkit/GraphMol/Descriptors/MolSurf.h>
-
 
 namespace coot::layla::RDKit {
 
