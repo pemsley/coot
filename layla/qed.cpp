@@ -64,7 +64,7 @@ namespace impl {
         return ret;
     }
 
-    double QEDproperties_sum(const QED::QEDproperties& props) {
+    inline double QEDproperties_sum(const QED::QEDproperties& props) {
         return props.MW + props.ALOGP + props.HBA + props.HBD + props.PSA + props.ROTB + props.AROM + props.ALERTS;
     }
   
