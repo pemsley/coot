@@ -171,7 +171,8 @@ class QED {
     static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> StructuralAlerts;
     static const std::map<std::string, ADSparameter> adsParameters;
 
-    
+    /// ADS function
+    static double ads(double x, const ADSparameter& p);
 };
 
 // import math

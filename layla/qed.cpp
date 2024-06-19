@@ -1,4 +1,5 @@
 #include "qed.hpp"
+#include <cmath>
 
 namespace coot::layla::RDKit {
 
@@ -98,5 +99,14 @@ const std::map<std::string, ADSparameter> QED::adsParameters = {
   ADSparameter({0.010000000, 1199.094025, -0.09002883, 0.000000001, 0.185904477,
                0.875193782, 417.7253140})}
 };
+
+double QED::ads(double x, const ADSparameter& p) {
+    double exp1 = 1 + exp(-1 * (x - p.C + p.D / 2) / p.E);
+    double exp2 = 1 + exp(-1 * (x - p.C - p.D / 2) / p.F);
+    double dx = p.A + p.B / exp1 * (1 - 1 / exp2);
+    return dx / p.DMAX;
+}
+
+
 
 }
