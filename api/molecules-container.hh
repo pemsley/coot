@@ -1912,7 +1912,7 @@ public:
 
    // -------------------------------- Blender Interface ---------------------------------------
 
-   //! \name Python functions
+   //! \name Functions for Blender Interface
 
    void make_mesh_for_map_contours_for_blender(int imol, float x, float y, float z, float level, float radius);
    void make_mesh_for_bonds_for_blender(int imol, const std::string &mode, bool against_a_dark_background,
@@ -1934,7 +1934,10 @@ public:
    // -------------------------------- Other ---------------------------------------
 
 #ifdef SWIG
-   //! \name Python functions
+#if NB_VERSION_MAJOR
+   // skip this (old) block for nanobinds
+#else
+   //! \name Old Python functions
 
    enum mesh_mode_t { UNKNOWN, SINGLE_COLOUR, MULTI_COLOUR };
    //! old function: do not use with nanobind
@@ -1971,6 +1974,7 @@ public:
    //! make a "proper" simple  molecule python class one day.
    PyObject *get_pythonic_simple_molecule(int imol, const std::string &cid, bool include_hydrogen_atoms_flag);
 
+#endif
 #endif
 
 };
