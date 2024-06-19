@@ -33,6 +33,7 @@
 #ifndef LAYLA_QED_HPP
 #define LAYLA_QED_HPP
 #include <memory>
+#include <vector>
 // #include <rdkit/GraphMol/GraphMol.h>
 #include <rdkit/GraphMol/RWMol.h>
 // #include <rdkit/GraphMol/FileParsers/MolSupplier.h>
@@ -53,6 +54,8 @@ namespace coot::layla::RDKit {
 // WEIGHT_MAX = QEDproperties(0.50, 0.25, 0.00, 0.50, 0.00, 0.50, 0.25, 1.00)
 // WEIGHT_MEAN = QEDproperties(0.66, 0.46, 0.05, 0.61, 0.06, 0.65, 0.48, 0.95)
 // WEIGHT_NONE = QEDproperties(1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00)
+
+// AliphaticRings = Chem.MolFromSmarts('[$([A;R][!a])]')
 struct QEDproperties {
     double MW;
     double ALOGP;
@@ -78,7 +81,11 @@ class QED {
     static const QEDproperties WEIGHT_MAX;
     static const QEDproperties WEIGHT_MEAN;
     static const QEDproperties WEIGHT_NONE;
+
     static const std::unique_ptr<const ::RDKit::ROMol> AliphaticRings;
+
+    static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> Acceptors;
+    static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> StructuralAlerts;
 };
 
 // import math
@@ -93,7 +100,7 @@ class QED {
 
 
 
-// AliphaticRings = Chem.MolFromSmarts('[$([A;R][!a])]')
+
 
 // #
 // AcceptorSmarts = [
