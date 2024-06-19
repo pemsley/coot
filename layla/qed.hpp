@@ -34,6 +34,7 @@
 #define LAYLA_QED_HPP
 #include <memory>
 #include <vector>
+#include <map>
 // #include <rdkit/GraphMol/GraphMol.h>
 #include <rdkit/GraphMol/RWMol.h>
 // #include <rdkit/GraphMol/FileParsers/MolSupplier.h>
@@ -56,46 +57,6 @@ namespace coot::layla::RDKit {
 // WEIGHT_NONE = QEDproperties(1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00)
 
 // AliphaticRings = Chem.MolFromSmarts('[$([A;R][!a])]')
-struct QEDproperties {
-    double MW;
-    double ALOGP;
-    double HBA;
-    double HBD;
-    double PSA;
-    double ROTB;
-    double AROM;
-    double ALERTS;
-};
-
-struct ADSparameter {
-    double A;
-    double B;
-    double C;
-    double D;
-    double E;
-    double F;
-    double DMAX;
-};
-
-class QED {
-    static const QEDproperties WEIGHT_MAX;
-    static const QEDproperties WEIGHT_MEAN;
-    static const QEDproperties WEIGHT_NONE;
-
-    static const std::unique_ptr<const ::RDKit::ROMol> AliphaticRings;
-
-    static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> Acceptors;
-    static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> StructuralAlerts;
-};
-
-// import math
-
-
-// from rdkit import Chem
-
-// from rdkit.Chem import rdMolDescriptors as rdmd
-// from rdkit.Chem.ChemUtils.DescriptorUtilities import setDescriptorVersion
-
 
 
 
@@ -176,6 +137,53 @@ class QED {
 //   ADSparameter(A=0.010000000, B=1199.094025, C=-0.09002883, D=0.000000001, E=0.185904477,
 //                F=0.875193782, DMAX=417.7253140),
 // }
+
+
+struct QEDproperties {
+    double MW;
+    double ALOGP;
+    double HBA;
+    double HBD;
+    double PSA;
+    double ROTB;
+    double AROM;
+    double ALERTS;
+};
+
+struct ADSparameter {
+    double A;
+    double B;
+    double C;
+    double D;
+    double E;
+    double F;
+    double DMAX;
+};
+
+class QED {
+    static const QEDproperties WEIGHT_MAX;
+    static const QEDproperties WEIGHT_MEAN;
+    static const QEDproperties WEIGHT_NONE;
+
+    static const std::unique_ptr<const ::RDKit::ROMol> AliphaticRings;
+
+    static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> Acceptors;
+    static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> StructuralAlerts;
+    static const std::map<std::string, ADSparameter> adsParameters;
+
+    
+};
+
+// import math
+
+
+// from rdkit import Chem
+
+// from rdkit.Chem import rdMolDescriptors as rdmd
+// from rdkit.Chem.ChemUtils.DescriptorUtilities import setDescriptorVersion
+
+
+
 
 
 // def ads(x, adsParameter):
