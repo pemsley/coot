@@ -131,9 +131,8 @@ QEDproperties QED::properties(const ::RDKit::ROMol& mol) {
 }
 
 
-double QED::qed(const ::RDKit::ROMol& mol, QEDproperties w, std::optional<QEDproperties> qedProperties) {
-    // if qedProperties is None:
-    //     qedProperties = properties(mol)
+double QED::qed(const ::RDKit::ROMol& mol, QEDproperties w, std::optional<QEDproperties> qedPropertiesOpt) {
+    QEDproperties qedProperties = qedPropertiesOpt.value_or(properties(mol));
     // d = [ads(pi, adsParameters[name]) for name, pi in qedProperties._asdict().items()]
     // t = sum(wi * math.log(di) for wi, di in zip(w, d))
     // return math.exp(t / sum(w))
