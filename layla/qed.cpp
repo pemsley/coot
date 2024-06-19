@@ -114,18 +114,18 @@ double QED::ads(double x, const ADSparameter& p) noexcept {
 
 QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     auto mol = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::MolOps::removeHs(mol_raw));
-    auto qedProperties = QEDproperties(
-        // MW=rdmd._CalcMolWt(mol),
-        // ALOGP=Crippen.MolLogP(mol),
-        // HBA=sum(
+    auto qedProperties = QEDproperties({
+        0,// MW=rdmd._CalcMolWt(mol),
+        0,// ALOGP=Crippen.MolLogP(mol),
+        0,// HBA=sum(
         // len(mol.GetSubstructMatches(pattern)) for pattern in Acceptors
         // if mol.HasSubstructMatch(pattern)),
-        // HBD=rdmd.CalcNumHBD(mol),
-        // PSA=MolSurf.TPSA(mol),
-        // ROTB=rdmd.CalcNumRotatableBonds(mol, rdmd.NumRotatableBondsOptions.Strict),
-        // AROM=len(Chem.GetSSSR(Chem.DeleteSubstructs(Chem.Mol(mol), AliphaticRings))),
-        // ALERTS=sum(1 for alert in StructuralAlerts if mol.HasSubstructMatch(alert)),
-    );
+        0,// HBD=rdmd.CalcNumHBD(mol),
+        0,// PSA=MolSurf.TPSA(mol),
+        0,// ROTB=rdmd.CalcNumRotatableBonds(mol, rdmd.NumRotatableBondsOptions.Strict),
+        0,// AROM=len(Chem.GetSSSR(Chem.DeleteSubstructs(Chem.Mol(mol), AliphaticRings))),
+        0// ALERTS=sum(1 for alert in StructuralAlerts if mol.HasSubstructMatch(alert)),
+    });
     // The replacement
     // AROM=Lipinski.NumAromaticRings(mol),
     // is not identical. The expression above tends to count more rings
