@@ -932,7 +932,18 @@ void CanvasMolecule::update_qed_info() {
     new_info.number_of_hydrogen_bond_acceptors = raw_props.HBA;
     new_info.number_of_hydrogen_bond_donors = raw_props.HBD;
     new_info.number_of_rotatable_bonds = raw_props.ROTB;
-    
+
+    g_debug("Updated QED: ALOGP=%f PSA=%f MW=%f ALERTS=%u AROM=%u HBA=%u HBD=%u ROTB=%u",
+        new_info.alogp,
+        new_info.molecular_polar_surface_area,
+        new_info.molecular_weight,
+        new_info.number_of_alerts,
+        new_info.number_of_aromatic_rings,
+        new_info.number_of_hydrogen_bond_acceptors,
+        new_info.number_of_hydrogen_bond_donors,
+        new_info.number_of_rotatable_bonds
+    );
+
     this->qed_info = new_info;
 }
 

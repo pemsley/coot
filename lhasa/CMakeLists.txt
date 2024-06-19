@@ -84,7 +84,9 @@ target_link_libraries(lhasa PRIVATE
     RDKitRDGeneral 
     RDKitRDGeometryLib
     RDKitFileParsers 
-    RDKitSubstructMatch 
+    RDKitDescriptors
+    RDKitChemTransforms
+    RDKitSubstructMatch
     RDKitGenericGroups
     RDKitDataStructs
     boost_iostreams 
