@@ -101,7 +101,7 @@ class QED {
 
 
     /// ADS function
-    static double ads(double x, const ADSparameter& p);
+    static double ads(double x, const ADSparameter& p) noexcept;
 
     /// Calculates the QED descriptor using maximal descriptor weights
     inline static double weights_max(const ::RDKit::ROMol& mol) {

@@ -105,7 +105,7 @@ const std::vector<QED::ADSparameter> QED::adsParameters = {
                0.875193782, 417.7253140})
 };
 
-double QED::ads(double x, const ADSparameter& p) {
+double QED::ads(double x, const ADSparameter& p) noexcept {
     double exp1 = 1 + exp(-1 * (x - p.C + p.D / 2) / p.E);
     double exp2 = 1 + exp(-1 * (x - p.C - p.D / 2) / p.F);
     double dx = p.A + p.B / exp1 * (1 - 1 / exp2);
