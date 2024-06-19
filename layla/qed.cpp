@@ -62,6 +62,10 @@ namespace impl {
         }
         return ret;
     }
+
+    double QEDproperties_sum(const QEDproperties& props) {
+        return props.MW + props.ALOGP + props.HBA + props.HBD + props.PSA + props.ROTB + props.AROM + props.ALERTS;
+    }
   
 }
 
@@ -133,9 +137,18 @@ QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
 
 double QED::qed(const ::RDKit::ROMol& mol, QEDproperties w, std::optional<QEDproperties> qedPropertiesOpt) {
     QEDproperties qedProperties = qedPropertiesOpt.value_or(properties(mol));
-    // d = [ads(pi, adsParameters[name]) for name, pi in qedProperties._asdict().items()]
-    // t = sum(wi * math.log(di) for wi, di in zip(w, d))
-    // return exp(t / sum(w));
+
+    double t;
+    t  = qedProperties.MW * log(ads(qedProperties.MW, adsParameters.at("MW")));
+    t += qedProperties.ALOGP * log(ads(qedProperties.ALOGP, adsParameters.at("ALOGP")));
+    t += qedProperties.HBA * log(ads(qedProperties.HBA, adsParameters.at("HBA")));
+    t += qedProperties.HBD * log(ads(qedProperties.HBD, adsParameters.at("HBD")));
+    t += qedProperties.PSA * log(ads(qedProperties.PSA, adsParameters.at("PSA")));
+    t += qedProperties.ROTB * log(ads(qedProperties.ROTB, adsParameters.at("ROTB")));
+    t += qedProperties.AROM * log(ads(qedProperties.AROM, adsParameters.at("AROM")));
+    t += qedProperties.ALERTS * log(ads(qedProperties.ALERTS, adsParameters.at("ALERTS")));
+    
+    return exp(t / impl::QEDproperties_sum(w));
 }
 
 

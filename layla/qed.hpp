@@ -79,6 +79,7 @@ class QED {
 
     static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> Acceptors;
     static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> StructuralAlerts;
+    // TODO: Convert to lookup table
     static const std::map<std::string, ADSparameter> adsParameters;
 
     /// Calculates the properties that are required to calculate the QED descriptor.
