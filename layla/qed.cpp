@@ -107,6 +107,16 @@ double QED::ads(double x, const ADSparameter& p) {
     return dx / p.DMAX;
 }
 
-
+QEDproperties properties(const ::RDKit::ROMol& mol) {
 
 }
+
+
+double qed(const ::RDKit::ROMol& mol, QEDproperties w, std::optional<QEDproperties> qedProperties) {
+
+}
+
+
+
+
+} // namespace

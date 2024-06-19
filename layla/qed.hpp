@@ -35,6 +35,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <optional>
 // #include <rdkit/GraphMol/GraphMol.h>
 #include <rdkit/GraphMol/RWMol.h>
 // #include <rdkit/GraphMol/FileParsers/MolSupplier.h>
@@ -171,8 +172,35 @@ class QED {
     static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> StructuralAlerts;
     static const std::map<std::string, ADSparameter> adsParameters;
 
+    /// Calculates the properties that are required to calculate the QED descriptor.
+    static QEDproperties properties(const ::RDKit::ROMol& mol);
+    /// Calculate the weighted sum of ADS mapped properties
+    // @setDescriptorVersion(version='1.1.0')
+    static double qed(const ::RDKit::ROMol& mol, QEDproperties w = WEIGHT_MEAN, std::optional<QEDproperties> qedProperties = std::nullopt);
+
+
     /// ADS function
     static double ads(double x, const ADSparameter& p);
+
+    /// Calculates the QED descriptor using maximal descriptor weights
+    inline static double weights_max(const ::RDKit::ROMol& mol) {
+        return qed(mol, WEIGHT_MAX);
+    }
+
+    /// Calculates the QED descriptor using average descriptor weights.
+    inline static double weights_mean(const ::RDKit::ROMol& mol) {
+        return qed(mol, WEIGHT_MEAN);
+    }
+
+    /// Calculates the QED descriptor using unit weights.
+    inline static double weights_none(const ::RDKit::ROMol& mol) {
+        return qed(mol, WEIGHT_NONE);
+    }
+
+    /// Calculates the QED descriptor using average descriptor weights.
+    inline static double default_(const ::RDKit::ROMol& mol) {
+        return weights_mean(mol);
+    }
 };
 
 // import math
