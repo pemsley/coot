@@ -24,22 +24,22 @@
  *
  */
 
+#include "pli/flev-annotations.hh"
+
 namespace coot {
-   
-   std::vector<fle_residues_helper_t>
+
+   std::vector<pli::fle_residues_helper_t>
    get_flev_residue_centres(mmdb::Residue *reference_residue,
-			    mmdb::Manager *mol_containing_residue_ligand, 
-			    std::vector<mmdb::Residue *> residues,
-			    mmdb::Manager *flat_mol);
+                            mmdb::Manager *mol_containing_residue_ligand,
+                            std::vector<mmdb::Residue *> residues,
+                            mmdb::Manager *flat_mol);
 
    // return a vector of the same size as filtered_residues.
-   // 
+   //
    std::vector<int> make_add_reps_for_near_residues(std::vector<mmdb::Residue *> filtered_residues,
-						    int imol);
+                                                    int imol);
 
    void add_animated_ligand_interactions(int imol,
-					 const std::vector<fle_ligand_bond_t> &ligand_bonds); 
+                                         const std::vector<pli::fle_ligand_bond_t> &ligand_bonds);
 
 }
-
-

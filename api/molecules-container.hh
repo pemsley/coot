@@ -376,7 +376,9 @@ public:
    // -------------------------------- Basic Utilities -----------------------------------
    //! \name Basic Utilities
 
-   //! Allow the user to disable/enable backups (`state` is `true` for "enable"). The default is `true`.
+   //! Allow the user to disable/enable backups
+   //!
+   //! @param state is `true` to mean that it is enabled. The default is `true`.
    void set_make_backups(bool state) { make_backups_flag = state; }
    //! @return the backup-enabled state
    bool get_make_backups() const { return make_backups_flag; }
@@ -572,13 +574,19 @@ public:
    std::vector<int> split_multi_model_molecule(int imol);
 
    //! make a multi-model molecule given the input molecules
-   //! ``model_molecules_list`` is a colon-separated list of molecules, *e.g.* "2:3:4"
+   //!
+   //! @param ``model_molecules_list`` is a colon-separated list of molecules, *e.g.* `2:3:4`
+   //!
    //! @return the new molecule index - -1 if no models were found in the ``model_molecules_list``
    int make_ensemble(const std::string &model_molecule_list);
 
+   //! get the molecule as a PDB string
+   //!
    //! @return the model molecule imol as a string. Return emtpy string on error
    std::string molecule_to_PDB_string(int imol) const;
 
+   //! get the molecule as an mmCIF string
+   //!
    //! @return the model molecule imol as a string. Return emtpy string on error
    std::string molecule_to_mmCIF_string(int imol) const;
 
@@ -595,14 +603,20 @@ public:
    //! IMOL_ENC_ANY = -999999
    //! @return 1 on success and 0 on failure
    int import_cif_dictionary(const std::string &cif_file_name, int imol_enc);
+
+   //! get the cif file name
+   //!
    //! @return the dictionary read for the give residue type, return an empty string on failure
    //! to lookup the residue type
    std::string get_cif_file_name(const std::string &comp_id, int imol_enc) const;
+   //! get the cif restraints as a string
+   //!
    //! @return a string that is the contents of a dictionary cif file
    std::string get_cif_restraints_as_string(const std::string &comp_id, int imol_enc) const;
    //! copy the dictionary that is specific for imol_current so that it can be used with imol_new
    bool copy_dictionary(const std::string &monomer_name, int imol_current, int imol_new);
    //! get a monomer
+   //! @param[in] monomer_name the name of the monomer
    //! @return the new molecule index on success and -1 on failure
    int get_monomer(const std::string &monomer_name);
    //! get a monomer for a particular molecule - use -999999 (IMOL_ENC_ANY) if no molecule-specific dictionary is needed.
@@ -615,34 +629,46 @@ public:
    // 20221030-PE nice to have one day:
    // int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
 
-   //! @return the group for the given list of residue names.
+   //! get the groups for a vector of monomers
+   //!
+   //! @return the group for the given list of residue names as a vector of strings
    std::vector<std::string> get_groups_for_monomers(const std::vector<std::string> &residue_names) const;
 
-   //! @return the group for the given residue name.
+   //! get the group for a particlar monomer
+   //!
+   //! @return the group for the given residue name
    std::string get_group_for_monomer(const std::string &residue_name) const;
 
+   //! get the hydrogen bond type of a particular atom in a given residue type
+   //!
    //! @return the hb_type for the given atom. On failure return an empty string.
    //! Valid types are: "HB_UNASSIGNED" ,"HB_NEITHER", "HB_DONOR", "HB_ACCEPTOR", "HB_BOTH", "HB_HYDROGEN".
    std::string get_hb_type(const std::string &compound_id, int imol_enc, const std::string &atom_name) const;
 
+   //! get the GPhL extra restraint information (from the input cif file)
+   //!
    //! @return a vector of string pairs that were part of a gphl_chem_comp_info.
    //!  return an empty vector on failure to find any such info.
    std::vector<std::pair<std::string, std::string> > get_gphl_chem_comp_info(const std::string &compound_id, int imol_enc);
 
    //! write a PNG for the given compound_id. imol can be IMOL_ENC_ANY
+   //!
    //! Currently this function does nothing (drawing is done with the not-allowed cairo)
    void write_png(const std::string &compound_id, int imol, const std::string &file_name) const;
 
    //! write the coordinate to the give file name
+   //!
    //! @return 1 on success and 0 on failure
    int write_coordinates(int imol, const std::string &file_name) const;
 
+   //! set the state for drawing missing loops
+   //!
    //! By default missing loops are drawn. This function allows missing loops to not be
    //! drawn. Sometimes that can clarify the representation. This is a lightweight function
    //! that sets a flag that is used by subsequent calls to ``get_bonds_mesh()``.
    void set_draw_missing_residue_loops(bool state);
 
-   //! get the bonds mesh.
+   //! get the bonds mesh
    //!
    //! ``mode`` is "COLOUR-BY-CHAIN-AND-DICTIONARY", "CA+LIGANDS" or "VDW-BALLS"
    //!
@@ -702,15 +728,21 @@ public:
                                                                  float bond_width, float atom_radius_to_bond_width_ratio,
                                                                  int smoothness_factor);
 
+   //! get the Goodsell style mesh
+   //!
+   //! @return a ``coot::instanced_mesh_t``
    coot::instanced_mesh_t get_goodsell_style_mesh_instanced(int imol, float colour_wheel_rotation_step,
                                                             float saturation, float goodselliness);
 
    //! export map molecule as glTF
-   //  (not const because maps might update?)
+   //!
+   //!  (not const because maps might update?)
    void export_map_molecule_as_gltf(int imol, float pos_x, float pos_y, float pos_z, float radius, float contour_level,
                                     const std::string &file_name);
 
-   //! export model molecule as glTF - This API will change - we want to specify surfaces and ribbons too.
+   //! export model molecule as glTF
+   //!
+   //! This API will change - we want to specify surfaces and ribbons too.
    void export_model_molecule_as_gltf(int imol,
                                       const std::string &selection_cid,
                                       const std::string &mode,
@@ -738,6 +770,7 @@ public:
    //! clear the set of non-drawn atoms (so that they can be displayed again)
    void clear_non_drawn_bonds(int imol);
 
+   //! print non-drawn bonds
    void print_non_drawn_bonds(int imol) const;
 
    //! user-defined colour-index to colour
@@ -974,6 +1007,8 @@ public:
    //! @return the suggested initial contour level. Return -1 on not-a-map
    float get_suggested_initial_contour_level(int imol) const;
 
+   //! check if a map is an EM map or not
+   //!
    //! @return the "EM" status of this molecule. Return false on not-a-map.
    bool is_EM_map(int imol) const;
 
@@ -1022,6 +1057,7 @@ public:
 
    //! get the mesh for the map contours using another map for colouring
    //!
+   //! @return a `simple_mesh_t` for the map contours of the specified map
    coot::simple_mesh_t get_map_contours_mesh_using_other_map_for_colours(int imol_ref, int imol_map_for_colouring,
                                                                          double position_x, double position_y, double position_z,
                                                                          float radius, float contour_level,
@@ -1031,6 +1067,9 @@ public:
    //! set the map saturation
    void set_map_colour_saturation(int imol, float s);
 
+   //! get the latest sfcalc stats
+   //!
+   //! @return a sfcalc_genmap_stats_t object
    coot::util::sfcalc_genmap_stats_t get_latest_sfcalc_stats() const { return latest_sfcalc_stats; }
 
    class r_factor_stats {
@@ -1041,8 +1080,14 @@ public:
       int rail_points_new;
    };
 
+   //! get the R-factors
+   //!
+   //! @return a r_factor_stats object
    r_factor_stats get_r_factor_stats();
 
+   //! get the R factor stats as a string
+   //!
+   //! @return a string with the R-factor stats
    std::string r_factor_stats_as_string(const r_factor_stats &rfs) const;
 
    // This function does no normalisztion of the scales,
@@ -1867,6 +1912,8 @@ public:
 
    // -------------------------------- Blender Interface ---------------------------------------
 
+   //! \name Functions for Blender Interface
+
    void make_mesh_for_map_contours_for_blender(int imol, float x, float y, float z, float level, float radius);
    void make_mesh_for_bonds_for_blender(int imol, const std::string &mode, bool against_a_dark_background,
                                       float bond_width, float atom_radius_to_bond_width_ratio,
@@ -1887,20 +1934,30 @@ public:
    // -------------------------------- Other ---------------------------------------
 
 #ifdef SWIG
-   //! \name Python functions
+#if NB_VERSION_MAJOR
+   // skip this (old) block for nanobinds
+#else
+   //! \name Old Python functions
 
    enum mesh_mode_t { UNKNOWN, SINGLE_COLOUR, MULTI_COLOUR };
+   //! old function: do not use with nanobind
    PyObject *simple_mesh_to_pythonic_mesh(const coot::simple_mesh_t &mesh, int mesh_mode);
+   //! old function: do not use with nanobind
    PyObject *get_pythonic_bonds_mesh(int imol, const std::string &mode, bool against_a_dark_background,
                                      float bond_width, float atom_radius_to_bond_width_ratio,
                                      int smoothness_factor);
+   //! old function: do not use with nanobind
    PyObject *get_pythonic_map_mesh(int imol, float x, float y, float z, float radius, float contour_level);
+   //! old function: do not use with nanobind
    PyObject *get_pythonic_molecular_representation_mesh(int imol, const std::string &atom_selection,
                                                         const std::string &colour_sheme,
                                                         const std::string &style);
+   //! old function: do not use with nanobind get Gaussion surface mesh
    PyObject *get_pythonic_gaussian_surface_mesh(int imol, float sigma, float contour_level,
                                                 float box_radius, float grid_scale, float fft_b_factor);
 
+   //! old function: do not use with nanobind: get a pythonic mesh of the molecule (bonds)
+   //!
    //! @return a pair - the first of which (index 0) is the list of atoms, the second (index 1) is the list of bonds.
    //! An atom is a list:
    //!
@@ -1913,10 +1970,11 @@ public:
    //! 3: formal charge (an integer)
    //!
    //! 4: aromaticity flag (boolean)
-   //1
+   //!
    //! make a "proper" simple  molecule python class one day.
    PyObject *get_pythonic_simple_molecule(int imol, const std::string &cid, bool include_hydrogen_atoms_flag);
 
+#endif
 #endif
 
 };

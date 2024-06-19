@@ -145,7 +145,8 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 
 #include "pick.hh"
 
-#include "dots-representation.hh"
+// #include "dots-representation.hh"
+#include "pli/dots-representation-info.hh"
 #include "named-rotamer-score.hh"
 
 #include "c-interface-sequence.hh"
@@ -574,7 +575,7 @@ class molecule_class_info_t {
    int copy_chain(mmdb::Chain *from_chain, mmdb::Chain *to_chain,
 		  clipper::RTop_orth a_to_b_transform);
 
-   std::vector<coot::dots_representation_info_t> dots;
+   std::vector<pli::dots_representation_info_t> dots;
    coot::colour_t dots_colour;
    bool dots_colour_set;
 
@@ -3030,7 +3031,7 @@ public:        //                      public
 
    // --------- pisa surface make dots --------------------
    // here we add the dots to the dots vector of this molecule
-   void add_dots(const coot::dots_representation_info_t &dots_in) {
+   void add_dots(const pli::dots_representation_info_t &dots_in) {
       dots.push_back(dots_in);
    }
 
@@ -3327,7 +3328,7 @@ void draw_map_molecule(bool draw_transparent_maps,
    // --------- Pretty (hopefully) animated ligand interactions -----------
 
    std::vector<coot::animated_ligand_interactions_t> animated_ligand_interactions_vec;
-   void add_animated_ligand_interaction(const  coot::fle_ligand_bond_t &lb);
+   void add_animated_ligand_interaction(const  pli::fle_ligand_bond_t &lb);
 
    void draw_animated_ligand_interactions(const gl_context_info_t &gl,
 					  const long &start_time) const;

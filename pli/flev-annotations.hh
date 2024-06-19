@@ -27,9 +27,10 @@
 #include "geometry/residue-and-atom-specs.hh"
 #include "lidia-core/lbg-shared.hh" // bash_distance_t
 
-
-namespace coot {
+namespace pli {
       
+   enum { H_IS_RIDING, H_IS_ROTATABLE }; // shared between named_torsion_t and flev_attached_hydrogens_t.
+
    // we need to map (the hydrogens torsions) between ideal prodrg
    // ligand atoms and the atoms in the residue/ligand of interest
    // (the reference ligand).
@@ -65,12 +66,12 @@ namespace coot {
       std::vector<std::pair<std::string, std::string> > atoms_with_riding_hydrogens;
       std::vector<std::pair<std::string, std::string> > atoms_with_rotating_hydrogens;
       bool add_named_torsion(mmdb::Atom *h_at, mmdb::Atom *at,
-			     const dictionary_residue_restraints_t &restraints,
+			     const coot::dictionary_residue_restraints_t &restraints,
 			     mmdb::Manager *mol,
 			     int hydrogen_type); // fill named_torsions
       std::vector<std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > >
       named_hydrogens_to_reference_ligand(mmdb::Residue *ligand_residue_3d,
-					  const dictionary_residue_restraints_t &restraints) const;
+					  const coot::dictionary_residue_restraints_t &restraints) const;
 
       // Can throw an exception
       // 
@@ -78,14 +79,15 @@ namespace coot {
       // the H is attached) and the hydrogen position - in that order.
       // 
       std::pair<clipper::Coord_orth, clipper::Coord_orth>
-      hydrogen_pos(const coot::named_torsion_t &named_tor, mmdb::Residue *res) const;
+      hydrogen_pos(const named_torsion_t &named_tor, mmdb::Residue *res) const;
       
       std::vector<mmdb::Atom *> close_atoms(const clipper::Coord_orth &pt,
 				       const std::vector<mmdb::Residue *> &env_residues) const;
 
-      bash_distance_t find_bash_distance(const clipper::Coord_orth &ligand_atom_pos,
-					 const clipper::Coord_orth &hydrogen_pos,
-					 const std::vector<mmdb::Atom *> &close_residue_atoms) const;
+      coot::bash_distance_t find_bash_distance(const clipper::Coord_orth &ligand_atom_pos,
+                                               const clipper::Coord_orth &hydrogen_pos,
+                                               const std::vector<mmdb::Atom *> &close_residue_atoms) const;
+
       double get_radius(const std::string &ele) const;
 
       // find an atom (the atom, perhaps) bonded to lig_at that is not H_at.
@@ -93,11 +95,11 @@ namespace coot {
       // 
       clipper::Coord_orth get_atom_pos_bonded_to_atom(mmdb::Atom *lig_at, mmdb::Atom *H_at, // not H_at
 						      mmdb::Residue *ligand_residue,
-						      const protein_geometry &geom) const;
+						      const coot::protein_geometry &geom) const;
       
       
    public:
-      flev_attached_hydrogens_t(const dictionary_residue_restraints_t &restraints);
+      explicit flev_attached_hydrogens_t(const coot::dictionary_residue_restraints_t &restraints);
 
       std::vector<named_torsion_t> named_torsions;
       
@@ -116,7 +118,7 @@ namespace coot {
 				mmdb::Manager *mol_reference);
       void distances_to_protein_using_correct_Hs(mmdb::Residue *residue_reference,
 						 mmdb::Manager *mol_reference,
-						 const protein_geometry &geom);
+						 const coot::protein_geometry &geom);
 
       std::map<std::string, std::vector<coot::bash_distance_t> > atom_bashes;
    
@@ -132,11 +134,11 @@ namespace coot {
 						// interaction of this
 						// residue, this is
 						// where we go.
-      residue_spec_t spec;
+      coot::residue_spec_t spec;
       std::string residue_name;
       fle_residues_helper_t() { is_set = 0; }
       fle_residues_helper_t(const clipper::Coord_orth &t_r_pt,
-			    const residue_spec_t &spec_in,
+			    const coot::residue_spec_t &spec_in,
 			    const std::string &res_name_in) {
 	 transformed_relative_centre = t_r_pt;
 	 spec = spec_in;
@@ -168,24 +170,24 @@ namespace coot {
          METAL_CONTACT_BOND,
          BOND_COVALENT,
          BOND_OTHER };  // must sync this to lbg.hh (why not extract it? (you can do it now))
-      atom_spec_t ligand_atom_spec;
+      coot::atom_spec_t ligand_atom_spec;
       int bond_type; // acceptor/donor
 
-      residue_spec_t res_spec;
-      atom_spec_t interacting_residue_atom_spec; // contains res_spec obviously.
+      coot::residue_spec_t res_spec;
+      coot::atom_spec_t interacting_residue_atom_spec; // contains res_spec obviously.
 
       bool is_H_bond_to_water;
       double bond_length;  // from residue atom to ligand atom
       double water_protein_length; // if residue is a water, this is the closest
                                    // distance to protein (100 if very far).
-      fle_ligand_bond_t(const atom_spec_t &ligand_atom_spec_in,
-                        const atom_spec_t &interacting_residue_atom_spec_in,
+      fle_ligand_bond_t(const coot::atom_spec_t &ligand_atom_spec_in,
+                        const coot::atom_spec_t &interacting_residue_atom_spec_in,
                         int bond_type_in,
                         double bl_in,
                         bool is_water) {
          ligand_atom_spec = ligand_atom_spec_in;
          interacting_residue_atom_spec = interacting_residue_atom_spec_in;
-         res_spec = residue_spec_t(interacting_residue_atom_spec_in);
+         res_spec = coot::residue_spec_t(interacting_residue_atom_spec_in);
          bond_type = bond_type_in;
          bond_length = bl_in;
          is_H_bond_to_water = is_water;
