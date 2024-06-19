@@ -52,6 +52,8 @@ add_library(lh STATIC lhasa.hpp lhasa.cpp)
 target_sources(lh PRIVATE
   glog_replacement.hpp
   glog_replacement.cpp
+  ../layla/qed.hpp
+  ../layla/qed.cpp
   ../layla/utils.hpp
   ../layla/utils.cpp
   ../layla/ligand_editor_canvas.hpp
@@ -64,8 +66,6 @@ target_sources(lh PRIVATE
   ../layla/ligand_editor_canvas/tools.cpp
   ../layla/ligand_editor_canvas/render.hpp
   ../layla/ligand_editor_canvas/render.cpp
-  ../layla/ligand_editor_canvas/qed.hpp
-  ../layla/ligand_editor_canvas/qed.cpp
   ../utils/base64-encode-decode.hh
   ../utils/base64-encode-decode.cc
 )
