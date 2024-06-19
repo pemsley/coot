@@ -116,7 +116,7 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     auto mol = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::MolOps::removeHs(mol_raw));
     auto qedProperties = QEDproperties({
         0,// MW=rdmd._CalcMolWt(mol),
-        0,// ALOGP=Crippen.MolLogP(mol),
+        ::RDKit::Descriptors::calcClogP(*mol) // ALOGP=Crippen.MolLogP(mol),
         0,// HBA=sum(
         // len(mol.GetSubstructMatches(pattern)) for pattern in Acceptors
         // if mol.HasSubstructMatch(pattern)),
