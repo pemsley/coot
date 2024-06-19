@@ -75,7 +75,7 @@ class QED {
     static const QEDproperties WEIGHT_MAX;
     static const QEDproperties WEIGHT_MEAN;
     static const QEDproperties WEIGHT_NONE;
-    static const std::unique_ptr<RDKit::RWMol> AliphaticRings;
+    // static const std::unique_ptr<RDKit::RWMol> AliphaticRings;
 };
 
 // import math
