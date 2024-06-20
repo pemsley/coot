@@ -195,7 +195,14 @@ struct Renderer {
     };
 
     class TextMeasurementCache {
+        public:
+        typedef std::size_t hash_t;
+        private:
+        std::map<hash_t, TextSize> cache;
 
+        public:
+        std::optional<TextSize> lookup_span(const TextSpan& text) const;
+        void add(hash_t span_hash, TextSize value);
     };
 
     Renderer(emscripten::val text_measurement_function, TextMeasurementCache& cache);
@@ -276,5 +283,17 @@ class MoleculeRenderContext {
 };
 
 } //coot::ligand_editor_canvas::impl
+
+#ifdef __EMSCRIPTEN__
+namespace std {
+    template <> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan> {
+        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) const noexcept {
+            //return std::hash<int>()(ipair.first ^ (ipair.second >> 16));
+            return 0;
+        }
+    };
+
+}
+#endif
 
 #endif // COOT_LIGAND_EDITOR_CANVAS_RENDER_HPP
