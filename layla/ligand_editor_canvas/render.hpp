@@ -89,6 +89,10 @@ struct Renderer {
         TextSpan();
         TextSpan(const std::string&);
         TextSpan(const std::vector<TextSpan>&);
+
+        #ifdef __EMSCRIPTEN__
+        inline friend std::size_t hash_value(const TextSpan&);
+        #endif
     };
 
     struct Text {
@@ -113,12 +117,15 @@ struct Renderer {
     struct Path;
     struct PathElement;
     struct DrawingCommand;
+    class TextMeasurementCache;
     struct BrushStyle {
         Color color;
         double line_width;
     };
     private:
 
+    /// Not owned pointer
+    TextMeasurementCache* tm_cache;
     BrushStyle style;
     graphene_point_t position;
     std::vector<DrawingCommand> drawing_commands;
@@ -191,6 +198,21 @@ struct Renderer {
         const Text& as_text() const;
     };
 
+    class TextMeasurementCache {
+        public:
+        typedef std::size_t hash_t;
+        private:
+        std::map<hash_t, TextSize> cache;
+
+        public:
+        std::optional<TextSize> lookup_span(const TextSpan& text) const;
+        std::optional<TextSize> lookup_span(hash_t span_hash) const;
+        void add(hash_t span_hash, TextSize value);
+        void add(const TextSpan& text, TextSize value);
+        std::size_t size() const;
+    };
+
+    Renderer(emscripten::val text_measurement_function, TextMeasurementCache& cache);
     Renderer(emscripten::val text_measurement_function);
 
     std::vector<DrawingCommand> get_commands() const;
@@ -268,5 +290,46 @@ class MoleculeRenderContext {
 };
 
 } //coot::ligand_editor_canvas::impl
+
+#ifdef __EMSCRIPTEN__
+#include <boost/functional/hash.hpp>
+#include <tuple>
+
+inline std::size_t coot::ligand_editor_canvas::impl::hash_value(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span);
+
+namespace std {
+    template <> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::Color> {
+        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::Color& color) const noexcept {
+            return boost::hash_value(std::tie(color.a, color.r, color.g, color.b));
+        }
+    };
+    template <> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle> {
+        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextStyle& style) const noexcept {
+            auto ret = std::hash<coot::ligand_editor_canvas::impl::Renderer::Color>{}(style.color);
+            boost::hash_combine(ret, std::tie(
+                style.size,
+                //style.color hashed above
+                style.specifies_color,
+                style.positioning,
+                style.weight
+            ));
+            return ret;
+        }
+    };
+
+    template<> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan> {
+        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) const noexcept {
+           return coot::ligand_editor_canvas::impl::hash_value(span);
+        }
+    };
+}
+
+inline std::size_t coot::ligand_editor_canvas::impl::hash_value(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) {
+    auto ret = std::hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle>{}(span.style);
+    boost::hash_combine(ret, span.specifies_style);
+    boost::hash_combine(ret, span.content);
+    return ret;
+}
+#endif // __EMSCRIPTEN__
 
 #endif // COOT_LIGAND_EDITOR_CANVAS_RENDER_HPP

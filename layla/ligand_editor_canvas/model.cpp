@@ -21,6 +21,7 @@
 
 #include "model.hpp"
 #include "render.hpp"
+#include "../qed.hpp"
 #include <exception>
 #include <iterator>
 #include <memory>
@@ -29,10 +30,6 @@
 #include <stdexcept>
 #include <algorithm>
 #include <set>
-// #include <rdkit/GraphMol/MolDraw2D/MolDraw2D.h>
-// // #include <rdkit/GraphMol/MolDraw2D/MolDraw2DCairo.h>
-// // #include <rdkit/GraphMol/MolDraw2D/MolDraw2DSVG.h>
-// #include <rdkit/GraphMol/MolDraw2D/MolDraw2DUtils.h>
 #include <rdkit/GraphMol/Depictor/RDDepictor.h>
 #include <rdkit/GraphMol/Substruct/SubstructMatch.h>
 #include <rdkit/Geometry/point.h>
@@ -922,9 +919,32 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after) {
 }
 
 void CanvasMolecule::update_qed_info() {
+    using QED = layla::RDKit::QED;
 
-   // todo: fill QED info
-    this->qed_info;
+    auto raw_props = QED::properties(*this->rdkit_molecule);
+    QEDInfo new_info;
+
+    new_info.alogp = raw_props.ALOGP;
+    new_info.molecular_polar_surface_area = raw_props.PSA;
+    new_info.molecular_weight = raw_props.MW;
+    new_info.number_of_alerts = raw_props.ALERTS;
+    new_info.number_of_aromatic_rings = raw_props.AROM;
+    new_info.number_of_hydrogen_bond_acceptors = raw_props.HBA;
+    new_info.number_of_hydrogen_bond_donors = raw_props.HBD;
+    new_info.number_of_rotatable_bonds = raw_props.ROTB;
+
+    g_debug("Updated QED: ALOGP=%f PSA=%f MW=%f ALERTS=%u AROM=%u HBA=%u HBD=%u ROTB=%u",
+        new_info.alogp,
+        new_info.molecular_polar_surface_area,
+        new_info.molecular_weight,
+        new_info.number_of_alerts,
+        new_info.number_of_aromatic_rings,
+        new_info.number_of_hydrogen_bond_acceptors,
+        new_info.number_of_hydrogen_bond_donors,
+        new_info.number_of_rotatable_bonds
+    );
+
+    this->qed_info = new_info;
 }
 
 void CanvasMolecule::highlight_atom(int atom_idx) {

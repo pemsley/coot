@@ -58,8 +58,11 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .value("AtomNames", DisplayMode::AtomNames);
   register_vector<impl::Renderer::DrawingCommand>("DrawingCommandVector");
   register_vector<impl::Renderer::PathElement>("PathElementVector");
+  class_<impl::Renderer::TextMeasurementCache>("TextMeasurementCache")
+    .constructor<>();
   class_<impl::Renderer>("Renderer")
     .constructor<emscripten::val>()
+    .constructor<emscripten::val, impl::Renderer::TextMeasurementCache&>()
     .function("get_commands", &impl::Renderer::get_commands);
   value_object<impl::Renderer::Color>("Color")
     .field("r", &impl::Renderer::Color::r)

@@ -10,9 +10,9 @@ endif()
 # -Wno-unused-command-line-argument 
 
 if(MEMORY64 EQUAL "1")
-  set(CMAKE_CXX_FLAGS "-Wall -sMEMORY64=1 --embind-emit-tsd lhasa.d.ts -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
+  set(CMAKE_CXX_FLAGS "-Wall -sMEMORY64=1 --emit-tsd lhasa.d.ts -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
 else()
-  set(CMAKE_CXX_FLAGS "-Wall --embind-emit-tsd lhasa.d.ts -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
+  set(CMAKE_CXX_FLAGS "-Wall --emit-tsd lhasa.d.ts -s USE_PTHREADS=1 -pthread -fwasm-exceptions")
 endif()
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
@@ -52,6 +52,8 @@ add_library(lh STATIC lhasa.hpp lhasa.cpp)
 target_sources(lh PRIVATE
   glog_replacement.hpp
   glog_replacement.cpp
+  ../layla/qed.hpp
+  ../layla/qed.cpp
   ../layla/utils.hpp
   ../layla/utils.cpp
   ../layla/ligand_editor_canvas.hpp
@@ -82,7 +84,9 @@ target_link_libraries(lhasa PRIVATE
     RDKitRDGeneral 
     RDKitRDGeometryLib
     RDKitFileParsers 
-    RDKitSubstructMatch 
+    RDKitDescriptors
+    RDKitChemTransforms
+    RDKitSubstructMatch
     RDKitGenericGroups
     RDKitDataStructs
     boost_iostreams 
