@@ -321,7 +321,7 @@ namespace std {
     };
 }
 
-std::size_t coot::ligand_editor_canvas::impl::hash_value(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) {
+inline std::size_t coot::ligand_editor_canvas::impl::hash_value(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) {
     auto ret = std::hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle>{}(span.style);
     boost::hash_combine(ret, span.specifies_style);
     boost::hash_combine(ret, span.content);
