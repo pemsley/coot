@@ -195,7 +195,7 @@ def using_active_atom(*funcs):
 #             ret = func(*args)
 #         return ret
 
-# here some truely pythonic version of the macros. Should replace
+# here some truly pythonic version of the macros. Should replace
 # them in usage too:
 
 # Pythonic 'Macro' to tidy up a a setup of functions to be run with no backup
@@ -3626,13 +3626,18 @@ def fetch_drug_via_wikipedia(drug_name_in):
     drug_name = drug_name_in.lower()
 
     def get_xml_from_wikipedia(drug_name):
-        import requests
+        # import requests
         url = "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles=" + drug_name + \
             "&prop=revisions&rvprop=content"
         print("DEBUG:: url", url)
-        xml = requests.get(url, stream=True)
-        xml_tree = ElementTree.fromstring(xml.content)
-        return xml_tree
+        fn = drug_name + ".xml" # put this in a XDG directory.
+        state = coot.coot_get_url(url, fn)
+        if state == 0:
+            # xml_tree = ElementTree.fromstring(xml.content)
+            xml_tree = ElementTree.parse(fn)
+            return xml_tree
+        else:
+            return False
 
     xml_tree = get_xml_from_wikipedia(drug_name)
 
@@ -3644,14 +3649,11 @@ def fetch_drug_via_wikipedia(drug_name_in):
     db_code = parse_wiki_drug_xml(xml_tree, "DrugBank ")
     print("db_code", db_code)
     if db_code:
-        import requests
         db_mol_uri = "https://www.drugbank.ca/structures/small_molecule_drugs/" + str(db_code) + ".mol"
         file_name = str(db_code) + ".mol"
         print("DEBUG:: file_name", file_name)
         print("DEBUG:: db_mol_uri", db_mol_uri)
-        r = requests.get(db_mol_uri, allow_redirects=True)
-        with open(file_name, "wb") as f:
-            f.write(r.content)
+        coot.coot_get_url(db_mol_uri, file_name)
         return file_name
     print("DEBUG:: returning False")
     return False
@@ -3682,8 +3684,7 @@ def get_pdbe_cif_for_comp_id(comp_id):
     cif_file_name = os.path.join(download_dir,
                                  "PDBe-" + comp_id + ".cif")
     url = "ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/" + \
-          comp_id + \
-          ".cif"
+          comp_id + ".cif"
 
     if os.path.isfile(cif_file_name):
         # try the filesystem cache
@@ -3694,19 +3695,16 @@ def get_pdbe_cif_for_comp_id(comp_id):
         else:
             # give a dialog, saying that the file will not be
             # overwritten
-            msg = cif_file_name + \
-                " exists but is empty." + \
+            msg = cif_file_name + " exists but is empty." + \
                 "\nNot overwriting."
             coot.info_dialog(msg)
             return False
     # use network then
-    print("BL INFO:: getting url:", url)
+    print("INFO:: getting url:", url)
     state = coot.coot_get_url(url, cif_file_name)
     if (state != 0):
-        msg = "Problem downloading\n" + \
-              url + "\n to file \n" + \
-              cif_file_name + \
-              "."
+        msg = "Problem downloading\n" + url + "\n to file \n" + \
+              cif_file_name + "."
         coot.info_dialog(msg)
         return False
     else:
