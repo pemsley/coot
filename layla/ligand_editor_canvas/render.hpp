@@ -90,7 +90,9 @@ struct Renderer {
         TextSpan(const std::string&);
         TextSpan(const std::vector<TextSpan>&);
 
+        #ifdef __EMSCRIPTEN__
         inline friend std::size_t hash_value(const TextSpan&);
+        #endif
     };
 
     struct Text {
@@ -327,6 +329,6 @@ inline std::size_t coot::ligand_editor_canvas::impl::hash_value(const coot::liga
     boost::hash_combine(ret, span.content);
     return ret;
 }
-#endif
+#endif // __EMSCRIPTEN__
 
 #endif // COOT_LIGAND_EDITOR_CANVAS_RENDER_HPP
