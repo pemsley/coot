@@ -209,6 +209,7 @@ struct Renderer {
         std::optional<TextSize> lookup_span(hash_t span_hash) const;
         void add(hash_t span_hash, TextSize value);
         void add(const TextSpan& text, TextSize value);
+        std::size_t size() const;
     };
 
     Renderer(emscripten::val text_measurement_function, TextMeasurementCache& cache);

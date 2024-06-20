@@ -495,6 +495,9 @@ void Renderer::TextMeasurementCache::add(Renderer::TextMeasurementCache::hash_t 
 void Renderer::TextMeasurementCache::add(const Renderer::TextSpan& text, Renderer::TextSize value) {
     this->add(std::hash<TextSpan>{}(text), value);
 }
+std::size_t Renderer::TextMeasurementCache::size() const {
+    return this->cache.size();
+}
 
 #endif
 
@@ -531,7 +534,7 @@ Renderer::TextSize Renderer::measure_text(const Renderer::TextSpan& text) {
     // }
     if(this->tm_cache) {
         this->tm_cache->add(text_hash.value(), ret);
-        g_debug("TextSpan added to cache.");
+        g_debug("TextSpan added to cache. Cache entries: %lu", this->tm_cache->size());
     }
     return ret;
     #endif
