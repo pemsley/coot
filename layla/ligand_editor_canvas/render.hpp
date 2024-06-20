@@ -316,7 +316,7 @@ namespace std {
 
     template<> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan> {
         std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) const noexcept {
-           return hash_value(span);
+           return coot::ligand_editor_canvas::impl::hash_value(span);
         }
     };
 }
