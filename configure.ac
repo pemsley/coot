@@ -268,7 +268,7 @@ dnl =========================== Python =========================
 AM_PATH_PYTHON([3.7])
 AX_PYTHON_DEVEL
 # this is not the canonical way to use arguments 2 and 3, but it works in this case
-AX_PYTHON_MODULE([requests], [echo requests found], [echo requests not found])
+# AX_PYTHON_MODULE([requests], [echo requests found], [echo requests not found])
 
 dnl =========================== PyGObject =========================
 
