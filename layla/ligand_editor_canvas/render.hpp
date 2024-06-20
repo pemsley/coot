@@ -90,7 +90,7 @@ struct Renderer {
         TextSpan(const std::string&);
         TextSpan(const std::vector<TextSpan>&);
 
-        friend class std::hash<TextSpan>;
+        inline friend std::size_t hash_value(const TextSpan&);
     };
 
     struct Text {
@@ -291,6 +291,9 @@ class MoleculeRenderContext {
 #ifdef __EMSCRIPTEN__
 #include <boost/functional/hash.hpp>
 #include <tuple>
+
+inline std::size_t coot::ligand_editor_canvas::impl::hash_value(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span);
+
 namespace std {
     template <> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::Color> {
         std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::Color& color) const noexcept {
@@ -310,15 +313,19 @@ namespace std {
             return ret;
         }
     };
-    template <> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan> {
+
+    template<> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan> {
         std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) const noexcept {
-            auto ret = std::hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle>{}(span.style);
-            boost::hash_combine(ret, span.specifies_style);
-            // boost::hash_combine(ret, span.content);
-            return ret;
+           return hash_value(span);
         }
     };
+}
 
+std::size_t coot::ligand_editor_canvas::impl::hash_value(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) {
+    auto ret = std::hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle>{}(span.style);
+    boost::hash_combine(ret, span.specifies_style);
+    boost::hash_combine(ret, span.content);
+    return ret;
 }
 #endif
 
