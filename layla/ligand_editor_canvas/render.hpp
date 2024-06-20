@@ -89,6 +89,8 @@ struct Renderer {
         TextSpan();
         TextSpan(const std::string&);
         TextSpan(const std::vector<TextSpan>&);
+
+        friend class std::hash<TextSpan>;
     };
 
     struct Text {
@@ -202,7 +204,9 @@ struct Renderer {
 
         public:
         std::optional<TextSize> lookup_span(const TextSpan& text) const;
+        std::optional<TextSize> lookup_span(hash_t span_hash) const;
         void add(hash_t span_hash, TextSize value);
+        void add(const TextSpan& text, TextSize value);
     };
 
     Renderer(emscripten::val text_measurement_function, TextMeasurementCache& cache);
@@ -285,11 +289,33 @@ class MoleculeRenderContext {
 } //coot::ligand_editor_canvas::impl
 
 #ifdef __EMSCRIPTEN__
+#include <boost/functional/hash.hpp>
+#include <tuple>
 namespace std {
+    template <> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::Color> {
+        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::Color& color) const noexcept {
+            return boost::hash_value(std::tie(color.a, color.r, color.g, color.b));
+        }
+    };
+    template <> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle> {
+        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextStyle& style) const noexcept {
+            auto ret = std::hash<coot::ligand_editor_canvas::impl::Renderer::Color>{}(style.color);
+            boost::hash_combine(ret, std::tie(
+                style.size,
+                //style.color hashed above
+                style.specifies_color,
+                style.positioning,
+                style.weight
+            ));
+            return ret;
+        }
+    };
     template <> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan> {
         std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) const noexcept {
-            //return std::hash<int>()(ipair.first ^ (ipair.second >> 16));
-            return 0;
+            auto ret = std::hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle>{}(span.style);
+            boost::hash_combine(ret, span.specifies_style);
+            // boost::hash_combine(ret, span.content);
+            return ret;
         }
     };
 

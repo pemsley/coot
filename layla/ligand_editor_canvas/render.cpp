@@ -477,11 +477,23 @@ std::string Renderer::text_span_to_pango_markup(const TextSpan& span, const std:
 }
 #else
 std::optional<Renderer::TextSize> Renderer::TextMeasurementCache::lookup_span(const Renderer::TextSpan& text) const {
+    return this->lookup_span(std::hash<TextSpan>{}(text));
+}
+
+std::optional<Renderer::TextSize> Renderer::TextMeasurementCache::lookup_span(Renderer::TextMeasurementCache::hash_t span_hash) const {
+    auto it = this->cache.find(span_hash);
+    if(it != this->cache.end()) {
+        return it->second;
+    }
     return std::nullopt;
 }
 
 void Renderer::TextMeasurementCache::add(Renderer::TextMeasurementCache::hash_t span_hash, Renderer::TextSize value) {
+    this->cache.emplace(span_hash, value);
+}
 
+void Renderer::TextMeasurementCache::add(const Renderer::TextSpan& text, Renderer::TextSize value) {
+    this->add(std::hash<TextSpan>{}(text), value);
 }
 
 #endif
@@ -494,8 +506,10 @@ Renderer::TextSize Renderer::measure_text(const Renderer::TextSpan& text) {
     pango_layout_get_pixel_size(this->pango_layout, &ret.width, &ret.height);
     return ret;
     #else // __EMSCRIPTEN__ defined
+    std::optional<TextMeasurementCache::hash_t> text_hash;
     if(this->tm_cache) {
-        auto cached_opt = this->tm_cache->lookup_span(text);
+        text_hash = std::hash<TextSpan>{}(text);
+        auto cached_opt = this->tm_cache->lookup_span(text_hash.value());
         if(cached_opt.has_value()) {
             return cached_opt.value();
         }
@@ -516,7 +530,7 @@ Renderer::TextSize Renderer::measure_text(const Renderer::TextSpan& text) {
     //     return {0,0};
     // }
     if(this->tm_cache) {
-        this->tm_cache->add(std::hash<TextSpan>{}(text), ret);
+        this->tm_cache->add(text_hash.value(), ret);
     }
     return ret;
     #endif
