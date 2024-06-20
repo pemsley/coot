@@ -599,6 +599,10 @@ int do_GL_lighting_state();
 */
 short int use_graphics_interface_state();
 
+/*! \brief set the GUI dark mode state
+ */
+void set_use_dark_mode(short int state);
+
 /*! \brief is the python interpreter at the prompt?
 
 @return 1 for yes, 0 for no.*/

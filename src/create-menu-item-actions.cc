@@ -3339,13 +3339,13 @@ mutate_to_type(GSimpleAction *simple_action,
                GVariant *parameter,
                gpointer user_data) {
 
+   graphics_info_t g;
    if (parameter) {
       gchar *result;
       g_variant_get(parameter, "s", &result);
       std::string ss(result);
       std::cout << "mutate_to type parameter " << ss << std::endl;
-      graphics_info_t g;
-      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+         std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       if (pp.first) {
          int imol = pp.second.first;
          g.mutate_residue_imol = imol;
@@ -3354,6 +3354,7 @@ mutate_to_type(GSimpleAction *simple_action,
          g.do_mutation(imol, res_spec, ss, false); // not stub
       }
    }
+   g.graphics_grab_focus();
 }
 
 void
@@ -3387,6 +3388,7 @@ mutate_base_to_type(GSimpleAction *simple_action,
             }
          }
       }
+      g.graphics_grab_focus();
    }
 }
 
@@ -3474,6 +3476,7 @@ delete_item(GSimpleAction *simple_action,
             graphics_draw();
          }
       }
+      g.graphics_grab_focus();
    }
 }
 
