@@ -113,12 +113,15 @@ struct Renderer {
     struct Path;
     struct PathElement;
     struct DrawingCommand;
+    class TextMeasurementCache;
     struct BrushStyle {
         Color color;
         double line_width;
     };
     private:
 
+    /// Not owned pointer
+    TextMeasurementCache* tm_cache;
     BrushStyle style;
     graphene_point_t position;
     std::vector<DrawingCommand> drawing_commands;
@@ -191,6 +194,11 @@ struct Renderer {
         const Text& as_text() const;
     };
 
+    class TextMeasurementCache {
+
+    };
+
+    Renderer(emscripten::val text_measurement_function, TextMeasurementCache& cache);
     Renderer(emscripten::val text_measurement_function);
 
     std::vector<DrawingCommand> get_commands() const;

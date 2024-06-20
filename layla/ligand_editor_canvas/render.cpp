@@ -46,8 +46,14 @@ Renderer::Renderer(cairo_t* cr, PangoLayout* pango_layout) {
 }
 #else // __EMSCRIPTEN__ defined
 // Lhasa-specific includes/definitions
+Renderer::Renderer(emscripten::val text_measurement_function, Renderer::TextMeasurementCache& cache) 
+ :Renderer(text_measurement_function) {
+    this->tm_cache = &cache;
+}
+
 Renderer::Renderer(emscripten::val text_measurement_function) {
     this->text_measurement_function = text_measurement_function;
+    this->tm_cache = nullptr;
     this->position.x = 0.f;
     this->position.y = 0.f;
     this->style.line_width = 1.0f;
@@ -490,10 +496,11 @@ Renderer::TextSize Renderer::measure_text(const Renderer::TextSpan& text) {
     // g_info("Wrapper text has been built.");
     emscripten::val result = this->text_measurement_function(wtext);
     // g_info("Got result.");
-    return result.as<TextSize>();
+    auto ret = result.as<TextSize>();
     // } catch(...) {
     //     return {0,0};
     // }
+    return ret;
     #endif
 }
 
