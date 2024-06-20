@@ -1,4 +1,4 @@
-/* lbg/pi-stacking.hh
+/* pli/pi-stacking.hh
  * 
  * Copyright 2010 by Medical Research Council
  * Author: Paul Emsley
@@ -32,7 +32,7 @@
 #endif
 #include "geometry/protein-geometry.hh"
 
-namespace coot {
+namespace pli {
 
    class pi_stacking_instance_t {
    public:
@@ -104,18 +104,18 @@ namespace coot {
       std::vector<clipper::Coord_orth> get_cation_atom_positions(mmdb::Residue *res) const;
       // by search through res_ref
       std::vector<std::pair<std::string, clipper::Coord_orth> >
-	 get_ligand_cations(mmdb::Residue *res, const dictionary_residue_restraints_t &monomer_restraints) const;
+      get_ligand_cations(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &monomer_restraints) const;
 
       std::vector<std::vector<std::string> >
-      get_aromatic_ring_list(const dictionary_residue_restraints_t &monomer_restraints) const;
+      get_aromatic_ring_list(const coot::dictionary_residue_restraints_t &monomer_restraints) const;
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-      std::vector<std::vector<std::string> > get_aromatic_ring_list(const dictionary_residue_restraints_t &monomer_restraints,
+      std::vector<std::vector<std::string> > get_aromatic_ring_list(const coot::dictionary_residue_restraints_t &monomer_restraints,
 								    const RDKit::ROMol &mol) const;
       std::vector<std::vector<std::string> > get_aromatic_ring_list(const RDKit::ROMol &mol) const;
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
-      void init(const dictionary_residue_restraints_t &monomer_restraints,
+      void init(const coot::dictionary_residue_restraints_t &monomer_restraints,
 		const std::vector<mmdb::Residue *> &filtered_residues,
 		mmdb::Residue *res_ref,
 		const std::vector<std::vector<std::string> > &aromatic_ring_list_atom_names);
@@ -124,12 +124,12 @@ namespace coot {
    public:
       // a vector of residues and types
       std::vector<pi_stacking_instance_t> stackings;
-      pi_stacking_container_t (const dictionary_residue_restraints_t &monomer_restraints,
+      pi_stacking_container_t (const coot::dictionary_residue_restraints_t &monomer_restraints,
 			       const std::vector<mmdb::Residue *> &filtered_residues,
 			       mmdb::Residue *res_ref);
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-      pi_stacking_container_t (const dictionary_residue_restraints_t &monomer_restraints,
+      pi_stacking_container_t (const coot::dictionary_residue_restraints_t &monomer_restraints,
 			       const std::vector<mmdb::Residue *> &filtered_residues,
 			       mmdb::Residue *res_ref,
 			       const RDKit::ROMol &mol);

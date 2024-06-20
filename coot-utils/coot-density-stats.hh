@@ -71,6 +71,11 @@ namespace coot {
 	 }
       };
 
+      class correlation_parts_t {
+         public:
+            double top;
+            double var_x, var_y;
+      };
 
       //! density correlation state - between map and model typically.
       class density_correlation_stats_info_t {
@@ -131,6 +136,17 @@ namespace coot {
 	    if (b_1 < 0) b_1 = 0;
 	    if (b_2 < 0) b_2 = 0;
 	    double c = top/(std::sqrt(b_1) * std::sqrt(b_2));
+	    return c;
+	 }
+         //! the correlation by parts
+	 correlation_parts_t correlation_by_parts() const {
+	    double top = n * sum_xy - sum_x * sum_y;
+	    double b_1 = n * sum_sqrd_x - sum_x * sum_x;
+	    double b_2 = n * sum_sqrd_y - sum_y * sum_y;
+	    if (b_1 < 0) b_1 = 0;
+	    if (b_2 < 0) b_2 = 0;
+	    correlation_parts_t c;
+            c.top = top; c.var_x = b_1; c.var_y = b_2;
 	    return c;
 	 }
          bool operator<(const density_correlation_stats_info_t &dcsi) const {

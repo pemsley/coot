@@ -906,7 +906,7 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after) {
     auto geometry = this->compute_molecule_geometry();
 
     // 2.2 Build internal repr
-    this->build_internal_molecule_representation(geometry);    
+    this->build_internal_molecule_representation(geometry);
     this->cached_atom_coordinate_map = std::move(geometry);
 
     // 2.3 Reverse kekulization on the original molecule after lowering.
@@ -1005,7 +1005,7 @@ void CanvasMolecule::update_cached_atom_coordinate_map_after_atom_removal(unsign
         // greater than its' index have to be decremented.
         //
         // Now, I don't want to mess around with iterator invalidation.
-        // So the easiest course of action is to just copy away all 
+        // So the easiest course of action is to just copy away all
         // of the affected elements, change them, remove them from the original map
         // and put them back there again.
         std::vector<std::pair<int,RDGeom::Point2D>> altered_elements;

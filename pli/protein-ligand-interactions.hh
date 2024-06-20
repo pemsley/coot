@@ -28,26 +28,26 @@
 
 #include "flev-annotations.hh"
 
-namespace coot {
+namespace pli {
 
    std::vector<fle_ligand_bond_t>
    protein_ligand_interactions(mmdb::Residue *residue_p,
 			       mmdb::Manager *mol,
-			       protein_geometry *geom_p,
+			       coot::protein_geometry *geom_p,
 			       float h_bond_dist_max);
 
 
    std::vector<fle_ligand_bond_t> get_covalent_bonds(mmdb::Manager *mol,
 						     int SelHnd_lig,
 						     int SelHnd_all,
-						     const residue_spec_t &ligand_spec,
-						     const protein_geometry &geom);
+						     const coot::residue_spec_t &ligand_spec,
+						     const coot::protein_geometry &geom);
    // which calls 
    std::vector<fle_ligand_bond_t> get_covalent_bonds_by_distance(mmdb::Manager *mol,
 						     int SelHnd_lig,
 						     int SelHnd_all,
-						     const residue_spec_t &ligand_spec,
-						     const protein_geometry &geom);
+						     const coot::residue_spec_t &ligand_spec,
+						     const coot::protein_geometry &geom);
    std::vector<fle_ligand_bond_t> get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 							      mmdb::Manager *mol);
 
@@ -61,7 +61,7 @@ namespace coot {
 						       const std::vector<mmdb::Residue *> &residues,
 						       mmdb::Manager *mol,
 						       const std::map<std::string, std::string> &name_map,
-						       const protein_geometry &geom,
+						       const coot::protein_geometry &geom,
 						       float water_dist_max,
 						       float h_bond_dist_max);
 

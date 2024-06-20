@@ -37,7 +37,7 @@ AM_CPPFLAGS = \
 pkgincludedir = $(includedir)/coot/api
 
 pkginclude_HEADERS = \
-coot-molecule.hh	 make-a-dodec.hh	                                           \
+coot-molecule.hh	 make-a-dodec.hh	    lsq-results.hh                         \
 colour-functions.hh	 gensurf.hh		    validation-information.hh              \
 coot-colour.hh		 ghost-molecule-display.hh  residue-validation-information.hh      \
 molecules-container.hh	 ncs.hh			    geometry-graphs.hh                     \

@@ -1,11 +1,29 @@
 
 ----
 
+Use 2DT dictionary for link and refinement - George.
+
+Sharpen-blur "Computing..." dialog should be an overlay
+
+Investigate NCS ghosts usage in a ribosome after updating the model.
+
+Check email for build-script updates/fixes
+
+Add Q-score to api
+
+How to set the step size for mouse scroll?
+
+Check Curlew uses XDG base correctly.
+
+Check backups use XDG base correctly.
+
+Write a patch for clipper "no symmetry lookup" for grid coords
+
+Get Screenshot png working
+
 Add a function: Are the ligands consistent with the ligand dictionary (has atoms that are not in the dictionary)
 
 PAE svg without cairo? So that we can pass the fractions-through-the-sequence.
-
-Check email for build-script updates/fixes
 
 Put the reference PDB files in the coot repo.
 

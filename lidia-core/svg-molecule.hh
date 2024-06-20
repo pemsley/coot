@@ -29,6 +29,7 @@
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include "lig-build.hh"
+#include "lbg-shared.hh"
 #include "use-rdkit.hh"
 
 class svg_atom_t : public lig_build::atom_t {
@@ -36,7 +37,14 @@ class svg_atom_t : public lig_build::atom_t {
    std::string colour;
 public:
    svg_atom_t(const lig_build::pos_t &pos_in, const std::string &ele_in, int formal_charge_in) :
-      lig_build::atom_t(pos_in, ele_in, formal_charge_in) { set_colour(); }
+      lig_build::atom_t(pos_in, ele_in, formal_charge_in) { set_colour(); solvent_accessibility = -1; }
+
+   std::vector<coot::bash_distance_t> bash_distances;
+   double solvent_accessibility;
+   double get_solvent_accessibility() const { return solvent_accessibility; }
+   void add_solvent_accessibility(double sa) {
+      solvent_accessibility = sa;
+   }
 
    void set_colour(bool against_a_dark_background=false);
    std::string make_text_item(const lig_build::atom_id_info_t &atom_id_info_in,
@@ -81,7 +89,6 @@ public:
                                 const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
                                 const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
                                 const lig_build::pos_t &centre, double scale);
-   
 };
 
 class svg_molecule_t : public lig_build::molecule_t<svg_atom_t, svg_bond_t> {

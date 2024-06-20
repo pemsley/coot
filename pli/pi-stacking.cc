@@ -36,7 +36,7 @@
 
 #include "pi-stacking.hh"
 
-coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_residue_restraints_t &monomer_restraints,
+pli::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_residue_restraints_t &monomer_restraints,
 						       const std::vector<mmdb::Residue *> &residues,
 						       mmdb::Residue *res_ref) {
 
@@ -51,7 +51,7 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_residue_restraints_t &monomer_restraints,
+pli::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_residue_restraints_t &monomer_restraints,
 						       const std::vector<mmdb::Residue *> &residues,
 						       mmdb::Residue *res_ref, const RDKit::ROMol &mol) {
 
@@ -65,7 +65,7 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 void
-coot::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t &monomer_restraints,
+pli::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t &monomer_restraints,
 				    const std::vector<mmdb::Residue *> &residues,
 				    mmdb::Residue *res_ref,
 				    const std::vector<std::vector<std::string> > &aromatic_ring_list) {
@@ -111,23 +111,23 @@ coot::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t 
 			 << pi_overlap_2.first << " type: " << pi_overlap_2.second << std::endl;
 
 	    float thresh = -1;
-	    if (pi_overlap_1.second == coot::pi_stacking_instance_t::PI_PI_STACKING)
+	    if (pi_overlap_1.second == pi_stacking_instance_t::PI_PI_STACKING)
 	       thresh = pi_pi_overlap_thresh;
-	    if (pi_overlap_1.second == coot::pi_stacking_instance_t::PI_CATION_STACKING)
+	    if (pi_overlap_1.second == pi_stacking_instance_t::PI_CATION_STACKING)
 	       thresh = pi_cation_overlap_thresh;
 	    
 	    if (pi_overlap_1.first > thresh) {
-	       coot::pi_stacking_instance_t st(residues[ires],
-					       pi_overlap_1.second,
-					       aromatic_ring_list[iring]);
+	       pi_stacking_instance_t st(residues[ires],
+                                         pi_overlap_1.second,
+                                         aromatic_ring_list[iring]);
 	       st.overlap_score = pi_overlap_1.first;
 	       std::cout << "adding a stacking " << st << std::endl;
 	       stackings.push_back(st);
 	    }
 	    if (pi_overlap_2.first > thresh) {
-	       coot::pi_stacking_instance_t st(residues[ires],
-					       pi_overlap_2.second,
-					       aromatic_ring_list[iring]);
+               pli::pi_stacking_instance_t st(residues[ires],
+                                              pi_overlap_2.second,
+                                              aromatic_ring_list[iring]);
 	       st.overlap_score = pi_overlap_2.first;
 	       std::cout << "adding a stacking " << st << std::endl;
 	       stackings.push_back(st);
@@ -162,7 +162,7 @@ coot::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t 
 
 	 if (score > pi_cation_overlap_thresh) { 
 	    // add a stacking to stackings.
-	    coot::pi_stacking_instance_t stacking(residues[ires], cation_points[icat].first);
+	    pi_stacking_instance_t stacking(residues[ires], cation_points[icat].first);
 	    stacking.overlap_score = score;
 	    stackings.push_back(stacking);
 	 }
@@ -173,7 +173,7 @@ coot::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t 
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 std::vector<std::vector<std::string> >
-coot::pi_stacking_container_t::get_aromatic_ring_list(const RDKit::ROMol &mol_in) const {
+pli::pi_stacking_container_t::get_aromatic_ring_list(const RDKit::ROMol &mol_in) const {
 
    // get a list of aromatic bonds, so that they can be used to find
    // aromatic rings.  To do that, we need to set the aromaticity of
@@ -253,7 +253,7 @@ coot::pi_stacking_container_t::get_aromatic_ring_list(const RDKit::ROMol &mol_in
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 std::vector<std::vector<std::string> >
-coot::pi_stacking_container_t::get_aromatic_ring_list(const coot::dictionary_residue_restraints_t &monomer_restraints,
+pli::pi_stacking_container_t::get_aromatic_ring_list(const coot::dictionary_residue_restraints_t &monomer_restraints,
 						      const RDKit::ROMol &rdkit_mol) const { 
 
    // Get a list of aromatic bonds, so that they can be used to find
@@ -272,7 +272,7 @@ coot::pi_stacking_container_t::get_aromatic_ring_list(const coot::dictionary_res
 
 
 std::vector<std::vector<std::string> >
-coot::pi_stacking_container_t::get_aromatic_ring_list(const coot::dictionary_residue_restraints_t &monomer_restraints) const {
+pli::pi_stacking_container_t::get_aromatic_ring_list(const coot::dictionary_residue_restraints_t &monomer_restraints) const {
 
    // get a list of aromatic bonds, so that they can be used to find
    // aromatic rings.
@@ -285,7 +285,7 @@ coot::pi_stacking_container_t::get_aromatic_ring_list(const coot::dictionary_res
 
 // by search through res_ref
 std::vector<std::pair<std::string, clipper::Coord_orth> >
-coot::pi_stacking_container_t::get_ligand_cations(mmdb::Residue *res_ref,
+pli::pi_stacking_container_t::get_ligand_cations(mmdb::Residue *res_ref,
 						 const coot::dictionary_residue_restraints_t &monomer_restraints) const {
 
    std::vector<std::pair<std::string, clipper::Coord_orth> > v;
@@ -299,7 +299,7 @@ coot::pi_stacking_container_t::get_ligand_cations(mmdb::Residue *res_ref,
 	 int n_bonds = 0;
 	 std::string atom_name(residue_atoms[iat]->name);
 	 for (unsigned int ibond=0; ibond<monomer_restraints.bond_restraint.size(); ibond++) {
-	    const dict_bond_restraint_t &br = monomer_restraints.bond_restraint[ibond];
+	    const coot::dict_bond_restraint_t &br = monomer_restraints.bond_restraint[ibond];
 	    if (br.atom_id_1_4c() == atom_name) { 
 	       std::string other_atom_name = br.atom_id_2_4c();
 	       mmdb::Atom *at = res_ref->GetAtom(other_atom_name.c_str());
@@ -350,15 +350,15 @@ coot::pi_stacking_container_t::get_ligand_cations(mmdb::Residue *res_ref,
 //
 // should return the stacking type, e.g. PI_CATION_STACKING.
 // 
-std::pair<float, coot::pi_stacking_instance_t::stacking_t>
-coot::pi_stacking_container_t::get_pi_overlap_to_ligand_ring(mmdb::Residue *res,
+std::pair<float, pli::pi_stacking_instance_t::stacking_t>
+pli::pi_stacking_container_t::get_pi_overlap_to_ligand_ring(mmdb::Residue *res,
 							     const clipper::Coord_orth &ligand_pi_point) const {
 
    float pi_pi_score = 0;
    float pi_cation_score = 0;
    
    std::string res_name(res->GetResName());
-   coot::pi_stacking_instance_t::stacking_t stacking_type = coot::pi_stacking_instance_t::PI_PI_STACKING;
+   pi_stacking_instance_t::stacking_t stacking_type = pi_stacking_instance_t::PI_PI_STACKING;
 
    // First test all the ring systems in the residue
    // 
@@ -390,10 +390,10 @@ coot::pi_stacking_container_t::get_pi_overlap_to_ligand_ring(mmdb::Residue *res,
    float score = pi_pi_score;
    if (pi_cation_score > pi_pi_score) {
       score = pi_cation_score;
-      stacking_type = coot::pi_stacking_instance_t::PI_CATION_STACKING;
+      stacking_type = pi_stacking_instance_t::PI_CATION_STACKING;
    }
    
-   return std::pair<float, coot::pi_stacking_instance_t::stacking_t> (score, stacking_type);
+   return std::pair<float, pi_stacking_instance_t::stacking_t> (score, stacking_type);
 }
 
 // Return the best score of the ligand cation overlap to any of the
@@ -401,8 +401,8 @@ coot::pi_stacking_container_t::get_pi_overlap_to_ligand_ring(mmdb::Residue *res,
 // falls through returning 0.0).
 // 
 float
-coot::pi_stacking_container_t::get_pi_overlap_to_ligand_cation(mmdb::Residue *res,
-							       const clipper::Coord_orth &pt) const {
+pli::pi_stacking_container_t::get_pi_overlap_to_ligand_cation(mmdb::Residue *res,
+                                                              const clipper::Coord_orth &pt) const {
 
    float score = 0.0;
    std::string res_name(res->GetResName());
@@ -431,10 +431,10 @@ coot::pi_stacking_container_t::get_pi_overlap_to_ligand_cation(mmdb::Residue *re
 // 7.8  -0.05
 // 
 float
-coot::pi_stacking_container_t::overlap_of_pi_spheres(const clipper::Coord_orth &pt_1,
-						     const clipper::Coord_orth &pt_2,
-						     const double &m1_pt_1, const double &m2_pt_1,
-						     const double &m1_pt_2, const double &m2_pt_2) const {
+pli::pi_stacking_container_t::overlap_of_pi_spheres(const clipper::Coord_orth &pt_1,
+                                                    const clipper::Coord_orth &pt_2,
+                                                    const double &m1_pt_1, const double &m2_pt_1,
+                                                    const double &m1_pt_2, const double &m2_pt_2) const {
 
    // 0.78 exp(-|r-V|^2) where r is a point in space and V is the
    // normally extended ring centre point.  Return the "integral of
@@ -474,7 +474,7 @@ coot::pi_stacking_container_t::overlap_of_pi_spheres(const clipper::Coord_orth &
 // res_ref, or lsq plane normal goes bad.
 // 
 std::pair<clipper::Coord_orth, clipper::Coord_orth>
-coot::pi_stacking_container_t::get_ring_pi_centre_points(const std::vector<std::string> &ring_atom_names,
+pli::pi_stacking_container_t::get_ring_pi_centre_points(const std::vector<std::string> &ring_atom_names,
 							 mmdb::Residue *res_ref) const {
    // dummy points, overwritten.
    clipper::Coord_orth pt_1(0,0,0);
@@ -524,7 +524,7 @@ coot::pi_stacking_container_t::get_ring_pi_centre_points(const std::vector<std::
 // can throw an exception if not enough points found in pts.
 //
 std::pair<clipper::Coord_orth, clipper::Coord_orth>
-coot::pi_stacking_container_t::ring_centre_and_normal(const std::vector<clipper::Coord_orth> &pts) const {
+pli::pi_stacking_container_t::ring_centre_and_normal(const std::vector<clipper::Coord_orth> &pts) const {
 
    clipper::Coord_orth centre(0,0,0);
    clipper::Coord_orth normal(0,0,0);
@@ -589,7 +589,7 @@ coot::pi_stacking_container_t::ring_centre_and_normal(const std::vector<clipper:
 // Don't forget RNA and DNA! FIXME
 //
 std::vector<std::vector<std::string> >
-coot::pi_stacking_container_t::ring_atom_names(const std::string &residue_name) const {
+pli::pi_stacking_container_t::ring_atom_names(const std::string &residue_name) const {
 
    std::vector<std::vector<std::string> > v_outer;
    if ((residue_name == "PHE") || (residue_name == "TYR") || (residue_name == "PTY")) {
@@ -720,7 +720,7 @@ coot::pi_stacking_container_t::ring_atom_names(const std::string &residue_name) 
 
 
 std::vector<clipper::Coord_orth>
-coot::pi_stacking_container_t::get_cation_atom_positions(mmdb::Residue *res) const {
+pli::pi_stacking_container_t::get_cation_atom_positions(mmdb::Residue *res) const {
    
    std::vector<clipper::Coord_orth> v;
 
@@ -762,7 +762,7 @@ coot::pi_stacking_container_t::get_cation_atom_positions(mmdb::Residue *res) con
 }
 
 float
-coot::pi_stacking_container_t::overlap_of_cation_pi(const clipper::Coord_orth &ligand_pi_point,
+pli::pi_stacking_container_t::overlap_of_cation_pi(const clipper::Coord_orth &ligand_pi_point,
 						    const clipper::Coord_orth &cation_atom_point) const {
 
    // multipliers follow the order of the atom/control points
@@ -777,8 +777,8 @@ coot::pi_stacking_container_t::overlap_of_cation_pi(const clipper::Coord_orth &l
 
 
 std::ostream&
-coot::operator<<(std::ostream& s, const pi_stacking_instance_t &stack) {
-   
+pli::operator<<(std::ostream& s, const pi_stacking_instance_t &stack) {
+
    std::string st_type = "UNKNOWN";
    if (stack.type == pi_stacking_instance_t::NO_STACKING)        st_type = "NO_STACKING";
    if (stack.type == pi_stacking_instance_t::PI_PI_STACKING)     st_type = "PI_PI_STACKING";

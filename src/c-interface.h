@@ -2267,7 +2267,7 @@ void set_colour_map_rotation_for_map(float f); /* "global"/default */
 /*! \brief set the colour map rotation for molecule number imol
 
 theta is in degrees */
-void  set_molecule_bonds_colour_map_rotation(int imol, float theta);
+void set_molecule_bonds_colour_map_rotation(int imol, float theta);
 
 /*! \brief Get the colour map rotation for molecule number imol */
 float get_molecule_bonds_colour_map_rotation(int imol);

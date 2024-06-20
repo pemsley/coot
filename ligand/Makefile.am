@@ -181,13 +181,14 @@ coot_make_ligands_db_LDADD = ./libcoot-ligand.la \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
         $(top_builddir)/analysis/libcoot-analysis.la	   \
-	$(top_builddir)/compat/libcoot-compat.la
+	$(top_builddir)/compat/libcoot-compat.la           \
+        $(RDKIT_LIBS)
 
 coot_identify_protein_bin_SOURCES = identify-protein.cc
 
 
 # Why do I need to add lidia-core here? It's already added to libcoot-coord-utils.
-coot_identify_protein_bin_LDADD = ./libcoot-ligand.la           \
+coot_identify_protein_bin_LDADD = ./libcoot-ligand.la      \
 	$(top_builddir)/ideal/libcoot-ideal.la             \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
@@ -195,7 +196,6 @@ coot_identify_protein_bin_LDADD = ./libcoot-ligand.la           \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/utils/libcoot-utils.la             \
         $(CLIPPER_LIBS) $(MMDB_LIBS)
-
 
 
 ligand_percentiles_SOURCES = ligand-percentiles.cc

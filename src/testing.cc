@@ -2578,7 +2578,7 @@ int test_flev_aromatics() {
 	 coot::residues_near_residue(res_ref, atom_sel.mol, residues_near_radius);
       std::pair<bool, coot::dictionary_residue_restraints_t> p =
 	 t.geom.get_monomer_restraints("5GP", 0);
-      coot::pi_stacking_container_t pi_stack_info(p.second, residues, res_ref);
+      pli::pi_stacking_container_t pi_stack_info(p.second, residues, res_ref);
 
       if (pi_stack_info.stackings.size() > 0)
 	 status = 1;
