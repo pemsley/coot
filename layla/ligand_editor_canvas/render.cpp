@@ -531,6 +531,7 @@ Renderer::TextSize Renderer::measure_text(const Renderer::TextSpan& text) {
     // }
     if(this->tm_cache) {
         this->tm_cache->add(text_hash.value(), ret);
+        g_debug("TextSpan added to cache.");
     }
     return ret;
     #endif
