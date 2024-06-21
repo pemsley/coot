@@ -103,7 +103,17 @@ const QED::QEDproperties QED::WEIGHT_MAX = QEDproperties({0.50, 0.25, 0.00, 0.50
 const QED::QEDproperties QED::WEIGHT_MEAN = QEDproperties({0.66, 0.46, 0.05, 0.61, 0.06, 0.65, 0.48, 0.95});
 const QED::QEDproperties QED::WEIGHT_NONE = QEDproperties({1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00});
 
-const std::unique_ptr<const ::RDKit::ROMol> QED::AliphaticRings = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::SmartsToMol("[$([A;R][!a])]"));
+auto make_aliphatic_rings() ->  std::unique_ptr<const ::RDKit::ROMol> {
+    auto ret = std::unique_ptr<const ::RDKit::ROMol>(nullptr);
+    try {
+        ret = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::SmartsToMol("[$([A;R][!a])]"));
+    } catch(const std::exception& e) {
+        g_warning("QED make_structural_alerts(): failed to initialize static const: %s", e.what());
+    }
+    return ret;
+}
+
+const std::unique_ptr<const ::RDKit::ROMol> QED::AliphaticRings = make_aliphatic_rings();
 
 const std::vector<std::unique_ptr<const ::RDKit::ROMol>> QED::Acceptors = impl::make_acceptors();
 const std::vector<std::unique_ptr<const ::RDKit::ROMol>> QED::StructuralAlerts = impl::make_structural_alerts();
