@@ -560,11 +560,11 @@ void coot_ligand_editor_canvas_set_active_tool(CootLigandEditorCanvas* self, std
     self->active_tool->on_load();
 }
 
-void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
+int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
     if(rdkit_mol->getNumAtoms() == 0) {
         self->update_status("Attempted to add an empty molecule!");
         g_warning("Attempted to add an empty molecule!");
-        return;
+        return -1;
     }
     try {
         g_debug("Appending new molecule to the widget...");
@@ -587,6 +587,7 @@ void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std
         self->finalize_edition();
         self->queue_redraw();
         self->update_status("Molecule inserted.");
+        return self->rdkit_molecules->size() - 1;
     }catch(std::exception& e) {
         std::string msg = "2D representation could not be created: ";
         msg += e.what();
@@ -594,6 +595,7 @@ void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std
         g_warning("coot_ligand_editor_canvas_append_molecule: %s",msg.c_str());
         self->update_status(msg.c_str());
         self->rollback_current_edition();
+        return -1;
     }
 }
 
