@@ -626,6 +626,14 @@ unsigned int coot_ligand_editor_canvas_get_molecule_count(CootLigandEditorCanvas
     return self->get_molecule_count_impl();
 }
 
+unsigned int coot_ligand_editor_canvas_get_idx_of_first_molecule(CootLigandEditorCanvas* self) noexcept {
+    return self->get_first_molecule_idx();
+}
+
+unsigned int coot_ligand_editor_canvas_get_max_molecule_idx(CootLigandEditorCanvas* self) noexcept {
+    return self->molecules->size() - 1;
+}
+
 void coot_ligand_editor_canvas_set_allow_invalid_molecules(CootLigandEditorCanvas* self, bool value) noexcept {
     self->allow_invalid_molecules = value;
 }

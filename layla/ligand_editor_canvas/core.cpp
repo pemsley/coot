@@ -247,7 +247,7 @@ coot::ligand_editor_canvas::SmilesMap WidgetCoreData::build_smiles() const {
             ret.emplace(idx, RDKit::MolToSmiles(*mol_ptr));
         }
     };
-    
+
     while(it != this->rdkit_molecules->cend()) {
         append_smiles();
         it++;
@@ -350,6 +350,14 @@ void CootLigandEditorCanvas::redo() noexcept {
 
 unsigned int CootLigandEditorCanvas::get_molecule_count() noexcept {
     return coot_ligand_editor_canvas_get_molecule_count(this);
+}
+
+unsigned int CootLigandEditorCanvas::get_idx_of_first_molecule() noexcept {
+    return coot_ligand_editor_canvas_get_idx_of_first_molecule(this);
+}
+
+unsigned int CootLigandEditorCanvas::get_max_molecule_idx() noexcept {
+    return coot_ligand_editor_canvas_get_max_molecule_idx(this);
 }
 
 void CootLigandEditorCanvas::set_allow_invalid_molecules(bool value) noexcept {

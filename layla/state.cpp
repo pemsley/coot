@@ -516,7 +516,8 @@ void LaylaState::run_file_save_dialog(unsigned int molecule_idx) noexcept {
 void LaylaState::file_save_as() {
     auto mol_count = coot_ligand_editor_canvas_get_molecule_count(this->canvas);
     if(mol_count == 1) {
-        run_file_save_dialog(0);
+        auto m_idx = coot_ligand_editor_canvas_get_idx_of_first_molecule(this->canvas);
+        run_file_save_dialog(m_idx);
     } else if(mol_count == 0) {
         update_status("Nothing to be saved!");
     } else {
@@ -532,7 +533,8 @@ void LaylaState::file_save_as() {
         auto* mol_chooser_list_box = gtk_list_box_new();
         gtk_box_append(GTK_BOX(mol_chooser_box), mol_chooser_list_box);
 
-        for(unsigned int i = 0; i < mol_count; i++) {
+        auto max_mol_id = coot_ligand_editor_canvas_get_max_molecule_idx(this->canvas);
+        for(unsigned int i = 0; i <= max_mol_id; i++) {
             auto label_str = coot_ligand_editor_canvas_get_smiles_for_molecule(this->canvas,i);
             auto* label = gtk_label_new(label_str.c_str());
             gtk_list_box_append(GTK_LIST_BOX(mol_chooser_list_box),label);

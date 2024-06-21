@@ -78,9 +78,11 @@ layla_on_apply(GtkButton* button, gpointer user_data) {
     } else {
         gtk_widget_set_sensitive(GTK_WIDGET(accept_button), TRUE);
     }
-    for(unsigned int i = 0; i != coot_ligand_editor_canvas_get_molecule_count(canvas); i++) {
+    for(unsigned int i = 0; i <= coot_ligand_editor_canvas_get_max_molecule_idx(canvas); i++) {
         std::string smiles = coot_ligand_editor_canvas_get_smiles_for_molecule(canvas, i);
-        gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(molecule_combobox), smiles.c_str());
+        if(smiles != "") {
+            gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(molecule_combobox), smiles.c_str());
+        }
     }
 
     set_default_value(GTK_COMBO_BOX(monomer_id_combobox));
