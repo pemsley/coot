@@ -137,9 +137,9 @@ void ActiveTool::on_click(bool ctrl_pressed, int x, int y, bool right_click) {
     auto click_result = this->widget_data->resolve_click(x, y);
     if(click_result.has_value()) {
         try{
-            auto [bond_or_atom,molecule_idx] = click_result.value();
-            auto& rdkit_mol = this->widget_data->rdkit_molecules->at(molecule_idx);
-            auto& canvas_mol = this->widget_data->molecules->at(molecule_idx);
+            auto [bond_or_atom,molecule_idx] = *click_result;
+            auto& rdkit_mol = *this->widget_data->rdkit_molecules->at(molecule_idx);
+            auto& canvas_mol = *this->widget_data->molecules->at(molecule_idx);
             Tool::MoleculeClickContext mctx(ctx, molecule_idx, rdkit_mol, canvas_mol);
             if(!right_click) {
                 if(!this->tool->on_molecule_click(mctx)) {
@@ -323,7 +323,7 @@ void TransformManager::apply_current_transform_state(impl::WidgetCoreData* widge
     if(!this->canvas_mol_idx.has_value()) {
         return;
     }
-    auto& mol = widget_data->molecules->at(this->canvas_mol_idx.value());
+    auto& mol = *widget_data->molecules->at(this->canvas_mol_idx.value());
     const RotationState* rot = std::get_if<RotationState>(&this->state);
     if(rot) {
         auto angle = rot->get_current_angle_diff(snap_to_angle);
@@ -521,7 +521,7 @@ void BondModifier::on_release(ClickContext& ctx, int x, int y) {
 
     if(click_result.has_value()) {
         try{
-            auto [bond_or_atom,molecule_idx] = click_result.value();
+            auto [bond_or_atom,molecule_idx] = *click_result;
             if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
                 auto second_atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
                 if(original_molecule_idx != molecule_idx) {
@@ -529,7 +529,7 @@ void BondModifier::on_release(ClickContext& ctx, int x, int y) {
                     widget_data.rollback_current_edition();
                     return;
                 }
-                auto& rdkit_mol = widget_data.rdkit_molecules->at(molecule_idx);
+                auto& rdkit_mol = *widget_data.rdkit_molecules->at(molecule_idx);
                 RDKit::MolOps::Kekulize(*rdkit_mol.get());
                 if(first_atom_idx == second_atom.idx) {
                     auto* new_atom = new RDKit::Atom(6);
@@ -542,7 +542,7 @@ void BondModifier::on_release(ClickContext& ctx, int x, int y) {
                     widget_data.update_status("Created new bond between atoms.");
                 }
                 this->sanitize_molecule(widget_data, *rdkit_mol.get());
-                auto& canvas_mol = widget_data.molecules->at(molecule_idx);
+                auto& canvas_mol = *widget_data.molecules->at(molecule_idx);
                 canvas_mol.lower_from_rdkit(!widget_data.allow_invalid_molecules);
                 widget_data.finalize_edition();
             } else {
@@ -845,7 +845,7 @@ std::string StructureInsertion::get_exception_message_prefix() const noexcept {
 
 void StructureInsertion::on_blank_space_click(ClickContext& ctx, int x, int y) {
     g_debug("The click could not be resolved to any atom or bond.");
-    if(ctx.widget_data.rdkit_molecules->empty()) {
+    if(ctx.widget_data.get_molecule_count_impl() == 0) {
         g_debug("There are no molecules. Structure insertion will therefore create a new one.");
         auto rdkit_mol = std::make_shared<RDKit::RWMol>();
         rdkit_mol->addAtom(new RDKit::Atom(6),false,true);
@@ -880,9 +880,10 @@ bool RemoveHydrogensTool::on_molecule_click(MoleculeClickContext& ctx) {
 }
 
 void RemoveHydrogensTool::on_load(impl::WidgetCoreData& widget_data) {
-    if(widget_data.molecules->size() == 1) {
-        auto& canvas_mol = widget_data.molecules->at(0);
-        auto& rdkit_mol = widget_data.rdkit_molecules->at(0);
+    if(widget_data.get_molecule_count_impl() == 1) {
+        auto idx_of_first = widget_data.get_first_molecule_idx();
+        auto& canvas_mol = *widget_data.molecules->at(idx_of_first);
+        auto& rdkit_mol = *widget_data.rdkit_molecules->at(idx_of_first);
         ClickContext ctx(widget_data);
         ctx.control_pressed = false;
         MoleculeClickContext mctx(ctx, 0, rdkit_mol, canvas_mol);
@@ -895,9 +896,10 @@ std::string RemoveHydrogensTool::get_exception_message_prefix() const noexcept {
 }
 
 void FlipTool::on_load(impl::WidgetCoreData& widget_data) {
-    if(widget_data.molecules->size() == 1) {
-        auto& canvas_mol = widget_data.molecules->at(0);
-        auto& rdkit_mol = widget_data.rdkit_molecules->at(0);
+    if(widget_data.get_molecule_count_impl() == 1) {
+        auto idx_of_first = widget_data.get_first_molecule_idx();
+        auto& canvas_mol = *widget_data.molecules->at(idx_of_first);
+        auto& rdkit_mol = *widget_data.rdkit_molecules->at(idx_of_first);
         ClickContext ctx(widget_data);
         ctx.control_pressed = false;
         MoleculeClickContext mctx(ctx, 0, rdkit_mol, canvas_mol);
@@ -919,9 +921,10 @@ std::string FlipTool::get_exception_message_prefix() const noexcept {
 }
 
 void FormatTool::on_load(impl::WidgetCoreData& widget_data) {
-    if(widget_data.molecules->size() == 1) {
-        auto& canvas_mol = widget_data.molecules->at(0);
-        auto& rdkit_mol = widget_data.rdkit_molecules->at(0);
+    if(widget_data.get_molecule_count_impl() == 1) {
+        auto idx_of_first = widget_data.get_first_molecule_idx();
+        auto& canvas_mol = *widget_data.molecules->at(idx_of_first);
+        auto& rdkit_mol = *widget_data.rdkit_molecules->at(idx_of_first);
         ClickContext ctx(widget_data);
         ctx.control_pressed = false;
         MoleculeClickContext mctx(ctx, 0, rdkit_mol, canvas_mol);

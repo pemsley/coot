@@ -27,6 +27,7 @@
 
 #include <memory>
 #include <vector>
+#include <optional>
 #include "render.hpp"
 #include "model.hpp"
 #include "tools.hpp"
@@ -83,8 +84,8 @@ struct CootLigandEditorCanvasPrivBase {
 
 
 struct StateSnapshot {
-    std::unique_ptr<std::vector<CanvasMolecule>> molecules;
-    std::unique_ptr<std::vector<std::shared_ptr<RDKit::RWMol>>> rdkit_molecules;
+    std::unique_ptr<std::vector<std::optional<CanvasMolecule>>> molecules;
+    std::unique_ptr<std::vector<std::optional<std::shared_ptr<RDKit::RWMol>>>> rdkit_molecules;
 
     StateSnapshot(const WidgetCoreData& core_data);
 };
@@ -118,9 +119,9 @@ struct WidgetCoreData {
 
     public:
     /// molecules on the screen
-    std::unique_ptr<std::vector<CanvasMolecule>> molecules;
+    std::unique_ptr<std::vector<std::optional<CanvasMolecule>>> molecules;
     /// molecules (RDKit)
-    std::unique_ptr<std::vector<std::shared_ptr<RDKit::RWMol>>> rdkit_molecules;
+    std::unique_ptr<std::vector<std::optional<std::shared_ptr<RDKit::RWMol>>>> rdkit_molecules;
     /// Bond being currently created via click'n'drag
     std::optional<CurrentlyCreatedBond> currently_created_bond;
 
@@ -176,6 +177,10 @@ struct WidgetCoreData {
     void emit_mutation_signals() const noexcept;
 
     std::string build_smiles_string() const;
+
+    unsigned int get_molecule_count_impl() const noexcept;
+    /// Returns -1 if none
+    int get_first_molecule_idx() const noexcept;
 
     /// Abstraction over gtk_widget_queue_draw
     void queue_redraw() const noexcept;
