@@ -103,6 +103,18 @@ int show_paths_in_display_manager_state() {
    return graphics_info_t::show_paths_in_display_manager_flag;
 }
 
+/*! \brief set the GUI dark mode state
+ */
+void set_use_dark_mode(short int state) {
+
+   if (state)
+      g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
+   else
+      g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", FALSE, NULL);
+
+}
+
+
 
 /*! \brief display the open coordinates dialog */
 void open_coords_dialog() {
