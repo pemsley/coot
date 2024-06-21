@@ -1023,7 +1023,7 @@ int new_startup(int argc, char **argv) {
    GtkWidget *splash_screen = new_startup_create_splash_screen_window();
    gtk_widget_set_visible(splash_screen, TRUE);
 
-   g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
+   // g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
 
    // Here's how you access that:
    // gboolean dark_mode_flag = FALSE;
