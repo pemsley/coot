@@ -329,7 +329,7 @@ void TransformManager::apply_current_transform_state(impl::WidgetCoreData* widge
         auto angle = rot->get_current_angle_diff(snap_to_angle);
         auto abs_angle = rot->get_current_absolute_angle(snap_to_angle) / M_PI * 180;
         mol.rotate_by_angle(angle);
-        mol.lower_from_rdkit(!widget_data->allow_invalid_molecules);
+        mol.lower_from_rdkit(!widget_data->allow_invalid_molecules, false);
         std::string msg;
         if (about_to_end) {
             msg = "Molecule rotated by: " + std::to_string(abs_angle) + " degrees.";
@@ -932,7 +932,7 @@ void FormatTool::on_load(impl::WidgetCoreData& widget_data) {
 bool FormatTool::on_molecule_click(MoleculeClickContext& ctx) {
     ctx.widget_data.begin_edition();
     ctx.canvas_mol.clear_cached_atom_coordinate_map();
-    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules);
+    ctx.canvas_mol.lower_from_rdkit(!ctx.widget_data.allow_invalid_molecules, false);
     ctx.widget_data.finalize_edition();
     ctx.widget_data.update_status("Molecule has been formatted.");
     return false;
