@@ -285,8 +285,8 @@ void CootLigandEditorCanvas::set_active_tool(std::unique_ptr<coot::ligand_editor
     coot_ligand_editor_canvas_set_active_tool(this, std::move(active_tool));
 }
 
-void CootLigandEditorCanvas::append_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
-    coot_ligand_editor_canvas_append_molecule(this, std::move(rdkit_mol));
+int CootLigandEditorCanvas::append_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
+    return coot_ligand_editor_canvas_append_molecule(this, std::move(rdkit_mol));
 }
 
 void CootLigandEditorCanvas::set_scale(float scale) noexcept {
