@@ -206,18 +206,22 @@ void WidgetCoreData::finalize_edition() {
     }
 }
 
-void WidgetCoreData::delete_molecule_with_idx(unsigned int idx) noexcept {
+void WidgetCoreData::delete_molecule_with_idx(unsigned int idx, bool integrate_with_edit_undo) noexcept {
     if(idx >= this->rdkit_molecules->size()) {
         return;
     }
     auto& mol = this->molecules->at(idx);
     if(mol.has_value()) {
-        this->begin_edition();
+        if(integrate_with_edit_undo) {
+            this->begin_edition();
+        }
         mol = std::nullopt;
         this->rdkit_molecules->at(idx) = std::nullopt;
 
-        this->finalize_edition();
-        this->update_status("Molecule deleted.");
+        if(integrate_with_edit_undo) {
+            this->finalize_edition();
+            this->update_status("Molecule deleted.");
+        }
 
         // Already called by finalize_edition()
         // this->queue_redraw();

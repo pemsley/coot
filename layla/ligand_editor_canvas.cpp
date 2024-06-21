@@ -689,7 +689,13 @@ void coot_ligand_editor_canvas_draw_on_cairo_surface(CootLigandEditorCanvas* sel
 
 void coot_ligand_editor_canvas_clear_molecules(CootLigandEditorCanvas* self) noexcept {
     self->begin_edition();
-    // todo: mol deleted signals!
+    unsigned int idx = 0;
+    for(const auto& mol_opt: *self->molecules) {
+        if(mol_opt.has_value()) {
+            self->delete_molecule_with_idx(idx, false);
+        }
+        idx++;
+    }
     self->rdkit_molecules->clear();
     self->molecules->clear();
     self->finalize_edition();

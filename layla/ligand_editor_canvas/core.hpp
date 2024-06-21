@@ -168,7 +168,7 @@ struct WidgetCoreData {
     /// If nothing matches the coordinates, nullopt is returned.
     MaybeAtomOrBondWithMolIdx resolve_click(int x, int y) const noexcept;
 
-    void delete_molecule_with_idx(unsigned int idx) noexcept;
+    void delete_molecule_with_idx(unsigned int idx, bool integrate_with_edit_undo = true) noexcept;
 
     /// Emits 'status-updated' signal.
     void update_status(const char* status_text) const noexcept;
