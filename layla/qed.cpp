@@ -161,6 +161,9 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
 
     auto get_hba = [&mol, has_substruct_match](){
         unsigned int ret = 0;
+        if(Acceptors.empty()) {
+            g_warning("QED: Acceptors is empty. Number of hydrogen bonds acceptors will be incorrect.");
+        }
         for(const auto& pattern: Acceptors) {
             if(has_substruct_match(*mol, *pattern)) {
                 std::vector<::RDKit::MatchVectType> _matches;
@@ -170,7 +173,11 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
         }
         return ret;
     };
-    auto get_arom = [&mol](){
+    auto get_arom = [&mol]() -> unsigned int {
+        if(!AliphaticRings) {
+            g_warning("QED: AromaticRings is null. Number of aromatic rings will be incorrect.");
+            return 0;
+        }
         auto rmol = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::deleteSubstructs(*mol, *AliphaticRings));
         /// Replaces Chem.GetSSSR
         std::vector<std::vector<int>> rings;
@@ -179,6 +186,9 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     };
     auto get_alerts = [&mol, has_substruct_match](){
         unsigned int ret = 0;
+        if(StructuralAlerts.empty()) {
+            g_warning("QED: StructuralAlerts is empty. Number of alerts will be incorrect.");
+        }
         for(const auto& alert: StructuralAlerts) {
             if(has_substruct_match(*mol, *alert)) {
                 ret += 1;
