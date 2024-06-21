@@ -63,6 +63,8 @@ enum class DisplayMode: unsigned char {
     AtomNames
 };
 
+typedef std::map<unsigned int, std::string> SmilesMap;
+
 const char* display_mode_to_string(DisplayMode mode) noexcept;
 std::optional<DisplayMode> display_mode_from_string(const char*) noexcept;
 

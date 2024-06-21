@@ -176,7 +176,7 @@ struct WidgetCoreData {
     /// Emits the 'smiles-changed' and 'qed-info-updated' signal
     void emit_mutation_signals() const noexcept;
 
-    std::string build_smiles_string() const;
+    coot::ligand_editor_canvas::SmilesMap build_smiles() const;
 
     unsigned int get_molecule_count_impl() const noexcept;
     /// Returns -1 if none
@@ -246,7 +246,7 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     bool get_allow_invalid_molecules() noexcept;
     coot::ligand_editor_canvas::DisplayMode get_display_mode() noexcept;
     void set_display_mode(coot::ligand_editor_canvas::DisplayMode value) noexcept;
-    std::string get_smiles() noexcept;
+    coot::ligand_editor_canvas::SmilesMap get_smiles() noexcept;
     std::string get_smiles_for_molecule(unsigned int molecule_idx) noexcept;
     std::string get_pickled_molecule(unsigned int molecule_idx) noexcept;
     std::string get_pickled_molecule_base64(unsigned int molecule_idx) noexcept;

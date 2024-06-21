@@ -213,6 +213,9 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .field("alogp", &CanvasMolecule::QEDInfo::alogp)
     .field("molecular_polar_surface_area", &CanvasMolecule::QEDInfo::molecular_polar_surface_area);
   class_<impl::WidgetCoreData>("ImplWidgetCoreData");
+  register_map<unsigned int, std::string>("SmilesMap");
+  // Without this, Emscripten errors out
+  register_vector<unsigned int>("DummyUintVector");
   class_<CootLigandEditorCanvas, base<impl::WidgetCoreData>>("Canvas")
     .constructor<>()
     .function("set_active_tool", &CootLigandEditorCanvas::set_active_tool)

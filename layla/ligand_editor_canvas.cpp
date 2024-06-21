@@ -643,8 +643,8 @@ void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, Di
     self->queue_redraw();
 }
 
-std::string coot_ligand_editor_canvas_get_smiles(CootLigandEditorCanvas* self) noexcept {
-    return self->build_smiles_string();
+coot::ligand_editor_canvas::SmilesMap coot_ligand_editor_canvas_get_smiles(CootLigandEditorCanvas* self) noexcept {
+    return self->build_smiles();
 }
 
 std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {

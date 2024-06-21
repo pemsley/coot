@@ -235,22 +235,23 @@ void WidgetCoreData::delete_molecule_with_idx(unsigned int idx, bool integrate_w
     }
 }
 
-std::string WidgetCoreData::build_smiles_string() const {
-    std::string ret;
+coot::ligand_editor_canvas::SmilesMap WidgetCoreData::build_smiles() const {
+    coot::ligand_editor_canvas::SmilesMap ret;
     auto it = this->rdkit_molecules->cbegin();
+    unsigned int idx = 0;
+
     auto append_smiles = [&](){
-        // RDKit::RWMol* mol_ptr = it->get();
-        // ret += RDKit::MolToSmiles(*mol_ptr);
-        
+        const auto& mol_ptr_opt = *it;
+        if(mol_ptr_opt.has_value()) {
+            RDKit::RWMol* mol_ptr = mol_ptr_opt->get();
+            ret.emplace(idx, RDKit::MolToSmiles(*mol_ptr));
+        }
     };
-    if(it != this->rdkit_molecules->cend()) {
-        append_smiles();
-        it++;
-    }
+    
     while(it != this->rdkit_molecules->cend()) {
-        ret.push_back('\n');
         append_smiles();
         it++;
+        idx++;
     }
     return ret;
 }
@@ -367,7 +368,7 @@ void CootLigandEditorCanvas::set_display_mode(coot::ligand_editor_canvas::Displa
     coot_ligand_editor_canvas_set_display_mode(this, value);
 }
 
-std::string CootLigandEditorCanvas::get_smiles() noexcept {
+coot::ligand_editor_canvas::SmilesMap CootLigandEditorCanvas::get_smiles() noexcept {
     return coot_ligand_editor_canvas_get_smiles(this);
 }
 
