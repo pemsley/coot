@@ -151,7 +151,7 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
         auto smiles_map = coot_ligand_editor_canvas_get_smiles(self);
         std::string smiles;
         for(const auto& [mol_idx, smiles_code] : smiles_map) {
-            smiles += std::to_string(mol_idx) + ":" + smiles_code + "\n";
+            smiles += std::to_string(mol_idx) + ": " + smiles_code + "\n";
         }
         GtkTextBuffer* buf = gtk_text_view_get_buffer(view);
         gtk_text_buffer_set_text(buf,smiles.c_str(),-1);
