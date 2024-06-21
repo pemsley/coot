@@ -52,16 +52,10 @@ LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, Gt
         LaylaState* state = (LaylaState*) user_data;
         if (state->current_filesave_molecule.has_value()) {
             unsigned int idx = state->current_filesave_molecule.value();
-            if(idx > deleted_mol_idx) {
-                // The "current" molecule still exists.
-                // Just decrement the index.
-                state->current_filesave_molecule = idx - 1;
-            } else if(idx == deleted_mol_idx) {
+            if(idx == deleted_mol_idx) {
                 // The "current" molecule no longer exists
                 state->current_filesave_molecule = std::nullopt;
                 state->current_filesave_filename = std::nullopt;
-            } else {
-                // The "current" molecule idx is not affected
             }
         }
     }), this);
@@ -137,9 +131,9 @@ void LaylaState::update_status(const char* new_status) noexcept {
     }
 }
 
-void LaylaState::append_molecule(RDKit::RWMol* molecule_ptr) {
+int LaylaState::append_molecule(RDKit::RWMol* molecule_ptr) {
     RDKit::MolOps::sanitizeMol(*molecule_ptr);
-    coot_ligand_editor_canvas_append_molecule(this->canvas, std::shared_ptr<RDKit::RWMol>(molecule_ptr));
+    return coot_ligand_editor_canvas_append_molecule(this->canvas, std::shared_ptr<RDKit::RWMol>(molecule_ptr));
 }
 
 void LaylaState::load_from_smiles() {
@@ -284,8 +278,10 @@ void LaylaState::file_import_molecule() {
                     remove_non_polar_hydrogens(*mol);
                 }
                 RDKit::MolOps::sanitizeMol(*mol);
-                self->append_molecule(mol.release());
-                self->current_filesave_molecule = coot_ligand_editor_canvas_get_molecule_count(self->canvas) - 1;
+                int new_mol_id = self->append_molecule(mol.release());
+                if(new_mol_id >= 0) {
+                    self->current_filesave_molecule = static_cast<unsigned int>(new_mol_id);
+                }
                 gtk_window_destroy(GTK_WINDOW(dialog));
                 g_slice_free(ImportDialogWidgets, user_data);
             } else {
@@ -419,9 +415,11 @@ void LaylaState::file_fetch_molecule() {
                     throw std::runtime_error("RDKit::RWMol* is a nullptr. The MolFile could not be loaded.");
                 }
                 g_info("Molecule Fetch: Molecule constructed.");
-                self->append_molecule(mol);
-                self->current_filesave_molecule = coot_ligand_editor_canvas_get_molecule_count(self->canvas) - 1;
-                self->current_filesave_filename = res;
+                int new_mol_id = self->append_molecule(mol);
+                if(new_mol_id >= 0) {
+                    self->current_filesave_molecule = static_cast<unsigned int>(new_mol_id);
+                    self->current_filesave_filename = res;
+                }
                 gtk_window_destroy(GTK_WINDOW(dialog));
                 // todo: optionally delete the file
             } catch(std::exception& e) {
@@ -518,7 +516,8 @@ void LaylaState::run_file_save_dialog(unsigned int molecule_idx) noexcept {
 void LaylaState::file_save_as() {
     auto mol_count = coot_ligand_editor_canvas_get_molecule_count(this->canvas);
     if(mol_count == 1) {
-        run_file_save_dialog(0);
+        auto m_idx = coot_ligand_editor_canvas_get_idx_of_first_molecule(this->canvas);
+        run_file_save_dialog(m_idx);
     } else if(mol_count == 0) {
         update_status("Nothing to be saved!");
     } else {
@@ -534,7 +533,8 @@ void LaylaState::file_save_as() {
         auto* mol_chooser_list_box = gtk_list_box_new();
         gtk_box_append(GTK_BOX(mol_chooser_box), mol_chooser_list_box);
 
-        for(unsigned int i = 0; i < mol_count; i++) {
+        auto max_mol_id = coot_ligand_editor_canvas_get_max_molecule_idx(this->canvas);
+        for(unsigned int i = 0; i <= max_mol_id; i++) {
             auto label_str = coot_ligand_editor_canvas_get_smiles_for_molecule(this->canvas,i);
             auto* label = gtk_label_new(label_str.c_str());
             gtk_list_box_append(GTK_LIST_BOX(mol_chooser_list_box),label);
@@ -599,9 +599,11 @@ void LaylaState::file_open() {
                     throw std::runtime_error("RDKit::RWMol* is a nullptr. The MolFile could not be loaded.");
                 }
                 g_info("MolFile Import: Molecule constructed.");
-                self->append_molecule(mol);
-                self->current_filesave_molecule = coot_ligand_editor_canvas_get_molecule_count(self->canvas) - 1;
-                self->current_filesave_filename = std::string(path);
+                int new_mol_id = self->append_molecule(mol);
+                if(new_mol_id >= 0) {
+                    self->current_filesave_molecule = static_cast<unsigned int>(new_mol_id);
+                    self->current_filesave_filename = std::string(path);
+                }
             } catch(std::exception& e) {
                 g_warning("MolFile Import error: %s",e.what());
                 auto* message = gtk_message_dialog_new(

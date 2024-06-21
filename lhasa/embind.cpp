@@ -213,6 +213,9 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .field("alogp", &CanvasMolecule::QEDInfo::alogp)
     .field("molecular_polar_surface_area", &CanvasMolecule::QEDInfo::molecular_polar_surface_area);
   class_<impl::WidgetCoreData>("ImplWidgetCoreData");
+  register_map<unsigned int, std::string>("SmilesMap");
+  // Without this, Emscripten errors out
+  register_vector<unsigned int>("MoleculeIdVector");
   class_<CootLigandEditorCanvas, base<impl::WidgetCoreData>>("Canvas")
     .constructor<>()
     .function("set_active_tool", &CootLigandEditorCanvas::set_active_tool)
@@ -223,6 +226,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("undo_edition", &CootLigandEditorCanvas::undo)
     .function("redo_edition", &CootLigandEditorCanvas::redo)
     .function("get_molecule_count", &CootLigandEditorCanvas::get_molecule_count)
+    .function("get_idx_of_first_molecule", &CootLigandEditorCanvas::get_idx_of_first_molecule)
+    .function("get_max_molecule_idx", &CootLigandEditorCanvas::get_max_molecule_idx)
     .function("set_allow_invalid_molecules", &CootLigandEditorCanvas::set_allow_invalid_molecules)
     .function("get_allow_invalid_molecules", &CootLigandEditorCanvas::get_allow_invalid_molecules)
     .function("get_display_mode", &CootLigandEditorCanvas::get_display_mode)

@@ -895,7 +895,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
     this->shorten_double_bonds();
 }
 
-void CanvasMolecule::lower_from_rdkit(bool sanitize_after) {
+void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
 
     // 2. Do the lowering
 
@@ -915,7 +915,9 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after) {
     }
 
     // QED update
-    this->update_qed_info();
+    if (with_qed) {
+        this->update_qed_info();
+    }
 }
 
 void CanvasMolecule::update_qed_info() {

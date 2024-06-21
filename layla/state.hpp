@@ -67,7 +67,7 @@ class LaylaState {
 
     /// Adds the molecule to the canvas.
     /// This function takes ownership of the molecule pointer.
-    void append_molecule(RDKit::RWMol* molecule_ptr);
+    int append_molecule(RDKit::RWMol* molecule_ptr);
 
     void update_status(const char* new_status) noexcept;
 

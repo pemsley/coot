@@ -63,6 +63,8 @@ enum class DisplayMode: unsigned char {
     AtomNames
 };
 
+typedef std::map<unsigned int, std::string> SmilesMap;
+
 const char* display_mode_to_string(DisplayMode mode) noexcept;
 std::optional<DisplayMode> display_mode_from_string(const char*) noexcept;
 
@@ -279,8 +281,9 @@ class CanvasMolecule {
     /// and re-creates it from the internal RDKit::RWMol
     ///
     /// If `sanitize_after` is true, the molecule will get sanitized
-    /// after lowering
-    void lower_from_rdkit(bool sanitize_after);
+    /// after lowering.
+    /// QED gets recomputed and updated if `with_qed` is true
+    void lower_from_rdkit(bool sanitize_after, bool with_qed = true);
 
     /// Clears `cached_atom_coordinate_map`,
     /// forcing the subsequent call to `compute_molecule_geometry()`

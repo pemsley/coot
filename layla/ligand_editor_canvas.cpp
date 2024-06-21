@@ -86,8 +86,8 @@ CootLigandEditorCanvas::CootLigandEditorCanvas() noexcept {
     g_debug("Instantiating CootLigandEditorCanvas.");
     self->active_tool = std::make_unique<ActiveTool>();
     self->active_tool->set_core_widget_data(static_cast<impl::CootLigandEditorCanvasPriv*>(self));
-    self->molecules = std::make_unique<std::vector<CanvasMolecule>>();
-    self->rdkit_molecules = std::make_unique<std::vector<std::shared_ptr<RDKit::RWMol>>>();
+    self->molecules = std::make_unique<std::vector<std::optional<CanvasMolecule>>>();
+    self->rdkit_molecules = std::make_unique<std::vector<std::optional<std::shared_ptr<RDKit::RWMol>>>>();
     self->currently_created_bond = std::nullopt;
     self->state_stack = std::make_unique<impl::WidgetCoreData::StateStack>();
     self->display_mode = DisplayMode::Standard;
@@ -156,15 +156,13 @@ CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEdi
     int* natural_size = &ret.requested_size;
 #endif
     graphene_rect_t bounding_rect_for_all;
-    if(self->molecules->empty()) {
-        graphene_rect_init(&bounding_rect_for_all, 0, 0, 0, 0);
-    } else {
-        bounding_rect_for_all = self->molecules->front().get_on_screen_bounding_rect();
-    }
+    graphene_rect_init(&bounding_rect_for_all, 0, 0, 0, 0);
 
     for(const auto& a: *self->molecules) {
-        auto bounding_rect = a.get_on_screen_bounding_rect();
-        graphene_rect_union(&bounding_rect_for_all, &bounding_rect, &bounding_rect_for_all);
+        if(a.has_value()) {
+            auto bounding_rect = a->get_on_screen_bounding_rect();
+            graphene_rect_union(&bounding_rect_for_all, &bounding_rect, &bounding_rect_for_all);
+        }
     }
     switch (orientation) {
         #ifndef __EMSCRIPTEN__
@@ -220,7 +218,9 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
 
     // Clear all highlights first
     for(auto& molecule: *self->molecules) {
-        molecule.clear_highlights();
+        if(molecule.has_value())    {
+            molecule->clear_highlights();
+        }
     }
 
     if(self->active_tool->is_in_transform()) {
@@ -231,22 +231,22 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
 
     // Update position of the second atom when creating a bond
     if(self->currently_created_bond.has_value()) {
-        auto& new_bond = self->currently_created_bond.value();
+        auto& new_bond = *self->currently_created_bond;
         new_bond.second_atom_x = x;
         new_bond.second_atom_y = y;
     }
     // and set highlight for the first atom, if we're creating a new bond
     if(self->active_tool->is_creating_bond()) {
-        auto [molecule_idx, atom_idx] = self->active_tool->get_molecule_idx_and_first_atom_of_new_bond().value();
-        auto& target = (*self->molecules)[molecule_idx];
+        auto [molecule_idx, atom_idx] = *self->active_tool->get_molecule_idx_and_first_atom_of_new_bond();
+        auto& target = *(*self->molecules)[molecule_idx];
         target.highlight_atom(atom_idx);
     }
 
     // Highlights and snapping
     auto maybe_something_clicked = self->resolve_click(x, y);
     if(maybe_something_clicked.has_value()) {
-        auto [bond_or_atom,molecule_idx] = maybe_something_clicked.value();
-        auto& target = (*self->molecules)[molecule_idx];
+        auto [bond_or_atom,molecule_idx] = *maybe_something_clicked;
+        auto& target = *(*self->molecules)[molecule_idx];
         if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
             auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
             g_debug("Hovering on atom %u (%s)", atom.idx,atom.symbol.c_str());
@@ -255,7 +255,7 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
             // Snapping to the target atom
             // when creating a bond
             if(self->currently_created_bond.has_value()) {
-                auto& new_bond = self->currently_created_bond.value();
+                auto& new_bond = *self->currently_created_bond;
                 auto coords = target.get_on_screen_coords(atom.x, atom.y);
                 new_bond.second_atom_x = coords.first;
                 new_bond.second_atom_y = coords.second;
@@ -360,7 +360,7 @@ void CootLigandEditorCanvas::on_left_click(double x, double y, bool alt_pressed,
     if(self->active_tool->is_creating_bond()) {
         CurrentlyCreatedBond new_bond;
         auto [mol_idx, atom_idx] = self->active_tool->get_molecule_idx_and_first_atom_of_new_bond().value();
-        auto coords = self->molecules->at(mol_idx).get_on_screen_coords_of_atom(atom_idx).value();
+        auto coords = *self->molecules->at(mol_idx)->get_on_screen_coords_of_atom(atom_idx);
         new_bond.first_atom_x = coords.first;
         new_bond.first_atom_y = coords.second;
         new_bond.second_atom_x = coords.first;
@@ -560,25 +560,25 @@ void coot_ligand_editor_canvas_set_active_tool(CootLigandEditorCanvas* self, std
     self->active_tool->on_load();
 }
 
-void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
+int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept {
     if(rdkit_mol->getNumAtoms() == 0) {
         self->update_status("Attempted to add an empty molecule!");
         g_warning("Attempted to add an empty molecule!");
-        return;
+        return -1;
     }
     try {
         g_debug("Appending new molecule to the widget...");
         // Might throw if the constructor fails.
         self->begin_edition();
         self->molecules->push_back(CanvasMolecule(rdkit_mol));
-        self->molecules->back().set_canvas_scale(self->scale);
+        self->molecules->back()->set_canvas_scale(self->scale);
         #ifndef __EMSCRIPTEN__
-        self->molecules->back().apply_canvas_translation(
+        self->molecules->back()->apply_canvas_translation(
             gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_HORIZONTAL) / 2.0, 
             gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_VERTICAL) / 2.0
         );
         #else
-        self->molecules->back().apply_canvas_translation(
+        self->molecules->back()->apply_canvas_translation(
             self->measure(CootLigandEditorCanvas::MeasurementDirection::HORIZONTAL).requested_size / 2.0, 
             self->measure(CootLigandEditorCanvas::MeasurementDirection::VERTICAL).requested_size / 2.0
         );
@@ -587,6 +587,7 @@ void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std
         self->finalize_edition();
         self->queue_redraw();
         self->update_status("Molecule inserted.");
+        return self->rdkit_molecules->size() - 1;
     }catch(std::exception& e) {
         std::string msg = "2D representation could not be created: ";
         msg += e.what();
@@ -594,6 +595,7 @@ void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std
         g_warning("coot_ligand_editor_canvas_append_molecule: %s",msg.c_str());
         self->update_status(msg.c_str());
         self->rollback_current_edition();
+        return -1;
     }
 }
 
@@ -612,14 +614,24 @@ void coot_ligand_editor_canvas_redo_edition(CootLigandEditorCanvas* self) noexce
 const RDKit::ROMol* coot_ligand_editor_canvas_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept {
     if(self->rdkit_molecules->size() > index) {
         const auto& vec = *self->rdkit_molecules.get();
-        return vec[index].get();
-    } else {
-        return nullptr;
+        const auto& ret_opt = vec[index];
+        if(ret_opt.has_value()) {
+            return ret_opt->get();
+        }
     }
+    return nullptr;
 }
 
 unsigned int coot_ligand_editor_canvas_get_molecule_count(CootLigandEditorCanvas* self) noexcept {
-    return self->rdkit_molecules->size();
+    return self->get_molecule_count_impl();
+}
+
+unsigned int coot_ligand_editor_canvas_get_idx_of_first_molecule(CootLigandEditorCanvas* self) noexcept {
+    return self->get_first_molecule_idx();
+}
+
+unsigned int coot_ligand_editor_canvas_get_max_molecule_idx(CootLigandEditorCanvas* self) noexcept {
+    return self->molecules->size() - 1;
 }
 
 void coot_ligand_editor_canvas_set_allow_invalid_molecules(CootLigandEditorCanvas* self, bool value) noexcept {
@@ -639,22 +651,27 @@ void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, Di
     self->queue_redraw();
 }
 
-std::string coot_ligand_editor_canvas_get_smiles(CootLigandEditorCanvas* self) noexcept {
-    return self->build_smiles_string();
+coot::ligand_editor_canvas::SmilesMap coot_ligand_editor_canvas_get_smiles(CootLigandEditorCanvas* self) noexcept {
+    return self->build_smiles();
 }
 
 std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
     if(molecule_idx < self->rdkit_molecules->size()) {
-        return RDKit::MolToSmiles(*(*self->rdkit_molecules)[molecule_idx].get());
-    } else {
-        return "";
+        const auto& mol_opt = (*self->rdkit_molecules)[molecule_idx];
+        if(mol_opt.has_value()) {
+            return RDKit::MolToSmiles(*mol_opt->get());
+        }
     }
+    return "";
 }
 
 std::string coot_ligand_editor_canvas_get_pickled_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
     std::string ret = "";
     if(molecule_idx < self->rdkit_molecules->size()) {
-        RDKit::MolPickler::pickleMol(*(*self->rdkit_molecules)[molecule_idx].get(), ret);
+        const auto& mol_opt = (*self->rdkit_molecules)[molecule_idx];
+        if(mol_opt.has_value()) {
+            RDKit::MolPickler::pickleMol(mol_opt->get(), ret);
+        }
     }
     return ret;
 }
@@ -680,9 +697,18 @@ void coot_ligand_editor_canvas_draw_on_cairo_surface(CootLigandEditorCanvas* sel
 
 void coot_ligand_editor_canvas_clear_molecules(CootLigandEditorCanvas* self) noexcept {
     self->begin_edition();
+    unsigned int idx = 0;
+    for(const auto& mol_opt: *self->molecules) {
+        if(mol_opt.has_value()) {
+            self->delete_molecule_with_idx(idx, false);
+        }
+        idx++;
+    }
     self->rdkit_molecules->clear();
     self->molecules->clear();
     self->finalize_edition();
     self->update_status("Molecules cleared.");
-    self->queue_redraw();
+    // Already called in finalize_edition()
+    // self->queue_redraw();
+    // self->emit_mutation_signals();
 }

@@ -27,6 +27,7 @@
 
 #include <memory>
 #include <vector>
+#include <optional>
 #include "render.hpp"
 #include "model.hpp"
 #include "tools.hpp"
@@ -83,8 +84,8 @@ struct CootLigandEditorCanvasPrivBase {
 
 
 struct StateSnapshot {
-    std::unique_ptr<std::vector<CanvasMolecule>> molecules;
-    std::unique_ptr<std::vector<std::shared_ptr<RDKit::RWMol>>> rdkit_molecules;
+    std::unique_ptr<std::vector<std::optional<CanvasMolecule>>> molecules;
+    std::unique_ptr<std::vector<std::optional<std::shared_ptr<RDKit::RWMol>>>> rdkit_molecules;
 
     StateSnapshot(const WidgetCoreData& core_data);
 };
@@ -118,9 +119,9 @@ struct WidgetCoreData {
 
     public:
     /// molecules on the screen
-    std::unique_ptr<std::vector<CanvasMolecule>> molecules;
+    std::unique_ptr<std::vector<std::optional<CanvasMolecule>>> molecules;
     /// molecules (RDKit)
-    std::unique_ptr<std::vector<std::shared_ptr<RDKit::RWMol>>> rdkit_molecules;
+    std::unique_ptr<std::vector<std::optional<std::shared_ptr<RDKit::RWMol>>>> rdkit_molecules;
     /// Bond being currently created via click'n'drag
     std::optional<CurrentlyCreatedBond> currently_created_bond;
 
@@ -167,7 +168,7 @@ struct WidgetCoreData {
     /// If nothing matches the coordinates, nullopt is returned.
     MaybeAtomOrBondWithMolIdx resolve_click(int x, int y) const noexcept;
 
-    void delete_molecule_with_idx(unsigned int idx) noexcept;
+    void delete_molecule_with_idx(unsigned int idx, bool integrate_with_edit_undo = true) noexcept;
 
     /// Emits 'status-updated' signal.
     void update_status(const char* status_text) const noexcept;
@@ -175,7 +176,11 @@ struct WidgetCoreData {
     /// Emits the 'smiles-changed' and 'qed-info-updated' signal
     void emit_mutation_signals() const noexcept;
 
-    std::string build_smiles_string() const;
+    coot::ligand_editor_canvas::SmilesMap build_smiles() const;
+
+    unsigned int get_molecule_count_impl() const noexcept;
+    /// Returns -1 if none
+    int get_first_molecule_idx() const noexcept;
 
     /// Abstraction over gtk_widget_queue_draw
     void queue_redraw() const noexcept;
@@ -229,18 +234,21 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     ~CootLigandEditorCanvas() noexcept;
 
     void set_active_tool(std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> active_tool);
-    void append_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept;
+    /// Returns the ID of new molecule or '-1' on error
+    int append_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept;
     void set_scale(float scale) noexcept;
     float get_scale() noexcept;
     void undo() noexcept;
     void redo() noexcept;
     // const RDKit::ROMol& get_rdkit_molecule(unsigned int index) noexcept;
     unsigned int get_molecule_count() noexcept;
+    unsigned int get_idx_of_first_molecule() noexcept;
+    unsigned int get_max_molecule_idx() noexcept;
     void set_allow_invalid_molecules(bool value) noexcept;
     bool get_allow_invalid_molecules() noexcept;
     coot::ligand_editor_canvas::DisplayMode get_display_mode() noexcept;
     void set_display_mode(coot::ligand_editor_canvas::DisplayMode value) noexcept;
-    std::string get_smiles() noexcept;
+    coot::ligand_editor_canvas::SmilesMap get_smiles() noexcept;
     std::string get_smiles_for_molecule(unsigned int molecule_idx) noexcept;
     std::string get_pickled_molecule(unsigned int molecule_idx) noexcept;
     std::string get_pickled_molecule_base64(unsigned int molecule_idx) noexcept;

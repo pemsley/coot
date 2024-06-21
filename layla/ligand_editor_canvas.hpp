@@ -40,7 +40,8 @@ CootLigandEditorCanvas *coot_ligand_editor_canvas_new();
 
 
 void coot_ligand_editor_canvas_set_active_tool(CootLigandEditorCanvas* self, std::unique_ptr<coot::ligand_editor_canvas::ActiveTool>&& active_tool);
-void coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept;
+/// Returns the ID of new molecule or '-1' on error
+int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept;
 void coot_ligand_editor_canvas_set_scale(CootLigandEditorCanvas* self, float scale) noexcept;
 float coot_ligand_editor_canvas_get_scale(CootLigandEditorCanvas* self) noexcept;
 
@@ -51,7 +52,10 @@ void coot_ligand_editor_canvas_redo_edition(CootLigandEditorCanvas* self) noexce
 ///
 /// Canvas owns the returned pointer
 const RDKit::ROMol* coot_ligand_editor_canvas_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept;
+/// Reurns the number of non-deleted molecules
 unsigned int coot_ligand_editor_canvas_get_molecule_count(CootLigandEditorCanvas* self) noexcept;
+unsigned int coot_ligand_editor_canvas_get_idx_of_first_molecule(CootLigandEditorCanvas* self) noexcept;
+unsigned int coot_ligand_editor_canvas_get_max_molecule_idx(CootLigandEditorCanvas* self) noexcept;
 
 void coot_ligand_editor_canvas_set_allow_invalid_molecules(CootLigandEditorCanvas* self, bool value) noexcept;
 bool coot_ligand_editor_canvas_get_allow_invalid_molecules(CootLigandEditorCanvas* self) noexcept;
@@ -59,7 +63,7 @@ bool coot_ligand_editor_canvas_get_allow_invalid_molecules(CootLigandEditorCanva
 coot::ligand_editor_canvas::DisplayMode coot_ligand_editor_canvas_get_display_mode(CootLigandEditorCanvas* self) noexcept;
 void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, coot::ligand_editor_canvas::DisplayMode value) noexcept;
 
-std::string coot_ligand_editor_canvas_get_smiles(CootLigandEditorCanvas* self) noexcept;
+coot::ligand_editor_canvas::SmilesMap coot_ligand_editor_canvas_get_smiles(CootLigandEditorCanvas* self) noexcept;
 std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept;
 std::string coot_ligand_editor_canvas_get_pickled_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept;
 std::string coot_ligand_editor_canvas_get_pickled_molecule_base64(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept;
