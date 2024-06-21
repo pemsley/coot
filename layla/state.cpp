@@ -52,16 +52,10 @@ LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, Gt
         LaylaState* state = (LaylaState*) user_data;
         if (state->current_filesave_molecule.has_value()) {
             unsigned int idx = state->current_filesave_molecule.value();
-            if(idx > deleted_mol_idx) {
-                // The "current" molecule still exists.
-                // Just decrement the index.
-                state->current_filesave_molecule = idx - 1;
-            } else if(idx == deleted_mol_idx) {
+            if(idx == deleted_mol_idx) {
                 // The "current" molecule no longer exists
                 state->current_filesave_molecule = std::nullopt;
                 state->current_filesave_filename = std::nullopt;
-            } else {
-                // The "current" molecule idx is not affected
             }
         }
     }), this);
