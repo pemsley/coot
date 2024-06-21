@@ -108,7 +108,7 @@ auto make_aliphatic_rings() ->  std::unique_ptr<const ::RDKit::ROMol> {
     try {
         ret = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::SmartsToMol("[$([A;R][!a])]"));
     } catch(const std::exception& e) {
-        g_warning("QED make_structural_alerts(): failed to initialize static const: %s", e.what());
+        g_warning("QED make_aliphatic_rings(): failed to initialize static const: %s", e.what());
     }
     return ret;
 }
