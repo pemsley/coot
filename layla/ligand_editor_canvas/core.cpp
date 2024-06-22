@@ -95,7 +95,7 @@ void WidgetCoreData::emit_mutation_signals() const noexcept {
         if(mol_opt.has_value()) {
             auto qed_info = mol_opt->get_qed_info();
             if(qed_info.has_value()) {
-                auto qed_info_value = *qed_info;
+                const auto& qed_info_value = *qed_info;
                 _LIGAND_EDITOR_SIGNAL_EMIT_ARG(widget_ptr, qed_info_updated_signal, id, &qed_info_value);
             }
         }
@@ -415,8 +415,8 @@ void CootLigandEditorCanvas::connect(std::string signal_name, emscripten::val ca
             callback(molecule_idx);
         });
     } else if(signal_name == "qed_info_updated") {
-        qed_info_updated_signal.connect([=](int molecule_idx, coot::ligand_editor_canvas::CanvasMolecule::QEDInfo* const qed_info){
-            callback(molecule_idx, qed_info);
+        qed_info_updated_signal.connect([=](int molecule_idx, const coot::ligand_editor_canvas::CanvasMolecule::QEDInfo* qed_info){
+            callback(molecule_idx, *qed_info);
         });
     } else if(signal_name == "queue_redraw") {
         queue_redraw_signal.connect([=](){

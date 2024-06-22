@@ -160,7 +160,7 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
 
     GtkNotebook* qed_notebook = (GtkNotebook*) gtk_builder_get_object(builder, "layla_qed_notebook");
 
-    auto qed_info_updated_handler = [](CootLigandEditorCanvas* self, unsigned int molecule_id, ligand_editor_canvas::CanvasMolecule::QEDInfo const* qed_info, gpointer user_data){
+    auto qed_info_updated_handler = [](CootLigandEditorCanvas* self, unsigned int molecule_id, const ligand_editor_canvas::CanvasMolecule::QEDInfo* qed_info, gpointer user_data){
         GtkNotebook* qed_notebook = GTK_NOTEBOOK(user_data);
         auto find_or_create_tab_for_mol_id = [qed_notebook](unsigned int molecule_id){
             auto no_pages = gtk_notebook_get_n_pages(qed_notebook);
