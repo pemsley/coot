@@ -1474,8 +1474,17 @@ Add a new atom or replace an existent atom with the chosen element.
           </object>
         </child>
         <child>
-          <object class="GtkNotebook" id="layla_qed_notebook">
-            
+          <object class="GtkExpander">
+            <child type="label">
+              <object class="GtkLabel" >
+                <property name="label">QED</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkNotebook" id="layla_qed_notebook">
+                
+              </object>
+            </child>
           </object>
         </child>
 
