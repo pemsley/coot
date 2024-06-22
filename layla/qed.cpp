@@ -99,7 +99,7 @@ namespace impl {
   
 }
 
-const QED::QEDproperties QED::WEIGHT_MAX = QEDproperties({0.50, 0.25, 0.00, 0.50, 0.00, 0.50, 0.25, 1.00});
+const QED::QEDproperties QED::WEIGHT_MAX  = QEDproperties({0.50, 0.25, 0.00, 0.50, 0.00, 0.50, 0.25, 1.00});
 const QED::QEDproperties QED::WEIGHT_MEAN = QEDproperties({0.66, 0.46, 0.05, 0.61, 0.06, 0.65, 0.48, 0.95});
 const QED::QEDproperties QED::WEIGHT_NONE = QEDproperties({1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00});
 
@@ -224,13 +224,13 @@ double QED::qed(const ::RDKit::ROMol& mol, std::optional<QEDproperties> qedPrope
     QEDproperties qedProperties = qedPropertiesOpt.has_value() ? qedPropertiesOpt.value() : properties(mol);
 
     double t;
-    t  = qedProperties.MW * log(ads(qedProperties.MW, adsParameters[static_cast<utype>(QEDPropName::MW)]));
-    t += qedProperties.ALOGP * log(ads(qedProperties.ALOGP, adsParameters[static_cast<utype>(QEDPropName::ALOGP)]));
-    t += qedProperties.HBA * log(ads(qedProperties.HBA, adsParameters[static_cast<utype>(QEDPropName::HBA)]));
-    t += qedProperties.HBD * log(ads(qedProperties.HBD, adsParameters[static_cast<utype>(QEDPropName::HBD)]));
-    t += qedProperties.PSA * log(ads(qedProperties.PSA, adsParameters[static_cast<utype>(QEDPropName::PSA)]));
-    t += qedProperties.ROTB * log(ads(qedProperties.ROTB, adsParameters[static_cast<utype>(QEDPropName::ROTB)]));
-    t += qedProperties.AROM * log(ads(qedProperties.AROM, adsParameters[static_cast<utype>(QEDPropName::AROM)]));
+    t  = qedProperties.MW *     log(ads(qedProperties.MW,     adsParameters[static_cast<utype>(QEDPropName::MW)]));
+    t += qedProperties.ALOGP *  log(ads(qedProperties.ALOGP,  adsParameters[static_cast<utype>(QEDPropName::ALOGP)]));
+    t += qedProperties.HBA *    log(ads(qedProperties.HBA,    adsParameters[static_cast<utype>(QEDPropName::HBA)]));
+    t += qedProperties.HBD *    log(ads(qedProperties.HBD,    adsParameters[static_cast<utype>(QEDPropName::HBD)]));
+    t += qedProperties.PSA *    log(ads(qedProperties.PSA,    adsParameters[static_cast<utype>(QEDPropName::PSA)]));
+    t += qedProperties.ROTB *   log(ads(qedProperties.ROTB,   adsParameters[static_cast<utype>(QEDPropName::ROTB)]));
+    t += qedProperties.AROM *   log(ads(qedProperties.AROM,   adsParameters[static_cast<utype>(QEDPropName::AROM)]));
     t += qedProperties.ALERTS * log(ads(qedProperties.ALERTS, adsParameters[static_cast<utype>(QEDPropName::ALERTS)]));
 
     return exp(t / impl::QEDproperties_sum(w));

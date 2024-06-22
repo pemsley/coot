@@ -316,7 +316,7 @@ class CanvasMolecule {
     MaybeAtomOrBond resolve_click(int x, int y) const noexcept;
 
     void highlight_atom(int atom_idx);
-    void highlight_bond(int atom_a, int atom_b);
+    void highlight_bond(unsigned int atom_a, unsigned int atom_b);
     void clear_highlights();
 
     static RDKit::Bond::BondType bond_type_to_rdkit(BondType) noexcept;

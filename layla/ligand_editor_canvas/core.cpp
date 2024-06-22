@@ -104,7 +104,8 @@ void WidgetCoreData::emit_mutation_signals() const noexcept {
 
 
 void WidgetCoreData::undo_edition() {
-    if(this->state_stack->size() > this->state_stack_pos + 1) {
+    int state_stack_size = this->state_stack->size();
+    if(state_stack_size > this->state_stack_pos + 1) {
         if(this->state_stack_pos == -1) {
             // Special case. 
             // We need to backup the current state
