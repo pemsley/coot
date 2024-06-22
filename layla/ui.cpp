@@ -26,6 +26,7 @@
 #include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
 #include "utils/coot-utils.hh"
+#include <functional>
 
 void setup_actions(coot::layla::LaylaState* state, GtkApplicationWindow* win, GtkBuilder* builder) {
     using namespace coot::layla;
@@ -204,24 +205,61 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
             return qed_grid;
         };
         GtkWidget* tab = find_or_create_tab_for_mol_id(molecule_id);
-        auto update_progressbar_info_box = [](GtkWidget* info_box, auto value){
+        auto identity_mapper = [](double aa){return aa;};
+        auto update_progressbar_info_box = [identity_mapper](GtkWidget* info_box, auto value, std::function<double(double)> mapper){
             GtkWidget* label = gtk_widget_get_first_child(info_box);
             GtkWidget* progress_bar = gtk_widget_get_next_sibling(label);
             auto value_as_str = std::to_string(value);
             gtk_progress_bar_set_text(GTK_PROGRESS_BAR(progress_bar), value_as_str.c_str());
-            gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), (double) value);
+            gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), mapper((double) value));
         };
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 0), (float) qed_info->qed_score);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 1, 0), (float) qed_info->molecular_weight);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 2, 0), (float) qed_info->molecular_polar_surface_area);
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 0, 0),
+            (float) qed_info->qed_score,
+            [](double aa){return 1.0-aa;}
+        );
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 1, 0),
+            (float) qed_info->molecular_weight,
+            [](double aa){return aa/2500.0;}
+        );
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 2, 0),
+            (float) qed_info->molecular_polar_surface_area,
+            [](double aa){return aa/2500.0;}
+        );
 
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 1), (float) qed_info->alogp);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 1, 1), qed_info->number_of_hydrogen_bond_acceptors);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 2, 1), qed_info->number_of_hydrogen_bond_donors);
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 0, 1),
+            (float) qed_info->alogp,
+            identity_mapper
+        );
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 1, 1),
+            qed_info->number_of_hydrogen_bond_acceptors,
+            [](double aa){return aa/16.0;}
+        );
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 2, 1),
+            qed_info->number_of_hydrogen_bond_donors,
+            [](double aa){return aa/16.0;}
+        );
 
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 2), qed_info->number_of_rotatable_bonds);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 1, 2), qed_info->number_of_aromatic_rings);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 2, 2), qed_info->number_of_alerts);
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 0, 2),
+            qed_info->number_of_rotatable_bonds,
+            [](double aa){return aa/16.0;}
+        );
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 1, 2),
+            qed_info->number_of_aromatic_rings,
+            [](double aa){return aa/8.0;}
+        );
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 2, 2),
+            qed_info->number_of_alerts,
+            [](double aa){return aa/8.0;}
+        );
     };
     g_signal_connect(canvas, "qed-info-updated", G_CALLBACK(+qed_info_updated_handler), qed_notebook);
 
