@@ -176,7 +176,7 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
             GtkWidget* n_label = gtk_label_new(mol_id_as_str.c_str());
             GtkWidget* qed_grid = gtk_grid_new();
             /// Setup contents
-            gtk_grid_set_column_spacing(GTK_GRID(qed_grid), 5);
+            gtk_grid_set_column_spacing(GTK_GRID(qed_grid), 15);
             gtk_grid_set_row_spacing(GTK_GRID(qed_grid), 5);
 
             auto build_progressbar_info_box = [](const char* label/* range or anything else ??*/){
