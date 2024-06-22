@@ -110,7 +110,7 @@ uname_s=$(uname -s)
 AM_CONDITIONAL([OS_DARWIN], [test x$uname_s = xDarwin ])
 
 # this variable is used by the bin/coot script:
-COOT_BINARY_NAME=Coot
+COOT_BINARY_NAME=coot-1
 if test x$uname_s = xDarwin ; then
    COOT_BINARY_NAME=MacCoot
 fi

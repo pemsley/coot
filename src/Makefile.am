@@ -307,18 +307,19 @@ _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
 
 if OS_WIN32
 # no more libexec for windows
-bin_PROGRAMS     = Coot coot-density-score-by-residue-bin
+bin_PROGRAMS     = coot-1 coot-density-score-by-residue-bin
 else
 if OS_DARWIN
 libexec_PROGRAMS = MacCoot coot-density-score-by-residue-bin
 bin_PROGRAMS = 
 else
-libexec_PROGRAMS = Coot coot-density-score-by-residue-bin
-bin_PROGRAMS = 
+libexec_PROGRAMS = coot-1 coot-density-score-by-residue-bin
+bin_PROGRAMS =
 endif
 endif
 
 dist_bin_SCRIPTS = coot coot-density-score-by-residue
+
 check_PROGRAMS = test-coot-align test-cholesky
 
 #coot_fix_nomenclature_errors_SOURCES = \
@@ -335,7 +336,7 @@ MacCoot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
 	create-menu-item-actions.hh
 
 else
-Coot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
+coot_1_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
         glade-callbacks-preferences.cc glade-callbacks-shader-settings.cc \
         new-startup.cc \
         setup-gui-components.cc \
@@ -361,7 +362,7 @@ MacCoot_LDADD =  \
 	$(top_builddir)/utils/libcoot-utils.la             \
 	$(CLIPPER_LIBS) $(CURL_LIBS) $(GUILE_LDFLAGS) $(GTK_LIBS) $(EPOXY_LIBS) $(EMBEDDED_PYTHON_LIBS)
 else
-Coot_LDADD =  \
+coot_1_LDADD =  \
 	libcootsumo.la                                     \
 	$(top_builddir)/pli/libcoot-pli.la                 \
 	$(top_builddir)/density-contour/libcoot-isosurface.la  	\
@@ -844,7 +845,7 @@ endif
 if OS_DARWIN
 MacCoot_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 else
-Coot_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
+coot_1_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 endif
 
 # coot_bin_CXXFLAGS=-Wl,--export-dynamic -dynamiclib
