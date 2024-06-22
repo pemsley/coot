@@ -5,12 +5,15 @@ Use 2DT dictionary for link and refinement - George.
 
 Sharpen-blur "Computing..." dialog should be an overlay
 
+Downloading map (from EMDB) dialog should be an overlay
+
 UI for turning off dark mode.
 * Tried. Doesn't work. Function only works on startup? Maybe I am missing something.
 
 residue->2D on a protein residue without an OXT. Better GUI feedback needed.
 
 Investigate NCS ghosts usage in a ribosome after updating the model.
+* Tried. I don't see the problem.
 
 Check email for build-script updates/fixes
 
