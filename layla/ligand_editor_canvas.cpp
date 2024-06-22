@@ -586,10 +586,11 @@ int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std:
         #endif
         self->rdkit_molecules->push_back(std::move(rdkit_mol));
         self->finalize_edition();
-        self->queue_redraw();
+        // Already called by finalize_edition()
+        //self->queue_redraw();
         self->update_status("Molecule inserted.");
         return self->rdkit_molecules->size() - 1;
-    }catch(std::exception& e) {
+    }catch(const std::exception& e) {
         std::string msg = "2D representation could not be created: ";
         msg += e.what();
         msg += ". New molecule could not be added.";
@@ -601,11 +602,29 @@ int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std:
 }
 
 void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanvas* self, unsigned int molecule_idx, const char* smiles) {
-    
+    if(molecule_idx >= self->rdkit_molecules->size()) {
+        return;
+    }
+    auto& target_mol_opt = (*self->rdkit_molecules)[molecule_idx];
+    if(!target_mol_opt.has_value()) {
+        return;
+    }
     try{
         const auto* mol_ptr = RDKit::SmilesToMol(smiles);
+        if(mol_ptr) {
+            self->begin_edition();
+            *target_mol_opt->get() = std::move(*mol_ptr);
+            (*self->molecules)[molecule_idx]->lower_from_rdkit(!self->allow_invalid_molecules);
+            self->finalize_edition();
+            self->update_status("Molecule updated from SMILES.");
+            delete mol_ptr;
+        }
     }catch(const std::exception& e) {
-
+        std::string msg = "2D representation could not be created: ";
+        msg += e.what();
+        msg += ". New molecule could not be added.";
+        g_warning("coot_ligand_editor_canvas_update_molecule_from_smiles: %s",msg.c_str());
+        self->update_status(msg.c_str());
     }
 }
 
