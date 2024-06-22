@@ -211,7 +211,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .field("number_of_alerts", &CanvasMolecule::QEDInfo::number_of_alerts)
     .field("molecular_weight", &CanvasMolecule::QEDInfo::molecular_weight)
     .field("alogp", &CanvasMolecule::QEDInfo::alogp)
-    .field("molecular_polar_surface_area", &CanvasMolecule::QEDInfo::molecular_polar_surface_area);
+    .field("molecular_polar_surface_area", &CanvasMolecule::QEDInfo::molecular_polar_surface_area)
+    .field("qed_score", &CanvasMolecule::QEDInfo::qed_score);
   class_<impl::WidgetCoreData>("ImplWidgetCoreData");
   register_map<unsigned int, std::string>("SmilesMap");
   // Without this, Emscripten errors out

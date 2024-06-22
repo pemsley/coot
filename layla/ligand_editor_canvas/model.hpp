@@ -188,6 +188,7 @@ class CanvasMolecule {
         /// Hydrophobicity
         double alogp;
         double molecular_polar_surface_area;
+        double qed_score;
 
     };
     typedef std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond> AtomOrBond;

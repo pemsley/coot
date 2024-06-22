@@ -219,7 +219,7 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
 }
 
 
-double QED::qed(const ::RDKit::ROMol& mol, QEDproperties w, std::optional<QEDproperties> qedPropertiesOpt) {
+double QED::qed(const ::RDKit::ROMol& mol, std::optional<QEDproperties> qedPropertiesOpt, QEDproperties w) {
     typedef std::underlying_type<QEDPropName>::type utype;
     QEDproperties qedProperties = qedPropertiesOpt.has_value() ? qedPropertiesOpt.value() : properties(mol);
 
