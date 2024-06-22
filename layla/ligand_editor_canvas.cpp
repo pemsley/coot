@@ -625,6 +625,7 @@ void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanva
         msg += ". New molecule could not be added.";
         g_warning("coot_ligand_editor_canvas_update_molecule_from_smiles: %s",msg.c_str());
         self->update_status(msg.c_str());
+        self->rollback_current_edition();
     }
 }
 
