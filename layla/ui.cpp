@@ -157,9 +157,36 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
         gtk_text_buffer_set_text(buf,smiles.c_str(),-1);
     }), smiles_display);
 
-    g_signal_connect(canvas, "qed-info-updated", G_CALLBACK(+[](CootLigandEditorCanvas* self, unsigned int molecule_id, ligand_editor_canvas::CanvasMolecule::QEDInfo const* qed_info, gpointer user_data){
-        // todo
-    }), nullptr);
+    GtkNotebook* qed_notebook = (GtkNotebook*) gtk_builder_get_object(builder, "layla_qed_notebook");
+
+    auto qed_info_updated_handler = [](CootLigandEditorCanvas* self, unsigned int molecule_id, ligand_editor_canvas::CanvasMolecule::QEDInfo const* qed_info, gpointer user_data){
+        GtkNotebook* qed_notebook = GTK_NOTEBOOK(user_data);
+        auto find_or_create_tab_for_mol_id = [qed_notebook](unsigned int molecule_id){
+            auto no_pages = gtk_notebook_get_n_pages(qed_notebook);
+            auto mol_id_as_str = std::to_string(molecule_id);
+            for(int i = 0; i != no_pages; i++) {
+                GtkWidget* tab = gtk_notebook_get_nth_page(qed_notebook, i);
+                const gchar* label = gtk_notebook_get_tab_label_text(qed_notebook, tab);
+                if(g_strcmp0(label, mol_id_as_str.c_str()) == 0) {
+                    return tab;
+                }
+            }
+            // No tab found. We have to create a new one.
+            GtkWidget* n_label = gtk_label_new(mol_id_as_str.c_str());
+            GtkWidget* qed_grid = gtk_grid_new();
+            /// Setup contents
+            gtk_grid_set_column_spacing(GTK_GRID(qed_grid), 5);
+            gtk_grid_set_row_spacing(GTK_GRID(qed_grid), 5);
+
+            // gtk_grid_attach
+
+            gtk_notebook_append_page(qed_notebook, qed_grid, n_label);
+            return qed_grid;
+        };
+        GtkWidget* tab = find_or_create_tab_for_mol_id(molecule_id);
+        // todo: update values
+    };
+    g_signal_connect(canvas, "qed-info-updated", G_CALLBACK(+qed_info_updated_handler), qed_notebook);
 
     gtk_scrolled_window_set_child(viewport, GTK_WIDGET(canvas));
     coot::layla::initialize_global_instance(canvas,GTK_WINDOW(win),GTK_LABEL(status_label));

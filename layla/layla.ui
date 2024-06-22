@@ -1473,15 +1473,18 @@ Add a new atom or replace an existent atom with the chosen element.
             </child> -->
           </object>
         </child>
-
-
+        <child>
+          <object class="GtkNotebook" id="layla_qed_notebook">
+            
+          </object>
+        </child>
         <child>
           <object class="GtkGrid" id="qed_grid">
             <property name="margin-start">4</property>
             <property name="margin-end">4</property>
             <property name="margin-top">4</property>
             <property name="margin-bottom">4</property>
-            <property name="visible">False</property>
+            <!-- <property name="visible">False</property> -->
 
             <child>
               <object class="GtkBox" id="vbox_qed">
