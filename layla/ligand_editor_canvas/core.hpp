@@ -236,6 +236,7 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     void set_active_tool(std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> active_tool);
     /// Returns the ID of new molecule or '-1' on error
     int append_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept;
+    void update_molecule_from_smiles(unsigned int molecule_idx, const std::string& smiles);
     void set_scale(float scale) noexcept;
     float get_scale() noexcept;
     void undo() noexcept;

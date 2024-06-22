@@ -23,6 +23,7 @@
 #include "ligand_editor_canvas/core.hpp"
 #include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
+#include <rdkit/GraphMol/SmilesParse/SmilesParse.h>
 #include <exception>
 #include <iterator>
 #include <utility>
@@ -596,6 +597,15 @@ int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std:
         self->update_status(msg.c_str());
         self->rollback_current_edition();
         return -1;
+    }
+}
+
+void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanvas* self, unsigned int molecule_idx, const char* smiles) {
+    
+    try{
+        const auto* mol_ptr = RDKit::SmilesToMol(smiles);
+    }catch(const std::exception& e) {
+
     }
 }
 
