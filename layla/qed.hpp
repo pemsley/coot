@@ -90,7 +90,7 @@ class QED {
     static QEDproperties properties(const ::RDKit::ROMol& mol);
     /// Calculate the weighted sum of ADS mapped properties
     // @setDescriptorVersion(version='1.1.0')
-    static double qed(const ::RDKit::ROMol& mol, QEDproperties w = WEIGHT_MEAN, std::optional<QEDproperties> qedProperties = std::nullopt);
+    static double qed(const ::RDKit::ROMol& mol, std::optional<QEDproperties> qedProperties = std::nullopt, QEDproperties w = WEIGHT_MEAN);
 
 
     /// ADS function

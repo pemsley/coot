@@ -26,6 +26,7 @@
 #include "ligand_editor_canvas/model.hpp"
 #include "ligand_editor_canvas/tools.hpp"
 #include "utils/coot-utils.hh"
+#include <functional>
 
 void setup_actions(coot::layla::LaylaState* state, GtkApplicationWindow* win, GtkBuilder* builder) {
     using namespace coot::layla;
@@ -157,9 +158,123 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
         gtk_text_buffer_set_text(buf,smiles.c_str(),-1);
     }), smiles_display);
 
-    g_signal_connect(canvas, "qed-info-updated", G_CALLBACK(+[](CootLigandEditorCanvas* self, unsigned int molecule_id, ligand_editor_canvas::CanvasMolecule::QEDInfo const* qed_info, gpointer user_data){
-        // todo
-    }), nullptr);
+    GtkNotebook* qed_notebook = (GtkNotebook*) gtk_builder_get_object(builder, "layla_qed_notebook");
+
+    auto qed_info_updated_handler = [](CootLigandEditorCanvas* self, unsigned int molecule_id, const ligand_editor_canvas::CanvasMolecule::QEDInfo* qed_info, gpointer user_data){
+        GtkNotebook* qed_notebook = GTK_NOTEBOOK(user_data);
+        auto find_or_create_tab_for_mol_id = [qed_notebook](unsigned int molecule_id){
+            auto no_pages = gtk_notebook_get_n_pages(qed_notebook);
+            auto mol_id_as_str = std::to_string(molecule_id);
+            for(int i = 0; i != no_pages; i++) {
+                GtkWidget* tab = gtk_notebook_get_nth_page(qed_notebook, i);
+                const gchar* label = gtk_notebook_get_tab_label_text(qed_notebook, tab);
+                if(g_strcmp0(label, mol_id_as_str.c_str()) == 0) {
+                    return tab;
+                }
+            }
+            // No tab found. We have to create a new one.
+            GtkWidget* n_label = gtk_label_new(mol_id_as_str.c_str());
+            GtkWidget* qed_grid = gtk_grid_new();
+            /// Setup contents
+            gtk_grid_set_column_spacing(GTK_GRID(qed_grid), 15);
+            gtk_grid_set_row_spacing(GTK_GRID(qed_grid), 5);
+
+            auto build_progressbar_info_box = [](const char* label/* range or anything else ??*/){
+                GtkWidget* ret = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+                GtkWidget* gtk_label = gtk_label_new(label);
+                gtk_box_append(GTK_BOX(ret), gtk_label);
+                GtkWidget* progress_bar = gtk_progress_bar_new();
+                gtk_progress_bar_set_show_text(GTK_PROGRESS_BAR(progress_bar), TRUE);
+                gtk_box_append(GTK_BOX(ret), progress_bar);
+                return ret;
+            };
+
+            gtk_grid_attach(GTK_GRID(qed_grid), build_progressbar_info_box("QED"), 0, 0, 1, 1);
+            gtk_grid_attach(GTK_GRID(qed_grid), build_progressbar_info_box("MW"), 1, 0, 1, 1);
+            gtk_grid_attach(GTK_GRID(qed_grid), build_progressbar_info_box("PSA"), 2, 0, 1, 1);
+
+            gtk_grid_attach(GTK_GRID(qed_grid), build_progressbar_info_box("cLogP"), 0, 1, 1, 1);
+            gtk_grid_attach(GTK_GRID(qed_grid), build_progressbar_info_box("#HBA"), 1, 1, 1, 1);
+            gtk_grid_attach(GTK_GRID(qed_grid), build_progressbar_info_box("#HBD"), 2, 1, 1, 1);
+
+            gtk_grid_attach(GTK_GRID(qed_grid), build_progressbar_info_box("#RotBonds"), 0, 2, 1, 1);
+            gtk_grid_attach(GTK_GRID(qed_grid), build_progressbar_info_box("#Arom"), 1, 2, 1, 1);
+            gtk_grid_attach(GTK_GRID(qed_grid), build_progressbar_info_box("#Alerts"), 2, 2, 1, 1);
+
+            gtk_notebook_append_page(qed_notebook, qed_grid, n_label);
+            return qed_grid;
+        };
+        GtkWidget* tab = find_or_create_tab_for_mol_id(molecule_id);
+        auto identity_mapper = [](double aa){return aa;};
+        auto update_progressbar_info_box = [identity_mapper](GtkWidget* info_box, auto value, std::function<double(double)> mapper){
+            GtkWidget* label = gtk_widget_get_first_child(info_box);
+            GtkWidget* progress_bar = gtk_widget_get_next_sibling(label);
+            auto value_as_str = std::to_string(value);
+            gtk_progress_bar_set_text(GTK_PROGRESS_BAR(progress_bar), value_as_str.c_str());
+            gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), mapper((double) value));
+        };
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 0, 0),
+            (float) qed_info->qed_score,
+            [](double aa){return 1.0-aa;}
+        );
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 1, 0),
+            (float) qed_info->molecular_weight,
+            [](double aa){return aa/2500.0;}
+        );
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 2, 0),
+            (float) qed_info->molecular_polar_surface_area,
+            [](double aa){return aa/2500.0;}
+        );
+
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 0, 1),
+            (float) qed_info->alogp,
+            identity_mapper
+        );
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 1, 1),
+            qed_info->number_of_hydrogen_bond_acceptors,
+            [](double aa){return aa/16.0;}
+        );
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 2, 1),
+            qed_info->number_of_hydrogen_bond_donors,
+            [](double aa){return aa/16.0;}
+        );
+
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 0, 2),
+            qed_info->number_of_rotatable_bonds,
+            [](double aa){return aa/16.0;}
+        );
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 1, 2),
+            qed_info->number_of_aromatic_rings,
+            [](double aa){return aa/8.0;}
+        );
+        update_progressbar_info_box(
+            gtk_grid_get_child_at(GTK_GRID(tab), 2, 2),
+            qed_info->number_of_alerts,
+            [](double aa){return aa/8.0;}
+        );
+    };
+    g_signal_connect(canvas, "qed-info-updated", G_CALLBACK(+qed_info_updated_handler), qed_notebook);
+
+    g_signal_connect(canvas, "molecule-deleted", G_CALLBACK(+[](CootLigandEditorCanvas* self, unsigned int deleted_mol_idx, gpointer user_data){
+        GtkNotebook* qed_notebook = GTK_NOTEBOOK(user_data);
+        auto no_pages = gtk_notebook_get_n_pages(qed_notebook);
+        auto mol_id_as_str = std::to_string(deleted_mol_idx);
+        for(int i = 0; i != no_pages; i++) {
+            GtkWidget* tab = gtk_notebook_get_nth_page(qed_notebook, i);
+            const gchar* label = gtk_notebook_get_tab_label_text(qed_notebook, tab);
+            if(g_strcmp0(label, mol_id_as_str.c_str()) == 0) {
+                gtk_notebook_remove_page(qed_notebook, i);
+            }
+        }
+    }), qed_notebook);
 
     gtk_scrolled_window_set_child(viewport, GTK_WIDGET(canvas));
     coot::layla::initialize_global_instance(canvas,GTK_WINDOW(win),GTK_LABEL(status_label));

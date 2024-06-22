@@ -212,7 +212,7 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     sigc::signal<void(float)> scale_changed_signal;
     sigc::signal<void()> smiles_changed_signal;
     sigc::signal<void(int)> molecule_deleted_signal;
-    sigc::signal<void(int, coot::ligand_editor_canvas::CanvasMolecule::QEDInfo* const)> qed_info_updated_signal;
+    sigc::signal<void(int, const coot::ligand_editor_canvas::CanvasMolecule::QEDInfo*)> qed_info_updated_signal;
     // Lhasa-only signals (for JS handlers):
     sigc::signal<void()> queue_redraw_signal;
     sigc::signal<void()> queue_resize_signal;
