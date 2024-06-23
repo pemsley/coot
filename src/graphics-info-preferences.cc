@@ -284,16 +284,6 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
        }
        break;
 
-     case PREFERENCES_MODEL_TOOLBAR_POSITION:
-       commands.push_back(state_command("coot", "set-model-toolbar-docked-position",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-
-     case PREFERENCES_MODEL_TOOLBAR_STYLE:
-       commands.push_back(state_command("coot", "set-model-toolbar-style",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-
      case PREFERENCES_MODEL_TOOLBAR_ICONS:
        if (g.preferences_internal[i].ivalue2 == 1) {
 	 commands.push_back(state_command("coot", "show-model-toolbar-icon",
