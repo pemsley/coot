@@ -54,10 +54,12 @@ jobs:
       - name: turn on brew analytics
         run:  brew analytics on
 
+      # Sun 23 Jun 12:11:38 BST 2024
+      #  this is consistently failing
       - name: brew update
         run:  |
-          brew update
-          brew upgrade
+          echo skipping brew update
+          echo skipping brew upgrade
 
       # gfortran is needed for numpy.
       # numpy is needed for rdkit
