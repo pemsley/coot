@@ -27,7 +27,7 @@ namespace impl {
         try {
             const unsigned int smarts_array_len = 11;
             const char* smarts_array[smarts_array_len] = {
-                "[oH0;X2]", "[OH1;X2;v2]", "[OH0;X2;v2]", 
+                "[oH0;X2]", "[OH1;X2;v2]", "[OH0;X2;v2]",
                 "[OH0;X1;v2]", "[O-;X1]", "[SH0;X2;v2]", "[SH0;X1;v2]",
                 "[S-;X1]", "[nH0;X2]", "[NH0;X1;v3]", "[$([N;+0;X3;v3]);!$(N[C,S]=O)]"
             };
@@ -53,7 +53,8 @@ namespace impl {
                 "[#6]=S", "[$([CH2]),$([CH][CX4]),$(C([CX4])[CX4])]=[$([CH2]),$([CH][CX4]),$(C([CX4])[CX4])]",
                 "C1(=[O,N])C=CC(=[O,N])C=C1", "C1(=[O,N])C(=[O,N])C=CC=C1", "a21aa3a(aa1aaaa2)aaaa3",
                 "a31a(a2a(aa1)aaaa2)aaaa3", "a1aa2a3a(a1)A=AA=A3=AA=A2", "c1cc([NH2])ccc1",
-                "[Hg,Fe,As,Sb,Zn,Se,se,Te,B,Si,Na,Ca,Ge,Ag,Mg,K,Ba,Sr,Be,Ti,Mo,Mn,Ru,Pd,Ni,Cu,Au,Cd,Al,Ga,Sn,Rh,Tl,Bi,Nb,Li,Pb,Hf,Ho]", "I", "OS(=O)(=O)[O-]", "[N+](=O)[O-]", "C(=O)N[OH]",
+                "[Hg,Fe,As,Sb,Zn,Se,se,Te,B,Si,Na,Ca,Ge,Ag,Mg,K,Ba,Sr,Be,Ti,Mo,Mn,Ru,Pd,Ni,Cu,Au,Cd,Al,Ga,Sn,Rh,Tl,Bi,Nb,Li,Pb,Hf,Ho]",
+                "I", "OS(=O)(=O)[O-]", "[N+](=O)[O-]", "C(=O)N[OH]",
                 "C1NC(=O)NC(=O)1", "[SH]", "[S-]", "c1ccc([Cl,Br,I,F])c([Cl,Br,I,F])c1[Cl,Br,I,F]",
                 "c1cc([Cl,Br,I,F])cc([Cl,Br,I,F])c1[Cl,Br,I,F]", "[CR1]1[CR1][CR1][CR1][CR1][CR1][CR1]1",
                 "[CR1]1[CR1][CR1]cc[CR1][CR1]1", "[CR2]1[CR2][CR2][CR2][CR2][CR2][CR2][CR2]1",
@@ -96,7 +97,7 @@ namespace impl {
     inline double QEDproperties_sum(const QED::QEDproperties& props) noexcept {
         return props.MW + props.ALOGP + props.HBA + props.HBD + props.PSA + props.ROTB + props.AROM + props.ALERTS;
     }
-  
+
 }
 
 const QED::QEDproperties QED::WEIGHT_MAX  = QEDproperties({0.50, 0.25, 0.00, 0.50, 0.00, 0.50, 0.25, 1.00});
@@ -107,7 +108,8 @@ auto make_aliphatic_rings() ->  std::unique_ptr<const ::RDKit::ROMol> {
     auto ret = std::unique_ptr<const ::RDKit::ROMol>(nullptr);
     try {
         ret = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::SmartsToMol("[$([A;R][!a])]"));
-    } catch(const std::exception& e) {
+    }
+    catch(const std::exception& e) {
         g_warning("QED make_aliphatic_rings(): failed to initialize static const: %s", e.what());
     }
     return ret;
@@ -119,29 +121,21 @@ const std::vector<std::unique_ptr<const ::RDKit::ROMol>> QED::Acceptors = impl::
 const std::vector<std::unique_ptr<const ::RDKit::ROMol>> QED::StructuralAlerts = impl::make_structural_alerts();
 const std::vector<QED::ADSparameter> QED::adsParameters = {
 // {"MW",
-  ADSparameter({2.817065973, 392.5754953, 290.7489764, 2.419764353, 49.22325677,
-               65.37051707, 104.9805561}),
+  ADSparameter({2.817065973, 392.5754953, 290.7489764, 2.419764353, 49.22325677, 65.37051707, 104.9805561}),
 // {"ALOGP",
-  ADSparameter({3.172690585, 137.8624751, 2.534937431, 4.581497897, 0.822739154,
-               0.576295591, 131.3186604}),
+  ADSparameter({3.172690585, 137.8624751, 2.534937431, 4.581497897, 0.822739154, 0.576295591, 131.3186604}),
 // {"HBA",
-  ADSparameter({2.948620388, 160.4605972, 3.615294657, 4.435986202, 0.290141953,
-               1.300669958, 148.7763046}),
+  ADSparameter({2.948620388, 160.4605972, 3.615294657, 4.435986202, 0.290141953, 1.300669958, 148.7763046}),
 // {"HBD",
-  ADSparameter({1.618662227, 1010.051101, 0.985094388, 0.000000001, 0.713820843,
-               0.920922555, 258.1632616}),
+  ADSparameter({1.618662227, 1010.051101, 0.985094388, 0.000000001, 0.713820843, 0.920922555, 258.1632616}),
 // {"PSA",
-  ADSparameter({1.876861559, 125.2232657, 62.90773554, 87.83366614, 12.01999824,
-               28.51324732, 104.5686167}),
+  ADSparameter({1.876861559, 125.2232657, 62.90773554, 87.83366614, 12.01999824, 28.51324732, 104.5686167}),
 // {"ROTB",
-  ADSparameter({0.010000000, 272.4121427, 2.558379970, 1.565547684, 1.271567166,
-               2.758063707, 105.4420403}),
+  ADSparameter({0.010000000, 272.4121427, 2.558379970, 1.565547684, 1.271567166, 2.758063707, 105.4420403}),
 // {"AROM",
-  ADSparameter({3.217788970, 957.7374108, 2.274627939, 0.000000001, 1.317690384,
-               0.375760881, 312.3372610}),
+  ADSparameter({3.217788970, 957.7374108, 2.274627939, 0.000000001, 1.317690384, 0.375760881, 312.3372610}),
 // {"ALERTS",
-  ADSparameter({0.010000000, 1199.094025, -0.09002883, 0.000000001, 0.185904477,
-               0.875193782, 417.7253140})
+  ADSparameter({0.010000000, 1199.094025, -0.09002883, 0.000000001, 0.185904477, 0.875193782, 417.7253140})
 };
 
 double QED::ads(double x, const ADSparameter& p) noexcept {
@@ -220,20 +214,73 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
 
 
 double QED::qed(const ::RDKit::ROMol& mol, std::optional<QEDproperties> qedPropertiesOpt, QEDproperties w) {
+
     typedef std::underlying_type<QEDPropName>::type utype;
     QEDproperties qedProperties = qedPropertiesOpt.has_value() ? qedPropertiesOpt.value() : properties(mol);
 
-    double t;
-    t  = qedProperties.MW *     log(ads(qedProperties.MW,     adsParameters[static_cast<utype>(QEDPropName::MW)]));
-    t += qedProperties.ALOGP *  log(ads(qedProperties.ALOGP,  adsParameters[static_cast<utype>(QEDPropName::ALOGP)]));
-    t += qedProperties.HBA *    log(ads(qedProperties.HBA,    adsParameters[static_cast<utype>(QEDPropName::HBA)]));
-    t += qedProperties.HBD *    log(ads(qedProperties.HBD,    adsParameters[static_cast<utype>(QEDPropName::HBD)]));
-    t += qedProperties.PSA *    log(ads(qedProperties.PSA,    adsParameters[static_cast<utype>(QEDPropName::PSA)]));
-    t += qedProperties.ROTB *   log(ads(qedProperties.ROTB,   adsParameters[static_cast<utype>(QEDPropName::ROTB)]));
-    t += qedProperties.AROM *   log(ads(qedProperties.AROM,   adsParameters[static_cast<utype>(QEDPropName::AROM)]));
-    t += qedProperties.ALERTS * log(ads(qedProperties.ALERTS, adsParameters[static_cast<utype>(QEDPropName::ALERTS)]));
+    std::cout << "qedProperties MW     " << qedProperties.MW   << std::endl;
+    std::cout << "qedProperties ALOGP  " << qedProperties.ALOGP << std::endl;
+    std::cout << "qedProperties HBA    " << qedProperties.HBA  << std::endl;
+    std::cout << "qedProperties HBD    " << qedProperties.HBD  << std::endl;
+    std::cout << "qedProperties PSA    " << qedProperties.PSA  << std::endl;
+    std::cout << "qedProperties ROTB   " << qedProperties.ROTB << std::endl;
+    std::cout << "qedProperties AROM   " << qedProperties.AROM << std::endl;
+    std::cout << "qedProperties ALERTS " << qedProperties.ALERTS << std::endl;
 
-    return exp(t / impl::QEDproperties_sum(w));
+    auto ads_params_mw    = adsParameters[static_cast<utype>(QEDPropName::MW)];
+    auto ads_params_alogp = adsParameters[static_cast<utype>(QEDPropName::ALOGP)];
+    auto ads_params_hba   = adsParameters[static_cast<utype>(QEDPropName::HBA)];
+    auto ads_params_hbd   = adsParameters[static_cast<utype>(QEDPropName::HBD)];
+    auto ads_params_psa   = adsParameters[static_cast<utype>(QEDPropName::PSA)];
+    auto ads_params_rotb  = adsParameters[static_cast<utype>(QEDPropName::ROTB)];
+    auto ads_params_arom  = adsParameters[static_cast<utype>(QEDPropName::AROM)];
+    auto ads_params_alert = adsParameters[static_cast<utype>(QEDPropName::ALERTS)];
+
+    std::cout << ads_params_mw.A << " " << ads_params_mw.B << " " << ads_params_mw.C << " "
+              << ads_params_mw.D << " " << ads_params_mw.E << " " << ads_params_mw.F << " "
+              << ads_params_mw.DMAX << std::endl;
+    std::cout << ads_params_alogp.A << " " << ads_params_alogp.B << " " << ads_params_alogp.C << " "
+              << ads_params_alogp.D << " " << ads_params_alogp.E << " " << ads_params_alogp.F << " "
+              << ads_params_alogp.DMAX << std::endl;
+    std::cout << ads_params_hba.A << " " << ads_params_hba.B << " " << ads_params_hba.C << " "
+              << ads_params_hba.D << " " << ads_params_hba.E << " " << ads_params_hba.F << " "
+              << ads_params_hba.DMAX << std::endl;
+    std::cout << ads_params_hbd.A << " " << ads_params_hbd.B << " " << ads_params_hbd.C << " "
+              << ads_params_hbd.D << " " << ads_params_hbd.E << " " << ads_params_hbd.F << " "
+              << ads_params_hbd.DMAX << std::endl;
+
+    double a_mw     = ads(qedProperties.MW,     ads_params_mw);
+    double a_alogp  = ads(qedProperties.ALOGP,  ads_params_alogp);
+    double a_hba    = ads(qedProperties.HBA,    ads_params_hba);
+    double a_hbd    = ads(qedProperties.HBD,    ads_params_hbd);
+    double a_psa    = ads(qedProperties.PSA,    ads_params_psa);
+    double a_rotb   = ads(qedProperties.ROTB,   ads_params_rotb);
+    double a_arom   = ads(qedProperties.AROM,   ads_params_arom);
+    double a_alerts = ads(qedProperties.ALERTS, ads_params_alert);
+
+    std::cout << "a_mw "    << a_mw    << std::endl;
+    std::cout << "a_alogp " << a_alogp << std::endl;
+    std::cout << "a_hba "   << a_hba   << std::endl;
+    std::cout << "a_hbd "   << a_hbd   << std::endl;
+
+    double sum_weight = WEIGHT_MEAN.MW + WEIGHT_MEAN.ALOGP + WEIGHT_MEAN.HBA + WEIGHT_MEAN.HBD +
+       WEIGHT_MEAN.PSA + WEIGHT_MEAN.ROTB + WEIGHT_MEAN.AROM + WEIGHT_MEAN.ALERTS;
+
+    double t = 0.0;
+    t += QED::WEIGHT_MEAN.MW     * std::log(a_mw);
+    t += QED::WEIGHT_MEAN.ALOGP  * std::log(a_alogp);
+    t += QED::WEIGHT_MEAN.HBA    * std::log(a_hba);
+    t += QED::WEIGHT_MEAN.HBD    * std::log(a_hbd);
+    t += QED::WEIGHT_MEAN.PSA    * std::log(a_psa);
+    t += QED::WEIGHT_MEAN.ROTB   * std::log(a_rotb);
+    t += QED::WEIGHT_MEAN.AROM   * std::log(a_arom);
+    t += QED::WEIGHT_MEAN.ALERTS * std::log(a_alerts);
+
+    double r = std::exp(t/sum_weight);
+
+    std::cout << "########## result: r " << r << " from t " << t << " sum_weight " << sum_weight << std::endl;
+
+    return r;
 }
 
 

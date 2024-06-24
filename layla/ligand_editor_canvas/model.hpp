@@ -185,12 +185,19 @@ class CanvasMolecule {
         unsigned int number_of_aromatic_rings;
         unsigned int number_of_alerts;
         double molecular_weight;
-        /// Hydrophobicity
-        double alogp;
+        double alogp;         /// Hydrophobicity
         double molecular_polar_surface_area;
+        double ads_mw;
+        double ads_alogp;
+        double ads_hba;
+        double ads_hbd;
+        double ads_psa;
+        double ads_rotb;
+        double ads_arom;
+        double ads_alert;
         double qed_score;
-
     };
+
     typedef std::variant<CanvasMolecule::Atom,CanvasMolecule::Bond> AtomOrBond;
     typedef std::optional<AtomOrBond> MaybeAtomOrBond;
     private:
