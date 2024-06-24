@@ -223,8 +223,8 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
             gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), progress_bar_value);
         };
 
-        update_progressbar_info_box(progress_bar_info_map["QED"], qed_info->qed_score, qed_info->qed_score);
-        update_progressbar_info_box(progress_bar_info_map[""], qed_info->molecular_weight, qed_info->ads_mw);
+        // update_progressbar_info_box(progress_bar_info_map["QED"], qed_info->qed_score, qed_info->qed_score);
+        // update_progressbar_info_box(progress_bar_info_map[""], qed_info->molecular_weight, qed_info->ads_mw);
     };
     g_signal_connect(canvas, "qed-info-updated", G_CALLBACK(+qed_info_updated_handler), qed_notebook);
 
