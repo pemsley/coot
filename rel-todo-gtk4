@@ -3,6 +3,8 @@
 
 Use 2DT dictionary for link and refinement - George.
 
+fix the double read of the monomers (there is only a single read in --no-graphics mode).
+
 Sharpen-blur "Computing..." dialog should be an overlay
 
 Downloading map (from EMDB) dialog should be an overlay
