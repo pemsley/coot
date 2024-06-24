@@ -545,6 +545,9 @@ public:
    //! Extract ligand restraints from the dictionary store and make an rdkit molecule
    //! @return a null pointer on failure.
    RDKit::RWMol get_rdkit_mol(const std::string &residue_name, int imol_enc);
+   //! get the 64base-encoded pickled string that represents the given residue/ligand name
+   //!
+   //! @return a string, return a null string on failure.
    std::string get_rdkit_mol_pickle_base64(const std::string &residue_name, int imol_enc);
 #endif
 #endif
