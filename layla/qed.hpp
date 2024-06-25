@@ -86,29 +86,46 @@ class QED {
     static const std::vector<ADSparameter> adsParameters;
 
     public:
+
+   class QED_and_ads_t {
+   public:
+      double qed_score;
+      double ads_mw;
+      double ads_alogp;
+      double ads_hba;
+      double ads_hbd;
+      double ads_psa;
+      double ads_rotb;
+      double ads_arom;
+      double ads_alerts;
+
+   };
+   
     /// Calculates the properties that are required to calculate the QED descriptor.
     static QEDproperties properties(const ::RDKit::ROMol& mol);
-    /// Calculate the weighted sum of ADS mapped properties
-    // @setDescriptorVersion(version='1.1.0')
-    static double qed(const ::RDKit::ROMol& mol, std::optional<QEDproperties> qedProperties = std::nullopt, QEDproperties w = WEIGHT_MEAN);
 
+   /// Calculate the weighted sum of ADS mapped properties
+    // @setDescriptorVersion(version='1.1.0')
+    static QED_and_ads_t qed(const ::RDKit::ROMol& mol,
+                             std::optional<QEDproperties> qedProperties = std::nullopt,
+                             QEDproperties w = WEIGHT_MEAN);
 
     /// ADS function
     static double ads(double x, const ADSparameter& p) noexcept;
 
     /// Calculates the QED descriptor using maximal descriptor weights
     inline static double weights_max(const ::RDKit::ROMol& mol) {
-        return qed(mol, WEIGHT_MAX);
+       return qed(mol, WEIGHT_MAX).qed_score;
     }
 
     /// Calculates the QED descriptor using average descriptor weights.
     inline static double weights_mean(const ::RDKit::ROMol& mol) {
-        return qed(mol, WEIGHT_MEAN);
+       return qed(mol, WEIGHT_MEAN).qed_score;
     }
 
     /// Calculates the QED descriptor using unit weights.
     inline static double weights_none(const ::RDKit::ROMol& mol) {
-        return qed(mol, WEIGHT_NONE);
+       return qed(mol, WEIGHT_NONE).qed_score;
     }
 
     /// Calculates the QED descriptor using average descriptor weights.

@@ -19,8 +19,10 @@
 #include <rdkit/GraphMol/Descriptors/MolSurf.h>
 #include <rdkit/GraphMol/Descriptors/Lipinski.h>
 
+// don't do this
 namespace coot::layla::RDKit {
 
+// don't do this
 namespace impl {
 
     auto make_acceptors() -> std::vector<std::unique_ptr<const ::RDKit::ROMol>> {
@@ -213,7 +215,10 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
 }
 
 
-double QED::qed(const ::RDKit::ROMol& mol, std::optional<QEDproperties> qedPropertiesOpt, QEDproperties w) {
+   // double QED::qed(const ::RDKit::ROMol& mol, std::optional<QEDproperties> qedPropertiesOpt, QEDproperties w) {
+   QED::QED_and_ads_t QED::qed(const ::RDKit::ROMol& mol, std::optional<QEDproperties> qedPropertiesOpt, QEDproperties w) {
+
+    QED_and_ads_t qed_plus_ads;
 
     typedef std::underlying_type<QEDPropName>::type utype;
     QEDproperties qedProperties = qedPropertiesOpt.has_value() ? qedPropertiesOpt.value() : properties(mol);
@@ -279,8 +284,17 @@ double QED::qed(const ::RDKit::ROMol& mol, std::optional<QEDproperties> qedPrope
     double r = std::exp(t/sum_weight);
 
     std::cout << "########## result: r " << r << " from t " << t << " sum_weight " << sum_weight << std::endl;
+    qed_plus_ads.qed_score = r;
+    qed_plus_ads.ads_mw = a_mw;
+    qed_plus_ads.ads_alogp = a_alogp;
+    qed_plus_ads.ads_hba = a_hba;
+    qed_plus_ads.ads_hbd = a_hbd;
+    qed_plus_ads.ads_psa = a_psa;
+    qed_plus_ads.ads_rotb = a_rotb;
+    qed_plus_ads.ads_arom = a_arom;
+    qed_plus_ads.ads_alerts = a_alerts;
 
-    return r;
+    return qed_plus_ads;
 }
 
 

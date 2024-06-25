@@ -160,7 +160,11 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
 
     GtkNotebook* qed_notebook = (GtkNotebook*) gtk_builder_get_object(builder, "layla_qed_notebook");
 
-    auto qed_info_updated_handler = [](CootLigandEditorCanvas* self, unsigned int molecule_id, const ligand_editor_canvas::CanvasMolecule::QEDInfo* qed_info, gpointer user_data){
+    auto qed_info_updated_handler = [] (CootLigandEditorCanvas* self, 
+                                        unsigned int molecule_id,
+                                        const ligand_editor_canvas::CanvasMolecule::QEDInfo *qed_info,
+                                        gpointer user_data) {
+
         GtkNotebook* qed_notebook = GTK_NOTEBOOK(user_data);
         auto find_or_create_tab_for_mol_id = [qed_notebook](unsigned int molecule_id){
             auto no_pages = gtk_notebook_get_n_pages(qed_notebook);
@@ -181,7 +185,6 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
             gtk_widget_set_margin_top(qed_grid, 6);
             gtk_widget_set_margin_bottom(qed_grid, 6);
 
-            std::map<std::string, GtkWidget *> progress_bar_info_map;
 
             auto build_progressbar_info_box = [] (const std::string &label /* range or anything else ??*/) {
                 GtkWidget* ret = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
@@ -194,6 +197,7 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
             };
 
             std::vector<std::string> label_vec = {"QED", "MW", "PSA", "cLogP", "#HBA", "#HBD", "#RotBonds", "#Arom", "#Alerts"};
+            std::map<std::string, GtkWidget *> progress_bar_info_map;
             for (const auto &label : label_vec)
                progress_bar_info_map[label] = build_progressbar_info_box(label);
 
@@ -215,7 +219,7 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
 
         GtkWidget* tab = find_or_create_tab_for_mol_id(molecule_id);
 
-        auto update_progressbar_info_box = [] (GtkWidget* info_box, double value, double progress_bar_value) {
+        auto update_progressbar_info_box = [] (GtkWidget *info_box, double value, double progress_bar_value) {
             GtkWidget* label = gtk_widget_get_first_child(info_box);
             GtkWidget* progress_bar = gtk_widget_get_next_sibling(label);
             auto value_as_str = std::to_string(value);
@@ -223,8 +227,18 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
             gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), progress_bar_value);
         };
 
-        // update_progressbar_info_box(progress_bar_info_map["QED"], qed_info->qed_score, qed_info->qed_score);
-        // update_progressbar_info_box(progress_bar_info_map[""], qed_info->molecular_weight, qed_info->ads_mw);
+        std::cout << "debug molecular_weight " << qed_info->molecular_weight << " " << qed_info->ads_mw << std::endl;
+        // these are (carefully) accessed by grid location, not name:
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 0), qed_info->qed_score,                         qed_info->qed_score);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 1), qed_info->molecular_weight,                  qed_info->ads_mw);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 1, 1), qed_info->molecular_polar_surface_area,      qed_info->ads_psa);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 2, 1), qed_info->alogp,                             qed_info->ads_alogp);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 3, 1), qed_info->number_of_hydrogen_bond_acceptors, qed_info->ads_hba);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 2), qed_info->number_of_hydrogen_bond_donors,    qed_info->ads_hbd);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 1, 2), qed_info->number_of_rotatable_bonds,         qed_info->ads_rotb);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 2, 2), qed_info->number_of_aromatic_rings,          qed_info->ads_arom);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 3, 2), qed_info->number_of_alerts,                  qed_info->ads_alert);
+
     };
     g_signal_connect(canvas, "qed-info-updated", G_CALLBACK(+qed_info_updated_handler), qed_notebook);
 

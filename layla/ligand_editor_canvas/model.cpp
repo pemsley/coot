@@ -924,10 +924,11 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
 }
 
 void CanvasMolecule::update_qed_info() {
+
     using QED = layla::RDKit::QED;
 
     coot::layla::RDKit::QED::QEDproperties raw_props = QED::properties(*this->rdkit_molecule);
-    auto qed_score = QED::qed(*this->rdkit_molecule, raw_props);
+    auto qed_score_and_ads = QED::qed(*this->rdkit_molecule, raw_props);
     QEDInfo new_info;
 
     new_info.alogp                             = raw_props.ALOGP;
@@ -938,7 +939,15 @@ void CanvasMolecule::update_qed_info() {
     new_info.number_of_hydrogen_bond_acceptors = raw_props.HBA;
     new_info.number_of_hydrogen_bond_donors    = raw_props.HBD;
     new_info.number_of_rotatable_bonds         = raw_props.ROTB;
-    new_info.qed_score = qed_score;
+    new_info.qed_score = qed_score_and_ads.qed_score;
+    new_info.ads_mw = qed_score_and_ads.ads_mw;
+    new_info.ads_alogp = qed_score_and_ads.ads_alogp;
+    new_info.ads_hba = qed_score_and_ads.ads_hba;
+    new_info.ads_hbd = qed_score_and_ads.ads_hbd;
+    new_info.ads_psa = qed_score_and_ads.ads_psa;
+    new_info.ads_rotb = qed_score_and_ads.ads_rotb;
+    new_info.ads_arom = qed_score_and_ads.ads_arom;
+    new_info.ads_alert = qed_score_and_ads.ads_alerts;
 
     g_debug("Updated QED: ALOGP=%f PSA=%f MW=%f ALERTS=%u AROM=%u HBA=%u HBD=%u ROTB=%u QED=%f",
         new_info.alogp,
@@ -949,7 +958,7 @@ void CanvasMolecule::update_qed_info() {
         new_info.number_of_hydrogen_bond_acceptors,
         new_info.number_of_hydrogen_bond_donors,
         new_info.number_of_rotatable_bonds,
-        qed_score
+        new_info.qed_score
     );
 
     this->qed_info = new_info;
