@@ -212,6 +212,14 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .field("molecular_weight", &CanvasMolecule::QEDInfo::molecular_weight)
     .field("alogp", &CanvasMolecule::QEDInfo::alogp)
     .field("molecular_polar_surface_area", &CanvasMolecule::QEDInfo::molecular_polar_surface_area)
+    .field("ads_mw", &CanvasMolecule::QEDInfo::ads_mw)
+    .field("ads_alogp", &CanvasMolecule::QEDInfo::ads_alogp)
+    .field("ads_hba", &CanvasMolecule::QEDInfo::ads_hba)
+    .field("ads_hbd", &CanvasMolecule::QEDInfo::ads_hbd)
+    .field("ads_psa", &CanvasMolecule::QEDInfo::ads_psa)
+    .field("ads_rotb", &CanvasMolecule::QEDInfo::ads_rotb)
+    .field("ads_arom", &CanvasMolecule::QEDInfo::ads_arom)
+    .field("ads_alert", &CanvasMolecule::QEDInfo::ads_alert)
     .field("qed_score", &CanvasMolecule::QEDInfo::qed_score);
   class_<impl::WidgetCoreData>("ImplWidgetCoreData");
   register_map<unsigned int, std::string>("SmilesMap");
