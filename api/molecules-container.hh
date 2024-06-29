@@ -235,6 +235,7 @@ class molecules_container_t {
                                  bool move_copy_of_imol2_flag);
 
 #ifdef HAVE_SSMLIB
+
    void print_ssm_sequence_alignment(ssm::Align *SSMAlign,
 				     atom_selection_container_t asc_ref,
 				     atom_selection_container_t asc_mov,
@@ -276,7 +277,8 @@ class molecules_container_t {
 					   atom_selection_container_t asc_mov,
 					   mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
 					   int n_selected_atoms_1, int n_selected_atoms_2) const;
-   // for gesmpt this will be vector of vector
+
+   // for gesampt this will be vector of vector
    std::vector<std::pair<coot::residue_validation_information_t, coot::residue_validation_information_t> >
    get_pairs(ssm::Align *SSMAlign,
              atom_selection_container_t asc_ref,
@@ -1553,16 +1555,19 @@ public:
    //! @returns a `coot::validation_information_t`
    coot::validation_information_t density_fit_analysis(int imol_model, int imol_map) const;
 
-   //! density correlation validation information
-   //! @returns a `coot::validation_information_t`
+   //! Get the density correlation validation information
+   //!
+   //! @returns a `coot::validation_information_t` object
    coot::validation_information_t density_correlation_analysis(int imol_model, int imol_map) const;
 
-   //! rotamer validation information
-   //! @returns a `coot::validation_information_t`
+   //! Get the rotamer validation information
+   //!
+   //! @returns a `coot::validation_information_t` object
    coot::validation_information_t rotamer_analysis(int imol_model) const;
 
-   //! ramachandran validation information (formatted for a graph, not 3d)
-   //! @returns a `coot::validation_information_t`
+   //! Get the ramachandran validation information (formatted for a graph, not 3d)
+   //!
+   //! @returns a `coot::validation_information_t` object
    coot::validation_information_t ramachandran_analysis(int imol_model) const;
 
    //! ramachandran validation information (formatted for a graph, not 3d) for a given chain in a given molecule
@@ -1595,7 +1600,7 @@ public:
    //! @return a vector of `coot::validation_information_t`
    std::vector<coot::molecule_t::interesting_place_t> unmodelled_blobs(int imol_model, int imol_map) const;
 
-   //! check waters, implicit OR
+   //! Check waters, using implicit logical OR
    //!
    //! typical values for `b_factor_lim` is 60.0
    //! typical values for `outlier_sigma_level` is 0.8
@@ -1633,9 +1638,15 @@ public:
 #endif
 
    //! Fourier Shell Correlation (FSC) between maps
+   //!
    //! @return a vector or pairs of graph points (resolution, correlation). The resolution is in inverse Angstroms squared.
    //!  An empty list is returned on failure
    std::vector<std::pair<double, double> > fourier_shell_correlation(int imol_map_1, int imol_map_2) const;
+
+   //! Get the Pintile et al. Q Score
+   //!
+   //! @return a coot::validation_information_t object
+   coot::validation_information_t get_q_score(int imol_model, int imol_map) const;
 
    // -------------------------------- Rail Points ------------------------------------------
    //! \name Rail Points!

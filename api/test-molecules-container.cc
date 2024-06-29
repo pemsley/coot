@@ -5733,6 +5733,33 @@ int test_alpha_in_colour_holder(molecules_container_t &mc) {
    return status;
 }
 
+int test_Q_Score(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.set_use_gemmi(true);
+      coot::atom_spec_t atom_spec("A", 270, "", " O  ","");
+      mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
+      if (at_1) {
+         coot::validation_information_t vi = mc.get_q_score(imol, imol_map);
+         coot::stats::single s = vi.get_stats();
+         double q_mean = s.mean();
+         std::cout << "q_mean " << q_mean << std::endl;
+         if (q_mean > 0.8)
+            if (q_mean < 1.0)
+               status = 1;
+      }
+   }
+   mc.close_molecule(imol);
+   mc.close_molecule(imol_map);
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6035,7 +6062,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_lsq_superpose, "LSQ superpose", mc);
          // status += run_test(test_change_rotamer, "Change Rotamer (Filo)", mc);
          // status += run_test(test_alpha_in_colour_holder, "Alpha value in colour holder", mc);
-         status += run_test(test_gaussian_surface, "Gaussian surface", mc);
+         // status += run_test(test_gaussian_surface, "Gaussian surface", mc);
+         status += run_test(test_Q_Score, "Q Score", mc);
 
          if (status == n_tests) all_tests_status = 0;
 

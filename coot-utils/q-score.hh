@@ -180,7 +180,6 @@ namespace coot {
                   if (atom_q_score.is_valid && atom_q_score.n_points >= 4) {
                      double q_score = atom_q_score.q_score;
                      q_score_results_p->at(iat) = q_score;
-                     std::cout << "post calc " << atom_spec_t(at) << " " << u_v_pairs.size() << " " << q_score << std::endl;
 
                      if (false) {
                         // debug using density stats:
@@ -235,17 +234,23 @@ namespace coot {
          // Now batch the atom-based results into residues
 
          // auto tp_0 = std::chrono::high_resolution_clock::now();
+
+         // add a UDD for every atom:
+         int udd_q_score = mol->RegisterUDReal(mmdb::UDR_ATOM, "Q Score");
          std::map<residue_spec_t, stats::single> residue_q_scores;
          for (int iat=0; iat<n_selected_atoms; iat++) {
             mmdb:: Atom *at = atom_selection[iat];
             residue_spec_t res_spec(at->GetResidue());
             float q_score = q_score_results[iat];
-            std::cout << "results per atom " << atom_spec_t(at) << " " << q_score << " B-factor " << at->tempFactor << std::endl;
+            at->PutUDData(udd_q_score, q_score);
+            if (false)
+               std::cout << "results per atom " << atom_spec_t(at) << " " << q_score << " B-factor " << at->tempFactor
+                         << std::endl;
             if (q_score > -1000.0)
                residue_q_scores[res_spec].add(q_score);
          }
          std::map<residue_spec_t, stats::single>::const_iterator it;
-         if (true)
+         if (false)
             for (it=residue_q_scores.begin(); it!=residue_q_scores.end(); ++it)
                std::cout << "   " << it->first.chain_id << " " << it->first.res_no
                          << " n-atoms " << it->second.size() << " mean " << it->second.mean() << std::endl;
