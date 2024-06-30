@@ -270,6 +270,8 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 		  }
 		  catch (const boost::bad_any_cast &bac) {
 		     // Goodness knows why this is thrown... 
+                     // Aha! Many years later someone else stumbles on the same issue:
+                     // https://github.com/rdkit/rdkit/issues/6465
 		     std::cout << "strange - caught bad_any_cast on _CIPRank get" << std::endl;
 		  } 
 	       }
