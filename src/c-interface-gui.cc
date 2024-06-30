@@ -2033,11 +2033,104 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
 /*                  get by accession code:                                  */
 /*  ----------------------------------------------------------------------- */
 
+#include "read-molecule.hh" // move this up
 
 /* Accession code, and dispatch guile command to download and display
    the model.  Hmmm.  */
 void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
 
+   auto join = [] (const std::string &d, const std::string &f) {
+      return d + std::string("/") + f;
+   };
+
+   auto join_2d = [] (const std::string &d1, const std::string &d2, const std::string &f) {
+      return d1 + std::string("/") + d2 + std::string("/") + f;
+   };
+
+   auto network_get_accession_code_entity = [join, join_2d] (const std::string &text, int mode) {
+      std::string download_dir = "coot-download";
+      download_dir = coot::get_directory(download_dir.c_str());
+      std::string down_id = coot::util::downcase(text);
+      std::string pdbe_server = "https://www.ebi.ac.uk";
+      std::string pdbe_pdb_file_dir = "pdbe/entry-files/download";
+      std::string pdb_url_dir = pdbe_server + "/" + pdbe_pdb_file_dir;
+
+      std::string pdb_file_name = std::string("pdb") + down_id + std::string(".ent");
+      std::string cif_file_name = std::string("pdb") + down_id + std::string(".cif");
+      std::string pdb_filepath = coot::util::append_dir_file(download_dir, pdb_file_name);
+      std::string cif_filepath = coot::util::append_dir_file(download_dir, cif_file_name);
+
+      std::string pdb_url = join(pdb_url_dir, pdb_file_name);
+      std::string cif_url = join(pdb_url_dir, cif_file_name);
+
+      if (mode == 1) { // mtz mode
+         std::string mtz_file_name = down_id + std::string("_map.mtz");
+         std::string mtz_filepath = coot::util::append_dir_file(download_dir, mtz_file_name);
+         std::string mtz_url = join_2d(pdbe_server, pdbe_pdb_file_dir, mtz_file_name);
+         int status = coot_get_url(mtz_url, mtz_filepath);
+         if (status == 0) {
+            auto_read_make_and_draw_maps(mtz_filepath.c_str());
+         }
+      } else {
+         // blocking!
+         int status = coot_get_url(pdb_url, pdb_file_name);
+         if (status == 0) {
+            read_pdb(pdb_file_name);
+         } else {
+            status = coot_get_url(cif_url, cif_file_name);
+            if (status == 0) {
+               read_pdb(cif_file_name);
+            }
+         }
+      }
+   };
+
+   auto fetch_pdb_redo = [] (const std::string &code) {
+      std::string download_dir = "coot-download";
+      download_dir = coot::get_directory(download_dir.c_str());
+      std::string down_id = coot::util::downcase(code);
+      std::string server = "https://pdb-redo.eu";
+      std::string server_dir = std::string("db") + "/" + code;
+      std::string pdb_file_name = code + "_final.pdb";
+      std::string mtz_file_name = code + "_final.mtz";
+      // make a "join()" function
+      std::string pdb_url = server + "/" + server_dir + "/" + pdb_file_name;
+      std::string mtz_url = server + "/" + server_dir + "/" + mtz_file_name;
+      std::string pdb_filepath = coot::util::append_dir_dir(download_dir, pdb_file_name);
+      std::string mtz_filepath = coot::util::append_dir_dir(download_dir, mtz_file_name);
+      int status = coot_get_url(pdb_url, pdb_filepath);
+      if (status == 0) {
+         read_pdb(pdb_filepath);
+         status = coot_get_url(mtz_url, mtz_filepath);
+         if (status == 0) {
+            // why is auto_read_mtz() not a thing? Use a std::string arg
+            auto_read_make_and_draw_maps(mtz_filepath.c_str());
+         }
+      }
+
+   };
+
+   auto network_get = [network_get_accession_code_entity, fetch_pdb_redo] (const std::string &text, int n) {
+
+      if (n == COOT_ACCESSION_CODE_WINDOW_OCA) {
+         network_get_accession_code_entity(text, 0); // coords
+      }
+      if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
+         network_get_accession_code_entity(text, 0); // coords
+         network_get_accession_code_entity(text, 1); // mtz
+      }
+      if (n == COOT_ACCESSION_CODE_WINDOW_OCA_WITH_SF) {
+         std::cout << "WARNING:: OCA+SF no longer supported" << std::endl;
+      }
+      if (n == COOT_ACCESSION_CODE_WINDOW_PDB_REDO) {
+         fetch_pdb_redo(text);
+      }
+      if (n == COOT_UNIPROT_ID) {
+         fetch_alphafold_model_for_uniprot_id(text);
+      }
+   };
+
+   // 20240630-PE no longer used - can be deleted.
    auto python_network_get = [] (const std::string &text, int n) {
 
                                 std::string python_command;
@@ -2092,7 +2185,7 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
          if (n == COOT_COD_CODE) {
             fetch_cod_entry(text);
          } else {
-            python_network_get(text_c, n);
+            network_get(text_c, n);
          }
       }
    }
