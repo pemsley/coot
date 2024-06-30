@@ -1,6 +1,13 @@
 
 ----
 
+Get ligand PDBe needs to be depythonized
+
+From watching https://www.youtube.com/watch?v=mDwMUH181-s
+  o Find a molecule with a chunk of RNA
+     build hunks, refine and merge fragments
+  o Assign the sequence
+
 Use 2DT dictionary for link and refinement - George.
 
 Add coot-ligand-validation to chapi.
