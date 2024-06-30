@@ -1007,6 +1007,18 @@ coot::get_directory(const std::string &dir) {
    }
 }
 
+// Let's use C++-17 filesystem rather than stat()
+#include "xdg-base.hh"
+
+//!  Use XDG Base Directory to get the download directory
+std::string
+coot::get_download_directory() {
+
+   xdg_t xdg;
+   std::filesystem::path p = xdg.get_cache_home();
+   return p.string();
+}
+
 
 
 

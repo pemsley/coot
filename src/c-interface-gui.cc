@@ -2048,8 +2048,9 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
    };
 
    auto network_get_accession_code_entity = [join, join_2d] (const std::string &text, int mode) {
-      std::string download_dir = "coot-download";
-      download_dir = coot::get_directory(download_dir.c_str());
+
+      xdg_t xdg;
+      std::string download_dir = xdg.get_cache_home().string();
       std::string down_id = coot::util::downcase(text);
       std::string pdbe_server = "https://www.ebi.ac.uk";
       std::string pdbe_pdb_file_dir = "pdbe/entry-files/download";
@@ -2086,8 +2087,8 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
    };
 
    auto fetch_pdb_redo = [] (const std::string &code) {
-      std::string download_dir = "coot-download";
-      download_dir = coot::get_directory(download_dir.c_str());
+      xdg_t xdg;
+      std::string download_dir = xdg.get_cache_home().string();
       std::string down_id = coot::util::downcase(code);
       std::string server = "https://pdb-redo.eu";
       std::string server_dir = std::string("db") + "/" + code;
