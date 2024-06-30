@@ -1,5 +1,9 @@
 # 
 # -*-shell-script-*-
+# Local Variables:
+# mode: shell-script
+# sh-shell: bash
+# End:
 #  ----------------- this is now the python-3 version ----------------
 #
 # Copyright 2004, 2005, 2006, 2007, 2008 by The University of York
@@ -2743,11 +2747,13 @@ if [ $skip_build = false ] ; then
     unzip ${AUTOBUILD_SOURCES}/libffi-master.zip
     cd libffi-master
     bash autogen.sh
+    # this was from the other build:
+    # ./configure --prefix=$install_top_dir --disable-multi-os-directory --enable-portable-binary --enable-shared --disable-static
+    # where --disable-multi-os-directory was commented out
     ./configure --prefix="$install_top_dir"
     make -j 4
     make install
     cd -
-
     ) > $HOSTLOGDIR/09-libffi.txt 2>&1
 else
     echo not building libffi >&2
@@ -3962,7 +3968,7 @@ python3 -m pip install packaging
 
 if test -e $install_top_dir/include/pcre2.h ; then
     echo installation has pcre2
-    echo installation has bcre2 >&2
+    echo installation has pcre2 >&2
 else
    pcre2_version=10.43
    echo BUILDING: pcre2 $pcre2_version
@@ -4053,7 +4059,10 @@ if test "$build_gobject_introspection" = true ; then
    #
    # BUT... if we don't build meson because we have a new enough meson
    # in the path then $install_top_dir/bin/meson does not exist!
-   if meson -Dprefix=$install_top_dir build ; then
+
+   # how about setting --libdir?
+   # if meson setup -Dprefix=$install_top_dir --libdir=$install_top_dir/lib64 build ; then
+   if meson setup -Dprefix=$install_top_dir build ; then
       echo meson passed
       cd build
       ninja
@@ -4159,7 +4168,7 @@ if [ $skip_build = false ] ; then
       else
          echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
       fi ) > $HOSTLOGDIR/31-pygobject.txt 2>&1
-      echo done pygobject $pygobject_version: >&2
+      echo BUILDING: done pygobject $pygobject_version: >&2
 else
    echo not building pygobject:
    echo not building pygobject: 2>&1
@@ -4186,7 +4195,7 @@ else
     pip3 install wheel
     pip3 install pygobject
     ) > $HOSTLOGDIR/34-pip-wheel-pygobject.txt 2>&1
-    echo done install pygobject with pip3 >&2
+    echo BUILDING: done install pygobject with pip3 >&2
 fi
 
 # silicos-it's biscu-it (QED) is now part of RDKit main.
@@ -4195,7 +4204,7 @@ fi
 ##################### guile and friends #######################################
 ###############################################################################
 
-libffi_version=3.2.1
+# libffi_version=3.2.1 built above (for python)
 guile_version=3.0.5 # no g-wrap for this
 guile_version=2.2.7
 g_wrap_version=1.9.15
