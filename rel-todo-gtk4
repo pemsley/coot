@@ -3,7 +3,14 @@
 
 Use 2DT dictionary for link and refinement - George.
 
+Add coot-ligand-validation to chapi.
+
+Add lsqkab superposition to the api
+
 fix the double read of the monomers (there is only a single read in --no-graphics mode).
+
+coot: setup updating maps then delete the maps and models - gracefully turn off updating
+   maps - currently the timeout function writes a error message, but does not stop.
 
 Sharpen-blur "Computing..." dialog should be an overlay
 
