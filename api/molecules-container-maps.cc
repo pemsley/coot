@@ -140,3 +140,96 @@ molecules_container_t::get_number_of_map_sections(int imol_map, int axis_id) con
    }
    return n;
 }
+
+#include "coot-utils/xmap-stats.hh"
+#include "coot-utils/q-score.hh"
+
+//! Get the Pintile et al. Q Score
+//!
+//! @return a coot::validation_information_t object
+coot::validation_information_t
+molecules_container_t::get_q_score(int imol_model, int imol_map) const {
+
+   // The Q score is stored as a UDD per atom.
+   //
+   // We need to extract the Q Score for each atom and average them
+   // to make scores for each residue
+
+   coot::validation_information_t vi;
+   bool do_per_atom = false; // 20240629-PE we currently don't have a (good)_container for this.
+                             //  Per residue will do for now.
+
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+         const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+         mean_and_variance<float> mv = map_density_distribution(xmap, 1000, false, true);
+         mmdb::Manager *mol = molecules[imol_model].atom_sel.mol;
+         coot::q_score_t q_score(mol);
+         q_score.calc(xmap, mv.mean, std::sqrt(mv.variance));
+
+         int udd_q_score = mol->GetUDDHandle(mmdb::UDR_ATOM, "Q Score");
+         int imod = 1;
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               coot::chain_validation_information_t cvi(chain_p->GetChainID());
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+
+                     if (n_atoms > 0) {
+                        coot::residue_spec_t residue_spec(residue_p);
+                        coot::atom_spec_t spec_for_atom_in_residue(residue_p->GetAtom(0)); // say
+                        double qed_residue_sum = 0;
+                        unsigned int n_qed_atoms = 0;
+
+                        // accumulate QED for the residue
+                        for (int iat=0; iat<n_atoms; iat++) {
+                           mmdb::Atom *at = residue_p->GetAtom(iat);
+                           if (! at->isTer()) {
+                              mmdb::realtype q;
+                              if (at->GetUDData(udd_q_score, q) == mmdb::UDDATA_Ok) {
+                                 if (q > -1000.0) { // test for not invalid QED on atom
+                                    qed_residue_sum += q;
+                                    n_qed_atoms++;
+                                 }
+                              }
+                           }
+                        }
+
+                        if (n_qed_atoms > 0) {
+                           double qed_residue = qed_residue_sum / static_cast<double>(n_qed_atoms);
+                           std::string fs = coot::util::float_to_string_using_dec_pl(qed_residue, 2);
+                           std::string label = residue_spec.chain_id + " " + std::to_string(residue_spec.res_no) + " " + fs;
+                           coot::residue_validation_information_t rvi(residue_spec, spec_for_atom_in_residue, qed_residue, label);
+                           cvi.add(rvi);
+
+                           if (do_per_atom) {
+                              // now the per-atom score
+                              for (int iat=0; iat<n_atoms; iat++) {
+                                 mmdb::Atom *at = residue_p->GetAtom(iat);
+                                 if (! at->isTer()) {
+                                    mmdb::realtype q;
+                                    at->GetUDData(udd_q_score, q);
+                                    if (false)
+                                       std::cout << " " << coot::atom_spec_t(at) << " B " << at->tempFactor
+                                                 << "  Q-Score: " << q << std::endl;
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+               vi.add(cvi);
+            }
+         }
+         q_score.close();
+      }
+   }
+   return vi;
+}

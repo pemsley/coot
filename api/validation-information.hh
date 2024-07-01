@@ -13,6 +13,9 @@ namespace coot {
       std::vector<residue_validation_information_t> rviv;
       chain_validation_information_t() {}
       explicit chain_validation_information_t(const std::string &chain_id_in) : chain_id(chain_id_in) {}
+      void add(const residue_validation_information_t &rvi) {
+         add_residue_validation_information(rvi);
+      }
       void add_residue_validation_information(const residue_validation_information_t &rvi) {
          rviv.push_back(rvi);
       }
@@ -61,6 +64,10 @@ namespace coot {
       void add_residue_validation_information(const residue_validation_information_t &rvi, const std::string &chain_id) {
          unsigned int idx = get_index_for_chain(chain_id);
          cviv[idx].add_residue_validation_information(rvi);
+      }
+      // one presumes that the chain id of this cvi does not match any current items in the cviv.
+      void add(const chain_validation_information_t &cvi) {
+         cviv.push_back(cvi);
       }
       //! return true of there are no data
       bool empty() const { return cviv.empty(); }
