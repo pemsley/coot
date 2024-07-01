@@ -47,6 +47,13 @@ class xdg_t {
 
 public:
    xdg_t() : package_name("Coot") {
+      init();
+   }
+   xdg_t(const std::string &pn) : package_name(pn) {
+      init();
+   }
+
+   void init() {
 
       // config_home is for hand-crafted/user-specified configurations
       // cache_home is non-essential data (backups)
