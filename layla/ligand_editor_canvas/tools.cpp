@@ -774,7 +774,8 @@ void StructureInsertion::append_structure_to_atom(RDKit::RWMol* rdkit_mol_ptr, u
 
 bool StructureInsertion::on_molecule_click(MoleculeClickContext& ctx) {
     ctx.widget_data.begin_edition();
-    RDKit::MolOps::Kekulize(*ctx.rdkit_mol.get());
+    // This causes problems with appending benzene to a benzene
+    // RDKit::MolOps::Kekulize(*ctx.rdkit_mol.get());
     return true;
 }
 
