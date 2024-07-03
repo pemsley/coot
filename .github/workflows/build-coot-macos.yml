@@ -27,15 +27,12 @@ jobs:
         brew upgrade
 
     # I don't think that glfw is needed now (it is in the coot.rb file though)
-    - name: Install Homebrew dependencies
+    - name: Install Coot dependencies in Homebrew
       run:  >
          brew install boost boost-python3 brewsci/bio/clipper4coot
          brewsci/bio/raster3d brewsci/bio/ssm brewsci/bio/gemmi
          dwarfutils gsl rdkit pygobject3 gtk4 glm automake gmp glfw
          py3cairo pygobject3
-
-    - name: Install Homebrew python-requests
-      run:  brew install python-requests
 
     - name: Get coot.rb file
       # try this modified version for now:
