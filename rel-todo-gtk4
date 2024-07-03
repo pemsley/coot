@@ -3,6 +3,8 @@
 
 Get ligand PDBe needs to be depythonized
 
+Add read_coordinates() to the read-molecule.hh api.
+
 From watching https://www.youtube.com/watch?v=mDwMUH181-s
   o Find a molecule with a chunk of RNA
      build hunks, refine and merge fragments
@@ -40,6 +42,8 @@ Check email for build-script updates/fixes
 
 Add Q-score to api
 * Done.
+
+Is 0-coot.state.py a good file-name now that it's in ~/.local/state/Coot ?
 
 How to set the step size for mouse scroll?
 
