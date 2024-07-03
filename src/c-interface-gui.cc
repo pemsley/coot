@@ -2732,7 +2732,7 @@ void set_main_toolbar_style(int istate) {
    graphics_info_t::main_toolbar_style_state = istate;
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *toolbar = widget_from_builder("main_toolbar");
-      if (!w) {
+      if (!toolbar) {
 	 std::cout << "set_main_toolbar_style(): failed to lookup main toolbar" << std::endl;
       }
    }
