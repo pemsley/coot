@@ -58,7 +58,7 @@ endif
 
 libcoot_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-check_PROGRAMS = test-logging test-utils
+check_PROGRAMS = test-logging test-utils test-subprocess
 
 test_logging_SOURCES = test-logging.cc
 
@@ -67,3 +67,6 @@ test_logging_LDADD = libcoot-utils.la
 test_utils_SOURCES = test-utils.cc
 
 test_utils_LDADD = libcoot-utils.la
+
+test_subprocess_SOURCES = test-subprocess.cc
+

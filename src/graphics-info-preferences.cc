@@ -918,9 +918,9 @@ graphics_info_t::show_hide_toolbar_icon_pos(int pos, int show_hide_flag, int too
       // icon_button = lookup_widget(graphics_info_t::get_main_window(), widget_name.c_str());
 
       icon_button = widget_from_builder(widget_name.c_str());
-      std::cout << "in show_hide_toolbar_icon_pos() " << pos << " " << widget_name << " " << icon_button << std::endl;
+      // std::cout << "in show_hide_toolbar_icon_pos() " << pos << " " << widget_name << " " << icon_button << std::endl;
 
-      if (icon_button) { 
+      if (icon_button) {
 
 	 if (show_hide_flag == 1) {
 	    preferences_internal_change_value_int2(preferences_index, pos, 1);
@@ -932,7 +932,6 @@ graphics_info_t::show_hide_toolbar_icon_pos(int pos, int show_hide_flag, int too
 	    gtk_widget_set_visible(icon_button, FALSE);
 	 }
          coot::preferences_icon_info_t item = (*pall_items)[pos];
-         
       }
    }
 }
@@ -953,7 +952,7 @@ graphics_info_t::get_model_toolbar_icons_list() {
     }
 
   }
-  
+
   return ivector;
 }
 

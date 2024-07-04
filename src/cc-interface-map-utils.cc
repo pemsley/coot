@@ -203,3 +203,83 @@ SCM map_to_model_correlation_stats_per_residue_range_scm(int imol, const std::st
    return scm_list_2(r_0, r_1);
 }
 #endif
+
+
+#include "utils/subprocess.hpp"
+
+// resolution in A.
+// The map in imol_fofc_map gets overwritten.
+void servalcat_fofc(int imol_model,
+                    int imol_fofc_map, const std::string &half_map_1, const std::string &half_map_2,
+                    float resolution) {
+
+   // c.f. void sharpen_blur_map_with_resampling_threaded_version(int imol_map, float b_factor, float resample_factor);
+
+   auto servalcat_fofc_func = [] (const std::string &half_map_1, const std::string &half_map_2,
+                                  const std::string &pdb_file_name,
+                                  const std::string &prefix,
+                                  float resolution) {
+
+      graphics_info_t g;
+      std::string output_fn = prefix + std::string(".mtz");
+      std::vector<std::string> cmd_list = {"servalcat", "fofc",
+         "--halfmaps", half_map_1, half_map_2,
+         "--trim", "--trim_mtz", "--resolution", std::to_string(resolution),
+         "--model", pdb_file_name, "-o", prefix};
+      subprocess::OutBuffer obuf = subprocess::check_output(cmd_list);
+      if (true) {
+         std::cout << "Data : " << obuf.buf.data() << std::endl;
+         std::cout << "Data len: " << obuf.length << std::endl;
+      }
+      g.servalcat_fofc.second = output_fn;
+      g.servalcat_fofc.first = true;
+   };
+
+   auto check_it = +[] (gpointer data) {
+
+      graphics_info_t g;
+      std::cout << "............... running check_it() " << g.servalcat_fofc.first << std::endl;
+
+      if (g.servalcat_fofc.first) {
+         const std::string &mtz_file_name = g.servalcat_fofc.second;
+         g.servalcat_fofc.first = false; // turn it off
+         int imol_map = GPOINTER_TO_INT(data);
+         std::cout << "debug:: in check_it() with imol_map " << imol_map << std::endl;
+         coot::mtz_to_map_info_t mmi;
+         mmi.is_difference_map = true;
+         mmi.mtz_file_name = mtz_file_name;
+         mmi.f_col   = "DELFWT";
+         mmi.phi_col = "PHDELWT";
+         mmi.id = "Something or other - what should I put here?";
+         std::cout << "............... calling update_self() mtz " << mtz_file_name << std::endl;
+         g.molecules[imol_map].update_self(mmi);
+         g.graphics_draw();
+         return gboolean(FALSE);
+      }
+      return gboolean(TRUE);
+   };
+
+
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol_model)) {
+      if (g.is_valid_map_molecule(imol_fofc_map)) {
+         // fine
+      } else {
+         clipper::Xmap<float> xmap;
+         bool is_em_map = true;
+         std::string label = "diff map";
+         imol_fofc_map = g.create_molecule();
+         g.molecules[imol_fofc_map].install_new_map(xmap, label, is_em_map);
+      }
+      std::string prefix = "test-7vvl-diff-map";
+      std::string model_file_name = g.molecules[imol_model].get_name() + ".pdb";
+      g.molecules[imol_model].write_pdb_file(model_file_name);
+      std::thread thread(servalcat_fofc_func, half_map_1, half_map_2, model_file_name, prefix, resolution);
+      thread.detach();
+
+      g.servalcat_fofc.first = false;
+      GSourceFunc f = GSourceFunc(check_it);
+      std::cout << "debug:: in servalcat_fofc() with imol_fofc_map " << imol_fofc_map << " as user data" << std::endl;
+      g_timeout_add(400, f, GINT_TO_POINTER(imol_fofc_map));
+   }
+}
