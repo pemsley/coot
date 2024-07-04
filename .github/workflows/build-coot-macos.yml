@@ -39,8 +39,9 @@ jobs:
 
     - name: Get coot.rb file
       # try this modified version for now:
-      # run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
-      run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot.rb
+      # run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot.rb
+      # back to Yoshitaka Moriwaki version
+      run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
 
     - name: Compile Homebrew coot HEAD
       # don't stall waiting for user input to resolve the failed patch
