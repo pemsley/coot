@@ -10706,7 +10706,7 @@ void
 molecule_class_info_t::update_self(const coot::mtz_to_map_info_t &mmi) {
 
    // 20240702-PE make this part of mmi?
-   float n_sd = 6.0f; // number of suggested standard deviations for the contour level of a newly-created map
+   float n_sd = 12.0f; // number of suggested standard deviations for the contour level of a newly-created map
 
    bool previous_map_was_sane = true;
    if (xmap.is_null()) previous_map_was_sane = false;
