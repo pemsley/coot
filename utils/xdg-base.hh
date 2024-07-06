@@ -145,6 +145,10 @@ public:
       }
       return std::make_pair(status, p);
    }
+   std::filesystem::path join(const std::filesystem::path &p, const std::string &file_name) const {
+      auto d = p / file_name;
+      return d;
+   }
 };
 
 #endif // UTILS_XDG_BASE_HH
