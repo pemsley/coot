@@ -1,9 +1,27 @@
 
 ----
 
+When I use Shift-W to change the conouring map, then the Scroll button should change in the Display Manager also.
+* Done.
+
 Get ligand PDBe needs to be depythonized
+* Done. Yay.
+
+Colour-by-molecule shows big balls
 
 Add read_coordinates() to the read-molecule.hh api.
+
+Draw Hydrogen Atoms checkbutton in Bond Parameters widget is broken - try running run-servalcat-32143.py
+
+set_mol_displayed() does not change the checkbutton in the Display Manager it seems
+
+I want to scale the rotation angle per pixel - for use in wide-screen mode (or apply it automatically in wide-screen mode)
+
+Key-binding to hide/show right-hand panel.
+
+Add "Rotate View is on Left/Right mouse" mode in Preferences
+
+Add coot-ligand-validation to chapi.
 
 From watching https://www.youtube.com/watch?v=mDwMUH181-s
   o Find a molecule with a chunk of RNA
@@ -11,8 +29,6 @@ From watching https://www.youtube.com/watch?v=mDwMUH181-s
   o Assign the sequence
 
 Use 2DT dictionary for link and refinement - George.
-
-Add coot-ligand-validation to chapi.
 
 Add lsqkab superposition to the api
 
