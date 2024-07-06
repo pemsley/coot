@@ -3345,6 +3345,8 @@ void set_refinement_immediate_replacement(int istate);
 /*! \brief query the state of the immediate replacement mode */
 int  refinement_immediate_replacement_state();
 
+void set_refine_use_noughties_physics(short int state);
+
 /*! \brief set the number of frames for which the selected residue
   range flashes
 

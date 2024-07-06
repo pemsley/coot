@@ -746,6 +746,8 @@ short int graphics_info_t::moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // un
 int graphics_info_t::imol_moving_atoms = 0;
 coot::extra_restraints_representation_t graphics_info_t::moving_atoms_extra_restraints_representation;
 
+bool graphics_info_t::noughties_physics = false;
+
 bool graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object = false;
 bool graphics_info_t::draw_it_for_moving_atoms_restraints_graphics_object_user_control = false;
 int graphics_info_t::imol_refinement_map = -1; // magic initial value "None set"

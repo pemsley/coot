@@ -6002,6 +6002,11 @@ void set_refine_hydrogen_bonds(int state) {
    set_auto_h_bond_restraints(state);
 }
 
+void set_refine_use_noughties_physics(short int state) {
+   graphics_info_t::noughties_physics = state;
+}
+
+
 
 void get_mol_edit_lock(std::atomic<bool> &mol_edit_lock) {
    // std::cout << "debug:: test_function_scm() trying to get the lock with mol_edit_lock " << mol_edit_lock << std::endl;
