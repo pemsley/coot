@@ -11423,3 +11423,13 @@ Sat 15 Jun 2024 14:17:30 BST
    change the number of graphcs per page in R
    par(mfrow=c(2,1))
 
+
+---
+Thu  4 Jul 2024 14:03:10 BST
+
+GTK4 pixel scaling
+
+https://www.reddit.com/r/GTK/comments/1c0xaar/gtk4_any_way_to_lock_the_size_of_a_logical_pixel/
+https://news.ycombinator.com/item?id=30796841
+
+

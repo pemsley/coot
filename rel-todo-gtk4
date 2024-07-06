@@ -14,6 +14,10 @@ Use 2DT dictionary for link and refinement - George.
 
 Add coot-ligand-validation to chapi.
 
+OEX CA1 is in the wrong column when reading external distance restraints: 4ub6.
+
+How do I read in external distance restriants in new coot?
+
 Add lsqkab superposition to the api
 
 fix the double read of the monomers (there is only a single read in --no-graphics mode).
