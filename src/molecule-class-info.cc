@@ -3975,7 +3975,7 @@ molecule_class_info_t::make_colour_table() const {
    for (int icol=0; icol<bonds_box.num_colours; icol++) {
       if (bonds_box_type == coot::COLOUR_BY_RAINBOW_BONDS) {
          glm::vec4 col = get_bond_colour_by_colour_wheel_position(icol, coot::COLOUR_BY_RAINBOW_BONDS);
-         std::cout << "rainbow " << icol << glm::to_string(col) << std::endl;
+         // std::cout << "rainbow " << icol << " " << glm::to_string(col) << std::endl;
          colour_table[icol] = col;
       } else {
          // this is the old way of doing user-defined colours. Now we use

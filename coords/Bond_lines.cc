@@ -8072,6 +8072,8 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
                                                   int imol,
                                                   int draw_hydrogens_flag) {
 
+   // std::cout << "---------------------------------------- here we are in do_colour_by_molecule_bonds() " << std::endl;
+
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
    mmdb::Contact *contact = NULL;
@@ -8220,7 +8222,6 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
             coot::Cartesian small_vec_z(0.0, 0.0, star_size);
 
             int ic; // changed by reference;
-            int col;
             for (int i=0; i<n_selected_atoms; i++) {
                if ( atom_selection[i]->GetUDData(uddHnd,ic) == mmdb::UDDATA_Ok ) { // uddHnd for bond state
                   if (ic == 0) {
@@ -8231,15 +8232,15 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
                            continue;
 
                      std::string segid(atom_selection[i]->GetChainID());
-                     col = atom_colour_map.index_for_chain(segid);
-                     bonds_size_colour_check(col);
+                     int col_inner = atom_colour_map.index_for_chain(segid);
+                     bonds_size_colour_check(col_inner);
                      coot::Cartesian atom(atom_selection[i]->x,
                                           atom_selection[i]->y,
                                           atom_selection[i]->z);
 
-                     addBond(col, atom+small_vec_x, atom-small_vec_x, cc, imodel, i, i, true, true);
-                     addBond(col, atom+small_vec_y, atom-small_vec_y, cc, imodel, i, i, true, true);
-                     addBond(col, atom+small_vec_z, atom-small_vec_z, cc, imodel, i, i, true, true);
+                     addBond(col_inner, atom+small_vec_x, atom-small_vec_x, cc, imodel, i, i, true, true);
+                     addBond(col_inner, atom+small_vec_y, atom-small_vec_y, cc, imodel, i, i, true, true);
+                     addBond(col_inner, atom+small_vec_z, atom-small_vec_z, cc, imodel, i, i, true, true);
                   }
                }
             }
@@ -8470,15 +8471,20 @@ Bond_lines_container::add_atom_centres(int imol,
 
          if (is_hydrogen(std::string(at->element)))
             is_H_flag = true;
+
          if (do_bonds_to_hydrogens || (do_bonds_to_hydrogens == 0 && (!is_H_flag))) {
             coot::Cartesian pos(at->x, at->y, at->z);
             graphical_bonds_atom_info_t gbai(pos, idx, is_H_flag);
 
-            // Fat atoms are for atom in residues with no dictionary
+            // Fat atoms are for atom in residues with no dictionary - except
+            // colour-by-molecule mode, where the dictionary check is not a thing.
             bool make_fat_atom = false;
-            if (! have_dict_for_this_type)
-               if (atom_colour_type != coot::COLOUR_BY_ATOM_TYPE)
-                  make_fat_atom = true;
+            if (atom_colour_type != coot::COLOUR_BY_MOLECULE)
+               if (! have_dict_for_this_type)
+                  if (atom_colour_type != coot::COLOUR_BY_ATOM_TYPE)
+                     make_fat_atom = true;
+            // std::cout << " atom_colour_type " << atom_colour_type << " c.f. " << coot::COLOUR_BY_MOLECULE
+            // << " make_fat_atom: " << make_fat_atom << std::endl;
             gbai.set_radius_scale_for_atom(at, make_fat_atom);
 
             // this is a bit hacky
@@ -8499,7 +8505,7 @@ Bond_lines_container::add_atom_centres(int imol,
             if (atom_colour_type == coot::COLOUR_BY_OCCUPANCY)
                gbai.is_hydrogen_atom = false;
             if (false) // debugging large atom radius
-               std::cout << "pushing back: " << coot::atom_spec_t(at)
+               std::cout << "add_atom_centres() pushing back: " << coot::atom_spec_t(at)
                          << " with is_H_flag " << is_H_flag << " radius_scale " << gbai.radius_scale << std::endl;
             atom_centres.push_back(gbai);
             int icol = atom_colour(at, atom_colour_type, udd_user_defined_atom_colour_index_handle, atom_colour_map_p);
@@ -8649,7 +8655,7 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
       std::cout << "+++++++++++++++++++++ In graphical_bonds_container::add_atom_centres() adding "
                 << centres.size() << " atom centres groups" << std::endl;
       for (unsigned int i=0; i<centres.size(); i++)
-         std::cout << "Adding atom centre for atom " << centres[i].atom_p << std::endl;
+         std::cout << "   Adding atom centre for atom " << centres[i].atom_p << std::endl;
    }
 
    if (colours.size() != centres.size()) {
@@ -8698,6 +8704,15 @@ graphical_bonds_container::add_atom_centres(const std::vector<graphical_bonds_at
 
    for (int i=0; i<n_atom_centres_; i++) {
       consolidated_atom_centres[colours[i]].add_point(atom_centres_[i]);
+      int n_points = consolidated_atom_centres[colours[i]].num_points;
+      if (false) {
+         for (int j=0; j<n_points; j++) {
+            const auto &point = consolidated_atom_centres[colours[i]].points[j];
+            std::cout << "   " << i << " " << j
+                      << " " << coot::atom_spec_t(point.atom_p)
+                      << " radius_scale: " << point.radius_scale << std::endl;
+         }
+      }
    }
 
    if (false)  { // debug
