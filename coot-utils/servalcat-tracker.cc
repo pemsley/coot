@@ -66,6 +66,26 @@ std::string make_line(const point_t &p1, const point_t &p2, const std::string &c
    return line;
 }
 
+std::vector<std::string> make_grid_lines(unsigned int n_cycles,
+                                         double x_scale, double y_scale,
+                                         double x_offset, double y_offset) {
+
+   unsigned int n_lines = 5;
+   if (n_cycles > n_lines) n_lines = n_cycles;
+
+   std::vector<std::string> v;
+   for (unsigned int i=1; i<=n_lines; i++) { // not at x = 0;
+      std::pair<double, double> xy_1(i, 0.0);
+      std::pair<double, double> xy_2(i, 1.2);
+      point_t pt_1(xy_1, x_scale, y_scale, x_offset, y_offset);
+      point_t pt_2(xy_2, x_scale, y_scale, x_offset, y_offset);
+      std::string l = make_line(pt_1, pt_2, "#aaaaaa", 0.4, true, false);
+      v.push_back(l);
+   }
+   return v;
+}
+
+
 class summary_data_container_t {
 public:
    summary_data_container_t() { init(); }
@@ -122,20 +142,7 @@ public:
    }
 
    std::vector<std::string> make_grid_lines(unsigned int n_cycles) const {
-
-      unsigned int n_lines = 5;
-      if (n_cycles > n_lines) n_lines = n_cycles;
-
-      std::vector<std::string> v;
-      for (unsigned int i=1; i<=n_lines; i++) { // not at x = 0;
-         std::pair<double, double> xy_1(i, 0.0);
-         std::pair<double, double> xy_2(i, 1.2);
-         point_t pt_1(xy_1, x_scale, y_scale, x_offset, y_offset);
-         point_t pt_2(xy_2, x_scale, y_scale, x_offset, y_offset);
-         std::string l = make_line(pt_1, pt_2, "#aaaaaa", 0.4, true, false);
-         v.push_back(l);
-      }
-      return v;
+      return ::make_grid_lines(n_cycles, x_scale, y_scale, x_offset, y_offset);
    }
    
    std::vector<std::string> make_graph_lines(const std::string &type) const {
@@ -394,19 +401,175 @@ public:
 
 class binned_data_container_t {
 public:
-   std::map<int, std::vector<binned_data_t> > data;
+   binned_data_container_t() { init(); }
+   std::map<unsigned int, std::vector<binned_data_t> > data;
    void add(int cycle, const binned_data_t &b) { data[cycle].push_back(b); }
    void output() {
 
       std::string output_file_name = "binned-data.svg";
-      std::string s = make_svg();
+      std::string s = make_complete_svg();
       std::ofstream f(output_file_name);
       f << s;
       f.close();
    }
 
-   std::string make_svg() const {
+   double x_scale;
+   double y_scale;
+   double x_offset;
+   double y_offset;
+
+   void init() {
+      x_scale = 10.0;
+      y_scale = 80.0;
+      x_offset = 22.0;
+      y_offset = 80.0; // move it down the page
+
+      y_offset = 70;
+   }
+
+   std::string make_graph_lines(const std::string &graph_type, unsigned int cycle_number, const std::string &colour) const {
       std::string s;
+      std::vector<std::pair<double, double> > data_points;
+      double this_graph_scale = 100.0;
+
+      // this would be nicer if I stored the data in a map.
+
+      if (graph_type == "fsc_FC_full") {
+         for (unsigned int i=0; i<data.at(cycle_number).size(); i++) {
+            const binned_data_t &binned_data = data.at(cycle_number)[i];
+            double inv_res = 1.0/binned_data.reso; // reso is in A
+            double inv_res_sq = inv_res * inv_res;
+            double xx = x_offset + static_cast<double>(i) * 2.4;
+            point_t p(xx, y_offset + this_graph_scale * binned_data.fsc_FC_full);
+            point_t pc = p.canvas_convert();
+            data_points.push_back(std::make_pair(pc.x, pc.y));
+         }
+      }
+
+      if (graph_type == "Rcmplx_FC_full") {
+         for (unsigned int i=0; i<data.at(cycle_number).size(); i++) {
+            const binned_data_t &binned_data = data.at(cycle_number)[i];
+            double xx = x_offset + static_cast<double>(i) * 2.4;
+            point_t p(xx, y_offset + this_graph_scale * binned_data.Rcmplx_FC_full);
+            point_t pc = p.canvas_convert();
+            data_points.push_back(std::make_pair(pc.x, pc.y));
+         }
+      }
+
+      if (graph_type == "cc_FC_full") {
+         for (unsigned int i=0; i<data.at(cycle_number).size(); i++) {
+            const binned_data_t &binned_data = data.at(cycle_number)[i];
+            double xx = x_offset + static_cast<double>(i) * 2.4;
+            point_t p(xx, y_offset + this_graph_scale * binned_data.cc_FC_full);
+            point_t pc = p.canvas_convert();
+            data_points.push_back(std::make_pair(pc.x, pc.y));
+         }
+      }
+
+      if (graph_type == "mcos_FC_full") {
+         for (unsigned int i=0; i<data.at(cycle_number).size(); i++) {
+            const binned_data_t &binned_data = data.at(cycle_number)[i];
+            double xx = x_offset + static_cast<double>(i) * 2.4;
+            point_t p(xx, y_offset + this_graph_scale * binned_data.mcos_FC_full);
+            point_t pc = p.canvas_convert();
+            data_points.push_back(std::make_pair(pc.x, pc.y));
+         }
+      }
+
+      if (! data_points.empty()) {
+         std::string polyline = "<polyline points=\"";
+
+         for (unsigned int i=0; i<data_points.size(); i++) {
+            polyline += std::to_string(data_points[i].first);
+            polyline += ",";
+            polyline += std::to_string(data_points[i].second);
+            if (i < (data_points.size() -1))
+               polyline += ",";
+         }
+         polyline += "\" fill=\"none\" stroke=\"";
+         polyline += colour;
+         polyline += "\" />\n";
+         s += polyline;
+      }
+      return s;
+   }
+
+   std::string graph_internals(const std::string &graph_type, unsigned int cycle_number, const std::string &colour) const {
+      std::string s;
+      s += make_graph_lines(graph_type, cycle_number, colour);
+      return s;
+   }
+
+   std::string make_complete_svg() {
+
+      std::string s;
+      std::string svg_header_1 = "<svg xmlns=\"http://www.w3.org/2000/svg\"\n   xmlns:xlink=\"http://www.w3.org/1999/xlink\" ";
+      std::string svg_header_2 = ">\n";
+
+      std::string svg_footer = "</svg>\n";
+
+      double min_x = -10;
+      double min_y = -10;
+      double max_x = 400;
+      double max_y = 200;
+
+      std::string viewBox_string = "viewBox=" + std::string("\"") +
+         std::to_string(min_x) + std::string(" ") +
+         std::to_string(min_y) + std::string(" ") +
+         std::to_string(max_x) + std::string(" ") +
+         std::to_string(max_y) + std::string("\"");
+
+      s += svg_header_1;
+      s += viewBox_string;
+      s += svg_header_2;
+
+      // add graphs here
+      s += make_svg();
+
+      s += svg_footer;
+      return s;
+      
+   }
+
+   std::string make_svg() {
+      std::string s;
+      
+      std::vector<std::pair<point_t, std::string> > graph_names;
+      graph_names.push_back(std::make_pair(point_t( 0,     0), "fsc_FC_full"));
+      graph_names.push_back(std::make_pair(point_t(140,    0), "Rcmplx_FC_full"));
+      graph_names.push_back(std::make_pair(point_t(  0, -120), "cc_FC_full"));
+      graph_names.push_back(std::make_pair(point_t(140, -120), "mcos_FC_full"));
+
+      double x_offset_orig = x_offset;
+      double y_offset_orig = y_offset;
+
+      for (unsigned int i_graph=0; i_graph<graph_names.size(); i_graph++) {
+
+         const std::string &graph_name = graph_names[i_graph].second;
+         const point_t &offset = graph_names[i_graph].first;
+         x_offset = x_offset_orig + offset.x;
+         y_offset = y_offset_orig + offset.y;
+         
+         point_t origin(x_offset, y_offset);
+         point_t x_axis_max(x_offset + 100 + 10, y_offset);
+         point_t y_axis_max(0 + x_offset, y_offset + 100 + 5);
+         std::string line_x_axis = make_line(origin, x_axis_max, "#111111", 1, false, true);
+         std::string line_y_axis = make_line(origin, y_axis_max, "#111111", 1, false, true);
+         s += line_x_axis;
+         s += line_y_axis;
+         unsigned int last_cycle_number = data.size() -1;
+
+         std::map<unsigned int, std::vector<binned_data_t> >::const_iterator it;
+         for (it=data.begin(); it!=data.end(); ++it) {
+            unsigned int cycle_number = it->first;
+            std::string colour = "grey";
+            if (cycle_number == last_cycle_number)
+               colour = "#111111";
+            s += graph_internals(graph_name, cycle_number, colour);
+         }
+      }
+      x_offset = x_offset_orig;
+      y_offset = y_offset_orig;
       return s;
    }
 };
@@ -434,6 +597,9 @@ parse_cycle(json j, summary_data_container_t *summary_data_container_p, binned_d
       double Rcmplx_FC_full = binned_data["Rcmplx_FC_full"];
       double cc_FC_full     = binned_data["cc_FC_full"];
       double mcos_FC_full   = binned_data["mcos_FC_full"];
+      double power_FP       = binned_data["power_FP"];
+      double power_FC       = binned_data["power_FC"];
+      unsigned int n_coeffs = binned_data["ncoeffs"];
       double d_mid = 2.0/(1.0/d_min + 1.0/d_max);
       binned_data_t bd(d_mid, fsc_FC_full, Rcmplx_FC_full, cc_FC_full, mcos_FC_full);
       bdc_p->add(nth_cycle, bd);
@@ -469,6 +635,9 @@ int main(int argc, char **argv) {
                json item = j.at(cycle_index);
                parse_cycle(item, &summary_data_container, &binned_data_container);
 
+               summary_data_container.output();
+               binned_data_container.output();
+
                // next time
                cycle_index++;
             }
@@ -477,8 +646,6 @@ int main(int argc, char **argv) {
                break;
             }
          }
-
-         summary_data_container.output();
       }
       catch (const std::runtime_error &e) {
          std::cout << "WARNING::" << e.what() << std::endl;
