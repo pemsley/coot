@@ -99,7 +99,7 @@ public:
       x_scale = 10.0;
       y_scale = 80.0;
       x_offset = 22.0;
-      y_offset = 80.0; // move it down the page
+      y_offset = 0.0; // move it down the page
    }
    void add(const summary_data_t &d) { data.push_back(d); }
    void output() {
@@ -123,6 +123,7 @@ public:
       double min_y = -10;
       double max_x = 400;
       double max_y = 200;
+      double x_offset_orig = x_offset;
 
       std::string viewBox_string = "viewBox=" + std::string("\"") +
          std::to_string(min_x) + std::string(" ") +
@@ -138,6 +139,7 @@ public:
       x_offset += 140;
       s += graph_internals("mll");
       s += svg_footer;
+      x_offset = x_offset_orig;
       return s;
    }
 
@@ -164,6 +166,7 @@ public:
                point_t p1(data_points[i  ], x_scale, this_graph_scale * y_scale, x_offset, y_offset);
                point_t p2(data_points[i+1], x_scale, this_graph_scale * y_scale, x_offset, y_offset);
                std::string line = make_line(p1, p2, colour, 0.5, false, false);
+               // std::cout << "fsc " << i << " " << data_points[i].first << " " << data_points[i].second << " " << line << std::endl;
                v.push_back(line);
             }
          }
@@ -422,9 +425,7 @@ public:
       x_scale = 10.0;
       y_scale = 80.0;
       x_offset = 22.0;
-      y_offset = 80.0; // move it down the page
-
-      y_offset = 70;
+      y_offset = 20.0; // move it down the page
    }
 
    std::string make_graph_lines(const std::string &graph_type, unsigned int cycle_number, const std::string &colour) const {
