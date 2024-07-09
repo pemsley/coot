@@ -939,6 +939,12 @@ int read_pdb(const std::string &filename) {
    return handle_read_draw_molecule(filename);
 }
 
+/*! \brief read coordinates from filename */
+int read_coordinates(const std::string &filename) {
+   return handle_read_draw_molecule(filename);
+}
+
+
 //! set (or unset) GEMMI as the molecule parser. Currently by passing an int.
 void set_use_gemmi_as_model_molecule_parser(int state) {
 
