@@ -146,7 +146,7 @@ public:
    std::vector<std::string> make_grid_lines(unsigned int n_cycles) const {
       return ::make_grid_lines(n_cycles, x_scale, y_scale, x_offset, y_offset);
    }
-   
+
    std::vector<std::string> make_graph_lines(const std::string &type) const {
 
       // convert this to polylines
@@ -384,21 +384,27 @@ public:
       parts += title;
 
       return parts;
-      
    }
 };
 
 class binned_data_t {
 public:
    binned_data_t(const double &reso_d, const double &fsc_FC_full, const double &Rcmplx_FC_full,
-                 const double &cc_FC_full, const double &mcos_FC_full) : reso(reso_d), fsc_FC_full(fsc_FC_full),
-                                                                         Rcmplx_FC_full(Rcmplx_FC_full), cc_FC_full(cc_FC_full),
-                                                                         mcos_FC_full(mcos_FC_full) {}
+                 const double &cc_FC_full, const double &mcos_FC_full,
+                 const double &power_FP, const double &power_FC) : reso(reso_d) {
+                  data["fsc_FC_full"] = fsc_FC_full;
+                  data["Rcmplx_FC_full"] = Rcmplx_FC_full;
+                  data["cc_FC_full"] = cc_FC_full;
+                  data["mcos_FC_full"] = mcos_FC_full;
+                  data["power_FP"] = power_FP;
+                  data["power_FC"] = power_FC;
+                 }
    double reso;
-   double fsc_FC_full;
-   double Rcmplx_FC_full;
-   double cc_FC_full;
-   double mcos_FC_full;
+   // double fsc_FC_full;
+   // double Rcmplx_FC_full;
+   // double cc_FC_full;
+   // double mcos_FC_full;
+   std::map<std::string, double> data;
 
 };
 
@@ -432,48 +438,26 @@ public:
       std::string s;
       std::vector<std::pair<double, double> > data_points;
       double this_graph_scale = 100.0;
+      if (graph_type == "power_FP") this_graph_scale = 0.000001;
+      if (graph_type == "power_FC") this_graph_scale = 0.000001;
 
       // this would be nicer if I stored the data in a map.
 
-      if (graph_type == "fsc_FC_full") {
-         for (unsigned int i=0; i<data.at(cycle_number).size(); i++) {
-            const binned_data_t &binned_data = data.at(cycle_number)[i];
+      auto data_vec = data.at(cycle_number);
+      if (true) {
+         for (unsigned int i=0; i<data_vec.size(); i++) {
+            const binned_data_t &binned_data = data_vec.at(i);
             double inv_res = 1.0/binned_data.reso; // reso is in A
             double inv_res_sq = inv_res * inv_res;
             double xx = x_offset + static_cast<double>(i) * 2.4;
-            point_t p(xx, y_offset + this_graph_scale * binned_data.fsc_FC_full);
-            point_t pc = p.canvas_convert();
-            data_points.push_back(std::make_pair(pc.x, pc.y));
-         }
-      }
-
-      if (graph_type == "Rcmplx_FC_full") {
-         for (unsigned int i=0; i<data.at(cycle_number).size(); i++) {
-            const binned_data_t &binned_data = data.at(cycle_number)[i];
-            double xx = x_offset + static_cast<double>(i) * 2.4;
-            point_t p(xx, y_offset + this_graph_scale * binned_data.Rcmplx_FC_full);
-            point_t pc = p.canvas_convert();
-            data_points.push_back(std::make_pair(pc.x, pc.y));
-         }
-      }
-
-      if (graph_type == "cc_FC_full") {
-         for (unsigned int i=0; i<data.at(cycle_number).size(); i++) {
-            const binned_data_t &binned_data = data.at(cycle_number)[i];
-            double xx = x_offset + static_cast<double>(i) * 2.4;
-            point_t p(xx, y_offset + this_graph_scale * binned_data.cc_FC_full);
-            point_t pc = p.canvas_convert();
-            data_points.push_back(std::make_pair(pc.x, pc.y));
-         }
-      }
-
-      if (graph_type == "mcos_FC_full") {
-         for (unsigned int i=0; i<data.at(cycle_number).size(); i++) {
-            const binned_data_t &binned_data = data.at(cycle_number)[i];
-            double xx = x_offset + static_cast<double>(i) * 2.4;
-            point_t p(xx, y_offset + this_graph_scale * binned_data.mcos_FC_full);
-            point_t pc = p.canvas_convert();
-            data_points.push_back(std::make_pair(pc.x, pc.y));
+            try {
+               point_t p(xx, y_offset + this_graph_scale * binned_data.data.at(graph_type));
+               point_t pc = p.canvas_convert();
+               data_points.push_back(std::make_pair(pc.x, pc.y));
+            }
+            catch(const std::exception &e) {
+               std::cerr << e.what() << " key: " << graph_type << '\n';
+            }
          }
       }
 
@@ -510,9 +494,9 @@ public:
       std::string svg_footer = "</svg>\n";
 
       double min_x = -10;
-      double min_y = -10;
+      double min_y = -30;
       double max_x = 400;
-      double max_y = 200;
+      double max_y = 300;
 
       std::string viewBox_string = "viewBox=" + std::string("\"") +
          std::to_string(min_x) + std::string(" ") +
@@ -529,17 +513,18 @@ public:
 
       s += svg_footer;
       return s;
-      
    }
 
    std::string make_svg() {
       std::string s;
-      
+
       std::vector<std::pair<point_t, std::string> > graph_names;
       graph_names.push_back(std::make_pair(point_t( 0,     0), "fsc_FC_full"));
       graph_names.push_back(std::make_pair(point_t(140,    0), "Rcmplx_FC_full"));
       graph_names.push_back(std::make_pair(point_t(  0, -120), "cc_FC_full"));
       graph_names.push_back(std::make_pair(point_t(140, -120), "mcos_FC_full"));
+      // graph_names.push_back(std::make_pair(point_t(  0, -240), "power_FP"));
+      // graph_names.push_back(std::make_pair(point_t(140, -240), "power_FC"));
 
       double x_offset_orig = x_offset;
       double y_offset_orig = y_offset;
@@ -550,7 +535,7 @@ public:
          const point_t &offset = graph_names[i_graph].first;
          x_offset = x_offset_orig + offset.x;
          y_offset = y_offset_orig + offset.y;
-         
+
          point_t origin(x_offset, y_offset);
          point_t x_axis_max(x_offset + 100 + 10, y_offset);
          point_t y_axis_max(0 + x_offset, y_offset + 100 + 5);
@@ -602,7 +587,7 @@ parse_cycle(json j, summary_data_container_t *summary_data_container_p, binned_d
       double power_FC       = binned_data["power_FC"];
       unsigned int n_coeffs = binned_data["ncoeffs"];
       double d_mid = 2.0/(1.0/d_min + 1.0/d_max);
-      binned_data_t bd(d_mid, fsc_FC_full, Rcmplx_FC_full, cc_FC_full, mcos_FC_full);
+      binned_data_t bd(d_mid, fsc_FC_full, Rcmplx_FC_full, cc_FC_full, mcos_FC_full, power_FP, power_FC);
       bdc_p->add(nth_cycle, bd);
    }
 }
