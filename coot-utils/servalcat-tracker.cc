@@ -22,6 +22,13 @@ public:
       double new_y = -y + 100;
       return point_t(new_x, new_y);
    }
+   point_t operator+(const point_t &p) const {
+      return point_t(x + p.x, y + p.y);
+   }
+   void operator +=(const point_t &p) {
+      x += p.x;
+      y += p.y;
+   }
 };
 
 class summary_data_t {
@@ -32,6 +39,16 @@ public:
    double fsc_average;
    double mll;
 };
+
+std::string double_to_string(const double &d, unsigned int n_dec_pl) {
+   std::stringstream s;
+   s << std::right << std::fixed;
+   s << std::setprecision(n_dec_pl);
+   s << d;
+   std::string ss = s.str();
+   return ss;
+}
+
 
 std::string make_line(const point_t &p1, const point_t &p2, const std::string &colour, double width,
                       bool dashed, bool do_arrow_head) {
@@ -269,15 +286,6 @@ public:
       return s;
    }
 
-   std::string double_to_string(const double &d, unsigned int n_dec_pl) const {
-      std::stringstream s;
-      s << std::right << std::fixed;
-      s << std::setprecision(n_dec_pl);
-      s << d;
-      std::string ss = s.str();
-      return ss;
-   }
-
    std::string make_y_axis_tick_labels(const std::string &graph_type, double x_scale, double x_offset) const {
       std::string s;
       unsigned int n_lines = 5;
@@ -313,7 +321,7 @@ public:
       }
       return s;
    }
- 
+
    std::string make_main_title(const std::string &title_string) const {
       point_t p(12 + x_offset, 110 + y_offset);
       point_t pc = p.canvas_convert();
@@ -400,10 +408,6 @@ public:
                   data["power_FC"] = power_FC;
                  }
    double reso;
-   // double fsc_FC_full;
-   // double Rcmplx_FC_full;
-   // double cc_FC_full;
-   // double mcos_FC_full;
    std::map<std::string, double> data;
 
 };
@@ -434,14 +438,27 @@ public:
       y_offset = 20.0; // move it down the page
    }
 
+   // in Angstroms
+   double get_max_resolution() const {
+      double r = 0.1; // A
+      if (data.begin() != data.end()) {
+         r = 10000;
+         const std::vector<binned_data_t> &v = data.begin()->second;
+         for (const auto &bin : v) {
+            if (bin.reso < r) {
+               r = bin.reso;
+            }
+         }
+      }
+      return r;
+   }
+
    std::string make_graph_lines(const std::string &graph_type, unsigned int cycle_number, const std::string &colour) const {
       std::string s;
       std::vector<std::pair<double, double> > data_points;
       double this_graph_scale = 100.0;
       if (graph_type == "power_FP") this_graph_scale = 0.000001;
       if (graph_type == "power_FC") this_graph_scale = 0.000001;
-
-      // this would be nicer if I stored the data in a map.
 
       auto data_vec = data.at(cycle_number);
       if (true) {
@@ -485,6 +502,106 @@ public:
       return s;
    }
 
+   std::string make_tick_marks_x_axis() const {
+      std::string s;
+      unsigned int n_ticks = 5;
+      for (unsigned int i=0; i<=n_ticks; i++) {
+         double f = static_cast<double>(i) / static_cast<double>(n_ticks);
+         double x = f * 10.5; // not 10.
+         std::pair<double, double> xy_1(x,   0);
+         std::pair<double, double> xy_2(x, -0.05);
+         point_t pt_1(xy_1, x_scale, y_scale, x_offset, y_offset);
+         point_t pt_2(xy_2, x_scale, y_scale, x_offset, y_offset);
+         std::string l = make_line(pt_1, pt_2, "#222222", 0.4, false, false);
+         s += l;
+      }
+      return s;
+   }
+
+   std::string make_tick_marks_y_axis() const {
+      std::string s;
+      unsigned int n_ticks = 5;
+      for (unsigned int i=0; i<=n_ticks; i++) {
+         double f = static_cast<double>(i) / static_cast<double>(n_ticks);
+         double y = f * 1.2;
+         std::pair<double, double> xy_1(0.0,  y);
+         std::pair<double, double> xy_2(-0.3, y);
+         point_t pt_1(xy_1, x_scale, y_scale, x_offset, y_offset);
+         point_t pt_2(xy_2, x_scale, y_scale, x_offset, y_offset);
+         std::string l = make_line(pt_1, pt_2, "#222222", 0.4, false, false);
+         s += l;
+      }
+      return s;
+   }
+
+   std::string make_x_axis_tick_labels(double max_resolution) const {
+
+      std::string s;
+      unsigned int n_lines = 5;
+      double inv_resol_sq = 1.0/(max_resolution * max_resolution);
+      for (unsigned int i=0; i<=n_lines; i++) { // not at x = 0;
+         double f = static_cast<double>(i) / static_cast<double>(n_lines);
+         double v0 = f * inv_resol_sq;
+         double v = std::sqrt(1.0/v0);
+         double x = f * 100.5;
+         double y = 0.0;
+         double tw_offset = 0;
+         std::string value_as_string = double_to_string(v,1);
+         point_t p(x + x_offset - tw_offset, y_offset - 12);
+         point_t pc = p.canvas_convert();
+         std::string l = "   <text font-family=\"Helvetica, sans-serif\" font-size=\"6\" ";
+         l += "x=\"";
+         l += std::to_string(pc.x);
+         l += "\" y=\"";
+         l += std::to_string(pc.y);
+         l += "\">";
+         l += value_as_string;
+         l += "</text>\n";
+         s += l;
+      }
+      return s;
+   }
+
+   std::string make_y_axis_tick_labels() const {
+      std::string s;
+      unsigned int n_lines = 5;
+      for (unsigned int i=0; i<=n_lines; i++) { // not at x = 0;
+         double f = static_cast<double>(i) / static_cast<double>(n_lines);
+         double v = f;
+         double y = 96.0 * f;
+         double tw_offset = 12;
+         std::string value_as_string = double_to_string(v,1);
+         point_t p(x_offset - tw_offset, y + y_offset - 2);
+         point_t pc = p.canvas_convert();
+         std::string l = "   <text font-family=\"Helvetica, sans-serif\" font-size=\"6\" ";
+         l += "x=\"";
+         l += std::to_string(pc.x);
+         l += "\" y=\"";
+         l += std::to_string(pc.y);
+         l += "\">";
+         l += value_as_string;
+         l += "</text>\n";
+         s += l;
+      }
+      return s;
+   }
+
+   std::string make_main_title(const std::string &title_string) const {
+
+      point_t p(12 + x_offset, 110 + y_offset);
+      point_t pc = p.canvas_convert();
+      std::string s =  "   <text font-family=\"Helvetica, sans-serif\" font-size=\"9\" ";
+      s += "x=\"";
+      s += std::to_string(pc.x);
+      s += "\" y=\"";
+      s += std::to_string(pc.y);
+      s += "\"";
+      s += ">";
+      s += title_string;
+      s += "</text>\n";
+      return s;
+   }
+
    std::string make_complete_svg() {
 
       std::string s;
@@ -516,18 +633,20 @@ public:
    }
 
    std::string make_svg() {
+
       std::string s;
 
       std::vector<std::pair<point_t, std::string> > graph_names;
       graph_names.push_back(std::make_pair(point_t( 0,     0), "fsc_FC_full"));
       graph_names.push_back(std::make_pair(point_t(140,    0), "Rcmplx_FC_full"));
-      graph_names.push_back(std::make_pair(point_t(  0, -120), "cc_FC_full"));
-      graph_names.push_back(std::make_pair(point_t(140, -120), "mcos_FC_full"));
+      graph_names.push_back(std::make_pair(point_t(  0, -140), "cc_FC_full"));
+      graph_names.push_back(std::make_pair(point_t(140, -140), "mcos_FC_full"));
       // graph_names.push_back(std::make_pair(point_t(  0, -240), "power_FP"));
       // graph_names.push_back(std::make_pair(point_t(140, -240), "power_FC"));
 
       double x_offset_orig = x_offset;
       double y_offset_orig = y_offset;
+      double max_resolution = get_max_resolution();
 
       for (unsigned int i_graph=0; i_graph<graph_names.size(); i_graph++) {
 
@@ -543,6 +662,20 @@ public:
          std::string line_y_axis = make_line(origin, y_axis_max, "#111111", 1, false, true);
          s += line_x_axis;
          s += line_y_axis;
+
+         std::string tick_marks_x = make_tick_marks_x_axis();
+         std::string tick_marks_y = make_tick_marks_y_axis();
+         s += tick_marks_x;
+         s += tick_marks_y;
+
+         std::string y_axis_tick_labels = make_y_axis_tick_labels();
+         std::string x_axis_tick_labels = make_x_axis_tick_labels(max_resolution);
+         s += y_axis_tick_labels;
+         s += x_axis_tick_labels;
+
+         std::string title_string = make_main_title(graph_name);
+         s += title_string;
+
          unsigned int last_cycle_number = data.size() -1;
 
          std::map<unsigned int, std::vector<binned_data_t> >::const_iterator it;
@@ -560,8 +693,286 @@ public:
    }
 };
 
+class geom_data_t {
+   public:
+   geom_data_t() { }
+   // outer keys "r.m.s.d." and "r.m.s.Z"
+   std::map<std::string, std::map<std::string, double> > geom_data;
+};
+
+class geom_data_container_t {
+   public:
+   geom_data_container_t() { init(); }
+   std::map<unsigned int, geom_data_t> data;
+   std::vector<std::string> keys;
+   void init() {
+      keys = {
+         "Bond distances, non H",
+         "Bond distances, H",
+         "Bond angles, non H",
+         "Bond angles, H",
+         "Torsion angles, period 1",
+         "Torsion angles, period 2",
+         "Torsion angles, period 3",
+         "Torsion angles, period 6",
+         "Chiral centres",
+         "Planar groups",
+         "VDW nonbonded",
+         "VDW torsion",
+         "VDW hbond",
+         "B values (bond)",
+         "B values (angle)",
+         "B values (others)" };
+
+      x_scale = 10.0;
+      y_scale = 80.0;
+      x_offset = 22.0;
+      y_offset = 20.0; // move it down the page
+   }
+   double x_scale;
+   double y_scale;
+   double x_offset;
+   double y_offset;
+
+   std::string make_tick_marks_x_axis() {
+      std::string s;
+      return s;
+   }
+
+   std::string make_tick_marks_y_axis() {
+      std::string s;
+      return s;
+   }
+
+   std::string make_x_axis_tick_labels() {
+      std::string s;
+      return s;
+   }
+
+   std::string make_y_axis_tick_labels() {
+      std::string s;
+      return s;
+   }
+
+   std::string make_main_title(const std::string &title_string) const {
+
+      point_t p(12 + x_offset, 110 + y_offset);
+      point_t pc = p.canvas_convert();
+      std::string s =  "   <text font-family=\"Helvetica, sans-serif\" font-size=\"8\" ";
+      s += "x=\"";
+      s += std::to_string(pc.x);
+      s += "\" y=\"";
+      s += std::to_string(pc.y);
+      s += "\"";
+      s += ">";
+      s += title_string;
+      s += "</text>\n";
+      return s;
+   }
+
+   std::vector<std::string> make_grid_lines(unsigned int n_cycles) {
+
+      unsigned int n_lines = 5;
+      if (n_cycles > n_lines) n_lines = n_cycles;
+
+      std::vector<std::string> v;
+      for (unsigned int i=1; i<=n_lines; i++) { // not at x = 0;
+         std::pair<double, double> xy_1(i, 0.0);
+         std::pair<double, double> xy_2(i, 1.2);
+         point_t pt_1(xy_1, x_scale, y_scale, x_offset, y_offset);
+         point_t pt_2(xy_2, x_scale, y_scale, x_offset, y_offset);
+         std::string l = make_line(pt_1, pt_2, "#999999", 0.3, true, false);
+         v.push_back(l);
+      }
+      return v;
+   }
+
+   std::string make_graph_lines(const std::string &outer_key,
+                                 const std::string &graph_name,
+                                 const std::string &colour) const {
+      std::string s;
+      unsigned int n_cycles = data.size();
+      std::map<unsigned int, geom_data_t>::const_iterator it;
+      std::vector<point_t> data_points;
+      for (it=data.begin(); it!=data.end(); ++it) {
+         unsigned int cycle_number = it->first;
+         const geom_data_t &geom_data = it->second;
+         double this_graph_scale = 3.0;
+         if (graph_name == "Bond distances, non H") this_graph_scale = 2000.0;
+         if (graph_name == "Bond distances, H")     this_graph_scale = 2000.0;
+         if (graph_name == "Bond angles, non H")    this_graph_scale = 30.0;
+         if (graph_name == "Bond angles, H")        this_graph_scale = 30.0;
+         if (graph_name == "Chiral centres")        this_graph_scale =  500.0;
+         if (graph_name == "Planar groups")         this_graph_scale = 1000.0;
+         if (graph_name == "VDW nonbonded")         this_graph_scale =  100.0;
+         if (graph_name == "VDW torsion")           this_graph_scale =  100.0;
+         if (graph_name == "VDW hbond")             this_graph_scale =  100.0;
+         if (outer_key == "r.m.s.Z") this_graph_scale = 40.0;
+         try {
+            double y = geom_data.geom_data.at(outer_key).at(graph_name);
+            double xx = x_offset + cycle_number * 10.2;
+            double yy = y_offset + y * this_graph_scale;
+            point_t p(xx, yy);
+            point_t pc = p.canvas_convert();
+            data_points.push_back(pc);
+         }
+         catch (const std::exception &e) {
+            std::cout << e.what() << " key " << outer_key << " graph_name " << graph_name
+               << std::endl;
+         }
+      }
+      if (! data_points.empty()) {
+         std::string polyline = "<polyline points=\"";
+
+         for (unsigned int i=0; i<data_points.size(); i++) {
+            polyline += std::to_string(data_points[i].x);
+            polyline += ",";
+            polyline += std::to_string(data_points[i].y);
+            if (i < (data_points.size() -1))
+               polyline += ",";
+         }
+         polyline += "\" fill=\"none\" stroke=\"";
+         polyline += colour;
+         polyline += "\" />\n";
+         s += polyline;
+      }
+      return s;
+   }
+
+
+   std::string make_svg() {
+      std::string s;
+
+      std::vector<std::pair<point_t, std::string> > graph_names = {
+         std::make_pair(point_t(  0, 0), "Bond distances, non H"),
+         std::make_pair(point_t(120, 0), "Bond distances, H"),
+         std::make_pair(point_t(240, 0), "Bond angles, non H"),
+         std::make_pair(point_t(360, 0), "Bond angles, H"),
+         std::make_pair(point_t(  0, -140), "Torsion angles, period 1"),
+         std::make_pair(point_t(120, -140), "Torsion angles, period 2"),
+         std::make_pair(point_t(240, -140), "Torsion angles, period 3"),
+         std::make_pair(point_t(360, -140), "Torsion angles, period 6"),
+         std::make_pair(point_t(  0, -280), "Chiral centres"),
+         std::make_pair(point_t(120, -280), "Planar groups"),
+         std::make_pair(point_t(240, -280), "VDW nonbonded"),
+         std::make_pair(point_t(360, -280), "VDW torsion"),
+         std::make_pair(point_t(  0, -420), "VDW hbond"),
+         std::make_pair(point_t(120, -420), "B values (bond)"),
+         std::make_pair(point_t(240, -420), "B values (angle)"),
+         std::make_pair(point_t(360, -420), "B values (others)"),
+      };
+
+      double x_offset_orig = x_offset;
+      double y_offset_orig = y_offset;
+      double x_scale_orig = x_scale;
+      double y_scale_orig = y_scale;
+
+      std::vector<std::string> outer_keys = { "r.m.s.d.", "r.m.s.Z"};
+      unsigned int n_cycles = data.size();
+
+      unsigned int key_count = 0;
+      for (const auto &outer_key : outer_keys) {
+         key_count++;
+
+         for (unsigned int i_graph=0; i_graph<graph_names.size(); i_graph++) {
+
+            const std::string &graph_name = graph_names[i_graph].second;
+            point_t offset = graph_names[i_graph].first;
+            if (key_count == 2) {
+               offset += point_t(500, 0);
+            }
+            x_offset = x_offset_orig + offset.x;
+            y_offset = y_offset_orig + offset.y;
+
+            point_t origin(x_offset, y_offset);
+            point_t x_axis_max(x_offset + 100 + 10, y_offset);
+            point_t y_axis_max(0 + x_offset, y_offset + 100 + 5);
+            std::string line_x_axis = make_line(origin, x_axis_max, "#111111", 1, false, true);
+            std::string line_y_axis = make_line(origin, y_axis_max, "#111111", 1, false, true);
+            s += line_x_axis;
+            s += line_y_axis;
+
+            std::string tick_marks_x = make_tick_marks_x_axis();
+            std::string tick_marks_y = make_tick_marks_y_axis();
+            s += tick_marks_x;
+            s += tick_marks_y;
+
+            std::string y_axis_tick_labels = make_y_axis_tick_labels();
+            std::string x_axis_tick_labels = make_x_axis_tick_labels();
+            s += y_axis_tick_labels;
+            s += x_axis_tick_labels;
+
+            std::vector<std::string> grid_lines = make_grid_lines(n_cycles);
+            for (const auto &gl : grid_lines) s += gl;
+
+            std::string title = outer_key + " " + graph_name;
+            std::string title_string = make_main_title(title);
+            s += title_string;
+
+            unsigned int last_cycle_number = data.size() -1;
+
+            // outer keys "r.m.s.d." and "r.m.s.Z"
+            // in geom_data_t: std::map<std::string, std::map<std::string, double> > geom_data;
+            // std::map<unsigned int, geom_data_t> data;
+
+            std::map<unsigned int, geom_data_t>::const_iterator it;
+            for (it=data.begin(); it!=data.end(); ++it) {
+               unsigned int cycle_number = it->first;
+               std::string colour = "#333333";
+               s += make_graph_lines(outer_key, graph_name, colour);
+            }
+
+            x_offset = x_offset_orig;
+            y_offset = y_offset_orig;
+         }
+      }
+      return s;
+   }
+
+   std::string make_complete_svg() {
+
+      std::string s;
+      std::string svg_header_1 = "<svg xmlns=\"http://www.w3.org/2000/svg\"\n   xmlns:xlink=\"http://www.w3.org/1999/xlink\" ";
+      std::string svg_header_2 = ">\n";
+
+      std::string svg_footer = "</svg>\n";
+
+      double min_x =  100; // -10
+      double min_y = -130; // -30
+      double max_x =  800; // 400
+      double max_y =  800;
+
+      std::string viewBox_string = "viewBox=" + std::string("\"") +
+         std::to_string(min_x) + std::string(" ") +
+         std::to_string(min_y) + std::string(" ") +
+         std::to_string(max_x) + std::string(" ") +
+         std::to_string(max_y) + std::string("\"");
+
+      s += svg_header_1;
+      s += viewBox_string;
+      s += svg_header_2;
+
+      // add graphs here
+      s += make_svg();
+
+      s += svg_footer;
+      return s;
+   }
+
+   void output() {
+      std::string output_file_name = "geom-data.svg";
+      std::string s = make_complete_svg();
+      std::ofstream f(output_file_name);
+      f << s;
+      f.close();
+   }
+};
+
 void
-parse_cycle(json j, summary_data_container_t *summary_data_container_p, binned_data_container_t *bdc_p) {
+parse_cycle(json j,
+            summary_data_container_t *summary_data_container_p,
+            binned_data_container_t *bdc_p,
+            geom_data_container_t *geom_data_container_p) {
 
    int nth_cycle = j["Ncyc"];
    json j_data = j["data"];
@@ -574,7 +985,6 @@ parse_cycle(json j, summary_data_container_t *summary_data_container_p, binned_d
    // "binned" data inside "data"
    json j_binned = j_data["binned"];
    unsigned int s = j_binned.size();
-   std::cout << "   " << s << std::endl;
    for (unsigned int i=0; i<s; i++) {
       json binned_data = j_binned[i];
       double d_min          = binned_data["d_min"];
@@ -590,6 +1000,24 @@ parse_cycle(json j, summary_data_container_t *summary_data_container_p, binned_d
       binned_data_t bd(d_mid, fsc_FC_full, Rcmplx_FC_full, cc_FC_full, mcos_FC_full, power_FP, power_FC);
       bdc_p->add(nth_cycle, bd);
    }
+
+   geom_data_container_t &geom_data_container = *geom_data_container_p;
+   std::vector<std::string> data_types = {"r.m.s.d.", "r.m.s.Z"};
+   json j_geom = j["geom"];
+
+   for (const auto &data_type : data_types) {
+      json j_data_type = j_geom[data_type];
+      for (const auto &key : geom_data_container.keys) {
+         try {
+            double x = j_data_type[key];
+            geom_data_container.data[nth_cycle].geom_data[data_type][key] = x;
+         }
+         catch (const std::exception &e) {
+            std::cout << e.what() << std::endl;
+         }
+      }
+   }
+
 }
 
 int main(int argc, char **argv) {
@@ -612,6 +1040,8 @@ int main(int argc, char **argv) {
 
          summary_data_container_t summary_data_container;
          binned_data_container_t binned_data_container;
+         geom_data_container_t geom_data_container;
+
          std::string s = file_to_string(json_file_name);
          json j = json::parse(s);
          int cycle_index = 0;
@@ -619,10 +1049,11 @@ int main(int argc, char **argv) {
 
             try {
                json item = j.at(cycle_index);
-               parse_cycle(item, &summary_data_container, &binned_data_container);
+               parse_cycle(item, &summary_data_container, &binned_data_container, &geom_data_container);
 
                summary_data_container.output();
                binned_data_container.output();
+               geom_data_container.output();
 
                // next time
                cycle_index++;
