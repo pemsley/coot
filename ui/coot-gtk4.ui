@@ -8839,36 +8839,29 @@ Do you want to continue?
   </object>
   <object class="GtkDialog" id="least_squares_dialog">
     <property name="title" translatable="yes">Least Squares Fit</property>
+    <property name="hide-on-close">true</property>
     <child>
       <object class="GtkBox" id="dialog-vbox97">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox146">
-                <property name="homogeneous">1</property>
-                <child>
-                  <object class="GtkButton" id="least_squares_cancel_button">
-                    <property name="label">Close</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_least_squares_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="least_squares_ok_button">
-                    <property name="label" translatable="yes">Fit</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_least_squares_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
+        <property name="spacing">5</property>
+        <property name="margin-end">5</property>
+        <property name="margin-start">5</property>
+        <property name="margin-top">5</property>
+        <property name="margin-bottom">5</property>
         <child>
           <object class="GtkBox" id="vbox187">
             <property name="orientation">vertical</property>
+            <property name="spacing">5</property>
             <child>
               <object class="GtkFrame" id="frame170">
                 <child>
                   <object class="GtkBox" id="vbox189">
                     <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <property name="margin-end">5</property>
+                    <property name="margin-start">5</property>
+                    <property name="margin-top">5</property>
+                    <property name="margin-bottom">5</property>
                     <child>
                       <object class="GtkLabel" id="label292">
                         <property name="label" translatable="yes">Reference Molecule:</property>
@@ -8900,6 +8893,12 @@ Do you want to continue?
                 <child>
                   <object class="GtkBox" id="vbox190">
                     <property name="orientation">vertical</property>
+                    <property name="margin-end">5</property>
+                    <property name="margin-start">5</property>
+                    <property name="margin-top">5</property>
+                    <property name="margin-bottom">5</property>
+                    <property name="spacing">5</property>
+
                     <child>
                       <object class="GtkBox" id="hbox147">
                         <child>
@@ -9023,6 +9022,26 @@ Do you want to continue?
                     <property name="label" translatable="yes">Match Atoms</property>
                   </object>
                 </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="action">
+          <object class="GtkBox" id="hbox146">
+            <property name="halign">end</property>
+            <property name="spacing">5</property>
+            <child>
+              <object class="GtkButton" id="least_squares_cancel_button">
+                <property name="label">Close</property>
+                <property name="can-focus">1</property>
+                <signal name="clicked" handler="on_least_squares_cancel_button_clicked" swapped="no" />
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="least_squares_ok_button">
+                <property name="label" translatable="yes">Fit</property>
+                <property name="can-focus">1</property>
+                <signal name="clicked" handler="on_least_squares_ok_button_clicked" swapped="no" />
               </object>
             </child>
           </object>
