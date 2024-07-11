@@ -116,7 +116,7 @@ public:
       x_scale = 10.0;
       y_scale = 80.0;
       x_offset = 22.0;
-      y_offset = 0.0; // move it down the page
+      y_offset = 20.0; // move it down the page
    }
    void add(const summary_data_t &d) { data.push_back(d); }
    void output() {
@@ -157,6 +157,14 @@ public:
       s += graph_internals("mll");
       s += svg_footer;
       x_offset = x_offset_orig;
+      return s;
+   }
+
+   std::string make_svg() {
+      std::string s;
+      s += graph_internals("fsc_average");
+      x_offset += 150;
+      s += graph_internals("mll");
       return s;
    }
 
@@ -435,7 +443,7 @@ public:
       x_scale = 10.0;
       y_scale = 80.0;
       x_offset = 22.0;
-      y_offset = 20.0; // move it down the page
+      y_offset = -180.0; // move it down the page
    }
 
    // in Angstroms
@@ -728,11 +736,15 @@ class geom_data_container_t {
       y_scale = 80.0;
       x_offset = 22.0;
       y_offset = 20.0; // move it down the page
+      outer_keys = { "r.m.s.d.", "r.m.s.Z"};
+      outer_keys.erase(outer_keys.begin()); // only r.m.s.Z
+
    }
    double x_scale;
    double y_scale;
    double x_offset;
    double y_offset;
+   std::vector<std::string> outer_keys;
 
 
    std::string make_tick_marks_x_axis(unsigned int n_cycles) const {
@@ -929,7 +941,6 @@ class geom_data_container_t {
       double x_scale_orig = x_scale;
       double y_scale_orig = y_scale;
 
-      std::vector<std::string> outer_keys = { "r.m.s.d.", "r.m.s.Z"};
       unsigned int n_cycles = data.size();
 
       unsigned int key_count = 0;
@@ -940,8 +951,8 @@ class geom_data_container_t {
 
             const std::string &graph_name = graph_names[i_graph].second;
             point_t offset = graph_names[i_graph].first;
-            if (key_count == 2) {
-               offset += point_t(500, 0);
+            if (true) {
+               offset += point_t(300, 0);
             }
             x_offset = x_offset_orig + offset.x;
             y_offset = y_offset_orig + offset.y;
@@ -1065,6 +1076,7 @@ parse_cycle(json j,
 
    geom_data_container_t &geom_data_container = *geom_data_container_p;
    std::vector<std::string> data_types = {"r.m.s.d.", "r.m.s.Z"};
+   data_types.erase(data_types.begin()); // only use r.m.s.Z
    json j_geom = j["geom"];
 
    for (const auto &data_type : data_types) {
@@ -1079,7 +1091,61 @@ parse_cycle(json j,
          }
       }
    }
+}
 
+void make_consolidated_graph_set(summary_data_container_t *summary_data_container,
+                                 binned_data_container_t *binned_data_container,
+                                 geom_data_container_t *geom_data_container,
+                                 const std::string &svg_file_name) {
+
+   auto make_svg = [summary_data_container, binned_data_container, geom_data_container] {
+      std::string s;
+      s += summary_data_container->make_svg();
+      s += binned_data_container->make_svg();
+      s += geom_data_container->make_svg();
+      return s;
+   };
+
+   auto make_complete_svg = [make_svg] {
+
+      std::string s;
+      std::string svg_header_1 = "<svg xmlns=\"http://www.w3.org/2000/svg\"\n   xmlns:xlink=\"http://www.w3.org/1999/xlink\" ";
+      std::string svg_header_2 = ">\n";
+
+      std::string svg_footer = "</svg>\n";
+
+      double min_x =  100; // -10
+      double min_y = -130; // -30
+      double max_x =  800; // 400
+      double max_y =  800;
+
+      std::string viewBox_string = "viewBox=" + std::string("\"") +
+         std::to_string(min_x) + std::string(" ") +
+         std::to_string(min_y) + std::string(" ") +
+         std::to_string(max_x) + std::string(" ") +
+         std::to_string(max_y) + std::string("\"");
+
+      s += svg_header_1;
+      s += viewBox_string;
+      s += svg_header_2;
+
+      // add graphs here
+      s += make_svg();
+
+      s += svg_footer;
+      return s;
+   };
+
+   auto output = [] (const std::string &s, const std::string &output_file_name) {
+      std::ofstream f(output_file_name);
+      f << s;
+      f.close();
+   };
+
+   std::string s;
+   s = make_complete_svg();
+   output(s, svg_file_name);
+   std::cout << "debug:: in make_consolidated_graph_set() wrote " << svg_file_name << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -1113,10 +1179,6 @@ int main(int argc, char **argv) {
                json item = j.at(cycle_index);
                parse_cycle(item, &summary_data_container, &binned_data_container, &geom_data_container);
 
-               summary_data_container.output();
-               binned_data_container.output();
-               geom_data_container.output();
-
                // next time
                cycle_index++;
             }
@@ -1125,6 +1187,14 @@ int main(int argc, char **argv) {
                break;
             }
          }
+
+         summary_data_container.output();
+         binned_data_container.output();
+         geom_data_container.output();
+
+         std::string svg_file_name = "servalcat-graphs.svg";
+         make_consolidated_graph_set(&summary_data_container, &binned_data_container,
+                                     &geom_data_container, svg_file_name);
       }
       catch (const std::runtime_error &e) {
          std::cout << "WARNING::" << e.what() << std::endl;
