@@ -5,6 +5,9 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#include <chrono>
+#include <thread>
+#include <filesystem>
 
 #include <signal.h>
 
@@ -1180,7 +1183,7 @@ std::string file_to_string(const std::string &file_name) {
 int get_cycle_number_max(json j) {
    int size = j.size();
    int cycle_number = -1;
-   for (unsigned int i=0; i<size; i++) {
+   for (int i=0; i<size; i++) {
       json j_c = j[i];
       int c = j_c["Ncyc"];
       // std::cout << " c "  << c << std::endl;
@@ -1190,9 +1193,6 @@ int get_cycle_number_max(json j) {
 
    return cycle_number;
 }
-
-#include <chrono>
-#include <thread>
 
 void track_process_make_graphs_svg(const std::string &json_file_name, int pid) {
 
