@@ -734,20 +734,82 @@ class geom_data_container_t {
    double x_offset;
    double y_offset;
 
-   std::string make_tick_marks_x_axis() {
+
+   std::string make_tick_marks_x_axis(unsigned int n_cycles) const {
       std::string s;
+      unsigned int n_lines = 5;
+      if (n_cycles > n_lines) n_lines = n_cycles;
+      for (unsigned int i=1; i<=n_lines; i++) { // not at x = 0;
+         std::pair<double, double> xy_1(i, 0.0);
+         std::pair<double, double> xy_2(i, -0.03);
+         point_t pt_1(xy_1, x_scale, y_scale, x_offset, y_offset);
+         point_t pt_2(xy_2, x_scale, y_scale, x_offset, y_offset);
+         std::string l = make_line(pt_1, pt_2, "#222222", 0.4, false, false);
+         s += l;
+      }
       return s;
    }
 
-   std::string make_tick_marks_y_axis() {
-      std::string s;
+   std::string make_tick_marks_y_axis() const {
+      std::string s = "   \n";
+      unsigned int n_ticks = 5;
+      for (unsigned int i=0; i<=n_ticks; i++) {
+         double f = static_cast<double>(i) / static_cast<double>(n_ticks);
+         double y = 1.2 * f;
+         std::pair<double, double> xy_1(0.0,  y);
+         std::pair<double, double> xy_2(-0.3, y);
+         point_t pt_1(xy_1, x_scale, y_scale, x_offset, y_offset);
+         point_t pt_2(xy_2, x_scale, y_scale, x_offset, y_offset);
+         std::string l = make_line(pt_1, pt_2, "#222222", 0.4, false, false);
+         s += l;
+      }
       return s;
    }
 
-   std::string make_x_axis_tick_labels() {
+   std::string make_x_axis_tick_labels(unsigned int n_cycles) const {
       std::string s;
+      unsigned int n_lines = 5;
+      if (n_cycles > n_lines) n_lines = n_cycles;
+      for (unsigned int i=1; i<=n_lines; i++) { // not at x = 0;
+         point_t p( x_scale * i + x_offset - 1.0, y_offset - 6);
+         point_t pc = p.canvas_convert();
+         std::string l = "   <text font-family=\"Helvetica, sans-serif\" font-size=\"3\" ";
+         l += "x=\"";
+         l += std::to_string(pc.x);
+         l += "\" y=\"";
+         l += std::to_string(pc.y);
+         l += "\">";
+         l += std::to_string(i);
+         l += "</text>\n";
+         s += l;
+      }
       return s;
    }
+
+   std::string make_y_axis_tick_labels(const std::string &graph_type) const {
+      std::string s;
+      unsigned int n_lines = 5;
+      for (unsigned int i=0; i<=n_lines; i++) { // not at x = 0;
+         double f = static_cast<double>(i) / static_cast<double>(n_lines);
+         double v = 0.0;
+         double y = 0.0;
+         double tw_offset = 12;
+         std::string value_as_string;
+         point_t p(x_offset - tw_offset, y + y_offset - 2);
+         point_t pc = p.canvas_convert();
+         std::string l = "   <text font-family=\"Helvetica, sans-serif\" font-size=\"6\" ";
+         l += "x=\"";
+         l += std::to_string(pc.x);
+         l += "\" y=\"";
+         l += std::to_string(pc.y);
+         l += "\">";
+         l += value_as_string;
+         l += "</text>\n";
+         s += l;
+      }
+      return s;
+   }
+
 
    std::string make_y_axis_tick_labels() {
       std::string s;
@@ -892,13 +954,13 @@ class geom_data_container_t {
             s += line_x_axis;
             s += line_y_axis;
 
-            std::string tick_marks_x = make_tick_marks_x_axis();
+            std::string tick_marks_x = make_tick_marks_x_axis(n_cycles);
             std::string tick_marks_y = make_tick_marks_y_axis();
             s += tick_marks_x;
             s += tick_marks_y;
 
+            std::string x_axis_tick_labels = make_x_axis_tick_labels(n_cycles);
             std::string y_axis_tick_labels = make_y_axis_tick_labels();
-            std::string x_axis_tick_labels = make_x_axis_tick_labels();
             s += y_axis_tick_labels;
             s += x_axis_tick_labels;
 
