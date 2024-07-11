@@ -6,6 +6,8 @@
 #include <fstream>
 #include <sstream>
 
+#include <signal.h>
+
 #include "json.hpp"
 using json = nlohmann::json;
 
@@ -1148,20 +1150,92 @@ void make_consolidated_graph_set(summary_data_container_t *summary_data_containe
    std::cout << "debug:: in make_consolidated_graph_set() wrote " << svg_file_name << std::endl;
 }
 
+// throw an exception on unable to convert
+int
+string_to_int(const std::string &s) {
+
+   int i;
+   std::istringstream sstream(s);
+
+   if (sstream>>i) {
+      return i;
+   } else {
+      std::string mess = "Cannot convert \"";
+      mess += s;
+      mess += "\" to an integer";
+      throw std::runtime_error(mess);
+   }
+}
+
+std::string file_to_string(const std::string &file_name) {
+   std::fstream f(file_name);
+   std::string s;
+   f.seekg(0, std::ios::end);
+   s.reserve(f.tellg());
+   f.seekg(0, std::ios::beg);
+   s.assign((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+   return s;
+}
+
+int get_cycle_number_max(json j) {
+   int size = j.size();
+   int cycle_number = -1;
+   for (unsigned int i=0; i<size; i++) {
+      json j_c = j[i];
+      int c = j_c["Ncyc"];
+      // std::cout << " c "  << c << std::endl;
+      if (c > cycle_number)
+         cycle_number = c;
+   }
+
+   return cycle_number;
+}
+
+#include <chrono>
+#include <thread>
+
+void track_process_make_graphs_svg(const std::string &json_file_name, int pid) {
+
+   bool continue_status = true;
+   time_t latest_modified_time = 0;
+   while (continue_status) {
+      int kill_status = kill(pid,0);
+      if (kill_status == 0) {
+         if (std::filesystem::exists(json_file_name)) {
+            std::cout << "Loop - A " << std::endl;
+            std::filesystem::file_time_type ft = std::filesystem::last_write_time(json_file_name);
+            auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(ft.time_since_epoch()).count();
+            if (ms > latest_modified_time) {
+               latest_modified_time = ms;
+               std::cout << " last write time " << ms << std::endl;
+               summary_data_container_t summary_data_container;
+               binned_data_container_t binned_data_container;
+               geom_data_container_t geom_data_container;
+               std::string s = file_to_string(json_file_name);
+               json j = json::parse(s);
+               int cycle_number = get_cycle_number_max(j);
+               json item = j.at(cycle_number);
+               parse_cycle(item, &summary_data_container, &binned_data_container, &geom_data_container);
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+         } else {
+            std::cout << "No such file " << json_file_name << std::endl;
+            continue_status = false;
+         }
+      } else {
+         std::cout << "process is dead" << std::endl;
+         continue_status = false;
+      }
+   }
+}
+
 int main(int argc, char **argv) {
 
-   auto file_to_string = [] (const std::string &file_name) {
-      std::fstream f(file_name);
-      std::string s;
-      f.seekg(0, std::ios::end);
-      s.reserve(f.tellg());
-      f.seekg(0, std::ios::beg);
-      s.assign((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
-      return s;
-   };
-
    int status = 0;
-   if (argc > 1) {
+   bool done = false;
+
+   if (argc == 2) {
 
       std::string json_file_name = argv[1];
       try {
@@ -1200,7 +1274,25 @@ int main(int argc, char **argv) {
          std::cout << "WARNING::" << e.what() << std::endl;
          status = 2; // file not found
       }
-   } else {
+
+      done = true;
+   }
+   if (argc == 3) {
+      std::string json_file_name = argv[1];
+      std::string pid_string = argv[2];
+      try {
+         int pid = string_to_int(pid_string);
+         track_process_make_graphs_svg(json_file_name, pid);
+      }
+      catch (const std::exception &e) {
+         std::cout << e.what() << " Failed." << std::endl;
+      }
+
+
+      done = true;
+   }
+
+   if (! done) {
       std::cout << "Usage: servalcat-tracker json-file-name" << std::endl;
    }
 
