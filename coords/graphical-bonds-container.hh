@@ -141,6 +141,13 @@ public:
       if (radius_scale > 6.0) radius_scale = 6.0;
    }
 
+   void set_radius_scale_for_atom_with_no_dictionary(mmdb::Atom *at) {
+      // 20230224-PE if there is no dictionary, then we want fat atoms...
+      // ... but not as fat as before - because, after the discussion with Harry,
+      // we also want bond-by-distance for these residues/ligands
+      radius_scale = 4.0;
+   }
+
 };
 
 template<class T> class graphical_bonds_points_list {

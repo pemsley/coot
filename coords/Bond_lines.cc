@@ -2484,8 +2484,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
                         std::vector<std::pair<bool, mmdb::Residue *> > het_residues; // bond these separately.
                         mmdb::Atom *atom_p_1 = non_Hydrogen_atoms[i];
-                        bool bond_het_residue_by_dictionary =
-                           add_bond_by_dictionary_maybe(imol, atom_p_1, atom_p_1, &het_residues);
+                        bool bond_het_residue_by_dictionary = add_bond_by_dictionary_maybe(imol, atom_p_1, atom_p_1, &het_residues);
                         if (bond_het_residue_by_dictionary) {
                            add_bonds_het_residues(het_residues, SelAtom, imol, atom_colour_type, have_udd_atoms, udd_found_bond_handle,
                                                   udd_atom_index_handle, udd_user_defined_atom_colour_index_handle);
@@ -6799,12 +6798,36 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
 }
 
 void
+Bond_lines_container::bond_by_distance(const atom_selection_container_t &asc, int imol,
+                                       std::vector<mmdb::Residue *> &residues,
+                                       bool have_udd_atoms, int udd_found_bond_handle) {
+
+   for (unsigned int i=0; i<residues.size(); i++) {
+      mmdb::Residue *residue_p = residues[i];
+      mmdb::PPAtom residue_atoms;
+      int nResidueAtoms;
+      float max_dist = 2.0;
+      float min_dist = 0.01;
+      int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY;
+
+      residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
+      construct_from_atom_selection(asc,
+                                    residue_atoms, nResidueAtoms,
+                                    residue_atoms, nResidueAtoms,
+                                    imol,
+                                    min_dist, max_dist, atom_colour_type,
+                                    0, have_udd_atoms, udd_found_bond_handle);
+   }
+}
+
+void
 Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
                                                                               int imol,
                                                                               int draw_hydrogens_flag,
                                                                               bool draw_missing_loops_flag,
                                                                               bool do_goodsell_colour_mode,
                                                                               bool do_rotamer_markup) {
+
    //  timer here.
 
    // 1) waters and metals
@@ -6852,7 +6875,7 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
       int imod = 1;
       mmdb::Model *model_p = asc.mol->GetModel(imod);
       if (model_p) {
-         int n_chains = model_p->GetNumberOfChains();
+         n_chains = model_p->GetNumberOfChains();
          for (int ichain=0; ichain<n_chains; ichain++) {
             mmdb::Chain *chain_p = model_p->GetChain(ichain);
             int n_res = chain_p->GetNumberOfResidues();
@@ -6875,6 +6898,31 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
       }
    }
 
+   {
+
+      // add a timer one day
+
+      // 20240713-PE Harry-bonding:
+      //
+      if (geom) { // should be - right?
+         std::vector<mmdb::Residue *> residues_with_no_dictionary; // fill this
+         // cf Bond_lines_container::add_atom_centres()
+         std::map<std::string, std::vector<mmdb::Residue *> >::const_iterator it;
+         for (it=residue_monomer_map.begin(); it!=residue_monomer_map.end(); ++it) {
+            const std::string &res_type = it->first;
+            bool s = geom->have_at_least_minimal_dictionary_for_residue_type(res_type, imol);
+            if (! s) {
+               const std::vector<mmdb::Residue *> &v = it->second;
+               residues_with_no_dictionary.insert(residues_with_no_dictionary.end(), v.begin(), v.end());
+            }
+         }
+         if (! residues_with_no_dictionary.empty()) {
+            int udd_found_bond_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
+            bool have_udd_atoms = true;
+            bond_by_distance(asc, imol, residues_with_no_dictionary, have_udd_atoms, udd_found_bond_handle);
+         }
+      }
+   }
 
    if (do_goodsell_colour_mode)
       atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
@@ -8485,7 +8533,11 @@ Bond_lines_container::add_atom_centres(int imol,
                      make_fat_atom = true;
             // std::cout << " atom_colour_type " << atom_colour_type << " c.f. " << coot::COLOUR_BY_MOLECULE
             // << " make_fat_atom: " << make_fat_atom << std::endl;
-            gbai.set_radius_scale_for_atom(at, make_fat_atom);
+            // 20240712-PE previous: gbai.set_radius_scale_for_atom(at, make_fat_atom);
+            if (atom_colour_type != coot::COLOUR_BY_MOLECULE)
+               if (! have_dict_for_this_type)
+                  if (atom_colour_type != coot::COLOUR_BY_ATOM_TYPE)
+                     gbai.set_radius_scale_for_atom_with_no_dictionary(at);
 
             // this is a bit hacky
             if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
