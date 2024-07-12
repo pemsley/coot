@@ -36,15 +36,6 @@ public:
    }
 };
 
-class summary_data_t {
-public:
-   summary_data_t() : cycle_number(0), fsc_average(0), mll(0) {}
-   summary_data_t(int c, double f, double m) : cycle_number(c), fsc_average(f), mll(m) {}
-   int cycle_number;
-   double fsc_average;
-   double mll;
-};
-
 std::string double_to_string(const double &d, unsigned int n_dec_pl) {
    std::stringstream s;
    s << std::right << std::fixed;
@@ -107,6 +98,15 @@ std::vector<std::string> make_grid_lines(unsigned int n_cycles,
    return v;
 }
 
+class summary_data_t {
+public:
+   summary_data_t() : cycle_number(0), fsc_average(0), mll(0) {}
+   summary_data_t(int c, double f, double m) : cycle_number(c), fsc_average(f), mll(m) {}
+   int cycle_number;
+   double fsc_average;
+   double mll;
+};
+
 
 class summary_data_container_t {
 public:
@@ -156,6 +156,7 @@ public:
       s += svg_header_1;
       s += viewBox_string;
       s += svg_header_2;
+
       s += graph_internals("fsc_average");
 
       x_offset += 140;
@@ -166,10 +167,12 @@ public:
    }
 
    std::string make_svg() {
+      double x_offset_orig = x_offset;
       std::string s;
       s += graph_internals("fsc_average");
       x_offset += 150;
       s += graph_internals("mll");
+      x_offset = x_offset_orig;
       return s;
    }
 
@@ -486,7 +489,7 @@ public:
                data_points.push_back(std::make_pair(pc.x, pc.y));
             }
             catch(const std::exception &e) {
-               std::cerr << e.what() << " key: " << graph_type << '\n';
+               std::cerr << " make_graph_lines() A " << e.what() << " key: " << graph_type << '\n';
             }
          }
       }
@@ -870,7 +873,6 @@ class geom_data_container_t {
                                  const std::string &graph_name,
                                  const std::string &colour) const {
       std::string s;
-      unsigned int n_cycles = data.size();
       std::map<unsigned int, geom_data_t>::const_iterator it;
       std::vector<point_t> data_points;
       for (it=data.begin(); it!=data.end(); ++it) {
@@ -896,10 +898,11 @@ class geom_data_container_t {
             data_points.push_back(pc);
          }
          catch (const std::exception &e) {
-            std::cout << e.what() << " key " << outer_key << " graph_name " << graph_name
+            std::cout << "make_graph_lines() B " << e.what() << " key " << outer_key << " graph_name " << graph_name
                << std::endl;
          }
       }
+
       if (! data_points.empty()) {
          std::string polyline = "<polyline points=\"";
 
@@ -943,8 +946,6 @@ class geom_data_container_t {
 
       double x_offset_orig = x_offset;
       double y_offset_orig = y_offset;
-      double x_scale_orig = x_scale;
-      double y_scale_orig = y_scale;
 
       unsigned int n_cycles = data.size();
 
@@ -987,18 +988,12 @@ class geom_data_container_t {
             std::string title_string = make_main_title(title);
             s += title_string;
 
-            unsigned int last_cycle_number = data.size() -1;
-
             // outer keys "r.m.s.d." and "r.m.s.Z"
             // in geom_data_t: std::map<std::string, std::map<std::string, double> > geom_data;
             // std::map<unsigned int, geom_data_t> data;
 
-            std::map<unsigned int, geom_data_t>::const_iterator it;
-            for (it=data.begin(); it!=data.end(); ++it) {
-               unsigned int cycle_number = it->first;
-               std::string colour = "#333333";
-               s += make_graph_lines(outer_key, graph_name, colour);
-            }
+            std::string colour = "#333333";
+            s += make_graph_lines(outer_key, graph_name, colour);
 
             x_offset = x_offset_orig;
             y_offset = y_offset_orig;
@@ -1057,7 +1052,7 @@ parse_cycle(json j,
    json j_summary = j_data["summary"];
    float fsc_average = j_summary["FSCaverage"];
    float mll = j_summary["-LL"];
-   std::cout << nth_cycle << " " << fsc_average << " " << mll << std::endl;
+   std::cout << "-------------- nth_cycle: " << nth_cycle << " fsc: " << fsc_average << " -ll: " << mll << std::endl;
    summary_data_container_p->add(summary_data_t(nth_cycle, fsc_average, mll));
 
    // "binned" data inside "data"
@@ -1083,16 +1078,22 @@ parse_cycle(json j,
    std::vector<std::string> data_types = {"r.m.s.d.", "r.m.s.Z"};
    data_types.erase(data_types.begin()); // only use r.m.s.Z
    json j_geom = j["geom"];
+   json j_geom_summary = j_geom["summary"];
 
    for (const auto &data_type : data_types) {
-      json j_data_type = j_geom[data_type];
-      for (const auto &key : geom_data_container.keys) {
-         try {
-            double x = j_data_type[key];
-            geom_data_container.data[nth_cycle].geom_data[data_type][key] = x;
-         }
-         catch (const std::exception &e) {
-            std::cout << e.what() << std::endl;
+      json j_data_type = j_geom_summary[data_type];
+      if (j_data_type.is_null()) {
+         std::cout << "========= failed to find " << data_type << std::endl;
+      } else {
+         for (const auto &key : geom_data_container.keys) {
+            try {
+               double x = j_data_type[key];
+               geom_data_container.data[nth_cycle].geom_data[data_type][key] = x;
+            }
+            catch (const std::exception &e) {
+               // the value hasn't been set yet
+               std::cout << "soft-error: parse_cycle(): " << e.what() << std::endl;
+            }
          }
       }
    }
@@ -1101,7 +1102,8 @@ parse_cycle(json j,
 void make_consolidated_graph_set(summary_data_container_t *summary_data_container,
                                  binned_data_container_t *binned_data_container,
                                  geom_data_container_t *geom_data_container,
-                                 const std::string &svg_file_name) {
+                                 const std::string &svg_file_name,
+                                 bool wrap_in_refresh_html) {
 
    auto make_svg = [summary_data_container, binned_data_container, geom_data_container] {
       std::string s;
@@ -1119,9 +1121,9 @@ void make_consolidated_graph_set(summary_data_container_t *summary_data_containe
 
       std::string svg_footer = "</svg>\n";
 
-      double min_x =  100; // -10
-      double min_y = -130; // -30
-      double max_x =  800; // 400
+      double min_x =  -10;
+      double min_y = -100;
+      double max_x =  830;
       double max_y =  800;
 
       std::string viewBox_string = "viewBox=" + std::string("\"") +
@@ -1149,6 +1151,14 @@ void make_consolidated_graph_set(summary_data_container_t *summary_data_containe
 
    std::string s;
    s = make_complete_svg();
+
+   if (wrap_in_refresh_html) {
+      std::string html_top = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"2\"></head><body>\n";
+      std::string html_foot = "</body><html>\n";
+      std::string ss = html_top + s + html_foot;
+      s = ss;
+   }
+
    output(s, svg_file_name);
    std::cout << "debug:: in make_consolidated_graph_set() wrote " << svg_file_name << std::endl;
 }
@@ -1194,34 +1204,57 @@ int get_cycle_number_max(json j) {
    return cycle_number;
 }
 
+#include <sys/types.h> // for stating
+#include <sys/stat.h>
+
+#if defined _MSC_VER
+#define snprintf _snprintf
+#else
+#include <unistd.h>
+#endif
+
 void track_process_make_graphs_svg(const std::string &json_file_name, int pid) {
 
    bool continue_status = true;
    time_t latest_modified_time = 0;
+   summary_data_container_t summary_data_container;
+   binned_data_container_t binned_data_container;
+   geom_data_container_t geom_data_container;
+   bool found_begining = false;
    while (continue_status) {
       int kill_status = kill(pid,0);
       if (kill_status == 0) {
          if (std::filesystem::exists(json_file_name)) {
-            std::cout << "Loop - A " << std::endl;
-            std::filesystem::file_time_type ft = std::filesystem::last_write_time(json_file_name);
-            auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(ft.time_since_epoch()).count();
-            if (ms > latest_modified_time) {
-               latest_modified_time = ms;
-               std::cout << " last write time " << ms << std::endl;
-               summary_data_container_t summary_data_container;
-               binned_data_container_t binned_data_container;
-               geom_data_container_t geom_data_container;
-               std::string s = file_to_string(json_file_name);
-               json j = json::parse(s);
-               int cycle_number = get_cycle_number_max(j);
-               json item = j.at(cycle_number);
-               parse_cycle(item, &summary_data_container, &binned_data_container, &geom_data_container);
+
+            struct stat buf;
+            int stat_status = stat(json_file_name.c_str(), &buf);
+            if (stat_status == 0) {
+               time_t mtime = buf.st_mtime;
+               if (mtime > latest_modified_time) {
+                  latest_modified_time = mtime;
+                  // std::cout << "updated " << mtime << std::endl;
+                  std::string s = file_to_string(json_file_name);
+                  json j = json::parse(s);
+                  int cycle_number = get_cycle_number_max(j);
+                  if (cycle_number == 0) found_begining = true;
+                  std::cout << "cycle_number: " << cycle_number << " found_begining " << found_begining << std::endl;
+                  if (found_begining) {
+                     std::cout << "... parsing..." << std::endl;
+                     json item = j.at(cycle_number);
+                     parse_cycle(item, &summary_data_container, &binned_data_container, &geom_data_container);
+
+                     // std::string svg_file_name = "servalcat-graphs.svg";
+                     std::string svg_file_name = "servalcat-graphs.html";
+                     make_consolidated_graph_set(&summary_data_container, &binned_data_container,
+                                                 &geom_data_container, svg_file_name, true);
+                  }
+               }
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
          } else {
             std::cout << "No such file " << json_file_name << std::endl;
-            continue_status = false;
+            // continue_status = false;
          }
       } else {
          std::cout << "process is dead" << std::endl;
@@ -1268,10 +1301,10 @@ int main(int argc, char **argv) {
 
          std::string svg_file_name = "servalcat-graphs.svg";
          make_consolidated_graph_set(&summary_data_container, &binned_data_container,
-                                     &geom_data_container, svg_file_name);
+                                     &geom_data_container, svg_file_name, false);
       }
       catch (const std::runtime_error &e) {
-         std::cout << "WARNING::" << e.what() << std::endl;
+         std::cout << "WARNING:: main(): " << e.what() << std::endl;
          status = 2; // file not found
       }
 
@@ -1285,7 +1318,7 @@ int main(int argc, char **argv) {
          track_process_make_graphs_svg(json_file_name, pid);
       }
       catch (const std::exception &e) {
-         std::cout << e.what() << " Failed." << std::endl;
+         std::cout << e.what() << " Failed  to convert to int" << std::endl;
       }
 
 
