@@ -2425,7 +2425,7 @@ Calculate a skeleton now?
                 </child>
                 <child type="label">
                   <object class="GtkLabel" id="label308">
-                    <property name="label" translatable="yes">Draw Hydrogens?</property>
+                    <property name="label" translatable="yes">Draw Hydrogen Atoms?</property>
                   </object>
                 </child>
               </object>
