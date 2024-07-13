@@ -11,8 +11,13 @@
 
   o CHANGE:  Network download files now follow the XDG Base Directory Protocol
 
-  o BUG-FIX: Scroll wheel indicator now correclty updates on use of a key-binding
+  o BUG-FIX: Scroll wheel indicator now correctly updates on use of a key-binding
              to change the scrollable map
+
+  o BUG-FIX: Ugly least-squares fit dialog has been modernized.
+
+  o BUG-FIX: Fix the callback actions for the "Display Hydrogen Atoms" in
+             the Bonds control dialog.
 
 -----
 
