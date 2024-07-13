@@ -3730,11 +3730,14 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
 
 void apply_bond_parameters(GtkWidget *w) {
 
-   // 20211018-PE  Old, no longer used. Delete?
-
    graphics_info_t g;
-   int imol = g.bond_parameters_molecule;
 
+   int imol = -1; // 20240713-PE was g.bond_parameters_molecule;
+
+   GtkWidget *bond_parameters_molecule_comboboxtext = widget_from_builder("bond_parameters_molecule_comboboxtext");
+   if (bond_parameters_molecule_comboboxtext) {
+      imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+   }
 
    if (imol >= 0) {
       if (imol < g.n_molecules()) {
