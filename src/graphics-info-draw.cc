@@ -6710,6 +6710,7 @@ graphics_info_t::setup_key_bindings() {
 
    auto l43 = [] () {
       bool done = false;
+      int scroll_wheel_map_prev = scroll_wheel_map;
       for (int ii=0; ii<n_molecules(); ii++) {
          if (is_valid_map_molecule(ii)) {
             if (ii > scroll_wheel_map) {
@@ -6726,6 +6727,11 @@ graphics_info_t::setup_key_bindings() {
                break;
             }
          }
+      }
+      if (scroll_wheel_map != scroll_wheel_map_prev) {
+         // we need to update the Display Manager
+         graphics_info_t g;
+         g.set_scrollable_map(scroll_wheel_map); // calls activate_scroll_radio_button_in_display_manager()
       }
       return gboolean(TRUE);
    };

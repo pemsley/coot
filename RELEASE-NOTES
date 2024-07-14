@@ -1,4 +1,22 @@
 
+-----
+
+  Pre-Release 1.1.10
+
+  o FEATURE: Noughties-physics. Add a refinement/atom manipulation mode
+             so that Coot behaves like it used to up to (and including)
+             version 0.8.x
+
+  o FEATURE: Layla now displays QED Scores for molecules
+
+  o CHANGE:  Network download files now follow the XDG Base Directory Protocol
+
+  o BUG-FIX: Scroll wheel indicator now correclty updates on use of a key-binding
+             to change the scrollable map
+
+-----
+
+
   Release 1.1.09
 
   o FEATURE: Coot is now a (mostly) XDG Base Directory-compliant application

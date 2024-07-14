@@ -2049,8 +2049,9 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
 
    auto network_get_accession_code_entity = [join, join_2d] (const std::string &text, int mode) {
 
+      // 20240630-PE need to check that the file already exists before downloading it
       xdg_t xdg;
-      std::string download_dir = xdg.get_cache_home().string();
+      std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
       std::string down_id = coot::util::downcase(text);
       std::string pdbe_server = "https://www.ebi.ac.uk";
       std::string pdbe_pdb_file_dir = "pdbe/entry-files/download";
@@ -2086,9 +2087,11 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
       }
    };
 
-   auto fetch_pdb_redo = [] (const std::string &code) {
+   auto fetch_pdb_redo = [join] (const std::string &code) {
+
+      // 20240630-PE need to check that the file already existss before downloading it
       xdg_t xdg;
-      std::string download_dir = xdg.get_cache_home().string();
+      std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
       std::string down_id = coot::util::downcase(code);
       std::string server = "https://pdb-redo.eu";
       std::string server_dir = std::string("db") + "/" + code;
@@ -2695,7 +2698,7 @@ void hide_main_toolbar() {
       // GtkWidget *w = lookup_widget(graphics_info_t::get_main_window(), "main_toolbar");
       GtkWidget *w = widget_from_builder("main_toolbar");
       if (!w) {
-	 std::cout << "failed to lookup main toolbar" << std::endl;
+	 std::cout << "hide_main_toolbar(): failed to lookup main toolbar" << std::endl;
       } else {
 	 graphics_info_t::main_toolbar_show_hide_state = 0;
 	 gtk_widget_set_visible(w, FALSE);
@@ -2706,11 +2709,13 @@ void hide_main_toolbar() {
 /*! \brief show the horizontal maub toolbar in the GTK2 version
   (the toolbar is shown by default) */
 void show_main_toolbar() {
+
+   // main_toolbar no longer exists - do I still want this function?
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *w = widget_from_builder("main_toolbar");
 
       if (!w) {
-	 std::cout << "failed to lookup main toolbar" << std::endl;
+	 std::cout << "show_main_toolbar(): failed to lookup main toolbar" << std::endl;
       } else {
 	 graphics_info_t::main_toolbar_show_hide_state = 1;
 	 gtk_widget_set_visible(w, TRUE);
@@ -2722,20 +2727,14 @@ void show_main_toolbar() {
 // should be generic!? FIXME BL
 void set_main_toolbar_style(int istate) {
 
+   // main_toolbar no longer exists - do I still want this function?
+
    graphics_info_t::main_toolbar_style_state = istate;
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *toolbar = widget_from_builder("main_toolbar");
-      // may have to keep text somewhere?!?! FIXME
-#if (GTK_MAJOR_VERSION >= 4)
-#else
-      if (istate <= 1) {
-          gtk_toolbar_set_style(GTK_TOOLBAR (toolbar), GTK_TOOLBAR_ICONS);
-      } else if (istate == 2) {
-          gtk_toolbar_set_style(GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
-      } else {
-         std::cout << "ERROR:: no toolbar in set_main_toolbar_style()" << std::endl;
+      if (!toolbar) {
+	 std::cout << "set_main_toolbar_style(): failed to lookup main toolbar" << std::endl;
       }
-#endif
    }
 }
 
@@ -3731,11 +3730,14 @@ GtkWidget *wrapped_create_bond_parameters_dialog() {
 
 void apply_bond_parameters(GtkWidget *w) {
 
-   // 20211018-PE  Old, no longer used. Delete?
-
    graphics_info_t g;
-   int imol = g.bond_parameters_molecule;
 
+   int imol = -1; // 20240713-PE was g.bond_parameters_molecule;
+
+   GtkWidget *bond_parameters_molecule_comboboxtext = widget_from_builder("bond_parameters_molecule_comboboxtext");
+   if (bond_parameters_molecule_comboboxtext) {
+      imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+   }
 
    if (imol >= 0) {
       if (imol < g.n_molecules()) {

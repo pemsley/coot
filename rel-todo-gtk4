@@ -1,7 +1,33 @@
 
 ----
 
+When I use Shift-W to change the conouring map, then the Scroll button should change in the Display Manager also.
+* Done.
+
 Get ligand PDBe needs to be depythonized
+* Done. Yay.
+
+Colour-by-molecule shows big balls
+* Done
+
+Add read_coordinates() to the read-molecule.hh api.
+* Done.
+
+Test that the bonds and atoms are being added just once for the bond generations - when trying to fix the
+colour-by-molecule bonds, it seemed that there were multiple adds. Hmm.
+
+Draw Hydrogen Atoms checkbutton in Bond Parameters widget is broken - try running run-servalcat-32143.py
+
+check that ccp4 coot can load the metal distances table.
+
+Key-binding to hide/show right-hand panel.
+      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
+      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
+      GtkWidget *sidebar    = widget_from_builder("main_window_vbox_inner");
+
+Add "Rotate View is on Left/Right mouse" mode in Preferences
+
+Add coot-ligand-validation to chapi.
 
 From watching https://www.youtube.com/watch?v=mDwMUH181-s
   o Find a molecule with a chunk of RNA
@@ -10,7 +36,9 @@ From watching https://www.youtube.com/watch?v=mDwMUH181-s
 
 Use 2DT dictionary for link and refinement - George.
 
-Add coot-ligand-validation to chapi.
+Talking to Martin Maly: OEX CA1 is in the wrong column when reading external distance restraints: 4ub6.
+
+How do I read in external distance restraints in new coot?
 
 Add lsqkab superposition to the api
 
@@ -19,19 +47,21 @@ fix the double read of the monomers (there is only a single read in --no-graphic
 coot: setup updating maps then delete the maps and models - gracefully turn off updating
    maps - currently the timeout function writes a error message, but does not stop.
 
+I want to scale the rotation angle per pixel - for use in wide-screen mode (or apply it automatically in wide-screen mode)
+
 Look at 8tv1: 39E and Refine it across the break. Looks at 8TV1 in cif in colour-by-chain mode.
 
 Look at this: 7h6j group for CFC
 https://www.rcsb.org/search?request=%7B%22query%22%3A%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22terminal%22%2C%22service%22%3A%22text%22%2C%22parameters%22%3A%7B%22attribute%22%3A%22rcsb_entry_group_membership.group_id%22%2C%22negation%22%3Afalse%2C%22operator%22%3A%22exact_match%22%2C%22value%22%3A%22G_1002294%22%7D%7D%5D%2C%22logical_operator%22%3A%22and%22%7D%5D%2C%22logical_operator%22%3A%22and%22%2C%22label%22%3A%22text%22%7D%5D%2C%22logical_operator%22%3A%22and%22%7D%2C%22return_type%22%3A%22entry%22%2C%22request_options%22%3A%7B%22scoring_strategy%22%3A%22combined%22%2C%22sort%22%3A%5B%7B%22sort_by%22%3A%22score%22%2C%22direction%22%3A%22desc%22%7D%5D%2C%22results_content_type%22%3A%5B%22computational%22%2C%22experimental%22%5D%2C%22paginate%22%3A%7B%22start%22%3A0%2C%22rows%22%3A25%7D%7D%2C%22request_info%22%3A%7B%22query_id%22%3A%22013bcc94f855676ceb39950f4002bdf1%22%7D%7D
 
-Sharpen-blur "Computing..." dialog should be an overlay
+Jakub: Sharpen-blur "Computing..." dialog should be an overlay
 
-Downloading map (from EMDB) dialog should be an overlay
+Jakub: Downloading map (from EMDB) dialog should be an overlay
 
 UI for turning off dark mode.
 * Tried. Doesn't work. Function only works on startup? Maybe I am missing something.
 
-residue->2D on a protein residue without an OXT. Better GUI feedback needed.
+Residue->2D on a protein residue without an OXT. Better GUI feedback needed. Low priority.
 
 Investigate NCS ghosts usage in a ribosome after updating the model.
 * Tried. I don't see the problem.
@@ -39,6 +69,9 @@ Investigate NCS ghosts usage in a ribosome after updating the model.
 Check email for build-script updates/fixes
 
 Add Q-score to api
+* Done.
+
+Is 0-coot.state.py a good file-name now that it's in ~/.local/state/Coot ?
 
 How to set the step size for mouse scroll?
 

@@ -373,6 +373,8 @@ class Bond_lines_container {
                                               bool draw_missing_loops_flag,
                                               int atom_colour_type, // C-only or goodsell
                                               int draw_hydrogens_flag);
+   void bond_by_distance(const atom_selection_container_t &asc, int imol, std::vector<mmdb::Residue *> &residues,
+                         bool have_udd_atoms, int udd_found_bond_handle);
    void do_colour_by_chain_bonds_carbons_only_internals(int imol, int imodel,
                                                         int chain_idx,
                                                         mmdb::Atom *at1, mmdb::Atom *at2,

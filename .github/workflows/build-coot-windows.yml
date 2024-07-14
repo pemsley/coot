@@ -2,7 +2,7 @@ name: Coot CI Windows
 
 on:
    schedule:
-   - cron: "1 1 1,4 * *"
+   - cron: "1 1 4 * *"
 
 jobs:
 

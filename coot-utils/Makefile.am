@@ -170,7 +170,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-cod-atom-types dictionary-atom-types cod-db-access \
 		 test-5-residue-fragments test-diff-diff-map-peaks \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
-		 test-coot-utils test-pae test-q-score
+		 test-coot-utils test-pae test-q-score servalcat-tracker
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -212,6 +212,10 @@ test_coot_probe_LDADD =          \
 	./libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(MMDB_LIBS)
+
+servalcat_tracker_SOURCES = servalcat-tracker.cc
+
+# servalcat_tracker_LDADD = 
 
 test_parse_pisa_SOURCES = test-parse-pisa.cc
 test_parse_pisa_LDADD = \

@@ -667,7 +667,10 @@ graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny) {
 }
 
 void
-graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y) {
+graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y, bool control_is_pressed) {
+
+   // we pass control_is_pressed so that, if we are in noughties_physics mode,
+   // then we move just one atom, not the whole lot
 
    // outut in the range -1 to +1
    auto mouse_coords_to_clip_space = [] (int screen_coord, int dimension) {
@@ -723,7 +726,6 @@ graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y
    float dp = glm::dot(front_to_back_uv, front_to_atom_uv);
    float cos_angle_between_front_to_back_and_front_to_atom = dp;
 
-   float angle_between_front_to_back_and_front_to_atom = acos(dp);
    // distance between front and atom position
    float d_f_a_p = glm::distance(front_now, atom_position);
    float d_b_a_p = glm::distance(back_now,  atom_position);
@@ -738,10 +740,25 @@ graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y
    glm::vec3 new_position = mouse_now;
    clipper::Coord_orth new_position_c(new_position.x, new_position.y, new_position.z);
 
+   coot::Cartesian diff_std(mouse_now.x - atom_position.x, mouse_now.y - atom_position.y, mouse_now.z - atom_position.z);
+
    atom_pull_info_t atom_pull_local = atom_pull_info_t(coot::atom_spec_t(at), new_position_c);
    add_or_replace_current(atom_pull_local);
    last_restraints->add_atom_pull_restraint(atom_pull_local.spec, new_position_c);
-   thread_for_refinement_loop_threaded();
+
+   // the control drag doesn't exactly work as it used to, but it's close and looks fine.
+   if (noughties_physics) {
+      if (control_is_pressed) {
+         std::cout << "move just this atom " << coot::atom_spec_t(at) << std::endl;
+         make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
+      } else {
+         short int linear_movement_scaling_flag = 0;
+         move_moving_atoms_by_shear_internal(diff_std, linear_movement_scaling_flag);
+         make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
+      }
+   } else {
+      thread_for_refinement_loop_threaded();
+   }
 
    graphics_draw();
 }
@@ -751,7 +768,7 @@ void graphics_info_t::add_or_replace_current(const atom_pull_info_t &atom_pull_i
    bool done = false;
 
    std::vector<atom_pull_info_t>::iterator it;
-   for(it=atom_pulls.begin(); it!=atom_pulls.end(); it++) {
+   for(it=atom_pulls.begin(); it!=atom_pulls.end(); ++it) {
       if (it->spec == atom_pull_in.spec) {
 	 it->pos = atom_pull_in.pos;
 	 it->on(); // do do do be do... turn it o-o-o-on

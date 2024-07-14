@@ -3505,7 +3505,8 @@ public:
 					    short int squared_flag);
    void move_moving_atoms_by_simple_translation(int screenx, int screeny); // for rot/trans
    void move_single_atom_of_moving_atoms(int screenx, int screeny);
-   void move_atom_pull_target_position(double screenx, double screeny);
+   // if control_is_pressed is true, then we only want to move the dragged atom
+   void move_atom_pull_target_position(double screenx, double screeny, bool control_is_pressed);
    void add_target_position_restraint_for_intermediate_atom(const coot::atom_spec_t &spec,
 							    const clipper::Coord_orth &target_pos);
    void add_target_position_restraints_for_intermediate_atoms(const std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > &atom_spec_position_vec); // refines after added
@@ -5406,12 +5407,17 @@ string   static std::string sessionid;
 
    static void add_shortcuts_to_window(GtkWidget *shortcuts_window);
 
+   static bool noughties_physics; // false by default
+
    static float gaussian_surface_sigma;
    static float gaussian_surface_contour_level;
    static float gaussian_surface_box_radius;
    static float gaussian_surface_grid_scale;
    static float gaussian_surface_fft_b_factor;
    static short int gaussian_surface_chain_colour_mode;
+
+   static std::pair<bool, std::string> servalcat_fofc;
+   static std::pair<bool, std::string> servalcat_refine; // output "pdb" file name
 
    static bool curmudgeon_mode; // default false, particles and faces
    static bool use_sounds; // default true

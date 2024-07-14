@@ -82,10 +82,6 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
    // Ctrl left-mouse means pan
    GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(gesture));
    bool control_is_pressed = (modifier & GDK_CONTROL_MASK);
-   if (control_is_pressed) {
-      do_drag_pan_gtk3(gl_area, drag_delta_x, drag_delta_y); // 20220613-PE no redraw here currently
-      graphics_draw();
-   }
    double x = drag_begin_x + drag_delta_x;
    double y = drag_begin_y + drag_delta_y;
    double delta_delta_x = x - get_mouse_previous_position_x();
@@ -95,9 +91,14 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
    if (in_moving_atoms_drag_atom_mode_flag) {
       if (last_restraints_size() > 0) {
          // move an already picked atom
-         move_atom_pull_target_position(x, y);
+         move_atom_pull_target_position(x, y, control_is_pressed);
       }
    } else {
+      if (control_is_pressed) {
+         do_drag_pan_gtk3(gl_area, drag_delta_x, drag_delta_y); // 20220613-PE no redraw here currently
+         graphics_draw();
+      }
+      // is this logic correct?
       rotate_chi(delta_delta_x, delta_delta_y);
    }
 }
@@ -211,7 +212,7 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
                if (in_moving_atoms_drag_atom_mode_flag) {
                   if (last_restraints_size() > 0) {
                      // move an already picked atom
-                     move_atom_pull_target_position(x, y);
+                     move_atom_pull_target_position(x, y, control_is_pressed);
                      handled = true;
                   }
                } else {

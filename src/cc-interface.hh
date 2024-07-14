@@ -435,6 +435,17 @@ PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py, in
 // Where should this go?
 void import_bild(const std::string &file_name);
 
+// resolution in A.
+void servalcat_fofc(int imol_model,
+                    int imol_fofc_map, const std::string &half_map_1, const std::string &half_map_2,
+                    float resolution);
+
+//! resolution in A.
+//!
+void servalcat_refine(int imol_model,
+                      const std::string &half_map_1, const std::string &half_map_2,
+                      const std::string &mask_map, float resolution);
+
 /*  ------------------------------------------------------------------------ */
 /*                             Add an Atom                                   */
 /*  ------------------------------------------------------------------------ */

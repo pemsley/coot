@@ -2501,20 +2501,26 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
    // sets name_ to name_in:
    initialize_map_things_on_read_molecule(name_in, false, false, false); // not a diff_map
 
-   bool ipz = graphics_info_t::ignore_pseudo_zeros_for_map_stats;
-   bool write_output_flag = false;
-   mean_and_variance<float> mv = map_density_distribution(xmap, 40, write_output_flag, ipz);
+   // 20240702-PE now we can install empty maps (which get quickly overwritten by sensible maps)
+   // (adding servalcat interface)
+   //
+   if (! xmap.is_null()) {
 
-   float mean = mv.mean;
-   float var = mv.variance;
-   contour_level  = nearest_step(mean + 1.5*sqrt(var), 0.05);
-   update_map_in_display_control_widget();
+      bool ipz = graphics_info_t::ignore_pseudo_zeros_for_map_stats;
+      bool write_output_flag = false;
+      mean_and_variance<float> mv = map_density_distribution(xmap, 40, write_output_flag, ipz);
 
-   // fill class variables
-   map_mean_ = mv.mean;
-   map_sigma_ = sqrt(mv.variance);
+      float mean = mv.mean;
+      float var = mv.variance;
+      contour_level  = nearest_step(mean + 1.5*sqrt(var), 0.05);
+      update_map_in_display_control_widget();
 
-   update_map(true);
+      // fill class variables
+      map_mean_ = mv.mean;
+      map_sigma_ = sqrt(mv.variance);
+
+      update_map(true);
+   }
 }
 
 void
