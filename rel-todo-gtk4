@@ -1,6 +1,10 @@
 
 ----
 
+Add Place Helix here to moorhen api
+
+Add sequence assigment (e.g. the helix hormone 7vvl).
+
 When I use Shift-W to change the conouring map, then the Scroll button should change in the Display Manager also.
 * Done.
 
@@ -12,6 +16,8 @@ Colour-by-molecule shows big balls
 
 Add read_coordinates() to the read-molecule.hh api.
 * Done.
+
+Make torsion restraints for Rama and rota refinement for servalcat.
 
 Test that the bonds and atoms are being added just once for the bond generations - when trying to fix the
 colour-by-molecule bonds, it seemed that there were multiple adds. Hmm.
