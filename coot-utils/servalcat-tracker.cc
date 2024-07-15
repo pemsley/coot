@@ -891,7 +891,7 @@ class geom_data_container_t {
          if (outer_key == "r.m.s.Z") this_graph_scale = 40.0;
          try {
             double y = geom_data.geom_data.at(outer_key).at(graph_name);
-            double xx = x_offset + cycle_number * 10.2;
+            double xx = x_offset + cycle_number * 10.0;
             double yy = y_offset + y * this_graph_scale;
             point_t p(xx, yy);
             point_t pc = p.canvas_convert();
@@ -947,7 +947,7 @@ class geom_data_container_t {
       double x_offset_orig = x_offset;
       double y_offset_orig = y_offset;
 
-      unsigned int n_cycles = data.size();
+      unsigned int n_cycles = data.rbegin()->first;
 
       unsigned int key_count = 0;
       for (const auto &outer_key : outer_keys) {
@@ -981,6 +981,7 @@ class geom_data_container_t {
             s += y_axis_tick_labels;
             s += x_axis_tick_labels;
 
+            std::cout << "calling make_graph_lines with n_cycles " << n_cycles << std::endl;
             std::vector<std::string> grid_lines = make_grid_lines(n_cycles);
             for (const auto &gl : grid_lines) s += gl;
 
@@ -1122,8 +1123,8 @@ void make_consolidated_graph_set(summary_data_container_t *summary_data_containe
       std::string svg_footer = "</svg>\n";
 
       double min_x =  -10;
-      double min_y = -100;
-      double max_x =  830;
+      double min_y =  -60;
+      double max_x =  860;
       double max_y =  800;
 
       std::string viewBox_string = "viewBox=" + std::string("\"") +
