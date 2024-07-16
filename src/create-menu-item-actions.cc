@@ -3440,6 +3440,9 @@ delete_item(GSimpleAction *simple_action,
          if (par == "residue") {
             g.delete_active_residue(); // does a redraw
          }
+         if (par == "residue-atoms-with-alt-conf") {
+            g.delete_active_residue_alt_conf_atoms(); // does a redraw
+         }
          if (par == "chain") {
             auto &m = g.molecules[imol];
             m.delete_chain(atom_spec.chain_id);

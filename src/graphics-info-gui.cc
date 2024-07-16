@@ -1655,7 +1655,7 @@ graphics_info_t::residue_info_add_occ_edit(coot::select_atom_info sai, float val
 void
 graphics_info_t::apply_residue_info_changes() {
 
-   std::cout << "New apply_residue_info_changes() " << residue_info_n_atoms << std::endl;
+   std::cout << "New apply_residue_info_changes(): n_atoms: " << residue_info_n_atoms << std::endl;
 
    GtkWidget *grid = widget_from_builder("residue_info_atom_grid");
 
@@ -1666,18 +1666,25 @@ graphics_info_t::apply_residue_info_changes() {
       for (int iat=1; iat <= residue_info_n_atoms; iat++) {
          GtkWidget *occ_entry      = gtk_grid_get_child_at(GTK_GRID(grid), 1, iat);
          GtkWidget *b_factor_entry = gtk_grid_get_child_at(GTK_GRID(grid), 2, iat);
+         GtkWidget *alt_conf_entry = gtk_grid_get_child_at(GTK_GRID(grid), 4, iat); //    in above: left_attach = 4;
          if (GTK_IS_EDITABLE(occ_entry)) {
             if (GTK_IS_EDITABLE(b_factor_entry)) {
                const gchar *t_occ  = gtk_editable_get_text(GTK_EDITABLE(occ_entry));
                const gchar *t_bfac = gtk_editable_get_text(GTK_EDITABLE(b_factor_entry));
+               const gchar *t_altconfc = gtk_editable_get_text(GTK_EDITABLE(alt_conf_entry));
                try {
                   float f_occ  = coot::util::string_to_float(std::string(t_occ));
                   float f_bfac = coot::util::string_to_float(std::string(t_bfac));
+                  std::string t_alt_conf;
+                  if (t_altconfc)
+                     t_alt_conf = t_altconfc;
                   coot::select_atom_info *ai_p = static_cast<coot::select_atom_info *>(g_object_get_data(G_OBJECT(occ_entry), "select_atom_info"));
                   if (ai_p) {
                      coot::select_atom_info &ai(*ai_p);
                      ai.add_b_factor_edit(f_bfac);
                      ai.add_occ_edit(f_occ);
+                     std::cout << "add_altloc_edit() " << t_alt_conf << std::endl;
+                     ai.add_altloc_edit(t_alt_conf);
                      residue_info_edits.push_back(ai);
                   }
                }

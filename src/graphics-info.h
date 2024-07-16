@@ -2799,6 +2799,7 @@ public:
 			       const coot::residue_spec_t &res_1,
 			       const coot::residue_spec_t &res_2);
    void delete_active_residue();
+   void delete_active_residue_alt_conf_atoms();
    // c-info functions really, but we cant have mmdb_manager there, so the are moved here.
 
    static void output_residue_info_as_text(int atom_index, int imol);

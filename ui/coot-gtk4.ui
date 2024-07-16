@@ -1082,6 +1082,11 @@
         <attribute name="target">residue</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="yes">Residue Atoms with Alt-conf</attribute>
+        <attribute name="action">app.delete_item</attribute>
+        <attribute name="target">residue-atoms-with-alt-conf</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="yes">Residue Range</attribute>
         <attribute name="action">app.delete_item</attribute>
         <attribute name="target">residue-range</attribute>
