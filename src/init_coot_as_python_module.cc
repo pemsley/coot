@@ -75,6 +75,9 @@ void check_reference_structures_dir() {
 void
 init_coot_as_python_module() {
 
+
+   std::cout << "###################################################### init_coot_as_python_module() " << std::endl;
+
    // 20230526-PE this is called by coot_wrap_python() SWIG_init().
 
    // graphics_info_t::coot_is_a_python_module is set true initially,
@@ -87,6 +90,9 @@ init_coot_as_python_module() {
 #ifdef USE_LIBCURL
    curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
 #endif
+
+   // 20240717-PE why is this stuff here - in python-related code?
+   //       It is so that "import coot" from python init's coot properly
 
    mmdb::InitMatType();
    setup_syminfo();
