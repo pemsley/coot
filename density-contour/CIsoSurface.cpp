@@ -781,10 +781,9 @@ CIsoSurface<T>::GenerateSurface_from_NXmap(const clipper::NXmap<T>& nx_map,
 			    centre_fr.w() + 0.2);
 
    clipper::Coord_frac grid_min_cf;
-   clipper::Coord_grid grid_min;
-   clipper::Coord_grid grid_max;
+   clipper::Coord_grid grid_min = box0.coord_grid(nx_map.grid());
+   clipper::Coord_grid grid_max = box1.coord_grid(nx_map.grid());
    clipper::Grid_range grid(grid_min, grid_max);
-
 
    T* ptScalarField = new T[grid.size()];
 
