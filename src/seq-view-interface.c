@@ -53,7 +53,9 @@ GtkWidget*
 seq_lookup_widget(GtkWidget       *widget,
 		  const gchar     *widget_name) {
 
-  GtkWidget *parent = NULL, *found_widget = NULL;
+  GtkWidget *parent = NULL;
+  GtkWidget *found_widget = NULL;
+
 #if (GTK_MAJOR_VERSION >= 4)
   // 20220602-PE FIXME in seq_lookup_widget() menus
 #else
@@ -154,7 +156,7 @@ void
 on_sequence_view_close_button_clicked     (GtkButton *button,
 					   gpointer         user_data)
 {
-   GtkWidget *window = seq_lookup_widget(GTK_WIDGET(button), "sequence_view_dialog");
+  /* GtkWidget *window = seq_lookup_widget(GTK_WIDGET(button), "sequence_view_dialog"); */
    /* gtk_widget_destroy(window); */
 }
 
