@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 export LC_ALL=C
 export LANG=C
 prefix=@prefix@
