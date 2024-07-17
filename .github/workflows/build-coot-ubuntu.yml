@@ -26,7 +26,7 @@ jobs:
          key:  coot-test-data
 
     - name: Cache coot dependencies
-      id: cache-coot-dependencies
+      id: cache-coot-dependencies-ubuntu
       uses: actions/cache@v4
       with:
          path: /home/runner/install/coot-Linux-ubuntu-gtk4
@@ -40,17 +40,18 @@ jobs:
          key:  coot-build-ubuntu-gemmi-cache-source
 
     - name: Cache gemmi build
-      id:   Cache-gemmi-build
+      id:   Cache-gemmi-build-ubuntu
       uses: actions/cache@v4
       with:
          path: build-gemmi
          key:  coot-build-ubuntu-gemmi-cache-build
 
-    - name: List any installed Coot libs
-      run:  ls -l /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libcoot* /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libMoleculesToTrianglesCXXClasses*
+    # this doesn't work if there is no cache
+    # - name: List any installed Coot libs
+    #   run:  ls -l /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libcoot* /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libMoleculesToTrianglesCXXClasses*
 
     - name: Delete any installed Coot libs
-      run:  rm /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libcoot* /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libMoleculesToTrianglesCXXClasses*
+      run:  if -e /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libcoot-analysis.so ; then rm /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libcoot* /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libMoleculesToTrianglesCXXClasses* ; fi
 
     - name: download the monomer library
       run:  wget -nv https://github.com/MonomerLibrary/monomers/archive/refs/tags/ccp4-8.0.016.tar.gz
