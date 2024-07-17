@@ -51,7 +51,7 @@ jobs:
     #   run:  ls -l /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libcoot* /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libMoleculesToTrianglesCXXClasses*
 
     - name: Delete any installed Coot libs
-      run:  if -e /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libcoot-analysis.so ; then rm /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libcoot* /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libMoleculesToTrianglesCXXClasses* ; fi
+      run:  if test -e /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libcoot-analysis.so ; then rm /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libcoot* /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libMoleculesToTrianglesCXXClasses* ; fi
 
     - name: download the monomer library
       run:  wget -nv https://github.com/MonomerLibrary/monomers/archive/refs/tags/ccp4-8.0.016.tar.gz
@@ -132,4 +132,3 @@ jobs:
         name: ubuntu-binaries-package
         path: /home/runner/install
         retention-days: 3
-
