@@ -15,6 +15,18 @@ Fix state file quick save as.
 
 Add Place Helix here to moorhen api
 
+Expanding ligand thumbnail on window width increase
+
+Carbohydrate builder in moorhen & coot
+
+Randy & Team's MR placement tool interface
+
+Fix output of coot-ligand-validation with no comand line args
+
+PDBe tools
+
+Tomo Particle picker
+
 Add sequence assigment (e.g. the helix hormone 7vvl).
 
 SYMINFO problems in CCP4 build of coot? (No symmetry shown)
