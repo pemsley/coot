@@ -1,11 +1,60 @@
 
 ----
+CIsoSurface.cpp: In member function ‘coot::CartesianPairInfo CIsoSurface<T>::GenerateSurface_from_NXmap(const clipper::NXmap<T>&, T, float, coot::Cartesian, int) [with T = float]’:
+CIsoSurface.cpp:786:24: warning: ‘grid_min’ may be used uninitialized [-Wmaybe-uninitialized]
+  786 |    clipper::Grid_range grid(grid_min, grid_max);
+      |                        ^~~~
+In file included from ../coords/Cartesian.h:31,
+                 from CIsoSurface.h:44,
+                 from CIsoSurface.cpp:55:
+/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include/clipper/core/coords.h:590:5: note: by argument 2 of type ‘const clipper::Coord_grid&’ to ‘clipper::Grid_range::Grid_range(const clipper::Coord_grid&, const clipper::Coord_grid&)’ declared here
+  590 |     Grid_range( const Coord_grid& min, const Coord_grid& max );
+      |     ^~~~~~~~~~
+CIsoSurface.cpp:784:24: note: ‘grid_min’ declared here
+  784 |    clipper::Coord_grid grid_min;
+      |                        ^~~~~~~~
+CIsoSurface.cpp:786:24: warning: ‘grid_max’ may be used uninitialized [-Wmaybe-uninitialized]
+  786 |    clipper::Grid_range grid(grid_min, grid_max);
+      |                        ^~~~
+In file included from ../coords/Cartesian.h:31,
+                 from CIsoSurface.h:44,
+                 from CIsoSurface.cpp:55:
+/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include/clipper/core/coords.h:590:5: note: by argument 3 of type ‘const clipper::Coord_grid&’ to ‘clipper::Grid_range::Grid_range(const clipper::Coord_grid&, const clipper::Coord_grid&)’ declared here
+  590 |     Grid_range( const Coord_grid& min, const Coord_grid& max );
+      |     ^~~~~~~~~~
+CIsoSurface.cpp:785:24: note: ‘grid_max’ declared here
+  785 |    clipper::Coord_grid grid_max;
+      |                        ^~~~~~~~
+mv -f .deps/CIsoSurface.Tpo .deps/CIsoSurface.Plo
+mv -f .deps/gaussian-surface.Tpo .deps/gaussian-surface.Plo
+
+delete seq-view-interface.c/h
+
+get rid of trackball.c - there is a compilation warning - use glm instead.
+
+Fix state file quick save as.
+* I couldn't reproduce the problem
 
 Add Place Helix here to moorhen api
 
 Add sequence assigment (e.g. the helix hormone 7vvl).
 
-When I use Shift-W to change the conouring map, then the Scroll button should change in the Display Manager also.
+Fix stretched ligand on resizing window width
+
+Fix on-screen button placement on resizing window width
+
+"View Grid Mode" - give each molecule a possible screen offset (given the center of the screen is at 0,0)
+   say (-0.5, 0.5), (0.5, 0.5), (-0.5, -0.5), (0.5, -0.5) - for ligand diagrams or overlaped structure or cryo-EM maps
+   set_view_grid_mode(2,2) and some sort of assignment of molecules to grid.
+   Allow the user to change the grid of a molecule: set_view_grid_mode_grid_for_molecule(imol, irow, icol)
+   set_view_grid_mode_auto (and it will work out the grid (say for 15 molecules/map)).
+
+How do I make vertex-gradients work for maps? Have I done this already? How do I turn it on? I'd like a function
+and a key-binding if nothing else.
+
+Fun project: mrcfile importer.
+
+When I use Shift-W to change the contouring map, then the Scroll button should change in the Display Manager also.
 * Done.
 
 Get ligand PDBe needs to be depythonized
@@ -35,6 +84,8 @@ Key-binding to hide/show right-hand panel.
 Add "Rotate View is on Left/Right mouse" mode in Preferences
 
 Add coot-ligand-validation to chapi.
+
+Coot: Residue Info dialog needs a cleanup. graphics_info_t::output_residue_info_dialog()
 
 From watching https://www.youtube.com/watch?v=mDwMUH181-s
   o Find a molecule with a chunk of RNA

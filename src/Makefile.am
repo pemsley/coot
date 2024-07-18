@@ -734,10 +734,6 @@ libcootsumo_la_SOURCES = \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	select-atom-info.hh      \
-	sequence-view.hh         \
-	sequence-view.cc         \
-	seq-view-interface.c     \
-	seq-view-interface.h     \
 	Shader.cc Shader.hh      \
 	simple-distance-object.hh \
 	sound.cc                 \
