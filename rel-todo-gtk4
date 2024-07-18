@@ -1,34 +1,12 @@
 
 ----
-CIsoSurface.cpp: In member function ‘coot::CartesianPairInfo CIsoSurface<T>::GenerateSurface_from_NXmap(const clipper::NXmap<T>&, T, float, coot::Cartesian, int) [with T = float]’:
-CIsoSurface.cpp:786:24: warning: ‘grid_min’ may be used uninitialized [-Wmaybe-uninitialized]
-  786 |    clipper::Grid_range grid(grid_min, grid_max);
-      |                        ^~~~
-In file included from ../coords/Cartesian.h:31,
-                 from CIsoSurface.h:44,
-                 from CIsoSurface.cpp:55:
-/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include/clipper/core/coords.h:590:5: note: by argument 2 of type ‘const clipper::Coord_grid&’ to ‘clipper::Grid_range::Grid_range(const clipper::Coord_grid&, const clipper::Coord_grid&)’ declared here
-  590 |     Grid_range( const Coord_grid& min, const Coord_grid& max );
-      |     ^~~~~~~~~~
-CIsoSurface.cpp:784:24: note: ‘grid_min’ declared here
-  784 |    clipper::Coord_grid grid_min;
-      |                        ^~~~~~~~
-CIsoSurface.cpp:786:24: warning: ‘grid_max’ may be used uninitialized [-Wmaybe-uninitialized]
-  786 |    clipper::Grid_range grid(grid_min, grid_max);
-      |                        ^~~~
-In file included from ../coords/Cartesian.h:31,
-                 from CIsoSurface.h:44,
-                 from CIsoSurface.cpp:55:
-/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include/clipper/core/coords.h:590:5: note: by argument 3 of type ‘const clipper::Coord_grid&’ to ‘clipper::Grid_range::Grid_range(const clipper::Coord_grid&, const clipper::Coord_grid&)’ declared here
-  590 |     Grid_range( const Coord_grid& min, const Coord_grid& max );
-      |     ^~~~~~~~~~
-CIsoSurface.cpp:785:24: note: ‘grid_max’ declared here
-  785 |    clipper::Coord_grid grid_max;
-      |                        ^~~~~~~~
-mv -f .deps/CIsoSurface.Tpo .deps/CIsoSurface.Plo
-mv -f .deps/gaussian-surface.Tpo .deps/gaussian-surface.Plo
+
+SVG for pli
+
+Chapi torsion angle restraints for servalcat
 
 delete seq-view-interface.c/h
+* Done.
 
 get rid of trackball.c - there is a compilation warning - use glm instead.
 
@@ -38,6 +16,8 @@ Fix state file quick save as.
 Add Place Helix here to moorhen api
 
 Add sequence assigment (e.g. the helix hormone 7vvl).
+
+SYMINFO problems in CCP4 build of coot? (No symmetry shown)
 
 Fix stretched ligand on resizing window width
 
