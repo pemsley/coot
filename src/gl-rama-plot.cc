@@ -660,7 +660,7 @@ gl_rama_plot_t::get_mouse_over_hit(double x_widget, double y_widget, int widget_
                                        glm::vec2 rpp_4a(rpp_3a.x/scales.x, rpp_3a.y/scales.y);
                                        glm::vec2 rpp_5a(rpp_4a.x/sf, rpp_4a.y/sf);
 
-                                       if (false)
+                                       if (true)
                                           std::cout << "debug:: window-pos-corr " << glm::to_string(window_resize_position_correction)
                                                     << " in " << x_widget << " " << y_widget
                                                     << " opengl " << x_opengl << " " << y_opengl << " "
