@@ -495,8 +495,10 @@ graphics_ligand_mesh_atom::get_colour(bool dark_bg) const {
 
 void
 graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_p,
-                                      float widget_height, float widget_width,
+                                      float widget_width, float widget_height,
                                       const std::map<GLchar, FT_character> &ft_characters) {
+
+   // this whole function needs to be rethought and replaced.
 
    auto pos_t_to_glm = [] (const lig_build::pos_t &p) {
                           return glm::vec2(p.x, p.y);
@@ -504,11 +506,18 @@ graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_
 
    // draw "line" bonds and wedge bonds
    //
-   mesh.draw(shader_p, widget_height, widget_width);
+   // This argument order doesn't expand the ligand - it just shifts it
+   mesh.draw(shader_p, widget_height, widget_width); // weird!
+
+   // This argument expands the ligand
+   // mesh.draw(shader_p, widget_width, widget_height);
 
    // draw atoms (text)
    //
-   float gl_flag = true;
+   double window_rescale_factor_x = 900.0/static_cast<double>(widget_width);
+   double window_rescale_factor_y = 900.0/static_cast<double>(widget_height);
+   glm::vec2 position_on_canvas(-0.61, -0.61);
+   bool gl_flag = true;
    for (unsigned int iat=0; iat<atoms.size(); iat++) {
       graphics_ligand_mesh_atom &atom = atoms[iat];
       const std::string &ele = atom.element;
@@ -518,7 +527,7 @@ graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_
          for (unsigned int i=0; i<atom_id_info.n_offsets(); i++) {
             const lig_build::offset_text_t &offset = atom_id_info.offsets[i];
             std::string label = offset.text;
-            glm::vec2 pos(-0.61, -0.61);
+            glm::vec2 pos(-0.0, -0.0);
             pos += 0.05f * pos_t_to_glm(atom.atom_position);
             if (offset.text_pos_offset == lig_build::offset_text_t::UP)
                pos.y += 0.03f;
@@ -538,8 +547,10 @@ graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_
             sc *= 0.4; // 20230930-PE
             if (offset.subscript)   sc *= 0.9;
             if (offset.superscript) sc *= 1.5; // "-" is too small! so scale it up
-            glm::vec2 scales(sc, sc);
-            hud_texture_tmesh.set_position_and_scales(pos, scales);
+            glm::vec2 scales(sc * 900.0/static_cast<double>(widget_width), sc * 900.0/static_cast<double>(widget_height));
+            // std::cout << ".... debug:: " << window_rescale_factor_x << " " << window_rescale_factor_y << std::endl;
+            glm::vec2 rejigged_pos(pos.x * window_rescale_factor_x, pos.y * window_rescale_factor_y);
+            hud_texture_tmesh.set_position_and_scales(rejigged_pos + position_on_canvas, scales);
             if (false)
                std::cout << "debug;: graphics_ligand_mesh_molecule_t::draw() calling draw_label(): iat " << iat << " ioff " << i
                          << " " << " \"" << offset.text << "\" subscript " << offset.subscript
