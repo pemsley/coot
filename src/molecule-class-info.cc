@@ -7813,7 +7813,7 @@ molecule_class_info_t::save_coordinates(const std::string &filename,
       // Now we have updated the molecule name, how shall we restore
       // this from the state file?
       std::vector<std::string> strings;
-      strings.push_back("handle-read-draw-molecule");
+      strings.push_back("coot.handle-read-draw-molecule");
       strings.push_back(single_quote(coot::util::intelligent_debackslash(filename)));
       save_state_command_strings_ = strings;
 
