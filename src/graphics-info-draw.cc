@@ -3299,6 +3299,9 @@ graphics_info_t::clear_gl_rama_plot() {
 void
 graphics_info_t::draw_hud_ramachandran_plot() {
 
+   // 20240719-PE we do both the setup and draw here! I am not sure that is the right way.
+   //             It might be vey slow. Ah, no, I was a bit clever, there is a position hash.
+
    GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
@@ -3310,7 +3313,8 @@ graphics_info_t::draw_hud_ramachandran_plot() {
          if (moving_atoms_asc) {
             if (moving_atoms_asc->n_selected_atoms > 0) {
                std::string residue_selection = "//";
-               gl_rama_plot.setup_from(imol_moving_atoms, moving_atoms_asc->mol, residue_selection); // checks to see if an update is acutally needed.
+               gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::DRAW_MODE;
+               gl_rama_plot.setup_from(imol_moving_atoms, moving_atoms_asc->mol, residue_selection, draw_mode); // checks to see if an update is acutally needed.
                // no context switch needed for the HUD Rama plot
                bool clear_needed_flag = false;
                gl_rama_plot.draw(&shader_for_rama_plot_axes_and_ticks,
@@ -4454,6 +4458,74 @@ graphics_info_t::draw_hud_elements() {
    draw_hud_colour_bar();
 
 }
+
+bool
+graphics_info_t::check_if_hud_rama_plot_clicked(double mouse_x, double mouse_y) {
+
+   auto get_rotation_centre_from_intermediate_atoms_residue_spec = [] (const coot::residue_spec_t &rs) {
+      bool status;
+      coot::Cartesian pos;
+      if (moving_atoms_asc) {
+         mmdb::Manager *mol = moving_atoms_asc->mol;
+         mmdb::Residue *residue_p = coot::util::get_residue(rs, mol);
+         if (residue_p) {
+            mmdb::Atom **residue_atoms = 0;
+            int n_residue_atoms = 0;
+            residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+            for (int iat=0; iat<n_residue_atoms; iat++) {
+               mmdb::Atom *at = residue_atoms[iat];
+               if (! at->isTer()) {
+                  std::string atom_name(at->GetAtomName());
+                  if (atom_name == " CA ") {
+                     pos = coot::Cartesian(at->x, at->y, at->z);
+                     status = true;
+                  }
+               }
+            }
+         }
+      }
+      return std::make_pair(status, pos);
+   };
+
+   // c.f. draw_hud_ramachandran_plot()
+
+   bool status = false;
+
+   if (! moving_atoms_asc) return false;
+   if (! moving_atoms_asc->mol) return false;
+
+   if (draw_gl_ramachandran_plot_flag) {
+      if (draw_gl_ramachandran_plot_user_control_flag) {
+         if (moving_atoms_asc) {
+            if (moving_atoms_asc->n_selected_atoms > 0) {
+               int imol = imol_moving_atoms;
+               //gl_rama_plot_t rama;
+               // std::string residue_selection = "//";     // Hmm!
+               // gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::CHECK_IF_PICKED;
+               // rama.setup_from(imol, moving_atoms_asc->mol, residue_selection, draw_mode);
+               GtkAllocation allocation;
+               GtkWidget *gl_area = glareas[0];
+               gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+               int w = allocation.width;
+               int h = allocation.height;
+               mouse_over_hit_t hit = gl_rama_plot.get_mouse_over_hit(mouse_x, mouse_y, w, h);
+               std::cout << "hit: plot clicked: " << hit.plot_was_clicked
+                         << " residue_was_clicked: " << hit.residue_was_clicked
+                         << " spec " << hit.residue_spec << std::endl;
+               if (hit.plot_was_clicked) status = true;
+               if (hit.residue_was_clicked) {
+                  std::pair<bool, coot::Cartesian> rc = get_rotation_centre_from_intermediate_atoms_residue_spec(hit.residue_spec);
+                  if (rc.first) {
+                     setRotationCentre(rc.second, false);
+                  }
+               }
+            }
+         }
+      }
+   }
+   return status;
+}
+
 
 void
 graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
