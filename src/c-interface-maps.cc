@@ -1149,8 +1149,6 @@ int another_level_from_map_molecule_number(int imap) {
    return istat;
 }
 
-
-
 void set_map_radius_slider_max(float f) {
    graphics_info_t::map_radius_slider_max = f;
    std::string cmd = "set-map-radius-slider-max";
@@ -1158,6 +1156,7 @@ void set_map_radius_slider_max(float f) {
    args.push_back(f);
    add_to_history_typed(cmd, args);
 }
+
 void set_contour_level_absolute(int imol_map, float level) {
 
    if (is_valid_map_molecule(imol_map)) {

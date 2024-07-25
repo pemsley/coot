@@ -10120,6 +10120,7 @@ molecule_class_info_t::get_contour_level_by_sigma() const {
 
 void
 molecule_class_info_t::set_contour_level(float f) {
+
    if (has_xmap()  || has_nxmap()) {
       contour_level = f;
       update_map(true);
