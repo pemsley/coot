@@ -583,6 +583,9 @@ namespace coot {
       clipper::Xmap<float> zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<float> *, float> > &xmaps,
                                                    const clipper::Xmap<float> &xmap_for_mask);
 
+      clipper::Xmap<float> real_space_zero_dose_extrapolation(const std::vector<clipper::Xmap<float> *> &xmaps,
+                                                   const clipper::Xmap<float> &xmap_for_mask);
+
    }
 }
 

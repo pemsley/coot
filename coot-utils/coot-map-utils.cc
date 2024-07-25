@@ -4691,15 +4691,51 @@ coot::util::analyse_map_point_density_change(const std::vector<std::pair<clipper
                               };
 
 
-   clipper::Xmap<float> resulting_map; // initially empty
+   clipper::Xmap<float> empty_map; // initially empty
 
-   if (xmaps.size() < 2) return resulting_map;
-   if (! all_maps_have_the_same_grid()) return resulting_map;
+   if (xmaps.size() < 2) return empty_map;
+   if (! all_maps_have_the_same_grid()) return empty_map;
 
-   resulting_map = make_linear_fit_map();
+   clipper::Xmap<float> resulting_map = make_linear_fit_map();
    return resulting_map;
 
 }
+
+// user checks that the vector is not empty before calling this function.
+clipper::Xmap<float>
+coot::util::real_space_zero_dose_extrapolation(const std::vector<clipper::Xmap<float> *> &xmaps,
+                                                const clipper::Xmap<float> &xmap_mask) {
+
+   if (xmaps.empty())
+      throw(std::runtime_error("empty xmaps"));
+   clipper::Xmap<float> xmap_result(*xmaps[0]);
+   clipper::Xmap_base::Map_reference_index ix;
+   unsigned int n_masked = 0;
+   unsigned int n_non_masked = 0;
+   for (ix = xmap_result.first(); !ix.last(); ix.next() ) {
+      if (xmap_mask[ix] > 0.2) {
+         n_non_masked++;
+         std::vector<std::pair<double, double> > f_values(xmaps.size());
+         for (unsigned int imap=0; imap<xmaps.size(); imap++) {
+            const auto &xmap = *xmaps[imap];
+            float f = xmap[ix];
+            f_values.push_back(std::make_pair(static_cast<double>(imap), static_cast<double>(f)));
+         }
+         least_squares_fit lsq(f_values);
+         xmap_result[ix] = lsq.at(0);
+      } else {
+         n_masked++;
+         xmap_result[ix] = 0.0f;
+      }
+   }
+   std::cout << "masked counts " << n_masked << " " << n_non_masked << std::endl;
+   unsigned int n_sum = n_masked + n_non_masked;
+   float f1 = static_cast<float>(    n_masked)/static_cast<float>(n_sum);
+   float f2 = static_cast<float>(n_non_masked)/static_cast<float>(n_sum);
+   std::cout << "masked counts " << 100.0 * f1 << "% "  << 100.0 * f2 << "%" << std::endl;
+   return xmap_result;
+}
+
 
 
 // negative becomes positive and positive becomes negative.

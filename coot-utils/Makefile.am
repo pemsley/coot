@@ -170,7 +170,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-cod-atom-types dictionary-atom-types cod-db-access \
 		 test-5-residue-fragments test-diff-diff-map-peaks \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
-		 test-coot-utils test-pae test-q-score servalcat-tracker
+		 test-coot-utils test-pae test-q-score servalcat-tracker test-zd
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -306,6 +306,10 @@ test_chem_feat_LDADD = \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(MMDB_LIBS) $(RDKIT_LIBS)
+
+test_zd_SOURCES = test-zd.cc
+
+test_zd_LDADD = libcoot-map-utils.la $(CLIPPER_LIBS)
 
 test_cod_atom_types_SOURCES = test-cod-atom-types.cc
 

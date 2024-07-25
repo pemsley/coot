@@ -1345,6 +1345,13 @@ public:
                                                bool use_resno_range,
                                                int start_resno, int end_resno);
 
+   //! associate a sequence with a molecule
+   void associate_sequence(int imol, const std::string &name_or_chain_id, const std::string &sequence);
+   //! assign a sequence to a molecule. Often one might copy out a fragment from a more complete
+   //! molecule (and then copy it back after the sequence has been added). This runs
+   //! backrub_rotamer() on the newly assigned residues.
+   void assign_sequence(int imol_model, int imol_map);
+
    // -------------------------------- Coordinates Refinement ------------------------------
    //! \name Coordinates Refinement
 

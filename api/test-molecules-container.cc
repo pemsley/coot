@@ -5760,6 +5760,71 @@ int test_Q_Score(molecules_container_t &mc) {
    return status;
 }
 
+int test_assign_sequence(molecules_container_t &mc) {
+
+   std::cout << "------------------ test_assign_sequence() " << std::endl;
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   mc.set_use_gemmi(false);
+   int imol = mc.read_pdb(reference_data("pdb7vvl.ent"));
+   if (mc.is_valid_model_molecule(imol)) {
+      int imol_map = mc.read_ccp4_map(reference_data("emd_32143.map"), false);
+      if (mc.is_valid_map_molecule(imol_map)) {
+         // strip the side-chains fro the hormone
+         int imol_hormone = mc.copy_fragment_using_cid(imol, "//P");
+         mmdb::Manager *mol = mc.get_mol(imol_hormone);
+         if (mol) {
+            int imod = 1;
+            mmdb::Model *model_p = mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int n_res = chain_p->GetNumberOfResidues();
+                  std::string chain_id = chain_p->GetChainID();
+                  if (chain_id == "P") {
+                     int nres = 0;
+                     mmdb::PResidue *residue_table = 0;
+                     chain_p->GetResidueTable(residue_table, nres);
+                     for (int ires=0; ires<nres; ires++) {
+                        int rn = residue_table[ires]->GetSeqNum();
+                        mc.delete_side_chain(imol_hormone, chain_id, rn, "");
+                     }
+                     // now add the sidechain
+                     std::string seq = "SVSEIQLMHNLGKHLNSMERVEWLRKKLQDVHNF";
+                     mc.associate_sequence(imol_hormone, "P", seq);
+                     mc.assign_sequence(imol_hormone, imol_map);
+
+                     // residue 4 should be a GLU. Let's test for the
+                     // presence of an OE1
+                     coot::residue_spec_t rs("P", 4, "");
+                     mmdb::Residue *r_test = mc.get_residue(imol_hormone, rs);
+                     if (r_test) {
+                        int n_res_atoms = 0;
+                        mmdb::Atom **res_atoms;
+                        r_test->GetAtomTable(res_atoms, n_res_atoms);
+                        for (int i=0; i<n_res_atoms; i++) {
+                           mmdb::Atom *at = res_atoms[i];
+                           std::string atom_name(at->GetAtomName());
+                           if (atom_name == " OE1") {
+                              status = 1;
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   mc.write_coordinates(imol, "para-sans-side-chains.pdb");
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -5884,7 +5949,7 @@ int main(int argc, char **argv) {
       // between memory consumed by the mc, and memory that we can no longer
       // access (memory allocated but not deleted - e.g. Atom Selections)
       //
-      molecules_container_t mc(false); // quiet
+      molecules_container_t mc(true); // quiet
 
       // now check that the monomer library was read OK
       int imol = mc.get_monomer("ATP");
@@ -6053,7 +6118,6 @@ int main(int argc, char **argv) {
 #endif
          // Note to self:
          // change the autofit_rotamer test so that it tests the change of positions of the atoms of the neighboring residues.
-
       }
 
       {
@@ -6063,7 +6127,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_change_rotamer, "Change Rotamer (Filo)", mc);
          // status += run_test(test_alpha_in_colour_holder, "Alpha value in colour holder", mc);
          // status += run_test(test_gaussian_surface, "Gaussian surface", mc);
-         status += run_test(test_Q_Score, "Q Score", mc);
+         // status += run_test(test_Q_Score, "Q Score", mc);
+         status += run_test(test_assign_sequence, "Assign Sequence", mc);
 
          if (status == n_tests) all_tests_status = 0;
 
