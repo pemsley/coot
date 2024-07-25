@@ -204,7 +204,7 @@ NB_MODULE(chapi, m) {
     .def("apply_transformation_to_atom_selection",&molecules_container_t::apply_transformation_to_atom_selection)
     .def("assign_sequence",&molecules_container_t::assign_sequence)
     .def("associate_data_mtz_file_with_map",&molecules_container_t::associate_data_mtz_file_with_map)
-    .def("associate_sequence_with_molecule",&molecules_container_t::associate_sequence_with_molecule)
+    .def("associate_sequence",&molecules_container_t::associate_sequence)
     .def("auto_fit_rotamer",&molecules_container_t::auto_fit_rotamer)
     .def("auto_read_mtz",&molecules_container_t::auto_read_mtz)
     .def("average_map",&molecules_container_t::average_map)
