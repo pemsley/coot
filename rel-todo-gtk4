@@ -3,12 +3,17 @@
 
 SVG for pli
 
+make an figure, for moorhen intro with blobs that have volume proportional
+   to the number of lines of code: rdkit, mmdb, ccp4libs, gemmi, M2T,
+   libcootapi - M2T, coot - libcootapi - M2T, moorhen and moorhen-npm-dependencies
+
 Chapi torsion angle restraints for servalcat
 
 delete seq-view-interface.c/h
 * Done.
 
 get rid of trackball.c - there is a compilation warning - use glm instead.
+   Actually, I am not sure that I even use it now.
 
 Fix state file quick save as.
 * I couldn't reproduce the problem
@@ -28,17 +33,20 @@ PDBe tools
 Tomo Particle picker
 
 Add sequence assigment (e.g. the helix hormone 7vvl).
+* Done.
 
 SYMINFO problems in CCP4 build of coot? (No symmetry shown)
 * Done.
 
 Fix stretched ligand on resizing window width
+* Had a bash - the lines no longer expand, but the letters don't match.
+  The whole thing needs a rewrite.
 
 Fix on-screen button placement on resizing window width
 
 "View Grid Mode" - give each molecule a possible screen offset (given the center of the screen is at 0,0)
-   say (-0.5, 0.5), (0.5, 0.5), (-0.5, -0.5), (0.5, -0.5) - for ligand diagrams or overlaped structure or cryo-EM maps
-   set_view_grid_mode(2,2) and some sort of assignment of molecules to grid.
+   say (-0.5, 0.5), (0.5, 0.5), (-0.5, -0.5), (0.5, -0.5) - for ligand diagrams or overlapped structure or
+   cryo-EM maps set_view_grid_mode(2,2) and some sort of assignment of molecules to grid.
    Allow the user to change the grid of a molecule: set_view_grid_mode_grid_for_molecule(imol, irow, icol)
    set_view_grid_mode_auto (and it will work out the grid (say for 15 molecules/map)).
 
