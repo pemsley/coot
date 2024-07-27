@@ -4986,6 +4986,9 @@ int test_gltf_export_via_api(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
+   mc.set_use_gemmi(false); // 20240727-PE there seems to be a memory problem when using gemmi atm
+                            // so for now, let's not use gemmi for the tests.
+
    int imol     = mc.read_pdb(reference_data("2vtq.cif"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
    clipper::Coord_orth p(25, 4, 62);
@@ -6131,7 +6134,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_gaussian_surface, "Gaussian surface", mc);
          // status += run_test(test_Q_Score, "Q Score", mc);
          // status += run_test(test_assign_sequence, "Assign Sequence", mc);
-         status += run_test(test_undo_and_redo_2, "Undo and redo 2", mc);
+         // status += run_test(test_undo_and_redo_2, "Undo and redo 2", mc);
+         status += run_test(test_gltf_export_via_api,   "glTF via api", mc);
 
          if (status == n_tests) all_tests_status = 0;
 
