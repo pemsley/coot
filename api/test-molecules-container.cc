@@ -558,7 +558,6 @@ int test_undo_and_redo_2(molecules_container_t &mc) {
    mmdb::Atom *at_1 = mc.get_atom(imol, atom_spec);
    if (at_1) {
       coot::Cartesian pt_1(at_1->x, at_1->y, at_1->z);
-
       int status_af = mc.auto_fit_rotamer(imol, "A", 61, "", "", imol_map);
       if (status_af == 1) {
          coot::Cartesian pt_2(at_1->x, at_1->y, at_1->z);
@@ -864,10 +863,13 @@ int test_rsr_using_atom_cid(molecules_container_t &mc_in) {
             if (d_2 > 0.1)
                status = true;
 
+         std::cout << "debug:: rsr set status " << status << std::endl;
          mc.clear_non_drawn_bonds(imol);
       }
    }
+   std::cout << "debug:: rsr pre close_molecule(imol) " << std::endl;
    mc.close_molecule(imol);
+   std::cout << "debug:: rsr pre close_molecule(imol_map) " << std::endl;
    mc.close_molecule(imol_map);
    return status;
 }
@@ -6128,7 +6130,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_alpha_in_colour_holder, "Alpha value in colour holder", mc);
          // status += run_test(test_gaussian_surface, "Gaussian surface", mc);
          // status += run_test(test_Q_Score, "Q Score", mc);
-         status += run_test(test_assign_sequence, "Assign Sequence", mc);
+         // status += run_test(test_assign_sequence, "Assign Sequence", mc);
+         status += run_test(test_undo_and_redo_2, "Undo and redo 2", mc);
 
          if (status == n_tests) all_tests_status = 0;
 

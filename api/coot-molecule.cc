@@ -1744,6 +1744,8 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
             int ich = 0;
 
             move_backrub_atoms(prev_res, res, next_res, m.first[ich]);
+            status = true; // 20240727-PE oops I deleted this when I wrote move_backrub_atoms()
+                           // and forgot to restore it
 
             if (baddie_waters.size())
                delete_atoms(baddie_waters);
@@ -1752,7 +1754,8 @@ coot::molecule_t::backrub_rotamer(const std::string &chain_id, int res_no,
             atom_sel.mol->FinishStructEdit();
          }
          catch (const std::runtime_error &rte) {
-            std::cout << "WARNING:: in backrub_rotamer(): thrown " << rte.what() << " with status " << status << std::endl;
+            std::cout << "WARNING:: in backrub_rotamer(): thrown " << rte.what()
+                      << " with status " << status << std::endl;
          }
          // if we make a backup, then we also make a new modification
          // save_info.new_modification("backrub_rotamer()");
