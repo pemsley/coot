@@ -259,10 +259,10 @@ add_library(cootapi SHARED
             ${coot_src}/high-res/coot-atom-graph.cc
             ${coot_src}/high-res/sequence-assignment.cc
             ${coot_src}/high-res/high-res.cc
-            #${coot_src}/protein_db/protein_db.cpp
-            #${coot_src}/protein_db/protein_db_utils.cpp
-            #${coot_src}/protein_db/rna_db.cpp
-            #${coot_src}/pli/specs.cc
+            ${coot_src}/protein_db/protein_db.cpp
+            ${coot_src}/protein_db/protein_db_utils.cpp
+            ${coot_src}/protein_db/rna_db.cpp
+            ${coot_src}/pli/specs.cc
             ${coot_src}/pli/flev-annotations.cc
             ${coot_src}/pli/protein-ligand-interactions.cc
             ${coot_src}/pli/pi-stacking.cc
@@ -317,6 +317,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/coot-shelx-ins.cc
             ${coot_src}/coot-utils/contacts-by-bricks.cc
             ${coot_src}/coot-utils/lsq-improve.cc
+            ${coot_src}/coot-utils/merge-C-and-N-terminii.cc
             ${coot_src}/coot-utils/trim.cc
             ${coot_src}/coot-utils/coot_shiftfield.cpp
             ${coot_src}/coot-utils/coot-fffear.cc
@@ -402,6 +403,7 @@ add_library(cootapi SHARED
             ${coot_src}/angles/AngleInfo-theta_2-autogen.cc
             ${coot_src}/angles/AngleInfo.cc
             ${coot_src}/ligand/dipole.cc
+            ${coot_src}/ligand/dSFMT.c
             ${coot_src}/ligand/chi-angles.cc
             ${coot_src}/ligand/monomer-utils.cc
             ${coot_src}/ligand/ligand-score-card.cc
@@ -416,6 +418,9 @@ add_library(cootapi SHARED
             ${coot_src}/ligand/richardson-rotamers.cc
             ${coot_src}/ligand/ligands-db.cc
             ${coot_src}/ligand/ligand-extras.cc
+            ${coot_src}/ligand/libres-tracer.cc
+            ${coot_src}/ligand/new-residue-by-3-phi-psi.cc
+            ${coot_src}/ligand/rama-rsr-extend-fragments.cc
             ${coot_src}/ligand/residue_by_phi_psi.cc
             ${coot_src}/ligand/base-pairing.cc
             ${coot_src}/ligand/ideal-rna.cc
@@ -450,6 +455,8 @@ target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot
 # Charles adds Boost::iostreams Boost::filesystem Boost::system. I don't know why Boost::filesystem was added - I have removed it.
 target_link_libraries(cootapi PRIVATE ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} Boost::iostreams Boost::system gemmi::gemmi_cpp ${libdwarf} ${libelf})
 
+target_compile_features(cootapi PRIVATE cxx_std_17)
+
 # Charles adds this MSVC CXX compiler test
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   target_compile_options(cootapi PRIVATE
@@ -473,7 +480,13 @@ add_executable(findwaters ${coot_src}/ligand/find-waters.cc)
 
 add_executable(coot-mini-rsr ${coot_src}/ideal/mini-rsr.cc)
 
+add_executable(res-tracer-libcootapi ${coot_src}/ligand/res-tracer.cc)
+
 add_executable(test-molecules-container ${coot_src}/api/test-molecules-container.cc ${coot_src}/api/filo-tests.cc ${coot_src}/api/lucrezia-tests.cc)
+
+target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
+
+target_compile_features(res-tracer-libcootapi PRIVATE cxx_std_17)
 
 target_link_libraries(chapi PUBLIC cootapi  ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} ${libdwarf} ${libelf})
 
@@ -483,11 +496,15 @@ target_include_directories(findwaters PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src})
 
 target_include_directories(coot-mini-rsr PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src} ${PNG_INCLUDE_DIR})
 
+target_include_directories(res-tracer-libcootapi PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src} ${PNG_INCLUDE_DIR})
+
 target_link_libraries(findligand PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Threads::Threads)
 
 target_link_libraries(findwaters PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY})
 
 target_link_libraries(coot-mini-rsr PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Threads::Threads)
+
+target_link_libraries(res-tracer-libcootapi PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Threads::Threads)
 
 target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR}/include ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${PNG_INCLUDE_DIR})
 
