@@ -203,8 +203,7 @@ int main(int argc, char **argv) {
                   try {
                      std::cout << "Read mtz file " << hklin_file_name << " " << f_col_label << " " << phi_col_label << std::endl;
                      bool use_weights = false;
-                     bool is_diff_map = false;
-                     coot::util::map_fill_from_mtz(&xmap, hklin_file_name, f_col_label, phi_col_label, "", use_weights, is_diff_map);
+                     coot::util::map_fill_from_mtz(&xmap, hklin_file_name, f_col_label, phi_col_label, "", use_weights);
                   }
                   catch (clipper::Message_fatal &rte) {
                      std::cout << "ERROR::" << rte.text() << std::endl;
