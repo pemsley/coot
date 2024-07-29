@@ -9,6 +9,9 @@ make an figure, for moorhen intro with blobs that have volume proportional
 
 Chapi torsion angle restraints for servalcat
 
+Get rid of #ifdef WINDOWS_MINGW in map_fill_from_mtz() in coot-utils
+   use std::filesystem?
+
 delete seq-view-interface.c/h
 * Done.
 
