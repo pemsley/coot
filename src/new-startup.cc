@@ -657,7 +657,7 @@ handle_start_scripts() {
    scripts = xdg.get_python_config_scripts();
    for (const auto &script : scripts) {
       std::cout << "Load python config script " << script.c_str() << std::endl;
-      run_python_script(script.c_str());
+      run_python_script(script.string().c_str());
    }
 #ifdef USE_GUILE
    if (graphics_info_t::run_startup_scripts_flag) {
@@ -673,7 +673,7 @@ handle_start_scripts() {
       if (graphics_info_t::run_state_file_status) {
          std::pair<bool, std::filesystem::path> script = xdg.get_python_state_script();
          if (script.first) {
-            run_python_script(script.second.c_str());
+            run_python_script(script.second.string().c_str());
          }
       }
    }
