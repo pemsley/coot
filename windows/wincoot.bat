@@ -42,7 +42,7 @@ set SYMINFO=%COOT_SHARE%\coot\syminfo.lib
 
 set PATH=%COOT_PREFIX%\bin;%COOT_PREFIX%\lib;%PATH%;%COOT_PREFIX%\bin\extras
 
-coot-bin.exe %*
+WinCoot.exe %*
 
 Exit /B %ERRORLEVEL%
 
@@ -74,10 +74,13 @@ for /f "skip=1 tokens=3" %%A in (
 ) do set CCP4DIR=%%~A
 if not exist "%CCP4DIR%" (Exit /B 0)
 
-REM find latest dir
-for /f " tokens=*" %%i in (
-  'dir "%CCP4DIR%\%CCP4_MAJOR%.*" /b /ad-h /t:c /od'
-) do set SETUPFILE=%CCP4DIR%\%%i\ccp4.setup.bat
+set SETUPFILE=%CCP4DIR%\CCP4\ccp4.setup.bat
+if not exist "%SETUPFILE%" (
+  REM find latest dir
+  for /f " tokens=*" %%i in (
+    'dir "%CCP4DIR%\%CCP4_MAJOR%.*" /b /ad-h /t:c /od'
+  ) do set SETUPFILE=%CCP4DIR%\%%i\ccp4.setup.bat
+)
 if not exist "%SETUPFILE%" (Exit /B 0)
 
 REM Finally, setup CCP4
