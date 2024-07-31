@@ -220,17 +220,8 @@ int main(int argc, char **argv) {
 
             int imol = 0;
             watch_res_tracer_data_t tracer_data(working_mol, imol);
-            std::thread t(res_tracer_proc, xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius,
-                          weight, n_phi_psi_trials, with_ncs, &tracer_data);
-            while (true) {
-               unsigned int count_start = update_count;
-               std::this_thread::sleep_for(std::chrono::milliseconds(200));
-               if (update_count > count_start) {
-                  std::cout << "update_count was updated " << update_count << std::endl;
-                  break;
-               }
-            }
-            t.join();
+            res_tracer_proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius,
+                            weight, n_phi_psi_trials, with_ncs, &tracer_data);
 
          } else {
             if (test_from_map)

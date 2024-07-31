@@ -3679,135 +3679,136 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &
    auto merge_and_delete_sequenced_fragments = [get_chains, get_chains_overlap_info, insert_residues_from_other_chains_using_chains]
       (mmdb::Manager *mol, const std::map<std::string, unsigned int> &chain_id_to_fam_index) {
 
-                                                  mmdb::Model *model_p = mol->GetModel(1);
-                                                  if (! model_p) return;
+      mmdb::Model *model_p = mol->GetModel(1);
+      if (! model_p) return;
 
-                                                  // first convert the fam indexing
-                                                  std::map<std::string, unsigned int>::const_iterator it;
-                                                  std::map<unsigned int, std::vector<std::string> > fam_index_to_chain_ids;
-                                                  for (it=chain_id_to_fam_index.begin(); it!=chain_id_to_fam_index.end(); ++it) {
-                                                     const std::string &chain_id = it->first;
-                                                     unsigned int fam_index = it->second;
-                                                     fam_index_to_chain_ids[fam_index].push_back(chain_id);
-                                                  }
+      // first convert the fam indexing
+      std::map<std::string, unsigned int>::const_iterator it;
+      std::map<unsigned int, std::vector<std::string> > fam_index_to_chain_ids;
+      for (it=chain_id_to_fam_index.begin(); it!=chain_id_to_fam_index.end(); ++it) {
+         const std::string &chain_id = it->first;
+         unsigned int fam_index = it->second;
+         fam_index_to_chain_ids[fam_index].push_back(chain_id);
+      }
 
-                                                  // now sort the chain ids in those vectors by length (number of residues)
-                                                  std::map<unsigned int, std::vector<std::string> >::iterator it_seq;
-                                                  for (it_seq=fam_index_to_chain_ids.begin(); it_seq!=fam_index_to_chain_ids.end(); ++it_seq) {
-                                                     std::vector<std::string> &chain_ids = it_seq->second;
-                                                     std::sort(chain_ids.begin(), chain_ids.end(), chain_length_sorter(model_p));
-                                                  }
+      // now sort the chain ids in those vectors by length (number of residues)
+      std::map<unsigned int, std::vector<std::string> >::iterator it_seq;
+      for (it_seq=fam_index_to_chain_ids.begin(); it_seq!=fam_index_to_chain_ids.end(); ++it_seq) {
+         std::vector<std::string> &chain_ids = it_seq->second;
+         std::sort(chain_ids.begin(), chain_ids.end(), chain_length_sorter(model_p));
+      }
 
-                                                  for (it_seq=fam_index_to_chain_ids.begin(); it_seq!=fam_index_to_chain_ids.end(); ++it_seq) {
-                                                     const std::vector<std::string> &chain_ids(it_seq->second);
+      for (it_seq=fam_index_to_chain_ids.begin(); it_seq!=fam_index_to_chain_ids.end(); ++it_seq) {
+         const std::vector<std::string> &chain_ids(it_seq->second);
 
-                                                     // first we want to delete fragments - say there are 2 or more fragments that overlay to
-                                                     // to some large extent - there are 2 cases:
-                                                     // 1: the sequences match
-                                                     // 2: the sequences don't match
-                                                     //
-                                                     //
-                                                     // This is only considering chains that were sequnced from the same sequence.
-                                                     // Models that have multiple sequences will need a different merge/delete algorithm
+         // first we want to delete fragments - say there are 2 or more fragments that overlay to
+         // to some large extent - there are 2 cases:
+         // 1: the sequences match
+         // 2: the sequences don't match
+         //
+         //
+         // This is only considering chains that were sequnced from the same sequence.
+         // Models that have multiple sequences will need a different merge/delete algorithm
 
-                                                     if (chain_ids.size() > 1) {
-                                                        for (const auto &chain_id_1 : chain_ids) {
-                                                           for (const auto &chain_id_2 : chain_ids) {
-                                                              if (chain_id_1 != chain_id_2) {
-                                                                 std::cout << "........................ debug " << chain_id_1 << " " << chain_id_2 << std::endl;
-                                                                 std::pair<mmdb::Chain *, mmdb::Chain *> chain_pair = get_chains(chain_id_1, chain_id_2, mol);
-                                                                 if (chain_pair.first && chain_pair.second) {
-                                                                    float bof = 0.5; // big overlap fraction
-                                                                    chain_overap_info_t coi = get_chains_overlap_info(chain_pair.first, chain_pair.second, mol, bof);
-                                                                    std::cout << "........................ debug " << chain_id_1 << " " << chain_id_2
-                                                                              << " coi status " << coi.status << std::endl;
-                                                                    if (coi.status) {
-                                                                       auto results = coi.get_match_fraction();
-                                                                       if (std::get<0>(results)) {
-                                                                          float frac_1 = std::get<1>(results);
-                                                                          float frac_2 = std::get<2>(results);
-                                                                          if (frac_1 > 0.0) {
-                                                                             if (frac_2 > 0.0) {
-                                                                                if (coi.n_match_res_no_and_res_type > 1) {
-                                                                                   std::cout << "........................ debug " << chain_id_1 << " " << chain_id_2
-                                                                                             << " insert_residues_from_other_chains_using_chains() " << std::endl;
-                                                                                   insert_residues_from_other_chains_using_chains(mol, chain_pair.first, chain_pair.second);
-                                                                                   std::cout << "Delete Chain " << chain_id_2 << std::endl;
-                                                                                   model_p->DeleteChain(chain_id_2.c_str());
-                                                                                   mol->FinishStructEdit();
-                                                                                }
-                                                                             }
-                                                                          }
+         if (chain_ids.size() > 1) {
+            for (const auto &chain_id_1 : chain_ids) {
+               for (const auto &chain_id_2 : chain_ids) {
+                  if (chain_id_1 != chain_id_2) {
+                     std::cout << "........................ debug " << chain_id_1 << " " << chain_id_2 << std::endl;
+                     std::pair<mmdb::Chain *, mmdb::Chain *> chain_pair = get_chains(chain_id_1, chain_id_2, mol);
+                     if (chain_pair.first && chain_pair.second) {
+                        float bof = 0.5; // big overlap fraction
+                        chain_overap_info_t coi = get_chains_overlap_info(chain_pair.first, chain_pair.second, mol, bof);
+                        std::cout << "........................ debug " << chain_id_1 << " " << chain_id_2
+                                  << " coi status " << coi.status << std::endl;
+                        if (coi.status) {
+                           auto results = coi.get_match_fraction();
+                           if (std::get<0>(results)) {
+                              float frac_1 = std::get<1>(results);
+                              float frac_2 = std::get<2>(results);
+                              if (frac_1 > 0.0) {
+                                 if (frac_2 > 0.0) {
+                                    if (coi.n_match_res_no_and_res_type > 1) {
+                                       std::cout << "........................ debug " << chain_id_1 << " " << chain_id_2
+                                                 << " insert_residues_from_other_chains_using_chains() " << std::endl;
+                                       insert_residues_from_other_chains_using_chains(mol, chain_pair.first, chain_pair.second);
+                                       std::cout << "Delete Chain " << chain_id_2 << std::endl;
+                                       model_p->DeleteChain(chain_id_2.c_str());
+                                       mol->FinishStructEdit();
+                                    }
+                                 }
+                              }
 
-                                                                          if (coi.n_match_res_no_and_res_type == 0) {
-                                                                             // OK, they overlapped but not overlapping residue numbers.
-                                                                             // i.e. we have a disagreement about the trace
-                                                                             std::cout << "........................ debug " << chain_id_1 << " " << chain_id_2
-                                                                                       << " overlapping but disagree about directionn - delete chain "
-                                                                                       << chain_id_2 << std::endl;
-                                                                             model_p->DeleteChain(chain_id_2.c_str());
-                                                                          }
-                                                                       }
-                                                                    }
-                                                                 }
-                                                              }
-                                                           }
-                                                        }
-                                                     }
-                                                  }
-                                               };
+                              if (coi.n_match_res_no_and_res_type == 0) {
+                                 // OK, they overlapped but not overlapping residue numbers.
+                                 // i.e. we have a disagreement about the trace
+                                 std::cout << "........................ debug " << chain_id_1 << " " << chain_id_2
+                                           << " overlapping but disagree about directionn - delete chain "
+                                           << chain_id_2 << std::endl;
+                                 model_p->DeleteChain(chain_id_2.c_str());
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   };
 
    auto is_poly_ala_chain = [] (mmdb::Chain *chain_p) {
-                               bool status = true;
-                               int n_res = chain_p->GetNumberOfResidues();
-                               for (int ires=0; ires<n_res; ires++) {
-                                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                                  if (residue_p) {
-                                     std::string res_name(residue_p->GetResName());
-                                     if (res_name != "ALA") {
-                                        status = false;
-                                        break;
-                                     }
-                                  }
-                               }
-                               return status;
-                            };
+
+      bool status = true;
+      int n_res = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<n_res; ires++) {
+         mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+         if (residue_p) {
+            std::string res_name(residue_p->GetResName());
+            if (res_name != "ALA") {
+               status = false;
+               break;
+            }
+         }
+      }
+      return status;
+   };
 
    auto delete_poly_ala_chains_that_overlap_on_sequenced_chains = [is_poly_ala_chain, chains_substantially_overlap] (mmdb::Manager *mol,
                                                                                                                      float big_overlap_fraction_limit) {
 
-                                                                     int imodel = 1;
-                                                                     mmdb::Model *model_p = mol->GetModel(imodel);
-                                                                     if (model_p) {
+      int imodel = 1;
+      mmdb::Model *model_p = mol->GetModel(imodel);
+      if (model_p) {
 
-                                                                        bool continue_looping = false;
-                                                                        do {
-                                                                           continue_looping = false;
-                                                                           int n_chains = model_p->GetNumberOfChains();
-                                                                           for (int ichain=0; ichain<n_chains; ichain++) {
-                                                                              mmdb::Chain *i_chain_p = model_p->GetChain(ichain);
-                                                                              std::string chain_id(i_chain_p->GetChainID());
-                                                                              bool poly_ala = is_poly_ala_chain(i_chain_p);
-                                                                              if (poly_ala) {
-                                                                                 for (int jchain=0; jchain<n_chains; jchain++) {
-                                                                                    if (ichain != jchain) {
-                                                                                       mmdb::Chain *j_chain_p = model_p->GetChain(jchain);
-                                                                                       if (chains_substantially_overlap(i_chain_p, j_chain_p, mol,
-                                                                                                                        big_overlap_fraction_limit)) {
-                                                                                          std::cout << "INFO:: delete poly-ala chain " << chain_id << std::endl;
-                                                                                          model_p->DeleteChain(ichain);
-                                                                                          mol->FinishStructEdit();
-                                                                                          continue_looping = true;
-                                                                                          break;
-                                                                                       }
-                                                                                    }
-                                                                                 }
-                                                                              }
-                                                                              if (continue_looping) break;
-                                                                           }
-                                                                        } while (continue_looping);
-                                                                     }
-                                                                  };
+         bool continue_looping = false;
+         do {
+            continue_looping = false;
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *i_chain_p = model_p->GetChain(ichain);
+               std::string chain_id(i_chain_p->GetChainID());
+               bool poly_ala = is_poly_ala_chain(i_chain_p);
+               if (poly_ala) {
+                  for (int jchain=0; jchain<n_chains; jchain++) {
+                     if (ichain != jchain) {
+                        mmdb::Chain *j_chain_p = model_p->GetChain(jchain);
+                        if (chains_substantially_overlap(i_chain_p, j_chain_p, mol,
+                                                         big_overlap_fraction_limit)) {
+                           std::cout << "INFO:: delete poly-ala chain " << chain_id << std::endl;
+                           model_p->DeleteChain(ichain);
+                           mol->FinishStructEdit();
+                           continue_looping = true;
+                           break;
+                        }
+                     }
+                  }
+               }
+               if (continue_looping) break;
+            }
+         } while (continue_looping);
+      }
+   };
 
 
    auto score_atom_positions = [] (const std::vector<clipper::Coord_orth> &atom_positions,
