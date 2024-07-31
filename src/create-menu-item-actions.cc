@@ -1908,8 +1908,8 @@ void backrub_rotamers_for_chain_action(G_GNUC_UNUSED GSimpleAction *simple_actio
       std::string chain_id = pp.second.second.chain_id;
       short int lang = coot::STATE_PYTHON;
       std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol), coot::command_arg_t(chain_id) };
-      std::string sc = g.state_command("fitting", "backrub_rotamers_for_chain", args, lang);
-      safe_python_command("import fitting");
+      std::string sc = g.state_command("coot_fitting", "backrub_rotamers_for_chain", args, lang);
+      safe_python_command("import coot_fitting");
       safe_python_command(sc);
    }
 }
