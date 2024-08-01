@@ -20,6 +20,9 @@ Fix state file quick save as.
 
 Add Place Helix here to moorhen api
 
+Rangana made findwaters crash by using a sigma of 4 in flood mode in cryo-EM map.
+  Can you reproduce that?
+
 Expanding ligand thumbnail on window width increase
 
 Carbohydrate builder in moorhen & coot
