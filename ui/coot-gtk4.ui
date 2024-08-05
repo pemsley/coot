@@ -544,6 +544,10 @@
               <attribute name="action">app.background_black_action</attribute>
             </item>
             <item>
+              <attribute name="label">Nearly Black</attribute>
+              <attribute name="action">app.background_nearly_black_action</attribute>
+            </item>
+            <item>
               <attribute name="label">Dark Grey</attribute>
               <attribute name="action">app.background_dark_grey_action</attribute>
             </item>

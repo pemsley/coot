@@ -9522,3 +9522,40 @@ void set_show_non_bonded_contact_baddies_markers(int imol, int state) {
       graphics_draw();
    }
 }
+
+
+#ifdef USE_PYTHON
+/* Get model molecule list */
+PyObject *get_model_molecule_list_py() {
+
+   std::vector<int> v;
+   graphics_info_t g;
+   unsigned int n = g.n_molecules();
+   for (unsigned int i=0; i<n; i++) {
+      if (is_valid_model_molecule(i))
+         v.push_back(i);
+   }
+   PyObject *l_py = PyList_New(v.size());
+   for (unsigned int ii=0; ii<v.size(); ii++) {
+      PyList_SetItem(l_py, ii, PyLong_FromLong(v[ii]));
+   }
+   return l_py;
+}
+#endif
+
+#ifdef USE_GUILE
+/* Get model molecule list */
+SCM get_model_molecule_list_scm() {
+
+   std::vector<int> v;
+   graphics_info_t g;
+   unsigned int n = g.n_molecules();
+   for (unsigned int i=0; i<n; i++) {
+      if (is_valid_model_molecule(i))
+         v.push_back(i);
+   }
+   SCM l_scm = SCM_EOL;
+   // 20240802-PE fill me.
+   return l_scm;
+}
+#endif
