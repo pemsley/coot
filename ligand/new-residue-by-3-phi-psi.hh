@@ -151,12 +151,14 @@ namespace coot {
       static float score_fragment_using_peptide_fingerprint(const minimol::fragment &frag,
                                                             const connecting_atoms_t &current_res_pos,
                                                             const clipper::Xmap<float> &xmap,
-                                                            int res_no_base, int i_trial); // pass i_trial for debugging
+                                                            float xmap_rmsd,
+                                                            int res_no_base,
+                                                            const std::string &term_type, int i_trial); // pass i_trial for debugging
 
    public:
       new_residue_by_3_phi_psi(const std::string &terminus_type, mmdb::Residue *residue_p, mmdb::Chain *chain_p_in);
       void add_thread_pool(ctpl::thread_pool  *thread_pool_p, unsigned int n_threads);
-      minimol::fragment best_fit_phi_psi(unsigned int n_trials, const clipper::Xmap<float> &xmap,
+      minimol::fragment best_fit_phi_psi(unsigned int n_trials, const clipper::Xmap<float> &xmap, float xmap_rmsd,
                                          float min_density_level_for_connecting_atom) const;
       void set_downstream_neighbour(mmdb::Residue *r) { downstream_neighbour_residue_p = r; }
       void set_upstream_neighbour(mmdb::Residue *r) { upstream_neighbour_residue_p = r; }

@@ -35,7 +35,8 @@
 // (this might need tricky locking of mol - but maybe not though - because the
 //  chains are being extendended - not deleted here)
 //
-void rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, ctpl::thread_pool  *thread_pool_p, unsigned int n_threads,
+void rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, float xmap_rmsd,
+                               ctpl::thread_pool  *thread_pool_p, unsigned int n_threads,
                                float weight, unsigned int n_phi_psi_trials, const coot::protein_geometry &geom,
                                unsigned int *update_count);
 

@@ -1379,7 +1379,7 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                                 for (unsigned int i=0; i<seeds.size(); i++)
                                    seeds[i].chain_id = index_to_chain_id(i);
 
-                                if (true) {
+                                if (false) {
                                    std::ofstream f("debug-seed-points");
                                    if (f) {
                                       for (unsigned int i=0; i<seeds.size(); i++) {
@@ -2114,7 +2114,7 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
 
    if (cryo_em_peptide_seeds_mode) {
 
-      top_n_fragments = 400;
+      top_n_fragments = 1000;
       unsigned int max_number_of_seeds = top_n_fragments;
       auto seeds = make_peptide_seeds(scored_pairs, max_number_of_seeds);
 
@@ -2437,7 +2437,7 @@ bring_together_consecutive_C_and_N_by_symmetry_transformation(mmdb::Manager *mol
                                                     << " because " << std::sqrt(d_best_sqrd) << " beats " << d << std::endl;
                                           std::set<mmdb::Residue *> fragment_residues;
 
-                                          if (true) {
+                                          if (false) {
                                              for (int i_res_frag=(ires+1); i_res_frag<(nres-1); i_res_frag++) {
                                                 mmdb::Residue *r_this_p = chain_p->GetResidue(i_res_frag);
                                                 std::cout << "chain_p residue sanity check " << coot::residue_spec_t(r_this_p) << std::endl;
@@ -2466,11 +2466,11 @@ bring_together_consecutive_C_and_N_by_symmetry_transformation(mmdb::Manager *mol
                                           std::cout << "bring_together_consecutive_C_and_N_by_symmetry_transformation() fragment_residues size "
                                                     << fragment_residues.size() << std::endl;
 
-                                          if (true) {
+                                          if (false) { // debugging
                                              std::set<mmdb::Residue *>::iterator it;
                                              for (it=fragment_residues.begin(); it!=fragment_residues.end(); ++it) {
                                                 mmdb::Residue *residue_p(*it);
-                                                std::cout << "deubg:: fragment residue " << coot::residue_spec_t(residue_p) << std::endl;
+                                                std::cout << "debug:: fragment residue " << coot::residue_spec_t(residue_p) << std::endl;
                                              }
                                           }
 
@@ -2488,9 +2488,10 @@ bring_together_consecutive_C_and_N_by_symmetry_transformation(mmdb::Manager *mol
                                                    // clipper::Coord_frac cfs(spgr.symop(sym_best.isym) * cpt);
                                                    clipper::Coord_frac cfs(spgr.symop(sym_best.isym) * at_pos_frac + t);
                                                    clipper::Coord_orth p(cfs.coord_orth(cell));
-                                                   std::cout << "Moving " << coot::atom_spec_t(at_res) << " from "
-                                                             << at_res->x << " " << at_res->y << " " << at_res->z << " to "
-                                                             << p.x() << " " << p.y() << " " << p.z() << std::endl;
+                                                   if (false)
+                                                      std::cout << "Moving (symm) " << coot::atom_spec_t(at_res) << " from "
+                                                                << at_res->x << " " << at_res->y << " " << at_res->z << " to "
+                                                                << p.x() << " " << p.y() << " " << p.z() << std::endl;
                                                    at_res->x = p.x(); at_res->y = p.y(); at_res->z = p.z(); 
                                                 }
                                              }
@@ -2801,7 +2802,7 @@ delete_chains_that_are_too_short(mmdb::Manager *mol, int n_res_min) {
 // it was assigned
 //
 std::map<std::string, unsigned int>
-apply_sequence_to_fragments(mmdb::Manager *mol_in, const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam,
+apply_sequence_to_fragments(mmdb::Manager *mol_in, const clipper::Xmap<float> &xmap, float xmap_rmsd, const coot::fasta_multi &fam,
                             const coot::protein_geometry &pg) {
 
    // This needs some clear thinking about what to do when there are 2 sequnces in the fam.
@@ -2811,21 +2812,22 @@ apply_sequence_to_fragments(mmdb::Manager *mol_in, const clipper::Xmap<float> &x
    // it is not assignable - get_result() should provide that information.
 
    auto print_atoms_in_chain = [] (const std::string &tag, mmdb::Chain *chain_p) {
-                                  int n_res = chain_p->GetNumberOfResidues();
-                                  for (int ires=0; ires<n_res; ires++) {
-                                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                                     std::string res_name(residue_p->GetResName());
-                                     if (residue_p) {
-                                        int n_atoms = residue_p->GetNumberOfAtoms();
-                                        for (int iat=0; iat<n_atoms; iat++) {
-                                           mmdb::Atom *at = residue_p->GetAtom(iat);
-                                           if (! at->isTer()) {
-                                              std::cout << tag << " " << "atom: " << coot::atom_spec_t(at) << " " << res_name << std::endl;
-                                           }
-                                        }
-                                     }
-                                  }
-                               };
+
+      int n_res = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<n_res; ires++) {
+         mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+         std::string res_name(residue_p->GetResName());
+         if (residue_p) {
+            int n_atoms = residue_p->GetNumberOfAtoms();
+            for (int iat=0; iat<n_atoms; iat++) {
+               mmdb::Atom *at = residue_p->GetAtom(iat);
+               if (! at->isTer()) {
+                  std::cout << tag << " " << "atom: " << coot::atom_spec_t(at) << " " << res_name << std::endl;
+               }
+            }
+         }
+      }
+   };
 
    std::map<std::string, unsigned int> chain_id_to_fam_index;
 
@@ -2858,7 +2860,8 @@ apply_sequence_to_fragments(mmdb::Manager *mol_in, const clipper::Xmap<float> &x
 
                   scd.fill_residue_blocks(a_run_of_residues.second, xmap); // return fast if already filled, uses atomic locking.
 
-                  std::cout << "debug:: apply_sequence_to_fragments(): a run of residues: " << a_run_of_residues.first << " with "
+                  std::cout << "debug:: apply_sequence_to_fragments(): chain-id: " << chain_id
+                            << " a_run_of_residues: \"" << a_run_of_residues.first << "\" with "
                             << a_run_of_residues.second.size() << " residues" << std::endl;
                   if (a_run_of_residues.first.empty()) {
                      scd.test_sequence(a_run_of_residues.second, xmap, name, sequence);
@@ -2936,14 +2939,15 @@ apply_sequence_to_fragments(mmdb::Manager *mol_in, const clipper::Xmap<float> &x
 // working_mol is so that the graphics can show were we are in the building. Change count_p when working_mol gets updated.
 // (but don't do that if count_p is null).
 //
-void res_tracer_proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double variation,
+void res_tracer_proc(const clipper::Xmap<float> &xmap, float xmap_rmsd, const coot::fasta_multi &fam, double variation,
                      unsigned int n_top_spin_pairs, unsigned int n_top_fragments,
                      float rmsd_cut_off_for_flood, float flood_atom_mask_radius, float weight, unsigned int n_phi_psi_trials,
                      bool with_ncs, watch_res_tracer_data_t *watch_res_tracer_data_p) {
 
    auto get_mol_edit_lock = [watch_res_tracer_data_p] (const std::string &locker) mutable {
                                std::cout << "debug:: locker: " << locker
-                                         << " trying to get the lock with mol_edit_lock: " << watch_res_tracer_data_p->mol_edit_lock << std::endl;
+                                         << " trying to get the lock with mol_edit_lock: "
+                                         << watch_res_tracer_data_p->mol_edit_lock << std::endl;
                                bool unlocked = false;
                                while (! watch_res_tracer_data_p->mol_edit_lock.compare_exchange_weak(unlocked, true)) {
                                   std::this_thread::sleep_for(std::chrono::microseconds(100));
@@ -3490,9 +3494,14 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &
                                             };
 
    auto merge_and_delete_sequenced_fragments_into_single_chain = [get_chains, is_simply_insertable_fragment, simply_insert_chain, insert_residues_from_other_chains,
-                                               &xmap, &fam] (mmdb::Manager *mol,
-                                                             const std::map<std::string, unsigned int> &chain_id_to_fam_index) {
+                                                                  &xmap, &fam] (mmdb::Manager *mol,
+                                                                                const std::map<std::string, unsigned int> &chain_id_to_fam_index) {
                                                  // non-trivial function
+
+      std::cout << "========================================== merge_and_delete_sequenced_fragments_into_single_chain()" << std::endl;
+      std::cout << "========================================== merge_and_delete_sequenced_fragments_into_single_chain()" << std::endl;
+      std::cout << "========================================== merge_and_delete_sequenced_fragments_into_single_chain()" << std::endl;
+      std::cout << "========================================== merge_and_delete_sequenced_fragments_into_single_chain()" << std::endl;
 
                                                  mmdb::Model *model_p = mol->GetModel(1);
                                                  if (! model_p) return;
@@ -3900,7 +3909,7 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &
 
    coot::protein_geometry geom;
    geom.init_standard();
-   bool cryo_em_peptide_seeds_mode = false;
+   bool cryo_em_peptide_seeds_mode = false; // 20240803-PE I don't know what this does now!
 
    coot::minimol::molecule flood_molecule = get_flood_molecule(xmap, rmsd_cut_off_for_flood, flood_atom_mask_radius);
 
@@ -3958,8 +3967,8 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &
 #endif
          auto tp_1 = std::chrono::high_resolution_clock::now();
          auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-         std::cout << "Timings: proc(): for the initial RSR of the " << n_chains_post_find_connected_fragments << " chains:          "
-                   << d10 << " milliseconds" << std::endl;
+         std::cout << "Timings: proc(): for the initial RSR of the " << n_chains_post_find_connected_fragments
+                   << " chains:          " << d10 << " milliseconds" << std::endl;
          update_working_mol(watch_res_tracer_data_p, mol, "update-2");
 
          mol->WritePDBASCII("stage-4-post-refine-of-connected-fragments.pdb");
@@ -3990,15 +3999,17 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &
             // cluster_filter_peptide_seeds(mol, map); cluster on the sum of the distances between the CA positions?
             // I want to see that histogram!
 
-            rama_rsr_extend_fragments(mol, xmap, &thread_pool, n_threads, weight, n_phi_psi_trials, geom, &update_count);
+            std::cout << "rama_rsr_extend_fragments() ------------- cryo-em peptide seeds mode" << std::endl;
+            rama_rsr_extend_fragments(mol, xmap, xmap_rmsd, &thread_pool, n_threads, weight, n_phi_psi_trials, geom, &update_count);
             write_chains("post-extensions", mol);
             mol->WritePDBASCII("c-stage-5-post-extensions.pdb");
+
             int n_res_min = 3;
             delete_chains_that_are_too_short(mol, n_res_min);
             mol->WritePDBASCII("c-stage-5b-post-delete-short-fragments.pdb");
             coot::merge_C_and_N_terminii_0_gap(mol);
             mol->WritePDBASCII("c-stage-6-post-merge-C_and_N_terminii.pdb");
-            std::map<std::string, unsigned int> chain_id_to_fam_index_map = apply_sequence_to_fragments(mol, xmap, fam, geom);
+            std::map<std::string, unsigned int> chain_id_to_fam_index_map = apply_sequence_to_fragments(mol, xmap, xmap_rmsd, fam, geom);
             mol->WritePDBASCII("c-stage-7-post-sequence-fragments.pdb");
             float big_overlap_fraction_limit_for_poly_ala = 0.2;
             delete_poly_ala_chains_that_overlap_on_sequenced_chains(mol, big_overlap_fraction_limit_for_poly_ala);
@@ -4071,7 +4082,8 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &
             }
 
             auto tp_3 = std::chrono::high_resolution_clock::now();
-            rama_rsr_extend_fragments(mol, xmap, &thread_pool, n_threads, weight, n_phi_psi_trials, geom, &update_count);
+            std::cout << "rama_rsr_extend_fragments() " << std::endl;
+            rama_rsr_extend_fragments(mol, xmap, xmap_rmsd, &thread_pool, n_threads, weight, n_phi_psi_trials, geom, &update_count);
             auto tp_4 = std::chrono::high_resolution_clock::now();
 
             update_working_mol(watch_res_tracer_data_p, mol, "update-7");
@@ -4083,7 +4095,7 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &
             auto tp_5 = std::chrono::high_resolution_clock::now();
             mol->WritePDBASCII("stage-9-post-extensions.pdb");
 
-            coot::merge_C_and_N_terminii_0_gap(mol);
+            coot::merge_C_and_N_terminii_0_gap(mol, xmap);
 
             mol->WritePDBASCII("stage-10-post-merge-C_and_N_terminii.pdb");
 
@@ -4094,7 +4106,7 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &
             //
             // first I want a sorted list of mergeable chains (sort by distance of terminii)
 
-            std::map<std::string, unsigned int> chain_id_to_fam_index_map = apply_sequence_to_fragments(mol, xmap, fam, geom);
+            std::map<std::string, unsigned int> chain_id_to_fam_index_map = apply_sequence_to_fragments(mol, xmap, xmap_rmsd, fam, geom);
 
             update_working_mol(watch_res_tracer_data_p, mol, "update-8");
 
@@ -4117,8 +4129,8 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &
 
             update_working_mol(watch_res_tracer_data_p, mol, "update-9");
 
-            mol->WritePDBASCII("stage-12-post-delete-overlapping-poly-ala.pdb");
-            mol->WriteCIFASCII("stage-12-post-delete-overlapping-poly-ala.cif");
+            mol->WritePDBASCII("stage-12-post-delete-overlapping-fragments.pdb");
+            mol->WriteCIFASCII("stage-12-post-delete-overlapping-fragments.cif");
 
             if (true) {
                int n_chains = model_p->GetNumberOfChains();

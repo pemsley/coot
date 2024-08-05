@@ -68,7 +68,9 @@ test_best_fit_phi_psi_func() {
             coot::protein_geometry geom;
             geom.init_standard();
             unsigned int update_count = 0;
-            rama_rsr_extend_fragments(mol_for_residue.second, xmap, &thread_pool, n_threads, weight, n_phi_psi_trials, geom, &update_count);
+            std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
+            float xmap_rmsd = std::sqrt(mv.second);
+            rama_rsr_extend_fragments(mol_for_residue.second, xmap, xmap_rmsd, &thread_pool, n_threads, weight, n_phi_psi_trials, geom, &update_count);
             mol_for_residue.second->WritePDBASCII("test_best_fit_phi_psi_result.pdb");
          } else {
             std::cout << "No mol_for_residue" << std::endl;
@@ -113,9 +115,9 @@ int main(int argc, char **argv) {
       pir_file_name = "1gwd.pir";
    }
 
-   if (false) {
-      map_file_name = "../src/emd_11210.map";
-      pir_file_name = "../src/6zgl.fasta";
+   if (false) { // DPS map
+      map_file_name = "emd_11210.map";
+      pir_file_name = "6zgl.fasta";
    }
 
    if (argc > 1)
@@ -150,7 +152,7 @@ int main(int argc, char **argv) {
 
       float flood_atom_mask_radius = 1.0; // was 0.6 for emdb
 
-      unsigned int n_phi_psi_trials = 40000; // was 5000
+      unsigned int n_phi_psi_trials = 40000; // was 5000 // was 40000 // 40000 seems good for production
 
       float weight = 8.0f; // calculate this (using rmsd)
 
@@ -217,10 +219,12 @@ int main(int argc, char **argv) {
             unsigned int update_count = 0;
 
             float rmsd_cuffoff = 2.3;
+            std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
+            float xmap_rmsd = std::sqrt(mv.second);
 
             int imol = 0;
             watch_res_tracer_data_t tracer_data(working_mol, imol);
-            res_tracer_proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius,
+            res_tracer_proc(xmap, xmap_rmsd, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius,
                             weight, n_phi_psi_trials, with_ncs, &tracer_data);
 
          } else {
@@ -244,7 +248,9 @@ int main(int argc, char **argv) {
                unsigned int update_count = 0;
                int imol = 0;
                watch_res_tracer_data_t tracer_data(working_mol, imol);
-               res_tracer_proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, 4.5, flood_atom_mask_radius, weight, n_phi_psi_trials,
+               std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
+               float xmap_rmsd = std::sqrt(mv.second);
+               res_tracer_proc(xmap, xmap_rmsd, fam, variation, n_top_spin_pairs, n_top_fragments, 4.5, flood_atom_mask_radius, weight, n_phi_psi_trials,
                                with_ncs, &tracer_data); // working_mol, &update_count
             } else {
                std::cout << "No such file " << map_file_name << std::endl;
